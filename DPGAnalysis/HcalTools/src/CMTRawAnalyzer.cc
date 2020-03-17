@@ -37,30 +37,30 @@ CMTRawAnalyzer::CMTRawAnalyzer(const edm::ParameterSet& iConfig) {
   useADCcounts_ = iConfig.getUntrackedParameter<bool>("useADCcounts");
   usePedestalSubtraction_ = iConfig.getUntrackedParameter<bool>("usePedestalSubtraction");
   usecontinuousnumbering_ = iConfig.getUntrackedParameter<bool>("usecontinuousnumbering");
-  flagLaserRaddam_ = iConfig.getParameter<int>("flagLaserRaddam");                                          //
-  flagIterativeMethodCalibrationGroupDigi_ = iConfig.getParameter<int>("flagIterativeMethodCalibrationGroupDigi");//
-  flagIterativeMethodCalibrationGroupReco_ = iConfig.getParameter<int>("flagIterativeMethodCalibrationGroupReco");//
-  flagfitshunt1pedorledlowintensity_ = iConfig.getParameter<int>("flagfitshunt1pedorledlowintensity");      //
-  flagabortgaprejected_ = iConfig.getParameter<int>("flagabortgaprejected");                                //
-  bcnrejectedlow_ = iConfig.getParameter<int>("bcnrejectedlow");                                            //
-  bcnrejectedhigh_ = iConfig.getParameter<int>("bcnrejectedhigh");                                          //
-  ratioHBMin_ = iConfig.getParameter<double>("ratioHBMin");                                                 //
-  ratioHBMax_ = iConfig.getParameter<double>("ratioHBMax");                                                 //
-  ratioHEMin_ = iConfig.getParameter<double>("ratioHEMin");                                                 //
-  ratioHEMax_ = iConfig.getParameter<double>("ratioHEMax");                                                 //
-  ratioHFMin_ = iConfig.getParameter<double>("ratioHFMin");                                                 //
-  ratioHFMax_ = iConfig.getParameter<double>("ratioHFMax");                                                 //
-  ratioHOMin_ = iConfig.getParameter<double>("ratioHOMin");                                                 //
-  ratioHOMax_ = iConfig.getParameter<double>("ratioHOMax");                                                 //
-  flagtodefinebadchannel_ = iConfig.getParameter<int>("flagtodefinebadchannel");                            //
-  howmanybinsonplots_ = iConfig.getParameter<int>("howmanybinsonplots");                                    //
-  splashesUpperLimit_ = iConfig.getParameter<int>("splashesUpperLimit");                                    //
-  flagtoaskrunsorls_ = iConfig.getParameter<int>("flagtoaskrunsorls");                                      //
-  flagestimatornormalization_ = iConfig.getParameter<int>("flagestimatornormalization");                    //
-  flagcpuoptimization_ = iConfig.getParameter<int>("flagcpuoptimization");                                  //
-  flagupgradeqie1011_ = iConfig.getParameter<int>("flagupgradeqie1011");                                    //
-  flagsipmcorrection_ = iConfig.getParameter<int>("flagsipmcorrection");                                    //
-  flaguseshunt_ = iConfig.getParameter<int>("flaguseshunt");                                                //
+  flagLaserRaddam_ = iConfig.getParameter<int>("flagLaserRaddam");                                                  //
+  flagIterativeMethodCalibrationGroupDigi_ = iConfig.getParameter<int>("flagIterativeMethodCalibrationGroupDigi");  //
+  flagIterativeMethodCalibrationGroupReco_ = iConfig.getParameter<int>("flagIterativeMethodCalibrationGroupReco");  //
+  flagfitshunt1pedorledlowintensity_ = iConfig.getParameter<int>("flagfitshunt1pedorledlowintensity");              //
+  flagabortgaprejected_ = iConfig.getParameter<int>("flagabortgaprejected");                                        //
+  bcnrejectedlow_ = iConfig.getParameter<int>("bcnrejectedlow");                                                    //
+  bcnrejectedhigh_ = iConfig.getParameter<int>("bcnrejectedhigh");                                                  //
+  ratioHBMin_ = iConfig.getParameter<double>("ratioHBMin");                                                         //
+  ratioHBMax_ = iConfig.getParameter<double>("ratioHBMax");                                                         //
+  ratioHEMin_ = iConfig.getParameter<double>("ratioHEMin");                                                         //
+  ratioHEMax_ = iConfig.getParameter<double>("ratioHEMax");                                                         //
+  ratioHFMin_ = iConfig.getParameter<double>("ratioHFMin");                                                         //
+  ratioHFMax_ = iConfig.getParameter<double>("ratioHFMax");                                                         //
+  ratioHOMin_ = iConfig.getParameter<double>("ratioHOMin");                                                         //
+  ratioHOMax_ = iConfig.getParameter<double>("ratioHOMax");                                                         //
+  flagtodefinebadchannel_ = iConfig.getParameter<int>("flagtodefinebadchannel");                                    //
+  howmanybinsonplots_ = iConfig.getParameter<int>("howmanybinsonplots");                                            //
+  splashesUpperLimit_ = iConfig.getParameter<int>("splashesUpperLimit");                                            //
+  flagtoaskrunsorls_ = iConfig.getParameter<int>("flagtoaskrunsorls");                                              //
+  flagestimatornormalization_ = iConfig.getParameter<int>("flagestimatornormalization");                            //
+  flagcpuoptimization_ = iConfig.getParameter<int>("flagcpuoptimization");                                          //
+  flagupgradeqie1011_ = iConfig.getParameter<int>("flagupgradeqie1011");                                            //
+  flagsipmcorrection_ = iConfig.getParameter<int>("flagsipmcorrection");                                            //
+  flaguseshunt_ = iConfig.getParameter<int>("flaguseshunt");                                                        //
   lsdep_cut1_peak_HBdepth1_ = iConfig.getParameter<int>("lsdep_cut1_peak_HBdepth1");
   lsdep_cut1_peak_HBdepth2_ = iConfig.getParameter<int>("lsdep_cut1_peak_HBdepth2");
   lsdep_cut1_peak_HEdepth1_ = iConfig.getParameter<int>("lsdep_cut1_peak_HEdepth1");
@@ -1752,20 +1752,20 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       for (int k1 = 0; k1 < ndepth; k1++) {
         for (int k2 = 0; k2 < neta; k2++) {
           for (int k3 = 0; k3 < nphi; k3++) {
-	  amplitudechannel0[k0][k1][k2][k3] = 0. ;
-	  amplitudechannel[k0][k1][k2][k3] = 0. ;
-	  amplitudechannel2[k0][k1][k2][k3] = 0. ;
+            amplitudechannel0[k0][k1][k2][k3] = 0.;
+            amplitudechannel[k0][k1][k2][k3] = 0.;
+            amplitudechannel2[k0][k1][k2][k3] = 0.;
 
-	  tocamplchannel[k0][k1][k2][k3] = 0. ;
-	  maprphinorm[k0][k1][k2][k3] = 0. ;
-  // phi-symmetry monitoring for calibration group:
-  // rec energy:
-	  recSignalEnergy0[k0][k1][k2][k3] = 0. ;
-	  recSignalEnergy1[k0][k1][k2][k3] = 0. ;
-	  recSignalEnergy2[k0][k1][k2][k3] = 0. ;
-	  recNoiseEnergy0[k0][k1][k2][k3] = 0. ;
-	  recNoiseEnergy1[k0][k1][k2][k3] = 0. ;
-	  recNoiseEnergy2[k0][k1][k2][k3] = 0. ;
+            tocamplchannel[k0][k1][k2][k3] = 0.;
+            maprphinorm[k0][k1][k2][k3] = 0.;
+            // phi-symmetry monitoring for calibration group:
+            // rec energy:
+            recSignalEnergy0[k0][k1][k2][k3] = 0.;
+            recSignalEnergy1[k0][k1][k2][k3] = 0.;
+            recSignalEnergy2[k0][k1][k2][k3] = 0.;
+            recNoiseEnergy0[k0][k1][k2][k3] = 0.;
+            recNoiseEnergy1[k0][k1][k2][k3] = 0.;
+            recNoiseEnergy2[k0][k1][k2][k3] = 0.;
 
           }  //k3
         }    //k2
@@ -2192,510 +2192,644 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       h_totalAmplitudeHOperEvent->Fill(float(eventcounter), totalAmplitudeHO);
     }  //ho.isValid(
 
+    //////////////////////////////////// RecHits for phi-symmetry monitoring of calibration group:
+    // AZ 04.11.2019
+    //////////////////////////////////////////////////////
+    if (flagIterativeMethodCalibrationGroupReco_ > 0) {
+      //////////////////////////////////////////////////////////////////////////////////////////////////////  Noise
+      //////////////////////////////////////////////////////////////////////////////////////////////////////  Noise
+      //////////////////////////////////////////////////////////////////////////////////////////////////////  Noise
+      // HBHE:    HBHERecHitCollection hbheNoise Noise
+      edm::Handle<HBHERecHitCollection> hbheNoise;
+      iEvent.getByToken(tok_hbheNoise_, hbheNoise);
+      //  if(!hbheNoise.isValid()){edm::LogWarning("AnalyzerMB") << "VeRawAnalyzer: Error! can't get hbhe" << " product! No HBHE MS "; return ; }
+      //  const HBHERecHitCollection HithbheNoise = *(hbheNoise.product());
+      //  edm::LogInfo("AnalyzerMB")<<" HBHE Noise size of collection "<<HithbheNoise.size();
+      //  h_HBHERecHitssize->Fill((float)HithbheNoise.size());
+      //  if(HithbheNoise.size()!= 5184){edm::LogWarning("AnalyzerMB")<<" HBHE problem "<<rnnum<<" "<<HithbheNoise.size();//return;
+      //  }
+      bool gotHBHERecHitsNoise = true;
+      if (!(iEvent.getByToken(tok_hbheNoise_, hbheNoise)))
+        gotHBHERecHitsNoise =
+            false;  //this is a boolean set up to check if there are HBHERecHitsNoise in input root file
+      if (!(hbheNoise.isValid()))
+        gotHBHERecHitsNoise = false;  //if it is not there, leave it false
+      if (!gotHBHERecHitsNoise) {
+        //  if(!hbheNoise.isValid()) {
+        std::cout << " No RecHits HBHENoise collection is found " << endl;
+      } else {
+        for (HBHERecHitCollection::const_iterator hbheItr = hbheNoise->begin(); hbheItr != hbheNoise->end();
+             hbheItr++) {
+          // Recalibration of energy
+          float icalconst = 1.;
+          //      DetId mydetid = hbheItr->id().rawId();
+          //      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
+          HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+          double energyhit = aHit.energy();
+          DetId id = (*hbheItr).detid();
+          HcalDetId hid = HcalDetId(id);
+          int sub = ((hid).rawId() >> 25) & 0x7;
 
-  //////////////////////////////////// RecHits for phi-symmetry monitoring of calibration group:
-  // AZ 04.11.2019
-  //////////////////////////////////////////////////////  
-  if(flagIterativeMethodCalibrationGroupReco_  >  0 ) {
-  //////////////////////////////////////////////////////////////////////////////////////////////////////  Noise 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////  Noise 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////  Noise 
-  // HBHE:    HBHERecHitCollection hbheNoise Noise
-    edm::Handle<HBHERecHitCollection> hbheNoise;
-    iEvent.getByToken(tok_hbheNoise_, hbheNoise);
-    //  if(!hbheNoise.isValid()){edm::LogWarning("AnalyzerMB") << "VeRawAnalyzer: Error! can't get hbhe" << " product! No HBHE MS "; return ; }
-    //  const HBHERecHitCollection HithbheNoise = *(hbheNoise.product());
-    //  edm::LogInfo("AnalyzerMB")<<" HBHE Noise size of collection "<<HithbheNoise.size();
-    //  h_HBHERecHitssize->Fill((float)HithbheNoise.size());
-    //  if(HithbheNoise.size()!= 5184){edm::LogWarning("AnalyzerMB")<<" HBHE problem "<<rnnum<<" "<<HithbheNoise.size();//return;
-    //  }
-    bool gotHBHERecHitsNoise=true;
-    if (!(iEvent.getByToken(tok_hbheNoise_,hbheNoise))) gotHBHERecHitsNoise=false; //this is a boolean set up to check if there are HBHERecHitsNoise in input root file
-    if (!(hbheNoise.isValid())) gotHBHERecHitsNoise=false; //if it is not there, leave it false
-    if(!gotHBHERecHitsNoise) {
-      //  if(!hbheNoise.isValid()) {
-      std::cout<<" No RecHits HBHENoise collection is found "<<endl;
-    } else {
-      for(HBHERecHitCollection::const_iterator hbheItr=hbheNoise->begin();hbheItr!=hbheNoise->end();hbheItr++){
-	// Recalibration of energy
-	float icalconst=1.;	 
-	//      DetId mydetid = hbheItr->id().rawId();
-	//      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-	HBHERecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
-	double energyhit = aHit.energy();
-	DetId id = (*hbheItr).detid(); 
-	HcalDetId hid=HcalDetId(id);
-	int sub = ((hid).rawId()>>25)&0x7;
+          if (sub == 1)
+            h_energyhitNoise_HB->Fill(energyhit, 1.);
+          if (sub == 2)
+            h_energyhitNoise_HE->Fill(energyhit, 1.);
+          //	if(fabs(energyhit) > 40. ) continue;
 
-	if(sub==1) h_energyhitNoise_HB->Fill(energyhit,1.);
-	if(sub==2) h_energyhitNoise_HE->Fill(energyhit,1.);
-	//	if(fabs(energyhit) > 40. ) continue;
+          //std::cout<<sub<<std::endl;
+          if (hid.depth() == 1 && sub == 1 && hid.iphi() == 25) {
+            if (verbosity == -9063)
+              std::cout << " Noise,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
+                        << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
+          }
+          if (hid.depth() == 1 && sub == 2 && hid.iphi() == 25) {
+            if (verbosity == -9063)
+              std::cout << " Noise,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
+                        << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
+          }
+          int ieta = hid.ieta();  // -15 ... -1; 1... 15 for HB
+          if (ieta > 0)
+            ieta -= 1;  // -15 ... -1; 0... 14 for HB
+          int iphi = hid.iphi() - 1;
+          int mdepth = hid.depth();
+          recNoiseEnergy0[sub - 1][mdepth - 1][ieta + 41][iphi] += 1.;
+          recNoiseEnergy1[sub - 1][mdepth - 1][ieta + 41][iphi] += energyhit;
+          recNoiseEnergy2[sub - 1][mdepth - 1][ieta + 41][iphi] += pow(energyhit, 2);
+        }  // hbheNoise
+      }    //hbheNoise.isValid(
+      ////////////////////////////////////////////////////// /  HBHE Noise end
 
-	//std::cout<<sub<<std::endl;
-	if(hid.depth()==1 && sub==1 && hid.iphi()==25) {
-	  if (verbosity == -9063) std::cout<<" Noise,sub = " << sub  <<" mdepth = " << hid.depth()  <<"  ieta= " << hid.ieta()  <<"  iphi= " << hid.iphi()  <<"  energyhit= " << energyhit  <<std::endl;
-	}
-	if(hid.depth()==1 && sub==2 && hid.iphi()==25) {
-	  if (verbosity == -9063) std::cout<<" Noise,sub = " << sub  <<" mdepth = " << hid.depth()  <<"  ieta= " << hid.ieta()  <<"  iphi= " << hid.iphi()  <<"  energyhit= " << energyhit  <<std::endl;
-	}
-	int ieta = hid.ieta();// -15 ... -1; 1... 15 for HB
-	if(ieta > 0) ieta -= 1;// -15 ... -1; 0... 14 for HB
-	int iphi = hid.iphi() - 1 ;
-	int mdepth = hid.depth();
-	recNoiseEnergy0[sub-1][mdepth-1][ieta+41][iphi] += 1.;
-	recNoiseEnergy1[sub-1][mdepth-1][ieta+41][iphi] += energyhit;
-	recNoiseEnergy2[sub-1][mdepth-1][ieta+41][iphi] += pow(energyhit,2);      
-      } // hbheNoise
-    }//hbheNoise.isValid(
-    ////////////////////////////////////////////////////// /  HBHE Noise end 
+      // HF:    HFRecHitCollection hfNoise Noise
+      edm::Handle<HFRecHitCollection> hfNoise;
+      iEvent.getByToken(tok_hfNoise_, hfNoise);
+      //  if(!hfNoise.isValid()){edm::LogWarning("AnalyzerMB") << "VeRawAnalyzer: Error! can't get hf" << " product! No HF MS "; return ; }
+      //  const HFRecHitCollection HithfNoise = *(hfNoise.product());
+      //  edm::LogInfo("AnalyzerMB")<<" HF Noise size of collection "<<HithfNoise.size();
+      //  h_HFRecHitssize->Fill((float)HithfNoise.size());
+      //  if(HithfNoise.size()!= 5184){edm::LogWarning("AnalyzerMB")<<" HF problem "<<rnnum<<" "<<HithfNoise.size();//return;
+      //  }
+      bool gotHFRecHitsNoise = true;
+      if (!(iEvent.getByToken(tok_hfNoise_, hfNoise)))
+        gotHFRecHitsNoise = false;  //this is a boolean set up to check if there are HFRecHitsNoise in input root file
+      if (!(hfNoise.isValid()))
+        gotHFRecHitsNoise = false;  //if it is not there, leave it false
+      if (!gotHFRecHitsNoise) {
+        //  if(!hfNoise.isValid()) {
+        std::cout << " No RecHits HFNoise collection is found " << endl;
+      } else {
+        for (HFRecHitCollection::const_iterator hfItr = hfNoise->begin(); hfItr != hfNoise->end(); hfItr++) {
+          // Recalibration of energy
+          float icalconst = 1.;
+          //      DetId mydetid = hfItr->id().rawId();
+          //      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
+          HFRecHit aHit(hfItr->id(), hfItr->energy() * icalconst, hfItr->time());
+          double energyhit = aHit.energy();
+          DetId id = (*hfItr).detid();
+          HcalDetId hid = HcalDetId(id);
+          int sub = ((hid).rawId() >> 25) & 0x7;
 
-  // HF:    HFRecHitCollection hfNoise Noise
-    edm::Handle<HFRecHitCollection> hfNoise;
-    iEvent.getByToken(tok_hfNoise_, hfNoise);
-    //  if(!hfNoise.isValid()){edm::LogWarning("AnalyzerMB") << "VeRawAnalyzer: Error! can't get hf" << " product! No HF MS "; return ; }
-    //  const HFRecHitCollection HithfNoise = *(hfNoise.product());
-    //  edm::LogInfo("AnalyzerMB")<<" HF Noise size of collection "<<HithfNoise.size();
-    //  h_HFRecHitssize->Fill((float)HithfNoise.size());
-    //  if(HithfNoise.size()!= 5184){edm::LogWarning("AnalyzerMB")<<" HF problem "<<rnnum<<" "<<HithfNoise.size();//return;
-    //  }
-    bool gotHFRecHitsNoise=true;
-    if (!(iEvent.getByToken(tok_hfNoise_,hfNoise))) gotHFRecHitsNoise=false; //this is a boolean set up to check if there are HFRecHitsNoise in input root file
-    if (!(hfNoise.isValid())) gotHFRecHitsNoise=false; //if it is not there, leave it false
-    if(!gotHFRecHitsNoise) {
-      //  if(!hfNoise.isValid()) {
-      std::cout<<" No RecHits HFNoise collection is found "<<endl;
-    } else {
-      for(HFRecHitCollection::const_iterator hfItr=hfNoise->begin();hfItr!=hfNoise->end();hfItr++){
-	// Recalibration of energy
-	float icalconst=1.;	 
-	//      DetId mydetid = hfItr->id().rawId();
-	//      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-	HFRecHit aHit(hfItr->id(),hfItr->energy()*icalconst,hfItr->time());
-	double energyhit = aHit.energy();
-	DetId id = (*hfItr).detid(); 
-	HcalDetId hid=HcalDetId(id);
-	int sub = ((hid).rawId()>>25)&0x7;
+          h_energyhitNoise_HF->Fill(energyhit, 1.);
+          //	if(fabs(energyhit) > 40. ) continue;
 
-	h_energyhitNoise_HF->Fill(energyhit,1.);
-	//	if(fabs(energyhit) > 40. ) continue;
+          //std::cout<<sub<<std::endl;
+          if (hid.iphi() == 25) {
+            if (verbosity == -9065)
+              std::cout << "HF Noise,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
+                        << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
+          }
+          int ieta = hid.ieta();  // -15 ... -1; 1... 15 for HB
+          if (ieta > 0)
+            ieta -= 1;  // -15 ... -1; 0... 14 for HB
+          int iphi = hid.iphi() - 1;
+          int mdepth = hid.depth();
+          recNoiseEnergy0[sub - 1][mdepth - 1][ieta + 41][iphi] += 1.;
+          recNoiseEnergy1[sub - 1][mdepth - 1][ieta + 41][iphi] += energyhit;
+          recNoiseEnergy2[sub - 1][mdepth - 1][ieta + 41][iphi] += pow(energyhit, 2);
+        }  // hfNoise
+      }    //hfNoise.isValid(
+      ////////////////////////////////////////////////////// /  HF Noise end
 
-	//std::cout<<sub<<std::endl;
-	if(hid.iphi()==25) {
-	  if (verbosity == -9065) std::cout<<"HF Noise,sub = " << sub  <<" mdepth = " << hid.depth()  <<"  ieta= " << hid.ieta()  <<"  iphi= " << hid.iphi()  <<"  energyhit= " << energyhit  <<std::endl;
-	}
-	int ieta = hid.ieta();// -15 ... -1; 1... 15 for HB
-	if(ieta > 0) ieta -= 1;// -15 ... -1; 0... 14 for HB
-	int iphi = hid.iphi() - 1 ;
-	int mdepth = hid.depth();
-	recNoiseEnergy0[sub-1][mdepth-1][ieta+41][iphi] += 1.;
-	recNoiseEnergy1[sub-1][mdepth-1][ieta+41][iphi] += energyhit;
-	recNoiseEnergy2[sub-1][mdepth-1][ieta+41][iphi] += pow(energyhit,2);      
-      } // hfNoise
-    }//hfNoise.isValid(
-    ////////////////////////////////////////////////////// /  HF Noise end 
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////// Signal
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////// Signal
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////// Signal
+      // HBHE:    HBHERecHitCollection hbheSignal Signal
+      edm::Handle<HBHERecHitCollection> hbheSignal;
+      iEvent.getByToken(tok_hbheSignal_, hbheSignal);
+      //  if(!hbheSignal.isValid()){edm::LogWarning("AnalyzerMB") << "VeRawAnalyzer: Error! can't get hbhe" << " product! No HBHE MS "; return ; }
+      //  const HBHERecHitCollection HithbheSignal = *(hbheSignal.product());
+      //  edm::LogInfo("AnalyzerMB")<<" HBHE Signal size of collection "<<HithbheSignal.size();
+      //  h_HBHERecHitssize->Fill((float)HithbheSignal.size());
+      //  if(HithbheSignal.size()!= 5184){edm::LogWarning("AnalyzerMB")<<" HBHE problem "<<rnnum<<" "<<HithbheSignal.size();//return;
+      //  }
+      bool gotHBHERecHitsSignal = true;
+      if (!(iEvent.getByToken(tok_hbheSignal_, hbheSignal)))
+        gotHBHERecHitsSignal =
+            false;  //this is a boolean set up to check if there are HBHERecHitsSignal in input root file
+      if (!(hbheSignal.isValid()))
+        gotHBHERecHitsSignal = false;  //if it is not there, leave it false
+      if (!gotHBHERecHitsSignal) {
+        //  if(!hbheSignal.isValid()) {
+        std::cout << " No RecHits HBHESignal collection is found " << endl;
+      } else {
+        for (HBHERecHitCollection::const_iterator hbheItr = hbheSignal->begin(); hbheItr != hbheSignal->end();
+             hbheItr++) {
+          // Recalibration of energy
+          float icalconst = 1.;
+          //      DetId mydetid = hbheItr->id().rawId();
+          //      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
+          HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
+          double energyhit = aHit.energy();
+          DetId id = (*hbheItr).detid();
+          HcalDetId hid = HcalDetId(id);
+          int sub = ((hid).rawId() >> 25) & 0x7;
 
+          if (sub == 1)
+            h_energyhitSignal_HB->Fill(energyhit, 1.);
+          if (sub == 2)
+            h_energyhitSignal_HE->Fill(energyhit, 1.);
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////// Signal  
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////// Signal  
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////// Signal  
-  // HBHE:    HBHERecHitCollection hbheSignal Signal
-    edm::Handle<HBHERecHitCollection> hbheSignal;
-    iEvent.getByToken(tok_hbheSignal_, hbheSignal);
-    //  if(!hbheSignal.isValid()){edm::LogWarning("AnalyzerMB") << "VeRawAnalyzer: Error! can't get hbhe" << " product! No HBHE MS "; return ; }
-    //  const HBHERecHitCollection HithbheSignal = *(hbheSignal.product());
-    //  edm::LogInfo("AnalyzerMB")<<" HBHE Signal size of collection "<<HithbheSignal.size();
-    //  h_HBHERecHitssize->Fill((float)HithbheSignal.size());
-    //  if(HithbheSignal.size()!= 5184){edm::LogWarning("AnalyzerMB")<<" HBHE problem "<<rnnum<<" "<<HithbheSignal.size();//return;
-    //  }
-    bool gotHBHERecHitsSignal=true;
-    if (!(iEvent.getByToken(tok_hbheSignal_,hbheSignal))) gotHBHERecHitsSignal=false; //this is a boolean set up to check if there are HBHERecHitsSignal in input root file
-    if (!(hbheSignal.isValid())) gotHBHERecHitsSignal=false; //if it is not there, leave it false
-    if(!gotHBHERecHitsSignal) {
-      //  if(!hbheSignal.isValid()) {
-      std::cout<<" No RecHits HBHESignal collection is found "<<endl;
-    } else {
-      for(HBHERecHitCollection::const_iterator hbheItr=hbheSignal->begin();hbheItr!=hbheSignal->end();hbheItr++){
-	// Recalibration of energy
-	float icalconst=1.;	 
-	//      DetId mydetid = hbheItr->id().rawId();
-	//      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-	HBHERecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
-	double energyhit = aHit.energy();
-	DetId id = (*hbheItr).detid(); 
-	HcalDetId hid=HcalDetId(id);
-	int sub = ((hid).rawId()>>25)&0x7;
+          //std::cout<<sub<<std::endl;
+          if (hid.depth() == 1 && sub == 1 && hid.iphi() == 25) {
+            if (verbosity == -9062)
+              std::cout << "HBHE Signal,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
+                        << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
+          }
+          if (hid.depth() == 1 && sub == 2 && hid.iphi() == 25) {
+            if (verbosity == -9062)
+              std::cout << "HBHE Signal,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
+                        << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
+          }
+          int ieta = hid.ieta();  // -15 ... -1; 1... 15 for HB
+          if (ieta > 0)
+            ieta -= 1;  // -15 ... -1; 0... 14 for HB
+          int iphi = hid.iphi() - 1;
+          int mdepth = hid.depth();
+          recSignalEnergy0[sub - 1][mdepth - 1][ieta + 41][iphi] += 1.;
+          recSignalEnergy1[sub - 1][mdepth - 1][ieta + 41][iphi] += energyhit;
+          recSignalEnergy2[sub - 1][mdepth - 1][ieta + 41][iphi] += pow(energyhit, 2);
+        }  // hbheSignal
+      }    //hbheSignal.isValid(
+      ////////////////////////////////////////////////////// /  HBHE Signal end
 
-	if(sub==1) h_energyhitSignal_HB->Fill(energyhit,1.);
-	if(sub==2) h_energyhitSignal_HE->Fill(energyhit,1.);
+      // HF:    HFRecHitCollection hfSignal Signal
+      edm::Handle<HFRecHitCollection> hfSignal;
+      iEvent.getByToken(tok_hfSignal_, hfSignal);
+      //  if(!hfSignal.isValid()){edm::LogWarning("AnalyzerMB") << "VeRawAnalyzer: Error! can't get hf" << " product! No HF MS "; return ; }
+      //  const HFRecHitCollection HithfSignal = *(hfSignal.product());
+      //  edm::LogInfo("AnalyzerMB")<<" HF Signal size of collection "<<HithfSignal.size();
+      //  h_HFRecHitssize->Fill((float)HithfSignal.size());
+      //  if(HithfSignal.size()!= 5184){edm::LogWarning("AnalyzerMB")<<" HF problem "<<rnnum<<" "<<HithfSignal.size();//return;
+      //  }
+      bool gotHFRecHitsSignal = true;
+      if (!(iEvent.getByToken(tok_hfSignal_, hfSignal)))
+        gotHFRecHitsSignal = false;  //this is a boolean set up to check if there are HFRecHitsSignal in input root file
+      if (!(hfSignal.isValid()))
+        gotHFRecHitsSignal = false;  //if it is not there, leave it false
+      if (!gotHFRecHitsSignal) {
+        //  if(!hfSignal.isValid()) {
+        std::cout << " No RecHits HFSignal collection is found " << endl;
+      } else {
+        for (HFRecHitCollection::const_iterator hfItr = hfSignal->begin(); hfItr != hfSignal->end(); hfItr++) {
+          // Recalibration of energy
+          float icalconst = 1.;
+          //      DetId mydetid = hfItr->id().rawId();
+          //      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
+          HFRecHit aHit(hfItr->id(), hfItr->energy() * icalconst, hfItr->time());
+          double energyhit = aHit.energy();
+          DetId id = (*hfItr).detid();
+          HcalDetId hid = HcalDetId(id);
+          int sub = ((hid).rawId() >> 25) & 0x7;
 
-	//std::cout<<sub<<std::endl;
-	if(hid.depth()==1 && sub==1 && hid.iphi()==25) {
-	  if (verbosity == -9062) std::cout<<"HBHE Signal,sub = " << sub  <<" mdepth = " << hid.depth()  <<"  ieta= " << hid.ieta()  <<"  iphi= " << hid.iphi()  <<"  energyhit= " << energyhit  <<std::endl;
-	}
-	if(hid.depth()==1 && sub==2 && hid.iphi()==25) {
-	  if (verbosity == -9062) std::cout<<"HBHE Signal,sub = " << sub  <<" mdepth = " << hid.depth()  <<"  ieta= " << hid.ieta()  <<"  iphi= " << hid.iphi()  <<"  energyhit= " << energyhit  <<std::endl;
-	}
-	int ieta = hid.ieta();// -15 ... -1; 1... 15 for HB
-	if(ieta > 0) ieta -= 1;// -15 ... -1; 0... 14 for HB
-	int iphi = hid.iphi() - 1 ;
-	int mdepth = hid.depth();
-	recSignalEnergy0[sub-1][mdepth-1][ieta+41][iphi] += 1.;
-	recSignalEnergy1[sub-1][mdepth-1][ieta+41][iphi] += energyhit;
-	recSignalEnergy2[sub-1][mdepth-1][ieta+41][iphi] += pow(energyhit,2);      
-      } // hbheSignal
-    }//hbheSignal.isValid(
-    ////////////////////////////////////////////////////// /  HBHE Signal end 
+          h_energyhitSignal_HF->Fill(energyhit, 1.);
+          //	if(fabs(energyhit) > 40. ) continue;
 
-  // HF:    HFRecHitCollection hfSignal Signal
-    edm::Handle<HFRecHitCollection> hfSignal;
-    iEvent.getByToken(tok_hfSignal_, hfSignal);
-    //  if(!hfSignal.isValid()){edm::LogWarning("AnalyzerMB") << "VeRawAnalyzer: Error! can't get hf" << " product! No HF MS "; return ; }
-    //  const HFRecHitCollection HithfSignal = *(hfSignal.product());
-    //  edm::LogInfo("AnalyzerMB")<<" HF Signal size of collection "<<HithfSignal.size();
-    //  h_HFRecHitssize->Fill((float)HithfSignal.size());
-    //  if(HithfSignal.size()!= 5184){edm::LogWarning("AnalyzerMB")<<" HF problem "<<rnnum<<" "<<HithfSignal.size();//return;
-    //  }
-    bool gotHFRecHitsSignal=true;
-    if (!(iEvent.getByToken(tok_hfSignal_,hfSignal))) gotHFRecHitsSignal=false; //this is a boolean set up to check if there are HFRecHitsSignal in input root file
-    if (!(hfSignal.isValid())) gotHFRecHitsSignal=false; //if it is not there, leave it false
-    if(!gotHFRecHitsSignal) {
-      //  if(!hfSignal.isValid()) {
-      std::cout<<" No RecHits HFSignal collection is found "<<endl;
-    } else {
-      for(HFRecHitCollection::const_iterator hfItr=hfSignal->begin();hfItr!=hfSignal->end();hfItr++){
-	// Recalibration of energy
-	float icalconst=1.;	 
-	//      DetId mydetid = hfItr->id().rawId();
-	//      if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
-	HFRecHit aHit(hfItr->id(),hfItr->energy()*icalconst,hfItr->time());
-	double energyhit = aHit.energy();
-	DetId id = (*hfItr).detid(); 
-	HcalDetId hid=HcalDetId(id);
-	int sub = ((hid).rawId()>>25)&0x7;
+          //std::cout<<sub<<std::endl;
+          if (hid.iphi() == 25) {
+            if (verbosity == -9064)
+              std::cout << "HF Signal,sub = " << sub << " mdepth = " << hid.depth() << "  ieta= " << hid.ieta()
+                        << "  iphi= " << hid.iphi() << "  energyhit= " << energyhit << std::endl;
+          }
+          int ieta = hid.ieta();  // -15 ... -1; 1... 15 for HB
+          if (ieta > 0)
+            ieta -= 1;  // -15 ... -1; 0... 14 for HB
+          int iphi = hid.iphi() - 1;
+          int mdepth = hid.depth();
+          recSignalEnergy0[sub - 1][mdepth - 1][ieta + 41][iphi] += 1.;
+          recSignalEnergy1[sub - 1][mdepth - 1][ieta + 41][iphi] += energyhit;
+          recSignalEnergy2[sub - 1][mdepth - 1][ieta + 41][iphi] += pow(energyhit, 2);
+        }  // hfSignal
+      }    //hfSignal.isValid(
+      //////////////////////////////////////////////////////  HF Signal end
 
-	h_energyhitSignal_HF->Fill(energyhit,1.);
-	//	if(fabs(energyhit) > 40. ) continue;
+      //////////////////////////////////////////////////////
+      // END of RecHits for phi-symmetry monitoring of calibration group
+    }  // flagIterativeMethodCalibrationGroupReco_  >  0
+    //////////////////////////////////////////////////////
 
-	//std::cout<<sub<<std::endl;
-	if(hid.iphi()==25) {
-	  if (verbosity == -9064) std::cout<<"HF Signal,sub = " << sub  <<" mdepth = " << hid.depth()  <<"  ieta= " << hid.ieta()  <<"  iphi= " << hid.iphi()  <<"  energyhit= " << energyhit  <<std::endl;
-	}
-	int ieta = hid.ieta();// -15 ... -1; 1... 15 for HB
-	if(ieta > 0) ieta -= 1;// -15 ... -1; 0... 14 for HB
-	int iphi = hid.iphi() - 1 ;
-	int mdepth = hid.depth();
-	recSignalEnergy0[sub-1][mdepth-1][ieta+41][iphi] += 1.;
-	recSignalEnergy1[sub-1][mdepth-1][ieta+41][iphi] += energyhit;
-	recSignalEnergy2[sub-1][mdepth-1][ieta+41][iphi] += pow(energyhit,2);      
-      } // hfSignal
-    }//hfSignal.isValid(
-    //////////////////////////////////////////////////////  HF Signal end
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //////////////////////////////////////////////////////  
-    // END of RecHits for phi-symmetry monitoring of calibration group
-  }// flagIterativeMethodCalibrationGroupReco_  >  0
-  //////////////////////////////////////////////////////  
-  
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  
-  //////////////////////////////////////////////////////  
-  /////////////////////////////////////////////////////////////  
-  ////////////////////////////////////////////////////////////////////////////////////////  TREATMENT OF OBTAINED DIGI-COLLECTION INFORMATION:
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Phi-Symmetry Monitoring DIGI
-  //////////// k0(sub):       =0 HB;      =1 HE;       =2 HO;       =3 HF;
-  //////////// k1(depth-1): = 0 - 6 or depth: = 1 - 7;
-  if(flagIterativeMethodCalibrationGroupDigi_  >  0 ) {
-    //////////////////////////////////////////////////////////////////////////  
-    ////////////////////////////////////////////////////////////////////////// Digi Digi Digi Digi Digi Digi  
-    //////////////////////////////////////////////////////////////////////////  
-    //	  //	  //	  //	  //	  //	  // tocdefault tocampl tocamplchannel: calibration group, Iterative method, coding start 29.08.2019
-    for(int k0 = 0; k0<nsub; k0++) {
-      // HE only, temporary
-      if( k0 == 1 ) {
-	for(int k1 = 0; k1<ndepth; k1++) {
-	  // k2: 0-81
-	  for(int k2 = 0; k2<neta; k2++) {
-	    //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
-	    int k2plot = k2-41;int kkk = k2plot;//if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
-	    //preparation for PHI normalization:
-	    double sumoverphi = 0; int nsumoverphi=0;
-	    for(int k3 = 0; k3<nphi; k3++) {
-	      if(tocamplchannel[k0][k1][k2][k3] != 0 ) {
-		sumoverphi += tocamplchannel[k0][k1][k2][k3];
-		++nsumoverphi;
-		if (verbosity == -9504) std::cout<< "==== nsumoverphi = " <<nsumoverphi << "  sumoverphi = " <<sumoverphi << "  k1 = " <<k1 << "  k2 = " <<k2 << " kkk = " <<  kkk  << "  k3 = " <<k3 << std::endl;
-	      }//if != 0
-	    }//k3
-	    // PHI normalization into new massive && filling plots:	      
-	    for(int k3 = 0; k3<nphi; k3++) {
-	      if(nsumoverphi != 0 ) {
-		maprphinorm[k0][k1][k2][k3] = tocamplchannel[k0][k1][k2][k3]/(sumoverphi/nsumoverphi);
-		if(verbosity==-9504)std::cout<< "nsumoverphi= " <<nsumoverphi<<" sumoverphi= "<<sumoverphi<<" k1= "<<k1<<" k2= "<<k2<<" kkk= "<<kkk<<" k3= "<<k3<<" maprphinorm= "<<maprphinorm[k0][k1][k2][k3]<<endl;
-		if( k1 == 0) {
-		  h_mapenophinorm_HE1->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]);
-		  h_mapenophinorm2_HE1->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]*tocamplchannel[k0][k1][k2][k3]);
-		  h_maprphinorm_HE1->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm2_HE1->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]*maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm0_HE1->Fill(double(kkk),double(k3),1.);}
-		if( k1 == 1) {
-		  h_mapenophinorm_HE2->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]);
-		  h_mapenophinorm2_HE2->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]*tocamplchannel[k0][k1][k2][k3]);
-		  h_maprphinorm_HE2->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm2_HE2->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]*maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm0_HE2->Fill(double(kkk),double(k3),1.);}
-		if( k1 == 2) {
-		  h_mapenophinorm_HE3->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]);
-		  h_mapenophinorm2_HE3->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]*tocamplchannel[k0][k1][k2][k3]);
-		  h_maprphinorm_HE3->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm2_HE3->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]*maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm0_HE3->Fill(double(kkk),double(k3),1.);}
-		if( k1 == 3) {
-		  h_mapenophinorm_HE4->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]);
-		  h_mapenophinorm2_HE4->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]*tocamplchannel[k0][k1][k2][k3]);
-		  h_maprphinorm_HE4->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm2_HE4->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]*maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm0_HE4->Fill(double(kkk),double(k3),1.);}
-		if( k1 == 4) {
-		  h_mapenophinorm_HE5->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]);
-		  h_mapenophinorm2_HE5->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]*tocamplchannel[k0][k1][k2][k3]);
-		  h_maprphinorm_HE5->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm2_HE5->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]*maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm0_HE5->Fill(double(kkk),double(k3),1.);}
-		if( k1 == 5) {
-		  h_mapenophinorm_HE6->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]);
-		  h_mapenophinorm2_HE6->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]*tocamplchannel[k0][k1][k2][k3]);
-		  h_maprphinorm_HE6->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm2_HE6->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]*maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm0_HE6->Fill(double(kkk),double(k3),1.);}
-		if( k1 == 6) {
-		  h_mapenophinorm_HE7->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]);
-		  h_mapenophinorm2_HE7->Fill(double(kkk),double(k3),tocamplchannel[k0][k1][k2][k3]*tocamplchannel[k0][k1][k2][k3]);
-		  h_maprphinorm_HE7->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm2_HE7->Fill(double(kkk),double(k3),maprphinorm[k0][k1][k2][k3]*maprphinorm[k0][k1][k2][k3]);
-		  h_maprphinorm0_HE7->Fill(double(kkk),double(k3),1.);}
-	      }//if nsumoverphi != 0
-	    }//k3
-	  }//k2
-	}//k1
-      }//if k0 == 1 HE 
-    }//k0
-    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	
-    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	
-    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	
-    //	  //	  //	  //	  //	  //	  // amplitudechannel amplitudechannel amplitudechannel: calibration group, Iterative method, coding start 11.11.2019
-      for(int k0 = 0; k0<nsub; k0++) {
-	// HB:
-	if( k0 == 0 ) {
-	  for(int k1 = 0; k1<ndepth; k1++) {
-	    // k2: 0-81
-	    for(int k2 = 0; k2<neta; k2++) {
-	      //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
-	      int k2plot = k2-41;int kkk = k2plot;// if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
-	      for(int k3 = 0; k3<nphi; k3++) {
-		if(k1 == 0) {
-		  h_amplitudechannel0_HB1->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HB1->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HB1->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 1) {
-		  h_amplitudechannel0_HB2->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HB2->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HB2->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 2) {
-		  h_amplitudechannel0_HB3->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HB3->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HB3->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 3) {
-		  h_amplitudechannel0_HB4->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HB4->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HB4->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-	      }//k3
-	    }//k2
-	  }//k1
-	}//if k0 == 0 HB
+    //////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////  TREATMENT OF OBTAINED DIGI-COLLECTION INFORMATION:
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Phi-Symmetry Monitoring DIGI
+    //////////// k0(sub):       =0 HB;      =1 HE;       =2 HO;       =3 HF;
+    //////////// k1(depth-1): = 0 - 6 or depth: = 1 - 7;
+    if (flagIterativeMethodCalibrationGroupDigi_ > 0) {
+      //////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////// Digi Digi Digi Digi Digi Digi
+      //////////////////////////////////////////////////////////////////////////
+      //	  //	  //	  //	  //	  //	  // tocdefault tocampl tocamplchannel: calibration group, Iterative method, coding start 29.08.2019
+      for (int k0 = 0; k0 < nsub; k0++) {
+        // HE only, temporary
+        if (k0 == 1) {
+          for (int k1 = 0; k1 < ndepth; k1++) {
+            // k2: 0-81
+            for (int k2 = 0; k2 < neta; k2++) {
+              //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
+              int k2plot = k2 - 41;
+              int kkk = k2plot;  //if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
+              //preparation for PHI normalization:
+              double sumoverphi = 0;
+              int nsumoverphi = 0;
+              for (int k3 = 0; k3 < nphi; k3++) {
+                if (tocamplchannel[k0][k1][k2][k3] != 0) {
+                  sumoverphi += tocamplchannel[k0][k1][k2][k3];
+                  ++nsumoverphi;
+                  if (verbosity == -9504)
+                    std::cout << "==== nsumoverphi = " << nsumoverphi << "  sumoverphi = " << sumoverphi
+                              << "  k1 = " << k1 << "  k2 = " << k2 << " kkk = " << kkk << "  k3 = " << k3 << std::endl;
+                }  //if != 0
+              }    //k3
+              // PHI normalization into new massive && filling plots:
+              for (int k3 = 0; k3 < nphi; k3++) {
+                if (nsumoverphi != 0) {
+                  maprphinorm[k0][k1][k2][k3] = tocamplchannel[k0][k1][k2][k3] / (sumoverphi / nsumoverphi);
+                  if (verbosity == -9504)
+                    std::cout << "nsumoverphi= " << nsumoverphi << " sumoverphi= " << sumoverphi << " k1= " << k1
+                              << " k2= " << k2 << " kkk= " << kkk << " k3= " << k3
+                              << " maprphinorm= " << maprphinorm[k0][k1][k2][k3] << endl;
+                  if (k1 == 0) {
+                    h_mapenophinorm_HE1->Fill(double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3]);
+                    h_mapenophinorm2_HE1->Fill(
+                        double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3] * tocamplchannel[k0][k1][k2][k3]);
+                    h_maprphinorm_HE1->Fill(double(kkk), double(k3), maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm2_HE1->Fill(
+                        double(kkk), double(k3), maprphinorm[k0][k1][k2][k3] * maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm0_HE1->Fill(double(kkk), double(k3), 1.);
+                  }
+                  if (k1 == 1) {
+                    h_mapenophinorm_HE2->Fill(double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3]);
+                    h_mapenophinorm2_HE2->Fill(
+                        double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3] * tocamplchannel[k0][k1][k2][k3]);
+                    h_maprphinorm_HE2->Fill(double(kkk), double(k3), maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm2_HE2->Fill(
+                        double(kkk), double(k3), maprphinorm[k0][k1][k2][k3] * maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm0_HE2->Fill(double(kkk), double(k3), 1.);
+                  }
+                  if (k1 == 2) {
+                    h_mapenophinorm_HE3->Fill(double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3]);
+                    h_mapenophinorm2_HE3->Fill(
+                        double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3] * tocamplchannel[k0][k1][k2][k3]);
+                    h_maprphinorm_HE3->Fill(double(kkk), double(k3), maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm2_HE3->Fill(
+                        double(kkk), double(k3), maprphinorm[k0][k1][k2][k3] * maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm0_HE3->Fill(double(kkk), double(k3), 1.);
+                  }
+                  if (k1 == 3) {
+                    h_mapenophinorm_HE4->Fill(double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3]);
+                    h_mapenophinorm2_HE4->Fill(
+                        double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3] * tocamplchannel[k0][k1][k2][k3]);
+                    h_maprphinorm_HE4->Fill(double(kkk), double(k3), maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm2_HE4->Fill(
+                        double(kkk), double(k3), maprphinorm[k0][k1][k2][k3] * maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm0_HE4->Fill(double(kkk), double(k3), 1.);
+                  }
+                  if (k1 == 4) {
+                    h_mapenophinorm_HE5->Fill(double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3]);
+                    h_mapenophinorm2_HE5->Fill(
+                        double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3] * tocamplchannel[k0][k1][k2][k3]);
+                    h_maprphinorm_HE5->Fill(double(kkk), double(k3), maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm2_HE5->Fill(
+                        double(kkk), double(k3), maprphinorm[k0][k1][k2][k3] * maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm0_HE5->Fill(double(kkk), double(k3), 1.);
+                  }
+                  if (k1 == 5) {
+                    h_mapenophinorm_HE6->Fill(double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3]);
+                    h_mapenophinorm2_HE6->Fill(
+                        double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3] * tocamplchannel[k0][k1][k2][k3]);
+                    h_maprphinorm_HE6->Fill(double(kkk), double(k3), maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm2_HE6->Fill(
+                        double(kkk), double(k3), maprphinorm[k0][k1][k2][k3] * maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm0_HE6->Fill(double(kkk), double(k3), 1.);
+                  }
+                  if (k1 == 6) {
+                    h_mapenophinorm_HE7->Fill(double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3]);
+                    h_mapenophinorm2_HE7->Fill(
+                        double(kkk), double(k3), tocamplchannel[k0][k1][k2][k3] * tocamplchannel[k0][k1][k2][k3]);
+                    h_maprphinorm_HE7->Fill(double(kkk), double(k3), maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm2_HE7->Fill(
+                        double(kkk), double(k3), maprphinorm[k0][k1][k2][k3] * maprphinorm[k0][k1][k2][k3]);
+                    h_maprphinorm0_HE7->Fill(double(kkk), double(k3), 1.);
+                  }
+                }  //if nsumoverphi != 0
+              }    //k3
+            }      //k2
+          }        //k1
+        }          //if k0 == 1 HE
+      }            //k0
+      //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //
+      //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //
+      //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //	    //	  //	  //	  //	  //	  //
+      //	  //	  //	  //	  //	  //	  // amplitudechannel amplitudechannel amplitudechannel: calibration group, Iterative method, coding start 11.11.2019
+      for (int k0 = 0; k0 < nsub; k0++) {
+        // HB:
+        if (k0 == 0) {
+          for (int k1 = 0; k1 < ndepth; k1++) {
+            // k2: 0-81
+            for (int k2 = 0; k2 < neta; k2++) {
+              //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
+              int k2plot = k2 - 41;
+              int kkk = k2plot;  // if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
+              for (int k3 = 0; k3 < nphi; k3++) {
+                if (k1 == 0) {
+                  h_amplitudechannel0_HB1->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HB1->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HB1->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 1) {
+                  h_amplitudechannel0_HB2->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HB2->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HB2->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 2) {
+                  h_amplitudechannel0_HB3->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HB3->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HB3->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 3) {
+                  h_amplitudechannel0_HB4->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HB4->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HB4->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+              }  //k3
+            }    //k2
+          }      //k1
+        }        //if k0 == 0 HB
 
-	// HE:
-	if( k0 == 1 ) {
-	  for(int k1 = 0; k1<ndepth; k1++) {
-	    // k2: 0-81
-	    for(int k2 = 0; k2<neta; k2++) {
-	      //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
-	      int k2plot = k2-41;int kkk = k2plot;// if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
-	      for(int k3 = 0; k3<nphi; k3++) {
-		if(k1 == 0) {
-		  h_amplitudechannel0_HE1->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HE1->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HE1->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 1) {
-		  h_amplitudechannel0_HE2->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HE2->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HE2->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 2) {
-		  h_amplitudechannel0_HE3->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HE3->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HE3->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 3) {
-		  h_amplitudechannel0_HE4->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HE4->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HE4->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 4) {
-		  h_amplitudechannel0_HE5->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HE5->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HE5->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 5) {
-		  h_amplitudechannel0_HE6->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HE6->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HE6->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 6) {
-		  h_amplitudechannel0_HE7->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HE7->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HE7->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-	      }//k3
-	    }//k2
-	  }//k1
-	}//if k0 == 1 HE
+        // HE:
+        if (k0 == 1) {
+          for (int k1 = 0; k1 < ndepth; k1++) {
+            // k2: 0-81
+            for (int k2 = 0; k2 < neta; k2++) {
+              //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
+              int k2plot = k2 - 41;
+              int kkk = k2plot;  // if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
+              for (int k3 = 0; k3 < nphi; k3++) {
+                if (k1 == 0) {
+                  h_amplitudechannel0_HE1->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HE1->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HE1->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 1) {
+                  h_amplitudechannel0_HE2->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HE2->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HE2->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 2) {
+                  h_amplitudechannel0_HE3->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HE3->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HE3->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 3) {
+                  h_amplitudechannel0_HE4->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HE4->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HE4->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 4) {
+                  h_amplitudechannel0_HE5->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HE5->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HE5->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 5) {
+                  h_amplitudechannel0_HE6->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HE6->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HE6->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 6) {
+                  h_amplitudechannel0_HE7->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HE7->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HE7->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+              }  //k3
+            }    //k2
+          }      //k1
+        }        //if k0 == 1 HE
 
-	// HF: 4 depthes for Digis and only 2 - for Reco !!!
-	if( k0 == 3 ) {
-	  for(int k1 = 0; k1<ndepth; k1++) {
-	    // k2: 0-81
-	    for(int k2 = 0; k2<neta; k2++) {
-	      //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
-	      int k2plot = k2-41;int kkk = k2plot;// if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
-	      for(int k3 = 0; k3<nphi; k3++) {
-		if(k1 == 0) {
-		  h_amplitudechannel0_HF1->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HF1->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HF1->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 1) {
-		  h_amplitudechannel0_HF2->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HF2->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HF2->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 2) {
-		  h_amplitudechannel0_HF3->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HF3->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HF3->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-		if(k1 == 3) {
-		  h_amplitudechannel0_HF4->Fill(double(kkk),double(k3),amplitudechannel0[k0][k1][k2][k3]);h_amplitudechannel1_HF4->Fill(double(kkk),double(k3),amplitudechannel[k0][k1][k2][k3]);h_amplitudechannel2_HF4->Fill(double(kkk),double(k3),amplitudechannel2[k0][k1][k2][k3]);
-		}
-	      }//k3
-	    }//k2
-	  }//k1
-	}//if k0 == 3 HF
+        // HF: 4 depthes for Digis and only 2 - for Reco !!!
+        if (k0 == 3) {
+          for (int k1 = 0; k1 < ndepth; k1++) {
+            // k2: 0-81
+            for (int k2 = 0; k2 < neta; k2++) {
+              //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
+              int k2plot = k2 - 41;
+              int kkk = k2plot;  // if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
+              for (int k3 = 0; k3 < nphi; k3++) {
+                if (k1 == 0) {
+                  h_amplitudechannel0_HF1->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HF1->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HF1->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 1) {
+                  h_amplitudechannel0_HF2->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HF2->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HF2->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 2) {
+                  h_amplitudechannel0_HF3->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HF3->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HF3->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+                if (k1 == 3) {
+                  h_amplitudechannel0_HF4->Fill(double(kkk), double(k3), amplitudechannel0[k0][k1][k2][k3]);
+                  h_amplitudechannel1_HF4->Fill(double(kkk), double(k3), amplitudechannel[k0][k1][k2][k3]);
+                  h_amplitudechannel2_HF4->Fill(double(kkk), double(k3), amplitudechannel2[k0][k1][k2][k3]);
+                }
+              }  //k3
+            }    //k2
+          }      //k1
+        }        //if k0 == 3 HF
 
-      }//k0
+      }  //k0
 
+    }  // if(flagIterativeMethodCalibrationGroupDigi
 
-
-
-
-
-  }// if(flagIterativeMethodCalibrationGroupDigi
-    
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  Phi-Symmetry Monitoring Reco
     //////////// k0(sub):       =0 HB;      =1 HE;       =2 HO;       =3 HF;
     //////////// k1(depth-1): = 0 - 6 or depth: = 1 - 7;
-    if(flagIterativeMethodCalibrationGroupReco_  >  0 ) {
-      //////////////////////////////////////////////////////////////////////////  
-      ////////////////////////////////////////////////////////////////////////// Reco Reco Reco Reco Reco Reco  
-      //////////////////////////////////////////////////////////////////////////  
-//	recSignalEnergy0[sub-1][mdepth-1][ieta+41][iphi] += 1.;                        	recNoiseEnergy0[sub-1][mdepth-1][ieta+41][iphi] += 1.;
-//	recSignalEnergy1[sub-1][mdepth-1][ieta+41][iphi] += energyhit;                  recNoiseEnergy1[sub-1][mdepth-1][ieta+41][iphi] += energyhit;
-//	recSignalEnergy2[sub-1][mdepth-1][ieta+41][iphi] += pow(energyhit,2);           recNoiseEnergy2[sub-1][mdepth-1][ieta+41][iphi] += pow(energyhit,2); 
+    if (flagIterativeMethodCalibrationGroupReco_ > 0) {
+      //////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////// Reco Reco Reco Reco Reco Reco
+      //////////////////////////////////////////////////////////////////////////
+      //	recSignalEnergy0[sub-1][mdepth-1][ieta+41][iphi] += 1.;                        	recNoiseEnergy0[sub-1][mdepth-1][ieta+41][iphi] += 1.;
+      //	recSignalEnergy1[sub-1][mdepth-1][ieta+41][iphi] += energyhit;                  recNoiseEnergy1[sub-1][mdepth-1][ieta+41][iphi] += energyhit;
+      //	recSignalEnergy2[sub-1][mdepth-1][ieta+41][iphi] += pow(energyhit,2);           recNoiseEnergy2[sub-1][mdepth-1][ieta+41][iphi] += pow(energyhit,2);
       //
-      for(int k0 = 0; k0<nsub; k0++) {
-	// HB:
-	if( k0 == 0 ) {
-	  for(int k1 = 0; k1<ndepth; k1++) {
-	    // k2: 0-81
-	    for(int k2 = 0; k2<neta; k2++) {
-	      //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
-	      int k2plot = k2-41;int kkk = k2plot;// if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
-	      for(int k3 = 0; k3<nphi; k3++) {
-		if(k1 == 0) {
-		  h_recSignalEnergy0_HB1->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HB1->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HB1->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HB1->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HB1->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HB1->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 1) {
-		  h_recSignalEnergy0_HB2->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HB2->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HB2->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HB2->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HB2->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HB2->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 2) {
-		  h_recSignalEnergy0_HB3->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HB3->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HB3->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HB3->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HB3->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HB3->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 3) {
-		  h_recSignalEnergy0_HB4->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HB4->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HB4->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HB4->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HB4->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HB4->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-	      }//k3
-	    }//k2
-	  }//k1
-	}//if k0 == 0 HB
+      for (int k0 = 0; k0 < nsub; k0++) {
+        // HB:
+        if (k0 == 0) {
+          for (int k1 = 0; k1 < ndepth; k1++) {
+            // k2: 0-81
+            for (int k2 = 0; k2 < neta; k2++) {
+              //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
+              int k2plot = k2 - 41;
+              int kkk = k2plot;  // if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
+              for (int k3 = 0; k3 < nphi; k3++) {
+                if (k1 == 0) {
+                  h_recSignalEnergy0_HB1->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HB1->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HB1->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HB1->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HB1->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HB1->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 1) {
+                  h_recSignalEnergy0_HB2->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HB2->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HB2->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HB2->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HB2->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HB2->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 2) {
+                  h_recSignalEnergy0_HB3->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HB3->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HB3->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HB3->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HB3->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HB3->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 3) {
+                  h_recSignalEnergy0_HB4->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HB4->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HB4->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HB4->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HB4->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HB4->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+              }  //k3
+            }    //k2
+          }      //k1
+        }        //if k0 == 0 HB
 
-	// HE:
-	if( k0 == 1 ) {
-	  for(int k1 = 0; k1<ndepth; k1++) {
-	    // k2: 0-81
-	    for(int k2 = 0; k2<neta; k2++) {
-	      //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
-	      int k2plot = k2-41;int kkk = k2plot;// if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
-	      for(int k3 = 0; k3<nphi; k3++) {
-		if(k1 == 0) {
-		  h_recSignalEnergy0_HE1->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HE1->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HE1->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HE1->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HE1->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HE1->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 1) {
-		  h_recSignalEnergy0_HE2->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HE2->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HE2->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HE2->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HE2->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HE2->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 2) {
-		  h_recSignalEnergy0_HE3->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HE3->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HE3->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HE3->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HE3->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HE3->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 3) {
-		  h_recSignalEnergy0_HE4->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HE4->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HE4->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HE4->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HE4->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HE4->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 4) {
-		  h_recSignalEnergy0_HE5->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HE5->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HE5->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HE5->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HE5->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HE5->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 5) {
-		  h_recSignalEnergy0_HE6->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HE6->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HE6->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HE6->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HE6->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HE6->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 6) {
-		  h_recSignalEnergy0_HE7->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HE7->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HE7->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HE7->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HE7->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HE7->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-	      }//k3
-	    }//k2
-	  }//k1
-	}//if k0 == 1 HE
+        // HE:
+        if (k0 == 1) {
+          for (int k1 = 0; k1 < ndepth; k1++) {
+            // k2: 0-81
+            for (int k2 = 0; k2 < neta; k2++) {
+              //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
+              int k2plot = k2 - 41;
+              int kkk = k2plot;  // if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
+              for (int k3 = 0; k3 < nphi; k3++) {
+                if (k1 == 0) {
+                  h_recSignalEnergy0_HE1->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HE1->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HE1->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HE1->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HE1->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HE1->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 1) {
+                  h_recSignalEnergy0_HE2->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HE2->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HE2->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HE2->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HE2->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HE2->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 2) {
+                  h_recSignalEnergy0_HE3->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HE3->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HE3->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HE3->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HE3->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HE3->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 3) {
+                  h_recSignalEnergy0_HE4->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HE4->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HE4->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HE4->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HE4->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HE4->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 4) {
+                  h_recSignalEnergy0_HE5->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HE5->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HE5->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HE5->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HE5->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HE5->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 5) {
+                  h_recSignalEnergy0_HE6->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HE6->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HE6->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HE6->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HE6->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HE6->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 6) {
+                  h_recSignalEnergy0_HE7->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HE7->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HE7->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HE7->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HE7->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HE7->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+              }  //k3
+            }    //k2
+          }      //k1
+        }        //if k0 == 1 HE
 
-	// HF: 4 depthes for Digis and only 2 - for Reco !!!
-	if( k0 == 3 ) {
-	  for(int k1 = 0; k1<ndepth; k1++) {
-	    // k2: 0-81
-	    for(int k2 = 0; k2<neta; k2++) {
-	      //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
-	      int k2plot = k2-41;int kkk = k2plot;// if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
-	      for(int k3 = 0; k3<nphi; k3++) {
-		if(k1 == 0) {
-		  h_recSignalEnergy0_HF1->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HF1->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HF1->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HF1->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HF1->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HF1->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-		if(k1 == 1) {
-		  h_recSignalEnergy0_HF2->Fill(double(kkk),double(k3),recSignalEnergy0[k0][k1][k2][k3]);h_recSignalEnergy1_HF2->Fill(double(kkk),double(k3),recSignalEnergy1[k0][k1][k2][k3]);h_recSignalEnergy2_HF2->Fill(double(kkk),double(k3),recSignalEnergy2[k0][k1][k2][k3]);
-		  h_recNoiseEnergy0_HF2->Fill(double(kkk),double(k3),recNoiseEnergy0[k0][k1][k2][k3]);h_recNoiseEnergy1_HF2->Fill(double(kkk),double(k3),recNoiseEnergy1[k0][k1][k2][k3]);h_recNoiseEnergy2_HF2->Fill(double(kkk),double(k3),recNoiseEnergy2[k0][k1][k2][k3]);
-		}
-	      }//k3
-	    }//k2
-	  }//k1
-	}//if k0 == 3 HF
+        // HF: 4 depthes for Digis and only 2 - for Reco !!!
+        if (k0 == 3) {
+          for (int k1 = 0; k1 < ndepth; k1++) {
+            // k2: 0-81
+            for (int k2 = 0; k2 < neta; k2++) {
+              //	      int k2plot = k2-41;int kkk = k2; if(k2plot >0 ) kkk=k2+1; //-41 +41 !=0
+              int k2plot = k2 - 41;
+              int kkk = k2plot;  // if(k2plot >=0 ) kkk=k2plot+1; //-41 +40 !=0
+              for (int k3 = 0; k3 < nphi; k3++) {
+                if (k1 == 0) {
+                  h_recSignalEnergy0_HF1->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HF1->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HF1->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HF1->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HF1->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HF1->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+                if (k1 == 1) {
+                  h_recSignalEnergy0_HF2->Fill(double(kkk), double(k3), recSignalEnergy0[k0][k1][k2][k3]);
+                  h_recSignalEnergy1_HF2->Fill(double(kkk), double(k3), recSignalEnergy1[k0][k1][k2][k3]);
+                  h_recSignalEnergy2_HF2->Fill(double(kkk), double(k3), recSignalEnergy2[k0][k1][k2][k3]);
+                  h_recNoiseEnergy0_HF2->Fill(double(kkk), double(k3), recNoiseEnergy0[k0][k1][k2][k3]);
+                  h_recNoiseEnergy1_HF2->Fill(double(kkk), double(k3), recNoiseEnergy1[k0][k1][k2][k3]);
+                  h_recNoiseEnergy2_HF2->Fill(double(kkk), double(k3), recNoiseEnergy2[k0][k1][k2][k3]);
+                }
+              }  //k3
+            }    //k2
+          }      //k1
+        }        //if k0 == 3 HF
 
-      }//k0
+      }  //k0
 
+    }  // if(flagIterativeMethodCalibrationGroupReco
 
-
-
-    }// if(flagIterativeMethodCalibrationGroupReco
-    
-    
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   END PHY-SYMMERTY for calibration group
-
-
-
 
     //////////////////////////////////////////////////////
     if (flagLaserRaddam_ > 1) {
@@ -3966,163 +4100,151 @@ void CMTRawAnalyzer::beginJob() {
     h_maprphinorm0_HE6 = new TH2F("h_maprphinorm0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
     h_maprphinorm0_HE7 = new TH2F("h_maprphinorm0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
 
-
-
-
-    // 
+    //
     // Didi as done in Reco
     //HB:
-    h_amplitudechannel0_HB1 = new TH2F("h_amplitudechannel0_HB1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HB1 = new TH2F("h_amplitudechannel1_HB1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HB1 = new TH2F("h_amplitudechannel2_HB1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HB2 = new TH2F("h_amplitudechannel0_HB2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HB2 = new TH2F("h_amplitudechannel1_HB2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HB2 = new TH2F("h_amplitudechannel2_HB2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HB3 = new TH2F("h_amplitudechannel0_HB3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HB3 = new TH2F("h_amplitudechannel1_HB3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HB3 = new TH2F("h_amplitudechannel2_HB3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HB4 = new TH2F("h_amplitudechannel0_HB4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HB4 = new TH2F("h_amplitudechannel1_HB4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HB4 = new TH2F("h_amplitudechannel2_HB4"," ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HB1 = new TH2F("h_amplitudechannel0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HB1 = new TH2F("h_amplitudechannel1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HB1 = new TH2F("h_amplitudechannel2_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HB2 = new TH2F("h_amplitudechannel0_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HB2 = new TH2F("h_amplitudechannel1_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HB2 = new TH2F("h_amplitudechannel2_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HB3 = new TH2F("h_amplitudechannel0_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HB3 = new TH2F("h_amplitudechannel1_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HB3 = new TH2F("h_amplitudechannel2_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HB4 = new TH2F("h_amplitudechannel0_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HB4 = new TH2F("h_amplitudechannel1_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HB4 = new TH2F("h_amplitudechannel2_HB4", " ", neta, -41., 41., nphi, 0., bphi);
     //HE:
-    h_amplitudechannel0_HE1 = new TH2F("h_amplitudechannel0_HE1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE1 = new TH2F("h_amplitudechannel1_HE1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE1 = new TH2F("h_amplitudechannel2_HE1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE2 = new TH2F("h_amplitudechannel0_HE2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE2 = new TH2F("h_amplitudechannel1_HE2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE2 = new TH2F("h_amplitudechannel2_HE2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE3 = new TH2F("h_amplitudechannel0_HE3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE3 = new TH2F("h_amplitudechannel1_HE3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE3 = new TH2F("h_amplitudechannel2_HE3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE4 = new TH2F("h_amplitudechannel0_HE4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE4 = new TH2F("h_amplitudechannel1_HE4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE4 = new TH2F("h_amplitudechannel2_HE4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE5 = new TH2F("h_amplitudechannel0_HE5"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE5 = new TH2F("h_amplitudechannel1_HE5"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE5 = new TH2F("h_amplitudechannel2_HE5"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE6 = new TH2F("h_amplitudechannel0_HE6"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE6 = new TH2F("h_amplitudechannel1_HE6"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE6 = new TH2F("h_amplitudechannel2_HE6"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HE7 = new TH2F("h_amplitudechannel0_HE7"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HE7 = new TH2F("h_amplitudechannel1_HE7"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HE7 = new TH2F("h_amplitudechannel2_HE7"," ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE1 = new TH2F("h_amplitudechannel0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE1 = new TH2F("h_amplitudechannel1_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE1 = new TH2F("h_amplitudechannel2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE2 = new TH2F("h_amplitudechannel0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE2 = new TH2F("h_amplitudechannel1_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE2 = new TH2F("h_amplitudechannel2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE3 = new TH2F("h_amplitudechannel0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE3 = new TH2F("h_amplitudechannel1_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE3 = new TH2F("h_amplitudechannel2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE4 = new TH2F("h_amplitudechannel0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE4 = new TH2F("h_amplitudechannel1_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE4 = new TH2F("h_amplitudechannel2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE5 = new TH2F("h_amplitudechannel0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE5 = new TH2F("h_amplitudechannel1_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE5 = new TH2F("h_amplitudechannel2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE6 = new TH2F("h_amplitudechannel0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE6 = new TH2F("h_amplitudechannel1_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE6 = new TH2F("h_amplitudechannel2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HE7 = new TH2F("h_amplitudechannel0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HE7 = new TH2F("h_amplitudechannel1_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HE7 = new TH2F("h_amplitudechannel2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
     //HF:
-    h_amplitudechannel0_HF1 = new TH2F("h_amplitudechannel0_HF1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HF1 = new TH2F("h_amplitudechannel1_HF1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HF1 = new TH2F("h_amplitudechannel2_HF1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HF2 = new TH2F("h_amplitudechannel0_HF2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HF2 = new TH2F("h_amplitudechannel1_HF2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HF2 = new TH2F("h_amplitudechannel2_HF2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HF3 = new TH2F("h_amplitudechannel0_HF3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HF3 = new TH2F("h_amplitudechannel1_HF3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HF3 = new TH2F("h_amplitudechannel2_HF3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel0_HF4 = new TH2F("h_amplitudechannel0_HF4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel1_HF4 = new TH2F("h_amplitudechannel1_HF4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_amplitudechannel2_HF4 = new TH2F("h_amplitudechannel2_HF4"," ", neta, -41., 41., nphi, 0., bphi);
-
-
-
+    h_amplitudechannel0_HF1 = new TH2F("h_amplitudechannel0_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HF1 = new TH2F("h_amplitudechannel1_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HF1 = new TH2F("h_amplitudechannel2_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HF2 = new TH2F("h_amplitudechannel0_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HF2 = new TH2F("h_amplitudechannel1_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HF2 = new TH2F("h_amplitudechannel2_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HF3 = new TH2F("h_amplitudechannel0_HF3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HF3 = new TH2F("h_amplitudechannel1_HF3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HF3 = new TH2F("h_amplitudechannel2_HF3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel0_HF4 = new TH2F("h_amplitudechannel0_HF4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel1_HF4 = new TH2F("h_amplitudechannel1_HF4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_amplitudechannel2_HF4 = new TH2F("h_amplitudechannel2_HF4", " ", neta, -41., 41., nphi, 0., bphi);
 
     // Reco
-    h_energyhitSignal_HB = new TH1F("h_energyhitSignal_HB"," ",npfit, 0.,0.);// 
-    h_energyhitSignal_HE = new TH1F("h_energyhitSignal_HE"," ",npfit, 0.,0.);// 
-    h_energyhitSignal_HF = new TH1F("h_energyhitSignal_HF"," ",npfit, 0.,0.);// 
-    h_energyhitNoise_HB = new TH1F("h_energyhitNoise_HB"," ",npfit, 0.,0.);// 
-    h_energyhitNoise_HE = new TH1F("h_energyhitNoise_HE"," ",npfit, 0.,0.);// 
-    h_energyhitNoise_HF = new TH1F("h_energyhitNoise_HF"," ",npfit, 0.,0.);// 
+    h_energyhitSignal_HB = new TH1F("h_energyhitSignal_HB", " ", npfit, 0., 0.);  //
+    h_energyhitSignal_HE = new TH1F("h_energyhitSignal_HE", " ", npfit, 0., 0.);  //
+    h_energyhitSignal_HF = new TH1F("h_energyhitSignal_HF", " ", npfit, 0., 0.);  //
+    h_energyhitNoise_HB = new TH1F("h_energyhitNoise_HB", " ", npfit, 0., 0.);    //
+    h_energyhitNoise_HE = new TH1F("h_energyhitNoise_HE", " ", npfit, 0., 0.);    //
+    h_energyhitNoise_HF = new TH1F("h_energyhitNoise_HF", " ", npfit, 0., 0.);    //
 
     //HB:
-    h_recSignalEnergy0_HB1 = new TH2F("h_recSignalEnergy0_HB1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HB1 = new TH2F("h_recSignalEnergy1_HB1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HB1 = new TH2F("h_recSignalEnergy2_HB1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HB2 = new TH2F("h_recSignalEnergy0_HB2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HB2 = new TH2F("h_recSignalEnergy1_HB2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HB2 = new TH2F("h_recSignalEnergy2_HB2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HB3 = new TH2F("h_recSignalEnergy0_HB3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HB3 = new TH2F("h_recSignalEnergy1_HB3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HB3 = new TH2F("h_recSignalEnergy2_HB3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HB4 = new TH2F("h_recSignalEnergy0_HB4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HB4 = new TH2F("h_recSignalEnergy1_HB4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HB4 = new TH2F("h_recSignalEnergy2_HB4"," ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HB1 = new TH2F("h_recSignalEnergy0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HB1 = new TH2F("h_recSignalEnergy1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HB1 = new TH2F("h_recSignalEnergy2_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HB2 = new TH2F("h_recSignalEnergy0_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HB2 = new TH2F("h_recSignalEnergy1_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HB2 = new TH2F("h_recSignalEnergy2_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HB3 = new TH2F("h_recSignalEnergy0_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HB3 = new TH2F("h_recSignalEnergy1_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HB3 = new TH2F("h_recSignalEnergy2_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HB4 = new TH2F("h_recSignalEnergy0_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HB4 = new TH2F("h_recSignalEnergy1_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HB4 = new TH2F("h_recSignalEnergy2_HB4", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_recNoiseEnergy0_HB1 = new TH2F("h_recNoiseEnergy0_HB1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HB1 = new TH2F("h_recNoiseEnergy1_HB1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HB1 = new TH2F("h_recNoiseEnergy2_HB1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HB2 = new TH2F("h_recNoiseEnergy0_HB2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HB2 = new TH2F("h_recNoiseEnergy1_HB2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HB2 = new TH2F("h_recNoiseEnergy2_HB2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HB3 = new TH2F("h_recNoiseEnergy0_HB3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HB3 = new TH2F("h_recNoiseEnergy1_HB3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HB3 = new TH2F("h_recNoiseEnergy2_HB3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HB4 = new TH2F("h_recNoiseEnergy0_HB4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HB4 = new TH2F("h_recNoiseEnergy1_HB4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HB4 = new TH2F("h_recNoiseEnergy2_HB4"," ", neta, -41., 41., nphi, 0., bphi);
-
+    h_recNoiseEnergy0_HB1 = new TH2F("h_recNoiseEnergy0_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HB1 = new TH2F("h_recNoiseEnergy1_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HB1 = new TH2F("h_recNoiseEnergy2_HB1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HB2 = new TH2F("h_recNoiseEnergy0_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HB2 = new TH2F("h_recNoiseEnergy1_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HB2 = new TH2F("h_recNoiseEnergy2_HB2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HB3 = new TH2F("h_recNoiseEnergy0_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HB3 = new TH2F("h_recNoiseEnergy1_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HB3 = new TH2F("h_recNoiseEnergy2_HB3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HB4 = new TH2F("h_recNoiseEnergy0_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HB4 = new TH2F("h_recNoiseEnergy1_HB4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HB4 = new TH2F("h_recNoiseEnergy2_HB4", " ", neta, -41., 41., nphi, 0., bphi);
 
     //HE:
-    h_recSignalEnergy0_HE1 = new TH2F("h_recSignalEnergy0_HE1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE1 = new TH2F("h_recSignalEnergy1_HE1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE1 = new TH2F("h_recSignalEnergy2_HE1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE2 = new TH2F("h_recSignalEnergy0_HE2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE2 = new TH2F("h_recSignalEnergy1_HE2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE2 = new TH2F("h_recSignalEnergy2_HE2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE3 = new TH2F("h_recSignalEnergy0_HE3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE3 = new TH2F("h_recSignalEnergy1_HE3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE3 = new TH2F("h_recSignalEnergy2_HE3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE4 = new TH2F("h_recSignalEnergy0_HE4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE4 = new TH2F("h_recSignalEnergy1_HE4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE4 = new TH2F("h_recSignalEnergy2_HE4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE5 = new TH2F("h_recSignalEnergy0_HE5"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE5 = new TH2F("h_recSignalEnergy1_HE5"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE5 = new TH2F("h_recSignalEnergy2_HE5"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE6 = new TH2F("h_recSignalEnergy0_HE6"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE6 = new TH2F("h_recSignalEnergy1_HE6"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE6 = new TH2F("h_recSignalEnergy2_HE6"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HE7 = new TH2F("h_recSignalEnergy0_HE7"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HE7 = new TH2F("h_recSignalEnergy1_HE7"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HE7 = new TH2F("h_recSignalEnergy2_HE7"," ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE1 = new TH2F("h_recSignalEnergy0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE1 = new TH2F("h_recSignalEnergy1_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE1 = new TH2F("h_recSignalEnergy2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE2 = new TH2F("h_recSignalEnergy0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE2 = new TH2F("h_recSignalEnergy1_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE2 = new TH2F("h_recSignalEnergy2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE3 = new TH2F("h_recSignalEnergy0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE3 = new TH2F("h_recSignalEnergy1_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE3 = new TH2F("h_recSignalEnergy2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE4 = new TH2F("h_recSignalEnergy0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE4 = new TH2F("h_recSignalEnergy1_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE4 = new TH2F("h_recSignalEnergy2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE5 = new TH2F("h_recSignalEnergy0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE5 = new TH2F("h_recSignalEnergy1_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE5 = new TH2F("h_recSignalEnergy2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE6 = new TH2F("h_recSignalEnergy0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE6 = new TH2F("h_recSignalEnergy1_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE6 = new TH2F("h_recSignalEnergy2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HE7 = new TH2F("h_recSignalEnergy0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HE7 = new TH2F("h_recSignalEnergy1_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HE7 = new TH2F("h_recSignalEnergy2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_recNoiseEnergy0_HE1 = new TH2F("h_recNoiseEnergy0_HE1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE1 = new TH2F("h_recNoiseEnergy1_HE1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE1 = new TH2F("h_recNoiseEnergy2_HE1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE2 = new TH2F("h_recNoiseEnergy0_HE2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE2 = new TH2F("h_recNoiseEnergy1_HE2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE2 = new TH2F("h_recNoiseEnergy2_HE2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE3 = new TH2F("h_recNoiseEnergy0_HE3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE3 = new TH2F("h_recNoiseEnergy1_HE3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE3 = new TH2F("h_recNoiseEnergy2_HE3"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE4 = new TH2F("h_recNoiseEnergy0_HE4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE4 = new TH2F("h_recNoiseEnergy1_HE4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE4 = new TH2F("h_recNoiseEnergy2_HE4"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE5 = new TH2F("h_recNoiseEnergy0_HE5"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE5 = new TH2F("h_recNoiseEnergy1_HE5"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE5 = new TH2F("h_recNoiseEnergy2_HE5"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE6 = new TH2F("h_recNoiseEnergy0_HE6"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE6 = new TH2F("h_recNoiseEnergy1_HE6"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE6 = new TH2F("h_recNoiseEnergy2_HE6"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HE7 = new TH2F("h_recNoiseEnergy0_HE7"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HE7 = new TH2F("h_recNoiseEnergy1_HE7"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HE7 = new TH2F("h_recNoiseEnergy2_HE7"," ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE1 = new TH2F("h_recNoiseEnergy0_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE1 = new TH2F("h_recNoiseEnergy1_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE1 = new TH2F("h_recNoiseEnergy2_HE1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE2 = new TH2F("h_recNoiseEnergy0_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE2 = new TH2F("h_recNoiseEnergy1_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE2 = new TH2F("h_recNoiseEnergy2_HE2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE3 = new TH2F("h_recNoiseEnergy0_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE3 = new TH2F("h_recNoiseEnergy1_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE3 = new TH2F("h_recNoiseEnergy2_HE3", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE4 = new TH2F("h_recNoiseEnergy0_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE4 = new TH2F("h_recNoiseEnergy1_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE4 = new TH2F("h_recNoiseEnergy2_HE4", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE5 = new TH2F("h_recNoiseEnergy0_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE5 = new TH2F("h_recNoiseEnergy1_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE5 = new TH2F("h_recNoiseEnergy2_HE5", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE6 = new TH2F("h_recNoiseEnergy0_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE6 = new TH2F("h_recNoiseEnergy1_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE6 = new TH2F("h_recNoiseEnergy2_HE6", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HE7 = new TH2F("h_recNoiseEnergy0_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HE7 = new TH2F("h_recNoiseEnergy1_HE7", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HE7 = new TH2F("h_recNoiseEnergy2_HE7", " ", neta, -41., 41., nphi, 0., bphi);
 
     //HF:
-    h_recSignalEnergy0_HF1 = new TH2F("h_recSignalEnergy0_HF1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HF1 = new TH2F("h_recSignalEnergy1_HF1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HF1 = new TH2F("h_recSignalEnergy2_HF1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy0_HF2 = new TH2F("h_recSignalEnergy0_HF2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy1_HF2 = new TH2F("h_recSignalEnergy1_HF2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recSignalEnergy2_HF2 = new TH2F("h_recSignalEnergy2_HF2"," ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HF1 = new TH2F("h_recSignalEnergy0_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HF1 = new TH2F("h_recSignalEnergy1_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HF1 = new TH2F("h_recSignalEnergy2_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy0_HF2 = new TH2F("h_recSignalEnergy0_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy1_HF2 = new TH2F("h_recSignalEnergy1_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recSignalEnergy2_HF2 = new TH2F("h_recSignalEnergy2_HF2", " ", neta, -41., 41., nphi, 0., bphi);
 
-    h_recNoiseEnergy0_HF1 = new TH2F("h_recNoiseEnergy0_HF1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HF1 = new TH2F("h_recNoiseEnergy1_HF1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HF1 = new TH2F("h_recNoiseEnergy2_HF1"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy0_HF2 = new TH2F("h_recNoiseEnergy0_HF2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy1_HF2 = new TH2F("h_recNoiseEnergy1_HF2"," ", neta, -41., 41., nphi, 0., bphi);
-    h_recNoiseEnergy2_HF2 = new TH2F("h_recNoiseEnergy2_HF2"," ", neta, -41., 41., nphi, 0., bphi);
-
-
-
-
-
+    h_recNoiseEnergy0_HF1 = new TH2F("h_recNoiseEnergy0_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HF1 = new TH2F("h_recNoiseEnergy1_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HF1 = new TH2F("h_recNoiseEnergy2_HF1", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy0_HF2 = new TH2F("h_recNoiseEnergy0_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy1_HF2 = new TH2F("h_recNoiseEnergy1_HF2", " ", neta, -41., 41., nphi, 0., bphi);
+    h_recNoiseEnergy2_HF2 = new TH2F("h_recNoiseEnergy2_HF2", " ", neta, -41., 41., nphi, 0., bphi);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////  raddam:
     // RADDAM:
@@ -6243,11 +6365,11 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
     }  //flagcpuoptimization
     timew += (ii + 1) * abs(ampldefault);
     timeww += (ii + 1) * ampldefault;
-  }                                                                     //for 1
-  amplitudechannel0[sub-1][mdepth-1][ieta+41][iphi] += 1.;// 0-neta ; 0-71 HBHE
-  amplitudechannel[sub-1][mdepth-1][ieta+41][iphi] += amplitude;// 0-neta ; 0-71 HBHE
-  amplitudechannel2[sub-1][mdepth-1][ieta+41][iphi] += pow(amplitude,2); // 0-neta ; 0-71 HBHE
-  
+  }                                                                              //for 1
+  amplitudechannel0[sub - 1][mdepth - 1][ieta + 41][iphi] += 1.;                 // 0-neta ; 0-71 HBHE
+  amplitudechannel[sub - 1][mdepth - 1][ieta + 41][iphi] += amplitude;           // 0-neta ; 0-71 HBHE
+  amplitudechannel2[sub - 1][mdepth - 1][ieta + 41][iphi] += pow(amplitude, 2);  // 0-neta ; 0-71 HBHE
+
   pedestalaver9 /= TSsize;
   pedestalaver4 /= c4;
   pedestalwaver9 = sqrt(pedestalwaver9 / TSsize);
@@ -7277,11 +7399,11 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
     }  // sub == 2   HE charge correction end
   }    //flagsipmcorrection_
   ///////   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      !!!!!!!!!!!!!!!!!!
-  amplitudechannel0[sub-1][mdepth-1][ieta+41][iphi] += 1.;// 0-neta ; 0-71  HBHE
-  amplitudechannel[sub-1][mdepth-1][ieta+41][iphi] += amplitude;// 0-neta ; 0-71  HBHE
-  amplitudechannel2[sub-1][mdepth-1][ieta+41][iphi] += pow(amplitude,2); 
-  tocamplchannel[sub-1][mdepth-1][ieta+41][iphi] += tocampl;// 0-neta ; 0-71  HBHE
-  
+  amplitudechannel0[sub - 1][mdepth - 1][ieta + 41][iphi] += 1.;        // 0-neta ; 0-71  HBHE
+  amplitudechannel[sub - 1][mdepth - 1][ieta + 41][iphi] += amplitude;  // 0-neta ; 0-71  HBHE
+  amplitudechannel2[sub - 1][mdepth - 1][ieta + 41][iphi] += pow(amplitude, 2);
+  tocamplchannel[sub - 1][mdepth - 1][ieta + 41][iphi] += tocampl;  // 0-neta ; 0-71  HBHE
+
   double ratio = 0.;
   //    if(amplallTS != 0.) ratio = ampl/amplallTS;
   if (amplitude != 0.)
@@ -8289,11 +8411,11 @@ void CMTRawAnalyzer::fillDigiAmplitudeHF(HFDigiCollection::const_iterator& digiI
     }  //  if(flagcpuoptimization_== 0
     timew += (ii + 1) * abs(ampldefault);
     timeww += (ii + 1) * ampldefault;
-  }                                                                     //for 1
-  amplitudechannel0[sub-1][mdepth-1][ieta+41][iphi] += 1.;// 0-neta ; 0-71 HF
-  amplitudechannel[sub-1][mdepth-1][ieta+41][iphi] += amplitude;// 0-neta ; 0-71 HF
-  amplitudechannel2[sub-1][mdepth-1][ieta+41][iphi] += pow(amplitude,2); // 0-neta ; 0-71 HF
-  
+  }                                                                              //for 1
+  amplitudechannel0[sub - 1][mdepth - 1][ieta + 41][iphi] += 1.;                 // 0-neta ; 0-71 HF
+  amplitudechannel[sub - 1][mdepth - 1][ieta + 41][iphi] += amplitude;           // 0-neta ; 0-71 HF
+  amplitudechannel2[sub - 1][mdepth - 1][ieta + 41][iphi] += pow(amplitude, 2);  // 0-neta ; 0-71 HF
+
   pedestalaver9 /= TSsize;
   pedestalaver4 /= c4;
   pedestalwaver9 = sqrt(pedestalwaver9 / TSsize);
