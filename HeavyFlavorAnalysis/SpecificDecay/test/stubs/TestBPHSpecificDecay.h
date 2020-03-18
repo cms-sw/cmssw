@@ -15,8 +15,6 @@
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 #include <string>
-#include <iostream>
-#include <fstream>
 
 class TH1F;
 class BPHRecoCandidate;

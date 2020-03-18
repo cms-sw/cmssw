@@ -60,7 +60,7 @@ public:
     }
   }
 
-  // deleted copy constructor and assignment operator
+  // deleted copy constructor and assignment constructors
   BPHMultiSelectBase(const BPHMultiSelectBase<T>& x) = delete;
   BPHMultiSelectBase& operator=(const BPHMultiSelectBase<T>& x) = delete;
 
@@ -125,7 +125,7 @@ public:
    */
   BPHSlimSelect(BPHSelectOperation::mode op) : Base(op) {}
 
-  // deleted copy constructor and assignment operator
+  // deleted copy constructor and assignment constructors
   BPHSlimSelect(const BPHSlimSelect<T>& x) = delete;
   BPHSlimSelect& operator=(const BPHSlimSelect<T>& x) = delete;
 
@@ -150,7 +150,7 @@ public:
    */
   BPHFullSelect(BPHSelectOperation::mode op) : Base(op) {}
 
-  // deleted copy constructor and assignment operator
+  // deleted copy constructor and assignment constructors
   BPHFullSelect(const BPHFullSelect<T>& x);
   BPHFullSelect& operator=(const BPHFullSelect<T>& x);
 
@@ -175,7 +175,7 @@ public:
    */
   BPHMultiSelect(BPHSelectOperation::mode op) : T(op) {}
 
-  // deleted copy constructor and assignment operator
+  // deleted copy constructor and assignment constructors
   BPHMultiSelect(const BPHMultiSelect<T>& x) = delete;
   BPHMultiSelect& operator=(const BPHMultiSelect<T>& x) = delete;
 
