@@ -57,7 +57,7 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcalCons/v8/hgcalCons.xml"/>
     <Include ref="Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml"/>
     <Include ref="Geometry/EcalSimData/data/PhaseII/ecalsens.xml"/>
-    <Include ref="Geometry/HcalCommonData/data/hcalsens/HGCal/hcalsenspmf.xml"/>
+    <Include ref="Geometry/HcalCommonData/data/hcalsens/HGCal/2021/v1/hcalsenspmf.xml"/>
     <Include ref="Geometry/HcalSimData/data/hf.xml"/>
     <Include ref="Geometry/HcalSimData/data/hfpmt.xml"/>
     <Include ref="Geometry/HcalSimData/data/hffibrebundle.xml"/>
