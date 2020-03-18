@@ -53,6 +53,16 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
   filter.veto("Between");
   filter.veto("SupportPlate");
   filter.veto("Shield");
+  filter.veto("ThermalScreen");
+  filter.veto("Aluminium_Disc");
+  filter.veto("MIC6_Aluminium_Disc");
+  filter.veto("ThermalPad");
+  filter.veto("AlN");
+  filter.veto("LairdFilm");
+  filter.veto("ETROC");
+  filter.veto("SensorModule");
+  filter.veto("DiscSector");
+  filter.veto("LGAD_Substrate");
 
   DDFilteredView fv(cpv, filter);
 
@@ -104,8 +114,18 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
     //
     // the level chosen corresponds to wafers for D50 and previous scenarios
     //
-    if ((thisNode == GeometricTimingDet::BTLModule || thisNode == GeometricTimingDet::ETLModule) && limit == 0) {
+    if ((thisNode == GeometricTimingDet::BTLModule) && limit == 0) {
       limit = num + 1;
+    }
+    //
+    // workaround to make old and TDR structure to cohexist until needed
+    //
+    else if ((thisNode == GeometricTimingDet::ETLModule) && limit == 0) {
+      if (theCmsMTDConstruction.isETLtdr(fv)) {
+        limit = num;
+      } else {
+        limit = num + 1;
+      }
     }
     if (num != limit && limit > 0) {
       continue;
