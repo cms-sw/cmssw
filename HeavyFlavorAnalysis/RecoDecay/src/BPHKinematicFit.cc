@@ -83,6 +83,7 @@ BPHKinematicFit::~BPHKinematicFit() {}
 //--------------
 // Operations --
 //--------------
+/// apply a mass constraint
 void BPHKinematicFit::setConstraint(double mass, double sigma) {
   oldFit = oldMom = true;
   massConst = mass;
@@ -90,10 +91,12 @@ void BPHKinematicFit::setConstraint(double mass, double sigma) {
   return;
 }
 
+/// retrieve the constraint
 double BPHKinematicFit::constrMass() const { return massConst; }
 
 double BPHKinematicFit::constrSigma() const { return massSigma; }
 
+/// get kinematic particles
 const vector<RefCountedKinematicParticle>& BPHKinematicFit::kinParticles() const {
   if (oldKPs)
     buildParticles();
@@ -140,6 +143,7 @@ vector<RefCountedKinematicParticle> BPHKinematicFit::kinParticles(const vector<s
   return plist;
 }
 
+/// perform the kinematic fit and get the result
 const RefCountedKinematicTree& BPHKinematicFit::kinematicTree() const {
   if (oldFit)
     return kinematicTree("", massConst, massSigma);
@@ -147,6 +151,8 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree() const {
 }
 
 const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name, double mass, double sigma) const {
+  if (mass < 0)
+    return kinematicTree(name);
   if (sigma < 0)
     return kinematicTree(name, mass);
   ParticleMass mc = mass;
@@ -155,11 +161,8 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name
 }
 
 const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name, double mass) const {
-  if (mass < 0) {
-    kinTree = RefCountedKinematicTree(nullptr);
-    oldFit = false;
-    return kinTree;
-  }
+  if (mass < 0)
+    return kinematicTree(name);
   int nn = daughFull().size();
   ParticleMass mc = mass;
   if (nn == 2) {
@@ -169,6 +172,11 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name
     MultiTrackMassKinematicConstraint kinConst(mc, nn);
     return kinematicTree(name, &kinConst);
   }
+}
+
+const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name) const {
+  KinematicConstraint* kc = nullptr;
+  return kinematicTree(name, kc);
 }
 
 const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name, KinematicConstraint* kc) const {
@@ -206,10 +214,12 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name
     RefCountedKinematicTree compTree = vtxFitter.fit(kComp);
     if (compTree->isEmpty())
       return kinTree;
+    if (kc != nullptr) {
     KinematicParticleFitter kinFitter;
-    compTree = kinFitter.fit(kc, compTree);
-    if (compTree->isEmpty())
-      return kinTree;
+      compTree = kinFitter.fit(kc, compTree);
+      if (compTree->isEmpty())
+        return kinTree;
+    }
     compTree->movePointerToTheTop();
     if (!kTail.empty()) {
       RefCountedKinematicParticle compPart = compTree->currentParticle();
@@ -262,11 +272,13 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name
   return kinTree;
 }
 
+/// reset the kinematic fit
 void BPHKinematicFit::resetKinematicFit() const {
   oldKPs = oldFit = oldMom = true;
   return;
 }
 
+/// get fit status
 bool BPHKinematicFit::isEmpty() const {
   kinematicTree();
   if (kinTree.get() == nullptr)
@@ -281,6 +293,7 @@ bool BPHKinematicFit::isValidFit() const {
   return kPart->currentState().isValid();
 }
 
+/// get current particle
 const RefCountedKinematicParticle BPHKinematicFit::currentParticle() const {
   if (isEmpty())
     return RefCountedKinematicParticle(nullptr);
@@ -303,6 +316,7 @@ ParticleMass BPHKinematicFit::mass() const {
   return -1.0;
 }
 
+/// compute total momentum after the fit
 const math::XYZTLorentzVector& BPHKinematicFit::p4() const {
   if (oldMom)
     fitMomentum();
@@ -315,11 +329,16 @@ double BPHKinematicFit::getMassSigma(const reco::Candidate* cand) const {
   return (iter != dMSig.end() ? iter->second : -1);
 }
 
+/// add a simple particle giving it a name
+/// particles are cloned, eventually specifying a different mass
+/// and a sigma
 void BPHKinematicFit::addK(const string& name, const reco::Candidate* daug, double mass, double sigma) {
   addK(name, daug, "cfhpmig", mass, sigma);
   return;
 }
 
+/// add a simple particle and specify a criterion to search for
+/// the associated track
 void BPHKinematicFit::addK(
     const string& name, const reco::Candidate* daug, const string& searchList, double mass, double sigma) {
   addV(name, daug, searchList, mass);
@@ -327,6 +346,7 @@ void BPHKinematicFit::addK(
   return;
 }
 
+/// add a previously reconstructed particle giving it a name
 void BPHKinematicFit::addK(const string& name, const BPHRecoConstCandPtr& comp) {
   addV(name, comp);
   const map<const reco::Candidate*, double>& dMap = comp->dMSig;
@@ -334,12 +354,14 @@ void BPHKinematicFit::addK(const string& name, const BPHRecoConstCandPtr& comp) 
   return;
 }
 
+// utility function used to cash reconstruction results
 void BPHKinematicFit::setNotUpdated() const {
   BPHDecayVertex::setNotUpdated();
   resetKinematicFit();
   return;
 }
 
+// build kin particles, perform the fit and compute the total momentum
 void BPHKinematicFit::buildParticles() const {
   kinMap.clear();
   allParticles.clear();

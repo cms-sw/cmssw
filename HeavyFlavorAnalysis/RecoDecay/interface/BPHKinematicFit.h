@@ -62,6 +62,7 @@ public:
   virtual const RefCountedKinematicTree& kinematicTree() const;
   virtual const RefCountedKinematicTree& kinematicTree(const std::string& name, double mass, double sigma) const;
   virtual const RefCountedKinematicTree& kinematicTree(const std::string& name, double mass) const;
+  virtual const RefCountedKinematicTree& kinematicTree(const std::string& name) const;
   virtual const RefCountedKinematicTree& kinematicTree(const std::string& name, KinematicConstraint* kc) const;
   virtual const RefCountedKinematicTree& kinematicTree(const std::string& name,
                                                        MultiTrackKinematicConstraint* kc) const;
@@ -69,9 +70,11 @@ public:
   /// reset the kinematic fit
   virtual void resetKinematicFit() const;
 
-  // get current particle
+  /// get fit status
   virtual bool isEmpty() const;
   virtual bool isValidFit() const;
+
+  /// get current particle
   virtual const RefCountedKinematicParticle currentParticle() const;
   virtual const RefCountedKinematicVertex currentDecayVertex() const;
   virtual ParticleMass mass() const;
