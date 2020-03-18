@@ -113,7 +113,7 @@ private:
   bool updated;
 
   std::map<oniaType, OniaParameters> oniaPar;
-  std::map<oniaType, std::vector<BPHPlusMinusConstCandPtr> > oniaList;
+  std::map<oniaType, std::vector<BPHPlusMinusConstCandPtr>> oniaList;
   std::vector<BPHPlusMinusConstCandPtr> fullList;
 
   void setNotUpdated();

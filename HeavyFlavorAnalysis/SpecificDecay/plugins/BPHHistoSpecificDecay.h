@@ -46,12 +46,12 @@ private:
   std::string buCandsLabel;
   std::string bdCandsLabel;
   std::string bsCandsLabel;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > oniaCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > sdCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > ssCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > buCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > bdCandsToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > bsCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> oniaCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> sdCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> ssCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> buCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> bdCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> bsCandsToken;
   bool useOnia;
   bool useSd;
   bool useSs;

@@ -100,7 +100,7 @@ BPHWriteSpecificDecay::BPHWriteSpecificDecay(const edm::ParameterSet& ps) {
   recoOnia = recoKx0 = writeKx0 = recoPkk = writePkk = recoBu = writeBu = recoBd = writeBd = recoBs = writeBs = false;
 
   writeOnia = true;
-  const vector<edm::ParameterSet> recoSelect = ps.getParameter<vector<edm::ParameterSet> >("recoSelect");
+  const vector<edm::ParameterSet> recoSelect = ps.getParameter<vector<edm::ParameterSet>>("recoSelect");
   int iSel;
   int nSel = recoSelect.size();
   for (iSel = 0; iSel < nSel; ++iSel)
@@ -122,17 +122,17 @@ BPHWriteSpecificDecay::BPHWriteSpecificDecay(const edm::ParameterSet& ps) {
     writeOnia = writePkk = true;
 
   if (usePV)
-    consume<vector<reco::Vertex> >(pVertexToken, pVertexLabel);
+    consume<vector<reco::Vertex>>(pVertexToken, pVertexLabel);
   if (usePM)
     consume<pat::MuonCollection>(patMuonToken, patMuonLabel);
   if (useCC)
-    consume<vector<pat::CompositeCandidate> >(ccCandsToken, ccCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(ccCandsToken, ccCandsLabel);
   if (usePF)
-    consume<vector<reco::PFCandidate> >(pfCandsToken, pfCandsLabel);
+    consume<vector<reco::PFCandidate>>(pfCandsToken, pfCandsLabel);
   if (usePC)
-    consume<vector<BPHTrackReference::candidate> >(pcCandsToken, pcCandsLabel);
+    consume<vector<BPHTrackReference::candidate>>(pcCandsToken, pcCandsLabel);
   if (useGP)
-    consume<vector<pat::GenericParticle> >(gpCandsToken, gpCandsLabel);
+    consume<vector<pat::GenericParticle>>(gpCandsToken, gpCandsLabel);
 
   if (writeOnia)
     produces<pat::CompositeCandidateCollection>(oniaName);
@@ -230,14 +230,14 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
   // collections are got through "BPHTokenWrapper" interface to allow
   // uniform access in different CMSSW versions
 
-  edm::Handle<std::vector<reco::Vertex> > pVertices;
+  edm::Handle<std::vector<reco::Vertex>> pVertices;
   pVertexToken.get(ev, pVertices);
   int npv = pVertices->size();
 
   int nrc = 0;
 
   // get reco::PFCandidate collection (in full AOD )
-  edm::Handle<vector<reco::PFCandidate> > pfCands;
+  edm::Handle<vector<reco::PFCandidate>> pfCands;
   if (usePF) {
     pfCandsToken.get(ev, pfCands);
     nrc = pfCands->size();
@@ -247,14 +247,14 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
   // pat::PackedCandidate is not defined in CMSSW_5XY, so a
   // typedef (BPHTrackReference::candidate) is used, actually referring
   // to pat::PackedCandidate only for CMSSW versions where it's defined
-  edm::Handle<vector<BPHTrackReference::candidate> > pcCands;
+  edm::Handle<vector<BPHTrackReference::candidate>> pcCands;
   if (usePC) {
     pcCandsToken.get(ev, pcCands);
     nrc = pcCands->size();
   }
 
   // get pat::GenericParticle collection (in skimmed data)
-  edm::Handle<vector<pat::GenericParticle> > gpCands;
+  edm::Handle<vector<pat::GenericParticle>> gpCands;
   if (useGP) {
     gpCandsToken.get(ev, gpCands);
     nrc = gpCands->size();
@@ -273,7 +273,7 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
   typedef multimap<const reco::Candidate*, const pat::CompositeCandidate*> mu_cc_map;
   mu_cc_map muCCMap;
   if (useCC) {
-    edm::Handle<vector<pat::CompositeCandidate> > ccCands;
+    edm::Handle<vector<pat::CompositeCandidate>> ccCands;
     ccCandsToken.get(ev, ccCands);
     int n = ccCands->size();
     muDaugs.clear();
@@ -308,8 +308,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
       muDaugs.push_back(*iter++);
   }
 
-  map<recoType, map<parType, double> >::const_iterator rIter = parMap.begin();
-  map<recoType, map<parType, double> >::const_iterator rIend = parMap.end();
+  map<recoType, map<parType, double>>::const_iterator rIter = parMap.begin();
+  map<recoType, map<parType, double>>::const_iterator rIend = parMap.end();
 
   // reconstruct quarkonia
 
@@ -325,7 +325,7 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
 
   if (onia != nullptr) {
     while (rIter != rIend) {
-      const map<recoType, map<parType, double> >::value_type& rEntry = *rIter++;
+      const map<recoType, map<parType, double>>::value_type& rEntry = *rIter++;
       recoType rType = rEntry.first;
       const map<parType, double>& pMap = rEntry.second;
       BPHOniaToMuMuBuilder::oniaType type;

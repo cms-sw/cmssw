@@ -57,13 +57,13 @@ TestBPHSpecificDecay::TestBPHSpecificDecay(const edm::ParameterSet& ps) {
   if (usePM)
     consume<pat::MuonCollection>(patMuonToken, patMuonLabel);
   if (useCC)
-    consume<vector<pat::CompositeCandidate> >(ccCandsToken, ccCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(ccCandsToken, ccCandsLabel);
   if (usePF)
-    consume<vector<reco::PFCandidate> >(pfCandsToken, pfCandsLabel);
+    consume<vector<reco::PFCandidate>>(pfCandsToken, pfCandsLabel);
   if (usePC)
-    consume<vector<BPHTrackReference::candidate> >(pcCandsToken, pcCandsLabel);
+    consume<vector<BPHTrackReference::candidate>>(pcCandsToken, pcCandsLabel);
   if (useGP)
-    consume<vector<pat::GenericParticle> >(gpCandsToken, gpCandsLabel);
+    consume<vector<pat::GenericParticle>>(gpCandsToken, gpCandsLabel);
 
   SET_LABEL(outDump, ps);
   SET_LABEL(outHist, ps);
@@ -126,7 +126,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   int nrc = 0;
 
   // get reco::PFCandidate collection (in full AOD )
-  edm::Handle<vector<reco::PFCandidate> > pfCands;
+  edm::Handle<vector<reco::PFCandidate>> pfCands;
   if (usePF) {
     pfCandsToken.get(ev, pfCands);
     nrc = pfCands->size();
@@ -136,14 +136,14 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   // pat::PackedCandidate is not defined in CMSSW_5XY, so a
   // typedef (BPHTrackReference::candidate) is used, actually referring
   // to pat::PackedCandidate only for CMSSW versions where it's defined
-  edm::Handle<vector<BPHTrackReference::candidate> > pcCands;
+  edm::Handle<vector<BPHTrackReference::candidate>> pcCands;
   if (usePC) {
     pcCandsToken.get(ev, pcCands);
     nrc = pcCands->size();
   }
 
   // get pat::GenericParticle collection (in skimmed data)
-  edm::Handle<vector<pat::GenericParticle> > gpCands;
+  edm::Handle<vector<pat::GenericParticle>> gpCands;
   if (useGP) {
     gpCandsToken.get(ev, gpCands);
     nrc = gpCands->size();
@@ -160,7 +160,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   vector<const reco::Candidate*> muDaugs;
   set<const pat::Muon*> muonSet;
   if (useCC) {
-    edm::Handle<vector<pat::CompositeCandidate> > ccCands;
+    edm::Handle<vector<pat::CompositeCandidate>> ccCands;
     ccCandsToken.get(ev, ccCands);
     int n = ccCands->size();
     muDaugs.clear();

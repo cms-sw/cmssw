@@ -41,10 +41,10 @@ private:
 
   // token wrappers to allow running both on "old" and "new" CMSSW versions
   BPHTokenWrapper<pat::MuonCollection> patMuonToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > ccCandsToken;
-  BPHTokenWrapper<std::vector<reco::PFCandidate> > pfCandsToken;
-  BPHTokenWrapper<std::vector<BPHTrackReference::candidate> > pcCandsToken;
-  BPHTokenWrapper<std::vector<pat::GenericParticle> > gpCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> ccCandsToken;
+  BPHTokenWrapper<std::vector<reco::PFCandidate>> pfCandsToken;
+  BPHTokenWrapper<std::vector<BPHTrackReference::candidate>> pcCandsToken;
+  BPHTokenWrapper<std::vector<pat::GenericParticle>> gpCandsToken;
 
   bool usePM;
   bool useCC;
