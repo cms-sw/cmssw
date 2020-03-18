@@ -178,7 +178,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
         const pat::Muon* mp = dynamic_cast<const pat::Muon*>(dp);
         iter = muonSet.begin();
         iend = muonSet.end();
-        bool add = (mp != 0) && (muonSet.find(mp) == iend);
+        bool add = (mp != nullptr) && (muonSet.find(mp) == iend);
         while (add && (iter != iend)) {
           if (BPHRecoBuilder::sameTrack(mp, *iter++, 1.0e-5))
             add = false;
@@ -196,7 +196,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   // reconstruct resonances
 
   outF << "build and dump full onia" << endl;
-  BPHOniaToMuMuBuilder* onia = 0;
+  BPHOniaToMuMuBuilder* onia = nullptr;
   if (usePM)
     onia = new BPHOniaToMuMuBuilder(
         es, BPHRecoBuilder::createCollection(patMuon, "cfmig"), BPHRecoBuilder::createCollection(patMuon, "cfmig"));
@@ -299,7 +299,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   // build and dump Bu
 
   outF << "build and dump Bu" << endl;
-  BPHBuToJPsiKBuilder* bu = 0;
+  BPHBuToJPsiKBuilder* bu = nullptr;
   if (usePF)
     bu = new BPHBuToJPsiKBuilder(es,
                                  lJPsi,  //lFull,//lPsi1,
@@ -329,7 +329,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
     const reco::Candidate* mPos = bu->originalReco(bu->getDaug("JPsi/MuPos"));
     const reco::Candidate* mNeg = bu->originalReco(bu->getDaug("JPsi/MuNeg"));
     const reco::Candidate* kaon = bu->originalReco(bu->getDaug("Kaon"));
-    BPHRecoCandidatePtr njp(new BPHPlusMinusCandidate(&es));
+    BPHRecoCandidatePtr njp = BPHPlusMinusCandidateWrap::create(&es);
     njp->add("MuPos", mPos, BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
     njp->add("MuNeg", mNeg, BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
     BPHRecoCandidate nbu(&es);
@@ -341,7 +341,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
 
   // build and dump Kx0
 
-  BPHKx0ToKPiBuilder* kx0 = 0;
+  BPHKx0ToKPiBuilder* kx0 = nullptr;
   if (usePF)
     kx0 = new BPHKx0ToKPiBuilder(
         es, BPHRecoBuilder::createCollection(pfCands), BPHRecoBuilder::createCollection(pfCands));
@@ -377,7 +377,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
 
   // build and dump Phi
 
-  BPHPhiToKKBuilder* phi = 0;
+  BPHPhiToKKBuilder* phi = nullptr;
   if (usePF)
     phi =
         new BPHPhiToKKBuilder(es, BPHRecoBuilder::createCollection(pfCands), BPHRecoBuilder::createCollection(pfCands));
@@ -439,7 +439,7 @@ void TestBPHSpecificDecay::dumpRecoCand(const string& name, const BPHRecoCandida
   static string dType = "";
   string* type;
   const BPHPlusMinusCandidate* pmCand = dynamic_cast<const BPHPlusMinusCandidate*>(cand);
-  if (pmCand != 0) {
+  if (pmCand != nullptr) {
     if (pmCand->isCowboy())
       type = &cType;
     else
@@ -464,7 +464,7 @@ void TestBPHSpecificDecay::dumpRecoCand(const string& name, const BPHRecoCandida
   int ndof = lround(vx.ndof());
   double prob = TMath::Prob(chi2, ndof);
   string tdca = "";
-  if (pmCand != 0) {
+  if (pmCand != nullptr) {
     stringstream sstr;
     sstr << " - " << pmCand->cAppInRPhi().distance();
     tdca = sstr.str();
@@ -481,7 +481,7 @@ void TestBPHSpecificDecay::dumpRecoCand(const string& name, const BPHRecoCandida
     GlobalPoint gp(vp.X(), vp.Y(), vp.Z());
     GlobalVector dm(0.0, 0.0, 0.0);
     const reco::TransientTrack* tt = cand->getTransientTrack(dp);
-    if (tt != 0) {
+    if (tt != nullptr) {
       TrajectoryStateClosestToPoint tscp = tt->trajectoryStateClosestToPoint(gp);
       dm = tscp.momentum();
       //      TrajectoryStateOnSurface tsos = tt->stateOnSurface( gp );

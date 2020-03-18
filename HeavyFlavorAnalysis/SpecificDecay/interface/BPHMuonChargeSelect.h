@@ -45,7 +45,7 @@ public:
    */
   /// select muon
   virtual bool accept(const reco::Candidate& cand) const {
-    if (reinterpret_cast<const pat::Muon*>(&cand) == 0)
+    if (reinterpret_cast<const pat::Muon*>(&cand) == nullptr)
       return false;
     return BPHParticleChargeSelect::accept(cand);
   };

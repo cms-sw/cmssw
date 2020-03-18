@@ -171,7 +171,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
         const pat::Muon* mp = dynamic_cast<const pat::Muon*>(dp);
         iter = muonSet.begin();
         iend = muonSet.end();
-        bool add = (mp != 0) && (muonSet.find(mp) == iend);
+        bool add = (mp != nullptr) && (muonSet.find(mp) == iend);
         while (add && (iter != iend)) {
           if (BPHRecoBuilder::sameTrack(mp, *iter++, 1.0e-5))
             add = false;
@@ -199,7 +199,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     ~MuonChargeSelect() {}
     virtual bool accept(const reco::Candidate& cand) const {
       const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
-      if (p == 0)
+      if (p == nullptr)
         return false;
       return ((charge * cand.charge()) > 0);
     }
@@ -215,7 +215,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     ~MuonPtSelect() {}
     virtual bool accept(const reco::Candidate& cand) const {
       const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
-      if (p == 0)
+      if (p == nullptr)
         return false;
       return (p->p4().pt() > ptCut);
     }
@@ -231,7 +231,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     ~MuonEtaSelect() {}
     virtual bool accept(const reco::Candidate& cand) const {
       const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
-      if (p == 0)
+      if (p == nullptr)
         return false;
       return (fabs(p->p4().eta()) < etaCut);
     }
@@ -482,7 +482,7 @@ void TestBPHRecoDecay::dumpRecoCand(const string& name, const BPHRecoCandidate* 
   static string dType = "";
   string* type;
   const BPHPlusMinusCandidate* pmCand = dynamic_cast<const BPHPlusMinusCandidate*>(cand);
-  if (pmCand != 0) {
+  if (pmCand != nullptr) {
     if (pmCand->isCowboy())
       type = &cType;
     else
@@ -507,7 +507,7 @@ void TestBPHRecoDecay::dumpRecoCand(const string& name, const BPHRecoCandidate* 
   int ndof = lround(vx.ndof());
   double prob = TMath::Prob(chi2, ndof);
   string tdca = "";
-  if (pmCand != 0) {
+  if (pmCand != nullptr) {
     stringstream sstr;
     sstr << " - " << pmCand->cAppInRPhi().distance();
     tdca = sstr.str();
@@ -524,7 +524,7 @@ void TestBPHRecoDecay::dumpRecoCand(const string& name, const BPHRecoCandidate* 
     GlobalPoint gp(vp.X(), vp.Y(), vp.Z());
     GlobalVector dm(0.0, 0.0, 0.0);
     const reco::TransientTrack* tt = cand->getTransientTrack(dp);
-    if (tt != 0) {
+    if (tt != nullptr) {
       TrajectoryStateClosestToPoint tscp = tt->trajectoryStateClosestToPoint(gp);
       dm = tscp.momentum();
       //      TrajectoryStateOnSurface tsos = tt->stateOnSurface( gp );

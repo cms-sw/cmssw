@@ -100,14 +100,14 @@ void CheckBPHWriteDecay::dump(std::ostream& os, const pat::CompositeCandidate& c
      << (cand.hasUserData("cowboy") ? (cand.userData<bool>("cowboy") ? "cowboy" : "sailor") : "") << endl;
   writeMomentum(os, "cmom ", cand, false);
   writePosition(os, " xyz ", cand.momentum());
-  const reco::Vertex* vptr = (cand.hasUserData("vertex") ? cand.userData<reco::Vertex>("vertex") : 0);
-  if (vptr != 0) {
+  const reco::Vertex* vptr = (cand.hasUserData("vertex") ? cand.userData<reco::Vertex>("vertex") : nullptr);
+  if (vptr != nullptr) {
     writePosition(os, "vpos : ", *vptr, false);
     os << " --- " << vptr->chi2() << " / " << vptr->ndof() << " ( " << ChiSquaredProbability(vptr->chi2(), vptr->ndof())
        << " ) " << endl;
   }
-  const reco::Vertex* vfit = (cand.hasUserData("fitVertex") ? cand.userData<reco::Vertex>("fitVertex") : 0);
-  if (vfit != 0) {
+  const reco::Vertex* vfit = (cand.hasUserData("fitVertex") ? cand.userData<reco::Vertex>("fitVertex") : nullptr);
+  if (vfit != nullptr) {
     writePosition(os, "vfit : ", *vfit, false);
     os << " --- " << vfit->chi2() << " / " << vfit->ndof() << " ( " << ChiSquaredProbability(vfit->chi2(), vfit->ndof())
        << " ) " << endl;
@@ -119,7 +119,7 @@ void CheckBPHWriteDecay::dump(std::ostream& os, const pat::CompositeCandidate& c
     const vertex_ref* pvr = cand.userData<vertex_ref>("primaryVertex");
     if (pvr->isNonnull()) {
       const reco::Vertex* pvtx = pvr->get();
-      if (pvtx != 0)
+      if (pvtx != nullptr)
         writePosition(os, "ppos ", *pvtx);
     }
   }
@@ -134,7 +134,7 @@ void CheckBPHWriteDecay::dump(std::ostream& os, const pat::CompositeCandidate& c
     os << "muon " << i << "/" << n << " : " << mptr << endl;
     const reco::Track* tptr = BPHTrackReference::getTrack(*dptr, "cfhpmnigs");
     os << "trk  " << i << "/" << n << " : " << tptr;
-    if (tptr != 0)
+    if (tptr != nullptr)
       writeMomentum(os, " == ", *tptr);
     else
       os << "no track" << endl;
