@@ -45,7 +45,7 @@ public:
    */
   /// select muon
   bool accept(const reco::Candidate& cand) const override {
-    if (reinterpret_cast<const pat::Muon*>(&cand) == nullptr)
+    if (dynamic_cast<const pat::Muon*>(&cand) == nullptr)
       return false;
     return BPHParticleChargeSelect::accept(cand);
   };
