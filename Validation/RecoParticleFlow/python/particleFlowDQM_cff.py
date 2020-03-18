@@ -94,12 +94,44 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
 
 )
 
+
+# MET Config
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+
+pfMetAnalyzerDQM = DQMEDAnalyzer(
+#pfMetAnalyzerDQM = cms.EDProducer( #they don't seem to give different results. I'm still confused
+    "METTester",
+    InputMETLabel = cms.InputTag("slimmedMETs"),
+    METType = cms.untracked.string("miniaod"),
+    PrimaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+)
+
+pfPuppiMetAnalyzerDQM = pfMetAnalyzerDQM.clone()
+pfPuppiMetAnalyzerDQM.InputMETLabel = cms.InputTag("slimmedMETsPuppi")
+
+
+# PFCand Config 
+
+#pfCandAnalyzerDQM = cms.EDAnalyzer (
+#    "PFTester", 
+#    InputPFlowLabel = cms.InputTag("packedPFCandidates")
+    #InputPFlowLabel = "packedPFCandidates"
+#)
+
 #----- ----- ----- ----- ----- ----- ----- -----
 #
 # Sequence
 # if you add things here, you also have to fix DQMForPF_MiniAOD_cff.py
 
 pfDQM = cms.Sequence(
+#miniAODDQM = cms.Sequence(
     pfJetAnalyzerDQM *
-    pfPuppiJetAnalyzerDQM
+    pfPuppiJetAnalyzerDQM 
+)
+
+#miniAODDQM = cms.Sequence(
+pfDQMExtended = cms.Sequence ( 
+    pfMetAnalyzerDQM + 
+    pfPuppiMetAnalyzerDQM 
+#    pfCandAnalyzerDQM
 )

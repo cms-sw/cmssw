@@ -5,11 +5,22 @@ from Validation.RecoParticleFlow.particleFlowDQM_cff import pfPuppiJetAnalyzerDQ
 from Validation.RecoParticleFlow.particleFlowDQM_cff import pfJetDQMPostProcessor
 from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM
 from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetDQMPostProcessor
+from Validation.RecoParticleFlow.particleFlowDQM_cff import pfMetAnalyzerDQM
+from Validation.RecoParticleFlow.particleFlowDQM_cff import pfPuppiMetAnalyzerDQM
+#from Validation.RecoParticleFlow.particleFlowDQM_cff import pfCandAnalyzerDQM
 
 DQMOfflinePF = cms.Sequence(
   pfJetAnalyzerDQM +
   pfPuppiJetAnalyzerDQM +
-  offsetAnalyzerDQM
+  offsetAnalyzerDQM 
+)
+
+# MET, Tau, PFCand sequence
+#miniAODDQM = cms.Sequence(
+DQMOfflinePFExtended = cms.Sequence( 
+    pfMetAnalyzerDQM +
+    pfPuppiMetAnalyzerDQM 
+#    pfCandAnalyzerDQM
 )
 
 DQMHarvestPF = cms.Sequence(
