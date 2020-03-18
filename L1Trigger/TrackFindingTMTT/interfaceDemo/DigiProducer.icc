@@ -1,0 +1,526 @@
+#include <L1Trigger/TrackFindingTMTT/interfaceDemo/DigiProducer.h>
+#include <L1Trigger/TrackFindingTMTT/interface/InputData.h>
+#include <L1Trigger/TrackFindingTMTT/interface/Settings.h>
+#include <L1Trigger/TrackFindingTMTT/interface/Histos.h>
+#include <L1Trigger/TrackFindingTMTT/interface/Sector.h>
+#include <L1Trigger/TrackFindingTMTT/interface/HTrphi.h>
+#include <L1Trigger/TrackFindingTMTT/interface/Get3Dtracks.h>
+#include <L1Trigger/TrackFindingTMTT/interface/KillDupFitTrks.h>
+#include <L1Trigger/TrackFindingTMTT/interface/TrackFitGeneric.h>
+#include <L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h>
+#include <L1Trigger/TrackFindingTMTT/interface/L1fittedTrk4and5.h>
+#include <L1Trigger/TrackFindingTMTT/interface/ConverterToTTTrack.h>
+#include "L1Trigger/TrackFindingTMTT/interface/HTcell.h"
+#include "L1Trigger/TrackFindingTMTT/interface/MuxHToutputs.h"
+#include "L1Trigger/TrackFindingTMTT/interface/MiniHTstage.h"
+#include "L1Trigger/TrackFindingTMTT/interface/StubWindowSuggest.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "L1Trigger/TrackFindingTMTT/interfaceDemo/DigiConverter.h"
+
+#include "boost/numeric/ublas/matrix.hpp"
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <set>
+#include <assert.h>
+
+// If this defined, then the debug printout requested by Thomas to help with HT debugging is produced.
+//#define THOMAS
+
+// If this is defined, then TTTrack collections will be output using tracks after HT (and optionally r-z filter) too.
+//#define OutputHT_TTracks
+
+using namespace std;
+using boost::numeric::ublas::matrix;
+
+namespace demo {
+
+DigiProducer::DigiProducer(const edm::ParameterSet& iConfig):
+    tpInputTag( consumes<TrackingParticleCollection>( iConfig.getParameter<edm::InputTag>("tpInputTag") ) ),
+    stubInputTag( consumes<TMTT::DetSetVec>( iConfig.getParameter<edm::InputTag>("stubInputTag") ) ),
+    stubTruthInputTag( consumes<TMTT::TTStubAssMap>( iConfig.getParameter<edm::InputTag>("stubTruthInputTag") ) ),
+    clusterTruthInputTag( consumes<TMTT::TTClusterAssMap>( iConfig.getParameter<edm::InputTag>("clusterTruthInputTag") ) ),
+    genJetInputTag_( consumes<reco::GenJetCollection>( iConfig.getParameter<edm::InputTag>("genJetInputTag") ) ),
+    trackerGeometryInfo_() {
+    // Get configuration parameters
+    settings_ = new TMTT::Settings(iConfig);
+    trackFitters_ = settings_->trackFitters();
+    useRZfilter_ = settings_->useRZfilter();
+    runRZfilter_  = (useRZfilter_.size() > 0); // Do any fitters require an r-z track filter to be run?
+
+    // Tame debug printout.
+    cout.setf(ios::fixed, ios::floatfield);
+    cout.precision(4);
+
+    // Book histograms.
+    hists_ = new TMTT::Histos( settings_ );
+    hists_->book();
+
+    // Create track fitting algorithm (& internal histograms if it uses them)
+    for (const string& fitterName : trackFitters_) {
+        fitterWorkerMap_[ fitterName ] = TMTT::TrackFitGeneric::create(fitterName, settings_);
+        fitterWorkerMap_[ fitterName ]->bookHists();
+    }
+
+    //--- Define EDM output to be written to file (if required)
+
+    // L1 tracks found by Hough Transform
+    //  produces< TTTrackCollection >( "TML1TracksHT" ).setBranchAlias("TML1TracksHT");
+    // L1 tracks found by r-z track filter.
+
+    produces <DigiKF4TrackCollection>("SimDigiKF4Tracks").setBranchAlias("SimDigiKF4Tracks");
+    produces <DigiKF4TrackCollection>("SimDigiKF4TracksWithDups").setBranchAlias("SimDigiKF4TracksWithDups");
+    produces <DigiHTMiniStubCollection>("SimDigiHTStubs").setBranchAlias("SimDigiHTStubs");
+    produces <DigiHTMiniStubCollection>("SimDigiHTMiniStubs").setBranchAlias("SimDigiHTMiniStubs");
+    produces <DigiHTStubCollection>("SimDigiHTStubs").setBranchAlias("SimDigiHTStubs");
+    produces <DigiDTCStubCollection>("SimDigiDTCStubs").setBranchAlias("SimDigiDTCStubs");
+    // L1 tracks after track fit by each of the fitting algorithms under study
+    for (const string& fitterName : trackFitters_) {
+        string edmName = string("TML1Tracks") + fitterName;
+        produces< TTTrackCollection >(edmName).setBranchAlias(edmName);
+    }
+}
+
+
+void DigiProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+    // Get the B-field and store its value in the Settings class.
+
+    edm::ESHandle<MagneticField> magneticFieldHandle;
+    iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
+    const MagneticField* theMagneticField = magneticFieldHandle.product();
+    float bField = theMagneticField->inTesla(GlobalPoint(0, 0, 0)).z(); // B field in Tesla.
+    cout << endl << "--- B field = " << bField << " Tesla ---" << endl << endl;
+
+    settings_->setBfield(bField);
+
+    // Initialize track fitting algorithm at start of run (especially with B-field dependent variables).
+    for (const string& fitterName : trackFitters_) {
+        fitterWorkerMap_[ fitterName ]->initRun();
+    }
+
+    // Print info on tilted modules
+    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometryHandle );
+    const TrackerGeometry*  trackerGeometry = trackerGeometryHandle.product();
+
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+    iSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+    const TrackerTopology*  trackerTopology = trackerTopologyHandle.product();
+
+    trackerGeometryInfo_.getTiltedModuleInfo( settings_, trackerTopology, trackerGeometry );
+}
+
+void DigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+
+    // Note useful info about MC truth particles and about reconstructed stubs .
+    TMTT::InputData inputData(iEvent, iSetup, settings_, tpInputTag, stubInputTag, stubTruthInputTag, clusterTruthInputTag, genJetInputTag_ );
+
+    const vector<TMTT::TP>&          vTPs   = inputData.getTPs();
+    const vector<const TMTT::Stub*>& vStubs = inputData.getStubs();
+
+    // Creates matrix of Sector objects, which decide which stubs are in which (eta,phi) sector
+    matrix<TMTT::Sector>  mSectors(settings_->numPhiSectors(), settings_->numEtaRegions());
+    // Create matrix of r-phi Hough-Transform arrays, with one-to-one correspondence to sectors.
+    matrix<TMTT::HTrphi>  mHtRphis(settings_->numPhiSectors(), settings_->numEtaRegions());
+    // Create matrix of Get3Dtracks objects, to run optional r-z track filter, with one-to-one correspondence to sectors.
+    matrix<TMTT::Get3Dtracks>  mGet3Dtrks(settings_->numPhiSectors(), settings_->numEtaRegions());
+
+    //=== Initialization
+    // Create utility for converting L1 tracks from our private format to official CMSSW EDM format.
+    const TMTT::ConverterToTTTrack converter(settings_);
+    const DigiConverter digiConverter(settings_);
+
+    const unsigned int nFitAlgs = trackFitters_.size();
+
+    std::unique_ptr<TTTrackCollection> allFitTTTracksForOutput[nFitAlgs];
+    std::unique_ptr<DigiKF4TrackCollection> allDigiKF4Tracks(new std::vector< DigiKF4Track >);
+    std::unique_ptr<DigiKF4TrackCollection> allDigiKF4TracksWithDups(new std::vector< DigiKF4Track >);
+    std::unique_ptr<DigiHTMiniStubCollection> allDigiHTMiniStubs(new std::vector< DigiHTMiniStub >);
+    std::unique_ptr<DigiHTStubCollection> allDigiHTStubs(new std::vector< DigiHTStub >);
+    std::unique_ptr<DigiDTCStubCollection> allDigiDTCStubs(new std::vector< DigiDTCStub >);
+
+    map<string, unsigned int> locationInsideArray;
+    unsigned int ialg = 0;
+    for (const string& fitterName : trackFitters_) {
+        std::unique_ptr<TTTrackCollection> fitTTTracksForOutput(new TTTrackCollection);
+        allFitTTTracksForOutput[ialg] =  std::move( fitTTTracksForOutput );
+        locationInsideArray[fitterName] = ialg++;
+    }
+
+    //=== Do tracking in the r-phi Hough transform within each sector.
+
+#ifdef THOMAS
+    // Debug printout for Thomas
+    static unsigned int jEventCount = 0;
+    cout<<"============================ DIGI EVENT "<<jEventCount<<" ========================="<<endl;
+    jEventCount++;
+
+    map<pair<unsigned int, const TMTT::Stub*>, ostringstream> thomasString;
+#endif
+
+    map<unsigned int, set<const TMTT::Stub*> > stubsInNonant;
+    uint numPhiSecPerNon = settings_->numPhiSectors() / settings_->numPhiNonants();
+
+    // Fill Hough-Transform arrays with stubs.
+    for (unsigned int iPhiSec = 0; iPhiSec < settings_->numPhiSectors(); iPhiSec++) {
+        for (unsigned int iEtaReg = 0; iEtaReg < settings_->numEtaRegions(); iEtaReg++) {
+
+            TMTT::Sector& sector = mSectors(iPhiSec, iEtaReg);
+            TMTT::HTrphi& htRphi = mHtRphis(iPhiSec, iEtaReg);
+
+            // Initialize constants for this sector.
+            sector.init(settings_, iPhiSec, iEtaReg);
+            htRphi.init(settings_, iPhiSec, iEtaReg, sector.etaMin(), sector.etaMax(), sector.phiCentre());
+
+            // Check sector is enabled (always true, except if user disabled some for special studies).
+            if (settings_->isHTRPhiEtaRegWhitelisted(iEtaReg)) {
+
+                for (const TMTT::Stub* stub : vStubs) {
+                    // Digitize stub as would be at input to GP. This doesn't need the nonant number, since we assumed an integer number of
+                    // phi digitisation  bins inside an nonant. N.B. This changes the coordinates & bend stored in the stub.
+                    // The cast allows us to ignore the "const".
+
+                    const_cast<TMTT::Stub*>(stub)->digitizeForGPinput(iPhiSec);
+                    // Check if stub is inside this sector
+                    bool inside = sector.inside( stub );
+
+                    if (inside) {
+                        // Check which eta subsectors within the sector the stub is compatible with (if subsectors being used).
+                        const vector<bool> inEtaSubSecs =  sector.insideEtaSubSecs( stub );
+
+                        // Digitize stub if as would be at input to HT, which slightly degrades its coord. & bend resolution, affecting the HT performance.
+                        const_cast<TMTT::Stub*>(stub)->digitizeForHTinput(iPhiSec);
+
+                        // Store stub in Hough transform array for this sector, indicating its compatibility with eta subsectors with sector.
+                        htRphi.store( stub, inEtaSubSecs );
+
+		        unsigned int iPhiNonant = std::floor(iPhiSec / numPhiSecPerNon);
+                        unsigned int digiPhiSec = iPhiSec % numPhiSecPerNon; 
+
+			set<const TMTT::Stub*>& stubsInThisNonant = stubsInNonant[iPhiNonant];
+			if (std::count(stubsInThisNonant.begin(), stubsInThisNonant.end(), stub) == 0) {
+			  stubsInNonant[iPhiSec/2].insert(stub);
+
+                          DigiDTCStub digiDTCStub = digiConverter.makeDigiDTCStub( *stub, digiPhiSec );
+
+                          std::srand(stub->digitalStub().iDigi_PhiO());
+                          short unsigned int link_init = rand() % 48;
+
+		          digiDTCStub.setRouteId({(uint16_t)(iPhiNonant), (uint16_t)link_init, DigiRouteId::kNullTimeIndex});
+                          allDigiDTCStubs->push_back(digiDTCStub);
+
+#ifdef THOMAS
+	  		  // IRT - debug printout for Thomas	     
+			  unsigned int link = link_init; // GP input links in use in firmware.
+			  if (link >= 36) {
+			    link += 20;
+			  } else if (link >= 12) {
+			    link += 12;
+			  } else {
+			    link += 4;
+			  }
+	  		  int mBinMin = (int(stub->min_qOverPt_bin()) - int(settings_->houghNbinsPt()) / 2) / 2;
+	  		  int mBinMax = (int(stub->max_qOverPt_bin()) - int(settings_->houghNbinsPt()) / 2) / 2;
+			  thomasString[pair<unsigned int, const TMTT::Stub*>(iPhiNonant,stub)]<<"DIGI STUB: iNonant="<<digiDTCStub.routeId().processor()<<" link="<<link<<" IphiO="<<digiDTCStub.phiO()<<" Iz="<<digiDTCStub.z()<<" IrT="<<digiDTCStub.rT()<<" modType="<<(unsigned int)(digiDTCStub.modType())<<" bend="<<int(digiDTCStub.bend())<<"; FLOAT STUB:  lay="<<stub->layerIdReduced()<<" phiSec="<<sector.phiCentre()<<" etaMin="<<sector.etaMin()<<" etaMax="<<sector.etaMax()<<" mMin="<<mBinMin<<" mMax="<<mBinMax<<" rT="<<stub->r()-settings_->chosenRofPhi()<<" phi="<<stub->phi()<<" z="<<stub->z()<<" : Sectors(phi,eta)=";	
+#endif	 
+			}
+#ifdef THOMAS
+			thomasString[pair<unsigned int, const TMTT::Stub*>(iPhiNonant,stub)] << " ("<<digiPhiSec<<","<<iEtaReg<<")";
+#endif
+                    }
+                }
+            }
+
+            // Find tracks in r-phi HT array.
+            htRphi.end(); // Calls htArrayRphi_.end() -> HTBase::end()
+        }
+    }
+
+#ifdef THOMAS
+    // Thomas debug printout.
+    for (const auto& p : thomasString) {
+      cout<<(p.second).str()<<endl;
+    }
+#endif
+
+    if (settings_->muxOutputsHT() > 0) {
+        // Multiplex outputs of several HT onto one pair of output opto-links.
+        // This only affects tracking performance if option busySectorKill is enabled, so that tracks that
+        // can't be sent down the link within the time-multiplexed period are killed.
+        TMTT::MuxHToutputs muxHT(settings_);
+        muxHT.exec(mHtRphis);
+    }
+
+    //
+    for (unsigned int iPhiSec = 0; iPhiSec < settings_->numPhiSectors(); iPhiSec++) {
+
+        unsigned int iNonant = iPhiSec / numPhiSecPerNon;
+        unsigned int iPhiSecInNonant = iPhiSec%numPhiSecPerNon;
+
+        for (unsigned int iEtaReg = 0; iEtaReg < settings_->numEtaRegions(); iEtaReg++) {
+
+            const TMTT::Sector& sector = mSectors(iPhiSec, iEtaReg);
+
+            TMTT::Get3Dtracks& get3DtrkCoarse = mGet3Dtrks(iPhiSec, iEtaReg);
+            // Initialize utility for making 3D tracks from 2D ones.
+            get3DtrkCoarse.init(settings_, iPhiSec, iEtaReg, sector.etaMin(), sector.etaMax(), sector.phiCentre());
+
+            // Convert 2D tracks found by HT to 3D tracks (optionally by running r-z filters & duplicate track removal)
+            get3DtrkCoarse.run(mHtRphis(iPhiSec, iEtaReg).trackCands2D());
+
+            // Loop over candidates in this phi/eta sector
+            for ( const TMTT::L1track3D& trk : get3DtrkCoarse.trackCands3D(false)) {
+                auto lMTrk = const_cast<TMTT::L1track3D&>(trk);
+                auto lChiPhi = lMTrk.getChiPhiDigi();
+                auto lChiZ = lMTrk.getChiZDigi();
+                const auto& lStubs = lMTrk.getStubs();
+
+                int8_t cBin = (trk.getCellLocationHT().second - settings_->houghNbinsPhi() / 2) / 2;
+                int8_t mBin = (trk.getCellLocationHT().first - settings_->houghNbinsPt() / 2) / 2;
+                //bool mSel = (mBin % 2 == 0);
+		// IRT - fix to match firmware - no longer needed.
+		//mBin = -int(mBin) - 1;
+		bool mSel = (mBin >= 0);
+
+		//cout<<"Thomas check: mBin="<<int(mBin)<<" mSel="<<mSel<<" link="<<trk.optoLinkID()<<" nonant="<<int(iPhiSec / numPhiSecPerNon)<<endl;
+
+                // Loop over the stub collection
+                // for (const auto* stub : trk.getStubs()) {
+                for (size_t i(0); i < lStubs.size(); ++i) {
+
+                    DigiHTStub digiHTStub = digiConverter.makeDigiHTStub(
+                                                *lStubs[i],
+						iPhiSecInNonant,
+                                                iEtaReg,
+                                                cBin,
+                                                lChiZ[i],
+                                                lChiPhi[i],
+                                                mSel
+                                            );
+
+                    digiHTStub.setRouteId({(uint16_t)(iNonant), (uint16_t)trk.optoLinkID(), DigiRouteId::kNullTimeIndex});
+                    allDigiHTStubs->push_back(digiHTStub);
+                }
+            }
+        }
+    }
+
+    // Optionally, run 2nd stage mini HT -- WITHOUT TRUNCATION ???
+    if ( settings_->miniHTstage() ) {
+        TMTT::MiniHTstage miniHTstage( settings_ );
+        miniHTstage.exec( mHtRphis );
+    }
+
+    //=== Make 3D tracks, optionally running r-z track filters (such as Seed Filter) & duplicate track removal.
+    for (unsigned int iPhiSec = 0; iPhiSec < settings_->numPhiSectors(); iPhiSec++) {
+        unsigned int iPhiSecInNonant = iPhiSec%numPhiSecPerNon;
+
+        for (unsigned int iEtaReg = 0; iEtaReg < settings_->numEtaRegions(); iEtaReg++) {
+
+            // Get tracks found by r-phi HT.
+            const TMTT::HTrphi& htRphi = mHtRphis(iPhiSec, iEtaReg);
+
+            // Then create the 3D tracks, because only they know about chiZ and chiPhi
+            const TMTT::Sector& sector = mSectors(iPhiSec, iEtaReg);
+
+            TMTT::Get3Dtracks& get3Dtrk = mGet3Dtrks(iPhiSec, iEtaReg);
+            // Initialize utility for making 3D tracks from 2D ones.
+            get3Dtrk.init(settings_, iPhiSec, iEtaReg, sector.etaMin(), sector.etaMax(), sector.phiCentre());
+
+            // Convert 2D tracks found by HT to 3D tracks (optionally by running r-z filters & duplicate track removal)
+            get3Dtrk.run(htRphi.trackCands2D());
+
+            const vector<TMTT::L1track3D>& vecTrk3D = get3Dtrk.trackCands3D(false);
+
+            // Loop over the tracks
+            for ( const TMTT::L1track3D& trk : vecTrk3D) {
+
+                int8_t cBin = trk.getCellLocationHT().second - settings_->houghNbinsPhi() / 2;
+                int8_t mBin = trk.getCellLocationHT().first - settings_->houghNbinsPt() / 2;
+
+	        unsigned int iLink = trk.optoLinkID();
+                unsigned int iNonant = iPhiSec / numPhiSecPerNon;
+
+                for (const TMTT::Stub* stub : trk.getStubs()) {
+
+                    DigiHTMiniStub digiHTMiniStub = digiConverter.makeDigiHTMiniStub(
+                                                        *stub,
+                                                        // SectorID
+							iPhiSecInNonant,
+                                                        iEtaReg,
+                                                        cBin,
+                                                        mBin
+                                                    );
+                    digiHTMiniStub.setRouteId({(uint16_t)(iNonant), (uint16_t)iLink, DigiRouteId::kNullTimeIndex});
+                    allDigiHTMiniStubs->push_back(digiHTMiniStub);
+                }
+            }
+
+        }
+    }
+
+    // Initialize the duplicate track removal algorithm that can optionally be run after the track fit.
+    TMTT::KillDupFitTrks killDupFitTrks;
+    killDupFitTrks.init(settings_, settings_->dupTrkAlgFit());
+
+    //=== Do a helix fit to all the track candidates.
+
+    map<string, vector<TMTT::L1fittedTrack>> fittedTracks;
+    // Initialize with empty vector in case no fitted tracks found.
+    for (const string& fitterName : trackFitters_) { // Loop over fit algos.
+        fittedTracks[fitterName] = vector<TMTT::L1fittedTrack>();
+    }
+
+    for (unsigned int iPhiSec = 0; iPhiSec < settings_->numPhiSectors(); iPhiSec++) {
+        for (unsigned int iEtaReg = 0; iEtaReg < settings_->numEtaRegions(); iEtaReg++) {
+
+            const TMTT::Get3Dtracks& get3Dtrk = mGet3Dtrks(iPhiSec, iEtaReg);
+
+            // Loop over all the fitting algorithms we are trying.
+            for (const string& fitterName : trackFitters_) {
+
+                // Get 3D track candidates found by Hough transform (plus optional r-z filters/duplicate removal) in this sector.
+                const vector<TMTT::L1track3D>& vecTrk3D = get3Dtrk.trackCands3D(false);
+
+                // Fit all tracks in this sector
+                vector<TMTT::L1fittedTrack> fittedTracksInSec;
+                for (const TMTT::L1track3D& trk : vecTrk3D) {
+
+                    // Ensure stubs assigned to this track is digitized with respect to the phi sector the track is in.
+                    if (settings_->enableDigitize()) {
+                        const vector<const TMTT::Stub*>& stubsOnTrk = trk.getStubs();
+                        for (const TMTT::Stub* s : stubsOnTrk) {
+                            (const_cast<TMTT::Stub*>(s))->digitizeForHTinput(iPhiSec);
+                            // Also digitize stub in way this specific track fitter uses it.
+                            (const_cast<TMTT::Stub*>(s))->digitizeForSForTFinput(fitterName);
+                        }
+                    }
+
+                    TMTT::L1fittedTrack fitTrack = fitterWorkerMap_[fitterName]->fit(trk);
+
+                    if (fitTrack.accepted()) { // If fitter accepted track, then store it.
+                        // Optionally digitize fitted track, degrading slightly resolution.
+                        if (settings_->enableDigitize()) fitTrack.digitizeTrack(fitterName);
+                        // Store fitted tracks, such that there is one fittedTracks corresponding to each HT tracks.
+                        // N.B. Tracks rejected by the fit are also stored, but marked.
+                        fittedTracksInSec.push_back(fitTrack);
+                    }
+                }
+
+
+                // Save digi tracks with duplicates
+                for (const TMTT::L1fittedTrack& fitTrk : fittedTracksInSec) {
+                    if (!settings_->enableDigitize() && "Digitization must be enabled to run the digi producer" ) {assert(0);}
+
+		    // Apply cut on diff between (m,c) of helix params & from HT, since in DR fw this is not applied, whereas 
+		    // in TMTT DR sw, it is applied. No longer true.
+
+		    static const bool limitDiff = false; // Edit this line to switch this option on or off.
+
+		    bool passDiffCut = true;
+		    if (limitDiff) {
+		      static const unsigned int maxDiff = 1;
+		      passDiffCut = (abs(int(fitTrk.getCellLocationHT().first)  - int(fitTrk.getCellLocationFit().first))  <= maxDiff &&
+	           		     abs(int(fitTrk.getCellLocationHT().second) - int(fitTrk.getCellLocationFit().second)) <= maxDiff);
+		    }
+
+		    if (passDiffCut) {
+                      DigiKF4Track digiTrack = digiConverter.makeDigiKF4Track(fitTrk);
+
+                      digiTrack.setRouteId({(uint16_t)(iPhiSec / numPhiSecPerNon), (uint16_t)fitTrk.optoLinkID(), DigiRouteId::kNullTimeIndex});
+                      allDigiKF4TracksWithDups->push_back(digiTrack);
+		    }
+                }
+
+
+                ///allDigiKFTracks Run duplicate track removal on the fitted tracks if requested.
+                const vector<TMTT::L1fittedTrack> filtFittedTracksInSec = killDupFitTrks.filter( fittedTracksInSec );
+
+                // Store fitted tracks from entire tracker.
+                for (const TMTT::L1fittedTrack& fitTrk : filtFittedTracksInSec) {
+                    fittedTracks[fitterName].push_back(fitTrk);
+                    // Convert these fitted tracks to EDM format for output (used for collaborative work outside TMTT group).
+                    TTTrack< Ref_Phase2TrackerDigi_ > fitTTTrack = converter.makeTTTrack(fitTrk, iPhiSec, iEtaReg);
+                    allFitTTTracksForOutput[locationInsideArray[fitterName]]->push_back(fitTTTrack);
+                    if (!settings_->enableDigitize() && "Digitization must be enabled to run the digi producer" ) {assert(0);}
+
+                    // Save digi tracks without duplicates
+                    DigiKF4Track digiTrack = digiConverter.makeDigiKF4Track(fitTrk);
+
+                    digiTrack.setRouteId({(uint16_t)(iPhiSec / numPhiSecPerNon), DigiRouteId::kNullChannel, DigiRouteId::kNullTimeIndex});
+                    allDigiKF4Tracks->push_back(digiTrack);
+                }
+            }
+        }
+    }
+
+    // Debug printout
+    unsigned int static nEvents = 0;
+    nEvents++;
+    if (settings_->debug() >= 1 && nEvents <= 1000) {
+        cout << "INPUT #TPs = " << vTPs.size() << " #STUBs = " << vStubs.size() << endl;
+        unsigned int numHTtracks = 0;
+        for (unsigned int iPhiSec = 0; iPhiSec < settings_->numPhiSectors(); iPhiSec++) {
+            for (unsigned int iEtaReg = 0; iEtaReg < settings_->numEtaRegions(); iEtaReg++) {
+                const TMTT::Get3Dtracks& get3Dtrk = mGet3Dtrks(iPhiSec, iEtaReg);
+                numHTtracks += get3Dtrk.trackCands3D(false).size();
+            }
+        }
+        cout << "Number of tracks after HT = " << numHTtracks << endl;
+        for (const auto& p : fittedTracks) {
+            const string& fitName = p.first;
+            const vector<TMTT::L1fittedTrack>& fittedTracks = p.second;
+            cout << "Number of tracks after " << fitName << " track helix fit = " << fittedTracks.size() << endl;
+        }
+    }
+
+
+    // Allow histogramming to plot undigitized variables.
+    for (const TMTT::Stub* stub : vStubs) {
+        if (settings_->enableDigitize()) (const_cast<TMTT::Stub*>(stub))->setDigitizeWarningsOn(false);
+    }
+
+    // Fill histograms to monitor input data & tracking performance.
+    hists_->fill(inputData, mSectors, mHtRphis, mGet3Dtrks, fittedTracks);
+
+    //=== Store output EDM track and hardware stub collections.
+    iEvent.put(std::move(allDigiKF4Tracks), "SimDigiKF4Tracks");
+    iEvent.put(std::move(allDigiKF4TracksWithDups), "SimDigiKF4TracksWithDups");
+    iEvent.put(std::move(allDigiHTStubs), "SimDigiHTStubs");
+    iEvent.put(std::move(allDigiHTMiniStubs), "SimDigiHTMiniStubs");
+    iEvent.put(std::move(allDigiDTCStubs), "SimDigiDTCStubs");
+}
+
+
+void DigiProducer::endJob() {
+    // Print stub window sizes that TMTT recommends CMS uses in FE chips.
+    if (settings_->printStubWindows()) TMTT::StubWindowSuggest::printResults();
+
+    // Optional debug printout from track fitters at end of job.
+    for (const string& fitterName : trackFitters_) {
+        fitterWorkerMap_[ fitterName ]->endJob();
+    }
+
+    // Print job summary
+    hists_->trackerGeometryAnalysis(trackerGeometryInfo_);
+    hists_->endJobAnalysis();
+
+    for (const string& fitterName : trackFitters_) {
+        //cout << "# of duplicated stubs = " << fitterWorkerMap_[fitterName]->nDupStubs() << endl;
+        delete fitterWorkerMap_[ string(fitterName) ];
+    }
+
+    cout << endl << "Number of (eta,phi) sectors used = (" << settings_->numEtaRegions() << "," << settings_->numPhiSectors() << ")" << endl;
+
+}
+
+DEFINE_FWK_MODULE(DigiProducer);
+
+}

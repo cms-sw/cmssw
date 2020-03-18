@@ -1,0 +1,6 @@
+./HourGlassConfig.py 
+./WiresLongVM.py wires.input.hourglass
+cp wires.dat ../wires_hourglass.dat
+cp memorymodules.dat ../memorymodules_hourglass.dat
+cp processingmodules.dat ../processingmodules_hourglass.dat
+

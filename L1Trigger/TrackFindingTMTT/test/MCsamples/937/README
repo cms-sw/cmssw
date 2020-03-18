@@ -1,0 +1,7 @@
+RelVal/ contains CMSSW 9.3.7 RelVal samples requested by the P2 L1 trigger group. 
+They are made with Seb Viret's Dec. 2017 stub window sizes,
+which you can find in CMSSW 9.3.7 in file  L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py .
+They are slightly looser than the 9.3.2 samples.
+The MC was made with the D17 (=T5)  tilted tracker geometry.
+
+Typical dataset name /RelVal*/CMSSW_9_3_7-*upgrade2023*/GEN-SIM-DIGI-RAW
