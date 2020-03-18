@@ -8,7 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4SDManager.hh"
@@ -50,11 +49,8 @@ ZdcSD::ZdcSD(const std::string& name,
 
   edm::LogVerbatim("ZdcSD") << "\nEnergy Threshold Cut set to " << zdcHitEnergyCut / GeV << " (GeV)";
 
-  edm::ESTransientHandle<DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get(cpv);
-
   if (useShowerLibrary) {
-    showerLibrary.reset(new ZdcShowerLibrary(name, *cpv, p));
+    showerLibrary.reset(new ZdcShowerLibrary(name, p));
     setParameterized(true);
   } else {
     showerLibrary.reset(nullptr);

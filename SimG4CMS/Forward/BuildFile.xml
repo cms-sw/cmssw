@@ -13,7 +13,6 @@
 <use   name="SimDataFormats/SimHitMaker"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="SimDataFormats/Forward"/>
-<use   name="DetectorDescription/Core"/>
 <use   name="Geometry/HGCalCommonData"/>
 <use   name="Geometry/MTDCommonData"/>
 <use   name="boost"/>
