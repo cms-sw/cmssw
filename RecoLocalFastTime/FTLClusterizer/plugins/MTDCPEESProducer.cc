@@ -1,6 +1,7 @@
 #include "RecoLocalFastTime/Records/interface/MTDCPERecord.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDClusterParameterEstimator.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDCPEBase.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/MTDCPEFromSiPMTime.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 
@@ -31,7 +32,7 @@ private:
 
 MTDCPEESProducer::MTDCPEESProducer(const edm::ParameterSet& p) {
   pset_ = p;
-  setWhatProduced(this, "MTDCPEBase").setConsumes(ddToken_);
+  setWhatProduced(this, "MTDCPEFromSiPMTime").setConsumes(ddToken_);
 }
 
 // Configuration descriptions
@@ -41,7 +42,7 @@ void MTDCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 std::unique_ptr<MTDClusterParameterEstimator> MTDCPEESProducer::produce(const MTDCPERecord& iRecord) {
-  return std::make_unique<MTDCPEBase>(pset_, iRecord.get(ddToken_));
+  return std::make_unique<MTDCPEFromSiPMTime>(pset_, iRecord.get(ddToken_));
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

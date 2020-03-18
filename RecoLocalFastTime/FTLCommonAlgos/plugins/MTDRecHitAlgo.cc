@@ -9,7 +9,8 @@ public:
   MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
       : MTDRecHitAlgoBase(conf, sumes),
         thresholdToKeep_(conf.getParameter<double>("thresholdToKeep")),
-        calibration_(conf.getParameter<double>("calibrationConstant")) {}
+        calibration_(conf.getParameter<double>("calibrationConstant")),
+        posError_(conf.getParameter<double>("posError")) {}
 
   /// Destructor
   ~MTDRecHitAlgo() override {}
@@ -22,7 +23,7 @@ public:
   FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const final;
 
 private:
-  double thresholdToKeep_, calibration_;
+  double thresholdToKeep_, calibration_, posError_;
   const MTDTimeCalib* time_calib_;
 };
 
@@ -39,6 +40,9 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   float energy = 0.;
   float time = 0.;
 
+  std::pair<float, float> position(-1.f, -1.f);  //position in unit mm
+  float positionError = -1.f;
+
   switch (flagsWord) {
     // BTL bar geometry with only the right SiPM information available
     case 0x2: {
@@ -51,6 +55,10 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
     case 0x3: {
       energy = 0.5 * (uRecHit.amplitude().first + uRecHit.amplitude().second);
       time = 0.5 * (uRecHit.time().first + uRecHit.time().second);
+
+      position.first = uRecHit.position().first;
+      position.second = uRecHit.position().second;
+      positionError = posError_;
 
       break;
     }
@@ -69,7 +77,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   // --- Time calibration: for the time being just removes a time offset in BTL
   time += time_calib_->getTimeCalib(uRecHit.id());
 
-  FTLRecHit rh(uRecHit.id(), uRecHit.row(), uRecHit.column(), energy, time, timeError);
+  FTLRecHit rh(uRecHit.id(), uRecHit.row(), uRecHit.column(), energy, time, timeError, position, positionError);
 
   // Now fill flags
   // all rechits from the digitizer are "good" at present

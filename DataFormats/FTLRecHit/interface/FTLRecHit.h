@@ -41,6 +41,24 @@ public:
   FTLRecHit(
       const DetId& id, uint8_t row, uint8_t column, float energy, float time, float timeError, uint32_t flagBits = 0);
 
+  FTLRecHit(const DetId& id,
+            float energy,
+            float time,
+            float timeError,
+            std::pair<float, float> position,
+            float positionError,
+            uint32_t flagBits = 0);
+
+  FTLRecHit(const DetId& id,
+            uint8_t row,
+            uint8_t column,
+            float energy,
+            float time,
+            float timeError,
+            std::pair<float, float> position,
+            float positionError,
+            uint32_t flagBits = 0);
+
   /// get the id
 
   float energy() const { return energy_; }
@@ -57,11 +75,17 @@ public:
   float time() const { return time_; }
   void setTime(float time) { time_ = time; }
 
+  std::pair<float, float> position() const { return position_; }
+  void setPosition(std::pair<float, float> position) { position_ = position; }
+
   bool isTimeValid() const;
   bool isTimeErrorValid() const;
 
   float timeError() const { return timeError_; }
   void setTimeError(float err) { timeError_ = err; }
+
+  float positionError() const { return positionError_; }
+  void setPositionError(float poserr) { positionError_ = poserr; }
 
   /// set the flags (from Flags or ESFlags)
   void setFlag(int flag) { flagBits_ |= (0x1 << flag); }
@@ -76,6 +100,8 @@ public:
 private:
   DetId id_;
   float energy_, time_, timeError_;
+  std::pair<float, float> position_;
+  float positionError_;
   uint8_t row_, column_;
 
   /// store rechit condition (see Flags enum) in a bit-wise way
