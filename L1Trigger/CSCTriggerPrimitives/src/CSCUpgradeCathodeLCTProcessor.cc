@@ -61,7 +61,10 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(const PulseArray pulse, const int
     // pulses at that bunch-crossing time.  Do the same for the next keystrip,
     // etc.  Then do the entire process again for the next bunch-crossing, etc
     // until you find a pre-trigger.
-    bool hits_in_time = patternFinding(pulse, nStrips, bx_time);
+    std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer> > hits_in_patterns;
+    hits_in_patterns.clear();
+
+    bool hits_in_time = patternFinding(pulse, nStrips, bx_time, hits_in_patterns);
     if (hits_in_time) {
       for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < nStrips; hstrip++) {
         if (infoV > 1) {
@@ -192,7 +195,11 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 
       // TMB latches LCTs drift_delay clocks after pretrigger.
       int latch_bx = first_bx + drift_delay;
-      bool hits_in_time = patternFinding(pulse, maxHalfStrips, latch_bx);
+
+      std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer> > hits_in_patterns;
+      hits_in_patterns.clear();
+
+      bool hits_in_time = patternFinding(pulse, maxHalfStrips, latch_bx, hits_in_patterns);
       if (infoV > 1) {
         if (hits_in_time) {
           for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < maxHalfStrips; hstrip++) {
@@ -322,6 +329,17 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
                                 keystrip_data[ilct][CLCT_CFEB],
                                 keystrip_data[ilct][CLCT_BX]);
             thisLCT.setFullBX(fbx);
+
+            // get the comparator hits for this pattern
+            auto compHits = hits_in_patterns[best_hs][keystrip_data[ilct][CLCT_PATTERN]];
+
+            // purge the comparator digi collection from the obsolete "65535" entries...
+            cleanComparatorContainer(compHits);
+
+            // set the hit collection
+            thisLCT.setHits(compHits);
+
+            // put the CLCT into the collection
             lctList.push_back(thisLCT);
             lctListBX.push_back(thisLCT);
           }
