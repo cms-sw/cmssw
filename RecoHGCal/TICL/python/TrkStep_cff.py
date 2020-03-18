@@ -28,6 +28,7 @@ trackstersTrk = _trackstersProducer.clone(
   max_delta_time = -1.,
   algo_verbosity = 2,
   oneTracksterPerTrackSeed = True,
+  promoteEmptyRegionToTrackster = True,
   itername = "TRK"
 )
 

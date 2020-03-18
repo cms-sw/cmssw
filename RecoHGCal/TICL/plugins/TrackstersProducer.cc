@@ -113,6 +113,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("out_in_dfs", true);
   desc.add<int>("max_out_in_hops", 10);
   desc.add<bool>("oneTracksterPerTrackSeed", false);
+  desc.add<bool>("promoteEmptyRegionToTrackster", false);
   desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_v0.pb");
   desc.add<std::string>("eid_input_name", "input");
   desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");

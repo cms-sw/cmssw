@@ -32,7 +32,7 @@ namespace ticl {
                             std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
     const std::unique_ptr<HGCGraph> theGraph_;
     const bool oneTracksterPerTrackSeed_;
-    const bool promoteEmptyRegionToTrackster_ = true;
+    const bool promoteEmptyRegionToTrackster_;
     const bool out_in_dfs_;
     const unsigned int max_out_in_hops_;
     const float min_cos_theta_;
