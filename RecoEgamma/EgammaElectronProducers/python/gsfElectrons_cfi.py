@@ -13,9 +13,8 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronBaseProducer",
     # input collections
     gsfElectronCoresTag = cms.InputTag("ecalDrivenGsfElectronCores"),
 
-    gedElectronMode = cms.bool(False),
-
     # steering
+    gedElectronMode = cms.bool(False),
     applyPreselection = cms.bool(False),
     ecalDrivenEcalEnergyFromClassBasedParameterization = cms.bool(True),
     ecalDrivenEcalErrorFromClassBasedParameterization = cms.bool(True),
@@ -26,14 +25,6 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronBaseProducer",
     preselection = cms.PSet(
         minSCEtBarrel = cms.double(4.0),
         minSCEtEndcaps = cms.double(4.0),
-        maxDeltaEtaBarrel = cms.double(0.02),
-        maxDeltaEtaEndcaps = cms.double(0.02),
-        maxDeltaPhiBarrel = cms.double(0.15),
-        maxDeltaPhiEndcaps = cms.double(0.15),
-        maxHOverEBarrelCone = cms.double(0.15),
-        maxHOverEEndcapsCone = cms.double(0.15),
-        maxHOverEBarrelTower = cms.double(0.15),
-        maxHOverEEndcapsTower = cms.double(0.15),
     ),
 
     # Ecal rec hits configuration
