@@ -198,7 +198,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     MuonChargeSelect(int c) : charge(c) {}
     ~MuonChargeSelect() override {}
     bool accept(const reco::Candidate& cand) const override {
-      const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
+      const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
       if (p == nullptr)
         return false;
       return ((charge * cand.charge()) > 0);
@@ -214,7 +214,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     MuonPtSelect(float pt) : ptCut(pt) {}
     ~MuonPtSelect() override {}
     bool accept(const reco::Candidate& cand) const override {
-      const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
+      const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
       if (p == nullptr)
         return false;
       return (p->p4().pt() > ptCut);
@@ -230,7 +230,7 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     MuonEtaSelect(float eta) : etaCut(eta) {}
     ~MuonEtaSelect() override {}
     bool accept(const reco::Candidate& cand) const override {
-      const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
+      const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
       if (p == nullptr)
         return false;
       return (fabs(p->p4().eta()) < etaCut);

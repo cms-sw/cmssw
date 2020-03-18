@@ -85,7 +85,7 @@ public:
                     bool highPurity = true)
       : cutTL(cutTrackerLayers), cutPL(cutPixelLayers), maxXY(maxDxy), maxZ(maxDz), gM(goodMuon), hP(highPurity) {}
   bool accept(const reco::Candidate& cand, const reco::Vertex* pv) const {
-    const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
+    const pat::Muon* p = dynamic_cast<const pat::Muon*>(&cand);
     if (p == nullptr)
       return false;
     if (gM && !muon::isGoodMuon(*p, muon::TMOneStationTight))
