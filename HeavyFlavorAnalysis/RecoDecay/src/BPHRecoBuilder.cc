@@ -25,9 +25,6 @@
 //---------------
 // C++ Headers --
 //---------------
-#include <iostream>
-#include <map>
-
 using namespace std;
 
 //-------------------
