@@ -39,12 +39,12 @@ public:
 
   /** Destructor
    */
-  virtual ~BPHMuonChargeSelect() {}
+  ~BPHMuonChargeSelect() override {}
 
   /** Operations
    */
   /// select muon
-  virtual bool accept(const reco::Candidate& cand) const {
+  bool accept(const reco::Candidate& cand) const override {
     if (reinterpret_cast<const pat::Muon*>(&cand) == nullptr)
       return false;
     return BPHParticleChargeSelect::accept(cand);
