@@ -23,18 +23,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHMuonChargeSelect: public BPHParticleChargeSelect {
-
- public:
-
+class BPHMuonChargeSelect : public BPHParticleChargeSelect {
+public:
   /** Constructor
    */
-  BPHMuonChargeSelect( int c ): BPHParticleChargeSelect( c ) {}
+  BPHMuonChargeSelect(int c) : BPHParticleChargeSelect(c) {}
 
   /** Destructor
    */
@@ -43,19 +40,16 @@ class BPHMuonChargeSelect: public BPHParticleChargeSelect {
   /** Operations
    */
   /// select muon
-  virtual bool accept( const reco::Candidate& cand ) const {
-    if ( reinterpret_cast<const pat::Muon*>( &cand ) == 0 ) return false;
-    return BPHParticleChargeSelect::accept( cand );
+  virtual bool accept(const reco::Candidate& cand) const {
+    if (reinterpret_cast<const pat::Muon*>(&cand) == 0)
+      return false;
+    return BPHParticleChargeSelect::accept(cand);
   };
 
  private:
-
   // private copy and assigment constructors
-  BPHMuonChargeSelect           ( const BPHMuonChargeSelect& x );
-  BPHMuonChargeSelect& operator=( const BPHMuonChargeSelect& x );
-
+  BPHMuonChargeSelect(const BPHMuonChargeSelect& x);
+  BPHMuonChargeSelect& operator=(const BPHMuonChargeSelect& x);
 };
 
-
 #endif
-

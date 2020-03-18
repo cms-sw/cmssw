@@ -35,25 +35,32 @@ class BPHRecoSelect {
 public:
   /** Constructor
    */
-  BPHRecoSelect();
+  BPHRecoSelect() {}
 
   /** Destructor
    */
-  virtual ~BPHRecoSelect();
+  virtual ~BPHRecoSelect() {}
 
   using AcceptArg = reco::Candidate;
+
   /** Operations
    */
   /// accept function
   /// pointers to other particles in the decays can be obtained
   /// by the function "get" giving the particle name (passing the pointer
   /// to the builder)
-  virtual bool accept(const reco::Candidate& cand) const;
-  virtual bool accept(const reco::Candidate& cand, const BPHRecoBuilder* build) const;
+  virtual bool accept(const reco::Candidate& cand) const = 0;
+  virtual bool accept(const reco::Candidate& cand, const BPHRecoBuilder* build) const { return accept(cand); }
 
 protected:
   // function to get other particles pointers
-  const reco::Candidate* get(const std::string& name, const BPHRecoBuilder* build) const;
+  const reco::Candidate* get(const std::string& name, const BPHRecoBuilder* build) const {
+    if (build == nullptr)
+      return nullptr;
+    std::map<std::string, const reco::Candidate*>& cMap = build->daugMap;
+    std::map<std::string, const reco::Candidate*>::iterator iter = cMap.find(name);
+    return (iter != cMap.end() ? iter->second : nullptr);
+  }
 
 private:
   // private copy and assigment constructors

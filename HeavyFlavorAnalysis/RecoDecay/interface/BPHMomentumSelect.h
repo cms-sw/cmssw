@@ -30,13 +30,14 @@ class BPHMomentumSelect {
 public:
   /** Constructor
    */
-  BPHMomentumSelect();
+  BPHMomentumSelect() {}
 
   /** Destructor
    */
-  virtual ~BPHMomentumSelect();
+  virtual ~BPHMomentumSelect() {}
 
   using AcceptArg = BPHDecayMomentum;
+
   /** Operations
    */
   /// accept function
