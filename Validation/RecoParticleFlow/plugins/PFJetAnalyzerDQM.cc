@@ -127,9 +127,11 @@ private:
   edm::InputTag recoJetsLabel;
   edm::InputTag genJetsLabel;
   edm::EDGetTokenT<edm::View<pat::Jet>> recoJetsToken;
+  //edm::EDGetTokenT<edm::View<pat::Jet>> genJetsToken;
   edm::EDGetTokenT<edm::View<reco::Jet>> genJetsToken;
   edm::EDGetTokenT<reco::CandViewMatchMap> srcRefToJetMap;
 
+  //void fillJetResponse(edm::View<pat::Jet>& recoJetCollection, edm::View<pat::Jet>& genJetCollection);  
   void fillJetResponse(edm::View<pat::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection);
   void prepareJetResponsePlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
   void prepareGenJetPlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
@@ -209,9 +211,11 @@ PFJetAnalyzerDQM::PFJetAnalyzerDQM(const edm::ParameterSet& iConfig) {
   prepareGenJetPlots(genjet_plots);
 
   recoJetsToken = consumes<edm::View<pat::Jet>>(recoJetsLabel);
+  //genJetsToken = consumes<edm::View<pat::Jet>>(genJetsLabel);
   genJetsToken = consumes<edm::View<reco::Jet>>(genJetsLabel);
 }
 
+//void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, edm::View<pat::Jet>& genJetCollection) {
 void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection) {
   //match gen jets to reco jets, require minimum jetDeltaR, choose closest, do not try to match charge
   std::vector<int> matchIndices;
@@ -287,6 +291,7 @@ void PFJetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&)
 
   if (isMC) {
     edm::Handle<edm::View<reco::Jet>> genJetCollectionHandle;
+    //edm::Handle<edm::View<pat::Jet>> genJetCollectionHandle;
     iEvent.getByToken(genJetsToken, genJetCollectionHandle);
     auto genJetCollection = *genJetCollectionHandle;
 
