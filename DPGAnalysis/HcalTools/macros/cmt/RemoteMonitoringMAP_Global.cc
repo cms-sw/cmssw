@@ -24,6 +24,8 @@
 #include <TPaveText.h>
 
 //
+// https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT
+// https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT
 
 using namespace std;
 //inline void HERE(const char *msg) { std::cout << msg << std::endl; }
@@ -3545,72 +3547,48 @@ std::cout<<" We are here to print ADC "<<std::endl;
 
     if (sub == 1) {
       // AZ 12.03.2019
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HB_Tile.html\">Megatile Channels</a></td>" << std::endl;
       //     htmlFile << "  <td><a href=\"HB_Tile.html\">Megatile Channels</a></td>"<< std::endl;
 
-      //       htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HB_Calib.html\">Calibration Channels</a></td>"<< std::endl;
-      //       htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HB_Drift.html\">Gain Stability</a></td>"<< std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      //       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HB_Calib.html\">Calibration Channels</a></td>"<< std::endl;
+      //       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HB_Drift.html\">Gain Stability</a></td>"<< std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HB_Pedestals.html\">Pedestals</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HB_Shapes.html\">ADC Shapes</a></td>" << std::endl;
     }
     if (sub == 2) {
       // AZ 12.03.2019
-      htmlFile << " <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      htmlFile << " <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HE_Tile.html\">Megatile Channels</a></td>" << std::endl;
       //     htmlFile << "  <td><a href=\"HE_Tile.html\">Megatile Channels</a></td>"<< std::endl;
 
-      //       htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HE_Calib.html\">Calibration Channels</a></td>"<< std::endl;
-      //       htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HE_Drift.html\">Gain Stability</a></td>"<< std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      //       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HE_Calib.html\">Calibration Channels</a></td>"<< std::endl;
+      //       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HE_Drift.html\">Gain Stability</a></td>"<< std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HE_Pedestals.html\">Pedestals</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HE_Shapes.html\">ADC Shapes</a></td>" << std::endl;
     }
     if (sub == 3) {
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HO_Tile.html\">Megatile Channels</a></td>" << std::endl;
-      //       htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HO_Calib.html\">Calibration Channels</a></td>"<< std::endl;
-      //       htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HO_Drift.html\">Gain Stability</a></td>"<< std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      //       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HO_Calib.html\">Calibration Channels</a></td>"<< std::endl;
+      //       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HO_Drift.html\">Gain Stability</a></td>"<< std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HO_Pedestals.html\">Pedestals</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HO_Shapes.html\">ADC Shapes</a></td>" << std::endl;
     }
     if (sub == 4) {
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HF_Tile.html\">Megatile Channels</a></td>" << std::endl;
-      //       htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HF_Calib.html\">Calibration Channels</a></td>"<< std::endl;
-      //       htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HF_Drift.html\">Gain Stability</a></td>"<< std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      //       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HF_Calib.html\">Calibration Channels</a></td>"<< std::endl;
+      //       htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HF_Drift.html\">Gain Stability</a></td>"<< std::endl;
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HF_Pedestals.html\">Pedestals</a></td>" << std::endl;
-      htmlFile << "  <td><a "
-                  "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-                  "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+      htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
                << runnumber << "/HF_Shapes.html\">ADC Shapes</a></td>" << std::endl;
     }
 
@@ -3652,8 +3630,8 @@ std::cout<<" We are here to print ADC "<<std::endl;
      htmlFile << "<h3> 2.B.List of Bad channels (rate > 0.1) and its rates for each RMT criteria </h3>"<< std::endl;
 
      //htmlFile << "  <td><a href=\"HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-     //   htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-  htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
+     //   htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
 
      htmlFile << "<table>"<< std::endl;     
      htmlFile << "<tr>";
@@ -4097,21 +4075,13 @@ std::cout<<" We are here to print ADC "<<std::endl;
      htmlFile << "  <td><a href=\"HF.html\">HF</a></td>"<< std::endl;    
 */
 
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
            << runnumber << "/HB.html\">HB</a></td>" << std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
            << runnumber << "/HE.html\">HE</a></td>" << std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
            << runnumber << "/HO.html\">HO</a></td>" << std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"
            << runnumber << "/HF.html\">HF</a></td>" << std::endl;
 
   htmlFile << "</tr>" << std::endl;
@@ -4129,10 +4099,9 @@ std::cout<<" We are here to print ADC "<<std::endl;
   htmlFile << "<h3> 2.B. List of Bad channels </h3>" << std::endl;
 
   //htmlFile << "  <td><a href=\"HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-  //   htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-  htmlFile << "  <td><a "
-              "href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/"
-              "HcalRemoteMonitoring/GlobalRMT/HELP.html\"> Description of criteria for bad channel selection</a></td>"
+  //   htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/HELP.html\"> "
+              "Description of criteria for bad channel selection</a></td>"
            << std::endl;
 
   htmlFile << "<table>" << std::endl;
@@ -4204,8 +4173,8 @@ std::cout<<" We are here to print ADC "<<std::endl;
   /*     
      htmlFile << "<h3> 2.C.List of Gain unstable channels </h3>"<< std::endl;
      //htmlFile << "  <td><a href=\"HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-     //   htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-  htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
+     //   htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
 
      htmlFile << "<table>"<< std::endl;     
      htmlFile << "<tr>";
@@ -4275,8 +4244,8 @@ std::cout<<" We are here to print ADC "<<std::endl;
      
      htmlFile << "<h3> 2.D.List of channels with bad Pedestals </h3>"<< std::endl;
      // htmlFile << "  <td><a href=\"HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-     //   htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
-  htmlFile << "  <td><a href=\"https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HcalRemoteMonitoring/GlobalRMT/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
+     //   htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/GLOBAL_"<<runnumber<<"/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
+  htmlFile << "  <td><a href=\"https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT/HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
 
      htmlFile << "<table>"<< std::endl;     
      htmlFile << "<tr>";
