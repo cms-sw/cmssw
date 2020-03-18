@@ -64,14 +64,13 @@ private:
   G4MTRunManagerKernel* kernel_;
   DDSpecParRefs specs_;
   vector<pair<G4LogicalVolume*, const DDSpecPar*>> vec_;
-  string_view keywordRegion_;
+  const string keywordRegion_;
   unique_ptr<DDDWorld> world_;
   int verbosity_;
 };
 
 DD4hepTestDDDWorld::DD4hepTestDDDWorld(const ParameterSet& iConfig)
-    : tag_(iConfig.getParameter<ESInputTag>("DDDetector")) {
-  keywordRegion_ = "CMSCutsRegion";
+    : tag_(iConfig.getParameter<ESInputTag>("DDDetector")), keywordRegion_("CMSCutsRegion") {
   verbosity_ = iConfig.getUntrackedParameter<int>("Verbosity", 1);
   kernel_ = new G4MTRunManagerKernel();
 }
@@ -135,10 +134,10 @@ void DD4hepTestDDDWorld::initialize(const dd4hep::sim::Geant4GeometryMaps::Volum
 
   // Now generate all the regions
   for (auto const& it : vec_) {
-    auto regName = it.second->strValue(keywordRegion_.data());
+    auto regName = it.second->strValue(keywordRegion_);
     G4Region* region = G4RegionStore::GetInstance()->FindOrCreateRegion({regName.data(), regName.size()});
     region->AddRootLogicalVolume(it.first);
-    LogVerbatim("Geometry") << it.first->GetName() << ": " << it.second->strValue(keywordRegion_.data());
+    LogVerbatim("Geometry") << it.first->GetName() << ": " << it.second->strValue(keywordRegion_);
     LogVerbatim("Geometry") << " MakeRegions: added " << it.first->GetName() << " to region " << region->GetName();
   }
 }
@@ -160,7 +159,7 @@ void DD4hepTestDDDWorld::update() {
   });
   // Loop over all DDLP and provide the cuts for each region
   for (auto const& it : vec_) {
-    auto regName = it.second->strValue(keywordRegion_.data());
+    auto regName = it.second->strValue(keywordRegion_);
     G4Region* region = G4RegionStore::GetInstance()->FindOrCreateRegion({regName.data(), regName.size()});
 
     //

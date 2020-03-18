@@ -4,6 +4,7 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
+#include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -99,64 +100,68 @@ bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimulationPara
   return buildParameters(php);
 }
 
-bool HcalSimParametersFromDD::build(const cms::DDCompactView* cpv, HcalSimulationParameters& php) {
+bool HcalSimParametersFromDD::build(const cms::DDCompactView& cpv, HcalSimulationParameters& php) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom")
       << "Inside HcalSimParametersFromDD::build(const cms::DDCompactView*, HcalSimulationParameters&)";
 #endif
 
-  // Parameters for the fibers
-  fillNameVector(cpv, "HF", php.hfNames_);
-
-  // The level positions
-  cms::DDFilteredView fv1(cpv->detector(), cpv->detector()->worldVolume());
-  php.hfLevels_ = dbl_to_int(fv1.get<std::vector<double> >("hf", "Levels"));
-
-  // Attenuation length
-  static const double cminv2mminv = 0.1;
-  php.attenuationLength_ = fv1.get<std::vector<double> >("hf", "attl");
-  std::for_each(php.attenuationLength_.begin(), php.attenuationLength_.end(), [](double& n) { n *= cminv2mminv; });
-
-  // Limits on Lambda
-  php.lambdaLimits_ = dbl_to_int(fv1.get<std::vector<double> >("hf", "lambLim"));
-
-  // Fibre Lengths
-  php.longFiberLength_ = fv1.get<std::vector<double> >("hf", "LongFL");
-  std::for_each(php.longFiberLength_.begin(), php.longFiberLength_.end(), [](double& n) { n = convertCmToMm(n); });
-  php.shortFiberLength_ = fv1.get<std::vector<double> >("hf", "ShortFL");
-  std::for_each(php.shortFiberLength_.begin(), php.shortFiberLength_.end(), [](double& n) { n = convertCmToMm(n); });
-
-  //Parameters for the PMT
-  std::vector<double> neta = fv1.get<std::vector<double> >("hfpmt", "indexPMTR");
-  fillPMTs(neta, false, php);
-  neta = fv1.get<std::vector<double> >("hfpmt", "indexPMTL");
-  fillPMTs(neta, true, php);
-
-  //Names of special volumes (HFFibre, HFPMT, HFFibreBundles)
-  fillNameVector(cpv, "HFFibre", php.hfFibreNames_);
-  fillNameVector(cpv, "HFPMT", php.hfPMTNames_);
-  fillNameVector(cpv, "HFFibreBundleStraight", php.hfFibreStraightNames_);
-  fillNameVector(cpv, "HFFibreBundleConical", php.hfFibreConicalNames_);
-
   // HCal materials
-  cms::DDFilteredView fv2(cpv->detector(), cpv->detector()->worldVolume());
-  cms::DDSpecParRefs ref2;
-  const cms::DDSpecParRegistry& par2 = cpv->specpars();
-  par2.filter(ref2, "OnlyForHcalSimNumbering", "HCAL");
-  fv2.mergedSpecifics(ref2);
+  const cms::DDFilter filter("OnlyForHcalSimNumbering", "HCAL");
+  cms::DDFilteredView fv(cpv, filter);
 
-  while (fv2.firstChild()) {
-    const std::string matName{cms::dd::noNamespace(fv2.materialName()).data(),
-                              cms::dd::noNamespace(fv2.materialName()).size()};
-    std::vector<int> copy = fv2.copyNos();
-    // idet = 3 for HB and 4 for HE (convention in the ddalgo code for HB/HE)
-    int idet = (copy.size() > 1) ? (copy[1] / 1000) : 0;
-    if (((idet == 3) || (idet == 4)) &&
-        std::find(std::begin(php.hcalMaterialNames_), std::end(php.hcalMaterialNames_), matName) ==
+  {
+    BenchmarkGrd counter("HcalSimParametersFromDD get all vectors\n");
+
+    // The level positions
+    php.hfLevels_ = fv.get<std::vector<int> >("hf", "Levels");
+
+    // Attenuation length
+    static const double cminv2mminv = 0.1;
+    php.attenuationLength_ = fv.get<std::vector<double> >("hf", "attl");
+    std::for_each(php.attenuationLength_.begin(), php.attenuationLength_.end(), [](double& n) { n *= cminv2mminv; });
+
+    // Limits on Lambda
+    php.lambdaLimits_ = fv.get<std::vector<int> >("hf", "lambLim");
+
+    // Fibre Lengths
+    php.longFiberLength_ = fv.get<std::vector<double> >("hf", "LongFL");
+    std::for_each(php.longFiberLength_.begin(), php.longFiberLength_.end(), [](double& n) { n = convertCmToMm(n); });
+    php.shortFiberLength_ = fv.get<std::vector<double> >("hf", "ShortFL");
+    std::for_each(php.shortFiberLength_.begin(), php.shortFiberLength_.end(), [](double& n) { n = convertCmToMm(n); });
+
+    //Parameters for the PMT
+    std::vector<double> neta = fv.get<std::vector<double> >("hfpmt", "indexPMTR");
+    fillPMTs(neta, false, php);
+    neta = fv.get<std::vector<double> >("hfpmt", "indexPMTL");
+    fillPMTs(neta, true, php);
+
+    // Parameters for the fibers
+    fillNameVector(cpv, "HF", php.hfNames_);
+
+    //Names of special volumes (HFFibre, HFPMT, HFFibreBundles)
+    fillNameVector(cpv, "HFFibre", php.hfFibreNames_);
+    fillNameVector(cpv, "HFPMT", php.hfPMTNames_);
+    fillNameVector(cpv, "HFFibreBundleStraight", php.hfFibreStraightNames_);
+    fillNameVector(cpv, "HFFibreBundleConical", php.hfFibreConicalNames_);
+  }
+  {
+    BenchmarkGrd counter("HcalSimParametersFromDD HCal materials OnlyForHcalSimNumbering, HCAL");
+
+    while (fv.firstChild()) {
+      std::vector<int> copy = fv.copyNos();
+      // idet = 3 for HB and 4 for HE (convention in the ddalgo code for HB/HE)
+      int idet = (copy.size() > 1) ? (copy[1] / 1000) : 0;
+      if ((idet == 3) || (idet == 4)) {
+        std::string_view matName = cms::dd::noNamespace(fv.materialName());
+        if (std::find(std::begin(php.hcalMaterialNames_), std::end(php.hcalMaterialNames_), matName) ==
             std::end(php.hcalMaterialNames_)) {
-      php.hcalMaterialNames_.emplace_back(matName);
+          php.hcalMaterialNames_.emplace_back(matName);
+        }
+      }
     }
-  };
+  }
+
   return buildParameters(php);
 }
 
@@ -252,31 +257,34 @@ void HcalSimParametersFromDD::fillNameVector(const DDCompactView* cpv,
   lvnames = getNames(fv);
 }
 
-void HcalSimParametersFromDD::fillNameVector(const cms::DDCompactView* cpv,
+void HcalSimParametersFromDD::fillNameVector(const cms::DDCompactView& cpv,
                                              const std::string& value,
                                              std::vector<std::string>& lvnames) {
-  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
-  cms::DDSpecParRefs refs;
-  const cms::DDSpecParRegistry& mypar = cpv->specpars();
-  mypar.filter(refs, "Volume", value);
-  fv.mergedSpecifics(refs);
-  lvnames = getNames(fv);
+  {
+    BenchmarkGrd counter("HcalSimParametersFromDD::fillNameVector");
+    const cms::DDFilter filter("Volume", value);
+    cms::DDFilteredView fv(cpv, filter);
+    lvnames = getNames(fv);
+  }
 }
 
 void HcalSimParametersFromDD::fillPMTs(const std::vector<double>& neta, bool lOrR, HcalSimulationParameters& php) {
-  for (unsigned int ii = 0; ii < neta.size(); ii++) {
-    int index = static_cast<int>(neta[ii]);
-    int ir = -1, ifib = -1;
-    if (index >= 0) {
-      ir = index / 10;
-      ifib = index % 10;
-    }
-    if (lOrR) {
-      php.pmtLeft_.push_back(ir);
-      php.pmtFiberLeft_.push_back(ifib);
-    } else {
-      php.pmtRight_.push_back(ir);
-      php.pmtFiberRight_.push_back(ifib);
+  {
+    BenchmarkGrd counter("HcalSimParametersFromDD::fillPMTs");
+    for (unsigned int ii = 0; ii < neta.size(); ii++) {
+      int index = static_cast<int>(neta[ii]);
+      int ir = -1, ifib = -1;
+      if (index >= 0) {
+        ir = index / 10;
+        ifib = index % 10;
+      }
+      if (lOrR) {
+        php.pmtLeft_.push_back(ir);
+        php.pmtFiberLeft_.push_back(ifib);
+      } else {
+        php.pmtRight_.push_back(ir);
+        php.pmtFiberRight_.push_back(ifib);
+      }
     }
   }
 }

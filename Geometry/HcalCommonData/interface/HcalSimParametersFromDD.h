@@ -15,12 +15,12 @@ public:
   HcalSimParametersFromDD() = default;
 
   bool build(const DDCompactView*, HcalSimulationParameters&);
-  bool build(const cms::DDCompactView*, HcalSimulationParameters&);
+  bool build(const cms::DDCompactView&, HcalSimulationParameters&);
 
 private:
   bool buildParameters(const HcalSimulationParameters&);
   void fillNameVector(const DDCompactView*, const std::string&, const std::string&, std::vector<std::string>&);
-  void fillNameVector(const cms::DDCompactView*, const std::string&, std::vector<std::string>&);
+  void fillNameVector(const cms::DDCompactView&, const std::string&, std::vector<std::string>&);
   void fillPMTs(const std::vector<double>&, bool, HcalSimulationParameters&);
   bool isItHF(const std::string&, const HcalSimulationParameters&);
   std::vector<std::string> getNames(DDFilteredView& fv);
