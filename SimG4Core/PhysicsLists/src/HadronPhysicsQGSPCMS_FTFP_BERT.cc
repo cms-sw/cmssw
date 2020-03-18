@@ -43,9 +43,11 @@
 #include "G4PhysListUtil.hh"
 #include "G4ProcessManager.hh"
 
-HadronPhysicsQGSPCMS_FTFP_BERT::HadronPhysicsQGSPCMS_FTFP_BERT(G4int) : HadronPhysicsQGSPCMS_FTFP_BERT(3., 6., 12., 25., 12.) {}
+HadronPhysicsQGSPCMS_FTFP_BERT::HadronPhysicsQGSPCMS_FTFP_BERT(G4int)
+    : HadronPhysicsQGSPCMS_FTFP_BERT(3., 6., 12., 25., 12.) {}
 
-HadronPhysicsQGSPCMS_FTFP_BERT::HadronPhysicsQGSPCMS_FTFP_BERT(G4double e1, G4double e2, G4double e3, G4double e4, G4double e5)
+HadronPhysicsQGSPCMS_FTFP_BERT::HadronPhysicsQGSPCMS_FTFP_BERT(
+    G4double e1, G4double e2, G4double e3, G4double e4, G4double e5)
     : G4VPhysicsConstructor("hInelasticQGSPCMS_FTFP_BERT") {
   minFTFP_ = e1;
   maxBERT_ = e2;
@@ -68,9 +70,10 @@ void HadronPhysicsQGSPCMS_FTFP_BERT::ConstructParticle() {
 }
 
 void HadronPhysicsQGSPCMS_FTFP_BERT::DumpBanner() {
-  G4cout << "### QGSP_FTFP_BERT : transition between BERT and FTFP is over the interval " << minFTFP_ / CLHEP::GeV << " to "
-         << maxBERT_ / CLHEP::GeV << " GeV" << "                     transition between FTFP and QGSP is over the interval "
-	 << minQGSP_ / CLHEP::GeV << " to " << maxFTFP_ / CLHEP::GeV << G4endl;
+  G4cout << "### QGSP_FTFP_BERT : transition between BERT and FTFP is over the interval " << minFTFP_ / CLHEP::GeV
+         << " to " << maxBERT_ / CLHEP::GeV << " GeV"
+         << "                     transition between FTFP and QGSP is over the interval " << minQGSP_ / CLHEP::GeV
+         << " to " << maxFTFP_ / CLHEP::GeV << G4endl;
 }
 
 void HadronPhysicsQGSPCMS_FTFP_BERT::CreateModels() {
@@ -104,7 +107,7 @@ void HadronPhysicsQGSPCMS_FTFP_BERT::Neutron() {
   bert->SetMaxEnergy(maxBERT_);
   neu->RegisterMe(bert);
   neu->Build();
-} 
+}
 
 void HadronPhysicsQGSPCMS_FTFP_BERT::Proton() {
   auto pro = new G4ProtonBuilder;
@@ -170,7 +173,7 @@ void HadronPhysicsQGSPCMS_FTFP_BERT::Others() {
   auto hyp = new G4HyperonFTFPBuilder;
   AddBuilder(hyp);
   hyp->Build();
-  
+
   auto abar = new G4AntiBarionBuilder;
   AddBuilder(abar);
   auto ftf = new G4FTFPAntiBarionBuilder(false);
