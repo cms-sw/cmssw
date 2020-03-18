@@ -67,7 +67,7 @@ TestBPHSpecificDecay::TestBPHSpecificDecay(const edm::ParameterSet& ps) {
 
   SET_LABEL(outDump, ps);
   SET_LABEL(outHist, ps);
-  if (outDump == "")
+  if (outDump.empty())
     fPtr = &cout;
   else
     fPtr = new ofstream(outDump.c_str());

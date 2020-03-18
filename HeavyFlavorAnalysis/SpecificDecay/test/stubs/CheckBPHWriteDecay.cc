@@ -46,10 +46,10 @@ CheckBPHWriteDecay::CheckBPHWriteDecay(const edm::ParameterSet& ps) {
     consume<vector<pat::CompositeCandidate> >(candsToken[i], candsLabel[i]);
 
   string fileName = ps.getParameter<string>("fileName");
-  if (fileName != "")
-    osPtr = new ofstream(fileName.c_str());
-  else
+  if (fileName.empty())
     osPtr = &cout;
+  else
+    osPtr = new ofstream(fileName.c_str());
 }
 
 CheckBPHWriteDecay::~CheckBPHWriteDecay() {}

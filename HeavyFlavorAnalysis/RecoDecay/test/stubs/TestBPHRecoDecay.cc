@@ -35,11 +35,11 @@ using namespace std;
 // xyz = ps.getParameter<string>( "xyx" )
 
 TestBPHRecoDecay::TestBPHRecoDecay(const edm::ParameterSet& ps) {
-  usePM = (SET_LABEL(patMuonLabel, ps) != "");
-  useCC = (SET_LABEL(ccCandsLabel, ps) != "");
-  usePF = (SET_LABEL(pfCandsLabel, ps) != "");
-  usePC = (SET_LABEL(pcCandsLabel, ps) != "");
-  useGP = (SET_LABEL(gpCandsLabel, ps) != "");
+  usePM = (!SET_LABEL(patMuonLabel, ps).empty());
+  useCC = (!SET_LABEL(ccCandsLabel, ps).empty());
+  usePF = (!SET_LABEL(pfCandsLabel, ps).empty());
+  usePC = (!SET_LABEL(pcCandsLabel, ps).empty());
+  useGP = (!SET_LABEL(gpCandsLabel, ps).empty());
 
   if (usePM)
     consume<pat::MuonCollection>(patMuonToken, patMuonLabel);
@@ -53,7 +53,7 @@ TestBPHRecoDecay::TestBPHRecoDecay(const edm::ParameterSet& ps) {
     consume<vector<pat::GenericParticle> >(gpCandsToken, gpCandsLabel);
   SET_LABEL(outDump, ps);
   SET_LABEL(outHist, ps);
-  if (outDump == "")
+  if (outDump.empty())
     fPtr = &cout;
   else
     fPtr = new ofstream(outDump.c_str());
