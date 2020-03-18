@@ -86,12 +86,12 @@ StudyTriggerHLT::StudyTriggerHLT(const edm::ParameterSet& iConfig)
       nRun_(0) {
   usesResource(TFileService::kSharedResource);
 
-
   // define tokens for access
   tok_trigEvt = consumes<trigger::TriggerEvent>(triggerEvent_);
   tok_trigRes = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
 
-  edm::LogInfo("IsoTrack") << "Verbosity " << verbosity_ << " Trigger labels " << triggerEvent_ << " and " << theTriggerResultsLabel_;
+  edm::LogInfo("IsoTrack") << "Verbosity " << verbosity_ << " Trigger labels " << triggerEvent_ << " and "
+                           << theTriggerResultsLabel_;
 
   firstEvent_ = true;
   changed_ = false;
@@ -108,7 +108,8 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   int EvtNo = iEvent.id().event();
 
   if (verbosity_ > 0)
-    edm::LogInfo("IsoTrack") << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << iEvent.luminosityBlock() << " Bunch " << iEvent.bunchCrossing();
+    edm::LogInfo("IsoTrack") << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << iEvent.luminosityBlock()
+                             << " Bunch " << iEvent.bunchCrossing();
 
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
