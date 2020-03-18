@@ -77,6 +77,10 @@ public:
   /// get current particle
   virtual const RefCountedKinematicParticle currentParticle() const;
   virtual const RefCountedKinematicVertex currentDecayVertex() const;
+
+  /// get top particle
+  virtual const RefCountedKinematicParticle topParticle() const;
+  virtual const RefCountedKinematicVertex topDecayVertex() const;
   virtual ParticleMass mass() const;
 
   /// compute total momentum after the fit

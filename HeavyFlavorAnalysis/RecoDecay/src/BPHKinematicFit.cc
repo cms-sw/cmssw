@@ -287,7 +287,7 @@ bool BPHKinematicFit::isEmpty() const {
 }
 
 bool BPHKinematicFit::isValidFit() const {
-  const RefCountedKinematicParticle kPart = currentParticle();
+  const RefCountedKinematicParticle kPart = topParticle();
   if (kPart.get() == nullptr)
     return false;
   return kPart->currentState().isValid();
@@ -306,8 +306,22 @@ const RefCountedKinematicVertex BPHKinematicFit::currentDecayVertex() const {
   return kinTree->currentDecayVertex();
 }
 
+/// get top particle
+const RefCountedKinematicParticle BPHKinematicFit::topParticle() const {
+  if (isEmpty())
+    return RefCountedKinematicParticle(nullptr);
+  return kinTree->topParticle();
+}
+
+const RefCountedKinematicVertex BPHKinematicFit::topDecayVertex() const {
+  if (isEmpty())
+    return RefCountedKinematicVertex(nullptr);
+  kinTree->movePointerToTheTop();
+  return kinTree->currentDecayVertex();
+}
+
 ParticleMass BPHKinematicFit::mass() const {
-  const RefCountedKinematicParticle kPart = currentParticle();
+  const RefCountedKinematicParticle kPart = topParticle();
   if (kPart.get() == nullptr)
     return -1.0;
   const KinematicState kStat = kPart->currentState();
@@ -387,7 +401,7 @@ void BPHKinematicFit::buildParticles() const {
 
 void BPHKinematicFit::fitMomentum() const {
   if (isValidFit()) {
-    const KinematicState& ks = currentParticle()->currentState();
+    const KinematicState& ks = topParticle()->currentState();
     GlobalVector tm = ks.globalMomentum();
     double x = tm.x();
     double y = tm.y();
