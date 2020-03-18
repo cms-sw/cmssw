@@ -59,21 +59,26 @@ void BPHPlusMinusCandidate::add(const string& name, const reco::Candidate* daug,
 void BPHPlusMinusCandidate::add(
     const string& name, const reco::Candidate* daug, const string& searchList, double mass, double sigma) {
   const vector<const reco::Candidate*>& dL = daughters();
+  bool accept = false;
   switch (dL.size()) {
-    case 2:
-      edm::LogPrint("TooManyParticles") << "BPHPlusMinusCandidate::add: "
-                                        << "complete, add rejected";
-      return;
+    case 0:
+      accept = true;
+      break;
     case 1:
       if ((daug->charge() * dL.front()->charge()) > 0) {
         edm::LogPrint("TooManyParticles") << "BPHPlusMinusCandidate::add: "
                                           << "already containing same sign particle, add rejected";
         return;
       }
-      [[fallthrough]];
-    case 0:
-      addK(name, daug, searchList, mass, sigma);
+      accept = true;
+      break;
+    default:
+      edm::LogPrint("TooManyParticles") << "BPHPlusMinusCandidate::add: "
+                                        << "complete, add rejected";
+      return;
   }
+  if (accept)
+    addK(name, daug, searchList, mass, sigma);
   return;
 }
 
