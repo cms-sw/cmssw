@@ -6,20 +6,14 @@ from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV1,trkIsol04CfgV1,trkIsol03CfgV2,trkIsol04CfgV2
 
 
-gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
+gedGsfElectronsTmp = cms.EDProducer("GsfElectronBaseProducer",
+
+    resetMvaValuesUsingPFCandidates = cms.bool(True),
 
     # preselection parameters (ecal driven electrons)
     preselection = cms.PSet(
         minSCEtBarrel = cms.double(4.0),
         minSCEtEndcaps = cms.double(4.0),
-        maxDeltaEtaBarrel = cms.double(0.02),
-        maxDeltaEtaEndcaps = cms.double(0.02),
-        maxDeltaPhiBarrel = cms.double(0.15),
-        maxDeltaPhiEndcaps = cms.double(0.15),
-        maxHOverEBarrelCone = cms.double(0.15),
-        maxHOverEEndcapsCone = cms.double(0.15),
-        maxHOverEBarrelTower = cms.double(0.15),
-        maxHOverEEndcapsTower = cms.double(0.15),
     ),
 
     # Ecal rec hits configuration
