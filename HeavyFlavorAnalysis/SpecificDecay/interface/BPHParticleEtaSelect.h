@@ -33,6 +33,10 @@ public:
    */
   BPHParticleEtaSelect(double eta) : etaMax(eta) {}
 
+  // deleted copy constructor and assignment operator
+  BPHParticleEtaSelect(const BPHParticleEtaSelect& x) = delete;
+  BPHParticleEtaSelect& operator=(const BPHParticleEtaSelect& x) = delete;
+
   /** Destructor
    */
   ~BPHParticleEtaSelect() override {}
@@ -52,10 +56,6 @@ public:
   double getEtaMax() const { return etaMax; }
 
 private:
-  // private copy and assigment constructors
-  BPHParticleEtaSelect(const BPHParticleEtaSelect& x) = delete;
-  BPHParticleEtaSelect& operator=(const BPHParticleEtaSelect& x) = delete;
-
   double etaMax;
 };
 

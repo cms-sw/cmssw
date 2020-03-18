@@ -45,6 +45,10 @@ public:
                      const BPHRecoBuilder::BPHGenericCollection* posCollection,
                      const BPHRecoBuilder::BPHGenericCollection* negCollection);
 
+  // deleted copy constructor and assignment operator
+  BPHKx0ToKPiBuilder(const BPHKx0ToKPiBuilder& x) = delete;
+  BPHKx0ToKPiBuilder& operator=(const BPHKx0ToKPiBuilder& x) = delete;
+
   /** Destructor
    */
   virtual ~BPHKx0ToKPiBuilder();
@@ -72,10 +76,6 @@ public:
   double getConstrSigma() const;
 
 private:
-  // private copy and assigment constructors
-  BPHKx0ToKPiBuilder(const BPHKx0ToKPiBuilder& x) = delete;
-  BPHKx0ToKPiBuilder& operator=(const BPHKx0ToKPiBuilder& x) = delete;
-
   std::string kaonName;
   std::string pionName;
 

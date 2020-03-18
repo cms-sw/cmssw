@@ -45,13 +45,17 @@ namespace reco {
 
 class BPHRecoCandidate : public virtual BPHKinematicFit {
 public:
-  /** Constructors are private
+  /** Constructor
    */
   /// create an "empty" object to add daughters later
   /// (see BPHDecayMomentum)
   BPHRecoCandidate(const edm::EventSetup* es);
   // create an object with daughters as specified in the ComponentSet
   BPHRecoCandidate(const edm::EventSetup* es, const BPHRecoBuilder::ComponentSet& compSet);
+
+  // deleted copy constructor and assignment operator
+  BPHRecoCandidate(const BPHRecoCandidate& x) = delete;
+  BPHRecoCandidate& operator=(const BPHRecoCandidate& x) = delete;
 
   /** Destructor
    */
@@ -91,8 +95,6 @@ protected:
                    const BPHRecoBuilder& builder,
                    double mass = -1,
                    double msig = -1);
-
-private:
 };
 
 template <class T>
@@ -100,7 +102,7 @@ void BPHRecoCandidate::fill(std::vector<typename BPHGenericPtr<const T>::type>& 
                             const BPHRecoBuilder& builder,
                             double mass,
                             double msig) {
-  // create paricle combinations
+  // create particle combinations
   const std::vector<BPHRecoBuilder::ComponentSet> dll = builder.build();
   // loop over combinations and create reconstructed particles
   int i;

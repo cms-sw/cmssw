@@ -33,6 +33,10 @@ public:
    */
   BPHParticleChargeSelect(int c) : charge(c ? (c > 0 ? 1 : -1) : 0) {}
 
+  // deleted copy constructor and assignment operator
+  BPHParticleChargeSelect(const BPHParticleChargeSelect& x) = delete;
+  BPHParticleChargeSelect& operator=(const BPHParticleChargeSelect& x) = delete;
+
   /** Destructor
    */
   virtual ~BPHParticleChargeSelect() {}
@@ -61,11 +65,6 @@ public:
 
   /// get selection charge
   double getCharge() const { return charge; }
-
- private:
-  // private copy and assigment constructors
-  BPHParticleChargeSelect(const BPHParticleChargeSelect& x);
-  BPHParticleChargeSelect& operator=(const BPHParticleChargeSelect& x);
 
   int charge;
 };

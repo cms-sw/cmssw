@@ -55,6 +55,10 @@ public:
    */
   BPHRecoBuilder(const edm::EventSetup& es);
 
+  // deleted copy constructor and assignment operator
+  BPHRecoBuilder(const BPHRecoBuilder& x) = delete;
+  BPHRecoBuilder& operator=(const BPHRecoBuilder& x) = delete;
+
   /** Destructor
    */
   virtual ~BPHRecoBuilder();
@@ -137,10 +141,6 @@ public:
   static bool sameTrack(const reco::Candidate* lCand, const reco::Candidate* rCand, double minPDifference);
 
 private:
-  // private copy and assigment constructors
-  BPHRecoBuilder(const BPHRecoBuilder& x) = delete;
-  BPHRecoBuilder& operator=(const BPHRecoBuilder& x) = delete;
-
   // object to interface with a specific edm collection
   template <class T>
   class BPHSpecificCollection : public BPHGenericCollection {

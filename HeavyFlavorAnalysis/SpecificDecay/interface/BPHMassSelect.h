@@ -34,6 +34,10 @@ public:
    */
   BPHMassSelect(double minMass, double maxMass) : BPHMassCuts(minMass, maxMass) {}
 
+  // deleted copy constructor and assignment operator
+  BPHMassSelect(const BPHMassSelect& x) = delete;
+  BPHMassSelect& operator=(const BPHMassSelect& x) = delete;
+
   /** Destructor
    */
   ~BPHMassSelect() override {}
@@ -45,11 +49,6 @@ public:
     double mass = cand.composite().mass();
     return ((mass > mMin) && (mass < mMax));
   }
-
-private:
-  // private copy and assigment constructors
-  BPHMassSelect(const BPHMassSelect& x) = delete;
-  BPHMassSelect& operator=(const BPHMassSelect& x) = delete;
 };
 
 #endif

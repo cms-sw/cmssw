@@ -51,6 +51,10 @@ public:
                        const BPHRecoBuilder::BPHGenericCollection* muPosCollection,
                        const BPHRecoBuilder::BPHGenericCollection* muNegCollection);
 
+  // deleted copy constructor and assignment operator
+  BPHOniaToMuMuBuilder(const BPHOniaToMuMuBuilder& x) = delete;
+  BPHOniaToMuMuBuilder& operator=(const BPHOniaToMuMuBuilder& x) = delete;
+
   /** Destructor
    */
   virtual ~BPHOniaToMuMuBuilder();
@@ -90,10 +94,6 @@ public:
   double getConstrSigma(oniaType type) const;
 
 private:
-  // private copy and assigment constructors
-  BPHOniaToMuMuBuilder(const BPHOniaToMuMuBuilder& x) = delete;
-  BPHOniaToMuMuBuilder& operator=(const BPHOniaToMuMuBuilder& x) = delete;
-
   std::string muPosName;
   std::string muNegName;
 
