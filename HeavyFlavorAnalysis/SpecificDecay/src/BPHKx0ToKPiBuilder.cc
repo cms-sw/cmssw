@@ -83,7 +83,7 @@ vector<BPHPlusMinusConstCandPtr> BPHKx0ToKPiBuilder::build() {
   BPHPlusMinusConstCandPtr pxt(nullptr);
   for (ikx = 0; ikx < nkx; ++ikx) {
     BPHPlusMinusConstCandPtr& px0 = tmpList[ikx];
-    BPHPlusMinusCandidatePtr pxb(new BPHPlusMinusCandidate(evSetup));
+    BPHPlusMinusCandidatePtr pxb = BPHPlusMinusCandidateWrap::create(evSetup);
     const BPHPlusMinusCandidate* kx0 = px0.get();
     BPHPlusMinusCandidate* kxb = pxb.get();
     kxb->add(pionName, kx0->originalReco(kx0->getDaug(kaonName)), BPHParticleMasses::pionMass);
