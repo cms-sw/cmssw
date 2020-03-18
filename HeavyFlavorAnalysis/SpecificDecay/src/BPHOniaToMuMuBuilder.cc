@@ -75,10 +75,10 @@ vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::build() {
   if (updated)
     return fullList;
 
-  BPHMultiSelect<BPHRecoSelect> ptSel(BPHSelectOperation::or_mode);
-  BPHMultiSelect<BPHRecoSelect> etaSel(BPHSelectOperation::or_mode);
-  BPHMultiSelect<BPHMomentumSelect> mSel(BPHSelectOperation::or_mode);
-  BPHMultiSelect<BPHVertexSelect> vSel(BPHSelectOperation::or_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> ptSel(BPHSelectOperation::or_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> etaSel(BPHSelectOperation::or_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHMomentumSelect>> mSel(BPHSelectOperation::or_mode);
+  BPHMultiSelect<BPHSlimSelect<BPHVertexSelect>> vSel(BPHSelectOperation::or_mode);
 
   map<oniaType, OniaParameters>::iterator iter = oniaPar.begin();
   map<oniaType, OniaParameters>::iterator iend = oniaPar.end();

@@ -23,18 +23,15 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class BPHParticleChargeSelect: public BPHRecoSelect {
-
- public:
-
+class BPHParticleChargeSelect : public BPHRecoSelect {
+public:
   /** Constructor
    */
-  BPHParticleChargeSelect( int c ): charge( c ? ( c > 0 ? 1 : -1 ) : 0 ) {}
+  BPHParticleChargeSelect(int c) : charge(c ? (c > 0 ? 1 : -1) : 0) {}
 
   /** Destructor
    */
@@ -43,32 +40,34 @@ class BPHParticleChargeSelect: public BPHRecoSelect {
   /** Operations
    */
   /// select particle
-  virtual bool accept( const reco::Candidate& cand ) const {
-    switch ( charge ) {
-    default:
-    case  0: return ( cand.charge() != 0 );
-    case  1: return ( cand.charge() >  0 );
-    case -1: return ( cand.charge() <  0 );
+  virtual bool accept(const reco::Candidate& cand) const {
+    switch (charge) {
+      default:
+      case 0:
+        return (cand.charge() != 0);
+      case 1:
+        return (cand.charge() > 0);
+      case -1:
+        return (cand.charge() < 0);
     }
     return true;
   };
 
-  /// set seelction charge
-  void setCharge( int c ) { charge =( c ? ( c > 0 ? 1 : -1 ) : 0 ); return; }
+  /// set selection charge
+  void setCharge(int c) {
+    charge = (c ? (c > 0 ? 1 : -1) : 0);
+    return;
+  }
 
-  /// get seelction charge
+  /// get selection charge
   double getCharge() const { return charge; }
 
  private:
-
   // private copy and assigment constructors
-  BPHParticleChargeSelect           ( const BPHParticleChargeSelect& x );
-  BPHParticleChargeSelect& operator=( const BPHParticleChargeSelect& x );
+  BPHParticleChargeSelect(const BPHParticleChargeSelect& x);
+  BPHParticleChargeSelect& operator=(const BPHParticleChargeSelect& x);
 
   int charge;
-
 };
 
-
 #endif
-

@@ -30,13 +30,14 @@ class BPHFitSelect {
 public:
   /** Constructor
    */
-  BPHFitSelect();
+  BPHFitSelect() {}
 
   /** Destructor
    */
-  virtual ~BPHFitSelect();
+  virtual ~BPHFitSelect() {}
 
   using AcceptArg = BPHKinematicFit;
+
   /** Operations
    */
   /// accept function

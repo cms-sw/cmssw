@@ -30,13 +30,14 @@ class BPHVertexSelect {
 public:
   /** Constructor
    */
-  BPHVertexSelect();
+  BPHVertexSelect() {}
 
   /** Destructor
    */
-  virtual ~BPHVertexSelect();
+  virtual ~BPHVertexSelect() {}
 
   using AcceptArg = BPHDecayVertex;
+
   /** Operations
    */
   /// accept function
