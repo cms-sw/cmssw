@@ -343,6 +343,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
                 Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
                 Plot1D('puId', 'puId', 8, -0.5, 7.5, 'Pilup ID flags'),
+                Plot1D('puIdDisc', 'puIdDisc', 20, -1, 1, 'Pilup ID discriminant with 102X (2018) training'),
                 Plot1D('qgl', 'qgl', 20, 0, 1, 'Quark vs Gluon likelihood discriminator'),
                 Plot1D('rawFactor', 'rawFactor', 20, -0.5, 0.5, '1 - Factor to get back to raw pT'),
             )
