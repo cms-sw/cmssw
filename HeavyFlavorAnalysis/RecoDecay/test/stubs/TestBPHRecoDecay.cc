@@ -196,8 +196,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MuonChargeSelect : public BPHRecoSelect {
   public:
     MuonChargeSelect(int c) : charge(c) {}
-    ~MuonChargeSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const {
+    ~MuonChargeSelect() override {}
+    bool accept(const reco::Candidate& cand) const override {
       const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
       if (p == nullptr)
         return false;
@@ -212,8 +212,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MuonPtSelect : public BPHRecoSelect {
   public:
     MuonPtSelect(float pt) : ptCut(pt) {}
-    ~MuonPtSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const {
+    ~MuonPtSelect() override {}
+    bool accept(const reco::Candidate& cand) const override {
       const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
       if (p == nullptr)
         return false;
@@ -228,8 +228,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MuonEtaSelect : public BPHRecoSelect {
   public:
     MuonEtaSelect(float eta) : etaCut(eta) {}
-    ~MuonEtaSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const {
+    ~MuonEtaSelect() override {}
+    bool accept(const reco::Candidate& cand) const override {
       const pat::Muon* p = reinterpret_cast<const pat::Muon*>(&cand);
       if (p == nullptr)
         return false;
@@ -244,8 +244,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonChargeSelect : public BPHRecoSelect {
   public:
     KaonChargeSelect(int c) : charge(c) {}
-    ~KaonChargeSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const { return ((charge * cand.charge()) > 0); }
+    ~KaonChargeSelect() override {}
+    bool accept(const reco::Candidate& cand) const override { return ((charge * cand.charge()) > 0); }
 
   private:
     int charge;
@@ -254,16 +254,16 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonNeutralVeto : public BPHRecoSelect {
   public:
     KaonNeutralVeto() {}
-    ~KaonNeutralVeto() {}
-    virtual bool accept(const reco::Candidate& cand) const { return lround(fabs(cand.charge())); }
+    ~KaonNeutralVeto() override {}
+    bool accept(const reco::Candidate& cand) const override { return lround(fabs(cand.charge())); }
   };
 
   // kaon selection by Pt
   class KaonPtSelect : public BPHRecoSelect {
   public:
     KaonPtSelect(float pt) : ptCut(pt) {}
-    ~KaonPtSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const { return (cand.p4().pt() > ptCut); }
+    ~KaonPtSelect() override {}
+    bool accept(const reco::Candidate& cand) const override { return (cand.p4().pt() > ptCut); }
 
   private:
     float ptCut;
@@ -273,8 +273,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class KaonEtaSelect : public BPHRecoSelect {
   public:
     KaonEtaSelect(float eta) : etaCut(eta) {}
-    ~KaonEtaSelect() {}
-    virtual bool accept(const reco::Candidate& cand) const { return (fabs(cand.p4().eta()) < etaCut); }
+    ~KaonEtaSelect() override {}
+    bool accept(const reco::Candidate& cand) const override { return (fabs(cand.p4().eta()) < etaCut); }
 
   private:
     float etaCut;
@@ -288,7 +288,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class MassSelect : public BPHMomentumSelect {
   public:
     MassSelect(double minMass, double maxMass) : mMin(minMass), mMax(maxMass) {}
-    virtual bool accept(const BPHDecayMomentum& cand) const {
+    ~MassSelect() override {}
+    bool accept(const BPHDecayMomentum& cand) const override {
       double mass = cand.composite().mass();
       return ((mass > mMin) && (mass < mMax));
     }
@@ -302,7 +303,8 @@ void TestBPHRecoDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   class Chi2Select : public BPHVertexSelect {
   public:
     Chi2Select(double minProb) : mProb(minProb) {}
-    virtual bool accept(const BPHDecayVertex& cand) const {
+    ~Chi2Select() override {}
+    bool accept(const BPHDecayVertex& cand) const override {
       const reco::Vertex& v = cand.vertex();
       if (v.isFake())
         return false;

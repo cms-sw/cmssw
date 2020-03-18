@@ -24,13 +24,13 @@ class BPHRecoCandidate;
 class TestBPHRecoDecay : public BPHAnalyzerWrapper<BPHModuleWrapper::one_analyzer> {
 public:
   explicit TestBPHRecoDecay(const edm::ParameterSet& ps);
-  virtual ~TestBPHRecoDecay();
+  ~TestBPHRecoDecay() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  void endJob() override;
 
 private:
   std::string patMuonLabel;
