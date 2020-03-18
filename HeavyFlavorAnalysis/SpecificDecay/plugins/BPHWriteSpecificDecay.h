@@ -49,12 +49,12 @@ private:
   std::string gpCandsLabel;
 
   // token wrappers to allow running both on "old" and "new" CMSSW versions
-  BPHTokenWrapper<std::vector<reco::Vertex> > pVertexToken;
+  BPHTokenWrapper<std::vector<reco::Vertex>> pVertexToken;
   BPHTokenWrapper<pat::MuonCollection> patMuonToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > ccCandsToken;
-  BPHTokenWrapper<std::vector<reco::PFCandidate> > pfCandsToken;
-  BPHTokenWrapper<std::vector<BPHTrackReference::candidate> > pcCandsToken;
-  BPHTokenWrapper<std::vector<pat::GenericParticle> > gpCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> ccCandsToken;
+  BPHTokenWrapper<std::vector<reco::PFCandidate>> pfCandsToken;
+  BPHTokenWrapper<std::vector<BPHTrackReference::candidate>> pcCandsToken;
+  BPHTokenWrapper<std::vector<pat::GenericParticle>> gpCandsToken;
 
   bool usePV;
   bool usePM;
@@ -93,7 +93,7 @@ private:
   std::map<std::string, recoType> rMap;
   std::map<std::string, parType> pMap;
   std::map<std::string, parType> fMap;
-  std::map<recoType, std::map<parType, double> > parMap;
+  std::map<recoType, std::map<parType, double>> parMap;
 
   bool recoOnia;
   bool recoKx0;
@@ -121,7 +121,7 @@ private:
   std::vector<BPHRecoConstCandPtr> lBs;
 
   std::map<const BPHRecoCandidate*, const BPHRecoCandidate*> jPsiOMap;
-  typedef edm::Ref<std::vector<reco::Vertex> > vertex_ref;
+  typedef edm::Ref<std::vector<reco::Vertex>> vertex_ref;
   std::map<const BPHRecoCandidate*, vertex_ref> pvRefMap;
   typedef edm::Ref<pat::CompositeCandidateCollection> compcc_ref;
   std::map<const BPHRecoCandidate*, compcc_ref> ccRefMap;

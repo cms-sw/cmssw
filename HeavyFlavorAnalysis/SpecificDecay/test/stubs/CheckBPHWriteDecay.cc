@@ -43,7 +43,7 @@ CheckBPHWriteDecay::CheckBPHWriteDecay(const edm::ParameterSet& ps) {
   int n = candsLabel.size();
   candsToken.resize(n);
   for (i = 0; i < n; ++i)
-    consume<vector<pat::CompositeCandidate> >(candsToken[i], candsLabel[i]);
+    consume<vector<pat::CompositeCandidate>>(candsToken[i], candsLabel[i]);
 
   string fileName = ps.getParameter<string>("fileName");
   if (fileName.empty())
@@ -57,7 +57,7 @@ CheckBPHWriteDecay::~CheckBPHWriteDecay() {}
 void CheckBPHWriteDecay::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   vector<string> v;
-  desc.add<vector<string> >("candsLabel", v);
+  desc.add<vector<string>>("candsLabel", v);
   desc.add<unsigned int>("runNumber", 0);
   desc.add<unsigned int>("evtNumber", 0);
   desc.add<string>("fileName", "");
@@ -79,7 +79,7 @@ void CheckBPHWriteDecay::analyze(const edm::Event& ev, const edm::EventSetup& es
   int il;
   int nl = candsLabel.size();
   for (il = 0; il < nl; ++il) {
-    edm::Handle<vector<pat::CompositeCandidate> > cands;
+    edm::Handle<vector<pat::CompositeCandidate>> cands;
     candsToken[il].get(ev, cands);
     int ic;
     int nc = cands->size();
@@ -113,7 +113,7 @@ void CheckBPHWriteDecay::dump(std::ostream& os, const pat::CompositeCandidate& c
        << " ) " << endl;
   }
   if (cand.hasUserData("fitMomentum"))
-    writePosition(os, "fmom : ", *cand.userData<Vector3DBase<float, GlobalTag> >("fitMomentum"));
+    writePosition(os, "fmom : ", *cand.userData<Vector3DBase<float, GlobalTag>>("fitMomentum"));
 
   if (cand.hasUserData("primaryVertex")) {
     const vertex_ref* pvr = cand.userData<vertex_ref>("primaryVertex");

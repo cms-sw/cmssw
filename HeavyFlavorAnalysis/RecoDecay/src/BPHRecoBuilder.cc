@@ -63,11 +63,11 @@ BPHRecoBuilder::~BPHRecoBuilder() {
 //--------------
 BPHRecoBuilder::BPHGenericCollection* BPHRecoBuilder::createCollection(const vector<const reco::Candidate*>& candList,
                                                                        const string& list) {
-  return new BPHSpecificCollection<vector<const reco::Candidate*> >(candList, list);
+  return new BPHSpecificCollection<vector<const reco::Candidate*>>(candList, list);
 }
 
 template <>
-const reco::Candidate& BPHRecoBuilder::BPHSpecificCollection<vector<const reco::Candidate*> >::get(int i) const {
+const reco::Candidate& BPHRecoBuilder::BPHSpecificCollection<vector<const reco::Candidate*>>::get(int i) const {
   return *(*cPtr)[i];
 }
 

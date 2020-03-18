@@ -46,7 +46,7 @@ public:
   template <class T>
   static const T* getByRef(const pat::CompositeCandidate& cand, const string& name) {
     if (cand.hasUserData(name)) {
-      typedef edm::Ref<std::vector<T> > objRef;
+      typedef edm::Ref<std::vector<T>> objRef;
       const objRef* ref = cand.userData<objRef>(name);
       if (ref == nullptr)
         return nullptr;
@@ -207,7 +207,7 @@ public:
       if ((mMax > 0) && (mass > mMax))
         return false;
     }
-    const Vector3DBase<float, GlobalTag>* fmom = BPHUserData::get<Vector3DBase<float, GlobalTag> >(cand, "fitMomentum");
+    const Vector3DBase<float, GlobalTag>* fmom = BPHUserData::get<Vector3DBase<float, GlobalTag>>(cand, "fitMomentum");
     if (fmom == nullptr)
       return false;
     if (pMin > 0) {
@@ -296,7 +296,7 @@ public:
     if ((cMin > 0) || (sMin > 0)) {
       TVector3 disp(svtx->x() - pvtx->x(), svtx->y() - pvtx->y(), 0);
       const Vector3DBase<float, GlobalTag>* fmom =
-          BPHUserData::get<Vector3DBase<float, GlobalTag> >(cand, "fitMomentum");
+          BPHUserData::get<Vector3DBase<float, GlobalTag>>(cand, "fitMomentum");
       if (fmom == nullptr)
         return false;
       TVector3 cmom(fmom->x(), fmom->y(), 0);
@@ -336,17 +336,17 @@ BPHHistoSpecificDecay::BPHHistoSpecificDecay(const edm::ParameterSet& ps) {
   useBd = (!SET_LABEL(bdCandsLabel, ps).empty());
   useBs = (!SET_LABEL(bsCandsLabel, ps).empty());
   if (useOnia)
-    consume<vector<pat::CompositeCandidate> >(oniaCandsToken, oniaCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(oniaCandsToken, oniaCandsLabel);
   if (useSd)
-    consume<vector<pat::CompositeCandidate> >(sdCandsToken, sdCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(sdCandsToken, sdCandsLabel);
   if (useSs)
-    consume<vector<pat::CompositeCandidate> >(ssCandsToken, ssCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(ssCandsToken, ssCandsLabel);
   if (useBu)
-    consume<vector<pat::CompositeCandidate> >(buCandsToken, buCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(buCandsToken, buCandsLabel);
   if (useBd)
-    consume<vector<pat::CompositeCandidate> >(bdCandsToken, bdCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(bdCandsToken, bdCandsLabel);
   if (useBs)
-    consume<vector<pat::CompositeCandidate> >(bsCandsToken, bsCandsLabel);
+    consume<vector<pat::CompositeCandidate>>(bsCandsToken, bsCandsLabel);
 
   static const BPHSoftMuonSelect sms;
 
@@ -521,7 +521,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
 
   //////////// quarkonia ////////////
 
-  edm::Handle<vector<pat::CompositeCandidate> > oniaCands;
+  edm::Handle<vector<pat::CompositeCandidate>> oniaCands;
   int iqo;
   int nqo = 0;
   if (useOnia) {
@@ -549,7 +549,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
 
   //////////// Bu ////////////
 
-  edm::Handle<vector<pat::CompositeCandidate> > buCands;
+  edm::Handle<vector<pat::CompositeCandidate>> buCands;
   int ibu;
   int nbu = 0;
   if (useBu) {
@@ -581,7 +581,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
 
   //////////// Bd ////////////
 
-  edm::Handle<vector<pat::CompositeCandidate> > bdCands;
+  edm::Handle<vector<pat::CompositeCandidate>> bdCands;
   int ibd;
   int nbd = 0;
   if (useBd) {
@@ -615,7 +615,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
 
   //////////// Bs ////////////
 
-  edm::Handle<vector<pat::CompositeCandidate> > bsCands;
+  edm::Handle<vector<pat::CompositeCandidate>> bsCands;
   int ibs;
   int nbs = 0;
   if (useBs) {

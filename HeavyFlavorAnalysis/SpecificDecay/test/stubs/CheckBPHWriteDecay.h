@@ -39,9 +39,9 @@ private:
   unsigned int evtNumber;
 
   std::vector<std::string> candsLabel;
-  std::vector<BPHTokenWrapper<std::vector<pat::CompositeCandidate> > > candsToken;
+  std::vector<BPHTokenWrapper<std::vector<pat::CompositeCandidate>>> candsToken;
 
-  typedef edm::Ref<std::vector<reco::Vertex> > vertex_ref;
+  typedef edm::Ref<std::vector<reco::Vertex>> vertex_ref;
   typedef edm::Ref<pat::CompositeCandidateCollection> compcc_ref;
 
   static void dump(std::ostream& os, const pat::CompositeCandidate& cand);
