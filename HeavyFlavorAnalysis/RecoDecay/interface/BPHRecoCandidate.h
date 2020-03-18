@@ -87,7 +87,15 @@ public:
   /// specified in the BPHRecoBuilder
   static std::vector<BPHRecoConstCandPtr> build(const BPHRecoBuilder& builder, double mass = -1, double msig = -1);
 
+  /// clone object, cloning daughters as well up to required depth
+  /// level = -1 to clone all levels
+  virtual const BPHRecoCandidate* clone(int level = -1) const;
+
 protected:
+  // function doing the job to clone reconstructed decays:
+  // copy stable particles and clone cascade decays up to chosen level
+  void fill(BPHRecoCandidate* ptr, int level) const override;
+
   // template function called by "build" to allow
   // the creation of derived objects
   template <class T>

@@ -309,6 +309,12 @@ const math::XYZTLorentzVector& BPHKinematicFit::p4() const {
   return totalMomentum;
 }
 
+/// retrieve particle mass sigma
+double BPHKinematicFit::getMassSigma(const reco::Candidate* cand) const {
+  map<const reco::Candidate*, double>::const_iterator iter = dMSig.find(cand);
+  return (iter != dMSig.end() ? iter->second : -1);
+}
+
 void BPHKinematicFit::addK(const string& name, const reco::Candidate* daug, double mass, double sigma) {
   addK(name, daug, "cfhpmig", mass, sigma);
   return;

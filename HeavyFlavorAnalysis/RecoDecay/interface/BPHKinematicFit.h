@@ -79,6 +79,9 @@ public:
   /// compute total momentum after the fit
   virtual const math::XYZTLorentzVector& p4() const;
 
+  /// retrieve particle mass sigma
+  double getMassSigma(const reco::Candidate* cand) const;
+
 protected:
   // constructors
   BPHKinematicFit();

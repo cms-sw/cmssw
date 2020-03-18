@@ -124,6 +124,10 @@ protected:
   // utility function used to cash reconstruction results
   virtual void setNotUpdated() const;
 
+  // function doing the job to clone reconstructed decays:
+  // copy stable particles and clone cascade decays up to chosen level
+  virtual void fill(BPHRecoCandidate* ptr, int level) const = 0;
+
 private:
   // object filled in the constructor
   // to be used in the creation of other bases of BPHRecoCandidate

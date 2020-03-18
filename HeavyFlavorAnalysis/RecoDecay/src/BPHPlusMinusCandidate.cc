@@ -102,6 +102,14 @@ vector<BPHPlusMinusConstCandPtr> BPHPlusMinusCandidate::build(
   return cList;
 }
 
+/// clone object, cloning daughters as well up to required depth
+/// level = -1 to clone all levels
+const BPHRecoCandidate* BPHPlusMinusCandidate::clone(int level) const {
+  BPHPlusMinusCandidate* ptr = new BPHPlusMinusCandidate(getEventSetup());
+  fill(ptr, level);
+  return ptr;
+}
+
 const pat::CompositeCandidate& BPHPlusMinusCandidate::composite() const {
   static const pat::CompositeCandidate compCand;
   static const string msg = "BPHPlusMinusCandidate incomplete, no composite available";
