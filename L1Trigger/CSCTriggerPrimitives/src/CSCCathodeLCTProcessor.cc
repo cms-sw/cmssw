@@ -934,7 +934,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
                                                    << " #pat. hits: " << num_pattern_hits;
             }
           }
-        }  // end loop over strips in pretrigger patternhits_single_pattern
+        }  // end loop over strips in pretrigger pattern
       }    // end loop over layers
 
       // save the pattern information when a trigger was formed!
@@ -942,7 +942,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
         hits_in_patterns[key_hstrip][pid] = hits_single_pattern;
       }
 
-      // determine the best pattern!
+      // determine the current best pattern!
       if (layers_hit > nhits[key_hstrip]) {
         best_pid[key_hstrip] = pid;
         nhits[key_hstrip] = layers_hit;
