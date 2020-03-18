@@ -237,18 +237,28 @@ void BPHRecoBuilder::build(vector<ComponentSet>& compList,
         continue;
       m = momSelector.size();
       for (j = 0; j < m; ++j) {
-        if (!momSelector[j]->accept(*cand))
+        if (!momSelector[j]->accept(*cand)) {
           skip = true;
+          break;
+        }
       }
+      if (skip)
+        continue;
       m = vtxSelector.size();
       for (j = 0; j < m; ++j) {
-        if (!vtxSelector[j]->accept(*cand))
+        if (!vtxSelector[j]->accept(*cand)) {
           skip = true;
+          break;
+        }
       }
+      if (skip)
+        continue;
       m = fitSelector.size();
       for (j = 0; j < m; ++j) {
-        if (!fitSelector[j]->accept(*cand))
+        if (!fitSelector[j]->accept(*cand)) {
           skip = true;
+          break;
+        }
       }
       if (skip)
         continue;
@@ -272,8 +282,10 @@ void BPHRecoBuilder::build(vector<ComponentSet>& compList,
       continue;
     skip = false;
     for (j = 0; j < m; ++j) {
-      if (!selector[j]->accept(cand, this))
+      if (!selector[j]->accept(cand, this)) {
         skip = true;
+        break;
+      }
     }
     if (skip)
       continue;
