@@ -51,8 +51,6 @@ public:
   static const double ups1MWidth;
   static const double ups2MWidth;
   static const double ups3MWidth;
-
-private:
 };
 
 #endif

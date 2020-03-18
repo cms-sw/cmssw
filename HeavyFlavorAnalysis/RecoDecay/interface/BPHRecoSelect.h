@@ -26,6 +26,7 @@ namespace reco {
 // C++ Headers --
 //---------------
 #include <string>
+#include <map>
 
 //              ---------------------
 //              -- Class Interface --
@@ -36,6 +37,10 @@ public:
   /** Constructor
    */
   BPHRecoSelect() {}
+
+  // deleted copy constructor and assignment operator
+  BPHRecoSelect(const BPHRecoSelect& x) = delete;
+  BPHRecoSelect& operator=(const BPHRecoSelect& x) = delete;
 
   /** Destructor
    */
@@ -61,11 +66,6 @@ protected:
     std::map<std::string, const reco::Candidate*>::iterator iter = cMap.find(name);
     return (iter != cMap.end() ? iter->second : nullptr);
   }
-
-private:
-  // private copy and assigment constructors
-  BPHRecoSelect(const BPHRecoSelect& x) = delete;
-  BPHRecoSelect& operator=(const BPHRecoSelect& x) = delete;
 };
 
 #endif

@@ -34,6 +34,10 @@ public:
    */
   BPHChi2Select(double prob) : probMin(prob) {}
 
+  // deleted copy constructor and assignment operator
+  BPHChi2Select(const BPHChi2Select& x) = delete;
+  BPHChi2Select& operator=(const BPHChi2Select& x) = delete;
+
   /** Destructor
    */
   ~BPHChi2Select() override {}
@@ -60,10 +64,6 @@ public:
   double getProbMin() const { return probMin; }
 
 private:
-  // private copy and assigment constructors
-  BPHChi2Select(const BPHChi2Select& x) = delete;
-  BPHChi2Select& operator=(const BPHChi2Select& x) = delete;
-
   double probMin;
 };
 

@@ -57,6 +57,10 @@ public:
     setFitConstraint(name, c);
   }
 
+  // deleted copy constructor and assignment operator
+  BPHMassFitSelect(const BPHMassFitSelect& x) = delete;
+  BPHMassFitSelect& operator=(const BPHMassFitSelect& x) = delete;
+
   /** Destructor
    */
   ~BPHMassFitSelect() override {}
@@ -136,10 +140,6 @@ public:
   MultiTrackKinematicConstraint* getMultiTrackKC() const { return mtkc; }
 
 private:
-  // private copy and assigment constructors
-  BPHMassFitSelect(const BPHMassFitSelect& x) = delete;
-  BPHMassFitSelect& operator=(const BPHMassFitSelect& x) = delete;
-
   enum fit_type { none, mcss, mcst, kf, mtkf };
 
   fit_type type;

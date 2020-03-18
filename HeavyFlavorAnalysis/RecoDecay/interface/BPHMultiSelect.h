@@ -60,7 +60,7 @@ public:
     }
   }
 
-  // deleted copy constructor and assignment constructors
+  // deleted copy constructor and assignment operator
   BPHMultiSelectBase(const BPHMultiSelectBase<T>& x) = delete;
   BPHMultiSelectBase& operator=(const BPHMultiSelectBase<T>& x) = delete;
 
@@ -125,7 +125,7 @@ public:
    */
   BPHSlimSelect(BPHSelectOperation::mode op) : Base(op) {}
 
-  // deleted copy constructor and assignment constructors
+  // deleted copy constructor and assignment operator
   BPHSlimSelect(const BPHSlimSelect<T>& x) = delete;
   BPHSlimSelect& operator=(const BPHSlimSelect<T>& x) = delete;
 
@@ -137,8 +137,6 @@ public:
    */
   /// accept function
   bool accept(const typename T::AcceptArg& cand) const override { return Base::select(cand); }
-
-private:
 };
 
 template <class T>
@@ -150,7 +148,7 @@ public:
    */
   BPHFullSelect(BPHSelectOperation::mode op) : Base(op) {}
 
-  // deleted copy constructor and assignment constructors
+  // deleted copy constructor and assignment operator
   BPHFullSelect(const BPHFullSelect<T>& x);
   BPHFullSelect& operator=(const BPHFullSelect<T>& x);
 
@@ -164,8 +162,6 @@ public:
   bool accept(const typename T::AcceptArg& cand, const BPHRecoBuilder* build) const override {
     return Base::select(cand, build);
   }
-
-private:
 };
 
 template <class T = BPHFullSelect<BPHRecoSelect>>
@@ -175,7 +171,7 @@ public:
    */
   BPHMultiSelect(BPHSelectOperation::mode op) : T(op) {}
 
-  // deleted copy constructor and assignment constructors
+  // deleted copy constructor and assignment operator
   BPHMultiSelect(const BPHMultiSelect<T>& x) = delete;
   BPHMultiSelect& operator=(const BPHMultiSelect<T>& x) = delete;
 
@@ -186,8 +182,6 @@ public:
   /** Operations
    */
   /// no override or new function, everything taken from base
-
-private:
 };
 
 #endif

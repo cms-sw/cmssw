@@ -37,6 +37,10 @@ public:
    */
   BPHPlusMinusCandidate(const edm::EventSetup* es);
 
+  // deleted copy constructor and assignment operator
+  BPHPlusMinusCandidate(const BPHPlusMinusCandidate& x) = delete;
+  BPHPlusMinusCandidate& operator=(const BPHPlusMinusCandidate& x) = delete;
+
   /** Destructor
    */
   ~BPHPlusMinusCandidate() override;
