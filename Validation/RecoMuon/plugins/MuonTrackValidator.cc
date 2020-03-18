@@ -32,7 +32,7 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
 
       auto setBinLogX = [this](TH1* th1) {
         if (this->useLogPt) {
-           BinLogX(th1);
+          BinLogX(th1);
         }
       };
 
@@ -72,13 +72,18 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
                                           maxEta));
 
       h_recopT.push_back(ibooker.book1D("num_reco_pT", "N of reco track vs pT", nintPt, minPt, maxPt, setBinLogX));
-      h_assocpT.push_back(
-          ibooker.book1D("num_assoSimToReco_pT", "N of associated tracks (simToReco) vs pT", nintPt, minPt, maxPt, setBinLogX));
-      h_assoc2pT.push_back(
-          ibooker.book1D("num_assoRecoToSim_pT", "N of associated (recoToSim) tracks vs pT", nintPt, minPt, maxPt, setBinLogX));
-      h_simulpT.push_back(ibooker.book1D("num_simul_pT", "N of simulated tracks vs pT", nintPt, minPt, maxPt, setBinLogX));
-      h_misidpT.push_back(ibooker.book1D(
-          "num_chargemisid_pT", "N of associated (simToReco) tracks with charge misID vs pT", nintPt, minPt, maxPt, setBinLogX));
+      h_assocpT.push_back(ibooker.book1D(
+          "num_assoSimToReco_pT", "N of associated tracks (simToReco) vs pT", nintPt, minPt, maxPt, setBinLogX));
+      h_assoc2pT.push_back(ibooker.book1D(
+          "num_assoRecoToSim_pT", "N of associated (recoToSim) tracks vs pT", nintPt, minPt, maxPt, setBinLogX));
+      h_simulpT.push_back(
+          ibooker.book1D("num_simul_pT", "N of simulated tracks vs pT", nintPt, minPt, maxPt, setBinLogX));
+      h_misidpT.push_back(ibooker.book1D("num_chargemisid_pT",
+                                         "N of associated (simToReco) tracks with charge misID vs pT",
+                                         nintPt,
+                                         minPt,
+                                         maxPt,
+                                         setBinLogX));
 
       h_recophi.push_back(ibooker.book1D("num_reco_phi", "N of reco track vs phi", nintPhi, minPhi, maxPhi));
       h_assocphi.push_back(ibooker.book1D(
@@ -221,7 +226,8 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
                                            maxPt,
                                            ptRes_nbin,
                                            ptRes_rangeMin,
-                                           ptRes_rangeMax, setBinLogX));
+                                           ptRes_rangeMax,
+                                           setBinLogX));
       h_ptpull.push_back(ibooker.book1D("ptpull", "p_{T} Pull", 100, -10., 10.));
       ptpull_vs_eta.push_back(
           ibooker.book2D("ptpull_vs_eta", "p_{T} Pull vs #eta", nintEta, minEta, maxEta, 100, -10., 10.));
@@ -254,7 +260,8 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
                                                  maxPt,
                                                  cotThetaRes_nbin,
                                                  cotThetaRes_rangeMin,
-                                                 cotThetaRes_rangeMax, setBinLogX));
+                                                 cotThetaRes_rangeMax,
+                                                 setBinLogX));
       h_thetapull.push_back(ibooker.book1D("thetapull", "#theta Pull", 100, -10., 10.));
       thetapull_vs_eta.push_back(
           ibooker.book2D("thetapull_vs_eta", "#theta Pull vs #eta", nintEta, minEta, maxEta, 100, -10, 10));
@@ -269,8 +276,15 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
                                              phiRes_nbin,
                                              phiRes_rangeMin,
                                              phiRes_rangeMax));
-      phires_vs_pt.push_back(ibooker.book2D(
-          "phires_vs_pt", "#phi Residual vs p_{T}", nintPt, minPt, maxPt, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax, setBinLogX));
+      phires_vs_pt.push_back(ibooker.book2D("phires_vs_pt",
+                                            "#phi Residual vs p_{T}",
+                                            nintPt,
+                                            minPt,
+                                            maxPt,
+                                            phiRes_nbin,
+                                            phiRes_rangeMin,
+                                            phiRes_rangeMax,
+                                            setBinLogX));
       phires_vs_phi.push_back(ibooker.book2D("phires_vs_phi",
                                              "#phi Residual vs #phi",
                                              nintPhi,
@@ -293,16 +307,30 @@ void MuonTrackValidator::bookHistograms(DQMEDAnalyzer::DQMStore::IBooker& ibooke
                                              dxyRes_nbin,
                                              dxyRes_rangeMin,
                                              dxyRes_rangeMax));
-      dxyres_vs_pt.push_back(ibooker.book2D(
-          "dxyres_vs_pt", "dxy Residual vs p_{T}", nintPt, minPt, maxPt, dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax, setBinLogX));
+      dxyres_vs_pt.push_back(ibooker.book2D("dxyres_vs_pt",
+                                            "dxy Residual vs p_{T}",
+                                            nintPt,
+                                            minPt,
+                                            maxPt,
+                                            dxyRes_nbin,
+                                            dxyRes_rangeMin,
+                                            dxyRes_rangeMax,
+                                            setBinLogX));
       h_dxypull.push_back(ibooker.book1D("dxypull", "dxy Pull", 100, -10., 10.));
       dxypull_vs_eta.push_back(
           ibooker.book2D("dxypull_vs_eta", "dxy Pull vs #eta", nintEta, minEta, maxEta, 100, -10, 10));
 
       dzres_vs_eta.push_back(ibooker.book2D(
           "dzres_vs_eta", "dz Residual vs #eta", nintEta, minEta, maxEta, dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-      dzres_vs_pt.push_back(ibooker.book2D(
-          "dzres_vs_pt", "dz Residual vs p_{T}", nintPt, minPt, maxPt, dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax, setBinLogX));
+      dzres_vs_pt.push_back(ibooker.book2D("dzres_vs_pt",
+                                           "dz Residual vs p_{T}",
+                                           nintPt,
+                                           minPt,
+                                           maxPt,
+                                           dzRes_nbin,
+                                           dzRes_rangeMin,
+                                           dzRes_rangeMax,
+                                           setBinLogX));
       h_dzpull.push_back(ibooker.book1D("dzpull", "dz Pull", 100, -10., 10.));
       dzpull_vs_eta.push_back(
           ibooker.book2D("dzpull_vs_eta", "dz Pull vs #eta", nintEta, minEta, maxEta, 100, -10, 10));
