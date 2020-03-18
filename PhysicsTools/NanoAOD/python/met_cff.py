@@ -17,6 +17,7 @@ metTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
        covXY = Var("getSignificanceMatrix().At(0,1)",float,doc="xy element of met covariance matrix", precision=8),
        covYY = Var("getSignificanceMatrix().At(1,1)",float,doc="yy element of met covariance matrix", precision=8),
        significance = Var("metSignificance()", float, doc="MET significance",precision=10),
+       sumPtUnclustered = Var("metSumPtUnclustered()", float, doc="sumPt used for MET significance",precision=10),
        MetUnclustEnUpDeltaX = Var("shiftedPx('UnclusteredEnUp')-px()", float, doc="Delta (METx_mod-METx) Unclustered Energy Up",precision=10),
        MetUnclustEnUpDeltaY = Var("shiftedPy('UnclusteredEnUp')-py()", float, doc="Delta (METy_mod-METy) Unclustered Energy Up",precision=10),
 
