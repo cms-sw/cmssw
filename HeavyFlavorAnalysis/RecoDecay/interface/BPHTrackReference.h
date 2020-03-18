@@ -45,19 +45,20 @@ public:
   /// get associated reco::Track calling a sequence of functions
   /// until a track is found; the list of functions to call is given
   /// as a string where each character identify a function:
-  /// c :  reco ::       Candidate :: get<reco::TrackRef> ()
-  /// f :  reco ::     PFCandidate ::           trackRef  ()
-  /// h :   pat :: GenericParticle ::           track     ()
-  /// b :  reco ::       Candidate ::       bestTrack     ()
-  /// p :   pat :: PackedCandidate ::     pseudoTrack     ()
-  /// m :   pat ::            Muon ::     pfCandidateRef  ()
-  /// n :   pat ::            Muon ::   muonBestTrack     ()
-  /// i :   pat ::            Muon ::      innerTrack     ()
-  /// g :   pat ::            Muon ::     globalTrack     ()
-  /// s :   pat ::            Muon ::      standAloneMuon ()
-  /// e :   pat ::        Electron ::     pfCandidateRef  ()
+  /// c :  reco ::       Candidate ::        get<reco::TrackRef> ()
+  /// f :  reco ::     PFCandidate ::                  trackRef  ()
+  /// h :   pat :: GenericParticle ::                  track     ()
+  /// b :  reco ::       Candidate ::              bestTrack     ()
+  /// p :   pat :: PackedCandidate ::            pseudoTrack     ()
+  /// m :   pat ::            Muon ::pfCandidateRef()::trackRef  ()
+  /// n :   pat ::            Muon ::          muonBestTrack     ()
+  /// i :   pat ::            Muon ::             innerTrack     ()
+  /// g :   pat ::            Muon ::            globalTrack     ()
+  /// s :   pat ::            Muon ::             standAloneMuon ()
+  /// e :   pat ::        Electron ::pfCandidateRef()::trackRef  ()
+  /// t :   pat ::        Electron ::        closestCtfTrackRef  ()
   static const reco::Track* getTrack(const reco::Candidate& rc,
-                                     const char* modeList = "cfhbpmnigse",
+                                     const char* modeList = "cfhbpmnigset",
                                      char* modeFlag = nullptr) {
     if (rc.charge() == 0)
       return nullptr;
@@ -111,6 +112,10 @@ public:
           break;
         case 'e':
           if ((tkp = getElecPF(rc)) != nullptr)
+            return tkp;
+          break;
+        case 't':
+          if ((tkp = getElecTC(rc)) != nullptr)
             return tkp;
           break;
       }
@@ -268,6 +273,22 @@ public:
         if (tkr.isNonnull() && tkr.isAvailable())
           return tkr.get();
       }
+    } catch (edm::Exception const&) {
+    }
+    return nullptr;
+  }
+  static const reco::Track* getElecTC(const reco::Candidate& rc) {
+    const pat::Electron* el = dynamic_cast<const pat::Electron*>(&rc);
+    if (el == nullptr)
+      return nullptr;
+    return getElecTC(el);
+  }
+  static const reco::Track* getElecTC(const pat::Electron* el) {
+    try {
+      // Return the ctftrack closest to the electron
+      const reco::TrackRef& tkr = el->closestCtfTrackRef();
+      if (tkr.isNonnull() && tkr.isAvailable())
+        return tkr.get();
     } catch (edm::Exception const&) {
     }
     return nullptr;
