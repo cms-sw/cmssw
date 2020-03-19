@@ -15,9 +15,8 @@ Holder for an input TFile.
 #include <iomanip>
 
 namespace edm {
-  InputFile::InputFile(char const* fileName, char const* msg, InputType inputType) :
-    file_(), fileName_(fileName), reportToken_(0), inputType_(inputType) {
-
+  InputFile::InputFile(char const* fileName, char const* msg, InputType inputType)
+      : file_(), fileName_(fileName), reportToken_(0), inputType_(inputType) {
     logFileAction(msg, fileName);
     {
       // ROOT's context management implicitly assumes that a file is opened and
@@ -27,106 +26,90 @@ namespace edm {
       // it was registered in.  Fixes issue #15524.
       TDirectory::TContext contextEraser;
 
-      file_ = std::unique_ptr<TFile>(TFile::Open(fileName)); // propagate_const<T> has no reset() function
+      file_ = std::unique_ptr<TFile>(TFile::Open(fileName));  // propagate_const<T> has no reset() function
     }
     std::exception_ptr e = edm::threadLocalException::getException();
-    if(e != std::exception_ptr()) {
+    if (e != std::exception_ptr()) {
       edm::threadLocalException::setException(std::exception_ptr());
       std::rethrow_exception(e);
     }
-    if(!file_) {
+    if (!file_) {
       return;
     }
-    if(file_->IsZombie()) {
-      file_ = nullptr; // propagate_const<T> has no reset() function
+    if (file_->IsZombie()) {
+      file_ = nullptr;  // propagate_const<T> has no reset() function
       return;
     }
-    
+
     logFileAction("  Successfully opened file ", fileName);
   }
 
-  InputFile::~InputFile() {
-    Close();
-  }
+  InputFile::~InputFile() { Close(); }
 
-  void
-  InputFile::inputFileOpened(std::string const& logicalFileName,
-                             std::string const& inputType,
-                             std::string const& moduleName,
-                             std::string const& label,
-                             std::string const& fid,
-                             std::vector<std::string> const& branchNames) {
+  void InputFile::inputFileOpened(std::string const& logicalFileName,
+                                  std::string const& inputType,
+                                  std::string const& moduleName,
+                                  std::string const& label,
+                                  std::string const& fid,
+                                  std::vector<std::string> const& branchNames) {
     Service<JobReport> reportSvc;
-    reportToken_ = reportSvc->inputFileOpened(fileName_,
-                                              logicalFileName,
-                                              std::string(),
-                                              inputType,
-                                              moduleName,
-                                              label,
-                                              fid,
-                                              branchNames);
+    reportToken_ = reportSvc->inputFileOpened(
+        fileName_, logicalFileName, std::string(), inputType, moduleName, label, fid, branchNames);
   }
 
-  void
-  InputFile::eventReadFromFile() const {
+  void InputFile::eventReadFromFile() const {
     Service<JobReport> reportSvc;
     reportSvc->eventReadFromFile(inputType_, reportToken_);
   }
 
-  void
-  InputFile::reportInputRunNumber(unsigned int run) const {
+  void InputFile::reportInputRunNumber(unsigned int run) const {
     Service<JobReport> reportSvc;
     reportSvc->reportInputRunNumber(run);
   }
 
-  void
-  InputFile::reportInputLumiSection(unsigned int run, unsigned int lumi) const {
+  void InputFile::reportInputLumiSection(unsigned int run, unsigned int lumi) const {
     Service<JobReport> reportSvc;
     reportSvc->reportInputLumiSection(run, lumi);
   }
 
-  void
-  InputFile::reportSkippedFile(std::string const& fileName, std::string const& logicalFileName) {
+  void InputFile::reportSkippedFile(std::string const& fileName, std::string const& logicalFileName) {
     Service<JobReport> reportSvc;
     reportSvc->reportSkippedFile(fileName, logicalFileName);
   }
 
-  void
-  InputFile::reportFallbackAttempt(std::string const& pfn, std::string const& logicalFileName, std::string const& errorMessage) {
+  void InputFile::reportFallbackAttempt(std::string const& pfn,
+                                        std::string const& logicalFileName,
+                                        std::string const& errorMessage) {
     Service<JobReport> reportSvc;
     reportSvc->reportFallbackAttempt(pfn, logicalFileName, errorMessage);
   }
 
-  void
-  InputFile::Close() {
-    if(file_->IsOpen()) {
+  void InputFile::Close() {
+    if (file_->IsOpen()) {
       file_->Close();
       try {
         logFileAction("  Closed file ", fileName_.c_str());
         Service<JobReport> reportSvc;
         reportSvc->inputFileClosed(inputType_, reportToken_);
-      } catch(std::exception const&) {
+      } catch (std::exception const&) {
         // If Close() called in a destructor after an exception throw, the services may no longer be active.
         // Therefore, we catch any reasonable new exception.
       }
     }
   }
 
-  void
-  InputFile::logFileAction(char const* msg, char const* fileName) const {
+  void InputFile::logFileAction(char const* msg, char const* fileName) const {
     LogAbsolute("fileAction") << std::setprecision(0) << TimeOfDay() << msg << fileName;
     FlushMessageLog();
   }
 
-  void
-  InputFile::reportReadBranches() {
+  void InputFile::reportReadBranches() {
     Service<JobReport> reportSvc;
     reportSvc->reportReadBranches();
   }
 
-  void
-  InputFile::reportReadBranch(InputType inputType, std::string const& branchName) {
+  void InputFile::reportReadBranch(InputType inputType, std::string const& branchName) {
     Service<JobReport> reportSvc;
     reportSvc->reportReadBranch(inputType, branchName);
   }
-}
+}  // namespace edm

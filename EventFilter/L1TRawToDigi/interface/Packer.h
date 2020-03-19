@@ -5,24 +5,24 @@
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
 
 namespace edm {
-   class Event;
+  class Event;
 }
 
 namespace l1t {
-   class L1TDigiToRaw;
+  class L1TDigiToRaw;
 
-   class Packer {
-      public:
-         virtual Blocks pack(const edm::Event&, const PackerTokens*) = 0;
-         void setBoard(unsigned board) {board_ = board;};
-         unsigned board() {return board_;};
-         virtual ~Packer() = default;
+  class Packer {
+  public:
+    virtual Blocks pack(const edm::Event&, const PackerTokens*) = 0;
+    void setBoard(unsigned board) { board_ = board; };
+    unsigned board() { return board_; };
+    virtual ~Packer() = default;
 
-      private:
-         unsigned board_{0};
-   };
+  private:
+    unsigned board_{0};
+  };
 
-   typedef std::vector<std::shared_ptr<Packer>> Packers;
-}
+  typedef std::vector<std::shared_ptr<Packer>> Packers;
+}  // namespace l1t
 
 #endif

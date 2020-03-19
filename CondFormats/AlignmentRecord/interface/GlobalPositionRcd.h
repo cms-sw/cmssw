@@ -5,5 +5,4 @@
 
 class GlobalPositionRcd : public edm::eventsetup::EventSetupRecordImplementation<GlobalPositionRcd> {};
 
-#endif 
-
+#endif

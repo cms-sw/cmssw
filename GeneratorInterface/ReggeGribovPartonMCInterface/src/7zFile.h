@@ -20,13 +20,12 @@ EXTERN_C_BEGIN
 
 /* ---------- File ---------- */
 
-typedef struct
-{
-  #ifdef USE_WINDOWS_FILE
+typedef struct {
+#ifdef USE_WINDOWS_FILE
   HANDLE handle;
-  #else
+#else
   FILE *file;
-  #endif
+#endif
 } CSzFile;
 
 void File_Construct(CSzFile *p);
@@ -49,29 +48,23 @@ WRes File_Write(CSzFile *p, const void *data, size_t *size);
 WRes File_Seek(CSzFile *p, Int64 *pos, ESzSeek origin);
 WRes File_GetLength(CSzFile *p, UInt64 *length);
 
-
 /* ---------- FileInStream ---------- */
 
-typedef struct
-{
+typedef struct {
   ISeqInStream s;
   CSzFile file;
 } CFileSeqInStream;
 
 void FileSeqInStream_CreateVTable(CFileSeqInStream *p);
 
-
-typedef struct
-{
+typedef struct {
   ISeekInStream s;
   CSzFile file;
 } CFileInStream;
 
 void FileInStream_CreateVTable(CFileInStream *p);
 
-
-typedef struct
-{
+typedef struct {
   ISeqOutStream s;
   CSzFile file;
 } CFileOutStream;

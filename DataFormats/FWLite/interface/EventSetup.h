@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     EventSetup
-// 
+//
 /**\class EventSetup EventSetup.h DataFormats/FWLite/interface/EventSetup.h
 
  Description: Provides access to conditions information from fwlite
@@ -37,9 +37,10 @@
       std::cout << fooHandle->value()<<std::endl;
     }
 
+    NOTE: This class is not safe to use across threads
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec 10 15:57:46 CST 2009
 //
 
@@ -51,66 +52,64 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 class TFile;
 
 namespace edm {
-   class EventBase;
+  class EventBase;
 }
 
-namespace fwlite
-{
-   class Record;
-   typedef unsigned int RecordID;
-   
-   class EventSetup {
-      
-   public:
-      EventSetup(TFile*);
-      virtual ~EventSetup();
-      
-      // ---------- const member functions ---------------------
-      const Record& get(const RecordID&) const;
+namespace fwlite {
+  class Record;
+  typedef unsigned int RecordID;
 
-      /**Returns the lookup id of the record whose name is iRecordName.  The returned id
+  class EventSetup {
+  public:
+    EventSetup(TFile*);
+    virtual ~EventSetup();
+
+    // ---------- const member functions ---------------------
+    const Record& get(const RecordID&) const;
+
+    /**Returns the lookup id of the record whose name is iRecordName.  The returned id
       is only valid for the instance of an EventSetup object to which the recordID call was made.
       If you later create a new EventSetup instance even for the same file the RecordIDs can be different.
       */
-      RecordID recordID(const char* iRecordName) const;
+    RecordID recordID(const char* iRecordName) const;
 
-      /**Returns true if a record with the name iRecordName is available in the file
+    /**Returns true if a record with the name iRecordName is available in the file
       */
-      bool exists(const char* iRecordName) const;
-      
-      std::vector<std::string> namesOfAvailableRecords() const;
-      // ---------- static member functions --------------------
+    bool exists(const char* iRecordName) const;
 
-      // ---------- member functions ---------------------------
-      //void syncTo(unsigned long iRun, unsigned long iLumi);
-      //void syncTo(const edm::EventID&);
+    std::vector<std::string> namesOfAvailableRecords() const;
+    // ---------- static member functions --------------------
 
-      /** Ensures that all Records will access the appropriate data for this instant in time
+    // ---------- member functions ---------------------------
+    //void syncTo(unsigned long iRun, unsigned long iLumi);
+    //void syncTo(const edm::EventID&);
+
+    /** Ensures that all Records will access the appropriate data for this instant in time
       */
-      void syncTo(const edm::EventID&, const edm::Timestamp&);
+    void syncTo(const edm::EventID&, const edm::Timestamp&);
 
-      //void autoSyncTo(const edm::EventBase&);
-   
+    //void autoSyncTo(const edm::EventBase&);
 
-   private:
-      EventSetup(const EventSetup&) = delete; // stop default
+  private:
+    EventSetup(const EventSetup&) = delete;  // stop default
 
-      const EventSetup& operator=(const EventSetup&) = delete; // stop default
+    const EventSetup& operator=(const EventSetup&) = delete;  // stop default
 
-      // ---------- member data --------------------------------
-      edm::EventID m_syncedEvent;
-      edm::Timestamp m_syncedTimestamp;
-      
-      mutable TFile* m_file;
+    // ---------- member data --------------------------------
+    edm::EventID m_syncedEvent;
+    edm::Timestamp m_syncedTimestamp;
 
-      mutable std::vector<Record*> m_records;
-   };
-} /* fwlite */
+    //This class is not inteded to be used across different threads
+    CMS_SA_ALLOW mutable TFile* m_file;
 
+    CMS_SA_ALLOW mutable std::vector<Record*> m_records;
+  };
+}  // namespace fwlite
 
 #endif

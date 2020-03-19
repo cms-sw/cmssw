@@ -27,7 +27,6 @@ turn off fast cloning its configuration.
 namespace edm {
 
   class NavigateEventsLooper : public EDLooperBase {
-
   public:
     NavigateEventsLooper(ParameterSet const& pset);
     ~NavigateEventsLooper() override;
@@ -37,8 +36,8 @@ namespace edm {
     Status endOfLoop(EventSetup const& es, unsigned int iCounter) override;
 
   private:
-    NavigateEventsLooper(NavigateEventsLooper const&) = delete; // stop default
-    NavigateEventsLooper const& operator=(NavigateEventsLooper const&) = delete; // stop default
+    NavigateEventsLooper(NavigateEventsLooper const&) = delete;                   // stop default
+    NavigateEventsLooper const& operator=(NavigateEventsLooper const&) = delete;  // stop default
 
     int maxLoops_;
     int countLoops_;
@@ -46,45 +45,40 @@ namespace edm {
     bool shouldStopProcess_;
   };
 
-  NavigateEventsLooper::NavigateEventsLooper(ParameterSet const& pset) :
-    maxLoops_(pset.getUntrackedParameter<int>("maxLoops", -1)),
-    countLoops_(0),
-    shouldStopLoop_(false),
-    shouldStopProcess_(false) {
-  }
+  NavigateEventsLooper::NavigateEventsLooper(ParameterSet const& pset)
+      : maxLoops_(pset.getUntrackedParameter<int>("maxLoops", -1)),
+        countLoops_(0),
+        shouldStopLoop_(false),
+        shouldStopProcess_(false) {}
 
-  NavigateEventsLooper::~NavigateEventsLooper() {
-  }
+  NavigateEventsLooper::~NavigateEventsLooper() {}
 
-  void
-  NavigateEventsLooper::startingNewLoop(unsigned int /*iIteration*/) {
-  }
+  void NavigateEventsLooper::startingNewLoop(unsigned int /*iIteration*/) {}
 
-  EDLooperBase::Status
-  NavigateEventsLooper::duringLoop(Event const&, EventSetup const&, ProcessingController& pc) {
-
-    if(!pc.lastOperationSucceeded()) {
+  EDLooperBase::Status NavigateEventsLooper::duringLoop(Event const&, EventSetup const&, ProcessingController& pc) {
+    if (!pc.lastOperationSucceeded()) {
       std::cout << "Event could not be found. Nothing done. Try again.\n";
     }
 
     std::cout << "\nWhat should we do next?\n";
 
-    if(pc.forwardState() == ProcessingController::kEventsAheadInFile) {
+    if (pc.forwardState() == ProcessingController::kEventsAheadInFile) {
       std::cout << "(0) process the next event\n";
-    } else if(pc.forwardState() == ProcessingController::kNextFileExists) {
+    } else if (pc.forwardState() == ProcessingController::kNextFileExists) {
       std::cout << "(0) process the next event if it exists (at last event in the open file. there are more files)\n";
-    } else if(pc.forwardState() == ProcessingController::kAtLastEvent) {
+    } else if (pc.forwardState() == ProcessingController::kAtLastEvent) {
       std::cout << "(0) will stop the loop because this is the last event\n";
-    } else if(pc.forwardState() == ProcessingController::kUnknownForward) {
+    } else if (pc.forwardState() == ProcessingController::kUnknownForward) {
       std::cout << "(0) process the next event (if it exists)\n";
     }
 
-    if(pc.canRandomAccess()) {
-      if(pc.reverseState() == ProcessingController::kEventsBackwardsInFile) {
+    if (pc.canRandomAccess()) {
+      if (pc.reverseState() == ProcessingController::kEventsBackwardsInFile) {
         std::cout << "(1) process the previous event\n";
-      } else if(pc.reverseState() == ProcessingController::kPreviousFileExists) {
-        std::cout << "(1) process the previous event if there are any (at first event in the open file. there are previous files)\n";
-      } else if(pc.reverseState() == ProcessingController::kAtFirstEvent) {
+      } else if (pc.reverseState() == ProcessingController::kPreviousFileExists) {
+        std::cout << "(1) process the previous event if there are any (at first event in the open file. there are "
+                     "previous files)\n";
+      } else if (pc.reverseState() == ProcessingController::kAtFirstEvent) {
         std::cout << "(1) will stop the loop because this is the first event\n";
       }
 
@@ -98,63 +92,65 @@ namespace edm {
     bool inputFailed = false;
     do {
       inputFailed = false;
-      if(!(std::cin >> x) || x < 0 || x > 4) {
+      if (!(std::cin >> x) || x < 0 || x > 4) {
         inputFailed = true;
         std::cin.clear();
         std::cin.ignore(10000, '\n');
-        std::cout << "Please enter numeric characters only. The value must be in the range 0 to 4 (inclusive). Please try again." << std::endl;
+        std::cout << "Please enter numeric characters only. The value must be in the range 0 to 4 (inclusive). Please "
+                     "try again."
+                  << std::endl;
       }
-      if(!pc.canRandomAccess() && (x == 1 || x == 2)) {
+      if (!pc.canRandomAccess() && (x == 1 || x == 2)) {
         inputFailed = true;
         std::cout << "The source cannot do random access. 1 and 2 are illegal values. Please try again." << std::endl;
       }
-    } while(inputFailed);
+    } while (inputFailed);
 
     shouldStopLoop_ = false;
     shouldStopProcess_ = false;
-    if(x == 0) {
+    if (x == 0) {
       pc.setTransitionToNextEvent();
-    } else if(x == 1) {
+    } else if (x == 1) {
       pc.setTransitionToPreviousEvent();
-    } else if(x == 2) {
+    } else if (x == 2) {
       std::cout << "Which run?" << std::endl;
       do {
         inputFailed = false;
-        if(!(std::cin >> x)) {
+        if (!(std::cin >> x)) {
           inputFailed = true;
           std::cin.clear();
           std::cin.ignore(10000, '\n');
           std::cout << "Please enter numeric characters only. Please try again." << std::endl;
         }
-      } while(inputFailed);
+      } while (inputFailed);
       RunNumber_t run = x;
       std::cout << "Which luminosity block?" << std::endl;
       do {
         inputFailed = false;
-        if(!(std::cin >> x)) {
+        if (!(std::cin >> x)) {
           inputFailed = true;
           std::cin.clear();
           std::cin.ignore(10000, '\n');
           std::cout << "Please enter numeric characters only. Please try again." << std::endl;
         }
-      } while(inputFailed);
+      } while (inputFailed);
       LuminosityBlockNumber_t lumi = x;
       std::cout << "Which event?" << std::endl;
       do {
         inputFailed = false;
-        if(!(std::cin >> x)) {
+        if (!(std::cin >> x)) {
           inputFailed = true;
           std::cin.clear();
           std::cin.ignore(10000, '\n');
           std::cout << "Please enter numeric characters only. Please try again." << std::endl;
         }
-      } while(inputFailed);
+      } while (inputFailed);
       EventNumber_t ev = x;
       pc.setTransitionToEvent(EventID(run, lumi, ev));
-    } else if(x == 3) {
+    } else if (x == 3) {
       pc.setTransitionToNextEvent();
       shouldStopLoop_ = true;
-    } else if(x == 4) {
+    } else if (x == 4) {
       pc.setTransitionToNextEvent();
       shouldStopLoop_ = true;
       shouldStopProcess_ = true;
@@ -162,14 +158,14 @@ namespace edm {
     return shouldStopLoop_ ? kStop : kContinue;
   }
 
-  EDLooperBase::Status
-  NavigateEventsLooper::endOfLoop(EventSetup const&, unsigned int /*iCounter*/) {
+  EDLooperBase::Status NavigateEventsLooper::endOfLoop(EventSetup const&, unsigned int /*iCounter*/) {
     std::cout << "Ending loop" << std::endl;
-    if(shouldStopProcess_) return kStop;
+    if (shouldStopProcess_)
+      return kStop;
     ++countLoops_;
-    return(maxLoops_ < 0 || countLoops_ < maxLoops_) ? kContinue : kStop;
+    return (maxLoops_ < 0 || countLoops_ < maxLoops_) ? kContinue : kStop;
   }
-}
+}  // namespace edm
 
 using edm::NavigateEventsLooper;
 DEFINE_FWK_LOOPER(NavigateEventsLooper);

@@ -13,19 +13,17 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-
 #include <map>
 #include <vector>
 
-class PFJetsMatchedToFilteredCaloJetsProducer: public edm::stream::EDProducer<> {
- public:
+class PFJetsMatchedToFilteredCaloJetsProducer : public edm::stream::EDProducer<> {
+public:
   explicit PFJetsMatchedToFilteredCaloJetsProducer(const edm::ParameterSet&);
   ~PFJetsMatchedToFilteredCaloJetsProducer() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   std::vector<reco::CaloJetRef> jetRefVec;
 
   edm::EDGetTokenT<edm::View<reco::Candidate>> m_thePFJetToken;
@@ -33,8 +31,7 @@ class PFJetsMatchedToFilteredCaloJetsProducer: public edm::stream::EDProducer<> 
 
   edm::InputTag PFJetSrc;
   edm::InputTag CaloJetFilter;
-  double DeltaR_;         // DeltaR(HLT,L1)
+  double DeltaR_;  // DeltaR(HLT,L1)
   int TriggerType_;
-
 };
 #endif

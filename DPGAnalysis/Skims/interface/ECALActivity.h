@@ -24,20 +24,18 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 //
 // class declaration
 //
 
-
 class ECALActivity : public edm::EDFilter {
 public:
-  explicit ECALActivity( const edm::ParameterSet & );
+  explicit ECALActivity(const edm::ParameterSet &);
   ~ECALActivity() override;
-  
+
 private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
-  
+  bool filter(edm::Event &, const edm::EventSetup &) override;
+
   edm::InputTag EBRecHitCollection_;
   edm::InputTag EERecHitCollection_;
 
@@ -48,8 +46,6 @@ private:
   int ETOTnum;
   double ETOTthresh;
   bool applyfilter;
-
-  
 };
 
 #endif

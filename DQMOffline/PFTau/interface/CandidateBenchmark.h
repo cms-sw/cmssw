@@ -8,44 +8,37 @@
 
 /// To plot Candidate quantities
 class CandidateBenchmark : public Benchmark {
-
- public:
-
-
+public:
   CandidateBenchmark(Mode mode);
   ~CandidateBenchmark() override;
 
   /// book histograms
-  void setup(DQMStore::IBooker& b);
-  void setup(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet);
+  void setup(DQMStore::IBooker &b);
+  void setup(DQMStore::IBooker &b, const edm::ParameterSet &parameterSet);
 
-  template< class C>
-  void fill( const C& candidates); 
-  
+  template <class C>
+  void fill(const C &candidates);
+
   /// fill histograms with a given particle
-  void fillOne( const reco::Candidate& candidate); 
+  void fillOne(const reco::Candidate &candidate);
 
- protected:
-  
-
-  TH1F* pt_; 
-  TH1F* eta_; 
-  TH1F* phi_; 
-  TH1F* charge_;
-  ///COLIN add this histo
-  TH1F* pdgId_; 
+protected:
+  TH1F *pt_;
+  TH1F *eta_;
+  TH1F *phi_;
+  TH1F *charge_;
+  /// COLIN add this histo
+  TH1F *pdgId_;
 
   bool histogramBooked_;
 };
 
-template< class C>
-void CandidateBenchmark::fill(const C& candCollection) {
-
+template <class C>
+void CandidateBenchmark::fill(const C &candCollection) {
   for (unsigned int i = 0; i < candCollection.size(); i++) {
-    const reco::Candidate& cand = candCollection[i];
+    const reco::Candidate &cand = candCollection[i];
     fillOne(cand);
   }
 }
 
-
-#endif 
+#endif

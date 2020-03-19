@@ -21,46 +21,41 @@
 using namespace std;
 
 L1MuTriggerPtScaleOnlineProducer::L1MuTriggerPtScaleOnlineProducer(const edm::ParameterSet& ps)
-  : L1ConfigOnlineProdBase<L1MuTriggerPtScaleRcd, L1MuTriggerPtScale>(ps),
-    m_signedPacking(ps.getParameter<bool>("signedPackingPt")),
-    m_nbitsPacking(ps.getParameter<int>("nbitPackingPt")),
-    m_nBins(ps.getParameter<int>("nbinsPt"))
-{
-}
+    : L1ConfigOnlineProdBase<L1MuTriggerPtScaleRcd, L1MuTriggerPtScale>(ps),
+      m_signedPacking(ps.getParameter<bool>("signedPackingPt")),
+      m_nbitsPacking(ps.getParameter<int>("nbitPackingPt")),
+      m_nBins(ps.getParameter<int>("nbinsPt")) {}
 
 L1MuTriggerPtScaleOnlineProducer::~L1MuTriggerPtScaleOnlineProducer() {}
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<L1MuTriggerPtScale> 
-L1MuTriggerPtScaleOnlineProducer::newObject(const std::string& objectKey )
-{
-   // find Pt key from main scales key
-   l1t::OMDSReader::QueryResults keysRecord = 
-         m_omdsReader.basicQuery(
-          // SELECTed columns
-          "SC_MUON_PT_FK",
-	  // schema name
-	  "CMS_GT",
-	  // table name
-          "L1T_SCALES",
-	  // WHERE lhs
-	  "L1T_SCALES.ID",
-	  // WHERE rhs
-	  m_omdsReader.singleAttribute( objectKey  ) );
+std::unique_ptr<L1MuTriggerPtScale> L1MuTriggerPtScaleOnlineProducer::newObject(const std::string& objectKey) {
+  // find Pt key from main scales key
+  l1t::OMDSReader::QueryResults keysRecord = m_omdsReader.basicQuery(
+      // SELECTed columns
+      "SC_MUON_PT_FK",
+      // schema name
+      "CMS_GT",
+      // table name
+      "L1T_SCALES",
+      // WHERE lhs
+      "L1T_SCALES.ID",
+      // WHERE rhs
+      m_omdsReader.singleAttribute(objectKey));
 
-   if( keysRecord.numberRows() != 1 ) // check if query was successful
-   {
-       throw cond::Exception("Problem finding L1MuTriggerScales associated "
-                             "with scales key " + objectKey);
-   }
+  if (keysRecord.numberRows() != 1)  // check if query was successful
+  {
+    throw cond::Exception(
+        "Problem finding L1MuTriggerScales associated "
+        "with scales key " +
+        objectKey);
+  }
 
-
-   /*
+  /*
 SQL> describe cms_gt.l1t_scale_muon_pt;
  Name                                      Null?    Type
  ----------------------------------------- -------- ----------------------------
@@ -70,38 +65,35 @@ SQL> describe cms_gt.l1t_scale_muon_pt;
  PT_GEV_BIN_LOW_32                                  NUMBER
    */
 
-   ScaleRecordHelper h("PT_GEV_BIN_LOW", m_nBins );
+  ScaleRecordHelper h("PT_GEV_BIN_LOW", m_nBins);
 
-   vector<string> columns;
-   h.pushColumnNames(columns);
+  vector<string> columns;
+  h.pushColumnNames(columns);
 
-   l1t::OMDSReader::QueryResults resultRecord = 
-       m_omdsReader.basicQuery(
-           // SELECTed columns
-           columns,
-           // schema name
-           "CMS_GT",
-           // table name
-           "L1T_SCALE_MUON_PT",
-           // WHERE lhs
-           "L1T_SCALE_MUON_PT.ID",
-           // WHERE rhs
-           keysRecord);
+  l1t::OMDSReader::QueryResults resultRecord = m_omdsReader.basicQuery(
+      // SELECTed columns
+      columns,
+      // schema name
+      "CMS_GT",
+      // table name
+      "L1T_SCALE_MUON_PT",
+      // WHERE lhs
+      "L1T_SCALE_MUON_PT.ID",
+      // WHERE rhs
+      keysRecord);
 
-   if(resultRecord.numberRows() != 1) { 
-       throw cond::Exception("Couldn't find Pt scale record for scales key `" 
-                             + objectKey + "'") ;
-   }
+  if (resultRecord.numberRows() != 1) {
+    throw cond::Exception("Couldn't find Pt scale record for scales key `" + objectKey + "'");
+  }
 
-   vector<double> scales;
-   h.extractScales(resultRecord, scales);
-   
-   auto result = std::make_unique<L1MuTriggerPtScale>(m_nbitsPacking, m_signedPacking, m_nBins, scales);
-   
+  vector<double> scales;
+  h.extractScales(resultRecord, scales);
+
+  auto result = std::make_unique<L1MuTriggerPtScale>(m_nbitsPacking, m_signedPacking, m_nBins, scales);
+
 #ifdef DEBUG_PT_SCALE
-   cout << "PT scale:" << endl << result->getPtScale()->print() << endl;
+  cout << "PT scale:" << endl << result->getPtScale()->print() << endl;
 #endif
 
-
-   return result ;
+  return result;
 }

@@ -12,9 +12,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class TrackerSurveyRcd:
-  public edm::eventsetup::EventSetupRecordImplementation<TrackerSurveyRcd>
-{
-};
+class TrackerSurveyRcd : public edm::eventsetup::EventSetupRecordImplementation<TrackerSurveyRcd> {};
 
 #endif

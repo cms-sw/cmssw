@@ -6,50 +6,43 @@
 
 #include <TF1.h>
 
-
 class JetCorrectorParameters;
 
-
-class JetResolution
-{
+class JetResolution {
   //
   // construction / destruction
   //
 public:
   JetResolution();
-  JetResolution(const std::string& fileName,bool doGaussian=false);
+  JetResolution(const std::string& fileName, bool doGaussian = false);
   virtual ~JetResolution();
-  
 
-  double parameterEtaEval(const std::string& parameterName,float eta, float pt);
+  double parameterEtaEval(const std::string& parameterName, float eta, float pt);
 
   //
   // member functions
   //
 public:
-  void initialize(const std::string& fileName,bool doGaussian=false);
-  
+  void initialize(const std::string& fileName, bool doGaussian = false);
+
   const std::string& name() const { return name_; }
-  
-  TF1* resolutionEtaPt(float eta,float pt) const;
-  TF1* resolution(const std::vector<float>&x, const std::vector<float>&y) const;
-  
-  TF1* parameterEta(const std::string& parameterName,float eta);
-  TF1* parameter(const std::string& parameterName,const std::vector<float>&x);
-  
+
+  TF1* resolutionEtaPt(float eta, float pt) const;
+  TF1* resolution(const std::vector<float>& x, const std::vector<float>& y) const;
+
+  TF1* parameterEta(const std::string& parameterName, float eta);
+  TF1* parameter(const std::string& parameterName, const std::vector<float>& x);
+
   const JetCorrectorParameters& parameters(int i) const { return *(parameters_[i]); }
-  
-  
+
   //
   // data members
   //
 private:
-  std::string                          name_;
-  mutable TF1*                         resolutionFnc_;
-  std::vector<TF1*>                    parameterFncs_;
+  std::string name_;
+  mutable TF1* resolutionFnc_;
+  std::vector<TF1*> parameterFncs_;
   std::vector<JetCorrectorParameters*> parameters_;
-  
 };
-
 
 #endif

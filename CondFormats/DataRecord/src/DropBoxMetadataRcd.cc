@@ -2,11 +2,11 @@
 //
 // Package:     CondFormats
 // Class  :     DropBoxMetadataRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Author:      
+// Author:
 // Created:     Wed Feb 23 11:26:01 CET 2011
 // $Id$
 

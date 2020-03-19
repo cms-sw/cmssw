@@ -19,19 +19,17 @@ class TProfile;
 class TFileDirectory;
 
 class BeamSpotHistogramMaker {
-
- public:
+public:
   BeamSpotHistogramMaker(edm::ConsumesCollector&& iC);
   BeamSpotHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
 
   ~BeamSpotHistogramMaker();
 
-  void book(const std::string dirname="");
+  void book(const std::string dirname = "");
   void beginRun(const unsigned int nrun);
   void fill(const unsigned int orbit, const reco::BeamSpot& bs);
 
- private:
-
+private:
   TFileDirectory* _currdir;
   const edm::ParameterSet _histoParameters;
 
@@ -48,9 +46,6 @@ class BeamSpotHistogramMaker {
   TProfile** _hbssigmaxvsorbrun;
   TProfile** _hbssigmayvsorbrun;
   TProfile** _hbssigmazvsorbrun;
-
-
 };
 
-
-#endif //  Validation_RecoVertex_BeamSpotHistogramMaker_H
+#endif  //  Validation_RecoVertex_BeamSpotHistogramMaker_H

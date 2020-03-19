@@ -2,7 +2,7 @@
 //
 // Package:    L1ObjectKeysOnlineProdBase
 // Class:      L1ObjectKeysOnlineProdBase
-// 
+//
 /**\class L1ObjectKeysOnlineProdBase L1ObjectKeysOnlineProdBase.h CondTools/L1ObjectKeysOnlineProdBase/src/L1ObjectKeysOnlineProdBase.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id: L1ObjectKeysOnlineProdBase.cc,v 1.1 2008/09/19 19:22:59 wsun Exp $
 //
 //
-
 
 // system include files
 
@@ -46,59 +45,45 @@
 // constructors and destructor
 //
 L1ObjectKeysOnlineProdBase::L1ObjectKeysOnlineProdBase(const edm::ParameterSet& iConfig)
-   : m_omdsReader(
-	iConfig.getParameter< std::string >( "onlineDB" ),
-	iConfig.getParameter< std::string >( "onlineAuthentication" ) )
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
+    : m_omdsReader(iConfig.getParameter<std::string>("onlineDB"),
+                   iConfig.getParameter<std::string>("onlineAuthentication")) {
+  //the following line is needed to tell the framework what
+  // data is being produced
 
   // The subsystemLabel is used by L1TriggerKeyOnlineProd to identify the
   // L1TriggerKeys to concatenate.
-  setWhatProduced(this,
-		  iConfig.getParameter< std::string >( "subsystemLabel" )
-		  );
+  setWhatProduced(this, iConfig.getParameter<std::string>("subsystemLabel"));
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 }
 
-
-L1ObjectKeysOnlineProdBase::~L1ObjectKeysOnlineProdBase()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+L1ObjectKeysOnlineProdBase::~L1ObjectKeysOnlineProdBase() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-L1ObjectKeysOnlineProdBase::ReturnType
-L1ObjectKeysOnlineProdBase::produce(const L1TriggerKeyRcd& iRecord)
-{
+L1ObjectKeysOnlineProdBase::ReturnType L1ObjectKeysOnlineProdBase::produce(const L1TriggerKeyRcd& iRecord) {
   // Get L1TriggerKey with label "SubsystemKeysOnly".  Re-throw exception if
   // not present.
-  edm::ESHandle< L1TriggerKey > subsystemKeys ;
-  try
-    {
-      iRecord.get( "SubsystemKeysOnly", subsystemKeys ) ;
-    }
-  catch( l1t::DataAlreadyPresentException& ex )
-    {
-      throw ex ;
-    }
+  edm::ESHandle<L1TriggerKey> subsystemKeys;
+  try {
+    iRecord.get("SubsystemKeysOnly", subsystemKeys);
+  } catch (l1t::DataAlreadyPresentException& ex) {
+    throw ex;
+  }
 
   // Copy L1TriggerKey to new object.
-  std::unique_ptr<L1TriggerKey> pL1TriggerKey = std::make_unique< L1TriggerKey >( *subsystemKeys ) ;
+  std::unique_ptr<L1TriggerKey> pL1TriggerKey = std::make_unique<L1TriggerKey>(*subsystemKeys);
 
   // Get object keys.
-  fillObjectKeys( pL1TriggerKey.get() ) ;
+  fillObjectKeys(pL1TriggerKey.get());
 
-  return pL1TriggerKey ;
+  return pL1TriggerKey;
 }
 
 //define this as a plug-in

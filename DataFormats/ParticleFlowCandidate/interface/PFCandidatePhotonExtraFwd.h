@@ -13,7 +13,7 @@ namespace reco {
 
   /// collection of PFCandidatePhotonExtras
   typedef std::vector<reco::PFCandidatePhotonExtra> PFCandidatePhotonExtraCollection;
-  
+
   /// persistent reference to a PFCandidatePhotonExtra
   typedef edm::Ref<PFCandidatePhotonExtraCollection> PFCandidatePhotonExtraRef;
 
@@ -41,5 +41,5 @@ namespace reco {
     /// vector of "forward" reference
     typedef std::vector<PFCandidatePhotonExtraFwdPtr> PFCandidatePhotonExtraFwdPtrVector;
   */
-}
+}  // namespace reco
 #endif

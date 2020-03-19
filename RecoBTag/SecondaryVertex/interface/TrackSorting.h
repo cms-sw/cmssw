@@ -6,8 +6,7 @@
 #include "DataFormats/BTauReco/interface/IPTagInfo.h"
 
 namespace TrackSorting {
-	extern reco::btag::SortCriteria
-	getCriterium(const std::string &name);
+  extern reco::btag::SortCriteria getCriterium(const std::string &name);
 }
 
-#endif // RecoBTag_SecondaryVertex_TrackSorting_h
+#endif  // RecoBTag_SecondaryVertex_TrackSorting_h

@@ -9,8 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
-{
+HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   JetSource_ = iConfig.getParameter<edm::InputTag>("JetSource");
   MetSource_ = iConfig.getParameter<edm::InputTag>("MetSource");
   TowerSource_ = iConfig.getParameter<edm::InputTag>("TowerSource");
@@ -31,77 +30,76 @@ HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFi
 
 HLTHcalNoiseFilter::~HLTHcalNoiseFilter() = default;
 
-void
-HLTHcalNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTHcalNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("JetSource",edm::InputTag("iterativeCone5CaloJets"));
-  desc.add<edm::InputTag>("MetSource",edm::InputTag("met"));
-  desc.add<edm::InputTag>("TowerSource",edm::InputTag("towerMaker"));
-  desc.add<bool>("UseJet",true);
-  desc.add<bool>("UseMET",false);
-  desc.add<double>("MetCut",0.);
-  desc.add<double>("JetMinE",20.);
-  desc.add<double>("JetHCALminEnergyFraction",0.98);
-  descriptions.add("hltHcalNoiseFilter",desc);
+  desc.add<edm::InputTag>("JetSource", edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("MetSource", edm::InputTag("met"));
+  desc.add<edm::InputTag>("TowerSource", edm::InputTag("towerMaker"));
+  desc.add<bool>("UseJet", true);
+  desc.add<bool>("UseMET", false);
+  desc.add<double>("MetCut", 0.);
+  desc.add<double>("JetMinE", 20.);
+  desc.add<double>("JetHCALminEnergyFraction", 0.98);
+  descriptions.add("hltHcalNoiseFilter", desc);
 }
 
 //
 // member functions
 //
 
-bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
-   using namespace edm;
-   using namespace reco;
+bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent,
+                                   const edm::EventSetup& iSetup,
+                                   trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  using namespace edm;
+  using namespace reco;
 
-   bool isAnomalous_BasedOnMET = false;
-   bool isAnomalous_BasedOnEnergyFraction=false;
+  bool isAnomalous_BasedOnMET = false;
+  bool isAnomalous_BasedOnEnergyFraction = false;
 
-   if (useMet_)
-     {
-       Handle <CaloMETCollection> metHandle;
-       iEvent.getByToken(MetSourceToken_, metHandle);
-       const CaloMETCollection *metCol = metHandle.product();
-       const CaloMET met = metCol->front();
+  if (useMet_) {
+    Handle<CaloMETCollection> metHandle;
+    iEvent.getByToken(MetSourceToken_, metHandle);
+    const CaloMETCollection* metCol = metHandle.product();
+    const CaloMET met = metCol->front();
 
-       if(met.pt() > MetCut_) isAnomalous_BasedOnMET=true;
-     }
+    if (met.pt() > MetCut_)
+      isAnomalous_BasedOnMET = true;
+  }
 
-   if (useJet_)
-     {
-       Handle<CaloJetCollection> calojetHandle;
-       iEvent.getByToken(JetSourceToken_,calojetHandle);
+  if (useJet_) {
+    Handle<CaloJetCollection> calojetHandle;
+    iEvent.getByToken(JetSourceToken_, calojetHandle);
 
-       Handle<CaloTowerCollection> towerHandle;
-       iEvent.getByToken(TowerSourceToken_, towerHandle);
+    Handle<CaloTowerCollection> towerHandle;
+    iEvent.getByToken(TowerSourceToken_, towerHandle);
 
-       std::vector<CaloTower> TowerContainer;
-       std::vector<CaloJet> JetContainer;
-       TowerContainer.clear();
-       JetContainer.clear();
-       CaloTower seedTower;
-       for(auto const & calojetIter : *calojetHandle) {
-	 if( ((calojetIter.et())*cosh(calojetIter.eta()) > JetMinE_) and (calojetIter.energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
-	   JetContainer.push_back(calojetIter);
-	   double maxTowerE = 0.0;
-	   for(auto const & kal : *towerHandle) {
-	     double dR = deltaR(calojetIter.eta(),calojetIter.phi(),kal.eta(),kal.phi());
-	     if( (dR < 0.50) and (kal.p() > maxTowerE) ) {
-	       maxTowerE = kal.p();
-	       seedTower = kal;
-	     }
-	   }
-	   TowerContainer.push_back(seedTower);
-	 }
-	
-       }
-       if(!JetContainer.empty()) {
-	 isAnomalous_BasedOnEnergyFraction = true;
-       }
-     }
+    std::vector<CaloTower> TowerContainer;
+    std::vector<CaloJet> JetContainer;
+    TowerContainer.clear();
+    JetContainer.clear();
+    CaloTower seedTower;
+    for (auto const& calojetIter : *calojetHandle) {
+      if (((calojetIter.et()) * cosh(calojetIter.eta()) > JetMinE_) and
+          (calojetIter.energyFractionHadronic() > JetHCALminEnergyFraction_)) {
+        JetContainer.push_back(calojetIter);
+        double maxTowerE = 0.0;
+        for (auto const& kal : *towerHandle) {
+          double dR = deltaR(calojetIter.eta(), calojetIter.phi(), kal.eta(), kal.phi());
+          if ((dR < 0.50) and (kal.p() > maxTowerE)) {
+            maxTowerE = kal.p();
+            seedTower = kal;
+          }
+        }
+        TowerContainer.push_back(seedTower);
+      }
+    }
+    if (!JetContainer.empty()) {
+      isAnomalous_BasedOnEnergyFraction = true;
+    }
+  }
 
-   return ((useMet_ and isAnomalous_BasedOnMET) or (useJet_ and isAnomalous_BasedOnEnergyFraction));
+  return ((useMet_ and isAnomalous_BasedOnMET) or (useJet_ and isAnomalous_BasedOnEnergyFraction));
 }
 
 // declare this class as a framework plugin

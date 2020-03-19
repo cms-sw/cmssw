@@ -10,17 +10,13 @@
    @brief Simple class that tests SiStripFedKey.
 */
 class testSiStripFedKey : public edm::EDAnalyzer {
-
- public:
-  
-  testSiStripFedKey( const edm::ParameterSet& );
+public:
+  testSiStripFedKey(const edm::ParameterSet&);
   ~testSiStripFedKey();
-  
+
   void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
-  
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob() { ; }
 };
 
-#endif // DataFormats_SiStripCommon_testSiStripFedKey_H
-
+#endif  // DataFormats_SiStripCommon_testSiStripFedKey_H

@@ -35,49 +35,50 @@ using namespace std;
 using namespace reco;
 
 /// constructor with config
-L2MuonCandidateProducer::L2MuonCandidateProducer(const ParameterSet& parameterSet){
-  LogTrace("Muon|RecoMuon|L2MuonCandidateProducer")<<" constructor called";
+L2MuonCandidateProducer::L2MuonCandidateProducer(const ParameterSet& parameterSet) {
+  LogTrace("Muon|RecoMuon|L2MuonCandidateProducer") << " constructor called";
 
   // StandAlone Collection Label
   theSACollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
   tracksToken = consumes<reco::TrackCollection>(theSACollectionLabel);
   produces<RecoChargedCandidateCollection>();
 }
-  
-/// destructor
-L2MuonCandidateProducer::~L2MuonCandidateProducer(){
-  LogTrace("Muon|RecoMuon|L2MuonCandidateProducer")<<" L2MuonCandidateProducer destructor called";
-}
 
+/// destructor
+L2MuonCandidateProducer::~L2MuonCandidateProducer() {
+  LogTrace("Muon|RecoMuon|L2MuonCandidateProducer") << " L2MuonCandidateProducer destructor called";
+}
 
 /// reconstruct muons
 void L2MuonCandidateProducer::produce(edm::StreamID sid, Event& event, const EventSetup& eventSetup) const {
   const string metname = "Muon|RecoMuon|L2MuonCandidateProducer";
-  
+
   // Take the SA container
-  LogTrace(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel;
-  Handle<TrackCollection> tracks; 
-  event.getByToken(tracksToken,tracks);
+  LogTrace(metname) << " Taking the StandAlone muons: " << theSACollectionLabel;
+  Handle<TrackCollection> tracks;
+  event.getByToken(tracksToken, tracks);
 
   // Create a RecoChargedCandidate collection
-  LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
+  LogTrace(metname) << " Creating the RecoChargedCandidate collection";
   auto candidates = std::make_unique<RecoChargedCandidateCollection>();
 
-  for (unsigned int i=0; i<tracks->size(); i++) {
-      TrackRef tkref(tracks,i);
-      Particle::Charge q = tkref->charge();
-      Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
-      Particle::Point vtx(tkref->vx(),tkref->vy(), tkref->vz());
-      int pid = 13;
-      if(abs(q)==1) pid = q < 0 ? 13 : -13;
-      else LogWarning(metname) << "L2MuonCandidate has charge = "<<q;
-      RecoChargedCandidate cand(q, p4, vtx, pid);
-      cand.setTrack(tkref);
-      candidates->push_back(cand);
+  for (unsigned int i = 0; i < tracks->size(); i++) {
+    TrackRef tkref(tracks, i);
+    Particle::Charge q = tkref->charge();
+    Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
+    Particle::Point vtx(tkref->vx(), tkref->vy(), tkref->vz());
+    int pid = 13;
+    if (abs(q) == 1)
+      pid = q < 0 ? 13 : -13;
+    else
+      LogWarning(metname) << "L2MuonCandidate has charge = " << q;
+    RecoChargedCandidate cand(q, p4, vtx, pid);
+    cand.setTrack(tkref);
+    candidates->push_back(cand);
   }
-  
+
   event.put(std::move(candidates));
- 
-  LogTrace(metname)<<" Event loaded"
-		   <<"================================";
+
+  LogTrace(metname) << " Event loaded"
+                    << "================================";
 }

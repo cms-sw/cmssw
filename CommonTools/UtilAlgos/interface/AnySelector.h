@@ -8,23 +8,16 @@
 namespace reco {
   namespace modules {
 
-    template<>
+    template <>
     struct ParameterAdapter<AnySelector> {
-      static AnySelector make( const edm::ParameterSet & cfg ) {
-	return AnySelector();
-      }
-      static AnySelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) {
-	return AnySelector();
-      }
-      static AnySelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	return AnySelector();
-      }
+      static AnySelector make(const edm::ParameterSet& cfg) { return AnySelector(); }
+      static AnySelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) { return AnySelector(); }
+      static AnySelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) { return AnySelector(); }
 
       static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

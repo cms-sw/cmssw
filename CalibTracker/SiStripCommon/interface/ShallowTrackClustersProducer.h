@@ -11,14 +11,15 @@
 
 class ShallowTrackClustersProducer : public edm::EDProducer {
 public:
-  explicit ShallowTrackClustersProducer(const edm::ParameterSet&);
+  explicit ShallowTrackClustersProducer(const edm::ParameterSet &);
+
 private:
-	const edm::EDGetTokenT<edm::View<reco::Track> > tracks_token_;
-	const edm::EDGetTokenT<TrajTrackAssociationCollection> association_token_;
-	const edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > clusters_token_;
+  const edm::EDGetTokenT<edm::View<reco::Track> > tracks_token_;
+  const edm::EDGetTokenT<TrajTrackAssociationCollection> association_token_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusters_token_;
   std::string Suffix;
   std::string Prefix;
 
-  void produce( edm::Event &, const edm::EventSetup & ) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 };
 #endif

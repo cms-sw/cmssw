@@ -13,26 +13,25 @@
 
 #include <vector>
 
-template<typename T1>
+template <typename T1>
 class HcalPFClusterIsolation {
- public:
-
+public:
   typedef std::vector<T1> T1Collection;
   typedef edm::Ref<T1Collection> T1Ref;
 
   HcalPFClusterIsolation(double drMax,
-			 double drVetoBarrel,
-			 double drVetoEndcap,
-			 double etaStripBarrel,
-			 double etaStripEndcap,
-			 double energyBarrel,
-			 double energyEndcap,
-			 bool useEt);
-  
-  ~HcalPFClusterIsolation();
-  double getSum(const T1Ref candRef, const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles);  
+                         double drVetoBarrel,
+                         double drVetoEndcap,
+                         double etaStripBarrel,
+                         double etaStripEndcap,
+                         double energyBarrel,
+                         double energyEndcap,
+                         bool useEt);
 
- private:
+  ~HcalPFClusterIsolation();
+  double getSum(const T1Ref candRef, const std::vector<edm::Handle<reco::PFClusterCollection>>& clusterHandles);
+
+private:
   const double drMax_;
   const double drVetoBarrel_;
   const double drVetoEndcap_;
@@ -41,7 +40,6 @@ class HcalPFClusterIsolation {
   const double energyBarrel_;
   const double energyEndcap_;
   const bool useEt_;
-
 };
 
 #endif

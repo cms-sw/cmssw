@@ -15,35 +15,27 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 
-
 namespace pat {
 
-
   class PATLeptonCountFilter : public edm::global::EDFilter<> {
+  public:
+    explicit PATLeptonCountFilter(const edm::ParameterSet& iConfig);
+    ~PATLeptonCountFilter() override;
 
-    public:
+  private:
+    bool filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-      explicit PATLeptonCountFilter(const edm::ParameterSet & iConfig);
-      ~PATLeptonCountFilter() override;
-
-    private:
-
-      bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
-
-    private:
-
-      const edm::EDGetTokenT<edm::View<Electron> > electronToken_;
-      const edm::EDGetTokenT<edm::View<Muon> > muonToken_;
-      const edm::EDGetTokenT<edm::View<Tau> > tauToken_;
-      const bool          countElectrons_;
-      const bool          countMuons_;
-      const bool          countTaus_;
-      const unsigned int  minNumber_;
-      const unsigned int  maxNumber_;
-
+  private:
+    const edm::EDGetTokenT<edm::View<Electron> > electronToken_;
+    const edm::EDGetTokenT<edm::View<Muon> > muonToken_;
+    const edm::EDGetTokenT<edm::View<Tau> > tauToken_;
+    const bool countElectrons_;
+    const bool countMuons_;
+    const bool countTaus_;
+    const unsigned int minNumber_;
+    const unsigned int maxNumber_;
   };
 
-
-}
+}  // namespace pat
 
 #endif

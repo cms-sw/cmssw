@@ -1,12 +1,5 @@
 <TESTSCONFIGURATION>
 <!--
-<QTEST name="KolmogorovQTest0.3">
-        <TYPE>Comp2RefKolmogorov</TYPE>	
-	<PARAM name="testparam">0</PARAM>
-	<PARAM name="error">0.3</PARAM>
-	<PARAM name="warning">0.3</PARAM>
-</QTEST>
-
 <QTEST name="ContentsAbove0.8" activate="true">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">0.80</PARAM>
@@ -34,22 +27,18 @@
 
 
 <LINK name="HLT/Higgs/HWW/Eff*">
-	<!--<TestName activate="true">KolmogorovQTest0.3</TestName> -->
 	<TestName activate="true">efficiencyCheck</TestName>
 </LINK>
 
 <LINK name="HLT/Higgs/Hgg/Eff*">
-	<!--<TestName activate="true">KolmogorovQTest0.3</TestName> -->
 	<TestName activate="true">efficiencyCheck</TestName>
 </LINK>
 
 <LINK name="HLT/Higgs/HZZ/Eff*">
-	<!--<TestName activate="true">KolmogorovQTest0.3</TestName> -->
 	<TestName activate="true">efficiencyCheck</TestName>
 </LINK>
 
 <LINK name="HLT/Higgs/H2tau/Eff*">
-	<!--<TestName activate="true">KolmogorovQTest0.3</TestName> -->
 	<TestName activate="true">efficiencyCheck</TestName>
 </LINK>
 

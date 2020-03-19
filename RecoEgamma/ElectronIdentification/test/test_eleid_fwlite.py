@@ -8,9 +8,8 @@ import pandas as pd
 
 print('open input file...')
 
-events = Events('root://cms-xrd-global.cern.ch//store/mc/'+ \
-        'RunIIFall17MiniAOD/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/'+ \
-        'MINIAODSIM/RECOSIMstep_94X_mc2017_realistic_v10-v1/00000/0293A280-B5F3-E711-8303-3417EBE33927.root')
+events = Events('root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_6_0/RelValZEE_13/'+ \
+        'MINIAODSIM/PU25ns_106X_mcRun2_asymptotic_v3_FastSim-v1/10000/7BD68C01-3BA4-A74D-8B37-3EA162D34590.root')
 
 # Get Handles on the electrons and other products needed to calculate the MVAs
 ele_handle  = Handle('std::vector<pat::Electron>')
@@ -60,12 +59,8 @@ for i,event in enumerate(events):
         continue
 
     event.getByLabel(('fixedGridRhoFastjetAll'), rho_handle)
-    event.getByLabel(('reducedEgamma:reducedConversions'), conv_handle)
-    event.getByLabel(('offlineBeamSpot'), bs_handle)
 
-    convs     = conv_handle.product()
-    beam_spot = bs_handle.product()
-    rho       = rho_handle.product()
+    rho = rho_handle.product()
 
     ele = electrons[0]
     i = accepted
@@ -76,24 +71,24 @@ for i,event in enumerate(events):
     data["nEvent"][i]           = nEvent
     data["pt"][i]               = ele.pt()
 
-    mva, category = electron_mvas["Fall17IsoV2"](ele, convs, beam_spot, rho)
+    mva, category = electron_mvas["Fall17IsoV2"](ele, rho)
     data["Fall17IsoV2"][i] = mva
     data["Fall17IsoV2-wp80"][i] = working_points["Fall17IsoV2"].passed(ele, mva, category, 'wp80')
     data["Fall17IsoV2-wp90"][i] = working_points["Fall17IsoV2"].passed(ele, mva, category, 'wp90')
     data["Fall17IsoV2-wpLoose"][i] = working_points["Fall17IsoV2"].passed(ele, mva, category, 'wpLoose')
     data["Fall17IsoV2-wpHZZ"][i] = working_points["Fall17IsoV2"].passed(ele, mva, category, 'wpHZZ')
 
-    mva, category = electron_mvas["Fall17NoIsoV2"](ele, convs, beam_spot, rho)
+    mva, category = electron_mvas["Fall17NoIsoV2"](ele, rho)
     data["Fall17NoIsoV2"][i] = mva
     data["Fall17NoIsoV2-wp80"][i] = working_points["Fall17NoIsoV2"].passed(ele, mva, category, 'wp80')
     data["Fall17NoIsoV2-wp90"][i] = working_points["Fall17NoIsoV2"].passed(ele, mva, category, 'wp90')
     data["Fall17NoIsoV2-wpLoose"][i] = working_points["Fall17NoIsoV2"].passed(ele, mva, category, 'wpLoose')
 
-    mva, category = electron_mvas["Spring16HZZV1"](ele, convs, beam_spot, rho)
+    mva, category = electron_mvas["Spring16HZZV1"](ele, rho)
     data["Spring16HZZV1"][i] = mva
     data["Spring16HZZV1-wpLoose"][i] = working_points["Spring16HZZV1"].passed(ele, mva, category, 'wpLoose')
 
-    mva, category = electron_mvas["Spring16GPV1"](ele, convs, beam_spot, rho)
+    mva, category = electron_mvas["Spring16GPV1"](ele, rho)
     data["Spring16GPV1"][i] = mva
     data["Spring16GPV1-wp80"][i] = working_points["Spring16GPV1"].passed(ele, mva, category, 'wp80')
     data["Spring16GPV1-wp90"][i] = working_points["Spring16GPV1"].passed(ele, mva, category, 'wp90')

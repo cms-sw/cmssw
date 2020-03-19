@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include "TProfile.h"
@@ -48,17 +47,17 @@
 //
 
 class FEDBadModuleFilter : public edm::EDFilter {
-   public:
-      explicit FEDBadModuleFilter(const edm::ParameterSet&);
-      ~FEDBadModuleFilter() override;
+public:
+  explicit FEDBadModuleFilter(const edm::ParameterSet&);
+  ~FEDBadModuleFilter() override;
 
 private:
-  void beginJob() override ;
+  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   edm::EDGetTokenT<DetIdCollection> m_digibadmodulecollectionToken;
   unsigned int m_modulethr;
@@ -71,7 +70,6 @@ private:
   RunHistogramManager m_rhm;
   TH1F** m_nbadrun;
   TProfile** m_nbadvsorbrun;
-
 };
 
 //
@@ -85,101 +83,88 @@ private:
 //
 // constructors and destructor
 //
-FEDBadModuleFilter::FEDBadModuleFilter(const edm::ParameterSet& iConfig):
-  m_digibadmodulecollectionToken(consumes<DetIdCollection>(iConfig.getParameter<edm::InputTag>("collectionName"))),
-  m_modulethr(iConfig.getParameter<unsigned int>("badModThr")),
-  m_modsel(),
-  m_wantedhist(iConfig.getUntrackedParameter<bool>("wantedHisto",false)),
-  m_printlist(iConfig.getUntrackedParameter<bool>("printList",false)),
-  m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",100)),
-  m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
-  m_rhm(consumesCollector())
+FEDBadModuleFilter::FEDBadModuleFilter(const edm::ParameterSet& iConfig)
+    : m_digibadmodulecollectionToken(consumes<DetIdCollection>(iConfig.getParameter<edm::InputTag>("collectionName"))),
+      m_modulethr(iConfig.getParameter<unsigned int>("badModThr")),
+      m_modsel(),
+      m_wantedhist(iConfig.getUntrackedParameter<bool>("wantedHisto", false)),
+      m_printlist(iConfig.getUntrackedParameter<bool>("printList", false)),
+      m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin", 100)),
+      m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction", 4)),
+      m_rhm(consumesCollector())
 
 {
-   //now do what ever initialization is needed
+  //now do what ever initialization is needed
 
-  if(m_wantedhist) {
-    m_nbadrun = m_rhm.makeTH1F("nbadrun","Number of bad channels",500,-0.5,499.5);
-    m_nbadvsorbrun = m_rhm.makeTProfile("nbadvsorbrun","Number of bad channels vs time",m_LSfrac*m_maxLS,0,m_maxLS*262144);
+  if (m_wantedhist) {
+    m_nbadrun = m_rhm.makeTH1F("nbadrun", "Number of bad channels", 500, -0.5, 499.5);
+    m_nbadvsorbrun =
+        m_rhm.makeTProfile("nbadvsorbrun", "Number of bad channels vs time", m_LSfrac * m_maxLS, 0, m_maxLS * 262144);
   }
 
-  std::vector<unsigned int> modules = iConfig.getUntrackedParameter<std::vector<unsigned int> >("moduleList",std::vector<unsigned int>());
-  m_modules = std::set<unsigned int>(modules.begin(),modules.end());
+  std::vector<unsigned int> modules =
+      iConfig.getUntrackedParameter<std::vector<unsigned int> >("moduleList", std::vector<unsigned int>());
+  m_modules = std::set<unsigned int>(modules.begin(), modules.end());
 
-  if(iConfig.exists("moduleSelection")) {
+  if (iConfig.exists("moduleSelection")) {
     m_modsel = DetIdSelector(iConfig.getUntrackedParameter<edm::ParameterSet>("moduleSelection"));
   }
 }
 
-
-FEDBadModuleFilter::~FEDBadModuleFilter()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+FEDBadModuleFilter::~FEDBadModuleFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-FEDBadModuleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+bool FEDBadModuleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   Handle<DetIdCollection > badmodules;
-   iEvent.getByToken(m_digibadmodulecollectionToken,badmodules);
+  Handle<DetIdCollection> badmodules;
+  iEvent.getByToken(m_digibadmodulecollectionToken, badmodules);
 
-   unsigned int nbad = 0;
-   if(m_printlist || !m_modules.empty() || m_modsel.isValid() ) {
-     for(DetIdCollection::const_iterator mod = badmodules->begin(); mod!=badmodules->end(); ++mod) {
-       if((m_modules.empty() || m_modules.find(*mod) != m_modules.end() ) && (!m_modsel.isValid() || m_modsel.isSelected(*mod))) {
-	 ++nbad;
-	 if(m_printlist) edm::LogInfo("FEDBadModule") << *mod;
-       }
-     }
-   }
-   else {
-     nbad = badmodules->size();
-   }
+  unsigned int nbad = 0;
+  if (m_printlist || !m_modules.empty() || m_modsel.isValid()) {
+    for (DetIdCollection::const_iterator mod = badmodules->begin(); mod != badmodules->end(); ++mod) {
+      if ((m_modules.empty() || m_modules.find(*mod) != m_modules.end()) &&
+          (!m_modsel.isValid() || m_modsel.isSelected(*mod))) {
+        ++nbad;
+        if (m_printlist)
+          edm::LogInfo("FEDBadModule") << *mod;
+      }
+    }
+  } else {
+    nbad = badmodules->size();
+  }
 
-   if(m_wantedhist) {
-     if(m_nbadvsorbrun && *m_nbadvsorbrun) (*m_nbadvsorbrun)->Fill(iEvent.orbitNumber(),nbad);
-     if(m_nbadrun && *m_nbadrun) (*m_nbadrun)->Fill(nbad);
-   }
+  if (m_wantedhist) {
+    if (m_nbadvsorbrun && *m_nbadvsorbrun)
+      (*m_nbadvsorbrun)->Fill(iEvent.orbitNumber(), nbad);
+    if (m_nbadrun && *m_nbadrun)
+      (*m_nbadrun)->Fill(nbad);
+  }
 
-   return (nbad >= m_modulethr);
-
+  return (nbad >= m_modulethr);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void
-FEDBadModuleFilter::beginJob()
-{
-}
+void FEDBadModuleFilter::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void
-FEDBadModuleFilter::endJob() {
-}
+void FEDBadModuleFilter::endJob() {}
 
-void
-FEDBadModuleFilter::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-
-  if(m_wantedhist) {
-
+void FEDBadModuleFilter::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  if (m_wantedhist) {
     m_rhm.beginRun(iRun);
-    if(*m_nbadvsorbrun) {
+    if (*m_nbadvsorbrun) {
       (*m_nbadvsorbrun)->SetCanExtend(TH1::kXaxis);
       (*m_nbadvsorbrun)->GetXaxis()->SetTitle("time [Orb#]");
       (*m_nbadvsorbrun)->GetYaxis()->SetTitle("Bad Channels");
     }
-
   }
 }
 

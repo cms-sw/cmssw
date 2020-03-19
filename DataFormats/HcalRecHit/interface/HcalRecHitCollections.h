@@ -12,7 +12,6 @@
 #include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 
-
 typedef edm::SortedCollection<HBHERecHit> HBHERecHitCollection;
 typedef edm::SortedCollection<HORecHit> HORecHitCollection;
 typedef edm::SortedCollection<HFPreRecHit> HFPreRecHitCollection;

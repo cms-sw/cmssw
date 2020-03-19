@@ -150,3 +150,8 @@ islandPhotons = cms.EDProducer("PhotonProducer",
     RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
 )
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(photons,
+                           minSCEtBarrel = 1.0, #default 10
+                           minSCEtEndcap = 1.0) #default 10

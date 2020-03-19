@@ -3,14 +3,14 @@
 
 #include "G4VUserPrimaryParticleInformation.hh"
 
-class GenParticleInfo : public G4VUserPrimaryParticleInformation 
-{
+class GenParticleInfo : public G4VUserPrimaryParticleInformation {
 public:
-    explicit GenParticleInfo(int id) : id_(id) {}
-    int id() const { return id_; }
-    void Print() const override {}
+  explicit GenParticleInfo(int id) : id_(id) {}
+  int id() const { return id_; }
+  void Print() const override {}
+
 private:
-    int id_;
+  int id_;
 };
 
 #endif

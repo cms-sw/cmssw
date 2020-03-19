@@ -22,11 +22,9 @@
 // C++ Headers --
 //---------------
 
-
 //-------------------
 // Initializations --
 //-------------------
-
 
 //----------------
 // Constructors --
@@ -41,38 +39,23 @@
 //--------------
 // Operations --
 //--------------
-template<>
-bool BPHMultiSelect<BPHRecoSelect    >::accept(
-                                        const reco::Candidate & cand,
-                                        const BPHRecoBuilder* build ) const {
-  return select( cand, build );
+bool BPHMultiSelect<BPHRecoSelect>::accept(const reco::Candidate& cand, const BPHRecoBuilder* build) const {
+  return select(cand, build);
 }
 
+bool BPHMultiSelect<BPHRecoSelect>::accept(const reco::Candidate& cand) const { return select(cand); }
 
-template<>
-bool BPHMultiSelect<BPHRecoSelect    >::accept(
-                                        const reco::Candidate & cand ) const {
-  return select( cand );
+template <>
+bool BPHMultiSelect<BPHMomentumSelect>::accept(const BPHDecayMomentum& cand) const {
+  return select(cand);
 }
 
-
-template<>
-bool BPHMultiSelect<BPHMomentumSelect>::accept(
-                                        const BPHDecayMomentum& cand ) const {
-  return select( cand );
+template <>
+bool BPHMultiSelect<BPHVertexSelect>::accept(const BPHDecayVertex& cand) const {
+  return select(cand);
 }
 
-
-template<>
-bool BPHMultiSelect<BPHVertexSelect  >::accept(
-                                        const BPHDecayVertex  & cand ) const {
-  return select( cand );
+template <>
+bool BPHMultiSelect<BPHFitSelect>::accept(const BPHKinematicFit& cand) const {
+  return select(cand);
 }
-
-
-template<>
-bool BPHMultiSelect<BPHFitSelect     >::accept(
-                                        const BPHKinematicFit & cand ) const {
-  return select( cand );
-}
-

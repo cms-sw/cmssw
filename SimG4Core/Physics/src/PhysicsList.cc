@@ -1,11 +1,7 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 
-PhysicsList::PhysicsList(const edm::ParameterSet &) {
-}
- 
-PhysicsList::~PhysicsList() {
-}
+PhysicsList::PhysicsList(const edm::ParameterSet &) {}
 
-void PhysicsList::SetCuts() { 
-}
+PhysicsList::~PhysicsList() {}
 
+void PhysicsList::SetCuts() {}

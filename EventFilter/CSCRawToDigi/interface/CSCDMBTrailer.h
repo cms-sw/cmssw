@@ -3,33 +3,24 @@
 
 #include <cassert>
 #include <iosfwd>
-#include <cstring> // bzero
+#include <cstring>  // bzero
+#include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBTrailerFormat.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
-#include <boost/shared_ptr.hpp>
 
-
-// class CSCDMBHeader;
 struct CSCDMBTrailer2005;
 struct CSCDMBTrailer2013;
 
 class CSCDMBTrailer {
 public:
-
   CSCDMBTrailer(uint16_t firmware_version = 2005);
 
-  CSCDMBTrailer(const uint16_t * buf, uint16_t firmware_version = 2005);
-  
-  CSCDMBTrailer(const CSCDMBStatusDigi & digi) 
-    {
-      memcpy(this, digi.trailer(), sizeInWords()*2);
-    }
-
+  CSCDMBTrailer(const uint16_t* buf, uint16_t firmware_version = 2005);
 
   ///@@ NEEDS TO BE DONE
-  void setEventInformation(const CSCDMBHeader & header) { return theTrailerFormat->setEventInformation(header); };
+  void setEventInformation(const CSCDMBHeader& header) { return theTrailerFormat->setEventInformation(header); };
 
   unsigned crateID() const { return theTrailerFormat->crateID(); };
   unsigned dmbID() const { return theTrailerFormat->dmbID(); };
@@ -57,15 +48,15 @@ public:
   unsigned cfeb_half() const { return theTrailerFormat->cfeb_half(); };
 
   unsigned alct_full() const { return theTrailerFormat->alct_full(); };
-  unsigned tmb_full() const {return theTrailerFormat->tmb_full(); };
+  unsigned tmb_full() const { return theTrailerFormat->tmb_full(); };
   unsigned cfeb_full() const { return theTrailerFormat->cfeb_full(); };
-  
+
   unsigned crc22() const { return theTrailerFormat->crc22(); };
   unsigned crc_lo_parity() const { return theTrailerFormat->crc_lo_parity(); };
   unsigned crc_hi_parity() const { return theTrailerFormat->crc_hi_parity(); };
- 
-  unsigned short * data() { return theTrailerFormat->data(); };
-  unsigned short * data() const { return theTrailerFormat->data(); };
+
+  unsigned short* data() { return theTrailerFormat->data(); };
+  unsigned short* data() const { return theTrailerFormat->data(); };
 
   unsigned sizeInWords() const { return theTrailerFormat->sizeInWords(); };
 
@@ -73,15 +64,11 @@ public:
 
   /// will throw if the cast fails
   CSCDMBTrailer2005 dmbTrailer2005() const;
-  CSCDMBTrailer2013 dmbTrailer2013() const;  
+  CSCDMBTrailer2013 dmbTrailer2013() const;
 
-
- private:
-  
-  boost::shared_ptr<CSCVDMBTrailerFormat> theTrailerFormat;
+private:
+  std::shared_ptr<CSCVDMBTrailerFormat> theTrailerFormat;
   int theFirmwareVersion;
-
 };
 
 #endif
-

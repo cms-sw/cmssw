@@ -10,7 +10,7 @@ namespace edmtestprod {
     cms_int32_t key_;
     double data_;
 
-    key_type  id() const { return key_; }
+    key_type id() const { return key_; }
     bool operator==(Simple const&) const { return true; }
     bool operator<(Simple const&) const { return true; }
   };
@@ -22,6 +22,6 @@ namespace edmtestprod {
   };
 
   typedef X0123456789012345678901234567890123456789012345678901234567890123456789012345678901 Pig;
-}
+}  // namespace edmtestprod
 
 #endif

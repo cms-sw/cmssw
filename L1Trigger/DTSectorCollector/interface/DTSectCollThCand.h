@@ -29,9 +29,7 @@
 //              ---------------------
 
 class DTSectCollThCand {
-
- public:
-  
+public:
   DTSectCollThCand(DTSC*, const DTChambThSegm*);
 
   //!  Constructor
@@ -39,11 +37,11 @@ class DTSectCollThCand {
 
   //!  Constructor
   DTSectCollThCand(const DTSectCollThCand& tsccand);
-  
+
   //! Assignment operator
   DTSectCollThCand& operator=(const DTSectCollThCand& tsccand);
 
-  //!  Destructor 
+  //!  Destructor
   ~DTSectCollThCand();
 
   // Non-const methods
@@ -63,15 +61,13 @@ class DTSectCollThCand {
   inline const DTChambThSegm* tsTr() const { return _tstsegm; }
 
   //! Print the trigger
-  void print() const; 
+  void print() const;
 
   //! Return the Coarse Sync Parameter
   int CoarseSync() const;
 
- private:
-
+private:
   DTSC* _tsc;
   const DTChambThSegm* _tstsegm;
-
 };
 #endif

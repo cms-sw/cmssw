@@ -1,0 +1,19 @@
+---
+Language:        Cpp
+BasedOnStyle:  Google
+ColumnLimit:     120
+#didn't we want to change this?
+NamespaceIndentation: All
+SortIncludes:    false
+IndentWidth:     2
+AccessModifierOffset: -2
+PenaltyBreakComment: 30
+PenaltyExcessCharacter: 100
+AlignAfterOpenBracket: Align
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+BinPackParameters: false
+AlwaysBreakTemplateDeclarations: Yes
+ReflowComments: false
+BinPackArguments: false
+BinPackParameters: false

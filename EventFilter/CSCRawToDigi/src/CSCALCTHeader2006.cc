@@ -2,16 +2,14 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 
 #ifdef LOCAL_UNPACK
-static int activeFEBsForChamberType[11] = {0,7,7,0xf,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
-static int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
+static int activeFEBsForChamberType[11] = {0, 7, 7, 0xf, 7, 0x7f, 0xf, 0x3f, 0xf, 0x3f, 0xf};
+static int nTBinsForChamberType[11] = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
 #else
-constexpr int activeFEBsForChamberType[11] = {0,7,7,0xf,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
-constexpr int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
+constexpr int activeFEBsForChamberType[11] = {0, 7, 7, 0xf, 7, 0x7f, 0xf, 0x3f, 0xf, 0x3f, 0xf};
+constexpr int nTBinsForChamberType[11] = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
 #endif
 
-
-
-CSCALCTHeader2006::CSCALCTHeader2006(int chamberType) { //constructor for digi->raw packing based on header2006
+CSCALCTHeader2006::CSCALCTHeader2006(int chamberType) {  //constructor for digi->raw packing based on header2006
   // we count from 1 to 10, ME11, ME12, ME13, ME1A, ME21, ME22, ....
   init();
   flag_0 = 0xC;
@@ -25,54 +23,46 @@ CSCALCTHeader2006::CSCALCTHeader2006(int chamberType) { //constructor for digi->
   nTBins = nTBinsForChamberType[chamberType];
   ///in order to be able to return header via data()
   //memcpy(theOriginalBuffer, &header2006, header2006.sizeForPacking());
-
 }
 
-
-void CSCALCTHeader2006::setEventInformation(const CSCDMBHeader & dmb)
-{
- l1Acc = dmb.l1a();
- cscID = dmb.dmbID();
- nTBins = 16;
- bxnCount = dmb.bxn();
+void CSCALCTHeader2006::setEventInformation(const CSCDMBHeader& dmb) {
+  l1Acc = dmb.l1a();
+  cscID = dmb.dmbID();
+  nTBins = 16;
+  bxnCount = dmb.bxn();
 }
 
-
-unsigned short CSCALCTHeader2006::nLCTChipRead() const {///header2006 method
+unsigned short CSCALCTHeader2006::nLCTChipRead() const {  ///header2006 method
   int count = 0;
-  for(int i=0; i<7; ++i) {
-    if( (lctChipRead>>i) & 1) ++count;
+  for (int i = 0; i < 7; ++i) {
+    if ((lctChipRead >> i) & 1)
+      ++count;
   }
   return count;
 }
 
-
-
-std::vector<CSCALCTDigi> CSCALCTs2006::ALCTDigis() const
-{
+std::vector<CSCALCTDigi> CSCALCTs2006::ALCTDigis() const {
   std::vector<CSCALCTDigi> result;
   result.reserve(2);
 
-  CSCALCTDigi digi0(alct0_valid, alct0_quality, alct0_accel,
-                    alct0_pattern, alct0_key_wire,
-                    alct0_bxn_low|(alct0_bxn_high<<3),1);
-  CSCALCTDigi digi1(alct1_valid, alct1_quality, alct1_accel,
-                    alct1_pattern, alct1_key_wire,
-                    alct1_bxn_low|(alct1_bxn_high<<3),2);
-  result.push_back(digi0); result.push_back(digi1);
+  CSCALCTDigi digi0(
+      alct0_valid, alct0_quality, alct0_accel, alct0_pattern, alct0_key_wire, alct0_bxn_low | (alct0_bxn_high << 3), 1);
+  CSCALCTDigi digi1(
+      alct1_valid, alct1_quality, alct1_accel, alct1_pattern, alct1_key_wire, alct1_bxn_low | (alct1_bxn_high << 3), 2);
+  result.push_back(digi0);
+  result.push_back(digi1);
   return result;
 }
 
-
-void CSCALCTs2006::add(const std::vector<CSCALCTDigi> & digis)
-{
+void CSCALCTs2006::add(const std::vector<CSCALCTDigi>& digis) {
   //FIXME doesn't do any sorting
-  if(!digis.empty()) addALCT0(digis[0]);
-  if(digis.size() > 1) addALCT1(digis[1]);
+  if (!digis.empty())
+    addALCT0(digis[0]);
+  if (digis.size() > 1)
+    addALCT1(digis[1]);
 }
 
-void CSCALCTs2006::addALCT0(const CSCALCTDigi & digi)
-{
+void CSCALCTs2006::addALCT0(const CSCALCTDigi& digi) {
   alct0_valid = digi.isValid();
   alct0_quality = digi.getQuality();
   alct0_accel = digi.getAccelerator();
@@ -82,9 +72,7 @@ void CSCALCTs2006::addALCT0(const CSCALCTDigi & digi)
   alct0_bxn_low = digi.getBX();
 }
 
-
-void CSCALCTs2006::addALCT1(const CSCALCTDigi & digi)
-{
+void CSCALCTs2006::addALCT1(const CSCALCTDigi& digi) {
   alct1_valid = digi.isValid();
   alct1_quality = digi.getQuality();
   alct1_accel = digi.getAccelerator();
@@ -93,4 +81,3 @@ void CSCALCTs2006::addALCT1(const CSCALCTDigi & digi)
   // probably not right
   alct1_bxn_low = digi.getBX();
 }
-

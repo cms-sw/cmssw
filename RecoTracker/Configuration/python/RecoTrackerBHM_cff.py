@@ -6,5 +6,11 @@ from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForBeamHalo_cff
 from RecoTracker.CkfPattern.CkfTrackCandidatesBHM_cff import *
 #Final fit
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialBHM_cff import *
-beamhaloTracksSeq = cms.Sequence(beamhaloTrackerSeedingLayers * beamhaloTrackerSeeds * beamhaloTrackCandidates * beamhaloTracks)
 
+beamhaloTracksTask = cms.Task(
+    beamhaloTrackerSeedingLayers, 
+    beamhaloTrackerSeeds, 
+    beamhaloTrackCandidates,
+    beamhaloTracks
+    )
+beamhaloTracksSeq = cms.Sequence(beamhaloTracksTask)

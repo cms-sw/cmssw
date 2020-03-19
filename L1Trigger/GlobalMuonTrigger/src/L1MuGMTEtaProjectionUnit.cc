@@ -7,7 +7,7 @@
 //
 //
 //   Author :
-//   H. Sakulin                CERN EP 
+//   H. Sakulin                CERN EP
 //
 //   Migrated to CMSSW:
 //   I. Mikulec
@@ -39,7 +39,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 // --------------------------------
 //       class L1MuGMTEtaProjectionUnit
 //---------------------------------
@@ -47,114 +46,86 @@
 //----------------
 // Constructors --
 //----------------
-L1MuGMTEtaProjectionUnit::L1MuGMTEtaProjectionUnit(const L1MuGMTMipIsoAU& miau, int id) : 
-  m_MIAU(miau), m_id(id), m_mu(nullptr) {
-
-}
+L1MuGMTEtaProjectionUnit::L1MuGMTEtaProjectionUnit(const L1MuGMTMipIsoAU& miau, int id)
+    : m_MIAU(miau), m_id(id), m_mu(nullptr) {}
 
 //--------------
 // Destructor --
 //--------------
-L1MuGMTEtaProjectionUnit::~L1MuGMTEtaProjectionUnit() { 
-
-  reset();
-  
-}
+L1MuGMTEtaProjectionUnit::~L1MuGMTEtaProjectionUnit() { reset(); }
 
 //--------------
 // Operations --
 //--------------
- 
+
 //
 // run eta projection unit
 //
 void L1MuGMTEtaProjectionUnit::run() {
-
   load();
-  if ( m_mu && ( !m_mu->empty() ) ) {
-    
+  if (m_mu && (!m_mu->empty())) {
     int isFwd = m_id / 16;
     int lut_id = m_id / 4;
 
     // obtain inputs as coded in HW
-    unsigned pt  = m_mu->pt_packed();
-    unsigned charge  = m_mu->charge_packed();
+    unsigned pt = m_mu->pt_packed();
+    unsigned charge = m_mu->charge_packed();
     unsigned eta = m_mu->eta_packed();
-    
+
     // lookup
     L1MuGMTMIAUEtaProLUT* ep_lut = L1MuGMTConfig::getMIAUEtaProLUT();
-    unsigned eta_sel_bits = ep_lut->SpecificLookup_eta_sel (lut_id, eta, pt, charge);
+    unsigned eta_sel_bits = ep_lut->SpecificLookup_eta_sel(lut_id, eta, pt, charge);
 
     // convert to bit array
     //
     // see comments in L1MuGMTMIAUEtaProLUT.cc
     //
-    m_eta_select = (unsigned) 0;
-    
-    if (isFwd) { // forward
-      for (int i=0; i<5; i++)
-	if ( (eta_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	  m_eta_select[i] = true;
-      
-      for (int i=5; i<10; i++)
-	if ( (eta_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	  m_eta_select[i+4] = true;            
-    } else { // barrel
-      for (int i=0; i<10; i++)
-	if ( (eta_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	  m_eta_select[i+2] = true;
+    m_eta_select = (unsigned)0;
+
+    if (isFwd) {  // forward
+      for (int i = 0; i < 5; i++)
+        if ((eta_sel_bits & (1 << i)) == (unsigned)(1 << i))
+          m_eta_select[i] = true;
+
+      for (int i = 5; i < 10; i++)
+        if ((eta_sel_bits & (1 << i)) == (unsigned)(1 << i))
+          m_eta_select[i + 4] = true;
+    } else {  // barrel
+      for (int i = 0; i < 10; i++)
+        if ((eta_sel_bits & (1 << i)) == (unsigned)(1 << i))
+          m_eta_select[i + 2] = true;
     }
-    
+
     //    m_MIAU.GMT().DebugBlockForFill()->SetEtaSelBits( m_id, m_eta_select.read(0,14)) ;
-    m_MIAU.GMT().DebugBlockForFill()->SetEtaSelBits( m_id, m_eta_select.to_ulong()) ;
+    m_MIAU.GMT().DebugBlockForFill()->SetEtaSelBits(m_id, m_eta_select.to_ulong());
   }
 }
-
 
 //
 // reset eta projection unit
 //
 void L1MuGMTEtaProjectionUnit::reset() {
-
   m_mu = nullptr;
   m_ieta = 0;
   m_feta = 0.;
-  m_eta_select = (unsigned int) 0;
+  m_eta_select = (unsigned int)0;
 }
-
 
 //
 // print results of eta projection
 //
 void L1MuGMTEtaProjectionUnit::print() const {
-
   edm::LogVerbatim("GMT_EtaProjection_info") << "Eta select bits: ";
-  for ( int i=0; i<14; i++ ) {
+  for (int i = 0; i < 14; i++) {
     edm::LogVerbatim("GMT_EtaProjection_info") << m_eta_select[i] << "  ";
   }
   edm::LogVerbatim("GMT_EtaProjection_info");
 }
 
-
 //
 // load 1 muon into eta projection unit
 //
 void L1MuGMTEtaProjectionUnit::load() {
-
-  // retrieve muon from MIP & ISO bit assignment unit	
-  m_mu = m_MIAU.muon( m_id % 8 );
+  // retrieve muon from MIP & ISO bit assignment unit
+  m_mu = m_MIAU.muon(m_id % 8);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

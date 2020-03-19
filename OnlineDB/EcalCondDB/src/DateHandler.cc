@@ -4,8 +4,7 @@
 
 using namespace oracle::occi;
 
-DateHandler::DateHandler(Environment* env, Connection* conn)
-{
+DateHandler::DateHandler(Environment* env, Connection* conn) {
   m_env = env;
   m_conn = conn;
 
@@ -17,29 +16,26 @@ DateHandler::DateHandler(Environment* env, Connection* conn)
 
 DateHandler::~DateHandler() {}
 
-Date DateHandler::tmToDate(const Tm& inTm) const
-{
+Date DateHandler::tmToDate(const Tm& inTm) const {
   if (inTm.isNull()) {
     return Date();
   } else {
     struct tm ctm = inTm.c_tm();
-    return Date(m_env, ctm.tm_year + 1900, ctm.tm_mon + 1, ctm.tm_mday, 
-		ctm.tm_hour, ctm.tm_min, ctm.tm_sec);
+    return Date(m_env, ctm.tm_year + 1900, ctm.tm_mon + 1, ctm.tm_mday, ctm.tm_hour, ctm.tm_min, ctm.tm_sec);
   }
 }
 
-Tm DateHandler::dateToTm(Date& date) const
-{
+Tm DateHandler::dateToTm(Date& date) const {
   if (date.isNull()) {
     return Tm();
   }
 
   int year;
-  unsigned int mon; // month
-  unsigned int mday; // day of month
+  unsigned int mon;   // month
+  unsigned int mday;  // day of month
   unsigned int hour;
-  unsigned int min; // minute
-  unsigned int sec; // second
+  unsigned int min;  // minute
+  unsigned int sec;  // second
 
   date.getDate(year, mon, mday, hour, min, sec);
 

@@ -6,24 +6,26 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
-        class Event;
-        class EventSetup;
-        class ParameterSet;
-	class ParameterSetDescription;
-	//class ParameterDescriptionNode;
-}
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class ParameterSetDescription;
+  //class ParameterDescriptionNode;
+}  // namespace edm
 
 class EcalUncalibRecHitWorkerBaseClass {
- public:
+public:
   EcalUncalibRecHitWorkerBaseClass(const edm::ParameterSet&, edm::ConsumesCollector& c) {}
   EcalUncalibRecHitWorkerBaseClass(const edm::ParameterSet&) {}
   EcalUncalibRecHitWorkerBaseClass() {}
   virtual ~EcalUncalibRecHitWorkerBaseClass() {}
-  
+
   virtual void set(const edm::EventSetup& es) = 0;
   virtual void set(const edm::Event& evt) {}
 
-  virtual void run(const edm::Event& evt, const EcalDigiCollection & digis, EcalUncalibratedRecHitCollection & result) = 0;
+  virtual void run(const edm::Event& evt,
+                   const EcalDigiCollection& digis,
+                   EcalUncalibratedRecHitCollection& result) = 0;
 
   virtual edm::ParameterSetDescription getAlgoDescription() = 0;
 };

@@ -59,7 +59,7 @@ from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
 from CommonTools.ParticleFlow.EITopPAG_EventContent_cff import EITopPAGEventContent
-from RecoCTPPS.Configuration.RecoCTPPS_EventContent_cff import *
+from RecoPPS.Configuration.RecoCTPPS_EventContent_cff import *
 
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
@@ -142,6 +142,8 @@ RAWEventContent = cms.PSet(
         'keep  FEDRawDataCollection_rawDataCollector_*_*',
         'keep  FEDRawDataCollection_source_*_*'),
     splitLevel = cms.untracked.int32(0),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
 )
 #
 #
@@ -489,7 +491,6 @@ AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
 AODEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-AODEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 ctpps_2016.toModify(AODEventContent, outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
 
 RAWAODEventContent.outputCommands.extend(AODEventContent.outputCommands)

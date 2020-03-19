@@ -35,26 +35,21 @@ class ParameterSet;
 // forward declarations
 
 // class declaration
-class L1GtVhdlWriter : public edm::EDAnalyzer
-{
+class L1GtVhdlWriter : public edm::EDAnalyzer {
+public:
+  /// constructor
+  explicit L1GtVhdlWriter(const edm::ParameterSet&);
 
-    public:
+  /// destructor
+  ~L1GtVhdlWriter() override;
 
-        /// constructor
-        explicit L1GtVhdlWriter(const edm::ParameterSet&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-        /// destructor
-        ~L1GtVhdlWriter() override;
+private:
+  /// templates directory
+  std::string vhdlDir_;
 
-        void analyze(const edm::Event&, const edm::EventSetup&) override;
-
-    private:
-
-        /// templates directory
-        std::string vhdlDir_;
-
-        /// output directory
-        std::string outputDir_;
-
+  /// output directory
+  std::string outputDir_;
 };
-#endif                                            /*L1GtConfigProducers_L1GtVhdlWriter_h*/
+#endif /*L1GtConfigProducers_L1GtVhdlWriter_h*/

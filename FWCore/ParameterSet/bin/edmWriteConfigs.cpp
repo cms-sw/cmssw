@@ -65,18 +65,19 @@ static char const* const kPluginCommandOpt = "plugin,x";
 
 namespace {
   void getMatchingPluginNames(edmplugin::PluginInfo const& pluginInfo,
-                              std::vector<std::string> & pluginNames,
-                              std::string & previousName,
+                              std::vector<std::string>& pluginNames,
+                              std::string& previousName,
                               std::string const& library) {
     // We do not want duplicate plugin names and
     // can safely assume the calls to this function
     // occur with the pluginInfo argument sorted by
     // pluginName
-    if(pluginInfo.name_ == previousName) return;
+    if (pluginInfo.name_ == previousName)
+      return;
     previousName = pluginInfo.name_;
 
     // If the library matches save the name
-    if(pluginInfo.loadable_.leaf() == library) {
+    if (pluginInfo.loadable_.leaf() == library) {
       pluginNames.push_back(pluginInfo.name_);
     }
   }
@@ -91,34 +92,29 @@ namespace {
     edm::ConfigurationDescriptions descriptions(filler->baseType(), pluginName);
 
     try {
-      edm::convertException::wrap([&]() {
-        filler->fill(descriptions);
-      });
-    }
-    catch(cms::Exception& e) {
+      edm::convertException::wrap([&]() { filler->fill(descriptions); });
+    } catch (cms::Exception& e) {
       std::ostringstream ost;
-      ost << "Filling ParameterSetDescriptions for module of base type " << baseType << " with plugin name \'" << pluginName << "\'";
+      ost << "Filling ParameterSetDescriptions for module of base type " << baseType << " with plugin name \'"
+          << pluginName << "\'";
       e.addContext(ost.str());
       throw;
     }
 
     try {
-      edm::convertException::wrap([&]() {
-        descriptions.writeCfis(usedCfiFileNames);
-      });
-    }
-    catch(cms::Exception& e) {
+      edm::convertException::wrap([&]() { descriptions.writeCfis(usedCfiFileNames); });
+    } catch (cms::Exception& e) {
       std::ostringstream ost;
-      ost << "Writing cfi files using ParameterSetDescriptions for module of base type " << baseType << " with plugin name \'" << pluginName << "\'";
+      ost << "Writing cfi files using ParameterSetDescriptions for module of base type " << baseType
+          << " with plugin name \'" << pluginName << "\'";
       e.addContext(ost.str());
       throw;
     }
   }
 
   struct Listener {
-
-    typedef std::pair< std::string, std::string> NameAndType;
-    typedef std::vector< NameAndType > NameAndTypes;
+    typedef std::pair<std::string, std::string> NameAndType;
+    typedef std::vector<NameAndType> NameAndTypes;
 
     void newFactory(edmplugin::PluginFactoryBase const* iBase) {
       using std::placeholders::_1;
@@ -132,22 +128,19 @@ namespace {
   };
 
   void getPluginsMatchingCategory(Listener::NameAndType const& nameAndType,
-                                  std::vector<std::string> & pluginNames,
+                                  std::vector<std::string>& pluginNames,
                                   std::string const& category) {
-    if(category == nameAndType.second){
+    if (category == nameAndType.second) {
       pluginNames.push_back(nameAndType.first);
     }
   }
-}
+}  // namespace
 
-int main (int argc, char **argv)
-try {
-
+int main(int argc, char** argv) try {
   edm::FileInPath::disableFileLookup();
 
   using std::placeholders::_1;
-  boost::filesystem::path initialWorkingDirectory =
-    boost::filesystem::initial_path<boost::filesystem::path>();
+  boost::filesystem::path initialWorkingDirectory = boost::filesystem::initial_path<boost::filesystem::path>();
 
   // Process the command line arguments
   std::string descString(argv[0]);
@@ -162,24 +155,22 @@ try {
   descString += "Instead of specifying a library, there is also an option to specify a plugin.\n\n";
   descString += "Allowed options";
   boost::program_options::options_description desc(descString);
-  desc.add_options()
-                  (kHelpCommandOpt, "produce help message")
-                  (kLibraryCommandOpt,
-                   boost::program_options::value<std::string>(),
-                   "library filename")
-                  (kPathCommandOpt, "When this option is set, the library filename "
-                   "is interpreted as a relative or absolute path. If there are no directories in "
-                   "the library filename, then it looks for the library file in the current directory. "
-                   "Fails with an error message if the path does not lead to a library file that exists "
-                   "or can be loaded. "
-                   "If this option is not set, then the library filename should only be "
-                   "a filename without any directories.  In that case, it is assumed "
-                   "the build system has already put the library file in the "
-                   "appropriate place, built the edmplugincache, and the PluginManager "
-                   "is used to find and load the library.")
-                  (kPluginCommandOpt,
-                   boost::program_options::value<std::string>(),
-                   "plugin name. You must specify either a library or plugin, but not both.");
+  desc.add_options()(kHelpCommandOpt, "produce help message")(
+      kLibraryCommandOpt, boost::program_options::value<std::string>(), "library filename")(
+      kPathCommandOpt,
+      "When this option is set, the library filename "
+      "is interpreted as a relative or absolute path. If there are no directories in "
+      "the library filename, then it looks for the library file in the current directory. "
+      "Fails with an error message if the path does not lead to a library file that exists "
+      "or can be loaded. "
+      "If this option is not set, then the library filename should only be "
+      "a filename without any directories.  In that case, it is assumed "
+      "the build system has already put the library file in the "
+      "appropriate place, built the edmplugincache, and the PluginManager "
+      "is used to find and load the library.")(
+      kPluginCommandOpt,
+      boost::program_options::value<std::string>(),
+      "plugin name. You must specify either a library or plugin, but not both.");
 
   boost::program_options::positional_options_description p;
   p.add(kLibraryOpt, -1);
@@ -188,14 +179,13 @@ try {
   try {
     store(boost::program_options::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
     notify(vm);
-  } catch(boost::program_options::error const& iException) {
-    std::cerr << "Exception from command line processing: "
-              << iException.what() << "\n";
+  } catch (boost::program_options::error const& iException) {
+    std::cerr << "Exception from command line processing: " << iException.what() << "\n";
     std::cerr << desc << std::endl;
     return 1;
   }
 
-  if(vm.count(kHelpOpt)) {
+  if (vm.count(kHelpOpt)) {
     std::cout << desc << std::endl;
     return 0;
   }
@@ -205,58 +195,51 @@ try {
 
   try {
     edm::convertException::wrap([&]() {
-
-      if(vm.count(kLibraryOpt) && vm.count(kPluginOpt)) {
+      if (vm.count(kLibraryOpt) && vm.count(kPluginOpt)) {
         throw cms::Exception("Command Line Arguments")
-          << "Both library and plugin specified. You must specify one or the other, but not both.";
+            << "Both library and plugin specified. You must specify one or the other, but not both.";
       }
-      if(vm.count(kLibraryOpt)) {
+      if (vm.count(kLibraryOpt)) {
         library = vm[kLibraryOpt].as<std::string>();
-      }
-      else if(vm.count(kPluginOpt)) {
+      } else if (vm.count(kPluginOpt)) {
         requestedPlugin = vm[kPluginOpt].as<std::string>();
-      }
-      else {
+      } else {
         throw cms::Exception("Command Line Arguments")
-          << "No library or plugin specified. You must specify one or the other (but not both).";
+            << "No library or plugin specified. You must specify one or the other (but not both).";
       }
 
       edm::ParameterSetDescriptionFillerPluginFactory* factory;
       std::vector<std::string> pluginNames;
 
-      if(vm.count(kPluginOpt)) {
+      if (vm.count(kPluginOpt)) {
         edmplugin::PluginManager::configure(edmplugin::standard::config());
         factory = edm::ParameterSetDescriptionFillerPluginFactory::get();
         pluginNames.push_back(requestedPlugin);
       }
       // If using the PluginManager to find the library
-      else if(!vm.count(kPathOpt)) {
-
+      else if (!vm.count(kPathOpt)) {
         // From the PluginManager get a reference to a
         // a vector of PlugInInfo's for plugins defining ParameterSetDescriptions.
         // Each PlugInInfo contains the plugin name and library name.
         edmplugin::PluginManager::configure(edmplugin::standard::config());
         typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
-        CatToInfos const& catToInfos
-          = edmplugin::PluginManager::get()->categoryToInfos();
-        factory =
-          edm::ParameterSetDescriptionFillerPluginFactory::get();
+        CatToInfos const& catToInfos = edmplugin::PluginManager::get()->categoryToInfos();
+        factory = edm::ParameterSetDescriptionFillerPluginFactory::get();
         CatToInfos::const_iterator itPlugins = catToInfos.find(factory->category());
 
         // No plugins in this category at all
-        if(itPlugins == catToInfos.end() ) return;
+        if (itPlugins == catToInfos.end())
+          return;
 
         std::vector<edmplugin::PluginInfo> const& infos = itPlugins->second;
         std::string previousName;
 
-        edm::for_all(infos, std::bind(&getMatchingPluginNames,
-                                      _1,
-                                      std::ref(pluginNames),
-                                      std::ref(previousName),
-                                      std::cref(library)));
+        edm::for_all(
+            infos,
+            std::bind(&getMatchingPluginNames, _1, std::ref(pluginNames), std::ref(previousName), std::cref(library)));
 
       } else {
-      // the library name is part of a path
+        // the library name is part of a path
 
         Listener listener;
         edmplugin::PluginFactoryManager* pfm = edmplugin::PluginFactoryManager::get();
@@ -272,7 +255,7 @@ try {
         // LD_LIBRARY_PATH or some other location that it searches
         // to find some library that has the same name, but
         // was not the intended target.
-        if(loadableFile.filename() == loadableFile.string()) {
+        if (loadableFile.filename() == loadableFile.string()) {
           loadableFile = initialWorkingDirectory / loadableFile;
         }
 
@@ -280,59 +263,47 @@ try {
         // The listener records the plugin names and categories as they are loaded
         try {
           edmplugin::SharedLibrary lib(loadableFile);
-        }
-        catch(cms::Exception const& iException) {
-          if(iException.category() == "PluginLibraryLoadError") {
+        } catch (cms::Exception const& iException) {
+          if (iException.category() == "PluginLibraryLoadError") {
             std::cerr << "error: edmWriteConfigs caught an exception while loading a plugin library.\n"
                       << "The executable will return success (0) so scram will continue,\n"
                       << "but no cfi files will be written.\n"
                       << iException.what() << std::endl;
             return;
-          }
-          else {
+          } else {
             throw;
           }
         }
 
         // We do not care about PluginCapabilities category so do not bother to try to include them
 
-        factory =
-          edm::ParameterSetDescriptionFillerPluginFactory::get();
+        factory = edm::ParameterSetDescriptionFillerPluginFactory::get();
 
-        edm::for_all(listener.nameAndTypes_, std::bind(&getPluginsMatchingCategory,
-                                                         _1,
-                                                         std::ref(pluginNames),
-                                                         std::cref(factory->category())));
+        edm::for_all(listener.nameAndTypes_,
+                     std::bind(&getPluginsMatchingCategory, _1, std::ref(pluginNames), std::cref(factory->category())));
       }
 
       std::set<std::string> usedCfiFileNames;
-      edm::for_all(pluginNames, std::bind(&writeCfisForPlugin,
-                                            _1,
-                                            factory,
-                                            std::ref(usedCfiFileNames)));
+      edm::for_all(pluginNames, std::bind(&writeCfisForPlugin, _1, factory, std::ref(usedCfiFileNames)));
     });
-  }
-  catch (cms::Exception & iException) {
+  } catch (cms::Exception& iException) {
     if (!library.empty()) {
       std::ostringstream ost;
       ost << "Processing library " << library;
       iException.addContext(ost.str());
     }
     iException.addContext("Running executable \"edmWriteConfigs\"");
-    std::cerr
-      << "----- Begin Fatal Exception "
-      << std::setprecision(0) << edm::TimeOfDay()
-      << "-----------------------\n"
-      << iException.explainSelf()
-      << "----- End Fatal Exception -------------------------------------------------"
-      << std::endl;
+    std::cerr << "----- Begin Fatal Exception " << std::setprecision(0) << edm::TimeOfDay()
+              << "-----------------------\n"
+              << iException.explainSelf()
+              << "----- End Fatal Exception -------------------------------------------------" << std::endl;
     return 1;
   }
   return 0;
-} catch(cms::Exception const& e) {
+} catch (cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;
   return 1;
-} catch(std::exception const& e) {
+} catch (std::exception const& e) {
   std::cerr << e.what() << std::endl;
   return 1;
 }

@@ -4,7 +4,7 @@
 //
 // Package:     MuonAlignment
 // Class  :     MuonAlignmentInputSurveyDB
-// 
+//
 /**\class MuonAlignmentInputSurveyDB MuonAlignmentInputSurveyDB.h Alignment/MuonAlignment/interface/MuonAlignmentInputSurveyDB.h
 
  Description: <one line class summary>
@@ -28,34 +28,33 @@
 
 // forward declarations
 
-class MuonAlignmentInputSurveyDB: public MuonAlignmentInputMethod {
-   public:
-      MuonAlignmentInputSurveyDB();
-      MuonAlignmentInputSurveyDB(std::string dtLabel, std::string cscLabel);
-      ~MuonAlignmentInputSurveyDB() override;
+class MuonAlignmentInputSurveyDB : public MuonAlignmentInputMethod {
+public:
+  MuonAlignmentInputSurveyDB();
+  MuonAlignmentInputSurveyDB(std::string dtLabel, std::string cscLabel);
+  ~MuonAlignmentInputSurveyDB() override;
 
-      // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-      AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
+  AlignableMuon* newAlignableMuon(const edm::EventSetup& iSetup) const override;
 
-   private:
-      MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB&) = delete; // stop default
+private:
+  MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB&) = delete;  // stop default
 
-      const MuonAlignmentInputSurveyDB& operator=(const MuonAlignmentInputSurveyDB&) = delete; // stop default
+  const MuonAlignmentInputSurveyDB& operator=(const MuonAlignmentInputSurveyDB&) = delete;  // stop default
 
-      void addSurveyInfo_(Alignable* ali,
-			  unsigned int* theSurveyIndex,
-			  const Alignments* theSurveyValues,
-			  const SurveyErrors* theSurveyErrors) const;
+  void addSurveyInfo_(Alignable* ali,
+                      unsigned int* theSurveyIndex,
+                      const Alignments* theSurveyValues,
+                      const SurveyErrors* theSurveyErrors) const;
 
-      // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-      std::string m_dtLabel, m_cscLabel;
+  std::string m_dtLabel, m_cscLabel;
 };
-
 
 #endif

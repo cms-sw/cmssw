@@ -36,133 +36,99 @@ namespace edm {
     T const& at(size_type i) const;
     const_iterator begin() const;
     const_iterator end() const;
-    
 
   private:
-    std::vector<T> obj;    
+    std::vector<T> obj;
   };
 
   template <class T>
-  inline
-  EDCollection<T>::EDCollection() : obj() {}
+  inline EDCollection<T>::EDCollection() : obj() {}
 
   template <class T>
-  inline
-  EDCollection<T>::EDCollection(size_type n) : obj(n) {}
+  inline EDCollection<T>::EDCollection(size_type n) : obj(n) {}
 
   template <class T>
-  inline
-  EDCollection<T>::EDCollection(std::vector<T> const& vec) : obj(vec) {}
+  inline EDCollection<T>::EDCollection(std::vector<T> const& vec) : obj(vec) {}
 
   template <class T>
-  inline
-  EDCollection<T>::EDCollection(EDCollection<T> const& h) : obj(h.obj) {}
+  inline EDCollection<T>::EDCollection(EDCollection<T> const& h) : obj(h.obj) {}
 
   template <class T>
   EDCollection<T>::~EDCollection() {}
 
   template <class T>
-  inline
-  void
-  EDCollection<T>::push_back(T const& t) {
+  inline void EDCollection<T>::push_back(T const& t) {
     obj.push_back(t);
   }
 
   template <class T>
-  inline
-  void
-  EDCollection<T>::swap(EDCollection<T>& other) {
+  inline void EDCollection<T>::swap(EDCollection<T>& other) {
     obj.swap(other.obj);
   }
 
   template <class T>
-  inline
-  EDCollection<T>&
-  EDCollection<T>::operator=(EDCollection<T> const& rhs) {
+  inline EDCollection<T>& EDCollection<T>::operator=(EDCollection<T> const& rhs) {
     EDCollection<T> temp(rhs);
     this->swap(temp);
     return *this;
   }
 
   template <class T>
-  inline
-  bool
-  EDCollection<T>::empty() const {
+  inline bool EDCollection<T>::empty() const {
     return obj.empty();
   }
 
   template <class T>
-  inline
-  typename std::vector<T>::size_type
-  EDCollection<T>::size() const {
+  inline typename std::vector<T>::size_type EDCollection<T>::size() const {
     return obj.size();
   }
 
   template <class T>
-  inline
-  typename std::vector<T>::size_type
-  EDCollection<T>::capacity() const {
+  inline typename std::vector<T>::size_type EDCollection<T>::capacity() const {
     return obj.capacity();
   }
 
   template <class T>
-  inline
-  void
-  EDCollection<T>::reserve(typename std::vector<T>::size_type n) {
+  inline void EDCollection<T>::reserve(typename std::vector<T>::size_type n) {
     obj.reserve(n);
   }
 
   template <class T>
-  inline
-  T& 
-  EDCollection<T>::operator[](size_type i) {
+  inline T& EDCollection<T>::operator[](size_type i) {
     return obj[i];
   }
 
   template <class T>
-  inline
-  T const& 
-  EDCollection<T>::operator[](size_type i) const {
+  inline T const& EDCollection<T>::operator[](size_type i) const {
     return obj[i];
   }
 
   template <class T>
-  inline
-  T& 
-  EDCollection<T>::at(size_type i) {
+  inline T& EDCollection<T>::at(size_type i) {
     return obj.at(i);
   }
 
   template <class T>
-  inline
-  T const& 
-  EDCollection<T>::at(size_type i) const {
+  inline T const& EDCollection<T>::at(size_type i) const {
     return obj.at(i);
   }
 
   template <class T>
-  inline
-  typename std::vector<T>::const_iterator
-  EDCollection<T>::begin() const {
+  inline typename std::vector<T>::const_iterator EDCollection<T>::begin() const {
     return obj.begin();
   }
 
   template <class T>
-  inline
-  typename std::vector<T>::const_iterator
-  EDCollection<T>::end() const {
+  inline typename std::vector<T>::const_iterator EDCollection<T>::end() const {
     return obj.end();
   }
 
   // Free swap function
   template <class T>
-  inline
-  void
-  swap(EDCollection<T>& a, EDCollection<T>& b) 
-  {
+  inline void swap(EDCollection<T>& a, EDCollection<T>& b) {
     a.swap(b);
   }
 
-}
+}  // namespace edm
 
 #endif

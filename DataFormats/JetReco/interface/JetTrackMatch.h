@@ -36,48 +36,46 @@
 
 namespace reco {
   template <typename JetC>
-    class JetTrackMatch {
-    public:
+  class JetTrackMatch {
+  public:
     typedef edm::Ref<JetC> JetRef;
     typedef edm::Ref<reco::TrackCollection> TrackRef;
     typedef edm::AssociationMap<edm::OneToMany<JetC, reco::TrackCollection> > Map;
-    private:
+
+  private:
     Map mMap;
 
-    public:
-    JetTrackMatch () {}
-    ~JetTrackMatch () {}
+  public:
+    JetTrackMatch() {}
+    ~JetTrackMatch() {}
 
     /// insert orphan jet
-    void insert (const JetRef& fJet) {
-      mMap.insert (fJet, TrackRef());
-    }
+    void insert(const JetRef& fJet) { mMap.insert(fJet, TrackRef()); }
 
-    /// assign track to jet. 
-    void insert (const JetRef& fJet, const TrackRef& fTrack) {
-      mMap.insert (fJet, fTrack);
-    }
+    /// assign track to jet.
+    void insert(const JetRef& fJet, const TrackRef& fTrack) { mMap.insert(fJet, fTrack); }
 
     /// get list of all jats in the map
-    std::vector <JetRef> allJets () const {
-      std::vector <JetRef> result;
-      typename Map::const_iterator it = mMap.begin ();
+    std::vector<JetRef> allJets() const {
+      std::vector<JetRef> result;
+      typename Map::const_iterator it = mMap.begin();
       for (; it != mMap.end(); ++it) {
-	result.push_back (it->key);
+        result.push_back(it->key);
       }
       return result;
     }
     /// get all tracks associated with jet
-    std::vector <TrackRef> getTracks (const JetRef& mJet) const {
-      std::vector <TrackRef> result;
-      reco::TrackRefVector tracks = mMap [mJet];
+    std::vector<TrackRef> getTracks(const JetRef& mJet) const {
+      std::vector<TrackRef> result;
+      reco::TrackRefVector tracks = mMap[mJet];
       int i = tracks.size();
       while (--i >= 0) {
-	if (!tracks [i].isNull ()) result.push_back (tracks [i]);
+        if (!tracks[i].isNull())
+          result.push_back(tracks[i]);
       }
       return result;
     }
   };
-}
+}  // namespace reco
 
 #endif

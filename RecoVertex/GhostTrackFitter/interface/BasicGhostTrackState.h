@@ -15,55 +15,54 @@
 
 namespace reco {
 
-class GhostTrackPrediction;
+  class GhostTrackPrediction;
 
-class BasicGhostTrackState {
-    public:
-	using BGTS=BasicGhostTrackState;
-	using Proxy=ProxyBase11<BGTS>;
-        using pointer=Proxy::pointer;
+  class BasicGhostTrackState {
+  public:
+    using BGTS = BasicGhostTrackState;
+    using Proxy = ProxyBase11<BGTS>;
+    using pointer = Proxy::pointer;
 
-	typedef math::Error<3>::type CovarianceMatrix;
-	typedef std::pair<GlobalPoint, GlobalError> Vertex;
+    typedef math::Error<3>::type CovarianceMatrix;
+    typedef std::pair<GlobalPoint, GlobalError> Vertex;
 
-	virtual ~BasicGhostTrackState() {}
+    virtual ~BasicGhostTrackState() {}
 
-        template<typename T, typename... Args>
-        static std::shared_ptr<BGTS> build(Args && ...args){ return std::make_shared<T>(std::forward<Args>(args)...);}
+    template <typename T, typename... Args>
+    static std::shared_ptr<BGTS> build(Args &&... args) {
+      return std::make_shared<T>(std::forward<Args>(args)...);
+    }
 
+    virtual GlobalPoint globalPosition() const = 0;
+    virtual GlobalError cartesianError() const = 0;
+    virtual CovarianceMatrix cartesianCovariance() const = 0;
 
-	virtual GlobalPoint globalPosition() const = 0;
-	virtual GlobalError cartesianError() const = 0;
-	virtual CovarianceMatrix cartesianCovariance() const = 0;
+    double lambda() const { return lambda_; }
+    virtual bool isValid() const { return true; }
 
-	double lambda() const { return lambda_; }
-	virtual bool isValid() const { return true; }
+    virtual void reset() {}
+    virtual bool linearize(const GhostTrackPrediction &pred, bool initial, double lambda) {
+      lambda_ = lambda;
+      return true;
+    }
+    virtual bool linearize(const GhostTrackPrediction &pred, double lambda) {
+      lambda_ = lambda;
+      return true;
+    }
 
-	virtual void reset() {}
-	virtual bool linearize(const GhostTrackPrediction &pred,
-	                       bool initial, double lambda)
-	{ lambda_ = lambda; return true; }
-	virtual bool linearize(const GhostTrackPrediction &pred,
-	                       double lambda)
-	{ lambda_ = lambda; return true; }
+    virtual Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred, bool withMeasurementError) const = 0;
+    virtual Vertex vertexStateOnMeasurement(const GhostTrackPrediction &pred, bool withGhostTrackError) const = 0;
 
-	virtual Vertex vertexStateOnGhostTrack(
-				const GhostTrackPrediction &pred,
-				bool withMeasurementError) const = 0;
-	virtual Vertex vertexStateOnMeasurement(
-				const GhostTrackPrediction &pred,
-				bool withGhostTrackError) const = 0;
+    double weight() const { return weight_; }
+    void setWeight(double weight) { weight_ = weight; }
 
-	double weight() const { return weight_; }
-	void setWeight(double weight) { weight_ = weight; }
+    virtual pointer clone() const = 0;
 
-	virtual pointer clone() const = 0;
+  protected:
+    double lambda_ = 0;
+    double weight_ = 1.;
+  };
 
-protected:
-	double	lambda_=0;
-	double	weight_=1.;
-};
+}  // namespace reco
 
-}
-
-#endif // RecoBTag_BasicGhostTrackState_h
+#endif  // RecoBTag_BasicGhostTrackState_h

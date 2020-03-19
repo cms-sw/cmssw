@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from builtins import range
 import sys,os,commands,re
 import xmlrpclib
 from CommonMethods import *

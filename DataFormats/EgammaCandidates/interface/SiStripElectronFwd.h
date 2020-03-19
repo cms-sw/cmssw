@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of reference to SiStripElectron objects
   typedef SiStripElectronRefVector::iterator siStripElectron_iterator;
-}
+}  // namespace reco
 
 #endif

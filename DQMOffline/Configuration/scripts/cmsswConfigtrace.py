@@ -16,7 +16,7 @@ from collections import defaultdict
 SERVE_PORT = 1234
 
 OUTFILE_TREE = "configtree.sqlite"
-IGNORE_PACKAGES = ['FWCore/ParameterSet', 'FWCore/GuiBrowsers', 'DQMOffline/Configuration/scripts', "cmsRun"]
+IGNORE_PACKAGES = ['FWCore/ParameterSet', 'DQMOffline/Configuration/scripts', "cmsRun"]
 STRIPPATHS = [ # we will add the base dir from CMSSWCALLBASE env var here
   os.environ["CMSSW_BASE"] + "/python/", os.environ["CMSSW_RELEASE_BASE"] + "/python/",
   os.environ["CMSSW_BASE"] + "/cfipython/", os.environ["CMSSW_RELEASE_BASE"] + "/cfipython/"]
@@ -545,7 +545,7 @@ def serve_main():
     (re.compile('/workflow/(.*)$'), showworkflow),
     (re.compile('/info/(.*):(\d+)$'), showinfo),
     (re.compile('/why/(\d+)$'), showwhy),
-    (re.compile('/(.+)$'), showfile),
+    (re.compile('/([^.]*[.]?[^.]+[.]?[^.]*)$'), showfile),
     (re.compile('/$'), index),
   ]
 

@@ -214,7 +214,7 @@
 </PosPartSection> 
 
 <SpecParSection label="hgcalwafer.xml" eval="true">
-  <SpecPar name="hgcal">
+  <SpecPar name="HGCal">
     <PartSelector path="//HGCalEECell.*"/>
     <PartSelector path="//HGCalHECell.*"/>
     <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>

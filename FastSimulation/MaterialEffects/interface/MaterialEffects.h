@@ -48,11 +48,8 @@ namespace edm {
   class ParameterSet;
 }
 
-class MaterialEffects
-{
-
- public:
-
+class MaterialEffects {
+public:
   /// Constructor
   MaterialEffects(const edm::ParameterSet& matEff);
 
@@ -62,9 +59,9 @@ class MaterialEffects
   /// Steer the various interaction processes in the Tracker Material
   /// and update the FSimEvent
   void interact(FSimEvent& simEvent,
-		const TrackerLayer& layer,
-		ParticlePropagator& PP,
-		unsigned i,
+                const TrackerLayer& layer,
+                ParticlePropagator& PP,
+                unsigned i,
                 RandomEngineAndDistribution const*);
 
   /// Save nuclear interaction information
@@ -77,32 +74,22 @@ class MaterialEffects
   inline double energyLoss() const { return theEnergyLoss; }
 
   /// Return the Multiple Scattering engine
-  inline MultipleScatteringSimulator* multipleScatteringSimulator() const { 
-    return MultipleScattering;
-  }
+  inline MultipleScatteringSimulator* multipleScatteringSimulator() const { return MultipleScattering; }
 
   /// Return the Energy Loss engine
-  inline EnergyLossSimulator* energyLossSimulator() const { 
-    return EnergyLoss;
-  }
+  inline EnergyLossSimulator* energyLossSimulator() const { return EnergyLoss; }
 
   /// Return the Muon Bremsstrahlung engine
-  inline MuonBremsstrahlungSimulator* muonBremsstrahlungSimulator() const {
-    return MuonBremsstrahlung;
-  }
+  inline MuonBremsstrahlungSimulator* muonBremsstrahlungSimulator() const { return MuonBremsstrahlung; }
 
- private:
-
+private:
   /// The number of radiation lengths traversed
-  double radLengths(const TrackerLayer& layer,
-		    ParticlePropagator& myTrack);
+  double radLengths(const TrackerLayer& layer, ParticlePropagator& myTrack);
 
   /// The vector normal to the surface traversed
-  GlobalVector normalVector(const TrackerLayer& layer,
-			    ParticlePropagator& myTrack ) const;
+  GlobalVector normalVector(const TrackerLayer& layer, ParticlePropagator& myTrack) const;
 
- private:
-
+private:
   PairProductionSimulator* PairProduction;
   BremsstrahlungSimulator* Bremsstrahlung;
   ////// Muon Brem
@@ -122,7 +109,6 @@ class MaterialEffects
   //  double myEta;
 
   bool use_hardcoded;
-
 };
 
 #endif

@@ -2,7 +2,7 @@
 //Id:  FittedEntriesManager.cc
 //CAT: Model
 //
-//   History: v1.0 
+//   History: v1.0
 //   Pedro Arce
 #include <map>
 #include <fstream>
@@ -19,9 +19,8 @@ FittedEntriesManager* FittedEntriesManager::instance = nullptr;
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Gets the only instance of Model
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-FittedEntriesManager* FittedEntriesManager::getInstance()
-{
-  if(!instance) {
+FittedEntriesManager* FittedEntriesManager::getInstance() {
+  if (!instance) {
     instance = new FittedEntriesManager;
   }
   return instance;
@@ -30,138 +29,139 @@ FittedEntriesManager* FittedEntriesManager::getInstance()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ add a new set of fitted entries
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void FittedEntriesManager::AddFittedEntriesSet( FittedEntriesSet* fents) 
-{
-  theFittedEntriesSets.push_back( fents );
-
-}
-
+void FittedEntriesManager::AddFittedEntriesSet(FittedEntriesSet* fents) { theFittedEntriesSets.push_back(fents); }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ dump data to histograms
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //tvoid FittedEntriesManager::WriteHeader()
-void FittedEntriesManager::MakeHistos()
-{
-
-  //----------- Get 
+void FittedEntriesManager::MakeHistos() {
+  //----------- Get
   //----------- Loop entries
-  //-  vfescite = theFittedEntriesSets.begin(); 
+  //-  vfescite = theFittedEntriesSets.begin();
   //  std::vector< FittedEntry* > vfe = theFittedEntriesSets.begin()->FittedEntries();
   //  std::vector< FittedEntry* >::const_iterator vfecite2;
   //-- Number of fitted entries (equal for all Fitted Entries Sets )
-  if( ALIUtils::debug >= 5) std::cout << "No sets2 " << theFittedEntriesSets.size() << " No ent " << ( ( *(theFittedEntriesSets.begin()) )->FittedEntries() ).size() << std::endl;
+  if (ALIUtils::debug >= 5)
+    std::cout << "No sets2 " << theFittedEntriesSets.size() << " No ent "
+              << ((*(theFittedEntriesSets.begin()))->FittedEntries()).size() << std::endl;
   std::ofstream fout;
   std::ofstream fout2;
-  fout.open( "fittedEntries.out" );
-  fout2.open( "longFittedEntries.out" );
-  //---------- Dump dimensions 
-  ALIUtils::dumpDimensions( fout );
-  ALIUtils::dumpDimensions( fout2 );
+  fout.open("fittedEntries.out");
+  fout2.open("longFittedEntries.out");
+  //---------- Dump dimensions
+  ALIUtils::dumpDimensions(fout);
+  ALIUtils::dumpDimensions(fout2);
 
-  AddFittedEntriesSet( new FittedEntriesSet( theFittedEntriesSets ) ); //add a new set that averages all the others
+  AddFittedEntriesSet(new FittedEntriesSet(theFittedEntriesSets));  //add a new set that averages all the others
 
   //---------- Loop sets of entries
-  std::vector< FittedEntriesSet* >::const_iterator vfescite;
-  std::vector< FittedEntry* >::const_iterator vfecite;
+  std::vector<FittedEntriesSet*>::const_iterator vfescite;
+  std::vector<FittedEntry*>::const_iterator vfecite;
   ALIint jj = 1;
-  for( vfescite = theFittedEntriesSets.begin(); vfescite != theFittedEntriesSets.end(); ++vfescite) {
+  for (vfescite = theFittedEntriesSets.begin(); vfescite != theFittedEntriesSets.end(); ++vfescite) {
     //---------- Loop entries
-    if( vfescite == theFittedEntriesSets.begin() ) {
-    //----- dump entries names if first set 
+    if (vfescite == theFittedEntriesSets.begin()) {
+      //----- dump entries names if first set
       fout << "  ";
       ALIint ii = 0;
-      for( vfecite = ((*vfescite)->FittedEntries()).begin(); vfecite != ((*vfescite)->FittedEntries()).end(); ++vfecite) {
-	ALIstring filename = createFileName( (*vfecite)->getOptOName(), (*vfecite)->getEntryName() );  
-	fout << ii << ": " << std::setw(13) << filename << " ";; 
-	if(ALIUtils::debug >= 3) std::cout << ii << ": " << std::setw(13) << filename << " = " << (*vfecite)->getName() << std::endl; 
-	if( ALIUtils::debug >= 3) std::cout << filename << " ";
-        if( ALIUtils::debug >= 3) std::cout << "OPENING FITTED ENTRIES file " << filename << std::endl;
+      for (vfecite = ((*vfescite)->FittedEntries()).begin(); vfecite != ((*vfescite)->FittedEntries()).end();
+           ++vfecite) {
+        ALIstring filename = createFileName((*vfecite)->getOptOName(), (*vfecite)->getEntryName());
+        fout << ii << ": " << std::setw(13) << filename << " ";
+        ;
+        if (ALIUtils::debug >= 3)
+          std::cout << ii << ": " << std::setw(13) << filename << " = " << (*vfecite)->getName() << std::endl;
+        if (ALIUtils::debug >= 3)
+          std::cout << filename << " ";
+        if (ALIUtils::debug >= 3)
+          std::cout << "OPENING FITTED ENTRIES file " << filename << std::endl;
         ii++;
       }
       //      fout << std::setw(17) << "2:-4:";
       fout << std::endl;
-      if( ALIUtils::debug >= 3) std::cout << std::endl;
+      if (ALIUtils::debug >= 3)
+        std::cout << std::endl;
     }
-//----- Dump entry set number
+    //----- Dump entry set number
     fout << jj << " ";
     fout2 << jj << " ";
-//----- Dump measurements date
+    //----- Dump measurements date
     GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-    if( gomgr->GlobalOptions()["DumpDateInFittedEntries"] >= 1 ) {
-      fout << (*vfescite)->getDate()  << " " << (*vfescite)->getTime() << " ";
-      fout2 << (*vfescite)->getDate()  << " " << (*vfescite)->getTime() << " ";
+    if (gomgr->GlobalOptions()["DumpDateInFittedEntries"] >= 1) {
+      fout << (*vfescite)->getDate() << " " << (*vfescite)->getTime() << " ";
+      fout2 << (*vfescite)->getDate() << " " << (*vfescite)->getTime() << " ";
     }
 
     ALIint ii = 0;
-    for( vfecite = ((*vfescite)->FittedEntries()).begin(); vfecite != ((*vfescite)->FittedEntries()).end(); ++vfecite) {
+    for (vfecite = ((*vfescite)->FittedEntries()).begin(); vfecite != ((*vfescite)->FittedEntries()).end(); ++vfecite) {
       //      std::cout << ii << *vfescite << " FITTEDENTRY: "   << vfecite << " " <<*vfecite << " " << (*vfecite)->Value() << std::endl;
       //      if( ii == 2 || ii == 4 ) {
-      fout << std::setprecision(8) << std::setw(10) << (*vfecite)->getValue() << " " << (*vfecite)->getSigma() << "  ";  
-      //- fout << std::setw(9) << std::setprecision(6) << (*vfecite)->getValue()  << " +- " << (*vfecite)->getSigma() << "  ";  
+      fout << std::setprecision(8) << std::setw(10) << (*vfecite)->getValue() << " " << (*vfecite)->getSigma() << "  ";
+      //- fout << std::setw(9) << std::setprecision(6) << (*vfecite)->getValue()  << " +- " << (*vfecite)->getSigma() << "  ";
       //      }
-      if( ALIUtils::debug >= 3) std::cout << " FITTEDENTRY:" << std::setprecision(5) << std::setw(8) << (*vfecite)->getValue() << " +- " << (*vfecite)->getSigma() << std::endl;  
+      if (ALIUtils::debug >= 3)
+        std::cout << " FITTEDENTRY:" << std::setprecision(5) << std::setw(8) << (*vfecite)->getValue() << " +- "
+                  << (*vfecite)->getSigma() << std::endl;
 
-	ALIstring filename = createFileName( (*vfecite)->getOptOName(), (*vfecite)->getEntryName() );  
-	fout2 << std::setprecision(8) << std::setw(10) <<  filename<< " " << (*vfecite)->getValue() << " " << (*vfecite)->getSigma() << "  ";  
+      ALIstring filename = createFileName((*vfecite)->getOptOName(), (*vfecite)->getEntryName());
+      fout2 << std::setprecision(8) << std::setw(10) << filename << " " << (*vfecite)->getValue() << " "
+            << (*vfecite)->getSigma() << "  ";
       ii++;
     }
     //    dumpEntriesSubstraction( fout, *(*vfescite), 2, 4);
     fout << std::endl;
     fout2 << std::endl;
-    if( ALIUtils::debug >= 3) std::cout << std::endl;
+    if (ALIUtils::debug >= 3)
+      std::cout << std::endl;
     jj++;
   }
   fout.close();
   fout2.close();
 
   GetDifferentBetweenLasers();
-
 }
 
 #include "Alignment/CocoaModel/interface/LightRay.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void FittedEntriesManager::GetDifferentBetweenLasers()
-{
+void FittedEntriesManager::GetDifferentBetweenLasers() {
+  std::vector<OpticalObject*> optoList = Model::OptOList();
+  std::vector<OpticalObject*>::const_iterator ite;
+  std::map<ALIstring, LightRay*> lrays;
 
-  std::vector< OpticalObject* > optoList = Model::OptOList();
-  std::vector< OpticalObject* >::const_iterator ite;
-  std::map< ALIstring, LightRay* > lrays;
-
-  for( ite = optoList.begin(); ite != optoList.end(); ++ite ){
-    if( (*ite)->type() == "laser" ){
-      LightRay* lightray = new LightRay;  
-      lightray->startLightRay( *ite );
+  for (ite = optoList.begin(); ite != optoList.end(); ++ite) {
+    if ((*ite)->type() == "laser") {
+      LightRay* lightray = new LightRay;
+      lightray->startLightRay(*ite);
       lrays[(*ite)->parent()->name()] = lightray;
     }
   }
-  
-  std::map< ALIstring, LightRay* >::const_iterator lite1, lite2;
-  for( lite1 = lrays.begin(); lite1 != lrays.end(); ++lite1 ){
-    lite2 = lite1; ++lite2;
-    for( ; lite2 != lrays.end(); ++lite2 ){
-      if( lite1 == lite2 ) continue;
+
+  std::map<ALIstring, LightRay*>::const_iterator lite1, lite2;
+  for (lite1 = lrays.begin(); lite1 != lrays.end(); ++lite1) {
+    lite2 = lite1;
+    ++lite2;
+    for (; lite2 != lrays.end(); ++lite2) {
+      if (lite1 == lite2)
+        continue;
       CLHEP::Hep3Vector dirdiff = ((*lite1).second->direction() - (*lite2).second->direction());
-      if(ALIUtils::debug >= 0) {
-        std::cout << "LASER DIFF " << (*lite1).first << " & " << (*lite2).first << " " << dirdiff.mag()*180./M_PI << "o " << dirdiff.mag() << " rad " << dirdiff << std::endl;
-      
-        (*lite1).second->dumpData(ALIstring(" laser ") + (*lite1).first );
-        (*lite2).second->dumpData(ALIstring(" laser ") + (*lite2).first );
+      if (ALIUtils::debug >= 0) {
+        std::cout << "LASER DIFF " << (*lite1).first << " & " << (*lite2).first << " " << dirdiff.mag() * 180. / M_PI
+                  << "o " << dirdiff.mag() << " rad " << dirdiff << std::endl;
+
+        (*lite1).second->dumpData(ALIstring(" laser ") + (*lite1).first);
+        (*lite2).second->dumpData(ALIstring(" laser ") + (*lite2).first);
       }
     }
-   
   }
-
 }
-
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ create file name to dump fitted entries values taking the last name of optoName and the full entryName with space converted to '.'
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIstring FittedEntriesManager::createFileName( const ALIstring& optoName, const ALIstring& entryName) 
-{
+ALIstring FittedEntriesManager::createFileName(const ALIstring& optoName, const ALIstring& entryName) {
   //  std::cout << "in createFileName " << optoName << " " << entryName << std::endl;
   ALIstring filename;
   //-  std::cout << "o" << optoName << " e " << entryName << std::endl;
@@ -172,11 +172,12 @@ ALIstring FittedEntriesManager::createFileName( const ALIstring& optoName, const
   filename = optoName.substr( last_slash+1, size );
   */
   //----- substitute '/' by '.' in opto name
-  filename = optoName.substr( 2, optoName.size() );  // skip the first 's/'
+  filename = optoName.substr(2, optoName.size());  // skip the first 's/'
   ALIint slash = -1;
-  for(;;){
-    slash =  filename.find('/', slash+1);
-    if( slash == -1 ) break;
+  for (;;) {
+    slash = filename.find('/', slash + 1);
+    if (slash == -1)
+      break;
     filename[slash] = '.';
   }
 
@@ -184,26 +185,26 @@ ALIstring FittedEntriesManager::createFileName( const ALIstring& optoName, const
   ALIint space = entryName.rfind(' ');
   filename.append(".");
   ALIstring en = entryName;
-  if( space != -1) en[space] = '_';
+  if (space != -1)
+    en[space] = '_';
 
   //----- Merge opto and entry names
   // now it is not used as filename   filename.append( en + ".out");
-  filename.append( en);
-  if( ALIUtils::debug >= 3) std::cout << "filename " << filename << std::endl;
+  filename.append(en);
+  if (ALIUtils::debug >= 3)
+    std::cout << "filename " << filename << std::endl;
 
   return filename;
-
 }
-
-
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ create file name to dump fitted entries values taking the last name of optoName and the full entryName with space converted to '-'
-// entry1/2 are the entries name including OptO name 
+// entry1/2 are the entries name including OptO name
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void FittedEntriesManager::dumpEntriesSubstraction( std::ofstream& fout, FittedEntriesSet& fes, ALIint order1, ALIint order2 )
-{
-  
+void FittedEntriesManager::dumpEntriesSubstraction(std::ofstream& fout,
+                                                   FittedEntriesSet& fes,
+                                                   ALIint order1,
+                                                   ALIint order2) {
   //---------- Found order of entry1 and entry2 in FittedEntriesSet fes
   // (the order will be the same for every FittedEntriesSet
   //std::vector< FittedEntriesSet* >::const_iterator vfescite = theFittedEntriesSets.begin();
@@ -226,14 +227,12 @@ void FittedEntriesManager::dumpEntriesSubstraction( std::ofstream& fout, FittedE
   ALIdouble sig1 = fe1->getSigma();
   ALIdouble sig2 = fe2->getSigma();
   ALIdouble val = val1 - val2;
-  ALIdouble sig = sqrt( sig1*sig1 + sig2*sig2);
+  ALIdouble sig = sqrt(sig1 * sig1 + sig2 * sig2);
   //-  std::cout << "CHECK " << val1 << " "<< val2 << " "<< sig1 << " "<< sig2 << std::endl;
-  fout << std::setprecision(6) <<std::setw(8) << val << " +- " << sig << "  ";  
-  if( ALIUtils::debug >= 3) std::cout << " FITTEDENTRY:" << std::setprecision(5) << std::setw(8) << val << " +- " << sig << std::endl;  
-
-  
+  fout << std::setprecision(6) << std::setw(8) << val << " +- " << sig << "  ";
+  if (ALIUtils::debug >= 3)
+    std::cout << " FITTEDENTRY:" << std::setprecision(5) << std::setw(8) << val << " +- " << sig << std::endl;
 }
-
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 /*void FittedEntriesManager::MakeHistos1()
@@ -274,4 +273,3 @@ void FittedEntriesManager::dumpEntriesSubstraction( std::ofstream& fout, FittedE
 
 }
 */
-

@@ -6,36 +6,31 @@
 #ifndef ChainedJetCorrector_h
 #define ChainedJetCorrector_h
 
-#include "boost/shared_ptr.hpp"
 #include <vector>
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
-
-class ChainedJetCorrector : public JetCorrector
-{
+class ChainedJetCorrector : public JetCorrector {
 public:
-  ChainedJetCorrector (){}
-  ~ChainedJetCorrector () override {}
-  
-  double correction (const JetCorrector::LorentzVector& fJet) const override;
-  double correction (const reco::Jet& fJet) const override;
-  double correction (const reco::Jet& fJet,
-			     const edm::Event& fEvent,
-			     const edm::EventSetup& fSetup) const override;
-  double correction (const reco::Jet& fJet,
-			     const edm::RefToBase<reco::Jet>& fJetRef,
-			     const edm::Event& fEvent,
-			     const edm::EventSetup& fSetup) const override;
-  
-  bool eventRequired () const override;
-  bool refRequired () const override;
-  
-  void push_back (const JetCorrector* fCorrector) {mCorrectors.push_back (fCorrector);}
-  void clear () {mCorrectors.clear ();}
-  
+  ChainedJetCorrector() {}
+  ~ChainedJetCorrector() override {}
+
+  double correction(const JetCorrector::LorentzVector& fJet) const override;
+  double correction(const reco::Jet& fJet) const override;
+  double correction(const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const override;
+  double correction(const reco::Jet& fJet,
+                    const edm::RefToBase<reco::Jet>& fJetRef,
+                    const edm::Event& fEvent,
+                    const edm::EventSetup& fSetup) const override;
+
+  bool eventRequired() const override;
+  bool refRequired() const override;
+
+  void push_back(const JetCorrector* fCorrector) { mCorrectors.push_back(fCorrector); }
+  void clear() { mCorrectors.clear(); }
+
 private:
-  std::vector <const JetCorrector*> mCorrectors;
+  std::vector<const JetCorrector*> mCorrectors;
 };
 
 #endif

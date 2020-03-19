@@ -8,16 +8,16 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCSample.h"
 
-typedef HGCDataFrame<HGCalDetId,HGCSample>      HGCEEDataFrame;
-typedef edm::SortedCollection< HGCEEDataFrame > HGCEEDigiCollection;
+typedef HGCDataFrame<HGCalDetId, HGCSample> HGCEEDataFrame;
+typedef edm::SortedCollection<HGCEEDataFrame> HGCEEDigiCollection;
 
-typedef HGCDataFrame<HGCalDetId,HGCSample>      HGCHEDataFrame;
-typedef edm::SortedCollection< HGCHEDataFrame > HGCHEDigiCollection;
+typedef HGCDataFrame<HGCalDetId, HGCSample> HGCHEDataFrame;
+typedef edm::SortedCollection<HGCHEDataFrame> HGCHEDigiCollection;
 
-typedef HGCDataFrame<HcalDetId,HGCSample>       HGCBHDataFrame;
-typedef edm::SortedCollection< HGCBHDataFrame > HGCBHDigiCollection;
+typedef HGCDataFrame<HcalDetId, HGCSample> HGCBHDataFrame;
+typedef edm::SortedCollection<HGCBHDataFrame> HGCBHDigiCollection;
 
-typedef HGCDataFrame<DetId,HGCSample>           HGCalDataFrame;
-typedef edm::SortedCollection< HGCalDataFrame > HGCalDigiCollection;
+typedef HGCDataFrame<DetId, HGCSample> HGCalDataFrame;
+typedef edm::SortedCollection<HGCalDataFrame> HGCalDigiCollection;
 
 #endif

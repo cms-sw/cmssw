@@ -9,4 +9,3 @@
 #include <DataFormats/EcalRawData/interface/ESKCHIPBlock.h>
 
 #include <DataFormats/Common/interface/Wrapper.h>
-

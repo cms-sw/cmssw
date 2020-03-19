@@ -25,7 +25,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <tuple>
 
-
 #include <map>
 class CaloTowerTopology;
 class HcalTopology;
@@ -48,70 +47,116 @@ class DetId;
 
 class CaloTowersCreationAlgo {
 public:
-
-  int nalgo=-1;
+  int nalgo = -1;
 
   CaloTowersCreationAlgo();
 
-  CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
+  CaloTowersCreationAlgo(double EBthreshold,
+                         double EEthreshold,
 
-    bool useEtEBTreshold, bool useEtEETreshold,
-    bool useSymEBTreshold, bool useSymEETreshold,				    
+                         bool useEtEBTreshold,
+                         bool useEtEETreshold,
+                         bool useSymEBTreshold,
+                         bool useSymEETreshold,
 
-    double HcalThreshold,
-    double HBthreshold, double HBthreshold1, double HBthreshold2,
-    double HESthreshold, double HESthreshold1,
-    double HEDthreshold, double HEDthreshold1, 
-    double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
-    double HOthresholdPlus2, double HOthresholdMinus2,
-    double HF1threshold, double HF2threshold, 
-    double EBweight, double EEweight,
-    double HBweight, double HESweight, double HEDweight, 
-    double HOweight, double HF1weight, double HF2weight,
-    double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO,
-    // (for momentum reconstruction algorithm)
-    int momConstrMethod,
-    double momHBDepth,
-    double momHEDepth,
-    double momEBDepth,
-    double momEEDepth,
-	int hcalPhase=0
-    );
-  
-  CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
+                         double HcalThreshold,
+                         double HBthreshold,
+                         double HBthreshold1,
+                         double HBthreshold2,
+                         double HESthreshold,
+                         double HESthreshold1,
+                         double HEDthreshold,
+                         double HEDthreshold1,
+                         double HOthreshold0,
+                         double HOthresholdPlus1,
+                         double HOthresholdMinus1,
+                         double HOthresholdPlus2,
+                         double HOthresholdMinus2,
+                         double HF1threshold,
+                         double HF2threshold,
+                         double EBweight,
+                         double EEweight,
+                         double HBweight,
+                         double HESweight,
+                         double HEDweight,
+                         double HOweight,
+                         double HF1weight,
+                         double HF2weight,
+                         double EcutTower,
+                         double EBSumThreshold,
+                         double EESumThreshold,
+                         bool useHO,
+                         // (for momentum reconstruction algorithm)
+                         int momConstrMethod,
+                         double momHBDepth,
+                         double momHEDepth,
+                         double momEBDepth,
+                         double momEEDepth,
+                         int hcalPhase = 0);
 
-    bool useEtEBTreshold, bool useEtEETreshold,
-    bool useSymEBTreshold, bool useSymEETreshold,
+  CaloTowersCreationAlgo(double EBthreshold,
+                         double EEthreshold,
 
-    double HcalThreshold,
-    double HBthreshold, double HBthreshold1, double HBthreshold2,
-    double HESthreshold, double HESthreshold1,
-    double HEDthreshold, double HEDthreshold1,
-    double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
-    double HOthresholdPlus2, double HOthresholdMinus2, 
-    double HF1threshold, double HF2threshold,
-    const std::vector<double> & EBGrid, const std::vector<double> & EBWeights,
-    const std::vector<double> & EEGrid, const std::vector<double> & EEWeights,
-    const std::vector<double> & HBGrid, const std::vector<double> & HBWeights,
-    const std::vector<double> & HESGrid, const std::vector<double> & HESWeights,
-    const std::vector<double> & HEDGrid, const std::vector<double> & HEDWeights,
-    const std::vector<double> & HOGrid, const std::vector<double> & HOWeights,
-    const std::vector<double> & HF1Grid, const std::vector<double> & HF1Weights,
-    const std::vector<double> & HF2Grid, const std::vector<double> & HF2Weights,
-    double EBweight, double EEweight,
-    double HBweight, double HESweight, double HEDweight, 
-    double HOweight, double HF1weight, double HF2weight,
-    double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO,
-    // (for momentum reconstruction algorithm)
-    int momConstrMethod,
-    double momHBDepth,
-    double momHEDepth,
-    double momEBDepth,
-    double momEEDepth,
-	int hcalPhase=0
-);
-  
-  void setGeometry(const CaloTowerTopology* cttopo, const CaloTowerConstituentsMap* ctmap, const HcalTopology* htopo, const CaloGeometry* geo);
+                         bool useEtEBTreshold,
+                         bool useEtEETreshold,
+                         bool useSymEBTreshold,
+                         bool useSymEETreshold,
+
+                         double HcalThreshold,
+                         double HBthreshold,
+                         double HBthreshold1,
+                         double HBthreshold2,
+                         double HESthreshold,
+                         double HESthreshold1,
+                         double HEDthreshold,
+                         double HEDthreshold1,
+                         double HOthreshold0,
+                         double HOthresholdPlus1,
+                         double HOthresholdMinus1,
+                         double HOthresholdPlus2,
+                         double HOthresholdMinus2,
+                         double HF1threshold,
+                         double HF2threshold,
+                         const std::vector<double>& EBGrid,
+                         const std::vector<double>& EBWeights,
+                         const std::vector<double>& EEGrid,
+                         const std::vector<double>& EEWeights,
+                         const std::vector<double>& HBGrid,
+                         const std::vector<double>& HBWeights,
+                         const std::vector<double>& HESGrid,
+                         const std::vector<double>& HESWeights,
+                         const std::vector<double>& HEDGrid,
+                         const std::vector<double>& HEDWeights,
+                         const std::vector<double>& HOGrid,
+                         const std::vector<double>& HOWeights,
+                         const std::vector<double>& HF1Grid,
+                         const std::vector<double>& HF1Weights,
+                         const std::vector<double>& HF2Grid,
+                         const std::vector<double>& HF2Weights,
+                         double EBweight,
+                         double EEweight,
+                         double HBweight,
+                         double HESweight,
+                         double HEDweight,
+                         double HOweight,
+                         double HF1weight,
+                         double HF2weight,
+                         double EcutTower,
+                         double EBSumThreshold,
+                         double EESumThreshold,
+                         bool useHO,
+                         // (for momentum reconstruction algorithm)
+                         int momConstrMethod,
+                         double momHBDepth,
+                         double momHEDepth,
+                         double momEBDepth,
+                         double momEEDepth,
+                         int hcalPhase = 0);
+
+  void setGeometry(const CaloTowerTopology* cttopo,
+                   const CaloTowerConstituentsMap* ctmap,
+                   const HcalTopology* htopo,
+                   const CaloGeometry* geo);
 
   // pass the containers of channels status from the event record (stored in DB)
   // these are called in  CaloTowersCreator
@@ -127,10 +172,9 @@ public:
   void begin();
   void process(const HBHERecHitCollection& hbhe);
   void process(const HORecHitCollection& ho);
-  void process(const HFRecHitCollection& hf); 
-  void process(const EcalRecHitCollection& ecal); 
-  
-  
+  void process(const HFRecHitCollection& hf);
+  void process(const EcalRecHitCollection& ecal);
+
   void process(const CaloTowerCollection& ctc);
 
   void finish(CaloTowerCollection& destCollection);
@@ -147,117 +191,110 @@ public:
   void setHF1EScale(double scale);
   void setHF2EScale(double scale);
 
-
   // Assign to categories based on info from DB and RecHit status
   // Called in assignHit to check if the energy should be added to
   // calotower, and how to flag the channel
   unsigned int hcalChanStatusForCaloTower(const CaloRecHit* hit);
-  std::tuple<unsigned int,bool> ecalChanStatusForCaloTower(const EcalRecHit* hit);
+  std::tuple<unsigned int, bool> ecalChanStatusForCaloTower(const EcalRecHit* hit);
 
   // Channel flagging is based on acceptable severity levels specified in the
   // configuration file. These methods are used to pass the values read in
   // CaloTowersCreator
-  // 
+  //
   // from DB
-  void setHcalAcceptSeverityLevel(unsigned int level) {theHcalAcceptSeverityLevel = level;} 
-  void setEcalSeveritiesToBeExcluded(const std::vector<int>& ecalSev ) {theEcalSeveritiesToBeExcluded= ecalSev;} 
+  void setHcalAcceptSeverityLevel(unsigned int level) { theHcalAcceptSeverityLevel = level; }
+  void setEcalSeveritiesToBeExcluded(const std::vector<int>& ecalSev) { theEcalSeveritiesToBeExcluded = ecalSev; }
 
   // flag to use recovered hits
-  void setRecoveredHcalHitsAreUsed(bool flag) {theRecoveredHcalHitsAreUsed = flag; };
-  void setRecoveredEcalHitsAreUsed(bool flag) {theRecoveredEcalHitsAreUsed = flag; };
+  void setRecoveredHcalHitsAreUsed(bool flag) { theRecoveredHcalHitsAreUsed = flag; };
+  void setRecoveredEcalHitsAreUsed(bool flag) { theRecoveredEcalHitsAreUsed = flag; };
 
   //  severety level calculator for HCAL
-  void setHcalSevLvlComputer(const HcalSeverityLevelComputer* c) {theHcalSevLvlComputer = c; };
+  void setHcalSevLvlComputer(const HcalSeverityLevelComputer* c) { theHcalSevLvlComputer = c; };
 
   // severity level calculator for ECAL
-  void setEcalSevLvlAlgo(const EcalSeverityLevelAlgo* a) { theEcalSevLvlAlgo =  a; }
-
+  void setEcalSevLvlAlgo(const EcalSeverityLevelAlgo* a) { theEcalSevLvlAlgo = a; }
 
   // The following are needed for creating towers from rechits excluded from the  ------------------------------------
   // default reconstructions
 
- // NB! Controls if rejected hits shold be used instead of the default!!!
-  void setUseRejectedHitsOnly(bool flag) { useRejectedHitsOnly = flag; } 
+  // NB! Controls if rejected hits shold be used instead of the default!!!
+  void setUseRejectedHitsOnly(bool flag) { useRejectedHitsOnly = flag; }
 
-  void setHcalAcceptSeverityLevelForRejectedHit(unsigned int level) {theHcalAcceptSeverityLevelForRejectedHit = level;} 
-  //  void setEcalAcceptSeverityLevelForRejectedHit(unsigned int level) {theEcalAcceptSeverityLevelForRejectedHit = level;} 
-  void SetEcalSeveritiesToBeUsedInBadTowers(const std::vector<int>& ecalSev ) {theEcalSeveritiesToBeUsedInBadTowers= ecalSev;} 
+  void setHcalAcceptSeverityLevelForRejectedHit(unsigned int level) {
+    theHcalAcceptSeverityLevelForRejectedHit = level;
+  }
+  //  void setEcalAcceptSeverityLevelForRejectedHit(unsigned int level) {theEcalAcceptSeverityLevelForRejectedHit = level;}
+  void SetEcalSeveritiesToBeUsedInBadTowers(const std::vector<int>& ecalSev) {
+    theEcalSeveritiesToBeUsedInBadTowers = ecalSev;
+  }
 
-
-  void setUseRejectedRecoveredHcalHits(bool flag) {useRejectedRecoveredHcalHits = flag; };
-  void setUseRejectedRecoveredEcalHits(bool flag) {useRejectedRecoveredEcalHits = flag; };
-  void setMissingHcalRescaleFactorForEcal(float factor) {missingHcalRescaleFactorForEcal = factor; };
+  void setUseRejectedRecoveredHcalHits(bool flag) { useRejectedRecoveredHcalHits = flag; };
+  void setUseRejectedRecoveredEcalHits(bool flag) { useRejectedRecoveredEcalHits = flag; };
+  void setMissingHcalRescaleFactorForEcal(float factor) { missingHcalRescaleFactorForEcal = factor; };
 
   //-------------------------------------------------------------------------------------------------------------------
 
-
-
   // set the EE EB handles
-  
+
   void setEbHandle(const edm::Handle<EcalRecHitCollection> eb) { theEbHandle = eb; }
   void setEeHandle(const edm::Handle<EcalRecHitCollection> ee) { theEeHandle = ee; }
 
-
-
-
-  // Add methods to get the seperate positions for ECAL/HCAL 
+  // Add methods to get the seperate positions for ECAL/HCAL
   // used in constructing the 4-vectors using new methods
-  GlobalPoint emCrystalShwrPos (DetId detId, float fracDepth); 
+  GlobalPoint emCrystalShwrPos(DetId detId, float fracDepth);
   GlobalPoint hadSegmentShwrPos(DetId detId, float fracDepth);
   // "effective" point for the EM/HAD shower in CaloTower
   //  position based on non-zero energy cells
-  GlobalPoint hadShwrPos(const std::vector<std::pair<DetId,float> >& metaContains,
-    float fracDepth, double hadE);
-  GlobalPoint emShwrPos(const std::vector<std::pair<DetId,float> >& metaContains, 
-    float fracDepth, double totEmE);
+  GlobalPoint hadShwrPos(const std::vector<std::pair<DetId, float>>& metaContains, float fracDepth, double hadE);
+  GlobalPoint emShwrPos(const std::vector<std::pair<DetId, float>>& metaContains, float fracDepth, double totEmE);
 
   // overloaded function to get had position based on all had cells in the tower
   GlobalPoint hadShwrPos(CaloTowerDetId id, float fracDepth);
   GlobalPoint hadShwPosFromCells(DetId frontCell, DetId backCell, float fracDepth);
 
   // for Chris
-  GlobalPoint emShwrLogWeightPos(const std::vector<std::pair<DetId,float> >& metaContains, 
-    float fracDepth, double totEmE);
-
+  GlobalPoint emShwrLogWeightPos(const std::vector<std::pair<DetId, float>>& metaContains,
+                                 float fracDepth,
+                                 double totEmE);
 
 private:
-
   struct MetaTower {
-    MetaTower(){}
-    bool empty() const { return metaConstituents.empty();}
+    MetaTower() {}
+    bool empty() const { return metaConstituents.empty(); }
     // contains also energy of RecHit
-    std::vector< std::pair<DetId, float> > metaConstituents;
+    std::vector<std::pair<DetId, float>> metaConstituents;
     CaloTowerDetId id;
-    float E=0, E_em=0, E_had=0, E_outer=0;
-    float emSumTimeTimesE=0, hadSumTimeTimesE=0, emSumEForTime=0, hadSumEForTime=0; // Sum(Energy x Timing) : intermediate container
+    float E = 0, E_em = 0, E_had = 0, E_outer = 0;
+    float emSumTimeTimesE = 0, hadSumTimeTimesE = 0, emSumEForTime = 0,
+          hadSumEForTime = 0;  // Sum(Energy x Timing) : intermediate container
 
     // needed to set CaloTower status word
-    int numBadEcalCells=0, numRecEcalCells=0, numProbEcalCells=0, numBadHcalCells=0, numRecHcalCells=0, numProbHcalCells=0; 
-
- };
+    int numBadEcalCells = 0, numRecEcalCells = 0, numProbEcalCells = 0, numBadHcalCells = 0, numRecHcalCells = 0,
+        numProbHcalCells = 0;
+  };
 
   /// adds a single hit to the tower
   void assignHitEcal(const EcalRecHit* recHit);
   void assignHitHcal(const CaloRecHit* recHit);
 
-  void rescale(const CaloTower * ct);
+  void rescale(const CaloTower* ct);
 
   /// looks for a given tower in the internal cache.  If it can't find it, it makes it.
-  MetaTower & find(const CaloTowerDetId & id);
-  
+  MetaTower& find(const CaloTowerDetId& id);
+
   /// helper method to look up the appropriate threshold & weight
-  void getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const;
+  void getThresholdAndWeight(const DetId& detId, double& threshold, double& weight) const;
 
   double theEBthreshold, theEEthreshold;
   bool theUseEtEBTresholdFlag, theUseEtEETresholdFlag;
-  bool theUseSymEBTresholdFlag,theUseSymEETresholdFlag;
-  
-  
-  double  theHcalThreshold;
+  bool theUseSymEBTresholdFlag, theUseSymEETresholdFlag;
+
+  double theHcalThreshold;
 
   double theHBthreshold, theHBthreshold1, theHBthreshold2;
-  double theHESthreshold, theHESthreshold1; 
-  double theHEDthreshold, theHEDthreshold1; 
+  double theHESthreshold, theHESthreshold1;
+  double theHEDthreshold, theHEDthreshold1;
   double theHOthreshold0, theHOthresholdPlus1, theHOthresholdMinus1;
   double theHOthresholdPlus2, theHOthresholdMinus2, theHF1threshold, theHF2threshold;
   std::vector<double> theEBGrid, theEBWeights;
@@ -286,7 +323,7 @@ private:
   const CaloTowerConstituentsMap* theTowerConstituentsMap;
   const CaloSubdetectorGeometry* theTowerGeometry;
 
-  // for checking the status of ECAL and HCAL channels stored in the DB 
+  // for checking the status of ECAL and HCAL channels stored in the DB
   const EcalChannelStatus* theEcalChStatus;
   const HcalChannelQuality* theHcalChStatus;
 
@@ -296,9 +333,8 @@ private:
   // calculator for severity level for ECAL
   const EcalSeverityLevelAlgo* theEcalSevLvlAlgo;
 
-  
   // fields that hold the information passed from the CaloTowersCreator configuration file:
-  // controll what is considered bad/recovered/problematic channel for CaloTower purposes 
+  // controll what is considered bad/recovered/problematic channel for CaloTower purposes
   //
   unsigned int theHcalAcceptSeverityLevel;
   std::vector<int> theEcalSeveritiesToBeExcluded;
@@ -312,7 +348,6 @@ private:
   unsigned int theHcalAcceptSeverityLevelForRejectedHit;
   std::vector<int> theEcalSeveritiesToBeUsedInBadTowers;
 
-
   unsigned int useRejectedRecoveredHcalHits;
   unsigned int useRejectedRecoveredEcalHits;
 
@@ -323,7 +358,7 @@ private:
   bool theHOIsUsed;
 
   // Switches and paramters for CaloTower 4-momentum assignment
-  // "depth" variables do not affect all algorithms 
+  // "depth" variables do not affect all algorithms
   int theMomConstrMethod;
   double theMomHBDepth;
   double theMomHEDepth;
@@ -333,17 +368,16 @@ private:
   // compactify timing info
   int compactTime(float time);
 
-  void convert(const CaloTowerDetId& id, const MetaTower& mt, CaloTowerCollection & collection);
-  
+  void convert(const CaloTowerDetId& id, const MetaTower& mt, CaloTowerCollection& collection);
 
   // internal map
   typedef std::vector<MetaTower> MetaTowerMap;
   MetaTowerMap theTowerMap;
-  unsigned int theTowerMapSize=0;
+  unsigned int theTowerMapSize = 0;
 
   // Number of channels in the tower that were not used in RecHit production (dead/off,...).
-  // These channels are added to the other "bad" channels found in the recHit collection. 
-  typedef std::map<CaloTowerDetId, std::pair<short int,bool>> HcalDropChMap;
+  // These channels are added to the other "bad" channels found in the recHit collection.
+  typedef std::map<CaloTowerDetId, std::pair<short int, bool>> HcalDropChMap;
   HcalDropChMap hcalDropChMap;
 
   // Number of bad Ecal channel in each tower
@@ -352,18 +386,17 @@ private:
 
   // clasification of channels in tower construction: the category definition is
   // affected by the setting in the configuration file
-  // 
-  enum ctHitCategory {GoodChan = 0, BadChan = 1, RecoveredChan = 2, ProblematicChan = 3, IgnoredChan = 99 };
-
+  //
+  enum ctHitCategory { GoodChan = 0, BadChan = 1, RecoveredChan = 2, ProblematicChan = 3, IgnoredChan = 99 };
 
   // the EE and EB collections for ecal anomalous cell info
-   
+
   edm::Handle<EcalRecHitCollection> theEbHandle;
   edm::Handle<EcalRecHitCollection> theEeHandle;
-  
+
   int theHcalPhase;
 
-  std::vector<HcalDetId>          ids_;
+  std::vector<HcalDetId> ids_;
 };
 
 #endif

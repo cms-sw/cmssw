@@ -17,46 +17,37 @@
  *        \---------- system
  */
 class LMFLaserPulseDat : public LMFColoredTable {
- public:
+public:
   LMFLaserPulseDat();
-  LMFLaserPulseDat(oracle::occi::Environment* env,
-		   oracle::occi::Connection* conn);
+  LMFLaserPulseDat(oracle::occi::Environment *env, oracle::occi::Connection *conn);
   LMFLaserPulseDat(EcalDBConnection *c);
   LMFLaserPulseDat(std::string color);
   LMFLaserPulseDat(int color);
-  LMFLaserPulseDat(oracle::occi::Environment* env,
-		   oracle::occi::Connection* conn, std::string color);
-  LMFLaserPulseDat(oracle::occi::Environment* env,
-		   oracle::occi::Connection* conn, int color);
+  LMFLaserPulseDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, std::string color);
+  LMFLaserPulseDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, int color);
   LMFLaserPulseDat(EcalDBConnection *c, std::string color);
   LMFLaserPulseDat(EcalDBConnection *c, int color);
   ~LMFLaserPulseDat() override {}
-  
-  std::string getTableName() const override {
-    return "LMF_LASER_" + getColor() + "_PULSE_DAT";
-  }
-  
-  LMFLaserPulseDat& setFitMethod(EcalLogicID &id, int v);
-  LMFLaserPulseDat& setMTQAmplification(EcalLogicID &id, float v);
-  LMFLaserPulseDat& setMTQTime(EcalLogicID &id, float v);
-  LMFLaserPulseDat& setMTQRise(EcalLogicID &id, float v);
-  LMFLaserPulseDat& setMTQFWHM(EcalLogicID &id, float v);
-  LMFLaserPulseDat& setMTQFW20(EcalLogicID &id, float v);
-  LMFLaserPulseDat& setMTQFW80(EcalLogicID &id, float v);
-  LMFLaserPulseDat& setMTQSliding(EcalLogicID &id, float v);
+
+  std::string getTableName() const override { return "LMF_LASER_" + getColor() + "_PULSE_DAT"; }
+
+  LMFLaserPulseDat &setFitMethod(EcalLogicID &id, int v);
+  LMFLaserPulseDat &setMTQAmplification(EcalLogicID &id, float v);
+  LMFLaserPulseDat &setMTQTime(EcalLogicID &id, float v);
+  LMFLaserPulseDat &setMTQRise(EcalLogicID &id, float v);
+  LMFLaserPulseDat &setMTQFWHM(EcalLogicID &id, float v);
+  LMFLaserPulseDat &setMTQFW20(EcalLogicID &id, float v);
+  LMFLaserPulseDat &setMTQFW80(EcalLogicID &id, float v);
+  LMFLaserPulseDat &setMTQSliding(EcalLogicID &id, float v);
 
   int getFitMethod(EcalLogicID &id) { return getFitMethod(id.getLogicID()); }
-  float getMTQAmplification(EcalLogicID &id) { 
-    return getMTQAmplification(id.getLogicID()); 
-  }
+  float getMTQAmplification(EcalLogicID &id) { return getMTQAmplification(id.getLogicID()); }
   float getMTQTime(EcalLogicID &id) { return getMTQTime(id.getLogicID()); }
   float getMTQRise(EcalLogicID &id) { return getMTQRise(id.getLogicID()); }
   float getMTQFWHM(EcalLogicID &id) { return getMTQFWHM(id.getLogicID()); }
   float getMTQFW20(EcalLogicID &id) { return getMTQFW20(id.getLogicID()); }
   float getMTQFW80(EcalLogicID &id) { return getMTQFW80(id.getLogicID()); }
-  float getMTQSliding(EcalLogicID &id) { 
-    return getMTQSliding(id.getLogicID()); 
-  }
+  float getMTQSliding(EcalLogicID &id) { return getMTQSliding(id.getLogicID()); }
   int getFitMethod(int id);
   float getMTQAmplification(int id);
   float getMTQTime(int id);
@@ -69,7 +60,7 @@ class LMFLaserPulseDat : public LMFColoredTable {
   bool isValid() override;
   // to do: complete list of set/get methods
 
- private:
+private:
   void init();
 };
 

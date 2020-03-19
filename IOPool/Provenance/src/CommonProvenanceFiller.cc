@@ -16,10 +16,10 @@
 namespace edm {
 
   void fillParameterSetBranch(TTree* parameterSetsTree, int basketSize) {
-
     std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
     std::pair<ParameterSetID, ParameterSetBlob>* pIdToBlob = &idToBlob;
-    TBranch* b = parameterSetsTree->Branch(poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob, basketSize, 0);
+    TBranch* b =
+        parameterSetsTree->Branch(poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob, basketSize, 0);
 
     for (auto const& pset : *pset::Registry::instance()) {
       idToBlob.first = pset.first;
@@ -29,9 +29,11 @@ namespace edm {
     }
   }
 
-  void fillProcessHistoryBranch(TTree* metaDataTree, int basketSize, ProcessHistoryRegistry const& processHistoryRegistry) {
+  void fillProcessHistoryBranch(TTree* metaDataTree,
+                                int basketSize,
+                                ProcessHistoryRegistry const& processHistoryRegistry) {
     ProcessHistoryVector procHistoryVector;
-    for(auto const& ph : processHistoryRegistry) {
+    for (auto const& ph : processHistoryRegistry) {
       procHistoryVector.push_back(ph.second);
     }
     ProcessHistoryVector* p = &procHistoryVector;
@@ -40,4 +42,4 @@ namespace edm {
     b->Fill();
   }
 
-}
+}  // namespace edm

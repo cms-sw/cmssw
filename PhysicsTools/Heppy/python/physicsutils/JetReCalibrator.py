@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import ROOT
 import os, types
 from math import *
@@ -88,7 +89,7 @@ class JetReCalibrator:
         if emf > self.type1METParams['skipEMfractionThreshold']:
             return None
         if self.type1METParams['skipMuons']:
-            for idau in xrange(jet.numberOfDaughters()):
+            for idau in range(jet.numberOfDaughters()):
                 pfcand = jet.daughter(idau)
                 if pfcand.isGlobalMuon() or pfcand.isStandAloneMuon(): 
                     p4 -= pfcand.p4()

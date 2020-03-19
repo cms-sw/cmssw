@@ -31,39 +31,36 @@ public:
 
   /// Operations
   //Read the DTGeometry and teh t0 DB
-  virtual void beginRun(const edm::Run&,const edm::EventSetup& setup);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup& setup);
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
   //Do the real work
   void endJob();
 
 protected:
-
 private:
   std::string getHistoName(const DTWireId& lId) const;
   std::string getDistribName(const DTWireId& wId) const;
 
   // The file which will contain the histos
-  TFile *theFile;
+  TFile* theFile;
 
   //The t0 map
-  const DTTtrig *tTrigMap;
+  const DTTtrig* tTrigMap;
 
   std::string dbLabel;
- 
+
   //The k factor
   //double kfactor;
-  
+
   // Map of the ttrig, tmean, sigma histos by wheel/sector/SL
-  std::map<std::pair<int,int>, TH1D*> theTTrigHistoMap;
-  std::map<std::pair<int,int>, TH1D*> theTMeanHistoMap;
-  std::map<std::pair<int,int>, TH1D*> theSigmaHistoMap;
-  std::map<std::pair<int,int>, TH1D*> theKFactorHistoMap;
- // Map of the ttrig, tmean, sigma distributions by wheel/station/SL
+  std::map<std::pair<int, int>, TH1D*> theTTrigHistoMap;
+  std::map<std::pair<int, int>, TH1D*> theTMeanHistoMap;
+  std::map<std::pair<int, int>, TH1D*> theSigmaHistoMap;
+  std::map<std::pair<int, int>, TH1D*> theKFactorHistoMap;
+  // Map of the ttrig, tmean, sigma distributions by wheel/station/SL
   std::map<std::vector<int>, TH1D*> theTTrigDistribMap;
   std::map<std::vector<int>, TH1D*> theTMeanDistribMap;
   std::map<std::vector<int>, TH1D*> theSigmaDistribMap;
   std::map<std::vector<int>, TH1D*> theKFactorDistribMap;
-
 };
 #endif
-

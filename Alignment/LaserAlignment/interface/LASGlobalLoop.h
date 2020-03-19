@@ -22,13 +22,11 @@
 /// \endcode
 ///
 class LASGlobalLoop {
-
- public:
+public:
   LASGlobalLoop();
-  bool TECLoop( int&, int&, int&, int& ) const;
-  bool TIBTOBLoop( int&, int&, int& ) const;
-  bool TEC2TECLoop( int&, int&, int& ) const;
-
+  bool TECLoop(int&, int&, int&, int&) const;
+  bool TIBTOBLoop(int&, int&, int&) const;
+  bool TEC2TECLoop(int&, int&, int&) const;
 };
 
 #endif

@@ -15,13 +15,13 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class TFile;
 class TH1F;
 class TH2F;
 
-class L2MuonIsolationAnalyzer: public edm::EDAnalyzer {
+class L2MuonIsolationAnalyzer : public edm::EDAnalyzer {
 public:
   /// Constructor
   L2MuonIsolationAnalyzer(const edm::ParameterSet& pset);
@@ -30,10 +30,10 @@ public:
   virtual ~L2MuonIsolationAnalyzer();
 
   // Operations
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  virtual void beginJob();
+  virtual void endJob();
 
 private:
   void Puts(const char* fmt, ...);
@@ -59,15 +59,13 @@ private:
   FILE* theTxtFile;
 
   // Histograms
-  TH1F *hEtSum;
-  TH1F *hEffVsCone;
-  TH1F *hEffVsEt;
+  TH1F* hEtSum;
+  TH1F* hEffVsCone;
+  TH1F* hEffVsEt;
   std::vector<TH1F*> hEffVsEtArray;
 
   // Counters and vectors
   unsigned int numberOfEvents;
   unsigned int numberOfMuons;
-  
 };
 #endif
-

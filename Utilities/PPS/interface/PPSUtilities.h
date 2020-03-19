@@ -6,35 +6,41 @@
 #include <CLHEP/Units/GlobalSystemOfUnits.h>
 #include "TLorentzVector.h"
 
-
 class H_BeamParticle;
 
-namespace HepMC
-{
-    class GenParticle;
+namespace HepMC {
+  class GenParticle;
 }
 
 namespace PPSTools {
 
-double fCrossingAngleBeam1;
-double fCrossingAngleBeam2;
-double fBeamMomentum;
-double fBeamEnergy;
-const double   urad     = 1./1000000.; 
-const double ProtonMass=CLHEP::proton_mass_c2/GeV;
-const double ProtonMassSQ=pow(ProtonMass,2);
+  struct FullBeamInfo {
+    double fCrossingAngleBeam1;
+    double fCrossingAngleBeam2;
+    double fBeamMomentum;
+    double fBeamEnergy;
+  };
 
-TLorentzVector HectorParticle2LorentzVector(H_BeamParticle hp,int );
+  struct LimitedBeamInfo {
+    double fBeamMomentum;
+    double fBeamEnergy;
+  };
 
-H_BeamParticle LorentzVector2HectorParticle(TLorentzVector p);
+  const double urad = 1. / 1000000.;
+  const double ProtonMass = CLHEP::proton_mass_c2 / GeV;
+  const double ProtonMassSQ = pow(ProtonMass, 2);
 
-void LorentzBoost(H_BeamParticle& h_p,int dir, const std::string& frame);
+  TLorentzVector HectorParticle2LorentzVector(H_BeamParticle hp, int);
 
-void LorentzBoost(TLorentzVector& p_out, const std::string& frame);
+  H_BeamParticle LorentzVector2HectorParticle(TLorentzVector p);
 
-void LorentzBoost(HepMC::GenParticle& p_out, const std::string& frame);
+  void LorentzBoost(H_BeamParticle& h_p, int dir, const std::string& frame, FullBeamInfo const& bi);
 
-void Get_t_and_xi(const TLorentzVector* proton,double& t,double& xi) ;
+  void LorentzBoost(TLorentzVector& p_out, const std::string& frame, FullBeamInfo const& bi);
 
-};
+  void LorentzBoost(HepMC::GenParticle& p_out, const std::string& frame, FullBeamInfo const& bi);
+
+  void Get_t_and_xi(const TLorentzVector* proton, double& t, double& xi, LimitedBeamInfo const& bi);
+
+};  // namespace PPSTools
 #endif

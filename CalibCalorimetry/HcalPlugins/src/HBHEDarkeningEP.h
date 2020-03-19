@@ -13,25 +13,27 @@
 #include "CondFormats/HcalObjects/interface/HBHEDarkening.h"
 
 namespace edm {
-	class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HBHEDarkeningEP : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
-	public:
-		HBHEDarkeningEP(const edm::ParameterSet&);
-		~HBHEDarkeningEP() override;
+public:
+  HBHEDarkeningEP(const edm::ParameterSet&);
+  ~HBHEDarkeningEP() override;
 
-		typedef std::unique_ptr<HBHEDarkening> ReturnType;
+  typedef std::unique_ptr<HBHEDarkening> ReturnType;
 
-		static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
-    
-		ReturnType produce(const HBHEDarkeningRecord&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-	protected:
-		void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
+  ReturnType produce(const HBHEDarkeningRecord&);
 
-	private:
-		const edm::ParameterSet& pset_;
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
+private:
+  const edm::ParameterSet& pset_;
 };
 
 #endif

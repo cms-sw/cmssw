@@ -26,44 +26,40 @@ namespace boost {
      * are primitive types, which are untracked by default
      * by Boost Serialization.
      */
-    
-    template<class Archive>
-    void save(Archive & ar, const PixelFEDChannel & obj, const unsigned int)
-    {
-      auto fed       = obj.fed;
-      auto link      = obj.link;
+
+    template <class Archive>
+    void save(Archive& ar, const PixelFEDChannel& obj, const unsigned int) {
+      auto fed = obj.fed;
+      auto link = obj.link;
       auto roc_first = obj.roc_first;
-      auto roc_last  = obj.roc_last;
-      ar & boost::serialization::make_nvp("fed_"       , fed );
-      ar & boost::serialization::make_nvp("link_"      , link );
-      ar & boost::serialization::make_nvp("roc_first_" , roc_first );  
-      ar & boost::serialization::make_nvp("roc_last_"  , roc_last );  
+      auto roc_last = obj.roc_last;
+      ar& boost::serialization::make_nvp("fed_", fed);
+      ar& boost::serialization::make_nvp("link_", link);
+      ar& boost::serialization::make_nvp("roc_first_", roc_first);
+      ar& boost::serialization::make_nvp("roc_last_", roc_last);
     }
 
-    template<class Archive>
-    void load(Archive & ar, PixelFEDChannel & obj, const unsigned int)
-    {
+    template <class Archive>
+    void load(Archive& ar, PixelFEDChannel& obj, const unsigned int) {
       unsigned int fed_;
       unsigned int link_;
       unsigned int roc_first_;
       unsigned int roc_last_;
 
-      ar & boost::serialization::make_nvp("fed_"       , fed_ );
-      ar & boost::serialization::make_nvp("link_"      , link_ );
-      ar & boost::serialization::make_nvp("roc_first_" , roc_first_ );  
-      ar & boost::serialization::make_nvp("roc_last_"  , roc_last_ );  
+      ar& boost::serialization::make_nvp("fed_", fed_);
+      ar& boost::serialization::make_nvp("link_", link_);
+      ar& boost::serialization::make_nvp("roc_first_", roc_first_);
+      ar& boost::serialization::make_nvp("roc_last_", roc_last_);
       PixelFEDChannel tmp{fed_, link_, roc_first_, roc_last_};
       obj = tmp;
-      
     }
 
-    template<class Archive>
-    void serialize(Archive & ar, PixelFEDChannel & obj, const unsigned int v)
-    {
+    template <class Archive>
+    void serialize(Archive& ar, PixelFEDChannel& obj, const unsigned int v) {
       split_free(ar, obj, v);
     }
-    
-  } // namespace serialization
-} // namespace boost
+
+  }  // namespace serialization
+}  // namespace boost
 
 #endif

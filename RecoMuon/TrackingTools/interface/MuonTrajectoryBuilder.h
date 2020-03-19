@@ -12,33 +12,33 @@
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include <vector>
 
-namespace edm {class Event;}
+namespace edm {
+  class Event;
+}
 
 class TrajectorySeed;
 
 class MuonTrajectoryBuilder {
+public:
+  typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
+  typedef MuonCandidate::CandidateContainer CandidateContainer;
+  typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 
-  public:
-  
-    typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
-    typedef MuonCandidate::CandidateContainer CandidateContainer;
-    typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
+  /// constructor
+  MuonTrajectoryBuilder() {}
 
-    /// constructor
-    MuonTrajectoryBuilder() {}
-  
-    /// destructor
-    virtual ~MuonTrajectoryBuilder() {}
+  /// destructor
+  virtual ~MuonTrajectoryBuilder() {}
 
-    /// return a container of the reconstructed trajectories compatible with a given seed
-    virtual TrajectoryContainer trajectories(const TrajectorySeed&) = 0;
+  /// return a container of the reconstructed trajectories compatible with a given seed
+  virtual TrajectoryContainer trajectories(const TrajectorySeed&) = 0;
 
-    /// return a container reconstructed muons starting from a given track
-    virtual CandidateContainer trajectories(const TrackCand&) = 0;
+  /// return a container reconstructed muons starting from a given track
+  virtual CandidateContainer trajectories(const TrackCand&) = 0;
 
-    /// pass the Event to the algo at each event
-    virtual void setEvent(const edm::Event& event) = 0;
-  
- private:
+  /// pass the Event to the algo at each event
+  virtual void setEvent(const edm::Event& event) = 0;
+
+private:
 };
 #endif

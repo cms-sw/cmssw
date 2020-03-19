@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/SOA
 // Class  :     RowView
-// 
+//
 /**\class RowView RowView.h "RowView.h"
 
  Description: Provides access to all elements of a row in a edm::soa::Table
@@ -51,99 +51,94 @@
 // forward declarations
 
 namespace edm {
-namespace soa {
-  
-template <typename... Args>
-class RowView {
-  using Layout = std::tuple<Args...>;
-  std::array<void const*, sizeof...(Args)> m_values;
-  
-public:
-  explicit RowView( std::array<void const*, sizeof...(Args)> const& iValues):
-  m_values{iValues} {}
-  
-  template<typename U>
-  typename U::type const& get() const {
-    return *(static_cast<typename U::type const*>(columnAddress<U>()));
-  }
-  
-  template<typename U>
-  void const* columnAddress() const {
-    return m_values[impl::GetIndex<0,U,Layout>::index];
-  }
-  
-};
+  namespace soa {
 
-template <typename... Args>
-class MutableRowView {
-  using Layout = std::tuple<Args...>;
-  std::array<void*, sizeof...(Args)> m_values;
-  
-public:
-  explicit MutableRowView( std::array<void*, sizeof...(Args)>& iValues):
-  m_values{iValues} {}
-  
-  template<typename U>
-  typename U::type& get()  {
-    return *(static_cast<typename U::type*>(columnAddress<U>()));
-  }
-  template<typename U>
-  typename U::type const& get() const  {
-    return *(static_cast<typename U::type const*>(columnAddress<U>()));
-  }
-
-  template<typename U>
-  MutableRowView<Args...>& set( typename U::type const& iValue)  {
-    get<U>() = iValue;
-    return *this;
-  }
-  
-  template<typename U>
-  void * columnAddress()  {
-    return m_values[impl::GetIndex<0,U,Layout>::index];
-  }
-  template<typename U>
-  void const * columnAddress() const {
-    return m_values[impl::GetIndex<0,U,Layout>::index];
-  }
-
-  
-  template<typename O>
-  void copyValuesFrom(O const& iObj) {
-    copyValueFromImpl<0>(iObj);
-  }
-  template<typename O, typename... CArgs>
-  void copyValuesFrom(O const& iObj, ColumnFillers<CArgs...> iFiller) {
-    copyValuesUsingFiller<0>(iFiller, iObj, m_values);
-  }
-  
-private:
-  template<int I, typename O>
-  void copyValueFromImpl(O const& iObj) {
-    if constexpr(I < sizeof...(Args)) {
-      using ColumnType = typename std::tuple_element<I,Layout>::type;
-      using Type = typename ColumnType::type;
-      auto ptr = static_cast<Type*>(m_values[I]);
-      *ptr =value_for_column(iObj, static_cast<ColumnType*>(nullptr));
-      copyValueFromImpl<I+1>(iObj);
-    }
-  }
-  
-  template<int I, typename E, typename F>
-  static void copyValuesUsingFiller(F& iFiller, E const& iItem, std::array<void *, sizeof...(Args)>& oValues) {
-    if constexpr(I < sizeof...(Args)) {
+    template <typename... Args>
+    class RowView {
       using Layout = std::tuple<Args...>;
-      using ColumnType = typename std::tuple_element<I,Layout>::type;
-      using Type = typename ColumnType::type;
-      Type* pElement = static_cast<Type*>(oValues[I]);
-      *pElement = iFiller.value(iItem, static_cast<ColumnType*>(nullptr));
-      copyValuesUsingFiller<I+1>(iFiller,iItem, oValues);
-    }
-  }
-};
+      std::array<void const*, sizeof...(Args)> m_values;
 
-}
-}
+    public:
+      explicit RowView(std::array<void const*, sizeof...(Args)> const& iValues) : m_values{iValues} {}
 
+      template <typename U>
+      typename U::type const& get() const {
+        return *(static_cast<typename U::type const*>(columnAddress<U>()));
+      }
+
+      template <typename U>
+      void const* columnAddress() const {
+        return m_values[impl::GetIndex<0, U, Layout>::index];
+      }
+    };
+
+    template <typename... Args>
+    class MutableRowView {
+      using Layout = std::tuple<Args...>;
+      std::array<void*, sizeof...(Args)> m_values;
+
+    public:
+      explicit MutableRowView(std::array<void*, sizeof...(Args)>& iValues) : m_values{iValues} {}
+
+      template <typename U>
+      typename U::type& get() {
+        return *(static_cast<typename U::type*>(columnAddress<U>()));
+      }
+      template <typename U>
+      typename U::type const& get() const {
+        return *(static_cast<typename U::type const*>(columnAddress<U>()));
+      }
+
+      template <typename U>
+      MutableRowView<Args...>& set(typename U::type const& iValue) {
+        get<U>() = iValue;
+        return *this;
+      }
+
+      template <typename U>
+      void* columnAddress() {
+        return m_values[impl::GetIndex<0, U, Layout>::index];
+      }
+      template <typename U>
+      void const* columnAddress() const {
+        return m_values[impl::GetIndex<0, U, Layout>::index];
+      }
+
+      template <typename O>
+      void copyValuesFrom(O const& iObj) {
+        copyValueFromImpl<0>(iObj);
+      }
+      template <typename O, typename... CArgs>
+      void copyValuesFrom(O const& iObj, ColumnFillers<CArgs...> iFiller) {
+        copyValuesUsingFiller<0>(iFiller, iObj, m_values);
+      }
+
+    private:
+      template <int I, typename O>
+      void copyValueFromImpl(O const& iObj) {
+        if constexpr (I < sizeof...(Args)) {
+          using ColumnType = typename std::tuple_element<I, Layout>::type;
+          using Type = typename ColumnType::type;
+          auto ptr = static_cast<Type*>(m_values[I]);
+          *ptr = value_for_column(iObj, static_cast<ColumnType*>(nullptr));
+          copyValueFromImpl<I + 1>(iObj);
+        }
+      }
+
+      template <int I, typename E, typename F>
+      static void copyValuesUsingFiller(F& iFiller, E const& iItem, std::array<void*, sizeof...(Args)>& oValues) {
+        if constexpr (I < sizeof...(Args)) {
+          using Layout = std::tuple<Args...>;
+          using ColumnType = typename std::tuple_element<I, Layout>::type;
+          using Type = typename ColumnType::type;
+          Type* pElement = static_cast<Type*>(oValues[I]);
+          *pElement = iFiller.value(iItem, static_cast<ColumnType*>(nullptr));
+          copyValuesUsingFiller<I + 1>(iFiller, iItem, oValues);
+        }
+      }
+    };
+
+  }  // namespace soa
+}  // namespace edm
 
 #endif

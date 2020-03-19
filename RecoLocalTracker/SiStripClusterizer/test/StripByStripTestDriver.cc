@@ -4,45 +4,40 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/Event.h"
 
-StripByStripTestDriver::
-StripByStripTestDriver(const edm::ParameterSet&conf)
-  : inputTag( conf.getParameter<edm::InputTag>("DigiProducer") ),
-    hlt( conf.getParameter<bool>("HLT") )//,
-  /*hltFactory(0)*/ {
+StripByStripTestDriver::StripByStripTestDriver(const edm::ParameterSet& conf)
+    : inputTag(conf.getParameter<edm::InputTag>("DigiProducer")),
+      hlt(conf.getParameter<bool>("HLT"))  //,
+/*hltFactory(0)*/ {
+  algorithm = StripClusterizerAlgorithmFactory::create(conf);
 
-  algorithm  = StripClusterizerAlgorithmFactory::create(conf);
-  
   produces<output_t>("");
 }
 
-StripByStripTestDriver::
-~StripByStripTestDriver() {
+StripByStripTestDriver::~StripByStripTestDriver() {
   //if(hltFactory) delete hltFactory;
 }
 
-void StripByStripTestDriver::
-produce(edm::Event& event, const edm::EventSetup& es) {
-
+void StripByStripTestDriver::produce(edm::Event& event, const edm::EventSetup& es) {
   auto output = std::make_unique<output_t>();
-  output->reserve(10000,4*10000);
+  output->reserve(10000, 4 * 10000);
 
-  edm::Handle< edm::DetSetVector<SiStripDigi> >  input;  
+  edm::Handle<edm::DetSetVector<SiStripDigi> > input;
   event.getByLabel(inputTag, input);
 
   algorithm->initialize(es);
 
-  for( auto const & inputDetSet : *input) {
+  for (auto const& inputDetSet : *input) {
     output_t::TSFastFiller filler(*output, inputDetSet.detId());
 
-    auto const & det = algorithm->stripByStripBegin( inputDetSet.detId());
-    if( !det.valid() ) continue;
+    auto const& det = algorithm->stripByStripBegin(inputDetSet.detId());
+    if (!det.valid())
+      continue;
     StripClusterizerAlgorithm::State state(det);
-    for(auto const & digi : inputDetSet)
+    for (auto const& digi : inputDetSet)
       algorithm->stripByStripAdd(state, digi.strip(), digi.adc(), filler);
     algorithm->stripByStripEnd(state, filler);
   }
 
-  edm::LogInfo("Output") << output->dataSize() << " clusters from " 
-			 << output->size()     << " modules";
+  edm::LogInfo("Output") << output->dataSize() << " clusters from " << output->size() << " modules";
   event.put(std::move(output));
 }

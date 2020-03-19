@@ -6,5 +6,3 @@
 #include "DataFormats/Alignment/interface/SiStripLaserRecHit2D.h"
 #include "DataFormats/Alignment/interface/TkLasBeam.h"
 #include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
-
-

@@ -53,79 +53,74 @@ class L1MuDTTFMasks;
 //              ---------------------
 
 class L1MuDTEtaProcessor {
+public:
+  /// constructor
+  L1MuDTEtaProcessor(const L1MuDTTrackFinder&, int id, edm::ConsumesCollector&& iC);
 
-  public:
+  /// destructor
+  virtual ~L1MuDTEtaProcessor();
 
-    /// constructor
-    L1MuDTEtaProcessor(const L1MuDTTrackFinder&, int id, edm::ConsumesCollector&& iC);
+  /// return Eta Processor identifier (0-11)
+  inline int id() const { return m_epid; }
 
-    /// destructor
-    virtual ~L1MuDTEtaProcessor();
+  /// run the Eta Processor
+  virtual void run(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-    /// return Eta Processor identifier (0-11)
-    inline int id() const { return m_epid; }
-    
-    /// run the Eta Processor
-    virtual void run(int bx, const edm::Event& e, const edm::EventSetup& c);
+  /// reset the Eta Processor
+  virtual void reset();
 
-    /// reset the Eta Processor
-    virtual void reset();
+  /// print muon candidates found by the Eta Processor
+  void print() const;
 
-    /// print muon candidates found by the Eta Processor
-    void print() const;
+  /// return reference to barrel MTTF
+  inline const L1MuDTTrackFinder& tf() const { return m_tf; }
 
-    /// return reference to barrel MTTF
-    inline const L1MuDTTrackFinder& tf() const { return m_tf; }
+  /// return eta values, index [0,11]
+  inline int eta(int id) const { return m_eta[id]; }
 
-    /// return eta values, index [0,11]
-    inline int eta(int id) const { return m_eta[id]; }
-    
-    /// return fine bit, index [0,11]
-    inline bool fineBit(int id) const { return m_fine[id]; }
-     
-  private:
-    
-    /// receive data (eta trigger primitives)
-    void receiveData(int bx, const edm::Event& e, const edm::EventSetup& c);
-    
-    /// receive addresses (from 6 Sector Processors)
-    void receiveAddresses();
-    
-    /// run Eta Track Finder (ETF)
-    void runEtaTrackFinder(const edm::EventSetup& c);
-    
-    /// run Eta Matching Unit (EMU)
-    void runEtaMatchingUnit(const edm::EventSetup& c);
-    
-    /// assign eta and etaFineBit
-    void assign(); 
+  /// return fine bit, index [0,11]
+  inline bool fineBit(int id) const { return m_fine[id]; }
 
-    /// get quality code; id [0,26], stat [1,3]
-    static int quality(int id, int stat);     
+private:
+  /// receive data (eta trigger primitives)
+  void receiveData(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-  private:
+  /// receive addresses (from 6 Sector Processors)
+  void receiveAddresses();
 
-    const L1MuDTTrackFinder&                  m_tf;
-    int                                       m_epid;
+  /// run Eta Track Finder (ETF)
+  void runEtaTrackFinder(const edm::EventSetup& c);
 
-    int                                       m_mask;
+  /// run Eta Matching Unit (EMU)
+  void runEtaMatchingUnit(const edm::EventSetup& c);
 
-    int                                       m_eta[12];
-    bool                                      m_fine[12];
-    
-    std::vector<int>                          m_foundPattern;    
-    int                                       m_pattern[12];
+  /// assign eta and etaFineBit
+  void assign();
 
-    int                                       m_address[12];
-    L1MuDTTrack*                              m_TrackCand[12];    
-    L1MuDTTrack*                              m_TracKCand[12];    
-    std::vector<const L1MuDTTrackSegEta*>     m_tseta;
-    edm::EDGetTokenT<L1MuDTChambThContainer>  m_DTDigiToken;
-    
-    edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
-    edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables
-    edm::ESHandle< L1MuDTTFMasks >        msks;
- 
+  /// get quality code; id [0,26], stat [1,3]
+  static int quality(int id, int stat);
+
+private:
+  const L1MuDTTrackFinder& m_tf;
+  int m_epid;
+
+  int m_mask;
+
+  int m_eta[12];
+  bool m_fine[12];
+
+  std::vector<int> m_foundPattern;
+  int m_pattern[12];
+
+  int m_address[12];
+  L1MuDTTrack* m_TrackCand[12];
+  L1MuDTTrack* m_TracKCand[12];
+  std::vector<const L1MuDTTrackSegEta*> m_tseta;
+  edm::EDGetTokenT<L1MuDTChambThContainer> m_DTDigiToken;
+
+  edm::ESHandle<L1MuDTEtaPatternLut> theEtaPatternLUT;    // ETF look-up table
+  edm::ESHandle<L1MuDTQualPatternLut> theQualPatternLUT;  // EMU look-up tables
+  edm::ESHandle<L1MuDTTFMasks> msks;
 };
 
 #endif

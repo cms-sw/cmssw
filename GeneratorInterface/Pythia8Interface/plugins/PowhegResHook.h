@@ -4,20 +4,17 @@
 #include "GeneratorInterface/Pythia8Interface/plugins/PowhegHooksBB4L.h"
 
 class PowhegResHook : public Pythia8::UserHooks {
-
 public:
-
   // Constructor and destructor.
   PowhegResHook() {}
   ~PowhegResHook() override {}
 
   bool canSetResonanceScale() override { return true; }
 
-  double scaleResonance( const int iRes, const Pythia8::Event& event) override;
+  double scaleResonance(const int iRes, const Pythia8::Event& event) override;
 
-//--------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
 private:
   bool calcScales_;
-
 };

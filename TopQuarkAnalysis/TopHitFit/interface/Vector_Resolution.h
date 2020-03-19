@@ -19,7 +19,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Vector_Resolution.h
 
@@ -46,17 +45,14 @@
 #ifndef HITFIT_VECTOR_RESOLUTION_H
 #define HITFIT_VECTOR_RESOLUTION_H
 
-
 #include <string>
 #include <iosfwd>
 #include "TopQuarkAnalysis/TopHitFit/interface/Resolution.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/fourvec.h"
 
-
 namespace hitfit {
 
-
-/**
+  /**
     @class Vector_Resolution
 
     @brief Calculate and represent resolution for a vector of
@@ -90,30 +86,30 @@ namespace hitfit {
     use the inverse flag for \f$ \eta \f$ and  \f$ \phi \f$ resolution.
 
  */
-class Vector_Resolution
-//
-// Purpose: Calculate resolutions in p, phi, eta.
-//
-{
-public:
-  // Constructor.  Create a vector resolution object with infinite precision
-  /**
+  class Vector_Resolution
+  //
+  // Purpose: Calculate resolutions in p, phi, eta.
+  //
+  {
+  public:
+    // Constructor.  Create a vector resolution object with infinite precision
+    /**
      @brief Constructor, instantiate an instance of Vector_Resolution with
      infinite precision.
    */
-  Vector_Resolution ();
+    Vector_Resolution();
 
-  // Constructor.  Parse a string as described above.
-  /**
+    // Constructor.  Parse a string as described above.
+    /**
      @brief Constructor, instantiate an instance of Vector_Resolution from
      a string using format as described in the class description.
 
      @param s String enconding the resolution parameters.
    */
-  Vector_Resolution (std::string s);
+    Vector_Resolution(std::string s);
 
-  // Constructor from individual resolution objects.
-  /**
+    // Constructor from individual resolution objects.
+    /**
      @brief Constructor, instantiate an instance of Vector_Resolution from
      three instances of Resolution objects.
 
@@ -126,58 +122,58 @@ public:
      @param use_et If <b>TRUE</b> then use \f$p_{T}\f$ instead of \f$p\f$
      for momentum resolution.
    */
-  Vector_Resolution (const Resolution& p_res,
-                     const Resolution& eta_res,
-                     const Resolution& phi_res,
-                     bool use_et = false);
+    Vector_Resolution(const Resolution& p_res,
+                      const Resolution& eta_res,
+                      const Resolution& phi_res,
+                      bool use_et = false);
 
-  // Get back the individual resolution objects.
-  /**
+    // Get back the individual resolution objects.
+    /**
      @brief Return a constant reference to the momentum resolution.
    */
-  const Resolution& p_res () const;
+    const Resolution& p_res() const;
 
-  /**
+    /**
      @brief Return a constant reference to the pseudorapidity resolution.
    */
-  const Resolution& eta_res () const;
+    const Resolution& eta_res() const;
 
-  /**
+    /**
      @brief Return a constant reference to the azimuthal angle resolution.
    */
-  const Resolution& phi_res () const;
+    const Resolution& phi_res() const;
 
-  // Return the use_et flag.
-  /**
+    // Return the use_et flag.
+    /**
      @brief Return the <i>use_et</i> flag.
    */
-  bool use_et () const;
+    bool use_et() const;
 
-  // Calculate resolutions from a 4-momentum.
-  /**
+    // Calculate resolutions from a 4-momentum.
+    /**
      @brief Calculate the momentum resolution of a four-momentum.
 
      @param v The four-momentum.
    */
-  double p_sigma   (const Fourvec& v) const;
+    double p_sigma(const Fourvec& v) const;
 
-  /**
+    /**
      @brief Calculate the pseudorapidity resolution of a four-momentum.
 
      @param v The four-momentum.
    */
-  double eta_sigma (const Fourvec& v) const;
+    double eta_sigma(const Fourvec& v) const;
 
-  /**
+    /**
      @brief Calculate the azimuthal angle resolution of a four-momentum.
 
      @param v The four-momentum.
    */
-  double phi_sigma (const Fourvec& v) const;
+    double phi_sigma(const Fourvec& v) const;
 
-  // Smear a 4-vector V according to the resolutions.
-  // If DO_SMEAR_DIR is false, only smear the total energy.
-  /**
+    // Smear a 4-vector V according to the resolutions.
+    // If DO_SMEAR_DIR is false, only smear the total energy.
+    /**
      @brief Smear a four-momentum according to the resolutions.
 
      @param v The four-momentum to smear.
@@ -187,49 +183,44 @@ public:
      @param do_smear_dir If <b>FALSE</b>, only smear the energy.
      If <b>TRUE</b>, also smear the direction.
    */
-  void smear (Fourvec& v,
-              CLHEP::HepRandomEngine& engine,
-              bool do_smear_dir = false) const;
+    void smear(Fourvec& v, CLHEP::HepRandomEngine& engine, bool do_smear_dir = false) const;
 
-  // Dump this object, for debugging.
-  friend std::ostream& operator<< (std::ostream& s,
-                                   const Vector_Resolution& r);
+    // Dump this object, for debugging.
+    friend std::ostream& operator<<(std::ostream& s, const Vector_Resolution& r);
 
-private:
-  // State for this object.
-  /**
+  private:
+    // State for this object.
+    /**
      The momentum resolution.
    */
-  Resolution _p_res;
+    Resolution _p_res;
 
-  /**
+    /**
      The pseudorapidity resolution.
    */
-  Resolution _eta_res;
+    Resolution _eta_res;
 
-  /**
+    /**
      The phi resolution.
    */
-  Resolution _phi_res;
+    Resolution _phi_res;
 
-  /**
+    /**
      The momentum resolution.
    */
-  bool _use_et;
+    bool _use_et;
 
-  // Helper.
-  /**
+    // Helper.
+    /**
      @brief Helper function to smear direction.
 
      @param v The four-momentum to smear.
 
      @param engine The underlying random number generator.
    */
-  void smear_dir (Fourvec& v, CLHEP::HepRandomEngine& engine) const;
-};
+    void smear_dir(Fourvec& v, CLHEP::HepRandomEngine& engine) const;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_VECTOR_RESOLUTION_H
+#endif  // not HITFIT_VECTOR_RESOLUTION_H

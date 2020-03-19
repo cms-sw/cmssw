@@ -27,7 +27,6 @@
  * SimCalorimetry/EcalSelectiveReadoutProducer.
  */
 class EcalSRSettings {
-
   //constructor(s) and destructor(s)
 public:
   /** Constructs an EcalSRSettings
@@ -40,7 +39,6 @@ public:
 
   //method(s)
 public:
-
 private:
   //attribute(s)
 protected:
@@ -49,7 +47,7 @@ public:
   static const int nSrps_ = 12;
   static const int nDccs_ = 54;
   static const int nTccs_ = 108;
-  
+
   /// Neighbour eta range, neighborhood: (2*deltaEta+1)*(2*deltaPhi+1)
   /// In the vector contains:
   ///   - 1 element, then value applies to whole ECAL
@@ -58,7 +56,7 @@ public:
   /// SRP emulation (see SimCalorimetry/EcalSelectiveReadoutProcuders) supports
   /// only 1 element mode.
   std::vector<int> deltaEta_;
-    
+
   /// Neighbouring eta range, neighborhood: (2*deltaEta+1)*(2*deltaPhi+1)
   /// If the vector contains...
   ///   ... 1 element, then value applies to whole ECAL
@@ -71,7 +69,7 @@ public:
   /// SRP emulation (see SimCalorimetry/EcalSelectiveReadoutProcuders) supports
   /// only the single-element mode.
   std::vector<int> deltaPhi_;
-    
+
   /// Index of time sample (staring from 1) the first DCC weights is implied
   /// If the vector contains:
   ///   ... 1 element, then value applies to whole ECAL
@@ -83,7 +81,7 @@ public:
 
   /// ADC to GeV conversion factor used in ZS filter for EB
   float ebDccAdcToGeV_;
-    /// ADC to GeV conversion factor used in ZS filter for EE
+  /// ADC to GeV conversion factor used in ZS filter for EE
   float eeDccAdcToGeV_;
 
   ///DCC ZS FIR weights: weights are rounded in such way that in Hw
@@ -99,7 +97,7 @@ public:
   ///            for i >= 61200, element i applies to EE crystal with denseIndex (i+61200)
   ///                           (see EBDetId::denseIndex())
   std::vector<std::vector<float> > dccNormalizedWeights_;
-  
+
   /// Switch to use a symetric zero suppression (cut on absolute value). For
   /// studies only, for time being it is not supported by the hardware.
   /// having troubles for vector<bool> with coral (3.8.0pre1), using vector<int> instead,
@@ -121,7 +119,7 @@ public:
   /// Corresponds to srpBarrelLowInterestChannelZS and srpEndcapLowInterestChannelZS
   /// of python configuration file parameters
   std::vector<float> srpLowInterestChannelZS_;
-    
+
   /// ZS energy threshold in GeV to apply to high interest channels of endcap
   /// If the vector contains...
   ///   ... 1 element, then the weight set applies to whole ECAL
@@ -131,40 +129,40 @@ public:
   /// Corresponds to srpBarrelLowInterestChannelZS and srpEndcapLowInterestChannelZS
   /// of python configuration file parameters
   std::vector<float> srpHighInterestChannelZS_;
-  
-//  ///switch to run w/o trigger primitive. For debug use only
-//  ///having troubles for vector<bool> with coral (3.8.0pre1), using vector<int> instead
-//  ///Parameter only relevant for emulation. For real data, must be contains 1 element with
-//  ///value 0.
-//  ///   ... 1 element, then the weight set applies to whole ECAL
-//  ///   ... 2 elements, then element 0 applies to EB, element 1 to EE
-//  ///   ... 54 elements, then element i applied to DCC (i+1) (FED ID 651+i)
-//  /// SRP emulation supports only the single-element mode.  
-//  std::vector<int> trigPrimBypass_;
-//  
-//  /// Mode selection for "Trig bypass" mode
-//  /// 0: TT thresholds applied on sum of crystal Et's
-//  /// 1: TT thresholds applies on compressed Et from Trigger primitive
-//  /// @see trigPrimByPass switch
-//  /// Parameter only relevant for 
-//  std::vector<int> trigPrimBypassMode_;
-//  
-//  ///for debug mode only:
-//  std::vector<float>  trigPrimBypassLTH_;
-//  
-//  ///for debug mode only:
-//  std::vector<float>  trigPrimBypassHTH_;
-//    
-//  ///for debug mode only
-//  ///having troubles for vector<bool> with coral (3.8.0pre1), using vector<int> instead
-//  std::vector<int>  trigPrimBypassWithPeakFinder_;
-//  
-//  ///Trigger Tower Flag to use when a flag is not found from the input
-//  ///Trigger Primitive collection. Must be one of the following values:
-//  /// 0: low interest, 1: mid interest, 3: high interest
-//  /// 4: forced low interest, 5: forced mid interest, 7: forced high interest
-//  std::vector<int> defaultTtf_;
-  
+
+  //  ///switch to run w/o trigger primitive. For debug use only
+  //  ///having troubles for vector<bool> with coral (3.8.0pre1), using vector<int> instead
+  //  ///Parameter only relevant for emulation. For real data, must be contains 1 element with
+  //  ///value 0.
+  //  ///   ... 1 element, then the weight set applies to whole ECAL
+  //  ///   ... 2 elements, then element 0 applies to EB, element 1 to EE
+  //  ///   ... 54 elements, then element i applied to DCC (i+1) (FED ID 651+i)
+  //  /// SRP emulation supports only the single-element mode.
+  //  std::vector<int> trigPrimBypass_;
+  //
+  //  /// Mode selection for "Trig bypass" mode
+  //  /// 0: TT thresholds applied on sum of crystal Et's
+  //  /// 1: TT thresholds applies on compressed Et from Trigger primitive
+  //  /// @see trigPrimByPass switch
+  //  /// Parameter only relevant for
+  //  std::vector<int> trigPrimBypassMode_;
+  //
+  //  ///for debug mode only:
+  //  std::vector<float>  trigPrimBypassLTH_;
+  //
+  //  ///for debug mode only:
+  //  std::vector<float>  trigPrimBypassHTH_;
+  //
+  //  ///for debug mode only
+  //  ///having troubles for vector<bool> with coral (3.8.0pre1), using vector<int> instead
+  //  std::vector<int>  trigPrimBypassWithPeakFinder_;
+  //
+  //  ///Trigger Tower Flag to use when a flag is not found from the input
+  //  ///Trigger Primitive collection. Must be one of the following values:
+  //  /// 0: low interest, 1: mid interest, 3: high interest
+  //  /// 4: forced low interest, 5: forced mid interest, 7: forced high interest
+  //  std::vector<int> defaultTtf_;
+
   /// SR->action flag map. 4 elements
   /// action_[i]: action for flag value i
   std::vector<int> actions_;
@@ -176,7 +174,7 @@ public:
   ///Masks for SRP-SRP inputs of SRP cards
   ///One element per SRP, that is 12 elements: element i applies to SRP (i+1)
   // indices: [iSrp][iCh]
-  std::vector<std::vector<short> >srpMasksFromConfig_;
+  std::vector<std::vector<short> > srpMasksFromConfig_;
 
   ///Masks for DCC output of SRP cards
   ///One element per DCC, that is 54 elements: element i applies to DCC (i+1)
@@ -188,7 +186,7 @@ public:
 
   ///Substitution flags used in patterm mode
   ///indices [iSrp][iFlag]
-  std::vector<std::vector<short> >substitutionSrfs_;
+  std::vector<std::vector<short> > substitutionSrfs_;
 
   //@{
   ///Tester mode configuration
@@ -198,7 +196,7 @@ public:
   std::vector<int> testerDccTestSrpIds_;
   std::vector<int> testerSrpTestSrpIds_;
   //@}
-  
+
   ///Per SRP card bunch crossing counter offset.
   ///This offset is added to the bxGlobalOffset
   /// 12 elements: index = (SRP ID - 1)
@@ -222,6 +220,6 @@ public:
   COND_SERIALIZABLE;
 };
 
-std::ostream& operator<< (std::ostream& o, const EcalSRSettings& val);
+std::ostream& operator<<(std::ostream& o, const EcalSRSettings& val);
 
-#endif //ECALSRSETTINGS_H not defined
+#endif  //ECALSRSETTINGS_H not defined

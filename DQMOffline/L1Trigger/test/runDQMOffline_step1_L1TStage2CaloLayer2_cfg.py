@@ -1,7 +1,6 @@
 import os
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
-from Configuration.StandardSequences.Eras import eras
 
 
 def get_root_files(path):
@@ -36,7 +35,8 @@ inputFilesRAW = {
 }
 
 
-process = cms.Process('L1TStage2EmulatorDQM', eras.Run2_2016)
+from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+process = cms.Process('L1TStage2EmulatorDQM', Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')

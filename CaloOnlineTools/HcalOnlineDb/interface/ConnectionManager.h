@@ -8,18 +8,19 @@ namespace oracle {
     class Connection;
     class Environment;
     class Statement;
-  }
-}
+  }  // namespace occi
+}  // namespace oracle
 
 class ConnectionManager {
- public:
+public:
   ConnectionManager();
   bool connect();
   oracle::occi::Statement* getStatement(const std::string& query);
   void disconnect();
- private:
-  oracle::occi::Environment *env;
-  oracle::occi::Connection *conn;
+
+private:
+  oracle::occi::Environment* env;
+  oracle::occi::Connection* conn;
 };
 
 #endif

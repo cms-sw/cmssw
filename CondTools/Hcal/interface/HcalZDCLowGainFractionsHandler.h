@@ -8,7 +8,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -18,22 +18,19 @@
 #include "CondFormats/DataRecord/interface/HcalZDCLowGainFractionsRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-
-class HcalZDCLowGainFractionsHandler : public popcon::PopConSourceHandler<HcalZDCLowGainFractions>
-{
- public:
+class HcalZDCLowGainFractionsHandler : public popcon::PopConSourceHandler<HcalZDCLowGainFractions> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~HcalZDCLowGainFractionsHandler() override;
-  HcalZDCLowGainFractionsHandler(edm::ParameterSet const &);
+  HcalZDCLowGainFractionsHandler(edm::ParameterSet const&);
 
   void initObject(HcalZDCLowGainFractions*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   HcalZDCLowGainFractions* myDBObject;
   std::string m_name;
-
 };
 #endif

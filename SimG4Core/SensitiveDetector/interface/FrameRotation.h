@@ -5,16 +5,14 @@
 
 class G4VPhysicalVolume;
 
-class FrameRotation 
-{
+class FrameRotation {
 public:
-
   // from Geant4 unit of coordinates to CMS
   static constexpr double invcm = 0.1;
 
   virtual ~FrameRotation() = default;
 
-  virtual Local3DPoint transformPoint(const Local3DPoint &,const G4VPhysicalVolume *v=nullptr) const = 0;
+  virtual Local3DPoint transformPoint(const Local3DPoint &, const G4VPhysicalVolume *v = nullptr) const = 0;
 };
 
 #endif

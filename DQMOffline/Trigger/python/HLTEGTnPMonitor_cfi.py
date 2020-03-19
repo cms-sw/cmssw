@@ -991,9 +991,16 @@ for id_module_name in my_id_modules:
 
 from RecoEgamma.PhotonIdentification.photonIDValueMapProducer_cff import photonIDValueMapProducer
 from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import egmPhotonIDs
+photonIDValueMapProducerForDQM = photonIDValueMapProducer.clone(
+    src="gedPhotons",
+    vertices="offlinePrimaryVertices",
+    ebReducedRecHitCollection="reducedEcalRecHitsEB",
+    eeReducedRecHitCollection="reducedEcalRecHitsEE",
+    esReducedRecHitCollection="reducedEcalRecHitsES",
+    pfCandidates="particleFlow",
+    isAOD=True,
+)
 egmPhotonIDsForDQM = egmPhotonIDs.clone()
-egmPhotonIDsForDQM.physicsObjectsIDs = cms.VPSet()
-egmPhotonIDsForDQM.physicsObjectSrc == cms.InputTag('gedPhotons')
 #note: be careful here to when selecting new ids that the vid tools dont do extra setup for them
 #for example the HEEP cuts need an extra producer which vid tools automatically handles
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
@@ -1004,7 +1011,7 @@ for id_module_name in my_id_modules:
         item = getattr(idmod,name)
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):
             setupVIDSelection(egmPhotonIDsForDQM,item)
-egmPhotonIDSequenceForDQM = cms.Sequence(photonIDValueMapProducer*
+egmPhotonIDSequenceForDQM = cms.Sequence(photonIDValueMapProducerForDQM*
                                          egmPhotonIDsForDQM)
 
 egmDQMSelectedMuons = cms.EDProducer("HLTDQMMuonSelector",

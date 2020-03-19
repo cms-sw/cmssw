@@ -3,4 +3,4 @@
 
 enum PlotType { Plot1D, Plot2D };
 
-#endif // PLOT_TYPES__H
+#endif  // PLOT_TYPES__H

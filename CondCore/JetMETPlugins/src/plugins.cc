@@ -1,4 +1,4 @@
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "CondFormats/DataRecord/interface/QGLikelihoodRcd.h"
@@ -19,7 +19,9 @@
 #include "CondFormats/DataRecord/interface/JetResolutionRcd.h"
 #include "CondFormats/DataRecord/interface/JetResolutionScaleFactorRcd.h"
 
-REGISTER_PLUGIN_INIT(JetCorrectionsRecord, JetCorrectorParametersCollection, JetCorrectorParametersInitializeTransients);
+REGISTER_PLUGIN_INIT(JetCorrectionsRecord,
+                     JetCorrectorParametersCollection,
+                     JetCorrectorParametersInitializeTransients);
 REGISTER_PLUGIN(METCorrectionsRecord, METCorrectorParametersCollection);
 REGISTER_PLUGIN(MEtXYcorrectRecord, MEtXYcorrectParametersCollection);
 

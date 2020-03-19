@@ -1,4 +1,4 @@
-#ifndef RBCEMULATOR_H 
+#ifndef RBCEMULATOR_H
 #define RBCEMULATOR_H 1
 
 // Include files
@@ -23,59 +23,57 @@
  */
 
 class RBCEmulator {
-public: 
+public:
   /// Standard constructor
-  RBCEmulator( ); 
-  
-  RBCEmulator( const char * ); 
+  RBCEmulator();
 
-  RBCEmulator( const char * , const char * ); 
-  
-  RBCEmulator( const char * , const char * , int, int *); 
-  
-  void setSpecifications( const RBCBoardSpecs * );
-    
+  RBCEmulator(const char*);
+
+  RBCEmulator(const char*, const char*);
+
+  RBCEmulator(const char*, const char*, int, int*);
+
+  void setSpecifications(const RBCBoardSpecs*);
+
   bool initialise();
-  
-  void setid( int , int * );
-  
+
+  void setid(int, int*);
+
   void emulate();
 
-  void emulate( RBCInput * );
+  void emulate(RBCInput*);
 
   void reset();
-  
-  std::bitset<6> * getlayersignal( int idx ) { return m_layersignal[idx];};
 
-  bool getdecision( int idx ) const { return m_decision[idx];};
-    
+  std::bitset<6>* getlayersignal(int idx) { return m_layersignal[idx]; };
+
+  bool getdecision(int idx) const { return m_decision[idx]; };
+
   void printinfo() const;
-  
+
   void printlayerinfo() const;
-  
-  const RBCId& rbcinfo() const { return m_rbcinfo;}
-  
+
+  const RBCId& rbcinfo() const { return m_rbcinfo; }
+
 protected:
-  
 private:
-  RBCId           m_rbcinfo;
-  
+  RBCId m_rbcinfo;
+
   std::unique_ptr<ProcessInputSignal> m_signal;
-  
-  std::unique_ptr<RBCConfiguration>   m_rbcconf;
-  
-  RBCInput           m_input;
-  
-  std::bitset<6> * m_layersignal[2];
-  
+
+  std::unique_ptr<RBCConfiguration> m_rbcconf;
+
+  RBCInput m_input;
+
+  std::bitset<6>* m_layersignal[2];
+
   std::bitset<2> m_decision;
-  
-  std::array<std::bitset<6>,2> m_layersignalVec;
-  
+
+  std::array<std::bitset<6>, 2> m_layersignalVec;
+
   //...
   std::string m_logtype;
 
   bool m_debug;
-    
 };
-#endif // RBCEMULATOR_H
+#endif  // RBCEMULATOR_H

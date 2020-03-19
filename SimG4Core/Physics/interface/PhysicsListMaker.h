@@ -4,7 +4,7 @@
 //
 // Package:     Physics
 // Class  :     PhysicsListMaker
-// 
+//
 /**\class PhysicsListMaker PhysicsListMaker.h SimG4Core/Physics/interface/PhysicsListMaker.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue Nov 22 13:03:44 EST 2005
 //
 
@@ -27,26 +27,22 @@
 
 // forward declarations
 
-template<class T>
-class PhysicsListMaker : public PhysicsListMakerBase
-{
- public:
-  PhysicsListMaker(){}
+template <class T>
+class PhysicsListMaker : public PhysicsListMakerBase {
+public:
+  PhysicsListMaker() {}
 
   // ---------- const member functions ---------------------
-  std::unique_ptr<PhysicsList> make(const edm::ParameterSet& p,
-				    SimActivityRegistry& reg) const override
-    {
-      std::unique_ptr<T> returnValue(new T(p));
-      SimActivityRegistryEnroller::enroll(reg, returnValue.get());
-	
-      return returnValue;
-    }
- private:
+  std::unique_ptr<PhysicsList> make(const edm::ParameterSet& p, SimActivityRegistry& reg) const override {
+    std::unique_ptr<T> returnValue(new T(p));
+    SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 
+    return returnValue;
+  }
+
+private:
   PhysicsListMaker(const PhysicsListMaker&) = delete;
-  const PhysicsListMaker& operator=(const PhysicsListMaker&) = delete; 
+  const PhysicsListMaker& operator=(const PhysicsListMaker&) = delete;
 };
-
 
 #endif

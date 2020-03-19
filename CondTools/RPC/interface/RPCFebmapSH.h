@@ -20,16 +20,15 @@
 #include "CoralBase/TimeStamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CondTools/RPC/interface/RPCFw.h"
-#include<string>
+#include <string>
 
-
-namespace popcon{
-  class RpcDataFebmap : public popcon::PopConSourceHandler<RPCObFebmap>{
+namespace popcon {
+  class RpcDataFebmap : public popcon::PopConSourceHandler<RPCObFebmap> {
   public:
     void getNewObjects() override;
-    std::string id() const override { return m_name;}
-    ~RpcDataFebmap() override; 
-    RpcDataFebmap(const edm::ParameterSet& pset); 
+    std::string id() const override { return m_name; }
+    ~RpcDataFebmap() override;
+    RpcDataFebmap(const edm::ParameterSet& pset);
 
     RPCObFebmap* Febdata;
 
@@ -37,6 +36,7 @@ namespace popcon{
     unsigned long long tll;
     unsigned long long niov;
     unsigned long long utime;
+
   private:
     std::string m_name;
     std::string host;
@@ -45,6 +45,5 @@ namespace popcon{
     unsigned long long m_since;
     unsigned long long m_till;
   };
-}
+}  // namespace popcon
 #endif
-

@@ -1,4 +1,4 @@
-#ifndef INTERFACE_RPCLOGICUNIT_H 
+#ifndef INTERFACE_RPCLOGICUNIT_H
 #define INTERFACE_RPCLOGICUNIT_H 1
 
 // Include files
@@ -11,21 +11,19 @@
  *  @date   2008-10-25
  */
 class RPCLogicUnit {
-public: 
+public:
   /// Standard constructor
-  RPCLogicUnit( ) {};
-  
-  RPCLogicUnit( int, int, int );
-    
-  virtual ~RPCLogicUnit( ); ///< Destructor
-  
+  RPCLogicUnit(){};
+
+  RPCLogicUnit(int, int, int);
+
+  virtual ~RPCLogicUnit();  ///< Destructor
+
   int m_propA;
   int m_propB;
   int m_propC;
 
 protected:
-  
 private:
-  
 };
-#endif // INTERFACE_RPCLOGICUNIT_H
+#endif  // INTERFACE_RPCLOGICUNIT_H

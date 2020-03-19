@@ -11,5 +11,4 @@
 typedef std::map<reco::TransientTrack, AlgebraicMatrix33> TTmap;
 typedef std::map<reco::TransientTrack, TTmap> TTtoTTmap;
 
-
 #endif

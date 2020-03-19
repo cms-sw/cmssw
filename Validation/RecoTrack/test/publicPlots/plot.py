@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from builtins import range
 import copy
 import math
 import array
@@ -978,7 +979,7 @@ def plotResol(files, prefix, pileup, hasPU70=False):
         x = []
         y = []
         axis = h.GetXaxis()
-        for i in xrange(1, h.GetNbinsX()+1):
+        for i in range(1, h.GetNbinsX()+1):
             x.append(axis.GetBinCenter(i)**2)
             y.append(h.GetBinContent(i))
 
@@ -1009,6 +1010,23 @@ def plotResol(files, prefix, pileup, hasPU70=False):
     plot = Plot(files.getHistos(folder_track+"ptres_vs_eta_Sigma"), files.getLegends(), files.getStyles())
     drawPlot(prefix+"_resolution_pt_eta", plot, ytitle="p_{T} resolution / p_{T}", **_common)
 
+    # vs. phi
+    _common["xtitle"] = "Simulated track #phi"
+    _common["xmin"] = -3.15
+    _common["xmax"] =  3.15
+    _common["xlog"] = False
+    _common_ip = copy.copy(_common)
+    _common_ip["ymax"] = 0.1*10000
+    plot = Plot(files.getHistos(folder_track+"dxyres_vs_phi_Sigma"), files.getLegends(), files.getStyles())
+    plot.scale(10000)
+    drawPlot(prefix+"_resolution_dxy_phi", plot, ytitle="d_{0} resolution (#mum)", **_common_ip)
+
+    plot = Plot(files.getHistos(folder_track+"dzres_vs_phi_Sigma"), files.getLegends(), files.getStyles())
+    plot.scale(10000)
+    drawPlot(prefix+"_resolution_dz_phi", plot, ytitle="d_{z} resolution (#mum)", **_common_ip)
+
+    plot = Plot(files.getHistos(folder_track+"ptres_vs_phi_Sigma"), files.getLegends(), files.getStyles())
+    drawPlot(prefix+"_resolution_pt_phi", plot, ytitle="p_{T} resolution / p_{T}", **_common)
 
     # vertex x
     vertbox.move(dx=0.15,dy=0.05)

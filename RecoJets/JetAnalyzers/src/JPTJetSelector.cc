@@ -26,11 +26,6 @@
 #include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 
- typedef SingleObjectSelector<
-           reco::JPTJetCollection, 
-           StringCutObjectSelector<reco::JPTJet> 
-         > JPTJetSelector;
+typedef SingleObjectSelector<reco::JPTJetCollection, StringCutObjectSelector<reco::JPTJet> > JPTJetSelector;
 
-DEFINE_FWK_MODULE( JPTJetSelector );
-
-
+DEFINE_FWK_MODULE(JPTJetSelector);

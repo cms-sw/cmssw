@@ -18,16 +18,15 @@
 
 class MuonSeedVFinder {
 public:
-
   virtual ~MuonSeedVFinder() {}
-  virtual void setBField(const MagneticField * field) = 0;
+  virtual void setBField(const MagneticField* field) = 0;
 
-  virtual void seeds(const MuonTransientTrackingRecHit::MuonRecHitContainer & hits, 
-                     std::vector<TrajectorySeed> & result) = 0;
-  
-  void setBeamSpot(const GlobalVector & gv) {thePtExtractor->setBeamSpot(gv);}
+  virtual void seeds(const MuonTransientTrackingRecHit::MuonRecHitContainer& hits,
+                     std::vector<TrajectorySeed>& result) = 0;
+
+  void setBeamSpot(const GlobalVector& gv) { thePtExtractor->setBeamSpot(gv); }
+
 protected:
-  MuonSeedPtExtractor * thePtExtractor;
-
+  MuonSeedPtExtractor* thePtExtractor;
 };
 #endif

@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of reference to Conversion objects
   typedef ConversionRefVector::iterator c_iterator;
-}
+}  // namespace reco
 
 #endif

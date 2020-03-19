@@ -4,7 +4,7 @@
 //
 // Package:    HLTEventNumberFilter
 // Class:      HLTEventNumberFilter
-// 
+//
 /**\class HLTEventNumberFilter HLTEventNumberFilter.cc filter/HLTEventNumberFilter/src/HLTEventNumberFilter.cc
 
 Description: Filter to select HCAL abort gap events
@@ -17,7 +17,6 @@ Implementation:
 //         Created:  Tue Jan 22 13:55:00 CET 2008
 //
 //
-
 
 // include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -39,18 +38,17 @@ class HLTEventNumberFilter : public edm::EDFilter {
 public:
   explicit HLTEventNumberFilter(const edm::ParameterSet&);
   ~HLTEventNumberFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  
+
   // ----------member data ---------------------------
 
   /// accept the event if its event number is a multiple of period_
   unsigned int period_;
   /// if invert_=true, invert that event accept decision
   bool invert_;
-
 };
 
 #endif

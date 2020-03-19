@@ -14,9 +14,7 @@
 #include "CommonTools/RecoAlgos/src/StandAloneMuonTrackToCandidate.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-typedef CandidateProducer<
-          reco::TrackCollection, 
-          reco::RecoStandAloneMuonCandidateCollection
-        > ConcreteStandAloneMuonCandidateProducer;
+typedef CandidateProducer<reco::TrackCollection, reco::RecoStandAloneMuonCandidateCollection>
+    ConcreteStandAloneMuonCandidateProducer;
 
 DEFINE_FWK_MODULE(ConcreteStandAloneMuonCandidateProducer);

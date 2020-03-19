@@ -9,5 +9,3 @@
 #include "DataFormats/GEMRecHit/interface/ME0Segment.h"
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-
-

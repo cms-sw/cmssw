@@ -30,6 +30,7 @@ class RunExpressProcessing:
         self.globalTag = None
         self.inputLFN = None
         self.alcaRecos = None
+        self.nThreads = None
 
     def __call__(self):
         if self.scenario == None:
@@ -73,7 +74,6 @@ class RunExpressProcessing:
             dataTiers.append("ALCARECO")
             print("Configuring to Write out ALCARECO")
 
-
         try:
             kwds = {}
 
@@ -91,6 +91,9 @@ class RunExpressProcessing:
                     kwds['skims'] = self.alcaRecos
 
 
+            if self.nThreads:
+                kwds['nThreads'] = self.nThreads
+
             process = scenario.expressProcessing(self.globalTag, **kwds)
 
         except NotImplementedError as ex:
@@ -107,13 +110,13 @@ class RunExpressProcessing:
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
-        pklFile = open("RunExpressProcessingCfg.pkl", "w")
+        pklFile = open("RunExpressProcessingCfg.pkl", "wb")
         psetFile = open("RunExpressProcessingCfg.py", "w")
         try:
-            pickle.dump(process, pklFile)
+            pickle.dump(process, pklFile, protocol=0)
             psetFile.write("import FWCore.ParameterSet.Config as cms\n")
             psetFile.write("import pickle\n")
-            psetFile.write("handle = open('RunExpressProcessingCfg.pkl')\n")
+            psetFile.write("handle = open('RunExpressProcessingCfg.pkl','rb')\n")
             psetFile.write("process = pickle.load(handle)\n")
             psetFile.write("handle.close()\n")
             psetFile.close()
@@ -132,7 +135,7 @@ class RunExpressProcessing:
 
 if __name__ == '__main__':
     valid = ["scenario=", "raw", "reco", "fevt", "dqm", "dqmio", "no-output",
-             "global-tag=", "lfn=", 'alcarecos=']
+             "global-tag=", "lfn=", 'alcarecos=', "nThreads="]
     usage = \
 """
 RunExpressProcessing.py <options>
@@ -147,6 +150,7 @@ Where options are:
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
  --alcarecos=plus_seprated_list
+ --nThreads=Number_of_cores_or_Threads_used
 
 Examples:
 
@@ -186,5 +190,7 @@ python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store
             expressinator.inputLFN = arg
         if opt == "--alcarecos":
             expressinator.alcaRecos = [ x for x in arg.split('+') if len(x) > 0 ]
+        if opt == "--nThreads":
+            expressinator.nThreads = arg
 
     expressinator()

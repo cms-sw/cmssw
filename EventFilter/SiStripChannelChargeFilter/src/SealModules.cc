@@ -8,8 +8,8 @@
 #include "EventFilter/SiStripChannelChargeFilter/interface/TECClusterFilter.h"
 #include "EventFilter/SiStripChannelChargeFilter/interface/TrackMTCCFilter.h"
 
-using cms::MTCCHLTrigger;
 using cms::ClusterMTCCFilter;
+using cms::MTCCHLTrigger;
 using cms::TECClusterFilter;
 using cms::TrackMTCCFilter;
 

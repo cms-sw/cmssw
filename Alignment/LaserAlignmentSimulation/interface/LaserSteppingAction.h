@@ -13,17 +13,17 @@
 
 #include "G4SteppingManager.hh"
 
-class LaserSteppingAction : public G4UserSteppingAction
-{
- public:
-	/// constructor
-  LaserSteppingAction(edm::ParameterSet const& theConf);
-	/// destructor
+class LaserSteppingAction : public G4UserSteppingAction {
+public:
+  /// constructor
+  LaserSteppingAction(edm::ParameterSet const &theConf);
+  /// destructor
   ~LaserSteppingAction() override;
-	/// stepping action: set energydeposit when a photon is absorbed in a Si module
-  void UserSteppingAction(const G4Step* myStep) override;
+  /// stepping action: set energydeposit when a photon is absorbed in a Si
+  /// module
+  void UserSteppingAction(const G4Step *myStep) override;
 
- private: 
+private:
   int theDebugLevel;
   double theEnergyLossScalingFactor;
 };

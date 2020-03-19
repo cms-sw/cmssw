@@ -4,6 +4,4 @@
 
 #include "RecoMuon/StandAloneMuonProducer/src/StandAloneMuonProducer.h"
 
-
 DEFINE_FWK_MODULE(StandAloneMuonProducer);
-

@@ -12,13 +12,12 @@ namespace edm {
       static std::string const invalid = cms::MD5Result().compactForm();
       return invalid;
     }
-  }
+  }  // namespace detail
 
   namespace hash_detail {
-    value_type
-    compactForm_(value_type const& hash) {
+    value_type compactForm_(value_type const& hash) {
       if (isCompactForm_(hash)) {
-	return hash;
+        return hash;
       }
       value_type temp(hash);
       fixup_(temp);
@@ -28,8 +27,7 @@ namespace edm {
     // 'Fix' the string data member of this Hash, i.e., if it is in
     // the hexified (32 byte) representation, make it be in the
     // 16-byte (unhexified) representation.
-    void
-    fixup_(value_type& hash) {
+    void fixup_(value_type& hash) {
       switch (hash.size()) {
         case 16: {
           break;
@@ -41,59 +39,48 @@ namespace edm {
           break;
         }
         case 0: {
-          throw Exception(errors::LogicError)
-            << "Empty edm::Hash<> instance:\n" << "\nPlease report this to the core framework developers";
-        }	
+          throw Exception(errors::LogicError) << "Empty edm::Hash<> instance:\n"
+                                              << "\nPlease report this to the core framework developers";
+        }
         default: {
-          throw Exception(errors::LogicError)
-            << "edm::Hash<> instance with data in illegal state:\n"
-            << hash
-            << "\nPlease report this to the core framework developers";
+          throw Exception(errors::LogicError) << "edm::Hash<> instance with data in illegal state:\n"
+                                              << hash << "\nPlease report this to the core framework developers";
         }
       }
     }
-    
-    size_t
-    smallHash_(value_type const& hash) {
+
+    size_t smallHash_(value_type const& hash) {
       //NOTE: In future we could try to xor the first 8bytes into the second 8bytes of the string to make the hash
       std::hash<std::string> h;
-      if (hash.size()==16) {
+      if (hash.size() == 16) {
         return h(hash);
       }
       return h(compactForm_(hash));
     }
 
-    bool
-    isCompactForm_(value_type const& hash) {
-      return 16 == hash.size();
-    }
+    bool isCompactForm_(value_type const& hash) { return 16 == hash.size(); }
 
-    bool
-    isValid_(value_type const& hash) {
+    bool isValid_(value_type const& hash) {
       return isCompactForm_(hash) ? (hash != detail::InvalidHash()) : (!hash.empty());
     }
 
-    void
-    throwIfIllFormed(value_type const& hash) {
+    void throwIfIllFormed(value_type const& hash) {
       // Fixup not needed here.
       if (hash.size() % 2 == 1) {
-	throw Exception(errors::LogicError)
-	  << "Ill-formed Hash instance. "
-	  << "Please report this to the core framework developers";
+        throw Exception(errors::LogicError) << "Ill-formed Hash instance. "
+                                            << "Please report this to the core framework developers";
       }
     }
 
-    void
-    toString_(std::string& result, value_type const& hash) {
+    void toString_(std::string& result, value_type const& hash) {
       value_type temp1(hash);
       fixup_(temp1);
       cms::MD5Result temp;
       copy_all(temp1, temp.bytes);
       result += temp.toString();
     }
-    
-    void
-    toDigest_(cms::Digest& digest, value_type const& hash) {
+
+    void toDigest_(cms::Digest& digest, value_type const& hash) {
       // FIXME: do we really need to go through a temporary value_type???
       value_type temp1(hash);
       fixup_(temp1);
@@ -102,8 +89,7 @@ namespace edm {
       digest.append(temp.toString());
     }
 
-    std::ostream&
-    print_(std::ostream& os, value_type const& hash) {
+    std::ostream& print_(std::ostream& os, value_type const& hash) {
       value_type temp1(hash);
       fixup_(temp1);
       cms::MD5Result temp;
@@ -111,5 +97,5 @@ namespace edm {
       os << temp.toString();
       return os;
     }
-  }
-}
+  }  // namespace hash_detail
+}  // namespace edm

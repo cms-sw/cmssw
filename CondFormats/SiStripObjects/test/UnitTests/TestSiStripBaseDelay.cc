@@ -9,13 +9,11 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
 
-class TestSiStripBaseDelay : public CppUnit::TestFixture
-{
- public:
+class TestSiStripBaseDelay : public CppUnit::TestFixture {
+public:
   TestSiStripBaseDelay() {}
 
-  void setUp()
-  {
+  void setUp() {
     totDelays = 4;
 
     detId.push_back(0);
@@ -30,46 +28,42 @@ class TestSiStripBaseDelay : public CppUnit::TestFixture
 
     fineDelay = coarseDelay;
 
-    for( unsigned int i=0; i<totDelays; ++i ) {
+    for (unsigned int i = 0; i < totDelays; ++i) {
       delay.put(detId[i], coarseDelay[i], fineDelay[i]);
     }
   }
 
   void tearDown() {}
 
-  void testDelays()
-  {
+  void testDelays() {
     std::vector<SiStripBaseDelay::Delay> delays;
     delay.delays(delays);
-    CPPUNIT_ASSERT( delays.size() == totDelays );
+    CPPUNIT_ASSERT(delays.size() == totDelays);
   }
 
-  void testCoarseDelay()
-  {
-    for( unsigned int i=0; i<totDelays; ++i ) {
-      CPPUNIT_ASSERT( delay.coarseDelay(i) == coarseDelay[i] );
+  void testCoarseDelay() {
+    for (unsigned int i = 0; i < totDelays; ++i) {
+      CPPUNIT_ASSERT(delay.coarseDelay(i) == coarseDelay[i]);
     }
   }
 
-  void testFineDelay()
-  {
-    for( unsigned int i=0; i<totDelays; ++i ) {
-      CPPUNIT_ASSERT( delay.fineDelay(i) == fineDelay[i] );
+  void testFineDelay() {
+    for (unsigned int i = 0; i < totDelays; ++i) {
+      CPPUNIT_ASSERT(delay.fineDelay(i) == fineDelay[i]);
     }
   }
 
-  void testDelay()
-  {
-    for( unsigned int i=0; i<totDelays; ++i ) {
-      CPPUNIT_ASSERT( delay.delay(i) == coarseDelay[i]*25 + fineDelay[i]*(25/24.) );
+  void testDelay() {
+    for (unsigned int i = 0; i < totDelays; ++i) {
+      CPPUNIT_ASSERT(delay.delay(i) == coarseDelay[i] * 25 + fineDelay[i] * (25 / 24.));
     }
   }
 
-  CPPUNIT_TEST_SUITE( TestSiStripBaseDelay );
-  CPPUNIT_TEST( testDelays );
-  CPPUNIT_TEST( testCoarseDelay );
-  CPPUNIT_TEST( testFineDelay );
-  CPPUNIT_TEST( testDelay );
+  CPPUNIT_TEST_SUITE(TestSiStripBaseDelay);
+  CPPUNIT_TEST(testDelays);
+  CPPUNIT_TEST(testCoarseDelay);
+  CPPUNIT_TEST(testFineDelay);
+  CPPUNIT_TEST(testDelay);
   CPPUNIT_TEST_SUITE_END();
 
   SiStripBaseDelay delay;
@@ -79,4 +73,4 @@ class TestSiStripBaseDelay : public CppUnit::TestFixture
   std::vector<uint16_t> fineDelay;
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSiStripBaseDelay );
+CPPUNIT_TEST_SUITE_REGISTRATION(TestSiStripBaseDelay);

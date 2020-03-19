@@ -9,6 +9,6 @@
 
 using dtCalibration::DTT0BaseCorrection;
 
-DTT0BaseCorrection::DTT0BaseCorrection(){}
+DTT0BaseCorrection::DTT0BaseCorrection() {}
 
-DTT0BaseCorrection::~DTT0BaseCorrection(){}
+DTT0BaseCorrection::~DTT0BaseCorrection() {}

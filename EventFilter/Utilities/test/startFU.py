@@ -12,23 +12,35 @@ options.register ('runNumber',
                   "Run Number")
 
 options.register ('buBaseDir',
-                  '/fff/BU0/ramdisk', # default value
+                  'ramdisk', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "BU base directory")
-
 
 options.register ('fuBaseDir',
-                  '/fff/data', # default value
+                  'data', # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "BU base directory")
 
+options.register ('fffBaseDir',
+                  '.', # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "FFF base directory")
+
 options.register ('numThreads',
-                  1, # default value
+                  2, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Number of CMSSW threads")
+
+options.register ('numFwkStreams',
+                  2, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "Number of CMSSW streams")
+
 
 options.parseArguments()
 
@@ -41,59 +53,43 @@ process.maxEvents = cms.untracked.PSet(
 
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.numThreads),
-    numberOfStreams = cms.untracked.uint32(options.numThreads),
+    numberOfStreams = cms.untracked.uint32(options.numFwkStreams),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(2)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(threshold = cms.untracked.string( "INFO" )),
-    destinations = cms.untracked.vstring( 'cout' ))
+    destinations = cms.untracked.vstring( 'cout' )
+)
 
 process.FastMonitoringService = cms.Service("FastMonitoringService",
-    sleepTime = cms.untracked.int32(1),
-    microstateDefPath = cms.untracked.string( cmsswbase+'/src/EventFilter/Utilities/plugins/microstatedef.jsd'),
-    fastMicrostateDefPath = cms.untracked.string( cmsswbase+'/src/EventFilter/Utilities/plugins/microstatedeffast.jsd'),
-    fastName = cms.untracked.string( 'fastmoni' ),
-    slowName = cms.untracked.string( 'slowmoni' ))
+    sleepTime = cms.untracked.int32(1)
+)
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    useFileService = cms.untracked.bool(False),
-    fileServiceHost = cms.untracked.string("htcp40.cern.ch"),
+    useFileBroker = cms.untracked.bool(False),
+    fileBrokerHostFromCfg = cms.untracked.bool(True),
+    fileBrokerHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
-    baseDir = cms.untracked.string(options.fuBaseDir),
-    buBaseDir = cms.untracked.string(options.buBaseDir),
-    directorIsBu = cms.untracked.bool(False),
-    testModeNoBuilderUnit = cms.untracked.bool(False))
+    baseDir = cms.untracked.string(options.fffBaseDir+"/"+options.fuBaseDir),
+    buBaseDir = cms.untracked.string(options.fffBaseDir+"/"+options.buBaseDir),
+    directorIsBU = cms.untracked.bool(False)
+)
 
 try:
-  os.makedirs(options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
+  os.makedirs(options.fffBaseDir+"/"+options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
 except Exception as ex:
   print(str(ex))
   pass
 
-process.PrescaleService = cms.Service( "PrescaleService",
-    lvl1DefaultLabel = cms.string( "B" ),
-    lvl1Labels = cms.vstring( 'A',
-                              'B'
-                            ),
-    prescaleTable = cms.VPSet(
-               cms.PSet(  pathName = cms.string( "p1" ),                                                                                                                
-                          prescales = cms.vuint32( 0, 10)
-                       ),                                                                                                                                   
-               cms.PSet(  pathName = cms.string( "p2" ),                                                                                                           
-                          prescales = cms.vuint32( 0, 100)                                                                                                                   
-                       )
-    ))
-
 process.source = cms.Source("FedRawDataInputSource",
-    runNumber = cms.untracked.uint32(options.runNumber),
     getLSFromFilename = cms.untracked.bool(True),
-    testModeNoBuilderUnit = cms.untracked.bool(False),
-    verifyAdler32 = cms.untracked.bool(True),
     verifyChecksum = cms.untracked.bool(True),
     useL1EventID = cms.untracked.bool(True),
-    eventChunkSize = cms.untracked.uint32(16),
+    eventChunkSize = cms.untracked.uint32(8),
+    eventChunkBlock = cms.untracked.uint32(8),
     numBuffers = cms.untracked.uint32(2),
-    eventChunkBlock = cms.untracked.uint32(1)
-    )
+    maxBufferedFiles = cms.untracked.uint32(2)
+)
 
 process.PrescaleService = cms.Service( "PrescaleService",
                                        forceDefault = cms.bool( False ),
@@ -135,4 +131,41 @@ process.streamB = cms.OutputModule("EvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 
-process.ep = cms.EndPath(process.streamA+process.streamB)
+process.streamC = cms.OutputModule("ShmStreamConsumer",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+)
+
+process.streamD = cms.OutputModule("EventStreamFileWriter",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+)
+
+process.hltJson = cms.EDAnalyzer("HLTriggerJSONMonitoring")
+
+process.DQMStore = cms.Service( "DQMStore",
+    referenceFileName = cms.untracked.string( "" ),
+    verbose = cms.untracked.int32( 0 ),
+    collateHistograms = cms.untracked.bool( False ),
+    enableMultiThread = cms.untracked.bool( True ),
+    forceResetOnBeginLumi = cms.untracked.bool( False ),
+    saveByLumi = cms.untracked.bool( False ),
+    LSbasedMode = cms.untracked.bool( True ),
+    verboseQT = cms.untracked.int32( 0 )
+)
+
+from DQMServices.FileIO.DQMFileSaverPB_cfi import dqmSaver
+process.hltDQMFileSaver = dqmSaver
+
+process.daqHistoTest = cms.EDProducer("DaqTestHistograms",
+    numberOfHistograms = cms.untracked.uint32(50),
+    lumisectionRange =  cms.untracked.uint32(20)
+)
+
+process.ep = cms.EndPath(
+  process.streamA
+  + process.streamB
+  + process.streamC
+# + process.streamD
+  + process.hltJson
+  + process.daqHistoTest
+  + process.hltDQMFileSaver
+)

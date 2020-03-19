@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class MonH4TablePositionDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   MonH4TablePositionDat();
   ~MonH4TablePositionDat() override;
@@ -23,18 +23,14 @@ class MonH4TablePositionDat : public IDataItem {
   inline void setTableY(float y) { m_tableY = y; }
   inline float getTableY() const { return m_tableY; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const MonH4TablePositionDat* item, MonRunIOV* iov )
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const MonH4TablePositionDat* item, MonRunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, MonH4TablePositionDat >* fillMap, MonRunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, MonH4TablePositionDat>* fillMap, MonRunIOV* iov) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, MonH4TablePositionDat >* data, MonRunIOV* iov)
-    noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, MonH4TablePositionDat>* data, MonRunIOV* iov) noexcept(false);
 
   // User data
   float m_tableX;

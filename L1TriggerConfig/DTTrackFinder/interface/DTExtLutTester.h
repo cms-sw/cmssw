@@ -20,18 +20,15 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
 
-
 class DTExtLutTester : public edm::EDAnalyzer {
- public:
-
+public:
   DTExtLutTester(const edm::ParameterSet& ps);
 
   ~DTExtLutTester() override;
-  
+
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-
+private:
 };
 
 #endif

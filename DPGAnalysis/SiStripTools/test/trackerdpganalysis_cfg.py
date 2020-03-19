@@ -260,7 +260,7 @@ process.GlobalTag.globaltag = 'GR10_P_V5::All'
 #Geometry and field
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 process.load("TrackingTools.RecoGeometry.RecoGeometries_cff")
 
 #tracker refitting -> trajectory

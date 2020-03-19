@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <cmath>      //necessary for absolute function fabs()
-#include <boost/shared_ptr.hpp>
+
 #include <boost/lexical_cast.hpp>
 
 //Root includes

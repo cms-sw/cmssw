@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -9,6 +10,7 @@ from __future__ import print_function
 #                                                                              
 ################################################################################
 
+from builtins import range
 from copy import deepcopy
 from os import chdir,getcwd,makedirs
 from os.path import abspath,exists,join, basename
@@ -17,19 +19,21 @@ from re import compile as recompile
 from sys import exit,stderr,version_info
 from threading import Thread,activeCount
 from time import sleep
-from urllib2  import Request,build_opener,urlopen
+if version_info[0]==2:
+  from urllib2  import Request,build_opener,urlopen
+else:
+  from urllib.request  import Request,build_opener,urlopen
 
 import sys
 argv=sys.argv
-from ROOT import *
 import ROOT
 sys.argv=argv
 
-gROOT.SetBatch(True)
+ROOT.gROOT.SetBatch(True)
 
-from authentication import X509CertOpen
-from dirstructure import Comparison,Directory,tcanvas_print_processes
-from utils import Chi2,KS,BinToBin,Statistical_Tests,literal2root
+from .authentication import X509CertOpen
+from .dirstructure import Comparison,Directory,tcanvas_print_processes
+from .utils import Chi2,KS,BinToBin,Statistical_Tests,literal2root
 
 #-------------------------------------------------------------------------------  
 
@@ -110,7 +114,7 @@ class DQMcommunicator(object):
             raw_folder=eval(self.get_data(url))
         except:
             print("Retrying..")
-            for ntrials in xrange(5):
+            for ntrials in range(5):
                 try:
                     if ntrials!=0:
                         sleep(2)
@@ -476,7 +480,7 @@ class DQMRootFile(object):
     """
     def __init__(self,rootfilename):
         dqmdatadir="DQMData"
-        self.rootfile=TFile(rootfilename)  
+        self.rootfile=ROOT.TFile(rootfilename)
         self.rootfilepwd=self.rootfile.GetDirectory(dqmdatadir)
         self.rootfileprevpwd=self.rootfile.GetDirectory(dqmdatadir)
         if self.rootfilepwd == None:

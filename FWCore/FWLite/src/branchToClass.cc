@@ -2,7 +2,7 @@
 //
 // Package:     FWLite
 // Class  :     BranchToClass
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -19,35 +19,27 @@ class TClass;
 #include "FWCore/FWLite/src/branchToClass.h"
 
 namespace {
-class BranchToClass : private TVirtualBranchBrowsable
-{
-  
-public:
-  static TClass* doit( const TBranch* iBranch );
-  
-private:
-  ///NOTE: do not call this, it is only here because ROOT demands it
-  BranchToClass() = delete;
-};
+  class BranchToClass : private TVirtualBranchBrowsable {
+  public:
+    static TClass* doit(const TBranch* iBranch);
 
-TClass*
-BranchToClass::doit( const TBranch* iBranch )
-{
-  TClass* contained = nullptr;
-  TClass* type = TVirtualBranchBrowsable::GetCollectionContainedType(iBranch,nullptr,contained);
-  if( type == nullptr) {
-    type = contained;
+  private:
+    ///NOTE: do not call this, it is only here because ROOT demands it
+    BranchToClass() = delete;
+  };
+
+  TClass* BranchToClass::doit(const TBranch* iBranch) {
+    TClass* contained = nullptr;
+    TClass* type = TVirtualBranchBrowsable::GetCollectionContainedType(iBranch, nullptr, contained);
+    if (type == nullptr) {
+      type = contained;
+    }
+    return type;
   }
-  return type;  
-}
 
-}
+}  // namespace
 
-TClass*
-branchToClass(const TBranch* iBranch)
-{
-  return BranchToClass::doit(iBranch);
-}
+TClass* branchToClass(const TBranch* iBranch) { return BranchToClass::doit(iBranch); }
 //
 // constants, enums and typedefs
 //

@@ -5,9 +5,9 @@
 using namespace std;
 using namespace reco;
 
-void Booster::set( Candidate& c ) {
-  c.setP4( ROOT::Math::VectorUtil::boost( c.p4(), boost ) );
-  Candidate::iterator b = c.begin(), e = c.end(); 
-  for(  Candidate::iterator d = b; d != e; ++ d )
-    set( * d );
+void Booster::set(Candidate& c) {
+  c.setP4(ROOT::Math::VectorUtil::boost(c.p4(), boost));
+  Candidate::iterator b = c.begin(), e = c.end();
+  for (Candidate::iterator d = b; d != e; ++d)
+    set(*d);
 }

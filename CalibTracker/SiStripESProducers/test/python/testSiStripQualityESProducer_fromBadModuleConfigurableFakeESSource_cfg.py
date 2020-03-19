@@ -24,7 +24,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi")
 
 process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")

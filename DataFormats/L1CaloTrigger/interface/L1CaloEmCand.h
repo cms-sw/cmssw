@@ -14,10 +14,8 @@
  *  \date June 2006
  */
 
-
 class L1CaloEmCand {
 public:
-
   /// default constructor (for vector initialisation etc.)
   L1CaloEmCand();
 
@@ -34,24 +32,24 @@ public:
   /// construct from components for emulation (including index)
   L1CaloEmCand(unsigned rank, unsigned region, unsigned card, unsigned crate, bool iso, uint16_t index, int16_t bx);
 
-   /// destructor
- ~L1CaloEmCand();
- 
+  /// destructor
+  ~L1CaloEmCand();
+
   /// get the raw data
   uint16_t raw() const { return m_data; }
-  
+
   /// get rank bits
   unsigned rank() const { return m_data & 0x3f; }
 
   /// get RCT receiver card
-  unsigned rctCard() const { return (m_data>>7) & 0x7; }
+  unsigned rctCard() const { return (m_data >> 7) & 0x7; }
 
   /// get RCT region ID
-  unsigned rctRegion() const { return (m_data>>6) & 0x1; }
+  unsigned rctRegion() const { return (m_data >> 6) & 0x1; }
 
   /// get RCT crate
   unsigned rctCrate() const { return m_rctCrate; }
-  
+
   /// which stream did this come from
   bool isolated() const { return m_iso; }
 
@@ -62,13 +60,17 @@ public:
   int16_t bx() const { return m_bx; }
 
   /// get DetID object
-  L1CaloRegionDetId regionId() const { return L1CaloRegionDetId(rctCrate(),rctCard(),rctRegion()); }
+  L1CaloRegionDetId regionId() const { return L1CaloRegionDetId(rctCrate(), rctCard(), rctRegion()); }
 
   /// set BX
   void setBx(int16_t bx);
 
   /// equality operator, including rank, isolation, position
-  int operator==(const L1CaloEmCand& c) const { return ((m_data==c.raw() && m_iso==c.isolated() && m_rctCrate==c.rctCrate() && this->regionId()==c.regionId()) || (this->empty() && c.empty())); }
+  int operator==(const L1CaloEmCand& c) const {
+    return ((m_data == c.raw() && m_iso == c.isolated() && m_rctCrate == c.rctCrate() &&
+             this->regionId() == c.regionId()) ||
+            (this->empty() && c.empty()));
+  }
 
   /// inequality operator
   int operator!=(const L1CaloEmCand& c) const { return !(*this == c); }
@@ -76,9 +78,7 @@ public:
   /// is there any information in the candidate
   bool empty() const { return (rank() == 0); }
 
-
- private:
-
+private:
   // rank, card and region ID are contained in the data on the cable
   uint16_t m_data;
 
@@ -88,12 +88,8 @@ public:
   bool m_iso;
   uint16_t m_index;
   int16_t m_bx;
-
- };
-
+};
 
 std::ostream& operator<<(std::ostream& s, const L1CaloEmCand& cand);
 
-
-
-#endif 
+#endif

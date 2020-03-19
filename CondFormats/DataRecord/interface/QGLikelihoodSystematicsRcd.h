@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/JetMETObjects
 // Class  :     QGLikelihoodSystematicsRcd
-// 
+//
 /**\class QGLikelihoodSystematicsRcd QGLikelihoodSystematicsRcd.h CondFormats/JetMETObjects/interface/QGLikelihoodSystematicsRcd.h
 
  Description: [one line class summary]
@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class QGLikelihoodSystematicsRcd : public edm::eventsetup::EventSetupRecordImplementation<QGLikelihoodSystematicsRcd> {};
+class QGLikelihoodSystematicsRcd : public edm::eventsetup::EventSetupRecordImplementation<QGLikelihoodSystematicsRcd> {
+};
 
 #endif

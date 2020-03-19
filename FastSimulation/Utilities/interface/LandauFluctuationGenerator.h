@@ -17,30 +17,22 @@
 
 class RandomEngineAndDistribution;
 
-class LandauFluctuationGenerator : public BaseNumericalRandomGenerator
-{
- public:
-
+class LandauFluctuationGenerator : public BaseNumericalRandomGenerator {
+public:
   /// Constructor : initialization of the Random Generator
-  LandauFluctuationGenerator() :
-    BaseNumericalRandomGenerator(-3.5,25.) {
-    initialize();
-  }
+  LandauFluctuationGenerator() : BaseNumericalRandomGenerator(-3.5, 25.) { initialize(); }
 
   /// Default destructor
   ~LandauFluctuationGenerator() override {}
 
-  /// Random generator of the dE/dX spread (Landau function)  
+  /// Random generator of the dE/dX spread (Landau function)
   double landau(RandomEngineAndDistribution const* random) const { return generate(random); }
-  
+
   /// The probability density function implementation
   double function(double x) override { return ersatzt(x); }
 
- private:
-
+private:
   /// Ersatzt for Landau Fluctuations (very good approximation)
-  double ersatzt(double x) { 
-    return  std::exp(-0.5 * ( x + std::exp(-x) )) / std::sqrt (2. *M_PI); 
-  }
+  double ersatzt(double x) { return std::exp(-0.5 * (x + std::exp(-x))) / std::sqrt(2. * M_PI); }
 };
 #endif

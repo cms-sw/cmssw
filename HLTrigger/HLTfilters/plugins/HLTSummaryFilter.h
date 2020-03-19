@@ -19,7 +19,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include<string>
+#include <string>
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -30,22 +30,22 @@ namespace edm {
 //
 
 class HLTSummaryFilter : public HLTFilter {
+public:
+  explicit HLTSummaryFilter(const edm::ParameterSet&);
+  ~HLTSummaryFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-   public:
+private:
+  edm::InputTag summaryTag_;                              // input tag identifying TriggerSummaryAOD
+  edm::EDGetTokenT<trigger::TriggerEvent> summaryToken_;  // token identifying TriggerSummaryAOD
+  edm::InputTag memberTag_;                               // which packed-up collection or filter
+  std::string cut_;                                       // smart cut
+  int min_N_;                                             // number of objects passing cuts required
 
-      explicit HLTSummaryFilter(const edm::ParameterSet&);
-      ~HLTSummaryFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-
-   private:
-      edm::InputTag                           summaryTag_;   // input tag identifying TriggerSummaryAOD
-      edm::EDGetTokenT<trigger::TriggerEvent> summaryToken_; // token identifying TriggerSummaryAOD
-      edm::InputTag memberTag_;  // which packed-up collection or filter
-      std::string   cut_;        // smart cut
-      int           min_N_;      // number of objects passing cuts required
-
-      StringCutObjectSelector<trigger::TriggerObject> select_; // smart selector
+  StringCutObjectSelector<trigger::TriggerObject> select_;  // smart selector
 };
 
-#endif //HLTSummaryFilter_h
+#endif  //HLTSummaryFilter_h

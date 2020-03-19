@@ -1,10 +1,10 @@
 // -*- C++ -*-
 //
-// 
+//
 // Implementation:
 //     create all the 'infrastructure' needed to get into the Context
 //
-// 
+//
 // $Id: T_EventSetup_EcalTPGSpike.cc
 //
 

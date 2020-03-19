@@ -1,4 +1,4 @@
-// L1TMuonEndCapForestRcd                                                                                            
+// L1TMuonEndCapForestRcd
 // Description: Record for L1TMuonEndCapForest
 //
 // automatically generate by make_records.pl

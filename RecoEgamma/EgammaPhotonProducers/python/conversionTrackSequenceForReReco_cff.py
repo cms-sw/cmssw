@@ -8,8 +8,9 @@ from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi import *
 # Conversion Track producer  ( final fit )
 from RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi import *
 from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
-ckfTracksFromConversionsReReco = cms.Sequence(conversionTrackCandidates*ckfOutInTracksFromConversions*ckfInOutTracksFromConversions)
-
+ckfTracksFromConversionsReRecoTask = cms.Task(conversionTrackCandidates,
+                                              ckfOutInTracksFromConversions,
+                                              ckfInOutTracksFromConversions)
 
 #producer from general tracks collection, set tracker only and merged arbitrated flag
 generalConversionTrackProducerReReco = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
@@ -46,8 +47,11 @@ gsfConversionTrackProducerReReco = RecoEgamma.EgammaPhotonProducers.conversionTr
     useTrajectory = cms.bool(False),
 )
 
-conversionTrackProducersReReco = cms.Sequence(generalConversionTrackProducerReReco*conversionStepConversionTrackProducerReReco*inOutConversionTrackProducerReReco*outInConversionTrackProducerReReco*gsfConversionTrackProducerReReco)
-
+conversionTrackProducersReRecoTask = cms.Task(generalConversionTrackProducerReReco,
+                                              conversionStepConversionTrackProducerReReco,
+                                              inOutConversionTrackProducerReReco,
+                                              outInConversionTrackProducerReReco,
+                                              gsfConversionTrackProducerReReco)
 
 #merge generalTracks and conversionStepTracks collections, with arbitration by nhits then chi^2/ndof for ecalseededarbitrated, mergedarbitratedecalgeneral and mergedarbitrated flags
 generalConversionStepConversionTrackMergerReReco = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
@@ -101,9 +105,15 @@ gsfGeneralInOutOutInConversionTrackMergerReReco = RecoEgamma.EgammaPhotonProduce
 #overlaps between the ecal seeded track collections and between ecal seeded and general tracks are arbitrated first by nhits then by chi^2/dof
 #(logic and much of the code is adapted from FinalTrackSelectors)
 
-conversionTrackMergersReReco = cms.Sequence(inOutOutInConversionTrackMergerReReco*generalConversionStepConversionTrackMergerReReco*generalInOutOutInConversionTrackMergerReReco*gsfGeneralInOutOutInConversionTrackMergerReReco)
+conversionTrackMergersReRecoTask = cms.Task(inOutOutInConversionTrackMergerReReco,
+                                            generalConversionStepConversionTrackMergerReReco,
+                                            generalInOutOutInConversionTrackMergerReReco,
+                                            gsfGeneralInOutOutInConversionTrackMergerReReco)
 
-conversionTrackSequenceForReReco = cms.Sequence(ckfTracksFromConversionsReReco*conversionTrackProducersReReco*conversionTrackMergersReReco)
+conversionTrackTaskForReReco = cms.Task(ckfTracksFromConversionsReRecoTask,
+                                        conversionTrackProducersReRecoTask,
+                                        conversionTrackMergersReRecoTask)
+conversionTrackSequenceForReReco = cms.Sequence(conversionTrackTaskForReReco)
 
 #merge the general tracks with the collection from gsf tracks
 #arbitratedmerged flag set based on overlap removal by shared hits, with precedence given to gsf tracks

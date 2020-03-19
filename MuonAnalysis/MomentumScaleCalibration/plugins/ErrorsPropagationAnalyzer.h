@@ -5,7 +5,7 @@
 //
 // Package:    ErrorsPropagationAnalyzer
 // Class:      ErrorsPropagationAnalyzer
-// 
+//
 /**\class ErrorsPropagationAnalyzer ErrorsPropagationAnalyzer.cc MuonAnalysis/MomentumScaleCalibration/plugins/ErrorsPropagationAnalyzer.cc
 
  Description: <one line class summary>
@@ -46,8 +46,7 @@
 // class declaration
 //
 
-class ErrorsPropagationAnalyzer : public edm::EDAnalyzer
-{
+class ErrorsPropagationAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ErrorsPropagationAnalyzer(const edm::ParameterSet&);
   ~ErrorsPropagationAnalyzer() override;
@@ -55,21 +54,24 @@ public:
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void fillHistograms();
-  void drawHistograms(const TProfile* histo, const TProfile* histoPlusErr,
-		      const TProfile* histoMinusErr, const TString& type, const TString& yLabel);
+  void drawHistograms(const TProfile* histo,
+                      const TProfile* histoPlusErr,
+                      const TProfile* histoMinusErr,
+                      const TString& type,
+                      const TString& yLabel);
   void fillValueError();
-  void endJob() override {};
+  void endJob() override{};
   /// Modified method to take into account the error
-  double massResolution( const lorentzVector& mu1,
-			 const lorentzVector& mu2,
-                         const std::vector<double> & parval,
-		         const double & sigmaPt1,
-		         const double & sigmaPt2 );
-  double massResolution( const lorentzVector& mu1,
-			 const lorentzVector& mu2,
-			 double* parval,
-			 const double & sigmaPt1,
-			 const double & sigmaPt2);
+  double massResolution(const lorentzVector& mu1,
+                        const lorentzVector& mu2,
+                        const std::vector<double>& parval,
+                        const double& sigmaPt1,
+                        const double& sigmaPt2);
+  double massResolution(const lorentzVector& mu1,
+                        const lorentzVector& mu2,
+                        double* parval,
+                        const double& sigmaPt1,
+                        const double& sigmaPt2);
 
   TString treeFileName_;
   int resolFitType_;
@@ -92,33 +94,33 @@ private:
   std::vector<double> valuePlusError_;
   std::vector<double> valueMinusError_;
 
-  TProfile * sigmaPtVsEta_;
-  TProfile * sigmaPtVsEtaPlusErr_;
-  TProfile * sigmaPtVsEtaMinusErr_;
+  TProfile* sigmaPtVsEta_;
+  TProfile* sigmaPtVsEtaPlusErr_;
+  TProfile* sigmaPtVsEtaMinusErr_;
 
-  TProfile * sigmaPtVsPt_;
-  TProfile * sigmaPtVsPtPlusErr_;
-  TProfile * sigmaPtVsPtMinusErr_;
+  TProfile* sigmaPtVsPt_;
+  TProfile* sigmaPtVsPtPlusErr_;
+  TProfile* sigmaPtVsPtMinusErr_;
 
-  TProfile * sigmaPtVsEtaDiff_;
-  TProfile * sigmaPtVsPtDiff_;
+  TProfile* sigmaPtVsEtaDiff_;
+  TProfile* sigmaPtVsPtDiff_;
 
   // Mass resolution
-  TProfile * sigmaMassVsEta_;
-  TProfile * sigmaMassVsEtaPlusErr_;
-  TProfile * sigmaMassVsEtaMinusErr_;
+  TProfile* sigmaMassVsEta_;
+  TProfile* sigmaMassVsEtaPlusErr_;
+  TProfile* sigmaMassVsEtaMinusErr_;
 
-  TProfile * sigmaMassVsPt_;
-  TProfile * sigmaMassVsPtPlusErr_;
-  TProfile * sigmaMassVsPtMinusErr_;
+  TProfile* sigmaMassVsPt_;
+  TProfile* sigmaMassVsPtPlusErr_;
+  TProfile* sigmaMassVsPtMinusErr_;
 
-  TProfile * sigmaMassOverMassVsEta_;
-  TProfile * sigmaMassOverMassVsEtaPlusErr_;
-  TProfile * sigmaMassOverMassVsEtaMinusErr_;
+  TProfile* sigmaMassOverMassVsEta_;
+  TProfile* sigmaMassOverMassVsEtaPlusErr_;
+  TProfile* sigmaMassOverMassVsEtaMinusErr_;
 
-  TProfile * sigmaMassOverMassVsPt_;
-  TProfile * sigmaMassOverMassVsPtPlusErr_;
-  TProfile * sigmaMassOverMassVsPtMinusErr_;
+  TProfile* sigmaMassOverMassVsPt_;
+  TProfile* sigmaMassOverMassVsPtPlusErr_;
+  TProfile* sigmaMassOverMassVsPtMinusErr_;
 };
 
-#endif // RESOLUTIONANALYZER_HH
+#endif  // RESOLUTIONANALYZER_HH

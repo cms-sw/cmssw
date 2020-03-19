@@ -37,19 +37,16 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
-
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"
 
 using namespace std;
 using namespace edm;
 using namespace reco;
 
-
 SeedTransformer::SeedTransformer(const ParameterSet& iConfig) {
-
   LogTrace("Reco|TrackingTools|SeedTransformer") << "SeedTransformer constructor called." << endl << endl;
 
-  theFitterName = iConfig.getParameter<string>("Fitter");  
+  theFitterName = iConfig.getParameter<string>("Fitter");
   theMuonRecHitBuilderName = iConfig.getParameter<string>("MuonRecHitBuilder");
   thePropagatorName = iConfig.getParameter<string>("Propagator");
 
@@ -59,28 +56,23 @@ SeedTransformer::SeedTransformer(const ParameterSet& iConfig) {
 }
 
 SeedTransformer::~SeedTransformer() {
-
   LogTrace("Reco|TrackingTools|SeedTransformer") << "SeedTransformer destructor called." << endl << endl;
-
 }
 
 void SeedTransformer::setServices(const EventSetup& iSetup) {
-
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
+  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
   iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField);
-  iSetup.get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
-  iSetup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
-
+  iSetup.get<TrajectoryFitter::Record>().get(theFitterName, theFitter);
+  iSetup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
+  iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, thePropagator);
 }
 
 vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) const {
-
   const string metname = "Reco|TrackingTools|SeedTransformer";
 
   LogTrace(metname) << " Number of valid RecHits:      " << aSeed.nHits() << endl;
 
-  if( aSeed.nHits() < nMinRecHits ) {
+  if (aSeed.nHits() < nMinRecHits) {
     LogTrace(metname) << "    --- Too few RecHits, no refit performed! ---" << endl;
     return vector<Trajectory>();
   }
@@ -93,36 +85,37 @@ vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) c
   vector<TransientTrackingRecHit::ConstRecHitPointer> recHits;
   unsigned int countRH = 0;
 
-  for(TrajectorySeed::recHitContainer::const_iterator itRecHits=aSeed.recHits().first; itRecHits!=aSeed.recHits().second; ++itRecHits, ++countRH) {
-    if((*itRecHits).isValid()) {
+  for (TrajectorySeed::recHitContainer::const_iterator itRecHits = aSeed.recHits().first;
+       itRecHits != aSeed.recHits().second;
+       ++itRecHits, ++countRH) {
+    if ((*itRecHits).isValid()) {
       TransientTrackingRecHit::ConstRecHitPointer ttrh(theMuonRecHitBuilder->build(&(*itRecHits)));
 
-      if(useSubRecHits){
-	TransientTrackingRecHit::ConstRecHitContainer subHits =
-	  MuonTransientTrackingRecHitBreaker::breakInSubRecHits(ttrh,2);
-	copy(subHits.begin(),subHits.end(),back_inserter(recHits));
+      if (useSubRecHits) {
+        TransientTrackingRecHit::ConstRecHitContainer subHits =
+            MuonTransientTrackingRecHitBreaker::breakInSubRecHits(ttrh, 2);
+        copy(subHits.begin(), subHits.end(), back_inserter(recHits));
+      } else {
+        recHits.push_back(ttrh);
       }
-      else{
-	recHits.push_back(ttrh);
-      }    
     }
-  } // end for(TrajectorySeed::recHitContainer::const_iterator itRecHits=aSeed.recHits().first; itRecHits!=aSeed.recHits().second; ++itRecHits, ++countRH)
+  }  // end for(TrajectorySeed::recHitContainer::const_iterator itRecHits=aSeed.recHits().first; itRecHits!=aSeed.recHits().second; ++itRecHits, ++countRH)
 
   TrajectoryStateOnSurface aInitTSOS = thePropagator->propagate(aTSOS, recHits.front()->det()->surface());
 
-  if(!aInitTSOS.isValid()) {
+  if (!aInitTSOS.isValid()) {
     LogTrace(metname) << "    --- Initial state for refit not valid! ---" << endl;
     return vector<Trajectory>();
   }
 
   vector<Trajectory> refittedSeed = theFitter->fit(aSeed, recHits, aInitTSOS);
 
-  if(refittedSeed.empty()) {
+  if (refittedSeed.empty()) {
     LogTrace(metname) << "    --- Seed fit failed! ---" << endl;
     return vector<Trajectory>();
   }
 
-  else if(!refittedSeed.front().isValid()) {
+  else if (!refittedSeed.front().isValid()) {
     LogTrace(metname) << "    --- Seed fitted, but trajectory not valid! ---" << endl;
     return vector<Trajectory>();
   }
@@ -131,18 +124,15 @@ vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) c
     LogTrace(metname) << "    +++ Seed fit succeded! +++" << endl;
 
   return refittedSeed;
-
 }
 
 TrajectoryStateOnSurface SeedTransformer::seedTransientState(const TrajectorySeed& tmpSeed) const {
-
   PTrajectoryStateOnDet tmpTSOD = tmpSeed.startingState();
   DetId tmpDetId(tmpTSOD.detId());
   const GeomDet* tmpGeomDet = theTrackingGeometry->idToDet(tmpDetId);
 
-  
-  TrajectoryStateOnSurface tmpTSOS = trajectoryStateTransform::transientState(tmpTSOD, &(tmpGeomDet->surface()), &(*theMagneticField));
+  TrajectoryStateOnSurface tmpTSOS =
+      trajectoryStateTransform::transientState(tmpTSOD, &(tmpGeomDet->surface()), &(*theMagneticField));
 
   return tmpTSOS;
-
 }

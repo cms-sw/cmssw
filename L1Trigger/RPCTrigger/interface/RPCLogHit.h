@@ -18,22 +18,18 @@
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
 class RPCLogHit {
-
 public:
-
   ///
   ///Default ctor.
   ///
-  RPCLogHit() {};
+  RPCLogHit(){};
 
-  
   RPCLogHit(int m_tower, int m_PAC, int m_logplane, int m_posInCone);
   ///
   ///Default dctor.
   ///
-  ~RPCLogHit(){ }
+  ~RPCLogHit() {}
 
-  
   RPCConst::l1RpcConeCrdnts getConeCrdnts() const;
 
   int getTower() const;
@@ -46,13 +42,13 @@ public:
 
   int getStripNumberInCone() const;
 
-  void  setDigiIdx(int);
+  void setDigiIdx(int);
 
   int getDigiIdx() const;
 
 private:
   RPCConst::l1RpcConeCrdnts m_ConeCrdnts;
-  
+
   int m_logPlaneNumber, m_stripNumberInCone;
 
   int m_digiIdx;

@@ -22,9 +22,9 @@ namespace l1t {
   class Stage2Layer2EtSumAlgorithmFirmwareImp1 : public Stage2Layer2EtSumAlgorithm {
   public:
     Stage2Layer2EtSumAlgorithmFirmwareImp1(CaloParamsHelper const* params);
-    ~Stage2Layer2EtSumAlgorithmFirmwareImp1() override =default;
-    void processEvent(const std::vector<l1t::CaloTower> & towers,
-			      std::vector<l1t::EtSum> & sums) override;
+    ~Stage2Layer2EtSumAlgorithmFirmwareImp1() override = default;
+    void processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::EtSum>& sums) override;
+
   private:
     CaloParamsHelper const* params_;
     int32_t towEtMetThresh_;
@@ -35,8 +35,8 @@ namespace l1t {
     int32_t ettEtaMax_;
     int32_t ettEtaMaxHF_;
     int32_t nTowThresholdHw_;
-    int32_t nTowEtaMax_;	
+    int32_t nTowEtaMax_;
   };
-}
+}  // namespace l1t
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Concurrency
 // Class  :     WaitingTaskHolder
-// 
+//
 /**\class WaitingTaskHolder WaitingTaskHolder.h "WaitingTaskHolder.h"
 
  Description: [one line class summary]
@@ -27,58 +27,47 @@
 // forward declarations
 
 namespace edm {
-  class WaitingTaskHolder
-  {
-    
+  class WaitingTaskHolder {
   public:
-    WaitingTaskHolder():
-    m_task(nullptr) {}
-    
-    explicit WaitingTaskHolder(edm::WaitingTask* iTask):
-    m_task(iTask)
-    {m_task->increment_ref_count();}
+    WaitingTaskHolder() : m_task(nullptr) {}
+
+    explicit WaitingTaskHolder(edm::WaitingTask* iTask) : m_task(iTask) { m_task->increment_ref_count(); }
     ~WaitingTaskHolder() {
-      if(m_task) {
+      if (m_task) {
         doneWaiting(std::exception_ptr{});
       }
     }
 
-    WaitingTaskHolder(const WaitingTaskHolder& iHolder) :
-    m_task(iHolder.m_task) {
-      m_task->increment_ref_count();
-    }
+    WaitingTaskHolder(const WaitingTaskHolder& iHolder) : m_task(iHolder.m_task) { m_task->increment_ref_count(); }
 
-    WaitingTaskHolder(WaitingTaskHolder&& iOther) :
-    m_task(iOther.m_task) {
-      iOther.m_task = nullptr;
-    }
-    
+    WaitingTaskHolder(WaitingTaskHolder&& iOther) : m_task(iOther.m_task) { iOther.m_task = nullptr; }
+
     WaitingTaskHolder& operator=(const WaitingTaskHolder& iRHS) {
       WaitingTaskHolder tmp(iRHS);
       std::swap(m_task, tmp.m_task);
       return *this;
     }
-    
+
     // ---------- const member functions ---------------------
     bool taskHasFailed() const { return m_task->exceptionPtr() != nullptr; }
-    
+
     // ---------- static member functions --------------------
-    
+
     // ---------- member functions ---------------------------
-    
+
     /** Use in the case where you need to inform the parent task of a
      failure before some other child task which may be run later reports
      a different, but related failure. You must later call doneWaiting
      in the same thread passing the same exceptoin.
      */
     void presetTaskAsFailed(std::exception_ptr iExcept) {
-      if(iExcept) {
+      if (iExcept) {
         m_task->dependentTaskFailed(iExcept);
       }
     }
-    
+
     void doneWaiting(std::exception_ptr iExcept) {
-      if(iExcept) {
+      if (iExcept) {
         m_task->dependentTaskFailed(iExcept);
       }
       //spawn can run the task before we finish
@@ -87,16 +76,15 @@ namespace edm {
       // before spawn avoids problems
       auto task = m_task;
       m_task = nullptr;
-      if(0==task->decrement_ref_count()){
+      if (0 == task->decrement_ref_count()) {
         tbb::task::spawn(*task);
       }
     }
-    
+
   private:
-    
     // ---------- member data --------------------------------
     WaitingTask* m_task;
   };
-}
+}  // namespace edm
 
 #endif

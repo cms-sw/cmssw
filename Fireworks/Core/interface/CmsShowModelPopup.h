@@ -49,59 +49,58 @@ class FWDialogBuilder;
 
 class CmsShowModelPopup;
 
-class CmsShowModelPopup : public TGTransientFrame
-{
-
+class CmsShowModelPopup : public TGTransientFrame {
 public:
-   friend class CmsShowModelPopupDetailViewButtonAdapter;
-   
-   CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, 
-                     const FWColorManager*, const TGWindow* p = nullptr, 
-                     UInt_t w = 1, UInt_t h = 1);
-   ~CmsShowModelPopup() override;
+  friend class CmsShowModelPopupDetailViewButtonAdapter;
 
-   void CloseWindow() override { UnmapWindow(); }
-   // ---------- const member functions ---------------------
+  CmsShowModelPopup(FWDetailViewManager*,
+                    FWSelectionManager*,
+                    const FWColorManager*,
+                    const TGWindow* p = nullptr,
+                    UInt_t w = 1,
+                    UInt_t h = 1);
+  ~CmsShowModelPopup() override;
 
-   // ---------- static member functions --------------------
+  void CloseWindow() override { UnmapWindow(); }
+  // ---------- const member functions ---------------------
 
-   // ---------- member functions ---------------------------
-   void fillModelPopup(const FWSelectionManager& iSelMgr);
-   void updateDisplay();
-   void colorSetChanged();
-   void disconnectAll();
-   void changeModelColor(Color_t iColor);
-   void changeModelOpacity(Int_t opacity = 100);
-   void toggleModelVisible(Bool_t on = kTRUE);
-   void openDetailedView();
+  // ---------- static member functions --------------------
 
-   void clicked();
+  // ---------- member functions ---------------------------
+  void fillModelPopup(const FWSelectionManager& iSelMgr);
+  void updateDisplay();
+  void colorSetChanged();
+  void disconnectAll();
+  void changeModelColor(Color_t iColor);
+  void changeModelOpacity(Int_t opacity = 100);
+  void toggleModelVisible(Bool_t on = kTRUE);
+  void openDetailedView();
 
-   ClassDefOverride(CmsShowModelPopup, 0);
+  void clicked();
+
+  ClassDefOverride(CmsShowModelPopup, 0);
 
 private:
-   CmsShowModelPopup(const CmsShowModelPopup&);    // stop default
+  CmsShowModelPopup(const CmsShowModelPopup&);  // stop default
 
-   const CmsShowModelPopup& operator=(const CmsShowModelPopup&);    // stop default
+  const CmsShowModelPopup& operator=(const CmsShowModelPopup&);  // stop default
 
-   
-   // ---------- member data --------------------------------
-   TGLabel* m_modelLabel;
-   FWColorSelect* m_colorSelectWidget;
-   TGCheckButton* m_isVisibleButton;
-   std::vector<TGTextButton*> m_openDetailedViewButtons;
+  // ---------- member data --------------------------------
+  TGLabel* m_modelLabel;
+  FWColorSelect* m_colorSelectWidget;
+  TGCheckButton* m_isVisibleButton;
+  std::vector<TGTextButton*> m_openDetailedViewButtons;
 
 #ifndef __CINT__
-   std::set<FWModelId> m_models;
-   sigc::connection m_modelChangedConn;
-   sigc::connection m_destroyedConn;
-   sigc::connection m_changes;
+  std::set<FWModelId> m_models;
+  sigc::connection m_modelChangedConn;
+  sigc::connection m_destroyedConn;
+  sigc::connection m_changes;
 #endif
-   FWDetailViewManager* m_detailViewManager;
-   const FWColorManager* m_colorManager;
-   TGHSlider            *m_opacitySlider;
-   FWDialogBuilder*      m_dialogBuilder;
+  FWDetailViewManager* m_detailViewManager;
+  const FWColorManager* m_colorManager;
+  TGHSlider* m_opacitySlider;
+  FWDialogBuilder* m_dialogBuilder;
 };
-
 
 #endif

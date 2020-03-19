@@ -2,7 +2,7 @@
 //
 // Package:     MVAComputer
 // Class  :     ProcLinear
-// 
+//
 
 // Implementation:
 //     Variable processor to compute a simple linear discriminant using
@@ -19,74 +19,59 @@
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcLinear : public VarProcessor {
-    public:
-	typedef VarProcessor::Registry::Registry<ProcLinear,
-					Calibration::ProcLinear> Registry;
+  class ProcLinear : public VarProcessor {
+  public:
+    typedef VarProcessor::Registry::Registry<ProcLinear, Calibration::ProcLinear> Registry;
 
-	ProcLinear(const char *name,
-	           const Calibration::ProcLinear *calib,
-	           const MVAComputer *computer);
-	~ProcLinear() override {}
+    ProcLinear(const char *name, const Calibration::ProcLinear *calib, const MVAComputer *computer);
+    ~ProcLinear() override {}
 
-	void configure(ConfIterator iter, unsigned int n) override;
-	void eval(ValueIterator iter, unsigned int n) const override;
-	std::vector<double> deriv(
-				ValueIterator iter, unsigned int n) const override;
+    void configure(ConfIterator iter, unsigned int n) override;
+    void eval(ValueIterator iter, unsigned int n) const override;
+    std::vector<double> deriv(ValueIterator iter, unsigned int n) const override;
 
-    private:
-	std::vector<double>	coeffs;
-	double			offset;
-};
+  private:
+    std::vector<double> coeffs;
+    double offset;
+  };
 
-ProcLinear::Registry registry("ProcLinear");
+  ProcLinear::Registry registry("ProcLinear");
 
-ProcLinear::ProcLinear(const char *name,
-                       const Calibration::ProcLinear *calib,
-                       const MVAComputer *computer) :
-	VarProcessor(name, calib, computer),
-	coeffs(calib->coeffs),
-	offset(calib->offset)
-{
-}
+  ProcLinear::ProcLinear(const char *name, const Calibration::ProcLinear *calib, const MVAComputer *computer)
+      : VarProcessor(name, calib, computer), coeffs(calib->coeffs), offset(calib->offset) {}
 
-void ProcLinear::configure(ConfIterator iter, unsigned int n)
-{
-	while(iter)
-		iter++(Variable::FLAG_OPTIONAL);
+  void ProcLinear::configure(ConfIterator iter, unsigned int n) {
+    while (iter)
+      iter++(Variable::FLAG_OPTIONAL);
 
-	iter << Variable::FLAG_OPTIONAL;
-}
+    iter << Variable::FLAG_OPTIONAL;
+  }
 
-void ProcLinear::eval(ValueIterator iter, unsigned int n) const
-{
-	double sum = offset;
+  void ProcLinear::eval(ValueIterator iter, unsigned int n) const {
+    double sum = offset;
 
-	for(std::vector<double>::const_iterator coeff = coeffs.begin();
-	    coeff != coeffs.end(); coeff++, ++iter) {
-		if (iter.empty()) {
-			iter();
-			return;
-		}
-		sum += *coeff * *iter;
-	}
+    for (std::vector<double>::const_iterator coeff = coeffs.begin(); coeff != coeffs.end(); coeff++, ++iter) {
+      if (iter.empty()) {
+        iter();
+        return;
+      }
+      sum += *coeff * *iter;
+    }
 
-	iter(sum);
-}
+    iter(sum);
+  }
 
-std::vector<double> ProcLinear::deriv(ValueIterator iter, unsigned int n) const
-{
-	std::vector<double> result;
+  std::vector<double> ProcLinear::deriv(ValueIterator iter, unsigned int n) const {
+    std::vector<double> result;
 
-	for(std::vector<double>::const_iterator coeff = coeffs.begin();
-	    coeff != coeffs.end(); coeff++, ++iter) {
-		if (!iter.empty())
-			result.push_back(*coeff);
-	}
+    for (std::vector<double>::const_iterator coeff = coeffs.begin(); coeff != coeffs.end(); coeff++, ++iter) {
+      if (!iter.empty())
+        result.push_back(*coeff);
+    }
 
-	return result;
-}
+    return result;
+  }
 
-} // anonymous namespace
+}  // anonymous namespace

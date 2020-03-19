@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRepresentationCheckerBase.h"
@@ -27,31 +27,29 @@
 // forward declarations
 
 class FWSimpleRepresentationChecker : public FWRepresentationCheckerBase {
-
 public:
-   FWSimpleRepresentationChecker(const std::string& iTypeidName,
-                                 const std::string& iPurpose,
-                                 unsigned int iBitPackedViews,
-                                 bool iRepresentsSubPart,
-                                 bool iRequiresFF = false);
-   ~FWSimpleRepresentationChecker() override;
+  FWSimpleRepresentationChecker(const std::string& iTypeidName,
+                                const std::string& iPurpose,
+                                unsigned int iBitPackedViews,
+                                bool iRepresentsSubPart,
+                                bool iRequiresFF = false);
+  ~FWSimpleRepresentationChecker() override;
 
-   // ---------- const member functions ---------------------
-   FWRepresentationInfo infoFor(const std::string& iTypeName) const override;
+  // ---------- const member functions ---------------------
+  FWRepresentationInfo infoFor(const std::string& iTypeName) const override;
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   static bool inheritsFrom(const edm::TypeWithDict& iChild,
-                            const std::string& iParentTypeName, unsigned int& distance);
-                                                
+  // ---------- member functions ---------------------------
+  static bool inheritsFrom(const edm::TypeWithDict& iChild, const std::string& iParentTypeName, unsigned int& distance);
+
 private:
-   FWSimpleRepresentationChecker(const FWSimpleRepresentationChecker&) = delete; // stop default
+  FWSimpleRepresentationChecker(const FWSimpleRepresentationChecker&) = delete;  // stop default
 
-   const FWSimpleRepresentationChecker& operator=(const FWSimpleRepresentationChecker&) = delete; // stop default
+  const FWSimpleRepresentationChecker& operator=(const FWSimpleRepresentationChecker&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   const std::string m_typeidName;
+  // ---------- member data --------------------------------
+  const std::string m_typeidName;
 };
 
 #endif

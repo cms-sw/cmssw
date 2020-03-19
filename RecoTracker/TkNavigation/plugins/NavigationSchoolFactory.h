@@ -5,8 +5,9 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "FWCore/PluginManager/interface/PluginFactory.h" 
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-typedef edmplugin::PluginFactory<NavigationSchool *(const GeometricSearchTracker* theTracker,const MagneticField* field)> NavigationSchoolFactory;
+typedef edmplugin::PluginFactory<NavigationSchool*(const GeometricSearchTracker* theTracker, const MagneticField* field)>
+    NavigationSchoolFactory;
 
-#endif 
+#endif

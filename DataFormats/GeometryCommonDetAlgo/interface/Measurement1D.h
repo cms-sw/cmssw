@@ -9,48 +9,33 @@
  */
 
 class Measurement1D {
-
 public:
-// construct
+  // construct
 
-Measurement1D() : theValue(0.) , theError(0.) {};
+  Measurement1D() : theValue(0.), theError(0.){};
 
-Measurement1D( const double& aValue) : 
-  theValue(aValue) , theError(0.) {};
+  Measurement1D(const double& aValue) : theValue(aValue), theError(0.){};
 
-Measurement1D( const double& aValue, const double& aError) 
-  : theValue(aValue) , theError(aError) {}; 
+  Measurement1D(const double& aValue, const double& aError) : theValue(aValue), theError(aError){};
 
-//destruct
+  //destruct
 
-~Measurement1D() {} ;
+  ~Measurement1D(){};
 
-double value() const { return theValue;}
+  double value() const { return theValue; }
 
-double error() const { return theError;}
+  double error() const { return theError; }
 
-double significance() const {
-  if (theError == 0) return 0;
-  else return theValue/theError;
-}
+  double significance() const {
+    if (theError == 0)
+      return 0;
+    else
+      return theValue / theError;
+  }
 
 private:
-
-double  theValue;
-double  theError;
-
+  double theValue;
+  double theError;
 };
 
-
-
 #endif
-
-
-
-
-
-
-
-
-
-

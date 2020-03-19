@@ -7,34 +7,24 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-
 class CosmicSeedCreator final : public SeedCreator {
+public:
+  CosmicSeedCreator(const edm::ParameterSet &extra) { maxseeds_ = extra.getParameter<int>("maxseeds"); }
 
- public:
-  CosmicSeedCreator( const edm::ParameterSet & extra )
-    {
-      maxseeds_ = extra.getParameter<int>("maxseeds");
-    }
-
-  ~CosmicSeedCreator() override{}
+  ~CosmicSeedCreator() override {}
 
   // initialize the "event dependent state"
-  void init(const TrackingRegion & region,
-		    const edm::EventSetup& es,
-		    const SeedComparitor *filter) override;
+  void init(const TrackingRegion &region, const edm::EventSetup &es, const SeedComparitor *filter) override;
 
-  // make job 
+  // make job
   // fill seedCollection with the "TrajectorySeed"
-  void makeSeed(TrajectorySeedCollection & seedCollection,
-			const SeedingHitSet & hits) override;
+  void makeSeed(TrajectorySeedCollection &seedCollection, const SeedingHitSet &hits) override;
 
-  
 private:
-  const TrackingRegion * region = nullptr;
+  const TrackingRegion *region = nullptr;
   const SeedComparitor *filter = nullptr;
   edm::ESHandle<MagneticField> bfield;
 
   unsigned int maxseeds_;
 };
-#endif 
+#endif

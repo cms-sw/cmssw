@@ -3,6 +3,6 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/ESRecHitWorkerBaseClass.h"
-typedef edmplugin::PluginFactory< ESRecHitWorkerBaseClass*(const edm::ParameterSet&) > ESRecHitWorkerFactory;
+typedef edmplugin::PluginFactory<ESRecHitWorkerBaseClass*(const edm::ParameterSet&)> ESRecHitWorkerFactory;
 
 #endif

@@ -31,14 +31,13 @@ namespace edm {
 
 namespace trigger {
   struct Efficiency {
-    Efficiency(): eventCount_(0),acceptCount_(0) { }
+    Efficiency() : eventCount_(0), acceptCount_(0) {}
     mutable std::atomic<unsigned int> eventCount_;
     mutable std::atomic<unsigned int> acceptCount_;
   };
-}
+}  // namespace trigger
 
-class HLTPrescaler : public edm::stream::EDFilter<edm::GlobalCache<trigger::Efficiency> >
-{
+class HLTPrescaler : public edm::stream::EDFilter<edm::GlobalCache<trigger::Efficiency> > {
 public:
   //
   // construction/destruction
@@ -50,19 +49,15 @@ public:
     return std::unique_ptr<trigger::Efficiency>(new trigger::Efficiency());
   }
 
-
-
   //
   // member functions
   //
-  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  void beginLuminosityBlock(edm::LuminosityBlock const&lb,
-				    edm::EventSetup const& iSetup) override;
-  bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& iSetup) override;
+  bool filter(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
   void endStream() override;
-  static  void globalEndJob(const trigger::Efficiency* efficiency);
-  
-  
+  static void globalEndJob(const trigger::Efficiency* efficiency);
+
 private:
   //
   //member data
@@ -86,19 +81,17 @@ private:
 
   /// prescale service
   edm::service::PrescaleService* prescaleService_;
-  
+
   /// check for (re)initialization of the prescale
   bool newLumi_;
 
   /// GT payload, to extract the prescale column index
-  edm::InputTag                                  gtDigiTag_;
+  edm::InputTag gtDigiTag_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigi1Token_;
-  edm::EDGetTokenT<GlobalAlgBlkBxCollection>     gtDigi2Token_;
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> gtDigi2Token_;
 
   /// "seed" used to initialize the prescale counter
-  static const
-  unsigned int prescaleSeed_;
-
+  static const unsigned int prescaleSeed_;
 };
 
 #endif

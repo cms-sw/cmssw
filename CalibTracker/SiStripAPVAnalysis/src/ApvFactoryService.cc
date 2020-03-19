@@ -1,47 +1,36 @@
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvFactoryService.h"
 
-
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-
 
 using namespace edm;
 using namespace std;
 //using namespace sistrip;
 
 // -----------------------------------------------------------------------------
-// 
+//
 
 // -----------------------------------------------------------------------------
-// 
+//
 
-ApvFactoryService::ApvFactoryService( const edm::ParameterSet& pset,
-				      edm::ActivityRegistry& activity ) :
-  apvFactory_()
-{
- 
-  apvFactory_= new ApvAnalysisFactory(pset);
-  std::cout << " Print pedalgo inside ApvFactoryService constructor " << pset.getParameter<string>("CalculatorAlgorithm") << std::endl;
-//  activity.watchPostProcessEvent(this, &ApvFactoryService::postProcessEvent);
-
- 
-  
+ApvFactoryService::ApvFactoryService(const edm::ParameterSet& pset, edm::ActivityRegistry& activity) : apvFactory_() {
+  apvFactory_ = new ApvAnalysisFactory(pset);
+  std::cout << " Print pedalgo inside ApvFactoryService constructor "
+            << pset.getParameter<string>("CalculatorAlgorithm") << std::endl;
+  //  activity.watchPostProcessEvent(this, &ApvFactoryService::postProcessEvent);
 }
 
 // -----------------------------------------------------------------------------
 //
-ApvFactoryService::~ApvFactoryService() {
-}
+ApvFactoryService::~ApvFactoryService() {}
 
 // -----------------------------------------------------------------------------
 
-
-void ApvFactoryService::postProcessEvent(const edm::Event& ie, const edm::EventSetup& ies){
-
-  if (gotPed) 
+void ApvFactoryService::postProcessEvent(const edm::Event& ie, const edm::EventSetup& ies) {
+  if (gotPed)
     return;
 
-/*
+  /*
   std::cout << "ApvFactoryService::post" << std::endl;
 
   edm::ESHandle<SiStripPedestals> ped;
@@ -73,41 +62,18 @@ void ApvFactoryService::postProcessEvent(const edm::Event& ie, const edm::EventS
   } 
  
 */
-
-
 }
 
-
+// -----------------------------------------------------------------------------
+//
 
 // -----------------------------------------------------------------------------
-// 
+//
 
-// -----------------------------------------------------------------------------
-// 
-
-int ApvFactoryService::getEventInitNumber() {
-  return 0;
-}
+int ApvFactoryService::getEventInitNumber() { return 0; }
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
 //
 
-
-ApvAnalysisFactory*  const ApvFactoryService::getApvFactory() const {
- 
-return apvFactory_;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-  
+ApvAnalysisFactory* const ApvFactoryService::getApvFactory() const { return apvFactory_; }

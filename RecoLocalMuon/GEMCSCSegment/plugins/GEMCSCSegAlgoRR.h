@@ -20,14 +20,10 @@
 #include <deque>
 #include <vector>
 
-
 class GEMCSCSegFit;
 
 class GEMCSCSegAlgoRR : public GEMCSCSegmentAlgorithm {
-
-
 public:
-
   /// Constructor
   explicit GEMCSCSegAlgoRR(const edm::ParameterSet& ps);
 
@@ -37,41 +33,43 @@ public:
   /**
    * Build segments for all desired groups of hits
    */
-  std::vector<GEMCSCSegment> run( const std::map<uint32_t, const CSCLayer*>& csclayermap, const std::map<uint32_t, const GEMEtaPartition*>& gemrollmap,
-				  const std::vector<const CSCSegment*>& cscsegments, const std::vector<const GEMRecHit*>& gemrechits) override;
-private:
+  std::vector<GEMCSCSegment> run(const std::map<uint32_t, const CSCLayer*>& csclayermap,
+                                 const std::map<uint32_t, const GEMEtaPartition*>& gemrollmap,
+                                 const std::vector<const CSCSegment*>& cscsegments,
+                                 const std::vector<const GEMRecHit*>& gemrechits) override;
 
-  /// Utility functions 
+private:
+  /// Utility functions
   /**
    * Search for GEMHits inside a Box around the position extrapolated from the CSC segment.
    */
-  std::vector<const TrackingRecHit*> chainHitsToSegm(const CSCSegment* cscsegment, const std::vector<const GEMRecHit*>& gemrechits);
+  std::vector<const TrackingRecHit*> chainHitsToSegm(const CSCSegment* cscsegment,
+                                                     const std::vector<const GEMRecHit*>& gemrechits);
 
-    
   /**
    * Build the GEMCSCSegment.
    */
-  std::vector<GEMCSCSegment> buildSegments(const CSCSegment* cscsegment, const std::vector<const TrackingRecHit*>& rechits);
-
+  std::vector<GEMCSCSegment> buildSegments(const CSCSegment* cscsegment,
+                                           const std::vector<const TrackingRecHit*>& rechits);
 
   /// Configuration parameters
-  bool         debug;
+  bool debug;
   unsigned int minHitsPerSegment;
-  bool         preClustering;
-  double       dXclusBoxMax;
-  double       dYclusBoxMax;
-  bool         preClustering_useChaining;
-  double       dPhiChainBoxMax;
-  double       dThetaChainBoxMax;
-  double       dRChainBoxMax;
-  int          maxRecHitsInCluster;
-  
-  /// Member variables
-  const std::string myName; // name of the algorithm, here: GEMCSCSegAlgoRR
+  bool preClustering;
+  double dXclusBoxMax;
+  double dYclusBoxMax;
+  bool preClustering_useChaining;
+  double dPhiChainBoxMax;
+  double dThetaChainBoxMax;
+  double dRChainBoxMax;
+  int maxRecHitsInCluster;
 
-  std::map<uint32_t, const CSCLayer*>        theCSCLayers_;
+  /// Member variables
+  const std::string myName;  // name of the algorithm, here: GEMCSCSegAlgoRR
+
+  std::map<uint32_t, const CSCLayer*> theCSCLayers_;
   std::map<uint32_t, const GEMEtaPartition*> theGEMEtaParts_;
-  GEMCSCSegFit*                              sfit_;
+  GEMCSCSegFit* sfit_;
 };
 
 #endif

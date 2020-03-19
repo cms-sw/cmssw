@@ -8,68 +8,46 @@ namespace edm {
 
   class MultipleException : public cms::Exception {
   public:
-    MultipleException(int iReturnValue,
-                      std::string const& iMessage):
-    cms::Exception("MultipleExceptions", iMessage),
-    returnValue_(iReturnValue) {}
-    
-    Exception* clone() const override {
-      return new MultipleException(*this);
-    }
+    MultipleException(int iReturnValue, std::string const& iMessage)
+        : cms::Exception("MultipleExceptions", iMessage), returnValue_(iReturnValue) {}
+
+    Exception* clone() const override { return new MultipleException(*this); }
 
   private:
-    int returnCode_() const override {
-      return returnValue_;
-    }
+    int returnCode_() const override { return returnValue_; }
 
     int returnValue_;
   };
-  
-  ExceptionCollector::ExceptionCollector(std::string const& initialMessage) :
-    initialMessage_(initialMessage),
-    firstException_(),
-    accumulatedExceptions_(),
-    nExceptions_(0) {
-  }
 
-  ExceptionCollector::~ExceptionCollector() {
-  }
+  ExceptionCollector::ExceptionCollector(std::string const& initialMessage)
+      : initialMessage_(initialMessage), firstException_(), accumulatedExceptions_(), nExceptions_(0) {}
 
-  bool
-  ExceptionCollector::hasThrown() const {
-    return nExceptions_ > 0;
-  }
+  ExceptionCollector::~ExceptionCollector() {}
 
-  void
-  ExceptionCollector::rethrow() const {
+  bool ExceptionCollector::hasThrown() const { return nExceptions_ > 0; }
+
+  void ExceptionCollector::rethrow() const {
     if (nExceptions_ == 1) {
       firstException_->raise();
-    }
-    else if (nExceptions_ > 1) {
+    } else if (nExceptions_ > 1) {
       accumulatedExceptions_->raise();
     }
   }
 
-  void
-  ExceptionCollector::call(std::function<void(void)> f) {
+  void ExceptionCollector::call(std::function<void(void)> f) {
     try {
-      convertException::wrap([&f]() {
-        f();
-      });
-    }
-    catch (cms::Exception const& ex) {
+      convertException::wrap([&f]() { f(); });
+    } catch (cms::Exception const& ex) {
       ++nExceptions_;
       if (nExceptions_ == 1) {
         firstException_.reset(ex.clone());
         accumulatedExceptions_.reset(new MultipleException(ex.returnCode(), initialMessage_));
       }
-      *accumulatedExceptions_ << nExceptions_ << "\n"
-                              << ex.explainSelf();
+      *accumulatedExceptions_ << nExceptions_ << "\n" << ex.explainSelf();
     }
   }
 
-  void
-  ExceptionCollector::addException(cms::Exception const& exception) {
+  void ExceptionCollector::addException(cms::Exception const& exception) {
     ++nExceptions_;
     if (nExceptions_ == 1) {
       firstException_.reset(exception.clone());
@@ -79,4 +57,4 @@ namespace edm {
                             << "\n"
                             << exception.explainSelf();
   }
-}
+}  // namespace edm

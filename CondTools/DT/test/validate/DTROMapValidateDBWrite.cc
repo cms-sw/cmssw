@@ -4,7 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTROMapValidateHandler> DTROMapValidateDBWrite;
 
-
 DEFINE_FWK_MODULE(DTROMapValidateDBWrite);
-
-

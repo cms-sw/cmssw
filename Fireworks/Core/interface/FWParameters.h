@@ -24,17 +24,16 @@
 
 // forward declarations
 
-struct FWParameters
-{
-  typedef FWGenericParameterWithRange<long>   Long;
+struct FWParameters {
+  typedef FWGenericParameterWithRange<long> Long;
   typedef FWGenericParameterWithRange<double> Double;
-  typedef FWGenericParameter<std::string>     String;
-  typedef FWGenericParameter<bool>            Bool;
+  typedef FWGenericParameter<std::string> String;
+  typedef FWGenericParameter<bool> Bool;
 };
 
-typedef FWParameters::Long   FWLongParameter;
+typedef FWParameters::Long FWLongParameter;
 typedef FWParameters::Double FWDoubleParameter;
 typedef FWParameters::String FWStringParameter;
-typedef FWParameters::Bool   FWBoolParameter;
+typedef FWParameters::Bool FWBoolParameter;
 
 #endif

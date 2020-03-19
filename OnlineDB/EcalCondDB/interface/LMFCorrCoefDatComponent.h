@@ -18,47 +18,43 @@
 #include "OnlineDB/EcalCondDB/interface/LMFLmrSubIOV.h"
 #include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
 
-class LMFCorrCoefDatComponent: public LMFDat {
- public:
+class LMFCorrCoefDatComponent : public LMFDat {
+public:
   friend class EcalCondDBInterface;
 
   LMFCorrCoefDatComponent();
   LMFCorrCoefDatComponent(EcalDBConnection *c);
-  LMFCorrCoefDatComponent(oracle::occi::Environment* env,
-		 oracle::occi::Connection* conn);
-  ~LMFCorrCoefDatComponent() override {};
+  LMFCorrCoefDatComponent(oracle::occi::Environment *env, oracle::occi::Connection *conn);
+  ~LMFCorrCoefDatComponent() override{};
 
-  LMFCorrCoefDatComponent& setLMFLmrSubIOV(const LMFLmrSubIOV &iov);
-  LMFCorrCoefDatComponent& setP123(const EcalLogicID &id, float p1, float p2, float p3);
-  LMFCorrCoefDatComponent& setP123(const EcalLogicID &id, float p1, float p2, float p3,
-			  float p1e, float p2e, float p3e);
-  LMFCorrCoefDatComponent& setP123Errors(const EcalLogicID &id, float p1e, float p2e, 
-				float p3e);
-  LMFCorrCoefDatComponent& setFlag(const EcalLogicID &id, int flag);
-  LMFCorrCoefDatComponent& setSequence(const EcalLogicID &id, int seq_id);
-  LMFCorrCoefDatComponent& setSequence(const EcalLogicID &id, const LMFSeqDat &seq);
+  LMFCorrCoefDatComponent &setLMFLmrSubIOV(const LMFLmrSubIOV &iov);
+  LMFCorrCoefDatComponent &setP123(const EcalLogicID &id, float p1, float p2, float p3);
+  LMFCorrCoefDatComponent &setP123(const EcalLogicID &id, float p1, float p2, float p3, float p1e, float p2e, float p3e);
+  LMFCorrCoefDatComponent &setP123Errors(const EcalLogicID &id, float p1e, float p2e, float p3e);
+  LMFCorrCoefDatComponent &setFlag(const EcalLogicID &id, int flag);
+  LMFCorrCoefDatComponent &setSequence(const EcalLogicID &id, int seq_id);
+  LMFCorrCoefDatComponent &setSequence(const EcalLogicID &id, const LMFSeqDat &seq);
 
-  LMFLmrSubIOV        getLMFLmrSubIOV() const;
-  int                 getLMFLmrSubIOVID() const;
+  LMFLmrSubIOV getLMFLmrSubIOV() const;
+  int getLMFLmrSubIOVID() const;
   friend class LMFUnique;
   using LMFUnique::getParameters;
-  std::vector<float>  getParameters(const EcalLogicID &id);
-  std::vector<float>  getParameterErrors(const EcalLogicID &id);
-  std::vector<float>  getParameters(int id);
-  std::vector<float>  getParameterErrors(int id);
-  int                 getFlag(const EcalLogicID &id);
-  int                 getSeqID(const EcalLogicID &id);
-  int                 getSeqID(int id);
-  LMFSeqDat           getSequence(const EcalLogicID &id);
-  
+  std::vector<float> getParameters(const EcalLogicID &id);
+  std::vector<float> getParameterErrors(const EcalLogicID &id);
+  std::vector<float> getParameters(int id);
+  std::vector<float> getParameterErrors(int id);
+  int getFlag(const EcalLogicID &id);
+  int getSeqID(const EcalLogicID &id);
+  int getSeqID(int id);
+  LMFSeqDat getSequence(const EcalLogicID &id);
+
   std::string foreignKeyName() const override;
   std::string getTableName() const override;
   std::string getIovIdFieldName() const override;
   int writeDB() noexcept(false) override;
 
- private:
+private:
   void init();
-
 };
 
 #endif

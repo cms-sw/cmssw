@@ -7,14 +7,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 typedef SingleObjectSelector<
-          reco::CandidateView,
-          CompositeCandSelector<
-            AndPairSelector<
-              StringCutObjectSelector<reco::Muon>,
-              StringCutObjectSelector<reco::Muon> 
-            >,
-            reco::Muon
-          >
-        > CompositeDimuonAndSelector;
+    reco::CandidateView,
+    CompositeCandSelector<AndPairSelector<StringCutObjectSelector<reco::Muon>, StringCutObjectSelector<reco::Muon> >,
+                          reco::Muon> >
+    CompositeDimuonAndSelector;
 
 DEFINE_FWK_MODULE(CompositeDimuonAndSelector);

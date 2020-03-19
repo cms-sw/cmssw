@@ -9,17 +9,13 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-
 using namespace cms;
 using namespace std;
 
-
-SiPixelPerformanceSummaryReader::SiPixelPerformanceSummaryReader(const edm::ParameterSet& iConfig) 
-                               : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {}
-
+SiPixelPerformanceSummaryReader::SiPixelPerformanceSummaryReader(const edm::ParameterSet& iConfig)
+    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {}
 
 SiPixelPerformanceSummaryReader::~SiPixelPerformanceSummaryReader() {}
-
 
 void SiPixelPerformanceSummaryReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   edm::LogInfo("SiPixelPerformanceSummaryReader") << "start reading SiPixelPerformanceSummary" << endl;
@@ -29,6 +25,7 @@ void SiPixelPerformanceSummaryReader::analyze(const edm::Event& e, const edm::Ev
 
   SiPixelPerformanceSummary_->print();
   vector<uint32_t> allDetIds = SiPixelPerformanceSummary_->getAllDetIds();
-  if (allDetIds.size()>0) SiPixelPerformanceSummary_->print(allDetIds[0]);
-  SiPixelPerformanceSummary_->printAll(); 
+  if (allDetIds.size() > 0)
+    SiPixelPerformanceSummary_->print(allDetIds[0]);
+  SiPixelPerformanceSummary_->printAll();
 }

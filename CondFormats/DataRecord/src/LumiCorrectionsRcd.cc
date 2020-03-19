@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     LumiCorrectionsRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

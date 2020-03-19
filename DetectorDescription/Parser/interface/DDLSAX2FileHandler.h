@@ -32,39 +32,35 @@ class DDLElementRegistry;
  *  XML Parser encounters.
  *
  */
-class DDLSAX2FileHandler : public DDLSAX2Handler 
-{
- public:
-  
-  DDLSAX2FileHandler( DDCompactView& cpv, DDLElementRegistry& );
+class DDLSAX2FileHandler : public DDLSAX2Handler {
+public:
+  DDLSAX2FileHandler(DDCompactView& cpv, DDLElementRegistry&);
   ~DDLSAX2FileHandler() override;
 
-  void init() ;
+  void init();
 
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
-  
-  void startElement( const XMLCh* uri, const XMLCh* localname,
-		     const XMLCh* qname, const Attributes& attrs) override;
-  void endElement( const XMLCh* uri, const XMLCh* localname,
-		   const XMLCh* qname) override;
-  void characters( const XMLCh* chars, XMLSize_t length) override;
-  void comment( const XMLCh* chars, XMLSize_t length ) override;
+
+  void startElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname, const Attributes& attrs) override;
+  void endElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname) override;
+  void characters(const XMLCh* chars, XMLSize_t length) override;
+  void comment(const XMLCh* chars, XMLSize_t length) override;
 
   //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
-  void createDDConstants() const; 
+  void createDDConstants() const;
 
- protected:
+protected:
   DDLElementRegistry& registry() { return registry_; }
- private:
+
+private:
   virtual const std::string& parent() const;
   virtual const std::string& self() const;
-  
- private:
 
-  std::vector< std::string > namesMap_;
-  std::vector< size_t > names_;
+private:
+  std::vector<std::string> namesMap_;
+  std::vector<size_t> names_;
   DDCompactView& cpv_;
   DDLElementRegistry& registry_;
 };

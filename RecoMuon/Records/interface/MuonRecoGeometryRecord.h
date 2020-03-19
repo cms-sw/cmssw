@@ -14,9 +14,8 @@
 
 #include "boost/mpl/vector.hpp"
 
+class MuonRecoGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<MuonRecoGeometryRecord,
+                                                            boost::mpl::vector<MuonGeometryRecord> > {};
 
-class MuonRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<MuonRecoGeometryRecord,
-  boost::mpl::vector<MuonGeometryRecord> > {};
-
-#endif 
-
+#endif

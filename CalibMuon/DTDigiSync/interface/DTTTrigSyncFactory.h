@@ -16,4 +16,3 @@ class DTTTrigBaseSync;
 
 typedef edmplugin::PluginFactory<DTTTrigBaseSync *(const edm::ParameterSet &)> DTTTrigSyncFactory;
 #endif
-

@@ -5,4 +5,4 @@
 
 class MTDSurfaceDeformationRcd : public edm::eventsetup::EventSetupRecordImplementation<MTDSurfaceDeformationRcd> {};
 
-#endif 
+#endif

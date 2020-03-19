@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSPixelGainCalibrationsRcd
-// 
+//
 /**\class CTPPSPixelGainCalibrationsRcd CTPPSPixelGainCalibrationsRcd.h CondFormats/DataRecord/interface/CTPPSPixelGainCalibrationsRcd.h
 
  Description: [one line class summary]
@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class CTPPSPixelGainCalibrationsRcd : public edm::eventsetup::EventSetupRecordImplementation<CTPPSPixelGainCalibrationsRcd> {};
+class CTPPSPixelGainCalibrationsRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<CTPPSPixelGainCalibrationsRcd> {};
 
 #endif

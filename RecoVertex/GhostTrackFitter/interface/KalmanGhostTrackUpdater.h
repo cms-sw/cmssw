@@ -5,26 +5,27 @@
 
 namespace reco {
 
-class GhostTrackPrediction;
-class GhostTrackState;
+  class GhostTrackPrediction;
+  class GhostTrackState;
 
-class KalmanGhostTrackUpdater : public GhostTrackFitter::PredictionUpdater {
-    public:
-	~KalmanGhostTrackUpdater() override {}
+  class KalmanGhostTrackUpdater : public GhostTrackFitter::PredictionUpdater {
+  public:
+    ~KalmanGhostTrackUpdater() override {}
 
-	KalmanGhostTrackUpdater *clone() const override
-	{ return new KalmanGhostTrackUpdater(*this); }
+    KalmanGhostTrackUpdater *clone() const override { return new KalmanGhostTrackUpdater(*this); }
 
-	GhostTrackPrediction update(const GhostTrackPrediction &pred,
-	                            const GhostTrackState &state,
-	                            double &ndof, double &chi2) const override;
+    GhostTrackPrediction update(const GhostTrackPrediction &pred,
+                                const GhostTrackState &state,
+                                double &ndof,
+                                double &chi2) const override;
 
-	void contribution(const GhostTrackPrediction &pred,
-	                  const GhostTrackState &state,
-	                  double &ndof, double &chi2,
-	                  bool withPredError = false) const override;
-};
+    void contribution(const GhostTrackPrediction &pred,
+                      const GhostTrackState &state,
+                      double &ndof,
+                      double &chi2,
+                      bool withPredError = false) const override;
+  };
 
-}
+}  // namespace reco
 
-#endif // RecoBTag_KalmanGhostTrackUpdater_h
+#endif  // RecoBTag_KalmanGhostTrackUpdater_h

@@ -8,13 +8,13 @@
 
 namespace ZCountingTrigger {
 
-class TriggerTools
-{
-public:
-  static TriggerObjects  matchHLT(const double eta, const double phi, 
-				  const std::vector<TriggerRecord> &triggerRecords,
-				  const trigger::TriggerEvent &triggerEvent);
-};
+  class TriggerTools {
+  public:
+    static TriggerObjects matchHLT(const double eta,
+                                   const double phi,
+                                   const std::vector<TriggerRecord> &triggerRecords,
+                                   const trigger::TriggerEvent &triggerEvent);
+  };
 
-}
+}  // namespace ZCountingTrigger
 #endif

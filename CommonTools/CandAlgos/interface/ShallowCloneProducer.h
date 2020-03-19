@@ -19,39 +19,38 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 
-template<typename C>
+template <typename C>
 class ShallowCloneProducer : public edm::EDProducer {
 public:
   /// constructor from parameter set
-  explicit ShallowCloneProducer( const edm::ParameterSet& );
+  explicit ShallowCloneProducer(const edm::ParameterSet&);
   /// destructor
   ~ShallowCloneProducer() override;
 
 private:
   /// process an event
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   /// labels of the collection to be converted
   edm::EDGetTokenT<C> srcToken_;
 };
 
-template<typename C>
-ShallowCloneProducer<C>::ShallowCloneProducer( const edm::ParameterSet& par ) :
-  srcToken_( consumes<C>(par.template getParameter<edm::InputTag>( "src" ) ) ) {
+template <typename C>
+ShallowCloneProducer<C>::ShallowCloneProducer(const edm::ParameterSet& par)
+    : srcToken_(consumes<C>(par.template getParameter<edm::InputTag>("src"))) {
   produces<reco::CandidateCollection>();
 }
 
-template<typename C>
-ShallowCloneProducer<C>::~ShallowCloneProducer() {
-}
+template <typename C>
+ShallowCloneProducer<C>::~ShallowCloneProducer() {}
 
-template<typename C>
-void ShallowCloneProducer<C>::produce( edm::Event& evt, const edm::EventSetup& ) {
-  std::unique_ptr<reco::CandidateCollection> coll( new reco::CandidateCollection );
+template <typename C>
+void ShallowCloneProducer<C>::produce(edm::Event& evt, const edm::EventSetup&) {
+  std::unique_ptr<reco::CandidateCollection> coll(new reco::CandidateCollection);
   edm::Handle<C> masterCollection;
-  evt.getByToken( srcToken_, masterCollection );
-  for( size_t i = 0; i < masterCollection->size(); ++i ) {
-    reco::CandidateBaseRef masterClone( edm::Ref<C>( masterCollection, i ) );
-    coll->push_back( new reco::ShallowCloneCandidate( masterClone ) );
+  evt.getByToken(srcToken_, masterCollection);
+  for (size_t i = 0; i < masterCollection->size(); ++i) {
+    reco::CandidateBaseRef masterClone(edm::Ref<C>(masterCollection, i));
+    coll->push_back(new reco::ShallowCloneCandidate(masterClone));
   }
   evt.put(std::move(coll));
 }

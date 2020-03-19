@@ -34,27 +34,26 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
- 
-class Thrust  {
+
+class Thrust {
 public:
   /// spatial vector
   typedef math::XYZVector Vector;
   /// constructor from first and last iterators
-  template<typename const_iterator>
-  Thrust(const_iterator begin, const_iterator end) :
-    thrust_(0), axis_(0, 0, 0), pSum_(0), 
-    n_(end - begin), p_(n_) {
-    if (n_ == 0) return;
-    std::vector<const reco::Candidate*> cands;
-    for(const_iterator i = begin; i != end; ++i) {
+  template <typename const_iterator>
+  Thrust(const_iterator begin, const_iterator end) : thrust_(0), axis_(0, 0, 0), pSum_(0), n_(end - begin), p_(n_) {
+    if (n_ == 0)
+      return;
+    std::vector<const reco::Candidate *> cands;
+    for (const_iterator i = begin; i != end; ++i) {
       cands.push_back(&*i);
     }
     init(cands);
-  } 
+  }
   /// thrust value (in the range [0.5, 1.0])
-  double thrust() const { return thrust_; } 
+  double thrust() const { return thrust_; }
   /// thrust axis (with magnitude = 1)
-  const Vector& axis() const { return axis_; } 
+  const Vector &axis() const { return axis_; }
 
 private:
   double thrust_;
@@ -64,19 +63,16 @@ private:
   std::vector<Vector> p_;
 
   struct ThetaPhi {
-    ThetaPhi(double t, double p) : theta( t ), phi( p ) { }
+    ThetaPhi(double t, double p) : theta(t), phi(p) {}
     double theta, phi;
   };
-  double thrust(const Vector & theAxis) const; 
+  double thrust(const Vector &theAxis) const;
   ThetaPhi initialAxis() const;
   ThetaPhi finalAxis(ThetaPhi) const;
   Vector axis(double theta, double phi) const;
-  Vector axis(const ThetaPhi & tp) const  {
-    return axis(tp.theta, tp.phi);
-  }
-  void parabola(double & a, double & b, double & c, 
-		const Vector &, const Vector &, const Vector &) const;
-  void init(const std::vector<const reco::Candidate*>&);
+  Vector axis(const ThetaPhi &tp) const { return axis(tp.theta, tp.phi); }
+  void parabola(double &a, double &b, double &c, const Vector &, const Vector &, const Vector &) const;
+  void init(const std::vector<const reco::Candidate *> &);
 };
 
 #endif

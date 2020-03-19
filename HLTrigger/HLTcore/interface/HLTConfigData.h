@@ -14,26 +14,24 @@
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include<map>
-#include<string>
-#include<vector>
+#include <map>
+#include <string>
+#include <vector>
 
 //
 // class declaration
 //
 
 class HLTConfigData {
-
- public:
+public:
   HLTConfigData();
   HLTConfigData(const edm::ParameterSet* iID);
 
- private:
+private:
   /// extract information into data members - called by init() methods
   void extract();
 
- public:
-
+public:
   /// Dumping config info to cout
   void dump(const std::string& what) const;
 
@@ -88,17 +86,16 @@ class HLTConfigData {
   /// Is module an L3 filter (ie, tracked saveTags=true)
   bool saveTags(const std::string& module) const;
 
-
-  /// L1T type (0=unknown, 1=legacy/stage-1 or 2=stage-2)                                                                                    
+  /// L1T type (0=unknown, 1=legacy/stage-1 or 2=stage-2)
   unsigned int l1tType() const;
 
   /// HLTLevel1GTSeed module
   /// HLTLevel1GTSeed modules for all trigger paths
-  const std::vector<std::vector<std::pair<bool,std::string> > >& hltL1GTSeeds() const;
+  const std::vector<std::vector<std::pair<bool, std::string> > >& hltL1GTSeeds() const;
   /// HLTLevel1GTSeed modules for trigger path with name
-  const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(const std::string& trigger) const;
+  const std::vector<std::pair<bool, std::string> >& hltL1GTSeeds(const std::string& trigger) const;
   /// HLTLevel1GTSeed modules for trigger path with index i
-  const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(unsigned int trigger) const;
+  const std::vector<std::pair<bool, std::string> >& hltL1GTSeeds(unsigned int trigger) const;
 
   /// HLTL1TSeed module
   /// HLTL1TSeed modules for all trigger paths
@@ -107,7 +104,6 @@ class HLTConfigData {
   const std::vector<std::string>& hltL1TSeeds(const std::string& trigger) const;
   /// HLTL1TSeed modules for trigger path with index i
   const std::vector<std::string>& hltL1TSeeds(unsigned int trigger) const;
-
 
   /// Streams
   /// list of names of all streams
@@ -123,7 +119,6 @@ class HLTConfigData {
   /// names of datasets in stream with name
   const std::vector<std::string>& streamContent(const std::string& stream) const;
 
-
   /// Datasets
   /// list of names of all datasets
   const std::vector<std::string>& datasetNames() const;
@@ -138,21 +133,19 @@ class HLTConfigData {
   /// names of trigger paths in dataset with name
   const std::vector<std::string>& datasetContent(const std::string& dataset) const;
 
-
   /// HLT prescale info
   /// Number of HLT prescale sets
   unsigned int prescaleSize() const;
   /// HLT prescale value in specific prescale set for a specific trigger path
   unsigned int prescaleValue(unsigned int set, const std::string& trigger) const;
-  /// low-level data member access 
+  /// low-level data member access
   const std::vector<std::string>& prescaleLabels() const;
-  const std::map<std::string,std::vector<unsigned int> >& prescaleTable() const;
+  const std::map<std::string, std::vector<unsigned int> >& prescaleTable() const;
 
   /// technical: id() function needed for use with ThreadSafeRegistry
   edm::ParameterSetID id() const;
 
- private:
-
+private:
   const edm::ParameterSet* processPSet_;
 
   std::string processName_;
@@ -162,22 +155,21 @@ class HLTConfigData {
   std::vector<std::vector<std::string> > moduleLabels_;
   std::vector<std::vector<std::string> > saveTagsModules_;
 
-  std::map<std::string,unsigned int> triggerIndex_;
-  std::vector<std::map<std::string,unsigned int> > moduleIndex_;
+  std::map<std::string, unsigned int> triggerIndex_;
+  std::vector<std::map<std::string, unsigned int> > moduleIndex_;
 
   unsigned int l1tType_;
-  std::vector<std::vector<std::pair<bool,std::string> > > hltL1GTSeeds_;
+  std::vector<std::vector<std::pair<bool, std::string> > > hltL1GTSeeds_;
   std::vector<std::vector<std::string> > hltL1TSeeds_;
 
   std::vector<std::string> streamNames_;
-  std::map<std::string,unsigned int> streamIndex_;
+  std::map<std::string, unsigned int> streamIndex_;
   std::vector<std::vector<std::string> > streamContents_;
 
   std::vector<std::string> datasetNames_;
-  std::map<std::string,unsigned int> datasetIndex_;
+  std::map<std::string, unsigned int> datasetIndex_;
   std::vector<std::vector<std::string> > datasetContents_;
 
   trigger::HLTPrescaleTable hltPrescaleTable_;
-
 };
 #endif

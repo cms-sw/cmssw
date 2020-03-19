@@ -5,26 +5,18 @@
 #include <iostream>
 #include <string>
 
-namespace edmtest
-{
+namespace edmtest {
 
+  void UnitTestClient_O::analyze(edm::Event const& /*unused*/
+                                 ,
+                                 edm::EventSetup const& /*unused*/
+  ) {
+    edm::LogInfo("importantInfo") << "This LogInfo message should appear in both destinations";
+    edm::LogInfo("routineInfo") << "This LogInfo message should appear in the info destination";
 
-void
-  UnitTestClient_O::analyze( edm::Event      const & /*unused*/
-                           , edm::EventSetup const & /*unused*/
-                              )
-{
-  edm::LogInfo   ("importantInfo")   
-  		<< "This LogInfo message should appear in both destinations";
-  edm::LogInfo   ("routineInfo")   
-		<< "This LogInfo message should appear in the info destination";
-
-
- }  // MessageLoggerClient::analyze()
-
+  }  // MessageLoggerClient::analyze()
 
 }  // namespace edmtest
-
 
 using edmtest::UnitTestClient_O;
 DEFINE_FWK_MODULE(UnitTestClient_O);

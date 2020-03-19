@@ -6,10 +6,10 @@
 namespace l1t {
   namespace stage1 {
     class MissEtUnpacker : public Unpacker {
-      public:
-        bool unpack(const Block& block, UnpackerCollections *coll) override;
+    public:
+      bool unpack(const Block& block, UnpackerCollections* coll) override;
     };
-  }
-}
+  }  // namespace stage1
+}  // namespace l1t
 
 #endif

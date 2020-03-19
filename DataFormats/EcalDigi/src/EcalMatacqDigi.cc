@@ -3,7 +3,7 @@
 
 using namespace std;
 
-const double EcalMatacqDigi::lsb_ = 0.25e-3;// in Volt
+const double EcalMatacqDigi::lsb_ = 0.25e-3;  // in Volt
 
 #if 0
 void EcalMatacqDigi::setSize(const int& size) {
@@ -12,22 +12,22 @@ void EcalMatacqDigi::setSize(const int& size) {
   else size_=size;
 }
 #endif
-  
+
 std::ostream& operator<<(std::ostream& s, const EcalMatacqDigi& digi) {
   s << digi.size() << " samples " << std::endl;
-  for (int i=0; i<digi.size(); i++){
+  for (int i = 0; i < digi.size(); i++) {
     s << "  " << digi.amplitudeV(i) << std::endl;
   }
   return s;
 }
 
-void EcalMatacqDigi::swap(EcalMatacqDigi& a){
+void EcalMatacqDigi::swap(EcalMatacqDigi& a) {
   data_.swap(a.data_);
   std::swap(chId_, a.chId_);
   std::swap(ts_, a.ts_);
   std::swap(tTrigS_, a.tTrigS_);
   std::swap(version_, a.version_);
-#if (ECAL_MATACQ_DIGI_VERS>=2)
+#if (ECAL_MATACQ_DIGI_VERS >= 2)
   std::swap(bxId_, a.bxId_);
   std::swap(l1a_, a.l1a_);
   std::swap(triggerType_, a.triggerType_);

@@ -22,9 +22,9 @@ scEta                     superCluster.eta                                      
 SCRawE                    superCluster.rawEnergy                                              None None
 etaWidth                  superCluster.etaWidth                                               None None
 phiWidth                  superCluster.phiWidth                                               None None
-CITK_isoPhotons           egmPhotonIsolation:gamma-DR030-                                     None None
-CITK_isoPhoCorrMax2p5     egmPhotonIsolation:gamma-DR030-                                     None None
-CITK_isoChargedHad        egmPhotonIsolation:h+-DR030-                                        None None
-chgIsoWrtWorstVtx         photonIDValueMapProducer:phoWorstChargedIsolationConeVeto           None None
+CITK_isoPhotons           photonIso                                                           None None
+CITK_isoPhoCorrMax2p5     photonIso                                                           None None
+CITK_isoChargedHad        chargedHadronPFPVIso                                                None None
+chgIsoWrtWorstVtx         chargedHadronWorstVtxGeomVetoIso                                    None None
 esEffSigmaRR              full5x5_showerShapeVariables.effSigmaRR                             None None
 esEnergy/SCRawE           superCluster.preshowerEnergy/superCluster.rawEnergy                 None None

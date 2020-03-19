@@ -25,126 +25,129 @@
 
 #include <vector>
 
-class FWDTSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecSegment4D>
-{
+class FWDTSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecSegment4D> {
 public:
-   FWDTSegmentProxyBuilder( void ) {}
-   ~FWDTSegmentProxyBuilder( void ) override {}
+  FWDTSegmentProxyBuilder(void) {}
+  ~FWDTSegmentProxyBuilder(void) override {}
 
   bool haveSingleProduct() const override { return false; }
 
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWDTSegmentProxyBuilder( const FWDTSegmentProxyBuilder& ) = delete;
-   const FWDTSegmentProxyBuilder& operator=( const FWDTSegmentProxyBuilder& ) = delete;
+  FWDTSegmentProxyBuilder(const FWDTSegmentProxyBuilder&) = delete;
+  const FWDTSegmentProxyBuilder& operator=(const FWDTSegmentProxyBuilder&) = delete;
 
-   using FWSimpleProxyBuilderTemplate<DTRecSegment4D>::buildViewType;
-   void buildViewType( const DTRecSegment4D& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type, const FWViewContext* ) override;
+  using FWSimpleProxyBuilderTemplate<DTRecSegment4D>::buildViewType;
+  void buildViewType(const DTRecSegment4D& iData,
+                     unsigned int iIndex,
+                     TEveElement& oItemHolder,
+                     FWViewType::EType type,
+                     const FWViewContext*) override;
 };
 
-void
-FWDTSegmentProxyBuilder::buildViewType( const DTRecSegment4D& iData,           
-				unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type, const FWViewContext* )
-{
+void FWDTSegmentProxyBuilder::buildViewType(const DTRecSegment4D& iData,
+                                            unsigned int iIndex,
+                                            TEveElement& oItemHolder,
+                                            FWViewType::EType type,
+                                            const FWViewContext*) {
   unsigned int rawid = iData.chamberId().rawId();
-  const FWGeometry *geom = item()->getGeom();
+  const FWGeometry* geom = item()->getGeom();
 
-  if( ! geom->contains( rawid ))
-  {
-    fwLog( fwlog::kError ) << "failed to get geometry of DT chamber with detid: " 
-			   << rawid << std::endl;
+  if (!geom->contains(rawid)) {
+    fwLog(fwlog::kError) << "failed to get geometry of DT chamber with detid: " << rawid << std::endl;
     return;
   }
 
   TEveStraightLineSet* segmentSet = new TEveStraightLineSet();
   // FIXME: This should be set elsewhere.
-  segmentSet->SetLineWidth( 3 );
-  setupAddElement( segmentSet, &oItemHolder );
-   
-  TEveGeoShape* shape = item()->getGeom()->getEveShape( rawid );
-  if( shape ) 
-  {
-    if( TGeoBBox* box = dynamic_cast<TGeoBBox*>( shape->GetShape()))
-    {
-      LocalPoint pos = iData.localPosition();
-      LocalVector dir = iData.localDirection();   
-      LocalVector unit = dir.unit();
-    
-      double localPosition[3]     = {  pos.x(),  pos.y(),  pos.z() };
-      double localDirectionIn[3]  = {  dir.x(),  dir.y(),  dir.z() };
-      double localDirectionOut[3] = { -dir.x(), -dir.y(), -dir.z() };
+  segmentSet->SetLineWidth(3);
+  setupAddElement(segmentSet, &oItemHolder);
 
-      // In RhoZ view, draw segments at the middle of the chamber, otherwise they won't align with 1D rechits, 
+  TEveGeoShape* shape = item()->getGeom()->getEveShape(rawid);
+  if (shape) {
+    if (TGeoBBox* box = dynamic_cast<TGeoBBox*>(shape->GetShape())) {
+      LocalPoint pos = iData.localPosition();
+      LocalVector dir = iData.localDirection();
+      LocalVector unit = dir.unit();
+
+      double localPosition[3] = {pos.x(), pos.y(), pos.z()};
+      double localDirectionIn[3] = {dir.x(), dir.y(), dir.z()};
+      double localDirectionOut[3] = {-dir.x(), -dir.y(), -dir.z()};
+
+      // In RhoZ view, draw segments at the middle of the chamber, otherwise they won't align with 1D rechits,
       // for which only one coordinate is known.
-      if (type == FWViewType::kRhoZ) { 
-	localPosition[0]=0;
-	localDirectionIn[0]=0;
-	localDirectionOut[0]=0;
+      if (type == FWViewType::kRhoZ) {
+        localPosition[0] = 0;
+        localDirectionIn[0] = 0;
+        localDirectionOut[0] = 0;
       }
 
-      Double_t distIn = box->DistFromInside( localPosition, localDirectionIn );
-      Double_t distOut = box->DistFromInside( localPosition, localDirectionOut );
+      Double_t distIn = box->DistFromInside(localPosition, localDirectionIn);
+      Double_t distOut = box->DistFromInside(localPosition, localDirectionOut);
       LocalVector vIn = unit * distIn;
       LocalVector vOut = -unit * distOut;
-      float localSegmentInnerPoint[3] = { static_cast<float>(localPosition[0] + vIn.x()),
-					  static_cast<float>(localPosition[1] + vIn.y()),
-					  static_cast<float>(localPosition[2] + vIn.z()) 
-      };
-      
-      float localSegmentOuterPoint[3] = { static_cast<float>(localPosition[0] + vOut.x()),
-					  static_cast<float>(localPosition[1] + vOut.y()),
-					  static_cast<float>(localPosition[2] + vOut.z()) 
-      };
-                                   
+      float localSegmentInnerPoint[3] = {static_cast<float>(localPosition[0] + vIn.x()),
+                                         static_cast<float>(localPosition[1] + vIn.y()),
+                                         static_cast<float>(localPosition[2] + vIn.z())};
+
+      float localSegmentOuterPoint[3] = {static_cast<float>(localPosition[0] + vOut.x()),
+                                         static_cast<float>(localPosition[1] + vOut.y()),
+                                         static_cast<float>(localPosition[2] + vOut.z())};
+
       float globalSegmentInnerPoint[3];
       float globalSegmentOuterPoint[3];
 
-      geom->localToGlobal( rawid, localSegmentInnerPoint,  globalSegmentInnerPoint, localSegmentOuterPoint,  globalSegmentOuterPoint );
+      geom->localToGlobal(
+          rawid, localSegmentInnerPoint, globalSegmentInnerPoint, localSegmentOuterPoint, globalSegmentOuterPoint);
 
-      segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-			   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+      segmentSet->AddLine(globalSegmentInnerPoint[0],
+                          globalSegmentInnerPoint[1],
+                          globalSegmentInnerPoint[2],
+                          globalSegmentOuterPoint[0],
+                          globalSegmentOuterPoint[1],
+                          globalSegmentOuterPoint[2]);
 
-      
       // Draw hits included in the segment
       TEvePointSet* pointSet = new TEvePointSet;
       // FIXME: This should be set elsewhere.
       pointSet->SetMarkerSize(1.5);
-      setupAddElement( pointSet, &oItemHolder );
+      setupAddElement(pointSet, &oItemHolder);
 
       std::vector<DTRecHit1D> recHits;
-      const DTChamberRecSegment2D* phiSeg = iData.phiSegment();      
+      const DTChamberRecSegment2D* phiSeg = iData.phiSegment();
       const DTSLRecSegment2D* zSeg = iData.zSegment();
       if (phiSeg) {
-	std::vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
-	copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits));
+        std::vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
+        copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits));
       }
       if (zSeg) {
-	std::vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
-	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits));
+        std::vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
+        copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits));
       }
 
-      for (std::vector<DTRecHit1D>::const_iterator rh=recHits.begin(); rh!=recHits.end(); ++rh){
-	DTLayerId layerId = (*rh).wireId().layerId();
-	LocalPoint hpos = (*rh).localPosition();
-	float hitLocalPos[3]= {hpos.x(), hpos.y(), hpos.z()};
-	if (type == FWViewType::kRhoZ) {
-	  // In RhoZ view, draw hits at the middle of the layer in the global Z coordinate,
-	  // otherwise they won't align with 1D rechits, for which only one coordinate is known.
-	  if (layerId.superLayer()==2) {
-	    hitLocalPos[1]=0;
-	  } else {
-	    hitLocalPos[0]=0;
-	  }
-	}
-	float hitGlobalPoint[3];
-	geom->localToGlobal(layerId, hitLocalPos, hitGlobalPoint);
-	pointSet->SetNextPoint(hitGlobalPoint[0], hitGlobalPoint[1], hitGlobalPoint[2]);
+      for (std::vector<DTRecHit1D>::const_iterator rh = recHits.begin(); rh != recHits.end(); ++rh) {
+        DTLayerId layerId = (*rh).wireId().layerId();
+        LocalPoint hpos = (*rh).localPosition();
+        float hitLocalPos[3] = {hpos.x(), hpos.y(), hpos.z()};
+        if (type == FWViewType::kRhoZ) {
+          // In RhoZ view, draw hits at the middle of the layer in the global Z coordinate,
+          // otherwise they won't align with 1D rechits, for which only one coordinate is known.
+          if (layerId.superLayer() == 2) {
+            hitLocalPos[1] = 0;
+          } else {
+            hitLocalPos[0] = 0;
+          }
+        }
+        float hitGlobalPoint[3];
+        geom->localToGlobal(layerId, hitLocalPos, hitGlobalPoint);
+        pointSet->SetNextPoint(hitGlobalPoint[0], hitGlobalPoint[1], hitGlobalPoint[2]);
       }
     }
   }
 }
 
-REGISTER_FWPROXYBUILDER( FWDTSegmentProxyBuilder, DTRecSegment4D, "DT-segments", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
-
-
+REGISTER_FWPROXYBUILDER(FWDTSegmentProxyBuilder,
+                        DTRecSegment4D,
+                        "DT-segments",
+                        FWViewType::kAll3DBits | FWViewType::kAllRPZBits);

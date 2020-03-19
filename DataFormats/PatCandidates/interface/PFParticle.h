@@ -18,37 +18,30 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
-
 // Define typedefs for convenience
 namespace pat {
   class PFParticle;
-  typedef std::vector<PFParticle>              PFParticleCollection; 
-  typedef edm::Ref<PFParticleCollection>       PFParticleRef; 
-  typedef edm::RefVector<PFParticleCollection> PFParticleRefVector; 
-}
-
+  typedef std::vector<PFParticle> PFParticleCollection;
+  typedef edm::Ref<PFParticleCollection> PFParticleRef;
+  typedef edm::RefVector<PFParticleCollection> PFParticleRefVector;
+}  // namespace pat
 
 // Class definition
 namespace pat {
 
-
   class PFParticle : public PATObject<reco::PFCandidate> {
-    
-    public:
-    
-      /// default constructor
-      PFParticle() {}
-      /// constructor from ref
-      PFParticle(const edm::RefToBase<reco::PFCandidate> & aPFParticle);
-      /// destructor
-      ~PFParticle() override {}
+  public:
+    /// default constructor
+    PFParticle() {}
+    /// constructor from ref
+    PFParticle(const edm::RefToBase<reco::PFCandidate>& aPFParticle);
+    /// destructor
+    ~PFParticle() override {}
 
-      /// required reimplementation of the Candidate's clone method
-      PFParticle * clone() const override { return new PFParticle(*this); }
-    
+    /// required reimplementation of the Candidate's clone method
+    PFParticle* clone() const override { return new PFParticle(*this); }
   };
-  
 
-}
+}  // namespace pat
 
 #endif

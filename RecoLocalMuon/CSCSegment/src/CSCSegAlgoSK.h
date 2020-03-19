@@ -33,106 +33,105 @@
 class CSCSegFit;
 
 class CSCSegAlgoSK : public CSCSegmentAlgorithm {
-
 public:
+  // Tim tried using map as basic container of all (space-point) RecHit's in a chamber:
+  // The 'key' is a pseudo-layer number (1-6 but with 1 always closest to IP).
+  // The 'value' is a vector of the RecHit's on that layer.
+  // Using the layer number like this removes the need to sort in global z.
+  // Instead we just have to ensure the layer index is correctly adjusted
+  // to enforce the requirement that 'layer 1' is closest in the chamber
+  // to the IP.
 
-    // Tim tried using map as basic container of all (space-point) RecHit's in a chamber:
-    // The 'key' is a pseudo-layer number (1-6 but with 1 always closest to IP).
-    // The 'value' is a vector of the RecHit's on that layer.
-    // Using the layer number like this removes the need to sort in global z.
-    // Instead we just have to ensure the layer index is correctly adjusted 
-    // to enforce the requirement that 'layer 1' is closest in the chamber
-    // to the IP.
-    
-    /// Typedefs
-    
-    typedef std::vector<int> LayerIndex;
-    typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
-    typedef std::vector<const CSCRecHit2D*>::const_iterator ChamberHitContainerCIt;
+  /// Typedefs
 
-    // We need to be able to flag a hit as 'used' and so need a container
-    // of bool's. Naively, this would be vector<bool>... but AVOID that since it's
-    // non-standard i.e. packed-bit implementation which is not a standard STL container. 
-    // We don't need what it offers and it could lead to unexpected trouble in the future.
+  typedef std::vector<int> LayerIndex;
+  typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
+  typedef std::vector<const CSCRecHit2D*>::const_iterator ChamberHitContainerCIt;
 
-    typedef std::deque<bool> BoolContainer;
-    
-    /// Constructor
-    explicit CSCSegAlgoSK(const edm::ParameterSet& ps);
-    /// Destructor
-    ~CSCSegAlgoSK() override {};
+  // We need to be able to flag a hit as 'used' and so need a container
+  // of bool's. Naively, this would be vector<bool>... but AVOID that since it's
+  // non-standard i.e. packed-bit implementation which is not a standard STL container.
+  // We don't need what it offers and it could lead to unexpected trouble in the future.
 
-    /**
+  typedef std::deque<bool> BoolContainer;
+
+  /// Constructor
+  explicit CSCSegAlgoSK(const edm::ParameterSet& ps);
+  /// Destructor
+  ~CSCSegAlgoSK() override{};
+
+  /**
      * Build track segments in this chamber (this is where the actual
      * segment-building algorithm hides.)
      */
-    std::vector<CSCSegment> buildSegments(const ChamberHitContainer& rechits);
+  std::vector<CSCSegment> buildSegments(const ChamberHitContainer& rechits);
 
-    /**
+  /**
      * Here we must implement the algorithm
      */
-    std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) override; 
+  std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) override;
 
 private:
+  /// Utility functions
+  // Could be static at the moment, but in principle one
+  // might like CSCSegmentizer-specific behaviour?
+  bool areHitsCloseInLocalX(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
+  bool areHitsCloseInGlobalPhi(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
+  bool isHitNearSegment(const CSCRecHit2D* h) const;
 
-    /// Utility functions 
-    // Could be static at the moment, but in principle one
-    // might like CSCSegmentizer-specific behaviour?
-    bool areHitsCloseInLocalX(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
-    bool areHitsCloseInGlobalPhi(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const;
-    bool isHitNearSegment(const CSCRecHit2D* h) const;
-
-    /**
+  /**
      * Dump position and phi of each rechit in chamber after sort in z
      */
-    void dumpHits(const ChamberHitContainer& rechits) const;
+  void dumpHits(const ChamberHitContainer& rechits) const;
 
-    /**
+  /**
      * Try adding non-used hits to segment
      */
-    void tryAddingHitsToSegment(const ChamberHitContainer& rechitsInChamber,
-        const BoolContainer& used, const LayerIndex& layerIndex,
-				const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
+  void tryAddingHitsToSegment(const ChamberHitContainer& rechitsInChamber,
+                              const BoolContainer& used,
+                              const LayerIndex& layerIndex,
+                              const ChamberHitContainerCIt i1,
+                              const ChamberHitContainerCIt i2);
 
-    /**
+  /**
      * Return true if segment is 'good'.
      * In this algorithm, 'good' means has sufficient hits
      */
-    bool isSegmentGood(const ChamberHitContainer& rechitsInChamber) const;
+  bool isSegmentGood(const ChamberHitContainer& rechitsInChamber) const;
 
-    /**
+  /**
      * Flag hits on segment as used
      */
-    void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber, BoolContainer& used) const;
-	
-    /// Utility functions 	
-    bool addHit(const CSCRecHit2D* hit, int layer);
-    void updateParameters(void);
-    float phiAtZ(float z) const;
-    bool hasHitOnLayer(int layer) const;
-    bool replaceHit(const CSCRecHit2D* h, int layer);
-    void compareProtoSegment(const CSCRecHit2D* h, int layer);
-    void increaseProtoSegment(const CSCRecHit2D* h, int layer);
-    void dumpSegment( const CSCSegment& seg ) const;
-		
-    // Member variables
-    // ================
+  void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber, BoolContainer& used) const;
 
-    const CSCChamber* theChamber;
-    ChamberHitContainer proto_segment;
-    const std::string myName; 
-		
-    float windowScale;
-    float dRPhiMax ;
-    float dPhiMax;
-    float dRPhiFineMax;
-    float dPhiFineMax;
-    float chi2Max;
-    float wideSeg;
-    int minLayersApart;
-    bool debugInfo;
+  /// Utility functions
+  bool addHit(const CSCRecHit2D* hit, int layer);
+  void updateParameters(void);
+  float phiAtZ(float z) const;
+  bool hasHitOnLayer(int layer) const;
+  bool replaceHit(const CSCRecHit2D* h, int layer);
+  void compareProtoSegment(const CSCRecHit2D* h, int layer);
+  void increaseProtoSegment(const CSCRecHit2D* h, int layer);
+  void dumpSegment(const CSCSegment& seg) const;
 
-    CSCSegFit* sfit_;
+  // Member variables
+  // ================
+
+  const CSCChamber* theChamber;
+  ChamberHitContainer proto_segment;
+  const std::string myName;
+
+  float windowScale;
+  float dRPhiMax;
+  float dPhiMax;
+  float dRPhiFineMax;
+  float dPhiFineMax;
+  float chi2Max;
+  float wideSeg;
+  int minLayersApart;
+  bool debugInfo;
+
+  CSCSegFit* sfit_;
 };
 
 #endif

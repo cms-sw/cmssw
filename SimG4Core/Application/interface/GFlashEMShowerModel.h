@@ -27,19 +27,15 @@ class GflashEMShowerProfile;
 class G4Region;
 
 class GFlashEMShowerModel : public G4VFastSimulationModel {
-
 public:
-  
-  GFlashEMShowerModel (const G4String& name, G4Envelope* env, 
-		       const edm::ParameterSet& parSet);
-  ~GFlashEMShowerModel () override;  
+  GFlashEMShowerModel(const G4String& name, G4Envelope* env, const edm::ParameterSet& parSet);
+  ~GFlashEMShowerModel() override;
 
-  G4bool ModelTrigger(const G4FastTrack &) override; 
+  G4bool ModelTrigger(const G4FastTrack&) override;
   G4bool IsApplicable(const G4ParticleDefinition&) override;
   void DoIt(const G4FastTrack&, G4FastStep&) override;
 
 private:
-
   G4bool excludeDetectorRegion(const G4FastTrack& fastTrack);
   void makeHits(const G4FastTrack& fastTrack);
   void updateGflashStep(const G4ThreeVector& position, G4double time);
@@ -48,13 +44,12 @@ private:
   edm::ParameterSet theParSet;
   bool theWatcherOn;
 
-  GflashEMShowerProfile *theProfile;
+  GflashEMShowerProfile* theProfile;
 
   const G4Region* theRegion;
 
-  G4Step *theGflashStep;
-  G4Navigator *theGflashNavigator;
-  G4TouchableHandle  theGflashTouchableHandle;
-
+  G4Step* theGflashStep;
+  G4Navigator* theGflashNavigator;
+  G4TouchableHandle theGflashTouchableHandle;
 };
 #endif

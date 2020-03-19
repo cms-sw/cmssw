@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelDisabledModulesRcd
-// 
+//
 /**\class SiPixelDisabledModulesRcd SiPixelDisabledModulesRcd.h CondFormats/DataRecord/interface/SiPixelDisabledModulesRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Sat Apr 19 02:11:49 CDT 2008
 // $Id$
 //

@@ -2,5 +2,4 @@
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
-RPCInverseLBLinkMap::RPCInverseLBLinkMap()
-{}
+RPCInverseLBLinkMap::RPCInverseLBLinkMap() {}

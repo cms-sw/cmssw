@@ -5,7 +5,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
-
 class DTDigiToRaw;
 
 class DTDigiToRawModule : public edm::stream::EDProducer<> {
@@ -17,19 +16,17 @@ public:
   ~DTDigiToRawModule() override;
 
   // Operations
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  DTDigiToRaw * packer;
-  
+  DTDigiToRaw* packer;
+
   int dduID;
   bool debug;
   edm::EDGetTokenT<DTDigiCollection> digicoll;
-  
+
   bool useStandardFEDid_;
   int minFEDid_;
   int maxFEDid_;
-
 };
 #endif
-

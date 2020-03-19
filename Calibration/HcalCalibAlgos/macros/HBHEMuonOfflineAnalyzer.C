@@ -342,7 +342,7 @@ public :
 			  int runHi=99999999, int etaMin=1, int etaMax=29,
 			  bool debug=false);
   // mode of LHC is kept 1 for 2017 scenario as no change in depth segmentation
-  // mode of LHC is 0 for 2019
+  // mode of LHC is 0 for 2021
   virtual ~HBHEMuonOfflineAnalyzer();
 
   virtual Int_t            Cut(Long64_t entry);
@@ -403,7 +403,7 @@ private:
 
   TTree                        *outtree_;
   int                           t_ieta, t_iphi, t_nvtx;
-  double                        t_p;
+  double                        t_p, t_ediff;
   std::vector<double>           t_ene, t_enec, t_actln, t_charge;
   std::vector<int>              t_depth;
   
@@ -847,6 +847,7 @@ void HBHEMuonOfflineAnalyzer::Loop() {
       t_ieta          = etaHcal;
       t_iphi          = PHI;
       t_p             = p_of_muon->at(ml);
+      t_ediff         = hcal_3into3->at(ml) - hcal_1x1->at(ml);
       t_nvtx          = GoodVertex;
       if (p_of_muon->at(ml) > 20)  pcut = true;
       if (pt_of_muon->at(ml) > 20) ptcut = true;
@@ -1148,6 +1149,7 @@ void HBHEMuonOfflineAnalyzer::bookHistograms(const char* fname) {
   outtree_->Branch("t_iphi",      &t_iphi);
   outtree_->Branch("t_nvtx",      &t_nvtx);
   outtree_->Branch("t_p",         &t_p);
+  outtree_->Branch("t_ediff",     &t_ediff);
   outtree_->Branch("t_ene",       &t_ene);
   outtree_->Branch("t_enec",      &t_enec);
   outtree_->Branch("t_charge",    &t_charge);
@@ -1712,7 +1714,7 @@ int HBHEMuonOfflineAnalyzer::nDepthBins(int eta, int phi) {
   int  nDepthR3[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,5,6,6,6,6,6,6,6,7,7,7,3};
   // Run 4 scenario
   int  nDepthR4[29]={4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7};
-  // for 2019 scenario multi depth segmentation
+  // for 2021 scenario multi depth segmentation
   //    int  nDepth[29]={3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,5,5,5,5,5,5,5,5,5};
   // modeLHC_ = 0 --> nbin defined maxDepthHB/HE
   //          = 1 -->      corresponds to Run 1 (valid till 2016)

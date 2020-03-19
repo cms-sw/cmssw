@@ -28,7 +28,6 @@
 
  */
 
-
 #ifndef HITFIT_ETA_DEP_RESOLUTION
 #define HITFIT_ETA_DEP_RESOLUTION
 
@@ -38,7 +37,7 @@
 
 namespace hitfit {
 
-/**
+  /**
     @class EtaDepResolution
 
     @brief Hold on to \f$\eta\f$-dependent resolution.  This class acts
@@ -84,10 +83,8 @@ namespace hitfit {
     June 2009.
 
  */
-class EtaDepResolution {
-
-private:
-
+  class EtaDepResolution {
+  private:
     /**
        List of \f$\eta\f$-dependent resolution elements.
      */
@@ -104,8 +101,7 @@ private:
      */
     std::vector<EtaDepResElement>::const_iterator FindResolution(double& eta) const;
 
-public:
-
+  public:
     /**
        Sort the internal list of \f$\eta\f$-dependent resolution elements.
      */
@@ -116,7 +112,6 @@ public:
        object with empty list of \f$\eta\f$-dependent resolution elements.
      */
     EtaDepResolution();
-
 
     /**
        @brief Instantiate an EtaDepResolution
@@ -187,7 +182,7 @@ public:
        The corresponding resolution if the input \f$\eta\f$ value is valid.
        Throw a runtime error if the \f$\eta\f$ value is invalid.
      */
-    Vector_Resolution operator () (double& eta);
+    Vector_Resolution operator()(double& eta);
 
     /**
        @brief Return the corresponding resolution for a value of \f$\eta\f$.
@@ -198,7 +193,6 @@ public:
      */
     Vector_Resolution GetResolution(double& eta) const;
 
-
     /**
        @brief Return the corresponding \f$\eta\f$-dependent resolution element
        (of type EtaDepResElement)for a value of \f$\eta\f$.
@@ -207,7 +201,7 @@ public:
        The corresponding element if the input \f$\eta\f$ value is valid.
        Throw a runtime error if the \f$\eta\f$ value is invalid.
      */
-    EtaDepResElement  GetEtaDepResElement(double& eta) const;
+    EtaDepResElement GetEtaDepResElement(double& eta) const;
 
     /**
        @brief Access the internal list of \f$\eta\f$-dependent resolution
@@ -216,8 +210,7 @@ public:
        The list of \f$\eta\f$-dependent resolution elements.
      */
     const std::vector<EtaDepResElement> GetEtaDepResElement() const;
+  };
 
-};
-
-} // namespace hitfit
-#endif // not #ifndef HITFIT_ETA_DEP_RESOLUTION
+}  // namespace hitfit
+#endif  // not #ifndef HITFIT_ETA_DEP_RESOLUTION

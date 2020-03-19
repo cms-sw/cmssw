@@ -19,8 +19,8 @@ namespace edm {
   private:
     typedef std::set<BranchID> BranchIDSet;
     typedef std::map<BranchID, BranchIDSet> map_t;
-  public:
 
+  public:
     // Clear all information.
     void clear();
 
@@ -38,10 +38,7 @@ namespace edm {
                              std::map<BranchID, BranchID> const& droppedToKeptAlias) const;
 
     // const accessor for the data
-    map_t const&
-    childLookup() const {
-      return childLookup_;
-    }
+    map_t const& childLookup() const { return childLookup_; }
 
   private:
     map_t childLookup_;
@@ -52,5 +49,5 @@ namespace edm {
                  std::map<BranchID, BranchID> const& droppedToKeptAlias) const;
   };
 
-}
+}  // namespace edm
 #endif

@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('PIXELDQMDEV',eras.Run2_2017)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('PIXELDQMDEV',Run2_2017)
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring( 

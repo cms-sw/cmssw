@@ -1,8 +1,6 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
-<use   name="FWCore/Concurrency"/>
-<use   name="Utilities/Xerces"/>
-<use   name="xerces-c"/>
+<use   name="tinyxml2"/>
 <use   name="boost"/>
 <export>
   <lib   name="1"/>

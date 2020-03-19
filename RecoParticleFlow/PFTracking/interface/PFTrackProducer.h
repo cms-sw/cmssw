@@ -27,22 +27,21 @@ class Trajectory;
 
 class PFTrackProducer : public edm::stream::EDProducer<> {
 public:
-  
   ///Constructor
   explicit PFTrackProducer(const edm::ParameterSet&);
-    
+
 private:
-  void beginRun(const edm::Run&,const edm::EventSetup&) override;
-  void endRun(const edm::Run&,const edm::EventSetup&) override;
-  
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+
   ///Produce the PFRecTrack collection
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
+
   ///PFTrackTransformer
-  std::unique_ptr<PFTrackTransformer> pfTransformer_; 
-  std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
+  std::unique_ptr<PFTrackTransformer> pfTransformer_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection>> tracksContainers_;
   std::vector<edm::EDGetTokenT<std::vector<Trajectory>>> trajContainers_;
-  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackLabel_;  
+  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackLabel_;
   edm::EDGetTokenT<reco::MuonCollection> muonColl_;
   edm::EDGetTokenT<reco::VertexCollection> vtx_h;
   ///TRACK QUALITY
@@ -50,6 +49,5 @@ private:
   reco::TrackBase::TrackQuality trackQuality_;
   bool trajinev_;
   bool gsfinev_;
-
 };
 #endif

@@ -16,16 +16,15 @@ namespace edm {
    guaranteed to be forwards compatible.
    */
 
-  void
-  RefCoreStreamer::operator()(TBuffer &R__b, void *objp) {
+  void RefCoreStreamer::operator()(TBuffer& R__b, void* objp) {
     if (R__b.IsReading()) {
       cl_->ReadBuffer(R__b, objp);
     } else {
-      //If transient, throw      
+      //If transient, throw
       RefCore* obj = static_cast<RefCore*>(objp);
       if (obj->isTransient()) {
-        throw Exception(errors::InvalidReference,"Inconsistency")
-        << "RefCoreStreamer: transient Ref or Ptr cannot be made persistent.";
+        throw Exception(errors::InvalidReference, "Inconsistency")
+            << "RefCoreStreamer: transient Ref or Ptr cannot be made persistent.";
       }
 #if 1
       R__b << cl_->GetClassVersion();
@@ -39,16 +38,15 @@ namespace edm {
     }
   }
 
-  void
-  RefCoreWithIndexStreamer::operator()(TBuffer &R__b, void *objp) {
+  void RefCoreWithIndexStreamer::operator()(TBuffer& R__b, void* objp) {
     if (R__b.IsReading()) {
       cl_->ReadBuffer(R__b, objp);
     } else {
-      //If transient, throw      
+      //If transient, throw
       RefCoreWithIndex* obj = static_cast<RefCoreWithIndex*>(objp);
       if (obj->isTransient()) {
-        throw Exception(errors::InvalidReference,"Inconsistency")
-        << "RefCoreStreamer: transient Ref or Ptr cannot be made persistent.";
+        throw Exception(errors::InvalidReference, "Inconsistency")
+            << "RefCoreStreamer: transient Ref or Ptr cannot be made persistent.";
       }
 #if 1
       R__b << cl_->GetClassVersion();
@@ -63,42 +61,32 @@ namespace edm {
     }
   }
 
-  TClassStreamer*
-  RefCoreStreamer::Generate() const {
-    return new RefCoreStreamer(*this);
-  }
+  TClassStreamer* RefCoreStreamer::Generate() const { return new RefCoreStreamer(*this); }
 
-  TClassStreamer*
-  RefCoreWithIndexStreamer::Generate() const {
-    return new RefCoreWithIndexStreamer(*this);
-  }
-
+  TClassStreamer* RefCoreWithIndexStreamer::Generate() const { return new RefCoreWithIndexStreamer(*this); }
 
   void setRefCoreStreamerInTClass() {
-
-    TClass *cl = TClass::GetClass("edm::RefCore");
-    TClassStreamer *st = cl->GetStreamer();
-    if (st == nullptr) {
-      cl->AdoptStreamer(new RefCoreStreamer());
+    {
+      TClass* tClass = TClass::GetClass("edm::RefCore");
+      if (tClass->GetStreamer() == nullptr) {
+        tClass->AdoptStreamer(new RefCoreStreamer());
+      }
     }
     {
-      TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
-      TClassStreamer *st = cl->GetStreamer();
-      if (st == nullptr) {
-        cl->AdoptStreamer(new RefCoreWithIndexStreamer());
+      TClass* tClass = TClass::GetClass("edm::RefCoreWithIndex");
+      if (tClass->GetStreamer() == nullptr) {
+        tClass->AdoptStreamer(new RefCoreWithIndexStreamer());
       }
     }
   }
 
-  void setRefCoreStreamer(bool) {
-    EDProductGetter::switchProductGetter(nullptr);
-  }
+  void setRefCoreStreamer(bool) { EDProductGetter::switchProductGetter(nullptr); }
 
   EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep) {
-    EDProductGetter const* returnValue=nullptr;
+    EDProductGetter const* returnValue = nullptr;
     if (ep != nullptr) {
       returnValue = edm::EDProductGetter::switchProductGetter(ep);
     }
     return returnValue;
   }
-}
+}  // namespace edm

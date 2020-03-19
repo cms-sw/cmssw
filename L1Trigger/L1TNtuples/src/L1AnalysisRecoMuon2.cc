@@ -7,34 +7,26 @@
 using namespace std;
 using namespace muon;
 
-L1Analysis::L1AnalysisRecoMuon2::L1AnalysisRecoMuon2(const edm::ParameterSet& pset) :
-  muPropagator1st_(pset.getParameter<edm::ParameterSet>("muProp1st")),
-  muPropagator2nd_(pset.getParameter<edm::ParameterSet>("muProp2nd"))
-{
-}
+L1Analysis::L1AnalysisRecoMuon2::L1AnalysisRecoMuon2(const edm::ParameterSet& pset)
+    : muPropagator1st_(pset.getParameter<edm::ParameterSet>("muProp1st")),
+      muPropagator2nd_(pset.getParameter<edm::ParameterSet>("muProp2nd")) {}
 
-
-L1Analysis::L1AnalysisRecoMuon2::~L1AnalysisRecoMuon2()
-{
-}
+L1Analysis::L1AnalysisRecoMuon2::~L1AnalysisRecoMuon2() {}
 
 void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
-					      const edm::EventSetup& setup,
-					      edm::Handle<reco::MuonCollection> muons,
-					      edm::Handle<reco::VertexCollection> vertices, 
-					      double METx, double METy,
-                                              unsigned maxMuon)
-{
+                                              const edm::EventSetup& setup,
+                                              edm::Handle<reco::MuonCollection> muons,
+                                              edm::Handle<reco::VertexCollection> vertices,
+                                              double METx,
+                                              double METy,
+                                              unsigned maxMuon) {
+  recoMuon_.nMuons = 0;
 
-  recoMuon_.nMuons=0;
-  
-  for(reco::MuonCollection::const_iterator it=muons->begin();
-      it!=muons->end() && recoMuon_.nMuons < maxMuon;
-      ++it) {
-
-    recoMuon_.e.push_back(it->energy());    
-    recoMuon_.pt.push_back(it->pt());    
-    recoMuon_.et.push_back(it->et());    
+  for (reco::MuonCollection::const_iterator it = muons->begin(); it != muons->end() && recoMuon_.nMuons < maxMuon;
+       ++it) {
+    recoMuon_.e.push_back(it->energy());
+    recoMuon_.pt.push_back(it->pt());
+    recoMuon_.et.push_back(it->et());
     recoMuon_.eta.push_back(it->eta());
     recoMuon_.phi.push_back(it->phi());
     recoMuon_.charge.push_back(it->charge());
@@ -44,7 +36,7 @@ void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
     recoMuon_.isLooseMuon.push_back(flagLoose);
 
     //check isMediumMuon
-     bool flagMedium = isMediumMuonCustom(*it);
+    bool flagMedium = isMediumMuonCustom(*it);
     recoMuon_.isMediumMuon.push_back(flagMedium);
 
     //check isTightMuon
@@ -53,27 +45,28 @@ void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
       flagTight = isTightMuonCustom(*it, (*vertices)[0]);
     recoMuon_.isTightMuon.push_back(flagTight);
 
-    double iso = (it->pfIsolationR04().sumChargedHadronPt + max(0.,
-           it->pfIsolationR04().sumNeutralHadronEt +
-           it->pfIsolationR04().sumPhotonEt -
-           0.5*it->pfIsolationR04().sumPUPt)) / it->pt();
+    double iso = (it->pfIsolationR04().sumChargedHadronPt +
+                  max(0.,
+                      it->pfIsolationR04().sumNeutralHadronEt + it->pfIsolationR04().sumPhotonEt -
+                          0.5 * it->pfIsolationR04().sumPUPt)) /
+                 it->pt();
     recoMuon_.iso.push_back(iso);
 
-   double MET_local = TMath::Sqrt (METx*METx + METy*METy);
+    double MET_local = TMath::Sqrt(METx * METx + METy * METy);
     recoMuon_.met.push_back(MET_local);
 
     TLorentzVector METP4;
     METP4.SetPxPyPzE(METx, METy, 0, MET_local);
 
     TLorentzVector Muon;
-    Muon.SetPtEtaPhiE(it->pt(),it->eta(),it->phi(),it->energy());
-    
+    Muon.SetPtEtaPhiE(it->pt(), it->eta(), it->phi(), it->energy());
+
     double scalSum = MET_local + Muon.Pt();
-    TLorentzVector vecSum (Muon);
+    TLorentzVector vecSum(Muon);
     vecSum += METP4;
     double vecSumPt = vecSum.Pt();
-    
-    recoMuon_.mt.push_back(TMath::Sqrt (scalSum*scalSum - vecSumPt*vecSumPt));
+
+    recoMuon_.mt.push_back(TMath::Sqrt(scalSum * scalSum - vecSumPt * vecSumPt));
 
     recoMuon_.nMuons++;
 
@@ -98,8 +91,7 @@ void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
   }
 }
 
-void L1Analysis::L1AnalysisRecoMuon2::init(const edm::EventSetup &eventSetup)
-{
+void L1Analysis::L1AnalysisRecoMuon2::init(const edm::EventSetup& eventSetup) {
   muPropagator1st_.init(eventSetup);
   muPropagator2nd_.init(eventSetup);
 }

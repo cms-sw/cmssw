@@ -12,58 +12,53 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
-
 using namespace std;
-namespace cms
-{
+namespace cms {
 
-FastSimDataFilter::FastSimDataFilter(const edm::ParameterSet& conf)
-{
-  towercut= conf.getUntrackedParameter<double>("towercut", 1.4);
-}
- 
-FastSimDataFilter::~FastSimDataFilter() {} 
-  
-void FastSimDataFilter::beginJob() { ntotal  = 0; npassed = 0; }
-void FastSimDataFilter::endJob()   {
-   cout << " FastSimDataFilter: accepted " << npassed << "  out of total " 
-        << ntotal << endl; 
-
+  FastSimDataFilter::FastSimDataFilter(const edm::ParameterSet& conf) {
+    towercut = conf.getUntrackedParameter<double>("towercut", 1.4);
   }
 
-bool FastSimDataFilter::filter(edm::Event& event, const edm::EventSetup& setup)
-{
-  ntotal++;
-  bool result = false;
+  FastSimDataFilter::~FastSimDataFilter() {}
 
-  edm::Handle<CaloTowerCollection> towers;
-  event.getByLabel("towerMaker",towers);
-  CaloTowerCollection::const_iterator cal;
+  void FastSimDataFilter::beginJob() {
+    ntotal = 0;
+    npassed = 0;
+  }
+  void FastSimDataFilter::endJob() {
+    cout << " FastSimDataFilter: accepted " << npassed << "  out of total " << ntotal << endl;
+  }
 
+  bool FastSimDataFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
+    ntotal++;
+    bool result = false;
 
-  int nplusP   = 0;
-  int nminusP  = 0;
-  int nplusR   = 0;
-  int nminusR  = 0;
-  double metx  = 0.;
-  double mety  = 0.;
-  double sumEt = 0.;
+    edm::Handle<CaloTowerCollection> towers;
+    event.getByLabel("towerMaker", towers);
+    CaloTowerCollection::const_iterator cal;
 
-  for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
-  
-    //    double eE   = cal->emEnergy();
-    //    double eH   = cal->hadEnergy();
-    //    double eHO  = cal->outerEnergy();
-    //    double phi  = cal->phi();
-   
-    double eta  = cal->eta();
-    double en   = cal->energy();
-    double et   = cal->et();
+    int nplusP = 0;
+    int nminusP = 0;
+    int nplusR = 0;
+    int nminusR = 0;
+    double metx = 0.;
+    double mety = 0.;
+    double sumEt = 0.;
 
-    // cylindrical
-    math::RhoEtaPhiVector mom(cal->et(), cal->eta(), cal->phi());
-			
-    /*  
+    for (cal = towers->begin(); cal != towers->end(); ++cal) {
+      //    double eE   = cal->emEnergy();
+      //    double eH   = cal->hadEnergy();
+      //    double eHO  = cal->outerEnergy();
+      //    double phi  = cal->phi();
+
+      double eta = cal->eta();
+      double en = cal->energy();
+      double et = cal->et();
+
+      // cylindrical
+      math::RhoEtaPhiVector mom(cal->et(), cal->eta(), cal->phi());
+
+      /*  
     // cell properties    
     CaloTowerDetId idT = cal->id();
     int ieta = idT.ieta();
@@ -71,30 +66,31 @@ bool FastSimDataFilter::filter(edm::Event& event, const edm::EventSetup& setup)
     int iphi = idT.iphi();
     */
 
-    metx  += mom.x();   
-    mety  += mom.y(); 
-    sumEt += et;     
+      metx += mom.x();
+      mety += mom.y();
+      sumEt += et;
 
-    // Towers approx. in the region of BSC Paddles and Rings
-    if( en > towercut && eta >  3.1 && eta <  3.5 ) nplusP++;
-    if( en > towercut && eta < -3.1 && eta > -3.5 ) nminusP++;
-    if( en > towercut && eta >  3.9 && eta <  4.6 ) nplusR++;
-    if( en > towercut && eta < -3.9 && eta > -4.6 ) nminusR++;
+      // Towers approx. in the region of BSC Paddles and Rings
+      if (en > towercut && eta > 3.1 && eta < 3.5)
+        nplusP++;
+      if (en > towercut && eta < -3.1 && eta > -3.5)
+        nminusP++;
+      if (en > towercut && eta > 3.9 && eta < 4.6)
+        nplusR++;
+      if (en > towercut && eta < -3.9 && eta > -4.6)
+        nminusR++;
 
+    }  // towers cycle
 
-  } // towers cycle
-
-  if( (nplusP * nminusP >= 1 ) || (nplusR * nminusR >= 1 ) ||
-      (nplusP * nminusR >= 1 ) || (nplusR * nminusP >= 1 ))   {
+    if ((nplusP * nminusP >= 1) || (nplusR * nminusR >= 1) || (nplusP * nminusR >= 1) || (nplusR * nminusP >= 1)) {
       //    std::cout << "... passed" << std::endl;
-    result = true;
-    npassed++;
-  }
+      result = true;
+      npassed++;
+    }
 
-  return result; 
-   
-}
-} // namespace cms
+    return result;
+  }
+}  // namespace cms
 
 // define this class as a plugin
 #include "FWCore/Framework/interface/MakerMacros.h"

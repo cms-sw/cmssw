@@ -4,7 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTCCBConfigValidateHandler> DTCCBConfigValidateDBWrite;
 
-
 DEFINE_FWK_MODULE(DTCCBConfigValidateDBWrite);
-
-

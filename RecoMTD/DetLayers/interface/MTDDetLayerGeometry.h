@@ -16,13 +16,12 @@
 
 class DetLayer;
 
-class MTDDetLayerGeometry : public DetLayerGeometry{
- public:
-
+class MTDDetLayerGeometry : public DetLayerGeometry {
+public:
   /// Constructor
   MTDDetLayerGeometry();
 
-  friend class MTDDetLayerGeometryESProducer;  
+  friend class MTDDetLayerGeometryESProducer;
 
   /// Destructor
   ~MTDDetLayerGeometry() override;
@@ -51,32 +50,31 @@ class MTDDetLayerGeometry : public DetLayerGeometry{
   /// return the DetLayer which correspond to a certain DetId
   const DetLayer* idToLayer(const DetId& detId) const override;
 
- private:
-  /// Add ETL layers 
+private:
+  /// Add ETL layers
   /// etllayers.first=forward (+Z), etllayers.second=backward (-Z)
   /// both vectors are ASSUMED to be sorted inside-out
   void addETLLayers(const std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> >& etllayers);
 
   //. Add BTL layers; dtlayers is ASSUMED to be sorted inside-out
   void addBTLLayers(const std::vector<DetLayer*>& btllayers);
-  
+
   DetId makeDetLayerId(const DetLayer* detLayer) const;
-  
+
   void sortLayers();
 
   std::vector<const DetLayer*> etlLayers_fw;
   std::vector<const DetLayer*> etlLayers_bk;
   std::vector<const DetLayer*> etlLayers_all;
 
-  //////////////////////////////  
+  //////////////////////////////
   std::vector<const DetLayer*> btlLayers;
   std::vector<const DetLayer*> allForward;
   std::vector<const DetLayer*> allBackward;
   std::vector<const DetLayer*> allEndcap;
   std::vector<const DetLayer*> allBarrel;
   std::vector<const DetLayer*> allDetLayers;
-  
-  std::map<DetId,const DetLayer*> detLayersMap;
+
+  std::map<DetId, const DetLayer*> detLayersMap;
 };
 #endif
-

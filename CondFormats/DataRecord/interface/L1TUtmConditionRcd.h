@@ -1,4 +1,4 @@
-// L1TUtmConditionRcd                                                                                            
+// L1TUtmConditionRcd
 // Description: Record for L1TUtmCondition
 //
 // automatically generate by make_records.pl

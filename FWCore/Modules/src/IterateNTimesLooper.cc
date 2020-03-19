@@ -20,47 +20,42 @@
 namespace edm {
 
   class IterateNTimesLooper : public EDLooper {
+  public:
+    IterateNTimesLooper(ParameterSet const&);
+    ~IterateNTimesLooper() override;
 
-    public:
-      IterateNTimesLooper(ParameterSet const&);
-      ~IterateNTimesLooper() override;
+    // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+    // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+    // ---------- member functions ---------------------------
+    void startingNewLoop(unsigned int) override;
+    Status duringLoop(Event const&, EventSetup const&) override;
+    Status endOfLoop(EventSetup const&, unsigned int) override;
 
-      // ---------- member functions ---------------------------
-      void startingNewLoop(unsigned int) override;
-      Status duringLoop(Event const&, EventSetup const&) override;
-      Status endOfLoop(EventSetup const&, unsigned int) override;
+  private:
+    IterateNTimesLooper(IterateNTimesLooper const&) = delete;  // stop default
 
-    private:
-      IterateNTimesLooper(IterateNTimesLooper const&) = delete; // stop default
+    IterateNTimesLooper const& operator=(IterateNTimesLooper const&) = delete;  // stop default
 
-      IterateNTimesLooper const& operator=(IterateNTimesLooper const&) = delete; // stop default
-
-      // ---------- member data --------------------------------
-      unsigned int max_;
-      unsigned int times_;
-      bool shouldStop_;
+    // ---------- member data --------------------------------
+    unsigned int max_;
+    unsigned int times_;
+    bool shouldStop_;
   };
 
   //
   //
   // constructors and destructor
   //
-  IterateNTimesLooper::IterateNTimesLooper(ParameterSet const& iConfig) :
-    max_(iConfig.getParameter<unsigned int>("nTimes")),
-    times_(0),
-    shouldStop_(false) {
-  }
+  IterateNTimesLooper::IterateNTimesLooper(ParameterSet const& iConfig)
+      : max_(iConfig.getParameter<unsigned int>("nTimes")), times_(0), shouldStop_(false) {}
 
   // IterateNTimesLooper::IterateNTimesLooper(IterateNTimesLooper const& rhs) {
   //    // do actual copying here;
   // }
 
-  IterateNTimesLooper::~IterateNTimesLooper() {
-  }
+  IterateNTimesLooper::~IterateNTimesLooper() {}
 
   //
   // assignment operators
@@ -76,25 +71,22 @@ namespace edm {
   //
   // member functions
   //
-  void
-  IterateNTimesLooper::startingNewLoop(unsigned int iIteration) {
+  void IterateNTimesLooper::startingNewLoop(unsigned int iIteration) {
     times_ = iIteration;
-    if(iIteration >= max_) {
+    if (iIteration >= max_) {
       shouldStop_ = true;
     }
   }
 
-  EDLooper::Status
-  IterateNTimesLooper::duringLoop(Event const&, EventSetup const&) {
+  EDLooper::Status IterateNTimesLooper::duringLoop(Event const&, EventSetup const&) {
     return shouldStop_ ? kStop : kContinue;
   }
 
-  EDLooper::Status
-  IterateNTimesLooper::endOfLoop(EventSetup const&, unsigned int /*iCounter*/) {
+  EDLooper::Status IterateNTimesLooper::endOfLoop(EventSetup const&, unsigned int /*iCounter*/) {
     ++times_;
     return (times_ < max_) ? kContinue : kStop;
   }
-}
+}  // namespace edm
 
 using edm::IterateNTimesLooper;
 DEFINE_FWK_LOOPER(IterateNTimesLooper);

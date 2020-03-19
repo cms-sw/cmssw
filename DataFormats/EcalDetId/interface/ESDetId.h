@@ -13,25 +13,19 @@
 */
 
 class ESDetId : public DetId {
- public:
-
-  enum { Subdet = EcalPreshower } ;
+public:
+  enum { Subdet = EcalPreshower };
   /** Constructor of a null id */
-  ESDetId(){}
+  ESDetId() {}
   /** Constructor from a raw value */
-  ESDetId( uint32_t rawid ) : DetId( rawid ) {}
-
+  ESDetId(uint32_t rawid) : DetId(rawid) {}
 
   /// constructor from strip, ix, iy, plane, and iz
-  ESDetId(int strip, int ixs, int iys, int plane, int iz, bool doverify=false) :
-   DetId( Ecal, EcalPreshower ) {
-   id_ |=  (strip&0x3F) |
-         ((ixs&0x3F)<<6) |
-         ((iys&0x3F)<<12) |
-         (((plane-1)&0x1)<<18) |
-         ((iz>0)?(1<<19):(0))
-       ;
-   if (doverify) verify(strip, ixs, iys, plane, iz); 
+  ESDetId(int strip, int ixs, int iys, int plane, int iz, bool doverify = false) : DetId(Ecal, EcalPreshower) {
+    id_ |= (strip & 0x3F) | ((ixs & 0x3F) << 6) | ((iys & 0x3F) << 12) | (((plane - 1) & 0x1) << 18) |
+           ((iz > 0) ? (1 << 19) : (0));
+    if (doverify)
+      verify(strip, ixs, iys, plane, iz);
   }
 
   /** constructor from a generic DetId */
@@ -42,104 +36,90 @@ class ESDetId : public DetId {
   /// get the subdetector
   EcalSubdetector subdet() const { return EcalSubdetector(subdetId()); }
   /** get the zside */
-  int zside() const { return (id_&0x80000)?(1):(-1); }
+  int zside() const { return (id_ & 0x80000) ? (1) : (-1); }
   /** get the plane */
-  int plane() const { return ((id_>>18)&0x1)+1; }
+  int plane() const { return ((id_ >> 18) & 0x1) + 1; }
   /** get the sensor ix */
-  int six() const { return (id_>>6)&0x3F; }
+  int six() const { return (id_ >> 6) & 0x3F; }
   /** get the sensor iy */
-  int siy() const { return (id_>>12)&0x3F; }
+  int siy() const { return (id_ >> 12) & 0x3F; }
   /** get the strip */
-  int strip() const { return (id_&0x3F); }
+  int strip() const { return (id_ & 0x3F); }
   /// get a compact index for arrays [TODO: NEEDS WORK]
-  int hashedIndex() const ;
+  int hashedIndex() const;
 
-  uint32_t denseIndex() const { return hashedIndex() ; }
+  uint32_t denseIndex() const { return hashedIndex(); }
 
-  static bool validDenseIndex( uint32_t din ) { return validHashIndex( din ) ; }
+  static bool validDenseIndex(uint32_t din) { return validHashIndex(din); }
 
-  static ESDetId detIdFromDenseIndex( uint32_t din ) { return unhashIndex( din ) ; }
+  static ESDetId detIdFromDenseIndex(uint32_t din) { return unhashIndex(din); }
 
   /// get a DetId from a compact index for arrays
-  static ESDetId unhashIndex(    int hi ) ;
-  static bool    validHashIndex( int hi ) { return ( hi < kSizeForDenseIndexing ) ; }
+  static ESDetId unhashIndex(int hi);
+  static bool validHashIndex(int hi) { return (hi < kSizeForDenseIndexing); }
   /// check if a valid index combination
-  static bool validDetId(int istrip, int ixs, int iys, int iplane, int iz) ;
-  static void verify(int istrip, int ixs, int iys, int iplane, int iz) ;
+  static bool validDetId(int istrip, int ixs, int iys, int iplane, int iz);
+  static void verify(int istrip, int ixs, int iys, int iplane, int iz);
 
+  static const int IX_MIN = 1;
+  static const int IY_MIN = 1;
+  static const int IX_MAX = 40;
+  static const int IY_MAX = 40;
+  static const int ISTRIP_MIN = 1;
+  static const int ISTRIP_MAX = 32;
+  static const int PLANE_MIN = 1;
+  static const int PLANE_MAX = 2;
+  static const int IZ_NUM = 2;
 
-  static const int IX_MIN=1;
-  static const int IY_MIN=1;
-  static const int IX_MAX=40;
-  static const int IY_MAX=40;
-  static const int ISTRIP_MIN=1;
-  static const int ISTRIP_MAX=32;
-  static const int PLANE_MIN=1;
-  static const int PLANE_MAX=2;
-  static const int IZ_NUM=2;
+private:
+  enum {
+    kXYMAX = 1072,
+    kXYMIN = 1,
+    kXMAX = 40,
+    kYMAX = 40,
+    kXMIN = 1,
+    kYMIN = 1,
+    // now normalize to A-D notation for ease of use
+    kNa = IZ_NUM,
+    kNb = PLANE_MAX - PLANE_MIN + 1,
+    kNc = kXYMAX - kXYMIN + 1,
+    kNd = ISTRIP_MAX - ISTRIP_MIN + 1,
+    kLd = kNd,
+    kLc = kLd * kNc,
+    kLb = kLc * kNb,
+    kLa = kLb * kNa
+  };
 
-   private :
+  static const unsigned short hxy1[kXMAX][kYMAX];
+  static const unsigned short hx1[kXYMAX];
+  static const unsigned short hy1[kXYMAX];
 
-      enum { kXYMAX=1072,
-	     kXYMIN=   1,
-	     kXMAX =  40,
-	     kYMAX =  40,
-	     kXMIN =   1,
-	     kYMIN =   1,
-	     // now normalize to A-D notation for ease of use
-	     kNa   =IZ_NUM,
-	     kNb   =PLANE_MAX - PLANE_MIN + 1,
-	     kNc   =kXYMAX - kXYMIN + 1,
-	     kNd   =ISTRIP_MAX - ISTRIP_MIN + 1,
-	     kLd   =kNd,
-	     kLc   =kLd*kNc,
-	     kLb   =kLc*kNb,
-	     kLa   =kLb*kNa } ;
-      
-      static const unsigned short hxy1[ kXMAX ][ kYMAX ] ;
-      static const unsigned short hx1[ kXYMAX ] ;
-      static const unsigned short hy1[ kXYMAX ] ;
-      
-      static const unsigned short hxy2[ kXMAX ][ kYMAX ] ;
-      static const unsigned short hx2[ kXYMAX ] ;
-      static const unsigned short hy2[ kXYMAX ] ;
+  static const unsigned short hxy2[kXMAX][kYMAX];
+  static const unsigned short hx2[kXYMAX];
+  static const unsigned short hy2[kXYMAX];
 
-   public:
-
-      enum { kSizeForDenseIndexing = kLa } ;
-
+public:
+  enum { kSizeForDenseIndexing = kLa };
 };
 
-std::ostream& operator<<(std::ostream&,const ESDetId& id);
+std::ostream& operator<<(std::ostream&, const ESDetId& id);
 
-inline
-ESDetId::ESDetId( const DetId& gen ) : DetId(gen) 
-{
+inline ESDetId::ESDetId(const DetId& gen) : DetId(gen) {
 #ifdef EDM_ML_DEBUG
-   if( !gen.null() &&
-       ( gen.det()	!= Ecal          ||
-         gen.subdetId() != EcalPreshower    ) )
-   {
-      throw cms::Exception("InvalidDetId");
-   }
+  if (!gen.null() && (gen.det() != Ecal || gen.subdetId() != EcalPreshower)) {
+    throw cms::Exception("InvalidDetId");
+  }
 #endif
 }
 
-inline
-ESDetId&
-ESDetId::operator=( const DetId& gen )
-{
+inline ESDetId& ESDetId::operator=(const DetId& gen) {
 #ifdef EDM_ML_DEBUG
-   if (!gen.null() &&
-       ( gen.det()      != Ecal          ||                              
-         gen.subdetId() != EcalPreshower    ) )
-   {
-      throw cms::Exception("InvalidDetId");
-   }
+  if (!gen.null() && (gen.det() != Ecal || gen.subdetId() != EcalPreshower)) {
+    throw cms::Exception("InvalidDetId");
+  }
 #endif
-   id_=gen.rawId();
-   return *this;
+  id_ = gen.rawId();
+  return *this;
 }
-
 
 #endif

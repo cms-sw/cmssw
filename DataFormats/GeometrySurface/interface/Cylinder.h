@@ -16,27 +16,21 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 
-class Cylinder final  : public Surface {
+class Cylinder final : public Surface {
 public:
+  template <typename... Args>
+  Cylinder(Scalar radius, Args&&... args) : Surface(std::forward<Args>(args)...), theRadius(radius) {}
 
-  template<typename... Args>
-    Cylinder(Scalar radius, Args&& ... args) :
-    Surface(std::forward<Args>(args)...), theRadius(radius){}
+  Cylinder(const PositionType& pos, const RotationType& rot, SimpleCylinderBounds const& bounds)
+      : Surface(pos, rot, bounds.clone()), theRadius(computeRadius(bounds)) {}
 
-  Cylinder(const PositionType& pos, const RotationType& rot, SimpleCylinderBounds const & bounds) :
-    Surface(pos,rot, bounds.clone()),  theRadius(computeRadius(bounds)){}
-  
   // average Rmin Rmax...
-  static float computeRadius(Bounds const & bounds) {
-    return  0.5f*(bounds.width() - bounds.thickness());
-  }
-
+  static float computeRadius(Bounds const& bounds) { return 0.5f * (bounds.width() - bounds.thickness()); }
 
   typedef ReferenceCountingPointer<Cylinder> CylinderPointer;
   typedef ConstReferenceCountingPointer<Cylinder> ConstCylinderPointer;
   typedef ReferenceCountingPointer<Cylinder> BoundCylinderPointer;
   typedef ConstReferenceCountingPointer<Cylinder> ConstBoundCylinderPointer;
-
 
   /// Construct a cylinder with the specified radius.
   /// The reference frame is defined by pos and rot;
@@ -48,50 +42,49 @@ public:
   }
   */
 
-  static CylinderPointer build(const PositionType& pos, const RotationType& rot,
-			       Scalar radius, Bounds* bounds=nullptr) {
-    return CylinderPointer(new Cylinder(radius,pos,rot,bounds));
+  static CylinderPointer build(const PositionType& pos,
+                               const RotationType& rot,
+                               Scalar radius,
+                               Bounds* bounds = nullptr) {
+    return CylinderPointer(new Cylinder(radius, pos, rot, bounds));
   }
 
-  static CylinderPointer build(Scalar radius, const PositionType& pos, const RotationType& rot,
-			       Bounds* bounds=nullptr) {
-    return CylinderPointer(new Cylinder(radius,pos,rot,bounds));
+  static CylinderPointer build(Scalar radius,
+                               const PositionType& pos,
+                               const RotationType& rot,
+                               Bounds* bounds = nullptr) {
+    return CylinderPointer(new Cylinder(radius, pos, rot, bounds));
   }
 
-  ~Cylinder() override{}
-
+  ~Cylinder() override {}
 
   // -- Extension of Surface interface for cylinder
 
   /// Radius of the cylinder
-  Scalar radius() const {return theRadius;}
+  Scalar radius() const { return theRadius; }
 
-  // -- Implementation of Surface interface    
+  // -- Implementation of Surface interface
 
   using Surface::side;
-  Side side( const LocalPoint& p, Scalar toler) const override;
+  Side side(const LocalPoint& p, Scalar toler) const override;
 
   /// tangent plane to surface from global point
-  ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const override;
+  ConstReferenceCountingPointer<TangentPlane> tangentPlane(const GlobalPoint&) const override;
   /// tangent plane to surface from local point
-  ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const override;
+  ConstReferenceCountingPointer<TangentPlane> tangentPlane(const LocalPoint&) const override;
 
   /// tangent plane to surface from global point
-  Plane fastTangent(const GlobalPoint& aPoint) const{
+  Plane fastTangent(const GlobalPoint& aPoint) const {
     GlobalVector yPlane(rotation().z());
-    GlobalVector xPlane(yPlane.cross(aPoint-position()));
-    return Plane(aPoint,RotationType(xPlane, yPlane));
+    GlobalVector xPlane(yPlane.cross(aPoint - position()));
+    return Plane(aPoint, RotationType(xPlane, yPlane));
   }
 
- /// tangent plane to surface from local point
-  Plane fastTangent(const LocalPoint& aPoint) const {
-    return fastTangent(toGlobal(aPoint));
-  } 
+  /// tangent plane to surface from local point
+  Plane fastTangent(const LocalPoint& aPoint) const { return fastTangent(toGlobal(aPoint)); }
 
 private:
-
   Scalar theRadius;
-
 };
 
 #endif

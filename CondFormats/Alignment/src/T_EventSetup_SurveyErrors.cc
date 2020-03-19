@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Alignment
-// 
+//
 // Implementation:
 //     create all the 'infrastructure' needed to get into the Context
 //

@@ -27,18 +27,15 @@
 //
 // constructors and destructor
 //
-CmsShowTaskTimer::CmsShowTaskTimer(CmsShowTaskExecutorBase* taskExec, Long_t milliSec, Bool_t mode) : TTimer(milliSec, mode), m_taskExec(taskExec)
-{
-}
+CmsShowTaskTimer::CmsShowTaskTimer(CmsShowTaskExecutorBase* taskExec, Long_t milliSec, Bool_t mode)
+    : TTimer(milliSec, mode), m_taskExec(taskExec) {}
 
 // CmsShowTaskTimer::CmsShowTaskTimer(const CmsShowTaskTimer& rhs)
 // {
 //    // do actual copying here;
 // }
 
-CmsShowTaskTimer::~CmsShowTaskTimer()
-{
-}
+CmsShowTaskTimer::~CmsShowTaskTimer() {}
 
 //
 // assignment operators
@@ -55,11 +52,9 @@ CmsShowTaskTimer::~CmsShowTaskTimer()
 //
 // member functions
 //
-Bool_t
-CmsShowTaskTimer::Notify()
-{
-   m_taskExec->doNextTask();
-   return kTRUE;
+Bool_t CmsShowTaskTimer::Notify() {
+  m_taskExec->doNextTask();
+  return kTRUE;
 }
 
 //

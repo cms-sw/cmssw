@@ -4,7 +4,7 @@
 //
 // Package:     FWInterface
 // Class  :     FWPSetCellEditor
-// 
+//
 /**\class FWPSetCellEditor FWPSetCellEditor.h Fireworks/FWInterface/interface/FWPSetCellEditor.h
 
  Description: [one line class summary]
@@ -14,21 +14,19 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon Feb 28 20:45:02 CET 2011
 //
-
 
 #include "TGTextEntry.h"
 #include "Fireworks/FWInterface/src/FWPSetTableManager.h"
 
-class FWPSetCellEditor : public TGTextEntry
-{
+class FWPSetCellEditor : public TGTextEntry {
 public:
-   FWPSetCellEditor(const TGWindow* w, const  char* txt) : TGTextEntry(w, txt) {};
-   ~FWPSetCellEditor() override {};
-   bool HandleKey(Event_t*event) override;
-   bool apply(FWPSetTableManager::PSetData &data, FWPSetTableManager::PSetData &parent );
+  FWPSetCellEditor(const TGWindow* w, const char* txt) : TGTextEntry(w, txt){};
+  ~FWPSetCellEditor() override{};
+  bool HandleKey(Event_t* event) override;
+  bool apply(FWPSetTableManager::PSetData& data, FWPSetTableManager::PSetData& parent);
 };
 
 #endif

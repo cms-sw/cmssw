@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     L1TriggerKeyListRcd
-// 
+//
 /**\class L1TriggerKeyListRcd L1TriggerKeyListRcd.h CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h
 
  Description: <one line class summary>
@@ -22,6 +22,5 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 class L1TriggerKeyListRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TriggerKeyListRcd> {};
-
 
 #endif

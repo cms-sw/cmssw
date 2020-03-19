@@ -1,6 +1,5 @@
 // VI January 2012: needs to be	migrated to use	cluster	directly
 
-
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilter.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
@@ -36,14 +35,11 @@
 using namespace std;
 
 /*****************************************************************************/
-ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
-  theCacheToken(iC.consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("cacheSrc"))),
-  theFilter(nullptr)
-{}
+ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
+    : theCacheToken(iC.consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("cacheSrc"))),
+      theFilter(nullptr) {}
 
-ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter()
-{
-}
+ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter() {}
 
 void ClusterShapeTrajectoryFilter::setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<ClusterShapeHitFilter> shape;
@@ -56,66 +52,47 @@ void ClusterShapeTrajectoryFilter::setEvent(const edm::Event& iEvent, const edm:
 }
 
 /*****************************************************************************/
-bool ClusterShapeTrajectoryFilter::toBeContinued
-  (Trajectory& trajectory) const 
-{
+bool ClusterShapeTrajectoryFilter::toBeContinued(Trajectory& trajectory) const {
   assert(theCache);
   vector<TrajectoryMeasurement> tms = trajectory.measurements();
 
-  for(vector<TrajectoryMeasurement>::const_iterator
-       tm = tms.begin(); tm!= tms.end(); tm++)
-  {
+  for (vector<TrajectoryMeasurement>::const_iterator tm = tms.begin(); tm != tms.end(); tm++) {
     const TrackingRecHit* ttRecHit = &(*((*tm).recHit()));
 
-    if(ttRecHit->isValid())
-    {
-      const TrackingRecHit * tRecHit = ttRecHit->hit();
+    if (ttRecHit->isValid()) {
+      const TrackingRecHit* tRecHit = ttRecHit->hit();
 
       TrajectoryStateOnSurface ts = (*tm).updatedState();
       const GlobalVector gdir = ts.globalDirection();
 
-      if(ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXB ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
-      { // pixel
-        const SiPixelRecHit* recHit =
-           dynamic_cast<const SiPixelRecHit *>(tRecHit);
+      if (ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::PixelBarrel ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::PixelEndcap ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::P1PXB ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::P1PXEC ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::P2PXB ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC) {  // pixel
+        const SiPixelRecHit* recHit = dynamic_cast<const SiPixelRecHit*>(tRecHit);
 
-        if(recHit != nullptr)
+        if (recHit != nullptr)
           return theFilter->isCompatible(*recHit, gdir, *theCache);
-      }
-      else if(GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector()))
-      { // strip
-        if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != nullptr)
-        { // glued
-          const SiStripMatchedRecHit2D* recHit =
-            dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit);
+      } else if (GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector())) {  // strip
+        if (dynamic_cast<const SiStripMatchedRecHit2D*>(tRecHit) != nullptr) {          // glued
+          const SiStripMatchedRecHit2D* recHit = dynamic_cast<const SiStripMatchedRecHit2D*>(tRecHit);
 
-          if(recHit != nullptr)
-          { 
-            return (theFilter->isCompatible(recHit->monoHit()  , gdir) &&
+          if (recHit != nullptr) {
+            return (theFilter->isCompatible(recHit->monoHit(), gdir) &&
                     theFilter->isCompatible(recHit->stereoHit(), gdir));
           }
-        }
-        else
-        { // single
-          if(dynamic_cast<const SiStripRecHit2D *>(tRecHit) != nullptr)
-          { // normal
-            const SiStripRecHit2D* recHit =
-              dynamic_cast<const SiStripRecHit2D *>(tRecHit);
-  
-            if(recHit != nullptr)
+        } else {                                                           // single
+          if (dynamic_cast<const SiStripRecHit2D*>(tRecHit) != nullptr) {  // normal
+            const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D*>(tRecHit);
+
+            if (recHit != nullptr)
               return theFilter->isCompatible(*recHit, gdir);
-          }
-          else
-          { // projected
-            const ProjectedSiStripRecHit2D* recHit =
-              dynamic_cast<const ProjectedSiStripRecHit2D *>(tRecHit);
- 
-            if(recHit != nullptr)
+          } else {  // projected
+            const ProjectedSiStripRecHit2D* recHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(tRecHit);
+
+            if (recHit != nullptr)
               return theFilter->isCompatible(recHit->originalHit(), gdir);
           }
         }
@@ -127,91 +104,62 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 }
 
 /*****************************************************************************/
-bool ClusterShapeTrajectoryFilter::toBeContinued
-  (TempTrajectory& trajectory) const 
-{
+bool ClusterShapeTrajectoryFilter::toBeContinued(TempTrajectory& trajectory) const {
   assert(theCache);
   const TempTrajectory::DataContainer& tms = trajectory.measurements();
 
-  for(TempTrajectory::DataContainer::const_iterator
-       tm = tms.rbegin(); tm!= tms.rend(); --tm)
-  {
+  for (TempTrajectory::DataContainer::const_iterator tm = tms.rbegin(); tm != tms.rend(); --tm) {
     const TrackingRecHit* ttRecHit = &(*((*tm).recHit()));
 
-    if(ttRecHit->isValid())
-    {
-      const TrackingRecHit * tRecHit = ttRecHit->hit();
+    if (ttRecHit->isValid()) {
+      const TrackingRecHit* tRecHit = ttRecHit->hit();
 
       TrajectoryStateOnSurface ts = (*tm).updatedState();
       GlobalVector gdir = ts.globalDirection();
 
-      if(ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXB ||
-	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
-      { // pixel
-        const SiPixelRecHit* recHit =
-           dynamic_cast<const SiPixelRecHit *>(tRecHit);
+      if (ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::PixelBarrel ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::PixelEndcap ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::P1PXB ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::P1PXEC ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::P2PXB ||
+          ttRecHit->det()->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC) {  // pixel
+        const SiPixelRecHit* recHit = dynamic_cast<const SiPixelRecHit*>(tRecHit);
 
-        if(recHit != nullptr)
-          if(! theFilter->isCompatible(*recHit, gdir, *theCache))
-          {
-            LogTrace("TrajectFilter")
-              << "  [TrajectFilter] fail pixel";
+        if (recHit != nullptr)
+          if (!theFilter->isCompatible(*recHit, gdir, *theCache)) {
+            LogTrace("TrajectFilter") << "  [TrajectFilter] fail pixel";
             return false;
           }
-      }
-      else if(GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector()))
-      { // strip
-        if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != nullptr)
-        { // glued
-          const SiStripMatchedRecHit2D* recHit =
-            dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit);
+      } else if (GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector())) {  // strip
+        if (dynamic_cast<const SiStripMatchedRecHit2D*>(tRecHit) != nullptr) {          // glued
+          const SiStripMatchedRecHit2D* recHit = dynamic_cast<const SiStripMatchedRecHit2D*>(tRecHit);
 
-          if(recHit != nullptr)
-          { 
-            if(! theFilter->isCompatible(recHit->monoHit(), gdir))
-            {
-              LogTrace("TrajectFilter")
-               << "  [TrajectFilter] fail strip matched 1st";
+          if (recHit != nullptr) {
+            if (!theFilter->isCompatible(recHit->monoHit(), gdir)) {
+              LogTrace("TrajectFilter") << "  [TrajectFilter] fail strip matched 1st";
               return false;
             }
 
-            if(! theFilter->isCompatible(recHit->stereoHit(), gdir))
-            {
-              LogTrace("TrajectFilter")
-                << "  [TrajectFilter] fail strip matched 2nd";
+            if (!theFilter->isCompatible(recHit->stereoHit(), gdir)) {
+              LogTrace("TrajectFilter") << "  [TrajectFilter] fail strip matched 2nd";
               return false;
             }
           }
-        }
-        else
-        { // single
-          if(dynamic_cast<const SiStripRecHit2D *>(tRecHit) != nullptr)
-          { // normal
-            const SiStripRecHit2D* recHit =
-              dynamic_cast<const SiStripRecHit2D *>(tRecHit);
-  
-            if(recHit != nullptr)
-              if(! theFilter->isCompatible(*recHit, gdir))
-              {
-                LogTrace("TrajectFilter")
-                  << "  [TrajectFilter] fail strip single";
+        } else {                                                           // single
+          if (dynamic_cast<const SiStripRecHit2D*>(tRecHit) != nullptr) {  // normal
+            const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D*>(tRecHit);
+
+            if (recHit != nullptr)
+              if (!theFilter->isCompatible(*recHit, gdir)) {
+                LogTrace("TrajectFilter") << "  [TrajectFilter] fail strip single";
                 return false;
               }
-          }
-          else
-          { // projected
-            const ProjectedSiStripRecHit2D* recHit =
-              dynamic_cast<const ProjectedSiStripRecHit2D *>(tRecHit);
- 
-            if(recHit != nullptr)
-              if(! theFilter->isCompatible(recHit->originalHit(), gdir))
-              {
-                LogTrace("TrajectFilter")
-                  << "  [TrajectFilter] fail strip projected";
+          } else {  // projected
+            const ProjectedSiStripRecHit2D* recHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(tRecHit);
+
+            if (recHit != nullptr)
+              if (!theFilter->isCompatible(recHit->originalHit(), gdir)) {
+                LogTrace("TrajectFilter") << "  [TrajectFilter] fail strip projected";
                 return false;
               }
           }
@@ -224,24 +172,19 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 }
 
 /*****************************************************************************/
-bool ClusterShapeTrajectoryFilter::qualityFilter
-  (const Trajectory& trajectory) const
-{
-  return true;
-}
+bool ClusterShapeTrajectoryFilter::qualityFilter(const Trajectory& trajectory) const { return true; }
 
 /*****************************************************************************/
-bool ClusterShapeTrajectoryFilter::qualityFilter
-  (const TempTrajectory& trajectory) const
-{
+bool ClusterShapeTrajectoryFilter::qualityFilter(const TempTrajectory& trajectory) const {
   TempTrajectory t = trajectory;
 
   // Check if ok
-  if(toBeContinued(t)) return true;
+  if (toBeContinued(t))
+    return true;
 
   // Should take out last
-  if(t.measurements().size() <= 3) return false;
+  if (t.measurements().size() <= 3)
+    return false;
 
   return true;
 }
-

@@ -9,13 +9,12 @@
   Original Author:  Vadim Khotilovich
 */
 
-class DTNeutronWriter : public SubsystemNeutronWriter
-{
- public:
-  explicit DTNeutronWriter(edm::ParameterSet const& pset);
+class DTNeutronWriter : public SubsystemNeutronWriter {
+public:
+  explicit DTNeutronWriter(edm::ParameterSet const &pset);
   ~DTNeutronWriter() override;
 
- protected:
+protected:
   int localDetId(int globalDetId) const override;
 
   int chamberType(int globalDetId) const override;
@@ -23,8 +22,7 @@ class DTNeutronWriter : public SubsystemNeutronWriter
   int chamberId(int globalDetId) const override;
 
   /// decides whether this cluster is good enough to be included
-  bool accept(const edm::PSimHitContainer & cluster) const override {return true;}
-
+  bool accept(const edm::PSimHitContainer &cluster) const override { return true; }
 };
 
 #endif

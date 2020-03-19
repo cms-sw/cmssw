@@ -2,9 +2,9 @@
 # Slava Valuev May-2006.
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("MuonCSCTriggerPrimitives", eras.Run2_2018)
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process("MuonCSCTriggerPrimitives", Run2_2018)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring("digis.root")

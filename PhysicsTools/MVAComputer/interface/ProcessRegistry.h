@@ -13,22 +13,16 @@
 // Refactoring for gcc 4.7.0 and higher
 // by Gena Kukartsev following design and advice from Chris Jones
 // January 2013
-// 
-
-
+//
 
 #include <string>
 #include "tbb/concurrent_unordered_map.h"
 
-
-
-namespace PhysicsTools 
-{
+namespace PhysicsTools {
 
   // forward declaration
-  template<class Base_t, class CalibBase_t, class Parent_t, class Instance_t, class Calibration_t> class ProcessRegistryImpl;
-
-
+  template <class Base_t, class CalibBase_t, class Parent_t, class Instance_t, class Calibration_t>
+  class ProcessRegistryImpl;
 
   /** \class ProcessRegistry
    *
@@ -41,20 +35,17 @@ namespace PhysicsTools
    * common base class.
    *
    ************************************************************/
-  template<class Base_t, class CalibBase_t, class Parent_t>
-    class ProcessRegistry {
-    public:
-    
-
+  template <class Base_t, class CalibBase_t, class Parent_t>
+  class ProcessRegistry {
+  public:
 #ifndef __GCCXML__
 
     // template alias to replace the former Registry class
-    template<class Instance_t, class Calibration_t>
-      using Registry = ProcessRegistryImpl<Base_t,CalibBase_t,Parent_t,Instance_t,Calibration_t>;
-    
-#endif  
+    template <class Instance_t, class Calibration_t>
+    using Registry = ProcessRegistryImpl<Base_t, CalibBase_t, Parent_t, Instance_t, Calibration_t>;
 
-    
+#endif
+
     /** \class Factory
      *
      * \short Factory helper class to instantiate a processor.
@@ -66,41 +57,34 @@ namespace PhysicsTools
      ************************************************************/
     class Factory {
     public:
-      static Base_t *create(const char *name,
-			    const CalibBase_t *calib,
-			    Parent_t *parent = 0);
+      static Base_t *create(const char *name, const CalibBase_t *calib, Parent_t *parent = 0);
     };
-    
+
   protected:
     friend class Factory;
-    
+
     /// instantiate registry and registers itself with \a name
-      ProcessRegistry(const char *name) : name(name)
-	{ registerProcess(name, this); }
-	virtual ~ProcessRegistry() { unregisterProcess(name); }
-	
-	/// create an instance of \a name, given a calibration \a calib and parent \a parent
-	  static Base_t *create(const char *name, const CalibBase_t *calib,
-				Parent_t *parent);
-	  
-	  /// virtual method to implement by respective processor instance classes
-	    virtual Base_t *instance(const char *name, const CalibBase_t *calib,
-				     Parent_t *parent) const = 0;
-	    
+    ProcessRegistry(const char *name) : name(name) { registerProcess(name, this); }
+    virtual ~ProcessRegistry() { unregisterProcess(name); }
+
+    /// create an instance of \a name, given a calibration \a calib and parent \a parent
+    static Base_t *create(const char *name, const CalibBase_t *calib, Parent_t *parent);
+
+    /// virtual method to implement by respective processor instance classes
+    virtual Base_t *instance(const char *name, const CalibBase_t *calib, Parent_t *parent) const = 0;
+
   private:
-	    static void registerProcess(const char *name,
-					const ProcessRegistry *process);
-	    static void unregisterProcess(const char *name);
-	    
-	    typedef tbb::concurrent_unordered_map<std::string, const ProcessRegistry*> RegistryMap;
-	    
-	    /// return map of all registered processes, allocate if necessary
-	      static RegistryMap *getRegistry();
-	      
-	      const char *name;
-  }; // class ProcessRegistry
-  
-  
+    static void registerProcess(const char *name, const ProcessRegistry *process);
+    static void unregisterProcess(const char *name);
+
+    typedef tbb::concurrent_unordered_map<std::string, const ProcessRegistry *> RegistryMap;
+
+    /// return map of all registered processes, allocate if necessary
+    static RegistryMap *getRegistry();
+
+    const char *name;
+  };  // class ProcessRegistry
+
   /** \class ProcessRegistryImpl (formerly ProcessRegistry::Registry)
    *
    * \short template to generate a registry singleton for a type.
@@ -110,22 +94,18 @@ namespace PhysicsTools
    * calls the constructor of the instance type.
    *
    ************************************************************/
-  template<class Base_t, class CalibBase_t, class Parent_t, class Instance_t, class Calibration_t> 
-    class ProcessRegistryImpl : public ProcessRegistry<Base_t, CalibBase_t, Parent_t> {
+  template <class Base_t, class CalibBase_t, class Parent_t, class Instance_t, class Calibration_t>
+  class ProcessRegistryImpl : public ProcessRegistry<Base_t, CalibBase_t, Parent_t> {
   public:
-    ProcessRegistryImpl<Base_t, CalibBase_t, Parent_t, Instance_t, Calibration_t>(const char *name) : ProcessRegistry<Base_t, CalibBase_t, Parent_t>(name){}
+    ProcessRegistryImpl<Base_t, CalibBase_t, Parent_t, Instance_t, Calibration_t>(const char *name)
+        : ProcessRegistry<Base_t, CalibBase_t, Parent_t>(name) {}
+
   protected:
-    Base_t *instance(const char *name, const CalibBase_t *calib,
-		     Parent_t *parent) const override
-      {
-	return new Instance_t(name,
-			      dynamic_cast<const Calibration_t*>(calib),
-			      parent);
-      }
-  }; // class ProcessRegistryImpl
+    Base_t *instance(const char *name, const CalibBase_t *calib, Parent_t *parent) const override {
+      return new Instance_t(name, dynamic_cast<const Calibration_t *>(calib), parent);
+    }
+  };  // class ProcessRegistryImpl
 
+}  // namespace PhysicsTools
 
-  
-} // namespace PhysicsTools
-
-#endif // PhysicsTools_MVAComputer_ProcessRegistry_h
+#endif  // PhysicsTools_MVAComputer_ProcessRegistry_h

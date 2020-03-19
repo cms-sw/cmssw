@@ -7,7 +7,6 @@
 PopCon handler for the HCAL LUT metadata condition
 */
 
-
 #include <string>
 #include <iostream>
 #include <typeinfo>
@@ -15,7 +14,7 @@ PopCon handler for the HCAL LUT metadata condition
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -25,22 +24,19 @@ PopCon handler for the HCAL LUT metadata condition
 #include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-
-class HcalLutMetadataHandler : public popcon::PopConSourceHandler<HcalLutMetadata>
-{
- public:
+class HcalLutMetadataHandler : public popcon::PopConSourceHandler<HcalLutMetadata> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~HcalLutMetadataHandler() override;
-  HcalLutMetadataHandler(edm::ParameterSet const &);
+  HcalLutMetadataHandler(edm::ParameterSet const&);
 
   void initObject(HcalLutMetadata*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   HcalLutMetadata* myDBObject;
   std::string m_name;
-
 };
 #endif

@@ -2,7 +2,7 @@
 //
 // Package:     HFGeometry
 // Class  :     HFAlignmentErrorRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

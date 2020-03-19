@@ -14,7 +14,7 @@
 
 #include <cmath>
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
@@ -25,21 +25,18 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 
 class BeamSpotTransientTrackingRecHit final : public TValidTrackingRecHit {
- public:
-
+public:
   typedef TrackingRecHit::Type Type;
-  
-  BeamSpotTransientTrackingRecHit(const reco::BeamSpot &beamSpot,
-				  const BeamSpotGeomDet * geom,
-				  double phi)
-    : TValidTrackingRecHit(*geom) {
 
+  BeamSpotTransientTrackingRecHit(const reco::BeamSpot &beamSpot, const BeamSpotGeomDet *geom, double phi)
+      : TValidTrackingRecHit(*geom) {
     localPosition_ = det()->toLocal(GlobalPoint(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()));
-    localError_ = LocalError(std::pow(beamSpot.BeamWidthX()*cos(phi), 2) +
-		  	     std::pow(beamSpot.BeamWidthY()*sin(phi), 2),
-		             0.0, std::pow(beamSpot.sigmaZ(), 2));
+    localError_ =
+        LocalError(std::pow(beamSpot.BeamWidthX() * cos(phi), 2) + std::pow(beamSpot.BeamWidthY() * sin(phi), 2),
+                   0.0,
+                   std::pow(beamSpot.sigmaZ(), 2));
   }
-    
+
   ~BeamSpotTransientTrackingRecHit() override {}
 
   LocalPoint localPosition() const override { return localPosition_; }
@@ -49,41 +46,27 @@ class BeamSpotTransientTrackingRecHit final : public TValidTrackingRecHit {
   AlgebraicSymMatrix parametersError() const override;
   int dimension() const override { return 1; }
 
-  const TrackingRecHit * hit() const override { return nullptr; }
-  TrackingRecHit * cloneHit() const override { return nullptr;}
+  const TrackingRecHit *hit() const override { return nullptr; }
+  TrackingRecHit *cloneHit() const override { return nullptr; }
 
+  std::vector<const TrackingRecHit *> recHits() const override { return std::vector<const TrackingRecHit *>(); }
+  std::vector<TrackingRecHit *> recHits() override { return std::vector<TrackingRecHit *>(); }
 
-  std::vector<const TrackingRecHit*> recHits() const override {
-    return std::vector<const TrackingRecHit*>();
-  }
-  std::vector<TrackingRecHit*> recHits() override {
-    return std::vector<TrackingRecHit*>();
-  }
+  AlgebraicMatrix projectionMatrix() const override { return theProjectionMatrix; }
 
-  AlgebraicMatrix projectionMatrix() const override {
-    return theProjectionMatrix;
-  }
-
- protected:
-
+protected:
   LocalPoint localPosition_;
   LocalError localError_;
 
- private:
-  
+private:
   // should not have assignment operator (?)
-  BeamSpotTransientTrackingRecHit & operator= (const BeamSpotTransientTrackingRecHit & t) {
-     return *(this);
-  }
+  BeamSpotTransientTrackingRecHit &operator=(const BeamSpotTransientTrackingRecHit &t) { return *(this); }
 
-  // hide the clone method for ReferenceCounted. Warning: this method is still 
+  // hide the clone method for ReferenceCounted. Warning: this method is still
   // accessible via the bas class TrackingRecHit interface!
-   BeamSpotTransientTrackingRecHit * clone() const override {
-     return new BeamSpotTransientTrackingRecHit(*this);
-   }
-   
-   static const AlgebraicMatrix theProjectionMatrix;
+  BeamSpotTransientTrackingRecHit *clone() const override { return new BeamSpotTransientTrackingRecHit(*this); }
+
+  static const AlgebraicMatrix theProjectionMatrix;
 };
 
 #endif
-

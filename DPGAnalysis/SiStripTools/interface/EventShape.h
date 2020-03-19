@@ -3,25 +3,21 @@
 #include <TVector3.h>
 #include <vector>
 
-class EventShape 
-{
-  public:
-  
-    static math::XYZTLorentzVectorF thrust(const reco::TrackCollection&);
-    static float sphericity(const reco::TrackCollection&);
-    static float aplanarity(const reco::TrackCollection&);
-    static float planarity(const reco::TrackCollection&);
+class EventShape {
+public:
+  static math::XYZTLorentzVectorF thrust(const reco::TrackCollection&);
+  static float sphericity(const reco::TrackCollection&);
+  static float aplanarity(const reco::TrackCollection&);
+  static float planarity(const reco::TrackCollection&);
 
-    EventShape(reco::TrackCollection&);
+  EventShape(reco::TrackCollection&);
 
-    math::XYZTLorentzVectorF thrust() const;
-    float sphericity() const;
-    float aplanarity() const;
-    float planarity() const;
-    
-  private:
+  math::XYZTLorentzVectorF thrust() const;
+  float sphericity() const;
+  float aplanarity() const;
+  float planarity() const;
 
-     std::vector<TVector3> p;
-     std::vector<float> eigenvalues;
-     
+private:
+  std::vector<TVector3> p;
+  std::vector<float> eigenvalues;
 };

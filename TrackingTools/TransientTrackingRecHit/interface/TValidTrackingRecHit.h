@@ -11,64 +11,52 @@
  */
 class TValidTrackingRecHit : public TransientTrackingRecHit {
 public:
-  
-  TValidTrackingRecHit(const GeomDet & geom) : 
-  TrackingRecHit(geom) {}
+  TValidTrackingRecHit(const GeomDet& geom) : TrackingRecHit(geom) {}
 
-
-  template<typename... Args>
-  TValidTrackingRecHit(Args && ...args) : 
-    TrackingRecHit(std::forward<Args>(args)...) {}
+  template <typename... Args>
+  TValidTrackingRecHit(Args&&... args) : TrackingRecHit(std::forward<Args>(args)...) {}
 
   // to be moved in children
-  TrackingRecHit * cloneHit() const override { return hit()->clone();}
+  TrackingRecHit* cloneHit() const override { return hit()->clone(); }
 
   // Extension of the TrackingRecHit interface
-  const Surface * surface() const final {return &(det()->surface());}
+  const Surface* surface() const final { return &(det()->surface()); }
 
+  GlobalPoint globalPosition() const final { return surface()->toGlobal(localPosition()); }
 
-  GlobalPoint globalPosition() const final {
-      return surface()->toGlobal(localPosition());
+  GlobalError globalPositionError() const final {
+    return ErrorFrameTransformer().transform(localPositionError(), *surface());
   }
-  
-  GlobalError globalPositionError() const final { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
-  float errorGlobalR() const final { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  float errorGlobalR() const final { return std::sqrt(globalPositionError().rerr(globalPosition())); }
   float errorGlobalZ() const final { return std::sqrt(globalPositionError().czz()); }
-  float errorGlobalRPhi() const final { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+  float errorGlobalRPhi() const final {
+    return globalPosition().perp() * sqrt(globalPositionError().phierr(globalPosition()));
+  }
 
   // once cache removed will obsolete the above
   TrackingRecHitGlobalState globalState() const {
-    GlobalError  
-      globalError = ErrorFrameTransformer::transform( localPositionError(), *surface() );
+    GlobalError globalError = ErrorFrameTransformer::transform(localPositionError(), *surface());
     auto gp = globalPosition();
     float r = gp.perp();
-    float errorRPhi = r*std::sqrt(float(globalError.phierr(gp))); 
+    float errorRPhi = r * std::sqrt(float(globalError.phierr(gp)));
     float errorR = std::sqrt(float(globalError.rerr(gp)));
     float errorZ = std::sqrt(float(globalError.czz()));
-    return (TrackingRecHitGlobalState){
-      gp.basicVector(), r, gp.barePhi(),
-	errorR,errorZ,errorRPhi
-	};
+    return (TrackingRecHitGlobalState){gp.basicVector(), r, gp.barePhi(), errorR, errorZ, errorRPhi};
   }
-
 
   /// Returns true if the clone( const TrajectoryStateOnSurface&) method returns an
   /// improved hit, false if it returns an identical copy.
-  /// In order to avoid redundent copies one should call canImproveWithTrack() before 
+  /// In order to avoid redundent copies one should call canImproveWithTrack() before
   /// calling clone( const TrajectoryStateOnSurface&).
-  bool canImproveWithTrack() const override {return false;}
+  bool canImproveWithTrack() const override { return false; }
 
- 
-/// cluster probability, overloaded by pixel rechits.
+  /// cluster probability, overloaded by pixel rechits.
   virtual float clusterProbability() const { return 1.f; }
 
 private:
- 
-  // hide the clone method for ReferenceCounted. Warning: this method is still 
+  // hide the clone method for ReferenceCounted. Warning: this method is still
   // accessible via the bas class TrackingRecHit interface!
-  TValidTrackingRecHit * clone() const override = 0;
-
+  TValidTrackingRecHit* clone() const override = 0;
 };
 
 #endif
-

@@ -1,0 +1,8 @@
+<bin name="testONNXRuntime" file="testRunner.cpp, testONNXRuntime.cc">
+    <use name="boost_filesystem" />
+    <use name="cppunit" />
+
+    <use name="PhysicsTools/ONNXRuntime" />
+    <use name="FWCore/ParameterSet" />
+    <use name="FWCore/Utilities" />
+</bin>

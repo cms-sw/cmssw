@@ -5,11 +5,10 @@ class TGGC;
 
 // global graphical contexts
 
-namespace fireworks
-{
-const TGGC& boldGC();
-const TGGC& italicGC();
-const TGGC& redGC();
-const TGGC& greenGC();
-}
+namespace fireworks {
+  const TGGC& boldGC();
+  const TGGC& italicGC();
+  const TGGC& redGC();
+  const TGGC& greenGC();
+}  // namespace fireworks
 #endif

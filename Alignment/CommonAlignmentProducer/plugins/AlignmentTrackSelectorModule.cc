@@ -17,20 +17,18 @@
 #include "CommonTools/RecoAlgos/interface/TrackSelector.h"
 
 struct TrackConfigSelector {
-
   typedef std::vector<const reco::Track*> container;
   typedef container::const_iterator const_iterator;
   typedef reco::TrackCollection collection;
 
- TrackConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
-   theBaseSelector(cfg, iC),
-   theGlobalSelector(cfg.getParameter<edm::ParameterSet>("GlobalSelector"), iC),
-   theTwoBodyDecaySelector(cfg.getParameter<edm::ParameterSet>("TwoBodyDecaySelector"), iC)
-  {
+  TrackConfigSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+      : theBaseSelector(cfg, iC),
+        theGlobalSelector(cfg.getParameter<edm::ParameterSet>("GlobalSelector"), iC),
+        theTwoBodyDecaySelector(cfg.getParameter<edm::ParameterSet>("TwoBodyDecaySelector"), iC) {
     //TODO Wrap the BaseSelector into its own PSet
     theBaseSwitch = theBaseSelector.useThisFilter();
 
-    theGlobalSwitch =  theGlobalSelector.useThisFilter();
+    theGlobalSwitch = theGlobalSelector.useThisFilter();
 
     theTwoBodyDecaySwitch = theTwoBodyDecaySelector.useThisFilter();
   }
@@ -39,20 +37,18 @@ struct TrackConfigSelector {
   const_iterator end() const { return theSelectedTracks.end(); }
   size_t size() const { return theSelectedTracks.size(); }
 
-  void select( const edm::Handle<reco::TrackCollection> & c,  const edm::Event & evt,
-               const edm::EventSetup& eSetup)
-  {
+  void select(const edm::Handle<reco::TrackCollection>& c, const edm::Event& evt, const edm::EventSetup& eSetup) {
     theSelectedTracks.clear();
-    for( reco::TrackCollection::const_iterator i=c.product()->begin();i!=c.product()->end();++i){
-      theSelectedTracks.push_back(& * i );
+    for (reco::TrackCollection::const_iterator i = c.product()->begin(); i != c.product()->end(); ++i) {
+      theSelectedTracks.push_back(&*i);
     }
     // might add EvetSetup to the select(...) method of the Selectors
-    if(theBaseSwitch)
-      theSelectedTracks=theBaseSelector.select(theSelectedTracks,evt,eSetup);
-    if(theGlobalSwitch)
-      theSelectedTracks=theGlobalSelector.select(theSelectedTracks,evt,eSetup);
-    if(theTwoBodyDecaySwitch)
-      theSelectedTracks=theTwoBodyDecaySelector.select(theSelectedTracks,evt,eSetup);
+    if (theBaseSwitch)
+      theSelectedTracks = theBaseSelector.select(theSelectedTracks, evt, eSetup);
+    if (theGlobalSwitch)
+      theSelectedTracks = theGlobalSelector.select(theSelectedTracks, evt, eSetup);
+    if (theTwoBodyDecaySwitch)
+      theSelectedTracks = theTwoBodyDecaySelector.select(theSelectedTracks, evt, eSetup);
   }
 
 private:
@@ -62,9 +58,8 @@ private:
   AlignmentTrackSelector theBaseSelector;
   AlignmentGlobalTrackSelector theGlobalSelector;
   AlignmentTwoBodyDecayTrackSelector theTwoBodyDecaySelector;
-
 };
 
-typedef ObjectSelectorStream<TrackConfigSelector>  AlignmentTrackSelectorModule;
+typedef ObjectSelectorStream<TrackConfigSelector> AlignmentTrackSelectorModule;
 
-DEFINE_FWK_MODULE( AlignmentTrackSelectorModule );
+DEFINE_FWK_MODULE(AlignmentTrackSelectorModule);

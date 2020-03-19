@@ -1,13 +1,19 @@
 #ifndef CSCGeometryBuilder_CSCGeometryParsFromDD_h
 #define CSCGeometryBuilder_CSCGeometryParsFromDD_h
 
-/** \class CSCGeometryParsFromDD
- *
- *  Build the CSCGeometry from the DDD description.
- *
- *  \author Tim Cox
- */
+/*
+// \class CSCGeometryParsFromDDD
+//
+//  Description: CSC Geometry Pars for DD4hep
+//              
+//
+// \author Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osburne made for DTs (DD4HEP migration)
+//         Created:  Thu, 05 March 2020 
+//   
+//         Original author: Tim Cox
+*/
 
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <string>
 
@@ -17,26 +23,33 @@ class MuonDDDConstants;
 class RecoIdealGeometry;
 class CSCRecoDigiParameters;
 
-class CSCGeometryParsFromDD {
- public:
+namespace cms {
+  class DDFilteredView;
+  class DDCompactView;
+  class MuonNumbering;
+}  // namespace cms
 
+class CSCGeometryParsFromDD {
+public:
   /// Constructor
-  CSCGeometryParsFromDD( );
-  
+  CSCGeometryParsFromDD();
+
   /// Destructor
   virtual ~CSCGeometryParsFromDD();
 
   /// Build the geometry returning the RecoIdealGeometry and the CSCRecoDigiParameters objects
   // as built from the DDD.
-  bool build( const DDCompactView* cview 
-	      , const MuonDDDConstants& muonConstants
-	      , RecoIdealGeometry& rig
-	      , CSCRecoDigiParameters& rdp
-	      );
+  bool build(const DDCompactView* cview,
+             const MuonDDDConstants& muonConstants,
+             RecoIdealGeometry& rig,
+             CSCRecoDigiParameters& rdp);
+  //dd4hep
+  bool build(const cms::DDCompactView* cview,
+             const cms::MuonNumbering& muonConstants,
+             RecoIdealGeometry& rig,
+             CSCRecoDigiParameters& rdp);
 
- private:
+private:
   std::string myName;
-
 };
 #endif
-

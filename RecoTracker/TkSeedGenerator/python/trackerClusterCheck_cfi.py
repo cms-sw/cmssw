@@ -26,3 +26,12 @@ pp_on_AA_2018.toModify(trackerClusterCheck,
                MaxNumberOfPixelClusters = 150000,
                MaxNumberOfCosmicClusters = 500000
                )
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(trackerClusterCheck,
+               doClusterCheck=True,
+               cut = "strip < 1000 && pixel < 300 ",
+               MaxNumberOfPixelClusters = 300,
+               MaxNumberOfCosmicClusters = 1000
+               )
+

@@ -24,11 +24,8 @@ muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
 import EventFilter.DTRawToDigi.dtunpacker_cfi
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 
-import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
-muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
-
-import EventFilter.RPCRawToDigi.rpcDigiMerger_cfi
-muonRPCNewDigis = EventFilter.RPCRawToDigi.rpcDigiMerger_cfi.rpcDigiMerger.clone()
+import EventFilter.RPCRawToDigi.RPCRawToDigi_cfi 
+muonRPCDigis = EventFilter.RPCRawToDigi.RPCRawToDigi_cfi.muonRPCDigis.clone()
 
 import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
 muonGEMDigis = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone()
@@ -115,19 +112,6 @@ _hgcal_RawToDigiTask = RawToDigiTask.copy()
 _hgcal_RawToDigiTask.add(hgcalDigis)
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith(RawToDigiTask,_hgcal_RawToDigiTask)
-
-# RPC New Readout Validation
-from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-_rpc_NewReadoutVal_RawToDigiTask = RawToDigiTask.copy()
-_rpc_NewReadoutVal_RawToDigiTask_noTk = RawToDigiTask_noTk.copy()
-_rpc_NewReadoutVal_RawToDigiTask.add(muonRPCNewDigis)
-_rpc_NewReadoutVal_RawToDigiTask_noTk.add(muonRPCNewDigis)
-stage2L1Trigger_2017.toReplaceWith(RawToDigiTask, _rpc_NewReadoutVal_RawToDigiTask)
-stage2L1Trigger_2017.toReplaceWith(RawToDigiTask_noTk, _rpc_NewReadoutVal_RawToDigiTask)
-
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([muonRPCNewDigis]))
-fastSim.toReplaceWith(RawToDigiTask_noTk, RawToDigiTask_noTk.copyAndExclude([muonRPCNewDigis]))
 
 _hfnose_RawToDigiTask = RawToDigiTask.copy()
 _hfnose_RawToDigiTask.add(hfnoseDigis)

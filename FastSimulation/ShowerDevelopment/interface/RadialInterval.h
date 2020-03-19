@@ -3,35 +3,33 @@
 
 //  Created 1/11/04. F. Beaudette (CERN)
 //  This class is used to ease the lateral development with
-// different spot fractions in FamosShower. 
-
+// different spot fractions in FamosShower.
 
 #include <vector>
 
 class RandomEngineAndDistribution;
 
-class RadialInterval
-{
- public:
+class RadialInterval {
+public:
   /// Standard constructor Rc: mean Radius
-  RadialInterval(double RC,unsigned nSpots, double energy,
-		 const RandomEngineAndDistribution* engine);
-  ~RadialInterval(){;}
-  
+  RadialInterval(double RC, unsigned nSpots, double energy, const RandomEngineAndDistribution* engine);
+  ~RadialInterval() { ; }
+
   /// Add an interval : first argument is the radius, the second is the
   /// fraction of spots in this interval R>10 <-> infinity
-  void addInterval(double,double);
+  void addInterval(double, double);
   /// Most of the calculation are made in addInterval
-  /// but the normal number of spots has to be set 
+  /// but the normal number of spots has to be set
   void compute();
   /// Number of intervals
-  inline unsigned nIntervals() const { return nInter;}
+  inline unsigned nIntervals() const { return nInter; }
   /// Spot energy in a given interval
-  inline double getSpotEnergy(unsigned i) const { 
+  inline double getSpotEnergy(unsigned i) const {
     //    std::cout << " getSpotEnergy " << i << " " << spotE.size() << std::endl;
-    return spotE[i];}
+    return spotE[i];
+  }
   /// Number of spots in a given interval
-  inline unsigned getNumberOfSpots(unsigned i) const { 
+  inline unsigned getNumberOfSpots(unsigned i) const {
     //    std::cout << " getNumberOfSpots " << i << " " << nspots.size() << std::endl;
     return nspots[i];
   }
@@ -46,14 +44,14 @@ class RadialInterval
     return uMax[i];
   }
 
- private:
+private:
   double currentRad;
   double currentEnergyFraction;
   double currentUlim;
   double theR;
   unsigned theNumberOfSpots;
   double theSpotEnergy;
-  unsigned nInter; 
+  unsigned nInter;
 
   std::vector<double> uMin;
   std::vector<double> uMax;
@@ -62,12 +60,11 @@ class RadialInterval
   std::vector<double> dspotsunscaled;
   std::vector<double> spotfraction;
 
- private:
-    // Fraction of the energy in rm Moliere radius
+private:
+  // Fraction of the energy in rm Moliere radius
   double energyFractionInRadius(double rm);
 
   // Famos Random Engine
   const RandomEngineAndDistribution* random;
-  
 };
 #endif

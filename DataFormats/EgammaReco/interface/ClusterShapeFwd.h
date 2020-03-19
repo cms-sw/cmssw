@@ -21,6 +21,6 @@ namespace reco {
 
   /// iterator over a vector of references to ClusterShape objects
   typedef ClusterShapeRefVector::iterator clusterShape_iterator;
-}
+}  // namespace reco
 
 #endif

@@ -1,27 +1,9 @@
 <use   name="DQMServices/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="boost"/>
-<library   file="DQMBackEndInterfaceExample.cc" name="DQMServicesCoreROOTExample">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="DQMReadFileExample.cc" name="DQMServicesCoreROOTReadFileExample">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="DQMBackEndInterfaceQTestsExample.cc" name="DQMServicesCoreROOTQTestsExample">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="DQMMonitorUIRootStandaloneExample.cc" name="DQMServicesUIStandaloneExample">
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   file="DQMSourceExampleConfig.cc" name="DQMServicesCoreSourceExample">
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="DQMTestMultiThread.cc" name="DQMTestMultiThread">
   <flags   EDM_PLUGIN="1"/>
 </library>
-<bin   file="DQMQualityTestsExample.cc">
-</bin>
-<bin   file="DQMFastMatchTest.cc">
-</bin>
-<bin   file="DQMTestStandaloneBuildOfDQMStore.cc">
-</bin>

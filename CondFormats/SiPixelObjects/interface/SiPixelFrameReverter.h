@@ -3,31 +3,28 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
+#include <map>
+#include <vector>
 
-class SiPixelFedCablingMap;
+class TrackerGeometry;
 
 class SiPixelFrameReverter {
 public:
+  SiPixelFrameReverter(const SiPixelFedCabling* map);
 
-  SiPixelFrameReverter(const edm::EventSetup&, const SiPixelFedCabling* map);
-
-  void buildStructure(edm::EventSetup const&);
+  void buildStructure(const TrackerGeometry*);
 
   // Function to test if detId exists
-  bool hasDetUnit(uint32_t detId) const { return (DetToFedMap.find(detId)!=DetToFedMap.end()); }
+  bool hasDetUnit(uint32_t detId) const { return (DetToFedMap.find(detId) != DetToFedMap.end()); }
 
   // Function to convert offline addressing to online
-  int toCabling( sipixelobjects::ElectronicIndex & cabling, 
-                 const sipixelobjects::DetectorIndex & detector) const;
+  int toCabling(sipixelobjects::ElectronicIndex& cabling, const sipixelobjects::DetectorIndex& detector) const;
 
   // Function to find FedId given detId
   int findFedId(uint32_t detId);
@@ -48,12 +45,8 @@ public:
   sipixelobjects::LocalPixel findPixelInRoc(uint32_t detId, sipixelobjects::GlobalPixel global);
 
 private:
+  const SiPixelFedCabling* map_;
 
-  const SiPixelFedCabling * map_;
-
-  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > DetToFedMap;
-
+  std::map<uint32_t, std::vector<sipixelobjects::CablingPathToDetUnit> > DetToFedMap;
 };
 #endif
-
-

@@ -8,12 +8,9 @@ class TH2F;
 
 class RPCRawDataCountsHistoMaker {
 public:
-  
-  static TH1F * emptyRecordTypeHisto(int fedId);
-  static TH1F * emptyReadoutErrorHisto(int fedId);
-  static TH2F * emptyReadoutErrorMapHisto(int fedId, int type);
-
+  static TH1F* emptyRecordTypeHisto(int fedId);
+  static TH1F* emptyReadoutErrorHisto(int fedId);
+  static TH2F* emptyReadoutErrorMapHisto(int fedId, int type);
 };
 
 #endif
-

@@ -2,17 +2,25 @@
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 // #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
+#include "DQMServices/Core/src/ROOTFilePB.pb.h"
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/gzip_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+
+#include "TBufferFile.h"
+
+#include <regex>
+#include <cstdlib>
+
 using namespace dqmservices;
 
-DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset,
-                                     edm::InputSourceDescription const& desc)
+DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
     : PuttableSourceBase(pset, desc), fiterator_(pset) {
-
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
@@ -20,6 +28,8 @@ DQMProtobufReader::DQMProtobufReader(edm::ParameterSet const& pset,
 
   produces<std::string, edm::Transition::BeginLuminosityBlock>("sourceDataPath");
   produces<std::string, edm::Transition::BeginLuminosityBlock>("sourceJsonPath");
+  produces<DQMToken, edm::Transition::BeginRun>("DQMGenerationRecoRun");
+  produces<DQMToken, edm::Transition::BeginLuminosityBlock>("DQMGenerationRecoLumi");
 }
 
 DQMProtobufReader::~DQMProtobufReader() {}
@@ -68,8 +78,7 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
 std::shared_ptr<edm::RunAuxiliary> DQMProtobufReader::readRunAuxiliary_() {
   // fiterator_.logFileAction("readRunAuxiliary_");
 
-  edm::RunAuxiliary* aux = new edm::RunAuxiliary(
-      fiterator_.runNumber(), edm::Timestamp(), edm::Timestamp());
+  edm::RunAuxiliary* aux = new edm::RunAuxiliary(fiterator_.runNumber(), edm::Timestamp(), edm::Timestamp());
   return std::shared_ptr<edm::RunAuxiliary>(aux);
 }
 
@@ -84,26 +93,22 @@ void DQMProtobufReader::readRun_(edm::RunPrincipal& rpCache) {
   }
 }
 
-std::shared_ptr<edm::LuminosityBlockAuxiliary>
-DQMProtobufReader::readLuminosityBlockAuxiliary_() {
+std::shared_ptr<edm::LuminosityBlockAuxiliary> DQMProtobufReader::readLuminosityBlockAuxiliary_() {
   // fiterator_.logFileAction("readLuminosityBlockAuxiliary_");
 
   currentLumi_ = fiterator_.open();
   edm::LuminosityBlockAuxiliary* aux = new edm::LuminosityBlockAuxiliary(
-      fiterator_.runNumber(), currentLumi_.file_ls, edm::Timestamp(),
-      edm::Timestamp());
+      fiterator_.runNumber(), currentLumi_.file_ls, edm::Timestamp(), edm::Timestamp());
 
   return std::shared_ptr<edm::LuminosityBlockAuxiliary>(aux);
 }
 
-void DQMProtobufReader::readLuminosityBlock_(
-    edm::LuminosityBlockPrincipal& lbCache) {
+void DQMProtobufReader::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache) {
   // fiterator_.logFileAction("readLuminosityBlock_");
 
   edm::Service<edm::JobReport> jr;
-  jr->reportInputLumiSection(lbCache.id().run(),
-                             lbCache.id().luminosityBlock());
-  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
+  jr->reportInputLumiSection(lbCache.id().run(), lbCache.id().luminosityBlock());
+  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistry().getMapped(lbCache.aux().processHistoryID()));
 }
 
 void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
@@ -137,7 +142,7 @@ void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
 
     fiterator_.logFileAction("Initiating request to open file ", path);
     fiterator_.logFileAction("Successfully opened file ", path);
-    store->load(path);
+    load(&*store, path);
     fiterator_.logFileAction("Closed file ", path);
     fiterator_.logLumiState(currentLumi_, "close: ok");
   } else {
@@ -146,11 +151,129 @@ void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
   }
 }
 
+void DQMProtobufReader::load(DQMStore* store, std::string filename) {
+  using google::protobuf::io::ArrayInputStream;
+  using google::protobuf::io::CodedInputStream;
+  using google::protobuf::io::FileInputStream;
+  using google::protobuf::io::FileOutputStream;
+  using google::protobuf::io::GzipInputStream;
+  using google::protobuf::io::GzipOutputStream;
+
+  int filedescriptor;
+  if ((filedescriptor = ::open(filename.c_str(), O_RDONLY)) == -1) {
+    edm::LogError("DQMProtobufReader") << "File " << filename << " does not exist.";
+  }
+
+  dqmstorepb::ROOTFilePB dqmstore_message;
+  FileInputStream fin(filedescriptor);
+  GzipInputStream input(&fin);
+  CodedInputStream input_coded(&input);
+  input_coded.SetTotalBytesLimit(1024 * 1024 * 1024, -1);
+  if (!dqmstore_message.ParseFromCodedStream(&input_coded)) {
+    edm::LogError("DQMProtobufReader") << "Fatal parsing file '" << filename << "'";
+  }
+
+  ::close(filedescriptor);
+
+  for (int i = 0; i < dqmstore_message.histo_size(); ++i) {
+    TObject* obj = nullptr;
+    dqmstorepb::ROOTFilePB::Histo const& h = dqmstore_message.histo(i);
+
+    size_t slash = h.full_pathname().rfind('/');
+    size_t dirpos = (slash == std::string::npos ? 0 : slash);
+    size_t namepos = (slash == std::string::npos ? 0 : slash + 1);
+    std::string objname, dirname;
+    dirname.assign(h.full_pathname(), 0, dirpos);
+    objname.assign(h.full_pathname(), namepos, std::string::npos);
+    TBufferFile buf(TBufferFile::kRead, h.size(), (void*)h.streamed_histo().data(), kFALSE);
+    buf.Reset();
+    if (buf.Length() == buf.BufferSize()) {
+      obj = nullptr;
+    } else {
+      buf.InitMap();
+      void* ptr = buf.ReadObjectAny(nullptr);
+      obj = reinterpret_cast<TObject*>(ptr);
+    }
+
+    if (!obj) {
+      edm::LogError("DQMProtobufReader") << "Error reading element:'" << h.full_pathname();
+    }
+
+    store->setCurrentFolder(dirname);
+
+    if (h.flags() & DQMNet::DQM_PROP_LUMI) {
+      store->setScope(MonitorElementData::Scope::LUMI);
+    } else {
+      store->setScope(MonitorElementData::Scope::RUN);
+    }
+
+    if (obj) {
+      int kind = h.flags() & DQMNet::DQM_PROP_TYPE_MASK;
+      if (kind == DQMNet::DQM_PROP_TYPE_INT) {
+        MonitorElement* me = store->bookInt(objname);
+        auto expression = std::string(static_cast<TObjString*>(obj)->String().View());
+        std::regex parseint{"<.*>i=(.*)</.*>"};
+        std::smatch match;
+        bool ok = std::regex_match(expression, match, parseint);
+        if (!ok) {
+          edm::LogError("DQMProtobufReader") << "Malformed object of type INT: '" << expression << "'";
+          continue;
+        }
+        int value = std::atoi(match[1].str().c_str());
+        me->Fill(value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_REAL) {
+        MonitorElement* me = store->bookFloat(objname);
+        auto expression = std::string(static_cast<TObjString*>(obj)->String().View());
+        std::regex parsefloat{"<.*>f=(.*)</.*>"};
+        std::smatch match;
+        bool ok = std::regex_match(expression, match, parsefloat);
+        if (!ok) {
+          edm::LogError("DQMProtobufReader") << "Malformed object of type REAL: '" << expression << "'";
+          continue;
+        }
+        double value = std::atof(match[1].str().c_str());
+        me->Fill(value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_STRING) {
+        auto value = static_cast<TObjString*>(obj)->String();
+        store->bookString(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TH1F) {
+        auto value = static_cast<TH1F*>(obj);
+        store->book1D(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TH1S) {
+        auto value = static_cast<TH1S*>(obj);
+        store->book1S(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TH1D) {
+        auto value = static_cast<TH1D*>(obj);
+        store->book1DD(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TH2F) {
+        auto value = static_cast<TH2F*>(obj);
+        store->book2D(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TH2S) {
+        auto value = static_cast<TH2S*>(obj);
+        store->book2S(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TH2D) {
+        auto value = static_cast<TH2D*>(obj);
+        store->book2DD(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TH3F) {
+        auto value = static_cast<TH3F*>(obj);
+        store->book3D(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TPROF) {
+        auto value = static_cast<TProfile*>(obj);
+        store->bookProfile(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TPROF2D) {
+        auto value = static_cast<TProfile2D*>(obj);
+        store->bookProfile2D(objname, value);
+      } else {
+        edm::LogError("DQMProtobufReader") << "Unknown type: " << kind;
+      }
+      delete obj;
+    }
+  }
+}
 
 void DQMProtobufReader::readEvent_(edm::EventPrincipal&){};
 
-void DQMProtobufReader::fillDescriptions(
-    edm::ConfigurationDescriptions& descriptions) {
+void DQMProtobufReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.setComment(

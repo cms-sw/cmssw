@@ -8,7 +8,7 @@ using namespace std;
 
 #include <TGraph.h>
 
-ClassImp(MEEBDisplay)
+ClassImp(MEEBDisplay);
 
 list< TObject* > MEEBDisplay::_list;
 map< int, pair<float,float> > MEEBDisplay::_phiLimits;

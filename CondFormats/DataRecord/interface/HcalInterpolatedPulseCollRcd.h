@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HcalInterpolatedPulseCollRcd
-// 
+//
 /**\class HcalInterpolatedPulseCollRcd HcalInterpolatedPulseCollRcd.h CondFormats/DataRecord/interface/HcalInterpolatedPulseCollRcd.h
 
  Description: record for storing HCAL analog pulse shapes
@@ -20,7 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class HcalInterpolatedPulseCollRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalInterpolatedPulseCollRcd> {};
+class HcalInterpolatedPulseCollRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<HcalInterpolatedPulseCollRcd> {};
 
-#endif // CondFormats_HcalInterpolatedPulseCollRcd_h
-
+#endif  // CondFormats_HcalInterpolatedPulseCollRcd_h

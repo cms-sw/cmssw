@@ -53,4 +53,5 @@ genParticlesForMETAllVisible = cms.EDProducer(
     )
     )                                        
 
-genMETParticles = cms.Sequence(genCandidatesForMET+genParticlesForMETAllVisible)
+genMETParticlesTask = cms.Task(genCandidatesForMET, genParticlesForMETAllVisible)
+genMETParticles = cms.Sequence(genMETParticlesTask)

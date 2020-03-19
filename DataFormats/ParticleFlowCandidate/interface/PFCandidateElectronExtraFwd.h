@@ -11,13 +11,13 @@
 namespace reco {
   class PFCandidateElectronExtra;
 
-    /// collection of PFCandidateElectronExtras
+  /// collection of PFCandidateElectronExtras
   typedef std::vector<reco::PFCandidateElectronExtra> PFCandidateElectronExtraCollection;
 
-  /// iterator 
+  /// iterator
   typedef PFCandidateElectronExtraCollection::const_iterator PFCandidateElectronExtraConstIterator;
 
-  /// iterator 
+  /// iterator
   typedef PFCandidateElectronExtraCollection::iterator PFCandidateElectronExtraIterator;
 
   /// persistent reference to a PFCandidateElectronExtra
@@ -32,17 +32,17 @@ namespace reco {
   /// vector of reference to GenParticleCandidate in the same collection
   typedef edm::RefVector<PFCandidateElectronExtraCollection> PFCandidateElectronExtraRefVector;
 
-   /// persistent "forward" reference to a PFCandidateElectronExtra
-   typedef edm::FwdRef<PFCandidateElectronExtraCollection> PFCandidateElectronExtraFwdRef;
- 
-   /// persistent FwdPtr to a PFCandidateElectronExtra
-   typedef edm::FwdPtr<PFCandidateElectronExtra> PFCandidateElectronExtraFwdPtr;
- 
-   /// vector of "forward" reference
-   typedef std::vector<PFCandidateElectronExtraFwdRef> PFCandidateElectronExtraFwdRefVector;
- 
-   /// vector of "forward" reference
-   typedef std::vector<PFCandidateElectronExtraFwdPtr> PFCandidateElectronExtraFwdPtrVector;
+  /// persistent "forward" reference to a PFCandidateElectronExtra
+  typedef edm::FwdRef<PFCandidateElectronExtraCollection> PFCandidateElectronExtraFwdRef;
 
-}
+  /// persistent FwdPtr to a PFCandidateElectronExtra
+  typedef edm::FwdPtr<PFCandidateElectronExtra> PFCandidateElectronExtraFwdPtr;
+
+  /// vector of "forward" reference
+  typedef std::vector<PFCandidateElectronExtraFwdRef> PFCandidateElectronExtraFwdRefVector;
+
+  /// vector of "forward" reference
+  typedef std::vector<PFCandidateElectronExtraFwdPtr> PFCandidateElectronExtraFwdPtrVector;
+
+}  // namespace reco
 #endif

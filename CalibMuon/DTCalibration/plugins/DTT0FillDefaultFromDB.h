@@ -21,23 +21,23 @@ class DTT0;
 
 namespace dtCalibration {
 
-class DTT0FillDefaultFromDB: public DTT0BaseCorrection {
-public:
-  // Constructor
-  DTT0FillDefaultFromDB(const edm::ParameterSet&);
+  class DTT0FillDefaultFromDB : public DTT0BaseCorrection {
+  public:
+    // Constructor
+    DTT0FillDefaultFromDB(const edm::ParameterSet &);
 
-  // Destructor
-  ~DTT0FillDefaultFromDB() override;
+    // Destructor
+    ~DTT0FillDefaultFromDB() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTT0Data correction(const DTWireId&) override;
+    void setES(const edm::EventSetup &setup) override;
+    DTT0Data correction(const DTWireId &) override;
 
-private:
-  std::string dbLabelRef_;
+  private:
+    std::string dbLabelRef_;
 
-  const DTT0 *t0MapRef_;
-  const DTT0 *t0Map_;
-};
+    const DTT0 *t0MapRef_;
+    const DTT0 *t0Map_;
+  };
 
-} // namespace
+}  // namespace dtCalibration
 #endif

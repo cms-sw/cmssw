@@ -37,30 +37,27 @@
 typedef unsigned char myint8;
 
 class DTSectCollPhSegm : public DTTrigData {
-
- public:
-
+public:
   //!  Constructor
   DTSectCollPhSegm(DTSectCollId scId, int step);
-  
+
   //!  Constructor
-  DTSectCollPhSegm(DTSectCollId scId, int step, 
-		    const DTChambPhSegm* tsPhiTrig, int isFirst);
+  DTSectCollPhSegm(DTSectCollId scId, int step, const DTChambPhSegm* tsPhiTrig, int isFirst);
   //!  Constructor
   DTSectCollPhSegm(const DTSectCollPhSegm&);
-  
-  //!  Destructor 
+
+  //!  Destructor
   ~DTSectCollPhSegm() override;
 
   // Non-const methods
-  
+
   //! Assignment operator
   DTSectCollPhSegm& operator=(const DTSectCollPhSegm& seg);
 
   //! Associate a Trigger Server Phi trigger
   inline void setTsPhiTrig(const DTChambPhSegm* tsphitrig, int isFirst) {
-    m_tsphitrig=tsphitrig; 
-    m_isFirst=isFirst;
+    m_tsphitrig = tsphitrig;
+    m_isFirst = isFirst;
   }
 
   //! Clear
@@ -70,18 +67,18 @@ class DTSectCollPhSegm : public DTTrigData {
 
   // //! Return associated TRACO trigger
   // inline const DTTracoTrigData* tracoTrig() const { return m_tsphitrig->TracoTrigData(); }
-  
+
   //! Return associated Trigger Server Phi trigger
   inline const DTChambPhSegm* tsPhiTrig() const { return m_tsphitrig; }
-  
+
   //! Return step number
   inline int step() const { return m_step; }
 
   //! Return SC identifier
   DTSectCollId SCId() const { return m_sectcollid; }
 
-  //! Return chamber identifier 
-  DTChamberId ChamberId() const override { return m_tsphitrig->ChamberId(); } 
+  //! Return chamber identifier
+  DTChamberId ChamberId() const override { return m_tsphitrig->ChamberId(); }
 
   //! Print
   void print() const override;
@@ -90,7 +87,7 @@ class DTSectCollPhSegm : public DTTrigData {
   inline int tracoNumber() const { return m_tsphitrig->tracoNumber(); }
 
   //! Return if it is a first track
-  inline int isFirst() const { return m_isFirst==1; }
+  inline int isFirst() const { return m_isFirst == 1; }
 
   //! Return trigger code (MTTF input format [0,7])
   int code() const { return m_tsphitrig->code(); }
@@ -121,14 +118,14 @@ class DTSectCollPhSegm : public DTTrigData {
 
   //! Return correlator output code (position of segments)
   inline int posMask() const { return m_tsphitrig->posMask(); }
-  
+
   //! Return the preview code (10*inner_code or outer_code; X_code=1,2,3,4,8)
   inline int pvCode() const { return m_tsphitrig->pvCode(); }
 
   //! Return the preview K
   inline int pvK() const { return m_tsphitrig->pvK(); }
 
- private:
+private:
   // parent sectcoll
   DTSectCollId m_sectcollid;
 
@@ -140,6 +137,5 @@ class DTSectCollPhSegm : public DTTrigData {
 
   // the corresponding traco trigger
   const DTChambPhSegm* m_tsphitrig;
-
 };
 #endif

@@ -1,4 +1,3 @@
-<use   name="boost"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>

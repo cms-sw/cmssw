@@ -12,30 +12,26 @@
 //class TH1D;
 //class TH2D;
 
-class BoostTester : public edm::EDAnalyzer
-{
+class BoostTester : public edm::EDAnalyzer {
+public:
+  //
+  explicit BoostTester(const edm::ParameterSet&);
+  virtual ~BoostTester() {}
 
-   public:
-   
-      //
-      explicit BoostTester( const edm::ParameterSet& ) ;
-      virtual ~BoostTester() {}
-      
-      virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
-      virtual void beginJob() override ;
-      virtual void endJob() override ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
 
-   private:
-   
-     //
-     TFile* fOutputFile ;
-	 TTree* ftreevtx;
-	 TTree* ftreep;
-	 
-	 double fvx,fvy,fvz;
-	 double fpx,fpy,fpz,fpt,fp,fe,feta,fphi;
-	 
-	 /*
+private:
+  //
+  TFile* fOutputFile;
+  TTree* ftreevtx;
+  TTree* ftreep;
+
+  double fvx, fvy, fvz;
+  double fpx, fpy, fpz, fpt, fp, fe, feta, fphi;
+
+  /*
      TH1D*  fVtxHistz ;
      TH1D*  fVtxHistx ;
      TH1D*  fVtxHisty ;
@@ -52,7 +48,6 @@ class BoostTester : public edm::EDAnalyzer
      TH1D*  fEtaHistOrg ;
      TH1D*  fEtaHistSmr ; 
      */
-	 
 };
 
 #endif

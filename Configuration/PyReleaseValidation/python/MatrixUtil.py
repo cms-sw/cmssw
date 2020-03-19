@@ -3,7 +3,7 @@ class Matrix(dict):
     def __setitem__(self,key,value):
         if key in self:
             print("ERROR in Matrix")
-            print("overwritting",key,"not allowed")
+            print("overwriting",key,"not allowed")
         else:
             self.update({float(key):WF(float(key),value)})
 
@@ -15,7 +15,7 @@ class Steps(dict):
     def __setitem__(self,key,value):
         if key in self:
             print("ERROR in Step")
-            print("overwritting",key,"not allowed")
+            print("overwriting",key,"not allowed")
             import sys
             sys.exit(-9)
         else:
@@ -63,7 +63,7 @@ with open(jsonFile2016) as data_file:
 def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
     # print "maxNum is %s"%(maxNum)
     if not isinstance(list_runs[0], int):
-        print("ERROR: list_runs must be a list of intergers")
+        print("ERROR: list_runs must be a list of integers")
         return None
     local_dict = {}
     ls_count = 0

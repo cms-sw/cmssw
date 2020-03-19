@@ -15,7 +15,7 @@ struct oldTriggerDataFormat {
   uint32_t triggerTime_base;
   uint32_t spillNumber;
   uint32_t runNumber;
-  char     runNumberSequenceId[16];
+  char runNumberSequenceId[16];
   uint32_t orbitNumber;
   uint32_t bunchNumber;
   uint32_t eventStatus;
@@ -47,78 +47,76 @@ typedef struct newExtendedTrgMsgBlkStruct {
   uint32_t triggerTime_base;
   uint32_t spillNumber;
   uint32_t runNumber;
-  char     runNumberSequenceId[16];
+  char runNumberSequenceId[16];
   uint32_t eventStatus;
 } newExtendedTrgMsgBlk;
 
-
 namespace hcaltb {
 
-  void HcalTBTriggerDataUnpacker::unpack(const FEDRawData& raw, HcalTBTriggerData& htbtd) const {
-
+  void HcalTBTriggerDataUnpacker::unpack(const FEDRawData &raw, HcalTBTriggerData &htbtd) const {
     // Use the size to determine which format we have received:
     //
-    if (raw.size() == 80) { // "old" test beam trigger format
+    if (raw.size() == 80) {  // "old" test beam trigger format
 
       const oldTriggerDataFormat *oldtrgblk = (const oldTriggerDataFormat *)(raw.data());
       htbtd.setStandardData(oldtrgblk->orbitNumber,
-			    oldtrgblk->triggerNumber,
-			    oldtrgblk->bunchNumber,
-			    0,          // flags_daq_ttype
-			    0, 0, 0, 0, // algo_bits_3->0
-			    0,          // tech_bits
-			    0, 0        // gps_1234, gps_5678
-			    );
+                            oldtrgblk->triggerNumber,
+                            oldtrgblk->bunchNumber,
+                            0,  // flags_daq_ttype
+                            0,
+                            0,
+                            0,
+                            0,  // algo_bits_3->0
+                            0,  // tech_bits
+                            0,
+                            0  // gps_1234, gps_5678
+      );
 
       htbtd.setExtendedData(oldtrgblk->triggerWord,
-			    oldtrgblk->triggerTime_usec,
-			    oldtrgblk->triggerTime_base,
-			    oldtrgblk->spillNumber,
-			    oldtrgblk->runNumber,
-			    oldtrgblk->runNumberSequenceId);
-    }
-    else {
-
+                            oldtrgblk->triggerTime_usec,
+                            oldtrgblk->triggerTime_base,
+                            oldtrgblk->spillNumber,
+                            oldtrgblk->runNumber,
+                            oldtrgblk->runNumberSequenceId);
+    } else {
       const newExtendedTrgMsgBlk *newtrgblk;
 
       if (raw.size() == 96)  // "new" test beam trigger format,
-	                           // 64-bit header
-	newtrgblk = (const newExtendedTrgMsgBlk *)(raw.data()+8);
+                             // 64-bit header
+        newtrgblk = (const newExtendedTrgMsgBlk *)(raw.data() + 8);
 
-      else if (raw.size() == 104) // "new" test beam trigger format,
-	                                // 128-bit header
-	newtrgblk = (const newExtendedTrgMsgBlk *)(raw.data()+16);
+      else if (raw.size() == 104)  // "new" test beam trigger format,
+                                   // 128-bit header
+        newtrgblk = (const newExtendedTrgMsgBlk *)(raw.data() + 16);
       else {
-	cerr << "HcalTBtdUnpacker.unpack: data of unknown size ";
-	cerr << raw.size() << endl;
-	return;
+        cerr << "HcalTBtdUnpacker.unpack: data of unknown size ";
+        cerr << raw.size() << endl;
+        return;
       }
 
       // get bunch number from the header
       //
       const uint32_t *cdflow = (const uint32_t *)raw.data();
-      int bunch_id = (*cdflow)>>20;
+      int bunch_id = (*cdflow) >> 20;
 
       htbtd.setStandardData(newtrgblk->stdBlock.orbitNumber,
-			    newtrgblk->stdBlock.eventNumber,
-			    bunch_id,
-			    newtrgblk->stdBlock.flags_daq_ttype,
-			    newtrgblk->stdBlock.algo_bits_3,
-			    newtrgblk->stdBlock.algo_bits_2,
-			    newtrgblk->stdBlock.algo_bits_1,
-			    newtrgblk->stdBlock.algo_bits_0,
-			    newtrgblk->stdBlock.tech_bits,
-			    newtrgblk->stdBlock.gps_1234,
-			    newtrgblk->stdBlock.gps_5678);
+                            newtrgblk->stdBlock.eventNumber,
+                            bunch_id,
+                            newtrgblk->stdBlock.flags_daq_ttype,
+                            newtrgblk->stdBlock.algo_bits_3,
+                            newtrgblk->stdBlock.algo_bits_2,
+                            newtrgblk->stdBlock.algo_bits_1,
+                            newtrgblk->stdBlock.algo_bits_0,
+                            newtrgblk->stdBlock.tech_bits,
+                            newtrgblk->stdBlock.gps_1234,
+                            newtrgblk->stdBlock.gps_5678);
 
       htbtd.setExtendedData(newtrgblk->triggerWord,
-			    newtrgblk->triggerTime_usec,
-			    newtrgblk->triggerTime_base,
-			    newtrgblk->spillNumber,
-			    newtrgblk->runNumber,
-			    newtrgblk->runNumberSequenceId);
+                            newtrgblk->triggerTime_usec,
+                            newtrgblk->triggerTime_base,
+                            newtrgblk->spillNumber,
+                            newtrgblk->runNumber,
+                            newtrgblk->runNumberSequenceId);
     }
-
   }
-}
-
+}  // namespace hcaltb

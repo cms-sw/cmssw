@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ScheduleInfo
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -33,19 +33,14 @@ using namespace edm;
 //
 // constructors and destructor
 //
-ScheduleInfo::ScheduleInfo(const Schedule* iSchedule):
-schedule_(iSchedule)
-{
-}
+ScheduleInfo::ScheduleInfo(const Schedule* iSchedule) : schedule_(iSchedule) {}
 
 // ScheduleInfo::ScheduleInfo(const ScheduleInfo& rhs)
 // {
 //    // do actual copying here;
 // }
 
-ScheduleInfo::~ScheduleInfo()
-{
-}
+ScheduleInfo::~ScheduleInfo() {}
 
 //
 // assignment operators
@@ -66,46 +61,35 @@ ScheduleInfo::~ScheduleInfo()
 //
 // const member functions
 //
-void 
-ScheduleInfo::availableModuleLabels(std::vector<std::string>& oLabelsToFill) const
-{
-   using std::placeholders::_1;
-   std::vector<ModuleDescription const*> desc = schedule_->getAllModuleDescriptions();
-   
-   oLabelsToFill.reserve(oLabelsToFill.size()+desc.size());
-   std::transform(desc.begin(),desc.end(),
-                  std::back_inserter(oLabelsToFill),
-                  std::bind(&ModuleDescription::moduleLabel,_1));
+void ScheduleInfo::availableModuleLabels(std::vector<std::string>& oLabelsToFill) const {
+  using std::placeholders::_1;
+  std::vector<ModuleDescription const*> desc = schedule_->getAllModuleDescriptions();
+
+  oLabelsToFill.reserve(oLabelsToFill.size() + desc.size());
+  std::transform(
+      desc.begin(), desc.end(), std::back_inserter(oLabelsToFill), std::bind(&ModuleDescription::moduleLabel, _1));
 }
 
-const ParameterSet*
-ScheduleInfo::parametersForModule(const std::string& iLabel) const 
-{
-   using std::placeholders::_1;
-   std::vector<ModuleDescription const*> desc = schedule_->getAllModuleDescriptions();
-   
-   std::vector<ModuleDescription const*>::iterator itFound = std::find_if(desc.begin(),
-                                                                          desc.end(),
-                                                                          std::bind(std::equal_to<std::string>(),
-                                                                                      iLabel,
-                                                                                      std::bind(&ModuleDescription::moduleLabel,_1)));
-   if (itFound == desc.end()) {
-      return nullptr;
-   }
-   return pset::Registry::instance()->getMapped((*itFound)->parameterSetID());
+const ParameterSet* ScheduleInfo::parametersForModule(const std::string& iLabel) const {
+  using std::placeholders::_1;
+  std::vector<ModuleDescription const*> desc = schedule_->getAllModuleDescriptions();
+
+  std::vector<ModuleDescription const*>::iterator itFound =
+      std::find_if(desc.begin(),
+                   desc.end(),
+                   std::bind(std::equal_to<std::string>(), iLabel, std::bind(&ModuleDescription::moduleLabel, _1)));
+  if (itFound == desc.end()) {
+    return nullptr;
+  }
+  return pset::Registry::instance()->getMapped((*itFound)->parameterSetID());
 }
 
-void 
-ScheduleInfo::availablePaths(std::vector<std::string>& oLabelsToFill) const
-{
-   schedule_->availablePaths(oLabelsToFill);
+void ScheduleInfo::availablePaths(std::vector<std::string>& oLabelsToFill) const {
+  schedule_->availablePaths(oLabelsToFill);
 }
 
-void 
-ScheduleInfo::modulesInPath(const std::string& iPathLabel,
-                            std::vector<std::string>& oLabelsToFill) const
-{
-   schedule_->modulesInPath(iPathLabel, oLabelsToFill);
+void ScheduleInfo::modulesInPath(const std::string& iPathLabel, std::vector<std::string>& oLabelsToFill) const {
+  schedule_->modulesInPath(iPathLabel, oLabelsToFill);
 }
 
 //

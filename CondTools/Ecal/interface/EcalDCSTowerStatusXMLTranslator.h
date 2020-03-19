@@ -13,22 +13,15 @@
 #include <string>
 
 class EcalDCSTowerStatusXMLTranslator {
-
 public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalDCSTowerStatus& record);
 
-  static int readXML (const std::string& filename, 
-	              EcalCondHeader& header,
-	              EcalDCSTowerStatus& record);
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalDCSTowerStatus& record);
 
-  static  int writeXML(const std::string& filename, 
-		       const EcalCondHeader& header,
-		       const EcalDCSTowerStatus& record);
- private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalDCSTowerStatus& record);
+private:
+  static std::string dumpXML(const EcalCondHeader& header, const EcalDCSTowerStatus& record);
 
   static void plot(std::string, const EcalDCSTowerStatus& record);
 };
 
-#endif // __EcalDCSTowerStatusXMLTranslator_h_
+#endif  // __EcalDCSTowerStatusXMLTranslator_h_

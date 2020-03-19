@@ -4,7 +4,7 @@
 //
 // Package:     CommonTools/Utils
 // Class  :     reco::formula::ConstantEvaluator
-// 
+//
 /**\class reco::formula::ConstantEvaluator formulaConstantEvaluator.h "formulaConstantEvaluator.h"
 
  Description: [one line class summary]
@@ -27,27 +27,23 @@
 
 namespace reco {
   namespace formula {
-    class ConstantEvaluator : public EvaluatorBase
-    {
-      
+    class ConstantEvaluator : public EvaluatorBase {
     public:
       explicit ConstantEvaluator(double iValue) : m_value(iValue) {}
-      
 
       // ---------- const member functions ---------------------
       double evaluate(double const* iVariables, double const* iParameters) const final;
-      std::vector<std::string> abstractSyntaxTree() const final ;
-      
+      std::vector<std::string> abstractSyntaxTree() const final;
+
     private:
       ConstantEvaluator(const ConstantEvaluator&) = delete;
-      
+
       const ConstantEvaluator& operator=(const ConstantEvaluator&) = delete;
-      
+
       // ---------- member data --------------------------------
       double m_value;
     };
-  }
-}
-
+  }  // namespace formula
+}  // namespace reco
 
 #endif

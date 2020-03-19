@@ -1,23 +1,23 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include <string>
-namespace edm{
+namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 //
 // class decleration
 //
 
 class writeMultipleRecords : public edm::EDAnalyzer {
- public:
-  explicit writeMultipleRecords(const edm::ParameterSet& iConfig );
+public:
+  explicit writeMultipleRecords(const edm::ParameterSet& iConfig);
   ~writeMultipleRecords();
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void endJob(){}
- private:
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() {}
+
+private:
   std::string m_PedRecordName;
   std::string m_StripRecordName;
 };
-

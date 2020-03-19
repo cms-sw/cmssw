@@ -15,23 +15,26 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorExtendedRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 class HcalAlignmentEP : public edm::ESProducer {
-
 public:
-
   using ReturnAli = std::unique_ptr<Alignments>;
 
-  typedef AlignTransform::Translation Trl ;
-  typedef AlignTransform::Rotation    Rot ;
+  typedef AlignTransform::Translation Trl;
+  typedef AlignTransform::Rotation Rot;
 
   HcalAlignmentEP(const edm::ParameterSet&);
   ~HcalAlignmentEP() override;
 
-//-------------------------------------------------------------------
- 
-  ReturnAli    produceHcalAli( const HcalAlignmentRcd& iRecord );
+  //-------------------------------------------------------------------
+
+  ReturnAli produceHcalAli(const HcalAlignmentRcd& iRecord);
+
+private:
+  edm::ESGetToken<Alignments, HBAlignmentRcd> hbToken_;
+  edm::ESGetToken<Alignments, HEAlignmentRcd> heToken_;
+  edm::ESGetToken<Alignments, HFAlignmentRcd> hfToken_;
+  edm::ESGetToken<Alignments, HOAlignmentRcd> hoToken_;
 };
 
 #endif

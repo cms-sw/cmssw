@@ -11,24 +11,22 @@
  *   \modified by C. Calabria    INFN & Universita  Bari
  */
 
-
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-class MuonTransientTrackingRecHit final : public GenericTransientTrackingRecHit{
+class MuonTransientTrackingRecHit final : public GenericTransientTrackingRecHit {
 public:
-   using MuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit>;
-   using ConstMuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit const>;
+  using MuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit>;
+  using ConstMuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit const>;
 
-//  typedef ReferenceCountingPointer<MuonTransientTrackingRecHit>      MuonRecHitPointer;
-//  typedef ConstReferenceCountingPointer<MuonTransientTrackingRecHit> ConstMuonRecHitPointer;
-  typedef std::vector<MuonRecHitPointer>                             MuonRecHitContainer;
-  typedef std::vector<ConstMuonRecHitPointer>                        ConstMuonRecHitContainer;
-  
-  ~MuonTransientTrackingRecHit() override{}
+  //  typedef ReferenceCountingPointer<MuonTransientTrackingRecHit>      MuonRecHitPointer;
+  //  typedef ConstReferenceCountingPointer<MuonTransientTrackingRecHit> ConstMuonRecHitPointer;
+  typedef std::vector<MuonRecHitPointer> MuonRecHitContainer;
+  typedef std::vector<ConstMuonRecHitPointer> ConstMuonRecHitContainer;
+
+  ~MuonTransientTrackingRecHit() override {}
 
   /// Direction in 3D for segments, otherwise (0,0,0)
   virtual LocalVector localDirection() const;
@@ -41,8 +39,8 @@ public:
 
   /// Error on the global direction
   virtual GlobalError globalDirectionError() const;
- 
-  AlgebraicSymMatrix parametersError() const  override;
+
+  AlgebraicSymMatrix parametersError() const override;
 
   /// Chi square of the fit for segments, else 0
   virtual double chi2() const;
@@ -50,17 +48,17 @@ public:
   /// Degrees of freedom for segments, else 0
   virtual int degreesOfFreedom() const;
 
-  /// if this rec hit is a DT rec hit 
+  /// if this rec hit is a DT rec hit
   bool isDT() const;
 
-  /// if this rec hit is a CSC rec hit 
+  /// if this rec hit is a CSC rec hit
   bool isCSC() const;
 
-  /// if this rec hit is a GEM rec hit 
-  bool isGEM() const; 
+  /// if this rec hit is a GEM rec hit
+  bool isGEM() const;
 
-  /// if this rec hit is a ME0 rec hit 
-  bool isME0() const; 
+  /// if this rec hit is a ME0 rec hit
+  bool isME0() const;
 
   /// if this rec hit is a RPC rec hit
   bool isRPC() const;
@@ -70,31 +68,26 @@ public:
 
   /// FIXME virtual ConstMuonRecHitContainer specificTransientHits() const;
 
-  static RecHitPointer build( const GeomDet * geom, const TrackingRecHit* rh) {
-    return RecHitPointer( new MuonTransientTrackingRecHit(geom, rh));
+  static RecHitPointer build(const GeomDet* geom, const TrackingRecHit* rh) {
+    return RecHitPointer(new MuonTransientTrackingRecHit(geom, rh));
   }
 
-  static MuonRecHitPointer specificBuild(const GeomDet * geom, const TrackingRecHit* rh) {
-    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Getting specificBuild"<<std::endl;
+  static MuonRecHitPointer specificBuild(const GeomDet* geom, const TrackingRecHit* rh) {
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Getting specificBuild" << std::endl;
     return MuonRecHitPointer(new MuonTransientTrackingRecHit(geom, rh));
   }
 
   void invalidateHit();
 
- private:
-
-  friend class kkkwwwxxxyyyzzz; //just to avoid the compiler warning...
+private:
+  friend class kkkwwwxxxyyyzzz;  //just to avoid the compiler warning...
 
   /// Construct from a TrackingRecHit and its GeomDet
-  MuonTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit * rh);
+  MuonTransientTrackingRecHit(const GeomDet* geom, const TrackingRecHit* rh);
 
   /// Copy ctor
-  MuonTransientTrackingRecHit(const MuonTransientTrackingRecHit & other );
+  MuonTransientTrackingRecHit(const MuonTransientTrackingRecHit& other);
 
-  MuonTransientTrackingRecHit* clone() const  override {
-    return new MuonTransientTrackingRecHit(*this);
-  }
-
+  MuonTransientTrackingRecHit* clone() const override { return new MuonTransientTrackingRecHit(*this); }
 };
 #endif
-

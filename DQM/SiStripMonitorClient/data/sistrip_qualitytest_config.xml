@@ -168,4 +168,4 @@
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__PLUS__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
 </LINK>
-</TESTCONFIGURATION>
+</TESTSCONFIGURATION>

@@ -22,18 +22,14 @@ class DDLElementRegistry;
  *  to make it as elaborate as the second pass parser.
  *
  */
-class DDLSAX2ExpressionHandler : public DDLSAX2FileHandler 
-{
- public:
-
+class DDLSAX2ExpressionHandler : public DDLSAX2FileHandler {
+public:
   DDLSAX2ExpressionHandler(DDCompactView& cpv, DDLElementRegistry&);
   ~DDLSAX2ExpressionHandler() override;
 
-  void startElement( const XMLCh* uri, const XMLCh* localname,
-		     const XMLCh* qname, const Attributes& attrs) override;
-  
-  void endElement( const XMLCh* uri, const XMLCh* localname,
-		   const XMLCh* qname) override;
+  void startElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname, const Attributes& attrs) override;
+
+  void endElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname) override;
 };
 
 #endif

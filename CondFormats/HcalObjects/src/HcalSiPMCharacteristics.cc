@@ -6,24 +6,22 @@
 #include "CondFormats/HcalObjects/interface/HcalObjectAddons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HcalSiPMCharacteristics::HcalSiPMCharacteristics(const HcalSiPMCharacteristicsAddons::Helper& helper) :
-  mPItems(helper.mPItems.begin(),helper.mPItems.end())
-{
+HcalSiPMCharacteristics::HcalSiPMCharacteristics(const HcalSiPMCharacteristicsAddons::Helper& helper)
+    : mPItems(helper.mPItems.begin(), helper.mPItems.end()) {
   initialize();
 }
 
-HcalSiPMCharacteristics::~HcalSiPMCharacteristics() {
-}
+HcalSiPMCharacteristics::~HcalSiPMCharacteristics() {}
 
 // copy-ctor
 HcalSiPMCharacteristics::HcalSiPMCharacteristics(const HcalSiPMCharacteristics& src)
-  : mPItems(src.mPItems), mPItemsByType(src.mPItemsByType) {}
+    : mPItems(src.mPItems), mPItemsByType(src.mPItemsByType) {}
 
 // copy assignment operator
 HcalSiPMCharacteristics& HcalSiPMCharacteristics::operator=(const HcalSiPMCharacteristics& rhs) {
-    HcalSiPMCharacteristics temp(rhs);
-    temp.swap(*this);
-    return *this;
+  HcalSiPMCharacteristics temp(rhs);
+  temp.swap(*this);
+  return *this;
 }
 
 // public swap function
@@ -37,13 +35,13 @@ HcalSiPMCharacteristics::HcalSiPMCharacteristics(HcalSiPMCharacteristics&& other
   other.swap(*this);
 }
 
-const HcalSiPMCharacteristics::PrecisionItem* HcalSiPMCharacteristics::findByType (int type) const {
-
+const HcalSiPMCharacteristics::PrecisionItem* HcalSiPMCharacteristics::findByType(int type) const {
   const HcalSiPMCharacteristics::PrecisionItem* retItem = nullptr;
 
-  for(unsigned int i = 0; i < getTypes(); i++){
+  for (unsigned int i = 0; i < getTypes(); i++) {
     auto iter = &mPItems.at(i);
-    if(type==iter->type_) retItem = iter;    
+    if (type == iter->type_)
+      retItem = iter;
   }
   return retItem;
 
@@ -54,24 +52,16 @@ const HcalSiPMCharacteristics::PrecisionItem* HcalSiPMCharacteristics::findByTyp
 
 HcalSiPMCharacteristicsAddons::Helper::Helper() {}
 
-bool HcalSiPMCharacteristicsAddons::Helper::loadObject(int type, int pixels, float parLin1, 
-					 float parLin2, float parLin3, 
-					 float crossTalk, int auxi1,
-					 float auxi2) {
-  HcalSiPMCharacteristics::PrecisionItem target(type,pixels,parLin1, 
-						  parLin2,parLin3,crossTalk,
-						  auxi1,auxi2);
+bool HcalSiPMCharacteristicsAddons::Helper::loadObject(
+    int type, int pixels, float parLin1, float parLin2, float parLin3, float crossTalk, int auxi1, float auxi2) {
+  HcalSiPMCharacteristics::PrecisionItem target(type, pixels, parLin1, parLin2, parLin3, crossTalk, auxi1, auxi2);
   auto iter = mPItems.find(target);
-  if (iter!=mPItems.end()) {
-    edm::LogWarning("HCAL") << "HcalSiPMCharacteristics::loadObject type " 
-			    << type << " already exists with pixels "
-			    << iter->pixels_ << " NoLinearity parameters " 
-			    << iter->parLin1_ << ":" << iter->parLin2_ << ":"
-			    << iter->parLin3_ << " CrossTalk parameter "
-			    << iter->crossTalk_ << " new values " << pixels
-			    << ", " << parLin1 << ", " << parLin2 << ", "
-			    << parLin3 << ", " << crossTalk << ", " << auxi1
-			    << " and " << auxi2 << " are ignored";
+  if (iter != mPItems.end()) {
+    edm::LogWarning("HCAL") << "HcalSiPMCharacteristics::loadObject type " << type << " already exists with pixels "
+                            << iter->pixels_ << " NoLinearity parameters " << iter->parLin1_ << ":" << iter->parLin2_
+                            << ":" << iter->parLin3_ << " CrossTalk parameter " << iter->crossTalk_ << " new values "
+                            << pixels << ", " << parLin1 << ", " << parLin2 << ", " << parLin3 << ", " << crossTalk
+                            << ", " << auxi1 << " and " << auxi2 << " are ignored";
     return false;
   } else {
     mPItems.insert(target);
@@ -79,7 +69,7 @@ bool HcalSiPMCharacteristicsAddons::Helper::loadObject(int type, int pixels, flo
   }
 }
 
-int HcalSiPMCharacteristics::getPixels(int type ) const {
+int HcalSiPMCharacteristics::getPixels(int type) const {
   const HcalSiPMCharacteristics::PrecisionItem* item = findByType(type);
   return (item ? item->pixels_ : 0);
 }
@@ -110,10 +100,8 @@ float HcalSiPMCharacteristics::getAuxi2(int type) const {
   return (item ? item->auxi2_ : 0);
 }
 
-void HcalSiPMCharacteristics::sortByType () {
-  HcalObjectAddons::sortByT<PrecisionItem,HcalSiPMCharacteristicsAddons::LessByType>(mPItems,mPItemsByType);
+void HcalSiPMCharacteristics::sortByType() {
+  HcalObjectAddons::sortByT<PrecisionItem, HcalSiPMCharacteristicsAddons::LessByType>(mPItems, mPItemsByType);
 }
 
-void HcalSiPMCharacteristics::initialize(){
-  HcalSiPMCharacteristics::sortByType();
-}
+void HcalSiPMCharacteristics::initialize() { HcalSiPMCharacteristics::sortByType(); }

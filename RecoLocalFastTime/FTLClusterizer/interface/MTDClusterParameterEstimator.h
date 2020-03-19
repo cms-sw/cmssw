@@ -10,36 +10,33 @@
 
 #include "DataFormats/FTLRecHit/interface/FTLCluster.h"
 
-#include<tuple>
+#include <tuple>
 
-class MTDClusterParameterEstimator
-{
- public:
+class MTDClusterParameterEstimator {
+public:
+  virtual ~MTDClusterParameterEstimator() {}
 
-  virtual ~MTDClusterParameterEstimator(){}
-  
-  typedef std::pair<LocalPoint,LocalError>  LocalValues;
+  typedef std::pair<LocalPoint, LocalError> LocalValues;
   typedef std::vector<LocalValues> VLocalValues;
 
   typedef float TimeValue;
   typedef float TimeValueError;
 
-  using ReturnType = std::tuple<LocalPoint,LocalError,TimeValue,TimeValueError>;
+  using ReturnType = std::tuple<LocalPoint, LocalError, TimeValue, TimeValueError>;
 
   // here just to implement it in the clients;
   // to be properly implemented in the sub-classes in order to make them thread-safe
 
-  virtual ReturnType getParameters(const FTLCluster & cl, 
-                                   const GeomDetUnit    & det) const =0;
+  virtual ReturnType getParameters(const FTLCluster& cl, const GeomDetUnit& det) const = 0;
 
-  virtual ReturnType getParameters(const FTLCluster & cl, 
-				   const GeomDetUnit    & det, 
-				   const LocalTrajectoryParameters & ltp ) const =0;
+  virtual ReturnType getParameters(const FTLCluster& cl,
+                                   const GeomDetUnit& det,
+                                   const LocalTrajectoryParameters& ltp) const = 0;
 
-  virtual ReturnType getParameters(const FTLCluster & cl, 
-				   const GeomDetUnit    & det, 
-				   const TrajectoryStateOnSurface& tsos ) const {
-    return getParameters(cl,det,tsos.localParameters());
+  virtual ReturnType getParameters(const FTLCluster& cl,
+                                   const GeomDetUnit& det,
+                                   const TrajectoryStateOnSurface& tsos) const {
+    return getParameters(cl, det, tsos.localParameters());
   }
 
   virtual VLocalValues localParametersV(const FTLCluster& cluster, const GeomDetUnit& gd) const {
@@ -48,16 +45,16 @@ class MTDClusterParameterEstimator
     vlp.emplace_back(std::get<0>(tuple), std::get<1>(tuple));
     return vlp;
   }
-  virtual VLocalValues localParametersV(const FTLCluster& cluster, const GeomDetUnit& gd, TrajectoryStateOnSurface& tsos) const {
+  virtual VLocalValues localParametersV(const FTLCluster& cluster,
+                                        const GeomDetUnit& gd,
+                                        TrajectoryStateOnSurface& tsos) const {
     VLocalValues vlp;
-    ReturnType tuple = getParameters(cluster,  gd, tsos);
+    ReturnType tuple = getParameters(cluster, gd, tsos);
     vlp.emplace_back(std::get<0>(tuple), std::get<1>(tuple));
     return vlp;
   }
 
-
-  MTDClusterParameterEstimator() {};
-
+  MTDClusterParameterEstimator(){};
 };
 
 #endif

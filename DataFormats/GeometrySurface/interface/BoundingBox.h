@@ -11,27 +11,17 @@ class Plane;
  */
 class BoundingBox {
 public:
-
-  BoundingBox(){}
+  BoundingBox() {}
   BoundingBox(const Plane& plane);
-  
+
   // old interface
-  static std::vector<GlobalPoint> corners( const Plane&);
+  static std::vector<GlobalPoint> corners(const Plane&);
 
-
-  GlobalPoint const & operator[](unsigned int i) const {
-    return  m_corners[i];
-  }
-  GlobalPoint const & corner(unsigned int i) const {
-    return  m_corners[i];
-  }
-
+  GlobalPoint const& operator[](unsigned int i) const { return m_corners[i]; }
+  GlobalPoint const& corner(unsigned int i) const { return m_corners[i]; }
 
 private:
-
-
   GlobalPoint m_corners[8];
-
 };
 
 #endif

@@ -1,10 +1,11 @@
+from __future__ import absolute_import
 import os
-import configTemplates
-import globalDictionaries
-from genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithComparison, ValidationForPresentation, ValidationWithPlots, ValidationWithPlotsSummary
-from helperFunctions import replaceByMap, addIndex, pythonboolstring
-from presentation import SubsectionFromList, SubsectionOnePage
-from TkAlExceptions import AllInOneError
+from . import configTemplates
+from . import globalDictionaries
+from .genericValidation import GenericValidationData_CTSR, ParallelValidation, ValidationWithComparison, ValidationForPresentation, ValidationWithPlots, ValidationWithPlotsSummary
+from .helperFunctions import replaceByMap, addIndex, pythonboolstring
+from .presentation import SubsectionFromList, SubsectionOnePage
+from .TkAlExceptions import AllInOneError
 
 class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, ValidationWithComparison, ValidationWithPlotsSummary, ValidationForPresentation):
     configBaseName = "TkAlOfflineValidation"
@@ -17,6 +18,8 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
         "offlineModuleLevelProfiles": "True",
         "stripYResiduals": "False",
         "maxtracks": "0",
+        "chargeCut": "0",
+        "multiIOV": "False",
         }
     deprecateddefaults = {
         "DMRMethod":"",
@@ -92,13 +95,15 @@ class OfflineValidation(GenericValidationData_CTSR, ParallelValidation, Validati
 
     @classmethod
     def initMerge(cls):
-        from plottingOptions import PlottingOptions
+        from .plottingOptions import PlottingOptions
         outFilePath = replaceByMap(".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C", PlottingOptions(None, cls.valType))
+        print("outFilePath")
+        print(outFilePath)
         with open(outFilePath, "w") as theFile:
             theFile.write(replaceByMap(configTemplates.mergeOfflineParJobsTemplate, {}))
         result = super(OfflineValidation, cls).initMerge()
         result += ("cp .oO[Alignment/OfflineValidation]Oo./scripts/merge_TrackerOfflineValidation.C .\n"
-                   "rfcp .oO[mergeOfflineParJobsScriptPath]Oo. .\n")
+                   "cp .oO[mergeOfflineParJobsScriptPath]Oo. .\n")
         return result
 
     def appendToMerge(self):

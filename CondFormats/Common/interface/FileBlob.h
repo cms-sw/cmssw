@@ -7,37 +7,36 @@
 #include <string>
 #include <iostream>
 
-class FileBlob{
-
- public:
-  FileBlob() {};
+class FileBlob {
+public:
+  FileBlob(){};
   /// constructor from file to read
-  FileBlob(const std::string & fname, bool zip);
+  FileBlob(const std::string &fname, bool zip);
   /// constructor from  stream to read
-  FileBlob(std::istream & is, bool zip);
+  FileBlob(std::istream &is, bool zip);
 
   ~FileBlob(){};
 
   /// read from real file
-  void read(const std::string&);
+  void read(const std::string &);
   /// write to real file
-  void write(const std::string&) const;
-  
+  void write(const std::string &) const;
+
   /// read from istream
   void read(std::istream &);
   /// write to ostream
   void write(std::ostream &) const;
 
-  bool isCompressed() const {return compressed;};
+  bool isCompressed() const { return compressed; };
 
-  int size() const {return isize;};
-  /// i didn't want to do two copies ... hope this works.
+  int size() const { return isize; };
+    /// i didn't want to do two copies ... hope this works.
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   std::unique_ptr<std::vector<unsigned char> > getUncompressedBlob() const;
 #endif
-  void getUncompressedBlob( std::vector<unsigned char>& myblobcopy ) const;
-                                 
- private:
+  void getUncompressedBlob(std::vector<unsigned char> &myblobcopy) const;
+
+private:
   static unsigned int computeFileSize(const std::string &);
   static unsigned int computeStreamSize(std::istream &);
 
@@ -45,7 +44,7 @@ class FileBlob{
   bool compressed;
   unsigned int isize;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

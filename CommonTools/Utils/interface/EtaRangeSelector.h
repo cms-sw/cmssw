@@ -8,13 +8,13 @@
  */
 
 struct EtaRangeSelector {
-  EtaRangeSelector( double etaMin, double etaMax ) : 
-    etaMin_( etaMin ), etaMax_( etaMax ) { }
-  template<typename T>
-  bool operator()( const T & t ) const { 
+  EtaRangeSelector(double etaMin, double etaMax) : etaMin_(etaMin), etaMax_(etaMax) {}
+  template <typename T>
+  bool operator()(const T& t) const {
     double eta = t.eta();
-    return ( eta >= etaMin_ && eta <= etaMax_ ); 
+    return (eta >= etaMin_ && eta <= etaMax_);
   }
+
 private:
   double etaMin_, etaMax_;
 };

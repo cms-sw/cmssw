@@ -32,14 +32,13 @@ from Alignment.OfflineValidation.TrackerOfflineValidation_Standalone_cff import 
 TrackerOfflineValidationDqm = TrackerOfflineValidationBinned.clone(
     useInDqmMode              = True,
     moduleDirectoryInOutput   = "Alignment/Tracker",
-    Tracks =  'TrackRefitterForOfflineValidation',
+    Tracks =  'TrackRefitterForOfflineValidation'
 )
 
 ##
 ## TrackerOfflineValidationSummary
 ##
 TrackerOfflineValidationSummaryDqm = TrackerOfflineValidationSummaryBinned.clone(
-    removeModuleLevelHists = True,
     minEntriesPerModuleForDmr = 100
 )
 

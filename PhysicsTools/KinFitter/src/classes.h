@@ -19,29 +19,26 @@
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
 #include "PhysicsTools/KinFitter/interface/TSLToyGen.h"
 
-
 namespace PhysicsTools_KinFitter {
   struct dictionary {
-
-     TFitConstraintEp fce;
-     TFitConstraintEp::component fce_c;
-     TFitConstraintM fcm;
-     TFitConstraintMGaus fcmg;
-     TFitParticleCart fpc;
-     TFitParticleECart fpec;
-     TFitParticleEMomDev fpemd;
-     TFitParticleEScaledMomDev fpesmd;
-     TFitParticleESpher fpes;
-     TFitParticleEtEtaPhi fpeep;
-     TFitParticleEtThetaPhi fpetp;
-     TFitParticleMCCart fpmcc;
-     TFitParticleMCMomDev fmmccd;
-     TFitParticleMCPInvSpher fpmcpis;
-     TFitParticleMCSpher fpmcs;
-     TFitParticleMomDev fpmd;
-     TFitParticleSpher fps;
-     TKinFitter kf;
-     TSLToyGen sltg;
-
+    TFitConstraintEp fce;
+    TFitConstraintEp::component fce_c;
+    TFitConstraintM fcm;
+    TFitConstraintMGaus fcmg;
+    TFitParticleCart fpc;
+    TFitParticleECart fpec;
+    TFitParticleEMomDev fpemd;
+    TFitParticleEScaledMomDev fpesmd;
+    TFitParticleESpher fpes;
+    TFitParticleEtEtaPhi fpeep;
+    TFitParticleEtThetaPhi fpetp;
+    TFitParticleMCCart fpmcc;
+    TFitParticleMCMomDev fmmccd;
+    TFitParticleMCPInvSpher fpmcpis;
+    TFitParticleMCSpher fpmcs;
+    TFitParticleMomDev fpmd;
+    TFitParticleSpher fps;
+    TKinFitter kf;
+    TSLToyGen sltg;
   };
-}
+}  // namespace PhysicsTools_KinFitter

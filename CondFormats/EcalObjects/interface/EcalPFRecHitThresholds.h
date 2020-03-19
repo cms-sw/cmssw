@@ -11,5 +11,4 @@ typedef float EcalPFRecHitThreshold;
 typedef EcalFloatCondObjectContainer EcalPFRecHitThresholdsMap;
 typedef EcalPFRecHitThresholdsMap EcalPFRecHitThresholds;
 
-
 #endif

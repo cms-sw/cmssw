@@ -1,7 +1,7 @@
 #ifndef _SiStripQualityChecker_h_
 #define _SiStripQualityChecker_h_
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,77 +13,74 @@
 #include <vector>
 #include <string>
 
-class DQMStore;
-class MonitorElement;
 class TkDetMap;
 class SiStripDetCabling;
 
 class SiStripQualityChecker {
-
- public:
-
+public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
 
   SiStripQualityChecker(edm::ParameterSet const& ps);
-  virtual ~SiStripQualityChecker();
+  ~SiStripQualityChecker();
 
-
- void bookStatus(DQMStore* dqm_store);     
+  void bookStatus(DQMStore& dqm_store);
   void resetStatus();
   void fillDummyStatus();
-  void fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling, const edm::EventSetup& eSetup);
-  void fillStatusAtLumi(DQMStore* dqm_store);
+  void fillStatus(DQMStore& dqm_store, const edm::ESHandle<SiStripDetCabling>& cabling, const edm::EventSetup& eSetup);
+  void fillStatusAtLumi(DQMStore& dqm_store);
   void printStatusReport();
-  void fillFaultyModuleStatus(DQMStore* dqm_store, const edm::EventSetup& eSetup);
-  
- private:
+  void fillFaultyModuleStatus(DQMStore& dqm_store, const edm::EventSetup& eSetup);
 
-  struct SubDetMEs{
+private:
+  struct SubDetMEs {
     MonitorElement* DetFraction;
     MonitorElement* SToNFlag;
     MonitorElement* SummaryFlag;
-    std::string     detectorTag;
+    std::string detectorTag;
   };
 
-  void fillDetectorStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling);
-  void fillSubDetStatus(DQMStore* dqm_store,const edm::ESHandle< SiStripDetCabling >& cabling, SubDetMEs& mes, unsigned int xbin,float& gflag);
-  void getModuleStatus(DQMStore* dqm_store, std::vector<MonitorElement*>& layer_mes, int& errdet, int& errdet_hasBadChan, int& errdet_hasTooManyDigis, int& errdet_hasTooManyClu, int& errdet_hasExclFed, int& errdet_hasDcsErr);
+  void fillDetectorStatus(DQMStore& dqm_store, const edm::ESHandle<SiStripDetCabling>& cabling);
+  void fillSubDetStatus(DQMStore& dqm_store,
+                        const edm::ESHandle<SiStripDetCabling>& cabling,
+                        SubDetMEs& mes,
+                        unsigned int xbin,
+                        float& gflag);
+  void getModuleStatus(DQMStore& dqm_store,
+                       std::vector<MonitorElement*>& layer_mes,
+                       int& errdet,
+                       int& errdet_hasBadChan,
+                       int& errdet_hasTooManyDigis,
+                       int& errdet_hasTooManyClu,
+                       int& errdet_hasExclFed,
+                       int& errdet_hasDcsErr);
 
-  void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
-  void initialiseBadModuleList();  
+  void fillStatusHistogram(MonitorElement const*, int xbin, int ybin, float val);
+  void initialiseBadModuleList();
 
-  void fillDetectorStatusAtLumi(DQMStore* dqm_store);
-  
+  void fillDetectorStatusAtLumi(DQMStore& dqm_store);
+
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetFolderMap;
-  
-  MonitorElement* DetFractionReportMap;
-  MonitorElement* DetFractionReportMap_hasBadChan;
-  MonitorElement* DetFractionReportMap_hasTooManyDigis;
-  MonitorElement* DetFractionReportMap_hasTooManyClu;
-  MonitorElement* DetFractionReportMap_hasExclFed;
-  MonitorElement* DetFractionReportMap_hasDcsErr;
-  MonitorElement* SToNReportMap;
-  MonitorElement* SummaryReportMap;
 
-  MonitorElement* SummaryReportGlobal;
+  MonitorElement* DetFractionReportMap{nullptr};
+  MonitorElement* DetFractionReportMap_hasBadChan{nullptr};
+  MonitorElement* DetFractionReportMap_hasTooManyDigis{nullptr};
+  MonitorElement* DetFractionReportMap_hasTooManyClu{nullptr};
+  MonitorElement* DetFractionReportMap_hasExclFed{nullptr};
+  MonitorElement* DetFractionReportMap_hasDcsErr{nullptr};
+  MonitorElement* SToNReportMap{nullptr};
+  MonitorElement* SummaryReportMap{nullptr};
+  MonitorElement* SummaryReportGlobal{nullptr};
+  MonitorElement* TrackSummaryReportMap{nullptr};
+  MonitorElement* TrackSummaryReportGlobal{nullptr};
 
-  MonitorElement* TrackSummaryReportMap;
+  std::map<uint32_t, uint16_t> badModuleList;
 
-  MonitorElement* TrackSummaryReportGlobal;
+  edm::ParameterSet const pSet_;
 
-  std::map<uint32_t,uint16_t> badModuleList;
- 
-  edm::ParameterSet pSet_;
-
-  bool bookedStripStatus_;
-  int globalStatusFilling_;
-  bool useGoodTracks_;
+  bool bookedStripStatus_{false};
 
   const TkDetMap* tkDetMap_;
- 
-  float cutoffTrackRate_;
-  float cutoffChi2overDoF_;
-  float cutoffRecHits_;
-
 };
 #endif

@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-hgcalEEParametersInitialize = cms.ESProducer("HGCalParametersESModule",
-                                             Name = cms.untracked.string("HGCalEESensitive"),
-                                             NameW = cms.untracked.string("HGCalEEWafer"),
-                                             NameC = cms.untracked.string("HGCalEECell"),
-                                             NameT = cms.untracked.string("HGCal")
+from Geometry.HGCalCommonData.hgcalEEParametersInitialize_cfi import *
+
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+
+dd4hep.toModify(hgcalEEParametersInitialize,
+                fromDD4Hep = cms.bool(True)
 )
 
-hgcalHESiParametersInitialize = cms.ESProducer("HGCalParametersESModule",
-                                               Name = cms.untracked.string("HGCalHESiliconSensitive"),
-                                               NameW = cms.untracked.string("HGCalHEWafer"),
-                                               NameC = cms.untracked.string("HGCalHECell"),
-                                               NameT = cms.untracked.string("HGCal")
+hgcalHESiParametersInitialize = hgcalEEParametersInitialize.clone(
+    name  = cms.untracked.string("HGCalHESiliconSensitive"),
+    nameW = cms.untracked.string("HGCalHEWafer"),
+    nameC = cms.untracked.string("HGCalHECell"),
+    name2 = cms.untracked.string("HGCalHEsil"),
 )
-

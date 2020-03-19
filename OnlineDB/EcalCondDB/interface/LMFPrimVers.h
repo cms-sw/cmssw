@@ -20,13 +20,12 @@
  *
  */
 class LMFPrimVers : public LMFUnique {
- public:
+public:
   friend class LMFRunIOV;  // needs permission to write
 
   LMFPrimVers();
   LMFPrimVers(EcalDBConnection *c);
-  LMFPrimVers(oracle::occi::Environment* env,
-	      oracle::occi::Connection* conn);
+  LMFPrimVers(oracle::occi::Environment *env, oracle::occi::Connection *conn);
   ~LMFPrimVers() override;
 
   // Methods for user data
@@ -36,14 +35,10 @@ class LMFPrimVers : public LMFUnique {
   void setDescription(const std::string &s) { setString("description", s); }
 
   // Operators
-  inline bool operator==(const LMFPrimVers &t) const { 
-    return (getID() == t.getID());
-  }
-  inline bool operator!=(const LMFPrimVers &t) const { 
-    return (getID() != t.getID());
-  }
+  inline bool operator==(const LMFPrimVers &t) const { return (getID() == t.getID()); }
+  inline bool operator!=(const LMFPrimVers &t) const { return (getID() != t.getID()); }
 
- private:
+private:
   // Methods from LMFUnique
   std::string fetchIdSql(Statement *stmt) override;
   std::string fetchAllSql(Statement *stmt) const override;

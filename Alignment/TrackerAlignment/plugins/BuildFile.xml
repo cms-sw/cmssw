@@ -71,6 +71,7 @@
   <use   name="DataFormats/SiPixelDetId"/>
   <use   name="DataFormats/SiStripDetId"/>
   <use   name="DataFormats/SiStripCluster"/>
+  <use   name="DataFormats/MuonReco"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondFormats/SiStripObjects"/>
   <use   name="MagneticField/Engine"/>

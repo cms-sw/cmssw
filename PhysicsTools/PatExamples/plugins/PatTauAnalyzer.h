@@ -13,19 +13,18 @@
 
 #include <string>
 
-class PatTauAnalyzer : public edm::EDAnalyzer
-{
- public:
+class PatTauAnalyzer : public edm::EDAnalyzer {
+public:
   explicit PatTauAnalyzer(const edm::ParameterSet&);
   ~PatTauAnalyzer() override;
 
-//--- methods inherited from EDAnalyzer base-class
+  //--- methods inherited from EDAnalyzer base-class
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
- private:
-//--- configuration parameters
+private:
+  //--- configuration parameters
   edm::InputTag src_;
   edm::EDGetTokenT<pat::TauCollection> srcToken_;
 
@@ -35,13 +34,13 @@ class PatTauAnalyzer : public edm::EDAnalyzer
   std::string discrByIso_;
   std::string discrByTaNC_;
 
-//--- generator level histograms
+  //--- generator level histograms
   TH1* hGenTauEnergy_;
   TH1* hGenTauPt_;
   TH1* hGenTauEta_;
   TH1* hGenTauPhi_;
 
-//--- reconstruction level histograms
+  //--- reconstruction level histograms
   TH1* hTauJetEnergy_;
   TH1* hTauJetPt_;
   TH1* hTauJetEta_;
@@ -71,5 +70,3 @@ class PatTauAnalyzer : public edm::EDAnalyzer
 };
 
 #endif
-
-

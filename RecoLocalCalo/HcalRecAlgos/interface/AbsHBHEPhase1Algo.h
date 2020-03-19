@@ -24,33 +24,32 @@ class AbsHcalAlgoData;
 // ASICs, these objects will be created from the module configuration
 // parameters.
 //
-class AbsHBHEPhase1Algo
-{
+class AbsHBHEPhase1Algo {
 public:
-    inline virtual ~AbsHBHEPhase1Algo() {}
+  inline virtual ~AbsHBHEPhase1Algo() {}
 
-    inline virtual void beginRun(const edm::Run&, const edm::EventSetup&) {}
-    inline virtual void endRun() {}
+  inline virtual void beginRun(const edm::Run&, const edm::EventSetup&) {}
+  inline virtual void endRun() {}
 
-    // Does this class expect to receive its configuration from the database?
-    virtual bool isConfigurable() const = 0;
+  // Does this class expect to receive its configuration from the database?
+  virtual bool isConfigurable() const = 0;
 
-    // If using DB, expect that the configuration will be updated
-    // once per run. We will not manage the pointer here. "true"
-    // should be returned on success (typically, automatic cast
-    // from the pointer checked by the appropriate dynamic cast).
-    inline virtual bool configure(const AbsHcalAlgoData*) {return false;}
+  // If using DB, expect that the configuration will be updated
+  // once per run. We will not manage the pointer here. "true"
+  // should be returned on success (typically, automatic cast
+  // from the pointer checked by the appropriate dynamic cast).
+  inline virtual bool configure(const AbsHcalAlgoData*) { return false; }
 
-    // Convention: if we do not want to use the given channel at
-    // all (i.e., it is to be discarded), the returned HBHERecHit
-    // should have its id (of type HcalDetId) set to 0.
-    //
-    // Note that "params" pointer is allowed to be null.
-    //
-    virtual HBHERecHit reconstruct(const HBHEChannelInfo& info,
-                                   const HcalRecoParam* params,
-                                   const HcalCalibrations& calibs,
-                                   bool isRealData) = 0;
+  // Convention: if we do not want to use the given channel at
+  // all (i.e., it is to be discarded), the returned HBHERecHit
+  // should have its id (of type HcalDetId) set to 0.
+  //
+  // Note that "params" pointer is allowed to be null.
+  //
+  virtual HBHERecHit reconstruct(const HBHEChannelInfo& info,
+                                 const HcalRecoParam* params,
+                                 const HcalCalibrations& calibs,
+                                 bool isRealData) = 0;
 };
 
-#endif // RecoLocalCalo_HcalRecAlgos_AbsHBHEPhase1Algo_h_
+#endif  // RecoLocalCalo_HcalRecAlgos_AbsHBHEPhase1Algo_h_

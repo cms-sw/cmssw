@@ -24,22 +24,24 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
-namespace reco { namespace tau {
+namespace reco {
+  namespace tau {
 
-class RecoTauNamedPlugin {
-   /* Base class for all named RecoTau plugins */
-   public:
+    class RecoTauNamedPlugin {
+      /* Base class for all named RecoTau plugins */
+    public:
       explicit RecoTauNamedPlugin(const edm::ParameterSet& pset);
       virtual ~RecoTauNamedPlugin() {}
       const std::string& name() const;
-   private:
-      std::string name_;
-};
 
-class RecoTauEventHolderPlugin : public RecoTauNamedPlugin {
-   /* Base class for all plugins that cache the edm::Event and edm::EventSetup
+    private:
+      std::string name_;
+    };
+
+    class RecoTauEventHolderPlugin : public RecoTauNamedPlugin {
+      /* Base class for all plugins that cache the edm::Event and edm::EventSetup
     * as internal data members */
-   public:
+    public:
       explicit RecoTauEventHolderPlugin(const edm::ParameterSet& pset);
       ~RecoTauEventHolderPlugin() override {}
       // Get the internal cached copy of the event
@@ -50,9 +52,11 @@ class RecoTauEventHolderPlugin : public RecoTauNamedPlugin {
       void setup(edm::Event&, const edm::EventSetup&);
       // Called after setup(...)
       virtual void beginEvent() {}
-   private:
+
+    private:
       edm::Event* evt_;
       const edm::EventSetup* es_;
-};
-}} // end namespace reco::tau
+    };
+  }  // namespace tau
+}  // namespace reco
 #endif

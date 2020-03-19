@@ -1,12 +1,9 @@
-<use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/DTRecHit"/>
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/GEMRecHit"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Services"/>
 <use   name="RecoMuon/TransientTrackingRecHit"/>
 <export>
   <lib   name="1"/>

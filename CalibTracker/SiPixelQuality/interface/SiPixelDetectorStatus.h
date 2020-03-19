@@ -9,9 +9,7 @@
 
 // ----------------------------------------------------------------------
 class SiPixelDetectorStatus {
-
 public:
-
   SiPixelDetectorStatus();
   ~SiPixelDetectorStatus();
 
@@ -35,7 +33,7 @@ public:
   double perRocDigiOcc();
   double perRocDigiOccVar();
 
-  unsigned long int digiOccDET(){ return fDetHits; }
+  unsigned long int digiOccDET() { return fDetHits; }
 
   // number of modules in detector
   int nmodules();
@@ -50,27 +48,38 @@ public:
   std::map<int, SiPixelModuleStatus>::iterator end();
 
   // set the time stamps
-  void setRunRange(int run0, int run1) {fRun0 = run0;fRun1 = run1;}
-  std::pair<int,int> getRunRange() {return std::make_pair(fRun0,fRun1);}
-  void setLSRange(int ls0, int ls1)  {fLS0 = ls0; fLS1 = ls1;}
-  std::pair<int,int> getLSRange() {return std::make_pair(fLS0,fLS1);}
+  void setRunRange(int run0, int run1) {
+    fRun0 = run0;
+    fRun1 = run1;
+  }
+  std::pair<int, int> getRunRange() { return std::make_pair(fRun0, fRun1); }
+  void setLSRange(int ls0, int ls1) {
+    fLS0 = ls0;
+    fLS1 = ls1;
+  }
+  std::pair<int, int> getLSRange() { return std::make_pair(fLS0, fLS1); }
 
   // total processed events
-  void setNevents(unsigned long int N){ fNevents = N; }
-  unsigned long int getNevents(){ return fNevents; }
+  void setNevents(unsigned long int N) { fNevents = N; }
+  unsigned long int getNevents() { return fNevents; }
 
-  void resetDetectorStatus() { fModules.clear(); fDetHits=0; fNevents=0;
-                               fRun0 = 99999999; fRun1 = 0; fLS0 = 99999999; fLS1 = 0; 
-                             }
+  void resetDetectorStatus() {
+    fModules.clear();
+    fDetHits = 0;
+    fNevents = 0;
+    fRun0 = 99999999;
+    fRun1 = 0;
+    fLS0 = 99999999;
+    fLS1 = 0;
+  }
 
   // combine detector status
   void updateDetectorStatus(SiPixelDetectorStatus newData);
 
   // detector status
-  std::map<int, SiPixelModuleStatus> getDetectorStatus(){ return fModules; }
+  std::map<int, SiPixelModuleStatus> getDetectorStatus() { return fModules; }
 
- private:
-
+private:
   std::map<int, SiPixelModuleStatus> fModules;
 
   // first and last lumisection seen in this instance
@@ -83,7 +92,6 @@ public:
 
   // total hits in detector
   unsigned long int fDetHits;
-
 };
 
 #endif

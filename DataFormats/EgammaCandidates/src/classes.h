@@ -21,7 +21,6 @@
 #include "DataFormats/EgammaCandidates/interface/HIPhotonIsolation.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
@@ -43,4 +42,3 @@
 #include "Math/Polar3D.h"
 #include "Math/CylindricalEta3D.h"
 #include "Math/PxPyPzE4D.h"
-#include <boost/cstdint.hpp>

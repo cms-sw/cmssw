@@ -1,7 +1,6 @@
 #ifndef RecoJets_JetProducers_CATopJetProducer_h
 #define RecoJets_JetProducers_CATopJetProducer_h
 
-
 /* *********************************************************
 
 
@@ -40,9 +39,6 @@
 
  ************************************************************/
 
-
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/View.h"
@@ -71,45 +67,31 @@
 #include <fastjet/tools/RestFrameNSubjettinessTagger.hh>
 #include "fastjet/SISConePlugin.hh"
 
-
-namespace cms
-{
-  class CATopJetProducer : public FastjetJetProducer
-  {
+namespace cms {
+  class CATopJetProducer : public FastjetJetProducer {
   public:
-
     CATopJetProducer(const edm::ParameterSet& ps);
 
     ~CATopJetProducer() override {}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
+    void runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   private:
-    std::unique_ptr<CATopJetAlgorithm>        legacyCMSTopTagger_;         /// The algorithm to do the work
-    std::unique_ptr<fastjet::CMSTopTagger>     fjCMSTopTagger_;    // The FastJet implementation of the CMS tagger
-    std::unique_ptr<fastjet::JHTopTagger>     fjJHUTopTagger_;
-    std::unique_ptr<fastjet::RestFrameNSubjettinessTagger>   fjNSUBTagger_;
-
-
+    std::unique_ptr<CATopJetAlgorithm> legacyCMSTopTagger_;  /// The algorithm to do the work
+    std::unique_ptr<fastjet::CMSTopTagger> fjCMSTopTagger_;  // The FastJet implementation of the CMS tagger
+    std::unique_ptr<fastjet::JHTopTagger> fjJHUTopTagger_;
+    std::unique_ptr<fastjet::RestFrameNSubjettinessTagger> fjNSUBTagger_;
 
     int tagAlgo_;
     double ptMin_;
     double centralEtaCut_;
     bool verbose_;
-    enum tagalgos {
-	CA_TOPTAGGER,
-	FJ_CMS_TOPTAG,
-	FJ_JHU_TOPTAG,
-	FJ_NSUB_TAG
-    };
-
-
+    enum tagalgos { CA_TOPTAGGER, FJ_CMS_TOPTAG, FJ_JHU_TOPTAG, FJ_NSUB_TAG };
   };
 
-}
-
+}  // namespace cms
 
 #endif

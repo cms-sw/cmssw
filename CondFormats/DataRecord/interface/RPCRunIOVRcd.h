@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCRunIOVRcd
-// 
+//
 /**\class RPCRunIOVRcd RPCRunIOVRcd.h CondFormats/DataRecord/interface/RPCRunIOVRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Mar 26 17:38:10 CET 2009
 // $Id$
 //

@@ -10,19 +10,19 @@
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class PFClusterEnergyCorrectorBase {
   typedef PFClusterEnergyCorrectorBase Corrector;
- public:
-  PFClusterEnergyCorrectorBase(const edm::ParameterSet& conf) :
-    _algoName(conf.getParameter<std::string>("algoName")) { }
+
+public:
+  PFClusterEnergyCorrectorBase(const edm::ParameterSet& conf) : _algoName(conf.getParameter<std::string>("algoName")) {}
   virtual ~PFClusterEnergyCorrectorBase() = default;
   //get rid of things we should never use
   PFClusterEnergyCorrectorBase(const Corrector&) = delete;
   Corrector& operator=(const Corrector&) = delete;
 
-  virtual void update(const edm::EventSetup&) { }
+  virtual void update(const edm::EventSetup&) {}
 
   // here we transform one PFCluster to use the new position calculation
   virtual void correctEnergy(reco::PFCluster&) = 0;
@@ -30,13 +30,13 @@ class PFClusterEnergyCorrectorBase {
   virtual void correctEnergies(reco::PFClusterCollection&) = 0;
 
   const std::string& name() const { return _algoName; }
-   
- private:  
-  const std::string _algoName;
 
+private:
+  const std::string _algoName;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< PFClusterEnergyCorrectorBase* (const edm::ParameterSet&) > PFClusterEnergyCorrectorFactory;
+typedef edmplugin::PluginFactory<PFClusterEnergyCorrectorBase*(const edm::ParameterSet&)>
+    PFClusterEnergyCorrectorFactory;
 
 #endif

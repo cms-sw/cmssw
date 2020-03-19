@@ -10,32 +10,27 @@
 #include "CondFormats/RPCObjects/interface/RPCInverseAMCLinkMap.h"
 
 namespace edm {
-class ParameterSet;
-class ConfigurationDescriptions;
-} // namespace edm
+  class ParameterSet;
+  class ConfigurationDescriptions;
+}  // namespace edm
 
 class RPCCPPFLinkMapRcd;
 class RPCInverseCPPFLinkMapRcd;
 
-class RPCInverseCPPFLinkMapESProducer
-    : public edm::ESProducer
-{
+class RPCInverseCPPFLinkMapESProducer : public edm::ESProducer {
 public:
-    explicit RPCInverseCPPFLinkMapESProducer(edm::ParameterSet const & _config);
+  explicit RPCInverseCPPFLinkMapESProducer(edm::ParameterSet const& _config);
 
-    static void fillDescriptions(edm::ConfigurationDescriptions & _descs);
+  static void fillDescriptions(edm::ConfigurationDescriptions& _descs);
 
-    std::shared_ptr<RPCInverseAMCLinkMap> produce(RPCInverseCPPFLinkMapRcd const & _rcd);
+  std::shared_ptr<RPCInverseAMCLinkMap> produce(RPCInverseCPPFLinkMapRcd const& _rcd);
 
 private:
+  using HostType = edm::ESProductHost<RPCInverseAMCLinkMap, RPCCPPFLinkMapRcd>;
 
-    using HostType = edm::ESProductHost<RPCInverseAMCLinkMap,
-                                        RPCCPPFLinkMapRcd>;
+  void setupRPCCPPFLinkMap(RPCCPPFLinkMapRcd const&, RPCInverseAMCLinkMap*);
 
-    void setupRPCCPPFLinkMap(RPCCPPFLinkMapRcd const&,
-                             RPCInverseAMCLinkMap*);
-
-    edm::ReusableObjectHolder<HostType> holder_;
+  edm::ReusableObjectHolder<HostType> holder_;
 };
 
-#endif // CondTools_RPC_RPCInverseCPPFLinkMapESProducer_h
+#endif  // CondTools_RPC_RPCInverseCPPFLinkMapESProducer_h

@@ -10,23 +10,23 @@
  *  Wrap any VertexFitter into the VertexReconstructor interface
  */
 
-class ConfigurableVertexReconstructor : public VertexReconstructor
-{
-  public:
-    ConfigurableVertexReconstructor ( const edm::ParameterSet & );
-    ConfigurableVertexReconstructor ( const ConfigurableVertexReconstructor & o );
-    ~ConfigurableVertexReconstructor() override;
+class ConfigurableVertexReconstructor : public VertexReconstructor {
+public:
+  ConfigurableVertexReconstructor(const edm::ParameterSet &);
+  ConfigurableVertexReconstructor(const ConfigurableVertexReconstructor &o);
+  ~ConfigurableVertexReconstructor() override;
 
-    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > & ) const override;
-    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > &,
-        const reco::BeamSpot & ) const override;
-    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > &,
-        const std::vector < reco::TransientTrack > &, const reco::BeamSpot & ) const override;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &) const override;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
+                                        const reco::BeamSpot &) const override;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
+                                        const std::vector<reco::TransientTrack> &,
+                                        const reco::BeamSpot &) const override;
 
-    ConfigurableVertexReconstructor * clone () const override;
+  ConfigurableVertexReconstructor *clone() const override;
 
-  private:
-    AbstractConfReconstructor * theRector;
+private:
+  AbstractConfReconstructor *theRector;
 };
 
 #endif

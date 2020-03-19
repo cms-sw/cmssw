@@ -7,7 +7,5 @@ namespace edm {
     return new ParameterSetDescription(*p);
   }
 
-  void value_ptr_traits<ParameterSetDescription>::destroy(ParameterSetDescription* p) {
-    delete p;
-  } 
-}
+  void value_ptr_traits<ParameterSetDescription>::destroy(ParameterSetDescription* p) { delete p; }
+}  // namespace edm

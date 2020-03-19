@@ -10,17 +10,17 @@
 #include "CommonTokens.h"
 
 namespace l1t {
-   namespace stage2 {
-      class CaloTokens : public CommonTokens {
-         public:
-            CaloTokens(const edm::ParameterSet&, edm::ConsumesCollector&);
+  namespace stage2 {
+    class CaloTokens : public CommonTokens {
+    public:
+      CaloTokens(const edm::ParameterSet&, edm::ConsumesCollector&);
 
-            inline const edm::EDGetTokenT<CaloTowerBxCollection>& getCaloTowerToken() const { return towerToken_; };
+      inline const edm::EDGetTokenT<CaloTowerBxCollection>& getCaloTowerToken() const { return towerToken_; };
 
-         private:
-            edm::EDGetTokenT<CaloTowerBxCollection> towerToken_;
-      };
-   }
-}
+    private:
+      edm::EDGetTokenT<CaloTowerBxCollection> towerToken_;
+    };
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif

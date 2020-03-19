@@ -2,7 +2,7 @@
 //
 // Package:    HLTHcalCalibTypeFilter
 // Class:      HLTHcalCalibTypeFilter
-// 
+//
 /**\class HLTHcalCalibTypeFilter HLTHcalCalibTypeFilter.cc filter/HLTHcalCalibTypeFilter/src/HLTHcalCalibTypeFilter.cc
 
 Description: Filter to select HCAL abort gap events
@@ -15,7 +15,6 @@ Implementation:
 //         Created:  Tue Jan 22 13:55:00 CET 2008
 //
 //
-
 
 // system include files
 #include <string>
@@ -43,32 +42,29 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& config) :
-  DataInputToken_( consumes<FEDRawDataCollection>( config.getParameter<edm::InputTag>("InputTag") ) ),
-  CalibTypes_( config.getParameter< std::vector<int> >("CalibTypes") ),
-  Summary_(  config.getUntrackedParameter<bool>("FilterSummary", false) ),
-  eventsByType_()
-{
-  for (auto & i : eventsByType_) i = 0;
+HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& config)
+    : DataInputToken_(consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputTag"))),
+      CalibTypes_(config.getParameter<std::vector<int> >("CalibTypes")),
+      Summary_(config.getUntrackedParameter<bool>("FilterSummary", false)),
+      eventsByType_() {
+  for (auto& i : eventsByType_)
+    i = 0;
 }
 
-
-HLTHcalCalibTypeFilter::~HLTHcalCalibTypeFilter()
-{
- 
+HLTHcalCalibTypeFilter::~HLTHcalCalibTypeFilter() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-
 }
 
-void
-HLTHcalCalibTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTHcalCalibTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("InputTag",edm::InputTag("source"));
-  std::vector<int> temp; for (int i=1; i<=5; i++) temp.push_back(i);
+  desc.add<edm::InputTag>("InputTag", edm::InputTag("source"));
+  std::vector<int> temp;
+  for (int i = 1; i <= 5; i++)
+    temp.push_back(i);
   desc.add<std::vector<int> >("CalibTypes", temp);
-  desc.addUntracked<bool>("FilterSummary",false);
-  descriptions.add("hltHcalCalibTypeFilter",desc);
+  desc.addUntracked<bool>("FilterSummary", false);
+  descriptions.add("hltHcalCalibTypeFilter", desc);
 }
 
 //
@@ -76,46 +72,45 @@ HLTHcalCalibTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 //
 
 // ------------ method called on each new Event  ------------
-bool
-HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
-{
+bool HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
-  
-  edm::Handle<FEDRawDataCollection> rawdata;  
-  iEvent.getByToken(DataInputToken_,rawdata);
+
+  edm::Handle<FEDRawDataCollection> rawdata;
+  iEvent.getByToken(DataInputToken_, rawdata);
 
   //    some inits
   int numZeroes(0), numPositives(0);
 
   //    loop over all HCAL FEDs
-  for (int fed=FEDNumbering::MINHCALFEDID;
-       fed<=FEDNumbering::MAXHCALuTCAFEDID; fed++) 
-  {
-      //    skip FEDs in between VME and uTCA    
-      if (fed>FEDNumbering::MAXHCALFEDID && fed<FEDNumbering::MINHCALuTCAFEDID)
-            continue;
+  for (int fed = FEDNumbering::MINHCALFEDID; fed <= FEDNumbering::MAXHCALuTCAFEDID; fed++) {
+    //    skip FEDs in between VME and uTCA
+    if (fed > FEDNumbering::MAXHCALFEDID && fed < FEDNumbering::MINHCALuTCAFEDID)
+      continue;
 
-      //    get raw data and check if there are empty feds
-      const FEDRawData& fedData = rawdata->FEDData(fed) ; 
-      if ( fedData.size() < 24 ) continue ;
+    //    get raw data and check if there are empty feds
+    const FEDRawData& fedData = rawdata->FEDData(fed);
+    if (fedData.size() < 24)
+      continue;
 
-      if (fed<=FEDNumbering::MAXHCALFEDID)
-      {
-          //    VME get event type
-          int eventtype = ((const HcalDCCHeader*)(fedData.data()))->getCalibType(); 
-          if (eventtype==0) numZeroes++; else numPositives++;
+    if (fed <= FEDNumbering::MAXHCALFEDID) {
+      //    VME get event type
+      int eventtype = ((const HcalDCCHeader*)(fedData.data()))->getCalibType();
+      if (eventtype == 0)
+        numZeroes++;
+      else
+        numPositives++;
+    } else {
+      //    UTCA
+      hcal::AMC13Header const* hamc13 = (hcal::AMC13Header const*)fedData.data();
+      for (int iamc = 0; iamc < hamc13->NAMC(); iamc++) {
+        HcalUHTRData uhtr(hamc13->AMCPayload(iamc), hamc13->AMCSize(iamc));
+        int eventtype = uhtr.getEventType();
+        if (eventtype == 0)
+          numZeroes++;
+        else
+          numPositives++;
       }
-      else 
-      {
-          //    UTCA
-          hcal::AMC13Header const *hamc13 = (hcal::AMC13Header const*) fedData.data();
-          for (int iamc=0; iamc<hamc13->NAMC(); iamc++)
-          {
-              HcalUHTRData uhtr(hamc13->AMCPayload(iamc), hamc13->AMCSize(iamc));
-              int eventtype = uhtr.getEventType();
-              if (eventtype==0) numZeroes++; else numPositives++;
-          }
-      }
+    }
   }
 
   //
@@ -123,12 +118,11 @@ HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
   //    if calibs - true
   //    if 0s - false
   //
-  if (numPositives>0)
-  {
-    if (numPositives>numZeroes) return true;
+  if (numPositives > 0) {
+    if (numPositives > numZeroes)
+      return true;
     else
-        edm::LogWarning("HLTHcalCalibTypeFilter") 
-            << "Conflicting Calibration Types found";
+      edm::LogWarning("HLTHcalCalibTypeFilter") << "Conflicting Calibration Types found";
   }
 
   //    return false if there are no positives
@@ -137,16 +131,13 @@ HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTHcalCalibTypeFilter::endJob() {
-  if ( Summary_ )
-    edm::LogWarning("HLTHcalCalibTypeFilter") << "Summary of filter decisions: " 
-                                              << eventsByType_.at(hc_Null)      << "(No Calib), " 
-                                              << eventsByType_.at(hc_Pedestal)  << "(Pedestal), " 
-                                              << eventsByType_.at(hc_RADDAM)    << "(RADDAM), " 
-                                              << eventsByType_.at(hc_HBHEHPD)   << "(HBHE/HPD), " 
-                                              << eventsByType_.at(hc_HOHPD)     << "(HO/HPD), " 
-                                              << eventsByType_.at(hc_HFPMT)     << "(HF/PMT)" ;  
+void HLTHcalCalibTypeFilter::endJob() {
+  if (Summary_)
+    edm::LogWarning("HLTHcalCalibTypeFilter")
+        << "Summary of filter decisions: " << eventsByType_.at(hc_Null) << "(No Calib), "
+        << eventsByType_.at(hc_Pedestal) << "(Pedestal), " << eventsByType_.at(hc_RADDAM) << "(RADDAM), "
+        << eventsByType_.at(hc_HBHEHPD) << "(HBHE/HPD), " << eventsByType_.at(hc_HOHPD) << "(HO/HPD), "
+        << eventsByType_.at(hc_HFPMT) << "(HF/PMT)";
 }
 
 // declare this class as a framework plugin

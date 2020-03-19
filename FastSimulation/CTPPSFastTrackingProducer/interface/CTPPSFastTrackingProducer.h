@@ -43,8 +43,6 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
-
-
 //
 // class declaration
 //
@@ -53,80 +51,93 @@ class H_RecRPObject;
 class H_BeamLine;
 
 class CTPPSFastTrackingProducer : public edm::stream::EDProducer<> {
-    public:
-        explicit CTPPSFastTrackingProducer(const edm::ParameterSet&);
-        ~CTPPSFastTrackingProducer() override;
+public:
+  explicit CTPPSFastTrackingProducer(const edm::ParameterSet&);
+  ~CTPPSFastTrackingProducer() override;
 
-    private:
-        void beginStream(edm::StreamID) override;
-        void produce(edm::Event&, const edm::EventSetup&) override;
-        void endStream() override;
-        //this function will only be called once per event
-        virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
-        virtual void endEvent(edm::Event& event, const edm::EventSetup& eventSetup);
+private:
+  void beginStream(edm::StreamID) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
+  //this function will only be called once per event
+  virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
+  virtual void endEvent(edm::Event& event, const edm::EventSetup& eventSetup);
 
-        // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-        typedef std::vector<CTPPSFastRecHit> CTPPSFastRecHitContainer;
-        edm::EDGetTokenT< CTPPSFastRecHitContainer > _recHitToken;
-        void ReadRecHits(edm::Handle<CTPPSFastRecHitContainer> &);
-        void FastReco(int Direction,H_RecRPObject* station);
-        void Reconstruction();	
-        void ReconstructArm(H_RecRPObject* pps_station, double x1,double y1,double x2,double y2, double& tx, double& ty,double& eloss);
-        void MatchCellId(int cellId, std::vector<int> vrecCellId, std::vector<double> vrecTof, bool& match, double& recTof);
-        bool SearchTrack(int ,int ,int Direction,double& xi,double& t,double& partP,double& pt,double& thx,double& thy,
-                        double& x0,double& y0, double& xt, double& yt, double& X1d, double& Y1d, double& X2d, double& Y2d);
-        void TrackerStationClear();
-        void TrackerStationStarting();
-        void ProjectToToF(const double x1, const double y1, const double x2, const double y2, double& xt, double& yt) {    
-            xt = ((fz_timing-fz_tracker2)*(x2-x1)/(fz_tracker2-fz_tracker1)) + x2;
-            yt = ((fz_timing-fz_tracker2)*(y2-y1)/(fz_tracker2-fz_tracker1)) + y2;
-        };
-        // Hector objects
-        bool SetBeamLine();
+  typedef std::vector<CTPPSFastRecHit> CTPPSFastRecHitContainer;
+  edm::EDGetTokenT<CTPPSFastRecHitContainer> _recHitToken;
+  void ReadRecHits(edm::Handle<CTPPSFastRecHitContainer>&);
+  void FastReco(int Direction, H_RecRPObject* station);
+  void Reconstruction();
+  void ReconstructArm(
+      H_RecRPObject* pps_station, double x1, double y1, double x2, double y2, double& tx, double& ty, double& eloss);
+  void MatchCellId(int cellId, std::vector<int> vrecCellId, std::vector<double> vrecTof, bool& match, double& recTof);
+  bool SearchTrack(int,
+                   int,
+                   int Direction,
+                   double& xi,
+                   double& t,
+                   double& partP,
+                   double& pt,
+                   double& thx,
+                   double& thy,
+                   double& x0,
+                   double& y0,
+                   double& xt,
+                   double& yt,
+                   double& X1d,
+                   double& Y1d,
+                   double& X2d,
+                   double& Y2d);
+  void TrackerStationClear();
+  void TrackerStationStarting();
+  void ProjectToToF(const double x1, const double y1, const double x2, const double y2, double& xt, double& yt) {
+    xt = ((fz_timing - fz_tracker2) * (x2 - x1) / (fz_tracker2 - fz_tracker1)) + x2;
+    yt = ((fz_timing - fz_tracker2) * (y2 - y1) / (fz_tracker2 - fz_tracker1)) + y2;
+  };
+  // Hector objects
+  bool SetBeamLine();
 
-        std::map<unsigned int, H_BeamParticle*> m_beamPart;
-	std::unique_ptr<H_BeamLine> m_beamlineCTPPS1;
-        std::unique_ptr<H_BeamLine> m_beamlineCTPPS2;
-        std::unique_ptr<H_RecRPObject> pps_stationF;
-        std::unique_ptr<H_RecRPObject> pps_stationB;
+  std::map<unsigned int, H_BeamParticle*> m_beamPart;
+  std::unique_ptr<H_BeamLine> m_beamlineCTPPS1;
+  std::unique_ptr<H_BeamLine> m_beamlineCTPPS2;
+  std::unique_ptr<H_RecRPObject> pps_stationF;
+  std::unique_ptr<H_RecRPObject> pps_stationB;
 
-        std::string beam1filename;
-        std::string beam2filename;
+  std::string beam1filename;
+  std::string beam2filename;
 
-        // Defaults
-        double lengthctpps ;
-        bool   m_verbosity;
-        double fBeamEnergy;
-        double fBeamMomentum;
-        bool   fCrossAngleCorr;
-        double fCrossingAngleBeam1;
-        double fCrossingAngleBeam2;
-        ////////////////////////////////////////////////
-        std::unique_ptr<CTPPSTrkStation> TrkStation_F; // auxiliary object with the tracker geometry
-        std::unique_ptr<CTPPSTrkStation> TrkStation_B;
-        std::unique_ptr<CTPPSTrkDetector> det1F; 
-        std::unique_ptr<CTPPSTrkDetector> det1B;
-        std::unique_ptr<CTPPSTrkDetector> det2F; 
-        std::unique_ptr<CTPPSTrkDetector> det2B;
-        std::unique_ptr<CTPPSToFDetector> detToF_F;
-        std::unique_ptr<CTPPSToFDetector> detToF_B;
+  // Defaults
+  double lengthctpps;
+  bool m_verbosity;
+  double fBeamEnergy;
+  double fBeamMomentum;
+  bool fCrossAngleCorr;
+  double fCrossingAngleBeam1;
+  double fCrossingAngleBeam2;
+  ////////////////////////////////////////////////
+  std::unique_ptr<CTPPSTrkStation> TrkStation_F;  // auxiliary object with the tracker geometry
+  std::unique_ptr<CTPPSTrkStation> TrkStation_B;
+  std::unique_ptr<CTPPSTrkDetector> det1F;
+  std::unique_ptr<CTPPSTrkDetector> det1B;
+  std::unique_ptr<CTPPSTrkDetector> det2F;
+  std::unique_ptr<CTPPSTrkDetector> det2B;
+  std::unique_ptr<CTPPSToFDetector> detToF_F;
+  std::unique_ptr<CTPPSToFDetector> detToF_B;
 
-        std::vector<CTPPSFastTrack> theCTPPSFastTrack;
+  std::vector<CTPPSFastTrack> theCTPPSFastTrack;
 
-        CTPPSFastTrack track;
+  CTPPSFastTrack track;
 
-        std::vector<int> recCellId_F, recCellId_B ; 
-        std::vector<double> recTof_F, recTof_B ; 
-	
-	double fz_tracker1, fz_tracker2, fz_timing;
-	double fTrackerWidth,fTrackerHeight,fTrackerInsertion,fBeamXRMS_Trk1,fBeamXRMS_Trk2,fTrk1XOffset,fTrk2XOffset;
-        std::vector<double> fToFCellWidth;
-        double fToFCellHeight,fToFPitchX,fToFPitchY;
-        int fToFNCellX,fToFNCellY;
-        double fToFInsertion,fBeamXRMS_ToF,fToFXOffset,fTimeSigma,fImpParcut;		
+  std::vector<int> recCellId_F, recCellId_B;
+  std::vector<double> recTof_F, recTof_B;
 
-
+  double fz_tracker1, fz_tracker2, fz_timing;
+  double fTrackerWidth, fTrackerHeight, fTrackerInsertion, fBeamXRMS_Trk1, fBeamXRMS_Trk2, fTrk1XOffset, fTrk2XOffset;
+  std::vector<double> fToFCellWidth;
+  double fToFCellHeight, fToFPitchX, fToFPitchY;
+  int fToFNCellX, fToFNCellY;
+  double fToFInsertion, fBeamXRMS_ToF, fToFXOffset, fTimeSigma, fImpParcut;
 };
 #endif
-

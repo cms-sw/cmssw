@@ -4,85 +4,78 @@
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDTimeCalib.h"
 
 class MTDRecHitAlgo : public MTDRecHitAlgoBase {
- public:
+public:
   /// Constructor
-  MTDRecHitAlgo( const edm::ParameterSet& conf,
-                       edm::ConsumesCollector& sumes ) : 
-    MTDRecHitAlgoBase( conf, sumes ),
-    thresholdToKeep_( conf.getParameter<double>("thresholdToKeep") ),
-    calibration_( conf.getParameter<double>("calibrationConstant") ) { }
+  MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+      : MTDRecHitAlgoBase(conf, sumes),
+        thresholdToKeep_(conf.getParameter<double>("thresholdToKeep")),
+        calibration_(conf.getParameter<double>("calibrationConstant")) {}
 
   /// Destructor
-  ~MTDRecHitAlgo() override { }
+  ~MTDRecHitAlgo() override {}
 
   /// get event and eventsetup information
   void getEvent(const edm::Event&) final {}
   void getEventSetup(const edm::EventSetup&) final;
 
   /// make the rec hit
-  FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const final;
+  FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const final;
 
-private:  
+private:
   double thresholdToKeep_, calibration_;
   const MTDTimeCalib* time_calib_;
 };
 
-void MTDRecHitAlgo::getEventSetup(const edm::EventSetup& es)
-{
-    edm::ESHandle<MTDTimeCalib> pTC;
-    es.get<MTDTimeCalibRecord>().get("MTDTimeCalib",pTC);
-    time_calib_ = pTC.product();
+void MTDRecHitAlgo::getEventSetup(const edm::EventSetup& es) {
+  edm::ESHandle<MTDTimeCalib> pTC;
+  es.get<MTDTimeCalibRecord>().get("MTDTimeCalib", pTC);
+  time_calib_ = pTC.product();
 }
 
-FTLRecHit 
-MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const {
-
+FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const {
   unsigned char flagsWord = uRecHit.flags();
   float timeError = uRecHit.timeError();
 
   float energy = 0.;
-  float time   = 0.;
+  float time = 0.;
 
-  switch ( flagsWord ) {
+  switch (flagsWord) {
     // BTL bar geometry with only the right SiPM information available
-    case 0x2 : {
-
+    case 0x2: {
       energy = uRecHit.amplitude().second;
-      time   = uRecHit.time().second;
+      time = uRecHit.time().second;
 
-      break ;
+      break;
     }
     // BTL bar geometry with left and right SiPMs information available
-    case 0x3 : {
+    case 0x3: {
+      energy = 0.5 * (uRecHit.amplitude().first + uRecHit.amplitude().second);
+      time = 0.5 * (uRecHit.time().first + uRecHit.time().second);
 
-      energy = 0.5*(uRecHit.amplitude().first + uRecHit.amplitude().second);
-      time   = 0.5*(uRecHit.time().first + uRecHit.time().second);
-
-      break ;
+      break;
     }
     // ETL, BTL tile geometry, BTL bar geometry with only the left SiPM information available
     default: {
-
       energy = uRecHit.amplitude().first;
-      time   = uRecHit.time().first;
+      time = uRecHit.time().first;
 
-      break ;
+      break;
     }
   }
-  
+
   // --- Energy calibration: for the time being this is just a conversion pC --> MeV
   energy *= calibration_;
 
   // --- Time calibration: for the time being just removes a time offset in BTL
-  time += time_calib_->getTimeCalib( uRecHit.id() );
+  time += time_calib_->getTimeCalib(uRecHit.id());
 
-  FTLRecHit rh( uRecHit.id(), uRecHit.row(), uRecHit.column(), energy, time, timeError );
-    
+  FTLRecHit rh(uRecHit.id(), uRecHit.row(), uRecHit.column(), energy, time, timeError);
+
   // Now fill flags
   // all rechits from the digitizer are "good" at present
-  if( energy > thresholdToKeep_ ) {
+  if (energy > thresholdToKeep_) {
     flags = FTLRecHit::kGood;
-    rh.setFlag(flags);    
+    rh.setFlag(flags);
   } else {
     flags = FTLRecHit::kKilled;
     rh.setFlag(flags);
@@ -91,6 +84,5 @@ MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags)
   return rh;
 }
 
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_EDM_PLUGIN( MTDRecHitAlgoFactory, MTDRecHitAlgo, "MTDRecHitAlgo" );
+DEFINE_EDM_PLUGIN(MTDRecHitAlgoFactory, MTDRecHitAlgo, "MTDRecHitAlgo");

@@ -13,25 +13,23 @@ class CSCAnalogSignal;
  *    for subtracting the crosstalk from the input signal,
  *    and adding the crosstalk signal to the neighbors.
  *
- *  \author Rick Wilkinson, 
+ *  \author Rick Wilkinson,
  */
 
-class CSCCrosstalkGenerator
-{
+class CSCCrosstalkGenerator {
 public:
-  CSCCrosstalkGenerator() : theCrosstalk(0), theDelay(0),
-                              theResistiveFraction(0.) {};
+  CSCCrosstalkGenerator() : theCrosstalk(0), theDelay(0), theResistiveFraction(0.){};
 
   void setParameters(float crosstalk, float delay, float resistiveFraction) {
     theCrosstalk = crosstalk;
-    theDelay     = delay;
+    theDelay = delay;
     theResistiveFraction = resistiveFraction;
   }
 
-  CSCAnalogSignal getCrosstalk(const CSCAnalogSignal & inputSignal) const;
+  CSCAnalogSignal getCrosstalk(const CSCAnalogSignal &inputSignal) const;
 
-  /// analyzes the ratio between two signals. 
-  float ratio(const CSCAnalogSignal & crosstalkSignal, const CSCAnalogSignal & signal) const;
+  /// analyzes the ratio between two signals.
+  float ratio(const CSCAnalogSignal &crosstalkSignal, const CSCAnalogSignal &signal) const;
 
 private:
   float theCrosstalk;
@@ -41,4 +39,3 @@ private:
 };
 
 #endif
-

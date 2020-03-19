@@ -10,8 +10,6 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 
- typedef ObjectCountFilter<
-           reco::PhotonCollection
-         >::type PhotonCountFilter;
+typedef ObjectCountFilter<reco::PhotonCollection>::type PhotonCountFilter;
 
-DEFINE_FWK_MODULE( PhotonCountFilter );
+DEFINE_FWK_MODULE(PhotonCountFilter);

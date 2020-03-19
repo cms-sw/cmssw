@@ -12,30 +12,20 @@
 
 using namespace ftl;
 
-void RecHitTools::getEvent(const edm::Event& ev) {
-}
+void RecHitTools::getEvent(const edm::Event& ev) {}
 
 void RecHitTools::getEventSetup(const edm::EventSetup& es) {
   edm::ESHandle<FastTimeGeometry> ftgeom;
   es.get<FastTimeGeometryRecord>().get(ftgeom);
   geom_ = ftgeom.product();
-  ddd_  = &(geom_->topology().dddConstants()); 
+  ddd_ = &(geom_->topology().dddConstants());
 }
 
-GlobalPoint RecHitTools::getPosition(const DetId& id) const {
-  return geom_->getGeometry(id)->getPosition();
-}
+GlobalPoint RecHitTools::getPosition(const DetId& id) const { return geom_->getGeometry(id)->getPosition(); }
 
-FlatTrd::CornersVec RecHitTools::getCorners(const DetId& id) const {
-  return geom_->getGeometry(id)->getCorners();
-}
+FlatTrd::CornersVec RecHitTools::getCorners(const DetId& id) const { return geom_->getGeometry(id)->getCorners(); }
 
 RecHitTools::HitType RecHitTools::getHitType(const DetId& id) const {
   FastTimeDetId fid(id);
   return (HitType)fid.type();
 }
-
-
-
-
-

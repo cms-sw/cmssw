@@ -2,7 +2,7 @@
 //
 // Package:    SiStripCommissioningBasicPrescaler
 // Class:      SiStripCommissioningBasicPrescaler
-// 
+//
 /**\class SiStripCommissioningBasicPrescaler SiStripCommissioningBasicPrescaler.cc myTestArea/SiStripCommissioningBasicPrescaler/src/SiStripCommissioningBasicPrescaler.cc
 
  Description: simply filter acording to the run type
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -26,10 +25,9 @@
 //
 // constructors and destructor
 //
-SiStripCommissioningBasicPrescaler::SiStripCommissioningBasicPrescaler(const edm::ParameterSet& iConfig)
-{
-   //now do what ever initialization is needed
-   factor_ = iConfig.getParameter<uint32_t>( "ScaleFactor" ) ;
+SiStripCommissioningBasicPrescaler::SiStripCommissioningBasicPrescaler(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
+  factor_ = iConfig.getParameter<uint32_t>("ScaleFactor");
 }
 
 //
@@ -37,11 +35,8 @@ SiStripCommissioningBasicPrescaler::SiStripCommissioningBasicPrescaler(const edm
 //
 
 // ------------ method called on each new Event  ------------
-bool
-SiStripCommissioningBasicPrescaler::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   bool result = ((iEvent.id().event()%factor_)==0);
-   return result;
+bool SiStripCommissioningBasicPrescaler::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  bool result = ((iEvent.id().event() % factor_) == 0);
+  return result;
 }
-

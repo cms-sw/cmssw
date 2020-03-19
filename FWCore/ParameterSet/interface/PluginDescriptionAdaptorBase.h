@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/ParameterSet
 // Class  :     PluginDescriptionAdaptorBase
-// 
+//
 /**\class PluginDescriptionAdaptorBase PluginDescriptionAdaptorBase.h "PluginDescriptionAdaptorBase.h"
 
  Description: Base class for the adaptor used to call fillPSetDescription of a plugin
@@ -26,14 +26,13 @@
 // forward declarations
 
 namespace edm {
-template<typename T>
-class PluginDescriptionAdaptorBase
-{
-public:
-  virtual ~PluginDescriptionAdaptorBase() = default;
-  
-  // ---------- const member functions ---------------------
-  virtual edm::ParameterSetDescription description() const = 0;
-};
-}
+  template <typename T>
+  class PluginDescriptionAdaptorBase {
+  public:
+    virtual ~PluginDescriptionAdaptorBase() = default;
+
+    // ---------- const member functions ---------------------
+    virtual edm::ParameterSetDescription description() const = 0;
+  };
+}  // namespace edm
 #endif

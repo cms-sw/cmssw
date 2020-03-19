@@ -11,7 +11,6 @@
 
 #include <vector>
 
-
 /****************************************************************************
  * \class reco::GsfElectronCore
  *
@@ -22,67 +21,67 @@
  *
  ****************************************************************************/
 
+namespace reco {
 
-namespace reco
- {
+  class GsfElectronCore {
+  public:
+    // construction
+    GsfElectronCore();
+    GsfElectronCore(const GsfTrackRef&);
+    GsfElectronCore* clone() const;
+    ~GsfElectronCore() {}
 
-  class GsfElectronCore
-   {
+    // accessors
+    const GsfTrackRef& gsfTrack() const { return gsfTrack_; }
+    const SuperClusterRef& superCluster() const {
+      return (superCluster_.isNull() ? parentSuperCluster_ : superCluster_);
+    }
+    TrackRef ctfTrack() const {
+      return closestCtfTrack_;
+    }  // get the CTF track best matching the GTF associated to this electron
+    float ctfGsfOverlap() const {
+      return ctfGsfOverlap_;
+    }  // measure the fraction of common hits between the GSF and CTF tracks
+    bool ecalDrivenSeed() const { return isEcalDrivenSeed_; }
+    bool trackerDrivenSeed() const { return isTrackerDrivenSeed_; }
 
-    public :
+    /// get vector of references to  Conversion's
+    reco::ConversionRefVector conversions() const { return conversions_; }
+    /// get vector of references to one leg Conversion's
+    reco::ConversionRefVector conversionsOneLeg() const { return conversionsOneLeg_; }
 
-      // construction
-      GsfElectronCore() ;
-      GsfElectronCore( const GsfTrackRef & ) ;
-      GsfElectronCore * clone() const ;
-      ~GsfElectronCore() {}
+    // setters
+    void setGsfTrack(const GsfTrackRef& gsfTrack) { gsfTrack_ = gsfTrack; }
+    void setSuperCluster(const SuperClusterRef& scl) { superCluster_ = scl; }
+    void setCtfTrack(const TrackRef& closestCtfTrack, float ctfGsfOverlap) {
+      closestCtfTrack_ = closestCtfTrack;
+      ctfGsfOverlap_ = ctfGsfOverlap;
+    }
 
-      // accessors
-      const GsfTrackRef & gsfTrack() const { return gsfTrack_ ; }
-      const SuperClusterRef & superCluster() const
-       { return (superCluster_.isNull()?parentSuperCluster_:superCluster_) ; }
-      TrackRef ctfTrack() const { return closestCtfTrack_ ; } // get the CTF track best matching the GTF associated to this electron
-      float ctfGsfOverlap() const { return ctfGsfOverlap_ ; } // measure the fraction of common hits between the GSF and CTF tracks
-      bool ecalDrivenSeed() const { return isEcalDrivenSeed_ ; }
-      bool trackerDrivenSeed() const { return isTrackerDrivenSeed_ ; }
+    /// add  single ConversionRef to the vector of Refs
+    void addConversion(const reco::ConversionRef& r) { conversions_.push_back(r); }
+    /// add  single ConversionRef to the vector of Refs
+    void addOneLegConversion(const reco::ConversionRef& r) { conversionsOneLeg_.push_back(r); }
 
-      /// get vector of references to  Conversion's
-      reco::ConversionRefVector conversions() const {return conversions_;} 
-      /// get vector of references to one leg Conversion's
-      reco::ConversionRefVector conversionsOneLeg() const {return conversionsOneLeg_;}       
-      
-      // setters
-      void setGsfTrack( const GsfTrackRef & gsfTrack ) { gsfTrack_ = gsfTrack ; }
-      void setSuperCluster( const SuperClusterRef & scl ) { superCluster_ = scl ; }
-      void setCtfTrack( const TrackRef & closestCtfTrack, float ctfGsfOverlap )
-       { closestCtfTrack_ = closestCtfTrack ; ctfGsfOverlap_ = ctfGsfOverlap ; }
+    // pflow eventual additionnal info
+    const SuperClusterRef& parentSuperCluster() const { return parentSuperCluster_; }
+    void setParentSuperCluster(const SuperClusterRef& scl) { parentSuperCluster_ = scl; }
 
-      /// add  single ConversionRef to the vector of Refs
-      void addConversion( const reco::ConversionRef & r ) { conversions_.push_back(r); }
-      /// add  single ConversionRef to the vector of Refs
-      void addOneLegConversion( const reco::ConversionRef & r ) { conversionsOneLeg_.push_back(r); }       
-       
-      // pflow eventual additionnal info
-      const SuperClusterRef & parentSuperCluster() const { return parentSuperCluster_ ; }
-      void setParentSuperCluster( const SuperClusterRef & scl ) { parentSuperCluster_ = scl ; }
+  private:
+    GsfTrackRef gsfTrack_;
+    SuperClusterRef superCluster_;
+    SuperClusterRef parentSuperCluster_;
+    TrackRef closestCtfTrack_;  // best matching ctf track
+    // vector of references to Conversions
+    reco::ConversionRefVector conversions_;
+    //vector of references for 1-leg
+    reco::ConversionRefVector conversionsOneLeg_;
+    float ctfGsfOverlap_;  // fraction of common hits between the ctf and gsf tracks
+    bool isEcalDrivenSeed_;
+    bool isTrackerDrivenSeed_;
+  };
 
-    private :
-
-      GsfTrackRef gsfTrack_ ;
-      SuperClusterRef superCluster_ ;
-      SuperClusterRef parentSuperCluster_ ;
-      TrackRef closestCtfTrack_ ; // best matching ctf track
-      // vector of references to Conversions
-      reco::ConversionRefVector  conversions_;
-      //vector of references for 1-leg
-      reco::ConversionRefVector  conversionsOneLeg_;      
-      float ctfGsfOverlap_ ; // fraction of common hits between the ctf and gsf tracks
-      bool isEcalDrivenSeed_ ;
-      bool isTrackerDrivenSeed_ ;
-
-   } ;
-
- }
+}  // namespace reco
 
 //*****************************************************************************
 //

@@ -41,45 +41,45 @@ class TEveWindowSlot;
 class TEveWindow;
 
 namespace reco {
-   class Track;
+  class Track;
 }
 
-class FWTrackResidualDetailView : public FWDetailViewCanvas<reco::Track>{
+class FWTrackResidualDetailView : public FWDetailViewCanvas<reco::Track> {
 public:
-   FWTrackResidualDetailView();
-   ~FWTrackResidualDetailView() override;
+  FWTrackResidualDetailView();
+  ~FWTrackResidualDetailView() override;
 
 private:
-   FWTrackResidualDetailView(const FWTrackResidualDetailView&) = delete; // stop default
-   const FWTrackResidualDetailView& operator=(const FWTrackResidualDetailView&) = delete; // stop default
+  FWTrackResidualDetailView(const FWTrackResidualDetailView &) = delete;                   // stop default
+  const FWTrackResidualDetailView &operator=(const FWTrackResidualDetailView &) = delete;  // stop default
 
-   using FWDetailViewCanvas<reco::Track>::build;
-   void build (const FWModelId &id, const reco::Track*) override;
-   using FWDetailViewCanvas<reco::Track>::setTextInfo;
-   void setTextInfo(const FWModelId &id, const reco::Track*) override;
+  using FWDetailViewCanvas<reco::Track>::build;
+  void build(const FWModelId &id, const reco::Track *) override;
+  using FWDetailViewCanvas<reco::Track>::setTextInfo;
+  void setTextInfo(const FWModelId &id, const reco::Track *) override;
 
-   double getSignedResidual (const FWGeometry *geom, unsigned int id, double resX);
-   void prepareData(const FWModelId &id, const reco::Track*);
-   void printDebug();
+  double getSignedResidual(const FWGeometry *geom, unsigned int id, double resX);
+  void prepareData(const FWModelId &id, const reco::Track *);
+  void printDebug();
 
-   int m_ndet;
-   int m_nhits;
-   int m_det[64];
-   float res[2][64];
-   int hittype[64];
-   int stereo[64];
-   int substruct[64];
-   int subsubstruct[64];
-   int m_detector[64];
+  int m_ndet;
+  int m_nhits;
+  int m_det[64];
+  float res[2][64];
+  int hittype[64];
+  int stereo[64];
+  int substruct[64];
+  int subsubstruct[64];
+  int m_detector[64];
 
-   Int_t   m_resXFill;
-   Color_t m_resXCol;
-   Int_t   m_resYFill;
-   Color_t m_resYCol;
-   Int_t   m_stereoFill;
-   Color_t m_stereoCol;
-   Int_t   m_invalidFill;
-   Color_t m_invalidCol;
+  Int_t m_resXFill;
+  Color_t m_resXCol;
+  Int_t m_resYFill;
+  Color_t m_resYCol;
+  Int_t m_stereoFill;
+  Color_t m_stereoCol;
+  Int_t m_invalidFill;
+  Color_t m_invalidCol;
 
-   const static char* m_det_tracker_str[];
+  const static char *m_det_tracker_str[];
 };

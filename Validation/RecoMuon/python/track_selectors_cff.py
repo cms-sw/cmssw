@@ -12,7 +12,9 @@ probeTracks.minRapidity = cms.double(-2.4)
 probeTracks.maxRapidity = cms.double(2.4)
 probeTracks_seq = cms.Sequence( probeTracks )
 
+# tracks extracted from reco::Muons
 import SimMuon.MCTruth.MuonTrackProducer_cfi
+
 extractGemMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
 extractGemMuons.selectionTags = ('All',)
 extractGemMuons.trackType = "gemMuonTrack"
@@ -22,6 +24,38 @@ extractMe0Muons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone(
 extractMe0Muons.selectionTags = cms.vstring('All',)
 extractMe0Muons.trackType = "me0MuonTrack"
 extractMe0MuonsTracks_seq = cms.Sequence( extractMe0Muons )
+
+tunepMuonTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+tunepMuonTracks.muonsTag = cms.InputTag("muons")
+tunepMuonTracks.selectionTags = ('All',)
+tunepMuonTracks.trackType = "tunepTrack"
+tunepMuonTracks_seq = cms.Sequence( tunepMuonTracks )
+
+pfMuonTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+pfMuonTracks.muonsTag = cms.InputTag("muons")
+pfMuonTracks.selectionTags = ('All',)
+pfMuonTracks.trackType = "pfTrack"
+pfMuonTracks_seq = cms.Sequence( pfMuonTracks )
+
+recoMuonTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+recoMuonTracks.muonsTag = cms.InputTag("muons")
+recoMuonTracks.selectionTags = ('All',)
+recoMuonTracks.trackType = "recomuonTrack"
+recoMuonTracks_seq = cms.Sequence( recoMuonTracks )
+
+hltIterL3MuonsNoIDTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+hltIterL3MuonsNoIDTracks.muonsTag = cms.InputTag("hltIterL3MuonsNoID")
+hltIterL3MuonsNoIDTracks.selectionTags = ('All',)
+hltIterL3MuonsNoIDTracks.trackType = "recomuonTrack"
+hltIterL3MuonsNoIDTracks.ignoreMissingMuonCollection = True
+hltIterL3MuonsNoIDTracks_seq = cms.Sequence( hltIterL3MuonsNoIDTracks )
+
+hltIterL3MuonsTracks = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+hltIterL3MuonsTracks.muonsTag = cms.InputTag("hltIterL3Muons")
+hltIterL3MuonsTracks.selectionTags = ('All',)
+hltIterL3MuonsTracks.trackType = "recomuonTrack"
+hltIterL3MuonsTracks.ignoreMissingMuonCollection = True
+hltIterL3MuonsTracks_seq = cms.Sequence( hltIterL3MuonsTracks )
 
 #
 # Configuration for Seed track extractor

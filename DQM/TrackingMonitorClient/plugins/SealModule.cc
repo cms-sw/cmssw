@@ -2,5 +2,4 @@
 
 #include "DQM/TrackingMonitorClient/plugins/TrackingDQMClientHeavyIons.h"
 
-
 DEFINE_FWK_MODULE(TrackingDQMClientHeavyIons);

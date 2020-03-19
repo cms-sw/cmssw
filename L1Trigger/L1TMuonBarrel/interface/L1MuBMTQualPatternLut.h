@@ -31,63 +31,57 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class L1MuBMTQualPatternLut {
+public:
+  typedef std::pair<short, short> LUTID;
+  typedef std::pair<short, std::vector<short> > LUTCONT;
+  typedef std::map<LUTID, LUTCONT> LUT;
+  typedef LUT::iterator EMULut_iter;
 
-  public:
+  /// constructor
+  L1MuBMTQualPatternLut();
 
-    typedef std::pair< short, short > LUTID;
-    typedef std::pair< short, std::vector<short> > LUTCONT;
-    typedef std::map< LUTID, LUTCONT > LUT;
-    typedef LUT::iterator EMULut_iter;
-    
-    /// constructor
-    L1MuBMTQualPatternLut();
+  /// destructor
+  virtual ~L1MuBMTQualPatternLut();
 
-    /// destructor
-    virtual ~L1MuBMTQualPatternLut();
+  /// reset look-up tables
+  void reset();
 
-    /// reset look-up tables
-    void reset();
-    
-    /// load look-up tables
-    int load();
+  /// load look-up tables
+  int load();
 
-    /// print look-up tables
-    void print() const;
+  /// print look-up tables
+  void print() const;
 
-    int getIgnoredLines(L1TriggerLutFile file) const;
+  int getIgnoredLines(L1TriggerLutFile file) const;
 
-    /// get coarse eta value for a given sector processor [1-6] and address [1-22]
-    int getCoarseEta(int sp, int adr) const;
- 
-    /// get list of qualified patterns for a given sector processor [1-6] and address [1-22]
-    const std::vector<short>& getQualifiedPatterns(int sp, int adr) const;
+  /// get coarse eta value for a given sector processor [1-6] and address [1-22]
+  int getCoarseEta(int sp, int adr) const;
 
-    /// return number of entries in the LUT
-    inline int size() const { return m_lut.size(); }
+  /// get list of qualified patterns for a given sector processor [1-6] and address [1-22]
+  const std::vector<short>& getQualifiedPatterns(int sp, int adr) const;
 
-    /// return iterator which points to the first entry of the LUT
-    inline EMULut_iter begin() { return m_lut.begin(); }
+  /// return number of entries in the LUT
+  inline int size() const { return m_lut.size(); }
 
-    /// return iterator which points to the one-past-last entry of the LUT
-    inline EMULut_iter end() { return m_lut.end(); }
-    
-  public:
+  /// return iterator which points to the first entry of the LUT
+  inline EMULut_iter begin() { return m_lut.begin(); }
 
-    LUT m_lut;        // coarse eta values and list of qualified patterns
-    
+  /// return iterator which points to the one-past-last entry of the LUT
+  inline EMULut_iter end() { return m_lut.end(); }
 
- COND_SERIALIZABLE;
+public:
+  LUT m_lut;  // coarse eta values and list of qualified patterns
+
+  COND_SERIALIZABLE;
 };
 
 #endif

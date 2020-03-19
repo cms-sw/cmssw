@@ -2,7 +2,7 @@
 //
 // Package:    L1CaloInputScalesProducer
 // Class:      L1CaloInputScalesProducer
-// 
+//
 /**\class L1CaloInputScalesProducer L1CaloInputScalesProducer.h L1TriggerConfig/RCTConfigProducers/src/L1CaloInputScalesProducer.cc
 
  Description: <one line class summary>
@@ -37,100 +37,69 @@
 //
 // constructors and destructor
 //
-L1CaloInputScalesProducer::L1CaloInputScalesProducer(const edm::ParameterSet& iConfig)
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this, &L1CaloInputScalesProducer::produceEcalScale);
-   setWhatProduced(this, &L1CaloInputScalesProducer::produceHcalScale);
+L1CaloInputScalesProducer::L1CaloInputScalesProducer(const edm::ParameterSet& iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this, &L1CaloInputScalesProducer::produceEcalScale);
+  setWhatProduced(this, &L1CaloInputScalesProducer::produceHcalScale);
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 
-   // { Et for each rank, eta bin 0 }, { Et for each rank, eta bin 1 }, ...
-   m_ecalEtThresholdsPosEta =
-     iConfig.getParameter< std::vector<double> >("L1EcalEtThresholdsPositiveEta");
-   m_ecalEtThresholdsNegEta =
-     iConfig.getParameter< std::vector<double> >("L1EcalEtThresholdsNegativeEta");
-   m_hcalEtThresholdsPosEta =
-     iConfig.getParameter< std::vector<double> >("L1HcalEtThresholdsPositiveEta");
-   m_hcalEtThresholdsNegEta =
-     iConfig.getParameter< std::vector<double> >("L1HcalEtThresholdsNegativeEta");
+  // { Et for each rank, eta bin 0 }, { Et for each rank, eta bin 1 }, ...
+  m_ecalEtThresholdsPosEta = iConfig.getParameter<std::vector<double> >("L1EcalEtThresholdsPositiveEta");
+  m_ecalEtThresholdsNegEta = iConfig.getParameter<std::vector<double> >("L1EcalEtThresholdsNegativeEta");
+  m_hcalEtThresholdsPosEta = iConfig.getParameter<std::vector<double> >("L1HcalEtThresholdsPositiveEta");
+  m_hcalEtThresholdsNegEta = iConfig.getParameter<std::vector<double> >("L1HcalEtThresholdsNegativeEta");
 }
 
-
-L1CaloInputScalesProducer::~L1CaloInputScalesProducer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+L1CaloInputScalesProducer::~L1CaloInputScalesProducer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<L1CaloEcalScale>
-L1CaloInputScalesProducer::produceEcalScale(const L1CaloEcalScaleRcd& iRecord)
-{
-   auto pL1CaloEcalScale = std::make_unique<L1CaloEcalScale>() ;
+std::unique_ptr<L1CaloEcalScale> L1CaloInputScalesProducer::produceEcalScale(const L1CaloEcalScaleRcd& iRecord) {
+  auto pL1CaloEcalScale = std::make_unique<L1CaloEcalScale>();
 
-   std::vector< double >::const_iterator posItr =
-     m_ecalEtThresholdsPosEta.begin() ;
-   std::vector< double >::const_iterator negItr =
-     m_ecalEtThresholdsNegEta.begin() ;
+  std::vector<double>::const_iterator posItr = m_ecalEtThresholdsPosEta.begin();
+  std::vector<double>::const_iterator negItr = m_ecalEtThresholdsNegEta.begin();
 
-   for( unsigned short ieta = 1 ;
-	ieta <= L1CaloEcalScale::nBinEta ;
-	++ieta )
-     {
-       for( unsigned short irank = 0 ;
-	    irank < L1CaloEcalScale::nBinRank;
-	    ++irank )
-	 {
-	   pL1CaloEcalScale->setBin( irank, ieta, 1, *posItr ) ;
-	   pL1CaloEcalScale->setBin( irank, ieta, -1, *negItr ) ;
+  for (unsigned short ieta = 1; ieta <= L1CaloEcalScale::nBinEta; ++ieta) {
+    for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
+      pL1CaloEcalScale->setBin(irank, ieta, 1, *posItr);
+      pL1CaloEcalScale->setBin(irank, ieta, -1, *negItr);
 
-	   ++posItr ;
-	   ++negItr ;
-	 }
-     }
+      ++posItr;
+      ++negItr;
+    }
+  }
 
-   return pL1CaloEcalScale ;
+  return pL1CaloEcalScale;
 }
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<L1CaloHcalScale>
-L1CaloInputScalesProducer::produceHcalScale(const L1CaloHcalScaleRcd& iRecord)
-{
-   auto pL1CaloHcalScale = std::make_unique<L1CaloHcalScale>() ;
+std::unique_ptr<L1CaloHcalScale> L1CaloInputScalesProducer::produceHcalScale(const L1CaloHcalScaleRcd& iRecord) {
+  auto pL1CaloHcalScale = std::make_unique<L1CaloHcalScale>();
 
-   std::vector< double >::const_iterator posItr =
-     m_hcalEtThresholdsPosEta.begin() ;
+  std::vector<double>::const_iterator posItr = m_hcalEtThresholdsPosEta.begin();
 
-   std::vector< double >::const_iterator negItr =
-     m_hcalEtThresholdsNegEta.begin() ;
+  std::vector<double>::const_iterator negItr = m_hcalEtThresholdsNegEta.begin();
 
+  for (unsigned short ieta = 1; ieta <= L1CaloHcalScale::nBinEta; ++ieta) {
+    for (unsigned short irank = 0; irank < L1CaloHcalScale::nBinRank; ++irank) {
+      pL1CaloHcalScale->setBin(irank, ieta, 1, *posItr);
+      pL1CaloHcalScale->setBin(irank, ieta, -1, *negItr);
 
-   for( unsigned short ieta = 1 ;
-	ieta <= L1CaloHcalScale::nBinEta ;
-	++ieta )
-     {
-       for( unsigned short irank = 0 ;
-	    irank < L1CaloHcalScale::nBinRank;
-	    ++irank )
-	 {
-	   pL1CaloHcalScale->setBin( irank, ieta, 1, *posItr ) ;
-	   pL1CaloHcalScale->setBin( irank, ieta, -1, *negItr ) ;
+      ++posItr;
+      ++negItr;
+    }
+  }
 
-	   ++posItr ;
-	   ++negItr ;
-	 }
-     }
-
-   return pL1CaloHcalScale ;
+  return pL1CaloHcalScale;
 }
 
 //define this as a plug-in

@@ -13,20 +13,34 @@
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
 #include "CondFormats/Alignment/interface/Definitions.h"
 
-class SurveyInputCSCfromPins:
-  public SurveyInputBase
-{
+class SurveyInputCSCfromPins : public SurveyInputBase {
 public:
-	
-  SurveyInputCSCfromPins(const edm::ParameterSet&);
-	
+  SurveyInputCSCfromPins(const edm::ParameterSet &);
+
   /// Read ideal tracker geometry from DB
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-
-  void orient(align::LocalVector LC1, align::LocalVector LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ);
-  void errors(double a, double b, bool missing1, bool missing2, double &dx_dx, double &dy_dy, double &dz_dz, double &phix_phix, double &phiz_phiz, double &dy_phix);
+  void orient(align::LocalVector LC1,
+              align::LocalVector LC2,
+              double a,
+              double b,
+              double &T,
+              double &dx,
+              double &dy,
+              double &dz,
+              double &PhX,
+              double &PhZ);
+  void errors(double a,
+              double b,
+              bool missing1,
+              bool missing2,
+              double &dx_dx,
+              double &dy_dy,
+              double &dz_dz,
+              double &phix_phix,
+              double &phiz_phiz,
+              double &dy_phix);
 
   void fillAllRecords(Alignable *ali);
 

@@ -1,0 +1,6 @@
+<environment>
+  <bin   file="TestHLTrigReport.cpp" name="TestHLTrigReport">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash HLTrigger/HLTanalyzers/test test_hltrigreport.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>

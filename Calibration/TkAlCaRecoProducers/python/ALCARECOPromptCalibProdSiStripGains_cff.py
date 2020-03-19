@@ -35,10 +35,6 @@ ALCARECOCalMinBiasFilterForSiStripGains.TriggerResultsTag = cms.InputTag("Trigge
 #process.es_prefer_fakeSiStripDetVOff = cms.ESPrefer("SiStripDetVOffFakeESSource","siStripDetVOffFakeESSource")
 
 
-#process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
-
-
 # ------------------------------------------------------------------------------
 # This is the sequence for track refitting of the track saved by SiStripCalMinBias
 # to have access to transient objects produced during RECO step and not saved
@@ -103,7 +99,6 @@ MEtoEDMConvertSiStripGains = cms.EDProducer("MEtoEDMConverter",
                                             # 2 provide more detailed output
                                             Frequency = cms.untracked.int32(50),
                                             MEPathToSave = cms.untracked.string('AlCaReco/SiStripGains'),
-                                            deleteAfterCopy = cms.untracked.bool(True)
                                             )
 
 # The actual sequence

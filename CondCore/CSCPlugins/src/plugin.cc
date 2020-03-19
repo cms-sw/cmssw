@@ -60,47 +60,46 @@
 #include "CondCore/CondDB/interface/Serialization.h"
 #include <memory>
 
-
 namespace cond {
-  template <> std::unique_ptr<CSCReadoutMapping> deserialize<CSCReadoutMapping>( const std::string& payloadType,
-                                                                                 const Binary& payloadData,
-                                                                                 const Binary& streamerInfoData ){
+  template <>
+  std::unique_ptr<CSCReadoutMapping> deserialize<CSCReadoutMapping>(const std::string& payloadType,
+                                                                    const Binary& payloadData,
+                                                                    const Binary& streamerInfoData) {
     // DESERIALIZE_BASE_CASE( CSCReadoutMapping ); abstract
-    DESERIALIZE_POLIMORPHIC_CASE( CSCReadoutMapping, CSCReadoutMappingFromFile );
+    DESERIALIZE_POLIMORPHIC_CASE(CSCReadoutMapping, CSCReadoutMappingFromFile);
     // here we come if none of the deserializations above match the payload type:
-    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
+    throwException(std::string("Type mismatch, target object is type \"") + payloadType + "\"", "deserialize<>");
   }
-  template <> std::unique_ptr<CSCReadoutMappingForSliceTest> deserialize<CSCReadoutMappingForSliceTest>( const std::string& payloadType,
-                                                                                                         const Binary& payloadData,
-                                                                                                         const Binary& streamerInfoData ){
+  template <>
+  std::unique_ptr<CSCReadoutMappingForSliceTest> deserialize<CSCReadoutMappingForSliceTest>(
+      const std::string& payloadType, const Binary& payloadData, const Binary& streamerInfoData) {
     // DESERIALIZE_BASE_CASE( CSCReadoutMappingForSliceTest ); abstract
-    DESERIALIZE_POLIMORPHIC_CASE( CSCReadoutMappingForSliceTest, CSCReadoutMappingFromFile );
+    DESERIALIZE_POLIMORPHIC_CASE(CSCReadoutMappingForSliceTest, CSCReadoutMappingFromFile);
     // here we come if none of the deserializations above match the payload type:
-    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
+    throwException(std::string("Type mismatch, target object is type \"") + payloadType + "\"", "deserialize<>");
   }
-}
+}  // namespace cond
 
-
-REGISTER_PLUGIN(CSCPedestalsRcd,CSCPedestals);
-REGISTER_PLUGIN(CSCDBPedestalsRcd,CSCDBPedestals);
-REGISTER_PLUGIN(CSCGainsRcd,CSCGains);
-REGISTER_PLUGIN(CSCDBGainsRcd,CSCDBGains);
-REGISTER_PLUGIN(CSCcrosstalkRcd,CSCcrosstalk);
-REGISTER_PLUGIN(CSCDBCrosstalkRcd,CSCDBCrosstalk);
-REGISTER_PLUGIN(CSCNoiseMatrixRcd,CSCNoiseMatrix);
-REGISTER_PLUGIN(CSCDBNoiseMatrixRcd,CSCDBNoiseMatrix);
-REGISTER_PLUGIN(CSCDBChipSpeedCorrectionRcd,CSCDBChipSpeedCorrection);
-REGISTER_PLUGIN(CSCChamberMapRcd,CSCChamberMap);
-REGISTER_PLUGIN(CSCChamberIndexRcd,CSCChamberIndex);
-REGISTER_PLUGIN(CSCCrateMapRcd,CSCCrateMap);
-REGISTER_PLUGIN(CSCDDUMapRcd,CSCDDUMap);
-REGISTER_PLUGIN(CSCChamberTimeCorrectionsRcd,CSCChamberTimeCorrections);
-REGISTER_PLUGIN(CSCBadChambersRcd,CSCBadChambers);
-REGISTER_PLUGIN(CSCBadStripsRcd,CSCBadStrips);
-REGISTER_PLUGIN(CSCBadWiresRcd,CSCBadWires);
-REGISTER_PLUGIN(CSCIdentifierRcd,CSCIdentifier);
-REGISTER_PLUGIN(CSCReadoutMappingRcd,CSCReadoutMapping);
-REGISTER_PLUGIN(CSCL1TPParametersRcd,CSCL1TPParameters);
-REGISTER_PLUGIN(CSCDBL1TPParametersRcd,CSCDBL1TPParameters);
-REGISTER_PLUGIN(CSCDCSDataRcd,  cscdqm::DCSData);
-REGISTER_PLUGIN(CSCDBGasGainCorrectionRcd,CSCDBGasGainCorrection);
+REGISTER_PLUGIN(CSCPedestalsRcd, CSCPedestals);
+REGISTER_PLUGIN(CSCDBPedestalsRcd, CSCDBPedestals);
+REGISTER_PLUGIN(CSCGainsRcd, CSCGains);
+REGISTER_PLUGIN(CSCDBGainsRcd, CSCDBGains);
+REGISTER_PLUGIN(CSCcrosstalkRcd, CSCcrosstalk);
+REGISTER_PLUGIN(CSCDBCrosstalkRcd, CSCDBCrosstalk);
+REGISTER_PLUGIN(CSCNoiseMatrixRcd, CSCNoiseMatrix);
+REGISTER_PLUGIN(CSCDBNoiseMatrixRcd, CSCDBNoiseMatrix);
+REGISTER_PLUGIN(CSCDBChipSpeedCorrectionRcd, CSCDBChipSpeedCorrection);
+REGISTER_PLUGIN(CSCChamberMapRcd, CSCChamberMap);
+REGISTER_PLUGIN(CSCChamberIndexRcd, CSCChamberIndex);
+REGISTER_PLUGIN(CSCCrateMapRcd, CSCCrateMap);
+REGISTER_PLUGIN(CSCDDUMapRcd, CSCDDUMap);
+REGISTER_PLUGIN(CSCChamberTimeCorrectionsRcd, CSCChamberTimeCorrections);
+REGISTER_PLUGIN(CSCBadChambersRcd, CSCBadChambers);
+REGISTER_PLUGIN(CSCBadStripsRcd, CSCBadStrips);
+REGISTER_PLUGIN(CSCBadWiresRcd, CSCBadWires);
+REGISTER_PLUGIN(CSCIdentifierRcd, CSCIdentifier);
+REGISTER_PLUGIN(CSCReadoutMappingRcd, CSCReadoutMapping);
+REGISTER_PLUGIN(CSCL1TPParametersRcd, CSCL1TPParameters);
+REGISTER_PLUGIN(CSCDBL1TPParametersRcd, CSCDBL1TPParameters);
+REGISTER_PLUGIN(CSCDCSDataRcd, cscdqm::DCSData);
+REGISTER_PLUGIN(CSCDBGasGainCorrectionRcd, CSCDBGasGainCorrection);

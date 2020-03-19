@@ -22,10 +22,20 @@
     <use name="PhysicsTools/TensorFlow" />
 </bin>
 
+<bin name="testTFThreadPools" file="testRunner.cpp,testThreadPools.cc">
+    <use name="boost_filesystem" />
+    <use name="cppunit" />
 
-<bin file="tfadd_t.cpp">
-  <flags DNN_NAME="test_graph_tfadd"/>
-  <use name="tensorflow-runtime"/>
-  <use name="tensorflow-xla_compiled_cpu_function"/> 
+    <use name="FWCore/Utilities" />
+    <use name="PhysicsTools/TensorFlow" />
 </bin>
 
+<!-- <ifarchitecture name="!_ppc64le_">
+<bin name="testTFAOT" file="testRunner.cpp,testAOT.cc">
+    <flags DNN_NAME="testAOT_add" />
+
+    <use name="cppunit" />
+    <use name="tensorflow-runtime" />
+    <use name="tensorflow-xla_compiled_cpu_function" />
+</bin>
+</ifarchitecture> -->

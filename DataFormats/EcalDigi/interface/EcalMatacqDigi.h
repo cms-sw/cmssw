@@ -24,15 +24,13 @@ public:
   static const int MAXSAMPLES = 2560;
 
 public:
-  typedef int key_type; //matacq channel id used as key for edm::SortedCollection
+  typedef int key_type;  //matacq channel id used as key for edm::SortedCollection
 
 public:
   /** Default constructor.
    */
-  EcalMatacqDigi(): chId_(-1), ts_(0.), tTrigS_(999.), version_(-1){
-    init();
-  }
-  
+  EcalMatacqDigi() : chId_(-1), ts_(0.), tTrigS_(999.), version_(-1) { init(); }
+
   /** Constructor
    * @param samples adc time samples
    * @param chId Matacq channel ID
@@ -40,14 +38,15 @@ public:
    * @param version Matacq raw data private version
    * @param tTrigg time position of the trigger in seconds
    */
-  EcalMatacqDigi(const std::vector<Short_t>& samples, const int& chId, const double& ts,
-		 const short& version=-1, const double& tTrig=999.)
-    : chId_(chId), data_(samples), ts_(ts), tTrigS_(tTrig),
-      version_(version){
+  EcalMatacqDigi(const std::vector<Short_t>& samples,
+                 const int& chId,
+                 const double& ts,
+                 const short& version = -1,
+                 const double& tTrig = 999.)
+      : chId_(chId), data_(samples), ts_(ts), tTrigS_(tTrig), version_(version) {
     init();
   };
-  
-  
+
   /** Gets amplitude in ADC count of time sample i. i between 0 and size()-1.
    * Note: Amplitude is pedestal subtracted at acquisition time.
    */
@@ -56,76 +55,76 @@ public:
   /** Gets amplitude in Volt of time sample i. i between 0 and size()-1.
    * Note: Amplitude is pedestal subtracted at acquisition time.
    */
-  const float amplitudeV(const int& i) const { return data_[i]*lsb_;}
+  const float amplitudeV(const int& i) const { return data_[i] * lsb_; }
 
   /** Gets Matacq electronics channel id
    */
-  int chId() const{ return chId_;}
+  int chId() const { return chId_; }
 
   /** For edm::SortedCollection.
    * @return as key the matacq channel id
    */
-  int id() const { return chId_;}
+  int id() const { return chId_; }
 
-//   /** Sets Matacq electronics channel id
-//    */
-//   void chId(int newChId){ chId_ = newChId;}
-  
+  //   /** Sets Matacq electronics channel id
+  //    */
+  //   void chId(int newChId){ chId_ = newChId;}
+
   /** Number of time samples
    */
-  int size() const { return data_.size();}
-  
+  int size() const { return data_.size(); }
+
   /** Swaps samples with the passed samples. For package internal use.
    * @param samples new time samples in unit used in raw data
    * (a priori ADC count).
    */
-  void swap(std::vector<short>& samples){ std::swap(data_, samples);}
+  void swap(std::vector<short>& samples) { std::swap(data_, samples); }
 
   void swap(EcalMatacqDigi& a);
-  
-//   /** Gets time of sample i. i between 0 and size()-1.
-//    */
-//   float t(int i) const { return ts()*i;}
-  
+
+  //   /** Gets time of sample i. i between 0 and size()-1.
+  //    */
+  //   float t(int i) const { return ts()*i;}
+
   /** Gets sampling time in seconds
    */
-  float ts() const { return ts_;}
+  float ts() const { return ts_; }
 
-//   /** Sets sampling time period
-//    * @param ts sampling time period in seconds
-//    */
-//   void ts(double newTs){
-//     ts_ = newTs;
-//   }
+  //   /** Sets sampling time period
+  //    * @param ts sampling time period in seconds
+  //    */
+  //   void ts(double newTs){
+  //     ts_ = newTs;
+  //   }
 
   /** Gets time of trigger in seconds.
    * @return (t_trig-t_0), with t_trig the trigger time and t_0 the first.
    * Returns 999 if not available.
    * sample time.
    */
-  float tTrig() const { return tTrigS_;}
+  float tTrig() const { return tTrigS_; }
 
-//   /** Sets trigger time position
-//    * @param tTrigS (t_trig-t_0) in seconds, with t_trig the time of MATACQ
-//    * trigger and t_0 the time of the first sample of each MATACQ channel.
-//    */
-//   void tTrig(double tTrigS){
-//     tTrigS_ = tTrigS;
-//   }
+  //   /** Sets trigger time position
+  //    * @param tTrigS (t_trig-t_0) in seconds, with t_trig the time of MATACQ
+  //    * trigger and t_0 the time of the first sample of each MATACQ channel.
+  //    */
+  //   void tTrig(double tTrigS){
+  //     tTrigS_ = tTrigS;
+  //   }
 
   /** version of raw data format, the digis originate from.
    * @return raw data format version, -1 if not available.
    */
-  short version() const {return version_;}
+  short version() const { return version_; }
 
-//   /** Sets the raw data format, the digi is issued from.
-//    * @param version internal matacq raw data format version
-//    */
-//   void version(short version){
-//     version_ = version;
-//   }
+  //   /** Sets the raw data format, the digi is issued from.
+  //    * @param version internal matacq raw data format version
+  //    */
+  //   void version(short version){
+  //     version_ = version;
+  //   }
 
-#if (ECAL_MATACQ_DIGI_VERS>=2)
+#if (ECAL_MATACQ_DIGI_VERS >= 2)
   /** Gets the bunch crossing id field contents.
    * @return BX id
    */
@@ -140,12 +139,12 @@ public:
    * @return l1a
    */
   int l1a() const { return l1a_; }
-  
+
   /** Sets level one accept counter of the event
    * @param value new value
    */
   void l1a(int value) { l1a_ = value; }
-  
+
   /** Gets type of test trigger
    * @return triggerType
    */
@@ -161,13 +160,21 @@ public:
    * second and microseconds since the EPOCH as defined in POSIX.1.
    * See time() standard c function and gettimeofday UNIX function.
    */
-  timeval timeStamp() const { timeval value; value.tv_sec = tv_sec_; value.tv_usec = tv_usec_; return value; }
+  timeval timeStamp() const {
+    timeval value;
+    value.tv_sec = tv_sec_;
+    value.tv_usec = tv_usec_;
+    return value;
+  }
 
   /** Sets the matcq event timestmap
    * @param value new value
    */
-  void timeStamp(timeval value) { tv_sec_ = value.tv_sec; tv_usec_ = value.tv_usec; }
-  
+  void timeStamp(timeval value) {
+    tv_sec_ = value.tv_sec;
+    tv_usec_ = value.tv_usec;
+  }
+
   /** Gets the LHC orbit ID of the event
    * Available only for Matacq data format version >=3 and for P5 data.
    * @return the LHC orbit ID
@@ -178,13 +185,13 @@ public:
    * @param value new value
    */
   void orbitId(UInt_t value) { orbitId_ = value; }
-  
+
   /** Gets the Trig Rec value (see Matacq documentation)
    * Available only for Matacq data format version >=3.
    * @return the Trig Rec value
    */
   int trigRec() const { return trigRec_; }
-  
+
   /** Sets the Trig Rec value (see Matacq documentation)
    * @param value new value
    */
@@ -204,13 +211,12 @@ public:
    * @return verniers
    */
   std::vector<int> vernier() const { return vernier_; }
-  
+
   /** Sets verniers
    * @param value new value
    */
   void vernier(const std::vector<int>& value) { vernier_ = value; }
 
-  
   /** Gets "Delay A" setting of laser delay box in ns.delayA
    * @return delayA
    */
@@ -225,17 +231,17 @@ public:
    * @return emtcDelay
    */
   int emtcDelay() const { return emtcDelay_; }
-  
+
   /** Sets the WTE-to-Laser delay of EMTC in LHC clock unit.
    * @param value new value
    */
   void emtcDelay(int value) { emtcDelay_ = value; }
-  
+
   /** Gets the EMTC laser phase in 1/8th LHC clock unit.
    * @return emtcPhase
    */
   int emtcPhase() const { return emtcPhase_; }
-  
+
   /** Sets the EMTC laser phase in 1/8th LHC clock unit.
    * @param value new value
    */
@@ -252,28 +258,28 @@ public:
    * @param value new value
    */
   void attenuation_dB(int value) { attenuation_dB_ = value; }
-  
+
   /** Gets the laser power setting in percents
    * (set with the linear attenuator),
    * @return laserPower
    */
   int laserPower() const { return laserPower_; }
-  
+
   /** Sets  the laser power setting in percents
    * (set with the linear attenuator),
    * @param value new value
    */
   void laserPower(int value) { laserPower_ = value; }
 
-  void init(){
-#if (ECAL_MATACQ_DIGI_VERS>=2)
+  void init() {
+#if (ECAL_MATACQ_DIGI_VERS >= 2)
     bxId_ = -1;
     l1a_ = -1;
     triggerType_ = -1;
     orbitId_ = -1;
     trigRec_ = -1;
     postTrig_ = -1;
-    vernier_ = std::vector<Int_t>(4,-1);
+    vernier_ = std::vector<Int_t>(4, -1);
     delayA_ = -1;
     emtcDelay_ = -1;
     emtcPhase_ = -1;
@@ -288,7 +294,7 @@ private:
   /** Electronic channel id
    */
   int chId_;
-  
+
   /** ADC count of time samples
    */
   std::vector<Short_t> data_;
@@ -296,7 +302,7 @@ private:
   /** Frequency mode. 1->1GHz sampling, 2->2GHz sampling
    */
   int freq;
-  
+
   /**Sampling period in seconds. In priniciple 1ns or 0.5ns
    */
   double ts_;
@@ -309,7 +315,7 @@ private:
    */
   short version_;
 
-#if (ECAL_MATACQ_DIGI_VERS>=2)
+#if (ECAL_MATACQ_DIGI_VERS >= 2)
   /** Type of test trigger
    * @return triggerType
    */
@@ -327,15 +333,15 @@ private:
   /** Event id. Actually LV1 ID.
    */
   Int_t l1a_;
-  
+
   /* LHC orbit ID
    */
   Int_t orbitId_;
-  
+
   /** Trig Rec value (see Matacq documentation)
    */
   Short_t trigRec_;
-  
+
   /** Posttrig value (see Matacq documentation)
    */
   Short_t postTrig_;
@@ -368,9 +374,7 @@ private:
   Long64_t tv_usec_;
 
 #endif
-  
 };
-
 
 std::ostream& operator<<(std::ostream& s, const EcalMatacqDigi& digi);
 

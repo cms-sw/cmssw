@@ -6,13 +6,16 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
-namespace edm { class Event; class EventSetup; class ParameterSet; }
-
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+}  // namespace edm
 
 class dso_hidden SeedCombiner : public edm::stream::EDProducer<> {
 public:
-
   SeedCombiner(const edm::ParameterSet& cfg);
   ~SeedCombiner() override;
 

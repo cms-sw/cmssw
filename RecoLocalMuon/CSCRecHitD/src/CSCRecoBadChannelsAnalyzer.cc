@@ -26,122 +26,115 @@
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 
+class CSCRecoBadChannelsAnalyzer : public edm::EDAnalyzer {
+public:
+  explicit CSCRecoBadChannelsAnalyzer(edm::ParameterSet const& ps)
+      : dashedLineWidth_(80),
+        dashedLine_(std::string(dashedLineWidth_, '-')),
+        myName_("CSCRecoBadChannelsAnalyzer"),
+        readBadChannels_(ps.getParameter<bool>("readBadChannels")),
+        recoConditions_(new CSCRecoConditions(ps)) {}
 
-  class CSCRecoBadChannelsAnalyzer : public edm::EDAnalyzer
-  {
+  ~CSCRecoBadChannelsAnalyzer() override { delete recoConditions_; }
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  public:
-    explicit  CSCRecoBadChannelsAnalyzer(edm::ParameterSet const& ps ) 
-      : dashedLineWidth_( 80 ), 
-        dashedLine_( std::string(dashedLineWidth_, '-') ), 
-	myName_( "CSCRecoBadChannelsAnalyzer" ),
-	readBadChannels_( ps.getParameter<bool>("readBadChannels") ),
-        recoConditions_( new CSCRecoConditions( ps ) ) {
-    }
+  /// did we request reading bad channel info from db?
+  bool readBadChannels() const { return readBadChannels_; }
+  const std::string& myName() { return myName_; }
 
-    ~CSCRecoBadChannelsAnalyzer() override { delete recoConditions_; }
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+private:
+  const int dashedLineWidth_;
+  const std::string dashedLine_;
+  const std::string myName_;
 
-    /// did we request reading bad channel info from db?
-    bool readBadChannels() const { return readBadChannels_; }
-    const std::string& myName() { return myName_;}
+  bool readBadChannels_;
+  CSCRecoConditions* recoConditions_;
+};
 
-  private:
+void CSCRecoBadChannelsAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& evsetup) {
+  using namespace edm::eventsetup;
 
-    const int dashedLineWidth_;
-    const std::string dashedLine_;
-    const std::string myName_;
+  edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze running...";
+  edm::LogVerbatim("CSCBadChannels") << "start " << dashedLine_;
 
-    bool readBadChannels_; 
-    CSCRecoConditions* recoConditions_;
-  };
-  
-  void CSCRecoBadChannelsAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& evsetup )
-  {
-    using namespace edm::eventsetup;
+  edm::LogVerbatim("CSCBadChannels") << "RUN# " << ev.id().run();
+  edm::LogVerbatim("CSCBadChannels") << "EVENT# " << ev.id().event();
 
-    edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze running..." ;
-    edm::LogVerbatim("CSCBadChannels") << "start " << dashedLine_ ;
+  edm::ESHandle<CSCIndexerBase> theIndexer;
+  evsetup.get<CSCIndexerRecord>().get(theIndexer);
 
-    edm::LogVerbatim("CSCBadChannels") << "RUN# " << ev.id().run() ;
-    edm::LogVerbatim("CSCBadChannels") << "EVENT# " << ev.id().event() ;
+  edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze sees indexer " << theIndexer->name()
+                                     << " in Event Setup";
 
-    edm::ESHandle<CSCIndexerBase> theIndexer;
-    evsetup.get<CSCIndexerRecord>().get(theIndexer);
+  edm::ESHandle<CSCChannelMapperBase> theMapper;
+  evsetup.get<CSCChannelMapperRecord>().get(theMapper);
 
-    edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze sees indexer " << theIndexer->name()  << " in Event Setup" ;
+  edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze sees mapper " << theMapper->name() << " in Event Setup";
 
-    edm::ESHandle<CSCChannelMapperBase> theMapper;
-    evsetup.get<CSCChannelMapperRecord>().get(theMapper);
+  edm::ESHandle<CSCGeometry> theGeometry;
+  evsetup.get<MuonGeometryRecord>().get(theGeometry);
 
-    edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze sees mapper " << theMapper->name()  << " in Event Setup" ;
+  edm::LogVerbatim("CSCBadChannels") << " Geometry node for CSCGeom is  " << &(*theGeometry);
+  edm::LogVerbatim("CSCBadChannels") << " There are " << theGeometry->dets().size() << " dets";
+  edm::LogVerbatim("CSCBadChannels") << " There are " << theGeometry->detTypes().size() << " types"
+                                     << "\n";
 
-    edm::ESHandle<CSCGeometry> theGeometry;
-    evsetup.get<MuonGeometryRecord>().get( theGeometry );     
+  // INITIALIZE CSCConditions
+  recoConditions_->initializeEvent(evsetup);
 
-    edm::LogVerbatim("CSCBadChannels") << " Geometry node for CSCGeom is  " << &(*theGeometry) ;   
-    edm::LogVerbatim("CSCBadChannels") << " There are " << theGeometry->dets().size() << " dets" ;
-    edm::LogVerbatim("CSCBadChannels") << " There are " << theGeometry->detTypes().size() << " types" << "\n" ;
+  // HERE NEED TO ITERATE OVER ALL CSCDetId
 
-    // INITIALIZE CSCConditions
-    recoConditions_->initializeEvent(evsetup);
+  edm::LogVerbatim("CSCBadChannels") << myName() << ": Begin iteration over geometry...";
 
-    // HERE NEED TO ITERATE OVER ALL CSCDetId
+  const CSCGeometry::LayerContainer& vecOfLayers = theGeometry->layers();
+  edm::LogVerbatim("CSCBadChannels") << "There are " << vecOfLayers.size() << " layers";
 
-    edm::LogVerbatim("CSCBadChannels") << myName() << ": Begin iteration over geometry..." ;
+  edm::LogVerbatim("CSCBadChannels") << dashedLine_;
 
-    const CSCGeometry::LayerContainer& vecOfLayers = theGeometry->layers();
-    edm::LogVerbatim("CSCBadChannels") << "There are " << vecOfLayers.size() << " layers" ;
+  int ibadchannels = 0;  // COUNT OF BAD STRIP CHANNELS
+  int ibadlayers = 0;    //COUNT OF LAYERS WITH BAD STRIP CHANNELS
 
-    edm::LogVerbatim("CSCBadChannels") << dashedLine_ ;
+  for (auto it = vecOfLayers.begin(); it != vecOfLayers.end(); ++it) {
+    const CSCLayer* layer = *it;
 
-    int ibadchannels = 0; // COUNT OF BAD STRIP CHANNELS
-    int ibadlayers = 0 ; //COUNT OF LAYERS WITH BAD STRIP CHANNELS
+    if (layer) {
+      CSCDetId id = layer->id();
+      int nstrips = layer->geometry()->numberOfStrips();
+      edm::LogVerbatim("CSCBadChannels") << "Layer " << id << " has " << nstrips << " strips";
 
-    for( auto it = vecOfLayers.begin(); it != vecOfLayers.end(); ++it ){
+      // GET BAD CHANNELS FOR THIS LAYER
 
-      const CSCLayer* layer = *it;
+      recoConditions_->fillBadChannelWords(id);
 
-      if( layer ){
-        CSCDetId id = layer->id();
-        int nstrips = layer->geometry()->numberOfStrips();
-        edm::LogVerbatim("CSCBadChannels") << "Layer " << id << " has " << nstrips << " strips" ;
+      // SEARCH FOR BAD STRIP CHANNELS IN THIS LAYER - GEOMETRIC STRIP INPUT!!
 
-	// GET BAD CHANNELS FOR THIS LAYER
-
-        recoConditions_->fillBadChannelWords( id );
-
-	// SEARCH FOR BAD STRIP CHANNELS IN THIS LAYER - GEOMETRIC STRIP INPUT!!
-
-	bool layerhasbadchannels = false;
-	for ( short is = 1; is<=nstrips; ++is ) {
-	  if ( recoConditions_->badStrip( id, is, nstrips ) ) {
-              ++ibadchannels;
-	      layerhasbadchannels = true;
-	      edm::LogVerbatim("CSCBadChannels") << id << " strip " << is << " is bad" ;
-	    }            
-	}
-
-	for ( short is = 1; is<=nstrips; ++is ) {
-	  if ( recoConditions_->nearBadStrip( id, is, nstrips ) ) {
-	    edm::LogVerbatim("CSCBadChannels") << id << " strip " << is << " is a neighbor of a bad strip" ;
-	    }            
-	}
-
-	if (layerhasbadchannels) ++ibadlayers;
-
+      bool layerhasbadchannels = false;
+      for (short is = 1; is <= nstrips; ++is) {
+        if (recoConditions_->badStrip(id, is, nstrips)) {
+          ++ibadchannels;
+          layerhasbadchannels = true;
+          edm::LogVerbatim("CSCBadChannels") << id << " strip " << is << " is bad";
+        }
       }
-      else {
-	edm::LogVerbatim("CSCBadChannels") << "WEIRD ERROR: a null CSCLayer* was seen" ;
+
+      for (short is = 1; is <= nstrips; ++is) {
+        if (recoConditions_->nearBadStrip(id, is, nstrips)) {
+          edm::LogVerbatim("CSCBadChannels") << id << " strip " << is << " is a neighbor of a bad strip";
+        }
       }
+
+      if (layerhasbadchannels)
+        ++ibadlayers;
+
+    } else {
+      edm::LogVerbatim("CSCBadChannels") << "WEIRD ERROR: a null CSCLayer* was seen";
     }
-
-    edm::LogVerbatim("CSCBadChannels") << "No. of layers with bad strip channels = " << ibadlayers ;
-    edm::LogVerbatim("CSCBadChannels") << "No. of bad strip channels seen = " << ibadchannels ;
-
-    edm::LogVerbatim("CSCBadChannels") << dashedLine_ << " end" ;
   }
 
-  DEFINE_FWK_MODULE(CSCRecoBadChannelsAnalyzer);
+  edm::LogVerbatim("CSCBadChannels") << "No. of layers with bad strip channels = " << ibadlayers;
+  edm::LogVerbatim("CSCBadChannels") << "No. of bad strip channels seen = " << ibadchannels;
 
+  edm::LogVerbatim("CSCBadChannels") << dashedLine_ << " end";
+}
 
+DEFINE_FWK_MODULE(CSCRecoBadChannelsAnalyzer);

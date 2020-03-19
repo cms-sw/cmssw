@@ -13,19 +13,13 @@
  */
 
 template <class Range>
-inline Range rangeIntersection( const Range& a, const Range& b) {
-
-  return Range( std::max(a.first,b.first),
-		std::min(a.second,b.second));
+inline Range rangeIntersection(const Range& a, const Range& b) {
+  return Range(std::max(a.first, b.first), std::min(a.second, b.second));
 }
 
 template <class Range, class Less>
-inline Range rangeIntersection( const Range& a, const Range& b, 
-				const Less& less) {
-
-  return Range( std::max( a.first, b.first, less),
-		std::min( a.second, b.second, less));
+inline Range rangeIntersection(const Range& a, const Range& b, const Less& less) {
+  return Range(std::max(a.first, b.first, less), std::min(a.second, b.second, less));
 }
 
 #endif
-

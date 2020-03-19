@@ -26,13 +26,11 @@
  */
 
 #include "DataFormats/Common/interface/HLTenums.h"
-#include <boost/cstdint.hpp>
 #include <cassert>
+#include <cstdint>
 
-namespace edm
-{
+namespace edm {
   class HLTPathStatus {
-
   private:
     /// packed status of trigger path [unsigned char is too small]
     uint16_t status_;
@@ -41,29 +39,27 @@ namespace edm
 
   public:
     /// constructor
-    HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int index = 0)
-    : status_(index*4+state) {
-      assert (((int)state)<4);
-      assert (index<16384);
+    HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int index = 0) : status_(index * 4 + state) {
+      assert(((int)state) < 4);
+      assert(index < 16384);
     }
 
     /// get state of path
-    hlt::HLTState state() const {return (static_cast<hlt::HLTState>(status_ % 4));}
+    hlt::HLTState state() const { return (static_cast<hlt::HLTState>(status_ % 4)); }
     /// get index of module giving the status of this path
     /// Nota Bene: if a Path or EndPath is empty (that is, it does not contain any ED module),
-    /// index will be 0, even if there is no "0th module" responsible for the status of the path 
-    unsigned int  index() const {return (static_cast<unsigned int >(status_ / 4));}
+    /// index will be 0, even if there is no "0th module" responsible for the status of the path
+    unsigned int index() const { return (static_cast<unsigned int>(status_ / 4)); }
     /// reset this path
-    void reset() {status_=0;}
+    void reset() { status_ = 0; }
 
     /// was this path run?
-    bool wasrun() const {return (state() != hlt::Ready);}
+    bool wasrun() const { return (state() != hlt::Ready); }
     /// has this path accepted the event?
-    bool accept() const {return (state() == hlt::Pass);}
+    bool accept() const { return (state() == hlt::Pass); }
     /// has this path encountered an error (exception)?
-    bool error()  const {return (state() == hlt::Exception);}
-
+    bool error() const { return (state() == hlt::Exception); }
   };
-}
+}  // namespace edm
 
-#endif // DataFormats_Common_HLTPathStatus_h
+#endif  // DataFormats_Common_HLTPathStatus_h

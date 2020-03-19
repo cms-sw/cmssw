@@ -44,16 +44,16 @@ public:
 
   /// Set all fields in the header
   static void set(unsigned char* header,
-		  uint8_t triggerType,
-		  uint32_t lvl1ID,
-		  uint16_t bxID,
-		  uint16_t sourceID,
-		  uint8_t version=0,
-		  bool moreHeaders=false);
+                  uint8_t triggerType,
+                  uint32_t lvl1ID,
+                  uint16_t bxID,
+                  uint16_t sourceID,
+                  uint8_t version = 0,
+                  bool moreHeaders = false);
 
   static const uint32_t length;
 
 private:
   const fedh_struct* theHeader;
 };
-#endif // DataFormats_FEDRawData_FEDHeader_h
+#endif  // DataFormats_FEDRawData_FEDHeader_h

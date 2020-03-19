@@ -10,60 +10,59 @@ namespace l1t {
 
   class Muon;
   typedef BXVector<Muon> MuonBxCollection;
-  typedef edm::Ref< MuonBxCollection > MuonRef ;
-  typedef edm::RefVector< MuonBxCollection > MuonRefVector ;
-  typedef std::vector< MuonRef > MuonVectorRef ;
+  typedef edm::Ref<MuonBxCollection> MuonRef;
+  typedef edm::RefVector<MuonBxCollection> MuonRefVector;
+  typedef std::vector<MuonRef> MuonVectorRef;
 
   typedef ObjectRefBxCollection<Muon> MuonRefBxCollection;
   typedef ObjectRefPair<Muon> MuonRefPair;
   typedef ObjectRefPairBxCollection<Muon> MuonRefPairBxCollection;
 
   class Muon : public L1Candidate {
-    
   public:
     Muon();
 
-    Muon( const LorentzVector& p4,
-      int pt=0,
-      int eta=0,
-      int phi=0,
-      int qual=0,
-      int charge=0,
-      int chargeValid=0,
-      int iso=0,
-      int tfMuonIndex=-1,
-      int tag=0, 
-      bool debug = false,
-      int isoSum = 0,
-      int dPhi = 0,
-      int dEta = 0,
-      int rank = 0,
-      int hwEtaAtVtx = 0,
-      int hwPhiAtVtx = 0,
-      double etaAtVtx = 0.,
-      double phiAtVtx = 0.);
-    
-    Muon( const PolarLorentzVector& p4,
-      int pt=0,
-      int eta=0,
-      int phi=0,
-      int qual=0,
-      int charge=0,
-      int chargeValid=0,
-      int iso=0,
-      int tfMuonIndex=-1,
-      int tag=0, 
-      bool debug = false,
-      int isoSum = 0,
-      int dPhi = 0,
-      int dEta = 0,
-      int rank = 0,
-      int hwEtaAtVtx = 0,
-      int hwPhiAtVtx = 0,
-      double etaAtVtx = 0.,
-      double phiAtVtx = 0.);
+    Muon(const LorentzVector& p4,
+         int pt = 0,
+         int eta = 0,
+         int phi = 0,
+         int qual = 0,
+         int charge = 0,
+         int chargeValid = 0,
+         int iso = 0,
+         int tfMuonIndex = -1,
+         int tag = 0,
+         bool debug = false,
+         int isoSum = 0,
+         int dPhi = 0,
+         int dEta = 0,
+         int rank = 0,
+         int hwEtaAtVtx = 0,
+         int hwPhiAtVtx = 0,
+         double etaAtVtx = 0.,
+         double phiAtVtx = 0.);
 
-    ~Muon();    
+    Muon(const PolarLorentzVector& p4,
+         int pt = 0,
+         int eta = 0,
+         int phi = 0,
+         int qual = 0,
+         int charge = 0,
+         int chargeValid = 0,
+         int iso = 0,
+         int tfMuonIndex = -1,
+         int tag = 0,
+         bool debug = false,
+         int isoSum = 0,
+         int dPhi = 0,
+         int dEta = 0,
+         int rank = 0,
+         int hwEtaAtVtx = 0,
+         int hwPhiAtVtx = 0,
+         double etaAtVtx = 0.,
+         double phiAtVtx = 0.);
+
+    ~Muon() override;
 
     // set values
     inline void setHwCharge(int charge) { hwCharge_ = charge; };
@@ -103,9 +102,8 @@ namespace l1t {
 
     virtual bool operator==(const l1t::Muon& rhs) const;
     virtual inline bool operator!=(const l1t::Muon& rhs) const { return !(operator==(rhs)); };
- 
+
   private:
-    
     // additional hardware quantities common to L1 global jet
     int hwCharge_;
     int hwChargeValid_;
@@ -118,14 +116,14 @@ namespace l1t {
     int hwDPhiExtra_;
     int hwDEtaExtra_;
     int hwRank_;
-    
+
     // muon coordinates at the vertex
     int hwEtaAtVtx_;
     int hwPhiAtVtx_;
     double etaAtVtx_;
     double phiAtVtx_;
   };
-  
-}
+
+}  // namespace l1t
 
 #endif

@@ -1,9 +1,9 @@
 #ifndef __L1TMUON_RPCCOLLECTOR_H__
 #define __L1TMUON_RPCCOLLECTOR_H__
-// 
+//
 // Class: L1TMuon::RPCCollector
 //
-// Info: Processes RPC digis into L1TMuon trigger primitives. 
+// Info: Processes RPC digis into L1TMuon trigger primitives.
 //       Positional information is not assigned here.
 //
 // Author: L. Gray (FNAL)
@@ -13,16 +13,16 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace L1TMuon {
-  
-  class RPCCollector: public SubsystemCollector {
+
+  class RPCCollector : public SubsystemCollector {
   public:
     RPCCollector(const edm::ParameterSet&);
     ~RPCCollector() override {}
 
-    void extractPrimitives(const edm::Event&, const edm::EventSetup&, 
-				   std::vector<TriggerPrimitive>&) const override;
-  private:    
+    void extractPrimitives(const edm::Event&, const edm::EventSetup&, std::vector<TriggerPrimitive>&) const override;
+
+  private:
   };
-}
+}  // namespace L1TMuon
 
 #endif

@@ -18,8 +18,12 @@ from RecoEcal.EgammaCoreTools.EcalNextToDeadChannelESProducer_cff import *
 #particle flow super clustering sequence
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff import *
 
-ecalClustersNoPFBox = cms.Sequence(hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence)
-ecalClusters = cms.Sequence(ecalClustersNoPFBox*particleFlowSuperClusteringSequence)
+ecalClustersNoPFBoxTask = cms.Task(hybridClusteringTask,
+                              multi5x5ClusteringTask,
+                              multi5x5PreshowerClusteringTask)
+ecalClustersNoPFBox = cms.Sequence(ecalClustersNoPFBoxTask)
+ecalClustersTask = cms.Task(ecalClustersNoPFBoxTask, particleFlowSuperClusteringTask)
+ecalClusters = cms.Sequence(ecalClustersTask)
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
@@ -29,7 +33,7 @@ from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 
 from RecoEcal.EgammaClusterProducers.islandClusteringSequence_cff import *
 
-_ecalClustersHI = ecalClusters.copy()
-_ecalClustersHI += islandClusteringSequence
+_ecalClustersHITask = ecalClustersTask.copy()
+_ecalClustersHITask.add(islandClusteringTask)
 for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
-    e.toReplaceWith(ecalClusters, _ecalClustersHI)
+    e.toReplaceWith(ecalClustersTask, _ecalClustersHITask)

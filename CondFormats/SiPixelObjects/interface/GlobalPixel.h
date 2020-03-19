@@ -2,7 +2,10 @@
 #define CondFormats_SiPixelObjects_GlobalPixel_H
 
 namespace sipixelobjects {
-   /// global coordinates (row and column in DetUnit, as in PixelDigi)
-   struct GlobalPixel { int row; int col; };
-}
+  /// global coordinates (row and column in DetUnit, as in PixelDigi)
+  struct GlobalPixel {
+    int row;
+    int col;
+  };
+}  // namespace sipixelobjects
 #endif
