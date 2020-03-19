@@ -603,12 +603,6 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
           case probMin:
             kx0->setProbMin(pv);
             break;
-          case constrMass:
-            kx0->setConstr(pv, kx0->getConstrSigma());
-            break;
-          case constrSigma:
-            kx0->setConstr(kx0->getConstrMass(), pv);
-            break;
           case writeCandidate:
             writeKx0 = (pv > 0);
             break;
@@ -731,12 +725,6 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
             break;
           case probMin:
             phi->setProbMin(pv);
-            break;
-          case constrMass:
-            phi->setConstr(pv, phi->getConstrSigma());
-            break;
-          case constrSigma:
-            phi->setConstr(phi->getConstrMass(), pv);
             break;
           case writeCandidate:
             writePkk = (pv > 0);
