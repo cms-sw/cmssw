@@ -1,8 +1,9 @@
-#include "FWCore/Utilities/interface/TimeOfDay.h"
+#include <ctime>
 #include <iomanip>
 #include <locale>
 #include <ostream>
-#include <ctime>
+
+#include "FWCore/Utilities/interface/TimeOfDay.h"
 
 namespace {
   int const power[] = {1000 * 1000, 100 * 1000, 10 * 1000, 1000, 100, 10, 1};
@@ -13,6 +14,12 @@ namespace edm {
   TimeOfDay::TimeOfDay() : tv_(TimeOfDay::setTime_()) {}
 
   TimeOfDay::TimeOfDay(struct timeval const& tv) : tv_(tv) {}
+
+  TimeOfDay::TimeOfDay(std::chrono::system_clock::time_point const& tp) {
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(tp.time_since_epoch()).count();
+    tv_.tv_sec = us / 1000000;
+    tv_.tv_usec = us % 1000000;
+  }
 
   timeval TimeOfDay::setTime_() {
     timeval tv;
@@ -41,4 +48,5 @@ namespace edm {
     os.flags(oldflags);
     return os;
   }
+
 }  // namespace edm
