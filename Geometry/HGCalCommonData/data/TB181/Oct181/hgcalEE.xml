@@ -64,7 +64,7 @@
       30.05*mm,  30.05*mm,  30.05*mm, 
       28.05*mm,  28.05*mm,  28.05*mm, 
       28.05*mm,  32.25*mm,  35.05*mm, 
-      31.455*mm, 30.995*mm, 84.78*mm
+      30.295*mm, 30.835*mm, 86.10*mm
     </Vector>
     <Numeric name="InOut"   value="1"/>
     <Vector name="LayerFrontIn" type="numeric" nEntries="15"> 
