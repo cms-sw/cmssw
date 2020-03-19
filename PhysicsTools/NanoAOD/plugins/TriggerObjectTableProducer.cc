@@ -74,6 +74,7 @@ private:
     StringCutObjectSelector<pat::TriggerObjectStandAlone> cut;
     StringCutObjectSelector<pat::TriggerObjectStandAlone> l1cut, l1cut_2, l2cut;
     float l1DR2, l1DR2_2, l2DR2;
+    bool skipObjectsNotPassingQualityBits;
     StringObjectFunction<pat::TriggerObjectStandAlone> qualityBits;
     std::string qualityBitsDoc;
 
@@ -87,6 +88,7 @@ private:
           l1DR2(-1),
           l1DR2_2(-1),
           l2DR2(-1),
+          skipObjectsNotPassingQualityBits(pset.getParameter<bool>("skipObjectsNotPassingQualityBits")),
           qualityBits(pset.getParameter<std::string>("qualityBits")),
           qualityBitsDoc(pset.getParameter<std::string>("qualityBitsDoc")) {
       if (pset.existsAs<std::string>("l1seed")) {
@@ -117,7 +119,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   std::vector<std::pair<const pat::TriggerObjectStandAlone *, const SelectedObject *>> selected;
   for (const auto &obj : *src) {
     for (const auto &sel : sels_) {
-      if (sel.match(obj)) {
+      if (sel.match(obj) && (sel.skipObjectsNotPassingQualityBits ? (int(sel.qualityBits(obj)) > 0) : true)) {
         selected.emplace_back(&obj, &sel);
         break;
       }
