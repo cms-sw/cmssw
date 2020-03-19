@@ -16,8 +16,9 @@ class Track{
 
 public:
 
-  Track(int irinv, int iphi0, int id0, int it, int iz0, int ichisq,
-            double chisq,
+  Track(int irinv, int iphi0, int id0, int it, int iz0, int ichisqrphi, int ichisqrz,
+            double chisqrphi, double chisqrz,
+	    int hitpattern,
             std::map<int, int> stubID, std::vector<L1TStub*> l1stub,
             int seed){
 
@@ -26,9 +27,13 @@ public:
     id0_=id0;
     iz0_=iz0;
     it_=it;
-    ichisq_=ichisq;
+    ichisqrphi_=ichisqrphi;
+    ichisqrz_=ichisqrz;
 
-    chisq_=chisq;
+    chisqrphi_=chisqrphi;
+    chisqrz_=chisqrz;
+
+    hitpattern_=hitpattern;
 
     nstubs_=l1stub.size();
     if (nstubs_>6) nstubs_=6; //maximum used in fit
@@ -59,14 +64,14 @@ public:
   int id0() const { return id0_; }
   int iz0()   const { return iz0_; }
   int it()    const { return it_; }
-  int ichisq() const {return ichisq_;}
+  int ichisq() const {return ichisqrphi_ + ichisqrz_;}
 
   std::map<int, int> stubID() const { return stubID_; }
   std::vector<L1TStub*> stubs() const { return l1stub_; }
   std::vector<std::pair<int, int>> stubIDpremerge() const { return stubIDpremerge_; }
   std::vector<std::pair<int, int>> stubIDprefit() const { return stubIDprefit_; }
   
-
+  int hitpattern() const { return hitpattern_; }
   int seed() const { return seed_; }
   int duplicate() const { return duplicate_; }
   int sector() const { return sector_; }
@@ -101,8 +106,11 @@ public:
   double rinv() const {
     return irinv_*krinvpars;
   }
-  double d0() const {return id0_*kd0pars;} //Fix when fit for 5 pars
-  double chisq() const {return chisq_;}
+  double d0() const { return id0_*kd0pars; } //Fix when fit for 5 pars
+  double chisq() const {return chisqrphi_ + chisqrz_; }
+
+  double chisqrphi() const { return chisqrphi_; }
+  double chisqrz() const { return chisqrz_; }
 
   int nPSstubs() const {
     int npsstubs=0;
@@ -119,14 +127,18 @@ private:
   int id0_;  
   int iz0_;
   int it_;
-  int ichisq_;
+  int ichisqrphi_;
+  int ichisqrz_;
 
   double rinv_;
   double phi0_;
   double d0_;
   double z0_;
   double t_;
-  double chisq_;
+  double chisqrphi_;
+  double chisqrz_;
+
+  int hitpattern_;
 
   std::vector<std::pair<int, int>> stubIDpremerge_;
   std::vector<std::pair<int, int>> stubIDprefit_;
