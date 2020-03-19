@@ -990,20 +990,25 @@ class FitTrack:public ProcessBase{
    if (!keep) {
      return;
    }
-     
-   tracklet->setFitPars(rinvfit,phi0fit,0.0,tfit,z0fit,chisqfit,
-			rinvfitexact,phi0fitexact,0.0,tfitexact,
-			z0fitexact,chisqfitexact,
-			irinvfit,iphi0fit,0,itfit,iz0fit,ichisqfit);
+   
+   // NOTE: setFitPars in Tracklet.h now accepts chi2 r-phi and chi2 r-z values. This class only has access
+   // to the composite chi2. When setting fit parameters on a tracklet, this places all of the chi2 into the
+   // r-phi fit, and sets the r-z fit value to zero.
+   //
+   // This is also true for the call to setFitPars in trackFitFake.
+   tracklet->setFitPars(rinvfit,phi0fit,0.0,tfit,z0fit,chisqfit,0.0,
+			rinvfitexact,phi0fitexact,0.0,tfitexact,z0fitexact,chisqfitexact,0.0,
+			irinvfit,iphi0fit,0,itfit,iz0fit,ichisqfit,0,
+			0);
 
   }
 
-  void trackFitFake(Tracklet* tracklet){
+  void trackFitFake(Tracklet* tracklet) {
     // to be replaced with a five-parameter fit; for now, copy tracklet parameters
-    tracklet->setFitPars(tracklet->rinvapprox(),tracklet->phi0approx(),tracklet->d0approx(),tracklet->tapprox(),tracklet->z0approx(),0.,
-       tracklet->rinv(),tracklet->phi0(),tracklet->d0(),tracklet->t(),
-       tracklet->z0(),0.,
-       tracklet->fpgarinv().value(),tracklet->fpgaphi0().value(),tracklet->fpgad0().value(),tracklet->fpgat().value(),tracklet->fpgaz0().value(),0);
+    tracklet->setFitPars(tracklet->rinvapprox(),tracklet->phi0approx(),tracklet->d0approx(),tracklet->tapprox(),tracklet->z0approx(),0.0,0.0,
+      tracklet->rinv(),tracklet->phi0(),tracklet->d0(),tracklet->t(),tracklet->z0(),0.0,0.0,
+      tracklet->fpgarinv().value(),tracklet->fpgaphi0().value(),tracklet->fpgad0().value(),tracklet->fpgat().value(),tracklet->fpgaz0().value(),0,0,
+      0);
   }
 
   std::vector<Tracklet*> orderedMatches(vector<FullMatchMemory*>& fullmatch) {

@@ -49,7 +49,7 @@ private:
   double theBField_;  // needed for unpacking
   static constexpr unsigned int Npars4 = 4;
   static constexpr unsigned int Npars5 = 5;
-  static constexpr float MagConstant = CLHEP::c_light / 1.0E9;  //0.299792458;
+  static constexpr float MagConstant = CLHEP::c_light / 1.0E3;  //0.299792458;
 
 public:
   /// Constructors
@@ -133,6 +133,9 @@ public:
   unsigned int trackSeedType() const { return theTrackSeedType_; }
   void setTrackSeedType(int aSeed) { theTrackSeedType_ = aSeed; }
 
+  /// Hit Pattern
+  unsigned int hitPattern() const { return theHitPattern_; }
+
   /// Chi2
   double chi2() const;
   double chi2Red() const;
@@ -147,9 +150,6 @@ public:
 
   void setFitParNo(unsigned int aFitParNo);
   int nFitPars() const { return theNumFitPars_; }
-
-  /// Hit Pattern
-  unsigned int hitPattern() const;
 
   /// set new Bfield
   void setBField(double aBField);
@@ -334,7 +334,7 @@ double TTTrack<T>::chi2XY() const {
   return theChi2_XY_;
 }
 
-/// Chi2 reduced
+/// Chi2xy
 template <typename T>
 double TTTrack<T>::chi2Red() const {
   return theChi2_ / (2 * theStubRefs.size() - theNumFitPars_);
@@ -379,12 +379,6 @@ void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency) {
 template <typename T>
 double TTTrack<T>::stubPtConsistency() const {
   return theStubPtConsistency_;
-}
-
-/// Hit Pattern
-template <typename T>
-unsigned int TTTrack<T>::hitPattern() const {
-  return theHitPattern_;
 }
 
 /// set B field if need be

@@ -975,16 +975,17 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     ntracks++;
 
     // this is where we create the TTTrack object
-    double tmp_rinv = track->rinv();
-    double tmp_phi  = track->phi0();
-    double tmp_tanL = track->tanL();
-    double tmp_z0   = track->z0();
-    double tmp_d0   = track->d0();
-    double tmp_chi2 = track->chisq();
-    unsigned int tmp_hit  = 0;
+    double tmp_rinv     = track->rinv();
+    double tmp_phi      = track->phi0();
+    double tmp_tanL     = track->tanL();
+    double tmp_z0       = track->z0();
+    double tmp_d0       = track->d0();
+    double tmp_chi2rphi = track->chisqrphi();
+    double tmp_chi2rz   = track->chisqrz();
+    unsigned int tmp_hit  = track->hitpattern();
     double tmp_Bfield = mMagneticFieldStrength;
-    
-    TTTrack< Ref_Phase2TrackerDigi_ > aTrack(tmp_rinv, tmp_phi, tmp_tanL, tmp_z0, tmp_d0, tmp_chi2, 0,0,0, tmp_hit, nHelixPar_, tmp_Bfield);
+   
+    TTTrack< Ref_Phase2TrackerDigi_ > aTrack(tmp_rinv, tmp_phi, tmp_tanL, tmp_z0, tmp_d0, tmp_chi2rphi, tmp_chi2rz, 0,0,0, tmp_hit, nHelixPar_, tmp_Bfield);
 
     unsigned int trksector = track->sector();
     unsigned int trkseed = (unsigned int) abs(track->seed());

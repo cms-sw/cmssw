@@ -109,8 +109,8 @@ public:
     }
     
     
-    ichisqfit_.set(-1,8,false);
-
+    ichisqrphifit_.set(-1,8,false);
+    ichisqrzfit_.set(-1,8,false);
     
   }
   
@@ -973,7 +973,7 @@ public:
   double d0fit() const { return fitpars_.d0(); }
   double tfit() const { return fitpars_.t(); }
   double z0fit() const { return fitpars_.z0(); }
-  double chiSqfit() const { return chisqfit_; }
+  double chiSqfit() const { return chisqrphifit_ + chisqrzfit_; }
 
   double rinvfitexact() const { return fitparsexact_.rinv(); }
   double phi0fitexact() const { return fitparsexact_.phi0(); }
@@ -986,21 +986,26 @@ public:
   FPGAWord id0fit() const { return fpgafitpars_.d0(); }
   FPGAWord itfit() const { return fpgafitpars_.t(); }
   FPGAWord iz0fit() const { return fpgafitpars_.z0(); }
-  FPGAWord ichiSqfit() const { return ichisqfit_; }
+  FPGAWord ichiSqfit() const {
+    return FPGAWord(ichisqrphifit_.value() + ichisqrzfit_.value(), ichisqrphifit_.nbits());
+  }
 
   void setFitPars(double rinvfit, double phi0fit, double d0fit, double tfit,
-		  double z0fit, double chisqfit,
+		  double z0fit, double chisqrphifit, double chisqrzfit,
 		  double rinvfitexact, double phi0fitexact, double d0fitexact, double tfitexact,
-		  double z0fitexact, double chisqfitexact,
+		  double z0fitexact, double chisqrphifitexact, double chisqrzfitexact,
 		  int irinvfit, int iphi0fit, int id0fit, int itfit,
-		  int iz0fit, int ichisqfit,
+		  int iz0fit, int ichisqrphifit, int ichisqrzfit,
+                  int hitpattern,
 		  const vector<L1TStub*>& l1stubs = vector<L1TStub*>()){
 
     fitpars_.init(rinvfit,phi0fit,d0fit,tfit,z0fit);
-    chisqfit_=chisqfit;
+    chisqrphifit_=chisqrphifit;
+    chisqrzfit_=chisqrzfit;
 
     fitparsexact_.init(rinvfitexact,phi0fitexact,d0fitexact,tfitexact,z0fitexact);
-    chisqfitexact_=chisqfitexact;
+    chisqrphifitexact_=chisqrphifitexact;
+    chisqrzfitexact_=chisqrzfitexact;
     
     if (irinvfit>(1<<14)) irinvfit=(1<<14);
     if (irinvfit<=-(1<<14)) irinvfit=-(1<<14)+1;
@@ -1018,7 +1023,10 @@ public:
     }
     
     fpgafitpars_.z0().set(iz0fit,nbitsz0,false,__LINE__,__FILE__);
-    ichisqfit_.set(ichisqfit,8,true,__LINE__,__FILE__);
+    ichisqrphifit_.set(ichisqrphifit,8,true,__LINE__,__FILE__);
+    ichisqrzfit_.set(ichisqrzfit,8,true,__LINE__,__FILE__);
+
+    hitpattern_ = hitpattern;
 
     delete fpgatrack_;
     fpgatrack_=new Track(makeTrack(l1stubs));
@@ -1205,13 +1213,17 @@ public:
     if (l1stubs.size() == 0) {
       l1stubs = getL1Stubs(); // If fitter produced no stub list, take it from original tracklet.
     };
+
     Track tmpTrack(fpgafitpars_.rinv().value(),
 		   fpgafitpars_.phi0().value(),
 		   fpgafitpars_.d0().value(),
 		   fpgafitpars_.t().value(),
 		   fpgafitpars_.z0().value(),
-		   ichisqfit_.value(),
-		   chisqfit_,
+		   ichisqrphifit_.value(),
+		   ichisqrzfit_.value(),
+		   chisqrphifit_,
+                   chisqrzfit_,
+                   hitpattern_,
 		   getStubIDs(),
 		   l1stubs,
 		   getISeed());
@@ -1226,7 +1238,7 @@ public:
   }
   
 
-  bool fit() const { return ichisqfit_.value()!=-1; }
+  bool fit() const { return ichisqrphifit_.value()!=-1; }
 
   int layer() const {
     int l1 = (innerFPGAStub_ && innerFPGAStub_->isBarrel()) ? innerStub_->layer()+1 : 999,
@@ -1411,13 +1423,18 @@ private:
   //Track  parameters from track fit
 
   TrackPars<FPGAWord> fpgafitpars_;  
-  FPGAWord ichisqfit_;
+  FPGAWord ichisqrphifit_;
+  FPGAWord ichisqrzfit_;
 
   TrackPars<double> fitpars_;  
-  double chisqfit_;
+  double chisqrphifit_;
+  double chisqrzfit_;
 
   TrackPars<double> fitparsexact_;  
-  double chisqfitexact_;
+  double chisqrphifitexact_;
+  double chisqrzfitexact_;
+
+  int hitpattern_;
 
   Track *fpgatrack_;
 
