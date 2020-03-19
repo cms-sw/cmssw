@@ -32,7 +32,15 @@ public:
   static void globalEndJob(TrackstersCache *);
 
 private:
-  void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, int);
+
+  enum TracksterIterIndex {
+    EM = 0,
+    TRK,
+    HAD,
+    SEED
+  };
+
+  void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
   void dumpTrackster(const Trackster &) const;
@@ -63,7 +71,7 @@ private:
   tensorflow::Session *eidSession_;
   hgcal::RecHitTools rhtools_;
 
-  static const int eidNFeatures_ = 3;
+  static constexpr int eidNFeatures_ = 3;
 };
 
 TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, const CacheBase *cache)
@@ -103,7 +111,7 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
 
 void TrackstersMergeProducer::fillTile(TICLTracksterTiles &tracksterTile,
                                        const std::vector<Trackster> &tracksters,
-                                       int tracksterIteration) {
+                                       TracksterIterIndex tracksterIteration) {
   int tracksterId = 0;
   for (auto const &t : tracksters) {
     tracksterTile.fill(tracksterIteration, t.barycenter.eta(), t.barycenter.phi(), tracksterId);
@@ -177,14 +185,13 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   const auto &seedingTrk = *seedingTrk_h;
   usedSeeds.resize(seedingTrk.size(), 0);
 
-  int tracksterIteration = 0;
-  fillTile(tracksterTile, trackstersEM, tracksterIteration++);
-  fillTile(tracksterTile, trackstersTRK, tracksterIteration++);
-  fillTile(tracksterTile, trackstersHAD, tracksterIteration++);
+  fillTile(tracksterTile, trackstersEM,  TracksterIterIndex::EM);
+  fillTile(tracksterTile, trackstersTRK, TracksterIterIndex::TRK);
+  fillTile(tracksterTile, trackstersHAD, TracksterIterIndex::HAD);
 
   auto seedId = 0;
   for (auto const &s : seedingTrk) {
-    tracksterTile.fill(tracksterIteration, s.origin.eta(), s.origin.phi(), seedId++);
+    tracksterTile.fill(TracksterIterIndex::SEED, s.origin.eta(), s.origin.phi(), seedId++);
 
     if (debug_) {
       LogDebug("TrackstersMergeProducer")
@@ -205,10 +212,10 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   int tracksterHAD_idx = 0;
   if (optimiseAcrossTracksters_) {
     for (auto const &t : trackstersTRK) {
-      int entryEtaBin = tracksterTile[3].etaBin(t.barycenter.eta());
-      int entryPhiBin = tracksterTile[3].phiBin(t.barycenter.phi());
-      int bin = tracksterTile[3].globalBin(t.barycenter.eta(), t.barycenter.phi());
       if (debug_) {
+        int entryEtaBin = tracksterTile[TracksterIterIndex::TRK].etaBin(t.barycenter.eta());
+        int entryPhiBin = tracksterTile[TracksterIterIndex::TRK].phiBin(t.barycenter.phi());
+        int bin = tracksterTile[TracksterIterIndex::TRK].globalBin(t.barycenter.eta(), t.barycenter.phi());
         LogDebug("TrackstersMergeProducer")
             << "TrackstersMergeProducer Tracking obj: " << t.barycenter << " in bin " << bin << " etaBin "
             << entryEtaBin << " phiBin " << entryPhiBin << std::endl;

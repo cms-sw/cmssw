@@ -175,10 +175,10 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
 
   // now adding dummy tracksters from seeds not connected to any shower in the result collection
   // these are marked as charged hadrons with probability 1.
-  if(promoteEmptyRegionToTrackster_) {
+  if (promoteEmptyRegionToTrackster_) {
     emptyTrackstersFromSeedsTRK(result, seedToTracksterAssociation, input.regions[0].collectionID);
   }
-  
+
   if (algo_verbosity_ > Advanced) {
     for (auto &trackster : result) {
       LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
