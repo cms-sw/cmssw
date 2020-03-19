@@ -1,8 +1,9 @@
 from __future__ import print_function
+from __future__ import absolute_import
 from optparse import OptionParser
 import sys,os, re, subprocess, datetime
 
-import eostools as castortools
+from . import eostools as castortools
 
 class logger:
     '''COLIN: do something cleaner with tagPackage'''

@@ -7,24 +7,23 @@
   \Author Rick Wilkinson
 */
 #include <iosfwd>
-#include<cmath>
+#include <cmath>
 
-class Accumulator
-{
+class Accumulator {
 public:
   Accumulator();
 
-  void addEntry(double value, double weight=1.);
+  void addEntry(double value, double weight = 1.);
 
   double mean() const;
 
   double variance() const;
 
-  double sigma() const {return std::sqrt(variance());}
+  double sigma() const { return std::sqrt(variance()); }
 
   double weightedMean() const;
 
-  unsigned long nEntries() const {return n_;}
+  unsigned long nEntries() const { return n_; }
 
 private:
   double sum_;
@@ -34,7 +33,6 @@ private:
   unsigned long n_;
 };
 
-std::ostream & operator<<(std::ostream & os, const Accumulator & stat);
+std::ostream& operator<<(std::ostream& os, const Accumulator& stat);
 
 #endif
-

@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -29,32 +28,27 @@ class DTChamberId;
 #include <vector>
 #include <utility>
 
-template <class Key, class Content> class DTBufferTree;
+template <class Key, class Content>
+class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTLVStatusId {
-
- public:
-
+public:
   DTLVStatusId();
   ~DTLVStatusId();
 
-  int   wheelId;
+  int wheelId;
   int stationId;
-  int  sectorId;
+  int sectorId;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTLVStatusData {
-
- public:
-
+public:
   DTLVStatusData();
   ~DTLVStatusData();
 
@@ -63,19 +57,15 @@ class DTLVStatusData {
   int flagCMC;
   int flagDMC;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTLVStatus {
-
- public:
-
+public:
   /** Constructor
    */
   DTLVStatus();
-  DTLVStatus( const std::string& version );
+  DTLVStatus(const std::string& version);
 
   /** Destructor
    */
@@ -84,87 +74,46 @@ class DTLVStatus {
   /** Operations
    */
   /// get content
-  int get( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int&  flagCFE,
-           int&  flagDFE,
-           int&  flagCMC,
-           int&  flagDMC ) const;
-  int get( const DTChamberId& id,
-           int&  flagCFE,
-           int&  flagDFE,
-           int&  flagCMC,
-           int&  flagDMC ) const;
+  int get(int wheelId, int stationId, int sectorId, int& flagCFE, int& flagDFE, int& flagCMC, int& flagDMC) const;
+  int get(const DTChamberId& id, int& flagCFE, int& flagDFE, int& flagCMC, int& flagDMC) const;
   /// access version
-  const
-  std::string& version() const;
+  const std::string& version() const;
   std::string& version();
 
   /// reset content
   void clear();
 
-  int set( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int   flagCFE,
-           int   flagDFE,
-           int   flagCMC,
-           int   flagDMC );
-  int set( const DTChamberId& id,
-           int   flagCFE,
-           int   flagDFE,
-           int   flagCMC,
-           int   flagDMC );
-  int setFlagCFE( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      flag );
-  int setFlagCFE( const DTChamberId& id,
-                  int   flag );
-  int setFlagDFE( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      flag );
-  int setFlagDFE( const DTChamberId& id,
-                  int   flag );
-  int setFlagCMC( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      flag );
-  int setFlagCMC( const DTChamberId& id,
-                  int   flag );
-  int setFlagDMC( int   wheelId,
-                  int stationId,
-                  int  sectorId,
-                  int      flag );
-  int setFlagDMC( const DTChamberId& id,
-                  int   flag );
+  int set(int wheelId, int stationId, int sectorId, int flagCFE, int flagDFE, int flagCMC, int flagDMC);
+  int set(const DTChamberId& id, int flagCFE, int flagDFE, int flagCMC, int flagDMC);
+  int setFlagCFE(int wheelId, int stationId, int sectorId, int flag);
+  int setFlagCFE(const DTChamberId& id, int flag);
+  int setFlagDFE(int wheelId, int stationId, int sectorId, int flag);
+  int setFlagDFE(const DTChamberId& id, int flag);
+  int setFlagCMC(int wheelId, int stationId, int sectorId, int flag);
+  int setFlagCMC(const DTChamberId& id, int flag);
+  int setFlagDMC(int wheelId, int stationId, int sectorId, int flag);
+  int setFlagDMC(const DTChamberId& id, int flag);
 
   /// Access methods to data
-  typedef std::vector< std::pair<DTLVStatusId,
-                                 DTLVStatusData> >::const_iterator
-                                                    const_iterator;
+  typedef std::vector<std::pair<DTLVStatusId, DTLVStatusData> >::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
   void initialize();
 
- private:
-
+private:
   DTLVStatus(DTLVStatus const&) = delete;
   DTLVStatus& operator=(DTLVStatus const&) = delete;
 
   std::string dataVersion;
 
-  std::vector< std::pair<DTLVStatusId,DTLVStatusData> > dataList;
+  std::vector<std::pair<DTLVStatusId, DTLVStatusData> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int, int> > dBuf COND_TRANSIENT;
 
   /// read and store full content
   std::string mapName() const;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-#endif // DTLVStatus_H
+#endif  // DTLVStatus_H

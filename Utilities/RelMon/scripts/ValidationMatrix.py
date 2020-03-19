@@ -10,6 +10,7 @@
 ################################################################################
 
 from __future__ import print_function
+from builtins import range
 from optparse import OptionParser
 
 import os
@@ -219,7 +220,7 @@ def get_filenames_from_pool(all_samples):
   #files_list.sort(key=name2version)
   #files_list.sort(key=name2sample) 
   #files_list.sort(key=name2run)
-  for iname in xrange(len(files_list)):
+  for iname in range(len(files_list)):
     filename=files_list[iname]
     if iname%2==0:
       ref_filenames.append(filename)

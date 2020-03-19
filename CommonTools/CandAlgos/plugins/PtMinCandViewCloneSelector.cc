@@ -19,10 +19,7 @@
 #include "CommonTools/UtilAlgos/interface/PtMinSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-          edm::View<reco::Candidate>,
-          PtMinSelector,
-          reco::CandidateCollection
-        > PtMinCandViewCloneSelector;
+typedef SingleObjectSelector<edm::View<reco::Candidate>, PtMinSelector, reco::CandidateCollection>
+    PtMinCandViewCloneSelector;
 
-DEFINE_FWK_MODULE( PtMinCandViewCloneSelector );
+DEFINE_FWK_MODULE(PtMinCandViewCloneSelector);

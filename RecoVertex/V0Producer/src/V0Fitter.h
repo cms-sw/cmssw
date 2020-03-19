@@ -2,7 +2,7 @@
 //
 // Package:    V0Producer
 // Class:      V0Fitter
-// 
+//
 /**\class V0Fitter V0Fitter.h RecoVertex/V0Producer/interface/V0Fitter.h
 
  Description: <one line class summary>
@@ -38,44 +38,43 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class dso_hidden V0Fitter {
+public:
+  V0Fitter(const edm::ParameterSet& theParams, edm::ConsumesCollector&& iC);
+  void fitAll(const edm::Event& iEvent,
+              const edm::EventSetup& iSetup,
+              reco::VertexCompositeCandidateCollection& k,
+              reco::VertexCompositeCandidateCollection& l);
 
-   public:
-      V0Fitter(const edm::ParameterSet& theParams, edm::ConsumesCollector && iC);
-      void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
-         reco::VertexCompositeCandidateCollection & k, reco::VertexCompositeCandidateCollection & l);
+private:
+  bool vertexFitter_;
+  bool useRefTracks_;
+  bool doKShorts_;
+  bool doLambdas_;
 
-   private:
+  // cuts on initial track selection
+  double tkChi2Cut_;
+  int tkNHitsCut_;
+  double tkPtCut_;
+  double tkIPSigXYCut_;
+  double tkIPSigZCut_;
+  // cuts on the vertex
+  double vtxChi2Cut_;
+  double vtxDecaySigXYCut_;
+  double vtxDecaySigXYZCut_;
+  // miscellaneous cuts
+  double tkDCACut_;
+  double mPiPiCut_;
+  double innerHitPosCut_;
+  double cosThetaXYCut_;
+  double cosThetaXYZCut_;
+  // cuts on the V0 candidate mass
+  double kShortMassCut_;
+  double lambdaMassCut_;
 
-      bool vertexFitter_;
-      bool useRefTracks_;
-      bool doKShorts_;
-      bool doLambdas_;
-
-      // cuts on initial track selection
-      double tkChi2Cut_;
-      int tkNHitsCut_;
-      double tkPtCut_;
-      double tkIPSigXYCut_;
-      double tkIPSigZCut_;
-      // cuts on the vertex
-      double vtxChi2Cut_;
-      double vtxDecaySigXYCut_;
-      double vtxDecaySigXYZCut_;
-      // miscellaneous cuts
-      double tkDCACut_;
-      double mPiPiCut_;
-      double innerHitPosCut_;
-      double cosThetaXYCut_;
-      double cosThetaXYZCut_;
-      // cuts on the V0 candidate mass
-      double kShortMassCut_;
-      double lambdaMassCut_;
-
-      edm::EDGetTokenT<reco::TrackCollection> token_tracks;
-      edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
-      bool useVertex_;
-      edm::EDGetTokenT<std::vector<reco::Vertex>> token_vertices;
+  edm::EDGetTokenT<reco::TrackCollection> token_tracks;
+  edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
+  bool useVertex_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> token_vertices;
 };
 
 #endif
-

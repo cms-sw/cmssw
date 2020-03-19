@@ -10,5 +10,8 @@ DQMStore = cms.Service("DQMStore",
     #MEs are flagged to be LS based.
     LSbasedMode = cms.untracked.bool(False),
     #this is bound to the enableMultiThread flag.
-    forceResetOnBeginLumi = cms.untracked.bool(False)
+    forceResetOnBeginLumi = cms.untracked.bool(False),
+    # similar to LSBasedMode but for offline. Explicitly sets LumiFLag on all
+    # MEs/modules that allow it (canSaveByLumi)
+    saveByLumi = cms.untracked.bool(False),
 )

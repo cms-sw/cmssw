@@ -27,5 +27,5 @@
 
 // forward declarations
 class FWEventItem;
-typedef sigc::signal<void,const FWEventItem* > FWItemChangeSignal;
+typedef sigc::signal<void, const FWEventItem*> FWItemChangeSignal;
 #endif

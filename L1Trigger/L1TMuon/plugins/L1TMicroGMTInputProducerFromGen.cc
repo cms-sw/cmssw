@@ -17,7 +17,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <fstream>
@@ -49,33 +48,32 @@
 using namespace l1t;
 
 class L1TMicroGMTInputProducerFromGen : public edm::stream::EDProducer<> {
-   public:
-      explicit L1TMicroGMTInputProducerFromGen(const edm::ParameterSet&);
-      ~L1TMicroGMTInputProducerFromGen() override;
+public:
+  explicit L1TMicroGMTInputProducerFromGen(const edm::ParameterSet&);
+  ~L1TMicroGMTInputProducerFromGen() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override ;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      void beginRun(const edm::Run&, edm::EventSetup const&) override ;
-      void endRun(const edm::Run&, edm::EventSetup const&) override ;
-      void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-      void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+  void beginRun(const edm::Run&, edm::EventSetup const&) override;
+  void endRun(const edm::Run&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
+  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
 
-      static bool compareMuons(const RegionalMuonCand&, const RegionalMuonCand&);
+  static bool compareMuons(const RegionalMuonCand&, const RegionalMuonCand&);
 
-      // ----------member data ---------------------------
-      edm::EDGetTokenT <reco::GenParticleCollection> genParticlesToken;
-      int m_currEvt;
-      const static int m_maxMuons = 108;
-      TRandom3 m_rnd;
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken;
+  int m_currEvt;
+  const static int m_maxMuons = 108;
+  TRandom3 m_rnd;
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -84,11 +82,10 @@ class L1TMicroGMTInputProducerFromGen : public edm::stream::EDProducer<> {
 //
 // constructors and destructor
 //
-L1TMicroGMTInputProducerFromGen::L1TMicroGMTInputProducerFromGen(const edm::ParameterSet& iConfig) :
-  m_currEvt(0), m_rnd(0)
-{
+L1TMicroGMTInputProducerFromGen::L1TMicroGMTInputProducerFromGen(const edm::ParameterSet& iConfig)
+    : m_currEvt(0), m_rnd(0) {
   //register your inputs:
-  genParticlesToken = consumes <reco::GenParticleCollection> (std::string("genParticles"));
+  genParticlesToken = consumes<reco::GenParticleCollection>(std::string("genParticles"));
   //register your products
   produces<RegionalMuonCandBxCollection>("BarrelTFMuons");
   produces<RegionalMuonCandBxCollection>("OverlapTFMuons");
@@ -96,39 +93,31 @@ L1TMicroGMTInputProducerFromGen::L1TMicroGMTInputProducerFromGen(const edm::Para
   produces<MuonCaloSumBxCollection>("TriggerTowerSums");
 }
 
-
-L1TMicroGMTInputProducerFromGen::~L1TMicroGMTInputProducerFromGen()
-{
+L1TMicroGMTInputProducerFromGen::~L1TMicroGMTInputProducerFromGen() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
-bool
-L1TMicroGMTInputProducerFromGen::compareMuons(const RegionalMuonCand& mu1, const RegionalMuonCand& mu2)
-{
+bool L1TMicroGMTInputProducerFromGen::compareMuons(const RegionalMuonCand& mu1, const RegionalMuonCand& mu2) {
   return mu1.processor() < mu2.processor();
 }
 
 // ------------ method called to produce the data  ------------
-void
-L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<RegionalMuonCandBxCollection> barrelMuons (new RegionalMuonCandBxCollection());
-  std::unique_ptr<RegionalMuonCandBxCollection> overlapMuons (new RegionalMuonCandBxCollection());
-  std::unique_ptr<RegionalMuonCandBxCollection> endcapMuons (new RegionalMuonCandBxCollection());
-  std::unique_ptr<MuonCaloSumBxCollection> towerSums (new MuonCaloSumBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> barrelMuons(new RegionalMuonCandBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> overlapMuons(new RegionalMuonCandBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> endcapMuons(new RegionalMuonCandBxCollection());
+  std::unique_ptr<MuonCaloSumBxCollection> towerSums(new MuonCaloSumBxCollection());
 
   std::vector<RegionalMuonCand> bmMuons;
   std::vector<RegionalMuonCand> omMuons;
   std::vector<RegionalMuonCand> emMuons;
-
 
   std::vector<int> muIndices;
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -137,11 +126,11 @@ L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSet
     int cntr = 0;
     for (auto it = genParticles->cbegin(); it != genParticles->cend(); ++it) {
       const reco::Candidate& mcParticle = *it;
-      if( abs(mcParticle.pdgId()) == 13 && mcParticle.status() == 1 )  muIndices.push_back(cntr);
+      if (abs(mcParticle.pdgId()) == 13 && mcParticle.status() == 1)
+        muIndices.push_back(cntr);
       cntr++;
     }
-  }
-  else {
+  } else {
     LogTrace("GlobalMuon") << " GenParticleCollection not found." << std::endl;
   }
 
@@ -151,7 +140,7 @@ L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSet
   const float phiToInt = 91.67324722093171f;
   // alternative scale: 100.0f;
   const float etaToInt = 90.9090909090f;
-  const int maxPt = (1 << 9)-1;
+  const int maxPt = (1 << 9) - 1;
   int muCntr = 0;
 
   double twoPi = TMath::Pi() * 2.;
@@ -159,44 +148,44 @@ L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSet
   for (auto it = muIndices.begin(); it != muIndices.end(); ++it) {
     // don't really care which muons are taken...
     // guess there ain't 108 generated anyways
-    if (muCntr == m_maxMuons) break;
+    if (muCntr == m_maxMuons)
+      break;
     int gen_idx = *it;
     const reco::Candidate& mcMuon = genParticles->at(gen_idx);
     double eta = mcMuon.eta();
-    if (fabs(eta) > 2.45) continue; // out of acceptance
+    if (fabs(eta) > 2.45)
+      continue;  // out of acceptance
     int hwPt = int(mcMuon.pt() * 2);
     hwPt = (hwPt < maxPt ? hwPt : maxPt);
     int hwEta = int(eta * etaToInt);
     double phi = mcMuon.phi();
-    if (phi < 0) phi += twoPi; // add 2*pi
-    int hwPhi = (int(phi * phiToInt))%576;
+    if (phi < 0)
+      phi += twoPi;  // add 2*pi
+    int hwPhi = (int(phi * phiToInt)) % 576;
     int hwQual = 8;
     int hwCharge = (mcMuon.charge() > 0) ? 0 : 1;
     int hwChargeValid = 1;
 
     mu.setHwPt(hwPt);
 
-
-
     tftype tf(tftype::bmtf);
-    int globalWedgePhi = (hwPhi+24)%576; // this sets CMS phi = 0 to -15 deg
-    int localPhi = globalWedgePhi%48;
+    int globalWedgePhi = (hwPhi + 24) % 576;  // this sets CMS phi = 0 to -15 deg
+    int localPhi = globalWedgePhi % 48;
     int processor = globalWedgePhi / 48 + 1;
-    int globalSectorPhi = (hwPhi-24); // this sets CMS phi = 0 to +15 deg
+    int globalSectorPhi = (hwPhi - 24);  // this sets CMS phi = 0 to +15 deg
     if (globalSectorPhi < 0) {
       globalSectorPhi += 576;
     }
-
 
     if (fabs(eta) > 0.8) {
       if (fabs(eta) < 1.2) {
         tf = (eta > 0 ? tftype::omtf_pos : tftype::omtf_neg);
         processor = globalSectorPhi / 96 + 1;
-        localPhi = globalSectorPhi%96;
+        localPhi = globalSectorPhi % 96;
       } else {
         tf = (eta > 0 ? tftype::emtf_pos : tftype::emtf_neg);
         processor = globalSectorPhi / 96 + 1;
-        localPhi = globalSectorPhi%96;
+        localPhi = globalSectorPhi % 96;
       }
     }
     mu.setHwPhi(localPhi);
@@ -210,7 +199,7 @@ L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSet
     if (fabs(eta) < 0.8 && bmMuons.size() < 36) {
       bmMuons.push_back(mu);
       muCntr++;
-    } else if (fabs(eta) < 1.2  && omMuons.size() < 36) {
+    } else if (fabs(eta) < 1.2 && omMuons.size() < 36) {
       omMuons.push_back(mu);
       muCntr++;
     } else if (emMuons.size() < 36) {
@@ -223,24 +212,26 @@ L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSet
   std::sort(omMuons.begin(), omMuons.end(), L1TMicroGMTInputProducerFromGen::compareMuons);
   std::sort(emMuons.begin(), emMuons.end(), L1TMicroGMTInputProducerFromGen::compareMuons);
 
-  for (const auto& mu:bmMuons) {
+  for (const auto& mu : bmMuons) {
     barrelMuons->push_back(0, mu);
   }
 
-  for (const auto& mu:omMuons) {
+  for (const auto& mu : omMuons) {
     overlapMuons->push_back(0, mu);
   }
 
-  for (const auto& mu:emMuons) {
+  for (const auto& mu : emMuons) {
     endcapMuons->push_back(0, mu);
   }
 
   for (int i = 0; i < 1008; ++i) {
     // from where could I take the tower energies?
     int energy = int(m_rnd.Gaus(12, 6));
-    if (energy < 0) energy = 0;
-    if (energy > 31) energy = 31;
-    MuonCaloSum sum(energy, i/28, i%28, i);
+    if (energy < 0)
+      energy = 0;
+    if (energy > 31)
+      energy = 31;
+    MuonCaloSum sum(energy, i / 28, i % 28, i);
     towerSums->push_back(0, sum);
   }
 
@@ -249,36 +240,22 @@ L1TMicroGMTInputProducerFromGen::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.put(std::move(endcapMuons), "ForwardTFMuons");
   iEvent.put(std::move(towerSums), "TriggerTowerSums");
   m_currEvt++;
-
 }
 
 // ------------ method called when starting to processes a run  ------------
-void
-L1TMicroGMTInputProducerFromGen::beginRun(const edm::Run&, edm::EventSetup const&)
-{
-}
+void L1TMicroGMTInputProducerFromGen::beginRun(const edm::Run&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a run  ------------
-void
-L1TMicroGMTInputProducerFromGen::endRun(const edm::Run&, edm::EventSetup const&)
-{
-}
+void L1TMicroGMTInputProducerFromGen::endRun(const edm::Run&, edm::EventSetup const&) {}
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void
-L1TMicroGMTInputProducerFromGen::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+void L1TMicroGMTInputProducerFromGen::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void
-L1TMicroGMTInputProducerFromGen::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+void L1TMicroGMTInputProducerFromGen::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-L1TMicroGMTInputProducerFromGen::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TMicroGMTInputProducerFromGen::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

@@ -4,10 +4,7 @@
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 //#include "FWCore/Framework/interface/MakerMacros.h"
-  
 
 typedef FP420SD FP420SensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(FP420SensitiveDetector);
-DEFINE_SIMWATCHER (FP420Test); //=
-
-
+DEFINE_SIMWATCHER(FP420Test);  //=

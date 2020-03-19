@@ -5,5 +5,4 @@
 
 class HFAlignmentRcd : public edm::eventsetup::EventSetupRecordImplementation<HFAlignmentRcd> {};
 
-#endif 
-
+#endif

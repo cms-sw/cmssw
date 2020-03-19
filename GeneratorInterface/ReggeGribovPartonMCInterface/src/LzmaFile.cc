@@ -20,10 +20,9 @@ const char *kDataErrorMessage = "Data error";
 
 static void *SzAlloc(void *, size_t size) { return MyAlloc(size); }
 static void SzFree(void *, void *address) { MyFree(address); }
-static ISzAlloc g_Alloc = { SzAlloc, SzFree };
+static ISzAlloc g_Alloc = {SzAlloc, SzFree};
 
-LzmaFile::LzmaFile()
-{
+LzmaFile::LzmaFile() {
   // fStorage.reserve(10000);
   fStartNumber = false;
 
@@ -32,59 +31,53 @@ LzmaFile::LzmaFile()
   fReadMantisseF = false;
   fReadExponentSign = false;
   fReadExponent = false;
-      
+
   fNegative = false;
   fExponentNegative = false;
-      
+
   fMantisseR = 0;
   fMantisseF = 0;
   fMantisseFcount = 0;
   fExponent = 0;
 }
 
-
-SRes 
-LzmaFile::Open(const string& fileName) 
-{
+SRes LzmaFile::Open(const string &fileName) {
   //fStrNumber.str("");
   //fStrNumber.clear();
-  
+
   FileSeqInStream_CreateVTable(&inStream);
   File_Construct(&inStream.file);
 
   if (InFile_Open(&inStream.file, fileName.c_str()) != 0) {
     cout << "Cannot open input file: " << fileName << endl;
     cout << "First use: \n\t \'lzma --best " << fileName.substr(0, fileName.rfind(".lzma")) << "\'"
-	 << " to create it. "
-	 << endl;
+         << " to create it. " << endl;
     exit(1);
   }
-  
+
   ISeqInStream *stream = &inStream.s;
-  
+
   /* Read and parse header */
   /* header: 5 bytes of LZMA properties and 8 bytes of uncompressed size */
   unsigned char header[LZMA_PROPS_SIZE + 8];
   RINOK(SeqInStream_Read(stream, header, sizeof(header)));
-  
+
   unpackSize = 0;
   int i = 0;
   for (i = 0; i < 8; i++)
     unpackSize += (UInt64)header[LZMA_PROPS_SIZE + i] << (i * 8);
-  
+
   LzmaDec_Construct(&state);
   RINOK(LzmaDec_Allocate(&state, header, LZMA_PROPS_SIZE, &g_Alloc));
   LzmaDec_Init(&state);
-  
+
   inPos = 0;
   inSize = 0;
   outPos = 0;
-  return SZ_OK;  
+  return SZ_OK;
 }
 
-SRes
-LzmaFile::ReadNextNumber(double& data)
-{
+SRes LzmaFile::ReadNextNumber(double &data) {
   if (fStorage.empty()) {
     const int ret = DecodeBuffer();
     if (ret != SZ_OK) {
@@ -92,36 +85,28 @@ LzmaFile::ReadNextNumber(double& data)
       return SZ_ERROR_DATA;
     }
   }
-  
+
   data = fStorage.front();
   fStorage.pop();
   return SZ_OK;
 }
 
-
-
-SRes
-LzmaFile::FillArray(double* data, const int length)
-{
-  for (int i=0; i<length; ++i) {
-    
+SRes LzmaFile::FillArray(double *data, const int length) {
+  for (int i = 0; i < length; ++i) {
     if (fStorage.empty()) {
       const int ret = DecodeBuffer();
       if (ret != SZ_OK) {
-	cout << "Error in FillArray i=" << i << " ret=" << ret << endl;
-	return SZ_ERROR_DATA;
+        cout << "Error in FillArray i=" << i << " ret=" << ret << endl;
+        return SZ_ERROR_DATA;
       }
     }
-    
+
     data[i] = fStorage.front();
     fStorage.pop();
-    
   }
-  
-  return SZ_OK;
-  
-}
 
+  return SZ_OK;
+}
 
 /*
 double 
@@ -157,70 +142,64 @@ LzmaFile::strToDouble(const char& p) {
 }
 */
 
-
-SRes
-LzmaFile::DecodeBuffer()
-{
+SRes LzmaFile::DecodeBuffer() {
   ISeqInStream *stream = &inStream.s;
-  
+
   const int thereIsSize = (unpackSize != (UInt64)(Int64)-1);
-  
-    
+
   if (inPos == inSize) {
     inSize = IN_BUF_SIZE;
     RINOK(stream->Read(stream, inBuf, &inSize));
     inPos = 0;
   }
-  
+
   SizeT inProcessed = inSize - inPos;
   SizeT outProcessed = OUT_BUF_SIZE - outPos;
   ELzmaFinishMode finishMode = LZMA_FINISH_ANY;
   ELzmaStatus status;
-  
+
   if (thereIsSize && outProcessed > unpackSize) {
     outProcessed = (SizeT)unpackSize;
     finishMode = LZMA_FINISH_END;
   }
-  
-  SRes res = LzmaDec_DecodeToBuf(&state, outBuf, &outProcessed,
-				 inBuf + inPos, &inProcessed, finishMode, &status);
+
+  SRes res = LzmaDec_DecodeToBuf(&state, outBuf, &outProcessed, inBuf + inPos, &inProcessed, finishMode, &status);
   inPos += inProcessed;
   unpackSize -= outProcessed;
-  
-    
-  const char* strBuf = (const char*)outBuf;
+
+  const char *strBuf = (const char *)outBuf;
 
   int countC = 0;
   int countNum = 0;
   do {
-    
     if (countC >= int(outProcessed)) {
-      // cout << " countC=" << countC 
+      // cout << " countC=" << countC
       // 	   << " outProcessed=" << outProcessed
       // 	   << endl;
       break;
     }
-    
-    const char& C = strBuf[countC]; 
-    countC++;
-    
-    //cout << "\'" << C << "\'" << endl;
-    
-    if (C==' ' || C=='\n') { // END OF NUMBER
 
-      if (!fStartNumber) 
-	continue;
-      
+    const char &C = strBuf[countC];
+    countC++;
+
+    //cout << "\'" << C << "\'" << endl;
+
+    if (C == ' ' || C == '\n') {  // END OF NUMBER
+
+      if (!fStartNumber)
+        continue;
+
       //istringstream strToNum(fStrNumber.str().c_str());
       //double number = atof(fStrNumber.str().c_str());
       //strToNum >> number;
-      
-      const double number = (fNegative?-1:1) * (fMantisseR + fMantisseF/pow(10, fMantisseFcount)) * pow(10, (fExponentNegative?-1:1) * fExponent);
+
+      const double number = (fNegative ? -1 : 1) * (fMantisseR + fMantisseF / pow(10, fMantisseFcount)) *
+                            pow(10, (fExponentNegative ? -1 : 1) * fExponent);
       //cout << " number=" << number << endl;
-      
-      fStorage.push(number);      
+
+      fStorage.push(number);
       countNum++;
-      
+
       fStartNumber = false;
 
       fReadSign = true;
@@ -228,84 +207,79 @@ LzmaFile::DecodeBuffer()
       fReadMantisseF = false;
       fReadExponentSign = false;
       fReadExponent = false;
-      
+
       fNegative = false;
       fExponentNegative = false;
-      
+
       fMantisseR = 0;
       fMantisseF = 0;
       fMantisseFcount = 0;
       fExponent = 0;
-      
+
       continue;
     }
-    
+
     fStartNumber = true;
     const int num = C - '0';
     if (num >= 0 && num <= 9) {
-	
       if (fReadMantisseR) {
-	fReadSign = false;
-	fMantisseR = fMantisseR*10 + num;
+        fReadSign = false;
+        fMantisseR = fMantisseR * 10 + num;
       } else if (fReadMantisseF) {
-	fReadSign = false;
-	fMantisseF = fMantisseF*10 + num;
-	++fMantisseFcount;
+        fReadSign = false;
+        fMantisseF = fMantisseF * 10 + num;
+        ++fMantisseFcount;
       } else if (fReadExponent) {
-	fReadExponentSign = false;
-	fExponent = fExponent*10 + num;
+        fReadExponentSign = false;
+        fExponent = fExponent * 10 + num;
       }
-      
+
     } else {
-      
-      switch(C) {
-      case '-':
-	{
-	  if (fReadSign) {
-	    fNegative = true;
-	    fReadSign = false;
-	    fReadMantisseR = true;
-	  } else if (fReadExponentSign) {	
-	    fExponentNegative = true;
-	    fReadExponentSign = false;
-	    fReadExponent = true;
-	  } else {
-	    cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
-	    exit(10);
-	  }
-	}
-	break;
-      case '.': 
-	if (!fReadMantisseR) {
-	  cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
-	  exit(10);
-	}
-	fReadMantisseR = false;
-	fReadMantisseF = true;
-	break;
-      case 'e':
-      case 'E':
-      case 'D': 
-      case 'd':
-	if (!fReadMantisseR || !fReadMantisseF) {
-	  fReadMantisseR = false;
-	  fReadMantisseF = false;
-	  fReadExponentSign = true;
-	  fReadExponent = true;
-	}
-	break;
-      default:
-	cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
-	exit(10);
-	break;
+      switch (C) {
+        case '-': {
+          if (fReadSign) {
+            fNegative = true;
+            fReadSign = false;
+            fReadMantisseR = true;
+          } else if (fReadExponentSign) {
+            fExponentNegative = true;
+            fReadExponentSign = false;
+            fReadExponent = true;
+          } else {
+            cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
+            exit(10);
+          }
+        } break;
+        case '.':
+          if (!fReadMantisseR) {
+            cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
+            exit(10);
+          }
+          fReadMantisseR = false;
+          fReadMantisseF = true;
+          break;
+        case 'e':
+        case 'E':
+        case 'D':
+        case 'd':
+          if (!fReadMantisseR || !fReadMantisseF) {
+            fReadMantisseR = false;
+            fReadMantisseF = false;
+            fReadExponentSign = true;
+            fReadExponent = true;
+          }
+          break;
+        default:
+          cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
+          exit(10);
+          break;
       }
     }
-	
-  } while(true);
-  
+
+  } while (true);
+
   //strBuf.str("");
   //strBuf.clear();
-  
 
   /*    
   if (!strNumber.str().empty()) {
@@ -316,13 +290,10 @@ LzmaFile::DecodeBuffer()
     fStorage.push(number);
   }
   */
-    
-  
 
-    
-  if (res != SZ_OK || (thereIsSize && unpackSize == 0)) 
+  if (res != SZ_OK || (thereIsSize && unpackSize == 0))
     return res;
-    
+
   if (inProcessed == 0 && outProcessed == 0) {
     if (thereIsSize || status != LZMA_STATUS_FINISHED_WITH_MARK)
       return SZ_ERROR_DATA;
@@ -332,64 +303,52 @@ LzmaFile::DecodeBuffer()
   return SZ_OK;
 }
 
-
-
-
-SRes
-LzmaFile::DecodeAll()
-{
+SRes LzmaFile::DecodeAll() {
   ISeqInStream *stream = &inStream.s;
 
   int thereIsSize = (unpackSize != (UInt64)(Int64)-1);
-  
-  for (;;) {
 
+  for (;;) {
     if (inPos == inSize) {
       inSize = IN_BUF_SIZE;
       RINOK(stream->Read(stream, inBuf, &inSize));
       inPos = 0;
     }
-    
+
     SizeT inProcessed = inSize - inPos;
     SizeT outProcessed = OUT_BUF_SIZE - outPos;
     ELzmaFinishMode finishMode = LZMA_FINISH_ANY;
     ELzmaStatus status;
-    
+
     if (thereIsSize && outProcessed > unpackSize) {
       outProcessed = (SizeT)unpackSize;
       finishMode = LZMA_FINISH_END;
     }
-    
-    SRes res = LzmaDec_DecodeToBuf(&state, outBuf, &outProcessed,
-				   inBuf + inPos, &inProcessed, finishMode, &status);
+
+    SRes res = LzmaDec_DecodeToBuf(&state, outBuf, &outProcessed, inBuf + inPos, &inProcessed, finishMode, &status);
     inPos += inProcessed;
     unpackSize -= outProcessed;
-    
-    
-    unsigned int k=0;
-    for (k=0; k<outProcessed; ++k) {
+
+    unsigned int k = 0;
+    for (k = 0; k < outProcessed; ++k) {
       printf("%c", outBuf[k]);
     }
-  
+
     if (res != SZ_OK || (thereIsSize && unpackSize == 0))
       return res;
-    
+
     if (inProcessed == 0 && outProcessed == 0) {
       if (thereIsSize || status != LZMA_STATUS_FINISHED_WITH_MARK)
-	return SZ_ERROR_DATA;
+        return SZ_ERROR_DATA;
       return res;
     }
 
-  } // for loop
-  
+  }  // for loop
+
   return 0;
 }
 
-
-
-SRes
-LzmaFile::Close()
-{
+SRes LzmaFile::Close() {
   LzmaDec_Free(&state, &g_Alloc);
   res = File_Close(&inStream.file);
   return res;

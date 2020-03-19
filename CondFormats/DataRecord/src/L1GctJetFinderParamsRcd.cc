@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     L1GctJetFinderParamsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Jul 10 10:14:03 CEST 2007
 // $Id$
 

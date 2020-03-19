@@ -20,15 +20,17 @@ RPCMuon::RPCMuon() {
 //
 //#############################################################################################
 RPCMuon::RPCMuon(const RPCConst::l1RpcConeCrdnts coneCrdnts,
-                 int ptCode, int quality, int sign,
-                 int patternNum, unsigned short firedPlanes)
-{
-    m_ConeCrdnts = coneCrdnts;
-    m_PtCode = ptCode;
-    m_Quality = quality;
-    m_Sign = sign;
-    m_PatternNum = patternNum;
-    m_FiredPlanes = firedPlanes;
+                 int ptCode,
+                 int quality,
+                 int sign,
+                 int patternNum,
+                 unsigned short firedPlanes) {
+  m_ConeCrdnts = coneCrdnts;
+  m_PtCode = ptCode;
+  m_Quality = quality;
+  m_Sign = sign;
+  m_PatternNum = patternNum;
+  m_FiredPlanes = firedPlanes;
 }
 //#############################################################################################
 //
@@ -36,7 +38,6 @@ RPCMuon::RPCMuon(const RPCConst::l1RpcConeCrdnts coneCrdnts,
 //
 //#############################################################################################
 RPCMuon::RPCMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes) {
-  
   m_ConeCrdnts = RPCConst::l1RpcConeCrdnts();
   m_PtCode = ptCode;
   m_Quality = quality;
@@ -49,13 +50,11 @@ RPCMuon::RPCMuon(int ptCode, int quality, int sign, int patternNum, unsigned sho
 //  Simple getters and setters
 //
 //#############################################################################################
-RPCConst::l1RpcConeCrdnts RPCMuon::getConeCrdnts() const {  return m_ConeCrdnts; }
+RPCConst::l1RpcConeCrdnts RPCMuon::getConeCrdnts() const { return m_ConeCrdnts; }
 
-void RPCMuon::setConeCrdnts(const RPCConst::l1RpcConeCrdnts& coneCrdnts) {
-  m_ConeCrdnts = coneCrdnts;
-}
+void RPCMuon::setConeCrdnts(const RPCConst::l1RpcConeCrdnts& coneCrdnts) { m_ConeCrdnts = coneCrdnts; }
 
-int RPCMuon::getTower() const { return m_ConeCrdnts.m_Tower;}
+int RPCMuon::getTower() const { return m_ConeCrdnts.m_Tower; }
 
 int RPCMuon::getLogSector() const { return m_ConeCrdnts.m_LogSector; }
 

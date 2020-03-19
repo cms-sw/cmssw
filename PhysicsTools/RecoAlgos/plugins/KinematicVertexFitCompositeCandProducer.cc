@@ -4,10 +4,9 @@
 
 typedef ConstrainedFitCandProducer<CandKinematicVertexFitter,
                                    edm::View<reco::Candidate>,
-                                   std::vector<reco::VertexCompositeCandidate> > KinematicVertexFitCompositeCandProducer;
+                                   std::vector<reco::VertexCompositeCandidate> >
+    KinematicVertexFitCompositeCandProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(KinematicVertexFitCompositeCandProducer);
-
-

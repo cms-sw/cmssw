@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1HFRings
-// 
+//
 /**\class L1HFRings L1HFRings.h DataFormats/L1Trigger/interface/L1HFRings.h
 
  Description: <one line class summary>
@@ -28,62 +28,54 @@
 
 namespace l1extra {
 
-class L1HFRings
-{
+  class L1HFRings {
+  public:
+    enum HFRingLabels { kRing1PosEta, kRing1NegEta, kRing2PosEta, kRing2NegEta, kNumRings };
 
-   public:
-     enum HFRingLabels { kRing1PosEta, kRing1NegEta, kRing2PosEta, 
-			 kRing2NegEta, kNumRings } ;
+    L1HFRings();
 
-      L1HFRings();
+    // Default Refs are null.
+    L1HFRings(const double* hfEtSums,  // array of etSums
+              const int* hfBitCounts,  // array of bitCounts
+              const edm::Ref<L1GctHFRingEtSumsCollection>& aHFEtSumsRef = edm::Ref<L1GctHFRingEtSumsCollection>(),
+              const edm::Ref<L1GctHFBitCountsCollection>& aHFBitCountsRef = edm::Ref<L1GctHFBitCountsCollection>(),
+              int bx = 0);
 
-      // Default Refs are null.
-      L1HFRings( const double* hfEtSums, // array of etSums
-		 const int* hfBitCounts, // array of bitCounts
-		 const edm::Ref< L1GctHFRingEtSumsCollection >& aHFEtSumsRef = 
-		 edm::Ref< L1GctHFRingEtSumsCollection >(),
-		 const edm::Ref< L1GctHFBitCountsCollection >& aHFBitCountsRef 
-		 = edm::Ref< L1GctHFBitCountsCollection >(),
-		 int bx = 0 ) ;
+    virtual ~L1HFRings();
 
-      virtual ~L1HFRings();
+    // ---------- const member functions ---------------------
+    double hfEtSum(HFRingLabels i) const  // in  GeV
+    {
+      return m_ringEtSums[i];
+    }
+    int hfBitCount(HFRingLabels i) const { return m_ringBitCounts[i]; }
 
-      // ---------- const member functions ---------------------
-      double hfEtSum( HFRingLabels i ) const // in  GeV
-	{ return m_ringEtSums[ i ] ; }
-      int hfBitCount( HFRingLabels i ) const
-	{ return m_ringBitCounts [ i ] ; }
+    const edm::Ref<L1GctHFRingEtSumsCollection>& gctHFEtSumsRef() const { return m_etSumsRef; }
+    const edm::Ref<L1GctHFBitCountsCollection>& gctHFBitCountsRef() const { return m_bitCountsRef; }
 
-      const edm::Ref< L1GctHFRingEtSumsCollection >& gctHFEtSumsRef() const
-	{ return m_etSumsRef ; }
-      const edm::Ref< L1GctHFBitCountsCollection >& gctHFBitCountsRef() const
-	{ return m_bitCountsRef ; }
+    const L1GctHFRingEtSums* gctHFEtSums() const { return m_etSumsRef.get(); }
+    const L1GctHFBitCounts* gctHFBitCounts() const { return m_bitCountsRef.get(); }
 
-      const L1GctHFRingEtSums* gctHFEtSums() const
-	{ return m_etSumsRef.get() ; }
-      const L1GctHFBitCounts* gctHFBitCounts() const
-	{ return m_bitCountsRef.get() ; }
+    int bx() const { return m_bx; }
 
-      int bx() const { return m_bx ; }
+    // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+    // ---------- member functions ---------------------------
 
-      // ---------- member functions ---------------------------
+  private:
+    // L1HFRings(const L1HFRings&); // stop default
 
-   private:
-      // L1HFRings(const L1HFRings&); // stop default
+    // const L1HFRings& operator=(const L1HFRings&); // stop default
 
-      // const L1HFRings& operator=(const L1HFRings&); // stop default
+    // ---------- member data --------------------------------
+    double m_ringEtSums[kNumRings];
+    int m_ringBitCounts[kNumRings];
 
-      // ---------- member data --------------------------------
-      double m_ringEtSums[ kNumRings ] ;
-      int m_ringBitCounts[ kNumRings ] ;
+    edm::Ref<L1GctHFRingEtSumsCollection> m_etSumsRef;
+    edm::Ref<L1GctHFBitCountsCollection> m_bitCountsRef;
 
-      edm::Ref< L1GctHFRingEtSumsCollection > m_etSumsRef ;
-      edm::Ref< L1GctHFBitCountsCollection > m_bitCountsRef ;
-
-      int m_bx ;
-};
-}
+    int m_bx;
+  };
+}  // namespace l1extra
 
 #endif

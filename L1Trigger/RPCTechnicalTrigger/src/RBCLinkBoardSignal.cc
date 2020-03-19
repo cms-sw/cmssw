@@ -1,6 +1,4 @@
-// Include files 
-
-
+// Include files
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCLinkBoardSignal.h"
@@ -14,9 +12,6 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RBCLinkBoardSignal::RBCLinkBoardSignal( RBCInput * in ) :
-  m_linkboardin{*in}
-{
-}
+RBCLinkBoardSignal::RBCLinkBoardSignal(RBCInput* in) : m_linkboardin{*in} {}
 
 //=============================================================================

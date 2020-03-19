@@ -7,7 +7,7 @@ using namespace std;
 #include "MusEcalGUI.hh"
 #include <TSystem.h>
 
-ClassImp(MELeafPanel)
+ClassImp(MELeafPanel);
 
 MELeafPanel::MELeafPanel( const TGWindow *p, MusEcalGUI* main,
 			  UInt_t w, UInt_t h)

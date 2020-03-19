@@ -3,133 +3,133 @@
 
 #include "DataFormats/PatCandidates/interface/MET.h"
 
-
 using namespace pat;
 
-
 /// default constructor
-MET::MET() {
+MET::MET() { initCorMap(); }
+
+/// constructor from reco::MET
+MET::MET(const reco::MET &aMET) : PATObject<reco::MET>(aMET) {
+  const reco::CaloMET *calo = dynamic_cast<const reco::CaloMET *>(&aMET);
+  if (calo != nullptr)
+    caloMET_.push_back(calo->getSpecific());
+  const reco::PFMET *pf = dynamic_cast<const reco::PFMET *>(&aMET);
+  if (pf != nullptr)
+    pfMET_.push_back(pf->getSpecific());
+  const pat::MET *pm = dynamic_cast<const pat::MET *>(&aMET);
+  if (pm != nullptr)
+    this->operator=(*pm);
+
+  metSig_ = 0.;
+  sumPtUnclustered_ = 0.;
   initCorMap();
 }
 
-
-/// constructor from reco::MET
-MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET) {
-    const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(&aMET);
-    if (calo != nullptr) caloMET_.push_back(calo->getSpecific());
-    const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(&aMET);
-    if (pf != nullptr) pfMET_.push_back(pf->getSpecific());
-    const pat::MET * pm = dynamic_cast<const pat::MET *>(&aMET);
-    if (pm != nullptr) this->operator=(*pm);
-
-    metSig_ =0.;
-    initCorMap();
-}
-
-
 /// constructor from ref to reco::MET
-MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
-    const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
-    if (calo != nullptr) caloMET_.push_back(calo->getSpecific());
-    const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
-    if (pf != nullptr) pfMET_.push_back(pf->getSpecific());
-    const pat::MET * pm = dynamic_cast<const pat::MET *>(aMETRef.get());
-    if (pm != nullptr) this->operator=(*pm);
+MET::MET(const edm::RefToBase<reco::MET> &aMETRef) : PATObject<reco::MET>(aMETRef) {
+  const reco::CaloMET *calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
+  if (calo != nullptr)
+    caloMET_.push_back(calo->getSpecific());
+  const reco::PFMET *pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
+  if (pf != nullptr)
+    pfMET_.push_back(pf->getSpecific());
+  const pat::MET *pm = dynamic_cast<const pat::MET *>(aMETRef.get());
+  if (pm != nullptr)
+    this->operator=(*pm);
 
-    metSig_ =0.;
-    initCorMap();
+  metSig_ = 0.;
+  sumPtUnclustered_ = 0.;
+  initCorMap();
 }
 
 /// constructor from ref to reco::MET
-MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
-    const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
-    if (calo != nullptr) caloMET_.push_back(calo->getSpecific());
-    const reco::PFMET * pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
-    if (pf != nullptr) pfMET_.push_back(pf->getSpecific());
-    const pat::MET * pm = dynamic_cast<const pat::MET *>(aMETRef.get());
-    if (pm != nullptr) this->operator=(*pm);
+MET::MET(const edm::Ptr<reco::MET> &aMETRef) : PATObject<reco::MET>(aMETRef) {
+  const reco::CaloMET *calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
+  if (calo != nullptr)
+    caloMET_.push_back(calo->getSpecific());
+  const reco::PFMET *pf = dynamic_cast<const reco::PFMET *>(aMETRef.get());
+  if (pf != nullptr)
+    pfMET_.push_back(pf->getSpecific());
+  const pat::MET *pm = dynamic_cast<const pat::MET *>(aMETRef.get());
+  if (pm != nullptr)
+    this->operator=(*pm);
 
-    metSig_ =0.;
-    initCorMap();
+  metSig_ = 0.;
+  sumPtUnclustered_ = 0.;
+  initCorMap();
 }
 
 /// copy constructor
-MET::MET(MET const& iOther):
-PATObject<reco::MET>(iOther),
-genMET_(iOther.genMET_),
-caloMET_(iOther.caloMET_),
-pfMET_(iOther.pfMET_),
-metSig_(iOther.metSig_),
-uncertaintiesRaw_(iOther.uncertaintiesRaw_), //74X reading compatibility
-uncertaintiesType1_(iOther.uncertaintiesType1_), //74X compatibility
-uncertaintiesType1p2_(iOther.uncertaintiesType1p2_), //74X compatibility
-uncertainties_(iOther.uncertainties_),
-corrections_(iOther.corrections_),
-caloPackedMet_(iOther.caloPackedMet_) {
-
+MET::MET(MET const &iOther)
+    : PATObject<reco::MET>(iOther),
+      genMET_(iOther.genMET_),
+      caloMET_(iOther.caloMET_),
+      pfMET_(iOther.pfMET_),
+      metSig_(iOther.metSig_),
+      sumPtUnclustered_(iOther.sumPtUnclustered_),
+      uncertaintiesRaw_(iOther.uncertaintiesRaw_),          //74X reading compatibility
+      uncertaintiesType1_(iOther.uncertaintiesType1_),      //74X compatibility
+      uncertaintiesType1p2_(iOther.uncertaintiesType1p2_),  //74X compatibility
+      uncertainties_(iOther.uncertainties_),
+      corrections_(iOther.corrections_),
+      caloPackedMet_(iOther.caloPackedMet_) {
   initCorMap();
 }
 
-/// constructor for corrected mets, keeping track of srcMET informations, 
+/// constructor for corrected mets, keeping track of srcMET informations,
 // old uncertainties discarded on purpose to avoid confusion
-MET::MET(const reco::MET & corMET, const MET& srcMET ):
-PATObject<reco::MET>(corMET),
-genMET_(srcMET.genMET_),
-caloMET_(srcMET.caloMET_),
-pfMET_(srcMET.pfMET_),
-metSig_(srcMET.metSig_),
-caloPackedMet_(srcMET.caloPackedMet_) {
-
+MET::MET(const reco::MET &corMET, const MET &srcMET)
+    : PATObject<reco::MET>(corMET),
+      genMET_(srcMET.genMET_),
+      caloMET_(srcMET.caloMET_),
+      pfMET_(srcMET.pfMET_),
+      metSig_(srcMET.metSig_),
+      sumPtUnclustered_(srcMET.sumPtUnclustered_),
+      caloPackedMet_(srcMET.caloPackedMet_) {
   setSignificanceMatrix(srcMET.getSignificanceMatrix());
 
   initCorMap();
 }
 
 /// destructor
-MET::~MET() {
+MET::~MET() {}
 
-}
+MET &MET::operator=(MET const &iOther) {
+  PATObject<reco::MET>::operator=(iOther);
+  genMET_ = iOther.genMET_;
+  caloMET_ = iOther.caloMET_;
+  pfMET_ = iOther.pfMET_;
+  uncertaintiesRaw_ = iOther.uncertaintiesRaw_;  //74X compatibility
+  uncertaintiesType1_ = iOther.uncertaintiesType1_;
+  uncertaintiesType1p2_ = iOther.uncertaintiesType1p2_;
+  uncertainties_ = iOther.uncertainties_;
+  corrections_ = iOther.corrections_;
+  metSig_ = iOther.metSig_;
+  sumPtUnclustered_ = iOther.sumPtUnclustered_;
+  caloPackedMet_ = iOther.caloPackedMet_;
 
-MET& MET::operator=(MET const& iOther) {
-   PATObject<reco::MET>::operator=(iOther);
-   genMET_ = iOther.genMET_;
-   caloMET_ =iOther.caloMET_;
-   pfMET_ =iOther.pfMET_;
-   uncertaintiesRaw_ = iOther.uncertaintiesRaw_; //74X compatibility
-   uncertaintiesType1_ = iOther.uncertaintiesType1_;
-   uncertaintiesType1p2_ = iOther.uncertaintiesType1p2_;
-   uncertainties_ = iOther.uncertainties_;
-   corrections_ = iOther.corrections_;
-   metSig_ = iOther.metSig_;
-   caloPackedMet_ = iOther.caloPackedMet_;
-
-   return *this;
+  return *this;
 }
 
 /// return the generated MET from neutrinos
-const reco::GenMET * MET::genMET() const {
-  return (!genMET_.empty() ? &genMET_.front() : nullptr );
-}
+const reco::GenMET *MET::genMET() const { return (!genMET_.empty() ? &genMET_.front() : nullptr); }
 
 /// method to set the generated MET
-void MET::setGenMET(const reco::GenMET & gm) {
+void MET::setGenMET(const reco::GenMET &gm) {
   genMET_.clear();
   genMET_.push_back(gm);
 }
 
-
 //Method to set the MET significance
-void MET::setMETSignificance(const double& metSig) {
-  metSig_ = metSig;
-}
+void MET::setMETSignificance(const double &metSig) { metSig_ = metSig; }
 
-double MET::metSignificance() const {
-  return metSig_;
-}
+double MET::metSignificance() const { return metSig_; }
 
-void
-MET::initCorMap() {
+void MET::setMETSumPtUnclustered(const double &sumPtUnclustered) { sumPtUnclustered_ = sumPtUnclustered; }
 
+double MET::metSumPtUnclustered() const { return sumPtUnclustered_; }
+
+void MET::initCorMap() {
   std::vector<MET::METCorrectionType> tmpRaw;
   std::vector<MET::METCorrectionType> tmpType1;
   std::vector<MET::METCorrectionType> tmpType01;
@@ -140,9 +140,9 @@ MET::initCorMap() {
   std::vector<MET::METCorrectionType> tmpType01Smear;
   std::vector<MET::METCorrectionType> tmpType1SmearXY;
   std::vector<MET::METCorrectionType> tmpType01SmearXY;
-  
+
   tmpRaw.push_back(MET::None);
-  
+
   tmpType1.push_back(MET::T1);
   tmpType01.push_back(MET::T1);
   tmpType1XY.push_back(MET::T1);
@@ -156,7 +156,7 @@ MET::initCorMap() {
   tmpType01XY.push_back(MET::T0);
   tmpType01Smear.push_back(MET::T0);
   tmpType01SmearXY.push_back(MET::T0);
-  
+
   tmpType1Smear.push_back(MET::Smear);
   tmpType01Smear.push_back(MET::Smear);
   tmpType1SmearXY.push_back(MET::Smear);
@@ -178,7 +178,7 @@ MET::initCorMap() {
   corMap_[MET::Type01Smear] = tmpType01Smear;
   corMap_[MET::Type1SmearXY] = tmpType1SmearXY;
   corMap_[MET::Type01SmearXY] = tmpType01SmearXY;
-  
+
   //specific calo case
   std::vector<MET::METCorrectionType> tmpRawCalo;
   tmpRawCalo.push_back(MET::Calo);
@@ -195,267 +195,246 @@ MET::initCorMap() {
   corMap_[MET::RawTrk] = tmpRawTrk;
 }
 
-const MET::PackedMETUncertainty
-MET::findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const {
-
+const MET::PackedMETUncertainty MET::findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const {
   //find corrections shifts =============================
   std::map<MET::METCorrectionLevel, std::vector<MET::METCorrectionType> >::const_iterator itCor_ = corMap_.find(cor);
-  if(itCor_==corMap_.end() ) throw cms::Exception("Unsupported", "Specified MET correction scheme does not exist");
+  if (itCor_ == corMap_.end())
+    throw cms::Exception("Unsupported", "Specified MET correction scheme does not exist");
 
-  bool isSmeared=false;
+  bool isSmeared = false;
   MET::PackedMETUncertainty totShift;
-  unsigned int scor=itCor_->second.size();
-  for(unsigned int i=0; i<scor;i++) {
-    totShift.add( corrections_[ itCor_->second[i] ].dpx(),
-  		  corrections_[ itCor_->second[i] ].dpy(),
-  		  corrections_[ itCor_->second[i] ].dsumEt() );
+  unsigned int scor = itCor_->second.size();
+  for (unsigned int i = 0; i < scor; i++) {
+    totShift.add(corrections_[itCor_->second[i]].dpx(),
+                 corrections_[itCor_->second[i]].dpy(),
+                 corrections_[itCor_->second[i]].dsumEt());
 
-    if(itCor_->first>=MET::Type1Smear)
-      isSmeared=true;
+    if (itCor_->first >= MET::Type1Smear)
+      isSmeared = true;
   }
-
-  
 
   //find uncertainty shift =============================
 
   if (uncertainties_.empty())
-      return totShift;
+    return totShift;
 
-  if(shift>=MET::METUncertaintySize) throw cms::Exception("Unsupported", "MET uncertainty does not exist");
-  if(isSmeared && shift<=MET::JetResDown) shift = (MET::METUncertainty)(MET::METUncertaintySize+shift+1);
-							  
-  totShift.add( uncertainties_[ shift ].dpx(),
-  		uncertainties_[ shift ].dpy(),
-  		uncertainties_[ shift ].dsumEt() );
+  if (shift >= MET::METUncertaintySize)
+    throw cms::Exception("Unsupported", "MET uncertainty does not exist");
+  if (isSmeared && shift <= MET::JetResDown)
+    shift = (MET::METUncertainty)(MET::METUncertaintySize + shift + 1);
+
+  totShift.add(uncertainties_[shift].dpx(), uncertainties_[shift].dpy(), uncertainties_[shift].dsumEt());
 
   return totShift;
 }
 
-
-MET::Vector2 MET::shiftedP2(MET::METUncertainty shift, MET::METCorrectionLevel cor)  const {
-  
+MET::Vector2 MET::shiftedP2(MET::METUncertainty shift, MET::METCorrectionLevel cor) const {
   Vector2 vo;
 
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
-    if(cor!=MET::METCorrectionLevel::RawCalo) {
+  if (!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
+    if (cor != MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP2_74x(shift, cor);
     } else {
-      Vector2 ret{ caloPackedMet_.dpx(), caloPackedMet_.dpy() };
+      Vector2 ret{caloPackedMet_.dpx(), caloPackedMet_.dpy()};
       vo = ret;
     }
-  }
-  else {
-    const MET::PackedMETUncertainty& v = findMETTotalShift(cor,shift);
-    Vector2 ret{ (px() + v.dpx()), (py() + v.dpy()) };
+  } else {
+    const MET::PackedMETUncertainty &v = findMETTotalShift(cor, shift);
+    Vector2 ret{(px() + v.dpx()), (py() + v.dpy())};
     //return ret;
     vo = ret;
   }
   return vo;
 }
-MET::Vector MET::shiftedP3(MET::METUncertainty shift, MET::METCorrectionLevel cor)  const {
-
+MET::Vector MET::shiftedP3(MET::METUncertainty shift, MET::METCorrectionLevel cor) const {
   Vector vo;
 
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
-    if(cor!=MET::METCorrectionLevel::RawCalo) {
+  if (!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
+    if (cor != MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP3_74x(shift, cor);
     } else {
       Vector tmp(caloPackedMet_.dpx(), caloPackedMet_.dpy(), 0);
       vo = tmp;
     }
-  }
-  else {
-    const MET::PackedMETUncertainty& v = findMETTotalShift(cor,shift);
+  } else {
+    const MET::PackedMETUncertainty &v = findMETTotalShift(cor, shift);
     //return Vector(px() + v.dpx(), py() + v.dpy(), 0);
     Vector tmp(px() + v.dpx(), py() + v.dpy(), 0);
     vo = tmp;
   }
   return vo;
 }
-MET::LorentzVector MET::shiftedP4(METUncertainty shift, MET::METCorrectionLevel cor)  const {
-
+MET::LorentzVector MET::shiftedP4(METUncertainty shift, MET::METCorrectionLevel cor) const {
   LorentzVector vo;
 
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
-    if(cor!=MET::METCorrectionLevel::RawCalo) {
+  if (!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
+    if (cor != MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP4_74x(shift, cor);
     } else {
       double x = caloPackedMet_.dpx(), y = caloPackedMet_.dpy();
-      LorentzVector tmp(x, y, 0, std::hypot(x,y));
-      vo =  tmp;
+      LorentzVector tmp(x, y, 0, std::hypot(x, y));
+      vo = tmp;
     }
-  }
-  else {
-    const MET::PackedMETUncertainty& v = findMETTotalShift(cor,shift);
+  } else {
+    const MET::PackedMETUncertainty &v = findMETTotalShift(cor, shift);
     double x = px() + v.dpx(), y = py() + v.dpy();
     //return LorentzVector(x, y, 0, std::hypot(x,y));
-    LorentzVector tmp(x, y, 0, std::hypot(x,y));
-    vo =  tmp;
+    LorentzVector tmp(x, y, 0, std::hypot(x, y));
+    vo = tmp;
   }
   return vo;
 }
 double MET::shiftedSumEt(MET::METUncertainty shift, MET::METCorrectionLevel cor) const {
-
   double sumEto;
 
   //backward compatibility with 74X samples -> the only one
   // with uncertaintiesType1_/uncertaintiesRaw_ not empty
   //will be removed once 74X is not used anymore
-  if(!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
-    if(cor!=MET::METCorrectionLevel::RawCalo) {
+  if (!uncertaintiesType1_.empty() || !uncertaintiesRaw_.empty()) {
+    if (cor != MET::METCorrectionLevel::RawCalo) {
       sumEto = shiftedSumEt_74x(shift, cor);
     } else {
       sumEto = caloPackedMet_.dsumEt();
     }
-  }
-  else {
-    const MET::PackedMETUncertainty& v = findMETTotalShift(cor,shift);
+  } else {
+    const MET::PackedMETUncertainty &v = findMETTotalShift(cor, shift);
     //return sumEt() + v.dsumEt();
     sumEto = sumEt() + v.dsumEt();
   }
   return sumEto;
 }
 
-MET::Vector2 MET::corP2(MET::METCorrectionLevel cor)  const {
-  return shiftedP2(MET::NoShift, cor );
-}
-MET::Vector MET::corP3(MET::METCorrectionLevel cor)  const {
-  return shiftedP3(MET::NoShift, cor );
-}
-MET::LorentzVector MET::corP4(MET::METCorrectionLevel cor)  const {
-  return shiftedP4(MET::NoShift, cor );
-}
-double MET::corSumEt(MET::METCorrectionLevel cor) const {
-  return shiftedSumEt(MET::NoShift, cor );
-}
+MET::Vector2 MET::corP2(MET::METCorrectionLevel cor) const { return shiftedP2(MET::NoShift, cor); }
+MET::Vector MET::corP3(MET::METCorrectionLevel cor) const { return shiftedP3(MET::NoShift, cor); }
+MET::LorentzVector MET::corP4(MET::METCorrectionLevel cor) const { return shiftedP4(MET::NoShift, cor); }
+double MET::corSumEt(MET::METCorrectionLevel cor) const { return shiftedSumEt(MET::NoShift, cor); }
 
-MET::Vector2 MET::uncorP2()  const {
-  return shiftedP2(MET::NoShift, MET::Raw );
-}
-MET::Vector MET::uncorP3()  const {
-  return shiftedP3(MET::NoShift, MET::Raw );
-}
-MET::LorentzVector MET::uncorP4()  const {
-  return shiftedP4(MET::NoShift, MET::Raw );
-}
-double MET::uncorSumEt() const {
-  return shiftedSumEt(MET::NoShift, MET::Raw );
-}
-
+MET::Vector2 MET::uncorP2() const { return shiftedP2(MET::NoShift, MET::Raw); }
+MET::Vector MET::uncorP3() const { return shiftedP3(MET::NoShift, MET::Raw); }
+MET::LorentzVector MET::uncorP4() const { return shiftedP4(MET::NoShift, MET::Raw); }
+double MET::uncorSumEt() const { return shiftedSumEt(MET::NoShift, MET::Raw); }
 
 void MET::setUncShift(double px, double py, double sumEt, METUncertainty shift, bool isSmeared) {
-  if (uncertainties_.empty()) { 
+  if (uncertainties_.empty()) {
     uncertainties_.resize(METUncertainty::METFullUncertaintySize);
   }
 
-  if(isSmeared && shift<=MET::JetResDown) {
+  if (isSmeared && shift <= MET::JetResDown) {
     //changing reference to only get the uncertainty shift and not the smeared one
     // which is performed independently
-    shift = (MET::METUncertainty)(METUncertainty::METUncertaintySize+shift+1);
-    const PackedMETUncertainty& ref = uncertainties_[METUncertainty::NoShift];
-    uncertainties_[shift].set(px + ref.dpx() - this->px(), py + ref.dpy() - this->py(), sumEt + ref.dsumEt() - this->sumEt() );
-  }
-  else
+    shift = (MET::METUncertainty)(METUncertainty::METUncertaintySize + shift + 1);
+    const PackedMETUncertainty &ref = uncertainties_[METUncertainty::NoShift];
+    uncertainties_[shift].set(
+        px + ref.dpx() - this->px(), py + ref.dpy() - this->py(), sumEt + ref.dsumEt() - this->sumEt());
+  } else
     uncertainties_[shift].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
-  
 }
 
 void MET::setCorShift(double px, double py, double sumEt, MET::METCorrectionType level) {
   if (corrections_.empty()) {
     corrections_.resize(MET::METCorrectionType::METCorrectionTypeSize);
   }
-  
+
   corrections_[level].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
 }
 
-
 MET::Vector2 MET::caloMETP2() const {
-  return shiftedP2(MET::METUncertainty::NoShift, MET::METCorrectionLevel::RawCalo );
+  return shiftedP2(MET::METUncertainty::NoShift, MET::METCorrectionLevel::RawCalo);
 }
 
-double MET::caloMETPt() const {
-  return caloMETP2().pt();
-}
+double MET::caloMETPt() const { return caloMETP2().pt(); }
 
-double MET::caloMETPhi() const {
-  return caloMETP2().phi();
-}
+double MET::caloMETPhi() const { return caloMETP2().phi(); }
 
-double MET::caloMETSumEt() const {
-  return shiftedSumEt(MET::NoShift, MET::RawCalo );
-}
+double MET::caloMETSumEt() const { return shiftedSumEt(MET::NoShift, MET::RawCalo); }
 
 // functions to access to 74X samples ========================================================
-MET::Vector2 MET::shiftedP2_74x(MET::METUncertainty shift, MET::METCorrectionLevel level)  const {
-  if (level != Type1 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples \n");
-    const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ :  uncertaintiesRaw_);
-    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
-    if (v.size() == 1) {
-        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)\n");
-        return Vector2{ (px() + v.front().dpx()), (py() + v.front().dpy()) };
-    }
-    Vector2 ret{ (px() + v[shift].dpx()), (py() + v[shift].dpy()) };
-    return ret;
+MET::Vector2 MET::shiftedP2_74x(MET::METUncertainty shift, MET::METCorrectionLevel level) const {
+  if (level != Type1 && level != Raw)
+    throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples \n");
+  const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : uncertaintiesRaw_);
+  if (v.empty())
+    throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
+  if (v.size() == 1) {
+    if (shift != MET::METUncertainty::NoShift)
+      throw cms::Exception(
+          "Unsupported",
+          "MET uncertainties not available for the specified correction type (only central value available)\n");
+    return Vector2{(px() + v.front().dpx()), (py() + v.front().dpy())};
+  }
+  Vector2 ret{(px() + v[shift].dpx()), (py() + v[shift].dpy())};
+  return ret;
 }
 
-MET::Vector MET::shiftedP3_74x(MET::METUncertainty shift, MET::METCorrectionLevel level)  const {
-  if (level != Type1 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples \n");
-    const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ :  uncertaintiesRaw_);
-    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
-    if (v.size() == 1) {
-        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)\n");
-        return Vector(px() + v.front().dpx(), py() + v.front().dpy(), 0);
-    }
-    return Vector(px() + v[shift].dpx(), py() + v[shift].dpy(), 0);
+MET::Vector MET::shiftedP3_74x(MET::METUncertainty shift, MET::METCorrectionLevel level) const {
+  if (level != Type1 && level != Raw)
+    throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples \n");
+  const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : uncertaintiesRaw_);
+  if (v.empty())
+    throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
+  if (v.size() == 1) {
+    if (shift != MET::METUncertainty::NoShift)
+      throw cms::Exception(
+          "Unsupported",
+          "MET uncertainties not available for the specified correction type (only central value available)\n");
+    return Vector(px() + v.front().dpx(), py() + v.front().dpy(), 0);
+  }
+  return Vector(px() + v[shift].dpx(), py() + v[shift].dpy(), 0);
 }
 
-MET::LorentzVector MET::shiftedP4_74x(METUncertainty shift, MET::METCorrectionLevel level)  const {
-  if (level != Type1 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples\n");
-    const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : uncertaintiesRaw_);
-    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
-    if (v.size() == 1) {
-        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)\n");
-        double x = px() + v.front().dpx(), y = py() + v.front().dpy();
-        return LorentzVector(x, y, 0, std::hypot(x,y));
-    }
-    double x = px() + v[shift].dpx(), y = py() + v[shift].dpy();
-    return LorentzVector(x, y, 0, std::hypot(x,y));
+MET::LorentzVector MET::shiftedP4_74x(METUncertainty shift, MET::METCorrectionLevel level) const {
+  if (level != Type1 && level != Raw)
+    throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples\n");
+  const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : uncertaintiesRaw_);
+  if (v.empty())
+    throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
+  if (v.size() == 1) {
+    if (shift != MET::METUncertainty::NoShift)
+      throw cms::Exception(
+          "Unsupported",
+          "MET uncertainties not available for the specified correction type (only central value available)\n");
+    double x = px() + v.front().dpx(), y = py() + v.front().dpy();
+    return LorentzVector(x, y, 0, std::hypot(x, y));
+  }
+  double x = px() + v[shift].dpx(), y = py() + v[shift].dpy();
+  return LorentzVector(x, y, 0, std::hypot(x, y));
 }
 
 double MET::shiftedSumEt_74x(MET::METUncertainty shift, MET::METCorrectionLevel level) const {
-  if (level != Type1 && level != Raw) throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples\n");
-    const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : uncertaintiesRaw_);
-    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
-    if (v.size() == 1) {
-        if (shift != MET::METUncertainty::NoShift) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type (only central value available)\n");
-        return sumEt() + v.front().dsumEt();
-    }
-    return sumEt() + v[shift].dsumEt();
+  if (level != Type1 && level != Raw)
+    throw cms::Exception("Unsupported", "MET uncertainties only supported for Raw and Type1 in 74X samples\n");
+  const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : uncertaintiesRaw_);
+  if (v.empty())
+    throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type\n");
+  if (v.size() == 1) {
+    if (shift != MET::METUncertainty::NoShift)
+      throw cms::Exception(
+          "Unsupported",
+          "MET uncertainties not available for the specified correction type (only central value available)\n");
+    return sumEt() + v.front().dsumEt();
+  }
+  return sumEt() + v[shift].dsumEt();
 }
-
-
-
 
 #include "DataFormats/Math/interface/libminifloat.h"
 
 void MET::PackedMETUncertainty::pack() {
-  packedDpx_  =  MiniFloatConverter::float32to16(dpx_);
-  packedDpy_  =  MiniFloatConverter::float32to16(dpy_);
-  packedDSumEt_  =  MiniFloatConverter::float32to16(dsumEt_);
+  packedDpx_ = MiniFloatConverter::float32to16(dpx_);
+  packedDpy_ = MiniFloatConverter::float32to16(dpy_);
+  packedDSumEt_ = MiniFloatConverter::float32to16(dsumEt_);
 }
-void  MET::PackedMETUncertainty::unpack() const {
-  unpacked_=true;
-  dpx_=MiniFloatConverter::float16to32(packedDpx_);
-  dpy_=MiniFloatConverter::float16to32(packedDpy_);
-  dsumEt_=MiniFloatConverter::float16to32(packedDSumEt_);
+void MET::PackedMETUncertainty::unpack() const {
+  unpacked_ = true;
+  dpx_ = MiniFloatConverter::float16to32(packedDpx_);
+  dpy_ = MiniFloatConverter::float16to32(packedDpy_);
+  dsumEt_ = MiniFloatConverter::float16to32(packedDSumEt_);
 }
-

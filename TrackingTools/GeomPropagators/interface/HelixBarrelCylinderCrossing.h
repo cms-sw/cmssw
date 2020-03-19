@@ -11,33 +11,33 @@
 class Cylinder;
 
 /** Calculates the crossing of a helix with a barrel cylinder.
- */ 
+ */
 
 class HelixBarrelCylinderCrossing {
-
 public:
-  enum Solution {bothSol, bestSol, onlyPos};
+  enum Solution { bothSol, bestSol, onlyPos };
 
-  typedef double                   TmpType;
-  typedef Basic2DVector<TmpType>   Point; // for private use only
-  typedef Basic2DVector<TmpType>   Vector; // for private use only
+  typedef double TmpType;
+  typedef Basic2DVector<TmpType> Point;   // for private use only
+  typedef Basic2DVector<TmpType> Vector;  // for private use only
 
+  typedef GlobalPoint PositionType;
+  typedef GlobalVector DirectionType;
 
-  typedef GlobalPoint    PositionType;
-  typedef GlobalVector   DirectionType;
+  HelixBarrelCylinderCrossing(const GlobalPoint& startingPos,
+                              const GlobalVector& startingDir,
+                              double rho,
+                              PropagationDirection propDir,
+                              const Cylinder& cyl,
+                              Solution sol = bothSol);
 
-  HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
-			       const GlobalVector& startingDir,
-			       double rho, PropagationDirection propDir, 
-			       const Cylinder& cyl, Solution sol=bothSol);
-
-  bool hasSolution() const { return theSolExists;}
+  bool hasSolution() const { return theSolExists; }
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the cylinder. The 
    *  starting point and the cylinder are given in the constructor.
    */
-  double pathLength() const { return theS;}
+  double pathLength() const { return theS; }
 
   /** Returns the position along the helix that corresponds to path
    *  length "s" from the starting point. If s is obtained from the
@@ -45,39 +45,35 @@ public:
    *  the position of the crossing with a cylinder (if it exists!) 
    *  is given by position( pathLength( cylinder)).
    */
-  PositionType position() const { return thePos;}
-  
-  /// Method to access separately each solution of the helix-cylinder crossing equations
-  PositionType position1() const { return thePos1;}
+  PositionType position() const { return thePos; }
 
   /// Method to access separately each solution of the helix-cylinder crossing equations
-  PositionType position2() const { return thePos2;}
+  PositionType position1() const { return thePos1; }
 
+  /// Method to access separately each solution of the helix-cylinder crossing equations
+  PositionType position2() const { return thePos2; }
 
   /** Returns the direction along the helix that corresponds to path
    *  length "s" from the starting point. As for position,
    *  the direction of the crossing with a cylinder (if it exists!) 
    *  is given by direction( pathLength( cylinder)).
    */
-  DirectionType direction() const { return theDir;}
+  DirectionType direction() const { return theDir; }
 
 private:
+  PositionType thePos;
+  DirectionType theDir;
+  double theS;
+  bool theSolExists;
 
-  PositionType   thePos;
-  DirectionType  theDir;
-  double         theS;
-  bool           theSolExists;
+  PositionType thePos1;
+  PositionType thePos2;
 
-
-  PositionType   thePos1;
-  PositionType   thePos2;
-
-
-  std::pair<Vector,int> chooseSolution( const Point& p1, const Point& p2,
-					const PositionType& startingPos,
-					const DirectionType& startingDir, 
-					PropagationDirection propDir) dso_internal;
-
+  std::pair<Vector, int> chooseSolution(const Point& p1,
+                                        const Point& p2,
+                                        const PositionType& startingPos,
+                                        const DirectionType& startingDir,
+                                        PropagationDirection propDir) dso_internal;
 };
 
 #endif

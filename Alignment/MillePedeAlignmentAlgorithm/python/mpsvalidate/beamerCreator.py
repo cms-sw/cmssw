@@ -2,6 +2,7 @@
 # Creates beamer out of the histograms, parsed data and a given template.
 ##
 
+from builtins import range
 import logging
 import os
 import string

@@ -21,71 +21,67 @@
 ///-----------------------------------------------------------
 
 class TEcnaNumbering : public TObject {
-
 private:
-
-  Int_t fgMaxCar;   // Max nb of caracters for char*
-  Int_t fCnew;          // flags for dynamical allocation
-  Int_t fCdelete;       
+  Int_t fgMaxCar;  // Max nb of caracters for char*
+  Int_t fCnew;     // flags for dynamical allocation
+  Int_t fCdelete;
 
   TString fTTBELL;
 
   TString fFlagSubDet;
-  Int_t   fFlagPrint;
+  Int_t fFlagPrint;
 
-  TEcnaParEcal*   fEcal;
+  TEcnaParEcal* fEcal;
 
   //================================= BARREL
 
   Int_t** fT2dSMCrys;
-  Int_t*  fT1dSMCrys;
-  Int_t*  fT1dSMTow;
-  Int_t*  fT1dTowEcha;
+  Int_t* fT1dSMCrys;
+  Int_t* fT1dSMTow;
+  Int_t* fT1dTowEcha;
 
   TString fCodeChNumberingLvrbBot;
   TString fCodeChNumberingLvrbTop;
 
   //================================= ENDCAP
 
-  Int_t*** fT3dDeeCrys;      // = CNA_CrysInDee[CNA_SCInDee - 1][CMS_CrysInSC - 1][CMS_DeeDir_index] 
-  Int_t**  fT2dDeeCrys;
-  Int_t*   fT1dDeeCrys;
+  Int_t*** fT3dDeeCrys;  // = CNA_CrysInDee[CNA_SCInDee - 1][CMS_CrysInSC - 1][CMS_DeeDir_index]
+  Int_t** fT2dDeeCrys;
+  Int_t* fT1dDeeCrys;
 
-  Int_t**  fT2dDeeSC;        // = CNA_SCInDee[CNA_CrysInDee - 1][CMS_DeeDir_index]
-  Int_t*   fT1dDeeSC;
+  Int_t** fT2dDeeSC;  // = CNA_SCInDee[CNA_CrysInDee - 1][CMS_DeeDir_index]
+  Int_t* fT1dDeeSC;
 
-  Int_t**  fT2dSCEcha;       // = CMS_CrysInSC[CNA_CrysInDee - 1][CMS_DeeDir_index]
-  Int_t*   fT1dSCEcha;
+  Int_t** fT2dSCEcha;  // = CMS_CrysInSC[CNA_CrysInDee - 1][CMS_DeeDir_index]
+  Int_t* fT1dSCEcha;
 
-  Int_t**  fT2d_jch_JY;      // = JY[CMS_SCQuadType_index][CMS_CrysInSC - 1]
-  Int_t*   fT1d_jch_JY;
+  Int_t** fT2d_jch_JY;  // = JY[CMS_SCQuadType_index][CMS_CrysInSC - 1]
+  Int_t* fT1d_jch_JY;
 
-  Int_t**  fT2d_ich_IX;      // = IX[CMS_SCQuadType_index][CMS_CrysInSC - 1]
-  Int_t*   fT1d_ich_IX;
+  Int_t** fT2d_ich_IX;  // = IX[CMS_SCQuadType_index][CMS_CrysInSC - 1]
+  Int_t* fT1d_ich_IX;
 
-  TString  fCodeChNumberingITP1Bot;
-  TString  fCodeChNumberingITP2Top;
+  TString fCodeChNumberingITP1Bot;
+  TString fCodeChNumberingITP2Top;
 
-  Int_t**  fT2d_DS;          // = DS[Dee - 1, CNA_SCInDee - 1]
-  Int_t*   fT1d_DS;  
+  Int_t** fT2d_DS;  // = DS[Dee - 1, CNA_SCInDee - 1]
+  Int_t* fT1d_DS;
 
-  Int_t**  fT2d_DSSC;        // = SCInDS[Dee - 1, CNA_SCInDee - 1]
-  Int_t*   fT1d_DSSC;
+  Int_t** fT2d_DSSC;  // = SCInDS[Dee - 1, CNA_SCInDee - 1]
+  Int_t* fT1d_DSSC;
 
-  Int_t**  fT2d_DeeSCCons;   // = SCConsInDee[Dee - 1, CNA_SCInDee - 1]
-  Int_t*   fT1d_DeeSCCons;
+  Int_t** fT2d_DeeSCCons;  // = SCConsInDee[Dee - 1, CNA_SCInDee - 1]
+  Int_t* fT1d_DeeSCCons;
 
-  Int_t**  fT2d_RecovDeeSC;  // = CNA_SCInDee[Dee - 1, SCConsInDee - 1]
-  Int_t*   fT1d_RecovDeeSC;
+  Int_t** fT2d_RecovDeeSC;  // = CNA_SCInDee[Dee - 1, SCConsInDee - 1]
+  Int_t* fT1d_RecovDeeSC;
 
   //........................................................................................
 
 protected:
-
   void Init();
 
 public:
-
   //------------------------------- methods
 
   TEcnaNumbering();
@@ -98,7 +94,7 @@ public:
 
   //================================== BARREL
 
-  void  BuildBarrelCrysTable();   // correspondance crystal# in super-module <-> (tower number, channel# in tower)
+  void BuildBarrelCrysTable();  // correspondance crystal# in super-module <-> (tower number, channel# in tower)
 
   Int_t Get1SMCrysFrom1SMTowAnd0TowEcha(const Int_t&, const Int_t&);
   Int_t Get0SMEchaFrom1SMTowAnd0TowEcha(const Int_t&, const Int_t&);
@@ -117,11 +113,11 @@ public:
   Double_t GetEtaMin(const Int_t&, const Int_t&);
   Double_t GetEtaMax(const Int_t&, const Int_t&);
 
-  Double_t GetIEtaMin(const Int_t&, const Int_t&);    // only for axis of TowerCrystalNumbering (+0.5 shift)
-  Double_t GetIEtaMax(const Int_t&, const Int_t&);    // only for axis of TowerCrystalNumbering (-0.5 shift)
+  Double_t GetIEtaMin(const Int_t&, const Int_t&);  // only for axis of TowerCrystalNumbering (+0.5 shift)
+  Double_t GetIEtaMax(const Int_t&, const Int_t&);  // only for axis of TowerCrystalNumbering (-0.5 shift)
 
-  Double_t GetIEtaMin(const Int_t&);                  // only for axis of SMTowerNumbering (+0.5 shift)
-  Double_t GetIEtaMax(const Int_t&);                  // only for axis of SMTowerNumbering (-0.5 shift)
+  Double_t GetIEtaMin(const Int_t&);  // only for axis of SMTowerNumbering (+0.5 shift)
+  Double_t GetIEtaMax(const Int_t&);  // only for axis of SMTowerNumbering (-0.5 shift)
 
   Double_t GetPhiInSM(const Int_t&, const Int_t&, const Int_t&);
   Double_t GetPhi(const Int_t&, const Int_t&, const Int_t&);
@@ -149,14 +145,14 @@ public:
 
   TString GetSMHalfBarrel(const Int_t&);
 
-  Int_t   PlusMinusSMNumber(const Int_t&);
+  Int_t PlusMinusSMNumber(const Int_t&);
 
   //================================== ENDCAP
 
-  void BuildEndcapCrysTable(); // correspondance crystal# in Dee <-> (SC number, channel# in SC)
-  void BuildEndcapSCTable();   // correspondance  SC# in Dee <-> (DS#, SC# in DS, SC# for construction)
-                               // (SC = Super Crystal, DS = Data Sector)
- 
+  void BuildEndcapCrysTable();  // correspondance crystal# in Dee <-> (SC number, channel# in SC)
+  void BuildEndcapSCTable();    // correspondance  SC# in Dee <-> (DS#, SC# in DS, SC# for construction)
+                                // (SC = Super Crystal, DS = Data Sector)
+
   Int_t Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(const Int_t&, const Int_t&, const TString&);
 
   Int_t Get1SCEchaFrom0DeeEcha(const Int_t&);
@@ -180,18 +176,18 @@ public:
 
   Int_t GetMaxSCInDS(const Int_t&);
 
-  Double_t GetIIXMin(const Int_t&);    // only for axis of SCCrystalNumbering (+0.5 shift)
-  Double_t GetIIXMax(const Int_t&);    // only for axis of SCCrystalNumbering (-0.5 shift)
-  Double_t GetIIXMin();                // only for axis of DeeSCNumbering (+0.5 shift)
-  Double_t GetIIXMax();                // only for axis of DeeSCNumbering (-0.5 shift)
+  Double_t GetIIXMin(const Int_t&);  // only for axis of SCCrystalNumbering (+0.5 shift)
+  Double_t GetIIXMax(const Int_t&);  // only for axis of SCCrystalNumbering (-0.5 shift)
+  Double_t GetIIXMin();              // only for axis of DeeSCNumbering (+0.5 shift)
+  Double_t GetIIXMax();              // only for axis of DeeSCNumbering (-0.5 shift)
 
   Double_t GetJIYMin(const Int_t&, const Int_t&);
   Double_t GetJIYMax(const Int_t&, const Int_t&);
   Double_t GetJIYMin(const Int_t&);
   Double_t GetJIYMax(const Int_t&);
 
-  Int_t   GetDeeDirIndex(const TString&);
-  Int_t   GetSCQuadTypeIndex(const TString&, const TString&);
+  Int_t GetDeeDirIndex(const TString&);
+  Int_t GetSCQuadTypeIndex(const TString&, const TString&);
   TString GetDeeDirViewedFromIP(const Int_t&);
 
   TString GetSCQuadFrom1DeeSCEcna(const Int_t&);
@@ -213,10 +209,10 @@ public:
   Int_t Get1StexStinFrom0StexEcha(const Int_t&);
 
   Int_t Get0StexEchaFrom1StexStinAnd0StinEcha(const Int_t&, const Int_t&);
-  Int_t Get1StexCrysFrom1StexStinAnd0StinEcha(const Int_t&, const Int_t&, const Int_t&); // last arg = Stex Number
+  Int_t Get1StexCrysFrom1StexStinAnd0StinEcha(const Int_t&, const Int_t&, const Int_t&);  // last arg = Stex Number
 
-  Double_t GetIHocoMin(const Int_t&, const Int_t&);   // only for axis of TowerCrystalNumbering (+0.5 shift)
-  Double_t GetIHocoMax(const Int_t&, const Int_t&);   // only for axis of TowerCrystalNumbering (-0.5 shift)
+  Double_t GetIHocoMin(const Int_t&, const Int_t&);  // only for axis of TowerCrystalNumbering (+0.5 shift)
+  Double_t GetIHocoMax(const Int_t&, const Int_t&);  // only for axis of TowerCrystalNumbering (-0.5 shift)
 
   Double_t GetVecoMin(const Int_t&, const Int_t&);
   Double_t GetVecoMax(const Int_t&, const Int_t&);
@@ -226,11 +222,11 @@ public:
 
   TString GetStexHalfStas(const Int_t&);
 
-  Int_t GetSMFromFED(const Int_t&);   // SM = SuperModule
-  Int_t GetDSFromFED(const Int_t&);   // DS = DataSector
+  Int_t GetSMFromFED(const Int_t&);  // SM = SuperModule
+  Int_t GetDSFromFED(const Int_t&);  // DS = DataSector
 
-  Int_t MaxCrysInStinEcna(const Int_t&, const Int_t&, const TString&); // for not connected and incomplete SC's
+  Int_t MaxCrysInStinEcna(const Int_t&, const Int_t&, const TString&);  // for not connected and incomplete SC's
 
-  ClassDefOverride(TEcnaNumbering,1)  //Channel Numbering for CNA
+  ClassDefOverride(TEcnaNumbering, 1)  //Channel Numbering for CNA
 };
 #endif

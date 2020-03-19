@@ -9,8 +9,6 @@
 #include <iosfwd>
 #include <string>
 
-
-
 /** \class GsfBetheHeitlerUpdator
  *  Description of electron energy loss according to Bethe-Heitler
  *  as a sum of Gaussian components. The weights and parameters of the
@@ -19,84 +17,78 @@
  * construction time.
  */
 
-class GsfBetheHeitlerUpdator final: public GsfMaterialEffectsUpdator {
-
+class GsfBetheHeitlerUpdator final : public GsfMaterialEffectsUpdator {
 private:
-  static constexpr int MaxSize=6;
-  static constexpr int MaxOrder=6;
+  static constexpr int MaxSize = 6;
+  static constexpr int MaxOrder = 6;
 
   /** Helper class for construction & evaluation of a polynomial
    */
   class Polynomial {
   public:
     /// Default constructor (needed for construction of a vector)
-    Polynomial () {}
+    Polynomial() {}
     /** Constructor from a vector of coefficients
      *  (in decreasing order of powers of x)
      */
-    Polynomial (float coefficients[], int is) :
-      m_size(is) {
-      for (int i=0; i!=m_size; ++i)
-	theCoeffs[i]=coefficients[i];
+    Polynomial(float coefficients[], int is) : m_size(is) {
+      for (int i = 0; i != m_size; ++i)
+        theCoeffs[i] = coefficients[i];
     }
-    /// Evaluation of the polynomial 
-    float operator() (float x) const {
-      float sum=theCoeffs[0];
-      for (int i=1; i!=m_size; ++i)
-	sum = x*sum + theCoeffs[i];
+    /// Evaluation of the polynomial
+    float operator()(float x) const {
+      float sum = theCoeffs[0];
+      for (int i = 1; i != m_size; ++i)
+        sum = x * sum + theCoeffs[i];
       return sum;
     }
+
   private:
-    float theCoeffs[MaxOrder] ={0};
-    int m_size=0;
+    float theCoeffs[MaxOrder] = {0};
+    int m_size = 0;
   };
 
 public:
-  enum CorrectionFlag { NoCorrection=0, MeanCorrection=1, FullCorrection=2 };
+  enum CorrectionFlag { NoCorrection = 0, MeanCorrection = 1, FullCorrection = 2 };
 
 public:
-  GsfBetheHeitlerUpdator* clone() const override
-  {
-    return new GsfBetheHeitlerUpdator(*this);
-  }
-  
+  GsfBetheHeitlerUpdator *clone() const override { return new GsfBetheHeitlerUpdator(*this); }
+
 public:
   /// constructor with explicit filename and correction flag
-  GsfBetheHeitlerUpdator (const std::string fileName, const int correctionFlag);
+  GsfBetheHeitlerUpdator(const std::string fileName, const int correctionFlag);
 
 private:
-  struct GSContainer {float *first, *second, *third;};
+  struct GSContainer {
+    float *first, *second, *third;
+  };
 
   /// Computation: generates vectors of weights, means and standard deviations
-  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
+  void compute(const TrajectoryStateOnSurface &, const PropagationDirection, Effect[]) const override;
 
 private:
-
   /// Read parametrization from file
-  void readParameters (const std::string);
+  void readParameters(const std::string);
   /// Read coefficients of one polynomial from file
-  Polynomial readPolynomial (std::ifstream&,const unsigned int);
+  Polynomial readPolynomial(std::ifstream &, const unsigned int);
 
- 
   /// Filling of mixture (in terms of z=E/E0)
-  void getMixtureParameters (const float, GSContainer &) const;
+  void getMixtureParameters(const float, GSContainer &) const;
   /// Correction for weight of component 1
-  void correctWeights (GSContainer&) const;
+  void correctWeights(GSContainer &) const;
   /// Correction for mean of component 1
-  float correctedFirstMean (const float, const GSContainer &) const;
+  float correctedFirstMean(const float, const GSContainer &) const;
   /// Correction for variance of component 1
-  float correctedFirstVar (const float,const GSContainer &) const;
-  
+  float correctedFirstVar(const float, const GSContainer &) const;
 
 private:
-  int theNrComponents;                  /// number of components used for parameterisation
-  int theTransformationCode;            /// values to be transformed by logistic / exp. function?
-  int theCorrectionFlag;                /// correction of 1st or 1st&2nd moments
+  int theNrComponents;        /// number of components used for parameterisation
+  int theTransformationCode;  /// values to be transformed by logistic / exp. function?
+  int theCorrectionFlag;      /// correction of 1st or 1st&2nd moments
 
-  Polynomial thePolyWeights[MaxSize];    /// parametrisation of weight for each component
-  Polynomial thePolyMeans[MaxSize];      /// parametrisation of mean for each componentP
-  Polynomial thePolyVars[MaxSize];       /// parametrisation of variance for each component
-
+  Polynomial thePolyWeights[MaxSize];  /// parametrisation of weight for each component
+  Polynomial thePolyMeans[MaxSize];    /// parametrisation of mean for each componentP
+  Polynomial thePolyVars[MaxSize];     /// parametrisation of variance for each component
 };
 
 #endif

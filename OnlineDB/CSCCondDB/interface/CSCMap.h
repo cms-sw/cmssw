@@ -5,24 +5,22 @@
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <string>
 
-class cscmap
-{
-  private:
-
+class cscmap {
+private:
   oracle::occi::Environment *env;
   oracle::occi::Connection *con;
 
-  public :
+public:
   /**
    * Constructor for cscmap
    */
-  cscmap () noexcept(false);
+  cscmap() noexcept(false);
   /**
    * Destructor for cscmap
    */
-  ~cscmap () noexcept(false);
+  ~cscmap() noexcept(false);
 
-/*  Method 'crate0_chamber' returns for a given logical crate
+  /*  Method 'crate0_chamber' returns for a given logical crate
 |   number 'crate0' (values 0-59) and DMB number 'dmb' 
 |   (1-5,7-10; for station 4 (no ring 2) DMB No 1-3)
 |   chamber identifiers: 'chamber_id' is a string like 'ME+2/2/27'
@@ -36,20 +34,28 @@ class cscmap
 |   is outside the permitted range; -10 means that 'dmb' is outside
 |   the permitted range.
 */
-  void crate0_chamber (int crate0, int dmb, std::string *chamber_id,
-		       int *chamber_num, int *sector,
-                       int *first_strip_index, int *strips_per_layer,
-                       int *chamber_index);
-/* Method 'crate_chamber' returns similar to previous information,
+  void crate0_chamber(int crate0,
+                      int dmb,
+                      std::string *chamber_id,
+                      int *chamber_num,
+                      int *sector,
+                      int *first_strip_index,
+                      int *strips_per_layer,
+                      int *chamber_index);
+  /* Method 'crate_chamber' returns similar to previous information,
 |   but for physical (installed) 'crate' number. By now (2005/11/16)
 |   only 2 crates are installed (0 and 1).
 |   -1 returned means that infor mation for non-installed crate is requested.
 */
-  void crate_chamber (int crate, int dmb, std::string *chamber_id,
-		       int *chamber_num, int *sector,
-                       int *first_strip_index, int *strips_per_layer,
-                       int *chamber_index);
-/* Method 'chamber_crate' returns information for a given chamber,
+  void crate_chamber(int crate,
+                     int dmb,
+                     std::string *chamber_id,
+                     int *chamber_num,
+                     int *sector,
+                     int *first_strip_index,
+                     int *strips_per_layer,
+                     int *chamber_index);
+  /* Method 'chamber_crate' returns information for a given chamber,
 |   'chamber_id', (like 'ME+2/2/27'). 'crate' - physical (installed)
 |   crate number (-1 means that crate for the given chamber is not
 |   installed), 'dmb' - DMB number (1-5,7-10), 'sector' - trigger sector
@@ -57,10 +63,15 @@ class cscmap
 |   'crate0' - logical crate number.
 |   -100 returned means that 'chamber_id' format is incorrect.
 */
-  void chamber_crate (std::string chamber_id, int *crate, int *dmb,
-		      int *sector, int *chamber_num, int *crate0,
-                      int *first_strip_index, int *strips_per_layer,
-                      int *chamber_index);
+  void chamber_crate(std::string chamber_id,
+                     int *crate,
+                     int *dmb,
+                     int *sector,
+                     int *chamber_num,
+                     int *crate0,
+                     int *first_strip_index,
+                     int *strips_per_layer,
+                     int *chamber_index);
 
-}; // end of class cscmap
+};  // end of class cscmap
 #endif

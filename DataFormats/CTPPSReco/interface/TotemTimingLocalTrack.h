@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 #ifndef DataFormats_CTPPSReco_TotemTimingLocalTrack
 #define DataFormats_CTPPSReco_TotemTimingLocalTrack
 
@@ -15,12 +14,10 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class TotemTimingLocalTrack : public CTPPSTimingLocalTrack
-{
-  public:
-    using CTPPSTimingLocalTrack::CTPPSTimingLocalTrack;
-    // no specific class members yet
+class TotemTimingLocalTrack : public CTPPSTimingLocalTrack {
+public:
+  using CTPPSTimingLocalTrack::CTPPSTimingLocalTrack;
+  // no specific class members yet
 };
-
 
 #endif

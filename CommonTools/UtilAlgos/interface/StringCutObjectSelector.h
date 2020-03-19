@@ -8,34 +8,28 @@
 namespace reco {
   namespace modules {
 
-    template<typename T, bool Lazy>
+    template <typename T, bool Lazy>
     struct ParameterAdapter<StringCutObjectSelector<T, Lazy> > {
-      static StringCutObjectSelector<T, Lazy> make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	return StringCutObjectSelector<T, Lazy>( cfg.template getParameter<std::string>( "cut" ) );
+      static StringCutObjectSelector<T, Lazy> make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return StringCutObjectSelector<T, Lazy>(cfg.template getParameter<std::string>("cut"));
       }
 
-      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
-        desc.add<std::string>("cut", "");
-      }
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<std::string>("cut", ""); }
     };
 
-  }
-}
-
+  }  // namespace modules
+}  // namespace reco
 
 // Introducing a simpler way to use a string object selector outside of the
 // heavily-templated infrastructure above. This simply translates the cfg
 // into the string that the functor expects.
-namespace reco{
-  template< typename T, bool Lazy>
-    class StringCutObjectSelectorHandler : public StringCutObjectSelector<T,Lazy>  {
-    public:
-      explicit StringCutObjectSelectorHandler( const edm::ParameterSet & cfg ) :
-        StringCutObjectSelector<T, Lazy>(cfg.getParameter<std::string>("cut"))
-      {
-      }
+namespace reco {
+  template <typename T, bool Lazy>
+  class StringCutObjectSelectorHandler : public StringCutObjectSelector<T, Lazy> {
+  public:
+    explicit StringCutObjectSelectorHandler(const edm::ParameterSet& cfg)
+        : StringCutObjectSelector<T, Lazy>(cfg.getParameter<std::string>("cut")) {}
   };
-}
+}  // namespace reco
 
 #endif
-

@@ -15,24 +15,19 @@
  *   LMF sequence version
  */
 class LMFSeqVers : public LMFPrimVers {
- public:
+public:
   friend class LMFRunIOV;  // needs permission to write
 
   LMFSeqVers();
   LMFSeqVers(EcalDBConnection *c);
-  LMFSeqVers(oracle::occi::Environment* env,
-	     oracle::occi::Connection* conn);
+  LMFSeqVers(oracle::occi::Environment *env, oracle::occi::Connection *conn);
   ~LMFSeqVers() override;
 
   // Operators
-  inline bool operator==(const LMFSeqVers &t) const { 
-    return (getDescription() == t.getDescription());
-  }
-  inline bool operator!=(const LMFSeqVers &t) const { 
-    return (getDescription() != t.getDescription());
-  }
+  inline bool operator==(const LMFSeqVers &t) const { return (getDescription() == t.getDescription()); }
+  inline bool operator!=(const LMFSeqVers &t) const { return (getDescription() != t.getDescription()); }
 
- private:
+private:
   // Methods from LMFUnique
   std::string fetchIdSql(Statement *stmt) override;
   std::string fetchAllSql(Statement *stmt) const override;

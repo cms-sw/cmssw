@@ -24,7 +24,6 @@
 
 #include <iostream>
 
-
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
@@ -37,30 +36,21 @@ using namespace std;
 //       class L1MuBMTFSetup
 //---------------------------------
 
-
 //----------------
 // Constructors --
 //----------------
 
-L1MuBMTFSetup::L1MuBMTFSetup(const edm::ParameterSet & ps, edm::ConsumesCollector && iC) : m_tf(new L1MuBMTrackFinder(ps,std::move(iC))) {
+L1MuBMTFSetup::L1MuBMTFSetup(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC)
+    : m_tf(new L1MuBMTrackFinder(ps, std::move(iC))) {
   // setup  the barrel Muon Trigger Track Finder
   m_tf->setup(std::move(iC));
-
 }
-
-
 
 //--------------
 // Destructor --
 //--------------
 
-L1MuBMTFSetup::~L1MuBMTFSetup() {
-
-  delete m_tf;
-
-}
-
-
+L1MuBMTFSetup::~L1MuBMTFSetup() { delete m_tf; }
 
 //--------------
 // Operations --

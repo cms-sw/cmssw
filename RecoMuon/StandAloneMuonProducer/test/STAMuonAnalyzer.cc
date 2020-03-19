@@ -33,50 +33,49 @@ using namespace std;
 using namespace edm;
 
 /// Constructor
-STAMuonAnalyzer::STAMuonAnalyzer(const ParameterSet& pset){
+STAMuonAnalyzer::STAMuonAnalyzer(const ParameterSet& pset) {
   theSTAMuonLabel = pset.getUntrackedParameter<string>("StandAloneTrackCollectionLabel");
   theSeedCollectionLabel = pset.getUntrackedParameter<string>("MuonSeedCollectionLabel");
 
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
 
   theDataType = pset.getUntrackedParameter<string>("DataType");
-  
-  if(theDataType != "RealData" && theDataType != "SimData")
-    cout<<"Error in Data Type!!"<<endl;
 
-  numberOfSimTracks=0;
-  numberOfRecTracks=0;
+  if (theDataType != "RealData" && theDataType != "SimData")
+    cout << "Error in Data Type!!" << endl;
+
+  numberOfSimTracks = 0;
+  numberOfRecTracks = 0;
 }
 
 /// Destructor
-STAMuonAnalyzer::~STAMuonAnalyzer(){
-}
+STAMuonAnalyzer::~STAMuonAnalyzer() {}
 
-void STAMuonAnalyzer::beginJob(){
+void STAMuonAnalyzer::beginJob() {
   // Create the root file
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   theFile->cd();
 
-  hPtRec = new TH1F("pTRec","p_{T}^{rec}",250,0,120);
-  hPtSim = new TH1F("pTSim","p_{T}^{gen} ",250,0,120);
+  hPtRec = new TH1F("pTRec", "p_{T}^{rec}", 250, 0, 120);
+  hPtSim = new TH1F("pTSim", "p_{T}^{gen} ", 250, 0, 120);
 
-  hPTDiff = new TH1F("pTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
-  hPTDiff2 = new TH1F("pTDiff2","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
+  hPTDiff = new TH1F("pTDiff", "p_{T}^{rec} - p_{T}^{gen} ", 250, -120, 120);
+  hPTDiff2 = new TH1F("pTDiff2", "p_{T}^{rec} - p_{T}^{gen} ", 250, -120, 120);
 
-  hPTDiffvsEta = new TH2F("PTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
-  hPTDiffvsPhi = new TH2F("PTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-6,6,250,-120,120);
+  hPTDiffvsEta = new TH2F("PTDiffvsEta", "p_{T}^{rec} - p_{T}^{gen} VS #eta", 100, -2.5, 2.5, 250, -120, 120);
+  hPTDiffvsPhi = new TH2F("PTDiffvsPhi", "p_{T}^{rec} - p_{T}^{gen} VS #phi", 100, -6, 6, 250, -120, 120);
 
-  hPres = new TH1F("pTRes","pT Resolution",100,-2,2);
-  h1_Pres = new TH1F("invPTRes","1/pT Resolution",100,-2,2);
+  hPres = new TH1F("pTRes", "pT Resolution", 100, -2, 2);
+  h1_Pres = new TH1F("invPTRes", "1/pT Resolution", 100, -2, 2);
 }
 
-void STAMuonAnalyzer::endJob(){
-  if(theDataType == "SimData"){
+void STAMuonAnalyzer::endJob() {
+  if (theDataType == "SimData") {
     cout << endl << endl << "Number of Sim tracks: " << numberOfSimTracks << endl;
   }
 
   cout << "Number of Reco tracks: " << numberOfRecTracks << endl << endl;
-    
+
   // Write the histos to file
   theFile->cd();
   hPtRec->Write();
@@ -89,13 +88,11 @@ void STAMuonAnalyzer::endJob(){
   hPTDiffvsPhi->Write();
   theFile->Close();
 }
- 
 
-void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
-  
+void STAMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) {
   cout << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
   MuonPatternRecoDumper debug;
-  
+
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
   event.getByLabel(theSTAMuonLabel, staTracks);
@@ -105,81 +102,78 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-  
-  double recPt=0.;
-  double simPt=0.;
+
+  double recPt = 0.;
+  double simPt = 0.;
 
   // Get the SimTrack collection from the event
-  if(theDataType == "SimData"){
+  if (theDataType == "SimData") {
     Handle<SimTrackContainer> simTracks;
-    event.getByLabel("g4SimHits",simTracks);
-    
+    event.getByLabel("g4SimHits", simTracks);
+
     numberOfRecTracks += staTracks->size();
 
     SimTrackContainer::const_iterator simTrack;
 
-    cout<<"Simulated tracks: "<<endl;
-    for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
+    cout << "Simulated tracks: " << endl;
+    for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
       if (abs((*simTrack).type()) == 13) {
-	cout<<"Sim pT: "<<(*simTrack).momentum().pt()<<endl;
-	simPt=(*simTrack).momentum().pt();
-	cout<<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl;
-	numberOfSimTracks++;
-      }    
+        cout << "Sim pT: " << (*simTrack).momentum().pt() << endl;
+        simPt = (*simTrack).momentum().pt();
+        cout << "Sim Eta: " << (*simTrack).momentum().eta() << endl;
+        numberOfSimTracks++;
+      }
     }
     cout << endl;
   }
-  
-  reco::TrackCollection::const_iterator staTrack;
-  
-  cout<<"Reconstructed tracks: " << staTracks->size() << endl;
 
-  for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
-    reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
-    
+  reco::TrackCollection::const_iterator staTrack;
+
+  cout << "Reconstructed tracks: " << staTracks->size() << endl;
+
+  for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack) {
+    reco::TransientTrack track(*staTrack, &*theMGField, theTrackingGeometry);
+
     cout << debug.dumpFTS(track.impactPointTSCP().theState());
-    
-    recPt = track.impactPointTSCP().momentum().perp();    
-    cout<<" p: "<<track.impactPointTSCP().momentum().mag()<< " pT: "<<recPt<<endl;
-    cout<<" chi2: "<<track.chi2()<<endl;
-    
+
+    recPt = track.impactPointTSCP().momentum().perp();
+    cout << " p: " << track.impactPointTSCP().momentum().mag() << " pT: " << recPt << endl;
+    cout << " chi2: " << track.chi2() << endl;
+
     hPtRec->Fill(recPt);
-    
+
     TrajectoryStateOnSurface innerTSOS = track.innermostMeasurementState();
-    cout << "Inner TSOS:"<<endl;
+    cout << "Inner TSOS:" << endl;
     cout << debug.dumpTSOS(innerTSOS);
-    cout<<" p: "<<innerTSOS.globalMomentum().mag()<< " pT: "<<innerTSOS.globalMomentum().perp()<<endl;
+    cout << " p: " << innerTSOS.globalMomentum().mag() << " pT: " << innerTSOS.globalMomentum().perp() << endl;
 
     trackingRecHit_iterator rhbegin = staTrack->recHitsBegin();
     trackingRecHit_iterator rhend = staTrack->recHitsEnd();
-    
-    cout<<"RecHits:"<<endl;
-    for(trackingRecHit_iterator recHit = rhbegin; recHit != rhend; ++recHit){
+
+    cout << "RecHits:" << endl;
+    for (trackingRecHit_iterator recHit = rhbegin; recHit != rhend; ++recHit) {
       const GeomDet* geomDet = theTrackingGeometry->idToDet((*recHit)->geographicalId());
       double r = geomDet->surface().position().perp();
       double z = geomDet->toGlobal((*recHit)->localPosition()).z();
-      cout<<"r: "<< r <<" z: "<<z <<endl;
+      cout << "r: " << r << " z: " << z << endl;
     }
-    
-    if(recPt && theDataType == "SimData"){  
 
-      hPres->Fill( (recPt-simPt)/simPt);
+    if (recPt && theDataType == "SimData") {
+      hPres->Fill((recPt - simPt) / simPt);
       hPtSim->Fill(simPt);
 
-      hPTDiff->Fill(recPt-simPt);
+      hPTDiff->Fill(recPt - simPt);
 
       //      hPTDiff2->Fill(track.innermostMeasurementState().globalMomentum().perp()-simPt);
-      hPTDiffvsEta->Fill(track.impactPointTSCP().position().eta(),recPt-simPt);
-      hPTDiffvsPhi->Fill(track.impactPointTSCP().position().phi(),recPt-simPt);
+      hPTDiffvsEta->Fill(track.impactPointTSCP().position().eta(), recPt - simPt);
+      hPTDiffvsPhi->Fill(track.impactPointTSCP().position().phi(), recPt - simPt);
 
-      if( ((recPt-simPt)/simPt) <= -0.4)
-	cout<<"Out of Res: "<<(recPt-simPt)/simPt<<endl;
-      h1_Pres->Fill( ( 1/recPt - 1/simPt)/ (1/simPt));
+      if (((recPt - simPt) / simPt) <= -0.4)
+        cout << "Out of Res: " << (recPt - simPt) / simPt << endl;
+      h1_Pres->Fill((1 / recPt - 1 / simPt) / (1 / simPt));
     }
-
-    
   }
-  cout<<"---"<<endl;  
+  cout << "---" << endl;
 }
 
 DEFINE_FWK_MODULE(STAMuonAnalyzer);

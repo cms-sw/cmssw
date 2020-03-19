@@ -21,20 +21,17 @@
  *
  * \author Vadim Khotilovich
  */
-class L2TauPixelIsoTagProducer : public edm::global::EDProducer<>
-{
+class L2TauPixelIsoTagProducer : public edm::global::EDProducer<> {
 public:
-
   explicit L2TauPixelIsoTagProducer(const edm::ParameterSet&);
 
-  ~L2TauPixelIsoTagProducer() override {};
+  ~L2TauPixelIsoTagProducer() override{};
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-
   const edm::EDGetTokenT<edm::View<reco::Jet> > m_jetSrc_token;
   const edm::EDGetTokenT<reco::VertexCollection> m_vertexSrc_token;
   const edm::EDGetTokenT<reco::TrackCollection> m_trackSrc_token;
@@ -45,7 +42,7 @@ private:
   const float m_trackMinPt;
   const float m_trackMaxDxy;
   const float m_trackMaxNChi2;
-  const int   m_trackMinNHits;
+  const int m_trackMinNHits;
   const float m_trackPVMaxDZ;
 
   const float m_isoCone2Min;

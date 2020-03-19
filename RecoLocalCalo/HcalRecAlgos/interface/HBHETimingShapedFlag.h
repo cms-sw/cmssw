@@ -5,16 +5,15 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
-
 class HBHETimingShapedFlagSetter {
- public:
+public:
   HBHETimingShapedFlagSetter();
   HBHETimingShapedFlagSetter(const std::vector<double>& tfilterEnvelope);
   HBHETimingShapedFlagSetter(const std::vector<double>& tfilterEnvelope,
-			     bool ignorelowest,
-			     bool ignorehighest,
-			     double win_offset,
-			     double win_gain);
+                             bool ignorelowest,
+                             bool ignorehighest,
+                             double win_offset,
+                             double win_gain);
   ~HBHETimingShapedFlagSetter();
   void Clear();
 
@@ -30,11 +29,11 @@ class HBHETimingShapedFlagSetter {
   //
   void SetTimingShapedFlags(HBHERecHit& hbhe);
 
- private:
+private:
   // key   = integer GeV (to avoid FP issues),
   // value = low/high values for timing in ns
   //
-  typedef std::map<int,std::pair<double,double> > TfilterEnvelope_t;
+  typedef std::map<int, std::pair<double, double> > TfilterEnvelope_t;
   TfilterEnvelope_t tfilterEnvelope_;
 
   void makeTfilterEnvelope(const std::vector<double>& v_userEnvelope);

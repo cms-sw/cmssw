@@ -10,20 +10,18 @@
  *  \author Patrick Janot, copied from N. Amapane - CERN
  */
 
-
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 class LocalMagneticField : public MagneticField {
- public:
-
+public:
   ///Construct passing the Z field component in Tesla
   LocalMagneticField(double value);
 
   ~LocalMagneticField() override {}
 
-  GlobalVector inTesla (const GlobalPoint& gp) const override;
+  GlobalVector inTesla(const GlobalPoint& gp) const override;
 
- private:
+private:
   GlobalVector theField;
 };
 

@@ -12,4 +12,3 @@ DEFINE_FWK_MODULE(TopMuonAnalyzer);
 DEFINE_FWK_MODULE(TopElecAnalyzer);
 DEFINE_FWK_MODULE(TopTauAnalyzer);
 DEFINE_FWK_MODULE(TopJetAnalyzer);
-

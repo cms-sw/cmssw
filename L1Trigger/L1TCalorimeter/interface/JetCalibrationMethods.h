@@ -13,11 +13,11 @@
 
 namespace l1t {
 
-  void JetCalibration(std::vector<l1t::Jet> * uncalibjets,
-		      std::vector<double> jetCalibrationParams,
-		      std::vector<l1t::Jet> * jets,
-		      std::string jetCalibrationType,
-		      double jetLSB);
+  void JetCalibration(std::vector<l1t::Jet>* uncalibjets,
+                      std::vector<double> jetCalibrationParams,
+                      std::vector<l1t::Jet>* jets,
+                      std::string jetCalibrationType,
+                      double jetLSB);
 
 }
 

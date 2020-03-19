@@ -45,16 +45,15 @@
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 
-REGISTER_PLUGIN(ESGainRcd,ESGain);
-REGISTER_PLUGIN(ESPedestalsRcd,ESCondObjectContainer<ESPedestal>);
-REGISTER_PLUGIN(ESTimeSampleWeightsRcd,ESTimeSampleWeights);
-REGISTER_PLUGIN(ESIntercalibConstantsRcd,ESCondObjectContainer<float>);
-REGISTER_PLUGIN(ESAngleCorrectionFactorsRcd,ESCondObjectContainer<float>);
-REGISTER_PLUGIN(ESADCToGeVConstantRcd,ESADCToGeVConstant);
-REGISTER_PLUGIN(ESMIPToGeVConstantRcd,ESMIPToGeVConstant);
-REGISTER_PLUGIN(ESThresholdsRcd,ESThresholds);
-REGISTER_PLUGIN(ESEEIntercalibConstantsRcd,ESEEIntercalibConstants);
-REGISTER_PLUGIN(ESMissingEnergyCalibrationRcd,ESMissingEnergyCalibration);
-REGISTER_PLUGIN(ESRecHitRatioCutsRcd,ESRecHitRatioCuts);
-REGISTER_PLUGIN(ESChannelStatusRcd,ESCondObjectContainer<ESChannelStatusCode> );
-
+REGISTER_PLUGIN(ESGainRcd, ESGain);
+REGISTER_PLUGIN(ESPedestalsRcd, ESCondObjectContainer<ESPedestal>);
+REGISTER_PLUGIN(ESTimeSampleWeightsRcd, ESTimeSampleWeights);
+REGISTER_PLUGIN(ESIntercalibConstantsRcd, ESCondObjectContainer<float>);
+REGISTER_PLUGIN(ESAngleCorrectionFactorsRcd, ESCondObjectContainer<float>);
+REGISTER_PLUGIN(ESADCToGeVConstantRcd, ESADCToGeVConstant);
+REGISTER_PLUGIN(ESMIPToGeVConstantRcd, ESMIPToGeVConstant);
+REGISTER_PLUGIN(ESThresholdsRcd, ESThresholds);
+REGISTER_PLUGIN(ESEEIntercalibConstantsRcd, ESEEIntercalibConstants);
+REGISTER_PLUGIN(ESMissingEnergyCalibrationRcd, ESMissingEnergyCalibration);
+REGISTER_PLUGIN(ESRecHitRatioCutsRcd, ESRecHitRatioCuts);
+REGISTER_PLUGIN(ESChannelStatusRcd, ESCondObjectContainer<ESChannelStatusCode>);

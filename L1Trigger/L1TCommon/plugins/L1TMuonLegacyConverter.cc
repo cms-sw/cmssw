@@ -2,7 +2,7 @@
 //
 // Package:    L1TMuonLegacyConverter
 // Class:      L1TMuonLegacyConverter
-// 
+//
 /**\class L1TMuonLegacyConverter \file L1TMuonLegacyConverter.cc src/L1TMuonLegacyConverter/src/L1TMuonLegacyConverter.cc
 */
 //
@@ -10,7 +10,6 @@
 //         Created:  Sun March 6 EDT 2016
 //
 //
-
 
 // system include files
 #include <memory>
@@ -43,150 +42,130 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 // #include "FWCore/Utilities/interface/EDMException.h"
 
 //
 // class decleration
 //
 
-
 //
 // constants, enums and typedefs
 //
 using namespace l1t;
 
-
 //
 // static data member definitions
 //
 
-double const L1TMuonLegacyConverter::muonMassGeV_ = 0.105658369 ; // PDG06
+double const L1TMuonLegacyConverter::muonMassGeV_ = 0.105658369;  // PDG06
 
 //
 // constructors and destructor
 //
-L1TMuonLegacyConverter::L1TMuonLegacyConverter(const edm::ParameterSet& iConfig)
-{
-   using namespace l1extra ;
+L1TMuonLegacyConverter::L1TMuonLegacyConverter(const edm::ParameterSet& iConfig) {
+  using namespace l1extra;
 
-   // moving inputTag here
-   muonSource_InputTag = iConfig.getParameter<edm::InputTag>("muonSource");
-   produceMuonParticles_ = iConfig.getUntrackedParameter<bool>("produceMuonParticles");  
-   centralBxOnly_ = iConfig.getUntrackedParameter<bool>("centralBxOnly");
+  // moving inputTag here
+  muonSource_InputTag = iConfig.getParameter<edm::InputTag>("muonSource");
+  produceMuonParticles_ = iConfig.getUntrackedParameter<bool>("produceMuonParticles");
+  centralBxOnly_ = iConfig.getUntrackedParameter<bool>("centralBxOnly");
 
-   produces<MuonBxCollection>("imdMuonsLegacy");
-   muonSource_InputToken = consumes<L1MuGMTReadoutCollection>(muonSource_InputTag);
+  produces<MuonBxCollection>("imdMuonsLegacy");
+  muonSource_InputToken = consumes<L1MuGMTReadoutCollection>(muonSource_InputTag);
 }
 
-
-L1TMuonLegacyConverter::~L1TMuonLegacyConverter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+L1TMuonLegacyConverter::~L1TMuonLegacyConverter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-L1TMuonLegacyConverter::produce( edm::Event& iEvent,
-			       const edm::EventSetup& iSetup)
-{
-   using namespace edm ;
-   using namespace l1extra ;
-   using namespace std ;
+void L1TMuonLegacyConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  using namespace l1extra;
+  using namespace std;
 
-   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   // ~~~~~~~~~~~~~~~~~~~~ Muons ~~~~~~~~~~~~~~~~~~~~
-   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // ~~~~~~~~~~~~~~~~~~~~ Muons ~~~~~~~~~~~~~~~~~~~~
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   std::unique_ptr< MuonBxCollection > imdMuonsLegacy( new MuonBxCollection() );
+  std::unique_ptr<MuonBxCollection> imdMuonsLegacy(new MuonBxCollection());
 
-   LogDebug("L1TMuonLegacyConverter")
-	    << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << std::endl;
-	
-   if( produceMuonParticles_ )
-   {
-      ESHandle< L1MuTriggerScales > muScales ;
-      iSetup.get< L1MuTriggerScalesRcd >().get( muScales ) ;
+  LogDebug("L1TMuonLegacyConverter") << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
+                                     << "\nrequested in configuration, but not found in the event." << std::endl;
 
-      ESHandle< L1MuTriggerPtScale > muPtScale ;
-      iSetup.get< L1MuTriggerPtScaleRcd >().get( muPtScale ) ;
+  if (produceMuonParticles_) {
+    ESHandle<L1MuTriggerScales> muScales;
+    iSetup.get<L1MuTriggerScalesRcd>().get(muScales);
 
-      Handle< L1MuGMTReadoutCollection > simMuCollection ;
-      iEvent.getByToken( muonSource_InputToken, simMuCollection ) ;
+    ESHandle<L1MuTriggerPtScale> muPtScale;
+    iSetup.get<L1MuTriggerPtScaleRcd>().get(muPtScale);
 
-      vector< L1MuGMTExtendedCand > simMuCands ;
+    Handle<L1MuGMTReadoutCollection> simMuCollection;
+    iEvent.getByToken(muonSource_InputToken, simMuCollection);
 
+    vector<L1MuGMTExtendedCand> simMuCands;
 
-      if( !simMuCollection.isValid() )
-	{
+    if (!simMuCollection.isValid()) {
+      LogDebug("L1TMuonLegacyConverter") << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
+                                         << "\nrequested in configuration, but not found in the event." << std::endl;
+    } else {
+      if (centralBxOnly_) {
+        // Get GMT candidates from central bunch crossing only
+        simMuCands = simMuCollection->getRecord().getGMTCands();
+      } else {
+        // Get GMT candidates from all bunch crossings
+        vector<L1MuGMTReadoutRecord> records = simMuCollection->getRecords();
+        vector<L1MuGMTReadoutRecord>::const_iterator rItr = records.begin();
+        vector<L1MuGMTReadoutRecord>::const_iterator rEnd = records.end();
 
-	  LogDebug("L1TMuonLegacyConverter")
-	    << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
-	    << "\nrequested in configuration, but not found in the event."
-	    << std::endl;
-	}
-      else
-	{
-	  if( centralBxOnly_ )
-	    {
-	      // Get GMT candidates from central bunch crossing only
-	      simMuCands = simMuCollection->getRecord().getGMTCands() ;
-	    }
-	  else
-	    {
-	      // Get GMT candidates from all bunch crossings
-	      vector< L1MuGMTReadoutRecord > records = simMuCollection->getRecords();
-	      vector< L1MuGMTReadoutRecord >::const_iterator rItr = records.begin();
-	      vector< L1MuGMTReadoutRecord >::const_iterator rEnd = records.end();
+        for (; rItr != rEnd; ++rItr) {
+          vector<L1MuGMTExtendedCand> tmpCands = rItr->getGMTCands();
 
-	      for( ; rItr != rEnd ; ++rItr )
-		{
-		  vector< L1MuGMTExtendedCand > tmpCands = rItr->getGMTCands() ;
+          simMuCands.insert(simMuCands.end(), tmpCands.begin(), tmpCands.end());
+        }
+      }
 
-		  simMuCands.insert( simMuCands.end(),
-				    tmpCands.begin(),
-				    tmpCands.end() ) ;
-		}
-	    }
+      vector<L1MuGMTExtendedCand>::const_iterator muItr = simMuCands.begin();
+      vector<L1MuGMTExtendedCand>::const_iterator muEnd = simMuCands.end();
+      for (int i = 0; muItr != muEnd; ++muItr, ++i) {
+        if (!muItr->empty()) {
+          // keep x and y components non-zero and protect against roundoff.
+          double pt = muPtScale->getPtScale()->getLowEdge(muItr->ptIndex()) + 1.e-6;
+          std::cout << "pt from muPtScale = " << pt << std::endl;
+          double eta = muScales->getGMTEtaScale()->getCenter(muItr->etaIndex());
+          double phi = muScales->getPhiScale()->getLowEdge(muItr->phiIndex());
 
-	  vector< L1MuGMTExtendedCand >::const_iterator muItr = simMuCands.begin() ;
-	  vector< L1MuGMTExtendedCand >::const_iterator muEnd = simMuCands.end() ;
-	  for( int i = 0 ; muItr != muEnd ; ++muItr, ++i )
-	    {
-  
-	      if( !muItr->empty() ){
-		  	// keep x and y components non-zero and protect against roundoff.
-		  	double pt = muPtScale->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
-		  	std::cout << "pt from muPtScale = " << pt << std::endl; 
-		  	double eta = muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
-		  	double phi = muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
+          math::PtEtaPhiMLorentzVector p4(pt, eta, phi, muonMassGeV_);
 
-     		math::PtEtaPhiMLorentzVector p4( pt,
-						   eta,
-						   phi,
-						   muonMassGeV_ ) ;
+          Muon outMu{p4,
+                     (int)0,
+                     (int)0,
+                     (int)0,
+                     (int)muItr->quality(),
+                     (int)muItr->charge(),
+                     (int)muItr->charge_valid(),
+                     (int)muItr->isol(),
+                     (int)0,
+                     (int)0,
+                     true,
+                     (int)0,
+                     (int)0,
+                     (int)0,
+                     (int)muItr->rank()};
+          imdMuonsLegacy->push_back(muItr->bx(), outMu);
+        }
+      }
+    }
+  }
 
-		    Muon outMu{p4, (int)0, (int)0, (int)0, (int)muItr->quality(), (int)muItr->charge(), (int)muItr->charge_valid() , (int)muItr->isol(), (int)0 , (int)0, true, (int)0, (int)0, (int)0 , (int)muItr->rank() };
-		    imdMuonsLegacy->push_back( muItr->bx(), outMu ) ;
-		}
-	    }
-	}
-   }
-   
-   iEvent.put( std::move(imdMuonsLegacy), "imdMuonsLegacy" );
+  iEvent.put(std::move(imdMuonsLegacy), "imdMuonsLegacy");
 
-} // closing produce
+}  // closing produce
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TMuonLegacyConverter);
-

@@ -4,15 +4,13 @@
 
 namespace edm {
 
-  BranchID::value_type
-  BranchID::toID(std::string const& branchName) {
+  BranchID::value_type BranchID::toID(std::string const& branchName) {
     cms::CRC32Calculator crc32(branchName);
     return crc32.checksum();
   }
 
-  std::ostream&
-  operator<<(std::ostream& os, BranchID const& id) {
+  std::ostream& operator<<(std::ostream& os, BranchID const& id) {
     os << id.id();
     return os;
   }
-}
+}  // namespace edm

@@ -16,9 +16,8 @@ namespace reco {
 
   class CastorJet : public CastorCluster {
   public:
-
     /// default constructor. Sets energy to zero
-    CastorJet() : energycal_(0.) { }
+    CastorJet() : energycal_(0.) {}
 
     /// constructor from values
     CastorJet(const double energycal, const CastorClusterRef& usedCluster);
@@ -34,21 +33,21 @@ namespace reco {
 
     /// Jet centroid position
     ROOT::Math::XYZPoint position() const { return (*usedCluster_).position(); }
-    
+
     /// vector of used Clusters
     CastorClusterRef getUsedCluster() const { return usedCluster_; }
 
     /// comparison >= operator
-    bool operator >=(const CastorJet& rhs) const { return (energycal_>=rhs.energycal_); }
+    bool operator>=(const CastorJet& rhs) const { return (energycal_ >= rhs.energycal_); }
 
     /// comparison > operator
-    bool operator > (const CastorJet& rhs) const { return (energycal_> rhs.energycal_); }
+    bool operator>(const CastorJet& rhs) const { return (energycal_ > rhs.energycal_); }
 
     /// comparison <= operator
-    bool operator <=(const CastorJet& rhs) const { return (energycal_<=rhs.energycal_); }
+    bool operator<=(const CastorJet& rhs) const { return (energycal_ <= rhs.energycal_); }
 
     /// comparison <= operator
-    bool operator < (const CastorJet& rhs) const { return (energycal_< rhs.energycal_); }
+    bool operator<(const CastorJet& rhs) const { return (energycal_ < rhs.energycal_); }
 
     /// Jet em energy
     double emEnergy() const { return (*usedCluster_).emEnergy(); }
@@ -87,17 +86,16 @@ namespace reco {
     double rho() const { return (*usedCluster_).rho(); }
 
   private:
-
     /// Jet energycal
     double energycal_;
 
     /// used CastorClusters
     CastorClusterRef usedCluster_;
   };
-  
+
   // define CastorJetCollection
   typedef std::vector<CastorJet> CastorJetCollection;
 
-}
+}  // namespace reco
 
 #endif

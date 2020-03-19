@@ -33,9 +33,8 @@
 
 #include "Alignment/CommonAlignment/interface/AlignTools.h"
 
-
 //******** Single include for the TkMap *************
-#include "CommonTools/TrackerMap/interface/TrackerMap.h" 
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 //***************************************************
 
 #include <algorithm>
@@ -46,126 +45,119 @@
 class AlignTransform;
 class TrackerTopology;
 
-class TrackerGeometryCompare: public edm::EDAnalyzer { 
+class TrackerGeometryCompare : public edm::EDAnalyzer {
 public:
-	typedef AlignTransform SurveyValue;
-	typedef Alignments SurveyValues;
-		
+  typedef AlignTransform SurveyValue;
+  typedef Alignments SurveyValues;
+
   /// Do nothing. Required by framework.
-  TrackerGeometryCompare(
-		const edm::ParameterSet&
-		);
-	
+  TrackerGeometryCompare(const edm::ParameterSet&);
+
   /// Read from DB and print survey info.
-	void beginJob() override;
+  void beginJob() override;
 
-	void endJob() override;
+  void endJob() override;
 
-	void analyze(
-		const edm::Event&,
-		const edm::EventSetup&
-		) override;
-	
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
 private:
+  //parameters
+  std::vector<align::StructureType> m_theLevels;
+  //std::vector<int> theSubDets;
 
+  //compare surface deformations
+  void compareSurfaceDeformations(TTree* _inputTree11, TTree* _inputTree12);
+  //compares two geometries
+  void compareGeometries(Alignable* refAli,
+                         Alignable* curAli,
+                         const TrackerTopology* tTopo,
+                         const edm::EventSetup& iSetup);
+  //filling the ROOT file
+  void fillTree(Alignable* refAli,
+                const AlgebraicVector& diff,  // typedef CLHEP::HepVector      AlgebraicVector;
+                const TrackerTopology* tTopo,
+                const edm::EventSetup& iSetup);
+  //for filling identifiers
+  void fillIdentifiers(int subdetlevel, int rawid, const TrackerTopology* tTopo);
+  //converts surveyRcd into alignmentRcd
+  void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrorsExtended* alignErrors);
+  //need for conversion for surveyToTracker
+  void addSurveyInfo(Alignable* ali);
+  //void createDBGeometry(const edm::EventSetup& iSetup);
+  void createROOTGeometry(const edm::EventSetup& iSetup);
 
-	//parameters
-	std::vector<align::StructureType> m_theLevels;
-	//std::vector<int> theSubDets;
-	
-	//compare surface deformations
-	void compareSurfaceDeformations(TTree* _inputTree11, TTree* _inputTree12); 
-	//compares two geometries
-	void compareGeometries(Alignable* refAli, Alignable* curAli, const TrackerTopology* tTopo, const edm::EventSetup& iSetup);
-	//filling the ROOT file
-	void fillTree(Alignable *refAli, const AlgebraicVector& diff, // typedef CLHEP::HepVector      AlgebraicVector; 
-                      const TrackerTopology* tTopo, const edm::EventSetup& iSetup); 
-	//for filling identifiers
-	void fillIdentifiers( int subdetlevel, int rawid, const TrackerTopology* tTopo);
-	//converts surveyRcd into alignmentRcd
-	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrorsExtended* alignErrors);
-	//need for conversion for surveyToTracker
-	void addSurveyInfo(Alignable* ali);
-	//void createDBGeometry(const edm::EventSetup& iSetup);
-	void createROOTGeometry(const edm::EventSetup& iSetup);
-	
-	// for common tracker system
-	void setCommonTrackerSystem();
-	void diffCommonTrackerSystem(Alignable* refAli, Alignable* curAli);
-	bool passIdCut( uint32_t );
-	
-	AlignableTracker* referenceTracker;
-	AlignableTracker* dummyTracker;
-	AlignableTracker* currentTracker;
+  // for common tracker system
+  void setCommonTrackerSystem();
+  void diffCommonTrackerSystem(Alignable* refAli, Alignable* curAli);
+  bool passIdCut(uint32_t);
 
-	unsigned int theSurveyIndex;
-	const Alignments* theSurveyValues;
-	const SurveyErrors* theSurveyErrors;
-	
-	// configurables
-        const std::vector<std::string> _levelStrings;
-	std::string _moduleListName;
-	std::string _inputFilename1;
-	std::string _inputFilename2;
-	std::string _inputTreenameAlign;
-	std::string _inputTreenameDeform;
-	bool _writeToDB; 
-	std::string _weightBy;
-	std::string _setCommonTrackerSystem;
-	bool _detIdFlag;
-	std::string _detIdFlagFile;
-	bool _weightById;
-	std::string _weightByIdFile;
-	std::vector< unsigned int > _weightByIdVector;
-	
-	std::vector< uint32_t > _detIdFlagVector;
-	align::StructureType _commonTrackerLevel;
-	align::GlobalVector _TrackerCommonT;
-	align::GlobalVector _TrackerCommonR;
-	align::PositionType _TrackerCommonCM;
-	
-	std::ifstream _moduleListFile;
-	std::vector< int > _moduleList;
-	int _moduleInList;
-	
-	//root configuration
-	std::string _filename;
-	TFile* _theFile;
-	TTree* _alignTree;
-	TFile* _inputRootFile1;
-	TFile* _inputRootFile2;
-	TTree* _inputTree01;
-	TTree* _inputTree02;
-	TTree* _inputTree11;
-	TTree* _inputTree12;
-	
-	/**\ Tree variables */
-	int _id, _badModuleQuality, _inModuleList, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
-	float _xVal, _yVal, _zVal, _rVal, _etaVal, _phiVal, _alphaVal, _betaVal, _gammaVal;
-	// changes in global variables
-	float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
-	// changes local variables: u, v, w, alpha, beta, gamma
-	float _duVal, _dvVal, _dwVal, _daVal, _dbVal, _dgVal;
-	float _surWidth, _surLength;
-	uint32_t _identifiers[6];
-	double _surRot[9];
-	int _type;
-	double _surfDeform[13]; 
+  AlignableTracker* referenceTracker;
+  AlignableTracker* dummyTracker;
+  AlignableTracker* currentTracker;
 
-	int m_nBins ; 
-	double m_rangeLow ;
-	double m_rangeHigh ; 
-	
-	bool firstEvent_;
+  unsigned int theSurveyIndex;
+  const Alignments* theSurveyValues;
+  const SurveyErrors* theSurveyErrors;
 
-	std::vector<TrackerMap> m_vtkmap; 
+  // configurables
+  const std::vector<std::string> _levelStrings;
+  std::string _moduleListName;
+  std::string _inputFilename1;
+  std::string _inputFilename2;
+  std::string _inputTreenameAlign;
+  std::string _inputTreenameDeform;
+  bool _writeToDB;
+  std::string _weightBy;
+  std::string _setCommonTrackerSystem;
+  bool _detIdFlag;
+  std::string _detIdFlagFile;
+  bool _weightById;
+  std::string _weightByIdFile;
+  std::vector<unsigned int> _weightByIdVector;
 
-	std::map<std::string,TH1D*> m_h1 ; 
+  std::vector<uint32_t> _detIdFlagVector;
+  align::StructureType _commonTrackerLevel;
+  align::GlobalVector _TrackerCommonT;
+  align::GlobalVector _TrackerCommonR;
+  align::PositionType _TrackerCommonCM;
 
-	
+  std::ifstream _moduleListFile;
+  std::vector<int> _moduleList;
+  int _moduleInList;
+
+  //root configuration
+  std::string _filename;
+  TFile* _theFile;
+  TTree* _alignTree;
+  TFile* _inputRootFile1;
+  TFile* _inputRootFile2;
+  TTree* _inputTree01;
+  TTree* _inputTree02;
+  TTree* _inputTree11;
+  TTree* _inputTree12;
+
+  /**\ Tree variables */
+  int _id, _badModuleQuality, _inModuleList, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
+  float _xVal, _yVal, _zVal, _rVal, _etaVal, _phiVal, _alphaVal, _betaVal, _gammaVal;
+  // changes in global variables
+  float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
+  // changes local variables: u, v, w, alpha, beta, gamma
+  float _duVal, _dvVal, _dwVal, _daVal, _dbVal, _dgVal;
+  float _surWidth, _surLength;
+  uint32_t _identifiers[6];
+  double _surRot[9];
+  int _type;
+  double _surfDeform[13];
+
+  int m_nBins;
+  double m_rangeLow;
+  double m_rangeHigh;
+
+  bool firstEvent_;
+
+  std::vector<TrackerMap> m_vtkmap;
+
+  std::map<std::string, TH1D*> m_h1;
 };
-
-
-
 
 #endif

@@ -8,8 +8,6 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-
-
 /**
     The ModelFilter class will select events in a "soup" MC
     (like the SUSY signal MC) from the comments of LHEEventProduct
@@ -19,28 +17,26 @@
 
 namespace edm {
 
-  class ModelFilter : public edm::EDFilter
-  {
+  class ModelFilter : public edm::EDFilter {
   public:
-	explicit ModelFilter(const edm::ParameterSet&);
-	~ModelFilter() override;
+    explicit ModelFilter(const edm::ParameterSet&);
+    ~ModelFilter() override;
 
-	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-	std::vector<std::string> split(std::string fstring, std::string splitter);
-	typedef std::vector<std::string>::const_iterator comments_const_iterator;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    std::vector<std::string> split(std::string fstring, std::string splitter);
+    typedef std::vector<std::string>::const_iterator comments_const_iterator;
 
   private:
-	void beginJob() override ;
-	bool filter(edm::Event&, const edm::EventSetup&) override;
-	void endJob() override ;
+    void beginJob() override;
+    bool filter(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
-	edm::EDGetTokenT<LHEEventProduct> tokenSource_;
-	std::string modelTag_;
-	std::vector<double> parameterMins_;
-	std::vector<double> parameterMaxs_;
+    edm::EDGetTokenT<LHEEventProduct> tokenSource_;
+    std::string modelTag_;
+    std::vector<double> parameterMins_;
+    std::vector<double> parameterMaxs_;
   };
 
-
-}
+}  // namespace edm
 
 #endif /*ModelFilter_h_*/

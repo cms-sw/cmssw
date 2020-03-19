@@ -4,27 +4,26 @@
 namespace edmNew {
   namespace dstvdetails {
     void errorFilling() {
-      throw edm::Exception(edm::errors::LogicError,"Instantiating a second DetSetVector::FastFiller")
-	<< "only one DetSetVector::FastFiller can be active at a given time!";
+      throw edm::Exception(edm::errors::LogicError, "Instantiating a second DetSetVector::FastFiller")
+          << "only one DetSetVector::FastFiller can be active at a given time!";
     }
 
     void notSafe() {
-      throw edm::Exception(edm::errors::LogicError,"Instantiating a DetSetVector::FastFiller for OnDemand")
-	<< "use DetSetVector::TSFastFiller";
+      throw edm::Exception(edm::errors::LogicError, "Instantiating a DetSetVector::FastFiller for OnDemand")
+          << "use DetSetVector::TSFastFiller";
     }
-
 
     void errorIdExists(det_id_type iid) {
       throw edm::Exception(edm::errors::InvalidReference)
-	<< "DetSetVector::inserv called with index already in collection;\n"
-	<< "index value: " << iid;
+          << "DetSetVector::inserv called with index already in collection;\n"
+          << "index value: " << iid;
     }
 
     void throw_range(det_id_type iid) {
       throw edm::Exception(edm::errors::InvalidReference)
-	<< "DetSetVector::operator[] called with index not in collection;\n"
-	<< "index value: " << iid;
+          << "DetSetVector::operator[] called with index not in collection;\n"
+          << "index value: " << iid;
     }
- 
-  }
-}
+
+  }  // namespace dstvdetails
+}  // namespace edmNew

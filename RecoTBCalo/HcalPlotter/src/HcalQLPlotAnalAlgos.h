@@ -16,30 +16,25 @@
 
 class HcalQLPlotAnalAlgos {
 public:
-  HcalQLPlotAnalAlgos(const char *outputFilename,
-		   const edm::ParameterSet& histoParams);
+  HcalQLPlotAnalAlgos(const char* outputFilename, const edm::ParameterSet& histoParams);
 
   void end(void);
-  void SetEventType(const HcalTBTriggerData& trigd) ;
-  void processRH(const HBHERecHitCollection& hbherhc,
-		 const HBHEDigiCollection& hbhedgc);
-  void processRH(const HORecHitCollection& horhc,
-		 const HODigiCollection& hodgc);
-  void processRH(const HFRecHitCollection& hfrhc,
-		 const HFDigiCollection& hfdgc);
+  void SetEventType(const HcalTBTriggerData& trigd);
+  void processRH(const HBHERecHitCollection& hbherhc, const HBHEDigiCollection& hbhedgc);
+  void processRH(const HORecHitCollection& horhc, const HODigiCollection& hodgc);
+  void processRH(const HFRecHitCollection& hfrhc, const HFDigiCollection& hfdgc);
   void processDigi(const HBHEDigiCollection& hbhedigic);
   void processDigi(const HODigiCollection& hodigic);
   void processDigi(const HFDigiCollection& hfdigic);
-  void processDigi(const HcalCalibDigiCollection& calibdigic,double calibFC2GeV);
+  void processDigi(const HcalCalibDigiCollection& calibdigic, double calibFC2GeV);
 
 private:
-  HcalCalibRecHit recoCalib(const HcalCalibDataFrame& cdigi,
-			    double calibFC2GeV);
+  HcalCalibRecHit recoCalib(const HcalCalibDataFrame& cdigi, double calibFC2GeV);
 
   // ----------member data ---------------------------
   HcalQLPlotHistoMgr::EventType triggerID_;
-  HcalQLPlotHistoMgr *histos_;
-  TFile              *mf_;
+  HcalQLPlotHistoMgr* histos_;
+  TFile* mf_;
 };
 
-#endif // HcalQLPlotAnalAlgos_included
+#endif  // HcalQLPlotAnalAlgos_included

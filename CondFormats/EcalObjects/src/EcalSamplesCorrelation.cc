@@ -3,15 +3,12 @@
 EcalSamplesCorrelation::EcalSamplesCorrelation() {}
 EcalSamplesCorrelation::~EcalSamplesCorrelation() {}
 
-EcalSamplesCorrelation::EcalSamplesCorrelation(
-    const EcalSamplesCorrelation& aset) {}
+EcalSamplesCorrelation::EcalSamplesCorrelation(const EcalSamplesCorrelation& aset) {}
 
 template <typename T>
 static inline void print_vector(std::ostream& o, const std::vector<T>& vect) {
   o << "[";
-  for (std::vector<double>::const_iterator i = vect.begin(); i != vect.end();
-       ++i) {
-
+  for (std::vector<double>::const_iterator i = vect.begin(); i != vect.end(); ++i) {
     std::cout << *i << ", ";
   }
   o << "]";

@@ -7,7 +7,7 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 # It should be kept in synch with Express processing at Tier0: what the url
 # https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config
 # would tell you.
-GlobalTag.globaltag = "103X_dataRun2_Express_v2"
+GlobalTag.globaltag = "106X_dataRun3_Express_v2"
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
 #       This needs a valid proxy to access the cern.ch network from the .cms one.

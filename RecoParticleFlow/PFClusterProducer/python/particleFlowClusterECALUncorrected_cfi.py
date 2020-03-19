@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
-from particleFlowCaloResolution_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
+from .particleFlowCaloResolution_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
 
 #### PF CLUSTER ECAL ####
 
@@ -32,6 +33,19 @@ _spikeAndDoubleSpikeCleaner_ECAL = cms.PSet(
               )
     )
 )
+
+#flag cleaning to mark hits not to be used for seeding
+_seedsFlagsCleaner_ECAL = cms.PSet(
+    algoName = cms.string("FlagsCleanerECAL"),    
+    #RecHitFlagsToBeExcluded= cms.vstring('kNeighboursRecovered')
+    RecHitFlagsToBeExcluded= cms.vstring() 
+)
+
+# crystal-dependent seeding thresholds
+_seedCleaner_ECAL = cms.PSet(
+     algoName = cms.string("ECALPFSeedCleaner"),
+)
+
 
 #seeding
 _localMaxSeeds_ECAL = cms.PSet(
@@ -118,6 +132,8 @@ particleFlowClusterECALUncorrected = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitECAL"),
     recHitCleaners = cms.VPSet(),
+    #seedCleaners = cms.VPSet(_seedsFlagsCleaner_ECAL,_seedCleaner_ECAL),
+    seedCleaners = cms.VPSet(_seedsFlagsCleaner_ECAL),
     seedFinder = _localMaxSeeds_ECAL,
     initialClusteringStep = _topoClusterizer_ECAL,
     pfClusterBuilder = _pfClusterizer_ECAL,

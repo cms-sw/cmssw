@@ -9,11 +9,10 @@
 
 class G4VPhysicalVolume;
 
-class TrackerFrameRotation : public FrameRotation 
-{
+class TrackerFrameRotation : public FrameRotation {
 public:
-    ~TrackerFrameRotation() override = default;
-    Local3DPoint transformPoint(const Local3DPoint &,const G4VPhysicalVolume *v=nullptr) const final;
+  ~TrackerFrameRotation() override = default;
+  Local3DPoint transformPoint(const Local3DPoint &, const G4VPhysicalVolume *v = nullptr) const final;
 };
 
 #endif

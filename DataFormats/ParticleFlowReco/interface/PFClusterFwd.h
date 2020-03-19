@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of references to PFCluster objects
   typedef PFClusterRefVector::iterator PFCluster_iterator;
-}
+}  // namespace reco
 
 #endif

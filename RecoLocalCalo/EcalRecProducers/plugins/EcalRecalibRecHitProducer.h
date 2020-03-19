@@ -15,28 +15,25 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-
-
 class EcalRecalibRecHitProducer : public edm::global::EDProducer<> {
+public:
+  explicit EcalRecalibRecHitProducer(const edm::ParameterSet& ps);
+  void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const override;
 
-        public:
-                explicit EcalRecalibRecHitProducer(const edm::ParameterSet& ps);
-                void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const override;
+private:
+  const edm::InputTag EBRecHitCollection_;
+  const edm::InputTag EERecHitCollection_;
+  const edm::EDGetTokenT<EBRecHitCollection> EBRecHitToken_;
+  const edm::EDGetTokenT<EERecHitCollection> EERecHitToken_;
 
-        private:
-		const edm::InputTag EBRecHitCollection_;
-		const edm::InputTag EERecHitCollection_;
-		const edm::EDGetTokenT<EBRecHitCollection> EBRecHitToken_;
-		const edm::EDGetTokenT<EERecHitCollection> EERecHitToken_;
-		  
-                const std::string EBRecalibRecHitCollection_; // secondary name to be given to EB collection of hits
-                const std::string EERecalibRecHitCollection_; // secondary name to be given to EE collection of hits
+  const std::string EBRecalibRecHitCollection_;  // secondary name to be given to EB collection of hits
+  const std::string EERecalibRecHitCollection_;  // secondary name to be given to EE collection of hits
 
-                const bool doEnergyScale_;
-                const bool doIntercalib_;
-                const bool doLaserCorrections_;
-		const bool doEnergyScaleInverse_;
-		const bool doIntercalibInverse_;
-                const bool doLaserCorrectionsInverse_;
+  const bool doEnergyScale_;
+  const bool doIntercalib_;
+  const bool doLaserCorrections_;
+  const bool doEnergyScaleInverse_;
+  const bool doIntercalibInverse_;
+  const bool doLaserCorrectionsInverse_;
 };
 #endif

@@ -12,17 +12,15 @@
  * \date January 2008
  *
  */
- 
+
 #include <vector>
 
 class L1CaloRegion;
 class L1CaloEtScale;
 class L1GlobalCaloTrigger;
 
-class gctTestHfEtSums
-{
+class gctTestHfEtSums {
 public:
-
   // structs and typedefs
   typedef std::vector<L1CaloRegion> RegionsVector;
 
@@ -44,7 +42,6 @@ public:
   bool checkHfEtSums(const L1GlobalCaloTrigger* gct, const int numOfBx) const;
 
 private:
-
   const L1CaloEtScale* m_etScale;
 
   std::vector<unsigned> m_expectedRing0EtSumPositiveEta;
@@ -56,9 +53,8 @@ private:
   std::vector<unsigned> m_expectedRing1BitCountPositiveEta;
   std::vector<unsigned> m_expectedRing1BitCountNegativeEta;
 
-  unsigned etSumLut (const unsigned expectedValue) const;
-  unsigned countLut (const unsigned expectedValue) const;
-
+  unsigned etSumLut(const unsigned expectedValue) const;
+  unsigned countLut(const unsigned expectedValue) const;
 };
 
 #endif /*GCTTEST_H_*/

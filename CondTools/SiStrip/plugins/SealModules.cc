@@ -2,7 +2,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "CondTools/SiStrip/plugins/SiStripThresholdBuilder.h"
 DEFINE_FWK_MODULE(SiStripThresholdBuilder);
 
@@ -59,4 +58,3 @@ DEFINE_FWK_MODULE(SiStripSummaryReader);
 
 #include "CondTools/SiStrip/plugins/SiStripSummaryBuilder.h"
 DEFINE_FWK_MODULE(SiStripSummaryBuilder);
-

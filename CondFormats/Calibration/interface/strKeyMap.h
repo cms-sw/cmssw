@@ -3,19 +3,20 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
-class Algob{
- public:
-  Algob(){}
+class Algob {
+public:
+  Algob() {}
   int b;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-class strKeyMap{
- public:
-  strKeyMap(){}
- private:
+class strKeyMap {
+public:
+  strKeyMap() {}
+
+private:
   std::map<std::string, Algob> m_content;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-#endif 
+#endif

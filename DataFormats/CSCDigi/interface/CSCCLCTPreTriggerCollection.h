@@ -14,4 +14,3 @@ typedef int CSCCLCTPreTrigger;
 typedef MuonDigiCollection<CSCDetId, CSCCLCTPreTrigger> CSCCLCTPreTriggerCollection;
 
 #endif
-

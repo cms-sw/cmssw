@@ -4,8 +4,6 @@
 <use   name="DataFormats/PatCandidates"/>
 <use   name="TopQuarkAnalysis/TopTools"/>
 <use   name="PhysicsTools/MVAComputer"/>
-<use   name="PhysicsTools/MVATrainer"/>
-<use   name="CondCore/PluginSystem"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
 <use   name="rootcore"/>

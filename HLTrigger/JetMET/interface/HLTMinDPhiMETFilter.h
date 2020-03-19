@@ -20,49 +20,49 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
 
-
 namespace edm {
-    class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 // Class declaration
 class HLTMinDPhiMETFilter : public HLTFilter {
-  public:
-    explicit HLTMinDPhiMETFilter(const edm::ParameterSet & iConfig);
-    ~HLTMinDPhiMETFilter() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    bool hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+public:
+  explicit HLTMinDPhiMETFilter(const edm::ParameterSet& iConfig);
+  ~HLTMinDPhiMETFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event& iEvent,
+                 const edm::EventSetup& iSetup,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-  private:
-    /// Use pt; otherwise, use et.
-    bool usePt_;
+private:
+  /// Use pt; otherwise, use et.
+  bool usePt_;
 
-    //bool excludePFMuons_;  // currently unused
+  //bool excludePFMuons_;  // currently unused
 
-    /// Output trigger type
-    int triggerType_;
+  /// Output trigger type
+  int triggerType_;
 
-    /// Consider only n leading-pt (or et) jets, n = maxNJets_
-    int maxNJets_;
+  /// Consider only n leading-pt (or et) jets, n = maxNJets_
+  int maxNJets_;
 
-    /// Minimum pt requirement for jets
-    double minPt_;
+  /// Minimum pt requirement for jets
+  double minPt_;
 
-    /// Maximum (abs) eta requirement for jets
-    double maxEta_;
+  /// Maximum (abs) eta requirement for jets
+  double maxEta_;
 
-    /// Minium delta phi between a jet and MET
-    double minDPhi_;
+  /// Minium delta phi between a jet and MET
+  double minDPhi_;
 
-    /// Input jet, MET collections
-    edm::InputTag metLabel_;
-    edm::InputTag calometLabel_;  // only used if metLabel_ is empty
-    edm::InputTag jetsLabel_;
+  /// Input jet, MET collections
+  edm::InputTag metLabel_;
+  edm::InputTag calometLabel_;  // only used if metLabel_ is empty
+  edm::InputTag jetsLabel_;
 
-    edm::EDGetTokenT<reco::METCollection> m_theMETToken;
-    edm::EDGetTokenT<reco::CaloMETCollection> m_theCaloMETToken;
-    edm::EDGetTokenT<reco::JetView> m_theJetToken;
+  edm::EDGetTokenT<reco::METCollection> m_theMETToken;
+  edm::EDGetTokenT<reco::CaloMETCollection> m_theCaloMETToken;
+  edm::EDGetTokenT<reco::JetView> m_theJetToken;
 };
 
 #endif  // HLTMinDPhiMETFilter_h_
-

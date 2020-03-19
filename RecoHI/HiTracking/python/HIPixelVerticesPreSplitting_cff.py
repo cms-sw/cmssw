@@ -38,21 +38,22 @@ hiSelectedVertexPreSplitting = hiSelectedPixelVertex.clone(
   adaptiveVertexCollection = cms.InputTag("hiBestAdaptiveVertexPreSplitting"),
   medianVertexCollection = cms.InputTag("hiPixelMedianVertexPreSplitting")
 )
-bestHiVertexPreSplitting = cms.Sequence( hiBestAdaptiveVertexPreSplitting * hiSelectedVertexPreSplitting )
+bestHiVertexPreSplittingTask = cms.Task( hiBestAdaptiveVertexPreSplitting , hiSelectedVertexPreSplitting )
 
 PixelLayerTripletsPreSplitting = PixelLayerTriplets.clone()
 PixelLayerTripletsPreSplitting.FPix.HitProducer = 'siPixelRecHitsPreSplitting'
 PixelLayerTripletsPreSplitting.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
 
-hiPixelVerticesPreSplitting = cms.Sequence(hiPixelClusterVertexPreSplitting
-                                * PixelLayerTripletsPreSplitting
-                                * hiPixel3ProtoTracksTrackingRegionsPreSplitting
-                                * hiPixel3PRotoTracksHitDoubletsPreSplitting
-                                * hiPixel3ProtoTracksHitTripletsPreSplitting
-                                * hiProtoTrackFilterPreSplitting
-                                * pixelFitterByHelixProjections
-                                * hiPixel3ProtoTracksPreSplitting
-                                * hiPixelMedianVertexPreSplitting
-                                * hiSelectedProtoTracksPreSplitting
-                                * hiPixelAdaptiveVertexPreSplitting
-                                * bestHiVertexPreSplitting )
+hiPixelVerticesPreSplittingTask = cms.Task(hiPixelClusterVertexPreSplitting
+                                , PixelLayerTripletsPreSplitting
+                                , hiPixel3ProtoTracksTrackingRegionsPreSplitting
+                                , hiPixel3PRotoTracksHitDoubletsPreSplitting
+                                , hiPixel3ProtoTracksHitTripletsPreSplitting
+                                , hiProtoTrackFilterPreSplitting
+                                , pixelFitterByHelixProjections
+                                , hiPixel3ProtoTracksPreSplitting
+                                , hiPixelMedianVertexPreSplitting
+                                , hiSelectedProtoTracksPreSplitting
+                                , hiPixelAdaptiveVertexPreSplitting
+                                , bestHiVertexPreSplittingTask )
+hiPixelVerticesPreSplitting = cms.Sequence(hiPixelVerticesPreSplittingTask)

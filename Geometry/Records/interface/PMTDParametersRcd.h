@@ -6,7 +6,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
-class PMTDParametersRcd : public edm::eventsetup::DependentRecordImplementation<PMTDParametersRcd,
-  boost::mpl::vector<IdealGeometryRecord> > {};
+class PMTDParametersRcd
+    : public edm::eventsetup::DependentRecordImplementation<PMTDParametersRcd, boost::mpl::vector<IdealGeometryRecord> > {
+};
 
-#endif // PMTDParameters_H
+#endif  // PMTDParameters_H

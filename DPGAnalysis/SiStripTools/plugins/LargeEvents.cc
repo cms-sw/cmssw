@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <string>
@@ -52,16 +51,16 @@
 
 template <class T>
 class LargeEvents : public edm::EDFilter {
-   public:
-      explicit LargeEvents(const edm::ParameterSet&);
-      ~LargeEvents() override;
+public:
+  explicit LargeEvents(const edm::ParameterSet&);
+  ~LargeEvents() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   edm::EDGetTokenT<T> _collectionToken;
   int _absthr;
@@ -70,7 +69,6 @@ class LargeEvents : public edm::EDFilter {
   std::string _qualityLabel;
   edm::ESHandle<SiStripQuality> _qualityHandle;
   edm::ESWatcher<SiStripQualityRcd> _qualityWatcher;
-
 };
 
 //
@@ -85,27 +83,20 @@ class LargeEvents : public edm::EDFilter {
 // constructors and destructor
 //
 template <class T>
-LargeEvents<T>::LargeEvents(const edm::ParameterSet& iConfig):
-  _collectionToken(consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))),
-  _absthr(iConfig.getUntrackedParameter<int>("absoluteThreshold")),
-  _modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
-  _useQuality(iConfig.getUntrackedParameter<bool>("useQuality",false)),
-  _qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel",""))
-{
-   //now do what ever initialization is needed
-
-
+LargeEvents<T>::LargeEvents(const edm::ParameterSet& iConfig)
+    : _collectionToken(consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))),
+      _absthr(iConfig.getUntrackedParameter<int>("absoluteThreshold")),
+      _modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
+      _useQuality(iConfig.getUntrackedParameter<bool>("useQuality", false)),
+      _qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel", "")) {
+  //now do what ever initialization is needed
 }
 
 template <class T>
-LargeEvents<T>::~LargeEvents()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+LargeEvents<T>::~LargeEvents() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
@@ -113,52 +104,43 @@ LargeEvents<T>::~LargeEvents()
 
 // ------------ method called on each new Event  ------------
 template <class T>
-bool
-LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+bool LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   if( _useQuality) {
-     if(_qualityWatcher.check(iSetup)) {
-       iSetup.get<SiStripQualityRcd>().get(_qualityLabel,_qualityHandle);
-       LogDebug("SiStripQualityUpdated") << "SiStripQuality has changed and it will be updated";
-     }
-   }
+  if (_useQuality) {
+    if (_qualityWatcher.check(iSetup)) {
+      iSetup.get<SiStripQualityRcd>().get(_qualityLabel, _qualityHandle);
+      LogDebug("SiStripQualityUpdated") << "SiStripQuality has changed and it will be updated";
+    }
+  }
 
-   Handle<T> digis;
-   iEvent.getByToken(_collectionToken,digis);
+  Handle<T> digis;
+  iEvent.getByToken(_collectionToken, digis);
 
+  int ndigitot = 0;
+  for (typename T::const_iterator it = digis->begin(); it != digis->end(); it++) {
+    if (!_useQuality || !_qualityHandle->IsModuleBad(it->detId())) {
+      if (_modthr < 0 || int(it->size()) < _modthr) {
+        ndigitot += it->size();
+      }
+    }
+  }
 
-   int ndigitot = 0;
-   for(typename T::const_iterator it = digis->begin();it!=digis->end();it++) {
+  if (ndigitot > _absthr) {
+    LogDebug("LargeEventSelected") << "event with " << ndigitot << " digi/cluster selected";
+    return true;
+  }
 
-     if(!_useQuality || !_qualityHandle->IsModuleBad(it->detId()) ) {
-       if(_modthr < 0 || int(it->size()) < _modthr ) {
-	 ndigitot += it->size();
-       }
-     }
-   }
-
-   if(ndigitot > _absthr) {
-     LogDebug("LargeEventSelected") << "event with " << ndigitot << " digi/cluster selected";
-     return true;
-   }
-
-   return false;
+  return false;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 template <class T>
-void
-LargeEvents<T>::beginJob()
-{
-}
+void LargeEvents<T>::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 template <class T>
-void
-LargeEvents<T>::endJob() {
-}
+void LargeEvents<T>::endJob() {}
 
 //define this as a plug-in
 typedef LargeEvents<edm::DetSetVector<SiStripDigi> > LargeSiStripDigiEvents;

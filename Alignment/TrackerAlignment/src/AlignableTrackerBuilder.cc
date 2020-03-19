@@ -14,42 +14,42 @@
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableIndexer.h"
 
-
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 //=============================================================================
 //===   PUBLIC METHOD IMPLEMENTATION                                        ===
 //=============================================================================
 
 //_____________________________________________________________________________
-AlignableTrackerBuilder
-::AlignableTrackerBuilder(const TrackerGeometry* trackerGeometry,
-                          const TrackerTopology* trackerTopology) :
-  trackerGeometry_(trackerGeometry),
-  trackerTopology_(trackerTopology),
-  alignableObjectId_(trackerGeometry, nullptr, nullptr),
-  alignableMap_(nullptr),
-  trackerAlignmentLevelBuilder_(trackerTopology, trackerGeometry)
-{
+AlignableTrackerBuilder ::AlignableTrackerBuilder(const TrackerGeometry* trackerGeometry,
+                                                  const TrackerTopology* trackerTopology)
+    : trackerGeometry_(trackerGeometry),
+      trackerTopology_(trackerTopology),
+      alignableObjectId_(trackerGeometry, nullptr, nullptr),
+      alignableMap_(nullptr),
+      trackerAlignmentLevelBuilder_(trackerTopology, trackerGeometry) {
   std::ostringstream ss;
 
   switch (alignableObjectId_.geometry()) {
-  case AlignableObjectId::Geometry::RunI:    ss << "RunI geometry";    break;
-  case AlignableObjectId::Geometry::PhaseI:  ss << "PhaseI geometry";  break;
-  case AlignableObjectId::Geometry::PhaseII: ss << "PhaseII geometry"; break;
-  default:
-    throw cms::Exception("LogicError")
-      << "[AlignableTrackerBuilder] unknown version of TrackerGeometry";
+    case AlignableObjectId::Geometry::RunI:
+      ss << "RunI geometry";
+      break;
+    case AlignableObjectId::Geometry::PhaseI:
+      ss << "PhaseI geometry";
+      break;
+    case AlignableObjectId::Geometry::PhaseII:
+      ss << "PhaseII geometry";
+      break;
+    default:
+      throw cms::Exception("LogicError") << "[AlignableTrackerBuilder] unknown version of TrackerGeometry";
   }
 
-  edm::LogInfo("AlignableBuildProcess")
-    << "@SUB=AlignableTrackerBuilder::AlignableTrackerBuilder"
-    << "GeometryVersion: " << ss.str();
+  edm::LogInfo("AlignableBuildProcess") << "@SUB=AlignableTrackerBuilder::AlignableTrackerBuilder"
+                                        << "GeometryVersion: " << ss.str();
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder
-::buildAlignables(AlignableTracker* trackerAlignables, bool update)
-{
+void AlignableTrackerBuilder ::buildAlignables(AlignableTracker* trackerAlignables, bool update) {
   alignableMap_ = &trackerAlignables->alignableMap_;
 
   // first, build Alignables on module-level (AlignableDetUnits)
@@ -58,7 +58,8 @@ void AlignableTrackerBuilder
   // now build the composite Alignables (Ladders, Layers etc.)
   buildAlignableComposites(update);
 
-  if (update) return;           // everything else not needed for the update
+  if (update)
+    return;  // everything else not needed for the update
 
   // create pixel-detector
   buildPixelDetector(trackerAlignables);
@@ -71,86 +72,61 @@ void AlignableTrackerBuilder
   trackerAlignables->theId = trackerAlignables->components()[0]->id();
 }
 
-
-
 //=============================================================================
 //===   PRIVATE METHOD IMPLEMENTATION                                       ===
 //=============================================================================
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder
-::buildAlignableDetUnits(bool update)
-{
+void AlignableTrackerBuilder ::buildAlignableDetUnits(bool update) {
   // PixelBarrel
-  convertGeomDetsToAlignables(
-    trackerGeometry_->detsPXB(), alignableObjectId_.idToString(align::TPBModule),
-    update
-  );
+  convertGeomDetsToAlignables(trackerGeometry_->detsPXB(), alignableObjectId_.idToString(align::TPBModule), update);
 
   // PixelEndcap
-  convertGeomDetsToAlignables(
-    trackerGeometry_->detsPXF(), alignableObjectId_.idToString(align::TPEModule),
-    update
-  );
+  convertGeomDetsToAlignables(trackerGeometry_->detsPXF(), alignableObjectId_.idToString(align::TPEModule), update);
 
   // TIB
-  convertGeomDetsToAlignables(
-    trackerGeometry_->detsTIB(), alignableObjectId_.idToString(align::TIBModule),
-    update
-  );
+  convertGeomDetsToAlignables(trackerGeometry_->detsTIB(), alignableObjectId_.idToString(align::TIBModule), update);
 
   // TID
-  convertGeomDetsToAlignables(
-    trackerGeometry_->detsTID(), alignableObjectId_.idToString(align::TIDModule),
-    update
-  );
+  convertGeomDetsToAlignables(trackerGeometry_->detsTID(), alignableObjectId_.idToString(align::TIDModule), update);
 
   // TOB
-  convertGeomDetsToAlignables(
-    trackerGeometry_->detsTOB(), alignableObjectId_.idToString(align::TOBModule),
-    update
-  );
+  convertGeomDetsToAlignables(trackerGeometry_->detsTOB(), alignableObjectId_.idToString(align::TOBModule), update);
 
   // TEC
-  convertGeomDetsToAlignables(
-    trackerGeometry_->detsTEC(), alignableObjectId_.idToString(align::TECModule),
-    update
-  );
+  convertGeomDetsToAlignables(trackerGeometry_->detsTEC(), alignableObjectId_.idToString(align::TECModule), update);
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder
-::convertGeomDetsToAlignables(const TrackingGeometry::DetContainer& geomDets,
-                              const std::string& moduleName, bool update)
-{
+void AlignableTrackerBuilder ::convertGeomDetsToAlignables(const TrackingGeometry::DetContainer& geomDets,
+                                                           const std::string& moduleName,
+                                                           bool update) {
   numDetUnits = 0;
 
   auto& alignables = alignableMap_->get(moduleName);
-  if (!update) alignables.reserve(geomDets.size());
+  if (!update)
+    alignables.reserve(geomDets.size());
 
   // units are added for each moduleName, which are at moduleName + "Unit"
   // in the pixel Module and ModuleUnit are equivalent
-  auto & aliUnits = alignableMap_->get(moduleName+"Unit");
-  if (!update) aliUnits.reserve(geomDets.size()); // minimal number space needed
+  auto& aliUnits = alignableMap_->get(moduleName + "Unit");
+  if (!update)
+    aliUnits.reserve(geomDets.size());  // minimal number space needed
 
   for (auto& geomDet : geomDets) {
-    int subdetId = geomDet->geographicalId().subdetId(); //don't check det()==Tracker
+    int subdetId = geomDet->geographicalId().subdetId();  //don't check det()==Tracker
 
-    if (subdetId == PixelSubdetector::PixelBarrel ||
-        subdetId == PixelSubdetector::PixelEndcap) {
+    if (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) {
       buildPixelDetectorAlignable(geomDet, subdetId, alignables, aliUnits, update);
 
-    } else if (subdetId == SiStripDetId::TIB ||
-               subdetId == SiStripDetId::TID ||
-               subdetId == SiStripDetId::TOB ||
+    } else if (subdetId == SiStripDetId::TIB || subdetId == SiStripDetId::TID || subdetId == SiStripDetId::TOB ||
                subdetId == SiStripDetId::TEC) {
       // for strip we create also <TIB/TID/TOB/TEC>ModuleUnit list
       // for 1D components of 2D layers
       buildStripDetectorAlignable(geomDet, subdetId, alignables, aliUnits, update);
 
     } else {
-      throw cms::Exception("LogicError")
-        << "[AlignableTrackerBuilder] GeomDet of unknown subdetector";
+      throw cms::Exception("LogicError") << "[AlignableTrackerBuilder] GeomDet of unknown subdetector";
     }
 
     trackerAlignmentLevelBuilder_.addDetUnitInfo(geomDet->geographicalId());
@@ -161,46 +137,38 @@ void AlignableTrackerBuilder
   // we also create AlignableSiStripDets, which consist of multiple
   // AlignableDetUnits, hence alignables.size() and numDetUnits are not equal.
 
-  edm::LogInfo("AlignableBuildProcess")
-    << "@SUB=AlignableTrackerBuilder::convertGeomDetsToAlignables"
-    << "converted GeomDets to Alignables for " << moduleName << "\n"
-    << "   GeomDets:             " << geomDets.size()         << "\n"
-    << "   AlignableDetUnits:    " << numDetUnits;
+  edm::LogInfo("AlignableBuildProcess") << "@SUB=AlignableTrackerBuilder::convertGeomDetsToAlignables"
+                                        << "converted GeomDets to Alignables for " << moduleName << "\n"
+                                        << "   GeomDets:             " << geomDets.size() << "\n"
+                                        << "   AlignableDetUnits:    " << numDetUnits;
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder
-::buildPixelDetectorAlignable(const GeomDet* geomDetUnit, int subdetId,
-                              Alignables& aliDets, Alignables& aliDetUnits,
-                              bool update)
-{
+void AlignableTrackerBuilder ::buildPixelDetectorAlignable(
+    const GeomDet* geomDetUnit, int subdetId, Alignables& aliDets, Alignables& aliDetUnits, bool update) {
   // treat all pixel dets in same way with one AlignableDetUnit
   if (!geomDetUnit->isLeaf()) {
-    throw cms::Exception("BadHierarchy")
-      << "[AlignableTrackerBuilder] Pixel GeomDet (subdetector " << subdetId
-      << ") is not a GeomDetUnit.";
+    throw cms::Exception("BadHierarchy") << "[AlignableTrackerBuilder] Pixel GeomDet (subdetector " << subdetId
+                                         << ") is not a GeomDetUnit.";
   }
 
   if (update) {
-    auto ali =
-      std::find_if(aliDets.cbegin(), aliDets.cend(),
-                   [&geomDetUnit](const auto& i) {
-                     return i->id() == geomDetUnit->geographicalId().rawId(); });
+    auto ali = std::find_if(aliDets.cbegin(), aliDets.cend(), [&geomDetUnit](const auto& i) {
+      return i->id() == geomDetUnit->geographicalId().rawId();
+    });
     if (ali != aliDets.end()) {
       // add dynamic cast here to get AlignableDetUnit!
       auto aliDetUnit = dynamic_cast<AlignableDetUnit*>(*ali);
       if (aliDetUnit) {
         aliDetUnit->update(geomDetUnit);
       } else {
-        throw cms::Exception("LogicError")
-          << "[AlignableTrackerBuilder::buildPixelDetectorAlignable] "
-          << "cast to 'AlignableDetUnit*' failed while it should not\n";
+        throw cms::Exception("LogicError") << "[AlignableTrackerBuilder::buildPixelDetectorAlignable] "
+                                           << "cast to 'AlignableDetUnit*' failed while it should not\n";
       }
     } else {
       throw cms::Exception("GeometryMismatch")
-        << "[AlignableTrackerBuilder::buildPixelDetectorAlignable] "
-        << "GeomDet with DetId " << geomDetUnit->geographicalId().rawId()
-        << " not found in current geometry.\n";
+          << "[AlignableTrackerBuilder::buildPixelDetectorAlignable] "
+          << "GeomDet with DetId " << geomDetUnit->geographicalId().rawId() << " not found in current geometry.\n";
     }
   } else {
     aliDets.push_back(new AlignableDetUnit(geomDetUnit));
@@ -210,11 +178,8 @@ void AlignableTrackerBuilder
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder
-::buildStripDetectorAlignable(const GeomDet* geomDet, int subdetId,
-                              Alignables& aliDets, Alignables& aliDetUnits,
-                              bool update)
-{
+void AlignableTrackerBuilder ::buildStripDetectorAlignable(
+    const GeomDet* geomDet, int subdetId, Alignables& aliDets, Alignables& aliDetUnits, bool update) {
   // In strip we have:
   // 1) 'Pure' 1D-modules like TOB layers 3-6 (not glued): AlignableDetUnit
   // 2) Composite 2D-modules like TOB layers 1&2 (not glued): AlignableDet
@@ -228,31 +193,27 @@ void AlignableTrackerBuilder
       // 2D-module, convert it to GluedGeomDet
       const GluedGeomDet* gluedGeomDet = dynamic_cast<const GluedGeomDet*>(geomDet);
       if (!gluedGeomDet) {
-        throw cms::Exception("LogicError")
-          << "[AlignableTrackerBuilder] dynamic_cast<const GluedGeomDet*> "
-          << "failed.";
+        throw cms::Exception("LogicError") << "[AlignableTrackerBuilder] dynamic_cast<const GluedGeomDet*> "
+                                           << "failed.";
       }
 
       // components (AlignableDetUnits) constructed within
       if (update) {
-        auto ali =
-          std::find_if(aliDets.cbegin(), aliDets.cend(),
-                       [&gluedGeomDet](const auto& i) {
-                         return i->id() == gluedGeomDet->geographicalId().rawId(); });
+        auto ali = std::find_if(aliDets.cbegin(), aliDets.cend(), [&gluedGeomDet](const auto& i) {
+          return i->id() == gluedGeomDet->geographicalId().rawId();
+        });
         if (ali != aliDets.end()) {
           auto aliSiStripDet = dynamic_cast<AlignableSiStripDet*>(*ali);
           if (aliSiStripDet) {
             aliSiStripDet->update(gluedGeomDet);
           } else {
-            throw cms::Exception("LogicError")
-              << "[AlignableTrackerBuilder::buildStripDetectorAlignable] "
-              << "cast to 'AlignableSiStripDet*' failed while it should not\n";
+            throw cms::Exception("LogicError") << "[AlignableTrackerBuilder::buildStripDetectorAlignable] "
+                                               << "cast to 'AlignableSiStripDet*' failed while it should not\n";
           }
         } else {
           throw cms::Exception("GeometryMismatch")
-            << "[AlignableTrackerBuilder::buildStripDetectorAlignable] "
-            << "GeomDet with DetId " << gluedGeomDet->geographicalId().rawId()
-            << " not found in current geometry.\n";
+              << "[AlignableTrackerBuilder::buildStripDetectorAlignable] "
+              << "GeomDet with DetId " << gluedGeomDet->geographicalId().rawId() << " not found in current geometry.\n";
         }
       } else {
         aliDets.push_back(new AlignableSiStripDet(gluedGeomDet));
@@ -262,7 +223,7 @@ void AlignableTrackerBuilder
 
       if (!update) {
         // reserve space for the additional units:
-        aliDetUnits.reserve(aliDetUnits.size() + nAddedUnits -1);
+        aliDetUnits.reserve(aliDetUnits.size() + nAddedUnits - 1);
         aliDetUnits.insert(aliDetUnits.end(), addAliDetUnits.begin(), addAliDetUnits.end());
       }
       numDetUnits += nAddedUnits;
@@ -271,16 +232,12 @@ void AlignableTrackerBuilder
       // no components: pure 1D-module
       buildPixelDetectorAlignable(geomDet, subdetId, aliDets, aliDetUnits, update);
     }
-  } // no else: glued components of AlignableDet constructed within
-    // AlignableSiStripDet -> AlignableDet, see above
+  }  // no else: glued components of AlignableDet constructed within
+     // AlignableSiStripDet -> AlignableDet, see above
 }
 
-
-
 //_____________________________________________________________________________
-void AlignableTrackerBuilder
-::buildAlignableComposites(bool update)
-{
+void AlignableTrackerBuilder ::buildAlignableComposites(bool update) {
   unsigned int numCompositeAlignables = 0;
 
   // tracker levels must be built before the indexer is created in order to pass
@@ -290,9 +247,9 @@ void AlignableTrackerBuilder
   TrackerAlignableIndexer trackerIndexer{trackerAlignmentLevelBuilder_.trackerNameSpace()};
   AlignableCompositeBuilder compositeBuilder{trackerTopology_, trackerGeometry_, trackerIndexer};
 
-  for (auto& trackerSubLevels: trackerLevels) {
+  for (auto& trackerSubLevels : trackerLevels) {
     // first add all levels of the current subdetector to the builder
-    for (auto& level: trackerSubLevels) {
+    for (auto& level : trackerSubLevels) {
       compositeBuilder.addAlignmentLevel(std::move(level));
     }
     // now build this tracker-level
@@ -301,27 +258,22 @@ void AlignableTrackerBuilder
     compositeBuilder.clearAlignmentLevels();
   }
 
-  edm::LogInfo("AlignableBuildProcess")
-    << "@SUB=AlignableTrackerBuilder::buildAlignableComposites"
-    << "AlignableComposites built for Tracker: " << numCompositeAlignables
-    << " (note: without Pixel- and Strip-Alignable)";
+  edm::LogInfo("AlignableBuildProcess") << "@SUB=AlignableTrackerBuilder::buildAlignableComposites"
+                                        << "AlignableComposites built for Tracker: " << numCompositeAlignables
+                                        << " (note: without Pixel- and Strip-Alignable)";
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder
-::buildPixelDetector(AlignableTracker* trackerAlignables)
-{
-  const std::string& pxbName   = alignableObjectId_.idToString(align::TPBBarrel);
-  const std::string& pxeName   = alignableObjectId_.idToString(align::TPEEndcap);
+void AlignableTrackerBuilder ::buildPixelDetector(AlignableTracker* trackerAlignables) {
+  const std::string& pxbName = alignableObjectId_.idToString(align::TPBBarrel);
+  const std::string& pxeName = alignableObjectId_.idToString(align::TPEEndcap);
   const std::string& pixelName = alignableObjectId_.idToString(align::Pixel);
 
-  auto& pxbAlignables   = alignableMap_->find(pxbName);
-  auto& pxeAlignables   = alignableMap_->find(pxeName);
-  auto& pixelAlignables = alignableMap_->get (pixelName);
+  auto& pxbAlignables = alignableMap_->find(pxbName);
+  auto& pxeAlignables = alignableMap_->find(pxeName);
+  auto& pixelAlignables = alignableMap_->get(pixelName);
 
-  pixelAlignables.push_back(
-    new AlignableComposite(pxbAlignables[0]->id(), align::Pixel, align::RotationType())
-  );
+  pixelAlignables.push_back(new AlignableComposite(pxbAlignables[0]->id(), align::Pixel, align::RotationType()));
 
   pixelAlignables[0]->addComponent(pxbAlignables[0]);
   pixelAlignables[0]->addComponent(pxeAlignables[0]);
@@ -329,31 +281,26 @@ void AlignableTrackerBuilder
 
   trackerAlignables->addComponent(pixelAlignables[0]);
 
-  edm::LogInfo("AlignableBuildProcess")
-    << "@SUB=AlignableTrackerBuilder::buildPixelDetector"
-    << "Built " << pixelName << "-detector Alignable, consisting of Alignables"
-    << " of " << pxbName << " and " << pxeName;
+  edm::LogInfo("AlignableBuildProcess") << "@SUB=AlignableTrackerBuilder::buildPixelDetector"
+                                        << "Built " << pixelName << "-detector Alignable, consisting of Alignables"
+                                        << " of " << pxbName << " and " << pxeName;
 }
 
 //_____________________________________________________________________________
-void AlignableTrackerBuilder
-::buildStripDetector(AlignableTracker* trackerAlignables)
-{
-  const std::string& tibName   = alignableObjectId_.idToString(align::TIBBarrel);
-  const std::string& tidName   = alignableObjectId_.idToString(align::TIDEndcap);
-  const std::string& tobName   = alignableObjectId_.idToString(align::TOBBarrel);
-  const std::string& tecName   = alignableObjectId_.idToString(align::TECEndcap);
+void AlignableTrackerBuilder ::buildStripDetector(AlignableTracker* trackerAlignables) {
+  const std::string& tibName = alignableObjectId_.idToString(align::TIBBarrel);
+  const std::string& tidName = alignableObjectId_.idToString(align::TIDEndcap);
+  const std::string& tobName = alignableObjectId_.idToString(align::TOBBarrel);
+  const std::string& tecName = alignableObjectId_.idToString(align::TECEndcap);
   const std::string& stripName = alignableObjectId_.idToString(align::Strip);
 
-  auto& tibAlignables   = alignableMap_->find(tibName);
-  auto& tidAlignables   = alignableMap_->find(tidName);
-  auto& tobAlignables   = alignableMap_->find(tobName);
-  auto& tecAlignables   = alignableMap_->find(tecName);
-  auto& stripAlignables = alignableMap_->get (stripName);
+  auto& tibAlignables = alignableMap_->find(tibName);
+  auto& tidAlignables = alignableMap_->find(tidName);
+  auto& tobAlignables = alignableMap_->find(tobName);
+  auto& tecAlignables = alignableMap_->find(tecName);
+  auto& stripAlignables = alignableMap_->get(stripName);
 
-  stripAlignables.push_back(
-    new AlignableComposite(tibAlignables[0]->id(), align::Strip, align::RotationType())
-  );
+  stripAlignables.push_back(new AlignableComposite(tibAlignables[0]->id(), align::Strip, align::RotationType()));
 
   stripAlignables[0]->addComponent(tibAlignables[0]);
   stripAlignables[0]->addComponent(tidAlignables[0]);
@@ -364,9 +311,8 @@ void AlignableTrackerBuilder
 
   trackerAlignables->addComponent(stripAlignables[0]);
 
-  edm::LogInfo("AlignableBuildProcess")
-    << "@SUB=AlignableTrackerBuilder::buildStripDetector"
-    << "Built " << stripName << "-detector Alignable, consisting of Alignables"
-    << " of " << tibName << ", " << tidName
-    << ", " << tobName << " and " << tecName;
+  edm::LogInfo("AlignableBuildProcess") << "@SUB=AlignableTrackerBuilder::buildStripDetector"
+                                        << "Built " << stripName << "-detector Alignable, consisting of Alignables"
+                                        << " of " << tibName << ", " << tidName << ", " << tobName << " and "
+                                        << tecName;
 }

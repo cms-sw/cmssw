@@ -2,7 +2,7 @@
 //
 // Package:    RPCTriggerBxOrConfig
 // Class:      RPCTriggerBxOrConfig
-// 
+//
 /**\class RPCTriggerBxOrConfig RPCTriggerBxOrConfig.h L1TriggerConfig/RPCTriggerBxOrConfig/src/RPCTriggerBxOrConfig.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -29,24 +28,22 @@
 #include "CondFormats/DataRecord/interface/L1RPCBxOrConfigRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
 
-
-
 //
 // class decleration
 //
 
 class RPCTriggerBxOrConfig : public edm::ESProducer {
-   public:
-      RPCTriggerBxOrConfig(const edm::ParameterSet&);
-      ~RPCTriggerBxOrConfig() override;
+public:
+  RPCTriggerBxOrConfig(const edm::ParameterSet&);
+  ~RPCTriggerBxOrConfig() override;
 
-      typedef std::unique_ptr<L1RPCBxOrConfig> ReturnType;
+  typedef std::unique_ptr<L1RPCBxOrConfig> ReturnType;
 
-      ReturnType produce(const L1RPCBxOrConfigRcd&);
-   private:
-    int m_firstBX;
-    int m_lastBX;
+  ReturnType produce(const L1RPCBxOrConfigRcd&);
 
+private:
+  int m_firstBX;
+  int m_lastBX;
 };
 
 //
@@ -60,43 +57,33 @@ class RPCTriggerBxOrConfig : public edm::ESProducer {
 //
 // constructors and destructor
 //
-RPCTriggerBxOrConfig::RPCTriggerBxOrConfig(const edm::ParameterSet& iConfig)
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this);
+RPCTriggerBxOrConfig::RPCTriggerBxOrConfig(const edm::ParameterSet& iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this);
 
-   m_firstBX = iConfig.getParameter<int>("firstBX");
-   m_lastBX = iConfig.getParameter<int>("lastBX"); 
-
-
+  m_firstBX = iConfig.getParameter<int>("firstBX");
+  m_lastBX = iConfig.getParameter<int>("lastBX");
 }
 
-
-RPCTriggerBxOrConfig::~RPCTriggerBxOrConfig()
-{
- 
-
-}
-
+RPCTriggerBxOrConfig::~RPCTriggerBxOrConfig() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-RPCTriggerBxOrConfig::ReturnType
-RPCTriggerBxOrConfig::produce(const L1RPCBxOrConfigRcd& iRecord)
-{
-   auto pRPCTriggerBxOrConfig = std::make_unique<L1RPCBxOrConfig>();
+RPCTriggerBxOrConfig::ReturnType RPCTriggerBxOrConfig::produce(const L1RPCBxOrConfigRcd& iRecord) {
+  auto pRPCTriggerBxOrConfig = std::make_unique<L1RPCBxOrConfig>();
 
-   if (m_firstBX > m_lastBX )
-        throw cms::Exception("BadConfig") << " firstBX < m_lastBX  " << "\n";
+  if (m_firstBX > m_lastBX)
+    throw cms::Exception("BadConfig") << " firstBX < m_lastBX  "
+                                      << "\n";
 
-   pRPCTriggerBxOrConfig->setFirstBX(m_firstBX);
-   pRPCTriggerBxOrConfig->setLastBX(m_lastBX);
+  pRPCTriggerBxOrConfig->setFirstBX(m_firstBX);
+  pRPCTriggerBxOrConfig->setLastBX(m_lastBX);
 
-   return pRPCTriggerBxOrConfig ;
+  return pRPCTriggerBxOrConfig;
 }
 
 //define this as a plug-in

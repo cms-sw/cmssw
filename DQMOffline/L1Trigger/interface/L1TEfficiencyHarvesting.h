@@ -21,77 +21,66 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <vector>
 
 namespace dqmoffline {
-namespace l1t {
+  namespace l1t {
 
-//
-// Efficiency helper class declaration
-//
+    //
+    // Efficiency helper class declaration
+    //
 
-class L1TEfficiencyPlotHandler {
+    class L1TEfficiencyPlotHandler {
+    public:
+      typedef dqm::legacy::DQMStore DQMStore;
+      typedef dqm::legacy::MonitorElement MonitorElement;
 
-public:
+      L1TEfficiencyPlotHandler(const edm::ParameterSet &ps, std::string plotName);
 
-  L1TEfficiencyPlotHandler(const edm::ParameterSet & ps, std::string plotName);
+      L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);
 
-  L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);
+      ~L1TEfficiencyPlotHandler(){};
 
-  ~L1TEfficiencyPlotHandler()
-  {
-  }
-  ;
+      // book efficiency histo
+      void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
-  // book efficiency histo
-  void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+      // compute efficiency
+      void computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
-  // compute efficiency
-  void computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+    private:
+      std::string numeratorDir_;
+      std::string denominatorDir_;
+      std::string outputDir_;
+      std::string plotName_;
+      std::string numeratorSuffix_;
+      std::string denominatorSuffix_;
 
-private:
+      MonitorElement *h_efficiency_;
+    };
 
-  std::string numeratorDir_;
-  std::string denominatorDir_;
-  std::string outputDir_;
-  std::string plotName_;
-  std::string numeratorSuffix_;
-  std::string denominatorSuffix_;
+    typedef std::vector<L1TEfficiencyPlotHandler> L1TEfficiencyPlotHandlerCollection;
 
-  MonitorElement* h_efficiency_;
-};
+    //
+    // DQM class declaration
+    //
 
-typedef std::vector<L1TEfficiencyPlotHandler> L1TEfficiencyPlotHandlerCollection;
+    class L1TEfficiencyHarvesting : public DQMEDHarvester {
+    public:
+      L1TEfficiencyHarvesting(const edm::ParameterSet &ps);  // Constructor
+      ~L1TEfficiencyHarvesting() override;                   // Destructor
 
-//
-// DQM class declaration
-//
+    protected:
+      void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
 
-class L1TEfficiencyHarvesting: public DQMEDHarvester {
+    private:
+      bool verbose_;
 
-public:
+      L1TEfficiencyPlotHandlerCollection plotHandlers_;
+    };
 
-  L1TEfficiencyHarvesting(const edm::ParameterSet& ps);   // Constructor
-  ~L1TEfficiencyHarvesting() override;                     // Destructor
-
-protected:
-
-  void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
-  virtual void dqmEndLuminosityBlock(DQMStore::IGetter &igetter, edm::LuminosityBlock const& lumiBlock,
-      edm::EventSetup const& c);
-
-private:
-
-  bool verbose_;
-
-  L1TEfficiencyPlotHandlerCollection plotHandlers_;
-
-};
-
-} //l1t
-} // dqmoffline
+  }  // namespace l1t
+}  // namespace dqmoffline
 
 #endif

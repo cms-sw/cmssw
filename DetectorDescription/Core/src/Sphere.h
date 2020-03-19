@@ -5,21 +5,15 @@
 #include "Solid.h"
 
 namespace DDI {
- 
-  class Sphere : public DDI::Solid
-  {
+
+  class Sphere : public DDI::Solid {
   public:
-    Sphere(double innerRadius,
-	   double outerRadius,
-	   double startPhi,
-	   double deltaPhi,
-	   double startZ,
-	   double deltaZ);
-   
-    double volume() const override ;
-    void stream(std::ostream &) const override;	 
+    Sphere(double innerRadius, double outerRadius, double startPhi, double deltaPhi, double startZ, double deltaZ);
+
+    double volume() const override;
+    void stream(std::ostream &) const override;
   };
 
-}
+}  // namespace DDI
 
 #endif

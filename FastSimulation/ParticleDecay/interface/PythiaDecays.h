@@ -23,20 +23,17 @@ namespace Pythia8 {
 }
 
 typedef std::vector<RawParticle> DaughterParticleList;
-typedef DaughterParticleList::const_iterator DaughterParticleIterator; 
+typedef DaughterParticleList::const_iterator DaughterParticleIterator;
 
-class PythiaDecays 
-{
- public:
-
+class PythiaDecays {
+public:
   PythiaDecays();
   ~PythiaDecays();
-  const DaughterParticleList & particleDaughters(ParticlePropagator& particle, CLHEP::HepRandomEngine*);
+  const DaughterParticleList& particleDaughters(ParticlePropagator& particle, CLHEP::HepRandomEngine*);
 
- private:
-
+private:
   DaughterParticleList theList;
-  std::unique_ptr<Pythia8::Pythia>   decayer; 
+  std::unique_ptr<Pythia8::Pythia> decayer;
   std::unique_ptr<gen::P8RndmEngine> p8RndmEngine;
 };
 #endif

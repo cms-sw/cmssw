@@ -22,24 +22,23 @@
 //
 
 class EcalEBTrigPrimAnalyzer : public edm::one::EDAnalyzer<> {
-   public:
-  explicit EcalEBTrigPrimAnalyzer(const edm::ParameterSet&);
+public:
+  explicit EcalEBTrigPrimAnalyzer(const edm::ParameterSet &);
   ~EcalEBTrigPrimAnalyzer() override;
 
-
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
-   private:
 
+private:
   int nEvents_;
-  void init(const edm::EventSetup&);
+  void init(const edm::EventSetup &);
 
   // for histos of nr of hits
   std::vector<std::string> ecal_parts_;
-  TH1I * ecal_et_[2];
-  TH1I * ecal_tt_[2];
-  TH1I * ecal_fgvb_[2];
-  TH1I *histEndc,*histBar;
+  TH1I *ecal_et_[2];
+  TH1I *ecal_tt_[2];
+  TH1I *ecal_fgvb_[2];
+  TH1I *histEndc, *histBar;
   TFile *histfile_;
   TH1F *hAllTPperEvt_;
   TH1F *hTPperEvt_;
@@ -57,11 +56,11 @@ class EcalEBTrigPrimAnalyzer : public edm::one::EDAnalyzer<> {
   TH2F *hTP_iphiVsieta_fullrange_;
   TH2F *hRH_iphiVsieta_fullrange_;
 
-  TTree *tree_ ;
+  TTree *tree_;
 
-  int tpIphi_, tpIeta_ , tpgADC_, ttf_, fg_ ;
+  int tpIphi_, tpIeta_, tpgADC_, ttf_, fg_;
   int rhIeta_, rhIphi_;
-  float eRec_, tpgGeV_ ;
+  float eRec_, tpgGeV_;
 
   //edm::InputTag label_;
   edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> primToken_;
@@ -71,6 +70,5 @@ class EcalEBTrigPrimAnalyzer : public edm::one::EDAnalyzer<> {
   bool debug_;
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
 
-  int getIndex(const  EBDigiCollection *, EcalTrigTowerDetId& id) {return id.hashedIndex();}  
-
+  int getIndex(const EBDigiCollection *, EcalTrigTowerDetId &id) { return id.hashedIndex(); }
 };

@@ -14,13 +14,15 @@
 
 #include <string>
 
-namespace edm { class Event; }
-namespace edm { class EventSetup; }
+namespace edm {
+  class Event;
+}
+namespace edm {
+  class EventSetup;
+}
 
 class L3MuonIsolationProducer : public edm::stream::EDProducer<> {
-
 public:
-
   /// constructor with config
   L3MuonIsolationProducer(const edm::ParameterSet&);
 
@@ -31,7 +33,6 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-
   edm::ParameterSet theConfig;
 
   // Muon track Collection Label
@@ -57,7 +58,6 @@ private:
 
   //! apply or not the maxN cut on top of the sumPt (or nominall eff) < cuts
   bool theApplyCutsORmaxNTracks;
-
 };
 
 #endif

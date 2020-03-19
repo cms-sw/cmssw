@@ -1,7 +1,6 @@
 #ifndef DTOccupancyTest_H
 #define DTOccupancyTest_H
 
-
 /** \class DTOccupancyTest
  * *
  *  DQM Test Client
@@ -13,15 +12,13 @@
  *   
  */
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
-
 
 #include "TH2F.h"
 
@@ -31,45 +28,43 @@
 
 class DTGeometry;
 class DTChamberId;
-class DQMStore;
 
 #include "TFile.h"
 #include "TNtuple.h"
 
-class DTOccupancyTest: public DQMEDHarvester{
-
+class DTOccupancyTest : public DQMEDHarvester {
 public:
-
   /// Constructor
-  DTOccupancyTest(const edm::ParameterSet& ps);
-  
+  DTOccupancyTest(const edm::ParameterSet &ps);
+
   /// Destructor
   ~DTOccupancyTest() override;
 
 protected:
-
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& context) override ;
+  void beginRun(edm::Run const &run, edm::EventSetup const &context) override;
 
   /// Endjob
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
-  
+
   /// DQM Client Diagnostic
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
 
 private:
-
   /// book the summary histograms
   void bookHistos(DQMStore::IBooker &, const int wheelId, std::string folder, std::string histoTag);
 
   /// Get the ME name
-  std::string getMEName(std::string histoTag, const DTChamberId& chId);
+  std::string getMEName(std::string histoTag, const DTChamberId &chId);
 
   int getIntegral(TH2F *histo, int, int, int, int, bool);
 
   // Run the test on the occupancy histos
-  int runOccupancyTest(TH2F *histo, const DTChamberId& chId, float& chamberPercentage);
+  int runOccupancyTest(TH2F *histo, const DTChamberId &chId, float &chamberPercentage);
 
   std::string topFolder() const;
 
@@ -77,10 +72,10 @@ private:
 
   edm::ESHandle<DTGeometry> muonGeom;
 
-  // wheel summary histograms  
-  std::map< int, MonitorElement* > wheelHistos;  
-  MonitorElement* summaryHisto;
-  MonitorElement* glbSummaryHisto;
+  // wheel summary histograms
+  std::map<int, MonitorElement *> wheelHistos;
+  MonitorElement *summaryHisto;
+  MonitorElement *glbSummaryHisto;
 
   std::set<DTLayerId> monitoredLayers;
 
@@ -103,7 +98,6 @@ private:
 
   int nChannelTotal;
   int nChannelDead;
-
 };
 
 #endif

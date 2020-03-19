@@ -16,17 +16,15 @@
 
 #include <iostream>
 
-int  EcalErrorMask::runNb_ = -1;
+int EcalErrorMask::runNb_ = -1;
 std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMask::mapCrystalErrors_;
-std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMask::mapTTErrors_;
-std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMask::mapPNErrors_;
-std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMask::mapMemChErrors_;
-std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
+std::map<EcalLogicID, RunTTErrorsDat> EcalErrorMask::mapTTErrors_;
+std::map<EcalLogicID, RunPNErrorsDat> EcalErrorMask::mapPNErrors_;
+std::map<EcalLogicID, RunMemChErrorsDat> EcalErrorMask::mapMemChErrors_;
+std::map<EcalLogicID, RunMemTTErrorsDat> EcalErrorMask::mapMemTTErrors_;
 
-void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) noexcept(false) {
-
-  if( eConn ) {
-
+void EcalErrorMask::readDB(EcalCondDBInterface* eConn, RunIOV* runIOV) noexcept(false) {
+  if (eConn) {
     RunIOV validIOV;
     RunTag runTag = runIOV->getRunTag();
 
@@ -35,11 +33,11 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) noexcep
     std::cout << std::endl;
     std::cout << " RunCrystalErrorsDat: ";
     try {
-      eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, location, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet(&EcalErrorMask::mapCrystalErrors_, &validIOV, location, runIOV->getRunNumber());
       std::cout << "found" << std::endl;
-    } catch ( std::runtime_error &e ) {
+    } catch (std::runtime_error& e) {
       std::cout << "not found" << std::endl;
-      throw( std::runtime_error( e.what() ) );
+      throw(std::runtime_error(e.what()));
     }
 
     // use the IOV for CrystalErrors as reference
@@ -47,76 +45,63 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) noexcep
 
     std::cout << " RunTTErrorsDat:      ";
     try {
-      eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, location, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet(&EcalErrorMask::mapTTErrors_, &validIOV, location, runIOV->getRunNumber());
       std::cout << "found" << std::endl;
-    } catch ( std::runtime_error &e ) {
+    } catch (std::runtime_error& e) {
       std::cout << "not found" << std::endl;
     }
     std::cout << " RunPNErrorsDat:      ";
     try {
-      eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, location, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet(&EcalErrorMask::mapPNErrors_, &validIOV, location, runIOV->getRunNumber());
       std::cout << "found" << std::endl;
-    } catch ( std::runtime_error &e ) {
+    } catch (std::runtime_error& e) {
       std::cout << "not found" << std::endl;
     }
     std::cout << " RunMemChErrorsDat:   ";
     try {
-      eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, location, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet(&EcalErrorMask::mapMemChErrors_, &validIOV, location, runIOV->getRunNumber());
       std::cout << "found" << std::endl;
-    } catch ( std::runtime_error &e ) {
+    } catch (std::runtime_error& e) {
       std::cout << "not found" << std::endl;
     }
     std::cout << " RunMemTTErrorsDat:   ";
     try {
-      eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, location, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet(&EcalErrorMask::mapMemTTErrors_, &validIOV, location, runIOV->getRunNumber());
       std::cout << "found" << std::endl;
-    } catch ( std::runtime_error &e ) {
+    } catch (std::runtime_error& e) {
       std::cout << "not found" << std::endl;
     }
 
     std::cout << std::endl;
-
   }
-
 }
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) {
-
+void EcalErrorMask::fetchDataSet(std::map<EcalLogicID, RunCrystalErrorsDat>* fillMap) {
   fillMap->clear();
   *fillMap = EcalErrorMask::mapCrystalErrors_;
   return;
-
 }
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) {
-
+void EcalErrorMask::fetchDataSet(std::map<EcalLogicID, RunTTErrorsDat>* fillMap) {
   fillMap->clear();
   *fillMap = EcalErrorMask::mapTTErrors_;
   return;
-
 }
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) {
-
+void EcalErrorMask::fetchDataSet(std::map<EcalLogicID, RunPNErrorsDat>* fillMap) {
   fillMap->clear();
   *fillMap = EcalErrorMask::mapPNErrors_;
   return;
-
 }
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) {
-
+void EcalErrorMask::fetchDataSet(std::map<EcalLogicID, RunMemChErrorsDat>* fillMap) {
   fillMap->clear();
   *fillMap = EcalErrorMask::mapMemChErrors_;
   return;
-
 }
 
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) {
-
+void EcalErrorMask::fetchDataSet(std::map<EcalLogicID, RunMemTTErrorsDat>* fillMap) {
   fillMap->clear();
   *fillMap = EcalErrorMask::mapMemTTErrors_;
   return;
-
 }
-

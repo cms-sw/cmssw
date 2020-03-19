@@ -10,25 +10,22 @@
  *   hits to a muon chamber
  */
 
-
-class RootNeutronWriter : public NeutronWriter
-{
+class RootNeutronWriter : public NeutronWriter {
 public:
-  RootNeutronWriter(const std::string & fileName);
+  RootNeutronWriter(const std::string& fileName);
   ~RootNeutronWriter() override;
 
   /// users should use this to create chamberwriters
   /// for each chamber type just after creation
   void initialize(int detType) override;
 
-  RootChamberWriter & chamberWriter(int chamberType);
+  RootChamberWriter& chamberWriter(int chamberType);
 
-  void writeCluster(int chamberType, const edm::PSimHitContainer & hits) override;
+  void writeCluster(int chamberType, const edm::PSimHitContainer& hits) override;
 
 private:
   std::map<int, RootChamberWriter> theChamberWriters;
-  TFile * theFile;
+  TFile* theFile;
 };
 
 #endif
-

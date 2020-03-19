@@ -28,65 +28,57 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuDTExtLut {
-
+public:
+  /// helper class for look-up tables
+  class LUT {
   public:
+    typedef std::map<short, short, std::less<short> > LUTmap;
 
-    /// helper class for look-up tables
-    class LUT {
-      public:
-        typedef std::map<short, short, std::less<short> > LUTmap;
+    LUTmap low;
+    LUTmap high;
 
-        LUTmap low;
-        LUTmap high;
-    
     COND_SERIALIZABLE;
-};
+  };
 
-    /// constructor
-    L1MuDTExtLut();
+  /// constructor
+  L1MuDTExtLut();
 
-    /// destructor
-    virtual ~L1MuDTExtLut();
+  /// destructor
+  virtual ~L1MuDTExtLut();
 
-    /// reset extrapolation look-up tables
-    void reset();
-    
-    /// load extrapolation look-up tables
-    int load();
+  /// reset extrapolation look-up tables
+  void reset();
 
-    /// print extrapolation look-up tables
-    void print() const;
+  /// load extrapolation look-up tables
+  int load();
 
-    /// get low_value for a given address
-    int getLow(int ext_ind, int address) const;
-    
-    /// get high_value for a given address
-    int getHigh(int ext_ind, int address) const;
+  /// print extrapolation look-up tables
+  void print() const;
 
-  private:
+  /// get low_value for a given address
+  int getLow(int ext_ind, int address) const;
 
-    /// set precision for look-up tables
-    void setPrecision();
-    
-  private:
+  /// get high_value for a given address
+  int getHigh(int ext_ind, int address) const;
 
-    std::vector<LUT> ext_lut;
+private:
+  /// set precision for look-up tables
+  void setPrecision();
 
-    unsigned short int nbit_phi;
-    unsigned short int nbit_phib;
-    
+private:
+  std::vector<LUT> ext_lut;
+
+  unsigned short int nbit_phi;
+  unsigned short int nbit_phib;
 
   COND_SERIALIZABLE;
 };

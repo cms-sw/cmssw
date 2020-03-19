@@ -2,6 +2,5 @@
 #include "SimMuon/DTDigitizer/test/stubs/computeRange.h"
 
 namespace SimMuon_DTDigitizer_test {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace SimMuon_DTDigitizer_test

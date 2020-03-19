@@ -33,26 +33,21 @@
 class DTReadOutMapping;
 class DTuROSFEDData;
 
-
-class DTuROSRawToDigi : public edm::stream::EDProducer<>{
-
+class DTuROSRawToDigi : public edm::stream::EDProducer<> {
 public:
-
   /// Constructor
   DTuROSRawToDigi(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTuROSRawToDigi() override ;
+  ~DTuROSRawToDigi() override;
 
   /// Produce digis out of raw data
-  void produce(edm::Event& e, const edm::EventSetup& c) override ;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   /// Generate and fill FED raw data for a full event
-  bool fillRawData(edm::Event& e, const edm::EventSetup& c,
-                   DTDigiCollection& digis, std::vector<DTuROSFEDData>& words);
+  bool fillRawData(edm::Event& e, const edm::EventSetup& c, DTDigiCollection& digis, std::vector<DTuROSFEDData>& words);
 
 private:
-  
   edm::InputTag DTuROSInputTag_;
 
   bool debug_;
@@ -87,8 +82,7 @@ private:
   int theROB(int slot, int link);
 
   edm::InputTag getDTuROSInputTag() { return DTuROSInputTag_; }
-  
-  edm::EDGetTokenT<FEDRawDataCollection> Raw_token;
 
+  edm::EDGetTokenT<FEDRawDataCollection> Raw_token;
 };
 #endif

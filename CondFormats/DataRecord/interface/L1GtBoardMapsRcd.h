@@ -36,6 +36,9 @@
 //     // empty
 
 // };
-class L1GtBoardMapsRcd : public edm::eventsetup::DependentRecordImplementation<L1GtBoardMapsRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1GtBoardMapsRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1GtBoardMapsRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

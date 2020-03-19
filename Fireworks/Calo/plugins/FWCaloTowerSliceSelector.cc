@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWCaloTowerSliceSelector
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -21,25 +21,17 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
+FWCaloTowerSliceSelector::FWCaloTowerSliceSelector(TH2F* h, const FWEventItem* i) : FWHistSliceSelector(h, i) {}
 
-FWCaloTowerSliceSelector::FWCaloTowerSliceSelector(TH2F* h, const FWEventItem* i):
-   FWHistSliceSelector(h, i)
-{
-}
+FWCaloTowerSliceSelector::~FWCaloTowerSliceSelector() {}
 
-FWCaloTowerSliceSelector::~FWCaloTowerSliceSelector()
-{
-}
+void FWCaloTowerSliceSelector::getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const {
+  const CaloTowerCollection* towers = nullptr;
+  m_item->get(towers);
+  assert(nullptr != towers);
+  CaloTowerCollection::const_iterator tower = towers->begin();
+  std::advance(tower, itemIdx);
 
-void
-FWCaloTowerSliceSelector::getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const
-{
-    const CaloTowerCollection* towers=nullptr;
-    m_item->get(towers);
-    assert(nullptr!=towers);
-    CaloTowerCollection::const_iterator tower = towers->begin();
-    std::advance(tower, itemIdx);
-
-    eta = tower->eta();
-    phi = tower->phi();
+  eta = tower->eta();
+  phi = tower->phi();
 }

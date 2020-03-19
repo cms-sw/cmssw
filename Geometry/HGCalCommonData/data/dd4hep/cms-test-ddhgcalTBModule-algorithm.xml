@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+<!-- 
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/TB170/cms.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/TB170/hgcal.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/TB170/hgcalEE.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v7/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
+  </IncludeSection>
+  
+</DDDefinition>
+

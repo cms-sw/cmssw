@@ -12,17 +12,16 @@ namespace edm {
   public:
     EventProcessHistoryID() : eventID_(), processHistoryID_() {}
     EventProcessHistoryID(EventID const& id, ProcessHistoryID const& ph) : eventID_(id), processHistoryID_(ph) {}
-    EventID const& eventID() const {return eventID_;}
-    ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}
+    EventID const& eventID() const { return eventID_; }
+    ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
+
   private:
     EventID eventID_;
     ProcessHistoryID processHistoryID_;
   };
-  inline
-  bool operator<(EventProcessHistoryID const& lh, EventProcessHistoryID const& rh) {
-      return lh.eventID() < rh.eventID();
+  inline bool operator<(EventProcessHistoryID const& lh, EventProcessHistoryID const& rh) {
+    return lh.eventID() < rh.eventID();
   }
-}
-
+}  // namespace edm
 
 #endif

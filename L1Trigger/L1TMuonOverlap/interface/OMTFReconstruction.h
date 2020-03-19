@@ -3,14 +3,16 @@
 
 #include "xercesc/util/XercesDefs.hpp"
 
+#include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
+
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -21,67 +23,67 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFSorter.h"
 #include "L1Trigger/L1TMuonOverlap/interface/GhostBuster.h"
 
-class L1TMuonOverlapParams;
 class OMTFProcessor;
 class OMTFConfiguration;
 class OMTFConfigMaker;
 class XMLConfigWriter;
 
-namespace XERCES_CPP_NAMESPACE{
+namespace XERCES_CPP_NAMESPACE {
   class DOMElement;
   class DOMDocument;
   class DOMImplementation;
-}
+}  // namespace XERCES_CPP_NAMESPACE
 
 class OMTFReconstruction {
-  public:
-    OMTFReconstruction();
+public:
+  OMTFReconstruction(const edm::ParameterSet &, edm::ConsumesCollector &&);
 
-    OMTFReconstruction(const edm::ParameterSet&);
+  ~OMTFReconstruction();
 
-    ~OMTFReconstruction();
+  void beginJob();
 
-    void beginJob();
+  void endJob();
 
-    void endJob();
+  void beginRun(edm::Run const &, edm::EventSetup const &);
 
-    void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);  
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> reconstruct(const edm::Event &, const edm::EventSetup &);
 
-    std::unique_ptr<l1t::RegionalMuonCandBxCollection> reconstruct(const edm::Event&, const edm::EventSetup&);
+private:
+  edm::ParameterSet m_Config;
 
-  private:
+  edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
+  edm::Handle<L1MuDTChambThContainer> dtThDigis;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> cscDigis;
+  edm::Handle<RPCDigiCollection> rpcDigis;
 
-    edm::ParameterSet m_Config;
+  edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> l1TMuonOverlapParamsToken_;
 
-    edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
-    edm::Handle<L1MuDTChambThContainer> dtThDigis;
-    edm::Handle<CSCCorrelatedLCTDigiCollection> cscDigis;
-    edm::Handle<RPCDigiCollection> rpcDigis;
+  void loadAndFilterDigis(const edm::Event &);
 
-    void loadAndFilterDigis(const edm::Event&);    
+  void getProcessorCandidates(unsigned int iProcessor,
+                              l1t::tftype mtfType,
+                              int bx,
+                              l1t::RegionalMuonCandBxCollection &myCandidates);
 
-    void getProcessorCandidates(unsigned int iProcessor, l1t::tftype mtfType, int bx,
-            l1t::RegionalMuonCandBxCollection & myCandidates);
-  
-    void writeResultToXML(unsigned int iProcessor, l1t::tftype mtfType,  const OMTFinput &myInput, 
-      const std::vector<OMTFProcessor::resultsMap> & myResults,
-      const std::vector<l1t::RegionalMuonCand> & candMuons);
+  void writeResultToXML(unsigned int iProcessor,
+                        l1t::tftype mtfType,
+                        const OMTFinput &myInput,
+                        const std::vector<OMTFProcessor::resultsMap> &myResults,
+                        const std::vector<l1t::RegionalMuonCand> &candMuons);
 
-
-    bool dumpResultToXML, dumpDetailedResultToXML;
-    int bxMin, bxMax;
+  bool dumpResultToXML, dumpDetailedResultToXML;
+  int bxMin, bxMax;
 
   ///OMTF objects
-    OMTFConfiguration   *m_OMTFConfig;
-    OMTFinputMaker       m_InputMaker;
-    OMTFSorter           m_Sorter;
-    std::unique_ptr<IGhostBuster> m_GhostBuster;
-    OMTFProcessor       *m_OMTF;    
+  OMTFConfiguration *m_OMTFConfig;
+  OMTFinputMaker m_InputMaker;
+  OMTFSorter m_Sorter;
+  std::unique_ptr<IGhostBuster> m_GhostBuster;
+  OMTFProcessor *m_OMTF;
   ///
-    xercesc::DOMElement *aTopElement;
-    OMTFConfigMaker     *m_OMTFConfigMaker;
-    XMLConfigWriter     *m_Writer;
-	
+  xercesc::DOMElement *aTopElement;
+  OMTFConfigMaker *m_OMTFConfigMaker;
+  XMLConfigWriter *m_Writer;
 };
 
 #endif

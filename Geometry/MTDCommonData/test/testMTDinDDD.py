@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CompareGeometryTest")
-process.load('Configuration.Geometry.GeometryExtended2023D24_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D50_cff')
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
@@ -18,36 +18,28 @@ process.myprint = cms.OutputModule("AsciiOutputModule")
 
 process.testBTL = cms.EDAnalyzer("TestMTDNumbering",
                                label = cms.untracked.string(''),
-                               isMagField = cms.untracked.bool(False),
                                outFileName = cms.untracked.string('BTL'),
-                               numNodesToDump = cms.untracked.uint32(0),
-                               ddTopNodeName = cms.untracked.string('btl:BarrelTimingLayer'),
-                               theLayout = cms.untracked.uint32(1)
+                               ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
+                               theLayout = cms.untracked.uint32(4)
                                )
 
 process.testETL = cms.EDAnalyzer("TestMTDNumbering",
                                label = cms.untracked.string(''),
-                               isMagField = cms.untracked.bool(False),
                                outFileName = cms.untracked.string('ETL'),
-                               numNodesToDump = cms.untracked.uint32(0),
-                               ddTopNodeName = cms.untracked.string('etl:EndcapTimingLayer')
+                               ddTopNodeName = cms.untracked.string('EndcapTimingLayer')
                                )
 
 
 process.testBTLpos = cms.EDAnalyzer("TestMTDPosition",
                                label = cms.untracked.string(''),
-                               isMagField = cms.untracked.bool(False),
                                outFileName = cms.untracked.string('BTLpos'),
-                               numNodesToDump = cms.untracked.uint32(0),
-                               ddTopNodeName = cms.untracked.string('btl:BarrelTimingLayer')
+                               ddTopNodeName = cms.untracked.string('BarrelTimingLayer')
                                )
 
 process.testETLpos = cms.EDAnalyzer("TestMTDPosition",
                                label = cms.untracked.string(''),
-                               isMagField = cms.untracked.bool(False),
                                outFileName = cms.untracked.string('ETLpos'),
-                               numNodesToDump = cms.untracked.uint32(0),
-                               ddTopNodeName = cms.untracked.string('etl:EndcapTimingLayer')
+                               ddTopNodeName = cms.untracked.string('EndcapTimingLayer')
                                )
 
 process.MessageLogger = cms.Service("MessageLogger",

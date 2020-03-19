@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV2
+from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV2,trkIsol04CfgV2
 
 heepIDVarValueMaps = cms.EDProducer("ElectronHEEPIDValueMapProducer",
                                     beamSpot=cms.InputTag("offlineBeamSpot"),
@@ -22,5 +22,7 @@ heepIDVarValueMaps = cms.EDProducer("ElectronHEEPIDValueMapProducer",
                                     candVetosMiniAOD=cms.vstring("ELES","NONE","NONELES"),
                                     elesMiniAOD=cms.InputTag("slimmedElectrons"),
                                     dataFormat=cms.int32(0),#0 = auto detection, 1 = AOD, 2 = miniAOD
-                                    trkIsoConfig= trkIsol03CfgV2
+                                    trkIsoConfig= trkIsol03CfgV2,
+                                    trkIso04Config= trkIsol04CfgV2,
+                                    makeTrkIso04 = cms.bool(True)
                                     )

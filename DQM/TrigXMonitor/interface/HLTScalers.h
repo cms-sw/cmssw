@@ -6,7 +6,7 @@
 // [wittich 11/07]
 
 // Revision 1.19  2011/03/29 09:46:03  rekovic
-// clean vector pairPDPaths in beginRun and tidy up
+// clean vector pairPDPaths in dqmBeginRun and tidy up
 //
 // Revision 1.18  2011/03/24 18:25:45  rekovic
 // Add single 1D plot of streamA content
@@ -58,28 +58,24 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class HLTScalers : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
- public:
+class HLTScalers : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+public:
   HLTScalers(const edm::ParameterSet &ps);
   ~HLTScalers() override = default;
 
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &c) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                            const edm::EventSetup &c) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   /// DQM Client Diagnostic should be performed here:
-  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                          const edm::EventSetup &c) override;
-  void endRun(const edm::Run &run, const edm::EventSetup &c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
+  void dqmEndRun(const edm::Run &run, const edm::EventSetup &c) override;
 
- private:
+private:
   HLTConfigProvider hltConfig_;
   std::string folderName_;  // dqm folder name
   std::string processname_;

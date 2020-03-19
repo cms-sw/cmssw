@@ -5,18 +5,13 @@
 
 namespace reco {
   namespace modules {
-    
-    template<>
+
+    template <>
     struct ParameterAdapter<MasslessInvariantMass> {
-      static MasslessInvariantMass make( const edm::ParameterSet & cfg ) {
-	return MasslessInvariantMass();
-      }
+      static MasslessInvariantMass make(const edm::ParameterSet& cfg) { return MasslessInvariantMass(); }
     };
-    
-  }
-}
 
-
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

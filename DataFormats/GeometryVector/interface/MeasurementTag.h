@@ -1,6 +1,6 @@
 #ifndef GeometryVector_MeasurementTag_h
 #define GeometryVector_MeasurementTag_h
 
-class MeasurementTag{};
+class MeasurementTag {};
 
-#endif // GeometryVector_MeasurementTag_h
+#endif  // GeometryVector_MeasurementTag_h

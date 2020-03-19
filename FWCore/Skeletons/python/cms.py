@@ -9,6 +9,7 @@ Description: CMS-related utils
 from __future__ import print_function
 
 # system modules
+from builtins import range
 import os
 import sys
 
@@ -26,7 +27,7 @@ def config(tmpl, pkg_help, tmpl_dir):
             print(pkg_help)
             sys.exit(0)
         kwds['pname'] = sys.argv[1]
-        for idx in xrange(2, len(sys.argv)):
+        for idx in range(2, len(sys.argv)):
             opt = sys.argv[idx]
             if  opt == '-author':
                 kwds['author'] = sys.argv[idx+1]

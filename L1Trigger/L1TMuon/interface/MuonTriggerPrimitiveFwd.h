@@ -19,6 +19,6 @@ namespace L1TMuon {
   class TTTriggerPrimitive;  // Track Trigger hits
 
   typedef std::vector<TTTriggerPrimitive> TTTriggerPrimitiveCollection;
-}
+}  // namespace L1TMuon
 
 #endif

@@ -3,7 +3,6 @@
 
 // Gena Kukartsev, 29.07.2009
 
-
 #include <string>
 #include <iostream>
 #include <typeinfo>
@@ -11,7 +10,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,22 +20,19 @@
 #include "CondFormats/DataRecord/interface/HcalValidationCorrsRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
-
-class HcalValidationCorrsHandler : public popcon::PopConSourceHandler<HcalValidationCorrs>
-{
- public:
+class HcalValidationCorrsHandler : public popcon::PopConSourceHandler<HcalValidationCorrs> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~HcalValidationCorrsHandler() override;
-  HcalValidationCorrsHandler(edm::ParameterSet const &);
+  HcalValidationCorrsHandler(edm::ParameterSet const&);
 
   void initObject(HcalValidationCorrs*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   HcalValidationCorrs* myDBObject;
   std::string m_name;
-
 };
 #endif

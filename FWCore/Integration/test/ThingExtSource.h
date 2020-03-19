@@ -16,7 +16,6 @@
 namespace edmtest {
   class ThingExtSource : public edm::ProducerSourceFromFiles {
   public:
-
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
@@ -38,8 +37,8 @@ namespace edmtest {
     //Not called by the framework, only used internally
     void endRun(edm::Run& r);
     void endLuminosityBlock(edm::LuminosityBlock& lb);
-    
+
     ThingAlgorithm alg_;
   };
-}
+}  // namespace edmtest
 #endif

@@ -28,23 +28,18 @@ class Propagator;
 /* Class MuonPtFilter Interface */
 
 class MuonPtFilter : public edm::EDFilter {
+public:
+  /// Constructor
+  MuonPtFilter(const edm::ParameterSet &);
 
-  public:
+  /// Destructorquer
+  ~MuonPtFilter() override;
 
-/// Constructor
-    MuonPtFilter(const edm::ParameterSet&) ;
+  /* Operations */
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 
-/// Destructorquer
-    ~MuonPtFilter() override ;
-
-/* Operations */ 
-    bool filter(edm::Event &, const edm::EventSetup&) override;
-
-  private:
-    std::string theSTAMuonLabel; // label of muons 
-    double theMinPt;    // minimum pt required 
-
-
+private:
+  std::string theSTAMuonLabel;  // label of muons
+  double theMinPt;              // minimum pt required
 };
-#endif // Muon_MuonPtFilter_h
-
+#endif  // Muon_MuonPtFilter_h

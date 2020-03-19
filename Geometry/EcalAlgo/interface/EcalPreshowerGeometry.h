@@ -13,108 +13,94 @@
 #include <vector>
 
 class EcalPreshowerGeometry final : public CaloSubdetectorGeometry {
-
 public:
+  typedef std::vector<PreshowerStrip> CellVec;
 
-  typedef std::vector<PreshowerStrip> CellVec ;
-  
-  typedef CaloCellGeometry::CCGFloat CCGFloat ;
-  typedef CaloCellGeometry::Pt3D     Pt3D     ;
-  typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
-      
-  typedef IdealGeometryRecord         IdealRecord   ;
-  typedef EcalPreshowerGeometryRecord AlignedRecord ;
-  typedef ESAlignmentRcd              AlignmentRecord ;
-  typedef PEcalPreshowerRcd           PGeometryRecord ;
+  typedef CaloCellGeometry::CCGFloat CCGFloat;
+  typedef CaloCellGeometry::Pt3D Pt3D;
+  typedef CaloCellGeometry::Pt3DVec Pt3DVec;
 
-  typedef EcalPreshowerNumberingScheme NumberingScheme ;
-  typedef CaloSubdetectorGeometry::ParVec ParVec ;
-  typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
-  typedef ESDetId DetIdType ;
+  typedef IdealGeometryRecord IdealRecord;
+  typedef EcalPreshowerGeometryRecord AlignedRecord;
+  typedef ESAlignmentRcd AlignmentRecord;
+  typedef PEcalPreshowerRcd PGeometryRecord;
 
-  enum { k_NumberOfCellsForCorners = ESDetId::kSizeForDenseIndexing } ;
+  typedef EcalPreshowerNumberingScheme NumberingScheme;
+  typedef CaloSubdetectorGeometry::ParVec ParVec;
+  typedef CaloSubdetectorGeometry::ParVecVec ParVecVec;
+  typedef ESDetId DetIdType;
 
-  enum { k_NumberOfShapes = 4 } ;
+  enum { k_NumberOfCellsForCorners = ESDetId::kSizeForDenseIndexing };
 
-  enum { k_NumberOfParametersPerShape = 4 } ;
+  enum { k_NumberOfShapes = 4 };
 
-  static std::string dbString() { return "PEcalPreshowerRcd" ; }
+  enum { k_NumberOfParametersPerShape = 4 };
 
-  unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
-  unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
+  static std::string dbString() { return "PEcalPreshowerRcd"; }
 
-  EcalPreshowerGeometry() ;
-  
+  unsigned int numberOfShapes() const override { return k_NumberOfShapes; }
+  unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape; }
+
+  EcalPreshowerGeometry();
+
   /// The EcalPreshowerGeometry will delete all its cell geometries at destruction time
   ~EcalPreshowerGeometry() override;
 
-  void setzPlanes( CCGFloat z1minus, 
-		   CCGFloat z2minus,
-		   CCGFloat z1plus, 
-		   CCGFloat z2plus ) ;
-  
+  void setzPlanes(CCGFloat z1minus, CCGFloat z2minus, CCGFloat z1plus, CCGFloat z2plus);
+
   // Get closest cell
-  DetId getClosestCell( const GlobalPoint& r ) const override;
+  DetId getClosestCell(const GlobalPoint& r) const override;
 
   // Get closest cell in arbitrary plane (1 or 2)
-  virtual DetId getClosestCellInPlane( const GlobalPoint& r     ,
-				       int                plane   ) const;
-
+  virtual DetId getClosestCellInPlane(const GlobalPoint& r, int plane) const;
 
   void initializeParms() override;
-  unsigned int numberOfTransformParms() const override { return 3 ; }
+  unsigned int numberOfTransformParms() const override { return 3; }
 
-  static std::string hitString() { return "EcalHitsES" ; }
-  
-  static std::string producerTag() { return "EcalPreshower" ; }
+  static std::string hitString() { return "EcalHitsES"; }
 
-  static unsigned int numberOfAlignments() { return 8 ; }
+  static std::string producerTag() { return "EcalPreshower"; }
 
-  static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
-  
-  static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
+  static unsigned int numberOfAlignments() { return 8; }
 
-  static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
-  
-  static void localCorners( Pt3DVec&        lc  ,
-			    const CCGFloat* pv  ,
-			    unsigned int    i   ,
-			    Pt3D&           ref   ) ;
+  static unsigned int alignmentTransformIndexLocal(const DetId& id);
 
-  void newCell( const GlobalPoint& f1 ,
-		const GlobalPoint& f2 ,
-		const GlobalPoint& f3 ,
-		const CCGFloat*    parm ,
-		const DetId&       detId   ) override;
-  
+  static unsigned int alignmentTransformIndexGlobal(const DetId& id);
+
+  static DetId detIdFromLocalAlignmentIndex(unsigned int iLoc);
+
+  static void localCorners(Pt3DVec& lc, const CCGFloat* pv, unsigned int i, Pt3D& ref);
+
+  void newCell(const GlobalPoint& f1,
+               const GlobalPoint& f2,
+               const GlobalPoint& f3,
+               const CCGFloat* parm,
+               const DetId& detId) override;
 
   /// is this detid present in the geometry?
-  bool present( const DetId& id ) const override {
-    if(id==DetId(0)) return false;
+  bool present(const DetId& id) const override {
+    if (id == DetId(0))
+      return false;
     // not needed???
-    auto index = CaloGenericDetId( id ).denseIndex();
+    auto index = CaloGenericDetId(id).denseIndex();
     return index < m_cellVec.size();
   }
 
 protected:
-
   // Modify the RawPtr class
-  const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
+  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
 
 private:
+  const CCGFloat m_xWidWaf;
+  const CCGFloat m_xInterLadGap;
+  const CCGFloat m_xIntraLadGap;
 
-  const CCGFloat m_xWidWaf      ;
-  const CCGFloat m_xInterLadGap ;
-  const CCGFloat m_xIntraLadGap ;
-      
-  const CCGFloat m_yWidAct      ;
-  const CCGFloat m_yCtrOff      ;
+  const CCGFloat m_yWidAct;
+  const CCGFloat m_yCtrOff;
 
   CCGFloat m_zplane[4];
-      
-  CellVec m_cellVec ;
+
+  CellVec m_cellVec;
 };
 
-
 #endif
-

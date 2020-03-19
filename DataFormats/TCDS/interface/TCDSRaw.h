@@ -15,8 +15,7 @@
 
 namespace tcds {
 
-  struct Sizes_v1
-  {
+  struct Sizes_v1 {
     const uint8_t headerSize;
     const uint8_t summarySize;
     const uint8_t L1AhistSize;
@@ -27,8 +26,7 @@ namespace tcds {
     const uint8_t BGOSize;
   };
 
-  struct Header_v1
-  {
+  struct Header_v1 {
     const uint64_t macAddress;
     const uint32_t swVersion;
     const uint32_t fwVersion;
@@ -53,8 +51,7 @@ namespace tcds {
     const uint64_t eventNumber;
   };
 
-  struct L1aInfo_v1
-  {
+  struct L1aInfo_v1 {
     const uint32_t orbitlow;
     const uint16_t orbithigh;
     const uint8_t reserved2;
@@ -67,13 +64,11 @@ namespace tcds {
   };
 
   const uint8_t l1aHistoryDepth_v1 = 16;
-  struct L1aHistory_v1
-  {
+  struct L1aHistory_v1 {
     L1aInfo_v1 l1aInfo[l1aHistoryDepth_v1];
   };
 
-  struct BST_v1
-  {
+  struct BST_v1 {
     const uint32_t gpstimelow;
     const uint32_t gpstimehigh;
     const uint32_t bireserved8_11;
@@ -96,31 +91,28 @@ namespace tcds {
     const uint32_t bireserved60_63;
   };
 
-  struct LastBGo_v1
-  {
+  struct LastBGo_v1 {
     const uint32_t orbitlow;
     const uint16_t orbithigh;
     const uint16_t reserved;
   };
 
   const uint8_t bgoCount_v1 = 64;
-  struct BGoHistory_v1
-  {
+  struct BGoHistory_v1 {
     const uint64_t bgoHistoryHeader;
     const struct LastBGo_v1 lastBGo[bgoCount_v1];
   };
 
-  struct Raw_v1
-  {
-    const struct Sizes_v1      sizes;
-    const struct Header_v1     header;
+  struct Raw_v1 {
+    const struct Sizes_v1 sizes;
+    const struct Header_v1 header;
     const struct L1aHistory_v1 l1aHistory;
-    const struct BST_v1        bst;
+    const struct BST_v1 bst;
     const struct BGoHistory_v1 bgoHistory;
   };
 
-}
+}  // namespace tcds
 
 #pragma pack(pop)
 
-#endif // DATAFORMATS_TCDS_TCDSRAW_H
+#endif  // DATAFORMATS_TCDS_TCDSRAW_H

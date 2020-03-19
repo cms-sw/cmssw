@@ -4,28 +4,27 @@
 
 #define py1ent py1ent_
 extern "C" {
-  void py1ent(int&,int&,double&,double&,double&);
+void py1ent(int&, int&, double&, double&, double&);
 }
 
 #define pyexec pyexec_
 extern "C" {
-  void pyexec();
+void pyexec();
 }
 
 #define pyinre pyinre_
 extern "C" {
-  void pyinre();
+void pyinre();
 }
 
 #define pyjoin pyjoin_
 extern "C" {
-  void pyjoin(int&,int[2]);
+void pyjoin(int&, int[2]);
 }
 
 #define pyshow pyshow_
 extern "C" {
-  void pyshow(int&,int&,double&);
+void pyshow(int&, int&, double&);
 }
 
 #endif
-

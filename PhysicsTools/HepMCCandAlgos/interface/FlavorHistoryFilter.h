@@ -1,7 +1,6 @@
 #ifndef PhysicsTools_HepMCCandAlgos_interface_FlavorHistoryFilter_h
 #define PhysicsTools_HepMCCandAlgos_interface_FlavorHistoryFilter_h
 
-
 // -*- C++ -*-
 //
 // Package:    FlavorHistoryFilter
@@ -49,7 +48,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -62,7 +60,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 #include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
 #include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -74,35 +71,34 @@
 //
 
 class FlavorHistoryFilter : public edm::EDFilter {
-   public:
-     typedef reco::FlavorHistory::FLAVOR_T flavor_type;
-     typedef std::vector<int>              flavor_vector;
+public:
+  typedef reco::FlavorHistory::FLAVOR_T flavor_type;
+  typedef std::vector<int> flavor_vector;
 
-      explicit FlavorHistoryFilter(const edm::ParameterSet&);
-      ~FlavorHistoryFilter() override;
+  explicit FlavorHistoryFilter(const edm::ParameterSet&);
+  ~FlavorHistoryFilter() override;
 
-   private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-      // ----------member data ---------------------------
-      edm::EDGetTokenT<reco::FlavorHistoryEvent>   bsrcToken_;           // Input b flavor history collection name
-      edm::EDGetTokenT<reco::FlavorHistoryEvent>   csrcToken_;           // Input c flavor history collection name
-      int             pathToSelect_;   // Select any of the following paths:
-      double          dr_;             // dr with which to cut off the events
-      // Note! The "b" and "c" here refer to the number of matched b and c genjets, respectively
-      reco::FlavorHistorySelectorUtil * bb_me_;      // To select bb->2 events from matrix element... Path 1
-      reco::FlavorHistorySelectorUtil *  b_me_;      // To select  b->1 events from matrix element... Path 2
-      reco::FlavorHistorySelectorUtil * cc_me_;      // To select cc->2 events from matrix element... Path 3
-      reco::FlavorHistorySelectorUtil *  c_me_;      // To select  c->1 events from matrix element... Path 4
-      reco::FlavorHistorySelectorUtil *  b_ps_;      // To select bb->2 events from parton shower ... Path 5
-      reco::FlavorHistorySelectorUtil *  c_ps_;      // To select cc->2 events from parton shower ... Path 6
-      reco::FlavorHistorySelectorUtil * bb_me_comp_; // To select bb->1 events from matrix element... Path 7
-      reco::FlavorHistorySelectorUtil * cc_me_comp_; // To select cc->1 events from matrix element... Path 8
-      reco::FlavorHistorySelectorUtil *  b_ps_comp_; // To select bb->2 events from parton shower ... Path 9
-      reco::FlavorHistorySelectorUtil *  c_ps_comp_; // To select cc->1 events from parton shower ... Path 10
-                                                     // The veto of all of these is               ... Path 11
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<reco::FlavorHistoryEvent> bsrcToken_;  // Input b flavor history collection name
+  edm::EDGetTokenT<reco::FlavorHistoryEvent> csrcToken_;  // Input c flavor history collection name
+  int pathToSelect_;                                      // Select any of the following paths:
+  double dr_;                                             // dr with which to cut off the events
+  // Note! The "b" and "c" here refer to the number of matched b and c genjets, respectively
+  reco::FlavorHistorySelectorUtil* bb_me_;       // To select bb->2 events from matrix element... Path 1
+  reco::FlavorHistorySelectorUtil* b_me_;        // To select  b->1 events from matrix element... Path 2
+  reco::FlavorHistorySelectorUtil* cc_me_;       // To select cc->2 events from matrix element... Path 3
+  reco::FlavorHistorySelectorUtil* c_me_;        // To select  c->1 events from matrix element... Path 4
+  reco::FlavorHistorySelectorUtil* b_ps_;        // To select bb->2 events from parton shower ... Path 5
+  reco::FlavorHistorySelectorUtil* c_ps_;        // To select cc->2 events from parton shower ... Path 6
+  reco::FlavorHistorySelectorUtil* bb_me_comp_;  // To select bb->1 events from matrix element... Path 7
+  reco::FlavorHistorySelectorUtil* cc_me_comp_;  // To select cc->1 events from matrix element... Path 8
+  reco::FlavorHistorySelectorUtil* b_ps_comp_;   // To select bb->2 events from parton shower ... Path 9
+  reco::FlavorHistorySelectorUtil* c_ps_comp_;   // To select cc->1 events from parton shower ... Path 10
+                                                 // The veto of all of these is               ... Path 11
 };
-
 
 #endif

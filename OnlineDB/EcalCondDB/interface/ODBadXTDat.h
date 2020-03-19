@@ -8,7 +8,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODBadXTInfo.h"
 
 class ODBadXTDat : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODBadXTDat();
   ~ODBadXTDat() override;
@@ -31,23 +31,17 @@ class ODBadXTDat : public IODConfig {
   inline void setXTId(int dac) { m_xt = dac; }
   inline int getXTId() const { return m_xt; }
 
-
   inline void setStatus(int dac) { m_t1 = dac; }
   inline int getStatus() const { return m_t1; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const ODBadXTDat* item, ODBadXTInfo* iov )
-    noexcept(false);
+  void writeDB(const ODBadXTDat* item, ODBadXTInfo* iov) noexcept(false);
 
-  void writeArrayDB(const std::vector< ODBadXTDat >& data, ODBadXTInfo* iov)
-    noexcept(false);
+  void writeArrayDB(const std::vector<ODBadXTDat>& data, ODBadXTInfo* iov) noexcept(false);
 
-
-  void fetchData(std::vector< ODBadXTDat >* fillMap, ODBadXTInfo* iov)
-     noexcept(false);
+  void fetchData(std::vector<ODBadXTDat>* fillMap, ODBadXTInfo* iov) noexcept(false);
 
   // User data
   int m_sm;
@@ -56,7 +50,6 @@ class ODBadXTDat : public IODConfig {
   int m_xt;
   int m_t1;
   int m_ID;
- 
 };
 
 #endif

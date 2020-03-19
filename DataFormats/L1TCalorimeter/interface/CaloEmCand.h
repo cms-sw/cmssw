@@ -6,25 +6,18 @@
 namespace l1t {
 
   class CaloEmCand : public L1Candidate {
-
   public:
-    CaloEmCand(){}
-    CaloEmCand( const LorentzVector& p4,
-		int pt=0,
-		int eta=0,
-		int phi=0,
-		int qual=0
-		);
+    CaloEmCand() {}
+    CaloEmCand(const LorentzVector& p4, int pt = 0, int eta = 0, int phi = 0, int qual = 0);
 
     ~CaloEmCand() override;
 
   private:
     //
-
   };
 
   typedef BXVector<CaloEmCand> CaloEmCandBxCollection;
 
-}
+}  // namespace l1t
 
 #endif

@@ -4,7 +4,6 @@
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
-
 class CastorRecHit : public CaloRecHit {
 public:
   typedef HcalCastorDetId key_type;
@@ -18,4 +17,3 @@ public:
 std::ostream& operator<<(std::ostream& s, const CastorRecHit& hit);
 
 #endif
-

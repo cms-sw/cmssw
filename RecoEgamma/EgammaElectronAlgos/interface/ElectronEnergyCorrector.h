@@ -5,40 +5,16 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-class EcalClusterFunctionBaseClass ;
+class EcalClusterFunctionBaseClass;
 
-class ElectronEnergyCorrector
- {
-  public:
+namespace egamma {
 
-    ElectronEnergyCorrector( EcalClusterFunctionBaseClass * crackCorrectionFunction )
-     : crackCorrectionFunction_(crackCorrectionFunction) {}
+  float classBasedElectronEnergy(reco::GsfElectron const &,
+                                 reco::BeamSpot const &,
+                                 EcalClusterFunctionBaseClass const &crackCorrectionFunction);
+  double classBasedElectronEnergyUncertainty(reco::GsfElectron const &);
+  double simpleElectronEnergyUncertainty(reco::GsfElectron const &);
 
-    void classBasedParameterizationEnergy( reco::GsfElectron &, const reco::BeamSpot & bs ) ;
-    void classBasedParameterizationUncertainty( reco::GsfElectron & ) ;
-    void simpleParameterizationUncertainty( reco::GsfElectron & ) ;
-
-  private:
-
-    double fEtaBarrelBad( double scEta ) const ;
-    double fEtaBarrelGood( double scEta ) const ;
-    double fEtaEndcapBad( double scEta ) const ;
-    double fEtaEndcapGood( double scEta ) const ;
-
-    // new corrections (N. Chanon et al.)
-    float fEta  (float energy, float eta, int algorithm) const ;
-    //float fBrem (float e,  float eta, int algorithm) const ;
-    //float fEtEta(float et, float eta, int algorithm) const ;
-    float fBremEta(float sigmaPhiSigmaEta, float eta, int algorithm, reco::GsfElectron::Classification cl ) const ;
-    float fEt(float et, int algorithm, reco::GsfElectron::Classification cl ) const ;
-    float fEnergy(float e, int algorithm, reco::GsfElectron::Classification cl ) const ;
-
-    EcalClusterFunctionBaseClass * crackCorrectionFunction_ ;
-
- } ;
+}  // namespace egamma
 
 #endif
-
-
-
-

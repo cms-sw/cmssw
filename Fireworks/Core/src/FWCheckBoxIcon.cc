@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWCheckBoxIcon
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -26,30 +26,22 @@
 //
 // static data member definitions
 //
-static
-const TGPicture* checkImage()
-{
-   static const TGPicture* s_picture=gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"check-mark.png");
-   return s_picture;
+static const TGPicture* checkImage() {
+  static const TGPicture* s_picture = gClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "check-mark.png");
+  return s_picture;
 }
 
 //
 // constructors and destructor
 //
-FWCheckBoxIcon::FWCheckBoxIcon(unsigned int iEdgeLength):
-FWBoxIconBase(iEdgeLength),
-m_checked(false)
-{
-}
+FWCheckBoxIcon::FWCheckBoxIcon(unsigned int iEdgeLength) : FWBoxIconBase(iEdgeLength), m_checked(false) {}
 
 // FWCheckBoxIcon::FWCheckBoxIcon(const FWCheckBoxIcon& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWCheckBoxIcon::~FWCheckBoxIcon()
-{
-}
+FWCheckBoxIcon::~FWCheckBoxIcon() {}
 
 //
 // assignment operators
@@ -70,25 +62,23 @@ FWCheckBoxIcon::~FWCheckBoxIcon()
 //
 // const member functions
 //
-void
-FWCheckBoxIcon::drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const
-{
-   if(m_checked) {
-      int xOffset = (iSize - checkImage()->GetWidth()) /2;
-      int yOffset = (iSize - checkImage()->GetHeight())/2;
-      checkImage()->Draw(iID,iContext,iX+xOffset,iY+yOffset);
-   }
+void FWCheckBoxIcon::drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const {
+  if (m_checked) {
+    int xOffset = (iSize - checkImage()->GetWidth()) / 2;
+    int yOffset = (iSize - checkImage()->GetHeight()) / 2;
+    checkImage()->Draw(iID, iContext, iX + xOffset, iY + yOffset);
+  }
 }
 
 //
 // static member functions
 //
 const TString& FWCheckBoxIcon::coreIcondir() {
-   static TString path = Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE"));
-   if ( gSystem->AccessPathName(path.Data()) ){ // cannot find directory
-      assert(gSystem->Getenv("CMSSW_RELEASE_BASE"));
-      path = Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_RELEASE_BASE"));
-   }
+  static TString path = Form("%s/src/Fireworks/Core/icons/", gSystem->Getenv("CMSSW_BASE"));
+  if (gSystem->AccessPathName(path.Data())) {  // cannot find directory
+    assert(gSystem->Getenv("CMSSW_RELEASE_BASE"));
+    path = Form("%s/src/Fireworks/Core/icons/", gSystem->Getenv("CMSSW_RELEASE_BASE"));
+  }
 
-   return path;
+  return path;
 }

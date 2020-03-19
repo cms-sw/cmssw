@@ -10,21 +10,16 @@
  */
 
 class BasicMultiVertexState final : public BasicVertexState {
-
 public:
-
   /** Constructors
    */
-  BasicMultiVertexState() : valid(false){}
+  BasicMultiVertexState() : valid(false) {}
 
   BasicMultiVertexState(const std::vector<VertexState>& vsComp);
 
   /** Access methods
    */
-  pointer clone() const override
-  {
-    return build<BasicMultiVertexState>(*this);
-  }
+  pointer clone() const override { return build<BasicMultiVertexState>(*this); }
 
   /**
    * Mean position of the mixture (position of the collapsed state)
@@ -85,19 +80,19 @@ public:
   /**
    * Vector of individual components in the mixture.
    */
-  std::vector<VertexState> components() const override {
-    return theComponents;
-  }
+  std::vector<VertexState> components() const override { return theComponents; }
 
   /**
    * The validity of the vertex
    */
-  bool isValid() const override {return valid;}
+  bool isValid() const override { return valid; }
 
-  bool is4D() const override { checkCombinedState(); return theCombinedState.is4D(); }
+  bool is4D() const override {
+    checkCombinedState();
+    return theCombinedState.is4D();
+  }
 
 private:
-
   void checkCombinedState() const;
 
   bool valid;
@@ -106,7 +101,6 @@ private:
   mutable bool theCombinedStateUp2Date;
 
   MultiVertexStateCombiner theCombiner;
-
 };
 
 #endif

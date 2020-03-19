@@ -12,29 +12,24 @@
 
 class TrackerTopology;
 
-class SurveyDataReader
-{
-
+class SurveyDataReader {
 public:
+  typedef std::map<align::ID, align::Scalars> MapType;
+  typedef std::pair<align::ID, align::Scalars> PairType;
+  typedef std::map<std::vector<int>, align::Scalars> MapTypeOr;
+  typedef std::pair<std::vector<int>, align::Scalars> PairTypeOr;
 
-  typedef std::map<align::ID, align::Scalars >  MapType;
-  typedef std::pair<align::ID,align::Scalars > PairType;
-  typedef std::map< std::vector<int>, align::Scalars > MapTypeOr;
-  typedef std::pair< std::vector<int>, align::Scalars > PairTypeOr;
-  
   /// Read given text file
-  void readFile( const std::string& textFileName, const std::string& fileType, const TrackerTopology* tTopo);
-  align::Scalars convertToAlignableCoord( const align::Scalars& align_params );
+  void readFile(const std::string& textFileName, const std::string& fileType, const TrackerTopology* tTopo);
+  align::Scalars convertToAlignableCoord(const align::Scalars& align_params);
 
   // Returns the Map
   const MapType& detIdMap() const { return theMap; }
   const MapTypeOr& surveyMap() const { return theOriginalMap; }
 
 private:
-
   MapType theMap;
   MapTypeOr theOriginalMap;
-
 };
 
 #endif

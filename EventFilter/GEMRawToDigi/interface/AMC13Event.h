@@ -4,71 +4,97 @@
 #include "AMCdata.h"
 
 namespace gem {
-  class AMC13Event
-  {
+
+  union CDFHeader {
+    uint64_t word;
+    struct {
+      uint64_t fov : 8;        // not used
+      uint64_t sourceId : 12;  // FED number assigned by CDAQ
+      uint64_t bxId : 12;      // BX number, Reset by BC0
+      uint64_t lv1Id : 24;     // L1A / event number, Reset by EC0
+      uint64_t eventType : 4;  // Event Type (1 for normal, 2 for calibration)
+      uint64_t cb5 : 4;        // 0x5
+    };
+  };
+  union AMC13Header {
+    uint64_t word;
+    struct {
+      uint64_t cb0 : 4;         // 0x0
+      uint64_t orbitN : 32;     // Orbit Number
+      uint64_t reserved0 : 16;  // reserved
+      uint64_t nAMC : 4;        // Number of AMCs following (0 to 12)
+      uint64_t calType : 4;     // Calibration event type
+      uint64_t uFov : 4;        // Format version: 0x1
+    };
+  };
+  union AMC13Trailer {
+    uint64_t word;
+    struct {
+      uint64_t bxIdT : 12;  // bx id
+      uint64_t lv1IdT : 8;  // level 1 id
+      uint64_t blkN : 8;    // block number
+      uint64_t crc32 : 36;  // Overall CRC (first 32 bits)
+    };
+  };
+  union CDFTrailer {
+    uint64_t word;
+    struct {
+      uint64_t tts : 8;         // tts (first 4 bits)
+      uint64_t evtStat : 4;     // event status
+      uint64_t crcCDF : 20;     // CDF crc (first 16 bits)
+      uint64_t evtLength : 24;  // event length
+      uint64_t eventType : 4;   // Event Type
+      uint64_t cbA : 4;         // 0xA
+    };
+  };
+
+  class AMC13Event {
   public:
-    AMC13Event(){}
-    ~AMC13Event(){m_amcHeaders.clear(); m_amcs.clear();}
+    AMC13Event() : cdfh_(0), amc13h_(0), amc13t_(0), cdft_(0) {}
+    ~AMC13Event() {
+      amcHeaders_.clear();
+      amcs_.clear();
+    }
 
-    int nAMC() const {return unsigned(m_nAMC);}
-    int bx_id() const {return unsigned(m_BX_id);}
-    int lv1_id() const {return unsigned(m_LV1_id);}
-    int source_id() const {return unsigned(m_Source_id);}
-    //const std::vector<AMCdata> * amcs() const {return &m_amcs;}
+    void setCDFHeader(uint64_t word) { cdfh_ = word; }
+    void setCDFHeader(uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
+    uint64_t getCDFHeader() const { return cdfh_; }
 
-    uint64_t getCDFHeader() const;
-    void setCDFHeader(uint8_t cb5, uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
-    void setCDFHeader(uint64_t word);
+    void setAMC13Header(uint64_t word) { amc13h_ = word; }
+    void setAMC13Header(uint8_t CalTyp, uint8_t nAMC, uint32_t OrN);
+    uint64_t getAMC13Header() const { return amc13h_; }
 
-    uint64_t getAMC13header() const;
-    void setAMC13header(uint8_t CalTyp, uint8_t nAMC, uint32_t OrN, uint8_t cb0);
-    void setAMC13header(uint64_t word);
-    
-    const std::vector<uint64_t> * getAMCheaders() const {return &m_amcHeaders;}
+    void setAMC13Trailer(uint64_t word) { amc13t_ = word; }
+    void setAMC13Trailer(uint8_t Blk_NoT, uint8_t LV1_idT, uint16_t BX_idT);
+    uint64_t getAMC13Trailer() const { return amc13t_; }
+
+    void setCDFTrailer(uint64_t word) { cdft_ = word; }
+    void setCDFTrailer(uint32_t EvtLength);
+    uint64_t getCDFTrailer() const { return cdft_; }
+
+    uint16_t bxId() const { return CDFHeader{cdfh_}.bxId; }
+    uint32_t lv1Id() const { return CDFHeader{cdfh_}.lv1Id; }
+    uint16_t sourceId() const { return CDFHeader{cdfh_}.sourceId; }
+
+    uint8_t nAMC() const { return AMC13Header{amc13h_}.nAMC; }
+
+    const std::vector<uint64_t>* getAMCheaders() const { return &amcHeaders_; }
     void addAMCheader(uint64_t word);
     void addAMCheader(uint32_t AMC_size, uint8_t Blk_No, uint8_t AMC_No, uint16_t BoardID);
 
-    const std::vector<AMCdata> * getAMCpayloads() const {return &m_amcs;}   
-    void addAMCpayload(const AMCdata& a){m_amcs.push_back(a);}
-    
-    uint64_t getAMC13trailer() const;
-    void setAMC13trailer(uint32_t CRC_amc13, uint8_t Blk_NoT, uint8_t LV1_idT, uint16_t BX_idT);
-    void setAMC13trailer(uint64_t word);
+    const std::vector<AMCdata>* getAMCpayloads() const { return &amcs_; }
+    void addAMCpayload(const AMCdata& a) { amcs_.push_back(a); }
 
-    uint64_t getCDFTrailer() const;
-    void setCDFTrailer(uint8_t cbA, uint32_t EvtLength, uint16_t CRC_cdf);      
-    void setCDFTrailer(uint64_t word);
-    
   private:
-    // CDF Header
-    uint8_t m_cb5; // control bit, should be 0x5 bits 60-63
-    uint8_t m_Evt_ty;
-    uint32_t m_LV1_id;
-    uint16_t m_BX_id;
-    uint16_t m_Source_id;
-    // AMC13 header
-    uint8_t m_CalTyp;
-    uint8_t m_nAMC;
-    uint32_t m_OrN;
-    uint8_t m_cb0; // control bit, should be 0b0000
-    // AMC headers
-    std::vector<uint64_t> m_amcHeaders;    
-    /* std::vector<uint32_t> m_AMC_size; */
-    /* std::vector<uint8_t> m_Blk_No; */
-    /* std::vector<uint8_t> m_AMC_No; */
-    /* std::vector<uint16_t> m_BoardID; */
-    // AMCs payload
-    std::vector<AMCdata> m_amcs;
-    //AMC13 trailer
-    uint32_t m_CRC_amc13;
-    uint8_t m_Blk_NoT;
-    uint8_t m_LV1_idT;
-    uint16_t m_BX_idT;
-    //CDF trailer
-    uint8_t m_cbA; // control bit, should be 0xA bits 60-63
-    uint32_t m_EvtLength;
-    uint16_t m_CRC_cdf;
+    uint64_t cdfh_;    // CDFHeader
+    uint64_t amc13h_;  // AMC13Header
+    uint64_t amc13t_;  // AMC13Trailer
+    uint64_t cdft_;    // CDFTrailer
 
+    // AMC headers
+    std::vector<uint64_t> amcHeaders_;
+    // AMCs payload
+    std::vector<AMCdata> amcs_;
   };
-}
+}  // namespace gem
 #endif

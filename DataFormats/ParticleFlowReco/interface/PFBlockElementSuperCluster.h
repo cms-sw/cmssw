@@ -8,88 +8,86 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 namespace reco {
-  
+
   /// \brief Cluster Element.
-  /// 
-  /// this class contains a reference to a PFCluster 
+  ///
+  /// this class contains a reference to a PFCluster
   class PFBlockElementSuperCluster : public PFBlockElement {
   public:
-    PFBlockElementSuperCluster() {} 
-    
+    PFBlockElementSuperCluster() {}
+
     /// \brief constructor.
-    /// type must be equal to PS1, PS2, ECAL, HCAL. 
+    /// type must be equal to PS1, PS2, ECAL, HCAL.
     /// \todo add a protection against the other types...
-    PFBlockElementSuperCluster(const SuperClusterRef& ref) 
-      : 
-      PFBlockElement(PFBlockElement::SC),
-      superClusterRef_( ref ),
-      trackIso_(0.),
-      ecalIso_(0.),
-      hcalIso_(0.),
-      HoE_(0.),
-      fromGsfElectron_(false),
-      fromPhoton_(false),
-      fromPFSuperCluster_(false){}
-      
+    PFBlockElementSuperCluster(const SuperClusterRef& ref)
+        : PFBlockElement(PFBlockElement::SC),
+          superClusterRef_(ref),
+          trackIso_(0.),
+          ecalIso_(0.),
+          hcalIso_(0.),
+          HoE_(0.),
+          fromGsfElectron_(false),
+          fromPhoton_(false),
+          fromPFSuperCluster_(false) {}
+
     PFBlockElement* clone() const override { return new PFBlockElementSuperCluster(*this); }
-    
+
     /// \return reference to the corresponding cluster
-    const SuperClusterRef&  superClusterRef() const {return superClusterRef_;}
+    const SuperClusterRef& superClusterRef() const { return superClusterRef_; }
 
     /// \return reference to seeding photon
-    const PhotonRef& photonRef() const {return photonRef_;}
+    const PhotonRef& photonRef() const { return photonRef_; }
 
-    void Dump(std::ostream& out = std::cout, 
-              const char* tab = " " ) const override;
+    void Dump(std::ostream& out = std::cout, const char* tab = " ") const override;
 
     /// set the track Iso
-    void setTrackIso(float val) {trackIso_=val;}
+    void setTrackIso(float val) { trackIso_ = val; }
 
     /// set the ecal Iso
-    void setEcalIso(float val) {ecalIso_=val;}
+    void setEcalIso(float val) { ecalIso_ = val; }
 
     /// set the had Iso
-    void setHcalIso(float val) {hcalIso_=val;}
+    void setHcalIso(float val) { hcalIso_ = val; }
 
     /// set H/E
-    void setHoE(float val) {HoE_=val;}
+    void setHoE(float val) { HoE_ = val; }
 
     /// set provenance
-    void setFromGsfElectron(bool val) {fromGsfElectron_=val;}
+    void setFromGsfElectron(bool val) { fromGsfElectron_ = val; }
 
     /// set provenance
-    void setFromPhoton(bool val) {fromPhoton_=val;}
+    void setFromPhoton(bool val) { fromPhoton_ = val; }
 
     void setFromPFSuperCluster(bool val) { fromPFSuperCluster_ = val; }
-    
+
     /// set photonRef
-    void setPhotonRef(const PhotonRef & ref) {photonRef_ = ref ;}
+    void setPhotonRef(const PhotonRef& ref) { photonRef_ = ref; }
 
     /// \return the track isolation
-    float trackIso() const {return trackIso_;}
+    float trackIso() const { return trackIso_; }
 
     /// \return the ecal isolation
-    float ecalIso() const {return ecalIso_;}
-    
+    float ecalIso() const { return ecalIso_; }
+
     /// \return the had isolation
-    float hcalIso() const {return hcalIso_;}
+    float hcalIso() const { return hcalIso_; }
 
     /// \return Hoe
-    float hoverE() const {return HoE_;}
+    float hoverE() const { return HoE_; }
 
     /// \return provenance
-    bool fromGsfElectron() const {return fromGsfElectron_;}
+    bool fromGsfElectron() const { return fromGsfElectron_; }
 
     /// \return provenance
-    bool fromPhoton() const {return fromPhoton_;}
-    
+    bool fromPhoton() const { return fromPhoton_; }
+
     //SuperCluster comes from a PFSuperCluster (and can therefore be matched
     // by ref back to the initial PFClusters)
     bool fromPFSuperCluster() const { return fromPFSuperCluster_; }
 
   private:
     /// reference to the corresponding cluster
-    SuperClusterRef  superClusterRef_;
+    SuperClusterRef superClusterRef_;
     PhotonRef photonRef_;
 
     float trackIso_;
@@ -101,7 +99,6 @@ namespace reco {
     bool fromPhoton_;
     bool fromPFSuperCluster_;
   };
-}
+}  // namespace reco
 
 #endif
-

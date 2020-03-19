@@ -14,43 +14,42 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-class FWPCaloHitProxyBuilder : public FWDigitSetProxyBuilder
-{
+class FWPCaloHitProxyBuilder : public FWDigitSetProxyBuilder {
 public:
-   FWPCaloHitProxyBuilder( void ) {} 
-   ~FWPCaloHitProxyBuilder( void ) override {}
+  FWPCaloHitProxyBuilder(void) {}
+  ~FWPCaloHitProxyBuilder(void) override {}
 
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPCaloHitProxyBuilder( const FWPCaloHitProxyBuilder& ) = delete;
-   const FWPCaloHitProxyBuilder& operator=( const FWPCaloHitProxyBuilder& ) = delete;
+  FWPCaloHitProxyBuilder(const FWPCaloHitProxyBuilder&) = delete;
+  const FWPCaloHitProxyBuilder& operator=(const FWPCaloHitProxyBuilder&) = delete;
 
-   using FWDigitSetProxyBuilder::build;
-   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+  using FWDigitSetProxyBuilder::build;
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 };
 
-void FWPCaloHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
-{
-   const edm::PCaloHitContainer *collection = nullptr;
-   iItem->get( collection );
-   if (! collection)
-      return;
+void FWPCaloHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {
+  const edm::PCaloHitContainer* collection = nullptr;
+  iItem->get(collection);
+  if (!collection)
+    return;
 
+  TEveBoxSet* boxSet = addBoxSetToProduct(product);
+  int index = 0;
+  for (std::vector<PCaloHit>::const_iterator it = collection->begin(); it != collection->end(); ++it) {
+    const float* corners = item()->getGeom()->getCorners((*it).id());
 
-   TEveBoxSet* boxSet = addBoxSetToProduct(product);
-   int index = 0;
-   for (std::vector<PCaloHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
-   {  
-      const float* corners = item()->getGeom()->getCorners((*it).id());
+    std::vector<float> scaledCorners(24);
+    if (corners)
+      fireworks::energyTower3DCorners(corners, (*it).energy() * 10, scaledCorners);
 
-      std::vector<float> scaledCorners(24);
-      if (corners)
-         fireworks::energyTower3DCorners(corners, (*it).energy() * 10, scaledCorners);
-
-      addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
-   }
+    addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
+  }
 }
 
 // !AMT TEveBoxSet is not projectable. Can't be added to RPZ views empty.
-REGISTER_FWPROXYBUILDER( FWPCaloHitProxyBuilder, edm::PCaloHitContainer, "PCaloHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWPCaloHitProxyBuilder,
+                        edm::PCaloHitContainer,
+                        "PCaloHits",
+                        FWViewType::kAll3DBits | FWViewType::kAllRPZBits);

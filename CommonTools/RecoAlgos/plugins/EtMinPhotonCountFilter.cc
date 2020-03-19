@@ -12,9 +12,6 @@
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 #include "CommonTools/UtilAlgos/interface/EtMinSelector.h"
 
-typedef ObjectCountFilter<
-          reco::PhotonCollection, 
-          EtMinSelector
-        >::type EtMinPhotonCountFilter;
+typedef ObjectCountFilter<reco::PhotonCollection, EtMinSelector>::type EtMinPhotonCountFilter;
 
-DEFINE_FWK_MODULE( EtMinPhotonCountFilter );
+DEFINE_FWK_MODULE(EtMinPhotonCountFilter);

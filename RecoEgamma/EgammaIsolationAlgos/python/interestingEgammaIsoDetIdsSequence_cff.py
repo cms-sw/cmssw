@@ -136,3 +136,19 @@ _pp_on_AA_interestingEgammaIsoDetIdsTask.remove(interestingOotEgammaIsoESDetId)
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(interestingEgammaIsoDetIdsTask, _pp_on_AA_interestingEgammaIsoDetIdsTask)
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(interestingGedEgammaIsoESDetId,
+			   minSCEt   = 1.0, #default 500
+			   minEleEt  = 1.0, #default 20
+			   minPhoEt  = 1.0 #default 20
+)
+egamma_lowPt_exclusive.toModify(interestingGedEgammaIsoHCALDetId, 
+		           minSCEt = 1.0, #default 20
+		           minEleEt= 1.0, #default 20
+			   minPhoEt= 1.0 #default 20
+) 
+
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toModify(interestingEgammaIsoHCALSel,
+                 minEnergyHB = 0.1)

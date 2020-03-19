@@ -24,24 +24,24 @@ namespace edm {
 //
 
 class HLTEgammaDoubleEtPhiFilter : public HLTFilter {
-
- public:
+public:
   explicit HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleEtPhiFilter() override;
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  edm::InputTag candTag_; // input tag identifying product contains filtered candidates
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>  candToken_;
-  double etcut1_;           // Et threshold in GeV
-  double etcut2_;           // Et threshold in GeV
-  double min_Acop_;         // minimum acoplanarity
-  double max_Acop_;         // maximum acoplanarity
-  double min_EtBalance_;    // minimum Et difference
-  double max_EtBalance_;    // maximum Et difference
-  int    npaircut_;        // number of egammas required
-
+private:
+  edm::InputTag candTag_;  // input tag identifying product contains filtered candidates
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
+  double etcut1_;         // Et threshold in GeV
+  double etcut2_;         // Et threshold in GeV
+  double min_Acop_;       // minimum acoplanarity
+  double max_Acop_;       // maximum acoplanarity
+  double min_EtBalance_;  // minimum Et difference
+  double max_EtBalance_;  // maximum Et difference
+  int npaircut_;          // number of egammas required
 };
 
-#endif //HLTEgammaDoubleEtPhiFilter_h
+#endif  //HLTEgammaDoubleEtPhiFilter_h

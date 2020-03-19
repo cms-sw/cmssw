@@ -16,9 +16,7 @@
 class DTROS25Data;
 
 class DTROS25Unpacker : public DTUnpacker {
-
 public:
-  
   /// Constructor
   DTROS25Unpacker(const edm::ParameterSet& ps);
 
@@ -26,19 +24,17 @@ public:
   ~DTROS25Unpacker() override;
 
   // Unpacking method
-  void interpretRawData(const unsigned int* index, int datasize,
-				int dduID,
-				edm::ESHandle<DTReadOutMapping>& mapping, 
-				std::unique_ptr<DTDigiCollection>& product,
-				std::unique_ptr<DTLocalTriggerCollection>& product2,
-				uint16_t rosList = 0) override;
+  void interpretRawData(const unsigned int* index,
+                        int datasize,
+                        int dduID,
+                        edm::ESHandle<DTReadOutMapping>& mapping,
+                        std::unique_ptr<DTDigiCollection>& product,
+                        std::unique_ptr<DTLocalTriggerCollection>& product2,
+                        uint16_t rosList = 0) override;
 
-  inline const std::vector<DTROS25Data> & getROSsControlData() const {
-    return controlDataFromAllROS;
-  }
+  inline const std::vector<DTROS25Data>& getROSsControlData() const { return controlDataFromAllROS; }
 
 private:
-
   int swap(int x);
 
   /// if reading data locally, words, being assembled as 32-bits, do not need to be swapped
@@ -60,8 +56,7 @@ private:
 
   bool debug;
 
-  std::vector<DTROS25Data> controlDataFromAllROS; 
-
+  std::vector<DTROS25Data> controlDataFromAllROS;
 };
 
 #endif

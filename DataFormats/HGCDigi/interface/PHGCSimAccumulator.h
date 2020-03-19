@@ -12,11 +12,9 @@ public:
   class DetIdSize {
   public:
     DetIdSize() {}
-    DetIdSize(unsigned int detId): detId_(detId) {}
+    DetIdSize(unsigned int detId) : detId_(detId) {}
 
-    void increaseSize() {
-      ++size_;
-    }
+    void increaseSize() { ++size_; }
 
     unsigned int detId() const { return detId_; }
     unsigned int size() const { return size_; }
@@ -34,10 +32,9 @@ public:
     constexpr static unsigned dataOffset = 0;
     constexpr static unsigned dataMask = 0x7ff;
 
-    Data(): data_(0) {}
-    Data(unsigned short ei, unsigned short si, unsigned short d):
-      data_((ei << energyOffset) | (si << sampleOffset) | d)
-    {}
+    Data() : data_(0) {}
+    Data(unsigned short ei, unsigned short si, unsigned short d)
+        : data_((ei << energyOffset) | (si << sampleOffset) | d) {}
 
     unsigned int energyIndex() const { return data_ >> energyOffset; }
     unsigned int sampleIndex() const { return (data_ >> sampleOffset) & sampleMask; }
@@ -68,7 +65,7 @@ public:
    * Data bitfield above.
    */
   void emplace_back(unsigned int detId, unsigned short energyIndex, unsigned short sampleIndex, unsigned short data) {
-    if(detIdSize_.empty() || detIdSize_.back().detId() != detId) {
+    if (detIdSize_.empty() || detIdSize_.back().detId() != detId) {
       detIdSize_.emplace_back(detId);
     }
     data_.emplace_back(energyIndex, sampleIndex, data);
@@ -77,12 +74,13 @@ public:
 
   class TmpElem {
   public:
-    TmpElem(unsigned int detId, Data data): detId_(detId), data_(data) {}
+    TmpElem(unsigned int detId, Data data) : detId_(detId), data_(data) {}
 
     unsigned int detId() const { return detId_; }
     unsigned short energyIndex() const { return data_.energyIndex(); }
     unsigned short sampleIndex() const { return data_.sampleIndex(); }
     unsigned short data() const { return data_.data(); }
+
   private:
     unsigned int detId_;
     Data data_;
@@ -91,25 +89,18 @@ public:
   class const_iterator {
   public:
     // begin
-    const_iterator(const PHGCSimAccumulator *acc):
-      acc_(acc), iDet_(0), iData_(0),
-      endData_(acc->detIdSize_.empty() ? 0 : acc->detIdSize_.front().size())
-    {}
+    const_iterator(const PHGCSimAccumulator* acc)
+        : acc_(acc), iDet_(0), iData_(0), endData_(acc->detIdSize_.empty() ? 0 : acc->detIdSize_.front().size()) {}
 
     // end
-    const_iterator(const PHGCSimAccumulator *acc, unsigned int detSize, unsigned int dataSize):
-      acc_(acc), iDet_(detSize), iData_(dataSize), endData_(0)
-    {}
+    const_iterator(const PHGCSimAccumulator* acc, unsigned int detSize, unsigned int dataSize)
+        : acc_(acc), iDet_(detSize), iData_(dataSize), endData_(0) {}
 
-    bool operator==(const const_iterator& other) const {
-      return iDet_ == other.iDet_ && iData_ == other.iData_;
-    }
-    bool operator!=(const const_iterator& other) const {
-      return !operator==(other);
-    }
+    bool operator==(const const_iterator& other) const { return iDet_ == other.iDet_ && iData_ == other.iData_; }
+    bool operator!=(const const_iterator& other) const { return !operator==(other); }
     const_iterator& operator++() {
       ++iData_;
-      if(iData_ == endData_) {
+      if (iData_ == endData_) {
         ++iDet_;
         endData_ += (iDet_ == acc_->detIdSize_.size()) ? 0 : acc_->detIdSize_[iDet_].size();
       }
@@ -120,22 +111,16 @@ public:
       ++(*this);
       return tmp;
     }
-    TmpElem operator*() {
-      return TmpElem(acc_->detIdSize_[iDet_].detId(),
-                     acc_->data_[iData_]);
-    }
+    TmpElem operator*() { return TmpElem(acc_->detIdSize_[iDet_].detId(), acc_->data_[iData_]); }
 
   private:
-    const PHGCSimAccumulator *acc_;
+    const PHGCSimAccumulator* acc_;
     unsigned int iDet_;
     unsigned int iData_;
     unsigned int endData_;
   };
 
-  TmpElem back() const {
-    return TmpElem(detIdSize_.back().detId(),
-                   data_.back());
-  }
+  TmpElem back() const { return TmpElem(detIdSize_.back().detId(), data_.back()); }
 
   const_iterator cbegin() const { return const_iterator(this); }
   const_iterator begin() const { return cbegin(); }

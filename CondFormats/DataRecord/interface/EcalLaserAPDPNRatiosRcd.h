@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     EcalLaserAPDPNRatiosRcd
-// 
+//
 /**\class EcalLaserAPDPNRatiosRcd EcalLaserAPDPNRatiosRcd.h CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Fri Jun  1 12:30:43 CEST 2007
 // $Id$
 //

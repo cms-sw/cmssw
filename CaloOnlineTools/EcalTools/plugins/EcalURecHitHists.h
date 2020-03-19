@@ -1,8 +1,8 @@
 // -*- C++ -*-
 //
-// Package:   EcalURecHitHists 
-// Class:     EcalURecHitHists 
-// 
+// Package:   EcalURecHitHists
+// Class:     EcalURecHitHists
+//
 /**\class EcalURecHitHists EcalURecHitHists.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Th Nov 22 5:46:22 CEST 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -53,19 +52,18 @@
 //
 
 class EcalURecHitHists : public edm::EDAnalyzer {
-   public:
-      explicit EcalURecHitHists(const edm::ParameterSet&);
-      ~EcalURecHitHists() override;
+public:
+  explicit EcalURecHitHists(const edm::ParameterSet&);
+  ~EcalURecHitHists() override;
 
+private:
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override;
+  std::string intToString(int num);
+  void initHists(int);
 
-   private:
-      void beginRun(edm::Run const &, edm::EventSetup const &) override ;
-      void analyze(edm::Event const &, edm::EventSetup const &) override;
-      void endJob() override ;
-      std::string intToString(int num);
-      void initHists(int);
-
-    // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   edm::InputTag EBUncalibratedRecHitCollection_;
   edm::InputTag EEUncalibratedRecHitCollection_;
@@ -76,8 +74,8 @@ class EcalURecHitHists : public edm::EDAnalyzer {
   std::vector<int> maskedChannels_;
   std::vector<int> maskedFEDs_;
   std::vector<std::string> maskedEBs_;
-  std::map<int,TH1F*> FEDsAndHists_;
-  std::map<int,TH1F*> FEDsAndTimingHists_;
+  std::map<int, TH1F*> FEDsAndHists_;
+  std::map<int, TH1F*> FEDsAndTimingHists_;
 
   TH1F* allFedsHist_;
   TH1F* allFedsTimingHist_;

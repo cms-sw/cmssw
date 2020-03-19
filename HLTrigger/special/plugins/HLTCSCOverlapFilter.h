@@ -14,14 +14,15 @@ namespace edm {
 }
 
 class HLTCSCOverlapFilter : public HLTFilter {
-
- public:
-  explicit HLTCSCOverlapFilter(const edm::ParameterSet&);
+public:
+  explicit HLTCSCOverlapFilter(const edm::ParameterSet &);
   ~HLTCSCOverlapFilter() override;
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  bool hltFilter(edm::Event &,
+                 const edm::EventSetup &,
+                 trigger::TriggerFilterObjectWithRefs &filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
- private:
+private:
   edm::InputTag m_input;
   edm::EDGetTokenT<CSCRecHit2DCollection> cscrechitsToken;
   unsigned int m_minHits;

@@ -2,7 +2,7 @@
 //
 // Package:     Subsystem/Package
 // Class  :     L1TMuonGlobalParamsRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

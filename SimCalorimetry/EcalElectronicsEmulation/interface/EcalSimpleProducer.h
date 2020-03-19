@@ -2,8 +2,8 @@
 #define SimCalorimetry_EcalElectronicsEmulationEcalSimpleProducer_h
 
 #include "FWCore/Framework/interface/one/EDProducer.h"
-#include <memory>
 #include <TFormula.h>
+#include <memory>
 #include <string>
 
 /** This edm producer generates Ecal Digis (data frames and TPGs)
@@ -18,15 +18,15 @@
  * </UL>
  * The crystal ADC formula is parametrized with the following variables:
  * <UL><LI>ieta0: crystal eta index starting from 0 at eta- end of barrel</LI>
- *     <LI>iphi0: crystal phi index starting at Phi=0deg. in std CMS coordinates</LI>
- *     <LI>ievt0 event sequence number within the job run starting from 0</LI> 
- *     <LI>isample0 sample time position starting from 0</LI>
+ *     <LI>iphi0: crystal phi index starting at Phi=0deg. in std CMS
+ * coordinates</LI> <LI>ievt0 event sequence number within the job run starting
+ * from 0</LI> <LI>isample0 sample time position starting from 0</LI>
  * </UL>
  * The trigger primitive formula is parametrized with the following variables:
- * <UL><LI>ieta0: trigger tower eta index starting from 0 at eta- end of barrel</LI>
- *     <LI>iphi0: trigger tower index starting at Phi=0deg. in std CMS coordinates</LI>
- *     <LI>ievt0 event sequence number within the job run starting from 0</LI> 
- *     <LI>isample0 sample time position starting from 0</LI>
+ * <UL><LI>ieta0: trigger tower eta index starting from 0 at eta- end of
+ * barrel</LI> <LI>iphi0: trigger tower index starting at Phi=0deg. in std CMS
+ * coordinates</LI> <LI>ievt0 event sequence number within the job run starting
+ * from 0</LI> <LI>isample0 sample time position starting from 0</LI>
  * </UL>
  * In both formulae 'itt0' shortcut can be used for the trigger tower index
  * within the SM starting at 0 from lowest relative eta and lowest phi and
@@ -35,15 +35,14 @@
  * TFormula</A>
  *
  */
-class EcalSimpleProducer: public edm::one::EDProducer<> {
-
-  //constructor(s) and destructor(s)
+class EcalSimpleProducer : public edm::one::EDProducer<> {
+  // constructor(s) and destructor(s)
 public:
   /** Constructs an EcalSimpleProducer
    * @param pset CMSSW configuration
    * @param sdesc description of this input source
    */
-  EcalSimpleProducer(const edm::ParameterSet& pset);
+  EcalSimpleProducer(const edm::ParameterSet &pset);
 
   /**Destructor
    */
@@ -57,9 +56,9 @@ public:
   /** The main method. It produces the event.
    * @param evt [out] produced event.
    */
-  void produce(edm::Event& evt, const edm::EventSetup&) override;
-  
-  //method(s)
+  void produce(edm::Event &evt, const edm::EventSetup &) override;
+
+  // method(s)
 public:
 private:
   /** Help function to replace a pattern within a string. Every occurance
@@ -68,46 +67,37 @@ private:
    * @param pattern to replace.
    * @param string to substitute to the pattern
    */
-  void replaceAll(std::string& s, const std::string& from,
-		  const std::string& to) const;
+  void replaceAll(std::string &s, const std::string &from, const std::string &to) const;
 
   /** Converts c-array index (contiguous integer starting from 0) to
    * std CMSSW ECAL crystal eta index.
    * @param iEta0 c-array index. '0' postfix reminds the index starts from 0
    * @return std CMSSW ECAL crystal index.
    */
-  int cIndex2iEta(int iEta0) const{
-    return (iEta0<85)?iEta0-85:iEta0-84;
-  }
-  
+  int cIndex2iEta(int iEta0) const { return (iEta0 < 85) ? iEta0 - 85 : iEta0 - 84; }
+
   /** Converts c-array index (contiguous integer starting from 0) to
    * std CMSSW ECAL crystal phi index.
    * @param iPhi0 c-array index. '0' postfix reminds the index starts from 0
    * @return std CMSSW ECAL crystal index.
    */
-  int cIndex2iPhi(int iPhi0) const{
-    return (iPhi0+10)%360+1;
-  }
-  
+  int cIndex2iPhi(int iPhi0) const { return (iPhi0 + 10) % 360 + 1; }
+
   /** Converts c-array index (contiguous integer starting from 0) to
    * std CMSSW ECAL trigger tower eta index.
    * @param iEta0 c-array index. '0' postfix reminds the index starts from 0
    * @return std CMSSW ECAL trigger tower index.
    */
-  int cIndex2iTtEta(int iEta0) const{
-    return (iEta0<28)?iEta0-28:iEta0-27;
-  }
-  
+  int cIndex2iTtEta(int iEta0) const { return (iEta0 < 28) ? iEta0 - 28 : iEta0 - 27; }
+
   /** Converts c-array index (contiguous integer starting from 0) to
    * std CMSSW ECAL trigger tower phi index.
    * @param iPhi0 c-array index. '0' postfix reminds the index starts from 0
    * @return std CMSSW ECAL trigger tower index.
    */
-  int cIndex2iTtPhi(int iPhi0) const{
-    return iPhi0+1;
-  }
-  
-  //attribute(s)
+  int cIndex2iTtPhi(int iPhi0) const { return iPhi0 + 1; }
+
+  // attribute(s)
 protected:
 private:
   /** Formula defining the data frame samples
@@ -121,7 +111,7 @@ private:
   /** Formula defining the sim hits
    */
   std::unique_ptr<TFormula> simHitFormula_;
-  
+
   /** Verbosity switch
    */
   bool verbose_;

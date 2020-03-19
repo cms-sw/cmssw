@@ -1,10 +1,9 @@
 #include "CondFormats/EgammaObjects/src/headers.h"
 
-
 namespace CondFormats_EgammaObjects {
   struct dictionary {
     ElectronLikelihoodCategoryData a;
- 
+
     ElectronLikelihoodCalibration b;
     ElectronLikelihoodCalibration::Entry c;
     std::vector<ElectronLikelihoodCalibration::Entry> d;
@@ -15,8 +14,6 @@ namespace CondFormats_EgammaObjects {
     GBRTree2D e3;
     GBRForest2D e4;
     GBRTreeD e5;
-    GBRForestD e6;    
-    
+    GBRForestD e6;
   };
-}
-
+}  // namespace CondFormats_EgammaObjects

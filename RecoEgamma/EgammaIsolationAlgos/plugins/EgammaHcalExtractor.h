@@ -31,35 +31,33 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-
-
-
 namespace egammaisolation {
 
-   class EgammaHcalExtractor  : public reco::isodeposit::IsoDepositExtractor {
-      public:
-         EgammaHcalExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector && iC ) :
-           EgammaHcalExtractor(par, iC) {}
-         EgammaHcalExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector & iC );
+  class EgammaHcalExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    EgammaHcalExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) : EgammaHcalExtractor(par, iC) {}
+    EgammaHcalExtractor(const edm::ParameterSet& par, edm::ConsumesCollector& iC);
 
-         ~EgammaHcalExtractor() override ;
+    ~EgammaHcalExtractor() override;
 
-         void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                 const reco::TrackCollection & tracks) override { }
-         reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                             const reco::Track & track) const override {
-            throw cms::Exception("Configuration Error") <<
-                     "This extractor " << (typeid(this).name()) << " is not made for tracks";
-         }
-         reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                              const reco::Candidate & c) const override ;
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& tracks) override {
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& track) const override {
+      throw cms::Exception("Configuration Error")
+          << "This extractor " << (typeid(this).name()) << " is not made for tracks";
+    }
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Candidate& c) const override;
 
-      private:
-         double extRadius_ ;
-         double intRadius_ ;
-         double etLow_ ;
+  private:
+    double extRadius_;
+    double intRadius_;
+    double etLow_;
 
-         edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitProducerToken_;
-   };
-}
+    edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitProducerToken_;
+  };
+}  // namespace egammaisolation
 #endif

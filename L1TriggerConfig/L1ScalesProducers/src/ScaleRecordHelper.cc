@@ -3,11 +3,10 @@
 
 using namespace std;
 
-
 ScaleRecordHelper::ScaleRecordHelper(const std::string& binPrefix, unsigned int maxBin) {
   binPrefix_ = binPrefix;
-  maxBin_ = maxBin; 
-} 
+  maxBin_ = maxBin;
+}
 
 void ScaleRecordHelper::extractScales(l1t::OMDSReader::QueryResults& record, vector<double>& destScales) {
   const coral::AttributeList& row = record.attributeLists()[0];
@@ -15,7 +14,7 @@ void ScaleRecordHelper::extractScales(l1t::OMDSReader::QueryResults& record, vec
      there will lead to a world of pain (because the scale then has a max entry of 0,
      and very bad things happen). See RFC968.
    */
-  for(unsigned int i=0;i<=maxBin_;++i) {
+  for (unsigned int i = 0; i <= maxBin_; ++i) {
     /* We actually would like double values, but CORAL thinks that the DB contains
        float, so we have to eat that. 
        Also: This assumes that there are no other columns than the ones we added,
@@ -24,15 +23,14 @@ void ScaleRecordHelper::extractScales(l1t::OMDSReader::QueryResults& record, vec
   }
 }
 
-
-void ScaleRecordHelper::pushColumnNames(vector<string>& columns) { 
-  for(unsigned int i = 0; i <= maxBin_ ; ++i) { 
+void ScaleRecordHelper::pushColumnNames(vector<string>& columns) {
+  for (unsigned int i = 0; i <= maxBin_; ++i) {
     columns.push_back(columnName(i));
   }
 }
 
 const string ScaleRecordHelper::columnName(unsigned int bin) {
   ostringstream name;
-  name << binPrefix_ << '_' << bin ;
+  name << binPrefix_ << '_' << bin;
   return name.str();
 }

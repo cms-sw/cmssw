@@ -39,8 +39,7 @@
 
 class CSCChamberSpecs;
 
-class CSCGattiFunction
-{
+class CSCGattiFunction {
 public:
   CSCGattiFunction();
   /// Calculates k1, k2, k3, h per chamber type, if necessary
@@ -50,14 +49,14 @@ public:
   ///  a distance of x away from the center of the shower,
   ///  at zero.  Note that the user is responsible for making
   ///  sure the constants have been initialized using the chamber specs.
-  double binValue( double x, double stripWidth) const;
+  double binValue(double x, double stripWidth) const;
 
 private:
   // geometry constants for the detector
   double k1, k2, k3, h;
   double norm, sqrtk3;
 
-  const CSCChamberSpecs * thePreviousSpecs;
+  const CSCChamberSpecs *thePreviousSpecs;
 };
 
 #endif

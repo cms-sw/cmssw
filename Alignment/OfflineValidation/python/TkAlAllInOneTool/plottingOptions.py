@@ -1,19 +1,23 @@
+from __future__ import absolute_import
+from builtins import range
 import os
 import random
 
-import globalDictionaries
-import configTemplates
+from . import globalDictionaries
+from . import configTemplates
 
-from genericValidation import ValidationMetaClass, ValidationWithComparison, ValidationWithPlots
-from helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
-from offlineValidation import OfflineValidation
-from primaryVertexValidation import PrimaryVertexValidation
-from TkAlExceptions import AllInOneError
-from trackSplittingValidation import TrackSplittingValidation
-from zMuMuValidation import ZMuMuValidation
+from .genericValidation import ValidationMetaClass, ValidationWithComparison, ValidationWithPlots
+from .helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
+from .offlineValidation import OfflineValidation
+from .primaryVertexValidation import PrimaryVertexValidation
+from .primaryVertexResolution import PrimaryVertexResolution
+from .TkAlExceptions import AllInOneError
+from .trackSplittingValidation import TrackSplittingValidation
+from .zMuMuValidation import ZMuMuValidation
+from .overlapValidation import OverlapValidation
+from six import with_metaclass
 
-class BasePlottingOptions(object):
-    __metaclass__ = ValidationMetaClass
+class BasePlottingOptions(with_metaclass(ValidationMetaClass,object)):
     defaults = {
                 "cmssw" : os.environ["CMSSW_BASE"],
                 "publicationstatus" : "",
@@ -169,8 +173,6 @@ class PlottingOptionsZMuMu(BasePlottingOptions):
                 "rebineta": "2",
                 "rebinpt": "8",
                 "AutoSetRange": "false",                
-                "CustomMinY": "90.85",
-                "CustomMaxY": "91.5",
                }
     needpackages = {"MuonAnalysis/MomentumScaleCalibration"}
     validationclass = ZMuMuValidation
@@ -224,12 +226,25 @@ class PlottingOptionsPrimaryVertex(BasePlottingOptions):
         for name in "autoLimits", "doMaps", "stdResiduals":
             self.general[name] = cppboolstring(self.general[name], name)
 
+class PlottingOptionsOverlap(BasePlottingOptions):
+    validationclass = OverlapValidation
+    def __init__(self, config):
+        super(PlottingOptionsOverlap, self).__init__(config, "overlap")
+
+class PlottingOptionsPVResolution(BasePlottingOptions):
+    defaults = {}
+    validationclass = PrimaryVertexResolution
+    def __init__(self, config):
+        super(PlottingOptionsPVResolution, self).__init__(config, "pvresolution")
+
 def PlottingOptions(config, valType):
     plottingOptionsClasses = {
                               "offline": PlottingOptionsOffline,
                               "split": PlottingOptionsTrackSplitting,
                               "zmumu": PlottingOptionsZMuMu,
                               "primaryvertex": PlottingOptionsPrimaryVertex,
+                              "overlap": PlottingOptionsOverlap,
+                              "pvresolution": PlottingOptionsPVResolution,
                              }
     if isinstance(valType, type):
         valType = valType.valType
@@ -239,3 +254,6 @@ def PlottingOptions(config, valType):
             raise ValueError("Have to provide a config the first time you call PlottingOptions for {}".format(valType))
         globalDictionaries.plottingOptions[valType] = plottingOptionsClasses[valType](config)
     return globalDictionaries.plottingOptions[valType].getRepMap()
+
+
+

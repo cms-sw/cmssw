@@ -15,6 +15,7 @@ public:
   explicit CSCAFEBAnalyzer(edm::ParameterSet const& conf);
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
   void endJob() override;
+
 private:
   /// variables persistent across events should be declared here.
   std::string testname;
@@ -23,4 +24,3 @@ private:
 
   edm::InputTag CSCSrc_;
 };
-

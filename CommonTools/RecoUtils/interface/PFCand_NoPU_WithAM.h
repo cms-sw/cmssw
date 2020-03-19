@@ -38,38 +38,38 @@
 //
 // constants, enums and typedefs
 //
-typedef edm::AssociationMap<edm::OneToManyWithQuality< reco::VertexCollection, reco::PFCandidateCollection, int> > PFCandToVertexAssMap;
-typedef edm::AssociationMap<edm::OneToManyWithQuality< reco::PFCandidateCollection, reco::VertexCollection, int> > VertexToPFCandAssMap;
+typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::VertexCollection, reco::PFCandidateCollection, int> >
+    PFCandToVertexAssMap;
+typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::PFCandidateCollection, reco::VertexCollection, int> >
+    VertexToPFCandAssMap;
 
 typedef std::pair<reco::PFCandidateRef, int> PFCandQualityPair;
-typedef std::vector<PFCandQualityPair > PFCandQualityPairVector;
+typedef std::vector<PFCandQualityPair> PFCandQualityPairVector;
 
 //
 // class declaration
 //
 
-
 class PFCand_NoPU_WithAM : public edm::EDProducer {
-   public:
-      explicit PFCand_NoPU_WithAM(const edm::ParameterSet&);
-      ~PFCand_NoPU_WithAM() override;
+public:
+  explicit PFCand_NoPU_WithAM(const edm::ParameterSet&);
+  ~PFCand_NoPU_WithAM() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      edm::InputTag input_AssociationType_;
+  edm::InputTag input_AssociationType_;
 
-      edm::EDGetTokenT<PFCandToVertexAssMap> token_PFCandToVertexAssMap_;
-      edm::EDGetTokenT<VertexToPFCandAssMap> token_VertexToPFCandAssMap_;
+  edm::EDGetTokenT<PFCandToVertexAssMap> token_PFCandToVertexAssMap_;
+  edm::EDGetTokenT<VertexToPFCandAssMap> token_VertexToPFCandAssMap_;
 
-      edm::EDGetTokenT<reco::VertexCollection> token_VertexCollection_;
+  edm::EDGetTokenT<reco::VertexCollection> token_VertexCollection_;
 
-      int input_MinQuality_;
+  int input_MinQuality_;
 };
-
 
 #endif

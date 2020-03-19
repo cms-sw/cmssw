@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      ByMultiplicityEventFilter
-// 
+//
 /**\class ByMultiplicityEventFilter ByMultiplicityEventFilter.cc DPGAnalysis/SiStripTools/ByMultiplicityEventFilter.cc
 
  Description: templated EDFilter to select events with large number of SiStripDigi or SiStripCluster
@@ -15,7 +15,6 @@
 //         Created:  Tue Oct 21 20:55:22 CEST 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -30,7 +29,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -41,27 +39,24 @@
 
 #include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
 
-
 //
 // class declaration
 //
 
 template <class T>
 class ByMultiplicityEventFilter : public edm::stream::EDFilter<> {
-   public:
-      explicit ByMultiplicityEventFilter(const edm::ParameterSet&);
-      ~ByMultiplicityEventFilter() override;
+public:
+  explicit ByMultiplicityEventFilter(const edm::ParameterSet&);
+  ~ByMultiplicityEventFilter() override;
 
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   T m_multiplicities;
   StringCutObjectSelector<T> m_selector;
   bool m_taggedMode, m_forcedValue;
-
 };
 
 //
@@ -76,28 +71,22 @@ class ByMultiplicityEventFilter : public edm::stream::EDFilter<> {
 // constructors and destructor
 //
 template <class T>
-ByMultiplicityEventFilter<T>::ByMultiplicityEventFilter(const edm::ParameterSet& iConfig):
-  m_multiplicities(iConfig.getParameter<edm::ParameterSet>("multiplicityConfig"),consumesCollector()),
-  m_selector(iConfig.getParameter<std::string>("cut")),
-  m_taggedMode(iConfig.getUntrackedParameter<bool>("taggedMode", false)),
-  m_forcedValue(iConfig.getUntrackedParameter<bool>("forcedValue", true))
-
+ByMultiplicityEventFilter<T>::ByMultiplicityEventFilter(const edm::ParameterSet& iConfig)
+    : m_multiplicities(iConfig.getParameter<edm::ParameterSet>("multiplicityConfig"), consumesCollector()),
+      m_selector(iConfig.getParameter<std::string>("cut")),
+      m_taggedMode(iConfig.getUntrackedParameter<bool>("taggedMode", false)),
+      m_forcedValue(iConfig.getUntrackedParameter<bool>("forcedValue", true))
 
 {
-   //now do what ever initialization is needed
+  //now do what ever initialization is needed
   produces<bool>();
-
 }
 
 template <class T>
-ByMultiplicityEventFilter<T>::~ByMultiplicityEventFilter()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+ByMultiplicityEventFilter<T>::~ByMultiplicityEventFilter() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
@@ -105,19 +94,17 @@ ByMultiplicityEventFilter<T>::~ByMultiplicityEventFilter()
 
 // ------------ method called on each new Event  ------------
 template <class T>
-bool
-ByMultiplicityEventFilter<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+bool ByMultiplicityEventFilter<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   m_multiplicities.getEvent(iEvent,iSetup);
+  m_multiplicities.getEvent(iEvent, iSetup);
 
-   bool value = m_selector(m_multiplicities);
-   iEvent.put(std::unique_ptr<bool>(new bool(value)));
+  bool value = m_selector(m_multiplicities);
+  iEvent.put(std::unique_ptr<bool>(new bool(value)));
 
-   if(m_taggedMode) return m_forcedValue;
-   return value;
-
+  if (m_taggedMode)
+    return m_forcedValue;
+  return value;
 }
 
 //define this as a plug-in
@@ -130,7 +117,8 @@ typedef ByMultiplicityEventFilter<MultiplicityPair<edmNew::DetSetVector<SiPixelC
 typedef ByMultiplicityEventFilter<SingleSiStripDigiMultiplicity> BySiStripDigiMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<SingleSiStripClusterMultiplicity> BySiStripClusterMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<SingleSiPixelClusterMultiplicity> BySiPixelClusterMultiplicityEventFilter;
-typedef ByMultiplicityEventFilter<SiPixelClusterSiStripClusterMultiplicityPair> BySiPixelClusterVsSiStripClusterMultiplicityEventFilter;
+typedef ByMultiplicityEventFilter<SiPixelClusterSiStripClusterMultiplicityPair>
+    BySiPixelClusterVsSiStripClusterMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<ClusterSummarySingleMultiplicity> ByClusterSummarySingleMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<ClusterSummaryMultiplicityPair> ByClusterSummaryMultiplicityPairEventFilter;
 

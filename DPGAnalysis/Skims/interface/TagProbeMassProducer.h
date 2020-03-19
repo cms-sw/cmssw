@@ -4,7 +4,7 @@
 //
 // Package:     TagAndProbe
 // Class  :     TagProbeMassProducer
-// 
+//
 /**\class TagProbeMassProducer TagProbeMassProducer.h PhysicsTools/TagAndProbe/interface/TagProbeMassProducer.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Wed Apr 16 10:08:13 CDT 2008
 // $Id: TagProbeMassProducer.h,v 1.1 2010/05/04 09:42:40 azzi Exp $
 //
@@ -31,35 +31,34 @@
 
 // forward declarations
 
-class TagProbeMassProducer : public edm::EDProducer 
-{
-   public:
-      explicit TagProbeMassProducer(const edm::ParameterSet&);
-      ~TagProbeMassProducer() override;
+class TagProbeMassProducer : public edm::EDProducer {
+public:
+  explicit TagProbeMassProducer(const edm::ParameterSet&);
+  ~TagProbeMassProducer() override;
 
-   private:
-      void beginJob() override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override;
+private:
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-      bool isPassingProbe (const unsigned int iprobe) const;
+  bool isPassingProbe(const unsigned int iprobe) const;
 
-      // ----------member data ---------------------------
-      
-      edm::InputTag tagCollection_;
-      edm::InputTag probeCollection_;
-      edm::InputTag passingProbeCollection_;
+  // ----------member data ---------------------------
 
-      edm::Handle< reco::CandidateView > tags;
-      edm::Handle< reco::CandidateView > probes;
-      edm::Handle< reco::CandidateView > passingProbes;
+  edm::InputTag tagCollection_;
+  edm::InputTag probeCollection_;
+  edm::InputTag passingProbeCollection_;
 
-      double massMinCut_;
-      double massMaxCut_;
-      double delRMinCut_;
-      double delRMaxCut_;
+  edm::Handle<reco::CandidateView> tags;
+  edm::Handle<reco::CandidateView> probes;
+  edm::Handle<reco::CandidateView> passingProbes;
 
-      bool requireOS_;
+  double massMinCut_;
+  double massMaxCut_;
+  double delRMinCut_;
+  double delRMaxCut_;
+
+  bool requireOS_;
 };
 
 #endif

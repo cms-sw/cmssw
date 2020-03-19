@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -40,30 +39,26 @@
 #include "Validation/RecoVertex/interface/BeamSpotHistogramMaker.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-
 //
 // class decleration
 //
 
 class AnotherBeamSpotAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit AnotherBeamSpotAnalyzer(const edm::ParameterSet&);
-      ~AnotherBeamSpotAnalyzer() override;
-
+public:
+  explicit AnotherBeamSpotAnalyzer(const edm::ParameterSet&);
+  ~AnotherBeamSpotAnalyzer() override;
 
 private:
-  void beginJob() override ;
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   BeamSpotHistogramMaker _bshm;
   edm::EDGetTokenT<reco::BeamSpot> _recoBeamSpotToken;
-
-
 };
 
 //
@@ -78,66 +73,43 @@ private:
 // constructors and destructor
 //
 AnotherBeamSpotAnalyzer::AnotherBeamSpotAnalyzer(const edm::ParameterSet& iConfig)
-  : _bshm(iConfig.getParameter<edm::ParameterSet>("bsHistogramMakerPSet"), consumesCollector())
-  , _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection")))
-{
-   //now do what ever initialization is needed
+    : _bshm(iConfig.getParameter<edm::ParameterSet>("bsHistogramMakerPSet"), consumesCollector()),
+      _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection"))) {
+  //now do what ever initialization is needed
 
   //
 
   _bshm.book();
-
 }
 
-
-AnotherBeamSpotAnalyzer::~AnotherBeamSpotAnalyzer()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+AnotherBeamSpotAnalyzer::~AnotherBeamSpotAnalyzer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-AnotherBeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void AnotherBeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get BS
 
   edm::Handle<reco::BeamSpot> bs;
-  iEvent.getByToken(_recoBeamSpotToken,bs);
-  _bshm.fill(iEvent.orbitNumber(),*bs);
-
+  iEvent.getByToken(_recoBeamSpotToken, bs);
+  _bshm.fill(iEvent.orbitNumber(), *bs);
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
-void
-AnotherBeamSpotAnalyzer::beginJob()
-{ }
+void AnotherBeamSpotAnalyzer::beginJob() {}
 
-void
-AnotherBeamSpotAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-
+void AnotherBeamSpotAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   _bshm.beginRun(iRun.run());
-
 }
 
-void
-AnotherBeamSpotAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-
-}
+void AnotherBeamSpotAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 // ------------ method called once each job just after ending the event loop  ------------
-void
-AnotherBeamSpotAnalyzer::endJob() {
-}
-
+void AnotherBeamSpotAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AnotherBeamSpotAnalyzer);

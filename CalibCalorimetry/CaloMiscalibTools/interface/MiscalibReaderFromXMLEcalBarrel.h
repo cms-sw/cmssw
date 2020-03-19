@@ -5,19 +5,13 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXML.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
 
-
-
-class MiscalibReaderFromXMLEcalBarrel : public MiscalibReaderFromXML
-{
- public:
-  MiscalibReaderFromXMLEcalBarrel(CaloMiscalibMapEcal & map):MiscalibReaderFromXML(map){};
-
+class MiscalibReaderFromXMLEcalBarrel : public MiscalibReaderFromXML {
+public:
+  MiscalibReaderFromXMLEcalBarrel(CaloMiscalibMapEcal &map) : MiscalibReaderFromXML(map){};
 
   DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute) override;
 
   EBDetId getCellFromAttributes(int ieta, int iphi);
-
 };
 
 #endif
-

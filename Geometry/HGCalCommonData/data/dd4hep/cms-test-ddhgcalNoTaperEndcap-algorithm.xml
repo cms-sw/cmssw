@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+<!-- 
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/dd4hep/cms.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/eta3/etaMax.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/caloBase/2026/v1/caloBase.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cmsCalo.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/dd4hep/escon.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/dd4hep/esalgo.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/fastTiming.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/fastTimingEndcap.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/v6/fastTimingElement.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/dd4hep/world.xml"/>
+   </IncludeSection>
+
+ </DDDefinition>
+

@@ -2,7 +2,7 @@
 //
 // Package:     MessageLogger
 // Class  :     SilentMLscribe
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -17,74 +17,68 @@
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
 namespace edm {
-   namespace service {
+  namespace service {
 
-//
-// constants, enums and typedefs
-//
+    //
+    // constants, enums and typedefs
+    //
 
-//
-// static data member definitions
-//
+    //
+    // static data member definitions
+    //
 
-//
-// constructors and destructor
-//
-      SilentMLscribe::SilentMLscribe()
-      {
+    //
+    // constructors and destructor
+    //
+    SilentMLscribe::SilentMLscribe() {}
+
+    // SilentMLscribe::SilentMLscribe(const SilentMLscribe& rhs)
+    // {
+    //    // do actual copying here;
+    // }
+
+    SilentMLscribe::~SilentMLscribe() {}
+
+    //
+    // assignment operators
+    //
+    // const SilentMLscribe& SilentMLscribe::operator=(const SilentMLscribe& rhs)
+    // {
+    //   //An exception safe implementation is
+    //   SilentMLscribe temp(rhs);
+    //   swap(rhs);
+    //
+    //   return *this;
+    // }
+
+    //
+    // member functions
+    //
+    void SilentMLscribe::runCommand(MessageLoggerQ::OpCode opcode, void* operand) {
+      //even though we don't print, have to clean up memory
+      switch (opcode) {
+        case MessageLoggerQ::LOG_A_MESSAGE: {
+          ErrorObj* errorobj_p = static_cast<ErrorObj*>(operand);
+          delete errorobj_p;
+          break;
+        }
+        case MessageLoggerQ::JOBMODE:
+        case MessageLoggerQ::GROUP_STATS: {
+          std::string* string_p = static_cast<std::string*>(operand);
+          delete string_p;
+          break;
+        }
+        default:
+          break;
       }
-      
-// SilentMLscribe::SilentMLscribe(const SilentMLscribe& rhs)
-// {
-//    // do actual copying here;
-// }
+    }
 
-      SilentMLscribe::~SilentMLscribe()
-      {
-      }
+    //
+    // const member functions
+    //
 
-//
-// assignment operators
-//
-// const SilentMLscribe& SilentMLscribe::operator=(const SilentMLscribe& rhs)
-// {
-//   //An exception safe implementation is
-//   SilentMLscribe temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-      void  
-      SilentMLscribe::runCommand(MessageLoggerQ::OpCode  opcode, void * operand) {
-         //even though we don't print, have to clean up memory
-         switch (opcode) {
-            case MessageLoggerQ::LOG_A_MESSAGE: {
-               ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
-               delete errorobj_p;
-               break;
-            }
-            case MessageLoggerQ::JOBMODE:
-            case MessageLoggerQ::GROUP_STATS:
-	    {
-               std::string* string_p = static_cast<std::string*> (operand);
-               delete string_p;
-               break;
-	    }
-            default:
-               break;
-         }
-      }
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//
-   }
-}
+    //
+    // static member functions
+    //
+  }  // namespace service
+}  // namespace edm

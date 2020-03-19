@@ -12,30 +12,35 @@
  */
 #include "CommonTools/Utils/src/ComparisonStack.h"
 #include "CommonTools/Utils/src/Comparison.h"
-#ifdef BOOST_SPIRIT_DEBUG 
+#ifdef BOOST_SPIRIT_DEBUG
 #include <iostream>
 #include <string>
 #endif
+#include <memory>
 
 namespace reco {
   namespace parser {
-#ifdef BOOST_SPIRIT_DEBUG 
-    template <typename Op> struct cmp_out { static const std::string value; };
+#ifdef BOOST_SPIRIT_DEBUG
+    template <typename Op>
+    struct cmp_out {
+      static const std::string value;
+    };
 #endif
 
-    template<class CompT>
+    template <class CompT>
     struct ComparisonSetter {
-      ComparisonSetter(ComparisonStack & stack) : stack_(stack) { }
+      ComparisonSetter(ComparisonStack& stack) : stack_(stack) {}
       void operator()(const char) const {
-#ifdef BOOST_SPIRIT_DEBUG 
-	BOOST_SPIRIT_DEBUG_OUT << "pushing comparison: " << cmp_out<CompT>::value << std::endl;
+#ifdef BOOST_SPIRIT_DEBUG
+        BOOST_SPIRIT_DEBUG_OUT << "pushing comparison: " << cmp_out<CompT>::value << std::endl;
 #endif
-	stack_.push_back(boost::shared_ptr<ComparisonBase>(new Comparison<CompT>()));
+        stack_.push_back(std::shared_ptr<ComparisonBase>(new Comparison<CompT>()));
       }
+
     private:
-      ComparisonStack & stack_;
+      ComparisonStack& stack_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

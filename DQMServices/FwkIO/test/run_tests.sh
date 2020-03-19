@@ -78,8 +78,14 @@ pushd ${LOCAL_TMP_DIR}
   #merging
   testConfig=create_file1_cfg.py
   rm -f dqm_file1.root
+  rm -f dqm_file1_jobreport.xml
   echo ${testConfig} ------------------------------------------------------------
-  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} -j dqm_file1_jobreport.xml || die "cmsRun ${testConfig}" $?
+
+  # test GUID here
+  checkFile=check_guid_file1.py
+  echo ${checkFile} ------------------------------------------------------------
+  python ${LOCAL_TEST_DIR}/${checkFile} || die "python ${checkFile}" $?
 
   testConfig=create_file2_cfg.py
   rm -f dqm_file2.root

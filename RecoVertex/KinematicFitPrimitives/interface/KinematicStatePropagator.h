@@ -12,34 +12,28 @@
  * Kirill Prokofiev, March 2003
  */
 
-
-class KinematicStatePropagator
-{
+class KinematicStatePropagator {
 public:
+  KinematicStatePropagator() {}
 
-  KinematicStatePropagator()
-  {}
-  
-  virtual ~KinematicStatePropagator(){}
-  
+  virtual ~KinematicStatePropagator() {}
+
   /**
    * Method propagating the  KinematicState to the point of
    * closest approach at the transverse plane
-   */ 
-  
+   */
+
   virtual KinematicState propagateToTheTransversePCA(const KinematicState& state, const GlobalPoint& point) const = 0;
-  
-  virtual bool willPropagateToTheTransversePCA(const KinematicState& state, const GlobalPoint& point) const { 
-    return  propagateToTheTransversePCA(state,point).isValid();
-      }
-  
+
+  virtual bool willPropagateToTheTransversePCA(const KinematicState& state, const GlobalPoint& point) const {
+    return propagateToTheTransversePCA(state, point).isValid();
+  }
+
   /**
    * Clone method
    */
-  virtual KinematicStatePropagator * clone() const = 0;
-  
-private:
+  virtual KinematicStatePropagator* clone() const = 0;
 
-  
+private:
 };
 #endif

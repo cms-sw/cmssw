@@ -1,10 +1,21 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("HcalGeometryTest")
+process = cms.Process('HcalGeometryTest',eras.Run3)
 
-process.load("Geometry.HcalCommonData.testPhase0GeometryXML_cfi")
-process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
-process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+#process.load("Geometry.HcalCommonData.testPhase0GeometryXML_cfi")
+#process.load("Geometry.HcalCommonData.testPhase1GeometryXML_cfi")
+#process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
+#process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.GeometrySimDB_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2019_realistic', '')
+
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
@@ -12,7 +23,8 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.hga = cms.EDAnalyzer("HcalGeometryDetIdAnalyzer",
-                             UseOldLoader      = cms.bool(False))
+                             UseOldLoader      = cms.bool(False)
+)
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")

@@ -21,7 +21,7 @@ namespace reco {
   typedef edm::RefVector<RecoEcalCandidateCollection> RecoEcalCandidateRefVector;
 
   /// iterator over a vector of reference to RecoEcalCandidate objects
-  typedef RecoEcalCandidateRefVector::iterator recoEcalCandidate_iterator;  
-}
+  typedef RecoEcalCandidateRefVector::iterator recoEcalCandidate_iterator;
+}  // namespace reco
 
 #endif

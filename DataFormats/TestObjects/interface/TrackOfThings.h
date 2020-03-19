@@ -13,8 +13,8 @@
 namespace edmtest {
 
   struct TrackOfThings {
-    ~TrackOfThings() { }
-    TrackOfThings() { }
+    ~TrackOfThings() {}
+    TrackOfThings() {}
 
     edm::Ref<ThingCollection> ref1;
     edm::Ref<ThingCollection> ref2;
@@ -27,7 +27,7 @@ namespace edmtest {
     edm::RefToBase<Thing> refToBase1;
     edm::RefToBaseVector<Thing> refToBaseVector1;
   };
-}
+}  // namespace edmtest
 
 namespace edmtest {
   typedef std::vector<edmtest::TrackOfThings> TrackOfThingsCollection;

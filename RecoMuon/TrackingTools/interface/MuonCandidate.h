@@ -10,50 +10,49 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include <vector>
+#include <memory>
 
+class MuonCandidate {
+public:
+  typedef std::vector<std::unique_ptr<Trajectory>> TrajectoryContainer;
+  typedef std::vector<std::unique_ptr<MuonCandidate>> CandidateContainer;
 
-class MuonCandidate { 
-  
-  public:
+public:
+  /// constructor
+  MuonCandidate(std::unique_ptr<Trajectory> traj,
+                const reco::TrackRef& muon,
+                const reco::TrackRef& tracker,
+                std::unique_ptr<Trajectory> trackerTraj)
+      : theTrajectory(std::move(traj)),
+        theMuonTrack(muon),
+        theTrackerTrack(tracker),
+        theTrackerTrajectory(std::move(trackerTraj)) {}
 
-    typedef std::vector<Trajectory*> TrajectoryContainer; 
-    typedef std::vector<MuonCandidate*> CandidateContainer;
+  MuonCandidate(std::unique_ptr<Trajectory> traj, const reco::TrackRef& muon, const reco::TrackRef& tracker)
+      : theTrajectory(std::move(traj)), theMuonTrack(muon), theTrackerTrack(tracker), theTrackerTrajectory(nullptr) {}
 
-  public:
-  
-    /// constructor
-    MuonCandidate(Trajectory* traj, 
-		  const reco::TrackRef& muon, 
-		  const reco::TrackRef& tracker,
-    		  Trajectory* trackerTraj) :
-      theTrajectory(traj), theMuonTrack(muon), theTrackerTrack(tracker), theTrackerTrajectory(trackerTraj) {} 
-    
-    MuonCandidate(Trajectory* traj, 
-                  const reco::TrackRef& muon, 
-                  const reco::TrackRef& tracker) :
-      theTrajectory(traj), theMuonTrack(muon), theTrackerTrack(tracker), theTrackerTrajectory(nullptr) {} 
-    
-    /// destructor
-    virtual ~MuonCandidate() { }
-  
-    /// return trajectory
-    Trajectory* trajectory() const { return theTrajectory; }
+  /// destructor
+  virtual ~MuonCandidate() {}
 
-    /// return muon track
-    const reco::TrackRef muonTrack() const { return theMuonTrack; }
+  /// return trajectory
+  Trajectory const* trajectory() const { return theTrajectory.get(); }
 
-    /// return tracker track
-    const reco::TrackRef trackerTrack() const { return theTrackerTrack; }
-    
-    /// return tracker trajectory
-    Trajectory* trackerTrajectory() const { return theTrackerTrajectory; }
-                 
-  private:
+  std::unique_ptr<Trajectory> releaseTrajectory() { return std::move(theTrajectory); }
 
-    Trajectory* theTrajectory;
-    reco::TrackRef theMuonTrack;
-    reco::TrackRef theTrackerTrack;
-    Trajectory* theTrackerTrajectory;
+  /// return muon track
+  const reco::TrackRef muonTrack() const { return theMuonTrack; }
 
+  /// return tracker track
+  const reco::TrackRef trackerTrack() const { return theTrackerTrack; }
+
+  /// return tracker trajectory
+  Trajectory const* trackerTrajectory() const { return theTrackerTrajectory.get(); }
+  std::unique_ptr<Trajectory> releaseTrackerTrajectory() { return std::move(theTrackerTrajectory); }
+
+private:
+  std::unique_ptr<Trajectory> theTrajectory;
+  reco::TrackRef theMuonTrack;
+  reco::TrackRef theTrackerTrack;
+  std::unique_ptr<Trajectory> theTrackerTrajectory;
 };
-#endif 
+#endif

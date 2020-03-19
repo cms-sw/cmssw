@@ -1,7 +1,6 @@
 #ifndef Fireworks_ParticleFlow_FWLegoEvePFCandidate_h
 #define Fireworks_ParticleFlow_FWLegoEvePFCandidate_h
 
-
 #include "TEveLine.h"
 #include "TEveStraightLineSet.h"
 #include "Rtypes.h"
@@ -13,20 +12,18 @@ namespace reco {
   class PFCandidate;
 }
 
-namespace fireworks
-{
-   class Context;
+namespace fireworks {
+  class Context;
 }
 
-class FWLegoEvePFCandidate : public TEveStraightLineSet 
-{
+class FWLegoEvePFCandidate : public TEveStraightLineSet {
 public:
-   FWLegoEvePFCandidate(const reco::PFCandidate& pfc, const FWViewContext*, const fireworks::Context&);
-   void updateScale( const FWViewContext*,  const fireworks::Context&);
+  FWLegoEvePFCandidate(const reco::PFCandidate& pfc, const FWViewContext*, const fireworks::Context&);
+  void updateScale(const FWViewContext*, const fireworks::Context&);
 
 private:
-   float  m_energy;
-   float  m_et;
+  float m_energy;
+  float m_et;
 };
 
 #endif

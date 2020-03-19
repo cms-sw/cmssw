@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelCalibConfigurationRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Feb 14 20:27:08 CET 2008
 // $Id$
 

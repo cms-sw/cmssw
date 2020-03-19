@@ -12,22 +12,25 @@
 #include <vector>
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCUncalibratedRecHit.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
-class HGCalRecHitAbsAlgo
-{
- public:
-
+class HGCalRecHitAbsAlgo {
+public:
   /// Constructor
   //HGCalRecHitAbsAlgo() { };
 
   /// Destructor
-  virtual ~HGCalRecHitAbsAlgo() { };
+  virtual ~HGCalRecHitAbsAlgo(){};
+
+  inline void set(const edm::EventSetup& es) { rhtools_.getEventSetup(es); }
 
   /// make rechits from dataframes
-  virtual void setLayerWeights(const std::vector<float>& weights) {};
+  virtual void setLayerWeights(const std::vector<float>& weights){};
 
   virtual void setADCToGeVConstant(const float value) = 0;
-  virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH, const uint32_t &flags) const = 0;
+  virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH, const uint32_t& flags) const = 0;
 
+protected:
+  hgcal::RecHitTools rhtools_;
 };
 #endif

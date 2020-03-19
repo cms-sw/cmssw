@@ -7,8 +7,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-class dso_hidden SeedingLayersEDProducer: public edm::stream::EDProducer<> {
+class dso_hidden SeedingLayersEDProducer : public edm::stream::EDProducer<> {
 public:
   SeedingLayersEDProducer(const edm::ParameterSet& iConfig);
   ~SeedingLayersEDProducer() override;
@@ -21,9 +20,8 @@ private:
   SeedingLayerSetsBuilder builder_;
 };
 
-SeedingLayersEDProducer::SeedingLayersEDProducer(const edm::ParameterSet& iConfig):
-  builder_(iConfig, consumesCollector())
-{
+SeedingLayersEDProducer::SeedingLayersEDProducer(const edm::ParameterSet& iConfig)
+    : builder_(iConfig, consumesCollector()) {
   produces<SeedingLayerSetsHits>();
 }
 SeedingLayersEDProducer::~SeedingLayersEDProducer() {}

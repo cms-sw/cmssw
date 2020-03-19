@@ -6,16 +6,14 @@
 // required for ostream_iterator...
 #include <iterator>
 
-std::ostream & operator<<(std::ostream & os, const CSCStripData & data) {
+std::ostream& operator<<(std::ostream& os, const CSCStripData& data) {
   os << "CSCStripData " << std::endl
      << "------------ " << std::endl
      << "no. of time bins = " << data.ntbins_ << std::endl
-     << ", phmax = " << data.phmax_ 
-     << ", tmax = " << data.tmax_ << std::endl
+     << ", phmax = " << data.phmax_ << ", tmax = " << data.tmax_ << std::endl
      << "phraw: " << std::endl;
-  std::copy( data.phRaw_.begin(), data.phRaw_.end(), std::ostream_iterator<int>(os,"\n") );
+  std::copy(data.phRaw_.begin(), data.phRaw_.end(), std::ostream_iterator<int>(os, "\n"));
   os << "ph: " << std::endl;
-  std::copy( data.ph_.begin(), data.ph_.end(), std::ostream_iterator<float>(os,"\n") );
-  return os;     
+  std::copy(data.ph_.begin(), data.ph_.end(), std::ostream_iterator<float>(os, "\n"));
+  return os;
 }
-

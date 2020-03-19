@@ -5,7 +5,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-
 #include <utility>
 #include <memory>
 
@@ -14,7 +13,9 @@ class Cylinder;
 class Surface;
 class MagneticField;
 
-namespace reco{class BeamSpot;}
+namespace reco {
+  class BeamSpot;
+}
 
 /** Basic tool for "propagation" of trajectory states to surfaces.
  *  If the starting state has an error matrix the errors will be also
@@ -42,20 +43,15 @@ namespace reco{class BeamSpot;}
 
 class Propagator {
 public:
-
-  explicit Propagator (PropagationDirection dir = alongMomentum) :
-    theDir(dir) {}
+  explicit Propagator(PropagationDirection dir = alongMomentum) : theDir(dir) {}
   virtual ~Propagator();
 
-
-  template<typename STA, typename SUR>
- TrajectoryStateOnSurface
-  propagate (STA const & state, SUR const & surface) const {
-    return propagateWithPath(state,surface).first;
+  template <typename STA, typename SUR>
+  TrajectoryStateOnSurface propagate(STA const& state, SUR const& surface) const {
+    return propagateWithPath(state, surface).first;
   }
 
 public:
-
   /** The methods propagateWithPath() are identical to the corresponding
    *  methods propagate() in what concerns the resulting
    *  TrajectoryStateOnSurface, but they provide in addition the
@@ -65,14 +61,14 @@ public:
   /** Only use the generic method if the surface type (plane or cylinder)
    *  is not known at the calling point.
    */
-  virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const FreeTrajectoryState&, const Surface&) const final;
+  virtual std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState&,
+                                                                        const Surface&) const final;
 
-  virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const FreeTrajectoryState&, const Plane&) const = 0;
+  virtual std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState&,
+                                                                        const Plane&) const = 0;
 
-  virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const=0;
+  virtual std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const FreeTrajectoryState&,
+                                                                        const Cylinder&) const = 0;
 
   /** The following three methods are equivalent to the corresponding
    *  methods above,
@@ -84,50 +80,44 @@ public:
   /** Only use the generic method if the surface type (plane or cylinder)
    *  is not known at the calling point.
    */
-  virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const TrajectoryStateOnSurface& tsos, const Surface& sur) const final;
-  
-  virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const TrajectoryStateOnSurface& tsos, const Plane& sur) const {
-    return propagateWithPath( *tsos.freeState(), sur);
-  }
-  
-  virtual std::pair< TrajectoryStateOnSurface, double>
-  propagateWithPath (const TrajectoryStateOnSurface& tsos, const Cylinder& sur) const {
-    return propagateWithPath( *tsos.freeState(), sur);
+  virtual std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface& tsos,
+                                                                        const Surface& sur) const final;
+
+  virtual std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface& tsos,
+                                                                        const Plane& sur) const {
+    return propagateWithPath(*tsos.freeState(), sur);
   }
 
+  virtual std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface& tsos,
+                                                                        const Cylinder& sur) const {
+    return propagateWithPath(*tsos.freeState(), sur);
+  }
 
   /// implemented by Stepping Helix
   //! Propagate to PCA to point given a starting point
-  virtual std::pair<FreeTrajectoryState, double>
-    propagateWithPath(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
+  virtual std::pair<FreeTrajectoryState, double> propagateWithPath(const FreeTrajectoryState& ftsStart,
+                                                                   const GlobalPoint& pDest) const;
   //! Propagate to PCA to a line (given by 2 points) given a starting point
-  virtual std::pair<FreeTrajectoryState, double>
-    propagateWithPath(const FreeTrajectoryState& ftsStart,
-                      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+  virtual std::pair<FreeTrajectoryState, double> propagateWithPath(const FreeTrajectoryState& ftsStart,
+                                                                   const GlobalPoint& pDest1,
+                                                                   const GlobalPoint& pDest2) const;
   //! Propagate to PCA to a line (given by beamSpot position and slope) given a starting point
-  virtual std::pair<FreeTrajectoryState, double>
-    propagateWithPath(const FreeTrajectoryState& ftsStart, const reco::BeamSpot& beamSpot) const;
-    
+  virtual std::pair<FreeTrajectoryState, double> propagateWithPath(const FreeTrajectoryState& ftsStart,
+                                                                   const reco::BeamSpot& beamSpot) const;
+
   // this is a mess...
-  virtual FreeTrajectoryState
-  propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const final {
-    return propagateWithPath(ftsStart,pDest).first;
+  virtual FreeTrajectoryState propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const final {
+    return propagateWithPath(ftsStart, pDest).first;
   }
-  virtual FreeTrajectoryState
-  propagate(const FreeTrajectoryState& ftsStart,
-	    const GlobalPoint& pDest1, const GlobalPoint& pDest2) const final {
-    return propagateWithPath(ftsStart,pDest1,pDest2).first;
+  virtual FreeTrajectoryState propagate(const FreeTrajectoryState& ftsStart,
+                                        const GlobalPoint& pDest1,
+                                        const GlobalPoint& pDest2) const final {
+    return propagateWithPath(ftsStart, pDest1, pDest2).first;
   }
-  virtual FreeTrajectoryState
-  propagate(const FreeTrajectoryState& ftsStart, const reco::BeamSpot& beamSpot) const final{
-    return propagateWithPath(ftsStart,beamSpot).first;
+  virtual FreeTrajectoryState propagate(const FreeTrajectoryState& ftsStart,
+                                        const reco::BeamSpot& beamSpot) const final {
+    return propagateWithPath(ftsStart, beamSpot).first;
   }
-
-
-
-
 
 public:
   /** The propagation direction can now be set for every propagator.
@@ -137,9 +127,7 @@ public:
    *  The values "alongMomentum" and "oppositeToMomentum" provide the
    *  functionality of the ex-UnidirectionalPropagator.
    */
-  virtual void setPropagationDirection(PropagationDirection dir) {
-    theDir = dir;
-  }
+  virtual void setPropagationDirection(PropagationDirection dir) { theDir = dir; }
 
   /** Returns the current value of the propagation direction.
    *  If you need to know the actual direction used for a given propagation
@@ -148,9 +136,7 @@ public:
    *  path lengt means "alongMomentum", an egeative sign means
    *  "oppositeToMomentum".
    */
-  virtual PropagationDirection propagationDirection() const final {
-    return theDir;
-  }
+  virtual PropagationDirection propagationDirection() const final { return theDir; }
 
   /** Set the maximal change of direction (integrated along the path)
    *  for any single propagation.
@@ -162,14 +148,13 @@ public:
    *  The default value is "no limit". The method returnd true if the concrete propagator
    *  respects the limit, false otherwise.
    */
-  virtual bool setMaxDirectionChange( float phiMax) { return false;}
+  virtual bool setMaxDirectionChange(float phiMax) { return false; }
 
-  virtual Propagator * clone() const = 0;
+  virtual Propagator* clone() const = 0;
 
   virtual const MagneticField* magneticField() const = 0;
 
 private:
-
   PropagationDirection theDir;
 };
 
@@ -178,7 +163,6 @@ private:
 // additional include file. Keep implementation separate, to avoid
 // multiple definition of the same symbol in all cc inlcuding this
 // file.
-std::unique_ptr<Propagator> SetPropagationDirection (Propagator const & iprop,
-                                                     PropagationDirection dir);
+std::unique_ptr<Propagator> SetPropagationDirection(Propagator const& iprop, PropagationDirection dir);
 
-#endif // CommonDet_Propagator_H
+#endif  // CommonDet_Propagator_H

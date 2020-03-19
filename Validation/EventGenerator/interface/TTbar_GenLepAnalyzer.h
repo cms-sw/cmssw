@@ -2,7 +2,7 @@
 //
 // Package:    TTbar_GenLepAnalyzer
 // Class:      TTbar_GenLepAnalyzer
-// 
+//
 /**\class TTbar_GenLepAnalyzer 
 
  Description: [one line class summary]
@@ -20,7 +20,6 @@
 #ifndef TTbar_GenLepAnalyzer_H
 #define TTbar_GenLepAnalyzer_H
 
-
 // system include files
 #include <memory>
 
@@ -28,7 +27,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -51,25 +49,24 @@
 //
 
 class TTbar_GenLepAnalyzer : public DQMEDAnalyzer {
-   public:
-      explicit TTbar_GenLepAnalyzer(const edm::ParameterSet&);
-      ~TTbar_GenLepAnalyzer() override;
+public:
+  explicit TTbar_GenLepAnalyzer(const edm::ParameterSet &);
+  ~TTbar_GenLepAnalyzer() override;
 
-      void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 
-      edm::InputTag leps_;
-      std::map<std::string, MonitorElement*> hists_;
-  
-      bool do_e_, do_mu_, do_tau_, do_nu_e_, do_nu_mu_, do_nu_tau_;
-      double pt_cut_, eta_cut_;
-      int pdgid;
+  edm::InputTag leps_;
+  std::map<std::string, MonitorElement *> hists_;
+
+  bool do_e_, do_mu_, do_tau_, do_nu_e_, do_nu_mu_, do_nu_tau_;
+  double pt_cut_, eta_cut_;
+  int pdgid;
 
   edm::EDGetTokenT<edm::View<reco::Candidate> > lepsToken_;
-
 };
 
 #endif

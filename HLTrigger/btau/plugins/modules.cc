@@ -5,7 +5,6 @@
 #include "L3MumuTrackingRegion.h"
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, L3MumuTrackingRegion, "L3MumuTrackingRegion");
 
-
 #include "HLTDisplacedmumuFilter.h"
 DEFINE_FWK_MODULE(HLTDisplacedmumuFilter);
 
@@ -57,9 +56,9 @@ DEFINE_FWK_MODULE(ConeIsolation);
 
 #include "HLTJetPairDzMatchFilter.h"
 #include "HLTJetPairDzMatchFilter.cc"
-typedef   HLTJetPairDzMatchFilter<reco::CaloJet> HLTCaloJetPairDzMatchFilter;
-typedef   HLTJetPairDzMatchFilter<reco::PFJet> HLTPFJetPairDzMatchFilter;
-typedef   HLTJetPairDzMatchFilter<reco::PFTau> HLTPFTauPairDzMatchFilter;
+typedef HLTJetPairDzMatchFilter<reco::CaloJet> HLTCaloJetPairDzMatchFilter;
+typedef HLTJetPairDzMatchFilter<reco::PFJet> HLTPFJetPairDzMatchFilter;
+typedef HLTJetPairDzMatchFilter<reco::PFTau> HLTPFTauPairDzMatchFilter;
 DEFINE_FWK_MODULE(HLTCaloJetPairDzMatchFilter);
 DEFINE_FWK_MODULE(HLTPFJetPairDzMatchFilter);
 DEFINE_FWK_MODULE(HLTPFTauPairDzMatchFilter);
@@ -67,19 +66,19 @@ DEFINE_FWK_MODULE(HLTPFTauPairDzMatchFilter);
 #include "HLTJetTag.h"
 #include "HLTJetTag.cc"
 typedef HLTJetTag<reco::CaloJet> HLTCaloJetTag;
-typedef HLTJetTag<reco::  PFJet> HLTPFJetTag;
+typedef HLTJetTag<reco::PFJet> HLTPFJetTag;
 DEFINE_FWK_MODULE(HLTCaloJetTag);
 DEFINE_FWK_MODULE(HLTPFJetTag);
 
 #include "HLTJetTagWithMatching.h"
 #include "HLTJetTagWithMatching.cc"
 typedef HLTJetTagWithMatching<reco::CaloJet> HLTCaloJetTagWithMatching;
-typedef HLTJetTagWithMatching<reco::  PFJet> HLTPFJetTagWithMatching;
+typedef HLTJetTagWithMatching<reco::PFJet> HLTPFJetTagWithMatching;
 DEFINE_FWK_MODULE(HLTCaloJetTagWithMatching);
 DEFINE_FWK_MODULE(HLTPFJetTagWithMatching);
 
 #include "HLTCollectionProducer.h"
 typedef HLTCollectionProducer<reco::CaloJet> HLTCaloJetCollectionProducer;
-typedef HLTCollectionProducer<reco::PFJet>   HLTPFJetCollectionProducer;
+typedef HLTCollectionProducer<reco::PFJet> HLTPFJetCollectionProducer;
 DEFINE_FWK_MODULE(HLTCaloJetCollectionProducer);
 DEFINE_FWK_MODULE(HLTPFJetCollectionProducer);

@@ -2,18 +2,18 @@
 #define FWCore_Catalog_SiteLocalConfig_h
 
 // INCLUDES
-# include <set>
-# include <string>
-# include <vector>
-# include <netdb.h>
+#include <set>
+#include <string>
+#include <vector>
+#include <netdb.h>
 
 // PUBLIC DEFINES
 // PUBLIC CONSTANTS
 // PUBLIC TYPES
 namespace edm {
-    class ParameterSet;
-    class ActivityRegistry;
-}
+  class ParameterSet;
+  class ActivityRegistry;
+}  // namespace edm
 
 // PUBLIC VARIABLES
 // PUBLIC FUNCTIONS
@@ -22,13 +22,13 @@ namespace edm {
 namespace edm {
   class SiteLocalConfig {
   public:
-    SiteLocalConfig () {}
+    SiteLocalConfig() {}
     virtual ~SiteLocalConfig() {}
 
-    virtual std::string const dataCatalog (void) const = 0;
-    virtual std::string const fallbackDataCatalog (void) const = 0;
-    virtual std::string const lookupCalibConnect (std::string const& input) const = 0;
-    virtual std::string const rfioType (void) const = 0;
+    virtual std::string const dataCatalog(void) const = 0;
+    virtual std::string const fallbackDataCatalog(void) const = 0;
+    virtual std::string const lookupCalibConnect(std::string const& input) const = 0;
+    virtual std::string const rfioType(void) const = 0;
 
     virtual std::string const* sourceCacheTempDir() const = 0;
     virtual double const* sourceCacheMinFree() const = 0;
@@ -40,17 +40,17 @@ namespace edm {
     virtual bool enablePrefetching() const = 0;
     virtual unsigned int debugLevel() const = 0;
     virtual std::vector<std::string> const* sourceNativeProtocols() const = 0;
-    virtual struct addrinfo const * statisticsDestination() const = 0;
+    virtual struct addrinfo const* statisticsDestination() const = 0;
     virtual std::set<std::string> const* statisticsInfo() const = 0;
-    virtual std::string const& siteName (void) const = 0;
+    virtual std::string const& siteName(void) const = 0;
 
     // implicit copy constructor
     // implicit assignment operator
   private:
   };
-}
+}  // namespace edm
 
 // INLINE PUBLIC FUNCTIONS
 // INLINE MEMBER FUNCTIONS
 
-#endif //FWCore_Catalog_SiteLocalConfig_h
+#endif  //FWCore_Catalog_SiteLocalConfig_h

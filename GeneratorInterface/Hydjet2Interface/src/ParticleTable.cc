@@ -12,104 +12,102 @@ November. 2, 2005
 // that are missing in the ROOT pdg table
 //There are the particles and resonances from ROOT pdg-table.
 //Only wellknown and consisting of u,d,s quarks states are included.
-// 
-//code: Baryon number, Strangeness, 2*Isospin, 2*Spin, Charge 
+//
+//code: Baryon number, Strangeness, 2*Isospin, 2*Spin, Charge
 
 typedef std::pair<const int, ParticleInfo> Part_t;
 
-const Part_t gTableInitializer[] = 
-  {
-    //     pdg                 B  S  2I 2Sp Ch         mass   width   name  
-    Part_t(10331, ParticleInfo(0, 0, 0, 0, 0)),   //   1.715, 0.125, f01710zer 
-    Part_t(3334,  ParticleInfo(1, -3, 0, 3, -1)), //   1.67245, 8.003e-16, UM1672min
-    Part_t(-3334, ParticleInfo(-1, 3, 0, 3, 1)),  //   1.67245, 8.003e-16, UM1672mnb
-    Part_t(3324,  ParticleInfo(1, -2, 1, 3, -1)), //   1.535, 0.0099, Xi1530min
-    Part_t(-3324, ParticleInfo(-1, 2, 1, 3, 1)),  //   1.535, 0.0099, Xi1530mnb
-    Part_t(3314,  ParticleInfo(1, -2, 1, 3, 0)),  //   1.5318, 0.0091, Xi1530zer
-    Part_t(-3314, ParticleInfo(-1, 2, 1, 3, 0)),  //   1.5318, 0.0091, Xi1530zrb
-    Part_t(335,   ParticleInfo(0, 0, 0, 4, 0)),   //   1.525, 0.076, f21525zer
-    Part_t(10211, ParticleInfo(0, 0, 2, 0, 1)),   //   1.474, 0.265, a01450plu
-    Part_t(-10211,ParticleInfo(0, 0, 2, 0, -1)),  //   1.474, 0.265, a01450min
-    Part_t(10111, ParticleInfo(0, 0, 2, 0, 0)),   //   1.474, 0.265, a01450zer
-    Part_t(20333, ParticleInfo(0, 0, 0, 2, 0)),   //   1.4263, 0.0555, f11420zer
-    Part_t(10311, ParticleInfo(0, 1, 1, 4, 0)),   //   1.4256, 0.0985, Ka1430zer
-    Part_t(-10311,ParticleInfo(0, -1, 1, 4, 0)),  //   1.4256, 0.0985, Ka1430zrb
-    Part_t(10321, ParticleInfo(0, 1, 1, 4, 1)),   //   1.4256, 0.0985, Ka1430plu
-    Part_t(-10321,ParticleInfo(0, -1, 1, 4, -1)), //   1.4256, 0.0985, Ka1430min
-    Part_t(20313, ParticleInfo(0, 1, 1, 2, 0)),   //   1.414, 0.232, Ka1410zer
-    Part_t(-20313,ParticleInfo(0, -1, 1, 2, 0)),  //   1.414, 0.232, Ka1410zrb
-    Part_t(20313, ParticleInfo(0, 1, 1, 2, 0)),   //   1.402, 0.174, Ka1400zer
-    Part_t(-20313,ParticleInfo(0, -1, 1, 2, 0)),  //   1.402, 0.174, Ka1400zrb
-    Part_t(20323, ParticleInfo(0, 1, 1, 2, 1)),   //   1.402, 0.174, Ka1400plu
-    Part_t(-20323,ParticleInfo(0, -1, 1, 2, -1)), //   1.402, 0.174, Ka1400min
-    Part_t(3114,  ParticleInfo(1, -1, 2, 3, -1)), //   1.3872, 0.0394, Sg1385min
-    Part_t(-3114, ParticleInfo(-1, 1, 2, 3, 1)),  //   1.3872, 0.0394, Sg1385mnb
-    Part_t(3214,  ParticleInfo(1, -1, 2, 3, 0)),  //   1.3837, 0.036, Sg1385zer
-    Part_t(-3214, ParticleInfo(-1, 1, 2, 3, 0)),  //   1.3837, 0.036, Sg1385zrb
-    Part_t(3224,  ParticleInfo(1, -1, 2, 3, 1)),  //   1.3828, 0.0358, Sg1385plu
-    Part_t(-3224, ParticleInfo(-1, 1, 2, 3, -1)), //   1.3828, 0.0358, Sg1385plb
-    Part_t(10221, ParticleInfo(0, 0, 0, 0, 0)),   //   1.35, 0.35, f01370zer
-    Part_t(3312,  ParticleInfo(1, -2, 1, 1, -1)), //   1.32131, 4.009e-16, Xi1321min
-    Part_t(-3312, ParticleInfo(-1, 2, 1, 1, 1)),  //   1.32131, 4.009e-16, Xi1321mnb
-    Part_t(3322,  ParticleInfo(1, -2, 1, 1, 0)),  //   1.31483, 2.265e-16, Xi1321zer
-    Part_t(-3322, ParticleInfo(-1, 2, 1, 1, 0)),  //   1.31483, 2.265e-16, Xi1321zrb
-    Part_t(215,   ParticleInfo(0, 0, 2, 4, 1)),   //   1.318, 0.107, a21320plu
-    Part_t(115,   ParticleInfo(0, 0, 2, 4, 0)),   //   1.318, 0.107, a21320zer
-    Part_t(20223, ParticleInfo(0, 0, 0, 2, 0)),   //   1.2819, 0.024, f11285zer
-    Part_t(225,   ParticleInfo(0, 0, 0, 4, 0)),   //   1.2754, 0.185, f21270zer
-    Part_t(10313, ParticleInfo(0, 1, 1, 2, 0)),   //   1.273, 0.09, Ka1270zer
-    Part_t(-10313,ParticleInfo(0, -1, 1, 2, 0)),  //   1.273, 0.09, Ka1270zrb
-    Part_t(10323, ParticleInfo(0, 1, 1, 2, 1)),   //   1.273, 0.09, Ka1270plu
-    Part_t(-10323,ParticleInfo(0, -1, 1, 2, -1)), //   1.273, 0.09, Ka1270min
-    Part_t(2224,  ParticleInfo(1, 0, 3, 3, 2)),   //   1.232, 0.12, Dl1232plp
-    Part_t(2214,  ParticleInfo(1, 0, 3, 3, 1)),   //   1.232, 0.12, Dl1232plu
-    Part_t(2114,  ParticleInfo(1, 0, 3, 3, 0)),   //   1.232, 0.12, Dl1232zer
-    Part_t(1114,  ParticleInfo(1, 0, 3, 3, -1)),  //   1.232, 0.12, Dl1232min
-    Part_t(-2224, ParticleInfo(-1, 0, 3, 3, -2)), //   1.232, 0.12, Dl1232ppb
-    Part_t(-2214, ParticleInfo(-1, 0, 3, 3, -1)), //   1.232, 0.12, Dl1232plb
-    Part_t(-2114, ParticleInfo(-1, 0, 3, 3, 0)),  //   1.232, 0.12, Dl1232zrb
-    Part_t(-1114, ParticleInfo(-1, 0, 3, 3, 1)),  //   1.232, 0.12, Dl1232mnb
-    Part_t(20213, ParticleInfo(0, 0, 2, 2, 1)),   //   1.23, 0.425, a11260plu
-    Part_t(-20213,ParticleInfo(0, 0, 2, 2, -1)),  //   1.23, 0.425, a11260min
-    Part_t(20113, ParticleInfo(0, 0, 2, 2, 0)),   //   1.23, 0.425, a11260zer
-    Part_t(10213, ParticleInfo(0, 0, 2, 2, 0)),   //   1.2295, 0.142, b11235zer
-    Part_t(3112,  ParticleInfo(1, -1, 2, 1, -1)), //   1.197, 4.442e-16, Sg1189min
-    Part_t(-3112, ParticleInfo(-1, 1, 2, 1, 1)),  //   1.197, 4.442e-16, Sg1189mnb
-    Part_t(3212,  ParticleInfo(1, -1, 2, 1, 0)),  //   1.193, 8.879e-07, Sg1192zer
-    Part_t(-3212, ParticleInfo(-1, 1, 2, 1, 0)),  //   1.193, 8.879e-07, Sg1192zrb
-    Part_t(3222,  ParticleInfo(1, -1, 2, 1, 1)),  //   1.189, 8.195e-16, Sg1189plu
-    Part_t(-3222, ParticleInfo(-1, 1, 2, 1, -1)), //   1.189, 8.195e-16, Sg1189plb
-    Part_t(10223, ParticleInfo(0, 0, 0, 2, 0)),   //   1.17, 0.36, h11170zer
-    Part_t(3122,  ParticleInfo(1, -1, 0, 1, 0)),  //   1.11568, 2.496e-16, Lm1115zer
-    Part_t(-3122, ParticleInfo(-1, 1, 0, 1, 0)),  //   1.11568, 2.496e-16, Lm1115zrb
-    Part_t(333,   ParticleInfo(0, 0, 0, 2, 0)),   //   1.01942, 0.004458, ph1020zer
-    Part_t(331,   ParticleInfo(0, 0, 0, 0, 0)),   //   0.95778, 0.000202, eta0prime
-    Part_t(2112,  ParticleInfo(1, 0, 1, 1, 0)),   //   0.939565, 0, ne0939zer
-    Part_t(-2112, ParticleInfo(-1, 0, 1, 1, 0)),  //   0.939565, 0, ne0939zrb
-    Part_t(2212,  ParticleInfo(1, 0, 1, 1, 1)),   //   0.938272, 0, pr0938plu
-    Part_t(-2212, ParticleInfo(-1, 0, 1, 1, -1)), //   0.938272, 0, pr0938plb
-    Part_t(313,   ParticleInfo(0, 1, 1, 2, 0)),   //   0.8961, 0.0507, Ka0892zer
-    Part_t(-313,  ParticleInfo(0, -1, 1, 2, 0)),  //   0.8961, 0.0507, Ka0892zrb
-    Part_t(323,   ParticleInfo(0, 1, 1, 2, 1)),   //   0.89166, 0.0508, Ka0892plu
-    Part_t(-323,  ParticleInfo(0, -1, 1, 2, -1)), //   0.89166, 0.0508, Ka0892min
-    Part_t(223,   ParticleInfo(0, 0, 0, 2, 0)),   //   0.78257, 0.00844, om0782zer
-    Part_t(213,   ParticleInfo(0, 0, 2, 2, 1)),   //   0.7693, 0.1502, rho770plu
-    Part_t(-213,  ParticleInfo(0, 0, 2, 2, -1)),  //   0.7693, 0.1502, rho770min
-    Part_t(113,   ParticleInfo(0, 0, 2, 2, 0)),   //   0.7693, 0.1502, rho770zer
-    Part_t(221,   ParticleInfo(0, 0, 0, 0, 0)),   //   0.5473, 1.29e-06, eta547zer
-    Part_t(311,   ParticleInfo(0, 1, 1, 0, 0)),   //   0.497672, 7.335e-16, Ka0492zer
-    Part_t(-311,  ParticleInfo(0, -1, 1, 0, 0)),  //   0.497672, 7.335e-16, Ka0492zrb
-    Part_t(321,   ParticleInfo(0, 1, 1, 0, 1)),   //   0.493677, 0, Ka0492plu
-    Part_t(-321,  ParticleInfo(0, -1, 1, 0, -1)), //   0.493677, 0, Ka0492min
-    Part_t(211,   ParticleInfo(0, 0, 2, 0, 1)),   //   0.13957, 0, pi0139plu
-    Part_t(-211,  ParticleInfo(0, 0, 2, 0, -1)),  //   0.13957, 0, pi0139min
-    Part_t(111,   ParticleInfo(0, 0, 2, 0, 0)),   //   0.134976, 0, pi0135zer
-    Part_t(22,    ParticleInfo(0, 0, 0, 2, 0)),   //   0.00, 0, gam000zer
-  };
+const Part_t gTableInitializer[] = {
+    //     pdg                 B  S  2I 2Sp Ch         mass   width   name
+    Part_t(10331, ParticleInfo(0, 0, 0, 0, 0)),     //   1.715, 0.125, f01710zer
+    Part_t(3334, ParticleInfo(1, -3, 0, 3, -1)),    //   1.67245, 8.003e-16, UM1672min
+    Part_t(-3334, ParticleInfo(-1, 3, 0, 3, 1)),    //   1.67245, 8.003e-16, UM1672mnb
+    Part_t(3324, ParticleInfo(1, -2, 1, 3, -1)),    //   1.535, 0.0099, Xi1530min
+    Part_t(-3324, ParticleInfo(-1, 2, 1, 3, 1)),    //   1.535, 0.0099, Xi1530mnb
+    Part_t(3314, ParticleInfo(1, -2, 1, 3, 0)),     //   1.5318, 0.0091, Xi1530zer
+    Part_t(-3314, ParticleInfo(-1, 2, 1, 3, 0)),    //   1.5318, 0.0091, Xi1530zrb
+    Part_t(335, ParticleInfo(0, 0, 0, 4, 0)),       //   1.525, 0.076, f21525zer
+    Part_t(10211, ParticleInfo(0, 0, 2, 0, 1)),     //   1.474, 0.265, a01450plu
+    Part_t(-10211, ParticleInfo(0, 0, 2, 0, -1)),   //   1.474, 0.265, a01450min
+    Part_t(10111, ParticleInfo(0, 0, 2, 0, 0)),     //   1.474, 0.265, a01450zer
+    Part_t(20333, ParticleInfo(0, 0, 0, 2, 0)),     //   1.4263, 0.0555, f11420zer
+    Part_t(10311, ParticleInfo(0, 1, 1, 4, 0)),     //   1.4256, 0.0985, Ka1430zer
+    Part_t(-10311, ParticleInfo(0, -1, 1, 4, 0)),   //   1.4256, 0.0985, Ka1430zrb
+    Part_t(10321, ParticleInfo(0, 1, 1, 4, 1)),     //   1.4256, 0.0985, Ka1430plu
+    Part_t(-10321, ParticleInfo(0, -1, 1, 4, -1)),  //   1.4256, 0.0985, Ka1430min
+    Part_t(20313, ParticleInfo(0, 1, 1, 2, 0)),     //   1.414, 0.232, Ka1410zer
+    Part_t(-20313, ParticleInfo(0, -1, 1, 2, 0)),   //   1.414, 0.232, Ka1410zrb
+    Part_t(20313, ParticleInfo(0, 1, 1, 2, 0)),     //   1.402, 0.174, Ka1400zer
+    Part_t(-20313, ParticleInfo(0, -1, 1, 2, 0)),   //   1.402, 0.174, Ka1400zrb
+    Part_t(20323, ParticleInfo(0, 1, 1, 2, 1)),     //   1.402, 0.174, Ka1400plu
+    Part_t(-20323, ParticleInfo(0, -1, 1, 2, -1)),  //   1.402, 0.174, Ka1400min
+    Part_t(3114, ParticleInfo(1, -1, 2, 3, -1)),    //   1.3872, 0.0394, Sg1385min
+    Part_t(-3114, ParticleInfo(-1, 1, 2, 3, 1)),    //   1.3872, 0.0394, Sg1385mnb
+    Part_t(3214, ParticleInfo(1, -1, 2, 3, 0)),     //   1.3837, 0.036, Sg1385zer
+    Part_t(-3214, ParticleInfo(-1, 1, 2, 3, 0)),    //   1.3837, 0.036, Sg1385zrb
+    Part_t(3224, ParticleInfo(1, -1, 2, 3, 1)),     //   1.3828, 0.0358, Sg1385plu
+    Part_t(-3224, ParticleInfo(-1, 1, 2, 3, -1)),   //   1.3828, 0.0358, Sg1385plb
+    Part_t(10221, ParticleInfo(0, 0, 0, 0, 0)),     //   1.35, 0.35, f01370zer
+    Part_t(3312, ParticleInfo(1, -2, 1, 1, -1)),    //   1.32131, 4.009e-16, Xi1321min
+    Part_t(-3312, ParticleInfo(-1, 2, 1, 1, 1)),    //   1.32131, 4.009e-16, Xi1321mnb
+    Part_t(3322, ParticleInfo(1, -2, 1, 1, 0)),     //   1.31483, 2.265e-16, Xi1321zer
+    Part_t(-3322, ParticleInfo(-1, 2, 1, 1, 0)),    //   1.31483, 2.265e-16, Xi1321zrb
+    Part_t(215, ParticleInfo(0, 0, 2, 4, 1)),       //   1.318, 0.107, a21320plu
+    Part_t(115, ParticleInfo(0, 0, 2, 4, 0)),       //   1.318, 0.107, a21320zer
+    Part_t(20223, ParticleInfo(0, 0, 0, 2, 0)),     //   1.2819, 0.024, f11285zer
+    Part_t(225, ParticleInfo(0, 0, 0, 4, 0)),       //   1.2754, 0.185, f21270zer
+    Part_t(10313, ParticleInfo(0, 1, 1, 2, 0)),     //   1.273, 0.09, Ka1270zer
+    Part_t(-10313, ParticleInfo(0, -1, 1, 2, 0)),   //   1.273, 0.09, Ka1270zrb
+    Part_t(10323, ParticleInfo(0, 1, 1, 2, 1)),     //   1.273, 0.09, Ka1270plu
+    Part_t(-10323, ParticleInfo(0, -1, 1, 2, -1)),  //   1.273, 0.09, Ka1270min
+    Part_t(2224, ParticleInfo(1, 0, 3, 3, 2)),      //   1.232, 0.12, Dl1232plp
+    Part_t(2214, ParticleInfo(1, 0, 3, 3, 1)),      //   1.232, 0.12, Dl1232plu
+    Part_t(2114, ParticleInfo(1, 0, 3, 3, 0)),      //   1.232, 0.12, Dl1232zer
+    Part_t(1114, ParticleInfo(1, 0, 3, 3, -1)),     //   1.232, 0.12, Dl1232min
+    Part_t(-2224, ParticleInfo(-1, 0, 3, 3, -2)),   //   1.232, 0.12, Dl1232ppb
+    Part_t(-2214, ParticleInfo(-1, 0, 3, 3, -1)),   //   1.232, 0.12, Dl1232plb
+    Part_t(-2114, ParticleInfo(-1, 0, 3, 3, 0)),    //   1.232, 0.12, Dl1232zrb
+    Part_t(-1114, ParticleInfo(-1, 0, 3, 3, 1)),    //   1.232, 0.12, Dl1232mnb
+    Part_t(20213, ParticleInfo(0, 0, 2, 2, 1)),     //   1.23, 0.425, a11260plu
+    Part_t(-20213, ParticleInfo(0, 0, 2, 2, -1)),   //   1.23, 0.425, a11260min
+    Part_t(20113, ParticleInfo(0, 0, 2, 2, 0)),     //   1.23, 0.425, a11260zer
+    Part_t(10213, ParticleInfo(0, 0, 2, 2, 0)),     //   1.2295, 0.142, b11235zer
+    Part_t(3112, ParticleInfo(1, -1, 2, 1, -1)),    //   1.197, 4.442e-16, Sg1189min
+    Part_t(-3112, ParticleInfo(-1, 1, 2, 1, 1)),    //   1.197, 4.442e-16, Sg1189mnb
+    Part_t(3212, ParticleInfo(1, -1, 2, 1, 0)),     //   1.193, 8.879e-07, Sg1192zer
+    Part_t(-3212, ParticleInfo(-1, 1, 2, 1, 0)),    //   1.193, 8.879e-07, Sg1192zrb
+    Part_t(3222, ParticleInfo(1, -1, 2, 1, 1)),     //   1.189, 8.195e-16, Sg1189plu
+    Part_t(-3222, ParticleInfo(-1, 1, 2, 1, -1)),   //   1.189, 8.195e-16, Sg1189plb
+    Part_t(10223, ParticleInfo(0, 0, 0, 2, 0)),     //   1.17, 0.36, h11170zer
+    Part_t(3122, ParticleInfo(1, -1, 0, 1, 0)),     //   1.11568, 2.496e-16, Lm1115zer
+    Part_t(-3122, ParticleInfo(-1, 1, 0, 1, 0)),    //   1.11568, 2.496e-16, Lm1115zrb
+    Part_t(333, ParticleInfo(0, 0, 0, 2, 0)),       //   1.01942, 0.004458, ph1020zer
+    Part_t(331, ParticleInfo(0, 0, 0, 0, 0)),       //   0.95778, 0.000202, eta0prime
+    Part_t(2112, ParticleInfo(1, 0, 1, 1, 0)),      //   0.939565, 0, ne0939zer
+    Part_t(-2112, ParticleInfo(-1, 0, 1, 1, 0)),    //   0.939565, 0, ne0939zrb
+    Part_t(2212, ParticleInfo(1, 0, 1, 1, 1)),      //   0.938272, 0, pr0938plu
+    Part_t(-2212, ParticleInfo(-1, 0, 1, 1, -1)),   //   0.938272, 0, pr0938plb
+    Part_t(313, ParticleInfo(0, 1, 1, 2, 0)),       //   0.8961, 0.0507, Ka0892zer
+    Part_t(-313, ParticleInfo(0, -1, 1, 2, 0)),     //   0.8961, 0.0507, Ka0892zrb
+    Part_t(323, ParticleInfo(0, 1, 1, 2, 1)),       //   0.89166, 0.0508, Ka0892plu
+    Part_t(-323, ParticleInfo(0, -1, 1, 2, -1)),    //   0.89166, 0.0508, Ka0892min
+    Part_t(223, ParticleInfo(0, 0, 0, 2, 0)),       //   0.78257, 0.00844, om0782zer
+    Part_t(213, ParticleInfo(0, 0, 2, 2, 1)),       //   0.7693, 0.1502, rho770plu
+    Part_t(-213, ParticleInfo(0, 0, 2, 2, -1)),     //   0.7693, 0.1502, rho770min
+    Part_t(113, ParticleInfo(0, 0, 2, 2, 0)),       //   0.7693, 0.1502, rho770zer
+    Part_t(221, ParticleInfo(0, 0, 0, 0, 0)),       //   0.5473, 1.29e-06, eta547zer
+    Part_t(311, ParticleInfo(0, 1, 1, 0, 0)),       //   0.497672, 7.335e-16, Ka0492zer
+    Part_t(-311, ParticleInfo(0, -1, 1, 0, 0)),     //   0.497672, 7.335e-16, Ka0492zrb
+    Part_t(321, ParticleInfo(0, 1, 1, 0, 1)),       //   0.493677, 0, Ka0492plu
+    Part_t(-321, ParticleInfo(0, -1, 1, 0, -1)),    //   0.493677, 0, Ka0492min
+    Part_t(211, ParticleInfo(0, 0, 2, 0, 1)),       //   0.13957, 0, pi0139plu
+    Part_t(-211, ParticleInfo(0, 0, 2, 0, -1)),     //   0.13957, 0, pi0139min
+    Part_t(111, ParticleInfo(0, 0, 2, 0, 0)),       //   0.134976, 0, pi0135zer
+    Part_t(22, ParticleInfo(0, 0, 0, 2, 0)),        //   0.00, 0, gam000zer
+};
 
 const std::map<const int, ParticleInfo> gParticleTable(gTableInitializer,
-                                                       gTableInitializer + sizeof gTableInitializer / sizeof (Part_t));
-  
+                                                       gTableInitializer + sizeof gTableInitializer / sizeof(Part_t));
 
 //Part_t(443,  ParticleInfo(0, 0, 0, 2, 0)),// 3.09687, 0, jp3096zer
 //Part_t(1231, ParticleInfo(0, 0, 1, 0, 0)),// 1.8693, 0, Dc1800plu
@@ -404,4 +402,3 @@ const std::map<const int, ParticleInfo> gParticleTable(gTableInitializer,
 //Part_t(9000111, ParticleInfo(0, 0, 2, 0, 0)),// 0.9848, 0.075, a00980zer
 //Part_t(9010221, ParticleInfo(0, 0, 0, 0, 0)),// 0.98, 0.1, f00980zer
 //Part_t(9000221, ParticleInfo(0, 0, 0, 0, 0)), //0.8, 0.8, f00600zer
-

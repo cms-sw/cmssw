@@ -4,6 +4,4 @@
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-
-
 DEFINE_FWK_MODULE(CastorSimpleReconstructor);

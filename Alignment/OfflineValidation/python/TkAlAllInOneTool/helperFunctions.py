@@ -1,9 +1,11 @@
 from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 import os
 import re
 import ROOT
 import sys
-from TkAlExceptions import AllInOneError
+from .TkAlExceptions import AllInOneError
 import six
 
 ####################--- Helpers ---############################

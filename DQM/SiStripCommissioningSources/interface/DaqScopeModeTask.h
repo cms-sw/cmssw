@@ -3,26 +3,30 @@
 
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 /**
    @class DaqScopeModeTask
 */
 class DaqScopeModeTask : public CommissioningTask {
-
- public:
-  
-  DaqScopeModeTask( DQMStore*, const FedChannelConnection&, const edm::ParameterSet & );
+public:
+  DaqScopeModeTask(DQMStore*, const FedChannelConnection&, const edm::ParameterSet&);
   ~DaqScopeModeTask() override;
-  
- private:
 
+private:
   void book() override;
-  void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& ) override;
 
-  void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>&,
-		     const edm::DetSet<SiStripRawDigi>&) override;
+  void fill(const SiStripEventSummary&, const edm::DetSet<SiStripRawDigi>&) override;
+
+  void fill(const SiStripEventSummary&,
+            const edm::DetSet<SiStripRawDigi>&,
+            const edm::DetSet<SiStripRawDigi>&) override;
+
+  void fill(const SiStripEventSummary&,
+            const edm::DetSet<SiStripRawDigi>&,
+            const edm::DetSet<SiStripRawDigi>&,
+            const std::vector<uint16_t>&) override;
 
   void update() override;
 
@@ -33,6 +37,10 @@ class DaqScopeModeTask : public CommissioningTask {
   std::vector<HistoSet> peds_;
   std::vector<HistoSet> cm_;
 
+  // Low and High of Header
+  HistoSet lowHeader_;
+  HistoSet highHeader_;
+
   uint16_t nBins_;
   uint16_t nBinsSpy_;
 
@@ -40,5 +48,4 @@ class DaqScopeModeTask : public CommissioningTask {
   edm::ParameterSet parameters_;
 };
 
-#endif // DQM_SiStripCommissioningSources_DaqScopeModeTask_h
-
+#endif  // DQM_SiStripCommissioningSources_DaqScopeModeTask_h

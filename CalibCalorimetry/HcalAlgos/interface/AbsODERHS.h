@@ -4,15 +4,13 @@
 //
 // Base class for the ODE right hand sides
 //
-class AbsODERHS
-{
+class AbsODERHS {
 public:
-    inline virtual ~AbsODERHS() {}
+  inline virtual ~AbsODERHS() {}
 
-    virtual AbsODERHS* clone() const = 0;
+  virtual AbsODERHS* clone() const = 0;
 
-    virtual void calc(double t, const double* x, unsigned lenX,
-                      double* derivative) = 0;
+  virtual void calc(double t, const double* x, unsigned lenX, double* derivative) = 0;
 };
 
-#endif // CalibCalorimetry_HcalAlgos_AbsODERHS_h_
+#endif  // CalibCalorimetry_HcalAlgos_AbsODERHS_h_

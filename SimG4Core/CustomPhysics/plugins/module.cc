@@ -9,6 +9,5 @@
 #include "SimG4Core/CustomPhysics/interface/RHStopTracer.h"
 
 DEFINE_PHYSICSLIST(CustomPhysics);
-DEFINE_FWK_MODULE(RHStopDump) ;
+DEFINE_FWK_MODULE(RHStopDump);
 DEFINE_SIMWATCHER(RHStopTracer);
-

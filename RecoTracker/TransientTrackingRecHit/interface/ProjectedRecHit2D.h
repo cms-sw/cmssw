@@ -6,6 +6,4 @@
 
 class SiStripRecHit2D;
 
-
-
 #endif

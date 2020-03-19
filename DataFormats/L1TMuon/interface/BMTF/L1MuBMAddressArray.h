@@ -48,61 +48,57 @@
 //              ---------------------
 
 class L1MuBMAddressArray {
+public:
+  /// default constructor
+  L1MuBMAddressArray();
 
-  public:
+  /// copy constructor
+  L1MuBMAddressArray(const L1MuBMAddressArray&);
 
-    /// default constructor
-    L1MuBMAddressArray();
+  /// destructor
+  virtual ~L1MuBMAddressArray();
 
-    /// copy constructor
-    L1MuBMAddressArray(const L1MuBMAddressArray&);
+  /// assignment operator
+  L1MuBMAddressArray& operator=(const L1MuBMAddressArray&);
 
-    /// destructor
-    virtual ~L1MuBMAddressArray();
+  /// equal operator
+  bool operator==(const L1MuBMAddressArray&) const;
 
-    /// assignment operator
-    L1MuBMAddressArray& operator=(const L1MuBMAddressArray&);
+  /// unequal operator
+  bool operator!=(const L1MuBMAddressArray&) const;
 
-    /// equal operator
-    bool operator==(const L1MuBMAddressArray&) const;
-   
-    /// unequal operator
-    bool operator!=(const L1MuBMAddressArray&) const;
+  /// reset address array
+  void reset();
 
-    /// reset address array
-    void reset();
+  /// set address of a given station [1-4]
+  void setStation(int stat, int adr);
 
-    /// set address of a given station [1-4]
-    void setStation(int stat, int adr);
-    
-    /// set addresses of all four stations
-    void setStations(int adr1, int adr2, int adr3, int adr4);
+  /// set addresses of all four stations
+  void setStations(int adr1, int adr2, int adr3, int adr4);
 
-    /// get address of a given station [1-4]
-    inline unsigned short station(int stat) const { return m_station[stat-1]; } 
+  /// get address of a given station [1-4]
+  inline unsigned short station(int stat) const { return m_station[stat - 1]; }
 
-    /// get track address code (for eta track finder)
-    int trackAddressCode() const;
+  /// get track address code (for eta track finder)
+  int trackAddressCode() const;
 
-    /// get converted Addresses
-    L1MuBMAddressArray converted() const;
+  /// get converted Addresses
+  L1MuBMAddressArray converted() const;
 
-    /// output stream operator for address array
-    friend std::ostream& operator<<(std::ostream&, const L1MuBMAddressArray&);
+  /// output stream operator for address array
+  friend std::ostream& operator<<(std::ostream&, const L1MuBMAddressArray&);
 
-    /// convert address to corresponding VHDL addresse
-    static unsigned short int convert(unsigned short int adr);
-    
-    /// is it a same wheel address?
-    static bool sameWheel(unsigned short int adr);
-    
-    /// is it a next wheel address?
-    static bool nextWheel(unsigned short int adr);
+  /// convert address to corresponding VHDL addresse
+  static unsigned short int convert(unsigned short int adr);
 
-  private:
-  
-    unsigned short int m_station[4];
+  /// is it a same wheel address?
+  static bool sameWheel(unsigned short int adr);
 
+  /// is it a next wheel address?
+  static bool nextWheel(unsigned short int adr);
+
+private:
+  unsigned short int m_station[4];
 };
 
 #endif

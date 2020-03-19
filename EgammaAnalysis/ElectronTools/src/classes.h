@@ -10,4 +10,4 @@ namespace EgammaAnalysis_ElectronTools {
     ElectronEnergyCalibratorRun2 fuffaElectronCalibrator;
     PhotonEnergyCalibratorRun2 fuffaPhotonCalibrator;
   };
-}
+}  // namespace EgammaAnalysis_ElectronTools

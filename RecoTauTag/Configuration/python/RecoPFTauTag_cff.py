@@ -29,12 +29,12 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
     e.toModify(recoTauAK4PFJets08Region, minJetPt = 999999.0)
 
 # Reconstruct the pi zeros in our pre-selected jets.
-from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import ak4PFJetsLegacyHPSPiZeros
+from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cff import ak4PFJetsLegacyHPSPiZeros
 ak4PFJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone()
 ak4PFJetsLegacyHPSPiZeros.jetSrc = PFRecoTauPFJetInputs.inputJetCollection
 
 # import charged hadrons
-from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import ak4PFJetsRecoTauChargedHadrons
+from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cff import ak4PFJetsRecoTauChargedHadrons
 ak4PFJetsRecoTauChargedHadrons = ak4PFJetsRecoTauChargedHadrons.clone()
 
 #-------------------------------------------------------------------------------

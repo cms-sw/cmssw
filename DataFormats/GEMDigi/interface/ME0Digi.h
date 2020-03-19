@@ -12,11 +12,10 @@
 #include <cstdint>
 #include <iosfwd>
 
-class ME0Digi{
-
+class ME0Digi {
 public:
-  explicit ME0Digi (int strip, int bx);
-  ME0Digi ();
+  explicit ME0Digi(int strip, int bx);
+  ME0Digi();
 
   bool operator==(const ME0Digi& digi) const;
   bool operator!=(const ME0Digi& digi) const;
@@ -24,14 +23,13 @@ public:
 
   // return the strip number. counts from 1.
   int strip() const { return strip_; }
-  int bx() const {return bx_; }
+  int bx() const { return bx_; }
 
 private:
   uint16_t strip_;
-  int16_t  bx_; 
+  int16_t bx_;
 };
 
-std::ostream & operator<<(std::ostream & o, const ME0Digi& digi);
+std::ostream& operator<<(std::ostream& o, const ME0Digi& digi);
 
 #endif
-

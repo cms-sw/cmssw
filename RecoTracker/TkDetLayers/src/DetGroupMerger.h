@@ -6,23 +6,19 @@
 #pragma GCC visibility push(hidden)
 class DetGroupMerger {
 public:
+  static void orderAndMergeTwoLevels(std::vector<DetGroup>&& one,
+                                     std::vector<DetGroup>&& two,
+                                     std::vector<DetGroup>& result,
+                                     int firstIndex,
+                                     int firstCrossed);
 
-  static void orderAndMergeTwoLevels( std::vector<DetGroup>&& one,  
-				      std::vector<DetGroup>&& two,
-				      std::vector<DetGroup>& result,
-				      int firstIndex, 
-				      int firstCrossed);
-  
-  static void mergeTwoLevels( std::vector<DetGroup>&& one,  
-			      std::vector<DetGroup>&& two,
-			      std::vector<DetGroup>& result);
-  
-  static void addSameLevel( std::vector<DetGroup>&& gvec, std::vector<DetGroup>& result);
-  
-  static void doubleIndexSize( std::vector<DetGroup>& vec);
-  
-  static void incrementAndDoubleSize( std::vector<DetGroup>& vec);
-  
+  static void mergeTwoLevels(std::vector<DetGroup>&& one, std::vector<DetGroup>&& two, std::vector<DetGroup>& result);
+
+  static void addSameLevel(std::vector<DetGroup>&& gvec, std::vector<DetGroup>& result);
+
+  static void doubleIndexSize(std::vector<DetGroup>& vec);
+
+  static void incrementAndDoubleSize(std::vector<DetGroup>& vec);
 };
 
 #pragma GCC visibility pop

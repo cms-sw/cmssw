@@ -129,8 +129,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
 process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('bsvsbpix.root')
                                    )

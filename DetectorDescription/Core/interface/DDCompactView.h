@@ -26,7 +26,7 @@ namespace DDI {
   class Material;
   class Solid;
   class Specific;
-}
+}  // namespace DDI
 
 /**
   Navigation through the compact view of the detector ...
@@ -37,8 +37,8 @@ namespace DDI {
 //FIXME:         X          [A-X] ... LogicalPart
 //FIXME:        / \             | ... PosPart (directed parten to child)
 //FIXME:       A   A
-//FIXME:       |   | 
-//FIXME:       B   C      
+//FIXME:       |   |
+//FIXME:       B   C
 //FIXME:
 //FIXME:    THIS IS NOT ALLOWED, but currently can be specified using DDL ....
 //FIXME:
@@ -77,57 +77,56 @@ MEC:
     stores, methods and details such as DDRoot will mean that all of
     these will be accessed via the DDCompactView.
 */
-class DDCompactView
-{ 
+class DDCompactView {
 public:
-  using Graph = math::Graph<DDLogicalPart, DDPosData* >;
-  using GraphWalker = math::GraphWalker<DDLogicalPart, DDPosData* >;
-  
-  //! Creates a compact-view 
+  using Graph = math::Graph<DDLogicalPart, DDPosData*>;
+  using GraphWalker = math::GraphWalker<DDLogicalPart, DDPosData*>;
+
+  //! Creates a compact-view
   explicit DDCompactView();
 
   //! Creates a compact-view using a different root of the geometry hierarchy
-  explicit DDCompactView( const DDName& );
-  
+  explicit DDCompactView(const DDName&);
+
   ~DDCompactView();
-  
+
   //! Creates a compact-view using a different root of the geometry hierarchy.
   // NOTE: It cannot be used to modify the stores if they are locked.
-  explicit DDCompactView(const DDLogicalPart & rootnodedata);
-  
+  explicit DDCompactView(const DDLogicalPart& rootnodedata);
+
   //! Provides read-only access to the data structure of the compact-view.
-  const Graph & graph() const;
+  const Graph& graph() const;
   GraphWalker walker() const;
 
   //! returns the DDLogicalPart representing the root of the geometrical hierarchy
-  const DDLogicalPart & root() const;
-  
-  //! The absolute position of the world
-  const DDPosData * worldPosition() const;
+  const DDLogicalPart& root() const;
 
-  void position (const DDLogicalPart & self,
-		 const DDLogicalPart & parent,
-		 const std::string& copyno,
-		 const DDTranslation & trans,
-		 const DDRotation & rot,
-		 const DDDivision * div = nullptr);
-  
-  void position (const DDLogicalPart & self,
-		 const DDLogicalPart & parent,
-		 int copyno,
-		 const DDTranslation & trans,
-		 const DDRotation & rot,
-		 const DDDivision * div = nullptr);
-  
-  void setRoot(const DDLogicalPart & root);
+  //! The absolute position of the world
+  const DDPosData* worldPosition() const;
+
+  void position(const DDLogicalPart& self,
+                const DDLogicalPart& parent,
+                const std::string& copyno,
+                const DDTranslation& trans,
+                const DDRotation& rot,
+                const DDDivision* div = nullptr);
+
+  void position(const DDLogicalPart& self,
+                const DDLogicalPart& parent,
+                int copyno,
+                const DDTranslation& trans,
+                const DDRotation& rot,
+                const DDDivision* div = nullptr);
+
+  void setRoot(const DDLogicalPart& root);
 
   void lockdown();
-  
- private:
-  void swap( DDCompactView& );
+
+private:
+  void swap(DDCompactView&);
 
   std::unique_ptr<DDCompactViewImpl> rep_;
-  std::unique_ptr<DDPosData> worldpos_ ;
+  std::unique_ptr<DDPosData> worldpos_;
 
   DDI::Store<DDName, std::unique_ptr<DDI::Material>> matStore_;
   DDI::Store<DDName, std::unique_ptr<DDI::Solid>> solidStore_;

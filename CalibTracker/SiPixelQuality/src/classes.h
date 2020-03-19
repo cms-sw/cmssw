@@ -4,7 +4,6 @@
 
 namespace DataFormats_SiPixelStatus {
   struct dictionary {
-
     SiPixelRocStatus rs;
     std::vector<SiPixelRocStatus> v_rs;
     SiPixelModuleStatus ms;
@@ -14,7 +13,5 @@ namespace DataFormats_SiPixelStatus {
     std::map<int, SiPixelModuleStatus> m_ms;
     SiPixelDetectorStatus ss;
     edm::Wrapper<SiPixelDetectorStatus> w_ss;
-
   };
-}
-
+}  // namespace DataFormats_SiPixelStatus

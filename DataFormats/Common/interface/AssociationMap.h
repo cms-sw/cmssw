@@ -44,11 +44,12 @@ namespace edm {
 
   class EDProductGetter;
 
-  template<typename Tag>
+  template <typename Tag>
   class AssociationMap {
     /// This is the second part of the value part of
     /// the items stored in the transient map
     typedef typename Tag::val_type internal_val_type;
+
   public:
     /// self type
     typedef AssociationMap<Tag> self;
@@ -75,38 +76,49 @@ namespace edm {
     struct const_iterator {
       typedef typename self::value_type value_type;
       typedef ptrdiff_t difference_type;
-      typedef value_type * pointer;
-      typedef value_type & reference;
+      typedef value_type* pointer;
+      typedef value_type& reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
-      const_iterator(): map_(nullptr) { }
-      const_iterator(const self * map, typename map_type::const_iterator mi) :
-	map_(map), i(mi) { }
-      const_iterator& operator++() { ++i; return *this; }
-      const_iterator operator++(int) { const_iterator ci = *this; ++i; return ci; }
-      const_iterator& operator--() { --i; return *this; }
-      const_iterator operator--(int) { const_iterator ci = *this; --i; return ci; }
+      const_iterator() : map_(nullptr) {}
+      const_iterator(const self* map, typename map_type::const_iterator mi) : map_(map), i(mi) {}
+      const_iterator& operator++() {
+        ++i;
+        return *this;
+      }
+      const_iterator operator++(int) {
+        const_iterator ci = *this;
+        ++i;
+        return ci;
+      }
+      const_iterator& operator--() {
+        --i;
+        return *this;
+      }
+      const_iterator operator--(int) {
+        const_iterator ci = *this;
+        --i;
+        return ci;
+      }
       bool operator==(const const_iterator& ci) const { return i == ci.i; }
       bool operator!=(const const_iterator& ci) const { return i != ci.i; }
-      const value_type & operator *() const { return map_->get( i->first ); }
-      const value_type * operator->() const { return &operator *(); }
+      const value_type& operator*() const { return map_->get(i->first); }
+      const value_type* operator->() const { return &operator*(); }
+
     private:
-      const self * map_;
+      const self* map_;
       typename map_type::const_iterator i;
     };
 
     /// default constructor
-    AssociationMap() { }
+    AssociationMap() {}
 
     // You will see better performance if you use other constructors.
     // Use this when the arguments the other constructors require are
     // not easily available.
-    explicit
-    AssociationMap(EDProductGetter const* getter) :
-      ref_(getter) { }
+    explicit AssociationMap(EDProductGetter const* getter) : ref_(getter) {}
 
     // It is rare for this to be useful
-    explicit
-    AssociationMap(const ref_type & ref) : ref_(ref) { }
+    explicit AssociationMap(const ref_type& ref) : ref_(ref) {}
 
     // In most cases this is the best constructor to use.
     // This constructor should be passed 2 arguments, except in the
@@ -138,29 +150,29 @@ namespace edm {
     //     edm::makeRefToBaseProdFrom(inputView2->refAt(0), event)
     //   ));
 
-    template<typename... Args>
+    template <typename... Args>
     AssociationMap(Args... args) : ref_(std::forward<Args>(args)...) {}
 
     /// clear map
-    void clear() { map_.clear(); transientMap_.clear(); }
+    void clear() {
+      map_.clear();
+      transientMap_.clear();
+    }
     /// map size
     size_type size() const { return map_.size(); }
     /// return true if empty
     bool empty() const { return map_.empty(); }
     /// insert an association
-    void insert(const key_type & k, const data_type & v) {
-      Tag::insert(ref_, map_, k, v);
-    }
-    void insert(const value_type & kv) {
-      Tag::insert(ref_, map_, kv.key, kv.val);
-    }
+    void insert(const key_type& k, const data_type& v) { Tag::insert(ref_, map_, k, v); }
+    void insert(const value_type& kv) { Tag::insert(ref_, map_, kv.key, kv.val); }
     /// first iterator over the map (read only)
-    const_iterator begin() const { return const_iterator(this, map_.begin());  }
+    const_iterator begin() const { return const_iterator(this, map_.begin()); }
     /// last iterator over the map (read only)
-    const_iterator end() const { return const_iterator(this, map_.end());  }
+    const_iterator end() const { return const_iterator(this, map_.end()); }
     /// find element with specified reference key
-    const_iterator find(const key_type & k) const {
-      if (ref_.key.id() != k.id()) return end();
+    const_iterator find(const key_type& k) const {
+      if (ref_.key.id() != k.id())
+        return end();
       return find(k.key());
     }
     /// erase the element whose key is k
@@ -170,66 +182,61 @@ namespace edm {
       return map_.erase(i);
     }
     /// find element with specified reference key
-    const result_type & operator[](const key_type & k) const {
+    const result_type& operator[](const key_type& k) const {
       helpers::checkRef(ref_.key, k);
       return get(k.key()).val;
     }
 
-    template<typename K>
+    template <typename K>
     const result_type& operator[](const K& k) const {
-      helpers::checkRef(ref_.key,k);
+      helpers::checkRef(ref_.key, k);
       return get(k.key()).val;
     }
 
     /// number of associations to a key
-    size_type numberOfAssociations(const key_type & k) const {
-      if (ref_.key.id() != k.id()) return 0;
+    size_type numberOfAssociations(const key_type& k) const {
+      if (ref_.key.id() != k.id())
+        return 0;
       typename map_type::const_iterator f = map_.find(k.key());
-      if (f == map_.end()) return 0;
+      if (f == map_.end())
+        return 0;
       return Tag::size(f->second);
     }
 
-    template<typename K>
-    size_type numberOfAssociations(const K & k) const {
-      if (ref_.key.id() != k.id()) return 0;
+    template <typename K>
+    size_type numberOfAssociations(const K& k) const {
+      if (ref_.key.id() != k.id())
+        return 0;
       typename map_type::const_iterator f = map_.find(k.key());
-      if (f == map_.end()) return 0;
+      if (f == map_.end())
+        return 0;
       return Tag::size(f->second);
     }
 
     /// return ref-prod structure
-    const ref_type & refProd() const { return ref_; }
+    const ref_type& refProd() const { return ref_; }
 
     /// fill and return a transient map
     /// required for ROOT interactive usage
-    typename Tag::transient_map_type map() { 
-      return Tag::transientMap( ref_, map_ ); 
-    }
+    typename Tag::transient_map_type map() { return Tag::transientMap(ref_, map_); }
     /// fill and return a transient key vector
     /// required for ROOT interactive usage
-    typename Tag::transient_key_vector keys() { 
-      return Tag::transientKeyVector( ref_, map_ ); 
-    }
+    typename Tag::transient_key_vector keys() { return Tag::transientKeyVector(ref_, map_); }
     /// fill and return a transient key vector
     /// required for ROOT interactive usage
-    typename Tag::transient_val_vector values() { 
-      return Tag::transientValVector( ref_, map_ ); 
-    }
-     /// post insert action
+    typename Tag::transient_val_vector values() { return Tag::transientValVector(ref_, map_); }
+    /// post insert action
     void post_insert() { Tag::sort(map_); }
 
     // Find should be private!  However, generated reflex dictionaries do not compile
-    // if Find is private.  
+    // if Find is private.
     /// find helper
     struct Find {
-
-      using first_argument_type  = const self&;
+      using first_argument_type = const self&;
       using second_argument_type = size_type;
-      using result_type          = const value_type *;
+      using result_type = const value_type*;
 
-      const result_type operator()(first_argument_type c, second_argument_type i) {
-        return &(*c.find(i));
-      }
+      const result_type operator()(first_argument_type c, second_argument_type i) { return &(*c.find(i)); }
     };
 
     //Used by ROOT storage
@@ -245,11 +252,12 @@ namespace edm {
     /// find element with index i
     const_iterator find(size_type i) const {
       typename map_type::const_iterator f = map_.find(i);
-      if (f == map_.end()) return end();
+      if (f == map_.end())
+        return end();
       return const_iterator(this, f);
     }
     /// return value_typeelement with key i
-    const value_type & get(size_type i) const {
+    const value_type& get(size_type i) const {
       typename internal_transient_map_type::const_iterator tf = transientMap_.find(i);
       if (tf == transientMap_.end()) {
         typename map_type::const_iterator f = map_.find(i);
@@ -257,28 +265,31 @@ namespace edm {
           Exception::throwThis(edm::errors::InvalidReference, "can't find reference in AssociationMap at position ", i);
         value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
         std::pair<typename internal_transient_map_type::const_iterator, bool> ins =
-        transientMap_.insert(std::make_pair(i, v));
+            transientMap_.insert(std::make_pair(i, v));
         return ins.first->second;
       } else {
-	return tf->second;
+        return tf->second;
       }
     }
     friend struct const_iterator;
     friend struct Find;
-    friend struct refhelper::FindTrait<self,value_type>;
-    template<typename, typename, typename> friend class OneToValue;
-    template<typename, typename, typename> friend class OneToOne;
-    template<typename, typename, typename> friend class OneToMany;
-    template<typename, typename, typename, typename> friend class OneToManyWithQuality;
+    friend struct refhelper::FindTrait<self, value_type>;
+    template <typename, typename, typename>
+    friend class OneToValue;
+    template <typename, typename, typename>
+    friend class OneToOne;
+    template <typename, typename, typename>
+    friend class OneToMany;
+    template <typename, typename, typename, typename>
+    friend class OneToManyWithQuality;
   };
 
   namespace refhelper {
-    template<typename Tag>
-    struct FindTrait<AssociationMap<Tag>,
-		     typename AssociationMap<Tag>::value_type> {
+    template <typename Tag>
+    struct FindTrait<AssociationMap<Tag>, typename AssociationMap<Tag>::value_type> {
       typedef typename AssociationMap<Tag>::Find value;
     };
-  }
+  }  // namespace refhelper
 
-}
+}  // namespace edm
 #endif

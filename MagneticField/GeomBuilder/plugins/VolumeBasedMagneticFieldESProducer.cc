@@ -1,18 +1,20 @@
-/** \file
+/** \class VolumeBasedMagneticFieldESProducer
+ *
+ *  Producer for the VolumeBasedMagneticField.
  *
  */
 
-#include "MagneticField/GeomBuilder/plugins/VolumeBasedMagneticFieldESProducer.h"
-#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+
+#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 
@@ -20,56 +22,77 @@
 #include <vector>
 #include <iostream>
 
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/lexical_cast.hpp>
+namespace magneticfield {
+  class VolumeBasedMagneticFieldESProducer : public edm::ESProducer {
+  public:
+    VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig);
+
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
+
+  private:
+    // forbid copy ctor and assignment op.
+    VolumeBasedMagneticFieldESProducer(const VolumeBasedMagneticFieldESProducer&) = delete;
+    const VolumeBasedMagneticFieldESProducer& operator=(const VolumeBasedMagneticFieldESProducer&) = delete;
+
+    const bool debug_;
+    const bool useParametrizedTrackerField_;
+    const MagFieldConfig conf_;
+    const std::string version_;
+    edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> cpvToken_;
+    edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramFieldToken_;
+  };
+}  // namespace magneticfield
 
 using namespace std;
 using namespace magneticfield;
 
-VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig) : pset(iConfig)
-{
-  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label",""));
+VolumeBasedMagneticFieldESProducer::VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig)
+    : debug_{iConfig.getUntrackedParameter<bool>("debugBuilder", false)},
+      useParametrizedTrackerField_{iConfig.getParameter<bool>("useParametrizedTrackerField")},
+      conf_{iConfig, debug_},
+      version_{iConfig.getParameter<std::string>("version")} {
+  auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
+  cc.setConsumes(cpvToken_, edm::ESInputTag{"", "magfield"});
+  if (useParametrizedTrackerField_) {
+    cc.setConsumes(paramFieldToken_, edm::ESInputTag{"", iConfig.getParameter<string>("paramLabel")});
+  }
 }
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord & iRecord)
-{
-  bool debug = pset.getUntrackedParameter<bool>("debugBuilder", false);
-  if (debug) {
-    cout << "VolumeBasedMagneticFieldESProducer::produce() " << pset.getParameter<std::string>("version") << endl;
+std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord) {
+  if (debug_) {
+    edm::LogPrint("VolumeBasedMagneticFieldESProducer") << "VolumeBasedMagneticFieldESProducer::produce() " << version_;
   }
 
-  MagFieldConfig conf(pset, debug);
-
-  edm::ESTransientHandle<DDCompactView> cpv;
-  iRecord.get("magfield",cpv );
-  MagGeoBuilderFromDDD builder(conf.version,
-			       conf.geometryVersion,
-			       debug);
+  auto cpv = iRecord.getTransientHandle(cpvToken_);
+  MagGeoBuilderFromDDD builder(conf_.version, conf_.geometryVersion, debug_);
 
   // Set scaling factors
-  if (!conf.keys.empty()) {
-    builder.setScaling(conf.keys, conf.values);
+  if (!conf_.keys.empty()) {
+    builder.setScaling(conf_.keys, conf_.values);
   }
-  
+
   // Set specification for the grid tables to be used.
-  if (!conf.gridFiles.empty()) {
-    builder.setGridFiles(conf.gridFiles);
+  if (!conf_.gridFiles.empty()) {
+    builder.setGridFiles(conf_.gridFiles);
   }
-  
+
   builder.build(*cpv);
 
   // Get slave field (from ES)
-  edm::ESHandle<MagneticField> paramField;
-  if (pset.getParameter<bool>("useParametrizedTrackerField")) {;
-    iRecord.get(pset.getParameter<string>("paramLabel"),paramField);
+  const MagneticField* paramField = nullptr;
+  if (useParametrizedTrackerField_) {
+    paramField = &iRecord.get(paramFieldToken_);
   }
-  return std::make_unique<VolumeBasedMagneticField>(conf.geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false);
+  return std::make_unique<VolumeBasedMagneticField>(conf_.geometryVersion,
+                                                    builder.barrelLayers(),
+                                                    builder.endcapSectors(),
+                                                    builder.barrelVolumes(),
+                                                    builder.endcapVolumes(),
+                                                    builder.maxR(),
+                                                    builder.maxZ(),
+                                                    paramField,
+                                                    false);
 }
-
-
-
-
 
 DEFINE_FWK_EVENTSETUP_MODULE(VolumeBasedMagneticFieldESProducer);

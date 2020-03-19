@@ -15,43 +15,33 @@
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle1D.h"
 
-class HFRaddamTask : public hcaldqm::DQTask
-{
-	public:
-		HFRaddamTask(edm::ParameterSet const&);
-		~HFRaddamTask() override
-		{}
+class HFRaddamTask : public hcaldqm::DQTask {
+public:
+  HFRaddamTask(edm::ParameterSet const&);
+  ~HFRaddamTask() override {}
 
-		void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-	protected:
-		//	funcs
-		void _process(edm::Event const&, edm::EventSetup const&) override;
-		bool _isApplicable(edm::Event const&) override;
+protected:
+  //	funcs
+  void _process(edm::Event const&, edm::EventSetup const&) override;
+  bool _isApplicable(edm::Event const&) override;
 
-		//	Tags and Tokens
-		edm::InputTag	_tagHF;
-		edm::InputTag   _taguMN;
-		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
-		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+  //	Tags and Tokens
+  edm::InputTag _tagHF;
+  edm::InputTag _taguMN;
+  edm::EDGetTokenT<HFDigiCollection> _tokHF;
+  edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
-		//	vector of Detector Ids for RadDam
-		std::vector<HcalDetId>	_vDetIds;
+  //	vector of Detector Ids for RadDam
+  std::vector<HcalDetId> _vDetIds;
 
-		//	Cuts
+  //	Cuts
 
-		//	Compact
+  //	Compact
 
-		//	1D
-		std::vector<hcaldqm::ContainerSingle1D> _vcShape;
+  //	1D
+  std::vector<hcaldqm::ContainerSingle1D> _vcShape;
 };
 
 #endif
-
-
-
-
-
-
-

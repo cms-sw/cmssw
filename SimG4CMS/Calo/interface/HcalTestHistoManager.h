@@ -20,21 +20,17 @@
 #include <string>
 
 class HcalTestHistoManager {
-
-public: 
-
-  HcalTestHistoManager(const std::string &);
+public:
+  HcalTestHistoManager(const std::string&);
   virtual ~HcalTestHistoManager();
 
-  void fillTree(HcalTestHistoClass *  histos);
+  void fillTree(HcalTestHistoClass* histos);
 
 private:
-
-  edm::Service<TFileService> fs;
-  TTree                     *tree;
-  HcalTestHistoClass        *h;
-  int                       kount;
- 
+  edm::Service<TFileService> fs_;
+  TTree* tree_;
+  std::unique_ptr<HcalTestHistoClass> h_;
+  int kount_;
 };
 
 #endif

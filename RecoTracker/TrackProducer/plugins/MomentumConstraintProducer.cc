@@ -16,7 +16,6 @@ Implementation:
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -38,7 +37,7 @@ Implementation:
 // class declaration
 //
 
-class MomentumConstraintProducer: public edm::global::EDProducer<> {
+class MomentumConstraintProducer : public edm::global::EDProducer<> {
 public:
   explicit MomentumConstraintProducer(const edm::ParameterSet&);
   ~MomentumConstraintProducer() override = default;
@@ -64,10 +63,10 @@ private:
 //
 // constructors and destructor
 //
-MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& iConfig):
-  srcTag_(iConfig.getParameter<edm::InputTag>("src")),
-  fixedmom_(iConfig.getParameter<double>("fixedMomentum")),
-  fixedmomerr_(iConfig.getParameter<double>("fixedMomentumError"))
+MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& iConfig)
+    : srcTag_(iConfig.getParameter<edm::InputTag>("src")),
+      fixedmom_(iConfig.getParameter<double>("fixedMomentum")),
+      fixedmomerr_(iConfig.getParameter<double>("fixedMomentumError"))
 
 {
   //register your products
@@ -79,40 +78,40 @@ MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& 
   srcToken_ = iC.consumes<reco::TrackCollection>(srcTag_);
 }
 
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void MomentumConstraintProducer::produce(edm::StreamID streamid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
-{
+void MomentumConstraintProducer::produce(edm::StreamID streamid,
+                                         edm::Event& iEvent,
+                                         const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   Handle<reco::TrackCollection> theTCollection;
-  iEvent.getByToken(srcToken_,theTCollection);
+  iEvent.getByToken(srcToken_, theTCollection);
 
   edm::RefProd<std::vector<MomentumConstraint>> rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint>>();
 
   std::unique_ptr<std::vector<MomentumConstraint>> pairs(new std::vector<MomentumConstraint>);
-  std::unique_ptr<TrackMomConstraintAssociationCollection> output(new TrackMomConstraintAssociationCollection(theTCollection, rPairs));
+  std::unique_ptr<TrackMomConstraintAssociationCollection> output(
+      new TrackMomConstraintAssociationCollection(theTCollection, rPairs));
 
   int index = 0;
-  for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
+  for (reco::TrackCollection::const_iterator i = theTCollection->begin(); i != theTCollection->end(); i++) {
     //    MomentumConstraint tmp(10.,0.01) ;
 
-    MomentumConstraint tmp(fixedmom_,fixedmomerr_) ;
-    if(fixedmom_< 0.0){
-      tmp= MomentumConstraint(i->p(),fixedmomerr_);
+    MomentumConstraint tmp(fixedmom_, fixedmomerr_);
+    if (fixedmom_ < 0.0) {
+      tmp = MomentumConstraint(i->p(), fixedmomerr_);
     }
     pairs->push_back(tmp);
-    output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<MomentumConstraint>>(rPairs,index) );
+    output->insert(reco::TrackRef(theTCollection, index), edm::Ref<std::vector<MomentumConstraint>>(rPairs, index));
     index++;
   }
 
   iEvent.put(std::move(pairs));
   iEvent.put(std::move(output));
-
 }
 
 //define this as a plug-in

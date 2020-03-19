@@ -15,7 +15,6 @@
 // Original Author:  Grigory Safronov
 //
 
-
 // system include files
 #include <memory>
 
@@ -37,30 +36,30 @@
 //
 
 class HLTHcalPhiSymFilter : public HLTFilter {
-   public:
-      explicit HLTHcalPhiSymFilter(const edm::ParameterSet&);
-      ~HLTHcalPhiSymFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+public:
+  explicit HLTHcalPhiSymFilter(const edm::ParameterSet &);
+  ~HLTHcalPhiSymFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  bool hltFilter(edm::Event &,
+                 const edm::EventSetup &,
+                 trigger::TriggerFilterObjectWithRefs &filterproduct) const override;
 
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 
- edm::EDGetTokenT<HBHERecHitCollection> HBHEHitsToken_;
- edm::EDGetTokenT<HORecHitCollection> HOHitsToken_;
- edm::EDGetTokenT<HFRecHitCollection> HFHitsToken_;
- edm::InputTag HBHEHits_;
- edm::InputTag HOHits_;
- edm::InputTag HFHits_;
- std::string phiSymHBHEHits_;
- std::string phiSymHOHits_;
- std::string phiSymHFHits_;
- double eCut_HB_;
- double eCut_HE_;
- double eCut_HO_;
- double eCut_HF_;
-
+  edm::EDGetTokenT<HBHERecHitCollection> HBHEHitsToken_;
+  edm::EDGetTokenT<HORecHitCollection> HOHitsToken_;
+  edm::EDGetTokenT<HFRecHitCollection> HFHitsToken_;
+  edm::InputTag HBHEHits_;
+  edm::InputTag HOHits_;
+  edm::InputTag HFHits_;
+  std::string phiSymHBHEHits_;
+  std::string phiSymHOHits_;
+  std::string phiSymHFHits_;
+  double eCut_HB_;
+  double eCut_HE_;
+  double eCut_HO_;
+  double eCut_HF_;
 };
 
 #endif
-

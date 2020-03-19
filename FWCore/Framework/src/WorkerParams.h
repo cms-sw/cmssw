@@ -20,20 +20,18 @@ namespace edm {
   class PreallocationConfiguration;
 
   struct WorkerParams {
-    WorkerParams() :
-      pset_(nullptr), reg_(nullptr), preallocate_(nullptr),processConfiguration_(), actions_(nullptr)
-      {}
+    WorkerParams() : pset_(nullptr), reg_(nullptr), preallocate_(nullptr), processConfiguration_(), actions_(nullptr) {}
 
     WorkerParams(ParameterSet* pset,
                  ProductRegistry& reg,
                  PreallocationConfiguration const* prealloc,
                  std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                 ExceptionToActionTable const& actions) :
-      pset_(pset),
-      reg_(&reg),
-      preallocate_(prealloc),
-      processConfiguration_(processConfiguration),
-      actions_(&actions) {}
+                 ExceptionToActionTable const& actions)
+        : pset_(pset),
+          reg_(&reg),
+          preallocate_(prealloc),
+          processConfiguration_(processConfiguration),
+          actions_(&actions) {}
 
     ParameterSet* pset_;
     ProductRegistry* reg_;
@@ -41,6 +39,6 @@ namespace edm {
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ExceptionToActionTable const* actions_;
   };
-}
+}  // namespace edm
 
 #endif

@@ -7,7 +7,7 @@
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
 class ODLTSConfig : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODLTSConfig();
   ~ODLTSConfig() override;
@@ -19,7 +19,7 @@ class ODLTSConfig : public IODConfig {
   inline int getId() const { return m_ID; }
 
   inline void setTriggerType(std::string x) { m_trg_type = x; }
-  inline std::string  getTriggerType() const { return m_trg_type; }
+  inline std::string getTriggerType() const { return m_trg_type; }
 
   inline void setNumberOfEvents(int x) { m_num = x; }
   inline int getNumberOfEvents() const { return m_num; }
@@ -29,15 +29,15 @@ class ODLTSConfig : public IODConfig {
 
   inline void setTrigLocL1Delay(int x) { m_delay = x; }
   inline int getTrigLocL1Delay() const { return m_delay; }
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
- private:
+private:
   int fetchNextId() noexcept(false);
-  void prepareWrite()  noexcept(false) override;
-  void writeDB()       noexcept(false);
+  void prepareWrite() noexcept(false) override;
+  void writeDB() noexcept(false);
   void clear();
-  void fetchData(ODLTSConfig * result)     noexcept(false);
-  int fetchID()  noexcept(false);
+  void fetchData(ODLTSConfig* result) noexcept(false);
+  int fetchID() noexcept(false);
 
   // User data
   int m_ID;
@@ -45,7 +45,6 @@ class ODLTSConfig : public IODConfig {
   int m_num;
   int m_rate;
   int m_delay;
-  
 };
 
 #endif

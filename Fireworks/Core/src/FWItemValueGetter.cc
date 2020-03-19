@@ -14,8 +14,8 @@
 #include <sstream>
 #include <cstdio>
 #include "TMath.h"
-#include "FWCore/Utilities/interface/BaseWithDict.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWItemValueGetter.h"
@@ -27,163 +27,137 @@
 
 #include "Fireworks/Core/src/expressionFormatHelpers.h"
 
-
 //==============================================================================
 //==============================================================================
 //==============================================================================
 
+FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::string& iPurpose)
+    : m_type(iType), m_titleWidth(0) {
+  if (!strcmp(iType.name().c_str(), "CaloTower")) {
+    if (iPurpose == "ECal")
+      addEntry("emEt", 1, "et", "GeV");
+    else if (iPurpose == "HCal")
+      addEntry("hadEt", 1, "et", "GeV");
+    else if (iPurpose == "HCal Outer")
+      addEntry("outerEt", 1, "et", "GeV");
+  } else if (strstr(iPurpose.c_str(), "Beam Spot")) {
+    addEntry("x0", 2, "x", "cm");
+    addEntry("y0", 2, "y", "cm");
+    addEntry("z0", 2, "z", "cm");
+  } else if (strstr(iPurpose.c_str(), "Vertices")) {
+    addEntry("x", 2, "x", "cm");
+    addEntry("y", 2, "y", "cm");
+    addEntry("z", 2, "z", "cm");
+  } else if (strstr(iPurpose.c_str(), "Conversion")) {
+    addEntry("pairMomentum().rho()", 1, "pt", "GeV");
+    addEntry("pairMomentum().eta()", 2, "eta");
+    addEntry("pairMomentum().phi()", 2, "phi");
+  } else if (strstr(iPurpose.c_str(), "Candidate") || strstr(iPurpose.c_str(), "GenParticle")) {
+    addEntry("pdgId()", 0, "pdg");
+    bool x = addEntry("pt", 1);
+    if (!x)
+      x = addEntry("et", 1);
+    if (!x)
+      addEntry("energy", 1);
+  } else if (iPurpose == "Jets") {
+    addEntry("et", 1);
+  } else if (iPurpose == "DT-segments") {
+    addEntry("chamberId().wheel()", 0, "wh");
+    addEntry("chamberId().station()", 0, "st");
+    addEntry("chamberId().sector()", 0, "sc");
 
-FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::string& iPurpose):
-   m_type(iType),
-   m_titleWidth(0)
-{
-   if (!strcmp(iType.name().c_str(), "CaloTower"))
-   {
-      if ( iPurpose == "ECal" )
-         addEntry("emEt", 1, "et", "GeV");
-      else if ( iPurpose == "HCal" )
-         addEntry("hadEt", 1, "et", "GeV");
-      else if (iPurpose == "HCal Outer")
-         addEntry("outerEt", 1, "et", "GeV");
-   }
-   else if (strstr(iPurpose.c_str(), "Beam Spot") )
-   {
-      addEntry("x0", 2, "x", "cm");
-      addEntry("y0", 2, "y", "cm");
-      addEntry("z0", 2, "z", "cm");
-   }
-   else if (strstr(iPurpose.c_str(), "Vertices") )
-   {
-      addEntry("x", 2, "x", "cm");
-      addEntry("y", 2, "y", "cm");
-      addEntry("z", 2, "z", "cm");
-   }
-   else if (strstr(iPurpose.c_str(), "Conversion") )
-   {
-      addEntry("pairMomentum().rho()", 1, "pt", "GeV" );
-      addEntry("pairMomentum().eta()", 2, "eta");
-      addEntry("pairMomentum().phi()", 2, "phi");
-   }
-   else if (strstr(iPurpose.c_str(), "Candidate") || strstr(iPurpose.c_str(), "GenParticle"))
-   {
-      addEntry("pdgId()", 0, "pdg");
-      bool x = addEntry("pt", 1);
-      if (!x) x = addEntry("et", 1);
-      if (!x) addEntry("energy", 1);
-   }
-   else if (iPurpose == "Jets" )
-   {
-      addEntry("et", 1);
-   }
-   else if ( iPurpose == "DT-segments")
-   {
-      addEntry("chamberId().wheel()", 0, "wh");
-      addEntry("chamberId().station()", 0, "st");
-      addEntry("chamberId().sector()", 0, "sc");
+  } else if (iPurpose == "CSC-segments") {
+    addEntry("cscDetId().endcap()", 0, "ec");
+    addEntry("cscDetId().station()", 0, "st");
+    addEntry("cscDetId().ring()", 0, "rn");
+  } else if (iPurpose == "HGCal Trigger Cell" || iPurpose == "HGCal Trigger Cluster") {
+    addEntry("detId", 0);
+  } else if (iPurpose == "CaloParticle") {
+    addEntry("energy", 3);
+    addEntry("pdgId()", 3, "pdgId");
+    addEntry("simClusters().size()", 3, "SimClSize");
+  } else if (iPurpose == "HGCal MultiCluster") {
+    addEntry("energy", 3);
+  } else {
+    // by the default  add pt, et, or energy
+    bool x = addEntry("pt", 1);
+    if (!x)
+      x = addEntry("et", 1);
+    if (!x)
+      addEntry("energy", 1);
+  }
 
-   }
-   else if ( iPurpose == "CSC-segments")
-   {
-      addEntry("cscDetId().endcap()", 0, "ec");
-      addEntry("cscDetId().station()", 0, "st");
-      addEntry("cscDetId().ring()", 0, "rn");
-   }
-   else {
-      // by the default  add pt, et, or energy
-      bool x = addEntry("pt", 1);
-      if (!x) x = addEntry("et", 1);
-      if (!x) addEntry("energy", 1);
-   }
-
-   if (addEntry("eta", 2))
-      addEntry("phi",  2);
+  if (addEntry("eta", 2))
+    addEntry("phi", 2);
 }
 
+bool FWItemValueGetter::addEntry(std::string iExpression, int iPrec, std::string iTitle, std::string iUnit) {
+  using namespace boost::spirit::classic;
 
+  reco::parser::ExpressionPtr tmpPtr;
+  reco::parser::Grammar grammar(tmpPtr, m_type);
 
-bool FWItemValueGetter::addEntry(std::string iExpression, int iPrec, std::string iTitle, std::string iUnit)
-{
-   using namespace boost::spirit::classic;
+  if (m_type != edm::TypeWithDict() && !iExpression.empty()) {
+    using namespace fireworks::expression;
 
-   reco::parser::ExpressionPtr tmpPtr;
-   reco::parser::Grammar grammar(tmpPtr, m_type);
+    //Backwards compatibility with old format
+    std::string temp = oldToNewFormat(iExpression);
 
-   if(m_type != edm::TypeWithDict() && !iExpression.empty()) 
-   {
-      using namespace fireworks::expression;
-
-      //Backwards compatibility with old format
-      std::string temp = oldToNewFormat(iExpression);
-
-      //now setup the parser
-      try 
-      {
-         if(parse(temp.c_str(), grammar.use_parser<1>() >> end_p, space_p).full) 
-         {
-            m_entries.push_back(Entry(tmpPtr, iExpression, iUnit, iTitle.empty() ? iExpression :iTitle , iPrec));
-            m_titleWidth = TMath::Max(m_titleWidth, (int) m_entries.back().m_title.size());
-            return true;
-         }
-      } 
-      catch(const reco::parser::BaseException& e)
-      {
-         // std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
+    //now setup the parser
+    try {
+      if (parse(temp.c_str(), grammar.use_parser<1>() >> end_p, space_p).full) {
+        m_entries.push_back(Entry(tmpPtr, iExpression, iUnit, iTitle.empty() ? iExpression : iTitle, iPrec));
+        m_titleWidth = TMath::Max(m_titleWidth, (int)m_entries.back().m_title.size());
+        return true;
       }
-   }
-   return false;
+    } catch (const reco::parser::BaseException& e) {
+      // std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
+    }
+  }
+  return false;
 }
-
 
 //______________________________________________________________________________
 
-double
-FWItemValueGetter::valueFor(const void* iObject, int idx) const
-{
-   //  std::cout << " value for " << idx << "size " <<  m_entries.size() <<std::endl;
-   edm::ObjectWithDict o(m_type, const_cast<void *>(iObject));
-   return m_entries[idx].m_expr->value(o);
+double FWItemValueGetter::valueFor(const void* iObject, int idx) const {
+  //  std::cout << " value for " << idx << "size " <<  m_entries.size() <<std::endl;
+  edm::ObjectWithDict o(m_type, const_cast<void*>(iObject));
+  return m_entries[idx].m_expr->value(o);
 }
 
-UInt_t
-FWItemValueGetter::precision(int idx) const
-{
-   return m_entries[idx].m_precision;
+UInt_t FWItemValueGetter::precision(int idx) const { return m_entries[idx].m_precision; }
+
+std::vector<std::string> FWItemValueGetter::getTitles() const {
+  std::vector<std::string> titles;
+  titles.reserve(m_entries.size());
+
+  for (std::vector<Entry>::const_iterator i = m_entries.begin(); i != m_entries.end(); ++i)
+    titles.push_back((*i).m_title.empty() ? (*i).m_expression : (*i).m_title);
+
+  return titles;
 }
 
-std::vector<std::string> 
-FWItemValueGetter::getTitles() const
-{
-   std::vector<std::string> titles;
-   titles.reserve(m_entries.size());
-
-   for (std::vector<Entry >::const_iterator i  = m_entries.begin() ; i != m_entries.end(); ++i) 
-      titles.push_back((*i).m_title.empty() ? (*i).m_expression : (*i).m_title );
-
-   return titles;
-}
-
-int 
-FWItemValueGetter::numValues() const
-{
-   return static_cast<int>(m_entries.size());
-}
+int FWItemValueGetter::numValues() const { return static_cast<int>(m_entries.size()); }
 //______________________________________________________________________________
 
-const std::string& 
-FWItemValueGetter::getToolTip(const void* iObject) const
-{
-   static std::string buff(128, 0);
-   static std::string fs = "\n %*s = %.*f";
+const std::string& FWItemValueGetter::getToolTip(const void* iObject) const {
+  static std::string buff(128, 0);
+  static std::string fs = "\n %*s = %.*f";
 
-   edm::ObjectWithDict o(m_type, const_cast<void *>(iObject));
+  edm::ObjectWithDict o(m_type, const_cast<void*>(iObject));
 
-   int off = 0;
-   for ( std::vector<Entry >::const_iterator i = m_entries.begin() ; i != m_entries.end(); ++i) {
-      const Entry& e = *i;
-      off += snprintf(&buff[off], 127, fs.c_str(), m_titleWidth, e.m_title.c_str(),  e.m_precision ? (e.m_precision+1) : 0,  e.m_expr->value(o));
-   }
+  int off = 0;
+  for (std::vector<Entry>::const_iterator i = m_entries.begin(); i != m_entries.end(); ++i) {
+    const Entry& e = *i;
+    off += snprintf(&buff[off],
+                    127,
+                    fs.c_str(),
+                    m_titleWidth,
+                    e.m_title.c_str(),
+                    e.m_precision ? (e.m_precision + 1) : 0,
+                    e.m_expr->value(o));
+  }
 
-   // std::cout << buff;
-   return buff;
+  // std::cout << buff;
+  return buff;
 }
-

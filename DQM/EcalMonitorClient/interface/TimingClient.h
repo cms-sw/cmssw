@@ -8,7 +8,7 @@ namespace ecaldqm {
   class TimingClient : public DQWorkerClient {
   public:
     TimingClient();
-    ~TimingClient() {}
+    ~TimingClient() override {}
 
     void producePlots(ProcessType) override;
 
@@ -26,7 +26,6 @@ namespace ecaldqm {
     float tailPopulThreshold_;
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // File  :     analyzerAbilityToImplementor
-// 
+//
 /**\file  analyzerAbilityToImplementor.h "FWCore/Framework/interface/limited/analyzerAbilityToImplementor.h"
 
  Description: Class used to pair a module Ability to the actual base class used to implement that ability
@@ -29,34 +29,35 @@
 namespace edm {
   namespace limited {
     namespace analyzer {
-      template<typename T> struct AbilityToImplementor;
-      
-      template<typename C>
+      template <typename T>
+      struct AbilityToImplementor;
+
+      template <typename C>
       struct AbilityToImplementor<edm::StreamCache<C>> {
-        typedef edm::limited::impl::StreamCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        typedef edm::limited::impl::StreamCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
       };
 
-      template<typename C>
+      template <typename C>
       struct AbilityToImplementor<edm::RunCache<C>> {
-        typedef edm::limited::impl::RunCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        typedef edm::limited::impl::RunCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
       };
-      
-      template<typename C>
+
+      template <typename C>
       struct AbilityToImplementor<edm::RunSummaryCache<C>> {
-        typedef edm::limited::impl::RunSummaryCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        typedef edm::limited::impl::RunSummaryCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
       };
-      
-      template<typename C>
+
+      template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockCache<C>> {
-        typedef edm::limited::impl::LuminosityBlockCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        typedef edm::limited::impl::LuminosityBlockCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
       };
-      
-      template<typename C>
+
+      template <typename C>
       struct AbilityToImplementor<edm::LuminosityBlockSummaryCache<C>> {
-        typedef edm::limited::impl::LuminosityBlockSummaryCacheHolder<edm::limited::EDAnalyzerBase,C> Type;
+        typedef edm::limited::impl::LuminosityBlockSummaryCacheHolder<edm::limited::EDAnalyzerBase, C> Type;
       };
-    }
-  }
-}
+    }  // namespace analyzer
+  }    // namespace limited
+}  // namespace edm
 
 #endif

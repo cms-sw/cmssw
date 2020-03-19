@@ -27,36 +27,36 @@
 
 namespace deep_tau {
 
-class TauWPThreshold {
-public:
+  class TauWPThreshold {
+  public:
     explicit TauWPThreshold(const std::string& cut_str);
     double operator()(const pat::Tau& tau) const;
 
-private:
+  private:
     std::unique_ptr<TF1> fn_;
     double value_;
-};
+  };
 
-class DeepTauCache {
-public:
+  class DeepTauCache {
+  public:
     using GraphPtr = std::shared_ptr<tensorflow::GraphDef>;
 
-    DeepTauCache(const std::string& graph_name, bool mem_mapped);
+    DeepTauCache(const std::map<std::string, std::string>& graph_names, bool mem_mapped);
     ~DeepTauCache();
 
-   // A Session allows concurrent calls to Run(), though a Session must
-   // be created / extended by a single thread.
-   tensorflow::Session& getSession() const { return *session_; }
-   const tensorflow::GraphDef& getGraph() const { return *graph_; }
+    // A Session allows concurrent calls to Run(), though a Session must
+    // be created / extended by a single thread.
+    tensorflow::Session& getSession(const std::string& name = "") const { return *sessions_.at(name); }
+    const tensorflow::GraphDef& getGraph(const std::string& name = "") const { return *graphs_.at(name); }
 
-private:
-    GraphPtr graph_;
-    tensorflow::Session* session_;
-    std::unique_ptr<tensorflow::MemmappedEnv> memmappedEnv_;
-};
+  private:
+    std::map<std::string, GraphPtr> graphs_;
+    std::map<std::string, tensorflow::Session*> sessions_;
+    std::map<std::string, std::unique_ptr<tensorflow::MemmappedEnv>> memmappedEnv_;
+  };
 
-class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
-public:
+  class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
+  public:
     using TauType = pat::Tau;
     using TauDiscriminator = pat::PATTauDiscriminator;
     using TauCollection = std::vector<TauType>;
@@ -70,17 +70,17 @@ public:
     using WPMap = std::map<std::string, CutterPtr>;
 
     struct Output {
-        using ResultMap = std::map<std::string, std::unique_ptr<TauDiscriminator>>;
-        std::vector<size_t> num_, den_;
+      using ResultMap = std::map<std::string, std::unique_ptr<TauDiscriminator>>;
+      std::vector<size_t> num_, den_;
 
-        Output(const std::vector<size_t>& num, const std::vector<size_t>& den) : num_(num), den_(den) {}
+      Output(const std::vector<size_t>& num, const std::vector<size_t>& den) : num_(num), den_(den) {}
 
-        ResultMap get_value(const edm::Handle<TauCollection>& taus, const tensorflow::Tensor& pred,
-                            const WPMap& working_points) const;
+      ResultMap get_value(const edm::Handle<TauCollection>& taus,
+                          const tensorflow::Tensor& pred,
+                          const WPMap& working_points) const;
     };
 
     using OutputCollection = std::map<std::string, Output>;
-
 
     DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputs, const DeepTauCache* cache);
     ~DeepTauBase() override {}
@@ -88,19 +88,23 @@ public:
     void produce(edm::Event& event, const edm::EventSetup& es) override;
 
     static std::unique_ptr<DeepTauCache> initializeGlobalCache(const edm::ParameterSet& cfg);
-    static void globalEndJob(const DeepTauCache* cache){ }
-private:
-    virtual tensorflow::Tensor getPredictions(edm::Event& event, const edm::EventSetup& es,
+    static void globalEndJob(const DeepTauCache* cache) {}
+
+  private:
+    virtual tensorflow::Tensor getPredictions(edm::Event& event,
+                                              const edm::EventSetup& es,
                                               edm::Handle<TauCollection> taus) = 0;
     virtual void createOutputs(edm::Event& event, const tensorflow::Tensor& pred, edm::Handle<TauCollection> taus);
 
-protected:
+  protected:
     edm::EDGetTokenT<TauCollection> tausToken_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection> pfcandToken_;
+    edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
     std::map<std::string, WPMap> workingPoints_;
     OutputCollection outputs_;
     const DeepTauCache* cache_;
-};
+  };
 
-} // namespace deep_tau
+}  // namespace deep_tau
 
 #endif

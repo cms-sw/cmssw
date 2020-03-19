@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from __future__ import absolute_import
 import os
 import sys
 import itertools
-import checkBTagCalibrationConsistency as checker
+from . import checkBTagCalibrationConsistency as checker
 
 import six
 

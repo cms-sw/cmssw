@@ -14,8 +14,7 @@ class SurfaceDeformation;
 
 class StripGeomDetUnit final : public TrackerGeomDet {
 public:
-
-  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, DetId id);
+  StripGeomDetUnit(BoundPlane* sp, StripGeomDetType const* type, DetId id);
 
   // Det interface
 
@@ -36,25 +35,21 @@ public:
   /// the proxy topology (through topology() and specificTopology()) which includes
   /// corrections for the surface deformations, and once via the GeomDetType
   /// (through type().topology() and the like).
-  virtual StripGeomDetType const & specificType() const;
+  virtual StripGeomDetType const& specificType() const;
 
   /// Returns a reference to the strip proxy topology
   virtual const StripTopology& specificTopology() const;
 
   /// Return pointer to surface deformation.
-  const SurfaceDeformation * surfaceDeformation() const override { 
-    return theTopology->surfaceDeformation();
-  }
+  const SurfaceDeformation* surfaceDeformation() const override { return theTopology->surfaceDeformation(); }
 
-  bool isLeaf()	const override	{ return true;}
-
+  bool isLeaf() const override { return true; }
 
 private:
-
   /// set the SurfaceDeformation for this StripGeomDetUnit to proxy topology.
-  void setSurfaceDeformation(const SurfaceDeformation * deformation) override;
+  void setSurfaceDeformation(const SurfaceDeformation* deformation) override;
 
   std::unique_ptr<ProxyStripTopology> theTopology;
 };
 
-#endif // Tracker_StripGeomDetUnit_H
+#endif  // Tracker_StripGeomDetUnit_H

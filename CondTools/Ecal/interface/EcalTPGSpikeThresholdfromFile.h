@@ -38,20 +38,19 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 namespace popcon {
   class EcalTPGSpikeThresholdfromFile : public popcon::PopConSourceHandler<EcalTPGSpike> {
-
   public:
     void getNewObjects() override;
     ~EcalTPGSpikeThresholdfromFile() override;
-    EcalTPGSpikeThresholdfromFile(edm::ParameterSet const & ); 
-    
-    std::string id() const override { return m_name;}
+    EcalTPGSpikeThresholdfromFile(edm::ParameterSet const&);
+
+    std::string id() const override { return m_name; }
 
   private:
     std::string m_name;
   };
-}
+}  // namespace popcon
 #endif

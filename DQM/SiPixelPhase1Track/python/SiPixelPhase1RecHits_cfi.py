@@ -108,6 +108,100 @@ SiPixelPhase1RecHitsProb = DefaultHistoTrack.clone(
   )
 )
 
+SiPixelPhase1RecHitsOnEdge = DefaultHistoTrack.clone(
+  name = "onedge",
+  title = "OnEdge",
+  range_min = 0, range_max = 30, range_nbins = 30,
+  xlabel = "onedge",
+  dimensions = 0,
+  specs = VPSet(
+
+   StandardSpecificationTrend_Num,
+   StandardSpecificationOccupancy,
+   Specification().groupBy("PXBarrel/PXLayer/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer","EXTEND_X")
+                   .save(),
+   Specification().groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/PXDisk/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .save(),
+   Specification().groupBy("PXBarrel/PXLayer/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/")
+                   .save(nbins=100, xmin=0, xmax=500),
+   Specification().groupBy("PXBarrel/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel")
+                   .save(nbins=100, xmin=0, xmax=500),
+
+    Specification().groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/PXDisk/")
+                   .save(nbins=100, xmin=0, xmax=500),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward")
+                   .save(nbins=100, xmin=0, xmax=500),
+
+    Specification().groupBy("PXAll/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXAll")
+                   .save(nbins=100, xmin=0, xmax=500)
+
+  )
+)
+
+SiPixelPhase1RecHitsOtherBad = DefaultHistoTrack.clone(
+  name = "otherbad",
+  title = "OtherBad",
+  range_min = 0, range_max = 30, range_nbins = 30,
+  xlabel = "otherbad",
+  dimensions = 0,
+  specs = VPSet(
+
+   StandardSpecificationTrend_Num,
+   StandardSpecificationOccupancy,
+   Specification().groupBy("PXBarrel/PXLayer/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXBarrel/PXLayer","EXTEND_X")
+                   .save(),
+   Specification().groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/PXDisk/LumiBlock")
+                   .reduce("MEAN")
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .save(),
+   Specification().groupBy("PXBarrel/PXLayer/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/")
+                   .save(nbins=100, xmin=0, xmax=500),
+   Specification().groupBy("PXBarrel/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel")
+                   .save(nbins=100, xmin=0, xmax=500),
+
+    Specification().groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/PXDisk/")
+                   .save(nbins=100, xmin=0, xmax=500),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward")
+                   .save(nbins=100, xmin=0, xmax=500),
+
+    Specification().groupBy("PXAll/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXAll")
+                   .save(nbins=100, xmin=0, xmax=500)
+  )
+)
 
 SiPixelPhase1RecHitsConf = cms.VPSet(
   SiPixelPhase1RecHitsNRecHits,
@@ -117,6 +211,8 @@ SiPixelPhase1RecHitsConf = cms.VPSet(
   SiPixelPhase1RecHitsErrorY,
   SiPixelPhase1RecHitsPosition,
   SiPixelPhase1RecHitsProb,
+  SiPixelPhase1RecHitsOnEdge,
+  SiPixelPhase1RecHitsOtherBad,
 )
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer

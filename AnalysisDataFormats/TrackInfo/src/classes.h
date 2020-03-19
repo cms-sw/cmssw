@@ -7,5 +7,3 @@
 #include "AnalysisDataFormats/TrackInfo/interface/RecoTracktoTP.h"
 #include "AnalysisDataFormats/TrackInfo/interface/RecoTracktoTPCollection.h"
 #include <vector>
-
-

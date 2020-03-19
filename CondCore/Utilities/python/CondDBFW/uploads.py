@@ -7,6 +7,7 @@ This module holds classes to help with uploading conditions to the drop box web 
 
 """
 from __future__ import print_function
+from __future__ import absolute_import
 
 import os
 import json
@@ -18,13 +19,13 @@ import sys
 import traceback
 import netrc
 
-from url_query import url_query
-import models
-import errors
-import data_sources
-import querying
-from errors import *
-from utils import to_timestamp, to_datetime, friendly_since
+from .url_query import url_query
+from . import models
+from . import errors
+from . import data_sources
+from . import querying
+from .errors import *
+from .utils import to_timestamp, to_datetime, friendly_since
 
 def friendly_since(time_type, since):
     """
@@ -740,7 +741,7 @@ if __name__ == "__main__":
 	This code should only be executed for testing.
 	"""
 	import sys
-	from uploadConditions import parse_arguments
+	from .uploadConditions import parse_arguments
 
 	print(
 """

@@ -22,12 +22,7 @@
 #include "CommonTools/UtilAlgos/interface/StatusSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-          reco::CandidateView,
-          AndSelector<
-            PdgIdSelector,
-            StatusSelector
-          >
-        > PdgIdAndStatusCandViewSelector;
+typedef SingleObjectSelector<reco::CandidateView, AndSelector<PdgIdSelector, StatusSelector> >
+    PdgIdAndStatusCandViewSelector;
 
-DEFINE_FWK_MODULE( PdgIdAndStatusCandViewSelector );
+DEFINE_FWK_MODULE(PdgIdAndStatusCandViewSelector);

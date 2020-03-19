@@ -52,77 +52,72 @@ class L1MuBMTrack;
 //              ---------------------
 
 class L1MuBMSectorProcessor {
+public:
+  /// constructor
+  L1MuBMSectorProcessor(const L1MuBMTrackFinder&, const L1MuBMSecProcId&, edm::ConsumesCollector&&);
 
-  public:
+  /// destructor
+  virtual ~L1MuBMSectorProcessor();
 
-    /// constructor
-    L1MuBMSectorProcessor(const L1MuBMTrackFinder&, const L1MuBMSecProcId&, edm::ConsumesCollector&&);
+  /// run the Sector Processor
+  virtual void run(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-    /// destructor
-    virtual ~L1MuBMSectorProcessor();
+  /// reset the Sector Processor
+  virtual void reset();
 
-    /// run the Sector Processor
-    virtual void run(int bx, const edm::Event& e, const edm::EventSetup& c);
+  /// print muon candidates found by the Sector Processor
+  void print() const;
 
-    /// reset the Sector Processor
-    virtual void reset();
+  /// return pointer to the next wheel neighbour
+  const L1MuBMSectorProcessor* neighbour() const;
 
-    /// print muon candidates found by the Sector Processor
-    void print() const;
+  /// return Sector Processor identifier
+  inline const L1MuBMSecProcId& id() const { return m_spid; }
 
-    /// return pointer to the next wheel neighbour
-    const L1MuBMSectorProcessor* neighbour() const;
+  /// return reference to barrel MTTF
+  inline const L1MuBMTrackFinder& tf() const { return m_tf; }
 
-    /// return Sector Processor identifier
-    inline const L1MuBMSecProcId& id() const { return m_spid; }
+  /// is it a barrel-only Sector Processor?
+  inline bool brl() const { return !m_spid.ovl(); }
 
-    /// return reference to barrel MTTF
-    inline const L1MuBMTrackFinder& tf() const { return m_tf; }
+  /// is it an overlap region Sector Processor?
+  inline bool ovl() const { return m_spid.ovl(); }
 
-    /// is it a barrel-only Sector Processor?
-    inline bool brl() const { return !m_spid.ovl(); }
+  /// return pointer to Data Buffer
+  inline const L1MuBMDataBuffer* data() const { return m_DataBuffer; }
+  inline L1MuBMDataBuffer* data() { return m_DataBuffer; }
 
-    /// is it an overlap region Sector Processor?
-    inline bool ovl() const { return m_spid.ovl(); }
+  /// return pointer to Extrapolation Unit
+  inline const L1MuBMExtrapolationUnit* EU() const { return m_EU; }
 
-    /// return pointer to Data Buffer
-    inline const L1MuBMDataBuffer* data() const { return m_DataBuffer; }
-    inline L1MuBMDataBuffer* data() { return m_DataBuffer; }
+  /// return pointer to Track Assembler
+  inline const L1MuBMTrackAssembler* TA() const { return m_TA; }
 
-    /// return pointer to Extrapolation Unit
-    inline const L1MuBMExtrapolationUnit* EU() const { return m_EU; }
+  /// return pointer to Assignment Unit, index [0,1]
+  inline const L1MuBMAssignmentUnit* AU(int id) const { return m_AUs[id]; }
 
-    /// return pointer to Track Assembler
-    inline const L1MuBMTrackAssembler* TA() const { return m_TA; }
+  /// return pointer to muon candidate, index [0,1]
+  inline L1MuBMTrack* track(int id) const { return m_TrackCands[id]; }
 
-    /// return pointer to Assignment Unit, index [0,1]
-    inline const L1MuBMAssignmentUnit* AU(int id) const { return m_AUs[id]; }
+  /// return pointer to muon candidate, index [0,1]
+  inline L1MuBMTrack* tracK(int id) const { return m_TracKCands[id]; }
 
-    /// return pointer to muon candidate, index [0,1]
-    inline L1MuBMTrack* track(int id) const { return m_TrackCands[id]; }
+private:
+  /// are there any non-empty muon candidates?
+  bool anyTrack() const;
 
-    /// return pointer to muon candidate, index [0,1]
-    inline L1MuBMTrack* tracK(int id) const { return m_TracKCands[id]; }
+private:
+  const L1MuBMTrackFinder& m_tf;
+  L1MuBMSecProcId m_spid;
 
-  private:
+  L1MuBMSectorReceiver* m_SectorReceiver;
+  L1MuBMDataBuffer* m_DataBuffer;
+  L1MuBMExtrapolationUnit* m_EU;
+  L1MuBMTrackAssembler* m_TA;
+  std::vector<L1MuBMAssignmentUnit*> m_AUs;
 
-    /// are there any non-empty muon candidates?
-    bool anyTrack() const;
-
-  private:
-
-    const L1MuBMTrackFinder&            m_tf;
-    L1MuBMSecProcId                     m_spid;
-
-    L1MuBMSectorReceiver*               m_SectorReceiver;
-    L1MuBMDataBuffer*                   m_DataBuffer;
-    L1MuBMExtrapolationUnit*            m_EU;
-    L1MuBMTrackAssembler*               m_TA;
-    std::vector<L1MuBMAssignmentUnit*>  m_AUs;
-
-    std::vector<L1MuBMTrack*>           m_TrackCands;
-    std::vector<L1MuBMTrack*>           m_TracKCands;
-
+  std::vector<L1MuBMTrack*> m_TrackCands;
+  std::vector<L1MuBMTrack*> m_TracKCands;
 };
 
 #endif

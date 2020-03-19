@@ -23,6 +23,7 @@
 #         ./Alignment/MuonAlignment/python/geometryXMLtoCSV.py < MCScenario_CRAFT1_22X_CHECKME.xml > MCScenario_CRAFT1_22X_CHECKME.csv
 #         and then open MCScenario_CRAFT1_22X_CHECKME.csv in Excel
 
+from builtins import range
 import random, os
 from math import *
 

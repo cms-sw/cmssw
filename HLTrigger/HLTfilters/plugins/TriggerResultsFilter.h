@@ -36,24 +36,23 @@ namespace triggerExpression {
 // class declaration
 //
 
-class TriggerResultsFilter : public edm::stream::EDFilter<>
-{
+class TriggerResultsFilter : public edm::stream::EDFilter<> {
 public:
   explicit TriggerResultsFilter(const edm::ParameterSet &);
   ~TriggerResultsFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   bool filter(edm::Event &, const edm::EventSetup &) override;
 
 private:
   /// parse the logical expression into functionals
-  void parse(const std::string & expression);
-  void parse(const std::vector<std::string> & expressions);
+  void parse(const std::string &expression);
+  void parse(const std::vector<std::string> &expressions);
 
   /// evaluator for the trigger condition
-  triggerExpression::Evaluator * m_expression;
+  triggerExpression::Evaluator *m_expression;
 
   /// cache some data from the Event for faster access by the m_expression
   triggerExpression::Data m_eventCache;
 };
 
-#endif //TriggerResultsFilter_h
+#endif  //TriggerResultsFilter_h

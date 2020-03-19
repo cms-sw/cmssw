@@ -4,7 +4,7 @@
 //
 // Package:    HLTHcalCalibTypeFilter
 // Class:      HLTHcalCalibTypeFilter
-// 
+//
 /**\class HLTHcalCalibTypeFilter HLTHcalCalibTypeFilter.cc filter/HLTHcalCalibTypeFilter/src/HLTHcalCalibTypeFilter.cc
 
 Description: Filter to select HCAL abort gap events
@@ -17,7 +17,6 @@ Implementation:
 //         Created:  Tue Jan 22 13:55:00 CET 2008
 //
 //
-
 
 // include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -44,12 +43,12 @@ class HLTHcalCalibTypeFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTHcalCalibTypeFilter(const edm::ParameterSet&);
   ~HLTHcalCalibTypeFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   void endJob(void) override;
-  
+
   // ----------member data ---------------------------
   const edm::EDGetTokenT<FEDRawDataCollection> DataInputToken_;
   const std::vector<int> CalibTypes_;

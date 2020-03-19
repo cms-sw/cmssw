@@ -7,8 +7,7 @@
 #include "CondFormats/DataRecord/interface/RPCTwinMuxLinkMapRcd.h"
 
 class RPCInverseTwinMuxLinkMapRcd
-    : public edm::eventsetup::DependentRecordImplementation<RPCInverseTwinMuxLinkMapRcd
-                                                            , boost::mpl::vector<RPCTwinMuxLinkMapRcd> >
-{};
+    : public edm::eventsetup::DependentRecordImplementation<RPCInverseTwinMuxLinkMapRcd,
+                                                            boost::mpl::vector<RPCTwinMuxLinkMapRcd> > {};
 
-#endif // CondFormats_DataRecord_RPCInverseTwinMuxLinkMapRcd_h
+#endif  // CondFormats_DataRecord_RPCInverseTwinMuxLinkMapRcd_h

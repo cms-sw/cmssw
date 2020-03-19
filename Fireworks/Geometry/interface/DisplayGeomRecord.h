@@ -4,7 +4,7 @@
 //
 // Package:     Geometry
 // Class  :     DisplayGeomRecord
-// 
+//
 /**\class DisplayGeomRecord DisplayGeomRecord.h Fireworks/Geometry/interface/DisplayGeomRecord.h
 
  Description: [one line class summary]
@@ -14,13 +14,15 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Mar 18 16:19:57 CDT 2010
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class DisplayGeomRecord : public edm::eventsetup::DependentRecordImplementation<DisplayGeomRecord,boost::mpl::vector<IdealGeometryRecord> > {};
+class DisplayGeomRecord
+    : public edm::eventsetup::DependentRecordImplementation<DisplayGeomRecord, boost::mpl::vector<IdealGeometryRecord> > {
+};
 
 #endif

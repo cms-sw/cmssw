@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class RunTPGConfigDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   RunTPGConfigDat();
   ~RunTPGConfigDat() override;
@@ -22,18 +22,16 @@ class RunTPGConfigDat : public IDataItem {
   inline int getVersion() const { return m_version; }
   inline void setVersion(int x) { m_version = x; }
 
-
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* item, RunIOV* iov ) noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* item, RunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, RunTPGConfigDat >* fillMap, RunIOV* iov) noexcept(false);
+  void fetchData(std::map<EcalLogicID, RunTPGConfigDat>* fillMap, RunIOV* iov) noexcept(false);
 
   // User data
   int m_version;
   std::string m_config;
-
 };
 
 #endif

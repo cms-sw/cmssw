@@ -10,4 +10,3 @@ typedef PFJetMETcorrInputProducerT<reco::PFJet, JetCorrExtractorT<reco::PFJet> >
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(PFJetMETcorrInputProducer);
-

@@ -38,85 +38,87 @@
 
 #include <iostream>
 
-
 namespace pat {
   namespace helper {
     struct AddUserInt {
-        typedef int                       value_type;
-        typedef edm::ValueMap<value_type> product_type;
-        template<typename ObjectType>
-        void addData(ObjectType &obj, const std::string & key, const value_type &val) { obj.addUserInt(key, val); }
+      typedef int value_type;
+      typedef edm::ValueMap<value_type> product_type;
+      template <typename ObjectType>
+      void addData(ObjectType &obj, const std::string &key, const value_type &val) {
+        obj.addUserInt(key, val);
+      }
     };
     struct AddUserFloat {
-        typedef float                     value_type;
-        typedef edm::ValueMap<value_type> product_type;
-        template<typename ObjectType>
-        void addData(ObjectType &obj, const std::string & key, const value_type &val) { obj.addUserFloat(key, val); }
+      typedef float value_type;
+      typedef edm::ValueMap<value_type> product_type;
+      template <typename ObjectType>
+      void addData(ObjectType &obj, const std::string &key, const value_type &val) {
+        obj.addUserFloat(key, val);
+      }
     };
     struct AddUserPtr {
-        typedef edm::Ptr<UserData>        value_type;
-        typedef edm::ValueMap<value_type> product_type;
-        template<typename ObjectType>
-        void addData(ObjectType &obj, const std::string & key, const value_type &val) {
-              obj.addUserDataFromPtr(key, val);
-        }
+      typedef edm::Ptr<UserData> value_type;
+      typedef edm::ValueMap<value_type> product_type;
+      template <typename ObjectType>
+      void addData(ObjectType &obj, const std::string &key, const value_type &val) {
+        obj.addUserDataFromPtr(key, val);
+      }
     };
     struct AddUserCand {
-        typedef reco::CandidatePtr        value_type;
-        typedef edm::ValueMap<value_type> product_type;
-        template<typename ObjectType>
-        void addData(ObjectType &obj, const std::string & key, const value_type &val) { obj.addUserCand(key, val); }
+      typedef reco::CandidatePtr value_type;
+      typedef edm::ValueMap<value_type> product_type;
+      template <typename ObjectType>
+      void addData(ObjectType &obj, const std::string &key, const value_type &val) {
+        obj.addUserCand(key, val);
+      }
     };
 
-  }
+  }  // namespace helper
 
-  template<typename ObjectType, typename Operation>
+  template <typename ObjectType, typename Operation>
   class PATUserDataMerger {
-
   public:
-
     PATUserDataMerger() {}
-    PATUserDataMerger(const edm::ParameterSet & iConfig, edm::ConsumesCollector & iC);
+    PATUserDataMerger(const edm::ParameterSet &iConfig, edm::ConsumesCollector &iC);
     ~PATUserDataMerger() {}
 
-    static void fillDescription(edm::ParameterSetDescription & iDesc);
+    static void fillDescription(edm::ParameterSetDescription &iDesc);
 
     // Method to call from PATUserDataHelper to add information to the PATObject in question.
-    void add(ObjectType & patObject,
-	     edm::Event const & iEvent, edm::EventSetup const & iSetup);
+    void add(ObjectType &patObject, edm::Event const &iEvent, edm::EventSetup const &iSetup);
 
   private:
-
     // configurables
     std::vector<edm::InputTag> userDataSrc_;
-    std::vector<edm::EDGetTokenT<typename Operation::product_type> > userDataSrcTokens_;
+    std::vector<edm::EDGetTokenT<typename Operation::product_type>> userDataSrcTokens_;
     std::vector<std::string> labelPostfixesToStrip_, labels_;
-    Operation                   loader_;
-
+    Operation loader_;
   };
 
-}
+}  // namespace pat
 
 // Constructor: Initilize user data src
-template<typename ObjectType, typename Operation>
-pat::PATUserDataMerger<ObjectType, Operation>::PATUserDataMerger(const edm::ParameterSet & iConfig, edm::ConsumesCollector & iC) :
-  userDataSrc_(iConfig.getParameter<std::vector<edm::InputTag> >("src")),
-  labelPostfixesToStrip_(iConfig.existsAs<std::vector<std::string>>("labelPostfixesToStrip") ? iConfig.getParameter<std::vector<std::string>>("labelPostfixesToStrip") : std::vector<std::string>())
-{
-  for ( std::vector<edm::InputTag>::const_iterator input_it = userDataSrc_.begin(); input_it !=  userDataSrc_.end(); ++input_it ) {
-    userDataSrcTokens_.push_back( iC.consumes< typename Operation::product_type >( *input_it ) );
+template <typename ObjectType, typename Operation>
+pat::PATUserDataMerger<ObjectType, Operation>::PATUserDataMerger(const edm::ParameterSet &iConfig,
+                                                                 edm::ConsumesCollector &iC)
+    : userDataSrc_(iConfig.getParameter<std::vector<edm::InputTag>>("src")),
+      labelPostfixesToStrip_(iConfig.existsAs<std::vector<std::string>>("labelPostfixesToStrip")
+                                 ? iConfig.getParameter<std::vector<std::string>>("labelPostfixesToStrip")
+                                 : std::vector<std::string>()) {
+  for (std::vector<edm::InputTag>::const_iterator input_it = userDataSrc_.begin(); input_it != userDataSrc_.end();
+       ++input_it) {
+    userDataSrcTokens_.push_back(iC.consumes<typename Operation::product_type>(*input_it));
   }
-  for (edm::InputTag tag : userDataSrc_) { // copy by value
-      for (const std::string & stripme : labelPostfixesToStrip_) {
-          auto match = tag.label().rfind(stripme);
-          if (match == (tag.label().length() - stripme.length())) {
-              tag = edm::InputTag(tag.label().substr(0, match), tag.instance(), tag.process());
-          } 
+  for (edm::InputTag tag : userDataSrc_) {  // copy by value
+    for (const std::string &stripme : labelPostfixesToStrip_) {
+      auto match = tag.label().rfind(stripme);
+      if (match == (tag.label().length() - stripme.length())) {
+        tag = edm::InputTag(tag.label().substr(0, match), tag.instance(), tag.process());
       }
-      labels_.push_back(tag.encode());
+    }
+    labels_.push_back(tag.encode());
   }
 }
-
 
 /* ==================================================================================
      PATUserDataMerger::add
@@ -134,17 +136,16 @@ pat::PATUserDataMerger<ObjectType, Operation>::PATUserDataMerger(const edm::Para
    ==================================================================================
 */
 
-template<class ObjectType, typename Operation>
-void
-pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType & patObject,
-						   edm::Event const & iEvent,
-						   const edm::EventSetup& iSetup)
-{
+template <class ObjectType, typename Operation>
+void pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType &patObject,
+                                                        edm::Event const &iEvent,
+                                                        const edm::EventSetup &iSetup) {
+  typename std::vector<edm::EDGetTokenT<typename Operation::product_type>>::const_iterator
+      token_begin = userDataSrcTokens_.begin(),
+      token_it = userDataSrcTokens_.begin(), token_end = userDataSrcTokens_.end();
 
-  typename std::vector<edm::EDGetTokenT<typename Operation::product_type> >::const_iterator token_begin = userDataSrcTokens_.begin(), token_it = userDataSrcTokens_.begin(), token_end = userDataSrcTokens_.end();
-
-  for ( ; token_it != token_end; ++token_it ) {
-    const std::string & encoded = (labels_.at(token_it - token_begin));
+  for (; token_it != token_end; ++token_it) {
+    const std::string &encoded = (labels_.at(token_it - token_begin));
 
     // Declare the object handles:
     // ValueMap containing the values, or edm::Ptr's to the UserData that
@@ -152,21 +153,18 @@ pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType & patObject,
     edm::Handle<typename Operation::product_type> userData;
 
     // Get the objects by label
-    if ( encoded.empty() ) continue;
-    iEvent.getByToken( *token_it, userData );
+    if (encoded.empty())
+      continue;
+    iEvent.getByToken(*token_it, userData);
 
     edm::Ptr<reco::Candidate> recoObject = patObject.originalObjectRef();
-    loader_.addData( patObject, encoded, (*userData)[recoObject]);
-
+    loader_.addData(patObject, encoded, (*userData)[recoObject]);
   }
-
 }
 
-template<class ObjectType, typename Operation>
-void
-pat::PATUserDataMerger<ObjectType, Operation>::fillDescription(edm::ParameterSetDescription & iDesc)
-{
-  iDesc.add<std::vector<edm::InputTag> >("src");
+template <class ObjectType, typename Operation>
+void pat::PATUserDataMerger<ObjectType, Operation>::fillDescription(edm::ParameterSetDescription &iDesc) {
+  iDesc.add<std::vector<edm::InputTag>>("src");
   iDesc.addOptional<std::vector<std::string>>("labelPostfixesToStrip", std::vector<std::string>());
 }
 

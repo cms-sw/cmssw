@@ -9,9 +9,9 @@
 
 /// Common base class
 
-class TrajectoryStateException : public cms::Exception{
+class TrajectoryStateException : public cms::Exception {
 public:
-  TrajectoryStateException( const std::string& message) throw() :  cms::Exception(message){}
+  TrajectoryStateException(const std::string& message) throw() : cms::Exception(message) {}
   ~TrajectoryStateException() throw() override {}
 };
 

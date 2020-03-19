@@ -29,66 +29,52 @@ class L1GtCondition;
 class L1GtExternalTemplate;
 
 // class declaration
-class L1GtExternalCondition : public L1GtConditionEvaluation
-{
+class L1GtExternalCondition : public L1GtConditionEvaluation {
+public:
+  /// constructors
+  ///     default
+  L1GtExternalCondition();
+
+  ///     from base template condition (from event setup usually)
+  L1GtExternalCondition(const L1GtCondition *, const bool result);
+
+  // copy constructor
+  L1GtExternalCondition(const L1GtExternalCondition &);
+
+  // destructor
+  ~L1GtExternalCondition() override;
+
+  // assign operator
+  L1GtExternalCondition &operator=(const L1GtExternalCondition &);
 
 public:
+  /// the core function to check if the condition matches
+  const bool evaluateCondition() const override;
 
-    /// constructors
-    ///     default
-    L1GtExternalCondition();
-
-    ///     from base template condition (from event setup usually)
-    L1GtExternalCondition(const L1GtCondition*, const bool result);
-
-    // copy constructor
-    L1GtExternalCondition(const L1GtExternalCondition&);
-
-    // destructor
-    ~L1GtExternalCondition() override;
-
-    // assign operator
-    L1GtExternalCondition& operator=(const L1GtExternalCondition&);
+  /// print condition
+  void print(std::ostream &myCout) const override;
 
 public:
+  ///   get / set the pointer to a L1GtCondition
+  inline const L1GtExternalTemplate *gtExternalTemplate() const { return m_gtExternalTemplate; }
 
-    /// the core function to check if the condition matches
-    const bool evaluateCondition() const override;
+  void setGtExternalTemplate(const L1GtExternalTemplate *);
 
-    /// print condition
-    void print(std::ostream& myCout) const override;
+  ///   get / set the result
+  inline const bool conditionResult() const { return m_conditionResult; }
 
-public:
-
-    ///   get / set the pointer to a L1GtCondition
-    inline const L1GtExternalTemplate* gtExternalTemplate() const {
-        return m_gtExternalTemplate;
-    }
-
-    void setGtExternalTemplate(const L1GtExternalTemplate*);
-
-    ///   get / set the result
-    inline const bool conditionResult() const {
-        return m_conditionResult;
-    }
-
-    inline void setConditionResult(const bool result) {
-        m_conditionResult = result;
-    }
+  inline void setConditionResult(const bool result) { m_conditionResult = result; }
 
 private:
-
-    /// copy function for copy constructor and operator=
-    void copy(const L1GtExternalCondition& cp);
+  /// copy function for copy constructor and operator=
+  void copy(const L1GtExternalCondition &cp);
 
 private:
+  /// pointer to a L1GtExternalTemplate
+  const L1GtExternalTemplate *m_gtExternalTemplate;
 
-    /// pointer to a L1GtExternalTemplate
-    const L1GtExternalTemplate* m_gtExternalTemplate;
-
-    /// condition result
-    bool m_conditionResult;
-
+  /// condition result
+  bool m_conditionResult;
 };
 
 #endif

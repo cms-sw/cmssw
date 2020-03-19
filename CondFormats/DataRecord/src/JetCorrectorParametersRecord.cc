@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     JetCorrectorParametersRecord
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Author:      
+// Author:
 // Created:     Wed Mar 10 12:03:17 CET 2010
 // $Id$
 

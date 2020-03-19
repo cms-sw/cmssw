@@ -6,44 +6,36 @@
 #include "GeneratorInterface/ExhumeInterface/interface/GG.h"
 
 //////////////////////////////////////////////////////////////////////////////
-Exhume::GG::GG(const edm::ParameterSet& pset):
-  TwoSpace(pset){
-  std::cout<<std::endl<<"   =Glu Glu production selected="<<std::endl;
+Exhume::GG::GG(const edm::ParameterSet& pset) : TwoSpace(pset) {
+  std::cout << std::endl << "   =Glu Glu production selected=" << std::endl;
   SetThetaMin(acos(0.95));
   Partons[0].id = 21;
   Partons[1].id = 21;
   Partons[0].Colour = 101;
-  Partons[0].AntiColour=102;
-  Partons[1].Colour=102;
-  Partons[1].AntiColour=101;
+  Partons[0].AntiColour = 102;
+  Partons[1].Colour = 102;
+  Partons[1].AntiColour = 101;
 
   EighteenPI = 18.0 * M_PI;
 
   Name = "di-gluon";
-
 }
 //////////////////////////////////////////////////////////////////////////////
-double Exhume::GG::SubProcess(){
-
+double Exhume::GG::SubProcess() {
   //error ? 0.5 factor from integration over t -> cos theta?
   double AlphaS_ = AlphaS(0.5 * SqrtsHat);
-  double InvSinTheta2 = InvSinTheta*InvSinTheta;
-  return(EighteenPI*AlphaS_ * AlphaS_ * InvsHat
-	 *InvSinTheta2 * InvSinTheta2 * Gev2fb / (2*M_PI));
-
+  double InvSinTheta2 = InvSinTheta * InvSinTheta;
+  return (EighteenPI * AlphaS_ * AlphaS_ * InvsHat * InvSinTheta2 * InvSinTheta2 * Gev2fb / (2 * M_PI));
 }
-void Exhume::GG::LIPS2Amp(){
-
+void Exhume::GG::LIPS2Amp() {
   double Theta = acos(CosTheta);
   //SinTheta = sin(Theta);
-  InvSinTheta = 1.0/sin(Theta);
+  InvSinTheta = 1.0 / sin(Theta);
 
   return;
 }
 
-void Exhume::GG::Amp2LIPS(){
-  return;
-}
+void Exhume::GG::Amp2LIPS() { return; }
 /*
 //////////////////////////////////////////////////////////////////////////////
 void Exhume::GG::SetSubParameters(){

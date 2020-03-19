@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-
 class SectorProcessorLUT {
 public:
   explicit SectorProcessorLUT();
@@ -33,11 +32,20 @@ public:
 
   uint32_t get_ph_init_hard(int fw_station, int fw_cscid) const;
 
-  uint32_t get_cppf_lut_id(int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll) const;
+  uint32_t get_cppf_lut_id(
+      int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll) const;
 
-  uint32_t get_cppf_ph_lut(int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll, int halfstrip, bool is_neighbor) const;
+  uint32_t get_cppf_ph_lut(int rpc_region,
+                           int rpc_sector,
+                           int rpc_station,
+                           int rpc_ring,
+                           int rpc_subsector,
+                           int rpc_roll,
+                           int halfstrip,
+                           bool is_neighbor) const;
 
-  uint32_t get_cppf_th_lut(int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll) const;
+  uint32_t get_cppf_th_lut(
+      int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll) const;
 
 private:
   void read_file(const std::string& filename, std::vector<uint32_t>& vec);

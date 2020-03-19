@@ -13,32 +13,29 @@ namespace reco {
 
   class PreshowerClusterShape {
   public:
-
     /// default constructor
-    PreshowerClusterShape() { };
+    PreshowerClusterShape(){};
 
     virtual ~PreshowerClusterShape();
 
     /// constructor from strip energies
-    PreshowerClusterShape(const std::vector<float>& stripEnergies, 
-                     const int plane);		    
+    PreshowerClusterShape(const std::vector<float>& stripEnergies, const int plane);
 
     /// Copy contructor
     PreshowerClusterShape(const PreshowerClusterShape&);
 
     /// Preshower plane
     int plane() const { return plane_; }
-   
+
     /// Associated SuperCluster;
-    SuperClusterRef superCluster() const {return sc_ref_;}
+    SuperClusterRef superCluster() const { return sc_ref_; }
 
     /// Energies of component strips
     virtual std::vector<float> getStripEnergies() const { return stripEnergies_; }
 
-    void setSCRef( const SuperClusterRef & r ) { sc_ref_ = r; }
+    void setSCRef(const SuperClusterRef& r) { sc_ref_ = r; }
 
   private:
-
     int plane_;
 
     /// Associated super cluster;
@@ -47,5 +44,5 @@ namespace reco {
     /// used strip energies
     std::vector<float> stripEnergies_;
   };
-}
+}  // namespace reco
 #endif

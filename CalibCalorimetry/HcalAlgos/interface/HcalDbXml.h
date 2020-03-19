@@ -15,50 +15,126 @@
    
 */
 namespace HcalDbXml {
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-		   const HcalPedestals& fObject, const HcalPedestalWidths& fError);
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
-		   const HcalPedestals& fObject);
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
-		   const HcalPedestalWidths& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-		   const HcalGains& fObject, const HcalGainWidths& fError);
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-		   const HcalGains& fObject);
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-		   const HcalGainWidths& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-		   const HcalElectronicsMap& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-		   const HcalQIEData& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-		   const HcalCalibrationQIEData& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput,
-                   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
-                   const HcalQIETypes& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion, 
-		   const HcalFrontEndMap& fObject) {return false;}
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
-		   const HcalSiPMParameters& fObject);
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
-		   const HcalSiPMCharacteristics& fObject);
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
-		   const HcalTPParameters& fObject);
-  bool dumpObject (std::ostream& fOutput, 
-		   unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, unsigned fVersion,
-		   const HcalTPChannelParameters& fObject);
-} 
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalPedestals& fObject,
+                  const HcalPedestalWidths& fError);
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalPedestals& fObject);
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalPedestalWidths& fObject) {
+    return false;
+  }
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalGains& fObject,
+                  const HcalGainWidths& fError);
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalGains& fObject);
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalGainWidths& fObject) {
+    return false;
+  }
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalElectronicsMap& fObject) {
+    return false;
+  }
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalQIEData& fObject) {
+    return false;
+  }
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalCalibrationQIEData& fObject) {
+    return false;
+  }
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalQIETypes& fObject) {
+    return false;
+  }
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalFrontEndMap& fObject) {
+    return false;
+  }
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalSiPMParameters& fObject);
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalSiPMCharacteristics& fObject);
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalTPParameters& fObject);
+  bool dumpObject(std::ostream& fOutput,
+                  unsigned fRun,
+                  unsigned long fGMTIOVBegin,
+                  unsigned long fGMTIOVEnd,
+                  const std::string& fTag,
+                  unsigned fVersion,
+                  const HcalTPChannelParameters& fObject);
+}  // namespace HcalDbXml
 #endif

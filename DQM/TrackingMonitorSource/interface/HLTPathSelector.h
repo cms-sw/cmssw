@@ -15,15 +15,14 @@
 
 class HLTPathSelector : public edm::stream::EDFilter<> {
 public:
-  explicit HLTPathSelector(const edm::ParameterSet&);
+  explicit HLTPathSelector(const edm::ParameterSet &);
 
 private:
-  void beginRun(edm::Run const &, edm::EventSetup const&) override;
-  bool filter(edm::Event&, edm::EventSetup const&) override;
-  void endJob() ;
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
+  bool filter(edm::Event &, edm::EventSetup const &) override;
+  void endJob();
 
 private:
-
   // module config parameters
   bool verbose_;
   std::string processName_;

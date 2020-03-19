@@ -1,8 +1,6 @@
 #ifndef ElectronSqPtTkIsolationProducer_h
 #define ElectronSqPtTkIsolationProducer_h
 
-
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -12,13 +10,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ElectronSqPtTkIsolationProducer : public edm::EDProducer {
- public:
+public:
   explicit ElectronSqPtTkIsolationProducer(const edm::ParameterSet&);
   ~ElectronSqPtTkIsolationProducer() override;
-  
+
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   edm::InputTag electronProducer_;
   edm::InputTag trackProducer_;
 
@@ -28,10 +26,8 @@ class ElectronSqPtTkIsolationProducer : public edm::EDProducer {
   double maxVtxDist_;
 
   bool absolut_;
-  
+
   edm::ParameterSet conf_;
-
 };
-
 
 #endif

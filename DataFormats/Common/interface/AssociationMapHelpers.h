@@ -18,42 +18,42 @@ namespace edm {
   class EDProductGetter;
 
   namespace helpers {
-    template<typename K, typename V>
+    template <typename K, typename V>
     struct KeyVal {
       typedef K key_type;
       typedef V value_type;
-      KeyVal() : key(), val() { }
-      KeyVal(const K & k, const V & v) : key(k), val(v) { }
-      template<typename K_, typename V_>
-      KeyVal(K_&& k, V_&& v) : key(std::forward<K_>(k)),val(std::forward<V_>(v)){}
+      KeyVal() : key(), val() {}
+      KeyVal(const K& k, const V& v) : key(k), val(v) {}
+      template <typename K_, typename V_>
+      KeyVal(K_&& k, V_&& v) : key(std::forward<K_>(k)), val(std::forward<V_>(v)) {}
 
-      KeyVal(EDProductGetter const* getter) : key(ProductID(), getter), val(ProductID(), getter) { }
+      KeyVal(EDProductGetter const* getter) : key(ProductID(), getter), val(ProductID(), getter) {}
 
       K key;
       V val;
     };
-    
-    template<typename K>
+
+    template <typename K>
     struct Key {
       typedef K key_type;
-      Key() { }
-      Key(const K & k) : key(k) { }
-      template<typename K_>
-      Key(K_&& k) : key(std::forward<K_>(k)) { }
+      Key() {}
+      Key(const K& k) : key(k) {}
+      template <typename K_>
+      Key(K_&& k) : key(std::forward<K_>(k)) {}
 
-      Key(EDProductGetter const* getter) : key(ProductID(), getter) { }
+      Key(EDProductGetter const* getter) : key(ProductID(), getter) {}
 
       K key;
     };
-    
+
     /// throw if r hasn't the same id as rp
-    template<typename RP, typename R>
-    void checkRef(const RP & rp, const R & r) {
+    template <typename RP, typename R>
+    void checkRef(const RP& rp, const R& r) {
       if (rp.id() != r.id()) {
         Exception::throwThis(edm::errors::InvalidReference, "invalid reference");
       }
     }
-  }
-}
+  }  // namespace helpers
+}  // namespace edm
 
 #endif

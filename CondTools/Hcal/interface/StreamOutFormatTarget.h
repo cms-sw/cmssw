@@ -29,29 +29,26 @@ XERCES_CPP_NAMESPACE_BEGIN
 
 class XMLPARSER_EXPORT StreamOutFormatTarget : public XMLFormatTarget {
 public:
+  /** @name constructors and destructor */
+  //@{
+  StreamOutFormatTarget(std::ostream& fStream);
+  ~StreamOutFormatTarget() override;
+  //@}
 
-    /** @name constructors and destructor */
-    //@{
-    StreamOutFormatTarget(std::ostream& fStream) ;
-    ~StreamOutFormatTarget() override;
-    //@}
+  // -----------------------------------------------------------------------
+  //  Implementations of the format target interface
+  // -----------------------------------------------------------------------
+  void writeChars(const XMLByte* const toWrite, const XMLSize_t count, XMLFormatter* const formatter) override;
 
-    // -----------------------------------------------------------------------
-    //  Implementations of the format target interface
-    // -----------------------------------------------------------------------
-    void writeChars(const XMLByte* const toWrite,
-			    const XMLSize_t count,
-			    XMLFormatter* const  formatter) override;
-
-    void flush() override;
+  void flush() override;
 
 private:
-    std::ostream* mStream;
-    // -----------------------------------------------------------------------
-    //  Unimplemented methods.
-    // -----------------------------------------------------------------------
-    StreamOutFormatTarget(const StreamOutFormatTarget&) = delete;
-    StreamOutFormatTarget& operator=(const StreamOutFormatTarget&) = delete;
+  std::ostream* mStream;
+  // -----------------------------------------------------------------------
+  //  Unimplemented methods.
+  // -----------------------------------------------------------------------
+  StreamOutFormatTarget(const StreamOutFormatTarget&) = delete;
+  StreamOutFormatTarget& operator=(const StreamOutFormatTarget&) = delete;
 };
 
 XERCES_CPP_NAMESPACE_END

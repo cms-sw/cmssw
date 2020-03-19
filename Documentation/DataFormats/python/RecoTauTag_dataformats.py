@@ -33,11 +33,6 @@ json = {
       "desc": "contains treated informations from JetTracksAssociation < a PFJet,a list of Tracks > object which are used for PFTau object elaboration ;  in the RECO and AOD content since CMSSW_1_7_0."
      },
      {
-      "instance": "caloRecoTauDiscriminationByIsolation",
-      "container": "reco::CaloTauDiscriminatorByIsolation ",
-      "desc": "associates to each CaloTau object the response of a hadr. tau-jet / q/g-jet discrimination procedure based on tracker isolation ; in the RECO and AOD content since CMSSW_1_7_0."
-     },
-     {
       "instance": "pfRecoTauDiscriminationByIsolation",
       "container": "reco::PFTauDiscriminatorByIsolation ",
       "desc": "associates to each PFTau object the response of a hadr. tau-jet / q/g-jet discrimination procedure based on tracker(+ECAL) isolation ; in the RECO and AOD content since CMSSW_1_7_0."
@@ -102,16 +97,6 @@ json = {
       "container": "*",
       "desc": "No documentation"
      },
-     {
-      "instance": "caloRecoTauProducer",
-      "container": "reco::CaloTau ",
-      "desc": "corresponds to the hadronic tau-jet cand. -starting from a CaloJet object- that the analysts would use ; in the RECO and AOD content since CMSSW_1_7_0."
-     },
-     {
-      "instance": "caloRecoTauTagInfoProducer",
-      "container": "reco::CaloTauTagInfo ",
-      "desc": "contains treated informations from JetTracksAssociation < a CaloJet,a list of Tracks > and Island ECAL BasicCluster objects which are used for CaloTau object elaboration ;  in the RECO and AOD content since CMSSW_1_7_0."
-     }
     ]
   },
   "aod": {
@@ -186,16 +171,6 @@ json = {
       "instance": "hpsTancTausDiscrimination*",
       "container": "*",
       "desc": "No documentation"
-     },
-     {
-      "instance": "caloRecoTauProducer",
-      "container": "reco::CaloTau ",
-      "desc": "corresponds to the hadronic tau-jet cand. -starting from a CaloJet object- that the analysts would use ; in the RECO and AOD content since CMSSW_1_7_0."
-     },
-     {
-      "instance": "caloRecoTauTagInfoProducer",
-      "container": "reco::CaloTauTagInfo ",
-      "desc": "contains treated informations from JetTracksAssociation < a CaloJet,a list of Tracks > and Island ECAL BasicCluster objects which are used for CaloTau object elaboration ;  in the RECO and AOD content since CMSSW_1_7_0."
      }
     ]
   }

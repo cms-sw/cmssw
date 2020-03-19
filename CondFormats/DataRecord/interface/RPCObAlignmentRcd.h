@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObAlignmentRcd
-// 
+//
 /**\class RPCObAlignmentRcd RPCObAlignmentRcd.h CondFormats/DataRecord/interface/RPCObAlignmentRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Mar 24 11:26:21 CET 2009
 // $Id$
 //

@@ -4,7 +4,7 @@
 //
 // Package:     Fireworks/Eve
 // Class  :     EveService
-// 
+//
 /**\class EveService EveService.h Fireworks/Geometry/interface/EveService.h
 
  Description: [one line class summary]
@@ -21,16 +21,15 @@
 #include <string>
 #include <Rtypes.h>
 
-namespace edm
-{
-   class ParameterSet;
-   class ActivityRegistry;
-   class Run;
-   class Event;
-   class EventSetup; 
-   class StreamContext;
-   class GlobalContext;
-}
+namespace edm {
+  class ParameterSet;
+  class ActivityRegistry;
+  class Run;
+  class Event;
+  class EventSetup;
+  class StreamContext;
+  class GlobalContext;
+}  // namespace edm
 
 class TEveManager;
 class TEveElement;
@@ -41,64 +40,63 @@ class TRint;
 class TGTextButton;
 class TGLabel;
 
-class EveService
-{
+class EveService {
 public:
-   EveService(const edm::ParameterSet&, edm::ActivityRegistry&);
-   virtual ~EveService();
+  EveService(const edm::ParameterSet&, edm::ActivityRegistry&);
+  virtual ~EveService();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   void postBeginJob();
-   void postEndJob();
+  void postBeginJob();
+  void postEndJob();
 
-   void postGlobalBeginRun(edm::GlobalContext const&);
+  void postGlobalBeginRun(edm::GlobalContext const&);
 
-   void postEvent(edm::StreamContext const&);
+  void postEvent(edm::StreamContext const&);
 
-   void display(const std::string& info="");
+  void display(const std::string& info = "");
 
-   TEveManager*  getManager();
-   TEveMagField* getMagField();
-   void          setupFieldForPropagator(TEveTrackPropagator* prop);
+  TEveManager* getManager();
+  TEveMagField* getMagField();
+  void setupFieldForPropagator(TEveTrackPropagator* prop);
 
-   // Shortcuts for adding top level event and geometry elements.
-   void AddElement(TEveElement* el);
-   void AddGlobalElement(TEveElement* el);
+  // Shortcuts for adding top level event and geometry elements.
+  void AddElement(TEveElement* el);
+  void AddGlobalElement(TEveElement* el);
 
-   // GUI slots -- must be public so that ROOT can call them via CINT.
+  // GUI slots -- must be public so that ROOT can call them via CINT.
 
-   void slotExit();
-   void slotNextEvent();
-   void slotStep();
-   void slotContinue();
+  void slotExit();
+  void slotNextEvent();
+  void slotStep();
+  void slotContinue();
 
 protected:
-   void createEventNavigationGUI();
+  void createEventNavigationGUI();
 
 private:
-   EveService(const EveService&);                  // stop default
-   const EveService& operator=(const EveService&); // stop default
+  EveService(const EveService&);                   // stop default
+  const EveService& operator=(const EveService&);  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   TEveManager  *m_EveManager;
-   TRint        *m_Rint;
+  TEveManager* m_EveManager;
+  TRint* m_Rint;
 
-   TEveMagField *m_MagField;
+  TEveMagField* m_MagField;
 
-   bool          m_AllowStep;
-   bool          m_ShowEvent;
+  bool m_AllowStep;
+  bool m_ShowEvent;
 
-   TGTextButton *m_ContinueButton;
-   TGTextButton *m_StepButton;
-   TGLabel      *m_StepLabel;
+  TGTextButton* m_ContinueButton;
+  TGTextButton* m_StepButton;
+  TGLabel* m_StepLabel;
 
-   ClassDef(EveService, 0);
+  ClassDef(EveService, 0);
 };
 
 #endif

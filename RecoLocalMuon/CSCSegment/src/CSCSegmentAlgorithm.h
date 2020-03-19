@@ -22,16 +22,16 @@
 
 class CSCSegmentAlgorithm {
 public:
-    /// Constructor
-    explicit CSCSegmentAlgorithm(const edm::ParameterSet&) {};
-    /// Destructor
-    virtual ~CSCSegmentAlgorithm() {};
+  /// Constructor
+  explicit CSCSegmentAlgorithm(const edm::ParameterSet&){};
+  /// Destructor
+  virtual ~CSCSegmentAlgorithm(){};
 
-    /** Run the algorithm = build the segments in this chamber
+  /** Run the algorithm = build the segments in this chamber
     */
-    virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits) = 0;  
+  virtual std::vector<CSCSegment> run(const CSCChamber* chamber, const std::vector<const CSCRecHit2D*>& rechits) = 0;
 
-    private:
+private:
 };
 
 #endif

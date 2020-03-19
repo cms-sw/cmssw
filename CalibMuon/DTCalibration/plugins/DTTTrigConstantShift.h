@@ -22,25 +22,25 @@ class DTTtrig;
 
 namespace dtCalibration {
 
-class DTTTrigConstantShift: public DTTTrigBaseCorrection {
-public:
-  // Constructor
-  DTTTrigConstantShift(const edm::ParameterSet&);
+  class DTTTrigConstantShift : public DTTTrigBaseCorrection {
+  public:
+    // Constructor
+    DTTTrigConstantShift(const edm::ParameterSet&);
 
-  // Destructor
-  ~DTTTrigConstantShift() override;
+    // Destructor
+    ~DTTTrigConstantShift() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTTTrigData correction(const DTSuperLayerId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTTTrigData correction(const DTSuperLayerId&) override;
 
-private:
-  std::string dbLabel_;
-  std::string calibChamber_;
-  double value_;
+  private:
+    std::string dbLabel_;
+    std::string calibChamber_;
+    double value_;
 
-  const DTTtrig *tTrigMap_;
-  DTChamberId chosenChamberId_;
-};
+    const DTTtrig* tTrigMap_;
+    DTChamberId chosenChamberId_;
+  };
 
-} // namespace
+}  // namespace dtCalibration
 #endif

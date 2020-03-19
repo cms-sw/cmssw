@@ -12,9 +12,6 @@
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 #include "CommonTools/UtilAlgos/interface/PtMinSelector.h"
 
-typedef ObjectCountFilter<
-          reco::ElectronCollection, 
-          PtMinSelector
-        >::type PtMinElectronCountFilter;
+typedef ObjectCountFilter<reco::ElectronCollection, PtMinSelector>::type PtMinElectronCountFilter;
 
-DEFINE_FWK_MODULE( PtMinElectronCountFilter );
+DEFINE_FWK_MODULE(PtMinElectronCountFilter);

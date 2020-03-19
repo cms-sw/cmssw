@@ -14,42 +14,41 @@ class testSelectIterator : public CppUnit::TestFixture {
 public:
   void setUp() {}
   void tearDown() {}
-  void checkAll(); 
+  void checkAll();
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( testSelectIterator );
+CPPUNIT_TEST_SUITE_REGISTRATION(testSelectIterator);
 
 namespace test {
   struct A {
-    explicit A( double x ) : x_( x ) { }
+    explicit A(double x) : x_(x) {}
     double pt() const { return x_; }
+
   private:
     double x_;
   };
-}
+}  // namespace test
 
 void testSelectIterator::checkAll() {
   using namespace test;
   using namespace std;
   vector<A> v;
-  for( double x = 0; x < 10.1; ++ x )
+  for (double x = 0; x < 10.1; ++x)
     v.push_back(A(x));
-  CPPUNIT_ASSERT( v.size() == 11 );
-  PtMinSelector select( 3.5 );
-  Selection<vector<A>, PtMinSelector> sel( v, select );
-  CPPUNIT_ASSERT( sel.size() == 7 );
-  for( size_t i = 0; i < sel.size(); ++ i ) {
-    CPPUNIT_ASSERT( select( sel[i]) );
+  CPPUNIT_ASSERT(v.size() == 11);
+  PtMinSelector select(3.5);
+  Selection<vector<A>, PtMinSelector> sel(v, select);
+  CPPUNIT_ASSERT(sel.size() == 7);
+  for (size_t i = 0; i < sel.size(); ++i) {
+    CPPUNIT_ASSERT(select(sel[i]));
   }
-  for( Selection<vector<A>, PtMinSelector>::const_iterator i = sel.begin(); 
-       i != sel.end(); ++ i ) {
-    CPPUNIT_ASSERT( select( * i ) );
+  for (Selection<vector<A>, PtMinSelector>::const_iterator i = sel.begin(); i != sel.end(); ++i) {
+    CPPUNIT_ASSERT(select(*i));
   }
   vector<A> selected;
-  copy( sel.begin(), sel.end(), back_inserter( selected ) );
-  CPPUNIT_ASSERT( sel.size() == selected.size() );
-  for( size_t i = 0; i < selected.size(); ++ i ) {
-    CPPUNIT_ASSERT( select( selected[i]) );
+  copy(sel.begin(), sel.end(), back_inserter(selected));
+  CPPUNIT_ASSERT(sel.size() == selected.size());
+  for (size_t i = 0; i < selected.size(); ++i) {
+    CPPUNIT_ASSERT(select(selected[i]));
   }
-}  
-
+}

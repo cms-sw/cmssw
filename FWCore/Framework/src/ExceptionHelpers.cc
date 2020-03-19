@@ -8,23 +8,19 @@
 
 namespace edm {
 
-  void
-  addContextAndPrintException(char const* context,
-                              cms::Exception& ex,
-                              bool disablePrint) {
+  void addContextAndPrintException(char const* context, cms::Exception& ex, bool disablePrint) {
     if (context != nullptr && strlen(context) != 0U) {
       ex.addContext(context);
     }
     if (!disablePrint) {
       Service<JobReport> jobReportSvc;
       if (jobReportSvc.isAvailable()) {
-        JobReport *jobRep = jobReportSvc.operator->();
+        JobReport* jobRep = jobReportSvc.operator->();
         edm::printCmsException(ex, jobRep, ex.returnCode());
-      }
-      else {
+      } else {
         edm::printCmsException(ex);
       }
       ex.setAlreadyPrinted(true);
     }
   }
-}
+}  // namespace edm

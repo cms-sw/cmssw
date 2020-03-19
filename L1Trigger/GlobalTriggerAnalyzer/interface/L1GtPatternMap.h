@@ -21,7 +21,6 @@
     identified by event/bunch crossing number. */
 class L1GtPatternMap {
 public:
-
   /** Returns the pattern line for a certain event/bx combination,
      creating it if neccessary. */
   L1GtPatternLine& getLine(int eventNr, int bxNr);
@@ -40,9 +39,7 @@ public:
   void print(std::ostream& out) const;
 
 private:
-   LineMap m_lines;
+  LineMap m_lines;
 };
-
-
 
 #endif /*GlobalTriggerAnalyzer_L1GtPatternMap_h*/

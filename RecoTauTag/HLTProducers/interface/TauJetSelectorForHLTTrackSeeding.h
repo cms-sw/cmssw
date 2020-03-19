@@ -25,17 +25,16 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class TauJetSelectorForHLTTrackSeeding : public edm::global::EDProducer<> {
-
 public:
   explicit TauJetSelectorForHLTTrackSeeding(const edm::ParameterSet&);
   ~TauJetSelectorForHLTTrackSeeding() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob()  override;
+  void beginJob() override;
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  void endJob()  override;
-      
+  void endJob() override;
+
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<reco::TrackJetCollection> inputTrackJetToken_;
@@ -52,4 +51,3 @@ private:
   const int nTrkMaxInCaloCone_;
 };
 #endif
-

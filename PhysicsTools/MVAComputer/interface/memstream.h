@@ -14,86 +14,76 @@
 
 namespace ext {
 
-// provide STL stream to read/write into memory buffers
-//
-// constructors both take pointer to a buffer and buffer size
+  // provide STL stream to read/write into memory buffers
+  //
+  // constructors both take pointer to a buffer and buffer size
 
-template<typename Item_t, typename Traits_t = std::char_traits<Item_t>,
-         typename Allocator_t = std::allocator<Item_t> >
-class basic_omemstream : private std::basic_streambuf<Item_t, Traits_t>,
-                         public std::basic_ostream<Item_t, Traits_t> {
-    public:
-	typedef typename Traits_t::char_type	char_type;
-	typedef typename Traits_t::int_type	int_type;
-	typedef Traits_t			traits_type;
+  template <typename Item_t, typename Traits_t = std::char_traits<Item_t>, typename Allocator_t = std::allocator<Item_t> >
+  class basic_omemstream : private std::basic_streambuf<Item_t, Traits_t>, public std::basic_ostream<Item_t, Traits_t> {
+  public:
+    typedef typename Traits_t::char_type char_type;
+    typedef typename Traits_t::int_type int_type;
+    typedef Traits_t traits_type;
 
-	basic_omemstream(char_type *buf, size_t size) :
-			std::basic_ostream<Item_t, Traits_t>(this),
-			buffer(buf), cur(buf), last(buf + size)
-	{ this->exceptions(std::ios_base::badbit); }
+    basic_omemstream(char_type *buf, size_t size)
+        : std::basic_ostream<Item_t, Traits_t>(this), buffer(buf), cur(buf), last(buf + size) {
+      this->exceptions(std::ios_base::badbit);
+    }
 
-	char_type* begin() const { return buffer; }
-	char_type* end() const { return cur; }
-	size_t size() const { return cur - buffer; }
-	bool empty() const { return cur == buffer; }
+    char_type *begin() const { return buffer; }
+    char_type *end() const { return cur; }
+    size_t size() const { return cur - buffer; }
+    bool empty() const { return cur == buffer; }
 
-    private:
-	std::streamsize xsputn(char_type const *data, std::streamsize size) override {
-		size_t n = std::min<size_t>(last - cur, size);
-		traits_type::copy(cur, data, n);
-		cur += n;
-		return n;
-	}
+  private:
+    std::streamsize xsputn(char_type const *data, std::streamsize size) override {
+      size_t n = std::min<size_t>(last - cur, size);
+      traits_type::copy(cur, data, n);
+      cur += n;
+      return n;
+    }
 
-	int_type overflow(int_type c) override
-	{
-		if (!traits_type::eq_int_type(c, traits_type::eof())) {
-			char_type t = traits_type::to_char_type(c);
-			if (xsputn(&t, 1) < 1)
-				return traits_type::eof();
-		}
+    int_type overflow(int_type c) override {
+      if (!traits_type::eq_int_type(c, traits_type::eof())) {
+        char_type t = traits_type::to_char_type(c);
+        if (xsputn(&t, 1) < 1)
+          return traits_type::eof();
+      }
 
-		return c;
-	}
+      return c;
+    }
 
-	int sync() override { return 0; }
+    int sync() override { return 0; }
 
-	char_type	*buffer, *cur, *last;
-};
+    char_type *buffer, *cur, *last;
+  };
 
-template<typename Item_t, typename Traits_t = std::char_traits<Item_t>,
-         typename Allocator_t = std::allocator<Item_t> >
-class basic_imemstream : private std::basic_streambuf<Item_t, Traits_t>,
-                         public std::basic_istream<Item_t, Traits_t> {
-    public:
-	typedef typename Traits_t::char_type	char_type;
-	typedef typename Traits_t::int_type	int_type;
-	typedef Traits_t			traits_type;
+  template <typename Item_t, typename Traits_t = std::char_traits<Item_t>, typename Allocator_t = std::allocator<Item_t> >
+  class basic_imemstream : private std::basic_streambuf<Item_t, Traits_t>, public std::basic_istream<Item_t, Traits_t> {
+  public:
+    typedef typename Traits_t::char_type char_type;
+    typedef typename Traits_t::int_type int_type;
+    typedef Traits_t traits_type;
 
-	basic_imemstream(const char_type *buf, size_t size) :
-			std::basic_istream<Item_t, Traits_t>(this)
-	{
-		this->exceptions(std::ios_base::badbit);
-		this->setg(const_cast<char_type*>(buf),
-		     const_cast<char_type*>(buf),
-		     const_cast<char_type*>(buf + size));
-	}
+    basic_imemstream(const char_type *buf, size_t size) : std::basic_istream<Item_t, Traits_t>(this) {
+      this->exceptions(std::ios_base::badbit);
+      this->setg(const_cast<char_type *>(buf), const_cast<char_type *>(buf), const_cast<char_type *>(buf + size));
+    }
 
-    private:
-	int_type underflow() override
-	{
-		if (this->gptr() && this->gptr() < this->egptr())
-			return traits_type::to_int_type(*this->gptr());
+  private:
+    int_type underflow() override {
+      if (this->gptr() && this->gptr() < this->egptr())
+        return traits_type::to_int_type(*this->gptr());
 
-		return traits_type::eof();
-	}
-};
+      return traits_type::eof();
+    }
+  };
 
-typedef basic_omemstream<char>		omemstream;
-typedef basic_omemstream<wchar_t>	womemstream;
-typedef basic_imemstream<char>		imemstream;
-typedef basic_imemstream<wchar_t>	wimemstream;
+  typedef basic_omemstream<char> omemstream;
+  typedef basic_omemstream<wchar_t> womemstream;
+  typedef basic_imemstream<char> imemstream;
+  typedef basic_imemstream<wchar_t> wimemstream;
 
-} // namespace ext
+}  // namespace ext
 
-#endif // PhysicsTools_MVAComputer_memstream_h
+#endif  // PhysicsTools_MVAComputer_memstream_h

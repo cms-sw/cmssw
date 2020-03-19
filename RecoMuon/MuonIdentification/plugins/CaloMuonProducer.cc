@@ -8,7 +8,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -22,26 +21,21 @@
 
 #include "RecoMuon/MuonIdentification/plugins/CaloMuonProducer.h"
 
-CaloMuonProducer::CaloMuonProducer(const edm::ParameterSet& iConfig)
-{
-   produces<reco::CaloMuonCollection>();
-   inputCollection = iConfig.getParameter<edm::InputTag>("inputCollection");
-   muonToken_ = consumes<reco::CaloMuonCollection>(inputCollection);
+CaloMuonProducer::CaloMuonProducer(const edm::ParameterSet& iConfig) {
+  produces<reco::CaloMuonCollection>();
+  inputCollection = iConfig.getParameter<edm::InputTag>("inputCollection");
+  muonToken_ = consumes<reco::CaloMuonCollection>(inputCollection);
 }
 
-CaloMuonProducer::~CaloMuonProducer()
-{
-}
+CaloMuonProducer::~CaloMuonProducer() {}
 
-void CaloMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   edm::Handle<reco::CaloMuonCollection> iMuons;
-   iEvent.getByToken(muonToken_,iMuons);
-   auto oMuons = std::make_unique<reco::CaloMuonCollection>();
-   for ( reco::CaloMuonCollection::const_iterator muon = iMuons->begin();
-	 muon != iMuons->end(); ++muon )
-     oMuons->push_back( *muon );
-   iEvent.put(std::move(oMuons));
+void CaloMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::Handle<reco::CaloMuonCollection> iMuons;
+  iEvent.getByToken(muonToken_, iMuons);
+  auto oMuons = std::make_unique<reco::CaloMuonCollection>();
+  for (reco::CaloMuonCollection::const_iterator muon = iMuons->begin(); muon != iMuons->end(); ++muon)
+    oMuons->push_back(*muon);
+  iEvent.put(std::move(oMuons));
 }
 
 //define this as a plug-in

@@ -24,7 +24,6 @@ namespace cscdqm {
    * @brief  Update Fractional MOs
    */
   void EventProcessor::updateFractionHistos() {
-
     calcEMUFractionHisto(h::EMU_DMB_FORMAT_ERRORS_FRACT, h::EMU_DMB_REPORTING, h::EMU_DMB_FORMAT_ERRORS);
     calcEMUFractionHisto(h::EMU_CSC_FORMAT_ERRORS_FRACT, h::EMU_CSC_REPORTING, h::EMU_CSC_FORMAT_ERRORS);
     calcEMUFractionHisto(h::EMU_DMB_FORMAT_WARNINGS_FRACT, h::EMU_DMB_REPORTING, h::EMU_DMB_FORMAT_WARNINGS);
@@ -44,17 +43,16 @@ namespace cscdqm {
     calcEMUFractionHisto(h::EMU_CSC_L1A_OUT_OF_SYNC_FRACT, h::EMU_CSC_REPORTING, h::EMU_CSC_L1A_OUT_OF_SYNC);
     calcEMUFractionHisto(h::EMU_DMB_L1A_OUT_OF_SYNC_FRACT, h::EMU_DMB_REPORTING, h::EMU_DMB_L1A_OUT_OF_SYNC);
     calcEMUFractionHisto(h::EMU_FED_DDU_L1A_MISMATCH_FRACT, h::EMU_FED_ENTRIES, h::EMU_FED_DDU_L1A_MISMATCH);
-    calcEMUFractionHisto(h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA_FRACT, h::EMU_FED_ENTRIES, h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA);
+    calcEMUFractionHisto(
+        h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA_FRACT, h::EMU_FED_ENTRIES, h::EMU_FED_DDU_L1A_MISMATCH_WITH_CSC_DATA);
 
     unsigned int iter = 0, crateId = 0, dmbId = 0;
     MonitorObject *mo = nullptr, *mof = nullptr;
     while (config->fnNextBookedCSC(iter, crateId, dmbId)) {
-
       uint32_t dmbEvents = config->getChamberCounterValue(DMB_EVENTS, crateId, dmbId);
 
-      if (getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, crateId, dmbId, mo) && 
+      if (getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_TABLE, crateId, dmbId, mo) &&
           getCSCHisto(h::CSC_BINCHECK_DATAFLOW_PROBLEMS_FREQUENCY, crateId, dmbId, mof)) {
-        
         LockType lock(mof->mutex);
         TH1* th = mof->getTH1Lock();
         th->Reset();
@@ -65,7 +63,7 @@ namespace cscdqm {
         mo->SetEntries(dmbEvents);
       }
 
-      if (getCSCHisto(h::CSC_BINCHECK_ERRORSTAT_TABLE, crateId, dmbId, mo) && 
+      if (getCSCHisto(h::CSC_BINCHECK_ERRORSTAT_TABLE, crateId, dmbId, mo) &&
           getCSCHisto(h::CSC_BINCHECK_ERRORS_FREQUENCY, crateId, dmbId, mof)) {
         LockType lock(mof->mutex);
         TH1* th = mof->getTH1Lock();
@@ -76,9 +74,7 @@ namespace cscdqm {
         mof->SetEntries(dmbEvents);
         mo->SetEntries(dmbEvents);
       }
-
     }
-
   }
 
   /**
@@ -88,7 +84,6 @@ namespace cscdqm {
    * @param subset Histogram of the subset
    */
   void EventProcessor::calcEMUFractionHisto(const HistoId& result, const HistoId& set, const HistoId& subset) {
-
     MonitorObject *mo = nullptr, *mo1 = nullptr, *mo2 = nullptr;
 
     if (getEMUHisto(result, mo) && getEMUHisto(set, mo2) && getEMUHisto(subset, mo1)) {
@@ -98,7 +93,6 @@ namespace cscdqm {
       th->Divide(mo1->getTH1(), mo2->getTH1());
       mo->SetMaximum(1.);
     }
-
   }
 
-}
+}  // namespace cscdqm

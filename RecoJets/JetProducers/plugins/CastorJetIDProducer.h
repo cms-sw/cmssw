@@ -5,7 +5,7 @@
 //
 // Package:    CastorJetIDProducer
 // Class:      CastorJetIDProducer
-// 
+//
 /**\class CastorJetIDProducer CastorJetIDProducer.cc RecoJets/JetProducers/plugins/CastorJetIDProducer.cc
 
  Description: Produces a value map of jet---> jet Id
@@ -17,7 +17,6 @@
 //         Created:  Thu Sep 17 12:18:18 CDT 2009
 //
 //
-
 
 // system include files
 #include <memory>
@@ -39,20 +38,18 @@
 //
 
 class CastorJetIDProducer : public edm::stream::EDProducer<> {
-   public:
+public:
+  explicit CastorJetIDProducer(const edm::ParameterSet&);
+  ~CastorJetIDProducer() override;
 
-      explicit CastorJetIDProducer(const edm::ParameterSet&);
-      ~CastorJetIDProducer() override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      
-      // ----------member data ---------------------------
-      edm::InputTag                 src_;          // input jet source
-      reco::helper::CastorJetIDHelper     helper_; // castor jet id helper algorithm
+  // ----------member data ---------------------------
+  edm::InputTag src_;                       // input jet source
+  reco::helper::CastorJetIDHelper helper_;  // castor jet id helper algorithm
 
-      edm::EDGetTokenT<edm::View<reco::BasicJet> > input_jet_token_;
+  edm::EDGetTokenT<edm::View<reco::BasicJet> > input_jet_token_;
 };
-
 
 #endif

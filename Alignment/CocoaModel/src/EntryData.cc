@@ -2,7 +2,7 @@
 //Id:  EntryData.cc
 //CAT: Model
 //
-//   History: v1.0 
+//   History: v1.0
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/EntryData.h"
@@ -13,21 +13,19 @@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Constructor
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-EntryData::EntryData()
-{
-}
+EntryData::EntryData() {}
 
-void EntryData::fill(const std::vector<ALIstring>& wordlist )
-{
-  if (ALIUtils::debug >=4) std::cout << "Filling entry data:" << std::endl;
+void EntryData::fill(const std::vector<ALIstring>& wordlist) {
+  if (ALIUtils::debug >= 4)
+    std::cout << "Filling entry data:" << std::endl;
   //----------- Check there are > 10 words
-  if ( wordlist.size() < 10 ) {
+  if (wordlist.size() < 10) {
     //t    ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
-    ALIUtils::dumpVS( wordlist, " !!! Incorrect format for EntryData:", std::cerr  );
+    ALIUtils::dumpVS(wordlist, " !!! Incorrect format for EntryData:", std::cerr);
     std::cerr << std::endl << " There should be at least 10 words" << std::endl;
     abort();
   }
-  
+
   EntryMgr* entryMgr = EntryMgr::getInstance();
   //----- set name and type
   fLongOptOName = wordlist[2];
@@ -35,7 +33,7 @@ void EntryData::fill(const std::vector<ALIstring>& wordlist )
   fEntryName = wordlist[3];
 
   //----- set value
-  fValueOriginal = ALIUtils::getFloat( wordlist[4] );
+  fValueOriginal = ALIUtils::getFloat(wordlist[4]);
   fValueDisplacement = 0.;
   //  fValueOriginal = ALIUtils::getFloat( wordlist[7] );
   //  fValueDisplacement = ALIUtils::getFloat( wordlist[12] );
@@ -52,7 +50,7 @@ void EntryData::fill(const std::vector<ALIstring>& wordlist )
   */
 
   //----- set sigma
-  fSigma = ALIUtils::getFloat( wordlist[6] );
+  fSigma = ALIUtils::getFloat(wordlist[6]);
   /* done in Entry.cc
   if( wordlist[3].substr(0,6) == "centre" ) {
     fSigma *= entryMgr->getDimOutLengthSig();
@@ -62,42 +60,33 @@ void EntryData::fill(const std::vector<ALIstring>& wordlist )
   */
 
   //----- set quality
-  if( wordlist[0] == ALIstring("UNK:") ) {
+  if (wordlist[0] == ALIstring("UNK:")) {
     fQuality = 2;
-  } else if( wordlist[0] == ALIstring("CAL:") ) {
+  } else if (wordlist[0] == ALIstring("CAL:")) {
     fQuality = 1;
-  } else if( wordlist[0] == ALIstring("FIX:") ) { 
+  } else if (wordlist[0] == ALIstring("FIX:")) {
     fQuality = 0;
   } else {
     //-    ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
     std::cerr << " quality should be 'UNK:' or 'CAL:' or 'FIX:', instead of " << wordlist[0] << std::endl;
     abort();
   }
-  
+
   if (ALIUtils::debug >= 4) {
     //t    std::cout << *this << std::endl;
   }
 }
 
-
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Destructor
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-EntryData::~EntryData()
-{
-}
-
+EntryData::~EntryData() {}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::ostream& operator << (std::ostream& os, const EntryData& ent) 
-{
-
-  os << "ENTRY: " << ent.longOptOName() << " : " << ent.entryName()
-     << " valueOriginal " << ent.valueOriginal()
-     << " valueDisplacement " << ent.valueDisplacement()
-     << " sigma " << ent.sigma() 
-     << " quality " << ent.quality() << std::endl;
+std::ostream& operator<<(std::ostream& os, const EntryData& ent) {
+  os << "ENTRY: " << ent.longOptOName() << " : " << ent.entryName() << " valueOriginal " << ent.valueOriginal()
+     << " valueDisplacement " << ent.valueDisplacement() << " sigma " << ent.sigma() << " quality " << ent.quality()
+     << std::endl;
 
   return os;
-
 }

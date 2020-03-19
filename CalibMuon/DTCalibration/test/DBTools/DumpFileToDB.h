@@ -28,29 +28,25 @@ public:
   virtual ~DumpFileToDB();
 
   // Operations
- // Operations
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
+  // Operations
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup);
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
- 
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
+
   virtual void endJob();
 
 protected:
-
 private:
-  std::vector<int> readChannelsMap (std::stringstream &linestr);
+  std::vector<int> readChannelsMap(std::stringstream& linestr);
 
-  const DTCalibrationMap *theCalibFile;
+  const DTCalibrationMap* theCalibFile;
   std::string mapFileName;
 
   std::string dbToDump;
   std::string format;
 
-  // sum the correction in the txt file (for the mean value) to what is input DB 
+  // sum the correction in the txt file (for the mean value) to what is input DB
   bool diffMode;
-  const DTTtrig *tTrigMapOrig;
-
-
+  const DTTtrig* tTrigMapOrig;
 };
 #endif
-

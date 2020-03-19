@@ -8,16 +8,11 @@
 class PropagationDirectionFromPath {
 public:
   /// Direction from sign of path length
-  inline PropagationDirection operator()(const double& s) const
-  {
-    return s>=0 ? alongMomentum : oppositeToMomentum;
-  }
-  /// Direction from second argument, from sign of path length, 
-  inline PropagationDirection 
-  operator()(const double& s,
-	     const PropagationDirection propDir) const
-  {
-    if ( propDir!=anyDirection )  return propDir;
+  inline PropagationDirection operator()(const double& s) const { return s >= 0 ? alongMomentum : oppositeToMomentum; }
+  /// Direction from second argument, from sign of path length,
+  inline PropagationDirection operator()(const double& s, const PropagationDirection propDir) const {
+    if (propDir != anyDirection)
+      return propDir;
     return (*this)(s);
   }
 };

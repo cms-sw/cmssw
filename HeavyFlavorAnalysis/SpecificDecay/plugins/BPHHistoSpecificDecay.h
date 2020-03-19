@@ -20,43 +20,38 @@ class TVector3;
 namespace reco {
   class Candidate;
   class Vertex;
-}
+}  // namespace reco
 
-class BPHHistoSpecificDecay:
-      public BPHAnalyzerWrapper<BPHModuleWrapper::one_analyzer> {
-
- public:
-
-  explicit BPHHistoSpecificDecay( const edm::ParameterSet& ps );
+class BPHHistoSpecificDecay : public BPHAnalyzerWrapper<BPHModuleWrapper::one_analyzer> {
+public:
+  explicit BPHHistoSpecificDecay(const edm::ParameterSet& ps);
   ~BPHHistoSpecificDecay() override;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override;
-  void analyze( const edm::Event& ev, const edm::EventSetup& es ) override;
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
   void endJob() override;
 
   class CandidateSelect {
-   public:
+  public:
     virtual ~CandidateSelect() {}
-    virtual bool accept( const pat::CompositeCandidate& cand,
-                         const reco::Vertex* pv = nullptr ) const = 0 ;
+    virtual bool accept(const pat::CompositeCandidate& cand, const reco::Vertex* pv = nullptr) const = 0;
   };
 
- private:
-
+private:
   std::string oniaCandsLabel;
-  std::string   sdCandsLabel;
-  std::string   ssCandsLabel;
-  std::string   buCandsLabel;
-  std::string   bdCandsLabel;
-  std::string   bsCandsLabel;
-  BPHTokenWrapper< std::vector<pat::CompositeCandidate> > oniaCandsToken;
-  BPHTokenWrapper< std::vector<pat::CompositeCandidate> >   sdCandsToken;
-  BPHTokenWrapper< std::vector<pat::CompositeCandidate> >   ssCandsToken;
-  BPHTokenWrapper< std::vector<pat::CompositeCandidate> >   buCandsToken;
-  BPHTokenWrapper< std::vector<pat::CompositeCandidate> >   bdCandsToken;
-  BPHTokenWrapper< std::vector<pat::CompositeCandidate> >   bsCandsToken;
+  std::string sdCandsLabel;
+  std::string ssCandsLabel;
+  std::string buCandsLabel;
+  std::string bdCandsLabel;
+  std::string bsCandsLabel;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > oniaCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > sdCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > ssCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > buCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > bdCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > bsCandsToken;
   bool useOnia;
   bool useSd;
   bool useSs;
@@ -65,12 +60,12 @@ class BPHHistoSpecificDecay:
   bool useBs;
 
   edm::Service<TFileService> fs;
-  std::map<std::string,TH1F*> histoMap;
+  std::map<std::string, TH1F*> histoMap;
 
-  CandidateSelect*  phiBasicSelect;
+  CandidateSelect* phiBasicSelect;
   CandidateSelect* jPsiBasicSelect;
   CandidateSelect* psi2BasicSelect;
-  CandidateSelect*  upsBasicSelect;
+  CandidateSelect* upsBasicSelect;
   CandidateSelect* oniaVertexSelect;
   CandidateSelect* oniaDaughterSelect;
 
@@ -90,12 +85,9 @@ class BPHHistoSpecificDecay:
 
   double buKPtMin;
 
-  void fillHisto   ( const std::string& name,
-                     const pat::CompositeCandidate& cand );
-  void fillHisto   ( const std::string& name, float x );
-  void createHisto ( const std::string& name,
-                     int nbin, float hmin, float hmax );
-
+  void fillHisto(const std::string& name, const pat::CompositeCandidate& cand);
+  void fillHisto(const std::string& name, float x);
+  void createHisto(const std::string& name, int nbin, float hmin, float hmax);
 };
 
 #endif

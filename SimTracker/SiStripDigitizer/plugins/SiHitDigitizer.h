@@ -1,6 +1,6 @@
 #ifndef _TRACKER_SiHitDigitizer_H_
 #define _TRACKER_SiHitDigitizer_H_
- 
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -21,7 +21,7 @@ class TrackerTopology;
 
 class SiStripDetType;
 
-namespace CLHEP{
+namespace CLHEP {
   class HepRandomEngine;
 }
 
@@ -29,33 +29,30 @@ namespace CLHEP{
 * Digitizes the response for a single SimHit.
 */
 class SiHitDigitizer {
- public:
-
+public:
   SiHitDigitizer(const edm::ParameterSet& conf);
 
   ~SiHitDigitizer();
 
-  void setChargeDivider(SiChargeDivider* cd) {
-    theSiChargeDivider.reset(cd);
-  }
+  void setChargeDivider(SiChargeDivider* cd) { theSiChargeDivider.reset(cd); }
 
-  void setChargeCollectionDrifter(SiChargeCollectionDrifter* cd) {
-    theSiChargeCollectionDrifter.reset(cd);
-  }
+  void setChargeCollectionDrifter(SiChargeCollectionDrifter* cd) { theSiChargeCollectionDrifter.reset(cd); }
 
-  void setInduceChargeOnStrips(SiInduceChargeOnStrips* cd) {
-    theSiInduceChargeOnStrips.reset(cd);
-  }
-  
-  void setParticleDataTable(const ParticleDataTable * pdt) { 
-    theSiChargeDivider->setParticleDataTable(pdt); 
-  }
+  void setInduceChargeOnStrips(SiInduceChargeOnStrips* cd) { theSiInduceChargeOnStrips.reset(cd); }
 
-  void processHit(const PSimHit*, const StripGeomDetUnit&, GlobalVector,float,
-		  std::vector<float>&, size_t&, size_t&,
-		  const TrackerTopology *tTopo, CLHEP::HepRandomEngine*);
-  
- private:
+  void setParticleDataTable(const ParticleDataTable* pdt) { theSiChargeDivider->setParticleDataTable(pdt); }
+
+  void processHit(const PSimHit*,
+                  const StripGeomDetUnit&,
+                  GlobalVector,
+                  float,
+                  std::vector<float>&,
+                  size_t&,
+                  size_t&,
+                  const TrackerTopology* tTopo,
+                  CLHEP::HepRandomEngine*);
+
+private:
   const double depletionVoltage;
   const double chargeMobility;
   std::unique_ptr<SiChargeDivider> theSiChargeDivider;
@@ -63,12 +60,11 @@ class SiHitDigitizer {
   std::unique_ptr<const SiInduceChargeOnStrips> theSiInduceChargeOnStrips;
 
   typedef GloballyPositioned<double> Frame;
-  
-  LocalVector DriftDirection(const StripGeomDetUnit* _detp, GlobalVector _bfield, float langle) {
-    LocalVector Bfield=Frame(_detp->surface().position(),_detp->surface().rotation()).toLocal(_bfield);
-    return LocalVector(-langle * Bfield.y(),langle * Bfield.x(),1.);
-  }
 
+  LocalVector DriftDirection(const StripGeomDetUnit* _detp, GlobalVector _bfield, float langle) {
+    LocalVector Bfield = Frame(_detp->surface().position(), _detp->surface().rotation()).toLocal(_bfield);
+    return LocalVector(-langle * Bfield.y(), langle * Bfield.x(), 1.);
+  }
 };
 
 #endif

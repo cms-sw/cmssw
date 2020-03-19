@@ -39,81 +39,79 @@ class DTTrigGeom;
 //              ---------------------
 
 typedef std::vector<DTChambThSegm> DTChambThVector;
-typedef DTCache < DTChambThSegm, DTChambThVector > DTTSThetaManager;
+typedef DTCache<DTChambThSegm, DTChambThVector> DTTSThetaManager;
 
 class DTTSTheta : public DTTSThetaManager, public DTGeomSupplier {
+public:
+  ///  Constructor
+  //DTTSTheta(DTTrigGeom*, DTBtiCard*, edm::ParameterSet&);
+  DTTSTheta(DTTrigGeom*, DTBtiCard*);
 
-  public:
+  ///  Destructor
+  ~DTTSTheta() override;
 
-    ///  Constructor
-    //DTTSTheta(DTTrigGeom*, DTBtiCard*, edm::ParameterSet&);
-    DTTSTheta(DTTrigGeom*, DTBtiCard*);
+  /// Return configuration
+  inline const DTConfigTSTheta* config() const { return _config; }
 
-    ///  Destructor 
-    ~DTTSTheta() override;
+  /// Set configuration
+  void setConfig(const DTConfigManager* conf);
 
-    /// Return configuration
-    inline const DTConfigTSTheta* config() const { return _config; }
+  /// Return number of TStheta segments (just 1)
+  int nSegm(int step);
 
-    /// Set configuration
-    void setConfig(const DTConfigManager *conf);
+  /// Return the requested DTTSTheta segment (only the first)
+  const DTChambThSegm* segment(int step, unsigned n);
 
-    /// Return number of TStheta segments (just 1)
-    int nSegm(int step);
+  /// Return number of DTBtiChip fired (used by DTTracoChip)
+  int nTrig(int step);
 
-    /// Return the requested DTTSTheta segment (only the first)
-    const DTChambThSegm* segment(int step, unsigned n);
+  /// Return number of DTBtiChip fired with a HTRIG (used by DTTracoChip)
+  int nHTrig(int step);
 
-    /// Return number of DTBtiChip fired (used by DTTracoChip)
-    int nTrig(int step);
+  /// Local position in chamber of a L1Trigger-data object
+  LocalPoint localPosition(const DTTrigData*) const override;
 
-    /// Return number of DTBtiChip fired with a HTRIG (used by DTTracoChip)
-    int nHTrig(int step);
+  /// Local direction in chamber of a L1Trigger-data object
+  LocalVector localDirection(const DTTrigData*) const override;
 
-    /// Local position in chamber of a L1Trigger-data object
-    LocalPoint localPosition(const DTTrigData*) const override;
+  /// Print a L1Trigger-data object with also local and global position/direction
+  void print(const DTTrigData* trig) const override;
 
-    /// Local direction in chamber of a L1Trigger-data object
-    LocalVector localDirection(const DTTrigData*) const override;
+  /// Load BTIs triggers and run TSTheta algoritm
+  void reconstruct() override {
+    loadDTTSTheta();
+    runDTTSTheta();
+  }
 
-    /// Print a L1Trigger-data object with also local and global position/direction
-    void print(const DTTrigData* trig) const override;
+private:
+  /// store DTBtiChip L1Triggers in the TST
+  void loadDTTSTheta();
 
-    /// Load BTIs triggers and run TSTheta algoritm
-    void reconstruct() override { loadDTTSTheta(); runDTTSTheta(); }
+  /// run DTTSTheta algorithm (build the mask)
+  void runDTTSTheta();
 
-  private:
+  /// Add a DTBtiChip L1Trigger to the DTTSTheta
+  void add_btiT(int step, const DTBtiTrigData* btitrig);
 
-    /// store DTBtiChip L1Triggers in the TST
-    void loadDTTSTheta();
+  /// Clear
+  void localClear();
 
-    /// run DTTSTheta algorithm (build the mask)
-    void runDTTSTheta();
+  /// Return the BitArray of DTBtiChip fired
+  BitArray<DTConfigTSTheta::NCELLTH>* btiMask(int step) const;
 
-    /// Add a DTBtiChip L1Trigger to the DTTSTheta
-    void add_btiT(int step, const DTBtiTrigData* btitrig);
+  /// Return the BitArray of DTBtiChip fired with a HTRIG
+  BitArray<DTConfigTSTheta::NCELLTH>* btiQual(int step) const;
 
-    /// Clear
-    void localClear();
+private:
+  DTBtiCard* _bticard;
 
-    /// Return the BitArray of DTBtiChip fired
-    BitArray<DTConfigTSTheta::NCELLTH>* btiMask(int step) const;
+  const DTConfigTSTheta* _config;
 
-    /// Return the BitArray of DTBtiChip fired with a HTRIG
-    BitArray<DTConfigTSTheta::NCELLTH>* btiQual(int step) const;
-
-  private:
-
-    DTBtiCard* _bticard;
-
-    const DTConfigTSTheta* _config;
-
-    // Input data
-    BitArray<DTConfigTSTheta::NCELLTH> _trig[DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1];
-    BitArray<DTConfigTSTheta::NCELLTH> _Htrig[DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1];
-    int _ntrig[DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1];
-    int _nHtrig[DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1];
-
+  // Input data
+  BitArray<DTConfigTSTheta::NCELLTH> _trig[DTConfigTSTheta::NSTEPL - DTConfigTSTheta::NSTEPF + 1];
+  BitArray<DTConfigTSTheta::NCELLTH> _Htrig[DTConfigTSTheta::NSTEPL - DTConfigTSTheta::NSTEPF + 1];
+  int _ntrig[DTConfigTSTheta::NSTEPL - DTConfigTSTheta::NSTEPF + 1];
+  int _nHtrig[DTConfigTSTheta::NSTEPL - DTConfigTSTheta::NSTEPF + 1];
 };
 
 #endif

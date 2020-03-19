@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 // temporarely
-// 
+//
 
 namespace coral {
   class Blob;
@@ -16,17 +16,17 @@ namespace cond {
   public:
     Binary();
 
-    Binary( const void* data, size_t size  );
+    Binary(const void* data, size_t size);
 
-    explicit Binary( const coral::Blob& data );
+    explicit Binary(const coral::Blob& data);
 
-    Binary( const Binary& rhs );
+    Binary(const Binary& rhs);
 
-    Binary& operator=( const Binary& rhs );
+    Binary& operator=(const Binary& rhs);
 
     const coral::Blob& get() const;
 
-    void copy( const std::string& source );
+    void copy(const std::string& source);
 
     const void* data() const;
 
@@ -38,7 +38,6 @@ namespace cond {
     std::shared_ptr<coral::Blob> m_data;
   };
 
-}
+}  // namespace cond
 
 #endif
-

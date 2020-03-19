@@ -4,7 +4,6 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="DataFormats/CaloRecHit"/>
-<use   name="DataFormats/DetId"/>
 <use   name="CommonTools/CandAlgos"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="DataFormats/Math"/>
@@ -19,7 +18,6 @@
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="RecoTracker/MeasurementDet"/>
-<use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="RecoTracker/CkfPattern"/>
 <use   name="RecoTracker/TkSeedGenerator"/>
 <use   name="RecoVertex/VertexPrimitives"/>

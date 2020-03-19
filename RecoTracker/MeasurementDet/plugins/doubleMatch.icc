@@ -1,79 +1,69 @@
 
 
-namespace {  
+namespace {
 
-  template<typename Collector>
+  template <typename Collector>
   struct CollectorHelper {
+    Collector& m_collector;
+    GlobalVector const& glbDir;
 
-    Collector & m_collector;
-    GlobalVector const & glbDir;
+    CollectorHelper(Collector& i_collector, GlobalVector const& i_glbDir)
+        : m_collector(i_collector), glbDir(i_glbDir) {}
 
-    CollectorHelper(Collector & i_collector,  GlobalVector const & i_glbDir) : 
-      m_collector(i_collector), glbDir(i_glbDir) {}
-    
-    inline static SiStripRecHit2D const & monoHit(TkGluedMeasurementDet::RecHitContainer::const_iterator monoHit) {
+    inline static SiStripRecHit2D const& monoHit(TkGluedMeasurementDet::RecHitContainer::const_iterator monoHit) {
       return *reinterpret_cast<const SiStripRecHit2D*>((**monoHit).hit());
     }
-    
-    inline static SiStripRecHit2D const & monoHit(std::vector<SiStripRecHit2D>::const_iterator iter) {
-      return *iter;
-    }
-    
-    inline static SiStripRecHit2D const & stereoHit(std::vector<SiStripRecHit2D>::const_iterator iter) {
-      return *iter;
-    }
-    
-    inline static SiStripRecHit2D const & stereoHit(TkGluedMeasurementDet::RecHitContainer::const_iterator hit) {
+
+    inline static SiStripRecHit2D const& monoHit(std::vector<SiStripRecHit2D>::const_iterator iter) { return *iter; }
+
+    inline static SiStripRecHit2D const& stereoHit(std::vector<SiStripRecHit2D>::const_iterator iter) { return *iter; }
+
+    inline static SiStripRecHit2D const& stereoHit(TkGluedMeasurementDet::RecHitContainer::const_iterator hit) {
       return *reinterpret_cast<const SiStripRecHit2D*>((**hit).hit());
     }
 
-    typename Collector::Collector & collector() { return m_collector.collector();}
-    
-    inline void closure( TkGluedMeasurementDet::RecHitContainer::const_iterator monoHit) {
+    typename Collector::Collector& collector() { return m_collector.collector(); }
+
+    inline void closure(TkGluedMeasurementDet::RecHitContainer::const_iterator monoHit) {
       if (m_collector.hasNewMatchedHits()) {
-	m_collector.clearNewMatchedHitsFlag();
+        m_collector.clearNewMatchedHitsFlag();
       } else {
-	m_collector.addProjected( **monoHit, glbDir );
+        m_collector.addProjected(**monoHit, glbDir);
       }
     }
 
     inline void closure(std::vector<SiStripRecHit2D>::const_iterator monoHit) {
       if (m_collector.hasNewMatchedHits()) {
-	m_collector.clearNewMatchedHitsFlag();
+        m_collector.clearNewMatchedHitsFlag();
       } else {
-	m_collector.addProjected( *monoHit, glbDir );
+        m_collector.addProjected(*monoHit, glbDir);
       }
     }
-  
-    
   };
 
-}
+}  // namespace
 
 #include "RecHitPropagator.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h" 
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
 
 namespace {
-  inline
-  void print(const char* where, const TrajectoryStateOnSurface& t1,const TrajectoryStateOnSurface& t2) {
-    std::cout << where<< std::endl;
-    std::cout <<  t1.localParameters().vector() << std::endl;
-    std::cout <<  t1.localError().positionError() << std::endl;
-    std::cout <<  t2.localParameters().vector() << std::endl;
-    std::cout <<  t2.localError().positionError() << std::endl;
-
+  inline void print(const char* where, const TrajectoryStateOnSurface& t1, const TrajectoryStateOnSurface& t2) {
+    std::cout << where << std::endl;
+    std::cout << t1.localParameters().vector() << std::endl;
+    std::cout << t1.localError().positionError() << std::endl;
+    std::cout << t2.localParameters().vector() << std::endl;
+    std::cout << t2.localError().positionError() << std::endl;
   }
-}
+}  // namespace
 
+template <typename Collector>
+void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts,
+                                        const MeasurementTrackerEvent& data,
+                                        Collector& collector) const {
+  GlobalVector glbDir = (ts.isValid() ? ts.globalMomentum() : position() - GlobalPoint(0, 0, 0));
 
-template<typename Collector>
-void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent &data, Collector & collector) const {
-
-
-  GlobalVector glbDir = (ts.isValid() ? ts.globalMomentum() : position()-GlobalPoint(0,0,0));
- 
- //  static SiStripRecHitMatcher::SimpleHitCollection vsStereoHits;
+  //  static SiStripRecHitMatcher::SimpleHitCollection vsStereoHits;
   // vsStereoHits.resize(simpleSteroHitsByValue.size());
   //std::transform(simpleSteroHitsByValue.begin(), simpleSteroHitsByValue.end(), vsStereoHits.begin(), take_address());
 
@@ -82,79 +72,79 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
 
   auto mf = monoHits.size();
   auto sf = stereoHits.size();
-  
+
   bool emptyMono = false;
   bool emptyStereo = false;
 
   // FIXME  clean this and optimize the rest of the code once understood and validated
-  if (true) { // collector.filter()) {
+  if (true) {  // collector.filter()) {
     emptyMono = theMonoDet->empty(data);
-    if LIKELY(!emptyMono) {
+    if
+      LIKELY(!emptyMono) {
         // mono does require "projection" for precise estimate
-	TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
-	theMonoDet->simpleRecHits(mts,collector.estimator(),data,monoHits);
+        TrajectoryStateOnSurface mts = fastProp(ts, geomDet().surface(), theMonoDet->geomDet().surface());
+        theMonoDet->simpleRecHits(mts, collector.estimator(), data, monoHits);
       }
     // print("mono", mts,ts);
     mf = monoHits.size();
-  }
-  else {
-    theMonoDet->simpleRecHits(ts, data,monoHits);
+  } else {
+    theMonoDet->simpleRecHits(ts, data, monoHits);
     emptyMono = monoHits.empty();
   }
 
   // stereo requires "projection" for precision and change in coordinates
   if (collector.filter()) {
     emptyStereo = theStereoDet->empty(data);
-    if LIKELY(!emptyStereo) {
-	TrajectoryStateOnSurface pts = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
-	theStereoDet->simpleRecHits(pts,collector.estimator(),data,stereoHits);
-	// print("stereo", pts,ts);
+    if
+      LIKELY(!emptyStereo) {
+        TrajectoryStateOnSurface pts = fastProp(ts, geomDet().surface(), theStereoDet->geomDet().surface());
+        theStereoDet->simpleRecHits(pts, collector.estimator(), data, stereoHits);
+        // print("stereo", pts,ts);
       }
     sf = stereoHits.size();
-  }
-  else {
-    theStereoDet->simpleRecHits(ts,data,stereoHits);
+  } else {
+    theStereoDet->simpleRecHits(ts, data, stereoHits);
     emptyStereo = stereoHits.empty();
   }
 
   if (collector.filter()) {
     auto mh = monoHits.size();
     auto sh = stereoHits.size();
-    stat(mh,sh,mf,sf);
+    stat(mh, sh, mf, sf);
   }
 
-  if UNLIKELY( emptyMono &  emptyStereo) return;
+  if
+    UNLIKELY(emptyMono & emptyStereo) return;
 
-  if UNLIKELY(emptyStereo) {
+  if
+    UNLIKELY(emptyStereo) {
       // make mono TTRHs and project them
-      projectOnGluedDet( collector, monoHits, glbDir);
+      projectOnGluedDet(collector, monoHits, glbDir);
       return;
     }
-  
-  if UNLIKELY( emptyMono ) {
+
+  if
+    UNLIKELY(emptyMono) {
       // make stereo TTRHs and project them
-    projectOnGluedDet( collector, stereoHits, glbDir);
-    return;
+      projectOnGluedDet(collector, stereoHits, glbDir);
+      return;
     }
 
-
-  if ((!monoHits.empty()) &  (!stereoHits.empty()) ) {
-    
+  if ((!monoHits.empty()) & (!stereoHits.empty())) {
     const GluedGeomDet* gluedDet = &specificGeomDet();
-    LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
-    
+    LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal(position() - GlobalPoint(0, 0, 0)));
+
     CollectorHelper<Collector> chelper(collector, glbDir);
-    theMatcher->doubleMatch(monoHits.begin(), monoHits.end(),
-			    stereoHits.begin(), stereoHits.end(),
-			    gluedDet, trdir, chelper);
+    theMatcher->doubleMatch(
+        monoHits.begin(), monoHits.end(), stereoHits.begin(), stereoHits.end(), gluedDet, trdir, chelper);
   }
 
-  if (ts.globalMomentum().perp2()> collector.estimator().minPt2ForHitRecoveryInGluedDet()) {
+  if (ts.globalMomentum().perp2() > collector.estimator().minPt2ForHitRecoveryInGluedDet()) {
     // if no match found try add mon than try to add stereo...
-    if (0==collector.size()) 
-      projectOnGluedDet( collector, monoHits, glbDir);
-    if (0==collector.size())
-      projectOnGluedDet( collector, stereoHits, glbDir);
+    if (0 == collector.size())
+      projectOnGluedDet(collector, monoHits, glbDir);
+    if (0 == collector.size())
+      projectOnGluedDet(collector, stereoHits, glbDir);
   }
   /*
   // recover hits outside 
@@ -173,6 +163,4 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
   if (collector.filter()) {
     stat.match(collector.size());
   }
-   
 }
-   

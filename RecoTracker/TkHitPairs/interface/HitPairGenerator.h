@@ -15,28 +15,30 @@
 #include "FWCore/Utilities/interface/RunningAverage.h"
 
 class TrackingRegion;
-namespace edm { class Event; class EventSetup; }
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class HitPairGenerator : public OrderedHitsGenerator {
 public:
+  explicit HitPairGenerator(unsigned int size = 4000);
+  HitPairGenerator(HitPairGenerator const& other) : localRA(other.localRA.mean()) {}
 
-  explicit HitPairGenerator(unsigned int size=4000);
-  HitPairGenerator(HitPairGenerator const & other) : localRA(other.localRA.mean()){}
+  ~HitPairGenerator() override {}
 
-  ~HitPairGenerator() override { }
+  const OrderedHitPairs& run(const TrackingRegion& region, const edm::Event& ev, const edm::EventSetup& es) override;
 
-  const OrderedHitPairs & run(
-    const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es) override;
-
-  virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
-      const edm::Event & ev,  const edm::EventSetup& es) = 0;
+  virtual void hitPairs(const TrackingRegion& reg,
+                        OrderedHitPairs& prs,
+                        const edm::Event& ev,
+                        const edm::EventSetup& es) = 0;
 
   void clear() final;
 
 private:
   OrderedHitPairs thePairs;
   edm::RunningAverage localRA;
-
 };
 
 #endif

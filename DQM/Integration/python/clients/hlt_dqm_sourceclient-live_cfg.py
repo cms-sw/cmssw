@@ -31,7 +31,7 @@ process.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilter
     PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" )
 )
 #SiStrip Local Reco
-process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -111,16 +111,9 @@ process.load("DQM.HLTEvF.HLTObjectMonitor_cff")
 ### for Proton-Lead collisions only (2016 Proton-Lead Era)
 #process.load("DQM.HLTEvF.HLTObjectMonitorProtonLead_cff")
 
-# added for hlt scalars
-process.load("DQM.TrigXMonitor.HLTSeedL1LogicScalers_cfi")
-# added for hlt scalars
-process.hltSeedL1Logic.l1GtData = cms.InputTag("l1GtUnpack","","DQM")
-process.hltSeedL1Logic.dqmFolder =    cms.untracked.string("HLT/HLTSeedL1LogicScalers_SM")
-
 process.load("DQM.HLTEvF.HLTObjectMonitor_Client_cff")
 
 #process.p = cms.EndPath(process.hlts+process.hltsClient)
-process.p = cms.EndPath(process.hltSeedL1Logic)
 
 process.pp = cms.Path(process.dqmEnv+process.dqmSaver)
 #process.hltResults.plotAll = True

@@ -4,7 +4,7 @@
 //
 // Package:    SiPixelFakeGainOfflineReader
 // Class:      SiPixelFakeGainOfflineReader
-// 
+//
 /**\class SiPixelFakeGainOfflineReader SiPixelFakeGainOfflineReader.h SiPixelESProducers/test/SiPixelFakeGainOfflineReader.h
 
  Description: Test analyzer for fake pixel calibrationOffline
@@ -34,31 +34,27 @@
 #include "TBranch.h"
 #include "TH1F.h"
 
-namespace cms{
-class SiPixelFakeGainOfflineReader : public edm::EDAnalyzer {
+namespace cms {
+  class SiPixelFakeGainOfflineReader : public edm::EDAnalyzer {
+  public:
+    explicit SiPixelFakeGainOfflineReader(const edm::ParameterSet& iConfig);
 
-public:
+    ~SiPixelFakeGainOfflineReader(){};
+    virtual void beginJob();
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endJob();
 
-  explicit SiPixelFakeGainOfflineReader( const edm::ParameterSet& iConfig);
+  private:
+    edm::ParameterSet conf_;
+    edm::ESHandle<TrackerGeometry> tkgeom;
+    //edm::ESHandle<SiPixelGainCalibrationOffline> SiPixelGainCalibrationOffline_;
+    SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
 
-  ~SiPixelFakeGainOfflineReader(){};
-  virtual void beginJob( );
-  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
-
-private:
-
-  edm::ParameterSet conf_;
-  edm::ESHandle<TrackerGeometry> tkgeom;
-  //edm::ESHandle<SiPixelGainCalibrationOffline> SiPixelGainCalibrationOffline_;
-  SiPixelGainCalibrationOfflineService SiPixelGainCalibrationOfflineService_;
-
-  std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
-  std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
-  std::string filename_;
-  TFile* fFile;
-
-};
-}
+    std::map<uint32_t, TH1F*> _TH1F_Pedestals_m;
+    std::map<uint32_t, TH1F*> _TH1F_Gains_m;
+    std::string filename_;
+    TFile* fFile;
+  };
+}  // namespace cms
 #endif

@@ -10,7 +10,7 @@
 
 // forward declarations
 namespace reco {
-   class Muon;
+  class Muon;
 }
 
 class FWEventItem;
@@ -19,34 +19,30 @@ class TEveTrackPropagator;
 class FWMagField;
 class FWProxyBuilderBase;
 
-class FWMuonBuilder
-{
-
+class FWMuonBuilder {
 public:
-   FWMuonBuilder();
-   virtual ~FWMuonBuilder();
+  FWMuonBuilder();
+  virtual ~FWMuonBuilder();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void buildMuon(FWProxyBuilderBase*,
-                  const reco::Muon* muon,
-                  TEveElement* tList,
-                  bool showEndcap,
-                  bool onlyTracks = false);
+  // ---------- member functions ---------------------------
+  void buildMuon(
+      FWProxyBuilderBase*, const reco::Muon* muon, TEveElement* tList, bool showEndcap, bool onlyTracks = false);
 
-   void setLineWidth(int w) {m_lineWidth = w;}
+  void setLineWidth(int w) { m_lineWidth = w; }
+
 private:
-   FWMuonBuilder(const FWMuonBuilder&) = delete;    // stop default
+  FWMuonBuilder(const FWMuonBuilder&) = delete;  // stop default
 
-   const FWMuonBuilder& operator=(const FWMuonBuilder&) = delete;    // stop default
+  const FWMuonBuilder& operator=(const FWMuonBuilder&) = delete;  // stop default
 
-   void calculateField(const reco::Muon& iData, FWMagField* field);
+  void calculateField(const reco::Muon& iData, FWMagField* field);
 
-   // ---------- member data --------------------------------
-   int m_lineWidth;
+  // ---------- member data --------------------------------
+  int m_lineWidth;
 };
 
 #endif

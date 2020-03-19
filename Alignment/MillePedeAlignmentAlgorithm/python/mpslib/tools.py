@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import os
 import re
 import sys
@@ -248,7 +249,7 @@ def remove_existing_object(path):
         except OSError as e:
             if e.args != (13, "Permission denied"): raise
             backup_path = path.rstrip("/")+"~"
-            for _ in xrange(5):
+            for _ in range(5):
                 try:
                     if os.path.exists(backup_path): remove_method(backup_path)
                     move_method(path, backup_path)

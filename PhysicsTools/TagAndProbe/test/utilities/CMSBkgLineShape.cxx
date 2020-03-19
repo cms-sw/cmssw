@@ -15,7 +15,7 @@
  #include "TMath.h" 
  #include "RooMath.h"
 
- ClassImp(CMSBkgLineShape) 
+ ClassImp(CMSBkgLineShape); 
 
  CMSBkgLineShape::CMSBkgLineShape(const char *name, const char *title, 
                         RooAbsReal& _x,

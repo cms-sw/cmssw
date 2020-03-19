@@ -6,17 +6,17 @@
 #include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include <map>
 
-class CSCDDUMap{
- public:
+class CSCDDUMap {
+public:
   CSCDDUMap();
   ~CSCDDUMap();
 
-  const CSCMapItem::MapItem& item( int key )const;
+  const CSCMapItem::MapItem& item(int key) const;
 
-  typedef std::map< int,CSCMapItem::MapItem > CSCMap;
+  typedef std::map<int, CSCMapItem::MapItem> CSCMap;
   CSCMap ddu_map;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

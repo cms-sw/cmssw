@@ -1,5 +1,6 @@
 #!/usr/bin/env python 
 from __future__ import print_function
+from __future__ import absolute_import
 from sys import stderr, exit
 import commands, os
 
@@ -85,7 +86,7 @@ def getProcessObjectFromConfDB(hlt_key):
    return process
 
 #----------------------------------------------------------------------
-from queryRR import queryRR
+from .queryRR import queryRR
 
 #----------------------------------------------------------------------
 # main

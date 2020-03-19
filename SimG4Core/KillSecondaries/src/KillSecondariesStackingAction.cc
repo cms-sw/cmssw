@@ -4,121 +4,14 @@
 
 #include "G4Track.hh"
 
-G4ClassificationOfNewTrack KillSecondariesStackingAction::ClassifyNewTrack(const G4Track * aTrack) {
-
+G4ClassificationOfNewTrack KillSecondariesStackingAction::ClassifyNewTrack(const G4Track *aTrack) {
   NewTrackAction newTA;
-  if (aTrack->GetCreatorProcess()==nullptr || aTrack->GetParentID()==0) {
+  if (aTrack->GetCreatorProcess() == nullptr || aTrack->GetParentID() == 0) {
     newTA.primary(aTrack);
     return fUrgent;
   } else {
-    const G4Track * mother = CurrentG4Track::track();
+    const G4Track *mother = CurrentG4Track::track();
     newTA.secondary(aTrack, *mother, 0);
     return fKill;
   }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

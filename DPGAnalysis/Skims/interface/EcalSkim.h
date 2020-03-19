@@ -43,17 +43,16 @@ class TFile;
 
 class EcalSkim : public edm::EDFilter {
 public:
-  explicit EcalSkim( const edm::ParameterSet & );
+  explicit EcalSkim(const edm::ParameterSet &);
   ~EcalSkim() override;
-  
+
 private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
-  
+  bool filter(edm::Event &, const edm::EventSetup &) override;
+
   edm::InputTag BarrelClusterCollection;
   edm::InputTag EndcapClusterCollection;
   double EnergyCutEB;
   double EnergyCutEE;
-  
 };
 
 #endif

@@ -5,11 +5,12 @@ import os
 import DQMOffline.EGamma.electronDataDiscovery as dd
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras 
 
 #process = cms.Process("electronValidation")
-#process = cms.Process("electronValidation",eras.Run2_2017)
-process = cms.Process('electronValidation',eras.Phase2) 
+#from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+#process = cms.Process("electronValidation",Run2_2017)
+from Configuration.Eras.Era_Phase2_cff import Phase2
+process = cms.Process('electronValidation',Phase2) 
 
 process.options = cms.untracked.PSet( )
 

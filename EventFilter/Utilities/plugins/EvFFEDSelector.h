@@ -17,19 +17,17 @@ namespace evf {
 
   class EvFFEDSelector : public edm::global::EDProducer<> {
   public:
-
     explicit EvFFEDSelector(edm::ParameterSet const &);
-    ~EvFFEDSelector() override { }
+    ~EvFFEDSelector() override {}
 
     void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const final;
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   private:
-    edm::EDGetTokenT<FEDRawDataCollection>  token_;
-    std::vector<unsigned int>               fedlist_;
-
+    edm::EDGetTokenT<FEDRawDataCollection> token_;
+    std::vector<unsigned int> fedlist_;
   };
 
-}
+}  // namespace evf
 
 #endif

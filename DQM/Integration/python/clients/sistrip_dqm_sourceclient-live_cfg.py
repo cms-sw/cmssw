@@ -1,9 +1,9 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("SiStrpDQMLive", eras.Run2_2018_pp_on_AA)
+from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
+process = cms.Process("SiStrpDQMLive", Run2_2018_pp_on_AA)
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siStripDigis',
@@ -130,7 +130,8 @@ process.TrackMon_ckf.AlgoName = 'CKFTk'
 #--------------------------
 # Quality Test
 #--------------------------
-process.stripQTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.stripQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(3),
     getQualityTestsFromFile = cms.untracked.bool(True),
@@ -138,7 +139,7 @@ process.stripQTester = cms.EDAnalyzer("QualityTester",
     qtestOnEndRun = cms.untracked.bool(True)
 )
 
-process.trackingQTester = cms.EDAnalyzer("QualityTester",
+process.trackingQTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(3),
     getQualityTestsFromFile = cms.untracked.bool(True),

@@ -6,19 +6,18 @@
 
   \Author Rick Wilkinson
 */
-#include <string>
 #include <iosfwd>
+#include <string>
 
-class CaloValidationStatistics
-{
+class CaloValidationStatistics {
 public:
   CaloValidationStatistics(std::string name, float expectedMean, float expectedRMS);
   /// prints to LogInfo upon destruction
   ~CaloValidationStatistics();
 
-  void addEntry(float value, float weight=1.);
+  void addEntry(float value, float weight = 1.);
 
-  std::string name() const {return name_;}
+  std::string name() const { return name_; }
 
   float mean() const;
 
@@ -26,14 +25,13 @@ public:
 
   float weightedMean() const;
 
-  float expectedMean() const {return expectedMean_;}
+  float expectedMean() const { return expectedMean_; }
 
-  float expectedRMS() const {return expectedRMS_;}
+  float expectedRMS() const { return expectedRMS_; }
 
-  int nEntries() const {return n_;}
+  int nEntries() const { return n_; }
 
 private:
-
   std::string name_;
   float expectedMean_;
   float expectedRMS_;
@@ -44,7 +42,6 @@ private:
   int n_;
 };
 
-std::ostream & operator<<(std::ostream & os, const CaloValidationStatistics & stat);
+std::ostream &operator<<(std::ostream &os, const CaloValidationStatistics &stat);
 
 #endif
-

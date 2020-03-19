@@ -76,12 +76,11 @@ combinatorialcosmicseedingpairsTECnegP5 = cms.EDProducer("SeedingLayersEDProduce
         maxRing = cms.int32(7)
     )
 )
-combinatorialcosmicseedinglayersP5 = cms.Sequence(
-    combinatorialcosmicseedingtripletsP5 +
-    combinatorialcosmicseedingpairsTOBP5 +
-    combinatorialcosmicseedingpairsTECposP5 +
-    combinatorialcosmicseedingpairsTECnegP5
-)
+combinatorialcosmicseedinglayersP5Task = cms.Task(combinatorialcosmicseedingtripletsP5, 
+                                                  combinatorialcosmicseedingpairsTOBP5,
+                                                  combinatorialcosmicseedingpairsTECposP5,
+                                                  combinatorialcosmicseedingpairsTECnegP5)
+combinatorialcosmicseedinglayersP5 = cms.Sequence(combinatorialcosmicseedinglayersP5Task)
 #recHitMatcher
 #include "RecoLocalTracker/SiStripRecHitConverter/data/SiStripRecHitMatcher.cfi"
 #seeding module

@@ -1,18 +1,17 @@
 
 #include <iostream>
 
-
 #include "cppunit/extensions/HelperMacros.h"
 
 // ----------------------------------------------
-class testmaker: public CppUnit::TestFixture
-{
-CPPUNIT_TEST_SUITE(testmaker);
-CPPUNIT_TEST(makerTest);
-CPPUNIT_TEST_SUITE_END();
+class testmaker : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testmaker);
+  CPPUNIT_TEST(makerTest);
+  CPPUNIT_TEST_SUITE_END();
+
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
   void makerTest();
 };
 
@@ -22,14 +21,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testmaker);
 void testmaker::makerTest()
 //int main()
 {
-  std::string param1 = 
-    "string module_type = \"TestMod\"\n "
-    " string module_label = \"t1\"";
+  std::string param1 =
+      "string module_type = \"TestMod\"\n "
+      " string module_label = \"t1\"";
 
-  std::string param2 = 
-    "string module_type = \"TestMod\" "
-    "string module_label = \"t2\"";
-    
+  std::string param2 =
+      "string module_type = \"TestMod\" "
+      "string module_label = \"t2\"";
+
   /*try {
 
     edmplugin::PluginManager::configure(edmplugin::standard::config());

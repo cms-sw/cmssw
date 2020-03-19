@@ -21,27 +21,21 @@
 
 // #include "HepPID/ParticleIDTranslations.hh"
 
-namespace gen
-{
-  
-// class Pythia6Service;
-  
-  class Pythia6ParticleGun : public Pythia6Gun 
-  {
-  
-  public:
+namespace gen {
 
-    Pythia6ParticleGun( const edm::ParameterSet& );
+  // class Pythia6Service;
+
+  class Pythia6ParticleGun : public Pythia6Gun {
+  public:
+    Pythia6ParticleGun(const edm::ParameterSet&);
     ~Pythia6ParticleGun() override;
 
   protected:
-       
     // gun particle(s) characteristics
     //
-    std::vector<int> fPartIDs ;
-                
+    std::vector<int> fPartIDs;
   };
 
-}  // end namespace
+}  // namespace gen
 
 #endif

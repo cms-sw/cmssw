@@ -33,6 +33,9 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_intProducerOther_*_*',
         'keep *_intProducerAlias_*_*',
         'keep *_intProducerAlias2_foo_*',
+        'keep *_intProducerDep1_*_*',
+        'keep *_intProducerDep2_*_*',
+        'keep *_intProducerDep3_*_*',
     )
 )
 
@@ -68,7 +71,13 @@ process.intProducerAlias2 = SwitchProducerTest(
                         intProducer3 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )
 
+# Test multiple consumers of a SwitchProducer
+process.intProducerDep1 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+process.intProducerDep2 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+process.intProducerDep3 = cms.EDProducer("AddIntsProducer", labels = cms.vstring("intProducer"))
+
 process.t = cms.Task(process.intProducer, process.intProducerOther, process.intProducerAlias, process.intProducerAlias2,
+                     process.intProducerDep1, process.intProducerDep2, process.intProducerDep3,
                      process.intProducer1, process.intProducer2, process.intProducer3, process.intProducer4)
 process.p = cms.Path(process.t)
 

@@ -1,8 +1,10 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/CTPPSDigi"/>
+<use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/Math"/>
-<use name="root"/>
+<use name="rootsmatrix"/>
 <use name="rootmath"/>
+<use name="rootphysics"/>
 
 <export>
   <lib name="1"/>

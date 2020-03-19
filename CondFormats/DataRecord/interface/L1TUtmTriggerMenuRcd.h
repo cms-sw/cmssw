@@ -1,4 +1,4 @@
-// L1TUtmTriggerMenuRcd                                                                                            
+// L1TUtmTriggerMenuRcd
 // Description: Record for L1TUtmTriggerMenu
 //
 // automatically generate by make_records.pl

@@ -33,20 +33,14 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+CompareToObjectMapRecord::CompareToObjectMapRecord(const edm::ParameterSet &pset)
+    : m_l1GtObjectMapTag(pset.getParameter<edm::InputTag>("L1GtObjectMapTag")),
+      m_l1GtObjectMapsTag(pset.getParameter<edm::InputTag>("L1GtObjectMapsTag")),
+      verbose_(pset.getUntrackedParameter<bool>("verbose", false)) {}
 
-CompareToObjectMapRecord::CompareToObjectMapRecord(const edm::ParameterSet& pset) :
-  m_l1GtObjectMapTag(pset.getParameter<edm::InputTag>("L1GtObjectMapTag")),
-  m_l1GtObjectMapsTag(pset.getParameter<edm::InputTag>("L1GtObjectMapsTag")),
-  verbose_(pset.getUntrackedParameter<bool>("verbose", false))
-{
-}
+CompareToObjectMapRecord::~CompareToObjectMapRecord() {}
 
-CompareToObjectMapRecord::~CompareToObjectMapRecord() {
-}
-
-void CompareToObjectMapRecord::
-analyze(edm::Event const& event, edm::EventSetup const& es) {
-
+void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup const &es) {
   // Read in the data in the old format
   edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
   event.getByLabel(m_l1GtObjectMapTag, gtObjectMapRecord);
@@ -57,8 +51,8 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
 
   // In the new format the names are not in the event data,
   // They are in the ParameterSet registry
-  edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
-  edm::ParameterSet const* pset = psetRegistry->getMapped(gtObjectMaps->namesParameterSetID());
+  edm::pset::Registry *psetRegistry = edm::pset::Registry::instance();
+  edm::ParameterSet const *pset = psetRegistry->getMapped(gtObjectMaps->namesParameterSetID());
   if (pset == nullptr) {
     cms::Exception ex("L1GlobalTrigger");
     ex << "Could not find L1 trigger names ParameterSet in the registry";
@@ -68,14 +62,15 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
 
   // First compare the algorithm bit numbers
   std::vector<int> algoBitNumbers1;
-  std::vector<L1GlobalTriggerObjectMap> const& vectorInRecord = gtObjectMapRecord->gtObjectMap();
+  std::vector<L1GlobalTriggerObjectMap> const &vectorInRecord = gtObjectMapRecord->gtObjectMap();
   algoBitNumbers1.reserve(vectorInRecord.size());
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator i = vectorInRecord.begin(),
-                                                          iEnd = vectorInRecord.end();
-       i != iEnd; ++i) {
+  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator i = vectorInRecord.begin(), iEnd = vectorInRecord.end();
+       i != iEnd;
+       ++i) {
     algoBitNumbers1.push_back(i->algoBitNumber());
     if (verbose_) {
-      // This will print out all the data from the L1GlobalTriggerObjectMapRecord
+      // This will print out all the data from the
+      // L1GlobalTriggerObjectMapRecord
       i->print(std::cout);
     }
   }
@@ -91,7 +86,7 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
   }
 
   // Now test the algorithm names
-  std::vector<std::string> algoNames2 = pset->getParameter<std::vector<std::string> >("@algorithmNames");
+  std::vector<std::string> algoNames2 = pset->getParameter<std::vector<std::string>>("@algorithmNames");
 
   // In the ParameterSet, the algorithm names are referenced by position
   // in the vector. If the bit number for a position in the vector is
@@ -109,10 +104,10 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
 
   // Main loop over algorithms
   for (std::vector<int>::const_iterator iBit = algoBitNumbers1.begin(), endBits = algoBitNumbers1.end();
-       iBit != endBits; ++iBit) {
-
-    L1GlobalTriggerObjectMap const* objMap = gtObjectMapRecord->getObjectMap(*iBit);
-    const std::string& algoName1 = objMap->algoName();
+       iBit != endBits;
+       ++iBit) {
+    L1GlobalTriggerObjectMap const *objMap = gtObjectMapRecord->getObjectMap(*iBit);
+    const std::string &algoName1 = objMap->algoName();
 
     if (algoName1 != algoNames2.at(*iBit)) {
       cms::Exception ex("L1GlobalTrigger");
@@ -129,8 +124,7 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
       throw ex;
     }
 
-    std::vector<L1GtLogicParser::OperandToken> const& operandTokens1 =
-      objMap->operandTokenVector();
+    std::vector<L1GtLogicParser::OperandToken> const &operandTokens1 = objMap->operandTokenVector();
 
     L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions2 = gtObjectMaps->getConditionsInAlgorithm(*iBit);
     if (conditions2.nConditions() != operandTokens1.size()) {
@@ -141,24 +135,21 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
     }
 
     std::vector<std::string> conditionNames2;
-    conditionNames2 = pset->getParameter<std::vector<std::string> >(algoNames2.at(*iBit));
+    conditionNames2 = pset->getParameter<std::vector<std::string>>(algoNames2.at(*iBit));
 
     // Print out data from L1GlobalTriggerObjectMaps and ParameterSet registry
     if (verbose_) {
-      std::cout << *iBit
-                << "  " << algoNames2[*iBit]
-                << "  " << gtObjectMaps->algorithmResult(*iBit) << "\n";
+      std::cout << *iBit << "  " << algoNames2[*iBit] << "  " << gtObjectMaps->algorithmResult(*iBit) << "\n";
 
       for (unsigned j = 0; j < gtObjectMaps->getNumberOfConditions(*iBit); ++j) {
         L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = gtObjectMaps->getConditionsInAlgorithm(*iBit);
-        std::cout << "    " << j
-                  << "  " << conditionNames2[j]
-                  << "  " << conditions.getConditionResult(j) << "\n";
-        L1GlobalTriggerObjectMaps::CombinationsInCondition combinations = gtObjectMaps->getCombinationsInCondition(*iBit, j);
+        std::cout << "    " << j << "  " << conditionNames2[j] << "  " << conditions.getConditionResult(j) << "\n";
+        L1GlobalTriggerObjectMaps::CombinationsInCondition combinations =
+            gtObjectMaps->getCombinationsInCondition(*iBit, j);
         for (unsigned m = 0; m < combinations.nCombinations(); ++m) {
-          std::cout << "    "; 
+          std::cout << "    ";
           for (unsigned n = 0; n < combinations.nObjectsPerCombination(); ++n) {
-            std::cout << "  " << static_cast<unsigned>(combinations.getObjectIndex(m,n)); 
+            std::cout << "  " << static_cast<unsigned>(combinations.getObjectIndex(m, n));
           }
           std::cout << "\n";
         }
@@ -168,10 +159,9 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
     // Loop over conditions
     unsigned iCondition = 0;
     for (std::vector<L1GtLogicParser::OperandToken>::const_iterator iToken1 = operandTokens1.begin(),
-                                                                 endTokens1 = operandTokens1.end();
+                                                                    endTokens1 = operandTokens1.end();
          iToken1 != endTokens1;
          ++iToken1, ++iCondition) {
-
       // Compare condition numbers
       if (iToken1->tokenNumber != static_cast<int>(iCondition)) {
         cms::Exception ex("L1GlobalTrigger");
@@ -198,35 +188,34 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
 
       // Compare the combinations of Indexes into the L1 collections
       L1GlobalTriggerObjectMaps::CombinationsInCondition combinations2 =
-        gtObjectMaps->getCombinationsInCondition(*iBit, iCondition);
+          gtObjectMaps->getCombinationsInCondition(*iBit, iCondition);
 
-      CombinationsInCond const* combinations1 = objMap->getCombinationsInCond(iToken1->tokenNumber);
+      CombinationsInCond const *combinations1 = objMap->getCombinationsInCond(iToken1->tokenNumber);
       if (combinations1->size() != combinations2.nCombinations()) {
         cms::Exception ex("L1GlobalTrigger");
         ex << "The number of combinations in a condition does not match";
         ex.addContext("Calling CompareToObjectMapRecord::analyze");
-        throw ex;        
+        throw ex;
       }
 
-      for (CombinationsInCond::const_iterator iCombo = combinations1->begin(),
-                                           endCombos = combinations1->end();
-           iCombo != endCombos; ++iCombo) {
+      for (CombinationsInCond::const_iterator iCombo = combinations1->begin(), endCombos = combinations1->end();
+           iCombo != endCombos;
+           ++iCombo) {
         if (iCombo->size() != combinations2.nObjectsPerCombination()) {
           cms::Exception ex("L1GlobalTrigger");
           ex << "The number of indexes in a combination does not match";
           ex.addContext("Calling CompareToObjectMapRecord::analyze");
-          throw ex;        
+          throw ex;
         }
 
-        for (std::vector<int>::const_iterator iIndex = iCombo->begin(),
-                                          endIndexes = iCombo->end();
-             iIndex != endIndexes; ++iIndex) {
-
+        for (std::vector<int>::const_iterator iIndex = iCombo->begin(), endIndexes = iCombo->end();
+             iIndex != endIndexes;
+             ++iIndex) {
           if (*iIndex != combinations2.getObjectIndex(iCombo - combinations1->begin(), iIndex - iCombo->begin())) {
             cms::Exception ex("L1GlobalTrigger");
             ex << "Object index does not match";
             ex.addContext("Calling CompareToObjectMapRecord::analyze");
-            throw ex;        
+            throw ex;
           }
         }
       }

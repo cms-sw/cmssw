@@ -2,6 +2,4 @@
 
 using namespace std;
 
-  HcalTBParticleId::HcalTBParticleId() :
-    TOF_(0.){}
-
+HcalTBParticleId::HcalTBParticleId() : TOF_(0.) {}

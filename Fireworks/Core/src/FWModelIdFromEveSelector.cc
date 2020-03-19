@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWModelIdFromEveSelector
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/Core/interface/FWModelIdFromEveSelector.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-
 
 //
 // constants, enums and typedefs
@@ -56,20 +55,16 @@
 //
 // member functions
 //
-void 
-FWModelIdFromEveSelector::doSelect()
-{
-   if( not m_id.item()->modelInfo(m_id.index()).isSelected() ) {
-      m_id.select();
-   }
+void FWModelIdFromEveSelector::doSelect() {
+  if (not m_id.item()->modelInfo(m_id.index()).isSelected()) {
+    m_id.select();
+  }
 }
 
-void 
-FWModelIdFromEveSelector::doUnselect()
-{
-   if( m_id.item()->modelInfo(m_id.index()).isSelected() ) {
-      m_id.unselect();
-   }
+void FWModelIdFromEveSelector::doUnselect() {
+  if (m_id.item()->modelInfo(m_id.index()).isSelected()) {
+    m_id.unselect();
+  }
 }
 
 //

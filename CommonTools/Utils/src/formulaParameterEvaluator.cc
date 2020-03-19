@@ -2,7 +2,7 @@
 //
 // Package:     CommonTools/Utils
 // Class  :     reco::formula::ParameterEvaluator
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,14 +15,13 @@
 // user include files
 #include "formulaParameterEvaluator.h"
 
-
 namespace reco {
   namespace formula {
     double ParameterEvaluator::evaluate(double const* /*iVariables*/, double const* iParameters) const {
       return iParameters[m_index];
     }
     std::vector<std::string> ParameterEvaluator::abstractSyntaxTree() const {
-      return std::vector<std::string>{1, std::string("par[")+std::to_string(m_index)+"]"};
+      return std::vector<std::string>{1, std::string("par[") + std::to_string(m_index) + "]"};
     }
-  }
-}
+  }  // namespace formula
+}  // namespace reco

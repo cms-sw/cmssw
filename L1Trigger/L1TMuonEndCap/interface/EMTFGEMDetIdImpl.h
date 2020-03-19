@@ -8,7 +8,7 @@
 
 namespace emtf {
 
-  template<typename T=void>
+  template <typename T = void>
   EMTFGEMDetId construct_EMTFGEMDetId(const L1TMuon::TriggerPrimitive& tp) {
     if (!tp.getGEMData().isME0) {
       GEMDetId id(tp.detId<GEMDetId>());

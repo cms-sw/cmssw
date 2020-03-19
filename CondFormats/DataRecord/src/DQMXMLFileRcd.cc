@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     DQMReferenceHistogramRootFileRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Tue Jul  7 20:29:25 CEST 2009
 // $Id: DQMReferenceHistogramRootFileRcd.cc,v 1.1 2009/07/20 17:08:17 diguida Exp $
 

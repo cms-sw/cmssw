@@ -17,7 +17,7 @@
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
 
-  /**
+/**
      \class EcalFloatCondObjectContainerHandler EcalFloatCondObjectContainerHandler.h "/EcalFloatCondObjectContainerHandler.h"
 
      \brief popcon application to store FloatCondObjectContainer Records
@@ -26,27 +26,22 @@
      \author Stefano ARGIRO
      \date 09 Sep 2008
   */
-  class EcalFloatCondObjectContainerHandler:
-        public popcon::PopConSourceHandler<EcalFloatCondObjectContainer> {
+class EcalFloatCondObjectContainerHandler : public popcon::PopConSourceHandler<EcalFloatCondObjectContainer> {
+public:
+  EcalFloatCondObjectContainerHandler(const edm::ParameterSet& ps);
+  ~EcalFloatCondObjectContainerHandler() override;
+  void getNewObjects() override;
+  std::string id() const override;
 
-  public:
-    EcalFloatCondObjectContainerHandler(const edm::ParameterSet & ps);
-    ~EcalFloatCondObjectContainerHandler() override;
-    void getNewObjects() override;
-    std::string id() const override ;
+private:
+  std::string xmlFileSource_;
+  long long since_;
 
-  private:
+  EcalCondHeader header_;
 
-    std::string xmlFileSource_;
-    long long since_;
+};  // EcalFloatCondObjectContainerHandler
 
-    EcalCondHeader header_;
-    
-
-  }; // EcalFloatCondObjectContainerHandler
-
-
-#endif // _CondToolsEcal_EcalFloatCondObjectContainerHandler_h_
+#endif  // _CondToolsEcal_EcalFloatCondObjectContainerHandler_h_
 
 // Configure (x)emacs for this file ...
 // Local Variables:

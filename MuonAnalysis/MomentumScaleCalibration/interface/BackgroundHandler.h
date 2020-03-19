@@ -29,52 +29,54 @@ class TestBackgroundHandler;
  * <br>
  * A bool selects if to use the regions functions or the resonances functions.
  */
-class BackgroundHandler
-{
+class BackgroundHandler {
   // For tests
   friend class TestBackgroundHandler;
 
 public:
-  BackgroundHandler( const std::vector<int> & identifiers,
-                     const std::vector<double> & leftWindowBorders,
-                     const std::vector<double> & rightWindowBorders,
-                     const double * ResMass,
-                     const double * massWindowHalfWidth );
+  BackgroundHandler(const std::vector<int>& identifiers,
+                    const std::vector<double>& leftWindowBorders,
+                    const std::vector<double>& rightWindowBorders,
+                    const double* ResMass,
+                    const double* massWindowHalfWidth);
   ~BackgroundHandler();
 
   /// Initialize the parNums to be used in the shifts of parval
   void initializeParNums();
 
   /// Returns the total number of parameters used for the regions
-  inline int regionsParNum()
-  {
-    return parNumsResonances_[0];
-  }
+  inline int regionsParNum() { return parNumsResonances_[0]; }
 
   /// Check if the mass value is inside the given background region
-  bool checkBackgroundWindow(const double & mass, const int iRegion)
-  {
-    return backgroundWindow_[iRegion].isIn(mass);
-  }
+  bool checkBackgroundWindow(const double& mass, const int iRegion) { return backgroundWindow_[iRegion].isIn(mass); }
 
-  void countEventsInAllWindows(const std::vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs,
-                               const double & weight);
+  void countEventsInAllWindows(
+      const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >& muonPairs,
+      const double& weight);
 
   /// Sets initial parameters for all the functions
-  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double> & parBgr, const std::vector<int> & parBgrOrder, const int muonType);
+  void setParameters(double* Start,
+                     double* Step,
+                     double* Mini,
+                     double* Maxi,
+                     int* ind,
+                     TString* parname,
+                     const std::vector<double>& parBgr,
+                     const std::vector<int>& parBgrOrder,
+                     const int muonType);
 
   /// returns true if the parameter is to be unlocked
-  bool unlockParameter(const std::vector<int> & resfind, const unsigned int ipar);
+  bool unlockParameter(const std::vector<int>& resfind, const unsigned int ipar);
 
   /// Returns the appropriate window borders depending on whether the background is being fitted and on the resonance
-  std::pair<double, double> windowBorders( const bool doBackgroundFit, const int ires );
+  std::pair<double, double> windowBorders(const bool doBackgroundFit, const int ires);
 
   /**
    * Returns the appropriate resMass value depending on whether the background is being fitted and on the resonance. <br>
    * The resMass used for the region is the mean of the mass of the corresponding resonances, so for the Z is the same Z mass,
    * for the Upsilons is the arithmetic mean of the Upsilon masses and the same for the J/Psi and Psi2S region.
    */
-  double resMass( const bool doBackgroundFit, const int ires );
+  double resMass(const bool doBackgroundFit, const int ires);
 
   /**
    * Computes the rescaled parameters from the regions functions to the
@@ -82,25 +84,35 @@ public:
    * and rescales the parameters so that the fraction of events is correctly accounted for. <br>
    * It uses the list of all muon pairs to compute the number of events in each resonance window.
    */
-  void rescale( std::vector<double> & parBgr, const double * ResMass, const double * massWindowHalfWidth,
-                const std::vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs,
-                const double & weight = 1. );
+  void rescale(std::vector<double>& parBgr,
+               const double* ResMass,
+               const double* massWindowHalfWidth,
+               const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >& muonPairs,
+               const double& weight = 1.);
 
   /**
    * Returns the background fraction parameter (parBgr[0], but shifted to the correct function) and
    * the value returned by the background function. <br>
    * Depending on the value of doBackgroundFit it returns the values for the regions or the resonances.
    */
-  std::pair<double, double> backgroundFunction( const bool doBackgroundFit,
-						const double * parval, const int resTotNum, const int ires,
-						const bool * resConsidered, const double * ResMass, const double ResHalfWidth[],
-						/* const int MuonType, const double & mass, const double & resEta ); */
-						const int MuonType, const double & mass, const double & eta1, const double & eta2 );
+  std::pair<double, double> backgroundFunction(const bool doBackgroundFit,
+                                               const double* parval,
+                                               const int resTotNum,
+                                               const int ires,
+                                               const bool* resConsidered,
+                                               const double* ResMass,
+                                               const double ResHalfWidth[],
+                                               /* const int MuonType, const double & mass, const double & resEta ); */
+                                               const int MuonType,
+                                               const double& mass,
+                                               const double& eta1,
+                                               const double& eta2);
+
 private:
   /// Used to check the consistency of passed parameters
-  void consistencyCheck( const std::vector<int> & identifiers,
-                         const std::vector<double> & leftWindowBorders,
-                         const std::vector<double> & rightWindowBorders ) const noexcept(false);
+  void consistencyCheck(const std::vector<int>& identifiers,
+                        const std::vector<double>& leftWindowBorders,
+                        const std::vector<double>& rightWindowBorders) const noexcept(false);
 
   // Correspondence between regions and halfWidths used:
   // - for the Upsilons region we use the Upsilon
@@ -130,4 +142,4 @@ private:
   std::vector<MassWindow> backgroundWindow_;
 };
 
-#endif // BackgroundHandler_h
+#endif  // BackgroundHandler_h

@@ -17,7 +17,7 @@
 //---------------
 // C++ Headers --
 //---------------
-#include<iostream>
+#include <iostream>
 
 //----------------------
 // Base Class Headers --
@@ -34,17 +34,15 @@
 //              ---------------------
 
 class DTConfigLUTs : public DTConfig {
-
-  public:
-
+public:
   //! Constructor
   DTConfigLUTs(const edm::ParameterSet& ps);
 
   //! Empty Constructor
-  DTConfigLUTs() {};
+  DTConfigLUTs(){};
 
   //! Constructor from string
-  DTConfigLUTs(bool debug, unsigned short int * buffer);
+  DTConfigLUTs(bool debug, unsigned short int* buffer);
 
   //! Destructor
   ~DTConfigLUTs() override;
@@ -55,36 +53,35 @@ class DTConfigLUTs : public DTConfig {
   //! BTIC parameter
   inline int BTIC() const { return m_btic; }
 
-  //! d: distance vertex to normal, unit cm. 
-  inline float D() const { return  m_d; }
-  
-  //! Xcn: distance vertex to normal, unit cm. 
-  inline float Xcn() const { return  m_Xcn; }
-    
+  //! d: distance vertex to normal, unit cm.
+  inline float D() const { return m_d; }
+
+  //! Xcn: distance vertex to normal, unit cm.
+  inline float Xcn() const { return m_Xcn; }
+
   //! wheel sign (-1 or +1)
-  inline int Wheel() const { return  m_wheel; }
+  inline int Wheel() const { return m_wheel; }
 
   //! Set single parameter functions
-  inline void setDebug(bool debug) { m_debug=debug; }
+  inline void setDebug(bool debug) { m_debug = debug; }
   inline void setBTIC(int btic) { m_btic = btic; }
-  inline void setD(float d)	{ m_d = d; }
-  inline void setXCN(float Xcn) { m_Xcn = Xcn; } 
-  inline void setWHEEL(int wheel) { m_wheel = wheel; } 
-  
+  inline void setD(float d) { m_d = d; }
+  inline void setXCN(float Xcn) { m_Xcn = Xcn; }
+  inline void setWHEEL(int wheel) { m_wheel = wheel; }
+
   //! Print the setup
-  void print() const ;
-  
+  void print() const;
+
   //!  DSP to IEEE32 conversion
-  void DSPtoIEEE32(short DSPmantissa, short DSPexp, float *f) const;
+  void DSPtoIEEE32(short DSPmantissa, short DSPexp, float* f) const;
 
   //!  IEEE32 to DSP conversion
-  void IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp) const;
+  void IEEE32toDSP(float f, short int& DSPmantissa, short int& DSPexp) const;
 
- /*  //! Return pointer to parameter set */
-/*   const edm::ParameterSet* getParameterSet() { return m_ps; } */
+  /*  //! Return pointer to parameter set */
+  /*   const edm::ParameterSet* getParameterSet() { return m_ps; } */
 
-  private:
-
+private:
   //! Load pset values into class variables
   void setDefaults(const edm::ParameterSet& m_ps);
 

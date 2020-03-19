@@ -1,30 +1,27 @@
 #ifndef ESPedestals_h
 #define ESPedestals_h
 
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/ESObjects/interface/ESCondObjectContainer.h"
 
 struct ESPedestal {
-        struct Zero { float z1; float z2;};
+  struct Zero {
+    float z1;
+    float z2;
+  };
 
-        static const Zero zero;
+  static const Zero zero;
 
-        float mean;
-        float rms;
+  float mean;
+  float rms;
 
-        public:
+public:
+  float getMean() const { return mean; }
 
-        float getMean() const {
-                return mean;
-        }
+  float getRms() const { return rms; }
 
-        float getRms() const {
-                return rms;
-        }
-
-        COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 typedef ESCondObjectContainer<ESPedestal> ESPedestalsMap;

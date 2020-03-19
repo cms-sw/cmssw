@@ -11,13 +11,13 @@
 namespace reco {
   class PFCandidateEGammaExtra;
 
-    /// collection of PFCandidateEGammaExtras
+  /// collection of PFCandidateEGammaExtras
   typedef std::vector<reco::PFCandidateEGammaExtra> PFCandidateEGammaExtraCollection;
 
-  /// iterator 
+  /// iterator
   typedef PFCandidateEGammaExtraCollection::const_iterator PFCandidateEGammaExtraConstIterator;
 
-  /// iterator 
+  /// iterator
   typedef PFCandidateEGammaExtraCollection::iterator PFCandidateEGammaExtraIterator;
 
   /// persistent reference to a PFCandidateEGammaExtra
@@ -32,17 +32,17 @@ namespace reco {
   /// vector of reference to GenParticleCandidate in the same collection
   typedef edm::RefVector<PFCandidateEGammaExtraCollection> PFCandidateEGammaExtraRefVector;
 
-   /// persistent "forward" reference to a PFCandidateEGammaExtra
-   typedef edm::FwdRef<PFCandidateEGammaExtraCollection> PFCandidateEGammaExtraFwdRef;
- 
-   /// persistent FwdPtr to a PFCandidateEGammaExtra
-   typedef edm::FwdPtr<PFCandidateEGammaExtra> PFCandidateEGammaExtraFwdPtr;
- 
-   /// vector of "forward" reference
-   typedef std::vector<PFCandidateEGammaExtraFwdRef> PFCandidateEGammaExtraFwdRefVector;
- 
-   /// vector of "forward" reference
-   typedef std::vector<PFCandidateEGammaExtraFwdPtr> PFCandidateEGammaExtraFwdPtrVector;
+  /// persistent "forward" reference to a PFCandidateEGammaExtra
+  typedef edm::FwdRef<PFCandidateEGammaExtraCollection> PFCandidateEGammaExtraFwdRef;
 
-}
+  /// persistent FwdPtr to a PFCandidateEGammaExtra
+  typedef edm::FwdPtr<PFCandidateEGammaExtra> PFCandidateEGammaExtraFwdPtr;
+
+  /// vector of "forward" reference
+  typedef std::vector<PFCandidateEGammaExtraFwdRef> PFCandidateEGammaExtraFwdRefVector;
+
+  /// vector of "forward" reference
+  typedef std::vector<PFCandidateEGammaExtraFwdPtr> PFCandidateEGammaExtraFwdPtrVector;
+
+}  // namespace reco
 #endif

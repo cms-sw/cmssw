@@ -15,7 +15,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -34,70 +33,59 @@
 
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
 
-
 //
 // class declaration
 //
 
-
 class TcdsRawToDigi : public edm::stream::EDProducer<> {
-   public:
-      explicit TcdsRawToDigi(const edm::ParameterSet&);
-      ~TcdsRawToDigi() override;
+public:
+  explicit TcdsRawToDigi(const edm::ParameterSet&);
+  ~TcdsRawToDigi() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
-
+  edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
 };
 
-TcdsRawToDigi::TcdsRawToDigi(const edm::ParameterSet& iConfig)
-{
-    edm::InputTag dataLabel = iConfig.getParameter<edm::InputTag>("InputLabel");
-    dataToken_=consumes<FEDRawDataCollection>(dataLabel);
-    produces<TCDSRecord>( "tcdsRecord" ).setBranchAlias( "tcdsRecord" );
+TcdsRawToDigi::TcdsRawToDigi(const edm::ParameterSet& iConfig) {
+  edm::InputTag dataLabel = iConfig.getParameter<edm::InputTag>("InputLabel");
+  dataToken_ = consumes<FEDRawDataCollection>(dataLabel);
+  produces<TCDSRecord>("tcdsRecord").setBranchAlias("tcdsRecord");
 }
 
-
-TcdsRawToDigi::~TcdsRawToDigi()
-{
-}
-
+TcdsRawToDigi::~TcdsRawToDigi() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void TcdsRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-    using namespace edm;
+void TcdsRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-    edm::Handle<FEDRawDataCollection> rawdata;
-    iEvent.getByToken(dataToken_,rawdata);
+  edm::Handle<FEDRawDataCollection> rawdata;
+  iEvent.getByToken(dataToken_, rawdata);
 
-    TCDSRecord tcdsRecord;
-    if( rawdata.isValid() ) {
-        const FEDRawData& tcdsData = rawdata->FEDData(FEDNumbering::MINTCDSuTCAFEDID);
-        if(tcdsData.size()>0){
-            tcdsRecord = TCDSRecord(tcdsData.data());
-        }
+  TCDSRecord tcdsRecord;
+  if (rawdata.isValid()) {
+    const FEDRawData& tcdsData = rawdata->FEDData(FEDNumbering::MINTCDSuTCAFEDID);
+    if (tcdsData.size() > 0) {
+      tcdsRecord = TCDSRecord(tcdsData.data());
     }
-    iEvent.put(std::make_unique<TCDSRecord>(tcdsRecord), "tcdsRecord");
+  }
+  iEvent.put(std::make_unique<TCDSRecord>(tcdsRecord), "tcdsRecord");
 }
 
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-TcdsRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TcdsRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
-    descriptions.add("tcdsRawToDigi", desc);
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
+  descriptions.add("tcdsRawToDigi", desc);
 }
 
 //define this as a plug-in

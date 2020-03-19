@@ -1,4 +1,3 @@
-<flags   GENREFLEX_ARGS="--"/>
 
 <use   name="CondCore/CondDB"/>
 <use   name="CondFormats/Common"/>
@@ -19,6 +18,12 @@
 <bin   file="testConditionDatabase_2.cpp" name="testConditionDatabase_2">
 </bin>
 
+<bin   file="testConditionDatabase_3.cpp" name="testConditionDatabase_3">
+</bin>
+
+<bin   file="testConditionDatabase_4.cpp" name="testConditionDatabase_4">
+</bin>
+
 <bin   file="testRootStreaming.cpp" name="testRootStreaming">
 </bin>
 
@@ -28,13 +33,13 @@
 <bin   file="testFrontier.cpp" name="testFrontier">
 </bin>
 
-<bin   file="testConnectionPool.cpp" name="testConnectionPool">
-  <use   name="CondFormats/RunInfo"/>
-</bin>
 <bin   file="testRunInfo.cpp" name="testRunInfo">
 </bin>
 <bin   file="testGroupSelection.cpp" name="testGroupSelection">
 </bin>
-<architecture name="slc.*_amd64_.*">
+<architecture name="(slc|cc).*_amd64_.*">
+  <bin   file="testConnectionPool.cpp" name="testConnectionPool">
+    <use   name="CondFormats/RunInfo"/>
+  </bin>
   <test name="condTestRegression" command="condTestRegression.py"/>
 </architecture>

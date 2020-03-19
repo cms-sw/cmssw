@@ -13,7 +13,7 @@
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 class RunDCSMagnetDat : public IDataItem {
- public:
+public:
   typedef oracle::occi::ResultSet ResultSet;
 
   friend class EcalCondDBInterface;
@@ -29,30 +29,24 @@ class RunDCSMagnetDat : public IDataItem {
   void setTime(const Tm& start);
   Tm getTime() const;
 
- private:
+private:
   ResultSet* getMagnetRset();
 
   int nowMicroseconds();
 
-  void fillTheMap(ResultSet *, std::map< EcalLogicID, RunDCSMagnetDat >* );
+  void fillTheMap(ResultSet*, std::map<EcalLogicID, RunDCSMagnetDat>*);
 
-  void prepareWrite() 
-    noexcept(false) override;
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const RunDCSMagnetDat* item, RunIOV* iov )
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const RunDCSMagnetDat* item, RunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, RunDCSMagnetDat >* fillMap, RunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, RunDCSMagnetDat>* fillMap, RunIOV* iov) noexcept(false);
 
-  void fetchLastData(std::map< EcalLogicID, RunDCSMagnetDat >* fillMap)
-     noexcept(false);
-
+  void fetchLastData(std::map<EcalLogicID, RunDCSMagnetDat>* fillMap) noexcept(false);
 
   // User data
   float m_current;
   Tm m_time;
-
 };
 
 #endif

@@ -1,4 +1,4 @@
-<library   file="Module.cc" name="ValidationMuonCSCDigisPlugin">
+<library   file="*.cc" name="ValidationMuonCSCDigisPlugin">
   <use   name="FWCore/Framework"/>
   <use   name="Validation/MuonCSCDigis"/>
   <flags   EDM_PLUGIN="1"/>

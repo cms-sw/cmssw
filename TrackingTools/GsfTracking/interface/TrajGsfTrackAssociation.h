@@ -5,8 +5,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-typedef edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,
-                                          reco::GsfTrackCollection,unsigned short> > TrajGsfTrackAssociationCollection;
+typedef edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>, reco::GsfTrackCollection, unsigned short> >
+    TrajGsfTrackAssociationCollection;
 typedef TrajGsfTrackAssociationCollection::value_type TrajGsfTrackAssociation;
 
 // reference to an object in a collection of TrajGsfTrack objects

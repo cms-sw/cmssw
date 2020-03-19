@@ -22,174 +22,133 @@
 using namespace std;
 using namespace edm;
 
-vector<const DetLayer*> 
-MuonForwardNavigableLayer::nextLayers(NavigationDirection dir) const {
-
+vector<const DetLayer*> MuonForwardNavigableLayer::nextLayers(NavigationDirection dir) const {
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
 
-  if ( dir == insideOut ) {
+  if (dir == insideOut) {
     pushResult(result, theOuterEndcapLayers);
-  }
-  else {
+  } else {
     pushResult(result, theInnerEndcapLayers);
-    reverse(result.begin(),result.end());
+    reverse(result.begin(), result.end());
     pushResult(barrel, theInnerBarrelLayers);
-    reverse(barrel.begin(),barrel.end());
-    result.insert(result.end(),barrel.begin(),barrel.end());
+    reverse(barrel.begin(), barrel.end());
+    result.insert(result.end(), barrel.begin(), barrel.end());
   }
 
   result.reserve(result.size());
   return result;
-
 }
 
-
-vector<const DetLayer*> 
-MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
-                                      PropagationDirection dir) const {
-
+vector<const DetLayer*> MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
+                                                              PropagationDirection dir) const {
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
 
-  if ( (isInsideOut(fts) && dir == alongMomentum) || ( !isInsideOut(fts) && dir == oppositeToMomentum)) {
+  if ((isInsideOut(fts) && dir == alongMomentum) || (!isInsideOut(fts) && dir == oppositeToMomentum)) {
     pushResult(result, theOuterEndcapLayers, fts);
-  }
-  else {
+  } else {
     pushResult(result, theInnerEndcapLayers, fts);
-    reverse(result.begin(),result.end());
+    reverse(result.begin(), result.end());
     pushResult(barrel, theInnerBarrelLayers, fts);
-    reverse(barrel.begin(),barrel.end());
-    result.insert(result.end(),barrel.begin(),barrel.end());
+    reverse(barrel.begin(), barrel.end());
+    result.insert(result.end(), barrel.begin(), barrel.end());
   }
 
   result.reserve(result.size());
   return result;
-
 }
 
-vector<const DetLayer*>
-MuonForwardNavigableLayer::compatibleLayers(NavigationDirection dir) const {
-
+vector<const DetLayer*> MuonForwardNavigableLayer::compatibleLayers(NavigationDirection dir) const {
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
 
-  if ( dir == insideOut ) {
+  if (dir == insideOut) {
     pushResult(result, theAllOuterEndcapLayers);
-  }
-  else {
+  } else {
     pushResult(result, theAllInnerEndcapLayers);
-    reverse(result.begin(),result.end());
+    reverse(result.begin(), result.end());
     pushResult(barrel, theAllInnerBarrelLayers);
-    reverse(barrel.begin(),barrel.end());
-    result.insert(result.end(),barrel.begin(),barrel.end());
+    reverse(barrel.begin(), barrel.end());
+    result.insert(result.end(), barrel.begin(), barrel.end());
   }
 
   result.reserve(result.size());
   return result;
-
 }
-vector<const DetLayer*>
-MuonForwardNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
-                                      PropagationDirection dir) const {
+vector<const DetLayer*> MuonForwardNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
+                                                                    PropagationDirection dir) const {
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
-  
-  if ( (isInsideOut(fts) && dir == alongMomentum) || ( !isInsideOut(fts) && dir == oppositeToMomentum)) {
+
+  if ((isInsideOut(fts) && dir == alongMomentum) || (!isInsideOut(fts) && dir == oppositeToMomentum)) {
     pushCompatibleResult(result, theAllOuterEndcapLayers, fts);
-  }
-  else {
+  } else {
     pushCompatibleResult(result, theAllInnerEndcapLayers, fts);
-    reverse(result.begin(),result.end());
+    reverse(result.begin(), result.end());
     pushCompatibleResult(barrel, theAllInnerBarrelLayers, fts);
-    reverse(barrel.begin(),barrel.end());
-    result.insert(result.end(),barrel.begin(),barrel.end());
+    reverse(barrel.begin(), barrel.end());
+    result.insert(result.end(), barrel.begin(), barrel.end());
   }
   result.reserve(result.size());
   return result;
-
 }
 
-void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
-                                           const MapB& map) const {
-
-  for (MapBI i = map.begin(); i != map.end(); i++) result.push_back((*i).first);
-
+void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result, const MapB& map) const {
+  for (MapBI i = map.begin(); i != map.end(); i++)
+    result.push_back((*i).first);
 }
 
-
-void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
-                                           const MapE& map) const {
-
-  for (MapEI i = map.begin(); i != map.end(); i++) result.push_back((*i).first);
-
+void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result, const MapE& map) const {
+  for (MapEI i = map.begin(); i != map.end(); i++)
+    result.push_back((*i).first);
 }
-
 
 void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
                                            const MapE& map,
                                            const FreeTrajectoryState& fts) const {
-
-  for (MapEI i = map.begin(); i != map.end(); i++) 
-    if ((*i).second.isInside(fts.position().eta())) result.push_back((*i).first);
-
+  for (MapEI i = map.begin(); i != map.end(); i++)
+    if ((*i).second.isInside(fts.position().eta()))
+      result.push_back((*i).first);
 }
-
 
 void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
-                                           const MapB& map, 
+                                           const MapB& map,
                                            const FreeTrajectoryState& fts) const {
-
   for (MapBI i = map.begin(); i != map.end(); i++)
-    if ((*i).second.isInside(fts.position().eta())) result.push_back((*i).first);
-
-}
-
-
-void MuonForwardNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
-                                          const MapB& map,
-                                          const FreeTrajectoryState& fts) const {
-  MuonEtaRange range=trackingRange(fts);
-  for ( MapBI i = map.begin(); i != map.end(); i++ )
-    if ((*i).second.isCompatible(range)) result.push_back((*i).first);
+    if ((*i).second.isInside(fts.position().eta()))
+      result.push_back((*i).first);
 }
 
 void MuonForwardNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
-                                          const MapE& map,
-                                          const FreeTrajectoryState& fts) const {
-  MuonEtaRange range=trackingRange(fts);
+                                                     const MapB& map,
+                                                     const FreeTrajectoryState& fts) const {
+  MuonEtaRange range = trackingRange(fts);
+  for (MapBI i = map.begin(); i != map.end(); i++)
+    if ((*i).second.isCompatible(range))
+      result.push_back((*i).first);
+}
+
+void MuonForwardNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
+                                                     const MapE& map,
+                                                     const FreeTrajectoryState& fts) const {
+  MuonEtaRange range = trackingRange(fts);
   for (MapEI i = map.begin(); i != map.end(); i++)
-    if ((*i).second.isCompatible(range)) result.push_back((*i).first);
-
+    if ((*i).second.isCompatible(range))
+      result.push_back((*i).first);
 }
 
-
-const DetLayer* MuonForwardNavigableLayer::detLayer() const {
-
-  return theDetLayer;
-
-}
-
+const DetLayer* MuonForwardNavigableLayer::detLayer() const { return theDetLayer; }
 
 void MuonForwardNavigableLayer::setDetLayer(const DetLayer* dl) {
-
-  edm::LogError ("MuonForwardNavigablaLayer") << "MuonForwardNavigableLayer::setDetLayer called!! " << endl;
-
+  edm::LogError("MuonForwardNavigablaLayer") << "MuonForwardNavigableLayer::setDetLayer called!! " << endl;
 }
 
-
-void MuonForwardNavigableLayer::setInwardLinks(const MapB& innerBL,
-                                               const MapE& innerEL) {
-
+void MuonForwardNavigableLayer::setInwardLinks(const MapB& innerBL, const MapE& innerEL) {
   theInnerBarrelLayers = innerBL;
   theInnerEndcapLayers = innerEL;
-
 }
-void MuonForwardNavigableLayer::setInwardCompatibleLinks(const MapB& innerCBL,
-                                               const MapE& innerCEL) {
-
+void MuonForwardNavigableLayer::setInwardCompatibleLinks(const MapB& innerCBL, const MapE& innerCEL) {
   theAllInnerBarrelLayers = innerCBL;
   theAllInnerEndcapLayers = innerCEL;
-
 }
-

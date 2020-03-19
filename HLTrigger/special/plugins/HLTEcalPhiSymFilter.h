@@ -5,7 +5,7 @@
 //
 // Package:    HLTEcalPhiSymFilter
 // Class:      HLTEcalPhiSymFilter
-// 
+//
 /**\class HLTEcalPhiSymFilter HLTEcalPhiSymFilter.cc Calibration/EcalAlCaRecoProducers/src/HLTEcalPhiSymFilter.cc
 
 * Description: Producer for EcalRecHits to be used for phi-symmetry ECAL 
@@ -25,7 +25,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -41,7 +40,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -55,8 +53,8 @@ public:
   HLTEcalPhiSymFilter(const edm::ParameterSet&);
   ~HLTEcalPhiSymFilter() override;
 
-  bool filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const final;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  bool filter(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const final;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   const edm::EDGetTokenT<EBDigiCollection> barrelDigisToken_;
@@ -69,10 +67,10 @@ private:
   const std::string phiSymEndcapDigis_;
   const std::vector<double> ampCut_barlP_;
   const std::vector<double> ampCut_barlM_;
-  const std::vector<double> ampCut_endcP_; 
-  const std::vector<double> ampCut_endcM_; 
-  const uint32_t statusThreshold_; ///< accept channels with up to this status
-  const bool   useRecoFlag_;       ///< use recoflag instead of DB for bad channels
+  const std::vector<double> ampCut_endcP_;
+  const std::vector<double> ampCut_endcM_;
+  const uint32_t statusThreshold_;  ///< accept channels with up to this status
+  const bool useRecoFlag_;          ///< use recoflag instead of DB for bad channels
 };
 
 #endif

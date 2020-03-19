@@ -9,23 +9,23 @@
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
 class TAMuonSegmentMatch {
- public:
-   math::XYZPoint  segmentGlobalPosition;
-   math::XYZPoint  segmentLocalPosition;
-   math::XYZVector segmentLocalDirection;
-   float  segmentLocalErrorXX;
-   float  segmentLocalErrorYY;
-   float  segmentLocalErrorXY;
-   float  segmentLocalErrorDxDz;
-   float  segmentLocalErrorDyDz;
-   float  segmentLocalErrorXDxDz;
-   float  segmentLocalErrorYDyDz;
-   float  t0;
-   bool   hasZed;
-   bool   hasPhi;
-   DTRecSegment4DRef  dtSegmentRef;
-   CSCSegmentRef      cscSegmentRef;
-   GEMSegmentRef gemSegmentRef;
-   ME0SegmentRef me0SegmentRef;
+public:
+  math::XYZPoint segmentGlobalPosition;
+  math::XYZPoint segmentLocalPosition;
+  math::XYZVector segmentLocalDirection;
+  float segmentLocalErrorXX;
+  float segmentLocalErrorYY;
+  float segmentLocalErrorXY;
+  float segmentLocalErrorDxDz;
+  float segmentLocalErrorDyDz;
+  float segmentLocalErrorXDxDz;
+  float segmentLocalErrorYDyDz;
+  float t0;
+  bool hasZed;
+  bool hasPhi;
+  DTRecSegment4DRef dtSegmentRef;
+  CSCSegmentRef cscSegmentRef;
+  GEMSegmentRef gemSegmentRef;
+  ME0SegmentRef me0SegmentRef;
 };
 #endif

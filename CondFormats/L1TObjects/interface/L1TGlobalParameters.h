@@ -4,55 +4,51 @@
 #include <vector>
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-class L1TGlobalParameters{
+class L1TGlobalParameters {
+public:
+  L1TGlobalParameters() {}
+
+  ~L1TGlobalParameters() {}
 
 public:
+  /// bx in event
+  int m_totalBxInEvent;
 
-    L1TGlobalParameters(){}
+  /// trigger decision
 
-    ~L1TGlobalParameters(){}
+  /// number of physics trigger algorithms
+  unsigned int m_numberPhysTriggers;
 
-public:
+  /// trigger objects
 
-    /// bx in event
-    int m_totalBxInEvent; 
+  /// muons
+  unsigned int m_numberL1Mu;
 
-    /// trigger decision
+  /// e/gamma  objects
+  unsigned int m_numberL1EG;
 
-    /// number of physics trigger algorithms
-    unsigned int m_numberPhysTriggers;
+  ///  jets
+  unsigned int m_numberL1Jet;
 
-    /// trigger objects
+  ///  taus
+  unsigned int m_numberL1Tau;
 
-    /// muons
-    unsigned int m_numberL1Mu;
+  /// hardware
 
-    /// e/gamma  objects
-    unsigned int m_numberL1EG;
+  /// number of condition chips
+  unsigned int m_numberChips;
 
+  /// number of pins on the GTL condition chips
+  unsigned int m_pinsOnChip;
 
-    ///  jets
-    unsigned int m_numberL1Jet;
-    
-    ///  taus
-    unsigned int m_numberL1Tau;
+  /// correspondence "condition chip - GTL algorithm word" in the hardware
+  std::vector<int> m_orderOfChip;
 
-    /// hardware
+  int m_version;
+  std::vector<int> m_exp_ints;
+  std::vector<double> m_exp_doubles;
 
-    /// number of condition chips
-    unsigned int m_numberChips;
-
-    /// number of pins on the GTL condition chips
-    unsigned int m_pinsOnChip;
-
-    /// correspondence "condition chip - GTL algorithm word" in the hardware
-    std::vector<int> m_orderOfChip;
-
-    int m_version;
-    std::vector<int> m_exp_ints;
-    std::vector<double> m_exp_doubles;
-
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-#endif 
+#endif

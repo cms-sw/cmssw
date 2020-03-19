@@ -10,20 +10,17 @@
 */
 
 class SummaryGeneratorReadoutView : public SummaryGenerator {
-
- public:
-
+public:
   SummaryGeneratorReadoutView();
 
-  ~SummaryGeneratorReadoutView() override {;}
+  ~SummaryGeneratorReadoutView() override { ; }
 
   /** */
-  void fill( const std::string& directory_level,
-	     const sistrip::Granularity&,
-	     const uint32_t& key, 
-	     const float& value, 
-	     const float& error ) override;
-  
+  void fill(const std::string& directory_level,
+            const sistrip::Granularity&,
+            const uint32_t& key,
+            const float& value,
+            const float& error) override;
 };
 
-#endif // DQM_SiStripCommissioningSummary_SummaryGeneratorReadoutView_H
+#endif  // DQM_SiStripCommissioningSummary_SummaryGeneratorReadoutView_H

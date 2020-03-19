@@ -25,79 +25,77 @@
 #include <iosfwd>
 #include "DataFormats/GEMRecHit/interface/ME0Segment.h"
 
-class ME0TriggerDigi 
-{
- public:
-  
+class ME0TriggerDigi {
+public:
   /// Constructors
-  ME0TriggerDigi(const int chamberid, const int quality,
-		 const int phiposition, const int partition, 
-		 const int deltaphi,
-		 const int bend, const int bx);
-  
+  ME0TriggerDigi(const int chamberid,
+                 const int quality,
+                 const int phiposition,
+                 const int partition,
+                 const int deltaphi,
+                 const int bend,
+                 const int bx);
+
   /// default
-  ME0TriggerDigi();                               
+  ME0TriggerDigi();
 
   /// clear this Trigger
   void clear();
 
   ///Comparison
-  bool operator == (const ME0TriggerDigi &) const;
-  bool operator != (const ME0TriggerDigi &rhs) const
-  { return !(this->operator==(rhs)); }
+  bool operator==(const ME0TriggerDigi &) const;
+  bool operator!=(const ME0TriggerDigi &rhs) const { return !(this->operator==(rhs)); }
 
   /// return chamber number in one CTP7
-  int getChamberid()  const { return chamberid_; }
+  int getChamberid() const { return chamberid_; }
 
   /// return the Quality
   int getQuality() const { return quality_; }
 
   /// return the key strip
-  int getStrip()   const { return strip_; }
+  int getStrip() const { return strip_; }
 
   /// return the phi position, resolution: half strip level
-  int getPhiposition()   const { return phiposition_; }
+  int getPhiposition() const { return phiposition_; }
 
   /// return the key "partition"
-  int getPartition()   const { return partition_; }
+  int getPartition() const { return partition_; }
 
-  /// return bending angle 
+  /// return bending angle
   int getDeltaphi() const { return deltaphi_; }
 
   /// return bend
-  int getBend()    const { return bend_; }
+  int getBend() const { return bend_; }
 
   /// return BX
-  int getBX()      const { return bx_; }
-  
-	
+  int getBX() const { return bx_; }
+
   /// is valid?
-  bool isValid() const { return quality_!=0; }
+  bool isValid() const { return quality_ != 0; }
 
   /// Set track number.
-  void setChamberid(const uint16_t number) {chamberid_ = number;}
+  void setChamberid(const uint16_t number) { chamberid_ = number; }
 
   /// set quality code
-  void setQuality(unsigned int q) {quality_=q;}
+  void setQuality(unsigned int q) { quality_ = q; }
 
   /// set strip
-  void setStrip(unsigned int s) {strip_=s;}
+  void setStrip(unsigned int s) { strip_ = s; }
 
   /// set phi position
-  void setPhiposition(unsigned int phi) {phiposition_=phi;}
+  void setPhiposition(unsigned int phi) { phiposition_ = phi; }
 
   /// set partition
-  void setPartition(unsigned int p) {partition_=p;}
+  void setPartition(unsigned int p) { partition_ = p; }
 
   /// set bending angle
-  void setDeltaphi(unsigned int dphi) {deltaphi_=dphi;}
+  void setDeltaphi(unsigned int dphi) { deltaphi_ = dphi; }
 
   /// set bend
-  void setBend(unsigned int b) {bend_=b;}
+  void setBend(unsigned int b) { bend_ = b; }
 
   /// set bx
-  void setBX(unsigned int b) {bx_=b;}
-
+  void setBX(unsigned int b) { bx_ = b; }
 
   /*
   /// return ME0 segment 
@@ -107,7 +105,7 @@ class ME0TriggerDigi
   void setME0Segment(const ME0Segment &seg) {segment_ = seg;}
   */
 
- private:
+private:
   uint16_t chamberid_;
   uint16_t quality_;
   uint16_t strip_;
@@ -117,10 +115,10 @@ class ME0TriggerDigi
   uint16_t bend_;
   uint16_t bx_;
 
- private:
+private:
   ME0Segment segment_;
 };
 
-std::ostream & operator<<(std::ostream & o, const ME0TriggerDigi& digi);
+std::ostream &operator<<(std::ostream &o, const ME0TriggerDigi &digi);
 
 #endif

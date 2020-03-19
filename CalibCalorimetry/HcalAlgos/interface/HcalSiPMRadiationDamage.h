@@ -12,23 +12,23 @@
 // neutron fluence at HB and HE RBX locations modeled with Fluka
 
 class HcalSiPMRadiationDamage {
-	public:
-		HcalSiPMRadiationDamage();
-		HcalSiPMRadiationDamage(std::vector<double> darkCurrentBase, const edm::ParameterSet & p);
-		~HcalSiPMRadiationDamage() {}
-		
-		//accessors
-		double getDarkCurrent(double intlumi, unsigned index) const;
+public:
+  HcalSiPMRadiationDamage();
+  HcalSiPMRadiationDamage(std::vector<double> darkCurrentBase, const edm::ParameterSet& p);
+  ~HcalSiPMRadiationDamage() {}
 
-	private:
-		//members
-		std::vector<double> darkCurrentBase_;
-		double temperatureBase_;
-		double temperatureNew_;
-		double intlumiOffset_;
-		double depVsTemp_;
-		double intlumiToNeutrons_;
-		std::vector<double> depVsNeutrons_;
+  //accessors
+  double getDarkCurrent(double intlumi, unsigned index) const;
+
+private:
+  //members
+  std::vector<double> darkCurrentBase_;
+  double temperatureBase_;
+  double temperatureNew_;
+  double intlumiOffset_;
+  double depVsTemp_;
+  double intlumiToNeutrons_;
+  std::vector<double> depVsNeutrons_;
 };
 
-#endif // HBHERecalibration_h
+#endif  // HBHERecalibration_h

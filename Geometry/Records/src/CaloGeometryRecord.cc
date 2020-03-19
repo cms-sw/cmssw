@@ -2,7 +2,7 @@
 //
 // Package:     Records
 // Class  :     CaloGeometryRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

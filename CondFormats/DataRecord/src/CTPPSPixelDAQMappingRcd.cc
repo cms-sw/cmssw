@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSPixelDAQMappingRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

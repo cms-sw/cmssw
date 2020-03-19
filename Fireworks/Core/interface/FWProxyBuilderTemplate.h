@@ -27,30 +27,32 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 template <typename T>
-class FWProxyBuilderTemplate : public FWProxyBuilderBase
-{
+class FWProxyBuilderTemplate : public FWProxyBuilderBase {
 public:
-   FWProxyBuilderTemplate() : m_helper(typeid(T)) {}
-   ~FWProxyBuilderTemplate() override {}
+  FWProxyBuilderTemplate() : m_helper(typeid(T)) {}
+  ~FWProxyBuilderTemplate() override {}
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
 protected:
-   const T& modelData(int index) { return *reinterpret_cast<const T*>(m_helper.offsetObject(item()->modelData(index))); }
+  const T& modelData(int index) { return *reinterpret_cast<const T*>(m_helper.offsetObject(item()->modelData(index))); }
 
 private:
-   FWProxyBuilderTemplate(const FWProxyBuilderTemplate&) = delete; // stop default
+  FWProxyBuilderTemplate(const FWProxyBuilderTemplate&) = delete;  // stop default
 
-   const FWProxyBuilderTemplate& operator=(const FWProxyBuilderTemplate&) = delete; // stop default
+  const FWProxyBuilderTemplate& operator=(const FWProxyBuilderTemplate&) = delete;  // stop default
 
-   virtual void itemChangedImp(const FWEventItem* iItem) { if (iItem) m_helper.itemChanged(iItem); }
-   
-   // ---------- member data --------------------------------
-   FWSimpleProxyHelper m_helper;
+  virtual void itemChangedImp(const FWEventItem* iItem) {
+    if (iItem)
+      m_helper.itemChanged(iItem);
+  }
+
+  // ---------- member data --------------------------------
+  FWSimpleProxyHelper m_helper;
 };
 
 #endif

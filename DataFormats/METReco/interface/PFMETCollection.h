@@ -14,10 +14,9 @@
  ************************************************************/
 
 #include <vector>
-#include "DataFormats/METReco/interface/PFMETFwd.h" 
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 
-namespace reco
-{
+namespace reco {
   typedef std::vector<reco::PFMET> PFMETCollection;
-}  
-#endif // METRECO_PFMETCOLLECTION_H
+}
+#endif  // METRECO_PFMETCOLLECTION_H

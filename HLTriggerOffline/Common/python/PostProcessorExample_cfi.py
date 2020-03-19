@@ -10,7 +10,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-
 myMuonPostVal = DQMEDHarvester("DQMGenericClient",
     verbose        = cms.untracked.uint32(0), #set this to zero!
     outputFileName = cms.untracked.string(''),# set this to empty!
@@ -44,20 +43,8 @@ myTauPostVal = DQMEDHarvester("DQMGenericClient",
     )
 )
 
-
-myTopPostVal = DQMEDHarvester("DQMGenericClient",
-    #outputFileName= cms.untracked.string('TopPostProcessor.root'),
-    commands       = cms.vstring(),
-    resolution     = cms.vstring(),                                    
-    subDirs        = cms.untracked.vstring('HLT/Top/'),
-    efficiency     = cms.vstring(
-    "TrigEFF 'my title; my x-label; my y-label' pt_trig_off_mu pt_off_mu"
-    )
-)
-
 ExamplePostVal = cms.Sequence(
      myMuonPostVal
     +myEgammaPostVal
     +myTauPostVal
-    +myTopPostVal
-    )
+)

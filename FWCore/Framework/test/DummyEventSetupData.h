@@ -12,11 +12,11 @@
 #include "FWCore/Framework/test/DummyEventSetupRecord.h"
 
 namespace edm {
-   struct DummyEventSetupData { 
-      DummyEventSetupData(int iValue) : value_(iValue) {}
-      int value_; 
-   };
-}
+  struct DummyEventSetupData {
+    DummyEventSetupData(int iValue) : value_(iValue) {}
+    int value_;
+  };
+}  // namespace edm
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 EVENTSETUP_DATA_DEFAULT_RECORD(edm::DummyEventSetupData, edm::DummyEventSetupRecord)
@@ -27,4 +27,3 @@ EVENTSETUP_DATA_DEFAULT_RECORD(edm::DummyEventSetupData, edm::DummyEventSetupRec
 TYPELOOKUP_DATA_REG(edm::DummyEventSetupData);
 #endif
 #endif
-

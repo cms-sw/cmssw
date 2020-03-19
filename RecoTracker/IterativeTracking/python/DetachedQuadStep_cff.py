@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+
 ###############################################
 # Low pT and detached tracks from pixel quadruplets
 ###############################################
@@ -203,26 +206,27 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 fastSim.toModify(detachedQuadStepTracks,TTRHBuilder = 'WithoutRefit')
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
+detachedQuadStep = TrackMVAClassifierDetached.clone(
+    mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1'),
+    src = 'detachedQuadStepTracks',
+    qualityCuts = [-0.5,0.0,0.5]
+)
+
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-detachedQuadStep = TrackLwtnnClassifier.clone(
+trackdnn.toReplaceWith(detachedQuadStep, TrackLwtnnClassifier.clone(
     src = 'detachedQuadStepTracks',
-    qualityCuts = [-0.6, 0.05, 0.7],
+    qualityCuts = [-0.6, 0.05, 0.7]
+))
+
+highBetaStar_2018.toModify(detachedQuadStep,qualityCuts = [-0.7,0.0,0.5])
+pp_on_AA_2018.toModify(detachedQuadStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorDetachedQuadStep_Phase1'),
+        qualityCuts = [-0.2, 0.2, 0.5],
 )
+
 fastSim.toModify(detachedQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
-
-from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
-highBetaStar_2018.toReplaceWith(detachedQuadStep, TrackMVAClassifierDetached.clone(
-    src = 'detachedQuadStepTracks',
-    qualityCuts = [-0.7,0.0,0.5],
-    mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1')
-))
-
-pp_on_AA_2018.toReplaceWith(detachedQuadStep, TrackMVAClassifierDetached.clone(
-    src = 'detachedQuadStepTracks',
-    qualityCuts = [-0.2, 0.2, 0.5],
-    mva = dict(GBRForestLabel = 'HIMVASelectorDetachedQuadStep_Phase1')
-))
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -278,6 +282,8 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepVtx',
             preFilterName = 'detachedQuadStepVtxTight',
+            min_eta = -4.0, # it is particularly effective against fake tracks
+            max_eta = 4.0,
             chi2n_par = 0.9,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
@@ -291,6 +297,8 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepTrk',
             preFilterName = 'detachedQuadStepTrkTight',
+            min_eta = -4.0, # it is particularly effective against fake tracks
+            max_eta = 4.0,
             chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,

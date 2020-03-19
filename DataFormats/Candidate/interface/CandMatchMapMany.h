@@ -11,12 +11,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace reco {
-  typedef edm::AssociationMap<
-            edm::OneToManyWithQuality<reco::CandidateCollection, 
-                                      reco::CandidateCollection,
-                                      double
-                                     > 
-                             > CandMatchMapMany;
+  typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::CandidateCollection, reco::CandidateCollection, double> >
+      CandMatchMapMany;
 }
 
 #endif

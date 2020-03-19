@@ -8,134 +8,110 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
-#include<boost/bind.hpp>
+#include <boost/bind.hpp>
 
 #include <DataFormats/TrackingRecHit/interface/AlignmentPositionError.h>
 
+SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf)
+    : scale_(conf.getParameter<double>("NSigmaInside")),
+      preFilter_(conf.existsAs<bool>("PreFilter") ? conf.getParameter<bool>("PreFilter") : false) {}
 
-
-
-SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf):
-  scale_(conf.getParameter<double>("NSigmaInside")),
-  preFilter_(conf.existsAs<bool>("PreFilter") ? conf.getParameter<bool>("PreFilter") : false)  
-  {}
-
-SiStripRecHitMatcher::SiStripRecHitMatcher(const double theScale):
-  scale_(theScale){}  
-
-
+SiStripRecHitMatcher::SiStripRecHitMatcher(const double theScale) : scale_(theScale) {}
 
 namespace {
   // FIXME for c++0X
-  inline void pb1(std::vector<SiStripMatchedRecHit2D*> & v, SiStripMatchedRecHit2D* h) {
-    v.push_back(h);
-  }
-  inline void pb2(SiStripRecHitMatcher::CollectorMatched & v, const SiStripMatchedRecHit2D & h) {
-    v.push_back(h);
-  }
+  inline void pb1(std::vector<SiStripMatchedRecHit2D*>& v, SiStripMatchedRecHit2D* h) { v.push_back(h); }
+  inline void pb2(SiStripRecHitMatcher::CollectorMatched& v, const SiStripMatchedRecHit2D& h) { v.push_back(h); }
 
-}
-
+}  // namespace
 
 // needed by the obsolete version still in use on some architectures
-void
-SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
-			     SimpleHitIterator begin, SimpleHitIterator end,
-			     edm::OwnVector<SiStripMatchedRecHit2D> & collector, 
-			     const GluedGeomDet* gluedDet,
-			     LocalVector trackdirection) const {
-
+void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
+                                 SimpleHitIterator begin,
+                                 SimpleHitIterator end,
+                                 edm::OwnVector<SiStripMatchedRecHit2D>& collector,
+                                 const GluedGeomDet* gluedDet,
+                                 LocalVector trackdirection) const {
   std::vector<SiStripMatchedRecHit2D*> result;
-  result.reserve(end-begin);
-  match(monoRH,begin,end,result,gluedDet,trackdirection);
-  for (std::vector<SiStripMatchedRecHit2D*>::iterator p=result.begin(); p!=result.end();
-       p++) collector.push_back(*p);
+  result.reserve(end - begin);
+  match(monoRH, begin, end, result, gluedDet, trackdirection);
+  for (std::vector<SiStripMatchedRecHit2D*>::iterator p = result.begin(); p != result.end(); p++)
+    collector.push_back(*p);
 }
 
-
-void
-SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
-			     SimpleHitIterator begin, SimpleHitIterator end,
-			     std::vector<SiStripMatchedRecHit2D*> & collector, 
-			     const GluedGeomDet* gluedDet,
-			     LocalVector trackdirection) const {
-  Collector result(boost::bind(&pb1,boost::ref(collector),
-			     boost::bind(&SiStripMatchedRecHit2D::clone,_1)));
-  match(monoRH,begin,end,result,gluedDet,trackdirection);
+void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
+                                 SimpleHitIterator begin,
+                                 SimpleHitIterator end,
+                                 std::vector<SiStripMatchedRecHit2D*>& collector,
+                                 const GluedGeomDet* gluedDet,
+                                 LocalVector trackdirection) const {
+  Collector result(boost::bind(&pb1, boost::ref(collector), boost::bind(&SiStripMatchedRecHit2D::clone, _1)));
+  match(monoRH, begin, end, result, gluedDet, trackdirection);
 }
 
-void
-SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
-			     SimpleHitIterator begin, SimpleHitIterator end,
-			     CollectorMatched & collector,
-			     const GluedGeomDet* gluedDet,
-			     LocalVector trackdirection) const {
-
-  Collector result(boost::bind(pb2,boost::ref(collector),_1));
-  match(monoRH,begin,end,result,gluedDet,trackdirection);
-  
+void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
+                                 SimpleHitIterator begin,
+                                 SimpleHitIterator end,
+                                 CollectorMatched& collector,
+                                 const GluedGeomDet* gluedDet,
+                                 LocalVector trackdirection) const {
+  Collector result(boost::bind(pb2, boost::ref(collector), _1));
+  match(monoRH, begin, end, result, gluedDet, trackdirection);
 }
-
-
 
 // this is the one used by the RecHitConverter
-void
-SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
-			     RecHitIterator begin, RecHitIterator end,
-			     CollectorMatched & collector,
-			     const GluedGeomDet* gluedDet,
-			     LocalVector trackdirection) const {
-  
+void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
+                                 RecHitIterator begin,
+                                 RecHitIterator end,
+                                 CollectorMatched& collector,
+                                 const GluedGeomDet* gluedDet,
+                                 LocalVector trackdirection) const {
   // is this really needed now????
   SimpleHitCollection stereoHits;
-  stereoHits.reserve(end-begin);
-  for (RecHitIterator i=begin; i != end; ++i) 
-    stereoHits.push_back( &(*i)); // convert to simple pointer
-  
-  return match( monoRH,
-		stereoHits.begin(), stereoHits.end(),
-		collector,
-		gluedDet,trackdirection);
+  stereoHits.reserve(end - begin);
+  for (RecHitIterator i = begin; i != end; ++i)
+    stereoHits.push_back(&(*i));  // convert to simple pointer
+
+  return match(monoRH, stereoHits.begin(), stereoHits.end(), collector, gluedDet, trackdirection);
 }
 
-
-
 // the "real implementation"
-void
-SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
-			     SimpleHitIterator begin, SimpleHitIterator end,
-			     Collector & collector, 
-			     const GluedGeomDet* gluedDet,
-			     LocalVector trackdirection) const {
+void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
+                                 SimpleHitIterator begin,
+                                 SimpleHitIterator end,
+                                 Collector& collector,
+                                 const GluedGeomDet* gluedDet,
+                                 LocalVector trackdirection) const {
   // stripdet = mono
   // partnerstripdet = stereo
   const GeomDetUnit* stripdet = gluedDet->monoDet();
   const GeomDetUnit* partnerstripdet = gluedDet->stereoDet();
-  const StripTopology& topol=(const StripTopology&)stripdet->topology();
+  const StripTopology& topol = (const StripTopology&)stripdet->topology();
 
   // position of the initial and final point of the strip (RPHI cluster) in local strip coordinates
   double RPHIpointX = topol.measurementPosition(monoRH->localPositionFast()).x();
-  MeasurementPoint RPHIpointini(RPHIpointX,-0.5);
-  MeasurementPoint RPHIpointend(RPHIpointX,0.5);
+  MeasurementPoint RPHIpointini(RPHIpointX, -0.5);
+  MeasurementPoint RPHIpointend(RPHIpointX, 0.5);
 
   // position of the initial and final point of the strip in local coordinates (mono det)
-  StripPosition stripmono=StripPosition(topol.localPosition(RPHIpointini),topol.localPosition(RPHIpointend));
+  StripPosition stripmono = StripPosition(topol.localPosition(RPHIpointini), topol.localPosition(RPHIpointend));
 
-  if(trackdirection.mag2()<FLT_MIN){// in case of no track hypothesis assume a track from the origin through the center of the strip
-    const LocalPoint& lcenterofstrip=monoRH->localPositionFast();
-    GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(lcenterofstrip);
-    GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
-    trackdirection=(gluedDet->surface()).toLocal(gtrackdirection);
+  // in case of no track hypothesis assume a track from the origin through the center of the strip
+  if (trackdirection.mag2() < FLT_MIN) {
+    const LocalPoint& lcenterofstrip = monoRH->localPositionFast();
+    GlobalPoint gcenterofstrip = (stripdet->surface()).toGlobal(lcenterofstrip);
+    GlobalVector gtrackdirection = gcenterofstrip - GlobalPoint(0, 0, 0);
+    trackdirection = (gluedDet->surface()).toLocal(gtrackdirection);
   }
 
   //project mono hit on glued det
-  StripPosition projectedstripmono=project(stripdet,gluedDet,stripmono,trackdirection);
-  const StripTopology& partnertopol=(const StripTopology&)partnerstripdet->topology();
+  StripPosition projectedstripmono = project(stripdet, gluedDet, stripmono, trackdirection);
+  const StripTopology& partnertopol = (const StripTopology&)partnerstripdet->topology();
 
-  double m00 = -(projectedstripmono.second.y()-projectedstripmono.first.y()); 
-  double m01 =  (projectedstripmono.second.x()-projectedstripmono.first.x());
-  double c0  =  m01*projectedstripmono.first.y()   + m00*projectedstripmono.first.x();
- 
+  double m00 = -(projectedstripmono.second.y() - projectedstripmono.first.y());
+  double m01 = (projectedstripmono.second.x() - projectedstripmono.first.x());
+  double c0 = m01 * projectedstripmono.first.y() + m00 * projectedstripmono.first.x();
+
   //error calculation (the part that depends on mono RH only)
   //  LocalVector  RPHIpositiononGluedendvector=projectedstripmono.second-projectedstripmono.first;
   /*
@@ -145,45 +121,43 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   */
   double c1 = -m00;
   double s1 = -m01;
-  double l1 = 1./(c1*c1+s1*s1);
+  double l1 = 1. / (c1 * c1 + s1 * s1);
 
- 
-  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(), topol);
   // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
+  SimpleHitIterator seconditer;
 
-  SimpleHitIterator seconditer;  
-
-  for(seconditer=begin;seconditer!=end;++seconditer){//iterate on stereo rechits
+  for (seconditer = begin; seconditer != end; ++seconditer) {  //iterate on stereo rechits
 
     // position of the initial and final point of the strip (STEREO cluster)
-    double STEREOpointX=partnertopol.measurementPosition((*seconditer)->localPositionFast()).x();
-    MeasurementPoint STEREOpointini(STEREOpointX,-0.5);
-    MeasurementPoint STEREOpointend(STEREOpointX,0.5);
+    double STEREOpointX = partnertopol.measurementPosition((*seconditer)->localPositionFast()).x();
+    MeasurementPoint STEREOpointini(STEREOpointX, -0.5);
+    MeasurementPoint STEREOpointend(STEREOpointX, 0.5);
 
     // position of the initial and final point of the strip in local coordinates (stereo det)
-    StripPosition stripstereo(partnertopol.localPosition(STEREOpointini),partnertopol.localPosition(STEREOpointend));
- 
+    StripPosition stripstereo(partnertopol.localPosition(STEREOpointini), partnertopol.localPosition(STEREOpointend));
+
     //project stereo hit on glued det
-    StripPosition projectedstripstereo=project(partnerstripdet,gluedDet,stripstereo,trackdirection);
+    StripPosition projectedstripstereo = project(partnerstripdet, gluedDet, stripstereo, trackdirection);
 
- 
-    double m10=-(projectedstripstereo.second.y()-projectedstripstereo.first.y()); 
-    double m11=(projectedstripstereo.second.x()-projectedstripstereo.first.x());
+    double m10 = -(projectedstripstereo.second.y() - projectedstripstereo.first.y());
+    double m11 = (projectedstripstereo.second.x() - projectedstripstereo.first.x());
 
-   //perform the matching
-   //(x2-x1)(y-y1)=(y2-y1)(x-x1)
-    AlgebraicMatrix22 m; AlgebraicVector2 c; // FIXME understand why moving this initializer out of the loop changes the output!
-    m(0,0)=m00; 
-    m(0,1)=m01;
-    m(1,0)=m10;
-    m(1,1)=m11;
-    c(0)=c0;
-    c(1)=m11*projectedstripstereo.first.y()+m10*projectedstripstereo.first.x();
-    m.Invert(); 
+    //perform the matching
+    //(x2-x1)(y-y1)=(y2-y1)(x-x1)
+    AlgebraicMatrix22 m;
+    AlgebraicVector2 c;  // FIXME understand why moving this initializer out of the loop changes the output!
+    m(0, 0) = m00;
+    m(0, 1) = m01;
+    m(1, 0) = m10;
+    m(1, 1) = m11;
+    c(0) = c0;
+    c(1) = m11 * projectedstripstereo.first.y() + m10 * projectedstripstereo.first.x();
+    m.Invert();
     AlgebraicVector2 solution = m * c;
-    LocalPoint position(solution(0),solution(1));
+    LocalPoint position(solution(0), solution(1));
 
     /*
     {
@@ -202,9 +176,9 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
     // temporary fix by tommaso
     //
 
-
-    LocalError tempError (100,0,100);
-    if (!((gluedDet->surface()).bounds().inside(position,tempError,scale_))) continue;                                                       
+    LocalError tempError(100, 0, 100);
+    if (!((gluedDet->surface()).bounds().inside(position, tempError, scale_)))
+      continue;
 
     // then calculate the error
     /*
@@ -216,89 +190,86 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 
     double c2 = -m10;
     double s2 = -m11;
-    double l2 = 1./(c2*c2+s2*s2);
+    double l2 = 1. / (c2 * c2 + s2 * s2);
 
-   double sigmap22 = sigmaPitch((*seconditer)->localPosition(),(*seconditer)->localPositionError(),partnertopol);
-   // auto sigmap22 = (*seconditer)->sigmaPitch();
+    double sigmap22 = sigmaPitch((*seconditer)->localPosition(), (*seconditer)->localPositionError(), partnertopol);
+    // auto sigmap22 = (*seconditer)->sigmaPitch();
     // assert(sigmap22>=0);
 
-    double diff=(c1*s2-c2*s1);
-    double invdet2=1/(diff*diff*l1*l2);
-    float xx= invdet2*(sigmap12*s2*s2*l2+sigmap22*s1*s1*l1);
-    float xy=-invdet2*(sigmap12*c2*s2*l2+sigmap22*c1*s1*l1);
-    float yy= invdet2*(sigmap12*c2*c2*l2+sigmap22*c1*c1*l1);
-    LocalError error(xx,xy,yy);
+    double diff = (c1 * s2 - c2 * s1);
+    double invdet2 = 1 / (diff * diff * l1 * l2);
+    float xx = invdet2 * (sigmap12 * s2 * s2 * l2 + sigmap22 * s1 * s1 * l1);
+    float xy = -invdet2 * (sigmap12 * c2 * s2 * l2 + sigmap22 * c1 * s1 * l1);
+    float yy = invdet2 * (sigmap12 * c2 * c2 * l2 + sigmap22 * c1 * c1 * l1);
+    LocalError error(xx, xy, yy);
 
-    if((gluedDet->surface()).bounds().inside(position,error,scale_)){ //if it is inside the gluedet bonds
+    if ((gluedDet->surface()).bounds().inside(position, error, scale_)) {  //if it is inside the gluedet bonds
       //Change NSigmaInside in the configuration file to accept more hits
-      //...and add it to the Rechit collection 
+      //...and add it to the Rechit collection
 
       const SiStripRecHit2D* secondHit = *seconditer;
-      collector(SiStripMatchedRecHit2D(position, error,*gluedDet,
-				       monoRH,secondHit));
+      collector(SiStripMatchedRecHit2D(position, error, *gluedDet, monoRH, secondHit));
     }
   }
 }
 
-
-SiStripRecHitMatcher::StripPosition 
-SiStripRecHitMatcher::project(const GeomDetUnit *det,const GluedGeomDet* glueddet,
-			      StripPosition strip,LocalVector trackdirection) const {
-
-  GlobalPoint globalpointini=(det->surface()).toGlobal(strip.first);
-  GlobalPoint globalpointend=(det->surface()).toGlobal(strip.second);
+SiStripRecHitMatcher::StripPosition SiStripRecHitMatcher::project(const GeomDetUnit* det,
+                                                                  const GluedGeomDet* glueddet,
+                                                                  StripPosition strip,
+                                                                  LocalVector trackdirection) const {
+  GlobalPoint globalpointini = (det->surface()).toGlobal(strip.first);
+  GlobalPoint globalpointend = (det->surface()).toGlobal(strip.second);
 
   // position of the initial and final point of the strip in glued local coordinates
-  LocalPoint positiononGluedini=(glueddet->surface()).toLocal(globalpointini);
-  LocalPoint positiononGluedend=(glueddet->surface()).toLocal(globalpointend);
+  LocalPoint positiononGluedini = (glueddet->surface()).toLocal(globalpointini);
+  LocalPoint positiononGluedend = (glueddet->surface()).toLocal(globalpointend);
 
   //correct the position with the track direction
 
-  float scale=-positiononGluedini.z()/trackdirection.z();
+  float scale = -positiononGluedini.z() / trackdirection.z();
 
-  LocalPoint projpositiononGluedini= positiononGluedini + scale*trackdirection;
-  LocalPoint projpositiononGluedend= positiononGluedend + scale*trackdirection;
+  LocalPoint projpositiononGluedini = positiononGluedini + scale * trackdirection;
+  LocalPoint projpositiononGluedend = positiononGluedend + scale * trackdirection;
 
-  return StripPosition(projpositiononGluedini,projpositiononGluedend);
+  return StripPosition(projpositiononGluedini, projpositiononGluedend);
 }
 
-
-
 //match a single hit
-std::unique_ptr<SiStripMatchedRecHit2D>
-SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH, 
-			    const SiStripRecHit2D *stereoRH,
-			    const GluedGeomDet* gluedDet,
-			    LocalVector trackdirection, bool force) const {
+std::unique_ptr<SiStripMatchedRecHit2D> SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
+                                                                    const SiStripRecHit2D* stereoRH,
+                                                                    const GluedGeomDet* gluedDet,
+                                                                    LocalVector trackdirection,
+                                                                    bool force) const {
   // stripdet = mono
   // partnerstripdet = stereo
   const GeomDetUnit* stripdet = gluedDet->monoDet();
   const GeomDetUnit* partnerstripdet = gluedDet->stereoDet();
-  const StripTopology& topol=(const StripTopology&)stripdet->topology();
+  const StripTopology& topol = (const StripTopology&)stripdet->topology();
 
   // position of the initial and final point of the strip (RPHI cluster) in local strip coordinates
   auto RPHIpointX = topol.measurementPosition(monoRH->localPositionFast()).x();
-  MeasurementPoint RPHIpointini(RPHIpointX,-0.5f);
-  MeasurementPoint RPHIpointend(RPHIpointX,0.5f);
+  MeasurementPoint RPHIpointini(RPHIpointX, -0.5f);
+  MeasurementPoint RPHIpointend(RPHIpointX, 0.5f);
 
   // position of the initial and final point of the strip in local coordinates (mono det)
-  StripPosition stripmono=StripPosition(topol.localPosition(RPHIpointini),topol.localPosition(RPHIpointend));
+  StripPosition stripmono = StripPosition(topol.localPosition(RPHIpointini), topol.localPosition(RPHIpointend));
 
-  if(trackdirection.mag2()<float(FLT_MIN)){// in case of no track hypothesis assume a track from the origin through the center of the strip
-    const LocalPoint& lcenterofstrip=monoRH->localPositionFast();
-    GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(lcenterofstrip);
-    GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
-    trackdirection=(gluedDet->surface()).toLocal(gtrackdirection);
+  // in case of no track hypothesis assume a track from the origin through the center of the strip
+  if (trackdirection.mag2() < FLT_MIN) {
+    const LocalPoint& lcenterofstrip = monoRH->localPositionFast();
+    GlobalPoint gcenterofstrip = (stripdet->surface()).toGlobal(lcenterofstrip);
+    GlobalVector gtrackdirection = gcenterofstrip - GlobalPoint(0, 0, 0);
+    trackdirection = (gluedDet->surface()).toLocal(gtrackdirection);
   }
 
   //project mono hit on glued det
-  StripPosition projectedstripmono=project(stripdet,gluedDet,stripmono,trackdirection);
-  const StripTopology& partnertopol=(const StripTopology&)partnerstripdet->topology();
+  StripPosition projectedstripmono = project(stripdet, gluedDet, stripmono, trackdirection);
+  const StripTopology& partnertopol = (const StripTopology&)partnerstripdet->topology();
 
-  double m00 = -(projectedstripmono.second.y()-projectedstripmono.first.y()); 
-  double m01 =  (projectedstripmono.second.x()-projectedstripmono.first.x());
-  double c0  =  m01*projectedstripmono.first.y()   + m00*projectedstripmono.first.x();
- 
+  double m00 = -(projectedstripmono.second.y() - projectedstripmono.first.y());
+  double m01 = (projectedstripmono.second.x() - projectedstripmono.first.x());
+  double c0 = m01 * projectedstripmono.first.y() + m00 * projectedstripmono.first.x();
+
   //error calculation (the part that depends on mono RH only)
   //  LocalVector  RPHIpositiononGluedendvector=projectedstripmono.second-projectedstripmono.first;
   /*
@@ -308,67 +279,59 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   */
   double c1 = -m00;
   double s1 = -m01;
-  double l1 = 1./(c1*c1+s1*s1);
+  double l1 = 1. / (c1 * c1 + s1 * s1);
 
-
-  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(), topol);
   // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
+  // position of the initial and final point of the strip (STEREO cluster)
+  auto STEREOpointX = partnertopol.measurementPosition(stereoRH->localPositionFast()).x();
+  MeasurementPoint STEREOpointini(STEREOpointX, -0.5f);
+  MeasurementPoint STEREOpointend(STEREOpointX, 0.5f);
 
-
-
-    // position of the initial and final point of the strip (STEREO cluster)
-  auto STEREOpointX=partnertopol.measurementPosition(stereoRH->localPositionFast()).x();
-  MeasurementPoint STEREOpointini(STEREOpointX,-0.5f);
-  MeasurementPoint STEREOpointend(STEREOpointX,0.5f);
-  
   // position of the initial and final point of the strip in local coordinates (stereo det)
-  StripPosition stripstereo(partnertopol.localPosition(STEREOpointini),partnertopol.localPosition(STEREOpointend));
-  
+  StripPosition stripstereo(partnertopol.localPosition(STEREOpointini), partnertopol.localPosition(STEREOpointend));
+
   //project stereo hit on glued det
-  StripPosition projectedstripstereo=project(partnerstripdet,gluedDet,stripstereo,trackdirection);
-  
-  
-  double m10=-(projectedstripstereo.second.y()-projectedstripstereo.first.y()); 
-  double m11=(projectedstripstereo.second.x()-projectedstripstereo.first.x());
-  
+  StripPosition projectedstripstereo = project(partnerstripdet, gluedDet, stripstereo, trackdirection);
+
+  double m10 = -(projectedstripstereo.second.y() - projectedstripstereo.first.y());
+  double m11 = (projectedstripstereo.second.x() - projectedstripstereo.first.x());
+
   //perform the matching
   //(x2-x1)(y-y1)=(y2-y1)(x-x1)
-  AlgebraicMatrix22 m(ROOT::Math::SMatrixNoInit{}); 
-  AlgebraicVector2 c(c0,m11*projectedstripstereo.first.y()+m10*projectedstripstereo.first.x());
-  m(0,0)=m00; 
-  m(0,1)=m01;
-  m(1,0)=m10;
-  m(1,1)=m11;
-  m.Invert(); 
+  AlgebraicMatrix22 m(ROOT::Math::SMatrixNoInit{});
+  AlgebraicVector2 c(c0, m11 * projectedstripstereo.first.y() + m10 * projectedstripstereo.first.x());
+  m(0, 0) = m00;
+  m(0, 1) = m01;
+  m(1, 0) = m10;
+  m(1, 1) = m11;
+  m.Invert();
   AlgebraicVector2 solution = m * c;
-  Local2DPoint position(solution(0),solution(1));
-  
+  Local2DPoint position(solution(0), solution(1));
 
-  if ((!force) &&  (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) ) return std::unique_ptr<SiStripMatchedRecHit2D>(nullptr);
+  if ((!force) && (!((gluedDet->surface()).bounds().inside(position, 10.f * scale_))))
+    return std::unique_ptr<SiStripMatchedRecHit2D>(nullptr);
 
   double c2 = -m10;
   double s2 = -m11;
-  double l2 = 1./(c2*c2+s2*s2);
-  
-  
-  double sigmap22 = sigmaPitch(stereoRH->localPosition(),stereoRH->localPositionError(),partnertopol);
+  double l2 = 1. / (c2 * c2 + s2 * s2);
+
+  double sigmap22 = sigmaPitch(stereoRH->localPosition(), stereoRH->localPositionError(), partnertopol);
   // auto sigmap22 = stereoRH->sigmaPitch();
   // assert (sigmap22>0);
 
-  double diff=(c1*s2-c2*s1);
-  double invdet2=1/(diff*diff*l1*l2);
-  float xx= invdet2*(sigmap12*s2*s2*l2+sigmap22*s1*s1*l1);
-  float xy=-invdet2*(sigmap12*c2*s2*l2+sigmap22*c1*s1*l1);
-  float yy= invdet2*(sigmap12*c2*c2*l2+sigmap22*c1*c1*l1);
-  LocalError error(xx,xy,yy);
- 
+  double diff = (c1 * s2 - c2 * s1);
+  double invdet2 = 1 / (diff * diff * l1 * l2);
+  float xx = invdet2 * (sigmap12 * s2 * s2 * l2 + sigmap22 * s1 * s1 * l1);
+  float xy = -invdet2 * (sigmap12 * c2 * s2 * l2 + sigmap22 * c1 * s1 * l1);
+  float yy = invdet2 * (sigmap12 * c2 * c2 * l2 + sigmap22 * c1 * c1 * l1);
+  LocalError error(xx, xy, yy);
 
   //if it is inside the gluedet bonds
   //Change NSigmaInside in the configuration file to accept more hits
-  if(force || (gluedDet->surface()).bounds().inside(position,error,scale_)) 
-    return std::make_unique<SiStripMatchedRecHit2D>(LocalPoint(position), error, *gluedDet, monoRH,stereoRH);
+  if (force || (gluedDet->surface()).bounds().inside(position, error, scale_))
+    return std::make_unique<SiStripMatchedRecHit2D>(LocalPoint(position), error, *gluedDet, monoRH, stereoRH);
   return std::unique_ptr<SiStripMatchedRecHit2D>(nullptr);
 }
-

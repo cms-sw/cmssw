@@ -79,7 +79,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
                 for entry in autoKey[1:]:
                   entry = entry.split(',')
                   record     = entry[1]
-                  label      = len(entry) > 3 and entry[3] or None
+                  label      = len(entry) > 3 and entry[3] or ""
                   tag        = entry[0]
                   connection = len(entry) > 2 and entry[2] or None
                   snapshotTime = len(entry) > 4 and entry[4] or None
@@ -111,7 +111,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             for entry in conditions.split('+'):
                 entry = entry.split(',')
                 record     = entry[1]
-                label      = len(entry) > 3 and entry[3] or None
+                label      = len(entry) > 3 and entry[3] or ""
                 tag        = entry[0]
                 connection = len(entry) > 2 and entry[2] or None
                 snapshotTime = len(entry) > 4 and entry[4] or None

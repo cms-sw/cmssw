@@ -1,5 +1,5 @@
 <use   name="DataFormats/FEDRawData"/>
-<bin   name="testFEDRawData" file="FEDRawData_t.cpp,FEDRawDataProduct_t.cc">
+<bin   name="testFEDRawData" file="FEDRawData_t.cpp,FEDRawDataProduct_t.cc, FEDNumbering_t.cpp">
   <use   name="cppunit"/>
 </bin>
 <library   name="testDumpFEDRawDataProduct" file="DumpFEDRawDataProduct.cc">

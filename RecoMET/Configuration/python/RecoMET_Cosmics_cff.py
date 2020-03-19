@@ -9,34 +9,37 @@ hcalnoise.fillTracks = False
 CSCHaloData.CosmicMuonLabel = cms.InputTag("muons")
 
 ##____________________________________________________________________________||
-metrecoCosmics = cms.Sequence(
-      caloMet+
-      caloMetBE+
-      caloMetBEFO+
-      muonMETValueMapProducer+
-      caloMetM +
-      hcalnoise+
-      BeamHaloId
+metrecoCosmicsTask = cms.Task(
+      caloMet,
+      caloMetBE,
+      caloMetBEFO,
+      muonMETValueMapProducer,
+      caloMetM,
+      hcalnoise,
+      BeamHaloIdTask
       )
+metrecoCosmics = cms.Sequence(metrecoCosmicsTask)
 
 ##____________________________________________________________________________||
-metrecoCosmics_woBeamHaloId = cms.Sequence(
-    caloMet+
-    caloMetBE+
-    caloMetBEFO+
-    muonMETValueMapProducer+
-    caloMetM +
+metrecoCosmics_woBeamHaloIdTask = cms.Task(
+    caloMet,
+    caloMetBE,
+    caloMetBEFO,
+    muonMETValueMapProducer,
+    caloMetM,
     hcalnoise
     )
+metrecoCosmics_woBeamHaloId = cms.Sequence(metrecoCosmics_woBeamHaloIdTask)
 
 ##____________________________________________________________________________||
-metrecoCosmics_woHcalNoise = cms.Sequence(
-    caloMet+
-    caloMetBE+
-    caloMetBEFO+
-    muonMETValueMapProducer+
-    caloMetM +
-    BeamHaloId
+metrecoCosmics_woHcalNoiseTask = cms.Task(
+    caloMet,
+    caloMetBE,
+    caloMetBEFO,
+    muonMETValueMapProducer,
+    caloMetM,
+    BeamHaloIdTask
 )
+metrecoCosmics_woHcalNoise = cms.Sequence(metrecoCosmics_woHcalNoiseTask)
 
 ##____________________________________________________________________________||

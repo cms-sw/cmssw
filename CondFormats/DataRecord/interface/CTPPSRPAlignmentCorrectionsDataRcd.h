@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSRPAlignmentCorrectionsDataRcd
-// 
+//
 /**\class CTPPSRPAlignmentCorrectionsDataRcd CTPPSRPAlignmentCorrectionsDataRcd.h CondFormats/DataRecord/interface/CTPPSRPAlignmentCorrectionsDataRcd.h
 
  Description: [one line class summary]
@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class CTPPSRPAlignmentCorrectionsDataRcd : public edm::eventsetup::EventSetupRecordImplementation<CTPPSRPAlignmentCorrectionsDataRcd> {};
+class CTPPSRPAlignmentCorrectionsDataRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<CTPPSRPAlignmentCorrectionsDataRcd> {};
 
 #endif

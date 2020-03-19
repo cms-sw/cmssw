@@ -6,6 +6,6 @@
 namespace l1t {
   class MuonCaloSum;
   typedef BXVector<MuonCaloSum> MuonCaloSumBxCollection;
-}
+}  // namespace l1t
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/ParameterSet
 // Class  :     ValidatedPluginFactoryMacros
-// 
+//
 /**\class ValidatedPluginFactoryMacros ValidatedPluginFactoryMacros.h "ValidatedPluginFactoryMacros.h"
 
  Description: macros used to register a PluginFactory which uses ParameterSet validation
@@ -27,7 +27,8 @@
 #include "FWCore/ParameterSet/interface/PluginDescriptionAdaptorBase.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-#define EDM_REGISTER_VALIDATED_PLUGINFACTORY(_factory_,_category_) \
-EDM_REGISTER_PLUGINFACTORY(_factory_,_category_);\
-EDM_REGISTER_PLUGINFACTORY2(edmplugin::PluginFactory<edm::PluginDescriptionAdaptorBase<_factory_::CreatedType>*()>, "PluginDescriptor" _category_)
+#define EDM_REGISTER_VALIDATED_PLUGINFACTORY(_factory_, _category_)                                                   \
+  EDM_REGISTER_PLUGINFACTORY(_factory_, _category_);                                                                  \
+  EDM_REGISTER_PLUGINFACTORY2(edmplugin::PluginFactory<edm::PluginDescriptionAdaptorBase<_factory_::CreatedType>*()>, \
+                              "PluginDescriptor" _category_)
 #endif

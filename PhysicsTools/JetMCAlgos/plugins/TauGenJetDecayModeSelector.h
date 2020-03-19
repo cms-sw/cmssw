@@ -20,22 +20,18 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
-class TauGenJetDecayModeSelectorImp
-{
- public:
+class TauGenJetDecayModeSelectorImp {
+public:
   // constructor
-  explicit TauGenJetDecayModeSelectorImp(const edm::ParameterSet&, edm::ConsumesCollector & iC);
+  explicit TauGenJetDecayModeSelectorImp(const edm::ParameterSet&, edm::ConsumesCollector& iC);
 
   bool operator()(const reco::GenJet&) const;
 
- private:
+private:
   typedef std::vector<std::string> vstring;
   vstring selectedTauDecayModes_;
 };
 
-typedef SingleObjectSelector<
-            reco::GenJetCollection,
-            TauGenJetDecayModeSelectorImp
-        > TauGenJetDecayModeSelector;
+typedef SingleObjectSelector<reco::GenJetCollection, TauGenJetDecayModeSelectorImp> TauGenJetDecayModeSelector;
 
 #endif

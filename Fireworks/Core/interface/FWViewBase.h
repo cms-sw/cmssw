@@ -33,42 +33,39 @@ class TGFrame;
 class FWViewContextMenuHandlerBase;
 class ViewerParameterGUI;
 
-class FWViewBase : public FWConfigurableParameterizable
-{
+class FWViewBase : public FWConfigurableParameterizable {
 public:
-   FWViewBase(FWViewType::EType, unsigned int iVersion = 1);
+  FWViewBase(FWViewType::EType, unsigned int iVersion = 1);
 
-   // ---------- const member functions ---------------------
-   const std::string& typeName() const;
-   FWViewType::EType typeId() const { return m_type.id(); }
+  // ---------- const member functions ---------------------
+  const std::string& typeName() const;
+  FWViewType::EType typeId() const { return m_type.id(); }
 
-   virtual void saveImageTo(const std::string& iName) const = 0;
-   void promptForSaveImageTo(TGFrame*) const;
-   
-   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
+  virtual void saveImageTo(const std::string& iName) const = 0;
+  void promptForSaveImageTo(TGFrame*) const;
 
-   virtual void populateController(ViewerParameterGUI&) const {} 
+  virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
 
-   // ---------- static member functions --------------------
+  virtual void populateController(ViewerParameterGUI&) const {}
 
-   // ---------- member functions ---------------------------
-   void destroy();
+  // ---------- static member functions --------------------
 
-   sigc::signal<void,const FWViewBase*> beingDestroyed_;
-   sigc::signal<void,Int_t,Int_t> openSelectedModelContextMenu_;
+  // ---------- member functions ---------------------------
+  void destroy();
+
+  sigc::signal<void, const FWViewBase*> beingDestroyed_;
+  sigc::signal<void, Int_t, Int_t> openSelectedModelContextMenu_;
 
 protected:
-   ~FWViewBase() override;
-   FWViewType           m_type;
+  ~FWViewBase() override;
+  FWViewType m_type;
 
 private:
-   FWViewBase(const FWViewBase&) = delete;    // stop default
+  FWViewBase(const FWViewBase&) = delete;  // stop default
 
-   const FWViewBase& operator=(const FWViewBase&) = delete;    // stop default
+  const FWViewBase& operator=(const FWViewBase&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
 
 #endif

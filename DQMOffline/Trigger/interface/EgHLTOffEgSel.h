@@ -1,5 +1,5 @@
-#ifndef  DQMOFFLINE_TRIGGER_EGHLTOFFEGSEL
-#define  DQMOFFLINE_TRIGGER_EGHLTOFFEGSEL
+#ifndef DQMOFFLINE_TRIGGER_EGHLTOFFEGSEL
+#define DQMOFFLINE_TRIGGER_EGHLTOFFEGSEL
 
 //this class works out which cuts the electron/photon passes/fails
 //why am I rolling my own, simply put there is no electron/photon cut class that I know off
@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-namespace edm{
+namespace edm {
   class ParameterSet;
 }
 
@@ -21,37 +21,32 @@ namespace egHLT {
   class OffEle;
   class OffPho;
 
-  class OffEgSel  {
-    
- private:
-
+  class OffEgSel {
+  private:
     EgCutValues ebCutValues_;
     EgCutValues eeCutValues_;
-    
-  public:
-    OffEgSel()= default;//default, it doesnt to anything
-    explicit OffEgSel(const edm::ParameterSet& config){setup(config);}
-    ~OffEgSel()= default; //we own nothing so default destructor, copy and assignment okay
-    
-     
-    bool passCuts(const OffEle& ele,int cutMask=~0x0)const{return getCutCode(ele,cutMask)==0x0;}
-    int getCutCode(const OffEle& ele,int cutMask=~0x0)const;  
-    static int getCutCode(const OffEle& ele,const EgCutValues& cuts,int cutMask=~0x0);
-    
-    bool passCuts(const OffPho& pho,int cutMask=~0x0)const{return getCutCode(pho,cutMask)==0x0;}
-    int getCutCode(const OffPho& pho,int cutMask=~0x0)const;
-    static int getCutCode(const OffPho& pho,const EgCutValues& cuts,int cutMask=~0x0);
 
-    void setEBCuts(const EgCutValues& cuts){ebCutValues_=cuts;}
-    void setEECuts(const EgCutValues& cuts){eeCutValues_=cuts;}
-    
-    const EgCutValues& ebCuts()const{return ebCutValues_;}
-    const EgCutValues& eeCuts()const{return eeCutValues_;}
-    
+  public:
+    OffEgSel() = default;  //default, it doesnt to anything
+    explicit OffEgSel(const edm::ParameterSet& config) { setup(config); }
+    ~OffEgSel() = default;  //we own nothing so default destructor, copy and assignment okay
+
+    bool passCuts(const OffEle& ele, int cutMask = ~0x0) const { return getCutCode(ele, cutMask) == 0x0; }
+    int getCutCode(const OffEle& ele, int cutMask = ~0x0) const;
+    static int getCutCode(const OffEle& ele, const EgCutValues& cuts, int cutMask = ~0x0);
+
+    bool passCuts(const OffPho& pho, int cutMask = ~0x0) const { return getCutCode(pho, cutMask) == 0x0; }
+    int getCutCode(const OffPho& pho, int cutMask = ~0x0) const;
+    static int getCutCode(const OffPho& pho, const EgCutValues& cuts, int cutMask = ~0x0);
+
+    void setEBCuts(const EgCutValues& cuts) { ebCutValues_ = cuts; }
+    void setEECuts(const EgCutValues& cuts) { eeCutValues_ = cuts; }
+
+    const EgCutValues& ebCuts() const { return ebCutValues_; }
+    const EgCutValues& eeCuts() const { return eeCutValues_; }
+
     void setup(const edm::ParameterSet&);
-    
-    
   };
-}
+}  // namespace egHLT
 
 #endif

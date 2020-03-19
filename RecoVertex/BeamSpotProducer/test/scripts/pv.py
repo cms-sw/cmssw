@@ -2,6 +2,7 @@
 
 #import ROOT
 from __future__ import print_function
+from builtins import range
 from ROOT import *
 #gROOT, TFile, TCanvas, TH1F, TH1I, TLegend, TH2F, gPad
 
@@ -176,7 +177,7 @@ def main():
 
     pvStore = ROOT.vector( BeamSpotFitPVData )(0)
 
-    for jentry in xrange( entries ):
+    for jentry in range( entries ):
 	# get the next tree in the chain
 	ientry = fchain.LoadTree(jentry)
 	if ientry < 0:

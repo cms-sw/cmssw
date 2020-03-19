@@ -18,28 +18,27 @@
 class FWECALDetailViewBuilder;
 class TEveCaloData;
 namespace reco {
-class Photon;
+  class Photon;
 }
 
 class FWPhotonDetailView : public FWDetailViewGL<reco::Photon> {
-
 public:
-   FWPhotonDetailView();
-   ~FWPhotonDetailView() override;
+  FWPhotonDetailView();
+  ~FWPhotonDetailView() override;
 
-   using FWDetailViewGL<reco::Photon>::build;
-   void build (const FWModelId &id, const reco::Photon*) override;
-   using FWDetailViewGL<reco::Photon>::setTextInfo;
-   void setTextInfo(const FWModelId &id, const reco::Photon*) override;
+  using FWDetailViewGL<reco::Photon>::build;
+  void build(const FWModelId& id, const reco::Photon*) override;
+  using FWDetailViewGL<reco::Photon>::setTextInfo;
+  void setTextInfo(const FWModelId& id, const reco::Photon*) override;
 
 private:
-   FWPhotonDetailView(const FWPhotonDetailView&) = delete; // stop default
-   const FWPhotonDetailView& operator=(const FWPhotonDetailView&) = delete; // stop default
+  FWPhotonDetailView(const FWPhotonDetailView&) = delete;                   // stop default
+  const FWPhotonDetailView& operator=(const FWPhotonDetailView&) = delete;  // stop default
 
-   void addSceneInfo(const reco::Photon*, TEveElementList*);
+  void addSceneInfo(const reco::Photon*, TEveElementList*);
 
-   TEveCaloData* m_data;
-   FWECALDetailViewBuilder* m_builder;
+  TEveCaloData* m_data;
+  FWECALDetailViewBuilder* m_builder;
 };
 
 #endif

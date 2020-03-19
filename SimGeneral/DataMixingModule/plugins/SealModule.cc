@@ -5,10 +5,6 @@
 
 #include "DataMixingModule.h"
 
-  using edm::DataMixingModule;
-
-
+using edm::DataMixingModule;
 
 DEFINE_FWK_MODULE(DataMixingModule);
-
-

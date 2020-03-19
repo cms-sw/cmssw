@@ -37,19 +37,18 @@
 
 class AbortOnEventIDAnalyzer : public edm::EDAnalyzer {
 public:
-   explicit AbortOnEventIDAnalyzer(edm::ParameterSet const&);
-   ~AbortOnEventIDAnalyzer() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
+  explicit AbortOnEventIDAnalyzer(edm::ParameterSet const&);
+  ~AbortOnEventIDAnalyzer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-   void beginJob() override;
-   void analyze(edm::Event const&, edm::EventSetup const&) override;
-   void endJob() override;
+  void beginJob() override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override;
 
-   // ----------member data ---------------------------
-   std::vector<edm::EventID> ids_;
-   bool throwException_;
+  // ----------member data ---------------------------
+  std::vector<edm::EventID> ids_;
+  bool throwException_;
 };
 
 //
@@ -63,43 +62,35 @@ private:
 //
 // constructors and destructor
 //
-AbortOnEventIDAnalyzer::AbortOnEventIDAnalyzer(edm::ParameterSet const& iConfig) :
-  ids_(iConfig.getUntrackedParameter<std::vector<edm::EventID> >("eventsToAbort")),
-  throwException_(iConfig.getUntrackedParameter<bool>("throwExceptionInsteadOfAbort"))
-{
-   //now do what ever initialization is needed
-
+AbortOnEventIDAnalyzer::AbortOnEventIDAnalyzer(edm::ParameterSet const& iConfig)
+    : ids_(iConfig.getUntrackedParameter<std::vector<edm::EventID> >("eventsToAbort")),
+      throwException_(iConfig.getUntrackedParameter<bool>("throwExceptionInsteadOfAbort")) {
+  //now do what ever initialization is needed
 }
-
 
 AbortOnEventIDAnalyzer::~AbortOnEventIDAnalyzer() {
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 namespace {
-   struct CompareWithoutLumi {
-      CompareWithoutLumi(edm::EventID const& iThis) : m_this(iThis) {
-      }
-      bool operator()(edm::EventID const& iOther) {
-         return m_this.run() == iOther.run() && m_this.event() == iOther.event();
-      }
-      edm::EventID m_this;
-   };
-}
+  struct CompareWithoutLumi {
+    CompareWithoutLumi(edm::EventID const& iThis) : m_this(iThis) {}
+    bool operator()(edm::EventID const& iOther) {
+      return m_this.run() == iOther.run() && m_this.event() == iOther.event();
+    }
+    edm::EventID m_this;
+  };
+}  // namespace
 
 // ------------ method called to for each event  ------------
-void
-AbortOnEventIDAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
-  std::vector<edm::EventID>::iterator itFind= std::find_if(ids_.begin(), ids_.end(), CompareWithoutLumi(iEvent.id()));
-  if(itFind != ids_.end()) {
+void AbortOnEventIDAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+  std::vector<edm::EventID>::iterator itFind = std::find_if(ids_.begin(), ids_.end(), CompareWithoutLumi(iEvent.id()));
+  if (itFind != ids_.end()) {
     if (throwException_) {
       throw cms::Exception("AbortEvent") << "Found event " << iEvent.id() << "\n";
     } else {
@@ -109,18 +100,13 @@ AbortOnEventIDAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const&
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void
-AbortOnEventIDAnalyzer::beginJob() {
-}
+void AbortOnEventIDAnalyzer::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void
-AbortOnEventIDAnalyzer::endJob() {
-}
+void AbortOnEventIDAnalyzer::endJob() {}
 
 // ------------ method called once each job for validation
-void
-AbortOnEventIDAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void AbortOnEventIDAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::vector<edm::EventID> >("eventsToAbort");
   desc.addUntracked<bool>("throwExceptionInsteadOfAbort", false);

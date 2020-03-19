@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HcalOOTPileupCompatibilityRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

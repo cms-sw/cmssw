@@ -28,35 +28,28 @@
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
-#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
+#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::stream::EDProducer<> {
-
- public:
-
-  PhotonProducer (const edm::ParameterSet& ps);
-  ~PhotonProducer() override;
+public:
+  PhotonProducer(const edm::ParameterSet& ps);
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
- private:
-
+private:
   void fillPhotonCollection(edm::Event& evt,
-			    edm::EventSetup const & es,
-                            const edm::Handle<reco::PhotonCoreCollection> & photonCoreHandle,
-                            const CaloTopology *topology,
-			    const EcalRecHitCollection* ecalBarrelHits,
-			    const EcalRecHitCollection* ecalEndcapHits,
-			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
-			    //math::XYZPoint & vtx,
-			    reco::VertexCollection& pvVertices,
-			    reco::PhotonCollection & outputCollection,
-			    int& iSC,
-			    const EcalSeverityLevelAlgo * sevLv);
+                            edm::EventSetup const& es,
+                            const edm::Handle<reco::PhotonCoreCollection>& photonCoreHandle,
+                            const CaloTopology* topology,
+                            const EcalRecHitCollection* ecalBarrelHits,
+                            const EcalRecHitCollection* ecalEndcapHits,
+                            CaloTowerCollection const& hcalTowers,
+                            reco::VertexCollection& pvVertices,
+                            reco::PhotonCollection& outputCollection,
+                            int& iSC,
+                            const EcalSeverityLevelAlgo* sevLv);
 
   // std::string PhotonCoreCollection_;
   std::string PhotonCollection_;
@@ -66,49 +59,38 @@ class PhotonProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
   edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
 
-  std::string conversionProducer_;
-  std::string conversionCollection_;
-
   //AA
   //Flags and severities to be excluded from calculations
-  
+
   std::vector<int> flagsexclEB_;
   std::vector<int> flagsexclEE_;
   std::vector<int> severitiesexclEB_;
   std::vector<int> severitiesexclEE_;
 
-
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
   double highEt_;
-  double  minR9Barrel_;
-  double  minR9Endcap_;
-  bool   runMIPTagger_;
+  double minR9Barrel_;
+  double minR9Endcap_;
+  bool runMIPTagger_;
 
   bool validConversions_;
-  std::string pixelSeedProducer_;
-  
+
   bool usePrimaryVertex_;
-  edm::ParameterSet conf_;
 
   PositionCalc posCalculator_;
 
-  edm::ESHandle<CaloGeometry> theCaloGeom_;
-  edm::ESHandle<CaloTopology> theCaloTopo_;
- 
   bool validPixelSeeds_;
-  PhotonIsolationCalculator* thePhotonIsolationCalculator_;
+  PhotonIsolationCalculator photonIsolationCalculator_;
 
   //MIP
-  PhotonMIPHaloTagger* thePhotonMIPHaloTagger_;
+  PhotonMIPHaloTagger photonMIPHaloTagger_;
 
-  std::vector<double>  preselCutValuesBarrel_; 
-  std::vector<double>  preselCutValuesEndcap_; 
+  std::vector<double> preselCutValuesBarrel_;
+  std::vector<double> preselCutValuesEndcap_;
 
-  EcalClusterFunctionBaseClass* energyCorrectionF;
-  PhotonEnergyCorrector* thePhotonEnergyCorrector_;
-  std::string  candidateP4type_;
-
+  PhotonEnergyCorrector photonEnergyCorrector_;
+  std::string candidateP4type_;
 };
 #endif

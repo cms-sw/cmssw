@@ -2,7 +2,7 @@
 //
 // Package:     DataFormats/Common
 // Class  :     edm::HandleExceptionFactory
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "DataFormats/Common/interface/HandleExceptionFactory.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,15 +26,11 @@
 //
 // constructors and destructor
 //
-edm::HandleExceptionFactory::HandleExceptionFactory()
-{
-}
+edm::HandleExceptionFactory::HandleExceptionFactory() {}
 
 // HandleExceptionFactory::HandleExceptionFactory(const HandleExceptionFactory& rhs)
 // {
 //    // do actual copying here;
 // }
 
-edm::HandleExceptionFactory::~HandleExceptionFactory()
-{
-}
+edm::HandleExceptionFactory::~HandleExceptionFactory() {}

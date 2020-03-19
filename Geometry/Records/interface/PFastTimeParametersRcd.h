@@ -6,7 +6,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
-class PFastTimeParametersRcd : public edm::eventsetup::DependentRecordImplementation<PFastTimeParametersRcd,
-  boost::mpl::vector<IdealGeometryRecord> > {};
+class PFastTimeParametersRcd
+    : public edm::eventsetup::DependentRecordImplementation<PFastTimeParametersRcd,
+                                                            boost::mpl::vector<IdealGeometryRecord> > {};
 
-#endif // PFastTimeParameters_H
+#endif  // PFastTimeParameters_H

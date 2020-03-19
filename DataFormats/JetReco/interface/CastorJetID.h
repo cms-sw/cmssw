@@ -14,32 +14,29 @@
 
 namespace reco {
   struct CastorJetID {
-
-    // initialize 
+    // initialize
     CastorJetID() {
       emEnergy = 0.0;
-      hadEnergy = 0.0; 
+      hadEnergy = 0.0;
       fem = 0.0;
       width = 0.0;
       depth = 0.0;
       fhot = 0.0;
       sigmaz = 0.0;
       nTowers = 0;
-      
     }
 
     double emEnergy;
-    double hadEnergy; 
+    double hadEnergy;
     double fem;
     double width;
     double depth;
     double fhot;
     double sigmaz;
     int nTowers;
-
   };
 
-  typedef edm::ValueMap<CastorJetID>   CastorJetIDValueMap;
-}
+  typedef edm::ValueMap<CastorJetID> CastorJetIDValueMap;
+}  // namespace reco
 
 #endif

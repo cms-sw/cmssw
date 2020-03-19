@@ -1,8 +1,7 @@
 #ifndef FastSimDataFormats_NuclearInteractions_FSimVertexType_h
-#define FastSimDataFormats_NuclearInteractions_FSimVertexType_h 
+#define FastSimDataFormats_NuclearInteractions_FSimVertexType_h
 
 #include <ostream>
-  
 
 /*!\Data Format FSimVertexType
 
@@ -17,11 +16,9 @@ Generation sequences.
 */
 
 class FSimVertexType {
-
- public:
-
-  /// Enum of possible vertex types. 
-  /// May be extended according to different needs 
+public:
+  /// Enum of possible vertex types.
+  /// May be extended according to different needs
   enum VertexType {
     ANY = 0,
     PRIMARY_VERTEX = 1,
@@ -35,21 +32,16 @@ class FSimVertexType {
   };
 
   FSimVertexType();
-  FSimVertexType(VertexType) ;
+  FSimVertexType(VertexType);
   virtual ~FSimVertexType() {}
 
-  const VertexType vertexType() const {return vertexType_;}
-  void setVertexType(VertexType vertexType) {vertexType_ = vertexType;}
+  const VertexType vertexType() const { return vertexType_; }
+  void setVertexType(VertexType vertexType) { vertexType_ = vertexType; }
 
- private:
-
+private:
   VertexType vertexType_;
 
-  friend std::ostream& operator<<( std::ostream& out, const FSimVertexType& co );    
-
+  friend std::ostream& operator<<(std::ostream& out, const FSimVertexType& co);
 };
 
 #endif
-
-
-  

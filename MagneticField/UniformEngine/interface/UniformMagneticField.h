@@ -8,30 +8,27 @@
  *  \author N. Amapane - CERN
  */
 
-
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 class UniformMagneticField final : public MagneticField {
- public:
-
+public:
   ///Construct passing the Z field component in Tesla
-  UniformMagneticField(float value) : theField(0.f,0.f,value) {}
+  UniformMagneticField(float value) : theField(0.f, 0.f, value) {}
 
-  UniformMagneticField(GlobalVector value) :  theField(value) {}
+  UniformMagneticField(GlobalVector value) : theField(value) {}
 
-  void set(GlobalVector value) { theField =value;}
-  void set(float value) { set(GlobalVector(0.f,0.f,value)); }
-
+  void set(GlobalVector value) { theField = value; }
+  void set(float value) { set(GlobalVector(0.f, 0.f, value)); }
 
   ~UniformMagneticField() override {}
 
-  GlobalVector inTesla (const GlobalPoint&) const override {return theField;}
+  GlobalVector inTesla(const GlobalPoint&) const override { return theField; }
 
-  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const override {return theField;}
+  GlobalVector inTeslaUnchecked(const GlobalPoint& gp) const override { return theField; }
 
-  bool isDefined(const GlobalPoint& gp) const override {return true;}
+  bool isDefined(const GlobalPoint& gp) const override { return true; }
 
- private:
+private:
   GlobalVector theField;
 };
 

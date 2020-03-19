@@ -28,35 +28,34 @@ class TTimer;
 class CmsShowTaskTimer;
 
 class CmsShowTaskExecutorBase {
-
 public:
-   CmsShowTaskExecutorBase();
-   virtual ~CmsShowTaskExecutorBase();
+  CmsShowTaskExecutorBase();
+  virtual ~CmsShowTaskExecutorBase();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void requestNextTask();
-   void doNextTask();
+  // ---------- member functions ---------------------------
+  void requestNextTask();
+  void doNextTask();
 
-   virtual void startDoingTasks()=0;
+  virtual void startDoingTasks() = 0;
 
-   sigc::signal<void> tasksCompleted_;
+  sigc::signal<void> tasksCompleted_;
 
 protected:
-   virtual void doNextTaskImp() = 0;
-   virtual bool moreTasksAvailable() = 0;
+  virtual void doNextTaskImp() = 0;
+  virtual bool moreTasksAvailable() = 0;
+
 private:
-   CmsShowTaskExecutorBase(const CmsShowTaskExecutorBase&) = delete; // stop default
+  CmsShowTaskExecutorBase(const CmsShowTaskExecutorBase&) = delete;  // stop default
 
-   const CmsShowTaskExecutorBase& operator=(const CmsShowTaskExecutorBase&) = delete; // stop default
+  const CmsShowTaskExecutorBase& operator=(const CmsShowTaskExecutorBase&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   //TTimer* m_timer;
-   CmsShowTaskTimer* m_taskTimer;
+  // ---------- member data --------------------------------
+  //TTimer* m_timer;
+  CmsShowTaskTimer* m_taskTimer;
 };
-
 
 #endif

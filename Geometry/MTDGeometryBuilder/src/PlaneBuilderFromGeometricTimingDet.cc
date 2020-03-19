@@ -20,10 +20,8 @@
    detector element?  
 */
 
-PlaneBuilderFromGeometricTimingDet::ResultType PlaneBuilderFromGeometricTimingDet::plane(const GeometricTimingDet* gd) const {
-   // gd->bounds() returns a pointer owned by the caller!                                                  
-  return ResultType( new Plane( gd->positionBounds(), gd->rotationBounds(), gd->bounds().release())); 
-}	      
-
-
-
+PlaneBuilderFromGeometricTimingDet::ResultType PlaneBuilderFromGeometricTimingDet::plane(
+    const GeometricTimingDet* gd) const {
+  // gd->bounds() returns a pointer owned by the caller!
+  return ResultType(new Plane(gd->positionBounds(), gd->rotationBounds(), gd->bounds().release()));
+}

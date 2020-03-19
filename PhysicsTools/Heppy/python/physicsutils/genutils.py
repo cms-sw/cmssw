@@ -1,3 +1,4 @@
+from builtins import range
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import printOut 
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle 
 
@@ -63,7 +64,7 @@ def isPromptLepton(lepton, beforeFSR, includeMotherless=True, includeTauDecays=F
 
 
 def isNotFromHadronicShower(l):
-    for x in xrange(l.numberOfMothers()):
+    for x in range(l.numberOfMothers()):
         mom = l.mother(x)
         if mom.status() > 2: return True
         id = abs(mom.pdgId())
@@ -85,7 +86,7 @@ def realGenDaughters(gp,excludeRadiation=True):
            realGenDaughters(X, excludeRadiation=True)  = { b, c }
            realGenDaughters(X, excludeRadiation=False) = { a, b, c }"""
     ret = []
-    for i in xrange(gp.numberOfDaughters()):
+    for i in range(gp.numberOfDaughters()):
         dau = gp.daughter(i)
         if dau.pdgId() == gp.pdgId():
             if excludeRadiation:
@@ -100,7 +101,7 @@ def realGenMothers(gp):
     """Get the mothers of a particle X going through intermediate X -> X' chains.
        e.g. if Y -> X, X -> X' realGenMothers(X') = Y"""
     ret = []
-    for i in xrange(gp.numberOfMothers()):
+    for i in range(gp.numberOfMothers()):
         mom = gp.mother(i)
         if mom.pdgId() == gp.pdgId():
             ret += realGenMothers(mom)
@@ -110,7 +111,7 @@ def realGenMothers(gp):
 
 def lastGenCopy(gp):
     me = gp.pdgId();
-    for i in xrange(gp.numberOfDaughters()):
+    for i in range(gp.numberOfDaughters()):
         if gp.daughter(i).pdgId() == me:
             return False
     return True

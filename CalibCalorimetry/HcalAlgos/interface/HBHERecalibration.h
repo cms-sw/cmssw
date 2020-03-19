@@ -12,28 +12,28 @@
 // (mean energy per layer derived from 50 GeV single pion scan in MC)
 
 class HBHERecalibration {
-	public:
-		HBHERecalibration(float intlumi, float cutoff, std::string meanenergies);
-		~HBHERecalibration();
-		
-		//accessors
-		float getCorr(int ieta, int depth) const;
-		void setup(const std::vector<std::vector<int>>& m_segmentation, const HBHEDarkening* darkening);
-		int maxDepth() const { return max_depth_; }
+public:
+  HBHERecalibration(float intlumi, float cutoff, std::string meanenergies);
+  ~HBHERecalibration();
 
-	private:
-		//helper
-		void initialize();
-		
-		//members
-		float intlumi_;
-		float cutoff_;
-		int ieta_shift_;
-		int max_depth_;
-		std::vector<std::vector<float>> meanenergies_;
-		const HBHEDarkening* darkening_;
-		std::vector<std::vector<int>> dsegm_;
-		std::vector<std::vector<float>> corr_;
+  //accessors
+  float getCorr(int ieta, int depth) const;
+  void setup(const std::vector<std::vector<int>>& m_segmentation, const HBHEDarkening* darkening);
+  int maxDepth() const { return max_depth_; }
+
+private:
+  //helper
+  void initialize();
+
+  //members
+  float intlumi_;
+  float cutoff_;
+  int ieta_shift_;
+  int max_depth_;
+  std::vector<std::vector<float>> meanenergies_;
+  const HBHEDarkening* darkening_;
+  std::vector<std::vector<int>> dsegm_;
+  std::vector<std::vector<float>> corr_;
 };
 
-#endif // HBHERecalibration_h
+#endif  // HBHERecalibration_h

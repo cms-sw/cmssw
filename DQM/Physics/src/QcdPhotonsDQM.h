@@ -17,16 +17,14 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace reco {
-class Jet;
+  class Jet;
 }
 
-class DQMStore;
-class MonitorElement;
-
 class QcdPhotonsDQM : public DQMEDAnalyzer {
- public:
+public:
   /// Constructor
   QcdPhotonsDQM(const edm::ParameterSet&);
 
@@ -34,13 +32,12 @@ class QcdPhotonsDQM : public DQMEDAnalyzer {
   ~QcdPhotonsDQM() override;
 
   //Book histograms
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   // ----------member data ---------------------------
 
   // Switch for verbosity

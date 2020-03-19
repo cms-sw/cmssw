@@ -23,14 +23,13 @@
 #include <sys/time.h>
 
 class SiStripNoisesReader : public edm::EDAnalyzer {
-
- public:
-  explicit SiStripNoisesReader( const edm::ParameterSet& );
+public:
+  explicit SiStripNoisesReader(const edm::ParameterSet&);
   ~SiStripNoisesReader() override;
-  
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
- private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
   uint32_t printdebug_;
 };
 #endif

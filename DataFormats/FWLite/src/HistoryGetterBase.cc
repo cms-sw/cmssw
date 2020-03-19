@@ -15,12 +15,11 @@
 // user include files
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 
-
 namespace fwlite {
 
-    //
-    // constructors and destructor
-    //
-    HistoryGetterBase::HistoryGetterBase() {}
-    HistoryGetterBase::~HistoryGetterBase() {}
-}
+  //
+  // constructors and destructor
+  //
+  HistoryGetterBase::HistoryGetterBase() {}
+  HistoryGetterBase::~HistoryGetterBase() {}
+}  // namespace fwlite

@@ -21,22 +21,18 @@ $Id
 #include "CondFormats/CastorObjects/interface/CastorCalibrationQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-
-class CastorCalibrationQIEData: public CastorCondObjectContainer<CastorCalibrationQIECoder>
-{
- public:
-   
+class CastorCalibrationQIEData : public CastorCondObjectContainer<CastorCalibrationQIECoder> {
+public:
   /// get QIE parameters
-  const CastorCalibrationQIECoder* getCoder (DetId fId) const { return getValues(fId); }
+  const CastorCalibrationQIECoder* getCoder(DetId fId) const { return getValues(fId); }
   // check if data are sorted
-  bool sorted () const {return true;}
+  bool sorted() const { return true; }
   // fill values [capid][range]
-  bool addCoder (const CastorCalibrationQIECoder& fCoder) { return addValues(fCoder); }
-   // sort values by channelId  
-  void sort () {}
+  bool addCoder(const CastorCalibrationQIECoder& fCoder) { return addValues(fCoder); }
+  // sort values by channelId
+  void sort() {}
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

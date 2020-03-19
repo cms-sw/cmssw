@@ -8,38 +8,28 @@
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  Parentage::Parentage() : parents_() {
-  }
+  Parentage::Parentage() : parents_() {}
 
-  Parentage::Parentage(std::vector<BranchID> const& parents) :
-    parents_(parents) {
-  }
+  Parentage::Parentage(std::vector<BranchID> const& parents) : parents_(parents) {}
 
-  Parentage::Parentage(std::vector<BranchID>&& parents) :
-  parents_(std::move(parents)) {
-  }
+  Parentage::Parentage(std::vector<BranchID>&& parents) : parents_(std::move(parents)) {}
 
-  ParentageID
-  Parentage::id() const {
+  ParentageID Parentage::id() const {
     std::ostringstream oss;
     for (auto const& parent : parents_) {
       oss << parent << ' ';
     }
-    
+
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);
     ParentageID id(md5alg.digest().toString());
     return id;
   }
 
-  void
-  Parentage::write(std::ostream&) const {
+  void Parentage::write(std::ostream&) const {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
   }
-    
-  bool
-  operator==(Parentage const& a, Parentage const& b) {
-    return a.parents() == b.parents();
-  }
-}
+
+  bool operator==(Parentage const& a, Parentage const& b) { return a.parents() == b.parents(); }
+}  // namespace edm

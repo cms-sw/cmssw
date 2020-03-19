@@ -17,22 +17,22 @@ namespace reco {
      \date   July 2006
   */
   class PFSimParticle : public PFTrack {
-
   public:
-
     PFSimParticle();
-  
-    PFSimParticle(double charge, int pdgCode, 
-                  unsigned id, int motherId,
+
+    PFSimParticle(double charge,
+                  int pdgCode,
+                  unsigned id,
+                  int motherId,
                   const std::vector<int>& daughterIds,
-		  unsigned rectrackId,
-		  const std::vector<unsigned>& recHitContrib,
-		  const std::vector<double>&   recHitContribFrac );
+                  unsigned rectrackId,
+                  const std::vector<unsigned>& recHitContrib,
+                  const std::vector<double>& recHitContribFrac);
 
     PFSimParticle(const PFSimParticle& other);
 
     /// \return pdg code
-    int      pdgCode() const {return pdgCode_; }
+    int pdgCode() const { return pdgCode_; }
 
     /// \return id
     unsigned id() const { return id_; }
@@ -41,40 +41,33 @@ namespace reco {
     int motherId() const { return motherId_; }
 
     /// \return vector of daughter ids
-    const std::vector<int>& daughterIds() const {return daughterIds_;}
+    const std::vector<int>& daughterIds() const { return daughterIds_; }
 
-   //accessing MCTruth Matching Info
-    unsigned rectrackId() 
-      const {return rectrackId_;} 
-    std::vector<unsigned> recHitContrib() 
-      const {return recHitContrib_;} 
-    std::vector<double> recHitContribFrac() 
-      const {return recHitContribFrac_;} 
+    //accessing MCTruth Matching Info
+    unsigned rectrackId() const { return rectrackId_; }
+    std::vector<unsigned> recHitContrib() const { return recHitContrib_; }
+    std::vector<double> recHitContribFrac() const { return recHitContribFrac_; }
 
   private:
-    
-    /// pdg code 
-    int       pdgCode_;
+    /// pdg code
+    int pdgCode_;
 
     /// position in particle vector
-    unsigned  id_;
+    unsigned id_;
 
     /// id of mother particle. -1 if no mother
-    int  motherId_;
+    int motherId_;
 
     /// id of daughter particles (can be > 2 in hadron showers)
     std::vector<int> daughterIds_;
 
-    unsigned rectrackId_; 
-    std::vector<unsigned> recHitContrib_; 
-    std::vector<double>   recHitContribFrac_;
-
+    unsigned rectrackId_;
+    std::vector<unsigned> recHitContrib_;
+    std::vector<double> recHitContribFrac_;
   };
 
-  std::ostream& operator<<(std::ostream& out, 
-                           const PFSimParticle& track);
+  std::ostream& operator<<(std::ostream& out, const PFSimParticle& track);
 
-
-}
+}  // namespace reco
 
 #endif

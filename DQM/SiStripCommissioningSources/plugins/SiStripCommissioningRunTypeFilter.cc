@@ -2,7 +2,7 @@
 //
 // Package:    SiStripCommissioningRunTypeFilter
 // Class:      SiStripCommissioningRunTypeFilter
-// 
+//
 /**\class SiStripCommissioningRunTypeFilter SiStripCommissioningRunTypeFilter.cc myTestArea/SiStripCommissioningRunTypeFilter/src/SiStripCommissioningRunTypeFilter.cc
 
  Description: simply filter acording to the run type
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <algorithm>
@@ -27,15 +26,14 @@
 //
 // constructors and destructor
 //
-SiStripCommissioningRunTypeFilter::SiStripCommissioningRunTypeFilter(const edm::ParameterSet& iConfig)
-{
-   //now do what ever initialization is needed
-  summaryToken_ = consumes<SiStripEventSummary>(iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) );
+SiStripCommissioningRunTypeFilter::SiStripCommissioningRunTypeFilter(const edm::ParameterSet& iConfig) {
+  //now do what ever initialization is needed
+  summaryToken_ = consumes<SiStripEventSummary>(iConfig.getParameter<edm::InputTag>("InputModuleLabel"));
   //   inputModuleLabel_ = iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) ;
-   std::vector<std::string> runTypes = iConfig.getParameter<std::vector<std::string> >("runTypes");
-   for(std::vector<std::string>::const_iterator run = runTypes.begin(); run != runTypes.end(); ++run) {
-     runTypes_.push_back(SiStripEnumsAndStrings::runType(*run));
-   }
+  std::vector<std::string> runTypes = iConfig.getParameter<std::vector<std::string> >("runTypes");
+  for (std::vector<std::string>::const_iterator run = runTypes.begin(); run != runTypes.end(); ++run) {
+    runTypes_.push_back(SiStripEnumsAndStrings::runType(*run));
+  }
 }
 
 //
@@ -43,13 +41,10 @@ SiStripCommissioningRunTypeFilter::SiStripCommissioningRunTypeFilter(const edm::
 //
 
 // ------------ method called on each new Event  ------------
-bool
-SiStripCommissioningRunTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   // Retrieve commissioning information from "event summary"
-   edm::Handle<SiStripEventSummary> summary;
-   iEvent.getByToken(summaryToken_, summary );
-   return (std::find(runTypes_.begin(),runTypes_.end(),summary->runType())!=runTypes_.end());
+bool SiStripCommissioningRunTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  // Retrieve commissioning information from "event summary"
+  edm::Handle<SiStripEventSummary> summary;
+  iEvent.getByToken(summaryToken_, summary);
+  return (std::find(runTypes_.begin(), runTypes_.end(), summary->runType()) != runTypes_.end());
 }
-

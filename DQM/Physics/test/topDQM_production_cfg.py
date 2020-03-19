@@ -93,7 +93,6 @@ process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cm
 process.MessageLogger.categories.append('SingleTopTChannelLeptonDQM'   )
 process.MessageLogger.cerr.SingleTopTChannelLeptonDQM    = cms.untracked.PSet(limit = cms.untracked.int32(1))
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line added to avoid crash when changing run number
 
 
 process.load("DQM.Physics.topSingleLeptonDQM_cfi")
@@ -107,11 +106,11 @@ process.p      = cms.Path(
     #process.DiElectronDQM              +
     #process.ElecMuonDQM                +
     #process.topSingleMuonLooseDQM      +
-    process.ak4PFCHSL1FastL2L3CorrectorChain * process.topSingleMuonMediumDQM     +
+    process.dqmAk4PFCHSL1FastL2L3CorrectorChain * process.topSingleMuonMediumDQM     +
     #process.topSingleElectronLooseDQM  +
-    process.ak4PFCHSL1FastL2L3CorrectorChain * process.topSingleElectronMediumDQM +
-    process.ak4PFCHSL1FastL2L3CorrectorChain * process.singleTopMuonMediumDQM      +
-    process.ak4PFCHSL1FastL2L3CorrectorChain * process.singleTopElectronMediumDQM
+    process.dqmAk4PFCHSL1FastL2L3CorrectorChain * process.topSingleElectronMediumDQM +
+    process.dqmAk4PFCHSL1FastL2L3CorrectorChain * process.singleTopMuonMediumDQM      +
+    process.dqmAk4PFCHSL1FastL2L3CorrectorChain * process.singleTopElectronMediumDQM
 )
 process.endjob = cms.Path(
     process.endOfProcess

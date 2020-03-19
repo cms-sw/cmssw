@@ -12,7 +12,7 @@
 //
 //
 //   Author :
-//   H. Sakulin            CERN EP 
+//   H. Sakulin            CERN EP
 //
 //   Migrated to CMSSW:
 //   I. Mikulec
@@ -31,59 +31,44 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuGMTEtaLUT {
+public:
+  /// constructor
+  L1MuGMTEtaLUT();
 
-  public:  
+  /// destructor
+  virtual ~L1MuGMTEtaLUT();
 
-    /// constructor
-    L1MuGMTEtaLUT();
+  /// look up delta-eta
+  static float eta(int isys, int isISO, int icharge, float eta, float pt);
 
-    /// destructor
-    virtual ~L1MuGMTEtaLUT();
-    	
-    /// look up delta-eta
-    static float eta(int isys, int isISO, int icharge, float eta, float pt);
+private:
+  static int etabin(float eta, int isys);
 
-  private:
-    static int etabin (float eta, int isys);
+private:
+  static const int NSYS = 4;
+  static const int DT = 0;
+  static const int CSC = 1;
+  static const int bRPC = 2;
+  static const int fRPC = 3;
 
-  private:
-    static const int NSYS=4;
-    static const int DT=0;
-    static const int CSC=1;
-    static const int bRPC=2;
-    static const int fRPC=3;
+  // 3-bit eta, in hardware 4th bit is reserved for
+  // positive / negative endcap asymmetries
+  static const unsigned int NETA = 8;
 
-    // 3-bit eta, in hardware 4th bit is reserved for
-    // positive / negative endcap asymmetries
-    static const unsigned int NETA=8;
+  // 2 reference planes 0: calo, 1: vertex
+  static const unsigned int NRP = 2;
 
-    // 2 reference planes 0: calo, 1: vertex
-    static const unsigned int NRP=2;  
-
-    static float etabins[NSYS][NETA+1];
-    static float fitparams_eta[NRP][NSYS][NETA][3];
+  static float etabins[NSYS][NETA + 1];
+  static float fitparams_eta[NRP][NSYS][NETA][3];
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-

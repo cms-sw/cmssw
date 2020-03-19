@@ -10,23 +10,22 @@
 
 namespace susybsm {
 
- class HSCPDeDxInfo
-  {
-   public:
-     std::vector<float> charges;
-     std::vector<float> pathlengths;
-     std::vector<uint32_t> detIds;
-     std::vector<float> localPosXs;
-     std::vector<float> localPosYs;
-     std::vector<uint32_t> clusterIndices;
-     HSCPDeDxInfo(){}
+  class HSCPDeDxInfo {
+  public:
+    std::vector<float> charges;
+    std::vector<float> pathlengths;
+    std::vector<uint32_t> detIds;
+    std::vector<float> localPosXs;
+    std::vector<float> localPosYs;
+    std::vector<uint32_t> clusterIndices;
+    HSCPDeDxInfo() {}
   };
 
-  typedef  std::vector<HSCPDeDxInfo>    HSCPDeDxInfoCollection;
-  typedef  edm::ValueMap<HSCPDeDxInfo>  HSCPDeDxInfoValueMap;  
-  typedef  edm::Ref<HSCPDeDxInfoCollection> HSCPDeDxInfoRef;
-  typedef  edm::RefProd<HSCPDeDxInfoCollection> HSCPDeDxInfoRefProd;
-  typedef  edm::RefVector<HSCPDeDxInfoCollection> HSCPDeDxInfoRefVector;
-}
+  typedef std::vector<HSCPDeDxInfo> HSCPDeDxInfoCollection;
+  typedef edm::ValueMap<HSCPDeDxInfo> HSCPDeDxInfoValueMap;
+  typedef edm::Ref<HSCPDeDxInfoCollection> HSCPDeDxInfoRef;
+  typedef edm::RefProd<HSCPDeDxInfoCollection> HSCPDeDxInfoRefProd;
+  typedef edm::RefVector<HSCPDeDxInfoCollection> HSCPDeDxInfoRefVector;
+}  // namespace susybsm
 
 #endif

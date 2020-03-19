@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-
 // Collaborating Class Header
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -31,13 +30,13 @@
 // -----------------
 
 class MuScleFitGenFilter : public edm::EDFilter {
- public:
+public:
   explicit MuScleFitGenFilter(const edm::ParameterSet&);
   ~MuScleFitGenFilter() override;
 
- private:
+private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {};
+  void endJob() override{};
 
   std::string genParticlesName_;
   edm::EDGetTokenT<edm::HepMCProduct> evtMCToken_;
@@ -48,53 +47,46 @@ class MuScleFitGenFilter : public edm::EDFilter {
 
 // Constructor
 // -----------
-MuScleFitGenFilter::MuScleFitGenFilter(const edm::ParameterSet& iConfig) :
-  genParticlesName_( iConfig.getUntrackedParameter<std::string>("GenParticlesName", "genParticles") ),
-  evtMCToken_(consumes<edm::HepMCProduct>(edm::InputTag(genParticlesName_))),
-  genParticlesToken_(mayConsume<reco::GenParticleCollection>(edm::InputTag(genParticlesName_))),
-  totalEvents_(0),
-  eventsPassingTheFilter_(0)
-{
+MuScleFitGenFilter::MuScleFitGenFilter(const edm::ParameterSet& iConfig)
+    : genParticlesName_(iConfig.getUntrackedParameter<std::string>("GenParticlesName", "genParticles")),
+      evtMCToken_(consumes<edm::HepMCProduct>(edm::InputTag(genParticlesName_))),
+      genParticlesToken_(mayConsume<reco::GenParticleCollection>(edm::InputTag(genParticlesName_))),
+      totalEvents_(0),
+      eventsPassingTheFilter_(0) {
   MuScleFitUtils::resfind = iConfig.getParameter<std::vector<int> >("resfind");
 }
 
 // Destructor
 // ----------
-MuScleFitGenFilter::~MuScleFitGenFilter()
-{
+MuScleFitGenFilter::~MuScleFitGenFilter() {
   std::cout << "Total number of events = " << totalEvents_ << std::endl;
   std::cout << "Events passing the filter = " << eventsPassingTheFilter_ << std::endl;
 }
 
 // Method called for each event
 // ----------------------------
-bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
-{
+bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
   ++totalEvents_;
 
   edm::Handle<edm::HepMCProduct> evtMC;
 
-  std::pair<lorentzVector,lorentzVector> genPair;
+  std::pair<lorentzVector, lorentzVector> genPair;
 
-  event.getByToken( evtMCToken_, evtMC );
-  if( evtMC.isValid() ) {
-
+  event.getByToken(evtMCToken_, evtMC);
+  if (evtMC.isValid()) {
     genPair = MuScleFitUtils::findGenMuFromRes(evtMC.product());
-  }
-  else {
+  } else {
     edm::Handle<reco::GenParticleCollection> genParticles;
-    event.getByToken( genParticlesToken_, genParticles );
-    if( genParticles.isValid() ) {
-
+    event.getByToken(genParticlesToken_, genParticles);
+    if (genParticles.isValid()) {
       genPair = MuScleFitUtils::findGenMuFromRes(genParticles.product());
-    }
-    else {
+    } else {
       std::cout << "ERROR: no generator info found" << std::endl;
       return false;
     }
   }
-  lorentzVector emptyVec(0.,0.,0.,0.);
-  if( (genPair.first == emptyVec) || (genPair.second == emptyVec) ) {
+  lorentzVector emptyVec(0., 0., 0., 0.);
+  if ((genPair.first == emptyVec) || (genPair.second == emptyVec)) {
     return false;
   }
 

@@ -22,27 +22,24 @@
 
 #include "TNtuple.h"
 
-
 class CSCSharesInputTest : public edm::EDAnalyzer {
-	public:
-		explicit CSCSharesInputTest(const edm::ParameterSet &myConfig);
-		
-		~CSCSharesInputTest();
-		
-	private:
-		virtual void beginJob();
-		
-		virtual void analyze(const edm::Event &myEvent, const edm::EventSetup &mySetup);
-		
-		virtual void endJob();
-		
+public:
+  explicit CSCSharesInputTest(const edm::ParameterSet &myConfig);
 
-		edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
-		edm::EDGetTokenT<edm::View<reco::Muon> > mu_token;
-		
-		std::map<std::string, uint64_t> counts_;
-		
-		edm::Service<TFileService> rootFile_;
-		std::map<std::string, TNtuple *> ntuples_;
+  ~CSCSharesInputTest();
+
+private:
+  virtual void beginJob();
+
+  virtual void analyze(const edm::Event &myEvent, const edm::EventSetup &mySetup);
+
+  virtual void endJob();
+
+  edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
+  edm::EDGetTokenT<edm::View<reco::Muon> > mu_token;
+
+  std::map<std::string, uint64_t> counts_;
+
+  edm::Service<TFileService> rootFile_;
+  std::map<std::string, TNtuple *> ntuples_;
 };
-

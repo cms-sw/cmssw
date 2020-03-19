@@ -6,15 +6,8 @@
 <use   name="roothistmatrix"/>
 <use   name="protobuf"/>
 <use name="cppunit"/>
-<library   file="*.cc" name="TestDQMToolsPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-
 
 <environment>
-  <bin   file="runTheWhiteRabbit.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash DQMServices/Components/test runtests.sh"/>
-  </bin>
   <bin name="runFastHadd" file="runFastHadd.cpp">
     <flags   TEST_RUNNER_ARGS=" /bin/bash DQMServices/Components/test run_fastHadd_tests.sh"/>
   </bin>

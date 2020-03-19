@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_TIDLayerBuilder_h
 #define TkDetLayers_TIDLayerBuilder_h
 
-
 #include "TIDLayer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,15 +11,11 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIDLayerBuilder {  
- public:
+class TIDLayerBuilder {
+public:
   TIDLayerBuilder(){};
-  TIDLayer* build(const GeometricDet* aTIDLayer,
-		  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-   
+  TIDLayer* build(const GeometricDet* aTIDLayer, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif

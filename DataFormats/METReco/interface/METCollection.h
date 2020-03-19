@@ -14,12 +14,11 @@
  ************************************************************/
 
 #include <vector>
-#include "DataFormats/METReco/interface/METFwd.h" 
+#include "DataFormats/METReco/interface/METFwd.h"
 
 //#warning "This header file is obsolete.  Please use METFwd.h instead"
 
-namespace reco
-{
+namespace reco {
   typedef std::vector<reco::MET> METCollection;
-}  
-#endif // METRECO_METCOLLECTION_H
+}
+#endif  // METRECO_METCOLLECTION_H

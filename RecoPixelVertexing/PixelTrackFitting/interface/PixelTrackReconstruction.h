@@ -14,14 +14,17 @@ class PixelTrackCleaner;
 class PixelTrackFilter;
 class RegionsSeedingHitSets;
 
-namespace edm { class Event; class EventSetup; class Run; class ParameterSetDescription;}
+namespace edm {
+  class Event;
+  class EventSetup;
+  class Run;
+  class ParameterSetDescription;
+}  // namespace edm
 
 class PixelTrackReconstruction {
 public:
-
-  PixelTrackReconstruction( const edm::ParameterSet& conf,
-	   edm::ConsumesCollector && iC);
-  ~PixelTrackReconstruction(); 
+  PixelTrackReconstruction(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
+  ~PixelTrackReconstruction();
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
 
@@ -34,4 +37,3 @@ private:
   std::string theCleanerName;
 };
 #endif
-

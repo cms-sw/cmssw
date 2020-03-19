@@ -10,6 +10,12 @@ eval `scram run -sh`;
 cd $W_DIR;
 # Run get payload data script
 
+mkdir -p $W_DIR/results
+
+if [ -f *.png ]; then
+    rm *.png
+fi
+
 ####################
 # Test Gains
 ####################
@@ -21,6 +27,8 @@ getPayloadData.py \
     --iovs '{"start_iov": "286042", "end_iov": "286042"}' \
     --db Prod \
     --test;
+
+mv *.png $W_DIR/results/SiStripApvGainsByRegion.png
 
 ######################
 # Test Lorentz Angle
@@ -34,6 +42,8 @@ getPayloadData.py \
     --db Prod \
     --test;
 
+mv *.png $W_DIR/results/SiStripLorentzAngleByRegion.png
+
 ######################
 # Test Backplane correction
 ######################
@@ -45,6 +55,8 @@ getPayloadData.py \
     --iovs '{"start_iov": "153690", "end_iov": "153690"}' \
     --db Prod \
     --test;
+
+mv *.png $W_DIR/results/SiStripBackPlaneCorrectionByRegion.png
 
 ######################
 # Test Bad components
@@ -58,6 +70,8 @@ getPayloadData.py \
     --db Prod \
     --test;
 
+mv *.png $W_DIR/results/SiStripBadStripQualityAnalysis.png
+
 ######################
 # Test Conf Object
 ######################
@@ -68,3 +82,5 @@ getPayloadData.py \
     --time_type Run --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test;
+
+mv *.png $W_DIR/results/SiStripConfObjectDisplay.png

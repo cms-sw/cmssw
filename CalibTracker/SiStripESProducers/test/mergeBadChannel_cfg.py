@@ -25,15 +25,13 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.load("CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi")
-from CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi import siStripBadModuleFedErrESSource
-siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
-siStripBadModuleFedErrESSource.FileName = cms.string('/afs/cern.ch/user/d/dutta/work/public/BadChannel/DQM_V0001_R000260576__ZeroBias__Run2015D-PromptReco-v4__DQMIO.root')
+process.load('DQMServices.Core.DQMStore_cfi')
+process.DQMStore.referenceFileName = cms.string('/afs/cern.ch/user/d/dutta/work/public/BadChannel/DQM_V0001_R000260576__ZeroBias__Run2015D-PromptReco-v4__DQMIO.root')
 
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
        cms.PSet(record = cms.string('SiStripBadFiberRcd'), tag = cms.string('')),
-        cms.PSet(record = cms.string('SiStripBadModuleFedErrRcd'), tag = cms.string('BadModules_from_FEDBadChannel')),
-        cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string(''))
+       cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string(''))
+       ## BadChannel list from FED errors is added below
 )
 process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3)
@@ -44,7 +42,9 @@ process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
-                             dataLabel = cms.untracked.string('')
+                             dataLabel = cms.untracked.string(''),
+                             AddBadComponentsFromFedErrors = cms.untracked.bool(True),
+                             FedErrorBadComponentsCutoff = cms.untracked.double(0.8)
                              )
 
 process.p = cms.Path(process.stat)

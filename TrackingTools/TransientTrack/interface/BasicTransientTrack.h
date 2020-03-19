@@ -7,7 +7,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/ProxyBase11.h"
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,12 +21,10 @@ namespace reco {
 
   class BasicTransientTrack {
   public:
-
-    using BTT=BasicTransientTrack;
-    using Proxy=ProxyBase11<BTT>;
+    using BTT = BasicTransientTrack;
+    using Proxy = ProxyBase11<BTT>;
 
   public:
-
     virtual ~BasicTransientTrack() {}
 
     virtual void setES(const edm::EventSetup& es) = 0;
@@ -41,10 +39,9 @@ namespace reco {
 
     virtual TrajectoryStateOnSurface innermostMeasurementState() const = 0;
 
-    virtual TrajectoryStateClosestToPoint 
-      trajectoryStateClosestToPoint( const GlobalPoint & point ) const = 0;
+    virtual TrajectoryStateClosestToPoint trajectoryStateClosestToPoint(const GlobalPoint& point) const = 0;
 
-    virtual TrajectoryStateOnSurface stateOnSurface(const GlobalPoint & point) const = 0;
+    virtual TrajectoryStateOnSurface stateOnSurface(const GlobalPoint& point) const = 0;
 
     virtual TrajectoryStateClosestToPoint impactPointTSCP() const = 0;
 
@@ -54,23 +51,22 @@ namespace reco {
     virtual TrackBaseRef trackBaseRef() const = 0;
 
     virtual TrackCharge charge() const = 0;
-    
+
     virtual CandidatePtr candidate() const { return reco::CandidatePtr(); }
 
     virtual double timeExt() const = 0;
     virtual double dtErrorExt() const = 0;
 
-//     virtual bool operator== (const TransientTrack & a) const = 0;
-//     virtual bool operator< (const TransientTrack & a) const = 0;
+    //     virtual bool operator== (const TransientTrack & a) const = 0;
+    //     virtual bool operator< (const TransientTrack & a) const = 0;
 
     virtual const MagneticField* field() const = 0;
 
-    virtual const Track & track() const = 0;
+    virtual const Track& track() const = 0;
 
     virtual TrajectoryStateClosestToBeamLine stateAtBeamLine() const = 0;
-
   };
 
-}
+}  // namespace reco
 
 #endif

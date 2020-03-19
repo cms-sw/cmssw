@@ -12,11 +12,10 @@
 #include <cstdint>
 #include <iosfwd>
 
-class ME0PadDigi{
-
+class ME0PadDigi {
 public:
-  explicit ME0PadDigi (int pad, int bx);
-  ME0PadDigi ();
+  explicit ME0PadDigi(int pad, int bx);
+  ME0PadDigi();
 
   bool operator==(const ME0PadDigi& digi) const;
   bool operator!=(const ME0PadDigi& digi) const;
@@ -28,10 +27,9 @@ public:
 
 private:
   uint16_t pad_;
-  int16_t  bx_; 
+  int16_t bx_;
 };
 
-std::ostream & operator<<(std::ostream & o, const ME0PadDigi& digi);
+std::ostream& operator<<(std::ostream& o, const ME0PadDigi& digi);
 
 #endif
-

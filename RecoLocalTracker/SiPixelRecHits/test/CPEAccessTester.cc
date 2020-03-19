@@ -18,30 +18,27 @@
 using namespace edm;
 
 class CPEAccessTester : public edm::EDAnalyzer {
- public:
-  CPEAccessTester(const edm::ParameterSet& pset) :
-    conf_(pset)
-  { }
+public:
+  CPEAccessTester(const edm::ParameterSet& pset) : conf_(pset) {}
 
-  ~CPEAccessTester(){}
+  ~CPEAccessTester() {}
 
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override {
     //
     // access the CPE
     //
-    std::string cpeName = conf_.getParameter<std::string>("PixelCPE");   
+    std::string cpeName = conf_.getParameter<std::string>("PixelCPE");
     std::cout << "Asking for the CPE with name " << cpeName << std::endl;
 
     edm::ESHandle<PixelClusterParameterEstimator> theEstimator;
     setup.get<TkPixelCPERecord>().get(cpeName, theEstimator);
-   
-    auto & estimator = *theEstimator; 
+
+    auto& estimator = *theEstimator;
     std::cout << "Got a " << typeid(estimator).name() << std::endl;
   }
 
 private:
   edm::ParameterSet conf_;
-
 };
 
 // define this as a plug-in

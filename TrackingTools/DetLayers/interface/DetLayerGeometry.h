@@ -16,11 +16,11 @@
 class DetLayer;
 
 class DetLayerGeometry {
- public:
+public:
   DetLayerGeometry(){};
-	
-	virtual ~DetLayerGeometry() {} 
- 
+
+  virtual ~DetLayerGeometry() {}
+
   /*
   const std::vector<DetLayer*>& allLayers() const =0;
   const std::vector<DetLayer*>& barrelLayers() const =0;
@@ -28,12 +28,9 @@ class DetLayerGeometry {
   const std::vector<DetLayer*>& posForwardLayers() const =0;
   */
 
-
   /// Give the DetId of a module, returns the pointer to the corresponding DetLayer
   /// This method is dummy and has to be overridden in another derived class
-  virtual const DetLayer* idToLayer(const DetId& detId) const {return nullptr;}
- 
+  virtual const DetLayer* idToLayer(const DetId& detId) const { return nullptr; }
 };
-
 
 #endif

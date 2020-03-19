@@ -2,43 +2,40 @@
 #define GENERS_ZLIBHANDLE_HH_
 
 extern "C" {
-    struct z_stream_s;
+struct z_stream_s;
 }
 
 namespace gs {
-    class ZlibInflateHandle
-    {
-    public:
-        ZlibInflateHandle();
-        ~ZlibInflateHandle();
+  class ZlibInflateHandle {
+  public:
+    ZlibInflateHandle();
+    ~ZlibInflateHandle();
 
-        inline z_stream_s& strm() {return *strm_;}
+    inline z_stream_s &strm() { return *strm_; }
 
-    private:
-        ZlibInflateHandle(const ZlibInflateHandle&);
-        ZlibInflateHandle& operator=(const ZlibInflateHandle&);
+  private:
+    ZlibInflateHandle(const ZlibInflateHandle &) = delete;
+    ZlibInflateHandle &operator=(const ZlibInflateHandle &) = delete;
 
-        z_stream_s *strm_;
-    };
+    z_stream_s *strm_;
+  };
 
-    class ZlibDeflateHandle
-    {
-    public:
-        explicit ZlibDeflateHandle(int level);
-        ~ZlibDeflateHandle();
+  class ZlibDeflateHandle {
+  public:
+    explicit ZlibDeflateHandle(int level);
+    ~ZlibDeflateHandle();
 
-        inline z_stream_s& strm() {return *strm_;}
-        inline int level() {return level_;}
+    inline z_stream_s &strm() { return *strm_; }
+    inline int level() { return level_; }
 
-    private:
-        ZlibDeflateHandle();
-        ZlibDeflateHandle(const ZlibDeflateHandle&);
-        ZlibDeflateHandle& operator=(const ZlibDeflateHandle&);
+  private:
+    ZlibDeflateHandle() = delete;
+    ZlibDeflateHandle(const ZlibDeflateHandle &) = delete;
+    ZlibDeflateHandle &operator=(const ZlibDeflateHandle &) = delete;
 
-        z_stream_s *strm_;
-        int level_;
-    };
-}
+    z_stream_s *strm_;
+    int level_;
+  };
+}  // namespace gs
 
-#endif // GENERS_ZLIBHANDLE_HH_
-
+#endif  // GENERS_ZLIBHANDLE_HH_

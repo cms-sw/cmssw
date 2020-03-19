@@ -16,29 +16,26 @@
 #include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
 #include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"
 
-
 class SiPixel2DTemplateDBObjectReader : public edm::EDAnalyzer {
-   public:
-      explicit SiPixel2DTemplateDBObjectReader(const edm::ParameterSet&);
-      ~SiPixel2DTemplateDBObjectReader();
+public:
+  explicit SiPixel2DTemplateDBObjectReader(const edm::ParameterSet&);
+  ~SiPixel2DTemplateDBObjectReader();
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-		
-			edm::ESWatcher<SiPixel2DTemplateDBObjectESProducerRcd>  SiPix2DTemplDBObjectWatcher_;
-      edm::ESWatcher<SiPixel2DTemplateDBObjectRcd>  SiPix2DTemplDBObjWatcher_;
-			
-      std::string the2DTemplateCalibrationLocation;
-      bool theDetailed2DTemplateDBErrorOutput;
-      bool theFull2DTemplateDBOutput;
-			bool testGlobalTag;
-			
-			SiPixel2DTemplateDBObject dbobject;
-			bool hasTriggeredWatcher;			
-			
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
+  edm::ESWatcher<SiPixel2DTemplateDBObjectESProducerRcd> SiPix2DTemplDBObjectWatcher_;
+  edm::ESWatcher<SiPixel2DTemplateDBObjectRcd> SiPix2DTemplDBObjWatcher_;
+
+  std::string the2DTemplateCalibrationLocation;
+  bool theDetailed2DTemplateDBErrorOutput;
+  bool theFull2DTemplateDBOutput;
+  bool testGlobalTag;
+
+  SiPixel2DTemplateDBObject dbobject;
+  bool hasTriggeredWatcher;
 };
 
 #endif

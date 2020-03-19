@@ -2,5 +2,4 @@
 
 #include "CondFormats/DataRecord/interface/SiPixelPerformanceSummaryRcd.h"
 
-
 EVENTSETUP_RECORD_REG(SiPixelPerformanceSummaryRcd);

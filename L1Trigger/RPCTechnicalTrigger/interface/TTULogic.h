@@ -1,10 +1,9 @@
-#ifndef INTERFACE_TTULOGIC_H 
+#ifndef INTERFACE_TTULOGIC_H
 #define INTERFACE_TTULOGIC_H 1
 
 // Include files
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUInput.h"
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
-
 
 /** @class TTULogic TTULogic.h interface/TTULogic.h
  *  
@@ -17,25 +16,20 @@
  */
 
 class TTULogic {
-public: 
-  
-  virtual ~TTULogic( ){}; 
-  
-  virtual bool process ( const TTUInput & ) = 0;
+public:
+  virtual ~TTULogic(){};
 
-  virtual void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) = 0;
-  
-  virtual void setOption( int option ) {
-    m_option = option;
-  };
-    
+  virtual bool process(const TTUInput&) = 0;
+
+  virtual void setBoardSpecs(const TTUBoardSpecs::TTUBoardConfig&) = 0;
+
+  virtual void setOption(int option) { m_option = option; };
+
   int m_option;
-  
+
   bool m_triggersignal;
 
 protected:
-  
 private:
-  
 };
-#endif // INTERFACE_TTULOGIC_H
+#endif  // INTERFACE_TTULOGIC_H

@@ -30,13 +30,13 @@ class TEveElement;
 class FWProxyBuilderBase;
 
 namespace fireworks {
-   bool makeRhoPhiSuperCluster(FWProxyBuilderBase*,
-                               const reco::SuperClusterRef& iCluster,
-                               float iPhi,
-                               TEveElement& oItemHolder);
-   bool makeRhoZSuperCluster(FWProxyBuilderBase*,
-                             const reco::SuperClusterRef& iCluster,
-                             float iPhi,
-                             TEveElement& oItemHolder);
-}
+  bool makeRhoPhiSuperCluster(FWProxyBuilderBase*,
+                              const reco::SuperClusterRef& iCluster,
+                              float iPhi,
+                              TEveElement& oItemHolder);
+  bool makeRhoZSuperCluster(FWProxyBuilderBase*,
+                            const reco::SuperClusterRef& iCluster,
+                            float iPhi,
+                            TEveElement& oItemHolder);
+}  // namespace fireworks
 #endif

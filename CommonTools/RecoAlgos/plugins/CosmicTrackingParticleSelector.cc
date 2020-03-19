@@ -14,5 +14,5 @@
 
 namespace reco {
   typedef ObjectSelector<CosmicTrackingParticleSelector> CosmicTrackingParticleSelector;
-    DEFINE_FWK_MODULE( CosmicTrackingParticleSelector );
-}
+  DEFINE_FWK_MODULE(CosmicTrackingParticleSelector);
+}  // namespace reco

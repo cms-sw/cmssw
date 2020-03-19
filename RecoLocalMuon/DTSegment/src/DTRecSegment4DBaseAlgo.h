@@ -12,7 +12,7 @@
 namespace edm {
   class ParameterSet;
   class EventSetup;
-}
+}  // namespace edm
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
@@ -26,35 +26,30 @@ class DTChamberId;
 #include <vector>
 #include <string>
 
-// ====================================================================== 
+// ======================================================================
 
 // Class DTRecSegment4DBaseAlgo Interface
 
-class DTRecSegment4DBaseAlgo{
-
- public:
-
+class DTRecSegment4DBaseAlgo {
+public:
   /// Constructor
-  DTRecSegment4DBaseAlgo(const edm::ParameterSet& ) {}
-    
+  DTRecSegment4DBaseAlgo(const edm::ParameterSet&) {}
+
   /// Destructor
   virtual ~DTRecSegment4DBaseAlgo() {}
-    
+
   // Operations
   virtual edm::OwnVector<DTRecSegment4D> reconstruct() = 0;
-    
+
   virtual std::string algoName() const = 0;
-  
+
   virtual void setES(const edm::EventSetup& setup) = 0;
   virtual void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) = 0;
   virtual void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments) = 0;
-  virtual void setChamber(const DTChamberId &chId) = 0;
+  virtual void setChamber(const DTChamberId& chId) = 0;
   virtual bool wants2DSegments() = 0;
-   
- protected:
 
-    
- private:
-
+protected:
+private:
 };
-#endif 
+#endif

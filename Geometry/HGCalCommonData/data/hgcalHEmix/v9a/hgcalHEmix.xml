@@ -43,6 +43,8 @@
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0 </Vector>
+    <Vector name="LayerCenter" type="numeric" nEntries="16">
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</Vector>
     <Vector name="TopMaterialNames" type="string" nEntries="3">
       materials:Cables, materials:H_Scintillator, 
       hgcalMaterial:HGC_G10-FR4</Vector>
@@ -65,6 +67,7 @@
     <Vector name="BottomLayerSense" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
     <Numeric name="FirstLayer"       value="[hgcal:FirstMixedLayer]"/>
+    <Numeric name="AbsorberMode"     value="0"/>
     <Numeric name="zMinBlock"        value="[hgcal:zMinHEmix]"/>
     <Vector name="rad100to200" type="numeric" nEntries="5">
       [hgcal:rad100200P0], [hgcal:rad100200P1], [hgcal:rad100200P2],

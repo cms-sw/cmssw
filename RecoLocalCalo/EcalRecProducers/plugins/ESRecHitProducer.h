@@ -15,17 +15,14 @@
 class ESDigiCollection;
 
 class ESRecHitProducer : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   explicit ESRecHitProducer(const edm::ParameterSet& ps);
   ~ESRecHitProducer() override;
   void produce(edm::Event& e, const edm::EventSetup& es) override;
 
- private:
-
+private:
   const edm::EDGetTokenT<ESDigiCollection> digiToken_;
-  const std::string rechitCollection_; // secondary name to be given to collection of hits
+  const std::string rechitCollection_;  // secondary name to be given to collection of hits
 
   std::unique_ptr<ESRecHitWorkerBaseClass> worker_;
 };

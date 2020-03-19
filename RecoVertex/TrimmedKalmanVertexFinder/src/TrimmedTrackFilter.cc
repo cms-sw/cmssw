@@ -2,13 +2,8 @@
 
 using namespace reco;
 
-TrimmedTrackFilter::TrimmedTrackFilter()
-  : thePtCut(0.) 
-{}
+TrimmedTrackFilter::TrimmedTrackFilter() : thePtCut(0.) {}
 
-
-bool 
-TrimmedTrackFilter::operator() (const TransientTrack& aTk) const 
-{
+bool TrimmedTrackFilter::operator()(const TransientTrack& aTk) const {
   return aTk.initialFreeState().momentum().perp() > thePtCut;
 }

@@ -12,7 +12,6 @@
 #include "RecoMuon/MuonIdentification/plugins/InterestingEcalDetIdProducer.h"
 #include "RecoMuon/MuonIdentification/plugins/MuonIDFilterProducerForHLT.h"
 
-
 DEFINE_FWK_MODULE(MuonIdProducer);
 DEFINE_FWK_MODULE(MuonLinksProducer);
 DEFINE_FWK_MODULE(MuonLinksProducerForHLT);

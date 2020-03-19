@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/SOA
 // Class  :     TableView
-// 
+//
 /**\class TableView TableView.h "TableView.h"
 
  Description: A view of certain columns of a edm::soa::Table
@@ -45,60 +45,55 @@
 
 namespace edm {
   namespace soa {
-template <typename... Args>
-class TableView {
-  
-public:
-  using Layout = std::tuple<Args...>;
-  static constexpr const size_t kNColumns = sizeof...(Args);
-  using const_iterator = ConstTableItr<Args...>;
-  
-  template <typename... OArgs>
-  TableView( Table<OArgs...> const& iTable):
-  m_size(iTable.size()) {
-    fillArray(iTable, std::make_index_sequence<sizeof...(Args)>{});
-  }
-  TableView( unsigned int iSize, std::array<void*, sizeof...(Args)>& iArray):
-  m_size(iSize),
-  m_values(iArray) {}
-  
-  TableView( unsigned int iSize, std::array<void const*, sizeof...(Args)>& iArray):
-  m_size(iSize),
-  m_values(iArray) {}
-  
-  unsigned int size() const {
-    return m_size;
-  }
-  
-  template<typename U>
-  typename U::type const& get(size_t iRow) const {
-    return static_cast<typename U::type*>(columnAddress<U>())+iRow;
-  }
-  
-  template<typename U>
-  ColumnValues<typename U::type> column() const {
-    return ColumnValues<typename U::type>{static_cast<typename U::type const*>(columnAddress<U>()), m_size};
-  }
-  
-  const_iterator begin() const { return const_iterator{m_values}; }
-  const_iterator end() const { return const_iterator{m_values,size()}; }
-  
-private:
-  std::array<void const*, sizeof...(Args)> m_values;
-  unsigned int m_size;
-  
-  template<typename U>
-  void const* columnAddress() const {
-    return m_values[impl::GetIndex<0,U,Layout>::index];
-  }
-  
-  template <typename T, size_t... I>
-  void fillArray( T const& iTable, std::index_sequence<I...>) {
-    ( (m_values[I] = iTable.columnAddressWorkaround(static_cast<typename std::tuple_element<I, Layout>::type const*>(nullptr))), ...);
-  }
-};
+    template <typename... Args>
+    class TableView {
+    public:
+      using Layout = std::tuple<Args...>;
+      static constexpr const size_t kNColumns = sizeof...(Args);
+      using const_iterator = ConstTableItr<Args...>;
 
-}
-}
+      template <typename... OArgs>
+      TableView(Table<OArgs...> const& iTable) : m_size(iTable.size()) {
+        fillArray(iTable, std::make_index_sequence<sizeof...(Args)>{});
+      }
+      TableView(unsigned int iSize, std::array<void*, sizeof...(Args)>& iArray) : m_size(iSize), m_values(iArray) {}
+
+      TableView(unsigned int iSize, std::array<void const*, sizeof...(Args)>& iArray)
+          : m_size(iSize), m_values(iArray) {}
+
+      unsigned int size() const { return m_size; }
+
+      template <typename U>
+      typename U::type const& get(size_t iRow) const {
+        return static_cast<typename U::type*>(columnAddress<U>()) + iRow;
+      }
+
+      template <typename U>
+      ColumnValues<typename U::type> column() const {
+        return ColumnValues<typename U::type>{static_cast<typename U::type const*>(columnAddress<U>()), m_size};
+      }
+
+      const_iterator begin() const { return const_iterator{m_values}; }
+      const_iterator end() const { return const_iterator{m_values, size()}; }
+
+    private:
+      std::array<void const*, sizeof...(Args)> m_values;
+      unsigned int m_size;
+
+      template <typename U>
+      void const* columnAddress() const {
+        return m_values[impl::GetIndex<0, U, Layout>::index];
+      }
+
+      template <typename T, size_t... I>
+      void fillArray(T const& iTable, std::index_sequence<I...>) {
+        ((m_values[I] = iTable.columnAddressWorkaround(
+              static_cast<typename std::tuple_element<I, Layout>::type const*>(nullptr))),
+         ...);
+      }
+    };
+
+  }  // namespace soa
+}  // namespace edm
 
 #endif

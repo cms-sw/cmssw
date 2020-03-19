@@ -20,15 +20,13 @@
 // d|e record
 #include "DataFormats/L1Trigger/interface/L1DataEmulRecord.h"
 
-
 class L1DEFilter : public edm::EDFilter {
-  
- public:
+public:
   explicit L1DEFilter(const edm::ParameterSet&);
   ~L1DEFilter() override;
-  
- private:
-  void beginJob(void) override {};
+
+private:
+  void beginJob(void) override{};
   //virtual void beginRun(edm::Run&, const edm::EventSetup&);
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
@@ -37,7 +35,6 @@ class L1DEFilter : public edm::EDFilter {
   std::vector<unsigned int> flagSys_;
   int nEvt_;
   int nAgree_;
-
 };
 
 #endif

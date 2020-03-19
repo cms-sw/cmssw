@@ -1,5 +1,5 @@
 #ifndef GflashEMShowerProfile_H
-#define GflashEMShowerProfile_H 
+#define GflashEMShowerProfile_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -12,30 +12,31 @@ class GflashHit;
 class GflashShowino;
 class GflashHistogram;
 
-class GflashEMShowerProfile 
-{
+class GflashEMShowerProfile {
 public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashEMShowerProfile (const edm::ParameterSet& parSet);
-  ~GflashEMShowerProfile ();
+  GflashEMShowerProfile(const edm::ParameterSet &parSet);
+  ~GflashEMShowerProfile();
 
-  void initialize(int showerType, double energy, 
-		  double globalTime, double charge,
-                  Gflash3Vector &position,Gflash3Vector &momentum);
+  void initialize(int showerType,
+                  double energy,
+                  double globalTime,
+                  double charge,
+                  Gflash3Vector &position,
+                  Gflash3Vector &momentum);
 
   void parameterization();
-  GflashShowino* getGflashShowino() { return theShowino; }
-  std::vector<GflashHit>& getGflashHitList() {return theGflashHitList;};
+  GflashShowino *getGflashShowino() { return theShowino; }
+  std::vector<GflashHit> &getGflashHitList() { return theGflashHitList; };
 
-private: 
+private:
   double getDistanceToOut(Gflash::CalorimeterNumber kCalor);
-  Gflash3Vector locateHitPosition(GflashTrajectoryPoint& point, 
-				  double rCore, double rTail, 
-				  double probability, double &rShower);
+  Gflash3Vector locateHitPosition(
+      GflashTrajectoryPoint &point, double rCore, double rTail, double probability, double &rShower);
 
-private:  
+private:
   Gflash::CalorimeterNumber jCalorimeter;
 
   edm::ParameterSet theParSet;
@@ -44,13 +45,8 @@ private:
   double theEnergyScaleEE;
 
   GflashShowino *theShowino;
-  GflashHistogram* theHisto;
+  GflashHistogram *theHisto;
   std::vector<GflashHit> theGflashHitList;
-
 };
 
 #endif
-
-
-
-

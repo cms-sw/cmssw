@@ -3,10 +3,8 @@ condorJobTemplate="""#!/bin/tcsh
 set curDir=$PWD
 echo $curDir
 cd {base}/../..
-
 eval `scramv1 runtime -csh`
 
-source /afs/cern.ch/cms/caf/setup.csh
 cd $curDir
 
 xrdcp {inputFile} reco.root
@@ -25,7 +23,23 @@ Log  = {logFile}
 request_memory = 2000M
 request_disk = 400M
 batch_name = {jobName}
-+JobFlavour = "longlunch"
++JobFlavour = "workday"
+Queue Arguments from (
+{arguments})
+"""
+
+
+condorSubTemplateCAF="""
+Executable = {jobFile}
+Universe = vanilla
+Output = {outputFile}
+Error  = {errorFile}
+Log  = {logFile}
+request_memory = 2000M
+request_disk = 400M
+batch_name = {jobName}
++JobFlavour = "workday"
++AccountingGroup = "group_u_CMS.CAF.ALCA" 
 Queue Arguments from (
 {arguments})
 """

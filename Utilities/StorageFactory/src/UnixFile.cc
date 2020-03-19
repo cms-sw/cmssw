@@ -6,20 +6,15 @@
 
 using namespace IOFlags;
 
-IOFD
-File::sysduplicate (IOFD fd)
-{
+IOFD File::sysduplicate(IOFD fd) {
   IOFD copyfd;
-  if ((copyfd = ::dup (fd)) == EDM_IOFD_INVALID)
-    throwStorageError ("FileDuplicateError", "Calling File::sysduplicate()", "dup()", errno);
+  if ((copyfd = ::dup(fd)) == EDM_IOFD_INVALID)
+    throwStorageError("FileDuplicateError", "Calling File::sysduplicate()", "dup()", errno);
 
   return copyfd;
 }
 
-void
-File::sysopen (const char *name, int flags, int perms,
-               IOFD &newfd, unsigned int& /*newflags*/)
-{
+void File::sysopen(const char *name, int flags, int perms, IOFD &newfd, unsigned int & /*newflags*/) {
   // Translate our flags to system flags.
   int openflags = 0;
 
@@ -56,18 +51,16 @@ File::sysopen (const char *name, int flags, int perms,
   if (flags & OpenNotCTTY)
     openflags |= O_NOCTTY;
 
-  if ((newfd = ::open (name, openflags, perms)) == -1)
-    throwStorageError (edm::errors::FileOpenError, "Calling File::sysopen()", "open()", errno);
+  if ((newfd = ::open(name, openflags, perms)) == -1)
+    throwStorageError(edm::errors::FileOpenError, "Calling File::sysopen()", "open()", errno);
 }
 
-IOSize
-File::read (void *into, IOSize n, IOOffset pos)
-{
-  assert (pos >= 0);
+IOSize File::read(void *into, IOSize n, IOOffset pos) {
+  assert(pos >= 0);
 
   ssize_t s;
   do
-    s = ::pread (fd (), into, n, pos);
+    s = ::pread(fd(), into, n, pos);
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
@@ -76,14 +69,12 @@ File::read (void *into, IOSize n, IOOffset pos)
   return s;
 }
 
-IOSize
-File::write (const void *from, IOSize n, IOOffset pos)
-{
-  assert (pos >= 0);
+IOSize File::write(const void *from, IOSize n, IOOffset pos) {
+  assert(pos >= 0);
 
   ssize_t s;
   do
-    s = ::pwrite (fd (), from, n, pos);
+    s = ::pwrite(fd(), from, n, pos);
   while (s == -1 && errno == EINTR);
 
   if (s == -1)
@@ -91,70 +82,59 @@ File::write (const void *from, IOSize n, IOOffset pos)
 
   if (m_flags & OpenUnbuffered)
     // FIXME: Exception handling?
-    flush ();
+    flush();
 
   return s;
 }
 
-IOOffset
-File::size (void) const
-{
-  IOFD fd = this->fd ();
-  assert (fd != EDM_IOFD_INVALID);
+IOOffset File::size(void) const {
+  IOFD fd = this->fd();
+  assert(fd != EDM_IOFD_INVALID);
 
   struct stat info;
-  if (fstat (fd, &info) == -1)
+  if (fstat(fd, &info) == -1)
     throwStorageError("FileSizeError", "Calling File::size()", "fstat()", errno);
 
   return info.st_size;
 }
 
-IOOffset
-File::position (IOOffset offset, Relative whence /* = SET */)
-{
-  IOFD fd = this->fd ();
-  assert (fd != EDM_IOFD_INVALID);
-  assert (whence == CURRENT || whence == SET || whence == END);
+IOOffset File::position(IOOffset offset, Relative whence /* = SET */) {
+  IOFD fd = this->fd();
+  assert(fd != EDM_IOFD_INVALID);
+  assert(whence == CURRENT || whence == SET || whence == END);
 
   IOOffset result;
-  int      mywhence = (whence == SET ? SEEK_SET
-		       : whence == CURRENT ? SEEK_CUR
-		       : SEEK_END);
-  if ((result = ::lseek (fd, offset, mywhence)) == -1)
+  int mywhence = (whence == SET ? SEEK_SET : whence == CURRENT ? SEEK_CUR : SEEK_END);
+  if ((result = ::lseek(fd, offset, mywhence)) == -1)
     throwStorageError("FilePositionError", "Calling File::position()", "lseek()", errno);
 
   return result;
 }
 
-void
-File::resize (IOOffset size)
-{
-  IOFD fd = this->fd ();
-  assert (fd != EDM_IOFD_INVALID);
+void File::resize(IOOffset size) {
+  IOFD fd = this->fd();
+  assert(fd != EDM_IOFD_INVALID);
 
-  if (ftruncate (fd, size) == -1)
+  if (ftruncate(fd, size) == -1)
     throwStorageError("FileResizeError", "Calling File::resize()", "ftruncate()", errno);
 }
 
-void
-File::flush (void)
-{
-  IOFD fd = this->fd ();
-  assert (fd != EDM_IOFD_INVALID);
+void File::flush(void) {
+  IOFD fd = this->fd();
+  assert(fd != EDM_IOFD_INVALID);
 
 #if _POSIX_SYNCHRONIZED_IO > 0
-  if (fdatasync (fd) == -1)
+  if (fdatasync(fd) == -1)
     throwStorageError("FileFlushError", "Calling File::flush()", "fdatasync()", errno);
 #elif _POSIX_FSYNC > 0
-  if (fsync (fd) == -1)
+  if (fsync(fd) == -1)
     throwStorageError("FileFlushError", "Calling File::flush()", "fsync()", errno);
 #endif
 }
 
-bool
-File::sysclose (IOFD fd, int *error /* = 0 */)
-{
-  int ret = ::close (fd);
-  if (error) *error = errno;
+bool File::sysclose(IOFD fd, int *error /* = 0 */) {
+  int ret = ::close(fd);
+  if (error)
+    *error = errno;
   return ret != -1;
 }

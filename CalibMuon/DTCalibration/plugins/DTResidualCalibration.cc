@@ -31,50 +31,49 @@
 
 #include <algorithm>
 
-DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset):
-  select_(pset),
-  histRange_(pset.getParameter<double>("histogramRange")),
-  segment4DLabel_(pset.getParameter<edm::InputTag>("segment4DLabel")),
-  rootBaseDir_(pset.getUntrackedParameter<std::string>("rootBaseDir","DT/Residuals")),
-  detailedAnalysis_(pset.getUntrackedParameter<bool>("detailedAnalysis",false)) {
+DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset)
+    : histRange_(pset.getParameter<double>("histogramRange")),
+      segment4DLabel_(pset.getParameter<edm::InputTag>("segment4DLabel")),
+      rootBaseDir_(pset.getUntrackedParameter<std::string>("rootBaseDir", "DT/Residuals")),
+      detailedAnalysis_(pset.getUntrackedParameter<bool>("detailedAnalysis", false)) {
+  edm::ConsumesCollector collector(consumesCollector());
+  select_ = new DTSegmentSelector(pset, collector);
 
-  edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Constructor called.";
-  consumes< DTRecSegment4DCollection >(edm::InputTag(segment4DLabel_));
-  std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName","residuals.root");
+  LogDebug("Calibration") << "[DTResidualCalibration] Constructor called.";
+  consumes<DTRecSegment4DCollection>(edm::InputTag(segment4DLabel_));
+  std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName", "residuals.root");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
   rootFile_->cd();
 
-  segmok=0;
-  segmbad=0;
-  nevent=0;
+  segmok = 0;
+  segmbad = 0;
+  nevent = 0;
 }
 
 DTResidualCalibration::~DTResidualCalibration() {
+  delete select_;
   edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Destructor called.";
   edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Analyzed events: " << nevent;
   edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Good segments: " << segmok;
   edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Bad segments: " << segmbad;
 }
 
-void DTResidualCalibration::beginJob() {
-  TH1::SetDefaultSumw2(true);
-}
+void DTResidualCalibration::beginJob() { TH1::SetDefaultSumw2(true); }
 
 void DTResidualCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
-
   // get the geometry
-  edm::ESHandle<DTGeometry> dtGeomH; 
+  edm::ESHandle<DTGeometry> dtGeomH;
   setup.get<MuonGeometryRecord>().get(dtGeomH);
   dtGeom_ = dtGeomH.product();
 
   // Loop over all the chambers
-  if(histoMapTH1F_.empty()) {
+  if (histoMapTH1F_.empty()) {
     for (auto ch_it : dtGeom_->chambers()) {
       // Loop over the SLs
       for (auto sl_it : ch_it->superLayers()) {
         DTSuperLayerId slId = (sl_it)->id();
         bookHistos(slId);
-        if(detailedAnalysis_) {
+        if (detailedAnalysis_) {
           for (auto layer_it : (sl_it)->layers()) {
             DTLayerId layerId = (layer_it)->id();
             bookHistos(layerId);
@@ -95,58 +94,60 @@ void DTResidualCalibration::analyze(const edm::Event& event, const edm::EventSet
 
   // Loop over segments by chamber
   DTRecSegment4DCollection::id_iterator chamberIdIt;
-  for(chamberIdIt = segments4D->id_begin(); chamberIdIt != segments4D->id_end(); ++chamberIdIt){
+  for (chamberIdIt = segments4D->id_begin(); chamberIdIt != segments4D->id_end(); ++chamberIdIt) {
+    const DTChamber* chamber = dtGeom_->chamber(*chamberIdIt);
 
-     const DTChamber* chamber = dtGeom_->chamber(*chamberIdIt);
+    // Get the range for the corresponding ChamberId
+    DTRecSegment4DCollection::range range = segments4D->get((*chamberIdIt));
+    // Loop over the rechits of this DetUnit
+    for (DTRecSegment4DCollection::const_iterator segment = range.first; segment != range.second; ++segment) {
+      LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
+                              << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
 
-     // Get the range for the corresponding ChamberId
-     DTRecSegment4DCollection::range range = segments4D->get((*chamberIdIt));
-     // Loop over the rechits of this DetUnit
-     for(DTRecSegment4DCollection::const_iterator segment  = range.first;
-                                                  segment != range.second; ++segment){
+      if (!(*select_)(*segment, event, setup)) {
+        segmbad++;
+        continue;
+      }
+      segmok++;
 
-        LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
-                                << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
+      // Get all 1D RecHits at step 3 within the 4D segment
+      std::vector<DTRecHit1D> recHits1D_S3;
 
-        if( !select_(*segment, event, setup) ) { segmbad++; continue; }
-        segmok++;
+      if ((*segment).hasPhi()) {
+        const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();
+        const std::vector<DTRecHit1D>& phiRecHits = phiSeg->specificRecHits();
+        std::copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
+      }
 
-        // Get all 1D RecHits at step 3 within the 4D segment
-        std::vector<DTRecHit1D> recHits1D_S3;
+      if ((*segment).hasZed()) {
+        const DTSLRecSegment2D* zSeg = (*segment).zSegment();
+        const std::vector<DTRecHit1D>& zRecHits = zSeg->specificRecHits();
+        std::copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
+      }
 
-        if( (*segment).hasPhi() ){
-           const DTChamberRecSegment2D* phiSeg = (*segment).phiSegment();
-           const std::vector<DTRecHit1D>& phiRecHits = phiSeg->specificRecHits();
-           std::copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D_S3));
-        }
+      // Loop over 1D RecHit inside 4D segment
+      for (std::vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end();
+           ++recHit1D) {
+        const DTWireId wireId = recHit1D->wireId();
 
-        if( (*segment).hasZed() ){
-           const DTSLRecSegment2D* zSeg = (*segment).zSegment();
-           const std::vector<DTRecHit1D>& zRecHits = zSeg->specificRecHits();
-           std::copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D_S3));
-        }
+        float segmDistance = segmentToWireDistance(*recHit1D, *segment);
+        if (segmDistance > 2.1)
+          LogTrace("Calibration") << "WARNING: segment-wire distance: " << segmDistance;
+        else
+          LogTrace("Calibration") << "segment-wire distance: " << segmDistance;
 
-        // Loop over 1D RecHit inside 4D segment
-        for(std::vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin();
-                                                    recHit1D != recHits1D_S3.end(); ++recHit1D) {
-           const DTWireId wireId = recHit1D->wireId();
+        float residualOnDistance = DTRecHitSegmentResidual().compute(dtGeom_, *recHit1D, *segment);
+        LogTrace("Calibration") << "Wire Id " << wireId << " residual on distance: " << residualOnDistance;
 
-           float segmDistance = segmentToWireDistance(*recHit1D,*segment);
-           if(segmDistance > 2.1) LogTrace("Calibration") << "WARNING: segment-wire distance: " << segmDistance;
-           else                   LogTrace("Calibration") << "segment-wire distance: " << segmDistance;
-
-           float residualOnDistance = DTRecHitSegmentResidual().compute(dtGeom_,*recHit1D,*segment);
-           LogTrace("Calibration") << "Wire Id " << wireId << " residual on distance: " << residualOnDistance;
-
-           fillHistos(wireId.superlayerId(), segmDistance, residualOnDistance);
-           if(detailedAnalysis_) fillHistos(wireId.layerId(), segmDistance, residualOnDistance);
-        }
-     }
+        fillHistos(wireId.superlayerId(), segmDistance, residualOnDistance);
+        if (detailedAnalysis_)
+          fillHistos(wireId.layerId(), segmDistance, residualOnDistance);
+      }
+    }
   }
 }
 
-float DTResidualCalibration::segmentToWireDistance(const DTRecHit1D& recHit1D, const DTRecSegment4D& segment){
-
+float DTResidualCalibration::segmentToWireDistance(const DTRecHit1D& recHit1D, const DTRecSegment4D& segment) {
   // Get the layer and the wire position
   const DTWireId wireId = recHit1D.wireId();
   const DTLayer* layer = dtGeom_->layer(wireId);
@@ -155,32 +156,34 @@ float DTResidualCalibration::segmentToWireDistance(const DTRecHit1D& recHit1D, c
   // Extrapolate the segment to the z of the wire
   // Get wire position in chamber RF
   // (y and z must be those of the hit to be coherent in the transf. of RF in case of rotations of the layer alignment)
-  LocalPoint wirePosInLay(wireX,recHit1D.localPosition().y(),recHit1D.localPosition().z());
+  LocalPoint wirePosInLay(wireX, recHit1D.localPosition().y(), recHit1D.localPosition().z());
   GlobalPoint wirePosGlob = layer->toGlobal(wirePosInLay);
   const DTChamber* chamber = dtGeom_->chamber(wireId.layerId().chamberId());
   LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
 
   // Segment position at Wire z in chamber local frame
-  LocalPoint segPosAtZWire = segment.localPosition() + segment.localDirection()*wirePosInChamber.z()/cos(segment.localDirection().theta());
+  LocalPoint segPosAtZWire =
+      segment.localPosition() + segment.localDirection() * wirePosInChamber.z() / cos(segment.localDirection().theta());
 
   // Compute the distance of the segment from the wire
   int sl = wireId.superlayer();
   float segmDistance = -1;
-  if(sl == 1 || sl == 3) segmDistance = fabs(wirePosInChamber.x() - segPosAtZWire.x());
-  else if(sl == 2)       segmDistance =  fabs(segPosAtZWire.y() - wirePosInChamber.y());
+  if (sl == 1 || sl == 3)
+    segmDistance = fabs(wirePosInChamber.x() - segPosAtZWire.x());
+  else if (sl == 2)
+    segmDistance = fabs(segPosAtZWire.y() - wirePosInChamber.y());
 
   return segmDistance;
 }
 
-void DTResidualCalibration::endJob(){
-  
-  edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Writing histos to file.";
+void DTResidualCalibration::endJob() {
+  LogDebug("Calibration") << "[DTResidualCalibration] Writing histos to file.";
   rootFile_->cd();
   rootFile_->Write();
   rootFile_->Close();
 
-  /*std::map<DTSuperLayerId, std::vector<TH1F*> >::const_iterator itSlHistos = histoMapTH1F_.begin();
-  std::map<DTSuperLayerId, std::vector<TH1F*> >::const_iterator itSlHistos_end = histoMapTH1F_.end(); 
+  /*std::map<DTSuperLayerId, TH1F* >::const_iterator itSlHistos = histoMapTH1F_.begin();
+  std::map<DTSuperLayerId, TH1F* >::const_iterator itSlHistos_end = histoMapTH1F_.end(); 
   for(; itSlHistos != itSlHistos_end; ++itSlHistos){
      std::vector<TH1F*>::const_iterator itHistTH1F = (*itSlHistos).second.begin();
      std::vector<TH1F*>::const_iterator itHistTH1F_end = (*itSlHistos).second.end();
@@ -190,14 +193,13 @@ void DTResidualCalibration::endJob(){
      std::vector<TH2F*>::const_iterator itHistTH2F_end = histoMapTH2F_[(*itSlHistos).first].end();
      for(; itHistTH2F != itHistTH2F_end; ++itHistTH2F) (*itHistTH2F)->Write();
   }*/
-
 }
 
 void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
   TH1AddDirectorySentry addDir;
   rootFile_->cd();
 
-  edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Booking histos for SL: " << slId;
+  LogDebug("Calibration") << "[DTResidualCalibration] Booking histos for SL: " << slId;
 
   // Compose the chamber name
   // Define the step
@@ -207,37 +209,42 @@ void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
   std::string stationStr = std::to_string(slId.station());
   std::string sectorStr = std::to_string(slId.sector());
 
-  std::string slHistoName =
-    "_STEP" + std::to_string(step) +
-    "_W" + wheelStr +
-    "_St" + stationStr +
-    "_Sec" +  sectorStr +
-    "_SL" + std::to_string(slId.superlayer());
+  std::string slHistoName = "_STEP" + std::to_string(step) + "_W" + wheelStr + "_St" + stationStr + "_Sec" + sectorStr +
+                            "_SL" + std::to_string(slId.superlayer());
 
-  edm::LogVerbatim("Calibration") << "Accessing " << rootBaseDir_;
+  LogDebug("Calibration") << "Accessing " << rootBaseDir_;
   TDirectory* baseDir = rootFile_->GetDirectory(rootBaseDir_.c_str());
-  if(!baseDir) baseDir = rootFile_->mkdir(rootBaseDir_.c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Wheel" + wheelStr);
+  if (!baseDir)
+    baseDir = rootFile_->mkdir(rootBaseDir_.c_str());
+  LogDebug("Calibration") << "Accessing " << ("Wheel" + wheelStr);
   TDirectory* wheelDir = baseDir->GetDirectory(("Wheel" + wheelStr).c_str());
-  if(!wheelDir) wheelDir = baseDir->mkdir(("Wheel" + wheelStr).c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Station" + stationStr);
+  if (!wheelDir)
+    wheelDir = baseDir->mkdir(("Wheel" + wheelStr).c_str());
+  LogDebug("Calibration") << "Accessing " << ("Station" + stationStr);
   TDirectory* stationDir = wheelDir->GetDirectory(("Station" + stationStr).c_str());
-  if(!stationDir) stationDir = wheelDir->mkdir(("Station" + stationStr).c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Sector" + sectorStr);
+  if (!stationDir)
+    stationDir = wheelDir->mkdir(("Station" + stationStr).c_str());
+  LogDebug("Calibration") << "Accessing " << ("Sector" + sectorStr);
   TDirectory* sectorDir = stationDir->GetDirectory(("Sector" + sectorStr).c_str());
-  if(!sectorDir) sectorDir = stationDir->mkdir(("Sector" + sectorStr).c_str()); 
+  if (!sectorDir)
+    sectorDir = stationDir->mkdir(("Sector" + sectorStr).c_str());
 
   sectorDir->cd();
 
   // Create the monitor elements
-  std::vector<TH1F*> histosTH1F;
-  histosTH1F.push_back(new TH1F(("hResDist"+slHistoName).c_str(),
-                                 "Residuals on the distance from wire (rec_hit - segm_extr) (cm)",
-                                 200, -histRange_, histRange_));
-  std::vector<TH2F*> histosTH2F;
-  histosTH2F.push_back(new TH2F(("hResDistVsDist"+slHistoName).c_str(),
-                                 "Residuals on the dist. (cm) from wire (rec_hit - segm_extr) vs dist. (cm)",
-                                 100, 0, 2.5, 200, -histRange_, histRange_));
+  TH1F* histosTH1F = new TH1F(("hResDist" + slHistoName).c_str(),
+                              "Residuals on the distance from wire (rec_hit - segm_extr) (cm)",
+                              200,
+                              -histRange_,
+                              histRange_);
+  TH2F* histosTH2F = new TH2F(("hResDistVsDist" + slHistoName).c_str(),
+                              "Residuals on the dist. (cm) from wire (rec_hit - segm_extr) vs dist. (cm)",
+                              100,
+                              0,
+                              2.5,
+                              200,
+                              -histRange_,
+                              histRange_);
   histoMapTH1F_[slId] = histosTH1F;
   histoMapTH2F_[slId] = histosTH2F;
 }
@@ -246,7 +253,7 @@ void DTResidualCalibration::bookHistos(DTLayerId layerId) {
   TH1AddDirectorySentry addDir;
   rootFile_->cd();
 
-  edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Booking histos for layer: " << layerId;
+  LogDebug("Calibration") << "[DTResidualCalibration] Booking histos for layer: " << layerId;
 
   // Compose the chamber name
   std::string wheelStr = std::to_string(layerId.wheel());
@@ -257,61 +264,57 @@ void DTResidualCalibration::bookHistos(DTLayerId layerId) {
   // Define the step
   int step = 3;
 
-  std::string layerHistoName =
-    "_STEP" + std::to_string(step) +
-    "_W" + wheelStr +
-    "_St" + stationStr +
-    "_Sec" + sectorStr +
-    "_SL" + superLayerStr + 
-    "_Layer" + layerStr;
-  
-  edm::LogVerbatim("Calibration") << "Accessing " << rootBaseDir_;
+  std::string layerHistoName = "_STEP" + std::to_string(step) + "_W" + wheelStr + "_St" + stationStr + "_Sec" +
+                               sectorStr + "_SL" + superLayerStr + "_Layer" + layerStr;
+
+  LogDebug("Calibration") << "Accessing " << rootBaseDir_;
   TDirectory* baseDir = rootFile_->GetDirectory(rootBaseDir_.c_str());
-  if(!baseDir) baseDir = rootFile_->mkdir(rootBaseDir_.c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Wheel" + wheelStr);
+  if (!baseDir)
+    baseDir = rootFile_->mkdir(rootBaseDir_.c_str());
+  LogDebug("Calibration") << "Accessing " << ("Wheel" + wheelStr);
   TDirectory* wheelDir = baseDir->GetDirectory(("Wheel" + wheelStr).c_str());
-  if(!wheelDir) wheelDir = baseDir->mkdir(("Wheel" + wheelStr).c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Station" + stationStr);
+  if (!wheelDir)
+    wheelDir = baseDir->mkdir(("Wheel" + wheelStr).c_str());
+  LogDebug("Calibration") << "Accessing " << ("Station" + stationStr);
   TDirectory* stationDir = wheelDir->GetDirectory(("Station" + stationStr).c_str());
-  if(!stationDir) stationDir = wheelDir->mkdir(("Station" + stationStr).c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Sector" + sectorStr);
+  if (!stationDir)
+    stationDir = wheelDir->mkdir(("Station" + stationStr).c_str());
+  LogDebug("Calibration") << "Accessing " << ("Sector" + sectorStr);
   TDirectory* sectorDir = stationDir->GetDirectory(("Sector" + sectorStr).c_str());
-  if(!sectorDir) sectorDir = stationDir->mkdir(("Sector" + sectorStr).c_str()); 
-  edm::LogVerbatim("Calibration") << "Accessing " << ("SL" + superLayerStr);
+  if (!sectorDir)
+    sectorDir = stationDir->mkdir(("Sector" + sectorStr).c_str());
+  LogDebug("Calibration") << "Accessing " << ("SL" + superLayerStr);
   TDirectory* superLayerDir = sectorDir->GetDirectory(("SL" + superLayerStr).c_str());
-  if(!superLayerDir) superLayerDir = sectorDir->mkdir(("SL" + superLayerStr).c_str()); 
+  if (!superLayerDir)
+    superLayerDir = sectorDir->mkdir(("SL" + superLayerStr).c_str());
 
   superLayerDir->cd();
   // Create histograms
-  std::vector<TH1F*> histosTH1F;
-  histosTH1F.push_back(new TH1F(("hResDist"+layerHistoName).c_str(),
-                                 "Residuals on the distance from wire (rec_hit - segm_extr) (cm)",
-                                 200, -histRange_, histRange_));
-  std::vector<TH2F*> histosTH2F;
-  histosTH2F.push_back(new TH2F(("hResDistVsDist"+layerHistoName).c_str(),
-                                 "Residuals on the dist. (cm) from wire (rec_hit - segm_extr) vs dist. (cm)",
-                                 100, 0, 2.5, 200, -histRange_, histRange_));
+  TH1F* histosTH1F = new TH1F(("hResDist" + layerHistoName).c_str(),
+                              "Residuals on the distance from wire (rec_hit - segm_extr) (cm)",
+                              200,
+                              -histRange_,
+                              histRange_);
+  TH2F* histosTH2F = new TH2F(("hResDistVsDist" + layerHistoName).c_str(),
+                              "Residuals on the dist. (cm) from wire (rec_hit - segm_extr) vs dist. (cm)",
+                              100,
+                              0,
+                              2.5,
+                              200,
+                              -histRange_,
+                              histRange_);
   histoMapPerLayerTH1F_[layerId] = histosTH1F;
   histoMapPerLayerTH2F_[layerId] = histosTH2F;
 }
 
-// Fill a set of histograms for a given SL 
-void DTResidualCalibration::fillHistos(DTSuperLayerId slId,
-                                       float distance,
-                                       float residualOnDistance) {
-  std::vector<TH1F*> const& histosTH1F = histoMapTH1F_[slId];
-  std::vector<TH2F*> const& histosTH2F = histoMapTH2F_[slId];
-  histosTH1F[0]->Fill(residualOnDistance);
-  histosTH2F[0]->Fill(distance, residualOnDistance);
+// Fill a set of histograms for a given SL
+void DTResidualCalibration::fillHistos(DTSuperLayerId slId, float distance, float residualOnDistance) {
+  histoMapTH1F_[slId]->Fill(residualOnDistance);
+  histoMapTH2F_[slId]->Fill(distance, residualOnDistance);
 }
 
-// Fill a set of histograms for a given layer 
-void DTResidualCalibration::fillHistos(DTLayerId layerId,
-                                       float distance,
-                                       float residualOnDistance) {
-  std::vector<TH1F*> const& histosTH1F = histoMapPerLayerTH1F_[layerId];
-  std::vector<TH2F*> const& histosTH2F = histoMapPerLayerTH2F_[layerId];
-  histosTH1F[0]->Fill(residualOnDistance);
-  histosTH2F[0]->Fill(distance, residualOnDistance);
+// Fill a set of histograms for a given layer
+void DTResidualCalibration::fillHistos(DTLayerId layerId, float distance, float residualOnDistance) {
+  histoMapPerLayerTH1F_[layerId]->Fill(residualOnDistance);
+  histoMapPerLayerTH2F_[layerId]->Fill(distance, residualOnDistance);
 }
-

@@ -11,62 +11,53 @@
 #include <fstream>
 #include "Randomize.hh"
 
-EventAction::EventAction(const edm::ParameterSet & p,
+EventAction::EventAction(const edm::ParameterSet& p,
                          SimRunInterface* rm,
-			 SimTrackManager* iManager,
-			 CMSSteppingVerbose* sv) 
+                         SimTrackManager* iManager,
+                         CMSSteppingVerbose* sv)
     : m_runInterface(rm),
       m_trackManager(iManager),
       m_SteppingVerbose(sv),
       m_stopFile(p.getParameter<std::string>("StopFile")),
       m_printRandom(p.getParameter<bool>("PrintRandomSeed")),
-      m_debug(p.getUntrackedParameter<bool>("debug",false))
-{
+      m_debug(p.getUntrackedParameter<bool>("debug", false)) {
   m_trackManager->setCollapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices"));
 }
 
 EventAction::~EventAction() {}
-    
-void EventAction::BeginOfEventAction(const G4Event * anEvent)
-{
+
+void EventAction::BeginOfEventAction(const G4Event* anEvent) {
   m_trackManager->reset();
 
   BeginOfEvent e(anEvent);
   m_beginOfEventSignal(&e);
 
-  if(m_printRandom) 
-    {
-      edm::LogVerbatim("SimG4CoreApplication") 
-	<< "BeginOfEvent " << anEvent->GetEventID()
-	<< " Random number: " << G4UniformRand();  
-    }
+  if (m_printRandom) {
+    edm::LogVerbatim("SimG4CoreApplication")
+        << "BeginOfEvent " << anEvent->GetEventID() << " Random number: " << G4UniformRand();
+  }
 
-  if(nullptr != m_SteppingVerbose) { m_SteppingVerbose->BeginOfEvent(anEvent); }
+  if (nullptr != m_SteppingVerbose) {
+    m_SteppingVerbose->BeginOfEvent(anEvent);
+  }
 }
 
-void EventAction::EndOfEventAction(const G4Event * anEvent)
-{
-  if(m_printRandom) 
-    {
-      edm::LogVerbatim("SimG4CoreApplication") 
-	<< " EndOfEvent " << anEvent->GetEventID()
-	<< " Random number: " << G4UniformRand();  
-    }
-  if (!m_stopFile.empty() && std::ifstream(m_stopFile.c_str()))
-    {
-      edm::LogWarning("SimG4CoreApplication")
-        << "EndOfEventAction: termination signal received at event "
-	<< anEvent->GetEventID();
-      // soft abort run
-      m_runInterface->abortRun(true);
-    }
-  if (anEvent->GetNumberOfPrimaryVertex()==0)
-    {
-      edm::LogWarning("SimG4CoreApplication")
-        << "EndOfEventAction: event " << anEvent->GetEventID() 
-	<< " must have failed (no G4PrimaryVertices found) and will be skipped ";
-      return;
-    }
+void EventAction::EndOfEventAction(const G4Event* anEvent) {
+  if (m_printRandom) {
+    edm::LogVerbatim("SimG4CoreApplication")
+        << " EndOfEvent " << anEvent->GetEventID() << " Random number: " << G4UniformRand();
+  }
+  if (!m_stopFile.empty() && std::ifstream(m_stopFile.c_str())) {
+    edm::LogWarning("SimG4CoreApplication")
+        << "EndOfEventAction: termination signal received at event " << anEvent->GetEventID();
+    // soft abort run
+    m_runInterface->abortRun(true);
+  }
+  if (anEvent->GetNumberOfPrimaryVertex() == 0) {
+    edm::LogWarning("SimG4CoreApplication") << "EndOfEventAction: event " << anEvent->GetEventID()
+                                            << " must have failed (no G4PrimaryVertices found) and will be skipped ";
+    return;
+  }
 
   m_trackManager->storeTracks(m_runInterface->simEvent());
 
@@ -78,13 +69,8 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
   m_trackManager->cleanTkCaloStateInfoMap();
 }
 
-void EventAction::addTkCaloStateInfo(uint32_t t,
-				     const std::pair<math::XYZVectorD,math::XYZTLorentzVectorD>& p) 
-{
-  m_trackManager->addTkCaloStateInfo(t,p);
+void EventAction::addTkCaloStateInfo(uint32_t t, const std::pair<math::XYZVectorD, math::XYZTLorentzVectorD>& p) {
+  m_trackManager->addTkCaloStateInfo(t, p);
 }
 
-void EventAction::abortEvent()
-{
-  m_runInterface->abortEvent();
-}
+void EventAction::abortEvent() { m_runInterface->abortEvent(); }

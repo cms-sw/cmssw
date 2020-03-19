@@ -11,22 +11,16 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-class HoECalculator
-{
-  public:
-  
-   HoECalculator() ;
-   HoECalculator(const edm::ESHandle<CaloGeometry>&) ;
+class HoECalculator {
+public:
+  HoECalculator();
+  HoECalculator(const edm::ESHandle<CaloGeometry>&);
 
-   double operator() ( const reco::BasicCluster* , 
-                       const edm::Event& e , 
-		       const edm::EventSetup& c )  ;
-   
-   double operator() ( const reco::SuperCluster* , 
-                       const edm::Event& e , 
-		       const edm::EventSetup& c )  ;
-  
-   /*
+  double operator()(const reco::BasicCluster*, const edm::Event& e, const edm::EventSetup& c);
+
+  double operator()(const reco::SuperCluster*, const edm::Event& e, const edm::EventSetup& c);
+
+  /*
    double operator() ( const reco::SuperCluster* , 
                        HBHERecHitMetaCollection *mhbhe,
 		       int ialgo=1);
@@ -35,18 +29,15 @@ class HoECalculator
                        HBHERecHitMetaCollection *mhbhe);
    */
 
-  private:
-  
-   double getHoE(GlobalPoint pos, float energy,
-		 const edm::Event& e , 
-		 const edm::EventSetup& c )  ;
-   /*      
+private:
+  double getHoE(GlobalPoint pos, float energy, const edm::Event& e, const edm::EventSetup& c);
+  /*      
    double getHoE(GlobalPoint pos, float energy,
                  HBHERecHitMetaCollection *mhbhe);
    */
-   
-    edm::ESHandle<CaloGeometry>  theCaloGeom_ ;
-    const HBHERecHitCollection* hithbhe_ ;
+
+  edm::ESHandle<CaloGeometry> theCaloGeom_;
+  const HBHERecHitCollection* hithbhe_;
 };
 
 #endif

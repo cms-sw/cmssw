@@ -6,8 +6,7 @@
   [authors]: R. Remington, The University of Florida
   [description]: EDProducer which runs BeamHalo Id/Flagging algorithms and stores BeamHaloSummary object to the event. Inspiration for this implementation was taken from HcalNoisInfoProducer.cc by J.P Chou
   [date]: October 15, 2009
-*/  
-
+*/
 
 //Standard C++ classes
 #include <iostream>
@@ -53,18 +52,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-namespace reco
-{
+namespace reco {
   class BeamHaloSummaryProducer : public edm::stream::EDProducer<> {
-    
   public:
     explicit BeamHaloSummaryProducer(const edm::ParameterSet&);
     ~BeamHaloSummaryProducer() override;
-    
+
   private:
-    
     void produce(edm::Event&, const edm::EventSetup&) override;
-    
+
     edm::InputTag IT_CSCHaloData;
     edm::InputTag IT_EcalHaloData;
     edm::InputTag IT_HcalHaloData;
@@ -92,20 +88,19 @@ namespace reco
     float T_EcalShowerShapesAngle;
     int T_EcalSuperClusterSize;
     float T_EcalSuperClusterEnergy;
-    
+
     float L_HcalPhiWedgeEnergy;
     int L_HcalPhiWedgeConstituents;
     float L_HcalPhiWedgeToF;
     float L_HcalPhiWedgeConfidence;
-    
+
     float T_HcalPhiWedgeEnergy;
     int T_HcalPhiWedgeConstituents;
     float T_HcalPhiWedgeToF;
     float T_HcalPhiWedgeConfidence;
-    
+
     int problematicStripMinLength;
   };
-}
+}  // namespace reco
 
 #endif
-  
