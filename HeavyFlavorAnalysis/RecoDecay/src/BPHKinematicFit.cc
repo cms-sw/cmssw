@@ -151,14 +151,21 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name
 const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name, double mass) const {
   if (mass < 0)
     return kinematicTree(name);
-  int nn = daughFull().size();
+  vector<RefCountedKinematicParticle> kPart;
+  const BPHKinematicFit* ptr = splitKP(name, &kPart);
+  if (ptr == nullptr) {
+    edm::LogPrint("ParticleNotFound") << "BPHKinematicFit::kinematicTree: " << name << " daughter not found";
+    return kinTree;
+  }
+
+  int nn = ptr->daughFull().size();
   ParticleMass mc = mass;
   if (nn == 2) {
     TwoTrackMassKinematicConstraint kinConst(mc);
-    return kinematicTree(name, &kinConst);
+    return kinematicTree(kPart, &kinConst);
   } else {
     MultiTrackMassKinematicConstraint kinConst(mc, nn);
-    return kinematicTree(name, &kinConst);
+    return kinematicTree(kPart, &kinConst);
   }
 }
 
@@ -168,34 +175,12 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name
 }
 
 const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name, KinematicConstraint* kc) const {
-  kinTree = RefCountedKinematicTree(nullptr);
-  oldFit = false;
-  kinParticles();
-  if (allParticles.size() != daughFull().size())
-    return kinTree;
   vector<RefCountedKinematicParticle> kComp;
   vector<RefCountedKinematicParticle> kTail;
-  if (!name.empty()) {
-    const BPHRecoCandidate* comp = getComp(name).get();
-    if (comp == nullptr) {
-      edm::LogPrint("ParticleNotFound") << "BPHKinematicFit::kinematicTree: " << name << " daughter not found";
-      return kinTree;
-    }
-    const vector<string>& names = comp->daugNames();
-    int ns;
-    int nn = ns = names.size();
-    vector<string> nfull(nn + 1);
-    nfull[nn] = "*";
-    while (nn--)
-      nfull[nn] = name + "/" + names[nn];
-    vector<RefCountedKinematicParticle> kPart = kinParticles(nfull);
-    vector<RefCountedKinematicParticle>::const_iterator iter = kPart.begin();
-    vector<RefCountedKinematicParticle>::const_iterator imid = iter + ns;
-    vector<RefCountedKinematicParticle>::const_iterator iend = kPart.end();
-    kComp.insert(kComp.end(), iter, imid);
-    kTail.insert(kTail.end(), imid, iend);
-  } else {
-    kComp = allParticles;
+  const BPHKinematicFit* ptr = splitKP(name, &kComp, &kTail);
+  if (ptr == nullptr) {
+    edm::LogPrint("ParticleNotFound") << "BPHKinematicFit::kinematicTree: " << name << " daughter not found";
+    return kinTree;
   }
   try {
     KinematicParticleVertexFitter vtxFitter;
@@ -203,7 +188,7 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name
     if (compTree->isEmpty())
       return kinTree;
     if (kc != nullptr) {
-    KinematicParticleFitter kinFitter;
+      KinematicParticleFitter kinFitter;
       compTree = kinFitter.fit(kc, compTree);
       if (compTree->isEmpty())
         return kinTree;
@@ -228,36 +213,12 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name
 
 const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const string& name,
                                                               MultiTrackKinematicConstraint* kc) const {
-  kinTree = RefCountedKinematicTree(nullptr);
-  oldFit = false;
-  kinParticles();
-  if (allParticles.size() != daughFull().size())
+  vector<RefCountedKinematicParticle> kPart;
+  if (splitKP(name, &kPart) == nullptr) {
+    edm::LogPrint("ParticleNotFound") << "BPHKinematicFit::kinematicTree: " << name << " daughter not found";
     return kinTree;
-  vector<string> nfull;
-  if (!name.empty()) {
-    const BPHRecoCandidate* comp = getComp(name).get();
-    if (comp == nullptr) {
-      edm::LogPrint("ParticleNotFound") << "BPHKinematicFit::kinematicTree: " << name << " daughter not found";
-      return kinTree;
-    }
-    const vector<string>& names = comp->daugNames();
-    int nn = names.size();
-    nfull.resize(nn + 1);
-    nfull[nn] = "*";
-    while (nn--)
-      nfull[nn] = name + "/" + names[nn];
-  } else {
-    nfull.push_back("*");
   }
-  try {
-    KinematicConstrainedVertexFitter cvf;
-    kinTree = cvf.fit(kinParticles(nfull), kc);
-  } catch (std::exception const&) {
-    edm::LogPrint("FitFailed") << "BPHKinematicFit::kinematicTree: "
-                               << "kin fit reset";
-    kinTree = RefCountedKinematicTree(nullptr);
-  }
-  return kinTree;
+  return kinematicTree(kPart, kc);
 }
 
 /// reset the kinematic fit
@@ -466,6 +427,57 @@ void BPHKinematicFit::insertParticle(RefCountedKinematicParticle& kp,
   kl.push_back(kp);
   ks.insert(kp);
   return;
+}
+
+const BPHKinematicFit* BPHKinematicFit::splitKP(const string& name,
+                                                vector<RefCountedKinematicParticle>* kComp,
+                                                vector<RefCountedKinematicParticle>* kTail) const {
+  kinTree = RefCountedKinematicTree(nullptr);
+  oldFit = false;
+  kinParticles();
+  if (allParticles.size() != numParticles())
+    return nullptr;
+  kComp->clear();
+  if (kTail == nullptr)
+    kTail = kComp;
+  else
+    kTail->clear();
+  if (name.empty()) {
+    *kComp = allParticles;
+    return this;
+  }
+  const BPHRecoCandidate* comp = getComp(name).get();
+  int ns;
+  if (comp != nullptr) {
+    ns = numParticles(comp);
+  } else {
+    edm::LogPrint("ParticleNotFound") << "BPHKinematicFit::splitKP: " << name << " daughter not found";
+    *kTail = allParticles;
+    return nullptr;
+  }
+  vector<string> nfull(2);
+  nfull[0] = name;
+  nfull[1] = "*";
+  vector<RefCountedKinematicParticle> kPart = kinParticles(nfull);
+  vector<RefCountedKinematicParticle>::const_iterator iter = kPart.begin();
+  vector<RefCountedKinematicParticle>::const_iterator imid = iter + ns;
+  vector<RefCountedKinematicParticle>::const_iterator iend = kPart.end();
+  kComp->insert(kComp->end(), iter, imid);
+  kTail->insert(kTail->end(), imid, iend);
+  return comp;
+}
+
+const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(const vector<RefCountedKinematicParticle>& kPart,
+                                                              MultiTrackKinematicConstraint* kc) const {
+  try {
+    KinematicConstrainedVertexFitter cvf;
+    kinTree = cvf.fit(kPart, kc);
+  } catch (std::exception const&) {
+    edm::LogPrint("FitFailed") << "BPHKinematicFit::kinematicTree: "
+                               << "kin fit reset";
+    kinTree = RefCountedKinematicTree(nullptr);
+  }
+  return kinTree;
 }
 
 void BPHKinematicFit::fitMomentum() const {
