@@ -8,4 +8,4 @@ namespace OnlineDB_EcalCondDB {
     RunIOV r2;
     EcalCondDBInterface e1;
   };
-}
+}  // namespace OnlineDB_EcalCondDB
