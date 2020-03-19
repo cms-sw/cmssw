@@ -85,7 +85,7 @@ BPHKinematicFit::~BPHKinematicFit() {}
 //--------------
 /// apply a mass constraint
 void BPHKinematicFit::setConstraint(double mass, double sigma) {
-  oldFit = oldMom = true;
+  oldKPs = oldFit = oldMom = true;
   massConst = mass;
   massSigma = sigma;
   return;
@@ -106,39 +106,27 @@ const vector<RefCountedKinematicParticle>& BPHKinematicFit::kinParticles() const
 vector<RefCountedKinematicParticle> BPHKinematicFit::kinParticles(const vector<string>& names) const {
   if (oldKPs)
     buildParticles();
-  const vector<const reco::Candidate*>& daugs = daughFull();
   vector<RefCountedKinematicParticle> plist;
-  if (allParticles.size() != daugs.size())
+  unsigned int m = allParticles.size();
+  if (m != numParticles())
     return plist;
   set<RefCountedKinematicParticle> pset;
   int i;
   int n = names.size();
-  int m = daugs.size();
   plist.reserve(m);
   for (i = 0; i < n; ++i) {
     const string& pname = names[i];
     if (pname == "*") {
       int j = m;
-      while (j--) {
-        RefCountedKinematicParticle& kp = allParticles[j];
-        if (pset.find(kp) != pset.end())
-          continue;
-        plist.push_back(kp);
-        pset.insert(kp);
-      }
+      while (j)
+        insertParticle(allParticles[--j], plist, pset);
       break;
     }
-    map<const reco::Candidate*, RefCountedKinematicParticle>::const_iterator iter = kinMap.find(getDaug(pname));
-    map<const reco::Candidate*, RefCountedKinematicParticle>::const_iterator iend = kinMap.end();
-    if (iter != iend) {
-      const RefCountedKinematicParticle& kp = iter->second;
-      if (pset.find(kp) != pset.end())
-        continue;
-      plist.push_back(kp);
-      pset.insert(kp);
-    } else {
-      edm::LogPrint("ParticleNotFound") << "BPHKinematicFit::kinParticles: " << pname << " not found";
-    }
+    string::size_type pos = pname.find("/");
+    if (pos != string::npos)
+      getParticles(pname.substr(0, pos), pname.substr(pos + 1), plist, pset);
+    else
+      getParticles(pname, "", plist, pset);
   }
   return plist;
 }
@@ -410,6 +398,73 @@ void BPHKinematicFit::addParticles(vector<RefCountedKinematicParticle>& kl,
     const BPHRecoCandidate* cptr = comp[m].get();
     cptr->addParticles(kl, km, cm);
   }
+  return;
+}
+
+void BPHKinematicFit::getParticles(const string& moth,
+                                   const string& daug,
+                                   vector<RefCountedKinematicParticle>& kl,
+                                   set<RefCountedKinematicParticle>& ks) const {
+  const BPHRecoCandidate* cptr = getComp(moth).get();
+  if (cptr != nullptr) {
+    vector<string> list;
+    if (!daug.empty()) {
+      list.push_back(daug);
+    } else {
+      const vector<string>& dNames = cptr->daugNames();
+      const vector<string>& cNames = cptr->compNames();
+      list.insert(list.end(), dNames.begin(), dNames.end());
+      list.insert(list.end(), cNames.begin(), cNames.end());
+    }
+    getParticles(moth, list, kl, ks);
+    return;
+  }
+  const reco::Candidate* dptr = getDaug(moth);
+  if (dptr != nullptr) {
+    insertParticle(kinMap[dptr], kl, ks);
+    return;
+  }
+  edm::LogPrint("ParticleNotFound") << "BPHKinematicFit::getParticles: " << moth << " not found";
+  return;
+}
+
+void BPHKinematicFit::getParticles(const string& moth,
+                                   const vector<string>& daug,
+                                   vector<RefCountedKinematicParticle>& kl,
+                                   set<RefCountedKinematicParticle>& ks) const {
+  int i;
+  int n = daug.size();
+  for (i = 0; i < n; ++i) {
+    const string& name = daug[i];
+    string::size_type pos = name.find("/");
+    if (pos != string::npos)
+      getParticles(moth + "/" + name.substr(0, pos), name.substr(pos + 1), kl, ks);
+    else
+      getParticles(moth + "/" + name, "", kl, ks);
+  }
+  return;
+}
+
+unsigned int BPHKinematicFit::numParticles(const BPHKinematicFit* cand) const {
+  if (cand == nullptr)
+    cand = this;
+  unsigned int n = cand->daughters().size();
+  const vector<string>& cnames = cand->compNames();
+  int i = cnames.size();
+  while (i) {
+    const BPHRecoCandidate* comp = cand->getComp(cnames[--i]).get();
+    n += numParticles(comp);
+  }
+  return n;
+}
+
+void BPHKinematicFit::insertParticle(RefCountedKinematicParticle& kp,
+                                     vector<RefCountedKinematicParticle>& kl,
+                                     set<RefCountedKinematicParticle>& ks) {
+  if (ks.find(kp) != ks.end())
+    return;
+  kl.push_back(kp);
+  ks.insert(kp);
   return;
 }
 

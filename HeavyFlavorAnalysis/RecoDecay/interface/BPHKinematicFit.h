@@ -135,6 +135,18 @@ private:
   virtual void addParticles(std::vector<RefCountedKinematicParticle>& kl,
                             std::map<const reco::Candidate*, RefCountedKinematicParticle>& km,
                             std::map<const BPHRecoCandidate*, RefCountedKinematicParticle>& cm) const;
+  virtual void getParticles(const std::string& moth,
+                            const std::string& daug,
+                            std::vector<RefCountedKinematicParticle>& kl,
+                            std::set<RefCountedKinematicParticle>& ks) const;
+  virtual void getParticles(const std::string& moth,
+                            const std::vector<std::string>& daug,
+                            std::vector<RefCountedKinematicParticle>& kl,
+                            std::set<RefCountedKinematicParticle>& ks) const;
+  virtual unsigned int numParticles(const BPHKinematicFit* cand = nullptr) const;
+  static void insertParticle(RefCountedKinematicParticle& kp,
+                             std::vector<RefCountedKinematicParticle>& kl,
+                             std::set<RefCountedKinematicParticle>& ks);
   virtual void fitMomentum() const;
 };
 
