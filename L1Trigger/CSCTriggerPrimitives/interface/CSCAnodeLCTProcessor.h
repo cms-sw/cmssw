@@ -84,6 +84,9 @@ public:
   CSCALCTDigi getBestALCT(int bx) const;
   CSCALCTDigi getSecondALCT(int bx) const;
 
+  /* encode special bits for high multiplicity triggers */
+  unsigned getHighMultiplictyBits() const { return highMultiplicityBits_; }
+
 protected:
   /** Best LCTs in this chamber, as found by the processor.
       In old ALCT algorithms, up to two best ALCT per Level-1 accept window
@@ -111,6 +114,10 @@ protected:
   std::vector<CSCALCTDigi> lct_list;
 
   std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
+
+  /* data members for high multiplicity triggers */
+  void encodeHighMultiplicityBits();
+  unsigned int highMultiplicityBits_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;
