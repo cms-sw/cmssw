@@ -125,12 +125,16 @@ private:
   mutable bool oldFit;
   mutable bool oldMom;
   mutable std::map<const reco::Candidate*, RefCountedKinematicParticle> kinMap;
+  mutable std::map<const BPHRecoCandidate*, RefCountedKinematicParticle> kCDMap;
   mutable std::vector<RefCountedKinematicParticle> allParticles;
   mutable RefCountedKinematicTree kinTree;
   mutable math::XYZTLorentzVector totalMomentum;
 
   // build kin particles, perform the fit and compute the total momentum
   virtual void buildParticles() const;
+  virtual void addParticles(std::vector<RefCountedKinematicParticle>& kl,
+                            std::map<const reco::Candidate*, RefCountedKinematicParticle>& km,
+                            std::map<const BPHRecoCandidate*, RefCountedKinematicParticle>& cm) const;
   virtual void fitMomentum() const;
 };
 
