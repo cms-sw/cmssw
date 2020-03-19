@@ -124,6 +124,7 @@ mssmHbbMonitoring.denGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# Tru
 mssmHbbMonitoring.denGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )  #change to HLT for PR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 mssmHbbMonitoring.denGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 mssmHbbMonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+mssmHbbMonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis")
 mssmHbbMonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29: pixel, we should add all other detectors !
 mssmHbbMonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 mssmHbbMonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
