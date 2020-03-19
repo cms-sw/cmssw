@@ -32,13 +32,7 @@ public:
   static void globalEndJob(TrackstersCache *);
 
 private:
-
-  enum TracksterIterIndex {
-    EM = 0,
-    TRK,
-    HAD,
-    SEED
-  };
+  enum TracksterIterIndex { EM = 0, TRK, HAD, SEED };
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
@@ -168,24 +162,24 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   edm::Handle<std::vector<Trackster>> trackstersem_h;
   evt.getByToken(trackstersem_token_, trackstersem_h);
   const auto &trackstersEM = *trackstersem_h;
-  usedTrackstersEM.resize(trackstersEM.size(), 0);
+  usedTrackstersEM.resize(trackstersEM.size(), false);
 
   edm::Handle<std::vector<Trackster>> tracksterstrk_h;
   evt.getByToken(tracksterstrk_token_, tracksterstrk_h);
   const auto &trackstersTRK = *tracksterstrk_h;
-  usedTrackstersTRK.resize(trackstersTRK.size(), 0);
+  usedTrackstersTRK.resize(trackstersTRK.size(), false);
 
   edm::Handle<std::vector<Trackster>> trackstershad_h;
   evt.getByToken(trackstershad_token_, trackstershad_h);
   const auto &trackstersHAD = *trackstershad_h;
-  usedTrackstersHAD.resize(trackstersHAD.size(), 0);
+  usedTrackstersHAD.resize(trackstersHAD.size(), false);
 
   edm::Handle<std::vector<TICLSeedingRegion>> seedingTrk_h;
   evt.getByToken(seedingTrk_token_, seedingTrk_h);
   const auto &seedingTrk = *seedingTrk_h;
-  usedSeeds.resize(seedingTrk.size(), 0);
+  usedSeeds.resize(seedingTrk.size(), false);
 
-  fillTile(tracksterTile, trackstersEM,  TracksterIterIndex::EM);
+  fillTile(tracksterTile, trackstersEM, TracksterIterIndex::EM);
   fillTile(tracksterTile, trackstersTRK, TracksterIterIndex::TRK);
   fillTile(tracksterTile, trackstersHAD, TracksterIterIndex::HAD);
 
@@ -246,7 +240,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
           << "average_pt: " << (t.raw_pt * w_cal + trk_pt * w_trk) / (w_cal + w_trk) << std::endl
           << "e_over_h: " << e_over_h << std::endl;
 
-      // If the energy is unbalanced and higher in Calo ==> balance it by emitting gammas/neutrals
+      // If the energy is unbalanced and higher in Calo ==> balance it by
+      // emitting gammas/neutrals
       if (diff_pt_sigmas > pt_sigma_high_) {
         if (e_over_h > 1.) {
           auto gamma_pt = std::min(diff_pt, t.raw_em_pt);
@@ -268,10 +263,13 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
               << t.eigenvectors[0].eta() << ", " << t.eigenvectors[0].phi() << std::endl;
         }
       }
-      // If the energy is in the correct ball-park (this also covers the previous case after the neutral emission), use weighted averages
+      // If the energy is in the correct ball-park (this also covers the
+      // previous case after the neutral emission), use weighted averages
       if (diff_pt_sigmas > -pt_sigma_low_) {
-        // Create either an electron or a charged hadron, using the weighted average information between the track and the cluster for the energy, the direction of the track at the vertex.
-        // The PID is simply passed over to the final trackster, while the energy is changed.
+        // Create either an electron or a charged hadron, using the weighted
+        // average information between the track and the cluster for the
+        // energy, the direction of the track at the vertex.  The PID is simply
+        // passed over to the final trackster, while the energy is changed.
         auto average_pt = (w_cal * t.raw_pt + trk_pt * w_trk) / (w_cal + w_trk);
         LogDebug("TrackstersMergeProducer")
             << " Creating electron/charged hadron from TRK Trackster with weighted p_t " << average_pt
@@ -280,7 +278,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       }
       // If the energy of the calo is too low, just use track-only information
       else {
-        // Create either an electron or a charged hadron, using the track information only.
+        // Create either an electron or a charged hadron, using the track
+        // information only.
         LogDebug("TrackstersMergeProducer")
             << " Creating electron/charged hadron from TRK Trackster with track p_t " << trk_pt << " and direction "
             << track.eta() << ", " << track.phi() << std::endl;
@@ -378,8 +377,9 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
     }
 
     // calculate the cluster energy sum (2)
-    // note: after the loop, sumClusterEnergy might be just above the threshold which is enough to
-    // decide whether to run inference for the trackster or not
+    // note: after the loop, sumClusterEnergy might be just above the threshold
+    // which is enough to decide whether to run inference for the trackster or
+    // not
     float sumClusterEnergy = 0.;
     for (const unsigned int &vertex : tracksters[i].vertices) {
       sumClusterEnergy += (float)layerClusters[vertex].energy();
@@ -415,9 +415,10 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
   for (int i = 0; i < batchSize; i++) {
     const Trackster &trackster = tracksters[tracksterIndices[i]];
 
-    // per layer, we only consider the first eidNClusters_ clusters in terms of energy, so in order
-    // to avoid creating large / nested structures to do the sorting for an unknown number of total
-    // clusters, create a sorted list of layer cluster indices to keep track of the filled clusters
+    // per layer, we only consider the first eidNClusters_ clusters in terms of
+    // energy, so in order to avoid creating large / nested structures to do
+    // the sorting for an unknown number of total clusters, create a sorted
+    // list of layer cluster indices to keep track of the filled clusters
     std::vector<int> clusterIndices(trackster.vertices.size());
     for (int k = 0; k < (int)trackster.vertices.size(); k++) {
       clusterIndices[k] = k;
