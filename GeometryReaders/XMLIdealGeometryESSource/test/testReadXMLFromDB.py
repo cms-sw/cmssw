@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DBGeometryTest")
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('CondCore.DBCommon.CondDBSetup_cfi')
+process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
@@ -17,8 +17,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),
-                                             tag = cms.string('XMLFILE_Geometry_TagXX_Extended2015_mc'),
-                                             connect = cms.untracked.string('sqlite_file:./myfile.db')
+                                             tag = cms.string('XMLFILE_Geometry_Extended_TagXX'),
+                                             connect = cms.string('sqlite_file:./myfile.db')
                                              )
                                     )
 

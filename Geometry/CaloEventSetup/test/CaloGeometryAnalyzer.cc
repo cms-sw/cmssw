@@ -645,9 +645,11 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
 
     const CaloGenericDetId cid(id);
 
-    assert(cid.validDetId());
+    // assert(cid.validDetId());
+    // This line fails for CaloTower because this method does not support CaloTower
 
-    assert(CaloGenericDetId(id.det(), id.subdetId(), cid.denseIndex()) == id);
+    // assert(CaloGenericDetId(id.det(), id.subdetId(), cid.denseIndex()) == id);
+    // This line fails for CaloTower because this three-parameter constructor does not support CaloTower
 
     const GlobalPoint pos(cell->getPosition());
     const double posmag(pos.mag());
@@ -683,13 +685,15 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
 
     const CaloGenericDetId cgid(id);
 
-    const GlobalPoint ggp(cell->getPosition());
+    if (cgid.isCaloTower() == false) {  // CaloGenericDetId::denseIndex() not supported for CaloTower
+      const GlobalPoint ggp(cell->getPosition());
 
-    h_dPhi[detIndex]->Fill(cgid.denseIndex(), deltaPhi);
-    h_dPhiR[detIndex]->Fill(ggp.perp(), deltaPhi);
+      h_dPhi[detIndex]->Fill(cgid.denseIndex(), deltaPhi);
+      h_dPhiR[detIndex]->Fill(ggp.perp(), deltaPhi);
 
-    h_dEta[detIndex]->Fill(cgid.denseIndex(), deltaEta);
-    h_dEtaR[detIndex]->Fill(ggp.perp(), deltaEta);
+      h_dEta[detIndex]->Fill(cgid.denseIndex(), deltaEta);
+      h_dEtaR[detIndex]->Fill(ggp.perp(), deltaEta);
+    }
 
     if (det == DetId::Ecal) {
       if (subdetn == EcalBarrel) {
