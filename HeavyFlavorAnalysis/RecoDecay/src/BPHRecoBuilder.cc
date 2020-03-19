@@ -66,11 +66,6 @@ BPHRecoBuilder::BPHGenericCollection* BPHRecoBuilder::createCollection(const vec
   return new BPHSpecificCollection<vector<const reco::Candidate*>>(candList, list);
 }
 
-template <>
-const reco::Candidate& BPHRecoBuilder::BPHSpecificCollection<vector<const reco::Candidate*>>::get(int i) const {
-  return *(*cPtr)[i];
-}
-
 void BPHRecoBuilder::add(const string& name, const BPHGenericCollection* collection, double mass, double msig) {
   BPHRecoSource* rs;
   if (sourceId.find(name) != sourceId.end()) {
