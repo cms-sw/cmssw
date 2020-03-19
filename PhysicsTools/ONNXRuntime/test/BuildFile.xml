@@ -1,3 +1,5 @@
+<use name="py3-onnxruntime" />
+<test name="test_py_onnxruntime" command="plot_load_and_predict.py"/>
 <bin name="testONNXRuntime" file="testRunner.cpp, testONNXRuntime.cc">
     <use name="boost_filesystem" />
     <use name="cppunit" />
