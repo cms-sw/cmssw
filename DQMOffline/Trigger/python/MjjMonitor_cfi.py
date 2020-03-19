@@ -30,6 +30,7 @@ hltMjjmonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
 
 hltMjjmonitoring.denGenericTriggerEventPSet.andOr         = cms.bool( False )
 hltMjjmonitoring.denGenericTriggerEventPSet.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
+hltMjjmonitoring.denGenericTriggerEventPSet.dcsRecordInputTag = cms.InputTag ( "onlineMetaDataDigis" )
 hltMjjmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29 ) # 24-27: strip, 28-29
 hltMjjmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltMjjmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
