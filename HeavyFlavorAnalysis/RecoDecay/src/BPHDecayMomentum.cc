@@ -14,7 +14,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
-#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAddFourMomenta.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //---------------

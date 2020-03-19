@@ -18,12 +18,13 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAddFourMomenta.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //---------------
 // C++ Headers --
 //---------------
+
 using namespace std;
 
 //-------------------
