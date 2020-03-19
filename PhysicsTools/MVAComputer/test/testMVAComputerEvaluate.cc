@@ -21,42 +21,33 @@
 using namespace PhysicsTools;
 
 class testMVAComputerEvaluate : public edm::EDAnalyzer {
-    public:
-	explicit testMVAComputerEvaluate(const edm::ParameterSet &params);
+public:
+  explicit testMVAComputerEvaluate(const edm::ParameterSet& params);
 
-	virtual void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup);
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-    private:
-	MVAComputerCache	mvaComputer;
+private:
+  MVAComputerCache mvaComputer;
 };
 
-testMVAComputerEvaluate::testMVAComputerEvaluate(
-					const edm::ParameterSet &params)
-{
-}
+testMVAComputerEvaluate::testMVAComputerEvaluate(const edm::ParameterSet& params) {}
 
-void testMVAComputerEvaluate::analyze(const edm::Event& iEvent,
-                                      const edm::EventSetup& iSetup)
-{
-	// update the cached MVAComputer from calibrations
-	// passed via EventSetup.
-	// you can use a MVAComputerContainer to pass around
-	// multiple different MVA's in one event setup record
-	// identify the right one by a definable name string
-	mvaComputer.update<MVADemoRcd>(iSetup, "testMVA");
+void testMVAComputerEvaluate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // update the cached MVAComputer from calibrations
+  // passed via EventSetup.
+  // you can use a MVAComputerContainer to pass around
+  // multiple different MVA's in one event setup record
+  // identify the right one by a definable name string
+  mvaComputer.update<MVADemoRcd>(iSetup, "testMVA");
 
-	Variable::Value values[] = {
-		Variable::Value("x", 1.0),
-		Variable::Value("y", 1.5)
-	};
+  Variable::Value values[] = {Variable::Value("x", 1.0), Variable::Value("y", 1.5)};
 
-	double result = mvaComputer->eval(values, values + 2);
-	// arguments are begin() and end() (for plain C++ arrays done this way)
-	// std::vector also works, but plain array has better performance
-	// for fixed-size arrays (no internal malloc/free)
+  double result = mvaComputer->eval(values, values + 2);
+  // arguments are begin() and end() (for plain C++ arrays done this way)
+  // std::vector also works, but plain array has better performance
+  // for fixed-size arrays (no internal malloc/free)
 
-	std::cout << "mva.eval(x = 1.0, y = 1.5) = " << result << std::endl;
+  std::cout << "mva.eval(x = 1.0, y = 1.5) = " << result << std::endl;
 }
 
 // define this as a plug-in

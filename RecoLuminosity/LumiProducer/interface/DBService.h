@@ -9,37 +9,34 @@
 #include <mutex>
 #include <memory>
 
-namespace lumi{
+namespace lumi {
   class DBConfig;
-  namespace service{
+  namespace service {
 
     class ISessionProxyPtr {
     public:
-      ISessionProxyPtr( std::unique_ptr<coral::ISessionProxy> iProxy,
-                        std::unique_lock<std::mutex> iLock):
-          m_lock(std::move(iLock)),
-          m_proxy(std::move(iProxy)) {}
+      ISessionProxyPtr(std::unique_ptr<coral::ISessionProxy> iProxy, std::unique_lock<std::mutex> iLock)
+          : m_lock(std::move(iLock)), m_proxy(std::move(iProxy)) {}
 
-          coral::ISessionProxy* operator->() {
-            return m_proxy.get();
-          }
+      coral::ISessionProxy* operator->() { return m_proxy.get(); }
+
     private:
-          std::unique_lock<std::mutex> m_lock;
-          std::unique_ptr<coral::ISessionProxy> m_proxy;
-   };
+      std::unique_lock<std::mutex> m_lock;
+      std::unique_ptr<coral::ISessionProxy> m_proxy;
+    };
 
-    class DBService{
+    class DBService {
     public:
       DBService(const edm::ParameterSet& iConfig);
       ~DBService();
 
-      ISessionProxyPtr connectReadOnly( const std::string& connectstring );
+      ISessionProxyPtr connectReadOnly(const std::string& connectstring);
 
     private:
       std::unique_ptr<coral::ConnectionService> m_svc;
       std::unique_ptr<lumi::DBConfig> m_dbconfig;
       std::mutex m_mutex;
-    };//cl DBService
-  }//ns service
-}//ns lumi
+    };  //cl DBService
+  }     // namespace service
+}  // namespace lumi
 #endif

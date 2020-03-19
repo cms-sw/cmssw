@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-tracker.xml'),
+                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-geometry-2021.xml'),
                                             appendToDataLabel = cms.string('CMS')
                                             )
 
@@ -17,15 +17,15 @@ process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer"
                                                     )
 
 process.test = cms.EDAnalyzer("DDCMSDetector",
-                              DDDetector = cms.ESInputTag('CMS')
+                              DDDetector = cms.ESInputTag('','CMS')
                               )
 
 process.testVectors = cms.EDAnalyzer("DDTestVectors",
-                                     DDDetector = cms.ESInputTag('CMS')
+                                     DDDetector = cms.ESInputTag('','CMS')
                                      )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  DDDetector = cms.ESInputTag('CMS')
+                                  DDDetector = cms.ESInputTag('','CMS')
                                   )
 
 process.p = cms.Path(process.test+process.testVectors+process.testDump)

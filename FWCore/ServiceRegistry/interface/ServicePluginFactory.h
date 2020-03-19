@@ -4,7 +4,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     ServicePluginFactory
-// 
+//
 /**\class ServicePluginFactory ServicePluginFactory.h FWCore/ServiceRegistry/interface/ServicePluginFactory.h
 
  Description: <one line class summary>
@@ -25,11 +25,11 @@
 
 // forward declarations
 namespace edm {
-   namespace serviceregistry {
-      class ServiceMakerBase;
-      
-     typedef edmplugin::PluginFactory< ServiceMakerBase* ()> ServicePluginFactory;
-   }
-}
+  namespace serviceregistry {
+    class ServiceMakerBase;
+
+    typedef edmplugin::PluginFactory<ServiceMakerBase*()> ServicePluginFactory;
+  }  // namespace serviceregistry
+}  // namespace edm
 
 #endif

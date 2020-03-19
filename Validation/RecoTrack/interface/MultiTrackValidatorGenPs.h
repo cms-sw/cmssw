@@ -12,24 +12,21 @@
 #include "SimDataFormats/Associations/interface/TrackToGenParticleAssociator.h"
 
 class MultiTrackValidatorGenPs : public MultiTrackValidator {
- public:
+public:
   /// Constructor
   MultiTrackValidatorGenPs(const edm::ParameterSet& pset);
-  
+
   /// Destructor
   ~MultiTrackValidatorGenPs() override;
 
   /// Method called once per event
-  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const Histograms& ) const override;
+  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const Histograms&) const override;
 
 private:
-
-  GenParticleCustomSelector gpSelector;				      
+  GenParticleCustomSelector gpSelector;
   edm::EDGetTokenT<reco::TrackToGenParticleAssociator> label_gen_associator;
   edm::EDGetTokenT<reco::GenToRecoCollection> associatormapGtR;
   edm::EDGetTokenT<reco::RecoToGenCollection> associatormapRtG;
-
 };
-
 
 #endif

@@ -8,9 +8,10 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsolationProducer.h"
 #include "PhysicsTools/IsolationAlgos/interface/PtIsolationAlgo.h"
 
-typedef IsolationProducer<reco::CandidateView, reco::CandidateView,
-			  PtIsolationAlgo<reco::Candidate,reco::CandidateView>,
-			  edm::AssociationVector<reco::CandidateBaseRefProd, std::vector<float> > 
-                         > CandViewPtIsolationProducer;
+typedef IsolationProducer<reco::CandidateView,
+                          reco::CandidateView,
+                          PtIsolationAlgo<reco::Candidate, reco::CandidateView>,
+                          edm::AssociationVector<reco::CandidateBaseRefProd, std::vector<float> > >
+    CandViewPtIsolationProducer;
 
-DEFINE_FWK_MODULE( CandViewPtIsolationProducer );
+DEFINE_FWK_MODULE(CandViewPtIsolationProducer);

@@ -50,13 +50,13 @@ preMergingFirstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHig
 #   input:    preFilterZeroStepTracks
 #   output:   zeroStepTracksWithQuality
 #   sequence: tracksWithQualityZeroStep
-tracksWithQualityZeroStep = cms.Sequence(zeroStepWithLooseQuality*zeroStepWithTightQuality*zeroStepTracksWithQuality)
-
+tracksWithQualityZeroStepTask = cms.Task(zeroStepWithLooseQuality, zeroStepWithTightQuality, zeroStepTracksWithQuality)
+tracksWithQualityZeroStep = cms.Sequence(tracksWithQualityZeroStepTask)
 
 # Track filtering and quality.
 #   input:    preFilterStepOneTracks
 #   output:   firstStepTracksWithQuality
 #   sequence: tracksWithQuality
-tracksWithQualityStepOne = cms.Sequence(firstStepWithLooseQuality*firstStepWithTightQuality*preMergingFirstStepTracksWithQuality)
-
+tracksWithQualityStepOneTask = cms.Task(firstStepWithLooseQuality, firstStepWithTightQuality, preMergingFirstStepTracksWithQuality)
+tracksWithQualityStepOne = cms.Sequence(tracksWithQualityStepOneTask)
 

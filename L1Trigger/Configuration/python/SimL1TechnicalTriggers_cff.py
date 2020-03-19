@@ -4,7 +4,8 @@ import FWCore.ParameterSet.Config as cms
 import L1Trigger.L1TGlobal.simGtExtFakeProd_cfi
 simGtExtFakeStage2Digis = L1Trigger.L1TGlobal.simGtExtFakeProd_cfi.simGtExtFakeProd.clone()
 
-SimL1TechnicalTriggers = cms.Sequence(simGtExtFakeStage2Digis)
+SimL1TechnicalTriggersTask = cms.Task(simGtExtFakeStage2Digis)
+SimL1TechnicalTriggers = cms.Sequence(SimL1TechnicalTriggersTask)
 
 
 # BSC Technical Trigger
@@ -26,8 +27,8 @@ import SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi
 simCastorTechTrigDigis = SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi.simCastorTTRecord.clone()
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-(~stage2L1Trigger).toReplaceWith(SimL1TechnicalTriggers, cms.Sequence(
-        simBscDigis + 
-        simRpcTechTrigDigis + 
-        simHcalTechTrigDigis +
+(~stage2L1Trigger).toReplaceWith(SimL1TechnicalTriggersTask, cms.Task(
+        simBscDigis,
+        simRpcTechTrigDigis,
+        simHcalTechTrigDigis,
         simCastorTechTrigDigis ))

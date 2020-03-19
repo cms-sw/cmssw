@@ -9,16 +9,12 @@ class FreeTrajectoryState;
 
 class TrajectoryStateAccessor {
 public:
-
-  TrajectoryStateAccessor( const FreeTrajectoryState& fts) :
-    theFts(fts) {}
+  TrajectoryStateAccessor(const FreeTrajectoryState& fts) : theFts(fts) {}
 
   float inversePtError() const;
 
 private:
-
   const FreeTrajectoryState& theFts;
-
 };
 
 #endif

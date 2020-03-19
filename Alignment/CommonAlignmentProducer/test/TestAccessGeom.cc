@@ -2,7 +2,7 @@
 //
 // Package:    TestAccessGeom
 // Class:      TestAccessGeom
-// 
+//
 /**\class TestAccessGeom Alignment/CommonAlignmentProducer/test/TestAccessGeom.cc
 
  Description: <one line class summary>
@@ -17,7 +17,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -31,9 +30,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"  
-#include "Geometry/DTGeometry/interface/DTGeometry.h"  
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"  
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -49,19 +48,18 @@
 //
 
 class TestAccessGeom : public edm::EDAnalyzer {
-   public:
-      explicit TestAccessGeom(const edm::ParameterSet&);
-      ~TestAccessGeom();
+public:
+  explicit TestAccessGeom(const edm::ParameterSet&);
+  ~TestAccessGeom();
 
+private:
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-   private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
-
-      const std::vector<std::string> tkGeomLabels_;
-      const std::vector<std::string> dtGeomLabels_;
-      const std::vector<std::string> cscGeomLabels_;
+  const std::vector<std::string> tkGeomLabels_;
+  const std::vector<std::string> dtGeomLabels_;
+  const std::vector<std::string> cscGeomLabels_;
 };
 
 //
@@ -76,73 +74,63 @@ class TestAccessGeom : public edm::EDAnalyzer {
 // constructors and destructor
 //
 TestAccessGeom::TestAccessGeom(const edm::ParameterSet& iConfig)
-  : tkGeomLabels_(iConfig.getParameter<std::vector<std::string> >("TrackerGeomLabels")),
-    dtGeomLabels_(iConfig.getParameter<std::vector<std::string> >("DTGeomLabels")),
-    cscGeomLabels_(iConfig.getParameter<std::vector<std::string> >("CSCGeomLabels"))
-{
-   //now do what ever initialization is needed
-
+    : tkGeomLabels_(iConfig.getParameter<std::vector<std::string> >("TrackerGeomLabels")),
+      dtGeomLabels_(iConfig.getParameter<std::vector<std::string> >("DTGeomLabels")),
+      cscGeomLabels_(iConfig.getParameter<std::vector<std::string> >("CSCGeomLabels")) {
+  //now do what ever initialization is needed
 }
 
-
-TestAccessGeom::~TestAccessGeom()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+TestAccessGeom::~TestAccessGeom() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-TestAccessGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  using std::vector;
+void TestAccessGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using std::string;
+  using std::vector;
 
-  edm::LogInfo("Test") << "@SUB=analyze" << "Try to  access " << tkGeomLabels_.size() 
-		       << " Tracker-, " << dtGeomLabels_.size() << " DT- and "
-		       << cscGeomLabels_.size() << " CSC-geometries.";
+  edm::LogInfo("Test") << "@SUB=analyze"
+                       << "Try to  access " << tkGeomLabels_.size() << " Tracker-, " << dtGeomLabels_.size()
+                       << " DT- and " << cscGeomLabels_.size() << " CSC-geometries.";
 
-  for (vector<string>::const_iterator iL = tkGeomLabels_.begin(), iE = tkGeomLabels_.end();
-       iL != iE; ++iL) {
-    TString label(iL->c_str()); label.ReplaceAll(" ", ""); // fix for buggy framework
+  for (vector<string>::const_iterator iL = tkGeomLabels_.begin(), iE = tkGeomLabels_.end(); iL != iE; ++iL) {
+    TString label(iL->c_str());
+    label.ReplaceAll(" ", "");  // fix for buggy framework
     edm::LogInfo("Test") << "Try access to tracker geometry with label '" << label << "'.";
     //*iL << "'.";
     edm::ESHandle<TrackerGeometry> tkGeomHandle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(label, tkGeomHandle);// *iL, tkGeomHandle);
+    iSetup.get<TrackerDigiGeometryRecord>().get(label, tkGeomHandle);  // *iL, tkGeomHandle);
     edm::LogInfo("Test") << "TrackerGeometry pointer: " << tkGeomHandle.product();
   }
 
-  for (vector<string>::const_iterator iL = dtGeomLabels_.begin(), iE = dtGeomLabels_.end();
-       iL != iE; ++iL) {
-    TString label(iL->c_str()); label.ReplaceAll(" ", ""); // fix for buggy framework
+  for (vector<string>::const_iterator iL = dtGeomLabels_.begin(), iE = dtGeomLabels_.end(); iL != iE; ++iL) {
+    TString label(iL->c_str());
+    label.ReplaceAll(" ", "");  // fix for buggy framework
     edm::LogInfo("Test") << "Try access to DT geometry with label '" << label << "'.";
     //*iL << "'.";
     edm::ESHandle<DTGeometry> dtGeomHandle;
-    iSetup.get<MuonGeometryRecord>().get(label, dtGeomHandle);//*iL, dtGeomHandle);
+    iSetup.get<MuonGeometryRecord>().get(label, dtGeomHandle);  //*iL, dtGeomHandle);
     edm::LogInfo("Test") << "DTGeometry pointer: " << dtGeomHandle.product();
   }
 
-  for (vector<string>::const_iterator iL = cscGeomLabels_.begin(), iE = cscGeomLabels_.end();
-       iL != iE; ++iL) {
-    TString label(iL->c_str()); label.ReplaceAll(" ", ""); // fix for buggy framework
+  for (vector<string>::const_iterator iL = cscGeomLabels_.begin(), iE = cscGeomLabels_.end(); iL != iE; ++iL) {
+    TString label(iL->c_str());
+    label.ReplaceAll(" ", "");  // fix for buggy framework
     edm::LogInfo("Test") << "Try access to CSC geometry with label '" << label << "'.";
     //*iL << "'.";
     edm::ESHandle<CSCGeometry> cscGeomHandle;
-    iSetup.get<MuonGeometryRecord>().get(label, cscGeomHandle); //*iL, cscGeomHandle);
+    iSetup.get<MuonGeometryRecord>().get(label, cscGeomHandle);  //*iL, cscGeomHandle);
     edm::LogInfo("Test") << "CSCGeometry pointer: " << cscGeomHandle.product();
   }
 
-
-  edm::LogInfo("Test") << "@SUB=analyze" << "Succesfully accessed " << tkGeomLabels_.size() 
-                       << " Tracker-, " << dtGeomLabels_.size() << " DT- and "
-                       << cscGeomLabels_.size() << " CSC-geometries.";
+  edm::LogInfo("Test") << "@SUB=analyze"
+                       << "Succesfully accessed " << tkGeomLabels_.size() << " Tracker-, " << dtGeomLabels_.size()
+                       << " DT- and " << cscGeomLabels_.size() << " CSC-geometries.";
 }
 
 //define this as a plug-in

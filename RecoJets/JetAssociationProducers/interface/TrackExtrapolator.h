@@ -5,7 +5,7 @@
 //
 // Package:    TrackExtrapolator
 // Class:      TrackExtrapolator
-// 
+//
 /**\class TrackExtrapolator TrackExtrapolator.cc RecoTracker/TrackExtrapolator/src/TrackExtrapolator.cc
 
  Description: Extrapolates tracks to Calo Face. Migrating this functionality from 
@@ -23,7 +23,6 @@
 //              Modified algorithm to extrapolate correctly to the endcap front face.
 //
 //
-
 
 // system include files
 #include <memory>
@@ -56,36 +55,29 @@
 //
 
 class TrackExtrapolator : public edm::stream::EDProducer<> {
-   public:
-      explicit TrackExtrapolator(const edm::ParameterSet&);
-      ~TrackExtrapolator() override;
+public:
+  explicit TrackExtrapolator(const edm::ParameterSet&);
+  ~TrackExtrapolator() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;    /// Input tracks
-      reco::TrackBase::TrackQuality trackQuality_; /// track quality of the tracks we care about
+  edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;  /// Input tracks
+  reco::TrackBase::TrackQuality trackQuality_;         /// track quality of the tracks we care about
 
+  // ----------internal functions ---------------------------
 
-      // ----------internal functions ---------------------------
-
-      /// Propagate a track to a given radius, given the magnetic
-      /// field and the propagator. Store the resulting
-      /// position, momentum, and direction. 
-      bool propagateTrackToVolume( const reco::Track& fTrack,
-				   const MagneticField& fField,
-				   const Propagator& fPropagator,
-				   const FiducialVolume& volume,
-				   reco::TrackBase::Point & resultPos,
-				   reco::TrackBase::Vector & resultMom
-				   );
-
-      
-
+  /// Propagate a track to a given radius, given the magnetic
+  /// field and the propagator. Store the resulting
+  /// position, momentum, and direction.
+  bool propagateTrackToVolume(const reco::Track& fTrack,
+                              const MagneticField& fField,
+                              const Propagator& fPropagator,
+                              const FiducialVolume& volume,
+                              reco::TrackBase::Point& resultPos,
+                              reco::TrackBase::Vector& resultMom);
 };
-
 
 #endif

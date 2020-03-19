@@ -1,7 +1,1 @@
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/DetId"/>
-<use   name="FWCore/Utilities"/>
-<use   name="clhep"/>
+<use   name="Geometry/CommonTopologies"/>

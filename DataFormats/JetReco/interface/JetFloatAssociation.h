@@ -26,25 +26,25 @@ namespace reco {
     typedef edm::AssociationVector<reco::JetRefBaseProd, Values> Container;
     typedef Container::value_type value_type;
     typedef Container::transient_vector_type transient_vector_type;
-    typedef edm::Ref <Container> Ref;
-    typedef edm::RefProd <Container> RefProd;
-    typedef edm::RefVector <Container> RefVector;
+    typedef edm::Ref<Container> Ref;
+    typedef edm::RefProd<Container> RefProd;
+    typedef edm::RefVector<Container> RefVector;
 
     /// get value for the association. Throw exception if no association found
-    float getValue (const Container&, const reco::JetBaseRef&);
+    float getValue(const Container&, const reco::JetBaseRef&);
     /// get value for the association. Throw exception if no association found
-    float getValue (const Container&, const reco::Jet&);
+    float getValue(const Container&, const reco::Jet&);
     /// associate jet with value
-    bool setValue (Container&, const reco::JetBaseRef&, float);
+    bool setValue(Container&, const reco::JetBaseRef&, float);
     /// associate jet with value
-    bool setValue (Container*, const reco::JetBaseRef&, float);
+    bool setValue(Container*, const reco::JetBaseRef&, float);
     /// fill list of all jets associated with values. Return # of jets in the list
-    std::vector<reco::JetBaseRef > allJets (const Container&);
+    std::vector<reco::JetBaseRef> allJets(const Container&);
     /// check if jet is associated
-    bool hasJet (const Container&, const reco::JetBaseRef&);
+    bool hasJet(const Container&, const reco::JetBaseRef&);
     /// check if jet is associated
-    bool hasJet (const Container&, const reco::Jet&);
-  }
-}
+    bool hasJet(const Container&, const reco::Jet&);
+  }  // namespace JetFloatAssociation
+}  // namespace reco
 
 #endif

@@ -33,6 +33,26 @@ primaryVertexResolutionClient = DQMEDHarvester("DQMGenericClient",
         "pull_y_vs_instLumiScal 'y pull vs instLumiScal' pull_y_vs_instLumiScal",
         "pull_z_vs_instLumiScal 'z pull vs instLumiScal' pull_z_vs_instLumiScal",
 
+        "res_x_vs_X '#sigma(x) vs X' res_x_vs_X",
+        "res_y_vs_X '#sigma(y) vs X' res_y_vs_X",
+        "res_z_vs_X '#sigma(z) vs X' res_z_vs_X",
+        "pull_x_vs_X 'x pull vs X' pull_x_vs_X",
+        "pull_y_vs_X 'y pull vs X' pull_y_vs_X",
+        "pull_z_vs_X 'z pull vs X' pull_z_vs_X",
+
+        "res_x_vs_Y '#sigma(x) vs Y' res_x_vs_Y",
+        "res_y_vs_Y '#sigma(y) vs Y' res_y_vs_Y",
+        "res_z_vs_Y '#sigma(z) vs Y' res_z_vs_Y",
+        "pull_x_vs_Y 'x pull vs Y' pull_x_vs_Y",
+        "pull_y_vs_Y 'y pull vs Y' pull_y_vs_Y",
+        "pull_z_vs_Y 'z pull vs Y' pull_z_vs_Y",
+
+        "res_x_vs_Z '#sigma(x) vs Z' res_x_vs_Z",
+        "res_y_vs_Z '#sigma(y) vs Z' res_y_vs_Z",
+        "res_z_vs_Z '#sigma(z) vs Z' res_z_vs_Z",
+        "pull_x_vs_Z 'x pull vs Z' pull_x_vs_Z",
+        "pull_y_vs_Z 'y pull vs Z' pull_y_vs_Z",
+        "pull_z_vs_Z 'z pull vs Z' pull_z_vs_Z"
     )
 )
 

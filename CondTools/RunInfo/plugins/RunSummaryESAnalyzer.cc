@@ -15,31 +15,19 @@
 
 using namespace std;
 
-
-
-
-
-namespace edmtest
-{
-  class RunSummaryESAnalyzer : public edm::EDAnalyzer
-  {
+namespace edmtest {
+  class RunSummaryESAnalyzer : public edm::EDAnalyzer {
   public:
-    explicit  RunSummaryESAnalyzer(edm::ParameterSet const& p) 
-    { 
-      std::cout<<"RunSummaryESAnalyzer"<<std::endl;
-    }
-    explicit  RunSummaryESAnalyzer(int i) 
-    { std::cout<<"RunSummaryESAnalyzer "<<i<<std::endl; }
-    ~RunSummaryESAnalyzer() override {  
-      std::cout<<"~RunSummaryESAnalyzer "<<std::endl;
-    }
+    explicit RunSummaryESAnalyzer(edm::ParameterSet const& p) { std::cout << "RunSummaryESAnalyzer" << std::endl; }
+    explicit RunSummaryESAnalyzer(int i) { std::cout << "RunSummaryESAnalyzer " << i << std::endl; }
+    ~RunSummaryESAnalyzer() override { std::cout << "~RunSummaryESAnalyzer " << std::endl; }
     // virtual void beginJob();
     // virtual void beginRun(const edm::Run&, const edm::EventSetup& context);
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
   private:
   };
-   
-  
+
   /* void
   RunSummaryESAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& context){
     std::cout<<"###RunSummaryESAnalyzer::beginRun"<<std::endl;
@@ -56,36 +44,34 @@ namespace edmtest
   }
  
   */
-  void
-   RunSummaryESAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
+  void RunSummaryESAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
-    std::cout<<"###RunSummaryESAnalyzer::analyze"<<std::endl;
-     
+    std::cout << "###RunSummaryESAnalyzer::analyze" << std::endl;
+
     // Context is not used.
-    std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
-    std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
-    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunSummaryRcd"));
-    if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
+    std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
+    std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;
+    edm::eventsetup::EventSetupRecordKey recordKey(
+        edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunSummaryRcd"));
+    if (recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
       //record not found
-      std::cout <<"Record \"RunSummaryRcd"<<"\" does not exist "<<std::endl;
+      std::cout << "Record \"RunSummaryRcd"
+                << "\" does not exist " << std::endl;
     }
     edm::ESHandle<RunSummary> sum;
-    std::cout<<"got eshandle"<<std::endl;
+    std::cout << "got eshandle" << std::endl;
     context.get<RunSummaryRcd>().get(sum);
-    std::cout<<"got context"<<std::endl;
-    const RunSummary* summary=sum.product();
-    std::cout<<"got RunSummary* "<< std::endl;
+    std::cout << "got context" << std::endl;
+    const RunSummary* summary = sum.product();
+    std::cout << "got RunSummary* " << std::endl;
 
-  
-    std::cout<< "print  result" << std::endl;
+    std::cout << "print  result" << std::endl;
     summary->printAllValues();
     std::vector<std::string> subdet = summary->getSubdtIn();
-    std::cout<<"subdetector in the run "<< std::endl;
-    for (size_t i=0; i<subdet.size(); i++){
-        std::cout<<"--> " << subdet[i] << std::endl;
+    std::cout << "subdetector in the run " << std::endl;
+    for (size_t i = 0; i < subdet.size(); i++) {
+      std::cout << "--> " << subdet[i] << std::endl;
     }
   }
   DEFINE_FWK_MODULE(RunSummaryESAnalyzer);
-}
-
-
+}  // namespace edmtest

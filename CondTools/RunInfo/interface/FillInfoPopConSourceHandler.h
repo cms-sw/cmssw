@@ -7,19 +7,19 @@
 #include "CondFormats/RunInfo/interface/FillInfo.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-class FillInfoPopConSourceHandler : public popcon::PopConSourceHandler<FillInfo>{
- public:
-  FillInfoPopConSourceHandler( const edm::ParameterSet& pset ); 
+class FillInfoPopConSourceHandler : public popcon::PopConSourceHandler<FillInfo> {
+public:
+  FillInfoPopConSourceHandler(const edm::ParameterSet& pset);
   ~FillInfoPopConSourceHandler() override;
   void getNewObjects() override;
   std::string id() const override;
-  
- private:
+
+private:
   bool m_debug;
   unsigned short m_firstFill, m_lastFill;
-  std::string m_name;  
-  //for reading from relational database source 
+  std::string m_name;
+  //for reading from relational database source
   std::string m_connectionString, m_dipSchema, m_authpath;
 };
 
-#endif 
+#endif

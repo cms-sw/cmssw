@@ -255,7 +255,7 @@ process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
@@ -273,8 +273,6 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
     cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") ),
     cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
 )
-
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.TFileService = cms.Service('TFileService',
 #                                   fileName = cms.string('OccupancyPlotsTest_newschema.root')

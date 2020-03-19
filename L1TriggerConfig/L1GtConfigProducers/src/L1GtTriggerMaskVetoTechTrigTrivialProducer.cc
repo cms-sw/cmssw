@@ -32,33 +32,24 @@
 // forward declarations
 
 // constructor(s)
-L1GtTriggerMaskVetoTechTrigTrivialProducer::L1GtTriggerMaskVetoTechTrigTrivialProducer(
-        const edm::ParameterSet& parSet)
-{
-    // tell the framework what data is being produced
-    setWhatProduced(this,
-            &L1GtTriggerMaskVetoTechTrigTrivialProducer::produceTriggerMask);
+L1GtTriggerMaskVetoTechTrigTrivialProducer::L1GtTriggerMaskVetoTechTrigTrivialProducer(const edm::ParameterSet& parSet) {
+  // tell the framework what data is being produced
+  setWhatProduced(this, &L1GtTriggerMaskVetoTechTrigTrivialProducer::produceTriggerMask);
 
-    // now do what ever other initialization is needed
+  // now do what ever other initialization is needed
 
-    m_triggerMask =
-            parSet.getParameter<std::vector<unsigned int> >("TriggerMask");
-
+  m_triggerMask = parSet.getParameter<std::vector<unsigned int> >("TriggerMask");
 }
 
 // destructor
-L1GtTriggerMaskVetoTechTrigTrivialProducer::~L1GtTriggerMaskVetoTechTrigTrivialProducer()
-{
-
-    // empty
-
+L1GtTriggerMaskVetoTechTrigTrivialProducer::~L1GtTriggerMaskVetoTechTrigTrivialProducer() {
+  // empty
 }
 
 // member functions
 
 // method called to produce the data
 std::unique_ptr<L1GtTriggerMask> L1GtTriggerMaskVetoTechTrigTrivialProducer::produceTriggerMask(
-        const L1GtTriggerMaskVetoTechTrigRcd& iRecord)
-{
-    return std::make_unique<L1GtTriggerMask>(m_triggerMask);
+    const L1GtTriggerMaskVetoTechTrigRcd& iRecord) {
+  return std::make_unique<L1GtTriggerMask>(m_triggerMask);
 }

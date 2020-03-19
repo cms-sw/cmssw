@@ -2,7 +2,7 @@
 #define TR_FastCircle_H_
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /**
    Calculate circle parameters (x0, y0, rho) for a circle:
@@ -31,65 +31,55 @@
  */
 
 class FastCircle {
-
 public:
-  
-  FastCircle(const GlobalPoint& outerHit,
-	     const GlobalPoint& middleHit,
-	     const GlobalPoint& aVertex);
+  FastCircle(const GlobalPoint& outerHit, const GlobalPoint& middleHit, const GlobalPoint& aVertex);
 
-  FastCircle(const GlobalPoint& outerHit,
-	     const GlobalPoint& middleHit,
-	     const GlobalPoint& aVertex,
-	     double norm);
-  
+  FastCircle(const GlobalPoint& outerHit, const GlobalPoint& middleHit, const GlobalPoint& aVertex, double norm);
+
   ~FastCircle() {}
-  
+
   // all returned values have dimensions of cm
   // parameters of the circle (circle is valid)
-  double x0() const {return theX0;}
-  
-  double y0() const {return theY0;}
+  double x0() const { return theX0; }
 
-  double rho() const {return theRho;}
-  
-  bool isValid() const {return theValid;}
+  double y0() const { return theY0; }
 
-  bool isLine() const {return theIsLine;}
-  
-  // parameters of the straight line 
-  // (if circle is invalid only these are available) 
-  double n1() const {return theN1;}
-  
-  double n2() const {return theN2;}
-  
-  double c() const {return theC;}
-  
-  GlobalPoint const & outerPoint() const { return theOuterPoint;} 
-  GlobalPoint const & innerPoint() const { return theInnerPoint;} 
-  GlobalPoint const & vertexPoint() const { return theVertexPoint;} 
+  double rho() const { return theRho; }
 
+  bool isValid() const { return theValid; }
+
+  bool isLine() const { return theIsLine; }
+
+  // parameters of the straight line
+  // (if circle is invalid only these are available)
+  double n1() const { return theN1; }
+
+  double n2() const { return theN2; }
+
+  double c() const { return theC; }
+
+  GlobalPoint const& outerPoint() const { return theOuterPoint; }
+  GlobalPoint const& innerPoint() const { return theInnerPoint; }
+  GlobalPoint const& vertexPoint() const { return theVertexPoint; }
 
 private:
-
-  GlobalPoint theOuterPoint; 
-  GlobalPoint theInnerPoint; 
-  GlobalPoint theVertexPoint; 
+  GlobalPoint theOuterPoint;
+  GlobalPoint theInnerPoint;
+  GlobalPoint theVertexPoint;
   double theNorm;
-  
+
   double theX0;
   double theY0;
   double theRho;
-  
+
   double theN1;
   double theN2;
   double theC;
-  
+
   bool theValid;
   bool theIsLine;
-  
+
   void createCircleParameters() dso_hidden;
-   
 };
 
-#endif //TR_Circle_H_
+#endif  //TR_Circle_H_

@@ -34,3 +34,9 @@ mtdUncalibratedRecHits = cms.EDProducer(
     BarrelHitsName = cms.string('FTLBarrel'),
     EndcapHitsName = cms.string('FTLEndcap')
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(mtdUncalibratedRecHits,
+    barrelDigis = 'mixData:FTLBarrel',
+    endcapDigis = 'mixData:FTLEndcap',
+)

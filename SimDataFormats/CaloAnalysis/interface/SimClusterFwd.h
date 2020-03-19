@@ -1,9 +1,9 @@
 #ifndef CaloAnalysis_SimClusterFwd_h
 #define CaloAnalysis_SimClusterFwd_h
-#include <vector>
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include <vector>
 
 class SimCluster;
 typedef std::vector<SimCluster> SimClusterCollection;
@@ -12,6 +12,6 @@ typedef edm::RefVector<SimClusterCollection> SimClusterRefVector;
 typedef edm::RefProd<SimClusterCollection> SimClusterRefProd;
 typedef edm::RefVector<SimClusterCollection> SimClusterContainer;
 
-std::ostream& operator<< (std::ostream& s, SimCluster const & tp);
+std::ostream &operator<<(std::ostream &s, SimCluster const &tp);
 
 #endif

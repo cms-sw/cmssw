@@ -18,18 +18,14 @@
  * from vertex z (relative to beamspot) of dr-matched pixel tracks 
  * that are above some pt threshold and beamline x & y.
  */
-class L2TauPixelTrackMatch : public edm::EDProducer
-{
+class L2TauPixelTrackMatch : public edm::EDProducer {
 public:
-
   explicit L2TauPixelTrackMatch(const edm::ParameterSet&);
   ~L2TauPixelTrackMatch() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-
-  struct TinyTrack
-  {
+  struct TinyTrack {
     float pt, eta, phi;
     math::XYZPoint vtx;
   };
@@ -43,4 +39,4 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> m_beamSpotTag;
 };
 
-#endif 
+#endif

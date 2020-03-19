@@ -33,15 +33,17 @@
 
 #include <fstream>
 
-namespace edm {class ConsumesCollector;}
+namespace edm {
+  class ConsumesCollector;
+}
 
 class BeamFitter {
- public:
+public:
   BeamFitter() {}
-  BeamFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&iColl);
+  BeamFitter(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iColl);
   virtual ~BeamFitter();
 
-  void readEvent(const edm::Event& iEvent);
+  void readEvent(const edm::Event &iEvent);
 
   bool runFitter();
   bool runBeamWidthFitter();
@@ -51,8 +53,8 @@ class BeamFitter {
   reco::BeamSpot getBeamWidth() { return fbeamWidthFit; }
   void runAllFitter();
   void resetTrkVector() { fBSvector.clear(); }
-  void resetTotTrk() { ftotal_tracks=0; }
-  void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
+  void resetTotTrk() { ftotal_tracks = 0; }
+  void resetLSRange() { fbeginLumiOfFit = fendLumiOfFit = -1; }
   void resetRefTime() { freftime[0] = freftime[1] = 0; }
   void setRefTime(time_t t0, time_t t1) {
     freftime[0] = t0;
@@ -62,84 +64,68 @@ class BeamFitter {
     updateBTime();
   }
 
-  std::pair<time_t,time_t> getRefTime(){
-    return std::make_pair(freftime[0], freftime[1]);
-  }
+  std::pair<time_t, time_t> getRefTime() { return std::make_pair(freftime[0], freftime[1]); }
 
   void resetPVFitter() { MyPVFitter->resetAll(); }
 
   //---these are added to fasciliate BeamMonitor stuff for DIP
-  std::size_t  getPVvectorSize() {return (MyPVFitter->getpvStore()).size(); }
+  std::size_t getPVvectorSize() { return (MyPVFitter->getpvStore()).size(); }
   //sc
-  void resizeBSvector(unsigned int nsize){
-    fBSvector.erase(fBSvector.begin(),fBSvector.begin()+nsize);
-   }
+  void resizeBSvector(unsigned int nsize) { fBSvector.erase(fBSvector.begin(), fBSvector.begin() + nsize); }
 
   //ssc
-  void resizePVvector(unsigned int npvsize){
-       MyPVFitter->resizepvStore(npvsize);
-   }
+  void resizePVvector(unsigned int npvsize) { MyPVFitter->resizepvStore(npvsize); }
 
- //ssc
-  void SetPVInfo(const std::vector<float> &v1_){
-     ForDIPPV_.clear();
-     ForDIPPV_.assign( v1_.begin(), v1_.end() );
-    }
+  //ssc
+  void SetPVInfo(const std::vector<float> &v1_) {
+    ForDIPPV_.clear();
+    ForDIPPV_.assign(v1_.begin(), v1_.end());
+  }
 
-//----------------
+  //----------------
 
-  void dumpTxtFile(std::string &,bool);
+  void dumpTxtFile(std::string &, bool);
   void dumpBWTxtFile(std::string &);
   void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
   std::map<int, reco::BeamSpot> getBeamSpotMap() { return fbspotPVMap; }
   std::vector<BSTrkParameters> getBSvector() { return fBSvector; }
-  TH1F * getCutFlow() { return h1cutFlow; }
-  void subtractFromCutFlow(const TH1F* toSubtract) {
+  TH1F *getCutFlow() { return h1cutFlow; }
+  void subtractFromCutFlow(const TH1F *toSubtract) {
     h1cutFlow->Add(toSubtract, -1.0);
-    for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++){
-      countPass[i] = h1cutFlow->GetBinContent(i+1);
+    for (unsigned int i = 0; i < sizeof(countPass) / sizeof(countPass[0]); i++) {
+      countPass[i] = h1cutFlow->GetBinContent(i + 1);
     }
   }
 
   void resetCutFlow() {
     h1cutFlow->Reset();
     ftotal_tracks = 0;
-    for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++)
-      countPass[i]=0;
+    for (unsigned int i = 0; i < sizeof(countPass) / sizeof(countPass[0]); i++)
+      countPass[i] = 0;
   }
 
   //ssc
-  int getRunNumber() {
-    return frun;
-  }
+  int getRunNumber() { return frun; }
 
-  std::pair<int,int> getFitLSRange() {
-    return std::make_pair(fbeginLumiOfFit, fendLumiOfFit);
-  }
-  void setFitLSRange(int ls0,int ls1) {
+  std::pair<int, int> getFitLSRange() { return std::make_pair(fbeginLumiOfFit, fendLumiOfFit); }
+  void setFitLSRange(int ls0, int ls1) {
     fbeginLumiOfFit = ls0;
     fendLumiOfFit = ls1;
   }
-  void setRun( int run) { frun = run; }
+  void setRun(int run) { frun = run; }
 
-  int getNTracks() {
-    return fBSvector.size();
-  }
-  int getNPVs() {
-    return MyPVFitter->getNPVs();
-  }
-  const std::map<int, int> &getNPVsperBX() {
-    return MyPVFitter->getNPVsperBX();
-  }
- private:
+  int getNTracks() { return fBSvector.size(); }
+  int getNPVs() { return MyPVFitter->getNPVs(); }
+  const std::map<int, int> &getNPVsperBX() { return MyPVFitter->getNPVsperBX(); }
 
+private:
   // Update the fbeginTimeOfFit etc from the refTime
   void updateBTime();
   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot fbeamspot;
   reco::BeamSpot fbeamWidthFit;
-  std::map< int, reco::BeamSpot> fbspotPVMap;
+  std::map<int, reco::BeamSpot> fbspotPVMap;
   //  BSFitter *fmyalgo;
   std::ofstream fasciiFile;
   std::ofstream fasciiDIP;
@@ -148,7 +134,7 @@ class BeamFitter {
   bool appendRunTxt_;
   edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   edm::EDGetTokenT<edm::View<reco::Vertex> > vertexToken_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_; //offlineBeamSpot
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;  //offlineBeamSpot
   bool writeTxt_;
   bool writeDIPTxt_;
   bool writeDIPBadFit_;
@@ -172,23 +158,22 @@ class BeamFitter {
   bool isMuon_;
   bool fitted_;
   bool ffilename_changed;
-   
+
   //ssc
-  std::vector<float> ForDIPPV_; 
-  
+  std::vector<float> ForDIPPV_;
 
   // ntuple
-  TH1F* h1z;
+  TH1F *h1z;
   bool saveNtuple_;
   bool saveBeamFit_;
   bool savePVVertices_;
   std::string outputfilename_;
-  TFile* file_;
-  TTree* ftree_;
+  TFile *file_;
+  TTree *ftree_;
   double ftheta;
   double fpt;
   double feta;
-  int    fcharge;
+  int fcharge;
   double fnormchi2;
   double fphi0;
   double fd0;
@@ -219,7 +204,7 @@ class BeamFitter {
   std::time_t freftime[2];
 
   //beam fit results
-  TTree* ftreeFit_;
+  TTree *ftreeFit_;
   int frunFit;
   int fbeginLumiOfFit;
   int fendLumiOfFit;
@@ -248,8 +233,7 @@ class BeamFitter {
   int countPass[9];
 
   PVFitter *MyPVFitter;
-  TTree* fPVTree_;
-
+  TTree *fPVTree_;
 };
 
 #endif

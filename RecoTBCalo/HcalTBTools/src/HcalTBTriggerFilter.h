@@ -17,6 +17,7 @@ public:
   HcalTBTriggerFilter(const edm::ParameterSet& ps);
   ~HcalTBTriggerFilter() override {}
   bool filter(edm::Event& e, edm::EventSetup const& c) override;
+
 private:
   bool allowPedestal_;
   bool allowPedestalInSpill_;

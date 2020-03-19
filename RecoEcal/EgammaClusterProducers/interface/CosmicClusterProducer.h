@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <ctime>
-#include <vector> //TEMP JHAUPT 4-27
+#include <vector>  //TEMP JHAUPT 4-27
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -23,58 +23,51 @@
 
 //
 
+class CosmicClusterProducer : public edm::stream::EDProducer<> {
+public:
+  CosmicClusterProducer(const edm::ParameterSet& ps);
 
-class CosmicClusterProducer : public edm::stream::EDProducer<>
-{
-  public:
+  ~CosmicClusterProducer() override;
 
-      CosmicClusterProducer(const edm::ParameterSet& ps);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      ~CosmicClusterProducer() override;
+private:
+  int nMaxPrintout_;  // max # of printouts
+  int nEvt_;          // internal counter of events
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  CosmicClusterAlgo::VerbosityLevel verbosity;
 
-   private:
+  edm::EDGetTokenT<EcalRecHitCollection> ebHitsToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> eeHitsToken_;
 
-      int nMaxPrintout_; // max # of printouts
-      int nEvt_;         // internal counter of events
+  edm::EDGetTokenT<EcalUncalibratedRecHitCollection> ebUHitsToken_;
+  edm::EDGetTokenT<EcalUncalibratedRecHitCollection> eeUHitsToken_;
 
-      CosmicClusterAlgo::VerbosityLevel verbosity;
+  std::string barrelClusterCollection_;
+  std::string endcapClusterCollection_;
 
-      edm::EDGetTokenT<EcalRecHitCollection> ebHitsToken_;
-      edm::EDGetTokenT<EcalRecHitCollection> eeHitsToken_;
+  std::string clustershapecollectionEB_;
+  std::string clustershapecollectionEE_;
 
-      edm::EDGetTokenT<EcalUncalibratedRecHitCollection> ebUHitsToken_;
-      edm::EDGetTokenT<EcalUncalibratedRecHitCollection> eeUHitsToken_;
-	  
-      std::string barrelClusterCollection_;
-      std::string endcapClusterCollection_;
+  //BasicClusterShape AssociationMap
+  std::string barrelClusterShapeAssociation_;
+  std::string endcapClusterShapeAssociation_;
 
-      std::string clustershapecollectionEB_;
-      std::string clustershapecollectionEE_;
+  PositionCalc posCalculator_;  // position calculation algorithm
+  ClusterShapeAlgo shapeAlgo_;  // cluster shape algorithm
+  CosmicClusterAlgo* island_p;
 
-      //BasicClusterShape AssociationMap
-      std::string barrelClusterShapeAssociation_;
-      std::string endcapClusterShapeAssociation_; 
+  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
 
-      PositionCalc posCalculator_; // position calculation algorithm
-      ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
-      CosmicClusterAlgo * island_p;
+  void clusterizeECALPart(edm::Event& evt,
+                          const edm::EventSetup& es,
+                          const edm::EDGetTokenT<EcalRecHitCollection>& hitsToken,
+                          const edm::EDGetTokenT<EcalUncalibratedRecHitCollection>& uhitsToken,
+                          const std::string& clusterCollection,
+                          const std::string& clusterShapeAssociation,
+                          const CosmicClusterAlgo::EcalPart& ecalPart);
 
-      bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
-
-      											 
-      void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-			      const edm::EDGetTokenT<EcalRecHitCollection>& hitsToken,
-			      const edm::EDGetTokenT<EcalUncalibratedRecHitCollection>& uhitsToken,       
-                              const std::string& clusterCollection,
-			      const std::string& clusterShapeAssociation,
-                              const CosmicClusterAlgo::EcalPart& ecalPart);
-
-      void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
-	  
-	 
+  void outputValidationInfo(reco::CaloClusterPtrVector& clusterPtrVector);
 };
-
 
 #endif

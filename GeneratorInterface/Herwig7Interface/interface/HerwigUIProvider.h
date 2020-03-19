@@ -11,104 +11,96 @@ Marco A. Harrendorf
 
 namespace Herwig {
 
-/**
+  /**
  * HerwigUIProvider is an implementation of the HerwigUI interface getting its input from CMSSW configs.
  * 
  */
-class HerwigUIProvider : public HerwigUI {
-public:
+  class HerwigUIProvider : public HerwigUI {
+  public:
+    /// Constructor from the arguments provided by CMSSW
+    HerwigUIProvider(const edm::ParameterSet& pset, std::string inputFileName, RunMode::Mode);
 
-  /// Constructor from the arguments provided by CMSSW
-  HerwigUIProvider(const edm::ParameterSet &pset, std::string inputFileName, RunMode::Mode);
+    /// Destructor to leave a clean ThePEG::Repository behind
+    ~HerwigUIProvider() override;
 
-  /// Destructor to leave a clean ThePEG::Repository behind
-  ~HerwigUIProvider() override;
+    /// Requested Herwig run mode
+    RunMode::Mode runMode() const override { return runMode_; }
+    void setSeed(long seed) { seed_ = seed; }
 
-  /// Requested Herwig run mode
-  RunMode::Mode runMode() const override { return runMode_; }
-  void setSeed(long seed){ seed_=seed; }
+    /// Try to resume execution from an earlier interrupted run.
+    bool resume() const override { return resume_; }
 
+    /// Require verbose progress markers
+    bool tics() const override { return tics_; }
 
-  /// Try to resume execution from an earlier interrupted run.
-  bool resume() const override { return resume_; }
+    /// A user-defined tag to append to the run name.
+    std::string tag() const override { return tag_; }
 
-  /// Require verbose progress markers
-  bool tics() const override { return tics_; }
+    /// Name of the file to be read
+    std::string inputfile() const override { return inputfile_; }
 
-  /// A user-defined tag to append to the run name.
-  std::string tag() const override { return tag_; }
+    /// Repository name to operate on
+    std::string repository() const override { return repository_; }
 
-  /// Name of the file to be read
-  std::string inputfile() const override { return inputfile_; }
+    /// Name of the setup file to be read, to modify the repository
+    std::string setupfile() const override { return setupfile_; }
 
-  /// Repository name to operate on
-  std::string repository() const override { return repository_; }
+    std::string integrationList() const override { return integrationList_; }
 
-  /// Name of the setup file to be read, to modify the repository
-  std::string setupfile() const override { return setupfile_; }
- 
-  std::string integrationList() const override { return integrationList_; }
+    const std::vector<std::string>& prependReadDirectories() const override { return prependReadDirectories_; }
 
+    const std::vector<std::string>& appendReadDirectories() const override { return appendReadDirectories_; }
 
-  const std::vector<std::string> & 
-  prependReadDirectories() const override { return prependReadDirectories_; }
+    long N() const override { return nEvents_; }
+    int seed() const override { return seed_; }
+    int jobs() const override { return jobs_; }
+    unsigned int jobSize() const override { return jobsize_; }
+    unsigned int maxJobs() const override { return maxjobs_; }
 
-  const std::vector<std::string> & 
-  appendReadDirectories() const override { return appendReadDirectories_; }
+    void quitWithHelp() const override;
 
-  long N() const override { return  nEvents_; }
-  int seed() const override { return seed_; }
-  int jobs() const override { return jobs_; }
-  unsigned int jobSize() const override { return jobsize_; }
-  unsigned int maxJobs() const override { return maxjobs_; }  
+    void quit() const override;
 
-  void quitWithHelp() const override;
+    /// Return the standard out stream to be used
+    std::ostream& outStream() const override { return std::cout; }
 
-  void quit() const override;
+    /// Return the standard err stream to be used
+    std::ostream& errStream() const override { return std::cerr; }
 
-   /// Return the standard out stream to be used
-  std::ostream& outStream() const override { return std::cout; }
+    /// Return the standard in stream to be used
+    std::istream& inStream() const override { return std::cin; }
 
-   /// Return the standard err stream to be used
-  std::ostream& errStream() const override { return std::cerr; }
-
-  /// Return the standard in stream to be used
-  std::istream& inStream() const override { return std::cin; }
-
-  /**
+    /**
   *  Change run mode of Herwig
   *  Additionally pass the name of the new input file
   *
   *  Function sets jobsize_ and maxjobs_ accordingly to the run modes.
   **/
-  void setRunMode(RunMode::Mode runMode, const edm::ParameterSet &pset, std::string inputFile = "");
+    void setRunMode(RunMode::Mode runMode, const edm::ParameterSet& pset, std::string inputFile = "");
 
+  private:
+    RunMode::Mode runMode_;
 
-private:
+    bool resume_;
+    bool tics_;
+    std::string tag_;
 
-  RunMode::Mode runMode_;
+    std::string inputfile_;
+    std::string repository_;
+    std::string setupfile_;
 
-  bool resume_;
-  bool tics_;
-  std::string tag_;
+    std::string integrationList_;
 
-  std::string inputfile_;
-  std::string repository_;
-  std::string setupfile_;
+    std::vector<std::string> prependReadDirectories_;
+    std::vector<std::string> appendReadDirectories_;
 
-  std::string integrationList_;
+    long nEvents_;
+    int seed_;
+    int jobs_;
+    unsigned int jobsize_;
+    unsigned int maxjobs_;
+  };
 
-  std::vector<std::string> prependReadDirectories_;
-  std::vector<std::string> appendReadDirectories_;
-
-  long nEvents_;
-  int seed_;
-  int jobs_;
-  unsigned int jobsize_;
-  unsigned int maxjobs_;
-
-};
-
-}
+}  // namespace Herwig
 
 #endif

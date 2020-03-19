@@ -2,11 +2,11 @@
 //
 // Package:     Services
 // Class  :     PrintLoadingPlugins
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec 13 15:00:49 EST 2007
 //
 
@@ -29,32 +29,28 @@
 #include <string>
 #include <map>
 
-class PrintLoadingPlugins
-{
-  
+class PrintLoadingPlugins {
 public:
   PrintLoadingPlugins();
   virtual ~PrintLoadingPlugins();
-  
+
   void goingToLoad(const boost::filesystem::path&);
-  
-  void askedToLoad(const std::string& ,const std::string& );
-  
+
+  void askedToLoad(const std::string&, const std::string&);
+
   // ---------- const member functions ---------------------
-  
+
   // ---------- static member functions --------------------
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   // ---------- member functions ---------------------------
-  
+
 private:
-  
-  PrintLoadingPlugins(const PrintLoadingPlugins&) = delete; // stop default
-  
-  const PrintLoadingPlugins& operator=(const PrintLoadingPlugins&) = delete; // stop default
-  
+  PrintLoadingPlugins(const PrintLoadingPlugins&) = delete;  // stop default
+
+  const PrintLoadingPlugins& operator=(const PrintLoadingPlugins&) = delete;  // stop default
+
   // ---------- member data --------------------------------
-  
 };
 
 //
@@ -70,18 +66,14 @@ private:
 //
 using namespace edmplugin;
 
-PrintLoadingPlugins::PrintLoadingPlugins()
-{   
-   using std::placeholders::_1;
-   using std::placeholders::_2;
-   PluginManager *pm = PluginManager::get();
+PrintLoadingPlugins::PrintLoadingPlugins() {
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  PluginManager* pm = PluginManager::get();
 
-   pm->askedToLoadCategoryWithPlugin_.connect(std::bind(std::mem_fn(&PrintLoadingPlugins::askedToLoad),this, _1,_2));
-   
-   pm->goingToLoad_.connect(std::bind(std::mem_fn(&PrintLoadingPlugins::goingToLoad),this, _1));
+  pm->askedToLoadCategoryWithPlugin_.connect(std::bind(std::mem_fn(&PrintLoadingPlugins::askedToLoad), this, _1, _2));
 
-   
-  
+  pm->goingToLoad_.connect(std::bind(std::mem_fn(&PrintLoadingPlugins::goingToLoad), this, _1));
 }
 
 // PrintLoadingPlugins::PrintLoadingPlugins(const PrintLoadingPlugins& rhs)
@@ -89,11 +81,9 @@ PrintLoadingPlugins::PrintLoadingPlugins()
 //    // do actual copying here;
 // }
 
-PrintLoadingPlugins::~PrintLoadingPlugins()
-{
-}
+PrintLoadingPlugins::~PrintLoadingPlugins() {}
 
-void PrintLoadingPlugins::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void PrintLoadingPlugins::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.add("PrintLoadingPlugins", desc);
   descriptions.setComment("This service logs each request to load a plugin.");
@@ -115,56 +105,46 @@ void PrintLoadingPlugins::fillDescriptions(edm::ConfigurationDescriptions & desc
 // member functions
 //
 
- namespace{
-    struct PICompare {
-	  bool operator()(const PluginInfo& iLHS,
-			  const PluginInfo& iRHS) const {
-	     return iLHS.name_ < iRHS.name_;
-	  }
-    };
- }
+namespace {
+  struct PICompare {
+    bool operator()(const PluginInfo& iLHS, const PluginInfo& iRHS) const { return iLHS.name_ < iRHS.name_; }
+  };
+}  // namespace
 
-void PrintLoadingPlugins::askedToLoad(const std::string& iCategory,
-				      const std::string& iPlugin)
-{ 
-   PluginManager *pm = PluginManager::get();
+void PrintLoadingPlugins::askedToLoad(const std::string& iCategory, const std::string& iPlugin) {
+  PluginManager* pm = PluginManager::get();
 
-   const PluginManager::CategoryToInfos& category = pm->categoryToInfos();
+  const PluginManager::CategoryToInfos& category = pm->categoryToInfos();
 
-   PluginManager::CategoryToInfos::const_iterator itFound = category.find(iCategory);
+  PluginManager::CategoryToInfos::const_iterator itFound = category.find(iCategory);
 
-   std::string libname("Not found");
-   
-   if(itFound != category.end()) {
-      
-      PluginInfo i;
-      
-      i.name_ = iPlugin;
-      
-      typedef std::vector<PluginInfo>::const_iterator PIItr;
-      
-      std::pair<PIItr,PIItr> range = std::equal_range(itFound->second.begin(),itFound->second.end(),i,PICompare());
-      
-      if(range.second - range.first > 1){
-	 
-	 const boost::filesystem::path& loadable = range.first->loadable_;
-	 
-	 libname = loadable.string();
-	 
-      }
-      
-      edm::LogAbsolute("GetPlugin")<<"Getting> '"<<iCategory<< "' "<<iPlugin 
-				   <<"\n         from "<<libname <<std::endl;
-   }
-   
+  std::string libname("Not found");
+
+  if (itFound != category.end()) {
+    PluginInfo i;
+
+    i.name_ = iPlugin;
+
+    typedef std::vector<PluginInfo>::const_iterator PIItr;
+
+    std::pair<PIItr, PIItr> range = std::equal_range(itFound->second.begin(), itFound->second.end(), i, PICompare());
+
+    if (range.second - range.first > 1) {
+      const boost::filesystem::path& loadable = range.first->loadable_;
+
+      libname = loadable.string();
+    }
+
+    edm::LogAbsolute("GetPlugin") << "Getting> '" << iCategory << "' " << iPlugin << "\n         from " << libname
+                                  << std::endl;
+  }
 }
 
 void PrintLoadingPlugins::goingToLoad(const boost::filesystem::path& Loadable_)
 
 {
-  edm::LogAbsolute("LoadLib")<<"Loading> "<<Loadable_.string()<< std::endl;
+  edm::LogAbsolute("LoadLib") << "Loading> " << Loadable_.string() << std::endl;
 }
-
 
 //
 // const member functions
@@ -176,4 +156,3 @@ void PrintLoadingPlugins::goingToLoad(const boost::filesystem::path& Loadable_)
 
 typedef edm::serviceregistry::NoArgsMaker<PrintLoadingPlugins> PrintLoadingPluginsMaker;
 DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);
-

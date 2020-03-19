@@ -35,7 +35,7 @@ namespace edm {
   //  class Event;
   class EventSetup;
   class InputTag;
-}
+}  // namespace edm
 
 class TFile;
 class TH1F;
@@ -49,36 +49,35 @@ class MuonTimingValidator : public edm::EDAnalyzer {
 public:
   explicit MuonTimingValidator(const edm::ParameterSet&);
   ~MuonTimingValidator();
-  
-  typedef std::pair< reco::TrackRef, SimTrackRef> CandToSim;
-  typedef std::pair< reco::TrackRef, SimTrackRef> CandStaSim;
-  typedef std::pair< reco::TrackRef, SimTrackRef> CandMuonSim;
-  
+
+  typedef std::pair<reco::TrackRef, SimTrackRef> CandToSim;
+  typedef std::pair<reco::TrackRef, SimTrackRef> CandStaSim;
+  typedef std::pair<reco::TrackRef, SimTrackRef> CandMuonSim;
+
 private:
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob();
 
   virtual float calculateDistance(const math::XYZVector&, const math::XYZVector&);
   virtual TH1F* divideErr(TH1F*, TH1F*, TH1F*);
 
-
   // ----------member data ---------------------------
 
-  edm::InputTag TKtrackTags_; 
+  edm::InputTag TKtrackTags_;
   edm::EDGetTokenT<reco::TrackCollection> TKtrackTokens_;
-  edm::InputTag MuonTags_; 
+  edm::InputTag MuonTags_;
   edm::EDGetTokenT<reco::MuonCollection> MuonTokens_;
-  edm::InputTag CombinedTimeTags_; 
+  edm::InputTag CombinedTimeTags_;
   edm::EDGetTokenT<reco::MuonTimeExtraMap> CombinedTimeTokens_;
-  edm::InputTag DtTimeTags_; 
+  edm::InputTag DtTimeTags_;
   edm::EDGetTokenT<reco::MuonTimeExtraMap> DtTimeTokens_;
-  edm::InputTag CscTimeTags_; 
+  edm::InputTag CscTimeTags_;
   edm::EDGetTokenT<reco::MuonTimeExtraMap> CscTimeTokens_;
-  edm::InputTag SIMtrackTags_; 
+  edm::InputTag SIMtrackTags_;
 
   std::string out, open;
-  double  theMinEta, theMaxEta, theMinPt, thePtCut, theMinPtres, theMaxPtres, theScale;
+  double theMinEta, theMaxEta, theMinPt, thePtCut, theMinPtres, theMaxPtres, theScale;
   int theDtCut, theCscCut;
   int theNBins;
 
@@ -96,17 +95,17 @@ private:
   edm::Handle<reco::MuonTimeExtraMap> timeMap1;
   edm::Handle<reco::MuonTimeExtraMap> timeMap2;
   edm::Handle<reco::MuonTimeExtraMap> timeMap3;
-  
+
   //ROOT Pointers
   TFile* hFile;
   TStyle* effStyle;
 
-  TH1F* hi_sta_pt  ;
-  TH1F* hi_tk_pt   ;
-  TH1F* hi_glb_pt  ;
-  TH1F* hi_sta_phi ;
-  TH1F* hi_tk_phi  ;
-  TH1F* hi_glb_phi ;
+  TH1F* hi_sta_pt;
+  TH1F* hi_tk_pt;
+  TH1F* hi_glb_pt;
+  TH1F* hi_sta_phi;
+  TH1F* hi_tk_phi;
+  TH1F* hi_glb_phi;
 
   TH1F* hi_mutime_vtx;
   TH1F* hi_mutime_vtx_err;
@@ -176,9 +175,8 @@ private:
   TH1F* hi_hcal_time_ecut;
   TH1F* hi_hcal_energy;
 
-  TH1F* hi_tk_eta  ;
-  TH1F* hi_sta_eta  ;
-  TH1F* hi_glb_eta  ;
-
+  TH1F* hi_tk_eta;
+  TH1F* hi_sta_eta;
+  TH1F* hi_glb_eta;
 };
 #endif

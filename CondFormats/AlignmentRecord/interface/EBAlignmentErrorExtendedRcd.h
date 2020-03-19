@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class EBAlignmentErrorExtendedRcd : public edm::eventsetup::EventSetupRecordImplementation<EBAlignmentErrorExtendedRcd> {};
+class EBAlignmentErrorExtendedRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<EBAlignmentErrorExtendedRcd> {};
 
 #endif

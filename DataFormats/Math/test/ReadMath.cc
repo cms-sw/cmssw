@@ -8,16 +8,14 @@
 using namespace std;
 using namespace edm;
 
-ReadMath::ReadMath( const ParameterSet& cfg ) :
-  src( cfg.getParameter<InputTag>( "src" ) ) {
-}
+ReadMath::ReadMath(const ParameterSet& cfg) : src(cfg.getParameter<InputTag>("src")) {}
 
-void ReadMath::analyze( const Event & evt, const EventSetup & ) {
+void ReadMath::analyze(const Event& evt, const EventSetup&) {
   typedef math::XYZVector Vector;
   Handle<vector<Vector> > v;
-  evt.getByLabel( src, v );
+  evt.getByLabel(src, v);
   cout << ">>> v = [ ";
-  for( size_t i = 0; i < v->size(); ++ i )
-    cout << (*v)[ i ] << ", ";
+  for (size_t i = 0; i < v->size(); ++i)
+    cout << (*v)[i] << ", ";
   cout << " ]" << endl;
 }

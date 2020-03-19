@@ -8,6 +8,7 @@ class testOneToManyAssociation : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testOneToManyAssociation);
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
+
 public:
   void setUp() {}
   void tearDown() {}
@@ -36,10 +37,12 @@ void testOneToManyAssociation::dummy() {
     v.insert(edm::Ref<CKey>(), edm::Ref<CVal>());
     v.insert(Assoc::value_type(edm::Ref<CKey>(), edm::RefVector<CVal>()));
     Assoc::const_iterator b = v.begin(), e = v.end();
-    ++b; ++e;
+    ++b;
+    ++e;
     Assoc::const_iterator f = v.find(edm::Ref<CKey>());
     v.numberOfAssociations(edm::Ref<CKey>());
-    const edm::RefVector<CVal> & x = v[edm::Ref<CKey>()]; x.size();
+    const edm::RefVector<CVal>& x = v[edm::Ref<CKey>()];
+    x.size();
     ++f;
     int n = v.numberOfAssociations(edm::Ref<CKey>());
     ++n;
@@ -55,10 +58,12 @@ void testOneToManyAssociation::dummy() {
     Assoc v;
     v.insert(edm::Ref<CKey>(), std::make_pair(edm::Ref<CVal>(), 3.14));
     Assoc::const_iterator b = v.begin(), e = v.end();
-    ++b; ++e;
+    ++b;
+    ++e;
     Assoc::const_iterator f = v.find(edm::Ref<CKey>());
     v.numberOfAssociations(edm::Ref<CKey>());
-    const std::vector<std::pair<edm::Ref<CVal>, double> > & x = v[edm::Ref<CKey>()]; x.size();
+    const std::vector<std::pair<edm::Ref<CVal>, double> >& x = v[edm::Ref<CKey>()];
+    x.size();
     ++f;
     int n = v.numberOfAssociations(edm::Ref<CKey>());
     ++n;

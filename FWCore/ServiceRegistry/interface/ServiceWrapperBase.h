@@ -4,7 +4,7 @@
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceWrapperBase
-// 
+//
 /**\class ServiceWrapperBase ServiceWrapperBase.h FWCore/ServiceRegistry/interface/ServiceWrapperBase.h
 
  Description: <one line class summary>
@@ -24,30 +24,27 @@
 
 // forward declarations
 namespace edm {
-   namespace serviceregistry {
-      
-      class ServiceWrapperBase
-      {
+  namespace serviceregistry {
 
-public:
-         ServiceWrapperBase();
-         virtual ~ServiceWrapperBase();
+    class ServiceWrapperBase {
+    public:
+      ServiceWrapperBase();
+      virtual ~ServiceWrapperBase();
 
-         // ---------- const member functions ---------------------
-         
-         // ---------- static member functions --------------------
-         
-         // ---------- member functions ---------------------------
-         
-private:
-         ServiceWrapperBase(const ServiceWrapperBase&) = delete; // stop default
-         
-         const ServiceWrapperBase& operator=(const ServiceWrapperBase&) = delete; // stop default
-         
-         // ---------- member data --------------------------------
-         
-      };
-   }
-}
+      // ---------- const member functions ---------------------
+
+      // ---------- static member functions --------------------
+
+      // ---------- member functions ---------------------------
+
+    private:
+      ServiceWrapperBase(const ServiceWrapperBase&) = delete;  // stop default
+
+      const ServiceWrapperBase& operator=(const ServiceWrapperBase&) = delete;  // stop default
+
+      // ---------- member data --------------------------------
+    };
+  }  // namespace serviceregistry
+}  // namespace edm
 
 #endif

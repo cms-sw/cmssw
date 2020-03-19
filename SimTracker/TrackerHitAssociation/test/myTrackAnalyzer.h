@@ -32,29 +32,25 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-
 #include <iostream>
 #include <string>
 #include <map>
 #include <set>
 
-
 class SiStripHitAssociator;
 
 class myTrackAnalyzer : public edm::EDAnalyzer {
-
-  
- public:
-  typedef std::map<const TrackingRecHit*, int > sim_id_map;
+public:
+  typedef std::map<const TrackingRecHit*, int> sim_id_map;
   sim_id_map SimIdMap;
 
   explicit myTrackAnalyzer(const edm::ParameterSet& conf);
-  
+
   ~myTrackAnalyzer() override;
-  
+
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  
- private:
+
+private:
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   bool doPixel_, doStrip_;
   edm::InputTag trackCollectionTag_;

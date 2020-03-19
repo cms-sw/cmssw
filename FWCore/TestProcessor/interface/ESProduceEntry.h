@@ -4,7 +4,7 @@
 //
 // Package:     Framework/TestProcessor
 // Class  :     ESProduceEntry
-// 
+//
 /**\class ESProduceEntry ESProduceEntry.h "ESProduceEntry.h"
 
  Description: [one line class summary]
@@ -28,16 +28,16 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include <memory>
 namespace edm {
-namespace test {
-struct ESProduceEntry {
-  ESProduceEntry(edm::eventsetup::EventSetupRecordKey const& iRecKey,
-                 edm::eventsetup::DataKey const& iDataKey,
-                 std::shared_ptr<edm::eventsetup::DataProxy> iProxy):
-  recordKey_(iRecKey), dataKey_(iDataKey), proxy_(std::move(iProxy)) {}
-  edm::eventsetup::EventSetupRecordKey recordKey_;
-  edm::eventsetup::DataKey dataKey_;
-  std::shared_ptr<edm::eventsetup::DataProxy> proxy_;
-};
-}
-}
+  namespace test {
+    struct ESProduceEntry {
+      ESProduceEntry(edm::eventsetup::EventSetupRecordKey const& iRecKey,
+                     edm::eventsetup::DataKey const& iDataKey,
+                     std::shared_ptr<edm::eventsetup::DataProxy> iProxy)
+          : recordKey_(iRecKey), dataKey_(iDataKey), proxy_(std::move(iProxy)) {}
+      edm::eventsetup::EventSetupRecordKey recordKey_;
+      edm::eventsetup::DataKey dataKey_;
+      std::shared_ptr<edm::eventsetup::DataProxy> proxy_;
+    };
+  }  // namespace test
+}  // namespace edm
 #endif

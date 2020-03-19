@@ -1,8 +1,0 @@
-<use name="DQM/SiStripHistoricInfoClient"/>
-<use name="DQMServices/Diagnostic"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/FWLite"/>
-<use name="root"/>
-<use name="boost"/>
-<environment>
-</environment>

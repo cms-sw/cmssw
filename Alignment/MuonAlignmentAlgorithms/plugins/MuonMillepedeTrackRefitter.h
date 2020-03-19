@@ -9,10 +9,8 @@
 *  \author P. Martinez Ruiz del Arbol, IFCA (CSIC-UC)  <Pablo.Martinez@cern.ch>
 */
 
-
 #ifndef Alignment_MuonMillepedeTrackRefitter_MuonMillepedeTrackRefitter_H
 #define Alignment_MuonMillepedeTrackRefitter_MuonMillepedeTrackRefitter_H
-
 
 // Base Class Headers
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -31,15 +29,13 @@ namespace edm {
   class Event;
   class EventSetup;
   class InputTag;
-}
+}  // namespace edm
 
+typedef std::vector<std::vector<int> > intDVector;
+typedef std::vector<TrackingRecHit*> RecHitVector;
 
-typedef std::vector< std::vector<int> > intDVector;
-typedef std::vector<TrackingRecHit *> RecHitVector;
-
-class MuonMillepedeTrackRefitter: public edm::EDProducer {
+class MuonMillepedeTrackRefitter : public edm::EDProducer {
 public:
-
   typedef AlignmentAlgorithmBase::ConstTrajTrackPair ConstTrajTrackPair;
   typedef AlignmentAlgorithmBase::ConstTrajTrackPairCollection ConstTrajTrackPairCollection;
 
@@ -51,19 +47,10 @@ public:
 
   // Operations
 
-  void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 protected:
-
 private:
-  
-  
   edm::InputTag SACollectionTag;
-
-    
 };
 #endif
-
-
-
-

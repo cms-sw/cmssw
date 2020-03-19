@@ -8,16 +8,21 @@ namespace l1t {
   typedef BXVector<L1DataEmulResult> L1DataEmulResultBxCollection;
 
   class L1DataEmulResult {
-
   public:
-
     L1DataEmulResult();
     L1DataEmulResult(bool event_match, std::string collname);
-    L1DataEmulResult(bool event_match, int pt_mismatch, int etaphi_mismatch, int n_mismatch, int n_dataonly, int n_emulonly, int add1, int add2, std::string collname);
+    L1DataEmulResult(bool event_match,
+                     int pt_mismatch,
+                     int etaphi_mismatch,
+                     int n_mismatch,
+                     int n_dataonly,
+                     int n_emulonly,
+                     int add1,
+                     int add2,
+                     std::string collname);
     ~L1DataEmulResult();
 
   public:
-
     bool Event_match();
     std::string Collname();
     int PT_mismatch();
@@ -29,7 +34,6 @@ namespace l1t {
     int Add2();
 
   private:
-
     bool event_match_;
     std::string collname_;
     int pt_mismatch_;
@@ -40,11 +44,6 @@ namespace l1t {
     int add1_;
     int add2_;
   };
-};
+};  // namespace l1t
 
 #endif
-
-    
-
-    
-   

@@ -5,22 +5,13 @@
 
 class InsideBoundsMeasurementEstimator : public MeasurementEstimator {
 public:
+  bool estimate(const TrajectoryStateOnSurface& ts, const Plane& plane) const override;
 
-  bool estimate( const TrajectoryStateOnSurface& ts, 
-			 const Plane& plane) const override;
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& tsos, const TrackingRecHit& aRecHit) const override;
 
-  std::pair<bool,double> 
-    estimate(const TrajectoryStateOnSurface& tsos,
-	     const TrackingRecHit& aRecHit) const override; 
+  Local2DVector maximalLocalDisplacement(const TrajectoryStateOnSurface& ts, const Plane& plane) const override;
 
-  Local2DVector 
-  maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-			    const Plane& plane) const override;
-
-  MeasurementEstimator* clone() const override {
-    return new InsideBoundsMeasurementEstimator( *this);
-  }
-
+  MeasurementEstimator* clone() const override { return new InsideBoundsMeasurementEstimator(*this); }
 };
 
 #endif

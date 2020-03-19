@@ -7,7 +7,7 @@ mkdir $CMSSW_BASE/src/Alignment/TrackerAlignment/hists/
 mkdir $DIRBASE/hists/
 mkdir $DIRBASE/hists/workingArea/
 mkdir $DIRBASE/hists/workingArea/apeObjects/
-mkdir $DIRBASE/test/batch/workingArea/
+mkdir $DIRBASE/test/SkimProducer/workingArea/
 mkdir $DIRBASE/test/autoSubmitter/workingArea/
 
 ## INFO: To run TrackListGenerator on AOD, need to comment in

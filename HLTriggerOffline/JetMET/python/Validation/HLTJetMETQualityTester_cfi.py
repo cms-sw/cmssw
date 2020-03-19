@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hltJetMetQualityTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+hltJetMetQualityTester = DQMQualityTester(
     qtList = cms.untracked.FileInPath(
         'HLTriggerOffline/JetMET/data/QualityTests.xml'
     ),

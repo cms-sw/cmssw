@@ -4,24 +4,22 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 // used in GeometryHelper to sort the vector given by GetWindow
-// not much optimized. 
+// not much optimized.
 
 class CaloSubdetectorGeometry;
 
-class DistanceToCell{
-
- public:
+class DistanceToCell {
+public:
   DistanceToCell();
-  DistanceToCell(const DistanceToCell& );
-  DistanceToCell(const CaloSubdetectorGeometry * det, const DetId& cell);
-  ~DistanceToCell(){;}
-  bool operator() (const DetId & c1, const DetId & c2);
+  DistanceToCell(const DistanceToCell&);
+  DistanceToCell(const CaloSubdetectorGeometry* det, const DetId& cell);
+  ~DistanceToCell() { ; }
+  bool operator()(const DetId& c1, const DetId& c2);
 
- private:
-  const  CaloSubdetectorGeometry * det_;
+private:
+  const CaloSubdetectorGeometry* det_;
   DetId pivot_;
   GlobalPoint pivotPosition_;
-
 };
 
 #endif

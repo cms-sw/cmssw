@@ -4,7 +4,6 @@
 <use   name="DataFormats/CSCDigi"/>
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/Common"/>
-<use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>

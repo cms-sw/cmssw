@@ -8,25 +8,28 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HLTMuonTrkL1TFilter : public HLTFilter {
- public:
+public:
   HLTMuonTrkL1TFilter(const edm::ParameterSet&);
-  ~HLTMuonTrkL1TFilter() override{}
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  ~HLTMuonTrkL1TFilter() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
- private:
+private:
   // WARNING: two input collection represent should be aligned and represent
   // the same list of muons, just stored in different containers
-  edm::InputTag                                          m_muonsTag;   // input collection of muons
-  edm::EDGetTokenT<reco::MuonCollection>                 m_muonsToken; // input collection of muons
-  edm::InputTag                                          m_candsTag;   // input collection of candidates to be referenced
-  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> m_candsToken; // input collection of candidates to be referenced
-  edm::InputTag                                          m_previousCandTag;   // input tag identifying product contains muons passing the previous level
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_previousCandToken; // token identifying product contains muons passing the previous level
+  edm::InputTag m_muonsTag;                             // input collection of muons
+  edm::EDGetTokenT<reco::MuonCollection> m_muonsToken;  // input collection of muons
+  edm::InputTag m_candsTag;                             // input collection of candidates to be referenced
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> m_candsToken;  // input collection of candidates to be referenced
+  edm::InputTag m_previousCandTag;  // input tag identifying product contains muons passing the previous level
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>
+      m_previousCandToken;  // token identifying product contains muons passing the previous level
   int m_minTrkHits;
   int m_minMuonHits;
   int m_minMuonStations;
@@ -38,7 +41,6 @@ class HLTMuonTrkL1TFilter : public HLTFilter {
   double m_maxAbsEta;
   muon::SelectionType m_trkMuonId;
   bool m_saveTags;
-
 };
 
-#endif //HLTMuonTrkL1TFilter_h
+#endif  //HLTMuonTrkL1TFilter_h

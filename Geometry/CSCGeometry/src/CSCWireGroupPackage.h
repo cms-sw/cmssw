@@ -15,18 +15,17 @@
 
 #include <vector>
 
-class CSCWireGroupPackage
-{
- public:
+class CSCWireGroupPackage {
+public:
   typedef std::vector<int> Container;
 
-  CSCWireGroupPackage(): 
-    numberOfGroups( 0 ),
-    wireSpacing( 0. ),
-    alignmentPinToFirstWire( 0. ), 
-    narrowWidthOfWirePlane( 0. ), 
-    wideWidthOfWirePlane( 0. ),
-    lengthOfWirePlane( 0. ) { };
+  CSCWireGroupPackage()
+      : numberOfGroups(0),
+        wireSpacing(0.),
+        alignmentPinToFirstWire(0.),
+        narrowWidthOfWirePlane(0.),
+        wideWidthOfWirePlane(0.),
+        lengthOfWirePlane(0.){};
 
   Container consecutiveGroups;
   Container wiresInEachGroup;

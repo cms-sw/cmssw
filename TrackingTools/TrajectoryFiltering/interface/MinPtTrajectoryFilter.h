@@ -17,43 +17,44 @@
 
 class MinPtTrajectoryFilter final : public TrajectoryFilter {
 public:
+  explicit MinPtTrajectoryFilter(float ptMin, float nSigma = 5.F, int nH = 3)
+      : thePtMin2(ptMin * ptMin), theInvPtMin(1.f / ptMin), theNSigma(nSigma), theMinHits(nH) {}
 
-  explicit MinPtTrajectoryFilter( float ptMin, float nSigma = 5.F, int nH=3): 
-    thePtMin2(ptMin*ptMin),theInvPtMin(1.f/ptMin), theNSigma(nSigma), theMinHits(nH)  {}
-
-
-  explicit MinPtTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC) :
-    thePtMin2(pset.getParameter<double>("minPt")),
-    theInvPtMin(1.f/thePtMin2),
-    theNSigma(pset.getParameter<double>("nSigmaMinPt")),
-    theMinHits(pset.getParameter<int>("minHitsMinPt")){thePtMin2*=thePtMin2;}
-    
-
-  bool qualityFilter( const Trajectory& traj)const override { return test(traj.lastMeasurement(),traj.foundHits()); }
-  bool qualityFilter( const TempTrajectory& traj) const override { return test(traj.lastMeasurement(),traj.foundHits()); }
-    
-  bool toBeContinued( Trajectory& traj) const override {
-    bool ret = test(traj.lastMeasurement(),traj.foundHits());
-    if (!ret) traj.setStopReason(StopReason::MIN_PT);
-    return  ret;
+  explicit MinPtTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
+      : thePtMin2(pset.getParameter<double>("minPt")),
+        theInvPtMin(1.f / thePtMin2),
+        theNSigma(pset.getParameter<double>("nSigmaMinPt")),
+        theMinHits(pset.getParameter<int>("minHitsMinPt")) {
+    thePtMin2 *= thePtMin2;
   }
-  bool toBeContinued( TempTrajectory& traj) const override {
-    bool ret = test(traj.lastMeasurement(),traj.foundHits());
-    if (!ret) traj.setStopReason(StopReason::MIN_PT);
+
+  bool qualityFilter(const Trajectory& traj) const override { return test(traj.lastMeasurement(), traj.foundHits()); }
+  bool qualityFilter(const TempTrajectory& traj) const override {
+    return test(traj.lastMeasurement(), traj.foundHits());
+  }
+
+  bool toBeContinued(Trajectory& traj) const override {
+    bool ret = test(traj.lastMeasurement(), traj.foundHits());
+    if (!ret)
+      traj.setStopReason(StopReason::MIN_PT);
     return ret;
   }
-  
-  std::string name() const override {return "MinPtTrajectoryFilter";}
+  bool toBeContinued(TempTrajectory& traj) const override {
+    bool ret = test(traj.lastMeasurement(), traj.foundHits());
+    if (!ret)
+      traj.setStopReason(StopReason::MIN_PT);
+    return ret;
+  }
 
- protected:
+  std::string name() const override { return "MinPtTrajectoryFilter"; }
 
-  bool test( const TrajectoryMeasurement & tm, int foundHits) const; 
+protected:
+  bool test(const TrajectoryMeasurement& tm, int foundHits) const;
 
-  float thePtMin2; 
+  float thePtMin2;
   float theInvPtMin;
   float theNSigma;
   int theMinHits;
-
 };
 
 #endif

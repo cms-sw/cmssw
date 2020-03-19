@@ -11,9 +11,8 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 namespace edm {
-   class DummyEventSetupRecord : 
-     public edm::eventsetup::EventSetupRecordImplementation<DummyEventSetupRecord> {};
-}
+  class DummyEventSetupRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyEventSetupRecord> {};
+}  // namespace edm
 
 #if !defined(TEST_EXCLUDE_DEF)
 //NOTE: the following should really go into a DummyEventSetupRecord.cc file

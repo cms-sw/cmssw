@@ -6,7 +6,6 @@
  *
  */
 
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -15,11 +14,11 @@ using namespace edm;
 class NotAGoodRecord {};
 
 int main() {
-   eventsetup::EventSetupProvider provider;
-   auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(0));
-   //This should cause a compile time failure since NotAGoodRecord
-   /// does not inherit from edm::eventsetup::EventSetupRecord
-   eventSetup.get<NotAGoodRecord>();
-   
-   return 0;
+  eventsetup::EventSetupProvider provider;
+  auto const& eventSetup = provider.eventSetupForInstance(IOVSyncValue(0));
+  //This should cause a compile time failure since NotAGoodRecord
+  /// does not inherit from edm::eventsetup::EventSetupRecord
+  eventSetup.get<NotAGoodRecord>();
+
+  return 0;
 }

@@ -25,43 +25,41 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-
 namespace edm {
-    class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 // Class declaration
 class HLTMhtProducer : public edm::stream::EDProducer<> {
-  public:
-    explicit HLTMhtProducer(const edm::ParameterSet & iConfig);
-    ~HLTMhtProducer() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+public:
+  explicit HLTMhtProducer(const edm::ParameterSet& iConfig);
+  ~HLTMhtProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  private:
-    /// Use pt; otherwise, use et.
-    bool usePt_;
+private:
+  /// Use pt; otherwise, use et.
+  bool usePt_;
 
-    /// Exclude PF muons in the MHT calculation (but not HT)
-    /// Ignored if pfCandidatesLabel_ is empty.
-    bool excludePFMuons_;
+  /// Exclude PF muons in the MHT calculation (but not HT)
+  /// Ignored if pfCandidatesLabel_ is empty.
+  bool excludePFMuons_;
 
-    /// Minimum number of jets passing pt and eta requirements
-    int minNJet_;
+  /// Minimum number of jets passing pt and eta requirements
+  int minNJet_;
 
-    /// Minimum pt requirement for jets
-    double minPtJet_;
+  /// Minimum pt requirement for jets
+  double minPtJet_;
 
-    /// Maximum (abs) eta requirement for jets
-    double maxEtaJet_;
+  /// Maximum (abs) eta requirement for jets
+  double maxEtaJet_;
 
-    /// Input jet, PFCandidate collections
-    edm::InputTag jetsLabel_;
-    edm::InputTag pfCandidatesLabel_;
+  /// Input jet, PFCandidate collections
+  edm::InputTag jetsLabel_;
+  edm::InputTag pfCandidatesLabel_;
 
-    edm::EDGetTokenT<reco::JetView> m_theJetToken;
-    edm::EDGetTokenT<reco::PFCandidateCollection> m_thePFCandidateToken;
+  edm::EDGetTokenT<reco::JetView> m_theJetToken;
+  edm::EDGetTokenT<reco::PFCandidateCollection> m_thePFCandidateToken;
 };
 
 #endif  // HLTMhtProducer_h_
-

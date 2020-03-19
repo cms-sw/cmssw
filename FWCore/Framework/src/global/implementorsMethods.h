@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // File  :     implementorsMethods
-// 
+//
 /**\file implementorsMethods.h "FWCore/Framework/src/global/implementorsMethods.h"
 
  Description: [one line class summary]
@@ -29,33 +29,35 @@
 namespace edm {
   namespace global {
     namespace impl {
-      template< typename T>
+      template <typename T>
       void BeginRunProducer<T>::doBeginRunProduce_(Run& rp, EventSetup const& c) {
-        this->globalBeginRunProduce(rp,c);
+        this->globalBeginRunProduce(rp, c);
       }
 
-      template< typename T>
+      template <typename T>
       void EndRunProducer<T>::doEndRunProduce_(Run& rp, EventSetup const& c) {
-        this->globalEndRunProduce(rp,c);
+        this->globalEndRunProduce(rp, c);
       }
 
-      template< typename T>
+      template <typename T>
       void BeginLuminosityBlockProducer<T>::doBeginLuminosityBlockProduce_(LuminosityBlock& rp, EventSetup const& c) {
-        this->globalBeginLuminosityBlockProduce(rp,c);
-      }
-      
-      template< typename T>
-      void EndLuminosityBlockProducer<T>::doEndLuminosityBlockProduce_(LuminosityBlock& rp, EventSetup const& c) {
-        this->globalEndLuminosityBlockProduce(rp,c);
+        this->globalBeginLuminosityBlockProduce(rp, c);
       }
 
-      template< typename T>
-      void ExternalWork<T>::doAcquire_(StreamID s, Event const& ev, edm::EventSetup const& es, WaitingTaskWithArenaHolder& holder) {
+      template <typename T>
+      void EndLuminosityBlockProducer<T>::doEndLuminosityBlockProduce_(LuminosityBlock& rp, EventSetup const& c) {
+        this->globalEndLuminosityBlockProduce(rp, c);
+      }
+
+      template <typename T>
+      void ExternalWork<T>::doAcquire_(StreamID s,
+                                       Event const& ev,
+                                       edm::EventSetup const& es,
+                                       WaitingTaskWithArenaHolder& holder) {
         this->acquire(s, ev, es, holder);
       }
-    }
-  }
-}
-
+    }  // namespace impl
+  }    // namespace global
+}  // namespace edm
 
 #endif

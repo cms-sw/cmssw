@@ -21,30 +21,28 @@ class ESDigiToRaw : public edm::global::EDProducer<> {
 public:
   ESDigiToRaw(const edm::ParameterSet& ps);
   ~ESDigiToRaw() override;
-  
+
   void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const override;
 
   typedef uint32_t Word32;
   typedef uint64_t Word64;
-  
+
   static const int BXMAX = 2808;
   static const int LHC_BX_RANGE = 3564;
   static const int KCHIP_BC_RANGE = 4096;
   static const int KCHIP_EC_RANGE = 256;
-  
- private:
+
+private:
   int fedId_[2][2][40][40];
-    
+
   const ESDataFormatter* ESDataFormatter_;
   const std::string label_;
   const std::string instanceName_;
-  const edm::EDGetTokenT<ESDigiCollection> ESDigiToken_;  
+  const edm::EDGetTokenT<ESDigiCollection> ESDigiToken_;
   const edm::FileInPath lookup_;
-  const bool   debug_;
-  const int formatMajor_; 
-  const int formatMinor_; 
-
-  
+  const bool debug_;
+  const int formatMajor_;
+  const int formatMinor_;
 };
 
 #endif

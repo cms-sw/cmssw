@@ -9,6 +9,7 @@ from SimG4Core.Configuration.SimG4Core_cff import *
 # use Hector output instead of the generator one
 g4SimHits.Generator.HepMCProductLabel = cms.string('LHCTransport')
 
-psim = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*LHCTransport*g4SimHits)
+psimTask = cms.Task(cms.TaskPlaceholder("randomEngineStateProducer"), LHCTransport, g4SimHits)
+psim = cms.Sequence(psimTask)
 
 

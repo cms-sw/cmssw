@@ -28,36 +28,33 @@
 
 /* Class DTSegmentCleaner Interface */
 
-class DTSegmentCleaner{
+class DTSegmentCleaner {
+public:
+  typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
+  typedef std::set<AssPoint, DTSegmentCand::AssPointLessZ> AssPointCont;
 
-  public:
+  /* Constructor */
+  DTSegmentCleaner(const edm::ParameterSet& pset);
 
-    typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
-    typedef std::set<AssPoint, DTSegmentCand::AssPointLessZ> AssPointCont;
+  /* Destructor */
+  ~DTSegmentCleaner();
 
-    /* Constructor */ 
-    DTSegmentCleaner(const edm::ParameterSet& pset) ;
+  /* Operations */
+  /// do the cleaning
+  std::vector<DTSegmentCand*> clean(const std::vector<DTSegmentCand*>& inputCands) const;
 
-    /* Destructor */ 
-    ~DTSegmentCleaner() ;
+private:
+  /// solve the conflicts
+  std::vector<DTSegmentCand*> solveConflict(const std::vector<DTSegmentCand*>& inputCands) const;
 
-    /* Operations */ 
-    /// do the cleaning
-    std::vector<DTSegmentCand*> clean(const std::vector<DTSegmentCand*>& inputCands) const ;
+  /// ghost  suppression
+  std::vector<DTSegmentCand*> ghostBuster(const std::vector<DTSegmentCand*>& inputCands) const;
 
-  private:
-    /// solve the conflicts
-    std::vector<DTSegmentCand*> solveConflict(const std::vector<DTSegmentCand*>& inputCands) const ;
-
-    /// ghost  suppression
-    std::vector<DTSegmentCand*> ghostBuster(const std::vector<DTSegmentCand*>& inputCands) const ;
-
-    int nSharedHitsMax;
-    int nUnSharedHitsMin;
-    ///treatment of LR ambiguity cases: 1 chooses the best chi2
-    ///                                 2 chooses the smaller angle
-    ///                                 3 keeps both candidates
-    int segmCleanerMode;
-
+  int nSharedHitsMax;
+  int nUnSharedHitsMin;
+  ///treatment of LR ambiguity cases: 1 chooses the best chi2
+  ///                                 2 chooses the smaller angle
+  ///                                 3 keeps both candidates
+  int segmCleanerMode;
 };
-#endif // DTSegment_DTSegmentCleaner_h
+#endif  // DTSegment_DTSegmentCleaner_h

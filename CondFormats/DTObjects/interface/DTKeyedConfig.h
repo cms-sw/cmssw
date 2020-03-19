@@ -22,26 +22,22 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTKeyedConfig: public cond::BaseKeyed {
-
- public:
-
+class DTKeyedConfig : public cond::BaseKeyed {
+public:
   /** Constructor
    */
   DTKeyedConfig();
-  DTKeyedConfig( const DTKeyedConfig& obj );
+  DTKeyedConfig(const DTKeyedConfig& obj);
 
   /** Destructor
    */
@@ -51,32 +47,23 @@ class DTKeyedConfig: public cond::BaseKeyed {
    */
   ///
   int getId() const;
-  void setId( int id );
-  void add( const std::string& data );
-  void add( int id );
+  void setId(int id);
+  void add(const std::string& data);
+  void add(int id);
 
   typedef std::vector<std::string>::const_iterator data_iterator;
-  typedef std::vector<        int>::const_iterator link_iterator;
+  typedef std::vector<int>::const_iterator link_iterator;
   data_iterator dataBegin() const;
   data_iterator dataEnd() const;
   link_iterator linkBegin() const;
   link_iterator linkEnd() const;
 
- private:
-
+private:
   int cfgId;
-  std::vector<std::string> dataList; 
-  std::vector<int>         linkList; 
+  std::vector<std::string> dataList;
+  std::vector<int> linkList;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
-#endif // DTKeyedConfig_H
-
-
-
-
-
-
+#endif  // DTKeyedConfig_H

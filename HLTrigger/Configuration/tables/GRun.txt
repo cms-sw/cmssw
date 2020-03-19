@@ -384,26 +384,20 @@ HLT_Ele27_Ele37_CaloIdL_MW_v*	#	CMSHLT-1419
 HLT_Mu27_Ele37_CaloIdL_MW_v*	#	CMSHLT-1419
 HLT_Mu37_Ele27_CaloIdL_MW_v*	#	CMSHLT-1419
 HLT_Mu37_TkMu27_v*	#	CMSHLT-1419
-HLT_CaloMET100_HBHECleaned_v*	#	CMSHLT-1421
 HLT_CaloMET100_NotCleaned_v*	#	CMSHLT-1421
 HLT_CaloMET110_NotCleaned_v*	#	CMSHLT-1421
-HLT_CaloMET250_HBHECleaned_v*	#	CMSHLT-1421
 HLT_CaloMET250_NotCleaned_v*	#	CMSHLT-1421
-HLT_CaloMET300_HBHECleaned_v*	#	CMSHLT-1421
-HLT_CaloMET350_HBHECleaned_v*	#	CMSHLT-1421
-HLT_CaloMET70_HBHECleaned_v*	#	CMSHLT-1421
-HLT_CaloMET80_HBHECleaned_v*	#	CMSHLT-1421
+HLT_CaloMET300_NotCleaned_v*	#	CMSHLT-1421
+HLT_CaloMET350_NotCleaned_v*	#	CMSHLT-1421
 HLT_CaloMET80_NotCleaned_v*	#	CMSHLT-1421
-HLT_CaloMET90_HBHECleaned_v*	#	CMSHLT-1421
 HLT_CaloMET90_NotCleaned_v*	#	CMSHLT-1421
 HLT_CaloMHT90_v*	#	CMSHLT-1421
 HLT_L1ETMHadSeeds_v*	#	CMSHLT-1421
-HLT_PFMET200_HBHE_BeamHaloCleaned_v*	#	CMSHLT-1421
-HLT_PFMET200_HBHECleaned_v*	#	CMSHLT-1421
+HLT_PFMET200_BeamHaloCleaned_v*	#	CMSHLT-1421
 HLT_PFMET200_NotCleaned_v*	#	CMSHLT-1421
-HLT_PFMET250_HBHECleaned_v*	#	CMSHLT-1421
-HLT_PFMET300_HBHECleaned_v*	#	CMSHLT-1421
-HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned_v*	#	CMSHLT-1421
+HLT_PFMET250_NotCleaned_v*	#	CMSHLT-1421
+HLT_PFMET300_NotCleaned_v*	#	CMSHLT-1421
+HLT_PFMETTypeOne200_BeamHaloCleaned_v*	#	CMSHLT-1421
 HLT_Ele20_eta2p1_WPLoose_Gsf_v*	#	CMSHLT-1431
 HLT_Ele20_WPLoose_Gsf_v*	#	CMSHLT-1431
 HLT_Ele20_WPTight_Gsf_v*	#	CMSHLT-1431
@@ -723,6 +717,9 @@ HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	
 HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*		#	CMSHLT-2032
 HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-2032
 HLT_IsoMu27_LooseChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v*			#	CMSHLT-2032
+
+HLT_L1SingleMuCosmics_v*							#	CMSHLT-2097
+
 ## EndPath ##
 
 PhysicsEndOfFillOutput

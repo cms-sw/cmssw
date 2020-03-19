@@ -9,6 +9,9 @@
 
 #include "boost/mpl/vector.hpp"
 
-class SiPixel2DTemplateDBObjectESProducerRcd : public edm::eventsetup::DependentRecordImplementation<SiPixel2DTemplateDBObjectESProducerRcd, boost::mpl::vector<IdealMagneticFieldRecord, SiPixel2DTemplateDBObjectRcd> > {};
+class SiPixel2DTemplateDBObjectESProducerRcd
+    : public edm::eventsetup::DependentRecordImplementation<
+          SiPixel2DTemplateDBObjectESProducerRcd,
+          boost::mpl::vector<IdealMagneticFieldRecord, SiPixel2DTemplateDBObjectRcd> > {};
 
 #endif

@@ -1,4 +1,4 @@
-#ifndef LOGICIMP_H 
+#ifndef LOGICIMP_H
 #define LOGICIMP_H 1
 
 // Include files
@@ -11,14 +11,13 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUWedgeORLogic.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUPointingLogic.h"
 
+RBCTestLogic* createTestLogic();
+RBCChamberORLogic* createChamberORLogic();
+RBCPatternLogic* createPatternLogic();
+TTUTrackingAlg* createTrackingAlg();
+TTUSectorORLogic* createSectorORLogic();
+TTUTwoORLogic* createTwoORLogic();
+TTUWedgeORLogic* createWedgeORLogic();
+TTUPointingLogic* createPointingLogic();
 
-RBCTestLogic      * createTestLogic();
-RBCChamberORLogic * createChamberORLogic();
-RBCPatternLogic   * createPatternLogic();
-TTUTrackingAlg    * createTrackingAlg();
-TTUSectorORLogic  * createSectorORLogic();
-TTUTwoORLogic     * createTwoORLogic();
-TTUWedgeORLogic   * createWedgeORLogic();
-TTUPointingLogic  * createPointingLogic();
-
-#endif // LOGICIMP_H
+#endif  // LOGICIMP_H

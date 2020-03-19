@@ -4,7 +4,7 @@
 //
 // Package:     Notification
 // Class  :     Signaler
-// 
+//
 /**\class Signaler Signaler.h SimG4Core/Notification/interface/Signaler.h
 
  Description: Manages a particular signal of the SimActivityRegistry
@@ -19,7 +19,7 @@
     attached.
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Sat Dec  1 10:17:20 EST 2007
 //
 
@@ -32,50 +32,40 @@
 // forward declarations
 
 namespace sim_act {
-   template <typename T>
-   class Signaler : public Observer<const T*>
-   {
-	 
-      public:
-	 typedef Observer<const T*>* slot_type; 
-	 Signaler() {}
-	 ~Signaler() override {}
-	 
-	 // ---------- const member functions ---------------------
-	 void operator()(const T* iSignal) const {
-	    typedef typename std::vector<Observer<const T*>* >::const_iterator iterator; 
-	    for( iterator it = observers_.begin();
-		it != observers_.end();
-		++it) {
-	       (*it)->slotForUpdate(iSignal);
-	    }
-	 }
+  template <typename T>
+  class Signaler : public Observer<const T*> {
+  public:
+    typedef Observer<const T*>* slot_type;
+    Signaler() {}
+    ~Signaler() override {}
 
-	 // ---------- static member functions --------------------
-	 
-	 // ---------- member functions ---------------------------
+    // ---------- const member functions ---------------------
+    void operator()(const T* iSignal) const {
+      typedef typename std::vector<Observer<const T*>*>::const_iterator iterator;
+      for (iterator it = observers_.begin(); it != observers_.end(); ++it) {
+        (*it)->slotForUpdate(iSignal);
+      }
+    }
 
-	 ///does not take ownership of memory
-	 void connect(Observer<const T*>* iObs) {
-	    observers_.push_back(iObs);
-	 }
+    // ---------- static member functions --------------------
 
-	 ///does not take ownership of memory
-	 void connect(Observer<const T*>& iObs) {
-	    observers_.push_back(&iObs);
-	 }
+    // ---------- member functions ---------------------------
 
-      private:
-	 Signaler(const Signaler&) = delete; // stop default
-	 
-	 const Signaler& operator=(const Signaler&) = delete; // stop default
-	 
-	 void update(const T* iData) override {
-	    this->operator()(iData);
-	 }
-	 // ---------- member data --------------------------------
-	 std::vector<Observer<const T*>* > observers_;
-   };
-   
-}
+    ///does not take ownership of memory
+    void connect(Observer<const T*>* iObs) { observers_.push_back(iObs); }
+
+    ///does not take ownership of memory
+    void connect(Observer<const T*>& iObs) { observers_.push_back(&iObs); }
+
+  private:
+    Signaler(const Signaler&) = delete;  // stop default
+
+    const Signaler& operator=(const Signaler&) = delete;  // stop default
+
+    void update(const T* iData) override { this->operator()(iData); }
+    // ---------- member data --------------------------------
+    std::vector<Observer<const T*>*> observers_;
+  };
+
+}  // namespace sim_act
 #endif

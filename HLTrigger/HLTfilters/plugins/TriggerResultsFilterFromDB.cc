@@ -29,21 +29,15 @@
 //
 // constructors and destructor
 //
-TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet & config) :
-  m_eventSetupPathsKey(config.getParameter<std::string>("eventSetupPathsKey")),
-  m_eventSetupWatcher(),
-  m_expression(nullptr),
-  m_eventCache(config, consumesCollector())
-{
-}
+TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet& config)
+    : m_eventSetupPathsKey(config.getParameter<std::string>("eventSetupPathsKey")),
+      m_eventSetupWatcher(),
+      m_expression(nullptr),
+      m_eventCache(config, consumesCollector()) {}
 
-TriggerResultsFilterFromDB::~TriggerResultsFilterFromDB()
-{
-  delete m_expression;
-}
+TriggerResultsFilterFromDB::~TriggerResultsFilterFromDB() { delete m_expression; }
 
-void
-TriggerResultsFilterFromDB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TriggerResultsFilterFromDB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // # HLT results   - set to empty to ignore HLT
   desc.add<edm::InputTag>("hltResults", edm::InputTag("TriggerResults"));
@@ -53,34 +47,37 @@ TriggerResultsFilterFromDB::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("l1tIgnoreMaskAndPrescale", false);
   // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
   // they will not be printed in the generated cfi.py file
-  desc.addOptionalNode(edm::ParameterDescription<bool>("l1tIgnoreMask", false, true), false)->setComment("This parameter is obsolete and will be ignored.");
-  desc.addOptionalNode(edm::ParameterDescription<bool>("l1techIgnorePrescales", false, true), false)->setComment("This parameter is obsolete and will be ignored.");
-  desc.addOptionalNode(edm::ParameterDescription<unsigned int>("daqPartitions", 0x01, true), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("l1tIgnoreMask", false, true), false)
+      ->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("l1techIgnorePrescales", false, true), false)
+      ->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<unsigned int>("daqPartitions", 0x01, true), false)
+      ->setComment("This parameter is obsolete and will be ignored.");
   // # throw exception on unknown trigger names
   desc.add<bool>("throw", true);
   // # read paths from AlCaRecoTriggerBitsRcd via this key
-  desc.add<std::string>("eventSetupPathsKey","");
+  desc.add<std::string>("eventSetupPathsKey", "");
   descriptions.add("triggerResultsFilterFromDB", desc);
 }
 
-void TriggerResultsFilterFromDB::parse(const std::vector<std::string> & expressions) {
+void TriggerResultsFilterFromDB::parse(const std::vector<std::string>& expressions) {
   // parse the logical expressions into functionals
   if (expressions.empty()) {
     edm::LogWarning("Configuration") << "Empty trigger results expression";
   } else if (expressions.size() == 1) {
-    parse( expressions[0] );
+    parse(expressions[0]);
   } else {
     std::stringstream expression;
     expression << "(" << expressions[0] << ")";
     for (unsigned int i = 1; i < expressions.size(); ++i)
       expression << " OR (" << expressions[i] << ")";
-    parse( expression.str() );
+    parse(expression.str());
   }
 }
 
-void TriggerResultsFilterFromDB::parse(const std::string & expression) {
+void TriggerResultsFilterFromDB::parse(const std::string& expression) {
   // parse the logical expressions into functionals
-  m_expression = triggerExpression::parse( expression );
+  m_expression = triggerExpression::parse(expression);
 
   // check if the expressions were parsed correctly
   if (not m_expression)
@@ -88,27 +85,26 @@ void TriggerResultsFilterFromDB::parse(const std::string & expression) {
 }
 
 // read the triggerConditions from the database
-void TriggerResultsFilterFromDB::pathsFromSetup(const edm::Event & event, const edm::EventSetup & setup)
-{
+void TriggerResultsFilterFromDB::pathsFromSetup(const edm::Event& event, const edm::EventSetup& setup) {
   // Get map of strings to concatenated list of names of HLT paths from EventSetup:
   edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
   setup.get<AlCaRecoTriggerBitsRcd>().get(triggerBits);
   typedef std::map<std::string, std::string> TriggerMap;
-  const TriggerMap & triggerMap = triggerBits->m_alcarecoToTrig;
+  const TriggerMap& triggerMap = triggerBits->m_alcarecoToTrig;
 
   auto listIter = triggerMap.find(m_eventSetupPathsKey);
   if (listIter == triggerMap.end()) {
-    throw cms::Exception("Configuration") << "TriggerResultsFilterFromDB [instance: " << moduleDescription().moduleLabel()
-                                          << "]: No triggerList with key " << m_eventSetupPathsKey << " in AlCaRecoTriggerBitsRcd";
+    throw cms::Exception("Configuration")
+        << "TriggerResultsFilterFromDB [instance: " << moduleDescription().moduleLabel()
+        << "]: No triggerList with key " << m_eventSetupPathsKey << " in AlCaRecoTriggerBitsRcd";
   }
 
   // avoid a map<string, vector<string>> in DB for performance reason,
   // the paths are mapped into one string that we have to decompose:
-  parse( triggerBits->decompose(listIter->second) );
+  parse(triggerBits->decompose(listIter->second));
 }
 
-bool TriggerResultsFilterFromDB::filter(edm::Event & event, const edm::EventSetup & setup)
-{
+bool TriggerResultsFilterFromDB::filter(edm::Event& event, const edm::EventSetup& setup) {
   // if the IOV has changed, re-read the triggerConditions from the database
   if (m_eventSetupWatcher.check(setup))
     pathsFromSetup(event, setup);

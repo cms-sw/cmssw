@@ -1,5 +1,5 @@
 /** \file LaserTrackingAction.cc
- *  
+ *
  *
  *  $Date: Mon Mar 19 12:21:52 CET 2007 $
  *  $Revision: 1.1 $
@@ -8,29 +8,23 @@
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserTrackingAction.h"
 
-LaserTrackingAction::LaserTrackingAction(edm::ParameterSet const& theConf) 
-{
-}
+LaserTrackingAction::LaserTrackingAction(edm::ParameterSet const &theConf) {}
 
-LaserTrackingAction::~LaserTrackingAction()
-{
-}
+LaserTrackingAction::~LaserTrackingAction() {}
 
-void LaserTrackingAction::PreUserTrackingAction(const G4Track * theTrack)
-{
+void LaserTrackingAction::PreUserTrackingAction(const G4Track *theTrack) {
   /* *********************************************************************** */
   /* This code is called every time a new Track is created                   */
   /* *********************************************************************** */
 
-   if ( theTrack->GetParentID()==0 )
-     { fpTrackingManager->SetStoreTrajectory(true); }
-   else
-     { fpTrackingManager->SetStoreTrajectory(true); }
-
+  if (theTrack->GetParentID() == 0) {
+    fpTrackingManager->SetStoreTrajectory(true);
+  } else {
+    fpTrackingManager->SetStoreTrajectory(true);
+  }
 }
 
-void LaserTrackingAction::PostUserTrackingAction(const G4Track * theTrack)
-{
+void LaserTrackingAction::PostUserTrackingAction(const G4Track *theTrack) {
   /* *********************************************************************** */
   /* This code is called every time a new Track is destroyed                 */
   /* *********************************************************************** */

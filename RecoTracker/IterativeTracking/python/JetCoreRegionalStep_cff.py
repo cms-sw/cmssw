@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+#for dnn classifier
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+
 # This step runs over all clusters
 
 # run only if there are high pT jets
@@ -187,16 +190,20 @@ jetCoreRegionalStep.vertices = 'firstStepGoodPrimaryVertices'
 
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 
-fastSim.toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
+     mva = dict(GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1'),
+     src = 'jetCoreRegionalStepTracks',
+     qualityCuts = [-0.2,0.0,0.4]
+))
 
-#LWTNN selector
 from RecoTracker.FinalTrackSelectors.TrackLwtnnClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionLwtnn_cfi import *
-trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackLwtnnClassifier.clone(
+trackdnn.toReplaceWith(jetCoreRegionalStep, TrackLwtnnClassifier.clone(
      src = 'jetCoreRegionalStepTracks',
      qualityCuts = [0.6, 0.7, 0.8],
 ))
-(trackingPhase1 & fastSim).toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+
+fastSim.toModify(jetCoreRegionalStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
 JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,                 

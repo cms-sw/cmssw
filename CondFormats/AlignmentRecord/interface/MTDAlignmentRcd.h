@@ -5,5 +5,4 @@
 
 class MTDAlignmentRcd : public edm::eventsetup::EventSetupRecordImplementation<MTDAlignmentRcd> {};
 
-#endif 
-
+#endif

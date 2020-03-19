@@ -29,29 +29,29 @@
 
 #include <iostream>
 
-class DTRPCBxCorrection  {
+class DTRPCBxCorrection {
 public:
-  DTRPCBxCorrection(L1MuDTChambPhContainer , L1MuDTChambPhContainer );
-  ~DTRPCBxCorrection() {};
+  DTRPCBxCorrection(L1MuDTChambPhContainer, L1MuDTChambPhContainer);
+  ~DTRPCBxCorrection(){};
 
   void run(const edm::EventSetup& c);
 
- edm::ESHandle< L1TTwinMuxParams > tmParamsHandle;
+  edm::ESHandle<L1TTwinMuxParams> tmParamsHandle;
 
- ///Return Output PhContainer
- L1MuDTChambPhContainer getDTContainer(){  return m_dt_tsshifted;}
+  ///Return Output PhContainer
+  L1MuDTChambPhContainer getDTContainer() { return m_dt_tsshifted; }
 
   static int nRPCHits(L1MuTMChambPhContainer inCon, int bx, int wh, int sec, int st);
   static int nRPCHits(L1MuDTChambPhContainer inCon, int bx, int wh, int sec, int st);
-  static int deltaPhi(int dt_phi, int rpc_strip );
+  static int deltaPhi(int dt_phi, int rpc_strip);
 
 private:
   int sign(float);
-  inline int flipBit(int inv){ return (inv^1);};
+  inline int flipBit(int inv) { return (inv ^ 1); };
   void BxCorrection(int track_seg);
 
-//  L1MuTMChambPhContainer m_phiDTDigis;
-//  L1MuTMChambPhContainer m_phiRPCDigis;
+  //  L1MuTMChambPhContainer m_phiDTDigis;
+  //  L1MuTMChambPhContainer m_phiRPCDigis;
   L1MuDTChambPhContainer m_phiDTDigis;
   L1MuDTChambPhContainer m_phiRPCDigis;
   L1MuDTChambPhContainer m_dt_tsshifted;
@@ -60,6 +60,5 @@ private:
 
   int m_QualityLimit;
   int m_DphiWindow;
-
 };
 #endif

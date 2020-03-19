@@ -1,6 +1,6 @@
 #ifndef FP420RecoMain_h
 #define FP420RecoMain_h
-   
+
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,22 +19,16 @@
 
 class RecoProducerFP420;
 
-class FP420RecoMain 
-{
- public:
-  
-  FP420RecoMain(const edm::ParameterSet& conf);
+class FP420RecoMain {
+public:
+  FP420RecoMain(const edm::ParameterSet &conf);
   ~FP420RecoMain();
 
   /// Runs the algorithm
-  void run(edm::Handle<TrackCollectionFP420> &input,
-	   RecoCollectionFP420 *toutput,
-	   double VtxX, double VtxY, double VtxZ
-	   );
+  void run(
+      edm::Handle<TrackCollectionFP420> &input, RecoCollectionFP420 *toutput, double VtxX, double VtxY, double VtxZ);
 
- private:
-
-
+private:
   edm::ParameterSet conf_;
   RecoProducerFP420 *finderParameters_;
 
@@ -47,7 +41,6 @@ class FP420RecoMain
   int dn0;
 
   double zinibeg_;
-
 };
 
 #endif

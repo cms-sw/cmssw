@@ -12,15 +12,15 @@
 //         Created:  Wed Feb  1 16:47:14 CET 2006
 #include <memory>
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include <vector>
 
@@ -29,8 +29,18 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class DQMStore;
-class SiStripDetCabling;
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+
 class SiStripCluster;
 class SiPixelCluster;
 class EventWithHistory;
@@ -39,12 +49,11 @@ class SiStripDCSStatus;
 class GenericTriggerEventFlag;
 
 class SiStripMonitorCluster : public DQMEDAnalyzer {
- public:
+public:
   explicit SiStripMonitorCluster(const edm::ParameterSet&);
   ~SiStripMonitorCluster() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
-                      edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   struct ModMEs {  // MEs for one single detector module
@@ -58,8 +67,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
     MonitorElement* ClusterSignalOverNoise = nullptr;
     MonitorElement* ClusterSignalOverNoiseVsPos = nullptr;
     MonitorElement* ModuleLocalOccupancy = nullptr;
-    MonitorElement* NrOfClusterizedStrips =
-        nullptr;  // can be used at client level for occupancy calculations
+    MonitorElement* NrOfClusterizedStrips = nullptr;  // can be used at client level for occupancy calculations
     MonitorElement* Module_ClusWidthVsAmpTH2 = nullptr;
   };
 
@@ -124,11 +132,10 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   MonitorElement* NumberOfPixelClus_vs_BX = nullptr;  // plot n. 4
   MonitorElement* NumberOfFEDClus = nullptr;
 
- private:
+private:
   void createMEs(const edm::EventSetup& es, DQMStore::IBooker& ibooker);
   void createLayerMEs(std::string label, int ndets, DQMStore::IBooker& ibooker);
-  void createModuleMEs(ModMEs& mod_single, uint32_t detid,
-                       DQMStore::IBooker& ibooker);
+  void createModuleMEs(ModMEs& mod_single, uint32_t detid, DQMStore::IBooker& ibooker, const SiStripDetCabling&);
   void createSubDetMEs(std::string label, DQMStore::IBooker& ibooker);
   int FindRegion(int nstrip, int npixel);
   void fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster);
@@ -137,24 +144,24 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   void ResetModuleMEs(uint32_t idet);
 
   inline void fillME(MonitorElement* ME, float value1) {
-    if (ME != nullptr) ME->Fill(value1);
+    if (ME != nullptr)
+      ME->Fill(value1);
   }
   inline void fillME(MonitorElement* ME, float value1, float value2) {
-    if (ME != nullptr) ME->Fill(value1, value2);
+    if (ME != nullptr)
+      ME->Fill(value1, value2);
   }
-  inline void fillME(MonitorElement* ME, float value1, float value2,
-                     float value3) {
-    if (ME != nullptr) ME->Fill(value1, value2, value3);
+  inline void fillME(MonitorElement* ME, float value1, float value2, float value3) {
+    if (ME != nullptr)
+      ME->Fill(value1, value2, value3);
   }
-  inline void fillME(MonitorElement* ME, float value1, float value2,
-                     float value3, float value4) {
-    if (ME != nullptr) ME->Fill(value1, value2, value3, value4);
+  inline void fillME(MonitorElement* ME, float value1, float value2, float value3, float value4) {
+    if (ME != nullptr)
+      ME->Fill(value1, value2, value3, value4);
   }
   MonitorElement* bookMETrend(const char*, DQMStore::IBooker& ibooker);
-  MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName,
-                           DQMStore::IBooker& ibooker);
-  MonitorElement* bookME2D(const char* ParameterSetLabel, const char* HistoName,
-                           DQMStore::IBooker& ibooker);
+  MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName, DQMStore::IBooker& ibooker);
+  MonitorElement* bookME2D(const char* ParameterSetLabel, const char* HistoName, DQMStore::IBooker& ibooker);
 
   edm::ParameterSet conf_;
   std::map<uint32_t, ModMEs> ModuleMEsMap;
@@ -164,11 +171,9 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   std::map<std::string, std::string> SubDetPhasePartMap;
 
   // flags
-  bool show_mechanical_structure_view, show_readout_view, show_control_view,
-      select_all_detectors, reset_each_run;
+  bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, reset_each_run;
   unsigned long long m_cacheID_;
 
-  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   std::vector<uint32_t> ModulesToBeExcluded_;
 
   edm::ParameterSet Parameters;
@@ -243,12 +248,19 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   edm::InputTag apvPhaseProducer_;
   */
 
-  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> >
-      clusterProducerStripToken_;
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> >
-      clusterProducerPixToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterProducerStripToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clusterProducerPixToken_;
   edm::EDGetTokenT<EventWithHistory> historyProducerToken_;
   edm::EDGetTokenT<APVCyclePhaseCollection> apvPhaseProducerToken_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyRunToken_;
+  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> siStripDetCablingRunToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyEventToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> siStripNoisesToken_;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> siStripGainToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> siStripQualityToken_;
+  edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> siStripDetCablingEventToken_;
 
   bool applyClusterQuality_;
   double sToNLowerLimit_;

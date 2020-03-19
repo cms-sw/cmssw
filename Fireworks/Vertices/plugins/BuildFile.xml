@@ -5,8 +5,8 @@
  <use name="Fireworks/Vertices"/>
  <use name="Fireworks/Candidates"/>
  <use name="roothistmatrix"/>
- <lib name="Eve"/>
- <lib name="Geom"/>
- <lib name="Core"/>
+ <use name="rooteve"/>
+ <use name="rootgeom"/>
+ <use name="rootcling"/>
  <flags EDM_PLUGIN="1"/>
 </library>

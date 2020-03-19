@@ -3,7 +3,7 @@
 // -*- C++ -*-
 //
 // Class:      SiPixelCoordinates
-// 
+//
 // This class provides floating point numbers for
 // digis, clusters and hits that can be used to
 // easily plot various geometry related histograms
@@ -19,28 +19,26 @@
 //
 // Original Author: Janos Karancsi
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
+#include <cstdint>
+#include <unordered_map>
+#include <utility>
 
 class SiPixelCoordinates {
-
- public:
-
+public:
   SiPixelCoordinates();
   SiPixelCoordinates(int);
   virtual ~SiPixelCoordinates();
 
-  void init(edm::EventSetup const&);
+  void init(const TrackerTopology*, const TrackerGeometry*, const SiPixelFedCablingMap*);
 
   // Integers
   int quadrant(const DetId&);
@@ -162,11 +160,11 @@ class SiPixelCoordinates {
   float signed_shifted_blade_panel_coord(const SiPixelRecHit*);
   float signed_shifted_blade_panel_coord(const TrackingRecHit*);
 
- private:
+private:
   int phase_;
 
-  const TrackerTopology*      tTopo_;
-  const TrackerGeometry*      tGeom_;
+  const TrackerTopology* tTopo_;
+  const TrackerGeometry* tGeom_;
   const SiPixelFedCablingMap* cablingMap_;
 
   // Internal containers for optimal speed
@@ -202,7 +200,6 @@ class SiPixelCoordinates {
   std::pair<int, int> pixel_(const SiPixelRecHit*);
   float xcoord_on_module_(const DetId&, const std::pair<int, int>&);
   float ycoord_on_module_(const DetId&, const std::pair<int, int>&);
-
 };
 
 #endif

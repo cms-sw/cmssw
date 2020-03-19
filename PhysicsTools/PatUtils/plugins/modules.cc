@@ -5,14 +5,14 @@
 
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
-namespace configurableAnalysis{
-  constexpr char Jet[]="pat::Jet";
-  constexpr char Muon[]="pat::Muon";
-  constexpr char MET[]="pat::MET";
-  constexpr char Electron[]="pat::Electron";
-  constexpr char Tau[]="pat::Tau";
-  constexpr char Photon[]="pat::Photon";
-}
+namespace configurableAnalysis {
+  constexpr char Jet[] = "pat::Jet";
+  constexpr char Muon[] = "pat::Muon";
+  constexpr char MET[] = "pat::MET";
+  constexpr char Electron[] = "pat::Electron";
+  constexpr char Tau[] = "pat::Tau";
+  constexpr char Photon[] = "pat::Photon";
+}  // namespace configurableAnalysis
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -21,12 +21,12 @@ namespace configurableAnalysis{
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-typedef ExpressionVariable<pat::Jet,configurableAnalysis::Jet> patJetExpressionVariable;
-typedef ExpressionVariable<pat::MET,configurableAnalysis::MET> patMETExpressionVariable;
-typedef ExpressionVariable<pat::Muon,configurableAnalysis::Muon> patMuonExpressionVariable;
-typedef ExpressionVariable<pat::Electron,configurableAnalysis::Electron> patElectronExpressionVariable;
-typedef ExpressionVariable<pat::Photon,configurableAnalysis::Photon> patPhotonExpressionVariable;
-typedef ExpressionVariable<pat::Tau,configurableAnalysis::Tau> patTauExpressionVariable;
+typedef ExpressionVariable<pat::Jet, configurableAnalysis::Jet> patJetExpressionVariable;
+typedef ExpressionVariable<pat::MET, configurableAnalysis::MET> patMETExpressionVariable;
+typedef ExpressionVariable<pat::Muon, configurableAnalysis::Muon> patMuonExpressionVariable;
+typedef ExpressionVariable<pat::Electron, configurableAnalysis::Electron> patElectronExpressionVariable;
+typedef ExpressionVariable<pat::Photon, configurableAnalysis::Photon> patPhotonExpressionVariable;
+typedef ExpressionVariable<pat::Tau, configurableAnalysis::Tau> patTauExpressionVariable;
 
 DEFINE_EDM_PLUGIN(CachingVariableFactory, patJetExpressionVariable, "patJetExpressionVariable");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, patMETExpressionVariable, "patMETExpressionVariable");
@@ -36,7 +36,6 @@ DEFINE_EDM_PLUGIN(CachingVariableFactory, patPhotonExpressionVariable, "patPhoto
 DEFINE_EDM_PLUGIN(CachingVariableFactory, patTauExpressionVariable, "patTauExpressionVariable");
 
 #include "CommonTools/UtilAlgos/interface/StringCutEventSelector.h"
-
 
 //single cut object selector
 typedef StringCutEventSelector<pat::Jet> patJetEventSelector;
@@ -55,16 +54,16 @@ typedef StringCutsEventSelector<pat::Photon> patPhotonSEventSelector;
 typedef StringCutsEventSelector<pat::Tau> patTauSEventSelector;
 
 //vetoes
-typedef StringCutsEventSelector<pat::Jet,false> patJetSEventVetoSelector;
-typedef StringCutsEventSelector<pat::Muon,false> patMuonSEventVetoSelector;
-typedef StringCutsEventSelector<pat::MET,false> patMETSEventVetoSelector;
-typedef StringCutsEventSelector<pat::Electron,false> patElectronSEventVetoSelector;
-typedef StringCutsEventSelector<pat::Photon,false> patPhotonSEventVetoSelector;
-typedef StringCutsEventSelector<pat::Tau,false> patTauSEventVetoSelector;
+typedef StringCutsEventSelector<pat::Jet, false> patJetSEventVetoSelector;
+typedef StringCutsEventSelector<pat::Muon, false> patMuonSEventVetoSelector;
+typedef StringCutsEventSelector<pat::MET, false> patMETSEventVetoSelector;
+typedef StringCutsEventSelector<pat::Electron, false> patElectronSEventVetoSelector;
+typedef StringCutsEventSelector<pat::Photon, false> patPhotonSEventVetoSelector;
+typedef StringCutsEventSelector<pat::Tau, false> patTauSEventVetoSelector;
 //any selector
-typedef StringCutEventSelector<pat::Jet,true> patAnyJetEventSelector;
-typedef StringCutEventSelector<pat::Muon,true> patAnyMuonEventSelector;
-typedef StringCutEventSelector<pat::Electron,true> patAnyElectronEventSelector;
+typedef StringCutEventSelector<pat::Jet, true> patAnyJetEventSelector;
+typedef StringCutEventSelector<pat::Muon, true> patAnyMuonEventSelector;
+typedef StringCutEventSelector<pat::Electron, true> patAnyElectronEventSelector;
 
 DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, patJetEventSelector, "patJetEventSelector");
 DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, patAnyJetEventSelector, "patAnyJetEventSelector");
@@ -91,4 +90,3 @@ DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, patTauSEventVetoSelector, "pat
 #include "PhysicsTools/PatUtils/interface/RazorComputer.h"
 DEFINE_EDM_PLUGIN(CachingVariableFactory, RazorBox, "RazorBox");
 DEFINE_EDM_PLUGIN(VariableComputerFactory, RazorComputer, "RazorComputer");
-

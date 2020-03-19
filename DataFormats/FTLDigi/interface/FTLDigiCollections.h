@@ -13,7 +13,7 @@
 
 namespace mtdhelpers {
   struct FTLRowColDecode {
-    static inline int row(const DetId& id, const std::vector<FTLSample>& data) { return -1; } // no rows or columns
+    static inline int row(const DetId& id, const std::vector<FTLSample>& data) { return -1; }  // no rows or columns
     static inline int col(const DetId& id, const std::vector<FTLSample>& data) { return -1; }
   };
 
@@ -26,15 +26,15 @@ namespace mtdhelpers {
     static inline int row(const DetId& id, const std::vector<ETLSample>& data) { return data.front().row(); }
     static inline int col(const DetId& id, const std::vector<ETLSample>& data) { return data.front().column(); }
   };
-}
+}  // namespace mtdhelpers
 
-typedef FTLDataFrameT<FastTimeDetId,FTLSample,mtdhelpers::FTLRowColDecode> FTLDataFrame;
-typedef edm::SortedCollection< FTLDataFrame > FTLDigiCollection;
+typedef FTLDataFrameT<FastTimeDetId, FTLSample, mtdhelpers::FTLRowColDecode> FTLDataFrame;
+typedef edm::SortedCollection<FTLDataFrame> FTLDigiCollection;
 
-typedef FTLDataFrameT<BTLDetId,BTLSample,mtdhelpers::BTLRowColDecode> BTLDataFrame;
-typedef edm::SortedCollection< BTLDataFrame > BTLDigiCollection;
+typedef FTLDataFrameT<BTLDetId, BTLSample, mtdhelpers::BTLRowColDecode> BTLDataFrame;
+typedef edm::SortedCollection<BTLDataFrame> BTLDigiCollection;
 
-typedef FTLDataFrameT<ETLDetId,ETLSample,mtdhelpers::ETLRowColDecode> ETLDataFrame;
-typedef edm::SortedCollection< ETLDataFrame > ETLDigiCollection;
+typedef FTLDataFrameT<ETLDetId, ETLSample, mtdhelpers::ETLRowColDecode> ETLDataFrame;
+typedef edm::SortedCollection<ETLDataFrame> ETLDigiCollection;
 
 #endif

@@ -5,8 +5,7 @@
 #include <vector>
 
 namespace edm {
-    typedef std::vector<PCaloHit> PCaloHitContainer;
-} // edm
+  typedef std::vector<PCaloHit> PCaloHitContainer;
+}  // namespace edm
 
 #endif
-

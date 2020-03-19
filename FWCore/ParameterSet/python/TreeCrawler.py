@@ -24,6 +24,7 @@ from __future__ import print_function
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from builtins import range
 import sys, os, inspect, copy, struct, dis, imp
 import modulefinder
 import six
@@ -252,7 +253,7 @@ def removeRecursiveLoops( node, verbose=False, currentStack=None ) :
         duplicateIndex=currentStack.index( node ) # If there isn't a recursive loop this will raise a ValueError
         if verbose :
             print("Removing recursive loop in:")
-            for index in xrange(duplicateIndex,len(currentStack)) :
+            for index in range(duplicateIndex,len(currentStack)) :
                 print("   ",currentStack[index].name,"-->")
             print("   ",node.name)
         currentStack[-1].dependencies.remove(node)

@@ -10,18 +10,15 @@
    @brief Simple class that tests SiStripFecKey.
 */
 class testSiStripFecKey : public edm::EDAnalyzer {
-
- public:
-  
-  testSiStripFecKey( const edm::ParameterSet& );
+public:
+  testSiStripFecKey(const edm::ParameterSet&);
   ~testSiStripFecKey();
-  
+
   void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob() { ; }
 
- private:
-
+private:
   uint32_t crate_;
   uint32_t slot_;
   uint32_t ring_;
@@ -29,8 +26,6 @@ class testSiStripFecKey : public edm::EDAnalyzer {
   uint32_t module_;
   uint32_t lld_;
   uint32_t i2c_;
-
 };
 
-#endif // DataFormats_SiStripCommon_testSiStripFecKey_H
-
+#endif  // DataFormats_SiStripCommon_testSiStripFecKey_H

@@ -5,17 +5,20 @@
 #include <vector>
 
 class TrackingRegion;
-namespace edm { class Event; class EventSetup; class ConsumesCollector;}
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ConsumesCollector;
+}  // namespace edm
 
 class OrderedHitsGenerator {
 public:
-  OrderedHitsGenerator() : theMaxElement(0){}
+  OrderedHitsGenerator() : theMaxElement(0) {}
   virtual ~OrderedHitsGenerator() {}
 
-  virtual const OrderedSeedingHits & run( 
-      const TrackingRegion& reg, const edm::Event & ev, const edm::EventSetup& es ) = 0;
+  virtual const OrderedSeedingHits& run(const TrackingRegion& reg, const edm::Event& ev, const edm::EventSetup& es) = 0;
 
-  virtual void clear() { }  //fixme: should be purely virtual!
+  virtual void clear() {}  //fixme: should be purely virtual!
 
   unsigned int theMaxElement;
 };

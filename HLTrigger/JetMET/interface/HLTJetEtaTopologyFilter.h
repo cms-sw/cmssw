@@ -12,31 +12,32 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 //
 // class declaration
 //
 
-template<typename T>
+template <typename T>
 class HLTJetEtaTopologyFilter : public HLTFilter {
+public:
+  explicit HLTJetEtaTopologyFilter(const edm::ParameterSet&);
+  ~HLTJetEtaTopologyFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-   public:
-      explicit HLTJetEtaTopologyFilter(const edm::ParameterSet&);
-      ~HLTJetEtaTopologyFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-
-   private:
-      const edm::InputTag inputJetTag_; // input tag identifying jets
-      const edm::EDGetTokenT<std::vector<T>> m_theJetToken;
-      const double minPtJet_;
-      //double minPtJet3_;
-      const double jetEtaMin_;
-      const double jetEtaMax_;
-      const bool applyAbsToJet_;
-      const int    triggerType_;
+private:
+  const edm::InputTag inputJetTag_;  // input tag identifying jets
+  const edm::EDGetTokenT<std::vector<T>> m_theJetToken;
+  const double minPtJet_;
+  //double minPtJet3_;
+  const double jetEtaMin_;
+  const double jetEtaMax_;
+  const bool applyAbsToJet_;
+  const int triggerType_;
 };
 
-#endif //HLTJetEtaTopologyFilter_h
+#endif  //HLTJetEtaTopologyFilter_h

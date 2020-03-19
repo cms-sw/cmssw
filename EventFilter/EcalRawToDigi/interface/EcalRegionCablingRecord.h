@@ -6,7 +6,8 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class EcalRegionCablingRecord : public edm::eventsetup::DependentRecordImplementation<EcalRegionCablingRecord,
-  boost::mpl::vector<EcalMappingRcd> > {};
+class EcalRegionCablingRecord
+    : public edm::eventsetup::DependentRecordImplementation<EcalRegionCablingRecord,
+                                                            boost::mpl::vector<EcalMappingRcd> > {};
 
 #endif

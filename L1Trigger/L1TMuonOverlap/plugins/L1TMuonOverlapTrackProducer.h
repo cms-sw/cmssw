@@ -6,11 +6,10 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -21,25 +20,20 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinputMaker.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFSorter.h"
 
-
-
 class L1TMuonOverlapParams;
 class OMTFProcessor;
 class OMTFConfiguration;
 class OMTFConfigMaker;
 class XMLConfigWriter;
 
-
-
-namespace XERCES_CPP_NAMESPACE{
+namespace XERCES_CPP_NAMESPACE {
   class DOMElement;
   class DOMDocument;
   class DOMImplementation;
-}
-
+}  // namespace XERCES_CPP_NAMESPACE
 
 class L1TMuonOverlapTrackProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
- public:
+public:
   L1TMuonOverlapTrackProducer(const edm::ParameterSet&);
 
   ~L1TMuonOverlapTrackProducer() override;
@@ -48,15 +42,12 @@ class L1TMuonOverlapTrackProducer : public edm::one::EDProducer<edm::one::WatchR
 
   void endJob() override;
 
-  void beginRun(edm::Run const& run, edm::EventSetup const& iSetup) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, edm::EventSetup const&) override;
 
- private:
-
-  edm::ParameterSet theConfig;
-  
+private:
   edm::EDGetTokenT<L1MuDTChambPhContainer> inputTokenDTPh;
   edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDTTh;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
@@ -65,7 +56,6 @@ class L1TMuonOverlapTrackProducer : public edm::one::EDProducer<edm::one::WatchR
   bool dumpResultToXML, dumpDetailedResultToXML;
 
   OMTFReconstruction m_Reconstruction;
-
 };
 
 #endif

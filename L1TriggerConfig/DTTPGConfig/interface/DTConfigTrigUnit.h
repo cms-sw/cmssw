@@ -17,7 +17,7 @@
 //---------------
 // C++ Headers --
 //---------------
-#include<iostream>
+#include <iostream>
 
 //----------------------
 // Base Class Headers --
@@ -34,14 +34,12 @@
 //              ---------------------
 
 class DTConfigTrigUnit : public DTConfig {
-
-  public:
-
+public:
   //! Constructor
   DTConfigTrigUnit(const edm::ParameterSet& ps);
 
   //! Constructor
-  DTConfigTrigUnit() {};
+  DTConfigTrigUnit(){};
 
   //! Destructor
   ~DTConfigTrigUnit() override;
@@ -50,18 +48,16 @@ class DTConfigTrigUnit : public DTConfig {
   inline bool debug() const { return m_debug; }
 
   //! Print the setup
-  void print() const ;
+  void print() const;
 
   //! Set debug flag
   inline void setDebug(bool debug) { m_debug = debug; }
 
-  private:
-
+private:
   //! Load pset values into class variables
   void setDefaults(const edm::ParameterSet& m_ps);
 
   bool m_debug;
-
 };
 
 #endif

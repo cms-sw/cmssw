@@ -14,7 +14,6 @@
 
 #include <vector>
 
-
 class QuarkoniaTrackSelector : public edm::global::EDProducer<> {
 public:
   explicit QuarkoniaTrackSelector(const edm::ParameterSet&);
@@ -22,10 +21,10 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      
+
 private:
-  edm::InputTag muonTag_;          ///< tag for RecoChargedCandidateCollection
-  edm::InputTag trackTag_;         ///< tag for TrackCollection
+  edm::InputTag muonTag_;   ///< tag for RecoChargedCandidateCollection
+  edm::InputTag trackTag_;  ///< tag for TrackCollection
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muonToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
 

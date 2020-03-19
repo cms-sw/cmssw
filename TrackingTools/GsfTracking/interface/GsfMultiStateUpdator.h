@@ -14,17 +14,12 @@ class TrackingRecHit;
  */
 
 class GsfMultiStateUpdator : public TrajectoryStateUpdator {
-
 public:
-
   GsfMultiStateUpdator() {}
 
-  TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&,
-                                  const TrackingRecHit&) const override;
+  TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&, const TrackingRecHit&) const override;
 
-  GsfMultiStateUpdator * clone() const override {
-    return new GsfMultiStateUpdator(*this);
-  }
+  GsfMultiStateUpdator* clone() const override { return new GsfMultiStateUpdator(*this); }
 };
 
 #endif

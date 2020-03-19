@@ -2,7 +2,7 @@
 //
 // Package:     CalibCalorimetry/HcalTPGAlgos
 // Class  :     HcalEmap
-// 
+//
 // Implementation:
 //     structure and functionality for HCAL electronic map
 //     NOTE!
@@ -22,71 +22,60 @@
 
 using namespace std;
 
-
-
-
-int HcalEmap::read_map( std::string filename )
-{
-  int lines=0;
+int HcalEmap::read_map(std::string filename) {
+  int lines = 0;
 
   std::string _row;
-  ifstream inFile( filename . c_str(), std::ios::in );
-  if (!inFile){
+  ifstream inFile(filename.c_str(), std::ios::in);
+  if (!inFile) {
     std::cout << "Unable to open file with the electronic map: " << filename << std::endl;
-  }
-  else{
+  } else {
     std::cout << "File with the electronic map opened successfully: " << filename << std::endl;
   }
-  while (getline( inFile, _row )) {
+  while (getline(inFile, _row)) {
     HcalEmapRow aRow;
     char fpga[32];
     char subdet[32];
-    
+
     int _read;
-    const char * _format = "%d %d %d %s %d %d %d %d %s %d %d %d";
-    _read = sscanf( _row . c_str(), _format,
-		    &(aRow.rawId),
-		    &(aRow.crate), &(aRow.slot),
-		      fpga,
-		    &(aRow.dcc),
-		    &(aRow.spigot),&(aRow.fiber),&(aRow.fiberchan),
-		    subdet,
-		    &(aRow.ieta), &(aRow.iphi), &(aRow.idepth) );
-    if ( _read >= 12 ){
+    const char* _format = "%d %d %d %s %d %d %d %d %s %d %d %d";
+    _read = sscanf(_row.c_str(),
+                   _format,
+                   &(aRow.rawId),
+                   &(aRow.crate),
+                   &(aRow.slot),
+                   fpga,
+                   &(aRow.dcc),
+                   &(aRow.spigot),
+                   &(aRow.fiber),
+                   &(aRow.fiberchan),
+                   subdet,
+                   &(aRow.ieta),
+                   &(aRow.iphi),
+                   &(aRow.idepth));
+    if (_read >= 12) {
       lines++;
-      
-      aRow . subdet .append( subdet );
-      aRow . topbottom .append( fpga );
-      
-      map . push_back( aRow );
-    }  
+
+      aRow.subdet.append(subdet);
+      aRow.topbottom.append(fpga);
+
+      map.push_back(aRow);
+    }
   }
   inFile.close();
   std::cout << "HcalEmap: " << lines << " lines read" << std::endl;
 
   return 0;
 }
-  
 
+std::vector<HcalEmap::HcalEmapRow>& HcalEmap::get_map(void) { return map; }
 
-std::vector<HcalEmap::HcalEmapRow> & HcalEmap::get_map( void )
-{
-  return map;
-}
-
-
-bool HcalEmap::HcalEmapRow::operator<( const HcalEmap::HcalEmapRow & other) const{
-  return rawId < other.rawId;
-}
-
-
+bool HcalEmap::HcalEmapRow::operator<(const HcalEmap::HcalEmapRow& other) const { return rawId < other.rawId; }
 
 //
 // _____ test procedures for the HcalEmap class _____________________________
 //
-int HcalEmap_test::test_read_map( std::string filename )
-{
-  HcalEmap map( filename );
+int HcalEmap_test::test_read_map(std::string filename) {
+  HcalEmap map(filename);
   return 0;
 }
-

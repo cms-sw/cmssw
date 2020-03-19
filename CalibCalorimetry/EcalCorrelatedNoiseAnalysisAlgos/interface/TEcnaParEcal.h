@@ -22,18 +22,15 @@
 ///
 
 class TEcnaParEcal : public TNamed {
-
 protected:
-
-  void      Init();
+  void Init();
 
 private:
-
-  Int_t   fgMaxCar;                    // Max nb of caracters for char* or TString
+  Int_t fgMaxCar;  // Max nb of caracters for char* or TString
   TString fTTBELL;
 
-  Int_t fCnew;          // flags for dynamical allocation
-  Int_t fCdelete;       
+  Int_t fCnew;  // flags for dynamical allocation
+  Int_t fCdelete;
 
   //....... Current subdetector flag and codes
 
@@ -45,145 +42,144 @@ private:
 
   //.......................... EB
 
-  Int_t fMaxSampADCEB;           // Maximum number of samples ADC
+  Int_t fMaxSampADCEB;  // Maximum number of samples ADC
 
   //  Int_t fMaxEvtsInBurstPedRunEB; // Maximum number of events per burst in Pedestal Runs
 
-  Int_t fMaxSMEtaInEB;         // Maximum number of SMs in eta in EB
-  Int_t fMaxSMPhiInEB;         // Maximum number of SMs in phi in EB
+  Int_t fMaxSMEtaInEB;  // Maximum number of SMs in eta in EB
+  Int_t fMaxSMPhiInEB;  // Maximum number of SMs in phi in EB
 
-  Int_t fMaxSMInEBPlus;        // Maximum number of SMs in EB+
-  Int_t fMaxSMInEBMinus;       // Maximum number of SMs in EB- 
-  Int_t fMaxSMInEB;            // Maximum number of SMs in EB
+  Int_t fMaxSMInEBPlus;   // Maximum number of SMs in EB+
+  Int_t fMaxSMInEBMinus;  // Maximum number of SMs in EB-
+  Int_t fMaxSMInEB;       // Maximum number of SMs in EB
 
-  Int_t fMaxTowEtaInEB;        // Maximum number of towers in eta in EB
-  Int_t fMaxTowPhiInEB;        // Maximum number of towers in phi in EB
-  Int_t fMaxTowInEB;           // Maximum number of towers in EB
+  Int_t fMaxTowEtaInEB;  // Maximum number of towers in eta in EB
+  Int_t fMaxTowPhiInEB;  // Maximum number of towers in phi in EB
+  Int_t fMaxTowInEB;     // Maximum number of towers in EB
 
-  Int_t fMaxTowEtaInSM;        // Maximum number of towers in eta in SM
-  Int_t fMaxTowPhiInSM;        // Maximum number of towers in phi in SM
-  Int_t fMaxTowInSM;           // Maximum number of towers in SM
-                               // ( = fMaxTowEtaInSM*fMaxTowPhiInSM )
+  Int_t fMaxTowEtaInSM;  // Maximum number of towers in eta in SM
+  Int_t fMaxTowPhiInSM;  // Maximum number of towers in phi in SM
+  Int_t fMaxTowInSM;     // Maximum number of towers in SM
+                         // ( = fMaxTowEtaInSM*fMaxTowPhiInSM )
 
-  Int_t fMaxCrysEtaInTow;      // Maximum number of crystals in eta in a tower
-  Int_t fMaxCrysPhiInTow;      // Maximum number of crystals in phi in a tower
-  Int_t fMaxCrysInTow;         // Maximum number of crystals in a tower
-                               // ( = fMaxCrysEtaInTow*fMaxCrysPhiInTow )
+  Int_t fMaxCrysEtaInTow;  // Maximum number of crystals in eta in a tower
+  Int_t fMaxCrysPhiInTow;  // Maximum number of crystals in phi in a tower
+  Int_t fMaxCrysInTow;     // Maximum number of crystals in a tower
+                           // ( = fMaxCrysEtaInTow*fMaxCrysPhiInTow )
 
-  Int_t fMaxCrysEtaInSM;       // Maximum number of crystals in eta in SM
-                               // ( = fMaxTowEtaInSM*fMaxCrysEtaInTow )
+  Int_t fMaxCrysEtaInSM;  // Maximum number of crystals in eta in SM
+                          // ( = fMaxTowEtaInSM*fMaxCrysEtaInTow )
 
-  Int_t fMaxCrysPhiInSM;       // Maximum number of crystals in phi in SM
-                               // ( = fMaxTowPhiInSM*fMaxCrysPhiInTow )
+  Int_t fMaxCrysPhiInSM;  // Maximum number of crystals in phi in SM
+                          // ( = fMaxTowPhiInSM*fMaxCrysPhiInTow )
 
-  Int_t fMaxCrysInSM;          // Maximum number of crystals in SM
-                               // ( = fMaxTowInSM*fMaxCrysInTow )
+  Int_t fMaxCrysInSM;  // Maximum number of crystals in SM
+                       // ( = fMaxTowInSM*fMaxCrysInTow )
 
   //.......................... EE
 
-  Int_t fMaxSampADCEE;           // Maximum number of samples ADC
+  Int_t fMaxSampADCEE;  // Maximum number of samples ADC
 
   //  Int_t fMaxEvtsInBurstPedRunEE; // Maximum number of events per burst in Pedestal Runs
 
-  Int_t fMaxDeeIXInEE;         // Maximum number of Dees in IX in EE
-  Int_t fMaxDeeIYInEE;         // Maximum number of Dees in IY in EE
+  Int_t fMaxDeeIXInEE;  // Maximum number of Dees in IX in EE
+  Int_t fMaxDeeIYInEE;  // Maximum number of Dees in IY in EE
 
-  Int_t fMaxDeeInEEPlus;       // Maximum number of Dees in EE+
-  Int_t fMaxDeeInEEMinus;      // Maximum number of Dees in EE- 
-  Int_t fMaxDeeInEE;           // Maximum number of Dees in EE
+  Int_t fMaxDeeInEEPlus;   // Maximum number of Dees in EE+
+  Int_t fMaxDeeInEEMinus;  // Maximum number of Dees in EE-
+  Int_t fMaxDeeInEE;       // Maximum number of Dees in EE
 
-  Int_t fMaxSCIXInEE;          // Maximum number of SC's in IX in EE
-  Int_t fMaxSCIYInEE;          // Maximum number of SC's in IY in EE
-  Int_t fMaxSCEcnaInEE;        // Maximum number of SC's in the EE matrix
+  Int_t fMaxSCIXInEE;    // Maximum number of SC's in IX in EE
+  Int_t fMaxSCIYInEE;    // Maximum number of SC's in IY in EE
+  Int_t fMaxSCEcnaInEE;  // Maximum number of SC's in the EE matrix
 
-  Int_t fMaxSCIXInDee;         // Maximum number of super-crystals in IX in Dee
-  Int_t fMaxSCIYInDee;         // Maximum number of super-crystals in IY in Dee
-  Int_t fMaxSCEcnaInDee;       // Maximum ECNA number of super-crystals in the Dee matrix
-                                 // ( = fMaxSCIXInDee*fMaxSCIYInDee )
-  Int_t fMaxSCForConsInDee;    // Maximum number of super-crystals for construction in Dee
-  Int_t fMaxSCForConsInEE;     // Maximum number of super-crystals for construction in EE
+  Int_t fMaxSCIXInDee;       // Maximum number of super-crystals in IX in Dee
+  Int_t fMaxSCIYInDee;       // Maximum number of super-crystals in IY in Dee
+  Int_t fMaxSCEcnaInDee;     // Maximum ECNA number of super-crystals in the Dee matrix
+                             // ( = fMaxSCIXInDee*fMaxSCIYInDee )
+  Int_t fMaxSCForConsInDee;  // Maximum number of super-crystals for construction in Dee
+  Int_t fMaxSCForConsInEE;   // Maximum number of super-crystals for construction in EE
 
-  Int_t fMaxCrysIXInSC;        // Maximum number of crystals in IX in a super-crystal
-  Int_t fMaxCrysIYInSC;        // Maximum number of crystals in IY in a super-crystal
-  Int_t fMaxCrysInSC;          // Maximum number of crystals in a super-crystal
-                               // ( = fMaxCrysIXInSC*fMaxCrysIYInSC )
+  Int_t fMaxCrysIXInSC;  // Maximum number of crystals in IX in a super-crystal
+  Int_t fMaxCrysIYInSC;  // Maximum number of crystals in IY in a super-crystal
+  Int_t fMaxCrysInSC;    // Maximum number of crystals in a super-crystal
+                         // ( = fMaxCrysIXInSC*fMaxCrysIYInSC )
 
-  Int_t fMaxCrysIXInDee;       // Maximum number of crystals in IX in Dee
-                                 // ( = fMaxSCIXInDee*fMaxCrysIXInSC )
+  Int_t fMaxCrysIXInDee;  // Maximum number of crystals in IX in Dee
+                          // ( = fMaxSCIXInDee*fMaxCrysIXInSC )
 
-  Int_t fMaxCrysIYInDee;       // Maximum number of crystals in IY in Dee
-                                 // ( = fMaxSCIYInDee*fMaxCrysIYInSC )
+  Int_t fMaxCrysIYInDee;  // Maximum number of crystals in IY in Dee
+                          // ( = fMaxSCIYInDee*fMaxCrysIYInSC )
 
   Int_t fMaxCrysEcnaInDee;     // Maximum number of crystals in Dee matrix
                                // ( = fMaxSCEcnaInDee*fMaxCrysInSC )
   Int_t fMaxCrysForConsInDee;  // Maximum number of crystals for construction in Dee
                                // ( = fMaxSCForConsInDee*fMaxCrysInSC )
 
-  Int_t fEmptyChannelsForIncompleteSCInDee; // Total number of empty channels for the incomplete SCs
-  Int_t fEmptyChannelsInDeeMatrixIncompleteSCIncluded; // Total number of empty channels in Dee "Ecna" matrix
-                                                       // (incomplete SCs included)
+  Int_t fEmptyChannelsForIncompleteSCInDee;             // Total number of empty channels for the incomplete SCs
+  Int_t fEmptyChannelsInDeeMatrixIncompleteSCIncluded;  // Total number of empty channels in Dee "Ecna" matrix
+                                                        // (incomplete SCs included)
 
-  Int_t fMaxDSInEEPlus;       // Maximum number of Data Sectors in EE+
-  Int_t fMaxDSInEEMinus;      // Maximum number of Data Sectors in EE-
-  Int_t fMaxDSInEE;           // Maximum number of Data Sectors in EE
+  Int_t fMaxDSInEEPlus;   // Maximum number of Data Sectors in EE+
+  Int_t fMaxDSInEEMinus;  // Maximum number of Data Sectors in EE-
+  Int_t fMaxDSInEE;       // Maximum number of Data Sectors in EE
 
-  Int_t fNumberOfNotConnectedSCs; // for SCs 182, 178, 207, etc...
-  Int_t fNumberOfNotCompleteSCs;  // for SCs 161, 216, 224, etc...
+  Int_t fNumberOfNotConnectedSCs;  // for SCs 182, 178, 207, etc...
+  Int_t fNumberOfNotCompleteSCs;   // for SCs 161, 216, 224, etc...
 
   //.......................... Stas (current Subdetector)
 
-  Int_t fMaxSampADC;           // Maximum number of samples ADC
+  Int_t fMaxSampADC;  // Maximum number of samples ADC
 
   //  Int_t fMaxEvtsInBurstPedRun; // Maximum number of events per burst in Pedestal Runs
 
-  Int_t fMaxStexHocoInStas;    // Maximum number of Stex's in Hoco in Stas
-  Int_t fMaxStexVecoInStas;    // Maximum number of Stex's in Veco in Stas
-  Int_t fMaxStexInStasPlus;    // Maximum number of Stex's in Stas+
-  Int_t fMaxStexInStasMinus;   // Maximum number of Stex's in Stas- 
-  Int_t fMaxStexInStas;        // Maximum number of Stex's in Stas
+  Int_t fMaxStexHocoInStas;   // Maximum number of Stex's in Hoco in Stas
+  Int_t fMaxStexVecoInStas;   // Maximum number of Stex's in Veco in Stas
+  Int_t fMaxStexInStasPlus;   // Maximum number of Stex's in Stas+
+  Int_t fMaxStexInStasMinus;  // Maximum number of Stex's in Stas-
+  Int_t fMaxStexInStas;       // Maximum number of Stex's in Stas
 
-  Int_t fMaxStinHocoInStas;    // Maximum number of Stin's in Hoco in Stas
-  Int_t fMaxStinVecoInStas;    // Maximum number of Stin's in Veco in Stas
-  Int_t fMaxStinEcnaInStas;    // Maximum number of Stin's in Stas
+  Int_t fMaxStinHocoInStas;  // Maximum number of Stin's in Hoco in Stas
+  Int_t fMaxStinVecoInStas;  // Maximum number of Stin's in Veco in Stas
+  Int_t fMaxStinEcnaInStas;  // Maximum number of Stin's in Stas
 
-  Int_t fMaxStinHocoInStex;    // Maximum number of Stin's in Hoco in a Stex
-  Int_t fMaxStinVecoInStex;    // Maximum number of Stin's in Veco in a Stex
-  Int_t fMaxStinEcnaInStex;    // Maximum number of Stin's in a Stex ("Ecna" Stex matrix for Dee)
-                               // ( = fMaxStinHocoInStex*fMaxStinVecoInStex )
+  Int_t fMaxStinHocoInStex;  // Maximum number of Stin's in Hoco in a Stex
+  Int_t fMaxStinVecoInStex;  // Maximum number of Stin's in Veco in a Stex
+  Int_t fMaxStinEcnaInStex;  // Maximum number of Stin's in a Stex ("Ecna" Stex matrix for Dee)
+                             // ( = fMaxStinHocoInStex*fMaxStinVecoInStex )
 
-  Int_t fMaxCrysHocoInStin;    // Maximum number of crystals in Hoco in a Stin
-  Int_t fMaxCrysVecoInStin;    // Maximum number of crystals in Veco in a Stin
-  Int_t fMaxCrysInStin;        // Maximum number of crystals in a Stin
-                               // ( = fMaxCrysHocoInStin*fMaxCrysVecoInStin )
+  Int_t fMaxCrysHocoInStin;  // Maximum number of crystals in Hoco in a Stin
+  Int_t fMaxCrysVecoInStin;  // Maximum number of crystals in Veco in a Stin
+  Int_t fMaxCrysInStin;      // Maximum number of crystals in a Stin
+                             // ( = fMaxCrysHocoInStin*fMaxCrysVecoInStin )
 
-  Int_t fMaxCrysHocoInStex;    // Maximum number of crystals in Hoco in a Stex
-                               // ( = fMaxStinHocoInStex*fMaxCrysHocoInStin )
+  Int_t fMaxCrysHocoInStex;  // Maximum number of crystals in Hoco in a Stex
+                             // ( = fMaxStinHocoInStex*fMaxCrysHocoInStin )
 
-  Int_t fMaxCrysVecoInStex;    // Maximum number of crystals in Veco in a Stex
-                               // ( = fMaxStinVecoInStex*fMaxCrysVecoInStin )
+  Int_t fMaxCrysVecoInStex;  // Maximum number of crystals in Veco in a Stex
+                             // ( = fMaxStinVecoInStex*fMaxCrysVecoInStin )
 
-  Int_t fMaxCrysEcnaInStex;    // Maximum number of crystals in a ECNA matrix Stex
-                               // ( = fMaxStinEcnaInStex*fMaxCrysInStin )
+  Int_t fMaxCrysEcnaInStex;  // Maximum number of crystals in a ECNA matrix Stex
+                             // ( = fMaxStinEcnaInStex*fMaxCrysInStin )
 
-  Int_t fMaxStinInStex;        // EB: Maximum number of towers in SM (= fMaxStinEcnaInStex = fMaxTowInSM)
-                               // EE: Maximum number of SC for Construction in Dee (= fMaxSCForConsInDee)
+  Int_t fMaxStinInStex;  // EB: Maximum number of towers in SM (= fMaxStinEcnaInStex = fMaxTowInSM)
+                         // EE: Maximum number of SC for Construction in Dee (= fMaxSCForConsInDee)
 
-  Int_t fMaxCrysInStex;        // EB: Maximum number of crystals in SM (= fMaxCrysEcnaInStex = fMaxCrysInSM)
-                               // EE: Maximum number of crystals for Construction in Dee (= fMaxCrysForConsInDee) 
+  Int_t fMaxCrysInStex;  // EB: Maximum number of crystals in SM (= fMaxCrysEcnaInStex = fMaxCrysInSM)
+                         // EE: Maximum number of crystals for Construction in Dee (= fMaxCrysForConsInDee)
 
   //  Int_t fMaxStinForConsInStas; // Maximum number of towers in EB
-                               // or Maximum number of SC for construction in EE
+  // or Maximum number of SC for construction in EE
 
   //------------------------------- methods
 
- public:
-
-  TEcnaParEcal(); 
-  TEcnaParEcal(const TString&); 
+public:
+  TEcnaParEcal();
+  TEcnaParEcal(const TString&);
   TEcnaParEcal(TEcnaObject*, const TString&);
   ~TEcnaParEcal() override;
 
-  void    SetEcalSubDetector(const TString&);
+  void SetEcalSubDetector(const TString&);
   TString GetEcalSubDetector();
 
   //............................. EB
@@ -281,6 +277,6 @@ private:
   Int_t MaxCrysVecoInStin();
   Int_t MaxCrysInStin();
 
-  ClassDefOverride(TEcnaParEcal,1)  //Init of ECAL parameters
+  ClassDefOverride(TEcnaParEcal, 1)  //Init of ECAL parameters
 };
 #endif

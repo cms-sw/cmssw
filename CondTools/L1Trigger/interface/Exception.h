@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     Exception
-// 
+//
 /**\class Exception Exception.h CondTools/L1Trigger/interface/Exception.h
 
  Description: <one line class summary>
@@ -29,50 +29,44 @@
 
 namespace l1t {
 
-  class DataAlreadyPresentException : public cond::Exception
-  {
-
+  class DataAlreadyPresentException : public cond::Exception {
   public:
-    explicit DataAlreadyPresentException( const std::string& message );
+    explicit DataAlreadyPresentException(const std::string& message);
     ~DataAlreadyPresentException() throw() override;
 
-      // ---------- const member functions ---------------------
+    // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+    // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+    // ---------- member functions ---------------------------
 
-   private:
+  private:
     //DataAlreadyPresentException(const DataAlreadyPresentException&); // stop default
 
     //const DataAlreadyPresentException& operator=(const DataAlreadyPresentException&); // stop default
 
-      // ---------- member data --------------------------------
-
+    // ---------- member data --------------------------------
   };
 
-  class DataInvalidException : public cond::Exception
-  {
-
+  class DataInvalidException : public cond::Exception {
   public:
-    explicit DataInvalidException( const std::string& message );
+    explicit DataInvalidException(const std::string& message);
     ~DataInvalidException() throw() override;
 
-      // ---------- const member functions ---------------------
+    // ---------- const member functions ---------------------
 
-      // ---------- static member functions --------------------
+    // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+    // ---------- member functions ---------------------------
 
-   private:
+  private:
     //DataInvalidException(const DataInvalidException&); // stop default
 
     //const DataInvalidException& operator=(const DataInvalidException&); // stop default
 
-      // ---------- member data --------------------------------
-
+    // ---------- member data --------------------------------
   };
 
-}
+}  // namespace l1t
 
 #endif

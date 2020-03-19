@@ -31,7 +31,6 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "HLTriggerOffline/Higgs/src/MatchStruct.cc"
 
@@ -40,58 +39,74 @@
 #include <map>
 #include <set>
 
-const unsigned int kNull = (unsigned int) -1;
+const unsigned int kNull = (unsigned int)-1;
 
 struct EVTColContainer;
 
-class HLTHiggsPlotter 
-{
-    public:
-        HLTHiggsPlotter(const edm::ParameterSet & pset, const std::string & hltPath,
-                        //const std::string & lastFilter,
-                        const std::vector<unsigned int> & objectsType,
-                        const unsigned int & minCandidates,
-                        const std::vector<double> & NminOneCuts);
-        ~HLTHiggsPlotter();
-        void beginJob();
-        void beginRun(const edm::Run &, const edm::EventSetup &);
-        void bookHistograms(DQMStore::IBooker &, const bool &);
-        void analyze(const bool & isPassTrigger,const std::string & source,
-        const std::vector<MatchStruct> & matches, const unsigned int & minCandidates);
-        void analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches, std::map<std::string,bool> & nMinOne,
-                     const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const float & CSV2, const float & CSV3, const bool & passAllCuts);
+class HLTHiggsPlotter {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
 
-        inline const std::string gethltpath() const { return _hltPath; }
+  HLTHiggsPlotter(const edm::ParameterSet &pset,
+                  const std::string &hltPath,
+                  //const std::string & lastFilter,
+                  const std::vector<unsigned int> &objectsType,
+                  const unsigned int &minCandidates,
+                  const std::vector<double> &NminOneCuts);
+  ~HLTHiggsPlotter();
+  void beginJob();
+  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void bookHistograms(DQMStore::IBooker &, const bool &);
+  void analyze(const bool &isPassTrigger,
+               const std::string &source,
+               const std::vector<MatchStruct> &matches,
+               const unsigned int &minCandidates);
+  void analyze(const bool &isPassTrigger,
+               const std::string &source,
+               const std::vector<MatchStruct> &matches,
+               std::map<std::string, bool> &nMinOne,
+               const float &dEtaqq,
+               const float &mqq,
+               const float &dPhibb,
+               const float &CSV1,
+               const float &CSV2,
+               const float &CSV3,
+               const bool &passAllCuts);
 
-    private:
-        void bookHist(const std::string & source, const std::string & objType, const std::string & variable,  DQMStore::IBooker &);
-        void fillHist(const bool & passTrigger, const std::string & source, 
-                      const std::string & objType, const std::string & var,
-                      const float & value);
+  inline const std::string gethltpath() const { return _hltPath; }
 
-        std::string _hltPath;
-        //std::string _lastFilter;
-        std::string _hltProcessName;
+private:
+  void bookHist(const std::string &source, const std::string &objType, const std::string &variable, DQMStore::IBooker &);
+  void fillHist(const bool &passTrigger,
+                const std::string &source,
+                const std::string &objType,
+                const std::string &var,
+                const float &value);
 
-        std::set<unsigned int> _objectsType;
-        // Number of objects (elec,muons, ...) needed in the hlt path
-        unsigned int _nObjects; 
+  std::string _hltPath;
+  //std::string _lastFilter;
+  std::string _hltProcessName;
 
-        std::vector<double> _parametersEta;
-        std::vector<double> _parametersPhi;
-        std::vector<double> _parametersTurnOn;
+  std::set<unsigned int> _objectsType;
+  // Number of objects (elec,muons, ...) needed in the hlt path
+  unsigned int _nObjects;
 
-        std::map<unsigned int,double> _cutMinPt;
-        std::map<unsigned int,double> _cutMaxEta;
-        std::map<unsigned int,unsigned int> _cutMotherId;
-        std::map<unsigned int,std::vector<double> > _cutsDr;
+  std::vector<double> _parametersEta;
+  std::vector<double> _parametersPhi;
+  std::vector<double> _parametersTurnOn;
 
-        // The amount of Pt plots needed for the hlt path
-        unsigned int _NptPlots;
+  std::map<unsigned int, double> _cutMinPt;
+  std::map<unsigned int, double> _cutMaxEta;
+  std::map<unsigned int, unsigned int> _cutMotherId;
+  std::map<unsigned int, std::vector<double> > _cutsDr;
 
-        //N-1 cut values
-        std::vector<double> _NminOneCuts;
+  // The amount of Pt plots needed for the hlt path
+  unsigned int _NptPlots;
 
-        std::map<std::string, MonitorElement *> _elements;
+  //N-1 cut values
+  std::vector<double> _NminOneCuts;
+
+  std::map<std::string, MonitorElement *> _elements;
 };
 #endif

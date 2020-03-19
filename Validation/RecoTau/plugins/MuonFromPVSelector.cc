@@ -16,35 +16,30 @@
 #include <numeric>
 #include <vector>
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
 class MuonFromPVSelector : public edm::global::EDProducer<> {
 public:
-
   explicit MuonFromPVSelector(edm::ParameterSet const&);
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
-
   double max_dxy_;
   double max_dz_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> v_recoVertexToken_;
   edm::EDGetTokenT<std::vector<reco::Muon>> v_recoMuonToken_;
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // construction
 ////////////////////////////////////////////////////////////////////////////////
 
 MuonFromPVSelector::MuonFromPVSelector(edm::ParameterSet const& iConfig)
-  : max_dxy_{iConfig.getParameter<double>("max_dxy")}
-  , max_dz_{iConfig.getParameter<double>("max_dz")}
-  , v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))}
-  , v_recoMuonToken_{consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("srcMuon"))}
-{
+    : max_dxy_{iConfig.getParameter<double>("max_dxy")},
+      max_dz_{iConfig.getParameter<double>("max_dz")},
+      v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))},
+      v_recoMuonToken_{consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("srcMuon"))} {
   produces<std::vector<reco::Muon>>();
 }
 
@@ -52,8 +47,7 @@ MuonFromPVSelector::MuonFromPVSelector(edm::ParameterSet const& iConfig)
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
-void MuonFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
-{
+void MuonFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
   auto goodMuons = std::make_unique<std::vector<reco::Muon>>();
 
   edm::Handle<std::vector<reco::Vertex>> vertices;
@@ -64,12 +58,10 @@ void MuonFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSe
 
   if (!vertices->empty()) {
     auto const& pv = vertices->front();
-    std::copy_if(std::cbegin(*muons), std::cend(*muons), std::back_inserter(*goodMuons),
-                 [&pv, this](auto const& muon){
-                   return muon.innerTrack().isNonnull() &&
-                     std::abs(muon.innerTrack()->dxy(pv.position())) < max_dxy_ &&
-                     std::abs(muon.innerTrack()->dz(pv.position()))  < max_dz_;
-                 });
+    std::copy_if(std::cbegin(*muons), std::cend(*muons), std::back_inserter(*goodMuons), [&pv, this](auto const& muon) {
+      return muon.innerTrack().isNonnull() && std::abs(muon.innerTrack()->dxy(pv.position())) < max_dxy_ &&
+             std::abs(muon.innerTrack()->dz(pv.position())) < max_dz_;
+    });
   }
 
   iEvent.put(std::move(goodMuons));

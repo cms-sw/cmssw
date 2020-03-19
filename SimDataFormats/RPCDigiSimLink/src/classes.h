@@ -9,10 +9,6 @@
 #include <vector>
 #include <map>
 
-
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 
-
-#endif // RPCDIGISIMLINK_CLASSES_H
-
-
+#endif  // RPCDIGISIMLINK_CLASSES_H

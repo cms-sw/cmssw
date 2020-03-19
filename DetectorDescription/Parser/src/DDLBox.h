@@ -24,13 +24,11 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLBox final : public DDLSolid
-{
- public:
+class DDLBox final : public DDLSolid {
+public:
+  DDLBox(DDLElementRegistry* myreg);
 
-  DDLBox( DDLElementRegistry* myreg );
-
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

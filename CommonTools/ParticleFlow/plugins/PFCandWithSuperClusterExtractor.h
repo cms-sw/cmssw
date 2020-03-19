@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
@@ -18,65 +17,64 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
-
 class PFCandWithSuperClusterExtractor : public reco::isodeposit::IsoDepositExtractor {
-
 public:
-
   PFCandWithSuperClusterExtractor(){};
-  PFCandWithSuperClusterExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
+  PFCandWithSuperClusterExtractor(const edm::ParameterSet &par, edm::ConsumesCollector &&iC);
 
-  ~PFCandWithSuperClusterExtractor() override{}
+  ~PFCandWithSuperClusterExtractor() override {}
 
-  void fillVetos (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::TrackCollection & cand) override { }
+  void fillVetos(const edm::Event &ev, const edm::EventSetup &evSetup, const reco::TrackCollection &cand) override {}
 
-
-  reco::IsoDeposit deposit (const edm::Event & ev,
-				    const edm::EventSetup & evSetup, const reco::Track & muon) const override {
+  reco::IsoDeposit deposit(const edm::Event &ev,
+                           const edm::EventSetup &evSetup,
+                           const reco::Track &muon) const override {
     return depositFromObject(ev, evSetup, muon);
   }
 
-  reco::IsoDeposit deposit (const edm::Event & ev,
-				    const edm::EventSetup & evSetup, const reco::Candidate & cand) const override {
+  reco::IsoDeposit deposit(const edm::Event &ev,
+                           const edm::EventSetup &evSetup,
+                           const reco::Candidate &cand) const override {
+    const reco::Photon *myPhoton = dynamic_cast<const reco::Photon *>(&cand);
+    if (myPhoton)
+      return depositFromObject(ev, evSetup, *myPhoton);
 
-    const reco::Photon * myPhoton= dynamic_cast<const reco::Photon*>(&cand);
-    if(myPhoton)
-      return depositFromObject(ev, evSetup,*myPhoton);
+    const reco::GsfElectron *myElectron = dynamic_cast<const reco::GsfElectron *>(&cand);
+    if (myElectron)
+      return depositFromObject(ev, evSetup, *myElectron);
 
-    const reco::GsfElectron * myElectron = dynamic_cast<const reco::GsfElectron*>(&cand);
-    if(myElectron)
-      return depositFromObject(ev,evSetup,*myElectron);
-
-    const reco::PFCandidate * myPFCand = dynamic_cast<const reco::PFCandidate*>(&cand);
-    return depositFromObject(ev, evSetup,*myPFCand);
+    const reco::PFCandidate *myPFCand = dynamic_cast<const reco::PFCandidate *>(&cand);
+    return depositFromObject(ev, evSetup, *myPFCand);
   }
 
 private:
-  reco::IsoDeposit::Veto veto( const reco::IsoDeposit::Direction & dir) const;
+  reco::IsoDeposit::Veto veto(const reco::IsoDeposit::Direction &dir) const;
 
-  reco::IsoDeposit depositFromObject( const edm::Event & ev,
-				      const edm::EventSetup & evSetup, const reco::Photon &cand) const ;
+  reco::IsoDeposit depositFromObject(const edm::Event &ev,
+                                     const edm::EventSetup &evSetup,
+                                     const reco::Photon &cand) const;
 
-  reco::IsoDeposit depositFromObject( const edm::Event & ev,
-				      const edm::EventSetup & evSetup, const reco::GsfElectron &cand) const ;
+  reco::IsoDeposit depositFromObject(const edm::Event &ev,
+                                     const edm::EventSetup &evSetup,
+                                     const reco::GsfElectron &cand) const;
 
-  reco::IsoDeposit depositFromObject( const edm::Event & ev,
-				      const edm::EventSetup & evSetup, const reco::Track &cand) const ;
+  reco::IsoDeposit depositFromObject(const edm::Event &ev,
+                                     const edm::EventSetup &evSetup,
+                                     const reco::Track &cand) const;
 
-  reco::IsoDeposit depositFromObject( const edm::Event & ev,
-				      const edm::EventSetup & evSetup, const reco::PFCandidate &cand) const ;
+  reco::IsoDeposit depositFromObject(const edm::Event &ev,
+                                     const edm::EventSetup &evSetup,
+                                     const reco::PFCandidate &cand) const;
 
   // Parameter set
-  edm::EDGetTokenT<reco::PFCandidateCollection> thePFCandToken; // Track Collection Label
-  std::string theDepositLabel;         // name for deposit
-  bool theVetoSuperClusterMatch;         //SuperClusterRef Check
-  bool theMissHitVetoSuperClusterMatch;   // veto PF photons sharing SC with supercluster if misshits >0
-  double theDiff_r;                    // transverse distance to vertex
-  double theDiff_z;                    // z distance to vertex
-  double theDR_Max;                    // Maximum cone angle for deposits
-  double theDR_Veto;                   // Veto cone angle
+  edm::EDGetTokenT<reco::PFCandidateCollection> thePFCandToken;  // Track Collection Label
+  std::string theDepositLabel;                                   // name for deposit
+  bool theVetoSuperClusterMatch;                                 //SuperClusterRef Check
+  bool theMissHitVetoSuperClusterMatch;  // veto PF photons sharing SC with supercluster if misshits >0
+  double theDiff_r;                      // transverse distance to vertex
+  double theDiff_z;                      // z distance to vertex
+  double theDR_Max;                      // Maximum cone angle for deposits
+  double theDR_Veto;                     // Veto cone angle
 };
-
 
 #endif

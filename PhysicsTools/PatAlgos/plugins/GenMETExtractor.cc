@@ -7,8 +7,7 @@
 
 using namespace pat;
 
-GenMETExtractor::GenMETExtractor(const edm::ParameterSet& iConfig) {
-
+GenMETExtractor::GenMETExtractor(const edm::ParameterSet &iConfig) {
   edm::InputTag metIT = iConfig.getParameter<edm::InputTag>("metSource");
   metSrcToken_ = consumes<pat::METCollection>(metIT);
 
@@ -16,28 +15,22 @@ GenMETExtractor::GenMETExtractor(const edm::ParameterSet& iConfig) {
   produces<std::vector<reco::GenMET> >();
 }
 
+GenMETExtractor::~GenMETExtractor() {}
 
-GenMETExtractor::~GenMETExtractor() {
-
-}
-
-
-void GenMETExtractor::produce(edm::StreamID streamID, edm::Event & iEvent,
-			      const edm::EventSetup & iSetup) const {
-
-  edm::Handle<std::vector<pat::MET> >  src;
+void GenMETExtractor::produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
+  edm::Handle<std::vector<pat::MET> > src;
   iEvent.getByToken(metSrcToken_, src);
-  if(src->empty()) edm::LogError("GenMETExtractor::produce") << "input genMET collection is empty" ;
+  if (src->empty())
+    edm::LogError("GenMETExtractor::produce") << "input genMET collection is empty";
 
-  const reco::GenMET *genMet =	src->front().genMET();
-  
+  const reco::GenMET *genMet = src->front().genMET();
+
   std::vector<reco::GenMET> *genMetCol = new std::vector<reco::GenMET>();
-  genMetCol->push_back( (*genMet) );
+  genMetCol->push_back((*genMet));
 
   std::unique_ptr<std::vector<reco::GenMET> > genMETs(genMetCol);
   iEvent.put(std::move(genMETs));
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

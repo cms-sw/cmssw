@@ -6,27 +6,26 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <string>
 
-class L1TCSCTFClient: public DQMEDHarvester {
+class L1TCSCTFClient : public DQMEDHarvester {
 public:
-
   /// Constructor
-  L1TCSCTFClient(const edm::ParameterSet& ps);
+  L1TCSCTFClient(const edm::ParameterSet &ps);
 
   /// Destructor
   ~L1TCSCTFClient() override;
 
 protected:
-
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;  //performed in the endLumi
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;       //performed in the endLumi
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:
-
   void initialize();
 
   void processHistograms(DQMStore::IGetter &);
@@ -34,10 +33,10 @@ private:
   edm::ParameterSet parameters;
 
   std::string input_dir, output_dir;
-  int counterLS;      ///counter
-  int counterEvt;     ///counter
-  int prescaleLS;     ///units of lumi sections
-  int prescaleEvt;    ///prescale on number of events
+  int counterLS;    ///counter
+  int counterEvt;   ///counter
+  int prescaleLS;   ///units of lumi sections
+  int prescaleEvt;  ///prescale on number of events
 
   bool m_runInEventLoop;
   bool m_runInEndLumi;

@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_PixelRodBuilder_h
 #define TkDetLayers_PixelRodBuilder_h
 
-
 #include "PixelRod.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,14 +11,11 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelRodBuilder {  
- public:
+class PixelRodBuilder {
+public:
   PixelRodBuilder(){};
-  PixelRod* build(const GeometricDet* aRod,
-		  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-  
+  PixelRod* build(const GeometricDet* aRod, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 
-
 #pragma GCC visibility pop
-#endif 
+#endif

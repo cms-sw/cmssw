@@ -9,9 +9,6 @@
 #include "CommonTools/UtilAlgos/interface/AssociationVector2ValueMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef AssociationVector2ValueMap<
-          reco::CandidateRefProd,
-          std::vector<double>
-        > CandDoubleAssociationVector2ValueMap;
+typedef AssociationVector2ValueMap<reco::CandidateRefProd, std::vector<double> > CandDoubleAssociationVector2ValueMap;
 
 DEFINE_FWK_MODULE(CandDoubleAssociationVector2ValueMap);

@@ -7,6 +7,7 @@ Provides methods for performing/closing the request, as well as getting the requ
 Note: user agent string from current version of cmsDbUpload
 """
 from __future__ import print_function
+from __future__ import absolute_import
 
 import pycurl
 from StringIO import StringIO
@@ -14,7 +15,7 @@ from urllib import urlencode
 import traceback
 import sys
 import json
-from errors import *
+from .errors import *
 from time import sleep
 
 class url_query():

@@ -12,96 +12,78 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <string>
 
-CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) 
-:  theDigitizer(ps),
-   theStripConditions(nullptr)
-{
+CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet &ps) : theDigitizer(ps), theStripConditions(nullptr) {
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
   produces<DigiSimLinks>("MuonCSCWireDigiSimLinks");
   produces<DigiSimLinks>("MuonCSCStripDigiSimLinks");
-  std::string stripConditions( ps.getParameter<std::string>("stripConditions") );
+  std::string stripConditions(ps.getParameter<std::string>("stripConditions"));
   geometryType = ps.getParameter<std::string>("GeometryType");
   edm::ParameterSet stripPSet = ps.getParameter<edm::ParameterSet>("strips");
-  if( stripConditions == "Configurable" )
-  {
+  if (stripConditions == "Configurable") {
     theStripConditions = new CSCConfigurableStripConditions(stripPSet);
-  }
-  else if ( stripConditions == "Database" )
-  {
+  } else if (stripConditions == "Database") {
     theStripConditions = new CSCDbStripConditions(stripPSet);
-  }
-  else
-  {
-    throw cms::Exception("CSCDigiProducer") 
-      << "Bad option for strip conditions: "
-      << stripConditions;
+  } else {
+    throw cms::Exception("CSCDigiProducer") << "Bad option for strip conditions: " << stripConditions;
   }
   theDigitizer.setStripConditions(theStripConditions);
 
   edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-   throw cms::Exception("Configuration")
-     << "CSCDigitizer requires the RandomNumberGeneratorService\n"
-        "which is not present in the configuration file.  You must add the service\n"
-        "in the configuration file or remove the modules that require it.";
+  if (!rng.isAvailable()) {
+    throw cms::Exception("Configuration") << "CSCDigitizer requires the RandomNumberGeneratorService\n"
+                                             "which is not present in the configuration file.  You must add the "
+                                             "service\n"
+                                             "in the configuration file or remove the modules that require it.";
   }
 
   std::string mix_ = ps.getParameter<std::string>("mixLabel");
   std::string collection_ = ps.getParameter<std::string>("InputCollection");
-  cf_token = consumes<CrossingFrame<PSimHit> >( edm::InputTag(mix_, collection_) );
+  cf_token = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_));
 }
 
+CSCDigiProducer::~CSCDigiProducer() { delete theStripConditions; }
 
-CSCDigiProducer::~CSCDigiProducer()
-{
-  delete theStripConditions;
-}
-
-
-void CSCDigiProducer::produce(edm::Event& ev, const edm::EventSetup& eventSetup) {
-
-  edm::LogVerbatim("CSCDigitizer") << "[CSCDigiProducer::produce] starting event " << 
-      ev.id().event() << " of run " << ev.id().run();
+void CSCDigiProducer::produce(edm::Event &ev, const edm::EventSetup &eventSetup) {
+  edm::LogVerbatim("CSCDigitizer") << "[CSCDigiProducer::produce] starting event " << ev.id().event() << " of run "
+                                   << ev.id().run();
   edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine* engine = &rng->getEngine(ev.streamID());
+  CLHEP::HepRandomEngine *engine = &rng->getEngine(ev.streamID());
 
-  edm::Handle<CrossingFrame<PSimHit> > cf;
+  edm::Handle<CrossingFrame<PSimHit>> cf;
   ev.getByToken(cf_token, cf);
 
-  std::unique_ptr<MixCollection<PSimHit> >
-    hits( new MixCollection<PSimHit>(cf.product()) );
+  std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
 
   // Create empty output
 
   std::unique_ptr<CSCWireDigiCollection> pWireDigis(new CSCWireDigiCollection());
   std::unique_ptr<CSCStripDigiCollection> pStripDigis(new CSCStripDigiCollection());
   std::unique_ptr<CSCComparatorDigiCollection> pComparatorDigis(new CSCComparatorDigiCollection());
-  std::unique_ptr<DigiSimLinks> pWireDigiSimLinks(new DigiSimLinks() );
-  std::unique_ptr<DigiSimLinks> pStripDigiSimLinks(new DigiSimLinks() );
+  std::unique_ptr<DigiSimLinks> pWireDigiSimLinks(new DigiSimLinks());
+  std::unique_ptr<DigiSimLinks> pStripDigiSimLinks(new DigiSimLinks());
 
   //@@ DOES NOTHING IF NO HITS.  Remove this for when there's real neutrons
-  if(hits->size() > 0) 
-  {
+  if (hits->size() > 0) {
     // find the geometry & conditions for this event
     edm::ESHandle<CSCGeometry> hGeom;
-    eventSetup.get<MuonGeometryRecord>().get(geometryType,hGeom);
+    eventSetup.get<MuonGeometryRecord>().get(geometryType, hGeom);
     const CSCGeometry *pGeom = &*hGeom;
 
-    theDigitizer.setGeometry( pGeom );
+    theDigitizer.setGeometry(pGeom);
 
     // find the magnetic field
     edm::ESHandle<MagneticField> magfield;
@@ -109,19 +91,17 @@ void CSCDigiProducer::produce(edm::Event& ev, const edm::EventSetup& eventSetup)
 
     theDigitizer.setMagneticField(&*magfield);
 
-
     // set the particle table
-    edm::ESHandle < ParticleDataTable > pdt;
-    eventSetup.getData( pdt );
+    edm::ESHandle<ParticleDataTable> pdt;
+    eventSetup.getData(pdt);
     theDigitizer.setParticleDataTable(&*pdt);
 
     theStripConditions->initializeEvent(eventSetup);
 
     // run the digitizer
-    theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis,
-                          *pWireDigiSimLinks, *pStripDigiSimLinks, engine);
+    theDigitizer.doAction(
+        *hits, *pWireDigis, *pStripDigis, *pComparatorDigis, *pWireDigiSimLinks, *pStripDigiSimLinks, engine);
   }
-
 
   // store them in the event
   ev.put(std::move(pWireDigis), "MuonCSCWireDigi");
@@ -130,4 +110,3 @@ void CSCDigiProducer::produce(edm::Event& ev, const edm::EventSetup& eventSetup)
   ev.put(std::move(pWireDigiSimLinks), "MuonCSCWireDigiSimLinks");
   ev.put(std::move(pStripDigiSimLinks), "MuonCSCStripDigiSimLinks");
 }
-

@@ -15,10 +15,10 @@
 #include <vector>
 
 class PVPositionBuilder {
- public:
+public:
   /// Constructor does nothing, no data members
   PVPositionBuilder();
-   
+
   /// Calculate unweighted average of Z of tracks from const collection of track pointers
   Measurement1D average(const reco::TrackRefVector& trks) const;
 

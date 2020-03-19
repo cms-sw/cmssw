@@ -26,6 +26,7 @@ is the DataBlock.
 #include <memory>
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace edm {
   class BranchID;
@@ -40,7 +41,6 @@ namespace edm {
   class StreamContext;
   class ThinnedAssociation;
   class ThinnedAssociationsHelper;
-  class ProcessHistoryRegistry;
   class RunPrincipal;
 
   class EventPrincipal : public Principal {
@@ -51,123 +51,91 @@ namespace edm {
     typedef Base::ConstProductResolverPtr ConstProductResolverPtr;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
-    EventPrincipal(
-        std::shared_ptr<ProductRegistry const> reg,
-        std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
-        std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
-        ProcessConfiguration const& pc,
-        HistoryAppender* historyAppender,
-        unsigned int streamIndex = 0,
-        bool isForPrimaryProcess = true);
+    EventPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                   std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
+                   std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
+                   ProcessConfiguration const& pc,
+                   HistoryAppender* historyAppender,
+                   unsigned int streamIndex = 0,
+                   bool isForPrimaryProcess = true);
     ~EventPrincipal() override {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
-        ProcessHistoryRegistry const& processHistoryRegistry,
+                            ProcessHistory const* processHistory,
                             DelayedReader* reader = nullptr);
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes);
+                            ProcessHistory const* processHistory,
+                            EventSelectionIDVector eventSelectionIDs,
+                            BranchListIndexes branchListIndexes);
     //provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
     void fillEventPrincipal(EventAuxiliary const& aux,
-                            ProcessHistoryRegistry const& processHistoryRegistry,
-                            EventSelectionIDVector&& eventSelectionIDs,
-                            BranchListIndexes&& branchListIndexes,
+                            ProcessHistory const* processHistory,
+                            EventSelectionIDVector eventSelectionIDs,
+                            BranchListIndexes branchListIndexes,
                             ProductProvenanceRetriever const& provRetriever,
                             DelayedReader* reader = nullptr,
                             bool deepCopyRetriever = true);
 
-    
     void clearEventPrincipal();
 
-    LuminosityBlockPrincipal const& luminosityBlockPrincipal() const {
-      return *luminosityBlockPrincipal_;
-    }
+    LuminosityBlockPrincipal const& luminosityBlockPrincipal() const { return *luminosityBlockPrincipal_; }
 
-    LuminosityBlockPrincipal& luminosityBlockPrincipal() {
-      return *luminosityBlockPrincipal_;
-    }
+    LuminosityBlockPrincipal& luminosityBlockPrincipal() { return *luminosityBlockPrincipal_; }
 
-    bool luminosityBlockPrincipalPtrValid() const {
-      return luminosityBlockPrincipal_ != nullptr;
-    }
+    bool luminosityBlockPrincipalPtrValid() const { return luminosityBlockPrincipal_ != nullptr; }
 
     //does not share ownership
     void setLuminosityBlockPrincipal(LuminosityBlockPrincipal* lbp);
 
     void setRunAndLumiNumber(RunNumber_t run, LuminosityBlockNumber_t lumi);
 
-    EventID const& id() const {
-      return aux().id();
-    }
+    EventID const& id() const { return aux().id(); }
 
-    Timestamp const& time() const {
-      return aux().time();
-    }
+    Timestamp const& time() const { return aux().time(); }
 
-    bool isReal() const {
-      return aux().isRealData();
-    }
+    bool isReal() const { return aux().isRealData(); }
 
-    EventAuxiliary::ExperimentType ExperimentType() const {
-      return aux().experimentType();
-    }
+    EventAuxiliary::ExperimentType ExperimentType() const { return aux().experimentType(); }
 
-    int bunchCrossing() const {
-      return aux().bunchCrossing();
-    }
+    int bunchCrossing() const { return aux().bunchCrossing(); }
 
-    int storeNumber() const {
-      return aux().storeNumber();
-    }
+    int storeNumber() const { return aux().storeNumber(); }
 
-    EventAuxiliary const& aux() const {
-      return aux_;
-    }
+    EventAuxiliary const& aux() const { return aux_; }
 
-    StreamID streamID() const { return streamID_;}
+    StreamID streamID() const { return streamID_; }
 
-    LuminosityBlockNumber_t luminosityBlock() const {
-      return id().luminosityBlock();
-    }
+    LuminosityBlockNumber_t luminosityBlock() const { return id().luminosityBlock(); }
 
-    RunNumber_t run() const {
-      return id().run();
-    }
+    RunNumber_t run() const { return id().run(); }
 
     RunPrincipal const& runPrincipal() const;
 
-    ProductProvenanceRetriever const* productProvenanceRetrieverPtr() const {return provRetrieverPtr_.get();}
+    ProductProvenanceRetriever const* productProvenanceRetrieverPtr() const { return provRetrieverPtr_.get(); }
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
     BranchListIndexes const& branchListIndexes() const;
 
-    Provenance
-    getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const;
+    Provenance getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const;
 
-    BasicHandle
-    getByProductID(ProductID const& oid) const;
+    BasicHandle getByProductID(ProductID const& oid) const;
 
-    void put(
-        BranchDescription const& bd,
-        std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) const;
-
-    void put(ProductResolverIndex index,
+    void put(BranchDescription const& bd,
              std::unique_ptr<WrapperBase> edp,
-             ParentageID productProvenance) const;
+             ProductProvenance const& productProvenance) const;
 
-    void putOnRead(
-        BranchDescription const& bd,
-        std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const* productProvenance) const;
+    void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp, ParentageID productProvenance) const;
+
+    void putOnRead(BranchDescription const& bd,
+                   std::unique_ptr<WrapperBase> edp,
+                   std::optional<ProductProvenance> productProvenance) const;
 
     WrapperBase const* getIt(ProductID const& pid) const override;
     WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
     void getThinnedProducts(ProductID const& pid,
-                                    std::vector<WrapperBase const*>& foundContainers,
-                                    std::vector<unsigned int>& keys) const override;
+                            std::vector<WrapperBase const*>& foundContainers,
+                            std::vector<unsigned int>& keys) const override;
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
@@ -178,18 +146,25 @@ namespace edm {
     using Base::getProvenance;
 
   private:
-
     BranchID pidToBid(ProductID const& pid) const;
 
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
     unsigned int transitionIndex_() const override;
-    
-    std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {return get_underlying_safe(provRetrieverPtr_);}
-    std::shared_ptr<ProductProvenanceRetriever>& provRetrieverPtr() {return get_underlying_safe(provRetrieverPtr_);}
+    void changedIndexes_() final;
+
+    std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {
+      return get_underlying_safe(provRetrieverPtr_);
+    }
+    std::shared_ptr<ProductProvenanceRetriever>& provRetrieverPtr() { return get_underlying_safe(provRetrieverPtr_); }
+
+    bool wasBranchListIndexesChangedFromInput(BranchListIndexes const&) const;
+    void updateBranchListIndexes(BranchListIndexes&&);
+    void commonFillEventPrincipal(EventAuxiliary const& aux,
+                                  ProcessHistory const* processHistory,
+                                  DelayedReader* reader);
 
   private:
-
     EventAuxiliary aux_;
 
     edm::propagate_const<LuminosityBlockPrincipal*> luminosityBlockPrincipal_;
@@ -204,17 +179,11 @@ namespace edm {
 
     BranchListIndexes branchListIndexes_;
 
-    std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
-    
-    StreamID streamID_;
+    std::vector<ProcessIndex> branchListIndexToProcessIndex_;
 
+    StreamID streamID_;
   };
 
-  inline
-  bool
-  isSameEvent(EventPrincipal const& a, EventPrincipal const& b) {
-    return isSameEvent(a.aux(), b.aux());
-  }
-}
+  inline bool isSameEvent(EventPrincipal const& a, EventPrincipal const& b) { return isSameEvent(a.aux(), b.aux()); }
+}  // namespace edm
 #endif
-

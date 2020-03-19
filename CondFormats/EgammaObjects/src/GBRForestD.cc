@@ -1,13 +1,7 @@
 #include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 
 //_______________________________________________________________________
-GBRForestD::GBRForestD() :
-fInitialResponse(0.)
-{
-
-}
+GBRForestD::GBRForestD() : fInitialResponse(0.) {}
 
 //_______________________________________________________________________
-GBRForestD::~GBRForestD() 
-{
-}
+GBRForestD::~GBRForestD() {}

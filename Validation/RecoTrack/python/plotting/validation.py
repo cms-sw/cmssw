@@ -1,16 +1,18 @@
 from __future__ import print_function
+from __future__ import absolute_import
 import os
 import re
 import sys
 import shutil
 import subprocess
+import urllib
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-import plotting
-import html
+from . import plotting
+from . import html
 
 # Mapping from releases to GlobalTags
 _globalTags = {
@@ -734,7 +736,7 @@ class Validation:
         if not os.path.exists(certfile):
             print("Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl))
             sys.exit(1)
-        
+
         # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkey.pem -k -O <url> -O <url>
         cmd = ["curl", "--cert-type", "PEM", "--cert", certfile, "--key", keyfile, "-k"]
         for u in urls:
@@ -1291,6 +1293,14 @@ class SimpleValidation:
             print("Plotter produced multiple files with names", ", ".join(dups))
             print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
+
+        if self._plotterDrawArgs.get("separate", False):
+            if not os.path.exists("%s/res"%newdir):
+              os.makedirs("%s/res"%newdir)
+            downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
+            for d in downloadables:
+                if not os.path.exists("%s/%s" % (newdir,d)):
+                    urllib.urlretrieve("https://raw.githubusercontent.com/musella/php-plots/master/%s"%d, "%s/%s"%(newdir,d))
 
         print("Created plots in %s" % newdir)
         return map(lambda n: n.replace(newdir, newsubdir), fileList)

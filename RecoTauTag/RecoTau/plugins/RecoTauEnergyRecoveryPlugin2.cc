@@ -32,50 +32,47 @@
 
 #include <algorithm>
 
-namespace reco { namespace tau {
+namespace reco {
+  namespace tau {
 
-class RecoTauEnergyRecoveryPlugin2 : public RecoTauModifierPlugin
-{
- public:
+    class RecoTauEnergyRecoveryPlugin2 : public RecoTauModifierPlugin {
+    public:
+      explicit RecoTauEnergyRecoveryPlugin2(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
+      ~RecoTauEnergyRecoveryPlugin2() override;
+      void operator()(PFTau&) const override;
+      void beginEvent() override;
 
-  explicit RecoTauEnergyRecoveryPlugin2(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  ~RecoTauEnergyRecoveryPlugin2() override;
-  void operator()(PFTau&) const override;
-  void beginEvent() override;
+    private:
+      double dRcone_;
+    };
 
- private:
+    RecoTauEnergyRecoveryPlugin2::RecoTauEnergyRecoveryPlugin2(const edm::ParameterSet& cfg,
+                                                               edm::ConsumesCollector&& iC)
+        : RecoTauModifierPlugin(cfg, std::move(iC)), dRcone_(cfg.getParameter<double>("dRcone")) {}
 
-  double dRcone_;
-};
+    RecoTauEnergyRecoveryPlugin2::~RecoTauEnergyRecoveryPlugin2() {}
 
-  RecoTauEnergyRecoveryPlugin2::RecoTauEnergyRecoveryPlugin2(const edm::ParameterSet& cfg, edm::ConsumesCollector &&iC)
-    : RecoTauModifierPlugin(cfg, std::move(iC)),
-    dRcone_(cfg.getParameter<double>("dRcone"))
-{}
+    void RecoTauEnergyRecoveryPlugin2::beginEvent() {}
 
-RecoTauEnergyRecoveryPlugin2::~RecoTauEnergyRecoveryPlugin2()
-{}
+    void RecoTauEnergyRecoveryPlugin2::operator()(PFTau& tau) const {
+      reco::Candidate::LorentzVector tauAltP4(0., 0., 0., 0.);
 
-void RecoTauEnergyRecoveryPlugin2::beginEvent()
-{}
+      std::vector<reco::CandidatePtr> pfJetConstituents = tau.jetRef()->getJetConstituents();
+      for (std::vector<reco::CandidatePtr>::const_iterator pfJetConstituent = pfJetConstituents.begin();
+           pfJetConstituent != pfJetConstituents.end();
+           ++pfJetConstituent) {
+        double dR = deltaR((*pfJetConstituent)->p4(), tau.p4());
+        if (dR < dRcone_)
+          tauAltP4 += (*pfJetConstituent)->p4();
+      }
 
-void RecoTauEnergyRecoveryPlugin2::operator()(PFTau& tau) const
-{
-  reco::Candidate::LorentzVector tauAltP4(0.,0.,0.,0.);
-  
-  std::vector<reco::PFCandidatePtr> pfJetConstituents = tau.jetRef()->getPFConstituents();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfJetConstituent = pfJetConstituents.begin();
-	pfJetConstituent != pfJetConstituents.end(); ++pfJetConstituent ) {
-    double dR = deltaR((*pfJetConstituent)->p4(), tau.p4());
-    if ( dR < dRcone_ ) tauAltP4 += (*pfJetConstituent)->p4();
-  }
+      tau.setalternatLorentzVect(tauAltP4);
+    }
 
-  tau.setalternatLorentzVect(tauAltP4);
-}
-
-}} // end namespace reco::tau
+  }  // namespace tau
+}  // namespace reco
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_EDM_PLUGIN(RecoTauModifierPluginFactory,
-    reco::tau::RecoTauEnergyRecoveryPlugin2,
-    "RecoTauEnergyRecoveryPlugin2");
+                  reco::tau::RecoTauEnergyRecoveryPlugin2,
+                  "RecoTauEnergyRecoveryPlugin2");

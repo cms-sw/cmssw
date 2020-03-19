@@ -12,7 +12,7 @@ process = cms.Process("HSCPAnalysis")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 

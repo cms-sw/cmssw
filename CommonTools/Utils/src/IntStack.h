@@ -15,6 +15,6 @@ namespace reco {
   namespace parser {
     typedef std::vector<int> IntStack;
   }
-}
+}  // namespace reco
 
 #endif

@@ -6,4 +6,4 @@ namespace CondFormats_RecoMuonObjects {
     MuScleFitDBobject e;
     DYTParamsObject g;
   };
-}
+}  // namespace CondFormats_RecoMuonObjects

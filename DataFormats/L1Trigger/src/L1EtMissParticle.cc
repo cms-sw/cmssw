@@ -2,7 +2,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1EtMissParticle
-// 
+//
 /**\class L1EtMissParticle \file L1EtMissParticle.cc DataFormats/L1Trigger/src/L1EtMissParticle.cc \author Werner Sun
 */
 //
@@ -15,7 +15,7 @@
 // user include files
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
-using namespace l1extra ;
+using namespace l1extra;
 
 //
 // constants, enums and typedefs
@@ -28,50 +28,41 @@ using namespace l1extra ;
 //
 // constructors and destructor
 //
-L1EtMissParticle::L1EtMissParticle()
-{
-}
+L1EtMissParticle::L1EtMissParticle() {}
 
-L1EtMissParticle::L1EtMissParticle(
-	const LorentzVector& p4,
-	EtMissType type,
-	const double& etTotal,
-	const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
-	const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
-	const edm::Ref< L1GctHtMissCollection >& aHtMissRef,
-	const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
-	int bx )
-   : LeafCandidate( ( char ) 0, p4 ),
-     type_( type ),
-     etTot_( etTotal ),
-     etMissRef_( aEtMissRef ),
-     etTotRef_( aEtTotalRef ),
-     htMissRef_( aHtMissRef ),
-     etHadRef_( aEtHadRef ),
-     bx_( bx )
-{
-}
+L1EtMissParticle::L1EtMissParticle(const LorentzVector& p4,
+                                   EtMissType type,
+                                   const double& etTotal,
+                                   const edm::Ref<L1GctEtMissCollection>& aEtMissRef,
+                                   const edm::Ref<L1GctEtTotalCollection>& aEtTotalRef,
+                                   const edm::Ref<L1GctHtMissCollection>& aHtMissRef,
+                                   const edm::Ref<L1GctEtHadCollection>& aEtHadRef,
+                                   int bx)
+    : LeafCandidate((char)0, p4),
+      type_(type),
+      etTot_(etTotal),
+      etMissRef_(aEtMissRef),
+      etTotRef_(aEtTotalRef),
+      htMissRef_(aHtMissRef),
+      etHadRef_(aEtHadRef),
+      bx_(bx) {}
 
-
-L1EtMissParticle::L1EtMissParticle(
-	const PolarLorentzVector& p4,
-	EtMissType type,
-	const double& etTotal,
-	const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
-	const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
-	const edm::Ref< L1GctHtMissCollection >& aHtMissRef,
-	const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
-	int bx )
-   : LeafCandidate( ( char ) 0, p4 ),
-     type_( type ),
-     etTot_( etTotal ),
-     etMissRef_( aEtMissRef ),
-     etTotRef_( aEtTotalRef ),
-     htMissRef_( aHtMissRef ),
-     etHadRef_( aEtHadRef ),
-     bx_( bx )
-{
-}
+L1EtMissParticle::L1EtMissParticle(const PolarLorentzVector& p4,
+                                   EtMissType type,
+                                   const double& etTotal,
+                                   const edm::Ref<L1GctEtMissCollection>& aEtMissRef,
+                                   const edm::Ref<L1GctEtTotalCollection>& aEtTotalRef,
+                                   const edm::Ref<L1GctHtMissCollection>& aHtMissRef,
+                                   const edm::Ref<L1GctEtHadCollection>& aEtHadRef,
+                                   int bx)
+    : LeafCandidate((char)0, p4),
+      type_(type),
+      etTot_(etTotal),
+      etMissRef_(aEtMissRef),
+      etTotRef_(aEtTotalRef),
+      htMissRef_(aHtMissRef),
+      etHadRef_(aEtHadRef),
+      bx_(bx) {}
 
 // L1EtMissParticle::L1EtMissParticle(const L1EtMissParticle& rhs)
 // {

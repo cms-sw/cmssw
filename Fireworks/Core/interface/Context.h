@@ -38,120 +38,109 @@ class FWBeamSpot;
 class CmsShowCommon;
 
 namespace fireworks {
-class Context {
+  class Context {
+  public:
+    Context(FWModelChangeManager* iCM,
+            FWSelectionManager* iSM,
+            FWEventItemsManager* iEM,
+            FWColorManager* iColorM,
+            FWJobMetadataManager* iJMDM);
+    virtual ~Context();
 
-public:
-   Context(FWModelChangeManager* iCM,
-           FWSelectionManager*   iSM,
-           FWEventItemsManager*  iEM,
-           FWColorManager*       iColorM,
-           FWJobMetadataManager* iJMDM);
-   virtual ~Context();
+    void setGeom(const FWGeometry* x) { m_geom = x; }
 
-   void  setGeom(const FWGeometry* x) { m_geom = x; }
+    // ---------- const member functions ---------------------
+    FWModelChangeManager* modelChangeManager() const { return m_changeManager; }
+    FWSelectionManager* selectionManager() const { return m_selectionManager; }
 
-   // ---------- const member functions ---------------------
-   FWModelChangeManager* modelChangeManager() const {
-      return m_changeManager;
-   }
-   FWSelectionManager* selectionManager() const {
-      return m_selectionManager;
-   }
+    const FWEventItemsManager* eventItemsManager() const { return m_eventItemsManager; }
 
-   const FWEventItemsManager* eventItemsManager() const {
-      return m_eventItemsManager;
-   }
-      
-   FWColorManager* colorManager() const {
-      return m_colorManager;
-   }
+    FWColorManager* colorManager() const { return m_colorManager; }
 
-   FWJobMetadataManager* metadataManager() const {
-      return m_metadataManager;
-   }
+    FWJobMetadataManager* metadataManager() const { return m_metadataManager; }
 
-   TEveTrackPropagator* getTrackPropagator()        const { return m_propagator;        }
-   TEveTrackPropagator* getTrackerTrackPropagator() const { return m_trackerPropagator; }
-   TEveTrackPropagator* getMuonTrackPropagator()    const { return m_muonPropagator;    }
+    TEveTrackPropagator* getTrackPropagator() const { return m_propagator; }
+    TEveTrackPropagator* getTrackerTrackPropagator() const { return m_trackerPropagator; }
+    TEveTrackPropagator* getMuonTrackPropagator() const { return m_muonPropagator; }
 
-   FWMagField*          getField()             const { return m_magField; }
-   FWBeamSpot*          getBeamSpot()          const { return m_beamSpot; }
+    FWMagField* getField() const { return m_magField; }
+    FWBeamSpot* getBeamSpot() const { return m_beamSpot; }
 
-   TEveCaloDataHist*    getCaloData()   const { return m_caloData; }
-   TEveCaloDataVec*     getCaloDataHF() const { return m_caloDataHF; }
+    TEveCaloDataHist* getCaloData() const { return m_caloData; }
+    TEveCaloDataVec* getCaloDataHF() const { return m_caloDataHF; }
 
-   const  FWGeometry* getGeom()  const { return m_geom; }   
+    const FWGeometry* getGeom() const { return m_geom; }
 
-   CmsShowCommon* commonPrefs() const;
+    CmsShowCommon* commonPrefs() const;
 
-   float getMaxEnergyInEvent(bool isEt) const;
-   void  voteMaxEtAndEnergy(float Et, float energy) const;
-   void  resetMaxEtAndEnergy() const;
+    float getMaxEnergyInEvent(bool isEt) const;
+    void voteMaxEtAndEnergy(float Et, float energy) const;
+    void resetMaxEtAndEnergy() const;
 
-   bool getHidePFBuilders() const { return m_hidePFBuilders; }
-   void setHidePFBuilders( bool x ) { m_hidePFBuilders = x; } 
+    bool getHidePFBuilders() const { return m_hidePFBuilders; }
+    void setHidePFBuilders(bool x) { m_hidePFBuilders = x; }
 
-   // ---------- member functions ---------------------------
-  
-   void initEveElements();
-   void deleteEveElements();
+    // ---------- member functions ---------------------------
 
-   // ---------- static member  ---------------------------
+    void initEveElements();
+    void deleteEveElements();
 
-   static Context* getInstance();
+    // ---------- static member  ---------------------------
 
-   static float  caloR1(bool offset = true);
-   static float  caloR2(bool offset = true);
-   static float  caloZ1(bool offset = true);
-   static float  caloZ2(bool offset = true);
+    static Context* getInstance();
 
-   static float  caloTransEta();
-   static float  caloTransAngle();
-   static double caloMaxEta();
+    static float caloR1(bool offset = true);
+    static float caloR2(bool offset = true);
+    static float caloZ1(bool offset = true);
+    static float caloZ2(bool offset = true);
 
-private:
-   Context(const Context&) = delete; // stop default
-   const Context& operator=(const Context&) = delete; // stop default
+    static float caloTransEta();
+    static float caloTransAngle();
+    static double caloMaxEta();
 
-   // ---------- member data --------------------------------
-   FWModelChangeManager *m_changeManager;
-   FWSelectionManager   *m_selectionManager;
-   FWEventItemsManager  *m_eventItemsManager;
-   FWColorManager       *m_colorManager;
-   FWJobMetadataManager *m_metadataManager;
+  private:
+    Context(const Context&) = delete;                   // stop default
+    const Context& operator=(const Context&) = delete;  // stop default
 
-   const FWGeometry     *m_geom;
+    // ---------- member data --------------------------------
+    FWModelChangeManager* m_changeManager;
+    FWSelectionManager* m_selectionManager;
+    FWEventItemsManager* m_eventItemsManager;
+    FWColorManager* m_colorManager;
+    FWJobMetadataManager* m_metadataManager;
 
-   TEveTrackPropagator  *m_propagator;
-   TEveTrackPropagator  *m_trackerPropagator;
-   TEveTrackPropagator  *m_muonPropagator;
+    const FWGeometry* m_geom;
 
-   FWMagField           *m_magField;
-   FWBeamSpot           *m_beamSpot;
+    TEveTrackPropagator* m_propagator;
+    TEveTrackPropagator* m_trackerPropagator;
+    TEveTrackPropagator* m_muonPropagator;
 
-   CmsShowCommon        *m_commonPrefs;
+    FWMagField* m_magField;
+    FWBeamSpot* m_beamSpot;
 
-   mutable float                 m_maxEt;
-   mutable float                 m_maxEnergy;
+    CmsShowCommon* m_commonPrefs;
 
-   mutable bool          m_hidePFBuilders;
+    mutable float m_maxEt;
+    mutable float m_maxEnergy;
 
-   TEveCaloDataHist     *m_caloData;
-   TEveCaloDataVec      *m_caloDataHF;
+    mutable bool m_hidePFBuilders;
 
-   static Context* s_fwContext;
+    TEveCaloDataHist* m_caloData;
+    TEveCaloDataVec* m_caloDataHF;
 
-   // calo data
-   static const float s_caloTransEta;
-   static const float s_caloTransAngle;
-   // simplified 
-   static const float s_caloR; 
-   static const float s_caloZ;
+    static Context* s_fwContext;
 
-   // proxy-builder offsets
-   static const float s_caloOffR;
-   static const float s_caloOffZ;
-};
-}
+    // calo data
+    static const float s_caloTransEta;
+    static const float s_caloTransAngle;
+    // simplified
+    static const float s_caloR;
+    static const float s_caloZ;
+
+    // proxy-builder offsets
+    static const float s_caloOffR;
+    static const float s_caloOffZ;
+  };
+}  // namespace fireworks
 
 #endif

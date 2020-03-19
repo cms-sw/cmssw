@@ -2,7 +2,7 @@
 //
 //   Class: DTTPGLutFile
 //
-//   Description: Auxiliary class for 
+//   Description: Auxiliary class for
 //                Look-up table files
 //
 //
@@ -40,8 +40,7 @@ using namespace std;
 
 DTTPGLutFile::DTTPGLutFile(const string name) : m_file(name) {}
 
-DTTPGLutFile::DTTPGLutFile(const DTTPGLutFile& in) : m_file(in.m_file) {}
-
+DTTPGLutFile::DTTPGLutFile(const DTTPGLutFile &in) : m_file(in.m_file) {}
 
 //--------------
 // Destructor --
@@ -53,59 +52,42 @@ DTTPGLutFile::~DTTPGLutFile() {}
 // Operations --
 //--------------
 
-DTTPGLutFile& DTTPGLutFile::operator=(const DTTPGLutFile& lut) {
-
+DTTPGLutFile &DTTPGLutFile::operator=(const DTTPGLutFile &lut) {
   m_file = lut.m_file;
   return *this;
-
 }
-
 
 int DTTPGLutFile::open() {
-
-  const char* file_name = m_file.c_str();
-  m_fin.open(file_name,ios::in);
-  if ( !m_fin ) {
+  const char *file_name = m_file.c_str();
+  m_fin.open(file_name, ios::in);
+  if (!m_fin) {
     cout << "can not open file : " << file_name << endl;
     return -1;
-  }
-  else 	{
+  } else {
     return 0;
   }
-
 }
-
 
 void DTTPGLutFile::ignoreLines(int n) {
-
   char buf[256];
-  for ( int i = 0; i < n; i++ ) m_fin.getline(buf,256);
-
+  for (int i = 0; i < n; i++)
+    m_fin.getline(buf, 256);
 }
 
-
-int DTTPGLutFile::readInteger() { 
-
+int DTTPGLutFile::readInteger() {
   int tmp = 0;
-  m_fin >> tmp; 
+  m_fin >> tmp;
   return tmp;
-
 }
 
-
-int DTTPGLutFile::readHex() { 
-
+int DTTPGLutFile::readHex() {
   int tmp = 0;
-  m_fin >> hex >> tmp; 
+  m_fin >> hex >> tmp;
   return tmp;
-    
 }
-
 
 string DTTPGLutFile::readString() {
-
   string tmp;
   m_fin >> tmp;
   return tmp;
-
 }

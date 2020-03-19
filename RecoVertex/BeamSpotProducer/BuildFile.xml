@@ -3,8 +3,6 @@
 <use   name="DataFormats/BeamSpot"/>
 <use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/Common"/>
-<use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="FWCore/Framework"/>

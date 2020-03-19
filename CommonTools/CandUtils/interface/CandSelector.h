@@ -21,7 +21,7 @@ public:
   /// destructor
   virtual ~CandSelector();
   /// return true if the candidate is selected
-  virtual bool operator()( const reco::Candidate & c ) const = 0;
+  virtual bool operator()(const reco::Candidate& c) const = 0;
 };
 
 #endif

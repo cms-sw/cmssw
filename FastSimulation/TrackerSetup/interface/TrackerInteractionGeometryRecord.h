@@ -4,7 +4,7 @@
 //
 // Package:     TrackerSetup
 // Class  :     TrackerInteractionGeometryRecord
-// 
+//
 /**\class TrackerInteractionGeometryRecord TrackerInteractionGeometryRecord.h FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Wed Nov 21 12:14:34 CET 2007
 // $Id$
 //
@@ -23,6 +23,8 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
-class TrackerInteractionGeometryRecord : public edm::eventsetup::DependentRecordImplementation<TrackerInteractionGeometryRecord, boost::mpl::vector<TrackerRecoGeometryRecord> > {};
+class TrackerInteractionGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<TrackerInteractionGeometryRecord,
+                                                            boost::mpl::vector<TrackerRecoGeometryRecord> > {};
 
 #endif

@@ -17,11 +17,10 @@ class FSimTrack;
  */
 
 class FSimVertex : public SimVertex {
-
 public:
   /// Default constructor
   FSimVertex();
-  
+
   /// constructor from the embedded vertex index in the FBaseSimEvent
   FSimVertex(const math::XYZTLorentzVector& v, int im, int id, FBaseSimEvent* mom);
 
@@ -38,7 +37,7 @@ public:
   inline const FSimTrack& daughter(int i) const;
 
   /// no Daughters
-  inline bool  noDaughter() const { return !nDaughters(); }
+  inline bool noDaughter() const { return !nDaughters(); }
 
   /// the index in FBaseSimEvent
   inline int id() const { return id_; }
@@ -49,24 +48,22 @@ public:
   inline const math::XYZTLorentzVector& position() const { return position_; }
 
   /// Reset the position (to be used with care)
-  inline void setPosition(const math::XYZTLorentzVector& newPosition) {position_ = newPosition; }
+  inline void setPosition(const math::XYZTLorentzVector& newPosition) { position_ = newPosition; }
 
   /// Simply returns the SimVertex
   inline const SimVertex& simVertex() const { return *this; }
 
- private:
-
+private:
   const FBaseSimEvent* mom_;
-  int id_;    // The index in the FSimVertex vector
-  std::vector<int> daugh_; // The indices of the daughters in FSimTrack
+  int id_;                  // The index in the FSimVertex vector
+  std::vector<int> daugh_;  // The indices of the daughters in FSimTrack
 
   math::XYZTLorentzVector position_;
-
 };
 
-#include<iosfwd>
-std::ostream& operator <<(std::ostream& o , const FSimVertex& t);
+#include <iosfwd>
+std::ostream& operator<<(std::ostream& o, const FSimVertex& t);
 
 #include "FastSimulation/Event/interface/FSimVertex.icc"
 
-#endif // FSimVertex_H
+#endif  // FSimVertex_H

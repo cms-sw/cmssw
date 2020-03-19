@@ -9,23 +9,22 @@
 
 #include "TEventList.h"
 
-class FWTEventList : public TEventList
-{
+class FWTEventList : public TEventList {
 public:
-   FWTEventList() : TEventList() {}
-   FWTEventList(const char* name, const char* title = "", Int_t initsize = 0, Int_t delta = 0) : 
-      TEventList(name, title, initsize, delta) {}
+  FWTEventList() : TEventList() {}
+  FWTEventList(const char* name, const char* title = "", Int_t initsize = 0, Int_t delta = 0)
+      : TEventList(name, title, initsize, delta) {}
 
-   ~FWTEventList() override {}
+  ~FWTEventList() override {}
 
-   void	Enter(Long64_t entry) override;
-   void	Add(const TEventList* list) override;
+  void Enter(Long64_t entry) override;
+  void Add(const TEventList* list) override;
 
 private:
-   FWTEventList(const FWTEventList&); // stop default
-   const FWTEventList& operator=(const FWTEventList&); // stop default
+  FWTEventList(const FWTEventList&);                   // stop default
+  const FWTEventList& operator=(const FWTEventList&);  // stop default
 
-   ClassDefOverride(FWTEventList, 0);
+  ClassDefOverride(FWTEventList, 0);
 };
 
 #endif

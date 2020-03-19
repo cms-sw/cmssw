@@ -5,9 +5,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
-namespace reco
-{
-/**\class JetFlavourInfo JetFlavourInfo.h SimDataFormats/JetMatching/interface/JetFlavourInfo.h
+namespace reco {
+  /**\class JetFlavourInfo JetFlavourInfo.h SimDataFormats/JetMatching/interface/JetFlavourInfo.h
  * \brief Class storing the jet flavour information
  *
  * JetFlavourInfo class stores the jet flavour information based on hadrons
@@ -16,38 +15,32 @@ namespace reco
  * flavours are defined in the JetFlavourClustering producer.
  */
 
-class JetFlavourInfo
-{
+  class JetFlavourInfo {
   public:
-    JetFlavourInfo(void) :
-      m_hadronFlavour(0),
-      m_partonFlavour(0) { }
-    JetFlavourInfo(const int hadronFlavour, const int partonFlavour) :
-      m_hadronFlavour(hadronFlavour),
-      m_partonFlavour(partonFlavour) { }
-    JetFlavourInfo(
-                   const GenParticleRefVector& bHadrons,
+    JetFlavourInfo(void) : m_hadronFlavour(0), m_partonFlavour(0) {}
+    JetFlavourInfo(const int hadronFlavour, const int partonFlavour)
+        : m_hadronFlavour(hadronFlavour), m_partonFlavour(partonFlavour) {}
+    JetFlavourInfo(const GenParticleRefVector& bHadrons,
                    const GenParticleRefVector& cHadrons,
                    const GenParticleRefVector& partons,
                    const GenParticleRefVector& leptons,
                    const int hadronFlavour,
-                   const int partonFlavour
-                  ) :
-      m_bHadrons(bHadrons),
-      m_cHadrons(cHadrons),
-      m_partons(partons),
-      m_leptons(leptons),
-      m_hadronFlavour(hadronFlavour),
-      m_partonFlavour(partonFlavour) { }
+                   const int partonFlavour)
+        : m_bHadrons(bHadrons),
+          m_cHadrons(cHadrons),
+          m_partons(partons),
+          m_leptons(leptons),
+          m_hadronFlavour(hadronFlavour),
+          m_partonFlavour(partonFlavour) {}
 
     /// Return a vector of GenParticleRef's to b hadrons clustered inside the jet
-    const GenParticleRefVector & getbHadrons() const { return m_bHadrons; }
+    const GenParticleRefVector& getbHadrons() const { return m_bHadrons; }
     /// Return a vector of GenParticleRef's to c hadrons clustered inside the jet
-    const GenParticleRefVector & getcHadrons() const { return m_cHadrons; }
+    const GenParticleRefVector& getcHadrons() const { return m_cHadrons; }
     /// Return a vector of GenParticleRef's to partons clustered inside the jet
-    const GenParticleRefVector & getPartons() const { return m_partons; }
+    const GenParticleRefVector& getPartons() const { return m_partons; }
     /// Return a vector of GenParticleRef's to leptons clustered inside the jet
-    const GenParticleRefVector & getLeptons() const { return m_leptons; }
+    const GenParticleRefVector& getLeptons() const { return m_leptons; }
     /// Return the hadron-based flavour
     const int getHadronFlavour() const { return m_hadronFlavour; }
     /// Return the parton-based flavour
@@ -65,7 +58,7 @@ class JetFlavourInfo
     GenParticleRefVector m_leptons;
     int m_hadronFlavour;
     int m_partonFlavour;
-};
+  };
 
-}
+}  // namespace reco
 #endif

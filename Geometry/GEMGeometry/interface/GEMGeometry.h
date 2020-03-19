@@ -22,23 +22,25 @@
 class GeomDetType;
 
 class GEMGeometry : public TrackingGeometry {
-
- public:
+public:
   /// Default constructor
   GEMGeometry();
 
   /// Destructor
   ~GEMGeometry() override;
 
+  friend class GEMGeometryBuilder;
+  friend class GeometryAligner;
+
   // Return a vector of all det types
-  const DetTypeContainer&  detTypes() const override;
+  const DetTypeContainer& detTypes() const override;
 
   // Return a vector of all GeomDet
   const DetContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
   const DetContainer& dets() const override;
-  
+
   // Return a vector of all GeomDet DetIds
   const DetIdContainer& detUnitIds() const override;
 
@@ -50,7 +52,6 @@ class GEMGeometry : public TrackingGeometry {
 
   // Return the pointer to the GeomDet corresponding to a given DetId
   const GeomDet* idToDet(DetId) const override;
-
 
   //---- Extension of the interface
 
@@ -72,7 +73,7 @@ class GEMGeometry : public TrackingGeometry {
   /// Return a vector of all GEM eta partitions
   const std::vector<const GEMEtaPartition*>& etaPartitions() const;
 
-  // Return a GEMRegion 
+  // Return a GEMRegion
   const GEMRegion* region(int region) const;
 
   // Return a GEMStation
@@ -101,29 +102,29 @@ class GEMGeometry : public TrackingGeometry {
 
   /// Add a GEMSuperChamber to the Geometry
   void add(const GEMSuperChamber* sch);
- 
+
   /// Add a GEMChamber to the Geometry
   void add(const GEMChamber* ch);
 
   /// Add a GEMEtaPartition  to the Geometry
   void add(const GEMEtaPartition* etaPartition);
 
- private:
+private:
   DetContainer theEtaPartitions;
   DetContainer theDets;
   DetTypeContainer theEtaPartitionTypes;
   DetIdContainer theEtaPartitionIds;
   DetIdContainer theDetIds;
-  
-  // Map for efficient lookup by DetId 
+
+  // Map for efficient lookup by DetId
   mapIdToDet theMap;
 
-  std::vector<const GEMEtaPartition*> allEtaPartitions; // Are not owned by this class; are owned by their chamber.
-  std::vector<const GEMChamber*> allChambers; // Are not owned by this class; are owned by their superchamber.
-  std::vector<const GEMSuperChamber*> allSuperChambers; // Are owned by this class.
-  std::vector<const GEMRing*> allRings; // Are owned by this class.
-  std::vector<const GEMStation*> allStations; // Are owned by this class.
-  std::vector<const GEMRegion*> allRegions; // Are owned by this class.
+  std::vector<const GEMEtaPartition*> allEtaPartitions;  // Are not owned by this class; are owned by their chamber.
+  std::vector<const GEMChamber*> allChambers;  // Are not owned by this class; are owned by their superchamber.
+  std::vector<const GEMSuperChamber*> allSuperChambers;  // Are owned by this class.
+  std::vector<const GEMRing*> allRings;                  // Are owned by this class.
+  std::vector<const GEMStation*> allStations;            // Are owned by this class.
+  std::vector<const GEMRegion*> allRegions;              // Are owned by this class.
 };
 
 #endif

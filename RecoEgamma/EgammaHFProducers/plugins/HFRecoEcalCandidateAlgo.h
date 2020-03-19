@@ -22,24 +22,25 @@
 
 class HFRecoEcalCandidateAlgo {
 public:
-  HFRecoEcalCandidateAlgo(bool correct, 
-			  double e9e25Cut,
-			  double intercept2DCut,
-			  double intercept2DSlope,
-			  const std::vector<double>& e1e9Cut,
-			  const std::vector<double>& eCOREe9Cut,
-			  const std::vector<double>& eSeLCut,
-			  const reco::HFValueStruct hfvv);
-  
+  HFRecoEcalCandidateAlgo(bool correct,
+                          double e9e25Cut,
+                          double intercept2DCut,
+                          double intercept2DSlope,
+                          const std::vector<double>& e1e9Cut,
+                          const std::vector<double>& eCOREe9Cut,
+                          const std::vector<double>& eSeLCut,
+                          const reco::HFValueStruct hfvv);
+
   /** Analyze the hits */
   void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,
-	       const reco::HFEMClusterShapeAssociationCollection& AssocShapes,
-	       reco::RecoEcalCandidateCollection& RecoECand,
-	       int nvtx) const;
-  
-  
- private:
-  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape, int nvtx) const;
+               const reco::HFEMClusterShapeAssociationCollection& AssocShapes,
+               reco::RecoEcalCandidateCollection& RecoECand,
+               int nvtx) const;
+
+private:
+  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original,
+                                           const reco::HFEMClusterShape& shape,
+                                           int nvtx) const;
 
   const bool m_correct;
   const double m_e9e25Cut;
@@ -53,7 +54,6 @@ public:
   const double m_eSeLCutlo;
   const int m_era;
   const reco::HFValueStruct m_hfvv;
- 
 };
 
-#endif 
+#endif

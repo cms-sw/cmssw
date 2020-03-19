@@ -7,4 +7,3 @@ using edm::storage::StatisticsSenderService;
 
 typedef edm::serviceregistry::AllArgsMaker<StatisticsSenderService> StatisticsSenderServiceMaker;
 DEFINE_FWK_SERVICE_MAKER(StatisticsSenderService, StatisticsSenderServiceMaker);
-

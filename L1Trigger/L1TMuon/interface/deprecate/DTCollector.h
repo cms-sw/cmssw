@@ -1,9 +1,9 @@
 #ifndef __L1TMUON_DTCOLLECTOR_H__
 #define __L1TMUON_DTCOLLECTOR_H__
-// 
+//
 // Class: L1TMuon::DTCollector
 //
-// Info: Processes the DT digis into L1TMuon trigger primitives. 
+// Info: Processes the DT digis into L1TMuon trigger primitives.
 //       Positional information is not assigned here.
 //
 // Author: L. Gray (FNAL)
@@ -19,26 +19,21 @@ class L1MuDTChambThDigi;
 
 namespace L1TMuon {
 
-  class DTCollector: public SubsystemCollector {
+  class DTCollector : public SubsystemCollector {
   public:
-    DTCollector(const edm::ParameterSet&);
+    DTCollector(const edm::ParameterSet &);
     ~DTCollector() override {}
 
-    void extractPrimitives(const edm::Event&, const edm::EventSetup&, 
-				   std::vector<TriggerPrimitive>&) const override;
+    void extractPrimitives(const edm::Event &, const edm::EventSetup &, std::vector<TriggerPrimitive> &) const override;
+
   private:
-    TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
-				  const int &segment_number) const;
-    TriggerPrimitive processDigis(const L1MuDTChambThDigi&,
-				  const int bti_group) const;
-    TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
-				  const L1MuDTChambThDigi&,
-				  const int bti_group) const;    
-    int findBTIGroupForThetaDigi(const L1MuDTChambThDigi&,
-				 const int position) const;    
+    TriggerPrimitive processDigis(const L1MuDTChambPhDigi &, const int &segment_number) const;
+    TriggerPrimitive processDigis(const L1MuDTChambThDigi &, const int bti_group) const;
+    TriggerPrimitive processDigis(const L1MuDTChambPhDigi &, const L1MuDTChambThDigi &, const int bti_group) const;
+    int findBTIGroupForThetaDigi(const L1MuDTChambThDigi &, const int position) const;
     const int bx_min, bx_max;
     std::unique_ptr<DTBunchCrossingCleaner> _bxc;
   };
-}
+}  // namespace L1TMuon
 
 #endif

@@ -22,220 +22,174 @@
 
 #include <ostream>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 //   base class
 
 // forward declarations
 
 // class declaration
-class GlobalStableParameters
-{
+class GlobalStableParameters {
+public:
+  // constructor
+  GlobalStableParameters();
+
+  // destructor
+  virtual ~GlobalStableParameters();
 
 public:
+  /// get / set the number of physics trigger algorithms
+  inline unsigned int gtNumberPhysTriggers() const { return m_numberPhysTriggers; }
 
-    // constructor
-    GlobalStableParameters();
+  void setGtNumberPhysTriggers(const unsigned int&);
 
-    // destructor
-    virtual ~GlobalStableParameters();
+  /// get / set the additional number of physics trigger algorithms
+  inline unsigned int gtNumberPhysTriggersExtended() const { return m_numberPhysTriggersExtended; }
 
-public:
+  void setGtNumberPhysTriggersExtended(const unsigned int&);
 
-    /// get / set the number of physics trigger algorithms
-    inline unsigned int gtNumberPhysTriggers() const {
-        return m_numberPhysTriggers;
-    }
+  /// get / set the number of technical triggers
+  inline unsigned int gtNumberTechnicalTriggers() const { return m_numberTechnicalTriggers; }
 
-    void setGtNumberPhysTriggers(const unsigned int&);
+  void setGtNumberTechnicalTriggers(const unsigned int&);
 
-    /// get / set the additional number of physics trigger algorithms
-    inline unsigned int gtNumberPhysTriggersExtended() const {
-        return m_numberPhysTriggersExtended;
-    }
+  ///  get / set the number of L1 muons received by GT
+  inline unsigned int gtNumberL1Mu() const { return m_numberL1Mu; }
 
-    void setGtNumberPhysTriggersExtended(const unsigned int&);
+  void setGtNumberL1Mu(const unsigned int&);
 
-    /// get / set the number of technical triggers
-    inline unsigned int gtNumberTechnicalTriggers() const {
-        return m_numberTechnicalTriggers;
-    }
+  ///  get / set the number of L1 e/gamma objects received by GT
+  inline unsigned int gtNumberL1NoIsoEG() const { return m_numberL1NoIsoEG; }
 
-    void setGtNumberTechnicalTriggers(const unsigned int&);
+  void setGtNumberL1NoIsoEG(const unsigned int&);
 
-    ///  get / set the number of L1 muons received by GT
-    inline unsigned int gtNumberL1Mu() const {
-        return m_numberL1Mu;
-    }
+  ///  get / set the number of L1 isolated e/gamma objects received by GT
+  inline unsigned int gtNumberL1IsoEG() const { return m_numberL1IsoEG; }
 
-    void setGtNumberL1Mu(const unsigned int&);
+  void setGtNumberL1IsoEG(const unsigned int&);
 
-    ///  get / set the number of L1 e/gamma objects received by GT
-    inline unsigned int gtNumberL1NoIsoEG() const {
-        return m_numberL1NoIsoEG;
-    }
+  ///  get / set the number of L1 central jets received by GT
+  inline unsigned int gtNumberL1CenJet() const { return m_numberL1CenJet; }
 
-    void setGtNumberL1NoIsoEG(const unsigned int&);
+  void setGtNumberL1CenJet(const unsigned int&);
 
-    ///  get / set the number of L1 isolated e/gamma objects received by GT
-    inline unsigned int gtNumberL1IsoEG() const {
-        return m_numberL1IsoEG;
-    }
+  ///  get / set the number of L1 forward jets received by GT
+  inline unsigned int gtNumberL1ForJet() const { return m_numberL1ForJet; }
 
-    void setGtNumberL1IsoEG(const unsigned int&);
+  void setGtNumberL1ForJet(const unsigned int&);
 
-    ///  get / set the number of L1 central jets received by GT
-    inline unsigned int gtNumberL1CenJet() const {
-        return m_numberL1CenJet;
-    }
+  ///  get / set the number of L1 tau jets received by GT
+  inline unsigned int gtNumberL1TauJet() const { return m_numberL1TauJet; }
 
-    void setGtNumberL1CenJet(const unsigned int&);
+  void setGtNumberL1TauJet(const unsigned int&);
 
-    ///  get / set the number of L1 forward jets received by GT
-    inline unsigned int gtNumberL1ForJet() const {
-        return m_numberL1ForJet;
-    }
+  ///  get / set the number of L1 jet counts received by GT
+  inline unsigned int gtNumberL1JetCounts() const { return m_numberL1JetCounts; }
 
-    void setGtNumberL1ForJet(const unsigned int&);
+  void setGtNumberL1JetCounts(const unsigned int&);
 
-    ///  get / set the number of L1 tau jets received by GT
-    inline unsigned int gtNumberL1TauJet() const {
-        return m_numberL1TauJet;
-    }
+  /// hardware stuff
 
-    void setGtNumberL1TauJet(const unsigned int&);
+  ///   get / set the number of condition chips in GTL
+  inline unsigned int gtNumberConditionChips() const { return m_numberConditionChips; }
 
-    ///  get / set the number of L1 jet counts received by GT
-    inline unsigned int gtNumberL1JetCounts() const {
-        return m_numberL1JetCounts;
-    }
+  void setGtNumberConditionChips(const unsigned int&);
 
-    void setGtNumberL1JetCounts(const unsigned int&);
+  ///   get / set the number of pins on the GTL condition chips
+  inline unsigned int gtPinsOnConditionChip() const { return m_pinsOnConditionChip; }
 
-    /// hardware stuff
+  void setGtPinsOnConditionChip(const unsigned int&);
 
-    ///   get / set the number of condition chips in GTL
-    inline unsigned int gtNumberConditionChips() const {
-        return m_numberConditionChips;
-    }
+  ///   get / set the correspondence "condition chip - GTL algorithm word"
+  ///   in the hardware
+  inline const std::vector<int>& gtOrderConditionChip() const { return m_orderConditionChip; }
 
-    void setGtNumberConditionChips(const unsigned int&);
+  void setGtOrderConditionChip(const std::vector<int>&);
 
-    ///   get / set the number of pins on the GTL condition chips
-    inline unsigned int gtPinsOnConditionChip() const {
-        return m_pinsOnConditionChip;
-    }
+  ///   get / set the number of PSB boards in GT
+  inline int gtNumberPsbBoards() const { return m_numberPsbBoards; }
 
-    void setGtPinsOnConditionChip(const unsigned int&);
+  void setGtNumberPsbBoards(const int&);
 
-    ///   get / set the correspondence "condition chip - GTL algorithm word"
-    ///   in the hardware
-    inline const std::vector<int>& gtOrderConditionChip() const {
-        return m_orderConditionChip;
-    }
+  ///   get / set the number of bits for eta of calorimeter objects
+  inline unsigned int gtIfCaloEtaNumberBits() const { return m_ifCaloEtaNumberBits; }
 
-    void setGtOrderConditionChip(const std::vector<int>&);
+  void setGtIfCaloEtaNumberBits(const unsigned int&);
 
-    ///   get / set the number of PSB boards in GT
-    inline int gtNumberPsbBoards() const {
-        return m_numberPsbBoards;
-    }
+  ///   get / set the number of bits for eta of muon objects
+  inline unsigned int gtIfMuEtaNumberBits() const { return m_ifMuEtaNumberBits; }
 
-    void setGtNumberPsbBoards(const int&);
+  void setGtIfMuEtaNumberBits(const unsigned int&);
 
-    ///   get / set the number of bits for eta of calorimeter objects
-    inline unsigned int gtIfCaloEtaNumberBits() const {
-        return m_ifCaloEtaNumberBits;
-    }
+  ///    get / set WordLength
+  inline int gtWordLength() const { return m_wordLength; }
 
-    void setGtIfCaloEtaNumberBits(const unsigned int&);
+  void setGtWordLength(const int&);
 
-    ///   get / set the number of bits for eta of muon objects
-    inline unsigned int gtIfMuEtaNumberBits() const {
-        return m_ifMuEtaNumberBits;
-    }
+  ///    get / set one UnitLength
+  inline int gtUnitLength() const { return m_unitLength; }
 
-    void setGtIfMuEtaNumberBits(const unsigned int&);
+  void setGtUnitLength(const int&);
 
-    ///    get / set WordLength
-    inline int gtWordLength() const {
-        return m_wordLength;
-    }
-
-    void setGtWordLength(const int&);
-
-    ///    get / set one UnitLength
-    inline int gtUnitLength() const {
-        return m_unitLength;
-    }
-
-    void setGtUnitLength(const int&);
-
-    /// print all the L1 GT stable parameters
-    void print(std::ostream&) const;
+  /// print all the L1 GT stable parameters
+  void print(std::ostream&) const;
 
 private:
+  /// trigger decision
 
-    /// trigger decision
+  /// number of physics trigger algorithms
+  unsigned int m_numberPhysTriggers;
 
-    /// number of physics trigger algorithms
-    unsigned int m_numberPhysTriggers;
+  /// additional number of physics trigger algorithms
+  unsigned int m_numberPhysTriggersExtended;
 
-    /// additional number of physics trigger algorithms
-    unsigned int m_numberPhysTriggersExtended;
+  /// number of technical triggers
+  unsigned int m_numberTechnicalTriggers;
 
-    /// number of technical triggers
-    unsigned int m_numberTechnicalTriggers;
+  /// trigger objects
 
-    /// trigger objects
+  /// muons
+  unsigned int m_numberL1Mu;
 
-    /// muons
-    unsigned int m_numberL1Mu;
+  /// e/gamma and isolated e/gamma objects
+  unsigned int m_numberL1NoIsoEG;
+  unsigned int m_numberL1IsoEG;
 
-    /// e/gamma and isolated e/gamma objects
-    unsigned int m_numberL1NoIsoEG;
-    unsigned int m_numberL1IsoEG;
+  /// central, forward and tau jets
+  unsigned int m_numberL1CenJet;
+  unsigned int m_numberL1ForJet;
+  unsigned int m_numberL1TauJet;
 
-    /// central, forward and tau jets
-    unsigned int m_numberL1CenJet;
-    unsigned int m_numberL1ForJet;
-    unsigned int m_numberL1TauJet;
-
-    /// jet counts
-    unsigned int m_numberL1JetCounts;
-
-private:
-
-    /// hardware
-
-    /// number of condition chips
-    unsigned int m_numberConditionChips;
-
-    /// number of pins on the GTL condition chips
-    unsigned int m_pinsOnConditionChip;
-
-    /// correspondence "condition chip - GTL algorithm word" in the hardware
-    /// chip 2: 0 - 95;  chip 1: 96 - 128 (191)
-    std::vector<int> m_orderConditionChip;
-
-    /// number of PSB boards in GT
-    int m_numberPsbBoards;
-
-    /// number of bits for eta of calorimeter objects
-    unsigned int m_ifCaloEtaNumberBits;
-
-    /// number of bits for eta of muon objects
-    unsigned int m_ifMuEtaNumberBits;
+  /// jet counts
+  unsigned int m_numberL1JetCounts;
 
 private:
+  /// hardware
 
-    /// GT DAQ record organized in words of WordLength bits
-    int m_wordLength;
+  /// number of condition chips
+  unsigned int m_numberConditionChips;
 
-    /// one unit in the word is UnitLength bits
-    int m_unitLength;
+  /// number of pins on the GTL condition chips
+  unsigned int m_pinsOnConditionChip;
 
+  /// correspondence "condition chip - GTL algorithm word" in the hardware
+  /// chip 2: 0 - 95;  chip 1: 96 - 128 (191)
+  std::vector<int> m_orderConditionChip;
+
+  /// number of PSB boards in GT
+  int m_numberPsbBoards;
+
+  /// number of bits for eta of calorimeter objects
+  unsigned int m_ifCaloEtaNumberBits;
+
+  /// number of bits for eta of muon objects
+  unsigned int m_ifMuEtaNumberBits;
+
+private:
+  /// GT DAQ record organized in words of WordLength bits
+  int m_wordLength;
+
+  /// one unit in the word is UnitLength bits
+  int m_unitLength;
 };
 
 #endif /*CondFormats_L1TObjects_GlobalStableParameters_h*/

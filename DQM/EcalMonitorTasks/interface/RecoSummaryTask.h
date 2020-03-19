@@ -13,7 +13,7 @@ namespace ecaldqm {
   class RecoSummaryTask : public DQWorkerTask {
   public:
     RecoSummaryTask();
-    ~RecoSummaryTask() {}
+    ~RecoSummaryTask() override {}
 
     bool filterRunType(short const*) override;
 
@@ -33,32 +33,35 @@ namespace ecaldqm {
     float rechitThresholdEE_;
     EcalRecHitCollection const* ebHits_;
     EcalRecHitCollection const* eeHits_;
+    bool fillRecoFlagReduced_;
   };
 
-  inline bool RecoSummaryTask::analyze(void const* _p, Collections _collection){
-    switch(_collection){
-    case kEBRecHit:
-    case kEERecHit:
-      if(_p) runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
-      return true;
-      break;
-    case kEBReducedRecHit:
-    case kEEReducedRecHit:
-      if(_p) runOnReducedRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
-      return true;
-      break;
-    case kEBBasicCluster:
-    case kEEBasicCluster:
-      if(_p) runOnBasicClusters(*static_cast<edm::View<reco::CaloCluster> const*>(_p), _collection);
-      return true;
-      break;
-    default:
-      break;
+  inline bool RecoSummaryTask::analyze(void const* _p, Collections _collection) {
+    switch (_collection) {
+      case kEBRecHit:
+      case kEERecHit:
+        if (_p)
+          runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+        return true;
+        break;
+      case kEBReducedRecHit:
+      case kEEReducedRecHit:
+        if (_p && fillRecoFlagReduced_)
+          runOnReducedRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+        return fillRecoFlagReduced_;
+        break;
+      case kEBBasicCluster:
+      case kEEBasicCluster:
+        if (_p)
+          runOnBasicClusters(*static_cast<edm::View<reco::CaloCluster> const*>(_p), _collection);
+        return true;
+        break;
+      default:
+        break;
     }
     return false;
   }
 
-}
+}  // namespace ecaldqm
 
 #endif
-

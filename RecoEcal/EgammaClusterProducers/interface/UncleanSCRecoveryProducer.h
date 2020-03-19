@@ -12,32 +12,22 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
+class UncleanSCRecoveryProducer : public edm::global::EDProducer<> {
+public:
+  UncleanSCRecoveryProducer(const edm::ParameterSet& ps);
 
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-class UncleanSCRecoveryProducer : public edm::global::EDProducer<> 
-{
-  
-  public:
-
-      UncleanSCRecoveryProducer(const edm::ParameterSet& ps);
-
-      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      
-  private:
-      // the clean collection      
-      const edm::EDGetTokenT<reco::BasicClusterCollection>  cleanBcCollection_; 
-      const edm::EDGetTokenT<reco::SuperClusterCollection>  cleanScCollection_; 
-      // the uncleaned collection
-      const edm::EDGetTokenT<reco::BasicClusterCollection>  uncleanBcCollection_;
-      const edm::EDGetTokenT<reco::SuperClusterCollection>  uncleanScCollection_;
-      // the names of the products to be produced:
-      const std::string  bcCollection_;     
-      const std::string  scCollection_;     
-
-
+private:
+  // the clean collection
+  const edm::EDGetTokenT<reco::BasicClusterCollection> cleanBcCollection_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> cleanScCollection_;
+  // the uncleaned collection
+  const edm::EDGetTokenT<reco::BasicClusterCollection> uncleanBcCollection_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> uncleanScCollection_;
+  // the names of the products to be produced:
+  const std::string bcCollection_;
+  const std::string scCollection_;
 };
 
-
 #endif
-
-

@@ -5,10 +5,11 @@
 
 class PixelRecoPointRZ {
 public:
-  PixelRecoPointRZ() { }
-  PixelRecoPointRZ(float r,float z) : theR(r), theZ(z) { }
+  PixelRecoPointRZ() {}
+  PixelRecoPointRZ(float r, float z) : theR(r), theZ(z) {}
   float r() const { return theR; }
   float z() const { return theZ; }
+
 private:
   float theR, theZ;
 };

@@ -12,6 +12,7 @@ Forward declarations of types in the EDM.
 
 namespace edm {
   class PrincipalGetAdapter;
+  class ConsumesCollector;
   class DelayedReader;
   class EDAnalyzer;
   class EDFilter;
@@ -40,14 +41,17 @@ namespace edm {
   class RunForOutput;
   class RunPrincipal;
   class Schedule;
+  class StreamID;
   class TypeID;
   class ViewBase;
 
   struct EventSummary;
   struct PathSummary;
   struct TriggerReport;
-  template <typename T> class View;
-  template <typename T> class WorkerT;
-}
+  template <typename T>
+  class View;
+  template <typename T>
+  class WorkerT;
+}  // namespace edm
 
 #endif

@@ -11,16 +11,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSurface& tsos,
-						      const TrackingRecHit& aRecHit) const {
-  GetComponents comps(tsos);  
-  auto const & predictedComponents = comps();
+                                                      const TrackingRecHit& aRecHit) const {
+  GetComponents comps(tsos);
+  auto const& predictedComponents = comps();
   if (predictedComponents.empty()) {
-    edm::LogError("GsfMultiStateUpdator") << "Trying to update trajectory state with zero components! " ;
+    edm::LogError("GsfMultiStateUpdator") << "Trying to update trajectory state with zero components! ";
     return TrajectoryStateOnSurface();
   }
 
-  auto && weights = PosteriorWeightsCalculator(predictedComponents).weights(aRecHit);
-  if ( weights.empty() ) {
+  auto&& weights = PosteriorWeightsCalculator(predictedComponents).weights(aRecHit);
+  if (weights.empty()) {
     edm::LogError("GsfMultiStateUpdator") << " no weights could be retreived. invalid updated state !.";
     return TrajectoryStateOnSurface();
   }
@@ -28,17 +28,16 @@ TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSur
   MultiTrajectoryStateAssembler result;
 
   int i = 0;
-  for (auto const & tsosI : predictedComponents) {
+  for (auto const& tsosI : predictedComponents) {
     TrajectoryStateOnSurface updatedTSOS = KFUpdator().update(tsosI, aRecHit);
-    if (updatedTSOS.isValid()){
-      result.addState(TrajectoryStateOnSurface(weights[i], 
+    if (updatedTSOS.isValid()) {
+      result.addState(TrajectoryStateOnSurface(weights[i],
                                                updatedTSOS.localParameters(),
-					       updatedTSOS.localError(), updatedTSOS.surface(), 
-					       &(tsos.globalParameters().magneticField()),
-					       tsosI.surfaceSide()
-                                              ));
-    }
-    else{
+                                               updatedTSOS.localError(),
+                                               updatedTSOS.surface(),
+                                               &(tsos.globalParameters().magneticField()),
+                                               tsosI.surfaceSide()));
+    } else {
       edm::LogError("GsfMultiStateUpdator") << "KF updated state " << i << " is invalid. skipping.";
     }
     ++i;

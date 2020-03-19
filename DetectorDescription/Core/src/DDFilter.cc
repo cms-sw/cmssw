@@ -11,11 +11,9 @@
 #include "DetectorDescription/Core/interface/DDComparator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDFilter::DDFilter() 
-{ }
+DDFilter::DDFilter() {}
 
-DDFilter::~DDFilter()
-{ }
+DDFilter::~DDFilter() {}
 
 // =======================================================================
 // =======================================================================
@@ -32,60 +30,49 @@ DDFilter::~DDFilter()
  **/
 
 // ================================================================================================
-DDSpecificsFilter::DDSpecificsFilter() 
-  : DDFilter()
-{ }
+DDSpecificsFilter::DDSpecificsFilter() : DDFilter() {}
 
 DDSpecificsFilter::~DDSpecificsFilter() {}
 
+void DDSpecificsFilter::setCriteria(const DDValue& nameVal,  // name & value of a variable
+                                    DDCompOp op) {
+  criteria_.emplace_back(SpecificCriterion(nameVal, op));
+}
 
-void DDSpecificsFilter::setCriteria(const DDValue & nameVal, // name & value of a variable 
-                                    DDCompOp op)
-{
-  criteria_.emplace_back(SpecificCriterion(nameVal,op));
- }		   
+bool DDSpecificsFilter::accept(const DDExpandedView& node) const { return accept_impl(node); }
 
-bool DDSpecificsFilter::accept(const DDExpandedView & node) const
-{
-  return accept_impl(node);
-} 
-
-bool DDSpecificsFilter::accept_impl(const DDExpandedView & node) const
-{
+bool DDSpecificsFilter::accept_impl(const DDExpandedView& node) const {
   bool result = true;
-  const DDLogicalPart & logp = node.logicalPart();
+  const DDLogicalPart& logp = node.logicalPart();
 
-  for( auto it = begin(criteria_); it != end(criteria_); ++it) {
-    bool locres=false;
-    if (logp.hasDDValue(it->nameVal_)) { 
-      
+  for (auto it = begin(criteria_); it != end(criteria_); ++it) {
+    bool locres = false;
+    if (logp.hasDDValue(it->nameVal_)) {
       const auto& specs = logp.attachedSpecifics();
 
       const auto& hist = node.geoHistory();
       bool decided = false;
-      for(auto const& spec: specs) {
-        if(DDCompareEqual(hist,*spec.first)()) {
-          for(auto const& v: *(spec.second) ) {
-            if(it->nameVal_.id() == v.first) {
+      for (auto const& spec : specs) {
+        if (DDCompareEqual(hist, *spec.first)()) {
+          for (auto const& v : *(spec.second)) {
+            if (it->nameVal_.id() == v.first) {
               switch (it->comp_) {
-              case DDCompOp::equals:
-                {
-                  locres= (it->nameVal_.strings() == v.second.strings());
+                case DDCompOp::equals: {
+                  locres = (it->nameVal_.strings() == v.second.strings());
                   break;
                 }
-              case DDCompOp::not_equals:
-                {
-                  locres= ( it->nameVal_.strings() != v.second.strings() );
+                case DDCompOp::not_equals: {
+                  locres = (it->nameVal_.strings() != v.second.strings());
                   break;
                 }
-              default:
-                return false;
+                default:
+                  return false;
               }
               decided = true;
               break;
             }
           }
-          if(decided) {
+          if (decided) {
             break;
           }
         }
@@ -93,28 +80,26 @@ bool DDSpecificsFilter::accept_impl(const DDExpandedView & node) const
     }
     result &= locres;
     // avoid useless evaluations
-    if(!result) {
+    if (!result) {
       break;
     }
   }
   return result;
 }
 
-bool
-DDSpecificsHasNamedValueFilter::accept(const DDExpandedView& node) const {
-  const DDLogicalPart & logp = node.logicalPart();
+bool DDSpecificsHasNamedValueFilter::accept(const DDExpandedView& node) const {
+  const DDLogicalPart& logp = node.logicalPart();
 
-  if (logp.hasDDValue(attribute_)) { 
-      
+  if (logp.hasDDValue(attribute_)) {
     const auto& specs = logp.attachedSpecifics();
-    
+
     const auto& hist = node.geoHistory();
-    for(auto const& spec: specs) {
-      for(auto const& v: *(spec.second) ) {
-        if(attribute_.id() == v.first) {
+    for (auto const& spec : specs) {
+      for (auto const& v : *(spec.second)) {
+        if (attribute_.id() == v.first) {
           //DDCompareEqual is slow so only call
           // when needed
-          if(DDCompareEqual(hist,*spec.first)()) {
+          if (DDCompareEqual(hist, *spec.first)()) {
             return true;
           } else {
             //since we know this isn't in the correct
@@ -129,19 +114,17 @@ DDSpecificsHasNamedValueFilter::accept(const DDExpandedView& node) const {
   return false;
 }
 
-bool
-DDSpecificsMatchesValueFilter::accept(const DDExpandedView& node) const {
-  const DDLogicalPart & logp = node.logicalPart();
+bool DDSpecificsMatchesValueFilter::accept(const DDExpandedView& node) const {
+  const DDLogicalPart& logp = node.logicalPart();
 
-  if (logp.hasDDValue(value_)) { 
-    
+  if (logp.hasDDValue(value_)) {
     const auto& specs = logp.attachedSpecifics();
-    
+
     const auto& hist = node.geoHistory();
-    for(auto const& spec: specs) {
-      for(auto const& v: *(spec.second) ) {
-        if(value_.id() == v.first) {
-          if(DDCompareEqual(hist,*spec.first)()) {
+    for (auto const& spec : specs) {
+      for (auto const& v : *(spec.second)) {
+        if (value_.id() == v.first) {
+          if (DDCompareEqual(hist, *spec.first)()) {
             return (value_.strings() == v.second.strings());
           } else {
             //since we know this isn't in the correct
@@ -154,5 +137,4 @@ DDSpecificsMatchesValueFilter::accept(const DDExpandedView& node) const {
     }
   }
   return false;
-
 }

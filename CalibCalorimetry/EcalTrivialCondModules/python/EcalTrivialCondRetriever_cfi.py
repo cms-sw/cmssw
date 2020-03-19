@@ -39,6 +39,14 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     producedEcalADCToGeVConstant = cms.untracked.bool(True),
     adcToGeVEBConstant = cms.untracked.double(0.035),
     adcToGeVEEConstant = cms.untracked.double(0.06),
+### phase I Pulse Shapes
+    sim_pulse_shape_TI = cms.untracked.double( 1.0),
+    sim_pulse_shape_EB_thresh = cms.double(0.00013),
+    sim_pulse_shape_EE_thresh = cms.double(0.00025),
+    sim_pulse_shape_APD_thresh = cms.double(0),
+    EBSimPulseShapeFile = cms.untracked.string("EB_SimPulseShape.txt"),
+    EESimPulseShapeFile = cms.untracked.string("EE_SimPulseShape.txt"),
+    APDSimPulseShapeFile = cms.untracked.string("APD_SimPulseShape.txt"),
     # cluster functions/corrections -- by default no parameters are passed
     producedEcalClusterLocalContCorrParameters = cms.untracked.bool(True),
     localContCorrParameters = cms.untracked.vdouble( 

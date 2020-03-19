@@ -4,21 +4,19 @@
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 
 namespace edm {
-class Event;
+  class Event;
 }
 class FWJobMetadataUpdateRequest;
 
-class FWFFMetadataManager : public FWJobMetadataManager
-{
+class FWFFMetadataManager : public FWJobMetadataManager {
 public:
-   FWFFMetadataManager();
-   bool  hasModuleLabel(std::string& moduleLabel) override;
+  FWFFMetadataManager();
+  bool hasModuleLabel(std::string& moduleLabel) override;
 
 protected:
-   bool doUpdate(FWJobMetadataUpdateRequest*) override;
+  bool doUpdate(FWJobMetadataUpdateRequest*) override;
 
 private:
-   const edm::Event* m_event;
-
+  const edm::Event* m_event;
 };
 #endif

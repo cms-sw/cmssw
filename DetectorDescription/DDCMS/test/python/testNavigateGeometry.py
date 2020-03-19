@@ -46,7 +46,7 @@ process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer"
                                                     appendToDataLabel = cms.string('MUON'))
 
 process.test = cms.EDAnalyzer("DDTestNavigateGeometry",
-                              DDDetector = cms.ESInputTag('MUON'),
+                              DDDetector = cms.ESInputTag('','MUON'),
                               detElementPath = cms.string('detElementPath'),
                               placedVolumePath = cms.string('placedVolPath')
                               )

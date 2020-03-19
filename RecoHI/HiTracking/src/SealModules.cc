@@ -4,4 +4,4 @@
 
 using reco::modules::HICaloCompatibleTrackSelector;
 
-DEFINE_FWK_MODULE(HICaloCompatibleTrackSelector); 
+DEFINE_FWK_MODULE(HICaloCompatibleTrackSelector);

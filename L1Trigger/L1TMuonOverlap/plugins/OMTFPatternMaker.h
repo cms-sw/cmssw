@@ -26,30 +26,28 @@ class SimTrack;
 
 class XMLConfigWriter;
 
-namespace XERCES_CPP_NAMESPACE{
+namespace XERCES_CPP_NAMESPACE {
   class DOMElement;
   class DOMDocument;
   class DOMImplementation;
-}
+}  // namespace XERCES_CPP_NAMESPACE
 
 class OMTFPatternMaker : public edm::EDAnalyzer {
 public:
-
-  OMTFPatternMaker(const edm::ParameterSet & cfg);
+  OMTFPatternMaker(const edm::ParameterSet &cfg);
 
   ~OMTFPatternMaker() override;
 
-  void beginRun(edm::Run const& run, edm::EventSetup const& iSetup) override;
+  void beginRun(edm::Run const &run, edm::EventSetup const &iSetup) override;
 
   void beginJob() override;
 
   void endJob() override;
-  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;  
+
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-
-  const SimTrack *findSimMuon(const edm::Event &ev, const edm::EventSetup &es, const SimTrack *previous=nullptr);
+  const SimTrack *findSimMuon(const edm::Event &ev, const edm::EventSetup &es, const SimTrack *previous = nullptr);
 
   edm::ParameterSet theConfig;
   edm::InputTag g4SimTrackSrc;
@@ -61,12 +59,12 @@ private:
   edm::EDGetTokenT<edm::SimTrackContainer> inputTokenSimHit;
 
   void writeMergedGPs();
-  
+
   bool makeConnectionsMaps, makeGoldenPatterns, mergeXMLFiles;
 
   ///Original pdf width. read from configuration.
   unsigned int nPdfAddrBits;
-  
+
   ///OMTF objects
   OMTFConfiguration *myOMTFConfig;
   OMTFinputMaker *myInputMaker;
@@ -75,7 +73,6 @@ private:
   xercesc::DOMElement *aTopElement;
   OMTFConfigMaker *myOMTFConfigMaker;
   XMLConfigWriter *myWriter;
-
-}; 
+};
 
 #endif

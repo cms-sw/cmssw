@@ -20,29 +20,35 @@
 //$Id:HFClusterAlgo.h,v 1.2 2007/09/19 09:52 K. Klapoetke Minnesota
 
 class HFClusterAlgo {
- public:
-  HFClusterAlgo(); 
+public:
+  HFClusterAlgo();
 
-  void setup(double minTowerEnergy, double seedThreshold,double maximumSL,double m_maximumRenergy,bool usePMTflag,bool usePulseflag, bool forcePulseFlagMC, int correctionSet);
+  void setup(double minTowerEnergy,
+             double seedThreshold,
+             double maximumSL,
+             double m_maximumRenergy,
+             bool usePMTflag,
+             bool usePulseflag,
+             bool forcePulseFlagMC,
+             int correctionSet);
 
-  void isMC(bool isMC) { m_isMC=isMC; }
+  void isMC(bool isMC) { m_isMC = isMC; }
 
   /** Analyze the hits */
-  void clusterize(const HFRecHitCollection& hf, 
-		  const CaloGeometry& geom,
-		  reco::HFEMClusterShapeCollection& clusters,
-		  reco::SuperClusterCollection& SuperClusters);
-  
+  void clusterize(const HFRecHitCollection& hf,
+                  const CaloGeometry& geom,
+                  reco::HFEMClusterShapeCollection& clusters,
+                  reco::SuperClusterCollection& SuperClusters);
 
   void resetForRun();
 
- private:
+private:
   friend class CompareHFCompleteHitET;
   friend class CompareHFCore;
- 
-  double m_minTowerEnergy, m_seedThreshold,m_maximumSL,m_maximumRenergy;
+
+  double m_minTowerEnergy, m_seedThreshold, m_maximumSL, m_maximumRenergy;
   bool m_usePMTFlag;
-  bool m_usePulseFlag,m_forcePulseFlagMC;
+  bool m_usePulseFlag, m_forcePulseFlagMC;
   bool m_isMC;
   int m_correctionSet;
   std::vector<double> m_cutByEta;
@@ -57,10 +63,10 @@ class HFClusterAlgo {
   };
   bool isPMTHit(const HFRecHit& hfr);
   bool makeCluster(const HcalDetId& seedid,
-		   const HFRecHitCollection& hf, 
-		   const CaloGeometry* geom,
-		   reco::HFEMClusterShape& clusShp,
-		   reco::SuperCluster& SClus);
+                   const HFRecHitCollection& hf,
+                   const CaloGeometry* geom,
+                   reco::HFEMClusterShape& clusShp,
+                   reco::SuperCluster& SClus);
 };
 
-#endif 
+#endif

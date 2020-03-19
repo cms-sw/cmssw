@@ -2,7 +2,8 @@
 #define LaserAlignmentSimulation_LaserOpticalPhysicsList_H
 
 /** \class LaserOpticalPhysicsList
- *  Define the Optical processes for the Simulation of the Laser Alignment System
+ *  Define the Optical processes for the Simulation of the Laser Alignment
+ * System
  *
  *  $Date: 2007/06/11 14:44:28 $
  *  $Revision: 1.3 $
@@ -20,28 +21,27 @@ class G4OpAbsorption;
 class G4OpRayleigh;
 class G4OpBoundaryProcess;
 
-class LaserOpticalPhysicsList : public G4VPhysicsConstructor
-{
- public:
-	/// constructor
-  LaserOpticalPhysicsList(const G4String& name="optical");
-	/// destructor
-   ~LaserOpticalPhysicsList() override;
+class LaserOpticalPhysicsList : public G4VPhysicsConstructor {
+public:
+  /// constructor
+  LaserOpticalPhysicsList(const G4String &name = "optical");
+  /// destructor
+  ~LaserOpticalPhysicsList() override;
 
- public:
-	/// construct Optical Photons
+public:
+  /// construct Optical Photons
   void ConstructParticle() override;
-	/// construct Optical Processes
+  /// construct Optical Processes
   void ConstructProcess() override;
 
- protected:
+protected:
   G4bool wasActivated;
 
-  G4Scintillation* theScintProcess;
-  G4Cerenkov* theCerenkovProcess;
-  G4OpAbsorption* theAbsorptionProcess;
-  G4OpRayleigh* theRayleighScattering;
-  G4OpBoundaryProcess* theBoundaryProcess;
-  G4OpWLS* theWLSProcess;
+  G4Scintillation *theScintProcess;
+  G4Cerenkov *theCerenkovProcess;
+  G4OpAbsorption *theAbsorptionProcess;
+  G4OpRayleigh *theRayleighScattering;
+  G4OpBoundaryProcess *theBoundaryProcess;
+  G4OpWLS *theWLSProcess;
 };
 #endif

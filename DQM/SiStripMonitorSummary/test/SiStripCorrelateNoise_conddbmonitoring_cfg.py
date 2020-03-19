@@ -73,7 +73,6 @@ process.poolDBESSource = cms.ESSource(
                                       )
 
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.analysis = cms.EDAnalyzer("SiStripCorrelateNoise")
 
 

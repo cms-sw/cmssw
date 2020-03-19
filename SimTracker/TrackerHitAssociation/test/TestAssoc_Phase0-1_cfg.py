@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 import os 
 
 # Create a new CMS process
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process('assocTest',eras.Run2_2017)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('assocTest',Run2_2017)
 
 # Import all the necessary files
 process.load('Configuration.StandardSequences.Services_cff')

@@ -20,14 +20,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-template<typename T>
-class EventSelectorAdapter : public edm::global::EDFilter<>
-{
- public:
+template <typename T>
+class EventSelectorAdapter : public edm::global::EDFilter<> {
+public:
   // constructor
-  explicit EventSelectorAdapter(const edm::ParameterSet& cfg) :
-    eventSelector_( cfg, consumesCollector() ) {
-  }
+  explicit EventSelectorAdapter(const edm::ParameterSet& cfg) : eventSelector_(cfg, consumesCollector()) {}
 
   // destructor
   ~EventSelectorAdapter() override {}
@@ -38,11 +35,12 @@ class EventSelectorAdapter : public edm::global::EDFilter<>
     descriptions.addWithDefaultLabel(desc);
   }
 
- private:
-  bool filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override { return eventSelector_(evt, es); }
+private:
+  bool filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override {
+    return eventSelector_(evt, es);
+  }
 
   T eventSelector_;
 };
 
 #endif
-

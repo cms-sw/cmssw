@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import xml.etree.ElementTree as ET
+import argparse
+
+def printGUID(root):
+    for f in root.findall("File"):
+        print(f.find("GUID").text)
+
+def printExitCode(root):
+    error = root.find("FrameworkError")
+    if error is None:
+        print("0")
+        return
+    print(error.get("ExitStatus"))
+
+def main(opts):
+    tree = ET.parse(opts.file)
+    root = tree.getroot()
+    if opts.guid:
+        printGUID(root)
+    if opts.exitCode:
+        printExitCode(root)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Extract some values from the Framework Job Report")
+    parser.add_argument("file", type=str,
+                        help="Framework Job Report XML file")
+    parser.add_argument("--guid", action="store_true",
+                        help="GUID of the output file")
+    parser.add_argument("--exitCode", action="store_true",
+                        help="Job exit code")
+
+    opts = parser.parse_args()
+    main(opts)

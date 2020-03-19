@@ -36,4 +36,8 @@
   <class name="HFNoseDetId" ClassVersion="0">
    <version ClassVersion="0" checksum="1469396081"/>
   </class>
+  <class name="HFNoseTriggerDetId" ClassVersion="-1">
+   <version ClassVersion="-1" checksum="1686145543"/>
+   <version ClassVersion="0" checksum="1469396081"/>
+  </class>
 </lcgdict>

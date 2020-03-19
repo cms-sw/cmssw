@@ -13,19 +13,18 @@
    This class is mainly used for the jet-parton matching in TopTools.
 */
 
-namespace reco { class Candidate; }
+namespace reco {
+  class Candidate;
+}
 class TtGenEvent;
 
 class TtSemiLepEvtPartons : public TtEventPartons {
-
- public:
-
-  /// semi-leptonic parton enum used to define the order 
+public:
+  /// semi-leptonic parton enum used to define the order
   /// in the vector for lepton and jet combinatorics
   enum { LightQ, LightQBar, HadB, LepB, Lepton };
 
- public:
-
+public:
   /// default constructor
   TtSemiLepEvtPartons(const std::vector<std::string>& partonsToIgnore = std::vector<std::string>());
   /// default destructor
@@ -33,7 +32,6 @@ class TtSemiLepEvtPartons : public TtEventPartons {
 
   /// return vector of partons in the order defined in the corresponding enum
   std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt) override;
-
 };
 
 #endif

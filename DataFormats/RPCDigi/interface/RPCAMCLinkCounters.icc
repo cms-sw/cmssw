@@ -3,37 +3,27 @@
 
 #include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
 
-inline void RPCAMCLinkCounters::add(unsigned int event, RPCAMCLink const & link, unsigned int count)
-{
-    type_link_count_[std::pair<unsigned int, std::uint32_t>(event, link.getId())] += count;
+inline void RPCAMCLinkCounters::add(unsigned int event, RPCAMCLink const& link, unsigned int count) {
+  type_link_count_[std::pair<unsigned int, std::uint32_t>(event, link.getId())] += count;
 }
 
-inline void RPCAMCLinkCounters::reset()
-{
-    type_link_count_.clear();
+inline void RPCAMCLinkCounters::reset() { type_link_count_.clear(); }
+
+inline void RPCAMCLinkCounters::reset(unsigned int event) {
+  map_type::iterator first(type_link_count_.lower_bound(std::pair<unsigned int, std::uint32_t>(event, 0)));
+  if (first != type_link_count_.end()) {
+    map_type::iterator last(type_link_count_.upper_bound(std::pair<unsigned int, std::uint32_t>(event, 0xffffffff)));
+    type_link_count_.erase(first, last);
+  }
 }
 
-inline void RPCAMCLinkCounters::reset(unsigned int event)
-{
-    map_type::iterator first(type_link_count_.lower_bound(std::pair<unsigned int, std::uint32_t>(event, 0)));
-    if (first != type_link_count_.end()) {
-        map_type::iterator last(type_link_count_.upper_bound(std::pair<unsigned int, std::uint32_t>(event, 0xffffffff)));
-        type_link_count_.erase(first, last);
-    }
+inline void RPCAMCLinkCounters::reset(unsigned int event, RPCAMCLink const& link) {
+  map_type::iterator pos(type_link_count_.find(std::pair<unsigned int, std::uint32_t>(event, link.getId())));
+  if (pos != type_link_count_.end()) {
+    type_link_count_.erase(pos);
+  }
 }
 
-inline void RPCAMCLinkCounters::reset(unsigned int event, RPCAMCLink const & link)
-{
-    map_type::iterator pos(type_link_count_.find(std::pair<unsigned int, std::uint32_t>(event, link.getId())));
-    if (pos != type_link_count_.end()) {
-        type_link_count_.erase(pos);
-    }
-}
+inline RPCAMCLinkCounters::map_type const& RPCAMCLinkCounters::getCounters() const { return type_link_count_; }
 
-inline RPCAMCLinkCounters::map_type const &
-RPCAMCLinkCounters::getCounters() const
-{
-    return type_link_count_;
-}
-
-#endif // DataFormats_RPCDigi_RPCAMCLinkCounters_icc
+#endif  // DataFormats_RPCDigi_RPCAMCLinkCounters_icc

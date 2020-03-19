@@ -27,31 +27,27 @@
 
 class TransientInitialStateEstimator;
 class ConversionTrackFinder {
+public:
+  ConversionTrackFinder(const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder* trajectoryBuilder);
 
- public:
-  
-  ConversionTrackFinder( const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder *trajectoryBuilder);
-                       
-  
   virtual ~ConversionTrackFinder();
- 
-  
-  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection& seeds , TrackCandidateCollection &candidate) const =0;
+
+  virtual std::vector<Trajectory> tracks(const TrajectorySeedCollection& seeds,
+                                         TrackCandidateCollection& candidate) const = 0;
 
   /// Initialize EventSetup objects at each event
-  void setEventSetup( const edm::EventSetup& es ) ; 
+  void setEventSetup(const edm::EventSetup& es);
 
- protected: 
-  
+protected:
   const MagneticField* theMF_;
 
   std::string theMeasurementTrackerName_;
-  const MeasurementTracker*     theMeasurementTracker_;
-  const BaseCkfTrajectoryBuilder*  theCkfTrajectoryBuilder_;
+  const MeasurementTracker* theMeasurementTracker_;
+  const BaseCkfTrajectoryBuilder* theCkfTrajectoryBuilder_;
 
   std::unique_ptr<TransientInitialStateEstimator> theInitialState_;
   const TrackerGeometry* theTrackerGeom_;
-  KFUpdator*                          theUpdator_;
+  KFUpdator* theUpdator_;
 
   edm::ESHandle<Propagator> thePropagator_;
 
@@ -59,17 +55,15 @@ class ConversionTrackFinder {
 
   struct ExtractNumOfHits {
     typedef int result_type;
-    result_type operator()(const Trajectory& t) const {return t.foundHits();}
-    result_type operator()(const Trajectory* t) const {return t->foundHits();}
+    result_type operator()(const Trajectory& t) const { return t.foundHits(); }
+    result_type operator()(const Trajectory* t) const { return t->foundHits(); }
   };
-
 
   struct ExtractChi2 {
     typedef float result_type;
-    result_type operator()(const Trajectory& t) const {return t.chiSquared();}
-    result_type operator()(const Trajectory* t) const {return t->chiSquared();}
+    result_type operator()(const Trajectory& t) const { return t.chiSquared(); }
+    result_type operator()(const Trajectory* t) const { return t->chiSquared(); }
   };
-
 };
 
 #endif

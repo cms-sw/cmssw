@@ -6,98 +6,93 @@
 
 class UCTCTP7RawData {
 public:
+  enum CaloType { EBEE = 0, HBHE, HF };
 
-  enum CaloType {EBEE=0, HBHE, HF};
-
-  UCTCTP7RawData(const uint32_t *d) : myDataPtr(d) {
-    if(myDataPtr != nullptr) {
-      if(sof() != 0xA110CA7E) {
-	edm::LogError("UCTCTP7RawData") << "Failed to see 0xA110CA7E at start - but continuing" << std::endl;
+  UCTCTP7RawData(const uint32_t* d) : myDataPtr(d) {
+    if (myDataPtr != nullptr) {
+      if (sof() != 0xA110CA7E) {
+        edm::LogError("UCTCTP7RawData") << "Failed to see 0xA110CA7E at start - but continuing" << std::endl;
       }
     }
   }
-  
-  virtual ~UCTCTP7RawData() {;}
-  
+
+  virtual ~UCTCTP7RawData() { ; }
+
   // Access functions for convenience
-  
-  const uint32_t *dataPtr() const {return myDataPtr;}
 
-  uint32_t sof() {return myDataPtr[0];}
+  const uint32_t* dataPtr() const { return myDataPtr; }
 
-  uint32_t caloLinkBXID() {return (myDataPtr[1] & 0x00000FFF);}
+  uint32_t sof() { return myDataPtr[0]; }
 
-  uint32_t nBXPerL1A() {return ((myDataPtr[1] & 0x000F0000) >> 16);}
+  uint32_t caloLinkBXID() { return (myDataPtr[1] & 0x00000FFF); }
+
+  uint32_t nBXPerL1A() { return ((myDataPtr[1] & 0x000F0000) >> 16); }
 
   uint32_t getIndex(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t index = 0xDEADBEEF;
-    if(cType == EBEE || cType == HBHE) {
-      if(iPhi > 3) {
-	edm::LogError("UCTCTP7RawData") << "Incorrect iPhi; iPhi = " << iPhi << "; should be in [0,3]" << std::endl;
-	return 0xDEADBEEF;
+    if (cType == EBEE || cType == HBHE) {
+      if (iPhi > 3) {
+        edm::LogError("UCTCTP7RawData") << "Incorrect iPhi; iPhi = " << iPhi << "; should be in [0,3]" << std::endl;
+        return 0xDEADBEEF;
       }
-      if(cEta < 1 || cEta > 28) {
-	edm::LogError("UCTCTP7RawData") << "Incorrect caloEta; cEta = " << cEta << "; should be in [1-28]" << std::endl;
-	return 0xDEADBEEF;
+      if (cEta < 1 || cEta > 28) {
+        edm::LogError("UCTCTP7RawData") << "Incorrect caloEta; cEta = " << cEta << "; should be in [1-28]" << std::endl;
+        return 0xDEADBEEF;
       }
       // ECAL/HB+HE fragment size is 3 32-bit words
       // Each fragment covers 2 eta and 4 phi towers
       // All four phi towers are in one 32-bit word
       // Even and odd eta are in neighboring 32-bit words
-      index = 2 + ( ((cEta - 1) / 2) * (3 + 3) + ((cEta - 1) % 2) );
+      index = 2 + (((cEta - 1) / 2) * (3 + 3) + ((cEta - 1) % 2));
       // But, towers are arranged in a peculiar order for firmware
       // convenience - the index needs to be computing with these
       // if statements.  This is brittle code that one should be
       // very careful with.
-      if(negativeEta) {
-	// Add offset for 6 ECAL and 6 HCAL fragments
-	index += (6 * (3 + 3));
-      }
-      else {
-	if(cEta > 12) {
-	  // Add offset for 14 ECAL, 14 HB+HE and 2 HF fragments
-	  // Note that first six are included in the definition of
-	  // the variable - index  
-	  // Note also that HF fragments are larger at 4 32-bit words
-	  index += ((14 * (3 + 3) + (2 * 4)));
-	}
+      if (negativeEta) {
+        // Add offset for 6 ECAL and 6 HCAL fragments
+        index += (6 * (3 + 3));
+      } else {
+        if (cEta > 12) {
+          // Add offset for 14 ECAL, 14 HB+HE and 2 HF fragments
+          // Note that first six are included in the definition of
+          // the variable - index
+          // Note also that HF fragments are larger at 4 32-bit words
+          index += ((14 * (3 + 3) + (2 * 4)));
+        }
       }
       // Data starts with ECAL towers so offset by 3 additional 32-bit words
-      if(cType == HBHE) index += 3;
-    }
-    else if(cType == HF) {
-      if(iPhi > 1) {
-	edm::LogError("UCTCTP7RawData") << "HF iPhi should be 0 or 1 (for a , b) - invalid iPhi  = " << iPhi << std::endl;
-	return 0xDEADBEEF;
+      if (cType == HBHE)
+        index += 3;
+    } else if (cType == HF) {
+      if (iPhi > 1) {
+        edm::LogError("UCTCTP7RawData") << "HF iPhi should be 0 or 1 (for a , b) - invalid iPhi  = " << iPhi
+                                        << std::endl;
+        return 0xDEADBEEF;
       }
-      if(cEta < 30 || cEta > 41) {
-	edm::LogError("UCTCTP7RawData") << "HF cEta should be between 30 and 41 - invalid cEta = " << cEta << std::endl;
-	return 0xDEADBEEF;
+      if (cEta < 30 || cEta > 41) {
+        edm::LogError("UCTCTP7RawData") << "HF cEta should be between 30 and 41 - invalid cEta = " << cEta << std::endl;
+        return 0xDEADBEEF;
       }
-      if(negativeEta) {
-	if(iPhi == 0) {
-	  // Offset by 6 positive eta and 14 negative eta EBEE/HBHE fragments (each 3 32-bit words)
-	  // There are four HF cEta towers packed in each 32-bit word
-	  // Add additional offset of 1 for (34-37) and 2 for (38-41)
-	  index = 2 + 20 * (3 + 3) + ((cEta - 30) / 4);
-	}
-	else {
-	  // Additional HF a fragment offset for HF b channel
-	  index = 2 + 20 * (3 + 3) + 1 * 4 + ((cEta - 30) / 4);
-	}
+      if (negativeEta) {
+        if (iPhi == 0) {
+          // Offset by 6 positive eta and 14 negative eta EBEE/HBHE fragments (each 3 32-bit words)
+          // There are four HF cEta towers packed in each 32-bit word
+          // Add additional offset of 1 for (34-37) and 2 for (38-41)
+          index = 2 + 20 * (3 + 3) + ((cEta - 30) / 4);
+        } else {
+          // Additional HF a fragment offset for HF b channel
+          index = 2 + 20 * (3 + 3) + 1 * 4 + ((cEta - 30) / 4);
+        }
+      } else {
+        if (iPhi == 0) {
+          // Offset by all EBEE/HBHE and two HF fragments (4 32-bit words)
+          index = 2 + 2 * 14 * (3 + 3) + 2 * 4 + ((cEta - 30) / 4);
+        } else {
+          // Additional HF a fragment offset for HF b channel
+          index = 2 + 2 * 14 * (3 + 3) + 3 * 4 + ((cEta - 30) / 4);
+        }
       }
-      else {
-	if(iPhi == 0) {
-	  // Offset by all EBEE/HBHE and two HF fragments (4 32-bit words)
-	  index = 2 + 2 * 14 * (3 + 3) + 2 * 4 + ((cEta - 30) / 4);
-	}
-	else {
-	  // Additional HF a fragment offset for HF b channel
-	  index = 2 + 2 * 14 * (3 + 3) + 3 * 4 + ((cEta - 30) / 4);
-	}
-      }
-    }
-    else {
+    } else {
       edm::LogError("UCTCTP7RawData") << "Unknown CaloType " << cType << std::endl;
       return 0xDEADBEEF;
     }
@@ -107,21 +102,19 @@ public:
   uint32_t getFeatureIndex(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     // Get index into the data words for the tower
     uint32_t index = getIndex(cType, negativeEta, cEta, iPhi);
-    if(cType == EBEE || cType == HBHE) {
+    if (cType == EBEE || cType == HBHE) {
       // Two 32-bit words contain ET, so we should offset the index to
       // to the feature and link status bits
-      if(((cEta - 1) % 2) == 0) {
-	// [index] is offset to ET of first four towers (0 - 3)
-	// [index + 2] is where the feature and link status bits are
-	index += 2;
+      if (((cEta - 1) % 2) == 0) {
+        // [index] is offset to ET of first four towers (0 - 3)
+        // [index + 2] is where the feature and link status bits are
+        index += 2;
+      } else {
+        // In this case [index] is offset to ET of second four towers (4 - 7)
+        // [index + 1] is where the feature and link status bits are
+        index += 1;
       }
-      else {
-	// In this case [index] is offset to ET of second four towers (4 - 7)
-	// [index + 1] is where the feature and link status bits are
-	index += 1;
-      }
-    }
-    else if(cType == HF) {
+    } else if (cType == HF) {
       // HF Fragment has different structure than EBEE and HBHE fragments
       // First three 32-bit words have ETs for 11 objects (yes, 11 not 12)
       // cEta = 40 / 41 are double in eta and flop bettween a and b HF fragments
@@ -132,8 +125,7 @@ public:
       // Since there are three instead of if block as above for EBEE, HBHE
       // I wrote here a more compact implementation of index computation.
       index += (3 - ((cEta - 30) / 4));
-    }
-    else {
+    } else {
       return 0xDEADBEEF;
     }
     return index;
@@ -143,13 +135,14 @@ public:
     uint32_t index = getIndex(cType, negativeEta, cEta, iPhi);
     const uint32_t data = myDataPtr[index];
     uint32_t et = 0xDEADBEEF;
-    if(cType == HF) {
+    if (cType == HF) {
       // Pick out the correct 8-bits for the iEta chosen
       // Note that cEta = 41 is special, it only occurs for iPhi == 1 and shares cEta = 40 position
-      if(cEta == 41) et = ((data >> 16) & 0xFF);
-      else et = ((data >> ((cEta - 30) % 4) * 8) & 0xFF);
-    }
-    else {
+      if (cEta == 41)
+        et = ((data >> 16) & 0xFF);
+      else
+        et = ((data >> ((cEta - 30) % 4) * 8) & 0xFF);
+    } else {
       // Pick out the correct 8-bits for the iPhi chosen
       et = ((data >> (iPhi * 8)) & 0xFF);
     }
@@ -160,14 +153,13 @@ public:
     uint32_t index = getFeatureIndex(cType, negativeEta, cEta, iPhi);
     const uint32_t data = myDataPtr[index];
     uint32_t fb = 0;
-    if(cType == HF) {
+    if (cType == HF) {
       fb = getHFFeatureBits(negativeEta, cEta, iPhi);
-    }
-    else {
+    } else {
       // Pick out the correct bit for the tower chosen
       uint32_t tower = iPhi;
-      if(((cEta - 1) % 2) == 1) {
-	tower += 4;
+      if (((cEta - 1) % 2) == 1) {
+        tower += 4;
       }
       fb = ((data & (0x1 << tower)) != 0) ? 1 : 0;
     }
@@ -179,7 +171,8 @@ public:
     // Stitch together the top 8 bits from previous 32-bit word and bottom 14 bits from this word
     const uint32_t data = ((myDataPtr[index] & 0x3FFF) << 8) + (myDataPtr[index - 1] >> 24);
     uint32_t shift = (cEta - 30) * 2;
-    if(cEta == 41) shift = 20; // 41 occurs on b-fiber but shares the position of 40
+    if (cEta == 41)
+      shift = 20;  // 41 occurs on b-fiber but shares the position of 40
     return ((data >> shift) & 0x3);
   }
 
@@ -191,7 +184,8 @@ public:
 
   uint32_t getSummaryIndex(bool negativeEta, uint32_t region) {
     uint32_t index = 2 + 2 * 14 * (3 + 3) + 4 * 4 + (region / 2);
-    if(negativeEta) index += 4;
+    if (negativeEta)
+      index += 4;
     return index;
   }
 
@@ -201,18 +195,12 @@ public:
     return ((data >> (16 * (region % 2))) & 0xFFFF);
   }
 
-  uint32_t getRegionET(bool negativeEta, uint32_t region) {
-    return (getRegionSummary(negativeEta, region) & 0x3FF);
-  }
-  
-  bool getRegionEGVeto(bool negativeEta, uint32_t region) {
-    return (getRegionSummary(negativeEta, region) & 0x0400);
-  }
-  
-  bool getRegionTauVeto(bool negativeEta, uint32_t region) {
-    return (getRegionSummary(negativeEta, region) & 0x0800);
-  }
-  
+  uint32_t getRegionET(bool negativeEta, uint32_t region) { return (getRegionSummary(negativeEta, region) & 0x3FF); }
+
+  bool getRegionEGVeto(bool negativeEta, uint32_t region) { return (getRegionSummary(negativeEta, region) & 0x0400); }
+
+  bool getRegionTauVeto(bool negativeEta, uint32_t region) { return (getRegionSummary(negativeEta, region) & 0x0800); }
+
   uint32_t getRegionHitLocation(bool negativeEta, uint32_t region) {
     return ((getRegionSummary(negativeEta, region) & 0xF000) >> 12);
   }
@@ -220,17 +208,19 @@ public:
   bool isTowerMasked(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
     uint32_t tower = iPhi;
-    if(((cEta - 1) % 2) == 1) tower += 4;
-    if(cType == HF) {
+    if (((cEta - 1) % 2) == 1)
+      tower += 4;
+    if (cType == HF) {
       tower = (cEta - 30);
-      if(cEta == 41) tower = 10;
+      if (cEta == 41)
+        tower = 10;
     }
     return ((linkStatus & (0x1 << tower)) != 0);
   }
 
   bool isLinkMisaligned(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
-    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+    if (cType == EBEE && (cEta == 17 || cEta == 21)) {
       return ((linkStatus & 0x00000100) != 0);
     }
     return ((linkStatus & 0x00001000) != 0);
@@ -238,7 +228,7 @@ public:
 
   bool isLinkInError(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
-    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+    if (cType == EBEE && (cEta == 17 || cEta == 21)) {
       return ((linkStatus & 0x00000200) != 0);
     }
     return ((linkStatus & 0x00002000) != 0);
@@ -246,7 +236,7 @@ public:
 
   bool isLinkDown(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
-    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+    if (cType == EBEE && (cEta == 17 || cEta == 21)) {
       return ((linkStatus & 0x00000400) != 0);
     }
     return ((linkStatus & 0x00004000) != 0);
@@ -254,7 +244,7 @@ public:
 
   bool isLinkMasked(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     uint32_t linkStatus = getLinkStatus(cType, negativeEta, cEta, iPhi);
-    if ( cType == EBEE && (cEta==17||cEta==21) ) {
+    if (cType == EBEE && (cEta == 17 || cEta == 21)) {
       return ((linkStatus & 0x00000800) != 0);
     }
     return ((linkStatus & 0x00008000) != 0);
@@ -268,82 +258,86 @@ public:
     CaloType cType = EBEE;
     bool negativeEta = false;
     bool first = true;
-    for(uint32_t i = 0; i < 2; i++) {
-      if(i != 0) negativeEta = true;
+    for (uint32_t i = 0; i < 2; i++) {
+      if (i != 0)
+        negativeEta = true;
       first = true;
       cType = EBEE;
-      for(uint32_t cEta = 1; cEta <= 28; cEta++) {
-	for(uint32_t iPhi = 0; iPhi < 4; iPhi++) {
-	  if(getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 ||
-	     getET(cType, negativeEta, cEta, iPhi) != 0) {
-	    if(first) edm::LogError("UCTCTP7RawData") << "EcalET FG    LinkStatus" << endl;
-	    first = false;
-	    edm::LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
-		 << getFB(cType, negativeEta, cEta, iPhi) << "    "
-		 << showbase << internal << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi)
-		 << " (" << dec << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi << ")"
-		 << endl;
-	  }
-	}
+      for (uint32_t cEta = 1; cEta <= 28; cEta++) {
+        for (uint32_t iPhi = 0; iPhi < 4; iPhi++) {
+          if (getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 || getET(cType, negativeEta, cEta, iPhi) != 0) {
+            if (first)
+              edm::LogError("UCTCTP7RawData") << "EcalET FG    LinkStatus" << endl;
+            first = false;
+            edm::LogError("UCTCTP7RawData")
+                << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
+                << getFB(cType, negativeEta, cEta, iPhi) << "    " << showbase << internal << setfill('0') << setw(10)
+                << hex << getLinkStatus(cType, negativeEta, cEta, iPhi) << " (" << dec
+                << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi
+                << ")" << endl;
+          }
+        }
       }
       first = true;
       cType = HBHE;
-      for(uint32_t cEta = 1; cEta <= 28; cEta++) {
-	for(uint32_t iPhi = 0; iPhi < 4; iPhi++) {
-	  if(getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 ||
-	     getET(cType, negativeEta, cEta, iPhi) != 0) {
-	    if(first) edm::LogError("UCTCTP7RawData") << "HcalET Feature LinkStatus" << endl;
-	    first = false;
-	    edm::LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
-		 << getFB(cType, negativeEta, cEta, iPhi) << "   "
-		 << showbase << internal << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi)
-		 << " (" << dec << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi << ")"
-		 << endl;
-	  }
-	}
+      for (uint32_t cEta = 1; cEta <= 28; cEta++) {
+        for (uint32_t iPhi = 0; iPhi < 4; iPhi++) {
+          if (getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 || getET(cType, negativeEta, cEta, iPhi) != 0) {
+            if (first)
+              edm::LogError("UCTCTP7RawData") << "HcalET Feature LinkStatus" << endl;
+            first = false;
+            edm::LogError("UCTCTP7RawData")
+                << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
+                << getFB(cType, negativeEta, cEta, iPhi) << "   " << showbase << internal << setfill('0') << setw(10)
+                << hex << getLinkStatus(cType, negativeEta, cEta, iPhi) << " (" << dec
+                << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi
+                << ")" << endl;
+          }
+        }
       }
       first = true;
       cType = HF;
-      for(uint32_t cEta = 30; cEta <= 40; cEta++) {
-	for(uint32_t iPhi = 0; iPhi < 2; iPhi++) {
-	  if(iPhi == 1 && cEta == 40) cEta = 41;
-	  if(getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 ||
-	     getET(cType, negativeEta, cEta, iPhi) != 0) {
-	    if(first) edm::LogError("UCTCTP7RawData") << "HF-ET    Feature LinkStatus" << endl;
-	    first = false;
-	    edm::LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  "
-		 << dec << setfill(' ') << setw(2) << getHFFeatureBits(negativeEta, cEta, iPhi) << "   "
-		 << showbase << internal << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi)
-		 << " (" << dec << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi << ")"
-		 << endl;
-	  }
-	}
+      for (uint32_t cEta = 30; cEta <= 40; cEta++) {
+        for (uint32_t iPhi = 0; iPhi < 2; iPhi++) {
+          if (iPhi == 1 && cEta == 40)
+            cEta = 41;
+          if (getLinkStatus(cType, negativeEta, cEta, iPhi) != 0 || getET(cType, negativeEta, cEta, iPhi) != 0) {
+            if (first)
+              edm::LogError("UCTCTP7RawData") << "HF-ET    Feature LinkStatus" << endl;
+            first = false;
+            edm::LogError("UCTCTP7RawData")
+                << dec << setfill(' ') << setw(6) << getET(cType, negativeEta, cEta, iPhi) << "  " << dec
+                << setfill(' ') << setw(2) << getHFFeatureBits(negativeEta, cEta, iPhi) << "   " << showbase << internal
+                << setfill('0') << setw(10) << hex << getLinkStatus(cType, negativeEta, cEta, iPhi) << " (" << dec
+                << getIndex(cType, negativeEta, cEta, iPhi) << ", " << negativeEta << ", " << cEta << ", " << iPhi
+                << ")" << endl;
+          }
+        }
       }
       first = true;
-      for(uint32_t region = 0; region < 7; region++) {
-	if(first) edm::LogError("UCTCTP7RawData") << "Region      ET   EGVeto  TauVeto HitLocation" << endl;
-	first = false;
-	edm::LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << region
-	     << "  " << hex << showbase << internal << setfill('0') << setw(6) << getRegionET(negativeEta, region) << dec
-	     << "        " << getRegionEGVeto(negativeEta, region)
-	     << "        " << getRegionTauVeto(negativeEta, region)
-	     << "        " << showbase << internal << setfill('0') << setw(3) << hex << getRegionHitLocation(negativeEta, region)
-	     << endl;
+      for (uint32_t region = 0; region < 7; region++) {
+        if (first)
+          edm::LogError("UCTCTP7RawData") << "Region      ET   EGVeto  TauVeto HitLocation" << endl;
+        first = false;
+        edm::LogError("UCTCTP7RawData") << dec << setfill(' ') << setw(6) << region << "  " << hex << showbase
+                                        << internal << setfill('0') << setw(6) << getRegionET(negativeEta, region)
+                                        << dec << "        " << getRegionEGVeto(negativeEta, region) << "        "
+                                        << getRegionTauVeto(negativeEta, region) << "        " << showbase << internal
+                                        << setfill('0') << setw(3) << hex << getRegionHitLocation(negativeEta, region)
+                                        << endl;
       }
     }
   }
-  
-private:
 
+private:
   // No copy constructor and equality operator are needed
-  
+
   UCTCTP7RawData(const UCTCTP7RawData&) = delete;
   const UCTCTP7RawData& operator=(const UCTCTP7RawData& i) = delete;
-  
-  // RawData data
-  
-  const uint32_t* myDataPtr;
 
+  // RawData data
+
+  const uint32_t* myDataPtr;
 };
 
 #endif

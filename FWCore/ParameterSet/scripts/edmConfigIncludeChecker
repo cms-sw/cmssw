@@ -5,6 +5,8 @@
 #
 # for questions: benedikt.hegner@cern.ch
 
+from __future__ import print_function
+from builtins import object
 import os.path
 import sys
 from os import environ
@@ -94,24 +96,24 @@ class IncludeChecker(object):
 
     
     def printResult(self):
-        print "Included files:"
-        print "---------------"
+        print("Included files:")
+        print("---------------")
         for item in self.includedFileNames:
-            print "  ", item
+            print("  ", item)
 
         if len(self.problematicIncludes) != 0:
-            print "\nProblematic files:"
-            print "------------------"
+            print("\nProblematic files:")
+            print("------------------")
             for item in self.problematicIncludes:
-                print "  ", item
+                print("  ", item)
         else:
-            print "\nHaven't found any problematic files"
+            print("\nHaven't found any problematic files")
 
         if len(self.missingIncludes) != 0:
-            print "\nMissing files:"
-            print "--------------"
+            print("\nMissing files:")
+            print("--------------")
             for item in self.missingIncludes:
-                print "  ", item
+                print("  ", item)
 
 
                 
@@ -125,4 +127,4 @@ if __name__ == "__main__":
         checker.check(filename)
         checker.printResult()        
     else:
-        print "Please specify a file to check"
+        print("Please specify a file to check")

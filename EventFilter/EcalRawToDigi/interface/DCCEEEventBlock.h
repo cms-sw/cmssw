@@ -1,7 +1,6 @@
 #ifndef DCCEEEVENTBLOCK_HH
 #define DCCEEEVENTBLOCK_HH
 
-
 /*
  *\ Class DCCEEventBlock
  *
@@ -20,20 +19,21 @@
 #include "DCCRawDataDefinitions.h"
 #include "DCCEventBlock.h"
 
+class DCCEEEventBlock : public DCCEventBlock {
+public:
+  DCCEEEventBlock(DCCDataUnpacker* u,
+                  EcalElectronicsMapper* m,
+                  bool hU,
+                  bool srpU,
+                  bool tccU,
+                  bool feU,
+                  bool memU,
+                  bool forceToKeepFRdata);
 
-class DCCEEEventBlock : public DCCEventBlock{
-	
-  public :
+  void unpack(const uint64_t* buffer, size_t bufferSize, unsigned int expFedId) override;
 
-   DCCEEEventBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, bool hU, bool srpU, bool tccU, bool feU, bool memU, bool forceToKeepFRdata );
-   
-   void unpack(const uint64_t * buffer, size_t bufferSize, unsigned int expFedId) override;
-	
-  protected :
-  
-   int unpackTCCBlocks() override;
-   
-   
+protected:
+  int unpackTCCBlocks() override;
 };
 
 #endif

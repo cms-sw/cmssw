@@ -8,9 +8,10 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Eras import eras
-# process = cms.Process("RecHitsValid", eras.Run2_2016)
-process = cms.Process("RecHitsValid", eras.Run2_2017)
+# from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
+# process = cms.Process("RecHitsValid", Run2_2016)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process("RecHitsValid", Run2_2017)
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag

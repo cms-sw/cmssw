@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats
 // Class  :     AlCaRecoTriggerBitsRcd
-// 
+//
 /**\class AlCaRecoTriggerBitsRcd AlCaRecoTriggerBitsRcd.h src/CondFormats/interface/AlCaRecoTriggerBitsRcd.h
 
  Description: <one line class summary>

@@ -1,11 +1,26 @@
 <use   name="FWCore/Framework"/>
 <use   name="Geometry/Records"/>
 <use   name="MagneticField/Records"/>
-<use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/Parser"/>
 <use   name="Geometry/MTDCommonData"/>
-<flags   EDM_PLUGIN="1"/>
+
 <library   file="TestMTDNumbering.cc">
+  <use   name="DetectorDescription/Core"/>
+  <use   name="DetectorDescription/Parser"/>
+  <flags   EDM_PLUGIN="1"/>
 </library>
+
 <library   file="TestMTDPosition.cc">
+  <use   name="DetectorDescription/Core"/>
+  <use   name="DetectorDescription/Parser"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   file="DD4hep_TestMTDNumbering.cc">
+  <use   name="DetectorDescription/DDCMS"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   file="DD4hep_TestMTDPosition.cc">
+  <use   name="DetectorDescription/DDCMS"/>
+  <flags   EDM_PLUGIN="1"/>
 </library>

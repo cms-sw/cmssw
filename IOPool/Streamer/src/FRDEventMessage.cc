@@ -15,33 +15,32 @@
  * Constructor for the FRD event message viewer.
  */
 FRDEventMsgView::FRDEventMsgView(void* buf)
-  : buf_((uint8*)buf),
-    payload_(nullptr),
-    size_(0),
-    version_(0),
-    run_(0),
-    lumi_(0),
-    event_(0),
-    eventSize_(0),
-    paddingSize_(0),
-    adler32_(0),
-    crc32c_(0)
-{
+    : buf_((uint8*)buf),
+      payload_(nullptr),
+      size_(0),
+      version_(0),
+      run_(0),
+      lumi_(0),
+      event_(0),
+      eventSize_(0),
+      paddingSize_(0),
+      adler32_(0),
+      crc32c_(0) {
   uint32* bufPtr = static_cast<uint32*>(buf);
   version_ = *bufPtr;
   // if the version number is rather large, then we assume that the true
   // version number is one.  (In version one of the format, there was
   // no version number in the data, and the run number appeared first.)
   if (version_ >= 32) {
-      version_ = 1;
+    version_ = 1;
   }
 
   size_ = 0;
 
   // version number
   if (version_ >= 2) {
-      size_ += sizeof(uint32);
-      ++bufPtr;
+    size_ += sizeof(uint32);
+    ++bufPtr;
   }
 
   // run number
@@ -51,18 +50,18 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
 
   // lumi number
   if (version_ >= 2) {
-      lumi_ = *bufPtr;
-      size_ += sizeof(uint32);
-      ++bufPtr;
+    lumi_ = *bufPtr;
+    size_ += sizeof(uint32);
+    ++bufPtr;
   }
 
   // event number
   if (version_ == 4) {
-    uint64 eventLow =  *bufPtr;
+    uint64 eventLow = *bufPtr;
     size_ += sizeof(uint32);
     ++bufPtr;
 
-    uint64 eventHigh =  *bufPtr;
+    uint64 eventHigh = *bufPtr;
     size_ += sizeof(uint32);
     ++bufPtr;
 
@@ -75,34 +74,32 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
   }
 
   if (version_ >= 3) {
-      // event size
-      eventSize_ = *bufPtr;
-      size_ += sizeof(uint32) + eventSize_;
+    // event size
+    eventSize_ = *bufPtr;
+    size_ += sizeof(uint32) + eventSize_;
+    ++bufPtr;
+
+    if (version_ >= 5) {
+      crc32c_ = *bufPtr;
+      size_ += sizeof(uint32);
+      ++bufPtr;
+    } else {
+      // padding size up to V4
+      paddingSize_ = *bufPtr;
+      size_ += sizeof(uint32) + paddingSize_;
       ++bufPtr;
 
-      if (version_ >= 5) {
-        crc32c_ = *bufPtr;
-        size_ += sizeof(uint32);
-        ++bufPtr;
-      }
-      else {
-        // padding size up to V4
-        paddingSize_ = *bufPtr;
-        size_ += sizeof(uint32) + paddingSize_;
-        ++bufPtr;
-
-        adler32_ = *bufPtr;
-        size_ += sizeof(uint32);
-        ++bufPtr;
-      }
-  }
-  else {
-      for (int idx = 0; idx < 1024; idx++) {
-          size_ += sizeof(uint32);  // FED N size
-          size_ += *bufPtr;         // FED N data
-          eventSize_ += *bufPtr;
-          ++bufPtr;
-      }
+      adler32_ = *bufPtr;
+      size_ += sizeof(uint32);
+      ++bufPtr;
+    }
+  } else {
+    for (int idx = 0; idx < 1024; idx++) {
+      size_ += sizeof(uint32);  // FED N size
+      size_ += *bufPtr;         // FED N data
+      eventSize_ += *bufPtr;
+      ++bufPtr;
+    }
   }
 
   payload_ = (void*)bufPtr;

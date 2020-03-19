@@ -7,8 +7,7 @@
 #include <string>
 
 class CMSEmStandardPhysics95msc93 : public G4VPhysicsConstructor {
-
-public: 
+public:
   CMSEmStandardPhysics95msc93(const G4String& name, G4int ver, const std::string& reg);
   ~CMSEmStandardPhysics95msc93() override;
 
@@ -16,14 +15,8 @@ public:
   void ConstructProcess() override;
 
 private:
-  G4int               verbose;
-  std::string         region;
+  G4int verbose;
+  std::string region;
 };
 
 #endif
-
-
-
-
-
-

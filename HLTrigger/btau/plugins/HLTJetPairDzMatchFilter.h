@@ -15,26 +15,24 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-template<typename T>
+template <typename T>
 class HLTJetPairDzMatchFilter : public HLTFilter {
+public:
+  explicit HLTJetPairDzMatchFilter(const edm::ParameterSet&);
+  ~HLTJetPairDzMatchFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
-  public:
-
-    explicit HLTJetPairDzMatchFilter(const edm::ParameterSet&);
-    ~HLTJetPairDzMatchFilter() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-
-  private:
-
-    edm::InputTag                     m_jetTag;
-    edm::EDGetTokenT<std::vector<T> > m_jetToken;
-    double m_jetMinPt;
-    double m_jetMaxEta;
-    double m_jetMinDR;
-    double m_jetMaxDZ;
-    int    m_triggerType;
-
+private:
+  edm::InputTag m_jetTag;
+  edm::EDGetTokenT<std::vector<T> > m_jetToken;
+  double m_jetMinPt;
+  double m_jetMaxEta;
+  double m_jetMinDR;
+  double m_jetMaxDZ;
+  int m_triggerType;
 };
 
 #endif

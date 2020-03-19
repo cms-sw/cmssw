@@ -24,18 +24,17 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/BTauObjects/interface/BTagEntry.h"
 
-class BTagCalibration
-{
+class BTagCalibration {
 public:
   BTagCalibration() {}
   BTagCalibration(const std::string &tagger);
   BTagCalibration(const std::string &tagger, const std::string &filename);
   ~BTagCalibration() {}
 
-  std::string tagger() const {return tagger_;}
+  std::string tagger() const { return tagger_; }
 
   void addEntry(const BTagEntry &entry);
-  const std::vector<BTagEntry>& getEntries(const BTagEntry::Parameters &par) const;
+  const std::vector<BTagEntry> &getEntries(const BTagEntry::Parameters &par) const;
 
   void readCSV(std::istream &s);
   void readCSV(const std::string &s);

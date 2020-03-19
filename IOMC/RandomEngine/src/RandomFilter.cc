@@ -11,24 +11,22 @@
 
 using namespace edm;
 
-RandomFilter::RandomFilter(edm::ParameterSet const& ps) :
-  acceptRate_(ps.getUntrackedParameter<double>("acceptRate")) {
+RandomFilter::RandomFilter(edm::ParameterSet const& ps) : acceptRate_(ps.getUntrackedParameter<double>("acceptRate")) {
   Service<RandomNumberGenerator> rng;
-  if(!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "RandomFilter requires the RandomNumberGeneratorService,\n"
-         "which is not present in the configuration file.  You must add\n"
-         "the service in the configuration file or remove the modules that\n"
-         "require it.\n";
+  if (!rng.isAvailable()) {
+    throw cms::Exception("Configuration") << "RandomFilter requires the RandomNumberGeneratorService,\n"
+                                             "which is not present in the configuration file.  You must add\n"
+                                             "the service in the configuration file or remove the modules that\n"
+                                             "require it.\n";
   }
 }
 
-RandomFilter::~RandomFilter() {
-}
+RandomFilter::~RandomFilter() {}
 
 bool RandomFilter::filter(edm::Event& event, edm::EventSetup const&) {
   Service<RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine& engine = rng->getEngine(event.streamID());
-  if (engine.flat() < acceptRate_) return true;
+  if (engine.flat() < acceptRate_)
+    return true;
   return false;
 }

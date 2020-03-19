@@ -23,83 +23,68 @@
 //
 // constructors and destructor
 //
-PF_PU_AssoMap::PF_PU_AssoMap(const edm::ParameterSet& iConfig):PF_PU_AssoMapAlgos(iConfig, consumesCollector())
-{
+PF_PU_AssoMap::PF_PU_AssoMap(const edm::ParameterSet& iConfig) : PF_PU_AssoMapAlgos(iConfig, consumesCollector()) {
+  //now do what ever other initialization is needed
 
-   //now do what ever other initialization is needed
+  input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
 
-  	input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
+  token_TrackCollection_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackCollection"));
 
-  	token_TrackCollection_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackCollection"));
+  //register your products
 
-   //register your products
-
-	if ( input_AssociationType_.label() == "TracksToVertex" ) {
-  	  produces<TrackToVertexAssMap>();
-	} else {
-	  if ( input_AssociationType_.label() == "VertexToTracks" ) {
-  	    produces<VertexToTrackAssMap>();
-	  } else {
-	    if ( input_AssociationType_.label() == "Both" ) {
-  	      produces<TrackToVertexAssMap>();
-  	      produces<VertexToTrackAssMap>();
-	    } else {
-	      std::cout << "No correct InputTag for AssociationType!" << std::endl;
-	      std::cout << "Won't produce any AssociationMap!" << std::endl;
-	    }
-	  }
-	}
-
-
+  if (input_AssociationType_.label() == "TracksToVertex") {
+    produces<TrackToVertexAssMap>();
+  } else {
+    if (input_AssociationType_.label() == "VertexToTracks") {
+      produces<VertexToTrackAssMap>();
+    } else {
+      if (input_AssociationType_.label() == "Both") {
+        produces<TrackToVertexAssMap>();
+        produces<VertexToTrackAssMap>();
+      } else {
+        std::cout << "No correct InputTag for AssociationType!" << std::endl;
+        std::cout << "Won't produce any AssociationMap!" << std::endl;
+      }
+    }
+  }
 }
 
-
-PF_PU_AssoMap::~PF_PU_AssoMap()
-{
-
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
-
+PF_PU_AssoMap::~PF_PU_AssoMap() {
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace std;
   using namespace reco;
 
+  //get the input track collection
+  Handle<TrackCollection> trkcollH;
+  iEvent.getByToken(token_TrackCollection_, trkcollH);
 
-  	//get the input track collection
-  	Handle<TrackCollection> trkcollH;
-  	iEvent.getByToken(token_TrackCollection_, trkcollH);
+  string asstype = input_AssociationType_.label();
 
-	string asstype = input_AssociationType_.label();
+  PF_PU_AssoMapAlgos::GetInputCollections(iEvent, iSetup);
 
-	PF_PU_AssoMapAlgos::GetInputCollections(iEvent,iSetup);
-
-        if (asstype == "TracksToVertex" || asstype == "VertexToTracks" || asstype == "Both") {
-          auto mappings = createMappings(trkcollH, iSetup);
-          if (asstype == "TracksToVertex" || asstype == "Both") {
-            iEvent.put( SortAssociationMap( &(*mappings.first), trkcollH ) );
-          }
-          if (asstype == "VertexToTracks" || asstype == "Both") {
-            iEvent.put( std::move(mappings.second));
-          }
-        }
-
+  if (asstype == "TracksToVertex" || asstype == "VertexToTracks" || asstype == "Both") {
+    auto mappings = createMappings(trkcollH, iSetup);
+    if (asstype == "TracksToVertex" || asstype == "Both") {
+      iEvent.put(SortAssociationMap(&(*mappings.first), trkcollH));
+    }
+    if (asstype == "VertexToTracks" || asstype == "Both") {
+      iEvent.put(std::move(mappings.second));
+    }
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-PF_PU_AssoMap::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PF_PU_AssoMap::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

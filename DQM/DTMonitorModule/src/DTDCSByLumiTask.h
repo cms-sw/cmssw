@@ -20,23 +20,21 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/DataRecord/interface/DTHVStatusRcd.h"
+#include "CondFormats/DTObjects/interface/DTHVStatus.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 #include <vector>
 
-class DTGeometry;
-class DQMStore;
-class MonitorElement;
-class DTHVStatus;
-
-class DTDCSByLumiTask: public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
-
+class DTDCSByLumiTask : public DQMOneLumiEDAnalyzer<> {
 public:
-
   /// Constructor
   DTDCSByLumiTask(const edm::ParameterSet& ps);
 
@@ -44,24 +42,22 @@ public:
   ~DTDCSByLumiTask() override;
 
 protected:
-
   /// Begin Run
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   // Book the histograms
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
   /// By Lumi DCS DB Operation
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const&) override;
 
   /// By Lumi DCS DB Operation
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup&) override;
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event& e, const edm::EventSetup&) override;
 
 private:
-
   std::string topFolder() const;
 
   int theEvents;
@@ -70,11 +66,11 @@ private:
   bool DTHVRecordFound;
 
   edm::ESHandle<DTGeometry> theDTGeom;
-  // CB Get HV DB and loop on half layers
-  edm::ESHandle<DTHVStatus> hvStatus;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryToken_;
+  edm::ESGetToken<DTHVStatus, DTHVStatusRcd> dtHVStatusToken_;
 
   std::vector<MonitorElement*> hActiveUnits;
-
 };
 
 #endif

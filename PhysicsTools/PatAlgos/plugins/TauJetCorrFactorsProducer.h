@@ -28,46 +28,43 @@
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include <map>
 #include <string>
 
 namespace pat {
 
-  class TauJetCorrFactorsProducer : public edm::stream::EDProducer<>
-  {
-   public:
+  class TauJetCorrFactorsProducer : public edm::stream::EDProducer<> {
+  public:
     /// value map for JetCorrFactors (to be written into the event)
     typedef edm::ValueMap<pat::TauJetCorrFactors> JetCorrFactorsMap;
 
-   public:
+  public:
     /// default constructor
     explicit TauJetCorrFactorsProducer(const edm::ParameterSet&);
     /// default destructor
-    ~TauJetCorrFactorsProducer() override {};
+    ~TauJetCorrFactorsProducer() override{};
 
     /// everything that needs to be done per event
     void produce(edm::Event&, const edm::EventSetup&) override;
 
-   private:
+  private:
     /// return the jec parameters as input to the FactorizedJetCorrector for different flavors
-    std::vector<JetCorrectorParameters> params(const JetCorrectorParametersCollection&, const std::vector<std::string>&) const;
+    std::vector<JetCorrectorParameters> params(const JetCorrectorParametersCollection&,
+                                               const std::vector<std::string>&) const;
 
     /// evaluate jet correction factor up to a given level
-    float evaluate(edm::View<reco::BaseTau>::const_iterator&, boost::shared_ptr<FactorizedJetCorrector>&, int);
+    float evaluate(edm::View<reco::BaseTau>::const_iterator&, std::shared_ptr<FactorizedJetCorrector>&, int);
 
   private:
     /// python label of this TauJetCorrFactorsProducer module
     std::string moduleLabel_;
 
-     /// input tau-jet collection
+    /// input tau-jet collection
     edm::EDGetTokenT<edm::View<reco::BaseTau> > srcToken_;
 
     /// mapping of reconstructed tau decay modes to payloads
     typedef std::vector<int> vint;
-    struct payloadMappingType
-    {
+    struct payloadMappingType {
       /// reconstructed tau decay modes associated to this payload,
       /// as defined in DataFormats/TauReco/interface/PFTau.h
       vint decayModes_;
@@ -88,6 +85,6 @@ namespace pat {
     typedef std::vector<std::string> vstring;
     vstring levels_;
   };
-}
+}  // namespace pat
 
 #endif

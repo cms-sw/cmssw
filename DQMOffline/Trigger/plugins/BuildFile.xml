@@ -14,7 +14,7 @@
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="RecoEgamma/EgammaHLTAlgos"/>
+<use   name="RecoEgamma/EgammaTools"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DQMServices/Core"/>

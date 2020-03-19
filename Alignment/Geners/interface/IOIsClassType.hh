@@ -2,18 +2,20 @@
 #define GENERS_IOISCLASSTYPE_HH_
 
 namespace gs {
-    template <typename T>
-    class IOIsClassType
-    {
-        typedef char One;
-        typedef struct {char a[2];} Two;
-        template<typename C> static One test(int C::*);
-        template<typename C> static Two test(...);
+  template <typename T>
+  class IOIsClassType {
+    typedef char One;
+    typedef struct {
+      char a[2];
+    } Two;
+    template <typename C>
+    static One test(int C::*);
+    template <typename C>
+    static Two test(...);
 
-    public:
-        enum {value = sizeof(IOIsClassType<T>::template test<T>(0)) == 1};
-    };
-}
+  public:
+    enum { value = sizeof(IOIsClassType<T>::template test<T>(nullptr)) == 1 };
+  };
+}  // namespace gs
 
-#endif // GENERS_IOISCLASSTYPE_HH_
-
+#endif  // GENERS_IOISCLASSTYPE_HH_

@@ -15,30 +15,34 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TkBfield.h"
 
-namespace edm { class ParameterSet; }
-namespace magfieldparam { class TkBfield; }
+namespace edm {
+  class ParameterSet;
+}
+namespace magfieldparam {
+  class TkBfield;
+}
 
 class OAEParametrizedMagneticField : public MagneticField {
- public:
+public:
   /// Constructor, pass value for nominal field
   explicit OAEParametrizedMagneticField(float B);
 
   /// Constructor, pass string for nominal field [deprecated]
-  explicit OAEParametrizedMagneticField(std::string T="3_8T");
+  explicit OAEParametrizedMagneticField(std::string T = "3_8T");
 
   /// Constructor. Parameters taken from a PSet [deprecated]
   explicit OAEParametrizedMagneticField(const edm::ParameterSet& parameters);
 
   /// Destructor
   ~OAEParametrizedMagneticField() override;
-  
-  GlobalVector inTesla (const GlobalPoint& gp) const override;
 
-  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const override;
+  GlobalVector inTesla(const GlobalPoint& gp) const override;
+
+  GlobalVector inTeslaUnchecked(const GlobalPoint& gp) const override;
 
   bool isDefined(const GlobalPoint& gp) const override;
 
- private:
-  magfieldparam::TkBfield  theParam;
+private:
+  magfieldparam::TkBfield theParam;
 };
 #endif

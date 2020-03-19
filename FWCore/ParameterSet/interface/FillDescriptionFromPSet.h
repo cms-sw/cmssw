@@ -4,5 +4,5 @@ namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
 
-  void fillDescriptionFromPSet(ParameterSet const& pset, ParameterSetDescription & desc); 
-}
+  void fillDescriptionFromPSet(ParameterSet const& pset, ParameterSetDescription& desc);
+}  // namespace edm

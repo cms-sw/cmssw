@@ -19,7 +19,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 /* Collaborating Class Declarations */
 #include "DataFormats/Common/interface/Handle.h"
@@ -35,33 +35,30 @@ class TH2F;
 /* Class DTClusAnalyzer Interface */
 
 class DTClusAnalyzer : public edm::EDAnalyzer {
+public:
+  /* Constructor */
+  DTClusAnalyzer(const edm::ParameterSet& pset);
 
-  public:
+  /* Destructor */
+  ~DTClusAnalyzer();
 
-/* Constructor */ 
-    DTClusAnalyzer(const edm::ParameterSet& pset) ;
+  /* Operations */
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-/* Destructor */ 
-    ~DTClusAnalyzer() ;
+private:
+  TH1F* histo(const std::string& name) const;
+  TH2F* histo2d(const std::string& name) const;
 
-/* Operations */ 
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+private:
+  bool debug;
+  int _ev;
+  std::string theRootFileName;
+  TFile* theFile;
 
-  private:
-    TH1F* histo(const std::string& name) const;
-    TH2F* histo2d(const std::string& name) const;
+  std::string theRecClusLabel;
+  std::string theRecHits2DLabel;
+  std::string theRecHits1DLabel;
 
-  private:
-    bool debug;
-    int _ev;
-    std::string theRootFileName;
-    TFile* theFile;
-
-    std::string theRecClusLabel;     
-    std::string theRecHits2DLabel;     
-    std::string theRecHits1DLabel;     
-  protected:
-
+protected:
 };
-#endif // DTCLUSANALYZER_H
-
+#endif  // DTCLUSANALYZER_H

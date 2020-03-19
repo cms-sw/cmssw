@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 from FWCore.ParameterSet.TreeCrawler import getImportTree, Color
 import sys, os
 import optparse
@@ -29,15 +30,15 @@ result.sort(key= lambda x: x.filename)
 dumpStack = True
 # dump to screen
 for item in result:
-    print  item.line.replace(pattern,Color.hilight+pattern+Color.none)
-    print "%s (line: %s)"  %(item.filename, item.number)
+    print(item.line.replace(pattern,Color.hilight+pattern+Color.none))
+    print("%s (line: %s)"  %(item.filename, item.number))
     if dumpStack and hasattr(item, 'stacks'):
        # make a set of strings, so it's unique
        froms = set()
        for stack in item.stacks:
           froms.add('From ' + ' -> '.join(stack))
-       print '\n'.join(froms)
-    print '\n'
+       print('\n'.join(froms))
+    print('\n')
                 
 
 

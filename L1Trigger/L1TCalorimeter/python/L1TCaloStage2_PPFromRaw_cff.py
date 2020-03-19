@@ -10,7 +10,8 @@ from L1Trigger.L1TCalorimeter.L1TCaloStage2_cff import *
 caloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
 
 # the sequence
-L1TCaloStage2_PPFromRaw = cms.Sequence(
+L1TCaloStage2_PPFromRawTask = cms.Task(
     L1TRerunHCALTP_FromRAW
-    +L1TCaloStage2
+    ,L1TCaloStage2Task
 )
+L1TCaloStage2_PPFromRaw = cms.Sequence(L1TCaloStage2_PPFromRawTask)

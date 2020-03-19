@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWViewEnergyScale
-// 
+//
 /**\class FWViewEnergyScale FWViewEnergyScale.h Fireworks/Core/interface/FWViewEnergyScale.h
 
  Description: [one line class summary]
@@ -31,49 +31,48 @@
 // forward declarations
 class FWEveView;
 
-class FWViewEnergyScale : public FWConfigurableParameterizable
-{
-   friend class FWViewEnergyScaleEditor;
-   
+class FWViewEnergyScale : public FWConfigurableParameterizable {
+  friend class FWViewEnergyScaleEditor;
+
 public:
-   enum EScaleMode { kFixedScale, kAutoScale, kCombinedScale, kNone };
-   FWViewEnergyScale(std::string name, int version);
-   ~FWViewEnergyScale() override;
+  enum EScaleMode { kFixedScale, kAutoScale, kCombinedScale, kNone };
+  FWViewEnergyScale(std::string name, int version);
+  ~FWViewEnergyScale() override;
 
-   void updateScaleFactors(float iMaxVal);
+  void updateScaleFactors(float iMaxVal);
 
-   float getScaleFactor3D()   const { return m_scaleFactor3D;   }
-   float getScaleFactorLego() const { return m_scaleFactorLego; }
+  float getScaleFactor3D() const { return m_scaleFactor3D; }
+  float getScaleFactorLego() const { return m_scaleFactorLego; }
 
-   bool  getPlotEt() const { return m_plotEt.value(); }
+  bool getPlotEt() const { return m_plotEt.value(); }
 
-   void scaleParameterChanged() const;
+  void scaleParameterChanged() const;
 
-   sigc::signal<void> parameterChanged_;
+  sigc::signal<void> parameterChanged_;
 
-   // added for debug
-   const std::string& name() const { return m_name; } 
+  // added for debug
+  const std::string& name() const { return m_name; }
 
-   void setFrom(const FWConfiguration&) override;
-   void SetFromCmsShowCommonConfig(long mode, float convert, float maxH, bool et);
+  void setFrom(const FWConfiguration&) override;
+  void SetFromCmsShowCommonConfig(long mode, float convert, float maxH, bool et);
 
 protected:
-   FWEnumParameter    m_scaleMode;
-   FWDoubleParameter  m_fixedValToHeight;
-   FWDoubleParameter  m_maxTowerHeight;
-   FWBoolParameter    m_plotEt;
-   
+  FWEnumParameter m_scaleMode;
+  FWDoubleParameter m_fixedValToHeight;
+  FWDoubleParameter m_maxTowerHeight;
+  FWBoolParameter m_plotEt;
+
 private:
-   FWViewEnergyScale(const FWViewEnergyScale&) = delete; // stop default
-   const FWViewEnergyScale& operator=(const FWViewEnergyScale&) = delete; // stop default
+  FWViewEnergyScale(const FWViewEnergyScale&) = delete;                   // stop default
+  const FWViewEnergyScale& operator=(const FWViewEnergyScale&) = delete;  // stop default
 
-   float calculateScaleFactor(float iMaxVal, bool isLego) const;
+  float calculateScaleFactor(float iMaxVal, bool isLego) const;
 
-   const std::string m_name;
+  const std::string m_name;
 
-   // cached
-   float m_scaleFactor3D;
-   float m_scaleFactorLego;
+  // cached
+  float m_scaleFactor3D;
+  float m_scaleFactorLego;
 };
 
 #endif

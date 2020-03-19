@@ -10,19 +10,14 @@
  *
  * \author Patrick Janot
  * \date: 25-Jan-2004
- */ 
+ */
 
-class PreshowerProperties : public CalorimeterProperties 
-{
+class PreshowerProperties : public CalorimeterProperties {
+public:
+  PreshowerProperties() { ; }
 
- public:
+  ~PreshowerProperties() override { ; }
 
-  PreshowerProperties() {;} 
-
-  ~PreshowerProperties() override {
-    ;
-  }
-    
   /// Effective A
   inline double theAeff() const override { return 207.2; }
   /// Effective Z
@@ -35,26 +30,25 @@ class PreshowerProperties : public CalorimeterProperties
   inline double radLenIngcm2() const override { return 6.370; }
   /// Moliere Radius in cm
   inline double moliereRadius() const override { return 1.53; }
-  /// Electron critical energy in GeV 
+  /// Electron critical energy in GeV
   inline double criticalEnergy() const override { return 7.79E-3; }
-  /// Muon critical energy in GeV 
+  /// Muon critical energy in GeV
   //inline double muonCriticalEnergy() const { return 141.; }
 
   ///Interaction length in cm
   inline double interactionLength() const override { return 17.1; }
-  
+
   /// Fraction of energy collected on sensitive detectors
-  virtual double sensitiveFraction() const=0;
+  virtual double sensitiveFraction() const = 0;
 
   /// Number of Mips/GeV on sensitive detectors
-  virtual double mipsPerGeV() const=0;
+  virtual double mipsPerGeV() const = 0;
 
- protected:
-
+protected:
   double thick;
   double mips;
 
- private:
+private:
 };
 
 #endif

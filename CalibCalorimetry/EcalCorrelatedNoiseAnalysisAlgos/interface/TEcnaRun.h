@@ -1,5 +1,5 @@
-#ifndef   CL_TEcnaRun_H
-#define   CL_TEcnaRun_H
+#ifndef CL_TEcnaRun_H
+#define CL_TEcnaRun_H
 
 // system include files
 #include <memory>
@@ -41,7 +41,7 @@
 ///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///-----------------------------------------------------------
 ///
-/// TEcnaRun + ECNA (Ecal Correlated Noise Analysis) instructions for use 
+/// TEcnaRun + ECNA (Ecal Correlated Noise Analysis) instructions for use
 ///            in the framework of CMSSW.
 ///
 ///==============> INTRODUCTION
@@ -75,7 +75,7 @@
 ///                                  |                    |                                   |---test/
 ///                                  |                    |
 ///                                  |                    |
-///                                  |                    \--- <other packages of CalibCalorimetry> 
+///                                  |                    \--- <other packages of CalibCalorimetry>
 ///                                  |
 ///                                  \----<other subsystems...>
 ///
@@ -83,7 +83,7 @@
 ///    The package EcalCorrelatedNoiseAnalysisModules contains one standard analyzer
 ///    (EcnaAnalyzer). The user can edit its own analyzer.
 ///    A detailed description is given here after in the class TEcnaRun documentation.
-///    The package EcalCorrelatedNoiseAnalysisAlgos contains the basic ECNA classes 
+///    The package EcalCorrelatedNoiseAnalysisAlgos contains the basic ECNA classes
 ///    (in src and interface) and standalone executables (in directory test).
 ///
 ///==[2]======================================================================================
@@ -118,7 +118,7 @@
 ///        in results ROOT files and also in ASCII files.
 ///        This task is done in the destructor of the analyzer:
 ///        EcnaAnalyzer::~EcnaAnalyzer()
-///   
+///
 ///
 /// Use of the class TEcnaRun by the analyzer EcnaAnalyzer
 /// ------------------------------------------------------
@@ -140,7 +140,7 @@
 ///
 ///     TEcnaRun* MyCnaRun = new TEcnaRun(...); // declaration of the object MyCnaRun
 ///
-///   // Print Methods: 
+///   // Print Methods:
 ///
 ///    MyCnaRun->PrintNoComment();  // Set flag to forbid printing of all the comments
 ///                                 // except ERRORS.
@@ -171,7 +171,7 @@
 ///   Explanations for the arguments (all of them are input arguments):
 ///
 ///      TString  AnalysisName: code for the analysis. According to this code,
-///                             the analyzer EcnaAnalyser selects the event type 
+///                             the analyzer EcnaAnalyser selects the event type
 ///                             (PEDESTAL_STD, PEDESTAL_GAP, LASER_STD, etc...)
 ///                             and some other event characteristics
 ///                             (example: the gain in pedestal runs:
@@ -181,13 +181,13 @@
 ///                             included in the name of the results files
 ///                             (see below: results files paragraph).
 ///
-///      Int_t     NbOfSamples         number of samples (=10 maximum) 
+///      Int_t     NbOfSamples         number of samples (=10 maximum)
 ///      Int_t     RunNumber:          run number
 ///      Int_t     FirstReqEvtNumber:  first requested event number (numbering starting from 1)
 ///      Int_t     LastReqEvtNumber:   last  requested event number
-///      Int_t     ReqNbOfEvts:        requested number of events 
+///      Int_t     ReqNbOfEvts:        requested number of events
 ///      Int_t     StexNumber:         Stex number (Stex = SM if EB, Dee if EE)
-///      
+///
 ///     The different quantities (correlations, etc...) will be calculated
 ///     for ReqNbOfEvts events between event# FirstReqEvtNumber and event# LastReqEvtNumber.
 ///     If LastReqEvtNumber = 0, the calculations will be performed from event# FirstReqEvtNumber
@@ -209,9 +209,9 @@
 ///  these values have been recovered from the event reading:
 ///
 ///      void  MyCnaRun->StartStopDate(const TString& StartDate, const TString& StopDate);
-/// 
+///
 ///     // TString StartDate, StopDate:  start and stop time of the run
-///     //                               in "date" format. Example: 
+///     //                               in "date" format. Example:
 ///     //                               Wed Oct  8 04:14:23 2003
 ///
 ///     If the method is not called, the values of the attributes
@@ -235,11 +235,11 @@
 ///    quantities of interest. They use the ADC sample values which can be
 ///    recovered by the method void SampleValues():
 ///
-///  void SampleValues(); // 3D histo of the sample ADC value 
+///  void SampleValues(); // 3D histo of the sample ADC value
 ///                       // for each triple (channel,sample,event)
 ///
 ///    List of the calculation methods with associated formulae:
-/// 
+///
 ///.......... Calculation methods ( need previous call to GetReadyToReadData(...) )
 ///
 ///   //   A(t,c,s,e) : ADC value for Stin t channel c, sample s, event e
@@ -277,7 +277,7 @@
 ///   //                = E_e[ ( E_s[A(t,c ,s*,e*)] - E_e[ E_s[A(t,c ,s*,e*)] ] )*
 ///   //                        ( E_s[A(t,c',s*,e*)] - E_e[ E_s[A(t,c',s*,e*)] ] ) ]
 ///   //
-///   //    HFCov(t;c,c') = E_e[ Cov_s[ A(t,c,s*,e*) , A(t,c',s*,e*) ] ] 
+///   //    HFCov(t;c,c') = E_e[ Cov_s[ A(t,c,s*,e*) , A(t,c',s*,e*) ] ]
 ///   //
 ///   //                = E_e[ E_s[ ( A(t,c ,s*,e*) - E_s[A(t,c ,s*,e*)] )*
 ///   //                            ( A(t,c',s*,e*) - E_s[A(t,c',s*,e*)] ) ] ]
@@ -321,8 +321,8 @@
 ///  // TotalNoise(t)      = E_c[TotalNoise(t,c*)]
 ///  // LowFqNoise(t)      = E_c[LowFqNoise(t,c*)]
 ///  // HighFqNoise(t)     = E_c[HighFqNoise(t,c*)]
-///  // MeanCorss(t)       = E_c[MeanCorss(t,c*)] 
-///  // SigmaCorss(t)      = E_c[SigmaCorss(t,c*)] 
+///  // MeanCorss(t)       = E_c[MeanCorss(t,c*)]
+///  // SigmaCorss(t)      = E_c[SigmaCorss(t,c*)]
 ///
 ///==============> RESULTS FILES
 ///
@@ -333,7 +333,7 @@
 ///
 ///  It is also possible to write results in ASCII files  => See TEcnaWrite and TEcnaGui
 ///  It is also possible to plot results in ROOT canvases => See TEcnaHistos and TEcnaGui
-///                              
+///
 /// *-----------> Codification for the name of the ROOT file:
 ///
 ///  The name of the ROOT file is the following:
@@ -360,178 +360,174 @@
 ///===================================================================================================
 ///
 
-class TEcnaRun: public TObject {
-  
- private:
-
+class TEcnaRun : public TObject {
+private:
   //............ attributes
 
-  Int_t fgMaxCar;      // Max nb of caracters for char* 
+  Int_t fgMaxCar;  // Max nb of caracters for char*
 
-  Int_t fCnaCommand,  fCnaError;
+  Int_t fCnaCommand, fCnaError;
 
-  Int_t fCnew;          // flags for dynamical allocation
-  Int_t fCdelete;       
+  Int_t fCnew;  // flags for dynamical allocation
+  Int_t fCdelete;
 
   TString fTTBELL;
 
-  Int_t* fMiscDiag;                          // Counters for miscellaneous diagnostics
-  Int_t  fNbOfMiscDiagCounters;
-  Int_t  fMaxMsgIndexForMiscDiag;
+  Int_t* fMiscDiag;  // Counters for miscellaneous diagnostics
+  Int_t fNbOfMiscDiagCounters;
+  Int_t fMaxMsgIndexForMiscDiag;
 
-  TEcnaObject    *fObjectManager; // for ECNA object management
-  TEcnaHeader    *fFileHeader;    // header for result type file
-  TEcnaParEcal   *fEcal;          // for access to the Ecal current subdetector parameters
-  TEcnaNumbering *fEcalNumbering; // for access to the Ecal channel, Stin and Stex numbering
-  TEcnaParCout   *fCnaParCout;    // for comment/error messages
-  TEcnaParPaths  *fCnaParPaths;   // for file access
-  TEcnaWrite     *fCnaWrite;      // for access to the results files
+  TEcnaObject* fObjectManager;     // for ECNA object management
+  TEcnaHeader* fFileHeader;        // header for result type file
+  TEcnaParEcal* fEcal;             // for access to the Ecal current subdetector parameters
+  TEcnaNumbering* fEcalNumbering;  // for access to the Ecal channel, Stin and Stex numbering
+  TEcnaParCout* fCnaParCout;       // for comment/error messages
+  TEcnaParPaths* fCnaParPaths;     // for file access
+  TEcnaWrite* fCnaWrite;           // for access to the results files
 
   //  TEcnaRootFile *gCnaRootFile;
 
   TString fFlagSubDet;
   TString fStexName, fStinName;
 
-  Bool_t  fOpenRootFile;   // flag open ROOT file (open = kTRUE, close = kFALSE)
-  Int_t   fReadyToReadData;
+  Bool_t fOpenRootFile;  // flag open ROOT file (open = kTRUE, close = kFALSE)
+  Int_t fReadyToReadData;
 
-  TString  fRootFileName;
-  TString  fRootFileNameShort;
-  TString  fNewRootFileName;
-  TString  fNewRootFileNameShort;
+  TString fRootFileName;
+  TString fRootFileNameShort;
+  TString fNewRootFileName;
+  TString fNewRootFileNameShort;
 
-  Int_t   fSpecialStexStinNotIndexed;  // management of event distribution building
-  Int_t   fStinIndexBuilt;
-  Int_t   fBuildEvtNotSkipped;
+  Int_t fSpecialStexStinNotIndexed;  // management of event distribution building
+  Int_t fStinIndexBuilt;
+  Int_t fBuildEvtNotSkipped;
 
-  Int_t   fNbSampForFic;
-  Int_t   fNbSampForCalc;
+  Int_t fNbSampForFic;
+  Int_t fNbSampForCalc;
 
-  Int_t   fNumberOfEvents;
+  Int_t fNumberOfEvents;
 
-  Int_t   fMemoReadNumberOfEventsforSamples;
+  Int_t fMemoReadNumberOfEventsforSamples;
 
-  Double_t*** fT3d_AdcValues;   // 3D array[channel][sample][event] ADC values
-  Double_t**  fT3d2_AdcValues; 
-  Double_t*   fT3d1_AdcValues;
-  Int_t*      fTagAdcEvt;
+  Double_t*** fT3d_AdcValues;  // 3D array[channel][sample][event] ADC values
+  Double_t** fT3d2_AdcValues;
+  Double_t* fT3d1_AdcValues;
+  Int_t* fTagAdcEvt;
 
-  Int_t**     fT2d_NbOfEvts; // 2D array[channel][sample] max nb of evts read for a given (channel,sample) 
-  Int_t*      fT1d_NbOfEvts;
-  Int_t*      fTagNbOfEvts;
+  Int_t** fT2d_NbOfEvts;  // 2D array[channel][sample] max nb of evts read for a given (channel,sample)
+  Int_t* fT1d_NbOfEvts;
+  Int_t* fTagNbOfEvts;
 
-  Int_t*      fT1d_StexStinFromIndex; // 1D array[Stin] Stin Number as a function of the index Stin
-  Int_t*      fTagStinNumbers;
+  Int_t* fT1d_StexStinFromIndex;  // 1D array[Stin] Stin Number as a function of the index Stin
+  Int_t* fTagStinNumbers;
 
-  Double_t**  fT2d_ev;        // 2D array[channel][sample] for expectation values
-  Double_t*   fT1d_ev;
-  Int_t*      fTagMSp;
+  Double_t** fT2d_ev;  // 2D array[channel][sample] for expectation values
+  Double_t* fT1d_ev;
+  Int_t* fTagMSp;
 
-  Double_t**  fT2d_sig;       // 2D array[channel][sample] for sigmass
-  Double_t*   fT1d_sig;
-  Int_t*      fTagSSp;
- 
-  Double_t*** fT3d_cov_ss;    // 3D array[channel][sample][sample] for (sample,sample) covariances
-  Double_t**  fT3d2_cov_ss;
-  Double_t*   fT3d1_cov_ss;
-  Int_t*      fTagCovCss;
+  Double_t** fT2d_sig;  // 2D array[channel][sample] for sigmass
+  Double_t* fT1d_sig;
+  Int_t* fTagSSp;
 
-  Double_t*** fT3d_cor_ss;    // 3D array[channel][sample][sample] for (sample,sample) correlations
-  Double_t**  fT3d2_cor_ss;
-  Double_t*   fT3d1_cor_ss;
-  Int_t*      fTagCorCss;
+  Double_t*** fT3d_cov_ss;  // 3D array[channel][sample][sample] for (sample,sample) covariances
+  Double_t** fT3d2_cov_ss;
+  Double_t* fT3d1_cov_ss;
+  Int_t* fTagCovCss;
 
-//...........................................................................
-  Double_t*   fT1d_ev_ev;     // 1D array[channel] for expectation values of the expectation values of the samples
-  Int_t*      fTagPed;        // (PEDESTAL)
-  Double_t*   fT1d_av_mped;   // 1D array[Stin] for expectation values of the Pesdestals of the Stins
-  Int_t*      fTagAvPed;      // (AVERAGED PEDESTAL)
-
-  Double_t*   fT1d_evsamp_of_sigevt; // 1D array[channel] for expectation values of the sigmas of the samples
-  Int_t*      fTagTno;               // (TOTAL NOISE)
-  Double_t*   fT1d_av_totn;          // 1D array[Stin] for expectation values of the total noise
-  Int_t*      fTagAvTno;             //(AVERAGED TOTAL NOISE)
-
-  Double_t*   fT1d_ev_cor_ss;   // 1D array[channel] for expectation values of the cor(s,s)
-  Int_t*      fTagMeanCorss;    // (MEAN COR(S,S))
-  Double_t*   fT1d_av_ev_corss; // 1D array[Stin] for expectation values of the mean cor(s,s)
-  Int_t*      fTagAvMeanCorss;  // (AVERAGED MEAN COR(S,S))
-
-  Double_t*   fT1d_sigevt_of_evsamp;  // 1D array[channel] for sigmas of the expectation values of the samples
-  Int_t*      fTagLfn;                // (LOW FREQUENCY NOISE)
-  Double_t*   fT1d_av_lofn;           // 1D array[Stin]  the expectation values of the low frequency noise
-  Int_t*      fTagAvLfn;              // (AVERAGED LOW FREQUENCY NOISE)
-
-  Double_t*   fT1d_evevt_of_sigsamp; // 1D array[channel] for sigmas of the sigmas of the samples
-  Int_t*      fTagHfn;               // (HIGH FREQUENCY NOISE)
-  Double_t*   fT1d_av_hifn;          // 1D array[channel] for expectation values of the high frequency noise
-  Int_t*      fTagAvHfn;             // (AVERAGED HIGH FREQUENCY NOISE)
-
-  Double_t*   fT1d_sig_cor_ss;   // 1D array[channel] for sigmas of the cor(s,s)
-  Int_t*      fTagSigCorss;      // (SIGMA OF COR(S,S))
-  Double_t*   fT1d_av_sig_corss; // 1D array[channel] for expectation values of sigmas  the  of the cor(s,s)
-  Int_t*      fTagAvSigCorss;    // (AVERAGED SIGMA OF COR(S,S))
+  Double_t*** fT3d_cor_ss;  // 3D array[channel][sample][sample] for (sample,sample) correlations
+  Double_t** fT3d2_cor_ss;
+  Double_t* fT3d1_cor_ss;
+  Int_t* fTagCorCss;
 
   //...........................................................................
-  Double_t**  fT2d_lf_cov; // 2D array[channel][channel] for (channel,channel) low frequency covariances
-  Double_t*   fT2d1_lf_cov;
-  Int_t*      fTagLfCov;
+  Double_t* fT1d_ev_ev;    // 1D array[channel] for expectation values of the expectation values of the samples
+  Int_t* fTagPed;          // (PEDESTAL)
+  Double_t* fT1d_av_mped;  // 1D array[Stin] for expectation values of the Pesdestals of the Stins
+  Int_t* fTagAvPed;        // (AVERAGED PEDESTAL)
 
-  Double_t**  fT2d_lf_cor; // 2D array[channel][channel] for (channel,channel) low frequency correlations
-  Double_t*   fT2d1_lf_cor;
-  Int_t*      fTagLfCor;
+  Double_t* fT1d_evsamp_of_sigevt;  // 1D array[channel] for expectation values of the sigmas of the samples
+  Int_t* fTagTno;                   // (TOTAL NOISE)
+  Double_t* fT1d_av_totn;           // 1D array[Stin] for expectation values of the total noise
+  Int_t* fTagAvTno;                 //(AVERAGED TOTAL NOISE)
+
+  Double_t* fT1d_ev_cor_ss;    // 1D array[channel] for expectation values of the cor(s,s)
+  Int_t* fTagMeanCorss;        // (MEAN COR(S,S))
+  Double_t* fT1d_av_ev_corss;  // 1D array[Stin] for expectation values of the mean cor(s,s)
+  Int_t* fTagAvMeanCorss;      // (AVERAGED MEAN COR(S,S))
+
+  Double_t* fT1d_sigevt_of_evsamp;  // 1D array[channel] for sigmas of the expectation values of the samples
+  Int_t* fTagLfn;                   // (LOW FREQUENCY NOISE)
+  Double_t* fT1d_av_lofn;           // 1D array[Stin]  the expectation values of the low frequency noise
+  Int_t* fTagAvLfn;                 // (AVERAGED LOW FREQUENCY NOISE)
+
+  Double_t* fT1d_evevt_of_sigsamp;  // 1D array[channel] for sigmas of the sigmas of the samples
+  Int_t* fTagHfn;                   // (HIGH FREQUENCY NOISE)
+  Double_t* fT1d_av_hifn;           // 1D array[channel] for expectation values of the high frequency noise
+  Int_t* fTagAvHfn;                 // (AVERAGED HIGH FREQUENCY NOISE)
+
+  Double_t* fT1d_sig_cor_ss;    // 1D array[channel] for sigmas of the cor(s,s)
+  Int_t* fTagSigCorss;          // (SIGMA OF COR(S,S))
+  Double_t* fT1d_av_sig_corss;  // 1D array[channel] for expectation values of sigmas  the  of the cor(s,s)
+  Int_t* fTagAvSigCorss;        // (AVERAGED SIGMA OF COR(S,S))
 
   //...........................................................................
-  Double_t**  fT2d_hf_cov; // 2D array[channel][channel] for (channel,channel) low frequency covariances
-  Double_t*   fT2d1_hf_cov;
-  Int_t*      fTagHfCov;
+  Double_t** fT2d_lf_cov;  // 2D array[channel][channel] for (channel,channel) low frequency covariances
+  Double_t* fT2d1_lf_cov;
+  Int_t* fTagLfCov;
 
-  Double_t**  fT2d_hf_cor; // 2D array[channel][channel] for (channel,channel) low frequency correlations
-  Double_t*   fT2d1_hf_cor;
-  Int_t*      fTagHfCor;
+  Double_t** fT2d_lf_cor;  // 2D array[channel][channel] for (channel,channel) low frequency correlations
+  Double_t* fT2d1_lf_cor;
+  Int_t* fTagLfCor;
+
+  //...........................................................................
+  Double_t** fT2d_hf_cov;  // 2D array[channel][channel] for (channel,channel) low frequency covariances
+  Double_t* fT2d1_hf_cov;
+  Int_t* fTagHfCov;
+
+  Double_t** fT2d_hf_cor;  // 2D array[channel][channel] for (channel,channel) low frequency correlations
+  Double_t* fT2d1_hf_cor;
+  Int_t* fTagHfCor;
 
   //------------------------- 2 tableaux (ci,cj)
-  Double_t**  fT2d_lfcc_mostins;  // 2D array[Stin][Stin] for (Stin,Stin) mean cov(c,c)
-  Double_t*   fT2d1_lfcc_mostins; // (relevant ones) averaged over samples
-  Int_t*      fTagLFccMoStins;
+  Double_t** fT2d_lfcc_mostins;  // 2D array[Stin][Stin] for (Stin,Stin) mean cov(c,c)
+  Double_t* fT2d1_lfcc_mostins;  // (relevant ones) averaged over samples
+  Int_t* fTagLFccMoStins;
 
-  Double_t**  fT2d_hfcc_mostins;  // 2D array[Stin][Stin] for (Stin,Stin) mean cor(c,c)
-  Double_t*   fT2d1_hfcc_mostins; // (relevant ones) averaged over samples
-  Int_t*      fTagHFccMoStins;
+  Double_t** fT2d_hfcc_mostins;  // 2D array[Stin][Stin] for (Stin,Stin) mean cor(c,c)
+  Double_t* fT2d1_hfcc_mostins;  // (relevant ones) averaged over samples
+  Int_t* fTagHFccMoStins;
 
   //------------------------------------------------------------------------------------
 
-  Int_t**     fT2dCrysNumbersTable;
-  Int_t*      fT1dCrysNumbersTable;
+  Int_t** fT2dCrysNumbersTable;
+  Int_t* fT1dCrysNumbersTable;
 
-  std::ofstream    fFcout_f;
+  std::ofstream fFcout_f;
 
-  Int_t       fFlagPrint;
-  Int_t       fCodePrintComments, fCodePrintWarnings, fCodePrintAllComments, fCodePrintNoComment;
+  Int_t fFlagPrint;
+  Int_t fCodePrintComments, fCodePrintWarnings, fCodePrintAllComments, fCodePrintNoComment;
 
-
- public: 
-
+public:
   //................. constructors
-  
-  TEcnaRun();                            //  constructor without argument
-  TEcnaRun(TEcnaObject*, const TString&);               //  constructors with argument (FOR USER'S DECLARATION)
+
+  TEcnaRun();                              //  constructor without argument
+  TEcnaRun(TEcnaObject*, const TString&);  //  constructors with argument (FOR USER'S DECLARATION)
   TEcnaRun(TEcnaObject*, const TString&, const Int_t&);
 
   //TEcnaRun(const TString&, const Int_t&, const TEcnaParPaths*, const TEcnaParCout*);
   //TEcnaRun(const TString&);               //  constructors with argument (FOR USER'S DECLARATION)
   //TEcnaRun(const TString&, const Int_t&);
 
-  TEcnaRun(const TEcnaRun&);   //  copy constructor
+  TEcnaRun(const TEcnaRun&);  //  copy constructor
 
   //.................... C++ methods
 
   //TEcnaRun&  operator=(const TEcnaRun&);  //  overloading of the operator=
 
   //................. destructor
-  
+
   ~TEcnaRun() override;
-  
+
   //...................................................... methods that will (should) be private
 
   void Init();
@@ -540,13 +536,14 @@ class TEcnaRun: public TObject {
 
   Bool_t GetPathForResults();
 
-  Bool_t OpenRootFile(const Text_t *, const TString&);
-  Bool_t CloseRootFile(const Text_t *);
+  Bool_t OpenRootFile(const Text_t*, const TString&);
+  Bool_t CloseRootFile(const Text_t*);
 
   //======================================= methods for the user =========================================
   void GetReadyToReadData(const TString&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
-  void GetReadyToReadData(const TString&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
-  
+  void GetReadyToReadData(
+      const TString&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
+
   Bool_t GetSampleAdcValues(const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Double_t&);
   Bool_t ReadSampleAdcValues();
   Bool_t ReadSampleAdcValues(const Int_t&);
@@ -556,19 +553,19 @@ class TEcnaRun: public TObject {
 
   //................... Calculation methods ( associated to GetReadyToReadData(...) )
   //-------------------- Standard Calculations
-  void StandardCalculations();       // see list in the method itself (.cc file)
+  void StandardCalculations();  // see list in the method itself (.cc file)
 
-  void SampleMeans();                // Calculation of the expectation values over the events
-                                     // for each sample and for each channel
-  void SampleSigmas();               // Calculation of the variances over the events
-                                     // for each sample and for each channel
+  void SampleMeans();   // Calculation of the expectation values over the events
+                        // for each sample and for each channel
+  void SampleSigmas();  // Calculation of the variances over the events
+                        // for each sample and for each channel
   //...........................................
-  void CovariancesBetweenSamples();  // Calculation of the (s,s) covariances over the events
-                                     // for each channel
-  void CorrelationsBetweenSamples(); // Calculation of the (s,s) correlations over the events
-                                     // for each channel
+  void CovariancesBetweenSamples();   // Calculation of the (s,s) covariances over the events
+                                      // for each channel
+  void CorrelationsBetweenSamples();  // Calculation of the (s,s) correlations over the events
+                                      // for each channel
   //..........................................................
-  void Pedestals();                        
+  void Pedestals();
   void TotalNoise();
   void LowFrequencyNoise();
   void HighFrequencyNoise();
@@ -590,7 +587,7 @@ class TEcnaRun: public TObject {
   //   NOT recommended: expert2 + expert1  (lost of time and place)
   //
   //-------------------- Expert 1 Calculations
-  void Expert1Calculations();       // see list in the method itself (.cc file)
+  void Expert1Calculations();  // see list in the method itself (.cc file)
 
   void LowFrequencyCovariancesBetweenChannels();
   void HighFrequencyCovariancesBetweenChannels();
@@ -599,7 +596,7 @@ class TEcnaRun: public TObject {
   void HighFrequencyCorrelationsBetweenChannels();
 
   //-------------------- Expert 2 Calculations
-  void Expert2Calculations();       // see list in the method itself (.cc file)
+  void Expert2Calculations();  // see list in the method itself (.cc file)
 
   void LowFrequencyMeanCorrelationsBetweenTowers();
   void HighFrequencyMeanCorrelationsBetweenTowers();
@@ -609,8 +606,8 @@ class TEcnaRun: public TObject {
 
   //===================================== "technical" methods ==========================================
 
-  void GetReadyToCompute(); // Make result root file name and check events
-  void SampleValues();      // 3D histo of the sample ADC value for each triple (channel,sample,event)
+  void GetReadyToCompute();  // Make result root file name and check events
+  void SampleValues();       // 3D histo of the sample ADC value for each triple (channel,sample,event)
 
   //.................................... Technical calculation methods (Stin = Tower or SC)
   void LowFrequencyMeanCorrelationsBetweenStins();
@@ -624,7 +621,7 @@ class TEcnaRun: public TObject {
 
   Bool_t WriteRootFile();
   Bool_t WriteNewRootFile(const TString&);
-  Bool_t WriteRootFile(const Text_t *, Int_t&);
+  Bool_t WriteRootFile(const Text_t*, Int_t&);
 
   void TRootStinNumbers();
   void TRootNbOfEvts(const Int_t&);
@@ -662,25 +659,14 @@ class TEcnaRun: public TObject {
   void TRootAvHfn();
 
   //................................ Flags Print Comments/Debug
-  void PrintNoComment();   // (default) Set flags to forbid the printing of all the comments
-                           // except ERRORS
-  void PrintWarnings();    // Set flags to authorize printing of some warnings
-  void PrintComments();    // Set flags to authorize printing of infos and some comments
-                           // concerning initialisations
-  void PrintAllComments(); // Set flags to authorize printing of all the comments
+  void PrintNoComment();    // (default) Set flags to forbid the printing of all the comments
+                            // except ERRORS
+  void PrintWarnings();     // Set flags to authorize printing of some warnings
+  void PrintComments();     // Set flags to authorize printing of infos and some comments
+                            // concerning initialisations
+  void PrintAllComments();  // Set flags to authorize printing of all the comments
 
-ClassDefOverride(TEcnaRun,1) // Calculation of correlated noises from data
-};  
+  ClassDefOverride(TEcnaRun, 1)  // Calculation of correlated noises from data
+};
 
-#endif    //  CL_TEcnaRun_H
-
-
-
-
-
-
-
-
-
-
-
+#endif  //  CL_TEcnaRun_H

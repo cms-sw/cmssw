@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     CastorPedestalsRcd
-// 
+//
 /**\class CastorPedestalsRcd CastorPedestalsRcd.h CondFormats/DataRecord/interface/CastorPedestalsRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Mon Feb 11 12:17:40 CET 2008
 // $Id: CastorPedestalsRcd.h,v 1.1 2008/02/15 15:53:04 mccauley Exp $
 //

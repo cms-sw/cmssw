@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     ModuleChanger
-// 
+//
 /**\class ModuleChanger ModuleChanger.h FWCore/Framework/interface/ModuleChanger.h
 
  Description: Handles modifying a module after the job has started
@@ -24,36 +24,36 @@
 
 // user include files
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 
 // forward declarations
 
 namespace edm {
-   class ParameterSet;
-   class Schedule;
-   class ProductRegistry;
+  class ParameterSet;
+  class Schedule;
+  class ProductRegistry;
 
-   class ModuleChanger {
+  class ModuleChanger {
+  public:
+    ModuleChanger(Schedule*, ProductRegistry const* iReg, eventsetup::ESRecordsToProxyIndices);
+    virtual ~ModuleChanger();
 
-   public:
-      ModuleChanger(Schedule*, ProductRegistry const* iReg);
-      virtual ~ModuleChanger();
+    // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+    // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+    // ---------- member functions ---------------------------
+    bool changeModule(const std::string& iLabel, const ParameterSet& iPSet);
 
-      // ---------- member functions ---------------------------
-      bool changeModule(const std::string& iLabel,
-                        const ParameterSet& iPSet);
+  private:
+    ModuleChanger(const ModuleChanger&) = delete;  // stop default
 
-   private:
-      ModuleChanger(const ModuleChanger&) = delete; // stop default
+    const ModuleChanger& operator=(const ModuleChanger&) = delete;  // stop default
 
-      const ModuleChanger& operator=(const ModuleChanger&) = delete; // stop default
-
-      // ---------- member data --------------------------------
-      edm::propagate_const<Schedule*> schedule_;
-      ProductRegistry const* registry_;
-   };
-}
+    // ---------- member data --------------------------------
+    edm::propagate_const<Schedule*> schedule_;
+    ProductRegistry const* registry_;
+    eventsetup::ESRecordsToProxyIndices indices_;
+  };
+}  // namespace edm
 #endif

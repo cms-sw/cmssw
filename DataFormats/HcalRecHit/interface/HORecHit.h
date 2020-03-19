@@ -4,7 +4,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
-
 /** \class HORecHit
  *    
  * \author J. Mans - Minnesota
@@ -15,13 +14,11 @@ public:
 
   constexpr HORecHit() : CaloRecHit() {}
 
-  constexpr HORecHit(const HcalDetId& id, float energy, float time) 
-      : CaloRecHit(id,energy,time) {}
+  constexpr HORecHit(const HcalDetId& id, float energy, float time) : CaloRecHit(id, energy, time) {}
   /// get the id
   constexpr HcalDetId id() const { return HcalDetId(detid()); }
 };
 
 std::ostream& operator<<(std::ostream& s, const HORecHit& hit);
-
 
 #endif

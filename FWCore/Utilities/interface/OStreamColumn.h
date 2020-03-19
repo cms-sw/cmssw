@@ -56,8 +56,7 @@ namespace edm {
     explicit OStreamColumn(std::string const& t, std::size_t const w);
 
     template <typename T>
-    auto operator()(T const& t) const
-    {
+    auto operator()(T const& t) const {
       return OStreamColumnEntry<T>{*this, t};
     }
 
@@ -76,12 +75,11 @@ namespace edm {
   std::ostream& operator<<(std::ostream& t, OStreamColumn const& c);
 
   template <typename E>
-  std::ostream& operator<<(std::ostream& t, OStreamColumnEntry<E> const& ce)
-  {
+  std::ostream& operator<<(std::ostream& t, OStreamColumnEntry<E> const& ce) {
     t << std::setw(ce.col.width_) << ce.t;
     return t;
   }
 
-}
+}  // namespace edm
 
 #endif

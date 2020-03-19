@@ -4,10 +4,8 @@
 #include "DataFormats/Provenance/interface/HashedTypes.h"
 #include "DataFormats/Provenance/interface/Hash.h"
 
-namespace edm
-{
+namespace edm {
   typedef Hash<ProcessHistoryType> ProcessHistoryID;
 }
-
 
 #endif

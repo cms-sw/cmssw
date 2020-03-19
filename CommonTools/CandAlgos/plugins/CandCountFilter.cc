@@ -12,4 +12,4 @@
 
 typedef ObjectCountFilter<reco::CandidateCollection>::type CandCountFilter;
 
-DEFINE_FWK_MODULE( CandCountFilter );
+DEFINE_FWK_MODULE(CandCountFilter);

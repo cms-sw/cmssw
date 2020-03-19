@@ -32,37 +32,36 @@
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-class CSCChannelTranslator{
- public:
+class CSCChannelTranslator {
+public:
   CSCChannelTranslator() {}
   ~CSCChannelTranslator() {}
 
   /// Return raw strip channel number for input geometrical channel number
-  int rawStripChannel( const CSCDetId& id, int igeom ) const;
+  int rawStripChannel(const CSCDetId& id, int igeom) const;
   /// Return raw wiregroup channel number for input geometrical channel number
-  int rawWireChannel( const CSCDetId& id, int igeom ) const { return igeom; }
+  int rawWireChannel(const CSCDetId& id, int igeom) const { return igeom; }
   /// Return geometrical strip channel number for input raw channel number
-  int geomStripChannel( const CSCDetId& id, int iraw ) const ;
+  int geomStripChannel(const CSCDetId& id, int iraw) const;
   /// Return geometrical wiregroup channel number for input raw channel number
-  int geomWireChannel( const CSCDetId& id, int iraw ) const { return iraw; }
+  int geomWireChannel(const CSCDetId& id, int iraw) const { return iraw; }
 
   /// Alias for rawStripChannel
-  int rawCathodeChannel( const CSCDetId& id, int igeom ) const { return rawStripChannel( id, igeom );}
+  int rawCathodeChannel(const CSCDetId& id, int igeom) const { return rawStripChannel(id, igeom); }
   /// Alias for rawWireChannel
-  int rawAnodeChannel( const CSCDetId& id, int igeom ) const { return rawWireChannel( id, igeom );}
+  int rawAnodeChannel(const CSCDetId& id, int igeom) const { return rawWireChannel(id, igeom); }
   /// Alias for geomStripChannel
-  int geomCathodeChannel( const CSCDetId& id, int iraw ) const { return geomStripChannel( id, iraw );}
+  int geomCathodeChannel(const CSCDetId& id, int iraw) const { return geomStripChannel(id, iraw); }
   /// Alias for geomWireChannel
-  int geomAnodeChannel( const CSCDetId& id, int iraw ) const { return geomWireChannel( id, iraw );}
+  int geomAnodeChannel(const CSCDetId& id, int iraw) const { return geomWireChannel(id, iraw); }
 
   /// Offline conversion of a strip (geometric labelling) back to channel
   /// (At present this just has to convert the 48 strips of ME1A to 16 ganged channels.)
-  int channelFromStrip( const CSCDetId& id, int strip ) const;
+  int channelFromStrip(const CSCDetId& id, int strip) const;
 
   /// Construct raw CSCDetId matching supplied offline CSCDetid
   /// (At present all this has to do is return the ME11 CSCDetID when supplied with that for ME1A)
-  CSCDetId rawCSCDetId( const CSCDetId& id ) const;
-
+  CSCDetId rawCSCDetId(const CSCDetId& id) const;
 };
 
 #endif

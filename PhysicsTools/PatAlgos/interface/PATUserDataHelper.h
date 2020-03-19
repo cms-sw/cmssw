@@ -25,7 +25,6 @@
   \version  $Id: PATUserDataHelper.h,v 1.8 2010/02/20 21:00:13 wmtan Exp $
 */
 
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -42,76 +41,65 @@
 #include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
-
 #include <iostream>
-
 
 namespace pat {
 
-
-  template<class ObjectType>
+  template <class ObjectType>
   class PATUserDataHelper {
-
   public:
-
-    typedef StringObjectFunction<ObjectType>                      function_type;
+    typedef StringObjectFunction<ObjectType> function_type;
 
     PATUserDataHelper() {}
-    PATUserDataHelper(const edm::ParameterSet & iConfig, edm::ConsumesCollector && iC);
+    PATUserDataHelper(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
     ~PATUserDataHelper() {}
 
-    static void fillDescription(edm::ParameterSetDescription & iDesc);
+    static void fillDescription(edm::ParameterSetDescription& iDesc);
 
     // Adds information from user data to patObject,
     // using recoObject as the key
-    void add(ObjectType & patObject,
-	     edm::Event const & iEvent, edm::EventSetup const & iSetup);
+    void add(ObjectType& patObject, edm::Event const& iEvent, edm::EventSetup const& iSetup);
 
   private:
-
     // Custom user data
-    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserPtr>      userDataMerger_;
+    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserPtr> userDataMerger_;
     // User doubles
-    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserFloat>    userFloatMerger_;
+    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserFloat> userFloatMerger_;
     // User ints
-    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserInt>      userIntMerger_;
+    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserInt> userIntMerger_;
     // User candidate ptrs
-    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserCand>     userCandMerger_;
+    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserCand> userCandMerger_;
 
     // Inline functions that operate on ObjectType
-    std::vector<std::string>                                          functionNames_;
-    std::vector<std::string>                                          functionLabels_;
-    std::vector<function_type >                                       functions_;
-
+    std::vector<std::string> functionNames_;
+    std::vector<std::string> functionLabels_;
+    std::vector<function_type> functions_;
   };
 
-// Constructor: Initilize user data src
-template<class ObjectType>
-PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConfig, edm::ConsumesCollector && iC) :
-  userDataMerger_   (iConfig.getParameter<edm::ParameterSet>("userClasses"), iC),
-  userFloatMerger_  (iConfig.getParameter<edm::ParameterSet>("userFloats"), iC),
-  userIntMerger_    (iConfig.getParameter<edm::ParameterSet>("userInts"), iC),
-  userCandMerger_   (iConfig.getParameter<edm::ParameterSet>("userCands"), iC),
-  functionNames_    (iConfig.getParameter<std::vector<std::string> >("userFunctions")),
-  functionLabels_   (iConfig.getParameter<std::vector<std::string> >("userFunctionLabels"))
-{
-
-  // Make sure the sizes match
-  if ( functionNames_.size() != functionLabels_.size() ) {
-    throw cms::Exception("Size mismatch") << "userFunctions and userFunctionLabels do not have the same size, they must be the same\n";
+  // Constructor: Initilize user data src
+  template <class ObjectType>
+  PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
+      : userDataMerger_(iConfig.getParameter<edm::ParameterSet>("userClasses"), iC),
+        userFloatMerger_(iConfig.getParameter<edm::ParameterSet>("userFloats"), iC),
+        userIntMerger_(iConfig.getParameter<edm::ParameterSet>("userInts"), iC),
+        userCandMerger_(iConfig.getParameter<edm::ParameterSet>("userCands"), iC),
+        functionNames_(iConfig.getParameter<std::vector<std::string> >("userFunctions")),
+        functionLabels_(iConfig.getParameter<std::vector<std::string> >("userFunctionLabels")) {
+    // Make sure the sizes match
+    if (functionNames_.size() != functionLabels_.size()) {
+      throw cms::Exception("Size mismatch")
+          << "userFunctions and userFunctionLabels do not have the same size, they must be the same\n";
+    }
+    // Loop over the function names, create a new string-parser function object
+    // with all of them. This operates on ObjectType
+    std::vector<std::string>::const_iterator funcBegin = functionNames_.begin(), funcEnd = functionNames_.end(),
+                                             funcIt = funcBegin;
+    for (; funcIt != funcEnd; ++funcIt) {
+      functions_.push_back(StringObjectFunction<ObjectType>(*funcIt));
+    }
   }
-  // Loop over the function names, create a new string-parser function object
-  // with all of them. This operates on ObjectType
-  std::vector<std::string>::const_iterator funcBegin = functionNames_.begin(),
-    funcEnd = functionNames_.end(),
-    funcIt = funcBegin;
-  for ( ; funcIt != funcEnd; ++funcIt) {
-    functions_.push_back(  StringObjectFunction<ObjectType>( *funcIt ) );
-  }
-}
 
-
-/* ==================================================================================
+  /* ==================================================================================
      PATUserDataHelper::add
             This expects four inputs:
 	        patObject:         PATObject<ObjectType> to add to
@@ -122,46 +110,39 @@ PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConf
    ==================================================================================
 */
 
-template<class ObjectType>
-void PATUserDataHelper<ObjectType>::add(ObjectType & patObject,
-					edm::Event const & iEvent,
-					const edm::EventSetup& iSetup)
-{
+  template <class ObjectType>
+  void PATUserDataHelper<ObjectType>::add(ObjectType& patObject,
+                                          edm::Event const& iEvent,
+                                          const edm::EventSetup& iSetup) {
+    // Add "complex" user data to the PAT object
+    userDataMerger_.add(patObject, iEvent, iSetup);
+    userFloatMerger_.add(patObject, iEvent, iSetup);
+    userIntMerger_.add(patObject, iEvent, iSetup);
+    userCandMerger_.add(patObject, iEvent, iSetup);
 
-  // Add "complex" user data to the PAT object
-  userDataMerger_.add(   patObject, iEvent, iSetup );
-  userFloatMerger_.add(  patObject, iEvent, iSetup );
-  userIntMerger_.add(    patObject, iEvent, iSetup );
-  userCandMerger_.add(   patObject, iEvent, iSetup );
-
-  // Add "inline" user-selected functions to the PAT object
-  typename std::vector<function_type>::const_iterator funcBegin = functions_.begin(),
-    funcEnd = functions_.end(),
-    funcIt = funcBegin;
-  if ( functionLabels_.size() == functions_.size() ) {
-    for ( ; funcIt != funcEnd; ++funcIt) {
-      double d = (*funcIt)( patObject );
-      patObject.addUserFloat( functionLabels_[funcIt - funcBegin], d );
+    // Add "inline" user-selected functions to the PAT object
+    typename std::vector<function_type>::const_iterator funcBegin = functions_.begin(), funcEnd = functions_.end(),
+                                                        funcIt = funcBegin;
+    if (functionLabels_.size() == functions_.size()) {
+      for (; funcIt != funcEnd; ++funcIt) {
+        double d = (*funcIt)(patObject);
+        patObject.addUserFloat(functionLabels_[funcIt - funcBegin], d);
+      }
     }
   }
 
+  template <class ObjectType>
+  void PATUserDataHelper<ObjectType>::fillDescription(edm::ParameterSetDescription& iDesc) {
+    edm::ParameterSetDescription dataMergerPSet;
+    pat::PATUserDataMerger<ObjectType, pat::helper::AddUserPtr>::fillDescription(dataMergerPSet);
+    iDesc.add("userClasses", dataMergerPSet);
+    iDesc.add("userFloats", dataMergerPSet);
+    iDesc.add("userInts", dataMergerPSet);
+    iDesc.add("userCands", dataMergerPSet);
+    std::vector<std::string> emptyVectorOfStrings;
+    iDesc.add<std::vector<std::string> >("userFunctions", emptyVectorOfStrings);
+    iDesc.add<std::vector<std::string> >("userFunctionLabels", emptyVectorOfStrings);
+  }
 
-}
-
-
-template<class ObjectType>
-void PATUserDataHelper<ObjectType>::fillDescription(edm::ParameterSetDescription & iDesc)
-{
-  edm::ParameterSetDescription dataMergerPSet;
-  pat::PATUserDataMerger<ObjectType, pat::helper::AddUserPtr>::fillDescription(dataMergerPSet);
-  iDesc.add("userClasses", dataMergerPSet);
-  iDesc.add("userFloats", dataMergerPSet);
-  iDesc.add("userInts", dataMergerPSet);
-  iDesc.add("userCands", dataMergerPSet);
-  std::vector<std::string> emptyVectorOfStrings;
-  iDesc.add<std::vector<std::string> >("userFunctions",emptyVectorOfStrings);
-  iDesc.add<std::vector<std::string> >("userFunctionLabels",emptyVectorOfStrings);
-}
-
-}
+}  // namespace pat
 #endif

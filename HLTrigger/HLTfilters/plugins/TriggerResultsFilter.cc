@@ -27,21 +27,15 @@
 //
 // constructors and destructor
 //
-TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
-  m_expression(nullptr),
-  m_eventCache(config, consumesCollector())
-{
-  const std::vector<std::string> & expressions = config.getParameter<std::vector<std::string>>("triggerConditions");
-  parse( expressions );
+TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet& config)
+    : m_expression(nullptr), m_eventCache(config, consumesCollector()) {
+  const std::vector<std::string>& expressions = config.getParameter<std::vector<std::string>>("triggerConditions");
+  parse(expressions);
 }
 
-TriggerResultsFilter::~TriggerResultsFilter()
-{
-  delete m_expression;
-}
+TriggerResultsFilter::~TriggerResultsFilter() { delete m_expression; }
 
-void
-TriggerResultsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TriggerResultsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // # HLT results   - set to empty to ignore HLT
   desc.add<edm::InputTag>("hltResults", edm::InputTag("TriggerResults"));
@@ -51,43 +45,45 @@ TriggerResultsFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("l1tIgnoreMaskAndPrescale", false);
   // # OBSOLETE - these parameters are ignored, they are left only not to break old configurations
   // they will not be printed in the generated cfi.py file
-  desc.addOptionalNode(edm::ParameterDescription<bool>("l1tIgnoreMask", false, true), false)->setComment("This parameter is obsolete and will be ignored.");
-  desc.addOptionalNode(edm::ParameterDescription<bool>("l1techIgnorePrescales", false, true), false)->setComment("This parameter is obsolete and will be ignored.");
-  desc.addOptionalNode(edm::ParameterDescription<unsigned int>("daqPartitions", 0x01, true), false)->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("l1tIgnoreMask", false, true), false)
+      ->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<bool>("l1techIgnorePrescales", false, true), false)
+      ->setComment("This parameter is obsolete and will be ignored.");
+  desc.addOptionalNode(edm::ParameterDescription<unsigned int>("daqPartitions", 0x01, true), false)
+      ->setComment("This parameter is obsolete and will be ignored.");
   // # throw exception on unknown trigger names
   desc.add<bool>("throw", true);
   // # trigger conditions
-  std::vector<std::string> triggerConditions(1,"HLT_*");
+  std::vector<std::string> triggerConditions(1, "HLT_*");
   desc.add<std::vector<std::string>>("triggerConditions", triggerConditions);
   descriptions.add("triggerResultsFilter", desc);
 }
 
-void TriggerResultsFilter::parse(const std::vector<std::string> & expressions) {
+void TriggerResultsFilter::parse(const std::vector<std::string>& expressions) {
   // parse the logical expressions into functionals
   if (expressions.empty()) {
     edm::LogWarning("Configuration") << "Empty trigger results expression";
   } else if (expressions.size() == 1) {
-    parse( expressions[0] );
+    parse(expressions[0]);
   } else {
     std::stringstream expression;
     expression << "(" << expressions[0] << ")";
     for (unsigned int i = 1; i < expressions.size(); ++i)
       expression << " OR (" << expressions[i] << ")";
-    parse( expression.str() );
+    parse(expression.str());
   }
 }
 
-void TriggerResultsFilter::parse(const std::string & expression) {
+void TriggerResultsFilter::parse(const std::string& expression) {
   // parse the logical expressions into functionals
-  m_expression = triggerExpression::parse( expression );
+  m_expression = triggerExpression::parse(expression);
 
   // check if the expressions were parsed correctly
   if (not m_expression)
     edm::LogWarning("Configuration") << "Couldn't parse trigger results expression \"" << expression << "\"";
 }
 
-bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & setup)
-{
+bool TriggerResultsFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
   if (not m_expression)
     // no valid expression has been parsed
     return false;

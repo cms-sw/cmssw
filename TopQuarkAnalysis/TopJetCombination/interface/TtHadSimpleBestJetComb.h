@@ -1,5 +1,5 @@
 //
-// adapted from TtSemiSimpleBestJetComb.h,v 1.2 2007/06/09 01:17:41 lowette Exp 
+// adapted from TtSemiSimpleBestJetComb.h,v 1.2 2007/06/09 01:17:41 lowette Exp
 // for fully hadronic channel
 
 #ifndef TtHadSimpleBestJetComb_h
@@ -19,16 +19,13 @@
 #include <Math/VectorUtil.h>
 
 class TtHadSimpleBestJetComb {
-
-  public:
-  
+public:
   TtHadSimpleBestJetComb();
-  ~TtHadSimpleBestJetComb();	
-  
-  int  operator()(std::vector<TtHadEvtSolution> &);
-  
- private:
+  ~TtHadSimpleBestJetComb();
 
+  int operator()(std::vector<TtHadEvtSolution> &);
+
+private:
 };
 
 #endif

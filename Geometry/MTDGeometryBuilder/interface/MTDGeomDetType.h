@@ -8,31 +8,25 @@
  * Generic DetType for the MTD. 
  */
 
-class MTDGeomDetType final: public GeomDetType {
-
+class MTDGeomDetType final : public GeomDetType {
 public:
   using TopologyType = PixelTopology;
 
-  MTDGeomDetType(TopologyType* t,std::string const& name, SubDetector& det) :
-    GeomDetType(name,det),
-    theTopology(t){}
+  MTDGeomDetType(TopologyType* t, std::string const& name, SubDetector& det) : GeomDetType(name, det), theTopology(t) {}
 
-  ~MTDGeomDetType() override {
-  }
+  ~MTDGeomDetType() override {}
 
   // Access to topologies
-  const  Topology& topology() const override { return *theTopology;}
+  const Topology& topology() const override { return *theTopology; }
 
-  virtual const TopologyType& specificTopology() const  { return *theTopology;}
+  virtual const TopologyType& specificTopology() const { return *theTopology; }
 
-  MTDGeomDetType& operator = ( const MTDGeomDetType& other ) = delete;
-  MTDGeomDetType( const MTDGeomDetType& other ) = delete;
+  MTDGeomDetType& operator=(const MTDGeomDetType& other) = delete;
+  MTDGeomDetType(const MTDGeomDetType& other) = delete;
 
- private:    
+private:
   // take ownership of the topology when passed through constructor
-  std::unique_ptr<TopologyType>    theTopology;
+  std::unique_ptr<TopologyType> theTopology;
 };
 
-
-
-#endif // PixelGeomDetType_H
+#endif  // PixelGeomDetType_H

@@ -14,97 +14,102 @@ namespace reco {
 
   class Candidate;
 
-  struct DefaultComponentTag { };
-  
+  struct DefaultComponentTag {};
+
   namespace componenthelper {
 
-    struct SingleComponentTag { };
+    struct SingleComponentTag {};
 
-    struct MultipleComponentsTag { };
+    struct MultipleComponentsTag {};
 
-    template<typename C, typename T, T (C::*F)() const>
+    template <typename C, typename T, T (C::*F)() const>
     struct SingleComponent {
-      static T get( const Candidate & c ) {
-	const C * dc = dynamic_cast<const C *>( & c );
-	if ( dc == nullptr ) return T();
-	return (dc->*F)();
+      static T get(const Candidate &c) {
+        const C *dc = dynamic_cast<const C *>(&c);
+        if (dc == nullptr)
+          return T();
+        return (dc->*F)();
       }
     };
 
-    template<typename C, typename T, T (C::*F)( size_t ) const , size_t (C::*S)() const>
+    template <typename C, typename T, T (C::*F)(size_t) const, size_t (C::*S)() const>
     struct MultipleComponents {
-      static size_t numberOf( const Candidate & c ) { 
-	const C * dc = dynamic_cast<const C *>( & c );
-	if ( dc == 0 ) return 0;
-	return (dc->*S)(); 
+      static size_t numberOf(const Candidate &c) {
+        const C *dc = dynamic_cast<const C *>(&c);
+        if (dc == 0)
+          return 0;
+        return (dc->*S)();
       }
-      static T get( const Candidate & c, size_t i ) {
-	const C * dc = dynamic_cast<const C *>( & c );
-	if ( dc == 0 ) return T();
-	if ( i < (dc->*S)() ) return (dc->*F)( i );
-	else throw cms::Exception( "Error" ) << "index " << i << " out ot range";
+      static T get(const Candidate &c, size_t i) {
+        const C *dc = dynamic_cast<const C *>(&c);
+        if (dc == 0)
+          return T();
+        if (i < (dc->*S)())
+          return (dc->*F)(i);
+        else
+          throw cms::Exception("Error") << "index " << i << " out ot range";
       }
     };
 
+  }  // namespace componenthelper
+
+  template <typename T, typename M, typename Tag = DefaultComponentTag>
+  struct component {};
+
+  template <typename T>
+  inline T get(const Candidate &c) {
+    return component<T, componenthelper::SingleComponentTag>::type::get(c);
   }
 
-  template<typename T, typename M, typename Tag = DefaultComponentTag>
-  struct component { };
-
-  template<typename T>
-  inline T get( const Candidate & c ) {
-    return component<T, componenthelper::SingleComponentTag>::type::get( c );
+  template <typename T, typename Tag>
+  inline T get(const Candidate &c) {
+    return component<T, componenthelper::SingleComponentTag, Tag>::type::get(c);
   }
 
-  template<typename T, typename Tag>
-  inline T get( const Candidate & c ) {
-    return component<T, componenthelper::SingleComponentTag, Tag>::type::get( c );
+  template <typename T>
+  inline T get(const Candidate &c, size_t i) {
+    return component<T, componenthelper::MultipleComponentsTag>::type::get(c, i);
   }
 
-  template<typename T>
-  inline T get( const Candidate & c, size_t i ) {
-    return component<T, componenthelper::MultipleComponentsTag>::type::get( c, i );
+  template <typename T, typename Tag>
+  inline T get(const Candidate &c, size_t i) {
+    return component<T, componenthelper::MultipleComponentsTag, Tag>::type::get(c, i);
   }
 
-  template<typename T, typename Tag>
-  inline T get( const Candidate & c, size_t i ) {
-    return component<T, componenthelper::MultipleComponentsTag, Tag>::type::get( c, i );
+  template <typename T>
+  inline size_t numberOf(const Candidate &c) {
+    return component<T, componenthelper::MultipleComponentsTag>::type::numberOf(c);
   }
 
-  template<typename T>
-  inline size_t numberOf( const Candidate & c ) {
-    return component<T, componenthelper::MultipleComponentsTag>::type::numberOf( c );
+  template <typename T, typename Tag>
+  inline size_t numberOf(const Candidate &c) {
+    return component<T, componenthelper::MultipleComponentsTag, Tag>::type::numberOf(c);
   }
 
-  template<typename T, typename Tag>
-  inline size_t numberOf( const Candidate & c ) {
-    return component<T, componenthelper::MultipleComponentsTag, Tag>::type::numberOf( c );
+}  // namespace reco
+
+#define GET_CANDIDATE_COMPONENT(CAND, TYPE, FUN, TAG)                      \
+  template <>                                                              \
+  struct component<TYPE, componenthelper::SingleComponentTag, TAG> {       \
+    typedef componenthelper::SingleComponent<CAND, TYPE, &CAND::FUN> type; \
   }
 
-}
-
-#define GET_CANDIDATE_COMPONENT( CAND, TYPE, FUN, TAG ) \
-  template<> \
-  struct  component<TYPE, componenthelper::SingleComponentTag, TAG> { \
-    typedef componenthelper::SingleComponent<CAND, TYPE, & CAND::FUN> type; \
+#define GET_DEFAULT_CANDIDATE_COMPONENT(CAND, TYPE, FUN)                             \
+  template <>                                                                        \
+  struct component<TYPE, componenthelper::SingleComponentTag, DefaultComponentTag> { \
+    typedef componenthelper::SingleComponent<CAND, TYPE, &CAND::FUN> type;           \
   }
 
-#define GET_DEFAULT_CANDIDATE_COMPONENT( CAND, TYPE, FUN ) \
-  template<> \
-  struct  component<TYPE, componenthelper::SingleComponentTag, DefaultComponentTag> { \
-    typedef componenthelper::SingleComponent<CAND, TYPE, & CAND::FUN> type; \
+#define GET_CANDIDATE_MULTIPLECOMPONENTS(CAND, TYPE, FUN, SIZE, TAG)                       \
+  template <>                                                                              \
+  struct component<TYPE, componenthelper::MultipleComponentsTag, TAG> {                    \
+    typedef componenthelper::MultipleComponents<CAND, TYPE, &CAND::FUN, &CAND::SIZE> type; \
   }
 
-#define GET_CANDIDATE_MULTIPLECOMPONENTS( CAND, TYPE, FUN, SIZE, TAG ) \
-  template<> \
-  struct  component<TYPE, componenthelper::MultipleComponentsTag, TAG> { \
-    typedef componenthelper::MultipleComponents<CAND, TYPE, & CAND::FUN, & CAND::SIZE> type; \
-  }
-
-#define GET_DEFAULT_CANDIDATE_MULTIPLECOMPONENTS( CAND, TYPE, FUN, SIZE ) \
-  template<> \
-  struct  component<TYPE, componenthelper::MultipleComponentsTag, DefaultComponentTag> { \
-    typedef componenthelper::MultipleComponents<CAND, TYPE, & CAND::FUN, & CAND::SIZE> type; \
+#define GET_DEFAULT_CANDIDATE_MULTIPLECOMPONENTS(CAND, TYPE, FUN, SIZE)                    \
+  template <>                                                                              \
+  struct component<TYPE, componenthelper::MultipleComponentsTag, DefaultComponentTag> {    \
+    typedef componenthelper::MultipleComponents<CAND, TYPE, &CAND::FUN, &CAND::SIZE> type; \
   }
 
 #endif

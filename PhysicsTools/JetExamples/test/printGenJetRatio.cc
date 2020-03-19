@@ -19,20 +19,18 @@
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 
 class printGenJetRatio : public edm::EDAnalyzer {
-  public:
-    typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
+public:
+  typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
 
-    explicit printGenJetRatio(const edm::ParameterSet & );
-    ~printGenJetRatio() {};
-    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  explicit printGenJetRatio(const edm::ParameterSet&);
+  ~printGenJetRatio(){};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  private:
-
-    edm::EDGetTokenT<JetBCEnergyRatioCollection> sourceBratioToken_;
-    edm::EDGetTokenT<JetBCEnergyRatioCollection> sourceCratioToken_;
-    edm::Handle<JetBCEnergyRatioCollection>   theBratioValue;
-    edm::Handle<JetBCEnergyRatioCollection>   theCratioValue;
-
+private:
+  edm::EDGetTokenT<JetBCEnergyRatioCollection> sourceBratioToken_;
+  edm::EDGetTokenT<JetBCEnergyRatioCollection> sourceCratioToken_;
+  edm::Handle<JetBCEnergyRatioCollection> theBratioValue;
+  edm::Handle<JetBCEnergyRatioCollection> theCratioValue;
 };
 
 // system include files
@@ -45,44 +43,38 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-printGenJetRatio::printGenJetRatio(const edm::ParameterSet& iConfig)
-{
-  sourceBratioToken_  = consumes<JetBCEnergyRatioCollection>(iConfig.getParameter<InputTag> ("srcBratio" ));
-  sourceCratioToken_  = consumes<JetBCEnergyRatioCollection>(iConfig.getParameter<InputTag> ("srcCratio" ));
+printGenJetRatio::printGenJetRatio(const edm::ParameterSet& iConfig) {
+  sourceBratioToken_ = consumes<JetBCEnergyRatioCollection>(iConfig.getParameter<InputTag>("srcBratio"));
+  sourceCratioToken_ = consumes<JetBCEnergyRatioCollection>(iConfig.getParameter<InputTag>("srcCratio"));
 }
 
-void printGenJetRatio::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void printGenJetRatio::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   cout << "[printGenJetRatio] analysing event " << iEvent.id() << endl;
 
   try {
-    iEvent.getByToken (sourceBratioToken_ , theBratioValue);
-    iEvent.getByToken (sourceCratioToken_ , theCratioValue);
-  } catch(std::exception& ce) {
+    iEvent.getByToken(sourceBratioToken_, theBratioValue);
+    iEvent.getByToken(sourceCratioToken_, theCratioValue);
+  } catch (std::exception& ce) {
     cerr << "[printJetFlavour] caught std::exception " << ce.what() << endl;
     return;
   }
 
   cout << "-------------------- GenJet Bratio ------------------------" << endl;
-  for ( JetBCEnergyRatioCollection::const_iterator itB  = theBratioValue->begin();
-                                                   itB != theBratioValue->end();
-                                                   itB ++) {
-    const Jet &jetB = *(itB->first);
+  for (JetBCEnergyRatioCollection::const_iterator itB = theBratioValue->begin(); itB != theBratioValue->end(); itB++) {
+    const Jet& jetB = *(itB->first);
     float cR = 0;
-    for ( JetBCEnergyRatioCollection::const_iterator itC  = theCratioValue->begin();
-                                                     itC != theCratioValue->end();
-                                                     itC ++) {
-
-      if( itB->first == itC->first ) cR=itC->second;
+    for (JetBCEnergyRatioCollection::const_iterator itC = theCratioValue->begin(); itC != theCratioValue->end();
+         itC++) {
+      if (itB->first == itC->first)
+        cR = itC->second;
     }
     printf("printGenJetRatio] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | bcRatio = %7.5f - %7.5f \n",
-             jetB.et(),
-             jetB.eta(),
-             jetB.phi(),
-             itB->second,
-             cR
-          );
+           jetB.et(),
+           jetB.eta(),
+           jetB.phi(),
+           itB->second,
+           cR);
   }
 }
 
-DEFINE_FWK_MODULE( printGenJetRatio );
+DEFINE_FWK_MODULE(printGenJetRatio);

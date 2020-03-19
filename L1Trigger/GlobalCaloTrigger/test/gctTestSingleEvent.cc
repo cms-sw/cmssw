@@ -7,12 +7,11 @@
 #include <fstream>
 #include <iostream>
 
-gctTestSingleEvent::gctTestSingleEvent() { }
-gctTestSingleEvent::~gctTestSingleEvent() { }
+gctTestSingleEvent::gctTestSingleEvent() {}
+gctTestSingleEvent::~gctTestSingleEvent() {}
 
 // Read the region Et values for a single event from a text file and prepare them to be loaded into the GCT
-std::vector<L1CaloRegion> gctTestSingleEvent::loadEvent(const std::string &fileName, const int16_t bx)
-{
+std::vector<L1CaloRegion> gctTestSingleEvent::loadEvent(const std::string &fileName, const int16_t bx) {
   std::vector<L1CaloRegion> result;
 
   std::ifstream inFile;
@@ -28,7 +27,7 @@ std::vector<L1CaloRegion> gctTestSingleEvent::loadEvent(const std::string &fileN
   // recognise the end-of-file condition and quit reading.
   inFile >> phi;
   while (!inFile.eof()) {
-    for (unsigned eta=0; eta<L1CaloRegionDetId::N_ETA; ++eta) {
+    for (unsigned eta = 0; eta < L1CaloRegionDetId::N_ETA; ++eta) {
       inFile >> et;
       // Make an input region
       // Arguments to named ctor are (et, overflow, finegrain, mip, quiet, eta, phi)

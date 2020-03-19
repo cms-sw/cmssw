@@ -9,46 +9,37 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class ESRawDataTask : public DQMEDAnalyzer {
+public:
+  ESRawDataTask(const edm::ParameterSet& ps);
+  ~ESRawDataTask() override {}
 
-   public:
+protected:
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-      ESRawDataTask(const edm::ParameterSet& ps);
-      ~ESRawDataTask() override {}
+  /// Setup
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-   protected:
+private:
+  int ievt_;
 
-      /// Analyze
-      void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  std::string prefixME_;
 
-      /// EndJob
-      void endJob(void) override;
+  edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
+  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
 
-      /// Setup
-      void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  //MonitorElement* meRunNumberErrors_;
+  MonitorElement* meL1ADCCErrors_;
+  MonitorElement* meBXDCCErrors_;
+  MonitorElement* meOrbitNumberDCCErrors_;
+  MonitorElement* meL1ADiff_;
+  MonitorElement* meBXDiff_;
+  MonitorElement* meOrbitNumberDiff_;
 
-   private:
-
-      int ievt_;
-
-      std::string prefixME_;
-
-      edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
-      edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
-
-      //MonitorElement* meRunNumberErrors_;
-      MonitorElement* meL1ADCCErrors_;
-      MonitorElement* meBXDCCErrors_;
-      MonitorElement* meOrbitNumberDCCErrors_;
-      MonitorElement* meL1ADiff_;
-      MonitorElement* meBXDiff_;
-      MonitorElement* meOrbitNumberDiff_;
-
-      int runNum_;
-
+  int runNum_;
 };
 
 #endif

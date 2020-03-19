@@ -49,55 +49,6 @@ process.options = cms.untracked.PSet(
 )
 
 
-
-isData1 = isData2 = isData3 = isData4 = False
-isMultiIOV = False
-isData = False
-isQcd = isWlnu = isZmumu = isZtautau = isZmumu10 = isZmumu20 =  isZmumu50 = False
-isMc = False
-if "iov" in  options.sample:
-    isMultiIOV = True
-    isData = True
-elif options.sample == 'data1':
-    isData1 = True
-    isData = True
-elif options.sample == 'data2':
-    isData2 = True
-    isData = True
-elif options.sample == 'data3':
-    isData3 = True
-    isData = True
-elif options.sample == 'data4':
-    isData4 = True
-    isData = True
-elif options.sample == 'qcd':
-    isQcd = True
-    isMc = True
-elif options.sample == 'wlnu':
-    isWlnu = True
-    isMc = True
-elif options.sample == 'zmumu':
-    isZmumu = True
-    isMc = True
-elif options.sample == 'ztautau':
-    isZtautau = True
-    isMc = True
-elif options.sample == 'zmumu10':
-    isZmumu10 = True
-    isMc = True
-elif options.sample == 'zmumu20':
-    isZmumu20 = True
-    isMc = True
-elif options.sample == 'zmumu50':
-    isZmumu50 = True
-    isMc = True
-
-else:
-    print('ERROR --- incorrect data sammple: ', options.sample)
-    exit(8888)
-
-
-
 ##
 ## Start of Configuration
 ##
@@ -114,54 +65,59 @@ outputFileSize = 350000
 ## for UpsilonToMuMu or JPsiToMuMu, these have to be added first
 ##
 trackSelection = "SingleMu"
+globalTag = None
+outputPath = None # can also be specified. If that is done, files are copied to this path afterwards
 
-if isMultiIOV:
+if "iov" in  options.sample:
     ## Configure here for campaigns with many different datasets (such as multi-IOV)
     iovNo = int(options.sample.split("iov")[1])
     process.load("Alignment.APEEstimation.samples.")
     outputName = ".root"
-    outputPath = None # can also be specified. If that is done, files are copied to this path afterwards
+    outputPath = None
     trackSelection = "SingleMu"
-if isData1: 
+if options.sample == 'data1':
     process.load("Alignment.APEEstimation.samples.Data_TkAlMinBias_Run2018C_PromptReco_v3_cff")
     outputName = 'MinBias.root'
     #outputPath = "workingArea"
     trackSelection = "MinBias"
-if isData2: 
+if options.sample == 'data2': 
     process.load("Alignment.APEEstimation.samples.Data_TkAlMinBias_Run2018C_PromptReco_v3_cff")
     outputName = 'MinBias1.root'
     #outputPath = "workingArea"
     trackSelection = "MinBias"
-if isData3: 
+if options.sample == 'data3':
     process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013C_v1_cff")
     outputName = 'Data_TkAlMuonIsolated_22Jan2013C.root'
     trackSelection = "SingleMu"
-if isData4: 
+if options.sample == 'data4':
     process.load("Alignment.APEEstimation.samples.Data_TkAlMuonIsolated_22Jan2013D_v1_cff")
     outputName = 'Data_TkAlMuonIsolated_22Jan2013D.root'
     trackSelection = "SingleMu"
 # The following options are used for MC samples
-if isQcd: 
-    process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_qcd_cff")
-    outputName = 'Mc_TkAlMuonIsolated_Summer12_qcd.root'
-    trackSelection = "MinBias"
-if isWlnu: 
-    process.load("Alignment.APEEstimation.samples.Mc_WJetsToLNu_74XTest_cff")
-    outputName = 'Mc_WJetsToLNu_74XTest.root'
+if options.sample == 'qcd':
+    globalTag = "auto:run2_mc"
+    process.load("Alignment.APEEstimation.samples.MC_UL16_ttbar_cff")
+    outputPath = '/eos/cms/store/caf/user/mteroerd/Skims/MC/UL16'    
+    outputName = 'MC_UL16_ttbar.root'
+    trackSelection = "GenSim"
+if options.sample == 'wlnu':
+    process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_2016UL_cff")
+    outputPath = '/eos/cms/store/caf/user/jschulz/Skims/MC/UL2016ReRecoRealistic'
+    outputName = 'Mc_TkAlMuonIsolated_WJetsToLNu_2016.root'
     trackSelection = "SingleMu"
-if isZmumu: 
+if options.sample == 'zmumu': 
     process.load("")
     outputName = ''
     trackSelection = "DoubleMu"
-if isZmumu10: 
+if options.sample == 'zmumu10': 
     process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu10_cff")
     outputName = 'Mc_TkAlMuonIsolated_Summer12_zmumu10.root'
     trackSelection = "DoubleMu"
-if isZmumu20: 
+if options.sample == 'zmumu20': 
     process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer12_zmumu20_cff")
     outputName = 'Mc_TkAlMuonIsolated_Summer12_zmumu20.root'
     trackSelection = "DoubleMu"
-if isZmumu50: 
+if options.sample == 'zmumu50':
     process.load("Alignment.APEEstimation.samples.DYToMuMu_M-50_Tune4C_13TeV-pythia8_Spring14dr-TkAlMuonIsolated-castor_PU_S14_POSTLS170_V6-v1_ALCARECO_cff")
     outputName = 'Mc_DYToMuMu_M-50_Tune4C_13TeV-pythia8_Spring14dr-TkAlMuonIsolated-castor_PU_S14_POSTLS170_V6-v1.root'
     trackSelection = "DoubleMu"
@@ -178,13 +134,10 @@ if outputPath:
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-if isData:
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
-    #process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_Prompt_v11', '')
-elif isMc:
-    #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_design', '')
-
+if globalTag == None:
+    print("No global tag specified, is this intended?")
+else:   
+    process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
 print("Using global tag "+process.GlobalTag.globaltag._value)
 
 process.load("Configuration.StandardSequences.Services_cff")
@@ -211,6 +164,8 @@ import Alignment.APEEstimation.AlignmentTrackSelector_cff as AlignmentTrackSelec
 # Determination of which AlignmentTrackSelector to use
 if trackSelection == "SingleMu":
     trackSelector = AlignmentTrackSelector.MuSkimSelector
+elif trackSelection == "GenSim":
+    trackSelector = AlignmentTrackSelector.genSimSkimSelector    
 elif trackSelection == "DoubleMu":
     trackSelector = AlignmentTrackSelector.DoubleMuSkimSelector
 elif trackSelection == "MinBias":

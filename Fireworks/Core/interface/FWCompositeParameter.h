@@ -26,31 +26,26 @@
 
 // forward declarations
 
-class FWCompositeParameter : public FWParameterBase, public FWParameterizable
-{
-
+class FWCompositeParameter : public FWParameterBase, public FWParameterizable {
 public:
-   FWCompositeParameter(FWParameterizable* iParent,
-                        const std::string& iName,
-                        unsigned int iVersion=1);
-   ~FWCompositeParameter() override;
+  FWCompositeParameter(FWParameterizable* iParent, const std::string& iName, unsigned int iVersion = 1);
+  ~FWCompositeParameter() override;
 
-   // ---------- const member functions ---------------------
-   void addTo(FWConfiguration& ) const override ;
+  // ---------- const member functions ---------------------
+  void addTo(FWConfiguration&) const override;
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void setFrom(const FWConfiguration&) override;
+  // ---------- member functions ---------------------------
+  void setFrom(const FWConfiguration&) override;
 
 private:
-   FWCompositeParameter(const FWCompositeParameter&) = delete;    // stop default
+  FWCompositeParameter(const FWCompositeParameter&) = delete;  // stop default
 
-   const FWCompositeParameter& operator=(const FWCompositeParameter&) = delete;    // stop default
+  const FWCompositeParameter& operator=(const FWCompositeParameter&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   unsigned int m_version;
+  // ---------- member data --------------------------------
+  unsigned int m_version;
 };
-
 
 #endif

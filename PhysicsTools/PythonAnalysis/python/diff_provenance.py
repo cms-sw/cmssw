@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 class difference :
     
     def __init__(self,v):

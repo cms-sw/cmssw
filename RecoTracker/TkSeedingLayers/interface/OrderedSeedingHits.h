@@ -6,11 +6,9 @@
 
 class OrderedSeedingHits {
 public:
-
-  virtual ~OrderedSeedingHits(){}
+  virtual ~OrderedSeedingHits() {}
   virtual unsigned int size() const = 0;
-  virtual const SeedingHitSet & operator[](unsigned int i) const = 0;
-
+  virtual const SeedingHitSet& operator[](unsigned int i) const = 0;
 };
 
 #endif

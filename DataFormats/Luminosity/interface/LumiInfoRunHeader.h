@@ -1,6 +1,6 @@
 #ifndef DataFormats_Luminosity_LumiInfoRunHeader_h
 #define DataFormats_Luminosity_LumiInfoRunHeader_h
- 
+
 /** \class LumiInfoRunHeader
  *
  * LumiInfoRunHeader contains LumiInfo data which remains valid
@@ -18,8 +18,7 @@
 #include <bitset>
 #include "DataFormats/Luminosity/interface/LumiConstants.h"
 
-class LumiInfoRunHeader
-{
+class LumiInfoRunHeader {
 public:
   //----------------------------------------------------------------
 
@@ -27,8 +26,9 @@ public:
   LumiInfoRunHeader() {}
 
   /// Constructor with lumi provider, filling scheme name, and filling scheme.
-  LumiInfoRunHeader(std::string& lumiProvider, std::string& fillingSchemeName,
-		    std::bitset<LumiConstants::numBX>& fillingScheme);
+  LumiInfoRunHeader(std::string& lumiProvider,
+                    std::string& fillingSchemeName,
+                    std::bitset<LumiConstants::numBX>& fillingScheme);
 
   /// Destructor.
   ~LumiInfoRunHeader() {}
@@ -67,9 +67,9 @@ public:
   //----------------------------------------------------------------
 
 private:
-  std::string lumiProvider_;       // string with name of lumi provider
-  std::string fillingSchemeName_;  // name of filling scheme
-  std::bitset<LumiConstants::numBX> fillingScheme_;          // filling scheme
+  std::string lumiProvider_;                         // string with name of lumi provider
+  std::string fillingSchemeName_;                    // name of filling scheme
+  std::bitset<LumiConstants::numBX> fillingScheme_;  // filling scheme
   int bunchSpacing_;
 
   void setBunchSpacing();

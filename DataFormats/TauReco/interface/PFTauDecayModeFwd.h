@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<PFTauDecayModeCollection> PFTauDecayModeRefVector;
   /// iterator over a vector of references to PFTauDecayMode objects all in the same collection
   typedef PFTauDecayModeRefVector::iterator pftaudecaymode_iterator;
-}
+}  // namespace reco
 
 #endif

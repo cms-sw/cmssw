@@ -2,8 +2,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
 #include <Validation/GlobalHits/interface/GlobalHitsProducer.h>
 DEFINE_FWK_MODULE(GlobalHitsProducer);
 

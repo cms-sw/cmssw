@@ -29,5 +29,4 @@
 
 <use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
-<use name="FWCore/Concurrency"/>
 <use name="L1Trigger/L1TMuonEndCap"/>

@@ -22,52 +22,45 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-
 HeavyChHiggsToTauNuSkim::HeavyChHiggsToTauNuSkim(const edm::ParameterSet& iConfig) {
+  // Local Debug flag
+  debug = iConfig.getParameter<bool>("DebugHeavyChHiggsToTauNuSkim");
 
-	// Local Debug flag
-	debug           = iConfig.getParameter<bool>("DebugHeavyChHiggsToTauNuSkim");
+  hltTauToken = consumes<IsolatedTauTagInfoCollection>(iConfig.getParameter<InputTag>("HLTTauCollection"));
+  jetToken = consumes<CaloJetCollection>(iConfig.getParameter<InputTag>("JetTagCollection"));
+  minNumberOfjets = iConfig.getParameter<int>("minNumberOfJets");
+  jetEtMin = iConfig.getParameter<double>("jetEtMin");
+  jetEtaMin = iConfig.getParameter<double>("jetEtaMin");
+  jetEtaMax = iConfig.getParameter<double>("jetEtaMax");
+  minDRFromTau = iConfig.getParameter<double>("minDRFromTau");
 
-	hltTauToken	= consumes<IsolatedTauTagInfoCollection>(iConfig.getParameter<InputTag>("HLTTauCollection"));
-	jetToken        = consumes<CaloJetCollection>(iConfig.getParameter<InputTag>("JetTagCollection"));
-	minNumberOfjets = iConfig.getParameter<int>("minNumberOfJets");
-	jetEtMin        = iConfig.getParameter<double>("jetEtMin");
-	jetEtaMin       = iConfig.getParameter<double>("jetEtaMin");
-	jetEtaMax       = iConfig.getParameter<double>("jetEtaMax");
-	minDRFromTau    = iConfig.getParameter<double>("minDRFromTau");
-
-        nEvents         = 0;
-        nSelectedEvents = 0;
-
+  nEvents = 0;
+  nSelectedEvents = 0;
 }
 
-
-HeavyChHiggsToTauNuSkim::~HeavyChHiggsToTauNuSkim(){
+HeavyChHiggsToTauNuSkim::~HeavyChHiggsToTauNuSkim() {
   edm::LogVerbatim("HeavyChHiggsToTauNuSkim")
-  << " Number_events_read " << nEvents
-  << " Number_events_kept " << nSelectedEvents
-  << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
-
+      << " Number_events_read " << nEvents << " Number_events_kept " << nSelectedEvents << " Efficiency         "
+      << ((double)nSelectedEvents) / ((double)nEvents + 0.01) << std::endl;
 }
 
-
-bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup ){
-
+bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   nEvents++;
 
   Handle<IsolatedTauTagInfoCollection> tauTagL3Handle;
   iEvent.getByToken(hltTauToken, tauTagL3Handle);
 
-  if ( !tauTagL3Handle.isValid() ) return false;
-
+  if (!tauTagL3Handle.isValid())
+    return false;
 
   Jet theTau;
   double maxEt = 0;
-  if (tauTagL3Handle.isValid() ) {
-    const IsolatedTauTagInfoCollection & L3Taus = *(tauTagL3Handle.product());
+  if (tauTagL3Handle.isValid()) {
+    const IsolatedTauTagInfoCollection& L3Taus = *(tauTagL3Handle.product());
     IsolatedTauTagInfoCollection::const_iterator i;
-    for ( i = L3Taus.begin(); i != L3Taus.end(); i++ ) {
-      if (i->discriminator() == 0) continue;
+    for (i = L3Taus.begin(); i != L3Taus.end(); i++) {
+      if (i->discriminator() == 0)
+        continue;
       Jet taujet = *(i->jet().get());
       if (taujet.et() > maxEt) {
         maxEt = taujet.et();
@@ -76,27 +69,28 @@ bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& 
     }
   }
 
-  if (maxEt == 0) return false;
+  if (maxEt == 0)
+    return false;
 
   // jets
 
   Handle<CaloJetCollection> jetHandle;
-  iEvent.getByToken(jetToken,jetHandle);
+  iEvent.getByToken(jetToken, jetHandle);
 
-  if ( !jetHandle.isValid() ) return false;
+  if (!jetHandle.isValid())
+    return false;
 
   bool accepted = false;
 
-  if (jetHandle.isValid() ) {
+  if (jetHandle.isValid()) {
     int nJets = 0;
-    const reco::CaloJetCollection & jets = *(jetHandle.product());
+    const reco::CaloJetCollection& jets = *(jetHandle.product());
     CaloJetCollection::const_iterator iJet;
-    for (iJet = jets.begin(); iJet!= jets.end(); iJet++ ) {
-      if (iJet->et()  > jetEtMin  &&
-          iJet->eta() > jetEtaMin &&
-	  iJet->eta() < jetEtaMax ) {
-        double DR = deltaR(theTau.eta(),iJet->eta(),theTau.phi(),iJet->phi());
-        if (DR > minDRFromTau) nJets++;
+    for (iJet = jets.begin(); iJet != jets.end(); iJet++) {
+      if (iJet->et() > jetEtMin && iJet->eta() > jetEtaMin && iJet->eta() < jetEtaMax) {
+        double DR = deltaR(theTau.eta(), iJet->eta(), theTau.phi(), iJet->phi());
+        if (DR > minDRFromTau)
+          nJets++;
       }
     }
     if (nJets >= minNumberOfjets) {

@@ -2,7 +2,7 @@
 //
 // Package:    KVFTest
 // Class:      KVFTest
-// 
+//
 /**\class KVFTest KVFTest.cc RecoVertex/KVFTest/src/KVFTest.cc
 
  Description: steers tracker primary vertex reconstruction and storage
@@ -10,7 +10,6 @@
  Implementation:
      <Notes on implementation>
 */
-
 
 // system include files
 #include <memory>
@@ -30,7 +29,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <TFile.h>
 
-  /**
+/**
    * This is a very simple test analyzer mean to test the KalmanVertexFitter
    */
 
@@ -38,25 +37,23 @@ class KVFTest : public edm::EDAnalyzer {
 public:
   explicit KVFTest(const edm::ParameterSet&);
   ~KVFTest() override;
-  
+
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void beginJob() override;
   void endJob() override;
 
 private:
-
   TrackingVertex getSimVertex(const edm::Event& iEvent) const;
 
   edm::ParameterSet theConfig;
   edm::ParameterSet kvfPSet;
   std::unique_ptr<SimpleVertexTree> tree;
-  TFile*  rootFile_;
+  TFile* rootFile_;
 
-  std::string outputFile_; // output file
-  edm::EDGetTokenT<reco::TrackCollection> token_tracks; 
+  std::string outputFile_;  // output file
+  edm::EDGetTokenT<reco::TrackCollection> token_tracks;
   edm::EDGetTokenT<TrackingParticleCollection> token_TrackTruth;
   edm::EDGetTokenT<TrackingVertexCollection> token_VertexTruth;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> token_associatorForParamAtPca;
-
 };

@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/Core/interface/FWParameterizable.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,18 +26,14 @@
 //
 // constructors and destructor
 //
-FWParameterizable::FWParameterizable()
-{
-}
+FWParameterizable::FWParameterizable() {}
 
 // FWParameterizable::FWParameterizable(const FWParameterizable& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWParameterizable::~FWParameterizable()
-{
-}
+FWParameterizable::~FWParameterizable() {}
 
 //
 // assignment operators
@@ -55,11 +50,7 @@ FWParameterizable::~FWParameterizable()
 //
 // member functions
 //
-void
-FWParameterizable::add(FWParameterBase* iParam)
-{
-   m_parameters.push_back(iParam);
-}
+void FWParameterizable::add(FWParameterBase* iParam) { m_parameters.push_back(iParam); }
 
 //
 // const member functions

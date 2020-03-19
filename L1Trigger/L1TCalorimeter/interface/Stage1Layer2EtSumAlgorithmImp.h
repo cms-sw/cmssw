@@ -24,52 +24,47 @@
 #include <array>
 #include <vector>
 
-
 namespace l1t {
 
   class Stage1Layer2EtSumAlgorithmImpPP : public Stage1Layer2EtSumAlgorithm {
   public:
     Stage1Layer2EtSumAlgorithmImpPP(CaloParamsHelper const* params);
     ~Stage1Layer2EtSumAlgorithmImpPP() override = default;
-    void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      const std::vector<l1t::Jet> * jets,
-			      std::vector<l1t::EtSum> * sums) override;
+    void processEvent(const std::vector<l1t::CaloRegion>& regions,
+                      const std::vector<l1t::CaloEmCand>& EMCands,
+                      const std::vector<l1t::Jet>* jets,
+                      std::vector<l1t::EtSum>* sums) override;
 
   private:
     CaloParamsHelper const* const params_;
 
-    int DiJetPhi(const std::vector<l1t::Jet> * jets) const;
-    uint16_t MHToverHT(uint16_t,uint16_t) const;
+    int DiJetPhi(const std::vector<l1t::Jet>* jets) const;
+    uint16_t MHToverHT(uint16_t, uint16_t) const;
     std::vector<double> sinPhi;
     std::vector<double> cosPhi;
-
   };
 
   class Stage1Layer2EtSumAlgorithmImpHW : public Stage1Layer2EtSumAlgorithm {
   public:
     Stage1Layer2EtSumAlgorithmImpHW(CaloParamsHelper const* params);
     ~Stage1Layer2EtSumAlgorithmImpHW() override = default;
-    void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      const std::vector<l1t::Jet> * jets,
-			      std::vector<l1t::EtSum> * sums) override;
+    void processEvent(const std::vector<l1t::CaloRegion>& regions,
+                      const std::vector<l1t::CaloEmCand>& EMCands,
+                      const std::vector<l1t::Jet>* jets,
+                      std::vector<l1t::EtSum>* sums) override;
 
   private:
     CaloParamsHelper const* const params_;
 
-    int DiJetPhi(const std::vector<l1t::Jet> * jets) const;
-    uint16_t MHToverHT(uint16_t,uint16_t) const;
+    int DiJetPhi(const std::vector<l1t::Jet>* jets) const;
+    uint16_t MHToverHT(uint16_t, uint16_t) const;
 
     struct SimpleRegion {
       int ieta;
       int iphi;
       int et;
     };
-    enum class ETSumType {
-      kHadronicSum,
-      kEmSum
-    };
+    enum class ETSumType { kHadronicSum, kEmSum };
     std::tuple<int, int, int> doSumAndMET(const std::vector<SimpleRegion>& regionEt, ETSumType sumType);
 
     // Converts 3Q16 fixed-point phase from CORDIC
@@ -89,26 +84,23 @@ namespace l1t {
   public:
     Stage1Layer2EtSumAlgorithmImpHI(CaloParamsHelper const* params);
     ~Stage1Layer2EtSumAlgorithmImpHI() override = default;
-    void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      const std::vector<l1t::Jet> * jets,
-			      std::vector<l1t::EtSum> * sums) override;
+    void processEvent(const std::vector<l1t::CaloRegion>& regions,
+                      const std::vector<l1t::CaloEmCand>& EMCands,
+                      const std::vector<l1t::Jet>* jets,
+                      std::vector<l1t::EtSum>* sums) override;
 
   private:
     CaloParamsHelper const* const params_;
 
-    int DiJetPhi(const std::vector<l1t::Jet> * jets) const;
-    uint16_t MHToverHT(uint16_t,uint16_t) const;
+    int DiJetPhi(const std::vector<l1t::Jet>* jets) const;
+    uint16_t MHToverHT(uint16_t, uint16_t) const;
 
     struct SimpleRegion {
       int ieta;
       int iphi;
       int et;
     };
-    enum class ETSumType {
-      kHadronicSum,
-      kEmSum
-    };
+    enum class ETSumType { kHadronicSum, kEmSum };
     std::tuple<int, int, int> doSumAndMET(const std::vector<SimpleRegion>& regionEt, ETSumType sumType);
 
     // Converts 3Q16 fixed-point phase from CORDIC
@@ -124,7 +116,6 @@ namespace l1t {
     std::array<long, 5> sines;
   };
 
-
   /* class Stage1Layer2CentralityAlgorithm : public Stage1Layer2EtSumAlgorithm { */
   /* public: */
   /*   Stage1Layer2CentralityAlgorithm(CaloParamsHelper* params); */
@@ -135,6 +126,6 @@ namespace l1t {
   /* private: */
   /*   CaloParamsHelper* const params_; */
   /* }; */
-}
+}  // namespace l1t
 
 #endif

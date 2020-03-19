@@ -11,14 +11,10 @@
  * defined at the point of closest approach to the beam line.
  */
 
-class TrajectoryStateClosestToBeamLineBuilder
-{
-public: 
-
-  typedef FreeTrajectoryState		FTS;
+class TrajectoryStateClosestToBeamLineBuilder {
+public:
+  typedef FreeTrajectoryState FTS;
   virtual ~TrajectoryStateClosestToBeamLineBuilder() = default;
-  virtual TrajectoryStateClosestToBeamLine operator()
-    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const = 0;
-
+  virtual TrajectoryStateClosestToBeamLine operator()(const FTS& originalFTS, const reco::BeamSpot& beamSpot) const = 0;
 };
 #endif

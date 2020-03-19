@@ -18,7 +18,7 @@
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/RPCGeometry/interface/RPCRoll.h" 
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
@@ -36,27 +36,25 @@ class TH2F;
 
 class RPCRecHit;
 
-
-class RPCRecHitReader : public edm::EDAnalyzer
-{
- public:
+class RPCRecHitReader : public edm::EDAnalyzer {
+public:
   /// Constructor
-   RPCRecHitReader(const edm::ParameterSet& pset);
-  
-   virtual void beginRun(const edm::Run&, const edm::EventSetup& );
+  RPCRecHitReader(const edm::ParameterSet& pset);
+
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endJob();
-  
+
   /// Destructor
   virtual ~RPCRecHitReader();
 
   // Operations
 
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
   unsigned int layerRecHit(RPCRecHit);
 
- private:
+private:
   std::string fOutputFileName;
   std::string recHitLabel1;
   std::string recHitLabel2;
@@ -92,9 +90,9 @@ class RPCRecHitReader : public edm::EDAnalyzer
   TH1F* histoPool2;
   TH1F* histoPool3;
 
-  TH1F*   histoExpectedOcc;
-  TH1F*   histoRealOcc;
-  TH1F*   histoLocalEff;
+  TH1F* histoExpectedOcc;
+  TH1F* histoRealOcc;
+  TH1F* histoLocalEff;
 
   float yLayer;
 
@@ -106,9 +104,8 @@ class RPCRecHitReader : public edm::EDAnalyzer
   bool _trigRPC6;
 
   std::vector<bool> _trigConfig;
-  std::map<int,float> _mapLayer;
+  std::map<int, float> _mapLayer;
   const RPCRoll* _rollEff;
 };
-
 
 #endif

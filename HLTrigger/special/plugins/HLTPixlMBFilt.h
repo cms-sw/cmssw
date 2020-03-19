@@ -26,21 +26,21 @@ namespace edm {
 //
 
 class HLTPixlMBFilt : public HLTFilter {
+public:
+  explicit HLTPixlMBFilt(const edm::ParameterSet&);
+  ~HLTPixlMBFilt() override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   public:
-      explicit HLTPixlMBFilt(const edm::ParameterSet&);
-      ~HLTPixlMBFilt() override;
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+private:
+  edm::InputTag pixlTag_;  // input tag identifying product containing Pixel-tracks
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> pixlToken_;
 
-   private:
-      edm::InputTag pixlTag_;  // input tag identifying product containing Pixel-tracks
-      edm::EDGetTokenT<reco::RecoChargedCandidateCollection> pixlToken_;
-
-      double min_Pt_;          // min pt cut
-      unsigned int min_trks_;  // minimum number of tracks from one vertex
-      float min_sep_;          // minimum separation of two tracks in phi-eta
-
+  double min_Pt_;          // min pt cut
+  unsigned int min_trks_;  // minimum number of tracks from one vertex
+  float min_sep_;          // minimum separation of two tracks in phi-eta
 };
 
-#endif //HLTPixlMBFilt_h
+#endif  //HLTPixlMBFilt_h

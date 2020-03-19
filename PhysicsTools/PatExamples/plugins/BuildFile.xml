@@ -1,6 +1,7 @@
 <export>
 </export>
 <library   name="PhysicsToolsPatExamples_plugins" file="*.cc">
+  <use   name="CommonTools/CandUtils"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/MessageLogger"/>

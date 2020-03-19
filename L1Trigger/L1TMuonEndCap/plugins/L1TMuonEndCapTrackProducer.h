@@ -15,7 +15,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/TrackFinder.h"
 #include "L1Trigger/L1TMuonEndCap/interface/MicroGMTConverter.h"
 
-
 // Class declaration
 class L1TMuonEndCapTrackProducer : public edm::stream::EDProducer<> {
 public:
@@ -35,7 +34,7 @@ private:
   //void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 private:
-  std::unique_ptr<TrackFinder>       track_finder_;
+  std::unique_ptr<TrackFinder> track_finder_;
   std::unique_ptr<MicroGMTConverter> uGMT_converter_;
 
   const edm::ParameterSet& config_;

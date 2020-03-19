@@ -14,25 +14,20 @@
 
 template <typename T>
 class L1TStage2ObjectComparison : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   L1TStage2ObjectComparison(const edm::ParameterSet& ps);
   ~L1TStage2ObjectComparison() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- protected:
-
+protected:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:  
-
+private:
   edm::EDGetTokenT<BXVector<T>> token1_;
   edm::EDGetTokenT<BXVector<T>> token2_;
   const bool checkBxRange_;
   const bool checkCollSizePerBx_;
   const bool checkObject_;
-
 };
 
 template <typename T>
@@ -41,8 +36,7 @@ L1TStage2ObjectComparison<T>::L1TStage2ObjectComparison(const edm::ParameterSet&
       token2_(consumes<BXVector<T>>(ps.getParameter<edm::InputTag>("collection2"))),
       checkBxRange_(ps.getParameter<bool>("checkBxRange")),
       checkCollSizePerBx_(ps.getParameter<bool>("checkCollSizePerBx")),
-      checkObject_(ps.getParameter<bool>("checkObject"))
-{
+      checkObject_(ps.getParameter<bool>("checkObject")) {
   if (checkBxRange_ || checkCollSizePerBx_) {
     produces<l1t::ObjectRefBxCollection<T>>("collection1ExcessObjects");
     produces<l1t::ObjectRefBxCollection<T>>("collection2ExcessObjects");
@@ -54,8 +48,7 @@ L1TStage2ObjectComparison<T>::L1TStage2ObjectComparison(const edm::ParameterSet&
 }
 
 template <typename T>
-void L1TStage2ObjectComparison<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
+void L1TStage2ObjectComparison<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("collection1", edm::InputTag("collection1"))->setComment("L1T object collection 1");
   desc.add<edm::InputTag>("collection2", edm::InputTag("collection2"))->setComment("L1T object collection 2");
@@ -66,8 +59,7 @@ void L1TStage2ObjectComparison<T>::fillDescriptions(edm::ConfigurationDescriptio
 }
 
 template <typename T>
-void L1TStage2ObjectComparison<T>::produce(edm::Event& e, const edm::EventSetup& c)
-{
+void L1TStage2ObjectComparison<T>::produce(edm::Event& e, const edm::EventSetup& c) {
   auto excessObjRefsColl1 = std::make_unique<l1t::ObjectRefBxCollection<T>>();
   auto excessObjRefsColl2 = std::make_unique<l1t::ObjectRefBxCollection<T>>();
   auto matchRefPairs = std::make_unique<l1t::ObjectRefPairBxCollection<T>>();
@@ -82,8 +74,10 @@ void L1TStage2ObjectComparison<T>::produce(edm::Event& e, const edm::EventSetup&
   excessObjRefsColl1->setBXRange(bxColl1->getFirstBX(), bxColl1->getLastBX());
   excessObjRefsColl2->setBXRange(bxColl2->getFirstBX(), bxColl2->getLastBX());
   // Set the BX range to the intersection of the two input collection BX ranges
-  matchRefPairs->setBXRange(std::max(bxColl1->getFirstBX(), bxColl2->getFirstBX()), std::min(bxColl1->getLastBX(), bxColl2->getLastBX()));
-  mismatchRefPairs->setBXRange(std::max(bxColl1->getFirstBX(), bxColl2->getFirstBX()), std::min(bxColl1->getLastBX(), bxColl2->getLastBX()));
+  matchRefPairs->setBXRange(std::max(bxColl1->getFirstBX(), bxColl2->getFirstBX()),
+                            std::min(bxColl1->getLastBX(), bxColl2->getLastBX()));
+  mismatchRefPairs->setBXRange(std::max(bxColl1->getFirstBX(), bxColl2->getFirstBX()),
+                               std::min(bxColl1->getLastBX(), bxColl2->getLastBX()));
 
   if (checkBxRange_) {
     // Store references to objects in BX that do not exist in the other collection

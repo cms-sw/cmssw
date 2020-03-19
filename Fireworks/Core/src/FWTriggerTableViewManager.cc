@@ -26,87 +26,64 @@
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 
-
-FWTriggerTableViewManager::FWTriggerTableViewManager(FWGUIManager* iGUIMgr) :
-   FWViewManagerBase()
-{
-   FWGUIManager::ViewBuildFunctor f;
-   f=boost::bind(&FWTriggerTableViewManager::buildView,
-                 this, _1, _2);
-   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kTableHLT), f);
-   iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kTableL1), f);
+FWTriggerTableViewManager::FWTriggerTableViewManager(FWGUIManager* iGUIMgr) : FWViewManagerBase() {
+  FWGUIManager::ViewBuildFunctor f;
+  f = boost::bind(&FWTriggerTableViewManager::buildView, this, _1, _2);
+  iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kTableHLT), f);
+  iGUIMgr->registerViewBuilder(FWViewType::idToName(FWViewType::kTableL1), f);
 }
 
-FWTriggerTableViewManager::~FWTriggerTableViewManager()
-{
+FWTriggerTableViewManager::~FWTriggerTableViewManager() {}
+
+class FWViewBase* FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, const std::string& type) {
+  std::shared_ptr<FWTriggerTableView> view;
+
+  if (type == FWViewType::sName[FWViewType::kTableHLT])
+    view.reset(new FWHLTTriggerTableView(iParent));
+  else
+    view.reset(new FWL1TriggerTableView(iParent));
+
+  view->setProcessList(&(context().metadataManager()->processNamesInJob()));
+
+  view->setBackgroundColor(colorManager().background());
+  m_views.push_back(std::shared_ptr<FWTriggerTableView>(view));
+  view->beingDestroyed_.connect(boost::bind(&FWTriggerTableViewManager::beingDestroyed, this, _1));
+  return view.get();
 }
 
-class FWViewBase*
-FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, const std::string& type)
-{
-   std::shared_ptr<FWTriggerTableView> view;
-   
-   if (type == FWViewType::sName[FWViewType::kTableHLT])
-      view.reset( new FWHLTTriggerTableView(iParent));
-   else
-      view.reset( new FWL1TriggerTableView(iParent));
-
-   view->setProcessList(&(context().metadataManager()->processNamesInJob()));   
- 
-   view->setBackgroundColor(colorManager().background());
-   m_views.push_back(std::shared_ptr<FWTriggerTableView> (view));
-   view->beingDestroyed_.connect(boost::bind(&FWTriggerTableViewManager::beingDestroyed,
-                                             this,_1));
-   return view.get();
-}
-
-void
-FWTriggerTableViewManager::beingDestroyed(const FWViewBase* iView)
-{
-   for(std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it=
-          m_views.begin(), itEnd = m_views.end();
+void FWTriggerTableViewManager::beingDestroyed(const FWViewBase* iView) {
+  for (std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it = m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
-      if(it->get() == iView) {
-         m_views.erase(it);
-         return;
-      }
-   }
+    if (it->get() == iView) {
+      m_views.erase(it);
+      return;
+    }
+  }
 }
 
-void
-FWTriggerTableViewManager::colorsChanged()
-{
-   for(std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it=
-          m_views.begin(), itEnd = m_views.end();
+void FWTriggerTableViewManager::colorsChanged() {
+  for (std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it = m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
-      (*it)->setBackgroundColor(colorManager().background());
-   }
+    (*it)->setBackgroundColor(colorManager().background());
+  }
 }
 
-void
-FWTriggerTableViewManager::eventEnd()
-{
-   for(std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it=
-          m_views.begin(), itEnd = m_views.end();
+void FWTriggerTableViewManager::eventEnd() {
+  for (std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it = m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
-      (*it)->dataChanged();
-   }
+    (*it)->dataChanged();
+  }
 }
 
-void
-FWTriggerTableViewManager::updateProcessList()
-{ 
-   // printf("FWTriggerTableViewManager::updateProcessLi\n");
-   for(std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it=
-          m_views.begin(), itEnd = m_views.end();
+void FWTriggerTableViewManager::updateProcessList() {
+  // printf("FWTriggerTableViewManager::updateProcessLi\n");
+  for (std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it = m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
-    
-      (*it)->setProcessList(&(context().metadataManager()->processNamesInJob()));
-      (*it)->resetCombo();
-   }
+    (*it)->setProcessList(&(context().metadataManager()->processNamesInJob()));
+    (*it)->resetCombo();
+  }
 }
-

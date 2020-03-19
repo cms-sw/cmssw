@@ -7,6 +7,6 @@
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
-typedef edm::RangeMap <unsigned, edm::OwnVector<FastTrackerCluster> > FastTrackerClusterCollection;
+typedef edm::RangeMap<unsigned, edm::OwnVector<FastTrackerCluster> > FastTrackerClusterCollection;
 
 #endif

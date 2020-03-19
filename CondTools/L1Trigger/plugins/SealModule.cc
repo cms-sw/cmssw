@@ -6,7 +6,6 @@
 #include "CondTools/L1Trigger/plugins/L1SubsystemKeysOnlineProd.h"
 #include "CondTools/L1Trigger/plugins/L1TriggerKeyOnlineProd.h"
 
-
 using namespace l1t;
 
 DEFINE_FWK_MODULE(L1CondDBPayloadWriter);
@@ -16,10 +15,8 @@ DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyListDummyProd);
 DEFINE_FWK_EVENTSETUP_MODULE(L1SubsystemKeysOnlineProd);
 DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyOnlineProd);
 
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondTools/L1Trigger/interface/WriterProxy.h"
-
-
 
 // Central L1 records
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"

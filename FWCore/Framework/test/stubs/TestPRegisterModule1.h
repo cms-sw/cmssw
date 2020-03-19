@@ -4,7 +4,7 @@
 //
 // Package:     test
 // Class  :     TestPRegisterModule1
-// 
+//
 /**\class TestPRegisterModule1 TestPRegisterModule1.h Framework/test/interface/TestPRegisterModule1.h
 
  Description: <one line class summary>
@@ -26,15 +26,13 @@
 
 // forward declarations
 
-class TestPRegisterModule1 : public edm::EDProducer
-{
+class TestPRegisterModule1 : public edm::EDProducer {
 public:
-   explicit TestPRegisterModule1(edm::ParameterSet const& p);   
-   void produce(edm::Event& e, edm::EventSetup const&);
-   
-private:
-   edm::ParameterSet pset_;
-};
+  explicit TestPRegisterModule1(edm::ParameterSet const& p);
+  void produce(edm::Event& e, edm::EventSetup const&);
 
+private:
+  edm::ParameterSet pset_;
+};
 
 #endif

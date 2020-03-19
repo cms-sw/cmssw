@@ -34,10 +34,10 @@
     1, 16, 29, 1
   </Vector>
   <Vector name="etaMax" type="numeric" nEntries="4">
-    16, 29, 41, 15
+    16, 15, 41, 15
   </Vector>
   <Vector name="MaxDepth" type="numeric" nEntries="4">
-     4,  2,  4,  4
+     4,  0,  4,  4
   </Vector>
   <Vector name="etaRange" type="numeric" nEntries="4">
     1.392, 3.000, 5.500, 1.305

@@ -6,7 +6,6 @@
 #include "DataFormats/JetReco/interface/TrackJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
-
 using namespace reco;
 
 typedef CorrectedJetProducer<CaloJet> CorrectedCaloJetProducer;

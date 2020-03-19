@@ -9,8 +9,9 @@
  *  \author C. Liu 		 Purdue University
  *  \author A. Everett 		 Purdue University
  *
- *  \modified by C. Calabria     INFN & Universita  Bari
+ *  \modified by C. Calabria     INFN & Universita Bari
  *  \modified by D. Nash         Northeastern University
+ *  \modified by C. Caputo       UCLouvain
  */
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -32,8 +33,12 @@
 #include "DataFormats/MuonReco/interface/DYTInfo.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
-namespace edm {class Event;}
-namespace reco {class TransientTrack;}
+namespace edm {
+  class Event;
+}
+namespace reco {
+  class TransientTrack;
+}
 
 class TrajectoryStateOnSurface;
 class TrackerTopology;
@@ -45,150 +50,144 @@ class Trajectory;
 class TrajectoryFitter;
 
 class GlobalMuonRefitter {
+public:
+  typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
+  typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
+  typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
+  typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
-  public:
+  typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
+  typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
+  typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
+  typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
 
-    typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
-    typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
-    typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
-    typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+  typedef std::vector<Trajectory> TC;
+  typedef TC::const_iterator TI;
 
-    typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
-    typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
-    typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
-    typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
+  enum subDetector { PXB = 1, PXF = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
 
-    typedef std::vector<Trajectory> TC;
-    typedef TC::const_iterator TI;
+public:
+  /// constructor with Parameter Set and MuonServiceProxy
+  GlobalMuonRefitter(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
 
-    enum subDetector { PXB = 1, PXF = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6 };
+  /// destructor
+  virtual ~GlobalMuonRefitter();
 
-  public:
+  /// pass the Event to the algo at each event
+  virtual void setEvent(const edm::Event&);
 
-    /// constructor with Parameter Set and MuonServiceProxy
-    GlobalMuonRefitter(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
-          
-    /// destructor
-    virtual ~GlobalMuonRefitter();
+  /// set the services needed by the TrackTransformer
+  void setServices(const edm::EventSetup&);
 
-    /// pass the Event to the algo at each event
-    virtual void setEvent(const edm::Event&);
+  /// build combined trajectory from sta Track and tracker RecHits
+  std::vector<Trajectory> refit(const reco::Track& globalTrack,
+                                const int theMuonHitsOption,
+                                const TrackerTopology* tTopo) const;
 
-    /// set the services needed by the TrackTransformer
-    void setServices(const edm::EventSetup&);
+  /// build combined trajectory from subset of sta Track and tracker RecHits
+  std::vector<Trajectory> refit(const reco::Track& globalTrack,
+                                const reco::TransientTrack track,
+                                const TransientTrackingRecHit::ConstRecHitContainer& allRecHitsTemp,
+                                const int theMuonHitsOption,
+                                const TrackerTopology* tTopo) const;
 
-    /// build combined trajectory from sta Track and tracker RecHits
-    std::vector<Trajectory> refit(const reco::Track& globalTrack, const int theMuonHitsOption, 
-				  const TrackerTopology *tTopo) const;
+  /// refit the track with a new set of RecHits
+  std::vector<Trajectory> transform(const reco::Track& newTrack,
+                                    const reco::TransientTrack track,
+                                    const TransientTrackingRecHit::ConstRecHitContainer& recHitsForReFit) const;
 
-    /// build combined trajectory from subset of sta Track and tracker RecHits
-    std::vector<Trajectory> refit(const reco::Track& globalTrack,
-				  const reco::TransientTrack track,
-				  const TransientTrackingRecHit::ConstRecHitContainer& allRecHitsTemp,
-				  const int theMuonHitsOption,
-				  const TrackerTopology *tTopo) const;
+  // get rid of selected station RecHits
+  ConstRecHitContainer getRidOfSelectStationHits(const ConstRecHitContainer& hits, const TrackerTopology* tTopo) const;
 
-    /// refit the track with a new set of RecHits
-    std::vector<Trajectory> transform(const reco::Track& newTrack,
-                                      const reco::TransientTrack track,
-                                      const TransientTrackingRecHit::ConstRecHitContainer& recHitsForReFit) const;
-    
-    // get rid of selected station RecHits
-    ConstRecHitContainer getRidOfSelectStationHits(const ConstRecHitContainer& hits,
-						   const TrackerTopology *tTopo) const;
+  // return DYT-related informations
+  const reco::DYTInfo* getDYTInfo() { return dytInfo; }
 
-    // return DYT-related informations           
-    const reco::DYTInfo* getDYTInfo() {return dytInfo;}
-    
-  protected:
+protected:
+  enum RefitDirection { insideOut, outsideIn, undetermined };
 
-    enum RefitDirection{insideOut,outsideIn,undetermined};
-    
-    /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
-    void checkMuonHits(const reco::Track&, ConstRecHitContainer&, 
-                       std::map<DetId, int> &) const;
+  /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
+  void checkMuonHits(const reco::Track&, ConstRecHitContainer&, std::map<DetId, int>&) const;
 
-    /// get the RecHits in the tracker and the first muon chamber with hits 
-    void getFirstHits(const reco::Track&, ConstRecHitContainer&, 
-                       ConstRecHitContainer&) const;
- 
-    /// select muon hits compatible with trajectory; check hits in chambers with showers
-    ConstRecHitContainer selectMuonHits(const Trajectory&, 
-                                        const std::map<DetId, int> &) const;
- 
-    /// print all RecHits of a trajectory
-    void printHits(const ConstRecHitContainer&) const;
+  /// get the RecHits in the tracker and the first muon chamber with hits
+  void getFirstHits(const reco::Track&, ConstRecHitContainer&, ConstRecHitContainer&) const;
 
-    RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
+  /// select muon hits compatible with trajectory; check hits in chambers with showers
+  ConstRecHitContainer selectMuonHits(const Trajectory&, const std::map<DetId, int>&) const;
 
-    const MuonServiceProxy* service() const { return theService; }
+  /// print all RecHits of a trajectory
+  void printHits(const ConstRecHitContainer&) const;
 
-  protected:
-    std::string theCategory;
-    bool theTkTrajsAvailableFlag;
-    float thePtCut;
+  RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
 
-  private:
-  
-    int   theMuonHitsOption;
-    float theProbCut;
-    int   theHitThreshold;
-    float theDTChi2Cut;
-    float theCSCChi2Cut;
-    float theRPCChi2Cut;
-    float theGEMChi2Cut;
-    float theME0Chi2Cut;
-    bool  theCosmicFlag;
+  const MuonServiceProxy* service() const { return theService; }
 
-    edm::InputTag theDTRecHitLabel;
-    edm::InputTag theCSCRecHitLabel;
-    edm::InputTag theGEMRecHitLabel;
-    edm::InputTag theME0RecHitLabel;
-    edm::Handle<DTRecHitCollection>    theDTRecHits;
-    edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
-    edm::Handle<GEMRecHitCollection> theGEMRecHits;
-    edm::Handle<ME0SegmentCollection> theME0RecHits;
-    edm::EDGetTokenT<DTRecHitCollection> theDTRecHitToken;
-    edm::EDGetTokenT<CSCRecHit2DCollection> theCSCRecHitToken;
-    edm::EDGetTokenT<GEMRecHitCollection> theGEMRecHitToken;
-    edm::EDGetTokenT<ME0SegmentCollection> theME0RecHitToken;
+protected:
+  std::string theCategory;
+  bool theTkTrajsAvailableFlag;
+  float thePtCut;
 
-    int	  theSkipStation;
-    int   theTrackerSkipSystem;
-    int   theTrackerSkipSection;
+private:
+  int theMuonHitsOption;
+  float theProbCut;
+  int theHitThreshold;
+  float theDTChi2Cut;
+  float theCSCChi2Cut;
+  float theRPCChi2Cut;
+  float theGEMChi2Cut;
+  float theME0Chi2Cut;
+  bool theCosmicFlag;
 
-    unsigned long long theCacheId_TRH;        
+  edm::InputTag theDTRecHitLabel;
+  edm::InputTag theCSCRecHitLabel;
+  edm::InputTag theGEMRecHitLabel;
+  edm::InputTag theME0RecHitLabel;
+  edm::Handle<DTRecHitCollection> theDTRecHits;
+  edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
+  edm::Handle<GEMRecHitCollection> theGEMRecHits;
+  edm::Handle<ME0SegmentCollection> theME0RecHits;
+  edm::EDGetTokenT<DTRecHitCollection> theDTRecHitToken;
+  edm::EDGetTokenT<CSCRecHit2DCollection> theCSCRecHitToken;
+  edm::EDGetTokenT<GEMRecHitCollection> theGEMRecHitToken;
+  edm::EDGetTokenT<ME0SegmentCollection> theME0RecHitToken;
 
-    std::string thePropagatorName;
-  
-    bool theRPCInTheFit;
+  int theSkipStation;
+  int theTrackerSkipSystem;
+  int theTrackerSkipSection;
 
-    double theRescaleErrorFactor;
+  unsigned long long theCacheId_TRH;
 
-    RefitDirection theRefitDirection;
+  std::string thePropagatorName;
 
-    std::vector<int> theDYTthrs;
-    int theDYTselector;
-    bool theDYTupdator;
-    bool theDYTuseAPE;
-    reco::DYTInfo *dytInfo;
+  bool theRPCInTheFit;
 
-    std::string theFitterName;
-    std::unique_ptr<TrajectoryFitter> theFitter;
-  
-    std::string theTrackerRecHitBuilderName;
-    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    TkClonerImpl hitCloner;
-  
-    std::string theMuonRecHitBuilderName;
-    edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+  double theRescaleErrorFactor;
 
-    const MuonServiceProxy* theService;
-    const edm::Event* theEvent;
+  RefitDirection theRefitDirection;
 
-    edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentsToken;
-    edm::EDGetTokenT<DTRecSegment4DCollection> all4DSegmentsToken;
-    edm::Handle<CSCSegmentCollection> CSCSegments;
-    edm::Handle<DTRecSegment4DCollection> all4DSegments;
+  std::vector<int> theDYTthrs;
+  int theDYTselector;
+  bool theDYTupdator;
+  bool theDYTuseAPE;
+  bool theDYTParThrsMode;
+  edm::ParameterSet theDYTthrsParameters;
+  reco::DYTInfo* dytInfo;
+
+  std::string theFitterName;
+  std::unique_ptr<TrajectoryFitter> theFitter;
+
+  std::string theTrackerRecHitBuilderName;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+  TkClonerImpl hitCloner;
+
+  std::string theMuonRecHitBuilderName;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+
+  const MuonServiceProxy* theService;
+  const edm::Event* theEvent;
+
+  edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentsToken;
+  edm::EDGetTokenT<DTRecSegment4DCollection> all4DSegmentsToken;
+  edm::Handle<CSCSegmentCollection> CSCSegments;
+  edm::Handle<DTRecSegment4DCollection> all4DSegments;
 };
 #endif

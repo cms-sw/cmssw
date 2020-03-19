@@ -14,14 +14,13 @@
 namespace reco {
   namespace parser {
     struct IntSetter {
-      IntSetter( IntStack & stack ) : stack_( stack ) { }
-      void operator()(int n) const {
-	stack_.push_back(n);
-      }
+      IntSetter(IntStack& stack) : stack_(stack) {}
+      void operator()(int n) const { stack_.push_back(n); }
+
     private:
-      IntStack & stack_;
+      IntStack& stack_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

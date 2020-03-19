@@ -12,34 +12,31 @@
 // is performed, and having it on the stack saves a bit of time.
 
 namespace gs {
-    class BZ2InflateHandle
-    {
-    public:
-        explicit BZ2InflateHandle(bz_stream& strm);
-        ~BZ2InflateHandle();
+  class BZ2InflateHandle {
+  public:
+    explicit BZ2InflateHandle(bz_stream &strm);
+    ~BZ2InflateHandle();
 
-    private:
-        BZ2InflateHandle();
-        BZ2InflateHandle(const BZ2InflateHandle&);
-        BZ2InflateHandle& operator=(const BZ2InflateHandle&);
+  private:
+    BZ2InflateHandle() = delete;
+    BZ2InflateHandle(const BZ2InflateHandle &) = delete;
+    BZ2InflateHandle &operator=(const BZ2InflateHandle &) = delete;
 
-        bz_stream* strm_;
-    };
+    bz_stream *strm_;
+  };
 
-    class BZ2DeflateHandle
-    {
-    public:
-        explicit BZ2DeflateHandle(bz_stream& strm);
-        ~BZ2DeflateHandle();
+  class BZ2DeflateHandle {
+  public:
+    explicit BZ2DeflateHandle(bz_stream &strm);
+    ~BZ2DeflateHandle();
 
-    private:
-        BZ2DeflateHandle();
-        BZ2DeflateHandle(const BZ2DeflateHandle&);
-        BZ2DeflateHandle& operator=(const BZ2DeflateHandle&);
+  private:
+    BZ2DeflateHandle() = delete;
+    BZ2DeflateHandle(const BZ2DeflateHandle &) = delete;
+    BZ2DeflateHandle &operator=(const BZ2DeflateHandle &) = delete;
 
-        bz_stream* strm_;
-    };
-}
+    bz_stream *strm_;
+  };
+}  // namespace gs
 
-#endif // GENERS_BZ2HANDLE_HH_
-
+#endif  // GENERS_BZ2HANDLE_HH_

@@ -16,29 +16,26 @@
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 
-
 class SiPixelTemplateDBObjectReader : public edm::EDAnalyzer {
-   public:
-      explicit SiPixelTemplateDBObjectReader(const edm::ParameterSet&);
-      ~SiPixelTemplateDBObjectReader();
+public:
+  explicit SiPixelTemplateDBObjectReader(const edm::ParameterSet&);
+  ~SiPixelTemplateDBObjectReader();
 
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-		
-			edm::ESWatcher<SiPixelTemplateDBObjectESProducerRcd>  SiPixTemplDBObjectWatcher_;
-      edm::ESWatcher<SiPixelTemplateDBObjectRcd>  SiPixTemplDBObjWatcher_;
-			
-      std::string theTemplateCalibrationLocation;
-      bool theDetailedTemplateDBErrorOutput;
-      bool theFullTemplateDBOutput;
-			bool testGlobalTag;
-			
-			SiPixelTemplateDBObject dbobject;
-			bool hasTriggeredWatcher;			
-			
+private:
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
+  edm::ESWatcher<SiPixelTemplateDBObjectESProducerRcd> SiPixTemplDBObjectWatcher_;
+  edm::ESWatcher<SiPixelTemplateDBObjectRcd> SiPixTemplDBObjWatcher_;
+
+  std::string theTemplateCalibrationLocation;
+  bool theDetailedTemplateDBErrorOutput;
+  bool theFullTemplateDBOutput;
+  bool testGlobalTag;
+
+  SiPixelTemplateDBObject dbobject;
+  bool hasTriggeredWatcher;
 };
 
 #endif

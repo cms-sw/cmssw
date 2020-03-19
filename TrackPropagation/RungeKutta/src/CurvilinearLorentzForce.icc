@@ -6,39 +6,37 @@
 
 class CurvilinearLorentzForceException : public std::exception {
 public:
-    CurvilinearLorentzForceException() throw() {}
-    virtual ~CurvilinearLorentzForceException() throw() {}
+  CurvilinearLorentzForceException() throw() {}
+  ~CurvilinearLorentzForceException() throw() override {}
 };
 
-
 template <typename T, int N>
-typename CurvilinearLorentzForce<T,N>::Vector
-CurvilinearLorentzForce<T,N>::operator()( Scalar z, const Vector& state) const
-{
+typename CurvilinearLorentzForce<T, N>::Vector CurvilinearLorentzForce<T, N>::operator()(Scalar z,
+                                                                                         const Vector& state) const {
   // derivatives in case Z is the free parameter
 
-  RKLocalFieldProvider::Vector B = theField.inTesla( state[0], state[1], z);
-  double k = 2.99792458e-3; // conversion to [cm]
+  RKLocalFieldProvider::Vector B = theField.inTesla(state[0], state[1], z);
+  double k = 2.99792458e-3;  // conversion to [cm]
 
-//    cout << "CurvilinearLorentzForce: field at (" << state[0] << ", " 
-//         <<  state[1] << ", " << z << ") is " << B << endl;
+  //    cout << "CurvilinearLorentzForce: field at (" << state[0] << ", "
+  //         <<  state[1] << ", " << z << ") is " << B << endl;
 
   /// this should be changed when the ref frame of the solution is not the global one!
   //CurvilinearState::Vector3D B( MagneticField::inTesla(GlobalPoint(start.position())));
-   
+
   double dxdz = state[2];
   double dydz = state[3];
   double lambda = state[4];
 
-  double R = sqrt( 1.0 + dxdz*dxdz + dydz*dydz);
+  double R = sqrt(1.0 + dxdz * dxdz + dydz * dydz);
 
   // cout << "CurvilinearLorentzForce: R " << R << " dxdz " << dxdz << " dydz " << dydz << endl;
   if (R > 10) {
-      throw CurvilinearLorentzForceException();
+    throw CurvilinearLorentzForceException();
   }
 
-  double d2x_dz2 = k*lambda*R * (dxdz*dydz*B.x() - (1.0+dxdz*dxdz)*B.y() + dydz*B.z());
-  double d2y_dz2 = k*lambda*R * ((1+dydz*dydz)*B.x() - dxdz*dydz*B.y() - dxdz*B.z());
+  double d2x_dz2 = k * lambda * R * (dxdz * dydz * B.x() - (1.0 + dxdz * dxdz) * B.y() + dydz * B.z());
+  double d2y_dz2 = k * lambda * R * ((1 + dydz * dydz) * B.x() - dxdz * dydz * B.y() - dxdz * B.z());
 
   // the derivative of q/p is zero -- momentum conservation if no energy loss
   Vector res;

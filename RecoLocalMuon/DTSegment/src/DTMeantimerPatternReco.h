@@ -20,7 +20,7 @@ namespace edm {
   class ParameterSet;
   class EventSetup;
   //  class ESHandle;
-}
+}  // namespace edm
 class DTSegmentUpdator;
 class DTSegmentCleaner;
 class DTHitPairForFit;
@@ -40,77 +40,70 @@ class DTLinearFit;
 
 /* Class DTMeantimerPatternReco Interface */
 
-
 class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
-
- public:
-
+public:
   /// Constructor
-  DTMeantimerPatternReco(const edm::ParameterSet& pset) ;
+  DTMeantimerPatternReco(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~DTMeantimerPatternReco() override ;
+  ~DTMeantimerPatternReco() override;
 
   /* Operations */
 
   /// this function is called in the producer
-  edm::OwnVector<DTSLRecSegment2D>
-    reconstruct(const DTSuperLayer* sl,
-		const std::vector<DTRecHit1DPair>& hits) override;
-	
+  edm::OwnVector<DTSLRecSegment2D> reconstruct(const DTSuperLayer* sl,
+                                               const std::vector<DTRecHit1DPair>& hits) override;
+
   /// return the algo name
   std::string algoName() const override { return theAlgoName; }
-    
+
   /// Through this function the EventSetup is percolated to the
   /// objs which request it
   void setES(const edm::EventSetup& setup) override;
 
- protected:
-
- private:
-  DTLinearFit* theFitter; // the linear fitter
+protected:
+private:
+  DTLinearFit* theFitter;  // the linear fitter
 
   friend class DTMeantimerPatternReco4D;
 
   // typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
-    
+
   // create the DTHitPairForFit from the pairs for easy use
   std::vector<std::shared_ptr<DTHitPairForFit>> initHits(const DTSuperLayer* sl,
-	    						 const std::vector<DTRecHit1DPair>& hits);
+                                                         const std::vector<DTRecHit1DPair>& hits);
 
   // search for candidate, starting from pairs of hits in different layers
   std::vector<DTSegmentCand*> buildSegments(const DTSuperLayer* sl,
-					    const std::vector<std::shared_ptr<DTHitPairForFit>>& hits);
+                                            const std::vector<std::shared_ptr<DTHitPairForFit>>& hits);
 
   // try adding more hits to a candidate
   void addHits(DTSegmentCand* segCand,
                const std::vector<std::shared_ptr<DTHitPairForFit>>& hits,
-               std::vector<DTSegmentCand*> &result);
+               std::vector<DTSegmentCand*>& result);
 
   // fit a set of left/right hits, calculate t0 and chi^2
   DTSegmentCand* fitWithT0(DTSegmentCand* seg, const bool fitdebug);
 
   // check if two hist can be considered in one segment (come from different layers, not too far away etc.)
-  bool geometryFilter( const DTWireId first, const DTWireId second ) const;
+  bool geometryFilter(const DTWireId first, const DTWireId second) const;
 
   bool checkDoubleCandidates(std::vector<DTSegmentCand*>& segs, DTSegmentCand* seg);
 
-  void printPattern( std::vector<DTSegmentCand::AssPoint>& assHits, const DTHitPairForFit* hit);
+  void printPattern(std::vector<DTSegmentCand::AssPoint>& assHits, const DTHitPairForFit* hit);
 
-
- private:
-
+private:
   std::string theAlgoName;
   unsigned int theMaxAllowedHits;
   double theAlphaMaxTheta;
   double theAlphaMaxPhi;
   double theMaxChi2;
   bool debug;
-  DTSegmentUpdator* theUpdator; // the updator and fitter
-  DTSegmentCleaner* theCleaner; // the cleaner
-  
+  DTSegmentUpdator* theUpdator;  // the updator and fitter
+  DTSegmentCleaner* theCleaner;  // the cleaner
+
   unsigned int maxfound;
 
-  edm::ESHandle<DTGeometry> theDTGeometry; // the DT geometry
+  edm::ESHandle<DTGeometry> theDTGeometry;  // the DT geometry
 };
-#endif // DTSegment_DTMeantimerPatternReco_h
+#endif  // DTSegment_DTMeantimerPatternReco_h

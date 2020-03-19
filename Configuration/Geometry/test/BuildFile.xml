@@ -1,4 +1,4 @@
-<bin name="test2023Geometry" file="TestDriver.cpp">
+<bin name="test2026Geometry" file="TestDriver.cpp">
   <flags TEST_RUNNER_ARGS="/bin/bash Configuration/Geometry/test runtests.sh"/>
   <use name="FWCore/Utilities"/>
 </bin>

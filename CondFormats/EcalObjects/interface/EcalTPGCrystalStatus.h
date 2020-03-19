@@ -9,8 +9,11 @@
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatusCode.h"
 
-typedef EcalCondObjectContainer<EcalTPGCrystalStatusCode> EcalTPGCrystalStatusMap;
+#include "DataFormats/EcalDetId/interface/EcalContainer.h"
 
+#include <vector>
+
+typedef EcalCondObjectContainer<EcalTPGCrystalStatusCode> EcalTPGCrystalStatusMap;
 
 typedef EcalTPGCrystalStatusMap::const_iterator EcalTPGCrystalStatusMapIterator;
 typedef EcalTPGCrystalStatusMap EcalTPGCrystalStatus;

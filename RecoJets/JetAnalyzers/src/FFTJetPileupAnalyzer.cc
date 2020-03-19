@@ -2,7 +2,7 @@
 //
 // Package:    FFTJetPileupAnalyzer
 // Class:      FFTJetPileupAnalyzer
-// 
+//
 /**\class FFTJetPileupAnalyzer FFTJetPileupAnalyzer.cc RecoJets/JetAnalyzers/src/FFTJetPileupAnalyzer.cc
 
  Description: collects the info produced by FFTJetPileupProcessor and FFTJetPileupEstimator
@@ -44,67 +44,66 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-#define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
+#define init_param(type, varname) varname(ps.getParameter<type>(#varname))
 
 //
 // class declaration
 //
-class FFTJetPileupAnalyzer : public edm::EDAnalyzer
-{
+class FFTJetPileupAnalyzer : public edm::EDAnalyzer {
 public:
-    explicit FFTJetPileupAnalyzer(const edm::ParameterSet&);
-    ~FFTJetPileupAnalyzer() override;
+  explicit FFTJetPileupAnalyzer(const edm::ParameterSet&);
+  ~FFTJetPileupAnalyzer() override;
 
 private:
-    FFTJetPileupAnalyzer() = delete;
-    FFTJetPileupAnalyzer(const FFTJetPileupAnalyzer&) = delete;
-    FFTJetPileupAnalyzer& operator=(const FFTJetPileupAnalyzer&) = delete;
+  FFTJetPileupAnalyzer() = delete;
+  FFTJetPileupAnalyzer(const FFTJetPileupAnalyzer&) = delete;
+  FFTJetPileupAnalyzer& operator=(const FFTJetPileupAnalyzer&) = delete;
 
-    // The following method should take all necessary info from
-    // PileupSummaryInfo and fill out the ntuple
-    void analyzePileup(const std::vector<PileupSummaryInfo>& pInfo);
+  // The following method should take all necessary info from
+  // PileupSummaryInfo and fill out the ntuple
+  void analyzePileup(const std::vector<PileupSummaryInfo>& pInfo);
 
-    void beginJob() override ;
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-    void endJob() override ;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-    edm::InputTag histoLabel;
-    edm::InputTag summaryLabel;
-    edm::InputTag fastJetRhoLabel;
-    edm::InputTag fastJetSigmaLabel;
-    edm::InputTag gridLabel;
-    edm::InputTag srcPVs;
-    std::string pileupLabel;
+  edm::InputTag histoLabel;
+  edm::InputTag summaryLabel;
+  edm::InputTag fastJetRhoLabel;
+  edm::InputTag fastJetSigmaLabel;
+  edm::InputTag gridLabel;
+  edm::InputTag srcPVs;
+  std::string pileupLabel;
 
-    edm::EDGetTokenT<TH2D> histoToken;
-    edm::EDGetTokenT<reco::FFTJetPileupSummary> summaryToken;
-    edm::EDGetTokenT<double> fastJetRhoToken;
-    edm::EDGetTokenT<double> fastJetSigmaToken;
-    edm::EDGetTokenT<reco::DiscretizedEnergyFlow> gridToken;
-    edm::EDGetTokenT<reco::VertexCollection> srcPVsToken;
-    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupToken;
-    edm::EDGetTokenT<std::pair<double,double> > etSumToken;
+  edm::EDGetTokenT<TH2D> histoToken;
+  edm::EDGetTokenT<reco::FFTJetPileupSummary> summaryToken;
+  edm::EDGetTokenT<double> fastJetRhoToken;
+  edm::EDGetTokenT<double> fastJetSigmaToken;
+  edm::EDGetTokenT<reco::DiscretizedEnergyFlow> gridToken;
+  edm::EDGetTokenT<reco::VertexCollection> srcPVsToken;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupToken;
+  edm::EDGetTokenT<std::pair<double, double> > etSumToken;
 
-    std::string ntupleName;
-    std::string ntupleTitle;
-    bool collectHistos;
-    bool collectSummaries;
-    bool collectFastJetRho;
-    bool collectPileup;
-    bool collectOOTPileup;
-    bool collectGrids;
-    bool collectGridDensity;
-    bool collectVertexInfo;
-    bool verbosePileupInfo;
+  std::string ntupleName;
+  std::string ntupleTitle;
+  bool collectHistos;
+  bool collectSummaries;
+  bool collectFastJetRho;
+  bool collectPileup;
+  bool collectOOTPileup;
+  bool collectGrids;
+  bool collectGridDensity;
+  bool collectVertexInfo;
+  bool verbosePileupInfo;
 
-    double vertexNdofCut;
-    double crazyEnergyCut;
+  double vertexNdofCut;
+  double crazyEnergyCut;
 
-    std::vector<float> ntupleData;
-    TNtuple* nt;
-    int totalNpu;
-    int totalNPV;
-    unsigned long counter;
+  std::vector<float> ntupleData;
+  TNtuple* nt;
+  int totalNpu;
+  int totalNPV;
+  unsigned long counter;
 };
 
 //
@@ -134,300 +133,267 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       nt(nullptr),
       totalNpu(-1),
       totalNPV(-1),
-      counter(0)
-{
-    if (collectPileup || collectOOTPileup)
-        pileupToken = consumes<std::vector<PileupSummaryInfo> >(pileupLabel);
+      counter(0) {
+  if (collectPileup || collectOOTPileup)
+    pileupToken = consumes<std::vector<PileupSummaryInfo> >(pileupLabel);
 
-    if (collectHistos)
-        histoToken = consumes<TH2D>(histoLabel);
+  if (collectHistos)
+    histoToken = consumes<TH2D>(histoLabel);
 
-    if (collectSummaries)
-        summaryToken = consumes<reco::FFTJetPileupSummary>(summaryLabel);
+  if (collectSummaries)
+    summaryToken = consumes<reco::FFTJetPileupSummary>(summaryLabel);
 
-    if (collectFastJetRho)
-    {
-        fastJetRhoToken = consumes<double>(fastJetRhoLabel);
-        fastJetSigmaToken = consumes<double>(fastJetSigmaLabel);
-    }
+  if (collectFastJetRho) {
+    fastJetRhoToken = consumes<double>(fastJetRhoLabel);
+    fastJetSigmaToken = consumes<double>(fastJetSigmaLabel);
+  }
 
-    if (collectGrids)
-        gridToken = consumes<reco::DiscretizedEnergyFlow>(gridLabel);
+  if (collectGrids)
+    gridToken = consumes<reco::DiscretizedEnergyFlow>(gridLabel);
 
-    if (collectGridDensity)
-        etSumToken = consumes<std::pair<double,double> >(histoLabel);
+  if (collectGridDensity)
+    etSumToken = consumes<std::pair<double, double> >(histoLabel);
 
-    if (collectVertexInfo)
-        srcPVsToken = consumes<reco::VertexCollection>(srcPVs);
+  if (collectVertexInfo)
+    srcPVsToken = consumes<reco::VertexCollection>(srcPVs);
 }
 
-
-FFTJetPileupAnalyzer::~FFTJetPileupAnalyzer()
-{
-}
-
+FFTJetPileupAnalyzer::~FFTJetPileupAnalyzer() {}
 
 //
 // member functions
 //
-void FFTJetPileupAnalyzer::analyzePileup(
-    const std::vector<PileupSummaryInfo>& info)
-{
-    const unsigned nBx = info.size();
-    if (collectPileup)
-        ntupleData.push_back(static_cast<float>(nBx));
+void FFTJetPileupAnalyzer::analyzePileup(const std::vector<PileupSummaryInfo>& info) {
+  const unsigned nBx = info.size();
+  if (collectPileup)
+    ntupleData.push_back(static_cast<float>(nBx));
 
-    double sumpt_Lo = 0.0, sumpt_Hi = 0.0;
-    totalNpu = 0;
+  double sumpt_Lo = 0.0, sumpt_Hi = 0.0;
+  totalNpu = 0;
 
-    int npu_by_Bx[3] = {0,};
-    double sumpt_Lo_by_Bx[3] = {0.0,}, sumpt_Hi_by_Bx[3] = {0.0,};
+  int npu_by_Bx[3] = {
+      0,
+  };
+  double sumpt_Lo_by_Bx[3] =
+      {
+          0.0,
+      },
+         sumpt_Hi_by_Bx[3] = {
+             0.0,
+         };
 
-    if (verbosePileupInfo)
-        std::cout << "\n**** Pileup info begin" << std::endl;
+  if (verbosePileupInfo)
+    std::cout << "\n**** Pileup info begin" << std::endl;
 
-    bool isCrazy = false;
-    for (unsigned ibx = 0; ibx < nBx; ++ibx)
-    {
-        const PileupSummaryInfo& puInfo(info[ibx]);
+  bool isCrazy = false;
+  for (unsigned ibx = 0; ibx < nBx; ++ibx) {
+    const PileupSummaryInfo& puInfo(info[ibx]);
 
-        const int bx = puInfo.getBunchCrossing();
-        const int npu = puInfo.getPU_NumInteractions();
-        const std::vector<float>& lopt(puInfo.getPU_sumpT_lowpT());
-        const std::vector<float>& hipt(puInfo.getPU_sumpT_highpT());
-        const double losum = std::accumulate(lopt.begin(), lopt.end(), 0.0);
-        const double hisum = std::accumulate(hipt.begin(), hipt.end(), 0.0);
+    const int bx = puInfo.getBunchCrossing();
+    const int npu = puInfo.getPU_NumInteractions();
+    const std::vector<float>& lopt(puInfo.getPU_sumpT_lowpT());
+    const std::vector<float>& hipt(puInfo.getPU_sumpT_highpT());
+    const double losum = std::accumulate(lopt.begin(), lopt.end(), 0.0);
+    const double hisum = std::accumulate(hipt.begin(), hipt.end(), 0.0);
 
-        if (losum >= crazyEnergyCut)
-            isCrazy = true;
-        if (hisum >= crazyEnergyCut)
-            isCrazy = true;
+    if (losum >= crazyEnergyCut)
+      isCrazy = true;
+    if (hisum >= crazyEnergyCut)
+      isCrazy = true;
 
-        totalNpu += npu;
-        sumpt_Lo += losum;
-        sumpt_Hi += hisum;
+    totalNpu += npu;
+    sumpt_Lo += losum;
+    sumpt_Hi += hisum;
 
-        const unsigned idx = bx < 0 ? 0U : (bx == 0 ? 1U : 2U);
-        npu_by_Bx[idx] += npu;
-        sumpt_Lo_by_Bx[idx] += losum;
-        sumpt_Hi_by_Bx[idx] += hisum;
-
-        if (verbosePileupInfo)
-            std::cout << "ibx " << ibx << " bx " << bx
-                      << " npu " << npu << " losum " << losum
-                      << " hisum " << hisum
-                      << std::endl;
-    }
+    const unsigned idx = bx < 0 ? 0U : (bx == 0 ? 1U : 2U);
+    npu_by_Bx[idx] += npu;
+    sumpt_Lo_by_Bx[idx] += losum;
+    sumpt_Hi_by_Bx[idx] += hisum;
 
     if (verbosePileupInfo)
-        std::cout << "**** Pileup info end\n" << std::endl;
+      std::cout << "ibx " << ibx << " bx " << bx << " npu " << npu << " losum " << losum << " hisum " << hisum
+                << std::endl;
+  }
 
-    if (isCrazy)
-    {
-        totalNpu = -1;
-        sumpt_Lo = 0.0;
-        sumpt_Hi = 0.0;
-        for (unsigned ibx = 0; ibx < 3; ++ibx)
-        {
-            npu_by_Bx[ibx] = -1;
-            sumpt_Lo_by_Bx[ibx] = 0.0;
-            sumpt_Hi_by_Bx[ibx] = 0.0;
-        }
+  if (verbosePileupInfo)
+    std::cout << "**** Pileup info end\n" << std::endl;
+
+  if (isCrazy) {
+    totalNpu = -1;
+    sumpt_Lo = 0.0;
+    sumpt_Hi = 0.0;
+    for (unsigned ibx = 0; ibx < 3; ++ibx) {
+      npu_by_Bx[ibx] = -1;
+      sumpt_Lo_by_Bx[ibx] = 0.0;
+      sumpt_Hi_by_Bx[ibx] = 0.0;
     }
+  }
 
-    if (collectPileup)
-    {
-        ntupleData.push_back(totalNpu);
-        ntupleData.push_back(sumpt_Lo);
-        ntupleData.push_back(sumpt_Hi);
+  if (collectPileup) {
+    ntupleData.push_back(totalNpu);
+    ntupleData.push_back(sumpt_Lo);
+    ntupleData.push_back(sumpt_Hi);
+  }
+
+  if (collectOOTPileup)
+    for (unsigned ibx = 0; ibx < 3; ++ibx) {
+      ntupleData.push_back(npu_by_Bx[ibx]);
+      ntupleData.push_back(sumpt_Lo_by_Bx[ibx]);
+      ntupleData.push_back(sumpt_Hi_by_Bx[ibx]);
     }
-
-    if (collectOOTPileup)
-        for (unsigned ibx = 0; ibx < 3; ++ibx)
-        {
-            ntupleData.push_back(npu_by_Bx[ibx]);
-            ntupleData.push_back(sumpt_Lo_by_Bx[ibx]);
-            ntupleData.push_back(sumpt_Hi_by_Bx[ibx]);
-        }
 }
-
 
 // ------------ method called once each job just before starting event loop
-void FFTJetPileupAnalyzer::beginJob()
-{
-    // Come up with the list of variables
-    std::string vars = "cnt:run:event";
-    if (collectPileup)
-        vars += ":nbx:npu:sumptLowCut:sumptHiCut";
-    if (collectOOTPileup)
-    {
-        vars += ":npu_negbx:sumptLowCut_negbx:sumptHiCut_negbx";
-        vars += ":npu_0bx:sumptLowCut_0bx:sumptHiCut_0bx";
-        vars += ":npu_posbx:sumptLowCut_posbx:sumptHiCut_posbx";
-    }
-    if (collectSummaries)
-        vars += ":estimate:pileup:uncert:uncertCode";
-    if (collectFastJetRho)
-        vars += ":fjrho:fjsigma";
-    if (collectGridDensity)
-        vars += ":gridEtDensity:gridEtDensityMixed";
-    if (collectVertexInfo)
-        vars += ":nPV";
+void FFTJetPileupAnalyzer::beginJob() {
+  // Come up with the list of variables
+  std::string vars = "cnt:run:event";
+  if (collectPileup)
+    vars += ":nbx:npu:sumptLowCut:sumptHiCut";
+  if (collectOOTPileup) {
+    vars += ":npu_negbx:sumptLowCut_negbx:sumptHiCut_negbx";
+    vars += ":npu_0bx:sumptLowCut_0bx:sumptHiCut_0bx";
+    vars += ":npu_posbx:sumptLowCut_posbx:sumptHiCut_posbx";
+  }
+  if (collectSummaries)
+    vars += ":estimate:pileup:uncert:uncertCode";
+  if (collectFastJetRho)
+    vars += ":fjrho:fjsigma";
+  if (collectGridDensity)
+    vars += ":gridEtDensity:gridEtDensityMixed";
+  if (collectVertexInfo)
+    vars += ":nPV";
 
-    // Book the ntuple
-    edm::Service<TFileService> fs;
-    nt = fs->make<TNtuple>(ntupleName.c_str(), ntupleTitle.c_str(),
-                           vars.c_str());
-    ntupleData.reserve(nt->GetNvar());
+  // Book the ntuple
+  edm::Service<TFileService> fs;
+  nt = fs->make<TNtuple>(ntupleName.c_str(), ntupleTitle.c_str(), vars.c_str());
+  ntupleData.reserve(nt->GetNvar());
 }
-
 
 // ------------ method called to for each event  ------------
-void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
-                                   const edm::EventSetup& iSetup)
-{
-    ntupleData.clear();
-    ntupleData.push_back(counter);
-    totalNpu = -1;
-    totalNPV = -1;
+void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  ntupleData.clear();
+  ntupleData.push_back(counter);
+  totalNpu = -1;
+  totalNPV = -1;
 
-    edm::RunNumber_t const runnumber = iEvent.id().run();
-    edm::EventNumber_t const eventnumber = iEvent.id().event();
-    ntupleData.push_back(runnumber);
-    ntupleData.push_back(eventnumber);
+  edm::RunNumber_t const runnumber = iEvent.id().run();
+  edm::EventNumber_t const eventnumber = iEvent.id().event();
+  ntupleData.push_back(runnumber);
+  ntupleData.push_back(eventnumber);
 
-    // Get pileup information from the pile-up information module
-    if (collectPileup || collectOOTPileup)
-    {
-        edm::Handle<std::vector<PileupSummaryInfo> > puInfo;
-        if (iEvent.getByToken(pileupToken, puInfo))
-            analyzePileup(*puInfo);
-        else
-        {
-            if (collectPileup)
-            {
-                ntupleData.push_back(-1);
-                ntupleData.push_back(-1);
-                ntupleData.push_back(0.f);
-                ntupleData.push_back(0.f);
-            }
-            if (collectOOTPileup)
-                for (unsigned ibx = 0; ibx < 3; ++ibx)
-                {
-                    ntupleData.push_back(-1);
-                    ntupleData.push_back(0.f);
-                    ntupleData.push_back(0.f);
-                }
+  // Get pileup information from the pile-up information module
+  if (collectPileup || collectOOTPileup) {
+    edm::Handle<std::vector<PileupSummaryInfo> > puInfo;
+    if (iEvent.getByToken(pileupToken, puInfo))
+      analyzePileup(*puInfo);
+    else {
+      if (collectPileup) {
+        ntupleData.push_back(-1);
+        ntupleData.push_back(-1);
+        ntupleData.push_back(0.f);
+        ntupleData.push_back(0.f);
+      }
+      if (collectOOTPileup)
+        for (unsigned ibx = 0; ibx < 3; ++ibx) {
+          ntupleData.push_back(-1);
+          ntupleData.push_back(0.f);
+          ntupleData.push_back(0.f);
         }
     }
+  }
 
-    if (collectHistos)
-    {
-        edm::Handle<TH2D> input;
-        iEvent.getByToken(histoToken, input);
+  if (collectHistos) {
+    edm::Handle<TH2D> input;
+    iEvent.getByToken(histoToken, input);
 
-        edm::Service<TFileService> fs;
-        TH2D* copy = new TH2D(*input);
+    edm::Service<TFileService> fs;
+    TH2D* copy = new TH2D(*input);
 
-        std::ostringstream os;
-        os << copy->GetName() << '_' << counter << '_'
-           << totalNpu << '_' << runnumber << '_' << eventnumber;
-        const std::string& newname(os.str());
-        copy->SetNameTitle(newname.c_str(), newname.c_str());
+    std::ostringstream os;
+    os << copy->GetName() << '_' << counter << '_' << totalNpu << '_' << runnumber << '_' << eventnumber;
+    const std::string& newname(os.str());
+    copy->SetNameTitle(newname.c_str(), newname.c_str());
 
-        copy->SetDirectory(fs->getBareDirectory());
-    }
+    copy->SetDirectory(fs->getBareDirectory());
+  }
 
-    if (collectSummaries)
-    {
-        edm::Handle<reco::FFTJetPileupSummary> summary;
-        iEvent.getByToken(summaryToken, summary);
+  if (collectSummaries) {
+    edm::Handle<reco::FFTJetPileupSummary> summary;
+    iEvent.getByToken(summaryToken, summary);
 
-        ntupleData.push_back(summary->uncalibratedQuantile());
-        ntupleData.push_back(summary->pileupRho());
-        ntupleData.push_back(summary->pileupRhoUncertainty());
-        ntupleData.push_back(summary->uncertaintyCode());
-    }
+    ntupleData.push_back(summary->uncalibratedQuantile());
+    ntupleData.push_back(summary->pileupRho());
+    ntupleData.push_back(summary->pileupRhoUncertainty());
+    ntupleData.push_back(summary->uncertaintyCode());
+  }
 
-    if (collectFastJetRho)
-    {
-        edm::Handle<double> fjrho, fjsigma;
-        iEvent.getByToken(fastJetRhoToken, fjrho);
-        iEvent.getByToken(fastJetSigmaToken, fjsigma);
+  if (collectFastJetRho) {
+    edm::Handle<double> fjrho, fjsigma;
+    iEvent.getByToken(fastJetRhoToken, fjrho);
+    iEvent.getByToken(fastJetSigmaToken, fjsigma);
 
-        ntupleData.push_back(*fjrho);
-        ntupleData.push_back(*fjsigma);
-    }
+    ntupleData.push_back(*fjrho);
+    ntupleData.push_back(*fjsigma);
+  }
 
-    if (collectGrids)
-    {
-        edm::Handle<reco::DiscretizedEnergyFlow> input;
-        iEvent.getByToken(gridToken, input);
+  if (collectGrids) {
+    edm::Handle<reco::DiscretizedEnergyFlow> input;
+    iEvent.getByToken(gridToken, input);
 
-        // Make sure the input grid is reasonable
-        const double* data = input->data();
-        assert(data);
-        assert(input->phiBin0Edge() == 0.0);
-        const unsigned nEta = input->nEtaBins();
-        const unsigned nPhi = input->nPhiBins();
+    // Make sure the input grid is reasonable
+    const double* data = input->data();
+    assert(data);
+    assert(input->phiBin0Edge() == 0.0);
+    const unsigned nEta = input->nEtaBins();
+    const unsigned nPhi = input->nPhiBins();
 
-        // Generate a name for the output histogram
-        std::ostringstream os;
-        os << "FFTJetGrid_" << counter << '_'
-           << totalNpu << '_' << runnumber << '_' << eventnumber;
-        const std::string& newname(os.str());
+    // Generate a name for the output histogram
+    std::ostringstream os;
+    os << "FFTJetGrid_" << counter << '_' << totalNpu << '_' << runnumber << '_' << eventnumber;
+    const std::string& newname(os.str());
 
-        // Make a histogram and copy the grid data into it
-        edm::Service<TFileService> fs;
-        TH2F* h = fs->make<TH2F>(newname.c_str(), newname.c_str(),
-                                 nEta, input->etaMin(), input->etaMax(),
-                                 nPhi, 0.0, 2.0*M_PI);
-        h->GetXaxis()->SetTitle("Eta");
-        h->GetYaxis()->SetTitle("Phi");
-        h->GetZaxis()->SetTitle("Transverse Energy");
+    // Make a histogram and copy the grid data into it
+    edm::Service<TFileService> fs;
+    TH2F* h =
+        fs->make<TH2F>(newname.c_str(), newname.c_str(), nEta, input->etaMin(), input->etaMax(), nPhi, 0.0, 2.0 * M_PI);
+    h->GetXaxis()->SetTitle("Eta");
+    h->GetYaxis()->SetTitle("Phi");
+    h->GetZaxis()->SetTitle("Transverse Energy");
 
-        for (unsigned ieta=0; ieta<nEta; ++ieta)
-            for (unsigned iphi=0; iphi<nPhi; ++iphi)
-                h->SetBinContent(ieta+1U, iphi+1U, data[ieta*nPhi + iphi]);
-    }
+    for (unsigned ieta = 0; ieta < nEta; ++ieta)
+      for (unsigned iphi = 0; iphi < nPhi; ++iphi)
+        h->SetBinContent(ieta + 1U, iphi + 1U, data[ieta * nPhi + iphi]);
+  }
 
-    if (collectGridDensity)
-    {
-        edm::Handle<std::pair<double,double> > etSum;
-        iEvent.getByToken(etSumToken, etSum);
+  if (collectGridDensity) {
+    edm::Handle<std::pair<double, double> > etSum;
+    iEvent.getByToken(etSumToken, etSum);
 
-        ntupleData.push_back(etSum->first);
-        ntupleData.push_back(etSum->second);
-    }
+    ntupleData.push_back(etSum->first);
+    ntupleData.push_back(etSum->second);
+  }
 
-    if (collectVertexInfo)
-    {
-        edm::Handle<reco::VertexCollection> pvCollection;
-        iEvent.getByToken(srcPVsToken, pvCollection);
-        totalNPV = 0;
-        if (!pvCollection->empty())
-            for (reco::VertexCollection::const_iterator pv = pvCollection->begin();
-                 pv != pvCollection->end(); ++pv)
-            {
-                const double ndof = pv->ndof();
-                if (!pv->isFake() && ndof > vertexNdofCut)
-                    ++totalNPV;
-            }
-        ntupleData.push_back(totalNPV);
-    }
+  if (collectVertexInfo) {
+    edm::Handle<reco::VertexCollection> pvCollection;
+    iEvent.getByToken(srcPVsToken, pvCollection);
+    totalNPV = 0;
+    if (!pvCollection->empty())
+      for (reco::VertexCollection::const_iterator pv = pvCollection->begin(); pv != pvCollection->end(); ++pv) {
+        const double ndof = pv->ndof();
+        if (!pv->isFake() && ndof > vertexNdofCut)
+          ++totalNPV;
+      }
+    ntupleData.push_back(totalNPV);
+  }
 
-    assert(ntupleData.size() == static_cast<unsigned>(nt->GetNvar()));
-    nt->Fill(&ntupleData[0]);
+  assert(ntupleData.size() == static_cast<unsigned>(nt->GetNvar()));
+  nt->Fill(&ntupleData[0]);
 
-    ++counter;
+  ++counter;
 }
-
 
 // ------------ method called once each job just after ending the event loop
-void FFTJetPileupAnalyzer::endJob()
-{
-}
-
+void FFTJetPileupAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetPileupAnalyzer);

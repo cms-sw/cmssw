@@ -17,33 +17,29 @@
 #endif
 
 class CutApplicatorWithEventContentBase : public CutApplicatorBase {
- public:  
+public:
+  CutApplicatorWithEventContentBase() : CutApplicatorBase() {}
 
- CutApplicatorWithEventContentBase(): CutApplicatorBase() {}
-
- CutApplicatorWithEventContentBase(const edm::ParameterSet& c) :
-  CutApplicatorBase(c) {
-  }
+  CutApplicatorWithEventContentBase(const edm::ParameterSet& c) : CutApplicatorBase(c) {}
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   CutApplicatorWithEventContentBase(const CutApplicatorWithEventContentBase&) = delete;
   CutApplicatorWithEventContentBase& operator=(const CutApplicatorWithEventContentBase&) = delete;
 
-
   virtual void setConsumes(edm::ConsumesCollector&) = 0;
 #endif
 
   virtual void getEventContent(const edm::EventBase&) = 0;
-    
+
   //! Destructor
   ~CutApplicatorWithEventContentBase() override{};
-  
- protected:
+
+protected:
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-  std::unordered_map<std::string,edm::InputTag> contentTags_;
-  std::unordered_map<std::string,edm::EDGetToken> contentTokens_;
+  std::unordered_map<std::string, edm::InputTag> contentTags_;
+  std::unordered_map<std::string, edm::EDGetToken> contentTokens_;
 #else
-  std::map<std::string,edm::InputTag> contentTags_;
+  std::map<std::string, edm::InputTag> contentTags_;
 #endif
 };
 

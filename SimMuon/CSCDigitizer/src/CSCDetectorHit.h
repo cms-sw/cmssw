@@ -13,32 +13,29 @@
 #include <iosfwd>
 class PSimHit;
 
-class CSCDetectorHit
-{
+class CSCDetectorHit {
 public:
-  CSCDetectorHit(int element, float charge, float position, float time,
-                   const PSimHit * hitp)
-    : theElement(element), theCharge(charge),
-      thePosition(position),   theTime(time), theHitp(hitp) {}
+  CSCDetectorHit(int element, float charge, float position, float time, const PSimHit *hitp)
+      : theElement(element), theCharge(charge), thePosition(position), theTime(time), theHitp(hitp) {}
 
-  int   getElement()  const {return theElement;}
-  float getCharge()   const {return theCharge;}
-  float getPosition() const {return thePosition;}
-  float getTime()     const {return theTime;}
-  const PSimHit * getSimHit() const {return theHitp;}
+  int getElement() const { return theElement; }
+  float getCharge() const { return theCharge; }
+  float getPosition() const { return thePosition; }
+  float getTime() const { return theTime; }
+  const PSimHit *getSimHit() const { return theHitp; }
 
-  friend std::ostream & operator<<(std::ostream &, const CSCDetectorHit &);
+  friend std::ostream &operator<<(std::ostream &, const CSCDetectorHit &);
+
 private:
   /// strip or wire number
-  int   theElement;
+  int theElement;
   float theCharge;
   /// the position is along the element, with (0,0) the center of the chamber
-  float thePosition; 
+  float thePosition;
   /// start counting time at the beam crossing
   float theTime;
   /// theSimHit that created this hit
-  const PSimHit * theHitp;
+  const PSimHit *theHitp;
 };
 
 #endif
-

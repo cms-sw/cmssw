@@ -8,8 +8,8 @@
  *
  */
 
-#include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 
 // declarations
 class CSCLayer;
@@ -17,16 +17,14 @@ class CSCDetectorHit;
 class CSCWireDigi;
 class CSCAnalogSignal;
 
-
-class CSCWireElectronicsSim : public CSCBaseElectronicsSim
-{
+class CSCWireElectronicsSim : public CSCBaseElectronicsSim {
 public:
   /// configurable parameters
   CSCWireElectronicsSim(const edm::ParameterSet &p);
 
-  void setFraction(float newFraction)  {theFraction = newFraction;};
+  void setFraction(float newFraction) { theFraction = newFraction; };
 
-  void fillDigis(CSCWireDigiCollection & digis, CLHEP::HepRandomEngine*);
+  void fillDigis(CSCWireDigiCollection &digis, CLHEP::HepRandomEngine *);
 
 private:
   /// initialization for each layer
@@ -36,11 +34,11 @@ private:
   int readoutElement(int element) const override;
 
   float calculateAmpResponse(float t) const override;
- 
+
   virtual float timeOfFlightCalibration(int wireGroup) const;
 
   /// we code strip indices from 1-80, and wire indices start at 100
-  int channelIndex(int channel) const override {return channel+100;}
+  int channelIndex(int channel) const override { return channel + 100; }
 
   // member data
   // the fractional discriminator returns the time when the signal
@@ -48,7 +46,6 @@ private:
   float theFraction;
   float theWireNoise;
   float theWireThreshold;
-
 };
 
 #endif

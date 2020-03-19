@@ -11,12 +11,12 @@
 
 // constructor ----------------------------------------------------------------
 
-AlignmentCSCBeamHaloSelector::AlignmentCSCBeamHaloSelector(const edm::ParameterSet &iConfig, edm::ConsumesCollector & iC)
-   : m_minStations(iConfig.getParameter<unsigned int>("minStations"))
-   , m_minHitsPerStation(iConfig.getParameter<unsigned int>("minHitsPerStation"))
-{
-   edm::LogInfo("AlignmentCSCBeamHaloSelector")
-      << "Acceptable tracks must have at least " << m_minHitsPerStation << " hits in " << m_minStations << " different CSC stations." << std::endl;
+AlignmentCSCBeamHaloSelector::AlignmentCSCBeamHaloSelector(const edm::ParameterSet &iConfig, edm::ConsumesCollector &iC)
+    : m_minStations(iConfig.getParameter<unsigned int>("minStations")),
+      m_minHitsPerStation(iConfig.getParameter<unsigned int>("minHitsPerStation")) {
+  edm::LogInfo("AlignmentCSCBeamHaloSelector")
+      << "Acceptable tracks must have at least " << m_minHitsPerStation << " hits in " << m_minStations
+      << " different CSC stations." << std::endl;
 }
 
 // destructor -----------------------------------------------------------------
@@ -25,35 +25,38 @@ AlignmentCSCBeamHaloSelector::~AlignmentCSCBeamHaloSelector() {}
 
 // do selection ---------------------------------------------------------------
 
-AlignmentCSCBeamHaloSelector::Tracks
-AlignmentCSCBeamHaloSelector::select(const Tracks &tracks, const edm::Event &iEvent) const {
-   Tracks result;
+AlignmentCSCBeamHaloSelector::Tracks AlignmentCSCBeamHaloSelector::select(const Tracks &tracks,
+                                                                          const edm::Event &iEvent) const {
+  Tracks result;
 
-   for(auto const& track : tracks) {
-      std::map<int, unsigned int> station_map;
+  for (auto const &track : tracks) {
+    std::map<int, unsigned int> station_map;
 
-      for(auto const& hit : track->recHits()) {
-	 DetId id = hit->geographicalId();
-	 if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
-	    CSCDetId cscid(id.rawId());
-	    int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
+    for (auto const &hit : track->recHits()) {
+      DetId id = hit->geographicalId();
+      if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
+        CSCDetId cscid(id.rawId());
+        int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
 
-	    std::map<int, unsigned int>::const_iterator station_iter = station_map.find(station);
-	    if (station_iter == station_map.end()) {
-	       station_map[station] = 0;
-	    }
-	    station_map[station]++;
-	 } // end if it's a CSC hit
-      } // end loop over hits
+        std::map<int, unsigned int>::const_iterator station_iter = station_map.find(station);
+        if (station_iter == station_map.end()) {
+          station_map[station] = 0;
+        }
+        station_map[station]++;
+      }  // end if it's a CSC hit
+    }    // end loop over hits
 
-      unsigned int stations = 0;
-      for (std::map<int, unsigned int>::const_iterator station_iter = station_map.begin();  station_iter != station_map.end();  ++station_iter) {
-	 if (station_iter->second > m_minHitsPerStation) stations++;
-      }
-      if (stations >= m_minStations) {
-	 result.push_back(track);
-      }
-   } // end loop over tracks
+    unsigned int stations = 0;
+    for (std::map<int, unsigned int>::const_iterator station_iter = station_map.begin();
+         station_iter != station_map.end();
+         ++station_iter) {
+      if (station_iter->second > m_minHitsPerStation)
+        stations++;
+    }
+    if (stations >= m_minStations) {
+      result.push_back(track);
+    }
+  }  // end loop over tracks
 
-   return result;
+  return result;
 }

@@ -13,61 +13,53 @@
 
 class G4ProcessHelper;
 
-class FullModelHadronicProcess : public G4VDiscreteProcess
-{
+class FullModelHadronicProcess : public G4VDiscreteProcess {
 public:
-  
-  FullModelHadronicProcess(G4ProcessHelper * aHelper, 
-			   const G4String& processName = "FullModelHadronicProcess");
-    
+  FullModelHadronicProcess(G4ProcessHelper *aHelper, const G4String &processName = "FullModelHadronicProcess");
+
   ~FullModelHadronicProcess() override;
 
-  
-  G4bool IsApplicable(const G4ParticleDefinition& aP) override;
-  
+  G4bool IsApplicable(const G4ParticleDefinition &aP) override;
+
   G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) override;
 
 protected:
-  
   const G4ParticleDefinition *theParticle;
   G4ParticleDefinition *newParticle;
-  
+
   G4ParticleChange theParticleChange;
-  
-private:    
-  
-  virtual G4double GetMicroscopicCrossSection( const G4DynamicParticle *aParticle, 
-					       const G4Element *anElement, 
-					       G4double aTemp );
 
-  G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*) override;
-  
-  void CalculateMomenta( G4FastVector<G4ReactionProduct,MYGHADLISTSIZE> &vec,
-			 G4int &vecLen,
-			 const G4HadProjectile *originalIncident,
-			 const G4DynamicParticle *originalTarget,
-			 G4ReactionProduct &modifiedOriginal,
-			 G4Nucleus &targetNucleus,
-			 G4ReactionProduct &currentParticle,
-			 G4ReactionProduct &targetParticle,
-			 G4bool &incidentHasChanged,
-			 G4bool &targetHasChanged,
-			 G4bool quasiElastic );
+private:
+  virtual G4double GetMicroscopicCrossSection(const G4DynamicParticle *aParticle,
+                                              const G4Element *anElement,
+                                              G4double aTemp);
 
-  G4bool MarkLeadingStrangeParticle(
-				    const G4ReactionProduct &currentParticle,
-				    const G4ReactionProduct &targetParticle,
-				    G4ReactionProduct &leadParticle );
-    
-  void Rotate(G4FastVector<G4ReactionProduct,MYGHADLISTSIZE> &vec, G4int &vecLen);
+  G4double GetMeanFreePath(const G4Track &aTrack, G4double, G4ForceCondition *) override;
 
-  const G4DynamicParticle* FindRhadron(G4ParticleChange*);
+  void CalculateMomenta(G4FastVector<G4ReactionProduct, MYGHADLISTSIZE> &vec,
+                        G4int &vecLen,
+                        const G4HadProjectile *originalIncident,
+                        const G4DynamicParticle *originalTarget,
+                        G4ReactionProduct &modifiedOriginal,
+                        G4Nucleus &targetNucleus,
+                        G4ReactionProduct &currentParticle,
+                        G4ReactionProduct &targetParticle,
+                        G4bool &incidentHasChanged,
+                        G4bool &targetHasChanged,
+                        G4bool quasiElastic);
 
-  G4ProcessHelper* theHelper;
+  G4bool MarkLeadingStrangeParticle(const G4ReactionProduct &currentParticle,
+                                    const G4ReactionProduct &targetParticle,
+                                    G4ReactionProduct &leadParticle);
+
+  void Rotate(G4FastVector<G4ReactionProduct, MYGHADLISTSIZE> &vec, G4int &vecLen);
+
+  const G4DynamicParticle *FindRhadron(G4ParticleChange *);
+
+  G4ProcessHelper *theHelper;
   G4bool toyModel;
   G4double cache;
   G4ThreeVector what;
 };
 
 #endif
- 

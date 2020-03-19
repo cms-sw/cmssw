@@ -9,19 +9,18 @@
  *
  */
 
-namespace edm
-{
-  namespace hlt
-    {
+namespace edm {
+  namespace hlt {
 
-      /// status of a trigger path
-      enum HLTState {Ready=0,     ///< not [yet] run
-		     Pass =1,     ///< accept
-		     Fail =2,     ///< reject
-		     Exception=3  ///< error
-      };
+    /// status of a trigger path
+    enum HLTState {
+      Ready = 0,     ///< not [yet] run
+      Pass = 1,      ///< accept
+      Fail = 2,      ///< reject
+      Exception = 3  ///< error
+    };
 
-    }
-}
+  }  // namespace hlt
+}  // namespace edm
 
-#endif // DataFormats_Common_HLTenums_h
+#endif  // DataFormats_Common_HLTenums_h

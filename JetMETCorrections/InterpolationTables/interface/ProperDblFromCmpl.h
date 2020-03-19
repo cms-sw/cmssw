@@ -15,36 +15,30 @@
 #include <complex>
 
 namespace npstat {
-    template <class T>
-    struct ProperDblFromCmpl
-    {
-        typedef double type;
-    };
+  template <class T>
+  struct ProperDblFromCmpl {
+    typedef double type;
+  };
 
-    template <class T>
-    struct ProperDblFromCmpl<std::complex<T> >
-    {
-        typedef T type;
-    };
+  template <class T>
+  struct ProperDblFromCmpl<std::complex<T> > {
+    typedef T type;
+  };
 
-    template <class T>
-    struct ProperDblFromCmpl<const std::complex<T> >
-    {
-        typedef T type;
-    };
+  template <class T>
+  struct ProperDblFromCmpl<const std::complex<T> > {
+    typedef T type;
+  };
 
-    template <class T>
-    struct ProperDblFromCmpl<volatile std::complex<T> >
-    {
-        typedef T type;
-    };
+  template <class T>
+  struct ProperDblFromCmpl<volatile std::complex<T> > {
+    typedef T type;
+  };
 
-    template <class T>
-    struct ProperDblFromCmpl<const volatile std::complex<T> >
-    {
-        typedef T type;
-    };
-}
+  template <class T>
+  struct ProperDblFromCmpl<const volatile std::complex<T> > {
+    typedef T type;
+  };
+}  // namespace npstat
 
-#endif // NPSTAT_PROPERDBLFROMCMPL_HH_
-
+#endif  // NPSTAT_PROPERDBLFROMCMPL_HH_

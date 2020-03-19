@@ -8,6 +8,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="FWCore/Utilities"/>
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/Scalers"/>
 <use   name="FWCore/Framework"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="TrackingTools/Records"/>

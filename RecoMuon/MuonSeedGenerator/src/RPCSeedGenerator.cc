@@ -2,7 +2,7 @@
 //
 // Package:    RPCSeedGenerator
 // Class:      RPCSeedGenerator
-// 
+//
 /**\class RPCSeedGenerator RPCSeedGenerator.cc RecoMuon/MuonSeedGenerator/src/RPCSeedGenerator.cc
 
 Description: <one line class summary>
@@ -15,7 +15,6 @@ Implementation:
 //         Created:  Wed Oct 29 17:24:36 CET 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -44,7 +43,6 @@ Implementation:
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -85,33 +83,31 @@ typedef RPCSeedPattern::weightedTrajectorySeed weightedTrajectorySeed;
 class RPCSeedFinder;
 
 class RPCSeedGenerator : public edm::EDProducer {
-    public:
-        explicit RPCSeedGenerator(const edm::ParameterSet& iConfig);
-        ~RPCSeedGenerator() override;
+public:
+  explicit RPCSeedGenerator(const edm::ParameterSet& iConfig);
+  ~RPCSeedGenerator() override;
 
-    private:
-        void beginJob() override;
-        void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override;
-        void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-        void endJob() override;
+private:
+  void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void endJob() override;
 
-        // ----------member data ---------------------------
-        RPCSeedFinder Finder;
-        RPCSeedrecHitFinder recHitFinder;
-        RPCCosmicSeedrecHitFinder CosmicrecHitFinder;
-        RPCSeedLayerFinder LayerFinder;
-        RPCSeedOverlapper Overlapper;
-        std::vector<weightedTrajectorySeed> candidateweightedSeeds;
-        std::vector<weightedTrajectorySeed> goodweightedSeeds;
-        edm::InputTag theRPCRecHits;
-  MuonDetLayerMeasurements *muonMeasurements;
+  // ----------member data ---------------------------
+  RPCSeedFinder Finder;
+  RPCSeedrecHitFinder recHitFinder;
+  RPCCosmicSeedrecHitFinder CosmicrecHitFinder;
+  RPCSeedLayerFinder LayerFinder;
+  RPCSeedOverlapper Overlapper;
+  std::vector<weightedTrajectorySeed> candidateweightedSeeds;
+  std::vector<weightedTrajectorySeed> goodweightedSeeds;
+  edm::InputTag theRPCRecHits;
+  MuonDetLayerMeasurements* muonMeasurements;
 };
-
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -120,167 +116,169 @@ class RPCSeedGenerator : public edm::EDProducer {
 //
 // constructors and destructor
 //
-RPCSeedGenerator::RPCSeedGenerator(const edm::ParameterSet& iConfig)
-{
-    //register your products
-    /* Examples
+RPCSeedGenerator::RPCSeedGenerator(const edm::ParameterSet& iConfig) {
+  //register your products
+  /* Examples
        produces<ExampleData2>();
 
     //if do put with a label
     produces<ExampleData2>("label");
     */
 
-    // Now do what ever other initialization is needed
-    // Configure other modules
-    Finder.configure(iConfig);
-    recHitFinder.configure(iConfig);
-    CosmicrecHitFinder.configure(iConfig);
-    LayerFinder.configure(iConfig);
-    Overlapper.configure(iConfig);
-    // Register the production
-    produces<TrajectorySeedCollection>("goodSeeds");
-    produces<TrajectorySeedCollection>("candidateSeeds");
-    // Get event data Tag
-    theRPCRecHits = iConfig.getParameter<edm::InputTag>("RPCRecHitsLabel");
+  // Now do what ever other initialization is needed
+  // Configure other modules
+  Finder.configure(iConfig);
+  recHitFinder.configure(iConfig);
+  CosmicrecHitFinder.configure(iConfig);
+  LayerFinder.configure(iConfig);
+  Overlapper.configure(iConfig);
+  // Register the production
+  produces<TrajectorySeedCollection>("goodSeeds");
+  produces<TrajectorySeedCollection>("candidateSeeds");
+  // Get event data Tag
+  theRPCRecHits = iConfig.getParameter<edm::InputTag>("RPCRecHitsLabel");
 
+  // Get RPC recHits by MuonDetLayerMeasurements, while CSC and DT is set to false and with empty InputTag
+  edm::ConsumesCollector iC = consumesCollector();
 
-    // Get RPC recHits by MuonDetLayerMeasurements, while CSC and DT is set to false and with empty InputTag
-    edm::ConsumesCollector iC = consumesCollector() ;
+  muonMeasurements = new MuonDetLayerMeasurements(edm::InputTag(),
+                                                  edm::InputTag(),
+                                                  theRPCRecHits,
+                                                  edm::InputTag(),
+                                                  edm::InputTag(),
+                                                  iC,
+                                                  false,
+                                                  false,
+                                                  true,
+                                                  false,
+                                                  false);
 
-    muonMeasurements = new MuonDetLayerMeasurements (edm::InputTag(), edm::InputTag(), theRPCRecHits, edm::InputTag(),edm::InputTag(),iC, false, false, true, false, false);
-
-    
-    cout << endl << "[RPCSeedGenerator] --> Constructor called" << endl;
+  cout << endl << "[RPCSeedGenerator] --> Constructor called" << endl;
 }
 
+RPCSeedGenerator::~RPCSeedGenerator() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+  cout << "[RPCSeedGenerator] --> Destructor called" << endl;
 
-RPCSeedGenerator::~RPCSeedGenerator()
-{
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
-    cout << "[RPCSeedGenerator] --> Destructor called" << endl;
-
-    if( muonMeasurements )
-      delete muonMeasurements;
+  if (muonMeasurements)
+    delete muonMeasurements;
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-    void
-RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-    using namespace edm;
-    goodweightedSeeds.clear();
-    candidateweightedSeeds.clear();
+void RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  goodweightedSeeds.clear();
+  candidateweightedSeeds.clear();
 
-    // Create the pointer to the Seed container
-    auto goodCollection = std::make_unique<TrajectorySeedCollection>();
-    auto candidateCollection = std::make_unique<TrajectorySeedCollection>();
+  // Create the pointer to the Seed container
+  auto goodCollection = std::make_unique<TrajectorySeedCollection>();
+  auto candidateCollection = std::make_unique<TrajectorySeedCollection>();
 
-    // Muon Geometry - DT, CSC and RPC 
-    edm::ESHandle<MuonDetLayerGeometry> muonLayers;
-    iSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
+  // Muon Geometry - DT, CSC and RPC
+  edm::ESHandle<MuonDetLayerGeometry> muonLayers;
+  iSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
 
-    // Get the RPC layers
-    vector<const DetLayer*> RPCBarrelLayers = muonLayers->barrelRPCLayers();
-    const DetLayer* RB4L  = RPCBarrelLayers[5];
-    const DetLayer* RB3L  = RPCBarrelLayers[4];
-    const DetLayer* RB22L = RPCBarrelLayers[3];
-    const DetLayer* RB21L = RPCBarrelLayers[2];
-    const DetLayer* RB12L = RPCBarrelLayers[1];
-    const DetLayer* RB11L = RPCBarrelLayers[0];
-    vector<const DetLayer*> RPCEndcapLayers = muonLayers->endcapRPCLayers();
-    const DetLayer* REM3L = RPCEndcapLayers[0];
-    const DetLayer* REM2L = RPCEndcapLayers[1];
-    const DetLayer* REM1L = RPCEndcapLayers[2];
-    const DetLayer* REP1L = RPCEndcapLayers[3];
-    const DetLayer* REP2L = RPCEndcapLayers[4];
-    const DetLayer* REP3L = RPCEndcapLayers[5];
+  // Get the RPC layers
+  vector<const DetLayer*> RPCBarrelLayers = muonLayers->barrelRPCLayers();
+  const DetLayer* RB4L = RPCBarrelLayers[5];
+  const DetLayer* RB3L = RPCBarrelLayers[4];
+  const DetLayer* RB22L = RPCBarrelLayers[3];
+  const DetLayer* RB21L = RPCBarrelLayers[2];
+  const DetLayer* RB12L = RPCBarrelLayers[1];
+  const DetLayer* RB11L = RPCBarrelLayers[0];
+  vector<const DetLayer*> RPCEndcapLayers = muonLayers->endcapRPCLayers();
+  const DetLayer* REM3L = RPCEndcapLayers[0];
+  const DetLayer* REM2L = RPCEndcapLayers[1];
+  const DetLayer* REM1L = RPCEndcapLayers[2];
+  const DetLayer* REP1L = RPCEndcapLayers[3];
+  const DetLayer* REP2L = RPCEndcapLayers[4];
+  const DetLayer* REP3L = RPCEndcapLayers[5];
 
+  // Dispatch RPC recHits to the corresponding DetLayer, 6 layers for barrel and 3 layers for each endcap
+  MuonRecHitContainer recHitsRPC[RPCLayerNumber];
+  recHitsRPC[0] = muonMeasurements->recHits(RB11L, iEvent);
+  recHitsRPC[1] = muonMeasurements->recHits(RB12L, iEvent);
+  recHitsRPC[2] = muonMeasurements->recHits(RB21L, iEvent);
+  recHitsRPC[3] = muonMeasurements->recHits(RB22L, iEvent);
+  recHitsRPC[4] = muonMeasurements->recHits(RB3L, iEvent);
+  recHitsRPC[5] = muonMeasurements->recHits(RB4L, iEvent);
+  recHitsRPC[6] = muonMeasurements->recHits(REM1L, iEvent);
+  recHitsRPC[7] = muonMeasurements->recHits(REM2L, iEvent);
+  recHitsRPC[8] = muonMeasurements->recHits(REM3L, iEvent);
+  recHitsRPC[9] = muonMeasurements->recHits(REP1L, iEvent);
+  recHitsRPC[10] = muonMeasurements->recHits(REP2L, iEvent);
+  recHitsRPC[11] = muonMeasurements->recHits(REP3L, iEvent);
 
-    // Dispatch RPC recHits to the corresponding DetLayer, 6 layers for barrel and 3 layers for each endcap
-    MuonRecHitContainer recHitsRPC[RPCLayerNumber];
-    recHitsRPC[0] = muonMeasurements->recHits(RB11L, iEvent);
-    recHitsRPC[1] = muonMeasurements->recHits(RB12L, iEvent);
-    recHitsRPC[2] = muonMeasurements->recHits(RB21L, iEvent);
-    recHitsRPC[3] = muonMeasurements->recHits(RB22L, iEvent);
-    recHitsRPC[4] = muonMeasurements->recHits(RB3L, iEvent);
-    recHitsRPC[5] = muonMeasurements->recHits(RB4L, iEvent); 
-    recHitsRPC[6] = muonMeasurements->recHits(REM1L, iEvent);
-    recHitsRPC[7] = muonMeasurements->recHits(REM2L, iEvent);
-    recHitsRPC[8] = muonMeasurements->recHits(REM3L, iEvent);
-    recHitsRPC[9] = muonMeasurements->recHits(REP1L, iEvent);
-    recHitsRPC[10] = muonMeasurements->recHits(REP2L, iEvent);
-    recHitsRPC[11] = muonMeasurements->recHits(REP3L, iEvent);
+  // Print the size of recHits in each DetLayer
+  cout << "RB1in " << recHitsRPC[0].size() << " recHits" << endl;
+  cout << "RB1out " << recHitsRPC[1].size() << " recHits" << endl;
+  cout << "RB2in " << recHitsRPC[2].size() << " recHits" << endl;
+  cout << "RB2out " << recHitsRPC[3].size() << " recHits" << endl;
+  cout << "RB3 " << recHitsRPC[4].size() << " recHits" << endl;
+  cout << "RB4 " << recHitsRPC[5].size() << " recHits" << endl;
+  cout << "REM1 " << recHitsRPC[6].size() << " recHits" << endl;
+  cout << "REM2 " << recHitsRPC[7].size() << " recHits" << endl;
+  cout << "REM3 " << recHitsRPC[8].size() << " recHits" << endl;
+  cout << "REP1 " << recHitsRPC[9].size() << " recHits" << endl;
+  cout << "REP2 " << recHitsRPC[10].size() << " recHits" << endl;
+  cout << "REP3 " << recHitsRPC[11].size() << " recHits" << endl;
 
-    // Print the size of recHits in each DetLayer
-    cout << "RB1in "  << recHitsRPC[0].size()  << " recHits" << endl;
-    cout << "RB1out " << recHitsRPC[1].size()  << " recHits" << endl;
-    cout << "RB2in "  << recHitsRPC[2].size()  << " recHits" << endl;
-    cout << "RB2out " << recHitsRPC[3].size()  << " recHits" << endl;
-    cout << "RB3 "    << recHitsRPC[4].size()  << " recHits" << endl;
-    cout << "RB4 "    << recHitsRPC[5].size()  << " recHits" << endl;
-    cout << "REM1 "   << recHitsRPC[6].size()  << " recHits" << endl;
-    cout << "REM2 "   << recHitsRPC[7].size()  << " recHits" << endl;
-    cout << "REM3 "   << recHitsRPC[8].size()  << " recHits" << endl;
-    cout << "REP1 "   << recHitsRPC[9].size()  << " recHits" << endl;
-    cout << "REP2 "   << recHitsRPC[10].size() << " recHits" << endl;
-    cout << "REP3 "   << recHitsRPC[11].size() << " recHits" << endl;
+  // Set Input of RPCSeedFinder, PCSeedrecHitFinder, CosmicrecHitFinder, RPCSeedLayerFinder
+  recHitFinder.setInput(recHitsRPC);
+  CosmicrecHitFinder.setInput(recHitsRPC);
+  LayerFinder.setInput(recHitsRPC);
 
-    // Set Input of RPCSeedFinder, PCSeedrecHitFinder, CosmicrecHitFinder, RPCSeedLayerFinder
-    recHitFinder.setInput(recHitsRPC);
-    CosmicrecHitFinder.setInput(recHitsRPC);
-    LayerFinder.setInput(recHitsRPC);
-    
-    // Set Magnetic Field EventSetup of RPCSeedFinder
-    Finder.setEventSetup(iSetup);
+  // Set Magnetic Field EventSetup of RPCSeedFinder
+  Finder.setEventSetup(iSetup);
 
-    // Start from filling layers to filling seeds
-    LayerFinder.fill();
-    Overlapper.setEventSetup(iSetup);
-    Overlapper.run();
+  // Start from filling layers to filling seeds
+  LayerFinder.fill();
+  Overlapper.setEventSetup(iSetup);
+  Overlapper.run();
 
-    // Save seeds to event
-    for(vector<weightedTrajectorySeed>::iterator weightedseed = goodweightedSeeds.begin(); weightedseed != goodweightedSeeds.end(); ++weightedseed)
-        goodCollection->push_back((*weightedseed).first);
-    for(vector<weightedTrajectorySeed>::iterator weightedseed = candidateweightedSeeds.begin(); weightedseed != candidateweightedSeeds.end(); ++weightedseed)
-        candidateCollection->push_back((*weightedseed).first);
+  // Save seeds to event
+  for (vector<weightedTrajectorySeed>::iterator weightedseed = goodweightedSeeds.begin();
+       weightedseed != goodweightedSeeds.end();
+       ++weightedseed)
+    goodCollection->push_back((*weightedseed).first);
+  for (vector<weightedTrajectorySeed>::iterator weightedseed = candidateweightedSeeds.begin();
+       weightedseed != candidateweightedSeeds.end();
+       ++weightedseed)
+    candidateCollection->push_back((*weightedseed).first);
 
-    // Put the seed to event
-    iEvent.put(std::move(goodCollection), "goodSeeds");
-    iEvent.put(std::move(candidateCollection), "candidateSeeds");
+  // Put the seed to event
+  iEvent.put(std::move(goodCollection), "goodSeeds");
+  iEvent.put(std::move(candidateCollection), "candidateSeeds");
 
-    // Unset the input of RPCSeedFinder, PCSeedrecHitFinder, RPCSeedLayerFinder
-    recHitFinder.unsetInput();
-    CosmicrecHitFinder.unsetInput();
-    LayerFinder.unsetInput();
-    
+  // Unset the input of RPCSeedFinder, PCSeedrecHitFinder, RPCSeedLayerFinder
+  recHitFinder.unsetInput();
+  CosmicrecHitFinder.unsetInput();
+  LayerFinder.unsetInput();
 }
 
 void RPCSeedGenerator::beginJob() {
+  // Set link and EventSetup of RPCSeedFinder, PCSeedrecHitFinder, CosmicrecHitFinder, RPCSeedLayerFinder
+  cout << "set link and Geometry EventSetup of RPCSeedFinder, RPCSeedrecHitFinder, RPCCosmicSeedrecHitFinder, "
+          "RPCSeedLayerFinder and RPCSeedOverlapper"
+       << endl;
 
-    // Set link and EventSetup of RPCSeedFinder, PCSeedrecHitFinder, CosmicrecHitFinder, RPCSeedLayerFinder
-    cout << "set link and Geometry EventSetup of RPCSeedFinder, RPCSeedrecHitFinder, RPCCosmicSeedrecHitFinder, RPCSeedLayerFinder and RPCSeedOverlapper" << endl;
-    
-    Finder.setOutput(&goodweightedSeeds, &candidateweightedSeeds);
-    recHitFinder.setOutput(&Finder);
-    CosmicrecHitFinder.setOutput(&Finder);
-    LayerFinder.setOutput(&recHitFinder, &CosmicrecHitFinder);
+  Finder.setOutput(&goodweightedSeeds, &candidateweightedSeeds);
+  recHitFinder.setOutput(&Finder);
+  CosmicrecHitFinder.setOutput(&Finder);
+  LayerFinder.setOutput(&recHitFinder, &CosmicrecHitFinder);
 }
-void RPCSeedGenerator::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
-    CosmicrecHitFinder.setEdge(iSetup);
-    Overlapper.setEventSetup(iSetup);
-    Overlapper.setIO(&goodweightedSeeds, &candidateweightedSeeds);
+void RPCSeedGenerator::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
+  CosmicrecHitFinder.setEdge(iSetup);
+  Overlapper.setEventSetup(iSetup);
+  Overlapper.setIO(&goodweightedSeeds, &candidateweightedSeeds);
 }
 
-void RPCSeedGenerator::endJob() {
-
-    cout << "All jobs completed" << endl;
-}
+void RPCSeedGenerator::endJob() { cout << "All jobs completed" << endl; }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(RPCSeedGenerator);

@@ -14,13 +14,11 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
-#define ECALSELECTIVEREADOUT_NOGEOM //version w/o geometry dependency.
+#define ECALSELECTIVEREADOUT_NOGEOM  //version w/o geometry dependency.
 
 #ifndef ECALSELECTIVEREADOUT_NOGEOM
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#endif //ECALSELECTIVEREADOUT_NOGEOM not defined
-
-
+#endif  //ECALSELECTIVEREADOUT_NOGEOM not defined
 
 /** This class is used to run the selective readout processing on the
  * electromagnetic calorimeter. Normal user do not need to access directly this
@@ -68,36 +66,36 @@ public:
   //type definitions
   /** trigger tower classification ("SRP flags")
    */
-  typedef enum {UNKNOWN             = -1 & ~FORCED_MASK,
-                LOWINTEREST         = 0x0,
-                SINGLE              = 0x1,
-                NEIGHBOUR           = 0x2,
-                CENTER              = 0x3,
-                FORCED_LOWINTEREST  = 0x4, //0x0 | 0x4
-                FORCED_SINGLE       = 0x5, //0x1 | 0x4
-                FORCED_NEIGHBOUR    = 0x6, //0x2 | 0x4
-                FORCED_CENTER       = 0x7  //0x3 | 0x4
+  typedef enum {
+    UNKNOWN = -1 & ~FORCED_MASK,
+    LOWINTEREST = 0x0,
+    SINGLE = 0x1,
+    NEIGHBOUR = 0x2,
+    CENTER = 0x3,
+    FORCED_LOWINTEREST = 0x4,  //0x0 | 0x4
+    FORCED_SINGLE = 0x5,       //0x1 | 0x4
+    FORCED_NEIGHBOUR = 0x6,    //0x2 | 0x4
+    FORCED_CENTER = 0x7        //0x3 | 0x4
   } towerInterest_t;
 
   typedef enum {
-    TTF_UNKNOWN                     =-1,
-    TTF_LOW_INTEREST                = 0x0,
-    TTF_MID_INTEREST                = 0x1,
+    TTF_UNKNOWN = -1,
+    TTF_LOW_INTEREST = 0x0,
+    TTF_MID_INTEREST = 0x1,
     /* 0x2 not used */
-    TTF_HIGH_INTEREST               = 0X3,
-    TTF_FORCED_LOW_INTEREST         = 0x4, //0x0 | 0x4
-    TTF_FORCED_MID_INTEREST         = 0x5, //0x1 | 0x4
+    TTF_HIGH_INTEREST = 0X3,
+    TTF_FORCED_LOW_INTEREST = 0x4,  //0x0 | 0x4
+    TTF_FORCED_MID_INTEREST = 0x5,  //0x1 | 0x4
     /* 0x6 not used*/
-    TTF_FORCED_HIGH_INTEREST        = 0x7  //0x3 | 0x4
-//     TTF_FORCED_RO_LINK_SYNC_ERR = 0x4,
-//     TTF_FORCED_RO_HAMMING_ERR = 0X5,
-//     TTF_FORCED_RO_OTHER1 = 0X6,
-//     TTF_FORCED_RO_OTHER2 = 0X7
+    TTF_FORCED_HIGH_INTEREST = 0x7  //0x3 | 0x4
+                                    //     TTF_FORCED_RO_LINK_SYNC_ERR = 0x4,
+                                    //     TTF_FORCED_RO_HAMMING_ERR = 0X5,
+                                    //     TTF_FORCED_RO_OTHER1 = 0X6,
+                                    //     TTF_FORCED_RO_OTHER2 = 0X7
   } ttFlag_t;
 
   //deprecated. Use instead FORCED_MASK
   static const int TTF_FORCED_RO_MASK = FORCED_MASK;
-
 
   //constants
 public:
@@ -118,16 +116,16 @@ public:
   const static size_t supercrystalEdge = 5;
   /** Range of endcap supercrystal x-index (xmax-xmin+1)
    */
-  const static size_t nSupercrystalXBins = nEndcapXBins/supercrystalEdge;
+  const static size_t nSupercrystalXBins = nEndcapXBins / supercrystalEdge;
   /** Range of endcap supercrystal y-index (ymay-ymin+1)
    */
-  const static size_t nSupercrystalYBins = nEndcapYBins/supercrystalEdge;
+  const static size_t nSupercrystalYBins = nEndcapYBins / supercrystalEdge;
   /** Number of trigger tower along eta in the barrel
    */
-  const static size_t nBarrelTowerEtaBins = nBarrelEtaBins/5;
+  const static size_t nBarrelTowerEtaBins = nBarrelEtaBins / 5;
   /** Number of trigger tower in a eta ring of the barrel
    */
-  const static size_t nBarrelTowerPhiBins = nBarrelPhiBins/5;
+  const static size_t nBarrelTowerPhiBins = nBarrelPhiBins / 5;
   /** Number of endcap, obviously tow
    */
   const static size_t nEndcaps = 2;
@@ -139,8 +137,7 @@ public:
   const static size_t nBarrelTriggerTowersInEta = 34;
   /** Number of trigger towers along eta for the whole ECAL
    */
-  const static size_t nTriggerTowersInEta =
-  2*nEndcapTriggerTowersInEta+nBarrelTriggerTowersInEta;
+  const static size_t nTriggerTowersInEta = 2 * nEndcapTriggerTowersInEta + nBarrelTriggerTowersInEta;
   /** Number of trigger towers in an eta ring
    */
   const static size_t nTriggerTowersInPhi = 72;
@@ -169,22 +166,15 @@ public:
   //method(s)
 
   /// the mapping of which cell goes with which trigger tower
-  void setTriggerMap(const EcalTrigTowerConstituentsMap * map) {
-    theTriggerMap = map;
-  }
+  void setTriggerMap(const EcalTrigTowerConstituentsMap* map) { theTriggerMap = map; }
 
   /// the electronics map, used to get information about
   /// the DCC and DCC channel used to read a crystal channel
-  void setElecMap(const EcalElectronicsMapping * map) {
-    theElecMap = map;
-  }
-
+  void setElecMap(const EcalElectronicsMapping* map) { theElecMap = map; }
 
 #ifndef ECALSELECTIVEREADOUT_NOGEOM
-  void setGeometry(const CaloGeometry * caloGeometry) {
-    theGeometry = caloGeometry;
-  }
-#endif //ECALSELECTIVEREADOUT_NOGEOM not defined
+  void setGeometry(const CaloGeometry* caloGeometry) { theGeometry = caloGeometry; }
+#endif  //ECALSELECTIVEREADOUT_NOGEOM not defined
 
   /** Selective readout algorithm type 0.
    *  The algorithm is the following:
@@ -213,20 +203,19 @@ public:
    * @param triggerTowerEt array of the transverse enrgy deposited in the
    * trigger tower. First index is for eta,2nd index for phi.
    */
-  void runSelectiveReadout0(const ttFlag_t
-                            towerFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
+  void runSelectiveReadout0(const ttFlag_t towerFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
 
   /** Gets the SR interest classification of an EB channel
    * @param ebDetId id of the crystal
    * @param interest
    */
-  towerInterest_t getCrystalInterest(const EBDetId & ebDetId) const;
+  towerInterest_t getCrystalInterest(const EBDetId& ebDetId) const;
 
   /** Gets the SR interest classification of an EE channel
    * @param eeDetId id of the crystal
    * @return interest
    */
-  towerInterest_t getCrystalInterest(const EEDetId & eeDetId) const;
+  towerInterest_t getCrystalInterest(const EEDetId& eeDetId) const;
 
   /** Gets the SR interest classification of an EE supercrystal
    * @param scDetId id of the crystal
@@ -239,19 +228,18 @@ public:
    * @param iPhi index of the TT along phi
    * @return interest
    */
-  towerInterest_t getTowerInterest(const EcalTrigTowerDetId & towerId) const;
+  towerInterest_t getTowerInterest(const EcalTrigTowerDetId& towerId) const;
 
   /// print out header for the map: see print(std::ostream&)
-  void printHeader(std::ostream & os) const;
+  void printHeader(std::ostream& os) const;
 
   /// print out the map
-  void print(std::ostream & os) const;
+  void print(std::ostream& os) const;
 
-  void printBarrel(std::ostream & os) const;
-  void printEndcap(int endcap, std::ostream & s) const;
+  void printBarrel(std::ostream& os) const;
+  void printEndcap(int endcap, std::ostream& s) const;
 
 private:
-
   /** Get access to eeRuInterest element corresponding
    * to an EE det Id
    * @param id the EE det id
@@ -272,8 +260,7 @@ private:
    * <LI> high interest: value 'center'
    * </UL>
    */
-  void
-  classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
+  void classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
 
   /** Sets all endcap RU interest flags to 'unknown'
    */
@@ -285,8 +272,9 @@ private:
    *  @param var the variable
    *  @param val the new candidate value
    */
-  void setLower(int& var, int val) const{
-    if(val<var) var = val;
+  void setLower(int& var, int val) const {
+    if (val < var)
+      var = val;
   }
 
   /** Changes the value of a variable iff that has
@@ -295,9 +283,10 @@ private:
    *  @param var the variable
    *  @param val the new candidate value
    */
-  template<class T>
-  void setHigher(T& var, T val) const{
-    if(val>var) var = val;
+  template <class T>
+  void setHigher(T& var, T val) const {
+    if (val > var)
+      var = val;
   }
 
   /** Combine two flags. Forced bit and actual flag fields are treated
@@ -306,50 +295,42 @@ private:
    * @param val flag to combine with the first.
    * @tparam T towerInterest_t or
    */
-  template<class T>
-  void combineFlags(T& var, T val) const{
+  template <class T>
+  void combineFlags(T& var, T val) const {
     var = (T)(std::max(val & ~TTF_FORCED_RO_MASK,  //actual flag value:
                        //                            take highest
-                       var  & ~TTF_FORCED_RO_MASK) //beware: must work also
+                       var & ~TTF_FORCED_RO_MASK)  //beware: must work also
               //                                     for UNKNOW=-1
               //                                     ->compare the whole
               //                                     integer but with
               //                                     the forced bit masked.
-              | ((val | var) & 0x4));//forced bit: set it if any of the two is
+              | ((val | var) & 0x4));  //forced bit: set it if any of the two is
     //                                 already set
-    
-    
-    if(var < 0 || var > 7){
-      std::cout << __FILE__ << ":" << __LINE__ << ": ---------->"
-           <<  var << " " << val << " "
-           << std::max(val & 0x3, var  & 0x3) << " "
-           << (val | var) << " "
-           <<  ((val | var) & 0x4) << " "
-           << (std::max(val & 0x3, var  & 0x3)
-               | ((val | var) & 0x4)) <<  " "
-           << (T)(std::max(val & 0x3, var  & 0x3)
-                  | ((val | var) & 0x4)) << "\n";
-        }
+
+    if (var < 0 || var > 7) {
+      std::cout << __FILE__ << ":" << __LINE__ << ": ---------->" << var << " " << val << " "
+                << std::max(val & 0x3, var & 0x3) << " " << (val | var) << " " << ((val | var) & 0x4) << " "
+                << (std::max(val & 0x3, var & 0x3) | ((val | var) & 0x4)) << " "
+                << (T)(std::max(val & 0x3, var & 0x3) | ((val | var) & 0x4)) << "\n";
+    }
   }
 
-
-//   /** Propagate TTF flag bit on towerInterest. TT interest forced bit is set
-//    * if TTF forced bit is set, otherwise it is not touched.
-//    * @param ttFlags TT flags
-//    */
-//   void propagateTtForcedBit(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
+  //   /** Propagate TTF flag bit on towerInterest. TT interest forced bit is set
+  //    * if TTF forced bit is set, otherwise it is not touched.
+  //    * @param ttFlags TT flags
+  //    */
+  //   void propagateTtForcedBit(const ttFlag_t ttFlags[nTriggerTowersInEta][nTriggerTowersInPhi]);
 
   void printDccChMap(std::ostream& os) const;
 
   //attribute(s)
 private:
-
-  const EcalTrigTowerConstituentsMap * theTriggerMap;
+  const EcalTrigTowerConstituentsMap* theTriggerMap;
   const EcalElectronicsMapping* theElecMap;
 
 #ifndef ECALSELECTIVEREADOUT_NOGEOM
-  const CaloGeometry * theGeometry;
-#endif //ECALSELECTIVEREADOUT_NOGEOM not defined
+  const CaloGeometry* theGeometry;
+#endif  //ECALSELECTIVEREADOUT_NOGEOM not defined
   towerInterest_t towerInterest[nTriggerTowersInEta][nTriggerTowersInPhi];
   //towerInterest_t supercrystalInterest[nEndcaps][nSupercrystalXBins][nSupercrystalYBins];
   towerInterest_t eeRuInterest_[nEndcaps][nDccPerEe][maxDccChs];
@@ -358,9 +339,8 @@ private:
 
   // for printout
   const static char srpFlagMarker[];
-
 };
 
-std::ostream & operator<<(std::ostream & os, const EcalSelectiveReadout & selectiveReadout);
+std::ostream& operator<<(std::ostream& os, const EcalSelectiveReadout& selectiveReadout);
 
 #endif

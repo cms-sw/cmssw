@@ -4,8 +4,9 @@ Contains classes for shell part of framework - basically a collection of classes
 
 """
 from __future__ import print_function
+from __future__ import absolute_import
 
-import querying
+from . import querying
 import sys
 
 connections = []

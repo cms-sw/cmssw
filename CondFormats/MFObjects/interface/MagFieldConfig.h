@@ -15,21 +15,21 @@
 #include <vector>
 #include <map>
 
-namespace edm {class ParameterSet;}
+namespace edm {
+  class ParameterSet;
+}
 
 namespace magneticfield {
   typedef std::map<int, std::pair<std::string, int> > TableFileMap;
 }
 
-
 class MagFieldConfig {
 public:
-
-  MagFieldConfig(){}
+  MagFieldConfig() {}
 
   /// Constructor
-  MagFieldConfig(const edm::ParameterSet& pset, bool debug=false);
-  
+  MagFieldConfig(const edm::ParameterSet& pset, bool debug = false);
+
   // Operations
 public:
   std::vector<unsigned> expandList(const std::string& list);
@@ -38,7 +38,7 @@ public:
   int geometryVersion;
 
   /// Version of the data tables to be used
-  std::string version;  
+  std::string version;
 
   /// Specification of which data table is to be used for each volume
   magneticfield::TableFileMap gridFiles;
@@ -46,17 +46,15 @@ public:
   /// Scaling factors for the field in specific volumes
   std::vector<int> keys;
   std::vector<double> values;
-  
+
   /// Label or type of the tracker parametrization
   std::string slaveFieldVersion;
 
   /// Parameters for the tracker parametrization
-  /// (not used in legacy producers where slaveFieldVersion is the label of the 
+  /// (not used in legacy producers where slaveFieldVersion is the label of the
   /// parametrization in the EventSetup)
   std::vector<double> slaveFieldParameters;
 
   COND_SERIALIZABLE;
 };
 #endif
-
-

@@ -35,6 +35,9 @@
 //     // empty
 
 // };
-class L1GtPrescaleFactorsAlgoTrigRcd : public edm::eventsetup::DependentRecordImplementation<L1GtPrescaleFactorsAlgoTrigRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1GtPrescaleFactorsAlgoTrigRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1GtPrescaleFactorsAlgoTrigRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

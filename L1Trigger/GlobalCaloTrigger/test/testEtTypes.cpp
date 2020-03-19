@@ -4,11 +4,9 @@
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
-
 #include <iostream>
 
 int main() {
-
   // test construction and set value
   L1GctTwosComplement<12> a;
   a.setValue(1500);
@@ -52,5 +50,4 @@ int main() {
   std::cout << h << std::endl;
   std::cout << i << std::endl;
   std::cout << j << std::endl;
-
 }

@@ -32,7 +32,7 @@ hcalRawDataVME.TRIG = "DMHcalTriggerPrimitiveDigis"
 (~premix_stage2).toModify(dtpacker, digiColl = 'mixData')
 (~premix_stage2).toModify(rpcpacker, InputLabel = "mixData")
 
-DigiToRaw.remove(castorRawData)
+DigiToRawTask.remove(castorRawData)
 
 #castorRawData.CASTOR = cms.untracked.InputTag("castorDigis")
 #

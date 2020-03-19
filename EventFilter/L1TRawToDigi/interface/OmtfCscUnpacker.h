@@ -7,23 +7,22 @@
 #include "DataFormats/L1TMuon/interface/OMTF/OmtfDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingCsc.h"
 
-namespace edm { class EventSetup; }
+namespace edm {
+  class EventSetup;
+}
 
 namespace omtf {
 
-class CscDataWord64;
+  class CscDataWord64;
 
-class CscUnpacker {
+  class CscUnpacker {
+  public:
+    void init();
+    void unpack(unsigned int fed, unsigned int amc, const CscDataWord64& raw, CSCCorrelatedLCTDigiCollection* prod);
 
-public:
+  private:
+    MapEleIndex2CscDet theOmtf2CscDet;
+  };
 
-  void init();
-  void unpack(unsigned int fed, unsigned int amc, const CscDataWord64 &raw, CSCCorrelatedLCTDigiCollection* prod);
-
-private:
-  MapEleIndex2CscDet      theOmtf2CscDet;
-};
-
-}
+}  // namespace omtf
 #endif
-

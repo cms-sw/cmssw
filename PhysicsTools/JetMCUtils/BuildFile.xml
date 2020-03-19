@@ -1,5 +1,4 @@
 <use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/Common"/>
 
 <export>
   <lib   name="1"/>

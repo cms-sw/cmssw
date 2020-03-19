@@ -9,7 +9,7 @@
 
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#endif // _STAND_ALONE
+#endif  // _STAND_ALONE
 
 #include <vector>
 
@@ -31,11 +31,11 @@ public:
   L1RpcTBMuonsVec runTCGBSorter();
 
 private:
-  int m_TCNumber; //!< The number of this TriggerCrate (0 - 11)
+  int m_TCNumber;  //!< The number of this TriggerCrate (0 - 11)
 
   RPCTriggerConfiguration* m_TriggerConfig;
 
-  std::vector<RPCTriggerBoard> m_TBsVec; //!< Here TB belonging to thie TC are stored.
+  std::vector<RPCTriggerBoard> m_TBsVec;  //!< Here TB belonging to thie TC are stored.
 
   RPCTCGhostBusterSorter m_TCGhostBusterSorter;
 

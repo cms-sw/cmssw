@@ -30,17 +30,14 @@
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuDTChambPhContainer {
-
- public:
-
-  typedef std::vector<L1MuDTChambPhDigi>  Phi_Container;
-  typedef Phi_Container::const_iterator   Phi_iterator;
+public:
+  typedef std::vector<L1MuDTChambPhDigi> Phi_Container;
+  typedef Phi_Container::const_iterator Phi_iterator;
 
   //  Constructors
   L1MuDTChambPhContainer() = default;
-  explicit L1MuDTChambPhContainer(Phi_Container );
+  explicit L1MuDTChambPhContainer(Phi_Container);
 
   //  Destructor
   ~L1MuDTChambPhContainer() = default;
@@ -57,10 +54,8 @@ class L1MuDTChambPhContainer {
 
   L1MuDTChambPhDigi const* chPhiSegm2(int wheel, int stat, int sect, int bx) const;
 
- private:
-
-  Phi_Container phiSegments; 
-
+private:
+  Phi_Container phiSegments;
 };
 
 #endif

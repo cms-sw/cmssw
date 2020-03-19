@@ -28,33 +28,35 @@
 #include <memory>
 #include <algorithm>
 
-template<typename Selector,
-         typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
-	 typename SizeSelector = NonNullNumberSelector,
-	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::EDFilter>,
-	 typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::type,
-	 typename Base = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::base,
-	 typename Init = typename ::reco::modules::EventSetupInit<Selector>::type
-	 >
+template <typename Selector,
+          typename OutputCollection =
+              typename ::helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
+          typename SizeSelector = NonNullNumberSelector,
+          typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::EDFilter>,
+          typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::type,
+          typename Base = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::base,
+          typename Init = typename ::reco::modules::EventSetupInit<Selector>::type>
 class ObjectSelector : public Base {
 public:
   /// constructor
   // ObjectSelector()=default;
-  explicit ObjectSelector(const edm::ParameterSet & cfg) :
-    Base(cfg),
-    srcToken_( this-> template consumes<typename Selector::collection>(cfg.template getParameter<edm::InputTag>("src"))),
-    filter_(false),
-    selector_(cfg, this->consumesCollector()),
-    sizeSelector_(reco::modules::make<SizeSelector>(cfg)),
-    postProcessor_(cfg, this->consumesCollector()) {
+  explicit ObjectSelector(const edm::ParameterSet& cfg)
+      : Base(cfg),
+        srcToken_(
+            this->template consumes<typename Selector::collection>(cfg.template getParameter<edm::InputTag>("src"))),
+        filter_(false),
+        selector_(cfg, this->consumesCollector()),
+        sizeSelector_(reco::modules::make<SizeSelector>(cfg)),
+        postProcessor_(cfg, this->consumesCollector()) {
     const std::string filter("filter");
     std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();
     bool found = std::find(bools.begin(), bools.end(), filter) != bools.end();
-    if (found) filter_ = cfg.template getParameter<bool>(filter);
-    postProcessor_.init(* this);
-   }
+    if (found)
+      filter_ = cfg.template getParameter<bool>(filter);
+    postProcessor_.init(*this);
+  }
   /// destructor
-  ~ObjectSelector() override { }
+  ~ObjectSelector() override {}
 
 private:
   /// process one event
@@ -66,7 +68,7 @@ private:
     StoreManager manager(source);
     selector_.select(source, evt, es);
     manager.cloneAndStore(selector_.begin(), selector_.end(), evt);
-    bool result = (! filter_ || sizeSelector_(manager.size()));
+    bool result = (!filter_ || sizeSelector_(manager.size()));
     edm::OrphanHandle<OutputCollection> filtered = manager.put(evt);
     postProcessor_.process(filtered, evt);
     return result;
@@ -84,4 +86,3 @@ private:
 };
 
 #endif
-

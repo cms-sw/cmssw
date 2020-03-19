@@ -2,15 +2,15 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 namespace pat {
-    typedef pat::PATCleaner<pat::Electron>   PATElectronCleaner;
-    typedef pat::PATCleaner<pat::Muon>       PATMuonCleaner;
-    typedef pat::PATCleaner<pat::Tau>        PATTauCleaner;
-    typedef pat::PATCleaner<pat::Photon>     PATPhotonCleaner;
-    typedef pat::PATCleaner<pat::Jet>        PATJetCleaner;
-    typedef pat::PATCleaner<pat::MET>        PATMETCleaner;
-    typedef pat::PATCleaner<pat::GenericParticle> PATGenericParticleCleaner;
-    typedef pat::PATCleaner<pat::PFParticle> PATPFParticleCleaner; 
-}
+  typedef pat::PATCleaner<pat::Electron> PATElectronCleaner;
+  typedef pat::PATCleaner<pat::Muon> PATMuonCleaner;
+  typedef pat::PATCleaner<pat::Tau> PATTauCleaner;
+  typedef pat::PATCleaner<pat::Photon> PATPhotonCleaner;
+  typedef pat::PATCleaner<pat::Jet> PATJetCleaner;
+  typedef pat::PATCleaner<pat::MET> PATMETCleaner;
+  typedef pat::PATCleaner<pat::GenericParticle> PATGenericParticleCleaner;
+  typedef pat::PATCleaner<pat::PFParticle> PATPFParticleCleaner;
+}  // namespace pat
 using namespace pat;
 DEFINE_FWK_MODULE(PATElectronCleaner);
 DEFINE_FWK_MODULE(PATMuonCleaner);

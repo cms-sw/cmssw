@@ -9,6 +9,7 @@ Description: Utilities module
 from __future__ import print_function
 
 # system modules
+from builtins import range
 import os
 import re
 import sys
@@ -23,7 +24,7 @@ def parse_word(word):
     "Parse word which contas double underscore tag"
     output = set()
     words  = word.split()
-    for idx in xrange(0, len(words)):
+    for idx in range(0, len(words)):
         pat = words[idx]
         if  pat and len(pat) > 4 and pat[:2] == '__': # we found enclosure
             tag = pat[2:pat.rfind('__')]

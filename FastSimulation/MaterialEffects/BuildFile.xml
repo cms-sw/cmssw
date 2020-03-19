@@ -5,6 +5,7 @@
 <use   name="rootcore"/>
 <use   name="clhep"/>
 <use   name="geant4core"/>
+<use   name="DQMServices/Core"/>
 <export>
   <lib   name="1"/>
 </export>

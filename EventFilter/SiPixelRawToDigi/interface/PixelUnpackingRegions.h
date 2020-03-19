@@ -18,7 +18,6 @@
 #include <vector>
 #include <set>
 
-
 /** \class PixelUnpackingRegions
  *
  * Input: One or several collections of Candidate-based seeds with their objects
@@ -27,30 +26,24 @@
  * Output: FED ids and module detIds that need to be unpacked
  *
  */
-class PixelUnpackingRegions
-{
+class PixelUnpackingRegions {
 public:
-
   /// container to define regions for objects of interest in each event by:
   ///   object direction
   ///   dphi max distance from region direction to center of a pixel module
   ///   maxZ max projected z of a pixel module (when projecting along region direction onto beamline)
-  struct Region
-  {
-    Region(const math::XYZVector &dir, float dphi = 0.5f, float maxz = 24.f):
-      v(dir), dPhi(dphi), maxZ(maxz)
-    {
-      cosphi = v.x()/v.rho();
-      sinphi = v.y()/v.rho();
-      atantheta = v.z()/v.rho();
+  struct Region {
+    Region(const math::XYZVector& dir, float dphi = 0.5f, float maxz = 24.f) : v(dir), dPhi(dphi), maxZ(maxz) {
+      cosphi = v.x() / v.rho();
+      sinphi = v.y() / v.rho();
+      atantheta = v.z() / v.rho();
     }
     math::XYZVector v;
     float dPhi, maxZ;
     float cosphi, sinphi, atantheta;
   };
 
-
-  PixelUnpackingRegions(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
+  PixelUnpackingRegions(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
 
   ~PixelUnpackingRegions() {}
 
@@ -62,9 +55,9 @@ public:
 
   /// check whether a module has to be unpacked
   bool mayUnpackModule(unsigned int id) const;
-  
+
   /// full set of module ids to unpack
-  const std::set<unsigned int> * modulesToUnpack() const {return &modules_;}
+  const std::set<unsigned int>* modulesToUnpack() const { return &modules_; }
 
   /// various informational accessors:
   unsigned int nFEDs() const { return feds_.size(); }
@@ -73,8 +66,7 @@ public:
   unsigned int nForwardModules() const;
   unsigned int nRegions() const { return nreg_; }
 
-  struct Module
-  {
+  struct Module {
     float phi;
     float x, y, z;
     unsigned int id;
@@ -83,16 +75,16 @@ public:
     Module() {}
     Module(float ph) : phi(ph), x(0.f), y(0.f), z(0.f), id(0), fed(0) {}
 
-    bool operator < (const Module& m) const
-    {
-      if(phi < m.phi) return true;
-      if(phi == m.phi && id < m.id) return true;
+    bool operator<(const Module& m) const {
+      if (phi < m.phi)
+        return true;
+      if (phi == m.phi && id < m.id)
+        return true;
       return false;
     }
   };
 
 private:
-
   // input parameters
   std::vector<edm::InputTag> inputs_;
   std::vector<double> dPhi_;
@@ -110,13 +102,13 @@ private:
   void initialize(const edm::EventSetup& es);
 
   // add a new direction of a region of interest
-  void addRegion(Region &r);
+  void addRegion(Region& r);
 
   // gather info into feds_ and modules_ from a range of a Module vector
-  void gatherFromRange(Region &r, std::vector<Module>::const_iterator, std::vector<Module>::const_iterator);
+  void gatherFromRange(Region& r, std::vector<Module>::const_iterator, std::vector<Module>::const_iterator);
 
   // addRegion for a local (BPIX or +-FPIX) container
-  void addRegionLocal(Region &r, std::vector<Module> &container, const Module& lo,const Module& hi);
+  void addRegionLocal(Region& r, std::vector<Module>& container, const Module& lo, const Module& hi);
 
   // local containers of barrel and endcaps Modules sorted by phi
   std::vector<Module> phiBPIX_;

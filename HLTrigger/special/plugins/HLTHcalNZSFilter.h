@@ -18,7 +18,6 @@ Implementation:
 //
 //
 
-
 // include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -42,16 +41,17 @@ class HLTHcalNZSFilter : public HLTFilter {
 public:
   explicit HLTHcalNZSFilter(const edm::ParameterSet&);
   ~HLTHcalNZSFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<FEDRawDataCollection> dataInputToken_;
   edm::InputTag dataInputTag_;
-
 };
 
 #endif

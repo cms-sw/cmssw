@@ -60,16 +60,13 @@ from the original code follow below to attribute the source.
 namespace cms {
 
   class CRC32Calculator {
-
   public:
-
     CRC32Calculator(std::string const& message);
 
     std::uint32_t checksum() { return checksum_; }
 
   private:
-
     std::uint32_t checksum_;
   };
-}
+}  // namespace cms
 #endif

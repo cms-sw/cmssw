@@ -4,7 +4,7 @@
 //
 // Package:     MuonAlignment
 // Class  :     MuonAlignmentOutputXML
-// 
+//
 /**\class MuonAlignmentOutputXML MuonAlignmentOutputXML.h Alignment/MuonAlignment/interface/MuonAlignmentOutputXML.h
 
  Description: <one line class summary>
@@ -33,38 +33,38 @@
 class AlignableObjectId;
 
 class MuonAlignmentOutputXML {
+public:
+  MuonAlignmentOutputXML(const edm::ParameterSet &iConfig);
+  virtual ~MuonAlignmentOutputXML();
 
-   public:
-      MuonAlignmentOutputXML(const edm::ParameterSet &iConfig);
-      virtual ~MuonAlignmentOutputXML();
+  // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
 
-      // ---------- member functions ---------------------------
+  void write(AlignableMuon *alignableMuon, const edm::EventSetup &iSetup) const;
 
-      void write(AlignableMuon *alignableMuon, const edm::EventSetup &iSetup) const;
+private:
+  MuonAlignmentOutputXML(const MuonAlignmentOutputXML &) = delete;  // stop default
 
-   private:
-      MuonAlignmentOutputXML(const MuonAlignmentOutputXML&) = delete; // stop default
+  const MuonAlignmentOutputXML &operator=(const MuonAlignmentOutputXML &) = delete;  // stop default
 
-      const MuonAlignmentOutputXML& operator=(const MuonAlignmentOutputXML&) = delete; // stop default
+  void writeComponents(align::Alignables &alignables,
+                       align::Alignables &ideals,
+                       std::map<align::ID, CLHEP::HepSymMatrix> &errors,
+                       std::ofstream &outputFile,
+                       bool DT,
+                       const AlignableObjectId &) const;
 
-      void writeComponents(align::Alignables &alignables,
-                           align::Alignables &ideals,
-                           std::map<align::ID, CLHEP::HepSymMatrix>& errors,
-                           std::ofstream &outputFile,
-                           bool DT,
-                           const AlignableObjectId&) const;
-
-      // ---------- member data --------------------------------
-      std::string m_fileName;
-      int m_relativeto;
-      bool m_survey, m_rawIds, m_eulerAngles;
-      int m_precision;
-      bool m_suppressDTBarrel, m_suppressDTWheels, m_suppressDTStations, m_suppressDTChambers, m_suppressDTSuperLayers, m_suppressDTLayers;
-      bool m_suppressCSCEndcaps, m_suppressCSCStations, m_suppressCSCRings, m_suppressCSCChambers, m_suppressCSCLayers;
+  // ---------- member data --------------------------------
+  std::string m_fileName;
+  int m_relativeto;
+  bool m_survey, m_rawIds, m_eulerAngles;
+  int m_precision;
+  bool m_suppressDTBarrel, m_suppressDTWheels, m_suppressDTStations, m_suppressDTChambers, m_suppressDTSuperLayers,
+      m_suppressDTLayers;
+  bool m_suppressCSCEndcaps, m_suppressCSCStations, m_suppressCSCRings, m_suppressCSCChambers, m_suppressCSCLayers;
 };
 
 #endif

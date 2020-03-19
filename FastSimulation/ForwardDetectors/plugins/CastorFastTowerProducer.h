@@ -10,26 +10,23 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
-
 //
 // class decleration
 //
 
-class CastorFastTowerProducer : public edm::stream::EDProducer <> {
-   public:
-      explicit CastorFastTowerProducer(const edm::ParameterSet&);
-      ~CastorFastTowerProducer() override;
+class CastorFastTowerProducer : public edm::stream::EDProducer<> {
+public:
+  explicit CastorFastTowerProducer(const edm::ParameterSet&);
+  ~CastorFastTowerProducer() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      double make_noise();
-      
-      // ----------member data ---------------------------
-      typedef math::XYZPointD Point;
-      typedef ROOT::Math::RhoEtaPhiPoint TowerPoint;
-      typedef std::vector<reco::CastorTower> CastorTowerCollection;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  double make_noise();
+
+  // ----------member data ---------------------------
+  typedef math::XYZPointD Point;
+  typedef ROOT::Math::RhoEtaPhiPoint TowerPoint;
+  typedef std::vector<reco::CastorTower> CastorTowerCollection;
 };
 
 #endif
-
-

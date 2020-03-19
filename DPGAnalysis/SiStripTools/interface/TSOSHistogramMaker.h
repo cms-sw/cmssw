@@ -9,18 +9,17 @@
 class TH1F;
 class TH2F;
 class TrajectoryStateOnSurface;
-namespace edm { class ParameterSet;}
-//class TransientTrackingRecHit { public: class ConstRecHitPointer;}; 
+namespace edm {
+  class ParameterSet;
+}
+//class TransientTrackingRecHit { public: class ConstRecHitPointer;};
 class TSOSHistogramMaker {
-
- public:
+public:
   TSOSHistogramMaker();
   TSOSHistogramMaker(const edm::ParameterSet& iConfig);
   void fill(const TrajectoryStateOnSurface& tsos, TransientTrackingRecHit::ConstRecHitPointer hit) const;
-  
 
- private:
-
+private:
   const bool m_2dhistos;
   std::vector<DetIdSelector> m_detsels;
   std::vector<std::string> m_selnames;
@@ -38,8 +37,6 @@ class TSOSHistogramMaker {
   std::vector<TH1F*> m_tsosdy;
   std::vector<TH1F*> m_tsosdx;
   std::vector<TH2F*> m_tsosdxdy;
- 
-
 };
 
-# endif // TRACKRECOMONITOR_TSOSHISTOGRAMMAKER_H
+#endif  // TRACKRECOMONITOR_TSOSHISTOGRAMMAKER_H

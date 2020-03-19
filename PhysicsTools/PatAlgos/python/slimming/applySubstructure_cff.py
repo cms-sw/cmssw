@@ -229,7 +229,7 @@ def applySubstructure( process, postfix="" ) :
                                                 'userFloat("NjettinessAK8'+postfix+':tau2")',
                                                 'userFloat("NjettinessAK8'+postfix+':tau3")',
                                                 'userFloat("NjettinessAK8'+postfix+':tau4")',
-                                                'pt','eta','phi','mass'
+                                                'pt','eta','phi','mass', 'jetArea', 'jecFactor(0)'
                                             ]),
                                             valueLabels = cms.vstring( [
                                                 'ak8PFJetsCHSPrunedMass',
@@ -238,7 +238,7 @@ def applySubstructure( process, postfix="" ) :
                                                 'NjettinessAK8CHSTau2',
                                                 'NjettinessAK8CHSTau3',
                                                 'NjettinessAK8CHSTau4',
-                                                'pt','eta','phi','mass'
+                                                'pt','eta','phi','mass', 'jetArea', 'rawFactor'
                                             ]) ),
                         process, task)
 
@@ -255,6 +255,8 @@ def applySubstructure( process, postfix="" ) :
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'eta'),
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'phi'),
                                                    cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'mass'),
+                                                   cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'jetArea'),
+                                                   cms.InputTag('ak8PFJetsCHSValueMap'+postfix,'rawFactor'),
                                                    ]
 
     

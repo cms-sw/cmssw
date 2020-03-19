@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSPixelAnalysisMaskRcd
-// 
+//
 /**\class CTPPSPixelAnalysisMaskRcd CTPPSPixelAnalysisMaskRcd.h CondFormats/DataRecord/interface/CTPPSPixelAnalysisMaskRcd.h
 
  Description: [one line class summary]

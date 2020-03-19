@@ -9,7 +9,7 @@ status=0
   
 rm -f standAloneWithMessageLogger.cerr
 
-$CMSSW_BASE/test/$SCRAM_ARCH/standAloneWithMessageLogger >& standAloneWithMessageLogger.cerr
+standAloneWithMessageLogger > standAloneWithMessageLogger.cerr 2>&1
 
 for file in standAloneWithMessageLogger.cerr
 do

@@ -6,7 +6,7 @@
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author:  Giulio Eulisse 
+// Original Author:  Giulio Eulisse
 //         Created:  Fri Feb 18 :51:44 EDT 2010
 //
 
@@ -15,5 +15,4 @@
 // user include files
 #include "Fireworks/Core/interface/FWItemAccessorRegistry.h"
 
-
-EDM_REGISTER_PLUGINFACTORY(FWItemAccessorRegistry,"cmsShow FWItemAccessorBase");
+EDM_REGISTER_PLUGINFACTORY(FWItemAccessorRegistry, "cmsShow FWItemAccessorBase");

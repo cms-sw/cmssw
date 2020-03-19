@@ -34,7 +34,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_GRun', '')
 ###### ADDED FOR RAW
 #### standard includes
 process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")

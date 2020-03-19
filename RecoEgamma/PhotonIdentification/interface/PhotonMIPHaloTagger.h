@@ -9,67 +9,54 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h" 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
 class PhotonMIPHaloTagger {
-
 public:
-
   PhotonMIPHaloTagger(){};
 
   virtual ~PhotonMIPHaloTagger(){};
 
-  void setup(const edm::ParameterSet& conf,edm::ConsumesCollector&& iC);
+  void setup(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
 
-  void MIPcalculate(const reco::Photon*, 
-		    const edm::Event&, 
+  void MIPcalculate(const reco::Photon*,
+                    const edm::Event&,
                     const edm::EventSetup& es,
                     reco::Photon::MIPVariables& mipId);
 
-
   //get the seed crystal index
- void GetSeedHighestE(const reco::Photon* photon,
+  void GetSeedHighestE(const reco::Photon* photon,
                        const edm::Event& iEvent,
                        const edm::EventSetup& iSetup,
                        edm::Handle<EcalRecHitCollection> Brechit,
-                       int &seedIEta,
-                       int &seedIPhi,
-                       double &seedE);
+                       int& seedIEta,
+                       int& seedIPhi,
+                       double& seedE);
 
-
-  //get the MIP  Fit Trail results 
- std::vector<double>  GetMipTrailFit(const reco::Photon* photon,
-		         	     const edm::Event& iEvent,
-			             const edm::EventSetup& iSetup,
+  //get the MIP  Fit Trail results
+  std::vector<double> GetMipTrailFit(const reco::Photon* photon,
+                                     const edm::Event& iEvent,
+                                     const edm::EventSetup& iSetup,
                                      edm::Handle<EcalRecHitCollection> ecalhitsCollEB,
-                                     double inputRangeY,    
-                                     double inputRangeX,    
-                                     double inputResWidth,  
+                                     double inputRangeY,
+                                     double inputRangeX,
+                                     double inputResWidth,
                                      double inputHaloDiscCut,
-                                     int & NhitCone_,
-                                     bool & ismipHalo_ );
+                                     int& NhitCone_,
+                                     bool& ismipHalo_);
 
-
- 
-
-
- 
- protected:
-
+protected:
   edm::EDGetToken EBecalCollection_;
   edm::EDGetToken EEecalCollection_;
 
-
-
- //used inside main methhod
- double inputRangeY;
- double inputRangeX;
- double inputResWidth;
- double inputHaloDiscCut;
- 
+  //used inside main methhod
+  double inputRangeY;
+  double inputRangeX;
+  double inputResWidth;
+  double inputHaloDiscCut;
 
   //Isolation parameters variables as input
   double yRangeFit_;
@@ -77,12 +64,10 @@ public:
   double residualWidthEnergy_;
   double haloDiscThreshold_;
 
- //Local Vector for results
- std::vector<double> mipFitResults_;
- int  nhitCone_;
- bool ismipHalo_; 
+  //Local Vector for results
+  std::vector<double> mipFitResults_;
+  int nhitCone_;
+  bool ismipHalo_;
+};
 
-
-  };
-
-#endif // PhotonMIPHaloTagger_H
+#endif  // PhotonMIPHaloTagger_H

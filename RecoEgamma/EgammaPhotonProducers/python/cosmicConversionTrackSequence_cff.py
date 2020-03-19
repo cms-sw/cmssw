@@ -12,5 +12,5 @@ from RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi import *
 from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
 ckfTracksFromConversionsTask = cms.Task(conversionTrackCandidates,ckfOutInTracksFromConversions,ckfInOutTracksFromConversions)
 ckfTracksFromConversions = cms.Sequence(ckfTracksFromConversionsTask)
-cosmicConversionTrackSequence = cms.Sequence(ckfTracksFromConversions)
-
+cosmicConversionTrackTask = cms.Task(ckfTracksFromConversionsTask)
+cosmicConversionTrackSequence = cms.Sequence(cosmicConversionTrackTask)

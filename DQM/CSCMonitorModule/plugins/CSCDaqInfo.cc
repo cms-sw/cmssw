@@ -21,14 +21,9 @@
 using namespace std;
 using namespace edm;
 
-CSCDaqInfo::CSCDaqInfo(const edm::ParameterSet& ps) {
-   
-}
+CSCDaqInfo::CSCDaqInfo(const edm::ParameterSet& ps) {}
 
-void CSCDaqInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
-{
-
-  
+void CSCDaqInfo::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   ibooker.cd();
   ibooker.setCurrentFolder("CSC/EventInfo/DAQContents");
   mos.insert(std::make_pair("CSC_SideMinus", ibooker.bookFloat("CSC_SideMinus")));
@@ -60,9 +55,7 @@ void CSCDaqInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & iget
   ibooker.setCurrentFolder("CSC/EventInfo");
   mos.insert(std::make_pair("DAQSummary", ibooker.bookFloat("DAQSummary")));
 
-  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
+  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) {
     it->second->Fill(-1);
   }
-
 }
-

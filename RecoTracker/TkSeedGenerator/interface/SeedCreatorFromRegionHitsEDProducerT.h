@@ -18,9 +18,8 @@
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
 
 template <typename T_SeedCreator>
-class SeedCreatorFromRegionHitsEDProducerT: public edm::stream::EDProducer<> {
+class SeedCreatorFromRegionHitsEDProducerT : public edm::stream::EDProducer<> {
 public:
-
   SeedCreatorFromRegionHitsEDProducerT(const edm::ParameterSet& iConfig);
   ~SeedCreatorFromRegionHitsEDProducerT() override = default;
 
@@ -35,20 +34,23 @@ private:
 };
 
 template <typename T_SeedCreator>
-SeedCreatorFromRegionHitsEDProducerT<T_SeedCreator>::SeedCreatorFromRegionHitsEDProducerT(const edm::ParameterSet& iConfig):
-  seedingHitSetsToken_(consumes<RegionsSeedingHitSets>(iConfig.getParameter<edm::InputTag>("seedingHitSets"))),
-  seedCreator_(iConfig)
-{
+SeedCreatorFromRegionHitsEDProducerT<T_SeedCreator>::SeedCreatorFromRegionHitsEDProducerT(
+    const edm::ParameterSet& iConfig)
+    : seedingHitSetsToken_(consumes<RegionsSeedingHitSets>(iConfig.getParameter<edm::InputTag>("seedingHitSets"))),
+      seedCreator_(iConfig) {
   edm::ConsumesCollector iC = consumesCollector();
   edm::ParameterSet comparitorPSet = iConfig.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
-  comparitor_.reset((comparitorName == "none") ? nullptr : SeedComparitorFactory::get()->create(comparitorName, comparitorPSet, iC));
+  if (comparitorName != "none") {
+    comparitor_ = SeedComparitorFactory::get()->create(comparitorName, comparitorPSet, iC);
+  }
 
   produces<TrajectorySeedCollection>();
 }
 
 template <typename T_SeedCreator>
-void SeedCreatorFromRegionHitsEDProducerT<T_SeedCreator>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SeedCreatorFromRegionHitsEDProducerT<T_SeedCreator>::fillDescriptions(
+    edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("seedingHitSets", edm::InputTag("hitPairEDProducer"));
@@ -56,7 +58,7 @@ void SeedCreatorFromRegionHitsEDProducerT<T_SeedCreator>::fillDescriptions(edm::
 
   edm::ParameterSetDescription descComparitor;
   descComparitor.add<std::string>("ComponentName", "none");
-  descComparitor.setAllowAnything(); // until we have moved SeedComparitor too to EDProducers
+  descComparitor.setAllowAnything();  // until we have moved SeedComparitor too to EDProducers
   desc.add<edm::ParameterSetDescription>("SeedComparitorPSet", descComparitor);
 
   auto label = std::string("seedCreatorFromRegion") + T_SeedCreator::fillDescriptionsLabel() + "EDProducer";
@@ -72,18 +74,18 @@ void SeedCreatorFromRegionHitsEDProducerT<T_SeedCreator>::produce(edm::Event& iE
   auto seeds = std::make_unique<TrajectorySeedCollection>();
   seeds->reserve(seedingHitSets.size());
 
-  if(comparitor_)
+  if (comparitor_)
     comparitor_->init(iEvent, iSetup);
 
-  for(const auto& regionSeedingHitSets: seedingHitSets) {
+  for (const auto& regionSeedingHitSets : seedingHitSets) {
     const TrackingRegion& region = regionSeedingHitSets.region();
     seedCreator_.init(region, iSetup, comparitor_.get());
 
-    for(const SeedingHitSet& hits: regionSeedingHitSets) {
+    for (const SeedingHitSet& hits : regionSeedingHitSets) {
       // TODO: do we really need a comparitor at this point? It is
       // used in triplet and quadruplet generators, as well as inside
       // seedCreator.
-      if(!comparitor_ || comparitor_->compatible(hits)) {
+      if (!comparitor_ || comparitor_->compatible(hits)) {
         seedCreator_.makeSeed(*seeds, hits);
       }
     }

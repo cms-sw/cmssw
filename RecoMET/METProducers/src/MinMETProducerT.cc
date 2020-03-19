@@ -4,4 +4,3 @@
 
 DEFINE_FWK_MODULE(reco::MinCaloMETProducer);
 DEFINE_FWK_MODULE(reco::MinPFMETProducer);
-

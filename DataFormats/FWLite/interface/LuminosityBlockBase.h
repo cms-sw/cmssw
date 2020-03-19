@@ -26,37 +26,29 @@
 
 #include "Rtypes.h"
 
-namespace fwlite
-{
-   class LuminosityBlockBase : public edm::LuminosityBlockBase
-   {
-      public:
-         LuminosityBlockBase();
+namespace fwlite {
+  class LuminosityBlockBase : public edm::LuminosityBlockBase {
+  public:
+    LuminosityBlockBase();
 
-         ~LuminosityBlockBase() override;
+    ~LuminosityBlockBase() override;
 
-         virtual bool getByLabel(
-                                  std::type_info const&,
-                                  char const*,
-                                  char const*,
-                                  char const*,
-                                  void*) const = 0;
+    virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const = 0;
 
-         using edm::LuminosityBlockBase::getByLabel;
+    using edm::LuminosityBlockBase::getByLabel;
 
-         virtual bool atEnd() const = 0;
+    virtual bool atEnd() const = 0;
 
-         virtual const LuminosityBlockBase& operator++() = 0;
+    virtual const LuminosityBlockBase& operator++() = 0;
 
-         virtual const LuminosityBlockBase& toBegin() = 0;
+    virtual const LuminosityBlockBase& toBegin() = 0;
 
-         virtual Long64_t fileIndex()          const { return -1; }
-         virtual Long64_t secondaryFileIndex() const { return -1; }
+    virtual Long64_t fileIndex() const { return -1; }
+    virtual Long64_t secondaryFileIndex() const { return -1; }
 
-      private:
-
-         edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const override;
-   };
-} // fwlite namespace
+  private:
+    edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const override;
+  };
+}  // namespace fwlite
 
 #endif

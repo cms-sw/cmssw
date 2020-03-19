@@ -4,7 +4,7 @@
 //
 // Package:     Notification
 // Class  :     Observer
-// 
+//
 /**\class Observer Observer.h SimG4Core/Notification/interface/Observer.h
 
 Description: Adapts the COBRA signal handling for use in the OscarProducer
@@ -19,25 +19,23 @@ the signal the class must override the 'void update(T)' method (e.g., void updat
 //
 //
 
-
-template<class T>
-class Observer
-{
+template <class T>
+class Observer {
 public:
-    Observer() {}
-    virtual ~Observer() {}
+  Observer() {}
+  virtual ~Observer() {}
 
-    /** This method is what is called when the signal is actually sent.  The signal is not sent
+  /** This method is what is called when the signal is actually sent.  The signal is not sent
        directly to 'update' because if we did
        1) If the user did not declare 'update' to be 'public' then we get a compilation failure 
        2) we would not have a 'hook' to allow the 'pre' and 'post' functions to be called
        */
-    void slotForUpdate(T iT) {
-       update(iT);
-    }
+  void slotForUpdate(T iT) { update(iT); }
+
 protected:
-    ///This routine will be called when the appropriate signal arrives
-    virtual void update(T)  = 0;
+  ///This routine will be called when the appropriate signal arrives
+  virtual void update(T) = 0;
+
 private:
 };
 

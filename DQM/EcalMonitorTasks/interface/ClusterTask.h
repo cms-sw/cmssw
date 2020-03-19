@@ -16,8 +16,7 @@
 
 #include <bitset>
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class ClusterTask : public DQWorkerTask {
   public:
     ClusterTask();
@@ -38,14 +37,7 @@ namespace ecaldqm
 
     void setTokens(edm::ConsumesCollector&) override;
 
-    enum TriggerTypes {
-      kEcalTrigger,
-      kHcalTrigger,
-      kCSCTrigger,
-      kDTTrigger,
-      kRPCTrigger,
-      nTriggerTypes
-    };
+    enum TriggerTypes { kEcalTrigger, kHcalTrigger, kCSCTrigger, kDTTrigger, kRPCTrigger, nTriggerTypes };
 
   private:
     void setParams(edm::ParameterSet const&) override;
@@ -67,31 +59,33 @@ namespace ecaldqm
     edm::EDGetTokenT<L1MuGMTReadoutCollection> L1MuGMTReadoutCollectionToken_;
   };
 
-  inline bool ClusterTask::analyze(void const* _p, Collections _collection){
-    switch(_collection){
-    case kEBRecHit:
-    case kEERecHit:
-      if(_p) runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
-      return true;
-      break;
-    case kEBBasicCluster:
-    case kEEBasicCluster:
-      if(_p) runOnBasicClusters(*static_cast<edm::View<reco::CaloCluster> const*>(_p), _collection);
-      return true;
-      break;
-    case kEBSuperCluster:
-    case kEESuperCluster:
-      if(_p) runOnSuperClusters(*static_cast<reco::SuperClusterCollection const*>(_p), _collection);
-      return true;
-      break;
-    default:
-      break;
+  inline bool ClusterTask::analyze(void const* _p, Collections _collection) {
+    switch (_collection) {
+      case kEBRecHit:
+      case kEERecHit:
+        if (_p)
+          runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+        return true;
+        break;
+      case kEBBasicCluster:
+      case kEEBasicCluster:
+        if (_p)
+          runOnBasicClusters(*static_cast<edm::View<reco::CaloCluster> const*>(_p), _collection);
+        return true;
+        break;
+      case kEBSuperCluster:
+      case kEESuperCluster:
+        if (_p)
+          runOnSuperClusters(*static_cast<reco::SuperClusterCollection const*>(_p), _collection);
+        return true;
+        break;
+      default:
+        break;
     }
 
     return false;
   }
 
-}
+}  // namespace ecaldqm
 
 #endif
-

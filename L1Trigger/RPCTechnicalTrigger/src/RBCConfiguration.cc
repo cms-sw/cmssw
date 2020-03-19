@@ -2,7 +2,7 @@
 //
 // Package:     L1Trigger/RPCTechnicalTrigger
 // Class  :     RBCConfiguration
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCConfiguration.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,14 +26,8 @@
 //
 // constructors and destructor
 //
-RBCConfiguration::RBCConfiguration(const RBCBoardSpecs * rbcspecs):
-  m_rbcboardspecs{rbcspecs},
-  m_rbclogic{std::make_unique<RBCLogicUnit>()}
-{
-}
+RBCConfiguration::RBCConfiguration(const RBCBoardSpecs* rbcspecs)
+    : m_rbcboardspecs{rbcspecs}, m_rbclogic{std::make_unique<RBCLogicUnit>()} {}
 
-RBCConfiguration::RBCConfiguration(const char * _logic):
-  m_rbcboardspecs{nullptr},
-  m_rbclogic{std::make_unique<RBCLogicUnit>( _logic )}
-{}
-
+RBCConfiguration::RBCConfiguration(const char* _logic)
+    : m_rbcboardspecs{nullptr}, m_rbclogic{std::make_unique<RBCLogicUnit>(_logic)} {}

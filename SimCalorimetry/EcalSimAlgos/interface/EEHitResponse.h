@@ -4,39 +4,32 @@
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
 
-class EEHitResponse : public EcalHitResponse
-{
-   public:
+class EEHitResponse : public EcalHitResponse {
+public:
+  typedef CaloTSamples<float, 10> EESamples;
 
-      typedef CaloTSamples<float,10> EESamples ;
+  EEHitResponse(const CaloVSimParameterMap* parameterMap, const CaloVShape* shape);
 
-      EEHitResponse( const CaloVSimParameterMap* parameterMap , 
-		     const CaloVShape*           shape          ) ;
+  ~EEHitResponse() override;
 
-      ~EEHitResponse() override ;
+  virtual bool keepBlank() const { return false; }
 
-      virtual bool keepBlank() const { return false ; }
+  unsigned int samplesSize() const override;
 
-      unsigned int samplesSize() const override ;
+  EcalSamples* operator[](unsigned int i) override;
 
-      EcalSamples* operator[]( unsigned int i ) override ;
+  const EcalSamples* operator[](unsigned int i) const override;
 
-      const EcalSamples* operator[]( unsigned int i ) const override ;
+protected:
+  unsigned int samplesSizeAll() const override;
 
-   protected:
+  EcalSamples* vSamAll(unsigned int i) override;
 
-      unsigned int samplesSizeAll() const override ;
+  const EcalSamples* vSamAll(unsigned int i) const override;
 
-      EcalSamples* vSamAll( unsigned int i ) override ;
+  EcalSamples* vSam(unsigned int i) override;
 
-      const EcalSamples* vSamAll( unsigned int i ) const override ;
-
-      EcalSamples* vSam( unsigned int i ) override ;
-
-   private:
-
-      std::vector<EESamples> m_vSam ;
+private:
+  std::vector<EESamples> m_vSam;
 };
 #endif
-
-

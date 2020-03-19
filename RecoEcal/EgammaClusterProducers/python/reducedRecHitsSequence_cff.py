@@ -195,3 +195,7 @@ pp_on_AA_2018.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = 
 pp_on_AA_2018.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingOotGamIsoDetIdEE")) )
 pp_on_AA_2018.toModify(reducedEcalRecHitsES.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFES")) )
 pp_on_AA_2018.toModify(reducedEcalRecHitsES.interestingDetIdsNotToClean, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoESDetId")) )
+
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(reducedEcalRecHitsES,
+                           scEtThreshold = 1.0)

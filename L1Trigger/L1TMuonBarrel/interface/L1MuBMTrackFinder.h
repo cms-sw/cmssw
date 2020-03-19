@@ -63,90 +63,84 @@ class L1MuDTTrackSegEta;
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuBMTrackFinder {
+public:
+  /// container for muon candidates
+  typedef l1t::RegionalMuonCandBxCollection::const_iterator TFtracks_const_iter;
+  typedef l1t::RegionalMuonCandBxCollection::iterator TFtracks_iter;
 
-  public:
+  /// constructor
+  L1MuBMTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC);
 
-    /// container for muon candidates
-    typedef l1t::RegionalMuonCandBxCollection::const_iterator TFtracks_const_iter;
-    typedef l1t::RegionalMuonCandBxCollection::iterator       TFtracks_iter;
+  /// destructor
+  virtual ~L1MuBMTrackFinder();
 
-    /// constructor
-    L1MuBMTrackFinder(const edm::ParameterSet & ps, edm::ConsumesCollector && iC);
+  /// build the structure of the barrel MTTF
+  void setup(edm::ConsumesCollector&&);
 
-    /// destructor
-    virtual ~L1MuBMTrackFinder();
+  /// run the barrel MTTF
+  void run(const edm::Event& e, const edm::EventSetup& c);
 
-    /// build the structure of the barrel MTTF
-    void setup(edm::ConsumesCollector&& );
+  /// reset the barrel MTTF
+  void reset();
 
-    /// run the barrel MTTF
-    void run(const edm::Event& e, const edm::EventSetup& c);
+  inline int setAdd(int ust, int rel_add);
 
-    /// reset the barrel MTTF
-    void reset();
+  /// get a pointer to a Sector Processor
+  const L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&) const;
 
-    inline int setAdd(int ust, int rel_add);
+  /// get a pointer to an Eta Processor, index [0-11]
+  inline const L1MuBMEtaProcessor* ep(int id) const { return m_epvec[id]; }
 
-    /// get a pointer to a Sector Processor
-    const L1MuBMSectorProcessor* sp(const L1MuBMSecProcId&) const;
+  /// get a pointer to a Wedge Sorter, index [0-11]
+  inline const L1MuBMWedgeSorter* ws(int id) const { return m_wsvec[id]; }
 
-    /// get a pointer to an Eta Processor, index [0-11]
-    inline const L1MuBMEtaProcessor* ep(int id) const { return m_epvec[id]; }
+  /// get a pointer to the BM Muon Sorter
+  inline const L1MuBMMuonSorter* ms() const { return m_ms; }
 
-    /// get a pointer to a Wedge Sorter, index [0-11]
-    inline const L1MuBMWedgeSorter* ws(int id) const { return m_wsvec[id]; }
+  /// get number of muon candidates found by the barrel MTTF
+  int numberOfTracks();
 
-    /// get a pointer to the BM Muon Sorter
-    inline const L1MuBMMuonSorter* ms() const { return m_ms; }
+  TFtracks_const_iter begin(int bx);
 
-    /// get number of muon candidates found by the barrel MTTF
-    int numberOfTracks();
+  TFtracks_const_iter end(int bx);
 
-    TFtracks_const_iter begin(int bx);
+  void clear();
 
-    TFtracks_const_iter end(int bx);
+  /// get number of muon candidates found by the barrel MTTF at a given bx
+  int numberOfTracks(int bx);
 
-    void clear();
+  /// return configuration
+  static const L1MuBMTFConfig* config() { return m_config; }
 
-    /// get number of muon candidates found by the barrel MTTF at a given bx
-    int numberOfTracks(int bx);
+  l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
+  l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }
+  L1MuBMTrackCollection& getcache1() { return _cache1; }
+  L1MuBMTrackSegPhiCollection& getcache2() { return _cache2; }
+  L1MuBMTrackSegEtaCollection& getcache3() { return _cache3; }
 
-    /// return configuration
-    static const L1MuBMTFConfig* config() { return m_config; }
+private:
+  /// run Track Finder and store candidates in cache
+  virtual void reconstruct(const edm::Event& e, const edm::EventSetup& c) {
+    reset();
+    run(e, c);
+  }
 
-    l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
-    l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }
-    L1MuBMTrackCollection&       getcache1() { return _cache1; }
-    L1MuBMTrackSegPhiCollection& getcache2() { return _cache2; }
-    L1MuBMTrackSegEtaCollection& getcache3() { return _cache3; }
+private:
+  l1t::RegionalMuonCandBxCollection _cache0;
+  l1t::RegionalMuonCandBxCollection _cache;
+  L1MuBMTrackCollection _cache1;
+  L1MuBMTrackSegPhiCollection _cache2;
+  L1MuBMTrackSegEtaCollection _cache3;
 
-  private:
+  L1MuBMSecProcMap* m_spmap;                 ///< Sector Processors
+  std::vector<L1MuBMEtaProcessor*> m_epvec;  ///< Eta Processors
+  std::vector<L1MuBMWedgeSorter*> m_wsvec;   ///< Wedge Sorters
+  L1MuBMMuonSorter* m_ms;                    ///< BM Muon Sorter
 
-    /// run Track Finder and store candidates in cache
-    virtual void reconstruct(const edm::Event& e, const edm::EventSetup& c) { reset(); run(e,c); }
+  static L1MuBMTFConfig* m_config;  ///< Track Finder configuration
 
-  private:
-
-    l1t::RegionalMuonCandBxCollection _cache0;
-    l1t::RegionalMuonCandBxCollection _cache;
-    L1MuBMTrackCollection         _cache1;
-    L1MuBMTrackSegPhiCollection   _cache2;
-    L1MuBMTrackSegEtaCollection   _cache3;
-
-    L1MuBMSecProcMap*                m_spmap;        ///< Sector Processors
-    std::vector<L1MuBMEtaProcessor*> m_epvec;        ///< Eta Processors
-    std::vector<L1MuBMWedgeSorter*>  m_wsvec;        ///< Wedge Sorters
-    L1MuBMMuonSorter*                m_ms;           ///< BM Muon Sorter
-
-    static L1MuBMTFConfig*           m_config;       ///< Track Finder configuration
-
-
-
-    edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
-
-
+  edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
 };
 
 #endif

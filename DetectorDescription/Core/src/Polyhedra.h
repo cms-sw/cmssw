@@ -7,22 +7,20 @@
 #include "Solid.h"
 
 namespace DDI {
- 
-  class Polyhedra : public Solid
-  {
+
+  class Polyhedra : public Solid {
   public:
-    Polyhedra( int sides, double startPhi, double deltaPhi,
-              const std::vector<double> & z,
-              const std::vector<double> & rmin,
-              const std::vector<double> & rmax); 
-	      
-    Polyhedra(  int sides, double startPhi, double deltaPhi,
-               const std::vector<double> & z,
-	       const std::vector<double> & r);
-    
+    Polyhedra(int sides,
+              double startPhi,
+              double deltaPhi,
+              const std::vector<double> &z,
+              const std::vector<double> &rmin,
+              const std::vector<double> &rmax);
+
+    Polyhedra(int sides, double startPhi, double deltaPhi, const std::vector<double> &z, const std::vector<double> &r);
+
     double volume() const override;
     void stream(std::ostream &) const override;
-  	       
-  };		  
-}
-#endif // DDI_Polyhedra_h
+  };
+}  // namespace DDI
+#endif  // DDI_Polyhedra_h

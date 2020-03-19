@@ -7,15 +7,16 @@ connection class can also take a pre-constructed engine - useful for web service
 
 """
 from __future__ import print_function
+from __future__ import absolute_import
 
 import sqlalchemy
 from sqlalchemy import create_engine, text, or_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 import datetime
-from data_sources import json_data_node
+from .data_sources import json_data_node
 from copy import deepcopy
-import models
+from . import models
 import traceback
 import os
 import netrc
@@ -70,7 +71,7 @@ class connection(object):
             self.radius.database_type = db_type
             self.regexp.database_type = db_type
 
-        import models as ms
+        from . import models as ms
         self.models = ms.generate(map_blobs)
         #self.base = self.models["Base"]
 
@@ -302,8 +303,8 @@ class factory():
     # pkargs is a dictionary of keyword arguments used as primary key values
     # this dictionary will be used to populate the object of type name class_name
     def object(self, class_name, **pkargs):
-        from data_sources import json_list
-        from models import apply_filters
+        from .data_sources import json_list
+        from .models import apply_filters
         # get the class that self.connection holds from the class name
         model = self.connection.model(class_name)
 

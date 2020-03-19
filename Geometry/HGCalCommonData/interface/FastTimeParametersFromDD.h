@@ -12,8 +12,8 @@ public:
   FastTimeParametersFromDD() {}
   virtual ~FastTimeParametersFromDD() {}
 
-  bool build(const DDCompactView*,  FastTimeParameters&, const std::string&,
-	     const int);
+  bool build(const DDCompactView *, FastTimeParameters &, const std::string &, const int);
+
 private:
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
 };

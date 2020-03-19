@@ -14,7 +14,7 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
 
 process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
 
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("Geometry.CommonTopologies.globalTrackingGeometry_cfi")
 
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 
@@ -37,12 +37,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.Timing = cms.Service("Timing")
 
-process.qTester1 = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester1 = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests1.xml')
 )
 
-process.qTester2 = cms.EDAnalyzer("QualityTester",
+process.qTester2 = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests2.xml')
 )

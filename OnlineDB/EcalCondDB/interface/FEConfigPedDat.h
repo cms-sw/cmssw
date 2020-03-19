@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/FEConfigPedInfo.h"
 
 class FEConfigPedDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   FEConfigPedDat();
   ~FEConfigPedDat() override;
@@ -29,24 +29,20 @@ class FEConfigPedDat : public IDataItem {
   inline void setPedMeanG12(float mean) { m_pedMeanG12 = mean; }
   inline float getPedMeanG12() const { return m_pedMeanG12; }
 
-
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item, FEConfigPedInfo* iconf ) noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item, FEConfigPedInfo* iconf) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigPedDat >* data, FEConfigPedInfo* iconf) noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, FEConfigPedDat>* data, FEConfigPedInfo* iconf) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, FEConfigPedDat >* fillMap, FEConfigPedInfo* iconf) noexcept(false);
+  void fetchData(std::map<EcalLogicID, FEConfigPedDat>* fillMap, FEConfigPedInfo* iconf) noexcept(false);
 
   // User data
   float m_pedMeanG1;
   float m_pedMeanG6;
   float m_pedMeanG12;
   int m_ID;
- 
 };
 
 #endif
-
-

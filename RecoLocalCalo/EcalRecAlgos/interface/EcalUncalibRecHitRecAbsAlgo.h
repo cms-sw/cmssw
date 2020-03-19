@@ -14,9 +14,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 
-template<class C> class EcalUncalibRecHitRecAbsAlgo
-{
- public:
+template <class C>
+class EcalUncalibRecHitRecAbsAlgo {
+public:
   enum { nWeightsRows = 3, iAmplitude = 0, iPedestal = 1, iTime = 2 };
 
   /// Constructor
@@ -27,11 +27,10 @@ template<class C> class EcalUncalibRecHitRecAbsAlgo
 
   /// make rechits from dataframes
 
-  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, 
-					    const double* pedestals,
-					    const double* gainRatios,
-					    const EcalWeightSet::EcalWeightMatrix** weights, 
-					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) = 0;
-
+  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame,
+                                            const double* pedestals,
+                                            const double* gainRatios,
+                                            const EcalWeightSet::EcalWeightMatrix** weights,
+                                            const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) = 0;
 };
 #endif

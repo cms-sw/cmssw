@@ -10,7 +10,6 @@ GlobalPoint CSCLayer::centerOfStrip(int strip) const {
 GlobalPoint CSCLayer::centerOfWireGroup(int wireGroup) const {
   //  float y = yOfWireGroup(wireGroup);
   //  GlobalPoint globalPoint = toGlobal(LocalPoint(0., y, 0.));
-  GlobalPoint globalPoint = 
-    surface().toGlobal( geometry()->localCenterOfWireGroup( wireGroup ) );
+  GlobalPoint globalPoint = surface().toGlobal(geometry()->localCenterOfWireGroup(wireGroup));
   return globalPoint;
 }

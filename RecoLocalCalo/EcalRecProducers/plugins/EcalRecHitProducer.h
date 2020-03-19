@@ -24,38 +24,35 @@ class EcalTrigTowerDetId;
 class EcalScDetId;
 
 class EcalRecHitProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EcalRecHitProducer(const edm::ParameterSet& ps);
+  ~EcalRecHitProducer() override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-        public:
-                explicit EcalRecHitProducer(const edm::ParameterSet& ps);
-                ~EcalRecHitProducer() override;
-                void produce(edm::Event& evt, const edm::EventSetup& es) override;
-		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-        private:
+private:
+  std::string ebRechitCollection_;  // secondary name to be given to EB collection of hits
+  std::string eeRechitCollection_;  // secondary name to be given to EE collection of hits
 
-                std::string ebRechitCollection_; // secondary name to be given to EB collection of hits
-                std::string eeRechitCollection_; // secondary name to be given to EE collection of hits
+  bool recoverEBIsolatedChannels_;
+  bool recoverEEIsolatedChannels_;
+  bool recoverEBVFE_;
+  bool recoverEEVFE_;
+  bool recoverEBFE_;
+  bool recoverEEFE_;
+  bool killDeadChannels_;
 
-                bool recoverEBIsolatedChannels_;
-                bool recoverEEIsolatedChannels_;
-                bool recoverEBVFE_;
-                bool recoverEEVFE_;
-                bool recoverEBFE_;
-                bool recoverEEFE_;
-                bool killDeadChannels_;
+  std::unique_ptr<EcalRecHitWorkerBaseClass> worker_;
+  std::unique_ptr<EcalRecHitWorkerBaseClass> workerRecover_;
 
+  std::unique_ptr<EcalCleaningAlgo> cleaningAlgo_;
 
-                std::unique_ptr<EcalRecHitWorkerBaseClass> worker_;
-                std::unique_ptr<EcalRecHitWorkerBaseClass> workerRecover_;
-
-                std::unique_ptr<EcalCleaningAlgo> cleaningAlgo_;
-		
-		edm::EDGetTokenT<EBUncalibratedRecHitCollection> ebUncalibRecHitToken_;
-		edm::EDGetTokenT<EEUncalibratedRecHitCollection> eeUncalibRecHitToken_;
-		edm::EDGetTokenT<std::set<EBDetId> > ebDetIdToBeRecoveredToken_; 
-		edm::EDGetTokenT<std::set<EEDetId> > eeDetIdToBeRecoveredToken_;
-		edm::EDGetTokenT<std::set<EcalTrigTowerDetId> > ebFEToBeRecoveredToken_;
-		edm::EDGetTokenT< std::set<EcalScDetId> >  eeFEToBeRecoveredToken_;
-
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> ebUncalibRecHitToken_;
+  edm::EDGetTokenT<EEUncalibratedRecHitCollection> eeUncalibRecHitToken_;
+  edm::EDGetTokenT<std::set<EBDetId> > ebDetIdToBeRecoveredToken_;
+  edm::EDGetTokenT<std::set<EEDetId> > eeDetIdToBeRecoveredToken_;
+  edm::EDGetTokenT<std::set<EcalTrigTowerDetId> > ebFEToBeRecoveredToken_;
+  edm::EDGetTokenT<std::set<EcalScDetId> > eeFEToBeRecoveredToken_;
 };
 
 #endif

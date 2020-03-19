@@ -3,7 +3,7 @@
 //
 // Package:    LeptonRecoSkim
 // Class:      LeptonRecoSkim
-// 
+//
 /**\class LeptonRecoSkim LeptonRecoSkim.cc Configuration/Skimming/src/LeptonRecoSkim.cc
 
  Description: [one line class summary]
@@ -18,9 +18,7 @@
 //
 //
 
-
 #include "Configuration/Skimming/interface/LeptonRecoSkim.h"
-
 
 using namespace edm;
 using namespace reco;
@@ -29,33 +27,32 @@ using namespace std;
 //
 // constructors and destructor
 //
-LeptonRecoSkim::LeptonRecoSkim(const edm::ParameterSet& iConfig):
-  hltLabel(iConfig.getParameter<edm::InputTag>("HltLabel")),
-  filterName(iConfig.getParameter<std::string>("@module_label")),
-  m_electronSrc(iConfig.getParameter<edm::InputTag>("electronCollection")),
-  m_pfelectronSrc(iConfig.getParameter<edm::InputTag>("pfElectronCollection")),
-  m_muonSrc(iConfig.getParameter<edm::InputTag>("muonCollection")),
-  m_jetsSrc(iConfig.getParameter<edm::InputTag>("caloJetCollection")),
-  m_pfjetsSrc(iConfig.getParameter<edm::InputTag>("PFJetCollection")),
-  m_ebRecHitsSrc(iConfig.getParameter<edm::InputTag>("ecalBarrelRecHitsCollection")),
-  m_eeRecHitsSrc(iConfig.getParameter<edm::InputTag>("ecalEndcapRecHitsCollection")),
-  useElectronSelection(iConfig.getParameter<bool>("UseElectronSelection")),
-  usePfElectronSelection(iConfig.getParameter<bool>("UsePfElectronSelection")),
-  useMuonSelection(iConfig.getParameter<bool>("UseMuonSelection")),
-  useHtSelection(iConfig.getParameter<bool>("UseHtSelection")),
-  usePFHtSelection(iConfig.getParameter<bool>("UsePFHtSelection")),
-  ptElecMin(iConfig.getParameter<double>("electronPtMin")),
-  ptPfElecMin(iConfig.getParameter<double>("pfElectronPtMin")),
-  nSelectedElectrons(iConfig.getParameter<int>("electronN")),
-  nSelectedPfElectrons(iConfig.getParameter<int>("pfElectronN")),
-  ptGlobalMuonMin(iConfig.getParameter<double>("globalMuonPtMin")),
-  ptTrackerMuonMin(iConfig.getParameter<double>("trackerMuonPtMin")),
-  nSelectedMuons(iConfig.getParameter<int>("muonN")),
-  htMin(iConfig.getParameter<double>("HtMin")),
-  pfHtMin(iConfig.getParameter<double>("PFHtMin")),
-  htJetThreshold(iConfig.getParameter<double>("HtJetThreshold")),
-  pfHtJetThreshold(iConfig.getParameter<double>("PFHtJetThreshold"))
-{
+LeptonRecoSkim::LeptonRecoSkim(const edm::ParameterSet& iConfig)
+    : hltLabel(iConfig.getParameter<edm::InputTag>("HltLabel")),
+      filterName(iConfig.getParameter<std::string>("@module_label")),
+      m_electronSrc(iConfig.getParameter<edm::InputTag>("electronCollection")),
+      m_pfelectronSrc(iConfig.getParameter<edm::InputTag>("pfElectronCollection")),
+      m_muonSrc(iConfig.getParameter<edm::InputTag>("muonCollection")),
+      m_jetsSrc(iConfig.getParameter<edm::InputTag>("caloJetCollection")),
+      m_pfjetsSrc(iConfig.getParameter<edm::InputTag>("PFJetCollection")),
+      m_ebRecHitsSrc(iConfig.getParameter<edm::InputTag>("ecalBarrelRecHitsCollection")),
+      m_eeRecHitsSrc(iConfig.getParameter<edm::InputTag>("ecalEndcapRecHitsCollection")),
+      useElectronSelection(iConfig.getParameter<bool>("UseElectronSelection")),
+      usePfElectronSelection(iConfig.getParameter<bool>("UsePfElectronSelection")),
+      useMuonSelection(iConfig.getParameter<bool>("UseMuonSelection")),
+      useHtSelection(iConfig.getParameter<bool>("UseHtSelection")),
+      usePFHtSelection(iConfig.getParameter<bool>("UsePFHtSelection")),
+      ptElecMin(iConfig.getParameter<double>("electronPtMin")),
+      ptPfElecMin(iConfig.getParameter<double>("pfElectronPtMin")),
+      nSelectedElectrons(iConfig.getParameter<int>("electronN")),
+      nSelectedPfElectrons(iConfig.getParameter<int>("pfElectronN")),
+      ptGlobalMuonMin(iConfig.getParameter<double>("globalMuonPtMin")),
+      ptTrackerMuonMin(iConfig.getParameter<double>("trackerMuonPtMin")),
+      nSelectedMuons(iConfig.getParameter<int>("muonN")),
+      htMin(iConfig.getParameter<double>("HtMin")),
+      pfHtMin(iConfig.getParameter<double>("PFHtMin")),
+      htJetThreshold(iConfig.getParameter<double>("HtJetThreshold")),
+      pfHtJetThreshold(iConfig.getParameter<double>("PFHtJetThreshold")) {
   NeventsTotal = 0;
   NeventsFiltered = 0;
   NHltMu9 = 0;
@@ -65,26 +62,17 @@ LeptonRecoSkim::LeptonRecoSkim(const edm::ParameterSet& iConfig):
   NmvaElectrons = 0;
 }
 
-
-LeptonRecoSkim::~LeptonRecoSkim()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+LeptonRecoSkim::~LeptonRecoSkim() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-LeptonRecoSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
-
+bool LeptonRecoSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   bool accept = false;
 
   NeventsTotal++;
@@ -103,128 +91,125 @@ LeptonRecoSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  if(trhv->at(triggerNames_.triggerIndex("HLT_Mu9")).accept()) NHltMu9++;
   //  if(trhv->at(triggerNames_.triggerIndex("HLT_DoubleMu3")).accept()) NHltDiMu3++;
 
-  this->handleObjects(iEvent,iSetup);
+  this->handleObjects(iEvent, iSetup);
 
-  if(useElectronSelection) {
+  if (useElectronSelection) {
     int nElecPassingCut = 0;
-    for(unsigned int i=0; i<theElectronCollection->size(); i++) {
+    for (unsigned int i = 0; i < theElectronCollection->size(); i++) {
       GsfElectron electron = (*theElectronCollection)[i];
       //      if (electron.ecalDrivenSeed()) {
-	float elpt = electron.pt();
-	//        if (electron.sigmaIetaIeta() < 0.002) continue;
-	if(elpt>ptElecMin)  {
-	  NtotalElectrons++;
-	  nElecPassingCut++;
-	  if(electron.mva_e_pi()>-0.1) NmvaElectrons++;
-	}
-	LogDebug("LeptonRecoSkim") << "elpt = " << elpt << endl;
-	// } // closes if (electron.ecalDrivenSeed()) {
+      float elpt = electron.pt();
+      //        if (electron.sigmaIetaIeta() < 0.002) continue;
+      if (elpt > ptElecMin) {
+        NtotalElectrons++;
+        nElecPassingCut++;
+        if (electron.mva_e_pi() > -0.1)
+          NmvaElectrons++;
+      }
+      LogDebug("LeptonRecoSkim") << "elpt = " << elpt << endl;
+      // } // closes if (electron.ecalDrivenSeed()) {
     }
-    if(nElecPassingCut>=nSelectedElectrons) ElectronCutPassed = true;
-  }
-  else ElectronCutPassed = true;
-  
-   if(usePfElectronSelection) {
-     int nPfElecPassingCut = 0;
-     for(unsigned int i=0; i<thePfCandidateCollection->size(); i++) {
-       const reco::PFCandidate& thePfCandidate = (*thePfCandidateCollection)[i];
-       if(thePfCandidate.particleId()!=reco::PFCandidate::e) continue;
-       if(thePfCandidate.gsfTrackRef().isNull()) continue;
-       float pfelpt = thePfCandidate.pt();
-       //        if (electron.sigmaIetaIeta() < 0.002) continue;
-       if(pfelpt>ptPfElecMin)  nPfElecPassingCut++;
-       LogDebug("LeptonRecoSkim") << "pfelpt = " << pfelpt << endl;
-     }
-     if(nPfElecPassingCut>=nSelectedPfElectrons) PfElectronCutPassed = true;
-   }
-   else PfElectronCutPassed = true;
-  
+    if (nElecPassingCut >= nSelectedElectrons)
+      ElectronCutPassed = true;
+  } else
+    ElectronCutPassed = true;
 
+  if (usePfElectronSelection) {
+    int nPfElecPassingCut = 0;
+    for (unsigned int i = 0; i < thePfCandidateCollection->size(); i++) {
+      const reco::PFCandidate& thePfCandidate = (*thePfCandidateCollection)[i];
+      if (thePfCandidate.particleId() != reco::PFCandidate::e)
+        continue;
+      if (thePfCandidate.gsfTrackRef().isNull())
+        continue;
+      float pfelpt = thePfCandidate.pt();
+      //        if (electron.sigmaIetaIeta() < 0.002) continue;
+      if (pfelpt > ptPfElecMin)
+        nPfElecPassingCut++;
+      LogDebug("LeptonRecoSkim") << "pfelpt = " << pfelpt << endl;
+    }
+    if (nPfElecPassingCut >= nSelectedPfElectrons)
+      PfElectronCutPassed = true;
+  } else
+    PfElectronCutPassed = true;
 
-  if(useMuonSelection) {
+  if (useMuonSelection) {
     int nMuonPassingCut = 0;
-    for(unsigned int i=0; i<theMuonCollection->size(); i++) {
+    for (unsigned int i = 0; i < theMuonCollection->size(); i++) {
       Muon muon = (*theMuonCollection)[i];
-      if(! (muon.isGlobalMuon() || muon.isTrackerMuon()) ) continue;
-      const TrackRef siTrack     = muon.innerTrack();
+      if (!(muon.isGlobalMuon() || muon.isTrackerMuon()))
+        continue;
+      const TrackRef siTrack = muon.innerTrack();
       const TrackRef globalTrack = muon.globalTrack();
       float muonpt;
       float ptMuonMin;
       //      if (siTrack.isNonnull() && globalTrack.isNonnull()) {
-      if (muon.isGlobalMuon() &&  muon.isTrackerMuon()) {
-	muonpt = max(siTrack->pt(), globalTrack->pt());
-	ptMuonMin = ptGlobalMuonMin;
+      if (muon.isGlobalMuon() && muon.isTrackerMuon()) {
+        muonpt = max(siTrack->pt(), globalTrack->pt());
+        ptMuonMin = ptGlobalMuonMin;
+      } else if (muon.isGlobalMuon() && !(muon.isTrackerMuon())) {
+        muonpt = globalTrack->pt();
+        ptMuonMin = ptGlobalMuonMin;
+      } else if (muon.isTrackerMuon() && !(muon.isGlobalMuon())) {
+        muonpt = siTrack->pt();
+        ptMuonMin = ptTrackerMuonMin;
+      } else {
+        muonpt = 0;  // if we get here this is a STA only muon
+        ptMuonMin = 999999.;
       }
-      else if (muon.isGlobalMuon()  &&  !(muon.isTrackerMuon())) {
-	muonpt = globalTrack->pt();
-	ptMuonMin = ptGlobalMuonMin;
-      }
-      else if (muon.isTrackerMuon()  &&  !(muon.isGlobalMuon())) {
- 	muonpt = siTrack->pt();
-	ptMuonMin = ptTrackerMuonMin;
-      }
-      else {
-	muonpt = 0; // if we get here this is a STA only muon
-	ptMuonMin = 999999.;
-      }
-      if(muonpt>ptMuonMin) nMuonPassingCut++;
+      if (muonpt > ptMuonMin)
+        nMuonPassingCut++;
       LogDebug("RecoSelectorCuts") << "muonpt = " << muonpt << endl;
     }
-    if(nMuonPassingCut>=nSelectedMuons) MuonCutPassed = true;
-  }
-  else MuonCutPassed = true;
+    if (nMuonPassingCut >= nSelectedMuons)
+      MuonCutPassed = true;
+  } else
+    MuonCutPassed = true;
 
-  if(useHtSelection) {
+  if (useHtSelection) {
     double Ht = 0;
-    for(unsigned int i=0; i<theCaloJetCollection->size(); i++) {
+    for (unsigned int i = 0; i < theCaloJetCollection->size(); i++) {
       //      if((*theCaloJetCollection)[i].eta()<2.6 && (*theCaloJetCollection)[i].emEnergyFraction() <= 0.01) continue;
-      if((*theCaloJetCollection)[i].pt()>htJetThreshold) Ht += (*theCaloJetCollection)[i].pt();
+      if ((*theCaloJetCollection)[i].pt() > htJetThreshold)
+        Ht += (*theCaloJetCollection)[i].pt();
     }
-    if(Ht>htMin) HtCutPassed = true;
-  }
-  else HtCutPassed = true;
+    if (Ht > htMin)
+      HtCutPassed = true;
+  } else
+    HtCutPassed = true;
 
-  if(usePFHtSelection) {
+  if (usePFHtSelection) {
     double PFHt = 0;
-    for(unsigned int i=0; i<thePFJetCollection->size(); i++) {
-      if((*thePFJetCollection)[i].pt()>pfHtJetThreshold) PFHt += (*thePFJetCollection)[i].pt();
+    for (unsigned int i = 0; i < thePFJetCollection->size(); i++) {
+      if ((*thePFJetCollection)[i].pt() > pfHtJetThreshold)
+        PFHt += (*thePFJetCollection)[i].pt();
     }
-    if(PFHt>pfHtMin) PFHtCutPassed = true;
-  }
-  else PFHtCutPassed = true;
+    if (PFHt > pfHtMin)
+      PFHtCutPassed = true;
+  } else
+    PFHtCutPassed = true;
 
+  if (PfElectronCutPassed && ElectronCutPassed && MuonCutPassed && HtCutPassed && PFHtCutPassed)
+    accept = true;
 
-  if(PfElectronCutPassed      && 
-     ElectronCutPassed        && 
-     MuonCutPassed            && 
-     HtCutPassed              &&
-     PFHtCutPassed            ) accept = true;
-  
-  if(accept) NeventsFiltered++;
+  if (accept)
+    NeventsFiltered++;
 
   firstEvent = false;
   return accept;
-  
-
-
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-LeptonRecoSkim::beginJob()
-{
-  firstEvent = true;
-}
+void LeptonRecoSkim::beginJob() { firstEvent = true; }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-LeptonRecoSkim::endJob() {
-  cout << "Filter Name            = " << filterName                                       << endl;
-  cout << "Total number of events = " << NeventsTotal                                     << endl;
-  cout << "Total HLT_Mu9          = " << NHltMu9                                          << endl;
-  cout << "Total HLT_DoubleMu3    = " << NHltDiMu3                                        << endl;
-  cout << "Filtered events        = " << NeventsFiltered                                  << endl;
-  cout << "Filter Efficiency      = " << (float)NeventsFiltered / (float)NeventsTotal     << endl;
+void LeptonRecoSkim::endJob() {
+  cout << "Filter Name            = " << filterName << endl;
+  cout << "Total number of events = " << NeventsTotal << endl;
+  cout << "Total HLT_Mu9          = " << NHltMu9 << endl;
+  cout << "Total HLT_DoubleMu3    = " << NHltDiMu3 << endl;
+  cout << "Filtered events        = " << NeventsFiltered << endl;
+  cout << "Filter Efficiency      = " << (float)NeventsFiltered / (float)NeventsTotal << endl;
   cout << endl;
   cout << "N total electrons      = " << NtotalElectrons << endl;
   cout << "N mva>-0.1 electrons   = " << NmvaElectrons << endl;
@@ -232,13 +217,9 @@ LeptonRecoSkim::endJob() {
   cout << endl;
 }
 
-
-
-
-void LeptonRecoSkim::handleObjects(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void LeptonRecoSkim::handleObjects(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Get the electrons
-  Handle<GsfElectronCollection> theElectronCollectionHandle; 
+  Handle<GsfElectronCollection> theElectronCollectionHandle;
   iEvent.getByLabel(m_electronSrc, theElectronCollectionHandle);
   theElectronCollection = theElectronCollectionHandle.product();
 
@@ -248,7 +229,7 @@ void LeptonRecoSkim::handleObjects(const edm::Event& iEvent, const edm::EventSet
   thePfCandidateCollection = thePfCandidateHandle.product();
 
   //Get the Muons
-  Handle<MuonCollection> theMuonCollectionHandle; 
+  Handle<MuonCollection> theMuonCollectionHandle;
   iEvent.getByLabel(m_muonSrc, theMuonCollectionHandle);
   theMuonCollection = theMuonCollectionHandle.product();
 
@@ -263,33 +244,26 @@ void LeptonRecoSkim::handleObjects(const edm::Event& iEvent, const edm::EventSet
   thePFJetCollection = thePFJetCollectionHandle.product();
 
   //Get the ECAL rechhits to clean the spikes
-// Get EB RecHits
+  // Get EB RecHits
   edm::Handle<EcalRecHitCollection> ebRecHitsHandle;
   iEvent.getByLabel(m_ebRecHitsSrc, ebRecHitsHandle);
   theEcalBarrelCollection = ebRecHitsHandle.product();
-// Get EE RecHits
+  // Get EE RecHits
   edm::Handle<EcalRecHitCollection> eeRecHitsHandle;
   iEvent.getByLabel(m_eeRecHitsSrc, eeRecHitsHandle);
   theEcalEndcapCollection = eeRecHitsHandle.product();
 
-// Get topology for spike cleaning
-   edm::ESHandle<CaloGeometry> geometryHandle;
-   iSetup.get<CaloGeometryRecord>().get(geometryHandle);
-   theCaloGeometry = geometryHandle.product();
-//   theCaloBarrelSubdetTopology = new EcalBarrelTopology(geometryHandle);
-//   theCaloEndcapSubdetTopology = new EcalEndcapTopology(geometryHandle);
+  // Get topology for spike cleaning
+  edm::ESHandle<CaloGeometry> geometryHandle;
+  iSetup.get<CaloGeometryRecord>().get(geometryHandle);
+  theCaloGeometry = geometryHandle.product();
+  //   theCaloBarrelSubdetTopology = new EcalBarrelTopology(geometryHandle);
+  //   theCaloEndcapSubdetTopology = new EcalEndcapTopology(geometryHandle);
 
   edm::ESHandle<CaloTopology> pTopology;
   iSetup.get<CaloTopologyRecord>().get(pTopology);
   theCaloTopology = pTopology.product();
-  
-  
-
-
 }
-    
-    
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(LeptonRecoSkim);

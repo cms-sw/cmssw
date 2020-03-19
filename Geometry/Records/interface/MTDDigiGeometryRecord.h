@@ -12,14 +12,14 @@
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class MTDDigiGeometryRecord : 
-  public edm::eventsetup::DependentRecordImplementation<MTDDigiGeometryRecord,
-                boost::mpl::vector<IdealGeometryRecord,
-                MTDAlignmentRcd, 
-                MTDAlignmentErrorExtendedRcd,
-                MTDSurfaceDeformationRcd,
-                GlobalPositionRcd,
-                MTDTopologyRcd,
-                PMTDParametersRcd> > {};
+class MTDDigiGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<MTDDigiGeometryRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                                               MTDAlignmentRcd,
+                                                                               MTDAlignmentErrorExtendedRcd,
+                                                                               MTDSurfaceDeformationRcd,
+                                                                               GlobalPositionRcd,
+                                                                               MTDTopologyRcd,
+                                                                               PMTDParametersRcd> > {};
 
 #endif /* RECORDS_MTDDIGIGEOMETRYRECORD_H */

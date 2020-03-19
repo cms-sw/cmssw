@@ -25,7 +25,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -37,18 +37,28 @@
 #include "CondFormats/DataRecord/interface/SiStripDeDxPion_3D_Rcd.h"
 #include "CondFormats/DataRecord/interface/SiStripDeDxKaon_3D_Rcd.h"
 
-
 #include "TFile.h"
 #include "TChain.h"
 #include "TH3F.h"
 
-namespace DeDxTools  {
-  bool shapeSelection    (const SiStripCluster  & ampls);
-  int  getCharge         (const SiStripCluster* cluster, int& nSatStrip, const GeomDetUnit& detUnit, const std::vector< std::vector< float > >& calibGains, const unsigned int& m_off );
-  void makeCalibrationMap(const std::string& m_calibrationPath, const TrackerGeometry& tkGeom, std::vector< std::vector< float > >& calibGains, const unsigned int& m_off);
-  void buildDiscrimMap   (edm::Run const& run, const edm::EventSetup& iSetup, std::string Reccord, std::string ProbabilityMode, TH3F*& Prob_ChargePath);
+namespace DeDxTools {
+  bool shapeSelection(const SiStripCluster& ampls);
+  int getCharge(const SiStripCluster* cluster,
+                int& nSatStrip,
+                const GeomDetUnit& detUnit,
+                const std::vector<std::vector<float> >& calibGains,
+                const unsigned int& m_off);
+  void makeCalibrationMap(const std::string& m_calibrationPath,
+                          const TrackerGeometry& tkGeom,
+                          std::vector<std::vector<float> >& calibGains,
+                          const unsigned int& m_off);
+  void buildDiscrimMap(edm::Run const& run,
+                       const edm::EventSetup& iSetup,
+                       std::string Reccord,
+                       std::string ProbabilityMode,
+                       TH3F*& Prob_ChargePath);
   bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize);
-  bool IsFarFromBorder   (const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it);
-}
+  bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it);
+}  // namespace DeDxTools
 
 #endif

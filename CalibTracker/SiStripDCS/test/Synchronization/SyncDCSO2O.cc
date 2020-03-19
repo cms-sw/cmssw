@@ -14,30 +14,28 @@
 #include "TFile.h"
 #include "TCanvas.h"
 
-SyncDCSO2O::SyncDCSO2O(const edm::ParameterSet& iConfig)
-{
+SyncDCSO2O::SyncDCSO2O(const edm::ParameterSet& iConfig) {
   // get all digi collections
   digiProducersList_ = iConfig.getParameter<Parameters>("DigiProducersList");
 }
 
-SyncDCSO2O::~SyncDCSO2O()
-{
+SyncDCSO2O::~SyncDCSO2O() {
   std::cout << "Analyzed events with digis = " << timeInfo_.size() << std::endl;
 
   // First sort the timeInfo vector by time
   std::sort(timeInfo_.begin(), timeInfo_.end(), SortByTime());
 
-  TFile * outputFile = new TFile("digisAndHVvsTime.root", "RECREATE");
+  TFile* outputFile = new TFile("digisAndHVvsTime.root", "RECREATE");
   outputFile->cd();
 
-  TH1F * digis            = new TH1F("digis",            "digis",            timeInfo_.size(), 0, timeInfo_.size());
-  TH1F * digisWithMasking = new TH1F("digisWithMasking", "digisWithMasking", timeInfo_.size(), 0, timeInfo_.size());
-  TH1F * HVoff            = new TH1F("HVoff",            "HVoff",            timeInfo_.size(), 0, timeInfo_.size());
-  TH1F * time             = new TH1F("time",             "time",             timeInfo_.size(), 0, timeInfo_.size());
+  TH1F* digis = new TH1F("digis", "digis", timeInfo_.size(), 0, timeInfo_.size());
+  TH1F* digisWithMasking = new TH1F("digisWithMasking", "digisWithMasking", timeInfo_.size(), 0, timeInfo_.size());
+  TH1F* HVoff = new TH1F("HVoff", "HVoff", timeInfo_.size(), 0, timeInfo_.size());
+  TH1F* time = new TH1F("time", "time", timeInfo_.size(), 0, timeInfo_.size());
   std::vector<TimeInfo>::const_iterator it = timeInfo_.begin();
   // Float_t * timeArray = new Float_t[timeInfo_.size()];
-  unsigned int i=1;
-  for( ; it != timeInfo_.end(); ++it, ++i ) {
+  unsigned int i = 1;
+  for (; it != timeInfo_.end(); ++it, ++i) {
     digis->SetBinContent(i, it->digiOccupancy);
     digisWithMasking->SetBinContent(i, it->digiOccupancyWithMasking);
     HVoff->SetBinContent(i, it->HVoff);
@@ -46,7 +44,12 @@ SyncDCSO2O::~SyncDCSO2O()
     coral::TimeStamp coralTime(cond::time::to_boost(it->time));
     // N.B. we add 1 hour to the coralTime because it is the conversion from posix_time which is non-adjusted.
     // The shift of +1 gives the CERN time zone.
-    TDatime date1(coralTime.year(), coralTime.month(), coralTime.day(), coralTime.hour()+1, coralTime.minute(), coralTime.second());
+    TDatime date1(coralTime.year(),
+                  coralTime.month(),
+                  coralTime.day(),
+                  coralTime.hour() + 1,
+                  coralTime.minute(),
+                  coralTime.second());
     // timeArray[i-1] = date1.Convert();
     time->SetBinContent(i, date1.Convert());
   }
@@ -68,12 +71,12 @@ SyncDCSO2O::~SyncDCSO2O()
   time->Draw("same");
   time->Write();
 
-//   TGraph * digisGraph = buildGraph(digis, timeArray);
-//   digisGraph->Write("digisGraph");
-//   TGraph * digisWithMaskingGraph = buildGraph(digisWithMasking, timeArray);
-//   digisWithMaskingGraph->Write("digisWithMaskingGraph");
-//   TGraph * HVoffGraph = buildGraph(HVoff, timeArray);
-//   HVoffGraph->Write("HVoffGraph");
+  //   TGraph * digisGraph = buildGraph(digis, timeArray);
+  //   digisGraph->Write("digisGraph");
+  //   TGraph * digisWithMaskingGraph = buildGraph(digisWithMasking, timeArray);
+  //   digisWithMaskingGraph->Write("digisWithMaskingGraph");
+  //   TGraph * HVoffGraph = buildGraph(HVoff, timeArray);
+  //   HVoffGraph->Write("HVoffGraph");
 
   outputFile->Write();
   outputFile->Close();
@@ -82,12 +85,11 @@ SyncDCSO2O::~SyncDCSO2O()
 }
 
 // ------------ method called to for each event  ------------
-void SyncDCSO2O::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void SyncDCSO2O::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   ESHandle<SiStripDetVOff> detVOff;
-  iSetup.get<SiStripDetVOffRcd>().get( detVOff );
+  iSetup.get<SiStripDetVOffRcd>().get(detVOff);
 
   std::vector<uint32_t> detIds;
   detVOff->getDetIds(detIds);
@@ -98,7 +100,7 @@ void SyncDCSO2O::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // std::cout << ss.str() << std::endl;
 
   // double seconds = (iEvent.time().value() >> 32);
-  std::cout << "event time = "  << iEvent.time().value() << std::endl;
+  std::cout << "event time = " << iEvent.time().value() << std::endl;
   // std::cout << "event time in seconds = "  << seconds << std::endl;
 
   coral::TimeStamp coralTime(cond::time::to_boost(iEvent.time().value()));
@@ -106,56 +108,56 @@ void SyncDCSO2O::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::cout << "year = " << coralTime.year() << ", month = " << coralTime.month() << ", day = " << coralTime.day();
   // N.B. we add 1 hour to the coralTime because it is the conversion from posix_time which is non-adjusted.
   // The shift of +1 gives the CERN time zone.
-  std::cout << ", hour = " << coralTime.hour()+1 << ", minute = " << coralTime.minute() << ", second = " << coralTime.second();
+  std::cout << ", hour = " << coralTime.hour() + 1 << ", minute = " << coralTime.minute()
+            << ", second = " << coralTime.second();
   std::cout << ", nanosecond = " << coralTime.nanosecond() << std::endl;
 
   getDigis(iEvent);
-  if( !(digiDetsetVector_[0].isValid()) ) std::cout << "NOT VALID DIGI COLLECTION 0" << std::endl;
+  if (!(digiDetsetVector_[0].isValid()))
+    std::cout << "NOT VALID DIGI COLLECTION 0" << std::endl;
   else {
     edm::DetSetVector<SiStripDigi>::const_iterator it = digiDetsetVector_[0]->begin();
     unsigned int totDigis = 0;
     unsigned int totDigisWithMasking = 0;
-    for( ; it != digiDetsetVector_[0]->end(); ++it ) {
+    for (; it != digiDetsetVector_[0]->end(); ++it) {
       totDigis += it->size();
       // Compute also number of digis masking detIds off according to DetVOff
-      if( !(detVOff->IsModuleHVOff(it->detId())) ) {
+      if (!(detVOff->IsModuleHVOff(it->detId()))) {
         totDigisWithMasking += it->size();
       }
     }
     std::cout << "digis = " << totDigis << std::endl;
-    timeInfo_.push_back( TimeInfo(iEvent.time().value(), totDigis, totDigisWithMasking, detVOff->getHVoffCounts()) );
+    timeInfo_.push_back(TimeInfo(iEvent.time().value(), totDigis, totDigisWithMasking, detVOff->getHVoffCounts()));
   }
 }
 
-void SyncDCSO2O::getDigis(const edm::Event& iEvent)
-{
+void SyncDCSO2O::getDigis(const edm::Event& iEvent) {
   using namespace edm;
 
   int icoll = 0;
   Parameters::iterator itDigiProducersList = digiProducersList_.begin();
-  for(; itDigiProducersList != digiProducersList_.end(); ++itDigiProducersList ) {
+  for (; itDigiProducersList != digiProducersList_.end(); ++itDigiProducersList) {
     std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
     std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
     // std::cout << "Reading digi for " << digiProducer << " with label: " << digiLabel << std::endl;
-    iEvent.getByLabel(digiProducer,digiLabel,digiDetsetVector_[icoll]);
+    iEvent.getByLabel(digiProducer, digiLabel, digiDetsetVector_[icoll]);
     icoll++;
   }
 }
 
 /// Build TGraphs with quantity vs time
-TGraph * SyncDCSO2O::buildGraph(TH1F * histo, Float_t * timeArray)
-{
+TGraph* SyncDCSO2O::buildGraph(TH1F* histo, Float_t* timeArray) {
   unsigned int arraySize = histo->GetNbinsX();
   // Note that the array reported has [0] = underflow and [Nbins+1] = overflow
-  Float_t * valueArray = (histo->GetArray())+1;
+  Float_t* valueArray = (histo->GetArray()) + 1;
 
-  TGraph * graph = new TGraph(arraySize, valueArray, timeArray);
+  TGraph* graph = new TGraph(arraySize, valueArray, timeArray);
   graph->Draw("A*");
   graph->GetXaxis()->SetTimeDisplay(1);
   graph->GetXaxis()->SetLabelOffset(0.02);
   graph->GetXaxis()->SetTimeFormat("#splitline{  %d}{%H:%M}");
-  graph->GetXaxis()->SetTimeOffset(0,"gmt");
-  graph->GetYaxis()->SetRangeUser(0,16000);
+  graph->GetXaxis()->SetTimeOffset(0, "gmt");
+  graph->GetYaxis()->SetRangeUser(0, 16000);
   graph->GetXaxis()->SetTitle("day/hour");
   graph->GetXaxis()->SetTitleSize(0.03);
   graph->GetXaxis()->SetTitleColor(kBlack);
@@ -170,11 +172,7 @@ TGraph * SyncDCSO2O::buildGraph(TH1F * histo, Float_t * timeArray)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void SyncDCSO2O::beginJob()
-{
-}
+void SyncDCSO2O::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void SyncDCSO2O::endJob()
-{
-}
+void SyncDCSO2O::endJob() {}

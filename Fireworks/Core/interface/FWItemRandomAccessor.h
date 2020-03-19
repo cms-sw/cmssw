@@ -10,7 +10,7 @@
 //
 
 // system include files
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
@@ -25,31 +25,30 @@
     impossible to instanciate this baseclass directly.
   */
 
-class FWItemRandomAccessorBase : public FWItemAccessorBase
-{
+class FWItemRandomAccessorBase : public FWItemAccessorBase {
 public:
-   ~FWItemRandomAccessorBase() override;
+  ~FWItemRandomAccessorBase() override;
 
-   const void*    data() const override;
-   const TClass*  type() const override;
-   const TClass*  modelType() const override;
+  const void *data() const override;
+  const TClass *type() const override;
+  const TClass *modelType() const override;
 
-   bool           isCollection() const override;
+  bool isCollection() const override;
 
-   void           setData(const edm::ObjectWithDict&) override;
-   void   reset() override;
+  void setData(const edm::ObjectWithDict &) override;
+  void reset() override;
 
 protected:
-   void *getDataPtr() const;   
-   FWItemRandomAccessorBase(const TClass *type, const std::type_info &modelTypeName);
-   const TClass* m_type;
-   const TClass* m_modelType;
-   mutable void* m_data;
+  void *getDataPtr() const;
+  FWItemRandomAccessorBase(const TClass *type, const std::type_info &modelTypeName);
+  const TClass *m_type;
+  const TClass *m_modelType;
+  mutable void *m_data;
 
 private:
-   FWItemRandomAccessorBase(const FWItemRandomAccessorBase&) = delete; // stop default
+  FWItemRandomAccessorBase(const FWItemRandomAccessorBase &) = delete;  // stop default
 
-   const FWItemRandomAccessorBase& operator=(const FWItemRandomAccessorBase&) = delete; // stop default
+  const FWItemRandomAccessorBase &operator=(const FWItemRandomAccessorBase &) = delete;  // stop default
 };
 
 /** A generic helper class which can be used to create
@@ -70,31 +69,27 @@ private:
     Notice that most of the work is actually done by the baseclass.
   */
 template <class C, class V = typename C::value_type>
-class FWItemRandomAccessor : public FWItemRandomAccessorBase 
-{
-   typedef C container_type;
-   typedef V container_value_type;
+class FWItemRandomAccessor : public FWItemRandomAccessorBase {
+  typedef C container_type;
+  typedef V container_value_type;
+
 public:
-   FWItemRandomAccessor(const TClass *iClass)
-      : FWItemRandomAccessorBase(iClass, typeid(container_value_type))
-      {}
+  FWItemRandomAccessor(const TClass *iClass) : FWItemRandomAccessorBase(iClass, typeid(container_value_type)) {}
 
-   REGISTER_FWITEMACCESSOR_METHODS();
+  REGISTER_FWITEMACCESSOR_METHODS();
 
-   // ---------- const member functions ---------------------
-   const void*    modelData(int iIndex) const override
-      {
-         if (!getDataPtr())
-            return nullptr;
-         return &(reinterpret_cast<container_type *>(getDataPtr())->operator[](iIndex));
-      }
+  // ---------- const member functions ---------------------
+  const void *modelData(int iIndex) const override {
+    if (!getDataPtr())
+      return nullptr;
+    return &(reinterpret_cast<container_type *>(getDataPtr())->operator[](iIndex));
+  }
 
-   unsigned int   size() const override
-      {
-         if (!getDataPtr())
-            return 0;
-         return reinterpret_cast<const container_type*>(getDataPtr())->size();
-      }
+  unsigned int size() const override {
+    if (!getDataPtr())
+      return 0;
+    return reinterpret_cast<const container_type *>(getDataPtr())->size();
+  }
 };
 
 /** Generic class for creating accessors for containers which 
@@ -104,182 +99,185 @@ public:
     must have a size() method. The outer collection must be iterable, while
     the inner collections must have an array subscript operator. 
   */
-template <class C, class COLL = typename C::value_type, class V = typename COLL::value_type >
-class FWItemDetSetAccessor : public FWItemRandomAccessorBase
-{
+template <class C, class COLL = typename C::value_type, class V = typename COLL::value_type>
+class FWItemDetSetAccessor : public FWItemRandomAccessorBase {
 public:
-   typedef C      container_type;
-   typedef COLL   collection_type;
-   typedef V      collection_value_type;
+  typedef C container_type;
+  typedef COLL collection_type;
+  typedef V collection_value_type;
 
-   FWItemDetSetAccessor(const TClass *iClass)
-      : FWItemRandomAccessorBase(iClass, typeid(collection_value_type))
-      {}
+  FWItemDetSetAccessor(const TClass *iClass) : FWItemRandomAccessorBase(iClass, typeid(collection_value_type)) {}
 
-   REGISTER_FWITEMACCESSOR_METHODS();
+  REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const override
-      {
-         if (!getDataPtr())
-            return nullptr;
-         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
-         size_t collectionOffset = 0;
-         for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
-         {
-            size_t i = iIndex - collectionOffset;
-            if (i < ci->size())
-               return &(ci->operator[](i));
-            collectionOffset += ci->size();
-         }
+  const void *modelData(int iIndex) const override {
+    if (!getDataPtr())
+      return nullptr;
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+    size_t collectionOffset = 0;
+    for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci) {
+      size_t i = iIndex - collectionOffset;
+      if (i < ci->size())
+        return &(ci->operator[](i));
+      collectionOffset += ci->size();
+    }
 
-         return nullptr;
-      }
+    return nullptr;
+  }
 
-   unsigned int   size() const override
-      {
-         if (!getDataPtr())
-            return 0;
-         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
-         size_t finalSize = 0;
+  unsigned int size() const override {
+    if (!getDataPtr())
+      return 0;
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+    size_t finalSize = 0;
 
-         for (typename container_type::const_iterator i = c->begin(), e = c->end(); i != e; ++i)
-            finalSize += i->size();
-         
-         return finalSize;
-      }
+    for (typename container_type::const_iterator i = c->begin(), e = c->end(); i != e; ++i)
+      finalSize += i->size();
+
+    return finalSize;
+  }
 };
 
 /** Specialized accessor for the new edmNew::DetSetVector classes.
   */
-template <class C, class COLL = typename C::value_type, class V = typename COLL::value_type >
-class FWItemNewDetSetAccessor : public FWItemRandomAccessorBase
-{
+template <class C, class COLL = typename C::value_type, class V = typename COLL::value_type>
+class FWItemNewDetSetAccessor : public FWItemRandomAccessorBase {
 public:
-   typedef C      container_type;
-   typedef COLL   collection_type;
-   typedef V      collection_value_type;
+  typedef C container_type;
+  typedef COLL collection_type;
+  typedef V collection_value_type;
 
-   FWItemNewDetSetAccessor(const TClass *iClass)
-      : FWItemRandomAccessorBase(iClass, typeid(collection_value_type))
-      {}
+  FWItemNewDetSetAccessor(const TClass *iClass) : FWItemRandomAccessorBase(iClass, typeid(collection_value_type)) {}
 
-   REGISTER_FWITEMACCESSOR_METHODS();
+  REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const override
-      {
-         if (!getDataPtr())
-            return nullptr;
-         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
-         if (iIndex < 0)
-            return nullptr;
+  const void *modelData(int iIndex) const override {
+    if (!getDataPtr())
+      return nullptr;
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+    if (iIndex < 0)
+      return nullptr;
 
-         return &(c->data().operator[](iIndex));
-      }
+    return &(c->data().operator[](iIndex));
+  }
 
-   unsigned int   size() const override
-      {
-         if (!getDataPtr())
-            return 0;
-         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
-         return c->dataSize();
-      }
+  unsigned int size() const override {
+    if (!getDataPtr())
+      return 0;
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+    return c->dataSize();
+  }
 };
 
 template <class C, class R = typename C::Range, class V = typename R::value_type>
-class FWItemRangeAccessor : public FWItemRandomAccessorBase
-{
+class FWItemRangeAccessor : public FWItemRandomAccessorBase {
 public:
-   typedef C            container_type;
-   typedef R            range_type;
-   typedef V            value_type;
+  typedef C container_type;
+  typedef R range_type;
+  typedef V value_type;
 
-   FWItemRangeAccessor(const TClass *iClass)
-      : FWItemRandomAccessorBase(iClass, typeid(value_type))
-      {}
+  FWItemRangeAccessor(const TClass *iClass) : FWItemRandomAccessorBase(iClass, typeid(value_type)) {}
 
   REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const override
-      {
-         if (!getDataPtr())
-            return nullptr;
-         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
-         size_t collectionOffset = 0;
-         for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
-         {
-            size_t i = iIndex - collectionOffset;
-            if (i < std::distance(ci->first, ci->second))
-               return &(*(ci + i));
-            collectionOffset += ci->size();
-         }
+  const void *modelData(int iIndex) const override {
+    if (!getDataPtr())
+      return nullptr;
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+    size_t collectionOffset = 0;
+    for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci) {
+      size_t i = iIndex - collectionOffset;
+      if (i < std::distance(ci->first, ci->second))
+        return &(*(ci + i));
+      collectionOffset += ci->size();
+    }
 
-         return nullptr;
-      }
+    return nullptr;
+  }
 
-   unsigned int   size() const override
-      {
-         if (!getDataPtr())
-            return 0;
-         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
-         size_t finalSize = 0;
+  unsigned int size() const override {
+    if (!getDataPtr())
+      return 0;
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+    size_t finalSize = 0;
 
-         for (typename range_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
-            finalSize += std::distance(ci->first, ci->second);
+    for (typename range_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
+      finalSize += std::distance(ci->first, ci->second);
 
-         return finalSize;
-      }
+    return finalSize;
+  }
 };
 
 template <class C, class V>
-class FWItemMuonDigiAccessor : public FWItemRandomAccessorBase
-{
+class FWItemMuonDigiAccessor : public FWItemRandomAccessorBase {
 public:
-   typedef C            container_type;
-   typedef V            value_type;
+  typedef C container_type;
+  typedef V value_type;
 
-   FWItemMuonDigiAccessor(const TClass *iClass)
-      : FWItemRandomAccessorBase(iClass, typeid(value_type))
-      {}
+  FWItemMuonDigiAccessor(const TClass *iClass) : FWItemRandomAccessorBase(iClass, typeid(value_type)) {}
 
   REGISTER_FWITEMACCESSOR_METHODS();
 
-   const void*    modelData(int iIndex) const override
-      {
-         if (!getDataPtr())
-            return nullptr;
-         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
-         size_t collectionOffset = 0;
+  const void *modelData(int iIndex) const override {
+    if (!getDataPtr())
+      return nullptr;
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+    size_t collectionOffset = 0;
 
-         for (typename container_type::DigiRangeIterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
-         {
-            int i = iIndex - collectionOffset;
+    for (typename container_type::DigiRangeIterator ci = c->begin(), ce = c->end(); ci != ce; ++ci) {
+      int i = iIndex - collectionOffset;
 
-            typename container_type::DigiRangeIterator::value_type vt = *ci;
+      typename container_type::DigiRangeIterator::value_type vt = *ci;
 
+      if (i < std::distance(vt.second.first, vt.second.second))
+        return &(*(vt.second.first + i));
+      collectionOffset += std::distance(vt.second.first, vt.second.second);
+    }
 
-            if (i < std::distance(vt.second.first, vt.second.second))
-               return &(*(vt.second.first + i));
-            collectionOffset += std::distance(vt.second.first, vt.second.second);
-         }
+    return nullptr;
+  }
 
-         return nullptr;
-      }
+  unsigned int size() const override {
+    if (!getDataPtr())
+      return 0;
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+    size_t finalSize = 0;
 
-   unsigned int   size() const override
-      {
-         if (!getDataPtr())
-            return 0;
-         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
-         size_t finalSize = 0;
+    for (typename container_type::DigiRangeIterator ci = c->begin(), ce = c->end(); ci != ce; ++ci) {
+      typename container_type::DigiRangeIterator::value_type vt = *ci;
+      finalSize += std::distance(vt.second.first, vt.second.second);
+    }
 
-         for (typename container_type::DigiRangeIterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
-         {
-           typename container_type::DigiRangeIterator::value_type vt = *ci;
-           finalSize += std::distance(vt.second.first, vt.second.second);
-         }
-         
-         return finalSize;
-      }
+    return finalSize;
+  }
+};
+
+template <class C>
+class BXVectorAccessor : public FWItemRandomAccessorBase {
+public:
+  typedef C container_type;
+
+  BXVectorAccessor(const TClass *iClass) : FWItemRandomAccessorBase(iClass, typeid(typename C::value_type)) {}
+
+  REGISTER_FWITEMACCESSOR_METHODS();
+
+  const void *modelData(int iIndex) const override {
+    if (!getDataPtr())
+      return nullptr;
+
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+
+    return &(c->at(0, iIndex));
+  }
+
+  unsigned int size() const override {
+    if (!getDataPtr())
+      return 0;
+
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+
+    return c->size(0);
+  }
 };
 
 #endif

@@ -14,55 +14,51 @@
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-class JetCorrector
-{
- public:
-
+class JetCorrector {
+public:
   typedef reco::Particle::LorentzVector LorentzVector;
- 
-  JetCorrector (){};
-  virtual ~JetCorrector (){};
+
+  JetCorrector(){};
+  virtual ~JetCorrector(){};
 
   /// get correction using Jet information only
-  virtual double correction (const LorentzVector& fJet) const = 0;
+  virtual double correction(const LorentzVector& fJet) const = 0;
 
   /// apply correction using Jet information only
-  virtual double correction (const reco::Jet& fJet) const = 0;
+  virtual double correction(const reco::Jet& fJet) const = 0;
 
   /// apply correction using all event information
-  virtual double correction (const reco::Jet& fJet,
-			     const edm::Event& fEvent, 
-			     const edm::EventSetup& fSetup) const;
+  virtual double correction(const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 
   /// apply correction using all event information
-  virtual double correction (const reco::Jet& fJet,
-			     const edm::RefToBase<reco::Jet>& fJetRef,
-			     const edm::Event& fEvent, 
-			     const edm::EventSetup& fSetup) const;
+  virtual double correction(const reco::Jet& fJet,
+                            const edm::RefToBase<reco::Jet>& fJetRef,
+                            const edm::Event& fEvent,
+                            const edm::EventSetup& fSetup) const;
 
   /// Apply vectorial correction using all event information
-  virtual double correction ( const reco::Jet& fJet, 
-			      const edm::RefToBase<reco::Jet>& fJetRef,
-			      const edm::Event& fEvent, 
-			      const edm::EventSetup& fSetup, 
-			      LorentzVector& corrected ) const;
-  
+  virtual double correction(const reco::Jet& fJet,
+                            const edm::RefToBase<reco::Jet>& fJetRef,
+                            const edm::Event& fEvent,
+                            const edm::EventSetup& fSetup,
+                            LorentzVector& corrected) const;
+
   /// if correction needs event information
-  virtual bool eventRequired () const = 0;
+  virtual bool eventRequired() const = 0;
 
   /// if correction needs the jet reference
-  virtual bool refRequired () const = 0;
-  
+  virtual bool refRequired() const = 0;
+
   /// if vectorial correction is provided
-  inline virtual bool vectorialCorrection () const;
+  inline virtual bool vectorialCorrection() const;
 
   /// retrieve corrector from the event setup. troughs exception if something is missing
-  static const JetCorrector* getJetCorrector (const std::string& fName, const edm::EventSetup& fSetup); 
+  static const JetCorrector* getJetCorrector(const std::string& fName, const edm::EventSetup& fSetup);
 };
 
 // inline method
-inline bool JetCorrector::vectorialCorrection () const { return false; }
+inline bool JetCorrector::vectorialCorrection() const { return false; }
 
 #endif

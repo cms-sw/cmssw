@@ -17,9 +17,9 @@ elif options.geometry == 'Phase1':
     # Add our custom detector grouping to DDD
     process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI.xml'])
 elif options.geometry == 'Phase2':
-    process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
     # Add our custom detector grouping to DDD
-    process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII_D4.xml'])
+    process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII.xml'])
 else:
     print("Unknow geometry, quitting.")
     sys.exit(1)

@@ -15,23 +15,22 @@
  */
 
 class LevelBaseNumber {
- public:
-  LevelBaseNumber(const int l,const int s,const int b){
-    myLevel=l;
-    mySuper=s;
-    myBase=b;
+public:
+  LevelBaseNumber(const int l, const int s, const int b) {
+    myLevel = l;
+    mySuper = s;
+    myBase = b;
   };
   ~LevelBaseNumber(){};
 
-  int level() const {return myLevel;};
-  int super() const {return mySuper;};
-  int base() const {return myBase;};
+  int level() const { return myLevel; };
+  int super() const { return mySuper; };
+  int base() const { return myBase; };
 
- private:
+private:
   int myLevel;
   int mySuper;
   int myBase;
-
 };
 
 #endif

@@ -20,5 +20,12 @@ from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff imp
 from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 # create path with all clustering algos
 # NB: preshower MUST be run after island clustering in the endcap
-ecalClusteringSequence = cms.Sequence(islandClusteringSequence*hybridClusteringSequence*preshowerClusteringSequence*dynamicHybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence * seldigis)
+ecalClusteringTask = cms.Task(islandClusteringTask,
+                              hybridClusteringTask,
+                              preshowerClusteringTask,
+                              dynamicHybridClusteringTask,
+                              multi5x5ClusteringTask,
+                              multi5x5PreshowerClusteringTask,
+                              seldigisTask)
+ecalClusteringSequence = cms.Sequence(ecalClusteringTask)
 

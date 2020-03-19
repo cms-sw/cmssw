@@ -11,7 +11,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterByKinematics.h"
 
-class PixelTrackFilterByKinematicsProducer: public edm::global::EDProducer<> {
+class PixelTrackFilterByKinematicsProducer : public edm::global::EDProducer<> {
 public:
   explicit PixelTrackFilterByKinematicsProducer(const edm::ParameterSet& iConfig);
   ~PixelTrackFilterByKinematicsProducer() override;
@@ -28,13 +28,12 @@ private:
   const float theChi2Max;
 };
 
-PixelTrackFilterByKinematicsProducer::PixelTrackFilterByKinematicsProducer(const edm::ParameterSet& iConfig):
-  theoPtMin(1/iConfig.getParameter<double>("ptMin")),
-  theNSigmaInvPtTolerance(iConfig.getParameter<double>("nSigmaInvPtTolerance")),
-  theTIPMax(iConfig.getParameter<double>("tipMax")),
-  theNSigmaTipMaxTolerance(iConfig.getParameter<double>("nSigmaTipMaxTolerance")),
-  theChi2Max(iConfig.getParameter<double>("chi2"))
-{
+PixelTrackFilterByKinematicsProducer::PixelTrackFilterByKinematicsProducer(const edm::ParameterSet& iConfig)
+    : theoPtMin(1 / iConfig.getParameter<double>("ptMin")),
+      theNSigmaInvPtTolerance(iConfig.getParameter<double>("nSigmaInvPtTolerance")),
+      theTIPMax(iConfig.getParameter<double>("tipMax")),
+      theNSigmaTipMaxTolerance(iConfig.getParameter<double>("nSigmaTipMaxTolerance")),
+      theChi2Max(iConfig.getParameter<double>("chi2")) {
   produces<PixelTrackFilter>();
 }
 
@@ -52,8 +51,11 @@ void PixelTrackFilterByKinematicsProducer::fillDescriptions(edm::ConfigurationDe
 
 PixelTrackFilterByKinematicsProducer::~PixelTrackFilterByKinematicsProducer() {}
 
-void PixelTrackFilterByKinematicsProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  auto impl = std::make_unique<PixelTrackFilterByKinematics>(theoPtMin, theNSigmaInvPtTolerance, theTIPMax, theNSigmaTipMaxTolerance, theChi2Max);
+void PixelTrackFilterByKinematicsProducer::produce(edm::StreamID,
+                                                   edm::Event& iEvent,
+                                                   const edm::EventSetup& iSetup) const {
+  auto impl = std::make_unique<PixelTrackFilterByKinematics>(
+      theoPtMin, theNSigmaInvPtTolerance, theTIPMax, theNSigmaTipMaxTolerance, theChi2Max);
   auto prod = std::make_unique<PixelTrackFilter>(std::move(impl));
   iEvent.put(std::move(prod));
 }

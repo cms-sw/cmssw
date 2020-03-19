@@ -17,11 +17,11 @@
 
 struct AddFourMomenta {
   /// default constructor
-  AddFourMomenta() { }
+  AddFourMomenta() {}
   /// constructor
-  explicit AddFourMomenta( const edm::ParameterSet & ) { }
+  explicit AddFourMomenta(const edm::ParameterSet&) {}
   /// set up a candidate
-  void set( reco::Candidate& c ) const;
+  void set(reco::Candidate& c) const;
 };
 
 #endif

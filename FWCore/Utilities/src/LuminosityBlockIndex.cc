@@ -4,9 +4,9 @@
 
 namespace edm {
 
-  const unsigned int LuminosityBlockIndex::invalidValue_ = std::numeric_limits<unsigned int>::max();    
+  const unsigned int LuminosityBlockIndex::invalidValue_ = std::numeric_limits<unsigned int>::max();
 
   LuminosityBlockIndex LuminosityBlockIndex::invalidLuminosityBlockIndex() {
     return LuminosityBlockIndex(invalidValue_);
   }
-}
+}  // namespace edm

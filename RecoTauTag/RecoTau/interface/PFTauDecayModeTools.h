@@ -16,27 +16,25 @@ namespace reco {
   class GenJet;
 }
 
-namespace reco { namespace tau {
+namespace reco {
+  namespace tau {
 
-/// Reverse mapping of decay modes into multiplicities
-unsigned int chargedHadronsInDecayMode(
-    PFTau::hadronicDecayMode mode);
+    /// Reverse mapping of decay modes into multiplicities
+    unsigned int chargedHadronsInDecayMode(PFTau::hadronicDecayMode mode);
 
-unsigned int piZerosInDecayMode(
-    PFTau::hadronicDecayMode mode);
+    unsigned int piZerosInDecayMode(PFTau::hadronicDecayMode mode);
 
-PFTau::hadronicDecayMode translateDecayMode(
-    unsigned int nCharged, unsigned int nPiZero);
+    PFTau::hadronicDecayMode translateDecayMode(unsigned int nCharged, unsigned int nPiZero);
 
-/// Convert a genTau decay mode string ('oneProng0Pi0') to the RECO enum
-PFTau::hadronicDecayMode translateGenDecayModeToReco(
-    const std::string& genName);
+    /// Convert a genTau decay mode string ('oneProng0Pi0') to the RECO enum
+    PFTau::hadronicDecayMode translateGenDecayModeToReco(const std::string& genName);
 
-/// Convert a RECO enum decay mode to a string ('oneProng0Pi0')
-std::string translateRecoDecayModeToGen(PFTau::hadronicDecayMode decayMode);
+    /// Convert a RECO enum decay mode to a string ('oneProng0Pi0')
+    std::string translateRecoDecayModeToGen(PFTau::hadronicDecayMode decayMode);
 
-PFTau::hadronicDecayMode getDecayMode(const reco::GenJet* genJet);
+    PFTau::hadronicDecayMode getDecayMode(const reco::GenJet* genJet);
 
-}}
+  }  // namespace tau
+}  // namespace reco
 
 #endif

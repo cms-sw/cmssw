@@ -24,59 +24,61 @@
 
 namespace converter {
   namespace helper {
-    template<typename T>
-    struct CandConverter { };
+    template <typename T>
+    struct CandConverter {};
 
     struct ConcreteCreator {
-      template<typename CColl, typename Comp, typename Conv>
-      static void create(size_t idx, CColl & cands, const Comp & components, Conv & converter) {
-	typename Conv::Candidate c;
-	typedef edm::Ref<std::vector<typename Conv::value_type> > ref_type;
-	ref_type ref = components.template getConcreteRef<ref_type>(idx);
-	converter.convert(ref, c);
-	cands.push_back(c);
+      template <typename CColl, typename Comp, typename Conv>
+      static void create(size_t idx, CColl& cands, const Comp& components, Conv& converter) {
+        typename Conv::Candidate c;
+        typedef edm::Ref<std::vector<typename Conv::value_type> > ref_type;
+        ref_type ref = components.template getConcreteRef<ref_type>(idx);
+        converter.convert(ref, c);
+        cands.push_back(c);
       }
     };
 
     struct PolymorphicCreator {
-      template<typename CColl, typename Comp, typename Conv>
-      static void create(size_t idx, CColl & cands, const Comp & components, Conv & converter) {
-	typename Conv::Candidate * c = new typename Conv::Candidate;
-	typedef edm::Ref<std::vector<typename Conv::value_type> > ref_type;
-	ref_type ref = components.template getConcreteRef<ref_type>(idx);
-	converter.convert(ref, * c);
-	cands.push_back(c);
+      template <typename CColl, typename Comp, typename Conv>
+      static void create(size_t idx, CColl& cands, const Comp& components, Conv& converter) {
+        typename Conv::Candidate* c = new typename Conv::Candidate;
+        typedef edm::Ref<std::vector<typename Conv::value_type> > ref_type;
+        ref_type ref = components.template getConcreteRef<ref_type>(idx);
+        converter.convert(ref, *c);
+        cands.push_back(c);
       }
     };
 
-    template<typename CColl>
+    template <typename CColl>
     struct CandCreator {
       typedef ConcreteCreator type;
     };
 
-    template<>
+    template <>
     struct CandCreator<reco::CandidateCollection> {
       typedef PolymorphicCreator type;
     };
-  }
-}
+  }  // namespace helper
+}  // namespace converter
 
-template<typename TColl, typename CColl, typename Selector = AnySelector,
-	 typename Conv = typename converter::helper::CandConverter<typename TColl::value_type>::type,
-	 typename Creator = typename converter::helper::CandCreator<CColl>::type,
-	 typename Init = typename ::reco::modules::EventSetupInit<Selector>::type>
+template <typename TColl,
+          typename CColl,
+          typename Selector = AnySelector,
+          typename Conv = typename converter::helper::CandConverter<typename TColl::value_type>::type,
+          typename Creator = typename converter::helper::CandCreator<CColl>::type,
+          typename Init = typename ::reco::modules::EventSetupInit<Selector>::type>
 class CandidateProducer : public edm::stream::EDProducer<> {
 public:
   /// constructor from parameter set
-  CandidateProducer(const edm::ParameterSet & cfg) :
-    srcToken_(consumes<TColl>(cfg.template getParameter<edm::InputTag>("src"))),
-    converter_(cfg),
-    selector_(reco::modules::make<Selector>(cfg, consumesCollector())),
-    initialized_(false) {
+  CandidateProducer(const edm::ParameterSet& cfg)
+      : srcToken_(consumes<TColl>(cfg.template getParameter<edm::InputTag>("src"))),
+        converter_(cfg),
+        selector_(reco::modules::make<Selector>(cfg, consumesCollector())),
+        initialized_(false) {
     produces<CColl>();
   }
   /// destructor
-  ~CandidateProducer() override { }
+  ~CandidateProducer() override {}
 
 private:
   /// begin job (first run)
@@ -93,12 +95,12 @@ private:
     Init::init(selector_, evt, es);
     ::helper::MasterCollection<TColl> master(src, evt);
     std::unique_ptr<CColl> cands(new CColl);
-    if(!src->empty()) {
+    if (!src->empty()) {
       size_t size = src->size();
       cands->reserve(size);
-      for(size_t idx = 0; idx != size; ++ idx) {
-	if(selector_((*src)[idx]))
-	  Creator::create(master.index(idx), *cands, master, converter_);
+      for (size_t idx = 0; idx != size; ++idx) {
+        if (selector_((*src)[idx]))
+          Creator::create(master.index(idx), *cands, master, converter_);
       }
     }
     evt.put(std::move(cands));

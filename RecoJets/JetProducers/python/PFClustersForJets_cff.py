@@ -31,21 +31,21 @@ pfClusterRefsForJets = cms.EDProducer("PFClusterRefCandidateMerger",
 #    src = cms.VInputTag("pfClusterRefsForJetsHCAL", "pfClusterRefsForJetsECAL","pfClusterRefsForJetsHF")
 )
 
-pfClusterRefsForJets_step = cms.Sequence(
-   particleFlowRecHitECAL*
-   particleFlowRecHitHBHE*
-   particleFlowRecHitHF*
-   particleFlowRecHitHO*
-   particleFlowClusterECALUncorrected*
-   particleFlowClusterECAL*
-   particleFlowClusterHBHE*
-   particleFlowClusterHCAL*
-   particleFlowClusterHF*
-   particleFlowClusterHO*
-
-   pfClusterRefsForJetsHCAL*
-   pfClusterRefsForJetsECAL*
-   pfClusterRefsForJetsHF*
-   pfClusterRefsForJetsHO*
+pfClusterRefsForJets_stepTask = cms.Task(
+   particleFlowRecHitECAL,
+   particleFlowRecHitHBHE,
+   particleFlowRecHitHF,
+   particleFlowRecHitHO,
+   particleFlowClusterECALUncorrected,
+   particleFlowClusterECAL,
+   particleFlowClusterHBHE,
+   particleFlowClusterHCAL,
+   particleFlowClusterHF,
+   particleFlowClusterHO,
+   pfClusterRefsForJetsHCAL,
+   pfClusterRefsForJetsECAL,
+   pfClusterRefsForJetsHF,
+   pfClusterRefsForJetsHO,
    pfClusterRefsForJets
 )
+pfClusterRefsForJets_step = cms.Sequence(pfClusterRefsForJets_stepTask)

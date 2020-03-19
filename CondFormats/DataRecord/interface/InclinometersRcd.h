@@ -4,7 +4,7 @@
 //
 // Package:     OptAlignObjects
 // Class  :     InclinometersRcd
-// 
+//
 /**\class InclinometersRcd InclinometersRcd.h CondFormats/OptAlignObjects/interface/InclinometersRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Thu Jul 20 14:30:27 CEST 2006
 // $Id$
 //

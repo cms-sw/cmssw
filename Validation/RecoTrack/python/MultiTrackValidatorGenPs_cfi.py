@@ -69,3 +69,8 @@ multiTrackValidatorGenPs = DQMEDAnalyzer(
     doRecoTrackPlots = cms.untracked.bool(True),
     dodEdxPlots = cms.untracked.bool(False),
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(multiTrackValidator,
+    label_tv = "mixData:MergedTrackTruth",
+)

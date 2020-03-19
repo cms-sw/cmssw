@@ -5,10 +5,12 @@
 //
 // Package:    RctDigiToSourceCardText
 // Class:      RctDigiToSourceCardText
-// 
-/**\class RctDigiToSourceCardText RctDigiToSourceCardText.h L1Trigger/TextToDigi/interface/RctDigiToSourceCardText.h
+//
+/**\class RctDigiToSourceCardText RctDigiToSourceCardText.h
+ L1Trigger/TextToDigi/interface/RctDigiToSourceCardText.h
 
- Description: Input RCT digis and output text file to be loaded into the source cards for pattern tests. 
+ Description: Input RCT digis and output text file to be loaded into the source
+ cards for pattern tests.
 
  Implementation:
      <Notes on implementation>
@@ -19,13 +21,12 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,17 +38,17 @@
 
 #include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 class RctDigiToSourceCardText : public edm::EDAnalyzer {
- public:
-  explicit RctDigiToSourceCardText(const edm::ParameterSet&);
-      ~RctDigiToSourceCardText() override;
-      
- private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-      
+public:
+  explicit RctDigiToSourceCardText(const edm::ParameterSet &);
+  ~RctDigiToSourceCardText() override;
+
+private:
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
   /// Label for RCT digis
   edm::InputTag m_rctInputLabel;
 

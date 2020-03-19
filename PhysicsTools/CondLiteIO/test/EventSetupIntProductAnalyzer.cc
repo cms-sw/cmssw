@@ -2,7 +2,7 @@
 //
 // Package:    EventSetupIntProductAnalyzer
 // Class:      EventSetupIntProductAnalyzer
-// 
+//
 /**\class EventSetupIntProductAnalyzer EventSetupIntProductAnalyzer.cc test/EventSetupIntProductAnalyzer/src/EventSetupIntProductAnalyzer.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -26,7 +25,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "PhysicsTools/CondLiteIO/test/IntProductRecord.h"
@@ -41,71 +39,61 @@
 
 namespace edmtest {
 
-class EventSetupIntProductAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit EventSetupIntProductAnalyzer(const edm::ParameterSet&);
-      ~EventSetupIntProductAnalyzer();
+  class EventSetupIntProductAnalyzer : public edm::EDAnalyzer {
+  public:
+    explicit EventSetupIntProductAnalyzer(const edm::ParameterSet&);
+    ~EventSetupIntProductAnalyzer();
 
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-      std::vector<int> expectedValues_;
-      unsigned int index_;
-};
+  private:
+    // ----------member data ---------------------------
+    std::vector<int> expectedValues_;
+    unsigned int index_;
+  };
 
-//
-// constants, enums and typedefs
-//
+  //
+  // constants, enums and typedefs
+  //
 
-//
-// static data member definitions
-//
+  //
+  // static data member definitions
+  //
 
-//
-// constructors and destructor
-//
-EventSetupIntProductAnalyzer::EventSetupIntProductAnalyzer(const edm::ParameterSet& iConfig):
-   expectedValues_(iConfig.getUntrackedParameter<std::vector<int> >("expectedValues",std::vector<int>())),
-   index_(0)
-{
-   //now do what ever initialization is needed
+  //
+  // constructors and destructor
+  //
+  EventSetupIntProductAnalyzer::EventSetupIntProductAnalyzer(const edm::ParameterSet& iConfig)
+      : expectedValues_(iConfig.getUntrackedParameter<std::vector<int> >("expectedValues", std::vector<int>())),
+        index_(0) {
+    //now do what ever initialization is needed
+  }
 
-}
+  EventSetupIntProductAnalyzer::~EventSetupIntProductAnalyzer() {
+    // do anything here that needs to be done at desctruction time
+    // (e.g. close files, deallocate resources etc.)
+  }
 
+  //
+  // member functions
+  //
 
-EventSetupIntProductAnalyzer::~EventSetupIntProductAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // ------------ method called to produce the data  ------------
+  void EventSetupIntProductAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
+    using namespace edm;
+    ESHandle<edmtest::IntProduct> pSetup;
+    iSetup.get<IntProductRecord>().get(pSetup);
 
-}
-
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
-void
-EventSetupIntProductAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   ESHandle<edmtest::IntProduct> pSetup;
-   iSetup.get<IntProductRecord>().get(pSetup);
-
-   std::cout <<"edmtest::IntProduct "<<pSetup->value<<std::endl;
-   if(!expectedValues_.empty()) {
-      if(expectedValues_.at(index_) != pSetup->value) {
-         throw cms::Exception("TestFail")<<"expected value "<<expectedValues_[index_]
-         <<" but was got "<<pSetup->value;
+    std::cout << "edmtest::IntProduct " << pSetup->value << std::endl;
+    if (!expectedValues_.empty()) {
+      if (expectedValues_.at(index_) != pSetup->value) {
+        throw cms::Exception("TestFail") << "expected value " << expectedValues_[index_] << " but was got "
+                                         << pSetup->value;
       }
       ++index_;
-   }
-   
-}
-}
+    }
+  }
+}  // namespace edmtest
 using namespace edmtest;
 //define this as a plug-in
 DEFINE_FWK_MODULE(EventSetupIntProductAnalyzer);

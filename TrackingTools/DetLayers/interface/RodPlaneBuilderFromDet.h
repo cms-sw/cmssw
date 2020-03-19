@@ -15,18 +15,16 @@ class RectangularPlaneBounds;
 class RodPlaneBuilderFromDet {
 public:
   typedef GeomDet Det;
-  
+
   /// Warning, remember to assign this pointer to a ReferenceCountingPointer!
   /// Should be changed to return a ReferenceCountingPointer<Plane>
-  Plane* operator()( const std::vector<const Det*>& dets) const;
+  Plane* operator()(const std::vector<const Det*>& dets) const;
 
-  std::pair<RectangularPlaneBounds*, GlobalVector>
-  computeBounds( const std::vector<const Det*>& dets, const Plane& plane) const;
+  std::pair<RectangularPlaneBounds*, GlobalVector> computeBounds(const std::vector<const Det*>& dets,
+                                                                 const Plane& plane) const;
 
-  Surface::RotationType 
-  computeRotation( const std::vector<const Det*>& dets, 
-		   const Surface::PositionType& meanPos) const; 
-
+  Surface::RotationType computeRotation(const std::vector<const Det*>& dets,
+                                        const Surface::PositionType& meanPos) const;
 };
 
 #endif

@@ -13,24 +13,17 @@ Toy EDAnalyzer for testing purposes only.
 class DTConfigKey;
 
 class DTCCBConfigValidateDBRead : public edm::EDAnalyzer {
-
- public:
-
-  explicit  DTCCBConfigValidateDBRead(edm::ParameterSet const& p);
-  explicit  DTCCBConfigValidateDBRead(int i) ;
-  virtual ~ DTCCBConfigValidateDBRead();
+public:
+  explicit DTCCBConfigValidateDBRead(edm::ParameterSet const& p);
+  explicit DTCCBConfigValidateDBRead(int i);
+  virtual ~DTCCBConfigValidateDBRead();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   virtual void endJob();
 
- private:
-
+private:
   std::string dataFileName;
   std::string elogFileName;
 
-  static bool cfrDiff( const std::vector<int>& l_conf,
-                       const std::vector<int>& r_conf );
-  static bool cfrDiff( const std::vector<DTConfigKey>& l_conf,
-                       const std::vector<DTConfigKey>& r_conf );
-
+  static bool cfrDiff(const std::vector<int>& l_conf, const std::vector<int>& r_conf);
+  static bool cfrDiff(const std::vector<DTConfigKey>& l_conf, const std::vector<DTConfigKey>& r_conf);
 };
-

@@ -24,19 +24,18 @@
 //
 
 class PomwigAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit PomwigAnalyzer(const edm::ParameterSet&);
-      ~PomwigAnalyzer();
+public:
+  explicit PomwigAnalyzer(const edm::ParameterSet&);
+  ~PomwigAnalyzer();
 
+private:
+  //virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob();
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-   private:
-      //virtual void beginJob(const edm::EventSetup&) ;
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
-      
   std::string outputFilename;
   TH1D* hist_t;
   TH1D* hist_xigen;

@@ -2,14 +2,13 @@
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 #include <string>
 
-TmApvPair::TmApvPair(int connId,int crate){
-  idex=connId;
-  this->crate=crate;
-  value=0;count=0;
+TmApvPair::TmApvPair(int connId, int crate) {
+  idex = connId;
+  this->crate = crate;
+  value = 0;
+  count = 0;
   red = -1;
-  text="";
+  text = "";
 }
 
-TmApvPair::~TmApvPair(){
-}
-
+TmApvPair::~TmApvPair() {}

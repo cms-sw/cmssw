@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -44,25 +43,23 @@
 
 #include "CommonTools/TriggerUtils/interface/PrescaleWeightProvider.h"
 
-
 //
 // class decleration
 //
 
 class AnotherPrimaryVertexAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit AnotherPrimaryVertexAnalyzer(const edm::ParameterSet&);
-      ~AnotherPrimaryVertexAnalyzer() override;
-
+public:
+  explicit AnotherPrimaryVertexAnalyzer(const edm::ParameterSet&);
+  ~AnotherPrimaryVertexAnalyzer() override;
 
 private:
-  void beginJob() override ;
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   VertexHistogramMaker _vhm;
   edm::EDGetTokenT<reco::VertexCollection> _recoVertexCollectionToken;
@@ -83,82 +80,64 @@ private:
 // constructors and destructor
 //
 AnotherPrimaryVertexAnalyzer::AnotherPrimaryVertexAnalyzer(const edm::ParameterSet& iConfig)
-  : _vhm(iConfig.getParameter<edm::ParameterSet>("vHistogramMakerPSet"), consumesCollector())
-  , _recoVertexCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection")))
-  , _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
-  , _weightprov(iConfig.getParameter<bool>("usePrescaleWeight")
-		? new PrescaleWeightProvider(iConfig.getParameter<edm::ParameterSet>("prescaleWeightProviderPSet"), consumesCollector(), *this)
-		: nullptr
-		)
-{
-   //now do what ever initialization is needed
+    : _vhm(iConfig.getParameter<edm::ParameterSet>("vHistogramMakerPSet"), consumesCollector()),
+      _recoVertexCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection"))),
+      _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly", false)),
+      _weightprov(
+          iConfig.getParameter<bool>("usePrescaleWeight")
+              ? new PrescaleWeightProvider(
+                    iConfig.getParameter<edm::ParameterSet>("prescaleWeightProviderPSet"), consumesCollector(), *this)
+              : nullptr) {
+  //now do what ever initialization is needed
 
   //
 
   _vhm.book();
-
 }
 
-
-AnotherPrimaryVertexAnalyzer::~AnotherPrimaryVertexAnalyzer()
-{
-}
-
+AnotherPrimaryVertexAnalyzer::~AnotherPrimaryVertexAnalyzer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-AnotherPrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void AnotherPrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // compute event weigth
 
   double weight = 1.;
 
-  if(_weightprov) weight = _weightprov->prescaleWeight(iEvent,iSetup);
+  if (_weightprov)
+    weight = _weightprov->prescaleWeight(iEvent, iSetup);
 
   // get PV
 
   edm::Handle<reco::VertexCollection> pvcoll;
-  iEvent.getByToken(_recoVertexCollectionToken,pvcoll);
+  iEvent.getByToken(_recoVertexCollectionToken, pvcoll);
 
-  if(_firstOnly) {
+  if (_firstOnly) {
     reco::VertexCollection firstpv;
-    if(!pvcoll->empty()) firstpv.push_back((*pvcoll)[0]);
-    _vhm.fill(iEvent,firstpv,weight);
-  }
-  else {
-    _vhm.fill(iEvent,*pvcoll,weight);
+    if (!pvcoll->empty())
+      firstpv.push_back((*pvcoll)[0]);
+    _vhm.fill(iEvent, firstpv, weight);
+  } else {
+    _vhm.fill(iEvent, *pvcoll, weight);
   }
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
-void
-AnotherPrimaryVertexAnalyzer::beginJob()
-{ }
+void AnotherPrimaryVertexAnalyzer::beginJob() {}
 
-void
-AnotherPrimaryVertexAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-
+void AnotherPrimaryVertexAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   _vhm.beginRun(iRun);
 
-  if(_weightprov) _weightprov->initRun(iRun,iSetup);
-
+  if (_weightprov)
+    _weightprov->initRun(iRun, iSetup);
 }
 
-void
-AnotherPrimaryVertexAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-
-}
+void AnotherPrimaryVertexAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 // ------------ method called once each job just after ending the event loop  ------------
-void
-AnotherPrimaryVertexAnalyzer::endJob() {
-}
-
+void AnotherPrimaryVertexAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AnotherPrimaryVertexAnalyzer);

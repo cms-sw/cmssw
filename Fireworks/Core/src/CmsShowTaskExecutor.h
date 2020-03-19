@@ -28,32 +28,31 @@
 // forward declarations
 
 class CmsShowTaskExecutor : public CmsShowTaskExecutorBase {
-
 public:
-   CmsShowTaskExecutor();
-   ~CmsShowTaskExecutor() override;
+  CmsShowTaskExecutor();
+  ~CmsShowTaskExecutor() override;
 
-   typedef boost::function0<void> TaskFunctor;
-   // ---------- const member functions ---------------------
+  typedef boost::function0<void> TaskFunctor;
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void addTask(const TaskFunctor& iTask);
+  // ---------- member functions ---------------------------
+  void addTask(const TaskFunctor& iTask);
 
-   void startDoingTasks() override;
+  void startDoingTasks() override;
+
 protected:
-   void doNextTaskImp() override;
-   bool moreTasksAvailable() override;
+  void doNextTaskImp() override;
+  bool moreTasksAvailable() override;
 
 private:
-   CmsShowTaskExecutor(const CmsShowTaskExecutor&) = delete; // stop default
+  CmsShowTaskExecutor(const CmsShowTaskExecutor&) = delete;  // stop default
 
-   const CmsShowTaskExecutor& operator=(const CmsShowTaskExecutor&) = delete; // stop default
+  const CmsShowTaskExecutor& operator=(const CmsShowTaskExecutor&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   std::deque<TaskFunctor> m_tasks;
+  // ---------- member data --------------------------------
+  std::deque<TaskFunctor> m_tasks;
 };
-
 
 #endif

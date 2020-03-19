@@ -4,4 +4,4 @@ namespace CondFormats_MFObjects {
   struct dictionary {
     MagFieldConfig conf;
   };
-}
+}  // namespace CondFormats_MFObjects

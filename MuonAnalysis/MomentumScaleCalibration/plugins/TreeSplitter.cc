@@ -3,25 +3,20 @@
 
 #include "TreeSplitter.h"
 
-TreeSplitter::TreeSplitter(const edm::ParameterSet& iConfig) :
-  treeFileName_( iConfig.getParameter<std::string>("InputFileName") ),
-  outputFileName_( iConfig.getParameter<std::string>("OutputFileName") ),
-  maxEvents_( iConfig.getParameter<int32_t>("MaxEvents") ),
-  subSampleFirstEvent_( iConfig.getParameter<uint32_t>("SubSampleFirstEvent") ),
-  subSampleMaxEvents_( iConfig.getParameter<uint32_t>("SubSampleMaxEvents") )
-{
-}
+TreeSplitter::TreeSplitter(const edm::ParameterSet& iConfig)
+    : treeFileName_(iConfig.getParameter<std::string>("InputFileName")),
+      outputFileName_(iConfig.getParameter<std::string>("OutputFileName")),
+      maxEvents_(iConfig.getParameter<int32_t>("MaxEvents")),
+      subSampleFirstEvent_(iConfig.getParameter<uint32_t>("SubSampleFirstEvent")),
+      subSampleMaxEvents_(iConfig.getParameter<uint32_t>("SubSampleMaxEvents")) {}
 
-TreeSplitter::~TreeSplitter()
-{
-}
+TreeSplitter::~TreeSplitter() {}
 
-void TreeSplitter::endJob()
-{
+void TreeSplitter::endJob() {
   std::cout << "Reading muon pairs from Root Tree in " << treeFileName_ << std::endl;
   RootTreeHandler rootTreeHandler;
 
-  typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
+  typedef std::vector<std::pair<lorentzVector, lorentzVector> > MuonPairVector;
   // MuonPairVector savedPair;
   std::vector<MuonPair> savedPair;
   rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair, 0);
@@ -35,9 +30,9 @@ void TreeSplitter::endJob()
   std::vector<MuonPair>::iterator it = savedPair.begin();
   std::cout << "Starting loop on " << savedPair.size() << " muons" << std::endl;
   uint32_t lastEvent = subSampleFirstEvent_ + subSampleMaxEvents_;
-  for( ; it != savedPair.end(); ++it, ++i ) {
+  for (; it != savedPair.end(); ++it, ++i) {
     // Save only events in the selected range
-    if( i >= subSampleFirstEvent_ && i < lastEvent ) {
+    if (i >= subSampleFirstEvent_ && i < lastEvent) {
       newSavedPair.push_back(*it);
     }
   }

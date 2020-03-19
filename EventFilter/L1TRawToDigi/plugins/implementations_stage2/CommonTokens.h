@@ -11,25 +11,23 @@
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
 
 namespace l1t {
-   namespace stage2 {
-      class CommonTokens : public PackerTokens {
-         public:
-            inline const edm::EDGetTokenT<EGammaBxCollection>& getEGammaToken() const { return egammaToken_; };
-            inline const edm::EDGetTokenT<EtSumBxCollection>& getEtSumToken() const { return etSumToken_; };
-            inline const edm::EDGetTokenT<JetBxCollection>& getJetToken() const { return jetToken_; };
-            inline const edm::EDGetTokenT<TauBxCollection>& getTauToken() const { return tauToken_; };
-	    inline const edm::EDGetTokenT<MuonBxCollection>& getMuonToken() const { return muonToken_; };
+  namespace stage2 {
+    class CommonTokens : public PackerTokens {
+    public:
+      inline const edm::EDGetTokenT<EGammaBxCollection>& getEGammaToken() const { return egammaToken_; };
+      inline const edm::EDGetTokenT<EtSumBxCollection>& getEtSumToken() const { return etSumToken_; };
+      inline const edm::EDGetTokenT<JetBxCollection>& getJetToken() const { return jetToken_; };
+      inline const edm::EDGetTokenT<TauBxCollection>& getTauToken() const { return tauToken_; };
+      inline const edm::EDGetTokenT<MuonBxCollection>& getMuonToken() const { return muonToken_; };
 
-         protected:
-            edm::EDGetTokenT<EGammaBxCollection> egammaToken_;
-            edm::EDGetTokenT<EtSumBxCollection> etSumToken_;
-            edm::EDGetTokenT<JetBxCollection> jetToken_;
-            edm::EDGetTokenT<TauBxCollection> tauToken_;
-            edm::EDGetTokenT<MuonBxCollection> muonToken_;
-      };
-   }
-}
+    protected:
+      edm::EDGetTokenT<EGammaBxCollection> egammaToken_;
+      edm::EDGetTokenT<EtSumBxCollection> etSumToken_;
+      edm::EDGetTokenT<JetBxCollection> jetToken_;
+      edm::EDGetTokenT<TauBxCollection> tauToken_;
+      edm::EDGetTokenT<MuonBxCollection> muonToken_;
+    };
+  }  // namespace stage2
+}  // namespace l1t
 
 #endif
-            
-

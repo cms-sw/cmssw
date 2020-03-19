@@ -175,7 +175,6 @@ process.load("Alignment.OfflineValidation.TrackerOfflineValidation_Dqm_cff")
 #process.TrackerOfflineValidationDqm.Tracks          = 'TrackRefitterP5'
 #process.TrackerOfflineValidationDqm.trajectoryInput = 'TrackRefitterP5'
 # Harvesting
-#process.TrackerOfflineValidationSummaryDqm.removeModuleLevelHists = False
 process.TrackerOfflineValidationSummaryDqm.minEntriesPerModuleForDmr = 1  # to allow tests with few statistics
 # Output File
 process.DqmSaverTkAl.workflow = "/Cosmics/TkAl09-335patch1_CRAFT09_R_V4_TestFile_CRAFT09reprocessing_WithoutCuts_R000109011_R000109624_ValSkim-v1/ALCARECO"

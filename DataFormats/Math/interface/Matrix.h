@@ -4,10 +4,9 @@
 #include "Math/SVector.h"
 
 namespace math {
-  template<unsigned int N, unsigned int M>
-  struct Matrix
-  {
-    typedef ROOT::Math::SMatrix<double,N,M> type;
+  template <unsigned int N, unsigned int M>
+  struct Matrix {
+    typedef ROOT::Math::SMatrix<double, N, M> type;
   };
-}
+}  // namespace math
 #endif

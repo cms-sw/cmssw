@@ -19,18 +19,15 @@ using namespace std;
 namespace edmtest {
 
   class CSCReadDCSDataAnalyzer : public edm::EDAnalyzer {
+  public:
+    explicit CSCReadDCSDataAnalyzer(edm::ParameterSet const& p) {}
+    explicit CSCReadDCSDataAnalyzer(int i) {}
+    virtual ~CSCReadDCSDataAnalyzer() {}
+    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-    public:
-
-      explicit  CSCReadDCSDataAnalyzer(edm::ParameterSet const& p) { }
-      explicit  CSCReadDCSDataAnalyzer(int i) { }
-      virtual ~ CSCReadDCSDataAnalyzer() { }
-      virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-    private:
-
+  private:
   };
-  
+
   void CSCReadDCSDataAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
 
@@ -38,7 +35,7 @@ namespace edmtest {
     std::cout << "| CSCReadDCSDataAnalyzer    |" << std::endl;
     std::cout << "+===================+" << std::endl;
 
-    std::cout << "run "<< e.id().run() << std::endl;
+    std::cout << "run " << e.id().run() << std::endl;
     std::cout << "event " << e.id().event() << std::endl;
 
     edm::ESHandle<cscdqm::DCSData> hcrate;
@@ -64,10 +61,8 @@ namespace edmtest {
     std::cout << "+==========================+" << std::endl;
     std::cout << "| End of CSCReadDCSDataAnalyzer |" << std::endl;
     std::cout << "+==========================+" << std::endl;
-
-
   }
 
   DEFINE_FWK_MODULE(CSCReadDCSDataAnalyzer);
 
-}
+}  // namespace edmtest

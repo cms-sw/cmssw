@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetEntry.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 #include "FWCore/Utilities/interface/atomic_value_ptr.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <iosfwd>
 #include <string>
@@ -35,9 +36,9 @@ namespace edm {
 
     std::string toString() const;
     void toString(std::string& result) const;
-    void toDigest(cms::Digest &digest) const;
+    void toDigest(cms::Digest& digest) const;
 
-    bool isTracked() const {return tracked_;}
+    bool isTracked() const { return tracked_; }
 
     /// returns the VPSet
     std::vector<ParameterSet> const& vpset() const;
@@ -54,10 +55,9 @@ namespace edm {
     friend std::ostream& operator<<(std::ostream& os, VParameterSetEntry const& vpsetEntry);
 
   private:
-
     bool tracked_;
-    mutable atomic_value_ptr<std::vector<ParameterSet> > theVPSet_;
+    CMS_THREAD_SAFE mutable atomic_value_ptr<std::vector<ParameterSet> > theVPSet_;
     value_ptr<std::vector<ParameterSetID> > theIDs_;
   };
-}
+}  // namespace edm
 #endif

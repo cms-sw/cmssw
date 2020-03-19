@@ -3,15 +3,12 @@
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisL1MenuDataFormat
-  {
-    L1AnalysisL1MenuDataFormat() {Reset();}
+namespace L1Analysis {
+  struct L1AnalysisL1MenuDataFormat {
+    L1AnalysisL1MenuDataFormat() { Reset(); }
     ~L1AnalysisL1MenuDataFormat() {}
-    
-    void Reset()
-    {
+
+    void Reset() {
       AlgoTrig_PrescaleFactorIndexValid = false;
       AlgoTrig_PrescaleFactorIndex = 0;
       TechTrig_PrescaleFactorIndexValid = false;
@@ -19,14 +16,9 @@ namespace L1Analysis
     }
 
     bool AlgoTrig_PrescaleFactorIndexValid;
-    int  AlgoTrig_PrescaleFactorIndex;
+    int AlgoTrig_PrescaleFactorIndex;
     bool TechTrig_PrescaleFactorIndexValid;
-    int  TechTrig_PrescaleFactorIndex;
-
-
-
-  }; 
-}
+    int TechTrig_PrescaleFactorIndex;
+  };
+}  // namespace L1Analysis
 #endif
-
-

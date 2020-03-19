@@ -19,18 +19,17 @@
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 
 class ThrParameters {
-
- public:
+public:
   ThrParameters(const edm::EventSetup*);
   ~ThrParameters();
 
-  void setInitialThr(double thr0) {x0 = thr0;};
-  const bool isValidThdDB() {return isValidThdDB_;};
-  const std::map<DTChamberId, GlobalError>& GetDTApeMap() {return dtApeMap;};
-  const std::map<CSCDetId, GlobalError>& GetCSCApeMap() {return cscApeMap;};
-  const DYTThrObject* getInitialThresholds() {return dytThresholds;}
+  void setInitialThr(double thr0) { x0 = thr0; };
+  const bool isValidThdDB() { return isValidThdDB_; };
+  const std::map<DTChamberId, GlobalError>& GetDTApeMap() { return dtApeMap; };
+  const std::map<CSCDetId, GlobalError>& GetCSCApeMap() { return cscApeMap; };
+  const DYTThrObject* getInitialThresholds() { return dytThresholds; }
 
- private:
+private:
   double x0;
   bool isValidThdDB_;
   const DYTThrObject* dytThresholds;
@@ -38,4 +37,4 @@ class ThrParameters {
   std::map<CSCDetId, GlobalError> cscApeMap;
 };
 
-#endif // RecoMuon_GlobalTrackingTools_ThrParameters_h
+#endif  // RecoMuon_GlobalTrackingTools_ThrParameters_h

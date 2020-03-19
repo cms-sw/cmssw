@@ -44,4 +44,4 @@ SiStripAnalyserCosmic = cms.EDAnalyzer("SiStripAnalyser",
 # Track Efficiency Client
 
 # Services needed for TkHistoMap
-from CalibTracker.SiStripCommon.TkDetMap_cff import *
+from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *
