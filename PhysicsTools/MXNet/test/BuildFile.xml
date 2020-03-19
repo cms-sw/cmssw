@@ -1,3 +1,5 @@
+<use name="mxnet-predict"/>
+<test name="test_py_mxnet" command="test_mxnet.py"/>
 <bin name="testMXNetCppPredictor" file="testRunner.cpp, testMXNetCppPredictor.cc">
     <use name="boost_filesystem" />
     <use name="cppunit" />
