@@ -78,6 +78,8 @@ void BPHRecoCandidate::fill(BPHRecoCandidate* ptr, int level) const {
       ptr->add(n, BPHRecoConstCandPtr(c->clone(level - 1)));
     else
       ptr->add(n, c);
+    if (getIndependentFit(n))
+      ptr->setIndependentFit(n);
   }
   return;
 }
