@@ -2,7 +2,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/Concurrency"/>
+<use name="Utilities/Xerces"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="Utilities/StorageFactory"/>
 <use name="hepmc"/>

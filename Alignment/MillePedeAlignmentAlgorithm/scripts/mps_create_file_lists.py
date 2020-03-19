@@ -9,4 +9,4 @@ print("(in Alignment/CommonAlignment/scripts).")
 print("=======================================")
 print()
 import subprocess
-execfile(subprocess.check_output(["which", "tkal_create_file_lists.py"]).rstrip())
+exec(open(subprocess.check_output(["which", "tkal_create_file_lists.py"], universal_newlines=True).rstrip()).read())

@@ -25,6 +25,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
@@ -32,66 +33,75 @@
 
 // forward declarations
 namespace edm {
-   namespace eventsetup {
-      struct ComponentDescription;
+  namespace eventsetup {
+    struct ComponentDescription;
 
-      template<typename T>
-      class EventSetupRecordImplementation : public EventSetupRecord {
+    template <typename T>
+    class EventSetupRecordImplementation : public EventSetupRecord {
+    public:
+      //virtual ~EventSetupRecordImplementation();
 
-      public:
-         //virtual ~EventSetupRecordImplementation();
+      // ---------- const member functions ---------------------
+      EventSetupRecordKey key() const override { return EventSetupRecordKey::makeKey<T>(); }
 
-         // ---------- const member functions ---------------------
-         EventSetupRecordKey key() const override {
-            return EventSetupRecordKey::makeKey<T>();
-         }
+      template <typename PRODUCT>
+      ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT, T> const& iToken) const {
+        return getHandleImpl<ESHandle>(iToken);
+      }
 
-         template<typename PRODUCT>
-         ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT,T> const& iToken) const {
-           return getHandleImpl(iToken);
-         }
+      template <typename PRODUCT>
+      ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT, edm::DefaultRecord> const& iToken) const {
+        static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>,
+                      "The Record being used to retrieve the product is not the default record for the product type");
+        return getHandleImpl<ESHandle>(iToken);
+      }
 
-         template<typename PRODUCT>
-         ESHandle<PRODUCT> getHandle(ESGetToken<PRODUCT,edm::DefaultRecord> const& iToken) const {
-           static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>, "The Record being used to retrieve the product is not the default record for the product type");
-           return getHandleImpl(iToken);
-         }
+      template <typename PRODUCT>
+      ESTransientHandle<PRODUCT> getTransientHandle(ESGetToken<PRODUCT, T> const& iToken) const {
+        return getHandleImpl<ESTransientHandle>(iToken);
+      }
 
-         using EventSetupRecord::get;
-        
-         template<typename PRODUCT>
-         PRODUCT const& get(ESGetToken<PRODUCT,T> const& iToken) const {
-           return *getHandleImpl(iToken);
-         }
-        template<typename PRODUCT>
-        PRODUCT const& get(ESGetToken<PRODUCT,T>& iToken) const {
-          return *getHandleImpl(const_cast<const ESGetToken<PRODUCT,T>&>(iToken));
-        }
+      template <typename PRODUCT>
+      ESTransientHandle<PRODUCT> getTransientHandle(ESGetToken<PRODUCT, edm::DefaultRecord> const& iToken) const {
+        static_assert(std::is_same_v<T, eventsetup::default_record_t<ESTransientHandle<PRODUCT>>>,
+                      "The Record being used to retrieve the product is not the default record for the product type");
+        return getHandleImpl<ESTransientHandle>(iToken);
+      }
 
-         template<typename PRODUCT>
-         PRODUCT const& get(ESGetToken<PRODUCT,edm::DefaultRecord> const& iToken) const {
-           static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>, "The Record being used to retrieve the product is not the default record for the product type");
-           return *getHandleImpl(iToken);
-         }
-        template<typename PRODUCT>
-        PRODUCT const& get(ESGetToken<PRODUCT,edm::DefaultRecord>& iToken) const {
-          return get(const_cast<const ESGetToken<PRODUCT,edm::DefaultRecord>&>(iToken) );
-        }
+      using EventSetupRecord::get;
 
-         // ---------- static member functions --------------------
-         static EventSetupRecordKey keyForClass()  {
-            return EventSetupRecordKey::makeKey<T>();
-         }
+      template <typename PRODUCT>
+      PRODUCT const& get(ESGetToken<PRODUCT, T> const& iToken) const {
+        return *getHandleImpl<ESHandle>(iToken);
+      }
+      template <typename PRODUCT>
+      PRODUCT const& get(ESGetToken<PRODUCT, T>& iToken) const {
+        return *getHandleImpl<ESHandle>(const_cast<const ESGetToken<PRODUCT, T>&>(iToken));
+      }
 
-         // ---------- member functions ---------------------------
+      template <typename PRODUCT>
+      PRODUCT const& get(ESGetToken<PRODUCT, edm::DefaultRecord> const& iToken) const {
+        static_assert(std::is_same_v<T, eventsetup::default_record_t<ESHandle<PRODUCT>>>,
+                      "The Record being used to retrieve the product is not the default record for the product type");
+        return *getHandleImpl<ESHandle>(iToken);
+      }
+      template <typename PRODUCT>
+      PRODUCT const& get(ESGetToken<PRODUCT, edm::DefaultRecord>& iToken) const {
+        return get(const_cast<const ESGetToken<PRODUCT, edm::DefaultRecord>&>(iToken));
+      }
 
-      protected:
-         EventSetupRecordImplementation() {}
+      // ---------- static member functions --------------------
+      static EventSetupRecordKey keyForClass() { return EventSetupRecordKey::makeKey<T>(); }
 
-      private:
-         // ---------- member data --------------------------------
-      };
-   }
-}
+      // ---------- member functions ---------------------------
+
+    protected:
+      EventSetupRecordImplementation() {}
+
+    private:
+      // ---------- member data --------------------------------
+    };
+  }  // namespace eventsetup
+}  // namespace edm
 
 #endif

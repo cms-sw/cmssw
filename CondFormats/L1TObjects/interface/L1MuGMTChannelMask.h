@@ -4,7 +4,7 @@
 //
 /**   Description:   GMT input channel mask
  *                  
-*/                  
+*/
 //
 //   $Date$
 //   $Revision$
@@ -26,18 +26,14 @@ class L1MuGMTChannelMask {
 public:
   L1MuGMTChannelMask() {}
   ~L1MuGMTChannelMask() {}
-  
+
   void setSubsystemMask(const unsigned SubsystemMask) { m_SubsystemMask = SubsystemMask; }
   unsigned getSubsystemMask() const { return m_SubsystemMask; }
 
 private:
-
   unsigned m_SubsystemMask;
-
 
   COND_SERIALIZABLE;
 };
 
-
 #endif
-

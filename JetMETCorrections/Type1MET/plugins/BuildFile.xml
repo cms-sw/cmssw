@@ -16,4 +16,5 @@
   <use   name="DataFormats/VertexReco"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="JetMETCorrections/Type1MET"/>
+  <use   name="JetMETCorrections/JetCorrector"/>
 </library>

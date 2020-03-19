@@ -1,9 +1,9 @@
 
 // -*- C++ -*-
 //
-// Package:   EcalBxOrbitNumberGrapher 
-// Class:     EcalBxOrbitNumberGrapher 
-// 
+// Package:   EcalBxOrbitNumberGrapher
+// Class:     EcalBxOrbitNumberGrapher
+//
 /**\class EcalBxOrbitNumberGrapher EcalBxOrbitNumberGrapher.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 //         Created:  Th Nov 22 5:46:22 CEST 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,31 +36,26 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-
-
 #include "TFile.h"
 #include "TH1F.h"
-
 
 //
 // class declaration
 //
 
 class EcalBxOrbitNumberGrapher : public edm::EDAnalyzer {
-   public:
-      explicit EcalBxOrbitNumberGrapher(const edm::ParameterSet&);
-      ~EcalBxOrbitNumberGrapher() override;
+public:
+  explicit EcalBxOrbitNumberGrapher(const edm::ParameterSet&);
+  ~EcalBxOrbitNumberGrapher() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  void initHists(int);
 
-   private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      void initHists(int);
+  // ----------member data ---------------------------
 
-    // ----------member data ---------------------------
-
- 
   std::string digiProducer_;
   int runNum_;
   std::string fileName_;
@@ -72,5 +66,4 @@ class EcalBxOrbitNumberGrapher : public edm::EDAnalyzer {
   TH1F* numberofOrbitDiffPlot_;
 
   TFile* file;
-  
 };

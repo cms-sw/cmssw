@@ -20,6 +20,7 @@
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/Math"/>
+<use   name="DataFormats/MuonReco"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
@@ -27,7 +28,6 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="DataFormats/Alignment"/>
 <use   name="Geometry/Records"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="rootcore"/>
 <use   name="root"/>
 <export>

@@ -9,15 +9,14 @@ class UCTRegion;
 
 class UCTCard {
 public:
-
   UCTCard(uint32_t crt, uint32_t crd, int fwv);
 
   virtual ~UCTCard();
 
   // To set up event data before processing
 
-  const std::vector<UCTRegion*>& getRegions() const {return regions;}
-  const UCTRegion* getRegion(uint32_t rgn) const {return regions[rgn];}
+  const std::vector<UCTRegion*>& getRegions() const { return regions; }
+  const UCTRegion* getRegion(uint32_t rgn) const { return regions[rgn]; }
   const UCTRegion* getRegion(UCTRegionIndex r) const;
 
   // To process event
@@ -29,32 +28,31 @@ public:
 
   // More access functions
 
-  const uint32_t getCrate() const {return crate;}
-  const uint32_t getCard() const {return card;}
+  const uint32_t getCrate() const { return crate; }
+  const uint32_t getCard() const { return card; }
 
-  const uint32_t et() const {return cardSummary;}
+  const uint32_t et() const { return cardSummary; }
 
   friend std::ostream& operator<<(std::ostream&, const UCTCard&);
 
 private:
-
   // No default constructor is needed
 
-  UCTCard();
+  UCTCard() = delete;
 
   // No copy constructor is needed
 
-  UCTCard(const UCTCard&);
+  UCTCard(const UCTCard&) = delete;
 
   // No equality operator is needed
 
-  const UCTCard& operator=(const UCTCard&);
+  const UCTCard& operator=(const UCTCard&) = delete;
 
   // Helper functions
 
   const UCTRegion* getRegion(bool negativeEta, uint32_t caloEta, uint32_t caloPhi) const;
 
-  // Owned card level data 
+  // Owned card level data
 
   uint32_t crate;
   uint32_t card;

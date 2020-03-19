@@ -4,7 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTDeadFlagValidateHandler> DTDeadFlagValidateDBWrite;
 
-
 DEFINE_FWK_MODULE(DTDeadFlagValidateDBWrite);
-
-

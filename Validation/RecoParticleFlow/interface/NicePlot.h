@@ -4,12 +4,10 @@
 #include <TH1.h>
 #include <TPad.h>
 
-class Style : public TH1 {
-};
-
+class Style : public TH1 {};
 
 class Styles {
- public:
+public:
   Style *s1;
   Style *s2;
   Style *sg1;
@@ -21,13 +19,11 @@ class Styles {
 
   Styles();
 
+  static void FormatHisto(TH1 *h, const Style *s);
 
-  static void FormatHisto( TH1* h, const Style* s );
-  
-  static void FormatPad( TPad* pad, bool grid = true, bool logx = false, bool logy = false);
-  
-  static void SavePlot(const char* name, const char* dir);
+  static void FormatPad(TPad *pad, bool grid = true, bool logx = false, bool logy = false);
+
+  static void SavePlot(const char *name, const char *dir);
 };
-
 
 #endif

@@ -6,17 +6,17 @@
 #include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include <vector>
 
-class CSCChamberIndex{
- public:
+class CSCChamberIndex {
+public:
   CSCChamberIndex();
   ~CSCChamberIndex();
 
-  const CSCMapItem::MapItem& item( int key )const;
+  const CSCMapItem::MapItem& item(int key) const;
 
-  typedef std::vector< CSCMapItem::MapItem > CSCVector;
+  typedef std::vector<CSCMapItem::MapItem> CSCVector;
   CSCVector ch_index;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

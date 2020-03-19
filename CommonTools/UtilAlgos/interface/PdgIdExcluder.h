@@ -7,14 +7,14 @@
 namespace reco {
   namespace modules {
 
-    template<>
-      struct ParameterAdapter<PdgIdExcluder> {
-	static PdgIdExcluder make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	  return PdgIdExcluder( cfg.getParameter<std::vector<int> >( "pdgId" ) );
-	}
-      };
+    template <>
+    struct ParameterAdapter<PdgIdExcluder> {
+      static PdgIdExcluder make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return PdgIdExcluder(cfg.getParameter<std::vector<int> >("pdgId"));
+      }
+    };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif

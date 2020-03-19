@@ -4,7 +4,7 @@
 //
 // Package:    SiPixelFakeGainReader
 // Class:      SiPixelFakeGainReader
-// 
+//
 /**\class SiPixelFakeGainReader SiPixelFakeGainReader.h SiPixelESProducers/test/SiPixelFakeGainReader.h
 
  Description: Test analyzer for fake pixel calibration
@@ -34,31 +34,27 @@
 #include "TBranch.h"
 #include "TH1F.h"
 
-namespace cms{
-class SiPixelFakeGainReader : public edm::EDAnalyzer {
+namespace cms {
+  class SiPixelFakeGainReader : public edm::EDAnalyzer {
+  public:
+    explicit SiPixelFakeGainReader(const edm::ParameterSet& iConfig);
 
-public:
+    ~SiPixelFakeGainReader(){};
+    virtual void beginJob();
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endJob();
 
-  explicit SiPixelFakeGainReader( const edm::ParameterSet& iConfig);
+  private:
+    edm::ParameterSet conf_;
+    edm::ESHandle<TrackerGeometry> tkgeom;
+    //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
+    SiPixelGainCalibrationService SiPixelGainCalibrationService_;
 
-  ~SiPixelFakeGainReader(){};
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
-
-private:
-
-  edm::ParameterSet conf_;
-  edm::ESHandle<TrackerGeometry> tkgeom;
-  //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
-  SiPixelGainCalibrationService SiPixelGainCalibrationService_;
-
-  std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
-  std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
-  std::string filename_;
-  TFile* fFile;
-
-};
-}
+    std::map<uint32_t, TH1F*> _TH1F_Pedestals_m;
+    std::map<uint32_t, TH1F*> _TH1F_Gains_m;
+    std::string filename_;
+    TFile* fFile;
+  };
+}  // namespace cms
 #endif

@@ -38,135 +38,110 @@ using namespace std;
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-BPHDecayVertex::BPHDecayVertex( const edm::EventSetup* es ):
- evSetup( es ),
- oldTracks( true ),
- oldVertex( true ),
- validTks( false ) {
-}
+BPHDecayVertex::BPHDecayVertex(const edm::EventSetup* es)
+    : evSetup(es), oldTracks(true), oldVertex(true), validTks(false) {}
 
-
-BPHDecayVertex::BPHDecayVertex( const BPHDecayVertex* ptr,
-                                const edm::EventSetup* es ):
- evSetup( es ),
- oldTracks( true ),
- oldVertex( true ),
- validTks( false ) {
-  map<const reco::Candidate*,const reco::Candidate*> iMap;
+BPHDecayVertex::BPHDecayVertex(const BPHDecayVertex* ptr, const edm::EventSetup* es)
+    : evSetup(es), oldTracks(true), oldVertex(true), validTks(false) {
+  map<const reco::Candidate*, const reco::Candidate*> iMap;
   const vector<const reco::Candidate*>& daug = daughters();
   const vector<Component>& list = ptr->componentList();
   int i;
   int n = daug.size();
-  for ( i = 0; i < n; ++i ) {
+  for (i = 0; i < n; ++i) {
     const reco::Candidate* cand = daug[i];
-    iMap[originalReco( cand )] = cand;
+    iMap[originalReco(cand)] = cand;
   }
-  for ( i = 0; i < n; ++i ) {
+  for (i = 0; i < n; ++i) {
     const Component& c = list[i];
     searchMap[iMap[c.cand]] = c.searchList;
   }
   const vector<BPHRecoConstCandPtr>& dComp = daughComp();
   int j;
   int m = dComp.size();
-  for ( j = 0; j < m; ++j ) {
-    const map<const reco::Candidate*,string>& dMap = dComp[j]->searchMap;
-    searchMap.insert( dMap.begin(), dMap.end() );
+  for (j = 0; j < m; ++j) {
+    const map<const reco::Candidate*, string>& dMap = dComp[j]->searchMap;
+    searchMap.insert(dMap.begin(), dMap.end());
   }
 }
 
 //--------------
 // Destructor --
 //--------------
-BPHDecayVertex::~BPHDecayVertex() {
-}
+BPHDecayVertex::~BPHDecayVertex() {}
 
 //--------------
 // Operations --
 //--------------
 bool BPHDecayVertex::validTracks() const {
-  if ( oldVertex ) fitVertex();
+  if (oldVertex)
+    fitVertex();
   return validTks;
 }
 
-
 bool BPHDecayVertex::validVertex() const {
-  if ( oldVertex ) fitVertex();
+  if (oldVertex)
+    fitVertex();
   return validTks && fittedVertex.isValid();
 }
 
-
 const reco::Vertex& BPHDecayVertex::vertex() const {
-  if ( oldVertex ) fitVertex();
+  if (oldVertex)
+    fitVertex();
   return fittedVertex;
 }
 
-
 const vector<const reco::Track*>& BPHDecayVertex::tracks() const {
-  if ( oldTracks ) tTracks();
+  if (oldTracks)
+    tTracks();
   return rTracks;
 }
 
-
-const reco::Track* BPHDecayVertex::getTrack(
-                                   const reco::Candidate* cand ) const {
-  if ( oldTracks ) tTracks();
-  map<const reco::Candidate*,
-      const reco::Track*>::const_iterator iter = tkMap.find( cand );
-  map<const reco::Candidate*,
-      const reco::Track*>::const_iterator iend = tkMap.end();
-  return ( iter != iend ? iter->second : nullptr );
+const reco::Track* BPHDecayVertex::getTrack(const reco::Candidate* cand) const {
+  if (oldTracks)
+    tTracks();
+  map<const reco::Candidate*, const reco::Track*>::const_iterator iter = tkMap.find(cand);
+  map<const reco::Candidate*, const reco::Track*>::const_iterator iend = tkMap.end();
+  return (iter != iend ? iter->second : nullptr);
 }
 
-
 const vector<reco::TransientTrack>& BPHDecayVertex::transientTracks() const {
-  if ( oldTracks ) tTracks();
+  if (oldTracks)
+    tTracks();
   return trTracks;
 }
 
-
-reco::TransientTrack* BPHDecayVertex::getTransientTrack(
-                                      const reco::Candidate* cand ) const {
-  if ( oldTracks ) tTracks();
-  map<const reco::Candidate*,
-            reco::TransientTrack*>::const_iterator iter = ttMap.find( cand );
-  map<const reco::Candidate*,
-            reco::TransientTrack*>::const_iterator iend = ttMap.end();
-  return ( iter != iend ? iter->second : nullptr );
+reco::TransientTrack* BPHDecayVertex::getTransientTrack(const reco::Candidate* cand) const {
+  if (oldTracks)
+    tTracks();
+  map<const reco::Candidate*, reco::TransientTrack*>::const_iterator iter = ttMap.find(cand);
+  map<const reco::Candidate*, reco::TransientTrack*>::const_iterator iend = ttMap.end();
+  return (iter != iend ? iter->second : nullptr);
 }
 
-
-const string& BPHDecayVertex::getTrackSearchList(
-                              const reco::Candidate* cand ) const {
+const string& BPHDecayVertex::getTrackSearchList(const reco::Candidate* cand) const {
   static string dum = "";
-  map<const reco::Candidate*,string>::const_iterator iter = 
-                                                     searchMap.find( cand );
-  if ( iter != searchMap.end() ) return iter->second;
+  map<const reco::Candidate*, string>::const_iterator iter = searchMap.find(cand);
+  if (iter != searchMap.end())
+    return iter->second;
   return dum;
 }
 
-
-void BPHDecayVertex::addV( const string& name,
-                           const reco::Candidate* daug, 
-                           const string& searchList,
-                           double mass ) {
-  addP( name, daug, mass );
+void BPHDecayVertex::addV(const string& name, const reco::Candidate* daug, const string& searchList, double mass) {
+  addP(name, daug, mass);
   searchMap[daughters().back()] = searchList;
   return;
 }
 
-
-void BPHDecayVertex::addV( const string& name,
-                           const BPHRecoConstCandPtr& comp ) {
-  addP( name, comp );
-  const map<const reco::Candidate*,string>& dMap = comp->searchMap;
-  searchMap.insert( dMap.begin(), dMap.end() );
+void BPHDecayVertex::addV(const string& name, const BPHRecoConstCandPtr& comp) {
+  addP(name, comp);
+  const map<const reco::Candidate*, string>& dMap = comp->searchMap;
+  searchMap.insert(dMap.begin(), dMap.end());
   return;
 }
-
 
 void BPHDecayVertex::setNotUpdated() const {
   BPHDecayMomentum::setNotUpdated();
@@ -175,54 +150,53 @@ void BPHDecayVertex::setNotUpdated() const {
   return;
 }
 
-
 void BPHDecayVertex::tTracks() const {
   oldTracks = false;
-   rTracks.clear();
+  rTracks.clear();
   trTracks.clear();
   tkMap.clear();
   ttMap.clear();
   edm::ESHandle<TransientTrackBuilder> ttB;
-  evSetup->get<TransientTrackRecord>().get( "TransientTrackBuilder", ttB );
+  evSetup->get<TransientTrackRecord>().get("TransientTrackBuilder", ttB);
   const vector<const reco::Candidate*>& dL = daughFull();
   int n = dL.size();
-  trTracks.reserve( n );
+  trTracks.reserve(n);
   validTks = true;
-  while ( n-- ) {
+  while (n--) {
     const reco::Candidate* rp = dL[n];
     tkMap[rp] = nullptr;
     ttMap[rp] = nullptr;
-    if ( !rp->charge() ) continue;
+    if (!rp->charge())
+      continue;
     const reco::Track* tp;
     const char* searchList = "cfhp";
-    map<const reco::Candidate*,string>::const_iterator iter =
-                                                       searchMap.find( rp );
-    if ( iter != searchMap.end() ) searchList = iter->second.c_str();
-    tp = BPHTrackReference::getTrack( *rp, searchList );
-    if ( tp == nullptr ) {
-      edm::LogPrint( "DataNotFound" )
-                  << "BPHDecayVertex::tTracks: "
-                  << "no track for reco::(PF)Candidate";
+    map<const reco::Candidate*, string>::const_iterator iter = searchMap.find(rp);
+    if (iter != searchMap.end())
+      searchList = iter->second.c_str();
+    tp = BPHTrackReference::getTrack(*rp, searchList);
+    if (tp == nullptr) {
+      edm::LogPrint("DataNotFound") << "BPHDecayVertex::tTracks: "
+                                    << "no track for reco::(PF)Candidate";
       validTks = false;
       continue;
     }
-     rTracks.push_back( tp );
-    trTracks.push_back( ttB->build( tp ) );
+    rTracks.push_back(tp);
+    trTracks.push_back(ttB->build(tp));
     reco::TransientTrack* ttp = &trTracks.back();
-    tkMap[rp] =  tp;
+    tkMap[rp] = tp;
     ttMap[rp] = ttp;
   }
   return;
 }
 
-
 void BPHDecayVertex::fitVertex() const {
   oldVertex = false;
-  if ( oldTracks ) tTracks();
-  if ( trTracks.size() < 2 ) return;
-  KalmanVertexFitter kvf( true );
-  TransientVertex tv = kvf.vertex( trTracks );
+  if (oldTracks)
+    tTracks();
+  if (trTracks.size() < 2)
+    return;
+  KalmanVertexFitter kvf(true);
+  TransientVertex tv = kvf.vertex(trTracks);
   fittedVertex = tv;
   return;
 }
-

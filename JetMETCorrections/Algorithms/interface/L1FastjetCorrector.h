@@ -14,24 +14,21 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
 
-class L1FastjetCorrector : public JetCorrector
-{
+class L1FastjetCorrector : public JetCorrector {
 public:
   // construction / destruction
   L1FastjetCorrector(const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig);
   ~L1FastjetCorrector() override;
-  
+
 public:
   //member functions
-  
+
   /// apply correction using Jet information only
   double correction(const LorentzVector& fJet) const override;
   /// apply correction using Jet information only
   double correction(const reco::Jet& fJet) const override;
   /// apply correction using all event information
-  double correction(const reco::Jet& fJet,
-			    const edm::Event& fEvent,
-			    const edm::EventSetup& fSetup) const override;
+  double correction(const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const override;
   /// if correction needs event information
   bool eventRequired() const override { return true; }
 

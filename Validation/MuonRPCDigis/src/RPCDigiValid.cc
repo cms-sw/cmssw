@@ -1,44 +1,40 @@
-#include "Validation/MuonRPCDigis/interface/RPCDigiValid.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "Validation/MuonRPCDigis/interface/RPCDigiValid.h"
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <cmath>
 
 using namespace std;
 using namespace edm;
 
-RPCDigiValid::RPCDigiValid(const ParameterSet& ps)
-{
+RPCDigiValid::RPCDigiValid(const ParameterSet &ps) {
+  //  Init the tokens for run data retrieval - stanislav
+  //  ps.getUntackedParameter<InputTag> retrieves a InputTag from the
+  //  configuration. The second param is default value module, instance and
+  //  process labels may be passed in a single string if separated by colon ':'
+  //  (@see the edm::InputTag constructor documentation)
+  simHitToken = consumes<PSimHitContainer>(
+      ps.getUntrackedParameter<edm::InputTag>("simHitTag", edm::InputTag("g4SimHits:MuonRPCHits")));
+  rpcDigiToken = consumes<RPCDigiCollection>(
+      ps.getUntrackedParameter<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonRPCDigis")));
 
-//  Init the tokens for run data retrieval - stanislav
-//  ps.getUntackedParameter<InputTag> retrieves a InputTag from the configuration. The second param is default value
-//  module, instance and process labels may be passed in a single string if separated by colon ':'
-//  (@see the edm::InputTag constructor documentation)
-  simHitToken = consumes<PSimHitContainer>(ps.getUntrackedParameter<edm::InputTag >("simHitTag", edm::InputTag("g4SimHits:MuonRPCHits")));
-  rpcDigiToken    = consumes<RPCDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonRPCDigis")));
-
-  outputFile_ = ps.getUntrackedParameter<string> ("outputFile", "rpcDigiValidPlots.root");
+  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "rpcDigiValidPlots.root");
 }
 
-RPCDigiValid::~RPCDigiValid()
-{
-}
+RPCDigiValid::~RPCDigiValid() {}
 
-
-void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
-{
-
+void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
-  eventSetup.get<MuonGeometryRecord> ().get(rpcGeom);
+  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
 
   edm::Handle<PSimHitContainer> simHit;
   edm::Handle<RPCDigiCollection> rpcDigis;
@@ -48,21 +44,17 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
   // Loop on simhits
   PSimHitContainer::const_iterator simIt;
 
-  //loop over Simhit
-  std::map<RPCDetId, std::vector<double> > allsims;
+  // loop over Simhit
+  std::map<RPCDetId, std::vector<double>> allsims;
 
-  for (simIt = simHit->begin(); simIt != simHit->end(); simIt++)
-  {
+  for (simIt = simHit->begin(); simIt != simHit->end(); simIt++) {
     RPCDetId Rsid = (RPCDetId)(*simIt).detUnitId();
-    const RPCRoll* soll = dynamic_cast<const RPCRoll*> (rpcGeom->roll(Rsid));
+    const RPCRoll *soll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(Rsid));
     int ptype = simIt->particleType();
 
-    if (ptype == 13 || ptype == -13)
-    {
-
+    if (ptype == 13 || ptype == -13) {
       std::vector<double> buff;
-      if (allsims.find(Rsid) != allsims.end())
-      {
+      if (allsims.find(Rsid) != allsims.end()) {
         buff = allsims[Rsid];
       }
 
@@ -77,70 +69,59 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
 
     xyview->Fill(sim_x, sim_y);
 
-    if (Rsid.region() == (+1))
-    {
-      if (Rsid.station() == 4)
-      {
+    if (Rsid.region() == (+1)) {
+      if (Rsid.station() == 4) {
         xyvDplu4->Fill(sim_x, sim_y);
       }
-    }
-    else if (Rsid.region() == (-1))
-    {
-      if (Rsid.station() == 4)
-      {
+    } else if (Rsid.region() == (-1)) {
+      if (Rsid.station() == 4) {
         xyvDmin4->Fill(sim_x, sim_y);
       }
     }
     rzview->Fill(p.z(), p.perp());
   }
-  //loop over Digis
+  // loop over Digis
   RPCDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = rpcDigis->begin(); detUnitIt != rpcDigis->end(); ++detUnitIt)
-  {
+  for (detUnitIt = rpcDigis->begin(); detUnitIt != rpcDigis->end(); ++detUnitIt) {
     const RPCDetId Rsid = (*detUnitIt).first;
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*> (rpcGeom->roll(Rsid));
+    const RPCRoll *roll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(Rsid));
 
-    const RPCDigiCollection::Range& range = (*detUnitIt).second;
+    const RPCDigiCollection::Range &range = (*detUnitIt).second;
     std::vector<double> sims;
-    if (allsims.find(Rsid) != allsims.end())
-    {
+    if (allsims.find(Rsid) != allsims.end()) {
       sims = allsims[Rsid];
     }
 
-    int ndigi=0;
-    for (RPCDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt)
-    {
+    int ndigi = 0;
+    for (RPCDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
       StripProf->Fill(digiIt->strip());
       BxDist->Fill(digiIt->bx());
-      //bx for 4 endcaps
-      if (Rsid.region() == (+1))
-      {
+      // bx for 4 endcaps
+      if (Rsid.region() == (+1)) {
         if (Rsid.station() == 4)
           BxDisc_4Plus->Fill(digiIt->bx());
-      }
-      else if (Rsid.region() == (-1))
-      {
+      } else if (Rsid.region() == (-1)) {
         if (Rsid.station() == 4)
           BxDisc_4Min->Fill(digiIt->bx());
       }
 
       // Fill timing information
-      const double digiTime = digiIt->hasTime() ? digiIt->time() : digiIt->bx()*25;
+      const double digiTime = digiIt->hasTime() ? digiIt->time() : digiIt->bx() * 25;
       hDigiTimeAll->Fill(digiTime);
-      if ( digiIt->hasTime() ) {
+      if (digiIt->hasTime()) {
         hDigiTime->Fill(digiTime);
-        if ( roll->isIRPC() ) hDigiTimeIRPC->Fill(digiTime);
-        else hDigiTimeNoIRPC->Fill(digiTime);
+        if (roll->isIRPC())
+          hDigiTimeIRPC->Fill(digiTime);
+        else
+          hDigiTimeNoIRPC->Fill(digiTime);
       }
     }
 
-    if (sims.size() == 1 && ndigi == 1)
-    {
+    if (sims.size() == 1 && ndigi == 1) {
       double dis = roll->centreOfStrip(range.first->strip()).x() - sims[0];
       Res->Fill(dis);
 
-      if (Rsid.region() == 0)
-      {
+      if (Rsid.region() == 0) {
         if (Rsid.ring() == -2)
           ResWmin2->Fill(dis);
         else if (Rsid.ring() == -1)
@@ -151,7 +132,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
           ResWplu1->Fill(dis);
         else if (Rsid.ring() == 2)
           ResWplu2->Fill(dis);
-        //barrel layers
+        // barrel layers
         if (Rsid.station() == 1 && Rsid.layer() == 1)
           ResLayer1_barrel->Fill(dis);
         if (Rsid.station() == 1 && Rsid.layer() == 2)
@@ -165,13 +146,10 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
         if (Rsid.station() == 4)
           ResLayer6_barrel->Fill(dis);
       }
-      //endcap layers residuals
-      if (Rsid.region() != 0)
-      {
-        if (Rsid.ring() == 2)
-        {
-          if (abs(Rsid.station()) == 1)
-          {
+      // endcap layers residuals
+      if (Rsid.region() != 0) {
+        if (Rsid.ring() == 2) {
+          if (abs(Rsid.station()) == 1) {
             if (Rsid.roll() == 1)
               Res_Endcap1_Ring2_A->Fill(dis);
             if (Rsid.roll() == 2)
@@ -179,8 +157,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
             if (Rsid.roll() == 3)
               Res_Endcap1_Ring2_C->Fill(dis);
           }
-          if (abs(Rsid.station()) == 2 || abs(Rsid.station()) == 3)
-          {
+          if (abs(Rsid.station()) == 2 || abs(Rsid.station()) == 3) {
             if (Rsid.roll() == 1)
               Res_Endcap23_Ring2_A->Fill(dis);
             if (Rsid.roll() == 2)
@@ -189,8 +166,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
               Res_Endcap23_Ring2_C->Fill(dis);
           }
         }
-        if (Rsid.ring() == 3)
-        {
+        if (Rsid.ring() == 3) {
           if (Rsid.roll() == 1)
             Res_Endcap123_Ring3_A->Fill(dis);
           if (Rsid.roll() == 2)
@@ -200,9 +176,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
         }
       }
 
-      if (Rsid.region() == (+1))
-      {
-
+      if (Rsid.region() == (+1)) {
         if (Rsid.station() == 1)
           ResDplu1->Fill(dis);
         else if (Rsid.station() == 2)
@@ -212,9 +186,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
         else if (Rsid.station() == 4)
           ResDplu4->Fill(dis);
       }
-      if (Rsid.region() == (-1))
-      {
-
+      if (Rsid.region() == (-1)) {
         if (Rsid.station() == 1)
           ResDmin1->Fill(dis);
         else if (Rsid.station() == 2)
@@ -228,8 +200,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
   }
 }
 
-void RPCDigiValid::bookHistograms(DQMStore::IBooker& booker, edm::Run const& run, edm::EventSetup const& eSetup)
-{
+void RPCDigiValid::bookHistograms(DQMStore::IBooker &booker, edm::Run const &run, edm::EventSetup const &eSetup) {
   booker.setCurrentFolder("RPCDigisV/RPCDigis");
 
   xyview = booker.book2D("X_Vs_Y_View", "X_Vs_Y_View", 155, -775., 775., 155, -775., 775.);
@@ -258,7 +229,7 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker& booker, edm::Run const& run
   BxDisc_4Plus = booker.book1D("BxDisc_4Plus", "BxDisc_4Plus", 20, -10., 10.);
   BxDisc_4Min = booker.book1D("BxDisc_4Min", "BxDisc_4Min", 20, -10., 10.);
 
-  //endcap residuals
+  // endcap residuals
   ResDmin1 = booker.book1D("Disk_Min1_Residuals", "Disk_Min1_Residuals", 400, -8, 8);
   ResDmin2 = booker.book1D("Disk_Min2_Residuals", "Disk_Min2_Residuals", 400, -8, 8);
   ResDmin3 = booker.book1D("Disk_Min3_Residuals", "Disk_Min3_Residuals", 400, -8, 8);
@@ -282,9 +253,9 @@ void RPCDigiValid::bookHistograms(DQMStore::IBooker& booker, edm::Run const& run
   Res_Endcap123_Ring3_C = booker.book1D("Res_Endcap123_Ring3_C", "Res_Endcap123_Ring3_C", 400, -8, 8);
 
   // Timing informations
-  hDigiTimeAll    = booker.book1D("DigiTimeAll"   , "Digi time including present electronics;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTime       = booker.book1D("DigiTime"      , "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
-  hDigiTimeIRPC   = booker.book1D("DigiTimeIRPC"  , "IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
+  hDigiTimeAll =
+      booker.book1D("DigiTimeAll", "Digi time including present electronics;Digi time (ns)", 100, -12.5, 12.5);
+  hDigiTime = booker.book1D("DigiTime", "Digi time only with timing information;Digi time (ns)", 100, -12.5, 12.5);
+  hDigiTimeIRPC = booker.book1D("DigiTimeIRPC", "IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
   hDigiTimeNoIRPC = booker.book1D("DigiTimeNoIRPC", "non-IRPC Digi time;Digi time (ns)", 100, -12.5, 12.5);
 }
-

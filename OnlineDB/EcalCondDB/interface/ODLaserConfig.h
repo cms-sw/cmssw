@@ -13,7 +13,7 @@
 #define BUFSIZE 200;
 
 class ODLaserConfig : public IODConfig {
- public:
+public:
   friend class EcalCondDBInterface;
   ODLaserConfig();
   ~ODLaserConfig() override;
@@ -25,7 +25,6 @@ class ODLaserConfig : public IODConfig {
   inline int getId() const { return m_ID; }
   inline void setSize(unsigned int id) { m_size = id; }
   inline unsigned int getSize() const { return m_size; }
-
 
   inline void setDebug(int x) { m_debug = x; }
   inline int getDebug() const { return m_debug; }
@@ -54,11 +53,11 @@ class ODLaserConfig : public IODConfig {
   inline int getFPMode() const { return m_fp_mode; }
   inline void setHalModuleFile(std::string x) { m_hal_mod_file = x; }
   inline std::string getHalModuleFile() const { return m_hal_mod_file; }
-  inline void setMatacqVernierMax(int x) { m_matacq_vernier_max = x; } 
-  inline int getMatacqVernierMax() { return m_matacq_vernier_max; } 
-  inline void setMatacqVernierMin(int x) { m_matacq_vernier_min = x; } 
-  inline int getMatacqVernierMin() { return m_matacq_vernier_min; } 
-  
+  inline void setMatacqVernierMax(int x) { m_matacq_vernier_max = x; }
+  inline int getMatacqVernierMax() { return m_matacq_vernier_max; }
+  inline void setMatacqVernierMin(int x) { m_matacq_vernier_min = x; }
+  inline int getMatacqVernierMin() { return m_matacq_vernier_min; }
+
   inline void setHalAddressTableFile(std::string x) { m_hal_add_file = x; }
   inline std::string getHalAddressTableFile() const { return m_hal_add_file; }
 
@@ -80,7 +79,7 @@ class ODLaserConfig : public IODConfig {
   inline void setLocalOutputFile(std::string x) { m_mq_file = x; }
   inline std::string getLocalOutputFile() const { return m_mq_file; }
 
-  // emtc  
+  // emtc
   inline void setEMTCNone(int x) { m_emtc_1 = x; }
   inline int getEMTCNone() const { return m_emtc_1; }
   inline void setWTE2LaserDelay(int x) { m_emtc_2 = x; }
@@ -94,7 +93,7 @@ class ODLaserConfig : public IODConfig {
 
   //  void setParameters(std::map<std::string,std::string> my_keys_map);
 
-  // laser 
+  // laser
 
   inline void setWaveLength(int x) { m_wave = x; }
   inline int getWaveLength() const { return m_wave; }
@@ -117,14 +116,10 @@ class ODLaserConfig : public IODConfig {
   inline void setLaserControlPort(int x) { m_laserport = x; }
   inline int getLaserControlPort() const { return m_laserport; }
 
-
-
   inline void setLaserTag(std::string x) { m_laser_tag = x; }
-  inline std::string getLaserTag() const { return m_laser_tag ; }
+  inline std::string getLaserTag() const { return m_laser_tag; }
 
-
-
-  // new parameters 
+  // new parameters
 
   inline void setWTE2LedDelay(int x) { m_wte_2_led_delay = x; }
   inline int getWTE2LedDelay() const { return m_wte_2_led_delay; }
@@ -184,22 +179,21 @@ class ODLaserConfig : public IODConfig {
   inline int getRedLaserLogAttenuator() const { return m_red_laser_log_attenuator; }
 
   inline void setLaserConfigFile(std::string x) { m_laser_config_file = x; }
-  inline std::string getLaserConfigFile() const { return m_laser_config_file ; }
+  inline std::string getLaserConfigFile() const { return m_laser_config_file; }
 
   inline void setLaserClob(unsigned char* x) { m_laser_clob = x; }
   inline unsigned char* getLaserClob() const { return m_laser_clob; }
 
-  void setParameters(const std::map<std::string,std::string>& my_keys_map);
+  void setParameters(const std::map<std::string, std::string>& my_keys_map);
 
   int fetchNextId() noexcept(false);
-  
- private:
-  void prepareWrite()  noexcept(false) override;
-  void writeDB()       noexcept(false);
-  void clear();
-  void fetchData(ODLaserConfig * result)     noexcept(false);
-  int fetchID()  noexcept(false);
 
+private:
+  void prepareWrite() noexcept(false) override;
+  void writeDB() noexcept(false);
+  void clear();
+  void fetchData(ODLaserConfig* result) noexcept(false);
+  int fetchID() noexcept(false);
 
   // User data
   int m_ID;
@@ -209,26 +203,26 @@ class ODLaserConfig : public IODConfig {
   int m_debug;
   int m_mq_base;
   int m_mq_none;
-  std::string m_mode ;
+  std::string m_mode;
   int m_chan_mask;
   std::string m_samples;
-  int m_mq_fed;  
+  int m_mq_fed;
   std::string m_ped_file;
-  int  m_use_buffer;
-  int  m_post_trig;
-  int  m_fp_mode;
+  int m_use_buffer;
+  int m_post_trig;
+  int m_fp_mode;
   std::string m_hal_mod_file;
   std::string m_hal_add_file;
   std::string m_hal_tab_file;
   std::string m_serial;
-  int  m_ped_count;
-  int  m_raw_mode;
+  int m_ped_count;
+  int m_raw_mode;
   std::string m_aqmode;
   std::string m_mq_file;
   int m_matacq_vernier_min;
   int m_matacq_vernier_max;
 
-  // emtc 
+  // emtc
   int m_emtc_1;
   int m_emtc_2;
   int m_emtc_3;
@@ -246,32 +240,29 @@ class ODLaserConfig : public IODConfig {
 
   std::string m_laser_tag;
 
-
-  // led 
- int m_wte_2_led_delay;
- int m_led1_on; 
- int m_led2_on ;
- int m_led3_on ;
- int m_led4_on ;
- int m_vinj;
- int m_orange_led_mon_ampl ;
- int m_blue_led_mon_ampl ;
- std::string m_trig_log_file; 
- int m_led_control_on ;
- std::string m_led_control_host; 
- int m_led_control_port ;
- int m_ir_laser_power ;
- int m_green_laser_power; 
- int m_red_laser_power ;
- int m_blue_laser_log_attenuator; 
- int m_ir_laser_log_attenuator;
- int m_green_laser_log_attenuator;
- int m_red_laser_log_attenuator;
- std::string m_laser_config_file;
- unsigned char* m_laser_clob ;
- unsigned int m_size;
-
-
+  // led
+  int m_wte_2_led_delay;
+  int m_led1_on;
+  int m_led2_on;
+  int m_led3_on;
+  int m_led4_on;
+  int m_vinj;
+  int m_orange_led_mon_ampl;
+  int m_blue_led_mon_ampl;
+  std::string m_trig_log_file;
+  int m_led_control_on;
+  std::string m_led_control_host;
+  int m_led_control_port;
+  int m_ir_laser_power;
+  int m_green_laser_power;
+  int m_red_laser_power;
+  int m_blue_laser_log_attenuator;
+  int m_ir_laser_log_attenuator;
+  int m_green_laser_log_attenuator;
+  int m_red_laser_log_attenuator;
+  std::string m_laser_config_file;
+  unsigned char* m_laser_clob;
+  unsigned int m_size;
 };
 
 #endif

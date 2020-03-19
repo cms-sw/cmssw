@@ -21,18 +21,15 @@ namespace l1t {
   // Imp1 is for v1 and v2
   class Stage2Layer2DemuxTauAlgoFirmwareImp1 : public Stage2Layer2DemuxTauAlgo {
   public:
-    Stage2Layer2DemuxTauAlgoFirmwareImp1(CaloParamsHelper const* params); //const CaloMainProcessorParams & dbPars);
+    Stage2Layer2DemuxTauAlgoFirmwareImp1(CaloParamsHelper const* params);  //const CaloMainProcessorParams & dbPars);
     ~Stage2Layer2DemuxTauAlgoFirmwareImp1() override;
-    void processEvent(const std::vector<Tau> & inputTaus,
-			      std::vector<Tau> & outputTaus) override;
+    void processEvent(const std::vector<Tau>& inputTaus, std::vector<Tau>& outputTaus) override;
 
   private:
-
     // parameters
     CaloParamsHelper const* params_;
-
   };
 
-}
+}  // namespace l1t
 
 #endif

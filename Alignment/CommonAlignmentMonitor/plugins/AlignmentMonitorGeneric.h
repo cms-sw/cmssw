@@ -3,7 +3,7 @@
 
 // Package:     CommonAlignmentMonitor
 // Class  :     AlignmentMonitorGeneric
-// 
+//
 // Produce histograms generic to all alignment algorithms.
 //
 // Histograms defined:
@@ -23,33 +23,24 @@
 // $Id: AlignmentMonitorGeneric.h,v 1.3 2007/12/04 23:29:26 ratnik Exp $
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
-#include "TH1.h" 
+#include "TH1.h"
 
-class AlignmentMonitorGeneric:
-  public AlignmentMonitorBase
-{
+class AlignmentMonitorGeneric : public AlignmentMonitorBase {
   typedef std::vector<TH1F*> Hist1Ds;
 
-  public:
-
-  AlignmentMonitorGeneric(
-			  const edm::ParameterSet&
-			  );
+public:
+  AlignmentMonitorGeneric(const edm::ParameterSet&);
 
   void book() override;
 
-  void event(const edm::Event&,
-		     const edm::EventSetup&,
-		     const ConstTrajTrackPairCollection&
-		     ) override;
+  void event(const edm::Event&, const edm::EventSetup&, const ConstTrajTrackPairCollection&) override;
 
-  private:
-
+private:
   static const unsigned int nBin_ = 50;
 
-  Hist1Ds m_trkHists; // track parameters histograms
+  Hist1Ds m_trkHists;  // track parameters histograms
 
-  std::map<const Alignable*, Hist1Ds> m_resHists; // hit residuals histograms
+  std::map<const Alignable*, Hist1Ds> m_resHists;  // hit residuals histograms
 };
 
 #endif

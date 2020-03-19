@@ -18,43 +18,41 @@
 
 class CSCDDUEventData {
 public:
-
   explicit CSCDDUEventData(const CSCDDUHeader &);
 
   // buf may need to stay pinned in memory as long
   // as this data is used.  Not sure
-  explicit CSCDDUEventData(const uint16_t *buf, CSCDCCExaminer* examiner=nullptr);
+  explicit CSCDDUEventData(const uint16_t *buf, CSCDCCExaminer *examiner = nullptr);
 
   ~CSCDDUEventData();
 
-  static void setDebug(bool value) {debug = value;} 
-  static void setErrorMask(unsigned int value) {errMask = value;} 
+  static void setDebug(bool value) { debug = value; }
+  static void setErrorMask(unsigned int value) { errMask = value; }
 
   /// accessor to data
-  const std::vector<CSCEventData> & cscData() const {return theData;}
+  const std::vector<CSCEventData> &cscData() const { return theData; }
 
-  CSCDDUHeader header() const {return theDDUHeader;}
-  CSCDDUTrailer trailer() const {return theDDUTrailer;}
-  uint16_t trailer0() const {return theDDUTrailer0;}
+  CSCDDUHeader header() const { return theDDUHeader; }
+  CSCDDUTrailer trailer() const { return theDDUTrailer; }
+  uint16_t trailer0() const { return theDDUTrailer0; }
 
-  CSCDCCHeader dccHeader() const {return theDCCHeader;}
-  CSCDCCTrailer dccTrailer() const {return theDCCTrailer;}
-
+  CSCDCCHeader dccHeader() const { return theDCCHeader; }
+  CSCDCCTrailer dccTrailer() const { return theDCCTrailer; }
 
   /// for making events.  Sets the bxnum and lvl1num inside the chamber event
-    void add(CSCEventData &, int dmbId, int dduInput, unsigned int format_version = 2005);
+  void add(CSCEventData &, int dmbId, int dduInput, unsigned int format_version = 2005);
 
   /// trailer info
   long unsigned int errorstat;
 
   bool check() const;
 
-  /// prints out the error associated with this status 
+  /// prints out the error associated with this status
   /// from the header or trailer
   void decodeStatus(int status) const;
   void decodeStatus() const;
-  int sizeInWords() const {return theSizeInWords;}
-  int size() const {return theSizeInWords*16;} ///Alex check this 16 or 64
+  int sizeInWords() const { return theSizeInWords; }
+  int size() const { return theSizeInWords * 16; }  ///Alex check this 16 or 64
 
   /// returns packed event data
   boost::dynamic_bitset<> pack();
@@ -69,7 +67,7 @@ public:
 
   /// a good test routine would be to unpack data, then pack it again.
 protected:
-  void unpack_data(const uint16_t * buf, CSCDCCExaminer* examiner=nullptr);
+  void unpack_data(const uint16_t *buf, CSCDCCExaminer *examiner = nullptr);
   CSCDCCHeader theDCCHeader;
   CSCDDUHeader theDDUHeader;
   // CSCData is unpacked and stored in this vector

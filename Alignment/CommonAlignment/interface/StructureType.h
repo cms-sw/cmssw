@@ -12,10 +12,8 @@
  *  \author Chung Khim Lae
  */
 
-namespace align
-{
-  enum StructureType 
-  { 
+namespace align {
+  enum StructureType {
     notfound = -1,
     invalid = 0,
     AlignableDetUnit,
@@ -24,52 +22,52 @@ namespace align
     // Barrel Pixel
     TPBModule,
     TPBLadder,
-    TPBLayer, // = 5
+    TPBLayer,  // = 5
     TPBHalfBarrel,
     TPBBarrel,
 
     // Forward Pixel
     TPEModule,
     TPEPanel,
-    TPEBlade, // = 10
+    TPEBlade,  // = 10
     TPEHalfDisk,
     TPEHalfCylinder,
     TPEEndcap,
 
     // Tracker Inner Barrel
     TIBModule,
-    TIBString, // = 15
+    TIBString,  // = 15
     TIBSurface,
     TIBHalfShell,
     TIBLayer,
     TIBHalfBarrel,
-    TIBBarrel, // = 20
+    TIBBarrel,  // = 20
 
     // Tracker Inner Disks
     TIDModule,
     TIDSide,
     TIDRing,
     TIDDisk,
-    TIDEndcap, // = 25
+    TIDEndcap,  // = 25
 
     // Tracker Outer Barrel
     TOBModule,
     TOBRod,
     TOBLayer,
     TOBHalfBarrel,
-    TOBBarrel, // = 30
+    TOBBarrel,  // = 30
 
     // Tracker Endcaps
     TECModule,
     TECRing,
     TECPetal,
     TECSide,
-    TECDisk, // = 35
+    TECDisk,  // = 35
     TECEndcap,
 
     Pixel,
     Strip,
-    Tracker, // = 39
+    Tracker,  // = 39
 
     // Muon Detector, not touching these now
     AlignableDTBarrel = 100,
@@ -77,15 +75,15 @@ namespace align
     AlignableDTStation,
     AlignableDTChamber,
     AlignableDTSuperLayer,
-    AlignableDTLayer, // = 105
+    AlignableDTLayer,  // = 105
     AlignableCSCEndcap,
     AlignableCSCStation,
     AlignableCSCRing,
     AlignableCSCChamber,
-    AlignableCSCLayer, // = 110
+    AlignableCSCLayer,  // = 110
     AlignableMuon,
 
-    Detector, // = 112 (what for?)
+    Detector,  // = 112 (what for?)
 
     Extras = 1000,
     BeamSpot

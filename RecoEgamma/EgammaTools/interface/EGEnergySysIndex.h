@@ -11,7 +11,7 @@
 class EGEnergySysIndex {
 public:
   enum Index {
-    kScaleStatUp=0,
+    kScaleStatUp = 0,
     kScaleStatDown,
     kScaleSystUp,
     kScaleSystDown,
@@ -37,15 +37,12 @@ public:
     kEcalTrkPostCorr,
     kEcalTrkErrPostCorr
   };
-  static constexpr size_t kNrSysErrs=kEcalTrkErrPostCorr+1; 
+  static constexpr size_t kNrSysErrs = kEcalTrkErrPostCorr + 1;
 
-  static const std::string& name(size_t index){return names_[index];}
+  static const std::string& name(size_t index) { return names_[index]; }
 
 private:
-  static const std::array<std::string,kNrSysErrs> names_;
-
-
-   
+  static const std::array<std::string, kNrSysErrs> names_;
 };
 
 #endif

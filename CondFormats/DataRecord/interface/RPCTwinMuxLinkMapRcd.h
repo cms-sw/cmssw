@@ -3,8 +3,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class RPCTwinMuxLinkMapRcd
-    : public edm::eventsetup::EventSetupRecordImplementation<RPCTwinMuxLinkMapRcd>
-{};
+class RPCTwinMuxLinkMapRcd : public edm::eventsetup::EventSetupRecordImplementation<RPCTwinMuxLinkMapRcd> {};
 
-#endif // CondFormats_DataRecord_RPCTwinMuxLinkMapRcd_h
+#endif  // CondFormats_DataRecord_RPCTwinMuxLinkMapRcd_h

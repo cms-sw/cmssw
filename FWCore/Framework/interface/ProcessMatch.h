@@ -16,17 +16,16 @@ See comments in the file GetterOfProducts.h for a description.
 
 namespace edm {
 
-   class ProcessMatch {
-   public:
+  class ProcessMatch {
+  public:
+    ProcessMatch(std::string const& processName) : processName_(processName) {}
 
-      ProcessMatch(std::string const& processName) : processName_(processName) { }
+    bool operator()(edm::BranchDescription const& branchDescription) {
+      return branchDescription.processName() == processName_ || processName_ == "*";
+    }
 
-      bool operator()(edm::BranchDescription const& branchDescription) {
-         return branchDescription.processName() == processName_ || processName_ == "*";
-      }
-
-   private:
-      std::string processName_;
-   };
-}
+  private:
+    std::string processName_;
+  };
+}  // namespace edm
 #endif

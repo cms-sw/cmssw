@@ -33,6 +33,7 @@ from Validation.RecoParticleFlow.PFMETValidation_cff import *
 from Validation.RecoParticleFlow.PFMuonValidation_cff import *
 from Validation.RecoParticleFlow.PFElectronValidation_cff import *
 from Validation.RecoParticleFlow.PFJetResValidation_cff import *
+from Validation.RecoParticleFlow.PFClusterValidation_cff import *
 from Validation.RPCRecHits.rpcRecHitValidation_cfi import *
 from Validation.DTRecHits.DTRecHitQuality_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
@@ -41,8 +42,10 @@ from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import 
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.Configuration.hgcalSimValid_cff import *
+from Validation.Configuration.mtdSimValid_cff import *
 from Validation.SiOuterTrackerV.OuterTrackerSourceConfigV_cff import *
-
+from Validation.Configuration.ecalSimValid_cff import *
+from Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidationTracking = cms.Sequence(
@@ -74,8 +77,6 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + hcalSimHitsValidationSequence
                                  + hcaldigisValidationSequence
                                  + hcalSimHitStudy
-                                 + hcalRecHitsValidationSequence
-                                 + calotowersValidationSequence
                                  + validSimHit+muondtdigianalyzer
                                  + cscDigiValidation
                                  + validationMuonRPCDigis
@@ -91,6 +92,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfElectronValidationSequence
                                  + pfJetResValidationSequence
                                  + pfMuonValidationSequence
+                                 + pfClusterValidationSequence
                                  + rpcRecHitValidation_step
                                  + dtLocalRecoValidation_no2D
                                  + pfTauRunDQMValidation
@@ -160,6 +162,8 @@ globalValidationHCAL = cms.Sequence(
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 
+globalValidationMTD = cms.Sequence()
+
 globalValidationOuterTracker = cms.Sequence(OuterTrackerSourceV)
 
 globalPrevalidationMuons = cms.Sequence(
@@ -186,6 +190,7 @@ _run3_globalValidation = globalValidation.copy()
 _run3_globalValidation += gemSimValid
 
 _phase2_globalValidation = _run3_globalValidation.copy()
+_phase2_globalValidation += trackerphase2ValidationSource
 _phase2_globalValidation += me0SimValid
 
 
@@ -197,3 +202,5 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toReplaceWith(globalValidation, globalValidation.copyAndExclude([pfTauRunDQMValidation]))
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toReplaceWith(globalValidationMTD, cms.Sequence(mtdSimValid+mtdDigiValid+mtdRecoValid))

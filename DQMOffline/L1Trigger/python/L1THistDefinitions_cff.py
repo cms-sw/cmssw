@@ -1,10 +1,10 @@
-
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 et_vs_et_bins = []
-et_vs_et_bins.extend(list(xrange(0, 50, 1)))
-et_vs_et_bins.extend(list(xrange(50, 150, 5)))
-et_vs_et_bins.extend(list(xrange(150, 500, 50)))
+et_vs_et_bins.extend(list(range(0, 50, 1)))
+et_vs_et_bins.extend(list(range(50, 150, 5)))
+et_vs_et_bins.extend(list(range(150, 500, 50)))
 
 histDefinitions = cms.PSet(
     nVertex=cms.PSet(

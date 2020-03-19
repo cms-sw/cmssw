@@ -10,16 +10,16 @@
  *
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "CLHEP/Random/RandomEngine.h"
 #include <boost/utility.hpp>
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -38,54 +38,52 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class CSCDigitizer : public boost::noncopyable
-{
+class CSCDigitizer : public boost::noncopyable {
 public:
   typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
 
   /// configurable parameters
-  explicit CSCDigitizer(const edm::ParameterSet & p);
-  
+  explicit CSCDigitizer(const edm::ParameterSet &p);
+
   ~CSCDigitizer();
 
   /**  digitize
    */
-  void doAction(MixCollection<PSimHit> & simHits,
-                CSCWireDigiCollection & wireDigis,
-                CSCStripDigiCollection & stripDigis,
-                CSCComparatorDigiCollection & comparators,
-                DigiSimLinks & wireDigiSimLinks,
-                DigiSimLinks & stripDigiSimLinks,
-                CLHEP::HepRandomEngine*);
+  void doAction(MixCollection<PSimHit> &simHits,
+                CSCWireDigiCollection &wireDigis,
+                CSCStripDigiCollection &stripDigis,
+                CSCComparatorDigiCollection &comparators,
+                DigiSimLinks &wireDigiSimLinks,
+                DigiSimLinks &stripDigiSimLinks,
+                CLHEP::HepRandomEngine *);
 
   /// sets geometry
-  void setGeometry(const CSCGeometry * geom) {theCSCGeometry = geom;}
+  void setGeometry(const CSCGeometry *geom) { theCSCGeometry = geom; }
 
   /// sets the magnetic field
-  void setMagneticField(const MagneticField * field);
+  void setMagneticField(const MagneticField *field);
 
-  void setStripConditions(CSCStripConditions * cond);
+  void setStripConditions(CSCStripConditions *cond);
 
-  void setParticleDataTable(const ParticleDataTable * pdt);
+  void setParticleDataTable(const ParticleDataTable *pdt);
 
 private:
   /// finds the layer in the geometry associated with this det ID
-  const CSCLayer * findLayer(int detId) const;
+  const CSCLayer *findLayer(int detId) const;
 
   /// finds which layers, 1-6, aren't in the current list
-  std::list<int> layersMissing(const CSCStripDigiCollection & stripDigis) const;
+  std::list<int> layersMissing(const CSCStripDigiCollection &stripDigis) const;
 
-  CSCDriftSim            * theDriftSim;
-  CSCWireHitSim          * theWireHitSim;
-  CSCStripHitSim         * theStripHitSim;
-  CSCWireElectronicsSim  * theWireElectronicsSim;
-  CSCStripElectronicsSim * theStripElectronicsSim;
-  CSCNeutronReader       * theNeutronReader;
-  const CSCGeometry      * theCSCGeometry;
-  CSCStripConditions     * theConditions;
+  CSCDriftSim *theDriftSim;
+  CSCWireHitSim *theWireHitSim;
+  CSCStripHitSim *theStripHitSim;
+  CSCWireElectronicsSim *theWireElectronicsSim;
+  CSCStripElectronicsSim *theStripElectronicsSim;
+  CSCNeutronReader *theNeutronReader;
+  const CSCGeometry *theCSCGeometry;
+  CSCStripConditions *theConditions;
   unsigned int theLayersNeeded;
   bool digitizeBadChambers_;
 };
 
 #endif
-

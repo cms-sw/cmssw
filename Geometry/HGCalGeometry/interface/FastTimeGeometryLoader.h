@@ -6,19 +6,17 @@
 #include "Geometry/CaloTopology/interface/FastTimeTopology.h"
 
 class FastTimeGeometryLoader {
-
 public:
   typedef CaloCellGeometry::CCGFloat CCGFloat;
   typedef std::vector<float> ParmVec;
 
-  FastTimeGeometryLoader ();
-  ~FastTimeGeometryLoader ();
+  FastTimeGeometryLoader();
+  ~FastTimeGeometryLoader();
 
-  FastTimeGeometry* build(const FastTimeTopology& );
+  FastTimeGeometry* build(const FastTimeTopology&);
 
 private:
-  void buildGeom(const ParmVec&, const HepGeom::Transform3D&, const DetId&,
-		 const FastTimeTopology&, FastTimeGeometry*);
+  void buildGeom(const ParmVec&, const HepGeom::Transform3D&, const DetId&, const FastTimeTopology&, FastTimeGeometry*);
 };
 
 #endif

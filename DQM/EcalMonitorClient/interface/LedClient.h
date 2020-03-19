@@ -3,12 +3,11 @@
 
 #include "DQWorkerClient.h"
 
-namespace ecaldqm
-{
+namespace ecaldqm {
   class LedClient : public DQWorkerClient {
   public:
     LedClient();
-    ~LedClient() {}
+    ~LedClient() override {}
 
     void producePlots(ProcessType) override;
 
@@ -29,6 +28,6 @@ namespace ecaldqm
     double tolerancePNRMSRatio_;
     float forwardFactor_;
   };
-}
+}  // namespace ecaldqm
 
 #endif

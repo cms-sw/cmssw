@@ -1,0 +1,4 @@
+<bin file="dummyMain.cpp" name="GeometryDTGeometryBuilderTestDriver">
+  <use   name="FWCore/Utilities"/>
+  <flags   TEST_RUNNER_ARGS="/bin/bash Geometry/DTGeometryBuilder/test runTest.sh"/>
+</bin>

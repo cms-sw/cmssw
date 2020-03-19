@@ -3,22 +3,19 @@
 // Joanna Weng 08.2005
 // modifed by Soon Yung Jun, Dongwook Jang
 
-#include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+#include "SimG4Core/Physics/interface/PhysicsList.h"
+
 class GflashHistogram;
 
-class GFlash : public PhysicsList
-{
+class GFlash : public PhysicsList {
 public:
-  GFlash(const edm::ParameterSet & p);
+  GFlash(const edm::ParameterSet &p);
   ~GFlash() override;
 
 private:
-  GflashHistogram* theHisto;
+  GflashHistogram *theHisto;
   edm::ParameterSet thePar;
-
 };
 
 #endif
-

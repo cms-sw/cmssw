@@ -12,15 +12,11 @@
 
 class TrajectoryStateCombiner {
 public:
-
-  typedef TrajectoryStateOnSurface    TSOS;
+  typedef TrajectoryStateOnSurface TSOS;
 
   TSOS combine(const TSOS& pTsos1, const TSOS& pTsos2) const;
 
-  TSOS operator()(const TSOS& pTsos1, const TSOS& pTsos2) const {
-    return combine( pTsos1, pTsos2);
-  }
-
+  TSOS operator()(const TSOS& pTsos1, const TSOS& pTsos2) const { return combine(pTsos1, pTsos2); }
 };
 
 #endif

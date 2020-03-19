@@ -17,69 +17,57 @@
  *
  */
 
-#include "DataFormats/Common/interface/Handle.h"
-
-
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+
+#include <string>
 #include <vector>
 
 namespace reco {
   class TransientTrack;
 }
 
-
 class Chi2MeasurementEstimator;
 class MuonServiceProxy;
 
-class DQMStore;
-class MonitorElement;
 class FreeTrajectoryState;
 class DetLayer;
 class DetId;
 class NavigationSchool;
 
-class DTChamberEfficiency : public DQMEDAnalyzer
-{
-
- public:
+class DTChamberEfficiency : public DQMEDAnalyzer {
+public:
   //Constructor
-  DTChamberEfficiency(const edm::ParameterSet& pset) ;
+  DTChamberEfficiency(const edm::ParameterSet& pset);
 
   //Destructor
-  ~DTChamberEfficiency() override ;
+  ~DTChamberEfficiency() override;
 
   //Operations
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
- protected:
-// Book the histograms
-void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+protected:
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
- private:
-
+private:
   //functions
-  std::vector<const DetLayer*> compatibleLayers(const NavigationSchool& navigationSchool, const DetLayer *initialLayer,
-						const FreeTrajectoryState& fts, PropagationDirection propDir);
+  std::vector<const DetLayer*> compatibleLayers(const NavigationSchool& navigationSchool,
+                                                const DetLayer* initialLayer,
+                                                const FreeTrajectoryState& fts,
+                                                PropagationDirection propDir);
 
   MeasurementContainer segQualityCut(const MeasurementContainer& seg_list) const;
   bool chamberSelection(const DetId& idDetLay, reco::TransientTrack& trans_track) const;
@@ -101,22 +89,14 @@ void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const
 
   std::string theNavigationType;
 
-  edm::ESHandle<DTGeometry> dtGeom;
-
   MuonServiceProxy* theService;
   MuonDetLayerMeasurements* theMeasurementExtractor;
   Chi2MeasurementEstimator* theEstimator;
 
-  edm::ESHandle<MagneticField> magfield;
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-
   std::vector<std::vector<MonitorElement*> > histosPerW;
-
- protected:
-
 };
 
-#endif // DTANALYZER_H
+#endif  // DTANALYZER_H
 
 /* Local Variables: */
 /* show-trailing-whitespace: t */

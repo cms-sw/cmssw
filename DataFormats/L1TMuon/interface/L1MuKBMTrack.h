@@ -16,33 +16,31 @@ class L1MuKBMTrack;
 typedef std::vector<L1MuKBMTrack> L1MuKBMTrackCollection;
 typedef BXVector<L1MuKBMTrack> L1MuKBMTrackBxCollection;
 
-class L1MuKBMTrack : public reco::LeafCandidate
-{
-
+class L1MuKBMTrack : public reco::LeafCandidate {
 public:
   L1MuKBMTrack();
   ~L1MuKBMTrack() override;
-  L1MuKBMTrack(const L1MuKBMTCombinedStubRef&,int,int);
+  L1MuKBMTrack(const L1MuKBMTCombinedStubRef&, int, int);
 
   //UnConstrained curvature at station 1
-  int curvatureAtMuon() const; 
+  int curvatureAtMuon() const;
   //unconstrained phi at station 1
   int phiAtMuon() const;
   //unconstrained phiB at station 1
   int phiBAtMuon() const;
   //Constrained curvature at vertex
-  int curvatureAtVertex() const; 
+  int curvatureAtVertex() const;
   //constrained phi at the vertex
   int phiAtVertex() const;
-  //Impact parameter as calculated from the muon track 
+  //Impact parameter as calculated from the muon track
   int dxy() const;
-  //Unconstrained curvature at the Muon systen 
+  //Unconstrained curvature at the Muon systen
   int curvature() const;
-  //Unconstrained phi at the Muon systen 
+  //Unconstrained phi at the Muon systen
   int positionAngle() const;
-  //Unconstrained bending angle at the Muon systen 
+  //Unconstrained bending angle at the Muon systen
   int bendingAngle() const;
-  //Coarse eta caluclated only using phi segments 
+  //Coarse eta caluclated only using phi segments
   int coarseEta() const;
   //Approximate Chi2 metric
   int approxChi2() const;
@@ -66,7 +64,6 @@ public:
   int fineEta() const;
   bool hasFineEta() const;
 
-
   //BX
   int bx() const;
 
@@ -82,38 +79,33 @@ public:
   //get covariance
   const std::vector<double>& covariance() const;
 
-
   //get residual
   int residual(uint) const;
 
   //check ogverlap
-  bool overlapTrack(const L1MuKBMTrack&) const; 
+  bool overlapTrack(const L1MuKBMTrack&) const;
 
-  bool operator==(const L1MuKBMTrack& t2) const{   
-    if (this->stubs().size()!=t2.stubs().size())
+  bool operator==(const L1MuKBMTrack& t2) const {
+    if (this->stubs().size() != t2.stubs().size())
       return false;
-    for (unsigned int i=0;i<this->stubs().size();++i)  {
+    for (unsigned int i = 0; i < this->stubs().size(); ++i) {
       const L1MuKBMTCombinedStubRef& s1 = this->stubs()[i];
       const L1MuKBMTCombinedStubRef& s2 = t2.stubs()[i];
-      if (s1->scNum()!= s2->scNum() ||
-	  s1->whNum()!=s2->whNum() ||
-	  s1->stNum()!=s2->stNum() ||
-	  s1->tag()!=s2->tag())
-	return false;
+      if (s1->scNum() != s2->scNum() || s1->whNum() != s2->whNum() || s1->stNum() != s2->stNum() ||
+          s1->tag() != s2->tag())
+        return false;
     }
     return true;
   }
 
-
-
   //Set coordinates general
-  void setCoordinates(int,int,int,int );
+  void setCoordinates(int, int, int, int);
 
   //Set coordinates at vertex
-  void setCoordinatesAtVertex(int,int,int );
+  void setCoordinatesAtVertex(int, int, int);
 
   //Set coordinates at muon
-  void setCoordinatesAtMuon(int,int,int );
+  void setCoordinatesAtMuon(int, int, int);
 
   //Set eta coarse and pattern
   void setCoarseEta(int);
@@ -126,14 +118,15 @@ public:
   void setTrackCompatibility(int);
 
   //Set floating point coordinates for studies
-  void setPtEtaPhi(double,double,double);
+  void setPtEtaPhi(double, double, double);
   void setPtUnconstrained(float);
 
   //Add a stub
-  void addStub(const L1MuKBMTCombinedStubRef&); 
+  void addStub(const L1MuKBMTCombinedStubRef&);
 
   //kalman gain management
-  void setKalmanGain(unsigned int step, unsigned int K,float a1 ,float a2,float a3,float a4=0 ,float a5=0,float a6=0);
+  void setKalmanGain(
+      unsigned int step, unsigned int K, float a1, float a2, float a3, float a4 = 0, float a5 = 0, float a6 = 0);
 
   //set covariance
   void setCovariance(const CovarianceMatrix&);
@@ -145,14 +138,12 @@ public:
   void setRank(int);
 
   //set residual
-  void setResidual(uint,int);
+  void setResidual(uint, int);
 
-
- private:
-
+private:
   //Covariance matrix for studies
   std::vector<double> covariance_;
-  
+
   L1MuKBMTCombinedStubRefVector stubs_;
 
   //vertex coordinates
@@ -165,11 +156,10 @@ public:
   int phiMuon_;
   int phiBMuon_;
 
-
   //generic coordinates
   int curv_;
   int phi_;
-  int phiB_; 
+  int phiB_;
   //common coordinates
   int coarseEta_;
 
@@ -203,7 +193,6 @@ public:
   //rank
   int rank_;
 
-
   //Unconstrained floating point pt
   float ptUnconstrained_;
 
@@ -213,10 +202,7 @@ public:
   std::vector<float> kalmanGain2_;
   std::vector<float> kalmanGain3_;
 
-
   std::vector<int> residuals_;
-  
-  
-}; 
+};
 
 #endif

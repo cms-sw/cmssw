@@ -4,7 +4,7 @@
 //
 // Package:     Concurrency
 // Class  :     WaitingTask
-// 
+//
 /**\class WaitingTask WaitingTask.h FWCore/Concurrency/interface/WaitingTask.h
 
  Description: Task used by WaitingTaskList.
@@ -34,28 +34,23 @@ namespace edm {
   class WaitingTaskWithArenaHolder;
 
   class WaitingTask : public tbb::task {
-      
-   public:
+  public:
     friend class WaitingTaskList;
     friend class WaitingTaskHolder;
     friend class WaitingTaskWithArenaHolder;
 
     ///Constructor
     WaitingTask() : m_ptr{nullptr} {}
-    ~WaitingTask() override {
-      delete m_ptr.load();
-    };
-      
+    ~WaitingTask() override { delete m_ptr.load(); };
+
     // ---------- const member functions ---------------------------
-      
+
     ///Returns exception thrown by dependent task
     /** If the value is non-null then the dependent task failed.
     */
-    std::exception_ptr const * exceptionPtr() const {
-      return m_ptr.load();
-    }
-   private:
-    
+    std::exception_ptr const* exceptionPtr() const { return m_ptr.load(); }
+
+  private:
     ///Called if waited for task failed
     /**Allows transfer of the exception caused by the dependent task to be
      * moved to another thread.
@@ -65,34 +60,34 @@ namespace edm {
       if (iPtr and not m_ptr) {
         auto temp = std::make_unique<std::exception_ptr>(iPtr);
         std::exception_ptr* expected = nullptr;
-        if( m_ptr.compare_exchange_strong(expected, temp.get()) ) {
+        if (m_ptr.compare_exchange_strong(expected, temp.get())) {
           temp.release();
         }
       }
     }
-    
+
     std::atomic<std::exception_ptr*> m_ptr;
   };
- 
-  template<typename F>
+
+  template <typename F>
   class FunctorWaitingTask : public WaitingTask {
   public:
-    explicit FunctorWaitingTask( F f): func_(std::move(f)) {}
-    
+    explicit FunctorWaitingTask(F f) : func_(std::move(f)) {}
+
     task* execute() override {
       func_(exceptionPtr());
       return nullptr;
     };
-    
+
   private:
     F func_;
   };
-  
-  template< typename ALLOC, typename F>
-  FunctorWaitingTask<F>* make_waiting_task( ALLOC&& iAlloc, F f) {
+
+  template <typename ALLOC, typename F>
+  FunctorWaitingTask<F>* make_waiting_task(ALLOC&& iAlloc, F f) {
     return new (iAlloc) FunctorWaitingTask<F>(std::move(f));
   }
-  
-}
+
+}  // namespace edm
 
 #endif

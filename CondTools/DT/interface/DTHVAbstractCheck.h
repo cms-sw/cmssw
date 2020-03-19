@@ -15,11 +15,9 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
 
 //---------------
 // C++ Headers --
@@ -31,9 +29,7 @@
 //              ---------------------
 
 class DTHVAbstractCheck {
-
- public:
-
+public:
   /** Constructor
    */
   DTHVAbstractCheck();
@@ -48,43 +44,42 @@ class DTHVAbstractCheck {
   static DTHVAbstractCheck* getInstance();
 
   /// check HV status
-  typedef std::pair<long long int,float> timedMeasurement;
-  struct flag { int a; int c; int s; };
-  static bool chkFlag( const DTHVAbstractCheck::flag& f );
-  static bool compare( const DTHVAbstractCheck::flag& fl,
-                       const DTHVAbstractCheck::flag& fr );
-  virtual DTHVAbstractCheck::flag checkCurrentStatus( 
-               int rawId, int type,
-               float valueA, float valueC, float valueS,
-               const std::map<int,timedMeasurement>& snapshotValues,
-               const std::map<int,int>& aliasMap,
-               const std::map<int,int>& layerMap ) = 0;
-  virtual void setValue(
-               int rawId, int type,
-               float valueA, float valueC, float valueS,
-               const std::map<int,timedMeasurement>& snapshotValues,
-               const std::map<int,int>& aliasMap,
-               const std::map<int,int>& layerMap );
-  virtual void setStatus(
-               int rawId,
-               int flagA, int flagC, int flagS,
-               const std::map<int,timedMeasurement>& snapshotValues,
-               const std::map<int,int>& aliasMap,
-               const std::map<int,int>& layerMap );
+  typedef std::pair<long long int, float> timedMeasurement;
+  struct flag {
+    int a;
+    int c;
+    int s;
+  };
+  static bool chkFlag(const DTHVAbstractCheck::flag& f);
+  static bool compare(const DTHVAbstractCheck::flag& fl, const DTHVAbstractCheck::flag& fr);
+  virtual DTHVAbstractCheck::flag checkCurrentStatus(int rawId,
+                                                     int type,
+                                                     float valueA,
+                                                     float valueC,
+                                                     float valueS,
+                                                     const std::map<int, timedMeasurement>& snapshotValues,
+                                                     const std::map<int, int>& aliasMap,
+                                                     const std::map<int, int>& layerMap) = 0;
+  virtual void setValue(int rawId,
+                        int type,
+                        float valueA,
+                        float valueC,
+                        float valueS,
+                        const std::map<int, timedMeasurement>& snapshotValues,
+                        const std::map<int, int>& aliasMap,
+                        const std::map<int, int>& layerMap);
+  virtual void setStatus(int rawId,
+                         int flagA,
+                         int flagC,
+                         int flagS,
+                         const std::map<int, timedMeasurement>& snapshotValues,
+                         const std::map<int, int>& aliasMap,
+                         const std::map<int, int>& layerMap);
 
- protected:
-
+protected:
   static DTHVAbstractCheck* instance;
 
- private:
-
+private:
 };
 
-
-#endif // DTHVAbstractCheck_H
-
-
-
-
-
-
+#endif  // DTHVAbstractCheck_H

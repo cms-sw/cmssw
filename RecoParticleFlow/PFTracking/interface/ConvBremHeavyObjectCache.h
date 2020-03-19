@@ -16,6 +16,6 @@ namespace convbremhelpers {
     std::unique_ptr<const GBRForest> gbrEndcapsHighPt_;
     std::unique_ptr<const PFEnergyCalibration> pfcalib_;
   };
-}
+}  // namespace convbremhelpers
 
 #endif

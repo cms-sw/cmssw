@@ -58,7 +58,6 @@ hltBTVmonitoring.histoPSet.MHTPSet = cms.PSet(
  xmax  = cms.double(  300  ),
 )
 
-
 #MET and HT binning
 hltBTVmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)
 hltBTVmonitoring.histoPSet.HTBinning  = cms.vdouble(0,20,40,60,80,100,125,150,175,200,300,400,500,700)
@@ -87,9 +86,8 @@ hltBTVmonitoring.jets      = cms.InputTag("ak4PFJetsCHS") # ak4PFJets, ak4PFJets
 hltBTVmonitoring.electrons = cms.InputTag("gedGsfElectrons") # while pfIsolatedElectronsEI are reco::PFCandidate !
 hltBTVmonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI are reco::PFCandidate !
 
-# Marina
-hltBTVmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
-hltBTVmonitoring.workingpoint     = cms.double(-1.) #no cut applied
+hltBTVmonitoring.btagAlgos = ["pfCombinedSecondaryVertexV2BJetTags"]
+hltBTVmonitoring.workingpoint = cms.double(-1.) #no cut applied
 
 hltBTVmonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 hltBTVmonitoring.leptJetDeltaRmin = cms.double(0.0)

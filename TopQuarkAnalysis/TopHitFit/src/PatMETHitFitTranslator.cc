@@ -15,7 +15,6 @@
     @version $Id: PatMETHitFitTranslator.cc,v 1.7 2011/01/29 22:21:38 haryo Exp $
  */
 
-
 #include "TopQuarkAnalysis/TopHitFit/interface/METTranslatorBase.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
@@ -23,61 +22,39 @@
 
 namespace hitfit {
 
-
-template<>
-METTranslatorBase<pat::MET>::METTranslatorBase()
-{
+  template <>
+  METTranslatorBase<pat::MET>::METTranslatorBase() {
     resolution_ = Resolution(std::string("0,0,12"));
-} // METTranslatorBase<pat::MET>::METTranslatorBase()
+  }  // METTranslatorBase<pat::MET>::METTranslatorBase()
 
-
-template<>
-METTranslatorBase<pat::MET>::METTranslatorBase(const std::string& ifile)
-{
+  template <>
+  METTranslatorBase<pat::MET>::METTranslatorBase(const std::string& ifile) {
     const Defaults_Text defs(ifile);
     std::string resolution_string(defs.get_string("met_resolution"));
     resolution_ = Resolution(resolution_string);
 
-} // METTranslatorBase<pat::MET>::METTranslatorBase(const std::string& ifile)
+  }  // METTranslatorBase<pat::MET>::METTranslatorBase(const std::string& ifile)
 
+  template <>
+  METTranslatorBase<pat::MET>::~METTranslatorBase() {}  // METTranslatorBase<pat::MET>::~METTranslatorBase()
 
-template<>
-METTranslatorBase<pat::MET>::~METTranslatorBase()
-{
-} // METTranslatorBase<pat::MET>::~METTranslatorBase()
-
-
-template<>
-Fourvec
-METTranslatorBase<pat::MET>::operator()(const pat::MET& m,
-                                        bool useObjEmbRes /* = false */)
-{
+  template <>
+  Fourvec METTranslatorBase<pat::MET>::operator()(const pat::MET& m, bool useObjEmbRes /* = false */) {
     double px = m.px();
     double py = m.py();
 
-    return Fourvec (px,py,0.0,sqrt(px*px + py*py));
+    return Fourvec(px, py, 0.0, sqrt(px * px + py * py));
 
-} // Fourvec METTranslatorBase<pat::MET>::operator()(const pat::MET& m)
+  }  // Fourvec METTranslatorBase<pat::MET>::operator()(const pat::MET& m)
 
-
-
-template<>
-Resolution
-METTranslatorBase<pat::MET>::KtResolution(const pat::MET& m,
-                                          bool useObjEmbRes /* = false */) const
-{
+  template <>
+  Resolution METTranslatorBase<pat::MET>::KtResolution(const pat::MET& m, bool useObjEmbRes /* = false */) const {
     return resolution_;
-} // Resolution METTranslatorBase<pat::MET>::KtResolution(const pat::MET& m)
+  }  // Resolution METTranslatorBase<pat::MET>::KtResolution(const pat::MET& m)
 
+  template <>
+  Resolution METTranslatorBase<pat::MET>::METResolution(const pat::MET& m, bool useObjEmbRes /* = false */) const {
+    return KtResolution(m, useObjEmbRes);
+  }  // Resolution METTranslatorBase<pat::MET>::METResolution(const pat::MET& m)
 
-
-template<>
-Resolution
-METTranslatorBase<pat::MET>::METResolution(const pat::MET& m,
-                                           bool useObjEmbRes /* = false */) const
-{
-    return KtResolution(m,useObjEmbRes);
-} // Resolution METTranslatorBase<pat::MET>::METResolution(const pat::MET& m)
-
-
-} // namespace hitfit
+}  // namespace hitfit

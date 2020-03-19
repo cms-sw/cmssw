@@ -20,22 +20,19 @@
 
 class L1MuDTTFSetup;
 
-
-class DTTrackFinder: public edm::one::EDProducer<edm::one::SharedResources> {
- public:
+class DTTrackFinder : public edm::one::EDProducer<edm::one::SharedResources> {
+public:
   /// Constructor
-  DTTrackFinder(const edm::ParameterSet & pset);
-  
+  DTTrackFinder(const edm::ParameterSet& pset);
+
   /// Destructor
   ~DTTrackFinder() override;
-  
+
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c) override;
-  
- private:
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
+private:
   L1MuDTTFSetup* setup1;
-
 };
 
 #endif

@@ -24,21 +24,22 @@ namespace edm {
 //
 
 class HLTEgammaDoubleEtFilter : public HLTFilter {
-
- public:
+public:
   explicit HLTEgammaDoubleEtFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleEtFilter() override;
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  bool hltFilter(edm::Event&,
+                 const edm::EventSetup&,
+                 trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  edm::InputTag candTag_; // input tag identifying product contains filtered candidates
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>  candToken_;
-  double etcut1_;           // Et threshold in GeV
-  double etcut2_;           // Et threshold in GeV
-  int    npaircut_;        // number of egammas required
+private:
+  edm::InputTag candTag_;  // input tag identifying product contains filtered candidates
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
+  double etcut1_;  // Et threshold in GeV
+  double etcut2_;  // Et threshold in GeV
+  int npaircut_;   // number of egammas required
 
   edm::InputTag l1EGTag_;
 };
 
-#endif //HLTEgammaDoubleEtFilter_h
+#endif  //HLTEgammaDoubleEtFilter_h

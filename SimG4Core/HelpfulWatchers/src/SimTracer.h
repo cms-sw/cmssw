@@ -4,7 +4,7 @@
 //
 // Package:     HelpfulWatchers
 // Class  :     SimTracer
-// 
+//
 /**\class SimTracer SimTracer.h SimG4Core/HelpfulWatchers/interface/SimTracer.h
 
  Description: Prints a message for each Oscar signal
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue Nov 22 16:41:33 EST 2005
 //
 
@@ -22,10 +22,10 @@
 #include <iostream>
 
 // user include files
-#include "SimG4Core/Notification/interface/Observer.h"
-#include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "G4Step.hh"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Watcher/interface/SimWatcher.h"
 
 // forward declarations
 class DDDWorld;
@@ -39,61 +39,59 @@ class EndOfRun;
 class EndOfEvent;
 class EndOfTrack;
 
-#define OBSERVES(type) public Observer<const type*>
-#define UPDATE(type) void update(const type*) override { std::cout <<"++ signal " #type<<std::endl; }
-class SimTracer : public SimWatcher, 
-OBSERVES(DDDWorld),
-OBSERVES(BeginOfJob),
-OBSERVES(BeginOfRun),
-OBSERVES(BeginOfEvent),
-OBSERVES(BeginOfTrack),
-OBSERVES(G4Step),
-OBSERVES(EndOfRun),
-OBSERVES(EndOfEvent),
-OBSERVES(EndOfTrack)
-{
+#define OBSERVES(type) \
+public                 \
+  Observer<const type *>
+#define UPDATE(type) \
+  void update(const type *) override { std::cout << "++ signal " #type << std::endl; }
+class SimTracer : public SimWatcher,
+                  OBSERVES(DDDWorld),
+                  OBSERVES(BeginOfJob),
+                  OBSERVES(BeginOfRun),
+                  OBSERVES(BeginOfEvent),
+                  OBSERVES(BeginOfTrack),
+                  OBSERVES(G4Step),
+                  OBSERVES(EndOfRun),
+                  OBSERVES(EndOfEvent),
+                  OBSERVES(EndOfTrack) {
+public:
+  SimTracer(const edm::ParameterSet &pSet) : m_verbose(pSet.getUntrackedParameter<bool>("verbose", false)) {}
+  // virtual ~SimTracer();
 
-   public:
-   SimTracer(const edm::ParameterSet& pSet) : 
-   m_verbose(pSet.getUntrackedParameter<bool>("verbose",false)) {
-   }
-     //virtual ~SimTracer();
+  // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-UPDATE(DDDWorld)
-UPDATE(BeginOfJob)
-UPDATE(BeginOfRun)
-UPDATE(BeginOfEvent)
-UPDATE(BeginOfTrack)
-   void update(const G4Step* iStep) override { 
-   std::cout <<"++ signal G4Step " ;
-   if(m_verbose) {
-      const G4StepPoint* post = iStep->GetPostStepPoint();
-      const G4ThreeVector& pos = post->GetPosition();
-      std::cout << "( "<<pos.x()<<","<<pos.y()<<","<<pos.z()<<") ";
-      if(post->GetPhysicalVolume()) {
-	 std::cout << post->GetPhysicalVolume()->GetName();
+  // ---------- member functions ---------------------------
+  UPDATE(DDDWorld)
+  UPDATE(BeginOfJob)
+  UPDATE(BeginOfRun)
+  UPDATE(BeginOfEvent)
+  UPDATE(BeginOfTrack)
+  void update(const G4Step *iStep) override {
+    std::cout << "++ signal G4Step ";
+    if (m_verbose) {
+      const G4StepPoint *post = iStep->GetPostStepPoint();
+      const G4ThreeVector &pos = post->GetPosition();
+      std::cout << "( " << pos.x() << "," << pos.y() << "," << pos.z() << ") ";
+      if (post->GetPhysicalVolume()) {
+        std::cout << post->GetPhysicalVolume()->GetName();
       }
-   }
-   std::cout <<std::endl; 
-}
-//UPDATE(G4Step)
-UPDATE(EndOfRun)
-UPDATE(EndOfEvent)
-UPDATE(EndOfTrack)
+    }
+    std::cout << std::endl;
+  }
+  // UPDATE(G4Step)
+  UPDATE(EndOfRun)
+  UPDATE(EndOfEvent)
+  UPDATE(EndOfTrack)
 
-   private:
-     //SimTracer(const SimTracer&); // stop default
+private:
+  // SimTracer(const SimTracer&); // stop default
 
-     //const SimTracer& operator=(const SimTracer&); // stop default
+  // const SimTracer& operator=(const SimTracer&); // stop default
 
-     // ---------- member data --------------------------------
-     bool m_verbose;
+  // ---------- member data --------------------------------
+  bool m_verbose;
 };
-
 
 #endif

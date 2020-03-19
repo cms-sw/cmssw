@@ -14,7 +14,6 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -28,199 +27,157 @@ using namespace edm;
 using namespace std;
 
 ESDaqInfoTask::ESDaqInfoTask(const ParameterSet& ps) {
+  dqmStore_ = Service<DQMStore>().operator->();
 
-   dqmStore_ = Service<DQMStore>().operator->();
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+  ESFedRangeMin_ = ps.getUntrackedParameter<int>("ESFedRangeMin", 520);
+  ESFedRangeMax_ = ps.getUntrackedParameter<int>("ESFedRangeMax", 575);
 
-   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+  meESDaqFraction_ = nullptr;
+  meESDaqActiveMap_ = nullptr;
+  meESDaqError_ = nullptr;
 
-   ESFedRangeMin_ = ps.getUntrackedParameter<int>("ESFedRangeMin", 520);
-   ESFedRangeMax_ = ps.getUntrackedParameter<int>("ESFedRangeMax", 575);
+  for (int i = 0; i < 56; i++) {
+    meESDaqActive_[i] = nullptr;
+  }
 
-   meESDaqFraction_ = nullptr;
-   meESDaqActiveMap_ = nullptr;
-   meESDaqError_ = nullptr;
-
-   for (int i = 0; i < 56; i++) {
-      meESDaqActive_[i] = nullptr;
-   }
-
-   if (ps.exists("esMapping")){
-      edm::ParameterSet esMap=ps.getParameter<edm::ParameterSet>("esMapping");
-      es_mapping_ = new ESElectronicsMapper(esMap);
-   }else{
-      edm::LogError("ESDaqInfoTask")<<"preshower mapping pointer not initialized. Temporary.";
-      es_mapping_=nullptr;
-   }
-
-
-
+  if (ps.exists("esMapping")) {
+    edm::ParameterSet esMap = ps.getParameter<edm::ParameterSet>("esMapping");
+    es_mapping_ = new ESElectronicsMapper(esMap);
+  } else {
+    edm::LogError("ESDaqInfoTask") << "preshower mapping pointer not initialized. Temporary.";
+    es_mapping_ = nullptr;
+  }
 }
 
-ESDaqInfoTask::~ESDaqInfoTask() {
-   delete es_mapping_;
-}
+ESDaqInfoTask::~ESDaqInfoTask() { delete es_mapping_; }
 
 void ESDaqInfoTask::beginJob(void) {
+  char histo[200];
 
-   char histo[200];
+  if (dqmStore_) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-   if ( dqmStore_ ) {
+    sprintf(histo, "DAQSummary");
+    meESDaqFraction_ = dqmStore_->bookFloat(histo);
+    meESDaqFraction_->Fill(0.0);
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
+    sprintf(histo, "DAQSummaryMap");
+    meESDaqActiveMap_ = dqmStore_->book2D(histo, histo, 80, 0.5, 80.5, 80, 0.5, 80.5);
+    meESDaqActiveMap_->setAxisTitle("Si X", 1);
+    meESDaqActiveMap_->setAxisTitle("Si Y", 2);
 
-      sprintf(histo, "DAQSummary");
-      meESDaqFraction_ = dqmStore_->bookFloat(histo);
-      meESDaqFraction_->Fill(0.0);
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
-      sprintf(histo, "DAQSummaryMap");
-      meESDaqActiveMap_ = dqmStore_->book2D(histo,histo, 80, 0.5, 80.5, 80, 0.5, 80.5);
-      meESDaqActiveMap_->setAxisTitle("Si X", 1);
-      meESDaqActiveMap_->setAxisTitle("Si Y", 2);
+    for (int i = 0; i < 56; i++) {
+      sprintf(histo, "EcalPreshower_%d", ESFedRangeMin_ + i);
+      meESDaqActive_[i] = dqmStore_->bookFloat(histo);
+      meESDaqActive_[i]->Fill(0.0);
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
-
-      for (int i = 0; i < 56; i++) {
-	 sprintf(histo, "EcalPreshower_%d", ESFedRangeMin_+i);
-	 meESDaqActive_[i] = dqmStore_->bookFloat(histo);
-	 meESDaqActive_[i]->Fill(0.0);
-
-	 ESOnFed_[i] = false;
-	 for ( int x = 0; x < 80; x++ ) {
-	    for ( int y = 0; y < 80; y++ ) {
-	       if(getFEDNumber(x, y) == ESFedRangeMin_+i){
-		  ESOnFed_[i] = true;
-		  break;
-	       }
-	    }
-	    if(ESOnFed_[i] == true) break;
-	 }
+      ESOnFed_[i] = false;
+      for (int x = 0; x < 80; x++) {
+        for (int y = 0; y < 80; y++) {
+          if (getFEDNumber(x, y) == ESFedRangeMin_ + i) {
+            ESOnFed_[i] = true;
+            break;
+          }
+        }
+        if (ESOnFed_[i] == true)
+          break;
       }
+    }
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/ESIntegrityTask");
-      sprintf(histo, "DAQError");
-      meESDaqError_ = dqmStore_->book1D(histo, histo, 56, ESFedRangeMin_-0.5, ESFedRangeMax_+0.5);
-      meESDaqError_->setAxisTitle("FedID", 1);
-
-   }
-
+    dqmStore_->setCurrentFolder(prefixME_ + "/ESIntegrityTask");
+    sprintf(histo, "DAQError");
+    meESDaqError_ = dqmStore_->book1D(histo, histo, 56, ESFedRangeMin_ - 0.5, ESFedRangeMax_ + 0.5);
+    meESDaqError_->setAxisTitle("FedID", 1);
+  }
 }
 
-void ESDaqInfoTask::endJob(void) {
+void ESDaqInfoTask::endJob(void) {}
 
-   if ( enableCleanup_ ) this->cleanup();
+void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup) {
+  this->reset();
 
-}
+  for (int x = 0; x < 80; ++x) {
+    for (int y = 0; y < 80; ++y) {
+      if (getFEDNumber(x, y) > 0)
+        meESDaqActiveMap_->setBinContent(x + 1, y + 1, 0.0);
+      else
+        meESDaqActiveMap_->setBinContent(x + 1, y + 1, -1.0);
+    }
+  }
 
-void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
+  for (int i = 0; i < 56; i++) {
+    if (meESDaqError_)
+      meESDaqError_->setBinContent(i, 0.0);
+  }
 
-   this->reset();
-   
-   for (int x = 0; x < 80; ++x) {
-     for (int y = 0; y < 80; ++y) {
-       if( getFEDNumber(x, y) > 0 ) meESDaqActiveMap_->setBinContent( x+1, y+1, 0.0 );
-       else meESDaqActiveMap_->setBinContent( x+1, y+1, -1.0 );
-     }
-   }
-   
-   for (int i = 0; i < 56; i++) {
-     if ( meESDaqError_ ) meESDaqError_->setBinContent(i, 0.0);
-   }
-   
-   if(auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
+  if (auto runInfoRec = iSetup.tryToGet<RunInfoRcd>()) {
+    edm::ESHandle<RunInfo> sumFED;
+    runInfoRec->get(sumFED);
 
-      edm::ESHandle<RunInfo> sumFED;
-      runInfoRec->get(sumFED);
+    std::vector<int> FedsInIds = sumFED->m_fed_in;
 
-      std::vector<int> FedsInIds= sumFED->m_fed_in;   
+    float ESFedCount = 0.;
 
-      float ESFedCount = 0.;
+    for (unsigned int fedItr = 0; fedItr < FedsInIds.size(); ++fedItr) {
+      int fedID = FedsInIds[fedItr];
 
-      for( unsigned int fedItr=0; fedItr<FedsInIds.size(); ++fedItr ) {
+      if (fedID >= ESFedRangeMin_ && fedID <= ESFedRangeMax_) {
+        if (ESOnFed_[fedID - ESFedRangeMin_])
+          ESFedCount++;
 
-	 int fedID=FedsInIds[fedItr];
+        if (meESDaqActive_[fedID - ESFedRangeMin_])
+          meESDaqActive_[fedID - ESFedRangeMin_]->Fill(1.0);
 
-	 if ( fedID >= ESFedRangeMin_ && fedID <= ESFedRangeMax_ ) {
+        if (meESDaqActiveMap_) {
+          for (int x = 0; x < 80; x++) {
+            for (int y = 0; y < 80; y++) {
+              if (fedID == getFEDNumber(x, y))
+                meESDaqActiveMap_->setBinContent(x + 1, y + 1, 1.0);
+            }
+          }
+        }
 
-	    if( ESOnFed_[fedID - ESFedRangeMin_] ) ESFedCount++;
+        if (meESDaqFraction_)
+          meESDaqFraction_->Fill(ESFedCount / 40.);
 
-	    if ( meESDaqActive_[fedID-ESFedRangeMin_] ) meESDaqActive_[fedID-ESFedRangeMin_]->Fill(1.0);
-
-	    if( meESDaqActiveMap_ ) {
-
-	       for (int x = 0; x < 80; x++) {
-		  for (int y = 0; y < 80; y++) {
-                    if (fedID == getFEDNumber(x, y))
-                      meESDaqActiveMap_->setBinContent( x+1, y+1, 1.0 );
-		  }
-	       }
-
-	    }
-
-	    if( meESDaqFraction_ ) meESDaqFraction_->Fill( ESFedCount/40. );
-
-	    if( meESDaqError_ ){
-	       for( int i = 0; i < 56; i++){
-		  if( ESOnFed_[fedID-ESFedRangeMin_] ) meESDaqError_->setBinContent(i+1, 1.0);
-		  else meESDaqError_->setBinContent(i+1, 2.0);
-	       }
-	    }
-
-	 }
-
+        if (meESDaqError_) {
+          for (int i = 0; i < 56; i++) {
+            if (ESOnFed_[fedID - ESFedRangeMin_])
+              meESDaqError_->setBinContent(i + 1, 1.0);
+            else
+              meESDaqError_->setBinContent(i + 1, 2.0);
+          }
+        }
       }
+    }
 
- } else {
-
-      LogWarning("ESDaqInfoTask") << "Cannot find any RunInfoRcd" << endl;
-
-   }
-
+  } else {
+    LogWarning("ESDaqInfoTask") << "Cannot find any RunInfoRcd" << endl;
+  }
 }
-
 
 void ESDaqInfoTask::reset(void) {
+  if (meESDaqFraction_)
+    meESDaqFraction_->Reset();
 
-   if ( meESDaqFraction_ ) meESDaqFraction_->Reset();
+  for (int i = 0; i < 56; i++) {
+    if (meESDaqActive_[i])
+      meESDaqActive_[i]->Reset();
+  }
 
-   for (int i = 0; i < 56; i++) {
-      if ( meESDaqActive_[i] ) meESDaqActive_[i]->Reset();
-   }
+  if (meESDaqActiveMap_)
+    meESDaqActiveMap_->Reset();
 
-   if ( meESDaqActiveMap_ ) meESDaqActiveMap_->Reset();
-
-   if ( meESDaqError_ ) meESDaqError_->Reset();
-
+  if (meESDaqError_)
+    meESDaqError_->Reset();
 }
 
-
-void ESDaqInfoTask::cleanup(void){
-
-   if ( dqmStore_ ) {
-
-      dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-
-      if ( meESDaqFraction_ ) dqmStore_->removeElement( meESDaqFraction_->getName() );
-
-      if ( meESDaqActiveMap_ ) dqmStore_->removeElement( meESDaqActiveMap_->getName() );
-
-      if ( meESDaqError_ ) dqmStore_->removeElement( meESDaqError_->getName() );
-
-      dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
-
-      for (int i = 0; i < 56; i++) {
-	 if ( meESDaqActive_[i] ) dqmStore_->removeElement( meESDaqActive_[i]->getName() );
-      }
-
-   }
-
-}
-
-void ESDaqInfoTask::analyze(const Event& e, const EventSetup& c){ 
-
-}
+void ESDaqInfoTask::analyze(const Event& e, const EventSetup& c) {}
 
 DEFINE_FWK_MODULE(ESDaqInfoTask);

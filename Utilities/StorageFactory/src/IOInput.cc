@@ -3,8 +3,7 @@
 #include <cassert>
 
 /// Destruct the stream.  A no-op.
-IOInput::~IOInput (void)
-{}
+IOInput::~IOInput(void) {}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -50,11 +49,9 @@ IOInput::~IOInput (void)
     includes the situation where the input stream is in non-blocking
     mode and no input is currently available (FIXME: make this
     simpler; clarify which exception).  */
-int
-IOInput::read (void)
-{
+int IOInput::read(void) {
   unsigned char byte;
-  IOSize n = read (&byte, 1);
+  IOSize n = read(&byte, 1);
   return n == 0 ? -1 : byte;
 }
 
@@ -80,9 +77,7 @@ IOInput::read (void)
     includes the situation where the input stream is in non-blocking
     mode and no input is currently available (FIXME: make this
     simpler; clarify which exception).  */
-IOSize
-IOInput::read (IOBuffer into)
-{ return read (into.data (), into.size ()); }
+IOSize IOInput::read(IOBuffer into) { return read(into.data(), into.size()); }
 
 /** Read from the input stream into multiple scattered buffers.
     There are @a buffers to fill in an array starting at @a into;
@@ -113,24 +108,19 @@ IOInput::read (IOBuffer into)
     persistent errors will occur anyway on the next read and sporadic
     errors like stream becoming unvailable can be ignored.  Use
     #xread() if a different policy is desirable.  */
-IOSize
-IOInput::readv (IOBuffer *into, IOSize buffers)
-{
-  assert (! buffers || into);
+IOSize IOInput::readv(IOBuffer *into, IOSize buffers) {
+  assert(!buffers || into);
 
   // Keep reading as long as possible; ignore errors if we have read
   // something, otherwise pass it on.
   IOSize status;
   IOSize done = 0;
-  try
-  {
+  try {
     for (IOSize i = 0; i < buffers; done += status, ++i)
-      if ((status = read (into [i])) == 0)
-	break;
-  }
-  catch (cms::Exception &)
-  {
-    if (! done)
+      if ((status = read(into[i])) == 0)
+        break;
+  } catch (cms::Exception &) {
+    if (!done)
       throw;
   }
 
@@ -162,9 +152,7 @@ IOInput::readv (IOBuffer *into, IOSize buffers)
     @throws All exceptions from #read() are passed through unhandled.
     Therefore it is possible that an exception is thrown when this
     function has already read some data.  */
-IOSize
-IOInput::xread (IOBuffer into)
-{ return xread (into.data (), into.size ()); }
+IOSize IOInput::xread(IOBuffer into) { return xread(into.data(), into.size()); }
 
 /** Like the corresponding #read() method but reads until the
     requested number of bytes are read or end of file is reached.
@@ -187,16 +175,14 @@ IOInput::xread (IOBuffer into)
     @throws All exceptions from #read() are passed through unhandled.
     Therefore it is possible that an exception is thrown when this
     function has already read some data.  */
-IOSize
-IOInput::xread (void *into, IOSize n)
-{
-  assert (into);
+IOSize IOInput::xread(void *into, IOSize n) {
+  assert(into);
 
   // Keep reading as long as possible.  Let system errors fly over
   // us, they are a hard error.
   IOSize x;
   IOSize done = 0;
-  while (done < n && (x = read ((char *) into + done, n - done)))
+  while (done < n && (x = read((char *)into + done, n - done)))
     done += x;
 
   return done;
@@ -225,23 +211,20 @@ IOInput::xread (void *into, IOSize n)
     @throws All exceptions from #read() are passed through unhandled.
     Therefore it is possible that an exception is thrown when this
     function has already read some data.  */
-IOSize
-IOInput::xreadv (IOBuffer *into, IOSize buffers)
-{
+IOSize IOInput::xreadv(IOBuffer *into, IOSize buffers) {
   // FIXME: Use read(into, buffers) and then sort out in case of
   // failure, the readv probably succeed directly with much less
   // overhead.
 
-  assert (! buffers || into);
+  assert(!buffers || into);
 
   // Keep reading as long as possible.  Let system errors fly
   // over us, they are a hard error.
   IOSize x;
   IOSize done = 0;
-  for (IOSize i = 0; i < buffers; ++i)
-  {
-    done += (x = xread (into [i]));
-    if (x < into [i].size ())
+  for (IOSize i = 0; i < buffers; ++i) {
+    done += (x = xread(into[i]));
+    if (x < into[i].size())
       break;
   }
   return done;

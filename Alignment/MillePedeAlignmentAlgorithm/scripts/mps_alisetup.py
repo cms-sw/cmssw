@@ -4,12 +4,15 @@ from __future__ import print_function
 import os
 import re
 import sys
-import cPickle
+if sys.version_info[0]>2:
+  import _pickle as cPickle
+else:
+  import cPickle
 import argparse
 import itertools
 import subprocess
 import collections
-import ConfigParser
+import configparser as ConfigParser
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.iniparser as mpsv_iniparser

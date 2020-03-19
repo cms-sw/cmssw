@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     analyzerImplementors
-// 
+//
 // Implementation:
 //     Explicitly instantiate implementor templates for EDAnalyzerBase
 //
@@ -22,6 +22,6 @@ namespace edm {
       template class SharedResourcesUser<edm::one::EDAnalyzerBase>;
       template class RunWatcher<edm::one::EDAnalyzerBase>;
       template class LuminosityBlockWatcher<edm::one::EDAnalyzerBase>;
-    }
-  }
-}
+    }  // namespace impl
+  }    // namespace one
+}  // namespace edm

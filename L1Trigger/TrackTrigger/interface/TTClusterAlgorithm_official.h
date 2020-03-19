@@ -28,34 +28,27 @@
 #include <string>
 #include <map>
 
-template< typename T >
-class TTClusterAlgorithm_official : public TTClusterAlgorithm< T >
-{
-  private:
-    /// Data members
-    int mWidthCut; /// Cluster max width
+template <typename T>
+class TTClusterAlgorithm_official : public TTClusterAlgorithm<T> {
+private:
+  /// Data members
+  int mWidthCut;  /// Cluster max width
 
-    /// Function to compare clusters and sort them by row
-    static bool CompareClusters( const T& a, const T& b );
+  /// Function to compare clusters and sort them by row
+  static bool CompareClusters(const T& a, const T& b);
 
-  public:
-    /// Constructor
+public:
+  /// Constructor
 
-    TTClusterAlgorithm_official( int aWidthCut )
-      : TTClusterAlgorithm< T >( __func__ )
-    {
-      mWidthCut = aWidthCut;
-    }
+  TTClusterAlgorithm_official(int aWidthCut) : TTClusterAlgorithm<T>(__func__) { mWidthCut = aWidthCut; }
 
-    /// Destructor
-    ~TTClusterAlgorithm_official() override{}
+  /// Destructor
+  ~TTClusterAlgorithm_official() override {}
 
-    /// Clustering operations  
-    void Cluster( std::vector< std::vector< T > > &output,
-                  const std::vector< T > &input,
-                  bool isPS ) const override;
+  /// Clustering operations
+  void Cluster(std::vector<std::vector<T> >& output, const std::vector<T>& input, bool isPS) const override;
 
-}; /// Close class
+};  /// Close class
 
 /*! \brief   Implementation of methods
  *  \details Here, in the header file, the methods which do not depend
@@ -65,18 +58,16 @@ class TTClusterAlgorithm_official : public TTClusterAlgorithm< T >
  */
 
 /// Function to compare clusters and sort them by row
-template< >
-bool TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::CompareClusters( const Ref_Phase2TrackerDigi_& a, const Ref_Phase2TrackerDigi_& b );
+template <>
+bool TTClusterAlgorithm_official<Ref_Phase2TrackerDigi_>::CompareClusters(const Ref_Phase2TrackerDigi_& a,
+                                                                          const Ref_Phase2TrackerDigi_& b);
 
 /// Clustering operations
-template< >
-void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
-                                                           const std::vector< Ref_Phase2TrackerDigi_ > &input,
-                                                           bool isPS ) const;
-
-
-
-
+template <>
+void TTClusterAlgorithm_official<Ref_Phase2TrackerDigi_>::Cluster(
+    std::vector<std::vector<Ref_Phase2TrackerDigi_> >& output,
+    const std::vector<Ref_Phase2TrackerDigi_>& input,
+    bool isPS) const;
 
 /*! \class   ES_TTClusterAlgorithm_official
  *  \brief   Class to declare the algorithm to the framework
@@ -86,34 +77,28 @@ void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector
  *
  */
 
-template< typename T >
-class  ES_TTClusterAlgorithm_official: public edm::ESProducer
-{
-  private:
-    /// Data members
-    int                                          mWidthCut;
+template <typename T>
+class ES_TTClusterAlgorithm_official : public edm::ESProducer {
+private:
+  /// Data members
+  int mWidthCut;
 
-  public:
-    /// Constructor
-    ES_TTClusterAlgorithm_official( const edm::ParameterSet & p )
-      : mWidthCut( p.getParameter< int >("WidthCut") )
-    {
-      setWhatProduced( this );
-    }
+public:
+  /// Constructor
+  ES_TTClusterAlgorithm_official(const edm::ParameterSet& p) : mWidthCut(p.getParameter<int>("WidthCut")) {
+    setWhatProduced(this);
+  }
 
-    /// Destructor
-    ~ES_TTClusterAlgorithm_official() override{}
+  /// Destructor
+  ~ES_TTClusterAlgorithm_official() override {}
 
-    /// Implement the producer
-    std::unique_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
-    { 
-      TTClusterAlgorithm< T >* TTClusterAlgo =
-        new TTClusterAlgorithm_official< T >( mWidthCut );
+  /// Implement the producer
+  std::unique_ptr<TTClusterAlgorithm<T> > produce(const TTClusterAlgorithmRecord& record) {
+    TTClusterAlgorithm<T>* TTClusterAlgo = new TTClusterAlgorithm_official<T>(mWidthCut);
 
-      return std::unique_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
-    } 
+    return std::unique_ptr<TTClusterAlgorithm<T> >(TTClusterAlgo);
+  }
 
-}; /// Close class
+};  /// Close class
 
 #endif
-

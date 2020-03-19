@@ -4,7 +4,7 @@
 //
 // Package:     TFWLiteSelector
 // Class  :     TFWLiteSelectorBasic
-// 
+//
 /**\class TFWLiteSelectorBasic TFWLiteSelectorBasic.h FWCore/FWLite/interface/TFWLiteSelectorBasic.h
 
  Description: A ROOT TSelector which accesses data using an edm::Event
@@ -33,75 +33,72 @@ class TTree;
 
 namespace edm {
   class Event;
-  
+
   namespace root {
     struct TFWLiteSelectorMembers;
   }
-}
+}  // namespace edm
 
-class TFWLiteSelectorBasic : public TSelector
-{
+class TFWLiteSelectorBasic : public TSelector {
+public:
+  TFWLiteSelectorBasic();
+  ~TFWLiteSelectorBasic() override;
 
-   public:
-      TFWLiteSelectorBasic();
-      ~TFWLiteSelectorBasic() override;
+  // ---------- const member functions ---------------------
 
-      // ---------- const member functions ---------------------
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-      /**Called each time the 'client' begins processing (remote 'slaves' do not see this message)
+  // ---------- member functions ---------------------------
+  /**Called each time the 'client' begins processing (remote 'slaves' do not see this message)
         \param in an assignable pointer to a list of objects you want passed to 'preProcessing'. This
          list is used to communicate with remote slaves. NOTE: you are responsible for deleting this TList
          and its content once you are done with it.
         */
-      virtual void begin(TList*& in) = 0;
-      
-      /**Called each time the 'slave' is about to start processing
+  virtual void begin(TList*& in) = 0;
+
+  /**Called each time the 'slave' is about to start processing
         \param in a pointer to the list of objects created in 'begin()'.  The pointer can be 0
         \param out a list of objects that are the result of processing (e.g. histograms).
         You should call 'Add()' for each object you want sent to the 'terminate' method.
         */
-      virtual void preProcessing(const TList* in, TList& out) = 0;
-      
-      /**Call each time the 'slave' gets a new Event
+  virtual void preProcessing(const TList* in, TList& out) = 0;
+
+  /**Call each time the 'slave' gets a new Event
         \param event a standard edm::Event which works just like it does in cmsRun
         */
-      virtual void process(const edm::Event& event) = 0;
-      
-      /**Called each time the 'slave' has seen all the events
+  virtual void process(const edm::Event& event) = 0;
+
+  /**Called each time the 'slave' has seen all the events
         \param out the list of objects that will be sent to 'terminate'.
         You can Add() additional objects to 'out' at this point as well.
         */
-      virtual void postProcessing(TList& out) =0;
-      
-      /**Called each time the 'client' has finished processing.
+  virtual void postProcessing(TList& out) = 0;
+
+  /**Called each time the 'client' has finished processing.
         \param out contains the accumulated output of all slaves.
         */
-      virtual void terminate(TList& out) = 0;
-      
-   private:
-      TFWLiteSelectorBasic(const TFWLiteSelectorBasic&); // stop default
+  virtual void terminate(TList& out) = 0;
 
-      const TFWLiteSelectorBasic& operator=(const TFWLiteSelectorBasic&); // stop default
+private:
+  TFWLiteSelectorBasic(const TFWLiteSelectorBasic&);  // stop default
 
-      void        Begin(TTree *) override ;
-      void        SlaveBegin(TTree *) override;
-      void        Init(TTree*) override;
-      Bool_t      Notify() override ;
-      Bool_t      Process(Long64_t /*entry*/) override ;
-      void        SlaveTerminate() override;
-      void        Terminate() override;
-      Int_t Version() const override { return 1; }
-      
-      void setupNewFile(TFile&);
-      // ---------- member data --------------------------------
-      edm::propagate_const<std::shared_ptr<edm::root::TFWLiteSelectorMembers>> m_;
-      bool everythingOK_;
-  
-  ClassDefOverride(TFWLiteSelectorBasic,2)
+  const TFWLiteSelectorBasic& operator=(const TFWLiteSelectorBasic&);  // stop default
+
+  void Begin(TTree*) override;
+  void SlaveBegin(TTree*) override;
+  void Init(TTree*) override;
+  Bool_t Notify() override;
+  Bool_t Process(Long64_t /*entry*/) override;
+  void SlaveTerminate() override;
+  void Terminate() override;
+  Int_t Version() const override { return 1; }
+
+  void setupNewFile(TFile&);
+  // ---------- member data --------------------------------
+  edm::propagate_const<std::shared_ptr<edm::root::TFWLiteSelectorMembers>> m_;
+  bool everythingOK_;
+
+  ClassDefOverride(TFWLiteSelectorBasic, 2)
 };
-
 
 #endif

@@ -1,4 +1,4 @@
-// Include files 
+// Include files
 
 // local
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCLogicUnit.h"
@@ -12,20 +12,15 @@
 //=============================================================================
 // Standard constructor, initializes variables
 //=============================================================================
-RPCLogicUnit::RPCLogicUnit( int _a, int _b, int _c ) {
-  
+RPCLogicUnit::RPCLogicUnit(int _a, int _b, int _c) {
   m_propA = _a;
   m_propB = _b;
   m_propC = _c;
-  
 }
 
 //=============================================================================
 // Destructor
 //=============================================================================
-RPCLogicUnit::~RPCLogicUnit() {
-  
-  
-} 
+RPCLogicUnit::~RPCLogicUnit() {}
 
 //=============================================================================

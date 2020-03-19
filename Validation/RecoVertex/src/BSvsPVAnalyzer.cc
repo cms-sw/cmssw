@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -48,25 +47,23 @@
 //
 
 class BSvsPVAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit BSvsPVAnalyzer(const edm::ParameterSet&);
-      ~BSvsPVAnalyzer() override;
-
+public:
+  explicit BSvsPVAnalyzer(const edm::ParameterSet&);
+  ~BSvsPVAnalyzer() override;
 
 private:
-  void beginJob() override ;
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   BSvsPVHistogramMaker _bspvhm;
   edm::EDGetTokenT<reco::VertexCollection> _recoVertexCollectionToken;
   edm::EDGetTokenT<reco::BeamSpot> _recoBeamSpotToken;
   bool _firstOnly;
-
 };
 
 //
@@ -81,80 +78,56 @@ private:
 // constructors and destructor
 //
 BSvsPVAnalyzer::BSvsPVAnalyzer(const edm::ParameterSet& iConfig)
-  : _bspvhm(iConfig.getParameter<edm::ParameterSet>("bspvHistogramMakerPSet"), consumesCollector())
-  , _recoVertexCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection")))
-  , _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection")))
-  , _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
-{
-   //now do what ever initialization is needed
+    : _bspvhm(iConfig.getParameter<edm::ParameterSet>("bspvHistogramMakerPSet"), consumesCollector()),
+      _recoVertexCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection"))),
+      _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection"))),
+      _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly", false)) {
+  //now do what ever initialization is needed
 
   //
 
   _bspvhm.book();
-
 }
 
-
-BSvsPVAnalyzer::~BSvsPVAnalyzer()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+BSvsPVAnalyzer::~BSvsPVAnalyzer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-BSvsPVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void BSvsPVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get BS
 
   edm::Handle<reco::BeamSpot> bs;
-  iEvent.getByToken(_recoBeamSpotToken,bs);
+  iEvent.getByToken(_recoBeamSpotToken, bs);
 
   // get PV
 
   edm::Handle<reco::VertexCollection> pvcoll;
-  iEvent.getByToken(_recoVertexCollectionToken,pvcoll);
+  iEvent.getByToken(_recoVertexCollectionToken, pvcoll);
 
-  if(_firstOnly) {
+  if (_firstOnly) {
     reco::VertexCollection firstpv;
-    if(!pvcoll->empty()) firstpv.push_back((*pvcoll)[0]);
-    _bspvhm.fill(iEvent,firstpv,*bs);
-  }
-  else {
-    _bspvhm.fill(iEvent,*pvcoll,*bs);
+    if (!pvcoll->empty())
+      firstpv.push_back((*pvcoll)[0]);
+    _bspvhm.fill(iEvent, firstpv, *bs);
+  } else {
+    _bspvhm.fill(iEvent, *pvcoll, *bs);
   }
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
-void
-BSvsPVAnalyzer::beginJob()
-{ }
+void BSvsPVAnalyzer::beginJob() {}
 
-void
-BSvsPVAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void BSvsPVAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) { _bspvhm.beginRun(iRun.run()); }
 
-  _bspvhm.beginRun(iRun.run());
-
-}
-
-void
-BSvsPVAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-
-}
+void BSvsPVAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 // ------------ method called once each job just after ending the event loop  ------------
-void
-BSvsPVAnalyzer::endJob() {
-}
-
+void BSvsPVAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(BSvsPVAnalyzer);

@@ -24,27 +24,18 @@
 
 #include <string>
 
-class MuonMETcorrInputProducer : public edm::stream::EDProducer<>  
-{
- public:
-
+class MuonMETcorrInputProducer : public edm::stream::EDProducer<> {
+public:
   explicit MuonMETcorrInputProducer(const edm::ParameterSet&);
   ~MuonMETcorrInputProducer() override;
-    
- private:
 
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 
   edm::EDGetTokenT<reco::MuonCollection> token_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonCorrectionMapToken_;
-
 };
 
 #endif
-
-
-
- 
-

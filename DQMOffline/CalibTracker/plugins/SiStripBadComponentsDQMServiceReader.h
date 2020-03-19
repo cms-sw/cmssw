@@ -18,22 +18,20 @@
 #include <sstream>
 #include <string>
 
-
 class TrackerTopology;
 
 class SiStripBadComponentsDQMServiceReader : public edm::EDAnalyzer {
-
- public:
-  explicit SiStripBadComponentsDQMServiceReader( const edm::ParameterSet& );
+public:
+  explicit SiStripBadComponentsDQMServiceReader(const edm::ParameterSet&);
   ~SiStripBadComponentsDQMServiceReader() override;
 
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  void printError( std::stringstream & ss, const bool error, const std::string & errorText );
+  void printError(std::stringstream& ss, const bool error, const std::string& errorText);
 
-  std::string detIdToString(const DetId & detid, const TrackerTopology* tTopo);
+  std::string detIdToString(const DetId& detid, const TrackerTopology* tTopo);
 
- private:
+private:
   bool printdebug_;
 };
 #endif

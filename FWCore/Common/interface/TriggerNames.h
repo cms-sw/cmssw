@@ -53,9 +53,7 @@ namespace edm {
   class ParameterSet;
 
   class TriggerNames {
-
   public:
-
     typedef std::vector<std::string> Strings;
     typedef std::map<std::string, unsigned int> IndexMap;
 
@@ -82,11 +80,10 @@ namespace edm {
     ParameterSetID const& parameterSetID() const;
 
   private:
-
     ParameterSetID psetID_;
 
     Strings triggerNames_;
     IndexMap indexMap_;
   };
-}
+}  // namespace edm
 #endif

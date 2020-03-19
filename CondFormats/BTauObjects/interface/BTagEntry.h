@@ -21,19 +21,18 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-class BTagEntry
-{
+class BTagEntry {
 public:
   enum OperatingPoint {
-    OP_LOOSE=0,
-    OP_MEDIUM=1,
-    OP_TIGHT=2,
-    OP_RESHAPING=3,
+    OP_LOOSE = 0,
+    OP_MEDIUM = 1,
+    OP_TIGHT = 2,
+    OP_RESHAPING = 3,
   };
   enum JetFlavor {
-    FLAV_B=0,
-    FLAV_C=1,
-    FLAV_UDSG=2,
+    FLAV_B = 0,
+    FLAV_C = 1,
+    FLAV_UDSG = 2,
   };
   struct Parameters {
     OperatingPoint operatingPoint;
@@ -48,25 +47,23 @@ public:
     float discrMax;
 
     // default constructor
-    Parameters(
-      OperatingPoint op=OP_TIGHT,
-      std::string measurement_type="comb",
-      std::string sys_type="central",
-      JetFlavor jf=FLAV_B,
-      float eta_min=-99999.,
-      float eta_max=99999.,
-      float pt_min=0.,
-      float pt_max=99999.,
-      float discr_min=0.,
-      float discr_max=99999.
-    );
+    Parameters(OperatingPoint op = OP_TIGHT,
+               std::string measurement_type = "comb",
+               std::string sys_type = "central",
+               JetFlavor jf = FLAV_B,
+               float eta_min = -99999.,
+               float eta_max = 99999.,
+               float pt_min = 0.,
+               float pt_max = 99999.,
+               float discr_min = 0.,
+               float discr_max = 99999.);
 
     COND_SERIALIZABLE;
   };
 
   BTagEntry() {}
-  BTagEntry(const std::string &csvLine);
-  BTagEntry(const std::string &func, Parameters p);
+  BTagEntry(const std::string& csvLine);
+  BTagEntry(const std::string& func, Parameters p);
   BTagEntry(const TF1* func, Parameters p);
   BTagEntry(const TH1* histo, Parameters p);
   ~BTagEntry() {}

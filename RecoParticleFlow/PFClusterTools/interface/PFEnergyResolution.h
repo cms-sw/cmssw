@@ -1,11 +1,11 @@
 #ifndef RecoParticleFlow_PFClusterTools_PFEnergyResolution_h
-#define RecoParticleFlow_PFClusterTools_PFEnergyResolution_h 
+#define RecoParticleFlow_PFClusterTools_PFEnergyResolution_h
 
 // -*- C++ -*-
 //
 // Package:    PFClusterTools
 // Class:      PFEnergyResolution
-// 
+//
 /**\class
 
  Description: An auxiliary class of the Particle-Flow algorithm,
@@ -27,20 +27,18 @@
 
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class PFEnergyResolution 
-{
- public:
-  PFEnergyResolution(); // default constructor;
-                        // needed by PFRootEvent
+class PFEnergyResolution {
+public:
+  PFEnergyResolution();  // default constructor;
+                         // needed by PFRootEvent
   //PFEnergyResolution(const edm::ParameterSet& parameters);
   ~PFEnergyResolution();
-  
-  double getEnergyResolutionEm(double CorrectedEnergy, double eta) const;  //The resolution must be a function of the corrected energy available in PFEnergyCalibration
+
+  double getEnergyResolutionEm(double CorrectedEnergy, double eta)
+      const;  //The resolution must be a function of the corrected energy available in PFEnergyCalibration
 
   double getEnergyResolutionHad(double energyHCAL, double eta, double phi) const;
   //double getEnergyResolutionHad(double energyECAL, double energyHCAL, double eta, double phi) const;
 };
 
 #endif
-
-

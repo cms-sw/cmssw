@@ -10,5 +10,3 @@
 
 typedef edm::AnalyzerWrapper<PatMuonAnalyzer> PatMuonEDAnalyzer;
 DEFINE_FWK_MODULE(PatMuonEDAnalyzer);
-
-

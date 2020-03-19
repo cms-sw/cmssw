@@ -4,7 +4,7 @@
 // This is a pure interface (abstract class) that
 // needs to have an implementation.
 //
-// All applications should just use this 
+// All applications should just use this
 // interface and not care about the specific
 // implementation
 //
@@ -17,25 +17,15 @@
 
 using namespace pos;
 
-PixelTrimBase::PixelTrimBase(std::string description, 
-			     std::string creator,
-			     std::string date):
-  PixelConfigBase(description,creator,date){
-}
+PixelTrimBase::PixelTrimBase(std::string description, std::string creator, std::string date)
+    : PixelConfigBase(description, creator, date) {}
 
+PixelTrimBase::~PixelTrimBase() {}
 
-PixelTrimBase::~PixelTrimBase(){}
+void PixelTrimBase::setOverride(PixelTrimOverrideBase* override) { trimOverride_ = override; }
 
-void PixelTrimBase::setOverride(PixelTrimOverrideBase* override){
-  trimOverride_=override;
-}
-
-std::ostream& operator<<(std::ostream& s, const PixelTrimBase& trim){
-
-  s << trim.getTrimBits(0) <<std::endl; 
+std::ostream& operator<<(std::ostream& s, const PixelTrimBase& trim) {
+  s << trim.getTrimBits(0) << std::endl;
 
   return s;
-
 }
-
-

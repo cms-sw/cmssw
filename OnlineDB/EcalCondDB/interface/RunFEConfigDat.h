@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODDelaysDat.h"
 
 class RunFEConfigDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   RunFEConfigDat();
   ~RunFEConfigDat() override;
@@ -23,17 +23,16 @@ class RunFEConfigDat : public IDataItem {
 
   std::list<ODDelaysDat> getDelays();
 
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const RunFEConfigDat* item, RunIOV* iov ) noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const RunFEConfigDat* item, RunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, RunFEConfigDat >* fillMap, RunIOV* iov) noexcept(false);
+  void fetchData(std::map<EcalLogicID, RunFEConfigDat>* fillMap, RunIOV* iov) noexcept(false);
 
   // User data
 
   int m_config;
-
 };
 
 #endif

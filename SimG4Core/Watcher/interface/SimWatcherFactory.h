@@ -6,11 +6,10 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-typedef edmplugin::PluginFactory<SimWatcherMakerBase *() > SimWatcherFactory ;
+typedef edmplugin::PluginFactory<SimWatcherMakerBase *()> SimWatcherFactory;
 
-//This pattern was taken from the framework factory code
+// This pattern was taken from the framework factory code
 
-#define DEFINE_SIMWATCHER(type) \
-  DEFINE_EDM_PLUGIN(SimWatcherFactory, SimWatcherMaker<type>,#type)
+#define DEFINE_SIMWATCHER(type) DEFINE_EDM_PLUGIN(SimWatcherFactory, SimWatcherMaker<type>, #type)
 
 #endif

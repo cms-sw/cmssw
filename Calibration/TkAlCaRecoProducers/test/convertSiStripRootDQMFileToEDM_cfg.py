@@ -46,7 +46,6 @@ process.ALCARECOStreamSiStripPCLHistos = cms.OutputModule("PoolOutputModule",
                                                           )
 
 process.MEtoEDMConvertSiStrip = cms.EDProducer("MEtoEDMConverter",
-                                               deleteAfterCopy = cms.untracked.bool(False),
                                                Verbosity = cms.untracked.int32(0),
                                                Frequency = cms.untracked.int32(50),
                                                Name = cms.untracked.string('MEtoEDMConverter'),

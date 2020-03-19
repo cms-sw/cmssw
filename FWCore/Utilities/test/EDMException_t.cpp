@@ -7,8 +7,7 @@
 #include <typeinfo>
 #include <memory>
 
-void func3()
-{
+void func3() {
   edm::Exception ex(edm::errors::NotFound);
   ex << "This is just a test";
   ex.addContext("new1");
@@ -22,17 +21,12 @@ void func3()
   throw ex;
 }
 
-void func2()
-{
-  func3();
-}
+void func2() { func3(); }
 
-void func1()
-{
+void func1() {
   try {
-      func2();
-  }
-  catch (edm::Exception& e) {
+    func2();
+  } catch (edm::Exception& e) {
     edm::Exception toThrow(edm::errors::Unknown, "In func2", e);
     edm::Exception toThrowString(edm::errors::Unknown, std::string("In func2"), e);
     if (toThrow.explainSelf() != toThrowString.explainSelf()) {
@@ -52,39 +46,34 @@ void func1()
   }
 }
 
-const char answer[] = 
-  "An exception of category 'Unknown' occurred while\n"
-  "   [0] new2\n"
-  "   [1] new1\n"
-  "Exception Message:\n"
-  "In func2\n"
-  "This is just a test\n"
-  "Gave up\n"
-  "   Additional Info:\n"
-  "      [a] info2\n"
-  "      [b] info1\n";
+const char answer[] =
+    "An exception of category 'Unknown' occurred while\n"
+    "   [0] new2\n"
+    "   [1] new1\n"
+    "Exception Message:\n"
+    "In func2\n"
+    "This is just a test\n"
+    "Gave up\n"
+    "   Additional Info:\n"
+    "      [a] info2\n"
+    "      [b] info1\n";
 
-int main()
-{
+int main() {
   try {
     func1();
-  }
-  catch (edm::Exception& e) {
-    if(e.explainSelf() != answer) {
-	std::cerr << "Exception message incorrect.\n"
-               "==expected==\n"
-      << answer <<
-      "\n==message==\n"
-      <<e.explainSelf()
-	     << std::endl;
-	abort();
+  } catch (edm::Exception& e) {
+    if (e.explainSelf() != answer) {
+      std::cerr << "Exception message incorrect.\n"
+                   "==expected==\n"
+                << answer << "\n==message==\n"
+                << e.explainSelf() << std::endl;
+      abort();
     }
     edm::Exception ecopy(e);
     if (e.explainSelf() != ecopy.explainSelf()) {
       abort();
     }
-  }
-  catch (cms::Exception& e) {
+  } catch (cms::Exception& e) {
     abort();
   }
 
@@ -108,30 +97,24 @@ int main()
     abort();
   }
   try {
-    edm::Exception::throwThis(edm::errors::ProductNotFound,
-			      "a", "b", "c", "d", "e");
-  }
-  catch (edm::Exception & ex) {
-    if (ex.explainSelf() != std::string(
-      "An exception of category 'ProductNotFound' occurred.\n"
-      "Exception Message:\n"
-      "a bcde\n")) {
+    edm::Exception::throwThis(edm::errors::ProductNotFound, "a", "b", "c", "d", "e");
+  } catch (edm::Exception& ex) {
+    if (ex.explainSelf() != std::string("An exception of category 'ProductNotFound' occurred.\n"
+                                        "Exception Message:\n"
+                                        "a bcde\n")) {
       abort();
     }
   }
 
   try {
     edm::Exception::throwThis(edm::errors::ProductNotFound, "a", 1, "b");
-  }
-  catch (edm::Exception & ex) {
-    if (ex.explainSelf() != std::string(
-      "An exception of category 'ProductNotFound' occurred.\n"
-      "Exception Message:\n"
-      "a 1b\n")) {
+  } catch (edm::Exception& ex) {
+    if (ex.explainSelf() != std::string("An exception of category 'ProductNotFound' occurred.\n"
+                                        "Exception Message:\n"
+                                        "a 1b\n")) {
       abort();
     }
   }
 
-
-  return 0; 
+  return 0;
 }

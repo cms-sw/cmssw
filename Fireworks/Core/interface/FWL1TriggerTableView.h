@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWL1TriggerTableView
-// 
+//
 /**\class FWL1TriggerTableView FWL1TriggerTableView.h Fireworks/Core/interface/FWL1TriggerTableView.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Tue Jan 25 16:02:19 CET 2011
 //
 
@@ -22,14 +22,13 @@
 
 class FWTriggerTableViewManager;
 class FWTriggerTableViewTableManager;
-class FWL1TriggerTableView : public FWTriggerTableView
-{
+class FWL1TriggerTableView : public FWTriggerTableView {
 public:
-   FWL1TriggerTableView( TEveWindowSlot*);
-   ~FWL1TriggerTableView() override {}
+  FWL1TriggerTableView(TEveWindowSlot*);
+  ~FWL1TriggerTableView() override {}
 
 protected:
-   void fillTable(fwlite::Event* event) override;
+  void fillTable(fwlite::Event* event) override;
 };
 
 #endif

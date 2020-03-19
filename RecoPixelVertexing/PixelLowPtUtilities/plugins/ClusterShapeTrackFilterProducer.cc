@@ -13,7 +13,7 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
-class ClusterShapeTrackFilterProducer: public edm::global::EDProducer<> {
+class ClusterShapeTrackFilterProducer : public edm::global::EDProducer<> {
 public:
   explicit ClusterShapeTrackFilterProducer(const edm::ParameterSet& iConfig);
   ~ClusterShapeTrackFilterProducer() override;
@@ -28,11 +28,11 @@ private:
   const double ptMax_;
 };
 
-ClusterShapeTrackFilterProducer::ClusterShapeTrackFilterProducer(const edm::ParameterSet& iConfig):
-  clusterShapeCacheToken_(consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
-  ptMin_(iConfig.getParameter<double>("ptMin")),
-  ptMax_(iConfig.getParameter<double>("ptMax"))
-{
+ClusterShapeTrackFilterProducer::ClusterShapeTrackFilterProducer(const edm::ParameterSet& iConfig)
+    : clusterShapeCacheToken_(
+          consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
+      ptMin_(iConfig.getParameter<double>("ptMin")),
+      ptMax_(iConfig.getParameter<double>("ptMax")) {
   produces<PixelTrackFilter>();
 }
 

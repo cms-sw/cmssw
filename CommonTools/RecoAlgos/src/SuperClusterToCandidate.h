@@ -12,12 +12,10 @@ namespace converter {
     typedef reco::SuperCluster value_type;
     typedef reco::SuperClusterCollection Components;
     typedef reco::RecoEcalCandidate Candidate;
-    SuperClusterToCandidate(const edm::ParameterSet & cfg) : 
-      MassiveCandidateConverter(cfg) {
-    }
-    void convert(reco::SuperClusterRef scRef, reco::RecoEcalCandidate & c) const {
-      const reco::SuperCluster & sc = * scRef;
-      math::XYZPoint v(0, 0, 0); // this should be taken from something else...
+    SuperClusterToCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
+    void convert(reco::SuperClusterRef scRef, reco::RecoEcalCandidate& c) const {
+      const reco::SuperCluster& sc = *scRef;
+      math::XYZPoint v(0, 0, 0);  // this should be taken from something else...
       math::XYZVector p = sc.energy() * (sc.position() - v).unit();
       double t = sqrt(massSqr_ + p.mag2());
       c.setCharge(0);
@@ -29,11 +27,11 @@ namespace converter {
   };
 
   namespace helper {
-    template<>
-    struct CandConverter<reco::SuperCluster> { 
+    template <>
+    struct CandConverter<reco::SuperCluster> {
       typedef SuperClusterToCandidate type;
     };
-  }
-}
+  }  // namespace helper
+}  // namespace converter
 
 #endif

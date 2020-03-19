@@ -2,11 +2,11 @@
 //
 // Package:     cmsShow36
 // Class  :     FW3DView
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Original Author:  
+// Original Author:
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
 //
 
@@ -36,37 +36,25 @@
 //
 // constructors and destructor
 //
-FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
-   FW3DViewBase(slot, typeId),
-   m_calo(nullptr)
-{
-   viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);  
+FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId) : FW3DViewBase(slot, typeId), m_calo(nullptr) {
+  viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);
 }
 
-FW3DView::~FW3DView()
-{
-   m_calo->Destroy();
-}
+FW3DView::~FW3DView() { m_calo->Destroy(); }
 
+TEveCaloViz* FW3DView::getEveCalo() const { return static_cast<TEveCaloViz*>(m_calo); }
 
-TEveCaloViz*
-FW3DView::getEveCalo() const
-{
-   return static_cast<TEveCaloViz*>(m_calo);
-}
+void FW3DView::setContext(const fireworks::Context& ctx) {
+  FW3DViewBase::setContext(ctx);
 
-void FW3DView::setContext(const fireworks::Context& ctx)
-{ 
-   FW3DViewBase::setContext(ctx);
-   
-   TEveCaloData* data = context().getCaloData();
-   m_calo = new TEveCalo3D(data);
-   m_calo->SetElementName("calo barrel");
+  TEveCaloData* data = context().getCaloData();
+  m_calo = new TEveCalo3D(data);
+  m_calo->SetElementName("calo barrel");
 
-   m_calo->SetBarrelRadius(context().caloR1(false));
-   m_calo->SetEndCapPos(context().caloZ1(false));
-   m_calo->SetFrameTransparency(80);
-   m_calo->SetAutoRange(false);
-   m_calo->SetScaleAbs(true);
-   eventScene()->AddElement(m_calo);
+  m_calo->SetBarrelRadius(context().caloR1(false));
+  m_calo->SetEndCapPos(context().caloZ1(false));
+  m_calo->SetFrameTransparency(80);
+  m_calo->SetAutoRange(false);
+  m_calo->SetScaleAbs(true);
+  eventScene()->AddElement(m_calo);
 }

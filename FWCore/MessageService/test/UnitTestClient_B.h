@@ -11,33 +11,20 @@ namespace edm {
   class ParameterSet;
 }
 
+namespace edmtest {
 
-namespace edmtest
-{
+  class UnitTestClient_B : public edm::EDAnalyzer {
+  public:
+    explicit UnitTestClient_B(edm::ParameterSet const&) {}
 
-class UnitTestClient_B
-  : public edm::EDAnalyzer
-{
-public:
-  explicit
-    UnitTestClient_B( edm::ParameterSet const & )
-  { }
+    virtual ~UnitTestClient_B() {}
 
-  virtual
-    ~UnitTestClient_B()
-  { }
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
-  virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
-                );
-
-private:
-  static int nevent;
-};
-
+  private:
+    static int nevent;
+  };
 
 }  // namespace edmtest
-
 
 #endif  // FWCore_MessageService_test_UnitTestClient_B_h

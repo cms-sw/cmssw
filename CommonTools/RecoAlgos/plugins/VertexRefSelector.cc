@@ -26,10 +26,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
- typedef SingleObjectSelector<
-           reco::VertexCollection, 
-           StringCutObjectSelector<reco::Vertex>,
-           reco::VertexRefVector
-         > VertexRefSelector;
+typedef SingleObjectSelector<reco::VertexCollection, StringCutObjectSelector<reco::Vertex>, reco::VertexRefVector>
+    VertexRefSelector;
 
 DEFINE_FWK_MODULE(VertexRefSelector);

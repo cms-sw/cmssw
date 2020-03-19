@@ -7,11 +7,11 @@
 
 namespace reco {
   class CaloMET;
-  /// collection of CaloMET objects 
+  /// collection of CaloMET objects
   typedef std::vector<CaloMET> CaloMETCollection;
   /// edm references
   typedef edm::Ref<CaloMETCollection> CaloMETRef;
   typedef edm::RefVector<CaloMETCollection> CaloMETRefVector;
   typedef edm::RefProd<CaloMETCollection> CaloMETRefProd;
-}
+}  // namespace reco
 #endif

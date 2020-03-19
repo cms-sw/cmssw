@@ -8,76 +8,66 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include<cmath>
-#include<iostream>
+#include <cmath>
+#include <iostream>
 
 namespace condex {
-
-
 
   /* very simple base class
    * trivial inheritance, no template tricks 
    */
   class Efficiency {
   public:
-    Efficiency(){}
-    virtual ~Efficiency(){}
-    virtual void initialize(){ std::cout << "initializing base class Efficiency" <<std::endl;}
-    float operator()(float pt, float eta) const {
-      return value(pt,eta);
-    }
+    Efficiency() {}
+    virtual ~Efficiency() {}
+    virtual void initialize() { std::cout << "initializing base class Efficiency" << std::endl; }
+    float operator()(float pt, float eta) const { return value(pt, eta); }
 
-    virtual float value(float pt, float eta) const=0;
+    virtual float value(float pt, float eta) const = 0;
 
-  
-  COND_SERIALIZABLE;
-};
-
+    COND_SERIALIZABLE;
+  };
 
   class ParametricEfficiencyInPt : public Efficiency {
   public:
-    ParametricEfficiencyInPt() : cutLow(0), cutHigh(0), low(0), high(0){}
-    ParametricEfficiencyInPt(float cm, float ch,
-			    float el, float eh) :
-      cutLow(cm), cutHigh(ch),
-      low(el), high(eh){}
+    ParametricEfficiencyInPt() : cutLow(0), cutHigh(0), low(0), high(0) {}
+    ParametricEfficiencyInPt(float cm, float ch, float el, float eh) : cutLow(cm), cutHigh(ch), low(el), high(eh) {}
+
   private:
     float value(float pt, float) const override {
-      if ( pt<low) return cutLow;
-      if ( pt>high) return cutHigh;
-      return cutLow + (pt-low)/(high-low)*(cutHigh-cutLow);
+      if (pt < low)
+        return cutLow;
+      if (pt > high)
+        return cutHigh;
+      return cutLow + (pt - low) / (high - low) * (cutHigh - cutLow);
     }
     float cutLow, cutHigh;
     float low, high;
 
-  
-  COND_SERIALIZABLE;
-};  
+    COND_SERIALIZABLE;
+  };
 
-class ParametricEfficiencyInEta : public Efficiency {
+  class ParametricEfficiencyInEta : public Efficiency {
   public:
-  ParametricEfficiencyInEta() : cutLow(0), cutHigh(0), low(0), high(0) {}
-    ParametricEfficiencyInEta(float cmin, float cmax,
-			    float el, float eh) :
-      cutLow(cmin), cutHigh(cmax),
-      low(el), high(eh){}
+    ParametricEfficiencyInEta() : cutLow(0), cutHigh(0), low(0), high(0) {}
+    ParametricEfficiencyInEta(float cmin, float cmax, float el, float eh)
+        : cutLow(cmin), cutHigh(cmax), low(el), high(eh) {}
+
   private:
     float value(float, float eta) const override {
       eta = std::abs(eta);
-      if ( eta<low) return cutLow;
-      if ( eta>high) return cutHigh;
-      return cutLow + (eta-low)/(high-low)*(cutHigh-cutLow);
+      if (eta < low)
+        return cutLow;
+      if (eta > high)
+        return cutHigh;
+      return cutLow + (eta - low) / (high - low) * (cutHigh - cutLow);
     }
     float cutLow, cutHigh;
     float low, high;
 
-  
-  COND_SERIALIZABLE;
-};
+    COND_SERIALIZABLE;
+  };
 
-}
-
-
-
+}  // namespace condex
 
 #endif

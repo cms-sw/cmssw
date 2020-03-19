@@ -2,4 +2,4 @@
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
 #include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
 
-REGISTER_PLUGIN(AlignPCLThresholdsRcd,AlignPCLThresholds);
+REGISTER_PLUGIN(AlignPCLThresholdsRcd, AlignPCLThresholds);

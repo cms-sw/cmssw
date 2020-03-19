@@ -5,18 +5,17 @@
 
 // tdrGrid: Turns the grid lines on (true) or off (false)
 TStyle genStyle() {
+  TStyle myStyle("myStyle", "Style similar to P-TDR");
 
-  TStyle myStyle("myStyle","Style similar to P-TDR");
-
-// For the canvas:
+  // For the canvas:
   myStyle.SetCanvasBorderMode(0);
   myStyle.SetCanvasColor(kWhite);
-  myStyle.SetCanvasDefH(600); //Height of canvas
-  myStyle.SetCanvasDefW(600); //Width of canvas
-  myStyle.SetCanvasDefX(0);   //POsition on screen
+  myStyle.SetCanvasDefH(600);  // Height of canvas
+  myStyle.SetCanvasDefW(600);  // Width of canvas
+  myStyle.SetCanvasDefX(0);    // POsition on screen
   myStyle.SetCanvasDefY(0);
 
-// For the Pad:
+  // For the Pad:
   myStyle.SetPadBorderMode(0);
   // myStyle.SetPadBorderSize(Width_t size = 1);
   myStyle.SetPadColor(kWhite);
@@ -26,7 +25,7 @@ TStyle genStyle() {
   myStyle.SetGridStyle(3);
   myStyle.SetGridWidth(1);
 
-// For the frame:
+  // For the frame:
   myStyle.SetFrameBorderMode(0);
   myStyle.SetFrameBorderSize(1);
   myStyle.SetFrameFillColor(0);
@@ -35,7 +34,7 @@ TStyle genStyle() {
   myStyle.SetFrameLineStyle(1);
   myStyle.SetFrameLineWidth(1);
 
-// For the histo:
+  // For the histo:
   // myStyle.SetHistFillColor(1);
   // myStyle.SetHistFillStyle(0);
   myStyle.SetHistLineColor(1);
@@ -45,26 +44,26 @@ TStyle genStyle() {
   // myStyle.SetNumberContours(Int_t number = 20);
 
   myStyle.SetEndErrorSize(2);
-  //myStyle.SetErrorMarker(20);
+  // myStyle.SetErrorMarker(20);
   myStyle.SetErrorX(0.);
-  
+
   myStyle.SetMarkerStyle(20);
 
-//For the fit/function:
+  // For the fit/function:
   myStyle.SetOptFit(1);
   myStyle.SetFitFormat("5.4g");
   myStyle.SetFuncColor(1);
   myStyle.SetFuncStyle(0);
   myStyle.SetFuncWidth(0);
 
-//For the date:
+  // For the date:
   myStyle.SetOptDate(0);
   // myStyle.SetDateX(Float_t x = 0.01);
   // myStyle.SetDateY(Float_t y = 0.01);
 
-// For the statistics box:
+  // For the statistics box:
   myStyle.SetOptFile(1);
-  myStyle.SetOptStat("mre"); // To display the mean and RMS:   SetOptStat("mr");
+  myStyle.SetOptStat("mre");  // To display the mean and RMS:   SetOptStat("mr");
   myStyle.SetStatColor(kWhite);
   myStyle.SetStatFont(42);
   myStyle.SetStatFontSize(0.025);
@@ -77,13 +76,13 @@ TStyle genStyle() {
   // myStyle.SetStatX(Float_t x = 0);
   // myStyle.SetStatY(Float_t y = 0);
 
-// Margins:
-//  myStyle.SetPadTopMargin(0.05);
-//  myStyle.SetPadBottomMargin(0.13);
-//  myStyle.SetPadLeftMargin(0.16);
-//  myStyle.SetPadRightMargin(/*0.02*/0.1);
+  // Margins:
+  //  myStyle.SetPadTopMargin(0.05);
+  //  myStyle.SetPadBottomMargin(0.13);
+  //  myStyle.SetPadLeftMargin(0.16);
+  //  myStyle.SetPadRightMargin(/*0.02*/0.1);
 
-// For the Global title:
+  // For the Global title:
 
   myStyle.SetOptTitle(0);
   myStyle.SetTitleFont(42);
@@ -98,25 +97,25 @@ TStyle genStyle() {
   // myStyle.SetTitleStyle(Style_t style = 1001);
   // myStyle.SetTitleBorderSize(2);
 
-// For the axis titles:
+  // For the axis titles:
 
   myStyle.SetTitleColor(1, "XYZ");
   myStyle.SetTitleFont(42, "XYZ");
   myStyle.SetTitleSize(0.06, "XYZ");
   // myStyle.SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
   // myStyle.SetTitleYSize(Float_t size = 0.02);
-//  myStyle.SetTitleXOffset(0.9);
-//  myStyle.SetTitleYOffset(1.25);
+  //  myStyle.SetTitleXOffset(0.9);
+  //  myStyle.SetTitleYOffset(1.25);
   // myStyle.SetTitleOffset(1.1, "Y"); // Another way to set the Offset
 
-// For the axis labels:
+  // For the axis labels:
 
   myStyle.SetLabelColor(1, "XYZ");
   myStyle.SetLabelFont(42, "XYZ");
-//  myStyle.SetLabelOffset(0.01, "XYZ");
-//  myStyle.SetLabelSize(0.03/*0.05*/, "XYZ");
+  //  myStyle.SetLabelOffset(0.01, "XYZ");
+  //  myStyle.SetLabelSize(0.03/*0.05*/, "XYZ");
 
-// For the axis:
+  // For the axis:
 
   myStyle.SetAxisColor(1, "XYZ");
   myStyle.SetStripDecimals(kTRUE);
@@ -125,13 +124,13 @@ TStyle genStyle() {
   myStyle.SetPadTickX(1);  // To get tick marks on the opposite side of the frame
   myStyle.SetPadTickY(1);
 
-// Change for log plots:
+  // Change for log plots:
   myStyle.SetOptLogx(0);
   myStyle.SetOptLogy(0);
   myStyle.SetOptLogz(0);
 
-// Postscript options:
-  myStyle.SetPaperSize(20.,20.);
+  // Postscript options:
+  myStyle.SetPaperSize(20., 20.);
   // myStyle.SetLineScalePS(Float_t scale = 3);
   // myStyle.SetLineStyleString(Int_t i, const char* text);
   // myStyle.SetHeaderPS(const char* header);
@@ -145,7 +144,6 @@ TStyle genStyle() {
   // myStyle.SetHistMinimumZero(kTRUE);
 
   return myStyle;
-
 }
 
-#endif // STYLE__H
+#endif  // STYLE__H

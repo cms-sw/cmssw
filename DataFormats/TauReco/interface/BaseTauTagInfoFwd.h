@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<BaseTauTagInfoCollection> BaseTauTagInfoRefVector;
   /// iterator over a vector of references to BaseTauTagInfo objects all in the same collection
   typedef BaseTauTagInfoRefVector::iterator basetautaginfo_iterator;
-}
+}  // namespace reco
 
 #endif

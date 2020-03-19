@@ -12,6 +12,6 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-typedef edmplugin::PluginFactory< EcalClusterFunctionBaseClass*(const edm::ParameterSet&) > EcalClusterFunctionFactory;
+typedef edmplugin::PluginFactory<EcalClusterFunctionBaseClass*(const edm::ParameterSet&)> EcalClusterFunctionFactory;
 
 #endif

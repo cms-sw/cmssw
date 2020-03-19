@@ -20,7 +20,6 @@
 #include <iomanip>
 #include <iterator>
 
-
 #include <algorithm>
 
 // user include files
@@ -29,161 +28,126 @@
 
 // forward declarations
 
-
-
-
 // methods
 
 // return all the combinations passing the requirements imposed in condition condNameVal
-const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(
-    const std::string& condNameVal) const {
-
-    for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-
-        if ((m_operandTokenVector[i]).tokenName == condNameVal) {
-            return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
-        }
-
+const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(const std::string& condNameVal) const {
+  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
+    if ((m_operandTokenVector[i]).tokenName == condNameVal) {
+      return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
     }
+  }
 
-    // return a null address - should not arrive here
-    edm::LogError("L1GlobalTriggerObjectMap")
-        << "\n\n  ERROR: The requested condition with tokenName = " << condNameVal
-        << "\n  does not exists in the operand token vector."
-        << "\n  Returning zero pointer for getCombinationsInCond\n\n" << std::endl;
+  // return a null address - should not arrive here
+  edm::LogError("L1GlobalTriggerObjectMap") << "\n\n  ERROR: The requested condition with tokenName = " << condNameVal
+                                            << "\n  does not exists in the operand token vector."
+                                            << "\n  Returning zero pointer for getCombinationsInCond\n\n"
+                                            << std::endl;
 
-    return nullptr;
-
+  return nullptr;
 }
 
 /// return all the combinations passing the requirements imposed in condition condNumberVal
 const CombinationsInCond* L1GlobalTriggerObjectMap::getCombinationsInCond(const int condNumberVal) const {
-
-    for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-
-        if ((m_operandTokenVector[i]).tokenNumber == condNumberVal) {
-            return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
-        }
-
+  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
+    if ((m_operandTokenVector[i]).tokenNumber == condNumberVal) {
+      return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
     }
+  }
 
-    // return a null address - should not arrive here
-    edm::LogError("L1GlobalTriggerObjectMap")
-        << "\n\n  ERROR: The requested condition with tokenNumber = " << condNumberVal
-        << "\n  does not exists in the operand token vector."
-        << "\n  Returning zero pointer for getCombinationsInCond\n\n" << std::endl;
+  // return a null address - should not arrive here
+  edm::LogError("L1GlobalTriggerObjectMap")
+      << "\n\n  ERROR: The requested condition with tokenNumber = " << condNumberVal
+      << "\n  does not exists in the operand token vector."
+      << "\n  Returning zero pointer for getCombinationsInCond\n\n"
+      << std::endl;
 
-    return nullptr;
-
+  return nullptr;
 }
 // return the result for the condition condNameVal
 const bool L1GlobalTriggerObjectMap::getConditionResult(const std::string& condNameVal) const {
-
-    for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
-
-        if ((m_operandTokenVector[i]).tokenName == condNameVal) {
-            return (m_operandTokenVector[i]).tokenResult;
-        }
+  for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
+    if ((m_operandTokenVector[i]).tokenName == condNameVal) {
+      return (m_operandTokenVector[i]).tokenResult;
     }
+  }
 
-    // return false - should not arrive here
-    edm::LogError("L1GlobalTriggerObjectMap")
-        << "\n\n  ERROR: The requested condition with name = " << condNameVal
-        << "\n  does not exists in the operand token vector."
-        << "\n  Returning false for getConditionResult\n\n" << std::endl;
-    return false;
-
+  // return false - should not arrive here
+  edm::LogError("L1GlobalTriggerObjectMap") << "\n\n  ERROR: The requested condition with name = " << condNameVal
+                                            << "\n  does not exists in the operand token vector."
+                                            << "\n  Returning false for getConditionResult\n\n"
+                                            << std::endl;
+  return false;
 }
 
+void L1GlobalTriggerObjectMap::reset() {
+  // name of the algorithm
+  m_algoName.clear();
 
-void L1GlobalTriggerObjectMap::reset()
-{
+  // bit number for algorithm
+  m_algoBitNumber = -1;
 
-    // name of the algorithm
-    m_algoName.clear();
+  // GTL result of the algorithm
+  m_algoGtlResult = false;
 
-    // bit number for algorithm
-    m_algoBitNumber = -1;
+  // vector of operand tokens for an algorithm
+  m_operandTokenVector.clear();
 
-    // GTL result of the algorithm
-    m_algoGtlResult = false;
-
-    // vector of operand tokens for an algorithm 
-    m_operandTokenVector.clear();
-    
-    // vector of combinations for all conditions in an algorithm
-    m_combinationVector.clear();
-
+  // vector of combinations for all conditions in an algorithm
+  m_combinationVector.clear();
 }
 
-void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const
-{
+void L1GlobalTriggerObjectMap::print(std::ostream& myCout) const {
+  myCout << "L1GlobalTriggerObjectMap: print " << std::endl;
 
-    myCout << "L1GlobalTriggerObjectMap: print " << std::endl;
+  myCout << "  Algorithm name: " << m_algoName << std::endl;
+  myCout << "    Bit number: " << m_algoBitNumber << std::endl;
+  myCout << "    GTL result: " << m_algoGtlResult << std::endl;
 
-    myCout << "  Algorithm name: " << m_algoName << std::endl;
-    myCout << "    Bit number: " << m_algoBitNumber << std::endl;
-    myCout << "    GTL result: " << m_algoGtlResult << std::endl;
+  int operandTokenVectorSize = m_operandTokenVector.size();
 
-    int operandTokenVectorSize = m_operandTokenVector.size();
+  myCout << "    Operand token vector size: " << operandTokenVectorSize;
 
-    myCout << "    Operand token vector size: " << operandTokenVectorSize;
+  if (operandTokenVectorSize == 0) {
+    myCout << "   - not properly initialized! " << std::endl;
+  } else {
+    myCout << std::endl;
 
-    if (operandTokenVectorSize == 0) {
-        myCout << "   - not properly initialized! " << std::endl;
+    for (int i = 0; i < operandTokenVectorSize; ++i) {
+      myCout << "      " << std::setw(5) << (m_operandTokenVector[i]).tokenNumber << "\t" << std::setw(25)
+             << (m_operandTokenVector[i]).tokenName << "\t" << (m_operandTokenVector[i]).tokenResult << std::endl;
     }
-    else {
-        myCout << std::endl;
+  }
 
-        for (int i = 0; i < operandTokenVectorSize; ++i) {
+  myCout << "    CombinationVector size: " << m_combinationVector.size() << std::endl;
 
-            myCout << "      " << std::setw(5) << (m_operandTokenVector[i]).tokenNumber << "\t"
-            << std::setw(25) << (m_operandTokenVector[i]).tokenName << "\t" 
-            << (m_operandTokenVector[i]).tokenResult 
-            << std::endl;
-        }
+  myCout << "  conditions: " << std::endl;
 
+  std::vector<CombinationsInCond>::const_iterator itVVV;
+  int iCond = 0;
+  for (itVVV = m_combinationVector.begin(); itVVV != m_combinationVector.end(); itVVV++) {
+    std::string condName = (m_operandTokenVector[iCond]).tokenName;
+    bool condResult = (m_operandTokenVector[iCond]).tokenResult;
+
+    myCout << "    Condition " << condName << " evaluated to " << condResult << std::endl;
+
+    myCout << "    List of combinations passing all requirements for this condition:" << std::endl;
+
+    myCout << "    ";
+
+    if ((*itVVV).empty()) {
+      myCout << "(none)";
+    } else {
+      CombinationsInCond::const_iterator itVV;
+      for (itVV = (*itVVV).begin(); itVV != (*itVVV).end(); itVV++) {
+        myCout << "( ";
+
+        std::copy((*itVV).begin(), (*itVV).end(), std::ostream_iterator<int>(myCout, " "));
+
+        myCout << "); ";
+      }
     }
-
-    myCout << "    CombinationVector size: " << m_combinationVector.size() << std::endl;
-
-    myCout << "  conditions: "  << std::endl;
-
-    std::vector<CombinationsInCond>::const_iterator itVVV;
-    int iCond = 0;
-    for(itVVV  = m_combinationVector.begin();
-            itVVV != m_combinationVector.end(); itVVV++) {
-
-        std::string condName = (m_operandTokenVector[iCond]).tokenName;
-        bool condResult = (m_operandTokenVector[iCond]).tokenResult;
-
-        myCout << "    Condition " << condName << " evaluated to " << condResult
-        << std::endl;
-
-        myCout << "    List of combinations passing all requirements for this condition:"
-        << std::endl;
-
-        myCout << "    ";
-
-        if ((*itVVV).empty()) {
-            myCout << "(none)";
-        } else {
-
-            CombinationsInCond::const_iterator itVV;
-            for(itVV  = (*itVVV).begin(); itVV != (*itVVV).end(); itVV++) {
-
-                myCout << "( ";
-
-                std::copy((*itVV).begin(), (*itVV).end(),
-                          std::ostream_iterator<int> (myCout, " "));
-
-                myCout << "); ";
-
-            }
-
-        }
-        iCond++;
-        myCout << "\n\n";
-    }
+    iCond++;
+    myCout << "\n\n";
+  }
 }
-

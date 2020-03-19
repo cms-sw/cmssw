@@ -8,19 +8,18 @@
 namespace pf2pat {
 
   class PFCandidateSelectorDefinition {
-
   public:
     typedef reco::PFCandidateCollection collection;
-    typedef edm::Handle< collection > HandleToCollection;
-    typedef std::vector<reco::PFCandidate>  container;
+    typedef edm::Handle<collection> HandleToCollection;
+    typedef std::vector<reco::PFCandidate> container;
 
     struct Pointer {
-      const reco::PFCandidate * operator()(const reco::PFCandidate &c) const { return &c; }
+      const reco::PFCandidate* operator()(const reco::PFCandidate& c) const { return &c; }
     };
 
-    typedef boost::transform_iterator<Pointer,container::const_iterator> const_iterator;
+    typedef boost::transform_iterator<Pointer, container::const_iterator> const_iterator;
 
-    PFCandidateSelectorDefinition () {}
+    PFCandidateSelectorDefinition() {}
 
     const_iterator begin() const { return const_iterator(selected_.begin()); }
 
@@ -28,11 +27,11 @@ namespace pf2pat {
 
     size_t size() const { return selected_.size(); }
 
-    const container& selected() const {return selected_;}
+    const container& selected() const { return selected_; }
 
   protected:
     container selected_;
   };
-}
+}  // namespace pf2pat
 
 #endif

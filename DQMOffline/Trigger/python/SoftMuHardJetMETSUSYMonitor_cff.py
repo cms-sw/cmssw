@@ -38,6 +38,7 @@ SoftMuHardJetMETSUSYmonitoring_muPt.muoSelection = cms.string('abs(eta)<1.5')
 SoftMuHardJetMETSUSYmonitoring_muPt.njets = cms.uint32(1)
 SoftMuHardJetMETSUSYmonitoring_muPt.jetSelection = cms.string("pt>130 & abs(eta)<2.5")
 # MET selection
+SoftMuHardJetMETSUSYmonitoring_muPt.enableMETPlot = True
 SoftMuHardJetMETSUSYmonitoring_muPt.metSelection = cms.string('pt>150')
 SoftMuHardJetMETSUSYmonitoring_muPt.MHTcut       = cms.double(150)
 
@@ -59,6 +60,7 @@ SoftMuHardJetMETSUSYmonitoring_jetPt.muoSelection = cms.string('pt>30 & abs(eta)
 SoftMuHardJetMETSUSYmonitoring_jetPt.njets        = cms.uint32(1)
 SoftMuHardJetMETSUSYmonitoring_jetPt.jetSelection = cms.string("abs(eta)<2.5")
 # MET selection
+SoftMuHardJetMETSUSYmonitoring_jetPt.enableMETPlot = True
 SoftMuHardJetMETSUSYmonitoring_jetPt.metSelection  = cms.string('pt>150')
 SoftMuHardJetMETSUSYmonitoring_jetPt.MHTcut        = cms.double(150)
 
@@ -80,7 +82,7 @@ SoftMuHardJetMETSUSYmonitoring_metPt.muoSelection = cms.string('pt>30 & abs(eta)
 SoftMuHardJetMETSUSYmonitoring_metPt.njets        = cms.uint32(1)
 SoftMuHardJetMETSUSYmonitoring_metPt.jetSelection = cms.string("pt>130 & abs(eta)<2.5")
 # MET selection
-SoftMuHardJetMETSUSYmonitoring_metPt.enableMETplot = cms.bool(True)
+SoftMuHardJetMETSUSYmonitoring_metPt.enableMETPlot = True
 
 # Binning
 SoftMuHardJetMETSUSYmonitoring_metPt.histoPSet.metPSet = cms.PSet(nbins=cms.uint32(50),xmin=cms.double(50),xmax=cms.double(300))

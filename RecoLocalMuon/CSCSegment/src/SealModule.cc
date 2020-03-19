@@ -10,11 +10,9 @@
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoST.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoRU.h>
 
-
 DEFINE_FWK_MODULE(CSCSegmentProducer);
 DEFINE_EDM_PLUGIN(CSCSegmentBuilderPluginFactory, CSCSegAlgoSK, "CSCSegAlgoSK");
 DEFINE_EDM_PLUGIN(CSCSegmentBuilderPluginFactory, CSCSegAlgoTC, "CSCSegAlgoTC");
 DEFINE_EDM_PLUGIN(CSCSegmentBuilderPluginFactory, CSCSegAlgoDF, "CSCSegAlgoDF");
 DEFINE_EDM_PLUGIN(CSCSegmentBuilderPluginFactory, CSCSegAlgoST, "CSCSegAlgoST");
 DEFINE_EDM_PLUGIN(CSCSegmentBuilderPluginFactory, CSCSegAlgoRU, "CSCSegAlgoRU");
-

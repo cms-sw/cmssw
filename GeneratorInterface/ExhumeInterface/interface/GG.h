@@ -7,12 +7,11 @@
 
 #include "GeneratorInterface/ExhumeInterface/interface/TwoSpace.h"
 
-namespace Exhume{
-  class GG : public TwoSpace{
-
+namespace Exhume {
+  class GG : public TwoSpace {
   public:
     GG(const edm::ParameterSet&);
-   
+
     //declare inherited functions
     double SubProcess() override;
     void LIPS2Amp() override;
@@ -44,5 +43,5 @@ namespace Exhume{
     double EighteenPI;
     */
   };
-}
+}  // namespace Exhume
 #endif

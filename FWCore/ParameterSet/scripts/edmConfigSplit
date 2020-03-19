@@ -1,0 +1,67 @@
+#! /usr/bin/env python
+
+import sys
+import os
+import imp
+import argparse
+import six
+
+from FWCore.ParameterSet.Mixins import PrintOptions
+
+# customise the HelpFormatter to show additional parameters in the usage line
+class PartialHelpFormatter(argparse.HelpFormatter):
+  def _format_usage(self, usage, actions, groups, prefix):
+    partial = super(PartialHelpFormatter, self)._format_usage(usage, actions, groups, prefix).strip()
+    return partial + ' [--] [OPTIONS ...]\n\n'
+
+
+parser = argparse.ArgumentParser(formatter_class = PartialHelpFormatter,
+  description = '%(prog)s splits the given CMSSW configuration file into one file per top-level object, and outputs the configuration for the main process object.',
+  epilog = 'Additional options and arguments are passed to the configuration file unchanged (e.g. for use by VarParsing.py).')
+parser.add_argument('file', metavar = 'FILE', type = argparse.FileType('r'))
+
+parser.add_argument('-o', '--output',
+  metavar = 'OUT',
+  type = argparse.FileType('w'),
+  default = sys.stdout,
+  help = 'write the process configuration to %(metavar)s instead of standard output')
+parser.add_argument('-d', '--output-directory',
+  metavar = 'DIR',
+  type = str,
+  default = None,
+  help = 'create the individual files and subdirectories under %(metavar)s instead of the current directory; if %(metavar)s does not exist it will be created first')
+parser.add_argument('-s', '--subdirectories',
+  action = "store_true",
+  default = False,
+  help = 'create subdirectories for different modules categories')
+
+args, other = parser.parse_known_args()
+
+# delete all arguments, so they are not "seen" by the confguration file being split
+del sys.argv[1:]
+sys.argv.append(args.file.name)
+sys.argv.extend(other)
+
+# make the behaviour of 'cmsRun file.py' and 'edmConfigSplit file.py' more consistent
+sys.path.append(os.getcwd())
+
+cfo = imp.load_source("pycfg", args.file.name, args.file)
+process = cfo.process
+args.file.close()
+
+options = PrintOptions()
+options.useSubdirectories = args.subdirectories
+options.targetDirectory = args.output_directory
+
+files = process.splitPython(options)
+for fn, c in six.iteritems(files):
+  if fn == '-':
+    continue
+  d = os.path.dirname(fn)
+  if d and not os.path.isdir(d):
+    os.makedirs(d)
+  with open(fn, 'w') as f:
+    f.write(c)
+
+args.output.write(files['-'])
+args.output.close()

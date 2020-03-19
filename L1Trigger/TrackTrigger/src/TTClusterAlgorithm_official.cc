@@ -10,113 +10,104 @@
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm_official.h"
 
 /// Function to compare clusters and sort them by row
-template< >
-bool TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::CompareClusters( const Ref_Phase2TrackerDigi_& a, const Ref_Phase2TrackerDigi_& b )
-{
-  return ( a->row() < b->row() );
+template <>
+bool TTClusterAlgorithm_official<Ref_Phase2TrackerDigi_>::CompareClusters(const Ref_Phase2TrackerDigi_& a,
+                                                                          const Ref_Phase2TrackerDigi_& b) {
+  return (a->row() < b->row());
 }
 
 /// Clustering operations
-template< >
-void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector< std::vector< Ref_Phase2TrackerDigi_ > > &output,
-                                                           const std::vector< Ref_Phase2TrackerDigi_ > &input,
-                                                           bool isPS ) const
-{
+template <>
+void TTClusterAlgorithm_official<Ref_Phase2TrackerDigi_>::Cluster(
+    std::vector<std::vector<Ref_Phase2TrackerDigi_> >& output,
+    const std::vector<Ref_Phase2TrackerDigi_>& input,
+    bool isPS) const {
   /// Prepare the output
   output.clear();
 
   /// Prepare a proper hit container
-  std::map< unsigned int, std::vector< Ref_Phase2TrackerDigi_ > > mapHitsByColumn;
+  std::map<unsigned int, std::vector<Ref_Phase2TrackerDigi_> > mapHitsByColumn;
 
   /// Map all the hits by column index
-  typename std::vector< Ref_Phase2TrackerDigi_ >::const_iterator inputIterator;
+  typename std::vector<Ref_Phase2TrackerDigi_>::const_iterator inputIterator;
   inputIterator = input.begin();
-  while ( inputIterator != input.end() )
-  {
+  while (inputIterator != input.end()) {
     mapHitsByColumn[(**inputIterator).column()].push_back(*inputIterator);
     ++inputIterator;
   }
 
   /// 1D Clusters must be stored properly <column, first row index>
-  std::map< std::pair< unsigned int, unsigned int >, std::vector< Ref_Phase2TrackerDigi_ > > map1DCluByColRow;
+  std::map<std::pair<unsigned int, unsigned int>, std::vector<Ref_Phase2TrackerDigi_> > map1DCluByColRow;
 
   /// Loop over the mapped hits
-  typename std::map< unsigned int, std::vector< Ref_Phase2TrackerDigi_ > >::iterator mapIterHbC;
+  typename std::map<unsigned int, std::vector<Ref_Phase2TrackerDigi_> >::iterator mapIterHbC;
   mapIterHbC = mapHitsByColumn.begin();
-  while ( mapIterHbC != mapHitsByColumn.end() )
-  {
+  while (mapIterHbC != mapHitsByColumn.end()) {
     /// Collect hits sharing column index and
     /// differing by 1 in row index
-    typename std::vector< Ref_Phase2TrackerDigi_ >::iterator inputIterator;
+    typename std::vector<Ref_Phase2TrackerDigi_>::iterator inputIterator;
     inputIterator = mapIterHbC->second.begin();
 
     /// Loop over single column
-    while( inputIterator != mapIterHbC->second.end() )
-    {
-      std::vector< Ref_Phase2TrackerDigi_ > temp;
+    while (inputIterator != mapIterHbC->second.end()) {
+      std::vector<Ref_Phase2TrackerDigi_> temp;
       temp.push_back(*inputIterator);
       inputIterator = mapIterHbC->second.erase(inputIterator);
-      typename std::vector< Ref_Phase2TrackerDigi_ >::iterator inputIterator2;
+      typename std::vector<Ref_Phase2TrackerDigi_>::iterator inputIterator2;
       inputIterator2 = inputIterator;
 
       /// Nested loop
-      while( inputIterator2 != mapIterHbC->second.end() )
-      {
+      while (inputIterator2 != mapIterHbC->second.end()) {
         /// Check col/row and add to the cluster
-        if( (temp.back()->column() == (**inputIterator2).column()) &&
-            ((**inputIterator2).row() - temp.back()->row() == 1) )
-        {
+        if ((temp.back()->column() == (**inputIterator2).column()) &&
+            ((**inputIterator2).row() - temp.back()->row() == 1)) {
           temp.push_back(*inputIterator2);
           inputIterator2 = mapIterHbC->second.erase(inputIterator2);
-        }
-        else
+        } else
           break;
 
-      } /// End of nested loop
+      }  /// End of nested loop
 
       /// Sort the vector elements by row index
-      std::sort( temp.begin(), temp.end(), CompareClusters );
+      std::sort(temp.begin(), temp.end(), CompareClusters);
 
       /// Put the cluster in the map
-      map1DCluByColRow.insert( std::make_pair( std::make_pair( mapIterHbC->first, temp.at(0)->row() ), temp ) );
+      map1DCluByColRow.insert(std::make_pair(std::make_pair(mapIterHbC->first, temp.at(0)->row()), temp));
 
       inputIterator = inputIterator2;
 
-    } /// End of loop over single column
+    }  /// End of loop over single column
     ++mapIterHbC;
 
-  } /// End of loop over mapped hits
+  }  /// End of loop over mapped hits
 
   /// Cluster over the second dimension
   /// only in PS modules!
-  typename std::map< std::pair< unsigned int, unsigned int>, std::vector< Ref_Phase2TrackerDigi_ > >::iterator mapIter1DCbCR0;
-  typename std::map< std::pair< unsigned int, unsigned int>, std::vector< Ref_Phase2TrackerDigi_ > >::iterator mapIter1DCbCR1;
+  typename std::map<std::pair<unsigned int, unsigned int>, std::vector<Ref_Phase2TrackerDigi_> >::iterator
+      mapIter1DCbCR0;
+  typename std::map<std::pair<unsigned int, unsigned int>, std::vector<Ref_Phase2TrackerDigi_> >::iterator
+      mapIter1DCbCR1;
   mapIter1DCbCR0 = map1DCluByColRow.begin();
   unsigned int lastCol = mapIter1DCbCR0->first.first;
 
-  while ( mapIter1DCbCR0 != map1DCluByColRow.end() )
-  {
+  while (mapIter1DCbCR0 != map1DCluByColRow.end()) {
     /// Add the hits
-    std::vector< Ref_Phase2TrackerDigi_ > candCluster;
-    candCluster.insert( candCluster.end(), mapIter1DCbCR0->second.begin(), mapIter1DCbCR0->second.end() );
+    std::vector<Ref_Phase2TrackerDigi_> candCluster;
+    candCluster.insert(candCluster.end(), mapIter1DCbCR0->second.begin(), mapIter1DCbCR0->second.end());
 
-    if ( isPS )
-    {
+    if (isPS) {
       /// Loop over the other elements of the map
       mapIter1DCbCR1 = map1DCluByColRow.begin();
 
-      while ( mapIter1DCbCR1 != map1DCluByColRow.end() )
-      {
+      while (mapIter1DCbCR1 != map1DCluByColRow.end()) {
         /// Skip same element
-        if ( mapIter1DCbCR1 == mapIter1DCbCR0 )
-        {
+        if (mapIter1DCbCR1 == mapIter1DCbCR0) {
           ++mapIter1DCbCR1;
           continue;
         }
 
         /// Skip non-contiguous column
-        if ( std::abs( (int)(mapIter1DCbCR1->first.first) - (int)lastCol ) != 1 )
-        {
+        if (std::abs((int)(mapIter1DCbCR1->first.first) - (int)lastCol) != 1) {
           ++mapIter1DCbCR1;
           continue;
         }
@@ -136,24 +127,20 @@ void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector
         unsigned int jRow1 = mapIter1DCbCR1->second.back()->row();
 
         /// Check if they overlap
-        if ( ( iRow1 >= iRow0 && iRow1 <= jRow0 ) ||
-             ( jRow1 >= iRow0 && jRow1 <= jRow0 ) )
-        {
+        if ((iRow1 >= iRow0 && iRow1 <= jRow0) || (jRow1 >= iRow0 && jRow1 <= jRow0)) {
           /// If so, add the hits to the cluster!
-          candCluster.insert( candCluster.end(), mapIter1DCbCR1->second.begin(), mapIter1DCbCR1->second.end() );
-          map1DCluByColRow.erase( mapIter1DCbCR1++ );
-        }
-        else
-        {
+          candCluster.insert(candCluster.end(), mapIter1DCbCR1->second.begin(), mapIter1DCbCR1->second.end());
+          map1DCluByColRow.erase(mapIter1DCbCR1++);
+        } else {
           ++mapIter1DCbCR1;
         }
-      } /// End of nested loop
+      }  /// End of nested loop
 
-      map1DCluByColRow.erase( mapIter1DCbCR0++ );
+      map1DCluByColRow.erase(mapIter1DCbCR0++);
 
       /// Check output
       /// Sort the vector by row index
-      std::sort( candCluster.begin(), candCluster.end(), CompareClusters );
+      std::sort(candCluster.begin(), candCluster.end(), CompareClusters);
       /*
       std::cout << candCluster.at(0)->row() - candCluster.back()->row() << " / " 
 		<< static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row()) << " / " 
@@ -161,26 +148,24 @@ void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector
 		<< std::abs( candCluster.at(0)->row() - candCluster.back()->row() ) << " / " 
 		<< mWidthCut << std::endl;
       */
-      if ( std::abs(  static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row()) ) < mWidthCut || /// one should add 1 to use <=
-           mWidthCut < 1 )
-      {
-        output.push_back( candCluster );
+      if (std::abs(static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row())) <
+              mWidthCut ||  /// one should add 1 to use <=
+          mWidthCut < 1) {
+        output.push_back(candCluster);
       }
-    } /// End of isPS
-    else
-    {
-      map1DCluByColRow.erase( mapIter1DCbCR0++ );
+    }  /// End of isPS
+    else {
+      map1DCluByColRow.erase(mapIter1DCbCR0++);
 
       /// Check output
       /// Sort the vector by row index
-      std::sort( candCluster.begin(), candCluster.end(), CompareClusters );
+      std::sort(candCluster.begin(), candCluster.end(), CompareClusters);
 
-      if ( std::abs(  static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row()) ) < mWidthCut || /// one should add 1 to use <=
-           mWidthCut < 1 )
-      {
-        output.push_back( candCluster );
+      if (std::abs(static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row())) <
+              mWidthCut ||  /// one should add 1 to use <=
+          mWidthCut < 1) {
+        output.push_back(candCluster);
       }
-    } /// End of non-PS case
-  } /// End of loop over mapped 1D Clusters
+    }  /// End of non-PS case
+  }    /// End of loop over mapped 1D Clusters
 }
-

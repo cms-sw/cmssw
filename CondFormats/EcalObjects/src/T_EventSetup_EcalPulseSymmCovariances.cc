@@ -2,7 +2,7 @@
 //
 // Package:     EDMProto
 // Class  :     T_Context_PulseSymmCovariances
-// 
+//
 // Implementation:
 //     create all the 'infrastructure' needed to get into the Context
 //

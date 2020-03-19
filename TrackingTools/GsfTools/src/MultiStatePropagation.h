@@ -12,32 +12,28 @@
  *  directly use the propagator passed by invoking object.
  */
 template <class T>
-class MultiStatePropagation {  
-  
+class MultiStatePropagation {
 public:
   /** Constructor with explicit propagator
    */
-  MultiStatePropagation(const Propagator& aPropagator) :
-    thePropagator(aPropagator) {}
+  MultiStatePropagation(const Propagator& aPropagator) : thePropagator(aPropagator) {}
 
-  ~MultiStatePropagation() {};
+  ~MultiStatePropagation(){};
 
   /** Propagation to surface with path length calculation:
    */
-  std::pair<TrajectoryStateOnSurface,double> 
-  propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-		     const T& surface) const;
+  std::pair<TrajectoryStateOnSurface, double> propagateWithPath(const TrajectoryStateOnSurface& tsos,
+                                                                const T& surface) const;
 
 private:
   /// creation of new state with different weight
-  TrajectoryStateOnSurface setWeight (const TrajectoryStateOnSurface,
-				      const double) const;
+  TrajectoryStateOnSurface setWeight(const TrajectoryStateOnSurface, const double) const;
 
 private:
   // Single state propagator
   const Propagator& thePropagator;
 
-  typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;
+  typedef std::pair<TrajectoryStateOnSurface, double> TsosWP;
   typedef std::vector<TrajectoryStateOnSurface> MultiTSOS;
 };
 

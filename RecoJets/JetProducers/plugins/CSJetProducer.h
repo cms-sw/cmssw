@@ -16,34 +16,29 @@
 
  ************************************************************/
 
-
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 
-namespace cms
-{
-  class CSJetProducer : public VirtualJetProducer
-  {
+namespace cms {
+  class CSJetProducer : public VirtualJetProducer {
   public:
-
     CSJetProducer(const edm::ParameterSet& ps);
 
     ~CSJetProducer() override {}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     static void fillDescriptionsFromCSJetProducer(edm::ParameterSetDescription& desc);
 
-    void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
-    
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
   protected:
+    void runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
-
-    double csRParam_;           /// for constituent subtraction : R parameter
-    double csAlpha_;            /// for HI constituent subtraction : alpha (power of pt in metric)
+    double csRParam_;  /// for constituent subtraction : R parameter
+    double csAlpha_;   /// for HI constituent subtraction : alpha (power of pt in metric)
 
     //input rho and rho_m + eta map
-    edm::EDGetTokenT<std::vector<double>>                       etaToken_;
-    edm::EDGetTokenT<std::vector<double>>                       rhoToken_;
-    edm::EDGetTokenT<std::vector<double>>                       rhomToken_;
+    edm::EDGetTokenT<std::vector<double>> etaToken_;
+    edm::EDGetTokenT<std::vector<double>> rhoToken_;
+    edm::EDGetTokenT<std::vector<double>> rhomToken_;
   };
-}
+}  // namespace cms
 #endif

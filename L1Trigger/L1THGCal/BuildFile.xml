@@ -5,6 +5,7 @@
 <use   name="DataFormats/L1THGCal"/>
 <use   name="CommonTools/Utils"/>
 <use   name="Geometry/HcalTowerAlgo"/>
+<use   name="SimDataFormats/CaloTest"/>
 <export>
   <lib   name="1"/>
 </export>

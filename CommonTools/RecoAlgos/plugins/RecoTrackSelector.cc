@@ -18,5 +18,5 @@ namespace reco {
     //typedef ObjectSelector<RecoTrackSelector> RecoTrackSelector;
     typedef TrackFullCloneSelectorBase<RecoTrackSelector> RecoTrackSelector;
     DEFINE_FWK_MODULE(RecoTrackSelector);
-  }
-}
+  }  // namespace modules
+}  // namespace reco

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
-from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
+from RecoTauTag.RecoTau.PFTauSelector_cfi  import pfTauSelector
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 import RecoJets.JetProducers.ak4PFJets_cfi as jetConfig
 
@@ -39,22 +39,28 @@ pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVer
 
 # Clone tau producer
 pfTausProducer = hpsPFTauProducer.clone()
-pfTausCombiner = combinatoricRecoTaus.clone()
-pfTausCombiner.jetSrc= cms.InputTag("ak4PFJets")
-pfTausCombiner.piZeroSrc= "pfJetsLegacyHPSPiZeros"
-pfTausCombiner.chargedHadronSrc='pfTauPFJetsRecoTauChargedHadrons'
-pfTausCombiner.modifiers[3].pfTauTagInfoSrc=cms.InputTag("pfTauTagInfoProducer")
+pfTausCombiner = combinatoricRecoTaus.clone(
+    jetSrc = "ak4PFJets",
+    piZeroSrc = "pfJetsLegacyHPSPiZeros",
+    chargedHadronSrc = "pfTauPFJetsRecoTauChargedHadrons"
+)
+for mod in pfTausCombiner.modifiers:
+    if mod.name == "TTIworkaround": mod.pfTauTagInfoSrc = "pfTauTagInfoProducer"
+
 pfTausSelectionDiscriminator = hpsSelectionDiscriminator.clone()
 pfTausSelectionDiscriminator.PFTauProducer = cms.InputTag("pfTausCombiner")
 pfTausProducerSansRefs = hpsPFTauProducerSansRefs.clone()
 pfTausProducerSansRefs = cms.EDProducer(
     "RecoTauCleaner",
     src = cms.InputTag("pfTausCombiner"),
+    outputSelection = cms.string(""),
+    verbosity = cms.int32(0),
     cleaners = cms.VPSet(
     cleaners.unitCharge,
     cms.PSet(
     name = cms.string("leadStripPtLt2_5"),
     plugin = cms.string("RecoTauStringCleanerPlugin"),
+    tolerance = cleaners.tolerance_default,
     selection = cms.string("signalPiZeroCandidates().size() = 0 | signalPiZeroCandidates()[0].pt > 2.5"),
     selectionPassFunction = cms.string("0"),
     selectionFailValue = cms.double(1e3)
@@ -62,6 +68,7 @@ pfTausProducerSansRefs = cms.EDProducer(
     cms.PSet(
     name = cms.string("HPS_Select"),
     plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
+    tolerance = cleaners.tolerance_default,
     src = cms.InputTag("pfTausSelectionDiscriminator"),
     ),
     cleaners.combinedIsolation
@@ -121,6 +128,7 @@ pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVer
 
 pfTausPreSequence = cms.Sequence(
     pfJetTracksAssociatorAtVertex +
+    recoTauAK4PFJets08Region +
     pfTauPileUpVertices +
     pfTauTagInfoProducer
 )

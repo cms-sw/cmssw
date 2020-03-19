@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 import os
 import pprint
 import re
 import pickle
 import sys
 
-from castorBaseDir import castorBaseDir
-import eostools as castortools
+from .castorBaseDir import castorBaseDir
+from . import eostools as castortools
 import fnmatch
 import six
 
@@ -169,7 +171,7 @@ class CMSDataset( BaseDataset ):
         if num_files > limit:
             num_steps = int(num_files/limit)+1
             self.files = []
-            for i in xrange(num_steps):
+            for i in range(num_steps):
                 DBSFiles=self.buildListOfFilesDBS(pattern,
                                                   i*limit,
                                                   ((i+1)*limit)-1)
@@ -287,7 +289,7 @@ class Dataset( BaseDataset ):
         file_mask = castortools.matchingFiles(self.castorDir, '^%s_.*\.txt$' % mask)
         if file_mask:
             # here to avoid circular dependency
-            from edmIntegrityCheck import PublishToFileSystem
+            from .edmIntegrityCheck import PublishToFileSystem
             p = PublishToFileSystem(mask)
             report = p.get(self.castorDir)
             if report is not None and report:

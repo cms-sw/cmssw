@@ -16,59 +16,54 @@
 
 //
 
+class HiSuperClusterProducer : public edm::stream::EDProducer<> {
+public:
+  HiSuperClusterProducer(const edm::ParameterSet& ps);
 
-class HiSuperClusterProducer : public edm::stream::EDProducer<> 
-{
-  
-  public:
+  ~HiSuperClusterProducer() override;
 
-      HiSuperClusterProducer(const edm::ParameterSet& ps);
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob();
 
-      ~HiSuperClusterProducer() override;
+private:
+  int nMaxPrintout_;  // max # of printouts
+  int nEvt_;          // internal counter of events
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob();
+  HiBremRecoveryClusterAlgo::VerbosityLevel verbosity;
 
-   private:
+  std::string endcapSuperclusterCollection_;
+  std::string barrelSuperclusterCollection_;
 
-      int nMaxPrintout_; // max # of printouts
-      int nEvt_;         // internal counter of events
- 
-      HiBremRecoveryClusterAlgo::VerbosityLevel verbosity;
+  edm::EDGetTokenT<reco::BasicClusterCollection> eeClustersToken_;
+  edm::EDGetTokenT<reco::BasicClusterCollection> ebClustersToken_;
 
-      std::string endcapSuperclusterCollection_;
-      std::string barrelSuperclusterCollection_;
+  float barrelEtaSearchRoad_;
+  float barrelPhiSearchRoad_;
+  float endcapEtaSearchRoad_;
+  float endcapPhiSearchRoad_;
+  float seedTransverseEnergyThreshold_;
+  float barrelBCEnergyThreshold_;
+  float endcapBCEnergyThreshold_;
 
-      edm::EDGetTokenT<reco::BasicClusterCollection>  eeClustersToken_;
-      edm::EDGetTokenT<reco::BasicClusterCollection>  ebClustersToken_;
+  bool doBarrel_;
+  bool doEndcaps_;
 
-      float barrelEtaSearchRoad_;
-      float barrelPhiSearchRoad_;
-      float endcapEtaSearchRoad_; 
-      float endcapPhiSearchRoad_;
-      float seedTransverseEnergyThreshold_;
-      float barrelBCEnergyThreshold_;
-      float endcapBCEnergyThreshold_;
+  HiBremRecoveryClusterAlgo* bremAlgo_p;
 
-      bool doBarrel_;
-      bool doEndcaps_;
+  double totalE;
+  int noSuperClusters;
 
-      HiBremRecoveryClusterAlgo * bremAlgo_p;
+  void getClusterPtrVector(edm::Event& evt,
+                           const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
+                           reco::CaloClusterPtrVector*);
 
-      double totalE;
-      int noSuperClusters;
+  void produceSuperclustersForECALPart(edm::Event& evt,
+                                       const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
+                                       std::string superclusterColection);
 
-      
-      void getClusterPtrVector(edm::Event& evt, const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken, reco::CaloClusterPtrVector *);
-  
-      void produceSuperclustersForECALPart(edm::Event& evt, 
-					   const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
-					   std::string superclusterColection);
+  void outputValidationInfo(reco::SuperClusterCollection& superclusterCollection);
 
-      void outputValidationInfo(reco::SuperClusterCollection &superclusterCollection);
-    
-      bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
+  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
 };
-
 
 #endif

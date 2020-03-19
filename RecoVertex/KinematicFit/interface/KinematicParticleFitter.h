@@ -20,25 +20,23 @@
  * for state refit. 
  */
 
-class KinematicParticleFitter
-{
+class KinematicParticleFitter {
 public:
-
-/**
+  /**
  * Default constructor using LMS with Lagrange
  * multipliers for particle refit.
  */
   KinematicParticleFitter();
 
-/**
+  /**
  * Constructor allowing use of any
  * fitter-updator pair implemented
- */  
+ */
   KinematicParticleFitter(const ParentParticleFitter& fitter, const ChildUpdator& updator);
-  
+
   ~KinematicParticleFitter();
 
-/**
+  /**
  * Method applying the constraint to
  * the _TOP_ particle inside the
  * Kinematic Tree. Tree containing the
@@ -47,24 +45,22 @@ public:
  * constraint applyed are stored in
  * particle's corresponding data memebers
  * In case of failure, an empty vector is returned.
- */ 
+ */
 
- std::vector<RefCountedKinematicTree> fit(KinematicConstraint * cs , 
-                   const std::vector<RefCountedKinematicTree> & trees)const;  
+  std::vector<RefCountedKinematicTree> fit(KinematicConstraint* cs,
+                                           const std::vector<RefCountedKinematicTree>& trees) const;
 
-
-/**
+  /**
  * Method refitting a top particle of the single tree.
  * for backup compatibility and constraints not allowing
  * multiple track refits.
  * In case of failure, an invalid tree is returned.
  */
- RefCountedKinematicTree fit(KinematicConstraint * cs , 
-                    RefCountedKinematicTree tree)const;
+  RefCountedKinematicTree fit(KinematicConstraint* cs, RefCountedKinematicTree tree) const;
+
 private:
- 
- ParentParticleFitter * parentFitter;
- ChildUpdator * cUpdator;
+  ParentParticleFitter* parentFitter;
+  ChildUpdator* cUpdator;
 };
 
 #endif

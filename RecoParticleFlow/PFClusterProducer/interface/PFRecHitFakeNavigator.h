@@ -1,7 +1,6 @@
 #ifndef RecoParticleFlow_PFClusterProducer_PFRecHitFakeNavigator_h
 #define RecoParticleFlow_PFClusterProducer_PFRecHitFakeNavigator_h
 
-
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -20,21 +19,16 @@
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
-
 template <typename DET>
 class PFRecHitFakeNavigator : public PFRecHitNavigatorBase {
- public:
+public:
+  ~PFRecHitFakeNavigator() override = default;
 
- ~PFRecHitFakeNavigator() override = default;
+  void associateNeighbours(reco::PFRecHit& hit,
+                           std::unique_ptr<reco::PFRecHitCollection>& hits,
+                           edm::RefProd<reco::PFRecHitCollection>& refProd) override {}
 
-  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) override { }
-
-
-
- protected:
-
+protected:
 };
 
 #endif
-
-

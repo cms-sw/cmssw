@@ -2,6 +2,5 @@
 
 namespace edm {
 
-  PathsAndConsumesOfModulesBase::~PathsAndConsumesOfModulesBase() {
-  }
-}
+  PathsAndConsumesOfModulesBase::~PathsAndConsumesOfModulesBase() {}
+}  // namespace edm

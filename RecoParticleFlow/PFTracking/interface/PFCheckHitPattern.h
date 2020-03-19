@@ -32,33 +32,30 @@ class DetId;
  */
 
 class PFCheckHitPattern {
-
- public:
-
+public:
   PFCheckHitPattern() : geomInitDone_(false) {}
-  
+
   ~PFCheckHitPattern() {}
 
-  typedef std::pair <unsigned int, unsigned int> PFTrackHitInfo;
-  typedef std::pair <PFTrackHitInfo, PFTrackHitInfo> PFTrackHitFullInfo;
+  typedef std::pair<unsigned int, unsigned int> PFTrackHitInfo;
+  typedef std::pair<PFTrackHitInfo, PFTrackHitInfo> PFTrackHitFullInfo;
 
   /// PFCheck if hit pattern of this track is consistent with it being produced
   /// at given vertex. Pair.first gives number of hits on track in front of vertex.
   /// Pair.second gives number of missing hits between vertex and innermost hit
   /// on track.
 
-  PFTrackHitFullInfo 
-    analyze(const TrackerTopology* tkerTopo, const TrackerGeometry* tkerGeom,
-            const reco::TrackBaseRef track, const TransientVertex& vert);
+  PFTrackHitFullInfo analyze(const TrackerTopology* tkerTopo,
+                             const TrackerGeometry* tkerGeom,
+                             const reco::TrackBaseRef track,
+                             const TransientVertex& vert);
 
   /// Print hit pattern on track
   void print(const reco::TrackBaseRef track) const;
 
-
-
 private:
   /// Create map indicating r/z values of all layers/disks.
-  void init (const TrackerTopology*, const TrackerGeometry*);
+  void init(const TrackerTopology*, const TrackerGeometry*);
 
   /// a pair<uint32, uint32> consisting of the numbers used by HitPattern to
   /// identify subdetector and layer number respectively.
@@ -75,10 +72,8 @@ private:
 
   /// For a given subdetector & layer number, this stores the minimum and maximum
   /// r (or z) values if it is barrel (or endcap) respectively.
-  typedef std::map< DetInfo, std::pair< double, double> > RZrangeMap;
+  typedef std::map<DetInfo, std::pair<double, double> > RZrangeMap;
   RZrangeMap rangeRorZ_;
-
-
 };
 
 #endif

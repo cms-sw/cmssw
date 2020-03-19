@@ -3,7 +3,7 @@
 
 namespace cscdqm {
 
-  StripCluster::StripCluster(){}
-  StripCluster::~StripCluster(){}
+  StripCluster::StripCluster() {}
+  StripCluster::~StripCluster() {}
 
-}
+}  // namespace cscdqm

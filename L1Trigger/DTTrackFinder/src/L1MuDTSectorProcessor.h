@@ -51,77 +51,72 @@ class L1MuDTTrack;
 //              ---------------------
 
 class L1MuDTSectorProcessor {
+public:
+  /// constructor
+  L1MuDTSectorProcessor(const L1MuDTTrackFinder&, const L1MuDTSecProcId&, edm::ConsumesCollector&&);
 
-  public:
+  /// destructor
+  virtual ~L1MuDTSectorProcessor();
 
-    /// constructor
-    L1MuDTSectorProcessor(const L1MuDTTrackFinder&, const L1MuDTSecProcId&, edm::ConsumesCollector&&);
+  /// run the Sector Processor
+  virtual void run(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-    /// destructor
-    virtual ~L1MuDTSectorProcessor();
+  /// reset the Sector Processor
+  virtual void reset();
 
-    /// run the Sector Processor
-    virtual void run(int bx, const edm::Event& e, const edm::EventSetup& c);
+  /// print muon candidates found by the Sector Processor
+  void print() const;
 
-    /// reset the Sector Processor
-    virtual void reset();
+  /// return pointer to the next wheel neighbour
+  const L1MuDTSectorProcessor* neighbour() const;
 
-    /// print muon candidates found by the Sector Processor
-    void print() const;
+  /// return Sector Processor identifier
+  inline const L1MuDTSecProcId& id() const { return m_spid; }
 
-    /// return pointer to the next wheel neighbour
-    const L1MuDTSectorProcessor* neighbour() const;
-    
-    /// return Sector Processor identifier
-    inline const L1MuDTSecProcId& id() const { return m_spid; }
-    
-    /// return reference to barrel MTTF
-    inline const L1MuDTTrackFinder& tf() const { return m_tf; }
+  /// return reference to barrel MTTF
+  inline const L1MuDTTrackFinder& tf() const { return m_tf; }
 
-    /// is it a barrel-only Sector Processor?
-    inline bool brl() const { return !m_spid.ovl(); }
+  /// is it a barrel-only Sector Processor?
+  inline bool brl() const { return !m_spid.ovl(); }
 
-    /// is it an overlap region Sector Processor? 
-    inline bool ovl() const { return m_spid.ovl(); }
+  /// is it an overlap region Sector Processor?
+  inline bool ovl() const { return m_spid.ovl(); }
 
-    /// return pointer to Data Buffer
-    inline const L1MuDTDataBuffer* data() const { return m_DataBuffer; }
-    inline L1MuDTDataBuffer* data() { return m_DataBuffer; }
-    
-    /// return pointer to Extrapolation Unit
-    inline const L1MuDTExtrapolationUnit* EU() const { return m_EU; }
+  /// return pointer to Data Buffer
+  inline const L1MuDTDataBuffer* data() const { return m_DataBuffer; }
+  inline L1MuDTDataBuffer* data() { return m_DataBuffer; }
 
-    /// return pointer to Track Assembler
-    inline const L1MuDTTrackAssembler* TA() const { return m_TA; }
+  /// return pointer to Extrapolation Unit
+  inline const L1MuDTExtrapolationUnit* EU() const { return m_EU; }
 
-    /// return pointer to Assignment Unit, index [0,1]
-    inline const L1MuDTAssignmentUnit* AU(int id) const { return m_AUs[id]; }
+  /// return pointer to Track Assembler
+  inline const L1MuDTTrackAssembler* TA() const { return m_TA; }
 
-    /// return pointer to muon candidate, index [0,1]
-    inline L1MuDTTrack* track(int id) const { return m_TrackCands[id]; }
+  /// return pointer to Assignment Unit, index [0,1]
+  inline const L1MuDTAssignmentUnit* AU(int id) const { return m_AUs[id]; }
 
-    /// return pointer to muon candidate, index [0,1]
-    inline L1MuDTTrack* tracK(int id) const { return m_TracKCands[id]; }
-    
-  private:
+  /// return pointer to muon candidate, index [0,1]
+  inline L1MuDTTrack* track(int id) const { return m_TrackCands[id]; }
 
-    /// are there any non-empty muon candidates?
-    bool anyTrack() const;
+  /// return pointer to muon candidate, index [0,1]
+  inline L1MuDTTrack* tracK(int id) const { return m_TracKCands[id]; }
 
-  private:
+private:
+  /// are there any non-empty muon candidates?
+  bool anyTrack() const;
 
-    const L1MuDTTrackFinder&            m_tf;
-    L1MuDTSecProcId                     m_spid;
+private:
+  const L1MuDTTrackFinder& m_tf;
+  L1MuDTSecProcId m_spid;
 
-    L1MuDTSectorReceiver*               m_SectorReceiver;
-    L1MuDTDataBuffer*                   m_DataBuffer;
-    L1MuDTExtrapolationUnit*            m_EU;
-    L1MuDTTrackAssembler*               m_TA;
-    std::vector<L1MuDTAssignmentUnit*>  m_AUs;
+  L1MuDTSectorReceiver* m_SectorReceiver;
+  L1MuDTDataBuffer* m_DataBuffer;
+  L1MuDTExtrapolationUnit* m_EU;
+  L1MuDTTrackAssembler* m_TA;
+  std::vector<L1MuDTAssignmentUnit*> m_AUs;
 
-    std::vector<L1MuDTTrack*>           m_TrackCands;
-    std::vector<L1MuDTTrack*>           m_TracKCands;
- 
+  std::vector<L1MuDTTrack*> m_TrackCands;
+  std::vector<L1MuDTTrack*> m_TracKCands;
 };
 
 #endif

@@ -12,7 +12,6 @@
 //
 //
 
-
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -31,18 +30,15 @@ class TH1F;
 class TH1I;
 class TTree;
 
-class ElectronSeedAnalyzer : public edm::one::EDAnalyzer<>
-{
- public:
-
-  explicit ElectronSeedAnalyzer( const edm::ParameterSet & conf );
+class ElectronSeedAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit ElectronSeedAnalyzer(const edm::ParameterSet &conf);
   ~ElectronSeedAnalyzer() override;
-  void analyze( const edm::Event &, const edm::EventSetup &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   void beginJob() override;
   void endJob() override;
 
- private:
-
+private:
   TrajectoryStateTransform transformer_;
 
   TFile *histfile_;
@@ -83,12 +79,8 @@ class ElectronSeedAnalyzer : public edm::one::EDAnalyzer<>
 
   edm::InputTag inputCollection_;
   edm::InputTag beamSpot_;
-//  std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
-//  std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
-
- };
+  //  std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
+  //  std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
+};
 
 #endif
-
-
-

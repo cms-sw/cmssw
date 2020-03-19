@@ -17,20 +17,17 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/PxPyPzE4D.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include <boost/cstdint.hpp>
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
-/* #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h" */
-/* #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h" */
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"  //Daniele
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"  //Daniele
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h" //Florian
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"      //Daniele
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"          //Daniele
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"  //Florian
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
@@ -40,13 +37,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 #include "DataFormats/ParticleFlowReco/interface/ConvBremSeed.h"
 #include "DataFormats/ParticleFlowReco/interface/ConvBremSeedFwd.h"
-//Includes by Jamie
-#include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
-#include "DataFormats/ParticleFlowReco/interface/CalibrationResultWrapper.h"
-#include "DataFormats/ParticleFlowReco/interface/CalibrationProvenance.h"
-#include "DataFormats/ParticleFlowReco/interface/CaloWindow.h"
-#include "DataFormats/ParticleFlowReco/interface/CaloEllipse.h"
-#include "DataFormats/ParticleFlowReco/interface/CaloBox.h"
 #include "DataFormats/ParticleFlowReco/interface/ParticleFiltrationDecision.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidate.h"
@@ -64,4 +54,3 @@
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
 
 #include <map>
-

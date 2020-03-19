@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWEnumParameterSetter
-// 
+//
 /**\class FWEnumParameterSetter FWEnumParameterSetter.h Fireworks/Core/interface/FWEnumParameterSetter.h
 
  Description: [one line class summary]
@@ -28,37 +28,35 @@
 // forward declarations
 class TGComboBox;
 
-class FWEnumParameterSetter : public FWParameterSetterBase
-{
-
+class FWEnumParameterSetter : public FWParameterSetterBase {
 public:
-   FWEnumParameterSetter();
-   ~FWEnumParameterSetter() override;
+  FWEnumParameterSetter();
+  ~FWEnumParameterSetter() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   TGFrame* build(TGFrame* iParent, bool labelBack = true) override;
+  TGFrame* build(TGFrame* iParent, bool labelBack = true) override;
 
-   void setEnabled(bool) override;
+  void setEnabled(bool) override;
 
-   void doUpdate(Int_t id);
+  void doUpdate(Int_t id);
 
   TGComboBox* getWidget() { return m_widget; }
 
 private:
-   FWEnumParameterSetter(const FWEnumParameterSetter&) = delete;                  // stop default
-   const FWEnumParameterSetter& operator=(const FWEnumParameterSetter&) = delete; // stop default
+  FWEnumParameterSetter(const FWEnumParameterSetter&) = delete;                   // stop default
+  const FWEnumParameterSetter& operator=(const FWEnumParameterSetter&) = delete;  // stop default
 
-   void attach(FWParameterBase*) override;
+  void attach(FWParameterBase*) override;
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   FWEnumParameter *m_param;
-   TGComboBox      *m_widget;
+  FWEnumParameter* m_param;
+  TGComboBox* m_widget;
 };
 
 #endif

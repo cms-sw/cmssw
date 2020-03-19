@@ -11,7 +11,7 @@
 
 // user include files
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -19,20 +19,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
-class DQMStore;
-
 class SiStripMonitorFilter : public DQMEDAnalyzer {
- public:
+public:
   explicit SiStripMonitorFilter(const edm::ParameterSet &);
   ~SiStripMonitorFilter() override{};
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
-                      edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
- private:
+private:
   edm::EDGetTokenT<int> filerDecisionToken_;
-  DQMStore *dqmStore_;
   edm::ParameterSet conf_;
   MonitorElement *FilterDecision;
   // all events

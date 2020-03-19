@@ -8,12 +8,12 @@
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
 class EcalCondDBWriter : public DQMEDHarvester {
- public:
-  EcalCondDBWriter(edm::ParameterSet const&);
-  ~EcalCondDBWriter();
+public:
+  EcalCondDBWriter(edm::ParameterSet const &);
+  ~EcalCondDBWriter() override;
 
- private:
-  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
+private:
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   // DON'T CHANGE - ORDER MATTERS IN DB
   enum Tasks {
@@ -35,13 +35,13 @@ class EcalCondDBWriter : public DQMEDHarvester {
   };
 
   int runNumber_;
-  EcalCondDBInterface* db_;
+  EcalCondDBInterface *db_;
   std::string location_;
   std::string runType_;
   std::string runGeneralTag_;
   std::string monRunGeneralTag_;
   std::vector<std::string> inputRootFiles_;
-  ecaldqm::DBWriterWorker* workers_[nTasks];
+  ecaldqm::DBWriterWorker *workers_[nTasks];
   ecaldqm::SummaryWriter summaryWriter_;
 
   int verbosity_;

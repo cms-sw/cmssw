@@ -1,8 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
 
 #include "OnlineDB/SiStripO2O/plugins/SiStripPopConConfigDbObjHandler.h"

@@ -33,64 +33,62 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-
 namespace edm {
-    class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 // Class declaration
 class HLTTrackMETProducer : public edm::stream::EDProducer<> {
-  public:
-    explicit HLTTrackMETProducer(const edm::ParameterSet & iConfig);
-    ~HLTTrackMETProducer() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+public:
+  explicit HLTTrackMETProducer(const edm::ParameterSet& iConfig);
+  ~HLTTrackMETProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  private:
-    /// Use pt; otherwise, use et.
-    /// Ignored if jets are not used as input.
-    bool usePt_;
+private:
+  /// Use pt; otherwise, use et.
+  /// Ignored if jets are not used as input.
+  bool usePt_;
 
-    /// Use reco tracks as input instead of jets.
-    /// If true, it overrides usePFRecTracks, usePFCandidatesCharged_ & usePFCandidates_.
-    bool useTracks_;
+  /// Use reco tracks as input instead of jets.
+  /// If true, it overrides usePFRecTracks, usePFCandidatesCharged_ & usePFCandidates_.
+  bool useTracks_;
 
-    /// Use PF tracks as input instead of jets.
-    /// If true, it overrides usePFCandidatesCharged_ & usePFCandidates_.
-    bool usePFRecTracks_;
+  /// Use PF tracks as input instead of jets.
+  /// If true, it overrides usePFCandidatesCharged_ & usePFCandidates_.
+  bool usePFRecTracks_;
 
-    /// Use PF charged candidates as input instead of jets.
-    /// If true, it overrides usePFCandidates_.
-    bool usePFCandidatesCharged_;
+  /// Use PF charged candidates as input instead of jets.
+  /// If true, it overrides usePFCandidates_.
+  bool usePFCandidatesCharged_;
 
-    /// Use PF candidates as input instead of jets.
-    bool usePFCandidates_;
+  /// Use PF candidates as input instead of jets.
+  bool usePFCandidates_;
 
-    /// Exclude PF muons in the MHT calculation (but not HT)
-    /// Ignored if pfCandidatesLabel_ is empty.
-    bool excludePFMuons_;
+  /// Exclude PF muons in the MHT calculation (but not HT)
+  /// Ignored if pfCandidatesLabel_ is empty.
+  bool excludePFMuons_;
 
-    /// Minimum number of jets passing pt and eta requirements
-    /// Ignored if jets are not used as input
-    int minNJet_;
+  /// Minimum number of jets passing pt and eta requirements
+  /// Ignored if jets are not used as input
+  int minNJet_;
 
-    /// Minimum pt requirement for jets (or objects used as input)
-    double minPtJet_;
+  /// Minimum pt requirement for jets (or objects used as input)
+  double minPtJet_;
 
-    /// Maximum (abs) eta requirement for jets (or objects used as input)
-    double maxEtaJet_;
+  /// Maximum (abs) eta requirement for jets (or objects used as input)
+  double maxEtaJet_;
 
-    /// Input jet, track, PFRecTrack, PFCandidate collections
-    edm::InputTag jetsLabel_;
-    edm::InputTag tracksLabel_;
-    edm::InputTag pfRecTracksLabel_;
-    edm::InputTag pfCandidatesLabel_;
+  /// Input jet, track, PFRecTrack, PFCandidate collections
+  edm::InputTag jetsLabel_;
+  edm::InputTag tracksLabel_;
+  edm::InputTag pfRecTracksLabel_;
+  edm::InputTag pfCandidatesLabel_;
 
-    edm::EDGetTokenT<reco::JetView> m_theJetToken;
-    edm::EDGetTokenT<reco::TrackCollection> m_theTrackToken;
-    edm::EDGetTokenT<reco::PFRecTrackCollection> m_theRecTrackToken;
-    edm::EDGetTokenT<reco::PFCandidateCollection> m_thePFCandidateToken;
+  edm::EDGetTokenT<reco::JetView> m_theJetToken;
+  edm::EDGetTokenT<reco::TrackCollection> m_theTrackToken;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> m_theRecTrackToken;
+  edm::EDGetTokenT<reco::PFCandidateCollection> m_thePFCandidateToken;
 };
 
 #endif  // HLTTrackMETProducer_h_
-

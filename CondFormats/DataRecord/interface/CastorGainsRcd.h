@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     CastorGainsRcd
-// 
+//
 /**\class CastorGainsRcd CastorGainsRcd.h CondFormats/DataRecord/interface/CastorGainsRcd.h
 
  Description: <one line class summary>
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Mon Feb 11 12:16:54 CET 2008
 // $Id: CastorGainsRcd.h,v 1.1 2008/02/15 15:53:04 mccauley Exp $
 //

@@ -4,8 +4,8 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
-class RPFlatParams{
- public:
+class RPFlatParams {
+public:
   struct EP {
     float x[50];
     float y[50];
@@ -14,15 +14,14 @@ class RPFlatParams{
     float xSub2[50];
     float ySub2[50];
     int RPNameIndx[50];
-  
-  COND_SERIALIZABLE;
-};
-  RPFlatParams(){}
-  virtual ~RPFlatParams(){}
+
+    COND_SERIALIZABLE;
+  };
+  RPFlatParams() {}
+  virtual ~RPFlatParams() {}
   std::vector<EP> m_table;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif
-

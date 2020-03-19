@@ -17,7 +17,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <fstream>
@@ -46,29 +45,27 @@
 using namespace l1t;
 
 class L1TMuonCaloSumProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit L1TMuonCaloSumProducer(const edm::ParameterSet&);
-      ~L1TMuonCaloSumProducer() override;
+public:
+  explicit L1TMuonCaloSumProducer(const edm::ParameterSet&);
+  ~L1TMuonCaloSumProducer() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override ;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      void beginRun(const edm::Run&, edm::EventSetup const&) override ;
-      void endRun(const edm::Run&, edm::EventSetup const&) override ;
-      void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-      void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+  void beginRun(const edm::Run&, edm::EventSetup const&) override;
+  void endRun(const edm::Run&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
+  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
 
-      edm::EDGetTokenT <CaloTowerBxCollection> m_caloTowerToken;
-      edm::InputTag m_caloLabel;
-
+  edm::EDGetTokenT<CaloTowerBxCollection> m_caloTowerToken;
+  edm::InputTag m_caloLabel;
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -79,33 +76,27 @@ class L1TMuonCaloSumProducer : public edm::stream::EDProducer<> {
 //
 L1TMuonCaloSumProducer::L1TMuonCaloSumProducer(const edm::ParameterSet& iConfig) {
   //register your inputs:
-  m_caloLabel = iConfig.getParameter<edm::InputTag> ("caloStage2Layer2Label");
-  m_caloTowerToken = consumes <CaloTowerBxCollection> (m_caloLabel);
+  m_caloLabel = iConfig.getParameter<edm::InputTag>("caloStage2Layer2Label");
+  m_caloTowerToken = consumes<CaloTowerBxCollection>(m_caloLabel);
   //register your products
   produces<MuonCaloSumBxCollection>("TriggerTowerSums");
   produces<MuonCaloSumBxCollection>("TriggerTower2x2s");
 }
 
-
-L1TMuonCaloSumProducer::~L1TMuonCaloSumProducer()
-{
+L1TMuonCaloSumProducer::~L1TMuonCaloSumProducer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
-void
-L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  std::unique_ptr<MuonCaloSumBxCollection> towerSums (std::make_unique<MuonCaloSumBxCollection>());
-  std::unique_ptr<MuonCaloSumBxCollection> tower2x2s (std::make_unique<MuonCaloSumBxCollection>());
+  std::unique_ptr<MuonCaloSumBxCollection> towerSums(std::make_unique<MuonCaloSumBxCollection>());
+  std::unique_ptr<MuonCaloSumBxCollection> tower2x2s(std::make_unique<MuonCaloSumBxCollection>());
 
   edm::Handle<CaloTowerBxCollection> caloTowers;
 
@@ -150,13 +141,13 @@ L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
         // calculating towerSums
         int ietamax = hwEta + detamax + 1;
-        for (int ieta = hwEta-detamax; ieta < ietamax; ++ieta) {
+        for (int ieta = hwEta - detamax; ieta < ietamax; ++ieta) {
           if (std::abs(ieta) > 27) {
             continue;
           }
           int ietamu = (ieta + 27) / 2;
           int iphimax = hwPhi + dphimax + 1;
-          for (int iphi = hwPhi-dphimax; iphi < iphimax; ++iphi) {
+          for (int iphi = hwPhi - dphimax; iphi < iphimax; ++iphi) {
             int iphiwrapped = iphi;
             if (iphiwrapped < 0) {
               iphiwrapped += 72;
@@ -198,36 +189,22 @@ L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   iEvent.put(std::move(towerSums), "TriggerTowerSums");
   iEvent.put(std::move(tower2x2s), "TriggerTower2x2s");
-
 }
 
 // ------------ method called when starting to processes a run  ------------
-void
-L1TMuonCaloSumProducer::beginRun(const edm::Run&, edm::EventSetup const&)
-{
-}
+void L1TMuonCaloSumProducer::beginRun(const edm::Run&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a run  ------------
-void
-L1TMuonCaloSumProducer::endRun(const edm::Run&, edm::EventSetup const&)
-{
-}
+void L1TMuonCaloSumProducer::endRun(const edm::Run&, edm::EventSetup const&) {}
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void
-L1TMuonCaloSumProducer::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+void L1TMuonCaloSumProducer::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void
-L1TMuonCaloSumProducer::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+void L1TMuonCaloSumProducer::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-L1TMuonCaloSumProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TMuonCaloSumProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

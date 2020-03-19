@@ -22,8 +22,7 @@
 
 #include <cmath>
 
-class FWCSCWireDigiProxyBuilder : public FWProxyBuilderBase
-{
+class FWCSCWireDigiProxyBuilder : public FWProxyBuilderBase {
 public:
   FWCSCWireDigiProxyBuilder() {}
   ~FWCSCWireDigiProxyBuilder() override {}
@@ -33,7 +32,7 @@ public:
 private:
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&) = delete;    
+  FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&) = delete;
   const FWCSCWireDigiProxyBuilder& operator=(const FWCSCWireDigiProxyBuilder&) = delete;
 
   // NOTE: these parameters are not available via a public interface
@@ -41,149 +40,133 @@ private:
   double getYOfFirstWire(const int station, const int ring, const double length);
   double getAverageWireSpacing(const int station, const int ring);
 };
-       
-double
-FWCSCWireDigiProxyBuilder::getYOfFirstWire(const int station, const int ring, const double length)                             
-{
+
+double FWCSCWireDigiProxyBuilder::getYOfFirstWire(const int station, const int ring, const double length) {
   double yAlignmentFrame = 3.49;
   double alignmentPinToFirstWire;
 
-  if ( station == 1 ) 
-  { 
-    if ( ring == 1 || ring == 4 )
-    {
+  if (station == 1) {
+    if (ring == 1 || ring == 4) {
       alignmentPinToFirstWire = 1.065;
       yAlignmentFrame = 0.0;
     }
-        
-    else // ME12, ME 13 
+
+    else  // ME12, ME 13
       alignmentPinToFirstWire = 2.85;
   }
-  
-  else if ( station == 4 && ring == 1 )
+
+  else if (station == 4 && ring == 1)
     alignmentPinToFirstWire = 3.04;
-      
-  else if ( station == 3 && ring == 1 )
-    alignmentPinToFirstWire =  2.84;
-      
-  else  // ME21, ME22, ME32, ME42 
+
+  else if (station == 3 && ring == 1)
+    alignmentPinToFirstWire = 2.84;
+
+  else  // ME21, ME22, ME32, ME42
     alignmentPinToFirstWire = 2.87;
-  
-  return (yAlignmentFrame-length) + alignmentPinToFirstWire;
+
+  return (yAlignmentFrame - length) + alignmentPinToFirstWire;
 }
 
-double 
-FWCSCWireDigiProxyBuilder::getAverageWireSpacing(const int station, const int ring)
-{
+double FWCSCWireDigiProxyBuilder::getAverageWireSpacing(const int station, const int ring) {
   // return radialExtentOfTheWirePlane / numOfWireGroups
   // These numbers come from cscSpec.xml
 
-  if ( ring == 2 )
-  {
-    if ( station == 1 )
-      return 174.81/64;
+  if (ring == 2) {
+    if (station == 1)
+      return 174.81 / 64;
     else
-      return 323.38/64;
+      return 323.38 / 64;
   }
-  
-  if ( station == 1 && (ring == 1 || ring == 4))
-    return 150.5/48;
-  if ( station == 1 && ring == 3 )
-    return 164.47/32;
-  if ( station == 2 && ring == 1 )
-    return 189.97/112;
-  if ( station == 3 && ring == 1 )
-    return 170.01/96;
-  if ( station == 4 && ring == 1 )
-    return 149.73/96;
+
+  if (station == 1 && (ring == 1 || ring == 4))
+    return 150.5 / 48;
+  if (station == 1 && ring == 3)
+    return 164.47 / 32;
+  if (station == 2 && ring == 1)
+    return 189.97 / 112;
+  if (station == 3 && ring == 1)
+    return 170.01 / 96;
+  if (station == 4 && ring == 1)
+    return 149.73 / 96;
 
   return 0.0;
 }
 
-void
-FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
-{
+void FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {
   const CSCWireDigiCollection* digis = nullptr;
- 
+
   iItem->get(digis);
 
-  if ( ! digis ) 
-  {
-    fwLog( fwlog::kWarning ) << "Failed to get CSCWireDigis" << std::endl;
+  if (!digis) {
+    fwLog(fwlog::kWarning) << "Failed to get CSCWireDigis" << std::endl;
     return;
   }
-  const FWGeometry *geom = iItem->getGeom();
+  const FWGeometry* geom = iItem->getGeom();
 
-  for ( CSCWireDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); 
-        dri != driEnd; ++dri )
-  {
+  for (CSCWireDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); dri != driEnd; ++dri) {
     const CSCDetId& cscDetId = (*dri).first;
     unsigned int rawid = cscDetId.rawId();
     const CSCWireDigiCollection::Range& range = (*dri).second;
- 
-    if( ! geom->contains( rawid ))
-    {
-      fwLog( fwlog::kWarning ) << "Failed to get geometry of CSC chamber with detid: "
-			       << rawid << std::endl;
-      
+
+    if (!geom->contains(rawid)) {
+      fwLog(fwlog::kWarning) << "Failed to get geometry of CSC chamber with detid: " << rawid << std::endl;
+
       TEveCompound* compound = createCompound();
-      setupAddElement( compound, product );
+      setupAddElement(compound, product);
 
       continue;
     }
 
-    const float* shape = geom->getShapePars( rawid );
+    const float* shape = geom->getShapePars(rawid);
 
     float length = shape[4];
     float topWidth = shape[2];
     float bottomWidth = shape[1];
-    
-    // NOTE: do not use parameters right now: need to sort out what is finally needed 
+
+    // NOTE: do not use parameters right now: need to sort out what is finally needed
     //const float* parameters = iItem->getGeom()->getParameters( rawid );
     //float wireSpacing  = parameters[6];
     double wireSpacing = getAverageWireSpacing(cscDetId.station(), cscDetId.ring());
     //float wireAngle    = parameters[7];
     //float cosWireAngle = cos(wireAngle);
 
-    double yOfFirstWire = getYOfFirstWire( cscDetId.station(), cscDetId.ring(), length ); 
-  
-    for ( CSCWireDigiCollection::const_iterator dit = range.first;
-          dit != range.second; ++dit )        
-    { 
+    double yOfFirstWire = getYOfFirstWire(cscDetId.station(), cscDetId.ring(), length);
+
+    for (CSCWireDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
       TEveStraightLineSet* wireDigiSet = new TEveStraightLineSet();
       wireDigiSet->SetLineWidth(3);
       setupAddElement(wireDigiSet, product);
 
       int wireGroup = (*dit).getWireGroup();
-      float yOfWire = yOfFirstWire + ((wireGroup-1)*wireSpacing);
-      float wireLength = yOfWire*(topWidth-bottomWidth) / length;
-      wireLength += bottomWidth*2.0;
-     
-      float localPointLeft[3] = 
-      {
-        static_cast<float>(-wireLength*0.5), yOfWire, static_cast<float>(0.0)
-      };
+      float yOfWire = yOfFirstWire + ((wireGroup - 1) * wireSpacing);
+      float wireLength = yOfWire * (topWidth - bottomWidth) / length;
+      wireLength += bottomWidth * 2.0;
+
+      float localPointLeft[3] = {static_cast<float>(-wireLength * 0.5), yOfWire, static_cast<float>(0.0)};
 
       // NOTE: This is only an approximation for slanted wires.
       // Need to improve the determination of the x coordinate.
-      float localPointRight[3] = 
-      {
-        static_cast<float>(wireLength*0.5), yOfWire, static_cast<float>(0.0)
-        //wireLength*0.5, yOfWire + wireLength*tan(wireAngle), 0.0
+      float localPointRight[3] = {
+          static_cast<float>(wireLength * 0.5), yOfWire, static_cast<float>(0.0)
+          //wireLength*0.5, yOfWire + wireLength*tan(wireAngle), 0.0
       };
 
-      float globalPointLeft[3];     
+      float globalPointLeft[3];
       float globalPointRight[3];
 
-      geom->localToGlobal( rawid, localPointLeft, globalPointLeft, localPointRight, globalPointRight ); 
+      geom->localToGlobal(rawid, localPointLeft, globalPointLeft, localPointRight, globalPointRight);
 
-      wireDigiSet->AddLine( globalPointLeft[0],  globalPointLeft[1],  globalPointLeft[2],
-                            globalPointRight[0], globalPointRight[1], globalPointRight[2] );
+      wireDigiSet->AddLine(globalPointLeft[0],
+                           globalPointLeft[1],
+                           globalPointLeft[2],
+                           globalPointRight[0],
+                           globalPointRight[1],
+                           globalPointRight[2]);
     }
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWCSCWireDigiProxyBuilder, CSCWireDigiCollection, "CSCWireDigi", 
+REGISTER_FWPROXYBUILDER(FWCSCWireDigiProxyBuilder,
+                        CSCWireDigiCollection,
+                        "CSCWireDigi",
                         FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
-
-

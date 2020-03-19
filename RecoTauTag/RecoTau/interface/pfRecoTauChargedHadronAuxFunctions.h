@@ -5,12 +5,15 @@
 
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 
-namespace reco { namespace tau {
+namespace reco {
+  namespace tau {
 
+    const reco::Track* getTrackFromChargedHadron(const reco::PFRecoTauChargedHadron& chargedHadron);
     void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scaleFactor_neutralPFCands = 1.0);
     reco::Candidate::LorentzVector compChargedHadronP4fromPxPyPz(double, double, double);
     reco::Candidate::LorentzVector compChargedHadronP4fromPThetaPhi(double, double, double);
 
-}} // end namespace reco::tau
+  }  // namespace tau
+}  // namespace reco
 
 #endif

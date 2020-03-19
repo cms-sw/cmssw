@@ -15,30 +15,23 @@
  *
  */
 
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 // forward declarations
 
-
 // class declaration
-class L1GctConfigDump : public edm::EDAnalyzer
-{
-
+class L1GctConfigDump : public edm::EDAnalyzer {
 public:
+  // constructor
+  explicit L1GctConfigDump(const edm::ParameterSet&);
 
-    // constructor
-    explicit L1GctConfigDump(const edm::ParameterSet&);
+  // destructor
+  ~L1GctConfigDump() override;
 
-    // destructor
-    ~L1GctConfigDump() override;
-
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
-    
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
 #endif

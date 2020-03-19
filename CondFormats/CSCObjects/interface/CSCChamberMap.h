@@ -8,13 +8,13 @@
 
 class CSCDetId;
 
-class CSCChamberMap{
- public:
+class CSCChamberMap {
+public:
   CSCChamberMap();
   ~CSCChamberMap();
 
   /// Accessor for item according to key
-  const CSCMapItem::MapItem& item( int key ) const;
+  const CSCMapItem::MapItem& item(int key) const;
 
   /// Interface required use in digi-to-raw
 
@@ -37,10 +37,10 @@ class CSCChamberMap{
   int dduInput(const CSCDetId&) const;
 
   /// Data are public. @@Should be private?
-  typedef std::map< int, CSCMapItem::MapItem > CSCMap;
+  typedef std::map<int, CSCMapItem::MapItem> CSCMap;
   CSCMap ch_map;
 
- private:
+private:
   /**
    * Decimal-encoded index (as used inside db - the 'Igor' index)
    *
@@ -50,7 +50,7 @@ class CSCChamberMap{
    */
   int dbIndex(const CSCDetId&) const;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

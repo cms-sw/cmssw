@@ -35,34 +35,33 @@ the end of the actual IOV for the data.  In this way the system can claim back s
 // forward declarations
 namespace edm {
 
-class ESHandleExceptionFactory;
+  class ESHandleExceptionFactory;
 
-template<typename T>
-class ESTransientHandle : public ESHandleBase {
-   public:
-      typedef T value_type;
+  template <typename T>
+  class ESTransientHandle : public ESHandleBase {
+  public:
+    typedef T value_type;
 
-      ESTransientHandle() : ESHandleBase() {}
-      ESTransientHandle(T const* iData) : ESHandleBase(iData, 0) {}
-      ESTransientHandle(T const* iData, edm::eventsetup::ComponentDescription const* desc) : ESHandleBase(iData, desc) {}
-      ESTransientHandle(std::shared_ptr<ESHandleExceptionFactory> &&);
+    ESTransientHandle() : ESHandleBase() {}
+    ESTransientHandle(T const* iData) : ESHandleBase(iData, 0) {}
+    ESTransientHandle(T const* iData, edm::eventsetup::ComponentDescription const* desc) : ESHandleBase(iData, desc) {}
+    ESTransientHandle(std::shared_ptr<ESHandleExceptionFactory>&&);
 
-      // ---------- const member functions ---------------------
-      T const* product() const { return static_cast<T const *>(productStorage()); }
-      T const* operator->() const { return product(); }
-      T const& operator*() const { return *product(); }
-      // ---------- static member functions --------------------
-      static constexpr bool transientAccessOnly = true;
+    // ---------- const member functions ---------------------
+    T const* product() const { return static_cast<T const*>(productStorage()); }
+    T const* operator->() const { return product(); }
+    T const& operator*() const { return *product(); }
+    // ---------- static member functions --------------------
+    static constexpr bool transientAccessOnly = true;
 
-      // ---------- member functions ---------------------------
+    // ---------- member functions ---------------------------
 
-   private:
-};
+  private:
+  };
 
-template <class T>
-ESTransientHandle<T>::ESTransientHandle(std::shared_ptr<edm::ESHandleExceptionFactory> && iWhyFailed) :
-  ESHandleBase(std::move(iWhyFailed))
-{ }
+  template <class T>
+  ESTransientHandle<T>::ESTransientHandle(std::shared_ptr<edm::ESHandleExceptionFactory>&& iWhyFailed)
+      : ESHandleBase(std::move(iWhyFailed)) {}
 
-}
+}  // namespace edm
 #endif

@@ -5,23 +5,15 @@
 
 #include <memory>
 
-namespace edm
-{
-  PathStatusInserter::PathStatusInserter(unsigned int numberOfStreams) :
-    hltPathStatus_(numberOfStreams),
-    token_{produces<HLTPathStatus>()}
-  {
-  }
+namespace edm {
+  PathStatusInserter::PathStatusInserter(unsigned int numberOfStreams)
+      : hltPathStatus_(numberOfStreams), token_{produces<HLTPathStatus>()} {}
 
-  void
-  PathStatusInserter::setPathStatus(StreamID const& streamID,
-                                    HLTPathStatus const& hltPathStatus) {
+  void PathStatusInserter::setPathStatus(StreamID const& streamID, HLTPathStatus const& hltPathStatus) {
     hltPathStatus_[streamID.value()] = hltPathStatus;
   }
 
-  void
-  PathStatusInserter::produce(StreamID streamID, edm::Event& event, edm::EventSetup const&) const
-  {
-    event.emplace(token_,hltPathStatus_[streamID.value()]);
+  void PathStatusInserter::produce(StreamID streamID, edm::Event& event, edm::EventSetup const&) const {
+    event.emplace(token_, hltPathStatus_[streamID.value()]);
   }
-}
+}  // namespace edm

@@ -6,7 +6,7 @@
 //
 // Package:     L1Trigger
 // Class  :     TEPatternsGroup
-// 
+//
 /**
   \class TEPatternsGroup
   \brief Group of paterns for "improved"("energetic") algorithm.
@@ -20,23 +20,21 @@
 
 */
 
-  class TEPatternsGroup: public TPatternsGroup {
-    //friend class RPCPacData;
-    friend class RPCPac;
-    public:
-      
-      TEPatternsGroup(const RPCPattern::RPCPatVec::const_iterator& pattern);
+class TEPatternsGroup : public TPatternsGroup {
+  //friend class RPCPacData;
+  friend class RPCPac;
 
-    ///Checks, if patern can belong to this group, i.e. if has the same m_Code, m_Sign, m_RefGroup and m_QualityTabNumber.
-      bool check(const RPCPattern::RPCPatVec::const_iterator& pattern);
+public:
+  TEPatternsGroup(const RPCPattern::RPCPatVec::const_iterator& pattern);
 
-    ///used for sorting TEPatternsGroups
-      bool operator < (const TEPatternsGroup& ePatternsGroup) const;
+  ///Checks, if patern can belong to this group, i.e. if has the same m_Code, m_Sign, m_RefGroup and m_QualityTabNumber.
+  bool check(const RPCPattern::RPCPatVec::const_iterator& pattern);
 
-    private:
-      short m_QualityTabNumber;
-  };
+  ///used for sorting TEPatternsGroups
+  bool operator<(const TEPatternsGroup& ePatternsGroup) const;
 
-
+private:
+  short m_QualityTabNumber;
+};
 
 #endif

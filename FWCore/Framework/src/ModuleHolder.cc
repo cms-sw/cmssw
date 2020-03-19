@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     ModuleHolder
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -16,12 +16,10 @@
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 
-
 namespace edm {
   namespace maker {
-    std::unique_ptr<Worker>
-    ModuleHolder::makeWorker(ExceptionToActionTable const* iActions) const {
-      return m_maker->makeWorker(iActions,this);
+    std::unique_ptr<Worker> ModuleHolder::makeWorker(ExceptionToActionTable const* iActions) const {
+      return m_maker->makeWorker(iActions, this);
     }
-  }
-}
+  }  // namespace maker
+}  // namespace edm

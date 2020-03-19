@@ -6,10 +6,11 @@ class testIDVectorMap : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testIDVectorMap);
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
+
 public:
   void setUp() {}
   void tearDown() {}
-  void checkAll(); 
+  void checkAll();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testIDVectorMap);
@@ -23,16 +24,18 @@ struct MatchOddId {
 void testIDVectorMap::checkAll() {
   typedef edm::IDVectorMap<int, std::vector<int>, edm::CopyPolicy<int> > map;
   map m;
-  int v1[] = { 1, 2, 3, 4 };
-  int v2[] = { 5, 6, 7 };
-  int v3[] = { 8, 9 };
-  int s1 = sizeof(v1)/sizeof(int);
-  int s2 = sizeof(v2)/sizeof(int);
-  int s3 = sizeof(v3)/sizeof(int);
-  for(int i = 0; i < s1; ++i) m.insert(1, v1[i]);
+  int v1[] = {1, 2, 3, 4};
+  int v2[] = {5, 6, 7};
+  int v3[] = {8, 9};
+  int s1 = sizeof(v1) / sizeof(int);
+  int s2 = sizeof(v2) / sizeof(int);
+  int s3 = sizeof(v3) / sizeof(int);
+  for (int i = 0; i < s1; ++i)
+    m.insert(1, v1[i]);
   //  for(int i = 0; i < s2; ++i) m.insert(2, v2[i]);
   m.insert(2, v2, v2 + s2);
-  for(int i = 0; i < s3; ++i) m.insert(3, v3[i]);
+  for (int i = 0; i < s3; ++i)
+    m.insert(3, v3[i]);
 
   map::const_iterator i = m.begin();
   CPPUNIT_ASSERT(*i++ == 1);
@@ -46,47 +49,46 @@ void testIDVectorMap::checkAll() {
   CPPUNIT_ASSERT(*i++ == 9);
   CPPUNIT_ASSERT(i == m.end());
 
-  CPPUNIT_ASSERT(* --i == 9);
-  CPPUNIT_ASSERT(* --i == 8);
-  CPPUNIT_ASSERT(* --i == 7);
-  CPPUNIT_ASSERT(* --i == 6);
-  CPPUNIT_ASSERT(* --i == 5);
-  CPPUNIT_ASSERT(* --i == 4);
-  CPPUNIT_ASSERT(* --i == 3);
-  CPPUNIT_ASSERT(* --i == 2);
-  CPPUNIT_ASSERT(* --i == 1);
+  CPPUNIT_ASSERT(*--i == 9);
+  CPPUNIT_ASSERT(*--i == 8);
+  CPPUNIT_ASSERT(*--i == 7);
+  CPPUNIT_ASSERT(*--i == 6);
+  CPPUNIT_ASSERT(*--i == 5);
+  CPPUNIT_ASSERT(*--i == 4);
+  CPPUNIT_ASSERT(*--i == 3);
+  CPPUNIT_ASSERT(*--i == 2);
+  CPPUNIT_ASSERT(*--i == 1);
   CPPUNIT_ASSERT(i == m.begin());
-
 
   map::id_iterator b = m.id_begin();
   CPPUNIT_ASSERT(m.id_size() == 3);
-  CPPUNIT_ASSERT(* b ++ == 1);
-  CPPUNIT_ASSERT(* b ++ == 2);
-  CPPUNIT_ASSERT(* b ++ == 3);
+  CPPUNIT_ASSERT(*b++ == 1);
+  CPPUNIT_ASSERT(*b++ == 2);
+  CPPUNIT_ASSERT(*b++ == 3);
   CPPUNIT_ASSERT(b == m.id_end());
 
-  CPPUNIT_ASSERT(* -- b == 3);
-  CPPUNIT_ASSERT(* -- b == 2);
-  CPPUNIT_ASSERT(* -- b == 1);
+  CPPUNIT_ASSERT(*--b == 3);
+  CPPUNIT_ASSERT(*--b == 2);
+  CPPUNIT_ASSERT(*--b == 1);
   CPPUNIT_ASSERT(b == m.id_begin());
 
   map::range r = m.get(1);
   CPPUNIT_ASSERT(r.end - r.begin == s1);
   map::container_iterator j = r.begin;
-  CPPUNIT_ASSERT(* j ++ ==  1);
-  CPPUNIT_ASSERT(* j ++ ==  2);
-  CPPUNIT_ASSERT(* j ++ ==  3);
-  CPPUNIT_ASSERT(* j ++ ==  4);
+  CPPUNIT_ASSERT(*j++ == 1);
+  CPPUNIT_ASSERT(*j++ == 2);
+  CPPUNIT_ASSERT(*j++ == 3);
+  CPPUNIT_ASSERT(*j++ == 4);
   CPPUNIT_ASSERT(j == r.end);
 
   MatchOddId o;
   map::match_iterator<MatchOddId> t = m.begin(o);
-  CPPUNIT_ASSERT(* t ++ == 1);
-  CPPUNIT_ASSERT(* t ++ == 2);
-  CPPUNIT_ASSERT(* t ++ == 3);
-  CPPUNIT_ASSERT(* t ++ == 4);
-  CPPUNIT_ASSERT(* t ++ == 8);
-  CPPUNIT_ASSERT(* t ++ == 9);
+  CPPUNIT_ASSERT(*t++ == 1);
+  CPPUNIT_ASSERT(*t++ == 2);
+  CPPUNIT_ASSERT(*t++ == 3);
+  CPPUNIT_ASSERT(*t++ == 4);
+  CPPUNIT_ASSERT(*t++ == 8);
+  CPPUNIT_ASSERT(*t++ == 9);
   CPPUNIT_ASSERT(t == m.end(o));
 
   /*
@@ -123,5 +125,4 @@ void testIDVectorMap::checkAll() {
 
 
   */
-  
 }

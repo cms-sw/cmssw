@@ -16,19 +16,16 @@ namespace edm {
     FileID() : fid_() {}
     explicit FileID(std::string const& id) : fid_(id) {}
     bool isValid() const { return !fid().empty(); }
-    std::string const& fid() const {return fid_;}
+    std::string const& fid() const { return fid_; }
+
   private:
     std::string fid_;
   };
 
-  inline
-  bool operator==(FileID const& lh, FileID const& rh) {return lh.fid() == rh.fid();}
+  inline bool operator==(FileID const& lh, FileID const& rh) { return lh.fid() == rh.fid(); }
 
-  inline
-  bool operator!=(FileID const& lh, FileID const& rh) {return !(lh == rh);}
+  inline bool operator!=(FileID const& lh, FileID const& rh) { return !(lh == rh); }
 
-  std::ostream&
-  operator<<(std::ostream& os, FileID const& id);
-}
+  std::ostream& operator<<(std::ostream& os, FileID const& id);
+}  // namespace edm
 #endif
-

@@ -17,66 +17,57 @@
 
 using namespace std;
 
-
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- L1OffsetCorrector constructor ------------------------------------------
 //------------------------------------------------------------------------
-L1JPTOffsetCorrector::L1JPTOffsetCorrector(const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig) 
-{
+L1JPTOffsetCorrector::L1JPTOffsetCorrector(const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig) {
   mOffsetService = fConfig.getParameter<std::string>("offsetService");
   mIsOffsetSet = false;
-  if (mOffsetService != "")
+  if (!mOffsetService.empty())
     mIsOffsetSet = true;
   if (fParam.definitions().level() != "L1JPTOffset")
-    throw cms::Exception("L1OffsetCorrector")<<" correction level: "<<fParam.definitions().level()<<" is not L1JPTOffset"; 
+    throw cms::Exception("L1OffsetCorrector")
+        << " correction level: " << fParam.definitions().level() << " is not L1JPTOffset";
   vector<JetCorrectorParameters> vParam;
   vParam.push_back(fParam);
   mCorrector = new FactorizedJetCorrectorCalculator(vParam);
 }
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- L1OffsetCorrector destructor -------------------------------------------
 //------------------------------------------------------------------------
-L1JPTOffsetCorrector::~L1JPTOffsetCorrector() 
-{
-  delete mCorrector;
-} 
-//------------------------------------------------------------------------ 
+L1JPTOffsetCorrector::~L1JPTOffsetCorrector() { delete mCorrector; }
+//------------------------------------------------------------------------
 //--- Returns correction for a given 4-vector ----------------------------
 //------------------------------------------------------------------------
-double L1JPTOffsetCorrector::correction(const LorentzVector& fJet) const
-{
-  throw cms::Exception("EventRequired")
-    <<"Wrong interface correction(LorentzVector), event required!";
+double L1JPTOffsetCorrector::correction(const LorentzVector& fJet) const {
+  throw cms::Exception("EventRequired") << "Wrong interface correction(LorentzVector), event required!";
   return 1.0;
 }
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- Returns correction for a given jet ---------------------------------
 //------------------------------------------------------------------------
-double L1JPTOffsetCorrector::correction(const reco::Jet& fJet) const
-{
-  throw cms::Exception("EventRequired")
-    <<"Wrong interface correction(reco::Jet), event required!";
+double L1JPTOffsetCorrector::correction(const reco::Jet& fJet) const {
+  throw cms::Exception("EventRequired") << "Wrong interface correction(reco::Jet), event required!";
   return 1.0;
 }
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- Returns correction for a given jet using event indormation ---------
 //------------------------------------------------------------------------
-double L1JPTOffsetCorrector::correction(const reco::Jet& fJet, 
-                                     const edm::Event& fEvent, 
-                                     const edm::EventSetup& fSetup) const 
-{
+double L1JPTOffsetCorrector::correction(const reco::Jet& fJet,
+                                        const edm::Event& fEvent,
+                                        const edm::EventSetup& fSetup) const {
   double result = 1.;
-  const reco::JPTJet& jptjet = dynamic_cast <const reco::JPTJet&> (fJet);
+  const reco::JPTJet& jptjet = dynamic_cast<const reco::JPTJet&>(fJet);
   const edm::RefToBase<reco::Jet>& jptjetRef = jptjet.getCaloJetRef();
-  reco::CaloJet const * rawcalojet = dynamic_cast<reco::CaloJet const *>( &* jptjetRef);   
+  reco::CaloJet const* rawcalojet = dynamic_cast<reco::CaloJet const*>(&*jptjetRef);
   //------ access the offset correction service ----------------
   double offset = 1.0;
   if (mIsOffsetSet) {
-    const JetCorrector* OffsetCorrector = JetCorrector::getJetCorrector(mOffsetService,fSetup); 
-    offset = OffsetCorrector->correction(*rawcalojet,fEvent,fSetup); 
+    const JetCorrector* OffsetCorrector = JetCorrector::getJetCorrector(mOffsetService, fSetup);
+    offset = OffsetCorrector->correction(*rawcalojet, fEvent, fSetup);
   }
   //------ calculate the correction for the JPT jet ------------
-  TLorentzVector JPTrawP4(rawcalojet->px(),rawcalojet->py(),rawcalojet->pz(),rawcalojet->energy());
+  TLorentzVector JPTrawP4(rawcalojet->px(), rawcalojet->py(), rawcalojet->pz(), rawcalojet->energy());
   FactorizedJetCorrectorCalculator::VariableValues values;
   values.setJPTrawP4(JPTrawP4);
   values.setJPTrawOff(offset);
@@ -84,4 +75,3 @@ double L1JPTOffsetCorrector::correction(const reco::Jet& fJet,
   result = mCorrector->getCorrection(values);
   return result;
 }
-

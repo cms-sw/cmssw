@@ -1,48 +1,48 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
-#include<iostream>
+#include <iostream>
 
-void merge(DDsvalues_type & target, DDsvalues_type const & sv, bool sortit /* =true */)
-{
+void merge(DDsvalues_type &target, DDsvalues_type const &sv, bool sortit /* =true */) {
   if (target.empty()) {
-    target = sv; 
+    target = sv;
     return;
   }
   DDsvalues_type::const_iterator sit = sv.begin();
   DDsvalues_type::const_iterator sed = sv.end();
   // fast merge
-  if (target.back()<sv.front()) {
-    target.insert(target.end(),sit,sed);
+  if (target.back() < sv.front()) {
+    target.insert(target.end(), sit, sed);
     return;
   }
-  if (sv.back()<target.front()) {
-    target.insert(target.begin(),sit,sed);
+  if (sv.back() < target.front()) {
+    target.insert(target.begin(), sit, sed);
     return;
   }
   {
-    DDsvalues_type::iterator it = std::lower_bound(target.begin(),target.end(),sv.front()); 
-    if (it == std::lower_bound(target.begin(),target.end(),sv.back())) {
-      target.insert(it,sit,sed);
+    DDsvalues_type::iterator it = std::lower_bound(target.begin(), target.end(), sv.front());
+    if (it == std::lower_bound(target.begin(), target.end(), sv.back())) {
+      target.insert(it, sit, sed);
       return;
     }
   }
   // it nevers arrives here...
-  target.reserve(target.size()+sv.size());
+  target.reserve(target.size() + sv.size());
   DDsvalues_type::const_iterator ted = target.end();
   for (; sit != sed; ++sit) {
-    DDsvalues_type::const_iterator it = find(target.begin(),ted, (*sit).first);
-    if (it!=ted) const_cast<DDsvalues_Content_type&>(*it).second = (*sit).second;
-    else target.emplace_back(*sit);
+    DDsvalues_type::const_iterator it = find(target.begin(), ted, (*sit).first);
+    if (it != ted)
+      const_cast<DDsvalues_Content_type &>(*it).second = (*sit).second;
+    else
+      target.emplace_back(*sit);
   }
-  if (sortit) std::sort(target.begin(),target.end());
+  if (sortit)
+    std::sort(target.begin(), target.end());
 }
 
-
-std::ostream & operator<<(std::ostream & os , const DDsvalues_type & s)
-{
+std::ostream &operator<<(std::ostream &os, const DDsvalues_type &s) {
   DDsvalues_type::const_iterator it = s.begin();
-  for(; it != s.end(); ++it)  {
-    os << it->second; 
+  for (; it != s.end(); ++it) {
+    os << it->second;
     /*
     os << DDValue(it->first).name() << " = ";
     for (unsigned int i=0; i<it->second.size(); ++i) {
@@ -50,18 +50,16 @@ std::ostream & operator<<(std::ostream & os , const DDsvalues_type & s)
     }    
     os << std::endl;
     */
-  }  
+  }
   return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const std::vector<const DDsvalues_type *> &v) {
+  for (const auto &i : v) {
+    os << *i;  // << std::endl;
+  }
 
-std::ostream & operator<<(std::ostream & os , const std::vector<const DDsvalues_type*> & v)
-{
-   for (const auto & i : v) {
-     os << *i; // << std::endl;
-   }
-   
-   return os;
+  return os;
 }
 
 /** Example:
@@ -78,8 +76,7 @@ std::ostream & operator<<(std::ostream & os , const std::vector<const DDsvalues_
    }
    \endcode
 */
-bool DDfetch(const DDsvalues_type * p, DDValue & v)
-{
+bool DDfetch(const DDsvalues_type *p, DDValue &v) {
   bool result = false;
   DDsvalues_type::const_iterator it = find(*p, v);
   if (it != p->end()) {
@@ -89,15 +86,13 @@ bool DDfetch(const DDsvalues_type * p, DDValue & v)
   return result;
 }
 
-
-unsigned int DDfetch(const std::vector<const DDsvalues_type *> & sp, DDValue & toFetch, std::vector<DDValue> & result)
-{
-   unsigned int count = 0;
-   for( const auto & it : sp ) {
-     if (DDfetch( it, toFetch)) {
-       result.emplace_back(toFetch);
-       ++count;
-     }
-   }    
-   return count;
+unsigned int DDfetch(const std::vector<const DDsvalues_type *> &sp, DDValue &toFetch, std::vector<DDValue> &result) {
+  unsigned int count = 0;
+  for (const auto &it : sp) {
+    if (DDfetch(it, toFetch)) {
+      result.emplace_back(toFetch);
+      ++count;
+    }
+  }
+  return count;
 }

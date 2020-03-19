@@ -4,15 +4,15 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
+
 /**
  * Class which contructs PixelForward Panels. 
  */
-class CmsTrackerPixelPhase2RingBuilder : public CmsTrackerLevelBuilder {
-  
- private:
-  void sortNS(DDFilteredView& , GeometricDet*) override;
-  void buildComponent(DDFilteredView& , GeometricDet*, std::string) override;
-
+template <class FilteredView>
+class CmsTrackerPixelPhase2RingBuilder : public CmsTrackerLevelBuilder<FilteredView> {
+private:
+  void sortNS(FilteredView&, GeometricDet*) override;
+  void buildComponent(FilteredView&, GeometricDet*, const std::string&) override;
 };
 
 #endif

@@ -29,64 +29,41 @@
 
 namespace hitfit {
 
-EtaDepResElement::EtaDepResElement(double eta1,double eta2,
-                                   const Vector_Resolution& res):
-    _Vector_Resolution(res)
-{
+  EtaDepResElement::EtaDepResElement(double eta1, double eta2, const Vector_Resolution& res) : _Vector_Resolution(res) {
+    SetEta(eta1, eta2);
+  }
 
-    SetEta(eta1,eta2);
+  EtaDepResElement::EtaDepResElement(double eta1, double eta2, std::string res) : _Vector_Resolution(res) {
+    SetEta(eta1, eta2);
+  }
 
-}
+  EtaDepResElement::EtaDepResElement(double eta1,
+                                     double eta2,
+                                     const Resolution& p_res,
+                                     const Resolution& eta_res,
+                                     const Resolution& phi_res,
+                                     bool use_et)
+      : _Vector_Resolution(p_res, eta_res, phi_res, use_et) {
+    SetEta(eta1, eta2);
+  }
 
+  EtaDepResElement::~EtaDepResElement() {}
 
-EtaDepResElement::EtaDepResElement(double eta1,double eta2,
-                                   std::string res):
-    _Vector_Resolution(res)
-{
-
-    SetEta(eta1,eta2);
-
-}
-
-
-EtaDepResElement::EtaDepResElement(double eta1,double eta2,
-                                   const Resolution& p_res,
-                                   const Resolution& eta_res,
-                                   const Resolution& phi_res,
-                                   bool use_et):
-    _Vector_Resolution(p_res,eta_res,phi_res,use_et)
-{
-
-    SetEta(eta1,eta2);
-
-}
-
-
-EtaDepResElement::~EtaDepResElement()
-{
-}
-
-
-void
-EtaDepResElement::SetEta(double eta1,double eta2)
-{
-
-    if (fabs(eta1 - eta2) < (1.0/double(InverseEtaPrecision))) {
-        throw
-            std::runtime_error("EtaDepResElement::equal EtaMin and EtaMax");
+  void EtaDepResElement::SetEta(double eta1, double eta2) {
+    if (fabs(eta1 - eta2) < (1.0 / double(InverseEtaPrecision))) {
+      throw std::runtime_error("EtaDepResElement::equal EtaMin and EtaMax");
     }
 
     if (eta1 < eta2) {
-        _EtaMin = eta1 ;
-        _EtaMax = eta2 ;
+      _EtaMin = eta1;
+      _EtaMax = eta2;
     } else {
-        _EtaMin = eta2 ;
-        _EtaMax = eta1 ;
+      _EtaMin = eta2;
+      _EtaMax = eta1;
     }
+  }
 
-}
-
-/**
+  /**
    @brief Comparison operator, compare two EtaDepResElement instances
    based on their respective valid \f$\eta\f$ ranges.
 
@@ -99,95 +76,41 @@ EtaDepResElement::SetEta(double eta1,double eta2)
    limit.<br>
    <b>FALSE</b> all other cases.
 */
-bool operator < (const EtaDepResElement& a, const EtaDepResElement& b)
-{
-
-    if (a.IsOverlap(b)) { return false;}
+  bool operator<(const EtaDepResElement& a, const EtaDepResElement& b) {
+    if (a.IsOverlap(b)) {
+      return false;
+    }
     return !(a._EtaMax > b._EtaMin);
+  }
 
-}
+  const double EtaDepResElement::EtaMin() const { return _EtaMin; }
 
+  const double EtaDepResElement::EtaMax() const { return _EtaMax; }
 
-const double
-EtaDepResElement::EtaMin() const
-{
-
-    return _EtaMin;
-
-}
-
-
-const double
-EtaDepResElement::EtaMax() const
-{
-
-    return _EtaMax;
-
-}
-
-
-bool
-EtaDepResElement::IsOverlap(const EtaDepResElement& e) const
-{
-
+  bool EtaDepResElement::IsOverlap(const EtaDepResElement& e) const {
     return (IsInInterval(e._EtaMin) || IsInInterval(e._EtaMax));
+  }
 
-}
+  bool EtaDepResElement::IsNotOverlap(const EtaDepResElement& e) const { return !(IsOverlap(e)); }
 
+  bool EtaDepResElement::IsInInterval(const double& eta) const { return ((_EtaMin < eta) && (eta < _EtaMax)); }
 
-bool
-EtaDepResElement::IsNotOverlap(const EtaDepResElement& e) const
-{
+  bool EtaDepResElement::IsOnEdge(const double& eta) const {
+    bool nearEtaMin = fabs(eta - _EtaMin) < (1.0 / double(InverseEtaPrecision));
+    bool nearEtaMax = fabs(eta - _EtaMax) < (1.0 / double(InverseEtaPrecision));
+    return nearEtaMin || nearEtaMax;
+  }
 
-    return !(IsOverlap(e));
-
-}
-
-
-bool
-EtaDepResElement::IsInInterval(const double& eta) const
-{
-
-    return ((_EtaMin < eta) && (eta < _EtaMax));
-
-}
-
-
-bool
-EtaDepResElement::IsOnEdge(const double& eta) const
-{
-
-    bool nearEtaMin = fabs(eta - _EtaMin) < (1.0/double(InverseEtaPrecision));
-    bool nearEtaMax = fabs(eta - _EtaMax) < (1.0/double(InverseEtaPrecision));
-    return nearEtaMin || nearEtaMax ;
-
-}
-
-
-bool
-EtaDepResElement::IsOnEdge(const EtaDepResElement& e) const
-{
-
+  bool EtaDepResElement::IsOnEdge(const EtaDepResElement& e) const {
     return (e.IsOnEdge(_EtaMin) || e.IsOnEdge(_EtaMax));
+  }
 
-}
+  const Vector_Resolution EtaDepResElement::GetResolution() const { return _Vector_Resolution; }
 
+  std::ostream& operator<<(std::ostream& s, const EtaDepResElement& e) {
+    s << "(" << e._EtaMin << " to " << e._EtaMax << ")"
+      << " / " << e.GetResolution();
+    return s;
+  }
 
-const Vector_Resolution
-EtaDepResElement::GetResolution() const
-{
-
-    return _Vector_Resolution;
-
-}
-
-
-std::ostream& operator<< (std::ostream& s, const EtaDepResElement& e)
-{
-
-    s << "(" << e._EtaMin << " to " << e._EtaMax << ")" << " / " << e.GetResolution ();
-    return s ;
-
-}
-
-} // namespace hitfit
+}  // namespace hitfit

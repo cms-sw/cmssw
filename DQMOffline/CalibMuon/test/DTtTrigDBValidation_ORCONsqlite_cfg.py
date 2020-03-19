@@ -67,7 +67,8 @@ process.dtTTrigAnalyzer = DQMEDAnalyzer('DTtTrigDBValidation',
     OutputFileName = cms.untracked.string('tTrigTestMonitoring.root')
 )
 
-process.qTester = cms.EDAnalyzer("QualityTester",
+from DQMServices.Core.DQMQualityTester import DQMQualityTester
+process.qTester = DQMQualityTester(
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )

@@ -31,14 +31,14 @@ siPixelClusters = jetCoreClusterSplitter.clone(
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import siPixelRecHits
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import MeasurementTrackerEvent
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
-hiInitialJetCoreClusterSplitting = cms.Sequence(
-                                hiPixelVerticesPreSplitting
-                                * hiCaloTowerForTrkPreSplitting
-                                * hiAkPu4CaloJetsForTrkPreSplitting
-								* hiAkPu4CaloJetsCorrectedPreSplitting
-				* hiAkPu4CaloJetsSelectedPreSplitting
-                                * hiJetsForCoreTrackingPreSplitting
-				* siPixelClusters
-                                * siPixelRecHits
-                                * MeasurementTrackerEvent
-                                * siPixelClusterShapeCache)
+hiInitialJetCoreClusterSplittingTask = cms.Task(
+                                hiPixelVerticesPreSplittingTask
+                                , hiCaloTowerForTrkPreSplitting
+                                , hiAkPu4CaloJetsForTrkPreSplitting
+				, hiAkPu4CaloJetsCorrectedPreSplitting
+				, hiAkPu4CaloJetsSelectedPreSplitting
+                                , hiJetsForCoreTrackingPreSplitting
+				, siPixelClusters
+                                , siPixelRecHits
+                                , MeasurementTrackerEvent
+                                , siPixelClusterShapeCache)

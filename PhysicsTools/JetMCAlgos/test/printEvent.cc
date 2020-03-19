@@ -15,17 +15,15 @@
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
 
 class printEvent : public edm::EDAnalyzer {
-  public:
-    explicit printEvent(const edm::ParameterSet & );
-    ~printEvent() {};
-    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+public:
+  explicit printEvent(const edm::ParameterSet&);
+  ~printEvent(){};
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  private:
-
-    edm::EDGetTokenT< edm::View<reco::Jet> > sourceToken_;
-    edm::Handle< edm::View<reco::Jet> > genJets;
-    edm::ESHandle<ParticleDataTable> pdt_;
-
+private:
+  edm::EDGetTokenT<edm::View<reco::Jet> > sourceToken_;
+  edm::Handle<edm::View<reco::Jet> > genJets;
+  edm::ESHandle<ParticleDataTable> pdt_;
 };
 
 // system include files
@@ -40,21 +38,19 @@ using namespace edm;
 using namespace JetMCTagUtils;
 using namespace CandMCTagUtils;
 
-printEvent::printEvent(const edm::ParameterSet& iConfig)
-{
-  sourceToken_ = consumes< edm::View<reco::Jet> >(iConfig.getParameter<InputTag> ("src"));
+printEvent::printEvent(const edm::ParameterSet& iConfig) {
+  sourceToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<InputTag>("src"));
 }
 
-void printEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void printEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   typedef edm::RefToBase<reco::Jet> JetRef;
 
   cout << "[printGenJet] analysing event " << iEvent.id() << endl;
 
   try {
-    iEvent.getByToken (sourceToken_,genJets);
-    iSetup.getData( pdt_ );
-  } catch(std::exception& ce) {
+    iEvent.getByToken(sourceToken_, genJets);
+    iSetup.getData(pdt_);
+  } catch (std::exception& ce) {
     cerr << "[printGenJet] caught std::exception " << ce.what() << endl;
     return;
   }
@@ -64,34 +60,30 @@ void printEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   cout << "* GenJetCollection   *" << endl;
   cout << "**********************" << endl;
 
-  for( View<Jet>::const_iterator f  = genJets->begin();
-                                 f != genJets->end();
-                                 f++) {
-
-    double bRatio = EnergyRatioFromBHadrons( *f );
-    double cRatio = EnergyRatioFromCHadrons( *f );
+  for (View<Jet>::const_iterator f = genJets->begin(); f != genJets->end(); f++) {
+    double bRatio = EnergyRatioFromBHadrons(*f);
+    double cRatio = EnergyRatioFromCHadrons(*f);
 
     printf("[GenJetTest] (pt,eta,phi | bRatio cRatio) = %6.2f %5.2f %5.2f | %5.3f %5.3f |\n",
-	     f->pt(),
-	     f->eta(),
-	     f->phi(),
-             bRatio,
-             cRatio  );
+           f->pt(),
+           f->eta(),
+           f->phi(),
+           bRatio,
+           cRatio);
 
-    for( Candidate::const_iterator c  = f->begin();
-                                   c != f->end();
-                                   c ++) {
+    for (Candidate::const_iterator c = f->begin(); c != f->end(); c++) {
       bool isB = false;
       bool isC = false;
       isB = decayFromBHadron(*c);
       isC = decayFromCHadron(*c);
       printf("        [Constituents] (pt,eta,phi | isB,isC) = %6.2f %5.2f %5.2f | %1d %1d |\n",
-                c->et(),
-                c->eta(),
-                c->phi(),
-                isB,isC  );
+             c->et(),
+             c->eta(),
+             c->phi(),
+             isB,
+             isC);
     }
   }
 }
 
-DEFINE_FWK_MODULE( printEvent );
+DEFINE_FWK_MODULE(printEvent);

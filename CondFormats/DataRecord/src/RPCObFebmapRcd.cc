@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     RPCObFebmapRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Feb 26 10:06:35 CET 2009
 // $Id$
 

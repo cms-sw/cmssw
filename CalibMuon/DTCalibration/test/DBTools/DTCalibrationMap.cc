@@ -6,4 +6,3 @@
  */
 
 #include "CalibMuon/DTCalibration/plugins/DTCalibrationMap.cc"
-

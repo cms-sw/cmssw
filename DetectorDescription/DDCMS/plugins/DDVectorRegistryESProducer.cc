@@ -2,7 +2,7 @@
 //
 // Package:    DetectorDescription/DDCMS
 // Class:      DDVectorRegistryESProducer
-// 
+//
 /**\class DDVectorRegistryESProducer
 
  Description: Produce Vector registry
@@ -25,9 +25,9 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DetectorDescription/DDCMS/interface/DDVectorRegistryRcd.h"
+#include "Geometry/Records/interface/DDVectorRegistryRcd.h"
 #include "DetectorDescription/DDCMS/interface/DDVectorRegistry.h"
-#include "DetectorDescription/DDCMS/interface/DetectorDescriptionRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DD4hep/Detector.h"
 
@@ -37,45 +37,33 @@ using namespace edm;
 
 class DDVectorRegistryESProducer : public edm::ESProducer {
 public:
-
   DDVectorRegistryESProducer(const edm::ParameterSet&);
   ~DDVectorRegistryESProducer() override;
-  
+
   using ReturnType = unique_ptr<DDVectorRegistry>;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  
+
   ReturnType produce(const DDVectorRegistryRcd&);
-  
+
 private:
-  const string m_label;
+  edm::ESGetToken<DDDetector, IdealGeometryRecord> m_token;
 };
 
-DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig)
-  : m_label(iConfig.getParameter<string>("appendToDataLabel"))
-{
-  setWhatProduced(this);
+DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig) {
+  setWhatProduced(this).setConsumes(m_token, edm::ESInputTag("", iConfig.getParameter<string>("appendToDataLabel")));
 }
 
-DDVectorRegistryESProducer::~DDVectorRegistryESProducer()
-{
-}
+DDVectorRegistryESProducer::~DDVectorRegistryESProducer() {}
 
-void
-DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.addDefault(desc);
 }
 
-DDVectorRegistryESProducer::ReturnType
-DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord)
-{
+DDVectorRegistryESProducer::ReturnType DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord) {
   LogDebug("Geometry") << "DDVectorRegistryESProducer::produce\n";
-  edm::ESHandle<DDDetector> det;
-  iRecord.getRecord<DetectorDescriptionRcd>().get(m_label, det);
-
-  const DDVectorsMap& registry = det->vectors();
+  const DDVectorsMap& registry = iRecord.get(m_token).vectors();
 
   auto product = std::make_unique<DDVectorRegistry>();
   product->vectors.insert(registry.begin(), registry.end());

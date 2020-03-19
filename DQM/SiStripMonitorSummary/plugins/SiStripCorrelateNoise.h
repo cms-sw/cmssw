@@ -2,8 +2,9 @@
 //
 // Package:    SiStripCorrelateNoise
 // Class:      SiStripCorrelateNoise
-// 
-/**\class SiStripCorrelateNoise SiStripCorrelateNoise.cc DQM/SiStripMonitorSummary/plugins/SiStripCorrelateNoise.cc
+//
+/**\class SiStripCorrelateNoise SiStripCorrelateNoise.cc
+ DQM/SiStripMonitorSummary/plugins/SiStripCorrelateNoise.cc
 
  Description: <one line class summary>
 
@@ -16,17 +17,16 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,10 +37,9 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
-#include "TH2F.h"
-#include "TH1F.h"
 #include "TFile.h"
-
+#include "TH1F.h"
+#include "TH2F.h"
 
 //
 // class decleration
@@ -49,53 +48,52 @@
 class TrackerTopology;
 class SiStripCorrelateNoise : public edm::EDAnalyzer {
 public:
-  explicit SiStripCorrelateNoise(const edm::ParameterSet&);
+  explicit SiStripCorrelateNoise(const edm::ParameterSet &);
   ~SiStripCorrelateNoise() override;
-  
-  
+
 private:
-  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override{};
   void endJob() override;
-  
+
   void DoPlots();
-  void DoAnalysis(const edm::EventSetup&,const SiStripNoises&,SiStripNoises&);
-  void getHistos(const uint32_t & detid, const TrackerTopology* tTopo, std::vector<TH1F*>& histos);
-  TH1F* getHisto(const long unsigned int& index);
+  void DoAnalysis(const edm::EventSetup &, const SiStripNoises &, SiStripNoises &);
+  void getHistos(const uint32_t &detid, const TrackerTopology *tTopo, std::vector<TH1F *> &histos);
+  TH1F *getHisto(const long unsigned int &index);
 
-  unsigned long long getNoiseCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();}
-  unsigned long long getGainCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();}
-  void checkGainCache(const edm::EventSetup& es);
-  float  getMeanNoise(const SiStripNoises::Range& noiseRange,const uint32_t& first, const uint32_t& range); 
+  unsigned long long getNoiseCache(const edm::EventSetup &eSetup) {
+    return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();
+  }
+  unsigned long long getGainCache(const edm::EventSetup &eSetup) {
+    return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();
+  }
+  void checkGainCache(const edm::EventSetup &es);
+  float getMeanNoise(const SiStripNoises::Range &noiseRange, const uint32_t &first, const uint32_t &range);
 
-  float getGainRatio(const uint32_t& detid, const uint16_t& apv);
+  float getGainRatio(const uint32_t &detid, const uint16_t &apv);
 
-     // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-  struct Data{
+  struct Data {
     uint32_t detid;
     std::vector<float> values;
   };
 
-  SiStripDetInfoFileReader * fr;
+  SiStripDetInfoFileReader *fr;
   edm::ESHandle<SiStripApvGain> gainHandle_;
   edm::ESHandle<SiStripNoises> noiseHandle_;
 
   uint32_t theRun;
-  SiStripNoises* refNoise;
+  SiStripNoises *refNoise;
 
   SiStripApvGain *oldGain, *newGain;
   bool equalGain;
 
-
-  TFile* file;
-  std::vector<TH1F*> vTH1;
+  TFile *file;
+  std::vector<TH1F *> vTH1;
 
   TrackerMap *tkmap;
 
-  
   unsigned long long cacheID_noise;
   unsigned long long cacheID_gain;
 };
-
-

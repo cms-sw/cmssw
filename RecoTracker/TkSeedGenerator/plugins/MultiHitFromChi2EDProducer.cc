@@ -14,7 +14,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 #include "MultiHitGeneratorFromChi2.h"
 
-class MultiHitFromChi2EDProducer: public edm::stream::EDProducer<> {
+class MultiHitFromChi2EDProducer : public edm::stream::EDProducer<> {
 public:
   MultiHitFromChi2EDProducer(const edm::ParameterSet& iConfig);
   ~MultiHitFromChi2EDProducer() override = default;
@@ -31,10 +31,9 @@ private:
   MultiHitGeneratorFromChi2 generator_;
 };
 
-MultiHitFromChi2EDProducer::MultiHitFromChi2EDProducer(const edm::ParameterSet& iConfig):
-  doubletToken_(consumes<IntermediateHitDoublets>(iConfig.getParameter<edm::InputTag>("doublets"))),
-  generator_(iConfig)
-{
+MultiHitFromChi2EDProducer::MultiHitFromChi2EDProducer(const edm::ParameterSet& iConfig)
+    : doubletToken_(consumes<IntermediateHitDoublets>(iConfig.getParameter<edm::InputTag>("doublets"))),
+      generator_(iConfig) {
   produces<RegionsSeedingHitSets>();
   produces<edm::OwnVector<BaseTrackerRecHit> >();
 }
@@ -56,12 +55,16 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
   const auto& regionDoublets = *hdoublets;
 
   const SeedingLayerSetsHits& seedingLayerHits = regionDoublets.seedingLayerHits();
-  if(seedingLayerHits.numberOfLayersInSet() < 3) {
-    throw cms::Exception("LogicError") << "MultiHitFromChi2EDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 3, got " << seedingLayerHits.numberOfLayersInSet() << ". This is likely caused by a configuration error of this module, HitPairEDProducer, or SeedingLayersEDProducer.";
+  if (seedingLayerHits.numberOfLayersInSet() < 3) {
+    throw cms::Exception("LogicError")
+        << "MultiHitFromChi2EDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 3, got "
+        << seedingLayerHits.numberOfLayersInSet()
+        << ". This is likely caused by a configuration error of this module, HitPairEDProducer, or "
+           "SeedingLayersEDProducer.";
   }
 
   auto seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
-  if(regionDoublets.empty()) {
+  if (regionDoublets.empty()) {
     iEvent.put(std::move(seedingHitSets));
     return;
   }
@@ -74,12 +77,14 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
   OrderedMultiHits multihits;
   multihits.reserve(localRA_.upper());
   std::vector<std::unique_ptr<BaseTrackerRecHit> > refittedHitStorage;
-  refittedHitStorage.reserve(localRA_.upper()*2); 
+  refittedHitStorage.reserve(localRA_.upper() * 2);
 
-  LogDebug("MultiHitFromChi2EDProducer") << "Creating multihits for " << regionDoublets.regionSize() << " regions, and " << trilayers.size() << " pair+3rd layers from " << regionDoublets.layerPairsSize() << " layer pairs";
+  LogDebug("MultiHitFromChi2EDProducer") << "Creating multihits for " << regionDoublets.regionSize() << " regions, and "
+                                         << trilayers.size() << " pair+3rd layers from "
+                                         << regionDoublets.layerPairsSize() << " layer pairs";
 
   LayerHitMapCache hitCache;
-  for(const auto& regionLayerPairs: regionDoublets) {
+  for (const auto& regionLayerPairs : regionDoublets) {
     const TrackingRegion& region = regionLayerPairs.region();
 
     auto seedingHitSetsFiller = RegionsSeedingHitSets::dummyFiller();
@@ -90,18 +95,21 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     LogTrace("MultiHitFromChi2EDProducer") << " starting region";
 
-    for(const auto& layerPair: regionLayerPairs) {
-      LogTrace("MultiHitFromChi2EDProducer") << "  starting layer pair " << layerPair.innerLayerIndex() << "," << layerPair.outerLayerIndex();
+    for (const auto& layerPair : regionLayerPairs) {
+      LogTrace("MultiHitFromChi2EDProducer")
+          << "  starting layer pair " << layerPair.innerLayerIndex() << "," << layerPair.outerLayerIndex();
 
       auto found = std::find_if(trilayers.begin(), trilayers.end(), [&](const LayerTriplets::LayerSetAndLayers& a) {
-          return a.first[0].index() == layerPair.innerLayerIndex() && a.first[1].index() == layerPair.outerLayerIndex();
-        });
-      if(found == trilayers.end()) {
-        auto exp = cms::Exception("LogicError") << "Did not find the layer pair from vector<pair+third layers>. This is a sign of some internal inconsistency\n";
-        exp << "I was looking for layer pair " << layerPair.innerLayerIndex() << "," << layerPair.outerLayerIndex() << ". Triplets have the following pairs:\n";
-        for(const auto& a: trilayers) {
+        return a.first[0].index() == layerPair.innerLayerIndex() && a.first[1].index() == layerPair.outerLayerIndex();
+      });
+      if (found == trilayers.end()) {
+        auto exp = cms::Exception("LogicError") << "Did not find the layer pair from vector<pair+third layers>. This "
+                                                   "is a sign of some internal inconsistency\n";
+        exp << "I was looking for layer pair " << layerPair.innerLayerIndex() << "," << layerPair.outerLayerIndex()
+            << ". Triplets have the following pairs:\n";
+        for (const auto& a : trilayers) {
           exp << " " << a.first[0].index() << "," << a.first[1].index() << ": 3rd layers";
-          for(const auto& b: a.second) {
+          for (const auto& b : a.second) {
             exp << " " << b.index();
           }
           exp << "\n";
@@ -110,16 +118,19 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
       }
       const auto& thirdLayers = found->second;
 
-      generator_.hitSets(region, multihits, iEvent, iSetup, layerPair.doublets(), thirdLayers, hitCache, refittedHitStorage);
+      generator_.hitSets(
+          region, multihits, iEvent, iSetup, layerPair.doublets(), thirdLayers, hitCache, refittedHitStorage);
 
 #ifdef EDM_ML_DEBUG
-      LogTrace("MultiHitFromChi2EDProducer") << "  created " << multihits.size() << " multihits for layer pair " << layerPair.innerLayerIndex() << "," << layerPair.outerLayerIndex() << " and 3rd layers";
-      for(const auto& l: thirdLayers) {
+      LogTrace("MultiHitFromChi2EDProducer")
+          << "  created " << multihits.size() << " multihits for layer pair " << layerPair.innerLayerIndex() << ","
+          << layerPair.outerLayerIndex() << " and 3rd layers";
+      for (const auto& l : thirdLayers) {
         LogTrace("MultiHitFromChi2EDProducer") << "   " << l.index();
       }
 #endif
 
-      for(const SeedingHitSet& hitSet: multihits) {
+      for (const SeedingHitSet& hitSet : multihits) {
         seedingHitSetsFiller.emplace_back(hitSet);
       }
       multihits.clear();
@@ -129,7 +140,7 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   auto storage = std::make_unique<edm::OwnVector<BaseTrackerRecHit> >();
   storage->reserve(refittedHitStorage.size());
-  for(auto& ptr: refittedHitStorage)
+  for (auto& ptr : refittedHitStorage)
     storage->push_back(ptr.release());
 
   seedingHitSets->shrink_to_fit();

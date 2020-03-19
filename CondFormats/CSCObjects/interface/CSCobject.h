@@ -4,12 +4,12 @@
 #include <vector>
 #include <map>
 
-class CSCobject{
- public:
+class CSCobject {
+public:
   CSCobject();
   ~CSCobject();
 
-  std::map< int, std::vector<std::vector<float> > > obj;
+  std::map<int, std::vector<std::vector<float> > > obj;
 };
 
 #endif

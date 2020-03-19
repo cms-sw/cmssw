@@ -25,94 +25,94 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 
-
 namespace edm {
-        class Event;
-        class EventSetup;
-        class ParameterSet;
-	class ParameterSetDescription;
-}
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class ParameterSetDescription;
+}  // namespace edm
 
 class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerRunOneDigiBase {
+public:
+  EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
+  EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
+  EcalUncalibRecHitWorkerGlobal() : testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true)) { ; }
+  ~EcalUncalibRecHitWorkerGlobal() override{};
 
-        public:
-                EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
-		EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
-		EcalUncalibRecHitWorkerGlobal():testbeamEEShape(EEShape(true)), testbeamEBShape(EBShape(true)){;}
-                ~EcalUncalibRecHitWorkerGlobal() override {};
+  void set(const edm::EventSetup& es) override;
+  bool run(const edm::Event& evt,
+           const EcalDigiCollection::const_iterator& digi,
+           EcalUncalibratedRecHitCollection& result) override;
 
-                void set(const edm::EventSetup& es) override;
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
+  edm::ParameterSetDescription getAlgoDescription() override;
 
-		edm::ParameterSetDescription getAlgoDescription() override;
-        protected:
+protected:
+  double pedVec[3];
+  double pedRMSVec[3];
+  double gainRatios[3];
 
-                double pedVec[3];
-		double pedRMSVec[3];
-                double gainRatios[3];
+  edm::ESHandle<EcalPedestals> peds;
+  edm::ESHandle<EcalGainRatios> gains;
 
-                edm::ESHandle<EcalPedestals> peds;
-                edm::ESHandle<EcalGainRatios>  gains;
+  template <class C>
+  int isSaturated(const C& digi);
 
-                template < class C > int isSaturated(const C & digi);
+  double timeCorrection(float ampli, const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
 
-                double timeCorrection(float ampli,
-                    const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
+  // weights method
+  edm::ESHandle<EcalWeightXtalGroups> grps;
+  edm::ESHandle<EcalTBWeights> wgts;
+  const EcalWeightSet::EcalWeightMatrix* weights[2];
+  const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
+  EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
+  EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
+  EEShape testbeamEEShape;  // used in the chi2
+  EBShape testbeamEBShape;  // can be replaced by simple shape arrays of float in the future
 
-                // weights method
-                edm::ESHandle<EcalWeightXtalGroups>  grps;
-                edm::ESHandle<EcalTBWeights> wgts;
-                const EcalWeightSet::EcalWeightMatrix* weights[2];
-                const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
-                EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
-                EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
-                EEShape testbeamEEShape; // used in the chi2
-                EBShape testbeamEBShape; // can be replaced by simple shape arrays of float in the future
+  // determie which of the samples must actually be used by ECAL local reco
+  edm::ESHandle<EcalSampleMask> sampleMaskHand_;
 
-                // determie which of the samples must actually be used by ECAL local reco
-		edm::ESHandle<EcalSampleMask> sampleMaskHand_;
+  // ratio method
+  std::vector<double> EBtimeFitParameters_;
+  std::vector<double> EEtimeFitParameters_;
+  std::vector<double> EBamplitudeFitParameters_;
+  std::vector<double> EEamplitudeFitParameters_;
+  std::pair<double, double> EBtimeFitLimits_;
+  std::pair<double, double> EEtimeFitLimits_;
 
-                // ratio method
-                std::vector<double> EBtimeFitParameters_; 
-                std::vector<double> EEtimeFitParameters_; 
-                std::vector<double> EBamplitudeFitParameters_; 
-                std::vector<double> EEamplitudeFitParameters_; 
-                std::pair<double,double> EBtimeFitLimits_;  
-                std::pair<double,double> EEtimeFitLimits_;  
+  EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
+  EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
 
-                EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
-                EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
+  double EBtimeConstantTerm_;
+  double EBtimeNconst_;
+  double EEtimeConstantTerm_;
+  double EEtimeNconst_;
+  double outOfTimeThreshG12pEB_;
+  double outOfTimeThreshG12mEB_;
+  double outOfTimeThreshG61pEB_;
+  double outOfTimeThreshG61mEB_;
+  double outOfTimeThreshG12pEE_;
+  double outOfTimeThreshG12mEE_;
+  double outOfTimeThreshG61pEE_;
+  double outOfTimeThreshG61mEE_;
+  double amplitudeThreshEB_;
+  double amplitudeThreshEE_;
+  double ebSpikeThresh_;
 
-                double EBtimeConstantTerm_;
-                double EBtimeNconst_;
-                double EEtimeConstantTerm_;
-                double EEtimeNconst_;
-                double outOfTimeThreshG12pEB_;
-                double outOfTimeThreshG12mEB_;
-                double outOfTimeThreshG61pEB_;
-                double outOfTimeThreshG61mEB_;
-                double outOfTimeThreshG12pEE_;
-                double outOfTimeThreshG12mEE_;
-                double outOfTimeThreshG61pEE_;
-                double outOfTimeThreshG61mEE_;
-                double amplitudeThreshEB_;
-                double amplitudeThreshEE_;
-                double ebSpikeThresh_;
+  edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
 
-                edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
+  edm::ESHandle<EcalTimeCalibConstants> itime;
+  edm::ESHandle<EcalTimeOffsetConstant> offtime;
+  std::vector<double> ebPulseShape_;
+  std::vector<double> eePulseShape_;
 
-                edm::ESHandle<EcalTimeCalibConstants> itime;
-		edm::ESHandle<EcalTimeOffsetConstant> offtime;
-                std::vector<double> ebPulseShape_;
-                std::vector<double> eePulseShape_;
-
-                // chi2 method
-		bool kPoorRecoFlagEB_;
-		bool kPoorRecoFlagEE_;
-		double chi2ThreshEB_;
-		double chi2ThreshEE_;
-                std::vector<double> EBchi2Parameters_;
-                std::vector<double> EEchi2Parameters_;
+  // chi2 method
+  bool kPoorRecoFlagEB_;
+  bool kPoorRecoFlagEE_;
+  double chi2ThreshEB_;
+  double chi2ThreshEE_;
+  std::vector<double> EBchi2Parameters_;
+  std::vector<double> EEchi2Parameters_;
 };
 
 #endif

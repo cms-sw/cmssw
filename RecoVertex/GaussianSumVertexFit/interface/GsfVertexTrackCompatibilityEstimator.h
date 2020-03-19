@@ -1,7 +1,6 @@
 #ifndef GsfVertexTrackCompatibilityEstimator_H
 #define GsfVertexTrackCompatibilityEstimator_H
 
-
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
@@ -12,7 +11,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
 #include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 
-  /**
+/**
    * Calculates the compatiblity of a track with respect to a vertex 
    * using the Kalman filter algorithms. 
    * The compatibility is computed from the squared standardized residuals 
@@ -22,16 +21,13 @@
    * Can be used to identify outlying tracks.
    */
 
-class GsfVertexTrackCompatibilityEstimator:public VertexTrackCompatibilityEstimator<5>
-{
-
+class GsfVertexTrackCompatibilityEstimator : public VertexTrackCompatibilityEstimator<5> {
 public:
-
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;
 
-  GsfVertexTrackCompatibilityEstimator(){}
+  GsfVertexTrackCompatibilityEstimator() {}
 
-  ~GsfVertexTrackCompatibilityEstimator() override{}
+  ~GsfVertexTrackCompatibilityEstimator() override {}
 
   /**
    * Track-to-vertex compatibility. 
@@ -41,33 +37,29 @@ public:
    * \return The chi**2.
    */
 
-  BDpair estimate(const CachingVertex<5> & vrt, const RefCountedVertexTrack track,
-			  unsigned int hint=UINT_MAX) const override;
+  BDpair estimate(const CachingVertex<5>& vrt,
+                  const RefCountedVertexTrack track,
+                  unsigned int hint = UINT_MAX) const override;
 
-  BDpair estimate(const CachingVertex<5> & v, 
-			  const RefCountedLinearizedTrackState track,
-			  unsigned int hint=UINT_MAX) const override;
+  BDpair estimate(const CachingVertex<5>& v,
+                  const RefCountedLinearizedTrackState track,
+                  unsigned int hint = UINT_MAX) const override;
 
-  BDpair estimate(const reco::Vertex & vertex, 
-			 const reco::TransientTrack & track) const override;
+  BDpair estimate(const reco::Vertex& vertex, const reco::TransientTrack& track) const override;
 
-  GsfVertexTrackCompatibilityEstimator * clone() const override
-  {
-    return new GsfVertexTrackCompatibilityEstimator(* this);
+  GsfVertexTrackCompatibilityEstimator* clone() const override {
+    return new GsfVertexTrackCompatibilityEstimator(*this);
   }
 
-
 private:
-
-  BDpair estimateFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;
-  BDpair estimateNFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;  
+  BDpair estimateFittedTrack(const CachingVertex<5>& v, const RefCountedVertexTrack track) const;
+  BDpair estimateNFittedTrack(const CachingVertex<5>& v, const RefCountedVertexTrack track) const;
 
   GsfVertexUpdator updator;
-//   KalmanVertexTrackUpdator trackUpdator;
+  //   KalmanVertexTrackUpdator trackUpdator;
   MultiPerigeeLTSFactory lTrackFactory;
   VertexTrackFactory<5> vTrackFactory;
-//   KVFHelper helper;
-
+  //   KVFHelper helper;
 };
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/TestProcessor
 // Class  :     EventSetupTestHelper
-// 
+//
 /**\class EventSetupTestHelper EventSetupTestHelper.h "EventSetupTestHelper.h"
 
  Description: [one line class summary]
@@ -29,44 +29,27 @@
 
 // forward declarations
 namespace edm {
-namespace test {
-  
-  class EventSetupTestHelper : public eventsetup::DataProxyProvider, public EventSetupRecordIntervalFinder
-{
+  namespace test {
 
-   public:
-  EventSetupTestHelper(std::vector<ESProduceEntry>);
+    class EventSetupTestHelper : public eventsetup::DataProxyProvider, public EventSetupRecordIntervalFinder {
+    public:
+      EventSetupTestHelper(std::vector<ESProduceEntry>);
+      EventSetupTestHelper(const EventSetupTestHelper&) = delete;
+      const EventSetupTestHelper& operator=(const EventSetupTestHelper&) = delete;
 
-      // ---------- const member functions ---------------------
+      std::shared_ptr<eventsetup::DataProxy> getProxy(unsigned int index);
 
-      // ---------- static member functions --------------------
+      void resetAllProxies();
 
-      // ---------- member functions ---------------------------
-  void newInterval(const eventsetup::EventSetupRecordKey& iRecordType,
-                   const ValidityInterval& iInterval) final;
+    protected:
+      void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) final;
 
-  std::shared_ptr<eventsetup::DataProxy> getProxy(unsigned int index );
-  
-  void resetAllProxies();
-protected:
-  void setIntervalFor(const eventsetup::EventSetupRecordKey&,
-                      const IOVSyncValue& ,
-                      ValidityInterval&) final;
+      KeyedProxiesVector registerProxies(const eventsetup::EventSetupRecordKey&, unsigned int iovIndex) final;
 
-  void registerProxies(const eventsetup::EventSetupRecordKey& iRecordKey ,
-                       KeyedProxies& aProxyList) final ;
-
-
-   private:
-      EventSetupTestHelper(const EventSetupTestHelper&) = delete; // stop default
-
-      const EventSetupTestHelper& operator=(const EventSetupTestHelper&) = delete; // stop default
-
+    private:
       // ---------- member data --------------------------------
-  std::vector<ESProduceEntry> proxies_;
-};
-}
-}
-
-
+      std::vector<ESProduceEntry> proxies_;
+    };
+  }  // namespace test
+}  // namespace edm
 #endif

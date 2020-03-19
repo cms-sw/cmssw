@@ -5,27 +5,26 @@
 #define MAJORITY_H
 
 #include <map>
-  
+
 /** Utility class to take a decision on majority based.
  * Used by MatacqProducer.
  */
-template<class T>
+template <class T>
 class Majority {
   //constructor(s) and destructor(s)
 public:
   /** Constructs a Majority
    */
-  Majority(): n_(0){}
+  Majority() : n_(0) {}
 
   /**Destructor
    */
-  virtual ~Majority(){}
+  virtual ~Majority() {}
 
   /** Collects event
    * @param value event
    */
-  void
-  add(const T& value){
+  void add(const T& value) {
     votes_[value] += 1.;
     n_ += 1.;
   }
@@ -35,23 +34,21 @@ public:
    * value.
    * @return selected value, that is the most frequent one.
    */
-  T result(double* proba) const{
+  T result(double* proba) const {
     std::pair<T, double> m(T(), -1.);
-    for(typename std::map<T, double>::const_iterator it = votes_.begin();
-	it != votes_.end();
-	++it){
-      if(it->second > m.second){
-	m = *it;
+    for (typename std::map<T, double>::const_iterator it = votes_.begin(); it != votes_.end(); ++it) {
+      if (it->second > m.second) {
+        m = *it;
       }
     }
-    if(proba) *proba = n_>0?m.second/n_:-1;
+    if (proba)
+      *proba = n_ > 0 ? m.second / n_ : -1;
     return m.first;
   }
 
   //method(s)
 public:
 private:
-
   //attribute(s)
 protected:
 private:
@@ -59,4 +56,4 @@ private:
   double n_;
 };
 
-#endif //MAJORITY_H not defined
+#endif  //MAJORITY_H not defined

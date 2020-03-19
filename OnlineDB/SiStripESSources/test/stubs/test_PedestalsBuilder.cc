@@ -12,49 +12,41 @@ using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
-// 
-void test_PedestalsBuilder::analyze( const edm::Event& event, const edm::EventSetup& setup ) {
-  
-  LogTrace(mlCabling_) 
-    << "[test_PedestalsBuilder::" << __func__ << "]"
-    << " Dumping all FED connections...";
-  
+//
+void test_PedestalsBuilder::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  LogTrace(mlCabling_) << "[test_PedestalsBuilder::" << __func__ << "]"
+                       << " Dumping all FED connections...";
+
   edm::ESHandle<SiStripPedestals> peds;
-  setup.get<SiStripPedestalsRcd>().get( peds ); 
-  
+  setup.get<SiStripPedestalsRcd>().get(peds);
+
   // Retrieve DetIds in Pedestals object
   vector<uint32_t> det_ids;
-  peds->getDetIds( det_ids );
-  
+  peds->getDetIds(det_ids);
+
   // Iterate through DetIds
   vector<uint32_t>::const_iterator det_id = det_ids.begin();
-  for ( ; det_id != det_ids.end(); det_id++ ) {
-
+  for (; det_id != det_ids.end(); det_id++) {
     // Retrieve pedestals for given DetId
-    SiStripPedestals::Range range = peds->getRange( *det_id );
+    SiStripPedestals::Range range = peds->getRange(*det_id);
 
     // Check if module has 512 or 768 strips (horrible!)
-    uint16_t nstrips = 2*sistrip::STRIPS_PER_FEDCH;
-//     try {
-//       peds->getPed( 2*sistrip::STRIPS_PER_FEDCH, range );
-//     } catch ( cms::Exception& e ) {
-//       nstrips = 2*sistrip::STRIPS_PER_FEDCH;
-//     }
+    uint16_t nstrips = 2 * sistrip::STRIPS_PER_FEDCH;
+    //     try {
+    //       peds->getPed( 2*sistrip::STRIPS_PER_FEDCH, range );
+    //     } catch ( cms::Exception& e ) {
+    //       nstrips = 2*sistrip::STRIPS_PER_FEDCH;
+    //     }
 
     stringstream ss;
     ss << "[test_PedestalsBuilder::" << __func__ << "]"
-       << " Found " << nstrips
-       << " pedestals for DetId " << *det_id
-       << " (ped/low/high): ";
+       << " Found " << nstrips << " pedestals for DetId " << *det_id << " (ped/low/high): ";
 
     // Extract peds and low/high thresholds
-    for ( uint16_t istrip = 0; istrip < nstrips; istrip++ ) {
-      ss << peds->getPed( istrip, range ) << ", ";
+    for (uint16_t istrip = 0; istrip < nstrips; istrip++) {
+      ss << peds->getPed(istrip, range) << ", ";
     }
 
     LogTrace(mlCabling_) << ss.str();
-    
   }
-  
 }
-

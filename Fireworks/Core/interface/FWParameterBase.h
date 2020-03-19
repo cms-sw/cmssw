@@ -28,29 +28,28 @@
 class FWConfiguration;
 class FWParameterizable;
 
-class FWParameterBase : public FWConfigurable
-{
+class FWParameterBase : public FWConfigurable {
 public:
-   FWParameterBase(FWParameterizable* iParent, const std::string& iName);
-   ~FWParameterBase() override;
+  FWParameterBase(FWParameterizable* iParent, const std::string& iName);
+  ~FWParameterBase() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   //virtual void addTo(FWConfiguration& ) const = 0;
-   const std::string& name() const { return m_name; }
+  //virtual void addTo(FWConfiguration& ) const = 0;
+  const std::string& name() const { return m_name; }
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   //virtual void setFrom(const FWConfiguration&) = 0;
+  // ---------- member functions ---------------------------
+  //virtual void setFrom(const FWConfiguration&) = 0;
 
 private:
-   FWParameterBase(const FWParameterBase&) = delete;                  // stop default
-   const FWParameterBase& operator=(const FWParameterBase&) = delete; // stop default
+  FWParameterBase(const FWParameterBase&) = delete;                   // stop default
+  const FWParameterBase& operator=(const FWParameterBase&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
-   std::string m_name;
+  std::string m_name;
 };
 
 #endif

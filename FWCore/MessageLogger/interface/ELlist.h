@@ -1,7 +1,6 @@
 #ifndef MessageLogger_ELlist_h
 #define MessageLogger_ELlist_h
 
-
 // ----------------------------------------------------------------------
 //
 // ELlist.h     Provides a list class with the semantics of std::list.
@@ -17,34 +16,27 @@
 //
 // The following elements of list semantics are relied upon:
 //      push_back()             ELadminstrator
-//	
+//
 //
 // ----------------------------------------------------------------------
 
-
 #ifndef ELSTRING_H
-  #include "FWCore/MessageLogger/interface/ELstring.h"
+#include "FWCore/MessageLogger/interface/ELstring.h"
 #endif
-
 
 #include <list>
 
+namespace edm {
 
-namespace edm {       
+  // ----------------------------------------------------------------------
 
+  class ELdestination;
+  typedef std::list<ELdestination *> ELlist_dest;
 
-// ----------------------------------------------------------------------
+  typedef std::list<ELstring> ELlist_string;
 
+  // ----------------------------------------------------------------------
 
-class ELdestination;
-typedef std::list<ELdestination *> ELlist_dest;
+}  // end of namespace edm
 
-typedef std::list<ELstring       > ELlist_string;
-
-// ----------------------------------------------------------------------
-
-
-}        // end of namespace edm
-
-
-#endif // MessageLogger_ELlist_h
+#endif  // MessageLogger_ELlist_h

@@ -24,14 +24,12 @@ class DDLElementRegistry;
  *
  */
 
-class DDLPosPart final : public DDXMLElement
-{
- public:
+class DDLPosPart final : public DDXMLElement {
+public:
+  DDLPosPart(DDLElementRegistry* myreg);
 
-  DDLPosPart( DDLElementRegistry* myreg );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

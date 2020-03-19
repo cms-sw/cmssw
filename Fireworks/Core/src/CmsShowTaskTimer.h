@@ -26,29 +26,25 @@
 // forward declarations
 class CmsShowTaskExecutorBase;
 
-class CmsShowTaskTimer : public TTimer
-{
-
+class CmsShowTaskTimer : public TTimer {
 public:
-   CmsShowTaskTimer(CmsShowTaskExecutorBase* taskExec, Long_t milliSec = 0, Bool_t mode = kTRUE);
-   ~CmsShowTaskTimer() override;
+  CmsShowTaskTimer(CmsShowTaskExecutorBase* taskExec, Long_t milliSec = 0, Bool_t mode = kTRUE);
+  ~CmsShowTaskTimer() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   Bool_t Notify() override;
+  // ---------- member functions ---------------------------
+  Bool_t Notify() override;
 
 private:
-   CmsShowTaskTimer(const CmsShowTaskTimer&) = delete;    // stop default
+  CmsShowTaskTimer(const CmsShowTaskTimer&) = delete;  // stop default
 
-   const CmsShowTaskTimer& operator=(const CmsShowTaskTimer&) = delete;    // stop default
+  const CmsShowTaskTimer& operator=(const CmsShowTaskTimer&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   CmsShowTaskExecutorBase* m_taskExec;
-
+  // ---------- member data --------------------------------
+  CmsShowTaskExecutorBase* m_taskExec;
 };
-
 
 #endif

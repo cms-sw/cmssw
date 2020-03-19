@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     TTUBoardSpecsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Thu Dec 11 17:47:39 CET 2008
 // $Id$
 

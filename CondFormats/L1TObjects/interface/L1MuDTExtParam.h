@@ -19,11 +19,9 @@
 const int MAX_EXT = 12;
 
 // extrapolation types
-enum Extrapolation { EX12, EX13, EX14, EX21, EX23, EX24, EX34,
-                     EX15, EX16, EX25, EX26, EX56 };
-
+enum Extrapolation { EX12, EX13, EX14, EX21, EX23, EX24, EX34, EX15, EX16, EX25, EX26, EX56 };
 
 // overload output stream operator for Extrapolation
-std::ostream& operator<<( std::ostream& s, Extrapolation ext);
+std::ostream& operator<<(std::ostream& s, Extrapolation ext);
 
 #endif

@@ -9,6 +9,9 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 //class L1MuCSCTFAlignmentRcd : public edm::eventsetup::EventSetupRecordImplementation<L1MuCSCTFAlignmentRcd> {};
-class L1MuCSCTFAlignmentRcd : public edm::eventsetup::DependentRecordImplementation<L1MuCSCTFAlignmentRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1MuCSCTFAlignmentRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1MuCSCTFAlignmentRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

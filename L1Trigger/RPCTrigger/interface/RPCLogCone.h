@@ -15,8 +15,6 @@
 #include <set>
 #include <map>
 
-
-
 #include "L1Trigger/RPCTrigger/interface/RPCLogHit.h"
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
@@ -24,13 +22,11 @@
 
 class RPCLogCone {
 public:
-
-
   /** Hits in one Logic Plane, if strips is fired, its number is added to the map as a key.
     * Vector stores the indexes in DigisVec (stored in L1RpcTrigg) of  Digis that formed log hits
     * Logic m_Strips are diferent from RPC strips - Logic m_Strips it is usaly OR
     * of 2 RPC strips with diferent eta (but the same phi). @see RPCLogHit
-    */  
+    */
   typedef std::map<int, std::vector<int> > TLogPlane;
 
   /// Default constructor. No hits, no muon.
@@ -58,7 +54,7 @@ public:
 
   ///Set logic strip as fired. m_digiIdx - index of digi in digis vector stored by L1RpcTrigg
   void setLogStrip(int logPlane, int logStripNum, int m_digiIdx);
-  
+
   ///Set logic strip as fired.
   void setLogStrip(int logPlane, int logStripNum);
 
@@ -68,7 +64,7 @@ public:
   /** Get vector of didgis indexes (in digis vector stored by L1RpcTrigg) 
     * for given logic strip. If strip was not fired returns empty vector*/
   std::vector<int> getLogStripDigisIdxs(int logPlane, unsigned int logStripNum) const;
-  
+
   void setMuonCode(int code);
 
   int getMuonCode() const;
@@ -94,16 +90,13 @@ public:
   int getLogSegment() const;
 
   RPCConst::l1RpcConeCrdnts getConeCrdnts() const;
-  
+
   void setIdx(int index);
-  
+
   int getIdx() const;
-  
+
   std::string toString() const;
-  
 
-
-  
 private:
   ///Logic Planes
   std::vector<TLogPlane> m_LogPlanesVec;
@@ -120,9 +113,8 @@ private:
   int m_MuonSign;
 
   ///m_Index in LogConesVec stored by L1RpcTrigg
-  int m_Index; 
+  int m_Index;
 };
 
 typedef std::vector<RPCLogCone> L1RpcLogConesVec;
 #endif
-

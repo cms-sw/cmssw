@@ -1,6 +1,6 @@
 #ifndef TrackCharge_H
 #define TrackCharge_H
 
-typedef int   TrackCharge;
+typedef int TrackCharge;
 
-#endif // TrackCharge_H
+#endif  // TrackCharge_H

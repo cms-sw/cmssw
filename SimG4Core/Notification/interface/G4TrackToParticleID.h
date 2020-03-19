@@ -3,11 +3,10 @@
 
 class G4Track;
 
-class G4TrackToParticleID
-{
+class G4TrackToParticleID {
 public:
   // CMS convention (different from ordinary PDG code)
-  static int  particleID(const G4Track *);
+  static int particleID(const G4Track *);
 
   static bool isGammaElectronPositron(int pdgCode);
   static bool isGammaElectronPositron(const G4Track *);
@@ -18,7 +17,7 @@ public:
   // pi+-, p, pbar, n, nbar, KL, K+-, light ion and anti-ion, generic ion
   static bool isStableHadron(int pdgCode);
 
-  // pi+-, p, pbar, n, nbar, KL, K+-, light ions and anti-ions 
+  // pi+-, p, pbar, n, nbar, KL, K+-, light ions and anti-ions
   static bool isStableHadronIon(const G4Track *);
 };
 

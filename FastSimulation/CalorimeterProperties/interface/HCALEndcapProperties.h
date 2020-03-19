@@ -10,27 +10,21 @@
  *
  * \author Patrick Janot
  * \date: 25-Jan-2004  
-*/ 
+*/
 
 #include <cmath>
 
-class HCALEndcapProperties : public HCALProperties 
-{
+class HCALEndcapProperties : public HCALProperties {
+public:
+  HCALEndcapProperties(const edm::ParameterSet& fastDet) : HCALProperties(fastDet) { ; }
 
- public:
-
-  HCALEndcapProperties(const edm::ParameterSet& fastDet):HCALProperties(fastDet) {; } 
-
-  ~HCALEndcapProperties() override { }
+  ~HCALEndcapProperties() override {}
 
   double getHcalDepth(double);
 
-  double thickness(const double eta) const override { 
-    return HCALProperties::getHcalDepth(eta) * interactionLength();
-  }
+  double thickness(const double eta) const override { return HCALProperties::getHcalDepth(eta) * interactionLength(); }
 
- private:
-
+private:
 };
 
 #endif

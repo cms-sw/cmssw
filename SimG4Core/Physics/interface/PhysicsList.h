@@ -5,12 +5,10 @@
 #include "G4VModularPhysicsList.hh"
 
 class PhysicsList : public G4VModularPhysicsList {
-
 public:
-  PhysicsList(const edm::ParameterSet & p);
+  PhysicsList(const edm::ParameterSet& p);
   ~PhysicsList() override;
   void SetCuts() override;
-
 };
 
 #endif

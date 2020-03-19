@@ -2,7 +2,7 @@
 //
 // Package:     CaloTowerGeometry
 // Class  :     CaloTowerAlignmentRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

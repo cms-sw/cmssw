@@ -37,7 +37,6 @@
    information have a look into the class description of the corresponding wrapper classes.
 */
 
-
 namespace edm {
 
   class BasicAnalyzer {
@@ -56,13 +55,13 @@ namespace edm {
     **/
 
     /// everything that needs to be done before the event loop
-    virtual void beginJob()=0;
+    virtual void beginJob() = 0;
     /// everything that needs to be done after the event loop
-    virtual void endJob()  =0;
+    virtual void endJob() = 0;
     /// everything that needs to be done during the event loop
-    virtual void analyze(const edm::EventBase& event)=0;
+    virtual void analyze(const edm::EventBase& event) = 0;
   };
 
-}
+}  // namespace edm
 
 #endif

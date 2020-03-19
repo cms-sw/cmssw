@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "OnlineDB/SiStripESSources/test/stubs/test_FedCablingBuilder.h"
 DEFINE_FWK_MODULE(test_FedCablingBuilder);
 

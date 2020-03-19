@@ -4,12 +4,11 @@ University of Wisconsin-Madison
 bachtis@hep.wisc.edu
 */
 
- 
 #include <memory>
 #include <unistd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,7 +19,7 @@ bachtis@hep.wisc.edu
 
 class HLTTauCertifier : public DQMEDHarvester {
 public:
-  HLTTauCertifier( const edm::ParameterSet& );
+  HLTTauCertifier(const edm::ParameterSet &);
   ~HLTTauCertifier() override;
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
@@ -32,4 +31,3 @@ private:
   bool setBadRunOnWarnings_;
   bool setBadRunOnErrors_;
 };
-

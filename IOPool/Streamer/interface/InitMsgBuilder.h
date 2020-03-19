@@ -6,11 +6,12 @@
 
 // ----------------- init -------------------
 
-class InitMsgBuilder
-{
+class InitMsgBuilder {
 public:
-  InitMsgBuilder(void* msg_mem, uint32 size,
-                 uint32 run, const Version& v,
+  InitMsgBuilder(void* msg_mem,
+                 uint32 size,
+                 uint32 run,
+                 const Version& v,
                  const char* release_tag,
                  const char* process_name,
                  const char* output_module_label,
@@ -22,11 +23,11 @@ public:
 
   uint8* startAddress() const { return buf_; }
   void setDataLength(uint32 registry_length);
-  uint8* dataAddress() const  { return data_addr_; }
-  uint32 headerSize() const {return data_addr_-buf_;}
-  uint32 size() const ;
-  uint32 run() const;  /** Required by EOF Record Builder */  
-  uint32 bufferSize() const {return size_;}
+  uint8* dataAddress() const { return data_addr_; }
+  uint32 headerSize() const { return data_addr_ - buf_; }
+  uint32 size() const;
+  uint32 run() const; /** Required by EOF Record Builder */
+  uint32 bufferSize() const { return size_; }
 
 private:
   uint8* buf_;
@@ -35,4 +36,3 @@ private:
 };
 
 #endif
-

@@ -2,7 +2,7 @@
 //
 // Package:     SimDataFormats/Associations
 // Class  :     MuonToTrackingParticleAssociatorBaseImpl
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociatorBaseImpl.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,11 +26,6 @@
 //
 // constructors and destructor
 //
-reco::MuonToTrackingParticleAssociatorBaseImpl::MuonToTrackingParticleAssociatorBaseImpl()
-{
-}
+reco::MuonToTrackingParticleAssociatorBaseImpl::MuonToTrackingParticleAssociatorBaseImpl() {}
 
-reco::MuonToTrackingParticleAssociatorBaseImpl::~MuonToTrackingParticleAssociatorBaseImpl()
-{
-}
-
+reco::MuonToTrackingParticleAssociatorBaseImpl::~MuonToTrackingParticleAssociatorBaseImpl() {}

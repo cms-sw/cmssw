@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     HLTPrescaleTableRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
-// Author:      
+// Author:
 // Created:     Thu Feb 25 15:41:50 CET 2010
 // $Id$
 

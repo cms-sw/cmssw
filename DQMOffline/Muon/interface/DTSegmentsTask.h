@@ -17,41 +17,35 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <string>
 #include <vector>
 
-class DTSegmentsTask: public DQMEDAnalyzer{
-
+class DTSegmentsTask : public DQMEDAnalyzer {
 public:
   /// Constructor
-  DTSegmentsTask(const edm::ParameterSet& pset);
+  DTSegmentsTask(const edm::ParameterSet &pset);
 
   /// Destructor
   ~DTSegmentsTask() override;
 
   /// book the histos
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 protected:
-
 private:
-
-
   // Switch for verbosity
   bool debug;
   bool checkNoisyChannels;
   edm::ParameterSet parameters;
-  
+
   // the histos
-  std::vector<MonitorElement*> phiHistos;
-  std::vector<MonitorElement*> thetaHistos;
-  
+  std::vector<MonitorElement *> phiHistos;
+  std::vector<MonitorElement *> thetaHistos;
+
   // Label of 4D segments in the event
   edm::EDGetTokenT<DTRecSegment4DCollection> theRecHits4DLabel_;
 };
 #endif
-

@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from __future__ import absolute_import
 import itertools
 import unittest
 import sys
-import dataLoader
+from . import dataLoader
 import ROOT
 
 import six

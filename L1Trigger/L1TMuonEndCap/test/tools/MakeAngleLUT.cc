@@ -35,12 +35,11 @@
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
 
-typedef L1TMuon::GeometryTranslator         GeometryTranslator;
-typedef L1TMuon::TriggerPrimitive           TriggerPrimitive;
+typedef L1TMuon::GeometryTranslator GeometryTranslator;
+typedef L1TMuon::TriggerPrimitive TriggerPrimitive;
 typedef L1TMuon::TriggerPrimitiveCollection TriggerPrimitiveCollection;
 
 #include "helper.h"
-
 
 class MakeAngleLUT : public edm::EDAnalyzer {
 public:
@@ -70,18 +69,15 @@ private:
   bool done_;
 
   /// Event setup
-
 };
 
-
 // _____________________________________________________________________________
-MakeAngleLUT::MakeAngleLUT(const edm::ParameterSet& iConfig) :
-    geometry_translator_(),
-    config_(iConfig),
-    verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
-    outfile_(iConfig.getParameter<std::string>("outfile")),
-    done_(false)
-{
+MakeAngleLUT::MakeAngleLUT(const edm::ParameterSet& iConfig)
+    : geometry_translator_(),
+      config_(iConfig),
+      verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
+      outfile_(iConfig.getParameter<std::string>("outfile")),
+      done_(false) {
   assert(CSCConstants::KEY_CLCT_LAYER == CSCConstants::KEY_ALCT_LAYER);
 }
 
@@ -91,12 +87,11 @@ void MakeAngleLUT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   geometry_translator_.checkAndUpdateGeometry(iSetup);
 }
 
-void MakeAngleLUT::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-
-}
+void MakeAngleLUT::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {}
 
 void MakeAngleLUT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  if (done_)  return;
+  if (done_)
+    return;
 
   generateLUTs();
 
@@ -106,27 +101,22 @@ void MakeAngleLUT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 // _____________________________________________________________________________
 void MakeAngleLUT::generateLUTs() {
-
   const CSCGeometry& geocsc = geometry_translator_.getCSCGeometry();
   const RPCGeometry& georpc = geometry_translator_.getRPCGeometry();
   const GEMGeometry& geogem = geometry_translator_.getGEMGeometry();
   const MagneticField& magfield = geometry_translator_.getMagneticField();
 
-  auto average = [](double x, double y) {
-    return 0.5 * (x + y);
-  };
-
+  auto average = [](double x, double y) { return 0.5 * (x + y); };
 
   // Save z positions for ME1/1, ME1/2, ME1/3, ME2/2, ME3/2, ME4/2,
   //                      RE1/2, RE1/3, RE2/2, RE3/2, RE4/2,
   //                      GE1/1, GE1/2,
-  std::vector<double> z_positions(13*2, 0.);
-
+  std::vector<double> z_positions(13 * 2, 0.);
 
   // ___________________________________________________________________________
   // CSC
 
-  for (const auto & it : geocsc.detUnits() ) {
+  for (const auto& it : geocsc.detUnits()) {
     const CSCLayer* layer = dynamic_cast<const CSCLayer*>(it);  // like GeomDetUnit
     assert(layer != nullptr);
     const CSCChamber* chamber = layer->chamber();  // like GeomDet
@@ -139,37 +129,37 @@ void MakeAngleLUT::generateLUTs() {
     // Save the numbers
     if (cscDetId.endcap() == 1 && (cscDetId.chamber() == 1 || cscDetId.chamber() == 2)) {
       if (cscDetId.station() == 1 && cscDetId.ring() == 1) {
-        if        (cscDetId.chamber() == 2) {  // front
+        if (cscDetId.chamber() == 2) {  // front
           z_positions[0] = zpos;
         } else if (cscDetId.chamber() == 1) {  // rear
           z_positions[1] = zpos;
         }
       } else if (cscDetId.station() == 1 && cscDetId.ring() == 2) {
-        if        (cscDetId.chamber() == 2) {  // front
+        if (cscDetId.chamber() == 2) {  // front
           z_positions[2] = zpos;
         } else if (cscDetId.chamber() == 1) {  // rear
           z_positions[3] = zpos;
         }
       } else if (cscDetId.station() == 1 && cscDetId.ring() == 3) {
-        if        (cscDetId.chamber() == 2) {  // front
+        if (cscDetId.chamber() == 2) {  // front
           z_positions[4] = zpos;
         } else if (cscDetId.chamber() == 1) {  // rear
           z_positions[5] = zpos;
         }
       } else if (cscDetId.station() == 2 && cscDetId.ring() == 2) {
-        if        (cscDetId.chamber() == 2) {  // front
+        if (cscDetId.chamber() == 2) {  // front
           z_positions[6] = zpos;
         } else if (cscDetId.chamber() == 1) {  // rear
           z_positions[7] = zpos;
         }
       } else if (cscDetId.station() == 3 && cscDetId.ring() == 2) {
-        if        (cscDetId.chamber() == 1) {  // front
+        if (cscDetId.chamber() == 1) {  // front
           z_positions[8] = zpos;
         } else if (cscDetId.chamber() == 2) {  // rear
           z_positions[9] = zpos;
         }
       } else if (cscDetId.station() == 4 && cscDetId.ring() == 2) {
-        if        (cscDetId.chamber() == 1) {  // front
+        if (cscDetId.chamber() == 1) {  // front
           z_positions[10] = zpos;
         } else if (cscDetId.chamber() == 2) {  // rear
           z_positions[11] = zpos;
@@ -178,11 +168,10 @@ void MakeAngleLUT::generateLUTs() {
     }
   }  // end loop over CSC detUnits
 
-
   // ___________________________________________________________________________
   // RPC
 
-  for (const auto & it : georpc.detUnits() ) {
+  for (const auto& it : georpc.detUnits()) {
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(it);  // like GeomDetUnit
     assert(roll != nullptr);
     //const RPCChamber* chamber = roll->chamber();  // like GeomDet
@@ -196,33 +185,34 @@ void MakeAngleLUT::generateLUTs() {
     //std::cout << "RPC: " << rpcDetId.region() << " " << rpcDetId.ring() << " " << rpcDetId.station() << " " << rpcDetId.sector() << " " << rpcDetId.layer() << " " << rpcDetId.subsector() << " " << rpcDetId.roll() << " " << zpos << std::endl;
 
     // Save the numbers
-    if (rpcDetId.region() == 1 && rpcDetId.sector() == 1 && rpcDetId.roll() == 1 && (rpcDetId.subsector() == 1 || rpcDetId.subsector() == 2)) {
+    if (rpcDetId.region() == 1 && rpcDetId.sector() == 1 && rpcDetId.roll() == 1 &&
+        (rpcDetId.subsector() == 1 || rpcDetId.subsector() == 2)) {
       if (rpcDetId.station() == 1 && rpcDetId.ring() == 2) {
-        if        (rpcDetId.subsector() == 2) {  // front
+        if (rpcDetId.subsector() == 2) {  // front
           z_positions[12] = zpos;
         } else if (rpcDetId.subsector() == 1) {  // rear
           z_positions[13] = zpos;
         }
       } else if (rpcDetId.station() == 1 && rpcDetId.ring() == 3) {
-        if        (rpcDetId.subsector() == 2) {  // front
+        if (rpcDetId.subsector() == 2) {  // front
           z_positions[14] = zpos;
         } else if (rpcDetId.subsector() == 1) {  // rear
           z_positions[15] = zpos;
         }
       } else if (rpcDetId.station() == 2 && rpcDetId.ring() == 2) {
-        if        (rpcDetId.subsector() == 2) {  // front
+        if (rpcDetId.subsector() == 2) {  // front
           z_positions[16] = zpos;
         } else if (rpcDetId.subsector() == 1) {  // rear
           z_positions[17] = zpos;
         }
       } else if (rpcDetId.station() == 3 && rpcDetId.ring() == 2) {
-        if        (rpcDetId.subsector() == 2) {  // front
+        if (rpcDetId.subsector() == 2) {  // front
           z_positions[18] = zpos;
         } else if (rpcDetId.subsector() == 1) {  // rear
           z_positions[19] = zpos;
         }
       } else if (rpcDetId.station() == 4 && rpcDetId.ring() == 2) {
-        if        (rpcDetId.subsector() == 2) {  // front
+        if (rpcDetId.subsector() == 2) {  // front
           z_positions[20] = zpos;
         } else if (rpcDetId.subsector() == 1) {  // rear
           z_positions[21] = zpos;
@@ -231,11 +221,10 @@ void MakeAngleLUT::generateLUTs() {
     }
   }  // end loop over RPC detUnits
 
-
   // ___________________________________________________________________________
   // GEM
 
-  for (const auto & it : geogem.detUnits() ) {
+  for (const auto& it : geogem.detUnits()) {
     const GEMEtaPartition* roll = dynamic_cast<const GEMEtaPartition*>(it);  // like GeomDetUnit
     assert(roll != nullptr);
     //const GEMChamber* chamber = roll->chamber();  // like GeomDet
@@ -246,7 +235,6 @@ void MakeAngleLUT::generateLUTs() {
     //double zpos = roll->surface().position().z();  // [cm]
     //std::cout << "GEM: " << gemDetId.region() << " " << gemDetId.ring() << " " << gemDetId.station() << " " << gemDetId.layer() << " " << gemDetId.chamber() << " " << gemDetId.roll() << " " << zpos << std::endl;
   }  // end loop over GEM detUnits
-
 
   // ___________________________________________________________________________
   // Verbose
@@ -267,11 +255,10 @@ void MakeAngleLUT::generateLUTs() {
     std::cout << std::endl;
   }
 
-
   // Calculate the coefficients
   auto get_eta_bin_center = [](int b) {
     // nbinsx, xlow, xup = 2048, 1.1, 2.5
-    double c = 1.1 + (2.5 - 1.1)/2048. * (0.5 + static_cast<double>(b));
+    double c = 1.1 + (2.5 - 1.1) / 2048. * (0.5 + static_cast<double>(b));
     return c;
   };
 
@@ -282,7 +269,6 @@ void MakeAngleLUT::generateLUTs() {
 
   // Loop over z bins
   for (int iz = 0; iz < num_z_bins; ++iz) {
-
     // Find common plane
     double common_zpos = 0.;
     if (iz == 0 || iz == 1) {  // ME1/1
@@ -308,14 +294,14 @@ void MakeAngleLUT::generateLUTs() {
     // Loop over eta bins
     for (int ieta = 0; ieta < num_eta_bins; ++ieta) {
       // Find magnetic field strength
-      double zpos     = z_positions.at(iz);
-      double deltaZ   = zpos - common_zpos;
-      double eta      = get_eta_bin_center(ieta);
+      double zpos = z_positions.at(iz);
+      double deltaZ = zpos - common_zpos;
+      double eta = get_eta_bin_center(ieta);
       double cotTheta = std::sinh(eta);
-      double r        = zpos / cotTheta;
+      double r = zpos / cotTheta;
 
-      const GlobalPoint gp(r, 0, zpos);  // phi = 0
-      double bz       = magfield.inTesla(gp).z();  // [Tesla]
+      const GlobalPoint gp(r, 0, zpos);      // phi = 0
+      double bz = magfield.inTesla(gp).z();  // [Tesla]
 
       // Calculate the coefficient
       // coeff = deltaZ * (-0.5) * 0.003 * bz
@@ -323,7 +309,7 @@ void MakeAngleLUT::generateLUTs() {
       coefficients.push_back(coeff);
     }
   }
-  assert(coefficients.size() == (unsigned) (num_z_bins * num_eta_bins));
+  assert(coefficients.size() == (unsigned)(num_z_bins * num_eta_bins));
 
   // Write
   {
@@ -334,7 +320,6 @@ void MakeAngleLUT::generateLUTs() {
     tfile->Write();
     std::cout << "Wrote file: " << outfile_ << std::endl;
   }
-
 }
 
 // DEFINE THIS AS A PLUG-IN

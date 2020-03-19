@@ -9,7 +9,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Objpair.cc
 
@@ -32,49 +31,39 @@
 
  */
 
-
 #include "TopQuarkAnalysis/TopHitFit/interface/Objpair.h"
 #include <ostream>
 #include <cassert>
 
-
 using std::ostream;
-
 
 namespace hitfit {
 
+  Objpair::Objpair(int i, int j, int nconstraints)
+      //
+      // Purpose: Constructor.
+      //
+      // Inputs:
+      //   i -           The first object index.
+      //   j -           The second object index.
+      //   nconstraints- The number of constraints in the problem.
+      //
+      : _i(i), _j(j), _for_constraint(nconstraints) {}
 
-Objpair::Objpair (int i, int j, int nconstraints)
-//
-// Purpose: Constructor.
-//
-// Inputs:
-//   i -           The first object index.
-//   j -           The second object index.
-//   nconstraints- The number of constraints in the problem.
-//
-  : _i (i),
-    _j (j),
-    _for_constraint (nconstraints)
-{
-}
+  void Objpair::has_constraint(std::vector<signed char>::size_type k, int val)
+  //
+  // Purpose: Set the value for constraint K (0-based) to VAL.
+  //
+  // Inputs:
+  //   k -           The constraint number (0-based).
+  //   val -         The value to set for this constraint.
+  //
+  {
+    assert(k < _for_constraint.size());
+    _for_constraint[k] = static_cast<signed char>(val);
+  }
 
-
-void Objpair::has_constraint (std::vector<signed char>::size_type k, int val)
-//
-// Purpose: Set the value for constraint K (0-based) to VAL.
-//
-// Inputs:
-//   k -           The constraint number (0-based).
-//   val -         The value to set for this constraint.
-//
-{
-  assert (k < _for_constraint.size());
-  _for_constraint[k] = static_cast<signed char> (val);
-}
-
-
-/**
+  /**
     @brief Output stream operator, print the content of this Objpair to
     an output stream.
 
@@ -82,23 +71,22 @@ void Objpair::has_constraint (std::vector<signed char>::size_type k, int val)
 
     @param o The instance of Objpair to be printed.
  */
-std::ostream& operator<< (std::ostream& s, const Objpair& o)
-//
-// Purpose: Print the object to S.
-//
-// Inputs:
-//   s -           The stream to which to write.
-//   o -           The object to write.
-//
-// Returns:
-//   The stream S.
-//
-{
-  s << o._i << " " << o._j;
-  for (unsigned k = 0; k < o._for_constraint.size(); ++k)
-    s << " " << static_cast<int> (o._for_constraint[k]);
-  return s;
-}
+  std::ostream& operator<<(std::ostream& s, const Objpair& o)
+  //
+  // Purpose: Print the object to S.
+  //
+  // Inputs:
+  //   s -           The stream to which to write.
+  //   o -           The object to write.
+  //
+  // Returns:
+  //   The stream S.
+  //
+  {
+    s << o._i << " " << o._j;
+    for (unsigned k = 0; k < o._for_constraint.size(); ++k)
+      s << " " << static_cast<int>(o._for_constraint[k]);
+    return s;
+  }
 
-
-} // namespace hitfit
+}  // namespace hitfit

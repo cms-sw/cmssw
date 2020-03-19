@@ -14,60 +14,52 @@ $Revision: 1.3 $
 
 namespace {
   // pack range/capId in the plain index
-  inline unsigned index (unsigned fRange, unsigned fCapId) {return fCapId * 4 + fRange;}
+  inline unsigned index(unsigned fRange, unsigned fCapId) { return fCapId * 4 + fRange; }
+}  // namespace
+
+float HcalQIECoder::charge(const HcalQIEShape& fShape, unsigned fAdc, unsigned fCapId) const {
+  unsigned range = fShape.range(fAdc);
+  return (fShape.center(fAdc) - offset(fCapId, range)) / slope(fCapId, range);
 }
 
-float HcalQIECoder::charge (const HcalQIEShape& fShape, unsigned fAdc, unsigned fCapId) const {
-  unsigned range = fShape.range (fAdc);
-  return (fShape.center (fAdc) - offset (fCapId, range)) / slope (fCapId, range);
-}
-
-unsigned HcalQIECoder::adc (const HcalQIEShape& fShape, float fCharge, unsigned fCapId) const {
+unsigned HcalQIECoder::adc(const HcalQIEShape& fShape, float fCharge, unsigned fCapId) const {
   // search for the range
   for (unsigned range = 0; range < 4; range++) {
-    float qieCharge = fCharge * slope (fCapId, range) + offset (fCapId, range);
-    unsigned nbin   = fShape.nbins(); // it's just 64 = 2*32 ! (for QIE10)
+    float qieCharge = fCharge * slope(fCapId, range) + offset(fCapId, range);
+    unsigned nbin = fShape.nbins();  // it's just 64 = 2*32 ! (for QIE10)
     unsigned minBin = nbin * range;
     unsigned maxBin = minBin + nbin - 1;
-    float qieChargeMax = fShape.highEdge (maxBin);
+    float qieChargeMax = fShape.highEdge(maxBin);
     if (qieCharge <= qieChargeMax) {
       for (unsigned bin = minBin; bin <= maxBin; bin++) {
-	if (qieCharge < fShape.highEdge (bin)) {
-	  return bin;
-	}
+        if (qieCharge < fShape.highEdge(bin)) {
+          return bin;
+        }
       }
-      return minBin; // underflow
-    }
-    else if (range == 3) {
-      return ( 4 * nbin - 1); // overflow
+      return minBin;  // underflow
+    } else if (range == 3) {
+      return (4 * nbin - 1);  // overflow
     }
   }
-  return 0; //should never get here
+  return 0;  //should never get here
 }
 
-float HcalQIECoder::offset (unsigned fCapId, unsigned fRange) const {
-  return *((&mOffset00) + index (fRange, fCapId));
-}
+float HcalQIECoder::offset(unsigned fCapId, unsigned fRange) const { return *((&mOffset00) + index(fRange, fCapId)); }
 
-float HcalQIECoder::slope (unsigned fCapId, unsigned fRange) const {
-  return *((&mSlope00) + index (fRange, fCapId));
-}
-  
-void HcalQIECoder::setOffset (unsigned fCapId, unsigned fRange, float fValue) {
-  if (fCapId < 4U && fRange < 4U) { // fCapId >= 0 and fRange >= 0, since fCapId and fRange are unsigned
-    *((&mOffset00) + index (fRange, fCapId)) = fValue;
-  }
-  else {
+float HcalQIECoder::slope(unsigned fCapId, unsigned fRange) const { return *((&mSlope00) + index(fRange, fCapId)); }
+
+void HcalQIECoder::setOffset(unsigned fCapId, unsigned fRange, float fValue) {
+  if (fCapId < 4U && fRange < 4U) {  // fCapId >= 0 and fRange >= 0, since fCapId and fRange are unsigned
+    *((&mOffset00) + index(fRange, fCapId)) = fValue;
+  } else {
     std::cerr << "HcalQIECoder::setOffset-> Wrong parameters capid/range: " << fCapId << '/' << fRange << std::endl;
   }
 }
 
-void HcalQIECoder::setSlope (unsigned fCapId, unsigned fRange, float fValue) {
-  if (fCapId < 4U && fRange < 4U) { // fCapId >= 0 and fRange >= 0, since fCapId and fRange are unsigned
-    *((&mSlope00) + index (fRange, fCapId)) = fValue;
-  }
-  else {
+void HcalQIECoder::setSlope(unsigned fCapId, unsigned fRange, float fValue) {
+  if (fCapId < 4U && fRange < 4U) {  // fCapId >= 0 and fRange >= 0, since fCapId and fRange are unsigned
+    *((&mSlope00) + index(fRange, fCapId)) = fValue;
+  } else {
     std::cerr << "HcalQIECoder::setSlope-> Wrong parameters capid/range: " << fCapId << '/' << fRange << std::endl;
   }
 }
-

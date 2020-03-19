@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecordIntervalFinder
-// 
+//
 /**\class EventSetupRecordIntervalFinder EventSetupRecordIntervalFinder.h FWCore/Framework/interface/EventSetupRecordIntervalFinder.h
 
  Description: <one line class summary>
@@ -30,54 +30,75 @@
 // forward declarations
 namespace edm {
 
-class EventSetupRecordIntervalFinder
-{
+  class EventSetupRecordIntervalFinder {
+  public:
+    EventSetupRecordIntervalFinder() : intervals_() {}
+    EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&) = delete;
+    const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&) = delete;
+    virtual ~EventSetupRecordIntervalFinder() noexcept(false);
 
-   public:
-      EventSetupRecordIntervalFinder() : intervals_() {}
-      virtual ~EventSetupRecordIntervalFinder() noexcept(false);
+    // ---------- const member functions ---------------------
+    std::set<eventsetup::EventSetupRecordKey> findingForRecords() const;
 
-      // ---------- const member functions ---------------------
-      std::set<eventsetup::EventSetupRecordKey> findingForRecords() const ;
-   
-      const eventsetup::ComponentDescription& descriptionForFinder() const { return description_;}
-      // ---------- static member functions --------------------
+    const eventsetup::ComponentDescription& descriptionForFinder() const { return description_; }
+    // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
-      /**returns the 'default constructed' ValidityInterval if no valid interval.
+    // ---------- member functions ---------------------------
+    /**returns the 'default constructed' ValidityInterval if no valid interval.
        If upperbound is not known, it should be set to IOVSyncValue::invalidIOVSyncValue()
       */
-      const ValidityInterval& findIntervalFor(const eventsetup::EventSetupRecordKey&,
-                                            const IOVSyncValue&);
-   
-      void setDescriptionForFinder(const eventsetup::ComponentDescription& iDescription) {
-        description_ = iDescription;
-      }
-   protected:
-      virtual void setIntervalFor(const eventsetup::EventSetupRecordKey&,
-                                   const IOVSyncValue& , 
-                                   ValidityInterval&) = 0;
+    const ValidityInterval& findIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&);
 
-      template< class T>
-         void findingRecord() {
-            findingRecordWithKey(eventsetup::EventSetupRecordKey::makeKey<T>());
-         }
-      
-      void findingRecordWithKey(const eventsetup::EventSetupRecordKey&);
-      
-private:
-      EventSetupRecordIntervalFinder(const EventSetupRecordIntervalFinder&) = delete; // stop default
+    void resetInterval(const eventsetup::EventSetupRecordKey&);
 
-      const EventSetupRecordIntervalFinder& operator=(const EventSetupRecordIntervalFinder&) = delete; // stop default
+    bool concurrentFinder() const { return isConcurrentFinder(); }
 
-      /** override this method if you need to delay setting what records you will be using until after all modules are loaded*/
-      virtual void delaySettingRecords();
-      // ---------- member data --------------------------------
-      typedef  std::map<eventsetup::EventSetupRecordKey,ValidityInterval> Intervals;
-      Intervals intervals_;
+    bool nonconcurrentAndIOVNeedsUpdate(const eventsetup::EventSetupRecordKey& key,
+                                        const IOVSyncValue& syncValue) const {
+      return isNonconcurrentAndIOVNeedsUpdate(key, syncValue);
+    }
 
-      eventsetup::ComponentDescription description_;
-};
+    void setDescriptionForFinder(const eventsetup::ComponentDescription& iDescription) { description_ = iDescription; }
 
-}
+  protected:
+    virtual void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) = 0;
+
+    template <class T>
+    void findingRecord() {
+      findingRecordWithKey(eventsetup::EventSetupRecordKey::makeKey<T>());
+    }
+
+    void findingRecordWithKey(const eventsetup::EventSetupRecordKey&);
+
+  private:
+    virtual void doResetInterval(const eventsetup::EventSetupRecordKey&);
+
+    // The following function should be overridden in a derived class if
+    // it supports concurrent IOVs. If this returns false (the default),
+    // this will cause the Framework to run everything associated with the
+    // particular IOV set in a call to the function setIntervalFor before
+    // calling setIntervalFor again for that finder. In modules that do not
+    // support concurrency, this time ordering is what the produce functions
+    // use to know what IOV to produce data for. In finders that support
+    // concurrency, the produce function will get information from the
+    // Record to know what IOV to produce data for. This waiting to synchronize
+    // IOV transitions can affect performance. It would be nice if someday
+    // all finders were migrated to support concurrency and this function
+    // and the code related to it could be deleted.
+    virtual bool isConcurrentFinder() const;
+
+    // Should only be overridden by DependentRecordIntervalFinder and
+    // IntersectingIOVRecordIntervalFinder.
+    virtual bool isNonconcurrentAndIOVNeedsUpdate(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&) const;
+
+    /** override this method if you need to delay setting what records you will be using until after all modules are loaded*/
+    virtual void delaySettingRecords();
+    // ---------- member data --------------------------------
+    using Intervals = std::map<eventsetup::EventSetupRecordKey, ValidityInterval>;
+    Intervals intervals_;
+
+    eventsetup::ComponentDescription description_;
+  };
+
+}  // namespace edm
 #endif

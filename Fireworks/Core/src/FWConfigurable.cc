@@ -26,18 +26,14 @@
 //
 // constructors and destructor
 //
-FWConfigurable::FWConfigurable()
-{
-}
+FWConfigurable::FWConfigurable() {}
 
 // FWConfigurable::FWConfigurable(const FWConfigurable& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWConfigurable::~FWConfigurable()
-{
-}
+FWConfigurable::~FWConfigurable() {}
 
 //
 // assignment operators

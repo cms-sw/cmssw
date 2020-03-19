@@ -15,24 +15,19 @@
  *   LMF Correction version
  */
 class LMFCorrVers : public LMFPrimVers {
- public:
+public:
   friend class LMFRunIOV;  // needs permission to write
 
   LMFCorrVers();
   LMFCorrVers(EcalDBConnection *c);
-  LMFCorrVers(oracle::occi::Environment* env,
-	      oracle::occi::Connection* conn);
+  LMFCorrVers(oracle::occi::Environment *env, oracle::occi::Connection *conn);
   ~LMFCorrVers() override;
 
   // Operators
-  inline bool operator==(const LMFCorrVers &t) const { 
-    return (getID() == t.getID());
-  }
-  inline bool operator!=(const LMFCorrVers &t) const { 
-    return (getID() != t.getID());
-  }
+  inline bool operator==(const LMFCorrVers &t) const { return (getID() == t.getID()); }
+  inline bool operator!=(const LMFCorrVers &t) const { return (getID() != t.getID()); }
 
- private:
+private:
   // Methods from LMFUnique
   std::string fetchIdSql(Statement *stmt) override;
   std::string fetchAllSql(Statement *stmt) const override;

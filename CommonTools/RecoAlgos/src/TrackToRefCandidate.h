@@ -13,21 +13,19 @@ namespace converter {
     typedef reco::Track value_type;
     typedef reco::TrackCollection Components;
     typedef reco::RecoChargedRefCandidate Candidate;
-    TrackToRefCandidate(const edm::ParameterSet & cfg) : 
-      MassiveCandidateConverter(cfg) {
+    TrackToRefCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
+    void convert(reco::TrackRef trkRef, reco::RecoChargedRefCandidate& c) const {
+      c = reco::RecoChargedRefCandidate(trkRef, sqrt(massSqr_));
     }
-    void convert(reco::TrackRef trkRef, reco::RecoChargedRefCandidate & c) const {
-      c = reco::RecoChargedRefCandidate( trkRef, sqrt(massSqr_) );
-    }  
   };
 
   namespace helper {
-    template<>
-    struct CandConverter<reco::Track> { 
+    template <>
+    struct CandConverter<reco::Track> {
       typedef TrackToRefCandidate type;
     };
-  }
+  }  // namespace helper
 
-}
+}  // namespace converter
 
 #endif

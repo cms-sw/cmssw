@@ -11,7 +11,6 @@
 #include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
 
-
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "Fireworks/Electrons/plugins/FWPhotonDetailView.h"
@@ -23,124 +22,114 @@
 //
 // constructors and destructor
 //
-FWPhotonDetailView::FWPhotonDetailView():
-m_data(nullptr),
-m_builder(nullptr)
-{
-}
+FWPhotonDetailView::FWPhotonDetailView() : m_data(nullptr), m_builder(nullptr) {}
 
-FWPhotonDetailView::~FWPhotonDetailView()
-{
-   m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
+FWPhotonDetailView::~FWPhotonDetailView() {
+  m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
 
-   if (m_data) m_data->DecDenyDestroy();
-   delete m_builder;
+  if (m_data)
+    m_data->DecDenyDestroy();
+  delete m_builder;
 }
 
 //
 // member functions
 //
-void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton)
-{
-   if(!iPhoton) return;
+void FWPhotonDetailView::build(const FWModelId& id, const reco::Photon* iPhoton) {
+  if (!iPhoton)
+    return;
 
-   // build ECAL objects
-   m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
-                                   iPhoton->caloPosition().eta(), iPhoton->caloPosition().phi(), 25);
-   m_builder->showSuperClusters();
+  // build ECAL objects
+  m_builder = new FWECALDetailViewBuilder(
+      id.item()->getEvent(), id.item()->getGeom(), iPhoton->caloPosition().eta(), iPhoton->caloPosition().phi(), 25);
+  m_builder->showSuperClusters();
 
-   if ( iPhoton->superCluster().isAvailable() )
-      m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow + 1);
+  if (iPhoton->superCluster().isAvailable())
+    m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow + 1);
 
-   TEveCaloLego* lego = m_builder->build();
-   m_data = lego->GetData();
-   m_data->IncDenyDestroy();
-   m_eveScene->AddElement(lego);
+  TEveCaloLego* lego = m_builder->build();
+  m_data = lego->GetData();
+  m_data->IncDenyDestroy();
+  m_eveScene->AddElement(lego);
 
-   // add Photon specific details
-   if( iPhoton->superCluster().isAvailable() ) 
-      addSceneInfo(iPhoton, m_eveScene);
+  // add Photon specific details
+  if (iPhoton->superCluster().isAvailable())
+    addSceneInfo(iPhoton, m_eveScene);
 
-   // draw axis at the window corners
-   TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
-   overlay->SetShowPlane(kFALSE);
-   overlay->SetShowPerspective(kFALSE);
-   overlay->SetCaloLego(lego);
-   overlay->SetShowScales(true); // temporary
-   viewerGL()->AddOverlayElement(overlay);
+  // draw axis at the window corners
+  TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
+  overlay->SetShowPlane(kFALSE);
+  overlay->SetShowPerspective(kFALSE);
+  overlay->SetCaloLego(lego);
+  overlay->SetShowScales(true);  // temporary
+  viewerGL()->AddOverlayElement(overlay);
 
-   // set event handler and flip camera to top view at beginning
-   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   FWGLEventHandler* eh =
-      new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
-   viewerGL()->SetEventHandler(eh);
-   viewerGL()->UpdateScene();
-   viewerGL()->CurrentCamera().Reset();
+  // set event handler and flip camera to top view at beginning
+  viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+  FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+  viewerGL()->SetEventHandler(eh);
+  viewerGL()->UpdateScene();
+  viewerGL()->CurrentCamera().Reset();
 
-   viewerGL()->RequestDraw(TGLRnrCtx::kLODHigh);
+  viewerGL()->RequestDraw(TGLRnrCtx::kLODHigh);
 
-   setTextInfo(id, iPhoton);
+  setTextInfo(id, iPhoton);
 }
 
 //______________________________________________________________________________
 
-void
-FWPhotonDetailView::setTextInfo(const FWModelId& id, const reco::Photon *photon)
-{
-   m_infoCanvas->cd();
-   float_t x = 0.02;
-   float y = 0.97;
-   TLatex* latex = new TLatex(x, y, "");
-   const double textsize(0.05);
-   latex->SetTextSize(2*textsize);
+void FWPhotonDetailView::setTextInfo(const FWModelId& id, const reco::Photon* photon) {
+  m_infoCanvas->cd();
+  float_t x = 0.02;
+  float y = 0.97;
+  TLatex* latex = new TLatex(x, y, "");
+  const double textsize(0.05);
+  latex->SetTextSize(2 * textsize);
 
-   float h = latex->GetTextSize()*0.6;
-   latex->DrawLatex(x, y, id.item()->modelName(id.index()).c_str() );
-   y -= h;
+  float h = latex->GetTextSize() * 0.6;
+  latex->DrawLatex(x, y, id.item()->modelName(id.index()).c_str());
+  y -= h;
 
-   latex->DrawLatex(x, y, Form(" E_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
-                               photon->et(), photon->eta(), photon->phi()) );
-   y -= h;
-   m_builder->makeLegend(x, y);
+  latex->DrawLatex(
+      x, y, Form(" E_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f", photon->et(), photon->eta(), photon->phi()));
+  y -= h;
+  m_builder->makeLegend(x, y);
 }
 
 //______________________________________________________________________________
 
-void
-FWPhotonDetailView::addSceneInfo(const reco::Photon *i, TEveElementList* tList)
-{
+void FWPhotonDetailView::addSceneInfo(const reco::Photon* i, TEveElementList* tList) {
+  // points for centroids
+  Double_t x(0), y(0), z(0);
+  TEvePointSet* scposition = new TEvePointSet("sc position");
+  scposition->SetPickable(kTRUE);
+  scposition->SetTitle("Super cluster centroid");
 
-   // points for centroids
-   Double_t x(0), y(0), z(0);
-   TEvePointSet *scposition = new TEvePointSet("sc position");
-   scposition->SetPickable(kTRUE);
-   scposition->SetTitle("Super cluster centroid");
+  x = i->caloPosition().eta();
+  y = i->caloPosition().phi();
 
-   x = i->caloPosition().eta();
-   y = i->caloPosition().phi();
+  scposition->SetNextPoint(x, y, z);
+  scposition->SetMarkerSize(1);
+  scposition->SetMarkerStyle(4);
+  scposition->SetMarkerColor(kBlue);
+  tList->AddElement(scposition);
 
-   scposition->SetNextPoint(x,y,z);
-   scposition->SetMarkerSize(1);
-   scposition->SetMarkerStyle(4);
-   scposition->SetMarkerColor(kBlue);
-   tList->AddElement(scposition);
+  // points for seed position
+  TEvePointSet* seedposition = new TEvePointSet("seed position");
+  seedposition->SetTitle("Seed cluster centroid");
+  seedposition->SetPickable(kTRUE);
 
-   // points for seed position
-   TEvePointSet *seedposition = new TEvePointSet("seed position");
-   seedposition->SetTitle("Seed cluster centroid");
-   seedposition->SetPickable(kTRUE);
+  x = i->superCluster()->seed()->position().eta();
+  y = i->superCluster()->seed()->position().phi();
+  seedposition->SetMarkerSize(0.01);
 
-   x  = i->superCluster()->seed()->position().eta();
-   y  = i->superCluster()->seed()->position().phi();
-   seedposition->SetMarkerSize(0.01);
-
-   seedposition->SetNextPoint(x, y, z);
-   seedposition->SetMarkerStyle(2);
-   seedposition->SetMarkerColor(kRed);
-   tList->AddElement(seedposition);
+  seedposition->SetNextPoint(x, y, z);
+  seedposition->SetMarkerStyle(2);
+  seedposition->SetMarkerColor(kRed);
+  tList->AddElement(seedposition);
 }
 
-REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon);
+REGISTER_FWDETAILVIEW(FWPhotonDetailView, Photon);
 
 /*
 REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon,ecalRecHit);

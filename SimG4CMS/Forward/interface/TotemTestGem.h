@@ -14,10 +14,10 @@
  
 */
 //
-// Original Author: 
+// Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
- 
+
 // system include files
 #include <iostream>
 #include <memory>
@@ -37,33 +37,27 @@
 
 class G4Step;
 
-class TotemTestGem : public SimProducer,
-		     public Observer<const BeginOfEvent *>,
-		     public Observer<const EndOfEvent *> {
-
-public: 
-
+class TotemTestGem : public SimProducer, public Observer<const BeginOfEvent *>, public Observer<const EndOfEvent *> {
+public:
   TotemTestGem(const edm::ParameterSet &p);
   ~TotemTestGem() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
 protected:
   // observer classes
-  void update(const BeginOfEvent * evt) override;
-  void update(const EndOfEvent * evt) override;
+  void update(const BeginOfEvent *evt) override;
+  void update(const EndOfEvent *evt) override;
 
 private:
   void clear();
-  void fillEvent(TotemTestHistoClass&);
+  void fillEvent(TotemTestHistoClass &);
 
 private:
-
   //Keep parameters and internal memory
-  std::vector<std::string>                names;
-  int                                     evtnum;
-  std::vector<TotemG4Hit*>                hits;
- 
+  std::vector<std::string> names;
+  int evtnum;
+  std::vector<TotemG4Hit *> hits;
 };
 
 #endif

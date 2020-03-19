@@ -13,13 +13,17 @@
 #  mps_fire.py -h
 
 from __future__ import print_function
+from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 import os
 import sys
 import glob
 import shutil
-import cPickle
+if sys.version_info[0]>2:
+  import _pickle as cPickle
+else:
+  import cPickle
 import subprocess
 import re
 import argparse
@@ -142,6 +146,14 @@ transfer_output_files = ""
 
 +JobFlavour           = "{flavour:s}"
 """
+    if "cafalca" in resources:
+        job_submit_template += """\
++CAFJob              = True
++AccountingGroup     = "group_u_CMS.CAF.ALCA"
+# automatically remove the job if the submitter has no permissions to run a CAF Job
+periodic_remove       = !regexp("group_u_CMS.CAF.ALCA", AccountingGroup) && CAFJob =?= True
+"""
+
     if proxy_path is not None:
         job_submit_template += """\
 +x509userproxy        = "{proxy:s}"
@@ -256,7 +268,7 @@ if not args.fireMerge:
         resources = '-q '+resources
 
     nSub = 0 # number of submitted Jobs
-    for i in xrange(lib.nJobs):
+    for i in range(lib.nJobs):
         if lib.JOBDIR[i] not in job_mask: continue
         if lib.JOBSTATUS[i] == 'SETUP':
             if nSub < args.maxJobs:
@@ -319,7 +331,7 @@ else:
 
     # check whether all other jobs are OK
     mergeOK = True
-    for i in xrange(lib.nJobs):
+    for i in range(lib.nJobs):
         if lib.JOBSTATUS[i] != 'OK':
             if 'DISABLED' not in lib.JOBSTATUS[i]:
                 mergeOK = False
@@ -420,7 +432,7 @@ else:
                               job_submit_file]
             else:
                 submission = ["bsub", "-J", curJobName, resources, scriptPath]
-            for _ in xrange(5):
+            for _ in range(5):
                 try:
                     result = subprocess.check_output(submission, stderr=subprocess.STDOUT)
                     break

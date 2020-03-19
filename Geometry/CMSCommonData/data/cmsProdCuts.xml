@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <SpecParSection label="cmsProdCuts.xml" eval="true">
+  <SpecPar name="cms-special">
+   <PartSelector path="//CMSE"/>
+   <Parameter name="CMSCutsRegion" value="CMSERegion" eval="false"/>
+   <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+   <Parameter name="ProdCutsForGamma" value="1*mm"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

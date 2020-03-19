@@ -23,11 +23,14 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="JetMETCorrections/Objects"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="RecoEgamma/EgammaHLTAlgos"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="RecoJets/JetAssociationAlgorithms"/>
 <use   name="RecoJets/JetProducers"/>
+<use   name="MagneticField/Records"/>
+<use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="RecoVertex/VertexTools"/>
 
 <use   name="root"/>
 <use   name="boost"/>

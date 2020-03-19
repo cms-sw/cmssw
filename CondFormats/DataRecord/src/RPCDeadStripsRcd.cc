@@ -2,7 +2,7 @@
 //
 // Package:     DataRecord
 // Class  :     RPCDeadStripsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

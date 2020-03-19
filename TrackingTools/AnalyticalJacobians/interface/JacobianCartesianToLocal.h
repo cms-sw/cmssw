@@ -13,25 +13,20 @@ class LocalTrajectoryParameters;
  */
 
 class JacobianCartesianToLocal {
-
- public:
-  
+public:
   /** Constructor from local trajectory parameters and surface defining the local frame. 
    *  NB!! No default constructor exists!
    */
 
   JacobianCartesianToLocal(const Surface& surface, const LocalTrajectoryParameters& localParameters);
-  
+
   /** Access to Jacobian.
    */
-  
-  const AlgebraicMatrix56& jacobian() const {  return theJacobian;}
 
+  const AlgebraicMatrix56& jacobian() const { return theJacobian; }
 
- private:
-  
+private:
   AlgebraicMatrix56 theJacobian;
+};
 
-};  
-
-#endif //JacobianCartesianToLocal_H
+#endif  //JacobianCartesianToLocal_H

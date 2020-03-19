@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     ModuleHolder
-// 
+//
 /**\class edm::maker::ModuleHolder ModuleHolder.h "FWCore/Framework/src/ModuleHolder.h"
 
  Description: Base class used to own a module for the framework
@@ -36,56 +36,49 @@ namespace edm {
   namespace maker {
     class ModuleHolder {
     public:
-      ModuleHolder(Maker const* iMaker):
-      m_maker(iMaker){}
+      ModuleHolder(Maker const* iMaker) : m_maker(iMaker) {}
       virtual ~ModuleHolder() {}
       std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const;
-      
+
       virtual ModuleDescription const& moduleDescription() const = 0;
       virtual void setModuleDescription(ModuleDescription const& iDesc) = 0;
-      virtual void preallocate(PreallocationConfiguration const& ) = 0;
-      virtual void registerProductsAndCallbacks(ProductRegistry*)=0;
+      virtual void preallocate(PreallocationConfiguration const&) = 0;
+      virtual void registerProductsAndCallbacks(ProductRegistry*) = 0;
       virtual void replaceModuleFor(Worker*) const = 0;
 
       virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
+
     protected:
       Maker const* m_maker;
     };
-    
-    template<typename T>
+
+    template <typename T>
     class ModuleHolderT : public ModuleHolder {
     public:
-      ModuleHolderT(std::shared_ptr<T> iModule, Maker const* iMaker) :ModuleHolder(iMaker), m_mod(iModule) {}
+      ModuleHolderT(std::shared_ptr<T> iModule, Maker const* iMaker) : ModuleHolder(iMaker), m_mod(iModule) {}
       ~ModuleHolderT() override {}
       std::shared_ptr<T> module() const { return m_mod; }
       void replaceModuleFor(Worker* iWorker) const override {
         auto w = dynamic_cast<WorkerT<T>*>(iWorker);
-        assert(nullptr!=w);
+        assert(nullptr != w);
         w->setModule(m_mod);
       }
-      ModuleDescription const& moduleDescription() const override {
-        return m_mod->moduleDescription();
-      }
-      void setModuleDescription(ModuleDescription const& iDesc) override {
-        m_mod->setModuleDescription(iDesc);
-      }
-      void preallocate(PreallocationConfiguration const& iPrealloc) override {
-        m_mod->doPreallocate(iPrealloc);
-      }
+      ModuleDescription const& moduleDescription() const override { return m_mod->moduleDescription(); }
+      void setModuleDescription(ModuleDescription const& iDesc) override { m_mod->setModuleDescription(iDesc); }
+      void preallocate(PreallocationConfiguration const& iPrealloc) override { m_mod->doPreallocate(iPrealloc); }
 
       void registerProductsAndCallbacks(ProductRegistry* iReg) override {
-        m_mod->registerProductsAndCallbacks(module().get(),iReg);
+        m_mod->registerProductsAndCallbacks(module().get(), iReg);
       }
-      
-      std::unique_ptr<OutputModuleCommunicator>
-      createOutputModuleCommunicator() override {
+
+      std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() override {
         return std::move(OutputModuleCommunicatorT<T>::createIfNeeded(m_mod.get()));
       }
+
     private:
       std::shared_ptr<T> m_mod;
-
     };
-  }
-}
+  }  // namespace maker
+}  // namespace edm
 
 #endif

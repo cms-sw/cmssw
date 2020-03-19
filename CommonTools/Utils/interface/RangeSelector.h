@@ -8,14 +8,14 @@
  */
 #include <string>
 
-template<typename T, double (T::*fun)() const>
+template <typename T, double (T::*fun)() const>
 struct RangeSelector {
-  RangeSelector( double min, double max ) : 
-    min_( min ), max_( max ) { }
-  bool operator()( const T & t ) const { 
+  RangeSelector(double min, double max) : min_(min), max_(max) {}
+  bool operator()(const T& t) const {
     double x = (t.*fun)();
-    return min_ <= x && x <= max_; 
+    return min_ <= x && x <= max_;
   }
+
 private:
   double min_, max_;
 };

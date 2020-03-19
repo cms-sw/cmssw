@@ -16,7 +16,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -56,96 +55,93 @@
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
-
 #include "TProfile2D.h"
 
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 namespace popcon {
-  
-  
-  class EcalChannelStatusHandler : public popcon::PopConSourceHandler<EcalChannelStatus>
-    {
-      
-    public:
-      EcalChannelStatusHandler(edm::ParameterSet const &);
-      ~EcalChannelStatusHandler() override; 
-      
-      void getNewObjects() override;
-      void setElectronicsMap(const EcalElectronicsMapping*);
-      
-      std::string id() const override { return m_name;}
-      EcalCondDBInterface* econn;
 
-      
-      // checks on pedestals
-      float checkPedestalValueGain12( EcalPedestals::Item* item);
-      float checkPedestalValueGain6( EcalPedestals::Item* item);
-      float checkPedestalValueGain1( EcalPedestals::Item* item);
-      float checkPedestalRMSGain12( EcalPedestals::Item* item );
-      float checkPedestalRMSGain6( EcalPedestals::Item* item );
-      float checkPedestalRMSGain1( EcalPedestals::Item* item );
-      
-      // check which laser sectors are on
-      void nBadLaserModules( std::map<EcalLogicID, MonLaserBlueDat> dataset_mon );
+  class EcalChannelStatusHandler : public popcon::PopConSourceHandler<EcalChannelStatus> {
+  public:
+    EcalChannelStatusHandler(edm::ParameterSet const &);
+    ~EcalChannelStatusHandler() override;
 
-      // to mask channels reading from pedestal
-      void pedOnlineMasking();
-      void pedMasking();
-      void laserMasking();
-      void physicsMasking();
+    void getNewObjects() override;
+    void setElectronicsMap(const EcalElectronicsMapping *);
 
-      // to read the daq configuration
-      void daqOut(const RunIOV& myRun);
+    std::string id() const override { return m_name; }
+    EcalCondDBInterface *econn;
 
-      // real analysis
-      void pedAnalysis( std::map<EcalLogicID, MonPedestalsDat> dataset_mon, std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon );
-      void laserAnalysis( std::map<EcalLogicID, MonLaserBlueDat> dataset_mon );
-      void cosmicsAnalysis( std::map<EcalLogicID, MonPedestalsOnlineDat> pedestalO_mon, std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon, std::map<EcalLogicID, MonLaserBlueDat> laser_mon, std::map<EcalLogicID, MonOccupancyDat> occupancy_mon );
-      
-    private:
-      
-      unsigned int m_firstRun ;
-      unsigned int m_lastRun ;
-      
-      std::string m_location;
-      std::string m_gentag;
-      std::string m_runtype;			
-      std::string m_sid;
-      std::string m_user;
-      std::string m_pass;
-      std::string m_locationsource;
-      std::string m_name;
+    // checks on pedestals
+    float checkPedestalValueGain12(EcalPedestals::Item *item);
+    float checkPedestalValueGain6(EcalPedestals::Item *item);
+    float checkPedestalValueGain1(EcalPedestals::Item *item);
+    float checkPedestalRMSGain12(EcalPedestals::Item *item);
+    float checkPedestalRMSGain6(EcalPedestals::Item *item);
+    float checkPedestalRMSGain1(EcalPedestals::Item *item);
 
-      bool isGoodLaserEBSm[36][2];
-      bool isGoodLaserEESm[18][2];
-      bool isEBRef1[36][2];
-      bool isEBRef2[36][2];
-      bool isEERef1[18][2];
-      bool isEERef2[18][2];
+    // check which laser sectors are on
+    void nBadLaserModules(std::map<EcalLogicID, MonLaserBlueDat> dataset_mon);
 
-      EcalElectronicsMapping ecalElectronicsMap_;
+    // to mask channels reading from pedestal
+    void pedOnlineMasking();
+    void pedMasking();
+    void laserMasking();
+    void physicsMasking();
 
-      std::ofstream *ResFileEB;
-      std::ofstream *ResFileEE;
-      std::ofstream *ResFileNewEB;
-      std::ofstream *ResFileNewEE;
-      std::ofstream *daqFile;
-      std::ofstream *daqFile2;
+    // to read the daq configuration
+    void daqOut(const RunIOV &myRun);
 
-      std::map<DetId, float> maskedOnlinePedEB, maskedOnlinePedEE;
-      std::map<DetId, float> maskedPedEB, maskedPedEE;
-      std::map<DetId, float> maskedLaserEB, maskedLaserEE;
-      std::map<DetId, float> maskedPhysicsEB, maskedPhysicsEE;
+    // real analysis
+    void pedAnalysis(std::map<EcalLogicID, MonPedestalsDat> dataset_mon,
+                     std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon);
+    void laserAnalysis(std::map<EcalLogicID, MonLaserBlueDat> dataset_mon);
+    void cosmicsAnalysis(std::map<EcalLogicID, MonPedestalsOnlineDat> pedestalO_mon,
+                         std::map<EcalLogicID, MonCrystalConsistencyDat> wrongGain_mon,
+                         std::map<EcalLogicID, MonLaserBlueDat> laser_mon,
+                         std::map<EcalLogicID, MonOccupancyDat> occupancy_mon);
 
-      TProfile2D *newBadEB_;
-      TProfile2D *newBadEEP_;
-      TProfile2D *newBadEEM_;
-    };
-}
+  private:
+    unsigned int m_firstRun;
+    unsigned int m_lastRun;
+
+    std::string m_location;
+    std::string m_gentag;
+    std::string m_runtype;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_locationsource;
+    std::string m_name;
+
+    bool isGoodLaserEBSm[36][2];
+    bool isGoodLaserEESm[18][2];
+    bool isEBRef1[36][2];
+    bool isEBRef2[36][2];
+    bool isEERef1[18][2];
+    bool isEERef2[18][2];
+
+    EcalElectronicsMapping ecalElectronicsMap_;
+
+    std::ofstream *ResFileEB;
+    std::ofstream *ResFileEE;
+    std::ofstream *ResFileNewEB;
+    std::ofstream *ResFileNewEE;
+    std::ofstream *daqFile;
+    std::ofstream *daqFile2;
+
+    std::map<DetId, float> maskedOnlinePedEB, maskedOnlinePedEE;
+    std::map<DetId, float> maskedPedEB, maskedPedEE;
+    std::map<DetId, float> maskedLaserEB, maskedLaserEE;
+    std::map<DetId, float> maskedPhysicsEB, maskedPhysicsEE;
+
+    TProfile2D *newBadEB_;
+    TProfile2D *newBadEEP_;
+    TProfile2D *newBadEEM_;
+  };
+}  // namespace popcon
 #endif
-

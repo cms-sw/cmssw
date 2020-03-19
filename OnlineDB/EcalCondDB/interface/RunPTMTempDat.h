@@ -9,7 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class RunPTMTempDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   RunPTMTempDat();
   ~RunPTMTempDat() override;
@@ -19,15 +19,12 @@ class RunPTMTempDat : public IDataItem {
   inline void setTemperature(float t) { m_temperature = t; }
   inline float getTemperature() const { return m_temperature; }
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+private:
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const RunPTMTempDat* item, RunIOV* iov )
-    noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const RunPTMTempDat* item, RunIOV* iov) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, RunPTMTempDat >* fillMap, RunIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, RunPTMTempDat>* fillMap, RunIOV* iov) noexcept(false);
 
   // User data
   float m_temperature;

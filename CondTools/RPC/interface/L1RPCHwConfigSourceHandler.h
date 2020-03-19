@@ -18,8 +18,6 @@
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 #include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 
-
-
 #include "CondCore/CondDB/interface/Session.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISchema.h"
@@ -29,24 +27,21 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 
-namespace popcon
-{
-        class L1RPCHwConfigSourceHandler : public popcon::PopConSourceHandler<L1RPCHwConfig>
-        {
-
-                public:
+namespace popcon {
+  class L1RPCHwConfigSourceHandler : public popcon::PopConSourceHandler<L1RPCHwConfig> {
+  public:
     L1RPCHwConfigSourceHandler(const edm::ParameterSet& ps);
     ~L1RPCHwConfigSourceHandler() override;
     void getNewObjects() override;
-    std::string id() const override {return m_name;}
+    std::string id() const override { return m_name; }
     void ConnectOnlineDB(std::string connect, std::string authPath);
     void DisconnectOnlineDB();
     void readHwConfig1();
     int Compare2Configs(const Ref& set1, L1RPCHwConfig* set2);
 
-                private:
-    L1RPCHwConfig * disabledDevs;
-	  cond::persistency::Session session;
+  private:
+    L1RPCHwConfig* disabledDevs;
+    cond::persistency::Session session;
     std::string m_name;
     int m_dummy;
     int m_validate;
@@ -54,7 +49,6 @@ namespace popcon
     std::vector<int> m_disableTowers;
     std::string m_connect;
     std::string m_authpath;
-
-        };
-}
+  };
+}  // namespace popcon
 #endif

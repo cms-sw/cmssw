@@ -6,27 +6,24 @@
 #include "PhysicsTools/MVAComputer/interface/TreeReader.h"
 
 #ifdef __GCCXML__
-namespace PhysicsTools_MVAComputer { // anonymous
-struct dictionary {
+namespace PhysicsTools_MVAComputer {  // anonymous
+  struct dictionary {
+    std::vector<PhysicsTools::Variable::Value> vv;
+  };
+  static void dummy(PhysicsTools::MVAComputer *mva) {
+    PhysicsTools::Variable::ValueList v;
 
-std::vector<PhysicsTools::Variable::Value> vv;
+    mva->eval(v);
+    mva->eval(v.values());
+    mva->eval(v.begin(), v.end());
+    mva->eval(v.data(), v.data());
 
-};
-static void dummy(PhysicsTools::MVAComputer *mva)
-{
-	PhysicsTools::Variable::ValueList v;
+    mva->deriv(v);
+    mva->deriv(v.values());
+    mva->deriv(v.begin(), v.end());
+    mva->deriv(v.data(), v.data());
+  }
 
-	mva->eval(v);
-	mva->eval(v.values());
-	mva->eval(v.begin(), v.end());
-	mva->eval(v.data(), v.data());
-
-	mva->deriv(v);
-	mva->deriv(v.values());
-	mva->deriv(v.begin(), v.end());
-	mva->deriv(v.data(), v.data());
-}
-
-} // anonymous namespace
+}  // namespace PhysicsTools_MVAComputer
 
 #endif

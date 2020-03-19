@@ -11,11 +11,9 @@
   \version  $Id: EventSelector.h,v 1.1 2009/12/21 19:27:08 srappocc Exp $
 */
 
-
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 #include <fstream>
 #include <functional>
-
 
 typedef Selector<edm::EventBase> EventSelector;
 

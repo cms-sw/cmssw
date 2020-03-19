@@ -1,18 +1,16 @@
 #ifndef RANDOM_H
 #define RANDOM_H
 
-typedef struct
-{
-  int m[17];                        
-  int seed;                             
-  int i;                                /* originally = 4 */
-  int j;                                /* originally =  16 */
-  int /*boolean*/ haveRange;            /* = false; */
-  double left;                          /*= 0.0; */
-  double right;                         /* = 1.0; */
-  double width;                         /* = 1.0; */
-}
-Random_struct, *Random;
+typedef struct {
+  int m[17];
+  int seed;
+  int i;                     /* originally = 4 */
+  int j;                     /* originally =  16 */
+  int /*boolean*/ haveRange; /* = false; */
+  double left;               /*= 0.0; */
+  double right;              /* = 1.0; */
+  double width;              /* = 1.0; */
+} Random_struct, *Random;
 
 Random new_Random_seed(int seed);
 double Random_nextDouble(Random R);

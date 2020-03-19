@@ -20,7 +20,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 /* Collaborating Class Declarations */
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -38,46 +38,40 @@ class DTSuperLayer;
 /* Class DTClusterer Interface */
 
 class DTClusterer : public edm::EDProducer {
+public:
+  /* Constructor */
+  DTClusterer(const edm::ParameterSet&);
 
-  public:
+  /* Destructor */
+  ~DTClusterer() override;
 
-    /* Constructor */ 
-    DTClusterer(const edm::ParameterSet&) ;
+  /* Operations */
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
-    /* Destructor */ 
-    ~DTClusterer() override ;
+private:
+  // build clusters from hits
+  std::vector<DTSLRecCluster> buildClusters(const DTSuperLayer* sl, std::vector<DTRecHit1DPair>& pairs);
 
-    /* Operations */ 
-    void produce(edm::Event& event, const edm::EventSetup& setup) override;
+  std::vector<std::pair<float, DTRecHit1DPair> > initHits(const DTSuperLayer* sl, std::vector<DTRecHit1DPair>& pairs);
 
-  private:
-    // build clusters from hits
-    std::vector<DTSLRecCluster> buildClusters(const DTSuperLayer* sl,
-                                              std::vector<DTRecHit1DPair>& pairs);
+  unsigned int differentLayers(std::vector<DTRecHit1DPair>& hits);
 
-    std::vector<std::pair<float, DTRecHit1DPair> > initHits(const DTSuperLayer* sl,
-                                                            std::vector<DTRecHit1DPair>& pairs);
+private:
+  // to sort hits by x
+  struct sortClusterByX {
+    bool operator()(const std::pair<float, DTRecHit1DPair>& lhs, const std::pair<float, DTRecHit1DPair>& rhs) {
+      return lhs.first < rhs.first;
+    }
+  };
 
-    unsigned int differentLayers(std::vector<DTRecHit1DPair>& hits);
+private:
+  // Switch on verbosity
+  bool debug;
 
-  private:
-    // to sort hits by x
-    struct sortClusterByX {
-      bool operator()(const std::pair<float, DTRecHit1DPair>& lhs, 
-                      const std::pair<float, DTRecHit1DPair>& rhs) {
-        return lhs.first < rhs.first;
-      }
-    };
+  unsigned int theMinHits;    // min number of hits to build a cluster
+  unsigned int theMinLayers;  // min number of layers to build a cluster
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
 
-  private:
-    // Switch on verbosity
-    bool debug;
-
-    unsigned int theMinHits; // min number of hits to build a cluster
-    unsigned int theMinLayers; // min number of layers to build a cluster
-    edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
-  protected:
-
+protected:
 };
-#endif // DTCLUSTERER_H
-
+#endif  // DTCLUSTERER_H

@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     EventSetupRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -11,118 +11,100 @@
 //
 
 // system include files
-#include <cassert>
-#include <string>
-#include <exception>
+#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
-#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace edm {
-   namespace eventsetup {
-//
-// constants, enums and typedefs
-//
-      typedef std::map< DataKey , const DataProxy* > Proxies;
-//
-// static data member definitions
-//
+  namespace eventsetup {
 
-//
-// constructors and destructor
-//
-EventSetupRecord::EventSetupRecord()
-{
-}
+    typedef std::map<DataKey, const DataProxy*> Proxies;
 
-// EventSetupRecord::EventSetupRecord(const EventSetupRecord& rhs)
-// {
-//    // do actual copying here;
-// }
+    EventSetupRecord::EventSetupRecord() {}
 
-EventSetupRecord::~EventSetupRecord()
-{
-}
+    EventSetupRecord::~EventSetupRecord() {}
 
-//
-// assignment operators
-//
-// const EventSetupRecord& EventSetupRecord::operator=(const EventSetupRecord& rhs)
-// {
-//   //An exception safe implementation is
-//   EventSetupRecord temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+    bool EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
+      return impl_->doGet(aKey, eventSetupImpl_, aGetTransiently);
+    }
 
-//
-// member functions
-//
-//
-// const member functions
-//
-      
-bool
-EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
-  return impl_->doGet(aKey,aGetTransiently);
-}
+    bool EventSetupRecord::wasGotten(const DataKey& aKey) const { return impl_->wasGotten(aKey); }
 
-bool 
-EventSetupRecord::wasGotten(const DataKey& aKey) const {
-  return impl_->wasGotten(aKey);
-}
+    edm::eventsetup::ComponentDescription const* EventSetupRecord::providerDescription(const DataKey& aKey) const {
+      return impl_->providerDescription(aKey);
+    }
 
-edm::eventsetup::ComponentDescription const* 
-EventSetupRecord::providerDescription(const DataKey& aKey) const {
-  return impl_->providerDescription(aKey);
-}
-
-void 
-EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& iTag) const
-{
-   if(iDesc && !iTag.module().empty()) {
-      bool matched = false;
-      if(iDesc->label_.empty()) {
-         matched = iDesc->type_ == iTag.module();
-      } else {
-         matched = iDesc->label_ == iTag.module();
+    void EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& iTag) const {
+      if (iDesc && !iTag.module().empty()) {
+        bool matched = false;
+        if (iDesc->label_.empty()) {
+          matched = iDesc->type_ == iTag.module();
+        } else {
+          matched = iDesc->label_ == iTag.module();
+        }
+        if (!matched) {
+          throw cms::Exception("EventSetupWrongModule")
+              << "EventSetup data was retrieved using an ESInputTag with the values\n"
+              << "  moduleLabel = '" << iTag.module() << "'\n"
+              << "  dataLabel = '" << iTag.data() << "'\n"
+              << "but the data matching the C++ class type and dataLabel comes from module type=" << iDesc->type_
+              << " label='" << iDesc->label_ << "'.\n Please either change the ESInputTag's 'module' label to be "
+              << (iDesc->label_.empty() ? iDesc->type_ : iDesc->label_) << "\n or add the EventSetup module "
+              << iTag.module() << " to the configuration.";
+        }
       }
-      if(!matched) {
-         throw cms::Exception("EventSetupWrongModule") <<"EventSetup data was retrieved using an ESInputTag with the values\n"
-         <<"  moduleLabel = '"<<iTag.module()<<"'\n"
-         <<"  dataLabel = '"<<iTag.data()<<"'\n"
-         <<"but the data matching the C++ class type and dataLabel comes from module type="<<iDesc->type_<<" label='"<<iDesc->label_
-         <<"'.\n Please either change the ESInputTag's 'module' label to be "<<( iDesc->label_.empty()? iDesc->type_:iDesc->label_)
-         <<"\n or add the EventSetup module "<<iTag.module()<<" to the configuration.";
-      }
-   }
-}
+    }
 
-void 
-EventSetupRecord::addTraceInfoToCmsException(cms::Exception& iException, const char* iName, const ComponentDescription* iDescription, const DataKey& iKey) const
-{
-   std::ostringstream ost;
-   ost << "Using EventSetup component "
-       << iDescription->type_
-       << "/'" << iDescription->label_
-       << "' to make data "
-       << iKey.type().name() << "/'"
-       << iName
-       << "' in record "
-       << this->key().type().name();
-   iException.addContext(ost.str());
-}         
+    void EventSetupRecord::addTraceInfoToCmsException(cms::Exception& iException,
+                                                      const char* iName,
+                                                      const ComponentDescription* iDescription,
+                                                      const DataKey& iKey) const {
+      std::ostringstream ost;
+      ost << "Using EventSetup component " << iDescription->type_ << "/'" << iDescription->label_ << "' to make data "
+          << iKey.type().name() << "/'" << iName << "' in record " << this->key().type().name();
+      iException.addContext(ost.str());
+    }
 
-//
-// static member functions
-//
-   }
-}
+    std::exception_ptr EventSetupRecord::makeInvalidTokenException(EventSetupRecordKey const& iRecordKey,
+                                                                   TypeTag const& iDataKey) {
+      cms::Exception ex("InvalidESGetToken");
+      ex << "Attempted to get data using an invalid token of type ESGetToken<" << iDataKey.name() << ","
+         << iRecordKey.name()
+         << ">.\n"
+            "Please call consumes to properly initialize the token.";
+      return std::make_exception_ptr(ex);
+    }
+
+    void EventSetupRecord::throwWrongTransitionID() const {
+      cms::Exception ex("ESGetTokenWrongTransition");
+      ex << "The transition ID stored in the ESGetToken does not match the\n"
+         << "transition where the token is being used. The associated record\n"
+         << "type is: " << key().type().name() << "\n"
+         << "For producers, filters and analyzers this transition ID is\n"
+         << "set as a template parameter to the call to the esConsumes\n"
+         << "function that creates the token. Event is the default transition.\n"
+         << "Other possibilities are BeginRun, EndRun, BeginLuminosityBlock,\n"
+         << "or EndLuminosityBlock. You may need multiple tokens if you want to\n"
+         << "get the same data in multiple transitions. The transition ID has a\n"
+         << "different meaning in ESProducers. For ESProducers, the transition\n"
+         << "ID identifies the function that produces the EventSetup data (often\n"
+         << "there is one function named produce but there can be multiple\n"
+         << "functions with different names). For ESProducers, the ESGetToken\n"
+         << "must be used in the function associated with the ESConsumesCollector\n"
+         << "returned by the setWhatProduced function.";
+      throw ex;
+    }
+
+    void EventSetupRecord::throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel) {
+      throw cms::Exception("MustUseESGetToken")
+          << "Called EventSetupRecord::get without using a ESGetToken.\n While requesting data type:" << iTypeName
+          << " label:'" << iLabel << "'";
+    }
+
+  }  // namespace eventsetup
+}  // namespace edm

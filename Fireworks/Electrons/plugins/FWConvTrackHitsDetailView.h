@@ -17,62 +17,46 @@ class TGLEmbeddedViewer;
 class TGTextButton;
 
 namespace reco {
-   class Conversion;
+  class Conversion;
 }
 
-class FWConvTrackHitsDetailView: public FWDetailViewGL<reco::Conversion>,
-                             public CSGActionSupervisor
-{
+class FWConvTrackHitsDetailView : public FWDetailViewGL<reco::Conversion>, public CSGActionSupervisor {
 public:
-   FWConvTrackHitsDetailView();
-   ~FWConvTrackHitsDetailView() override;
+  FWConvTrackHitsDetailView();
+  ~FWConvTrackHitsDetailView() override;
 
-   void pickCameraCenter();
-   void rnrLabels();   
-   void rnrModules();
-   void rnrHits();
+  void pickCameraCenter();
+  void rnrLabels();
+  void rnrModules();
+  void rnrHits();
 
-   void camera1Callback();
-   void camera2Callback();
-   void camera3Callback();
-   void switchProjection();
+  void camera1Callback();
+  void camera2Callback();
+  void camera3Callback();
+  void switchProjection();
 
-      
 private:
-   FWConvTrackHitsDetailView(const FWConvTrackHitsDetailView&) = delete; // stop default
-   const FWConvTrackHitsDetailView& operator=(const FWConvTrackHitsDetailView&) = delete; // stop default
-   
-   using FWDetailViewGL<reco::Conversion>::build;
-   void build (const FWModelId &id, const reco::Conversion*) override;
-   using FWDetailViewGL<reco::Conversion>::setTextInfo;
-   void setTextInfo (const FWModelId &id, const reco::Conversion*) override;
- 
-   
-   void
-   addTrackerHits3D( std::vector<TVector3> &points,
-                    class TEveElementList *tList,
-                    Color_t color, int size );
-   
-   void
-   addHits( const reco::Track& track,
-           const FWEventItem* iItem,
-           TEveElement* trkList,
-           bool addNearbyHits );
-   void
-   addModules( const reco::Track& track,
-              const FWEventItem* iItem,
-              TEveElement* trkList,
-              bool addLostHits );
-   
-   
-   TEveElementList*    m_modules;
-   TEveElementList*    m_moduleLabels;
-   TEveElementList*    m_hits;
-   TEveElement*          m_calo3D;
-   
-   TLegend*                m_legend;
-   bool                       m_orthographic;
-   CSGAction*            m_camTypeAction;
+  FWConvTrackHitsDetailView(const FWConvTrackHitsDetailView&) = delete;                   // stop default
+  const FWConvTrackHitsDetailView& operator=(const FWConvTrackHitsDetailView&) = delete;  // stop default
+
+  using FWDetailViewGL<reco::Conversion>::build;
+  void build(const FWModelId& id, const reco::Conversion*) override;
+  using FWDetailViewGL<reco::Conversion>::setTextInfo;
+  void setTextInfo(const FWModelId& id, const reco::Conversion*) override;
+
+  void addTrackerHits3D(std::vector<TVector3>& points, class TEveElementList* tList, Color_t color, int size);
+
+  void addHits(const reco::Track& track, const FWEventItem* iItem, TEveElement* trkList, bool addNearbyHits);
+  void addModules(const reco::Track& track, const FWEventItem* iItem, TEveElement* trkList, bool addLostHits);
+
+  TEveElementList* m_modules;
+  TEveElementList* m_moduleLabels;
+  TEveElementList* m_hits;
+  TEveElement* m_calo3D;
+
+  TLegend* m_legend;
+  bool m_orthographic;
+  CSGAction* m_camTypeAction;
 };
 
 #endif

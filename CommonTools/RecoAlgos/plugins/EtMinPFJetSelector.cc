@@ -10,9 +10,6 @@
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
- typedef SingleObjectSelector<
-           reco::PFJetCollection, 
-           EtMinSelector
-         > EtMinPFJetSelector;
+typedef SingleObjectSelector<reco::PFJetCollection, EtMinSelector> EtMinPFJetSelector;
 
-DEFINE_FWK_MODULE( EtMinPFJetSelector );
+DEFINE_FWK_MODULE(EtMinPFJetSelector);

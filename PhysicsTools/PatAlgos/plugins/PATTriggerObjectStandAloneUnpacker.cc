@@ -13,7 +13,6 @@
   \author   Volker Adler
 */
 
-
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,59 +23,54 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 namespace pat {
-  
-  class PATTriggerObjectStandAloneUnpacker : public edm::global::EDProducer<> {
-    
-  public:
-    
-    explicit PATTriggerObjectStandAloneUnpacker( const edm::ParameterSet & iConfig );
-    ~PATTriggerObjectStandAloneUnpacker() override {};
-    
-  private:
-    
-    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
-    
-    const edm::EDGetTokenT< TriggerObjectStandAloneCollection > patTriggerObjectsStandAloneToken_;
-    const edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
-    bool unpackFilterLabels_;
-    const edm::EDGetTokenT< std::vector<std::string> > filterLabelsToken_;
-    
-  };
-  
-}
 
+  class PATTriggerObjectStandAloneUnpacker : public edm::global::EDProducer<> {
+  public:
+    explicit PATTriggerObjectStandAloneUnpacker(const edm::ParameterSet& iConfig);
+    ~PATTriggerObjectStandAloneUnpacker() override{};
+
+  private:
+    void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+
+    const edm::EDGetTokenT<TriggerObjectStandAloneCollection> patTriggerObjectsStandAloneToken_;
+    const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+    bool unpackFilterLabels_;
+    const edm::EDGetTokenT<std::vector<std::string> > filterLabelsToken_;
+  };
+
+}  // namespace pat
 
 using namespace pat;
 
-
-PATTriggerObjectStandAloneUnpacker::PATTriggerObjectStandAloneUnpacker( const edm::ParameterSet & iConfig )
-: patTriggerObjectsStandAloneToken_( consumes< TriggerObjectStandAloneCollection >( iConfig.getParameter< edm::InputTag >( "patTriggerObjectsStandAlone" ) ) )
-, triggerResultsToken_( consumes< edm::TriggerResults >( iConfig.getParameter< edm::InputTag >( "triggerResults" ) ) )
-, unpackFilterLabels_( iConfig.getParameter< bool >("unpackFilterLabels") )
-{
-  produces< TriggerObjectStandAloneCollection >();
+PATTriggerObjectStandAloneUnpacker::PATTriggerObjectStandAloneUnpacker(const edm::ParameterSet& iConfig)
+    : patTriggerObjectsStandAloneToken_(consumes<TriggerObjectStandAloneCollection>(
+          iConfig.getParameter<edm::InputTag>("patTriggerObjectsStandAlone"))),
+      triggerResultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
+      unpackFilterLabels_(iConfig.getParameter<bool>("unpackFilterLabels")) {
+  produces<TriggerObjectStandAloneCollection>();
 }
 
-void PATTriggerObjectStandAloneUnpacker::produce( edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const
-{
-  edm::Handle< TriggerObjectStandAloneCollection > patTriggerObjectsStandAlone;
-  iEvent.getByToken( patTriggerObjectsStandAloneToken_, patTriggerObjectsStandAlone );
-  edm::Handle< edm::TriggerResults > triggerResults;
-  iEvent.getByToken( triggerResultsToken_, triggerResults );
+void PATTriggerObjectStandAloneUnpacker::produce(edm::StreamID,
+                                                 edm::Event& iEvent,
+                                                 const edm::EventSetup& iSetup) const {
+  edm::Handle<TriggerObjectStandAloneCollection> patTriggerObjectsStandAlone;
+  iEvent.getByToken(patTriggerObjectsStandAloneToken_, patTriggerObjectsStandAlone);
+  edm::Handle<edm::TriggerResults> triggerResults;
+  iEvent.getByToken(triggerResultsToken_, triggerResults);
 
   auto patTriggerObjectsStandAloneUnpacked = std::make_unique<TriggerObjectStandAloneCollection>();
 
-  for ( size_t iTrigObj = 0; iTrigObj < patTriggerObjectsStandAlone->size(); ++iTrigObj ) {
-    TriggerObjectStandAlone patTriggerObjectStandAloneUnpacked( patTriggerObjectsStandAlone->at( iTrigObj ) );
-    const edm::TriggerNames & names = iEvent.triggerNames( *triggerResults );
-    patTriggerObjectStandAloneUnpacked.unpackPathNames( names );
-    if (unpackFilterLabels_) patTriggerObjectStandAloneUnpacked.unpackFilterLabels(iEvent,*triggerResults );
-    patTriggerObjectsStandAloneUnpacked->push_back( patTriggerObjectStandAloneUnpacked );
+  for (size_t iTrigObj = 0; iTrigObj < patTriggerObjectsStandAlone->size(); ++iTrigObj) {
+    TriggerObjectStandAlone patTriggerObjectStandAloneUnpacked(patTriggerObjectsStandAlone->at(iTrigObj));
+    const edm::TriggerNames& names = iEvent.triggerNames(*triggerResults);
+    patTriggerObjectStandAloneUnpacked.unpackPathNames(names);
+    if (unpackFilterLabels_)
+      patTriggerObjectStandAloneUnpacked.unpackFilterLabels(iEvent, *triggerResults);
+    patTriggerObjectsStandAloneUnpacked->push_back(patTriggerObjectStandAloneUnpacked);
   }
 
-  iEvent.put(std::move(patTriggerObjectsStandAloneUnpacked) );
+  iEvent.put(std::move(patTriggerObjectsStandAloneUnpacked));
 }
 
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE( PATTriggerObjectStandAloneUnpacker );
+DEFINE_FWK_MODULE(PATTriggerObjectStandAloneUnpacker);

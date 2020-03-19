@@ -3,6 +3,6 @@
 
 #include "MagneticField/VolumeGeometry/interface/MagneticFieldProvider.h"
 
-typedef MagneticFieldProvider<float>    MagProviderInterpol;
+typedef MagneticFieldProvider<float> MagProviderInterpol;
 
 #endif

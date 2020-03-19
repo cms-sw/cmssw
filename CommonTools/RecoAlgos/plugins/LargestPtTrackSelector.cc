@@ -12,11 +12,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 
- typedef ObjectSelector<
-           SortCollectionSelector<
-             reco::TrackCollection, 
-             GreaterByPt<reco::Track> 
-           > 
-         > LargestPtTrackSelector;
+typedef ObjectSelector<SortCollectionSelector<reco::TrackCollection, GreaterByPt<reco::Track> > > LargestPtTrackSelector;
 
-DEFINE_FWK_MODULE( LargestPtTrackSelector );
+DEFINE_FWK_MODULE(LargestPtTrackSelector);

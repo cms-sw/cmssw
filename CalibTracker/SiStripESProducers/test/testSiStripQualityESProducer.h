@@ -17,14 +17,13 @@
 class SiStripQuality;
 
 class testSiStripQualityESProducer : public edm::EDAnalyzer {
-
- public:
-  explicit testSiStripQualityESProducer( const edm::ParameterSet& );
+public:
+  explicit testSiStripQualityESProducer(const edm::ParameterSet&);
   ~testSiStripQualityESProducer(){};
-  
-  void analyze( const edm::Event&, const edm::EventSetup& );
-    
- private:
+
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
   void printObject(const SiStripQuality*);
   bool printdebug_;
   unsigned long long m_cacheID_;

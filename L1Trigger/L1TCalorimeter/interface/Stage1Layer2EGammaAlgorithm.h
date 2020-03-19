@@ -25,15 +25,14 @@
 
 #include <vector>
 
-
 namespace l1t {
 
   class Stage1Layer2EGammaAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
-			      const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::Jet> * jets,
-			      std::vector<l1t::EGamma>* egammas) = 0;
+    virtual void processEvent(const std::vector<l1t::CaloEmCand>& EMCands,
+                              const std::vector<l1t::CaloRegion>& regions,
+                              const std::vector<l1t::Jet>* jets,
+                              std::vector<l1t::EGamma>* egammas) = 0;
 
     virtual ~Stage1Layer2EGammaAlgorithm(){};
 
@@ -47,6 +46,6 @@ namespace l1t {
     // double HoverECut;
   };
 
-}
+}  // namespace l1t
 
 #endif

@@ -7,21 +7,20 @@
 // Define typedefs for convenience
 namespace pat {
   class Hemisphere;
-  typedef std::vector<Hemisphere>              HemisphereCollection; 
-  typedef edm::Ref<HemisphereCollection>       HemisphereRef; 
-  typedef edm::RefVector<HemisphereCollection> HemisphereRefVector; 
-}
+  typedef std::vector<Hemisphere> HemisphereCollection;
+  typedef edm::Ref<HemisphereCollection> HemisphereRef;
+  typedef edm::RefVector<HemisphereCollection> HemisphereRefVector;
+}  // namespace pat
 
 namespace pat {
-  
+
   class Hemisphere : public reco::CompositePtrCandidate {
   public:
-    Hemisphere () {}
-    Hemisphere (const Candidate::LorentzVector& p4) :
-    CompositePtrCandidate(0,p4) {}
-    ~Hemisphere () override {}
+    Hemisphere() {}
+    Hemisphere(const Candidate::LorentzVector& p4) : CompositePtrCandidate(0, p4) {}
+    ~Hemisphere() override {}
   };
 
-}
+}  // namespace pat
 
 #endif

@@ -5,7 +5,6 @@
 #ifndef RecoBTag_SoftLepton_SoftPFMuonTagInfoProducer_h
 #define RecoBTag_SoftLepton_SoftPFMuonTagInfoProducer_h
 
-
 #include <vector>
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -27,23 +26,19 @@
 #include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 
 class SoftPFMuonTagInfoProducer : public edm::stream::EDProducer<> {
+public:
+  SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf);
+  ~SoftPFMuonTagInfoProducer() override;
 
-  public:
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual float boostedPPar(const math::XYZVector&, const math::XYZVector&);
 
-    SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf);
-    ~SoftPFMuonTagInfoProducer() override;
-    
-  private:
-
-    void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual float boostedPPar(const math::XYZVector&, const math::XYZVector&);
-
-    edm::EDGetTokenT<edm::View<reco::Jet> > jetToken;
-    edm::EDGetTokenT<edm::View<reco::Muon> > muonToken;
-    edm::EDGetTokenT<reco::VertexCollection> vertexToken;
-    float pTcut, SIPsigcut, IPsigcut, ratio1cut, ratio2cut;
-    bool useFilter;
+  edm::EDGetTokenT<edm::View<reco::Jet> > jetToken;
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  float pTcut, SIPsigcut, IPsigcut, ratio1cut, ratio2cut;
+  bool useFilter;
 };
-
 
 #endif

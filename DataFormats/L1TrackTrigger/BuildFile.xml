@@ -3,6 +3,8 @@
 <use   name="DataFormats/GeometryCommonDetAlgo"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/Phase2TrackerDigi"/>
+<use   name="DataFormats/SiStripDetId"/>
+<use   name="DataFormats/TrackerCommon"/>
 <export>
   <lib   name="1"/>
 </export>

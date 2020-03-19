@@ -38,32 +38,28 @@
 #ifndef HITFIT_FIT_RESULTS_H
 #define HITFIT_FIT_RESULTS_H
 
-
 #include "TopQuarkAnalysis/TopHitFit/interface/Fit_Result_Vec.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/matutil.h"
 #include <vector>
 #include <iosfwd>
 
-
 namespace hitfit {
 
+  class Lepjets_Event;
 
-class Lepjets_Event;
-
-
-/**
+  /**
     @class Fit_Results
 
     @brief Holds set(s) of results from more than one kinematic fits.
 */
-class Fit_Results
-//
-// Purpose: Hold the results from kinematic fitting.
-//
-{
-public:
-  // Constructor.  Make N_LISTS lists, each of maximum length MAX_LEN.
-  /**
+  class Fit_Results
+  //
+  // Purpose: Hold the results from kinematic fitting.
+  //
+  {
+  public:
+    // Constructor.  Make N_LISTS lists, each of maximum length MAX_LEN.
+    /**
      @brief Constructor, make <i>n_list</i> of lists, each of maximum
      length <i>max_len</i>.
 
@@ -71,18 +67,18 @@ public:
 
      @param n_lists The number of lists.
    */
-  Fit_Results (int max_len, int n_lists);
+    Fit_Results(int max_len, int n_lists);
 
-  // Return the Ith list.
-  /**
+    // Return the Ith list.
+    /**
      @brief Access the <i>i-</i>th list
 
      @param i The index of the list.
    */
-  const Fit_Result_Vec& operator[] (std::vector<Fit_Result_Vec>::size_type i) const;
+    const Fit_Result_Vec& operator[](std::vector<Fit_Result_Vec>::size_type i) const;
 
-  // Add a new result.  LIST_FLAGS tells on which lists to enter it.
-  /**
+    // Add a new result.  LIST_FLAGS tells on which lists to enter it.
+    /**
      @brief Add a new fit result.
 
      @param chisq The fit \f$\chi^{2}\f$.
@@ -105,27 +101,24 @@ public:
      be added.  This vector should have a same length as the internal
      object _v.
    */
-  void push (double chisq,
-             const Lepjets_Event& ev,
-             const Column_Vector& pullx,
-             const Column_Vector& pully,
-             double umwhad,
-             double utmass,
-             double mt,
-             double sigmt,
-             const std::vector<int>& list_flags);
+    void push(double chisq,
+              const Lepjets_Event& ev,
+              const Column_Vector& pullx,
+              const Column_Vector& pully,
+              double umwhad,
+              double utmass,
+              double mt,
+              double sigmt,
+              const std::vector<int>& list_flags);
 
-  // Print this object.
-  friend std::ostream& operator<< (std::ostream& s, const Fit_Results& res);
+    // Print this object.
+    friend std::ostream& operator<<(std::ostream& s, const Fit_Results& res);
 
+  private:
+    // The object state.
+    std::vector<Fit_Result_Vec> _v;
+  };
 
-private:
-  // The object state.
-  std::vector<Fit_Result_Vec> _v;
-};
+}  // namespace hitfit
 
-
-} // namespace hitfit
-
-
-#endif // not HITFIT_FIT_RESULT_H
+#endif  // not HITFIT_FIT_RESULT_H

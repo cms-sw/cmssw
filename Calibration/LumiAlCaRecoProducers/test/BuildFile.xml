@@ -1,0 +1,4 @@
+<bin   file="test.cpp" name="TestCalibrationLumiAlCaRecoProducers">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash Calibration/LumiAlCaRecoProducers/test test.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>

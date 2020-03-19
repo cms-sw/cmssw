@@ -23,16 +23,18 @@
 #include <cstdint>
 
 class SiStripAPVRestorer {
- friend class SiStripRawProcessingFactory;
+  friend class SiStripRawProcessingFactory;
+
 protected:
   SiStripAPVRestorer(const edm::ParameterSet& conf);
+
 public:
-  virtual ~SiStripAPVRestorer() {};
+  virtual ~SiStripAPVRestorer(){};
 
   using digi_t = int16_t;
   using digivector_t = std::vector<digi_t>;
   using digimap_t = std::map<uint16_t, digi_t>;
-  using medians_t = std::vector<std::pair<short,float>>;
+  using medians_t = std::vector<std::pair<short, float>>;
   using baselinemap_t = std::map<uint16_t, digivector_t>;
 
   void init(const edm::EventSetup& es);
@@ -40,7 +42,11 @@ public:
   uint16_t inspect(uint32_t detId, uint16_t firstAPV, const digivector_t& digis, const medians_t& vmedians);
   void restore(uint16_t firstAPV, digivector_t& digis);
 
-  uint16_t inspectAndRestore(uint32_t detId, uint16_t firstAPV, const digivector_t& rawDigisPedSubtracted, digivector_t& processedRawDigi, const medians_t& vmedians);
+  uint16_t inspectAndRestore(uint32_t detId,
+                             uint16_t firstAPV,
+                             const digivector_t& rawDigisPedSubtracted,
+                             digivector_t& processedRawDigi,
+                             const medians_t& vmedians);
 
   void loadMeanCMMap(const edm::Event&);
 
@@ -61,7 +67,7 @@ private:
   uint16_t hybridEmulationInspect(uint16_t firstAPV, const digivector_t& digis);
 
   void flatRestore(uint16_t apvN, uint16_t firstAPV, digivector_t& digis);
-  bool checkBaseline(const std::vector<int16_t> & baseline) const;
+  bool checkBaseline(const std::vector<int16_t>& baseline) const;
   void baselineFollowerRestore(uint16_t apvN, uint16_t firstAPV, float median, digivector_t& digis);
   void derivativeFollowerRestore(uint16_t apvN, uint16_t firstAPV, digivector_t& digis);
 
@@ -76,9 +82,9 @@ private:
   void createCMMapRealPed(const edm::DetSetVector<SiStripRawDigi>& input);
   void createCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& input);
 
-private: // members
-  edm::ESHandle<SiStripQuality>   qualityHandle;
-  edm::ESHandle<SiStripNoises>    noiseHandle;
+private:  // members
+  edm::ESHandle<SiStripQuality> qualityHandle;
+  edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripPedestals> pedestalHandle;
   uint32_t quality_cache_id, noise_cache_id, pedestal_cache_id;
 
@@ -100,26 +106,26 @@ private: // members
   bool forceNoRestore_;
   std::string inspectAlgo_;
   std::string restoreAlgo_;
-  bool     useRealMeanCM_;
-  int32_t  meanCM_;
-  uint32_t deltaCMThreshold_;          // for BaselineFollower inspect
-  double   fraction_;                  // fraction of strips deviating from nominal baseline
-  uint32_t deviation_;                 // ADC value of deviation from nominal baseline
-  double   restoreThreshold_;          // for Null inspect (fraction of adc=0 channels)
-  uint32_t nSaturatedStrip_;           // for BaselineAndSaturation inspect
-  uint32_t nSigmaNoiseDerTh_;          // threshold for rejecting hits strips
-  uint32_t consecThreshold_;           // minimum length of flat region
-  uint32_t nSmooth_;                   // for smoothing and local minimum determination (odd number)
-  uint32_t distortionThreshold_;       // (max-min) of flat regions to trigger baseline follower
-  bool     applyBaselineCleaner_;
+  bool useRealMeanCM_;
+  int32_t meanCM_;
+  uint32_t deltaCMThreshold_;     // for BaselineFollower inspect
+  double fraction_;               // fraction of strips deviating from nominal baseline
+  uint32_t deviation_;            // ADC value of deviation from nominal baseline
+  double restoreThreshold_;       // for Null inspect (fraction of adc=0 channels)
+  uint32_t nSaturatedStrip_;      // for BaselineAndSaturation inspect
+  uint32_t nSigmaNoiseDerTh_;     // threshold for rejecting hits strips
+  uint32_t consecThreshold_;      // minimum length of flat region
+  uint32_t nSmooth_;              // for smoothing and local minimum determination (odd number)
+  uint32_t distortionThreshold_;  // (max-min) of flat regions to trigger baseline follower
+  bool applyBaselineCleaner_;
   uint32_t cleaningSequence_;
-  int32_t  slopeX_;
-  int32_t  slopeY_;
-  uint32_t hitStripThreshold_;         // height above median when strip is definitely a hit
-  uint32_t minStripsToFit_;            // minimum strips to try spline algo (otherwise default to median)
-  bool    applyBaselineRejection_;
-  double  filteredBaselineMax_;
-  double  filteredBaselineDerivativeSumSquare_;
+  int32_t slopeX_;
+  int32_t slopeY_;
+  uint32_t hitStripThreshold_;  // height above median when strip is definitely a hit
+  uint32_t minStripsToFit_;     // minimum strips to try spline algo (otherwise default to median)
+  bool applyBaselineRejection_;
+  double filteredBaselineMax_;
+  double filteredBaselineDerivativeSumSquare_;
   int gradient_threshold_;
   int last_gradient_;
   int size_window_;

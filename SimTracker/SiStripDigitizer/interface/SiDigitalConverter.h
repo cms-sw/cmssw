@@ -10,13 +10,13 @@
  * Base class for ADC simulation.
  */
 class SiDigitalConverter {
- public:
-  typedef std::vector<SiStripDigi>         DigitalVecType;
-  typedef std::vector<SiStripRawDigi>      DigitalRawVecType;
-  
-  virtual ~SiDigitalConverter() { }
-  virtual DigitalVecType    convert(const std::vector<float> &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;
-  virtual DigitalRawVecType convertRaw(const std::vector<float> &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;  
+public:
+  typedef std::vector<SiStripDigi> DigitalVecType;
+  typedef std::vector<SiStripRawDigi> DigitalRawVecType;
+
+  virtual ~SiDigitalConverter() {}
+  virtual DigitalVecType convert(const std::vector<float>&, edm::ESHandle<SiStripGain>&, unsigned int detid) = 0;
+  virtual DigitalRawVecType convertRaw(const std::vector<float>&, edm::ESHandle<SiStripGain>&, unsigned int detid) = 0;
 };
 
 #endif

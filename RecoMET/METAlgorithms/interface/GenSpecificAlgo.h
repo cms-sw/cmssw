@@ -2,7 +2,7 @@
 //
 // Package:    METAlgorithms
 // Class:      GenSpecificAlgo
-// 
+//
 /**\class GenSpecificAlgo GenSpecificAlgo.h RecoMET/METAlgorithms/interface/GenSpecificAlgo.h
 
  Description: Adds generator level HEPMC specific information to MET
@@ -26,20 +26,30 @@
 #include "DataFormats/METReco/interface/SpecificGenMETData.h"
 
 //____________________________________________________________________________||
-class GenSpecificAlgo
-{
-
+class GenSpecificAlgo {
 public:
-  reco::GenMET addInfo(edm::Handle<edm::View<reco::Candidate> > particles, CommonMETData *met, double globalThreshold = 0, bool onlyFiducial = false,bool applyFiducialThresholdForFractions = false, bool usePt = false);
+  reco::GenMET addInfo(edm::Handle<edm::View<reco::Candidate> > particles,
+                       CommonMETData* met,
+                       double globalThreshold = 0,
+                       bool onlyFiducial = false,
+                       bool applyFiducialThresholdForFractions = false,
+                       bool usePt = false);
 
 private:
   typedef math::XYZTLorentzVector LorentzVector;
   typedef math::XYZPoint Point;
 
-  void fillCommonMETData(CommonMETData *met, edm::Handle<edm::View<reco::Candidate> >& particles, double globalThreshold, bool onlyFiducial, bool usePt);
-  SpecificGenMETData mkSpecificGenMETData(edm::Handle<edm::View<reco::Candidate> >& particles,double globalThreshold, bool onlyFiducial,bool applyFiducialThresholdForFractions, bool usePt);
-
+  void fillCommonMETData(CommonMETData* met,
+                         edm::Handle<edm::View<reco::Candidate> >& particles,
+                         double globalThreshold,
+                         bool onlyFiducial,
+                         bool usePt);
+  SpecificGenMETData mkSpecificGenMETData(edm::Handle<edm::View<reco::Candidate> >& particles,
+                                          double globalThreshold,
+                                          bool onlyFiducial,
+                                          bool applyFiducialThresholdForFractions,
+                                          bool usePt);
 };
 
 //____________________________________________________________________________||
-#endif // METProducers_GenMETInfo_h
+#endif  // METProducers_GenMETInfo_h

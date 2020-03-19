@@ -22,7 +22,7 @@ class TrackToEcalPropagator;
 class CaloTower;
 
 namespace reco {
-  class Track; 
+  class Track;
 }
 
 namespace pat {
@@ -30,18 +30,22 @@ namespace pat {
   class Electron;
 
   class CaloIsolationEnergy {
-    public:
-      CaloIsolationEnergy();
-      virtual ~CaloIsolationEnergy();
+  public:
+    CaloIsolationEnergy();
+    virtual ~CaloIsolationEnergy();
 
-      float calculate(const Electron & anElectron, const std::vector<CaloTower> & theTowers, float isoConeElectron = 0.3) const;
-      float calculate(const Muon & aMuon, const std::vector<CaloTower> & theTowers, float isoConeMuon = 0.3) const;
+    float calculate(const Electron& anElectron,
+                    const std::vector<CaloTower>& theTowers,
+                    float isoConeElectron = 0.3) const;
+    float calculate(const Muon& aMuon, const std::vector<CaloTower>& theTowers, float isoConeMuon = 0.3) const;
 
-    private:
-      float calculate(const reco::Track & track, const float leptonEnergy, const std::vector<CaloTower> & theTowers, float isoCone) const;
+  private:
+    float calculate(const reco::Track& track,
+                    const float leptonEnergy,
+                    const std::vector<CaloTower>& theTowers,
+                    float isoCone) const;
   };
 
-}
+}  // namespace pat
 
 #endif
-

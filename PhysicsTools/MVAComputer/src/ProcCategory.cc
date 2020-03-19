@@ -2,7 +2,7 @@
 //
 // Package:     MVAComputer
 // Class  :     ProcCategory
-// 
+//
 
 // Implementation:
 //     Categorizes the input variables given a set of ranges for each
@@ -20,69 +20,59 @@
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcCategory : public VarProcessor {
-    public:
-	typedef VarProcessor::Registry::Registry<ProcCategory,
-					Calibration::ProcCategory> Registry;
+  class ProcCategory : public VarProcessor {
+  public:
+    typedef VarProcessor::Registry::Registry<ProcCategory, Calibration::ProcCategory> Registry;
 
-	ProcCategory(const char *name,
-	             const Calibration::ProcCategory *calib,
-	             const MVAComputer *computer);
-	~ProcCategory() override {}
+    ProcCategory(const char *name, const Calibration::ProcCategory *calib, const MVAComputer *computer);
+    ~ProcCategory() override {}
 
-	void configure(ConfIterator iter, unsigned int n) override;
-	void eval(ValueIterator iter, unsigned int n) const override;
+    void configure(ConfIterator iter, unsigned int n) override;
+    void eval(ValueIterator iter, unsigned int n) const override;
 
-    private:
-	typedef Calibration::ProcCategory::BinLimits BinLimits;
+  private:
+    typedef Calibration::ProcCategory::BinLimits BinLimits;
 
-	const Calibration::ProcCategory	*calib;
-};
+    const Calibration::ProcCategory *calib;
+  };
 
-ProcCategory::Registry registry("ProcCategory");
+  ProcCategory::Registry registry("ProcCategory");
 
-ProcCategory::ProcCategory(const char *name,
-                           const Calibration::ProcCategory *calib,
-                           const MVAComputer *computer) :
-	VarProcessor(name, calib, computer), calib(calib)
-{
-}
+  ProcCategory::ProcCategory(const char *name, const Calibration::ProcCategory *calib, const MVAComputer *computer)
+      : VarProcessor(name, calib, computer), calib(calib) {}
 
-void ProcCategory::configure(ConfIterator iter, unsigned int n)
-{
-	if (n != calib->variableBinLimits.size())
-		return;
+  void ProcCategory::configure(ConfIterator iter, unsigned int n) {
+    if (n != calib->variableBinLimits.size())
+      return;
 
-	unsigned int categories = 1;
-	for(std::vector<BinLimits>::const_iterator bin =
-					calib->variableBinLimits.begin();
-	    bin != calib->variableBinLimits.end(); bin++)
-		categories *= (bin->size() + 1);
+    unsigned int categories = 1;
+    for (std::vector<BinLimits>::const_iterator bin = calib->variableBinLimits.begin();
+         bin != calib->variableBinLimits.end();
+         bin++)
+      categories *= (bin->size() + 1);
 
-	if (calib->categoryMapping.size() != categories)
-		return;
+    if (calib->categoryMapping.size() != categories)
+      return;
 
-	while(iter)
-		iter++(Variable::FLAG_NONE);
+    while (iter)
+      iter++(Variable::FLAG_NONE);
 
-	iter << Variable::FLAG_NONE;
-}
+    iter << Variable::FLAG_NONE;
+  }
 
-void ProcCategory::eval(ValueIterator iter, unsigned int n) const
-{
-	unsigned int category = 0;
-	for(std::vector<BinLimits>::const_iterator vars =
-					calib->variableBinLimits.begin();
-	    vars != calib->variableBinLimits.end(); vars++, ++iter) {
-		unsigned int idx = std::upper_bound(vars->begin(), vars->end(),
-		                                    *iter) - vars->begin();
-		category *= vars->size() + 1;
-		category += idx;
-	}
+  void ProcCategory::eval(ValueIterator iter, unsigned int n) const {
+    unsigned int category = 0;
+    for (std::vector<BinLimits>::const_iterator vars = calib->variableBinLimits.begin();
+         vars != calib->variableBinLimits.end();
+         vars++, ++iter) {
+      unsigned int idx = std::upper_bound(vars->begin(), vars->end(), *iter) - vars->begin();
+      category *= vars->size() + 1;
+      category += idx;
+    }
 
-	iter(calib->categoryMapping[category]);
-}
+    iter(calib->categoryMapping[category]);
+  }
 
-} // anonymous namespace
+}  // anonymous namespace

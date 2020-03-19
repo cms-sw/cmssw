@@ -28,27 +28,23 @@ class CSGAction;
 class CSGActionSupervisor;
 
 class CSGConnector : public TQObject {
-
 public:
-   CSGConnector(CSGAction *action, CSGActionSupervisor *supervisor) : m_action(action), m_supervisor(supervisor) {
-   };
-   //virtual ~CSGConnector();
+  CSGConnector(CSGAction *action, CSGActionSupervisor *supervisor) : m_action(action), m_supervisor(supervisor){};
+  //virtual ~CSGConnector();
 
-   // ---------- member functions ---------------------------
-   void handleMenu(Int_t entry);
-   void handleToolBar(Int_t entry);
-   ClassDef(CSGConnector,0);
+  // ---------- member functions ---------------------------
+  void handleMenu(Int_t entry);
+  void handleToolBar(Int_t entry);
+  ClassDef(CSGConnector, 0);
 
 private:
-   CSGConnector(const CSGConnector&); // stop default
+  CSGConnector(const CSGConnector &);  // stop default
 
-   const CSGConnector& operator=(const CSGConnector&); // stop default
+  const CSGConnector &operator=(const CSGConnector &);  // stop default
 
-   // ---------- member data --------------------------------
-   CSGAction *m_action;
-   CSGActionSupervisor *m_supervisor;
-
+  // ---------- member data --------------------------------
+  CSGAction *m_action;
+  CSGActionSupervisor *m_supervisor;
 };
-
 
 #endif

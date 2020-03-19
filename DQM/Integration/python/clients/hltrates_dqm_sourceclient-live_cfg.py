@@ -40,7 +40,7 @@ process.dqmSaver.tag = "HLTRates"
 #process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" ) # for muon hlt dqm
 #SiStrip Local Reco
-#process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+#process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -71,7 +71,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 #process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
 
-#process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+#process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 
 ####### JMS Aug 16 2011 you do need to prescale
 process.hltPreTrigResRateMon = cms.EDFilter ("HLTPrescaler",

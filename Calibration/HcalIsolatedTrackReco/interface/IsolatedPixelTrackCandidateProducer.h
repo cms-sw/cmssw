@@ -40,26 +40,24 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 class IsolatedPixelTrackCandidateProducer : public edm::stream::EDProducer<> {
-
 public:
-
-  IsolatedPixelTrackCandidateProducer (const edm::ParameterSet& ps);
+  IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& ps);
   ~IsolatedPixelTrackCandidateProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
-  
+
   double getDistInCM(double eta1, double phi1, double eta2, double phi2);
   std::pair<double, double> GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ);
 
 private:
   struct seedAtEC {
-    seedAtEC(unsigned int i, bool f, double et, double fi) : index(i), ok(f), eta(et), phi(fi) { }
+    seedAtEC(unsigned int i, bool f, double et, double fi) : index(i), ok(f), eta(et), phi(fi) {}
     unsigned int index;
-    bool         ok;
-    double       eta, phi;
+    bool ok;
+    double eta, phi;
   };
 
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
@@ -83,6 +81,5 @@ private:
   double zEE_;
   double bfVal_;
 };
-
 
 #endif

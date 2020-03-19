@@ -2,7 +2,7 @@
 //
 // Package:     Framework
 // Class  :     ModuleFactory
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -21,36 +21,34 @@
 // constants, enums and typedefs
 //
 namespace edm {
-   namespace eventsetup {
+  namespace eventsetup {
 
-//
-// static member functions
-//
-      std::string ModuleMakerTraits::name() { return "CMS EDM Framework ESModule"; }
-      void ModuleMakerTraits::addTo(EventSetupProvider& iProvider,
-                                    std::shared_ptr<DataProxyProvider> iComponent,
-                                    ParameterSet const&,
-                                    bool) 
-      {
-         iProvider.add(iComponent);
-      }
+    //
+    // static member functions
+    //
+    std::string ModuleMakerTraits::name() { return "CMS EDM Framework ESModule"; }
+    void ModuleMakerTraits::addTo(EventSetupProvider& iProvider,
+                                  std::shared_ptr<DataProxyProvider> iComponent,
+                                  ParameterSet const&,
+                                  bool) {
+      iProvider.add(iComponent);
+    }
 
-      void ModuleMakerTraits::replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<DataProxyProvider> iComponent) 
-      {
-         iProvider.replaceExisting(iComponent);
-      }
+    void ModuleMakerTraits::replaceExisting(EventSetupProvider& iProvider,
+                                            std::shared_ptr<DataProxyProvider> iComponent) {
+      iProvider.replaceExisting(iComponent);
+    }
 
-      std::shared_ptr<ModuleMakerTraits::base_type>
-      ModuleMakerTraits::getComponentAndRegisterProcess(EventSetupsController& esController,
-                                                        ParameterSet const& iConfiguration) {
-         return esController.getESProducerAndRegisterProcess(iConfiguration, esController.indexOfNextProcess());
-      }
+    std::shared_ptr<ModuleMakerTraits::base_type> ModuleMakerTraits::getComponentAndRegisterProcess(
+        EventSetupsController& esController, ParameterSet const& iConfiguration) {
+      return esController.getESProducerAndRegisterProcess(iConfiguration, esController.indexOfNextProcess());
+    }
 
-      void ModuleMakerTraits::putComponent(EventSetupsController& esController,
-                                           ParameterSet const& iConfiguration,
-                                           std::shared_ptr<base_type> const& component) {
-         esController.putESProducer(iConfiguration, component, esController.indexOfNextProcess());
-      }
-   }
-}
+    void ModuleMakerTraits::putComponent(EventSetupsController& esController,
+                                         ParameterSet const& iConfiguration,
+                                         std::shared_ptr<base_type> const& component) {
+      esController.putESProducer(iConfiguration, component, esController.indexOfNextProcess());
+    }
+  }  // namespace eventsetup
+}  // namespace edm
 COMPONENTFACTORY_GET(edm::eventsetup::ModuleMakerTraits);

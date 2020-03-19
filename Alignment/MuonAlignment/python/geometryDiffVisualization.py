@@ -1,7 +1,8 @@
+from __future__ import absolute_import
 import re
 from math import *
-from svgfig import rgb, SVG, pathtoPath, load as load_svg
-from geometryXMLparser import *
+from .svgfig import rgb, SVG, pathtoPath, load as load_svg
+from .geometryXMLparser import *
 from signConventions import *
 
 def dt_colors(wheel, station, sector):

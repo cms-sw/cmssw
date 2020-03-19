@@ -17,28 +17,28 @@
 
 class CSCTFPacker : public edm::one::EDProducer<> {
 private:
-	edm::InputTag lctProducer, mbProducer, trackProducer;
+  edm::InputTag lctProducer, mbProducer, trackProducer;
 
-	bool zeroSuppression;
-	unsigned short nTBINs;
-	unsigned short activeSectors;
-	bool putBufferToEvent;
+  bool zeroSuppression;
+  unsigned short nTBINs;
+  unsigned short activeSectors;
+  bool putBufferToEvent;
 
-	bool swapME1strips;
+  bool swapME1strips;
 
-	FILE *file;
+  FILE* file;
 
-	int m_minBX, m_maxBX, central_lct_bx, central_sp_bx;
+  int m_minBX, m_maxBX, central_lct_bx, central_sp_bx;
 
-	edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> CSCCDC_Tok;
-	edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > CSCTC_Tok;
-	edm::EDGetTokenT<L1CSCTrackCollection> L1CSCTr_Tok;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> CSCCDC_Tok;
+  edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > CSCTC_Tok;
+  edm::EDGetTokenT<L1CSCTrackCollection> L1CSCTr_Tok;
 
 public:
-	void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
-	explicit CSCTFPacker(const edm::ParameterSet &conf);
-	~CSCTFPacker(void) override;
+  explicit CSCTFPacker(const edm::ParameterSet& conf);
+  ~CSCTFPacker(void) override;
 };
 
 #endif

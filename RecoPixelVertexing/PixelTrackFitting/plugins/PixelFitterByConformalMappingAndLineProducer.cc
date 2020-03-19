@@ -18,13 +18,13 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-class PixelFitterByConformalMappingAndLineProducer: public edm::global::EDProducer<> {
+class PixelFitterByConformalMappingAndLineProducer : public edm::global::EDProducer<> {
 public:
-  explicit PixelFitterByConformalMappingAndLineProducer(const edm::ParameterSet& iConfig):
-    theTTRHBuilderName(iConfig.getParameter<std::string>("TTRHBuilder")),
-    theFixImpactParameter(0), theUseFixImpactParameter(false)
-  {
-    if(iConfig.getParameter<bool>("useFixImpactParameter")) {
+  explicit PixelFitterByConformalMappingAndLineProducer(const edm::ParameterSet& iConfig)
+      : theTTRHBuilderName(iConfig.getParameter<std::string>("TTRHBuilder")),
+        theFixImpactParameter(0),
+        theUseFixImpactParameter(false) {
+    if (iConfig.getParameter<bool>("useFixImpactParameter")) {
       theFixImpactParameter = iConfig.getParameter<double>("fixImpactParameter");
       theUseFixImpactParameter = true;
     }
@@ -50,10 +50,11 @@ private:
   bool theUseFixImpactParameter;
 };
 
-
-void PixelFitterByConformalMappingAndLineProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void PixelFitterByConformalMappingAndLineProducer::produce(edm::StreamID,
+                                                           edm::Event& iEvent,
+                                                           const edm::EventSetup& iSetup) const {
   edm::ESHandle<TransientTrackingRecHitBuilder> ttrhBuilder;
-  iSetup.get<TransientRecHitRecord>().get( theTTRHBuilderName, ttrhBuilder);
+  iSetup.get<TransientRecHitRecord>().get(theTTRHBuilderName, ttrhBuilder);
 
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -61,11 +62,8 @@ void PixelFitterByConformalMappingAndLineProducer::produce(edm::StreamID, edm::E
   edm::ESHandle<MagneticField> field;
   iSetup.get<IdealMagneticFieldRecord>().get(field);
 
-  auto impl = std::make_unique<PixelFitterByConformalMappingAndLine>(ttrhBuilder.product(),
-                                                                     tracker.product(),
-                                                                     field.product(),
-                                                                     theFixImpactParameter,
-                                                                     theUseFixImpactParameter);
+  auto impl = std::make_unique<PixelFitterByConformalMappingAndLine>(
+      ttrhBuilder.product(), tracker.product(), field.product(), theFixImpactParameter, theUseFixImpactParameter);
   auto prod = std::make_unique<PixelFitter>(std::move(impl));
   iEvent.put(std::move(prod));
 }

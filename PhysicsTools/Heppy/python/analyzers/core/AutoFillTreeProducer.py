@@ -1,3 +1,4 @@
+from builtins import range
 from PhysicsTools.Heppy.analyzers.core.TreeAnalyzerNumpy import TreeAnalyzerNumpy
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 #from ROOT import TriggerBitChecker
@@ -168,7 +169,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             if isinstance(c, tuple) and isinstance(c[0], AutoHandle):
                 if not isMC and c[-1].mcOnly: continue
                 objects = self.handles[cn].product()
-                setattr(event, cn, [objects[i] for i in xrange(objects.size())])
+                setattr(event, cn, [objects[i] for i in range(objects.size())])
                 c = c[-1]
             if not isMC and c.mcOnly: continue
             if self.scalar:

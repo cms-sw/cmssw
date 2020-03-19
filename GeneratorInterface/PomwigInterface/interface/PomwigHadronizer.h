@@ -16,60 +16,57 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-namespace gen
-{
-  class PomwigHadronizer : public gen::BaseHadronizer, public gen::Herwig6Instance
-  {
-    public:
-        PomwigHadronizer(const edm::ParameterSet &params);
-        ~PomwigHadronizer() override;
+namespace gen {
+  class PomwigHadronizer : public gen::BaseHadronizer, public gen::Herwig6Instance {
+  public:
+    PomwigHadronizer(const edm::ParameterSet& params);
+    ~PomwigHadronizer() override;
 
-        bool readSettings( int );
-	bool initializeForInternalPartons();
-        bool initializeForExternalPartons();
+    bool readSettings(int);
+    bool initializeForInternalPartons();
+    bool initializeForExternalPartons();
 
-	bool declareStableParticles(const std::vector<int> &pdgIds);
-	bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
-        void statistics();
+    bool declareStableParticles(const std::vector<int>& pdgIds);
+    bool declareSpecialSettings(const std::vector<std::string>&) { return true; }
+    void statistics();
 
-        bool generatePartonsAndHadronize();
-        bool hadronize();
-        bool decay();
-        bool residualDecay();
-        void finalizeEvent();
+    bool generatePartonsAndHadronize();
+    bool hadronize();
+    bool decay();
+    bool residualDecay();
+    void finalizeEvent();
 
-        const char *classname() const { return "PomwigHadronizer"; }
+    const char* classname() const { return "PomwigHadronizer"; }
 
-    private:
+  private:
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
-        void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-        std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+    void clear();
+    bool initializeDPDF();
 
-        void clear();
-        bool initializeDPDF();
+    static const std::vector<std::string> theSharedResources;
 
-        static const std::vector<std::string> theSharedResources;
+    bool needClear;
 
-        bool                            needClear;
+    gen::ParameterCollector parameters;
+    int herwigVerbosity;
+    int hepmcVerbosity;
+    int maxEventsToPrint;
+    bool printCards;
 
-        gen::ParameterCollector         parameters;
-        int                             herwigVerbosity;
-        int                             hepmcVerbosity;
-        int                             maxEventsToPrint;
-        bool                            printCards;
+    double comEnergy;
+    double survivalProbability;
+    int diffTopology;
+    int h1fit;
 
-        double                          comEnergy; 
-        double                          survivalProbability;
-        int                             diffTopology;
-        int                             h1fit;
+    bool useJimmy;
+    bool doMPInteraction;
+    int numTrials;
 
-        bool                            useJimmy;
-        bool                            doMPInteraction;
-        int                             numTrials;
+    bool doPDGConvert;
 
-        bool                            doPDGConvert;
-
-        HepMC::IO_HERWIG		conv;
+    HepMC::IO_HERWIG conv;
   };
-}
+}  // namespace gen
 #endif

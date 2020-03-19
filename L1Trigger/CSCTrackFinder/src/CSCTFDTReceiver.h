@@ -9,18 +9,14 @@
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
 
-class CSCTFDTReceiver
-{
- public:
-
+class CSCTFDTReceiver {
+public:
   CSCTFDTReceiver() { dtstubs.clear(); }
   ~CSCTFDTReceiver() {}
 
   // Takes input DT Sector Collector stubs and translates them into CSC coordinates.
   CSCTriggerContainer<csctf::TrackStub> process(const L1MuDTChambPhContainer*);
-  
 
- private:
+private:
   CSCTriggerContainer<csctf::TrackStub> dtstubs;
-
 };

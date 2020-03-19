@@ -9,7 +9,7 @@
 #include "CondCore/HcalPlugins/interface/HcalObjRepresent.h"
 
 // the data format of the condition to be inspected
-#include "CondFormats/HcalObjects/interface/HcalGains.h" //or Gain.h???
+#include "CondFormats/HcalObjects/interface/HcalGains.h"  //or Gain.h???
 
 #include "TH2F.h"
 #include "TCanvas.h"
@@ -23,9 +23,10 @@
 
 namespace {
 
-  class HcalGainContainer : public HcalObjRepresent::HcalDataContainer<HcalGains,HcalGain> {
+  class HcalGainContainer : public HcalObjRepresent::HcalDataContainer<HcalGains, HcalGain> {
   public:
-    HcalGainContainer(std::shared_ptr<HcalGains> payload, unsigned int run) : HcalObjRepresent::HcalDataContainer<HcalGains,HcalGain>(payload, run) {}
+    HcalGainContainer(std::shared_ptr<HcalGains> payload, unsigned int run)
+        : HcalObjRepresent::HcalDataContainer<HcalGains, HcalGain>(payload, run) {}
     float getValue(HcalGain* gain) override {
       return gain->getValue(0) + gain->getValue(1) + gain->getValue(2) + gain->getValue(3);
     }
@@ -36,167 +37,155 @@ namespace {
   ******************************************/
   class HcalGainsPlot : public cond::payloadInspector::PlotImage<HcalGains> {
   public:
-    HcalGainsPlot() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios - map ") {
-      setSingleIov( true );
-    }
+    HcalGainsPlot() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios - map ") { setSingleIov(true); }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
-      
-
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
-      std::shared_ptr<HcalGains> payload = fetchPayload( std::get<1>(iov) );
-      if(payload.get()) {
+      std::shared_ptr<HcalGains> payload = fetchPayload(std::get<1>(iov));
+      if (payload.get()) {
         HcalGainContainer* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
-        return true;} else return false;
-    }// fill method
+        return true;
+      } else
+        return false;
+    }  // fill method
   };
 
   /**********************************************************
      2d plot of HCAL Gain ratios between 2 IOVs
   **********************************************************/
   class HcalGainsRatio : public cond::payloadInspector::PlotImage<HcalGains> {
-
   public:
     HcalGainsRatio() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios difference") {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
-
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov1 = iovs.front();
       auto iov2 = iovs.back();
 
-      std::shared_ptr<HcalGains> payload1 = fetchPayload( std::get<1>(iov1) );
-      std::shared_ptr<HcalGains> payload2 = fetchPayload( std::get<1>(iov2) );
+      std::shared_ptr<HcalGains> payload1 = fetchPayload(std::get<1>(iov1));
+      std::shared_ptr<HcalGains> payload2 = fetchPayload(std::get<1>(iov2));
 
-      if(payload1.get() && payload2.get()) {
+      if (payload1.get() && payload2.get()) {
         HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
         HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
- 
+
         objContainer2->Divide(objContainer1);
-  
 
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
-        return true;} else return false;
+        return true;
+      } else
+        return false;
 
-
-    }// fill method
+    }  // fill method
   };
   /******************************************
      2d plot of HCAL Gain of 1 IOV, projected along iphi
   ******************************************/
   class HcalGainsPhiPlot : public cond::payloadInspector::PlotImage<HcalGains> {
   public:
-    HcalGainsPhiPlot() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios - map ") {
-      setSingleIov( true );
-    }
+    HcalGainsPhiPlot() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios - map ") { setSingleIov(true); }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
-      
-
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
-      std::shared_ptr<HcalGains> payload = fetchPayload( std::get<1>(iov) );
-      if(payload.get()) {
+      std::shared_ptr<HcalGains> payload = fetchPayload(std::get<1>(iov));
+      if (payload.get()) {
         HcalGainContainer* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
-        return true;} else return false;
-    }// fill method
+        return true;
+      } else
+        return false;
+    }  // fill method
   };
 
   /**********************************************************
      2d plot of HCAL Gain ratios between 2 IOVs, projected along iphi
   **********************************************************/
   class HcalGainsPhiRatio : public cond::payloadInspector::PlotImage<HcalGains> {
-
   public:
     HcalGainsPhiRatio() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios difference") {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
-
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov1 = iovs.front();
       auto iov2 = iovs.back();
 
-      std::shared_ptr<HcalGains> payload1 = fetchPayload( std::get<1>(iov1) );
-      std::shared_ptr<HcalGains> payload2 = fetchPayload( std::get<1>(iov2) );
+      std::shared_ptr<HcalGains> payload1 = fetchPayload(std::get<1>(iov1));
+      std::shared_ptr<HcalGains> payload2 = fetchPayload(std::get<1>(iov2));
 
-      if(payload1.get() && payload2.get()) {
+      if (payload1.get() && payload2.get()) {
         HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
         HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
- 
+
         objContainer2->Divide(objContainer1);
-  
 
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
-        return true;} else return false;
+        return true;
+      } else
+        return false;
 
-
-    }// fill method
+    }  // fill method
   };
   /******************************************
      2d plot of HCAL Gain of 1 IOV, projected along ieta
   ******************************************/
   class HcalGainsEtaPlot : public cond::payloadInspector::PlotImage<HcalGains> {
   public:
-    HcalGainsEtaPlot() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios - map ") {
-      setSingleIov( true );
-    }
+    HcalGainsEtaPlot() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios - map ") { setSingleIov(true); }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
-      
-
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
-      std::shared_ptr<HcalGains> payload = fetchPayload( std::get<1>(iov) );
-      if(payload.get()) {
+      std::shared_ptr<HcalGains> payload = fetchPayload(std::get<1>(iov));
+      if (payload.get()) {
         HcalGainContainer* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
-        return true;} else return false;
-    }// fill method
+        return true;
+      } else
+        return false;
+    }  // fill method
   };
 
   /**********************************************************
      2d plot of HCAL Gain ratios between 2 IOVs
   **********************************************************/
   class HcalGainsEtaRatio : public cond::payloadInspector::PlotImage<HcalGains> {
-
   public:
     HcalGainsEtaRatio() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios difference") {
       setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
-
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov1 = iovs.front();
       auto iov2 = iovs.back();
 
-      std::shared_ptr<HcalGains> payload1 = fetchPayload( std::get<1>(iov1) );
-      std::shared_ptr<HcalGains> payload2 = fetchPayload( std::get<1>(iov2) );
+      std::shared_ptr<HcalGains> payload1 = fetchPayload(std::get<1>(iov1));
+      std::shared_ptr<HcalGains> payload2 = fetchPayload(std::get<1>(iov2));
 
-      if(payload1.get() && payload2.get()) {
+      if (payload1.get() && payload2.get()) {
         HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
         HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
- 
+
         objContainer2->Divide(objContainer1);
-  
 
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
-        return true;} else return false;
+        return true;
+      } else
+        return false;
 
-
-    }// fill method
+    }  // fill method
   };
-} // close namespace
+}  // namespace
 
-  // Register the classes as boost python plugin
-PAYLOAD_INSPECTOR_MODULE(HcalGains){
+// Register the classes as boost python plugin
+PAYLOAD_INSPECTOR_MODULE(HcalGains) {
   PAYLOAD_INSPECTOR_CLASS(HcalGainsPlot);
   PAYLOAD_INSPECTOR_CLASS(HcalGainsRatio);
   PAYLOAD_INSPECTOR_CLASS(HcalGainsEtaPlot);

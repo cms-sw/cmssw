@@ -4,7 +4,7 @@
 //
 // Package:    SiPixelCondObjAllPayloadsReader
 // Class:      SiPixelCondObjAllPayloadsReader
-// 
+//
 /**\class SiPixelCondObjAllPayloadsReader SiPixelCondObjAllPayloadsReader.h SiPixel/test/SiPixelCondObjAllPayloadsReader.h
 
  Description: Test analyzer for reading pixel calibration from the DB
@@ -40,32 +40,28 @@
 #include "TH1F.h"
 #include <string>
 
-namespace cms{
-class SiPixelCondObjAllPayloadsReader : public edm::EDAnalyzer {
+namespace cms {
+  class SiPixelCondObjAllPayloadsReader : public edm::EDAnalyzer {
+  public:
+    explicit SiPixelCondObjAllPayloadsReader(const edm::ParameterSet& iConfig);
 
-public:
+    ~SiPixelCondObjAllPayloadsReader(){};
+    virtual void beginJob();
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void endJob();
 
-  explicit SiPixelCondObjAllPayloadsReader( const edm::ParameterSet& iConfig);
+  private:
+    edm::ParameterSet conf_;
+    edm::ESHandle<TrackerGeometry> tkgeom;
+    //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
+    SiPixelGainCalibrationServiceBase* SiPixelGainCalibrationService_;
 
-  ~SiPixelCondObjAllPayloadsReader(){};
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
-  virtual void endJob() ;
-
-private:
-
-  edm::ParameterSet conf_;
-  edm::ESHandle<TrackerGeometry> tkgeom;
-  //edm::ESHandle<SiPixelGainCalibration> SiPixelGainCalibration_;
-  SiPixelGainCalibrationServiceBase* SiPixelGainCalibrationService_;
-
-  std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
-  std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
-  TH1F *_TH1F_Gains_sum;
-  TH1F *_TH1F_Pedestals_sum;
-  TH1F *_TH1F_Gains_all;
-  TH1F *_TH1F_Pedestals_all;
-
-};
-}
+    std::map<uint32_t, TH1F*> _TH1F_Pedestals_m;
+    std::map<uint32_t, TH1F*> _TH1F_Gains_m;
+    TH1F* _TH1F_Gains_sum;
+    TH1F* _TH1F_Pedestals_sum;
+    TH1F* _TH1F_Gains_all;
+    TH1F* _TH1F_Pedestals_all;
+  };
+}  // namespace cms
 #endif

@@ -35,6 +35,6 @@ namespace edm {
   class BranchDescription;
 
   void setIsMergeable(BranchDescription&);
-}
+}  // namespace edm
 
 #endif

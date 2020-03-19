@@ -4,9 +4,9 @@
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"
 #include "DataFormats/GeometryVector/interface/Vector3DBase.h"
 
-typedef Vector3DBase< float, GlobalTag>    Global3DVector;
+typedef Vector3DBase<float, GlobalTag> Global3DVector;
 
 // Global Vectors are three-dimensional by default
-typedef Global3DVector                     GlobalVector;
+typedef Global3DVector GlobalVector;
 
-#endif // GeometryVector_GlobalVector_h
+#endif  // GeometryVector_GlobalVector_h

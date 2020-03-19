@@ -23,30 +23,31 @@ class TrackingRegion;
 class SimTrack;
 
 class FastTSGFromIOHit : public TrackerSeedGenerator {
-
 public:
   /// constructor
-  FastTSGFromIOHit(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
+  FastTSGFromIOHit(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
 
   /// destructor
   ~FastTSGFromIOHit() override;
 
   /// generate seed(s) for a track
-    void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *tTopo, std::vector<TrajectorySeed>&) override;
+  void trackerSeeds(const TrackCand&,
+                    const TrackingRegion&,
+                    const TrackerTopology* tTopo,
+                    std::vector<TrajectorySeed>&) override;
 
- private:
+private:
   bool clean(reco::TrackRef muRef,
-  	     const RectangularEtaPhiTrackingRegion& region,
-  	     const BasicTrajectorySeed* aSeed,
-  	     const SimTrack& theSimTrack); 
+             const RectangularEtaPhiTrackingRegion& region,
+             const BasicTrajectorySeed* aSeed,
+             const SimTrack& theSimTrack);
 
 private:
   std::string theCategory;
-    
-    edm::EDGetTokenT<edm::SimTrackContainer> simTracksTk;
-    std::vector<edm::EDGetTokenT<TrajectorySeedCollection> > seedsTks;
-    double thePtCut;
 
+  edm::EDGetTokenT<edm::SimTrackContainer> simTracksTk;
+  std::vector<edm::EDGetTokenT<TrajectorySeedCollection> > seedsTks;
+  double thePtCut;
 };
 
-#endif 
+#endif

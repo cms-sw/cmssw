@@ -23,5 +23,5 @@ namespace edm {
     Presence() {}
     virtual ~Presence() = 0;
   };
-}
-#endif // FWCore_Utilities_Presence_h
+}  // namespace edm
+#endif  // FWCore_Utilities_Presence_h

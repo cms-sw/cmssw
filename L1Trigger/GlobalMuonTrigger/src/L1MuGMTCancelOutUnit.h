@@ -32,7 +32,7 @@
 //
 //
 //   Author :
-//   H. Sakulin            CERN EP 
+//   H. Sakulin            CERN EP
 //
 //   Migrated to CMSSW:
 //   I. Mikulec
@@ -63,45 +63,42 @@ class L1MuGlobalMuonTrigger;
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1MuGMTCancelOutUnit {
+public:
+  /// constructor
+  L1MuGMTCancelOutUnit(const L1MuGlobalMuonTrigger& gmt, int id);
 
-  public:
-    /// constructor
-    L1MuGMTCancelOutUnit(const L1MuGlobalMuonTrigger& gmt, int id);
+  /// destructor
+  virtual ~L1MuGMTCancelOutUnit();
 
-    /// destructor
-    virtual ~L1MuGMTCancelOutUnit();
+  /// run cancel-out unit
+  void run();
 
-    /// run cancel-out unit
-    void run();
-    
-    /// clear cancel-out unit
-    void reset();
+  /// clear cancel-out unit
+  void reset();
 
-    /// print cancel-out bits
-    void print();
-    
-    /// return ID (0..DT/CSC in barrel chip, 1..DT/CSC in fwd chip, 2..CSC/bRPC, 3..DT/fRPC)
-    inline int id() const { return m_id; } 
+  /// print cancel-out bits
+  void print();
 
-    /// return cancel bit for DT (m_id==0 || m_id==3) or CSC (m_id==1 || m_id==2) muon 
-    const bool cancelMyChipMuon(int idx) const { return m_MyChipCancelbits[idx]; }
+  /// return ID (0..DT/CSC in barrel chip, 1..DT/CSC in fwd chip, 2..CSC/bRPC, 3..DT/fRPC)
+  inline int id() const { return m_id; }
 
-    /// return cancel bit for barrel RPC (m_id==2) or forward RPC (m_id==3) muon
-    const bool cancelOtherChipMuon(int idx) const { return m_OtherChipCancelbits[idx]; }
-     
-  private:
-    void decide();
-   
-  private:
+  /// return cancel bit for DT (m_id==0 || m_id==3) or CSC (m_id==1 || m_id==2) muon
+  const bool cancelMyChipMuon(int idx) const { return m_MyChipCancelbits[idx]; }
 
-    const L1MuGlobalMuonTrigger& m_gmt;
-    int m_id;
+  /// return cancel bit for barrel RPC (m_id==2) or forward RPC (m_id==3) muon
+  const bool cancelOtherChipMuon(int idx) const { return m_OtherChipCancelbits[idx]; }
 
-    L1MuGMTMatcher m_matcher;
-    std::vector<bool> m_MyChipCancelbits;
-    std::vector<bool> m_OtherChipCancelbits;
+private:
+  void decide();
+
+private:
+  const L1MuGlobalMuonTrigger& m_gmt;
+  int m_id;
+
+  L1MuGMTMatcher m_matcher;
+  std::vector<bool> m_MyChipCancelbits;
+  std::vector<bool> m_OtherChipCancelbits;
 };
-  
+
 #endif

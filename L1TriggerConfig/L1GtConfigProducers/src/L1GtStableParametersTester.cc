@@ -35,23 +35,19 @@
 // forward declarations
 
 // constructor(s)
-L1GtStableParametersTester::L1GtStableParametersTester(
-    const edm::ParameterSet& parSet) {
-    // empty
+L1GtStableParametersTester::L1GtStableParametersTester(const edm::ParameterSet& parSet) {
+  // empty
 }
 
 // destructor
 L1GtStableParametersTester::~L1GtStableParametersTester() {
-    // empty
+  // empty
 }
 
 // loop over events
-void L1GtStableParametersTester::analyze(const edm::Event& iEvent,
-    const edm::EventSetup& evSetup) {
+void L1GtStableParametersTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  edm::ESHandle<L1GtStableParameters> l1GtPar;
+  evSetup.get<L1GtStableParametersRcd>().get(l1GtPar);
 
-    edm::ESHandle< L1GtStableParameters> l1GtPar;
-    evSetup.get< L1GtStableParametersRcd>().get(l1GtPar) ;
-
-    l1GtPar->print(std::cout);
-
+  l1GtPar->print(std::cout);
 }

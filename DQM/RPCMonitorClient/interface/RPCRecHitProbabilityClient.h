@@ -6,31 +6,23 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 
-
-class RPCRecHitProbabilityClient:public  DQMEDHarvester{
-
+class RPCRecHitProbabilityClient : public DQMEDHarvester {
 public:
-
   /// Constructor
-  RPCRecHitProbabilityClient(const edm::ParameterSet& ps);
-  
+  RPCRecHitProbabilityClient(const edm::ParameterSet &ps);
+
   /// Destructor
-  ~ RPCRecHitProbabilityClient() override;
-  
-  
+  ~RPCRecHitProbabilityClient() override;
+
 protected:
   void beginJob() override;
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override; //performed in the endLumi
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;       //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
- 
-
-
- private:
-
-    std::string  globalFolder_;
-  
- 
-  
+private:
+  std::string globalFolder_;
 };
 #endif

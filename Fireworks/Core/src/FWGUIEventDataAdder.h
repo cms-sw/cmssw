@@ -38,64 +38,60 @@ class FWTableWidget;
 class DataAdderTableManager;
 class TGFrame;
 
-class FWGUIEventDataAdder
-{
-   RQ_OBJECT("FWGUIEventDataAdder")
+class FWGUIEventDataAdder {
+  RQ_OBJECT("FWGUIEventDataAdder")
 
 public:
-   FWGUIEventDataAdder(UInt_t w,UInt_t,
-                       FWEventItemsManager*, TGFrame*,
-                       FWJobMetadataManager *);
-   virtual ~FWGUIEventDataAdder();
+  FWGUIEventDataAdder(UInt_t w, UInt_t, FWEventItemsManager*, TGFrame*, FWJobMetadataManager*);
+  virtual ~FWGUIEventDataAdder();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   void addNewItem();
-   void addNewItemAndClose();
-   void show();
+  // ---------- member functions ---------------------------
+  void addNewItem();
+  void addNewItemAndClose();
+  void show();
 
-   void windowIsClosing();
-   void updateFilterString(const char *str);   
-   void rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t);
+  void windowIsClosing();
+  void updateFilterString(const char* str);
+  void rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t, Int_t);
 
-   void metadataUpdatedSlot(void);
+  void metadataUpdatedSlot(void);
 
-   void resetNameEntry();
+  void resetNameEntry();
 
 private:
-   FWGUIEventDataAdder(const FWGUIEventDataAdder&) = delete; // stop default
-   void createWindow();
- 
-   void newIndexSelected(int);
-   const FWGUIEventDataAdder& operator=(const FWGUIEventDataAdder&) = delete; // stop default
+  FWGUIEventDataAdder(const FWGUIEventDataAdder&) = delete;  // stop default
+  void createWindow();
 
-   // ---------- member data --------------------------------
-   FWEventItemsManager*     m_manager;
-   FWJobMetadataManager*    m_metadataManager;
+  void newIndexSelected(int);
+  const FWGUIEventDataAdder& operator=(const FWGUIEventDataAdder&) = delete;  // stop default
 
-   TGFrame*          m_parentFrame;
-   TGTransientFrame* m_frame;
-   TGTextEntry*      m_name;
-   TGCheckButton*    m_doNotUseProcessName;
-   TGTextButton*     m_apply;
-   TGTextButton*     m_applyAndClose;
-   TGTextEntry*      m_search;
+  // ---------- member data --------------------------------
+  FWEventItemsManager* m_manager;
+  FWJobMetadataManager* m_metadataManager;
 
-   std::string m_purpose;
+  TGFrame* m_parentFrame;
+  TGTransientFrame* m_frame;
+  TGTextEntry* m_name;
+  TGCheckButton* m_doNotUseProcessName;
+  TGTextButton* m_apply;
+  TGTextButton* m_applyAndClose;
+  TGTextEntry* m_search;
 
-   std::string m_type;
-   std::string m_moduleLabel;
-   std::string m_productInstanceLabel;
-   std::string m_processName;
+  std::string m_purpose;
 
-   std::string m_expr; // this the search term for use in searchData()
-   
-   DataAdderTableManager*   m_tableManager;
-   FWTableWidget*           m_tableWidget;
+  std::string m_type;
+  std::string m_moduleLabel;
+  std::string m_productInstanceLabel;
+  std::string m_processName;
+
+  std::string m_expr;  // this the search term for use in searchData()
+
+  DataAdderTableManager* m_tableManager;
+  FWTableWidget* m_tableWidget;
 };
-
 
 #endif

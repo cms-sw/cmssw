@@ -9,14 +9,13 @@
 namespace align {
   const AlignTransform &DetectorGlobalPosition(const Alignments &allGlobals, const DetId &id) {
     for (std::vector<AlignTransform>::const_iterator iter = allGlobals.m_align.begin();
-	 iter != allGlobals.m_align.end();
-	 ++iter) {
+         iter != allGlobals.m_align.end();
+         ++iter) {
       if (iter->rawId() == id.rawId()) {
-	return *iter;
+        return *iter;
       }
     }
 
-    throw cms::Exception("RecordNotFound")
-      << "DetId(" << id.rawId() << ") not found in GlobalPositionRcd" << std::endl;
+    throw cms::Exception("RecordNotFound") << "DetId(" << id.rawId() << ") not found in GlobalPositionRcd" << std::endl;
   }
-}
+}  // namespace align

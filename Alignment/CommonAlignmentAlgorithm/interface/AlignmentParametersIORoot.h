@@ -3,7 +3,7 @@
 
 /// \class AlignmentParametersIORoot
 ///
-/// Concrete class for ROOT-based I/O of AlignmentParameters 
+/// Concrete class for ROOT-based I/O of AlignmentParameters
 ///
 ///  $Date: 2008/09/02 15:31:23 $
 ///  $Revision: 1.6 $
@@ -13,26 +13,25 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParametersIO.h"
 
-class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentParametersIO
-{
+class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentParametersIO {
   friend class AlignmentIORoot;
 
-  private:
+private:
+  /// Constructor
+  AlignmentParametersIORoot();
 
-  /// Constructor 
-  AlignmentParametersIORoot(); 
-
-  /// Write AlignmentParameters of one Alignable 
+  /// Write AlignmentParameters of one Alignable
   int writeOne(Alignable* ali) override;
 
-  /// Read AlignmentParameters of one Alignable 
+  /// Read AlignmentParameters of one Alignable
   AlignmentParameters* readOne(Alignable* ali, int& ierr) override;
 
-  /// Open IO 
-  int open(const char* filename, int iteration, bool writemode) override
-    {return openRoot(filename,iteration,writemode);};
+  /// Open IO
+  int open(const char* filename, int iteration, bool writemode) override {
+    return openRoot(filename, iteration, writemode);
+  };
 
-  /// Close IO 
+  /// Close IO
   int close(void) override;
 
   // helper functions
@@ -47,13 +46,12 @@ class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentPa
   /// Set branch adresses
   void setBranchAddresses(void) override;
 
-  // Alignment parameter tree 
+  // Alignment parameter tree
   int theCovRang, theCovarRang, theHieraLevel, theParamType;
   align::ID theId;
   align::StructureType theObjId;
 
-  double thePar[nParMax],theCov[nParMax*(nParMax+1)/2];
-
+  double thePar[nParMax], theCov[nParMax * (nParMax + 1) / 2];
 };
 
 #endif

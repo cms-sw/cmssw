@@ -16,11 +16,11 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-class PixelFitterByHelixProjectionsProducer: public edm::global::EDProducer<> {
+class PixelFitterByHelixProjectionsProducer : public edm::global::EDProducer<> {
 public:
   explicit PixelFitterByHelixProjectionsProducer(const edm::ParameterSet& iConfig)
-    : thescaleErrorsForBPix1(iConfig.getParameter<bool>("scaleErrorsForBPix1"))
-    , thescaleFactor(iConfig.getParameter<double>("scaleFactor"))  {
+      : thescaleErrorsForBPix1(iConfig.getParameter<bool>("scaleErrorsForBPix1")),
+        thescaleFactor(iConfig.getParameter<double>("scaleFactor")) {
     produces<PixelFitter>();
   }
   ~PixelFitterByHelixProjectionsProducer() override {}
@@ -38,12 +38,14 @@ private:
   const float thescaleFactor;
 };
 
-
-void PixelFitterByHelixProjectionsProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void PixelFitterByHelixProjectionsProducer::produce(edm::StreamID,
+                                                    edm::Event& iEvent,
+                                                    const edm::EventSetup& iSetup) const {
   edm::ESHandle<MagneticField> fieldESH;
   iSetup.get<IdealMagneticFieldRecord>().get(fieldESH);
 
-  auto impl = std::make_unique<PixelFitterByHelixProjections>(&iSetup, fieldESH.product(), thescaleErrorsForBPix1, thescaleFactor);
+  auto impl = std::make_unique<PixelFitterByHelixProjections>(
+      &iSetup, fieldESH.product(), thescaleErrorsForBPix1, thescaleFactor);
   auto prod = std::make_unique<PixelFitter>(std::move(impl));
   iEvent.put(std::move(prod));
 }

@@ -17,24 +17,22 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class EventSelectorBase
-{
- public:
-  // constructor 
+class EventSelectorBase {
+public:
+  // constructor
   explicit EventSelectorBase() {}
-  
+
   // destructor
   virtual ~EventSelectorBase() {}
-  
+
   // function implementing actual cut
   // ( return value = true  : event passes cut
-  //                  false : event fails cut ) 
+  //                  false : event fails cut )
   virtual bool operator()(edm::Event&, const edm::EventSetup&) const = 0;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-typedef edmplugin::PluginFactory<EventSelectorBase* (const edm::ParameterSet&)> EventSelectorPluginFactory;
+typedef edmplugin::PluginFactory<EventSelectorBase*(const edm::ParameterSet&)> EventSelectorPluginFactory;
 
 #endif
-

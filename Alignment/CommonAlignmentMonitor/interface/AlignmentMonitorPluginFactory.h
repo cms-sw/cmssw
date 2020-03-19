@@ -4,7 +4,7 @@
 //
 // Package:     CommonAlignmentMonitor
 // Class  :     AlignmentMonitorPluginFactory
-// 
+//
 /**\class AlignmentMonitorPluginFactory AlignmentMonitorPluginFactory.h Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h
 
  Description: <one line class summary>
@@ -23,32 +23,33 @@
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 
 // Forward declaration
-namespace edm { class ParameterSet; }
+namespace edm {
+  class ParameterSet;
+}
 
-typedef edmplugin::PluginFactory<AlignmentMonitorBase* (const edm::ParameterSet&) > AlignmentMonitorPluginFactory;
+typedef edmplugin::PluginFactory<AlignmentMonitorBase*(const edm::ParameterSet&)> AlignmentMonitorPluginFactory;
 
 // // Forward declaration
 // namespace edm { class ParameterSet; }
-// 
-// class AlignmentMonitorPluginFactory : 
-//   public seal::PluginFactory<AlignmentMonitorBase* (const edm::ParameterSet&) >  
+//
+// class AlignmentMonitorPluginFactory :
+//   public seal::PluginFactory<AlignmentMonitorBase* (const edm::ParameterSet&) >
 // {
-//   
+//
 // public:
 //   /// Constructor
 //   AlignmentMonitorPluginFactory();
-//   
+//
 //   /// Return the plugin factory (unique instance)
 //   static AlignmentMonitorPluginFactory* get (void);
-//   
+//
 //   /// Directly return the algorithm with given name and configuration
-//   static AlignmentMonitorBase* getMonitor( std::string name, 
+//   static AlignmentMonitorBase* getMonitor( std::string name,
 // 											   const edm::ParameterSet& config );
-//   
+//
 // private:
 //   static AlignmentMonitorPluginFactory theInstance;
-//   
+//
 // };
 
 #endif
-

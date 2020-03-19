@@ -15,7 +15,8 @@ import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
 simGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone(
     inputLabel = 'simRctDigis'
 )
-SimL1TCalorimeter = cms.Sequence(simRctDigis + simGctDigis)
+SimL1TCalorimeterTask = cms.Task(simRctDigis, simGctDigis)
+SimL1TCalorimeter = cms.Sequence(SimL1TCalorimeterTask)
 
 #
 # Stage-1 Trigger
@@ -30,7 +31,7 @@ from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
 from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-(stage1L1Trigger & ~stage2L1Trigger).toReplaceWith(SimL1TCalorimeter, cms.Sequence(simRctDigis + simRctUpgradeFormatDigis + simCaloStage1Digis + simCaloStage1FinalDigis + simCaloStage1LegacyFormatDigis))
+(stage1L1Trigger & ~stage2L1Trigger).toReplaceWith(SimL1TCalorimeterTask, cms.Task(simRctDigis, simRctUpgradeFormatDigis, simCaloStage1Digis, simCaloStage1FinalDigis, simCaloStage1LegacyFormatDigis))
 
 #
 # Stage-2 Trigger
@@ -41,7 +42,7 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 # - layer1 from L1Trigger/L1TCaloLayer1 package
 from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
 from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
-stage2L1Trigger.toReplaceWith(SimL1TCalorimeter, cms.Sequence( simCaloStage2Layer1Digis + simCaloStage2Digis ))
+stage2L1Trigger.toReplaceWith(SimL1TCalorimeterTask, cms.Task( simCaloStage2Layer1Digis, simCaloStage2Digis ))
 
 def _modifyStage2L1TriggerCaloParams(process):
     from CondCore.CondDB.CondDB_cfi import CondDB

@@ -5,6 +5,4 @@
 #include "FastSimDataFormats/CTPPSFastSim/interface/CTPPSFastRecHitContainer.h"
 /***/
 
-
 #include <vector>
-

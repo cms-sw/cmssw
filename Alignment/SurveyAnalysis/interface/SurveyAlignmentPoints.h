@@ -15,23 +15,15 @@
 
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignment.h"
 
-class SurveyAlignmentPoints:
-  public SurveyAlignment
-{
-  public:
-
+class SurveyAlignmentPoints : public SurveyAlignment {
+public:
   /// Constructor to set the sensors and residual levels in base class.
-  SurveyAlignmentPoints(
-			const align::Alignables& sensors,
-			const std::vector<align::StructureType>& levels
-			);
+  SurveyAlignmentPoints(const align::Alignables& sensors, const std::vector<align::StructureType>& levels);
 
-  protected:
-
+protected:
   /// Find the alignment parameters for all sensors.
-  void findAlignPars(
-			     bool bias = false // true for biased residuals
-			     ) override;
+  void findAlignPars(bool bias = false  // true for biased residuals
+                     ) override;
 };
 
 #endif

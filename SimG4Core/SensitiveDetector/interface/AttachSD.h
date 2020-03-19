@@ -4,28 +4,27 @@
 #include <vector>
 
 namespace edm {
+  class EventSetup;
   class ParameterSet;
-}
-class DDCompactView;
+}  // namespace edm
+
 class SensitiveDetectorCatalog;
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
 class SimActivityRegistry;
 class SimTrackManager;
 
-class AttachSD
-{
+class AttachSD {
 public:
   AttachSD();
   ~AttachSD();
 
-  std::pair< std::vector<SensitiveTkDetector*>,
-    std::vector<SensitiveCaloDetector*> > 
-    create(const DDCompactView &,
-           const SensitiveDetectorCatalog &,
-           edm::ParameterSet const &,
-           const SimTrackManager*,
-           SimActivityRegistry& reg ) const;
+  std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *> > create(
+      const edm::EventSetup &,
+      const SensitiveDetectorCatalog &,
+      edm::ParameterSet const &,
+      const SimTrackManager *,
+      SimActivityRegistry &reg) const;
 };
 
 #endif

@@ -2,7 +2,7 @@
 #define CALIB_XML_WRITER
 
 //
-// Writes out constants in xml file   
+// Writes out constants in xml file
 // readable by EventSetup
 // Author:  Lorenzo AGOSTINO
 
@@ -13,20 +13,16 @@
 #include <iostream>
 
 class calibXMLwriter {
-
-
 public:
+  calibXMLwriter(EcalSubdetector = EcalBarrel);
+  ~calibXMLwriter();
 
-calibXMLwriter(EcalSubdetector=EcalBarrel);
-~calibXMLwriter();
-
-void writeLine(EBDetId const &, float);
-void writeLine(EEDetId const &, float);
-
+  void writeLine(EBDetId const &, float);
+  void writeLine(EEDetId const &, float);
 
 private:
-EcalSubdetector subdet_;
-FILE* FILENAME;
+  EcalSubdetector subdet_;
+  FILE *FILENAME;
 };
 
 #endif

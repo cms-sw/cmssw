@@ -22,34 +22,32 @@ $Revision: 1.9 $
 #include "CondFormats/CastorObjects/interface/CastorQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class CastorQIEData: public CastorCondObjectContainer<CastorQIECoder>
-{
- private:
+class CastorQIEData : public CastorCondObjectContainer<CastorQIECoder> {
+private:
   static const CastorQIEShape shape_;
- public:
 
+public:
   // constructor, destructor, and all methods stay the same
- CastorQIEData():CastorCondObjectContainer<CastorQIECoder>() {}
+  CastorQIEData() : CastorCondObjectContainer<CastorQIECoder>() {}
   /// get basic shape
   //   const CastorQIEShape& getShape () const {return mShape;}
 
-  const CastorQIEShape& getShape () const { return shape_;}
+  const CastorQIEShape& getShape() const { return shape_; }
   /// get QIE parameters
-  const CastorQIECoder* getCoder (DetId fId) const { return getValues(fId); }
+  const CastorQIECoder* getCoder(DetId fId) const { return getValues(fId); }
   // check if data are sorted - remove in the next version
-  bool sorted () const { return true; }
+  bool sorted() const { return true; }
   // fill values [capid][range]
   //bool addCoder (const CastorQIECoder& fCoder, bool h2mode_ = false) { return addValues(fCoder, h2mode_); }
-  bool addCoder (const CastorQIECoder& fCoder) { return addValues(fCoder); }
-  // sort values by channelId - remove in the next version  
-  void sort () {}
-  
-  std::string myname() const {return (std::string)"CastorQIEData";}
+  bool addCoder(const CastorQIECoder& fCoder) { return addValues(fCoder); }
+  // sort values by channelId - remove in the next version
+  void sort() {}
+
+  std::string myname() const { return (std::string) "CastorQIEData"; }
 
   //not needed/not used  CastorQIEData(const CastorQIEData&);
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

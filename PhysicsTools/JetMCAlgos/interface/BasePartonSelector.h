@@ -9,15 +9,13 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
+class BasePartonSelector {
+public:
+  BasePartonSelector();
+  virtual ~BasePartonSelector();
 
-class BasePartonSelector
-{
-  public:
-    BasePartonSelector();
-    virtual ~BasePartonSelector();
-
-    virtual void run(const edm::Handle<reco::GenParticleCollection> & particles,
-                     std::unique_ptr<reco::GenParticleRefVector> & partons);
+  virtual void run(const edm::Handle<reco::GenParticleCollection>& particles,
+                   std::unique_ptr<reco::GenParticleRefVector>& partons);
 };
 
 #endif

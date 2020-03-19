@@ -9,9 +9,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class EcalTimeBiasCorrectionsRcd
-    : public edm::eventsetup::EventSetupRecordImplementation<
-        EcalTimeBiasCorrectionsRcd> {
+class EcalTimeBiasCorrectionsRcd : public edm::eventsetup::EventSetupRecordImplementation<EcalTimeBiasCorrectionsRcd> {
 };
 
 #endif

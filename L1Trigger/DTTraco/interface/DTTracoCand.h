@@ -2,13 +2,13 @@
 //
 /**  \class DTTracoCand
  *
- *   Implementation of DTTracoChip candidate 
- * 
+ *   Implementation of DTTracoChip candidate
+ *
  *
  *
  *   \author C. Grandi, S. Vanini
  *
- *   Modifications: 
+ *   Modifications:
  *   S.V. store BtiTrig pointer instead of TrigData
  */
 //
@@ -36,87 +36,84 @@ class DTTracoChip;
 //              ---------------------
 
 class DTTracoCand {
+public:
+  /// Constructor
+  DTTracoCand() {}
 
-  public:
+  /// Constructor
+  DTTracoCand(DTTracoChip *tc, const DTBtiTrigData *btitr, int pos, int step);
 
-    /// Constructor
-    DTTracoCand() {}
+  /// Constructor
+  DTTracoCand(const DTTracoCand &tccand);
 
-    /// Constructor
-    DTTracoCand(DTTracoChip* tc, const DTBtiTrigData* btitr, int pos, int step);
+  /// Assignment operator
+  DTTracoCand &operator=(const DTTracoCand &tccand);
 
-    /// Constructor
-    DTTracoCand(const DTTracoCand& tccand);
+  /// Destructor
+  ~DTTracoCand();
 
-    /// Assignment operator
-    DTTracoCand& operator=(const DTTracoCand& tccand);
+  /// set candidate used (unusable)
+  inline void setUsed() { _usable = 0; }
 
-    /// Destructor 
-    ~DTTracoCand();
+  /// set candidate unused (usable)
+  inline void setUnused() { _usable = 1; }
 
-    /// set candidate used (unusable)
-    inline void setUsed() { _usable=0; }
+  /// set quality bits for first/second track
+  void setBits(int itk);
 
-    /// set candidate unused (usable)
-    inline void setUnused() {_usable=1; }
+  /// Return parent TRACO
+  inline DTTracoChip *Traco() const { return _traco; }
 
-    /// set quality bits for first/second track
-    void setBits(int itk);
+  /// Return associated BTI trigger
+  inline const DTBtiTrigData *BtiTrig() const { return _btitr; }
 
-    /// Return parent TRACO
-    inline DTTracoChip* Traco() const { return _traco; }
+  /// Return Bunch crossing
+  inline int step() const { return _step; }
 
-    /// Return associated BTI trigger
-    inline const DTBtiTrigData* BtiTrig() const { return _btitr; }
+  /// Return position inside TRACO
+  inline int position() const { return _position; }
 
-    /// Return Bunch crossing
-    inline int step() const { return _step; }
+  /// Return K-KRAD
+  inline int K() const { return _tcK; }
 
-    /// Return position inside TRACO
-    inline int position() const { return _position; }
+  /// Return local X coordinate
+  inline int X() const { return _tcX; }
 
-    /// Return K-KRAD
-    inline int K() const { return _tcK; }
+  /// Check if candidate is usable
+  inline int usable() const { return _usable; }
 
-    /// Return local X coordinate
-    inline int X() const { return _tcX; }
+  /// returns true if it has smaller K w.r.t. DTTracoChip center K (sort ascend)
+  bool operator<(const DTTracoCand &c) const { return _tcK < c._tcK; }
+  // bool operator < ( const DTTracoCand& c) const { return
+  // _dataword<c._dataword; }
 
-    /// Check if candidate is usable
-    inline int usable() const { return _usable; }
+  /*
+  /// returns true if it has smaller K w.r.t. DTTracoChip center K (sort ascend)
+  inline bool closer ( const DTTracoCand& cand1, const DTTracoCand& cand2) const
+  { return cand1<cand2;
+  }
 
-    /// returns true if it has smaller K w.r.t. DTTracoChip center K (sort ascend)
-    bool operator < ( const DTTracoCand& c) const { return _tcK<c._tcK; }
-    // bool operator < ( const DTTracoCand& c) const { return _dataword<c._dataword; }
+  /// return true if it has larger K w.r.t. DTTracoChip center K (sort descend)
+  inline bool wider ( const DTTracoCand& cand1, const DTTracoCand& cand2) const
+  { return cand2<cand1;
+  }
+  */
 
-    /*
-    /// returns true if it has smaller K w.r.t. DTTracoChip center K (sort ascend)
-    inline bool closer ( const DTTracoCand& cand1, const DTTracoCand& cand2) const {
-       return cand1<cand2; 
-    }
+  /// Print candidate
+  void print() const;
 
-    /// return true if it has larger K w.r.t. DTTracoChip center K (sort descend)
-    inline bool wider ( const DTTracoCand& cand1, const DTTracoCand& cand2) const { 
-      return cand2<cand1; 
-    }
-    */
+private:
+  DTTracoChip *_traco;  // Parent DTTracoChip
 
-    /// Print candidate
-    void print() const ;
+  const DTBtiTrigData *_btitr;  // Associated BTI trigger
 
-  private:
-
-    DTTracoChip* _traco;         // Parent DTTracoChip
-
-    const DTBtiTrigData* _btitr; // Associated BTI trigger
-
-    // Other variables
-    BitArray<7> _dataword; // the word on which sorting is done
-    int _step;
-    int _position;
-    int _usable;
-    int _tcX;
-    int _tcK;
-
+  // Other variables
+  BitArray<7> _dataword;  // the word on which sorting is done
+  int _step;
+  int _position;
+  int _usable;
+  int _tcX;
+  int _tcK;
 };
 
 #endif

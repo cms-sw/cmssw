@@ -20,48 +20,43 @@
 
 // system include files
 #include <string>
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
 #include "CommonTools/Utils/src/SelectorPtr.h"
 #include "CommonTools/Utils/src/SelectorBase.h"
 
-
 // forward declarations
 
-class FWModelFilter
-{
-
+class FWModelFilter {
 public:
-   FWModelFilter(const std::string& iExpression,
-                 const std::string& iClassName);
-   virtual ~FWModelFilter();
+  FWModelFilter(const std::string& iExpression, const std::string& iClassName);
+  virtual ~FWModelFilter();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   const std::string& expression() const;
+  const std::string& expression() const;
 
-   bool passesFilter(const void*) const;
+  bool passesFilter(const void*) const;
 
-   bool trivialFilter() const;
-   // ---------- static member functions --------------------
+  bool trivialFilter() const;
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   /** Throws an FWExpressionException if there is a problem */
-   void setExpression(const std::string& );
-   void setClassName(const std::string& );
+  // ---------- member functions ---------------------------
+  /** Throws an FWExpressionException if there is a problem */
+  void setExpression(const std::string&);
+  void setClassName(const std::string&);
 
 private:
-   //FWModelFilter(const FWModelFilter&); // stop default
+  //FWModelFilter(const FWModelFilter&); // stop default
 
-   //const FWModelFilter& operator=(const FWModelFilter&); // stop default
+  //const FWModelFilter& operator=(const FWModelFilter&); // stop default
 
-   // ---------- member data --------------------------------
-   std::string m_expression;
-   std::string m_className;
-   reco::parser::SelectorPtr m_selector;
-   edm::TypeWithDict m_type;
+  // ---------- member data --------------------------------
+  std::string m_expression;
+  std::string m_className;
+  reco::parser::SelectorPtr m_selector;
+  edm::TypeWithDict m_type;
 };
-
 
 #endif

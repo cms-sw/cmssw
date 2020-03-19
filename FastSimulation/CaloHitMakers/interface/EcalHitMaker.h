@@ -21,183 +21,171 @@ class Histos;
 class RandomEngineAndDistribution;
 class FSimTrack;
 
-class EcalHitMaker: public CaloHitMaker
-{
- public:
-
+class EcalHitMaker : public CaloHitMaker {
+public:
   typedef math::XYZVector XYZVector;
   typedef math::XYZVector XYZPoint;
   typedef math::XYZVector XYZNormal;
   typedef ROOT::Math::Plane3D Plane3D;
 
-  EcalHitMaker(CaloGeometryHelper * calo,
-	       const XYZPoint& ecalentrance,
-	       const DetId& cell,
-	       int onEcal,
-	       unsigned size,
-	       unsigned showertype,
-	       const RandomEngineAndDistribution* engine);
+  EcalHitMaker(CaloGeometryHelper* calo,
+               const XYZPoint& ecalentrance,
+               const DetId& cell,
+               int onEcal,
+               unsigned size,
+               unsigned showertype,
+               const RandomEngineAndDistribution* engine);
 
   ~EcalHitMaker() override;
 
   // This is not part of the constructor but it has to be called very early
-  void setTrackParameters(const XYZNormal& normal,
-			  double X0depthoffset,
-			  const FSimTrack& theTrack);
-  
+  void setTrackParameters(const XYZNormal& normal, double X0depthoffset, const FSimTrack& theTrack);
+
   // The following methods are related to the path of the particle
-  // through the detector. 
+  // through the detector.
 
-  // Number of X0 "seen" by the track 
-    //  inline double totalX0() const {return totalX0_-X0depthoffset_;}; 
-  inline double totalX0() const {return totalX0_;}; 
+  // Number of X0 "seen" by the track
+  //  inline double totalX0() const {return totalX0_-X0depthoffset_;};
+  inline double totalX0() const { return totalX0_; };
 
-    /// Number of interaction length "seen" by the track 
-  inline double totalL0() const {return totalL0_;}; 
+  /// Number of interaction length "seen" by the track
+  inline double totalL0() const { return totalL0_; };
 
   /// get the offset (e.g the number of X0 after which the shower starts)
-  inline double x0DepthOffset() const {return X0depthoffset_;}
+  inline double x0DepthOffset() const { return X0depthoffset_; }
 
-  // total number of X0 in the PS (Layer1). 
-  inline double ps1TotalX0() const {return X0PS1_;}
-  
-  /// total number of X0 in the PS (Layer2). 
-  inline double ps2TotalX0() const {return X0PS2_;}
+  // total number of X0 in the PS (Layer1).
+  inline double ps1TotalX0() const { return X0PS1_; }
 
-  // number of X0 between PS2 and EE
-  inline double ps2eeTotalX0() const {return X0PS2EE_;}
-  
-  /// in the ECAL 
-  inline double ecalTotalX0() const {return X0ECAL_;}
-
-  /// ECAL-HCAL transition 
-  inline double ecalHcalGapTotalX0() const {  return X0EHGAP_;}
-
-  /// in the HCAL 
-  inline double hcalTotalX0() const {return X0HCAL_;}
-
-  /// total number of L0 in the PS (Layer1). 
-  inline double ps1TotalL0() const {return L0PS1_;}
-  
-  /// total number of L0 in the PS (Layer2). 
-  inline double ps2TotalL0() const {return L0PS2_;}
+  /// total number of X0 in the PS (Layer2).
+  inline double ps2TotalX0() const { return X0PS2_; }
 
   // number of X0 between PS2 and EE
-  inline double ps2eeTotalL0() const {return L0PS2EE_;}
-  
-  /// in the ECAL 
-  inline double ecalTotalL0() const {return L0ECAL_;}
+  inline double ps2eeTotalX0() const { return X0PS2EE_; }
 
-  /// in the HCAL 
-  inline double hcalTotalL0() const {return L0HCAL_;}
+  /// in the ECAL
+  inline double ecalTotalX0() const { return X0ECAL_; }
 
-  /// ECAL-HCAL transition 
-  inline double ecalHcalGapTotalL0() const {  return L0EHGAP_;}
+  /// ECAL-HCAL transition
+  inline double ecalHcalGapTotalX0() const { return X0EHGAP_; }
+
+  /// in the HCAL
+  inline double hcalTotalX0() const { return X0HCAL_; }
+
+  /// total number of L0 in the PS (Layer1).
+  inline double ps1TotalL0() const { return L0PS1_; }
+
+  /// total number of L0 in the PS (Layer2).
+  inline double ps2TotalL0() const { return L0PS2_; }
+
+  // number of X0 between PS2 and EE
+  inline double ps2eeTotalL0() const { return L0PS2EE_; }
+
+  /// in the ECAL
+  inline double ecalTotalL0() const { return L0ECAL_; }
+
+  /// in the HCAL
+  inline double hcalTotalL0() const { return L0HCAL_; }
+
+  /// ECAL-HCAL transition
+  inline double ecalHcalGapTotalL0() const { return L0EHGAP_; }
 
   /// retrieve the segments (the path in the crystal crossed by the extrapolation
-  /// of the track. Debugging only 
-  inline const std::vector<CaloSegment>& getSegments() const {return segments_;};
-
+  /// of the track. Debugging only
+  inline const std::vector<CaloSegment>& getSegments() const { return segments_; };
 
   // The following methods are EM showers specific
-  
+
   /// computes the crystals-plan intersection at depth (in X0 or L0 depending on the
   ///shower type)
   /// if it is not possible to go at such a depth, the result is false
-  bool getPads(double depth,bool inCm=false) ;
+  bool getPads(double depth, bool inCm = false);
 
-  inline double getX0back() const {return maxX0_;}
+  inline double getX0back() const { return maxX0_; }
 
-  bool addHitDepth(double r,double phi,double depth=-1);
-   
-  bool addHit(double r,double phi,unsigned layer=0) override ;
+  bool addHitDepth(double r, double phi, double depth = -1);
 
-  unsigned fastInsideCell(const CLHEP::Hep2Vector & point,double & sp,bool debug=false) ;
+  bool addHit(double r, double phi, unsigned layer = 0) override;
 
-  inline void setSpotEnergy(double e) override { spotEnergy=e;}
-  
-   /// get the map of the stored hits. Triggers the calculation of the grid if it has
-  /// not been done. 
-    
-  const std::map<CaloHitID,float>& getHits() override ;
- 
+  unsigned fastInsideCell(const CLHEP::Hep2Vector& point, double& sp, bool debug = false);
+
+  inline void setSpotEnergy(double e) override { spotEnergy = e; }
+
+  /// get the map of the stored hits. Triggers the calculation of the grid if it has
+  /// not been done.
+
+  const std::map<CaloHitID, float>& getHits() override;
+
   /// To retrieve the track
-  const FSimTrack* getFSimTrack() const {return myTrack_;}
+  const FSimTrack* getFSimTrack() const { return myTrack_; }
 
   ///   used in FamosHcalHitMaker
-  inline const XYZPoint& ecalEntrance() const {return EcalEntrance_;};
+  inline const XYZPoint& ecalEntrance() const { return EcalEntrance_; };
 
-  inline void setRadiusFactor(double r) {radiusCorrectionFactor_ = r;}
+  inline void setRadiusFactor(double r) { radiusCorrectionFactor_ = r; }
 
-  inline void setPulledPadSurvivalProbability(double val) {pulledPadProbability_ = val;};
+  inline void setPulledPadSurvivalProbability(double val) { pulledPadProbability_ = val; };
 
-  inline void setCrackPadSurvivalProbability(double val ) {crackPadProbability_ = val ;};
+  inline void setCrackPadSurvivalProbability(double val) { crackPadProbability_ = val; };
 
- // set preshower
- inline void setPreshowerPresent(bool ps) {simulatePreshower_=ps;};
+  // set preshower
+  inline void setPreshowerPresent(bool ps) { simulatePreshower_ = ps; };
 
   /// for debugging
-  inline const std::vector<Crystal>& getCrystals() const {return regionOfInterest_;}
+  inline const std::vector<Crystal>& getCrystals() const { return regionOfInterest_; }
 
+private:
+  // Computes the intersections of a track with the different calorimeters
+  void cellLine(std::vector<CaloPoint>& cp);
 
+  void preshowerCellLine(std::vector<CaloPoint>& cp) const;
 
- private:
+  void hcalCellLine(std::vector<CaloPoint>& cp) const;
 
+  void ecalCellLine(const XYZPoint&, const XYZPoint&, std::vector<CaloPoint>& cp);
 
+  void buildSegments(const std::vector<CaloPoint>& cp);
 
- // Computes the intersections of a track with the different calorimeters 
- void cellLine(std::vector<CaloPoint>& cp) ;
+  // retrieves the 7x7 crystals and builds the map of neighbours
+  void buildGeometry();
 
- void preshowerCellLine(std::vector<CaloPoint>& cp) const;
+  // depth-dependent geometry operations
+  void configureGeometry();
 
- void hcalCellLine(std::vector<CaloPoint>& cp) const;
+  // project fPoint on the plane (origin,normal)
+  bool pulled(const XYZPoint& origin, const XYZNormal& normal, XYZPoint& fPoint) const;
 
- void ecalCellLine(const XYZPoint&, const XYZPoint&,std::vector<CaloPoint>& cp); 
+  //  the numbering within the grid
+  void prepareCrystalNumberArray();
 
- void buildSegments(const std::vector<CaloPoint>& cp);
+  // find approximately the pad corresponding to (x,y)
+  void convertIntegerCoordinates(double x, double y, unsigned& ix, unsigned& iy) const;
 
- // retrieves the 7x7 crystals and builds the map of neighbours
- void buildGeometry();
+  // pads reorganization (to lift the gaps)
+  void reorganizePads();
 
- // depth-dependent geometry operations
- void configureGeometry();
+  // retrieves the coordinates of a corner belonging to the neighbour
+  typedef std::pair<CaloDirection, unsigned> neighbour;
+  CLHEP::Hep2Vector& correspondingEdge(neighbour& myneighbour, CaloDirection dir2);
 
- // project fPoint on the plane (origin,normal)
- bool pulled(const XYZPoint & origin, const XYZNormal& normal, XYZPoint & fPoint) const ;
- 
- //  the numbering within the grid
- void prepareCrystalNumberArray();
+  // almost the same
+  bool diagonalEdge(unsigned myPad, CaloDirection dir, CLHEP::Hep2Vector& point);
 
- // find approximately the pad corresponding to (x,y)
- void convertIntegerCoordinates(double x, double y,unsigned &ix,unsigned &iy) const ;
+  // check if there is an unbalanced direction in the input vertor. If the result is true,
+  // the cooresponding directions are returned dir1+dir2=unb
+  bool unbalancedDirection(const std::vector<neighbour>& dirs, unsigned& unb, unsigned& dir1, unsigned& dir2);
 
- // pads reorganization (to lift the gaps)
- void reorganizePads();
+  // glue the pads together if there is no crack between them
+  void gapsLifting(std::vector<neighbour>& gaps, unsigned iq);
 
- // retrieves the coordinates of a corner belonging to the neighbour
- typedef std::pair<CaloDirection,unsigned > neighbour;
- CLHEP::Hep2Vector & correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) ;
+  // creates a crack
+  void cracksPads(std::vector<neighbour>& cracks, unsigned iq);
 
- // almost the same
- bool diagonalEdge(unsigned myPad, CaloDirection dir,CLHEP::Hep2Vector & point);
-
- // check if there is an unbalanced direction in the input vertor. If the result is true, 
- // the cooresponding directions are returned dir1+dir2=unb
- bool unbalancedDirection(const std::vector<neighbour>& dirs,unsigned & unb,unsigned & dir1, unsigned & dir2);
-
- // glue the pads together if there is no crack between them 
- void gapsLifting(std::vector<neighbour>& gaps,unsigned iq);
-
- // creates a crack
- void cracksPads(std::vector<neighbour> & cracks, unsigned iq);
-
-
- private:
-
- bool inside3D(const std::vector<XYZPoint>&, const XYZPoint& p) const;
+private:
+  bool inside3D(const std::vector<XYZPoint>&, const XYZPoint& p) const;
 
   // the numbering of the pads
-  std::vector<std::vector<unsigned > > myCrystalNumberArray_;
+  std::vector<std::vector<unsigned> > myCrystalNumberArray_;
 
   // The following quantities are related to the path of the track through the detector
   double totalX0_;
@@ -215,51 +203,50 @@ class EcalHitMaker: public CaloHitMaker
   double L0ECAL_;
   double L0HCAL_;
   double L0EHGAP_;
- 
+
   double maxX0_;
-  double rearleakage_ ;
+  double rearleakage_;
   double outsideWindowEnergy_;
 
-  // Grid construction 
+  // Grid construction
   Crystal pivot_;
   XYZPoint EcalEntrance_;
   XYZNormal normal_;
   int central_;
   int onEcal_;
 
-  bool configuredGeometry_ ;
-  unsigned ncrystals_ ;
+  bool configuredGeometry_;
+  unsigned ncrystals_;
   // size of the grid in the(x,y) plane
-  unsigned nx_,ny_;
-  double xmin_,xmax_,ymin_,ymax_;
+  unsigned nx_, ny_;
+  double xmin_, xmax_, ymin_, ymax_;
 
   std::vector<DetId> CellsWindow_;
   std::vector<Crystal> regionOfInterest_;
   std::vector<float> hits_;
   // Validity of the pads. To be valid, the intersection of the crytal with the plane should have 4 corners
   std::vector<bool> validPads_;
-  // Get the index of the crystal (in hits_ or regionOfInterest_) when its CellID is known 
-  // Needed because the navigation uses DetIds. 
-  std::map<DetId,unsigned> DetIdMap_;
+  // Get the index of the crystal (in hits_ or regionOfInterest_) when its CellID is known
+  // Needed because the navigation uses DetIds.
+  std::map<DetId, unsigned> DetIdMap_;
 
-  CrystalWindowMap * myCrystalWindowMap_;
+  CrystalWindowMap* myCrystalWindowMap_;
 
-   // First segment in ECAL
+  // First segment in ECAL
   int ecalFirstSegment_;
 
-  // Properties of the crystal window 
+  // Properties of the crystal window
   unsigned etasize_;
   unsigned phisize_;
-  // is the grid complete ? 
-  bool truncatedGrid_ ;
-
+  // is the grid complete ?
+  bool truncatedGrid_;
 
   // shower simulation quantities
   // This one is the shower enlargment wrt Grindhammer
   double radiusCorrectionFactor_;
   // moliere radius  * radiuscorrectionfactor OR interactionlength
-  double radiusFactor_ ; 
-  // is it necessary to trigger the detailed simulation of the shower tail ? 
+  double radiusFactor_;
+  // is it necessary to trigger the detailed simulation of the shower tail ?
   bool detailedShowerTail_;
   // current depth
   double currentdepth_;
@@ -267,8 +254,8 @@ class EcalHitMaker: public CaloHitMaker
   double bfactor_;
   // simulate preshower
   bool simulatePreshower_;
-  
-  // pads-depth specific quantities 
+
+  // pads-depth specific quantities
   unsigned ncrackpadsatdepth_;
   unsigned npadsatdepth_;
   Plane3D plan_;
@@ -278,11 +265,11 @@ class EcalHitMaker: public CaloHitMaker
   // spot survival probability for the craks
   double crackPadProbability_;
   // size of the grid in the plane
-  double sizex_,sizey_;  
+  double sizex_, sizey_;
 
- //  int fsimtrack_;
+  //  int fsimtrack_;
   const FSimTrack* myTrack_;
-  
+
   // vector of the intersection of the track with the dectectors (PS,ECAL,HCAL)
   std::vector<CaloPoint> intersections_;
   // segments obtained from the intersections
@@ -294,7 +281,7 @@ class EcalHitMaker: public CaloHitMaker
   std::vector<CrystalPad> padsatdepth_;
   std::vector<CrystalPad> crackpadsatdepth_;
 
-  bool hitmaphasbeencalculated_ ;
+  bool hitmaphasbeencalculated_;
 
   // A local vector of corners, to avoid reserving, newing and mallocing
   std::vector<CLHEP::Hep2Vector> mycorners;
@@ -303,10 +290,8 @@ class EcalHitMaker: public CaloHitMaker
   const RandomEngineAndDistribution* random;
 
 #ifdef FAMOSDEBUG
-  Histos * myHistos;
+  Histos* myHistos;
 #endif
-
-  
 };
 
 #endif

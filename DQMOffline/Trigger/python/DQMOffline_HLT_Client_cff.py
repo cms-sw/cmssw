@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 #from DQM.HLTEvF.HLTEventInfoClient_cfi import *
 
-#from DQMOffline.Trigger.GeneralHLTOfflineClient_cff import *
 from DQMOffline.Trigger.EgHLTOfflineClient_cfi import *
 from DQMOffline.Trigger.MuonPostProcessor_cff import *
 #from DQMOffline.Trigger.BPAGPostProcessor_cff import *
@@ -29,30 +28,33 @@ from DQMOffline.Trigger.BTaggingMonitoring_Client_cff import *
 from DQMOffline.Trigger.BPHMonitoring_Client_cff import *
 from DQMOffline.Trigger.JetMETPromptMonitoring_Client_cff import *
 from DQMOffline.Trigger.DiJetMonitor_Client_cff import *
+
 hltOfflineDQMClient = cms.Sequence(
-#    hltGeneralSeqClient *
-    sipixelHarvesterHLTsequence *
-    egHLTOffDQMClient *
-    hltMuonPostVal *
-    jetMETHLTOfflineClient *
-    fsqClient *
-    HiJetClient * 
-    #tagAndProbeEfficiencyPostProcessor *
-    HLTTauPostSeq *
-    dqmOfflineHLTCert *
-    hltInclusiveVBFClient *
-    egammaClient *
-    exoticaClient *
-    susyClient *
-    b2gClient *
-    higgsClient *
-    smpClient *
-    topClient *
-    btaggingClient *
-    bphClient*
-    JetMetPromClient*
-    dijetClient
-    )
+#    hltGeneralSeqClient
+    sipixelHarvesterHLTsequence
+#  * trackingMonitorClientHLT
+#  * trackingForElectronsMonitorClientHLT
+  * egHLTOffDQMClient
+  * hltMuonPostVal
+  * jetMETHLTOfflineClient
+  * fsqClient
+  * HiJetClient
+# * tagAndProbeEfficiencyPostProcessor
+  * HLTTauPostSeq
+  * dqmOfflineHLTCert
+  * hltInclusiveVBFClient
+  * egammaClient
+  * exoticaClient
+  * susyClient
+  * b2gClient
+  * higgsClient
+  * smpClient
+  * topClient
+  * btaggingClient
+  * bphClient
+  * JetMetPromClient
+  * dijetClient
+)
 
 hltOfflineDQMClientExtra = cms.Sequence(
 )

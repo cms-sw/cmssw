@@ -1,5 +1,6 @@
 #!/usr/bin/env python 
 from __future__ import print_function
+from __future__ import absolute_import
 from sys import stderr, exit
 import commands
 
@@ -19,7 +20,7 @@ parser.add_option("--HLTkey",    dest="HLTkey",    help="name of the HLTkey e.g.
 parser.add_option("--perKey",    action="store_true",default=False,dest="perKey",help="list the runs per HLT key",metavar="perKey")
 (options, args) = parser.parse_args()
 
-from queryRR import queryRR
+from .queryRR import queryRR
 
 runKeys = queryRR(options.firstRun,options.lastRun,options.groupName)
 runs = runKeys.keys(); runs.sort()

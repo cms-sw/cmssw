@@ -15,16 +15,15 @@ namespace pat {
 namespace reco {
   class JetCorrector;
   class Vertex;
-}
+}  // namespace reco
 
 namespace edm {
   class FileInPath;
 }
 
 namespace pat {
-  class MuonMvaEstimator{
+  class MuonMvaEstimator {
   public:
-
     MuonMvaEstimator(const edm::FileInPath& weightsfile, float dRmax);
 
     ~MuonMvaEstimator();
@@ -34,14 +33,13 @@ namespace pat {
                      const reco::JetTagCollection& bTags,
                      float& jetPtRatio,
                      float& jetPtRel,
-                     const reco::JetCorrector* correctorL1=nullptr,
-                     const reco::JetCorrector* correctorL1L2L3Res=nullptr) const;
+                     float& miniIsoValue,
+                     const reco::JetCorrector* correctorL1 = nullptr,
+                     const reco::JetCorrector* correctorL1L2L3Res = nullptr) const;
 
   private:
-
     std::unique_ptr<const GBRForest> gbrForest_;
     float dRmax_;
-
   };
-}
+}  // namespace pat
 #endif

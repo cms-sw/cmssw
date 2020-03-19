@@ -1,81 +1,109 @@
-#include "RecoParticleFlow/PFProducer/plugins/PFCandidateChecker.h"
+/**\class PFCandidateChecker 
+\brief Checks what a re-reco changes in PFCandidates.
+
+\author Patrick Janot
+\date   August 2011
+*/
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
+namespace edm {
+  class EventSetup;
+  class Run;
+}  // namespace edm
+
+class PFCandidateChecker : public edm::stream::EDAnalyzer<> {
+public:
+  explicit PFCandidateChecker(const edm::ParameterSet&);
+
+  ~PFCandidateChecker() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+
+private:
+  void printJets(const reco::PFJetCollection& pfJetsReco, const reco::PFJetCollection& pfJetsReReco) const;
+
+  void printMet(const reco::PFCandidateCollection& pfReco, const reco::PFCandidateCollection& pfReReco) const;
+
+  void printElementsInBlocks(const reco::PFCandidate& cand, std::ostream& out = std::cout) const;
+
+  /// PFCandidates in which we'll look for pile up particles
+  edm::InputTag inputTagPFCandidatesReco_;
+  edm::InputTag inputTagPFCandidatesReReco_;
+  edm::InputTag inputTagPFJetsReco_;
+  edm::InputTag inputTagPFJetsReReco_;
+
+  /// Cuts for comparison
+  double deltaEMax_;
+  double deltaEtaMax_;
+  double deltaPhiMax_;
+
+  /// verbose ?
+  bool verbose_;
+
+  /// print the blocks associated to a given candidate ?
+  bool printBlocks_;
+
+  /// rank the candidates by Pt
+  bool rankByPt_;
+
+  /// Counter
+  unsigned entry_;
+
+  static bool greaterPt(const reco::PFCandidate& a, const reco::PFCandidate& b) { return (a.pt() > b.pt()); }
+};
+
+DEFINE_FWK_MODULE(PFCandidateChecker);
 
 using namespace std;
 using namespace edm;
 using namespace reco;
 
 PFCandidateChecker::PFCandidateChecker(const edm::ParameterSet& iConfig) {
-  
+  inputTagPFCandidatesReco_ = iConfig.getParameter<InputTag>("pfCandidatesReco");
 
+  inputTagPFCandidatesReReco_ = iConfig.getParameter<InputTag>("pfCandidatesReReco");
 
-  inputTagPFCandidatesReco_ 
-    = iConfig.getParameter<InputTag>("pfCandidatesReco");
+  inputTagPFJetsReco_ = iConfig.getParameter<InputTag>("pfJetsReco");
 
-  inputTagPFCandidatesReReco_ 
-    = iConfig.getParameter<InputTag>("pfCandidatesReReco");
+  inputTagPFJetsReReco_ = iConfig.getParameter<InputTag>("pfJetsReReco");
 
-  inputTagPFJetsReco_ 
-    = iConfig.getParameter<InputTag>("pfJetsReco");
+  deltaEMax_ = iConfig.getParameter<double>("deltaEMax");
 
-  inputTagPFJetsReReco_ 
-    = iConfig.getParameter<InputTag>("pfJetsReReco");
+  deltaEtaMax_ = iConfig.getParameter<double>("deltaEtaMax");
 
-  deltaEMax_ 
-    = iConfig.getParameter<double>("deltaEMax");
+  deltaPhiMax_ = iConfig.getParameter<double>("deltaPhiMax");
 
-  deltaEtaMax_ 
-    = iConfig.getParameter<double>("deltaEtaMax");
+  verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
-  deltaPhiMax_ 
-    = iConfig.getParameter<double>("deltaPhiMax");
+  printBlocks_ = iConfig.getUntrackedParameter<bool>("printBlocks", false);
 
-  verbose_ = 
-    iConfig.getUntrackedParameter<bool>("verbose",false);
-
-  printBlocks_ = 
-    iConfig.getUntrackedParameter<bool>("printBlocks",false);
-
-  rankByPt_ = 
-    iConfig.getUntrackedParameter<bool>("rankByPt",false);
+  rankByPt_ = iConfig.getUntrackedParameter<bool>("rankByPt", false);
 
   entry_ = 0;
 
-
-  LogDebug("PFCandidateChecker")
-    <<" input collections : "<<inputTagPFCandidatesReco_<<" "<<inputTagPFCandidatesReReco_;
-   
+  LogDebug("PFCandidateChecker") << " input collections : " << inputTagPFCandidatesReco_ << " "
+                                 << inputTagPFCandidatesReReco_;
 }
 
+PFCandidateChecker::~PFCandidateChecker() {}
 
+void PFCandidateChecker::beginRun(const edm::Run& run, const edm::EventSetup& es) {}
 
-PFCandidateChecker::~PFCandidateChecker() { }
+void PFCandidateChecker::analyze(const Event& iEvent, const EventSetup& iSetup) {
+  LogDebug("PFCandidateChecker") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run() << endl;
 
-
-
-void 
-PFCandidateChecker::beginRun(const edm::Run& run, 
-			      const edm::EventSetup & es) { }
-
-
-void 
-PFCandidateChecker::analyze(const Event& iEvent, 
-			     const EventSetup& iSetup) {
-  
-  LogDebug("PFCandidateChecker")<<"START event: "<<iEvent.id().event()
-			 <<" in run "<<iEvent.id().run()<<endl;
-  
-  
-  
   // get PFCandidates
 
   Handle<PFCandidateCollection> pfCandidatesReco;
@@ -90,150 +118,137 @@ PFCandidateChecker::analyze(const Event& iEvent,
   Handle<PFJetCollection> pfJetsReReco;
   iEvent.getByLabel(inputTagPFJetsReReco_, pfJetsReReco);
 
-  reco::PFCandidateCollection pfReco, pfReReco;  
+  reco::PFCandidateCollection pfReco, pfReReco;
 
   // to sort, one needs to copy
-  if(rankByPt_)
-    {
-      pfReco=*pfCandidatesReco;
-      pfReReco=*pfCandidatesReReco;
-      sort(pfReco.begin(),pfReco.end(),greaterPt);
-      sort(pfReReco.begin(),pfReReco.end(),greaterPt);
-    }
-  
+  if (rankByPt_) {
+    pfReco = *pfCandidatesReco;
+    pfReReco = *pfCandidatesReReco;
+    sort(pfReco.begin(), pfReco.end(), greaterPt);
+    sort(pfReReco.begin(), pfReReco.end(), greaterPt);
+  }
+
   unsigned minSize = pfReco.size() < pfReReco.size() ? pfReco.size() : pfReReco.size();
   bool differentCand = false;
   bool differentSize = pfReco.size() != pfReReco.size();
-  if ( differentSize ) 
-    std::cout << "+++WARNING+++ PFCandidate size changed for entry " 
-	      << entry_ << " !" << endl
-	      << " - RECO    size : " << pfReco.size() << endl 
-	      << " - Re-RECO size : " << pfReReco.size() << endl;
+  if (differentSize)
+    std::cout << "+++WARNING+++ PFCandidate size changed for entry " << entry_ << " !" << endl
+              << " - RECO    size : " << pfReco.size() << endl
+              << " - Re-RECO size : " << pfReReco.size() << endl;
 
   unsigned npr = 0;
-  for( unsigned i=0; i<minSize; i++ ) {
-    
-    const reco::PFCandidate & candReco = (rankByPt_) ? pfReco[i] : (*pfCandidatesReco)[i];
-    const reco::PFCandidate & candReReco = (rankByPt_) ? pfReReco[i] : (*pfCandidatesReReco)[i];
-    
-    double deltaE = (candReReco.energy()-candReco.energy())/(candReReco.energy()+candReco.energy());
-    double deltaEta = candReReco.eta()-candReco.eta();
-    double deltaPhi = candReReco.phi()-candReco.phi();
-    if ( fabs(deltaE) > deltaEMax_ ||
-	 fabs(deltaEta) > deltaEtaMax_ ||
-	 fabs(deltaPhi) > deltaPhiMax_ ) { 
+  for (unsigned i = 0; i < minSize; i++) {
+    const reco::PFCandidate& candReco = (rankByPt_) ? pfReco[i] : (*pfCandidatesReco)[i];
+    const reco::PFCandidate& candReReco = (rankByPt_) ? pfReReco[i] : (*pfCandidatesReReco)[i];
+
+    double deltaE = (candReReco.energy() - candReco.energy()) / (candReReco.energy() + candReco.energy());
+    double deltaEta = candReReco.eta() - candReco.eta();
+    double deltaPhi = candReReco.phi() - candReco.phi();
+    if (fabs(deltaE) > deltaEMax_ || fabs(deltaEta) > deltaEtaMax_ || fabs(deltaPhi) > deltaPhiMax_) {
       differentCand = true;
-      std::cout << "+++WARNING+++ PFCandidate " << i 
-		<< " changed  for entry " << entry_ << " ! " << std::endl 
-		<< " - RECO     : " << candReco << std::endl
-		<< " - Re-RECO  : " << candReReco << std::endl
-		<< " DeltaE   = : " << deltaE << std::endl
-		<< " DeltaEta = : " << deltaEta << std::endl
-		<< " DeltaPhi = : " << deltaPhi << std::endl << std::endl;
+      std::cout << "+++WARNING+++ PFCandidate " << i << " changed  for entry " << entry_ << " ! " << std::endl
+                << " - RECO     : " << candReco << std::endl
+                << " - Re-RECO  : " << candReReco << std::endl
+                << " DeltaE   = : " << deltaE << std::endl
+                << " DeltaEta = : " << deltaEta << std::endl
+                << " DeltaPhi = : " << deltaPhi << std::endl
+                << std::endl;
       if (printBlocks_) {
-	std::cout << "Elements in Block for RECO: " <<std::endl;
-	printElementsInBlocks(candReco);
-	std::cout << "Elements in Block for Re-RECO: " <<std::endl;
-	printElementsInBlocks(candReReco);
+        std::cout << "Elements in Block for RECO: " << std::endl;
+        printElementsInBlocks(candReco);
+        std::cout << "Elements in Block for Re-RECO: " << std::endl;
+        printElementsInBlocks(candReReco);
       }
-      if ( ++npr == 5 ) break;
+      if (++npr == 5)
+        break;
     }
   }
-  
-  if ( differentSize || differentCand ) { 
+
+  if (differentSize || differentCand) {
     printJets(*pfJetsReco, *pfJetsReReco);
     printMet(pfReco, pfReReco);
   }
 
   ++entry_;
-  LogDebug("PFCandidateChecker")<<"STOP event: "<<iEvent.id().event()
-			 <<" in run "<<iEvent.id().run()<<std::endl;
+  LogDebug("PFCandidateChecker") << "STOP event: " << iEvent.id().event() << " in run " << iEvent.id().run()
+                                 << std::endl;
 }
 
-
-void PFCandidateChecker::printMet(const PFCandidateCollection& pfReco,
-				  const PFCandidateCollection& pfReReco) const { 
-
+void PFCandidateChecker::printMet(const PFCandidateCollection& pfReco, const PFCandidateCollection& pfReReco) const {
   double metX = 0.;
   double metY = 0.;
-  for( unsigned i=0; i<pfReco.size(); i++ ) {
+  for (unsigned i = 0; i < pfReco.size(); i++) {
     metX += pfReco[i].px();
     metY += pfReco[i].py();
   }
-  double met = std::sqrt(metX*metX + metY*metY);
+  double met = std::sqrt(metX * metX + metY * metY);
   std::cout << "MET RECO    = " << metX << " " << metY << " " << met << std::endl;
 
   metX = 0.;
   metY = 0.;
-  for( unsigned i=0; i<pfReReco.size(); i++ ) {
+  for (unsigned i = 0; i < pfReReco.size(); i++) {
     metX += pfReReco[i].px();
     metY += pfReReco[i].py();
   }
-  met = std::sqrt(metX*metX + metY*metY);
+  met = std::sqrt(metX * metX + metY * metY);
   std::cout << "MET Re-RECO = " << metX << " " << metY << " " << met << std::endl;
-
 }
 
-void PFCandidateChecker::printJets(const PFJetCollection& pfJetsReco,
-				   const PFJetCollection& pfJetsReReco) const { 
-
+void PFCandidateChecker::printJets(const PFJetCollection& pfJetsReco, const PFJetCollection& pfJetsReReco) const {
   bool differentSize = pfJetsReco.size() != pfJetsReReco.size();
-  if ( differentSize ) 
-    std::cout << "+++WARNING+++ PFJet size changed for entry " 
-	      << entry_ << " !" << endl
-	      << " - RECO    size : " << pfJetsReco.size() << endl 
-	      << " - Re-RECO size : " << pfJetsReReco.size() << endl;
-  unsigned minSize = pfJetsReco.size() < pfJetsReReco.size() ? pfJetsReco.size() : pfJetsReReco.size(); 
+  if (differentSize)
+    std::cout << "+++WARNING+++ PFJet size changed for entry " << entry_ << " !" << endl
+              << " - RECO    size : " << pfJetsReco.size() << endl
+              << " - Re-RECO size : " << pfJetsReReco.size() << endl;
+  unsigned minSize = pfJetsReco.size() < pfJetsReReco.size() ? pfJetsReco.size() : pfJetsReReco.size();
   unsigned npr = 0;
-  for ( unsigned i = 0; i < minSize; ++i) {
-    const reco::PFJet & candReco = pfJetsReco[i];
-    const reco::PFJet & candReReco = pfJetsReReco[i];
-    if ( candReco.et() < 20. && candReReco.et() < 20. ) break;
-    double deltaE = (candReReco.et()-candReco.et())/(candReReco.et()+candReco.et());
-    double deltaEta = candReReco.eta()-candReco.eta();
-    double deltaPhi = candReReco.phi()-candReco.phi();
-    if ( fabs(deltaE) > deltaEMax_ ||
-	 fabs(deltaEta) > deltaEtaMax_ ||
-	 fabs(deltaPhi) > deltaPhiMax_ ) { 
-      std::cout << "+++WARNING+++ PFJet " << i 
-		<< " changed  for entry " << entry_ << " ! " << std::endl 
-		<< " - RECO     : " << candReco.et() << " " << candReco.eta() << " " << candReco.phi() << std::endl
-		<< " - Re-RECO  : " << candReReco.et() << " " << candReReco.eta() << " " << candReReco.phi() << std::endl
-		<< " DeltaE   = : " << deltaE << std::endl
-		<< " DeltaEta = : " << deltaEta << std::endl
-		<< " DeltaPhi = : " << deltaPhi << std::endl << std::endl;
-      if ( ++npr == 5 ) break;
-    } else { 
+  for (unsigned i = 0; i < minSize; ++i) {
+    const reco::PFJet& candReco = pfJetsReco[i];
+    const reco::PFJet& candReReco = pfJetsReReco[i];
+    if (candReco.et() < 20. && candReReco.et() < 20.)
+      break;
+    double deltaE = (candReReco.et() - candReco.et()) / (candReReco.et() + candReco.et());
+    double deltaEta = candReReco.eta() - candReco.eta();
+    double deltaPhi = candReReco.phi() - candReco.phi();
+    if (fabs(deltaE) > deltaEMax_ || fabs(deltaEta) > deltaEtaMax_ || fabs(deltaPhi) > deltaPhiMax_) {
+      std::cout << "+++WARNING+++ PFJet " << i << " changed  for entry " << entry_ << " ! " << std::endl
+                << " - RECO     : " << candReco.et() << " " << candReco.eta() << " " << candReco.phi() << std::endl
+                << " - Re-RECO  : " << candReReco.et() << " " << candReReco.eta() << " " << candReReco.phi()
+                << std::endl
+                << " DeltaE   = : " << deltaE << std::endl
+                << " DeltaEta = : " << deltaEta << std::endl
+                << " DeltaPhi = : " << deltaPhi << std::endl
+                << std::endl;
+      if (++npr == 5)
+        break;
+    } else {
       std::cout << "Jet " << i << " " << candReco.et() << std::endl;
     }
   }
-
 }
 
-
-void PFCandidateChecker::printElementsInBlocks(const PFCandidate& cand,
-						ostream& out) const {
-  if(!out) return;
+void PFCandidateChecker::printElementsInBlocks(const PFCandidate& cand, ostream& out) const {
+  if (!out)
+    return;
 
   PFBlockRef firstRef;
 
-  assert(!cand.elementsInBlocks().empty() );
-  for(unsigned i=0; i<cand.elementsInBlocks().size(); i++) {
+  assert(!cand.elementsInBlocks().empty());
+  for (unsigned i = 0; i < cand.elementsInBlocks().size(); i++) {
     PFBlockRef blockRef = cand.elementsInBlocks()[i].first;
 
-    if(blockRef.isNull()) {
-      cerr<<"ERROR! no block ref!";
+    if (blockRef.isNull()) {
+      cerr << "ERROR! no block ref!";
       continue;
     }
 
-    if(!i) {
-      out<<(*blockRef);
+    if (!i) {
+      out << (*blockRef);
       firstRef = blockRef;
+    } else if (blockRef != firstRef) {
+      cerr << "WARNING! This PFCandidate is not made from a single block" << endl;
     }
-    else if( blockRef!=firstRef) {
-      cerr<<"WARNING! This PFCandidate is not made from a single block"<<endl;
-    }
- 
-    out<<"\t"<<cand.elementsInBlocks()[i].second<<endl;
+
+    out << "\t" << cand.elementsInBlocks()[i].second << endl;
   }
 }

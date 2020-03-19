@@ -2,7 +2,7 @@
 #define BscTest_H
 
 // system include files
-#include<vector>
+#include <vector>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -37,9 +37,8 @@
 #include <cmath>
 #include <CLHEP/Vector/ThreeVector.h>
 #include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Random/Randomize.h> 
+#include <CLHEP/Random/Randomize.h>
 // #include <fstream>
-
 
 // ----------------------------------------------------------------
 // Includes needed for Root ntupling
@@ -57,39 +56,34 @@
 #include "TMath.h"
 #include "TF1.h"
 
-
 #include <TObjArray.h>
 #include <TObjString.h>
 #include <TNamed.h>
 
-
 class BscAnalysisHistManager : public TNamed {
-        public:
+public:
+  BscAnalysisHistManager(const TString& managername);
+  ~BscAnalysisHistManager() override;
 
-                BscAnalysisHistManager(const TString& managername);
-                ~BscAnalysisHistManager() override;
+  TH1F* GetHisto(Int_t Number);
+  TH1F* GetHisto(const TObjString& histname);
 
-                TH1F* GetHisto(Int_t Number);
-                TH1F* GetHisto(const TObjString& histname);
+  TH2F* GetHisto2(Int_t Number);
+  TH2F* GetHisto2(const TObjString& histname);
 
-                TH2F* GetHisto2(Int_t Number);
-                TH2F* GetHisto2(const TObjString& histname);
+  void WriteToFile(const TString& fOutputFile, const TString& fRecreateFile);
 
-                void WriteToFile(const TString& fOutputFile,const TString& fRecreateFile);
+private:
+  void BookHistos();
+  void StoreWeights();
+  void HistInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup);
+  void HistInit(
+      const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup, Int_t nbinsy, Axis_t ylow, Axis_t yup);
 
-        private:
-
-                void BookHistos();
-                void StoreWeights();
-                void HistInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup);
-                void HistInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup, Int_t nbinsy, Axis_t ylow, Axis_t yup);
-
-                const char* fTypeTitle;
-                TObjArray* fHistArray;
-                TObjArray* fHistNamesArray;
-
+  const char* fTypeTitle;
+  TObjArray* fHistArray;
+  TObjArray* fHistNamesArray;
 };
-
 
 class BscNumberingScheme;
 
@@ -160,93 +154,76 @@ private:
     void update(const G4Step * step);
 };
 */
-		    //class BscTest: public SimProducer,
+//class BscTest: public SimProducer,
 class BscTest : public SimWatcher,
-  public Observer<const BeginOfJob *>, 
-  public Observer<const BeginOfRun *>,
-  public Observer<const EndOfRun *>,
-  public Observer<const BeginOfEvent *>,
-  public Observer<const BeginOfTrack *>,
-  public Observer<const G4Step *>,
-  public Observer<const EndOfTrack *>,
-  public Observer<const EndOfEvent *>
-{
+                public Observer<const BeginOfJob*>,
+                public Observer<const BeginOfRun*>,
+                public Observer<const EndOfRun*>,
+                public Observer<const BeginOfEvent*>,
+                public Observer<const BeginOfTrack*>,
+                public Observer<const G4Step*>,
+                public Observer<const EndOfTrack*>,
+                public Observer<const EndOfEvent*> {
 public:
-  BscTest(const edm::ParameterSet &p);
+  BscTest(const edm::ParameterSet& p);
   ~BscTest() override;
   //MyActions();
   //MyActions();
 private:
-
   // observer classes
-  void update(const BeginOfJob * run) override;
-  void update(const BeginOfRun * run) override;
-  void update(const EndOfRun * run) override;
-  void update(const BeginOfEvent * evt) override;
-  void update(const BeginOfTrack * trk) override;
-  void update(const G4Step * step) override;
-  void update(const EndOfTrack * trk) override;
-  void update(const EndOfEvent * evt) override;
+  void update(const BeginOfJob* run) override;
+  void update(const BeginOfRun* run) override;
+  void update(const EndOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const BeginOfTrack* trk) override;
+  void update(const G4Step* step) override;
+  void update(const EndOfTrack* trk) override;
+  void update(const EndOfEvent* evt) override;
 
 private:
-
   //UHB_Analysis* UserNtuples;
-  BscNumberingScheme * theBscNumberingScheme;
-
+  BscNumberingScheme* theBscNumberingScheme;
 
   int iev;
   int itrk;
   G4double entot0, tracklength0;
 
 private:
-// Utilities to get detector levels during a step
+  // Utilities to get detector levels during a step
 
-  int      detLevels(const G4VTouchable*) const;
-  G4String  detName(const G4VTouchable*, int, int) const;
-  void     detectorLevel(const G4VTouchable*, int&, int*, G4String*) const;
+  int detLevels(const G4VTouchable*) const;
+  G4String detName(const G4VTouchable*, int, int) const;
+  void detectorLevel(const G4VTouchable*, int&, int*, G4String*) const;
 
+  double rinCalo, zinCalo;
+  int lastTrackID;
+  int verbosity;
 
- double rinCalo, zinCalo;
- int    lastTrackID;
- int verbosity;
+  // SumEnerDeposit - all deposited energy on all steps ;  SumStepl - length in steel !!!
+  G4double SumEnerDeposit, SumStepl, SumStepc;
+  // numofpart - # particles produced along primary track
+  int numofpart;
+  // last point of the primary track
+  G4ThreeVector lastpo;
 
- // SumEnerDeposit - all deposited energy on all steps ;  SumStepl - length in steel !!!
- G4double      SumEnerDeposit, SumStepl, SumStepc;
- // numofpart - # particles produced along primary track
- int          numofpart;
- // last point of the primary track
- G4ThreeVector  lastpo;
-
-
- // z:
- double z1, z2, z3, z4; 
+  // z:
+  double z1, z2, z3, z4;
 
 private:
-
   Float_t bsceventarray[1];
   TNtuple* bsceventntuple;
   TFile bscOutputFile;
   int whichevent;
 
   BscAnalysisHistManager* TheHistManager;  //Histogram Manager of the analysis
-  std::string fDataLabel;             // Data type label
-  std::string fOutputFile;            // The output file name
-  std::string fRecreateFile;          // Recreate the file flag, default="RECREATE"
+  std::string fDataLabel;                  // Data type label
+  std::string fOutputFile;                 // The output file name
+  std::string fRecreateFile;               // Recreate the file flag, default="RECREATE"
 
   //  //  //  //  //  //  TObjString fHistType;
-//   TString fDataLabel;             // Data type label
-//   TString fOutputFile;            // The output file name
-//   TString fRecreateFile;          // Recreate the file flag, default="RECREATE"
-
+  //   TString fDataLabel;             // Data type label
+  //   TString fOutputFile;            // The output file name
+  //   TString fRecreateFile;          // Recreate the file flag, default="RECREATE"
 };
 
 #endif
-
-
-
-
-
-
-
-
-

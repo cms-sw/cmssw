@@ -40,7 +40,7 @@
 #include <Geometry/DTGeometry/interface/DTChamber.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-	
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -51,13 +51,13 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <utility> 
+#include <utility>
 
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 //class PSimHit;
 class TFile;
@@ -72,25 +72,21 @@ class MuonSeeddPhiScale;
 
 class MuonSeedParametrization : public edm::EDAnalyzer {
 public:
-
   /// Constructor
-  MuonSeedParametrization(const edm::ParameterSet& pset);
+  MuonSeedParametrization(const edm::ParameterSet &pset);
 
   /// Destructor
   virtual ~MuonSeedParametrization();
 
   // Operations
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
 
 protected:
-
 private:
- 
-  SegSelector* recsegSelector;
-  MuonSeedParaFillHisto* HistoFill;
-  MuonSeeddPhiScale* ScaledPhi;
+  SegSelector *recsegSelector;
+  MuonSeedParaFillHisto *HistoFill;
+  MuonSeeddPhiScale *ScaledPhi;
 
   // Utility functions
   void CSCsegment_stat(edm::Handle<CSCSegmentCollection> cscSeg);
@@ -98,22 +94,23 @@ private:
 
   void CSCRecHit_stat(edm::Handle<CSCRecHit2DCollection> cscrechit, edm::ESHandle<CSCGeometry> cscGeom);
   void DTRecHit_stat(edm::Handle<DTRecHitCollection> dtrechit, edm::ESHandle<DTGeometry> dtGeom);
-  
+
   bool SameChamber(CSCDetId SimDetId, CSCDetId SegDetId);
 
   void SimInfo(const edm::Handle<edm::SimTrackContainer> simTracks,
                const edm::Handle<edm::PSimHitContainer> dsimHits,
                const edm::Handle<edm::PSimHitContainer> csimHits,
-               edm::ESHandle<DTGeometry> dtGeom,edm::ESHandle<CSCGeometry> cscGeom);  
+               edm::ESHandle<DTGeometry> dtGeom,
+               edm::ESHandle<CSCGeometry> cscGeom);
 
-  void FromCSCSeg( std::vector<CSCSegment> cscSeg, edm::ESHandle<CSCGeometry> cscGeom 
-                       ,std::vector<SimSegment> seg);
-  void FromCSCSingleSeg( std::vector<CSCSegment> cscSeg, edm::ESHandle<CSCGeometry> cscGeom 
-                       ,std::vector<SimSegment> seg);
-  void FromDTSeg( std::vector<DTRecSegment4D> dtSeg, edm::ESHandle<DTGeometry> dtGeom
-                       ,std::vector<SimSegment> seg);
-  void FromDTSingleSeg( std::vector<DTRecSegment4D> dtSeg, edm::ESHandle<DTGeometry> dtGeom
-                       ,std::vector<SimSegment> seg);
+  void FromCSCSeg(std::vector<CSCSegment> cscSeg, edm::ESHandle<CSCGeometry> cscGeom, std::vector<SimSegment> seg);
+  void FromCSCSingleSeg(std::vector<CSCSegment> cscSeg,
+                        edm::ESHandle<CSCGeometry> cscGeom,
+                        std::vector<SimSegment> seg);
+  void FromDTSeg(std::vector<DTRecSegment4D> dtSeg, edm::ESHandle<DTGeometry> dtGeom, std::vector<SimSegment> seg);
+  void FromDTSingleSeg(std::vector<DTRecSegment4D> dtSeg,
+                       edm::ESHandle<DTGeometry> dtGeom,
+                       std::vector<SimSegment> seg);
   void FromOverlap();
 
   // Histograms
@@ -128,7 +125,6 @@ private:
 
   // The file which will store the histos
   TFile *theFile;
-
 
   //cscsegment_stat output
   int cscseg_stat[6];
@@ -166,7 +162,7 @@ private:
   double dEtaP1[2][5][5];
   double chi2_dof1[5];
   /// dphi and eta for CSC single segment
-  bool   MEPath[2][5][4];
+  bool MEPath[2][5][4];
   double ME_phi[2][5][4];
   double ME_eta[2][5][4];
 
@@ -181,7 +177,7 @@ private:
   double dEtaP3[2][5][5];
   double chi2_dof3[5];
   /// dphi and eta for DT single segment
-  bool   MBPath[2][5][3];
+  bool MBPath[2][5][3];
   double MB_phi[2][5][3];
   double MB_eta[2][5][3];
 
@@ -190,7 +186,6 @@ private:
   double dEtaV2[2][5][5];
   double dPhiP2[2][5][5];
   double dEtaP2[2][5][5];
-  
 
   // Switch for debug output
   bool debug;
@@ -205,9 +200,6 @@ private:
   std::string simHitLabel;
   std::string simTrackLabel;
   std::string muonseedLabel;
-
 };
 
-
 #endif
-

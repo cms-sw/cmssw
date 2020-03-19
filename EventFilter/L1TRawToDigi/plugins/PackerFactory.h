@@ -6,20 +6,20 @@
 #include "EventFilter/L1TRawToDigi/interface/Packer.h"
 
 namespace l1t {
-   typedef Packer*(pack_fct)();
-   typedef edmplugin::PluginFactory<pack_fct> PackerFactoryT;
+  typedef Packer*(pack_fct)();
+  typedef edmplugin::PluginFactory<pack_fct> PackerFactoryT;
 
-   class PackerFactory {
-      public:
-         inline static const PackerFactory* get() { return &instance_; };
-         std::shared_ptr<Packer> make(const std::string&) const;
-      private:
-         PackerFactory() {};
-         static const PackerFactory instance_;
-   };
-}
+  class PackerFactory {
+  public:
+    inline static const PackerFactory* get() { return &instance_; };
+    std::shared_ptr<Packer> make(const std::string&) const;
 
-#define DEFINE_L1T_PACKER(type) \
-   DEFINE_EDM_PLUGIN(l1t::PackerFactoryT,type,#type)
+  private:
+    PackerFactory(){};
+    static const PackerFactory instance_;
+  };
+}  // namespace l1t
+
+#define DEFINE_L1T_PACKER(type) DEFINE_EDM_PLUGIN(l1t::PackerFactoryT, type, #type)
 
 #endif

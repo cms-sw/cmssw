@@ -4,13 +4,9 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class FTFPCMS_BERT_EMV: public PhysicsList {
-
+class FTFPCMS_BERT_EMV : public PhysicsList {
 public:
-  FTFPCMS_BERT_EMV(const edm::ParameterSet & p);
+  FTFPCMS_BERT_EMV(const edm::ParameterSet& p);
 };
 
 #endif
-
-
-

@@ -2,7 +2,7 @@
 
 using namespace reco;
 
-void V0Candidate::setRecoVertex( const Vertex & vtxIn ) {
+void V0Candidate::setRecoVertex(const Vertex& vtxIn) {
   recoVertex = vtxIn;
-  LeafCandidate::setVertex( vtxIn.position() );
+  LeafCandidate::setVertex(vtxIn.position());
 }

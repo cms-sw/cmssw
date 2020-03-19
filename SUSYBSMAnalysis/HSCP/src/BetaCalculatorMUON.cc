@@ -4,18 +4,16 @@ using namespace edm;
 using namespace reco;
 using namespace susybsm;
 
-BetaCalculatorMUON::BetaCalculatorMUON(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC){
-//   m_muontiming_dt       = iC.consumes<reco::MuonTimeExtraMap>(iConfig.getParameter<InputTag >("muontimingDt"      ));
-//   m_muontiming_csc      = iC.consumes<reco::MuonTimeExtraMap>(iConfig.getParameter<InputTag >("muontimingCsc"     ));
-//   m_muontiming_combined = iC.consumes<reco::MuonTimeExtraMap>(iConfig.getParameter<InputTag >("muontimingCombined"));
+BetaCalculatorMUON::BetaCalculatorMUON(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
+  //   m_muontiming_dt       = iC.consumes<reco::MuonTimeExtraMap>(iConfig.getParameter<InputTag >("muontimingDt"      ));
+  //   m_muontiming_csc      = iC.consumes<reco::MuonTimeExtraMap>(iConfig.getParameter<InputTag >("muontimingCsc"     ));
+  //   m_muontiming_combined = iC.consumes<reco::MuonTimeExtraMap>(iConfig.getParameter<InputTag >("muontimingCombined"));
 }
 
-
-void BetaCalculatorMUON::addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   //Do nothing since all muonTiming object are external and get be accessed via reference
-   return;
-/*
+void BetaCalculatorMUON::addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  //Do nothing since all muonTiming object are external and get be accessed via reference
+  return;
+  /*
    if(!candidate.hasMuonRef())return;
    reco::MuonRef muon  = candidate.muonRef();
 
@@ -36,4 +34,3 @@ void BetaCalculatorMUON::addInfoToCandidate(HSCParticle& candidate, edm::Event& 
    candidate.setMuonTimeCombined(timeMap_Combined[muon]);
 */
 }
-

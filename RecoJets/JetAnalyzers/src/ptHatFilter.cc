@@ -14,43 +14,36 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////
-ptHatFilter::ptHatFilter(edm::ParameterSet const& cfg)
-{
-  ptHatLowerCut = cfg.getParameter<double> ("ptHatLowerCut");
-  ptHatUpperCut  = cfg.getParameter<double> ("ptHatUpperCut");
+ptHatFilter::ptHatFilter(edm::ParameterSet const& cfg) {
+  ptHatLowerCut = cfg.getParameter<double>("ptHatLowerCut");
+  ptHatUpperCut = cfg.getParameter<double>("ptHatUpperCut");
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-void ptHatFilter::beginJob() 
-{
- totalEvents=0;
- acceptedEvents=0;
+void ptHatFilter::beginJob() {
+  totalEvents = 0;
+  acceptedEvents = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-ptHatFilter::~ptHatFilter() {
-}
+ptHatFilter::~ptHatFilter() {}
 
 ////////////////////////////////////////////////////////////////////////////////////////
-bool ptHatFilter::filter(edm::Event& evt, edm::EventSetup const& iSetup) 
-{
-  
-    bool result = false;
-    totalEvents++;
-    edm::Handle< double > genEventScale;
-    evt.getByLabel("genEventScale", genEventScale );
-    double pt_hat = *genEventScale;
-    if(pt_hat>ptHatLowerCut && pt_hat<ptHatUpperCut)
-    {
-      acceptedEvents++;
-      result = true;
-    } 
-    return result;
+bool ptHatFilter::filter(edm::Event& evt, edm::EventSetup const& iSetup) {
+  bool result = false;
+  totalEvents++;
+  edm::Handle<double> genEventScale;
+  evt.getByLabel("genEventScale", genEventScale);
+  double pt_hat = *genEventScale;
+  if (pt_hat > ptHatLowerCut && pt_hat < ptHatUpperCut) {
+    acceptedEvents++;
+    result = true;
+  }
+  return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-void ptHatFilter::endJob() 
-{
- std::cout << "Total Events = "   << totalEvents << std::endl;
- std::cout << "Accepted Events = "   << acceptedEvents << std::endl;
+void ptHatFilter::endJob() {
+  std::cout << "Total Events = " << totalEvents << std::endl;
+  std::cout << "Accepted Events = " << acceptedEvents << std::endl;
 }
 /////////// Register Modules ////////
 #include "FWCore/Framework/interface/MakerMacros.h"

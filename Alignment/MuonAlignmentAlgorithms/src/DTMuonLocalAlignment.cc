@@ -1,40 +1,26 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/DTMuonLocalAlignment.h"
 
-
-
-
-
-DTMuonLocalAlignment::DTMuonLocalAlignment() :
-  tali(nullptr), f(nullptr)
-{}
-DTMuonLocalAlignment::~DTMuonLocalAlignment(){}
-
+DTMuonLocalAlignment::DTMuonLocalAlignment() : tali(nullptr), f(nullptr) {}
+DTMuonLocalAlignment::~DTMuonLocalAlignment() {}
 
 void DTMuonLocalAlignment::initNTuples(int nMtxSection) {
-
   tali = new TChain("InfoTuple");
 
   int iFile = 0;
-  if (nMtxSection>0) iFile = (nMtxSection - 1)*numberOfRootFiles; 
+  if (nMtxSection > 0)
+    iFile = (nMtxSection - 1) * numberOfRootFiles;
 
-  for(int n_file = iFile; n_file < iFile+numberOfRootFiles; ++n_file) {
-
+  for (int n_file = iFile; n_file < iFile + numberOfRootFiles; ++n_file) {
     char theNameOfTheFile[150];
-    snprintf(theNameOfTheFile, sizeof(theNameOfTheFile),
-	     "%sMyNtupleResidual_Craft09_%d.root", ntuplePath.c_str(), n_file);
-    tali->Add(theNameOfTheFile); 
-
+    snprintf(
+        theNameOfTheFile, sizeof(theNameOfTheFile), "%sMyNtupleResidual_Craft09_%d.root", ntuplePath.c_str(), n_file);
+    tali->Add(theNameOfTheFile);
   }
 
   setBranchAddressTree();
-
 }
 
-
-
-
 void DTMuonLocalAlignment::setBranchAddressTree() {
-
   tali->SetBranchAddress("p", &p);
   tali->SetBranchAddress("pt", &pt);
   tali->SetBranchAddress("eta", &eta);
@@ -77,6 +63,4 @@ void DTMuonLocalAlignment::setBranchAddressTree() {
   tali->SetBranchAddress("sr", sr);
   tali->SetBranchAddress("sl", sl);
   tali->SetBranchAddress("la", la);
-
 }
-

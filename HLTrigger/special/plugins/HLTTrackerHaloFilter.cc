@@ -16,32 +16,31 @@
 // constructors and destructor
 //
 
-HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config) : HLTFilter(config),
-  inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  max_clusTp_   (config.getParameter<int>("MaxClustersTECp")),
-  max_clusTm_   (config.getParameter<int>("MaxClustersTECm")),
-  sign_accu_    (config.getParameter<int>("SignalAccumulation")),
-  max_clusT_    (config.getParameter<int>("MaxClustersTEC")),
-  max_back_     (config.getParameter<int>("MaxAccus")),
-  fastproc_     (config.getParameter<int>("FastProcessing"))
-{
+HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config)
+    : HLTFilter(config),
+      inputTag_(config.getParameter<edm::InputTag>("inputTag")),
+      max_clusTp_(config.getParameter<int>("MaxClustersTECp")),
+      max_clusTm_(config.getParameter<int>("MaxClustersTECm")),
+      sign_accu_(config.getParameter<int>("SignalAccumulation")),
+      max_clusT_(config.getParameter<int>("MaxClustersTEC")),
+      max_back_(config.getParameter<int>("MaxAccus")),
+      fastproc_(config.getParameter<int>("FastProcessing")) {
   clusterInputToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >(inputTag_);
 }
 
 HLTTrackerHaloFilter::~HLTTrackerHaloFilter() = default;
 
-void
-HLTTrackerHaloFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTTrackerHaloFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiStripClusters"));
-  desc.add<int>("MaxClustersTECp",50);
-  desc.add<int>("MaxClustersTECm",50);
-  desc.add<int>("SignalAccumulation",5);
-  desc.add<int>("MaxClustersTEC",60);
-  desc.add<int>("MaxAccus",4);
-  desc.add<int>("FastProcessing",1);
-  descriptions.add("hltTrackerHaloFilter",desc);
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("hltSiStripClusters"));
+  desc.add<int>("MaxClustersTECp", 50);
+  desc.add<int>("MaxClustersTECm", 50);
+  desc.add<int>("SignalAccumulation", 5);
+  desc.add<int>("MaxClustersTEC", 60);
+  desc.add<int>("MaxAccus", 4);
+  desc.add<int>("FastProcessing", 1);
+  descriptions.add("hltTrackerHaloFilter", desc);
 }
 
 //
@@ -49,9 +48,10 @@ HLTTrackerHaloFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
-/*
+bool HLTTrackerHaloFilter::hltFilter(edm::Event& event,
+                                     const edm::EventSetup& iSetup,
+                                     trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  /*
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);

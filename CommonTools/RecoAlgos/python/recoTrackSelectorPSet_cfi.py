@@ -20,5 +20,6 @@ recoTrackSelectorPSet = cms.PSet(
     minPixelHit = cms.int32(0),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     usePV = cms.bool(False),
-    vertexTag = cms.InputTag('offlinePrimaryVertices')
+    vertexTag = cms.InputTag('offlinePrimaryVertices'),
+    invertRapidityCut = cms.bool(False)
 )

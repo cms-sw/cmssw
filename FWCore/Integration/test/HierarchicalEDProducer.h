@@ -12,11 +12,9 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Integration/test/HierarchicalAlgorithms.h"
 
-
 namespace edmtest {
   class HierarchicalEDProducer : public edm::EDProducer {
   public:
-
     explicit HierarchicalEDProducer(edm::ParameterSet const& ps);
 
     virtual ~HierarchicalEDProducer();
@@ -24,8 +22,8 @@ namespace edmtest {
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
 
   private:
-    double       radius_;
-    alg_1        outer_alg_;
+    double radius_;
+    alg_1 outer_alg_;
   };
-}
+}  // namespace edmtest
 #endif

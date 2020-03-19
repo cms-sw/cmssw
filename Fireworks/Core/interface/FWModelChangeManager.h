@@ -30,56 +30,48 @@
 // forward declarations
 class FWEventItem;
 
-class FWModelChangeManager
-{
-
+class FWModelChangeManager {
 public:
-   FWModelChangeManager();
-   virtual ~FWModelChangeManager();
+  FWModelChangeManager();
+  virtual ~FWModelChangeManager();
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   void beginChanges();
-   void changed(const FWModelId&);
-   void changed(const FWEventItem*);
-   void endChanges();
+  void beginChanges();
+  void changed(const FWModelId&);
+  void changed(const FWEventItem*);
+  void endChanges();
 
-   sigc::signal<void> changeSignalsAreComing_;
-   sigc::signal<void> changeSignalsAreDone_;
+  sigc::signal<void> changeSignalsAreComing_;
+  sigc::signal<void> changeSignalsAreDone_;
 
-   void newItemSlot(FWEventItem*);
-   void itemsGoingToBeClearedSlot(void);
+  void newItemSlot(FWEventItem*);
+  void itemsGoingToBeClearedSlot(void);
 
 private:
-   FWModelChangeManager(const FWModelChangeManager&) = delete;    // stop default
+  FWModelChangeManager(const FWModelChangeManager&) = delete;  // stop default
 
-   const FWModelChangeManager& operator=(const FWModelChangeManager&) = delete;    // stop default
+  const FWModelChangeManager& operator=(const FWModelChangeManager&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   unsigned int m_depth;
-   std::vector<FWModelIds> m_changes;
-   std::set<const FWEventItem*> m_itemChanges;
-   std::vector<FWModelChangeSignal> m_changeSignals;
-   std::vector<FWItemChangeSignal> m_itemChangeSignals;
+  // ---------- member data --------------------------------
+  unsigned int m_depth;
+  std::vector<FWModelIds> m_changes;
+  std::set<const FWEventItem*> m_itemChanges;
+  std::vector<FWModelChangeSignal> m_changeSignals;
+  std::vector<FWItemChangeSignal> m_itemChangeSignals;
 };
 
 class FWChangeSentry {
 public:
-   FWChangeSentry(FWModelChangeManager& iM) :
-      m_manager(&iM)
-   {
-      m_manager->beginChanges();
-   }
-   ~FWChangeSentry()
-   {
-      m_manager->endChanges();
-   }
+  FWChangeSentry(FWModelChangeManager& iM) : m_manager(&iM) { m_manager->beginChanges(); }
+  ~FWChangeSentry() { m_manager->endChanges(); }
+
 private:
-   FWModelChangeManager* m_manager;
+  FWModelChangeManager* m_manager;
 };
 
 #endif

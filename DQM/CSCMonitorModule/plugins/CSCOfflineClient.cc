@@ -23,7 +23,6 @@
  * @param  ps Parameters.
  */
 CSCOfflineClient::CSCOfflineClient(const edm::ParameterSet& ps) {
-
   edm::ParameterSet params = ps.getUntrackedParameter<edm::ParameterSet>("EventProcessor");
   config.load(params);
 
@@ -34,14 +33,14 @@ CSCOfflineClient::CSCOfflineClient(const edm::ParameterSet& ps) {
     maskedHW = ps.getUntrackedParameter<std::vector<std::string> >("MASKEDHW");
     // dispatcher->maskHWElements(maskedHW);
   }
-
 }
 
 /**
  * @brief  Destructor.
  */
 CSCOfflineClient::~CSCOfflineClient() {
-  if (dispatcher) delete dispatcher;
+  if (dispatcher)
+    delete dispatcher;
 }
 
 /*** No longer triggered for DQMEDHarvester ***/
@@ -86,13 +85,11 @@ void CSCOfflineClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 */
 
 // void CSCOfflineClient::bookHistograms(DQMStore::IBooker & ib, edm::Run const &, edm::EventSetup const &)
-void CSCOfflineClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& igetter)
-{
+void CSCOfflineClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& igetter) {
   ibooker = &ib;
   dispatcher->book();
   if (!maskedHW.empty())
-     dispatcher->maskHWElements(maskedHW);
-
+    dispatcher->maskHWElements(maskedHW);
 
   /*
    *  Putting histograms to internal cache: EMU stuff
@@ -127,7 +124,6 @@ void CSCOfflineClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& igett
 
   config.incNEvents();
   dispatcher->updateFractionAndEfficiencyHistos();
-
 }
 
 /**
@@ -136,23 +132,21 @@ void CSCOfflineClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& igett
  * @return MonitorObject created.
  */
 cscdqm::MonitorObject* CSCOfflineClient::bookMonitorObject(const cscdqm::HistoBookRequest& req) {
-
-  cscdqm::MonitorObject *me = nullptr;
+  cscdqm::MonitorObject* me = nullptr;
   std::string name = req.hdef->getName();
 
   std::string path = req.folder;
   if (!req.hdef->getPath().empty()) {
     path = path + req.hdef->getPath() + "/";
   }
-  
+
   ibooker->cd();
   ibooker->setCurrentFolder(path);
 
   if (req.htype == cscdqm::INT) {
     me = new CSCMonitorObject(ibooker->bookInt(name));
     me->Fill(req.default_int);
-  } else 
-  if (req.htype == cscdqm::FLOAT) {
+  } else if (req.htype == cscdqm::FLOAT) {
     if (req.hdef->getId() == cscdqm::h::PAR_REPORT_SUMMARY) {
       ibooker->cd();
       ibooker->setCurrentFolder(DIR_EVENTINFO);
@@ -168,11 +162,9 @@ cscdqm::MonitorObject* CSCOfflineClient::bookMonitorObject(const cscdqm::HistoBo
     }
     me = new CSCMonitorObject(ibooker->bookFloat(name));
     me->Fill(req.default_float);
-  } else 
-  if (req.htype == cscdqm::STRING) {
+  } else if (req.htype == cscdqm::STRING) {
     me = new CSCMonitorObject(ibooker->bookString(name, req.default_string));
   }
 
   return me;
-
 }

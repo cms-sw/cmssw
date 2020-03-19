@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from __future__ import absolute_import
 import os, sys
-import eostools as castortools
+from . import eostools as castortools
 
 def getUserAndArea(user):
     """Factor out the magic user hack for use in other classes"""

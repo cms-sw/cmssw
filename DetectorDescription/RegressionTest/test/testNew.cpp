@@ -9,8 +9,7 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
 
@@ -26,33 +25,31 @@ int main(int argc, char *argv[])
 
     FIPConfiguration cf(cpv);
 
-    std::cout << "Make sure the provider is ready... you don't need this, it's just necessary for the default one." << std::endl;
+    std::cout << "Make sure the provider is ready... you don't need this, it's just necessary for the default one."
+              << std::endl;
     int errNumcf;
     errNumcf = cf.readConfig("DetectorDescription/Parser/test/config1.xml");
-    if (!errNumcf)
-      {
-	std::cout << "about to call DumpFileList of configuration cf" << std::endl;
-	cf.dumpFileList();
-      }
-    else
-      {
-	std::cout << "error in ReadConfig" << std::endl;
-	return -1;
-      }
+    if (!errNumcf) {
+      std::cout << "about to call DumpFileList of configuration cf" << std::endl;
+      cf.dumpFileList();
+    } else {
+      std::cout << "error in ReadConfig" << std::endl;
+      return -1;
+    }
 
     // Parse the files provided by the DDLDocumentProvider above.
     std::cout << " parse all the files provided by the DDLDocumentProvider" << std::endl;
     myP.parse(cf);
 
     std::cout << "===================" << std::endl << std::endl;
-    std::cout << " parse just one file THAT WAS ALREADY PARSED (materials.xml).  We should get a WARNING message." << std::endl;
+    std::cout << " parse just one file THAT WAS ALREADY PARSED (materials.xml).  We should get a WARNING message."
+              << std::endl;
     myP.parseOneFile("DetectorDescription/Parser/test/materials.xml");
 
-
     std::cout << "===================" << std::endl << std::endl;
-    std::cout << " parse just one file that has not been parsed (specpars.xml).  This should just go through." << std::endl;
+    std::cout << " parse just one file that has not been parsed (specpars.xml).  This should just go through."
+              << std::endl;
     myP.parseOneFile("DetectorDescription/Parser/test/specpars.xml");
-
 
     std::cout << "===================" << std::endl << std::endl;
     std::cout << " make a new provider and read some other configuration" << std::endl;
@@ -63,17 +60,14 @@ int main(int argc, char *argv[])
 
     std::cout << "Done Parsing" << std::endl;
     std::cout << "===================" << std::endl << std::endl;
-  
+
     std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
     DDCheckMaterials(std::cout);
 
     std::cout << "cleared DDCompactView.  " << std::endl;
-  
+
     return EXIT_SUCCESS;
+  } catch (cms::Exception& e) {
+    std::cout << "main::PROBLEM:" << std::endl << "         " << e.what() << std::endl;
   }
-  catch (cms::Exception& e)
-    {
-      std::cout << "main::PROBLEM:" << std::endl 
-	   << "         " << e.what() << std::endl;
-    }
 }

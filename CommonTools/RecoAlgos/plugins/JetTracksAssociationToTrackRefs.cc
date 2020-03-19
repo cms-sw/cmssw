@@ -20,7 +20,7 @@
  * AssociationVector<JetRefBaseProd, vector<RefVector<Track> > to a
  * RefVector<Track> of the (unique) values.
  */
-class JetTracksAssociationToTrackRefs: public edm::global::EDProducer<> {
+class JetTracksAssociationToTrackRefs : public edm::global::EDProducer<> {
 public:
   JetTracksAssociationToTrackRefs(const edm::ParameterSet& iConfig);
 
@@ -30,19 +30,18 @@ public:
 
 private:
   edm::EDGetTokenT<reco::JetTracksAssociation::Container> associationToken_;
-  edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet>> jetToken_;
   edm::EDGetTokenT<reco::JetCorrector> correctorToken_;
   const double ptMin_;
 };
 
-
-JetTracksAssociationToTrackRefs::JetTracksAssociationToTrackRefs(const edm::ParameterSet& iConfig):
-  associationToken_(consumes<reco::JetTracksAssociation::Container>(iConfig.getParameter<edm::InputTag>("association"))),
-  jetToken_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
-  correctorToken_(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("corrector"))),
-  ptMin_(iConfig.getParameter<double>("correctedPtMin"))
-{
-  produces<reco::TrackRefVector> ();
+JetTracksAssociationToTrackRefs::JetTracksAssociationToTrackRefs(const edm::ParameterSet& iConfig)
+    : associationToken_(
+          consumes<reco::JetTracksAssociation::Container>(iConfig.getParameter<edm::InputTag>("association"))),
+      jetToken_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
+      correctorToken_(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("corrector"))),
+      ptMin_(iConfig.getParameter<double>("correctedPtMin")) {
+  produces<reco::TrackRefVector>();
 }
 
 void JetTracksAssociationToTrackRefs::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -72,32 +71,30 @@ void JetTracksAssociationToTrackRefs::produce(edm::StreamID, edm::Event& iEvent,
 
   // Exctract tracks only for jets passing certain pT threshold after
   // correction
-  for(size_t i=0; i<jets.size(); ++i) {
+  for (size_t i = 0; i < jets.size(); ++i) {
     edm::RefToBase<reco::Jet> jetRef = jets.refAt(i);
     const reco::Jet& jet = *jetRef;
 
     auto p4 = jet.p4();
 
     // Energy correction in the most general way
-    if(!corrector.vectorialCorrection()) {
+    if (!corrector.vectorialCorrection()) {
       double scale = 1;
-      if(!corrector.refRequired()) {
+      if (!corrector.refRequired()) {
         scale = corrector.correction(jet);
-      }
-      else {
+      } else {
         scale = corrector.correction(jet, jetRef);
       }
-      p4 = p4*scale;
-    }
-    else {
+      p4 = p4 * scale;
+    } else {
       corrector.correction(jet, jetRef, p4);
     }
 
-    if(p4.pt() <= ptMin_)
+    if (p4.pt() <= ptMin_)
       continue;
 
-    for(const auto& trackRef: association[jetRef]) {
-      if(alreadyAdded.find(trackRef.key()) == alreadyAdded.end()) {
+    for (const auto& trackRef : association[jetRef]) {
+      if (alreadyAdded.find(trackRef.key()) == alreadyAdded.end()) {
         ret->push_back(trackRef);
         alreadyAdded.insert(trackRef.key());
       }

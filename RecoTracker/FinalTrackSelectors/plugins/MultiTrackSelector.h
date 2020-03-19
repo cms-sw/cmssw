@@ -32,127 +32,128 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
-    class dso_hidden MultiTrackSelector : public edm::stream::EDProducer<> {
-        private:
-        public:
-            /// constructor 
-	    explicit MultiTrackSelector();
-            explicit MultiTrackSelector( const edm::ParameterSet & cfg ) ;
-            /// destructor
-            ~MultiTrackSelector() override ;
+class dso_hidden MultiTrackSelector : public edm::stream::EDProducer<> {
+private:
+public:
+  /// constructor
+  explicit MultiTrackSelector();
+  explicit MultiTrackSelector(const edm::ParameterSet &cfg);
+  /// destructor
+  ~MultiTrackSelector() override;
 
-           using MVACollection = std::vector<float>;
-           using QualityMaskCollection = std::vector<unsigned char>;
+  using MVACollection = std::vector<float>;
+  using QualityMaskCollection = std::vector<unsigned char>;
 
+protected:
+  void beginStream(edm::StreamID) final;
 
-        protected:
-            void beginStream(edm::StreamID) final;
- 
-            // void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const final {
-            //  init();
-            //}
-            //void beginRun(edm::Run const&, edm::EventSetup const&) final { init(); }
-            // void init(edm::EventSetup const& es) const;
+  // void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const final {
+  //  init();
+  //}
+  //void beginRun(edm::Run const&, edm::EventSetup const&) final { init(); }
+  // void init(edm::EventSetup const& es) const;
 
-            typedef math::XYZPoint Point;
-            /// process one event
-            void produce(edm::Event& evt, const edm::EventSetup& es ) final {
-               run(evt,es);
-            }
-            virtual void run( edm::Event& evt, const edm::EventSetup& es ) const;
+  typedef math::XYZPoint Point;
+  /// process one event
+  void produce(edm::Event &evt, const edm::EventSetup &es) final { run(evt, es); }
+  virtual void run(edm::Event &evt, const edm::EventSetup &es) const;
 
-            /// return class, or -1 if rejected
-            bool select (unsigned tsNum,
-			 const reco::BeamSpot &vertexBeamSpot,
-                         const TrackingRecHitCollection & recHits,
-			 const reco::Track &tk, 
-			 const std::vector<Point> &points,
-			 std::vector<float> &vterr,
-			 std::vector<float> &vzerr,
-			 double mvaVal) const;
-            void selectVertices ( unsigned int tsNum,
-				  const reco::VertexCollection &vtxs, 
-				  std::vector<Point> &points,
-				  std::vector<float> &vterr,
-				  std::vector<float> &vzerr) const;
+  /// return class, or -1 if rejected
+  bool select(unsigned tsNum,
+              const reco::BeamSpot &vertexBeamSpot,
+              const TrackingRecHitCollection &recHits,
+              const reco::Track &tk,
+              const std::vector<Point> &points,
+              std::vector<float> &vterr,
+              std::vector<float> &vzerr,
+              double mvaVal) const;
+  void selectVertices(unsigned int tsNum,
+                      const reco::VertexCollection &vtxs,
+                      std::vector<Point> &points,
+                      std::vector<float> &vterr,
+                      std::vector<float> &vzerr) const;
 
-	    void processMVA(edm::Event& evt, const edm::EventSetup& es,const  reco::BeamSpot& beamspot,const reco::VertexCollection& vertices, int selIndex, std::vector<float> & mvaVals_, bool writeIt=false) const;
-	    Point getBestVertex(const reco::TrackBaseRef,const reco::VertexCollection) const;
+  void processMVA(edm::Event &evt,
+                  const edm::EventSetup &es,
+                  const reco::BeamSpot &beamspot,
+                  const reco::VertexCollection &vertices,
+                  int selIndex,
+                  std::vector<float> &mvaVals_,
+                  bool writeIt = false) const;
+  Point getBestVertex(const reco::TrackBaseRef, const reco::VertexCollection) const;
 
-            /// source collection label
-            edm::EDGetTokenT<reco::TrackCollection> src_;
-            edm::EDGetTokenT<TrackingRecHitCollection> hSrc_;
-            edm::EDGetTokenT<reco::BeamSpot> beamspot_;
-            bool          useVertices_;
-            bool          useVtxError_;
-	    bool          useAnyMVA_;
-            edm::EDGetTokenT<reco::VertexCollection> vertices_;
-            
-            /// do I have to set a quality bit?
-	    std::vector<bool> setQualityBit_;
-	    std::vector<reco::TrackBase::TrackQuality> qualityToSet_;
+  /// source collection label
+  edm::EDGetTokenT<reco::TrackCollection> src_;
+  edm::EDGetTokenT<TrackingRecHitCollection> hSrc_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspot_;
+  bool useVertices_;
+  bool useVtxError_;
+  bool useAnyMVA_;
+  edm::EDGetTokenT<reco::VertexCollection> vertices_;
 
-            /// vertex cuts
-	    std::vector<int32_t> vtxNumber_;
-	    //StringCutObjectSelector is not const thread safe
-	    std::vector<StringCutObjectSelector<reco::Vertex> > vertexCut_;
+  /// do I have to set a quality bit?
+  std::vector<bool> setQualityBit_;
+  std::vector<reco::TrackBase::TrackQuality> qualityToSet_;
 
-	    //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
-	    std::vector< std::vector<double> > res_par_;
-	    std::vector< double > chi2n_par_;
-	    std::vector< double > chi2n_no1Dmod_par_;
-	    std::vector< std::vector<double> > d0_par1_;
-	    std::vector< std::vector<double> > dz_par1_;
-	    std::vector< std::vector<double> > d0_par2_;
-	    std::vector< std::vector<double> > dz_par2_;
-	    // Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
-            std::vector<bool> applyAdaptedPVCuts_;
-			
-            /// Impact parameter absolute cuts
-            std::vector<double> max_d0_;
-            std::vector<double> max_z0_;
-            std::vector<double> nSigmaZ_;
+  /// vertex cuts
+  std::vector<int32_t> vtxNumber_;
+  //StringCutObjectSelector is not const thread safe
+  std::vector<StringCutObjectSelector<reco::Vertex> > vertexCut_;
 
-            /// Cuts on numbers of layers with hits/3D hits/lost hits. 
-	    std::vector<uint32_t> min_layers_;
-	    std::vector<uint32_t> min_3Dlayers_;
-	    std::vector<uint32_t> max_lostLayers_;
-	    std::vector<uint32_t> min_hits_bypass_;
+  //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
+  std::vector<std::vector<double> > res_par_;
+  std::vector<double> chi2n_par_;
+  std::vector<double> chi2n_no1Dmod_par_;
+  std::vector<std::vector<double> > d0_par1_;
+  std::vector<std::vector<double> > dz_par1_;
+  std::vector<std::vector<double> > d0_par2_;
+  std::vector<std::vector<double> > dz_par2_;
+  // Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
+  std::vector<bool> applyAdaptedPVCuts_;
 
-	    // pterror and nvalid hits cuts
-	    std::vector<double> max_relpterr_;
-	    std::vector<uint32_t> min_nhits_;
+  /// Impact parameter absolute cuts
+  std::vector<double> max_d0_;
+  std::vector<double> max_z0_;
+  std::vector<double> nSigmaZ_;
 
-	    std::vector<int32_t> max_minMissHitOutOrIn_;
-	    std::vector<int32_t> max_lostHitFraction_;
+  /// Cuts on numbers of layers with hits/3D hits/lost hits.
+  std::vector<uint32_t> min_layers_;
+  std::vector<uint32_t> min_3Dlayers_;
+  std::vector<uint32_t> max_lostLayers_;
+  std::vector<uint32_t> min_hits_bypass_;
 
-	    std::vector<double> min_eta_;
-	    std::vector<double> max_eta_;
+  // pterror and nvalid hits cuts
+  std::vector<double> max_relpterr_;
+  std::vector<uint32_t> min_nhits_;
 
-	    // Flag and absolute cuts if no PV passes the selection
-	    std::vector<double> max_d0NoPV_;
-	    std::vector<double> max_z0NoPV_;
-	    std::vector<bool> applyAbsCutsIfNoPV_;
-	    //if true, selector flags but does not select 
-	    std::vector<bool> keepAllTracks_;
+  std::vector<int32_t> max_minMissHitOutOrIn_;
+  std::vector<int32_t> max_lostHitFraction_;
 
-	    // allow one of the previous psets to be used as a prefilter
-	    std::vector<unsigned int> preFilter_;
-	    std::vector<std::string> name_;
+  std::vector<double> min_eta_;
+  std::vector<double> max_eta_;
 
-	    //setup mva selector
-	    std::vector<bool> useMVA_;
-            std::vector<bool> useMVAonly_;
+  // Flag and absolute cuts if no PV passes the selection
+  std::vector<double> max_d0NoPV_;
+  std::vector<double> max_z0NoPV_;
+  std::vector<bool> applyAbsCutsIfNoPV_;
+  //if true, selector flags but does not select
+  std::vector<bool> keepAllTracks_;
 
-	    std::vector<double> min_MVA_;
+  // allow one of the previous psets to be used as a prefilter
+  std::vector<unsigned int> preFilter_;
+  std::vector<std::string> name_;
 
-	    std::vector<std::string> mvaType_;
-	    std::vector<std::string> forestLabel_;
-	    std::vector<GBRForest*> forest_;
-	    bool useForestFromDB_;
-	    std::string dbFileName_;
+  //setup mva selector
+  std::vector<bool> useMVA_;
+  std::vector<bool> useMVAonly_;
 
+  std::vector<double> min_MVA_;
 
-    };
+  std::vector<std::string> mvaType_;
+  std::vector<std::string> forestLabel_;
+  std::vector<GBRForest *> forest_;
+  bool useForestFromDB_;
+  std::string dbFileName_;
+};
 
 #endif

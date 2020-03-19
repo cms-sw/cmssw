@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
-process = cms.Process('NANO',eras.Run2_2017,eras.run2_nanoAOD_92X)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
+process = cms.Process('NANO',Run2_2017,run2_nanoAOD_92X)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 

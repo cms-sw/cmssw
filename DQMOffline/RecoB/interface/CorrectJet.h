@@ -14,21 +14,19 @@
  */
 
 class CorrectJet {
-
- public:
+public:
   CorrectJet() {}
 
   /// Returns the corrected jet
-  void setCorrector(const reco::JetCorrector *corrector) {m_corrector=corrector;}
-  reco::Jet operator() (const reco::Jet & jet) const
-  {
+  void setCorrector(const reco::JetCorrector *corrector) { m_corrector = corrector; }
+  reco::Jet operator()(const reco::Jet &jet) const {
     reco::Jet correctedJet(jet.p4(), jet.vertex());
     if (m_corrector)
       correctedJet.scaleEnergy(m_corrector->correction(jet));
     return correctedJet;
   }
 
- private:
+private:
   const reco::JetCorrector *m_corrector;
 };
 

@@ -2,7 +2,7 @@
 //
 // Package:    PhysicsTools/NanoAOD
 // Class:      EGMEnergyVarProducer
-// 
+//
 /**\class EGMEnergyVarProducer EGMEnergyVarProducer.cc PhysicsTools/NanoAOD/plugins/EGMEnergyVarProducer.cc
  Description: [one line class summary]
  Implementation:
@@ -13,7 +13,6 @@
 //         Created:  Wed, 06 Sep 2017 12:34:38 GMT
 //
 //
-
 
 // system include files
 #include <memory>
@@ -43,13 +42,12 @@
 template <typename T>
 class EGMEnergyVarProducer : public edm::global::EDProducer<> {
 public:
-  explicit EGMEnergyVarProducer(const edm::ParameterSet &iConfig):
-    srcRaw_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("srcRaw"))),
-    srcCorr_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("srcCorr")))
-  {
+  explicit EGMEnergyVarProducer(const edm::ParameterSet& iConfig)
+      : srcRaw_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("srcRaw"))),
+        srcCorr_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("srcCorr"))) {
     produces<edm::ValueMap<float>>("eCorr");
   }
-    ~EGMEnergyVarProducer() override {};
+  ~EGMEnergyVarProducer() override{};
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -66,7 +64,6 @@ private:
 // constants, enums and typedefs
 //
 
-
 //
 // static data member definitions
 //
@@ -77,9 +74,7 @@ private:
 
 // ------------ method called to produce the data  ------------
 template <typename T>
-void
-EGMEnergyVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
-{
+void EGMEnergyVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<edm::View<T>> srcRaw;
   iEvent.getByToken(srcRaw_, srcRaw);
   edm::Handle<edm::View<T>> srcCorr;
@@ -88,39 +83,39 @@ EGMEnergyVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, con
   unsigned nSrcRaw = srcRaw->size();
   unsigned nSrcCorr = srcCorr->size();
 
-  std::vector<float> eCorr(nSrcCorr,-1);
+  std::vector<float> eCorr(nSrcCorr, -1);
 
-  for (unsigned int ir = 0; ir<nSrcRaw; ir++){
+  for (unsigned int ir = 0; ir < nSrcRaw; ir++) {
     auto egm_raw = srcRaw->ptrAt(ir);
-    for (unsigned int ic = 0; ic<nSrcCorr; ic++){
+    for (unsigned int ic = 0; ic < nSrcCorr; ic++) {
       auto egm_corr = srcCorr->ptrAt(ic);
-      if(matchByCommonParentSuperClusterRef(*egm_raw,*egm_corr)){
-          eCorr[ir] = egm_corr->energy()/egm_raw->energy();
-          break;
+      if (matchByCommonParentSuperClusterRef(*egm_raw, *egm_corr)) {
+        eCorr[ir] = egm_corr->energy() / egm_raw->energy();
+        break;
       }
     }
   }
 
   std::unique_ptr<edm::ValueMap<float>> eCorrV(new edm::ValueMap<float>());
   edm::ValueMap<float>::Filler fillerCorr(*eCorrV);
-  fillerCorr.insert(srcRaw,eCorr.begin(),eCorr.end());
+  fillerCorr.insert(srcRaw, eCorr.begin(), eCorr.end());
   fillerCorr.fill();
-  iEvent.put(std::move(eCorrV),"eCorr");
-
+  iEvent.put(std::move(eCorrV), "eCorr");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 template <typename T>
-void
-EGMEnergyVarProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void EGMEnergyVarProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcRaw")->setComment("input raw physics object collection");
   desc.add<edm::InputTag>("srcCorr")->setComment("input corrected physics object collection");
   std::string modname;
-  if (typeid(T) == typeid(pat::Electron)) modname+="Electron";
-  else if (typeid(T) == typeid(pat::Photon)) modname+="Photon";
-  modname+="EnergyVarProducer";
-  descriptions.add(modname,desc);
+  if (typeid(T) == typeid(pat::Electron))
+    modname += "Electron";
+  else if (typeid(T) == typeid(pat::Photon))
+    modname += "Photon";
+  modname += "EnergyVarProducer";
+  descriptions.add(modname, desc);
 }
 
 typedef EGMEnergyVarProducer<pat::Electron> ElectronEnergyVarProducer;

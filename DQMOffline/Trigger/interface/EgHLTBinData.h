@@ -8,15 +8,14 @@ namespace edm {
 }
 
 namespace egHLT {
-  
+
   struct BinData {
-    
     struct Data1D {
       int nr;
       double min;
       double max;
       void setup(const edm::ParameterSet& conf);
-    }; 
+    };
     struct Data2D {
       int nrX;
       double xMin;
@@ -27,11 +26,10 @@ namespace egHLT {
       void setup(const edm::ParameterSet& conf);
     };
 
-
-    BinData()= default;
-    explicit BinData(const edm::ParameterSet& conf){setup(conf);}
+    BinData() = default;
+    explicit BinData(const edm::ParameterSet& conf) { setup(conf); }
     void setup(const edm::ParameterSet& conf);
-    
+
     Data1D energy;
     Data1D et;
     Data1D etHigh;
@@ -59,13 +57,13 @@ namespace egHLT {
     Data1D isolPtTrks;
     Data1D isolNrTrks;
     Data1D mass;
-    Data1D massHigh;  
+    Data1D massHigh;
     Data1D eOverP;
     Data1D invEInvP;
 
     Data2D etaVsPhi;
   };
 
-}
+}  // namespace egHLT
 
 #endif

@@ -2,16 +2,18 @@
 
 using namespace reco;
 using namespace std;
-EvtPlane::EvtPlane(int epindx, int level, double planeA,double sumSin, double sumCos, double sumw, double sumw2, double sumPtOrEt, double sumPtOrEt2, uint mult)
-  : 
-   indx_(epindx),
-   sumw_(sumw),
-   sumw2_(sumw2),
-   sumPtOrEt_(sumPtOrEt),
-   sumPtOrEt2_(sumPtOrEt2),
-   mult_(mult)
-{
-  for ( int i = 0; i < 4; ++i ) {
+EvtPlane::EvtPlane(int epindx,
+                   int level,
+                   double planeA,
+                   double sumSin,
+                   double sumCos,
+                   double sumw,
+                   double sumw2,
+                   double sumPtOrEt,
+                   double sumPtOrEt2,
+                   uint mult)
+    : indx_(epindx), sumw_(sumw), sumw2_(sumw2), sumPtOrEt_(sumPtOrEt), sumPtOrEt2_(sumPtOrEt2), mult_(mult) {
+  for (int i = 0; i < 4; ++i) {
     angle_[i] = sumSin_[i] = sumCos_[i] = -10;
   }
   angle_[level] = planeA;
@@ -25,8 +27,4 @@ void EvtPlane::addLevel(int level, double ang, double sumsin, double sumcos) {
   sumCos_[level] = sumcos;
 }
 
-EvtPlane::~EvtPlane()
-{
-}
-
-
+EvtPlane::~EvtPlane() {}

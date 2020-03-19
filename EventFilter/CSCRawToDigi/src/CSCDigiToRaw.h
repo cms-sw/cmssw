@@ -23,59 +23,53 @@ class CSCChamberMap;
 class CSCDigiToRaw {
 public:
   /// Constructor
-  explicit CSCDigiToRaw(const edm::ParameterSet & pset);
+  explicit CSCDigiToRaw(const edm::ParameterSet& pset);
 
   /// Take a vector of digis and fill the FEDRawDataCollection
   void createFedBuffers(const CSCStripDigiCollection& stripDigis,
-			const CSCWireDigiCollection& wireDigis, 
+                        const CSCWireDigiCollection& wireDigis,
                         const CSCComparatorDigiCollection& comparatorDigis,
                         const CSCALCTDigiCollection& alctDigis,
                         const CSCCLCTDigiCollection& clctDigis,
                         const CSCCLCTPreTriggerCollection& preTriggers,
                         const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
-			FEDRawDataCollection& fed_buffers,
-		        const CSCChamberMap* theMapping, 
-			edm::Event & e, 
-			uint16_t theFormatVersion = 2005, 
-			bool usePreTriggers = true,
-			bool packEverything = false) const;
+                        FEDRawDataCollection& fed_buffers,
+                        const CSCChamberMap* theMapping,
+                        edm::Event& e,
+                        uint16_t theFormatVersion = 2005,
+                        bool usePreTriggers = true,
+                        bool packEverything = false) const;
 
 private:
   struct FindEventDataInfo {
-  FindEventDataInfo(const CSCChamberMap* map, uint16_t version):
-    theElectronicsMap{map}, formatVersion_{version} {}
+    FindEventDataInfo(const CSCChamberMap* map, uint16_t version) : theElectronicsMap{map}, formatVersion_{version} {}
 
     using ChamberDataMap = std::map<CSCDetId, CSCEventData>;
     ChamberDataMap theChamberDataMap;
     const CSCChamberMap* theElectronicsMap;
     const uint16_t formatVersion_;
   };
-    
 
   // specialized because it reverses strip direction
-  void add(const CSCStripDigiCollection& stripDigis, 
+  void add(const CSCStripDigiCollection& stripDigis,
            const CSCCLCTPreTriggerCollection& preTriggers,
            FindEventDataInfo&,
            bool usePreTriggers,
-           bool packEverything ) const;
+           bool packEverything) const;
   void add(const CSCWireDigiCollection& wireDigis,
-           const CSCALCTDigiCollection & alctDigis,
+           const CSCALCTDigiCollection& alctDigis,
            FindEventDataInfo&,
            bool packEverything) const;
   // may require CLCTs to read out comparators.  Doesn't add CLCTs.
-  void add(const CSCComparatorDigiCollection & comparatorDigis,
-           const CSCCLCTDigiCollection & clctDigis,
+  void add(const CSCComparatorDigiCollection& comparatorDigis,
+           const CSCCLCTDigiCollection& clctDigis,
            FindEventDataInfo&,
            bool packEverything) const;
-  void add(const CSCALCTDigiCollection & alctDigis,
-           FindEventDataInfo&) const;
-  void add(const CSCCLCTDigiCollection & clctDigis,
-           FindEventDataInfo&) const;
-  void add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis,
-           FindEventDataInfo&) const;
+  void add(const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
+  void add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo&) const;
+  void add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindEventDataInfo&) const;
   /// pick out the correct data object for this chamber
-  CSCEventData & findEventData(const CSCDetId & cscDetId, 
-                               FindEventDataInfo& ) const;
+  CSCEventData& findEventData(const CSCDetId& cscDetId, FindEventDataInfo&) const;
 
   const int alctWindowMin_;
   const int alctWindowMax_;
@@ -84,8 +78,5 @@ private:
   const int preTriggerWindowMin_;
   const int preTriggerWindowMax_;
 };
-
-
-
 
 #endif

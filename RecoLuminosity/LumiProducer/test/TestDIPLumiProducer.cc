@@ -14,7 +14,6 @@
 
 #include <iostream>
 
-
 namespace edm {
   class EventSetup;
 }
@@ -22,60 +21,55 @@ namespace edm {
 using namespace std;
 using namespace edm;
 
-class TestDIPLumiProducer : public edm::EDAnalyzer{
+class TestDIPLumiProducer : public edm::EDAnalyzer {
 public:
-  
   explicit TestDIPLumiProducer(edm::ParameterSet const&);
   virtual ~TestDIPLumiProducer();
-  
+
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
 };
 
 // -----------------------------------------------------------------
 
-TestDIPLumiProducer::TestDIPLumiProducer(edm::ParameterSet const& ps)
-{
-}
+TestDIPLumiProducer::TestDIPLumiProducer(edm::ParameterSet const& ps) {}
 
 // -----------------------------------------------------------------
 
-TestDIPLumiProducer::~TestDIPLumiProducer()
-{
-}
+TestDIPLumiProducer::~TestDIPLumiProducer() {}
 
 // -----------------------------------------------------------------
 
-void TestDIPLumiProducer::analyze(edm::Event const& e,edm::EventSetup const&)
-{
-}
+void TestDIPLumiProducer::analyze(edm::Event const& e, edm::EventSetup const&) {}
 
 // -----------------------------------------------------------------
 
-void TestDIPLumiProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, EventSetup const& es){
-  std::cout <<" I AM IN RUN NUMBER "<<lumiBlock.run() <<" LS NUMBER "<< lumiBlock.luminosityBlock()<<std::endl;
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DIPLuminosityRcd"));
-  if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
-    std::cout <<"Record \"DIPLuminosityRcd"<<"\" does not exist "<<std::endl;
+void TestDIPLumiProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, EventSetup const& es) {
+  std::cout << " I AM IN RUN NUMBER " << lumiBlock.run() << " LS NUMBER " << lumiBlock.luminosityBlock() << std::endl;
+  edm::eventsetup::EventSetupRecordKey recordKey(
+      edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DIPLuminosityRcd"));
+  if (recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
+    std::cout << "Record \"DIPLuminosityRcd"
+              << "\" does not exist " << std::endl;
   }
-  try{
+  try {
     edm::ESHandle<DIPLumiSummary> datahandle;
     es.getData(datahandle);
-    if(datahandle.isValid()){
-      const DIPLumiSummary* mydata=datahandle.product();
-      if(!mydata->isNull()){
-	std::cout<<"from Run "<<mydata->fromRun()<<" from LS "<<mydata->fromLS()<<std::endl;
-	std::cout<<mydata->intgDelLumiByLS()<<std::endl;
-      }else{
-	std::cout<<"data empty"<<std::endl;
+    if (datahandle.isValid()) {
+      const DIPLumiSummary* mydata = datahandle.product();
+      if (!mydata->isNull()) {
+        std::cout << "from Run " << mydata->fromRun() << " from LS " << mydata->fromLS() << std::endl;
+        std::cout << mydata->intgDelLumiByLS() << std::endl;
+      } else {
+        std::cout << "data empty" << std::endl;
       }
-    }else{
-      std::cout<<"no valid record found"<<std::endl;
+    } else {
+      std::cout << "no valid record found" << std::endl;
     }
-  }catch(const edm::eventsetup::NoRecordException<DIPLuminosityRcd>& er){
-    std::cout<<"no data found"<<std::endl;
-  }catch(const cms::Exception& ee){
-    std::cout<<ee.what()<<std::endl;
+  } catch (const edm::eventsetup::NoRecordException<DIPLuminosityRcd>& er) {
+    std::cout << "no data found" << std::endl;
+  } catch (const cms::Exception& ee) {
+    std::cout << ee.what() << std::endl;
   }
   //try{
   //  std::cout<<"looking at detail"<<std::endl;

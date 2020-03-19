@@ -24,7 +24,7 @@
     <Parameter name="CellSize"      value="[hgcalwafer:CellWF]"/>
     <Parameter name="CellSize"      value="[hgcalwafer:CellWC]"/>
   </SpecPar>
-  <SpecPar name="HGCalEEReco">
+  <SpecPar name="HGCalEESensitive">
     <PartSelector path="//HGCalEESensitive.*"/>
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
     <Parameter name="Slope"      value="[etaMax:slope]"/>
@@ -281,7 +281,7 @@
     <Parameter name="GroupingZOut"   value="28"/>
     <Parameter name="GroupingZOut"   value="28"/>
   </SpecPar>
-  <SpecPar name="HGCalHESiliconReco">
+  <SpecPar name="HGCalHESiliconSensitive">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
     <Parameter name="Slope"      value="[etaMax:slope]"/>

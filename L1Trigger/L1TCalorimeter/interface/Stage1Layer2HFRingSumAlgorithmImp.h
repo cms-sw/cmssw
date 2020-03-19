@@ -21,17 +21,16 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2HFRingSumAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
-
 namespace l1t {
 
   class Stage1Layer2FlowAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
   public:
     Stage1Layer2FlowAlgorithm(CaloParamsHelper const* params);
     ~Stage1Layer2FlowAlgorithm() override = default;
-    void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      const std::vector<l1t::Tau> * taus,
-			      l1t::CaloSpare * spare) override;
+    void processEvent(const std::vector<l1t::CaloRegion>& regions,
+                      const std::vector<l1t::CaloEmCand>& EMCands,
+                      const std::vector<l1t::Tau>* taus,
+                      l1t::CaloSpare* spare) override;
 
   private:
     std::vector<double> cosPhi;
@@ -42,27 +41,27 @@ namespace l1t {
   public:
     Stage1Layer2CentralityAlgorithm(CaloParamsHelper const* params);
     ~Stage1Layer2CentralityAlgorithm() override = default;
-    void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      const std::vector<l1t::Tau> * taus,
-			      l1t::CaloSpare * spare) override;
+    void processEvent(const std::vector<l1t::CaloRegion>& regions,
+                      const std::vector<l1t::CaloEmCand>& EMCands,
+                      const std::vector<l1t::Tau>* taus,
+                      l1t::CaloSpare* spare) override;
 
   private:
-    CaloParamsHelper const *params_;
+    CaloParamsHelper const* params_;
   };
-
 
   class Stage1Layer2DiTauAlgorithm : public Stage1Layer2HFRingSumAlgorithm {
   public:
     Stage1Layer2DiTauAlgorithm(CaloParamsHelper const* params);
     ~Stage1Layer2DiTauAlgorithm() override = default;
-    void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      const std::vector<l1t::Tau> * taus,
-			      l1t::CaloSpare * spare) override;
+    void processEvent(const std::vector<l1t::CaloRegion>& regions,
+                      const std::vector<l1t::CaloEmCand>& EMCands,
+                      const std::vector<l1t::Tau>* taus,
+                      l1t::CaloSpare* spare) override;
+
   private:
     CaloParamsHelper const* params_;
   };
-}
+}  // namespace l1t
 
 #endif

@@ -10,20 +10,16 @@
 
 class DDCompactView;
 
-DDLEllipticalTube::DDLEllipticalTube( DDLElementRegistry* myreg )
-  : DDLSolid( myreg )
-{}
+DDLEllipticalTube::DDLEllipticalTube(DDLElementRegistry* myreg) : DDLSolid(myreg) {}
 
 // Upon encountering the end of the EllipticalTube element, call DDCore.
-void
-DDLEllipticalTube::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
-{  
-  ClhepEvaluator & ev = myRegistry_->evaluator();
+void DDLEllipticalTube::processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) {
+  ClhepEvaluator& ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
-  DDSolid ddet = DDSolidFactory::ellipticalTube( getDDName( nmspace ),
-						 ev.eval( nmspace, atts.find( "xSemiAxis" )->second ),
-						 ev.eval( nmspace, atts.find( "ySemiAxis" )->second ),
-						 ev.eval( nmspace, atts.find( "zHeight" )->second ));
-  DDLSolid::setReference( nmspace, cpv );
+  DDSolid ddet = DDSolidFactory::ellipticalTube(getDDName(nmspace),
+                                                ev.eval(nmspace, atts.find("xSemiAxis")->second),
+                                                ev.eval(nmspace, atts.find("ySemiAxis")->second),
+                                                ev.eval(nmspace, atts.find("zHeight")->second));
+  DDLSolid::setReference(nmspace, cpv);
 }

@@ -4,7 +4,7 @@
 //
 // Package:     Framework
 // Class  :     MessageForParent
-// 
+//
 /**\class MessageForSource MessageForParent.h FWCore/Framework/interface/MessageForParent.h
 
  Description: Information passed from parent to source when doing multicore processing
@@ -27,35 +27,30 @@
 // forward declarations
 
 namespace edm {
-   namespace multicore {
-      class MessageForParent
-      {
-      public:
-         MessageForParent(): m_dummy(0) {}
-         
-         //virtual ~MessageForSource();
-         
-         // ---------- const member functions ---------------------
-         
-         // ---------- static member functions --------------------
-         static size_t sizeForBuffer() {
-           return sizeof(MessageForParent);
-         }
+  namespace multicore {
+    class MessageForParent {
+    public:
+      MessageForParent() : m_dummy(0) {}
 
-      public:
-         // ---------- member functions ---------------------------
-         
+      //virtual ~MessageForSource();
 
-         //MessageForSource(const MessageForSource&); // allow default
-         
-         //const MessageForSource& operator=(const MessageForSource&); // allow default
-         
-         // ---------- member data --------------------------------
-         int m_dummy;
+      // ---------- const member functions ---------------------
 
-      };
+      // ---------- static member functions --------------------
+      static size_t sizeForBuffer() { return sizeof(MessageForParent); }
 
-   }
-}
+    public:
+      // ---------- member functions ---------------------------
+
+      //MessageForSource(const MessageForSource&); // allow default
+
+      //const MessageForSource& operator=(const MessageForSource&); // allow default
+
+      // ---------- member data --------------------------------
+      int m_dummy;
+    };
+
+  }  // namespace multicore
+}  // namespace edm
 
 #endif

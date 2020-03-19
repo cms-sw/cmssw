@@ -19,14 +19,12 @@ namespace edmtest {
 
   class TrackOfThingsProducer : public edm::one::EDProducer<> {
   public:
-
     explicit TrackOfThingsProducer(edm::ParameterSet const&);
     virtual ~TrackOfThingsProducer();
 
     void produce(edm::Event&, edm::EventSetup const&) override;
 
   private:
-
     void incrementKey(std::vector<unsigned int>::const_iterator& key) const;
 
     edm::EDGetTokenT<ThingCollection> inputToken_;
@@ -34,7 +32,6 @@ namespace edmtest {
   };
 
   TrackOfThingsProducer::TrackOfThingsProducer(edm::ParameterSet const& pset) {
-
     inputToken_ = consumes<ThingCollection>(pset.getParameter<edm::InputTag>("inputTag"));
 
     keysToReference_ = pset.getParameter<std::vector<unsigned int> >("keysToReference");
@@ -42,15 +39,15 @@ namespace edmtest {
     produces<TrackOfThingsCollection>();
   }
 
-  TrackOfThingsProducer::~TrackOfThingsProducer() { }
+  TrackOfThingsProducer::~TrackOfThingsProducer() {}
 
   void TrackOfThingsProducer::incrementKey(std::vector<unsigned int>::const_iterator& key) const {
     ++key;
-    if(key == keysToReference_.end()) key = keysToReference_.begin();
+    if (key == keysToReference_.end())
+      key = keysToReference_.begin();
   }
 
   void TrackOfThingsProducer::produce(edm::Event& event, edm::EventSetup const&) {
-
     edm::Handle<ThingCollection> inputCollection = event.getHandle(inputToken_);
 
     auto result = std::make_unique<TrackOfThingsCollection>();
@@ -61,9 +58,7 @@ namespace edmtest {
     // and have no meaning other than that we will later check that we can
     // read out what we put in here.
     std::vector<unsigned int>::const_iterator key = keysToReference_.begin();
-    for(unsigned int i = 0; i < 5; ++i) {
-
-
+    for (unsigned int i = 0; i < 5; ++i) {
       edmtest::TrackOfThings trackOfThings;
 
       trackOfThings.ref1 = edm::Ref<ThingCollection>(inputCollection, *key);
@@ -80,10 +75,11 @@ namespace edmtest {
 
       trackOfThings.refToBase1 = edm::RefToBase<Thing>(trackOfThings.ref1);
 
-      for(auto iKey : keysToReference_) {
+      for (auto iKey : keysToReference_) {
         trackOfThings.refVector1.push_back(edm::Ref<ThingCollection>(inputCollection, iKey));
         trackOfThings.ptrVector1.push_back(edm::Ptr<Thing>(inputCollection, iKey));
-        trackOfThings.refToBaseVector1.push_back(edm::RefToBase<Thing>(edm::Ref<ThingCollection>(inputCollection, iKey)));
+        trackOfThings.refToBaseVector1.push_back(
+            edm::RefToBase<Thing>(edm::Ref<ThingCollection>(inputCollection, iKey)));
       }
 
       result->push_back(trackOfThings);
@@ -91,6 +87,6 @@ namespace edmtest {
 
     event.put(std::move(result));
   }
-}
+}  // namespace edmtest
 using edmtest::TrackOfThingsProducer;
 DEFINE_FWK_MODULE(TrackOfThingsProducer);

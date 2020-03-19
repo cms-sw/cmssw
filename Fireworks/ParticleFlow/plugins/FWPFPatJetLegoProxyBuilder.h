@@ -5,7 +5,7 @@
 //
 // Package:     ParticleFlow
 // Class  :     FWPFPatJetLegoProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -20,36 +20,37 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 
-
 //-----------------------------------------------------------------------------
 // FWPFPatJetLegoProxyBuilder
 //-----------------------------------------------------------------------------
 template <class T>
-class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
-{
-   public:
-   // ---------------- Constructor(s)/Destructor ----------------------
-      FWPFPatJetLegoProxyBuilder();
-      ~FWPFPatJetLegoProxyBuilder() override;
+class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T> {
+public:
+  // ---------------- Constructor(s)/Destructor ----------------------
+  FWPFPatJetLegoProxyBuilder();
+  ~FWPFPatJetLegoProxyBuilder() override;
 
-   // --------------------- Member Functions --------------------------
-      using FWProxyBuilderBase::havePerViewProduct;
-      bool havePerViewProduct(FWViewType::EType) const override { return true; }
+  // --------------------- Member Functions --------------------------
+  using FWProxyBuilderBase::havePerViewProduct;
+  bool havePerViewProduct(FWViewType::EType) const override { return true; }
 
-      using FWProxyBuilderBase::scaleProduct;
-      void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
+  using FWProxyBuilderBase::scaleProduct;
+  void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
 
-      using FWProxyBuilderBase::localModelChanges;
-      void localModelChanges(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc) override;
+  using FWProxyBuilderBase::localModelChanges;
+  void localModelChanges(const FWModelId& iId,
+                         TEveElement* iCompound,
+                         FWViewType::EType viewType,
+                         const FWViewContext* vc) override;
 
-      using FWSimpleProxyBuilderTemplate<T>::build;
-      void build( const T&, unsigned int, TEveElement&, const FWViewContext* ) override;
-   private:
-      FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&) = delete;             //stop default
-      const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&) = delete;  //stop default
+  using FWSimpleProxyBuilderTemplate<T>::build;
+  void build(const T&, unsigned int, TEveElement&, const FWViewContext*) override;
 
-   // --------------------- Member Functions --------------------------
+private:
+  FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&) = delete;             //stop default
+  const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&) = delete;  //stop default
 
+  // --------------------- Member Functions --------------------------
 };
-#endif // FWPFPATJETLEGOPROXYBUILDER
+#endif  // FWPFPATJETLEGOPROXYBUILDER
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

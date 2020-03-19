@@ -11,8 +11,8 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedTausBoosted_*_*',
         'keep *_slimmedCaloJets_*_*',
         'keep *_slimmedJets_*_*',
-        # drop content created by MINIAOD DeepFlavour production
-        'drop recoBaseTagInfosOwned_slimmedJets_*_*',
+        # keep slimmedJets TagInfos, currently only PixelClusterTagInfo
+        'keep recoBaseTagInfosOwned_slimmedJets_*_*',
         'keep *_slimmedJetsAK8_*_*',
         # drop content created by MINIAOD DeepDoubleB production
         'drop recoBaseTagInfosOwned_slimmedJetsAK8_*_*',
@@ -47,6 +47,7 @@ MicroEventContent = cms.PSet(
 
         'keep double_fixedGridRhoAll__*',
         'keep double_fixedGridRhoFastjetAll__*',
+        'keep double_fixedGridRhoFastjetAllTmp__*',
         'keep double_fixedGridRhoFastjetAllCalo__*',
         'keep double_fixedGridRhoFastjetCentral_*_*',
         'keep double_fixedGridRhoFastjetCentralCalo__*',
@@ -78,8 +79,11 @@ MicroEventContent = cms.PSet(
         'keep LumiScalerss_scalersRawToDigi_*_*',
         # CTPPS
         'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
+        'keep recoForwardProtons_ctppsProtons_*_*',
 	# displacedStandAlone muon collection for EXO
 	'keep recoTracks_displacedStandAloneMuons__*',
+        # L1 prefiring weights
+        'keep *_prefiringweight_*_*',
     )
 )
 
@@ -115,8 +119,20 @@ _bParking_extraCommands = ['keep *_slimmedLowPtElectrons_*_*',
                            'keep recoGsfTracks_lowPtGsfEleGsfTracks_*_*',
                            'keep floatedmValueMap_lowPtGsfElectronSeedValueMaps_*_*',
                            'keep floatedmValueMap_lowPtGsfElectronID_*_*',
+                           'keep *_lowPtGsfLinks_*_*',
+                           'keep *_gsfTracksOpenConversions_*_*',
                            ]
 bParking.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _bParking_extraCommands)
+
+# --- Only for 2018 data & MC
+_run2_HCAL_2018_extraCommands = ["keep *_packedPFCandidates_hcalDepthEnergyFractions_*"]
+from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
+run2_HCAL_2018.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _run2_HCAL_2018_extraCommands)
+
+_run3_common_extraCommands = ["drop *_packedPFCandidates_hcalDepthEnergyFractions_*"]
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _run3_common_extraCommands)
+# --- 
 
 MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
@@ -128,6 +144,10 @@ MicroEventContentMC.outputCommands += [
                                         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
                                       ]
 
+from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
+strips_vfp30_2016.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + [
+    'keep *_simAPVsaturation_SimulatedAPVDynamicGain_*'
+])
 
 MiniAODOverrideBranchesSplitLevel = cms.untracked.VPSet( [
 cms.untracked.PSet(branch = cms.untracked.string("patPackedCandidates_packedPFCandidates__*"),splitLevel=cms.untracked.int32(99)),
@@ -143,7 +163,6 @@ cms.untracked.PSet(branch = cms.untracked.string("recoGenJets_slimmedGenJets__*"
 cms.untracked.PSet(branch = cms.untracked.string("patJets_slimmedJetsPuppi__*"),splitLevel=cms.untracked.int32(99)),
 cms.untracked.PSet(branch = cms.untracked.string("EcalRecHitsSorted_reducedEgamma_reducedESRecHits_*"),splitLevel=cms.untracked.int32(99)),
 ])
-
 
 _phase2_hgc_extraCommands = ["keep *_slimmedElectronsFromMultiCl_*_*", "keep *_slimmedPhotonsFromMultiCl_*_*"]
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal

@@ -31,29 +31,25 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //____________________________________________________________________________||
-namespace cms
-{
-  class GenMETProducer: public edm::stream::EDProducer<>
-    {
-    public:
-      explicit GenMETProducer(const edm::ParameterSet&);
-      ~GenMETProducer() override { }
-      void produce(edm::Event&, const edm::EventSetup&) override;
+namespace cms {
+  class GenMETProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit GenMETProducer(const edm::ParameterSet&);
+    ~GenMETProducer() override {}
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
-    private:
+  private:
+    edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
 
-      edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
+    double globalThreshold_;
 
-      double globalThreshold_;
+    bool onlyFiducial_;
 
-      bool onlyFiducial_;
+    bool applyFiducialThresholdForFractions_;
 
-      bool applyFiducialThresholdForFractions_;
-
-      bool usePt_;
-
-    };
-}
+    bool usePt_;
+  };
+}  // namespace cms
 
 //____________________________________________________________________________||
-#endif // GenMETProducer_h
+#endif  // GenMETProducer_h

@@ -10,9 +10,9 @@ def customise(process):
 #   If using cmsDriver:
 #       1) add the option "--era Run2_2017" 
 #   If using a pre-made configuration file:
-#       1) add "from Configuration.StandardSequences.Eras import eras" to the TOP of the config file (above
+#       1) add "from Configuration.Eras.Era_Run2_2017_cff import Run2_2017" to the TOP of the config file (above
 #          the process declaration).
-#       2) add "eras.Run2_2017" as a parameter to the process object, e.g. "process = cms.Process('HLT',eras.Run2_2017)" 
+#       2) add "Run2_2017" as a parameter to the process object, e.g. "process = cms.Process('HLT',Run2_2017)" 
 #
 # If you are targeting something else than 2017 and have to use a
 # customize function from SLHC-times, you have to modify the customize

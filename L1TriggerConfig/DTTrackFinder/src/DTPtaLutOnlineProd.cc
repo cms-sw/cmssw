@@ -2,7 +2,7 @@
 //
 // Package:    DTPtaLutOnlineProd
 // Class:      DTPtaLutOnlineProd
-// 
+//
 /**\class DTPtaLutOnlineProd DTPtaLutOnlineProd.h L1Trigger/DTPtaLutProducers/src/DTPtaLutOnlineProd.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id$
 //
 //
-
 
 // system include files
 
@@ -32,18 +31,15 @@
 // class declaration
 //
 
-class DTPtaLutOnlineProd :
-  public L1ConfigOnlineProdBase< L1MuDTPtaLutRcd, L1MuDTPtaLut >
-{
-   public:
-      DTPtaLutOnlineProd(const edm::ParameterSet&);
-      ~DTPtaLutOnlineProd() override;
+class DTPtaLutOnlineProd : public L1ConfigOnlineProdBase<L1MuDTPtaLutRcd, L1MuDTPtaLut> {
+public:
+  DTPtaLutOnlineProd(const edm::ParameterSet&);
+  ~DTPtaLutOnlineProd() override;
 
-      std::unique_ptr< L1MuDTPtaLut > newObject(
-         const std::string& objectKey ) override ;
+  std::unique_ptr<L1MuDTPtaLut> newObject(const std::string& objectKey) override;
 
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 };
 
 //
@@ -57,42 +53,30 @@ class DTPtaLutOnlineProd :
 //
 // constructors and destructor
 //
-DTPtaLutOnlineProd::DTPtaLutOnlineProd(
-  const edm::ParameterSet& iConfig)
-  : L1ConfigOnlineProdBase< L1MuDTPtaLutRcd,
-			    L1MuDTPtaLut >( iConfig )
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
+DTPtaLutOnlineProd::DTPtaLutOnlineProd(const edm::ParameterSet& iConfig)
+    : L1ConfigOnlineProdBase<L1MuDTPtaLutRcd, L1MuDTPtaLut>(iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 }
 
-
-DTPtaLutOnlineProd::~DTPtaLutOnlineProd()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+DTPtaLutOnlineProd::~DTPtaLutOnlineProd() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
-std::unique_ptr< L1MuDTPtaLut >
-DTPtaLutOnlineProd::newObject( const std::string& objectKey )
-{
-  edm::LogError( "L1-O2O" ) << "L1MuDTPtaLut object with key "
-			    << objectKey << " not in ORCON!" ;
+std::unique_ptr<L1MuDTPtaLut> DTPtaLutOnlineProd::newObject(const std::string& objectKey) {
+  edm::LogError("L1-O2O") << "L1MuDTPtaLut object with key " << objectKey << " not in ORCON!";
 
-  return std::unique_ptr< L1MuDTPtaLut >() ;
+  return std::unique_ptr<L1MuDTPtaLut>();
 }
 
 //
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
-
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(DTPtaLutOnlineProd);

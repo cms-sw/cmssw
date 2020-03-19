@@ -15,10 +15,10 @@
  
 */
 //
-// Original Author: 
+// Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
- 
+
 // system include files
 
 // user include files
@@ -26,13 +26,10 @@
 #include "SimG4CMS/Forward/interface/TotemT1Organization.h"
 
 class TotemT1NumberingScheme : public TotemT1Organization {
-
 public:
-
   // ---------- Constructor and destructor -----------------
   TotemT1NumberingScheme(int i);
-  ~TotemT1NumberingScheme() override;	 
-
+  ~TotemT1NumberingScheme() override;
 };
 
 #endif

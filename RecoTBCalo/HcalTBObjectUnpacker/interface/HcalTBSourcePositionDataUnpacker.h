@@ -8,11 +8,10 @@
 namespace hcaltb {
   class HcalTBSourcePositionDataUnpacker {
   public:
-    HcalTBSourcePositionDataUnpacker(void) { }
+    HcalTBSourcePositionDataUnpacker(void) {}
 
-    void unpack(const FEDRawData& raw,
-		HcalSourcePositionData& hspd) const;
+    void unpack(const FEDRawData& raw, HcalSourcePositionData& hspd) const;
   };
-}
+}  // namespace hcaltb
 
-#endif // HcalTBSourcePositionDataUnpacker_h_included
+#endif  // HcalTBSourcePositionDataUnpacker_h_included

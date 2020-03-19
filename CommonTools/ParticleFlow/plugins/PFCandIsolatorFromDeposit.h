@@ -17,51 +17,52 @@
 
 #include <string>
 
-namespace edm { class Event; }
-namespace edm { class EventSetup; }
+namespace edm {
+  class Event;
+}
+namespace edm {
+  class EventSetup;
+}
 
 class PFCandIsolatorFromDeposits : public edm::stream::EDProducer<> {
-
 public:
   typedef edm::ValueMap<double> CandDoubleMap;
 
   enum Mode { Sum, SumRelative, Sum2, Sum2Relative, Max, MaxRelative, Count, NearestDR };
-  PFCandIsolatorFromDeposits(const edm::ParameterSet&);
+  PFCandIsolatorFromDeposits(const edm::ParameterSet &);
 
   ~PFCandIsolatorFromDeposits() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
   class SingleDeposit {
-    public:
-        SingleDeposit(const edm::ParameterSet &, edm::ConsumesCollector && iC) ;
-        void cleanup() ;
-        void open(const edm::Event &iEvent, const edm::EventSetup &iSetup) ;
-        double compute(const reco::CandidateBaseRef &cand) ;
-        const reco::IsoDepositMap & map() { return *hDeps_; }
-    private:
-        Mode mode_;
-        edm::EDGetTokenT<reco::IsoDepositMap> srcToken_;
-        double deltaR_;
-        bool   usesFunction_;
-        double weight_;
+  public:
+    SingleDeposit(const edm::ParameterSet &, edm::ConsumesCollector &&iC);
+    void cleanup();
+    void open(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+    double compute(const reco::CandidateBaseRef &cand);
+    const reco::IsoDepositMap &map() { return *hDeps_; }
 
-        StringObjectFunction<reco::Candidate> weightExpr_;
-        reco::isodeposit::AbsVetos barrelVetos_;
-        reco::isodeposit::AbsVetos endcapVetos_;
-        reco::isodeposit::EventDependentAbsVetos evdepVetos_; // note: these are a subset of the above. Don't delete twice!
-        bool   skipDefaultVeto_;
-	bool usePivotForBarrelEndcaps_;
-        edm::Handle<reco::IsoDepositMap> hDeps_; // transient
+  private:
+    Mode mode_;
+    edm::EDGetTokenT<reco::IsoDepositMap> srcToken_;
+    double deltaR_;
+    bool usesFunction_;
+    double weight_;
 
-	bool isNumber(const std::string &str) const ;
-	double toNumber(const std::string &str) const ;
+    StringObjectFunction<reco::Candidate> weightExpr_;
+    reco::isodeposit::AbsVetos barrelVetos_;
+    reco::isodeposit::AbsVetos endcapVetos_;
+    reco::isodeposit::EventDependentAbsVetos evdepVetos_;  // note: these are a subset of the above. Don't delete twice!
+    bool skipDefaultVeto_;
+    bool usePivotForBarrelEndcaps_;
+    edm::Handle<reco::IsoDepositMap> hDeps_;  // transient
+
+    bool isNumber(const std::string &str) const;
+    double toNumber(const std::string &str) const;
   };
   // datamembers
   std::vector<SingleDeposit> sources_;
-
-
-
 };
 #endif

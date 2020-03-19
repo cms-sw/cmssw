@@ -32,22 +32,20 @@ class DDDivision;
    Currently the only usefull methods are DDCompactView::graph(), DDCompactView::root() !
        
    \todo define a stable interface for navigation (don't expose the user to the graph!)
-*/    
-// 
-DDCompactView::DDCompactView( const DDLogicalPart & rootnodedata )
-  : rep_( std::make_unique<DDCompactViewImpl>( rootnodedata )),
-    worldpos_( std::make_unique<DDPosData>( DDTranslation(), DDRotation(), 0 ))
-{}
+*/
+//
+DDCompactView::DDCompactView(const DDLogicalPart& rootnodedata)
+    : rep_(std::make_unique<DDCompactViewImpl>(rootnodedata)),
+      worldpos_(std::make_unique<DDPosData>(DDTranslation(), DDRotation(), 0)) {}
 
-DDCompactView::DDCompactView( const DDName& name )
-{
-  DDMaterial::StoreT::instance().setReadOnly( false );
-  DDSolid::StoreT::instance().setReadOnly( false );
-  DDLogicalPart::StoreT::instance().setReadOnly( false );
-  DDSpecifics::StoreT::instance().setReadOnly( false );
-  DDRotation::StoreT::instance().setReadOnly( false );
-  rep_ = std::make_unique<DDCompactViewImpl>( DDLogicalPart( name ));
-  worldpos_ = std::make_unique<DDPosData>( DDTranslation(), DDRotation(), 0 );
+DDCompactView::DDCompactView(const DDName& name) {
+  DDMaterial::StoreT::instance().setReadOnly(false);
+  DDSolid::StoreT::instance().setReadOnly(false);
+  DDLogicalPart::StoreT::instance().setReadOnly(false);
+  DDSpecifics::StoreT::instance().setReadOnly(false);
+  DDRotation::StoreT::instance().setReadOnly(false);
+  rep_ = std::make_unique<DDCompactViewImpl>(DDLogicalPart(name));
+  worldpos_ = std::make_unique<DDPosData>(DDTranslation(), DDRotation(), 0);
 }
 
 DDCompactView::~DDCompactView() = default;
@@ -56,83 +54,56 @@ DDCompactView::~DDCompactView() = default;
    The compact-view is kept in an acyclic directed multigraph represented
    by an instance of class Graph<DDLogicalPart, DDPosData*). 
    Graph provides methods for navigating its content.
-*/      
-const DDCompactView::Graph & DDCompactView::graph() const 
-{ 
-  return rep_->graph(); 
+*/
+const DDCompactView::Graph& DDCompactView::graph() const { return rep_->graph(); }
+
+DDCompactView::GraphWalker DDCompactView::walker() const { return rep_->walker(); }
+
+const DDLogicalPart& DDCompactView::root() const { return rep_->root(); }
+
+const DDPosData* DDCompactView::worldPosition() const { return worldpos_.get(); }
+
+void DDCompactView::position(const DDLogicalPart& self,
+                             const DDLogicalPart& parent,
+                             const std::string& copyno,
+                             const DDTranslation& trans,
+                             const DDRotation& rot,
+                             const DDDivision* div) {
+  int cpno = atoi(copyno.c_str());
+  position(self, parent, cpno, trans, rot, div);
 }
 
-DDCompactView::GraphWalker
-DDCompactView::walker() const
-{
-  return rep_->walker();
-}
-
-const DDLogicalPart &
-DDCompactView::root() const
-{
-  return rep_->root(); 
-} 
-  
-const DDPosData*
-DDCompactView::worldPosition() const
-{
-  return worldpos_.get();
-}
-
-void
-DDCompactView::position( const DDLogicalPart & self, 
-			 const DDLogicalPart & parent,
-			 const std::string& copyno,
-			 const DDTranslation & trans,
-			 const DDRotation & rot,
-			 const DDDivision * div )
-{
-  int cpno = atoi( copyno.c_str());
-  position( self, parent, cpno, trans, rot, div );
-}
-
-void
-DDCompactView::position( const DDLogicalPart & self,
-			 const DDLogicalPart & parent,
-			 int copyno,
-			 const DDTranslation & trans,
-			 const DDRotation & rot,
-			 const DDDivision * div )
-{
-  rep_->position( self, parent, copyno, trans, rot, div );
+void DDCompactView::position(const DDLogicalPart& self,
+                             const DDLogicalPart& parent,
+                             int copyno,
+                             const DDTranslation& trans,
+                             const DDRotation& rot,
+                             const DDDivision* div) {
+  rep_->position(self, parent, copyno, trans, rot, div);
 }
 
 // UNSTABLE STUFF below ...
-void DDCompactView::setRoot(const DDLogicalPart & root)
-{
-  rep_->setRoot(root);
-}  
+void DDCompactView::setRoot(const DDLogicalPart& root) { rep_->setRoot(root); }
 
-void DDCompactView::swap( DDCompactView& repToSwap ) {
-  rep_->swap ( *(repToSwap.rep_) );
-}
+void DDCompactView::swap(DDCompactView& repToSwap) { rep_->swap(*(repToSwap.rep_)); }
 
 DDCompactView::DDCompactView()
-  : rep_( std::make_unique<DDCompactViewImpl>()),
-    worldpos_( std::make_unique<DDPosData>( DDTranslation(), DDRotation(), 0 ))
-{}
+    : rep_(std::make_unique<DDCompactViewImpl>()),
+      worldpos_(std::make_unique<DDPosData>(DDTranslation(), DDRotation(), 0)) {}
 
-void
-DDCompactView::lockdown() {
+void DDCompactView::lockdown() {
   // at this point we should have a valid store of DDObjects and we will move these
   // to the local storage area using swaps with the existing Singleton<Store...>'s
-  DDMaterial::StoreT::instance().swap( matStore_ );
-  DDSolid::StoreT::instance().swap( solidStore_ );
-  DDLogicalPart::StoreT::instance().swap( lpStore_ );
-  DDSpecifics::StoreT::instance().swap( specStore_ );
-  DDRotation::StoreT::instance().swap( rotStore_ );
+  DDMaterial::StoreT::instance().swap(matStore_);
+  DDSolid::StoreT::instance().swap(solidStore_);
+  DDLogicalPart::StoreT::instance().swap(lpStore_);
+  DDSpecifics::StoreT::instance().swap(specStore_);
+  DDRotation::StoreT::instance().swap(rotStore_);
 
   // FIXME: lock the global stores.
-  DDMaterial::StoreT::instance().setReadOnly( false );
-  DDSolid::StoreT::instance().setReadOnly( false );
-  DDLogicalPart::StoreT::instance().setReadOnly( false );
-  DDSpecifics::StoreT::instance().setReadOnly( false );
-  DDRotation::StoreT::instance().setReadOnly( false );
+  DDMaterial::StoreT::instance().setReadOnly(false);
+  DDSolid::StoreT::instance().setReadOnly(false);
+  DDLogicalPart::StoreT::instance().setReadOnly(false);
+  DDSpecifics::StoreT::instance().setReadOnly(false);
+  DDRotation::StoreT::instance().setReadOnly(false);
 }
-

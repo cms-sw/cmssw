@@ -28,15 +28,19 @@ public:
   using range = std::pair<const_iterator, const_iterator>;
 
   ClusterTPAssociation() {}
-  explicit ClusterTPAssociation(const edm::HandleBase& mappedHandle): ClusterTPAssociation(mappedHandle.id()) {}
-  explicit ClusterTPAssociation(const edm::ProductID& mappedProductId): mappedProductId_(mappedProductId) {}
+  explicit ClusterTPAssociation(const edm::HandleBase& mappedHandle) : ClusterTPAssociation(mappedHandle.id()) {}
+  explicit ClusterTPAssociation(const edm::ProductID& mappedProductId) : mappedProductId_(mappedProductId) {}
+
+  void addKeyID(edm::ProductID id) {
+    auto foundKeyID = std::find(std::begin(keyProductIDs_), std::end(keyProductIDs_), id);
+    if (foundKeyID == std::end(keyProductIDs_)) {
+      keyProductIDs_.emplace_back(id);
+    }
+  }
 
   void emplace_back(const OmniClusterRef& cluster, const TrackingParticleRef& tp) {
     checkMappedProductID(tp);
-    auto foundKeyID = std::find(std::begin(keyProductIDs_), std::end(keyProductIDs_), cluster.id());
-    if(foundKeyID == std::end(keyProductIDs_)) {
-      keyProductIDs_.emplace_back(cluster.id());
-    }
+    checkKeyProductID(cluster.id());
     map_.emplace_back(cluster, tp);
   }
   void sortAndUnique() {
@@ -53,16 +57,16 @@ public:
   bool empty() const { return map_.empty(); }
   size_t size() const { return map_.size(); }
 
-  const_iterator begin()  const { return map_.begin(); }
+  const_iterator begin() const { return map_.begin(); }
   const_iterator cbegin() const { return map_.cbegin(); }
-  const_iterator end()    const { return map_.end(); }
-  const_iterator cend()   const { return map_.end(); }
+  const_iterator end() const { return map_.end(); }
+  const_iterator cend() const { return map_.end(); }
 
   range equal_range(const OmniClusterRef& key) const {
     checkKeyProductID(key);
     return std::equal_range(map_.begin(), map_.end(), value_type(key, TrackingParticleRef()), compare);
   }
-  
+
   const map_type& map() const { return map_; }
 
   void checkKeyProductID(const OmniClusterRef& key) const { checkKeyProductID(key.id()); }
@@ -73,9 +77,7 @@ public:
   void checkMappedProductID(const edm::ProductID& id) const;
 
 private:
-  static bool compare(const value_type& i, const value_type& j) {
-    return i.first.rawIndex() > j.first.rawIndex();
-  }
+  static bool compare(const value_type& i, const value_type& j) { return i.first.rawIndex() > j.first.rawIndex(); }
 
   static bool compareSort(const value_type& i, const value_type& j) {
     // For sorting compare also TrackingParticle keys in order to

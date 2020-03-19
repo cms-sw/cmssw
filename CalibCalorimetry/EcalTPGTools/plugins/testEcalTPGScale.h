@@ -18,19 +18,17 @@
 
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
-class CaloSubdetectorGeometry ;
+class CaloSubdetectorGeometry;
 
 class testEcalTPGScale : public edm::EDAnalyzer {
+public:
+  explicit testEcalTPGScale(edm::ParameterSet const& pSet);
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void beginJob() override;
 
- public:
-  explicit testEcalTPGScale(edm::ParameterSet const& pSet) ;
-  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override ;
-  void beginJob() override ;
-
- private:
-  const CaloSubdetectorGeometry * theEndcapGeometry_ ;
-  const CaloSubdetectorGeometry * theBarrelGeometry_ ;
+private:
+  const CaloSubdetectorGeometry* theEndcapGeometry_;
+  const CaloSubdetectorGeometry* theBarrelGeometry_;
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
-
 };
 #endif
