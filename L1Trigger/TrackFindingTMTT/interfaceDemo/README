@@ -1,0 +1,3 @@
+The files in this subdirectory are compiled only when using the TMTT software with
+the demonstrator code https://gitlab.cern.ch/cms-uk-tracktrigger/software/demo/Demonstrator/blob/master/README.md , 
+for comparing it with firmware.

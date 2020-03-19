@@ -1,0 +1,111 @@
+################################################### 
+## ASCII FILES
+################################################### 
+
+
+The ascii files that are used as input to the standalone tracklet algorithm is no longer stored in the github directory due to their size.  
+
+Instead they are kept centrally at CERN, just download them to wherever you are running the tracklet algorithm. 
+
+The files are available here: /store/user/skinnari/Tracklet/InputFiles
+
+To copy files off CERN EOS, use xrdcp, e.g.: 
+
+xrdcp /eos/cms/store/user/skinnari/Tracklet/InputFiles/evlist_MuMinus_1to10_T5_PU0.txt . 
+
+(See more here: https://cern.service-now.com/service-portal/article.do?n=KB0001998)
+
+
+################################################### 
+## Single-particle gun samples (electron / muon without PU): 
+
+Original files: 
+
+/afs/cern.ch/work/s/skinnari/public/L1TK_90X/*root 
+
+ASCII files: 
+
+evlist_ElMinus_1to50_T5_PU0.txt
+evlist_ElPlus_1to50_T5_PU0.txt
+evlist_MuMinus_1to50_T5_PU0.txt
+evlist_MuPlus_1to50_T5_PU0.txt
+
+
+Single pions, PU0: 
+
+Original files, this full sample:
+/SinglePion_FlatPt-2to100/PhaseIIFall17D-L1TnoPU_93X_upgrade2023_realistic_v5-v1/GEN-SIM-DIGI-RAW
+
+corresponging ascii file (500K events):
+evlist_Pion_pt2to100_PU0_937.txt
+
+
+
+################################################### 
+
+ttbar + PU=0/140/200/250/300
+
+################################################### 
+
+evlist_937_ttbar_pu0.txt
+evlist_937_ttbar_pu140.txt
+evlist_937_ttbar_pu200.txt
+evlist_937_ttbar_pu250.txt
+evlist_937_ttbar_pu300.txt
+
+original files: 
+/store/relval/CMSSW_9_3_7/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/93X_upgrade2023_realistic_v5_2023D17noPU-v2/10000/0E1785F0-762C-E811-9192-0CC47A78A4BA.root
+/store/relval/CMSSW_9_3_7/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU140-v1/20000/00E0EA0C-0552-E811-B526-0242AC130002.root
+/store/relval/CMSSW_9_3_7/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU200-v1/10000/0A52EE7F-1E2D-E811-86EB-0242AC130002.root
+/store/relval/CMSSW_9_3_7/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU250-v1/20000/002B1F49-CB52-E811-81A3-24BE05C63741.root
+/store/relval/CMSSW_9_3_7/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU300-v1/20000/0056D47E-7457-E811-832B-0242AC130002.root
+
+
+
+###################################################################################################### 
+
+==> THE BELOW IS AN OLDER SET OF FILES
+
+###################################################################################################### 
+
+
+################################################### 
+## ttbar PU=200 
+
+Original files (for reproducibility) are these ones: 
+
+/store/relval/CMSSW_9_3_2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v2_2023D17PU200-v1/10000/0253F3E0-C4AA-E711-96FF-E0071B73C620.root
+
+ASCII files: 
+
+evlist_ttbar_D17_PU200.txt
+evlist_ttbar_D17_PU200_FEineff.txt
+evlist_ttbar_D17_PU200_newtune.txt
+evlist_ttbar_D17_PU200_newtune_FEineff.txt
+
+
+################################################### 
+## ttbar PU=140 
+
+Original files (for reproducibility) are these ones: 
+
+/store/user/ejclemen/L1TT/RelVal_932/WithTruthAssociation/TTbar/PU140/output_0.root
+
+ASCII files: 
+
+evlist_ttbar_D17_PU140.txt
+
+
+################################################### 
+## ttbar PU=0 
+
+Original files (for reproducibility) are these ones: 
+
+/store/user/ejclemen/L1TT/RelVal_932/WithTruthAssociation/TTbar/PU0/output_1.root
+
+ASCII files: 
+
+evlist_ttbar_D17_PU0.txt
+
+
+
