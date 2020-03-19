@@ -378,11 +378,20 @@ void BPHKinematicFit::setNotUpdated() const {
 // build kin particles, perform the fit and compute the total momentum
 void BPHKinematicFit::buildParticles() const {
   kinMap.clear();
+  kCDMap.clear();
   allParticles.clear();
-  const vector<const reco::Candidate*>& daug = daughFull();
+  allParticles.reserve(daughFull().size());
+  addParticles(allParticles, kinMap, kCDMap);
+  oldKPs = false;
+  return;
+}
+
+void BPHKinematicFit::addParticles(vector<RefCountedKinematicParticle>& kl,
+                                   map<const reco::Candidate*, RefCountedKinematicParticle>& km,
+                                   map<const BPHRecoCandidate*, RefCountedKinematicParticle>& cm) const {
+  const vector<const reco::Candidate*>& daug = daughters();
   KinematicParticleFactoryFromTransientTrack pFactory;
   int n = daug.size();
-  allParticles.reserve(n);
   float chi = 0.0;
   float ndf = 0.0;
   while (n--) {
@@ -393,9 +402,14 @@ void BPHKinematicFit::buildParticles() const {
       sigma = 1.0e-7;
     reco::TransientTrack* tt = getTransientTrack(cand);
     if (tt != nullptr)
-      allParticles.push_back(kinMap[cand] = pFactory.particle(*tt, mass, chi, ndf, sigma));
+      kl.push_back(km[cand] = pFactory.particle(*tt, mass, chi, ndf, sigma));
   }
-  oldKPs = false;
+  const vector<BPHRecoConstCandPtr>& comp = daughComp();
+  int m = comp.size();
+  while (m--) {
+    const BPHRecoCandidate* cptr = comp[m].get();
+    cptr->addParticles(kl, km, cm);
+  }
   return;
 }
 
