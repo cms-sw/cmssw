@@ -1083,8 +1083,8 @@ timingDict = {
         1 : [
             'Geometry/MTDCommonData/data/mtdMaterial/v1/mtdMaterial.xml',
             'Geometry/MTDCommonData/data/btl/v1/btl.xml',
-            'Geometry/MTDCommonData/data/btl/v1/btlStructureTopology.xml',
             'Geometry/MTDCommonData/data/etl/v3/etl.xml',
+            'Geometry/MTDCommonData/data/mtdParameters/v1/mtdStructureTopology.xml',
             'Geometry/MTDCommonData/data/mtdParameters/v1/mtdParameters.xml',
             ],
         3 : [
@@ -1111,9 +1111,9 @@ timingDict = {
         1 : [
             'Geometry/MTDCommonData/data/mtdMaterial/v2/mtdMaterial.xml',
             'Geometry/MTDCommonData/data/btl/v1/btl.xml',
-            'Geometry/MTDCommonData/data/btl/v1/btlStructureTopology.xml',
             'Geometry/MTDCommonData/data/etl/v4/etl.xml',
-            'Geometry/MTDCommonData/data/mtdParameters/v1/mtdParameters.xml',
+            'Geometry/MTDCommonData/data/mtdParameters/v2/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/mtdParameters/v2/mtdParameters.xml',
             ],
         3 : [
             'Geometry/MTDSimData/data/v2/mtdsens.xml'
