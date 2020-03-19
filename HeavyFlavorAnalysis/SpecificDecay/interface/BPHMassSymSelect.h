@@ -65,7 +65,7 @@ public:
 
     delete pc;
     delete nc;
-    return ((mass > mSel->getMassMin()) && (mass < mSel->getMassMax()));
+    return ((mass >= mSel->getMassMin()) && (mass <= mSel->getMassMax()));
   }
 
 private:

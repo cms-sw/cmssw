@@ -47,7 +47,7 @@ public:
   /// select particle
   bool accept(const BPHDecayMomentum& cand) const override {
     double mass = cand.composite().mass();
-    return ((mass > mMin) && (mass < mMax));
+    return ((mass >= mMin) && (mass <= mMax));
   }
 };
 

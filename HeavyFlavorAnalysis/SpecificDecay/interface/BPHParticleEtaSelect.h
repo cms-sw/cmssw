@@ -44,7 +44,7 @@ public:
   /** Operations
    */
   /// select particle
-  bool accept(const reco::Candidate& cand) const override { return (fabs(cand.p4().eta()) < etaMax); }
+  bool accept(const reco::Candidate& cand) const override { return (fabs(cand.p4().eta()) <= etaMax); }
 
   /// set eta max
   void setEtaMax(double eta) {
