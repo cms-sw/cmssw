@@ -46,13 +46,8 @@ static const std::string skimfile="";
 static const bool dumppars=false;
 static const bool dumpproj=false;
 
-static const bool writeVerilog=false;     //Write out Verilog mudules for TCs
-static const bool writeHLS=false;         //Write out HLS mudules for TCs
 static const bool writeInvTable=false;    //Write out tables of drinv and invt in tracklet calculator for Verilog module
-static const bool writeHLSInvTable=false; //Write out tables of drinv and invt in tracklet calculator for HLS module
-
-static const bool writeFitDerTable=false; //Write out track derivative tables
-
+static const bool writeVerilog=false;     //Write out auto-generated Verilog mudules used by TCs
 
 //static const bool writeDTCLinks=false;
 static const bool writeIL=false;
@@ -83,13 +78,26 @@ static const bool writeTC=false; //if true write out which memories track projet
 static const bool writeNMatches=false;
 static const bool writeHitEff=false;
 
+// For HLS LUTs: makes test/*.txt files used to load LUTs in HLS code (for sector 0 only).
+static const bool writeVMRTables = false; //write tables used by VMRouter
 static const bool writeTETables=false;
 static const bool writeVMTables=false;
 static const bool writeMETables=false;
 static const bool writeMCcuts=false;
+static const bool writeHLSInvTable=false; //Write out tables of drinv and invt in tracklet calculator for HLS module
+static const bool writeFitDerTable=false; //Write out track derivative tables
+static const bool writeTripletTables=false; //Train and write the TED and TRE tables. N.B.: the tables
+                                      //cannot be applied while they are being trained, i.e.,
+                                      //this flag effectively turns off the cuts in
+                                      //TrackletEngineDisplaced and TripletEngine
+static const bool writeHLS=false;         //Write out auto-generated HLS modules used by TCs
+
+// For HLS testing: produce data/MemPrints/*/*.dat files of input/output data of processing modules.
+static const unsigned int writememsect=3;  // Restricts output to a single sector to speed up/reduce output size.
+static const bool writememLinks = false; //Write files corresponding to data arriving on dtc links.
+static const bool writemem = false; // Write files corresponding to memory modules.
 
 static const bool writeCabling=false;
-
 static const bool writeHitPattern=false;
 static const bool writeTrackletParsOverlap=false;
 static const bool writeTrackletParsDisk=false;
@@ -122,17 +130,6 @@ static const int nrinvBitsTable=3; //number of bits for tabulating rinv dependen
 static const bool writetrace=false; //Print out details about startup
 static const bool debug1=false; //Print detailed debug information about tracking
 static const bool writeoutReal = false; 
-static const bool writememLinks = false; //Write files for dtc links
-static const bool writemem = false; //Note that for 'full' detector this will open
-                            //a LOT of files, and the program will run excruciatingly slow
-static const unsigned int writememsect=3;  //writemem only for this sector
-
-static const bool writeVMRTables = false; //write tables used by VMRouter
-static const bool writeTripletTables=false; //Train and write the TED and TRE tables. N.B.: the tables
-                                      //cannot be applied while they are being trained, i.e.,
-                                      //this flag effectively turns off the cuts in
-                                      //TrackletEngineDisplaced and TripletEngine
-
 
 static const bool warnNoMem=false;  //If true will print out warnings about missing projection memories
 

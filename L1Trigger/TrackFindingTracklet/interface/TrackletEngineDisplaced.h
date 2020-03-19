@@ -70,6 +70,10 @@ public:
     readTables();
   }
 
+  ~TrackletEngineDisplaced(){
+    table_.clear();
+  }
+
   void addOutput(MemoryBase* memory,string output){
     if (writetrace) {
       cout << "In "<<name_<<" adding output to "<<memory->getName()

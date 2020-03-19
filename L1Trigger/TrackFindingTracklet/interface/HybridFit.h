@@ -32,6 +32,13 @@ class HybridFit{
     }
 
     void Fit(Tracklet* tracklet, std::vector<std::pair<Stub*,L1TStub*>> &trackstublist){
+      if (fakefit){
+        tracklet->setFitPars(tracklet->rinvapprox(),tracklet->phi0approx(),tracklet->d0approx(),tracklet->tapprox(),
+        tracklet->z0approx(),0.,tracklet->rinv(),tracklet->phi0(),tracklet->d0(),tracklet->t(),tracklet->z0(),0.,
+        tracklet->fpgarinv().value(),tracklet->fpgaphi0().value(),tracklet->fpgad0().value(),tracklet->fpgat().value(),
+        tracklet->fpgaz0().value(),0);
+        return;
+      }
 
       std::vector<const TMTT::Stub*> TMTTstubs;
       std::map<unsigned int, L1TStub*> L1StubIndices;
@@ -72,9 +79,12 @@ class HybridFit{
         }
 
         if (printDebugKF) cout <<kfphi<<" "<<kfr<<" "<<kfz<<" "<<kfbend<<" "<<kflayer<<" "<<isBarrel<<" "<<psmodule<<" "<<endl;
-        TMTT::Stub* TMTTstubptr = new TMTT::Stub(kfphi, kfr, kfz, kfbend, kflayer, psmodule, isBarrel, iphi, -alpha, &settings, nullptr, L1stubID, kf_phi_sec);
+	// For debugging, this should ideally be unique index in stub collection for nonant. But can't access that from here, so use this poor version instead.
+        unsigned int uniqueIndex = 1000*L1stubID + L1stubptr->allStubIndex();
+        TMTT::Stub* TMTTstubptr = new TMTT::Stub(kfphi, kfr, kfz, kfbend, kflayer, psmodule, isBarrel, iphi, -alpha, &settings, nullptr, uniqueIndex, kf_phi_sec);
         TMTTstubs.push_back(TMTTstubptr);
-        L1StubIndices[L1stubID++] = L1stubptr;
+        L1StubIndices[uniqueIndex] = L1stubptr;
+        L1stubID++;
       }
 
       if (printDebugKF) cout << "Made TMTTstubs: trackstublist.size() = " << trackstublist.size()<< endl;

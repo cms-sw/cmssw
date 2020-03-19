@@ -12,7 +12,7 @@
 ###########################################################################################
 
 if ($#argv == 0) then
-  set inputFileRoot = "TTbar_PU200_hybrid"
+  set inputFileRoot = "TTbar_PU200_HYBRID"
 else
   set inputFileRoot = $1
 endif
@@ -34,7 +34,7 @@ else
   exit(2)
 endif
 
-\root -b -q ${DIR}/'L1TrackNtuplePlot.C("TTbar_PU200_hybrid")' | tail -n 18 >&! results.out 
+\root -b -q ${DIR}/'L1TrackNtuplePlot.C("'$inputFileRoot'")' | tail -n 18 >&! results.out 
 
 cat results.out
 

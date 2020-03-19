@@ -35,7 +35,7 @@ using namespace std;
 void SetPlotStyle();
 void mySmallText(Double_t x,Double_t y,Color_t color,char *text);
 
-double getIntervalContainingFractionOfEntries( TH1* histogram, double interval );
+double getIntervalContainingFractionOfEntries( TH1* histogram, double interval, int minEntries=5 );
 void makeResidualIntervalPlot( TString type, TString dir, TString variable, TH1F* h_68, TH1F* h_90, TH1F* h_99, double minY, double maxY );
 
 
@@ -43,11 +43,12 @@ void makeResidualIntervalPlot( TString type, TString dir, TString variable, TH1F
 // Main script
 // ----------------------------------------------------------------------------------------------------------------
 
-void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0, int TP_select_pdgid=0, int TP_select_eventid=0, 
+void L1TrackNtuplePlot(TString type, TString type_dir="", TString treeName="", int TP_select_injet=0, int TP_select_pdgid=0, int TP_select_eventid=0, 
 		       bool useTightCuts=false, bool useDeadRegion=false, 
 		       float TP_minPt=2.0, float TP_maxPt=100.0, float TP_maxEta=2.4, float TP_maxDxy=1.0, float TP_maxD0=1.0, bool doDetailedPlots=false) {
 
-  // type:              this is the input file you want to process (minus ".root" extension)
+  // type:              this is the name of the input file you want to process (minus ".root" extension)
+  // type_dir:          this is the directory containing the input file you want to process. Note that this must end with a "/", as in "EventSets/"
   // TP_select_pdgid:   if non-zero, only select TPs with a given PDG ID
   // TP_select_eventid: if zero, only look at TPs from primary interaction, else, include TPs from pileup
   // TP_minPt:          only look at TPs with pt > X GeV
@@ -120,7 +121,7 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   // ----------------------------------------------------------------------------------------------------------------
   // read ntuples
   TChain* tree = new TChain("L1TrackNtuple"+treeName+"/eventTree");
-  tree->Add(type+".root");
+  tree->Add(type_dir+type+".root");
   
   if (tree->GetEntries() == 0) {
     cout << "File doesn't exist or is empty, returning..." << endl;
@@ -156,6 +157,8 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   vector<float>* matchtrk_chi2rphi;
   vector<float>* matchtrk_chi2rz;
   vector<int>*   matchtrk_nstub;
+  vector<int>*   matchtrk_lhits;
+  vector<int>*   matchtrk_dhits;
   vector<int>*   matchtrk_seed;
   vector<int>*   matchtrk_hitpattern;
   vector<int>*   matchtrk_injet;
@@ -170,6 +173,8 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   vector<float>* trk_chi2rphi;
   vector<float>* trk_chi2rz;
   vector<int>*   trk_nstub;
+  vector<int>*   trk_lhits;
+  vector<int>*   trk_dhits;
   vector<int>*   trk_seed;
   vector<int>*   trk_hitpattern;
   vector<unsigned int>*   trk_phiSector;
@@ -203,6 +208,8 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   TBranch* b_matchtrk_chi2rphi;
   TBranch* b_matchtrk_chi2rz;
   TBranch* b_matchtrk_nstub;
+  TBranch* b_matchtrk_lhits;
+  TBranch* b_matchtrk_dhits;
   TBranch* b_matchtrk_seed;
   TBranch* b_matchtrk_hitpattern;
   TBranch* b_matchtrk_injet;
@@ -216,6 +223,8 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   TBranch* b_trk_chi2rphi;
   TBranch* b_trk_chi2rz;
   TBranch* b_trk_nstub;
+  TBranch* b_trk_lhits;
+  TBranch* b_trk_dhits;
   TBranch* b_trk_phiSector;
   TBranch* b_trk_seed;
   TBranch* b_trk_hitpattern;
@@ -249,6 +258,8 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   matchtrk_chi2rphi  = 0; 
   matchtrk_chi2rz  = 0; 
   matchtrk_nstub = 0;
+  matchtrk_lhits = 0;
+  matchtrk_dhits = 0;
   matchtrk_seed = 0;
   matchtrk_hitpattern = 0;
   matchtrk_injet = 0;
@@ -262,6 +273,8 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   trk_chi2rphi = 0; 
   trk_chi2rz = 0; 
   trk_nstub = 0;
+  trk_lhits = 0;
+  trk_dhits = 0;
   trk_phiSector = 0;
   trk_seed = 0; 
   trk_hitpattern = 0; 
@@ -318,6 +331,8 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
     tree->SetBranchAddress("matchtrk_chi2rphi",  &matchtrk_chi2rphi,  &b_matchtrk_chi2rphi);
     tree->SetBranchAddress("matchtrk_chi2rz",    &matchtrk_chi2rz,    &b_matchtrk_chi2rz);
     tree->SetBranchAddress("matchtrk_nstub", &matchtrk_nstub, &b_matchtrk_nstub);
+    tree->SetBranchAddress("matchtrk_lhits", &matchtrk_lhits, &b_matchtrk_lhits);
+    tree->SetBranchAddress("matchtrk_dhits", &matchtrk_dhits, &b_matchtrk_dhits);
     tree->SetBranchAddress("matchtrk_seed",  &matchtrk_seed,  &b_matchtrk_seed);
     tree->SetBranchAddress("matchtrk_hitpattern",  &matchtrk_hitpattern,  &b_matchtrk_hitpattern);
     if (TP_select_injet > 0) {
@@ -334,6 +349,8 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   tree->SetBranchAddress("trk_chi2rphi", &trk_chi2rphi, &b_trk_chi2rphi);
   tree->SetBranchAddress("trk_chi2rz",   &trk_chi2rz,   &b_trk_chi2rz);
   tree->SetBranchAddress("trk_nstub",   &trk_nstub,   &b_trk_nstub);
+  tree->SetBranchAddress("trk_lhits",   &trk_lhits,   &b_trk_lhits);
+  tree->SetBranchAddress("trk_dhits",   &trk_dhits,   &b_trk_dhits);
   tree->SetBranchAddress("trk_phiSector",   &trk_phiSector,   &b_trk_phiSector);
   tree->SetBranchAddress("trk_seed",    &trk_seed,    &b_trk_seed);
   tree->SetBranchAddress("trk_hitpattern",    &trk_hitpattern,    &b_trk_hitpattern);
@@ -388,6 +405,14 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   TH1F* h_match_tp_eta_35   = new TH1F("match_tp_eta_35",  ";Tracking particle #eta; Tracking particles / 0.1",             50, -2.5,   2.5);
   TH1F* h_match_tp_eta_5   = new TH1F("match_tp_eta_5",  ";Tracking particle #eta; Tracking particles / 0.1",             50, -2.5,   2.5);
 
+  // ----------------------------------------------------------------------------------------------------------------
+  // Tracklet propogation efficiencies vs. eta for seeding layers
+
+  int trackletEffEtaBins = 24;
+  double trackletEffMaxEta = 2.4;
+  int numLayers = 11;
+  TH2F* h_trk_tracklet_hits  = new TH2F("trk_tracklet_hits",  ";Track |#eta|; Layer index (0-5 = L1-6, 6-10 = D1-5)",   trackletEffEtaBins, 0, trackletEffMaxEta,   11, 0, 11); //used to create below hist
+  TH2F* h_trk_tracklet_eff   = new TH2F("trk_tracklet_eff",   ";Track |#eta|; Layer index (0-5 = L1-6, 6-10 = D1-5)",   trackletEffEtaBins, 0, trackletEffMaxEta,   11, 0, 11);
 
   // ----------------------------------------------------------------------------------------------------------------
   // resolution vs. pt histograms
@@ -925,6 +950,32 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
 	if (trk_genuine->at(it) == 1) ntrkevt_genuine_pt10++;
       }
 
+      // ----------------------------------------------------------------------------------------------------------------
+      // Fill tracklet propogation efficiency histo
+
+      // create an 11-bit long iterable from lhits and dhits
+      int num_layers = 6;
+      int num_discs = 5;
+      int lhits = trk_lhits->at(it);
+      int dhits = trk_dhits->at(it);
+      std::vector<int> layers = {};
+      for (int layer_index = 0; layer_index < num_layers + num_discs; layer_index++) {
+        if (layer_index < num_layers) {
+          layers.push_back(lhits % 10);
+          lhits /= 10;
+        } else {
+          layers.push_back(dhits % 10);
+          dhits /= 10;
+        }
+      }
+
+      for (int layer = 0; layer < layers.size(); layer++) {
+        if (layers.at(layer)) { // if there was a hit at this layer...
+          h_trk_tracklet_hits->Fill(fabs(trk_eta->at(it)), layer); // ...fill this bin with the layer of the track.
+        }
+      }
+
+
     }
 
 
@@ -1349,6 +1400,28 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   } // end of event loop
   // ----------------------------------------------------------------------------------------------------------------
   
+  // ----------------------------------------------------------------------------------------------------------------
+  // Post-event-loop histogram normalization(s)
+
+  // Normalize tracklet efficiency by each eta slice
+  double maxBinContents;
+  double etaRes = trackletEffMaxEta/trackletEffEtaBins;
+  for (double etaBin = 0; etaBin < trackletEffEtaBins; etaBin++) { //loop through eta bin values (constants defined with relevant hist defs)
+    maxBinContents = 0;
+    std::vector<double> binContents = {};
+    for (int layer = 0; layer < numLayers; layer++) {
+      binContents.push_back(h_trk_tracklet_hits->GetBinContent(etaBin+1, layer+1));
+      maxBinContents = std::max(maxBinContents, binContents.back());
+    }
+    float binWeight;
+    for (int layer = 0; layer < numLayers; layer++) {
+    binWeight = (maxBinContents == 0) ? 0 : binContents.at(layer) / maxBinContents;
+      h_trk_tracklet_eff->Fill((etaBin+0.5)*etaRes, layer, binWeight);
+    }
+  }
+
+  // Adjust tracklet hits and efficiency histograms for aesthetics
+
 
   // ----------------------------------------------------------------------------------------------------------------
   // 2D plots  
@@ -1997,7 +2070,7 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
 
   TFile* fout;
   if (doLooseMatch) fout = new TFile("output_looseMatch_"+type+treeName+".root","recreate");
-  else fout = new TFile("output_"+type+treeName+".root","recreate");  
+  else fout = new TFile(type_dir+"output_"+type+treeName+".root","recreate");  
 
   
   // -------------------------------------------------------------------------------------------
@@ -2098,6 +2171,20 @@ void L1TrackNtuplePlot(TString type, TString treeName="", int TP_select_injet=0,
   h2_resVsPt_d0_90->Draw("p");
   c.SaveAs(DIR+type+"_resVsPt_d0_90.pdf");
   */
+
+  // Limit decimal places for doubles in normalized tracklet eff. graphs
+  gStyle->SetPaintTextFormat("4.2f");
+
+  h_trk_tracklet_eff->SetMinimum(0);
+  h_trk_tracklet_eff->Draw("col text");
+  c.SaveAs(DIR+type+"_trk_tracklet_eff.pdf");
+
+  // Remove decimal places for ints in in tracklet hits graphs
+  gStyle->SetPaintTextFormat("4.0f");
+
+  h_trk_tracklet_hits->SetMinimum(0);
+  h_trk_tracklet_hits->Draw("col text");
+  c.SaveAs(DIR+type+"_trk_tracklet_hits.pdf");
 
   if (doDetailedPlots) {
     h2_resVsPt_eta->Write();
@@ -3235,9 +3322,10 @@ void mySmallText(Double_t x,Double_t y,Color_t color,char *text) {
   l.DrawLatex(x,y,text);
 }
 
-double getIntervalContainingFractionOfEntries( TH1* absResidualHistogram, double quantileToCalculate ) {
+double getIntervalContainingFractionOfEntries( TH1* absResidualHistogram, double quantileToCalculate, int minEntries=5 ) {
   
   double totalIntegral = absResidualHistogram->Integral( 0, absResidualHistogram->GetNbinsX() + 1 );
+  double numEntries = absResidualHistogram->GetEntries();
 
   // Check that the interval is not somewhere in the overflow bin
   double maxAllowedEntriesInOverflow = totalIntegral * ( 1 - quantileToCalculate );
@@ -3250,10 +3338,10 @@ double getIntervalContainingFractionOfEntries( TH1* absResidualHistogram, double
   // Calculate quantile for given interval
   double interval[1];
   double quantile[1] = { quantileToCalculate };
-  if (totalIntegral > 0.) {
+  if (totalIntegral > 0 && numEntries >= minEntries) {
     absResidualHistogram->GetQuantiles( 1, interval, quantile);
   } else {
-    cout<<"WARNING: histo "<<absResidualHistogram->GetName()<<" empty, so can't calc quantiles."<<endl;
+    cout<<"WARNING: histo "<<absResidualHistogram->GetName()<<" empty or with too few entries, so can't calc quantiles."<<endl;
     interval[0] = 0.;
   }
 

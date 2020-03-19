@@ -54,8 +54,15 @@ public:
   }
 
   ~Sector() {
-    for (unsigned i = 0; i < TRE_.size(); i++)
-      delete TRE_[i];
+    // Clean up memory allocations to simplify memory-leak finding
+    for (const auto& p : Processes_) {
+      ProcessBase* proc = p.second;
+      delete proc;
+    }
+    for (const auto& m : Memories_) {
+      MemoryBase* mem = m.second;
+      delete mem;
+    }
   }
 
   bool addStub(L1TStub stub, string dtc) {
