@@ -2,12 +2,14 @@
 #define FWCore_Utilities_TimeOfDay_h
 
 #include <sys/time.h>
+#include <chrono>
 #include <iosfwd>
 
 namespace edm {
   struct TimeOfDay {
     TimeOfDay();
     explicit TimeOfDay(struct timeval const& tv);
+    explicit TimeOfDay(std::chrono::system_clock::time_point const& tp);
 
     struct timeval tv_;
 
