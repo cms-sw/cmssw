@@ -66,6 +66,7 @@ public:
   /// get selection charge
   double getCharge() const { return charge; }
 
+private:
   int charge;
 };
 

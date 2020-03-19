@@ -44,7 +44,7 @@ public:
   /** Operations
    */
   /// select particle
-  bool accept(const reco::Candidate& cand) const override { return (cand.p4().pt() > ptMin); }
+  bool accept(const reco::Candidate& cand) const override { return (cand.p4().pt() >= ptMin); }
 
   /// set pt min
   void setPtMin(double pt) {

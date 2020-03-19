@@ -87,7 +87,7 @@ public:
         break;
     }
     double mass = cand.p4().mass();
-    return ((mass > mMin) && (mass < mMax));
+    return ((mass >= mMin) && (mass <= mMax));
   }
 
   /// set fit constraint
