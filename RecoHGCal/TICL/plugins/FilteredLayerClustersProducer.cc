@@ -82,7 +82,6 @@ void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSet
     }
   }
 
-  std::unique_ptr<ticl::HgcalClusterFilterMask> filteredLayerClusters;
   if (theFilter_) {
     theFilter_->filter(layerClusters, *availableLayerClusters, *layerClustersMask, rhtools_);
   }
