@@ -619,7 +619,7 @@ public:
   }
 
   void addProjectionDisk(int disk,int iphi,TrackletProjectionsMemory* trackletprojs, Tracklet* tracklet){
-    if (layer_==2&&abs(disk)==4) return; //L3L4 projections to D3 are not used. Should be in configuration
+    if (iSeed_==1&&abs(disk)==4) return; //L2L3 projections to D3 are not used. Should be in configuration
     if (trackletprojs==0) {
       if (layer_==3&&abs(disk)==3) return; //L3L4 projections to D3 are not used.
       if (warnNoMem) {       

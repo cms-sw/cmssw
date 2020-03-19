@@ -466,6 +466,8 @@ L1FPGATrackProducer::~L1FPGATrackProducer()
     histimp->close();
   }
 
+  delete[] sectors;
+
 }
 
 //////////

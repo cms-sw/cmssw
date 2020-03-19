@@ -14,9 +14,7 @@ process = cms.Process("L1TrackNtuple")
 GEOMETRY = "D49"
 #GEOMETRY = "D35" # <== to run on old tracker geometry, change flag "geomTkTDR" to *true* in ../interface/Constants.hh 
 
-# Specify L1 tracking algo ('HYBRID', 'HYBRID_DISPLACED', 'TMTT','HYBRID_FLOAT', 'TRACKLET_FLOAT'),
-# (where HYBRID & HYBRID_DISPLACED both run either Tracklet or Hybrid emulation, 
-#  depending on pragma in Constants.h. ).
+# Specify L1 tracking algo ('HYBRID', 'HYBRID_DISPLACED', 'TMTT','HYBRID_FLOAT', 'TRACKLET_FLOAT')
 L1TRKALGO = 'HYBRID'
 
 # Write output dataset?
@@ -54,7 +52,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 
 ############################################################

@@ -22,11 +22,14 @@ elif GEOMETRY == "D21":
 elif GEOMETRY == "D41":
   process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
   process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
+elif GEOMETRY == "D49":
+  process.load('Configuration.Geometry.GeometryExtended2023D49Reco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2023D49_cff')
 
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -42,6 +45,8 @@ elif GEOMETRY == "D21":
   inputMCtxt = getTxtFile('MCsamples/1040/RelVal/TTbar/PU200.txt')
 elif GEOMETRY == "D41":
   inputMCtxt = getTxtFile('MCsamples/1060/RelVal/TTbar/PU200.txt')
+elif GEOMETRY == "D49":
+  inputMCtxt = getTxtFile('MCsamples/1110/RelVal/TTbar/PU200.txt')
 
 # Fastest to use a local copy ...
 #inputMCtxt = getTxtFile('MCsamples/1040/RelVal/TTbar/localRAL/PU200.txt') 

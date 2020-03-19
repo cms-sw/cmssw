@@ -98,6 +98,7 @@ void L1KalmanComb::printStubLayers( std::ostream &os, std::vector<const Stub *> 
 void L1KalmanComb::printStubCluster( std::ostream &os, const StubCluster * stubCluster, bool addReturn ) const {
   os << "stub: ";
   //   os << "addr=" << stub << " "; 
+  os << "index=" << stubCluster->stubs()[0]->index() << " ";
   os << "layer=" << stubCluster->layerId() << " ";
   os << "ring=" << stubCluster->endcapRing() << " ";
   os << "r=" << stubCluster->r() << " ";
