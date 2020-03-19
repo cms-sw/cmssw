@@ -28,7 +28,8 @@ namespace edm {
   }
 
   std::ostream& operator<<(std::ostream& os, TimeOfDay const& tod) {
-    std::ios::fmtflags oldflags = os.flags();  // Save stream formats so they can be left unchanged.
+    auto oldflags = os.flags();  // save the stream format flags so they can be restored
+    auto oldfill = os.fill();    // save the stream fill character so it can be restored
     struct tm timebuf;
     localtime_r(&tod.tv_.tv_sec, &timebuf);
     typedef std::ostreambuf_iterator<char, std::char_traits<char> > Iter;
@@ -46,6 +47,7 @@ namespace edm {
       tp.put(begin, os, ' ', &timebuf, 'Z');
     }
     os.flags(oldflags);
+    os.fill(oldfill);
     return os;
   }
 
