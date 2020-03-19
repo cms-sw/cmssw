@@ -135,7 +135,6 @@ private:
   std::vector<int> pdgIdBeamMC_;
   std::vector<float> xBeamMC_, yBeamMC_, zBeamMC_;
   std::vector<float> pxBeamMC_, pyBeamMC_, pzBeamMC_, pBeamMC_;
-
 };
 
 HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
@@ -186,7 +185,8 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: DoPassive " << doPassive_ << ":" << doPassiveEE_ << ":"
                              << doPassiveHE_ << ":" << doPassiveBH_;
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: MIP conversion factors " << gev2mip200_ << ":" << gev2mip300_
-                             << " Time smearing " << stoc_smear_time_200_ << ":" << stoc_smear_time_300_ << " AddP " << addP_;
+                             << " Time smearing " << stoc_smear_time_200_ << ":" << stoc_smear_time_300_ << " AddP "
+                             << addP_;
 #endif
   if (idBeams_.empty())
     idBeams_.push_back(1001);
@@ -410,7 +410,7 @@ void HGCalTBAnalyzer::beginJob() {
     tree_->Branch("pBeam", &pBeam_, "pBeam/D");
     tree_->Branch("thetaBeam", &thetaBeam_, "thetaBeam/D");
     tree_->Branch("phiBeam", &phiBeam_, "phiBeam/D");
-    if (doBeam_){
+    if (doBeam_) {
       tree_->Branch("nBeamMC", &nBeamMC_, "nBeamMC/I");
       tree_->Branch("pdgIdBeamMC", &pdgIdBeamMC_);
       tree_->Branch("xBeamMC", &xBeamMC_);
@@ -565,10 +565,10 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     HepMC::FourVector pxyz(0, 0, 0, 0);
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
          ++p, ++k) {
-      edm::LogVerbatim("HGCSim") << "Particle [" << k << "] with p " << (*p)->momentum().rho() << " theta " 
-				 << (*p)->momentum().theta() << " phi " << (*p)->momentum().phi() << " pxyz ("
-				 << (*p)->momentum().px() << ", " << (*p)->momentum().py() << ", "
-				 << (*p)->momentum().pz() << ")";
+      edm::LogVerbatim("HGCSim") << "Particle [" << k << "] with p " << (*p)->momentum().rho() << " theta "
+                                 << (*p)->momentum().theta() << " phi " << (*p)->momentum().phi() << " pxyz ("
+                                 << (*p)->momentum().px() << ", " << (*p)->momentum().py() << ", "
+                                 << (*p)->momentum().pz() << ")";
       if (addP_) {
         pxyz.setPx(pxyz.px() + (*p)->momentum().px());
         pxyz.setPy(pxyz.py() + (*p)->momentum().py());
@@ -577,7 +577,6 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       } else if (!addP_ && (k == 0)) {
         pxyz = (*p)->momentum();
       }
-
     }
     hBeam_->Fill(pxyz.rho());
     edm::LogVerbatim("HGCSim") << "Particle with p " << pxyz.rho() << " theta " << pxyz.theta() << " phi "
@@ -1131,7 +1130,7 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
                                        edm::Handle<edm::SimVertexContainer> const& SimVtx) {
   xBeam_ = yBeam_ = zBeam_ = pBeam_ = -9999;
   nBeamMC_ = thetaBeam_ = phiBeam_ = -9999;
-  int nParBeam=0; 
+  int nParBeam = 0;
   int vertIndex(-1);
   if (doBeam_) {
     pdgIdBeamMC_.clear();
@@ -1143,8 +1142,10 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
     pzBeamMC_.clear();
     pBeamMC_.clear();
   }
-  std::vector<float> verX, verY, verZ; 
-  verX.clear(); verY.clear(); verZ.clear();
+  std::vector<float> verX, verY, verZ;
+  verX.clear();
+  verY.clear();
+  verZ.clear();
   for (const auto& simVtxItr : *SimVtx) {
     verX.push_back(simVtxItr.position().X());
     verY.push_back(simVtxItr.position().Y());
@@ -1162,12 +1163,13 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
       pxyz.setE(pxyz.e() + simTrkItr.momentum().e());
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCSim") << "Track " << simTrkItr.trackId() << " Vertex " << simTrkItr.vertIndex() << " Type "
-				 << simTrkItr.type() << " Charge " << simTrkItr.charge() << " px "
-				 << simTrkItr.momentum().px() << " py " << simTrkItr.momentum().py() << " pz "
-				 << simTrkItr.momentum().pz() << " P " << simTrkItr.momentum().P() << " GenIndex "
-				 << simTrkItr.genpartIndex();
-      edm::LogVerbatim("HGCSim") << "Vertex " << simTrkItr.vertIndex() << " position-> X: " << verX[simTrkItr.vertIndex()] 
-				 << " Y: " << verY[simTrkItr.vertIndex()] << " Z: " << verZ[simTrkItr.vertIndex()];
+                                 << simTrkItr.type() << " Charge " << simTrkItr.charge() << " px "
+                                 << simTrkItr.momentum().px() << " py " << simTrkItr.momentum().py() << " pz "
+                                 << simTrkItr.momentum().pz() << " P " << simTrkItr.momentum().P() << " GenIndex "
+                                 << simTrkItr.genpartIndex();
+      edm::LogVerbatim("HGCSim") << "Vertex " << simTrkItr.vertIndex()
+                                 << " position-> X: " << verX[simTrkItr.vertIndex()]
+                                 << " Y: " << verY[simTrkItr.vertIndex()] << " Z: " << verZ[simTrkItr.vertIndex()];
 #endif
     }
     if (doBeam_ && !(simTrkItr.noGenpart())) {

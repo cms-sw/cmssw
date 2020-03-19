@@ -103,12 +103,12 @@ namespace edm {
       double mass = pData->mass().value();
       if (fVerbosity > 0)
         edm::LogVerbatim("BeamMomentumGun") << "PDGId: " << partID << "   mass: " << mass;
-      double xp = (xoff_ * cm2mm_ + (-1)*parY_->at(ip));  // 90 degree rotation applied
-      double yp = (yoff_ * cm2mm_ + parX_->at(ip));   // 90 degree rotation applied 
-      double zp =  zpos_ * cm2mm_; 
+      double xp = (xoff_ * cm2mm_ + (-1) * parY_->at(ip));  // 90 degree rotation applied
+      double yp = (yoff_ * cm2mm_ + parX_->at(ip));         // 90 degree rotation applied
+      double zp = zpos_ * cm2mm_;
       HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zp));
-      double pxGeV = MeV2GeV_ * (-1)*parPy_->at(ip); // 90 degree rotation applied
-      double pyGeV = MeV2GeV_ * parPx_->at(ip); // 90 degree rotation applied
+      double pxGeV = MeV2GeV_ * (-1) * parPy_->at(ip);  // 90 degree rotation applied
+      double pyGeV = MeV2GeV_ * parPx_->at(ip);         // 90 degree rotation applied
       double pzGeV = MeV2GeV_ * parPz_->at(ip);
       double theta = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
       double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
@@ -117,12 +117,12 @@ namespace edm {
       double py1 = pxGeV * sin(phi) + pyGeV * cos(phi);
       double pz1 = pzGeV;
       // rotation about Y axis
-      double px =   px1 * cos(theta) + pz1 * sin(theta);
-      double py =   py1;
-      double pz = - px1 * sin(theta) + pz1 * cos(theta);
+      double px = px1 * cos(theta) + pz1 * sin(theta);
+      double py = py1;
+      double pz = -px1 * sin(theta) + pz1 * cos(theta);
       double energy = std::sqrt(px * px + py * py + pz * pz + mass * mass);
 
-     if (fVerbosity > 0) {
+      if (fVerbosity > 0) {
         edm::LogVerbatim("BeamMomentumGun") << "x:y:z [mm] " << xp << ":" << yp << ":" << zpos_;
         edm::LogVerbatim("BeamMomentumGun") << "px:py:pz [GeV] " << px << ":" << py << ":" << pz;
       }
