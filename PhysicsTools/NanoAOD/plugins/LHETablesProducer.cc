@@ -53,6 +53,7 @@ public:
     double lheHT = 0, lheHTIncoming = 0;
     unsigned int lheNj = 0, lheNb = 0, lheNc = 0, lheNuds = 0, lheNglu = 0;
     double lheVpt = 0;
+    double alphaS = 0;
 
     const auto& hepeup = lheProd.hepeup();
     const auto& pup = hepeup.PUP;
@@ -61,17 +62,32 @@ public:
     std::vector<float> vals_eta;
     std::vector<float> vals_phi;
     std::vector<float> vals_mass;
+    std::vector<float> vals_pz;
     std::vector<int> vals_pid;
+    std::vector<int> vals_status;
+    std::vector<int> vals_spin;
+    alphaS = hepeup.AQCDUP;
     for (unsigned int i = 0, n = pup.size(); i < n; ++i) {
       int status = hepeup.ISTUP[i];
       int idabs = std::abs(hepeup.IDUP[i]);
-      if (status == 1) {
+      if (status == 1 || status == -1) {
         TLorentzVector p4(pup[i][0], pup[i][1], pup[i][2], pup[i][3]);  // x,y,z,t
-        vals_pt.push_back(p4.Pt());
-        vals_eta.push_back(p4.Eta());
-        vals_phi.push_back(p4.Phi());
-        vals_mass.push_back(p4.M());
         vals_pid.push_back(hepeup.IDUP[i]);
+        vals_spin.push_back(hepeup.SPINUP[i]);
+        vals_status.push_back(status);
+        if (status == -1) {
+          vals_pt.push_back(0);
+          vals_eta.push_back(0);
+          vals_phi.push_back(0);
+          vals_mass.push_back(0);
+          vals_pz.push_back(p4.Pz());
+        } else {
+          vals_pt.push_back(p4.Pt());
+          vals_eta.push_back(p4.Eta());
+          vals_phi.push_back(p4.Phi());
+          vals_mass.push_back(p4.M());
+          vals_pz.push_back(0);
+        }
       }
       if ((status == 1) && ((idabs == 21) || (idabs > 0 && idabs < 7))) {  //# gluons and quarks
         // object counters
@@ -131,6 +147,7 @@ public:
     out.addColumnValue<float>("Vpt", lheVpt, "pT of the W or Z boson at LHE step", nanoaod::FlatTable::FloatColumn);
     out.addColumnValue<uint8_t>("NpNLO", lheProd.npNLO(), "number of partons at NLO", nanoaod::FlatTable::UInt8Column);
     out.addColumnValue<uint8_t>("NpLO", lheProd.npLO(), "number of partons at LO", nanoaod::FlatTable::UInt8Column);
+    out.addColumnValue<float>("AlphaS", alphaS, "Per-event alphaS", nanoaod::FlatTable::FloatColumn);
 
     auto outPart = std::make_unique<nanoaod::FlatTable>(vals_pt.size(), "LHEPart", false);
     outPart->addColumn<float>("pt", vals_pt, "Pt of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
@@ -140,7 +157,12 @@ public:
         "phi", vals_phi, "Phi of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
     outPart->addColumn<float>(
         "mass", vals_mass, "Mass of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
+    outPart->addColumn<float>(
+        "incomingpz", vals_pz, "Pz of incoming LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
     outPart->addColumn<int>("pdgId", vals_pid, "PDG ID of LHE particles", nanoaod::FlatTable::IntColumn);
+    outPart->addColumn<int>(
+        "status", vals_status, "LHE particle status; -1:incoming, 1:outgoing", nanoaod::FlatTable::IntColumn);
+    outPart->addColumn<int>("spin", vals_spin, "Spin of LHE particles", nanoaod::FlatTable::IntColumn);
 
     return outPart;
   }
