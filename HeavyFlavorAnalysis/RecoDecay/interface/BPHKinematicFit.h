@@ -26,7 +26,10 @@ class KinematicConstraint;
 //---------------
 // C++ Headers --
 //---------------
+#include <string>
+#include <vector>
 #include <map>
+#include <set>
 
 //              ---------------------
 //              -- Class Interface --
@@ -53,6 +56,8 @@ public:
   /// retrieve the constraint
   double constrMass() const;
   double constrSigma() const;
+  /// set a decaying daughter as an unique particle fitted independently
+  void setIndependentFit(const std::string& name, bool flag = true, double mass = -1.0, double sigma = -1.0);
 
   /// get kinematic particles
   virtual const std::vector<RefCountedKinematicParticle>& kinParticles() const;
@@ -89,6 +94,9 @@ public:
   /// retrieve particle mass sigma
   double getMassSigma(const reco::Candidate* cand) const;
 
+  /// retrieve independent fit flag
+  bool getIndependentFit(const std::string& name) const;
+
 protected:
   // constructors
   BPHKinematicFit();
@@ -119,6 +127,17 @@ private:
 
   // map linking daughters to mass sigma
   std::map<const reco::Candidate*, double> dMSig;
+
+  // map to handle composite daughters as single particles
+  struct FlyingParticle {
+    bool flag = false;
+    double mass = -1.0;
+    double sigma = -1.0;
+  };
+  std::map<const BPHRecoCandidate*, FlyingParticle> cKinP;
+
+  // temporary particle set
+  mutable std::vector<BPHRecoConstCandPtr> tmpList;
 
   // reconstruction results cache
   mutable bool oldKPs;
