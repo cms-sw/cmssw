@@ -6,7 +6,7 @@
   <PartSelector path="//etl:EndcapTimingLayer"/>
   <PartSelector path="//btl:BarrelTimingLayer"/>
   <Parameter name="OnlyForMTDRecNumbering" value="MTD" eval="false"/>
-  <Parameter name="TopologyMode" value="MTDTopologyMode::barphiflat" eval="false"/>
+  <Parameter name="TopologyMode" value="MTDTopologyMode::btlv1etlv4" eval="false"/>
 </SpecPar>
 
 
