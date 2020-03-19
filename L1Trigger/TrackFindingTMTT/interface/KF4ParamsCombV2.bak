@@ -1,0 +1,33 @@
+#ifndef __KF4ParamsCombV2_H__
+#define __KF4ParamsCombV2_H__
+
+#include "L1Trigger/TrackFindingTMTT/interface/KF4ParamsComb.h"
+#include <TMatrixD.h>
+
+class KF4ParamsCombV2 : public KF4ParamsComb{
+
+    public:
+	enum PAR_IDS { V2_BETA, V2_Z0P, V2_R0P, V2_RHO0 };  
+	enum MEAS_IDS { Z, R };
+    public:
+	KF4ParamsCombV2(const Settings* settings, const string &fitterName );
+	~KF4ParamsCombV2(){}
+	std::string getParams();
+
+    protected:
+	std::map<std::string, double> getTrackParams( const KalmanState *state )const;
+	std::vector<double> seedx(const L1track3D& l1track3D)const;
+	TMatrixD seedP(const L1track3D& l1track3D)const;
+	std::vector<double> d(const StubCluster* stubCluster )const;
+	TMatrixD H(const StubCluster* stubCluster)const;
+	TMatrixD PxxModel( const KalmanState* state, const StubCluster* stubCluster, unsigned stub_itr )const;
+	TMatrixD PddMeas(const StubCluster* stubCluster, const KalmanState *state )const;
+	std::map<std::string, double> convertParams(std::vector<double> x)const;
+	bool isGoodState( const KalmanState &state )const;
+
+	std::vector<double> residual(const StubCluster* stubCluster, std::vector<double> &x )const;
+
+};
+
+#endif
+

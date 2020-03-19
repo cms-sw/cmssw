@@ -1,0 +1,335 @@
+namespace TMTT {
+
+// Make available cfg parameters & specify which algorithm is to be used for duplicate track removal.
+template <class T>
+void KillDupTrks<T>::init(const Settings* settings, unsigned int dupTrkAlg)
+{
+	settings_ = settings; 
+	
+	dupTrkAlg_                 = dupTrkAlg;
+	dupTrkMinCommonHitsLayers_ = settings->dupTrkMinCommonHitsLayers();
+}
+
+// Count layers with stubs in common
+template <class T>
+unsigned int KillDupTrks<T>::layerMatches(std::vector< std::pair<unsigned int, unsigned int> >* iStubs,
+					  std::vector< std::pair<unsigned int, unsigned int> >* jStubs) const
+{ unsigned int match = 0;
+  unsigned int indxI = 0;
+  unsigned int indxJ = 0;
+  unsigned int lenI = iStubs->size();
+  unsigned int lenJ = jStubs->size();
+  
+  std::set<unsigned int> layers;
+
+  while ( (indxI < lenI) && (indxJ < lenJ) )
+    {
+      // Stub indices match?
+      if (iStubs->at(indxI).first == jStubs->at(indxJ).first)
+	{
+	  // Get layer for stub
+	  unsigned int layer = iStubs->at(indxI).second;
+	  
+	  // Any match in this layer yet?
+	  if (layers.insert(layer).second)
+	    {
+	      ++match;
+	    }
+	  
+	  // Next stubs
+	  ++indxI;
+	  ++indxJ;
+	} 
+      else
+	{
+	  if (iStubs->at(indxI).first < jStubs->at(indxJ).first)
+	    {
+	      // In i, not j
+	      ++indxI;
+	    }
+	  else
+	    {
+	      // In j, not i
+	      ++indxJ;
+	    }
+	}
+    }
+  return match;
+}
+			
+
+// Eliminate duplicate tracks from the input collection, and so return a reduced list of tracks.
+template <class T>
+vector<T> KillDupTrks<T>::filter(const vector<T>& vecTracks) const
+{
+	// Short-circuit the calculation for trivial cases
+	if (vecTracks.size() == 0 || vecTracks.size() == 1)
+	{
+		return vecTracks;
+	}
+	
+	// Choose which algorithm to run, based on parameter dupTrkAlg_.
+	switch (dupTrkAlg_)
+	{
+		// Do no filtering at all in the 0 case
+		case  0: return                vecTracks; break;
+		case  8: return  filterAlg8( vecTracks ); break;
+		case 25: return filterAlg25( vecTracks ); break;
+		default: throw cms::Exception("KillDupTrks: Option DupTrkAlg in cfg has invalid value.");
+	}
+	
+	// We should never end up here
+	return vecTracks;
+}
+
+// Implementing "inverse" OSU algorithm, check for stubs in common,
+// keep largest candidates if common stubs in N or more layers (default 5 at present), both if equal
+// Implementing "inverse" OSU algorithm, check for stubs in common,
+// keep largest candidates if common stubs in N or more layers (default 5 at present), both if equal
+
+template <class T>
+vector<T> KillDupTrks<T>::filterAlg8(const vector<T>& vecTracks) const
+{
+	vector<T> vecTracksFiltered;
+	
+	// vector (corresponding to candidate tracks) of vectors (indices for stubs)
+	std::vector< std::vector< std::pair<unsigned int, unsigned int> > > candList;
+	
+	for (const T& trk : vecTracks)
+	{
+		const vector< const Stub * > &  stubs = trk.getStubs();
+		std::vector< std::pair<unsigned int, unsigned int> > stubList;
+		
+		for (const auto & myStub: stubs)
+		{
+			stubList.push_back( std::pair< unsigned int,unsigned int >( myStub->index(), myStub->layerId() ) );
+		}
+		
+		// now necessary due to seed-filter disordering stubs
+		std::sort(stubList.begin(),stubList.end());
+		
+		// make up vector of vectors
+		candList.push_back(stubList);
+	}
+	
+	std::vector< unsigned int > indices; // to avoid expense of manipulating candidate vector
+	
+	for (std::size_t i = 0; i < candList.size(); ++i)
+	{
+		indices.push_back(i);
+	}
+	
+	
+	unsigned int i = 0;
+	
+	// Loop through vector
+	while ( i < (candList.size() - 1) )
+	{
+		unsigned int j = i + 1;
+		
+		// Check rest of candidates
+		while (j < candList.size() )
+		{
+			
+		  if (layerMatches(&(candList[i]), &(candList[j])) >= dupTrkMinCommonHitsLayers_) // Enough in common to keep one and kill the other
+			{
+				unsigned int qualI = vecTracks[ indices[i] ].getNumLayers();
+				unsigned int qualJ = vecTracks[ indices[j] ].getNumLayers();
+				
+				// Keep best "quality"
+				if (qualI < qualJ)
+				{
+					printKill(dupTrkAlg_, i, j, vecTracks[ indices[i] ], vecTracks[ indices[j] ]);
+					
+					candList.erase(candList.begin()+i);
+					indices.erase(indices.begin()+i);
+					
+					// To counter increment we don't want here
+					--i;
+					
+					// Out of j-while
+					break;
+				}
+				else
+				{
+					// Delete j if lower quality (or equal to remove duplicates!)
+					
+					printKill(dupTrkAlg_, j, i, vecTracks[ indices[j] ], vecTracks[ indices[i] ]);
+					
+					candList.erase(candList.begin()+j);
+					indices.erase(indices.begin()+j);
+				}
+			} 
+			else
+			{
+				// Keep both, next candidate
+				++j;
+			}
+		}
+		++i;
+	}
+	
+	for (std::size_t i = 0; i < indices.size(); ++i)
+	{
+		vecTracksFiltered.push_back(vecTracks.at(indices[i])); // copy non-dupes to output
+	}
+	
+	return vecTracksFiltered;
+}
+
+
+// Implementing "inverse" OSU algorithm, check for layers in common, reverse order as per Luis's suggestion
+// Comparison window of up to 6
+// Modified version of Algo23, looking for layers in common as in Algo8
+// Check if N or more common layers (default 5 at present)
+// Then keep candidate with most stubs, use |q/pT| as tie-break, finally drop "latest" if still equal
+template <class T>
+vector<T> KillDupTrks<T>::filterAlg25(const vector<T>& vecTracks) const
+{       // vector (corresponding to candidate tracks) of vectors (indices for stubs)
+	std::vector< std::vector< std::pair<unsigned int, unsigned int> > > candList;
+
+	//std::cout<<"** Alg25 comparing "<<vecTracks.size()<<" candidates"<<std::endl;
+
+	for (const T& trk : vecTracks)
+	{
+		const vector< const Stub * > &  stubs = trk.getStubs();
+		std::vector< std::pair<unsigned int, unsigned int> > stubList;
+		
+		for (const auto & myStub: stubs)
+		{
+			stubList.push_back( std::pair< unsigned int,unsigned int >( myStub->index(), myStub->layerId() ) );
+		}
+		
+		// now necessary due to seed-filter disordering stubs
+		std::sort(stubList.begin(),stubList.end());
+		
+		// make up vector of vectors
+		candList.push_back(stubList);
+	}
+	
+	std::vector< bool > indices(candList.size(),true); // since we can't manipulate const candidate vector
+
+	unsigned int i = 0;
+
+	// Loop through vector
+	while ( i < candList.size() )
+	  {
+	    unsigned int range = vecTracks[i].getNumStubs();
+	    
+	    // Check rest of candidates
+	    for (unsigned int j = 0; j<candList.size(); ++j) // Start at 0 as tracks out of scope can still eliminate future tracks
+	      { if (j==i) continue;  // We would always get a match...  
+		if (j>i) { range +=  vecTracks[j].getNumStubs();
+		           if (range >= 51) break;
+		         }
+
+		if (layerMatches(&(candList[i]), &(candList[j])) >= dupTrkMinCommonHitsLayers_) // Enough in common
+		  { unsigned int qualI = vecTracks[i].getNumLayers();
+		    unsigned int qualJ = vecTracks[j].getNumLayers();
+		    
+		    if (j<i)
+		      { if (qualI == qualJ) // Drop i if same stubs, larger abs(q/pT), keep both if equal
+			                    // (later - j - will go out further down)
+			  { if (fabs(vecTracks[i].qOverPt()) > fabs(vecTracks[j].qOverPt()))
+			      { printKill(dupTrkAlg_, i, j, vecTracks[i], vecTracks[j]);
+				//std::cout<<"a) "<<j<<"<"<<i<<"; qualI == qualJ = "<<qualI<<" q/pTs "
+				//<<vecTracks[i].qOverPt()<<","<<vecTracks[j].qOverPt()<<std::endl;
+				indices[i] = false;
+			      }
+			  }
+			else
+			  { if (qualI <= qualJ) // Drop i if fewer layers
+			      { printKill(dupTrkAlg_, i, j, vecTracks[i], vecTracks[j]);
+				//std::cout<<"b) "<<j<<"<"<<i<<"; qualI "<<qualI<<"<=qualJ "<<qualJ<<std::endl;
+				indices[i] = false;
+			      }
+			  }
+		      }
+		    else // j>i
+		      { if (qualI < qualJ) // Drop one with fewer layers
+			  { printKill(dupTrkAlg_, i, j, vecTracks[i], vecTracks[j]);
+			    //std::cout<<"c) "<<j<<">"<<i<<"; qualI "<<qualI<<"<qualJ "<<qualJ<<std::endl;
+			    indices[i] = false;
+			  } 
+			else
+			  { if (qualJ < qualI)
+			      { printKill(dupTrkAlg_, j, i, vecTracks[j], vecTracks[i]);
+				//std::cout<<"d) "<<j<<">"<<i<<"; qualI "<<qualI<<">qualJ "<<qualJ<<std::endl;
+				indices[j] = false;
+			      }
+			    else // So they must be equal.  Keep one with smallest |q/pT|, earliest if equal
+			      { if (fabs(vecTracks[i].qOverPt()) <= fabs(vecTracks[j].qOverPt())) // strictly less than
+				  {  printKill(dupTrkAlg_, j, i, vecTracks[j], vecTracks[i]);
+				    //if (fabs(vecTracks[i].qOverPt()) == fabs(vecTracks[j].qOverPt())) std::cout<<"Tie-break: ";
+				    //std::cout<<"e) "<<j<<">"<<i<<"; qualI == qualJ = "<<qualI<<" q/pTs "
+				    //<<vecTracks[j].qOverPt()<<">="<<vecTracks[i].qOverPt()<<std::endl;
+				    indices[j] = false;
+				  }
+				else // Greater so drop i
+				  {  printKill(dupTrkAlg_, i, j, vecTracks[i], vecTracks[j]);
+				    //std::cout<<"f) "<<j<<">"<<i<<"; qualI == qualJ = "<<qualI<<" q/pTs "
+				    //<<vecTracks[i].qOverPt()<<"<"<<vecTracks[j].qOverPt()<<std::endl;
+				    indices[i] = false;
+				  }
+			      }
+			  }
+		      }
+		  }
+		else
+		  {
+		    // Keep both, next candidate
+		    ++j;
+		  }
+	      }
+	    ++i;
+	  }
+
+	vector<T> vecTracksFiltered; // Copy surviving candidates to output
+	for (unsigned int i=0; i<vecTracks.size(); ++i) 
+	  { if (indices[i])
+	      { vecTracksFiltered.push_back(vecTracks[i]);}
+	  }
+	//std::cout<<"** Alg 25 returning "<<vecTracksFiltered.size()<<" candidates"<<std::endl;
+	return vecTracksFiltered;
+}
+
+//
+//===  Prints out a consistently formatted formatted report of killed duplicate track
+//
+
+template <class T>
+void KillDupTrks<T>::printKill(unsigned int alg, unsigned int dup, unsigned int cand, T dupTrack, T candTrack) const
+{
+	// condition to print debug info from duplicate track removal code.
+	if (settings_->debug( ) == 5)
+	{
+		std::pair<unsigned int, unsigned int> duploc = dupTrack.getCellLocationHT();
+		std::pair<unsigned int, unsigned int> canloc = candTrack.getCellLocationHT();
+		
+		const TP *dupTP=dupTrack.getMatchedTP(), *candTP=candTrack.getMatchedTP();
+		
+		int  dupTPIndex =  dupTP == nullptr ? -1 : dupTP->index();
+		int candTPIndex = candTP == nullptr ? -1 : candTP->index(); 
+		
+		bool dupUsed = false, candUsed = false;
+		
+		if ( dupTP != nullptr) { dupUsed = dupTP->useForAlgEff();}
+		if (candTP != nullptr) { candUsed = candTP->useForAlgEff();}
+
+		std::cout
+			<< "** Alg" << alg
+			<< " erasing dupe " << dup << " (TP "<< dupTPIndex << " "<< dupUsed << ")" 
+			<< " at (" << duploc.first << "," << duploc.second << ")" 
+			<< " of cand " << cand << " (TP " << candTPIndex << " " << candUsed << ")"
+			<< " at (" << canloc.first << "," << canloc.second << ")"
+			<< " deltas " << int(duploc.first) - int(canloc.first) << " " << int(duploc.second) - int(canloc.second)
+			<< std::endl;
+	}
+}
+
+// I thought these three lines would allow the class implementation to be inside KillDupTrks.cc instead of in KillDupTrks.icc, but seems not to work ...
+//template class KillDupTrks<L1track2D>;
+//template class KillDupTrks<L1track3D>;
+//template class KillDupTrks<L1fittedTrack>;
+
+}

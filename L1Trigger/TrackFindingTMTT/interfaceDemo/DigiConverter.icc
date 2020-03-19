@@ -1,0 +1,98 @@
+#include "L1Trigger/TrackFindingTMTT/interfaceDemo/DigiConverter.h"
+
+
+
+namespace demo {
+
+//-----------------------------------------------------------------------------
+DigiConverter::DigiConverter( const TMTT::Settings* settings ) :
+mSettings(settings) {
+
+}
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+DigiDTCStub
+DigiConverter::makeDigiDTCStub(const TMTT::Stub& aDTCStub, uint32_t aDigiPhiSec) const {
+    return DigiDTCStub(
+               aDTCStub.digitalStub().iDigi_PhiO(),
+               aDTCStub.digitalStub().moduleType(),
+               aDigiPhiSec,
+               aDTCStub.digitalStub().iDigi_Z(),
+               aDTCStub.digitalStub().iDigi_Bend(),
+               aDTCStub.digitalStub().iDigi_Rt(),
+               true
+           );
+}
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+DigiHTStub
+DigiConverter::makeDigiHTStub( const TMTT::Stub& aHTStub, uint32_t aPhiSectorIdInNon, uint32_t aEtaSectorId, int cBin, int aChiZ, int aChiPhi, bool mSel ) const {
+    return DigiHTStub(
+               aHTStub.layerIdReduced(),
+	       aPhiSectorIdInNon,
+               aEtaSectorId,
+               cBin,
+               aChiZ,
+               aChiPhi,
+               aHTStub.digitalStub().iDigi_Rt(),
+               mSel,
+               true // valid
+           );
+}
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+DigiHTMiniStub
+DigiConverter::makeDigiHTMiniStub( const TMTT::Stub& aHTMiniStub, uint32_t aPhiSectorIdInNon, uint32_t aEtaSectorId, int8_t cBin, int8_t mBin) const {
+    return DigiHTMiniStub(
+               aHTMiniStub.layerIdReduced(),
+	       aPhiSectorIdInNon,
+               aEtaSectorId,
+               cBin,
+               mBin,
+               aHTMiniStub.digitalStub().iDigi_PhiS(),
+               aHTMiniStub.digitalStub().iDigi_Z(),
+               aHTMiniStub.digitalStub().iDigi_Rt(),
+               true // valid
+           );
+}
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+DigiKF4Track
+DigiConverter::makeDigiKF4Track( const TMTT::L1fittedTrack& aFitTrk ) const {
+
+    const uint numPhiSecPerNon = mSettings->numPhiSectors() / mSettings->numPhiNonants();
+
+    return DigiKF4Track(
+               aFitTrk.digitaltrack().iDigi_oneOver2r(),
+               aFitTrk.digitaltrack().iDigi_phi0rel(),
+               aFitTrk.digitaltrack().iDigi_tanLambda(),
+               aFitTrk.digitaltrack().iDigi_z0(),
+	       0, // d0
+               aFitTrk.digitaltrack().iDigi_chisquaredRphi(),
+               aFitTrk.digitaltrack().iDigi_chisquaredRz(),
+               aFitTrk.getHitPattern(),
+               aFitTrk.getNumLayers(),
+               0,
+               aFitTrk.getCellLocationHT().first - mSettings->houghNbinsPt() / 2,
+               aFitTrk.getCellLocationHT().second - mSettings->houghNbinsPhi() / 2,
+               aFitTrk.iPhiSec()%numPhiSecPerNon,
+               aFitTrk.iEtaReg(),
+               aFitTrk.getCellLocationFit().first - mSettings->houghNbinsPt() / 2,
+               aFitTrk.getCellLocationFit().second - mSettings->houghNbinsPhi() / 2,
+               aFitTrk.consistentHTcell(),
+               true
+           );
+
+}
+//-----------------------------------------------------------------------------
+
+} // namespace demo
+
