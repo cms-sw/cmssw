@@ -28,7 +28,6 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/HandleExceptionFactory.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <memory>
 
