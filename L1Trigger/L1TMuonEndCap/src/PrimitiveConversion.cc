@@ -4,8 +4,6 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFGEMDetId.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFGEMDetIdImpl.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 #include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
@@ -710,7 +708,7 @@ void PrimitiveConversion::convert_gem(int pc_sector,
                                       int pc_segment,
                                       const TriggerPrimitive& muon_primitive,
                                       EMTFHit& conv_hit) const {
-  const EMTFGEMDetId& tp_detId = emtf::construct_EMTFGEMDetId(muon_primitive);
+  const GEMDetId& tp_detId = muon_primitive.detId<GEMDetId>();
   const GEMData& tp_data = muon_primitive.getGEMData();
 
   int tp_region = tp_detId.region();  // 0 for Barrel, +/-1 for +/- Endcap
@@ -821,7 +819,7 @@ void PrimitiveConversion::convert_gem(int pc_sector,
   //conv_hit.set_wire          ( tp_data.keywire );
   //conv_hit.set_quality       ( tp_data.quality );
   conv_hit.set_pattern(1);  // In firmware, this marks GEM stub (unconfirmed!)
-  conv_hit.set_bend(tp_data.bend);
+  //conv_hit.set_bend(tp_data.bend);
   //conv_hit.set_time          ( tp_data.time );
   //conv_hit.set_alct_quality  ( tp_data.alct_quality );
   //conv_hit.set_clct_quality  ( tp_data.clct_quality );
