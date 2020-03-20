@@ -9,6 +9,6 @@ pfMET = pfMet.clone(alias="pfMET")
 # Use PF2PAT cleaned jet collection (pfJets) for MET significance
 # instead of standard collection (ak4PFJets)?
 # It requires that MET is produced at the end.
-pfMET.jets = cms.InputTag("pfJets")
+pfMET.srcJets = cms.InputTag("pfJets")
 
 # print 'PF2PAT: Jet collection used for pfMET significance: ', pfMET.jets
