@@ -19,7 +19,7 @@ namespace reco {
   public:
     PFMET();
     PFMET(const SpecificPFMETData& pf_data_, double sumet_, const LorentzVector& fP4, const Point& fVertex)
-        : MET(sumet_, fP4, fVertex), pf_data(pf_data_) {}
+        : MET(sumet_, fP4, fVertex), pf_data(pf_data_), mIsWeighted(false) {}
 
     ~PFMET() override {}
 
@@ -69,8 +69,14 @@ namespace reco {
     // block accessors
     SpecificPFMETData getSpecific() const { return pf_data; }
 
+    ///  Set boolean if weights were applied by algorithm (e.g. PUPPI weights)
+    void setIsWeighted(bool isWeighted) { mIsWeighted = isWeighted; }
+    ///  boolean if weights were applied by algorithm (e.g. PUPPI weights)
+    int isWeighted() const { return mIsWeighted; }
+
   private:
     SpecificPFMETData pf_data;
+    bool mIsWeighted;
   };
 }  // namespace reco
 #endif
