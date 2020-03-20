@@ -8,6 +8,7 @@ RecoMETAOD = cms.PSet(
                                            'keep recoCaloMETs_caloMetM_*_*',
                                            'keep recoPFMETs_pfMet_*_*',
                                            'keep recoPFMETs_pfChMet_*_*',
+                                           'keep floatedmValueMap_puppiNoLep_*_*',
                                            'keep recoPFMETs_pfMetPuppi_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
                                           # 'drop recoHcalNoiseRBXs_*_*_*',
