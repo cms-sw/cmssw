@@ -174,8 +174,8 @@ JETVARS = cms.PSet(P4Vars,
   muEF      = jetTable.variables.muEF,
   rawFactor = jetTable.variables.rawFactor,
   jetId     = jetTable.variables.jetId,
-  jercCHPUF = jetTable.variables.jercCHPUF,
-  jercCHF   = jetTable.variables.jercCHF,
+#  jercCHPUF = jetTable.variables.jercCHPUF,
+#  jercCHF   = jetTable.variables.jercCHF,
 )
 
 #============================================
@@ -416,20 +416,20 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   #
   #
   #
-  process.jercVarsFatJet = process.jercVars.clone(
-    srcJet = "updatedJetsAK8",
-    maxDR = 0.8,
-  )
-  process.jetSequence.insert(process.jetSequence.index(process.updatedJetsAK8WithUserData), process.jercVarsFatJet)
-  
-  process.updatedJetsAK8WithUserData.userFloats.jercCHPUF = cms.InputTag(
-    "%s:chargedHadronPUEnergyFraction"  % process.jercVarsFatJet.label()
-  )
-  process.updatedJetsAK8WithUserData.userFloats.jercCHF = cms.InputTag(
-    "%s:chargedHadronCHSEnergyFraction" % process.jercVarsFatJet.label()
-  )
-  process.fatJetTable.variables.jercCHPUF = JETVARS.jercCHPUF
-  process.fatJetTable.variables.jercCHF   = JETVARS.jercCHF
+#  process.jercVarsFatJet = process.jercVars.clone(
+#    srcJet = "updatedJetsAK8",
+#    maxDR = 0.8,
+#  )
+#  process.jetSequence.insert(process.jetSequence.index(process.updatedJetsAK8WithUserData), process.jercVarsFatJet)
+#  
+#  process.updatedJetsAK8WithUserData.userFloats.jercCHPUF = cms.InputTag(
+#    "%s:chargedHadronPUEnergyFraction"  % process.jercVarsFatJet.label()
+#  )
+#  process.updatedJetsAK8WithUserData.userFloats.jercCHF = cms.InputTag(
+#    "%s:chargedHadronCHSEnergyFraction" % process.jercVarsFatJet.label()
+#  )
+#  process.fatJetTable.variables.jercCHPUF = JETVARS.jercCHPUF
+#  process.fatJetTable.variables.jercCHF   = JETVARS.jercCHF
   #
   # 
   # 
