@@ -37,7 +37,7 @@ public:
                    const TriggerPrimitive& muon_primitive,
                    EMTFHit& conv_hit) const;
 
-  void convert_csc_details(EMTFHit& conv_hit) const;
+  void convert_csc_details(EMTFHit& conv_hit) const;  // with specific firmware impl
 
   // RPC functions
   void convert_rpc(int pc_sector,
@@ -47,7 +47,7 @@ public:
                    const TriggerPrimitive& muon_primitive,
                    EMTFHit& conv_hit) const;
 
-  void convert_rpc_details(EMTFHit& conv_hit, const bool use_cppf_lut) const;
+  void convert_rpc_details(EMTFHit& conv_hit, bool isCPPF) const;  // with specific firmware impl
 
   // GEM functions
   void convert_gem(int pc_sector,
@@ -57,7 +57,23 @@ public:
                    const TriggerPrimitive& muon_primitive,
                    EMTFHit& conv_hit) const;
 
-  void convert_gem_details(EMTFHit& conv_hit) const;
+  void convert_other_details(EMTFHit& conv_hit) const;  // no firmware impl
+
+  // ME0 functions
+  void convert_me0(int pc_sector,
+                   int pc_station,
+                   int pc_chamber,
+                   int pc_segment,
+                   const TriggerPrimitive& muon_primitive,
+                   EMTFHit& conv_hit) const;
+
+  // DT functions
+  void convert_dt(int pc_sector,
+                  int pc_station,
+                  int pc_chamber,
+                  int pc_segment,
+                  const TriggerPrimitive& muon_primitive,
+                  EMTFHit& conv_hit) const;
 
   // Aux functions
   int get_zone_code(const EMTFHit& conv_hit, int th) const;
