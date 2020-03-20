@@ -220,9 +220,8 @@ void PatternRecognition::process(const std::deque<EMTFHitCollection>& extended_c
       for (const auto& conv_hit : conv_hits) {
         if (conv_hit.Subsystem() == TriggerPrimitive::kCSC) {
           std::cout << "CSC hit st: " << conv_hit.PC_station() << " ch: " << conv_hit.PC_chamber()
-                    << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp()
-                    << " ph_hit: " << (1ul << conv_hit.Ph_hit()) << " phzvl: " << conv_hit.Phzvl()
-                    << " strip: " << conv_hit.Strip() << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
+                    << " ph: " << conv_hit.Phi_fp() << " th: " << conv_hit.Theta_fp() << " strip: " << conv_hit.Strip()
+                    << " wire: " << conv_hit.Wire() << " cpat: " << conv_hit.Pattern()
                     << " zone_hit: " << conv_hit.Zone_hit() << " zone_code: " << conv_hit.Zone_code()
                     << " bx: " << conv_hit.BX() << std::endl;
         }
