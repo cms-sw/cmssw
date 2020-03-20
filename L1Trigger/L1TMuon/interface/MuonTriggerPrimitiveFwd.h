@@ -15,10 +15,6 @@ namespace L1TMuon {
   //typedef std::vector<TriggerPrimitiveRef> TriggerPrimitiveList;
   //typedef edm::Ptr<TriggerPrimitive> TriggerPrimitivePtr;
   //typedef std::map<unsigned,TriggerPrimitiveCollection> TriggerPrimitiveStationMap;
-
-  class TTTriggerPrimitive;  // Track Trigger hits
-
-  typedef std::vector<TTTriggerPrimitive> TTTriggerPrimitiveCollection;
 }  // namespace L1TMuon
 
 #endif
