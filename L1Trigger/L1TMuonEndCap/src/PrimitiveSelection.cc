@@ -4,8 +4,6 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFGEMDetId.h"
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFGEMDetIdImpl.h"
 
 #include "helper.h"  // merge_map_into_map, assert_no_abort
 
@@ -801,7 +799,7 @@ int PrimitiveSelection::select_gem(const TriggerPrimitive& muon_primitive) const
   int selected = -1;
 
   if (muon_primitive.subsystem() == TriggerPrimitive::kGEM) {
-    const EMTFGEMDetId& tp_detId = emtf::construct_EMTFGEMDetId(muon_primitive);
+    const GEMDetId& tp_detId = muon_primitive.detId<GEMDetId>();
     const GEMData& tp_data = muon_primitive.getGEMData();
 
     int tp_region = tp_detId.region();  // 0 for Barrel, +/-1 for +/- Endcap

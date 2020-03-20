@@ -218,23 +218,23 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
         in_pads_layer2[tp_detId.rawId()].push_back(muon_primitive);
       }
 
-      // Modified copad logic
-      bool modified_copad_logic = false;
-      if (modified_copad_logic) {
-        if (tp_detId.layer() == 1) {
-          auto id = tp_detId;
-          const GEMDetId co_detId(id.region(), id.ring(), id.station(), 2, id.chamber(), id.roll());
-          const GEMPadDigi co_digi(muon_primitive.getGEMData().pad, muon_primitive.getGEMData().bx);
-          const TriggerPrimitive co_muon_primitive(co_detId, co_digi);
-          in_pads_layer2[co_detId.rawId()].push_back(co_muon_primitive);
-        } else {
-          auto id = tp_detId;
-          const GEMDetId co_detId(id.region(), id.ring(), id.station(), 1, id.chamber(), id.roll());
-          const GEMPadDigi co_digi(muon_primitive.getGEMData().pad, muon_primitive.getGEMData().bx);
-          const TriggerPrimitive co_muon_primitive(co_detId, co_digi);
-          in_pads_layer1[co_detId.rawId()].push_back(co_muon_primitive);
-        }
-      }
+      //FIXME: Modified copad logic
+      //bool modified_copad_logic = false;
+      //if (modified_copad_logic) {
+      //  if (tp_detId.layer() == 1) {
+      //    auto id = tp_detId;
+      //    const GEMDetId co_detId(id.region(), id.ring(), id.station(), 2, id.chamber(), id.roll());
+      //    const GEMPadDigi co_digi(muon_primitive.getGEMData().pad, muon_primitive.getGEMData().bx);
+      //    const TriggerPrimitive co_muon_primitive(co_detId, co_digi);
+      //    in_pads_layer2[co_detId.rawId()].push_back(co_muon_primitive);
+      //  } else {
+      //    auto id = tp_detId;
+      //    const GEMDetId co_detId(id.region(), id.ring(), id.station(), 1, id.chamber(), id.roll());
+      //    const GEMPadDigi co_digi(muon_primitive.getGEMData().pad, muon_primitive.getGEMData().bx);
+      //    const TriggerPrimitive co_muon_primitive(co_detId, co_digi);
+      //    in_pads_layer1[co_detId.rawId()].push_back(co_muon_primitive);
+      //  }
+      //}
     }
   }
 
