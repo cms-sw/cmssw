@@ -28,7 +28,7 @@ namespace cms {
         weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
     }
     if (calculateSignificance_) {
-      metSigAlgo_ = new metsig::METSignificance(iConfig);
+      metSigAlgo_ = new metsig::METSignificance(iConfig.getParameterSet("parameters"));
 
       jetToken_ = mayConsume<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcJets"));
       std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter<std::vector<edm::InputTag>>("srcLeptons");
@@ -68,7 +68,7 @@ namespace cms {
     const math::XYZPoint vtx(0.0, 0.0, 0.0);
 
     PFSpecificAlgo pf;
-    SpecificPFMETData specific = pf.run(*input.product());
+    SpecificPFMETData specific;
     if (applyWeight_)
       specific = pf.run(*input.product(), weights_);
     else
@@ -132,12 +132,15 @@ namespace cms {
     desc.add<bool>("calculateSignificance", false);
     desc.add<double>("globalThreshold", 0.);
     desc.addOptional<edm::InputTag>("srcJets");
-    desc.addOptional<edm::InputTag>("srcLeptons");
+    desc.addOptional<std::vector<edm::InputTag>>("srcLeptons");
     desc.addOptional<std::string>("srcJetSF");
     desc.addOptional<std::string>("srcJetResPt");
     desc.addOptional<std::string>("srcJetResPhi");
     desc.addOptional<edm::InputTag>("srcRho");
     desc.addOptional<std::string>("alias");
+    edm::ParameterSetDescription params;
+    params.setAllowAnything();
+    desc.addOptional<edm::ParameterSetDescription>("parameters", params);
     edm::ParameterSetDescription desc1 = desc;
     edm::ParameterSetDescription desc2 = desc;
     desc1.add<bool>("applyWeight", false);
