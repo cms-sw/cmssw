@@ -21,16 +21,24 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     #   * 'simCscTriggerPrimitiveDigis','MPCSORTED' : simulated trigger primitives (LCTs) from re-emulating CSC digis
     #   * 'csctfDigis' : real trigger primitives as received by CSCTF (legacy trigger), available only in 2016 data
     #   * 'emtfStage2Digis' : real trigger primitives as received by EMTF, unpacked in EventFilter/L1TRawToDigi/
-    CSCInput  = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
-    RPCInput  = cms.InputTag('simMuonRPCDigis'),
+    DTPhiInput = cms.InputTag('simTwinMuxDigis'),
+    DTThetaInput = cms.InputTag('simDtTriggerPrimitiveDigis'),
+    CSCInput = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED'),
+    CSCComparatorInput = cms.InputTag('simMuonCSCDigis','MuonCSCComparatorDigi'),
+    RPCInput = cms.InputTag('simMuonRPCDigis'),
+    RPCRecHitInput = cms.InputTag('rpcRecHits'),
     CPPFInput = cms.InputTag('simCPPFDigis'),  ## Cannot use in MC workflow, does not exist yet.  CPPFEnable set to False - AWB 01.06.18
-    GEMInput  = cms.InputTag('simMuonGEMPadDigis'),
+    GEMInput = cms.InputTag('simMuonGEMPadDigiClusters'),
+    ME0Input = cms.InputTag('me0TriggerPseudoDigis105X'),
 
     # Run with CSC, RPC, GEM
+    DTEnable = cms.bool(False),
     CSCEnable = cms.bool(True),   # Use CSC LCTs from the MPCs in track-building
     RPCEnable = cms.bool(True),   # Use clustered RPC hits from CPPF in track-building
     CPPFEnable = cms.bool(False), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
     GEMEnable = cms.bool(False),  # Use hits from GEMs in track-building
+    IRPCEnable = cms.bool(False),
+    ME0Enable = cms.bool(False),
 
     # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
     Era = cms.string('Run2_2016'),
@@ -44,6 +52,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     CSCInputBXShift = cms.int32(-8), # Shift applied to input CSC LCT primitives, to center at BX = 0
     RPCInputBXShift = cms.int32(0),
     GEMInputBXShift = cms.int32(0),
+    ME0InputBXShift = cms.int32(-8),
 
     # Sector processor primitive-conversion parameters
     spPCParams16 = cms.PSet(
