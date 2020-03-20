@@ -9,6 +9,11 @@ if test -f "validation_config.ini"; then
     rm -f validation_config.ini
 fi
 
+## copy into local sqlite file the ideal alignment
+echo "COPYING locally Ideal Alignment ..."
+conddb --yes --db pro copy TrackerAlignment_Upgrade2017_design_v4 --destdb myfile.db
+
+echo "GENERATING all-in-one tool configuration ..."
 cat <<EOF >> validation_config.ini
 [general]
 jobmode = interactive
@@ -23,6 +28,7 @@ style = 2001
 [alignment:express]
 title = express
 globaltag = 92X_dataRun2_Express_v2
+condition TrackerAlignmentRcd =  sqlite_file:myfile.db,TrackerAlignment_Upgrade2017_design_v4
 color = 2
 style = 2402
 
@@ -143,4 +149,5 @@ split some_split_validation - prompt :
 split some_split_validation - express :
 EOF
 
+echo "TESTING all-in-one tool ..."
 validateAlignments.py -c validation_config.ini -N testingAllInOneTool --dryRun || die "Failure running all-in-one test" $?
