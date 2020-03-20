@@ -44,7 +44,7 @@ void PrimitiveSelection::configure(int verbose,
 // _____________________________________________________________________________
 // Specialized process() for CSC
 template <>
-void PrimitiveSelection::process(CSCTag tag,
+void PrimitiveSelection::process(emtf::CSCTag tag,
                                  const TriggerPrimitiveCollection& muon_primitives,
                                  std::map<int, TriggerPrimitiveCollection>& selected_csc_map) const {
   TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
@@ -175,7 +175,7 @@ void PrimitiveSelection::process(CSCTag tag,
 // _____________________________________________________________________________
 // Specialized process() for RPC
 template <>
-void PrimitiveSelection::process(RPCTag tag,
+void PrimitiveSelection::process(emtf::RPCTag tag,
                                  const TriggerPrimitiveCollection& muon_primitives,
                                  std::map<int, TriggerPrimitiveCollection>& selected_rpc_map) const {
   TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
@@ -330,7 +330,7 @@ void PrimitiveSelection::process(RPCTag tag,
 // _____________________________________________________________________________
 // Specialized process() for GEM
 template <>
-void PrimitiveSelection::process(GEMTag tag,
+void PrimitiveSelection::process(emtf::GEMTag tag,
                                  const TriggerPrimitiveCollection& muon_primitives,
                                  std::map<int, TriggerPrimitiveCollection>& selected_gem_map) const {
   TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
