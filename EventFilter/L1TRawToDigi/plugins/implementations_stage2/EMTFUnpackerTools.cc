@@ -18,9 +18,7 @@ namespace l1t {
         _hit.set_sync_err(_ME.SE());
         _hit.set_bx(_ME.TBIN() - 3);
         _hit.set_bc0(_ME.BC0());
-        _hit.set_is_CSC(true);
-        _hit.set_is_RPC(false);
-        _hit.set_subsystem(1);
+        _hit.set_subsystem(1);  // 1 for CSC
         // _hit.set_layer();
 
         _hit.set_ring(L1TMuonEndCap::calc_ring(_hit.Station(), _hit.CSC_ID(), _hit.Strip()));
@@ -45,9 +43,7 @@ namespace l1t {
         _hit.set_bx(_RPC.TBIN() - 3);
         _hit.set_valid(_RPC.VP());
         _hit.set_bc0(_RPC.BC0());
-        _hit.set_is_CSC(false);
-        _hit.set_is_RPC(true);
-        _hit.set_subsystem(2);
+        _hit.set_subsystem(2);  // 2 for RPC
 
         _hit.SetRPCDetId(_hit.CreateRPCDetId());
         // // Not yet implemented - AWB 15.03.17
