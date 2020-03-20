@@ -17,6 +17,7 @@ void SectorProcessor::configure(const GeometryTranslator* tp_geom,
                                 int bxShiftCSC,
                                 int bxShiftRPC,
                                 int bxShiftGEM,
+                                int bxShiftME0,
                                 std::string era,
                                 const std::vector<int>& zoneBoundaries,
                                 int zoneOverlap,
@@ -48,32 +49,13 @@ void SectorProcessor::configure(const GeometryTranslator* tp_geom,
                                 bool bugGMTPhi,
                                 bool promoteMode7,
                                 int modeQualVer) {
-  if (not(emtf::MIN_ENDCAP <= endcap && endcap <= emtf::MAX_ENDCAP)) {
-    edm::LogError("L1T") << "emtf::MIN_ENDCAP = " << emtf::MIN_ENDCAP << ", emtf::MAX_ENDCAP = " << emtf::MAX_ENDCAP
-                         << ", endcap = " << endcap;
-    return;
-  }
-  if (not(emtf::MIN_TRIGSECTOR <= sector && sector <= emtf::MAX_TRIGSECTOR)) {
-    edm::LogError("L1T") << "emtf::MIN_TRIGSECTOR = " << emtf::MIN_TRIGSECTOR
-                         << ", emtf::MAX_TRIGSECTOR = " << emtf::MAX_TRIGSECTOR << ", endcap = " << sector;
-    return;
-  }
-  if (not(tp_geom != nullptr)) {
-    edm::LogError("L1T") << "tp_geom = nullptr";
-    return;
-  }
-  if (not(cond != nullptr)) {
-    edm::LogError("L1T") << "cond = nullptr";
-    return;
-  }
-  if (not(lut != nullptr)) {
-    edm::LogError("L1T") << "lut = nullptr";
-    return;
-  }
-  if (not(pt_assign_engine != nullptr)) {
-    edm::LogError("L1T") << "pt_assign_engine = nullptr";
-    return;
-  }
+  assert(emtf::MIN_ENDCAP <= endcap && endcap <= emtf::MAX_ENDCAP);
+  assert(emtf::MIN_TRIGSECTOR <= sector && sector <= emtf::MAX_TRIGSECTOR);
+
+  assert(tp_geom != nullptr);
+  assert(cond != nullptr);
+  assert(lut != nullptr);
+  assert(pt_assign_engine != nullptr);
 
   tp_geom_ = tp_geom;
   cond_ = cond;
@@ -90,6 +72,7 @@ void SectorProcessor::configure(const GeometryTranslator* tp_geom,
   bxShiftCSC_ = bxShiftCSC;
   bxShiftRPC_ = bxShiftRPC;
   bxShiftGEM_ = bxShiftGEM;
+  bxShiftME0_ = bxShiftME0;
 
   era_ = era;
 
@@ -405,7 +388,7 @@ void SectorProcessor::process(EventNumber_t ievent,
                               EMTFTrackCollection& out_tracks) const {
   // if (endcap_ == 1 && sector_ == 1) {
   //   std::cout << "\nConfigured with era " << era_ << ", thetaWindowZone0 = " << thetaWindowZone0_ << ", bugAmbigThetaWin = "
-  // 	      << bugAmbigThetaWin_ << ", twoStationSameBX = " << twoStationSameBX_ << ", promoteMode7_ = " << promoteMode7_ << std::endl;
+  //             << bugAmbigThetaWin_ << ", twoStationSameBX = " << twoStationSameBX_ << ", promoteMode7_ = " << promoteMode7_ << std::endl;
   // }
 
   // List of converted hits, extended from previous BXs
@@ -463,6 +446,7 @@ void SectorProcessor::process_single_bx(int bx,
                      bxShiftCSC_,
                      bxShiftRPC_,
                      bxShiftGEM_,
+                     bxShiftME0_,
                      includeNeighbor_,
                      duplicateTheta_,
                      bugME11Dupes_);
@@ -477,6 +461,7 @@ void SectorProcessor::process_single_bx(int bx,
                       bxShiftCSC_,
                       bxShiftRPC_,
                       bxShiftGEM_,
+                      bxShiftME0_,
                       zoneBoundaries_,
                       zoneOverlap_,
                       duplicateTheta_,
@@ -534,9 +519,11 @@ void SectorProcessor::process_single_bx(int bx,
                       promoteMode7_,
                       modeQualVer_);
 
+  std::map<int, TriggerPrimitiveCollection> selected_dt_map;
   std::map<int, TriggerPrimitiveCollection> selected_csc_map;
   std::map<int, TriggerPrimitiveCollection> selected_rpc_map;
   std::map<int, TriggerPrimitiveCollection> selected_gem_map;
+  std::map<int, TriggerPrimitiveCollection> selected_me0_map;
   std::map<int, TriggerPrimitiveCollection> selected_prim_map;
   std::map<int, TriggerPrimitiveCollection> inclusive_selected_prim_map;
 
@@ -556,12 +543,15 @@ void SectorProcessor::process_single_bx(int bx,
   // Put them into maps with an index that roughly corresponds to
   // each input link.
   // From src/PrimitiveSelection.cc
+  //prim_sel.process(emtf::DTTag(), muon_primitives, selected_dt_map);  //FIXME
   prim_sel.process(emtf::CSCTag(), muon_primitives, selected_csc_map);
-  if (useRPC_) {
+  if (useRPC_) {  //FIXME
     prim_sel.process(emtf::RPCTag(), muon_primitives, selected_rpc_map);
   }
   prim_sel.process(emtf::GEMTag(), muon_primitives, selected_gem_map);
-  prim_sel.merge(selected_csc_map, selected_rpc_map, selected_gem_map, selected_prim_map);
+  //prim_sel.process(emtf::ME0Tag(), muon_primitives, selected_me0_map);  //FIXME
+  prim_sel.merge(
+      selected_dt_map, selected_csc_map, selected_rpc_map, selected_gem_map, selected_me0_map, selected_prim_map);
 
   // Convert trigger primitives into "converted" hits
   // A converted hit consists of integer representations of phi, theta, and zones
@@ -572,13 +562,20 @@ void SectorProcessor::process_single_bx(int bx,
   {
     // Keep all the converted hits for the use of data-emulator comparisons.
     // They include the extra ones that are not used in track building and the subsequent steps.
-    prim_sel.merge_no_truncate(selected_csc_map, selected_rpc_map, selected_gem_map, inclusive_selected_prim_map);
+    prim_sel.merge_no_truncate(selected_dt_map,
+                               selected_csc_map,
+                               selected_rpc_map,
+                               selected_gem_map,
+                               selected_me0_map,
+                               inclusive_selected_prim_map);
     prim_conv.process(inclusive_selected_prim_map, inclusive_conv_hits);
 
     // Clear the input maps to save memory
+    selected_dt_map.clear();
     selected_csc_map.clear();
     selected_rpc_map.clear();
     selected_gem_map.clear();
+    selected_me0_map.clear();
   }
 
   // Detect patterns in all zones, find 3 best roads in each zone

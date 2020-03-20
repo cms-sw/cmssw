@@ -12,24 +12,35 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
       pt_assign_engine_(),
       sector_processors_(),
       config_(iConfig),
+      tokenDTPhi_(iConsumes.consumes<emtf::DTTag::digi_collection>(iConfig.getParameter<edm::InputTag>("DTPhiInput"))),
+      tokenDTTheta_(
+          iConsumes.consumes<emtf::DTTag::theta_digi_collection>(iConfig.getParameter<edm::InputTag>("DTThetaInput"))),
       tokenCSC_(iConsumes.consumes<emtf::CSCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CSCInput"))),
+      tokenCSCComparator_(iConsumes.consumes<emtf::CSCTag::comparator_digi_collection>(
+          iConfig.getParameter<edm::InputTag>("CSCComparatorInput"))),
       tokenRPC_(iConsumes.consumes<emtf::RPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("RPCInput"))),
+      tokenRPCRecHit_(
+          iConsumes.consumes<emtf::RPCTag::rechit_collection>(iConfig.getParameter<edm::InputTag>("RPCRecHitInput"))),
       tokenCPPF_(iConsumes.consumes<emtf::CPPFTag::digi_collection>(iConfig.getParameter<edm::InputTag>("CPPFInput"))),
       tokenGEM_(iConsumes.consumes<emtf::GEMTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMInput"))),
+      tokenME0_(iConsumes.consumes<emtf::ME0Tag::digi_collection>(iConfig.getParameter<edm::InputTag>("ME0Input"))),
       verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
       primConvLUT_(iConfig.getParameter<edm::ParameterSet>("spPCParams16").getParameter<int>("PrimConvLUT")),
       fwConfig_(iConfig.getParameter<bool>("FWConfig")),
+      useDT_(iConfig.getParameter<bool>("DTEnable")),
       useCSC_(iConfig.getParameter<bool>("CSCEnable")),
       useRPC_(iConfig.getParameter<bool>("RPCEnable")),
+      useIRPC_(iConfig.getParameter<bool>("IRPCEnable")),
       useCPPF_(iConfig.getParameter<bool>("CPPFEnable")),
       useGEM_(iConfig.getParameter<bool>("GEMEnable")),
+      useME0_(iConfig.getParameter<bool>("ME0Enable")),
       era_(iConfig.getParameter<std::string>("Era")) {
   if (era_ == "Run2_2016") {
     pt_assign_engine_.reset(new PtAssignmentEngine2016());
   } else if (era_ == "Run2_2017" || era_ == "Run2_2018") {
     pt_assign_engine_.reset(new PtAssignmentEngine2017());
   } else {
-    edm::LogError("L1T") << "era_ = " << era_;
+    edm::LogError("L1T") << "Cannot recognize the era option: " << era_;
     return;
   }
 
@@ -39,6 +50,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   auto bxShiftCSC = iConfig.getParameter<int>("CSCInputBXShift");
   auto bxShiftRPC = iConfig.getParameter<int>("RPCInputBXShift");
   auto bxShiftGEM = iConfig.getParameter<int>("GEMInputBXShift");
+  auto bxShiftME0 = iConfig.getParameter<int>("ME0InputBXShift");
 
   const auto& spPCParams16 = config_.getParameter<edm::ParameterSet>("spPCParams16");
   auto zoneBoundaries = spPCParams16.getParameter<std::vector<int> >("ZoneBoundaries");
@@ -98,6 +110,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
                                           bxShiftCSC,
                                           bxShiftRPC,
                                           bxShiftGEM,
+                                          bxShiftME0,
                                           era_,
                                           zoneBoundaries,
                                           zoneOverlap,
@@ -156,14 +169,30 @@ void TrackFinder::process(const edm::Event& iEvent,
   TriggerPrimitiveCollection muon_primitives;
 
   EMTFSubsystemCollector collector;
-  if (useCSC_)
+  if (useCSC_) {
     collector.extractPrimitives(emtf::CSCTag(), &geometry_translator_, iEvent, tokenCSC_, muon_primitives);
-  if (useRPC_ && useCPPF_)
+    //collector.extractPrimitives(emtf::CSCTag(), &geometry_translator_, iEvent, tokenCSC_, tokenCSCComparator_, muon_primitives);
+  }
+  if (useRPC_ && useCPPF_) {
     collector.extractPrimitives(emtf::CPPFTag(), &geometry_translator_, iEvent, tokenCPPF_, muon_primitives);
-  else if (useRPC_)
+  } else if (useRPC_) {
     collector.extractPrimitives(emtf::RPCTag(), &geometry_translator_, iEvent, tokenRPC_, muon_primitives);
-  if (useGEM_)
+    //collector.extractPrimitives(emtf::RPCTag(), &geometry_translator_, iEvent, tokenRPC_, tokenRPCRecHit_, muon_primitives);
+  }
+  if (useIRPC_) {
+    collector.extractPrimitives(emtf::IRPCTag(), &geometry_translator_, iEvent, tokenRPC_, muon_primitives);
+    //collector.extractPrimitives(emtf::IRPCTag(), &geometry_translator_, iEvent, tokenRPC_, tokenRPCRecHit_, muon_primitives);
+  }
+  if (useGEM_) {
     collector.extractPrimitives(emtf::GEMTag(), &geometry_translator_, iEvent, tokenGEM_, muon_primitives);
+  }
+  if (useME0_) {
+    collector.extractPrimitives(emtf::ME0Tag(), &geometry_translator_, iEvent, tokenME0_, muon_primitives);
+  }
+  if (useDT_) {
+    collector.extractPrimitives(
+        emtf::DTTag(), &geometry_translator_, iEvent, tokenDTPhi_, tokenDTTheta_, muon_primitives);
+  }
 
   // Check trigger primitives
   if (verbose_ > 2) {  // debug
