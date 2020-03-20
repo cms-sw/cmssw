@@ -20,7 +20,7 @@
 
 // system include files
 #include <vector>
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 #include <string>
 #include <ostream>
 
@@ -64,8 +64,8 @@ public:
 private:
   // ---------- member data --------------------------------
 
-  boost::scoped_ptr<std::vector<std::string> > m_stringValues;
-  boost::scoped_ptr<std::vector<std::pair<std::string, FWConfiguration> > > m_keyValues;
+  std::unique_ptr<std::vector<std::string> > m_stringValues;
+  std::unique_ptr<std::vector<std::pair<std::string, FWConfiguration> > > m_keyValues;
   unsigned int m_version;
 };
 
