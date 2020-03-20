@@ -87,17 +87,15 @@ void EcalEGL::fillNamedParams(const DDFilteredView& _fv, EcalEndcapGeometry* geo
 
 template <>
 void EcalEGL::fillNamedParams(const cms::DDFilteredView& fv, EcalEndcapGeometry* geom) {
+  const std::string specName = "ecal_ee";
 
- const std::string specName = "ecal_ee";
+  //ncrys
+  std::vector<double> tempD = fv.get<std::vector<double> >(specName, "ncrys");
+  assert(tempD.size() == 1);
+  geom->setNumberOfCrystalPerModule((int)tempD[0]);
 
- //ncrys
- std::vector<double> tempD = fv.get<std::vector<double> >(specName, "ncrys");
- assert(tempD.size() == 1);
- geom->setNumberOfCrystalPerModule((int)tempD[0]);
-
- //nmods
- tempD = fv.get<std::vector<double> >(specName, "nmods");
- assert(tempD.size() == 1);
- geom->setNumberOfModules((int)tempD[0]);
-
+  //nmods
+  tempD = fv.get<std::vector<double> >(specName, "nmods");
+  assert(tempD.size() == 1);
+  geom->setNumberOfModules((int)tempD[0]);
 }
