@@ -39,11 +39,12 @@ private:
 
   const edm::ParameterSet config_;
 
-  const edm::EDGetToken tokenCSC_, tokenRPC_, tokenCPPF_, tokenGEM_;
+  const edm::EDGetToken tokenDTPhi_, tokenDTTheta_, tokenCSC_, tokenCSCComparator_, tokenRPC_, tokenRPCRecHit_,
+      tokenCPPF_, tokenGEM_, tokenME0_;
 
   int verbose_, primConvLUT_;
 
-  bool fwConfig_, useCSC_, useRPC_, useCPPF_, useGEM_;
+  bool fwConfig_, useDT_, useCSC_, useRPC_, useIRPC_, useCPPF_, useGEM_, useME0_;
 
   std::string era_;
 };

@@ -46,6 +46,7 @@ public:
                  int bxShiftCSC,
                  int bxShiftRPC,
                  int bxShiftGEM,
+                 int bxShiftME0,
                  std::string era,
                  const std::vector<int>& zoneBoundaries,
                  int zoneOverlap,
@@ -111,7 +112,7 @@ private:
 
   int verbose_, endcap_, sector_;
 
-  int minBX_, maxBX_, bxWindow_, bxShiftCSC_, bxShiftRPC_, bxShiftGEM_;
+  int minBX_, maxBX_, bxWindow_, bxShiftCSC_, bxShiftRPC_, bxShiftGEM_, bxShiftME0_;
 
   std::string era_;
 
