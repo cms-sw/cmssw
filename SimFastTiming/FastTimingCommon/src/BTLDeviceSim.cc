@@ -7,6 +7,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 
@@ -88,8 +89,8 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     double distL = 0.5 * topo.pitch().second + 0.1 * hit.localPosition().y();
 
     // This is for the layouts with bars along phi
-    if (topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::bar ||
-        topo_->getMTDTopologyMode() == (int)BTLDetId::CrysLayout::barphiflat) {
+    if (MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()) == BTLDetId::CrysLayout::bar ||
+        MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()) == BTLDetId::CrysLayout::barphiflat) {
       distR = 0.5 * topo.pitch().first - 0.1 * hit.localPosition().x();
       distL = 0.5 * topo.pitch().first + 0.1 * hit.localPosition().x();
     }
