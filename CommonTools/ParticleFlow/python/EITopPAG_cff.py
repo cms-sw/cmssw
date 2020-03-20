@@ -149,7 +149,7 @@ pfCombinedInclusiveSecondaryVertexV2BJetTagsEI = pfCombinedInclusiveSecondaryVer
 
 
 #### MET ####
-pfMetEI = pfMET.clone(jets=cms.InputTag("pfJetsEI"))
+pfMetEI = pfMET.clone(srcJets=cms.InputTag("pfJetsEI"))
 
 #EITopPAG = cms.Sequence(
 EIsequence = cms.Sequence(
