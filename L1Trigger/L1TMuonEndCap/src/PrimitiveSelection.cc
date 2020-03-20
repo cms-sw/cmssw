@@ -24,6 +24,7 @@ void PrimitiveSelection::configure(int verbose,
                                    int bxShiftCSC,
                                    int bxShiftRPC,
                                    int bxShiftGEM,
+                                   int bxShiftME0,
                                    bool includeNeighbor,
                                    bool duplicateTheta,
                                    bool bugME11Dupes) {
@@ -35,6 +36,7 @@ void PrimitiveSelection::configure(int verbose,
   bxShiftCSC_ = bxShiftCSC;
   bxShiftRPC_ = bxShiftRPC;
   bxShiftGEM_ = bxShiftGEM;
+  bxShiftME0_ = bxShiftME0;
 
   includeNeighbor_ = includeNeighbor;
   duplicateTheta_ = duplicateTheta;
@@ -397,9 +399,11 @@ void PrimitiveSelection::process(emtf::GEMTag tag,
 // or not, basically regardless of anything. RPCs are treated as a
 // supplemental source of stubs for CSCs.
 
-void PrimitiveSelection::merge(const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
+void PrimitiveSelection::merge(const std::map<int, TriggerPrimitiveCollection>& selected_dt_map,
+                               const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
                                const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
                                const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
+                               const std::map<int, TriggerPrimitiveCollection>& selected_me0_map,
                                std::map<int, TriggerPrimitiveCollection>& selected_prim_map) const {
   // First, put CSC hits
   std::map<int, TriggerPrimitiveCollection>::const_iterator map_tp_it = selected_csc_map.begin();
@@ -490,9 +494,11 @@ void PrimitiveSelection::merge(const std::map<int, TriggerPrimitiveCollection>& 
   }
 }
 
-void PrimitiveSelection::merge_no_truncate(const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
+void PrimitiveSelection::merge_no_truncate(const std::map<int, TriggerPrimitiveCollection>& selected_dt_map,
+                                           const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
                                            const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
                                            const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
+                                           const std::map<int, TriggerPrimitiveCollection>& selected_me0_map,
                                            std::map<int, TriggerPrimitiveCollection>& selected_prim_map) const {
   // First, put CSC hits
   merge_map_into_map(selected_csc_map, selected_prim_map);
