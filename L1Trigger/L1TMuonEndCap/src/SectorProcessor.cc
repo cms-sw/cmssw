@@ -543,13 +543,13 @@ void SectorProcessor::process_single_bx(int bx,
   // Put them into maps with an index that roughly corresponds to
   // each input link.
   // From src/PrimitiveSelection.cc
-  //prim_sel.process(emtf::DTTag(), muon_primitives, selected_dt_map);  //FIXME
+  prim_sel.process(emtf::DTTag(), muon_primitives, selected_dt_map);
   prim_sel.process(emtf::CSCTag(), muon_primitives, selected_csc_map);
   if (useRPC_) {  //FIXME
     prim_sel.process(emtf::RPCTag(), muon_primitives, selected_rpc_map);
   }
   prim_sel.process(emtf::GEMTag(), muon_primitives, selected_gem_map);
-  //prim_sel.process(emtf::ME0Tag(), muon_primitives, selected_me0_map);  //FIXME
+  prim_sel.process(emtf::ME0Tag(), muon_primitives, selected_me0_map);
   prim_sel.merge(
       selected_dt_map, selected_csc_map, selected_rpc_map, selected_gem_map, selected_me0_map, selected_prim_map);
 
