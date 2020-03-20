@@ -110,41 +110,49 @@ EventWithHistory::EventWithHistory(const edm::Event& event,
     : TinyEvent(), _prevse() {
   std::map<int, TinyEvent> tmpmap;
 
-  int l1AcceptOffset(tcdsRecord.getL1aHistoryEntry(0).getIndex());
+  // loop on the history
+  auto l1aHistory = tcdsRecord.getFullL1aHistory();
+  const L1aInfo infoForIndex0 = L1aInfo(0, tcdsRecord.getOrbitNr(), tcdsRecord.getBXID(), tcdsRecord.getEventType());
+  l1aHistory.push_back(infoForIndex0);
 
-  if (event.id().event() > (edm::EventNumber_t)(-1 * l1AcceptOffset)) {
-    edm::EventNumber_t evnumb = event.id().event() + l1AcceptOffset;
-    if (orbitoffset < (long long)tcdsRecord.getOrbitNr()) {
-      unsigned int neworbit = tcdsRecord.getOrbitNr() - orbitoffset;
-      int newbx = tcdsRecord.getBXID() - bxoffset;
+  for (auto l1a : l1aHistory) {
+    int l1AcceptOffset(l1a.getIndex());
 
-      /* 
-         the lines below assumes that the BX number is between 0 and 3563. If this is not the case it will jump to 0 and to the next orbit in case of 
-         evets with BX=3564
-      */
-      while (newbx > 3563) {
-        ++neworbit;
-        newbx -= 3564;
-      }
-      while (newbx < 0) {
-        --neworbit;
-        newbx += 3564;
-      }
+    if (event.id().event() > (edm::EventNumber_t)(-1 * l1AcceptOffset)) {
+      edm::EventNumber_t evnumb = event.id().event() + l1AcceptOffset;
+      if (orbitoffset < (long long)l1a.getOrbitNr()) {
+        unsigned int neworbit = l1a.getOrbitNr() - orbitoffset;
+        int newbx = l1a.getBXID() - bxoffset;
 
-      if (tcdsRecord.getEventType() != 0) {
-        TinyEvent tmpse(evnumb, neworbit, newbx);
-        tmpmap[l1AcceptOffset] = tmpse;
+        /*
+	   the lines below assumes that the BX number is between 0 and 3563. If this is not the case it will jump to 0 and to the next orbit in case of
+	   evets with BX=3564
+	*/
+
+        while (newbx > 3563) {
+          ++neworbit;
+          newbx -= 3564;
+        }
+        while (newbx < 0) {
+          --neworbit;
+          newbx += 3564;
+        }
+
+        if (tcdsRecord.getEventType() != 0) {
+          TinyEvent tmpse(evnumb, neworbit, newbx);
+          tmpmap[l1AcceptOffset] = tmpse;
+        } else {
+          edm::LogWarning("L1AcceptBunchCrossingNoType") << "L1AcceptBunchCrossing with no type found: ";
+          edm::LogPrint("L1AcceptBunchCrossingNoType") << &tcdsRecord;
+        }
       } else {
-        edm::LogWarning("L1AcceptBunchCrossingNoType") << "L1AcceptBunchCrossing with no type found: ";
-        edm::LogPrint("L1AcceptBunchCrossingNoType") << &tcdsRecord;
+        edm::LogError("L1AcceptBunchCrossingOffsetTooLarge")
+            << " Too large orbit offset " << orbitoffset << " " << tcdsRecord.getOrbitNr();
       }
     } else {
-      edm::LogError("L1AcceptBunchCrossingOffsetTooLarge")
-          << " Too large orbit offset " << orbitoffset << " " << tcdsRecord.getOrbitNr();
+      edm::LogInfo("L1AcceptBunchCrossingNegativeEvent") << "L1AcceptBunchCrossing with negative event: ";
+      edm::LogVerbatim("L1AcceptBunchCrossingNegativeEvent") << &tcdsRecord;
     }
-  } else {
-    edm::LogInfo("L1AcceptBunchCrossingNegativeEvent") << "L1AcceptBunchCrossing with negative event: ";
-    edm::LogVerbatim("L1AcceptBunchCrossingNegativeEvent") << &tcdsRecord;
   }
 
   // look for the event itself
