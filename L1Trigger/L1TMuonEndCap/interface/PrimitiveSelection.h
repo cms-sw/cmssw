@@ -12,6 +12,7 @@ public:
                  int bxShiftCSC,
                  int bxShiftRPC,
                  int bxShiftGEM,
+                 int bxShiftME0,
                  bool includeNeighbor,
                  bool duplicateTheta,
                  bool bugME11Dupes);
@@ -22,15 +23,19 @@ public:
                std::map<int, TriggerPrimitiveCollection>& selected_prim_map) const;
 
   // Put the hits from CSC, RPC, GEM together in one collection
-  void merge(const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
+  void merge(const std::map<int, TriggerPrimitiveCollection>& selected_dt_map,
+             const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
              const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
              const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
+             const std::map<int, TriggerPrimitiveCollection>& selected_me0_map,
              std::map<int, TriggerPrimitiveCollection>& selected_prim_map) const;
 
   // Like merge(), but keep all the hits
-  void merge_no_truncate(const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
+  void merge_no_truncate(const std::map<int, TriggerPrimitiveCollection>& selected_dt_map,
+                         const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
                          const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
                          const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
+                         const std::map<int, TriggerPrimitiveCollection>& selected_me0_map,
                          std::map<int, TriggerPrimitiveCollection>& selected_prim_map) const;
 
   // CSC functions
@@ -73,7 +78,7 @@ public:
 private:
   int verbose_, endcap_, sector_, bx_;
 
-  int bxShiftCSC_, bxShiftRPC_, bxShiftGEM_;
+  int bxShiftCSC_, bxShiftRPC_, bxShiftGEM_, bxShiftME0_;
 
   bool includeNeighbor_, duplicateTheta_;
 

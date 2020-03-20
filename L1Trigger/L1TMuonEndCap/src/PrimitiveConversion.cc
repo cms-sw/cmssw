@@ -17,6 +17,7 @@ void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
                                     int bxShiftCSC,
                                     int bxShiftRPC,
                                     int bxShiftGEM,
+                                    int bxShiftME0,
                                     const std::vector<int>& zoneBoundaries,
                                     int zoneOverlap,
                                     bool duplicateTheta,
@@ -44,6 +45,7 @@ void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
   bxShiftCSC_ = bxShiftCSC;
   bxShiftRPC_ = bxShiftRPC;
   bxShiftGEM_ = bxShiftGEM;
+  bxShiftME0_ = bxShiftME0;
 
   zoneBoundaries_ = zoneBoundaries;
   zoneOverlap_ = zoneOverlap;

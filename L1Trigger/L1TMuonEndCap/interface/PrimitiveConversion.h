@@ -16,6 +16,7 @@ public:
                  int bxShiftCSC,
                  int bxShiftRPC,
                  int bxShiftGEM,
+                 int bxShiftME0,
                  const std::vector<int>& zoneBoundaries,
                  int zoneOverlap,
                  bool duplicateTheta,
@@ -80,7 +81,7 @@ private:
 
   int verbose_, endcap_, sector_, bx_;
 
-  int bxShiftCSC_, bxShiftRPC_, bxShiftGEM_;
+  int bxShiftCSC_, bxShiftRPC_, bxShiftGEM_, bxShiftME0_;
 
   std::vector<int> zoneBoundaries_;
   int zoneOverlap_;
