@@ -107,10 +107,10 @@ namespace l1t {
     EMTFHitCollection Hits() const { return _Hits; }
     std::vector<unsigned int> HitIdx() const { return _HitIdx; }
 
-    void set_Road(const EMTFRoad& bits) { _Road = bits; }
-    void set_RoadIdx(unsigned int bits) { _RoadIdx = bits; }
-    EMTFRoad Road() const { return _Road; }
-    unsigned int RoadIdx() const { return _RoadIdx; }
+    //void set_Road(const EMTFRoad& bits) { _Road = bits; }
+    //void set_RoadIdx(unsigned int bits) { _RoadIdx = bits; }
+    //EMTFRoad Road() const { return _Road; }
+    //unsigned int RoadIdx() const { return _RoadIdx; }
 
     void set_PtLUT(EMTFPtLUT bits) { _PtLUT = bits; }
     EMTFPtLUT PtLUT() const { return _PtLUT; }
@@ -182,8 +182,8 @@ namespace l1t {
     EMTFHitCollection _Hits;
     std::vector<unsigned int> _HitIdx;
 
-    EMTFRoad _Road;
-    unsigned int _RoadIdx;
+    //EMTFRoad _Road;
+    //unsigned int _RoadIdx;
 
     EMTFPtLUT _PtLUT;
 
