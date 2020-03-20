@@ -67,7 +67,8 @@
   <class name="edm::Wrapper<std::vector<reco::CaloMET> >"/>
   <class name="std::vector<reco::CaloMET>"/>
 
-  <class name="reco::PFMET" ClassVersion="12">
+  <class name="reco::PFMET" ClassVersion="13">
+   <version ClassVersion="13" checksum="987178194"/>
    <version ClassVersion="12" checksum="3350721210"/>
    <version ClassVersion="11" checksum="3463342610"/>
    <version ClassVersion="10" checksum="3708270533"/>

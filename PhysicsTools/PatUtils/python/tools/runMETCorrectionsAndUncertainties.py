@@ -633,7 +633,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams_Data
                 getattr(process, _myPatMet).parameters = METSignificanceParams_Data
             if self.getvalue("Puppi"):
-                getattr(process, _myPatMet).srcPFCands = cms.InputTag('puppiForMET')
+                getattr(process, _myPatMet).srcWeights = "puppiNoLep"
                 getattr(process, _myPatMet).srcJets = cms.InputTag('cleanedPatJets'+postfix)
                 getattr(process, _myPatMet).srcJetSF = 'AK4PFPuppi'
                 getattr(process, _myPatMet).srcJetResPt = 'AK4PFPuppi_pt'
@@ -650,6 +650,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                             copy.copy(self.getvalue("muonCollection")),
                             copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","photons"))
+            if self.getvalue("Puppi"):
+                getattr(process, _myPatMet).srcWeights = "puppiNoLep"
 
         if hasattr(process, "patCaloMet"):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
@@ -820,8 +822,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                            veto = copy.copy(jetCollection),
                                            useDeltaRforFootprint = cms.bool(False)
                                            )
-            if self.getvalue("Puppi"):
-              pfCandsNoJets.useDeltaRforFootprint = True
             addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
 
@@ -854,8 +854,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               veto = copy.copy(tauCollection),
                                               useDeltaRforFootprint = cms.bool(False)
                                               )
-            if self.getvalue("Puppi"):
-              pfCandsNoJetsNoEleNoMuNoTau.useDeltaRforFootprint = True
             addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
 
@@ -1451,13 +1449,17 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, "pfMet"+postfix) and self._parameters["metType"].value == "PF":
             #common to AOD/mAOD processing
             #raw MET
-            from RecoMET.METProducers.PFMET_cfi import pfMet
+            from RecoMET.METProducers.pfMet_cfi import pfMet
             addToProcessAndTask("pfMet"+postfix, pfMet.clone(), process, task)
             getattr(process, "pfMet"+postfix).src = pfCandCollection
             getattr(process, "pfMet"+postfix).calculateSignificance = False
+            if self._parameters["Puppi"].value:
+	        getattr(process, "pfMet"+postfix).applyWeight = True
+		getattr(process, "pfMet"+postfix).srcWeights = "puppiNoLep"
             patMetModuleSequence += getattr(process, "pfMet"+postfix)
 
-            #PAT METs
+        #PAT METs
+        if not hasattr(process, "patMETs"+postfix) and self._parameters["metType"].value == "PF":
             process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
             task.add(process.makePatMETsTask)
             configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix, addToTask = True)
@@ -1481,7 +1483,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     getattr(process, _myPatMet).computeMETSignificance = cms.bool(False)
 
                 if self.getvalue("Puppi"):
-                    getattr(process, _myPatMet).srcPFCands = cms.InputTag('puppiForMET')
+                    getattr(process, _myPatMet).srcWeights = "puppiNoLep"
                     getattr(process, _myPatMet).srcJets = cms.InputTag('cleanedPatJets'+postfix)
                     getattr(process, _myPatMet).srcJetSF = cms.string('AK4PFPuppi')
                     getattr(process, _myPatMet).srcJetResPt = cms.string('AK4PFPuppi_pt')
@@ -1675,13 +1677,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0)>0"))
         addToProcessAndTask("pfCHS", pfCHS, process, task)
-        pfMetCHS = cms.EDProducer("PFMETProducer",
-                                  src = cms.InputTag('pfCHS'),
-                                  alias = cms.string('pfMet'),
-                                  globalThreshold = cms.double(0.0),
-                                  calculateSignificance = cms.bool(False),
-                                  )            
-
+        from RecoMET.METProducers.pfMet_cfi import pfMet
+        pfMetCHS = pfMet.clone(src = cms.InputTag('pfCHS'))
         addToProcessAndTask("pfMetCHS", pfMetCHS, process, task)
 
         addMETCollection(process,
@@ -1698,13 +1695,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         pfTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0) > 0 && charge()!=0"))
         addToProcessAndTask("pfTrk", pfTrk, process, task)
-        pfMetTrk = cms.EDProducer("PFMETProducer",
-                                  src = cms.InputTag('pfTrk'),
-                                  alias = cms.string('pfMet'),
-                                  globalThreshold = cms.double(0.0),
-                                  calculateSignificance = cms.bool(False),
-                                  )            
-
+        pfMetTrk = pfMet.clone(src = cms.InputTag('pfTrk'))
         addToProcessAndTask("pfMetTrk", pfMetTrk, process, task)
 
         addMETCollection(process,

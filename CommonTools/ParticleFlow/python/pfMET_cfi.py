@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Clone pfMET producer from RecoMET
-from RecoMET.METProducers.PFMET_cfi import *
+from RecoMET.METProducers.pfMet_cfi import *
 
 # Should the name be changed se it is similar to pfMet from reco ??
 pfMET = pfMet.clone(alias="pfMET")
