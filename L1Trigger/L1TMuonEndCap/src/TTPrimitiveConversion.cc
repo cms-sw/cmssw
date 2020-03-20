@@ -73,9 +73,6 @@ void TTPrimitiveConversion::convert_tt(const TTTriggerPrimitive& ttmuon_primitiv
 
   conv_hit.set_bx(tp_data.bx);
   conv_hit.set_subsystem(TTTriggerPrimitive::kTT);
-  conv_hit.set_is_CSC(false);
-  conv_hit.set_is_RPC(false);
-  conv_hit.set_is_GEM(false);
 
   //conv_hit.set_pc_sector   ( pc_sector );
   //conv_hit.set_pc_station  ( pc_station );
