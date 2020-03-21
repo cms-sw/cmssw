@@ -1454,8 +1454,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "pfMet"+postfix).src = pfCandCollection
             getattr(process, "pfMet"+postfix).calculateSignificance = False
             if self._parameters["Puppi"].value:
-	        getattr(process, "pfMet"+postfix).applyWeight = True
-		getattr(process, "pfMet"+postfix).srcWeights = "puppiNoLep"
+                getattr(process, "pfMet"+postfix).applyWeight = True
+                getattr(process, "pfMet"+postfix).srcWeights = "puppiNoLep"
             patMetModuleSequence += getattr(process, "pfMet"+postfix)
 
         #PAT METs
