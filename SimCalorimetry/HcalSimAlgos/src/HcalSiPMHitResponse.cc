@@ -238,7 +238,6 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
         pulses.push_back(std::pair<double, double>(elapsedTime, hitPixels));
       } else {
         signal[sampleBin] += hitPixels;
-        hitPixels *= invdt;
         signal.preciseAtMod(preciseBin) += 0.6 * hitPixels;
         if (preciseBin > 0)
           signal.preciseAtMod(preciseBin - 1) += 0.2 * hitPixels;
@@ -255,7 +254,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
         LogDebug("HcalSiPMHitResponse") << " pulse t: " << pulse->first << " pulse A: " << pulse->second
                                         << " timeDiff: " << timeDiff << " pulseBit: " << pulseBit;
         signal[sampleBin] += pulseBit;
-        signal.preciseAtMod(preciseBin) += pulseBit * invdt;
+        signal.preciseAtMod(preciseBin) += pulseBit;
 
         if (timeDiff > 1 && sipmPulseShape(timeDiff) < 1e-7)
           pulse = pulses.erase(pulse);
