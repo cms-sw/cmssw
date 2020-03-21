@@ -28,7 +28,7 @@ namespace cms {
         weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
     }
     if (calculateSignificance_) {
-      metSigAlgo_ = new metsig::METSignificance(iConfig.getParameterSet("parameters"));
+      metSigAlgo_ = new metsig::METSignificance(iConfig);
 
       jetToken_ = mayConsume<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcJets"));
       std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter<std::vector<edm::InputTag>>("srcLeptons");
