@@ -1352,6 +1352,13 @@ json FastTimerService::encodeToJSON(edm::ModuleDescription const& module, Resour
 
 void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string const& filename) const {
   json j;
+
+  // write a description of the resources
+  j["resources"] = json::array({json{{"time_real", "real time"}},
+                                json{{"time_thread", "cpu time"}},
+                                json{{"mem_alloc", "allocated memory"}},
+                                json{{"mem_free", "deallocated memory"}}});
+
   // write the resources used by the job
   j["total"] = encodeToJSON("Job", callgraph_.processDescription(0).name_, data.events, data.total + data.overhead);
 
