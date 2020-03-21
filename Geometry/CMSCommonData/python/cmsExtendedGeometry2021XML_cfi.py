@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-## 2015 + new phase 1 pixel detector
+## 2021 Scenario
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring(
