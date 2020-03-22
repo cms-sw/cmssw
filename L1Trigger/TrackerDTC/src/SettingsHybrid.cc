@@ -62,10 +62,10 @@ namespace trackerDTC {
       if (vec.size() != numSensorTypes)
         error = true;
     if (error) {
-        cms::Exception exception("LogicError");
-        exception << "Expect for each sensor type specification of width and range of stub coordinates.";
-        exception.addContext("trackerDTC::SettingsHybrid::SettingsHybrid");
-        throw exception;
+      cms::Exception exception("LogicError");
+      exception << "Expect for each sensor type specification of width and range of stub coordinates.";
+      exception.addContext("trackerDTC::SettingsHybrid::SettingsHybrid");
+      throw exception;
     }
 
     basesZ_.reserve(numSensorTypes);
