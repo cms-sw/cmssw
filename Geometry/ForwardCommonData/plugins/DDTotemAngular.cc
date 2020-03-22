@@ -51,10 +51,10 @@ DDTotemAngular::DDTotemAngular() {
 }
 
 void DDTotemAngular::initialize(const DDNumericArguments& nArgs,
-				const DDVectorArguments&,
-				const DDMapArguments&,
-				const DDStringArguments& sArgs,
-				const DDStringVectorArguments&) {
+                                const DDVectorArguments&,
+                                const DDMapArguments&,
+                                const DDStringArguments& sArgs,
+                                const DDStringVectorArguments&) {
   startAngle_ = nArgs["startAngle"];
   stepAngle_ = nArgs["stepAngle"];
   zoffset_ = nArgs["zoffset"];
@@ -64,15 +64,16 @@ void DDTotemAngular::initialize(const DDNumericArguments& nArgs,
   incrCopyNo_ = int(nArgs["incrCopyNo"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: Parameters for positioning-- " << n_ << " copies in steps of "
-				<< convertRadToDeg(stepAngle_) << " from " << convertRadToDeg(startAngle_) << " \tZoffset "
-				<< zoffset_ << " \tRoffset " << roffset_ << "\tStart and inremental copy nos " << startCopyNo_ << ", " << incrCopyNo_;
+                                  << convertRadToDeg(stepAngle_) << " from " << convertRadToDeg(startAngle_)
+                                  << " \tZoffset " << zoffset_ << " \tRoffset " << roffset_
+                                  << "\tStart and inremental copy nos " << startCopyNo_ << ", " << incrCopyNo_;
 #endif
   rotns_ = sArgs["RotNameSpace"];
   idNameSpace_ = DDCurrentNamespace::ns();
   childName_ = sArgs["ChildName"];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardGeom") << "DDTotemAngular debug: Parent " << parent().name() << "\tChild " << childName_
-				<< "\tNameSpace " << idNameSpace_ << "\tRotation Namespace " << rotns_;
+                                  << "\tNameSpace " << idNameSpace_ << "\tRotation Namespace " << rotns_;
 #endif
 }
 
@@ -92,8 +93,8 @@ void DDTotemAngular::execute(DDCompactView& cpv) {
     if (!rotation) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: Creating a new rotation " << DDName(rotstr, rotns_)
-				      << "\t90, " << convertRadToDeg(phitmp + 90._deg) << ", 0, 0, 90, "
-				      << convertRadToDeg(phitmp);
+                                      << "\t90, " << convertRadToDeg(phitmp + 90._deg) << ", 0, 0, 90, "
+                                      << convertRadToDeg(phitmp);
 #endif
       rotation = DDrot(DDName(rotstr, rotns_), 90._deg, 90._deg + phitmp, 0., 0., 90._deg, phitmp);
     }
@@ -104,8 +105,8 @@ void DDTotemAngular::execute(DDCompactView& cpv) {
     cpv.position(DDName(childName_, idNameSpace_), parentName, copyNo, tran, rotation);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: " << DDName(childName_, idNameSpace_) << " number " << copyNo
-				  << " positioned in " << parentName << " at " << tran << " with " << rotstr << " "
-				  << rotation;
+                                    << " positioned in " << parentName << " at " << tran << " with " << rotstr << " "
+                                    << rotation;
 #endif
     phi += stepAngle_;
     copyNo += incrCopyNo_;

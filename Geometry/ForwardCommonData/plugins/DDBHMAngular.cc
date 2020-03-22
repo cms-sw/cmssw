@@ -46,9 +46,7 @@ private:
   std::string childName;  //Children name
 };
 
-DDBHMAngular::DDBHMAngular() { 
-  edm::LogVerbatim("ForwardGeom") << "DDBHMAngular test: Creating an instance";
-}
+DDBHMAngular::DDBHMAngular() { edm::LogVerbatim("ForwardGeom") << "DDBHMAngular test: Creating an instance"; }
 
 void DDBHMAngular::initialize(const DDNumericArguments& nArgs,
                               const DDVectorArguments&,
@@ -59,14 +57,15 @@ void DDBHMAngular::initialize(const DDNumericArguments& nArgs,
   rr = nArgs["radius"];
   dphi = nArgs["deltaPhi"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardGeom") << "DDBHMAngular debug: Parameters for positioning-- " << units << " copies at radius "
-				  << convertMmToCm(rr) << " cm with delta(phi) " << convertRadToDeg(dphi);
+  edm::LogVerbatim("ForwardGeom") << "DDBHMAngular debug: Parameters for positioning-- " << units
+                                  << " copies at radius " << convertMmToCm(rr) << " cm with delta(phi) "
+                                  << convertRadToDeg(dphi);
 #endif
   rotMat = sArgs["Rotation"];
   childName = sArgs["ChildName"];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("ForwardGeom") << "DDBHMAngular debug: Parent " << parent().name() << "\tChild " << childName
-				  << "\tRotation matrix " << rotMat;
+                                  << "\tRotation matrix " << rotMat;
 #endif
 }
 
@@ -102,8 +101,8 @@ void DDBHMAngular::execute(DDCompactView& cpv) {
 
     cpv.position(child, parentName, jj + 1, tran, rot);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardGeom") << "DDBHMAngular test: " << child << " number " << jj + 1 << " positioned in " << parentName
-				    << " at " << tran << " with " << rot;
+    edm::LogVerbatim("ForwardGeom") << "DDBHMAngular test: " << child << " number " << jj + 1 << " positioned in "
+                                    << parentName << " at " << tran << " with " << rot;
 #endif
   }
 }
