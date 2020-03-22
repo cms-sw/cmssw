@@ -1,5 +1,5 @@
-#ifndef __TrackerDTC_STUB_H__
-#define __TrackerDTC_STUB_H__
+#ifndef L1Trigger_TrackerDTC_Stub_h
+#define L1Trigger_TrackerDTC_Stub_h
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-namespace TrackerDTC {
+namespace trackerDTC {
 
   class Settings;
   class Module;
@@ -15,61 +15,73 @@ namespace TrackerDTC {
   // representation of a stub
   class Stub {
   public:
-    Stub(Settings* settings, const TTStubRef& ttStubRef, Module* module);
-
+    Stub(Settings* settings, Module* module, const TTStubRef& ttStubRef);
     ~Stub() {}
 
-    // access to data members
+    // underlying TTStubRef
     TTStubRef ttStubRef() const { return ttStubRef_; }
+    // did pass pt and eta cut
     bool valid() const { return valid_; }
+    // stub bend in quarter pitch units
     int bend() const { return bend_; }
-
     // outer tracker dtc routing block id [0-1]
     int blockId() const;
-
     // outer tracker dtc routing block channel id [0-35]
     int channelId() const;
-
-    // returns bit accurate representation of Stub
-    TTDTC::BV frame(const int& region) const;
-
+    // bit accurate representation of Stub
+    TTDTC::BV frame(int region) const;
     // checks stubs region assignment
-    bool inRegion(const int& region) const;
+    bool inRegion(int region) const;
 
   private:
     // truncates double precision to f/w integer equivalent
-    double digi(const double& value, const double& precision) const;
-
-    // returns 64 bit stub in hybrid data format
-    TTDTC::BV formatHybrid(const int& region) const;
-
-    // returns 64 bit stub in tmtt data format
-    TTDTC::BV formatTMTT(const int& region) const;
+    double digi(double value, double precision) const;
+    // 64 bit stub in hybrid data format
+    TTDTC::BV formatHybrid(int region) const;
+    // 64 bit stub in tmtt data format
+    TTDTC::BV formatTMTT(int region) const;
 
   private:
+    // stores, calculates and provides run-time constants
     Settings* settings_;
+    // underlying TTStubRef
     TTStubRef ttStubRef_;
+    // representation of an outer tracker sensormodule
     Module* module_;
-
-    bool valid_;                         // passes pt and eta cut
-    int col_;                            // column number
-    int row_;                            // row number
-    int bend_;                           // bend number
-    int rowLUT_;                         // reduced row number for look up
-    int rowSub_;                         // sub row number inside reduced row number
-    double r_;                           // stub r w.r.t. an offset in cm
-    double phi_;                         // stub phi w.r.t. detector region centre in rad
-    double z_;                           // stub z w.r.t. an offset in cm
-    double m_;                           // slope of linearized stub phi in rad / strip
-    double c_;                           // intercept of linearized stub phi in rad
-    double d_;                           // CIC r in cm
-    std::pair<double, double> qOverPt_;  // range of stub qOverPt in 1/cm
-    std::pair<double, double> cot_;      // range of stub cot(theta)
-    std::pair<double, double> phiT_;     // range of stub extrapolated phi to radius chosenRofPhi in rad
-
-    std::vector<int> regions_;  // shared regions this stub belongs to [0-1]
+    // passes pt and eta cut
+    bool valid_;
+    // column number in pitch units
+    int col_;
+    // row number in half pitch units
+    int row_;
+    // bend number in quarter pitch units
+    int bend_;
+    // reduced row number for look up
+    int rowLUT_;
+    // sub row number inside reduced row number
+    int rowSub_;
+    // stub r w.r.t. an offset in cm
+    double r_;
+    // stub phi w.r.t. detector region centre in rad
+    double phi_;
+    // stub z w.r.t. an offset in cm
+    double z_;
+    // slope of linearized stub phi in rad / pitch
+    double m_;
+    // intercept of linearized stub phi in rad
+    double c_;
+    // radius of a column of strips/pixel in cm
+    double d_;
+    // range of stub qOverPt in 1/cm
+    std::pair<double, double> qOverPt_;
+    // range of stub cot(theta)
+    std::pair<double, double> cot_;
+    // range of stub extrapolated phi to radius chosenRofPhi in rad
+    std::pair<double, double> phiT_;
+    // shared regions this stub belongs to [0-1]
+    std::vector<int> regions_;
   };
 
-}  // namespace TrackerDTC
+}  // namespace trackerDTC
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __L1TrackTrigger_TTDTC__
-#define __L1TrackTrigger_TTDTC__
+#ifndef DataFormats_L1TrackTrigger_TTDTC_h
+#define DataFormats_L1TrackTrigger_TTDTC_h
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTBV.h"
@@ -25,7 +25,7 @@ public:
 public:
   TTDTC() {}
 
-  TTDTC(const int& numRegions, const int& numOverlappingRegions, const int& numDTCsPerRegion);
+  TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion);
 
   ~TTDTC() {}
 
@@ -37,7 +37,7 @@ public:
 
   // write one specific stream of TTStubRefs using DTC identifier (region[0-8], board[0-23], channel[0-1])
   // dtcRegions aka detector regions are defined by tk layout
-  void setStream(const int& dtcRegion, const int& dtcBoard, const int& dtcChannel, const Stream& stream);
+  void setStream(int dtcRegion, int dtcBoard, int dtcChannel, const Stream& stream);
 
   // all TFP identifier (region[0-8], channel[0-47])
   std::vector<int> tfpRegions() const;
@@ -45,20 +45,20 @@ public:
 
   // read one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])
   // tfpRegions aka processing regions are rotated by -0.5 region width w.r.t detector regions
-  const Stream& getStream(const int& tfpRegion, const int& tfpChannel) const;
+  const Stream& stream(int tfpRegion, int tfpChannel) const;
 
   // converts dtc id into tk layout scheme
-  int tkLayoutId(const int& dtcId) const;
+  int tkLayoutId(int dtcId) const;
 
   // converts tk layout id into dtc id
-  int dtcId(const int& tkLayoutId) const;
+  int dtcId(int tkLayoutId) const;
 
 private:
   // converts DTC identifier (region[0-8], board[0-23], channel[0-1]) into allStreams_ index [0-431]
-  int index(const int& dtcRegion, const int& dtcBoard, const int& dtcChannel) const;
+  int index(int dtcRegion, int dtcBoard, int dtcChannel) const;
 
   // converts TFP identifier (region[0-8], channel[0-47]) into allStreams_ index [0-431]
-  int index(const int& tfpRegion, const int& tfpChannel) const;
+  int index(int tfpRegion, int tfpChannel) const;
 
 private:
   static constexpr int numSlots_ = 12;  // number of ATCA slots per shelf
