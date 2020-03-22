@@ -14,8 +14,7 @@ namespace DigitizerUtility {
   class Amplitude {
   public:
     Amplitude() : _amp(0.0) {}
-    Amplitude(float amp, const PSimHit* hitp, float frac = 0, size_t hitIndex = 0, unsigned int tofBin = 0)
-        : _amp(amp) {
+    Amplitude(float amp, const PSimHit* hitp, float frac = 0, size_t hitIndex = 0, uint32_t tofBin = 0) : _amp(amp) {
       if (frac > 0) {
         if (hitp != nullptr)
           _simInfoList.push_back({frac, std::make_unique<SimHitInfoForLinks>(hitp, hitIndex, tofBin)});
@@ -64,6 +63,9 @@ namespace DigitizerUtility {
     float y() const { return _position.y(); }
     float z() const { return _position.z(); }
     float energy() const { return _energy; }
+
+    // Allow migration between pixel cells
+    void migrate_position(const Local3DPoint& pos) { _position = pos; }
 
   private:
     float _energy;

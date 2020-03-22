@@ -49,20 +49,21 @@ size_t RunInfoUpdate::import(size_t maxEntries,
                              cond::persistency::Session& sourceSession) {
   cond::persistency::RunInfoEditor editor;
   std::cout << "# Loading tag " << sourceTag << "..." << std::endl;
-  cond::persistency::IOVProxy runInfoTag = sourceSession.readIov(sourceTag, true);
+  cond::persistency::IOVProxy runInfoTag = sourceSession.readIov(sourceTag);
+  auto iovs = runInfoTag.selectAll();
   editor = m_dbSession.editRunInfo();
   cond::Time_t lastRun = editor.getLastInserted();
   std::cout << "# Last run found in RunInfo db : " << lastRun << std::endl;
-  cond::persistency::IOVProxy::Iterator it = runInfoTag.begin();
+  auto it = iovs.begin();
   if (lastRun > 0) {
-    it = runInfoTag.find(lastRun + 1);
+    it = iovs.find(lastRun + 1);
   }
-  if (it == runInfoTag.end() || (*it).since == lastRun) {
+  if (it == iovs.end() || (*it).since == lastRun) {
     std::cout << "# No more run found to be imported." << std::endl;
     return 0;
   }
   size_t n_entries = 0;
-  while (it != runInfoTag.end() && n_entries <= maxEntries) {
+  while (it != iovs.end() && n_entries <= maxEntries) {
     auto h = (*it).payloadId;
     std::shared_ptr<RunInfo> runInfo = sourceSession.fetchPayload<RunInfo>(h);
     if (runInfo->m_run != -1) {

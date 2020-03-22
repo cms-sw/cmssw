@@ -17,6 +17,7 @@ namespace cond {
             synchronizationType(cond::SYNCH_ANY),
             description(""),
             iovBuffer(),
+            deleteBuffer(),
             changes() {}
       std::string tag;
       cond::TimeType timeType;
@@ -30,6 +31,7 @@ namespace cond {
       bool exists = false;
       // buffer for the iov sequence
       std::vector<std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime> > iovBuffer;
+      std::vector<std::tuple<cond::Time_t, cond::Hash> > deleteBuffer;
       bool validationMode = false;
       std::set<std::string> changes;
     };
@@ -148,6 +150,12 @@ namespace cond {
       }
     }
 
+    void IOVEditor::erase(cond::Time_t since, const cond::Hash& payloadHash) {
+      if (m_data.get()) {
+        m_data->deleteBuffer.push_back(std::tie(since, payloadHash));
+      }
+    }
+
     bool iovSorter(const std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime>& f,
                    const std::tuple<cond::Time_t, cond::Hash, boost::posix_time::ptime>& s) {
       return std::get<0>(f) < std::get<0>(s);
@@ -219,7 +227,7 @@ namespace cond {
         //We do not allow for IOV updates (i.e. insertion in the past or overriding) on tags whose syncrosization is not "ANY" or "VALIDATION".
         //This policy is stricter than the one deployed in the Condition Upload service,
         //which allows insertions in the past or overriding for IOVs larger than the first condition safe run for HLT ("HLT"/"EXPRESS" synchronizations) and Tier0 ("PROMPT"/"PCL").
-        //This is intended: in the C++ API we have not got a way to determine the first condition safe runs.
+        //This is intended: in the C++ API we have no way to determine the first condition safe runs.
         if (!forceInsertion && m_data->synchronizationType != cond::SYNCH_ANY &&
             m_data->synchronizationType != cond::SYNCH_VALIDATION) {
           // retrieve the last since
@@ -243,16 +251,31 @@ namespace cond {
         }
         // insert the new iovs
         m_session->iovSchema().iovTable().insertMany(m_data->tag, m_data->iovBuffer);
+        ret = true;
+      }
+      if (!m_data->deleteBuffer.empty()) {
+        // delete the specified iovs
+        m_session->iovSchema().iovTable().eraseMany(m_data->tag, m_data->deleteBuffer);
+        ret = true;
+      }
+      if (m_session->iovSchema().tagLogTable().exists()) {
         std::stringstream msg;
-        msg << m_data->iovBuffer.size() << " iov(s) inserted.";
-        if (m_session->iovSchema().tagLogTable().exists()) {
+        if (m_data->iovBuffer.size())
+          msg << m_data->iovBuffer.size() << " iov(s) inserted";
+        if (msg.str().size())
+          msg << "; ";
+        else
+          msg << ".";
+        if (m_data->deleteBuffer.size())
+          msg << m_data->deleteBuffer.size() << " iov(s) deleted.";
+        if (ret) {
           m_session->iovSchema().tagLogTable().insert(
               m_data->tag, operationTime, cond::getUserName(), cond::getHostName(), cond::getCommand(), msg.str(), lt);
         }
-        m_data->iovBuffer.clear();
-        m_data->changes.clear();
-        ret = true;
       }
+      m_data->iovBuffer.clear();
+      m_data->deleteBuffer.clear();
+      m_data->changes.clear();
       return ret;
     }
 

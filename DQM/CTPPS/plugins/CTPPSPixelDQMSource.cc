@@ -19,7 +19,7 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelIndices.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
@@ -100,7 +100,6 @@ private:
   MonitorElement *hRPotActivBXall[RPotsTotalNumber];
   int HitsMultROC[RPotsTotalNumber * NplaneMAX][NROCsMAX];
   int HitsMultPlane[RPotsTotalNumber][NplaneMAX];
-  int ClusMultPlane[RPotsTotalNumber][NplaneMAX];
 
   // Flags for disabling set of plots
   bool offlinePlots = true;
@@ -134,7 +133,7 @@ private:
 
   int getRPInStationBin(int rp) { return (rp - RPn_first + 1); }
 
-  static constexpr int NRPglobalBins = 4;  //2 arms w. 2 stations w. 1 RP
+  static constexpr int NRPglobalBins = 4;  // 2 arms w. 2 stations w. 1 RP
 
   int getRPglobalBin(int arm, int stn) {
     static constexpr int stationBinOrder[NStationMAX] = {0, 4, 1};
@@ -150,7 +149,6 @@ private:
   int getPixPlane(int id) { return ((id >> 16) & 0x7); }
   //  int getSubdet(int id) { return ((id>>kSubdetOffset)&0x7); }
 
-  int multHitsMax, cluSizeMax;  // for tuning
   float x0_MIN, x0_MAX, y0_MIN, y0_MAX;
 };
 
@@ -240,7 +238,6 @@ void CTPPSPixelDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const
   for (int ind = 0; ind < 2 * 3 * NRPotsMAX; ind++)
     RPindexValid[ind] = 0;
 
-  multHitsMax = cluSizeMax = -1;
   x0_MIN = y0_MIN = 1.0e06;
   x0_MAX = y0_MAX = -1.0e06;
 }
@@ -490,7 +487,6 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
   for (int ind = 0; ind < RPotsTotalNumber; ind++) {
     for (int p = 0; p < NplaneMAX; p++) {
       HitsMultPlane[ind][p] = 0;
-      ClusMultPlane[ind][p] = 0;
     }
   }
   for (int ind = 0; ind < RPotsTotalNumber * NplaneMAX; ind++) {
@@ -662,25 +658,20 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
             }
           }  // end if(RPindexValid[index]) {
         }
-        if (int(ds_digi.data.size()) > multHitsMax)
-          multHitsMax = ds_digi.data.size();
       }  // end  if(StationStatus[station]) {
     }    // end for(const auto &ds_digi : *pixDigi)
   }      // if(pixDigi.isValid()) {
 
-  if (pixClus.isValid())
+  if (pixClus.isValid() && onlinePlots)
     for (const auto &ds : *pixClus) {
       int idet = getDet(ds.id);
-      if (idet != DetId::VeryForward) {
-        if (verbosity > 1)
-          LogPrint("CTPPSPixelDQMSource") << "not CTPPS: cluster.id" << ds.id;
+      if (idet != DetId::VeryForward && verbosity > 1) {
+        LogPrint("CTPPSPixelDQMSource") << "not CTPPS: cluster.id" << ds.id;
         continue;
       }
-      //   int subdet = getSubdet(ds.id);
-
-      int plane = getPixPlane(ds.id);
 
       CTPPSDetId theId(ds.id);
+      int plane = getPixPlane(ds.id);
       int arm = theId.arm() & 0x1;
       int station = theId.station() & 0x3;
       int rpot = theId.rp() & 0x7;
@@ -688,20 +679,14 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
       if ((StationStatus[station] == 0) || (RPstatus[station][rpot] == 0))
         continue;
 
-      int index = getRPindex(arm, station, rpot);
-      ++ClusMultPlane[index][plane];
-
       for (const auto &p : ds) {
         int clusize = p.size();
 
-        if (onlinePlots)
-          h2CluSize[arm][station]->Fill(prIndex(rpot, plane), clusize);
-        if (cluSizeMax < clusize)
-          cluSizeMax = clusize;
         if (clusize > ClusterSizeMax)
           clusize = ClusterSizeMax;
-      }
 
+        h2CluSize[arm][station]->Fill(prIndex(rpot, plane), clusize);
+      }
     }  // end if(pixClus.isValid()) for(const auto &ds : *pixClus)
 
   bool allRPactivity = false;

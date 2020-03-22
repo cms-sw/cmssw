@@ -5,7 +5,7 @@ http://stackoverflow.com/questions/3220670/read-all-the-contents-in-ini-file-int
 """
 from __future__ import print_function
 
-import ConfigParser as cp 
+import configparser as cp 
 
 Config=cp.ConfigParser()
 

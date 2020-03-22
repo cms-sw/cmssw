@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PatternRecognitionbyCA.h"
 #include "HGCGraph.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 using namespace ticl;
 
@@ -53,8 +54,8 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   std::vector<uint8_t> layer_cluster_usage(input.layerClusters.size(), 0);
   theGraph_->makeAndConnectDoublets(input.tiles,
                                     input.regions,
-                                    ticl::constants::nEtaBins,
-                                    ticl::constants::nPhiBins,
+                                    ticl::TileConstants::nEtaBins,
+                                    ticl::TileConstants::nPhiBins,
                                     input.layerClusters,
                                     input.mask,
                                     input.layerClustersTime,
@@ -70,13 +71,36 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_->getAllDoublets();
   int tracksterId = 0;
+
   for (auto const &ntuplet : foundNtuplets) {
     std::set<unsigned int> effective_cluster_idx;
+    std::pair<std::set<unsigned int>::iterator, bool> retVal;
+
+    std::vector<float> times;
+    std::vector<float> timeErrors;
+
     for (auto const &doublet : ntuplet) {
       auto innerCluster = doublets[doublet].innerClusterId();
       auto outerCluster = doublets[doublet].outerClusterId();
-      effective_cluster_idx.insert(innerCluster);
-      effective_cluster_idx.insert(outerCluster);
+
+      retVal = effective_cluster_idx.insert(innerCluster);
+      if (retVal.second) {
+        float time = input.layerClustersTime.get(innerCluster).first;
+        if (time > -99) {
+          times.push_back(time);
+          timeErrors.push_back(1. / pow(input.layerClustersTime.get(innerCluster).second, 2));
+        }
+      }
+
+      retVal = effective_cluster_idx.insert(outerCluster);
+      if (retVal.second) {
+        float time = input.layerClustersTime.get(outerCluster).first;
+        if (time > -99) {
+          times.push_back(time);
+          timeErrors.push_back(1. / pow(input.layerClustersTime.get(outerCluster).second, 2));
+        }
+      }
+
       if (algo_verbosity_ > Advanced) {
         LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
                                       << innerCluster << " " << input.layerClusters[innerCluster].x() << " "
@@ -99,6 +123,12 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     //if a seeding region does not lead to any trackster
     tmp.seedID = input.regions[0].collectionID;
     tmp.seedIndex = seedIndices[tracksterId];
+
+    std::pair<float, float> timeTrackster(-99., -1.);
+    hgcalsimclustertime::ComputeClusterTime timeEstimator;
+    timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
+    tmp.time = timeTrackster.first;
+    tmp.timeError = timeTrackster.second;
     std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices));
     result.push_back(tmp);
     tracksterId++;
@@ -212,7 +242,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
         float *features = &input.tensor<float, 4>()(i, j, seenClusters[j], 0);
 
         // fill features
-        *(features++) = float(cluster.eta());
+        *(features++) = float(std::abs(cluster.eta()));
         *(features++) = float(cluster.phi());
         *features = float(cluster.energy());
 

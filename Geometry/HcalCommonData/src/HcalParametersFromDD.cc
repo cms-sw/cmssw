@@ -77,6 +77,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
     php.phioff = DDVectorGetter::get("phioff");
     php.etaTable = DDVectorGetter::get("etaTable");
     php.rTable = DDVectorGetter::get("rTable");
+    rescale(php.rTable, HcalGeomParameters::k_ScaleFromDDDToG4);
     php.phibin = DDVectorGetter::get("phibin");
     php.phitable = DDVectorGetter::get("phitable");
     for (unsigned int i = 1; i <= nEtaMax; ++i) {
@@ -92,12 +93,9 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
     }
     php.etaMin = dbl_to_int(DDVectorGetter::get("etaMin"));
     php.etaMax = dbl_to_int(DDVectorGetter::get("etaMax"));
-    php.etaMin[0] = 1;
-    if (php.etaMax[1] >= php.etaMin[1])
-      php.etaMax[1] = static_cast<int>(php.etaTable.size()) - 1;
-    php.etaMax[2] = php.etaMin[2] + static_cast<int>(php.rTable.size()) - 2;
     php.etaRange = DDVectorGetter::get("etaRange");
     php.gparHF = DDVectorGetter::get("gparHF");
+    rescale(php.gparHF, HcalGeomParameters::k_ScaleFromDDDToG4);
     php.noff = dbl_to_int(DDVectorGetter::get("noff"));
     php.Layer0Wt = DDVectorGetter::get("Layer0Wt");
     php.HBGains = DDVectorGetter::get("HBGains");
@@ -109,10 +107,6 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
     php.maxDepth = dbl_to_int(DDVectorGetter::get("MaxDepth"));
   } else {
     throw cms::Exception("HcalParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
-  }
-  for (unsigned int i = 0; i < php.rTable.size(); ++i) {
-    unsigned int k = php.rTable.size() - i - 1;
-    php.etaTableHF.emplace_back(-log(tan(0.5 * atan(php.rTable[k] / php.gparHF[4]))));
   }
   //Special parameters at reconstruction level
   attribute = "OnlyForHcalRecNumbering";
@@ -144,160 +138,87 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv, HcalParameters& php) 
   return build(php);
 }
 
-bool HcalParametersFromDD::build(const cms::DDCompactView* cpv, HcalParameters& php) {
+bool HcalParametersFromDD::build(const cms::DDCompactView& cpv, HcalParameters& php) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalParametersFromDD::build(const cms::DDCompactView*, HcalParameters&) is called";
 #endif
-  //Special parameters at simulation level
-  cms::DDFilteredView fv1(cpv->detector(), cpv->detector()->worldVolume());
-  cms::DDVectorsMap vmap = cpv->detector()->vectors();
-  std::string attribute = "OnlyForHcalSimNumbering";
-  cms::DDSpecParRefs ref1;
-  const cms::DDSpecParRegistry& mypar1 = cpv->specpars();
-  mypar1.filter(ref1, attribute, "HCAL");
-  fv1.mergedSpecifics(ref1);
-
   const int nEtaMax = 100;
 
-  if (fv1.firstChild()) {
-    std::unique_ptr<HcalGeomParameters> geom = std::make_unique<HcalGeomParameters>();
-    geom->loadGeometry(cpv, php);
-    php.modHB = geom->getModHalfHBHE(0);
-    php.modHE = geom->getModHalfHBHE(1);
-    php.dzVcal = geom->getConstDzHF();
-    geom->getConstRHO(php.rHO);
+  std::unique_ptr<HcalGeomParameters> geom = std::make_unique<HcalGeomParameters>();
+  geom->loadGeometry(cpv, php);
+  php.modHB = geom->getModHalfHBHE(0);
+  php.modHE = geom->getModHalfHBHE(1);
+  php.dzVcal = geom->getConstDzHF();
+  geom->getConstRHO(php.rHO);
 
-    for (auto const& it : vmap) {
-      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "phioff")) {
-        for (const auto& i : it.second)
-          php.phioff.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etaTable")) {
-        for (const auto& i : it.second)
-          php.etaTable.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "rTable")) {
-        for (const auto& i : it.second)
-          php.rTable.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "phibin")) {
-        for (const auto& i : it.second)
-          php.phibin.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "phitable")) {
-        for (const auto& i : it.second)
-          php.phitable.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etaMin")) {
-        for (const auto& i : it.second)
-          php.etaMin.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etaMax")) {
-        for (const auto& i : it.second)
-          php.etaMax.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etaRange")) {
-        for (const auto& i : it.second)
-          php.etaRange.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "gparHF")) {
-        for (const auto& i : it.second)
-          php.gparHF.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "noff")) {
-        for (const auto& i : it.second)
-          php.noff.emplace_back(std::round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "Layer0Wt")) {
-        for (const auto& i : it.second)
-          php.Layer0Wt.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HBGains")) {
-        for (const auto& i : it.second)
-          php.HBGains.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HBShift")) {
-        for (const auto& i : it.second)
-          php.HBShift.emplace_back(round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HEBGains")) {
-        for (const auto& i : it.second)
-          php.HEGains.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HEShift")) {
-        for (const auto& i : it.second)
-          php.HEShift.emplace_back(round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HFGains")) {
-        for (const auto& i : it.second)
-          php.HFGains.emplace_back(i);
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "HFShift")) {
-        for (const auto& i : it.second)
-          php.HFShift.emplace_back(round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "maxDepth")) {
-        for (const auto& i : it.second)
-          php.maxDepth.emplace_back(round(i));
-      }
+  php.phioff = cpv.getVector<double>("phioff");
+  php.etaTable = cpv.getVector<double>("etaTable");
+  php.rTable = cpv.getVector<double>("rTable");
+  php.phibin = cpv.getVector<double>("phibin");
+  php.phitable = cpv.getVector<double>("phitable");
+  php.etaMin = cpv.getVector<int>("etaMin");
+  php.etaMax = cpv.getVector<int>("etaMax");
+  php.etaRange = cpv.getVector<double>("etaRange");
+  php.gparHF = cpv.getVector<double>("gparHF");
+  php.noff = cpv.getVector<int>("noff");
+  php.Layer0Wt = cpv.getVector<double>("Layer0Wt");
+  php.HBGains = cpv.getVector<double>("HBGains");
+  php.HBShift = cpv.getVector<int>("HBShift");
+  php.HEGains = cpv.getVector<double>("HEGains");
+  php.HEShift = cpv.getVector<int>("HEShift");
+  php.HFGains = cpv.getVector<double>("HFGains");
+  php.HFShift = cpv.getVector<int>("HFShift");
+  php.maxDepth = cpv.getVector<int>("MaxDepth");
+
+  rescale(php.rTable, HcalGeomParameters::k_ScaleFromDD4HepToG4);
+  rescale(php.gparHF, HcalGeomParameters::k_ScaleFromDD4HepToG4);
+  for (unsigned int i = 1; i <= nEtaMax; ++i) {
+    HcalParameters::LayerItem layerGroupEta;
+    layerGroupEta.layer = i;
+    layerGroupEta.layerGroup = cpv.getVector<int>(std::string("layerGroupSimEta") + std::to_string(i));
+    if (!layerGroupEta.layerGroup.empty()) {
+      php.layerGroupEtaSim.emplace_back(layerGroupEta);
     }
-    for (unsigned int i = 1; i <= nEtaMax; ++i) {
-      std::stringstream sstm;
-      sstm << "layerGroupSimEta" << i;
-      std::string tempName = sstm.str();
-      for (auto const& it : vmap) {
-        if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), tempName)) {
-          HcalParameters::LayerItem layerGroupEta;
-          layerGroupEta.layer = i;
-          for (const auto& i : it.second)
-            layerGroupEta.layerGroup.emplace_back(round(i));
-          php.layerGroupEtaSim.emplace_back(layerGroupEta);
-          break;
-        }
-      }
-      php.etaMin[0] = 1;
-      if (php.etaMax[1] >= php.etaMin[1])
-        php.etaMax[1] = static_cast<int>(php.etaTable.size()) - 1;
-      php.etaMax[2] = php.etaMin[2] + static_cast<int>(php.rTable.size()) - 2;
-    }
-  } else {
-    throw cms::Exception("HcalParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
-  }
-  for (unsigned int i = 0; i < php.rTable.size(); ++i) {
-    unsigned int k = php.rTable.size() - i - 1;
-    php.etaTableHF.emplace_back(-log(tan(0.5 * atan(php.rTable[k] / php.gparHF[4]))));
   }
 
   //Special parameters at reconstruction level
-  cms::DDFilteredView fv2(cpv->detector(), cpv->detector()->worldVolume());
-  attribute = "OnlyForHcalRecNumbering";
-  cms::DDSpecParRefs ref2;
-  const cms::DDSpecParRegistry& mypar2 = cpv->specpars();
-  mypar2.filter(ref2, attribute, "HCAL");
-  fv2.mergedSpecifics(ref2);
-  if (fv2.firstChild()) {
-    std::vector<std::string> tempS = fv2.get<std::vector<std::string> >("hcal", "TopologyMode");
-    std::string sv = (!tempS.empty()) ? tempS[0] : "HcalTopologyMode::SLHC";
-    int topoMode = getTopologyMode(sv, true);
-    tempS = fv2.get<std::vector<std::string> >("hcal", "TriggerMode");
-    sv = (!tempS.empty()) ? tempS[0] : "HcalTopologyMode::TriggerMode_2021";
-    int trigMode = getTopologyMode(sv, false);
-    php.topologyMode = ((trigMode & 0xFF) << 8) | (topoMode & 0xFF);
-    for (auto const& it : vmap) {
-      if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "etagroup")) {
-        for (const auto& i : it.second)
-          php.etagroup.emplace_back(round(i));
-      } else if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "phigroup")) {
-        for (const auto& i : it.second)
-          php.phigroup.emplace_back(round(i));
-      }
+  const cms::DDFilter filter("OnlyForHcalRecNumbering", "HCAL");
+  cms::DDFilteredView fv(cpv, filter);
+
+  std::vector<std::string> tempS = fv.get<std::vector<std::string> >("hcal", "TopologyMode");
+  std::string sv = (!tempS.empty()) ? tempS[0] : "HcalTopologyMode::SLHC";
+  int topoMode = getTopologyMode(sv, true);
+  tempS = fv.get<std::vector<std::string> >("hcal", "TriggerMode");
+  sv = (!tempS.empty()) ? tempS[0] : "HcalTopologyMode::TriggerMode_2021";
+  int trigMode = getTopologyMode(sv, false);
+  php.topologyMode = ((trigMode & 0xFF) << 8) | (topoMode & 0xFF);
+
+  php.etagroup = cpv.getVector<int>("etagroup");
+  php.phigroup = cpv.getVector<int>("phigroup");
+
+  for (unsigned int i = 1; i <= nEtaMax; ++i) {
+    HcalParameters::LayerItem layerGroupEta;
+    layerGroupEta.layer = i;
+    layerGroupEta.layerGroup = cpv.getVector<int>(std::string("layerGroupRecEta") + std::to_string(i));
+    if (!layerGroupEta.layerGroup.empty()) {
+      php.layerGroupEtaRec.emplace_back(layerGroupEta);
     }
-    for (unsigned int i = 1; i <= nEtaMax; ++i) {
-      std::stringstream sstm;
-      sstm << "layerGroupRecEta" << i;
-      std::string tempName = sstm.str();
-      for (auto const& it : vmap) {
-        if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), tempName)) {
-          HcalParameters::LayerItem layerGroupEta;
-          layerGroupEta.layer = i;
-          for (const auto& i : it.second)
-            layerGroupEta.layerGroup.emplace_back(round(i));
-          php.layerGroupEtaRec.emplace_back(layerGroupEta);
-          break;
-        }
-      }
-    }
-  } else {
-    throw cms::Exception("HcalParametersFromDD") << "Not found " << attribute.c_str() << " but needed.";
   }
 
   return build(php);
 }
 
-bool HcalParametersFromDD::build(const HcalParameters& php) {
+bool HcalParametersFromDD::build(HcalParameters& php) {
+  php.etaMin[0] = 1;
+  if (php.etaMax[1] >= php.etaMin[1])
+    php.etaMax[1] = static_cast<int>(php.etaTable.size()) - 1;
+  php.etaMax[2] = php.etaMin[2] + static_cast<int>(php.rTable.size()) - 2;
+
+  for (unsigned int i = 0; i < php.rTable.size(); ++i) {
+    unsigned int k = php.rTable.size() - i - 1;
+    php.etaTableHF.emplace_back(-log(tan(0.5 * atan(php.rTable[k] / php.gparHF[4]))));
+  }
+
 #ifdef EDM_ML_DEBUG
   int i(0);
   std::stringstream ss0;
@@ -419,4 +340,8 @@ bool HcalParametersFromDD::build(const HcalParameters& php) {
 #endif
 
   return true;
+}
+
+void HcalParametersFromDD::rescale(std::vector<double>& v, const double s) {
+  std::for_each(v.begin(), v.end(), [s](double& n) { n *= s; });
 }

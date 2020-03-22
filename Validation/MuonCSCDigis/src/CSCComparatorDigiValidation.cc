@@ -1,7 +1,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Validation/MuonCSCDigis/src/CSCComparatorDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCComparatorDigiValidation.h"
 
 CSCComparatorDigiValidation::CSCComparatorDigiValidation(const edm::InputTag &inputTag,
                                                          const edm::InputTag &stripDigiInputTag,

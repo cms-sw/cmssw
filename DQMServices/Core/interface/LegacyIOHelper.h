@@ -13,7 +13,8 @@
 // interface to use this without adding another dependency.
 class LegacyIOHelper {
 public:
-  typedef dqm::legacy::DQMStore DQMStore;
+  // use internal type here since we call this from the DQMStore itself.
+  typedef dqm::implementation::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
   LegacyIOHelper(DQMStore* dqmstore) : dbe_(dqmstore){};
 
@@ -21,8 +22,15 @@ public:
   // is passed, the paths are rewritten to the "Run Summary" format used by
   // DQMGUI. The run number does not affect which MEs are saved; this code only
   // supports non-threaded mode. `fileupdate` is passed to ROOT unchanged.
-  // TODO: allow to select only RUN, LUMI or JOB histograms.
-  void save(std::string const& filename, uint32_t const run = 0, std::string const& fileupdate = "RECREATE");
+  // The run number passed in is added to the Directory structure inside the
+  // file ("Run xxxxxx/.../Run Summary/...") if not 0. It is only used to
+  // select only MEs for that run iff saveall is false, else all MEs (RUN, LUMI
+  // and JOB) are saved.
+  void save(std::string const& filename,
+            std::string const& path = "",
+            uint32_t const run = 0,
+            bool saveall = true,
+            std::string const& fileupdate = "RECREATE");
 
 private:
   bool createDirectoryIfNeededAndCd(const std::string& path);

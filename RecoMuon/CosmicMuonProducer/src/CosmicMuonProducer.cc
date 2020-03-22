@@ -14,6 +14,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -55,7 +56,7 @@ CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig) {
 
   edm::ConsumesCollector iC = consumesCollector();
 
-  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
   theTrackFinder =
       std::make_unique<MuonTrackFinder>(std::make_unique<CosmicMuonTrajectoryBuilder>(tbpar, theService.get(), iC),
                                         std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get()));

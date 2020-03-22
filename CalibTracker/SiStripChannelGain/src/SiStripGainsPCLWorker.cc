@@ -263,6 +263,10 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
 
   int elepos = statCollectionFromMode(m_calibrationMode.c_str());
 
+  histograms.EventStats->Fill(0., 0., 1);
+  histograms.EventStats->Fill(1., 0., trackp->size());
+  histograms.EventStats->Fill(2., 0., charge->size());
+
   unsigned int FirstAmplitude = 0;
   for (unsigned int i = 0; i < charge->size(); i++) {
     FirstAmplitude += (*nstrips)[i];
@@ -560,6 +564,14 @@ void SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker& ibooker,
                                         << std::endl;
 
   ibooker.setCurrentFolder(dqm_dir);
+
+  // this MonitorElement is created to log the number of events / tracks and clusters used
+  // by the calibration algorithm
+
+  histograms.EventStats = ibooker.book2S("EventStats", "Statistics", 3, -0.5, 2.5, 1, 0, 1);
+  histograms.EventStats->setBinLabel(1, "events count", 1);
+  histograms.EventStats->setBinLabel(2, "tracks count", 1);
+  histograms.EventStats->setBinLabel(3, "clusters count", 1);
 
   std::string stag(tag);
   if (!stag.empty() && stag[0] != '_')

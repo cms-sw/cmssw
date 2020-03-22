@@ -1,5 +1,0 @@
-root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_6_0/RelValZMM_13/GEN-SIM-DIGI-RAW/106X_upgrade2018_realistic_v4-v1/10000/2D09A56B-7535-AB4A-B7FF-4D62B5316189.root
-root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_6_0/RelValZMM_13/GEN-SIM-DIGI-RAW/106X_upgrade2018_realistic_v4-v1/10000/9B2C8088-8056-4E46-8033-0D6596F10A99.root
-root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_6_0/RelValZMM_13/GEN-SIM-DIGI-RAW/106X_upgrade2018_realistic_v4-v1/10000/81EBA5F4-C746-8B4A-B174-C9DD830124ED.root
-root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_6_0/RelValZMM_13/GEN-SIM-DIGI-RAW/106X_upgrade2018_realistic_v4-v1/10000/55CB96EA-9FF2-434D-A21D-98F18BB464D8.root
-root://cmsxrootd.fnal.gov///store/relval/CMSSW_10_6_0/RelValZMM_13/GEN-SIM-DIGI-RAW/106X_upgrade2018_realistic_v4-v1/10000/E60F34E7-125E-6B46-BC4C-F8135CB33291.root

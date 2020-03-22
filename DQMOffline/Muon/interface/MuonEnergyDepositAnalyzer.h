@@ -20,7 +20,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -41,7 +40,6 @@ public:
 private:
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
-  MuonServiceProxy *theService;
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
 
   // Switch for verbosity

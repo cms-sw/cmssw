@@ -83,7 +83,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
 
   if (fms ? fms->getEventsProcessedForLumi(fp.lumi_) : true) {
     // Save the file in the open directory.
-    this->savePB(&*store, openHistoFilePathName, store->mtEnabled() ? fp.run_ : 0, fp.lumi_);
+    this->savePB(&*store, openHistoFilePathName, fp.run_, fp.lumi_);
 
     // Now move the the data and json files into the output directory.
     ::rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
@@ -219,8 +219,7 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
       buffer.WriteObject(me->getRootObject());
     }
     dqmstorepb::ROOTFilePB::Histo& histo = *dqmstore_message.add_histo();
-    // TODO: getPathname returns a name with trailing slash?
-    histo.set_full_pathname(me->getPathname() + "/" + me->getName());
+    histo.set_full_pathname(me->getFullname());
     uint32_t flags = 0;
     flags |= (uint32_t)me->kind();
     if (me->getLumiFlag())

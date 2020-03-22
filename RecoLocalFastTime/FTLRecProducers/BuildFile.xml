@@ -1,8 +1,0 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/Utilities"/>
-<use   name="Geometry/MTDGeometryBuilder"/>
-<use   name="DataFormats/TrackerRecHit2D"/>
-<export>
-  <lib   name="1"/>
-</export>

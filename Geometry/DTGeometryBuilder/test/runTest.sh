@@ -5,7 +5,7 @@ function checkDiff {
     FSIZE=$(stat -c%s "$1")
     echo "The output diff is $FSIZE:"
     cat $1;
-    if [ $FSIZE -gt 0 ]
+    if [ $FSIZE -gt 1000 ]
     then
 	exit -1;
     fi

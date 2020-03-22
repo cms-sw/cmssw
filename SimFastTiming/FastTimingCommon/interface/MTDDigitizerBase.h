@@ -43,7 +43,7 @@ public:
         name_(config.getParameter<std::string>("digitizerName")) {
     iC.consumes<std::vector<PSimHit> >(inputSimHits_);
 
-    if (name_ == "BTLTileDigitizer" || name_ == "BTLBarDigitizer") {
+    if (name_ == "BTLDigitizer") {
       if (premixStage1_) {
         producesCollector.produces<PMTDSimAccumulator>(digiCollection_);
       } else {

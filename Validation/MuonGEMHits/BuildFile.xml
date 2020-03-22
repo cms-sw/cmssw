@@ -1,6 +1,5 @@
 <use name="boost"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="DataFormats/GEMDigi"/>
 <use name="DataFormats/CLHEP"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>

@@ -1,6 +1,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Validation/MuonCSCDigis/src/CSCWireDigiValidation.h"
+#include "Validation/MuonCSCDigis/interface/CSCWireDigiValidation.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"

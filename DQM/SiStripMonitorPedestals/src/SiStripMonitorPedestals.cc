@@ -452,7 +452,6 @@ void SiStripMonitorPedestals::dqmEndRun(edm::Run const &run, edm::EventSetup con
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   if (outputMEsInRootFile) {
     std::string outPutFileName = conf_.getParameter<std::string>("OutPutFileName");
-    //    dqmStore_->showDirStructure();
     dqmStore_->save(outPutFileName);
   }
 }

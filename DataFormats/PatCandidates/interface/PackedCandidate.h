@@ -1079,7 +1079,8 @@ namespace pat {
                              "Trying to access covariance matrix for a "
                              "PackedCandidate for which it's not available. "
                              "Check hasTrackDetails() before!\n");
-      std::call_once(covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covarianceVersion_);
+      std::call_once(
+          covariance_load_flag, [](int v) { covarianceParameterization_.load(v); }, covarianceVersion_);
       if (covarianceParameterization_.loadedVersion() != covarianceVersion_) {
         throw edm::Exception(edm::errors::UnimplementedFeature)
             << "Attempting to load multiple covariance version in same process. "

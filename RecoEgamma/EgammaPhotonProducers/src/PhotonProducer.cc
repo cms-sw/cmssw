@@ -168,8 +168,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   //
 
   // get Hcal towers collection
-  Handle<CaloTowerCollection> hcalTowersHandle;
-  theEvent.getByToken(hcalTowers_, hcalTowersHandle);
+  auto const& hcalTowers = theEvent.get(hcalTowers_);
 
   edm::ESHandle<CaloTopology> pTopology;
   theEventSetup.get<CaloTopologyRecord>().get(pTopology);
@@ -199,7 +198,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
                          topology,
                          &barrelRecHits,
                          &endcapRecHits,
-                         hcalTowersHandle,
+                         hcalTowers,
                          vertexCollection,
                          outputPhotonCollection,
                          iSC,
@@ -217,7 +216,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
                                           const CaloTopology* topology,
                                           const EcalRecHitCollection* ecalBarrelHits,
                                           const EcalRecHitCollection* ecalEndcapHits,
-                                          const edm::Handle<CaloTowerCollection>& hcalTowersHandle,
+                                          CaloTowerCollection const& hcalTowers,
                                           reco::VertexCollection& vertexCollection,
                                           reco::PhotonCollection& outputPhotonCollection,
                                           int& iSC,
@@ -268,17 +267,15 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       continue;
     // calculate HoE
 
-    const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
-    EgammaTowerIsolation towerIso1(hOverEConeSize_, 0., 0., 1, hcalTowersColl);
-    EgammaTowerIsolation towerIso2(hOverEConeSize_, 0., 0., 2, hcalTowersColl);
+    EgammaTowerIsolation towerIso1(hOverEConeSize_, 0., 0., 1, &hcalTowers);
+    EgammaTowerIsolation towerIso2(hOverEConeSize_, 0., 0., 2, &hcalTowers);
     double HoE1 = towerIso1.getTowerESum(&(*scRef)) / scRef->energy();
     double HoE2 = towerIso2.getTowerESum(&(*scRef)) / scRef->energy();
 
-    EgammaHadTower towerIsoBehindClus(es);
-    towerIsoBehindClus.setTowerCollection(hcalTowersHandle.product());
-    std::vector<CaloTowerDetId> TowersBehindClus = towerIsoBehindClus.towersOf(*scRef);
-    float hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus) / scRef->energy();
-    float hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus) / scRef->energy();
+    const EgammaHadTower egammaHadTower(es);
+    auto towersBehindCluster = egammaHadTower.towersOf(*scRef);
+    float hcalDepth1OverEcalBc = egammaHadTower.getDepth1HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
+    float hcalDepth2OverEcalBc = egammaHadTower.getDepth2HcalESum(towersBehindCluster, hcalTowers) / scRef->energy();
 
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos =
@@ -354,7 +351,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth2OverEcal = HoE2;
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
-    showerShape.hcalTowersBehindClusters = TowersBehindClus;
+    showerShape.hcalTowersBehindClusters = towersBehindCluster;
     newCandidate.setShowerShapeVariables(showerShape);
 
     /// fill full5x5 shower shape block

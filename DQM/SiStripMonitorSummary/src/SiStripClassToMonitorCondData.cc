@@ -298,7 +298,6 @@ void SiStripClassToMonitorCondData::endRun(edm::EventSetup const &eSetup) {
   DQMStore *dqmStore_ = edm::Service<DQMStore>().operator->();
 
   if (outputMEsInRootFile) {
-    dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
   }
 

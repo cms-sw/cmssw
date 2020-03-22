@@ -58,7 +58,7 @@ HcalParametersESModule::ReturnType HcalParametersESModule::produce(const HcalPar
     edm::LogVerbatim("HCalGeom") << "HcalParametersESModule::Try to access cms::DDCompactView";
 #endif
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
-    builder.build(&(*cpv), *ptp);
+    builder.build(*cpv, *ptp);
   } else {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "HcalParametersESModule::Try to access DDCompactView";

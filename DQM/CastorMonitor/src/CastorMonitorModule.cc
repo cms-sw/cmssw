@@ -62,6 +62,8 @@ void CastorMonitorModule::bookHistograms(DQMStore::IBooker &ibooker,
                                          const edm::Run &iRun,
                                          const edm::EventSetup &iSetup) {
   if (DigiMon_) {
+    // Run histos only since there is endRun processing.
+    auto scope = DQMStore::IBooker::UseRunScope(ibooker);
     DigiMon_->bookHistograms(ibooker, iRun, iSetup);
   }
   if (RecHitMon_) {

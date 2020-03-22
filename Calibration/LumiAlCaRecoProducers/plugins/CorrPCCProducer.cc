@@ -672,6 +672,7 @@ void CorrPCCProducer::resetBlock() {
 //--------------------------------------------------------------------------------------------------
 void CorrPCCProducer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& context) {
   ibooker.setCurrentFolder("AlCaReco/LumiPCC/");
+  auto scope = DQMStore::IBooker::UseRunScope(ibooker);
   Type1FracMon = ibooker.book1D("type1Fraction", "Type1Fraction;Lumisection;Type 1 Fraction", maxLS, 0, maxLS);
   Type1ResMon = ibooker.book1D("type1Residual", "Type1Residual;Lumisection;Type 1 Residual", maxLS, 0, maxLS);
   Type2ResMon = ibooker.book1D("type2Residual", "Type2Residual;Lumisection;Type 2 Residual", maxLS, 0, maxLS);

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process("TEST", Run2_2018)
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("TEST", Run3)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.categories.append('LUT')

@@ -1,0 +1,9 @@
+<iftool name="cuda-gcc-support">
+<bin file="test*.cc" name="testHeterogeneousCoreCUDATest">
+  <use name="FWCore/TestProcessor"/>
+  <use name="HeterogeneousCore/CUDACore"/>
+  <use name="catch2"/>
+</bin>
+
+<test name="TestCUDATest" command="runtests.sh"/>
+</iftool>

@@ -44,8 +44,6 @@ public:
   ~CaloTowersAnalyzer() override;
 
   void analyze(edm::Event const &, edm::EventSetup const &) override;
-  void beginJob() override;
-  void endJob() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
 

@@ -7,6 +7,7 @@
 #include "Validation/RecoMuon/src/MuonTrackAnalyzer.h"
 
 // Collaborating Class Header
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,7 +43,7 @@ MuonTrackAnalyzer::MuonTrackAnalyzer(const ParameterSet &ps) {
   pset = ps;
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   theSimTracksLabel = edm::InputTag("g4SimHits");
   theSimTracksToken = consumes<edm::SimTrackContainer>(theSimTracksLabel);
@@ -87,9 +88,6 @@ MuonTrackAnalyzer::~MuonTrackAnalyzer() {
     delete theService;
 }
 
-void MuonTrackAnalyzer::beginJob() {
-  //theFile->cd();
-}
 void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
                                        edm::Run const &iRun,
                                        edm::EventSetup const & /* iSetup */) {

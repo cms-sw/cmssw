@@ -26,9 +26,4 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/PatternTools"/>
-<!--<use   name="MagneticField/Records"/>
-<use   name="MagneticField/Engine"/>
-<use   name="TrackingTools/TransientTrack"/>
-<use   name="TrackingTools/Records"/>
-<use   name="TrackingTools/PatternTools"/>-->
 <flags   EDM_PLUGIN="1"/> 

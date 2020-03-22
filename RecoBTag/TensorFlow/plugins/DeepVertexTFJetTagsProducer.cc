@@ -74,6 +74,7 @@ private:
   std::vector<tensorflow::Tensor> lp_tensors_;
   // flag to evaluate model batch or jet by jet
   bool batch_eval_;
+  std::string singleThreadPool_;
 
   const double min_jet_pt_;
   const double max_jet_eta_;
@@ -87,18 +88,16 @@ DeepVertexTFJetTagsProducer::DeepVertexTFJetTagsProducer(const edm::ParameterSet
       lp_names_(iConfig.getParameter<std::vector<std::string>>("lp_names")),
       session_(nullptr),
       batch_eval_(iConfig.getParameter<bool>("batch_eval")),
+      singleThreadPool_(iConfig.getParameter<std::string>("singleThreadPool")),
       min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
       max_jet_eta_(iConfig.getParameter<double>("max_jet_eta"))
 
 {
-  // get threading config and build session options
+  // get threading config
   size_t nThreads = iConfig.getParameter<unsigned int>("nThreads");
-  std::string singleThreadPool = iConfig.getParameter<std::string>("singleThreadPool");
-  tensorflow::SessionOptions sessionOptions;
-  tensorflow::setThreading(sessionOptions, nThreads, singleThreadPool);
 
   // create the session using the meta graph from the cache
-  session_ = tensorflow::createSession(cache->graphDef, sessionOptions);
+  session_ = tensorflow::createSession(cache->graphDef, nThreads);
 
   // get output names from flav_table
   const auto& flav_pset = iConfig.getParameter<edm::ParameterSet>("flav_table");
@@ -286,7 +285,7 @@ void DeepVertexTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSe
     std::vector<tensorflow::Tensor> outputs;
     // std::cout <<"Input size" <<  input_tensors.size() << std::endl;
     if (run_session)
-      tensorflow::run(session_, input_tensors, output_names_, &outputs);
+      tensorflow::run(session_, input_tensors, output_names_, &outputs, singleThreadPool_);
 
     // set output values for flavour probs
     for (std::size_t jet_bn = 0; jet_bn < (std::size_t)n_batch_jets; jet_bn++) {

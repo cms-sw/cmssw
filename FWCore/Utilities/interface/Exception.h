@@ -38,8 +38,9 @@
 #include <exception>
 #include <type_traits>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 namespace cms {
 

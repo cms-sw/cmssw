@@ -323,12 +323,6 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run
   }
 }
 
-void SiStripDigiValid::endJob() {
-  if (runStandalone && !outputFile_.empty() && dbe_) {
-    dbe_->save(outputFile_);
-  }
-}
-
 void SiStripDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;

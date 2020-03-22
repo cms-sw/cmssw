@@ -40,7 +40,7 @@ JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector&& iC)
       theAssociator(nullptr),
       thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport")) {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = new MuonServiceProxy(serviceParameters, edm::ConsumesCollector(iC));
 
   //  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC_);
   theAssociatorParameters = new TrackAssociatorParameters();

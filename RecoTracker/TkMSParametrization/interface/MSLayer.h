@@ -1,12 +1,11 @@
 #ifndef MSLayer_H
 #define MSLayer_H
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include <iosfwd>
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
 class MSLayersKeeper;

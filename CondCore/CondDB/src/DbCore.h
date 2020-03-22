@@ -156,6 +156,7 @@ namespace cond {
       if (!whereClause.empty())
         whereClause += " AND ";
       whereClause += Column::fullyQualifiedName() + " " + condition + " :" + varId.str() + " ";
+      //bool init = (id == 0);
       f_add_attribute(data, varId.str(), value);
     }
 
@@ -200,6 +201,43 @@ namespace cond {
 
     protected:
       coral::AttributeList m_data;
+    };
+
+    template <typename... Columns>
+    class ConditionBuffer {
+    private:
+      template <typename Params, int n, typename T1, typename... Ts>
+      void _set(const Params& params) {
+        f_add_condition_data<T1>(m_data, m_clause, std::get<n>(params));
+        _set<Params, n + 1, Ts...>(params);
+      }
+
+      template <typename Params, int n>
+      void _set(const Params&) {}
+
+    public:
+      ConditionBuffer() : m_data(), m_clause() {}
+
+      template <typename P>
+      void set(const P& params) {
+        // if RowBuffer becames a single type, we need to run either the equivalent of _RowBuffer ( having addAttribute ) when m_data.size()=0, or _set in all other cases
+        _set<P, 0, Columns...>(params);
+      }
+
+      void addStaticCondition(const std::string& condition) {
+        if (m_clause.size() > 0) {
+          m_clause += " AND ";
+        }
+        m_clause += condition;
+      }
+
+      const coral::AttributeList& get() const { return m_data; }
+
+      const std::string& getClause() const { return m_clause; }
+
+    protected:
+      coral::AttributeList m_data;
+      std::string m_clause;
     };
 
     template <typename T>
@@ -519,6 +557,11 @@ namespace cond {
         return *this;
       }
 
+      Query& limitReturnedRows(size_t nrows) {
+        m_coralQuery->limitReturnedRows(nrows);
+        return *this;
+      }
+
       bool next() {
         if (!m_cursor)
           throwException("The query has not been executed.", "Query::currentRow");
@@ -659,6 +702,42 @@ namespace cond {
       //
       RowBuffer<Types...> m_buffer;
       std::unique_ptr<coral::IBulkOperation> m_coralInserter;
+    };
+
+    template <typename... Types>
+    class BulkDeleter {
+    public:
+      static constexpr size_t cacheSize = 1000;
+      explicit BulkDeleter(coral::ISchema& schema, const char* tableName)
+          : m_schema(schema), m_tableName(tableName), m_buffer(), m_coralDeleter() {
+        //fix me: maybe with
+        //m_coralInserter.reset(  schema.tableHandle( std::string(tableName ) ).dataEditor().bulkInsert( m_buffer.get(), cacheSize ) );
+      }
+
+      void addStaticCondition(const std::string& condition) { m_buffer.addStaticCondition(condition); }
+
+      template <typename P>
+      void erase(const P& params) {
+        m_buffer.set(params);
+        if (!m_coralDeleter.get())
+          m_coralDeleter.reset(m_schema.tableHandle(m_tableName)
+                                   .dataEditor()
+                                   .bulkDeleteRows(m_buffer.getClause(), m_buffer.get(), cacheSize));
+        m_coralDeleter->processNextIteration();
+      }
+
+      void flush() {
+        if (m_coralDeleter.get())
+          m_coralDeleter->flush();
+      }
+
+    private:
+      // fixme
+      coral::ISchema& m_schema;
+      std::string m_tableName;
+      //
+      ConditionBuffer<Types...> m_buffer;
+      std::unique_ptr<coral::IBulkOperation> m_coralDeleter;
     };
 
     namespace {

@@ -21,6 +21,14 @@ bool DDSpecPar::hasValue(const string& key) const {
     return false;
 }
 
+bool DDSpecPar::hasPath(const string& path) const {
+  auto result = std::find(std::begin(paths), std::end(paths), path);
+  if (result != end(paths))
+    return true;
+  else
+    return false;
+}
+
 template <>
 std::vector<double> DDSpecPar::value<std::vector<double>>(const string& key) const {
   std::vector<double> result;
@@ -34,6 +42,25 @@ std::vector<double> DDSpecPar::value<std::vector<double>>(const string& key) con
   if (sitem != end(spars)) {
     std::transform(begin(sitem->second), end(sitem->second), std::back_inserter(result), [](auto& i) -> double {
       return dd4hep::_toDouble(i);
+    });
+  }
+
+  return result;
+}
+
+template <>
+std::vector<int> DDSpecPar::value<std::vector<int>>(const string& key) const {
+  std::vector<int> result;
+
+  auto const& nitem = numpars.find(key);
+  if (nitem != end(numpars)) {
+    return std::vector<int>(begin(nitem->second), end(nitem->second));
+  }
+
+  auto const& sitem = spars.find(key);
+  if (sitem != end(spars)) {
+    std::transform(begin(sitem->second), end(sitem->second), std::back_inserter(result), [](auto& i) -> int {
+      return dd4hep::_toInt(i);
     });
   }
 
@@ -68,37 +95,36 @@ double DDSpecPar::dblValue(const string& key) const {
   return *begin(item->second);
 }
 
-void DDSpecParRegistry::filter(DDSpecParRefs& refs, string_view attribute, string_view value) const {
+void DDSpecParRegistry::filter(DDSpecParRefs& refs, const std::string& attribute, const std::string& value) const {
   bool found(false);
-  for_each(begin(specpars), end(specpars), [&refs, &attribute, &value, &found](const auto& k) {
+  for_each(begin(specpars), end(specpars), [&refs, &attribute, &value, &found](auto& k) {
     found = false;
     for_each(begin(k.second.spars), end(k.second.spars), [&](const auto& l) {
       if (l.first == attribute) {
-        for_each(begin(l.second), end(l.second), [&](const auto& m) {
-          if (m == value)
-            found = true;
-        });
+        if (value.empty()) {
+          found = true;
+        } else {
+          for_each(begin(l.second), end(l.second), [&](const auto& m) {
+            if (m == value)
+              found = true;
+          });
+        }
       }
     });
     if (found) {
+      k.second.name = k.first;
       refs.emplace_back(&k.second);
     }
   });
 }
 
-void DDSpecParRegistry::filter(DDSpecParRefs& refs, string_view attribute) const {
-  bool found(false);
-  for_each(begin(specpars), end(specpars), [&refs, &attribute, &found](const auto& k) {
-    found = false;
-    for_each(begin(k.second.spars), end(k.second.spars), [&](const auto& l) {
-      if (l.first == attribute) {
-        found = true;
-      }
-    });
-    if (found) {
-      refs.emplace_back(&k.second);
-    }
+std::vector<std::string_view> DDSpecParRegistry::names(const std::string& path) const {
+  std::vector<std::string_view> result;
+  for_each(begin(specpars), end(specpars), [&](const auto& i) {
+    if (i.second.hasPath(path))
+      result.emplace_back(i.first);
   });
+  return result;
 }
 
 std::vector<std::string_view> DDSpecParRegistry::names() const {

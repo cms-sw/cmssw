@@ -41,16 +41,6 @@ dEdxAnalyzer::~dEdxAnalyzer() {
     delete genTriggerEventFlag_;
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void dEdxAnalyzer::endJob() {
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if (outputMEsInRootFile) {
-    dqmStore_->showDirStructure();
-    dqmStore_->save(outputFileName);
-  }
-}
-
 /*
 // -- BeginRun
 //---------------------------------------------------------------------------------//

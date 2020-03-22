@@ -276,7 +276,31 @@ class MatrixInjector(object):
             wmsplit['HYBRIDZSHI2015']=1
             wmsplit['RECOHID15']=1
             wmsplit['RECOHID18']=1
-                                    
+            wmsplit['DigiFullTriggerPU_2026D35PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D35PU']=1
+            wmsplit['DigiFullTriggerPU_2026D41PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D41PU']=1
+            wmsplit['DigiFullTriggerPU_2026D43PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D43PU']=1
+            wmsplit['DigiFullTriggerPU_2026D44PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D44PU']=1
+            wmsplit['DigiFullTriggerPU_2026D45PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D45PU']=1
+            wmsplit['DigiFullTriggerPU_2026D46PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D46PU']=1
+            wmsplit['DigiFullTriggerPU_2026D47PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D47PU']=1
+            wmsplit['DigiFullTriggerPU_2026D48PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D48PU']=1
+            wmsplit['DigiFullTriggerPU_2026D49PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D49PU']=1
+            wmsplit['DigiFullTriggerPU_2026D50PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D50PU']=1
+            wmsplit['DigiFullTriggerPU_2026D51PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D51PU']=1
+            wmsplit['DigiFullTriggerPU_2026D52PU'] = 1	
+            wmsplit['RecoFullGlobalPU_2026D52PU']=1           
+                         
             #import pprint
             #pprint.pprint(wmsplit)            
         except:

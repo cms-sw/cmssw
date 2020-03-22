@@ -19,8 +19,8 @@ siPixelClustersForLumiR.src = cms.InputTag("siPixelDigisForLumiR")
 
 from Calibration.LumiAlCaRecoProducers.alcaPCCProducer_cfi import alcaPCCProducer
 alcaPCCProducerRandom = alcaPCCProducer.clone()
-alcaPCCProducerRandom.AlcaPCCProducerParameters.pixelClusterLabel = cms.InputTag("siPixelClustersForLumiR")
-alcaPCCProducerRandom.AlcaPCCProducerParameters.trigstring        = cms.untracked.string("alcaPCCRandom")
+alcaPCCProducerRandom.pixelClusterLabel = cms.InputTag("siPixelClustersForLumiR")
+alcaPCCProducerRandom.trigstring        = cms.untracked.string("alcaPCCRandom")
 
 # Sequence #
 seqALCARECOAlCaPCCRandom = cms.Sequence(ALCARECORandomHLT + siPixelDigisForLumiR + siPixelClustersForLumiR + alcaPCCProducerRandom)
