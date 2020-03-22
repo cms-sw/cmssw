@@ -75,14 +75,11 @@ namespace trackerDTC {
         esConsumes<TTStubAlgorithm<Ref_Phase2TrackerDigi_>, TTStubAlgorithmRecord, Transition::BeginRun>(
             settings_.inputTagTTStubAlgorithm());
     getTokenMagneticField_ =
-        esConsumes<MagneticField, IdealMagneticFieldRecord, Transition::BeginRun>(
-            settings_.inputTagMagneticField());
-    getTokenTrackerGeometry_ =
-        esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, Transition::BeginRun>(
-            settings_.inputTagTrackerGeometry());
+        esConsumes<MagneticField, IdealMagneticFieldRecord, Transition::BeginRun>(settings_.inputTagMagneticField());
+    getTokenTrackerGeometry_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, Transition::BeginRun>(
+        settings_.inputTagTrackerGeometry());
     getTokenTrackerTopology_ =
-        esConsumes<TrackerTopology, TrackerTopologyRcd, Transition::BeginRun>(
-            settings_.inputTagTrackerTopology());
+        esConsumes<TrackerTopology, TrackerTopologyRcd, Transition::BeginRun>(settings_.inputTagTrackerTopology());
     getTokenCablingMap_ =
         esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, Transition::BeginRun>(
             settings_.inputTagCablingMap());
