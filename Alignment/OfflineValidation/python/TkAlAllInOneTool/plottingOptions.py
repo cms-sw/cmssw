@@ -10,13 +10,14 @@ from .genericValidation import ValidationMetaClass, ValidationWithComparison, Va
 from .helperFunctions import getCommandOutput2, replaceByMap, cppboolstring
 from .offlineValidation import OfflineValidation
 from .primaryVertexValidation import PrimaryVertexValidation
+from .primaryVertexResolution import PrimaryVertexResolution
 from .TkAlExceptions import AllInOneError
 from .trackSplittingValidation import TrackSplittingValidation
 from .zMuMuValidation import ZMuMuValidation
 from .overlapValidation import OverlapValidation
+from six import with_metaclass
 
-class BasePlottingOptions(object):
-    __metaclass__ = ValidationMetaClass
+class BasePlottingOptions(with_metaclass(ValidationMetaClass,object)):
     defaults = {
                 "cmssw" : os.environ["CMSSW_BASE"],
                 "publicationstatus" : "",
@@ -230,13 +231,20 @@ class PlottingOptionsOverlap(BasePlottingOptions):
     def __init__(self, config):
         super(PlottingOptionsOverlap, self).__init__(config, "overlap")
 
+class PlottingOptionsPVResolution(BasePlottingOptions):
+    defaults = {}
+    validationclass = PrimaryVertexResolution
+    def __init__(self, config):
+        super(PlottingOptionsPVResolution, self).__init__(config, "pvresolution")
+
 def PlottingOptions(config, valType):
     plottingOptionsClasses = {
                               "offline": PlottingOptionsOffline,
                               "split": PlottingOptionsTrackSplitting,
                               "zmumu": PlottingOptionsZMuMu,
                               "primaryvertex": PlottingOptionsPrimaryVertex,
-                              "overlap": PlottingOptionsOverlap
+                              "overlap": PlottingOptionsOverlap,
+                              "pvresolution": PlottingOptionsPVResolution,
                              }
     if isinstance(valType, type):
         valType = valType.valType

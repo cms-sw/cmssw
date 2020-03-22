@@ -13,6 +13,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # Name of digi producer module(s)
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    GEMPadDigiProducer = cms.InputTag(""),
+    GEMPadDigiClusterProducer = cms.InputTag(""),
 
     # If True, output collections will only be built for good chambers
     checkBadChambers = cms.bool(True),
@@ -54,6 +56,10 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         runME21Up = cms.bool(False),
         runME31Up = cms.bool(False),
         runME41Up = cms.bool(False),
+
+        runME11ILT = cms.bool(False),
+        runME21ILT = cms.bool(False),
+        useClusters = cms.bool(False),
     ),
 
     # Parameters for ALCT processors: 2007 and later
@@ -154,7 +160,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         verbosity = cms.int32(0),
 
         # BX to start CLCT finding (poor man's dead-time shortening):
-        clctStartBxShift  = cms.int32(0)
+        clctStartBxShift  = cms.int32(0),
+
+        useRun3Patterns = cms.bool(False),
+
+        useComparatorCodes = cms.bool(False),
     ),
 
     # Parameters for CLCT processors: SLHC studies
@@ -196,7 +206,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # (currently it is median time of all hits in a pattern) into the CSCCLCTDigi bx,
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
         # not feasible --Tao
-        clctUseCorrectedBx = cms.bool(False)
+        clctUseCorrectedBx = cms.bool(False),
+
+        useRun3Patterns = cms.bool(False),
+
+        useComparatorCodes = cms.bool(False),
     ),
 
     tmbParam = cms.PSet(
@@ -458,7 +472,7 @@ run3_GEM.toModify( cscTriggerPrimitiveDigis,
                    commonParam = dict(isSLHC = True,
                                       runME11Up = cms.bool(True),
                                       runME11ILT = cms.bool(True),
-                                      useClusters = cms.bool(True),
+                                      useClusters = cms.bool(False),
                                       enableAlctSLHC = cms.bool(True)),
                    clctSLHC = dict(clctNplanesHitPattern = 3),
                    me11tmbSLHCGEM = me11tmbSLHCGEM,

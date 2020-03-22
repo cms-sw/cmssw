@@ -1,6 +1,6 @@
-#include <ostream>
 #include "IOMC/ParticleGuns/interface/BeamMomentumGunProducer.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -13,6 +13,7 @@
 #include "CLHEP/Random/RandFlat.h"
 
 #include "TFile.h"
+#include <cmath>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -104,23 +105,38 @@ namespace edm {
       double mass = pData->mass().value();
       if (fVerbosity > 0)
         edm::LogVerbatim("BeamMomentumGun") << "PDGId: " << partID << "   mass: " << mass;
-      double xp = (xoff_ + mm2cm_ * parX_->at(ip));
-      double yp = (yoff_ + mm2cm_ * parY_->at(ip));
-      HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zpos_));
+      double xp = (xoff_ * cm2mm_ + (-1) * parY_->at(ip));  // 90 degree rotation applied
+      double yp = (yoff_ * cm2mm_ + parX_->at(ip));         // 90 degree rotation applied
+      double zp = zpos_ * cm2mm_;
+      HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zp));
       double pxGeV = MeV2GeV_ * parPx_->at(ip);
       double pyGeV = MeV2GeV_ * parPy_->at(ip);
       double pzGeV = MeV2GeV_ * parPz_->at(ip);
       double momRand2 = pxGeV * pxGeV + pyGeV * pyGeV + pzGeV * pzGeV;
       double energy = std::sqrt(momRand2 + mass * mass);
       double mom = std::sqrt(momRand2);
+      HepMC::FourVector pGeV(pxGeV, pyGeV, pzGeV, energy);
+      double ptheta = pGeV.theta();
+      double pphi = pGeV.phi();
       double theta = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
       double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-      double px = mom * sin(theta) * cos(phi);
-      double py = mom * sin(theta) * sin(phi);
-      double pz = mom * cos(theta);
+      if (phi > M_PI)
+        phi = -(2 * M_PI - phi);
+      double newtheta = ptheta + theta;
+      if (newtheta > M_PI && newtheta <= 2 * M_PI)
+        newtheta = 2 * M_PI - newtheta;
+      double newphi = reco::reduceRange(pphi + phi);
+      double px = mom * sin(newtheta) * cos(newphi);
+      double py = mom * sin(newtheta) * sin(newphi);
+      double pz = mom * cos(newtheta);
 
-      if (fVerbosity > 0)
-        edm::LogVerbatim("BeamMomentumGun") << "px:py:pz " << px << ":" << py << ":" << pz;
+      if (fVerbosity > 0) {
+        edm::LogVerbatim("BeamMomentumGun") << "ptheta:pphi " << ptheta << ":" << pphi << "\ntheta:phi " << theta << ":"
+                                            << phi << "\nnewtheta:newphi " << newtheta << ":" << newphi;
+
+        edm::LogVerbatim("BeamMomentumGun")
+            << "x:y:z [mm] " << xp << ":" << yp << ":" << zpos_ << "\npx:py:pz [GeV] " << px << ":" << py << ":" << pz;
+      }
 
       HepMC::FourVector p(px, py, pz, energy);
       HepMC::GenParticle* part = new HepMC::GenParticle(p, partID, 1);

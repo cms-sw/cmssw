@@ -1,3 +1,4 @@
+<use   name="CondFormats/SiPixelObjects"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
@@ -9,9 +10,7 @@
 <use   name="RecoPixelVertexing/PixelTrackFitting"/>
 <use   name="TrackingTools/TrajectoryFiltering"/>
 <use   name="TrackingTools/Records"/>
-<use   name="RecoLocalTracker/Records"/>
 <use   name="MagneticField/Records"/>
-<use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/TrackerCommon"/>
 <export>
   <lib   name="1"/>

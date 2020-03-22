@@ -28,10 +28,9 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fUseDZ = iConfig.getParameter<bool>("UseDeltaZCut");
   fDZCut = iConfig.getParameter<double>("DeltaZCut");
   fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
+  fEtaMaxCharged = iConfig.getParameter<double>("EtaMaxCharged");
   fPtMaxPhotons = iConfig.getParameter<double>("PtMaxPhotons");
   fEtaMaxPhotons = iConfig.getParameter<double>("EtaMaxPhotons");
-  fPtMaxNeutrals = iConfig.getParameter<double>("PtMaxNeutrals");
-  fPtMaxNeutralsStartSlope = iConfig.getParameter<double>("PtMaxNeutralsStartSlope");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
   fUseWeightsNoLep = iConfig.getParameter<bool>("useWeightsNoLep");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
@@ -161,6 +160,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             pReco.id = 0;
             if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
               pReco.id = 1;
+            else if (std::abs(pReco.eta) > fEtaMaxCharged)
+              pReco.id = 1;
             else if (fUseDZ)
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
             else if (fUseFromPVLooseTight && tmpFromPV == 1)
@@ -189,6 +190,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
                      lPack->fromPV() == (pat::PackedCandidate::PVLoose)) {
             pReco.id = 0;
             if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+              pReco.id = 1;
+            else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
             else if (fUseDZ)
               pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
@@ -350,8 +353,9 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("UseFromPVLooseTight", false);
   desc.add<bool>("UseDeltaZCut", true);
   desc.add<double>("DeltaZCut", 0.3);
-  desc.add<double>("PtMaxCharged", 0.);
-  desc.add<double>("PtMaxPhotons", 0.);
+  desc.add<double>("PtMaxCharged", -1.);
+  desc.add<double>("EtaMaxCharged", 99999.);
+  desc.add<double>("PtMaxPhotons", -1.);
   desc.add<double>("EtaMaxPhotons", 2.5);
   desc.add<double>("PtMaxNeutrals", 200.);
   desc.add<double>("PtMaxNeutralsStartSlope", 0.);

@@ -32,6 +32,7 @@ namespace cms {
     explicit DDSolid(dd4hep::Solid s) : solid_(s) {}
     dd4hep::Solid solid() const { return solid_; }
     dd4hep::Solid solidA() const;
+    dd4hep::Solid solidB() const;
     const std::vector<double> parameters() const;
 
   private:
@@ -49,14 +50,24 @@ namespace cms {
   using Node = TGeoNode;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
   using RotationMatrix = ROOT::Math::Rotation3D;
-  using DDFilter = std::string_view;
+
+  struct DDFilter {
+    DDFilter(const std::string& attribute = "", const std::string& value = "")
+        : m_attribute(attribute), m_value(value) {}
+    const std::string& attribute() const { return m_attribute; }
+    const std::string& value() const { return m_value; }
+
+  private:
+    const std::string m_attribute;
+    const std::string m_value;
+  };
 
   class DDFilteredView {
   public:
     using nav_type = std::vector<int>;
 
     DDFilteredView(const DDDetector*, const Volume);
-    DDFilteredView(const DDCompactView&, const DDFilter& = "");
+    DDFilteredView(const DDCompactView&, const cms::DDFilter&);
     DDFilteredView() = delete;
 
     //! The numbering history of the current node
@@ -64,6 +75,15 @@ namespace cms {
 
     //! The physical volume of the current node
     const PlacedVolume volume() const;
+
+    //! The full path to the current node
+    const std::string path() const;
+
+    //! The list of the volume copy numbers
+    //  along the full path to the current node
+    const std::vector<int> copyNos() const;
+
+    const std::vector<int> copyNumbers() { return copyNos(); }
 
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
@@ -77,6 +97,7 @@ namespace cms {
 
     //! User specific data
     void mergedSpecifics(DDSpecParRefs const&);
+    const cms::DDSpecParRefs specpars() const { return refs_; }
 
     //! set the current node to the first child
     bool firstChild();
@@ -153,6 +174,11 @@ namespace cms {
     template <typename T>
     T get(const std::string&, const std::string&) const;
 
+    //! convert an attribute value from SpecPar
+    //  without passing it through an evaluator,
+    //  e.g. the original values have no units
+    std::vector<double> get(const std::string&, const std::string&) const;
+
     std::string_view getString(const std::string&) const;
 
     //! return the stack of sibling numbers which indicates
@@ -161,8 +187,6 @@ namespace cms {
 
   private:
     bool accept(std::string_view);
-    bool addPath(Node* const);
-    bool addNode(Node* const);
     const TClass* getShape() const;
 
     //! set the current node to the first sibling

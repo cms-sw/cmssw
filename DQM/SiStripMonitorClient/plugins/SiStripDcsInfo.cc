@@ -129,9 +129,9 @@ void SiStripDcsInfo::bookStatus(DQMStore& dqm_store) {
   else
     dqm_store.setCurrentFolder("SiStrip/EventInfo");
 
-  DcsFraction_ = dqm_store.bookFloat("DCSSummary");
+  auto scope = DQMStore::UseLumiScope(dqm_store);
 
-  DcsFraction_->setLumiFlag();
+  DcsFraction_ = dqm_store.bookFloat("DCSSummary");
 
   dqm_store.cd();
   if (!strip_dir.empty())
@@ -141,7 +141,6 @@ void SiStripDcsInfo::bookStatus(DQMStore& dqm_store) {
   for (auto& [suffix, subDetME] : SubDetMEsMap) {
     std::string const me_name{"SiStrip_" + suffix};
     subDetME.DcsFractionME = dqm_store.bookFloat(me_name);
-    subDetME.DcsFractionME->setLumiFlag();
   }
   bookedStatus_ = true;
   dqm_store.cd();

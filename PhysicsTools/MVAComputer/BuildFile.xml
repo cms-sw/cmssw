@@ -1,6 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
+<use name="CondCore/ESSources"/>
 <use name="CondFormats/PhysicsToolsObjects"/>
 <use name="rootcore"/>
 <use name="boost"/>

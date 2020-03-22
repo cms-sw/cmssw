@@ -8,9 +8,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
+#include "CutBasedPhotonIDAlgo.h"
 
 class PhotonIDProducer : public edm::stream::EDProducer<> {
 public:

@@ -20,8 +20,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -32,28 +31,18 @@
 #include <map>
 #include <vector>
 
-class EcalEndcapSimHitsValidation : public edm::EDAnalyzer {
+class EcalEndcapSimHitsValidation : public DQMEDAnalyzer {
   typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;
 
 public:
-  typedef dqm::legacy::DQMStore DQMStore;
-  typedef dqm::legacy::MonitorElement MonitorElement;
-
   /// Constructor
   EcalEndcapSimHitsValidation(const edm::ParameterSet &ps);
 
-  /// Destructor
-  ~EcalEndcapSimHitsValidation() override;
-
 protected:
+  void bookHistograms(DQMStore::IBooker &ib, edm::Run const &, edm::EventSetup const &c) override;
+
   /// Analyze
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
-
-  // BeginJob
-  void beginJob() override;
-
-  // EndJob
-  void endJob(void) override;
 
 private:
   uint32_t getUnitWithMaxEnergy(MapType &themap);
@@ -77,10 +66,6 @@ private:
   edm::EDGetTokenT<PEcalValidInfo> ValidationCollectionToken;
 
   bool verbose_;
-
-  DQMStore *dbe_;
-
-  std::string outputFile_;
 
   int myEntries;
   float eRLength[26];

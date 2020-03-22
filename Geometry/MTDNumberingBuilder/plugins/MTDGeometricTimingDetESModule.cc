@@ -54,7 +54,7 @@ void MTDGeometricTimingDetESModule::fillDescriptions(edm::ConfigurationDescripti
 std::unique_ptr<GeometricTimingDet> MTDGeometricTimingDetESModule::produce(const IdealGeometryRecord& iRecord) {
   if (fromDDD_) {
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(ddCompactToken_);
-    return DDDCmsMTDConstruction::construct((*cpv), dbl_to_int(DDVectorGetter::get("detIdShifts")));
+    return DDDCmsMTDConstruction::construct((*cpv));
   } else {
     PGeometricTimingDet const& pgd = iRecord.get(pGTDetToken_);
     return CondDBCmsMTDConstruction::construct(pgd);

@@ -32,7 +32,7 @@ public:
 
   virtual ~PFRecHitNavigatorBase() = default;
 
-  virtual void beginEvent(const edm::EventSetup&) = 0;
+  virtual void init(const edm::EventSetup&) = 0;
   virtual void associateNeighbours(reco::PFRecHit&,
                                    std::unique_ptr<reco::PFRecHitCollection>&,
                                    edm::RefProd<reco::PFRecHitCollection>&) = 0;

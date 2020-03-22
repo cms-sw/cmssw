@@ -4,7 +4,7 @@
 
 //#define EDM_ML_DEBUG
 
-HGCalParameters::HGCalParameters(const std::string& nam) : name_(nam) {
+HGCalParameters::HGCalParameters(const std::string& nam) : name_(nam), waferMaskMode_(0) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Construct HGCalParameters for " << name_;
 #endif

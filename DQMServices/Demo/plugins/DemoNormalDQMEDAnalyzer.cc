@@ -70,7 +70,8 @@ void DemoNormalDQMEDAnalyzer::bookHistograms(DQMStore::IBooker& ibook,
                                              edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
 
-  example_ = ibook.book1D("EXAMPLE", "Example 1D", 20, 0., 10.);
+  example_ = ibook.book1D(
+      "EXAMPLE", "Example 1D", 20, 0., 10., [](TH1*) { edm::LogInfo("DemoNormalDQMEDAnalyzer") << "booked!\n"; });
   example2D_ = ibook.book2D("EXAMPLE_2D", "Example 2D", 20, 0, 20, 15, 0, 15);
   example3D_ = ibook.book3D("EXAMPLE_3D", "Example 3D", 20, 0, 20, 15, 0, 15, 25, 0, 25);
   exampleTProfile_ = ibook.bookProfile("EXAMPLE_TPROFILE", "Example TProfile", 20, 0, 20, 15, 0, 15);

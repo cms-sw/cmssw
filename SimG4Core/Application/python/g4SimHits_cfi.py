@@ -148,6 +148,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EMPhysics   = cms.untracked.bool(True),
         HadPhysics  = cms.untracked.bool(True),
         FlagBERT    = cms.untracked.bool(False),
+        EminFTFP    = cms.double(3.), # in GeV
+        EmaxBERT    = cms.double(6.), # in GeV
+        EminQGSP    = cms.double(12.), # in GeV
+        EmaxFTFP    = cms.double(30.), # in GeV
+        EmaxBERTpi  = cms.double(12.), # in GeV
         LowEnergyGflashEcal = cms.bool(False),
         LowEnergyGflashEcalEmax = cms.double(100),
         GflashEcal    = cms.bool(False),
@@ -282,6 +287,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         UseResponseTables = cms.vint32(0,0,0,0,0),
         BeamPosition      = cms.double(0.0),
         CorrectTOFBeam    = cms.bool(False),
+        UseFineCaloID     = cms.bool(False),
         DetailedTiming    = cms.untracked.bool(False),
         UseMap            = cms.untracked.bool(False),
         Verbosity         = cms.untracked.int32(0),
@@ -433,13 +439,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     BHMSD = cms.PSet(
          Verbosity = cms.untracked.int32(0)
     ),
-    FastTimerSD = cms.PSet(
-        Verbosity = cms.untracked.int32(0),
-        TimeSliceUnit    = cms.double(0.001), #stepping = 1 ps (for timing)
-        IgnoreTrackID    = cms.bool(False),
-        EminHit          = cms.double(0.0),
-        CheckID          = cms.untracked.bool(True),
-    ),
     MtdSD = cms.PSet(
         Verbosity = cms.untracked.int32(0),
         TimeSliceUnit    = cms.double(0.01), #stepping = 10 ps (for timing)
@@ -490,6 +489,9 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     TotemRPSD = cms.PSet(
         Verbosity = cms.int32(0)
+    ),
+    TotemSD = cms.PSet(
+        Verbosity = cms.untracked.int32(0)
     ),
     PPSDiamondSD = cms.PSet(
         Verbosity = cms.int32(0)
@@ -571,3 +573,6 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify( g4SimHits.ECalSD,
                              StoreLayerTimeSim = cms.untracked.bool(True),
                              TimeSliceUnit = cms.double(0.001) )
+
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )

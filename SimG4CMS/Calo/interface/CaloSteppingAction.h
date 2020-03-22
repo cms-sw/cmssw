@@ -100,7 +100,8 @@ private:
   double birkCutEC_, birkC1HC_, birkC2HC_;
   double birkC3HC_, timeSliceUnit_;
   std::map<std::pair<int, CaloHitID>, CaloGVHit> hitMap_[nSD_];
-  typedef std::tuple<const G4LogicalVolume *, uint32_t, int, int, double, double, double, double> PassiveData;
+  typedef std::tuple<const G4LogicalVolume *, uint32_t, int, int, double, double, double, double, double, double, double>
+      PassiveData;
   std::vector<PassiveData> store_;
 };
 

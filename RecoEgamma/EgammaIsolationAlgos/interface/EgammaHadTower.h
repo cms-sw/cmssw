@@ -19,26 +19,18 @@ public:
   enum HoeMode { SingleTower = 0, TowersBehindCluster = 1 };
 
   EgammaHadTower(const edm::EventSetup& es, HoeMode mode = SingleTower);
-  ~EgammaHadTower() { ; }
-  double getDepth1HcalESum(const reco::SuperCluster& sc) const;
-  double getDepth2HcalESum(const reco::SuperCluster& sc) const;
-  double getDepth1HcalESum(const std::vector<CaloTowerDetId>& towers) const;
-  double getDepth2HcalESum(const std::vector<CaloTowerDetId>& towers) const;
+  double getDepth1HcalESum(const std::vector<CaloTowerDetId>& towers, CaloTowerCollection const&) const;
+  double getDepth2HcalESum(const std::vector<CaloTowerDetId>& towers, CaloTowerCollection const&) const;
   std::vector<CaloTowerDetId> towersOf(const reco::SuperCluster& sc) const;
   CaloTowerDetId towerOf(const reco::CaloCluster& cluster) const;
-  void setTowerCollection(const CaloTowerCollection* towercollection);
-  bool hasActiveHcal(const reco::SuperCluster& sc) const;
   bool hasActiveHcal(const std::vector<CaloTowerDetId>& towers) const;
 
 private:
   const CaloTowerConstituentsMap* towerMap_;
   HoeMode mode_;
-  const CaloTowerCollection* towerCollection_;
-  unsigned int NMaxClusters_;
+  unsigned int nMaxClusters_;
   const HcalChannelQuality* hcalQuality_;
   const HcalTopology* hcalTopology_;
 };
-
-bool ClusterGreaterThan(const reco::CaloClusterPtr& c1, const reco::CaloClusterPtr& c2);
 
 #endif

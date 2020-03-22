@@ -56,12 +56,12 @@ hltGTs = {
     'run2_data_Fake'         : ('run2_data_relval'        ,l1Menus['Fake']),
     'run2_data_Fake1'        : ('run2_data_relval'        ,l1Menus['Fake1']),
     'run2_data_Fake2'        : ('run2_data_relval'        ,l1Menus['Fake2']),
-    'run2_data_FULL'         : ('run2_data_promptlike'    ,l1Menus['FULL']),
-    'run2_data_2018'         : ('run2_data_promptlike'    ,l1Menus['2018']),
-    'run2_data_GRun'         : ('run2_data_promptlike'    ,l1Menus['GRun']),
+    'run2_data_FULL'         : ('run2_data_relval'    ,l1Menus['FULL']),
+    'run2_data_2018'         : ('run2_data_relval'    ,l1Menus['2018']),
+    'run2_data_GRun'         : ('run2_data_relval'    ,l1Menus['GRun']),
     'run2_data_HIon'         : ('run2_data_promptlike_hi' ,l1Menus['HIon']),
-    'run2_data_PIon'         : ('run2_data_promptlike'    ,l1Menus['PIon']),
-    'run2_data_PRef'         : ('run2_data_promptlike'    ,l1Menus['PRef']),
+    'run2_data_PIon'         : ('run2_data_relval'    ,l1Menus['PIon']),
+    'run2_data_PRef'         : ('run2_data_relval'    ,l1Menus['PRef']),
 
 }
 

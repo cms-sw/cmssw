@@ -52,8 +52,9 @@ set schpath = `(echo $schpath | sed '{s/\//\\\//g}')`
 	    set dp = `(echo "${l}" | awk -F\/ '{print NF}')`
 	    set fn = `(echo "${l}" | awk -F\/ '{print $NF}')`
 	    cp $CMSSW_BASE/src/$l .
-	    if ( $dp > 5 ) then
+	    if ( $dp > 8 ) then
 		echo "ERROR: file " $fn " has a relative path too big for this script." 
+		echo File with problems is $l
 	    else
 		sed -i "{s/..\/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/g}" $fn
 	    endif
@@ -65,8 +66,9 @@ set schpath = `(echo $schpath | sed '{s/\//\\\//g}')`
 		set dp = `(echo "${l}" | awk -F\/ '{print NF}')`
 		set fn = `(echo "${l}" | awk -F\/ '{print $NF}')`
 		cp $CMSSW_RELEASE_BASE/src/$l .
-		if ( $dp > 5 ) then
+		if ( $dp > 8 ) then
 		    echo "ERROR: file " $fn " has a relative path too big for this script." 
+		    echo File with problems is $l
 		else
 		    sed -i "{s/..\/..\/..\/..\/DetectorDescription\/Schema\/DDLSchema.xsd/${schpath}/g}" $fn
 		endif
@@ -186,9 +188,9 @@ cd ../xml
 #rm -f dumpSpecdumpSTD
 #rm -f diffgeomIdeal.out
 echo "Start reading the XML from the original config file."
-cp ../../readIdealAndDump.py .
-sed -i "{s/GeometryExtended/${geometry}/}" readIdealAndDump.py >& trIdeal.out
-cmsRun readIdealAndDump.py >>& trIdeal.out
+cp ../../readExtendedAndDump.py .
+sed -i "{s/GeometryExtended/${geometry}/}" readExtendedAndDump.py >& trIdeal.out
+cmsRun readExtendedAndDump.py >>& trIdeal.out
 echo "End reading the XML from the original config file."
 cd ../..
 cmsRun testCompareDumpFiles.py >& tcdf.out

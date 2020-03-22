@@ -58,6 +58,7 @@ public:
   explicit BaseMVAValueMapProducer(const edm::ParameterSet& iConfig)
       : src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))),
         variablesOrder_(iConfig.getParameter<std::vector<std::string>>("variablesOrder")),
+        singleThreadPool_(iConfig.getParameter<std::string>("singleThreadPool")),
         name_(iConfig.getParameter<std::string>("name")),
         backend_(iConfig.getParameter<std::string>("backend")),
         weightfilename_(iConfig.getParameter<edm::FileInPath>("weightFile").fullPath()),
@@ -93,10 +94,7 @@ public:
         output_formulas_.push_back(StringObjectFunction<std::vector<float>>(s));
       }
       size_t nThreads = iConfig.getParameter<unsigned int>("nThreads");
-      std::string singleThreadPool = iConfig.getParameter<std::string>("singleThreadPool");
-      tensorflow::SessionOptions sessionOptions;
-      tensorflow::setThreading(sessionOptions, nThreads, singleThreadPool);
-      session_ = tensorflow::createSession(graph_, sessionOptions);
+      session_ = tensorflow::createSession(graph_, nThreads);
 
     } else {
       throw cms::Exception("ConfigError") << "Only 'TF' and 'TMVA' backends are supported\n";
@@ -136,6 +134,7 @@ private:
   TMVA::Reader* reader_;
   tensorflow::GraphDef* graph_;
   tensorflow::Session* session_;
+  std::string singleThreadPool_;
 
   std::string name_;
   std::string backend_;
@@ -179,7 +178,7 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
       std::vector<tensorflow::Tensor> outputs;
       std::vector<std::string> names;
       names.push_back(outputTensorName_);
-      tensorflow::run(session_, input_tensors, names, &outputs);
+      tensorflow::run(session_, input_tensors, names, &outputs, singleThreadPool_);
       std::vector<float> tmpOut;
       for (int k = 0; k < outputs.at(0).matrix<float>().dimension(1); k++)
         tmpOut.push_back(outputs.at(0).matrix<float>()(0, k));

@@ -19,7 +19,7 @@ def parse_sample_string(ss):
     spl = ss.split(":")
     if not (len(spl) >= 3):
         raise Exception("Sample must be in the format name:DQMfile1.root:DQMfile2.root:...")
-    
+
     name = spl[0]
     files = spl[1:]
 
@@ -41,7 +41,7 @@ def parse_plot_string(ss):
     spl = ss.split(":")
     if not (len(spl) >= 3):
         raise Exception("Plot must be in the format folder:name:hist1:hist2:...")
-    
+
     folder = spl[0]
     name = spl[1]
     histograms = spl[2:]
@@ -80,35 +80,39 @@ def parse_args():
     parser.add_argument( "--offsetDR",  type=float, action='store', default=0.4,   help="offset deltaR value" )
     args = parser.parse_args()
 
-    #collect all the SimpleSample objects    
+    #collect all the SimpleSample objects
     samples = []
     plots = []
- 
+
     sample_strings = args.sample
     for ss in sample_strings:
         name, files = parse_sample_string(ss)
         samp = SimpleSample(name, name, [(fn, fn.split('/')[-2]) for fn in files])
         samples += [samp]
-    
+
     for ss in args.plots:
         folder, name, histograms = parse_plot_string(ss)
         plots += [(folder, name, histograms)]
-    
+
     # This needs to be also changed whenever changing binning
     if args.doResponsePlots:
-        plots += [("JetResponse", "reso_pt", ["preso_eta05", "preso_eta13",
-         "preso_eta21","preso_eta25","preso_eta30","preso_eta50"])]
-        plots += [("JetResponse", "reso_pt_rms", ["preso_eta05_rms",
-         "preso_eta13_rms","preso_eta21_rms","preso_eta25_rms","preso_eta30_rms",
-         "preso_eta50_rms"])]
-        plots += [("JetResponse", "response_pt", ["presponse_eta05",
-         "presponse_eta13", "presponse_eta21", "presponse_eta25", "presponse_eta30",
-         "presponse_eta50"])]
-        for iptbin in range(len(ptbins)-1):
-            pthistograms = []
-            for ietabin in range(len(etabins)-1):
-                pthistograms += [response_distribution_name(iptbin, ietabin)]
-            plots += [("JetResponse", "response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1]), pthistograms)]
+        # Needs to add extra folders here if the DQM files have other folders of histograms
+        folderDirs = ["JetResponse/slimmedJets/JEC", "JetResponse/slimmedJets/noJEC", "JetResponse/slimmedJetsPuppi/JEC", "JetResponse/slimmedJetsPuppi/noJEC"]
+
+        for folderDir in folderDirs:
+            plots += [(folderDir, "reso_pt", ["preso_eta05", "preso_eta13",
+                                                  "preso_eta21","preso_eta25","preso_eta30","preso_eta50"])]
+            plots += [(folderDir, "reso_pt_rms", ["preso_eta05_rms",
+                                                      "preso_eta13_rms","preso_eta21_rms","preso_eta25_rms","preso_eta30_rms",
+                                                      "preso_eta50_rms"])]
+            plots += [(folderDir, "response_pt", ["presponse_eta05",
+                                                      "presponse_eta13", "presponse_eta21", "presponse_eta25", "presponse_eta30",
+                                                      "presponse_eta50"])]
+            for iptbin in range(len(ptbins)-1):
+                pthistograms = []
+                for ietabin in range(len(etabins)-1):
+                    pthistograms += [response_distribution_name(iptbin, ietabin)]
+                plots += [(folderDir, "response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1]), pthistograms)]
 
     if args.doOffsetPlots:
         if args.offsetVar == "npv" :
@@ -120,6 +124,8 @@ def parse_args():
             for itype in candidateType :
                 offsetHists += [ offset_name( args.offsetVar, ivar, itype ) ]
             plots += [("Offset/{0}Plots/{0}{1}".format(args.offsetVar, ivar), "{0}{1}".format(args.offsetVar, ivar), offsetHists)]
+
+
     return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR
 
 def addPlots(plotter, folder, name, section, histograms, opts, offset=False):
@@ -129,7 +135,7 @@ def addPlots(plotter, folder, name, section, histograms, opts, offset=False):
     if offset :
         plotter.append("Offset", folders, PlotFolder(*plots, loopSubFolders=False, page="offset", section=section))
     else :
-        plotter.append("ParticleFlow", folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
+        plotter.append("ParticleFlow/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
         for plot in plots:
             plot.setProperties(ncols=3)
 	    plot.setProperties(legendDw=-0.68)
@@ -145,7 +151,7 @@ def main():
     styledict_resolution = {"xlog": True, "xgrid":False, "ygrid":False,
         "xtitle":"GenJet pT (GeV)", "ytitle":"Jet pT resolution",
         "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
-        
+
     styledict_response = {"xlog": True, "xgrid":False, "ygrid":False,
         "xtitle":"GenJet pT (GeV)", "ytitle":"Jet response",
         "xtitleoffset":7.7,"ytitleoffset":3.8,"adjustMarginLeft":0.00}
@@ -173,6 +179,7 @@ def main():
         else :
             addPlots(plotter, fullfolder, name, folder, histograms, opts)
 
+
     outputDir = "plots" # Plot output directory
     description = "Simple ParticleFlow comparison"
 
@@ -180,6 +187,7 @@ def main():
         separate=False, # Set to true if you want each plot in it's own canvas
     #    ratio=False,   # Uncomment to disable ratio pad
     )
+
 
     val = SimpleValidation(samples, outputDir)
     report = val.createHtmlReport(validationName=description)
@@ -197,7 +205,6 @@ def main():
             offFile = open( outputDir + "/" + s.label() + "_offset.html", "r")
             lines = offFile.readlines()
             offFile.close()
-
             for f in s.files() :
                 fname = f.split('/')[-2]
                 outName = offsetStack( [(fname,f)], offsetVar, offsetDR, fullOffsetDir )

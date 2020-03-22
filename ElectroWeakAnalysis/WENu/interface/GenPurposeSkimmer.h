@@ -51,7 +51,6 @@
 #include "DataFormats/METReco/interface/GenMETFwd.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
 //
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
@@ -66,19 +65,17 @@
 //
 
 class GenPurposeSkimmer : public edm::EDAnalyzer {
-   public:
-      explicit GenPurposeSkimmer(const edm::ParameterSet&);
-      ~GenPurposeSkimmer();
+public:
+  explicit GenPurposeSkimmer(const edm::ParameterSet&);
+  ~GenPurposeSkimmer();
 
+private:
+  virtual void beginJob(const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
-
-  
   std::string outputFile_;
   int tree_fills_;
 
@@ -98,18 +95,17 @@ class GenPurposeSkimmer : public edm::EDAnalyzer {
   edm::InputTag HLTFilterType_[25];
   std::string HLTPath_[25];
 
-  TTree * probe_tree;
-  TFile * histofile;
+  TTree* probe_tree;
+  TFile* histofile;
   //
-
 
   //probe SC variables
   double probe_sc_eta_for_tree[4];
   double probe_sc_phi_for_tree[4];
   double probe_sc_et_for_tree[4];
-  int probe_sc_pass_fiducial_cut[4]; 
-  int probe_sc_pass_et_cut[4]; 
-  
+  int probe_sc_pass_fiducial_cut[4];
+  int probe_sc_pass_et_cut[4];
+
   //probe electron variables
   double probe_ele_eta_for_tree[4];
   double probe_ele_phi_for_tree[4];
@@ -120,15 +116,15 @@ class GenPurposeSkimmer : public edm::EDAnalyzer {
   double probe_ele_tip[4];
   int probe_charge_for_tree[4];
   int probe_index_for_tree[4];
-  
+
   //efficiency cuts
-  int probe_ele_pass_fiducial_cut[4]; 
-  int probe_ele_pass_et_cut[4]; 
-  int probe_pass_recoEle_cut[4]; 
-  int probe_pass_iso_cut[4]; 
+  int probe_ele_pass_fiducial_cut[4];
+  int probe_ele_pass_et_cut[4];
+  int probe_pass_recoEle_cut[4];
+  int probe_pass_iso_cut[4];
   //
-  double probe_isolation_value[4]; 
-  double probe_iso_user[4]; 
+  double probe_isolation_value[4];
+  double probe_iso_user[4];
   //
   double probe_ecal_isolation_value[4];
   double probe_ecal_iso_user[4];
@@ -136,7 +132,7 @@ class GenPurposeSkimmer : public edm::EDAnalyzer {
   double probe_hcal_isolation_value[4];
   double probe_hcal_iso_user[4];
   //
-  int probe_classification_index_for_tree[4]; 
+  int probe_classification_index_for_tree[4];
   int probe_pass_tip_cut[4];
   //
   int probe_pass_id_robust_loose[4];
@@ -156,7 +152,7 @@ class GenPurposeSkimmer : public edm::EDAnalyzer {
   double probe_ele_e1x5[4];
 
   //
-  int probe_pass_trigger_cut[4][25];   
+  int probe_pass_trigger_cut[4][25];
   double probe_hlt_matched_dr[4];
   //
   double MCMatch_Deta_;
@@ -166,42 +162,39 @@ class GenPurposeSkimmer : public edm::EDAnalyzer {
   double probe_mc_matched_dphi[4];
   double probe_mc_matched_denergy[4];
   int probe_mc_matched_mother[4];
-  
- //event variables
+
+  //event variables
   int numberOfHLTFilterObjects[25];
 
   int event_HLTPath[25];
-  
+
   double BarrelMaxEta;
   double EndcapMinEta;
   double EndcapMaxEta;
 
   double ProbeSCMinEt;
-  double ProbeRecoEleSCMaxDE; 
+  double ProbeRecoEleSCMaxDE;
 
   double ProbeHLTObjMaxDR;
   double RecoEleSeedBCMaxDE;
   double GsfTrackMinInnerPt;
 
-  int elec_number_in_event;      
+  int elec_number_in_event;
   int elec_1_duplicate_removal;
 
-  double    event_MET, event_MET_sig; 
+  double event_MET, event_MET_sig;
   //  double    event_MET_eta;
-  double    event_MET_phi;
-  double    event_tcMET, event_tcMET_sig, event_tcMET_phi;
-  double    event_pfMET, event_pfMET_sig; 
+  double event_MET_phi;
+  double event_tcMET, event_tcMET_sig, event_tcMET_phi;
+  double event_pfMET, event_pfMET_sig;
   //  double    event_pfMET_eta;
-  double    event_pfMET_phi;
-  double    event_genMET, event_genMET_sig; 
-  //  double    event_genMET_eta; 
-  double    event_genMET_phi;
+  double event_pfMET_phi;
+  double event_genMET, event_genMET_sig;
+  //  double    event_genMET_eta;
+  double event_genMET_phi;
   //
   double event_t1MET, event_t1MET_phi, event_t1MET_sig;
   double event_twikiT1MET, event_twikiT1MET_phi, event_twikiT1MET_sig;
-
 };
 
-
 #endif
-

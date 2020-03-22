@@ -26,6 +26,22 @@ L1DataEmulRecord::L1DataEmulRecord(bool evt_match,
   deColl = coll;
 }
 
+L1DataEmulRecord::L1DataEmulRecord(bool evt_match,
+                                   std::array<bool, DEnsys> const& sys_comp,
+                                   std::array<bool, DEnsys> const& sys_match,
+                                   std::array<std::array<int, 2>, DEnsys> const& nCand,
+                                   const L1DEDigiCollection& coll,
+                                   const GltDEDigi& glt)
+    : deAgree(evt_match), deGlt(glt) {
+  for (int i = 0; i < DEnsys; i++) {
+    deMatch[i] = sys_match[i];
+    deSysCompared[i] = sys_comp[i];
+    for (int j = 0; j < 2; j++)
+      deNCand[i][j] = nCand[i][j];
+  }
+  deColl = coll;
+}
+
 L1DataEmulRecord::~L1DataEmulRecord() {}
 
 void L1DataEmulRecord::get_status(bool result[]) const {

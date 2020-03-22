@@ -1,4 +1,3 @@
-#include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
@@ -20,17 +19,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Track/interface/CoreSimTrack.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -41,19 +29,17 @@
 #include "CondFormats/HIObjects/interface/RPFlatParams.h"
 
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
-#include "TList.h"
-#include "TString.h"
-#include <ctime>
-#include <cstdlib>
 
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 #include "RecoHI/HiEvtPlaneAlgos/interface/LoadEPDB.h"
 
-using namespace std;
-using namespace hi;
+#include "TList.h"
+#include "TString.h"
 
 #include <vector>
-using std::vector;
+#include <ctime>
+#include <cstdlib>
+#include <memory>
 
 //
 // class declaration
@@ -99,24 +85,10 @@ private:
   int CentBinCompression_;
   int Noffmin_;
   int Noffmax_;
-  HiEvtPlaneFlatten* flat[NumEPNames];
+  HiEvtPlaneFlatten* flat[hi::NumEPNames];
   bool useOffsetPsi_;
-  double nCentBins_;
 };
-//
-// constants, enums and typedefs
-//
 
-typedef std::vector<TrackingParticle> TrackingParticleCollection;
-typedef TrackingParticleRefVector::iterator tp_iterator;
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
     : centralityVariable_(iConfig.getParameter<std::string>("centralityVariable")),
       centralityBinTag_(iConfig.getParameter<edm::InputTag>("centralityBinTag")),
@@ -132,9 +104,6 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
       Noffmin_(iConfig.getParameter<int>("Noffmin")),
       Noffmax_(iConfig.getParameter<int>("Noffmax")),
       useOffsetPsi_(iConfig.getParameter<bool>("useOffsetPsi")) {
-  //  UseEtHF = kFALSE;
-  nCentBins_ = 200.;
-
   if (iConfig.exists("nonDefaultGlauberModel")) {
     centralityMC_ = iConfig.getParameter<std::string>("nonDefaultGlauberModel");
   }
@@ -153,29 +122,26 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
   //register your products
   produces<reco::EvtPlaneCollection>();
   //now do what ever other initialization is needed
-  for (int i = 0; i < NumEPNames; i++) {
+  for (int i = 0; i < hi::NumEPNames; i++) {
     flat[i] = new HiEvtPlaneFlatten();
-    flat[i]->init(FlatOrder_, NumFlatBins_, EPNames[i], EPOrder[i]);
+    flat[i]->init(FlatOrder_, NumFlatBins_, hi::EPNames[i], hi::EPOrder[i]);
   }
 }
 
 HiEvtPlaneFlatProducer::~HiEvtPlaneFlatProducer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  for (int i = 0; i < NumEPNames; i++) {
+  for (int i = 0; i < hi::NumEPNames; i++) {
     delete flat[i];
   }
 }
-
-//
-// member functions
-//
 
 // ------------ method called to produce the data  ------------
 void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace std;
   using namespace reco;
+  using namespace hi;
 
   //
   //Get Flattening Parameters
@@ -186,12 +152,12 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     //
     edm::ESHandle<CentralityTable> centDB_;
     iSetup.get<HeavyIonRcd>().get(centralityLabel_, centDB_);
-    nCentBins_ = centDB_->m_table.size();
-    for (int i = 0; i < NumEPNames; i++) {
+    int nCentBins = centDB_->m_table.size();
+    for (int i = 0; i < hi::NumEPNames; i++) {
       flat[i]->setCaloCentRefBins(-1, -1);
       if (caloCentRef_ > 0) {
-        int minbin = (caloCentRef_ - caloCentRefWidth_ / 2.) * nCentBins_ / 100.;
-        int maxbin = (caloCentRef_ + caloCentRefWidth_ / 2.) * nCentBins_ / 100.;
+        int minbin = (caloCentRef_ - caloCentRefWidth_ / 2.) * nCentBins / 100.;
+        int maxbin = (caloCentRef_ + caloCentRefWidth_ / 2.) * nCentBins / 100.;
         minbin /= CentBinCompression_;
         maxbin /= CentBinCompression_;
         if (minbin > 0 && maxbin >= minbin) {
@@ -213,17 +179,11 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   //Get Centrality
   //
 
-  int bin = 0;
-  edm::Handle<int> cbin_;
-  iEvent.getByToken(centralityBinToken, cbin_);
-  int cbin = *cbin_;
-  bin = cbin / CentBinCompression_;
+  int bin = iEvent.get(centralityBinToken) / CentBinCompression_;
 
   if (Noffmin_ >= 0) {
-    edm::Handle<reco::Centrality> centrality_;
-    iEvent.getByToken(centralityToken, centrality_);
-    int Noff = centrality_->Ntracks();
-    if ((Noff < Noffmin_) or (Noff >= Noffmax_)) {
+    int nOff = iEvent.get(centralityToken).Ntracks();
+    if ((nOff < Noffmin_) or (nOff >= Noffmax_)) {
       return;
     }
   }
@@ -232,12 +192,10 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   //
   int vs_sell;  // vertex collection size
   float vzr_sell;
-  edm::Handle<std::vector<reco::Vertex>> vertex_;
-  iEvent.getByToken(vertexToken, vertex_);
-  const reco::VertexCollection* vertices3 = vertex_.product();
-  vs_sell = vertices3->size();
+  auto const& vertices3 = iEvent.get(vertexToken);
+  vs_sell = vertices3.size();
   if (vs_sell > 0) {
-    vzr_sell = vertices3->begin()->z();
+    vzr_sell = vertices3.begin()->z();
   } else
     vzr_sell = -999.9;
 
@@ -245,25 +203,17 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   //Get Event Planes
   //
 
-  edm::Handle<reco::EvtPlaneCollection> evtPlanes_;
-  iEvent.getByToken(inputPlanesToken, evtPlanes_);
-
-  if (!evtPlanes_.isValid()) {
-    //    cout << "Error! Can't get hiEvtPlane product!" << endl;
-    return;
-  }
-
   auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
-  EvtPlane* ep[NumEPNames];
-  for (int i = 0; i < NumEPNames; i++) {
+  EvtPlane* ep[hi::NumEPNames];
+  for (int i = 0; i < hi::NumEPNames; i++) {
     ep[i] = nullptr;
   }
   int indx = 0;
-  for (EvtPlaneCollection::const_iterator rp = evtPlanes_->begin(); rp != evtPlanes_->end(); rp++) {
-    double psiOffset = rp->angle(0);
-    double s = rp->sumSin(0);
-    double c = rp->sumCos(0);
-    uint m = rp->mult();
+  for (auto const& rp : iEvent.get(inputPlanesToken)) {
+    double psiOffset = rp.angle(0);
+    double s = rp.sumSin(0);
+    double c = rp.sumCos(0);
+    uint m = rp.mult();
 
     double soff = s;
     double coff = c;
@@ -273,16 +223,15 @@ void HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       psiOffset = flat[indx]->getOffsetPsi(soff, coff);
     }
     double psiFlat = flat[indx]->getFlatPsi(psiOffset, vzr_sell, bin);
-    ep[indx] =
-        new EvtPlane(indx, 2, psiFlat, soff, coff, rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(), m);
-    ep[indx]->addLevel(0, rp->angle(0), s, c);
-    ep[indx]->addLevel(3, 0., rp->sumSin(3), rp->sumCos(3));
+    ep[indx] = new EvtPlane(indx, 2, psiFlat, soff, coff, rp.sumw(), rp.sumw2(), rp.sumPtOrEt(), rp.sumPtOrEt2(), m);
+    ep[indx]->addLevel(0, rp.angle(0), s, c);
+    ep[indx]->addLevel(3, 0., rp.sumSin(3), rp.sumCos(3));
     if (useOffsetPsi_)
       ep[indx]->addLevel(1, psiOffset, soff, coff);
     ++indx;
   }
 
-  for (int i = 0; i < NumEPNames; i++) {
+  for (int i = 0; i < hi::NumEPNames; i++) {
     if (ep[i] != nullptr)
       evtplaneOutput->push_back(*ep[i]);
   }

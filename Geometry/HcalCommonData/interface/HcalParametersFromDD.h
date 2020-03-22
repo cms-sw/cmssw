@@ -11,10 +11,11 @@ public:
   HcalParametersFromDD() = default;
 
   bool build(const DDCompactView*, HcalParameters&);
-  bool build(const cms::DDCompactView*, HcalParameters&);
+  bool build(const cms::DDCompactView&, HcalParameters&);
 
 private:
-  bool build(const HcalParameters&);
+  bool build(HcalParameters&);
+  void rescale(std::vector<double>&, const double s);
 };
 
 #endif

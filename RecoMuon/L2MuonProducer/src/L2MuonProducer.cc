@@ -19,6 +19,7 @@
 #include "RecoMuon/L2MuonProducer/src/L2MuonProducer.h"
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -62,7 +63,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet) {
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
 
   // the services
-  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
 
   std::unique_ptr<MuonTrajectoryBuilder> trajectoryBuilder = nullptr;
   // instantiate the concrete trajectory builder in the Track Finder

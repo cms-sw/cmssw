@@ -26,7 +26,8 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TMath.h"
 //The class
 class AlcaPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks> {
@@ -52,10 +53,8 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 AlcaPCCProducer::AlcaPCCProducer(const edm::ParameterSet& iConfig) {
-  fPixelClusterLabel = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters")
-                           .getParameter<edm::InputTag>("pixelClusterLabel");
-  trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCProducerParameters")
-                    .getUntrackedParameter<std::string>("trigstring", "alcaPCC");
+  fPixelClusterLabel = iConfig.getParameter<edm::InputTag>("pixelClusterLabel");
+  trigstring_ = iConfig.getUntrackedParameter<std::string>("trigstring", "alcaPCC");
 
   countLumi_ = 0;
 

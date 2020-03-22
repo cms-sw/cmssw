@@ -168,8 +168,6 @@ private:
 
         if (p.pt() < 0.5)
           continue;
-        if (p.fromPV() < 0)
-          continue;
         if (deltaR_tau_p > 0.5)
           continue;
         if (p.fromPV() < 1 && p.charge() != 0)
@@ -387,7 +385,7 @@ private:
         }
         iPF++;
       }
-      tensorflow::run(&(cache_->getSession()), {{"input_1", tensor}}, {"output_node0"}, {}, &outputs_);
+      tensorflow::run(&(cache_->getSession()), {{"input_1", tensor}}, {"output_node0"}, &outputs_);
       predictions.matrix<float>()(tau_index, 0) = outputs_[0].flat<float>()(0);
     }
     return predictions;

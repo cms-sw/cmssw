@@ -12,7 +12,7 @@
 class SummaryTableOutputBranches {
 public:
   SummaryTableOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken &token)
-      : m_token(token), m_branchesBooked(false) {
+      : m_token(token), m_fills(0) {
     if (desc->className() != "nanoaod::MergeableCounterTable")
       throw cms::Exception("Configuration", "NanoAODOutputModule can only write out MergableCounterTable objects");
   }
@@ -27,7 +27,7 @@ private:
     TBranch *branch;
     NamedBranchPtr(const std::string &aname, TBranch *branchptr = nullptr) : name(aname), branch(branchptr) {}
   };
-  std::vector<NamedBranchPtr> m_intBranches, m_floatBranches;
+  std::vector<NamedBranchPtr> m_intBranches, m_floatBranches, m_floatWithNormBranches;
 
   struct NamedVectorBranchPtr : public NamedBranchPtr {
     UInt_t count;
@@ -37,13 +37,13 @@ private:
                          TBranch *valueBranchptr = nullptr)
         : NamedBranchPtr(aname, valueBranchptr), counterBranch(counterBranchptr) {}
   };
-  std::vector<NamedVectorBranchPtr> m_vintBranches, m_vfloatBranches;
+  std::vector<NamedVectorBranchPtr> m_vintBranches, m_vfloatBranches, m_vfloatWithNormBranches;
 
-  bool m_branchesBooked;
+  unsigned long m_fills;
 
-  void defineBranchesFromFirstEvent(const nanoaod::MergeableCounterTable &tab, TTree &tree);
+  void updateBranches(const nanoaod::MergeableCounterTable &tab, TTree &tree);
 
-  template <typename Col>
+  template <typename T, typename Col>
   void makeScalarBranches(const std::vector<Col> &tabcols,
                           TTree &tree,
                           const std::string &rootType,

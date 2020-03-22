@@ -54,7 +54,7 @@ void popcon::EcalSRPHandler::getNewObjects() {
   unsigned long long max_since = 1;
 
   // this is the last inserted run
-  max_since = tagInfo().lastInterval.first;
+  max_since = tagInfo().lastInterval.since;
 
   // this is the last object in the DB
   Ref srp_db = lastPayload();

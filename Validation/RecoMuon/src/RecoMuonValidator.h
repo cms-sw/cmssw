@@ -24,7 +24,6 @@
 // for selection cut
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class MuonServiceProxy;
 class TrackAssociatorBase;
 
 class RecoMuonValidator : public DQMOneEDAnalyzer<> {
@@ -61,7 +60,6 @@ protected:
   std::string subsystemname_;
   edm::ParameterSet pset;
 
-  MuonServiceProxy* theMuonService;
   DQMStore* dbe_;
 
   bool doAbsEta_;

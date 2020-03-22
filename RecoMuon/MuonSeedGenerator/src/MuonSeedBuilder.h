@@ -17,9 +17,6 @@
 #include <DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h>
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-//muon service
-#include <RecoMuon/TrackingTools/interface/MuonServiceProxy.h>
-
 #include <vector>
 
 class DetLayer;
@@ -147,9 +144,6 @@ private:
 
   // Cache Magnetic Field for current event
   const MagneticField* BField;
-
-  // muon service
-  MuonServiceProxy* theService;
 
   // Minimum separation when we can distinguish between 2 muon seeds
   // (to suppress combinatorics)

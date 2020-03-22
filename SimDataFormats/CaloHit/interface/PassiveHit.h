@@ -15,9 +15,23 @@ public:
              float t = 0,
              int it = 0,
              int ip = 0,
-             float stepl = 0)
-      : vname_(vname), id_(id), energy_(e), etotal_(etot), time_(t), it_(it), ip_(ip), stepl_(stepl) {}
-  PassiveHit() : vname_(""), id_(0), energy_(0), etotal_(0), time_(0), it_(0), ip_(0), stepl_(0) {}
+             float stepl = 0,
+             float xp = 0,
+             float yp = 0,
+             float zp = 0)
+      : vname_(vname),
+        id_(id),
+        energy_(e),
+        etotal_(etot),
+        time_(t),
+        it_(it),
+        ip_(ip),
+        stepl_(stepl),
+        xp_(xp),
+        yp_(yp),
+        zp_(zp) {}
+  PassiveHit()
+      : vname_(""), id_(0), energy_(0), etotal_(0), time_(0), it_(0), ip_(0), stepl_(0), xp_(0), yp_(0), zp_(0) {}
 
   //Names
   static const char *name() { return "PassiveHit"; }
@@ -54,6 +68,14 @@ public:
   float stepLength() const { return stepl_; }
   void setStepLength(float stepl) { stepl_ = stepl; }
 
+  //Position of the Hit
+  float x() const { return xp_; }
+  void setX(float xp) { xp_ = xp; }
+  float y() const { return yp_; }
+  void setY(float yp) { yp_ = yp; }
+  float z() const { return zp_; }
+  void setZ(float zp) { zp_ = zp; }
+
   //Comparisons
   bool operator<(const PassiveHit &d) const { return energy_ < d.energy_; }
 
@@ -69,6 +91,9 @@ protected:
   int it_;
   int ip_;
   float stepl_;
+  float xp_;
+  float yp_;
+  float zp_;
 };
 
 namespace edm {

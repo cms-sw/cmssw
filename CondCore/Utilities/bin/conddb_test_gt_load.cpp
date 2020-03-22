@@ -182,9 +182,9 @@ void cond::UntypedPayloadProxy::reset() {
   m_data->current.clear();
 }
 
-std::string cond::UntypedPayloadProxy::tag() const { return m_iov.tag(); }
+std::string cond::UntypedPayloadProxy::tag() const { return m_iov.tagInfo().name; }
 
-cond::TimeType cond::UntypedPayloadProxy::timeType() const { return m_iov.timeType(); }
+cond::TimeType cond::UntypedPayloadProxy::timeType() const { return m_iov.tagInfo().timeType; }
 
 bool cond::UntypedPayloadProxy::get(cond::Time_t targetTime, bool debug) {
   bool loaded = false;
@@ -194,14 +194,16 @@ bool cond::UntypedPayloadProxy::get(cond::Time_t targetTime, bool debug) {
   if (targetTime < m_data->current.since || targetTime >= m_data->current.till) {
     // a new payload is required!
     if (debug)
-      std::cout << " Searching tag " << m_iov.tag() << " for a valid payload for time=" << targetTime << std::endl;
+      std::cout << " Searching tag " << m_iov.tagInfo().name << " for a valid payload for time=" << targetTime
+                << std::endl;
     m_session.transaction().start();
 
-    auto iIov = m_iov.find(targetTime);
-    if (iIov == m_iov.end())
-      cond::throwException(
-          std::string("Tag ") + m_iov.tag() + ": No iov available for the target time:" + std::to_string(targetTime),
-          "UntypedPayloadProxy::get");
+    auto iovs = m_iov.selectAll();
+    auto iIov = iovs.find(targetTime);
+    if (iIov == iovs.end())
+      cond::throwException(std::string("Tag ") + m_iov.tagInfo().name +
+                               ": No iov available for the target time:" + std::to_string(targetTime),
+                           "UntypedPayloadProxy::get");
     m_data->current = *iIov;
     event << "For target time " << targetTime << " got a valid since:" << m_data->current.since << " from group ["
           << m_iov.loadedGroup().first << " - " << m_iov.loadedGroup().second << "]";

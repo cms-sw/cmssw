@@ -43,7 +43,7 @@ private:
 
   // Maybe map of maps is not that bad for this add once, update once,
   // read once workflow?
-  using SignalMap = std::map<unsigned int, std::map<int, float>>;  // (channel, charge)
+  using SignalMap = std::map<uint32_t, std::map<int, float>>;  // (channel, charge)
   SignalMap accumulator_;
 };
 

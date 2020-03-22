@@ -23,7 +23,7 @@
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
+#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include <string>
 
 //----------------------------------------------------------------------------------------------------

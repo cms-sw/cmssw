@@ -6,7 +6,6 @@
 #include "SimG4CMS/Forward/interface/ZdcTestAnalysis.h"
 #include "SimG4CMS/Forward/interface/DoCastorAnalysis.h"
 #include "SimG4CMS/Forward/interface/PltSD.h"
-#include "SimG4CMS/Forward/interface/FastTimerSD.h"
 #include "SimG4CMS/Forward/interface/MtdSD.h"
 
 #include "SimG4CMS/Forward/interface/BscTest.h"
@@ -30,8 +29,6 @@ typedef BscSD BSCSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(BSCSensitiveDetector);
 typedef BHMSD BHMSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(BHMSensitiveDetector);
-typedef FastTimerSD FastTimerSensitiveDetector;
-DEFINE_SENSITIVEDETECTOR(FastTimerSensitiveDetector);
 typedef MtdSD MtdSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(MtdSensitiveDetector);
 typedef PltSD PLTSensitiveDetector;

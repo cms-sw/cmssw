@@ -124,7 +124,6 @@ void SiPixelTrackingRecHitsValid::bookHistograms(DQMStore::IBooker& ibooker,
                                                  const edm::EventSetup& es) {
   // Book histograms
   dbe_ = edm::Service<DQMStore>().operator->();
-  //dbe_->showDirStructure();
 
   //float math_pi = 3.14159265;
   //float radtodeg = 180.0 / math_pi;

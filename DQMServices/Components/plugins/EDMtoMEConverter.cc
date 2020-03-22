@@ -149,18 +149,17 @@ namespace {
 
       if (me) {
         auto histo = HistoTraits<T>::get(me);
-        if (histo && me->getTH1()->CanExtendAllAxes()) {
-          TList list;
-          list.Add(metoedmobject);
-          if (histo->Merge(&list) == -1)
-            std::cout << "ERROR EDMtoMEConverter::getData(): merge failed for '" << metoedmobject->GetName() << "'"
-                      << std::endl;
-          return me;
-        }
+        assert(histo);
+        TList list;
+        list.Add(metoedmobject);
+        if (histo->Merge(&list) == -1)
+          edm::LogError("EDMtoMEConverter") << "ERROR EDMtoMEConverter::getData(): merge failed for '"
+                                            << metoedmobject->GetName() << "'" << std::endl;
+        return me;
+      } else {
+        iBooker.setCurrentFolder(dir);
+        return HistoTraits<T>::book(iBooker, metoedmobject->GetName(), metoedmobject);
       }
-
-      iBooker.setCurrentFolder(dir);
-      return HistoTraits<T>::book(iBooker, metoedmobject->GetName(), metoedmobject);
     }
   };
 
@@ -247,8 +246,18 @@ namespace {
     }
   };
 
-  void maybeSetLumiFlag(MonitorElement *me, const edm::Run &) {}
-  void maybeSetLumiFlag(MonitorElement *me, const edm::LuminosityBlock &) { me->setLumiFlag(); }
+  // TODO: might need re-scoping to JOB here.
+  void adjustScope(DQMStore::IBooker &ibooker, const edm::Run &, MonitorElementData::Scope reScope) {
+    if (reScope == MonitorElementData::Scope::JOB) {
+      ibooker.setScope(MonitorElementData::Scope::JOB);
+    } else {
+      ibooker.setScope(MonitorElementData::Scope::RUN);
+    }
+  }
+  void adjustScope(DQMStore::IBooker &ibooker, const edm::LuminosityBlock &, MonitorElementData::Scope reScope) {
+    // will be LUMI for no reScoping, else the expected scope.
+    ibooker.setScope(reScope);
+  }
 
 }  // namespace
 
@@ -268,6 +277,12 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet &iPSet) : verbosity(0
 
   convertOnEndLumi = iPSet.getUntrackedParameter<bool>("convertOnEndLumi", true);
   convertOnEndRun = iPSet.getUntrackedParameter<bool>("convertOnEndRun", true);
+
+  auto scopeDecode = std::map<std::string, MonitorElementData::Scope>{{"", MonitorElementData::Scope::LUMI},
+                                                                      {"LUMI", MonitorElementData::Scope::LUMI},
+                                                                      {"RUN", MonitorElementData::Scope::RUN},
+                                                                      {"JOB", MonitorElementData::Scope::JOB}};
+  reScope = scopeDecode[iPSet.getUntrackedParameter<std::string>("reScope", "")];
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -350,9 +365,8 @@ void EDMtoMEConverter::getData(DQMStore::IBooker &iBooker, DQMStore::IGetter &iG
       }
 
       // define new monitor element
-      MonitorElement *me =
-          AddMonitorElement<METype>::call(iBooker, iGetter, &metoedmobject[i].object, dir, name, iGetFrom);
-      maybeSetLumiFlag(me, iGetFrom);
+      adjustScope(iBooker, iGetFrom, reScope);
+      AddMonitorElement<METype>::call(iBooker, iGetter, &metoedmobject[i].object, dir, name, iGetFrom);
 
     }  // end loop thorugh metoedmobject
   });

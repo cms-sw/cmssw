@@ -114,7 +114,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
       denSelection_(iConfig.getParameter<std::string>("denCut")),
       pvNDOF_(iConfig.getParameter<int>("pvNDOF")) {
   edm::ConsumesCollector c{consumesCollector()};
-  theTrackAnalyzer = new TrackAnalyzer(iConfig, c);
+  theTrackAnalyzer = new tadqm::TrackAnalyzer(iConfig, c);
 
   // input tags for collections from the configuration
   bsSrc_ = iConfig.getParameter<edm::InputTag>("beamSpot");
@@ -342,6 +342,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   if (doLumiAnalysis) {
     // add by Mia in order to deal with LS transitions
     ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
 
     histname = "NumberOfTracks_lumiFlag_" + CategoryName;
     NumberOfTracks_lumiFlag = ibooker.book1D(histname, histname, 3 * TKNoBin, TKNoMin, (TKNoMax + 0.5) * 3. - 0.5);
@@ -577,7 +578,12 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks", 2);
   }
 
-  theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  if (doLumiAnalysis) {
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  } else {
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  }
 
   // book the Seed Property histograms
   // ---------------------------------------------------------------------------------//
@@ -599,6 +605,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     if (doSeedLumiAnalysis_) {
       ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
       histname = "NumberOfSeeds_lumiFlag_" + seedProducer.label() + "_" + CategoryName;
       NumberOfSeeds_lumiFlag = ibooker.book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
       NumberOfSeeds_lumiFlag->setAxisTitle("Number of Seeds per Event", 1);
@@ -666,17 +673,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
   theTrackBuildingAnalyzer->initHisto(ibooker, *conf);
 
-  if (doLumiAnalysis) {
-    if (NumberOfTracks_lumiFlag)
-      NumberOfTracks_lumiFlag->setLumiFlag();
-    theTrackAnalyzer->setLumiFlag();
-  }
-
-  if (doAllSeedPlots || doSeedNumberPlot) {
-    if (doSeedLumiAnalysis_)
-      NumberOfSeeds_lumiFlag->setLumiFlag();
-  }
-
   if (doTrackerSpecific_ || doAllPlots) {
     ClusterLabels = conf->getParameter<std::vector<std::string> >("ClusterLabels");
 
@@ -727,20 +723,6 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   
 }
 */
-
-// - BeginLumi
-// ---------------------------------------------------------------------------------//
-void TrackingMonitor::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eSetup) {
-  if (doLumiAnalysis) {
-    if (NumberOfTracks_lumiFlag)
-      NumberOfTracks_lumiFlag->Reset();
-    theTrackAnalyzer->doReset();
-  }
-  if (doAllSeedPlots || doSeedNumberPlot) {
-    if (doSeedLumiAnalysis_)
-      NumberOfSeeds_lumiFlag->Reset();
-  }
-}
 
 // -- Analyse
 // ---------------------------------------------------------------------------------//
@@ -1114,8 +1096,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   }  // trackHandle is valid
 }
-
-void TrackingMonitor::dqmEndRun(const edm::Run&, const edm::EventSetup&) {}
 
 void TrackingMonitor::setMaxMinBin(std::vector<double>& arrayMin,
                                    std::vector<double>& arrayMax,

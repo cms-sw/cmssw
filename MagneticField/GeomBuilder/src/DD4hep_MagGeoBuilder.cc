@@ -119,7 +119,8 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   int eVolCount = 0;
 
   const string magfStr{"MAGF"};
-  if (fv.name() != magfStr) {
+  const string magfStr2{"cmsMagneticField:MAGF"};
+  if (fv.name() != magfStr && fv.name() != magfStr2) {
     std::string topNodeName(fv.name());
     LogTrace("MagGeoBuilder") << "Filtered view top node name is " << topNodeName << ".";
 

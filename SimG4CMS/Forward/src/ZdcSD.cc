@@ -8,7 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4SDManager.hh"
@@ -39,22 +38,19 @@ ZdcSD::ZdcSD(const std::string& name,
   verbosity %= 10;
   setNumberingScheme(new ZdcNumberingScheme(verbn));
 
-  edm::LogInfo("ForwardSim") << "***************************************************\n"
-                             << "*                                                 *\n"
-                             << "* Constructing a ZdcSD  with name " << name << "   *\n"
-                             << "*                                                 *\n"
-                             << "***************************************************";
+  edm::LogVerbatim("ZdcSD") << "***************************************************\n"
+                            << "*                                                 *\n"
+                            << "* Constructing a ZdcSD  with name " << name << "   *\n"
+                            << "*                                                 *\n"
+                            << "***************************************************";
 
-  edm::LogInfo("ForwardSim") << "\nUse of shower library is set to " << useShowerLibrary
-                             << "\nUse of Shower hits method is set to " << useShowerHits;
+  edm::LogVerbatim("ZdcSD") << "\nUse of shower library is set to " << useShowerLibrary
+                            << "\nUse of Shower hits method is set to " << useShowerHits;
 
-  edm::LogInfo("ForwardSim") << "\nEnergy Threshold Cut set to " << zdcHitEnergyCut / GeV << " (GeV)";
-
-  edm::ESTransientHandle<DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get(cpv);
+  edm::LogVerbatim("ZdcSD") << "\nEnergy Threshold Cut set to " << zdcHitEnergyCut / GeV << " (GeV)";
 
   if (useShowerLibrary) {
-    showerLibrary.reset(new ZdcShowerLibrary(name, *cpv, p));
+    showerLibrary.reset(new ZdcShowerLibrary(name, p));
     setParameterized(true);
   } else {
     showerLibrary.reset(nullptr);
@@ -289,7 +285,7 @@ uint32_t ZdcSD::setDetUnitId(const G4Step* aStep) {
 
 void ZdcSD::setNumberingScheme(ZdcNumberingScheme* scheme) {
   if (scheme != nullptr) {
-    edm::LogInfo("ForwardSim") << "ZdcSD: updates numbering scheme for " << GetName();
+    edm::LogVerbatim("ZdcSD") << "ZdcSD: updates numbering scheme for " << GetName();
     numberingScheme.reset(scheme);
   }
 }

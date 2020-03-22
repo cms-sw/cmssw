@@ -1,11 +1,11 @@
 <use name="DQMOffline/EGamma"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/MuonReco"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="DataFormats/Math"/>
-<use name="RecoEgamma/EgammaIsolationAlgos"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="DQMServices/Components"/>

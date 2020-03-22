@@ -48,6 +48,8 @@ public:
     Ph1PXF,
     Ph2PXB,
     Ph2PXF,
+    Ph2PXB3D,
+    Ph2PXF3D,
     Ph2PSP,
     Ph2PSS,
     Ph2SS

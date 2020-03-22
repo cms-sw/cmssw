@@ -25,9 +25,9 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
+#include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
