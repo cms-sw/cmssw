@@ -6,8 +6,9 @@ TrackerDTCFormat_params = cms.PSet (
 
   ParamsTTStubAlgo = cms.PSet (
 
-    Label          = cms.string( "TTStubAlgorithm_official_Phase2TrackerDigi_" ), # 
-    Process        = cms.string( "HLT" ),                                         # empty string possible
+    CheckHistory   = cms.bool  ( False ),                                         # check consitency between configured TTStub algo and the one used during input sample production
+    Label          = cms.string( "TTStubAlgorithm_official_Phase2TrackerDigi_" ), # producer name used during input sample production
+    Process        = cms.string( "HLT" ),                                         # process name used during input sample production
     BaseWindowSize = cms.double( .5 )                                             # precision of window sizes in pitch units
 
   ),

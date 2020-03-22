@@ -1,63 +1,92 @@
-#ifndef __TrackerDTC_MODULE__
-#define __TrackerDTC_MODULE__
+#ifndef L1Trigger_TrackerDTC_Module_h
+#define L1Trigger_TrackerDTC_Module_h
 
-#include "L1Trigger/TrackerDTC/interface/Settings.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "L1Trigger/TrackerDTC/interface/Settings.h"
 
 #include <vector>
 
-namespace TrackerDTC {
+namespace trackerDTC {
 
   // representation of an outer tracker sensormodule
   class Module {
     friend class Stub;
 
   public:
-    Module(Settings* settings, const ::DetId& detId, const int& modId);
+    Module(Settings* settings, const ::DetId& detId, int modId);
+    ~Module() {}
 
-    ~Module(){}
-
-    double r() const { return R_; }
-    double phi() const { return Phi_; }
-    double z() const { return Z_; }
+    // track trigger dtc id [0-215]
+    int dtcId() const { return dtcId_; }
+    // DTC module id [0-71]
+    int dtcChannelId() const { return dtcChannelId_; }
 
   private:
     // handles 2 pi overflow
-    double deltaPhi(const double& phi) { return reco::deltaPhi(phi, 0.); }
+    double deltaPhi(double phi) { return reco::deltaPhi(phi, 0.); }
 
   private:
-    int blockId_;    // outer tracker dtc routing block id [0-1]
-    int channelId_;  // routing block channel id [0-35]
+    // track trigger dtc id [0-215]
+    int dtcId_;
+    // DTC module id [0-71]
+    int dtcChannelId_;
+    // outer tracker dtc routing block id [0-1]
+    int blockId_;
+    // routing block channel id [0-35]
+    int blockChannelId_;
 
-    bool side_;        // +z or -z
-    bool barrel_;      // barrel or endcap
-    bool flipped_;     // main sensor inside or outside
-    bool signRow_;     // TTStub row needs flip of sign
-    bool signCol_;     // TTStub col needs flip of sign
-    bool signBend_;    // TTStub bend needs flip of sign
-    int numColumns_;   // number of columns [2S=2,PS=8]
-    int numRows_;      // number of rows [2S=8*127,PS=8*120]
-    int layerId_;      // data format dependent
-    double R_;         // module radius in cm
-    double Phi_;       // module phi w.r.t. detector region centre in rad
-    double Z_;         // module z in cm
-    double sep_;       // sensor separation in cm
-    double pitchRow_;  // sensor pitch in cm [strip=.009,pixel=.01]
-    double pitchCol_;  // sensor length in cm [strip=5,pixel=.15625]
-    double tilt_;      // module tilt measured w.r.t. beam axis (0=barrel), tk layout measures w.r.t. radial axis
-    double sin_;  // sinus of module tilt measured w.r.t. beam axis (0=barrel), tk layout measures w.r.t. radial axis
-    double cos_;  // cosinus of module tilt measured w.r.t. beam axis (+-1=endcap), tk layout measures w.r.t. radial axis
+    // +z or -z
+    bool side_;
+    // barrel or endcap
+    bool barrel_;
+    // main sensor inside or outside
+    bool flipped_;
+    // TTStub row needs flip of sign
+    bool signRow_;
+    // TTStub col needs flip of sign
+    bool signCol_;
+    // TTStub bend needs flip of sign
+    bool signBend_;
+    // number of columns [2S=2,PS=8]
+    int numColumns_;
+    // number of rows [2S=8*127,PS=8*120]
+    int numRows_;
+    // layer id [1-6,11-15]
+    int layerId_;
+    // module radius in cm
+    double R_;
+    // module phi w.r.t. detector region centre in rad
+    double Phi_;
+    // module z in cm
+    double Z_;
+    // sensor separation in cm
+    double sep_;
+    // sensor pitch in cm [strip=.009,pixel=.01]
+    double pitchRow_;
+    // sensor length in cm [strip=5,pixel=.15625]
+    double pitchCol_;
+    // module tilt measured w.r.t. beam axis (0=barrel), tk layout measures w.r.t. radial axis
+    double tilt_;
+    // sinus of module tilt measured w.r.t. beam axis (0=barrel), tk layout measures w.r.t. radial axis
+    double sin_;
+    // cosinus of module tilt measured w.r.t. beam axis (+-1=endcap), tk layout measures w.r.t. radial axis
+    double cos_;
 
     // hybrid format specific member
 
-    SettingsHybrid::SensorType type_;   // module type (barrelPS, barrel2S, diskPS, disk2S)
-    int decodedR_;                      // decoded radius of disk2S stubs
-    double offsetR_;                    // stub radius offset for barrelPS, barrel2S
-    double offsetZ_;                    // stub z offset for diskPS, disk2S
-    std::vector<double> bendEncoding_;  // index = encoded bend, value = decoded bend
+    // module type (barrelPS, barrel2S, diskPS, disk2S)
+    SettingsHybrid::SensorType type_;
+    // decoded radius of disk2S stubs
+    int decodedR_;
+    // stub radius offset for barrelPS, barrel2S
+    double offsetR_;
+    // stub z offset for diskPS, disk2S
+    double offsetZ_;
+    // index = encoded bend, value = decoded bend
+    std::vector<double> bendEncoding_;
   };
 
-}  // namespace TrackerDTC
+}  // namespace trackerDTC
 
 #endif

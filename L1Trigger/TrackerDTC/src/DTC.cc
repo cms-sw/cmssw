@@ -8,29 +8,27 @@
 using namespace std;
 using namespace edm;
 
-namespace TrackerDTC {
+namespace trackerDTC {
 
-  DTC::DTC(Settings* settings, const int& dtcId, const std::vector<Module*>& modules, const int& nStubs)
-      : settings_(settings),                             // helper class to store configurations
-        region_(dtcId / settings_->numDTCsPerRegion()),  // outer tracker detector region [0-8]
-        board_(dtcId % settings_->numDTCsPerRegion()),   // outer tracker dtc id in region [0-23]
-        modules_(modules)                                // container of sensor modules connected to this DTC
-  {
-    stubs_.reserve(nStubs);  // container of stubs on this DTC
-  }
+  DTC::DTC(Settings* settings, int nStubs) : settings_(settings) { stubs_.reserve(nStubs); }
 
   // convert and assign TTStubRef to DTC routing block channel
-  void DTC::consume(const vector<TTStubRef>& ttStubRefStream, const int& channelId) {
+  void DTC::consume(const vector<TTStubRef>& ttStubRefStream, Module* module) {
     for (const TTStubRef& ttStubRef : ttStubRefStream)
-      stubs_.emplace_back(settings_, ttStubRef, modules_[channelId]);  // convert TTStub
+      stubs_.emplace_back(settings_, module, ttStubRef);
   }
 
   // board level routing in two steps and product filling
-  void DTC::produce(TTDTC& product) {
-    // empty input container
+  void DTC::produce(TTDTC& product, int dtcId) {
+    stubs_.shrink_to_fit();
+    // outer tracker detector region [0-8]
+    const int region = dtcId / settings_->numDTCsPerRegion();
+    // outer tracker dtc id in region [0-23]
+    const int board = dtcId % settings_->numDTCsPerRegion();
+    // empty input, intermediate and output container
     Stubsss moduleStubs(settings_->numRoutingBlocks(), Stubss(settings_->numModulesPerRoutingBlock()));
-    Stubss blockStubs(settings_->numRoutingBlocks());        // empty intermediate container
-    Stubss regionStubs(settings_->numOverlappingRegions());  // empty output container
+    Stubss blockStubs(settings_->numRoutingBlocks());
+    Stubss regionStubs(settings_->numOverlappingRegions());
 
     // fill input
     for (Stub& stub : stubs_)
@@ -52,29 +50,30 @@ namespace TrackerDTC {
     // fill product
     for (int channel = 0; channel < settings_->numOverlappingRegions(); channel++) {
       Stubs& stubs = regionStubs[channel];
-
-      if (settings_->enableTruncation())  // truncate if desired
+      // truncate if desired
+      if (settings_->enableTruncation())
         stubs.resize(min((int)stubs.size(), settings_->maxFramesChannelOutput()));
-
       // remove all gaps between end and last stub
       for (auto it = stubs.end(); it != stubs.begin();)
         it = (*--it) ? stubs.begin() : stubs.erase(it);
-
+      // convert to TTDTC::Stream
       TTDTC::Stream stream;
       stream.reserve(stubs.size());
       for (const Stub* stub : stubs) {
         if (stub)
           stream.emplace_back(stub->ttStubRef(), stub->frame(channel));
-        else  // use default constructed TTDTC::Pair to represent gaps
+        else
+          // use default constructed TTDTC::Pair to represent gaps
           stream.emplace_back();
       }
-      product.setStream(region_, board_, channel, stream);
+      product.setStream(region, board, channel, stream);
     }
   }
 
   // router step 1: merges stubs of all modules connected to one routing block into one stream
   void DTC::merge(Stubss& inputs, Stubs& output) {
-    Stubss stacks(inputs.size());  // for each input one fifo
+    // for each input one fifo
+    Stubss stacks(inputs.size());
 
     // clock accurate firmware emulation, each while trip describes one clock tick
     while (!all_of(inputs.begin(), inputs.end(), [](const Stubs& channel) { return channel.empty(); }) or
@@ -85,11 +84,11 @@ namespace TrackerDTC {
         Stubs& stack = stacks[iInput];
         if (input.empty())
           continue;
-
         Stub* stub = pop_front(input);
         if (stub) {
           if (settings_->enableTruncation() && (int)stack.size() == settings_->sizeStack() - 1)
-            stack.pop_front();  // kill current first stub when fifo overflows
+            // kill current first stub when fifo overflows
+            stack.pop_front();
           stack.push_back(stub);
         }
       }
@@ -100,14 +99,14 @@ namespace TrackerDTC {
         Stubs& stack = stacks[iInput];
         if (stack.empty())
           continue;
-
         nothingToRoute = false;
         output.push_back(pop_front(stack));
-
-        break;  // only one stub can be routed to output per clock tick
+        // only one stub can be routed to output per clock tick
+        break;
       }
 
-      if (nothingToRoute)  // each clock tick output will grow by one, if no stub is available then by a gap
+      // each clock tick output will grow by one, if no stub is available then by a gap
+      if (nothingToRoute)
         output.push_back(nullptr);
     }
   }
@@ -115,26 +114,23 @@ namespace TrackerDTC {
   // router step 2: merges stubs of all routing blocks and splits stubs into one stream per overlapping region
   void DTC::split(Stubss& inputs, Stubss& outputs) {
     int region(0);
+    auto regionMask = [region](Stub* stub) { return stub->inRegion(region) ? stub : nullptr; };
     for (Stubs& output : outputs) {
-      Stubss streams(inputs.size());  // copy of inputs for each output
-
+      // copy of masked inputs for each output
+      Stubss streams(inputs.size());
       int i(0);
       for (Stubs& input : inputs)
-        transform(input.begin(), input.end(), back_inserter(streams[i++]), [region](Stub* stub) {
-          return stub->inRegion(region) ? stub : nullptr;
-        });
-
+        transform(input.begin(), input.end(), back_inserter(streams[i++]), regionMask);
       merge(streams, output);
-
       region++;
     }
   }
 
-  // new pop_front function which additionally returns copy of deleted front
+  // pop_front function which additionally returns copy of deleted front
   Stub* DTC::pop_front(Stubs& deque) {
     Stub* stub = deque.front();
     deque.pop_front();
     return stub;
   }
 
-}  // namespace TrackerDTC
+}  // namespace trackerDTC

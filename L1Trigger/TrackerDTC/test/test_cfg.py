@@ -13,6 +13,7 @@ process.load( 'Configuration.Geometry.GeometryExtended2026D49Reco_cff' )
 process.load( 'Configuration.Geometry.GeometryExtended2026D49_cff' )
 process.load( 'Configuration.StandardSequences.MagneticField_cff' )
 process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff' )
+process.load( 'Configuration.StandardSequences.L1TrackTrigger_cff' )
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:phase2_realistic', '' )
