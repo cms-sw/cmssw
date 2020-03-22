@@ -41,16 +41,16 @@ static long algorithm(dd4hep::Detector& /* description */,
     if (phitmp >= 2._pi)
       phitmp -= 2._pi;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: Creating a new rotation \t90, " << convertRadToDeg(phitmp + 90._deg) 
-				    << ", 0, 0, 90, " << convertRadToDeg(phitmp);
+    edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: Creating a new rotation \t90, "
+                                    << convertRadToDeg(phitmp + 90._deg) << ", 0, 0, 90, " << convertRadToDeg(phitmp);
 #endif
     dd4hep::Rotation3D rotation = cms::makeRotation3D(90._deg, 90._deg + phitmp, 0., 0., 90._deg, phitmp);
     dd4hep::Position tran(roffset * cos(phi), roffset * sin(phi), zoffset);
 
     parent.placeVolume(childName, copyNo, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: " << childName << " number " << copyNo
-                                    << " positioned in " << parent.name() << " at " << tran << " with " << rotation;
+    edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: " << childName << " number " << copyNo << " positioned in "
+                                    << parent.name() << " at " << tran << " with " << rotation;
 #endif
     phi += stepAngle;
     copyNo += incrCopyNo;
