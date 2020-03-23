@@ -164,7 +164,7 @@ void TrackFinder::process(
       const int es = (endcap - emtf::MIN_ENDCAP) * (emtf::MAX_TRIGSECTOR - emtf::MIN_TRIGSECTOR + 1) + (sector - emtf::MIN_TRIGSECTOR);
 
       // Run-dependent configure. This overwrites many of the configurables passed by the python config file.
-      if (iEvent.isRealData() && fwConfig_) {
+      if ((iEvent.isRealData() || era_ == "Run2_2016") && fwConfig_) {
         sector_processors_.at(es).configure_by_fw_version(condition_helper_.get_fw_version());
       }
 
