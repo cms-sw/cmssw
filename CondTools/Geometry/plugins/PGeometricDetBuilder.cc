@@ -11,9 +11,14 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
+
+using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
+using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+using RotationMatrix = ROOT::Math::Rotation3D;
 
 class PGeometricDetBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
@@ -34,7 +39,7 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
     edm::LogError("PGeometricDetBuilder") << "PoolDBOutputService unavailable";
     return;
   }
-  edm::ESTransientHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<cms::DDCompactView> pDD;
   edm::ESHandle<GeometricDet> rDD;
   es.get<IdealGeometryRecord>().get(pDD);
   es.get<IdealGeometryRecord>().get(rDD);
@@ -114,8 +119,8 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
 
 void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, int lev) {
   PGeometricDet::Item item;
-  const DDTranslation& tran = gd->translation();
-  const DDRotationMatrix& rot = gd->rotation();
+  const Translation& tran = gd->translation();
+  const RotationMatrix& rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
   item._name = gd->name();
@@ -137,7 +142,7 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
   item._a33 = z.Z();
   item._shape = static_cast<int>(gd->shape());
   item._type = gd->type();
-  if (gd->shape() == DDSolidShape::ddbox) {
+  if (gd->shape() == cms::DDSolidShape::ddbox) {
     item._params0 = gd->params()[0];
     item._params1 = gd->params()[1];
     item._params2 = gd->params()[2];
@@ -149,7 +154,7 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
     item._params8 = 0;
     item._params9 = 0;
     item._params10 = 0;
-  } else if (gd->shape() == DDSolidShape::ddtrap) {
+  } else if (gd->shape() == cms::DDSolidShape::ddtrap) {
     item._params0 = gd->params()[0];
     item._params1 = gd->params()[1];
     item._params2 = gd->params()[2];
