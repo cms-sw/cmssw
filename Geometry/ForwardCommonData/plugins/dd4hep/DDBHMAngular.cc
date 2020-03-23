@@ -4,7 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/DetFactoryHelper.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
