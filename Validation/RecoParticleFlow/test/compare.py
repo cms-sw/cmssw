@@ -76,6 +76,11 @@ def parse_args():
         required=False,
         help="If enabled, do all offset plots"
     )
+    parser.add_argument("--doMETPlots",
+        action='store_true',
+        required=False,
+        help="If enabled, do all MET plots"
+    )
     parser.add_argument( "--offsetVar", type=str,   action='store', default="npv", help="variable to bin offset eT" )
     parser.add_argument( "--offsetDR",  type=float, action='store', default=0.4,   help="offset deltaR value" )
     args = parser.parse_args()
@@ -88,31 +93,32 @@ def parse_args():
     for ss in sample_strings:
         name, files = parse_sample_string(ss)
         samp = SimpleSample(name, name, [(fn, fn.split('/')[-2]) for fn in files])
-        samples += [samp]
+        samples += [samp]    
 
     for ss in args.plots:
         folder, name, histograms = parse_plot_string(ss)
         plots += [(folder, name, histograms)]
 
+
     # This needs to be also changed whenever changing binning
     if args.doResponsePlots:
         # Needs to add extra folders here if the DQM files have other folders of histograms
-        folderDirs = ["JetResponse/slimmedJets/JEC", "JetResponse/slimmedJets/noJEC", "JetResponse/slimmedJetsPuppi/JEC", "JetResponse/slimmedJetsPuppi/noJEC"]
+        JetFolderDirs = ["JetResponse/slimmedJets/JEC", "JetResponse/slimmedJets/noJEC", "JetResponse/slimmedJetsPuppi/JEC", "JetResponse/slimmedJetsPuppi/noJEC"]
 
-        for folderDir in folderDirs:
-            plots += [(folderDir, "reso_pt", ["preso_eta05", "preso_eta13",
+        for JetFolderDir in JetFolderDirs:
+            plots += [(JetFolderDir, "reso_pt", ["preso_eta05", "preso_eta13",
                                                   "preso_eta21","preso_eta25","preso_eta30","preso_eta50"])]
-            plots += [(folderDir, "reso_pt_rms", ["preso_eta05_rms",
+            plots += [(JetFolderDir, "reso_pt_rms", ["preso_eta05_rms",
                                                       "preso_eta13_rms","preso_eta21_rms","preso_eta25_rms","preso_eta30_rms",
                                                       "preso_eta50_rms"])]
-            plots += [(folderDir, "response_pt", ["presponse_eta05",
+            plots += [(JetFolderDir, "response_pt", ["presponse_eta05",
                                                       "presponse_eta13", "presponse_eta21", "presponse_eta25", "presponse_eta30",
                                                       "presponse_eta50"])]
             for iptbin in range(len(ptbins)-1):
                 pthistograms = []
                 for ietabin in range(len(etabins)-1):
                     pthistograms += [response_distribution_name(iptbin, ietabin)]
-                plots += [(folderDir, "response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1]), pthistograms)]
+                plots += [(JetFolderDir, "response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1]), pthistograms)]
 
     if args.doOffsetPlots:
         if args.offsetVar == "npv" :
@@ -124,17 +130,37 @@ def parse_args():
             for itype in candidateType :
                 offsetHists += [ offset_name( args.offsetVar, ivar, itype ) ]
             plots += [("Offset/{0}Plots/{0}{1}".format(args.offsetVar, ivar), "{0}{1}".format(args.offsetVar, ivar), offsetHists)]
+    
+    if args.doMETPlots:
+        doMETPlots(files, plots)
+        
 
+    return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR, args.doMETPlots
 
-    return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR
+# function that does met plots
+def doMETPlots(files, plots):
+    #get the names of the histograms 
+    METHistograms = []
+    f = ROOT.TFile(files[0])
+    d = f.Get("DQMData/Run 1/JetMET/Run summary/METValidation/slimmedMETsPuppi")
+    for i in d.GetListOfKeys():
+        METHistograms.append([i.GetName()])
+    # append plots
+    METFolderDirs = ["METValidation/slimmedMETs","METValidation/slimmedMETsPuppi"]
+    for METFolderDir in METFolderDirs: 
+        for  METHistogram in  METHistograms:
+            plots += [(METFolderDir, "", METHistogram)]
 
-def addPlots(plotter, folder, name, section, histograms, opts, offset=False):
+def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
     folders = [folder]
-    plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
+
+    #plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
     #KH print plots
-    if offset :
+    if Offset :
+        plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
         plotter.append("Offset", folders, PlotFolder(*plots, loopSubFolders=False, page="offset", section=section))
-    else :
+    elif "JetResponse" in folder :
+        plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
         plotter.append("ParticleFlow/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="pf", section=section))
         for plot in plots:
             plot.setProperties(ncols=3)
@@ -142,6 +168,15 @@ def addPlots(plotter, folder, name, section, histograms, opts, offset=False):
 	    plot.setProperties(legendDh=0.005)
 	    plot.setProperties(legendDy=0.24)
 	    plot.setProperties(legendDx=0.05)
+    elif "MET" in folder: 
+        for h in histograms:
+            plots = [PlotGroup(h, [Plot(h, **opts)])]
+        for plot in plots:
+            plot.setProperties(legendDw=-1)
+            plot.setProperties(legendDh=0.005)
+            plot.setProperties(legendDy=0.24)
+            plot.setProperties(legendDx=0.05)
+        plotter.append("METValidation" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="MET", section=section))
 
 
 def main():
@@ -163,22 +198,25 @@ def main():
     for iptbin in range(len(ptbins)-1):
         plot_opts["response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1])] = {"stat": True}
 
-    samples, plots, doOffsetPlots, offsetVar, offsetDR = parse_args()
+    samples, plots, doOffsetPlots, offsetVar, offsetDR, doMETPlots = parse_args()
 
     plotter = Plotter()
 
     for folder, name, histograms in plots:
         opts = plot_opts.get(name, {})
-
+        
         #fullfolder =  "DQMData/Run 1/Physics/Run summary/{0}".format(folder)
-        fullfolder =  "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folder)
+        #fullfolder =  "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folder)
+        fullJetFolder = "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folder)
+        fullMETFolder = "DQMData/Run 1/JetMET/Run summary/{0}".format(folder)
         print "Booking histogram group {0}={1} from folder {2}".format(name, histograms, folder)
-        if "Offset/" in folder :
+        if "Offset/" in folder:
             opts = {'xtitle':'Default', 'ytitle':'Default'}
-            addPlots(plotter, fullfolder, name, folder, histograms, opts, True)
-        else :
-            addPlots(plotter, fullfolder, name, folder, histograms, opts)
-
+            addPlots(plotter, fullJetFolder, name, folder, histograms, opts, True)
+        elif "JetResponse" in folder:
+            addPlots(plotter, fullJetFolder, name, folder, histograms, opts)
+        elif "MET" in folder:
+            addPlots(plotter, fullMETFolder, name, folder, histograms, opts)
 
     outputDir = "plots" # Plot output directory
     description = "Simple ParticleFlow comparison"
