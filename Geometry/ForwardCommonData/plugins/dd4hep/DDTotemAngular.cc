@@ -28,9 +28,9 @@ static long algorithm(dd4hep::Detector& /* description */,
 #endif
   std::string childName = args.value<std::string>("ChildName");
   dd4hep::Volume parent = ns.volume(args.parentName());
-  childName = ns.prepend(childName);
+  dd4hep::Volume child = ns.volume(ns.prepend(childName));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardGeom") << "DDTotemAngular debug: Parent " << parent.name() << "\tChild " << childName;
+  edm::LogVerbatim("ForwardGeom") << "DDTotemAngular debug: Parent " << parent.name() << "\tChild " << child.name();
 #endif
 
   double phi = startAngle;
@@ -47,9 +47,9 @@ static long algorithm(dd4hep::Detector& /* description */,
     dd4hep::Rotation3D rotation = cms::makeRotation3D(90._deg, 90._deg + phitmp, 0., 0., 90._deg, phitmp);
     dd4hep::Position tran(roffset * cos(phi), roffset * sin(phi), zoffset);
 
-    parent.placeVolume(childName, copyNo, dd4hep::Transform3D(rotation, tran));
+    parent.placeVolume(child, copyNo, dd4hep::Transform3D(rotation, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: " << childName << " number " << copyNo << " positioned in "
+    edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: " << child.name() << " number " << copyNo << " positioned in "
                                     << parent.name() << " at " << tran << " with " << rotation;
 #endif
     phi += stepAngle;

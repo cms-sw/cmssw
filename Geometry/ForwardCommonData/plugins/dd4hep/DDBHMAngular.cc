@@ -24,9 +24,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   std::string rotMat = args.value<std::string>("Rotation");
   std::string childName = args.value<std::string>("ChildName");
   dd4hep::Volume parent = ns.volume(args.parentName());
-  childName = ns.prepend(childName);
+  dd4hep::Volume child = ns.volume(ns.prepend(childName));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardGeom") << "DDBHMAngular debug: Parent " << parent.name() << "\tChild " << childName
+  edm::LogVerbatim("ForwardGeom") << "DDBHMAngular debug: Parent " << parent.name() << "\tChild " << child.name()
                                   << "\tRotation matrix " << rotMat;
 #endif
   std::string rotstr = DDSplit(rotMat).first;
@@ -60,9 +60,9 @@ static long algorithm(dd4hep::Detector& /* description */,
     }
     dd4hep::Position tran(driverX, driverY, driverZ);
 
-    parent.placeVolume(childName, jj + 1, dd4hep::Transform3D(rot, tran));
+    parent.placeVolume(child, jj + 1, dd4hep::Transform3D(rot, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardGeom") << "DDBHMAngular test: " << childName << " number " << jj + 1 << " positioned in "
+    edm::LogVerbatim("ForwardGeom") << "DDBHMAngular test: " << child.name() << " number " << jj + 1 << " positioned in "
                                     << parent.name() << " at " << tran << " with " << rot;
 #endif
   }
