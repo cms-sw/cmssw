@@ -4,3 +4,4 @@
 <library   file="DQMRootFileReader.cc" name="CalibrationTkAlCaRecoProducersDQMRootFileReader">
   <flags   EDM_PLUGIN="1"/>
 </library>
+  

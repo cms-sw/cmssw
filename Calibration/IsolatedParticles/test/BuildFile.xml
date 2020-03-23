@@ -14,3 +14,4 @@
 <use   name="MagneticField/Records"/>
 <flags   EDM_PLUGIN="1"/>
 <library   name="CalibrationIsolatedParticlesTest" file="*.cc"> </library>
+  

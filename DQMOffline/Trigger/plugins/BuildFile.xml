@@ -28,3 +28,4 @@
 <library   file="*.cc" name="DQMOfflineTriggerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
+  

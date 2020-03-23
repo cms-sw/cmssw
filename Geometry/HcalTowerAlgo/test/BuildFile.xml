@@ -7,3 +7,4 @@
 <library   file="*.cc" name="testHcalTowerAlgoTester">
  <flags   EDM_PLUGIN="1"/>
 </library>
+  

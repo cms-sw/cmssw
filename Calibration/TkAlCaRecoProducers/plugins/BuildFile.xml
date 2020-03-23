@@ -34,3 +34,4 @@
 <library   file="CalibrationTrackSelectorFromDetIdList.cc" name="CalibrationTrackSelectorFromDetIdList">
   <flags   EDM_PLUGIN="1"/>
 </library>
+  
