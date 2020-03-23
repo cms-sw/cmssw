@@ -35,6 +35,7 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 //#include "Alignment/OfflineValidation/interface/ComparisonUtilities.h"
 //#include "Alignment/CommonAlignment/interface/AlignTools.h"
@@ -362,7 +363,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   }
 
   //accessing the initial geometry
-  edm::ESTransientHandle<DDCompactView> cpv;
+  edm::ESTransientHandle<cms::DDCompactView> cpv;
   iSetup.get<IdealGeometryRecord>().get(cpv);
   edm::ESHandle<GeometricDet> theGeometricDet;
   iSetup.get<IdealGeometryRecord>().get(theGeometricDet);

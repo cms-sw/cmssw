@@ -10,7 +10,7 @@
 #include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDetExtra.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
@@ -34,7 +34,7 @@ void PGeometricDetExtraBuilder::beginRun(const edm::Run&, edm::EventSetup const&
     edm::LogError("PGeometricDetExtraBuilder") << "PoolDBOutputService unavailable";
     return;
   }
-  edm::ESTransientHandle<DDCompactView> cpvH;
+  edm::ESTransientHandle<cms::DDCompactView> cpvH;
   edm::ESHandle<std::vector<GeometricDetExtra> > gdeH;
   es.get<IdealGeometryRecord>().get(cpvH);
   es.get<IdealGeometryRecord>().get(gdeH);

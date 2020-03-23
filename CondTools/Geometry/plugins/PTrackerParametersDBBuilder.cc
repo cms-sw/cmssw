@@ -6,6 +6,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerParametersFromDD.h"
 
@@ -25,7 +26,7 @@ void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup cons
     edm::LogError("PTrackerParametersDBBuilder") << "PoolDBOutputService unavailable";
     return;
   }
-  edm::ESTransientHandle<DDCompactView> cpv;
+  edm::ESTransientHandle<cms::DDCompactView> cpv;
   es.get<IdealGeometryRecord>().get(cpv);
 
   TrackerParametersFromDD builder;
