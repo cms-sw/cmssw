@@ -76,7 +76,7 @@ public:
   /** Returns ETL module type number. */
   inline int modType() const { return (id_ >> kETLmodTypeOffset) & kETLmodTypeMask; }
 
-  ETLDetId geographicalId() const;
+  ETLDetId geographicalId() const { return id_; }
 
   // --------- Methods for the TDR ETL model only -----------
   // meaningless for TP model
