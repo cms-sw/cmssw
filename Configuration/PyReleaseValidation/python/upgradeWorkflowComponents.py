@@ -458,6 +458,22 @@ upgradeWFs['ParkingBPH'] = UpgradeWorkflow_ParkingBPH(
     offset = 0.8,
 )
 
+class UpgradeWorkflow_JMENano(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Nano' in step:
+            stepDict[stepName][k] = merge([{'--customise_commands': '"from PhysicsTools.NanoAOD.custom_jme_cff import PrepJMECustomNanoAOD_MC; PrepJMECustomNanoAOD_MC(process)"'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2017' in key or '2018' in key
+upgradeWFs['JMENano'] = UpgradeWorkflow_JMENano(
+    steps = [
+        'NanoFull',
+    ],
+    PU = [],
+    suffix = '_JMENano',
+    offset = 0.15,
+)
+
+
 class UpgradeWorkflow_TICLOnly(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
