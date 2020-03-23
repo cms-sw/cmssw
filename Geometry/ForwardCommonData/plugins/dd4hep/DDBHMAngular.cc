@@ -62,8 +62,8 @@ static long algorithm(dd4hep::Detector& /* description */,
 
     parent.placeVolume(child, jj + 1, dd4hep::Transform3D(rot, tran));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("ForwardGeom") << "DDBHMAngular test: " << child.name() << " number " << jj + 1 << " positioned in "
-                                    << parent.name() << " at " << tran << " with " << rot;
+    edm::LogVerbatim("ForwardGeom") << "DDBHMAngular test: " << child.name() << " number " << jj + 1
+                                    << " positioned in " << parent.name() << " at " << tran << " with " << rot;
 #endif
   }
   return 1;
