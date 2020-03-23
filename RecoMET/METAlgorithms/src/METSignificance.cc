@@ -54,7 +54,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 				       JME::JetResolution& resPtObj,
 				       JME::JetResolution& resPhiObj,
 				       JME::JetResolutionScaleFactor& resSFObj,
-				       bool isRealData) {
+				       bool isRealData,
+               double& sumPtUnclustered) {
 
   //pfcandidates
   const edm::View<reco::Candidate>* pfCandidates=pfCandidatesH.product();
@@ -67,7 +68,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
    // for lepton and jet subtraction
    std::unordered_set<reco::CandidatePtr,ptr_hash> footprint;
 
-   // subtract leptons out of sumPt
+   // subtract leptons out of sumPtUnclustered
    for ( const auto& lep_i : leptons ) {
      for( const auto& lep : *lep_i ) {
        if( lep.pt() > 10 ){
@@ -79,7 +80,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
        }
      }
    }
-   // subtract jets out of sumPt
+   // subtract jets out of sumPtUnclustered
    for(const auto& jet : jets) {
 
      // disambiguate jets and leptons
@@ -93,8 +94,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
    }
 
-   // calculate sumPt
-   double sumPt = 0;
+   // calculate sumPtUnclustered
    for(size_t i = 0; i< pfCandidates->size();  ++i) {
      
      // check if candidate exists in a lepton or jet
@@ -108,14 +108,14 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 	   break;
 	 }
        }
-       // if not, add to sumPt
+       // if not, add to sumPtUnclustered
        if( cleancand ){
-	 sumPt += (*pfCandidates)[i].pt();
+	 sumPtUnclustered += (*pfCandidates)[i].pt();
        }
      }
    }
    
-   // add jets to metsig covariance matrix and subtract them from sumPt
+   // add jets to metsig covariance matrix and subtract them from sumPtUnclustered
    for(const auto& jet : jets) {
      
      // disambiguate jets and leptons
@@ -157,19 +157,19 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
       } else {
 
-         // add the (corrected) jet to the sumPt
-         sumPt += jpt;
+         // add the (corrected) jet to the sumPtUnclustered
+         sumPtUnclustered += jpt;
 
       }
 
    }
 
    //protection against unphysical events
-   if(sumPt<0) sumPt=0;
+   if(sumPtUnclustered<0) sumPtUnclustered=0;
  
    // add pseudo-jet to metsig covariance matrix
-   cov_xx += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPt;
-   cov_yy += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPt;
+   cov_xx += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPtUnclustered;
+   cov_yy += pjetParams_[0]*pjetParams_[0] + pjetParams_[1]*pjetParams_[1]*sumPtUnclustered;
 
    reco::METCovMatrix cov;
    cov(0,0) = cov_xx;

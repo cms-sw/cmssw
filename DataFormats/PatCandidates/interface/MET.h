@@ -75,6 +75,10 @@ namespace pat {
       void setMETSignificance(const double& metSig);
       // get the MET significance
       double metSignificance() const;
+      // set the MET metSumPtUnclustered for MET Significance
+      void setMETSumPtUnclustered(const double& metSumPtUnclustered);
+      // get the MET metSumPtUnclustered
+      double metSumPtUnclustered() const;
 
       // ---- methods for uncorrected MET ----
       // Methods not yet defined
@@ -250,6 +254,8 @@ namespace pat {
 
       // MET significance
       double metSig_;
+      // MET metSumPtUnclustered for MET Significance
+      double metSumPtUnclustered_;
       
       const PackedMETUncertainty findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const;
    
