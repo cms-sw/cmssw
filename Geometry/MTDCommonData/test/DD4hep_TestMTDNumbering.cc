@@ -233,6 +233,10 @@ void DD4hep_TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::Event
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
           dump << theId;
+#ifdef EDM_ML_DEBUG
+          edm::LogInfo("DD4hep_TestMTDNumbering")
+              << " ETLDetId = " << theId << "\n geographicalId = " << theId.geographicalId();
+#endif
         }
         dump << "\n";
       }
