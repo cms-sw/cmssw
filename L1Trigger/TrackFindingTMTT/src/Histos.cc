@@ -5,7 +5,6 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Get3Dtracks.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TrkRZfilter.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h"
-#include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrk4and5.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Utility.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"

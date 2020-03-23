@@ -8,7 +8,6 @@
 #include <L1Trigger/TrackFindingTMTT/interface/KillDupFitTrks.h>
 #include <L1Trigger/TrackFindingTMTT/interface/TrackFitGeneric.h>
 #include <L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h>
-#include <L1Trigger/TrackFindingTMTT/interface/L1fittedTrk4and5.h>
 #include <L1Trigger/TrackFindingTMTT/interface/ConverterToTTTrack.h>
 #include "L1Trigger/TrackFindingTMTT/interface/HTcell.h"
 #include "L1Trigger/TrackFindingTMTT/interface/MuxHToutputs.h"

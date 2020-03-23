@@ -4,7 +4,6 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h"
-#include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrk4and5.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
@@ -37,8 +36,6 @@ public:
   TTTrack< Ref_Phase2TrackerDigi_ > makeTTTrack(const L1track3D&        trk     , unsigned int iPhiSec, unsigned int iEtaReg) const;
   // Convert L1fittedTrack (track candidate after fit) to TTTrack format.
   TTTrack< Ref_Phase2TrackerDigi_ > makeTTTrack(const L1fittedTrack&    trk     , unsigned int iPhiSec, unsigned int iEtaReg) const;
-  // Convert L1fittedTrk4and5 (track candidate after fit) to TTTrack format.
-  TTTrack< Ref_Phase2TrackerDigi_ > makeTTTrack(const L1fittedTrk4and5& trk4and5, unsigned int iPhiSec, unsigned int iEtaReg) const;
 
 private:
 

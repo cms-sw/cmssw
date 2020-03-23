@@ -59,7 +59,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 # Get list of MC datasets from repo, or specify yourself.
 
@@ -73,22 +73,9 @@ elif GEOMETRY == "D41":
     inputMC = ['/store/mc/PhaseIITDRSpring19DR/TTbar_14TeV_TuneCP5_Pythia8/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3_ext1-v3/60000/FFB5D0CA-208F-6040-A9BF-3F5354D0AA59.root']
 
 elif GEOMETRY == "D49":
-    # single muons
-    inputMC = [
-    '/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/F5E783E4-CF4A-4745-B4ED-6F1AA5E5C16F.root',
-    '/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/89B1EEFF-DEEB-9841-A79A-6DFED5C029B4.root',
-    '/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/836BFF0D-A86C-9B48-A942-24B7D31562D7.root',
-    '/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/70A0C91B-C42B-0E46-8805-0DA23C7E5D7E.root',
-    '/store/relval/CMSSW_11_0_0/RelValSingleMuFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/6EFBE745-DCB1-354B-AAC4-0FAAA1D80317.root']
-    # single electrons
-#    inputMC = [
-#	'/store/relval/CMSSW_11_0_0/RelValSingleEFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/D54855A8-7925-7942-9D38-53621A516D4D.root',
-#	'/store/relval/CMSSW_11_0_0/RelValSingleEFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/D298BBAB-D015-4246-A112-F475FFB0AA61.root',
-#	'/store/relval/CMSSW_11_0_0/RelValSingleEFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/A4BA053A-B00B-7E48-8194-D7C6BDEA17FC.root',
-#	'/store/relval/CMSSW_11_0_0/RelValSingleEFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/9821994C-9F37-1044-ABCE-F68EAB8E69CB.root',
-#	'/store/relval/CMSSW_11_0_0/RelValSingleEFlatPt2To100/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/46A3C4AF-655D-2F4E-93CD-699A5293D000.root',]
-    # ttbar PU=0
-    #inputMC = ['/store/relval/CMSSW_11_1_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/110X_mcRun4_realistic_v2_2026D49noPU-v1/20000/DFF1257E-6DB1-434F-BCC2-64EC6DEFCDAF.root']
+    inputMC = getTxtFile('L1Trigger/TrackFindingTMTT/test/MCsamples/1110/RelVal/TTbar/PU200.txt')
+    #inputMC = getTxtFile('L1Trigger/TrackFindingTMTT/test/MCsamples/1110/RelVal/SingleMuPt2to100/PU0.txt')
+    #inputMC = getTxtFile('L1Trigger/TrackFindingTMTT/test/MCsamples/1110/RelVal/SingleElPt2to100/PU0.txt')
 
 else:
     print "this is not a valid geometry!!!"
@@ -102,7 +89,7 @@ process.source = cms.Source("PoolSource",
                               )
                             )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string('Muon_PU0_'+GEOMETRY+'.root'), closeFileFast = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('Hist_'+GEOMETRY+'.root'), closeFileFast = cms.untracked.bool(True))
 
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
