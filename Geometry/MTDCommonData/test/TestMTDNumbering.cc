@@ -177,6 +177,10 @@ void TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
           dump << theId;
+#ifdef EDM_ML_DEBUG
+          edm::LogInfo("TestMTDNumbering")
+              << " ETLDetId = " << theId << "\n geographicalId = " << theId.geographicalId();
+#endif
         }
         dump << "\n";
       }
