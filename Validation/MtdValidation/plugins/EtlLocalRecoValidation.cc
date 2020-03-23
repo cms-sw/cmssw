@@ -82,7 +82,7 @@ private:
 // ------------ constructor and destructor --------------
 EtlLocalRecoValidation::EtlLocalRecoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
-    hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
+      hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
   etlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
   etlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
 }
@@ -111,7 +111,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
       throw cms::Exception("EtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
-                                                   << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+                                                     << detId.rawId() << ") is invalid!" << std::dec << std::endl;
     const PixelTopology& topo = static_cast<const PixelTopology&>(thedet->topology());
 
     Local3DPoint local_point(topo.localX(recHit.row()), topo.localY(recHit.column()), 0.);
@@ -145,7 +145,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   meNhits_[0]->Fill(n_reco_etl[0]);
   meNhits_[1]->Fill(n_reco_etl[1]);
 
-  // --- Loop over the ETL RECO clusters ---                                                                                
+  // --- Loop over the ETL RECO clusters ---
   for (const auto& DetSetClu : *etlRecCluHandle) {
     for (const auto& cluster : DetSetClu) {
       if (cluster.energy() < hitMinEnergy_)
@@ -157,18 +157,17 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         throw cms::Exception("EtlLocalRecoValidation")
             << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
-                                                                                                                           
+
       //const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
       //const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
       const PixelTopology& topo = static_cast<const PixelTopology&>(genericDet->topology());
 
-      Local3DPoint local_point(topo.localX(cluster.x()), topo.localY(cluster.y()), 0.);                                                                                                                    
+      Local3DPoint local_point(topo.localX(cluster.x()), topo.localY(cluster.y()), 0.);
       //Local3DPoint local_point(topo.localX(cluster.x()), topo.localY(cluster.y()), 0.);
       const auto& global_point = genericDet->toGlobal(local_point);
-    
-                                                                                                                           
+
       int idet = (cluId.zside() + 1) / 2;
-                                                                                                                           
+
       meCluEnergy_[idet]->Fill(cluster.energy());
       meCluTime_[idet]->Fill(cluster.time());
       meCluPhi_[idet]->Fill(global_point.phi());
@@ -176,13 +175,13 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meCluOccupancy_[idet]->Fill(global_point.x(), global_point.y());
       meCluHits_[idet]->Fill(cluster.size());
     }
-  }                                                                                                                       
+  }
 }
 
 // ------------ method for histogram booking ------------
 void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
-                                          edm::Run const& run,
-                                          edm::EventSetup const& iSetup) {
+                                            edm::Run const& run,
+                                            edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
 
   // --- histograms booking
@@ -268,7 +267,7 @@ void EtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<std::string>("folder", "MTD/ETL/LocalReco");
   desc.add<edm::InputTag>("recHitsTag", edm::InputTag("mtdRecHits", "FTLEndcap"));
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLEndcap"));
-  desc.add<double>("hitMinimumEnergy", 1.);     // [MeV]
+  desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
 
   descriptions.add("etlLocalReco", desc);
 }
