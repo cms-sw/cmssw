@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/GeometryVector/interface/Phi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -82,9 +83,7 @@ void DDTotemAngular::execute(DDCompactView& cpv) {
   int copyNo = startCopyNo_;
 
   for (int ii = 0; ii < n_; ii++) {
-    double phitmp = phi;
-    if (phitmp >= 2._pi)
-      phitmp -= 2._pi;
+    Geom::Phi0To2pi<double> phitmp = phi;
     DDRotation rotation;
     std::string rotstr("NULL");
 
