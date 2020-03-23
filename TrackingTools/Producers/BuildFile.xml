@@ -6,7 +6,5 @@
 <use   name="MagneticField/Records"/>
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="TrackingTools/Records"/>
-<use   name="RecoTracker/Record"/>
 <use   name="TrackingTools/TrajectoryCleaning"/>
-<use   name="TrackingTools/TrajectoryFiltering"/>
 <flags   EDM_PLUGIN="1"/>

@@ -1,3 +1,5 @@
+<use   name="CondFormats/CSCObjects"/>
+<use   name="Geometry/RPCGeometry"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="TrackingTools/Records"/>
