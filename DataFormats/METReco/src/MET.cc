@@ -20,6 +20,7 @@ MET::MET() {
   sumet = 0.0;
   elongit = 0.0;
   signif_dxx = signif_dyy = signif_dyx = signif_dxy = 0.;
+  mIsWeighted = false;
 }
 
 // Constructer for the case when only p4_ =  (mEx, mEy, 0, mEt) is known.
@@ -30,6 +31,7 @@ MET::MET(const LorentzVector& p4_, const Point& vtx_) : RecoCandidate(0, p4_, vt
   sumet = 0.0;
   elongit = 0.0;
   signif_dxx = signif_dyy = signif_dyx = signif_dxy = 0.;
+  mIsWeighted = false;
 }
 
 // Constructer for the case when the SumET is known in addition to
@@ -40,6 +42,7 @@ MET::MET(double sumet_, const LorentzVector& p4_, const Point& vtx_) : RecoCandi
   sumet = sumet_;
   elongit = 0.0;
   signif_dxx = signif_dyy = signif_dyx = signif_dxy = 0.;
+  mIsWeighted = false;
 }
 
 // Constructor for the case when the SumET, the corrections which
@@ -51,6 +54,7 @@ MET::MET(double sumet_, const std::vector<CorrMETData>& corr_, const LorentzVect
   sumet = sumet_;
   elongit = 0.0;
   signif_dxx = signif_dyy = signif_dyx = signif_dxy = 0.;
+  mIsWeighted = false;
   //-----------------------------------
   // Fill the vector containing the corrections (corr) with vector of
   // known corrections (corr_) passed in via the constructor.

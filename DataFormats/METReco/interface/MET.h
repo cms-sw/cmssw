@@ -69,6 +69,11 @@ namespace reco {
     void setSignificanceMatrix(const reco::METCovMatrix& matrix);
     reco::METCovMatrix getSignificanceMatrix(void) const;
 
+    ///  Set boolean if weights were applied by algorithm (e.g. PUPPI weights)
+    void setIsWeighted(bool isWeighted) { mIsWeighted = isWeighted; }
+    ///  boolean if weights were applied by algorithm (e.g. PUPPI weights)
+    int isWeighted() const { return mIsWeighted; }
+
   private:
     bool overlap(const Candidate&) const override;
     double sumet;
@@ -79,6 +84,7 @@ namespace reco {
     double signif_dyx;
     double signif_dxy;
     std::vector<CorrMETData> corr;
+    bool mIsWeighted;
   };
 }  // namespace reco
 
