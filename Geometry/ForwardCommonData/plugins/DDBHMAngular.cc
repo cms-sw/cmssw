@@ -79,22 +79,26 @@ void DDBHMAngular::execute(DDCompactView& cpv) {
     rot = DDRotation(DDName(rotstr, rotns));
   }
 
+  static const double fac1 = 0.5;
+  static const double fac2 = 1.5;
+  static const double fac3 = 14.5;
+  static const double fac4 = 15.5;
   for (int jj = 0; jj < units; jj++) {
     double driverX(0), driverY(0), driverZ(0);
     if (jj < 16) {
-      driverX = rr * cos((jj + 0.5) * dphi);
+      driverX = rr * cos((jj + fac1) * dphi);
       driverY = sqrt(rr * rr - driverX * driverX);
     } else if (jj == 16) {
-      driverX = rr * cos(15.5 * dphi);
+      driverX = rr * cos(fac4 * dphi);
       driverY = -sqrt(rr * rr - driverX * driverX);
     } else if (jj == 17) {
-      driverX = rr * cos(14.5 * dphi);
+      driverX = rr * cos(fac3 * dphi);
       driverY = -sqrt(rr * rr - driverX * driverX);
     } else if (jj == 18) {
-      driverX = rr * cos(0.5 * dphi);
+      driverX = rr * cos(fac1 * dphi);
       driverY = -sqrt(rr * rr - driverX * driverX);
     } else if (jj == 19) {
-      driverX = rr * cos(1.5 * dphi);
+      driverX = rr * cos(fac2 * dphi);
       driverY = -sqrt(rr * rr - driverX * driverX);
     }
     DDTranslation tran(driverX, driverY, driverZ);
