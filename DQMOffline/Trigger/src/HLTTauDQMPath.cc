@@ -409,9 +409,9 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
     filterLevel_.push_back(n.level);
 
 #ifdef EDM_ML_DEBUG
-    i++;
     ss << "\n    " << i << " " << std::get<kModuleIndex>(filterIndice) << " " << filterName << " " << moduleType
        << " ntau " << n.tau << " nele " << n.electron << " nmu " << n.muon;
+    i++;
 #endif
   }
 #ifdef EDM_ML_DEBUG
