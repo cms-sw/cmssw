@@ -168,7 +168,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
       throw cms::Exception("BtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
-                                                   << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+                                                     << detId.rawId() << ") is invalid!" << std::dec << std::endl;
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
@@ -226,14 +226,14 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         throw cms::Exception("BtlLocalRecoValidation")
             << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
-                                                                                                                          
+
       const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
-                                                                                                                          
+
       Local3DPoint local_point(cluster.x() * 5.7, cluster.y() * 0.3, 0.);
       local_point = topo.pixelToModuleLocalPoint(local_point, cluId.row(topo.nrows()), cluId.column(topo.ncolumns()));
       const auto& global_point = genericDet->toGlobal(local_point);
-                                                                                                                          
+
       meCluEnergy_->Fill(cluster.energy());
       meCluTime_->Fill(cluster.time());
       meCluPhi_->Fill(global_point.phi());
@@ -241,13 +241,13 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meCluZvsPhi_->Fill(global_point.z(), global_point.phi());
       meCluHits_->Fill(cluster.size());
     }
-  }                                                                                                                       
+  }
 }
 
 // ------------ method for histogram booking ------------
 void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
-                                          edm::Run const& run,
-                                          edm::EventSetup const& iSetup) {
+                                            edm::Run const& run,
+                                            edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
 
   // --- histograms booking

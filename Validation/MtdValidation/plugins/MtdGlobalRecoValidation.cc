@@ -78,7 +78,6 @@ private:
   MonitorElement* meVerNumber_;
   MonitorElement* meVerZ_;
   MonitorElement* meVerTime_;
-
 };
 
 // ------------ constructor and destructor --------------
@@ -108,16 +107,16 @@ void MtdGlobalRecoValidation::analyze(const edm::Event& iEvent, const edm::Event
       continue;
 
     if (fabs(track.eta()) < trackMinEta_) {
-
       // --- all BTL tracks (with and without hit in MTD) ---
       meBTLTrackEffEtaTot_->Fill(track.eta());
       meBTLTrackEffPhiTot_->Fill(track.phi());
       meBTLTrackEffPtTot_->Fill(track.pt());
-                                                                                      
+
       bool MTDBtl = false;
       int numMTDBtlvalidhits = 0;
       for (const auto hit : track.recHits()) {
-        if (hit->isValid() == false) continue;
+        if (hit->isValid() == false)
+          continue;
         MTDDetId Hit = hit->geographicalId();
         if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 1)) {
           MTDBtl = true;
@@ -125,7 +124,7 @@ void MtdGlobalRecoValidation::analyze(const edm::Event& iEvent, const edm::Event
         }
       }
       meTrackNumHits_->Fill(numMTDBtlvalidhits);
- 
+
       // --- keeping only tracks with last hit in MTD ---
       if (MTDBtl == true) {
         meBTLTrackEffEtaMtd_->Fill(track.eta());
@@ -136,7 +135,6 @@ void MtdGlobalRecoValidation::analyze(const edm::Event& iEvent, const edm::Event
     }
 
     else {
-
       // --- all ETL tracks (with and without hit in MTD) ---
       if ((track.eta() < -trackMinEta_) && (track.eta() > -trackMaxEta_)) {
         meETLTrackEffEtaTot_[0]->Fill(track.eta());
@@ -154,7 +152,8 @@ void MtdGlobalRecoValidation::analyze(const edm::Event& iEvent, const edm::Event
       bool MTDEtlZpos = false;
       int numMTDEtlvalidhits = 0;
       for (const auto hit : track.recHits()) {
-        if (hit->isValid() == false) continue;
+        if (hit->isValid() == false)
+          continue;
         MTDDetId Hit = hit->geographicalId();
         if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2) && (Hit.zside() == -1)) {
           MTDEtlZneg = true;
@@ -166,7 +165,7 @@ void MtdGlobalRecoValidation::analyze(const edm::Event& iEvent, const edm::Event
         }
       }
       meTrackNumHits_->Fill(-numMTDEtlvalidhits);
- 
+
       // --- keeping only tracks with last hit in MTD ---
       if ((track.eta() < -trackMinEta_) && (track.eta() > -trackMaxEta_)) {
         if (MTDEtlZneg == true) {
@@ -185,9 +184,9 @@ void MtdGlobalRecoValidation::analyze(const edm::Event& iEvent, const edm::Event
         }
       }
     }
-  } //RECO tracks loop  
+  }  //RECO tracks loop
 
-  // --- Loop over the RECO vertices --- 
+  // --- Loop over the RECO vertices ---
   int nv = 0;
   for (const auto& v : *RecVertexHandle) {
     if (v.isValid()) {
@@ -198,20 +197,23 @@ void MtdGlobalRecoValidation::analyze(const edm::Event& iEvent, const edm::Event
       cout << "The vertex is not valid" << endl;
   }
   meVerNumber_->Fill(nv);
-
 }
 
 // ------------ method for histogram booking ------------
-void MtdGlobalRecoValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run const& run, edm::EventSetup const& iSetup) {
+void MtdGlobalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
+                                             edm::Run const& run,
+                                             edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
 
   // histogram booking
   meBTLTrackRPTime_ = ibook.book1D("TrackBTLRPTime", "Track t0 with respect to R.P.;t0 [ns]", 100, -1, 3);
   meBTLTrackEffEtaTot_ = ibook.book1D("TrackBTLEffEtaTot", "Track efficiency vs eta (Tot);#eta_{RECO}", 100, -1.6, 1.6);
-  meBTLTrackEffPhiTot_ = ibook.book1D("TrackBTLEffPhiTot", "Track efficiency vs phi (Tot);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meBTLTrackEffPhiTot_ =
+      ibook.book1D("TrackBTLEffPhiTot", "Track efficiency vs phi (Tot);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meBTLTrackEffPtTot_ = ibook.book1D("TrackBTLEffPtTot", "Track efficiency vs pt (Tot);pt_{RECO} [GeV]", 50, 0, 10);
   meBTLTrackEffEtaMtd_ = ibook.book1D("TrackBTLEffEtaMtd", "Track efficiency vs eta (Mtd);#eta_{RECO}", 100, -1.6, 1.6);
-  meBTLTrackEffPhiMtd_ = ibook.book1D("TrackBTLEffPhiMtd", "Track efficiency vs phi (Mtd);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meBTLTrackEffPhiMtd_ =
+      ibook.book1D("TrackBTLEffPhiMtd", "Track efficiency vs phi (Mtd);#phi_{RECO} [rad]", 100, -3.2, 3.2);
   meBTLTrackEffPtMtd_ = ibook.book1D("TrackBTLEffPtMtd", "Track efficiency vs pt (Mtd);pt_{RECO} [GeV]", 50, 0, 10);
   meETLTrackRPTime_[0] = ibook.book1D("TrackETLRPTimeZneg", "Track t0 with respect to R.P. (-Z);t0 [ns]", 100, -1, 3);
   meETLTrackRPTime_[1] = ibook.book1D("TrackETLRPTimeZpos", "Track t0 with respect to R.P. (+Z);t0 [ns]", 100, -1, 3);

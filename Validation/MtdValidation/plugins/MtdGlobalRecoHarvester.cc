@@ -60,10 +60,11 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
   MonitorElement* meETLTrackEffPhiMtdZpos = igetter.get(folder_ + "TrackETLEffPhiMtdZpos");
   MonitorElement* meETLTrackEffPtMtdZpos = igetter.get(folder_ + "TrackETLEffPtMtdZpos");
 
-  if (!meBTLTrackEffEtaTot || !meBTLTrackEffPhiTot || !meBTLTrackEffPtTot || !meBTLTrackEffEtaMtd || meBTLTrackEffPhiMtd || meBTLTrackEffPtMtd ||
-      !meETLTrackEffEtaTotZneg || !meETLTrackEffPhiTotZneg || !meETLTrackEffPtTotZneg || !meETLTrackEffEtaMtdZneg ||
-      !meETLTrackEffPhiMtdZneg || !meETLTrackEffPtMtdZneg || !meETLTrackEffEtaTotZpos || !meETLTrackEffPhiTotZpos ||
-      !meETLTrackEffPtTotZpos || !meETLTrackEffEtaMtdZpos || !meETLTrackEffPhiMtdZpos || !meETLTrackEffPtMtdZpos) {
+  if (!meBTLTrackEffEtaTot || !meBTLTrackEffPhiTot || !meBTLTrackEffPtTot || !meBTLTrackEffEtaMtd ||
+      meBTLTrackEffPhiMtd || meBTLTrackEffPtMtd || !meETLTrackEffEtaTotZneg || !meETLTrackEffPhiTotZneg ||
+      !meETLTrackEffPtTotZneg || !meETLTrackEffEtaMtdZneg || !meETLTrackEffPhiMtdZneg || !meETLTrackEffPtMtdZneg ||
+      !meETLTrackEffEtaTotZpos || !meETLTrackEffPhiTotZpos || !meETLTrackEffPtTotZpos || !meETLTrackEffEtaMtdZpos ||
+      !meETLTrackEffPhiMtdZpos || !meETLTrackEffPtMtdZpos) {
     edm::LogError("MtdGlobalRecoHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
@@ -165,9 +166,10 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
   // --- Calculate efficiency ETL
   for (int ibin = 1; ibin <= meETLTrackEffEtaTotZneg->getNbinsX(); ibin++) {
     double eff = meETLTrackEffEtaMtdZneg->getBinContent(ibin) / meETLTrackEffEtaTotZneg->getBinContent(ibin);
-    double bin_err = sqrt((meETLTrackEffEtaMtdZneg->getBinContent(ibin) *
-                           (meETLTrackEffEtaTotZneg->getBinContent(ibin) - meETLTrackEffEtaMtdZneg->getBinContent(ibin))) /
-                          pow(meETLTrackEffEtaTotZneg->getBinContent(ibin), 3));
+    double bin_err =
+        sqrt((meETLTrackEffEtaMtdZneg->getBinContent(ibin) *
+              (meETLTrackEffEtaTotZneg->getBinContent(ibin) - meETLTrackEffEtaMtdZneg->getBinContent(ibin))) /
+             pow(meETLTrackEffEtaTotZneg->getBinContent(ibin), 3));
     if (meETLTrackEffEtaTotZneg->getBinContent(ibin) == 0) {
       eff = 0;
       bin_err = 0;
@@ -178,9 +180,10 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
 
   for (int ibin = 1; ibin <= meETLTrackEffEtaTotZpos->getNbinsX(); ibin++) {
     double eff = meETLTrackEffEtaMtdZpos->getBinContent(ibin) / meETLTrackEffEtaTotZpos->getBinContent(ibin);
-    double bin_err = sqrt((meETLTrackEffEtaMtdZpos->getBinContent(ibin) *
-                           (meETLTrackEffEtaTotZpos->getBinContent(ibin) - meETLTrackEffEtaMtdZpos->getBinContent(ibin))) /
-                          pow(meETLTrackEffEtaTotZpos->getBinContent(ibin), 3));
+    double bin_err =
+        sqrt((meETLTrackEffEtaMtdZpos->getBinContent(ibin) *
+              (meETLTrackEffEtaTotZpos->getBinContent(ibin) - meETLTrackEffEtaMtdZpos->getBinContent(ibin))) /
+             pow(meETLTrackEffEtaTotZpos->getBinContent(ibin), 3));
     if (meETLTrackEffEtaTotZpos->getBinContent(ibin) == 0) {
       eff = 0;
       bin_err = 0;
@@ -191,9 +194,10 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
 
   for (int ibin = 1; ibin <= meETLTrackEffPhiTotZneg->getNbinsX(); ibin++) {
     double eff = meETLTrackEffPhiMtdZneg->getBinContent(ibin) / meETLTrackEffPhiTotZneg->getBinContent(ibin);
-    double bin_err = sqrt((meETLTrackEffPhiMtdZneg->getBinContent(ibin) *
-                           (meETLTrackEffPhiTotZneg->getBinContent(ibin) - meETLTrackEffPhiMtdZneg->getBinContent(ibin))) /
-                          pow(meETLTrackEffPhiTotZneg->getBinContent(ibin), 3));
+    double bin_err =
+        sqrt((meETLTrackEffPhiMtdZneg->getBinContent(ibin) *
+              (meETLTrackEffPhiTotZneg->getBinContent(ibin) - meETLTrackEffPhiMtdZneg->getBinContent(ibin))) /
+             pow(meETLTrackEffPhiTotZneg->getBinContent(ibin), 3));
     if (meETLTrackEffPhiTotZneg->getBinContent(ibin) == 0) {
       eff = 0;
       bin_err = 0;
@@ -204,9 +208,10 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
 
   for (int ibin = 1; ibin <= meETLTrackEffPhiTotZpos->getNbinsX(); ibin++) {
     double eff = meETLTrackEffPhiMtdZpos->getBinContent(ibin) / meETLTrackEffPhiTotZpos->getBinContent(ibin);
-    double bin_err = sqrt((meETLTrackEffPhiMtdZpos->getBinContent(ibin) *
-                           (meETLTrackEffPhiTotZpos->getBinContent(ibin) - meETLTrackEffPhiMtdZpos->getBinContent(ibin))) /
-                          pow(meETLTrackEffPhiTotZpos->getBinContent(ibin), 3));
+    double bin_err =
+        sqrt((meETLTrackEffPhiMtdZpos->getBinContent(ibin) *
+              (meETLTrackEffPhiTotZpos->getBinContent(ibin) - meETLTrackEffPhiMtdZpos->getBinContent(ibin))) /
+             pow(meETLTrackEffPhiTotZpos->getBinContent(ibin), 3));
     if (meETLTrackEffPhiTotZpos->getBinContent(ibin) == 0) {
       eff = 0;
       bin_err = 0;
@@ -217,9 +222,10 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
 
   for (int ibin = 1; ibin <= meETLTrackEffPtTotZneg->getNbinsX(); ibin++) {
     double eff = meETLTrackEffPtMtdZneg->getBinContent(ibin) / meETLTrackEffPtTotZneg->getBinContent(ibin);
-    double bin_err = sqrt((meETLTrackEffPtMtdZneg->getBinContent(ibin) *
-                           (meETLTrackEffPtTotZneg->getBinContent(ibin) - meETLTrackEffPtMtdZneg->getBinContent(ibin))) /
-                          pow(meETLTrackEffPtTotZneg->getBinContent(ibin), 3));
+    double bin_err =
+        sqrt((meETLTrackEffPtMtdZneg->getBinContent(ibin) *
+              (meETLTrackEffPtTotZneg->getBinContent(ibin) - meETLTrackEffPtMtdZneg->getBinContent(ibin))) /
+             pow(meETLTrackEffPtTotZneg->getBinContent(ibin), 3));
     if (meETLTrackEffPtTotZneg->getBinContent(ibin) == 0) {
       eff = 0;
       bin_err = 0;
@@ -230,9 +236,10 @@ void MtdGlobalRecoHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGett
 
   for (int ibin = 1; ibin <= meETLTrackEffPtTotZpos->getNbinsX(); ibin++) {
     double eff = meETLTrackEffPtMtdZpos->getBinContent(ibin) / meETLTrackEffPtTotZpos->getBinContent(ibin);
-    double bin_err = sqrt((meETLTrackEffPtMtdZpos->getBinContent(ibin) *
-                           (meETLTrackEffPtTotZpos->getBinContent(ibin) - meETLTrackEffPtMtdZpos->getBinContent(ibin))) /
-                          pow(meETLTrackEffPtTotZpos->getBinContent(ibin), 3));
+    double bin_err =
+        sqrt((meETLTrackEffPtMtdZpos->getBinContent(ibin) *
+              (meETLTrackEffPtTotZpos->getBinContent(ibin) - meETLTrackEffPtMtdZpos->getBinContent(ibin))) /
+             pow(meETLTrackEffPtTotZpos->getBinContent(ibin), 3));
     if (meETLTrackEffPtTotZpos->getBinContent(ibin) == 0) {
       eff = 0;
       bin_err = 0;
