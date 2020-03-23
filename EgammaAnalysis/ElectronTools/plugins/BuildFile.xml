@@ -11,6 +11,7 @@
 <use   name="EgammaAnalysis/ElectronTools"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="PhysicsTools/SelectorUtils"/>
+<use   name="TrackingTools/Records"/>
 <library name="EgammaAnalysisElectronToolsPlugins" file="*.cc">
    <flags   EDM_PLUGIN="1"/>
 </library>
