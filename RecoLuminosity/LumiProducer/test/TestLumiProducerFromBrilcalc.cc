@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -71,9 +70,7 @@ private:
 // constructors and destructor
 //
 TestLumiProducerFromBrilcalc::TestLumiProducerFromBrilcalc(const edm::ParameterSet& iConfig)
-  : inputTag_(iConfig.getUntrackedParameter<edm::InputTag>("inputTag")),
-    lumiToken_(consumes<LumiInfo>(inputTag_)) {
-}
+    : inputTag_(iConfig.getUntrackedParameter<edm::InputTag>("inputTag")), lumiToken_(consumes<LumiInfo>(inputTag_)) {}
 
 TestLumiProducerFromBrilcalc::~TestLumiProducerFromBrilcalc() {
   // do anything here that needs to be done at destruction time
@@ -90,17 +87,15 @@ void TestLumiProducerFromBrilcalc::analyze(const edm::Event& iEvent, const edm::
 
   const LumiInfo& lumi = iEvent.get(lumiToken_);
 
-  std::cout << "Luminosity for " << iEvent.run() << " LS " << iEvent.luminosityBlock() << " is " << lumi.getTotalInstLumi() << std::endl;
+  std::cout << "Luminosity for " << iEvent.run() << " LS " << iEvent.luminosityBlock() << " is "
+            << lumi.getTotalInstLumi() << std::endl;
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
-void TestLumiProducerFromBrilcalc::beginJob() {
-}
+void TestLumiProducerFromBrilcalc::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void TestLumiProducerFromBrilcalc::endJob() {
-}
+void TestLumiProducerFromBrilcalc::endJob() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void TestLumiProducerFromBrilcalc::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
