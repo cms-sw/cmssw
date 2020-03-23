@@ -198,7 +198,7 @@ void APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::Event
 
   long long orbitoffset = 0;
 
-  if (useTCDS) {
+  if (useTCDS && iEvent.eventAuxiliary().isRealData()) {
     // l1ts->empty() always retuns false (last commit as of today: https://github.com/cms-sw/cmssw/commit/f4694d795d4b268d541c633dfb68283d889264b0 ), so the check is likely not necessary---and TCDSRecord hasn't anything similar
     if (tcdsRecord->getLastResync() != 0) {
       orbitoffset =
