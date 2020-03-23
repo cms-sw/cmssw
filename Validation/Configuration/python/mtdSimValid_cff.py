@@ -3,13 +3,12 @@ import FWCore.ParameterSet.Config as cms
 # MTD validation sequences
 from Validation.MtdValidation.btlSimHits_cfi import btlSimHits 
 from Validation.MtdValidation.btlDigiHits_cfi import btlDigiHits 
-from Validation.MtdValidation.btlRecHits_cfi import btlRecHits 
+from Validation.MtdValidation.btlLocalReco_cfi import btlLocalReco
+from Validation.MtdValidation.etlLocalReco_cfi import etlLocalReco
 from Validation.MtdValidation.etlSimHits_cfi import etlSimHits
 from Validation.MtdValidation.etlDigiHits_cfi import etlDigiHits
-from Validation.MtdValidation.etlRecHits_cfi import etlRecHits
-from Validation.MtdValidation.btlReco_cfi import btlReco
-from Validation.MtdValidation.etlReco_cfi import etlReco
+from Validation.MtdValidation.globalReco_cfi import globalReco
 
 mtdSimValid  = cms.Sequence(btlSimHits  + etlSimHits )
 mtdDigiValid = cms.Sequence(btlDigiHits + etlDigiHits)
-mtdRecoValid = cms.Sequence(btlRecHits  + etlRecHits + btlReco + etlReco)
+mtdRecoValid = cms.Sequence(btlLocalReco  + etlLocalReco + globalReco)
