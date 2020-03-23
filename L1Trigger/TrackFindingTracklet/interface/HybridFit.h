@@ -33,10 +33,12 @@ class HybridFit{
 
     void Fit(Tracklet* tracklet, std::vector<std::pair<Stub*,L1TStub*>> &trackstublist){
       if (fakefit){
-        tracklet->setFitPars(tracklet->rinvapprox(),tracklet->phi0approx(),tracklet->d0approx(),tracklet->tapprox(),
-        tracklet->z0approx(),0.,tracklet->rinv(),tracklet->phi0(),tracklet->d0(),tracklet->t(),tracklet->z0(),0.,
+        tracklet->setFitPars(
+	tracklet->rinvapprox(),tracklet->phi0approx(),tracklet->d0approx(),tracklet->tapprox(),tracklet->z0approx(),0.,0.,
+	tracklet->rinv(),tracklet->phi0(),tracklet->d0(),tracklet->t(),tracklet->z0(),0.,0.,
         tracklet->fpgarinv().value(),tracklet->fpgaphi0().value(),tracklet->fpgad0().value(),tracklet->fpgat().value(),
-        tracklet->fpgaz0().value(),0);
+        tracklet->fpgaz0().value(),0,0,
+	0);
         return;
       }
 
