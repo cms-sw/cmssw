@@ -8,9 +8,6 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -49,9 +46,6 @@ FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p) : fast(p) {
 
 void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
   edm::LogInfo("FastCalorimetry") << "initHFShowerLibrary::initialization";
-
-  edm::ESTransientHandle<DDCompactView> cpv;
-  iSetup.get<IdealGeometryRecord>().get(cpv);
 
   edm::ESHandle<HcalDDDSimConstants> hdc;
   iSetup.get<HcalSimNumberingRecord>().get(hdc);
