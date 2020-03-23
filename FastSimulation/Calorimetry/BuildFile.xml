@@ -15,7 +15,6 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="Geometry/HcalTowerAlgo"/>
 <use   name="DQMServices/Core"/>
-<use   name="SimG4Core/GFlash"/>
 <export>
   <lib   name="1"/>
 </export>
