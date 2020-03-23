@@ -1,10 +1,11 @@
+#include "DataFormats/GeometryVector/interface/Phi.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/DetFactoryHelper.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
@@ -37,9 +38,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   int copyNo = startCopyNo;
 
   for (int ii = 0; ii < n; ii++) {
-    double phitmp = phi;
-    if (phitmp >= 2._pi)
-      phitmp -= 2._pi;
+    Geom::Phi0To2pi<double> phitmp = phi;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("ForwardGeom") << "DDTotemAngular: Creating a new rotation \t90, "
                                     << convertRadToDeg(phitmp + 90._deg) << ", 0, 0, 90, " << convertRadToDeg(phitmp);
