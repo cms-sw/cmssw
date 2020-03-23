@@ -15,7 +15,7 @@ GEOMETRY = "D49"
 #GEOMETRY = "D35" # <== to run on old tracker geometry, change flag "geomTkTDR" to *true* in ../interface/Constants.hh 
 
 # Specify L1 tracking algo ('HYBRID', 'HYBRID_DISPLACED', 'TMTT','HYBRID_FLOAT', 'TRACKLET_FLOAT')
-L1TRKALGO = 'TMTT'
+L1TRKALGO = 'HYBRID'
 
 # Write output dataset?
 WRITE_DATA = False
