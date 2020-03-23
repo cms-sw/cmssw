@@ -159,8 +159,9 @@ void LumiProducerFromBrilcalc::produce(edm::Event& iEvent, const edm::EventSetup
   std::pair<int, int> runls = std::make_pair(iEvent.run(), iEvent.luminosityBlock());
   if (lumiData_.count(runls) == 1) {
     // if we have data for this run/LS, put it in the event
-    LogDebug("LumiProducerFromBrilcalc") << "Filling for run " << runls.first << " ls " << runls.second << " with delivered "
-					 << lumiData_[runls].first << " dt " << lumiData_[runls].second;
+    LogDebug("LumiProducerFromBrilcalc") << "Filling for run " << runls.first << " ls " << runls.second
+                                         << " with delivered " << lumiData_[runls].first << " dt "
+                                         << lumiData_[runls].second;
     iEvent.put(std::make_unique<LumiInfo>(lumiData_[runls].second, bxlumi, lumiData_[runls].first), "brilcalc");
   } else {
     if (throwIfNotFound_) {
@@ -168,7 +169,8 @@ void LumiProducerFromBrilcalc::produce(edm::Event& iEvent, const edm::EventSetup
           << "Failed to find luminosity for run " << runls.first << " LS " << runls.second;
     } else {
       // just put in zeroes
-      edm::LogWarning("LumiProducerFromBrilcalc") << "Failed to find luminosity for run " << runls.first << " ls " << runls.second;
+      edm::LogWarning("LumiProducerFromBrilcalc")
+          << "Failed to find luminosity for run " << runls.first << " ls " << runls.second;
       iEvent.put(std::make_unique<LumiInfo>(0, bxlumi, 0), "brilcalc");
     }
   }
