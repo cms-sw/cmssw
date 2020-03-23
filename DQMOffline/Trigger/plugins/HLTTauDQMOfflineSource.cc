@@ -18,7 +18,8 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource(const edm::ParameterSet& ps)
       triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsSrc_)),
       triggerEventSrc_(ps.getUntrackedParameter<edm::InputTag>("TriggerEventSrc")),
       triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventSrc_)),
-      pathRegex_(ps.getUntrackedParameter<std::string>("Paths")),
+      pathRegexString_(ps.getUntrackedParameter<std::string>("Paths")),
+      pathRegex_(pathRegexString_),
       nPtBins_(ps.getUntrackedParameter<int>("PtHistoBins", 20)),
       nEtaBins_(ps.getUntrackedParameter<int>("EtaHistoBins", 12)),
       nPhiBins_(ps.getUntrackedParameter<int>("PhiHistoBins", 18)),
@@ -75,7 +76,7 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
         // Find all paths to monitor
         std::vector<std::string> foundPaths;
         std::smatch what;
-        LogDebug("HLTTauDQMOffline") << "Looking for paths with regex " << pathRegex_;
+        LogDebug("HLTTauDQMOffline") << "Looking for paths with regex " << pathRegexString_;
         for (const std::string& pathName : HLTCP_.triggerNames()) {
           if (std::regex_search(pathName, what, pathRegex_)) {
             LogDebug("HLTTauDQMOffline") << "Found path " << pathName;
