@@ -50,94 +50,96 @@ private:
   std::unique_ptr<T> std_ptr;               //!
 };
 
-namespace cudaCompat {
+namespace cms {
+  namespace cudacompat {
 
-  struct GPUTraits {
-    template <typename T>
-    using unique_ptr = cms::cuda::device::unique_ptr<T>;
+    struct GPUTraits {
+      template <typename T>
+      using unique_ptr = cms::cuda::device::unique_ptr<T>;
 
-    template <typename T>
-    static auto make_unique(cudaStream_t stream) {
-      return cms::cuda::make_device_unique<T>(stream);
-    }
+      template <typename T>
+      static auto make_unique(cudaStream_t stream) {
+        return cms::cuda::make_device_unique<T>(stream);
+      }
 
-    template <typename T>
-    static auto make_unique(size_t size, cudaStream_t stream) {
-      return cms::cuda::make_device_unique<T>(size, stream);
-    }
+      template <typename T>
+      static auto make_unique(size_t size, cudaStream_t stream) {
+        return cms::cuda::make_device_unique<T>(size, stream);
+      }
 
-    template <typename T>
-    static auto make_host_unique(cudaStream_t stream) {
-      return cms::cuda::make_host_unique<T>(stream);
-    }
+      template <typename T>
+      static auto make_host_unique(cudaStream_t stream) {
+        return cms::cuda::make_host_unique<T>(stream);
+      }
 
-    template <typename T>
-    static auto make_device_unique(cudaStream_t stream) {
-      return cms::cuda::make_device_unique<T>(stream);
-    }
+      template <typename T>
+      static auto make_device_unique(cudaStream_t stream) {
+        return cms::cuda::make_device_unique<T>(stream);
+      }
 
-    template <typename T>
-    static auto make_device_unique(size_t size, cudaStream_t stream) {
-      return cms::cuda::make_device_unique<T>(size, stream);
-    }
-  };
+      template <typename T>
+      static auto make_device_unique(size_t size, cudaStream_t stream) {
+        return cms::cuda::make_device_unique<T>(size, stream);
+      }
+    };
 
-  struct HostTraits {
-    template <typename T>
-    using unique_ptr = cms::cuda::host::unique_ptr<T>;
+    struct HostTraits {
+      template <typename T>
+      using unique_ptr = cms::cuda::host::unique_ptr<T>;
 
-    template <typename T>
-    static auto make_unique(cudaStream_t stream) {
-      return cms::cuda::make_host_unique<T>(stream);
-    }
+      template <typename T>
+      static auto make_unique(cudaStream_t stream) {
+        return cms::cuda::make_host_unique<T>(stream);
+      }
 
-    template <typename T>
-    static auto make_host_unique(cudaStream_t stream) {
-      return cms::cuda::make_host_unique<T>(stream);
-    }
+      template <typename T>
+      static auto make_host_unique(cudaStream_t stream) {
+        return cms::cuda::make_host_unique<T>(stream);
+      }
 
-    template <typename T>
-    static auto make_device_unique(cudaStream_t stream) {
-      return cms::cuda::make_device_unique<T>(stream);
-    }
+      template <typename T>
+      static auto make_device_unique(cudaStream_t stream) {
+        return cms::cuda::make_device_unique<T>(stream);
+      }
 
-    template <typename T>
-    static auto make_device_unique(size_t size, cudaStream_t stream) {
-      return cms::cuda::make_device_unique<T>(size, stream);
-    }
-  };
+      template <typename T>
+      static auto make_device_unique(size_t size, cudaStream_t stream) {
+        return cms::cuda::make_device_unique<T>(size, stream);
+      }
+    };
 
-  struct CPUTraits {
-    template <typename T>
-    using unique_ptr = std::unique_ptr<T>;
+    struct CPUTraits {
+      template <typename T>
+      using unique_ptr = std::unique_ptr<T>;
 
-    template <typename T>
-    static auto make_unique(cudaStream_t) {
-      return std::make_unique<T>();
-    }
+      template <typename T>
+      static auto make_unique(cudaStream_t) {
+        return std::make_unique<T>();
+      }
 
-    template <typename T>
-    static auto make_unique(size_t size, cudaStream_t) {
-      return std::make_unique<T>(size);
-    }
+      template <typename T>
+      static auto make_unique(size_t size, cudaStream_t) {
+        return std::make_unique<T>(size);
+      }
 
-    template <typename T>
-    static auto make_host_unique(cudaStream_t) {
-      return std::make_unique<T>();
-    }
+      template <typename T>
+      static auto make_host_unique(cudaStream_t) {
+        return std::make_unique<T>();
+      }
 
-    template <typename T>
-    static auto make_device_unique(cudaStream_t) {
-      return std::make_unique<T>();
-    }
+      template <typename T>
+      static auto make_device_unique(cudaStream_t) {
+        return std::make_unique<T>();
+      }
 
-    template <typename T>
-    static auto make_device_unique(size_t size, cudaStream_t) {
-      return std::make_unique<T>(size);
-    }
-  };
+      template <typename T>
+      static auto make_device_unique(size_t size, cudaStream_t) {
+        return std::make_unique<T>(size);
+      }
+    };
 
-}  // namespace cudaCompat
+  }  // namespace cudacompat
+}  // namespace cms
 
 // a heterogeneous unique pointer (of a different sort) ...
 template <typename T, typename Traits>
@@ -178,10 +180,10 @@ cms::cuda::host::unique_ptr<T> HeterogeneousSoAImpl<T, Traits>::toHostAsync(cuda
 }
 
 template <typename T>
-using HeterogeneousSoAGPU = HeterogeneousSoAImpl<T, cudaCompat::GPUTraits>;
+using HeterogeneousSoAGPU = HeterogeneousSoAImpl<T, cms::cudacompat::GPUTraits>;
 template <typename T>
-using HeterogeneousSoACPU = HeterogeneousSoAImpl<T, cudaCompat::CPUTraits>;
+using HeterogeneousSoACPU = HeterogeneousSoAImpl<T, cms::cudacompat::CPUTraits>;
 template <typename T>
-using HeterogeneousSoAHost = HeterogeneousSoAImpl<T, cudaCompat::HostTraits>;
+using HeterogeneousSoAHost = HeterogeneousSoAImpl<T, cms::cudacompat::HostTraits>;
 
 #endif
