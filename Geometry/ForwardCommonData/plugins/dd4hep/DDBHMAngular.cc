@@ -34,25 +34,24 @@ static long algorithm(dd4hep::Detector& /* description */,
   if (rotstr != "NULL") {
     rot = ns.rotation(rotMat);
   }
+  static const int startpos = 16;
   static const double fac1 = 0.5;
   static const double fac2 = 1.5;
-  static const double fac3 = 14.5;
-  static const double fac4 = 15.5;
   for (int jj = 0; jj < units; jj++) {
     double driverX(0), driverY(0), driverZ(0);
-    if (jj < 16) {
+    if (jj < startpos) {
       driverX = rr * cos((jj + fac1) * dphi);
       driverY = sqrt(rr * rr - driverX * driverX);
-    } else if (jj == 16) {
-      driverX = rr * cos(fac4 * dphi);
+    } else if (jj == startpos) {
+      driverX = rr * cos((startpos - fac1) * dphi);
       driverY = -sqrt(rr * rr - driverX * driverX);
-    } else if (jj == 17) {
-      driverX = rr * cos(fac3 * dphi);
+    } else if (jj == startpos + 1) {
+      driverX = rr * cos((startpos - fac2) * dphi);
       driverY = -sqrt(rr * rr - driverX * driverX);
-    } else if (jj == 18) {
+    } else if (jj == startpos + 2) {
       driverX = rr * cos(fac1 * dphi);
       driverY = -sqrt(rr * rr - driverX * driverX);
-    } else if (jj == 19) {
+    } else if (jj == startpos + 3) {
       driverX = rr * cos(fac2 * dphi);
       driverY = -sqrt(rr * rr - driverX * driverX);
     }
