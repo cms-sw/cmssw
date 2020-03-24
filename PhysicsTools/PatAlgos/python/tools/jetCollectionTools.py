@@ -498,8 +498,10 @@ class RecoJetAdder(object):
         cms.EDProducer("PATJetUserDataEmbedder",
           src = cms.InputTag(selJet),
           userFloats = cms.PSet(
-            jercCHPUF = cms.InputTag("{}:chargedHadronPUEnergyFraction".format(jercVar)),
-            jercCHF   = cms.InputTag("{}:chargedHadronCHSEnergyFraction".format(jercVar)),
+            chFPV0EF = cms.InputTag("{}:chargedFromPV0EnergyFraction".format(jercVar)),
+            chFPV1EF = cms.InputTag("{}:chargedFromPV1EnergyFraction".format(jercVar)),
+            chFPV2EF = cms.InputTag("{}:chargedFromPV2EnergyFraction".format(jercVar)),
+            chFPV3EF = cms.InputTag("{}:chargedFromPV3EnergyFraction".format(jercVar)),
           ),
           userInts = cms.PSet(
             tightId        = cms.InputTag(tightJetId),
