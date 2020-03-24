@@ -199,6 +199,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                                     cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'),
                                     jetCorrections[0]+_labelCorrName+'corrPfMetType2'+postfix)),
                                 process, task)
+            if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow':
+                getattr(process,jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix).srcWeights = "puppiNoLep"
 
         ## common configuration for Calo and PF
         if ('L1FastJet' in jetCorrections[1] or 'L1Fastjet' in jetCorrections[1]):

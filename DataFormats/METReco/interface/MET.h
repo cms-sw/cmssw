@@ -41,9 +41,13 @@ namespace reco {
   class MET : public RecoCandidate {
   public:
     MET();
-    MET(const LorentzVector& p4_, const Point& vtx_);
-    MET(double sumet_, const LorentzVector& p4_, const Point& vtx_);
-    MET(double sumet_, const std::vector<CorrMETData>& corr_, const LorentzVector& p4_, const Point& vtx_);
+    MET(const LorentzVector& p4_, const Point& vtx_, bool isWeighted = false);
+    MET(double sumet_, const LorentzVector& p4_, const Point& vtx_, bool isWeighted = false);
+    MET(double sumet_,
+        const std::vector<CorrMETData>& corr_,
+        const LorentzVector& p4_,
+        const Point& vtx_,
+        bool isWeighted = false);
 
     MET* clone() const override;
 
