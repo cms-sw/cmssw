@@ -1,3 +1,4 @@
+#include "SimDataFormats/Forward/interface/LHCTransportLink.h"
 #include "SimTransport/PPSProtonTransport/interface/ProtonTransport.h"
 #include "Utilities/PPS/interface/PPSUnitConversion.h"
 #include <CLHEP/Random/RandGauss.h>
