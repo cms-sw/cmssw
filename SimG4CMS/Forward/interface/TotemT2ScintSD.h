@@ -7,10 +7,10 @@
 class TotemT2ScintSD : public CaloSD {
 public:
   TotemT2ScintSD(const std::string &,
-		 const edm::EventSetup &,
-		 const SensitiveDetectorCatalog &,
-		 edm::ParameterSet const &,
-		 const SimTrackManager *);
+                 const edm::EventSetup &,
+                 const SensitiveDetectorCatalog &,
+                 edm::ParameterSet const &,
+                 const SimTrackManager *);
   ~TotemT2ScintSD() override = default;
   uint32_t setDetUnitId(const G4Step *step) override;
   void setNumberingScheme(TotemT2ScintNumberingScheme *scheme);
@@ -19,7 +19,7 @@ protected:
   double getEnergyDeposit(const G4Step *) override;
 
 private:
-  uint32_t setDetUnitId(const int& zside, const int& lay, const int& phi);
+  uint32_t setDetUnitId(const int &zside, const int &lay, const int &phi);
 
   bool useBirk_;
   double birk1_, birk2_, birk3_;
