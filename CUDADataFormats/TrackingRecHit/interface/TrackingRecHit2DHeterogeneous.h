@@ -88,7 +88,7 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
 #ifndef __CUDACC__
         constexpr
 #endif
-        (std::is_same<Traits, cudaCompat::GPUTraits>::value) {
+        (std::is_same<Traits, cms::cudacompat::GPUTraits>::value) {
       cms::cuda::copyAsync(m_view, view, stream);
     } else {
       m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
@@ -135,16 +135,16 @@ TrackingRecHit2DHeterogeneous<Traits>::TrackingRecHit2DHeterogeneous(uint32_t nH
 #ifndef __CUDACC__
       constexpr
 #endif
-      (std::is_same<Traits, cudaCompat::GPUTraits>::value) {
+      (std::is_same<Traits, cms::cudacompat::GPUTraits>::value) {
     cms::cuda::copyAsync(m_view, view, stream);
   } else {
     m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
   }
 }
 
-using TrackingRecHit2DGPU = TrackingRecHit2DHeterogeneous<cudaCompat::GPUTraits>;
-using TrackingRecHit2DCUDA = TrackingRecHit2DHeterogeneous<cudaCompat::GPUTraits>;
-using TrackingRecHit2DCPU = TrackingRecHit2DHeterogeneous<cudaCompat::CPUTraits>;
-using TrackingRecHit2DHost = TrackingRecHit2DHeterogeneous<cudaCompat::HostTraits>;
+using TrackingRecHit2DGPU = TrackingRecHit2DHeterogeneous<cms::cudacompat::GPUTraits>;
+using TrackingRecHit2DCUDA = TrackingRecHit2DHeterogeneous<cms::cudacompat::GPUTraits>;
+using TrackingRecHit2DCPU = TrackingRecHit2DHeterogeneous<cms::cudacompat::CPUTraits>;
+using TrackingRecHit2DHost = TrackingRecHit2DHeterogeneous<cms::cudacompat::HostTraits>;
 
 #endif  // CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneous_h
