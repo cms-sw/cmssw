@@ -16,7 +16,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class BPHRecoBuilder;
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 
 namespace reco {
   class Candidate;

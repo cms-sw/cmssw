@@ -12,6 +12,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToResTrkBuilder.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
