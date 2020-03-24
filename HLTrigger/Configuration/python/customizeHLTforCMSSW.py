@@ -164,6 +164,12 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
+def customiseFor28936(process):
+    """ Adapt a misconfiguration in hltBoostedDBSVAK8TagInfosPF. Issue #29203 """
+    if hasattr(process, 'hltBoostedDBSVAK8TagInfosPF'):
+      del process.hltBoostedDBSVAK8TagInfosPF.trackSelection.variableJTAParsi
+    return process
+
 def customiseFor29049(process) :
 
    listHltPFRecHitHBHE=['hltParticleFlowRecHitHBHE',
@@ -198,7 +204,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
     process = customiseFor29049(process)
+    process = customiseFor28936(process)
 
     return process
