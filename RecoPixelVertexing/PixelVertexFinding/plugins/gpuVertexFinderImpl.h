@@ -109,7 +109,7 @@ namespace gpuVertexFinder {
     loadTracks<<<numberOfBlocks, blockSize, 0, stream>>>(tksoa, soa, ws_d.get(), ptMin);
     cudaCheck(cudaGetLastError());
 #else
-    cudaCompat::resetGrid();
+    cms::cudacompat::resetGrid();
     init(soa, ws_d.get());
     loadTracks(tksoa, soa, ws_d.get(), ptMin);
 #endif
