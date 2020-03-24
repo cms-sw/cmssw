@@ -59,7 +59,7 @@ namespace trackerDTC {
       // extrapolated z at radius T assuming z0=0
       const double zT = settings_->tmtt()->chosenRofZ() * z_ / r_;
       // extrapolated z0 window at radius T
-      const double dZT = settings_->tmtt()->beamWindowZ() * fabs(1. - settings_->tmtt()->chosenRofZ() / r_);
+      const double dZT = settings_->tmtt()->beamWindowZ() * abs(1. - settings_->tmtt()->chosenRofZ() / r_);
       double zTMin = zT - dZT;
       double zTMax = zT + dZT;
       if (zTMin >= settings_->tmtt()->maxZT() || zTMax < -settings_->tmtt()->maxZT())
@@ -73,7 +73,7 @@ namespace trackerDTC {
       cot_ = {zTMin / settings_->tmtt()->chosenRofZ(), zTMax / settings_->tmtt()->chosenRofZ()};
 
     } else if (settings_->dataFormat() == "Hybrid") {
-      if (fabs(z_ / r_) > settings_->maxCot())
+      if (abs(z_ / r_) > settings_->maxCot())
         // did not pass eta cut
         valid_ = false;
     }
@@ -129,7 +129,7 @@ namespace trackerDTC {
 
     // decode bend
     const vector<double>& bendEncoding = module->bendEncoding_;
-    const int uBend = distance(bendEncoding.begin(), find(bendEncoding.begin(), bendEncoding.end(), fabs(bend_)));
+    const int uBend = distance(bendEncoding.begin(), find(bendEncoding.begin(), bendEncoding.end(), abs(bend_)));
     bend_ = pow(-1, signbit(bend_)) * (uBend - (int)bendEncoding.size() / 2);
   }
 
@@ -211,12 +211,12 @@ namespace trackerDTC {
     // assign stub to eta sectors within a processing region
     pair<int, int> setcorEta({0, format->numSectorsEta() - 1});
     for (int bin = 0; bin < format->numSectorsEta(); bin++)
-      if (asinh(cot_.first) < format->bounderiesEta(bin + 1)) {
+      if (asinh(cot_.first) < format->boundariesEta(bin + 1)) {
         setcorEta.first = bin;
         break;
       }
     for (int bin = setcorEta.first; bin < format->numSectorsEta(); bin++)
-      if (asinh(cot_.second) < format->bounderiesEta(bin + 1)) {
+      if (asinh(cot_.second) < format->boundariesEta(bin + 1)) {
         setcorEta.second = bin;
         break;
       }

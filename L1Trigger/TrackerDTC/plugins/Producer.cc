@@ -32,7 +32,7 @@ using namespace edm;
 
 namespace trackerDTC {
 
-  /*! \class  TrackerDTCProducer
+  /*! \class  trackerDTC::Producer
    *  \brief  Class to produce hardware like structured TTStub Collection used by Track Trigger emulators
    *  \author Thomas Schuh
    *  \date   2020, Jan
@@ -40,17 +40,13 @@ namespace trackerDTC {
   class Producer : public stream::EDProducer<> {
   public:
     explicit Producer(const ParameterSet&);
-
     ~Producer() override {}
 
   private:
     void beginRun(const Run&, const EventSetup&) override;
-
     void produce(Event&, const EventSetup&) override;
-
     void endJob() {}
 
-  private:
     // helper class to store configurations
     Settings settings_;
     // collection of outer tracker sensor modules
@@ -123,8 +119,7 @@ namespace trackerDTC {
 
     // apply cabling map
     auto acc = [](int& sum, const TTStubDetSet* module) { return sum += module ? module->size() : 0; };
-    static const vector<const TTStubDetSet*> nullDTC(settings_.numModulesPerDTC(), nullptr);
-    vector<vector<const TTStubDetSet*>> ttDTCs(settings_.numDTCs(), nullDTC);
+    vector<vector<const TTStubDetSet*>> ttDTCs(settings_.numDTCs(), vector<const TTStubDetSet*>(settings_.numModulesPerDTC(), nullptr));
     TTStubDetSetVec::const_iterator ttModule;
     for (ttModule = handleTTStubDetSetVec->begin(); ttModule != handleTTStubDetSetVec->end(); ttModule++) {
       // DetSetVec->detId + 1 = tk layout det id

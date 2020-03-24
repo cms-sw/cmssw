@@ -19,9 +19,9 @@ namespace trackerDTC {
         chosenRofZ_(paramsFormat_.getParameter<double>("ChosenRofZ")),
         beamWindowZ_(paramsFormat_.getParameter<double>("BeamWindowZ")),
         halfLength_(paramsFormat_.getParameter<double>("HalfLength")),
-        bounderiesEta_(paramsFormat_.getParameter<vector<double> >("BounderiesEta")) {
+        boundariesEta_(paramsFormat_.getParameter<vector<double> >("BoundariesEta")) {
     // number of eta sectors used during track finding
-    numSectorsEta_ = bounderiesEta_.size() - 1;
+    numSectorsEta_ = boundariesEta_.size() - 1;
     // cut on zT
     maxZT_ = settings->maxCot_ * chosenRofZ_;
     // width of phi sector in rad

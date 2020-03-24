@@ -149,7 +149,7 @@ namespace trackerDTC {
   // check current coniguration consistency with input configuration
   void Settings::checkConfiguration() {
     const double bField = magneticField_->inTesla(GlobalPoint(0., 0., 0.)).z();
-    if (fabs(bField - bField_) > bFieldError_) {
+    if (abs(bField - bField_) > bFieldError_) {
       cms::Exception exception("LogicError");
       exception << "Magnetic Field from EventSetup (" << bField << ") differs more then " << bFieldError_
                 << " from configured value (" << bField_ << ").";

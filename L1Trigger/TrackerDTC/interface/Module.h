@@ -26,7 +26,6 @@ namespace trackerDTC {
     // handles 2 pi overflow
     double deltaPhi(double phi) { return reco::deltaPhi(phi, 0.); }
 
-  private:
     // track trigger dtc id [0-215]
     int dtcId_;
     // DTC module id [0-71]
@@ -35,7 +34,6 @@ namespace trackerDTC {
     int blockId_;
     // routing block channel id [0-35]
     int blockChannelId_;
-
     // +z or -z
     bool side_;
     // barrel or endcap

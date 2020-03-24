@@ -36,7 +36,6 @@ namespace trackerDTC {
     // pop_front function which additionally returns copy of deleted front
     Stub* pop_front(Stubs& stubs);
 
-  private:
     // helper class to store configurations
     Settings* settings_;
     // container of stubs on this DTC
