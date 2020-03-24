@@ -4,7 +4,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelErrors.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
 
 #include <cuda_runtime.h>
 
@@ -21,20 +21,20 @@ public:
 
   const PixelFormatterErrors& formatterErrors() const { return formatterErrors_h; }
 
-  GPU::SimpleVector<PixelErrorCompact>* error() { return error_d.get(); }
-  GPU::SimpleVector<PixelErrorCompact> const* error() const { return error_d.get(); }
-  GPU::SimpleVector<PixelErrorCompact> const* c_error() const { return error_d.get(); }
+  cms::cuda::SimpleVector<PixelErrorCompact>* error() { return error_d.get(); }
+  cms::cuda::SimpleVector<PixelErrorCompact> const* error() const { return error_d.get(); }
+  cms::cuda::SimpleVector<PixelErrorCompact> const* c_error() const { return error_d.get(); }
 
   using HostDataError =
-      std::pair<GPU::SimpleVector<PixelErrorCompact>, cms::cuda::host::unique_ptr<PixelErrorCompact[]>>;
+      std::pair<cms::cuda::SimpleVector<PixelErrorCompact>, cms::cuda::host::unique_ptr<PixelErrorCompact[]>>;
   HostDataError dataErrorToHostAsync(cudaStream_t stream) const;
 
   void copyErrorToHostAsync(cudaStream_t stream);
 
 private:
   cms::cuda::device::unique_ptr<PixelErrorCompact[]> data_d;
-  cms::cuda::device::unique_ptr<GPU::SimpleVector<PixelErrorCompact>> error_d;
-  cms::cuda::host::unique_ptr<GPU::SimpleVector<PixelErrorCompact>> error_h;
+  cms::cuda::device::unique_ptr<cms::cuda::SimpleVector<PixelErrorCompact>> error_d;
+  cms::cuda::host::unique_ptr<cms::cuda::SimpleVector<PixelErrorCompact>> error_h;
   PixelFormatterErrors formatterErrors_h;
 };
 
