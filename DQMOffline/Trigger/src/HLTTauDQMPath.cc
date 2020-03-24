@@ -396,7 +396,9 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
   filterMuonN_.reserve(filterIndices_.size());
   filterMET_.reserve(filterIndices_.size());
   filterLevel_.reserve(filterIndices_.size());
+#ifdef EDM_ML_DEBUG
   size_t i(0);
+#endif
   for (auto& filterIndice : filterIndices_) {
     const std::string& filterName = std::get<kName>(filterIndice);
     const std::string& moduleType = HLTCP.moduleType(filterName);
