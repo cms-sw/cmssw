@@ -3760,9 +3760,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
               (*patJets)[ijet].hasUserFloat("ak8PFJetsPuppiSoftDropMass"))
             mSoftDropMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsPuppiSoftDropMass"));
           mPrunedMass = map_of_MEs[DirName + "/" + "PrunedMass"];
-          if (mPrunedMass && mPrunedMass->getRootObject() &&
-              (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"))
-            mPrunedMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"));
           mtau2_over_tau1 = map_of_MEs[DirName + "/" + "tau2_over_tau1"];
           if (mtau2_over_tau1 && mtau2_over_tau1->getRootObject() &&
               ((*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau1") &&
@@ -3816,9 +3813,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                 (*patJets)[ijet].hasUserFloat("ak8PFJetsPuppiSoftDropMass"))
               mSoftDropMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsPuppiSoftDropMass"));
             mPrunedMass_boosted = map_of_MEs[DirName + "/" + "PrunedMass_boosted"];
-            if (mPrunedMass_boosted && mPrunedMass_boosted->getRootObject() &&
-                (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"))
-              mPrunedMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"));
             mtau2_over_tau1_boosted = map_of_MEs[DirName + "/" + "tau2_over_tau1_boosted"];
             if (mtau2_over_tau1_boosted && mtau2_over_tau1_boosted->getRootObject() &&
                 ((*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau1") &&
@@ -3912,10 +3906,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mPhiVSEta->Fill(correctedJet.eta(), correctedJet.phi());
       //if(!isJPTJet_){
       float nConstituents = correctedJet.nConstituents();
-      if (isMiniAODJet_) {
-        if ((*patJets)[ijet].hasUserFloat("patPuppiJetSpecificProducer:puppiMultiplicity"))
-          nConstituents = (*patJets)[ijet].userFloat("patPuppiJetSpecificProducer:puppiMultiplicity");
-      }
       mConstituents = map_of_MEs[DirName + "/" + "Constituents"];
       if (mConstituents && mConstituents->getRootObject())
         mConstituents->Fill(nConstituents);
