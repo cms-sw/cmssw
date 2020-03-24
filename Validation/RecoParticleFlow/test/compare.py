@@ -172,11 +172,11 @@ def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
         for h in histograms:
             plots = [PlotGroup(h, [Plot(h, **opts)])]
         for plot in plots:
-            plot.setProperties(legendDw=-1)
-            plot.setProperties(legendDh=0.005)
+            plot.setProperties(legendDw=-0.5)
+            plot.setProperties(legendDh=0.01)
             plot.setProperties(legendDy=0.24)
             plot.setProperties(legendDx=0.05)
-        plotter.append("METValidation" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="MET", section=section))
+        plotter.append("METValidation/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="MET", section=section))
 
 
 def main():
