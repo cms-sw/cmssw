@@ -837,13 +837,16 @@ namespace edm {
       return;
     }
 
+    //Need to check workStarted_ before adding to waitingTasks_
+    bool expected = false;
+    bool workStarted = workStarted_.compare_exchange_strong(expected, true);
+
     waitingTasks_.add(task);
     if (T::isEvent_) {
       timesVisited_.fetch_add(1, std::memory_order_relaxed);
     }
 
-    bool expected = false;
-    if (workStarted_.compare_exchange_strong(expected, true)) {
+    if (workStarted) {
       moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
 
       //if have TriggerResults based selection we want to reject the event before doing prefetching
@@ -934,9 +937,13 @@ namespace edm {
     if (not workerhelper::CallImpl<T>::wantsTransition(this)) {
       return;
     }
-    waitingTasks_.add(task);
+
+    //Need to check workStarted_ before adding to waitingTasks_
     bool expected = false;
-    if (workStarted_.compare_exchange_strong(expected, true)) {
+    auto workStarted = workStarted_.compare_exchange_strong(expected, true);
+
+    waitingTasks_.add(task);
+    if (workStarted) {
       auto toDo = [this, &principal, &es, streamID, parentContext, context, serviceToken]() {
         std::exception_ptr exceptionPtr;
         // Caught exception is propagated via WaitingTaskList
