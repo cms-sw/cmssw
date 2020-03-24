@@ -44,7 +44,7 @@ namespace gpuVertexFinder {
     assert(pdata);
     assert(zt);
 
-    using Hist = HistoContainer<uint8_t, 256, 16000, 8, uint16_t>;
+    using Hist = cms::cuda::HistoContainer<uint8_t, 256, 16000, 8, uint16_t>;
     __shared__ Hist hist;
     __shared__ typename Hist::Counter hws[32];
     for (auto j = threadIdx.x; j < Hist::totbins(); j += blockDim.x) {
@@ -96,7 +96,7 @@ namespace gpuVertexFinder {
         nn[i]++;
       };
 
-      forEachInBins(hist, izt[i], 1, loop);
+      cms::cuda::forEachInBins(hist, izt[i], 1, loop);
     }
 
     __syncthreads();
@@ -118,7 +118,7 @@ namespace gpuVertexFinder {
         mz = zt[j];
         iv[i] = j;  // assign to cluster (better be unique??)
       };
-      forEachInBins(hist, izt[i], 1, loop);
+      cms::cuda::forEachInBins(hist, izt[i], 1, loop);
     }
 
     __syncthreads();
@@ -172,7 +172,7 @@ namespace gpuVertexFinder {
         }
         assert(iv[i] == iv[j]);
       };
-      forEachInBins(hist, izt[i], 1, loop);
+      cms::cuda::forEachInBins(hist, izt[i], 1, loop);
     }
     __syncthreads();
 #endif
@@ -194,7 +194,7 @@ namespace gpuVertexFinder {
         mdist = dist;
         iv[i] = iv[j];  // assign to cluster (better be unique??)
       };
-      forEachInBins(hist, izt[i], 1, loop);
+      cms::cuda::forEachInBins(hist, izt[i], 1, loop);
     }
 
     __shared__ unsigned int foundClusters;

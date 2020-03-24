@@ -1,7 +1,10 @@
 #ifndef HeterogeneousCoreCUDAUtilities_radixSort_H
 #define HeterogeneousCoreCUDAUtilities_radixSort_H
 
+#ifdef __CUDACC__
+
 #include <cstdint>
+#include <type_traits>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
@@ -79,8 +82,8 @@ __device__ inline void reorderFloat(T const* a, uint16_t* ind, uint16_t* ind2, u
 template <typename T,  // shall be interger
           int NS,      // number of significant bytes to use in sorting
           typename RF>
-__device__ void __forceinline__
-radixSortImpl(T const* __restrict__ a, uint16_t* ind, uint16_t* ind2, uint32_t size, RF reorder) {
+__device__ __forceinline__ void radixSortImpl(
+    T const* __restrict__ a, uint16_t* ind, uint16_t* ind2, uint32_t size, RF reorder) {
   constexpr int d = 8, w = 8 * sizeof(T);
   constexpr int sb = 1 << d;
   constexpr int ps = int(sizeof(T)) - NS;
@@ -217,28 +220,30 @@ radixSortImpl(T const* __restrict__ a, uint16_t* ind, uint16_t* ind2, uint32_t s
 template <typename T,
           int NS = sizeof(T),  // number of significant bytes to use in sorting
           typename std::enable_if<std::is_unsigned<T>::value, T>::type* = nullptr>
-__device__ void __forceinline__ radixSort(T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
+__device__ __forceinline__ void radixSort(T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
   radixSortImpl<T, NS>(a, ind, ind2, size, dummyReorder<T>);
 }
 
 template <typename T,
           int NS = sizeof(T),  // number of significant bytes to use in sorting
           typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, T>::type* = nullptr>
-__device__ void __forceinline__ radixSort(T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
+__device__ __forceinline__ void radixSort(T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
   radixSortImpl<T, NS>(a, ind, ind2, size, reorderSigned<T>);
 }
 
 template <typename T,
           int NS = sizeof(T),  // number of significant bytes to use in sorting
           typename std::enable_if<std::is_floating_point<T>::value, T>::type* = nullptr>
-__device__ void __forceinline__ radixSort(T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
+__device__ __forceinline__ void radixSort(T const* a, uint16_t* ind, uint16_t* ind2, uint32_t size) {
   using I = int;
   radixSortImpl<I, NS>((I const*)(a), ind, ind2, size, reorderFloat<I>);
 }
 
 template <typename T, int NS = sizeof(T)>
-__device__ void __forceinline__
-radixSortMulti(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
+__device__ __forceinline__ void radixSortMulti(T const* v,
+                                               uint16_t* index,
+                                               uint32_t const* offsets,
+                                               uint16_t* workspace) {
   extern __shared__ uint16_t ws[];
 
   auto a = v + offsets[blockIdx.x];
@@ -250,17 +255,23 @@ radixSortMulti(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* w
     radixSort<T, NS>(a, ind, ind2, size);
 }
 
-template <typename T, int NS = sizeof(T)>
-__global__ void __launch_bounds__(256, 4)
-    radixSortMultiWrapper(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
-  radixSortMulti<T, NS>(v, index, offsets, workspace);
-}
+namespace cms {
+  namespace cuda {
 
-template <typename T, int NS = sizeof(T)>
-__global__ void
-// __launch_bounds__(256, 4)
-radixSortMultiWrapper2(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
-  radixSortMulti<T, NS>(v, index, offsets, workspace);
-}
+    template <typename T, int NS = sizeof(T)>
+    __global__ void __launch_bounds__(256, 4)
+        radixSortMultiWrapper(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
+      radixSortMulti<T, NS>(v, index, offsets, workspace);
+    }
+
+    template <typename T, int NS = sizeof(T)>
+    __global__ void radixSortMultiWrapper2(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
+      radixSortMulti<T, NS>(v, index, offsets, workspace);
+    }
+
+  }  // namespace cuda
+}  // namespace cms
+
+#endif  // __CUDACC__
 
 #endif  // HeterogeneousCoreCUDAUtilities_radixSort_H

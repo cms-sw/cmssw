@@ -14,6 +14,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/radixSort.h"
 
+using namespace cms::cuda;
+
 template <typename T>
 struct RS {
   using type = std::uniform_int_distribution<T>;

@@ -28,7 +28,7 @@ private:
   edm::EDPutTokenT<SiPixelDigiErrorsSoA> digiErrorPutToken_;
 
   cms::cuda::host::unique_ptr<PixelErrorCompact[]> data_;
-  GPU::SimpleVector<PixelErrorCompact> error_;
+  cms::cuda::SimpleVector<PixelErrorCompact> error_;
   const PixelFormatterErrors* formatterErrors_ = nullptr;
 };
 
@@ -70,7 +70,7 @@ void SiPixelDigiErrorsSoAFromCUDA::produce(edm::Event& iEvent, const edm::EventS
   //   use cudaMallocHost without a GPU...
   iEvent.emplace(digiErrorPutToken_, error_.size(), error_.data(), formatterErrors_);
 
-  error_ = GPU::make_SimpleVector<PixelErrorCompact>(0, nullptr);
+  error_ = cms::cuda::make_SimpleVector<PixelErrorCompact>(0, nullptr);
   data_.reset();
   formatterErrors_ = nullptr;
 }

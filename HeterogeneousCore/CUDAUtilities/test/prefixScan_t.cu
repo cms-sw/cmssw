@@ -6,6 +6,20 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
+using namespace cms::cuda;
+
+template <typename T>
+struct format_traits {
+public:
+  static const constexpr char *failed_msg = "failed %d %d %d: %d %d\n";
+};
+
+template <>
+struct format_traits<float> {
+public:
+  static const constexpr char *failed_msg = "failed %d %d %d: %f %f\n";
+};
+
 template <typename T>
 __global__ void testPrefixScan(uint32_t size) {
   __shared__ T ws[32];
@@ -24,7 +38,7 @@ __global__ void testPrefixScan(uint32_t size) {
   assert(1 == co[0]);
   for (auto i = first + 1; i < size; i += blockDim.x) {
     if (c[i] != c[i - 1] + 1)
-      printf("failed %d %d %d: %d %d\n", size, i, blockDim.x, c[i], c[i - 1]);
+      printf(format_traits<T>::failed_msg, size, i, blockDim.x, c[i], c[i - 1]);
     assert(c[i] == c[i - 1] + 1);
     assert(c[i] == i + 1);
     assert(c[i] = co[i]);
@@ -48,7 +62,7 @@ __global__ void testWarpPrefixScan(uint32_t size) {
   assert(1 == co[0]);
   if (i != 0) {
     if (c[i] != c[i - 1] + 1)
-      printf("failed %d %d %d: %d %d\n", size, i, blockDim.x, c[i], c[i - 1]);
+      printf(format_traits<T>::failed_msg, size, i, blockDim.x, c[i], c[i - 1]);
     assert(c[i] == c[i - 1] + 1);
     assert(c[i] == i + 1);
     assert(c[i] = co[i]);

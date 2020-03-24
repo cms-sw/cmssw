@@ -1,7 +1,9 @@
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/AtomicPairCounter.h"
-
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
+
+using namespace cms::cuda;
 
 __global__ void update(AtomicPairCounter *dc, uint32_t *ind, uint32_t *cont, uint32_t n) {
   auto i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -39,6 +41,8 @@ __global__ void verify(AtomicPairCounter const *dc, uint32_t const *ind, uint32_
 
 #include <iostream>
 int main() {
+  cms::cudatest::requireDevices();
+
   AtomicPairCounter *dc_d;
   cudaCheck(cudaMalloc(&dc_d, sizeof(AtomicPairCounter)));
   cudaCheck(cudaMemset(dc_d, 0, sizeof(AtomicPairCounter)));

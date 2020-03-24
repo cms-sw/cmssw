@@ -8,7 +8,7 @@
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigiErrorsCUDA.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "FWCore/Utilities/interface/typedefs.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
 #include "DataFormats/SiPixelDigi/interface/PixelErrors.h"

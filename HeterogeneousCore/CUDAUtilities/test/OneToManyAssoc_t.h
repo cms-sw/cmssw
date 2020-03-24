@@ -11,20 +11,18 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/currentDevice.h"
-
 #endif
 
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+using cms::cuda::AtomicPairCounter;
 
 constexpr uint32_t MaxElem = 64000;
 constexpr uint32_t MaxTk = 8000;
 constexpr uint32_t MaxAssocs = 4 * MaxTk;
-using Assoc = OneToManyAssoc<uint16_t, MaxElem, MaxAssocs>;
 
-using SmallAssoc = OneToManyAssoc<uint16_t, 128, MaxAssocs>;
-
-using Multiplicity = OneToManyAssoc<uint16_t, 8, MaxTk>;
-
+using Assoc = cms::cuda::OneToManyAssoc<uint16_t, MaxElem, MaxAssocs>;
+using SmallAssoc = cms::cuda::OneToManyAssoc<uint16_t, 128, MaxAssocs>;
+using Multiplicity = cms::cuda::OneToManyAssoc<uint16_t, 8, MaxTk>;
 using TK = std::array<uint16_t, 4>;
 
 __global__ void countMultiLocal(TK const* __restrict__ tk, Multiplicity* __restrict__ assoc, int32_t n) {
@@ -180,7 +178,7 @@ int main() {
   auto v_d = tr.data();
 #endif
 
-  cms::cuda::launchZero(a_d.get(), 0);
+  launchZero(a_d.get(), 0);
 
 #ifdef __CUDACC__
   auto nThreads = 256;
@@ -188,12 +186,12 @@ int main() {
 
   count<<<nBlocks, nThreads>>>(v_d.get(), a_d.get(), N);
 
-  cms::cuda::launchFinalize(a_d.get(), ws_d.get(), 0);
+  launchFinalize(a_d.get(), ws_d.get(), 0);
   verify<<<1, 1>>>(a_d.get());
   fill<<<nBlocks, nThreads>>>(v_d.get(), a_d.get(), N);
 #else
   count(v_d, a_d.get(), N);
-  cms::cuda::launchFinalize(a_d.get());
+  launchFinalize(a_d.get());
   verify(a_d.get());
   fill(v_d, a_d.get(), N);
 #endif
@@ -231,7 +229,7 @@ int main() {
   cudaCheck(cudaMemset(dc_d, 0, sizeof(AtomicPairCounter)));
   nBlocks = (N + nThreads - 1) / nThreads;
   fillBulk<<<nBlocks, nThreads>>>(dc_d, v_d.get(), a_d.get(), N);
-  cms::cuda::finalizeBulk<<<nBlocks, nThreads>>>(dc_d, a_d.get());
+  finalizeBulk<<<nBlocks, nThreads>>>(dc_d, a_d.get());
   verifyBulk<<<1, 1>>>(a_d.get(), dc_d);
 
   cudaCheck(cudaMemcpy(&la, a_d.get(), sizeof(Assoc), cudaMemcpyDeviceToHost));
@@ -239,19 +237,19 @@ int main() {
 
   cudaCheck(cudaMemset(dc_d, 0, sizeof(AtomicPairCounter)));
   fillBulk<<<nBlocks, nThreads>>>(dc_d, v_d.get(), sa_d.get(), N);
-  cms::cuda::finalizeBulk<<<nBlocks, nThreads>>>(dc_d, sa_d.get());
+  finalizeBulk<<<nBlocks, nThreads>>>(dc_d, sa_d.get());
   verifyBulk<<<1, 1>>>(sa_d.get(), dc_d);
 
 #else
   dc_d = &dc;
   fillBulk(dc_d, v_d, a_d.get(), N);
-  cms::cuda::finalizeBulk(dc_d, a_d.get());
+  finalizeBulk(dc_d, a_d.get());
   verifyBulk(a_d.get(), dc_d);
   memcpy(&la, a_d.get(), sizeof(Assoc));
 
   AtomicPairCounter sdc(0);
   fillBulk(&sdc, v_d, sa_d.get(), N);
-  cms::cuda::finalizeBulk(&sdc, sa_d.get());
+  finalizeBulk(&sdc, sa_d.get());
   verifyBulk(sa_d.get(), &sdc);
 
 #endif
@@ -280,8 +278,8 @@ int main() {
   auto m1_d = std::make_unique<Multiplicity>();
   auto m2_d = std::make_unique<Multiplicity>();
 #endif
-  cms::cuda::launchZero(m1_d.get(), 0);
-  cms::cuda::launchZero(m2_d.get(), 0);
+  launchZero(m1_d.get(), 0);
+  launchZero(m2_d.get(), 0);
 
 #ifdef __CUDACC__
   nBlocks = (4 * N + nThreads - 1) / nThreads;
@@ -289,8 +287,8 @@ int main() {
   countMultiLocal<<<nBlocks, nThreads>>>(v_d.get(), m2_d.get(), N);
   verifyMulti<<<1, Multiplicity::totbins()>>>(m1_d.get(), m2_d.get());
 
-  cms::cuda::launchFinalize(m1_d.get(), ws_d.get(), 0);
-  cms::cuda::launchFinalize(m2_d.get(), ws_d.get(), 0);
+  launchFinalize(m1_d.get(), ws_d.get(), 0);
+  launchFinalize(m2_d.get(), ws_d.get(), 0);
   verifyMulti<<<1, Multiplicity::totbins()>>>(m1_d.get(), m2_d.get());
 
   cudaCheck(cudaGetLastError());
@@ -300,8 +298,8 @@ int main() {
   countMultiLocal(v_d, m2_d.get(), N);
   verifyMulti(m1_d.get(), m2_d.get());
 
-  cms::cuda::launchFinalize(m1_d.get());
-  cms::cuda::launchFinalize(m2_d.get());
+  launchFinalize(m1_d.get());
+  launchFinalize(m2_d.get());
   verifyMulti(m1_d.get(), m2_d.get());
 #endif
   return 0;

@@ -62,7 +62,7 @@ namespace trackerHitAssociationHeterogeneous {
     m_view.n2_d = get32(3);
   }
 
-  using ProductCUDA = Product<cudaCompat::GPUTraits>;
+  using ProductCUDA = Product<cms::cudacompat::GPUTraits>;
 
 }  // namespace trackerHitAssociationHeterogeneous
 

@@ -33,7 +33,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "using namespace" or "using std::" in header files'
 Configuration[ruleName]['filesToMatch'] = ['*.h']
-Configuration[ruleName]['exceptPaths'] = []
+Configuration[ruleName]['exceptPaths'] = ['HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h']
 Configuration[ruleName]['skip']  = [comment, function]
 Configuration[ruleName]['filter'] = '(\susing|\Ausing)\s+(namespace|std::)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
@@ -63,7 +63,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "catch(...)" statements in *.cc, *.cxx files'
 Configuration[ruleName]['filesToMatch'] = ['*.cc', '*.cxx']
-Configuration[ruleName]['exceptPaths'] = ['FWCore/*', 'EventFilter/*', 'HeterogeneousCore/*', '*/*/test/*', '*/*/bin/*']
+Configuration[ruleName]['exceptPaths'] = ['FWCore/*', 'EventFilter/*', '*/*/test/*', '*/*/bin/*']
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = 'catch\s*\(\s*\.\.\.\s*\)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []

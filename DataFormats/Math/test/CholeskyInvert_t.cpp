@@ -74,13 +74,13 @@ void go(bool soa) {
   if (soa)
     for (unsigned int i = 0; i < SIZE; ++i) {
       MapMX<N> m(p + i);
-      choleskyInversion::invert(m, m);
-      choleskyInversion::invert(m, m);
+      math::cholesky::invert(m, m);
+      math::cholesky::invert(m, m);
     }
   else
     for (auto& m : mm) {
-      choleskyInversion::invert(m, m);
-      choleskyInversion::invert(m, m);
+      math::cholesky::invert(m, m);
+      math::cholesky::invert(m, m);
     }
 
   std::cout << mm[SIZE / 2](1, 1) << std::endl;
@@ -95,15 +95,17 @@ void go(bool soa) {
     delta -= (std::chrono::high_resolution_clock::now() - start);
     if (soa)
 #pragma GCC ivdep
+#ifdef __clang__
 #pragma clang loop vectorize(enable) interleave(enable)
+#endif
       for (unsigned int i = 0; i < SIZE; ++i) {
         MapMX<N> m(p + i);
-        choleskyInversion::invert(m, m);
+        math::cholesky::invert(m, m);
       }
     else
 #pragma GCC ivdep
       for (auto& m : mm) {
-        choleskyInversion::invert(m, m);
+        math::cholesky::invert(m, m);
       }
 
     delta += (std::chrono::high_resolution_clock::now() - start);

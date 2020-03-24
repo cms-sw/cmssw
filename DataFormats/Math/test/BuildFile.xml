@@ -123,6 +123,7 @@
 <bin file="CholeskyInvert_t.cu" name="CholeskyInvertOnGPU_t">
   <use name="cuda"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
+  <flags CUDA_FLAGS="-w"/>
 </bin>
 
 </iftool>
