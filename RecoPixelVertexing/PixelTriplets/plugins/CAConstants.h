@@ -6,8 +6,8 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/VecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 
 // #define ONLY_PHICUT
@@ -48,21 +48,21 @@ namespace CAConstants {
   using tindex_type = uint16_t;  //  for tuples
 
 #ifndef ONLY_PHICUT
-  using CellNeighbors = GPU::VecArray<uint32_t, 36>;
-  using CellTracks = GPU::VecArray<tindex_type, 42>;
+  using CellNeighbors = cms::cuda::VecArray<uint32_t, 36>;
+  using CellTracks = cms::cuda::VecArray<tindex_type, 42>;
 #else
-  using CellNeighbors = GPU::VecArray<uint32_t, 64>;
-  using CellTracks = GPU::VecArray<tindex_type, 64>;
+  using CellNeighbors = cms::cuda::VecArray<uint32_t, 64>;
+  using CellTracks = cms::cuda::VecArray<tindex_type, 64>;
 #endif
 
-  using CellNeighborsVector = GPU::SimpleVector<CellNeighbors>;
-  using CellTracksVector = GPU::SimpleVector<CellTracks>;
+  using CellNeighborsVector = cms::cuda::SimpleVector<CellNeighbors>;
+  using CellTracksVector = cms::cuda::SimpleVector<CellTracks>;
 
-  using OuterHitOfCell = GPU::VecArray<uint32_t, maxCellsPerHit()>;
-  using TuplesContainer = OneToManyAssoc<hindex_type, maxTuples(), 5 * maxTuples()>;
+  using OuterHitOfCell = cms::cuda::VecArray<uint32_t, maxCellsPerHit()>;
+  using TuplesContainer = cms::cuda::OneToManyAssoc<hindex_type, maxTuples(), 5 * maxTuples()>;
   using HitToTuple =
-      OneToManyAssoc<tindex_type, pixelGPUConstants::maxNumberOfHits, 4 * maxTuples()>;  // 3.5 should be enough
-  using TupleMultiplicity = OneToManyAssoc<tindex_type, 8, maxTuples()>;
+      cms::cuda::OneToManyAssoc<tindex_type, pixelGPUConstants::maxNumberOfHits, 4 * maxTuples()>;  // 3.5 should be enough
+  using TupleMultiplicity = cms::cuda::OneToManyAssoc<tindex_type, 8, maxTuples()>;
 
 }  // namespace CAConstants
 
