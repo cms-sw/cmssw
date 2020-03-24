@@ -64,11 +64,13 @@ def eGammaCorrection(process,
     corMETPhoton = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
                                   srcOriginal = cms.InputTag(matchPhotonCollection,tag1),
                                   srcShifted = cms.InputTag(matchPhotonCollection,tag2),
+                                  srcWeights = cms.InputTag("")
                                   )
     correctionElectron="corMETElectron"+postfix
     corMETElectron=cms.EDProducer("ShiftedParticleMETcorrInputProducer",
                                   srcOriginal=cms.InputTag(matchElectronCollection,tag1),
                                   srcShifted=cms.InputTag(matchElectronCollection,tag2),
+                                  srcWeights = cms.InputTag("")
                                   )
 
 

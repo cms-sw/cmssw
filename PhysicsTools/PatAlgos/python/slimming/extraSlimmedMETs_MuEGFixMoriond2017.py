@@ -175,6 +175,7 @@ def addExtraPuppiMETCorrections(process,
     process.puppiMuonCorrection = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
                         srcOriginal = cms.InputTag(unCleanPFCandidateCollection),
                         srcShifted = cms.InputTag(cleanPFCandidateCollection),
+                        srcWeights = cms.InputTag("")
                                   )
 
     task.add(process.puppiMuonCorrection)

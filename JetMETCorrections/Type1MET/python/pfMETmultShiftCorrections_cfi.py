@@ -30,6 +30,7 @@ multPhiCorrParams_T1T2Txy_25ns     = cms.VPSet( pset for pset in multPhiCorrPara
 pfMEtMultShiftCorr = cms.EDProducer("MultShiftMETcorrInputProducer",
     srcPFlow = cms.InputTag('particleFlow', ''),
     vertexCollection = cms.InputTag('offlinePrimaryVertices'),
+    srcWeights = cms.InputTag(''),
     parameters = multPhiCorrParams_Txy_25ns
 )
 
