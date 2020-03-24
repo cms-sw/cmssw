@@ -24,7 +24,7 @@ namespace trackerDTC {
     int numBinsPhiT() const { return numBinsPhiT_; }
     double chosenRofZ() const { return chosenRofZ_; }
     double beamWindowZ() const { return beamWindowZ_; }
-    double bounderiesEta(const int& eta) const { return bounderiesEta_[eta]; }
+    double boundariesEta(const int& eta) const { return boundariesEta_[eta]; }
 
     // format specific parameter
 
@@ -55,7 +55,7 @@ namespace trackerDTC {
     // has to be >= max stub z / 2 in cm
     const double halfLength_;
     // defining r-z sector shape
-    const std::vector<double> bounderiesEta_;
+    const std::vector<double> boundariesEta_;
 
     // derived format specific parameter
 

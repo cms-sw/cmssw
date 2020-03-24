@@ -50,8 +50,8 @@ namespace trackerDTC {
 
     auto comp = [](const double& lhs, const double& rhs) { return lhs > 0. ? (rhs > 0. ? lhs < rhs : true) : false; };
 
-    const double rangeRT = 2. * max(fabs(settings->outerRadius_ - settings->chosenRofPhi_),
-                                    fabs(settings->innerRadius_ - settings->chosenRofPhi_));
+    const double rangeRT = 2. * max(abs(settings->outerRadius_ - settings->chosenRofPhi_),
+                                    abs(settings->innerRadius_ - settings->chosenRofPhi_));
     const double rangePhi = settings->baseRegion_ + rangeRT * settings->rangeQoverPt_ / 2.;
 
     bool error(false);

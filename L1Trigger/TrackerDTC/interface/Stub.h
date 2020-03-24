@@ -41,7 +41,6 @@ namespace trackerDTC {
     // 64 bit stub in tmtt data format
     TTDTC::BV formatTMTT(int region) const;
 
-  private:
     // stores, calculates and provides run-time constants
     Settings* settings_;
     // underlying TTStubRef

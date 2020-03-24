@@ -59,7 +59,6 @@ namespace trackerDTC {
     // collection of modules connected to a specific dtc
     const std::vector<Module*>& modules(int dtcId) const;
 
-  public:
     // ED parameter
 
     edm::InputTag inputTagTTStubDetSetVec() const { return inputTagTTStubDetSetVec_; }

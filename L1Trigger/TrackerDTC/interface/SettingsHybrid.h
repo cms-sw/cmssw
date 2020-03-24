@@ -17,7 +17,6 @@ namespace trackerDTC {
   public:
     enum SensorType { barrelPS, barrel2S, diskPS, disk2S, numSensorTypes };
 
-  public:
     SettingsHybrid(const edm::ParameterSet& iConfig, Settings* settings);
     ~SettingsHybrid() {}
 

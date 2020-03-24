@@ -21,7 +21,7 @@ TrackerDTCFormat_params = cms.PSet (
     ChosenRofZ     = cms.double(  50.   ), # critical radius defining r-z sector shape in cm
     BeamWindowZ    = cms.double(  15.   ), # half lumi region size in cm
     HalfLength     = cms.double( 270.   ), # has to be >= max stub z / 2 in cm
-    BounderiesEta  = cms.vdouble( -2.40, -2.08, -1.68, -1.26, -0.90, -0.62, -0.41, -0.20, 0.0, 0.20, 0.41, 0.62, 0.90, 1.26, 1.68, 2.08, 2.40 ) # defining r-z sector shape
+    BoundariesEta  = cms.vdouble( -2.40, -2.08, -1.68, -1.26, -0.90, -0.62, -0.41, -0.20, 0.0, 0.20, 0.41, 0.62, 0.90, 1.26, 1.68, 2.08, 2.40 ) # defining r-z sector shape
 
   )
 
