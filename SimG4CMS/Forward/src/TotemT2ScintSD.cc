@@ -17,15 +17,15 @@
 #define EDM_ML_DEBUG
 
 TotemT2ScintSD::TotemT2ScintSD(const std::string& name,
-             const edm::EventSetup& es,
-             const SensitiveDetectorCatalog& clg,
-             edm::ParameterSet const& p,
-             const SimTrackManager* manager)
-    : CaloSD(name, 
-	     es, 
-	     clg, 
-	     p, 
-	     manager,
+                               const edm::EventSetup& es,
+                               const SensitiveDetectorCatalog& clg,
+                               edm::ParameterSet const& p,
+                               const SimTrackManager* manager)
+    : CaloSD(name,
+             es,
+             clg,
+             p,
+             manager,
              (float)(p.getParameter<edm::ParameterSet>("TotemT2ScintSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("TotemT2ScintSD").getParameter<bool>("IgnoreTrackID")) {
   edm::ParameterSet m_T2SD = p.getParameter<edm::ParameterSet>("TotemT2ScintSD");
@@ -36,13 +36,14 @@ TotemT2ScintSD::TotemT2ScintSD(const std::string& name,
   setNumberingScheme(new TotemT2ScintNumberingScheme());
 
   edm::LogVerbatim("ForwardSim") << "***************************************************\n"
-				 << "*                                                 *\n"
-				 << "* Constructing a TotemT2ScintSD with name " << name << " *\n"
-				 << "*                                                 *\n"
-				 << "***************************************************";
+                                 << "*                                                 *\n"
+                                 << "* Constructing a TotemT2ScintSD with name " << name << " *\n"
+                                 << "*                                                 *\n"
+                                 << "***************************************************";
 
   edm::LogVerbatim("ForwardSim") << "\nUse of Birks law is set to      " << useBirk_
-				 << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_ << ", C2 = " << birk3_;
+                                 << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_
+                                 << ", C2 = " << birk3_;
 }
 
 uint32_t TotemT2ScintSD::setDetUnitId(const G4Step* aStep) {
@@ -76,7 +77,8 @@ double TotemT2ScintSD::getEnergyDeposit(const G4Step* aStep) {
 uint32_t TotemT2ScintSD::setDetUnitId(const int& zside, const int& lay, const int& iphi) {
   uint32_t id = ((numberingScheme.get()) ? numberingScheme->packID(zside, lay, iphi) : 0);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("ForwardSim") << "TotemT2ScintSD: zside " << zside << " layer " << lay << " phi " << iphi << " ID " << std::hex << id << std::dec;
+  edm::LogVerbatim("ForwardSim") << "TotemT2ScintSD: zside " << zside << " layer " << lay << " phi " << iphi << " ID "
+                                 << std::hex << id << std::dec;
 #endif
   return id;
 }
