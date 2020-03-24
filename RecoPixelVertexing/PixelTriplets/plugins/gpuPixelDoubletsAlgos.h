@@ -9,7 +9,7 @@
 
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
 #include "DataFormats/Math/interface/approx_atan2.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/VecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
 #include "CAConstants.h"

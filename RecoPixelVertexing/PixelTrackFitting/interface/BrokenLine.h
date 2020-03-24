@@ -322,7 +322,7 @@ namespace BrokenLine {
     std::cout << "CU5\n" << C_U << std::endl;
 #endif
     MatrixNplusONEd<N> I;
-    choleskyInversion::invert(C_U, I);
+    math::cholesky::invert(C_U, I);
     // MatrixNplusONEd<N> I = C_U.inverse();
 #ifdef CPP_DUMP
     std::cout << "I5\n" << I << std::endl;
@@ -443,7 +443,7 @@ namespace BrokenLine {
     std::cout << "CU4\n" << MatrixC_u(w, S, VarBeta) << std::endl;
 #endif
     MatrixNd<N> I;
-    choleskyInversion::invert(MatrixC_u(w, S, VarBeta), I);
+    math::cholesky::invert(MatrixC_u(w, S, VarBeta), I);
     //    MatrixNd<N> I=MatrixC_u(w,S,VarBeta).inverse();
 #ifdef CPP_DUMP
     std::cout << "I4\n" << I << std::endl;
