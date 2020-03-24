@@ -23,7 +23,8 @@ from Configuration.Eras.Modifier_pixel_2016_cff import pixel_2016
 from Configuration.Eras.Modifier_run2_jme_2017_cff import run2_jme_2017
 from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
 from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
+from Configuration.Eras.Modifier_stage2L1Trigger_EMTF2016_cff import stage2L1Trigger_EMTF2016
 
-Run2_2017 = cms.ModifierChain(Run2_2016.copyAndExclude([run2_muon_2016, run2_HLTconditions_2016, run2_ECAL_2016, run2_egamma_2016,run2_tau_ul_2016,pixel_2016,run2_jme_2016, strips_vfp30_2016]),
+Run2_2017 = cms.ModifierChain(Run2_2016.copyAndExclude([run2_muon_2016, run2_HLTconditions_2016, run2_ECAL_2016, run2_egamma_2016,run2_tau_ul_2016,pixel_2016,run2_jme_2016, strips_vfp30_2016, stage2L1Trigger_EMTF2016]),
 phase1Pixel, run2_ECAL_2017, run2_HF_2017, run2_HCAL_2017, run2_HE_2017, run2_HEPlan1_2017, 
 trackingPhase1, run2_GEM_2017, stage2L1Trigger_2017, run2_HLTconditions_2017, run2_muon_2017,run2_egamma_2017, ctpps_2017, run2_jme_2017)
