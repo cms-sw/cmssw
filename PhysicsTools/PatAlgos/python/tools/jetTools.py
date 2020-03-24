@@ -597,6 +597,11 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.pixelClusterTagInfos.clone(jets = jetSource, vertices=pvSource),
                                     process, task)
 
+            if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow' and\
+	       ('pfBoostedDouble' in btagInfo or 'SecondaryVertex' in btagInfo):
+                _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
+                _btagInfo.weights = cms.InputTag("puppi")
+
             if 'DeepFlavourTagInfos' in btagInfo:
                 svUsed = svSource
                 if btagInfo == 'pfNegativeDeepFlavourTagInfos':
@@ -1173,6 +1178,9 @@ class AddJetCollection(ConfigToolBase):
                                     process, task)
 
                 knownModules.append('patJetFlavourAssociation'+_labelName+postfix)
+            if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow':
+                _newPatJetFlavourAssociation=getattr(process, 'patJetFlavourAssociation'+_labelName+postfix)
+                _newPatJetFlavourAssociation.weights = cms.InputTag("puppi")
             ## modify new patJets collection accordingly
             _newPatJets.JetFlavourInfoSource.setModuleLabel('patJetFlavourAssociation'+_labelName+postfix)
             ## if the jets is actually a subjet
@@ -1184,6 +1192,7 @@ class AddJetCollection(ConfigToolBase):
                 _newPatJets.JetFlavourInfoSource=cms.InputTag('patJetFlavourAssociation'+_labelName+postfix,'SubJets')
         else:
             _newPatJets.getJetMCFlavour = False
+            _newPatJets.addJetFlavourInfo = False
 
         ## add jetTrackAssociation for legacy btagging (or jetTracksAssociation only) if required by user
         if (jetTrackAssociation or bTaggingLegacy):

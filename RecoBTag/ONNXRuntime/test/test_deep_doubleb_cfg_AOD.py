@@ -62,7 +62,7 @@ addJetCollection(
    process,
    #labelName = 'AK8PFCHS',
    labelName = 'AK8PFPuppi',
-   #jetSource = cms.InputTag('ak8PFJetsCHS'),
+   #jetSource = cms.InputTag('ak8PFJetsPuppi'),
    jetSource = cms.InputTag('ak8PFJetsPuppi'),
    #pvSource = cms.InputTag('offlinePrimaryVertices'),
    #svSource = cms.InputTag('inclusiveCandidateSecondaryVertices'),
@@ -105,7 +105,7 @@ process.maxEvents.input = -1
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
 #process.out.outputCommands = MINIAODSIMEventContent.outputCommands
 process.out.outputCommands = patEventContentNoCleaning
-process.out.outputCommands.append('keep *_ak8PFJetsCHS*_*_*')
+process.out.outputCommands.append('keep *_ak8PFJetsPuppi*_*_*')
 process.out.outputCommands.append('keep *_offlinePrimaryVertices*_*_*')
 process.out.outputCommands.append('keep *_inclusiveCandidateSecondaryVertices*_*_*')
 process.out.outputCommands.append('keep *_selectedPatJets*_*_*')

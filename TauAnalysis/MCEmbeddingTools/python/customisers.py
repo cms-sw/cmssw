@@ -305,6 +305,7 @@ def customiseKeepPrunedGenParticles(process,reselect=False):
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
     process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
+    process.patJetGenJetMatchAK8Puppi.matched =  "slimmedGenJetsAK8"
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False

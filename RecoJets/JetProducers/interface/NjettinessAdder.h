@@ -62,6 +62,9 @@ private:
   int nPass_;
   double akAxesR0_;
 
+  edm::EDGetTokenT<edm::ValueMap<float>> input_weights_token_;
+  edm::ValueMap<float> const* weightsHandle_;
+
   std::unique_ptr<fastjet::contrib::Njettiness> routine_;
 };
 
