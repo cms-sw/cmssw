@@ -82,9 +82,9 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector subdet, HcalDDDGeometry* geom) 
 #ifdef EDM_ML_DEBUG
     std::cout << "HcalDDDGeometryLoader: Subdet " << subdet << " side " << iside << " eta " << etaRing << " depth "
               << depthBin << " with " << phis.size() << "modules:" << std::endl;
+    size_t i(0);
 #endif
     geom->increaseReserve(phis.size());
-    size_t i(0);
     for (auto& phi : phis) {
 #ifdef EDM_ML_DEBUG
       std::cout << "HcalDDDGeometryLoader::fill Cell " << i << " eta " << iside * etaRing << " phi " << phi.first << "("
