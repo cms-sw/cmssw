@@ -1,4 +1,5 @@
 #! /bin/tcsh
+
 cmsenv
 
 echo " START Geometry Validation"
@@ -79,7 +80,19 @@ endif
 
 diff outLocalDB.log outGTDB.log > logDiffLocalvsGT.log
 if ( -s logDiffLocalvsGT.log ) then
-    echo "WARNING THE CONTENT OF GLOBAL TAG IS DIFFERENT WITH RESPECT TO THE LOCAL DB FILE" | tee -a GeometryValidation.log
+    echo "WARNING THE CONTENT OF GLOBAL TAG MAY BE DIFFERENT WITH RESPECT TO THE LOCAL DB FILE" | tee -a GeometryValidation.log
+    cp $CMSSW_BASE/src/Validation/Geometry/test/dddvsdb/sortXML.sh .
+    cp $CMSSW_BASE/src/Validation/Geometry/test/dddvsdb/sortCompositeMaterials.py .
+    ./sortXML.sh outLocalDB.log localdb.xml
+    ./sortXML.sh outGTDB.log gtdb.xml
+    diff localdb.xml gtdb.xml > logDiffLocXMLvsGTXML.log
+    sort  localdb.xml > localdb.sort
+    sort gtdb.xml > gtdb.sort
+    diff localdb.sort gtdb.sort > logDiffLocvsGTSort.log
+    echo Examine logDiffLocXMLvsGTXML.log to see the differences in the local and GT XML files. | tee -a GeometryValidation.log
+    echo Examine logDiffLocvsGTSort.log to see the differences in sorted content of the local and GT XML files. | tee -a GeometryValidation.log
+    echo The two XML files may have real differences, or they may have identical content that is simply re-arranged. | tee -a GeometryValidation.log
+    echo Examining these log files can help you determine whether the XML files have significant differences. | tee -a GeometryValidation.log
 endif
 
 echo "End compare the content of GT and the local DB" | tee -a GeometryValidation.log
