@@ -272,7 +272,7 @@
     <![CDATA[daughtersTemp_.reset();]]>
   </ioread>
   <class name="pat::MET"  ClassVersion="16">
-    <version ClassVersion="16" checksum="2969659150"/>
+    <version ClassVersion="16" checksum="2416242778"/>
     <field name="corMap_" transient="true"/>
    <version ClassVersion="15" checksum="428901429"/>
    <version ClassVersion="14" checksum="1795935545"/>

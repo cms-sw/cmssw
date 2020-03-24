@@ -55,7 +55,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 				       JME::JetResolution& resPhiObj,
 				       JME::JetResolutionScaleFactor& resSFObj,
 				       bool isRealData,
-               double& sumPtUnclustered) {
+				       double& sumPtUnclustered) {
 
   //pfcandidates
   const edm::View<reco::Candidate>* pfCandidates=pfCandidatesH.product();
