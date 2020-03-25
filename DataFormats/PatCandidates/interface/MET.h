@@ -78,7 +78,7 @@ namespace pat {
       // set the MET sumPtUnclustered for MET Significance
       void setMETSumPtUnclustered(const double& sumPtUnclustered);
       // get the MET sumPtUnclustered
-      double sumPtUnclustered() const;
+      double metSumPtUnclustered() const;
 
       // ---- methods for uncorrected MET ----
       // Methods not yet defined

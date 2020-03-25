@@ -135,7 +135,7 @@ double MET::metSignificance() const {
 
 void MET::setMETSumPtUnclustered(const double &sumPtUnclustered) { sumPtUnclustered_ = sumPtUnclustered; }
 
-double MET::sumPtUnclustered() const { return sumPtUnclustered_; }
+double MET::metSumPtUnclustered() const { return sumPtUnclustered_; }
 
 void
 MET::initCorMap() {
