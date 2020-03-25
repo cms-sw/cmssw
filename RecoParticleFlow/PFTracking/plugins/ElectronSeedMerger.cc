@@ -5,29 +5,23 @@
 //
 // Original Author:  Michele Pioppi
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-class ElectronSeedMerger : public edm::stream::EDProducer<> {
+class ElectronSeedMerger : public edm::global::EDProducer<> {
 public:
   explicit ElectronSeedMerger(const edm::ParameterSet&);
-  ~ElectronSeedMerger() override;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  edm::ParameterSet conf_;
-
-  ///SEED COLLECTIONS
-  edm::EDGetTokenT<reco::ElectronSeedCollection> ecalSeedToken_;
+  const edm::EDGetTokenT<reco::ElectronSeedCollection> ecalSeedToken_;
   edm::EDGetTokenT<reco::ElectronSeedCollection> tkSeedToken_;
 };
 
@@ -35,10 +29,8 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig) : conf_(iConfig) {
-  LogInfo("ElectronSeedMerger") << "Electron SeedMerger  started  ";
-
-  ecalSeedToken_ = consumes<ElectronSeedCollection>(iConfig.getParameter<InputTag>("EcalBasedSeeds"));
+ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig)
+    : ecalSeedToken_{consumes<ElectronSeedCollection>(iConfig.getParameter<InputTag>("EcalBasedSeeds"))} {
   edm::InputTag tkSeedLabel_ = iConfig.getParameter<InputTag>("TkBasedSeeds");
   if (!tkSeedLabel_.label().empty())
     tkSeedToken_ = consumes<ElectronSeedCollection>(tkSeedLabel_);
@@ -46,17 +38,8 @@ ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig) : conf_(iCon
   produces<ElectronSeedCollection>();
 }
 
-ElectronSeedMerger::~ElectronSeedMerger() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
-//
-// member functions
-//
-
 // ------------ method called to produce the data  ------------
-void ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup) {
+void ElectronSeedMerger::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const {
   //CREATE OUTPUT COLLECTION
   auto output = std::make_unique<ElectronSeedCollection>();
 
