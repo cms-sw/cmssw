@@ -26,9 +26,7 @@
 // constructors and destructor
 //
 TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps)
-  : pn_(ps.getParameter<std::string>("processName")),
-    putToken_{produces<trigger::TriggerEventWithRefs>()}
-{
+    : pn_(ps.getParameter<std::string>("processName")), putToken_{produces<trigger::TriggerEventWithRefs>()} {
   if (pn_ == "@") {
     edm::Service<edm::service::TriggerNamesService> tns;
     if (tns.isAvailable()) {
