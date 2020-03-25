@@ -21,7 +21,8 @@ ticlTracksterMergeTask = cms.Task(trackstersMerge, multiClustersFromTrackstersMe
 
 ticlCandidateFromTrackstersProducer = _ticlCandidateFromTrackstersProducer.clone(
       tracksterCollections = ["trackstersMerge"],
-#      momentumPlugin = dict(plugin="TracksterP4FromTrackAndPCA")
+      # A possible alternative for momentum computation:
+      # momentumPlugin = dict(plugin="TracksterP4FromTrackAndPCA")
     )
 ticlPFTask = cms.Task(ticlCandidateFromTrackstersProducer, pfTICLProducer)
 
