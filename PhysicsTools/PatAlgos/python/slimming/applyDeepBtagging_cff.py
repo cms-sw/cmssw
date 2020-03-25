@@ -42,6 +42,12 @@ def applyDeepBtagging( process, postfix="" ) :
     # delete module not used anymore (slimmedJets substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix)
 
+    from CommonTools.PileupAlgos.Puppi_cff import puppi
+    addToProcessAndTask('packedpuppi', puppi.clone(
+                        useExistingWeights = True,
+                        candName = 'packedPFCandidates',
+                        vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')) , process, task)
+
     from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
     from RecoBTag.MXNet.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
 
