@@ -306,11 +306,6 @@ class TableRecoJetAdder(object):
           area      = jetTable.variables.area,
           rawFactor = jetTable.variables.rawFactor,
         )
-    elif "puppi" in recoJetInfo.jet:
-      tableContents = JETVARS.clone(
-        puppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:puppiMultiplicity')",float,doc="Sum of PUPPI weights of particles in the jet", precision= 6),
-        neutralPuppiMultiplicity = Var("userFloat('patPuppiJetSpecificProducer:neutralPuppiMultiplicity')",float,doc="Sum of PUPPI weights of neutral particles in the jet", precision= 6)
-      )
     else:
       tableContents = JETVARS.clone()
     
