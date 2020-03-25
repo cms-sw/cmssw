@@ -40,8 +40,8 @@ TREENAMES = {
 def asyncopen(name, timeout):
     handle = ROOT.TFile.AsyncOpen(name)
     while timeout > 0 and ROOT.TFile.GetAsyncOpenStatus(handle) == 1: # kAOSInProgress
-        time.sleep(1)
-        timeout -= 1
+        time.sleep(0.1)
+        timeout -= 0.1
     if timeout == 0:
         return None
     try: # not really sure what possible failure modes are, better be careful
@@ -188,7 +188,7 @@ class DQMIOFileIO:
         with METree(self, indexentry) as metree:
             metree.GetEntry(idx)
             return searchkey(str(metree.FullName))
-        
+
     def listentry(self, indexentry, path):
         """
         List direct children (folders or objects) of the given path in the set
@@ -200,41 +200,41 @@ class DQMIOFileIO:
         branch in the DQMIO data; it will not read the full list of names.
         """
         assert path == "" or path[-1] == "/", "Can only list directories!"
-        with METree(self, indexentry) as metree:
+        with METree(self, indexentry) as metree: # just a check to see if the file opens
             if not metree: return []
 
-            def getentry(idx):
-                return self.cached_getsearchkey(indexentry, idx)
+        def getentry(idx):
+            return self.cached_getsearchkey(indexentry, idx)
 
-            first, last = indexentry.firstidx, indexentry.lastidx+1
-            key = searchkey(path)
-            # start by skipping to the first item in the directory
-            start = bound(getentry, normallessthan, key, first, last)
-            pos = start
-            elements = []
-            # first, list the objects.
-            while pos != last:
-                dirname, objname = getentry(pos)
-                if not dirname == key[0]:
-                    # we are done, hit subdirectories
-                    break
-                #print("obj", dirname, objname)
-                elements.append(objname)
-                pos += 1
+        first, last = indexentry.firstidx, indexentry.lastidx+1
+        key = searchkey(path)
+        # start by skipping to the first item in the directory
+        start = bound(getentry, normallessthan, key, first, last)
+        pos = start
+        elements = []
+        # first, list the objects.
+        while pos != last:
+            dirname, objname = getentry(pos)
+            if not dirname == key[0]:
+                # we are done, hit subdirectories
+                break
+            #print("obj", dirname, objname)
+            elements.append(objname)
+            pos += 1
 
-            # then, skip over directories.
-            while pos != last:
-                dirname, objname = getentry(pos)
-                if not dirname.startswith(key[0]):
-                    # we are done, left the directory.
-                    break
-                relative = dirname[len(path):]
-                reldirname = relative.split("/")[0]
-                elements.append(reldirname + "/")
-                #print("dir", dirname, objname, relative, reldirname)
-                pos = bound(getentry, skiplessthan, (path + reldirname, ""), pos, last)
+        # then, skip over directories.
+        while pos != last:
+            dirname, objname = getentry(pos)
+            if not dirname.startswith(key[0]):
+                # we are done, left the directory.
+                break
+            relative = dirname[len(path):]
+            reldirname = relative.split("/")[0]
+            elements.append(reldirname + "/")
+            #print("dir", dirname, objname, relative, reldirname)
+            pos = bound(getentry, skiplessthan, (path + reldirname, ""), pos, last)
 
-            return elements
+        return elements
 
     def filterentry(self, indexentry, pathfilter, first=0, last=1e9):
         """
@@ -259,27 +259,35 @@ class DQMIOFileIO:
                     result.append(fullname)
             return result
     
-    def readoneME(self, indexentry, fullname):
+    def locateme(self, indexentry, fullname):
         """
-        Read a MonitorElement with the given fullname from the set of MEs
-        ientified by indexentry. Returns a `MonitorElement` object with a ROOT
-        object as `value`, or None if no matching ME is found.
+        Find a MonitorElement with the given fullname from the set of MEs
+        ientified by indexentry. Returns a (IndexEntry, Index) pair for `getme`,
+        or None if no matching ME is found.
+        """
+        with METree(self, indexentry) as metree: # just a check to see if the file opens
+            if not metree: return []
+        first, last = indexentry.firstidx, indexentry.lastidx+1
+        key = searchkey(fullname)
+        pos = bound(lambda idx: self.cached_getsearchkey(indexentry, idx), normallessthan, key, first, last)
+        if pos == last:
+            return None
+        if "/".join(self.cached_getsearchkey(indexentry, pos)) != fullname:
+            return None
+        else:
+            return (indexentry, pos)
+
+    def getme(self, indexentry, idx):
+        """
+        Read ME object given indexentry and position.
+        This is always a rather slow operation.
+        Returns a `MonitorElement` with a ROOT object as `value`.
         """
         with METree(self, indexentry) as metree:
-            if not metree: return None
-
-            first, last = indexentry.firstidx, indexentry.lastidx+1
-            key = searchkey(fullname)
-            # start by skipping to the first item in the directory
-            pos = bound(lambda idx: self.cached_getsearchkey(indexentry, idx), normallessthan, key, first, last)
-            if pos == last:
-                return None
-
-            metree.GetEntry(pos, 1) # read full row
-            if str(metree.FullName) != fullname:
-                return None
+            metree.GetEntry(idx, 1)
             value = metree.Value.Clone()
-            return MonitorElement(indexentry.run, indexentry.lumi, fullname, indexentry.type, value)
+            return MonitorElement(indexentry.run, indexentry.lumi, str(metree.FullName), indexentry.type, value)
+        
 
 #
 # This second part is a higher level abstraction over full datasets consisting
@@ -322,10 +330,10 @@ class DQMIOReader:
     dataset read from DAS. Operations are internally multi-threaded.
     All state is kept in a SQLite database, caches are managed by `DQMIOFileIO`.
     """
-    def __init__(self, dbname="", nthreads=32):
+    def __init__(self, dbname="", nthreads=32, pooltype=ThreadPool):
         self.db = sqlite3.connect(dbname)
         self.db.executescript(DBSCHEMA)
-        self.pool = ThreadPool(nthreads)
+        self.pool = pooltype(nthreads)
         self.io = DQMIOFileIO()
           
     def importdatasets(self, datasetpattern):
@@ -493,10 +501,10 @@ class DQMIOReader:
         if isinstance(fullnames, str):
             return self.readsampleme(datasetname, run, lumi, [fullnames])
         entries = self.entriesforsample(datasetname, run, lumi)
-        # TODO: maybe try the most common `type`s first, to make the common case fast.
-        mes = self.pool.starmap(self.io.readoneME, [(e, fullname) for e in entries for fullname in fullnames])
+        locations = self.pool.map(lambda e_n: self.io.locateme(*e_n), [(e, fullname) for e in entries for fullname in fullnames])
+        mes = self.pool.map(lambda loc: self.io.getme(*loc), [loc for loc in locations if loc])
         self.io.cleancache()
-        return [me for me in mes if me]
+        return mes
 
     def readlumimes(self, datasetname, run, fullnames):
         """
@@ -510,7 +518,14 @@ class DQMIOReader:
         # a custom SQL query would be much more efficient but that does not really matter here.
         lumis = set(lumi for d, r, lumi in self.samples() if d == datasetname and r == run)
         entries = sum([self.entriesforsample(datasetname, run, l) for l in lumis], []) 
-        mes = self.pool.starmap(self.io.readoneME, [(e, fullname) for e in entries for fullname in fullnames])
+        locations = self.pool.map(lambda e_n: self.io.locateme(*e_n), [(e, fullname) for e in entries for fullname in fullnames])
+        mes = self.pool.map(lambda loc: self.io.getme(*loc), [loc for loc in locations if loc])
         self.io.cleancache()
-        return [me for me in mes if me]
-    
+        return mes
+
+# A ThreadPool that runs everything immediatly, for debugging/cProfile.
+class NotPool:
+    def __init__(self, nthreads):
+        pass
+    def map(self, f, args):
+        return [f(arg) for arg in args]

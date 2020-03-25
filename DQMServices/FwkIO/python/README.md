@@ -126,6 +126,6 @@ The DQMIO format consists of ROOT `TTree`s with ME names and objects. The trees 
 
 The code is split in two parts: The first implements all the low-level operations on DQMIO files, while the second provides the `DQMIOReader` class which handles a metadata database and multi-threading.
 
-The low-level interface is built around `IndexEntry`s, the rows of the `Indices` metadata tree in the DQMIO file. This data is read from the datafiles and cached in a local SQLite database, the (potentially) remote ROOT files are only accessed to read MEs. There is a big cache (100's of files) of open `TFile`s, to avoid the long latency of locating remote files.
+The low-level interface is built around `IndexEntry`s, the rows of the `Indices` metadata tree in the DQMIO file. This data is read from the datafiles and cached in a local SQLite database, the (potentially) remote ROOT files are only accessed to read MEs. There is a big cache (100's of files) of open `TFile`s, to avoid the long latency of locating remote files. Another cache holds values of the `FullName` column, so most of the binary search can happen without actually touching ROOT.
 
 The high-level interface is built around a rather elaborate database to track file status: First, it is checked if a file is currently readable (on disk), then, it's metadata is extracted. Non-readable files will be re-checked every day. Interrupting and resuming `checkfiles()` should be no problem.
