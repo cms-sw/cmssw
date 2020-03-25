@@ -266,10 +266,11 @@ class DQMIOFileIO:
             pos = bound(getentry, normallessthan, key, first, last)
             if pos == last:
                 return None
+
             metree.GetEntry(pos, 1) # read full row
             if str(metree.FullName) != fullname:
                 return None
-            value = metree.Value
+            value = metree.Value.Clone()
             return MonitorElement(indexentry.run, indexentry.lumi, fullname, indexentry.type, value)
 
 #
