@@ -2,17 +2,17 @@
 #define L1Trigger_TrackerDTC_TTDTCConverter_h
 
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "L1Trigger/TrackerDTC/interface/Settings.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/DetId/interface/DetId.h"
+#include "L1Trigger/TrackerDTC/interface/Settings.h"
 
 #include <vector>
 #include <string>
@@ -27,24 +27,24 @@ GlobalPoint TTDTCConverter(trackerDTC::Settings* settings, const TTDTC::Frame& f
   if (settings->dataFormat() == "Hybrid") {
     const TrackerGeometry* trackerGeometry = settings->trackerGeometry();
     const TrackerTopology* trackerTopology = settings->trackerTopology();
-    SettingsHybrid* format = settings->hybrid();
-    const vector<double>& diskZs = format->diskZs();
-    const vector<double>& layerRs = format->layerRs();
+    trackerDTC::SettingsHybrid* format = settings->hybrid();
+    const std::vector<double>& diskZs = format->diskZs();
+    const std::vector<double>& layerRs = format->layerRs();
 
     const DetId detId = frame.first->getDetId();
     const bool barrel = detId.subdetId() == StripSubdetector::TOB;
     const bool psModule = trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP;
     const int layerId = barrel ? trackerTopology->layer(detId) : trackerTopology->tidWheel(detId) + 10;
 
-    SettingsHybrid::SensorType type;
+    trackerDTC::SettingsHybrid::SensorType type;
     if (barrel && psModule)
-      type = SettingsHybrid::barrelPS;
+      type = trackerDTC::SettingsHybrid::barrelPS;
     if (barrel && !psModule)
-      type = SettingsHybrid::barrel2S;
+      type = trackerDTC::SettingsHybrid::barrel2S;
     if (!barrel && psModule)
-      type = SettingsHybrid::diskPS;
+      type = trackerDTC::SettingsHybrid::diskPS;
     if (!barrel && !psModule)
-      type = SettingsHybrid::disk2S;
+      type = trackerDTC::SettingsHybrid::disk2S;
 
     bv >>= 1 + settings->widthLayer() + format->widthBend(type) + format->widthAlpha(type);
 
@@ -59,14 +59,14 @@ GlobalPoint TTDTCConverter(trackerDTC::Settings* settings, const TTDTC::Frame& f
 
     phi = reco::deltaPhi(phi + region * settings->baseRegion(), 0.);
 
-    if (type == SettingsHybrid::disk2S) {
+    if (type == trackerDTC::SettingsHybrid::disk2S) {
       r = bv.val(format->widthR(type));
       r = format->disk2SR(layerId - 11, (int)r);
     }
 
     p = GlobalPoint(GlobalPoint::Cylindrical(r, phi, z));
   } else if (settings->dataFormat() == "TMTT") {
-    SettingsTMTT* format_ = settings->tmtt();
+    trackerDTC::SettingsTMTT* format_ = settings->tmtt();
 
     bv >>=
         2 * format_->widthQoverPtBin() + 2 * settings->widthEta() + format_->numSectorsPhi() + settings->widthLayer();

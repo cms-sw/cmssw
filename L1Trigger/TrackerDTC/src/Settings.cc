@@ -126,8 +126,8 @@ namespace trackerDTC {
     trackerTopology_ = nullptr;
     magneticField_ = nullptr;
     // derived event setup
-    cablingMap_ = move(vector<DetId>(numModules_));
-    dtcModules_ = move(vector<vector<Module*>>(numDTCs_, vector<Module*>(numModulesPerDTC_, nullptr)));
+    cablingMap_ = vector<DetId>(numModules_);
+    dtcModules_ = vector<vector<Module*>>(numDTCs_, vector<Module*>(numModulesPerDTC_, nullptr));
   }
 
   // store TrackerGeometry
