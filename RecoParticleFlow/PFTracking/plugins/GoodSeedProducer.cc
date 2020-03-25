@@ -19,44 +19,38 @@
  It also transform  all the tracks in the first PFRecTrack collection.
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
+#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "DataFormats/ParticleFlowReco/interface/PreId.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "TMath.h"
 #include "Math/VectorUtil.h"
@@ -64,17 +58,10 @@
 #include <fstream>
 
 namespace goodseedhelpers {
-  class HeavyObjectCache {
+  struct HeavyObjectCache {
     constexpr static unsigned int kMaxWeights = 9;
-
-  public:
     HeavyObjectCache(const edm::ParameterSet& conf);
     std::array<std::unique_ptr<const GBRForest>, kMaxWeights> gbr;
-
-  private:
-    // for temporary variable binding while reading
-    float eP, eta, pt, nhit, dpt, chired, chiRatio;
-    float chikfred, trk_ecalDeta, trk_ecalDphi;
   };
 }  // namespace goodseedhelpers
 
@@ -85,7 +72,7 @@ public:
   explicit GoodSeedProducer(const edm::ParameterSet&, const goodseedhelpers::HeavyObjectCache*);
 
   static std::unique_ptr<goodseedhelpers::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
-    return std::unique_ptr<goodseedhelpers::HeavyObjectCache>(new goodseedhelpers::HeavyObjectCache(conf));
+    return std::make_unique<goodseedhelpers::HeavyObjectCache>(conf);
   }
 
   static void globalEndJob(goodseedhelpers::HeavyObjectCache const*) {}
@@ -110,12 +97,6 @@ private:
 
   ///Name of the preid Collection (FB)
   std::string preidname_;
-
-  ///Fitter
-  std::unique_ptr<TrajectoryFitter> fitter_;
-
-  ///Smoother
-  std::unique_ptr<TrajectorySmoother> smoother_;
 
   // needed by the above
   TkClonerImpl hitCloner;
@@ -194,8 +175,6 @@ private:
 
   /// Map used to create the TrackRef, PreIdRef value map
   std::map<reco::TrackRef, unsigned> refMap_;
-
-  PFGeometry pfGeometry_;
 };
 
 using namespace edm;
@@ -299,19 +278,22 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   auto preIdMap_p = std::make_unique<edm::ValueMap<reco::PreIdRef>>();
   edm::ValueMap<reco::PreIdRef>::Filler mapFiller(*preIdMap_p);
 
+  std::unique_ptr<TrajectoryFitter> fitter;
+  std::unique_ptr<TrajectorySmoother> smoother;
+
   //Tracking Tools
   if (!disablePreId_) {
     edm::ESHandle<TrajectoryFitter> aFitter;
     edm::ESHandle<TrajectorySmoother> aSmoother;
     iSetup.get<TrajectoryFitter::Record>().get(fitterName_, aFitter);
     iSetup.get<TrajectoryFitter::Record>().get(smootherName_, aSmoother);
-    smoother_.reset(aSmoother->clone());
-    fitter_ = aFitter->clone();
+    smoother.reset(aSmoother->clone());
+    fitter = aFitter->clone();
     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
     iSetup.get<TransientRecHitRecord>().get(trackerRecHitBuilderName_, theTrackerRecHitBuilder);
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product())->cloner();
-    fitter_->setHitCloner(&hitCloner);
-    smoother_->setHitCloner(&hitCloner);
+    fitter->setHitCloner(&hitCloner);
+    smoother->setHitCloner(&hitCloner);
   }
 
   // clear temporary maps
@@ -506,10 +488,10 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           GlobalPoint gp(theTrack.innerPosition().x(), theTrack.innerPosition().y(), theTrack.innerPosition().z());
           GlobalTrajectoryParameters gtps(gp, gv, theTrack.charge(), &*magneticField);
           TrajectoryStateOnSurface tsos(gtps, theTrack.innerStateCovariance(), *tmp[0]->surface());
-          Trajectory&& FitTjs = fitter_->fitOne(Seed, tmp, tsos);
+          Trajectory&& FitTjs = fitter->fitOne(Seed, tmp, tsos);
 
           if (FitTjs.isValid()) {
-            Trajectory&& SmooTjs = smoother_->trajectory(FitTjs);
+            Trajectory&& SmooTjs = smoother->trajectory(FitTjs);
             if (SmooTjs.isValid()) {
               //Track refitted with electron hypothesis
 
@@ -625,14 +607,14 @@ void GoodSeedProducer::beginRun(const edm::Run& run, const EventSetup& es) {
   es.get<IdealMagneticFieldRecord>().get(magneticField);
   B_ = magneticField->inTesla(GlobalPoint(0, 0, 0));
 
-  pfTransformer_.reset(new PFTrackTransformer(B_));
+  pfTransformer_ = std::make_unique<PFTrackTransformer>(B_);
   pfTransformer_->OnlyProp();
 
   //Resolution maps
   FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
   FileInPath ecalPhiMap(conf_.getParameter<string>("PhiMap"));
-  resMapEtaECAL_.reset(new PFResolutionMap("ECAL_eta", ecalEtaMap.fullPath().c_str()));
-  resMapPhiECAL_.reset(new PFResolutionMap("ECAL_phi", ecalPhiMap.fullPath().c_str()));
+  resMapEtaECAL_ = std::make_unique<PFResolutionMap>("ECAL_eta", ecalEtaMap.fullPath().c_str());
+  resMapPhiECAL_ = std::make_unique<PFResolutionMap>("ECAL_phi", ecalPhiMap.fullPath().c_str());
 
   //read threshold
   FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
