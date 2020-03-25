@@ -65,13 +65,15 @@ class METree(object):
         else:
             self.tfile = asyncopen(self.name, OPENTIMEOUT)
             if not self.tfile: return None
+            for name in TREENAMES.values():
+                t = getattr(self.tfile, name)
+                t.GetEntry(0)
+                t.SetBranchStatus("*",0)
+                t.SetBranchStatus("FullName",1)
+                # release GIL in long operations. Disable if it causes trouble.
+                t.GetEntry._threaded = True
             metree = getattr(self.tfile, self.treename)
-        # TODO: might be counterproductive to do this every time.
-        metree.GetEntry(0)
-        metree.SetBranchStatus("*",0)
-        metree.SetBranchStatus("FullName",1)
-        # release GIL in long operations. Disable if it causes trouble.
-        metree.GetEntry._threaded = True
+            assert(metree.GetEntry._threaded == True)
         return metree
 
     def __exit__(self, type, value, traceback):
