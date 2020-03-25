@@ -27,9 +27,9 @@ namespace trackerDTC {
     const TrackerTopology* trackerTopology = settings->trackerTopology();
 
     const GeomDetUnit* det0 = trackerGeometry->idToDetUnit(detId);
-    const GlobalPoint pos0 = move(GlobalPoint(det0->position()));
+    const GlobalPoint pos0 = GlobalPoint(det0->position());
     const GlobalPoint pos1 =
-        move(GlobalPoint(trackerGeometry->idToDetUnit(trackerTopology->partnerDetId(detId))->position()));
+        GlobalPoint(trackerGeometry->idToDetUnit(trackerTopology->partnerDetId(detId))->position());
     const PixelTopology* topol =
         dynamic_cast<const PixelTopology*>(&(dynamic_cast<const PixelGeomDetUnit*>(det0)->specificTopology()));
     const Plane& plane = dynamic_cast<const PixelGeomDetUnit*>(det0)->surface();
