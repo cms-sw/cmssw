@@ -13,24 +13,24 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
-trackstersMerge = _trackstersMergeProducer.clone()
-multiClustersFromTrackstersMerge = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "trackstersMerge"
+ticlTrackstersMerge = _trackstersMergeProducer.clone()
+ticlMultiClustersFromTrackstersMerge = _multiClustersFromTrackstersProducer.clone(
+    Tracksters = "ticlTrackstersMerge"
 )
-ticlTracksterMergeTask = cms.Task(trackstersMerge, multiClustersFromTrackstersMerge)
+ticlTracksterMergeTask = cms.Task(ticlTrackstersMerge, ticlMultiClustersFromTrackstersMerge)
 
 ticlCandidateFromTrackstersProducer = _ticlCandidateFromTrackstersProducer.clone(
-      tracksterCollections = ["trackstersMerge"],
+      tracksterCollections = ["ticlTrackstersMerge"],
       # A possible alternative for momentum computation:
       # momentumPlugin = dict(plugin="TracksterP4FromTrackAndPCA")
     )
 ticlPFTask = cms.Task(ticlCandidateFromTrackstersProducer, pfTICLProducer)
 
 iterTICLTask = cms.Task(ticlLayerTileTask
-    ,MIPStepTask
-    ,TrkStepTask
-    ,EMStepTask
-    ,HADStepTask
+    ,ticlMIPStepTask
+    ,ticlTrkStepTask
+    ,ticlEMStepTask
+    ,ticlHADStepTask
     ,ticlTracksterMergeTask
     ,ticlPFTask
     )

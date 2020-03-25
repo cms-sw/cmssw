@@ -535,9 +535,9 @@ void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> 
 
 void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("trackstersem", edm::InputTag("trackstersEM"));
-  desc.add<edm::InputTag>("tracksterstrk", edm::InputTag("trackstersTrk"));
-  desc.add<edm::InputTag>("trackstershad", edm::InputTag("trackstersHAD"));
+  desc.add<edm::InputTag>("trackstersem", edm::InputTag("ticlTrackstersEM"));
+  desc.add<edm::InputTag>("tracksterstrk", edm::InputTag("ticlTrackstersTrk"));
+  desc.add<edm::InputTag>("trackstershad", edm::InputTag("ticlTrackstersHAD"));
   desc.add<edm::InputTag>("seedingTrk", edm::InputTag("ticlSeedingTrk"));
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));

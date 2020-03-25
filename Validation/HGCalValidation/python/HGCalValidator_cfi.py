@@ -15,10 +15,10 @@ hgcalValidator = DQMEDAnalyzer(
     #2dlayerclusters, pfclusters, multiclusters
     label_lcl = cms.InputTag("hgcalLayerClusters"),
     label_mcl = cms.VInputTag(
-      cms.InputTag("multiClustersFromTrackstersTrk"),
-      cms.InputTag("multiClustersFromTrackstersEM"),
-      cms.InputTag("multiClustersFromTrackstersHAD"),
-      cms.InputTag("multiClustersFromTrackstersMerge")),
+      cms.InputTag("ticlMultiClustersFromTrackstersTrk"),
+      cms.InputTag("ticlMultiClustersFromTrackstersEM"),
+      cms.InputTag("ticlMultiClustersFromTrackstersHAD"),
+      cms.InputTag("ticlMultiClustersFromTrackstersMerge")),
 
     #General info on layers etc.
     SaveGeneralInfo = cms.untracked.bool(True),

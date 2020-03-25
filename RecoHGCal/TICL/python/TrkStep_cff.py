@@ -16,7 +16,7 @@ filteredLayerClustersTrk = _filteredLayerClustersProducer.clone(
 
 # CA - PATTERN RECOGNITION
 
-trackstersTrk = _trackstersProducer.clone(
+ticlTrackstersTrk = _trackstersProducer.clone(
   filtered_mask = cms.InputTag("filteredLayerClustersTrk", "Trk"),
   seeding_regions = "ticlSeedingTrk",
   filter_on_categories = [2, 4], # filter muons and charged hadrons
@@ -34,12 +34,12 @@ trackstersTrk = _trackstersProducer.clone(
 
 # MULTICLUSTERS
 
-multiClustersFromTrackstersTrk = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "trackstersTrk"
+ticlMultiClustersFromTrackstersTrk = _multiClustersFromTrackstersProducer.clone(
+    Tracksters = "ticlTrackstersTrk"
 )
 
-TrkStepTask = cms.Task(ticlSeedingTrk
+ticlTrkStepTask = cms.Task(ticlSeedingTrk
     ,filteredLayerClustersTrk
-    ,trackstersTrk
-    ,multiClustersFromTrackstersTrk)
+    ,ticlTrackstersTrk
+    ,ticlMultiClustersFromTrackstersTrk)
 

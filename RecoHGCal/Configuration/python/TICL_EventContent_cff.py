@@ -4,22 +4,22 @@ import FWCore.ParameterSet.Config as cms
 #AOD content
 TICL_AOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
-      'keep *_multiClustersFromTrackstersEM_*_*',
-      'keep *_multiClustersFromTrackstersHAD_*_*',
-      'keep *_multiClustersFromTrackstersTrk_*_*',
-      'keep *_multiClustersFromTrackstersMIP_*_*',
-      'keep *_multiClustersFromTrackstersMerge_*_*',
+      'keep *_ticlMultiClustersFromTrackstersEM_*_*',
+      'keep *_ticlMultiClustersFromTrackstersHAD_*_*',
+      'keep *_ticlMultiClustersFromTrackstersTrk_*_*',
+      'keep *_ticlMultiClustersFromTrackstersMIP_*_*',
+      'keep *_ticlMultiClustersFromTrackstersMerge_*_*',
       )
     )
 
 #RECO content
 TICL_RECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
-      'keep *_trackstersEM_*_*',
-      'keep *_trackstersHAD_*_*',
-      'keep *_trackstersTrk_*_*',
-      'keep *_trackstersMIP_*_*',
-      'keep *_trackstersMerge_*_*',
+      'keep *_ticlTrackstersEM_*_*',
+      'keep *_ticlTrackstersHAD_*_*',
+      'keep *_ticlTrackstersTrk_*_*',
+      'keep *_ticlTrackstersMIP_*_*',
+      'keep *_ticlTrackstersMerge_*_*',
       'keep *_ticlCandidateFromTrackstersProducer_*_*',
       'keep *_pfTICLProducer_*_*'
       )
