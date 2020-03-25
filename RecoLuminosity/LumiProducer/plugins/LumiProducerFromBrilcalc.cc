@@ -136,7 +136,9 @@ LumiProducerFromBrilcalc::LumiProducerFromBrilcalc(const edm::ParameterSet& iCon
 //
 
 // ------------ method called to produce the data  ------------
-void LumiProducerFromBrilcalc::produce(edm::StreamID iStreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void LumiProducerFromBrilcalc::produce(edm::StreamID iStreamID,
+                                       edm::Event& iEvent,
+                                       const edm::EventSetup& iSetup) const {
   std::vector<float> bxlumi(3564, 0);
   std::pair<int, int> runls = std::make_pair(iEvent.run(), iEvent.luminosityBlock());
   if (lumiData_.count(runls) == 1) {
