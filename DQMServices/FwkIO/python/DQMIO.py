@@ -4,6 +4,7 @@ ROOT.ROOT.EnableThreadSafety()
 ROOT.TFile.Open._threaded = True
 
 import time
+from functools import lru_cache
 from collections import namedtuple, defaultdict
 
 MonitorElement = namedtuple('MonitorElement', ['run', 'lumi', 'name', 'type', 'data'])
@@ -122,6 +123,8 @@ class DQMIOFileIO:
     def __init__(self):
         # open file cache that operations can "borrow" open files from
         self.openfiles = defaultdict(list)
+        # create a per-instance cache of FullName entries.
+        self.cached_getsearchkey = lru_cache(maxsize=1024*1024)(self.getsearchkey)
 
     def getfromcache(self, name):
         if self.openfiles[name]:
@@ -177,6 +180,14 @@ class DQMIOFileIO:
             index.append(e)
         self.addtocache(file, tfile)
         return index
+
+    # function just to get caching here: read one FullName from a file.
+    # the cache is set up in __init__ so it is per-instance.
+    # calling this later *will* open every file twice, but that might be worth it.
+    def getsearchkey(self, indexentry, idx):
+        with METree(self, indexentry) as metree:
+            metree.GetEntry(idx)
+            return searchkey(str(metree.FullName))
         
     def listentry(self, indexentry, path):
         """
@@ -193,8 +204,7 @@ class DQMIOFileIO:
             if not metree: return []
 
             def getentry(idx):
-                metree.GetEntry(idx)
-                return searchkey(str(metree.FullName))
+                return self.cached_getsearchkey(indexentry, idx)
 
             first, last = indexentry.firstidx, indexentry.lastidx+1
             key = searchkey(path)
@@ -257,15 +267,11 @@ class DQMIOFileIO:
         """
         with METree(self, indexentry) as metree:
             if not metree: return None
-            
-            def getentry(idx):
-                metree.GetEntry(idx)
-                return searchkey(str(metree.FullName))
 
             first, last = indexentry.firstidx, indexentry.lastidx+1
             key = searchkey(fullname)
             # start by skipping to the first item in the directory
-            pos = bound(getentry, normallessthan, key, first, last)
+            pos = bound(lambda idx: self.cached_getsearchkey(indexentry, idx), normallessthan, key, first, last)
             if pos == last:
                 return None
 
