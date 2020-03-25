@@ -17,7 +17,7 @@ filteredLayerClustersMIP = _filteredLayerClustersProducer.clone(
 
 # CA - PATTERN RECOGNITION
 
-trackstersMIP = _trackstersProducer.clone(
+ticlTrackstersMIP = _trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
     seeding_regions = "ticlSeedingGlobal",
     missing_layers = 3,
@@ -31,13 +31,13 @@ trackstersMIP = _trackstersProducer.clone(
 
 # MULTICLUSTERS
 
-multiClustersFromTrackstersMIP = _multiClustersFromTrackstersProducer.clone(
+ticlMultiClustersFromTrackstersMIP = _multiClustersFromTrackstersProducer.clone(
     label = "MIPMultiClustersFromTracksterByCA",
-    Tracksters = "trackstersMIP"
+    Tracksters = "ticlTrackstersMIP"
 )
 
-MIPStepTask = cms.Task(ticlSeedingGlobal
+ticlMIPStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersMIP
-    ,trackstersMIP
-    ,multiClustersFromTrackstersMIP)
+    ,ticlTrackstersMIP
+    ,ticlMultiClustersFromTrackstersMIP)
 

@@ -12,15 +12,15 @@ filteredLayerClustersEM = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgoAndSize",
     min_cluster_size = 2, # inclusive
     algo_number = 8,
-    LayerClustersInputMask = 'trackstersTrk',
+    LayerClustersInputMask = 'ticlTrackstersTrk',
     iteration_label = "EM"
 )
 
 # CA - PATTERN RECOGNITION
 
-trackstersEM = _trackstersProducer.clone(
+ticlTrackstersEM = _trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersEM", "EM"),
-    original_mask = 'trackstersTrk',
+    original_mask = 'ticlTrackstersTrk',
     seeding_regions = "ticlSeedingGlobal",
     filter_on_categories = [0, 1],
     pid_threshold = 0.8,
@@ -36,12 +36,12 @@ trackstersEM = _trackstersProducer.clone(
 
 # MULTICLUSTERS
 
-multiClustersFromTrackstersEM = _multiClustersFromTrackstersProducer.clone(
-    Tracksters = "trackstersEM"
+ticlMultiClustersFromTrackstersEM = _multiClustersFromTrackstersProducer.clone(
+    Tracksters = "ticlTrackstersEM"
 )
 
-EMStepTask = cms.Task(ticlSeedingGlobal
+ticlEMStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersEM
-    ,trackstersEM
-    ,multiClustersFromTrackstersEM)
+    ,ticlTrackstersEM
+    ,ticlMultiClustersFromTrackstersEM)
 
