@@ -22,7 +22,6 @@
 #include "TString.h"
 #include "TMath.h"
 //
-#include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerAOD.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
