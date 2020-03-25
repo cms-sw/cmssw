@@ -113,7 +113,7 @@ def skiplessthan(a, key):
 class DQMIOFileIO:
     """
     This class maintains a cache of open ROOT files (or rather XrootD 
-    connections and allows low-level read operations on these files.
+    connections) and allows low-level read operations on these files.
     Most operations work on `IndexEntry`s, which can be read from the DQMIO
     file's `Indices` Tree using `readindex`.
     
@@ -150,7 +150,7 @@ class DQMIOFileIO:
         """
         Check if `file` can be opened, and return a (filename, bool) pair.
 
-        This will typically wait for a timeout if the cannot be read. Should
+        This will typically wait for a timeout if the file cannot be read. Should
         be called multi-threaded for high throughput.
         """
         tfile = asyncopen(filename, TESTTIMEOUT)
@@ -183,7 +183,6 @@ class DQMIOFileIO:
 
     # function just to get caching here: read one FullName from a file.
     # the cache is set up in __init__ so it is per-instance.
-    # calling this later *will* open every file twice, but that might be worth it.
     def getsearchkey(self, indexentry, idx):
         with METree(self, indexentry) as metree:
             metree.GetEntry(idx)
@@ -262,7 +261,7 @@ class DQMIOFileIO:
     def locateme(self, indexentry, fullname):
         """
         Find a MonitorElement with the given fullname from the set of MEs
-        ientified by indexentry. Returns a (IndexEntry, Index) pair for `getme`,
+        identified by indexentry. Returns a (IndexEntry, Index) pair for `getme`,
         or None if no matching ME is found.
         """
         with METree(self, indexentry) as metree: # just a check to see if the file opens

@@ -3,7 +3,7 @@ DQMIO Python Libraries
 
 This package provides PyROOT based Python code to read DQMIO files.
 
-This library is designed for Python3. Use a `PY3` CMSSW IB to get a Rython3-compatible PyROOT.
+This library is designed for Python3. Use a `PY3` CMSSW IB to get a Python3-compatible PyROOT.
 
 Usage
 -----
@@ -63,6 +63,7 @@ Very basic: Read local files.
  MonitorElement(run=315339, lumi=0, name='Hcal/DigiPhase1Task/ADC/SubdetPM/HEP', type=3, data=<ROOT.TH1F object ("HEP") at 0x7fd0040cd370>),
  ...
 ]
+```
 
 More advanced: Read a dataset from DAS (do `voms-proxy-init -voms cms -rfc` first):
 ```
