@@ -150,7 +150,7 @@ class DQMIOFileIO:
         """
         tfile = asyncopen(filename, TESTTIMEOUT)
         self.addtocache(filename, tfile)
-        return file, tfile != None
+        return filename, tfile != None
     
     def readindex(self, file):
         """
@@ -336,7 +336,7 @@ class DQMIOReader:
         Query DAS for files from the given datasets and add them.
         """
         if isinstance(datasetnames, str):
-            return self.readdataset([datasetnames])
+            return self.importdataset([datasetnames])
         
         # helper function for parallel running
         def getfiles(datasetname):
@@ -347,7 +347,6 @@ class DQMIOReader:
         while tasks:
             time.sleep(1)
             tasks, done = splitdone(tasks)
-            self.db.execute("BEGIN;")
             for t in done:
                 if not t.successful():
                     print("DAS file listing task failed.")
@@ -355,17 +354,18 @@ class DQMIOReader:
                 for it in t.get(): # should only be one
                     datasetname, filelist = it
                     self.addfiles(datasetname, filelist)
-            self.db.execute("COMMIT;")
         print(str(len(tasks)) + " tasks remaining")
         
     def addfiles(self, datasetname, filelist):
         """
         Add ROOT files to the metadata database, under the given dataset name.
         """
+        self.db.execute("BEGIN;")
         self.db.execute(f"INSERT OR REPLACE INTO dataset(datasetname, lastchecked) VALUES (?, datetime('now'));", (datasetname,))
         datasetid = self.db.execute(f"SELECT id FROM dataset WHERE datasetname = ?;", (datasetname,))
         datasetid = list(datasetid)[0][0]
         self.db.executemany("INSERT OR IGNORE INTO file(datasetid, name) VALUES (?, ?)", [(datasetid, name) for name in filelist])  
+        self.db.execute("COMMIT;")
           
     def datasets(self):
         """
@@ -485,6 +485,22 @@ class DQMIOReader:
             return self.readsampleme(datasetname, run, lumi, [fullnames])
         entries = self.entriesforsample(datasetname, run, lumi)
         # TODO: maybe try the most common `type`s first, to make the common case fast.
+        mes = self.pool.starmap(self.io.readoneME, [(e, fullname) for e in entries for fullname in fullnames])
+        self.io.cleancache()
+        return [me for me in mes if me]
+
+    def readlumimes(self, datasetname, run, fullnames):
+        """
+        Return `MonitorElement`s matching the given names in all lumis of the
+        given dataset/run. This might not be all lumis of the run, since some
+        files might not be readable.
+
+        """
+        if isinstance(fullnames, str):
+            return self.readlumimes(datasetname, run, [fullnames])
+        # a custom SQL query would be much more efficient but that does not really matter here.
+        lumis = set(lumi for d, r, lumi in self.samples() if d == datasetname and r == run)
+        entries = sum([self.entriesforsample(datasetname, run, l) for l in lumis], []) 
         mes = self.pool.starmap(self.io.readoneME, [(e, fullname) for e in entries for fullname in fullnames])
         self.io.cleancache()
         return [me for me in mes if me]
