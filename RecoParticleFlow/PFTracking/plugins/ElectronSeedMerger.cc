@@ -5,13 +5,31 @@
 //
 // Original Author:  Michele Pioppi
 
-#include "RecoParticleFlow/PFTracking/interface/ElectronSeedMerger.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include <string>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+class ElectronSeedMerger : public edm::stream::EDProducer<> {
+public:
+  explicit ElectronSeedMerger(const edm::ParameterSet&);
+  ~ElectronSeedMerger() override;
+
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  edm::ParameterSet conf_;
+
+  ///SEED COLLECTIONS
+  edm::EDGetTokenT<reco::ElectronSeedCollection> ecalSeedToken_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection> tkSeedToken_;
+};
 
 using namespace edm;
 using namespace std;
@@ -121,3 +139,5 @@ void ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup) {
   //PUT THE MERGED COLLECTION IN THE EVENT
   iEvent.put(std::move(output));
 }
+
+DEFINE_FWK_MODULE(ElectronSeedMerger);
