@@ -14,7 +14,7 @@
 #include "Randomize.hh"
 #include "G4Poisson.hh"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 TotemT2ScintSD::TotemT2ScintSD(const std::string& name,
                                const edm::EventSetup& es,
