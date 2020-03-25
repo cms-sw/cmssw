@@ -13,13 +13,19 @@ def applySubstructure( process, postfix="" ) :
 
 
     # Configure the RECO jets
-    from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJetsPuppi
     from RecoJets.JetProducers.ak8PFJets_cfi import ak8PFJetsPuppi, ak8PFJetsPuppiSoftDrop, ak8PFJetsPuppiConstituents
+    setattr(process,'ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone())
+    setattr(process,'ak8PFJetsPuppiConstituents', ak8PFJetsPuppiConstituents.clone(cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4') ))
+    setattr(process,'ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone( src = cms.InputTag('ak8PFJetsPuppiConstituents', 'constituents') ))
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    _rerun_puppijets_task = task.copy()
+    _rerun_puppijets_task.add(getattr(process,'ak8PFJetsPuppi'+postfix),
+                              getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
+                              getattr(process,'ak8PFJetsPuppiSoftDrop'+postfix))
+    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toReplaceWith(task, _rerun_puppijets_task)
+
     from RecoJets.JetProducers.ak8GenJets_cfi import ak8GenJets, ak8GenJetsSoftDrop, ak8GenJetsConstituents
-    addToProcessAndTask('ak4PFJetsPuppi'+postfix,ak4PFJetsPuppi.clone(), process, task)
-    addToProcessAndTask('ak8PFJetsPuppi'+postfix,ak8PFJetsPuppi.clone(), process, task)
-    addToProcessAndTask('ak8PFJetsPuppiConstituents', ak8PFJetsPuppiConstituents.clone(cut = cms.string('pt > 170.0 && abs(rapidity()) < 2.4') ), process, task )
-    addToProcessAndTask('ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone( src = cms.InputTag('ak8PFJetsPuppiConstituents', 'constituents') ), process, task)
     addToProcessAndTask('ak8GenJetsNoNuConstituents'+postfix, ak8GenJetsConstituents.clone(src='ak8GenJetsNoNu'), process, task )
     addToProcessAndTask('ak8GenJetsNoNuSoftDrop'+postfix,ak8GenJetsSoftDrop.clone(src=cms.InputTag('ak8GenJetsNoNuConstituents'+postfix, 'constituents')),process,task)
     addToProcessAndTask('slimmedGenJetsAK8SoftDropSubJets'+postfix,
@@ -33,7 +39,6 @@ def applySubstructure( process, postfix="" ) :
                                                dropSpecific = cms.bool(True),  # Save space
                                                ), process, task )
 
-    #add RECO AK8 from PUPPI and RECO AK8 PUPPI with soft drop... will be needed by ungroomed AK8 jets later
     ## PATify puppi soft drop fat jets
     addJetCollection(
         process,
