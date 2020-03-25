@@ -19,9 +19,9 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 process.LumiInfo = cms.EDProducer('LumiProducerFromBrilcalc',
-                                  lumiFile = cms.untracked.string("./testLumiFile.csv"),
-                                  throwIfNotFound = cms.untracked.bool(False),
-                                  doBunchByBunch = cms.untracked.bool(False))
+                                  lumiFile = cms.string("./testLumiFile.csv"),
+                                  throwIfNotFound = cms.bool(False),
+                                  doBunchByBunch = cms.bool(False))
 
 process.test = cms.EDAnalyzer('TestLumiProducerFromBrilcalc',
                               inputTag = cms.untracked.InputTag("LumiInfo", "brilcalc"))

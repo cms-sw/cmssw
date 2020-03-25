@@ -6,9 +6,9 @@ For Run 2, the plugin `LumiProducerFromBrilcalc` is available. This allows you t
 
 ```
 process.LumiInfo = cms.EDProducer('LumiProducerFromBrilcalc',
-                                  lumiFile = cms.untracked.string("./myLumiFile.csv"),
-                                  throwIfNotFound = cms.untracked.bool(False),
-                                  doBunchByBunch = cms.untracked.bool(False))
+                                  lumiFile = cms.string("./myLumiFile.csv"),
+                                  throwIfNotFound = cms.bool(False),
+                                  doBunchByBunch = cms.bool(False))
 ```
 where `lumiFile` is the output file created by `brilcalc`, `throwIfNotFound` will determine the behavior if the csv file does not contain information for an event in your input file (if `True`, an exception will be thrown; if `False`, the luminosity will just be taken to be zero for that event), and `doBunchByBunch` should remain `False`, since bunch-by-bunch luminosity is not currently supported.
 

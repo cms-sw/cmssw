@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,44 +39,31 @@
 // class declaration
 //
 
-class LumiProducerFromBrilcalc : public edm::stream::EDProducer<> {
+class LumiProducerFromBrilcalc : public edm::global::EDProducer<> {
 public:
   explicit LumiProducerFromBrilcalc(const edm::ParameterSet&);
-  ~LumiProducerFromBrilcalc();
+  ~LumiProducerFromBrilcalc() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginStream(edm::StreamID) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endStream() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
-  std::string lumiFile_;
-  bool throwIfNotFound_;
-  bool doBunchByBunch_;
+  const std::string lumiFile_;
+  const bool throwIfNotFound_;
+  const bool doBunchByBunch_;
   std::map<std::pair<int, int>, std::pair<float, float> > lumiData_;
 };
 
 //
-// constants, enums and typedefs
+// constructor
 //
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 LumiProducerFromBrilcalc::LumiProducerFromBrilcalc(const edm::ParameterSet& iConfig)
-    : lumiFile_(iConfig.getUntrackedParameter<std::string>("lumiFile")),
-      throwIfNotFound_(iConfig.getUntrackedParameter<bool>("throwIfNotFound", false)),
-      doBunchByBunch_(iConfig.getUntrackedParameter<bool>("doBunchByBunch", false)) {
+    : lumiFile_(iConfig.getParameter<std::string>("lumiFile")),
+      throwIfNotFound_(iConfig.getParameter<bool>("throwIfNotFound")),
+      doBunchByBunch_(iConfig.getParameter<bool>("doBunchByBunch")) {
   //register your products
   produces<LumiInfo>("brilcalc");
 
@@ -144,25 +131,20 @@ LumiProducerFromBrilcalc::LumiProducerFromBrilcalc(const edm::ParameterSet& iCon
   lumiFile.close();
 }
 
-LumiProducerFromBrilcalc::~LumiProducerFromBrilcalc() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void LumiProducerFromBrilcalc::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void LumiProducerFromBrilcalc::produce(edm::StreamID iStreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   std::vector<float> bxlumi(3564, 0);
   std::pair<int, int> runls = std::make_pair(iEvent.run(), iEvent.luminosityBlock());
   if (lumiData_.count(runls) == 1) {
     // if we have data for this run/LS, put it in the event
     LogDebug("LumiProducerFromBrilcalc") << "Filling for run " << runls.first << " ls " << runls.second
-                                         << " with delivered " << lumiData_[runls].first << " dt "
-                                         << lumiData_[runls].second;
-    iEvent.put(std::make_unique<LumiInfo>(lumiData_[runls].second, bxlumi, lumiData_[runls].first), "brilcalc");
+                                         << " with delivered " << lumiData_.at(runls).first << " dt "
+                                         << lumiData_.at(runls).second;
+    iEvent.put(std::make_unique<LumiInfo>(lumiData_.at(runls).second, bxlumi, lumiData_.at(runls).first), "brilcalc");
   } else {
     if (throwIfNotFound_) {
       throw cms::Exception("LumiProducerFromBrilcalc")
@@ -176,40 +158,13 @@ void LumiProducerFromBrilcalc::produce(edm::Event& iEvent, const edm::EventSetup
   }
 }
 
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-void LumiProducerFromBrilcalc::beginStream(edm::StreamID) {}
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-void LumiProducerFromBrilcalc::endStream() {}
-
-// ------------ method called when starting to processes a run  ------------
-void LumiProducerFromBrilcalc::beginRun(edm::Run const&, edm::EventSetup const&) {}
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-  void LumiProducerFromBrilcalc::endRun(edm::Run const&, edm::EventSetup const&) {
-  }
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-  void LumiProducerFromBrilcalc::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-  }
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-  void LumiProducerFromBrilcalc::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-  }
-*/
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void LumiProducerFromBrilcalc::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // Allowed parameters
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("lumiFile");
-  desc.addUntracked<bool>("throwIfNotFound", false);
-  desc.addUntracked<bool>("doBunchByBunch", false);
+  desc.add<std::string>("lumiFile");
+  desc.add<bool>("throwIfNotFound", false);
+  desc.add<bool>("doBunchByBunch", false);
   descriptions.addDefault(desc);
 }
 
