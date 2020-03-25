@@ -14,7 +14,8 @@
 // layer clusters together in a 3D object.
 
 namespace ticl {
-  struct Trackster {
+  class Trackster {
+  public:
     // The vertices of the DAG are the indices of the
     // 2d objects in the global collection
     std::vector<unsigned int> vertices;
