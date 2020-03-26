@@ -146,27 +146,16 @@ class DQMIOFileIO:
             for age, tfile, name in pairs[-CACHEDFILES:]:
                 self.openfiles[name].append((tfile, age))
             
-    def checkreadable(self, filename):
-        """
-        Check if `file` can be opened, and return a (filename, bool) pair.
-
-        This will typically wait for a timeout if the file cannot be read. Should
-        be called multi-threaded for high throughput.
-        """
-        tfile = asyncopen(filename, TESTTIMEOUT)
-        self.addtocache(filename, tfile)
-        return filename, tfile != None
-    
     def readindex(self, file):
         """
         Read the index table out of a DQMIO file.
 
-        Returns the contents as a list of `IndexEntry`s.
+        Returns the contents as a list of `IndexEntry`s, None if the file can't be opened.
         """
         tfile = self.getfromcache(file)
         if not tfile:
-            tfile = asyncopen(file, OPENTIMEOUT)
-        if not tfile: return []
+            tfile = asyncopen(file, TESTTIMEOUT)
+        if not tfile: return None
         index = []
         idxtree = getattr(tfile, "Indices")
         idxtree.GetEntry._threaded = True
@@ -294,10 +283,12 @@ class DQMIOFileIO:
 # remote reads acceptably fast. A SQLite database is kept for metadata.
 #
 import re
+import time
 import sqlite3
 import fnmatch
 import subprocess
-from multiprocessing.pool import ThreadPool
+from concurrent.futures import ThreadPoolExecutor
+
 
 DASFILEPREFIX = "root://cms-xrd-global.cern.ch/"
 DBSCHEMA = """
@@ -317,11 +308,35 @@ def splitdone(tasks):
     running = []
     done = []
     for t in tasks:
-        if t.ready():
+        if t[1].done():
             done.append(t)
         else:
             running.append(t)
     return running, done
+
+# tasks are pairs of (workitem, future), callback(workitem, result) will be 
+# called from main thread once a task is ready, taskname is for the progress 
+# message.
+def processtasks(tasks, callback, taskname):
+    starttime = time.time()
+    totaltasks = len(tasks)
+    failed = []
+    while tasks:
+        print(f"Processing {taskname}: {totaltasks - len(tasks)} out of {totaltasks} " +
+              f"done ({ (1 - (len(tasks)/totaltasks))*100:.2f}%), {len(failed)} failed, " + 
+              f"{time.time() - starttime:.1f}s elapsed", end="\r")
+        time.sleep(0.1)
+        tasks, done = splitdone(tasks)
+        for workitem, future in done:
+            if future.exception():
+                failed.append(workitem)
+                print("%s task for %s failed: " % (taskname, repr(workitem)), future.exception())
+            else:
+                result = future.result()
+                callback(workitem, result)
+    print(f"\n{totaltasks} {taskname} tasks done in {time.time()-starttime:.2f}s." 
+       + (f" ({len(failed)} failed)" if failed else ""))
+    return failed
 
 class DQMIOReader:
     """
@@ -329,7 +344,7 @@ class DQMIOReader:
     dataset read from DAS. Operations are internally multi-threaded.
     All state is kept in a SQLite database, caches are managed by `DQMIOFileIO`.
     """
-    def __init__(self, dbname="", nthreads=32, pooltype=ThreadPool):
+    def __init__(self, dbname="", nthreads=32, pooltype=ThreadPoolExecutor):
         self.db = sqlite3.connect(dbname)
         self.db.executescript(DBSCHEMA)
         self.pool = pooltype(nthreads)
@@ -357,27 +372,21 @@ class DQMIOReader:
         # helper function for parallel running
         def getfiles(datasetname):
             filelist = subprocess.check_output(['dasgoclient', '-query', 'file dataset=%s' % datasetname])
-            return datasetname, [DASFILEPREFIX + f.decode("utf8") for f in filelist.splitlines()]
+            return [DASFILEPREFIX + f.decode("utf8") for f in filelist.splitlines()]
 
-        tasks = [self.pool.map_async(getfiles, [d,]) for d in datasetnames] 
-        while tasks:
-            time.sleep(1)
-            tasks, done = splitdone(tasks)
-            for t in done:
-                if not t.successful():
-                    print("DAS file listing task failed.")
-                    continue
-                for it in t.get(): # should only be one
-                    datasetname, filelist = it
-                    self.addfiles(datasetname, filelist)
-        print(str(len(tasks)) + " tasks remaining")
+        tasks = [(datasetname, self.pool.submit(getfiles, datasetname)) for datasetname in datasetnames]
+        failed = processtasks(tasks, self.addfiles, "DAS file listing")
+        if failed:
+            tasks = [(datasetname, self.pool.submit(getfiles, datasetname)) for datasetname in failed]
+            failed = processtasks(tasks, self.addfiles, "DAS file listing (retry)")
         
     def addfiles(self, datasetname, filelist):
         """
         Add ROOT files to the metadata database, under the given dataset name.
         """
         self.db.execute("BEGIN;")
-        self.db.execute(f"INSERT OR REPLACE INTO dataset(datasetname, lastchecked) VALUES (?, datetime('now'));", (datasetname,))
+        self.db.execute("INSERT OR IGNORE INTO dataset(datasetname) VALUES (?);", (datasetname,))
+        self.db.execute("UPDATE dataset SET lastchecked = datetime('now') WHERE datasetname = ?;", (datasetname,))
         datasetid = self.db.execute(f"SELECT id FROM dataset WHERE datasetname = ?;", (datasetname,))
         datasetid = list(datasetid)[0][0]
         self.db.executemany("INSERT OR IGNORE INTO file(datasetid, name) VALUES (?, ?)", [(datasetid, name) for name in filelist])  
@@ -394,52 +403,33 @@ class DQMIOReader:
         Update metadata for all known files. Checks if files are readable and
         reads the Index trees, re-checks files last checked more than `since` ago.
         """
-        cur = self.db.cursor()
-        newfiles = list(cur.execute("""
+        newfiles = list(self.db.execute("""
            SELECT name FROM file 
            WHERE (readable and indexed is null)
               or (  (readable is null or not readable) 
                 and (lastchecked is null or datetime(lastchecked, ?) <  datetime('now')));
         """, (since,)))
-        cur.close()
-        checktasks = [self.pool.map_async(self.io.checkreadable, [f,]) for f, in newfiles] 
-        readtasks = []
-        
-        while checktasks or readtasks:
-            time.sleep(1)
-            self.io.cleancache()
-            print(str(len(checktasks)) + " readablility check tasks, " + str(len(readtasks)) + " index read tasks remaining")
-            checktasks, done = splitdone(checktasks)
-            results = []
-            for t in done:
-                if not t.successful():
-                    print("Readability check task failed.")
-                for file, readable in t.get(): # should only be one
-                    results.append((file, readable))
-                    if readable:
-                        readtasks.append(self.pool.map_async(self.io.readindex, [file,]))
-            if results:
-                self.db.execute("BEGIN;")
-                self.db.executemany("UPDATE file SET readable = ? WHERE name = ?;", 
-                                    [(readable, name) for name, readable in results])
-                self.db.executemany("UPDATE file SET lastchecked = datetime('now') WHERE name = ?;", 
-                                    [(name,) for name, _ in results])
-                self.db.execute("COMMIT;")
-            
-            readtasks, done = splitdone(readtasks)
-            entries = []
-            for t in done:
-                if not t.successful():
-                    print("Index read task failed.")
-                for index in t.get(): # should only be one
-                    entries += index
-            if entries:
-                self.db.execute("BEGIN;")
+
+        lastcommit = [time.time()]
+        self.db.execute("BEGIN;")
+        def storeindex(filename, index):
+            self.db.execute("UPDATE file SET readable = ? WHERE name = ?;", (index != None, filename))
+            self.db.execute("UPDATE file SET lastchecked = datetime('now') WHERE name = ?;", (filename,))
+            if index != None:
                 self.db.executemany("""INSERT OR REPLACE INTO indexentry(run, lumi, type, file, firstidx, lastidx) 
-                    VALUES (?, ?, ?, (SELECT id FROM file WHERE name = ?), ?, ?);""", entries)
-                files = set(e.file for e in entries)
-                self.db.executemany('UPDATE file SET indexed = 1 WHERE id = (SELECT id FROM file WHERE name = ?);', [(f, ) for f in files])
+                    VALUES (?, ?, ?, (SELECT id FROM file WHERE name = ?), ?, ?);""", index)
+                self.db.execute('UPDATE file SET indexed = 1 WHERE id = (SELECT id FROM file WHERE name = ?);', (filename,))
+
+            # SQLite DB transactions can be really slow, so we rate-limit them to 1 in 10s.
+            if (time.time() - lastcommit[0]) > 10:
                 self.db.execute("COMMIT;")
+                self.db.execute("BEGIN;")
+                lastcommit[0] = time.time()
+
+
+        tasks = [(filename, self.pool.submit(self.io.readindex, filename)) for filename, in newfiles]
+        failed = processtasks(tasks, storeindex, "index read")
+        self.db.execute("COMMIT;")
     
     def samples(self):
         """
@@ -462,6 +452,17 @@ class DQMIOReader:
             query += "GROUP BY type" #we only need one entry per type, no need to read all files.
         entries = self.db.execute(query, (datasetname, run, lumi))
         return [IndexEntry(*row) for row in entries]
+
+    def readentrymes(self, entries, fullnames):
+        items = []
+        def append(_, thing): items.append(thing)
+        tasks = [(None, self.pool.submit(self.io.locateme, e, fullname)) for e in entries for fullname in fullnames]
+        processtasks(tasks, append, "ME locate")
+        tasks = [(None, self.pool.submit(self.io.getme, *e_idx)) for e_idx in items if e_idx]
+        processtasks(tasks, append, "ME get")
+        items.clear()
+        self.io.cleancache()
+        return items
         
     def filtersample(self, datasetname, run, lumi, pathfilter):
         """
@@ -500,10 +501,7 @@ class DQMIOReader:
         if isinstance(fullnames, str):
             return self.readsampleme(datasetname, run, lumi, [fullnames])
         entries = self.entriesforsample(datasetname, run, lumi)
-        locations = self.pool.map(lambda e_n: self.io.locateme(*e_n), [(e, fullname) for e in entries for fullname in fullnames])
-        mes = self.pool.map(lambda loc: self.io.getme(*loc), [loc for loc in locations if loc])
-        self.io.cleancache()
-        return mes
+        return self.readentrymes(entries, fullnames)
 
     def readlumimes(self, datasetname, run, fullnames):
         """
@@ -517,14 +515,12 @@ class DQMIOReader:
         # a custom SQL query would be much more efficient but that does not really matter here.
         lumis = set(lumi for d, r, lumi in self.samples() if d == datasetname and r == run)
         entries = sum([self.entriesforsample(datasetname, run, l) for l in lumis], []) 
-        locations = self.pool.map(lambda e_n: self.io.locateme(*e_n), [(e, fullname) for e in entries for fullname in fullnames])
-        mes = self.pool.map(lambda loc: self.io.getme(*loc), [loc for loc in locations if loc])
-        self.io.cleancache()
-        return mes
+        return self.readentrymes(entries, fullnames)
 
 # A ThreadPool that runs everything immediatly, for debugging/cProfile.
 class NotPool:
     def __init__(self, nthreads):
         pass
+    
     def map(self, f, args):
         return [f(arg) for arg in args]
