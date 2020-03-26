@@ -136,8 +136,8 @@ simEmtfDigis = simEmtfDigisMC.clone()
 ## Era configuration files are located in Configuration/Eras/python
 
 ## Era: Run2_2016
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-stage2L1Trigger.toModify(simEmtfDigis, RPCEnable = cms.bool(False), Era = cms.string('Run2_2016'))
+from Configuration.Eras.Modifier_stage2L1Trigger_EMTF2016_cff import stage2L1Trigger_EMTF2016
+stage2L1Trigger_EMTF2016.toModify(simEmtfDigis, RPCEnable = cms.bool(False), Era = cms.string('Run2_2016'))
 
 # ## Era: Run2_2017
 # ## Run2_2017 fix disabled for UL2016 processing with CMSSW_10_6_X
