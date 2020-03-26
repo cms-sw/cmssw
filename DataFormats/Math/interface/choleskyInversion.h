@@ -9,6 +9,7 @@
  * fully inlined specialized code to perform the inversion of a
  * positive defined matrix of rank up to 6.
  *
+ * adapted from ROOT::Math::CholeskyDecomp
  * originally by
  * @author Manuel Schiller
  * @date Aug 29 2008
