@@ -32,7 +32,6 @@ ticlTrackstersMIP = _trackstersProducer.clone(
 # MULTICLUSTERS
 
 ticlMultiClustersFromTrackstersMIP = _multiClustersFromTrackstersProducer.clone(
-    label = "MIPMultiClustersFromTracksterByCA",
     Tracksters = "ticlTrackstersMIP"
 )
 
