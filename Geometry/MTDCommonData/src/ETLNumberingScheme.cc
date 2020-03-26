@@ -82,7 +82,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   }
 
   if ((preTDR && (1 > modCopy || ETLDetId::kETLv1maxModule < modCopy)) ||
-      (!preTDR && (1 > modCopy || ETLDetId::kETLv2maxModule < modCopy))) {
+      (!preTDR && (1 > modCopy || ETLDetId::kETLv4maxModule < modCopy))) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad module copy = " << modCopy
                                << ", Volume Number = " << baseNumber.getCopyNumber(4);
@@ -90,7 +90,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   }
 
   if ((preTDR && (1 > ringCopy || ETLDetId::kETLv1maxRing < ringCopy)) ||
-      (!preTDR && (1 > ringCopy || ETLDetId::kETLv2maxRing < ringCopy))) {
+      (!preTDR && (1 > ringCopy || ETLDetId::kETLv4maxRing < ringCopy))) {
     edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                << "****************** Bad ring copy = " << ringCopy
                                << ", Volume Number = " << baseNumber.getCopyNumber(3);
