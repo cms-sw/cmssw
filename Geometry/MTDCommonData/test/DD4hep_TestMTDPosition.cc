@@ -221,11 +221,10 @@ void DD4hep_TestMTDPosition::analyze(const edm::Event& iEvent, const edm::EventS
              << " " << std::setw(14) << convertCmToMm(fv.translation().y()) << " " << std::setw(14)
              << convertCmToMm(fv.translation().z()) << " "
              << "\n";
-        dump << "Rotation matrix components: " << std::setw(14) << x.X() << " " << std::setw(14) << y.X() << " "
-             << std::setw(14) << z.X() << " " << std::setw(14) << x.Y() << " " << std::setw(14) << y.Y() << " "
-             << std::setw(14) << z.Y() << " " << std::setw(14) << x.Z() << " " << std::setw(14) << y.Z() << " "
-             << std::setw(14) << z.Z() << " "
-             << "\n";
+        dump << "Rotation matrix components: " << std::setw(14) << x.X() << " " << std::setw(14) << x.Y() << " "
+             << std::setw(14) << x.Z() << " " << std::setw(14) << y.X() << " " << std::setw(14) << y.Y() << " "
+             << std::setw(14) << y.Z() << " " << std::setw(14) << z.X() << " " << std::setw(14) << z.Y() << " "
+             << std::setw(14) << z.Z() << "\n";
 
         DD3Vector zeroLocal(0., 0., 0.);
         DD3Vector cn1Local(mySens.halfX(), mySens.halfY(), mySens.halfZ());
