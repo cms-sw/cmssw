@@ -72,7 +72,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
         #    )),
     ),
     # Read and store combined inverse beta
-    addInverseBeta    = cms.bool(True),  
+    addInverseBeta    = cms.bool(False),  
     sourceMuonTimeExtra = cms.InputTag("muons","combined"), #Use combined info, not only csc or dt
     # mc matching
     addGenMatch   = cms.bool(True),
