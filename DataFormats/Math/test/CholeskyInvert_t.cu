@@ -32,7 +32,7 @@ __global__ void invertSOA(double *__restrict__ p, unsigned int n) {
     return;
 
   MapMX<N> m(p + i);
-  choleskyInversion::invert(m, m);
+  math::cholesky::invert(m, m);
 }
 
 template <typename M, int N>
@@ -42,7 +42,7 @@ __global__ void invert(M *mm, unsigned int n) {
     return;
 
   auto &m = mm[i];
-  choleskyInversion::invert(m, m);
+  math::cholesky::invert(m, m);
 }
 
 template <typename M, int N>
@@ -54,7 +54,7 @@ __global__ void invertSeq(M *mm, unsigned int n) {
 
   for (auto i = first; i < last; ++i) {
     auto &m = mm[i];
-    choleskyInversion::invert(m, m);
+    math::cholesky::invert(m, m);
   }
 }
 
@@ -112,13 +112,13 @@ void go(bool soa) {
   if (soa)
     for (unsigned int i = 0; i < SIZE; ++i) {
       MapMX<N> m(p + i);
-      choleskyInversion::invert(m, m);
-      choleskyInversion::invert(m, m);
+      math::cholesky::invert(m, m);
+      math::cholesky::invert(m, m);
     }
   else
     for (auto &m : mm) {
-      choleskyInversion::invert(m, m);
-      choleskyInversion::invert(m, m);
+      math::cholesky::invert(m, m);
+      math::cholesky::invert(m, m);
     }
 
   std::cout << mm[SIZE / 2](1, 1) << std::endl;
@@ -168,12 +168,12 @@ void go(bool soa) {
 #pragma GCC ivdep
       for (unsigned int i = 0; i < SIZE; ++i) {
         MapMX<N> m(p + i);
-        choleskyInversion::invert(m, m);
+        math::cholesky::invert(m, m);
       }
     else
 #pragma GCC ivdep
       for (auto &m : mm) {
-        choleskyInversion::invert(m, m);
+        math::cholesky::invert(m, m);
       }
 
     delta2 += (std::chrono::high_resolution_clock::now() - start);
@@ -193,11 +193,13 @@ int main() {
   cms::cudatest::requireDevices();
 
   go<2>(false);
+  go<3>(false);
   go<4>(false);
   go<5>(false);
   go<6>(false);
 
   go<2>(true);
+  go<3>(true);
   go<4>(true);
   go<5>(true);
   go<6>(true);
