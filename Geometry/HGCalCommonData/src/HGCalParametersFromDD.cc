@@ -237,17 +237,13 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD (DD4Hep)::build called with "
                                 << "names " << name << ":" << namew << ":" << namec << ":" << namet;
 #endif
-  cms::DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
   cms::DDVectorsMap vmap = cpv->detector()->vectors();
+  const cms::DDFilter filter("Volume", name);
+  cms::DDFilteredView fv((*cpv), filter);
   std::vector<std::string> tempS;
   std::vector<double> tempD;
   tempS = fv.get<std::vector<std::string> >(name, "GeometryMode");
   std::string sv = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Hexagon8Full";
-  std::string attribute = "Volume";
-  cms::DDSpecParRefs refs;
-  const cms::DDSpecParRegistry& mypar = cpv->specpars();
-  mypar.filter(refs, attribute, name);
-  fv.mergedSpecifics(refs);
   bool ok = fv.firstChild();
   HGCalGeometryMode::WaferMode mode(HGCalGeometryMode::Polyhedra);
 
@@ -396,8 +392,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
           << "Unknown Geometry type " << php.mode_ << " for HGCal " << name << ":" << namew << ":" << namec;
     }
   } else {
-    edm::LogError("HGCalGeom") << " Attribute " << attribute << ":" << name << " not found but needed.";
-    throw cms::Exception("DDException") << "Attribute " << attribute << ":" << name << " not found but needed.";
+    edm::LogError("HGCalGeom") << " Attribute Volume:" << name << " not found but needed.";
+    throw cms::Exception("DDException") << "Attribute Volume:" << name << " not found but needed.";
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Return from HGCalParametersFromDD::build"
@@ -459,7 +455,7 @@ void HGCalParametersFromDD::getCellPosition(HGCalParameters& php, int type) {
     }
   } else {
     edm::LogVerbatim("HGCalGeom") << "CellPosition for  type " << type << " for " << php.cellFineX_.size() << " cells";
-    for (unsigned int k = 0; k < php.cellCoarseX_.size(); ++k) {
+    for (unsigned int k = 0; k < php.cellFineX_.size(); ++k) {
       int id = indtypes[k];
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] ID " << id << ":" << php.cellFineIndex_[k] << " X "
                                     << php.cellFineX_[k] << " Y " << php.cellFineY_[k];
