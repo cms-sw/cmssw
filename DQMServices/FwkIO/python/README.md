@@ -70,13 +70,6 @@ More advanced: Read a dataset from DAS (do `voms-proxy-init -voms cms -rfc` firs
 > r = DQMIOReader()
 > r.importdataset("/EGamma/Run2018A-12Nov2019_UL2018-v2/DQMIO") 
 > r.checkfiles() # this will take a while...
-773 readablility check tasks, 0 index read tasks remaining
-773 readablility check tasks, 0 index read tasks remaining
-753 readablility check tasks, 20 index read tasks remaining
-731 readablility check tasks, 42 index read tasks remaining
-...
-0 readablility check tasks, 45 index read tasks remaining
-0 readablility check tasks, 13 index read tasks remaining
 > r.readsampleme('/EGamma/Run2018A-12Nov2019_UL2018-v2/DQMIO', 315339, 39, "Hcal/DigiPhase1Task/Occupancy/depth/depth1")
 [MonitorElement(run=315339, lumi=39, name='Hcal/DigiPhase1Task/Occupancy/depth/depth1', type=6, data=<ROOT.TH2F object ("depth1") at 0x7f5d2c068170>)]
 > # Since this data is not harvested, this will return multiple MEs that need to be added to get the full run histogram.
@@ -88,7 +81,9 @@ More advanced: Read a dataset from DAS (do `voms-proxy-init -voms cms -rfc` firs
  ...
 ] 
 ```
+
 Most advanced: Read a lot of data using a database.
+
 ```
 > r = DQMIOReader("/data/mschneid/egamma2018.db", 100) # persistent database and 100 IO threads
 > r.importdatasets("/EGamma/Run2018*-12Nov2019_UL2018-v*/DQMIO")
@@ -99,9 +94,6 @@ Most advanced: Read a lot of data using a database.
  '/EGamma/Run2018D-12Nov2019_UL2018-v3/DQMIO',
  '/EGamma/Run2018D-12Nov2019_UL2018-v4/DQMIO']
 > r.checkfiles() # This will take a long time.
-5394 readablility check tasks, 0 index read tasks remaining
-5379 readablility check tasks, 15 index read tasks remaining
-...
 > # Actually, only 500 files are readable at the moment.
 > list(r.db.execute("select count(*), readable, indexed from file group by readable, indexed")) 
 [(4894, 0, None), (500, 1, 1)]
@@ -112,6 +104,7 @@ Most advanced: Read a lot of data using a database.
 ```
 
 Now we can use the existing database to read some MEs:
+
 ```
 from DQMServices.FwkIO.DQMIO import DQMIOReader
 r = DQMIOReader("/data/mschneid/egamma2018.db")
@@ -119,6 +112,8 @@ r = DQMIOReader("/data/mschneid/egamma2018.db")
 mes = r.readlumimes('/EGamma/Run2018B-12Nov2019_UL2018-v2/DQMIO', 317649, 'EcalPreshower/ESOccupancyTask/ES RecHit 2D Occupancy Z -1 P 2')
 print(mes)
 ```
+
+By default, all operations print progress indications, since all operations might be quite slow (on remote files). However, on local files and/or with warm caches, this is may slow dwon the operations; use `DQMIOReader(..., progress=False) to disable the progress display on `read*` operations.
 
 Implementation
 --------------

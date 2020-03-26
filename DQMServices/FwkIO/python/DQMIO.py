@@ -344,11 +344,16 @@ class DQMIOReader:
     dataset read from DAS. Operations are internally multi-threaded.
     All state is kept in a SQLite database, caches are managed by `DQMIOFileIO`.
     """
-    def __init__(self, dbname="", nthreads=32, pooltype=ThreadPoolExecutor):
+    def __init__(self, dbname="", nthreads=32, pooltype=ThreadPoolExecutor, progress=True):
         self.db = sqlite3.connect(dbname)
         self.db.executescript(DBSCHEMA)
         self.pool = pooltype(nthreads)
         self.io = DQMIOFileIO()
+        if progress:
+            self.readentrymes = self.readentrymes_slow
+        else:
+            self.readentrymes = self.readentrymes_fast
+
           
     def importdatasets(self, datasetpattern):
         """
@@ -453,7 +458,9 @@ class DQMIOReader:
         entries = self.db.execute(query, (datasetname, run, lumi))
         return [IndexEntry(*row) for row in entries]
 
-    def readentrymes(self, entries, fullnames):
+    # there are two of these, one with progress indication, one without.
+    # one of them is selected in __init__.
+    def readentrymes_slow(self, entries, fullnames):
         items = []
         def append(_, thing): items.append(thing)
         tasks = [(None, self.pool.submit(self.io.locateme, e, fullname)) for e in entries for fullname in fullnames]
@@ -463,6 +470,11 @@ class DQMIOReader:
         items.clear()
         self.io.cleancache()
         return items
+    def readentrymes_fast(self, entries, fullnames):
+        locs = self.pool.map(lambda e_n: self.io.locateme(*e_n), [(e, fullname) for e in entries for fullname in fullnames])
+        mes =  self.pool.map(lambda e_idx: self.io.getme(*e_idx), [e_idx for e_idx in locs if e_idx])
+        self.io.cleancache()
+        return list(mes)
         
     def filtersample(self, datasetname, run, lumi, pathfilter):
         """
