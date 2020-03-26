@@ -1,0 +1,8 @@
+<lcgdict>
+  <class name="cms::cuda::Product<HeterogeneousSoA<pixelTrack::TrackSoA>>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<HeterogeneousSoA<pixelTrack::TrackSoA>>>" persistent="false"/>
+  <class name="HeterogeneousSoA<pixelTrack::TrackSoA>" persistent="false"/>
+  <class name="edm::Wrapper<HeterogeneousSoA<pixelTrack::TrackSoA>>" persistent="false"/>
+  <class name="ArrayShadow<std::array<unsigned int,2001>>" persistent="false"/>
+  <class name="edm::Wrapper<ArrayShadow<std::array<unsigned int,2001>>>" persistent="false"/>
+</lcgdict>

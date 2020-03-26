@@ -10,6 +10,7 @@
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HFQIE10Info.h"
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 template <typename T>
 __global__ void kernel_test_hcal_rechits(T *other) {
@@ -109,18 +110,13 @@ void test_hcal_hbhechinfo() {
 }
 
 int main(int argc, char **argv) {
-  int nDevices;
-  cudaGetDeviceCount(&nDevices);
-  std::cout << "nDevices = " << nDevices << std::endl;
+  cms::cudatest::requireDevices();
 
-  if (nDevices > 0) {
-    test_hcal_rechits<HBHERecHit>();
-    test_hcal_rechits<HFRecHit>();
-    test_hcal_rechits<HORecHit>();
-    test_hcal_hbhechinfo();
+  test_hcal_rechits<HBHERecHit>();
+  test_hcal_rechits<HFRecHit>();
+  test_hcal_rechits<HORecHit>();
+  test_hcal_hbhechinfo();
 
-    std::cout << "all good" << std::endl;
-  }
-
+  std::cout << "all good" << std::endl;
   return 0;
 }
