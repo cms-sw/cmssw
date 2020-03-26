@@ -1,5 +1,4 @@
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
