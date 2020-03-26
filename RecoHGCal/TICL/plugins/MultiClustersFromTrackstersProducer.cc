@@ -24,7 +24,6 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  std::string label_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> layer_clusters_token_;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> tracksters_token_;
 };
@@ -32,10 +31,9 @@ private:
 DEFINE_FWK_MODULE(MultiClustersFromTrackstersProducer);
 
 MultiClustersFromTrackstersProducer::MultiClustersFromTrackstersProducer(const edm::ParameterSet& ps)
-    : label_(ps.getParameter<std::string>("label")),
-      layer_clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("LayerClusters"))),
+    : layer_clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("LayerClusters"))),
       tracksters_token_(consumes<std::vector<ticl::Trackster>>(ps.getParameter<edm::InputTag>("Tracksters"))) {
-  produces<std::vector<reco::HGCalMultiCluster>>(label_);
+  produces<std::vector<reco::HGCalMultiCluster>>();
 }
 
 void MultiClustersFromTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -43,7 +41,6 @@ void MultiClustersFromTrackstersProducer::fillDescriptions(edm::ConfigurationDes
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("Tracksters", edm::InputTag("Tracksters", "TrackstersByCA"));
   desc.add<edm::InputTag>("LayerClusters", edm::InputTag("hgcalLayerClusters"));
-  desc.add<std::string>("label", "");
   desc.addUntracked<unsigned int>("verbosity", 3);
   descriptions.add("multiClustersFromTrackstersProducer", desc);
 }
@@ -98,5 +95,5 @@ void MultiClustersFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
     }
   });
 
-  evt.put(std::move(multiclusters), label_);
+  evt.put(std::move(multiclusters));
 }
