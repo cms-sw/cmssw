@@ -463,7 +463,7 @@ class UpgradeWorkflow_JMENano(UpgradeWorkflow):
         if 'Nano' in step:
             stepDict[stepName][k] = merge([{'--customise_commands': '"from PhysicsTools.NanoAOD.custom_jme_cff import PrepJMECustomNanoAOD_MC; PrepJMECustomNanoAOD_MC(process)"'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2017' in key or '2018' in key
+        return fragment=="TTbar_13" and ('2017' in key or '2018' in key)
 upgradeWFs['JMENano'] = UpgradeWorkflow_JMENano(
     steps = [
         'NanoFull',
