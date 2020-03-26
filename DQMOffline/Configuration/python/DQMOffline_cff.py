@@ -23,6 +23,7 @@ DQMNone = cms.Sequence()
 DQMMessageLoggerSeq = cms.Sequence( DQMMessageLogger )
 
 dqmProvInfo.runType = "pp_run"
+dqmProvInfo.dcsRecord = cms.untracked.InputTag("onlineMetaDataDigis")
 DQMOfflineDCS = cms.Sequence( dqmProvInfo )
 
 # L1 trigger sequences
