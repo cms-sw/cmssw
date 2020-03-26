@@ -691,45 +691,48 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalP
       int lay = copy[nsiz - 1];
       int zside = (nsiz > php.levelZSide_) ? copy[php.levelZSide_] : -1;
       if (zside != 1)
-	zside = -1;
+        zside = -1;
       const DDSolid& sol = fv.logicalPart().solid();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << sol.name() << " shape " << sol.shape() << " size " << nsiz << ":" << levelTop << " lay " << lay << " z " << zside;
+      edm::LogVerbatim("HGCalGeom") << sol.name() << " shape " << sol.shape() << " size " << nsiz << ":" << levelTop
+                                    << " lay " << lay << " z " << zside;
 #endif
       if (lay == 0) {
-	edm::LogError("HGCalGeom") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
-	throw cms::Exception("DDException") << "Funny layer # " << lay;
+        edm::LogError("HGCalGeom") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
+        throw cms::Exception("DDException") << "Funny layer # " << lay;
       } else {
-	if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
-	  php.layer_.emplace_back(lay);
-	auto itr = layers.find(lay);
-	if (itr == layers.end()) {
-	  const DDTubs& tube = static_cast<DDTubs>(sol);
-	  double rin = HGCalParameters::k_ScaleFromDDD * tube.rIn();
-	  double rout = HGCalParameters::k_ScaleFromDDD * tube.rOut();
-	  double zp = HGCalParameters::k_ScaleFromDDD * fv.translation().Z();
-	  HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
-	  layers[lay] = laypar;
-	}
-	if (trforms.find(std::make_pair(lay, zside)) == trforms.end()) {
-	  DD3Vector x, y, z;
-	  fv.rotation().GetComponents(x, y, z);
-	  const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
-	  const CLHEP::HepRotation hr(rotation);
-	  double xx =
-            ((std::abs(fv.translation().X()) < tolerance) ? 0 : HGCalParameters::k_ScaleFromDDD * fv.translation().X());
-	  double yy =
-            ((std::abs(fv.translation().Y()) < tolerance) ? 0 : HGCalParameters::k_ScaleFromDDD * fv.translation().Y());
-	  const CLHEP::Hep3Vector h3v(xx, yy, HGCalParameters::k_ScaleFromDDD * fv.translation().Z());
-	  HGCalParameters::hgtrform mytrf;
-	  mytrf.zp = zside;
-	  mytrf.lay = lay;
-	  mytrf.sec = 0;
-	  mytrf.subsec = 0;
-	  mytrf.h3v = h3v;
-	  mytrf.hr = hr;
-	  trforms[std::make_pair(lay, zside)] = mytrf;
-	}
+        if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
+          php.layer_.emplace_back(lay);
+        auto itr = layers.find(lay);
+        if (itr == layers.end()) {
+          const DDTubs& tube = static_cast<DDTubs>(sol);
+          double rin = HGCalParameters::k_ScaleFromDDD * tube.rIn();
+          double rout = HGCalParameters::k_ScaleFromDDD * tube.rOut();
+          double zp = HGCalParameters::k_ScaleFromDDD * fv.translation().Z();
+          HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
+          layers[lay] = laypar;
+        }
+        if (trforms.find(std::make_pair(lay, zside)) == trforms.end()) {
+          DD3Vector x, y, z;
+          fv.rotation().GetComponents(x, y, z);
+          const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
+          const CLHEP::HepRotation hr(rotation);
+          double xx =
+              ((std::abs(fv.translation().X()) < tolerance) ? 0
+                                                            : HGCalParameters::k_ScaleFromDDD * fv.translation().X());
+          double yy =
+              ((std::abs(fv.translation().Y()) < tolerance) ? 0
+                                                            : HGCalParameters::k_ScaleFromDDD * fv.translation().Y());
+          const CLHEP::Hep3Vector h3v(xx, yy, HGCalParameters::k_ScaleFromDDD * fv.translation().Z());
+          HGCalParameters::hgtrform mytrf;
+          mytrf.zp = zside;
+          mytrf.lay = lay;
+          mytrf.sec = 0;
+          mytrf.subsec = 0;
+          mytrf.h3v = h3v;
+          mytrf.hr = hr;
+          trforms[std::make_pair(lay, zside)] = mytrf;
+        }
       }
     }
     dodet = fv.next();
@@ -763,46 +766,48 @@ void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
       int lay = copy[0];
       int zside = (nsiz > php.levelZSide_) ? copy[nsiz - php.levelZSide_ - 1] : -1;
       if (zside != 1)
-	zside = -1;
+        zside = -1;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << fv.name() << " shape " << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " size " << nsiz << ":" << levelTop << " lay " << lay << " z " << zside << ":" << php.levelZSide_;
+      edm::LogVerbatim("HGCalGeom") << fv.name() << " shape " << cms::dd::name(cms::DDSolidShapeMap, fv.shape())
+                                    << " size " << nsiz << ":" << levelTop << " lay " << lay << " z " << zside << ":"
+                                    << php.levelZSide_;
 #endif
       if (lay == 0) {
-	edm::LogError("HGCalGeom") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
-	throw cms::Exception("DDException") << "Funny layer # " << lay;
+        edm::LogError("HGCalGeom") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
+        throw cms::Exception("DDException") << "Funny layer # " << lay;
       } else {
-	if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
-	  php.layer_.emplace_back(lay);
-	auto itr = layers.find(lay);
-	if (itr == layers.end()) {
-	  const std::vector<double>& pars = fv.parameters();
-	  double rin = HGCalParameters::k_ScaleFromDD4Hep * pars[0];
-	  double rout = HGCalParameters::k_ScaleFromDD4Hep * pars[1];
-	  double zp = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z();
-	  HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
-	  layers[lay] = laypar;
-	}
-	if (trforms.find(std::make_pair(lay, zside)) == trforms.end()) {
-	  DD3Vector x, y, z;
-	  fv.rotation().GetComponents(x, y, z);
-	  const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
-	  const CLHEP::HepRotation hr(rotation);
-	  double xx =
-            ((std::abs(fv.translation().X()) < tolerance) ? 0
-	     : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().X());
-	  double yy =
-            ((std::abs(fv.translation().Y()) < tolerance) ? 0
-	     : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Y());
-	  const CLHEP::Hep3Vector h3v(xx, yy, HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z());
-	  HGCalParameters::hgtrform mytrf;
-	  mytrf.zp = zside;
-	  mytrf.lay = lay;
-	  mytrf.sec = 0;
-	  mytrf.subsec = 0;
-	  mytrf.h3v = h3v;
-	  mytrf.hr = hr;
-	  trforms[std::make_pair(lay, zside)] = mytrf;
-	}
+        if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
+          php.layer_.emplace_back(lay);
+        auto itr = layers.find(lay);
+        if (itr == layers.end()) {
+          const std::vector<double>& pars = fv.parameters();
+          double rin = HGCalParameters::k_ScaleFromDD4Hep * pars[0];
+          double rout = HGCalParameters::k_ScaleFromDD4Hep * pars[1];
+          double zp = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z();
+          HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
+          layers[lay] = laypar;
+        }
+        if (trforms.find(std::make_pair(lay, zside)) == trforms.end()) {
+          DD3Vector x, y, z;
+          fv.rotation().GetComponents(x, y, z);
+          const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
+          const CLHEP::HepRotation hr(rotation);
+          double xx = ((std::abs(fv.translation().X()) < tolerance)
+                           ? 0
+                           : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().X());
+          double yy = ((std::abs(fv.translation().Y()) < tolerance)
+                           ? 0
+                           : HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Y());
+          const CLHEP::Hep3Vector h3v(xx, yy, HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z());
+          HGCalParameters::hgtrform mytrf;
+          mytrf.zp = zside;
+          mytrf.lay = lay;
+          mytrf.sec = 0;
+          mytrf.subsec = 0;
+          mytrf.h3v = h3v;
+          mytrf.hr = hr;
+          trforms[std::make_pair(lay, zside)] = mytrf;
+        }
       }
     }
   }
@@ -1508,7 +1513,6 @@ void HGCalGeomParameters::loadCellParsHexagon(const HGCalParameters& php) {
 }
 
 void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
-
   php.xLayerHex_.clear();
   php.yLayerHex_.clear();
   for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
@@ -1518,7 +1522,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParameters: x|y|zLayerHex in array of size " << php.zLayerHex_.size();
   for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Shift " << php.xLayerHex_[k] << ":" << php.yLayerHex_[k] << ":" << php.zLayerHex_[k];
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Shift " << php.xLayerHex_[k] << ":" << php.yLayerHex_[k] << ":"
+                                  << php.zLayerHex_[k];
 #endif
   // Find the radius of each eta-partitions
   for (unsigned k = 0; k < 2; ++k) {
@@ -1701,6 +1706,7 @@ void HGCalGeomParameters::rescale(std::vector<double>& v, const double s) {
 }
 
 void HGCalGeomParameters::resetZero(std::vector<double>& v) {
-  for (auto n : v) 
-    if (std::abs(n) < 1.e-20) n = 0;
+  for (auto n : v)
+    if (std::abs(n) < 1.e-20)
+      n = 0;
 }
