@@ -82,6 +82,7 @@ if __name__ == '__main__':
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
                      11634.0, #2021 ttbar
+                     11634.502, #2021 ttbar pixel-only GPU-capable 
                      12434.0, #2023 ttbar
                      20034.0, #2026D35 ttbar (MTD TDR baseline)
                      20434.0, #2026D41 ttbar (L1T TDR baseline)
