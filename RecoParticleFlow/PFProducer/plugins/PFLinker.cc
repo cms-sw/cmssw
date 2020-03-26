@@ -9,19 +9,14 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 namespace edm {
   class EventSetup;
