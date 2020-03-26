@@ -54,6 +54,7 @@
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -61,7 +62,6 @@ class AlignTransform;
 class Alignments;
 class AlignmentErrorsExtended;
 class AlignmentSurfaceDeformations;
-class MuonGeometryRecord;
 struct SurveyErrors;
 class TrackerTopology;
 class TrackerDigiGeometryRecord;
@@ -112,8 +112,8 @@ protected:
   virtual bool getAliClusterValueMap(const edm::Event&, edm::Handle<AliClusterValueMap>&) = 0;
 
   std::shared_ptr<TrackerGeometry> trackerGeometry_;
-  std::shared_ptr<DTGeometry> muonDTGeometry_;
-  std::shared_ptr<CSCGeometry> muonCSCGeometry_;
+  edm::ESHandle<DTGeometry> muonDTGeometry_;
+  edm::ESHandle<CSCGeometry> muonCSCGeometry_;
   const bool doTracker_, doMuon_, useExtras_;
 
   /// Map with tracks/trajectories
@@ -171,11 +171,11 @@ private:
   /// Applies DB constants belonging to (Err)Rcd to Geometry, taking into
   /// account 'globalPosition' correction.
   template <class G, class Rcd, class ErrRcd>
-  void applyDB(G*, const edm::EventSetup&, const AlignTransform&) const;
+  void applyDB(const G*, const edm::EventSetup&, const AlignTransform&) const;
 
   /// Applies DB constants for SurfaceDeformations
   template <class G, class DeformationRcd>
-  void applyDB(G*, const edm::EventSetup&) const;
+  void applyDB(const G*, const edm::EventSetup&) const;
 
   /// Reads in survey records
   void readInSurveyRcds(const edm::EventSetup&);
@@ -274,7 +274,7 @@ private:
 };
 
 template <class G, class Rcd, class ErrRcd>
-void AlignmentProducerBase::applyDB(G* geometry,
+void AlignmentProducerBase::applyDB(const G* geometry,
                                     const edm::EventSetup& iSetup,
                                     const AlignTransform& globalCoordinates) const {
   // 'G' is the geometry class for that DB should be applied,
@@ -306,7 +306,7 @@ void AlignmentProducerBase::applyDB(G* geometry,
 }
 
 template <class G, class DeformationRcd>
-void AlignmentProducerBase::applyDB(G* geometry, const edm::EventSetup& iSetup) const {
+void AlignmentProducerBase::applyDB(const G* geometry, const edm::EventSetup& iSetup) const {
   // 'G' is the geometry class for that DB should be applied,
   // 'DeformationRcd' is the record class for its surface deformations
 

@@ -23,11 +23,6 @@ public:
   /// Produce the tracker geometry
   virtual std::shared_ptr<TrackerGeometry> produceTracker(const TrackerDigiGeometryRecord&);
 
-  /// Produce the muon DT geometry
-  virtual std::shared_ptr<DTGeometry> produceDT(const MuonGeometryRecord&);
-
-  /// Produce the muon CSC geometry
-  virtual std::shared_ptr<CSCGeometry> produceCSC(const MuonGeometryRecord&);
 
   /// Called at beginning of job
   void beginOfJob(const edm::EventSetup&) override;
