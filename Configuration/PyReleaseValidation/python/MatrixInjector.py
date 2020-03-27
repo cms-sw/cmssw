@@ -53,6 +53,7 @@ class MatrixInjector(object):
         self.keep = opt.keep
         self.memoryOffset = opt.memoryOffset
         self.memPerCore = opt.memPerCore
+        self.numberEventsInLuminosityBlock = opt.numberEventsInLuminosityBlock
         self.batchName = ''
         self.batchTime = str(int(time.time()))
         if(opt.batchName):
@@ -128,6 +129,7 @@ class MatrixInjector(object):
             "GlobalTag": None,
             "SplittingAlgo"  : "EventBased",             #Splitting Algorithm
             "EventsPerJob" : None,                       #Size of jobs in terms of splitting algorithm
+            "EventsPerLumi" : None,
             "RequestNumEvents" : None,                      #Total number of events to generate
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
@@ -356,6 +358,16 @@ class MatrixInjector(object):
                                     ns=map(int,arg[arg.index('--relval')+1].split(','))
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['EventsPerJob'] = ns[1]
+                                    chainDict['nowmTasklist'][-1]['EventsPerLumi'] = ns[1]
+                                    #overwrite EventsPerLumi if numberEventsInLuminosityBlock is set in cmsDriver
+                                    if 'numberEventsInLuminosityBlock' in s[2][index]:
+                                        nEventsInLuminosityBlock = (((s[2][index].replace(" ","").replace("numberEventsInLuminosityBlock=cms.untracked.uint32("," ")).split()[1]).split(')'))[0]
+                                        if nEventsInLuminosityBlock.isdigit() and int(nEventsInLuminosityBlock) < ns[1]:
+                                            #print('Overwrite EventsPerLumi using cmsDriver customisation')
+                                            chainDict['nowmTasklist'][-1]['EventsPerLumi'] = nEventsInLuminosityBlock
+                                    if(self.numberEventsInLuminosityBlock > 0 and self.numberEventsInLuminosityBlock < ns[1]):
+                                        #print('Overwrite EventsPerLumi (again) using runTheMatrix parameter')
+                                        chainDict['nowmTasklist'][-1]['EventsPerLumi'] = self.numberEventsInLuminosityBlock
                                 if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
                                     thisLabel+='_FastSim'
                                 if 'lhe' in s[2][index] in s[2][index]:
