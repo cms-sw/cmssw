@@ -5,18 +5,26 @@ TrackerDTCProducer_params = cms.PSet (
   #=== ED parameter
 
   ParamsED = cms.PSet (
-    InputTagTTStubDetSetVec = cms.InputTag  ( "TTStubsFromPhase2TrackerDigis", "StubAccepted" ), # 
-    ProductBranch           = cms.string    ( "StubAccepted" ),                                  #
-    InputTagMagneticField   = cms.ESInputTag( "VolumeBasedMagneticFieldESProducer", "" ), #
-    InputTagTrackerGeometry = cms.ESInputTag( "trackerGeometry", "" ), #
-    InputTagTrackerTopology = cms.ESInputTag( "trackerTopology", "" ), #
-    InputTagCablingMap      = cms.ESInputTag( "GlobalTag", "" ), #
-    InputTagTTStubAlgorithm = cms.ESInputTag( "TTStubAlgorithm_official_Phase2TrackerDigi_", ""), #
-    DataFormat              = cms.string    ( "Hybrid" ),                                        # hybrid and tmtt format supported
-    OffsetDetIdDSV          = cms.int32     (  1 ),                                              # tk layout det id minus DetSetVec->detId
-    OffsetDetIdTP           = cms.int32     ( -1 ),                                              # tk layout det id minus TrackerTopology lower det id
-    OffsetLayerDisks        = cms.int32     ( 10 ),                                              # offset in layer ids between barrel layer and endcap disks
-    OffsetLayerId           = cms.int32     (  1 )                                               # offset between 0 and smallest layer id (barrel layer 1)
+    InputTagTTStubDetSetVec       = cms.InputTag  ( "TTStubsFromPhase2TrackerDigis", "StubAccepted" ),   # 
+    ProductBranch                 = cms.string    ( "StubAccepted" ),                                    #
+    InputTagMagneticField         = cms.ESInputTag( "VolumeBasedMagneticFieldESProducer", "" ),          #
+    InputTagTrackerGeometry       = cms.ESInputTag( "trackerGeometry", "" ),                             #
+    InputTagTrackerTopology       = cms.ESInputTag( "trackerTopology", "" ),                             #
+    InputTagCablingMap            = cms.ESInputTag( "GlobalTag", "" ),                                   #
+    InputTagTTStubAlgorithm       = cms.ESInputTag( "TTStubAlgorithm_official_Phase2TrackerDigi_", ""),  #
+    InputTagGeometryConfiguration = cms.ESInputTag( "XMLIdealGeometryESSource", ""),                     #
+    SupportedTrackerXMLPSet       = cms.string    ( "geomXMLFiles"),                                     #
+    SupportedTrackerXMLPath       = cms.string    ( "Geometry/TrackerCommonData/data/PhaseII/"),         #
+    SupportedTrackerXMLFile       = cms.string    ( "tracker.xml"),                                      #
+    SupportedTrackerXMLVersions   = cms.vstring   ( "TiltedTracker613", "TiltedTracker613_MB_2019_04" ), #
+    DataFormat                    = cms.string    ( "Hybrid" ),                                          # hybrid and tmtt format supported
+    OffsetDetIdDSV                = cms.int32     (  1 ),                                                # tk layout det id minus DetSetVec->detId
+    OffsetDetIdTP                 = cms.int32     ( -1 ),                                                # tk layout det id minus TrackerTopology lower det id
+    OffsetLayerDisks              = cms.int32     ( 10 ),                                                # offset in layer ids between barrel layer and endcap disks
+    OffsetLayerId                 = cms.int32     (  1 ),                                                # offset between 0 and smallest layer id (barrel layer 1)
+    CheckHistory                  = cms.bool      ( True ),                                              #
+    ProcessName                   = cms.string    ( "HLT" ),                                             #
+    ProductLabel                  = cms.string    ( "XMLIdealGeometryESSource" )                         #
   ),
 
   #=== router parameter
