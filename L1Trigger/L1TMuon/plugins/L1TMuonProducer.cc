@@ -346,6 +346,7 @@ void L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                    MicroGMTConfiguration::calcMuonEtaExtra(outMu),
                    MicroGMTConfiguration::calcMuonPhiExtra(outMu),  // set the coordinates at the vertex
                    mu->hwPtUnconstrained(),
+                   (mu->hwPtUnconstrained() - 1) * 0.5,
                    mu->hwDXY()};
         if (mu->hwSignValid()) {
           outMu.setCharge(1 - 2 * mu->hwSign());
