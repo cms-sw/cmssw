@@ -40,7 +40,7 @@ workflows[1304.182] = ['', ['ProdZEE_13UP18','DIGIUP18PROD1','RECOPRODUP18bParki
 
 #####Prod2018 with concurrentlumi
 workflows[1302.181] = ['', ['ProdTTbar_13UP18ml','DIGIUP18PROD1ml','RECOPRODUP18ml','MINIAODMCUP18ml','NANOPRODUP18ml']]
-workflows[1304.181] = ['', ['ProdZEE_13UP18','DIGIUP18PROD1ml','RECOPRODUP18ml','MINIAODMCUP18ml','NANOPRODUP18ml']]
+workflows[1304.181] = ['', ['ProdZEE_13UP18ml','DIGIUP18PROD1ml','RECOPRODUP18ml','MINIAODMCUP18ml','NANOPRODUP18ml']]
 
 ### data ###
 workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD','HARVESTDC']]
