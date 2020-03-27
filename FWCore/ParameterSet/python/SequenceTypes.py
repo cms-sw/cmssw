@@ -9,7 +9,7 @@ from .ExceptionHandling import *
 from .OrderedSet import OrderedSet
 
 class _HardDependency(object):
-    """Information relevant for when a hard dependency, 
+    """Information relevant for when a hard dependency,
        which uses the * operator, is found"""
     def __init__(self, sequenceName, depSet):
         self.sequenceName = sequenceName
@@ -26,7 +26,7 @@ class _Sequenceable(object):
     def __invert__(self):
         return _SequenceNegation(self)
     def _clonesequence(self, lookuptable):
-        try: 
+        try:
             return lookuptable[id(self)]
         except:
             raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
@@ -175,7 +175,7 @@ class _SequenceCollection(_Sequenceable):
     def dumpSequenceConfig(self):
         returnValue = self._collection[0].dumpSequenceConfig()
         for m in self._collection[1:]:
-            returnValue += '&'+m.dumpSequenceConfig()        
+            returnValue += '&'+m.dumpSequenceConfig()
         return returnValue
 
     def directDependencies(self):
@@ -260,7 +260,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         self._seq = None
         if (len(arg) > 1 and not isinstance(arg[1], Task)) or (len(arg) > 0 and not isinstance(arg[0],_Sequenceable) and not isinstance(arg[0],Task)):
             typename = format_typename(self)
-            msg = format_outerframe(2) 
+            msg = format_outerframe(2)
             msg += "The %s constructor takes zero or one sequenceable argument followed by zero or more arguments of type Task. But the following types are given:\n" %typename
             for item,i in zip(arg, range(1,20)):
                 try:
@@ -289,7 +289,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def isFrozen(self):
         return self._isFrozen
     def setIsFrozen(self):
-        self._isFrozen = True 
+        self._isFrozen = True
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
@@ -461,8 +461,8 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if self._seq is not None:
             didReplace |= self._seq._replaceIfHeldDirectly(original,replacement)
         return didReplace
-    
-    
+
+
     def index(self,item):
         """Returns the index at which the item is found or raises an exception"""
         if self._seq is not None:
@@ -713,7 +713,7 @@ class SequencePlaceholder(_Sequenceable):
         if options.isCfg:
            result += 'process.'
         result += +self._name+'\")\n'
-    
+
 
 class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
 
@@ -986,7 +986,7 @@ class ExpandVisitor(object):
             sep = ','
         return returnValue
 
-    
+
 # This visitor is only meant to run on Sequences, Paths, and EndPaths
 # It intentionally ignores nodes on Tasks when it does this.
 class DecoratedNodeNameVisitor(object):
@@ -1131,7 +1131,7 @@ class _CopyAndExcludeSequenceVisitorOld(object):
                if countNulls != 0:
                    #this node must go away
                    if len(nonNulls) == 0:
-                       #all subnodes went away 
+                       #all subnodes went away
                        node = None
                    else:
                        node = nonNulls[0]
@@ -1139,7 +1139,7 @@ class _CopyAndExcludeSequenceVisitorOld(object):
                            node = node+n
                else:
                    #some child was changed so we need to clone
-                   # this node and replace it with one that holds 
+                   # this node and replace it with one that holds
                    # the new child(ren)
                    children = [x[0] for x in l ]
                    if not isinstance(visitee,Sequence):
@@ -1148,7 +1148,7 @@ class _CopyAndExcludeSequenceVisitorOld(object):
                    else:
                        node = nonNulls[0]
        if node != visitee:
-           #we had to replace this node so now we need to 
+           #we had to replace this node so now we need to
            # change parent's stack entry as well
            if len(self.__stack) > 1:
                p = self.__stack[-2]
@@ -1159,7 +1159,7 @@ class _CopyAndExcludeSequenceVisitorOld(object):
                        c[1]=True
                        break
        if not visitee.isLeaf():
-           self.__stack = self.__stack[:-1]        
+           self.__stack = self.__stack[:-1]
    def result(self):
        result = None
        for n in (x[0] for x in self.__stack[0]):
@@ -1634,7 +1634,8 @@ class TaskPlaceholder(object):
         result = 'cms.TaskPlaceholder(\"'
         if options.isCfg:
            result += 'process.'
-        result += +self._name+'\")\n'
+        result += self._name+'\")\n'
+        return result
 
 if __name__=="__main__":
     import unittest
@@ -1837,7 +1838,7 @@ if __name__=="__main__":
             p7 = Path(a+~b)
             self.assertEqual(p7.dumpConfig(None),"{a&!b}\n")
             p8 = Path((a+b)*c)
-            self.assertEqual(p8.dumpConfig(None),"{a&b&c}\n")        
+            self.assertEqual(p8.dumpConfig(None),"{a&b&c}\n")
         def testVisitor(self):
             class TestVisitor(object):
                 def __init__(self, enters, leaves):
@@ -1901,7 +1902,7 @@ if __name__=="__main__":
             t=TestVisitor(enters=[s,a,b,t3,f,g,t2,e,t1,d,t2,e,t1,d,c,t1,d,t2,e,t1,d],
                           leaves=[a,b,f,g,e,d,t1,t2,t3,e,d,t1,t2,s,c,d,t1,e,d,t1,t2])
             p.visit(t)
-            
+
             notA= ~a
             p=Path(notA)
             t=TestVisitor(enters=[notA,a],leaves=[a,notA])
@@ -1942,7 +1943,7 @@ if __name__=="__main__":
             m3 = DummyModule("m3")
             m4 = DummyModule("m4")
             m5 = DummyModule("m5")
- 
+
             s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
             s2 = Sequence(m1*m2)
             l = []
@@ -1988,7 +1989,7 @@ if __name__=="__main__":
             s3.replace(s2,m1)
             s3.visit(namesVisitor)
             self.assertEqual(l,['!m1', 'm1'])
-            
+
             s1 = Sequence(m1+m2)
             s2 = Sequence(m3+m4)
             s3 = Sequence(s1+s2)
@@ -2064,7 +2065,7 @@ if __name__=="__main__":
             m3 = DummyModule("m3")
             m4 = DummyModule("m4")
             m5 = DummyModule("m5")
-            
+
             s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
             s1._replaceIfHeldDirectly(m2,m3)
             self.assertEqual(s1.dumpPython()[:-1],
@@ -2084,7 +2085,7 @@ if __name__=="__main__":
             t6 = Task(m6)
             t7 = Task(m7)
             t89 = Task(m8, m9)
-            
+
             s1 = Sequence(m1+m2, t6)
             s2 = Sequence(m3+m4, t7)
             s3 = Sequence(s1+s2, t89)
@@ -2093,7 +2094,7 @@ if __name__=="__main__":
             s2._replaceIfHeldDirectly(m3,m5)
             self.assertEqual(s2.dumpPython()[:-1],"cms.Sequence(process.m5+process.m4, cms.Task(process.m7))")
             self.assertEqual(s3.dumpPython()[:-1], "cms.Sequence(cms.Sequence(process.m1+process.m2, cms.Task(process.m6))+cms.Sequence(process.m5+process.m4, cms.Task(process.m7)), cms.Task(process.m8, process.m9))")
-        
+
             s1 = Sequence(t6)
             s1._replaceIfHeldDirectly(t6,t7)
             self.assertEqual(s1.dumpPython()[:-1],"cms.Sequence(cms.Task(process.m7))")
@@ -2102,10 +2103,10 @@ if __name__=="__main__":
             m1 = DummyModule("a")
             m2 = DummyModule("b")
             m3 = DummyModule("c")
-        
+
             s = Sequence(m1+m2+m3)
             self.assertEqual(s.index(m1),0)
-            self.assertEqual(s.index(m2),1)        
+            self.assertEqual(s.index(m2),1)
             self.assertEqual(s.index(m3),2)
 
         def testInsert(self):
@@ -2115,7 +2116,7 @@ if __name__=="__main__":
             s = Sequence(m1+m3)
             s.insert(1,m2)
             self.assertEqual(s.index(m1),0)
-            self.assertEqual(s.index(m2),1)        
+            self.assertEqual(s.index(m2),1)
             self.assertEqual(s.index(m3),2)
 
             s = Sequence()
@@ -2125,7 +2126,7 @@ if __name__=="__main__":
             p = Path()
             p.insert(0, m1)
             self.assertEqual(s.index(m1),0)
-        
+
         def testExpandAndClone(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
@@ -2196,7 +2197,7 @@ if __name__=="__main__":
             namesVisitor = DecoratedNodeNameVisitor(l)
             p.visit(namesVisitor)
             self.assertEqual(l, ['m1', '!m2', 'm3', '-m4'])
-            
+
             s4 = Sequence()
             s4 +=m1
             l[:]=[]; s1.visit(namesVisitor); self.assertEqual(l,['m1'])
@@ -2216,7 +2217,7 @@ if __name__=="__main__":
             s2 = Sequence(m1*s1)
             l = []
             namesVisitor = DecoratedNodeNameVisitor(l)
-            d = {'m1':m1 ,'m2':m2, 'm3':m3,'s1':s1, 's2':s2}  
+            d = {'m1':m1 ,'m2':m2, 'm3':m3,'s1':s1, 's2':s2}
             l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', 'm2', '!m3'])
             l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m1', 'm1', 'm2', '!m3'])
             s1.remove(m2)
@@ -2227,7 +2228,7 @@ if __name__=="__main__":
             l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m1', 'm1'])
             s1 = Sequence( m1 + m2 + m1 + m2 )
             l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', 'm2', 'm1', 'm2'])
-            s1.remove(m2) 
+            s1.remove(m2)
             l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', 'm1', 'm2'])
             s1 = Sequence( m1 + m3 )
             s2 = Sequence( m2 + ignore(m3) + s1 + m3 )
@@ -2478,5 +2479,5 @@ if __name__=="__main__":
             ps = TestPSet()
             p.insertInto(ps,"p",decoratedList)
             self.assertEqual(ps._dict, {"p":vstring("a","b","c","d")})
-                        
+
     unittest.main()
