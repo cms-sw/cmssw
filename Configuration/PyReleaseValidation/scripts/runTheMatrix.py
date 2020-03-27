@@ -127,6 +127,11 @@ if __name__ == '__main__':
                       dest='nThreads',
                       default=1
                      )
+    parser.add_option('--numberEventsInLuminosityBlock',
+                      help='number of events in a luminosity block',
+                      dest='numberEventsInLuminosityBlock',
+                      default=-1
+                     )
 
     parser.add_option('-n','--showMatrix',
                       help='Only show the worflows. Use --ext to show more',
@@ -335,6 +340,7 @@ if __name__ == '__main__':
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
     if opt.nProcs: opt.nProcs=int(opt.nProcs)
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
+    if (opt.numberEventsInLuminosityBlock): opt.numberEventsInLuminosityBlock=int(opt.numberEventsInLuminosityBlock)
     if (opt.memoryOffset): opt.memoryOffset=int(opt.memoryOffset)
     if (opt.memPerCore): opt.memPerCore=int(opt.memPerCore)
 
