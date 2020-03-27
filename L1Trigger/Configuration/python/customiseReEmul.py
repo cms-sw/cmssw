@@ -3,6 +3,7 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 def L1TCaloStage2ParamsForHW(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_HWConfig_cfi")
@@ -190,6 +191,16 @@ def L1TReEmulFromRAW(process):
         srcCSC   = 'omtfStage2Digis',
         srcDTPh  = 'omtfStage2Digis',
         srcDTTh  = 'omtfStage2Digis'
+    )
+
+    run3_GEM.toModify(process.simMuonGEMPadDigis,
+        InputCollection         = 'muonGEMDigis',
+    )
+
+    run3_GEM.toModify(process.simTwinMuxDigis,
+        RPC_Source         = 'rpcTwinMuxRawToDigi',
+        DTDigi_Source      = 'simDtTriggerPrimitiveDigis',
+        DTThetaDigi_Source = 'simDtTriggerPrimitiveDigis'
     )
 
     print("# L1TReEmul sequence:  ")
