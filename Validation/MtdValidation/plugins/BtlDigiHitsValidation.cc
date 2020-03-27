@@ -33,6 +33,8 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
+
 class BtlDigiHitsValidation : public DQMEDAnalyzer {
 public:
   explicit BtlDigiHitsValidation(const edm::ParameterSet&);
@@ -103,7 +105,7 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
   for (const auto& dataFrame : *btlDigiHitsHandle) {
     BTLDetId detId = dataFrame.id();
-    DetId geoId = detId.geographicalId(static_cast<BTLDetId::CrysLayout>(topology->getMTDTopologyMode()));
+    DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
       throw cms::Exception("BtlDigiHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
