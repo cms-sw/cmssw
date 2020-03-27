@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<SpecParSection label="mtdStructureTopology.xml">
+
+<SpecPar name="mtdNumbering">
+  <PartSelector path="//etl:EndcapTimingLayer"/>
+  <PartSelector path="//btl:BarrelTimingLayer"/>
+  <Parameter name="OnlyForMTDRecNumbering" value="MTD" eval="false"/>
+  <Parameter name="TopologyMode" value="MTDTopologyMode::btlv1etlv4" eval="false"/>
+</SpecPar>
+
+
+</SpecParSection>
+</DDDefinition>
+
