@@ -1,6 +1,6 @@
 # Copied from https://github.com/cms-sw/genproductions for RelVal June 5, 2014
 import FWCore.ParameterSet.Config as cms
-generator = cms.EDFilter("Pythia8HadronizerFilter",
+generator = cms.EDFilter("Pythia8ConcurrentHadronizerFilter",
                          maxEventsToPrint = cms.untracked.int32(1),
                          pythiaPylistVerbosity = cms.untracked.int32(1),
                          filterEfficiency = cms.untracked.double(1.0),
