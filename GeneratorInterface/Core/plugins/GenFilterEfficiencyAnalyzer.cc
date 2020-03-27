@@ -11,7 +11,7 @@
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
@@ -26,18 +27,25 @@
 // class declaration
 //
 
-class GenFilterEfficiencyAnalyzer : public edm::EDAnalyzer {
+namespace gfea {
+  struct Empty {};
+};  // namespace gfea
+
+class GenFilterEfficiencyAnalyzer : public edm::global::EDAnalyzer<edm::LuminosityBlockCache<gfea::Empty>> {
 public:
   explicit GenFilterEfficiencyAnalyzer(const edm::ParameterSet&);
-  ~GenFilterEfficiencyAnalyzer() override;
+  ~GenFilterEfficiencyAnalyzer() final;
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void endJob() override;
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const final;
+  std::shared_ptr<gfea::Empty> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
+                                                          edm::EventSetup const&) const final;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const final;
+  void endJob() final;
 
   edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
-  GenFilterInfo totalGenFilterInfo_;
+  mutable std::mutex mutex_;
+  CMS_THREAD_GUARD(mutex_) mutable GenFilterInfo totalGenFilterInfo_;
 
   // ----------member data ---------------------------
 };
@@ -48,11 +56,17 @@ GenFilterEfficiencyAnalyzer::GenFilterEfficiencyAnalyzer(const edm::ParameterSet
 
 GenFilterEfficiencyAnalyzer::~GenFilterEfficiencyAnalyzer() {}
 
-void GenFilterEfficiencyAnalyzer::analyze(const edm::Event&, const edm::EventSetup&) {}
+void GenFilterEfficiencyAnalyzer::analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const {}
+
+std::shared_ptr<gfea::Empty> GenFilterEfficiencyAnalyzer::globalBeginLuminosityBlock(edm::LuminosityBlock const& iLumi,
+                                                                                     edm::EventSetup const&) const {
+  return std::shared_ptr<gfea::Empty>();
+}
 
 // ------------ method called once each job just after ending the event loop  ------------
 
-void GenFilterEfficiencyAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
+void GenFilterEfficiencyAnalyzer::globalEndLuminosityBlock(edm::LuminosityBlock const& iLumi,
+                                                           edm::EventSetup const&) const {
   edm::Handle<GenFilterInfo> genFilter;
   iLumi.getByToken(genFilterInfoToken_, genFilter);
 
@@ -62,7 +76,10 @@ void GenFilterEfficiencyAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&
             << " N failed = " << genFilter->sumFailWeights() << std::endl;
   std::cout << "Generator filter efficiency = " << genFilter->filterEfficiency(-1) << " +- "
             << genFilter->filterEfficiencyError(-1) << std::endl;
-  totalGenFilterInfo_.mergeProduct(*genFilter);
+  {
+    std::lock_guard<std::mutex> guard(mutex_);
+    totalGenFilterInfo_.mergeProduct(*genFilter);
+  }
 }
 
 void GenFilterEfficiencyAnalyzer::endJob() {
