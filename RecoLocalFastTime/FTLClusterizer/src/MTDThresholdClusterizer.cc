@@ -7,6 +7,7 @@
 
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
 // STL
 #include <stack>
@@ -119,8 +120,8 @@ void MTDThresholdClusterizer::clusterize(const FTLRecHitCollection& input,
 
     if (mtdId.mtdSubDetector() == MTDDetId::BTL) {
       BTLDetId hitId(hit.detid());
-      DetId geoId = hitId.geographicalId(
-          (BTLDetId::CrysLayout)topo->getMTDTopologyMode());  //for BTL topology gives different layout id
+      //for BTL topology gives different layout id
+      DetId geoId = hitId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topo->getMTDTopologyMode()));
       geoIdToIdx.emplace(geoId, index);
       geoIds.emplace(geoId);
       ++index;
