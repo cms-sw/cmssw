@@ -7,7 +7,8 @@ from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM
 from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetDQMPostProcessor
 from Validation.RecoParticleFlow.particleFlowDQM_cff import pfMetAnalyzerDQM
 from Validation.RecoParticleFlow.particleFlowDQM_cff import pfPuppiMetAnalyzerDQM
-#from Validation.RecoParticleFlow.particleFlowDQM_cff import pfCandAnalyzerDQM
+from Validation.RecoTau.RecoTauValidation_cff import *
+
 
 DQMOfflinePF = cms.Sequence(
   pfJetAnalyzerDQM +
@@ -16,10 +17,10 @@ DQMOfflinePF = cms.Sequence(
 )
 
 # MET, Tau, PFCand sequence
-#miniAODDQM = cms.Sequence(
 DQMOfflinePFExtended = cms.Sequence( 
     pfMetAnalyzerDQM +
-    pfPuppiMetAnalyzerDQM 
+    pfPuppiMetAnalyzerDQM +
+    tauValidationMiniAODZTT
 #    pfCandAnalyzerDQM
 )
 

@@ -110,6 +110,9 @@ pfPuppiMetAnalyzerDQM = pfMetAnalyzerDQM.clone()
 pfPuppiMetAnalyzerDQM.InputMETLabel = cms.InputTag("slimmedMETsPuppi")
 
 
+#Tau Config
+from Validation.RecoTau.RecoTauValidation_cff import *
+
 # PFCand Config 
 
 #pfCandAnalyzerDQM = cms.EDAnalyzer (
@@ -132,6 +135,7 @@ pfDQM = cms.Sequence(
 #miniAODDQM = cms.Sequence(
 pfDQMExtended = cms.Sequence ( 
     pfMetAnalyzerDQM + 
-    pfPuppiMetAnalyzerDQM 
+    pfPuppiMetAnalyzerDQM +
+    tauValidationMiniAODZTT
 #    pfCandAnalyzerDQM
 )
