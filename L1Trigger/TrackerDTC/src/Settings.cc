@@ -1,5 +1,6 @@
 #include "L1Trigger/TrackerDTC/interface/Settings.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -35,12 +36,20 @@ namespace trackerDTC {
         inputTagTrackerTopology_(paramsED_.getParameter<ESInputTag>("InputTagTrackerTopology")),
         inputTagCablingMap_(paramsED_.getParameter<ESInputTag>("InputTagCablingMap")),
         inputTagTTStubAlgorithm_(paramsED_.getParameter<ESInputTag>("InputTagTTStubAlgorithm")),
+        inputTagGeometryConfiguration_(paramsED_.getParameter<ESInputTag>("InputTagGeometryConfiguration")),
+        supportedTrackerXMLPSet_(paramsED_.getParameter<string>("SupportedTrackerXMLPSet")),
+        supportedTrackerXMLPath_(paramsED_.getParameter<string>("SupportedTrackerXMLPath")),
+        supportedTrackerXMLFile_(paramsED_.getParameter<string>("SupportedTrackerXMLFile")),
+        supportedTrackerXMLVersions_(paramsED_.getParameter<vector<string>>("SupportedTrackerXMLVersions")),
         productBranch_(paramsED_.getParameter<string>("ProductBranch")),
         dataFormat_(paramsED_.getParameter<string>("DataFormat")),
         offsetDetIdDSV_(paramsED_.getParameter<int>("OffsetDetIdDSV")),
         offsetDetIdTP_(paramsED_.getParameter<int>("OffsetDetIdTP")),
         offsetLayerDisks_(paramsED_.getParameter<int>("OffsetLayerDisks")),
         offsetLayerId_(paramsED_.getParameter<int>("OffsetLayerId")),
+        checkHistory_(paramsED_.getParameter<bool>("CheckHistory")),
+        processName_(paramsED_.getParameter<string>("ProcessName")),
+        productLabel_(paramsED_.getParameter<string>("ProductLabel") + "@"),
         // Router parameter
         enableTruncation_(paramsRouter_.getParameter<bool>("EnableTruncation")),
         freqDTC_(paramsRouter_.getParameter<double>("FreqDTC")),
@@ -128,6 +137,7 @@ namespace trackerDTC {
     // derived event setup
     cablingMap_ = vector<DetId>(numModules_);
     dtcModules_ = vector<vector<Module*>>(numDTCs_, vector<Module*>(numModulesPerDTC_, nullptr));
+    configurationSupported_ = true;
   }
 
   // store TrackerGeometry
@@ -143,19 +153,77 @@ namespace trackerDTC {
       const edm::ESHandle<TTStubAlgorithm<Ref_Phase2TrackerDigi_>>& handleTTStubAlgorithm) {
     handleTTStubAlgorithm_ = handleTTStubAlgorithm;
   }
+  // store GeometryConfiguration
+  void Settings::setGeometryConfiguration(const ESHandle<DDCompactView>& handleGeometryConfiguration) {
+    handleGeometryConfiguration_ = handleGeometryConfiguration;
+  }
   // store ProcessHistory
   void Settings::setProcessHistory(const ProcessHistory& processHistory) { processHistory_ = processHistory; }
 
   // check current coniguration consistency with input configuration
   void Settings::checkConfiguration() {
+    // check if bField is supported
     const double bField = magneticField_->inTesla(GlobalPoint(0., 0., 0.)).z();
     if (abs(bField - bField_) > bFieldError_) {
+      configurationSupported_ = false;
+      LogWarning("ConfigurationNotSupported") << "Magnetic Field from EventSetup (" << bField << ") differs more then "
+                                              << bFieldError_ << " from supported value (" << bField_ << "). ";
+    }
+    // check if geometry is supported
+    const ParameterSet& pSetGeometryConfiguration = getParameterSet(handleGeometryConfiguration_.description()->pid_);
+    const vector<string>& geomXMLFiles =
+        pSetGeometryConfiguration.getParameter<vector<string>>(supportedTrackerXMLPSet_);
+    string trackerXMLVersion;
+    for (const string& geomXMLFile : geomXMLFiles) {
+      const auto begin = geomXMLFile.find(supportedTrackerXMLPath_) + supportedTrackerXMLPath_.size();
+      const auto end = geomXMLFile.find(supportedTrackerXMLFile_);
+      if (begin != string::npos && end != string::npos)
+        trackerXMLVersion = geomXMLFile.substr(begin, end - begin - 1);
+    }
+    if (trackerXMLVersion.empty()) {
       cms::Exception exception("LogicError");
-      exception << "Magnetic Field from EventSetup (" << bField << ") differs more then " << bFieldError_
-                << " from configured value (" << bField_ << ").";
+      exception << "No " << supportedTrackerXMLPath_ << "*/" << supportedTrackerXMLFile_
+                << " found in GeometryConfiguration";
       exception.addContext("trackerDTC::Settings::checkConfiguration");
       throw exception;
     }
+    if (find(supportedTrackerXMLVersions_.begin(), supportedTrackerXMLVersions_.end(), trackerXMLVersion) ==
+        supportedTrackerXMLVersions_.end()) {
+      configurationSupported_ = false;
+      LogWarning("ConfigurationNotSupported")
+          << "Geometry Configuration " << supportedTrackerXMLPath_ << trackerXMLVersion << "/"
+          << supportedTrackerXMLFile_ << " is not supported. ";
+    }
+    if (!configurationSupported_)
+      return;
+    // check history
+    if (!checkHistory_)
+      return;
+    // get iConfig of used GeometryConfiguration in input producer
+    const ParameterSet* historyGeometryConfigurationPSet = nullptr;
+    const pset::Registry* psetRegistry = pset::Registry::instance();
+    for (const ProcessConfiguration& pc : processHistory_) {
+      if (processName_ != pc.processName())
+        continue;
+      const ParameterSet* processPset = psetRegistry->getMapped(pc.parameterSetID());
+      if (processPset && processPset->exists(productLabel_))
+        historyGeometryConfigurationPSet = &processPset->getParameterSet(productLabel_);
+    }
+    if (!historyGeometryConfigurationPSet) {
+      cms::Exception exception("Configuration");
+      exception << "GeometryConfiguration not found in process history.";
+      exception << "Searched for process " << processName_ << " and label " << productLabel_ << ".";
+      exception.addContext("trackerDTC::Settings::checkConfiguration");
+      throw exception;
+    }
+    if (handleGeometryConfiguration_.description()->pid_ != historyGeometryConfigurationPSet->id()) {
+      cms::Exception exception("Configuration");
+      exception
+          << "Configured GeometryConfiguration inconsistent with used GeometryConfiguration during stub production.";
+      exception.addContext("trackerDTC::Settings::checkConfiguration");
+      throw exception;
+    }
+    // check data format specific history
     if (dataFormat_ == "Hybrid")
       hybrid_->checkConfiguration(this);
   }

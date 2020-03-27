@@ -11,6 +11,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm.h"
 #include "L1Trigger/TrackerDTC/interface/SettingsHybrid.h"
 #include "L1Trigger/TrackerDTC/interface/SettingsTMTT.h"
@@ -40,11 +41,13 @@ namespace trackerDTC {
     void setTrackerTopology(const TrackerTopology* trackerTopology);
     // store MagneticField
     void setMagneticField(const MagneticField* magneticField);
-    // store TTStubAlgorithm handle
-    void setCablingMap(const TrackerDetToDTCELinkCablingMap* cablingMap);
-    // store ProcessHistory
-    void setTTStubAlgorithm(const edm::ESHandle<TTStubAlgorithm<Ref_Phase2TrackerDigi_>>& handleTTStubAlgorithm);
     // store TrackerDetToDTCELinkCablingMap
+    void setCablingMap(const TrackerDetToDTCELinkCablingMap* cablingMap);
+    // store TTStubAlgorithm handle
+    void setTTStubAlgorithm(const edm::ESHandle<TTStubAlgorithm<Ref_Phase2TrackerDigi_>>& handleTTStubAlgorithm);
+    // store GeometryConfiguration handle
+    void setGeometryConfiguration(const edm::ESHandle<DDCompactView>& handleGeometryConfiguration);
+    // store ProcessHistory
     void setProcessHistory(const edm::ProcessHistory& processHistory);
     // check current coniguration consistency with input configuration
     void checkConfiguration();
@@ -67,6 +70,7 @@ namespace trackerDTC {
     edm::ESInputTag inputTagTrackerTopology() const { return inputTagTrackerTopology_; }
     edm::ESInputTag inputTagCablingMap() const { return inputTagCablingMap_; }
     edm::ESInputTag inputTagTTStubAlgorithm() const { return inputTagTTStubAlgorithm_; }
+    edm::ESInputTag inputTagGeometryConfiguration() const { return inputTagGeometryConfiguration_; }
     std::string productBranch() const { return productBranch_; }
     std::string dataFormat() const { return dataFormat_; }
     int offsetDetIdDSV() const { return offsetDetIdDSV_; }
@@ -152,6 +156,7 @@ namespace trackerDTC {
     // derived event setup
 
     const std::vector<::DetId>& cablingMap() const { return cablingMap_; }
+    bool configurationSupported() const { return configurationSupported_; }
 
   private:
     // DataFormats
@@ -176,6 +181,11 @@ namespace trackerDTC {
     const edm::ESInputTag inputTagTrackerTopology_;
     const edm::ESInputTag inputTagCablingMap_;
     const edm::ESInputTag inputTagTTStubAlgorithm_;
+    const edm::ESInputTag inputTagGeometryConfiguration_;
+    const std::string supportedTrackerXMLPSet_;
+    const std::string supportedTrackerXMLPath_;
+    const std::string supportedTrackerXMLFile_;
+    const std::vector<std::string> supportedTrackerXMLVersions_;
     const std::string productBranch_;
     // "Hybrid" and "TMTT" format supported
     const std::string dataFormat_;
@@ -187,6 +197,9 @@ namespace trackerDTC {
     const int offsetLayerDisks_;
     // offset between 0 and smallest layer id (barrel layer 1)
     const int offsetLayerId_;
+    const bool checkHistory_;
+    const std::string processName_;
+    const std::string productLabel_;
 
     // router parameter
 
@@ -324,6 +337,7 @@ namespace trackerDTC {
     const ::MagneticField* magneticField_;
     const ::TrackerDetToDTCELinkCablingMap* ttCablingMap_;
     edm::ESHandle<TTStubAlgorithm<Ref_Phase2TrackerDigi_>> handleTTStubAlgorithm_;
+    edm::ESHandle<DDCompactView> handleGeometryConfiguration_;
     edm::ProcessHistory processHistory_;
 
     // derived event setup
@@ -332,6 +346,8 @@ namespace trackerDTC {
     std::vector<::DetId> cablingMap_;
     // collection of outer tracker sensor modules organised in DTCS [0-215][0-71]
     std::vector<std::vector<Module*>> dtcModules_;
+    // true if tracker geometry and bfield is supported
+    bool configurationSupported_;
   };
 
 }  // namespace trackerDTC
