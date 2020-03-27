@@ -1,0 +1,222 @@
+#include "L1Trigger/TrackFindingTMTT/interface/KF4ParamsCombV2.h"
+#include "L1Trigger/TrackFindingTMTT/interface/KalmanState.h"
+#include "L1Trigger/TrackFindingTMTT/interface/StubCluster.h"
+//#include "L1Trigger/TrackFindingTMTT/interface/Matrix.h"
+#include <TMatrixD.h>
+#define CKF_DEBUG
+
+static unsigned nlayer_eta[25] = 
+{ 6, 6, 6, 6,
+  6, 6, 6, 6, 6, 6, 6, 7, 7, 7,
+  7, 7, 7, 7, 6, 6, 6, 6, 6, 6};
+
+static double matx_outer[25] = {
+0.16, 0.17, 0.18, 0.19, 0.20, 
+0.21, 0.26, 0.22, 0.26, 0.38,
+0.41, 0.40, 0.44, 0.50, 0.54,
+0.60, 0.44, 0.48, 0.60, 0.68,
+0.50, 0.48, 0.64, 0.39, 0.20
+};
+
+static double matx_inner[25] = {
+0.14, 0.1, 0.1, 0.1, 0.1, 
+0.1, 0.1, 0.1, 0.1, 0.1, 
+0.12, 0.1, 0.1, 0.1, 0.15,
+0.20, 0.25, 0.25, 0.3, 0.3,
+0.35, 0.40, 0.40, 0.6, 0.6
+};
+static double wrapRadian( double t ){
+
+    if( t > 0 ){
+	while( t > M_PI ) t-= 2*M_PI; 
+    }
+    else{
+	while( t < - M_PI ) t+= 2*M_PI; 
+    }
+    return t;
+}
+KF4ParamsCombV2::KF4ParamsCombV2(const Settings* settings, const string &fitterName ) : 
+    KF4ParamsComb(settings, 4, fitterName ){
+
+
+    hdxmin[0] = -4.e-2;
+    hdxmax[0] = +4.e-2;
+    hdxmin[1] = -1.001e-1;
+    hdxmax[1] = +1.001e-1;
+    hdxmin[2] = -5.;
+    hdxmax[2] = +5.;
+    hdxmin[3] = -4.e-1;
+    hdxmax[3] = +4.e-1;
+
+    hddMeasmin[1] = -1.e-1;
+    hddMeasmax[1] = +1.e-1;
+
+    hresmin[0] = -100.;
+    hresmax[0] = +100.;
+    hresmin[1] = -100.;
+    hresmax[1] = +100.;
+
+    hxaxtmin[0] = -1000;
+    hxaxtmax[0] = +1000;
+    hxaxtmin[1] = -1000;
+    hxaxtmax[1] = +1000;
+    hxaxtmin[2] = -1000;
+    hxaxtmax[2] = +1000;
+    hxaxtmin[3] = -1000;
+    hxaxtmax[3] = +1000;
+}
+
+std::string KF4ParamsCombV2::getParams(){
+    return "KF4ParamsCombV2";
+}
+
+std::map<std::string, double> KF4ParamsCombV2::getTrackParams( const KalmanState *state )const{
+
+    std::vector<double> x = state->xa();
+
+    std::map<std::string, double> z;
+    double beta = x.at(V2_BETA);
+    double z0p  = x.at(V2_Z0P);
+    double R0p  = x.at(V2_R0P);
+    double rho0 = x.at(V2_RHO0);
+
+    z["qOverPt"] =  1./( getSettings()->invPtToInvR()  * 0.5 * R0p ); 
+    z["phi0"] = wrapRadian( rho0 / R0p + sectorPhi() ); 
+    z["z0"] = z0p - beta * wrapRadian( z["phi0"] - sectorPhi() ); 
+    z["t"] = beta / R0p;
+    return z;
+}
+ 
+std::vector<double> KF4ParamsCombV2::residual(const StubCluster* stubCluster, std::vector<double> &x )const
+{
+    std::vector<double> hx = Hx( H(stubCluster), x ); 
+    std::vector<double> vd  = d(stubCluster); 
+
+    std::vector<double> delta(2); 
+    for( unsigned i=0; i<2; i++ ){
+	delta.at(i) = vd.at(i) - hx.at(i);
+    }
+
+    return delta;
+}
+
+/* Seed the state vector */
+std::vector<double> KF4ParamsCombV2::seedx(const L1track3D& l1track3D)const{
+    std::vector<double> x;
+    x.resize(4);
+    double InvR0 = getSettings()->invPtToInvR() * l1track3D.qOverPt();
+    double R0 = 1./InvR0;
+    double beta = 2 * R0 * l1track3D.tanLambda();
+
+    x[V2_BETA] = beta; 
+    x[V2_Z0P] = l1track3D.z0() + beta * wrapRadian( l1track3D.phi0() - sectorPhi() );
+    x[V2_R0P] = 2. * R0; 
+    x[V2_RHO0] = 2. * R0 * wrapRadian( l1track3D.phi0() - sectorPhi() );
+    return x;
+}
+
+TMatrixD KF4ParamsCombV2::seedP(const L1track3D& l1track3D)const{
+    TMatrixD p(4,4);
+
+    p(V2_BETA,V2_BETA) = 1.e+10; 
+    p(V2_Z0P,V2_Z0P)   = 1.e+4;
+    p(V2_R0P,V2_R0P)   = 1.e+10;
+    p(V2_RHO0,V2_RHO0) = 1.e+4;
+
+    return p;
+}
+
+/* the vector of measurements */
+std::vector<double> KF4ParamsCombV2::d(const StubCluster* stubCluster )const{
+
+    std::vector<double> meas;
+    meas.resize(2);
+    meas[0] = stubCluster->z();
+    meas[1] = stubCluster->r();
+    return meas;
+}
+
+/* The Kalman measurement matrix
+ * Here I always measure phi(r), and z(r) */
+TMatrixD KF4ParamsCombV2::H(const StubCluster* stubCluster)const{
+    TMatrixD h(2, 4);
+    h(0,0) = -( stubCluster->phi() - sectorPhi() );
+    h(0,1) = 1;
+    h(1,2) = -( stubCluster->phi() - sectorPhi() );
+    h(1,3) = 1;
+    return h;
+}
+TMatrixD KF4ParamsCombV2::PxxModel( const KalmanState *state, const StubCluster *stubCluster, unsigned stub_itr )const{
+    //not easy to implement the multiple scattering.
+    TMatrixD p(4,4);
+
+    if( getSettings()->kalmanMultiScattFactor() ){
+	unsigned i_eta = abs( stubCluster->eta() / 0.1 );
+	if( i_eta > 24 ) i_eta = 24;
+	double dl = matx_outer[i_eta] / nlayer_eta[i_eta];
+
+	const KalmanState * last_update_state = state->last_update_state();
+	unsigned last_itr(1);
+	if( last_update_state ) last_itr = last_update_state->nIterations();
+	dl = ( stub_itr - last_itr ) * dl; 
+
+	if( dl ){
+	    std::map<std::string, double> y = getTrackParams( state );
+	    double dtheta0 = 1./sqrt(3) * 0.0136 * fabs(y["qOverPt"]) * sqrt(dl)*( 1+0.038*log(dl) ); 
+	    dtheta0 *= getSettings()->kalmanMultiScattFactor();
+	    double dbeta = state->xa().at(V2_BETA) * dtheta0;
+	    p(V2_Z0P,V2_Z0P) = dbeta * dbeta; 
+	    double drho0 = state->xa().at(V2_R0P) * dtheta0; 
+	    p(V2_RHO0, V2_RHO0) = drho0 * drho0; 
+	}
+    }
+
+    return p;
+}
+
+TMatrixD KF4ParamsCombV2::PddMeas(const StubCluster* stubCluster, const KalmanState *state )const{
+
+    const std::vector<double> &x = state->xa();
+
+    TMatrixD p(2,2);
+
+    double dztOverdphi = -1. * x.at(V2_BETA);
+    double drtOverdphi = -1. * x.at(V2_R0P);
+
+    double dz(0), dr(0);
+    if(stubCluster->layerId() < 10){
+	dz = stubCluster->sigmaZ();
+    }
+    else{
+	dr = stubCluster->sigmaZ();
+    }
+
+    double dphi = stubCluster->dphi();
+    p(0,0) = dz * dz + dztOverdphi * dztOverdphi * dphi * dphi;
+
+    double dphi_dr = stubCluster->dphi_dr();
+    double dphi_dl = stubCluster->dphi_dl();
+    double drho_dr = dr + drtOverdphi * dphi_dr;
+    double drho_dl = drtOverdphi * dphi_dl;
+    p(1,1) = drho_dr * drho_dr + drho_dl * drho_dl; 
+
+    return p;
+}
+
+
+bool KF4ParamsCombV2::isGoodState( const KalmanState &state )const
+{
+    unsigned nStubLayers = state.nStubLayers();
+    bool goodState( true );
+    /*
+       std::map<string,double> x = getTrackParams( &state );
+       double z0=fabs( x["z0"] ); 
+       if( z0 > 20. ) goodState = false;
+       */
+
+    if( nStubLayers >= 3 && state.reducedChi2() > getSettings()->kalmanStateReducedChi2CutValue() ) goodState=false; 
+
+    return goodState;
+
+}
+

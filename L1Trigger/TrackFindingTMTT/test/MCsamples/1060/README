@@ -1,0 +1,7 @@
+RelVal/ contains CMSSW 10.6.0 RelVal samples.
+
+They use the D41 = T14 geometry.
+
+They are made with the stub window sizes that you can find in L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py .
+
+Typical dataset name /RelVal*/CMSSW_10_6_0*upgrade2023*D41*/GEN-SIM-DIGI-RAW
