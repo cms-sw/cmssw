@@ -599,10 +599,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
 
             if 'pfBoostedDouble' in btagInfo or 'SecondaryVertex' in btagInfo:
               _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
-              if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow':
-                _btagInfo.weights = cms.InputTag("puppi")
-              if 'SlimmedAK8DeepTags' in jetSource.value() and pfCandidates.value() == 'packedPFCandidates':
+              if pfCandidates.value() == 'packedPFCandidates':
                 _btagInfo.weights = cms.InputTag("packedpuppi")
+              else:
+                _btagInfo.weights = cms.InputTag("puppi")
 
             if 'DeepFlavourTagInfos' in btagInfo:
                 svUsed = svSource
