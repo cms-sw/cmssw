@@ -39,6 +39,7 @@ metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
   jetEtas_ = cfgParams.getParameter<std::vector<double> >("jeta");
   jetParams_ = cfgParams.getParameter<std::vector<double> >("jpar");
   pjetParams_ = cfgParams.getParameter<std::vector<double> >("pjpar");
+  useDeltaRforFootprint_ = cfgParams.exists("useDeltaRforFootprint") ? cfgParams.getParameter<bool>("useDeltaRforFootprint") : false;
   
 }
 
@@ -86,8 +87,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
      if(!cleanJet(jet, leptons) ) continue;
      for( unsigned int n=0; n < jet.numberOfSourceCandidatePtrs(); n++){
        if( jet.sourceCandidatePtr(n).isNonnull() and jet.sourceCandidatePtr(n).isAvailable() ){
-
-	 footprint.insert(jet.sourceCandidatePtr(n));
+        footprint.insert(jet.sourceCandidatePtr(n));
        }
      }
 
@@ -103,7 +103,10 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
        //dP4 recovery
        for( const auto& it : footprint) {
-	 if( (it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
+	 // Special treatment for PUPPI with dR, since jet candidates (puppi) and MET candidates (puppiForMet)
+	 // can't be matched through the sourceCandidatePtrs and may have different energy, but same direction.
+	 if( ((!useDeltaRforFootprint_) && ((it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025)) ||
+	     (( useDeltaRforFootprint_) && (reco::deltaR2(it->p4(),(*pfCandidates)[i].p4())<0.00000025)) ){
 	   cleancand = false;
 	   break;
 	 }
@@ -114,7 +117,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
        }
      }
    }
-   
+
    // add jets to metsig covariance matrix and subtract them from sumPt
    for(const auto& jet : jets) {
      

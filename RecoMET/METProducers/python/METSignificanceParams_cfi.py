@@ -39,3 +39,7 @@ METSignificanceParams_Data=cms.PSet(
       jpar = cms.vdouble(1.38,1.28,1.22,1.16,1.10),
       pjpar = cms.vdouble(0.0033,0.5802),
       )
+
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+run2_miniAOD_devel.toModify(METSignificanceParams, useDeltaRforFootprint = cms.bool(True))
+run2_miniAOD_devel.toModify(METSignificanceParams_Data, useDeltaRforFootprint = cms.bool(True))

@@ -791,6 +791,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                            src = pfCandCollection, 
                                            veto = jetCollection
                                            )
+            if self._parameters["Puppi"].value:
+              from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+              run2_miniAOD_devel.toModify(pfCandsNoJets, useDeltaRforFootprint = cms.bool(True))
             addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
 
