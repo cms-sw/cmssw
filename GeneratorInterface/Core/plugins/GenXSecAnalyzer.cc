@@ -1,29 +1,144 @@
-#include "GeneratorInterface/Core/interface/GenXSecAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TMath.h"
 #include <iostream>
 #include <iomanip>
 
-GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig)
+// analyzer of a summary information product on filter efficiency for a user specified path
+// meant for the generator filter efficiency calculation
+
+// system include files
+#include <memory>
+#include <vector>
+#include <map>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+//
+// class declaration
+//
+namespace gxsec {
+  struct LumiCache {};
+  struct RunCache {
+    RunCache()
+        : product_(-9999),
+          filterOnlyEffRun_(0, 0, 0, 0, 0., 0., 0., 0.),
+          hepMCFilterEffRun_(0, 0, 0, 0, 0., 0., 0., 0.) {}
+    // for weight before GenFilter and HepMCFilter and before matching
+    CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable double thisRunWeightPre_ = 0;
+
+    // for weight after GenFilter and HepMCFilter and after matching
+    CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable double thisRunWeight_ = 0;
+
+    // GenLumiInfo before HepMCFilter and GenFilter, this is used
+    // for computation
+    CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable GenLumiInfoProduct product_;
+
+    // statistics from additional generator filter, for computation
+    // reset for each run
+    CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable GenFilterInfo filterOnlyEffRun_;
+
+    // statistics from HepMC filter, for computation
+    CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable GenFilterInfo hepMCFilterEffRun_;
+
+    // the following vectors all have the same size
+    // LHE or Pythia/Herwig cross section of previous luminosity block
+    // vector size = number of processes, used for computation
+    CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable std::map<int, GenLumiInfoProduct::XSec> previousLumiBlockLHEXSec_;
+
+    // LHE or Pythia/Herwig combined cross section of current luminosity block
+    // updated for each luminosity block, initialized in every run
+    // used for computation
+    CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable std::map<int, GenLumiInfoProduct::XSec> currentLumiBlockLHEXSec_;
+  };
+}  // namespace gxsec
+
+class GenXSecAnalyzer
+    : public edm::global::EDAnalyzer<edm::RunCache<gxsec::RunCache>, edm::LuminosityBlockCache<gxsec::LumiCache>> {
+public:
+  explicit GenXSecAnalyzer(const edm::ParameterSet &);
+  ~GenXSecAnalyzer() override;
+
+private:
+  void beginJob() final;
+  std::shared_ptr<gxsec::RunCache> globalBeginRun(edm::Run const &, edm::EventSetup const &) const final;
+  std::shared_ptr<gxsec::LumiCache> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
+                                                               edm::EventSetup const &) const final;
+  void analyze(edm::StreamID, const edm::Event &, const edm::EventSetup &) const final;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) const final;
+  void globalEndRun(edm::Run const &, edm::EventSetup const &) const final;
+  void endJob() final;
+  // computation of cross section after matching and before HepcFilter and GenFilter
+  GenLumiInfoProduct::XSec compute(const GenLumiInfoProduct &) const;
+  // combination of cross section from different MCs after matching (could be either before or after HepcFilter and GenFilter)
+  void combine(GenLumiInfoProduct::XSec &, double &, const GenLumiInfoProduct::XSec &, const double &) const;
+  void combine(double &, double &, double &, const double &, const double &, const double &) const;
+
+  edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
+  edm::EDGetTokenT<GenFilterInfo> hepMCFilterInfoToken_;
+  edm::EDGetTokenT<GenLumiInfoProduct> genLumiInfoToken_;
+  edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken_;
+
+  // ----------member data --------------------------
+
+  mutable std::atomic<int> nMCs_;
+
+  mutable std::atomic<int> hepidwtup_;
+
+  mutable std::mutex mutex_;
+
+  // for weight before GenFilter and HepMCFilter and before matching
+  CMS_THREAD_GUARD(mutex_) mutable double totalWeightPre_;
+
+  // for weight after GenFilter and HepMCFilter and after matching
+  CMS_THREAD_GUARD(mutex_) mutable double totalWeight_;
+
+  // combined cross sections before HepMCFilter and GenFilter
+  CMS_THREAD_GUARD(mutex_) mutable GenLumiInfoProduct::XSec xsecPreFilter_;
+
+  // final combined cross sections
+  CMS_THREAD_GUARD(mutex_) mutable GenLumiInfoProduct::XSec xsec_;
+
+  // statistics from additional generator filter, for print-out only
+  CMS_THREAD_GUARD(mutex_) mutable GenFilterInfo filterOnlyEffStat_;
+
+  // statistics from HepMC filter, for print-out only
+  CMS_THREAD_GUARD(mutex_) mutable GenFilterInfo hepMCFilterEffStat_;
+
+  // the vector/map size is the number of LHE processes + 1
+  // needed only for printouts, not used for computation
+  // only printed out when combining the same physics process
+  // uncertainty-averaged cross sections before matching
+  CMS_THREAD_GUARD(mutex_) mutable std::vector<GenLumiInfoProduct::XSec> xsecBeforeMatching_;
+  // uncertainty-averaged cross sections after matching
+  CMS_THREAD_GUARD(mutex_) mutable std::vector<GenLumiInfoProduct::XSec> xsecAfterMatching_;
+  // statistics from jet matching
+  CMS_THREAD_GUARD(mutex_) mutable std::map<int, GenFilterInfo> jetMatchEffStat_;
+};
+
+GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet &iConfig)
     : nMCs_(0),
       hepidwtup_(-9999),
       totalWeightPre_(0),
-      thisRunWeightPre_(0),
       totalWeight_(0),
-      thisRunWeight_(0),
       xsecPreFilter_(-1, -1),
       xsec_(-1, -1),
-      product_(GenLumiInfoProduct(-9999)),
-      filterOnlyEffRun_(0, 0, 0, 0, 0., 0., 0., 0.),
-      hepMCFilterEffRun_(0, 0, 0, 0, 0., 0., 0., 0.),
       filterOnlyEffStat_(0, 0, 0, 0, 0., 0., 0., 0.),
       hepMCFilterEffStat_(0, 0, 0, 0, 0., 0., 0., 0.) {
-  xsecBeforeMatching_.clear();
-  xsecAfterMatching_.clear();
-  jetMatchEffStat_.clear();
-  previousLumiBlockLHEXSec_.clear();
-  currentLumiBlockLHEXSec_.clear();
-
   genFilterInfoToken_ = consumes<GenFilterInfo, edm::InLumi>(edm::InputTag("genFilterEfficiencyProducer", ""));
   hepMCFilterInfoToken_ = consumes<GenFilterInfo, edm::InLumi>(edm::InputTag("generator", ""));
   genLumiInfoToken_ = consumes<GenLumiInfoProduct, edm::InLumi>(edm::InputTag("generator", ""));
@@ -32,48 +147,37 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig)
 
 GenXSecAnalyzer::~GenXSecAnalyzer() {}
 
-void GenXSecAnalyzer::beginJob() {
-  xsecBeforeMatching_.clear();
-  xsecAfterMatching_.clear();
-  jetMatchEffStat_.clear();
-  previousLumiBlockLHEXSec_.clear();
-  currentLumiBlockLHEXSec_.clear();
-}
+void GenXSecAnalyzer::beginJob() {}
 
-void GenXSecAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&) {
+std::shared_ptr<gxsec::RunCache> GenXSecAnalyzer::globalBeginRun(edm::Run const &iRun, edm::EventSetup const &) const {
   // initialization for every different physics MC
 
   nMCs_++;
 
-  thisRunWeightPre_ = 0;
-  thisRunWeight_ = 0;
-
-  product_ = GenLumiInfoProduct(-9999);
-
-  filterOnlyEffRun_ = GenFilterInfo(0, 0, 0, 0, 0., 0., 0., 0.);
-  hepMCFilterEffRun_ = GenFilterInfo(0, 0, 0, 0, 0., 0., 0., 0.);
-
-  xsecBeforeMatching_.clear();
-  xsecAfterMatching_.clear();
-  jetMatchEffStat_.clear();
-  previousLumiBlockLHEXSec_.clear();
-  currentLumiBlockLHEXSec_.clear();
-
-  return;
+  {
+    std::lock_guard l{mutex_};
+    xsecBeforeMatching_.clear();
+    xsecAfterMatching_.clear();
+    jetMatchEffStat_.clear();
+  }
+  return std::make_shared<gxsec::RunCache>();
 }
 
-void GenXSecAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {}
+std::shared_ptr<gxsec::LumiCache> GenXSecAnalyzer::globalBeginLuminosityBlock(edm::LuminosityBlock const &iLumi,
+                                                                              edm::EventSetup const &) const {
+  return std::shared_ptr<gxsec::LumiCache>();
+}
 
-void GenXSecAnalyzer::analyze(const edm::Event&, const edm::EventSetup&) {}
+void GenXSecAnalyzer::analyze(edm::StreamID, const edm::Event &, const edm::EventSetup &) const {}
 
-void GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
+void GenXSecAnalyzer::globalEndLuminosityBlock(edm::LuminosityBlock const &iLumi, edm::EventSetup const &) const {
   edm::Handle<GenLumiInfoProduct> genLumiInfo;
   iLumi.getByToken(genLumiInfoToken_, genLumiInfo);
   if (!genLumiInfo.isValid())
     return;
   hepidwtup_ = genLumiInfo->getHEPIDWTUP();
 
-  std::vector<GenLumiInfoProduct::ProcessInfo> theProcesses = genLumiInfo->getProcessInfos();
+  std::vector<GenLumiInfoProduct::ProcessInfo> const &theProcesses = genLumiInfo->getProcessInfos();
 
   unsigned int theProcesses_size = theProcesses.size();
 
@@ -94,30 +198,37 @@ void GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm:
     }
   }
 
-  product_.mergeProduct(*genLumiInfo);
-
+  auto runC = runCache(iLumi.getRun().index());
+  {
+    std::lock_guard g{mutex_};
+    runC->product_.mergeProduct(*genLumiInfo);
+  }
   edm::Handle<GenFilterInfo> genFilter;
   iLumi.getByToken(genFilterInfoToken_, genFilter);
+
   if (genFilter.isValid()) {
+    std::lock_guard g{mutex_};
     filterOnlyEffStat_.mergeProduct(*genFilter);
-    filterOnlyEffRun_.mergeProduct(*genFilter);
-    thisRunWeight_ += genFilter->sumPassWeights();
+    runC->filterOnlyEffRun_.mergeProduct(*genFilter);
+    runC->thisRunWeight_ += genFilter->sumPassWeights();
   }
 
   edm::Handle<GenFilterInfo> hepMCFilter;
   iLumi.getByToken(hepMCFilterInfoToken_, hepMCFilter);
 
   if (hepMCFilter.isValid()) {
+    std::lock_guard g{mutex_};
     hepMCFilterEffStat_.mergeProduct(*hepMCFilter);
-    hepMCFilterEffRun_.mergeProduct(*hepMCFilter);
+    runC->hepMCFilterEffRun_.mergeProduct(*hepMCFilter);
   }
 
+  std::lock_guard g{mutex_};
   // doing generic summing for jet matching statistics
   // and computation of combined LHE information
   for (unsigned int ip = 0; ip < theProcesses_size; ip++) {
     int id = theProcesses[ip].process();
-    GenFilterInfo& x = jetMatchEffStat_[id];
-    GenLumiInfoProduct::XSec& y = currentLumiBlockLHEXSec_[id];
+    GenFilterInfo &x = jetMatchEffStat_[id];
+    GenLumiInfoProduct::XSec &y = runC->currentLumiBlockLHEXSec_[id];
     GenLumiInfoProduct::FinalStat temp_killed = theProcesses[ip].killed();
     GenLumiInfoProduct::FinalStat temp_selected = theProcesses[ip].selected();
     double passw = temp_killed.sum();
@@ -139,71 +250,75 @@ void GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm:
     double currentError = theProcesses[ip].lheXSec().error();
 
     // this process ID has occurred before
+    auto &thisRunWeightPre = runC->thisRunWeightPre_;
     if (y.value() > 0) {
       x.mergeProduct(tempInfo);
-      double previousValue = previousLumiBlockLHEXSec_[id].value();
+      double previousValue = runC->previousLumiBlockLHEXSec_[id].value();
 
       if (currentValue != previousValue)  // transition of cross section
       {
         double xsec = y.value();
         double err = y.error();
-        combine(xsec, err, thisRunWeightPre_, currentValue, currentError, totalw);
+        combine(xsec, err, thisRunWeightPre, currentValue, currentError, totalw);
         y = GenLumiInfoProduct::XSec(xsec, err);
       } else  // LHE cross section is the same as previous lumiblock
-        thisRunWeightPre_ += totalw;
+        thisRunWeightPre += totalw;
 
     }
     // this process ID has never occurred before
     else {
       x = tempInfo;
       y = theProcesses[ip].lheXSec();
-      thisRunWeightPre_ += totalw;
+      thisRunWeightPre += totalw;
     }
 
-    previousLumiBlockLHEXSec_[id] = theProcesses[ip].lheXSec();
+    runC->previousLumiBlockLHEXSec_[id] = theProcesses[ip].lheXSec();
   }  // end
 
   return;
 }
 
-void GenXSecAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
+void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &) const {
   //xsection before matching
   edm::Handle<LHERunInfoProduct> run;
 
   if (iRun.getByToken(lheRunInfoToken_, run)) {
-    const lhef::HEPRUP thisHeprup_ = run->heprup();
+    const lhef::HEPRUP thisHeprup = run->heprup();
 
-    for (unsigned int iSize = 0; iSize < thisHeprup_.XSECUP.size(); iSize++) {
-      std::cout << std::setw(14) << std::fixed << thisHeprup_.XSECUP[iSize] << std::setw(14) << std::fixed
-                << thisHeprup_.XERRUP[iSize] << std::setw(14) << std::fixed << thisHeprup_.XMAXUP[iSize]
-                << std::setw(14) << std::fixed << thisHeprup_.LPRUP[iSize] << std::endl;
+    for (unsigned int iSize = 0; iSize < thisHeprup.XSECUP.size(); iSize++) {
+      std::cout << std::setw(14) << std::fixed << thisHeprup.XSECUP[iSize] << std::setw(14) << std::fixed
+                << thisHeprup.XERRUP[iSize] << std::setw(14) << std::fixed << thisHeprup.XMAXUP[iSize] << std::setw(14)
+                << std::fixed << thisHeprup.LPRUP[iSize] << std::endl;
     }
     std::cout << " " << std::endl;
   }
+
+  auto runC = runCache(iRun.index());
+  std::lock_guard l{mutex_};
 
   // compute cross section for this run first
   // set the correct combined LHE+filter cross sections
   unsigned int i = 0;
   std::vector<GenLumiInfoProduct::ProcessInfo> newInfos;
-  for (std::map<int, GenLumiInfoProduct::XSec>::const_iterator iter = currentLumiBlockLHEXSec_.begin();
-       iter != currentLumiBlockLHEXSec_.end();
+  for (std::map<int, GenLumiInfoProduct::XSec>::const_iterator iter = runC->currentLumiBlockLHEXSec_.begin();
+       iter != runC->currentLumiBlockLHEXSec_.end();
        ++iter, i++) {
-    GenLumiInfoProduct::ProcessInfo temp = product_.getProcessInfos()[i];
+    GenLumiInfoProduct::ProcessInfo temp = runC->product_.getProcessInfos()[i];
     temp.setLheXSec(iter->second.value(), iter->second.error());
     newInfos.push_back(temp);
   }
-  product_.setProcessInfo(newInfos);
+  runC->product_.setProcessInfo(newInfos);
 
-  const GenLumiInfoProduct::XSec thisRunXSecPre = compute(product_);
+  const GenLumiInfoProduct::XSec thisRunXSecPre = compute(runC->product_);
   // xsection after matching before filters
-  combine(xsecPreFilter_, totalWeightPre_, thisRunXSecPre, thisRunWeightPre_);
+  combine(xsecPreFilter_, totalWeightPre_, thisRunXSecPre, runC->thisRunWeightPre_);
 
   double thisHepFilterEff = 1;
   double thisHepFilterErr = 0;
 
-  if (hepMCFilterEffRun_.sumWeights2() > 0) {
-    thisHepFilterEff = hepMCFilterEffRun_.filterEfficiency(hepidwtup_);
-    thisHepFilterErr = hepMCFilterEffRun_.filterEfficiencyError(hepidwtup_);
+  if (runC->hepMCFilterEffRun_.sumWeights2() > 0) {
+    thisHepFilterEff = runC->hepMCFilterEffRun_.filterEfficiency(hepidwtup_);
+    thisHepFilterErr = runC->hepMCFilterEffRun_.filterEfficiencyError(hepidwtup_);
     if (thisHepFilterEff < 0) {
       thisHepFilterEff = 1;
       thisHepFilterErr = 0;
@@ -213,9 +328,9 @@ void GenXSecAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   double thisGenFilterEff = 1;
   double thisGenFilterErr = 0;
 
-  if (filterOnlyEffRun_.sumWeights2() > 0) {
-    thisGenFilterEff = filterOnlyEffRun_.filterEfficiency(hepidwtup_);
-    thisGenFilterErr = filterOnlyEffRun_.filterEfficiencyError(hepidwtup_);
+  if (runC->filterOnlyEffRun_.sumWeights2() > 0) {
+    thisGenFilterEff = runC->filterOnlyEffRun_.filterEfficiency(hepidwtup_);
+    thisGenFilterErr = runC->filterOnlyEffRun_.filterEfficiencyError(hepidwtup_);
     if (thisGenFilterEff < 0) {
       thisGenFilterEff = 1;
       thisGenFilterErr = 0;
@@ -228,15 +343,15 @@ void GenXSecAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
                             pow(thisHepFilterErr / thisHepFilterEff, 2) + pow(thisGenFilterErr / thisGenFilterEff, 2))
           : 0;
   const GenLumiInfoProduct::XSec thisRunXSec = GenLumiInfoProduct::XSec(thisXsec, thisErr);
-  combine(xsec_, totalWeight_, thisRunXSec, thisRunWeight_);
+  combine(xsec_, totalWeight_, thisRunXSec, runC->thisRunWeight_);
 }
 
-void GenXSecAnalyzer::combine(double& finalValue,
-                              double& finalError,
-                              double& finalWeight,
-                              const double& currentValue,
-                              const double& currentError,
-                              const double& currentWeight) {
+void GenXSecAnalyzer::combine(double &finalValue,
+                              double &finalError,
+                              double &finalWeight,
+                              const double &currentValue,
+                              const double &currentError,
+                              const double &currentWeight) const {
   if (finalValue <= 0) {
     finalValue = currentValue;
     finalError = currentError;
@@ -253,10 +368,10 @@ void GenXSecAnalyzer::combine(double& finalValue,
   return;
 }
 
-void GenXSecAnalyzer::combine(GenLumiInfoProduct::XSec& finalXSec,
-                              double& totalw,
-                              const GenLumiInfoProduct::XSec& thisRunXSec,
-                              const double& thisw) {
+void GenXSecAnalyzer::combine(GenLumiInfoProduct::XSec &finalXSec,
+                              double &totalw,
+                              const GenLumiInfoProduct::XSec &thisRunXSec,
+                              const double &thisw) const {
   double value = finalXSec.value();
   double error = finalXSec.error();
   double thisValue = thisRunXSec.value();
@@ -266,7 +381,7 @@ void GenXSecAnalyzer::combine(GenLumiInfoProduct::XSec& finalXSec,
   return;
 }
 
-GenLumiInfoProduct::XSec GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo) {
+GenLumiInfoProduct::XSec GenXSecAnalyzer::compute(const GenLumiInfoProduct &iLumiInfo) const {
   // sum of cross sections and errors over different processes
   double sigSelSum = 0.0;
   double err2SelSum = 0.0;
@@ -420,7 +535,7 @@ void GenXSecAnalyzer::endJob() {
 
     const unsigned sizeOfInfos = jetMatchEffStat_.size();
     const unsigned last = sizeOfInfos - 1;
-    std::string* title = new std::string[sizeOfInfos];
+    std::string *title = new std::string[sizeOfInfos];
     unsigned int i = 0;
     double jetmatch_eff = 0;
     double jetmatch_err = 0;
@@ -591,3 +706,5 @@ void GenXSecAnalyzer::endJob() {
   edm::LogPrint("GenXSecAnalyzer") << "After filter: final equivalent lumi for 1M events (1/fb) = " << std::scientific
                                    << std::setprecision(3) << lumi_1M_evts << " +- " << lumi_1M_evts_unc;
 }
+
+DEFINE_FWK_MODULE(GenXSecAnalyzer);
