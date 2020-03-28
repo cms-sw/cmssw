@@ -789,11 +789,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #Jet projection ==
             pfCandsNoJets = cms.EDProducer("CandPtrProjector", 
                                            src = pfCandCollection, 
-                                           veto = jetCollection
+                                           veto = jetCollection,
+                                           useDeltaRforFootprint = cms.bool(False)
                                            )
             if self._parameters["Puppi"].value:
               from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-              run2_miniAOD_devel.toModify(pfCandsNoJets, useDeltaRforFootprint = cms.bool(True))
+              run2_miniAOD_devel.toModify(pfCandsNoJets, useDeltaRforFootprint = True)
             addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
 

@@ -39,7 +39,7 @@ metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
   jetEtas_ = cfgParams.getParameter<std::vector<double> >("jeta");
   jetParams_ = cfgParams.getParameter<std::vector<double> >("jpar");
   pjetParams_ = cfgParams.getParameter<std::vector<double> >("pjpar");
-  useDeltaRforFootprint_ = cfgParams.exists("useDeltaRforFootprint") ? cfgParams.getParameter<bool>("useDeltaRforFootprint") : false;
+  useDeltaRforFootprint_ = cfgParams.getParameter<bool>("useDeltaRforFootprint");
   
 }
 
@@ -87,7 +87,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
      if(!cleanJet(jet, leptons) ) continue;
      for( unsigned int n=0; n < jet.numberOfSourceCandidatePtrs(); n++){
        if( jet.sourceCandidatePtr(n).isNonnull() and jet.sourceCandidatePtr(n).isAvailable() ){
-        footprint.insert(jet.sourceCandidatePtr(n));
+	 footprint.insert(jet.sourceCandidatePtr(n));
        }
      }
 
