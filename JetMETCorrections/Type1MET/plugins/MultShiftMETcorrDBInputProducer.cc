@@ -139,7 +139,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
           translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(MEtXYcorParams.definitions().PtclType()))) {
         if ((c.eta() > MEtXYcorParams.record(0).xMin(0)) and (c.eta() < MEtXYcorParams.record(0).xMax(0))) {
           float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
-          counts_ += (weight>0);
+          counts_ += (weight > 0);
           sumPt_ += c.pt() * weight;
           continue;
         }
