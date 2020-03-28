@@ -13,6 +13,7 @@ class CandPtrProjector : public edm::global::EDProducer<> {
 public:
   explicit CandPtrProjector(edm::ParameterSet const& iConfig);
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::EDGetTokenT<edm::View<reco::Candidate>> candSrcToken_;
@@ -22,9 +23,8 @@ private:
 
 CandPtrProjector::CandPtrProjector(edm::ParameterSet const& iConfig)
     : candSrcToken_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("src"))},
-      vetoSrcToken_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("veto"))} {
-  useDeltaRforFootprint_ =
-      iConfig.exists("useDeltaRforFootprint") ? iConfig.getParameter<bool>("useDeltaRforFootprint") : false;
+      vetoSrcToken_{consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("veto"))},
+      useDeltaRforFootprint_(iConfig.getParameter<bool>("useDeltaRforFootprint")) {
   produces<edm::PtrVector<reco::Candidate>>();
 }
 
@@ -59,6 +59,14 @@ void CandPtrProjector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetu
     }
   }
   iEvent.put(std::move(result));
+}
+
+void CandPtrProjector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src");
+  desc.add<edm::InputTag>("veto");
+  desc.add<bool>("useDeltaRforFootprint", false);
+  descriptions.add("CandPtrProjector", desc);
 }
 
 DEFINE_FWK_MODULE(CandPtrProjector);
