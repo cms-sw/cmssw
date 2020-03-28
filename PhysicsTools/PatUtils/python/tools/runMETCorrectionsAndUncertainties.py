@@ -786,6 +786,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                            src = pfCandCollection, 
                                            veto = jetCollection
                                            )
+            if self._parameters["Puppi"].value:
+              pfCandsNoJets.useDeltaRforFootprint = cms.bool(True)
             addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
 
