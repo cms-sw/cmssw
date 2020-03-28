@@ -19,11 +19,13 @@ def applySubstructure( process, postfix="" ) :
     setattr(process,'ak8PFJetsPuppiSoftDrop'+postfix, ak8PFJetsPuppiSoftDrop.clone( src = cms.InputTag('ak8PFJetsPuppiConstituents', 'constituents') ))
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     _rerun_puppijets_task = task.copy()
     _rerun_puppijets_task.add(getattr(process,'ak8PFJetsPuppi'+postfix),
                               getattr(process,'ak8PFJetsPuppiConstituents'+postfix),
                               getattr(process,'ak8PFJetsPuppiSoftDrop'+postfix))
-    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toReplaceWith(task, _rerun_puppijets_task)
+    (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
 
     from RecoJets.JetProducers.ak8GenJets_cfi import ak8GenJets, ak8GenJetsSoftDrop, ak8GenJetsConstituents
     addToProcessAndTask('ak8GenJetsNoNuConstituents'+postfix, ak8GenJetsConstituents.clone(src='ak8GenJetsNoNu'), process, task )

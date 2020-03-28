@@ -103,14 +103,13 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   edm::Handle<edm::ValueMap<float>> weights;
   if (!weightsToken_.isUninitialized())
     evt.getByToken(weightsToken_, weights);
-
   for (unsigned i = 0; i < particleFlow->size(); ++i) {
     const reco::Candidate& c = particleFlow->at(i);
     for (unsigned j = 0; j < type_.size(); j++) {
       if (abs(c.pdgId()) == translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {
         if ((c.eta() > etaMin_[j]) and (c.eta() < etaMax_[j])) {
           float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
-          counts_[j] += 1;
+          counts_[j] += (weight>0);
           sumPt_[j] += c.pt() * weight;
           continue;
         }
