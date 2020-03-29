@@ -601,6 +601,12 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
               _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
               if pfCandidates.value() == 'packedPFCandidates':
                 _btagInfo.weights = cms.InputTag("packedpuppi")
+                if not hasattr(process,"packedpuppi"):
+                  from CommonTools.PileupAlgos.Puppi_cff import puppi
+                  addToProcessAndTask('packedpuppi', puppi.clone(
+                        useExistingWeights = True,
+                        candName = 'packedPFCandidates',
+                        vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')) , process, task)
               else:
                 _btagInfo.weights = cms.InputTag("puppi")
 
