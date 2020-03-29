@@ -6,6 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -18,31 +19,36 @@
 
 namespace cms {
   SiPixelCondObjOfflineBuilder::SiPixelCondObjOfflineBuilder(const edm::ParameterSet& iConfig)
-      : conf_(iConfig),
-        appendMode_(conf_.getUntrackedParameter<bool>("appendMode", true)),
-        SiPixelGainCalibration_(0),
-        SiPixelGainCalibrationService_(iConfig),
-        recordName_(iConfig.getParameter<std::string>("record")),
-        meanPed_(conf_.getParameter<double>("meanPed")),
-        rmsPed_(conf_.getParameter<double>("rmsPed")),
-        meanGain_(conf_.getParameter<double>("meanGain")),
-        rmsGain_(conf_.getParameter<double>("rmsGain")),
-        meanPedFPix_(conf_.getUntrackedParameter<double>("meanPedFPix", meanPed_)),
-        rmsPedFPix_(conf_.getUntrackedParameter<double>("rmsPedFPix", rmsPed_)),
-        meanGainFPix_(conf_.getUntrackedParameter<double>("meanGainFPix", meanGain_)),
-        rmsGainFPix_(conf_.getUntrackedParameter<double>("rmsGainFPix", rmsGain_)),
-        deadFraction_(conf_.getParameter<double>("deadFraction")),
-        noisyFraction_(conf_.getParameter<double>("noisyFraction")),
-        secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
-        secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
-        numberOfModules_(conf_.getParameter<int>("numberOfModules")),
-        fromFile_(conf_.getParameter<bool>("fromFile")),
-        fileName_(conf_.getParameter<std::string>("fileName")),
-        generateColumns_(conf_.getUntrackedParameter<bool>("generateColumns", true)) {
+    : conf_(iConfig),
+      appendMode_(conf_.getUntrackedParameter<bool>("appendMode", true)),
+      SiPixelGainCalibration_(0),
+      SiPixelGainCalibrationService_(iConfig),
+      recordName_(iConfig.getParameter<std::string>("record")),
+      meanPed_(conf_.getParameter<double>("meanPed")),
+      rmsPed_(conf_.getParameter<double>("rmsPed")),
+      meanGain_(conf_.getParameter<double>("meanGain")),
+      rmsGain_(conf_.getParameter<double>("rmsGain")),
+      meanPedFPix_(conf_.getUntrackedParameter<double>("meanPedFPix", meanPed_)),
+    rmsPedFPix_(conf_.getUntrackedParameter<double>("rmsPedFPix", rmsPed_)),
+    meanGainFPix_(conf_.getUntrackedParameter<double>("meanGainFPix", meanGain_)),
+    rmsGainFPix_(conf_.getUntrackedParameter<double>("rmsGainFPix", rmsGain_)),
+    deadFraction_(conf_.getParameter<double>("deadFraction")),
+    noisyFraction_(conf_.getParameter<double>("noisyFraction")),
+    secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
+    secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
+    numberOfModules_(conf_.getParameter<int>("numberOfModules")),
+    fromFile_(conf_.getParameter<bool>("fromFile")),
+    fileName_(conf_.getParameter<std::string>("fileName")),
+    generateColumns_(conf_.getUntrackedParameter<bool>("generateColumns", true)),
+    electronsPerVcal_(conf_.getUntrackedParameter<double>("ElectronsPerVcal",1.)),
+    electronsPerVcal_Offset_(conf_.getUntrackedParameter<double>("ElectronsPerVcal_Offset",0.)),
+    electronsPerVcal_L1_(conf_.getUntrackedParameter<double>("ElectronsPerVcal_L1",1.)),
+    electronsPerVcal_L1_Offset_(conf_.getUntrackedParameter<double>("ElectronsPerVcal_L1_Offset",0.))
+  {
     ::putenv((char*)"CORAL_AUTH_USER=me");
     ::putenv((char*)"CORAL_AUTH_PASSWORD=test");
   }
-
+  
   void SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     using namespace edm;
     unsigned int run = iEvent.id().run();
@@ -50,6 +56,8 @@ namespace cms {
     uint32_t nchannels = 0;
     //    int mycol = 415;
     //    int myrow = 159;
+
+    std::cout<<" Use Vcal calibration "<<electronsPerVcal_<<" "<<electronsPerVcal_Offset_<<" "<<electronsPerVcal_L1_<<" "<<electronsPerVcal_L1_Offset_<<std::endl;
 
     edm::LogInfo("SiPixelCondObjOfflineBuilder")
         << "... creating dummy SiPixelGainCalibration Data for Run " << run << "\n " << std::endl;
@@ -62,11 +70,19 @@ namespace cms {
     float maxped = 100.;
     float mingain = 0.;
     float maxgain = 10.;
+    if(electronsPerVcal_>1.) maxgain = maxgain * electronsPerVcal_;
+
     SiPixelGainCalibration_ = new SiPixelGainCalibrationOffline(minped, maxped, mingain, maxgain);
 
     edm::ESHandle<TrackerGeometry> pDD;
     iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
     edm::LogInfo("SiPixelCondObjOfflineBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
+
+
+    //Retrieve tracker topology from geometry
+    edm::ESHandle<TrackerTopology> tTopo;
+    iSetup.get<TrackerTopologyRcd>().get(tTopo);
+    //const TrackerTopology* tt = tTopo.product();
 
     for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
       if (dynamic_cast<PixelGeomDetUnit const*>((*it)) != 0) {
@@ -79,6 +95,12 @@ namespace cms {
 
         const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>((*it));
         const PixelTopology& topol = pixDet->specificTopology();
+
+	// Find out if it is layer 1
+	//DetId detId = (*it)->geographicalId();
+        DetId detId(detid);
+	unsigned int layer = tTopo->pxbLayer(detId);
+
         // Get the module sizes.
         int nrows = topol.nrows();     // rows in x
         int ncols = topol.ncolumns();  // cols in y
@@ -88,7 +110,6 @@ namespace cms {
         double rmsPedWork = rmsPed_;
         double meanGainWork = meanGain_;
         double rmsGainWork = rmsGain_;
-        DetId detId(detid);
         if (detId.subdetId() == 2) {  // FPIX
           meanPedWork = meanPedFPix_;
           rmsPedWork = rmsPedFPix_;
@@ -111,6 +132,7 @@ namespace cms {
 
             if (fromFile_) {
               // Use calibration from a file
+	      // Has not been used until now
               int chipIndex = 0, colROC = 0, rowROC = 0;
 
               pIndexConverter.transformToROC(i, j, chipIndex, colROC, rowROC);
@@ -121,7 +143,7 @@ namespace cms {
               ped = theCalParameters.p0;
               gain = theCalParameters.p1;
 
-            } else {
+            } else {  // from python input
               if (deadFraction_ > 0) {
                 double val = CLHEP::RandFlat::shoot();
                 if (val < deadFraction_) {
@@ -155,25 +177,23 @@ namespace cms {
             // 	   if(i==mycol && j==myrow) {
             //	     std::cout << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
             // 	   }
+	 
+	    // include the vcal claibration already here 
+	    double newGain = 1, newPed  = 0.;
+	    if(layer==1) { 
+	      newGain = gain * electronsPerVcal_L1_;
+	      newPed  = ped  - (electronsPerVcal_L1_Offset_/newGain);
+	    } else {
+	      newGain = gain * electronsPerVcal_;
+	      newPed  = ped  - (electronsPerVcal_Offset_/newGain);
+	    }
+	    ped = newPed;
+	    gain = newGain;
 
-            //  	   gain =  2.8;
-            //  	   ped  = 28.2;
-
-            //if in the second row of rocs (i.e. a 2xN plaquette) add an offset (if desired) for testing
-            if (j >= 80) {
-              ped += secondRocRowPedOffset_;
-              gain += secondRocRowGainOffset_;
-
-              if (gain > maxgain)
-                gain = maxgain;
-              else if (gain < mingain)
-                gain = mingain;
-
-              if (ped > maxped)
-                ped = maxped;
-              else if (ped < minped)
-                ped = minped;
-            }
+	    if (gain > maxgain) gain = maxgain;
+	    else if (gain < mingain) gain = mingain;
+	    if (ped > maxped) ped = maxped;
+	    else if (ped < minped) ped = minped;
 
             totalGain += gain;
 
