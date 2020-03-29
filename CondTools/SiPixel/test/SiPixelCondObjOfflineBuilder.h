@@ -63,6 +63,10 @@ namespace cms {
     bool fromFile_;
     std::string fileName_;
     bool generateColumns_;
+    double electronsPerVcal_;
+    double electronsPerVcal_Offset_;
+    double electronsPerVcal_L1_;
+    double electronsPerVcal_L1_Offset_;
 
     // Internal class
     class CalParameters {
