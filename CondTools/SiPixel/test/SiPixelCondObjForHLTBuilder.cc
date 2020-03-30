@@ -39,11 +39,11 @@ namespace cms {
         numberOfModules_(conf_.getParameter<int>("numberOfModules")),
         fromFile_(conf_.getParameter<bool>("fromFile")),
         fileName_(conf_.getParameter<std::string>("fileName")),
-    generateColumns_(conf_.getUntrackedParameter<bool>("generateColumns", true)),
-    electronsPerVcal_(conf_.getUntrackedParameter<double>("ElectronsPerVcal",1.)),
-    electronsPerVcal_Offset_(conf_.getUntrackedParameter<double>("ElectronsPerVcal_Offset",0.)),
-    electronsPerVcal_L1_(conf_.getUntrackedParameter<double>("ElectronsPerVcal_L1",1.)),
-    electronsPerVcal_L1_Offset_(conf_.getUntrackedParameter<double>("ElectronsPerVcal_L1_Offset",0.))
+        generateColumns_(conf_.getUntrackedParameter<bool>("generateColumns", true)),
+        electronsPerVcal_(conf_.getUntrackedParameter<double>("ElectronsPerVcal", 1.)),
+        electronsPerVcal_Offset_(conf_.getUntrackedParameter<double>("ElectronsPerVcal_Offset", 0.)),
+        electronsPerVcal_L1_(conf_.getUntrackedParameter<double>("ElectronsPerVcal_L1", 1.)),
+        electronsPerVcal_L1_Offset_(conf_.getUntrackedParameter<double>("ElectronsPerVcal_L1_Offset", 0.))
 
   {
     ::putenv((char*)"CORAL_AUTH_USER=me");
@@ -55,8 +55,6 @@ namespace cms {
     unsigned int run = iEvent.id().run();
     int nmodules = 0;
     uint32_t nchannels = 0;
-    //    int mycol = 415;
-    //    int myrow = 159;
 
     edm::LogInfo("SiPixelCondObjForHLTBuilder")
         << "... creating dummy SiPixelGainCalibration Data for Run " << run << "\n " << std::endl;
@@ -69,14 +67,15 @@ namespace cms {
     float maxgain = 10;
     float minped = 0;
     float maxped = 255;
-    if(electronsPerVcal_>1.) maxgain = maxgain * electronsPerVcal_;
+    if (electronsPerVcal_ > 1.)
+      maxgain = maxgain * electronsPerVcal_;
 
     SiPixelGainCalibration_ = new SiPixelGainCalibrationForHLT(minped, maxped, mingain, maxgain);
 
     edm::ESHandle<TrackerGeometry> pDD;
     iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
     edm::LogInfo("SiPixelCondObjForHLTBuilder") << " There are " << pDD->dets().size() << " detectors" << std::endl;
-   //Retrieve tracker topology from geometry
+    //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopo;
     iSetup.get<TrackerTopologyRcd>().get(tTopo);
     //const TrackerTopology* tt = tTopo.product();
@@ -92,7 +91,7 @@ namespace cms {
 
         const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>((*it));
         const PixelTopology& topol = pixDet->specificTopology();
-      // Find out if it is layer 1
+        // Find out if it is layer 1
         //DetId detId = (*it)->geographicalId();
         DetId detId(detid);
         unsigned int layer = tTopo->pxbLayer(detId);
@@ -170,31 +169,26 @@ namespace cms {
                 gain = meanGainWork;
             }
 
-            // 	   if(i==mycol && j==myrow) {
-            // 	   }
-            // 	   gain =  2.8;
-            // 	   ped  = 28.2;
-            //if in the second row of rocs (i.e. a 2xN plaquette) add an offset (if desired) for testing
-            //if (j >= 80) {
-	    //ped += secondRocRowPedOffset_;
-	    //gain += secondRocRowGainOffset_;
-
-           // include the vcal claibration already here 
-            double newGain = 1, newPed  = 0.;
-            if(layer==1) { 
+            // include the vcal claibration already here
+            double newGain = 1, newPed = 0.;
+            if (layer == 1) {
               newGain = gain * electronsPerVcal_L1_;
-              newPed  = ped  - (electronsPerVcal_L1_Offset_/newGain);
+              newPed = ped - (electronsPerVcal_L1_Offset_ / newGain);
             } else {
               newGain = gain * electronsPerVcal_;
-              newPed  = ped  - (electronsPerVcal_Offset_/newGain);
+              newPed = ped - (electronsPerVcal_Offset_ / newGain);
             }
             ped = newPed;
             gain = newGain;
 
-	    if (gain > maxgain) gain = maxgain;
-	    else if (gain < mingain) gain = mingain;
-	    if (ped > maxped) ped = maxped;
-	    else if (ped < minped) ped = minped;
+            if (gain > maxgain)
+              gain = maxgain;
+            else if (gain < mingain)
+              gain = mingain;
+            if (ped > maxped)
+              ped = maxped;
+            else if (ped < minped)
+              ped = minped;
 
             totalPed += ped;
             totalGain += gain;
