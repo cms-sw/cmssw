@@ -121,6 +121,7 @@ trackingLowPU.toReplaceWith(globalreco_trackingTask, _globalreco_tracking_LowPUT
 # offlineBeamSpot is reconstructed before mixing in fastSim
 ##########################################
 _fastSim_globalreco_trackingTask = globalreco_trackingTask.copyAndExclude([offlineBeamSpot,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
+fastSim.toReplaceWith(globalreco_trackingTask,_fastSim_globalreco_trackingTask)
 
 _phase2_timing_layer_globalreco_trackingTask = globalreco_trackingTask.copy()
 _phase2_timing_layer_globalreco_trackingTask.add(fastTimingGlobalRecoTask)
