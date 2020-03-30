@@ -85,7 +85,7 @@ namespace l1t {
 
     if (poolDb->isNewTagRequest(esRecordName)) {
       sinceRun = poolDb->beginOfTime();
-      poolDb->createNewIOV(payloadToken, sinceRun, poolDb->endOfTime(), esRecordName, logTransactions);
+      poolDb->createNewIOV(payloadToken, sinceRun, esRecordName);
     } else {
       cond::TagInfo_t tagInfo;
       poolDb->tagInfo(esRecordName, tagInfo);
@@ -97,7 +97,7 @@ namespace l1t {
       }
 
       if (tagInfo.lastInterval.payloadId != payloadToken) {
-        poolDb->appendSinceTime(payloadToken, sinceRun, esRecordName, logTransactions);
+        poolDb->appendSinceTime(payloadToken, sinceRun, esRecordName);
       } else {
         iovUpdated = false;
         edm::LogVerbatim("L1-O2O") << "IOV already up to date.";
