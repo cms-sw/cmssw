@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    IsolatedParticles
-// Class:      StudyHLT
+// Class:      StudyCaloResponse
 //
-/**\class StudyHLT StudyHLT.cc Calibration/IsolatedParticles/plugins/StudyHLT.cc
+/**\class StudyCaloResponse StudyCaloResponse.cc Calibration/IsolatedParticles/plugins/StudyCaloResponse.cc
 
  Description: Studies single particle response measurements in data/MC
 
@@ -79,10 +79,10 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-class StudyHLT : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
+class StudyCaloResponse : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
-  explicit StudyHLT(const edm::ParameterSet&);
-  ~StudyHLT() override {}
+  explicit StudyCaloResponse(const edm::ParameterSet&);
+  ~StudyCaloResponse() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -152,7 +152,7 @@ private:
   std::vector<int> tr_iEta, tr_TrkID;
 };
 
-StudyHLT::StudyHLT(const edm::ParameterSet& iConfig)
+StudyCaloResponse::StudyCaloResponse(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
       trigNames_(iConfig.getUntrackedParameter<std::vector<std::string> >("triggers")),
       newNames_(iConfig.getUntrackedParameter<std::vector<std::string> >("newNames")),
@@ -230,7 +230,7 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig)
   changed_ = false;
 }
 
-void StudyHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void StudyCaloResponse::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   std::vector<std::string> trig;
   std::vector<double> weights;
   std::vector<std::string> newNames = {"HLT", "PixelTracks_Multiplicity", "HLT_Physics_", "HLT_JetE", "HLT_ZeroBias"};
@@ -259,10 +259,10 @@ void StudyHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.addUntracked<bool>("vetoTrigger", false);
   desc.addUntracked<bool>("doTree", false);
   desc.addUntracked<std::vector<double> >("puWeights", weights);
-  descriptions.add("studyHLT", desc);
+  descriptions.add("studyCaloResponse", desc);
 }
 
-void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   clear();
   int counter0[1000] = {0};
   int counter1[1000] = {0};
@@ -280,15 +280,8 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
   int Bunch = iEvent.bunchCrossing();
 
   std::vector<int> newAccept(newNames_.size() + 1, 0);
-  float mybxlumi = -1;
-  /*
-  edm::Handle<LumiDetails> Lumid;
-  iEvent.getLuminosityBlock().getByToken(tok_lumi,Lumid);
-  if (Lumid.isValid()) mybxlumi=Lumid->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing())*6.37;
-  */
   if (verbosity_ > 0)
-    edm::LogInfo("IsoTrack") << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << Lumi << " Bunch " << Bunch
-                             << " mybxlumi " << mybxlumi;
+    edm::LogInfo("IsoTrack") << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << Lumi << " Bunch " << Bunch;
 
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
@@ -720,7 +713,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
   firstEvent_ = false;
 }
 
-void StudyHLT::beginJob() {
+void StudyCaloResponse::beginJob() {
   // Book histograms
   h_nHLT = fs_->make<TH1I>("h_nHLT", "size of trigger Names", 1000, 0, 1000);
   h_HLTAccept = fs_->make<TH1I>("h_HLTAccept", "HLT Accepts for all runs", 500, 0, 500);
@@ -910,7 +903,7 @@ void StudyHLT::beginJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void StudyHLT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+void StudyCaloResponse::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   char hname[100], htit[400];
   edm::LogInfo("IsoTrack") << "Run[" << nRun_ << "] " << iRun.run() << " hltconfig.init "
                            << hltConfig_.init(iRun, iSetup, "HLT", changed_);
@@ -926,12 +919,12 @@ void StudyHLT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
 }
 
 // ------------ method called when ending the processing of a run  ------------
-void StudyHLT::endRun(edm::Run const& iRun, edm::EventSetup const&) {
+void StudyCaloResponse::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   ++nRun_;
   edm::LogInfo("IsoTrack") << "endrun[" << nRun_ << "] " << iRun.run();
 }
 
-void StudyHLT::clear() {
+void StudyCaloResponse::clear() {
   tr_TrigName.clear();
   tr_TrkPt.clear();
   tr_TrkP.clear();
@@ -952,21 +945,21 @@ void StudyHLT::clear() {
   tr_iEta.clear();
 }
 
-void StudyHLT::fillTrack(int i, double pt, double p, double eta, double phi) {
+void StudyCaloResponse::fillTrack(int i, double pt, double p, double eta, double phi) {
   h_pt[i]->Fill(pt, tr_eventWeight);
   h_p[i]->Fill(p, tr_eventWeight);
   h_eta[i]->Fill(eta, tr_eventWeight);
   h_phi[i]->Fill(phi, tr_eventWeight);
 }
 
-void StudyHLT::fillIsolation(int i, double emaxnearP, double eneutIso1, double eneutIso2) {
+void StudyCaloResponse::fillIsolation(int i, double emaxnearP, double eneutIso1, double eneutIso2) {
   h_maxNearP[i]->Fill(emaxnearP, tr_eventWeight);
   h_ene1[i]->Fill(eneutIso1, tr_eventWeight);
   h_ene2[i]->Fill(eneutIso2, tr_eventWeight);
   h_ediff[i]->Fill(eneutIso2 - eneutIso1, tr_eventWeight);
 }
 
-void StudyHLT::fillEnergy(int flag, int ieta, double p, double enEcal1, double enHcal1, double enEcal2, double enHcal2) {
+void StudyCaloResponse::fillEnergy(int flag, int ieta, double p, double enEcal1, double enHcal1, double enEcal2, double enHcal2) {
   int ip(-1), ie(-1);
   for (int i = 0; i < nPBin_; ++i) {
     if (p >= pBin_[i] && p < pBin_[i + 1]) {
@@ -990,7 +983,7 @@ void StudyHLT::fillEnergy(int flag, int ieta, double p, double enEcal1, double e
   }
 }
 
-std::string StudyHLT::truncate_str(const std::string& str) {
+std::string StudyCaloResponse::truncate_str(const std::string& str) {
   std::string truncated_str(str);
   int length = str.length();
   for (int i = 0; i < length - 2; i++) {
@@ -1002,7 +995,7 @@ std::string StudyHLT::truncate_str(const std::string& str) {
   return (truncated_str);
 }
 
-int StudyHLT::trackPID(const reco::Track* pTrack, const edm::Handle<reco::GenParticleCollection>& genParticles) {
+int StudyCaloResponse::trackPID(const reco::Track* pTrack, const edm::Handle<reco::GenParticleCollection>& genParticles) {
   int id(0);
   if (genParticles.isValid()) {
     unsigned int indx;
@@ -1035,4 +1028,4 @@ int StudyHLT::trackPID(const reco::Track* pTrack, const edm::Handle<reco::GenPar
   return id;
 }
 
-DEFINE_FWK_MODULE(StudyHLT);
+DEFINE_FWK_MODULE(StudyCaloResponse);
