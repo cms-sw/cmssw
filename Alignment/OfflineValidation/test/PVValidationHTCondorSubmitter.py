@@ -28,6 +28,12 @@ from subprocess import Popen, PIPE
 import collections
 import multiprocessing
 
+CopyRights  = '##################################\n'
+CopyRights += '#      submitAllJobs Script      #\n'
+CopyRights += '#      marco.musich@cern.ch      #\n'
+CopyRights += '#         December 2015          #\n'
+CopyRights += '##################################\n'
+
 ##############################################
 def write_HTCondor_submit_file(path, name, nruns, proxy_path=None):
 ##############################################
@@ -367,6 +373,77 @@ class Job:
         
     def createTheCfgFile(self,lfn):
 ###############################
+
+        global CopyRights
+        # write the cfg file
+
+        self.cfg_dir = os.path.join(self.the_dir,"cfg")
+        if not os.path.exists(self.cfg_dir):
+            os.makedirs(self.cfg_dir)
+
+        self.outputCfgName=self.output_full_name+"_cfg.py"
+        fout=open(os.path.join(self.cfg_dir,self.outputCfgName),'w+b')
+
+        # decide which template according to data/mc
+        if self.isMC:
+            template_cfg_file = os.path.join(self.the_dir,"PVValidation_TEMPL_cfg.py")
+        else:
+            template_cfg_file = os.path.join(self.the_dir,"PVValidation_TEMPL_cfg.py")
+
+        fin = open(template_cfg_file)
+
+        config_txt = '\n\n' + CopyRights + '\n\n'
+        config_txt += fin.read()
+
+        config_txt=config_txt.replace("ISDATEMPLATE",self.isDA)
+        config_txt=config_txt.replace("ISMCTEMPLATE",self.isMC)
+        config_txt=config_txt.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
+        config_txt=config_txt.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
+        config_txt=config_txt.replace("USEFILELISTTEMPLATE","True")
+        config_txt=config_txt.replace("RUNBOUNDARYTEMPLATE",self.runboundary)
+        config_txt=config_txt.replace("LUMILISTTEMPLATE",self.lumilist)
+        config_txt=config_txt.replace("MAXEVENTSTEMPLATE",self.maxevents)
+        config_txt=config_txt.replace("GLOBALTAGTEMPLATE",self.gt)
+        config_txt=config_txt.replace("ALLFROMGTTEMPLATE",self.allFromGT)
+        config_txt=config_txt.replace("ALIGNOBJTEMPLATE",self.alignmentDB)
+        config_txt=config_txt.replace("GEOMTAGTEMPLATE",self.alignmentTAG)
+        config_txt=config_txt.replace("APEOBJTEMPLATE",self.apeDB)
+        config_txt=config_txt.replace("ERRORTAGTEMPLATE",self.apeTAG)
+        config_txt=config_txt.replace("BOWSOBJECTTEMPLATE",self.bowDB)
+        config_txt=config_txt.replace("BOWSTAGTEMPLATE",self.bowTAG)
+        config_txt=config_txt.replace("VERTEXTYPETEMPLATE",self.vertextype)
+        config_txt=config_txt.replace("TRACKTYPETEMPLATE",self.tracktype)
+        config_txt=config_txt.replace("PTCUTTEMPLATE",self.ptcut)
+        config_txt=config_txt.replace("RUNCONTROLTEMPLATE",self.applyruncontrol)
+        lfn_with_quotes = map(lambda x: "\'"+x+"\'",lfn)
+        config_txt=config_txt.replace("FILESOURCETEMPLATE","["+",".join(lfn_with_quotes)+"]")
+        config_txt=config_txt.replace("OUTFILETEMPLATE",self.output_full_name+".root")
+
+        fout.write(config_txt)
+
+        for line in fin.readlines():
+
+            if 'END OF EXTRA CONDITIONS' in line:
+                for element in self.extraCondVect :
+                    if("Rcd" in element):
+                        params = self.extraCondVect[element].split(',')
+
+                        fout.write(" \n")
+                        fout.write("     process.conditionsIn"+element+"= CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone( \n")
+                        fout.write("          connect = cms.string('"+params[0]+"'), \n")
+                        fout.write("          toGet = cms.VPSet(cms.PSet(record = cms.string('"+element+"'), \n")
+                        fout.write("                                     tag = cms.string('"+params[1]+"'), \n")
+                        if (len(params)>2):
+                            fout.write("                                     label = cms.string('"+params[2]+"') \n")
+                        fout.write("                                     ) \n")
+                        fout.write("                            ) \n")
+                        fout.write("          ) \n")
+                        fout.write("     process.prefer_conditionsIn"+element+" = cms.ESPrefer(\"PoolDBESSource\", \"conditionsIn"+element[0]+"\") \n \n") 
+            fout.write(line)
+        fout.close()
+
+    def createTheCfgFileOld(self,lfn):
+###############################
         
         # write the cfg file 
         self.cfg_dir = os.path.join(self.the_dir,"cfg")
@@ -598,6 +675,9 @@ class Job:
 ##############################################
 def main():
 ##############################################
+
+    global CopyRights
+    print('\n'+CopyRights)
 
     # CMSSW section
     input_CMSSW_BASE = os.environ.get('CMSSW_BASE')
@@ -855,16 +935,15 @@ def main():
             #mylist[run].pop()
             #print mylist
 
-    od = collections.OrderedDict(sorted(file_info.items()))
-    # print od
+        od = collections.OrderedDict(sorted(file_info.items()))
+        # print od
             
-    # get from the DB the int luminosities
-    if(len(myRuns)==0):
-        raise Exception('Will not run on any run.... please check again the configuration')
+        # get from the DB the int luminosities
+        if(len(myRuns)==0):
+            raise Exception('Will not run on any run.... please check again the configuration')
 
-    myLumiDB = getLuminosity(myRuns[0],myRuns[-1],doRunBased)
-
-    print(myLumiDB)
+        myLumiDB = getLuminosity(myRuns[0],myRuns[-1],doRunBased)
+        print(myLumiDB)
 
     # start loop on samples
     for iConf in range(len(jobName)):
@@ -884,21 +963,34 @@ def main():
         output_file_list2.append("hadd ")
               
         inputFiles = []
-   
-        if (to_bool(isMC[iConf])):
-            print(">>>> This is MC!")
-            cmd = 'dasgoclient -limit=0 -query \'file dataset='+opts.data+'\''
-            #cmd = 'dasgoclient -query \'file dataset='+opts.data+'\''
-            s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
-            out,err = s.communicate()
-            mylist2 = out.decode().split('\n')
-            mylist2.pop()
-            #print mylist
+
+        if (to_bool(isMC[iConf]) or (not to_bool(doRunBased))):
+            if(to_bool(isMC[iConf])):
+                print("this is MC")
+                cmd = 'dasgoclient -query \'file dataset='+opts.data+'\''
+                s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
+                out,err = s.communicate()
+                mylist = out.split('\n')
+                mylist.pop()
+                #print mylist
            
-            splitList = split(mylist2,10)
-            for files in splitList:
-                inputFiles.append(files)
-                myRuns.append(str(1))
+                splitList = split(mylist,10)
+                for files in splitList:
+                    inputFiles.append(files)
+                    myRuns.append(str(1))
+            else:
+                print("this is DATA (not doing full run-based selection)")
+                cmd = 'dasgoclient -query \'file dataset='+opts.data+' run='+runboundary[iConf]+'\''
+                #print cmd
+                s = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
+                out,err = s.communicate()
+                mylist = out.split('\n')
+                mylist.pop()
+                #print "len(mylist):",len(mylist)
+                print("mylist:",mylist)
+                inputFiles.append(mylist)
+                myRuns.append(str(runboundary[iConf]))
+                myLumiDB = getLuminosity(myRuns[0],myRuns[-1],True)
 
         else:
             #pass
