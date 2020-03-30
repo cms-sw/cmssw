@@ -368,7 +368,8 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       for (auto const& it : tauIDSrcContainers_) {
         numberTauIds += it.size();
       }
-      // if ID containers exist, product incices need to be retrieved from provenanceConfigLabel. This is done if config history changes, in particular for the first event.
+      // if ID containers exist, product incices need to be retrieved from provenanceConfigLabel.
+      // This is done if config history changes, in particular for the first event.
       if (numberPlainTauIds != numberTauIds && phID_ != iEvent.processHistoryID()) {
         phID_ = iEvent.processHistoryID();
         for (size_t idx = 0; idx < tauIDSrcContainers_.size(); ++idx) {

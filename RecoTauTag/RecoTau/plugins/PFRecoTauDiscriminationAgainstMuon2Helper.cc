@@ -1,4 +1,19 @@
-#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstMuon2Helper.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
+#include "RecoTauTag/RecoTau/plugins/PFRecoTauDiscriminationAgainstMuon2Helper.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauMuonTools.h"
+
+#include <iostream>
 
 using reco::tau::format_vint;
 

@@ -1,21 +1,7 @@
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-
-#include "RecoTauTag/RecoTau/interface/RecoTauMuonTools.h"
 
 #include <vector>
 #include <string>
-#include <iostream>
 #include <atomic>
 
 struct PFRecoTauDiscriminationAgainstMuonConfigSet {

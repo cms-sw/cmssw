@@ -8,7 +8,7 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstMuon2Helper.h"
+#include "RecoTauTag/RecoTau/plugins/PFRecoTauDiscriminationAgainstMuon2Helper.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

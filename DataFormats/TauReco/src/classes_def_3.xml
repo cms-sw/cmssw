@@ -35,7 +35,6 @@
 
   <class name="reco::SingleTauDiscriminatorContainer" ClassVersion="3">
     <version ClassVersion="3" checksum="2968610760"/>
-     <!-- <field name="transientVector_" transient="true"/> -->
   </class>
   <class name="std::vector<reco::SingleTauDiscriminatorContainer>"/>
   <class name="edm::ValueMap<reco::SingleTauDiscriminatorContainer>"/>
