@@ -13,6 +13,8 @@ from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQM.CSCMonitorModule.csc_dqm_offlineclient_cosmics_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
+DQMNone = cms.Sequence()
+
 DQMOfflineCosmics_SecondStepEcal = cms.Sequence( ecal_dqm_client_offline *
 						es_dqm_client_offline )
 
