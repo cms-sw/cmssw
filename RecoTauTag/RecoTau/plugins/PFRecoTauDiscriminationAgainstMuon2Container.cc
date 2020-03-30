@@ -25,7 +25,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauMuonTools.h"
-#include "RecoTauTag/RecoTau/interface/PFRecoTauDiscriminationAgainstMuon2Helper.h"
+#include "RecoTauTag/RecoTau/plugins/PFRecoTauDiscriminationAgainstMuon2Helper.h"
 
 #include <vector>
 #include <string>

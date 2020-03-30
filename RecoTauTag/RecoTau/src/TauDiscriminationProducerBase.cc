@@ -4,6 +4,28 @@
 
 using namespace reco;
 
+namespace {
+  template <class TauDiscriminator, class TauCollection>
+  struct helper {
+    typedef edm::RefProd<TauCollection> TauRefProd;
+    static std::unique_ptr<TauDiscriminator> init_result_object(edm::Handle<TauCollection> taus) {
+      return std::make_unique<TauDiscriminator>(TauRefProd(taus));
+    }
+  };
+
+  template <class TauCollection>
+  struct helper<TauDiscriminatorContainer, TauCollection> {
+    static std::unique_ptr<TauDiscriminatorContainer> init_result_object(edm::Handle<TauCollection> taus) {
+      auto result_object = std::make_unique<TauDiscriminatorContainer>();
+      TauDiscriminatorContainer::Filler filler(*result_object);
+      std::vector<SingleTauDiscriminatorContainer> placeholder(taus->size());
+      filler.insert(taus, placeholder.begin(), placeholder.end());
+      filler.fill();
+      return result_object;
+    }
+  };
+};  // namespace
+
 // default constructor; must not be called
 template <class TauType, class TauDiscriminator, class TauDiscriminatorDataType, class ConsumeType>
 TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataType, ConsumeType>::
@@ -76,8 +98,7 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDa
   edm::ProductID tauProductID = taus.id();
 
   // output product
-  std::unique_ptr<TauDiscriminator> output = init_result_object(taus);
-  //auto output = std::make_unique<TauDiscriminator>(TauRefProd(taus));
+  std::unique_ptr<TauDiscriminator> output = helper<TauDiscriminator, TauCollection>::init_result_object(taus);
 
   size_t nTaus = taus->size();
 
@@ -139,36 +160,12 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDa
     }
 
     // store the result of this tau into our new discriminator
-    //output->setValue(iTau, result);
     (*output)[tauRef] = result;
   }
   event.put(std::move(output));
 
   // function to put additional information into the event - does nothing in base, but can be overridden in derived classes
   endEvent(event);
-}
-
-template <class TauType, class TauDiscriminator, class TauDiscriminatorDataType, class ConsumeType>
-template <class ResultType>
-std::unique_ptr<TauDiscriminator>
-TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataType, ConsumeType>::init_result_object(
-    edm::Handle<TauCollection> taus,
-    typename std::enable_if<!std::is_same<ResultType, TauDiscriminatorContainer>::value, std::nullptr_t>::type) {
-  return std::make_unique<ResultType>(TauRefProd(taus));
-}
-
-template <class TauType, class TauDiscriminator, class TauDiscriminatorDataType, class ConsumeType>
-template <class ResultType>
-std::unique_ptr<TauDiscriminator>
-TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataType, ConsumeType>::init_result_object(
-    edm::Handle<TauCollection> taus,
-    typename std::enable_if<std::is_same<ResultType, TauDiscriminatorContainer>::value, std::nullptr_t>::type) {
-  auto result_object = std::make_unique<TauDiscriminatorContainer>();
-  TauDiscriminatorContainer::Filler filler(*result_object);
-  std::vector<SingleTauDiscriminatorContainer> placeholder(taus->size());
-  filler.insert(taus, placeholder.begin(), placeholder.end());
-  filler.fill();
-  return result_object;
 }
 
 template <class TauType, class TauDiscriminator, class TauDiscriminatorDataType, class ConsumeType>

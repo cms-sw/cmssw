@@ -1,4 +1,3 @@
-
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/TauReco/interface/BaseTauTagInfo.h"

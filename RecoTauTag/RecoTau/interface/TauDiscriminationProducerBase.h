@@ -109,18 +109,6 @@ private:
   std::vector<TauDiscInfo> prediscriminants_;
   // select boolean operation on prediscriminants (and = 0x01, or = 0x00)
   uint8_t andPrediscriminants_;
-
-  template <class ResultType = TauDiscriminator>
-  std::unique_ptr<TauDiscriminator> init_result_object(
-      edm::Handle<TauCollection> taus,
-      typename std::enable_if<!std::is_same<ResultType, reco::TauDiscriminatorContainer>::value, std::nullptr_t>::type =
-          nullptr);
-
-  template <class ResultType = TauDiscriminator>
-  std::unique_ptr<TauDiscriminator> init_result_object(
-      edm::Handle<TauCollection> taus,
-      typename std::enable_if<std::is_same<ResultType, reco::TauDiscriminatorContainer>::value, std::nullptr_t>::type =
-          nullptr);
 };
 
 // define our implementations
