@@ -11,11 +11,11 @@ using namespace l1t;
 TkTau::TkTau() {}
 
 TkTau::TkTau(const LorentzVector& p4,
-                                 const edm::Ref<TauBxCollection>& tauCaloRef,
-                                 const edm::Ptr<L1TTTrackType>& trackPtr,
-                                 const edm::Ptr<L1TTTrackType>& trackPtr2,
-                                 const edm::Ptr<L1TTTrackType>& trackPtr3,
-                                 float tkisol)
+             const edm::Ref<TauBxCollection>& tauCaloRef,
+             const edm::Ptr<L1TTTrackType>& trackPtr,
+             const edm::Ptr<L1TTTrackType>& trackPtr2,
+             const edm::Ptr<L1TTTrackType>& trackPtr3,
+             float tkisol)
     : L1Candidate(p4),
       tauCaloRef_(tauCaloRef),
       trkPtr_(trackPtr),

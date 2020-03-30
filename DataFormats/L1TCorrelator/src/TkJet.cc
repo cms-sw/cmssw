@@ -11,20 +11,20 @@ using namespace l1t;
 TkJet::TkJet() {}
 
 TkJet::TkJet(const LorentzVector& p4,
-                                 const edm::Ref<JetBxCollection>& jetRef,
-                                 const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
-                                 float jetvtx)
+             const edm::Ref<JetBxCollection>& jetRef,
+             const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
+             float jetvtx)
     : L1Candidate(p4), jetRef_(jetRef), trkPtrs_(trkPtrs), JetVtx_(jetvtx) {}
 TkJet::TkJet(const LorentzVector& p4,
-                                 //				  const edm::Ref< JetBxCollection >& jetRef,
-                                 const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
-                                 float jetvtx,
-                                 unsigned int ntracks,
-                                 unsigned int tighttracks,
-                                 unsigned int displacedtracks,
-                                 unsigned int tightdisplacedtracks
-                                 // TkJetDisp counters
-                                 )
+             //				  const edm::Ref< JetBxCollection >& jetRef,
+             const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
+             float jetvtx,
+             unsigned int ntracks,
+             unsigned int tighttracks,
+             unsigned int displacedtracks,
+             unsigned int tightdisplacedtracks
+             // TkJetDisp counters
+             )
     : L1Candidate(p4),
       //jetRef_ ( jetRef ),
       trkPtrs_(trkPtrs),

@@ -13,8 +13,5 @@ TkEm::TkEm() {}
 TkEm::TkEm(const LorentzVector& p4, const edm::Ref<EGammaBxCollection>& egRef, float tkisol)
     : L1Candidate(p4), egRef_(egRef), TrkIsol_(tkisol), TrkIsolPV_(-999) {}
 
-TkEm::TkEm(const LorentzVector& p4,
-                               const edm::Ref<EGammaBxCollection>& egRef,
-                               float tkisol,
-                               float tkisolPV)
+TkEm::TkEm(const LorentzVector& p4, const edm::Ref<EGammaBxCollection>& egRef, float tkisol, float tkisolPV)
     : L1Candidate(p4), egRef_(egRef), TrkIsol_(tkisol), TrkIsolPV_(tkisolPV) {}

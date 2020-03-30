@@ -25,8 +25,8 @@ namespace l1t {
 
     TkPhiCandidate();
     TkPhiCandidate(const LorentzVector& p4,
-                     const edm::Ptr<L1TTTrackType>& trkPtr1,
-                     const edm::Ptr<L1TTTrackType>& trkPtr2);
+                   const edm::Ptr<L1TTTrackType>& trkPtr1,
+                   const edm::Ptr<L1TTTrackType>& trkPtr2);
 
     virtual ~TkPhiCandidate() {}
 

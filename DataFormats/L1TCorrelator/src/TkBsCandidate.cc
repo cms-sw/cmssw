@@ -11,8 +11,7 @@
 using namespace l1t;
 
 TkBsCandidate::TkBsCandidate() {}
-TkBsCandidate::TkBsCandidate(const LorentzVector& p4, TkPhiCandidate cand1, TkPhiCandidate cand2)
-    : L1Candidate(p4) {
+TkBsCandidate::TkBsCandidate(const LorentzVector& p4, TkPhiCandidate cand1, TkPhiCandidate cand2) : L1Candidate(p4) {
   phiCandList_.push_back(cand1);
   phiCandList_.push_back(cand2);
 }

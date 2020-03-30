@@ -58,7 +58,6 @@ namespace {
   //  Phase2 L1 Correlator Objects :
 
   struct dictionaryl1tkobj {
-
     // L1 Primary Vertex
     l1t::TkPrimaryVertex trzvtx;
     edm::Wrapper<l1t::TkPrimaryVertexCollection> trzvtxColl;
@@ -117,9 +116,9 @@ namespace {
     edm::Wrapper<l1t::TkHTMissCollection> w_TkHTMissColl;
 
     // TkMuon
-    l1t::TkMuonCollection trkmuColl ;
+    l1t::TkMuonCollection trkmuColl;
     edm::Wrapper<l1t::TkMuonCollection> w_trkmuColl;
-    l1t::TkMuonRef reftrkMu ;
+    l1t::TkMuonRef reftrkMu;
 
     // TkGlbMuon
     l1t::TkGlbMuonCollection trkglbmuColl;

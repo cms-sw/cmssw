@@ -24,16 +24,16 @@ namespace l1t {
     TkJet();
 
     TkJet(const LorentzVector& p4,
-                    const edm::Ref<JetBxCollection>& jetRef,
-                    const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
-                    float jetvtx = -999.);
+          const edm::Ref<JetBxCollection>& jetRef,
+          const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
+          float jetvtx = -999.);
     TkJet(const LorentzVector& p4,
-                    const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
-                    float jetvtx = -999.,
-                    unsigned int ntracks = 0,
-                    unsigned int tighttracks = 0,
-                    unsigned int displacedtracks = 0,
-                    unsigned int tightdisplacedtracks = 0);
+          const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
+          float jetvtx = -999.,
+          unsigned int ntracks = 0,
+          unsigned int tighttracks = 0,
+          unsigned int displacedtracks = 0,
+          unsigned int tightdisplacedtracks = 0);
 
     virtual ~TkJet() {}
 

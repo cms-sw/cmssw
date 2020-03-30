@@ -11,10 +11,10 @@ using namespace l1t;
 L1CaloTkTau::L1CaloTkTau() {}
 
 L1CaloTkTau::L1CaloTkTau(const LorentzVector& p4,
-                                         const LorentzVector& tracksP4,
-                                         const std::vector<L1TTTrackRefPtr>& clustTracks,
-                                         Tau& caloTau,
-                                         float vtxIso)
+                         const LorentzVector& tracksP4,
+                         const std::vector<L1TTTrackRefPtr>& clustTracks,
+                         Tau& caloTau,
+                         float vtxIso)
     //float Et)
     : L1Candidate(p4),
       tracksP4_(tracksP4),

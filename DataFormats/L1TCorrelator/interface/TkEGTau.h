@@ -38,9 +38,9 @@ namespace l1t {
     TkEGTau();
 
     TkEGTau(const LorentzVector& p4,
-                      const std::vector<L1TTTrackRefPtr>& clustTracks,
-                      const std::vector<EGammaRef>& clustEGs,
-                      float iso = -999.);
+            const std::vector<L1TTTrackRefPtr>& clustTracks,
+            const std::vector<EGammaRef>& clustEGs,
+            float iso = -999.);
 
     virtual ~TkEGTau() {}
 

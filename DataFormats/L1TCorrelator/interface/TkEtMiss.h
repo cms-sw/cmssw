@@ -17,19 +17,19 @@ namespace l1t {
     enum EtMissType { kMET, kMHT, kNumTypes };
     TkEtMiss();
     TkEtMiss(const LorentzVector& p4,
-                       EtMissType type,
-                       const double& etTotal,
-                       const double& etMissPU,
-                       const double& etTotalPU,
-                       const edm::Ref<TkPrimaryVertexCollection>& aVtxRef = edm::Ref<TkPrimaryVertexCollection>(),
-                       int bx = 0);
+             EtMissType type,
+             const double& etTotal,
+             const double& etMissPU,
+             const double& etTotalPU,
+             const edm::Ref<TkPrimaryVertexCollection>& aVtxRef = edm::Ref<TkPrimaryVertexCollection>(),
+             int bx = 0);
 
     TkEtMiss(const LorentzVector& p4,
-                       EtMissType type,
-                       const double& etTotal,
-                       const double& etMissPU,
-                       const double& etTotalPU,
-                       int bx = 0);
+             EtMissType type,
+             const double& etTotal,
+             const double& etMissPU,
+             const double& etTotalPU,
+             int bx = 0);
 
     // ---------- const member functions ---------------------
     EtMissType type() const { return type_; }  // kET or kHT
