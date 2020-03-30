@@ -47,6 +47,7 @@
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
@@ -124,9 +125,6 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   if (m_firstEvent) {
     GeometryAligner aligner;
 
-    edm::ESTransientHandle<DDCompactView> cpv;
-    iSetup.get<IdealGeometryRecord>().get(cpv);
-
     edm::ESHandle<GeometricDet> theGeometricDet;
     iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
     edm::ESHandle<PTrackerParameters> ptp;
@@ -134,14 +132,10 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
     std::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet), *ptp, tTopo));
 
-    edm::ESHandle<MuonGeometryConstants> mdc;
-    iSetup.get<IdealGeometryRecord>().get(mdc);
-    DTGeometryBuilderFromDDD DTGeometryBuilder;
-    CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-    auto theMuonDT = std::make_shared<DTGeometry>();
-    DTGeometryBuilder.build(*theMuonDT, &(*cpv), *mdc);
-    auto theMuonCSC = std::make_shared<CSCGeometry>();
-    CSCGeometryBuilder.build(*theMuonCSC, &(*cpv), *mdc);
+    edm::ESHandle<DTGeometry> theMuonDT;
+    edm::ESHandle<CSCGeometry> theMuonCSC;
+    iSetup.get<MuonGeometryRecord>().get(theMuonDT);
+    iSetup.get<MuonGeometryRecord>().get(theMuonCSC);
 
     edm::ESHandle<Alignments> globalPositionRcd;
     iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
