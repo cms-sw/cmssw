@@ -77,7 +77,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2023
     'phase1_2023_realistic'    : '111X_mcRun3_2023_realistic_newPixelGain_v1', # GT containing realistic conditions for Phase1 2023
     # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2024_realistic'    : '111X_mcRun3_2024_realistic_new_PixelGain_v1', # GT containing realistic conditions for Phase1 2024
+    'phase1_2024_realistic'    : '111X_mcRun3_2024_realistic_newPixelGain_v1', # GT containing realistic conditions for Phase1 2024
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'         : '110X_mcRun4_realistic_v3'
 }
