@@ -133,6 +133,7 @@ process.g4SimHits.CaloSD = cms.PSet(
     HCNames        = cms.vstring('EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits'),
     UseResponseTables = cms.vint32(0,0,0,0),
     SuppressHeavy  = cms.bool(False),
+    UseFineCaloID  = cms.bool(False),
     CheckHits      = cms.untracked.int32(25),
     UseMap         = cms.untracked.bool(True),
     Verbosity      = cms.untracked.int32(0),
