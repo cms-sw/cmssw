@@ -41,8 +41,44 @@ namespace edm {
       ++i;
     }
 
-    schedule->fillModuleAndConsumesInfo(
-        allModuleDescriptions_, moduleIDToIndex_, modulesWhoseProductsAreConsumedBy_, *preg);
+    schedule->fillModuleAndConsumesInfo(allModuleDescriptions_,
+                                        moduleIDToIndex_,
+                                        modulesWhoseProductsAreConsumedByEvent_,
+                                        modulesWhoseProductsAreConsumedByLumiRun_,
+                                        *preg);
+  }
+
+  void PathsAndConsumesOfModules::removeModules(std::vector<ModuleDescription const*> const& modules) {
+    // First check that no modules on Paths are removed
+    auto checkPath = [&modules](auto const& paths) {
+      for (auto const& path : paths) {
+        for (auto const& description : path) {
+          if (std::find(modules.begin(), modules.end(), description) != modules.end()) {
+            throw cms::Exception("Assert")
+                << "PathsAndConsumesOfModules::removeModules() is trying to remove a module with label "
+                << description->moduleLabel() << " id " << description->id() << " from a Path, this should not happen.";
+          }
+        }
+      }
+    };
+    checkPath(modulesOnPaths_);
+    checkPath(modulesOnEndPaths_);
+
+    // Remove the modules and adjust the indices in idToIndex map
+    for (auto iModule = 0U; iModule != allModuleDescriptions_.size(); ++iModule) {
+      auto found = std::find(modules.begin(), modules.end(), allModuleDescriptions_[iModule]);
+      if (found != modules.end()) {
+        allModuleDescriptions_.erase(allModuleDescriptions_.begin() + iModule);
+        modulesWhoseProductsAreConsumedByEvent_.erase(modulesWhoseProductsAreConsumedByEvent_.begin() + iModule);
+        modulesWhoseProductsAreConsumedByLumiRun_.erase(modulesWhoseProductsAreConsumedByLumiRun_.begin() + iModule);
+        for (auto& idToIndex : moduleIDToIndex_) {
+          if (idToIndex.second >= iModule) {
+            idToIndex.second--;
+          }
+        }
+        --iModule;
+      }
+    }
   }
 
   ModuleDescription const* PathsAndConsumesOfModules::doModuleDescription(unsigned int moduleID) const {
@@ -51,7 +87,8 @@ namespace edm {
     std::vector<std::pair<unsigned int, unsigned int>>::const_iterator iter =
         std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
     if (iter == moduleIDToIndex_.end() || iter->first != moduleID) {
-      throw Exception(errors::LogicError) << "PathsAndConsumesOfModules::moduleDescription: Unknown moduleID\n";
+      throw Exception(errors::LogicError)
+          << "PathsAndConsumesOfModules::moduleDescription: Unknown moduleID " << moduleID << "\n";
     }
     return allModuleDescriptions_.at(iter->second);
   }
@@ -67,7 +104,12 @@ namespace edm {
 
   std::vector<ModuleDescription const*> const& PathsAndConsumesOfModules::doModulesWhoseProductsAreConsumedBy(
       unsigned int moduleID) const {
-    return modulesWhoseProductsAreConsumedBy_.at(moduleIndex(moduleID));
+    return modulesWhoseProductsAreConsumedByEvent_.at(moduleIndex(moduleID));
+  }
+
+  std::vector<ModuleDescription const*> const& PathsAndConsumesOfModules::doModulesWhoseProductsAreConsumedByLumiRun(
+      unsigned int moduleID) const {
+    return modulesWhoseProductsAreConsumedByLumiRun_.at(moduleIndex(moduleID));
   }
 
   std::vector<ConsumesInfo> PathsAndConsumesOfModules::doConsumesInfo(unsigned int moduleID) const {
@@ -81,9 +123,62 @@ namespace edm {
     std::vector<std::pair<unsigned int, unsigned int>>::const_iterator iter =
         std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
     if (iter == moduleIDToIndex_.end() || iter->first != moduleID) {
-      throw Exception(errors::LogicError) << "PathsAndConsumesOfModules::moduleIndex: Unknown moduleID\n";
+      throw Exception(errors::LogicError)
+          << "PathsAndConsumesOfModules::moduleIndex: Unknown moduleID " << moduleID << "\n";
     }
     return iter->second;
+  }
+
+  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC) {
+    const std::string kTriggerResults("TriggerResults");
+
+    std::vector<std::string> pathNames = iPnC.paths();
+    const unsigned int kFirstEndPathIndex = pathNames.size();
+    pathNames.insert(pathNames.end(), iPnC.endPaths().begin(), iPnC.endPaths().end());
+
+    std::unordered_set<unsigned int> moduleIndicesInPaths;
+
+    // Exctract all modules in Paths and EndPaths (need to be kept) to
+    // get the list of unscheduled modules
+    for (unsigned int pathIndex = 0; pathIndex != pathNames.size(); ++pathIndex) {
+      std::vector<ModuleDescription const*> const* moduleDescriptions;
+      if (pathIndex < kFirstEndPathIndex) {
+        moduleDescriptions = &(iPnC.modulesOnPath(pathIndex));
+      } else {
+        moduleDescriptions = &(iPnC.modulesOnEndPath(pathIndex - kFirstEndPathIndex));
+      }
+      for (auto const& description : *moduleDescriptions) {
+        moduleIndicesInPaths.insert(description->id());
+      }
+    }
+
+    // Mark modules whose any output is consumed
+    // Mark TriggerResults and all Paths/EndPaths as consumed
+    auto const& allModules = iPnC.allModules();
+    std::unordered_set<unsigned int> consumedModules;
+    for (auto const& description : allModules) {
+      for (auto const& c : iPnC.modulesWhoseProductsAreConsumedBy(description->id())) {
+        consumedModules.insert(c->id());
+      }
+      for (auto const& c : iPnC.modulesWhoseProductsAreConsumedByLumiRun(description->id())) {
+        consumedModules.insert(c->id());
+      }
+      if (description->moduleLabel() == kTriggerResults or
+          std::find(pathNames.begin(), pathNames.end(), description->moduleLabel()) != pathNames.end()) {
+        consumedModules.insert(description->id());
+      }
+    }
+
+    // Keep modules that are in Paths/EndPaths or whose output is consumed
+    std::vector<ModuleDescription const*> unusedModules;
+    std::copy_if(allModules.begin(),
+                 allModules.end(),
+                 std::back_inserter(unusedModules),
+                 [&moduleIndicesInPaths, &consumedModules](ModuleDescription const* description) {
+                   return moduleIndicesInPaths.find(description->id()) == moduleIndicesInPaths.end() and
+                          consumedModules.find(description->id()) == consumedModules.end();
+                 });
+    return unusedModules;
   }
 
   //====================================

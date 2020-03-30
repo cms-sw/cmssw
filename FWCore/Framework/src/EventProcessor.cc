@@ -548,8 +548,24 @@ namespace edm {
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
 
-    //NOTE: this may throw
+    // Note: all these may throw
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
+    if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_);
+        not unusedModules.empty()) {
+      pathsAndConsumesOfModules_.removeModules(unusedModules);
+
+      edm::LogWarning("DeleteModules").log([&unusedModules](auto& l) {
+        l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, and "
+             "therefore they are deleted before beginJob transition.";
+        for (auto const& description : unusedModules) {
+          l << "\n " << description->moduleLabel();
+        }
+      });
+      for (auto const& description : unusedModules) {
+        schedule_->deleteModule(description->moduleLabel());
+      }
+    }
+
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
 
     if (preallocations_.numberOfLuminosityBlocks() > 1) {

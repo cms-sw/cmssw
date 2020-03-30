@@ -182,7 +182,7 @@ namespace edm {
   class UnscheduledProductResolver : public ProducedProductResolver {
   public:
     explicit UnscheduledProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : ProducedProductResolver(bd, ProductStatus::ResolveNotRun), aux_(nullptr), prefetchRequested_(false) {}
+        : ProducedProductResolver(bd, ProductStatus::ResolveNotRun) {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
 
@@ -202,9 +202,9 @@ namespace edm {
     void resetProductData_(bool deleteEarly) override;
 
     CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
-    UnscheduledAuxiliary const* aux_;
-    Worker* worker_;
-    mutable std::atomic<bool> prefetchRequested_;
+    UnscheduledAuxiliary const* aux_ = nullptr;
+    Worker* worker_ = nullptr;
+    mutable std::atomic<bool> prefetchRequested_ = false;
   };
 
   class AliasProductResolver : public DataManagingOrAliasProductResolver {

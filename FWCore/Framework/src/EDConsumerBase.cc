@@ -473,11 +473,14 @@ namespace {
   }
 }  // namespace
 
-void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modulesEvent,
+                                                     std::vector<ModuleDescription const*>& modulesLumiRun,
                                                      ProductRegistry const& preg,
                                                      std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                                      std::string const& processName) const {
-  ProductResolverIndexHelper const& iHelper = *preg.productLookup(InEvent);
+  ProductResolverIndexHelper const& helperEvent = *preg.productLookup(InEvent);
+  ProductResolverIndexHelper const& helperLumi = *preg.productLookup(InLumi);
+  ProductResolverIndexHelper const& helperRun = *preg.productLookup(InRun);
 
   std::set<std::string> alreadyFound;
 
@@ -485,7 +488,23 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
   auto itLabels = m_tokenInfo.begin<kLabels>();
   for (auto itInfo = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); itInfo != itEnd;
        ++itInfo, ++itKind, ++itLabels) {
-    if (itInfo->m_branchType == InEvent and (not itInfo->m_index.skipCurrentProcess())) {
+    if (not itInfo->m_index.skipCurrentProcess()) {
+      ProductResolverIndexHelper const* helper = nullptr;
+      std::vector<ModuleDescription const*>* modules = nullptr;
+      if (itInfo->m_branchType == InEvent) {
+        helper = &helperEvent;
+        modules = &modulesEvent;
+      } else if (itInfo->m_branchType == InLumi) {
+        helper = &helperLumi;
+        modules = &modulesLumiRun;
+      } else if (itInfo->m_branchType == InRun) {
+        helper = &helperRun;
+        modules = &modulesLumiRun;
+      } else {
+        throw cms::Exception("LogicError")
+            << "EDConsumerBase::modulesWhoseProductsAreConsumed(): unknown branch type " << itInfo->m_branchType;
+      }
+
       const unsigned int labelStart = itLabels->m_startOfModuleLabel;
       const char* const consumedModuleLabel = &(m_tokenLabels[labelStart]);
       const char* const consumedProductInstance = consumedModuleLabel + itLabels->m_deltaToProductInstance;
@@ -494,27 +513,27 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
       if (*consumedModuleLabel != '\0') {    // not a consumesMany
         if (*consumedProcessName != '\0') {  // process name is specified in consumes call
           if (processName == consumedProcessName &&
-              iHelper.index(
+              helper->index(
                   *itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance, consumedProcessName) !=
                   ProductResolverIndexInvalid) {
             insertFoundModuleLabel(*itKind,
                                    itInfo->m_type,
                                    consumedModuleLabel,
                                    consumedProductInstance,
-                                   modules,
+                                   *modules,
                                    alreadyFound,
                                    labelsToDesc,
                                    preg);
           }
         } else {  // process name was empty
-          auto matches = iHelper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
+          auto matches = helper->relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
           for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
             if (processName == matches.processName(j)) {
               insertFoundModuleLabel(*itKind,
                                      itInfo->m_type,
                                      consumedModuleLabel,
                                      consumedProductInstance,
-                                     modules,
+                                     *modules,
                                      alreadyFound,
                                      labelsToDesc,
                                      preg);
@@ -523,14 +542,14 @@ void EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescripti
         }
         // consumesMany case
       } else if (itInfo->m_index.productResolverIndex() == ProductResolverIndexInvalid) {
-        auto matches = iHelper.relatedIndexes(*itKind, itInfo->m_type);
+        auto matches = helper->relatedIndexes(*itKind, itInfo->m_type);
         for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
           if (processName == matches.processName(j)) {
             insertFoundModuleLabel(*itKind,
                                    itInfo->m_type,
                                    matches.moduleLabel(j),
                                    matches.productInstanceName(j),
-                                   modules,
+                                   *modules,
                                    alreadyFound,
                                    labelsToDesc,
                                    preg);

@@ -123,6 +123,11 @@ namespace edm {
     Worker(Worker const&) = delete;             // Disallow copying and moving
     Worker& operator=(Worker const&) = delete;  // Disallow copying and moving
 
+    void clearModule() {
+      moduleValid_ = false;
+      doClearModule();
+    }
+
     virtual bool wantsProcessBlocks() const = 0;
     virtual bool wantsInputProcessBlocks() const = 0;
     virtual bool wantsGlobalRuns() const = 0;
@@ -185,7 +190,12 @@ namespace edm {
 
     void postDoEvent(EventPrincipal const&);
 
-    ModuleDescription const* description() const { return moduleCallingContext_.moduleDescription(); }
+    ModuleDescription const* description() const {
+      if (moduleValid_) {
+        return moduleCallingContext_.moduleDescription();
+      }
+      return nullptr;
+    }
     ///The signals are required to live longer than the last call to 'doWork'
     /// this was done to improve performance based on profiling
     void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);
@@ -201,7 +211,8 @@ namespace edm {
             iIndicies) = 0;
 
     virtual void modulesWhoseProductsAreConsumed(
-        std::vector<ModuleDescription const*>& modules,
+        std::vector<ModuleDescription const*>& modulesEvent,
+        std::vector<ModuleDescription const*>& modulesLumiRun,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
 
@@ -235,6 +246,9 @@ namespace edm {
   protected:
     template <typename O>
     friend class workerhelper::CallImpl;
+
+    virtual void doClearModule() = 0;
+
     virtual std::string workerType() const = 0;
     virtual bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) = 0;
 
@@ -566,6 +580,7 @@ namespace edm {
     edm::WaitingTaskList waitingTasks_;
     std::atomic<bool> workStarted_;
     bool ranAcquireWithoutException_;
+    bool moduleValid_ = true;
   };
 
   namespace {

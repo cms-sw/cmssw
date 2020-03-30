@@ -30,6 +30,16 @@ namespace edm {
         unscheduled_(*areg),
         lastSetupEventPrincipal_(nullptr) {}  // WorkerManager::WorkerManager
 
+  void WorkerManager::deleteModuleIfExists(std::string const& moduleLabel) {
+    auto worker = workerReg_.get(moduleLabel);
+    if (worker != nullptr) {
+      auto eraseBeg = std::remove(allWorkers_.begin(), allWorkers_.end(), worker);
+      allWorkers_.erase(eraseBeg, allWorkers_.end());
+      unscheduled_.removeWorker(worker);
+      workerReg_.deleteModule(moduleLabel);
+    }
+  }
+
   Worker* WorkerManager::getWorker(ParameterSet& pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
