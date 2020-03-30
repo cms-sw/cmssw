@@ -27,6 +27,7 @@ namespace reco {
 // Collaborating Class Declarations --
 //------------------------------------
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexFitter.h"
 
 //---------------
 // C++ Headers --
@@ -41,9 +42,12 @@ namespace reco {
 
 class BPHDecayVertex : public virtual BPHDecayMomentum {
 public:
-  /** Constructor is protected
+  /** Constructors are protected
    *  this object can exist only as part of a derived class
    */
+  // deleted copy constructor and assignment operator
+  BPHDecayVertex(const BPHDecayVertex& x) = delete;
+  BPHDecayVertex& operator=(const BPHDecayVertex& x) = delete;
 
   /** Destructor
    */
@@ -57,7 +61,10 @@ public:
   virtual bool validVertex() const;
 
   /// get reconstructed vertex
-  virtual const reco::Vertex& vertex() const;
+  virtual const reco::Vertex& vertex(VertexFitter<5>* fitter = nullptr,
+                                     const reco::BeamSpot* bs = nullptr,
+                                     const GlobalPoint* priorPos = nullptr,
+                                     const GlobalError* priorError = nullptr) const;
 
   /// get list of Tracks
   const std::vector<const reco::Track*>& tracks() const;
@@ -70,6 +77,9 @@ public:
 
   /// get TransientTrack for a daughter
   reco::TransientTrack* getTransientTrack(const reco::Candidate* cand) const;
+
+  /// retrieve EventSetup
+  const edm::EventSetup* getEventSetup() const;
 
   /// retrieve track search list
   const std::string& getTrackSearchList(const reco::Candidate* cand) const;
@@ -105,10 +115,17 @@ private:
   mutable std::map<const reco::Candidate*, const reco::Track*> tkMap;
   mutable std::map<const reco::Candidate*, reco::TransientTrack*> ttMap;
   mutable reco::Vertex fittedVertex;
+  mutable VertexFitter<5>* savedFitter;
+  mutable reco::BeamSpot const* savedBS;
+  mutable GlobalPoint const* savedPP;
+  mutable GlobalError const* savedPE;
 
   // create TransientTrack and fit vertex
   virtual void tTracks() const;
-  virtual void fitVertex() const;
+  virtual void fitVertex(VertexFitter<5>* fitter,
+                         const reco::BeamSpot* bs,
+                         const GlobalPoint* priorPos,
+                         const GlobalError* priorError) const;
 };
 
 #endif
