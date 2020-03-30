@@ -66,7 +66,7 @@ bool getLatestLumiFromDAQ(const std::string& urlString, std::string& info) {
 cond::Time_t cond::service::OnlineDBOutputService::getLastLumiProcessed() {
   cond::Time_t lastLumiProcessed = cond::time::MIN_VAL;
   unsigned int lastL = 0;
-  if (!m_lastLumiUrl.size() == 0) {
+  if (!m_lastLumiUrl.empty()) {
     std::string info("");
     if (!getLatestLumiFromDAQ(m_lastLumiUrl, info))
       throw Exception("Can't get last Lumisection from DAQ.");
