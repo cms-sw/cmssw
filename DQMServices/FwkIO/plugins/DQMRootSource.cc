@@ -486,6 +486,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       }
 
     } catch (cms::Exception const& e) {
+      file = nullptr;  // is there anything we need to free?
       if (!hasFallback) {
         if (m_skipBadFiles) {
           continue;
@@ -530,6 +531,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
           std::rethrow_exception(e);
         }
       } catch (cms::Exception const& e) {
+        file = nullptr;  // is there anything we need to free?
         if (m_skipBadFiles) {
           continue;
         } else {
