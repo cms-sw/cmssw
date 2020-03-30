@@ -113,6 +113,12 @@ namespace edm {
     }
   }
 
+  void GlobalSchedule::deleteModule(std::string const& iLabel) {
+    for (auto& wm : workerManagers_) {
+      wm.deleteModuleIfExists(iLabel);
+    }
+  }
+
   std::vector<ModuleDescription const*> GlobalSchedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());

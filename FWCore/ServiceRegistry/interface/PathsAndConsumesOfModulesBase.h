@@ -64,6 +64,10 @@ namespace edm {
       return doModulesWhoseProductsAreConsumedBy(moduleID);
     }
 
+    std::vector<ModuleDescription const*> const& modulesWhoseProductsAreConsumedByLumiRun(unsigned int moduleID) const {
+      return doModulesWhoseProductsAreConsumedByLumiRun(moduleID);
+    }
+
     // This returns the declared consumes information for a module.
     // Note the other functions above return a reference to an object
     // that is held in memory throughout the job, while the following
@@ -81,6 +85,8 @@ namespace edm {
     virtual std::vector<ModuleDescription const*> const& doModulesOnPath(unsigned int pathIndex) const = 0;
     virtual std::vector<ModuleDescription const*> const& doModulesOnEndPath(unsigned int endPathIndex) const = 0;
     virtual std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedBy(
+        unsigned int moduleID) const = 0;
+    virtual std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedByLumiRun(
         unsigned int moduleID) const = 0;
     virtual std::vector<ConsumesInfo> doConsumesInfo(unsigned int moduleID) const = 0;
   };

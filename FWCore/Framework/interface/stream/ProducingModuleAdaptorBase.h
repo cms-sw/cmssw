@@ -100,7 +100,8 @@ namespace edm {
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProxyIndices const&);
 
-      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modulesEvent,
+                                           std::vector<ModuleDescription const*>& modulesLumiRun,
                                            ProductRegistry const& preg,
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;

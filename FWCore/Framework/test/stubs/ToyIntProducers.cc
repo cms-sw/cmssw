@@ -53,6 +53,27 @@ namespace edmtest {
     // We throw an edm exception with a configurable action.
     throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
   }
+  //--------------------------------------------------------------------
+  //
+  // throws an exception.
+  // Announces an IntProduct but does not produce one;
+  // every call to FailingInLumiProducer::produce throws a cms exception
+  //
+  class FailingInLumiProducer : public edm::global::EDProducer<edm::BeginLuminosityBlockProducer> {
+  public:
+    explicit FailingInLumiProducer(edm::ParameterSet const& /*p*/) {
+      produces<IntProduct, edm::Transition::BeginLuminosityBlock>();
+    }
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override;
+  };
+
+  void FailingInLumiProducer::produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const {}
+  void FailingInLumiProducer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const {
+    // We throw an edm exception with a configurable action.
+    throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
+  }
 
   //--------------------------------------------------------------------
   //
@@ -716,6 +737,29 @@ namespace edmtest {
     processBlock.put(token3_, std::make_unique<IntProduct>(value_ + 3));
     processBlock.put(token4_, std::make_unique<IntProduct>(value_ + 4));
   }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces an IntProduct instance, the module must get run, otherwise an exception is thrown
+  class MustRunIntProducer : public edm::global::EDProducer<> {
+  public:
+    explicit MustRunIntProducer(edm::ParameterSet const& p)
+        : token_{produces<IntProduct>()}, value_(p.getParameter<int>("ivalue")) {}
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override {
+      wasRun_ = true;
+      e.emplace(token_, value_);
+    }
+    void endJob() override {
+      if (not wasRun_) {
+        throw cms::Exception("NotRun") << "This module should have run for event transitions, but it did not";
+      }
+    }
+
+  private:
+    const edm::EDPutTokenT<IntProduct> token_;
+    const int value_;
+    mutable std::atomic<bool> wasRun_ = false;
+  };
 }  // namespace edmtest
 
 using edmtest::AddIntsProducer;
@@ -737,6 +781,7 @@ using edmtest::NonEventIntProducer;
 using edmtest::NonProducer;
 using edmtest::TransientIntProducer;
 DEFINE_FWK_MODULE(FailingProducer);
+DEFINE_FWK_MODULE(edmtest::FailingInLumiProducer);
 DEFINE_FWK_MODULE(edmtest::FailingInRunProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
@@ -755,3 +800,4 @@ DEFINE_FWK_MODULE(ManyIntWhenRegisteredProducer);
 DEFINE_FWK_MODULE(NonEventIntProducer);
 DEFINE_FWK_MODULE(IntProducerBeginProcessBlock);
 DEFINE_FWK_MODULE(IntProducerEndProcessBlock);
+DEFINE_FWK_MODULE(edmtest::MustRunIntProducer);

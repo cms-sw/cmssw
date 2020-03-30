@@ -32,6 +32,8 @@ namespace edm {
 
     void initialize(Schedule const*, std::shared_ptr<ProductRegistry const>);
 
+    void removeModules(std::vector<ModuleDescription const*> const& modules);
+
   private:
     std::vector<std::string> const& doPaths() const override { return paths_; }
     std::vector<std::string> const& doEndPaths() const override { return endPaths_; }
@@ -42,6 +44,8 @@ namespace edm {
     std::vector<ModuleDescription const*> const& doModulesOnPath(unsigned int pathIndex) const override;
     std::vector<ModuleDescription const*> const& doModulesOnEndPath(unsigned int endPathIndex) const override;
     std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedBy(
+        unsigned int moduleID) const override;
+    std::vector<ModuleDescription const*> const& doModulesWhoseProductsAreConsumedByLumiRun(
         unsigned int moduleID) const override;
 
     std::vector<ConsumesInfo> doConsumesInfo(unsigned int moduleID) const override;
@@ -62,11 +66,14 @@ namespace edm {
     // following data member
     std::vector<std::pair<unsigned int, unsigned int> > moduleIDToIndex_;
 
-    std::vector<std::vector<ModuleDescription const*> > modulesWhoseProductsAreConsumedBy_;
+    std::vector<std::vector<ModuleDescription const*> > modulesWhoseProductsAreConsumedByEvent_;
+    std::vector<std::vector<ModuleDescription const*> > modulesWhoseProductsAreConsumedByLumiRun_;
 
     Schedule const* schedule_;
     std::shared_ptr<ProductRegistry const> preg_;
   };
+
+  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC);
 
   void checkForModuleDependencyCorrectness(edm::PathsAndConsumesOfModulesBase const& iPnC, bool iPrintDependencies);
 }  // namespace edm

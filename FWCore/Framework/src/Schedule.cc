@@ -1422,6 +1422,14 @@ namespace edm {
     return true;
   }
 
+  void Schedule::deleteModule(std::string const& iLabel) {
+    globalSchedule_->deleteModule(iLabel);
+    for (auto& stream : streamSchedules_) {
+      stream->deleteModule(iLabel);
+    }
+    moduleRegistry_->deleteModule(iLabel);
+  }
+
   std::vector<ModuleDescription const*> Schedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());
@@ -1468,15 +1476,18 @@ namespace edm {
   void Schedule::fillModuleAndConsumesInfo(
       std::vector<ModuleDescription const*>& allModuleDescriptions,
       std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-      std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedBy,
+      std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByEvent,
+      std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByLumiRun,
       ProductRegistry const& preg) const {
     allModuleDescriptions.clear();
     moduleIDToIndex.clear();
-    modulesWhoseProductsAreConsumedBy.clear();
+    modulesWhoseProductsAreConsumedByEvent.clear();
+    modulesWhoseProductsAreConsumedByLumiRun.clear();
 
     allModuleDescriptions.reserve(allWorkers().size());
     moduleIDToIndex.reserve(allWorkers().size());
-    modulesWhoseProductsAreConsumedBy.resize(allWorkers().size());
+    modulesWhoseProductsAreConsumedByEvent.resize(allWorkers().size());
+    modulesWhoseProductsAreConsumedByLumiRun.resize(allWorkers().size());
 
     std::map<std::string, ModuleDescription const*> labelToDesc;
     unsigned int i = 0;
@@ -1491,9 +1502,10 @@ namespace edm {
 
     i = 0;
     for (auto const& worker : allWorkers()) {
-      std::vector<ModuleDescription const*>& modules = modulesWhoseProductsAreConsumedBy.at(i);
+      std::vector<ModuleDescription const*>& modulesEvent = modulesWhoseProductsAreConsumedByEvent.at(i);
+      std::vector<ModuleDescription const*>& modulesLumiRun = modulesWhoseProductsAreConsumedByLumiRun.at(i);
       try {
-        worker->modulesWhoseProductsAreConsumed(modules, preg, labelToDesc);
+        worker->modulesWhoseProductsAreConsumed(modulesEvent, modulesLumiRun, preg, labelToDesc);
       } catch (cms::Exception& ex) {
         ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
                       worker->description()->moduleLabel());

@@ -77,6 +77,8 @@ namespace edm {
     T const& module() const { return *module_; }
 
   private:
+    void doClearModule() override { get_underlying_safe(module_).reset(); }
+
     bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) override;
 
     void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const final;
@@ -107,10 +109,12 @@ namespace edm {
     TaskQueueAdaptor serializeRunModule() override;
 
     void modulesWhoseProductsAreConsumed(
-        std::vector<ModuleDescription const*>& modules,
+        std::vector<ModuleDescription const*>& modulesEvent,
+        std::vector<ModuleDescription const*>& modulesLumiRun,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
-      module_->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, module_->moduleDescription().processName());
+      module_->modulesWhoseProductsAreConsumed(
+          modulesEvent, modulesLumiRun, preg, labelsToDesc, module_->moduleDescription().processName());
     }
 
     void convertCurrentProcessAlias(std::string const& processName) override {

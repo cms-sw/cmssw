@@ -49,4 +49,14 @@ namespace edm {
     modItr->second = modPtr;
     return modItr->second.get();
   }
+
+  void ModuleRegistry::deleteModule(std::string const& iModuleLabel /* TODO: signals */) {
+    auto modItr = labelToModule_.find(iModuleLabel);
+    if (modItr == labelToModule_.end()) {
+      throw cms::Exception("LogicError")
+          << "Trying to delete module " << iModuleLabel
+          << " but it does not exist in the ModuleRegistry. Please contact framework developers.";
+    }
+    labelToModule_.erase(modItr);
+  }
 }  // namespace edm

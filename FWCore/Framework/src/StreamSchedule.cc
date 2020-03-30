@@ -547,6 +547,8 @@ namespace edm {
     found->beginStream(streamID_, streamContext_);
   }
 
+  void StreamSchedule::deleteModule(std::string const& iLabel) { workerManager_.deleteModuleIfExists(iLabel); }
+
   std::vector<ModuleDescription const*> StreamSchedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
     result.reserve(allWorkers().size());

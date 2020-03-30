@@ -18,6 +18,7 @@ Toy EDAnalyzers for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 //
 #include <cassert>
 #include <string>
@@ -100,6 +101,73 @@ namespace edmtest {
 
   private:
     std::vector<edm::EDGetTokenT<IntProduct>> m_tokens;
+  };
+
+  //--------------------------------------------------------------------
+  //
+  class GenericIntsAnalyzer : public edm::global::EDAnalyzer<> {
+  public:
+    GenericIntsAnalyzer(edm::ParameterSet const& iPSet)
+        : tokensBeginRun_(edm::vector_transform(
+              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun"),
+              [this](edm::InputTag const& tag) { return this->consumes<IntProduct, edm::InRun>(tag); })),
+          tokensBeginLumi_(edm::vector_transform(
+              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi"),
+              [this](edm::InputTag const& tag) { return this->consumes<IntProduct, edm::InLumi>(tag); })),
+          tokensEvent_(
+              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent"),
+                                    [this](edm::InputTag const& tag) { return this->consumes<IntProduct>(tag); })),
+          tokensEndLumi_(edm::vector_transform(
+              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndLumi"),
+              [this](edm::InputTag const& tag) { return this->consumes<IntProduct, edm::InLumi>(tag); })),
+          tokensEndRun_(edm::vector_transform(
+              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndRun"),
+              [this](edm::InputTag const& tag) { return this->consumes<IntProduct, edm::InRun>(tag); })),
+          shouldExist_(iPSet.getUntrackedParameter<bool>("inputShouldExist")),
+          shouldBeMissing_(iPSet.getUntrackedParameter<bool>("inputShouldBeMissing")) {
+      if (shouldExist_ and shouldBeMissing_) {
+        throw cms::Exception("Configuration")
+            << "inputShouldExist and inputShouldBeMissing both can not be set to True";
+      }
+    }
+
+    void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const override {
+      for (auto const& token : tokensEvent_) {
+        if (shouldExist_) {
+          (void)iEvent.get(token);
+        } else if (shouldBeMissing_) {
+          auto h = iEvent.getHandle(token);
+          if (h.isValid()) {
+            edm::EDConsumerBase::Labels labels;
+            labelsForToken(token, labels);
+            throw cms::Exception("ProductExists")
+                << "Product " << labels.module << ":" << labels.productInstance << ":" << labels.process
+                << " exists, but expectation was it should be missing";
+          }
+        }
+      }
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcEndLumi", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcEndRun", std::vector<edm::InputTag>{});
+      desc.addUntracked<bool>("inputShouldExist", false);
+      desc.addUntracked<bool>("inputShouldBeMissing", false);
+      descriptions.addDefault(desc);
+    }
+
+  private:
+    const std::vector<edm::EDGetTokenT<IntProduct>> tokensBeginRun_;
+    const std::vector<edm::EDGetTokenT<IntProduct>> tokensBeginLumi_;
+    const std::vector<edm::EDGetTokenT<IntProduct>> tokensEvent_;
+    const std::vector<edm::EDGetTokenT<IntProduct>> tokensEndLumi_;
+    const std::vector<edm::EDGetTokenT<IntProduct>> tokensEndRun_;
+    const bool shouldExist_;
+    const bool shouldBeMissing_;
   };
 
   //--------------------------------------------------------------------
@@ -327,6 +395,7 @@ using edmtest::SimpleViewAnalyzer;
 DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
 DEFINE_FWK_MODULE(MultipleIntsAnalyzer);
+DEFINE_FWK_MODULE(edmtest::GenericIntsAnalyzer);
 DEFINE_FWK_MODULE(IntConsumingAnalyzer);
 DEFINE_FWK_MODULE(edmtest::IntFromRunConsumingAnalyzer);
 DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);

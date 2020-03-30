@@ -48,6 +48,8 @@ namespace edm {
                                        edm::ParameterSet const& iPSet,
                                        edm::PreallocationConfiguration const&);
 
+    void deleteModule(std::string const& iModuleLabel /* TODO: signals */);
+
     template <typename F>
     void forAllModuleHolders(F iFunc) {
       for (auto& labelMod : labelToModule_) {

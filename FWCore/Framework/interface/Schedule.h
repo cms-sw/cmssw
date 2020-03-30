@@ -230,10 +230,12 @@ namespace edm {
                                      std::vector<ModuleDescription const*>& descriptions,
                                      unsigned int hint) const;
 
-    void fillModuleAndConsumesInfo(std::vector<ModuleDescription const*>& allModuleDescriptions,
-                                   std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-                                   std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedBy,
-                                   ProductRegistry const& preg) const;
+    void fillModuleAndConsumesInfo(
+        std::vector<ModuleDescription const*>& allModuleDescriptions,
+        std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
+        std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByEvent,
+        std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByLumiRun,
+        ProductRegistry const& preg) const;
 
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
@@ -276,6 +278,9 @@ namespace edm {
                       ParameterSet const& iPSet,
                       const ProductRegistry& iRegistry,
                       eventsetup::ESRecordsToProxyIndices const&);
+
+    /// Deletes module with label iLabel
+    void deleteModule(std::string const& iLabel);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
