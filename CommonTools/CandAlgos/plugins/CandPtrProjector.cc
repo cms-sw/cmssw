@@ -71,7 +71,7 @@ void CandPtrProjector::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("src");
   desc.add<edm::InputTag>("veto");
   desc.add<bool>("useDeltaRforFootprint", false);
-  descriptions.add("CandPtrProjector", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(CandPtrProjector);
