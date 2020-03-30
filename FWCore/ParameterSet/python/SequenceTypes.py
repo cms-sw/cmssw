@@ -712,7 +712,8 @@ class SequencePlaceholder(_Sequenceable):
         result = 'cms.SequencePlaceholder(\"'
         if options.isCfg:
            result += 'process.'
-        result += +self._name+'\")\n'
+        result += self._name+'\")\n'
+        return result
 
 
 class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
@@ -1813,6 +1814,11 @@ if __name__=="__main__":
             p8.visit(moduleVisitor)
             names = [m.label_() for m in l]
             self.assertEqual(names, ['a', 'b', 'c'])
+            tph = TaskPlaceholder('a')
+            self.assertEqual(tph.dumpPython(), 'cms.TaskPlaceholder("process.a")\n')
+            sph = SequencePlaceholder('a')
+            self.assertEqual(sph.dumpPython(), 'cms.SequencePlaceholder("process.a")\n')
+
         def testDumpConfig(self):
             a = DummyModule("a")
             b = DummyModule('b')
