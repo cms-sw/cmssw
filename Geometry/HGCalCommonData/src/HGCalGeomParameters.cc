@@ -25,6 +25,7 @@
 using namespace geant_units::operators;
 
 const double tolerance = 0.001;
+const double tolmin = 1.e-20;
 
 HGCalGeomParameters::HGCalGeomParameters() : sqrt3_(std::sqrt(3.0)) {
 #ifdef EDM_ML_DEBUG
@@ -122,7 +123,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   DDFilteredView fv1(*cpv, filter1);
   bool ok = fv1.firstChild();
   if (!ok) {
-    edm::LogError("HGCalGeom") << " Attribute " << val1 << " not found but needed.";
     throw cms::Exception("DDException") << "Attribute " << val1 << " not found but needed.";
   } else {
     dodet = true;
@@ -135,8 +135,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       int wafer = (nsiz > 0) ? copy[nsiz - 1] : 0;
       int layer = (nsiz > 1) ? copy[nsiz - 2] : 0;
       if (nsiz < 2) {
-        edm::LogError("HGCalGeom") << "Funny wafer # " << wafer << " in " << nsiz << " components";
-        throw cms::Exception("DDException") << "Funny wafer # " << wafer;
+        throw cms::Exception("DDException") << "Funny wafer # " << wafer << " in " << nsiz << " components";
       } else if (layer > (int)(layers.size())) {
         edm::LogWarning("HGCalGeom") << "Funny wafer # " << wafer << " Layer " << layer << ":" << layers.size()
                                      << " among " << nsiz << " components";
@@ -202,7 +201,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   DDFilteredView fv2(*cpv, filter2);
   ok = fv2.firstChild();
   if (!ok) {
-    edm::LogError("HGCalGeom") << " Attribute " << val2 << " not found but needed.";
     throw cms::Exception("DDException") << "Attribute " << val2 << " not found but needed.";
   } else {
     dodet = true;
@@ -216,8 +214,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       int cell = cellx % 1000;
       int type = cellx / 1000;
       if (type != 1 && type != 2) {
-        edm::LogError("HGCalGeom") << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
-        throw cms::Exception("DDException") << "Funny cell # " << cell;
+        throw cms::Exception("DDException") << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
       } else {
         auto ktr = wafertype.find(wafer);
         if (ktr == wafertype.end())
@@ -339,7 +336,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
   cms::DDFilteredView fv1((*cpv), filter1);
   bool ok = fv1.firstChild();
   if (!ok) {
-    edm::LogError("HGCalGeom") << " Attribute " << sdTag2 << " not found but needed.";
     throw cms::Exception("DDException") << "Attribute " << sdTag2 << " not found but needed.";
   } else {
     bool dodet = true;
@@ -351,8 +347,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
       int wafer = (nsiz > 0) ? copy[0] : 0;
       int layer = (nsiz > 1) ? copy[1] : 0;
       if (nsiz < 2) {
-        edm::LogError("HGCalGeom") << "Funny wafer # " << wafer << " in " << nsiz << " components";
-        throw cms::Exception("DDException") << "Funny wafer # " << wafer;
+        throw cms::Exception("DDException") << "Funny wafer # " << wafer << " in " << nsiz << " components";
       } else if (layer > (int)(layers.size())) {
         edm::LogWarning("HGCalGeom") << "Funny wafer # " << wafer << " Layer " << layer << ":" << layers.size()
                                      << " among " << nsiz << " components";
@@ -418,7 +413,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
   cms::DDFilteredView fv2((*cpv), filter2);
   ok = fv2.firstChild();
   if (!ok) {
-    edm::LogError("HGCalGeom") << " Attribute " << sdTag3 << " not found but needed.";
     throw cms::Exception("DDException") << "Attribute " << sdTag3 << " not found but needed.";
   } else {
     bool dodet = true;
@@ -431,8 +425,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
       int cell = cellx % 1000;
       int type = cellx / 1000;
       if (type != 1 && type != 2) {
-        edm::LogError("HGCalGeom") << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
-        throw cms::Exception("DDException") << "Funny cell # " << cell;
+        throw cms::Exception("DDException") << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
       } else {
         auto ktr = wafertype.find(wafer);
         if (ktr == wafertype.end())
@@ -490,8 +483,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
                                               const std::map<int, HGCalGeomParameters::cellParameters>& cellsc,
                                               HGCalParameters& php) {
   if (((cellsf.size() + cellsc.size()) == 0) || (wafers.empty()) || (layers.empty())) {
-    edm::LogError("HGCalGeom") << "HGCalGeomParameters : number of cells " << cellsf.size() << ":" << cellsc.size()
-                               << " wafers " << wafers.size() << " layers " << layers.size() << " illegal";
     throw cms::Exception("DDException") << "HGCalGeomParameters: mismatch between geometry and specpar: cells "
                                         << cellsf.size() << ":" << cellsc.size() << " wafers " << wafers.size()
                                         << " layers " << layers.size();
@@ -556,8 +547,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
   for (unsigned int i = 0; i < cellsf.size(); ++i) {
     auto itr = cellsf.find(i);
     if (itr == cellsf.end()) {
-      edm::LogError("HGCalGeom") << "HGCalGeomParameters: missing info for"
-                                 << " fine cell number " << i;
       throw cms::Exception("DDException") << "HGCalGeomParameters: missing info for fine cell number " << i;
     } else {
       double xx = (itr->second).xyz.x();
@@ -573,8 +562,6 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
   for (unsigned int i = 0; i < cellsc.size(); ++i) {
     auto itr = cellsc.find(i);
     if (itr == cellsc.end()) {
-      edm::LogError("HGCalGeom") << "HGCalGeomParameters: missing info for"
-                                 << " coarse cell number " << i;
       throw cms::Exception("DDException") << "HGCalGeomParameters: missing info for coarse cell number " << i;
     } else {
       double xx = (itr->second).xyz.x();
@@ -698,8 +685,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalP
                                     << " lay " << lay << " z " << zside;
 #endif
       if (lay == 0) {
-        edm::LogError("HGCalGeom") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
-        throw cms::Exception("DDException") << "Funny layer # " << lay;
+        throw cms::Exception("DDException") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
       } else {
         if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
           php.layer_.emplace_back(lay);
@@ -773,8 +759,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
                                     << php.levelZSide_;
 #endif
       if (lay == 0) {
-        edm::LogError("HGCalGeom") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
-        throw cms::Exception("DDException") << "Funny layer # " << lay;
+        throw cms::Exception("DDException") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
       } else {
         if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
           php.layer_.emplace_back(lay);
@@ -1652,21 +1637,16 @@ std::vector<double> HGCalGeomParameters::getDDDArray(const std::string& str, con
     int nval = fvec.size();
     if (nmin > 0) {
       if (nval < nmin) {
-        edm::LogError("HGCalGeom") << "HGCalGeomParameters : # of " << str << " bins " << nval << " < " << nmin
-                                   << " ==> illegal";
-        throw cms::Exception("DDException") << "HGCalGeomParameters: cannot get array " << str;
+        throw cms::Exception("DDException") << "HGCalGeomParameters:  # of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
       }
     } else {
       if (nval < 1 && nmin == 0) {
-        edm::LogError("HGCalGeom") << "HGCalGeomParameters : # of " << str << " bins " << nval << " < 1 ==> illegal"
-                                   << " (nmin=" << nmin << ")";
-        throw cms::Exception("DDException") << "HGCalGeomParameters: cannot get array " << str;
+        throw cms::Exception("DDException") << "HGCalGeomParameters: # of " << str << " bins " << nval << " < 1 ==> illegal" << " (nmin=" << nmin << ")";
       }
     }
     return fvec;
   } else {
     if (nmin >= 0) {
-      edm::LogError("HGCalGeom") << "HGCalGeomParameters: cannot get array " << str;
       throw cms::Exception("DDException") << "HGCalGeomParameters: cannot get array " << str;
     }
     std::vector<double> fvec;
@@ -1707,6 +1687,6 @@ void HGCalGeomParameters::rescale(std::vector<double>& v, const double s) {
 
 void HGCalGeomParameters::resetZero(std::vector<double>& v) {
   for (auto n : v)
-    if (std::abs(n) < 1.e-20)
+    if (std::abs(n) < tolmin)
       n = 0;
 }
