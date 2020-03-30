@@ -4,7 +4,7 @@ import os
 import re
 
 from . import configTemplates
-from .helperFunctions import conddb, parsecolor, parsestyle, replaceByMap, clean_name, getTagsMap
+from .helperFunctions import parsecolor, parsestyle, replaceByMap, clean_name, getTagsMap
 from .TkAlExceptions import AllInOneError
 import six
 
@@ -169,7 +169,7 @@ class Alignment(object):
                     if not os.path.exists(dbfile):
                         raise AllInOneError("No file {}.".format(dbfile))
 
-                    if "Deformations" not in getTagsMap().keys():
+                    if "Deformations" not in getTagsMap(dbfile).keys():
                         deformations = False  #so that hp = XXXX works whether or not deformations were aligned
                         if not alignments:    #then it's specified with hp_deformations, which is a mistake
                             raise AllInOneError("{}{} has no deformations".format(option, number))
