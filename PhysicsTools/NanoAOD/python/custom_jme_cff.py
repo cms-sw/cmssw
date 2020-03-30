@@ -496,8 +496,12 @@ def PrepJMECustomNanoAOD(process,runOnMC):
     process.nanoSequence  += recoJA.getSequence(process)
     process.nanoSequence  += tableRecoJA.getSequence(process)
 
+  return process
+
 def PrepJMECustomNanoAOD_MC(process):
   PrepJMECustomNanoAOD(process,runOnMC=True)
+  return process
 
 def PrepJMECustomNanoAOD_Data(process):
   PrepJMECustomNanoAOD(process,runOnMC=False)
+  return process
