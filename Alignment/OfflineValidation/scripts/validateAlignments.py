@@ -743,7 +743,10 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
 
     map( lambda job: job.runJob(), jobs )
 
-    ValidationJobMultiIOV.runCondorJobs(outPath)
+    if options.dryRun:
+        pass
+    else:
+        ValidationJobMultiIOV.runCondorJobs(outPath)
 
 
 if __name__ == "__main__":
