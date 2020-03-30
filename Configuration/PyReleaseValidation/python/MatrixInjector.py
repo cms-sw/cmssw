@@ -5,6 +5,7 @@ import os
 import copy
 import multiprocessing
 import time
+import re
 
 def performInjectionOptionTest(opt):
     if opt.show:
@@ -361,12 +362,10 @@ class MatrixInjector(object):
                                     chainDict['nowmTasklist'][-1]['EventsPerLumi'] = ns[1]
                                     #overwrite EventsPerLumi if numberEventsInLuminosityBlock is set in cmsDriver
                                     if 'numberEventsInLuminosityBlock' in s[2][index]:
-                                        nEventsInLuminosityBlock = (((s[2][index].replace(" ","").replace("numberEventsInLuminosityBlock=cms.untracked.uint32("," ")).split()[1]).split(')'))[0]
-                                        if nEventsInLuminosityBlock.isdigit() and int(nEventsInLuminosityBlock) < ns[1]:
-                                            #print('Overwrite EventsPerLumi using cmsDriver customisation')
-                                            chainDict['nowmTasklist'][-1]['EventsPerLumi'] = nEventsInLuminosityBlock
+                                        nEventsInLuminosityBlock = re.findall('process.source.numberEventsInLuminosityBlock=cms.untracked.uint32\(([ 0-9 ]*)\)', s[2][index],re.DOTALL)
+                                        if nEventsInLuminosityBlock[-1].isdigit() and int(nEventsInLuminosityBlock[-1]) < ns[1]:
+                                            chainDict['nowmTasklist'][-1]['EventsPerLumi'] = int(nEventsInLuminosityBlock[-1])
                                     if(self.numberEventsInLuminosityBlock > 0 and self.numberEventsInLuminosityBlock < ns[1]):
-                                        #print('Overwrite EventsPerLumi (again) using runTheMatrix parameter')
                                         chainDict['nowmTasklist'][-1]['EventsPerLumi'] = self.numberEventsInLuminosityBlock
                                 if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
                                     thisLabel+='_FastSim'
