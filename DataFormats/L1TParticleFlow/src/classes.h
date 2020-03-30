@@ -7,7 +7,6 @@
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
 #include "DataFormats/L1TParticleFlow/interface/PFTau.h"
 
-
 namespace DataFormats_L1TParticleFlow {
   struct dictionary {
     l1t::PFCluster l1clus;
@@ -22,11 +21,11 @@ namespace DataFormats_L1TParticleFlow {
     l1t::PFJetCollection l1PFJetCollection;
     l1t::PFTauCollection l1PFTauCollection;
 
-    edm::Wrapper<l1t::PFClusterCollection>   wl1PFClusterCollection;
-    edm::Wrapper<l1t::PFTrackCollection>   wl1PFTrackCollection;
-    edm::Wrapper<l1t::PFCandidateCollection>   wl1PFCandidateCollection;
-    edm::Wrapper<l1t::PFJetCollection>   wl1PFJetCollection;
-    edm::Wrapper<l1t::PFTauCollection>   wl1PFTauCollection;
+    edm::Wrapper<l1t::PFClusterCollection> wl1PFClusterCollection;
+    edm::Wrapper<l1t::PFTrackCollection> wl1PFTrackCollection;
+    edm::Wrapper<l1t::PFCandidateCollection> wl1PFCandidateCollection;
+    edm::Wrapper<l1t::PFJetCollection> wl1PFJetCollection;
+    edm::Wrapper<l1t::PFTauCollection> wl1PFTauCollection;
 
     edm::Ref<l1t::PFClusterCollection> l1PFClusterRef;
     edm::Ref<l1t::PFTrackCollection> l1PFTrackRef;
@@ -40,5 +39,4 @@ namespace DataFormats_L1TParticleFlow {
     edm::RefVector<l1t::PFJetCollection> l1PFJetRefVector;
     edm::RefVector<l1t::PFTauCollection> l1PFTauRefVector;
   };
-}
-
+}  // namespace DataFormats_L1TParticleFlow
