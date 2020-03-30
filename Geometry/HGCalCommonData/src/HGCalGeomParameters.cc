@@ -214,7 +214,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       int cell = cellx % 1000;
       int type = cellx / 1000;
       if (type != 1 && type != 2) {
-        throw cms::Exception("DDException") << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
+        throw cms::Exception("DDException")
+            << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
       } else {
         auto ktr = wafertype.find(wafer);
         if (ktr == wafertype.end())
@@ -425,7 +426,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
       int cell = cellx % 1000;
       int type = cellx / 1000;
       if (type != 1 && type != 2) {
-        throw cms::Exception("DDException") << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
+        throw cms::Exception("DDException")
+            << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
       } else {
         auto ktr = wafertype.find(wafer);
         if (ktr == wafertype.end())
@@ -685,7 +687,8 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalP
                                     << " lay " << lay << " z " << zside;
 #endif
       if (lay == 0) {
-        throw cms::Exception("DDException") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
+        throw cms::Exception("DDException")
+            << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
       } else {
         if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
           php.layer_.emplace_back(lay);
@@ -759,7 +762,8 @@ void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
                                     << php.levelZSide_;
 #endif
       if (lay == 0) {
-        throw cms::Exception("DDException") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
+        throw cms::Exception("DDException")
+            << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
       } else {
         if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
           php.layer_.emplace_back(lay);
@@ -1637,11 +1641,14 @@ std::vector<double> HGCalGeomParameters::getDDDArray(const std::string& str, con
     int nval = fvec.size();
     if (nmin > 0) {
       if (nval < nmin) {
-        throw cms::Exception("DDException") << "HGCalGeomParameters:  # of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
+        throw cms::Exception("DDException")
+            << "HGCalGeomParameters:  # of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
       }
     } else {
       if (nval < 1 && nmin == 0) {
-        throw cms::Exception("DDException") << "HGCalGeomParameters: # of " << str << " bins " << nval << " < 1 ==> illegal" << " (nmin=" << nmin << ")";
+        throw cms::Exception("DDException")
+            << "HGCalGeomParameters: # of " << str << " bins " << nval << " < 1 ==> illegal"
+            << " (nmin=" << nmin << ")";
       }
     }
     return fvec;
