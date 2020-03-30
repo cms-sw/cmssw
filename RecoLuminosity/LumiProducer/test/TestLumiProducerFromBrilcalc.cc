@@ -86,7 +86,7 @@ void TestLumiProducerFromBrilcalc::analyze(const edm::Event& iEvent, const edm::
   using namespace edm;
 
   edm::Handle<LumiInfo> lumi;
-  iEvent.getByLabel(inputTag_, lumi);
+  iEvent.getByToken(lumiToken_, lumi);
 
   std::cout << "Luminosity for run " << iEvent.run() << " LS " << iEvent.luminosityBlock() << " is "
             << lumi->getTotalInstLumi() << std::endl;
