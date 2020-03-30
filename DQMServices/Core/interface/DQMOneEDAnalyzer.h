@@ -99,7 +99,7 @@ public:
     dqmBeginLuminosityBlock(lumi, setup);
   }
 
-  void accumulate(edm::Event const& event, edm::EventSetup const& setup) { this->analyze(event, setup); }
+  void accumulate(edm::Event const& event, edm::EventSetup const& setup) override { this->analyze(event, setup); }
 
   void endLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) final {
     dqmEndLuminosityBlock(lumi, setup);
