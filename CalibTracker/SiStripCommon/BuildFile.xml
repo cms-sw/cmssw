@@ -2,6 +2,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/Scalers"/>
+<use   name="DataFormats/OnlineMetaData"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ServiceRegistry"/>

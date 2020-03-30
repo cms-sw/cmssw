@@ -35,4 +35,5 @@
 <use   name="DataFormats/EgammaReco"/>
 <use   name="PhysicsTools/SelectorUtils"/>
 <use   name="DataFormats/Provenance"/>
+<use   name="DataFormats/OnlineMetaData"/>
 <flags   EDM_PLUGIN="1"/>
