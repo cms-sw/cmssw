@@ -19,12 +19,11 @@ namespace l1t {
   class TkHTMiss : public L1Candidate {
   public:
     TkHTMiss();
-    TkHTMiss(
-        const LorentzVector& p4,
-        const double& EtTotal,
-        const edm::RefProd<TkJetCollection>& jetCollRef = edm::RefProd<TkJetCollection>(),
-        const edm::Ref<TkPrimaryVertexCollection>& aVtxRef = edm::Ref<TkPrimaryVertexCollection>(),
-        int bx = 0);
+    TkHTMiss(const LorentzVector& p4,
+             const double& EtTotal,
+             const edm::RefProd<TkJetCollection>& jetCollRef = edm::RefProd<TkJetCollection>(),
+             const edm::Ref<TkPrimaryVertexCollection>& aVtxRef = edm::Ref<TkPrimaryVertexCollection>(),
+             int bx = 0);
 
     // ---------- const member functions ---------------------
     double EtMiss() const {  // HTM (missing HT)

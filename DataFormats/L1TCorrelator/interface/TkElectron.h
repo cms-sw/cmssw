@@ -27,9 +27,9 @@ namespace l1t {
     TkElectron();
 
     TkElectron(const LorentzVector& p4,
-                         const edm::Ref<EGammaBxCollection>& egRef,
-                         const edm::Ptr<L1TTTrackType>& trkPtr,
-                         float tkisol = -999.);
+               const edm::Ref<EGammaBxCollection>& egRef,
+               const edm::Ptr<L1TTTrackType>& trkPtr,
+               float tkisol = -999.);
 
     virtual ~TkElectron() {}
 

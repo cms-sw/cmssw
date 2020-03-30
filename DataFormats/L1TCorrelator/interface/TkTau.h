@@ -25,11 +25,11 @@ namespace l1t {
     TkTau();
 
     TkTau(const LorentzVector& p4,
-                    const edm::Ref<TauBxCollection>& tauCaloRef,  // null for stand-alone TkTaus
-                    const edm::Ptr<L1TTTrackType>& trkPtr,
-                    const edm::Ptr<L1TTTrackType>& trkPtr2,  // null for tau -> 1 prong
-                    const edm::Ptr<L1TTTrackType>& trkPtr3,  // null for tau -> 1 prong
-                    float tkisol = -999.);
+          const edm::Ref<TauBxCollection>& tauCaloRef,  // null for stand-alone TkTaus
+          const edm::Ptr<L1TTTrackType>& trkPtr,
+          const edm::Ptr<L1TTTrackType>& trkPtr2,  // null for tau -> 1 prong
+          const edm::Ptr<L1TTTrackType>& trkPtr3,  // null for tau -> 1 prong
+          float tkisol = -999.);
 
     virtual ~TkTau() {}
 

@@ -24,13 +24,12 @@ namespace l1t {
     TkGlbMuon() : theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}
 
     TkGlbMuon(const LorentzVector& p4,
-                        const edm::Ref<MuonBxCollection>& muRef,
-                        const edm::Ptr<L1TTTrackType>& trkPtr,
-                        float tkisol = -999.);
+              const edm::Ref<MuonBxCollection>& muRef,
+              const edm::Ptr<L1TTTrackType>& trkPtr,
+              float tkisol = -999.);
 
     //! more basic constructor, in case refs/ptrs can't be set or to be set separately
-    TkGlbMuon(const L1Candidate& cand)
-        : L1Candidate(cand), theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}
+    TkGlbMuon(const L1Candidate& cand) : L1Candidate(cand), theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}
 
     virtual ~TkGlbMuon() {}
 

@@ -10,8 +10,8 @@ using namespace l1t;
 
 TkPhiCandidate::TkPhiCandidate() {}
 TkPhiCandidate::TkPhiCandidate(const LorentzVector& p4,
-                                   const edm::Ptr<L1TTTrackType>& trkPtr1,
-                                   const edm::Ptr<L1TTTrackType>& trkPtr2)
+                               const edm::Ptr<L1TTTrackType>& trkPtr1,
+                               const edm::Ptr<L1TTTrackType>& trkPtr2)
     : L1Candidate(p4) {
   trkPtrList_.push_back(trkPtr1);
   trkPtrList_.push_back(trkPtr2);
@@ -21,10 +21,8 @@ double TkPhiCandidate::dRTrkPair() const {
   const edm::Ptr<L1TTTrackType>& itrk = trkPtr(0);
   const edm::Ptr<L1TTTrackType>& jtrk = trkPtr(1);
 
-  math::PtEtaPhiMLorentzVector itrkP4(
-      itrk->momentum().perp(), itrk->momentum().eta(), itrk->momentum().phi(), kmass);
-  math::PtEtaPhiMLorentzVector jtrkP4(
-      jtrk->momentum().perp(), jtrk->momentum().eta(), jtrk->momentum().phi(), kmass);
+  math::PtEtaPhiMLorentzVector itrkP4(itrk->momentum().perp(), itrk->momentum().eta(), itrk->momentum().phi(), kmass);
+  math::PtEtaPhiMLorentzVector jtrkP4(jtrk->momentum().perp(), jtrk->momentum().eta(), jtrk->momentum().phi(), kmass);
   return reco::deltaR(itrkP4, jtrkP4);
 }
 
@@ -35,8 +33,7 @@ double TkPhiCandidate::dxyTrkPair() const {
   const edm::Ptr<L1TTTrackType>& itrk = trkPtr(0);
   const edm::Ptr<L1TTTrackType>& jtrk = trkPtr(1);
 
-  return std::sqrt(std::pow(itrk->POCA().x() - jtrk->POCA().x(), 2) +
-                   std::pow(itrk->POCA().y() - jtrk->POCA().y(), 2));
+  return std::sqrt(std::pow(itrk->POCA().x() - jtrk->POCA().x(), 2) + std::pow(itrk->POCA().y() - jtrk->POCA().y(), 2));
 }
 double TkPhiCandidate::dzTrkPair() const { return (trkPtr(0)->POCA().z() - trkPtr(1)->POCA().z()); }
 double TkPhiCandidate::vx() const { return 0.5 * (trkPtr(0)->POCA().x() + trkPtr(1)->POCA().x()); }

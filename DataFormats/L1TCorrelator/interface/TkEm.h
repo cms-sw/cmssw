@@ -23,9 +23,9 @@ namespace l1t {
     TkEm(const LorentzVector& p4, const edm::Ref<EGammaBxCollection>& egRef, float tkisol = -999.);
 
     TkEm(const LorentzVector& p4,
-                   const edm::Ref<EGammaBxCollection>& egRef,
-                   float tkisol = -999.,
-                   float tkisolPV = -999);
+         const edm::Ref<EGammaBxCollection>& egRef,
+         float tkisol = -999.,
+         float tkisolPV = -999);
 
     virtual ~TkEm() {}
 

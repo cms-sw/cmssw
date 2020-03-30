@@ -8,85 +8,72 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
-namespace l1t
-{
-  class TkMuon : public L1Candidate
-  {
-    public:
+namespace l1t {
+  class TkMuon : public L1Candidate {
+  public:
+    typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
+    typedef std::vector<L1TTTrackType> L1TTTrackCollection;
 
-    typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
-    typedef std::vector< L1TTTrackType > L1TTTrackCollection;
+    TkMuon() : theIsolation(-999.), TrkzVtx_(999.), quality_(999), pattern_(0) {}
 
-  TkMuon() : theIsolation(-999.), TrkzVtx_(999.), quality_(999),pattern_(0) {}
+    TkMuon(const LorentzVector& p4,
+           const edm::Ref<l1t::RegionalMuonCandBxCollection>& muRef,
+           const edm::Ptr<L1TTTrackType>& trkPtr,
+           float tkisol = -999.);
 
-      TkMuon( const LorentzVector& p4,
-   		        const edm::Ref< l1t::RegionalMuonCandBxCollection >& muRef,
-		        const edm::Ptr< L1TTTrackType >& trkPtr,
-		        float tkisol = -999. );
+    //One more constructor for Tracker+ Stubs algorithm not requiring the Muon candidate
+    TkMuon(const LorentzVector& p4, const edm::Ptr<L1TTTrackType>& trkPtr, float tkisol = -999.);
 
-      //One more constructor for Tracker+ Stubs algorithm not requiring the Muon candidate
-      TkMuon( const LorentzVector& p4,
-		        const edm::Ptr< L1TTTrackType >& trkPtr,
-		        float tkisol = -999. );
+    //! more basic constructor, in case refs/ptrs can't be set or to be set separately
+    TkMuon(const L1Candidate& cand) : L1Candidate(cand), theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}
 
-      
-      //! more basic constructor, in case refs/ptrs can't be set or to be set separately
-      TkMuon(const L1Candidate& cand) : L1Candidate(cand), theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}
+    virtual ~TkMuon() {}
 
-      virtual ~TkMuon() {}
+    const edm::Ptr<L1TTTrackType>& trkPtr() const { return trkPtr_; }
 
+    const edm::Ref<l1t::RegionalMuonCandBxCollection>& muRef() const { return muRef_; }
 
-      const edm::Ptr< L1TTTrackType >& trkPtr() const
-      { return trkPtr_ ; }
+    float trkIsol() const { return theIsolation; }
+    float trkzVtx() const { return TrkzVtx_; }
 
-      const edm::Ref< l1t::RegionalMuonCandBxCollection >& muRef() const
-      { return muRef_ ; }
+    float dR() const { return dR_; }
+    int nTracksMatched() const { return nTracksMatch_; }
+    double trackCurvature() const { return trackCurvature_; }
 
-      float trkIsol() const { return theIsolation; }
-      float trkzVtx() const { return TrkzVtx_ ; }
+    unsigned int quality() const { return quality_; }
+    unsigned int pattern() const { return pattern_; }
 
-      float dR()  const { return dR_;}
-      int nTracksMatched() const { return nTracksMatch_;}
-      double trackCurvature()  const { return trackCurvature_;}
+    unsigned int muonDetector() const { return muonDetector_; }
 
-      unsigned int quality()  const {return quality_;}
-      unsigned int pattern()  const {return pattern_;}
+    void setTrkPtr(const edm::Ptr<L1TTTrackType>& p) { trkPtr_ = p; }
 
-      unsigned int muonDetector() const {return muonDetector_;}  
+    void setTrkzVtx(float TrkzVtx) { TrkzVtx_ = TrkzVtx; }
+    void setTrkIsol(float TrkIsol) { theIsolation = TrkIsol; }
+    void setQuality(unsigned int q) { quality_ = q; }
+    void setPattern(unsigned int p) { pattern_ = p; }
 
-      void setTrkPtr(const edm::Ptr< L1TTTrackType >& p) {trkPtr_ = p;}
+    void setdR(float dR) { dR_ = dR; }
+    void setNTracksMatched(int nTracksMatch) { nTracksMatch_ = nTracksMatch; }
+    void setTrackCurvature(double trackCurvature) { trackCurvature_ = trackCurvature; }  // this is signed
+    void setMuonDetector(unsigned int detector) { muonDetector_ = detector; }
 
-      void setTrkzVtx(float TrkzVtx) { TrkzVtx_ = TrkzVtx ; }
-      void setTrkIsol(float TrkIsol) { theIsolation = TrkIsol ; }
-      void setQuality(unsigned int q){ quality_ = q;}
-      void setPattern(unsigned int p){ pattern_ = p;}
+  private:
+    // used for the Naive producer
+    edm::Ref<l1t::RegionalMuonCandBxCollection> muRef_;
 
-      void setdR(float dR) { dR_=dR;}
-      void setNTracksMatched(int nTracksMatch) { nTracksMatch_=nTracksMatch;}
-      void setTrackCurvature(double trackCurvature) { trackCurvature_=trackCurvature;} // this is signed
-      void setMuonDetector(unsigned int detector) {muonDetector_=detector;}
+    edm::Ptr<L1TTTrackType> trkPtr_;
 
-    private:
+    float theIsolation;
+    float TrkzVtx_;
+    float dR_;
+    int nTracksMatch_;
+    double trackCurvature_;
 
+    unsigned int quality_;
+    unsigned int pattern_;
 
-	// used for the Naive producer
-      edm::Ref< l1t::RegionalMuonCandBxCollection > muRef_ ;
-
-      edm::Ptr< L1TTTrackType > trkPtr_ ;
-
-      float theIsolation;
-      float TrkzVtx_ ;
-      float dR_;
-      int nTracksMatch_;
-      double trackCurvature_;
-
-      unsigned int quality_;
-      unsigned int pattern_;
- 
-      int muonDetector_;     
-
+    int muonDetector_;
   };
-}
+}  // namespace l1t
 
 #endif
-
