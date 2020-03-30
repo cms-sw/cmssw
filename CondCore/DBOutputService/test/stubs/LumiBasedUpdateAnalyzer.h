@@ -24,7 +24,7 @@ private:
   std::string m_record;
   std::string m_lastLumiFile;
   cond::Time_t m_prevLumi;
-  std::chrono::time_point<std::chrono::steady_clock> m_prevLumiTime;  
+  std::chrono::time_point<std::chrono::steady_clock> m_prevLumiTime;
   // ----------member data ---------------------------
 };
 #endif
