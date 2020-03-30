@@ -6,6 +6,7 @@ import re
 import ROOT
 import sys
 from .TkAlExceptions import AllInOneError
+import CondCore.Utilities.conddblib as conddblib
 import six
 
 ####################--- Helpers ---############################
@@ -232,6 +233,14 @@ def conddb(*args):
 
     return result
 
+def getTagsMap(db):
+    con = conddblib.connect(url = conddblib.make_url(db))
+    session = con.session()
+    TAG = session.get_dbtype(conddblib.Tag)
+    q1 = session.query(TAG.object_type).order_by(TAG.name).all()[0]
+    q2 = session.query(TAG.name).order_by(TAG.name).all()[0]
+    dictionary = dict(zip(q1, q2))
+    return dictionary
 
 def clean_name(s):
     """Transforms a string into a valid variable or method name.
