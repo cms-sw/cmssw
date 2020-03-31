@@ -135,7 +135,13 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
 
   ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstJet");
   ptTight = ibooker.book1D("tau_tight_pt", "tau_tight_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaTight = ibooker.book1D("tau_tight_eta", "tau_tight_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiTight = ibooker.book1D("tau_tight_phi", "tau_tight_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massTight = ibooker.book1D("tau_tight_mass", "tau_tight_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
   ptTightMap.insert(std::make_pair("", ptTight));
+  etaTightMap.insert(std::make_pair("", etaTight));
+  phiTightMap.insert(std::make_pair("", phiTight));
+  massTightMap.insert(std::make_pair("", massTight));
   //ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstEle");
   //ptTight = ibooker.book1D("tau_tight_pt", "tau_tight_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   //ptTightMap.insert(std::make_pair("", ptTight));
@@ -198,8 +204,12 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
           summaryMap.find("Num")->second->Fill(j);
         j = j + 1;
       }
-      if (matchedTau->tauID("byTightDeepTau2017v2p1VSjet")>=0.5)
+      if (matchedTau->tauID("byTightDeepTau2017v2p1VSjet")>=0.5) {
         ptTightMap.find("")->second->Fill(matchedTau->pt());
+        etaTightMap.find("")->second->Fill(matchedTau->eta());
+        phiTightMap.find("")->second->Fill(matchedTau->phi());
+        massTightMap.find("")->second->Fill(matchedTau->mass());
+      }
     }
   }
 }
