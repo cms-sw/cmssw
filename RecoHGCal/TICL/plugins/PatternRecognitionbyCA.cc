@@ -237,7 +237,7 @@ void PatternRecognitionbyCA::emptyTrackstersFromSeedsTRK(
       for (float &p : t.id_probabilities) {
         p = 0.f;
       }
-      t.id_probabilities[4] = 1.f;
+      t.id_probabilities[int(ticl::Trackster::ParticleType::charged_hadron)] = 1.f;
       t.seedID = collectionID;
       t.seedIndex = thisSeed.first;
       tracksters.emplace_back(t);
