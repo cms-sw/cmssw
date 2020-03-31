@@ -565,12 +565,10 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     HepMC::FourVector pxyz(0, 0, 0, 0);
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
          ++p, ++k) {
-#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCSim") << "Particle [" << k << "] with p " << (*p)->momentum().rho() << " theta "
                                  << (*p)->momentum().theta() << " phi " << (*p)->momentum().phi() << " pxyz ("
                                  << (*p)->momentum().px() << ", " << (*p)->momentum().py() << ", "
                                  << (*p)->momentum().pz() << ")";
-#endif
       if (addP_) {
         pxyz.setPx(pxyz.px() + (*p)->momentum().px());
         pxyz.setPy(pxyz.py() + (*p)->momentum().py());
@@ -581,10 +579,8 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
     }
     hBeam_->Fill(pxyz.rho());
-#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "Particle with p " << pxyz.rho() << " theta " << pxyz.theta() << " phi "
                                << pxyz.phi();
-#endif
   }
 
   // Now the Simhits
@@ -619,11 +615,6 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     simHitCellTimeFirstHitFH_.clear();
     simHitCellTime15MipFH_.clear();
     simHitCellTimeLastHitFH_.clear();
-    /*
-    simHitCellTimeFirstHitBH_.clear();
-    simHitCellTime15MipBH_.clear(); 
-    simHitCellTimeLastHitBH_.clear(); 
-    */
     edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
     std::vector<PCaloHit> caloHits;
     if (ifEE_) {
@@ -697,7 +688,6 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 #endif
       }
     }
-    // if (doTree_) tree_->Fill();
   }  // if (doSimHits_)
 
   ////Store the info about the Passive hits
@@ -930,12 +920,10 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       wafer = HGCalDetId(ID[id]).wafer();
       double layer = HGCalDetId(id).layer();
       double thickness = hgcons_[type]->cellThickness(layer, wafer, 0);
-      if (debug) {
+      if (debug)
         edm::LogVerbatim("HGCSim") << "wafer is : depth (reco) " << wafer << " " << Depth[id]
                                    << "\ntype : layer : wafer thickness " << type << " " << layer << " " << thickness
-                                   << "\nID(sim) and id(reco) " << std::hex << ID[id] << " " << id << std::dec
-                                   << std::endl;
-      }
+                                   << "\nID(sim) and id(reco) " << std::hex << ID[id] << " " << id << std::dec;
       if (thickness == 300) {
         GeV2Mip[id] = gev2mip300_;
         StochTermTime[id] = stoc_smear_time_300_;
@@ -1155,6 +1143,9 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
     pBeamMC_.clear();
   }
   std::vector<float> verX, verY, verZ;
+  verX.clear();
+  verY.clear();
+  verZ.clear();
   for (const auto& simVtxItr : *SimVtx) {
     verX.push_back(simVtxItr.position().X());
     verY.push_back(simVtxItr.position().Y());
@@ -1203,14 +1194,11 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
   phiBeam_ = pxyz.phi();
   if (phiBeam_ < 0)
     phiBeam_ += (2 * M_PI);
-  if (vertIndex != -1 && vertIndex < (int)SimVtx->size()) {
+  if (vertIndex != -1 && vertIndex < static_cast<int>(SimVtx->size())) {
     edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
-    for (int iv = 0; iv < vertIndex; iv++) {
+    for (int iv = 0; iv < vertIndex; iv++)
       simVtxItr++;
-    }
-#ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "Vertex " << vertIndex << " position " << simVtxItr->position();
-#endif
     xBeam_ = verX[0];
     yBeam_ = verY[0];
     zBeam_ = verZ[0];
