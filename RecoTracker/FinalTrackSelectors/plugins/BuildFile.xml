@@ -33,6 +33,7 @@
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/Statistics"/>
 <use   name="RecoTracker/Record"/>
+<use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="clhep"/>
 <use   name="roottmva"/>
 <use   name="lwtnn"/>
