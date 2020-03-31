@@ -11,12 +11,6 @@
 #include "Geometry/EcalCommonData/interface/ESTBNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
