@@ -16,10 +16,11 @@ using namespace cond::persistency;
 int readIov(IOVProxy& proxy, cond::Time_t targetTime, bool expectedOk) {
   bool found = false;
   cond::Iov_t iov;
-  std::cout <<"#Testing tag "<<proxy.tagInfo().name<<std::endl;
+  std::cout << "#Testing tag " << proxy.tagInfo().name << std::endl;
   try {
     iov = proxy.getInterval(targetTime);
-    if( iov.since < cond::time::MAX_VAL ) found = true;
+    if (iov.since < cond::time::MAX_VAL)
+      found = true;
   } catch (const Exception& e) {
     std::cout << "# IOV " << targetTime << " not found: " << e.what() << std::endl;
   }
