@@ -20,8 +20,7 @@ process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, "110X_mcRun3_2021_realistic_v8", "")
-process.GlobalTag.connect = "sqlite_file:110X_mcRun3_2021_realistic_v8.db"
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2021_realistic")
 from FastSimulation.Event.ParticleFilter_cfi import *
 
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
