@@ -1,5 +1,5 @@
-#ifndef TkTrigger_L1Em_h
-#define TkTrigger_L1Em_h
+#ifndef DataFormatsL1TCorrelator_TkEm_h
+#define DataFormatsL1TCorrelator_TkEm_h
 
 // -*- C++ -*-
 //

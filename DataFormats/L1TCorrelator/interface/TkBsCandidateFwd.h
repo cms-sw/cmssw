@@ -1,9 +1,9 @@
-#ifndef L1TrackTrigger_TkBsCandidateFwd_h
-#define L1TrackTrigger_TkBsCandidateFwd_h
+#ifndef DataFormatsL1TCorrelator_TkBsCandidateFwd_h
+#define DataFormatsL1TCorrelator_TkBsCandidateFwd_h
 
 // -*- C++ -*-
 //
-// Package:     DataFormats/L1TrackTrigger
+// Package:     DataFormats/L1TCorrelator
 // File:        TkBsCandidateFwd
 //
 

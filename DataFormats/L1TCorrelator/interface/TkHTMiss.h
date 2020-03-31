@@ -2,11 +2,7 @@
 #define TkTrigger_TkHTMiss_h
 // Package:     L1Trigger
 // Class  :     TkHTMiss
-// Original Author:  E. Perez
-//         Created:  Nov 14, 2013
 
-// system include files
-// user include files
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -20,7 +16,7 @@ namespace l1t {
   public:
     TkHTMiss();
     TkHTMiss(const LorentzVector& p4,
-             const double& EtTotal,
+             double EtTotal,
              const edm::RefProd<TkJetCollection>& jetCollRef = edm::RefProd<TkJetCollection>(),
              const edm::Ref<TkPrimaryVertexCollection>& aVtxRef = edm::Ref<TkPrimaryVertexCollection>(),
              int bx = 0);
@@ -39,9 +35,9 @@ namespace l1t {
     const edm::Ref<TkPrimaryVertexCollection>& vtxRef() const { return vtxRef_; }
 
     // ---------- member functions ---------------------------
-    void setEtTotal(const double& EtTotal) { EtTot_ = EtTotal; }
-    void setEtTotalPU(const double& EtTotalPU) { EtTotalPU_ = EtTotalPU; }
-    void setEtMissPU(const double& EtMissPU) { EtMissPU_ = EtMissPU; }
+    void setEtTotal(double EtTotal) { EtTot_ = EtTotal; }
+    void setEtTotalPU(double EtTotalPU) { EtTotalPU_ = EtTotalPU; }
+    void setEtMissPU(double EtMissPU) { EtMissPU_ = EtMissPU; }
     void setVtx(const float& zvtx) { zvtx_ = zvtx; }
     void setBx(int bx) { bx_ = bx; }
 

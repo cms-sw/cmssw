@@ -1,5 +1,5 @@
-#ifndef TkTrigger_L1Muon_h
-#define TkTrigger_L1Muon_h
+#ifndef DataFormatsL1TCorrelator_TkMuon_h
+#define DataFormatsL1TCorrelator_TkMuon_h
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"

@@ -1,5 +1,5 @@
-#ifndef TkTrigger_L1GlbMuon_h
-#define TkTrigger_L1GlbMuon_h
+#ifndef DataFormatsL1TCorrelator_TkGlbMuon_h
+#define DataFormatsL1TCorrelator_TkGlbMuon_h
 
 // -*- C++ -*-
 //

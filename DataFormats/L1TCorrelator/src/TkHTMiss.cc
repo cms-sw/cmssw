@@ -5,7 +5,7 @@ using namespace l1t;
 TkHTMiss::TkHTMiss() {}
 
 TkHTMiss::TkHTMiss(const LorentzVector& p4,
-                   const double& etTotal,
+                   double etTotal,
                    const edm::RefProd<TkJetCollection>& jetCollRef,
                    const edm::Ref<TkPrimaryVertexCollection>& avtxRef,
                    int bx)

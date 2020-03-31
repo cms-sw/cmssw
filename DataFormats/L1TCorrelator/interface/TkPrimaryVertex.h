@@ -1,8 +1,12 @@
 #ifndef TkTrigger_TkPrimaryVertex_h
 #define TkTrigger_TkPrimaryVertex_h
 
-// Nov 12, 2013
+// Package:     L1TCorrelator
+// Class  :     TkPrimaryVertex
+
 // First version of a class for L1-zvertex
+#include <vector>
+
 
 namespace l1t {
 
@@ -21,8 +25,6 @@ namespace l1t {
     float zvertex_;
     float sum_;
   };
-
-#include <vector>
 
   typedef std::vector<TkPrimaryVertex> TkPrimaryVertexCollection;
 

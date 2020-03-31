@@ -1,9 +1,9 @@
-#ifndef L1TrackTrigger_TkPhiCandidateFwd_h
-#define L1TrackTrigger_TkPhiCandidateFwd_h
+#ifndef DataFormatsL1TCorrelator_TkPhiCandidateFwd_h
+#define DataFormatsL1TCorrelator_TkPhiCandidateFwd_h
 
 // -*- C++ -*-
 //
-// Package:     DataFormats/L1TrackTrigger
+// Package:     DataFormats/L1TCorrelator
 // Class  :     TkPhiCandidateFwd
 //
 
