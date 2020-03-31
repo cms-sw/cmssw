@@ -13,12 +13,8 @@ class HcalTB02ParametersFromDD {
 public:
   HcalTB02ParametersFromDD() = default;
 
-  bool build(const DDCompactView* cpv,
-             HcalTB02Parameters& php,
-             const std::string& name);
-  bool build(const cms::DDCompactView* cpv,
-             HcalTB02Parameters& php,
-             const std::string& name);
+  bool build(const DDCompactView* cpv, HcalTB02Parameters& php, const std::string& name);
+  bool build(const cms::DDCompactView* cpv, HcalTB02Parameters& php, const std::string& name);
 
 private:
   static constexpr double k_ScaleFromDDDToG4 = 1.0;

@@ -9,10 +9,7 @@
 
 #define EDM_ML_DEBUG
 
-bool HcalTB02ParametersFromDD::build(const DDCompactView* cpv,
-				     HcalTB02Parameters& php,
-				     const std::string& name) {
-
+bool HcalTB02ParametersFromDD::build(const DDCompactView* cpv, HcalTB02Parameters& php, const std::string& name) {
   DDSpecificsMatchesValueFilter filter{DDValue("ReadOutName", name, 0)};
   DDFilteredView fv(*cpv, filter);
   bool dodet = fv.firstChild();
@@ -20,8 +17,8 @@ bool HcalTB02ParametersFromDD::build(const DDCompactView* cpv,
     const DDSolid& sol = fv.logicalPart().solid();
     const std::vector<double>& paras = sol.parameters();
     std::string namx = static_cast<std::string>(sol.name().name());
-    edm::LogVerbatim("HcalTBSim") << "HcalTB02ParametersFromDD (for " << name << "): Solid " << namx << " Shape " << sol.shape()
-				  << " Parameter 0 = " << paras[0];
+    edm::LogVerbatim("HcalTBSim") << "HcalTB02ParametersFromDD (for " << name << "): Solid " << namx << " Shape "
+                                  << sol.shape() << " Parameter 0 = " << paras[0];
     if (sol.shape() == DDSolidShape::ddtrap) {
       double dz = 2 * k_ScaleFromDDDToG4 * paras[0];
       php.lengthMap_.insert(std::pair<std::string, double>(namx, dz));
@@ -37,16 +34,14 @@ bool HcalTB02ParametersFromDD::build(const DDCompactView* cpv,
   return 1;
 }
 
-bool HcalTB02ParametersFromDD::build(const cms::DDCompactView* cpv,
-				     HcalTB02Parameters& php,
-				     const std::string& name) {
+bool HcalTB02ParametersFromDD::build(const cms::DDCompactView* cpv, HcalTB02Parameters& php, const std::string& name) {
   const cms::DDFilter filter("ReadOutName", name);
   cms::DDFilteredView fv(*cpv, filter);
   while (fv.firstChild()) {
     std::string namx = static_cast<std::string>(cms::dd::noNamespace(fv.name()));
     const std::vector<double>& paras = fv.parameters();
-    edm::LogVerbatim("HcalTBSim") << "HcalTB02ParametersFromDD (for " << name << "): Solid " << namx << " Shape " 
-				  << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Parameter 0 = " << paras[0];
+    edm::LogVerbatim("HcalTBSim") << "HcalTB02ParametersFromDD (for " << name << "): Solid " << namx << " Shape "
+                                  << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Parameter 0 = " << paras[0];
     if (fv.isATrapezoid()) {
       double dz = 2 * k_ScaleFromDD4HepToG4 * paras[0];
       php.lengthMap_.insert(std::pair<std::string, double>(namx, dz));
