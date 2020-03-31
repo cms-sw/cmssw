@@ -131,8 +131,8 @@ void HGCPassive::update(const G4Step* aStep) {
         G4LogicalVolume* plv = touchable->GetVolume(i)->GetLogicalVolume();
         auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("ValidHGCal") << "Level: " << ii << ":" << i << " " << plv->GetName() << " flag in the List "
-                                       << (it != mapLV_.end());
+        edm::LogVerbatim("ValidHGCal") << "Level: " << level << ":" << i << " " << plv->GetName()
+                                       << " flag in the List " << (it != mapLV_.end());
 #endif
         if (it != mapLV_.end()) {
           unsigned int copy =

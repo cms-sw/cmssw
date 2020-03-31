@@ -18,7 +18,7 @@ using namespace edm;
 //#define DEBUG
 
 TriggerMatchMonitor::TriggerMatchMonitor(const edm::ParameterSet& pSet) {
-  LogTrace(metname) << "[TriggerMatchMonitor] Parameters initialization";
+  LogTrace("TriggerMatching") << "[TriggerMatchMonitor] Parameters initialization";
 
   parameters = pSet;
 
@@ -135,7 +135,7 @@ void TriggerMatchMonitor::bookHistograms(DQMStore::IBooker& ibooker,
       "totalHLT" + triggerHistName2_ + "_phi_Tight", " HLT(" + triggerHistName2_ + ") total phi", 8, -3.0, 3.0);
 }
 void TriggerMatchMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  LogTrace(metname) << "[TriggerMatchMonitor] Analyze the mu in different eta regions";
+  LogTrace("TriggerMatching") << "[TriggerMatchMonitor] Analyze the mu in different eta regions";
 
   edm::Handle<edm::View<reco::Muon>> muons;
   iEvent.getByToken(theMuonCollectionLabel_, muons);

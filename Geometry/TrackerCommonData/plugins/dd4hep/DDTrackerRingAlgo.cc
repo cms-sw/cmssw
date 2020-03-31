@@ -102,8 +102,9 @@ namespace {
 
       // Positions child with respect to parent
       mother.placeVolume(child, copy, Transform3D(globalRotMatrix, tran));
-      LogDebug("TrackerGeom") << "DDTrackerRingAlgo test " << child << " number " << copy << " positioned in " << mother
-                              << " at " << tran << " with " << globalRotMatrix;
+      LogDebug("TrackerGeom") << "DDTrackerRingAlgo test " << child.data()->GetName() << " number " << copy
+                              << " positioned in " << mother.data()->GetName() << " at " << tran << " with "
+                              << globalRotMatrix;
 
       copy += incrCopyNo;
       phi += delta;
