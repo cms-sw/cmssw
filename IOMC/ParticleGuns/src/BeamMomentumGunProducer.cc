@@ -1,6 +1,5 @@
 #include "IOMC/ParticleGuns/interface/BeamMomentumGunProducer.h"
 
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -13,7 +12,6 @@
 #include "CLHEP/Random/RandFlat.h"
 
 #include "TFile.h"
-#include <cmath>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -109,33 +107,24 @@ namespace edm {
       double yp = (yoff_ * cm2mm_ + parX_->at(ip));         // 90 degree rotation applied
       double zp = zpos_ * cm2mm_;
       HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zp));
-      double pxGeV = MeV2GeV_ * parPx_->at(ip);
-      double pyGeV = MeV2GeV_ * parPy_->at(ip);
+      double pxGeV = MeV2GeV_ * (-1) * parPy_->at(ip);  // 90 degree rotation applied
+      double pyGeV = MeV2GeV_ * parPx_->at(ip);         // 90 degree rotation applied
       double pzGeV = MeV2GeV_ * parPz_->at(ip);
-      double momRand2 = pxGeV * pxGeV + pyGeV * pyGeV + pzGeV * pzGeV;
-      double energy = std::sqrt(momRand2 + mass * mass);
-      double mom = std::sqrt(momRand2);
-      HepMC::FourVector pGeV(pxGeV, pyGeV, pzGeV, energy);
-      double ptheta = pGeV.theta();
-      double pphi = pGeV.phi();
       double theta = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
       double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-      if (phi > M_PI)
-        phi = -(2 * M_PI - phi);
-      double newtheta = ptheta + theta;
-      if (newtheta > M_PI && newtheta <= 2 * M_PI)
-        newtheta = 2 * M_PI - newtheta;
-      double newphi = reco::reduceRange(pphi + phi);
-      double px = mom * sin(newtheta) * cos(newphi);
-      double py = mom * sin(newtheta) * sin(newphi);
-      double pz = mom * cos(newtheta);
+      // rotation about Z axis
+      double px1 = pxGeV * cos(phi) - pyGeV * sin(phi);
+      double py1 = pxGeV * sin(phi) + pyGeV * cos(phi);
+      double pz1 = pzGeV;
+      // rotation about Y axis
+      double px = px1 * cos(theta) + pz1 * sin(theta);
+      double py = py1;
+      double pz = -px1 * sin(theta) + pz1 * cos(theta);
+      double energy = std::sqrt(px * px + py * py + pz * pz + mass * mass);
 
       if (fVerbosity > 0) {
-        edm::LogVerbatim("BeamMomentumGun") << "ptheta:pphi " << ptheta << ":" << pphi << "\ntheta:phi " << theta << ":"
-                                            << phi << "\nnewtheta:newphi " << newtheta << ":" << newphi;
-
-        edm::LogVerbatim("BeamMomentumGun")
-            << "x:y:z [mm] " << xp << ":" << yp << ":" << zpos_ << "\npx:py:pz [GeV] " << px << ":" << py << ":" << pz;
+        edm::LogVerbatim("BeamMomentumGun") << "x:y:z [mm] " << xp << ":" << yp << ":" << zpos_;
+        edm::LogVerbatim("BeamMomentumGun") << "px:py:pz [GeV] " << px << ":" << py << ":" << pz;
       }
 
       HepMC::FourVector p(px, py, pz, energy);
