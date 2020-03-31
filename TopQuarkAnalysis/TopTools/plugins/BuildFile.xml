@@ -4,7 +4,6 @@
 <use   name="TopQuarkAnalysis/TopTools"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
-<use   name="HLTrigger/HLTcore"/>
 <use   name="boost"/>
 <use   name="root"/>
 <library   file="*.cc" name="TopQuarkAnalysisTopToolsPlugins">
