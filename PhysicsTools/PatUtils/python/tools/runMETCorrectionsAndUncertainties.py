@@ -824,7 +824,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsNoJets = cms.EDProducer("CandPtrProjector", 
                                            src = pfCandCollection, 
                                            veto = copy.copy(jetCollection),
-                                           useDeltaRforFootprint = cms.bool(False)
                                            )
             addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
@@ -856,7 +855,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsNoJetsNoEleNoMuNoTau = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMu"+postfix),
                                               veto = copy.copy(tauCollection),
-                                              useDeltaRforFootprint = cms.bool(False)
                                               )
             addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
