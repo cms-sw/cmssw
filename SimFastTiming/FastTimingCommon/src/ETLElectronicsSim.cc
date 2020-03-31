@@ -68,7 +68,7 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame& dataFrame,
   bool debug = debug_;
 #ifdef EDM_ML_DEBUG
   for (int it = 0; it < (int)(chargeColl.size()); it++)
-    debug |= (chargeColl[it] > adcThreshold_fC_);
+    debug |= (chargeColl[it] > adcThreshold_MIP_);
 #endif
 
   if (debug)
