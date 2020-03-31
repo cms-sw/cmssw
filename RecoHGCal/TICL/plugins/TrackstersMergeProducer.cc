@@ -52,6 +52,7 @@ private:
   const double pt_sigma_low_;
   const double cosangle_align_;
   const double e_over_h_threshold_;
+  const double pt_neutral_threshold_;
   const double resol_calo_offset_;
   const double resol_calo_scale_;
   const bool debug_;
@@ -82,6 +83,7 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
       pt_sigma_low_(ps.getParameter<double>("pt_sigma_low")),
       cosangle_align_(ps.getParameter<double>("cosangle_align")),
       e_over_h_threshold_(ps.getParameter<double>("e_over_h_threshold")),
+      pt_neutral_threshold_(ps.getParameter<double>("pt_neutral_threshold")),
       resol_calo_offset_(ps.getParameter<double>("resol_calo_offset")),
       resol_calo_scale_(ps.getParameter<double>("resol_calo_scale")),
       debug_(ps.getParameter<bool>("debug")),
@@ -243,14 +245,14 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
       // If the energy is unbalanced and higher in Calo ==> balance it by
       // emitting gammas/neutrals
       if (diff_pt_sigmas > pt_sigma_high_) {
-        if (e_over_h > 1.) {
+        if (e_over_h > e_over_h_threshold_) {
           auto gamma_pt = std::min(diff_pt, t.raw_em_pt);
           // Create gamma with calo direction
           LogDebug("TrackstersMergeProducer")
               << " Creating a photon from TRK Trackster with energy " << gamma_pt << " and direction "
               << t.eigenvectors[0].eta() << ", " << t.eigenvectors[0].phi() << std::endl;
           diff_pt -= gamma_pt;
-          if (diff_pt > 2.) {
+          if (diff_pt > pt_neutral_threshold_) {
             // Create also a neutral on top, with calo direction and diff_pt as energy
             LogDebug("TrackstersMergeProducer")
                 << " Adding also a neutral hadron from TRK Trackster with energy " << diff_pt << " and direction "
@@ -401,6 +403,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
   tensorflow::TensorShape shape({batchSize, eidNLayers_, eidNClusters_, eidNFeatures_});
   tensorflow::Tensor input(tensorflow::DT_FLOAT, shape);
   tensorflow::NamedTensorList inputList = {{eidInputName_, input}};
+  static constexpr int inputDimension = 4;
 
   std::vector<tensorflow::Tensor> outputs;
   std::vector<std::string> outputNames;
@@ -437,7 +440,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
       int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
       if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
         // get the pointer to the first feature value for the current batch, layer and cluster
-        float *features = &input.tensor<float, 4>()(i, j, seenClusters[j], 0);
+        float *features = &input.tensor<float, inputDimension>()(i, j, seenClusters[j], 0);
 
         // fill features
         *(features++) = float(std::abs(cluster.eta()));
@@ -452,7 +455,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
     // zero-fill features of empty clusters in each layer (6)
     for (int j = 0; j < eidNLayers_; j++) {
       for (int k = seenClusters[j]; k < eidNClusters_; k++) {
-        float *features = &input.tensor<float, 4>()(i, j, k, 0);
+        float *features = &input.tensor<float, inputDimension>()(i, j, k, 0);
         for (int l = 0; l < eidNFeatures_; l++) {
           *(features++) = 0.f;
         }
@@ -476,7 +479,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
   // store id probabilities per trackster (8)
   if (!eidOutputNameId_.empty()) {
     // get the pointer to the id probability tensor, dimension is batch x id_probabilities.size()
-    int probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
+    int probsIdx = !eidOutputNameEnergy_.empty();
     float *probs = outputs[probsIdx].flat<float>().data();
 
     for (const int &i : tracksterIndices) {
@@ -548,6 +551,7 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<double>("pt_sigma_low", 2.);
   desc.add<double>("cosangle_align", 0.9945);
   desc.add<double>("e_over_h_threshold", 1.);
+  desc.add<double>("pt_neutral_threshold", 2.);
   desc.add<double>("resol_calo_offset", 1.5);
   desc.add<double>("resol_calo_scale", 0.15);
   desc.add<bool>("debug", true);
