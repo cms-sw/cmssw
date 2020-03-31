@@ -143,44 +143,100 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
   for (unsigned int i = 0; i < xAxisLabelsReduced_.size(); i++) {
     deadROCSummary->setBinLabel(i + 1, xAxisLabelsReduced_[i]);
   }
-  
+
   //New residual plots for the PXBarrel separated by inner and outer modules per layer
   iBooker.setCurrentFolder("PixelPhase1/Tracks/PXBarrel");
-  for (std::string layer:{"1","2","3","4"}){
-    residuals_["residual_mean_x_Inner_PXLayer_"+layer] = iBooker.book1D("residual_mean_x_Inner_PXLayer_"+layer, "Mean Track Residuals X Inner Modules for Layer "+layer+";mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-    residuals_["residual_mean_x_Outer_PXLayer_"+layer] = iBooker.book1D("residual_mean_x_Outer_PXLayer_"+layer, "Mean Track Residuals X Outer Modules for Layer "+layer+";mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-    residuals_["residual_mean_y_Inner_PXLayer_"+layer] = iBooker.book1D("residual_mean_y_Inner_PXLayer_"+layer, "Mean Track Residuals Y Inner Modules for Layer "+layer+";mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-    residuals_["residual_mean_y_Outer_PXLayer_"+layer] = iBooker.book1D("residual_mean_y_Outer_PXLayer_"+layer, "Mean Track Residuals Y Outer Modules for Layer "+layer+";mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-    
-    residuals_["residual_rms_x_Inner_PXLayer_"+layer] = iBooker.book1D("residual_rms_x_Inner_PXLayer_"+layer, "RMS of Track Residuals X Inner Modules for Layer "+layer+";rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-    residuals_["residual_rms_x_Outer_PXLayer_"+layer] = iBooker.book1D("residual_rms_x_Outer_PXLayer_"+layer, "RMS of Track Residuals X Outer Modules for Layer "+layer+";rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-    residuals_["residual_rms_y_Inner_PXLayer_"+layer] = iBooker.book1D("residual_rms_y_Inner_PXLayer_"+layer, "RMS of Track Residuals Y Inner Modules for Layer "+layer+";rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-    residuals_["residual_rms_y_Outer_PXLayer_"+layer] = iBooker.book1D("residual_rms_y_Outer_PXLayer_"+layer, "RMS of Track Residuals Y Outer Modules for Layer "+layer+";rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  for (std::string layer : {"1", "2", "3", "4"}) {
+    residuals_["residual_mean_x_Inner_PXLayer_" + layer] =
+        iBooker.book1D("residual_mean_x_Inner_PXLayer_" + layer,
+                       "Mean Track Residuals X Inner Modules for Layer " + layer + ";mean(x_rec-x_pred)[cm]",
+                       100,
+                       -0.1,
+                       0.1);
+    residuals_["residual_mean_x_Outer_PXLayer_" + layer] =
+        iBooker.book1D("residual_mean_x_Outer_PXLayer_" + layer,
+                       "Mean Track Residuals X Outer Modules for Layer " + layer + ";mean(x_rec-x_pred)[cm]",
+                       100,
+                       -0.1,
+                       0.1);
+    residuals_["residual_mean_y_Inner_PXLayer_" + layer] =
+        iBooker.book1D("residual_mean_y_Inner_PXLayer_" + layer,
+                       "Mean Track Residuals Y Inner Modules for Layer " + layer + ";mean(x_rec-x_pred)[cm]",
+                       100,
+                       -0.1,
+                       0.1);
+    residuals_["residual_mean_y_Outer_PXLayer_" + layer] =
+        iBooker.book1D("residual_mean_y_Outer_PXLayer_" + layer,
+                       "Mean Track Residuals Y Outer Modules for Layer " + layer + ";mean(x_rec-x_pred)[cm]",
+                       100,
+                       -0.1,
+                       0.1);
+
+    residuals_["residual_rms_x_Inner_PXLayer_" + layer] =
+        iBooker.book1D("residual_rms_x_Inner_PXLayer_" + layer,
+                       "RMS of Track Residuals X Inner Modules for Layer " + layer + ";rms(x_rec-x_pred)[cm]",
+                       100,
+                       -0.1,
+                       0.1);
+    residuals_["residual_rms_x_Outer_PXLayer_" + layer] =
+        iBooker.book1D("residual_rms_x_Outer_PXLayer_" + layer,
+                       "RMS of Track Residuals X Outer Modules for Layer " + layer + ";rms(x_rec-x_pred)[cm]",
+                       100,
+                       -0.1,
+                       0.1);
+    residuals_["residual_rms_y_Inner_PXLayer_" + layer] =
+        iBooker.book1D("residual_rms_y_Inner_PXLayer_" + layer,
+                       "RMS of Track Residuals Y Inner Modules for Layer " + layer + ";rms(x_rec-x_pred)[cm]",
+                       100,
+                       -0.1,
+                       0.1);
+    residuals_["residual_rms_y_Outer_PXLayer_" + layer] =
+        iBooker.book1D("residual_rms_y_Outer_PXLayer_" + layer,
+                       "RMS of Track Residuals Y Outer Modules for Layer " + layer + ";rms(x_rec-x_pred)[cm]",
+                       100,
+                       -0.1,
+                       0.1);
   }
-  
+
   //New residual plots for the PXForward separated by inner and outer modules
   iBooker.setCurrentFolder("PixelPhase1/Tracks/PXForward");
-  residuals_["residual_mean_x_Inner"] = iBooker.book1D("residual_mean_x_Inner", "Mean Track Residuals X Inner Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_mean_x_Outer"] = iBooker.book1D("residual_mean_x_Outer", "Mean Track Residuals X Outer Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_mean_y_Inner"] = iBooker.book1D("residual_mean_y_Inner", "Mean Track Residuals Y Inner Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_mean_y_Outer"] = iBooker.book1D("residual_mean_y_Outer", "Mean Track Residuals Y Outer Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  
-  residuals_["residual_rms_x_Inner"] = iBooker.book1D("residual_rms_x_Inner", "RMS of Track Residuals X Inner Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_rms_x_Outer"] = iBooker.book1D("residual_rms_x_Outer", "RMS of Track Residuals X Outer Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_rms_y_Inner"] = iBooker.book1D("residual_rms_y_Inner", "RMS of Track Residuals Y Inner Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_rms_y_Outer"] = iBooker.book1D("residual_rms_y_Outer", "RMS of Track Residuals Y Outer Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  
+  residuals_["residual_mean_x_Inner"] = iBooker.book1D(
+      "residual_mean_x_Inner", "Mean Track Residuals X Inner Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_mean_x_Outer"] = iBooker.book1D(
+      "residual_mean_x_Outer", "Mean Track Residuals X Outer Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_mean_y_Inner"] = iBooker.book1D(
+      "residual_mean_y_Inner", "Mean Track Residuals Y Inner Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_mean_y_Outer"] = iBooker.book1D(
+      "residual_mean_y_Outer", "Mean Track Residuals Y Outer Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+
+  residuals_["residual_rms_x_Inner"] = iBooker.book1D(
+      "residual_rms_x_Inner", "RMS of Track Residuals X Inner Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_rms_x_Outer"] = iBooker.book1D(
+      "residual_rms_x_Outer", "RMS of Track Residuals X Outer Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_rms_y_Inner"] = iBooker.book1D(
+      "residual_rms_y_Inner", "RMS of Track Residuals Y Inner Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_rms_y_Outer"] = iBooker.book1D(
+      "residual_rms_y_Outer", "RMS of Track Residuals Y Outer Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+
   //New residual plots for the PXForward separated by positive and negative side
   iBooker.setCurrentFolder("PixelPhase1/Tracks/PXForward");
-  residuals_["residual_mean_x_pos"] = iBooker.book1D("residual_mean_x_pos", "Mean Track Residuals X pos. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_mean_x_neg"] = iBooker.book1D("residual_mean_x_neg", "Mean Track Residuals X neg. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_mean_y_pos"] = iBooker.book1D("residual_mean_y_pos", "Mean Track Residuals Y pos. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_mean_y_neg"] = iBooker.book1D("residual_mean_y_neg", "Mean Track Residuals Y neg. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  
-  residuals_["residual_rms_x_pos"] = iBooker.book1D("residual_rms_x_pos", "RMS of Track Residuals X pos. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_rms_x_neg"] = iBooker.book1D("residual_rms_x_neg", "RMS of Track Residuals X neg. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_rms_y_pos"] = iBooker.book1D("residual_rms_y_pos", "RMS of Track Residuals Y pos. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
-  residuals_["residual_rms_y_neg"] = iBooker.book1D("residual_rms_y_neg", "RMS of Track Residuals Y neg. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_mean_x_pos"] =
+      iBooker.book1D("residual_mean_x_pos", "Mean Track Residuals X pos. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_mean_x_neg"] =
+      iBooker.book1D("residual_mean_x_neg", "Mean Track Residuals X neg. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_mean_y_pos"] =
+      iBooker.book1D("residual_mean_y_pos", "Mean Track Residuals Y pos. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_mean_y_neg"] =
+      iBooker.book1D("residual_mean_y_neg", "Mean Track Residuals Y neg. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+
+  residuals_["residual_rms_x_pos"] =
+      iBooker.book1D("residual_rms_x_pos", "RMS of Track Residuals X pos. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_rms_x_neg"] =
+      iBooker.book1D("residual_rms_x_neg", "RMS of Track Residuals X neg. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_rms_y_pos"] =
+      iBooker.book1D("residual_rms_y_pos", "RMS of Track Residuals Y pos. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+  residuals_["residual_rms_y_neg"] =
+      iBooker.book1D("residual_rms_y_neg", "RMS of Track Residuals Y neg. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
 
   //Book the summary plot
   iBooker.setCurrentFolder("PixelPhase1/EventInfo");
@@ -320,98 +376,99 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
     }
     deadROCSummary->setBinContent(xBin, yBin, nROCs / nRocsPerTrend[i]);
   }
-  
+
   //Fill additional residuals plots
   //PXBarrel
-  for (std::string layer:{"1","2","3","4"}) {
-    MonitorElement* me_x = iGetter.get("PixelPhase1/Tracks/PXBarrel/residual_x_per_SignedModule_per_SignedLadder_PXLayer_"+layer);
-    MonitorElement* me_y = iGetter.get("PixelPhase1/Tracks/PXBarrel/residual_y_per_SignedModule_per_SignedLadder_PXLayer_"+layer);
-    for (int i=1; i<=me_x->getNbinsY(); i++) {
-      
-      if (i == (me_x->getNbinsY()/2+1)) continue;   //Middle bin of y axis is empty
-      
-      switch (i <= me_x->getNbinsY()/2) {
-        
+  for (std::string layer : {"1", "2", "3", "4"}) {
+    MonitorElement* me_x =
+        iGetter.get("PixelPhase1/Tracks/PXBarrel/residual_x_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
+    MonitorElement* me_y =
+        iGetter.get("PixelPhase1/Tracks/PXBarrel/residual_y_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
+    for (int i = 1; i <= me_x->getNbinsY(); i++) {
+      if (i == (me_x->getNbinsY() / 2 + 1))
+        continue;  //Middle bin of y axis is empty
+
+      switch (i <= me_x->getNbinsY() / 2) {
         case true:
-          if (i%2 == 0) {
-            for (int j : {1,2,3,4,6,7,8,9}){
-              residuals_["residual_mean_x_Inner_PXLayer_"+layer]->Fill(me_x->getBinContent(j,i));
-              residuals_["residual_mean_y_Inner_PXLayer_"+layer]->Fill(me_y->getBinContent(j,i));
-              residuals_["residual_rms_x_Inner_PXLayer_"+layer]->Fill(me_x->getBinError(j,i));
-              residuals_["residual_rms_y_Inner_PXLayer_"+layer]->Fill(me_y->getBinError(j,i));
+          if (i % 2 == 0) {
+            for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
+              residuals_["residual_mean_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
+              residuals_["residual_mean_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
+              residuals_["residual_rms_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
+              residuals_["residual_rms_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
             }
-          }
-          else {
-            for (int j : {1,2,3,4,6,7,8,9}){
-              residuals_["residual_mean_x_Outer_PXLayer_"+layer]->Fill(me_x->getBinContent(j,i));
-              residuals_["residual_mean_y_Outer_PXLayer_"+layer]->Fill(me_y->getBinContent(j,i));
-              residuals_["residual_rms_x_Outer_PXLayer_"+layer]->Fill(me_x->getBinError(j,i));
-              residuals_["residual_rms_y_Outer_PXLayer_"+layer]->Fill(me_y->getBinError(j,i));
+          } else {
+            for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
+              residuals_["residual_mean_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
+              residuals_["residual_mean_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
+              residuals_["residual_rms_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
+              residuals_["residual_rms_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
             }
           }
           break;
-        
+
         case false:
-          if (i%2 == 1) {
-            for (int j : {1,2,3,4,6,7,8,9}){
-              residuals_["residual_mean_x_Inner_PXLayer_"+layer]->Fill(me_x->getBinContent(j,i));
-              residuals_["residual_mean_y_Inner_PXLayer_"+layer]->Fill(me_y->getBinContent(j,i));
-              residuals_["residual_rms_x_Inner_PXLayer_"+layer]->Fill(me_x->getBinError(j,i));
-              residuals_["residual_rms_y_Inner_PXLayer_"+layer]->Fill(me_y->getBinError(j,i));
+          if (i % 2 == 1) {
+            for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
+              residuals_["residual_mean_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
+              residuals_["residual_mean_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
+              residuals_["residual_rms_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
+              residuals_["residual_rms_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
             }
-          }
-          else {
-            for (int j : {1,2,3,4,6,7,8,9}){
-              residuals_["residual_mean_x_Outer_PXLayer_"+layer]->Fill(me_x->getBinContent(j,i));
-              residuals_["residual_mean_y_Outer_PXLayer_"+layer]->Fill(me_y->getBinContent(j,i));
-              residuals_["residual_rms_x_Outer_PXLayer_"+layer]->Fill(me_x->getBinError(j,i));
-              residuals_["residual_rms_y_Outer_PXLayer_"+layer]->Fill(me_y->getBinError(j,i));
+          } else {
+            for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
+              residuals_["residual_mean_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
+              residuals_["residual_mean_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
+              residuals_["residual_rms_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
+              residuals_["residual_rms_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
             }
           }
       }
     }
   }
-  
+
   //PXForward separating outer and inner modules as well as positive and negative side
-  for (std::string ring:{"1","2"}){
-    MonitorElement* me_x = iGetter.get("PixelPhase1/Tracks/PXForward/residual_x_per_PXDisk_per_SignedBladePanel_PXRing_"+ring);
-    MonitorElement* me_y = iGetter.get("PixelPhase1/Tracks/PXForward/residual_y_per_PXDisk_per_SignedBladePanel_PXRing_"+ring);
+  for (std::string ring : {"1", "2"}) {
+    MonitorElement* me_x =
+        iGetter.get("PixelPhase1/Tracks/PXForward/residual_x_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
+    MonitorElement* me_y =
+        iGetter.get("PixelPhase1/Tracks/PXForward/residual_y_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
     bool posSide = false;
-    for (int j=1; j<=me_x->getNbinsX(); j++) {
-      
-      if (j==4) continue;  //fourth x-bin in profile plots is empty
-      
-      if (j==5) posSide = true;   //change to postive side
-      
-      for (int i=1; i<=me_x->getNbinsY(); i++) {
-        
-        if (i == me_x->getNbinsY()/2) continue;//Middle bins of y axis is empty
-        if (i == (me_x->getNbinsY()/2)+1) continue;
-        
-        if (i%2 == 0) {   //separate inner and outer modules
-          residuals_["residual_mean_x_Inner"]->Fill(me_x->getBinContent(j,i));
-          residuals_["residual_mean_y_Inner"]->Fill(me_y->getBinContent(j,i));
-          residuals_["residual_rms_x_Inner"]->Fill(me_x->getBinError(j,i));
-          residuals_["residual_rms_y_Inner"]->Fill(me_y->getBinError(j,i));
+    for (int j = 1; j <= me_x->getNbinsX(); j++) {
+      if (j == 4)
+        continue;  //fourth x-bin in profile plots is empty
+
+      if (j == 5)
+        posSide = true;  //change to postive side
+
+      for (int i = 1; i <= me_x->getNbinsY(); i++) {
+        if (i == me_x->getNbinsY() / 2)
+          continue;  //Middle bins of y axis is empty
+        if (i == (me_x->getNbinsY() / 2) + 1)
+          continue;
+
+        if (i % 2 == 0) {  //separate inner and outer modules
+          residuals_["residual_mean_x_Inner"]->Fill(me_x->getBinContent(j, i));
+          residuals_["residual_mean_y_Inner"]->Fill(me_y->getBinContent(j, i));
+          residuals_["residual_rms_x_Inner"]->Fill(me_x->getBinError(j, i));
+          residuals_["residual_rms_y_Inner"]->Fill(me_y->getBinError(j, i));
+        } else {
+          residuals_["residual_mean_x_Outer"]->Fill(me_x->getBinContent(j, i));
+          residuals_["residual_mean_y_Outer"]->Fill(me_y->getBinContent(j, i));
+          residuals_["residual_rms_x_Outer"]->Fill(me_x->getBinError(j, i));
+          residuals_["residual_rms_y_Outer"]->Fill(me_y->getBinError(j, i));
         }
-        else {
-          residuals_["residual_mean_x_Outer"]->Fill(me_x->getBinContent(j,i));
-          residuals_["residual_mean_y_Outer"]->Fill(me_y->getBinContent(j,i));
-          residuals_["residual_rms_x_Outer"]->Fill(me_x->getBinError(j,i));
-          residuals_["residual_rms_y_Outer"]->Fill(me_y->getBinError(j,i));
-        }
-        
-        if (!posSide) {   //separate postive and negative side
-          residuals_["residual_mean_x_neg"]->Fill(me_x->getBinContent(j,i));
-          residuals_["residual_mean_y_neg"]->Fill(me_y->getBinContent(j,i));
-          residuals_["residual_rms_x_neg"]->Fill(me_x->getBinError(j,i));
-          residuals_["residual_rms_y_neg"]->Fill(me_y->getBinError(j,i));
-        }
-        else {
-          residuals_["residual_mean_x_pos"]->Fill(me_x->getBinContent(j,i));
-          residuals_["residual_mean_y_pos"]->Fill(me_y->getBinContent(j,i));
-          residuals_["residual_rms_x_pos"]->Fill(me_x->getBinError(j,i));
-          residuals_["residual_rms_y_pos"]->Fill(me_y->getBinError(j,i));
+
+        if (!posSide) {  //separate postive and negative side
+          residuals_["residual_mean_x_neg"]->Fill(me_x->getBinContent(j, i));
+          residuals_["residual_mean_y_neg"]->Fill(me_y->getBinContent(j, i));
+          residuals_["residual_rms_x_neg"]->Fill(me_x->getBinError(j, i));
+          residuals_["residual_rms_y_neg"]->Fill(me_y->getBinError(j, i));
+        } else {
+          residuals_["residual_mean_x_pos"]->Fill(me_x->getBinContent(j, i));
+          residuals_["residual_mean_y_pos"]->Fill(me_y->getBinContent(j, i));
+          residuals_["residual_rms_x_pos"]->Fill(me_x->getBinError(j, i));
+          residuals_["residual_rms_y_pos"]->Fill(me_y->getBinError(j, i));
         }
       }
     }
