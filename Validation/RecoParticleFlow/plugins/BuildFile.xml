@@ -14,6 +14,7 @@
   <use   name="RecoParticleFlow/Benchmark"/>
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="Geometry/HcalTowerAlgo"/>
+  <use   name="MagneticField/Records"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <export>
