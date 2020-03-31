@@ -27,14 +27,12 @@ private:
 };
 
 HcalTBParameterTester::HcalTBParameterTester(const edm::ParameterSet& ic)
-  : name_(ic.getUntrackedParameter<std::string>("Name")),
-    token1_(esConsumes<HcalTB02Parameters, IdealGeometryRecord>(edm::ESInputTag{"", name_})),
-    token2_(esConsumes<HcalTB06BeamParameters, IdealGeometryRecord>(edm::ESInputTag{})),
-    mode_(ic.getUntrackedParameter<int>("Mode")) {}
+    : name_(ic.getUntrackedParameter<std::string>("Name")),
+      token1_(esConsumes<HcalTB02Parameters, IdealGeometryRecord>(edm::ESInputTag{"", name_})),
+      token2_(esConsumes<HcalTB06BeamParameters, IdealGeometryRecord>(edm::ESInputTag{})),
+      mode_(ic.getUntrackedParameter<int>("Mode")) {}
 
 void HcalTBParameterTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
-
   if (mode_ == 0) {
     const auto& hcp = iSetup.getData(token1_);
     const auto* php = &hcp;

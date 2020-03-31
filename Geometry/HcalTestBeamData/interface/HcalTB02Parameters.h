@@ -7,9 +7,8 @@
 #include <string>
 
 class HcalTB02Parameters {
-
 public:
- HcalTB02Parameters(const std::string& nam) : name_(nam) {}
+  HcalTB02Parameters(const std::string& nam) : name_(nam) {}
 
   std::string name_;
   std::map<std::string, double> lengthMap_;

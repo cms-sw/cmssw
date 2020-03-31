@@ -7,12 +7,11 @@
 #include <vector>
 
 class HcalTB06BeamParameters {
-
 public:
   HcalTB06BeamParameters() = default;
 
   std::vector<std::string> wchambers_;
-  std::string              material_;
+  std::string material_;
 
   COND_SERIALIZABLE;
 };

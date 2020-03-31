@@ -10,10 +10,9 @@
 #define EDM_ML_DEBUG
 
 bool HcalTB06BeamParametersFromDD::build(const DDCompactView* cpv,
-					 HcalTB06BeamParameters& php,
-					 const std::string& name1,
-					 const std::string& name2) {
-
+                                         HcalTB06BeamParameters& php,
+                                         const std::string& name1,
+                                         const std::string& name2) {
   DDSpecificsMatchesValueFilter filter1{DDValue("Volume", name1, 0)};
   DDFilteredView fv1(*cpv, filter1);
   php.wchambers_ = getNames(fv1);
@@ -42,9 +41,9 @@ bool HcalTB06BeamParametersFromDD::build(const DDCompactView* cpv,
 }
 
 bool HcalTB06BeamParametersFromDD::build(const cms::DDCompactView* cpv,
-					 HcalTB06BeamParameters& php,
-					 const std::string& name1,
-					 const std::string& name2) {
+                                         HcalTB06BeamParameters& php,
+                                         const std::string& name1,
+                                         const std::string& name2) {
   const cms::DDFilter filter1("Volume", name1);
   cms::DDFilteredView fv1(*cpv, filter1);
   php.wchambers_ = getNames(fv1);
@@ -54,7 +53,8 @@ bool HcalTB06BeamParametersFromDD::build(const cms::DDCompactView* cpv,
   std::vector<std::string> matNames;
   std::vector<int> nocc;
   while (fv2.firstChild()) {
-    std::string matName = static_cast<std::string>(cms::dd::noNamespace(fv2.materialName()));;
+    std::string matName = static_cast<std::string>(cms::dd::noNamespace(fv2.materialName()));
+    ;
     bool notIn = true;
     for (unsigned int i = 0; i < matNames.size(); i++) {
       if (matName == matNames[i]) {
@@ -71,18 +71,18 @@ bool HcalTB06BeamParametersFromDD::build(const cms::DDCompactView* cpv,
 }
 
 bool HcalTB06BeamParametersFromDD::build(HcalTB06BeamParameters& php,
-					 const std::vector<std::string>& matNames,
-					 const std::vector<int>& nocc,
+                                         const std::vector<std::string>& matNames,
+                                         const std::vector<int>& nocc,
 #ifdef EDM_ML_DEBUG
-					 const std::string& name1,
-					 const std::string& name2) {
-  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamParametersFromDD:: Names to be tested for Volume = " 
-				 << name1 << ": " << php.wchambers_.size() << " paths";
+                                         const std::string& name1,
+                                         const std::string& name2) {
+  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamParametersFromDD:: Names to be tested for Volume = " << name1 << ": "
+                                << php.wchambers_.size() << " paths";
   for (unsigned int i = 0; i < php.wchambers_.size(); i++)
     edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamParametersFromDD:: (" << i << ") " << php.wchambers_[i];
 #else
                                          const std::string&,
-					 const std::string&) {
+                                         const std::string&) {
 #endif
 
   if (!matNames.empty()) {
@@ -98,10 +98,12 @@ bool HcalTB06BeamParametersFromDD::build(HcalTB06BeamParameters& php,
     php.material_ = "Not Found";
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamParametersFromDD: finds " << matNames.size() << " materials for " << name2;
-  for (unsigned k = 0; k < matNames.size(); ++k) 
+  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamParametersFromDD: finds " << matNames.size() << " materials for "
+                                << name2;
+  for (unsigned k = 0; k < matNames.size(); ++k)
     edm::LogVerbatim("HcalTBSim") << "[" << k << "] " << matNames[k] << "   " << nocc[k];
-  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamParametersFromDD: Material name for ReadOut = " << name2 << ":" << php.material_;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamParametersFromDD: Material name for ReadOut = " << name2 << ":"
+                                << php.material_;
 #endif
   return 1;
 }
