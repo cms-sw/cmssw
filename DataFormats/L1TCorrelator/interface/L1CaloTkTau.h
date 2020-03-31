@@ -1,5 +1,5 @@
-#ifndef TkTrigger_L1CaloTkTau_h
-#define TkTrigger_L1CaloTkTau_h
+#ifndef DataFormatsL1TCorrelator_TkCaloTkTau_h
+#define DataFormatsL1TCorrelator_TkCaloTkTau_h
 
 // -*- C++ -*-
 //

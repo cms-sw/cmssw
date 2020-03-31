@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     DataFormats/L1TrackTrigger
+// Package:     DataFormats/L1TCorrelator
 // Class  :     TkPhiCandidate
 //
 #include "DataFormats/L1TCorrelator/interface/TkPhiCandidate.h"

@@ -1,5 +1,5 @@
-#ifndef TkTrigger_L1Electron_h
-#define TkTrigger_L1Electron_h
+#ifndef DataFormatsL1TCorrelator_TkElectron_h
+#define DataFormatsL1TCorrelator_TkElectron_h
 
 // -*- C++ -*-
 //

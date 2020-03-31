@@ -1,5 +1,5 @@
-#ifndef TkTrigger_L1Jet_h
-#define TkTrigger_L1Jet_h
+#ifndef DataFormatsL1TCorrelator_TkJet_h
+#define DataFormatsL1TCorrelator_TkJet_h
 
 // -*- C++ -*-
 //
