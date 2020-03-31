@@ -204,7 +204,7 @@ namespace {
 	    size_t n_objects = objectsHandle->size();
 	    size_t n_regions = 0;
 	    for ( size_t i = 0; i < n_objects && n_regions < maxNRegions_; ++i ) {
-	      std::cout << "i: " << i << " n_regions: " << n_regions << std::endl;
+	      //	      std::cout << "i: " << i << " n_regions: " << n_regions << std::endl;
 	      const reco::Candidate & object = (*objectsHandle)[i];
 	      //	  GlobalVector direction( object.momentum().x(), object.momentum().y(), object.momentum().z() );
 	      for ( size_t j = 0; j < origins.size() && n_regions < maxNRegions_; ++j ) {

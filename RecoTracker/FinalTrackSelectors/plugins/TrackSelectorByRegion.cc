@@ -66,7 +66,7 @@ namespace {
 	edm::Handle<reco::TrackCollection> tracksHandle;
 	iEvent.getByToken(tracksToken_,tracksHandle);
 
-	std::cout << "[TrackSelectorByRegion::produce] tracksHandle.isValid ? " << (tracksHandle.isValid() ? "YEAP" : "NOPE") << std::endl;
+	//	std::cout << "[TrackSelectorByRegion::produce] tracksHandle.isValid ? " << (tracksHandle.isValid() ? "YEAP" : "NOPE") << std::endl;
 	if ( tracksHandle.isValid() ) {
 	  const auto& tracks = *tracksHandle;	  
 	  mask->assign(tracks.size(),false);
@@ -105,12 +105,12 @@ namespace {
 
 
 	    size_t it = 0;	    
-	    std::cout << "tracks: " << tracks.size() << std::endl;
+	    //	    std::cout << "tracks: " << tracks.size() << std::endl;
 	    for ( auto trk : tracks ) {
 	      
 	      const auto pt = trk.pt();
 	      if (pt < minPt_) {
-		std::cout << " KO !!! for pt" << std::endl;
+		//		std::cout << " KO !!! for pt" << std::endl;
 		continue;
 	      }
 
@@ -119,24 +119,24 @@ namespace {
 	      
 	      for ( size_t k=0; k<n_regions; k++ ) {
 		//		if ( std::abs(trk.vz() - origin[k].z()) > zBound[k] ) {
-		std::cout << "std::abs(trk.vz() - origin[k].z()): " << std::abs(trk.vz() - origin[k].z()) << " zBound: " << zBound[k] << std::endl;
-		std::cout << "std::abs(trk.dz(origin[k])): " << std::abs(trk.dz(origin[k])) << " zBound: " << zBound[k] << std::endl;
+		//		std::cout << "std::abs(trk.vz() - origin[k].z()): " << std::abs(trk.vz() - origin[k].z()) << " zBound: " << zBound[k] << std::endl;
+		//		std::cout << "std::abs(trk.dz(origin[k])): " << std::abs(trk.dz(origin[k])) << " zBound: " << zBound[k] << std::endl;
 		if ( std::abs(trk.dz(origin[k])) > zBound[k] ) {
-		  std::cout << " KO !! for z" << std::endl;
+		  //		  std::cout << " KO !! for z" << std::endl;
 		  continue;
 		}
-		std::cout << "eta : " << eta << " etaMin[k]: " << etaMin[k] << " etaMax[k]: " << etaMax[k] << std::endl;
+		//		std::cout << "eta : " << eta << " etaMin[k]: " << etaMin[k] << " etaMax[k]: " << etaMax[k] << std::endl;
 		if ( eta < etaMin[k] ) {
-		  std::cout << " KO !!! for eta" << std::endl;
+		  //		  std::cout << " KO !!! for eta" << std::endl;
 		  continue;
 		}
 		if ( eta > etaMax[k] ) {
-		  std::cout << " KO !!! for eta" << std::endl;
+		  //		  std::cout << " KO !!! for eta" << std::endl;
 		  continue;
 		}
-		std::cout << "phi: " << phi << " phi0[k]: " << phi0[k] << " std::abs(reco::deltaPhi(phi,phi0[k])): " << std::abs(reco::deltaPhi(phi,phi0[k])) << " phi0margin: " << phi0margin[k] << std::endl;
+		//		std::cout << "phi: " << phi << " phi0[k]: " << phi0[k] << " std::abs(reco::deltaPhi(phi,phi0[k])): " << std::abs(reco::deltaPhi(phi,phi0[k])) << " phi0margin: " << phi0margin[k] << std::endl;
 		if ( std::abs(reco::deltaPhi(phi,phi0[k])) > phi0margin[k]*1.1 ) {
-		  std::cout << " KO !!! for phi" << std::endl;
+		  //		  std::cout << " KO !!! for phi" << std::endl;
 		  continue;
 		}
 		output_tracks->push_back(trk);
