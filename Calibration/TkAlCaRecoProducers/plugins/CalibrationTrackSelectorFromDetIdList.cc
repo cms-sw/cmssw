@@ -103,7 +103,7 @@ void CalibrationTrackSelectorFromDetIdList::produce(edm::Event &iEvent, const ed
 
       for (const auto &detidsel : detidsels_) {
         if (detidsel.isSelected(detid)) {
-          LogDebug("CalibrationTrackSelectorFromDetIdList") << "Selected by selection " << detid;
+          LogDebug("CalibrationTrackSelectorFromDetIdList") << "Selected by selection " << detid.rawId();
           saveTrack = true;
           break;
         }

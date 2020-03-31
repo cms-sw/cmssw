@@ -212,7 +212,7 @@ void CosmicMuonRecoAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void CosmicMuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  LogTrace(metname) << "[MuonRecoAnalyzer] Analyze the mu";
+  LogTrace("CosmicMuon") << "[MuonRecoAnalyzer] Analyze the mu";
 
   // Take the muon container
   edm::Handle<edm::View<reco::Track> > muons;
