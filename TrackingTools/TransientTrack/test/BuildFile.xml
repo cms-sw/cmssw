@@ -1,6 +1,5 @@
 <use   name="TrackingTools/Records"/>
 <use   name="FWCore/Framework"/>
-<use   name="DataFormats/Common"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="clhep"/>

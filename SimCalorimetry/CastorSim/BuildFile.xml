@@ -5,7 +5,5 @@
 <use   name="CondFormats/CastorObjects"/>
 <use   name="CalibCalorimetry/CastorCalib"/>
 <use   name="CalibFormats/CastorObjects"/>
-<use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="DataFormats/HcalDigi"/>
-<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="clhep"/>

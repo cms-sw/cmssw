@@ -1,12 +1,8 @@
 <use   name="DataFormats/Common"/>
-<use   name="DataFormats/Math"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/Forward"/>
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/Vertex"/>
 <use   name="SimG4Core/Generators"/>
 <use   name="SimG4Core/Geometry"/>
-<use   name="SimG4Core/DD4hepGeometry"/>
 <use   name="DetectorDescription/DDCMS"/>
 <use   name="SimG4Core/MagneticField"/>
 <use   name="SimG4Core/Notification"/>
@@ -18,7 +14,6 @@
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="SimGeneral/GFlash"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
 <use   name="MagneticField/Engine"/>
