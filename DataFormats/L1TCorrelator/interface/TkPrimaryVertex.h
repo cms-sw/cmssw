@@ -7,7 +7,6 @@
 // First version of a class for L1-zvertex
 #include <vector>
 
-
 namespace l1t {
 
   class TkPrimaryVertex {
