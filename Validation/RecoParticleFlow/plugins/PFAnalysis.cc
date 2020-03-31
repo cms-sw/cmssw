@@ -69,11 +69,12 @@ public:
   const reco::PFBlockElement& orig;
   size_t idx_block;
   size_t idx_elem;
-  ElementWithIndex(const reco::PFBlockElement& _orig, size_t _idx_block, size_t _idx_elem) : orig(_orig), idx_block(_idx_block), idx_elem(_idx_elem) {};
+  ElementWithIndex(const reco::PFBlockElement& _orig, size_t _idx_block, size_t _idx_elem)
+      : orig(_orig), idx_block(_idx_block), idx_elem(_idx_elem){};
 };
 
 int find_element_ref(const vector<ElementWithIndex>& vec, const edm::RefToBase<reco::Track>& r) {
-  for (unsigned int i=0; i<vec.size(); i++) {
+  for (unsigned int i = 0; i < vec.size(); i++) {
     const auto& elem = vec.at(i);
     if (elem.orig.type() == reco::PFBlockElement::TRACK) {
       const auto& ref = elem.orig.trackRef();
@@ -93,16 +94,19 @@ int find_element_ref(const vector<ElementWithIndex>& vec, const edm::RefToBase<r
     }
   }
   return -1;
-} 
- 
-double detid_compare(const map<uint64_t, double>& rechits, const map<uint64_t, double>& simhits, const map<uint64_t, double>& rechits_energy, bool print) {
+}
+
+double detid_compare(const map<uint64_t, double>& rechits,
+                     const map<uint64_t, double>& simhits,
+                     const map<uint64_t, double>& rechits_energy,
+                     bool print) {
   double ret = 0.0;
 
   for (const auto& rh : rechits) {
     for (const auto& sh : simhits) {
       if (rh.first == sh.first) {
         //rechit energy times simhit fraction
-        ret += rechits_energy.at(rh.first)*sh.second;
+        ret += rechits_energy.at(rh.first) * sh.second;
         break;
       }
     }
@@ -130,7 +134,8 @@ private:
   void processTrackingParticles(const edm::View<TrackingParticle>& trackingParticles,
                                 edm::Handle<edm::View<TrackingParticle>>& trackingParticlesHandle);
 
-  pair<vector<ElementWithIndex>, vector<tuple<int, int, float>>> processBlocks(const std::vector<reco::PFBlock>& pfBlocks);
+  pair<vector<ElementWithIndex>, vector<tuple<int, int, float>>> processBlocks(
+      const std::vector<reco::PFBlock>& pfBlocks);
 
   void associateClusterToSimCluster(const vector<ElementWithIndex>& all_elements);
 
@@ -243,7 +248,7 @@ private:
   vector<int> element_layer_;
   vector<float> element_depth_;
   vector<float> element_trajpoint_;
-  
+
   vector<int> element_distance_i_;
   vector<int> element_distance_j_;
   vector<float> element_distance_d_;
@@ -270,7 +275,7 @@ private:
 
   CaloGeometry* geom;
   HcalTopology* hcal_topo;
-  const HcalDDDRecConstants *hcons;
+  const HcalDDDRecConstants* hcons;
 };
 
 PFAnalysis::PFAnalysis() { ; }
@@ -382,8 +387,8 @@ PFAnalysis::PFAnalysis(const edm::ParameterSet& iConfig) {
   t_->Branch("element_layer", &element_layer_);
   t_->Branch("element_depth", &element_depth_);
   t_->Branch("element_trajpoint", &element_trajpoint_);
- 
-  //Distance matrix between PF elements 
+
+  //Distance matrix between PF elements
   t_->Branch("element_distance_i", &element_distance_i_);
   t_->Branch("element_distance_j", &element_distance_j_);
   t_->Branch("element_distance_d", &element_distance_d_);
@@ -415,7 +420,7 @@ void PFAnalysis::clearVariables() {
   simcluster_to_element.clear();
   simcluster_to_element_cmp.clear();
   element_to_candidate.clear();
-  
+
   trackingparticle_eta_.clear();
   trackingparticle_phi_.clear();
   trackingparticle_pt_.clear();
@@ -506,7 +511,7 @@ void PFAnalysis::clearVariables() {
   element_layer_.clear();
   element_depth_.clear();
   element_trajpoint_.clear();
-  
+
   element_distance_i_.clear();
   element_distance_j_.clear();
   element_distance_d_.clear();
@@ -527,9 +532,9 @@ GlobalPoint PFAnalysis::getHitPosition(const DetId& id) {
 
   bool present = false;
   if (((id.det() == DetId::Ecal &&
-         (id.subdetId()==EcalBarrel || id.subdetId()==EcalEndcap || id.subdetId()==EcalPreshower)) ||
-        (id.det() == DetId::Hcal && (id.subdetId()==HcalBarrel || id.subdetId()==HcalEndcap ||
-                                     id.subdetId()==HcalForward || id.subdetId()==HcalOuter)))) {
+        (id.subdetId() == EcalBarrel || id.subdetId() == EcalEndcap || id.subdetId() == EcalPreshower)) ||
+       (id.det() == DetId::Hcal && (id.subdetId() == HcalBarrel || id.subdetId() == HcalEndcap ||
+                                    id.subdetId() == HcalForward || id.subdetId() == HcalOuter)))) {
     const CaloSubdetectorGeometry* geom_sd(geom->getSubdetectorGeometry(id.det(), id.subdetId()));
     present = geom_sd->present(id);
     if (present) {
@@ -611,10 +616,10 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //We need to use the original reco::Track collection for track association
   for (unsigned long ntrack = 0; ntrack < tracks.size(); ntrack++) {
     edm::RefToBase<reco::Track> trackref(trackHandle, ntrack);
-    
+
     //get the index of the track in the 'all_elements' collection that we use later
     int idx_in_all_elements = find_element_ref(all_elements, trackref);
-    
+
     //track was not used by PF, we skip as well
     if (idx_in_all_elements == -1) {
       continue;
@@ -643,8 +648,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     int nhits = 0;
     for (const auto& simcluster : cp.simClusters()) {
-
-      //create a map of detId->energy of all the rechits in all the clusters of this SimCluster 
+      //create a map of detId->energy of all the rechits in all the clusters of this SimCluster
       map<uint64_t, double> detid_energy;
 
       simcluster_nhits_.push_back(nhits);
@@ -666,7 +670,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         if (id.det() == DetId::Hcal || id.det() == DetId::Ecal) {
           const auto& pos = getHitPosition(id);
           nhits += 1;
- 
+
           const float x = pos.x();
           const float y = pos.y();
           const float z = pos.z();
@@ -702,22 +706,22 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
           if (simtrack.eventId() == simtrack2.eventId() && simtrack.trackId() == simtrack2.trackId()) {
             simcluster_to_trackingparticle = itp;
             //we are satisfied with the first match, in practice there should not be more
-            break; 
+            break;
           }
-        } //trackingParticles
-      } //simcluster tracks
+        }  //trackingParticles
+      }    //simcluster tracks
 
       simcluster_detids_.push_back(detid_energy);
       simcluster_idx_trackingparticle_.push_back(simcluster_to_trackingparticle);
 
       idx_simcluster += 1;
-    } //simclusters
-  }  //caloParticles
+    }  //simclusters
+  }    //caloParticles
 
   associateClusterToSimCluster(all_elements);
 
   //fill elements
-  for (unsigned int ielem=0; ielem < all_elements.size(); ielem++) {
+  for (unsigned int ielem = 0; ielem < all_elements.size(); ielem++) {
     const auto& elem = all_elements.at(ielem);
     const auto& orig = elem.orig;
     reco::PFBlockElement::Type type = orig.type();
@@ -737,21 +741,21 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     int charge = 0;
     int layer = 0;
     float depth = 0;
-    
+
     if (type == reco::PFBlockElement::TRACK) {
       const auto& matched_pftrack = orig.trackRefPF();
       if (matched_pftrack.isNonnull()) {
-        const auto& atECAL = matched_pftrack->extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);  
+        const auto& atECAL = matched_pftrack->extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
         const auto& atHCAL = matched_pftrack->extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
         if (atHCAL.isValid()) {
-            eta_hcal = atHCAL.positionREP().eta();
-            phi_hcal = atHCAL.positionREP().phi();
+          eta_hcal = atHCAL.positionREP().eta();
+          phi_hcal = atHCAL.positionREP().phi();
         }
         if (atECAL.isValid()) {
-            eta_ecal = atECAL.positionREP().eta();
-            phi_ecal = atECAL.positionREP().phi();
+          eta_ecal = atECAL.positionREP().eta();
+          phi_ecal = atECAL.positionREP().phi();
         }
-      }  
+      }
       const auto& ref = ((const reco::PFBlockElementTrack*)&orig)->trackRef();
       pt = ref->pt();
       px = ref->px();
@@ -759,7 +763,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       pz = ref->pz();
       eta = ref->eta();
       phi = ref->phi();
-      energy = ref->pt()*cosh(ref->eta());
+      energy = ref->pt() * cosh(ref->eta());
       charge = ref->charge();
     } else if (type == reco::PFBlockElement::BREM) {
       //requires to keep GsfPFRecTracks
@@ -772,7 +776,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         pz = ref->pz();
         eta = ref->eta();
         phi = ref->phi();
-        energy = ref->pt()*cosh(ref->eta());
+        energy = ref->pt() * cosh(ref->eta());
         trajpoint = orig2->indTrajPoint();
         charge = ref->charge();
       }
@@ -787,12 +791,12 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         pz = ref->pz();
         eta = ref->eta();
         phi = ref->phi();
-        energy = ref->pt()*cosh(ref->eta());
+        energy = ref->pt() * cosh(ref->eta());
       }
     } else if (type == reco::PFBlockElement::ECAL || type == reco::PFBlockElement::PS1 ||
-          type == reco::PFBlockElement::PS2 || type == reco::PFBlockElement::HCAL ||
-          type == reco::PFBlockElement::GSF || type == reco::PFBlockElement::HO ||
-          type == reco::PFBlockElement::HFHAD || type == reco::PFBlockElement::HFEM) {
+               type == reco::PFBlockElement::PS2 || type == reco::PFBlockElement::HCAL ||
+               type == reco::PFBlockElement::GSF || type == reco::PFBlockElement::HO ||
+               type == reco::PFBlockElement::HFHAD || type == reco::PFBlockElement::HFEM) {
       const auto& ref = ((const reco::PFBlockElementCluster*)&orig)->clusterRef();
       if (ref.isNonnull()) {
         eta = ref->eta();
@@ -820,14 +824,14 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if (t.second == (int)ielem) {
         tps.push_back(t.first);
       }
-    } 
+    }
     vector<int> scs;
     for (const auto& t : simcluster_to_element) {
       if (t.second == (int)ielem) {
         scs.push_back(t.first);
       }
-    } 
- 
+    }
+
     element_pt_.push_back(pt);
     element_px_.push_back(px);
     element_py_.push_back(py);
@@ -871,7 +875,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
       assert(ielem != -1);
       element_to_candidate.push_back(make_pair(ielem, icandidate));
-    } //elements
+    }  //elements
 
     icandidate += 1;
   }  //pfCandidates
@@ -879,7 +883,8 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   cout << "trackingParticles=" << trackingParticles.size() << " caloParticles=" << caloParticles.size() << endl;
   cout << "all_elements=" << all_elements.size() << endl;
   cout << "pfCandidates=" << pfCandidates.size() << endl;
-  cout << "trackingparticle_to_element=" << trackingparticle_to_element.size() << " simcluster_to_element=" << simcluster_to_element.size() << endl;
+  cout << "trackingparticle_to_element=" << trackingparticle_to_element.size()
+       << " simcluster_to_element=" << simcluster_to_element.size() << endl;
   cout << "element_to_candidate=" << element_to_candidate.size() << endl;
 
   ev_event_ = iEvent.id().event();
@@ -887,11 +892,10 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   ev_run_ = iEvent.id().run();
 
   t_->Fill();
-} //analyze
+}  //analyze
 
 void PFAnalysis::processTrackingParticles(const edm::View<TrackingParticle>& trackingParticles,
-                                          edm::Handle<edm::View<TrackingParticle>>& trackingParticlesHandle
-                                          ) {
+                                          edm::Handle<edm::View<TrackingParticle>>& trackingParticlesHandle) {
   for (unsigned long ntrackingparticle = 0; ntrackingparticle < trackingParticles.size(); ntrackingparticle++) {
     const auto& tp = trackingParticles.at(ntrackingparticle);
     edm::RefToBase<TrackingParticle> tpref(trackingParticlesHandle, ntrackingparticle);
@@ -927,20 +931,21 @@ void PFAnalysis::processTrackingParticles(const edm::View<TrackingParticle>& tra
 
 //https://stackoverflow.com/questions/27086195/linear-index-upper-triangular-matrix/27088560
 int get_index_triu_vector(int i, int j, int n) {
-    int k = (n*(n-1)/2) - (n-i)*((n-i)-1)/2 + j - i - 1;
-    return k;
+  int k = (n * (n - 1) / 2) - (n - i) * ((n - i) - 1) / 2 + j - i - 1;
+  return k;
 }
 
 pair<int, int> get_triu_vector_index(int k, int n) {
-    int i = n - 2 - floor(sqrt(-8*k + 4*n*(n-1)-7)/2.0 - 0.5);
-    int j = k + i + 1 - n*(n-1)/2 + (n-i)*((n-i)-1)/2;
-    return make_pair(i, j);
+  int i = n - 2 - floor(sqrt(-8 * k + 4 * n * (n - 1) - 7) / 2.0 - 0.5);
+  int j = k + i + 1 - n * (n - 1) / 2 + (n - i) * ((n - i) - 1) / 2;
+  return make_pair(i, j);
 }
 
-pair<vector<ElementWithIndex>, vector<tuple<int, int, float>>> PFAnalysis::processBlocks(const std::vector<reco::PFBlock>& pfBlocks) {
+pair<vector<ElementWithIndex>, vector<tuple<int, int, float>>> PFAnalysis::processBlocks(
+    const std::vector<reco::PFBlock>& pfBlocks) {
   vector<ElementWithIndex> ret;
   vector<tuple<int, int, float>> distances;
- 
+
   //Collect all the elements
   int iblock = 0;
   for (const auto& block : pfBlocks) {
@@ -949,22 +954,23 @@ pair<vector<ElementWithIndex>, vector<tuple<int, int, float>>> PFAnalysis::proce
 
     //create a list of global element indices with distances
     for (const auto& link : linkdata) {
-        const auto vecidx = link.first;
-        const auto dist = link.second.distance;
-        const auto& ij = get_triu_vector_index(vecidx, block.elements().size());
-        cout << "block " << iblock << " " << ielem << " " << vecidx << " " << ij.first << " " << ij.second << " " << dist << endl;
-        auto globalindex_i = ij.first + ret.size();  
-        auto globalindex_j = ij.second + ret.size();
-        distances.push_back(make_tuple(globalindex_i, globalindex_j, dist));  
+      const auto vecidx = link.first;
+      const auto dist = link.second.distance;
+      const auto& ij = get_triu_vector_index(vecidx, block.elements().size());
+      cout << "block " << iblock << " " << ielem << " " << vecidx << " " << ij.first << " " << ij.second << " " << dist
+           << endl;
+      auto globalindex_i = ij.first + ret.size();
+      auto globalindex_j = ij.second + ret.size();
+      distances.push_back(make_tuple(globalindex_i, globalindex_j, dist));
     }
- 
+
     for (const auto& elem : block.elements()) {
       ElementWithIndex elem_index(elem, iblock, ielem);
       ret.push_back(elem_index);
       ielem += 1;
-    } //elements
+    }  //elements
     iblock += 1;
-  } //blocks
+  }  //blocks
   return make_pair(ret, distances);
 
 }  //processBlocks
@@ -978,14 +984,9 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
     map<uint64_t, double> detids;
     const auto& type = elem.orig.type();
 
-    if (type == reco::PFBlockElement::ECAL ||
-      type == reco::PFBlockElement::HCAL ||
-      type == reco::PFBlockElement::PS1 ||
-      type == reco::PFBlockElement::PS2 ||
-      type == reco::PFBlockElement::HO ||
-      type == reco::PFBlockElement::HFHAD ||
-      type == reco::PFBlockElement::HFEM) {
-     
+    if (type == reco::PFBlockElement::ECAL || type == reco::PFBlockElement::HCAL || type == reco::PFBlockElement::PS1 ||
+        type == reco::PFBlockElement::PS2 || type == reco::PFBlockElement::HO || type == reco::PFBlockElement::HFHAD ||
+        type == reco::PFBlockElement::HFEM) {
       const auto& clref = elem.orig.clusterRef();
       assert(clref.isNonnull());
       const auto& cluster = *clref;
@@ -1005,7 +1006,7 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
         float eta = 0;
         float phi = 0;
 
-        const auto& pos = getHitPosition(id); 
+        const auto& pos = getHitPosition(id);
         x = pos.x();
         y = pos.y();
         z = pos.z();
@@ -1023,7 +1024,7 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
         rechit_idx_element_.push_back(idx_element);
         rechit_detid_.push_back(id.rawId());
         rechits_energy_all[id.rawId()] += pfrh.energy();
-      } //rechit_fracs
+      }  //rechit_fracs
     } else if (type == reco::PFBlockElement::SC) {
       const auto& clref = ((const reco::PFBlockElementSuperCluster*)&(elem.orig))->superClusterRef();
       assert(clref.isNonnull());
@@ -1043,7 +1044,7 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
         float eta = 0;
         float phi = 0;
 
-        const auto& pos = getHitPosition(id); 
+        const auto& pos = getHitPosition(id);
         x = pos.x();
         y = pos.y();
         z = pos.z();
@@ -1061,11 +1062,11 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
         rechit_idx_element_.push_back(idx_element);
         rechit_detid_.push_back(id.rawId());
         rechits_energy_all[id.rawId()] += rh.second;
-      } //rechit_fracs
+      }  //rechit_fracs
     }
     detids_elements.push_back(detids);
     idx_element += 1;
-  } //all_elements
+  }  //all_elements
 
   //associate elements (reco clusters) to simclusters
   int ielement = 0;
@@ -1083,7 +1084,7 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
           sum_e_tot_sc += c.second;
         }
 
-        //get the energy of the simcluster hits that matches detids of the rechits 
+        //get the energy of the simcluster hits that matches detids of the rechits
         double cmp = detid_compare(detids, simcluster_detids, rechits_energy_all, false);
         if (cmp > 0) {
           simcluster_to_element.push_back(make_pair(isimcluster, ielement));
@@ -1091,9 +1092,9 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
         }
         isimcluster += 1;
       }
-    } //element had rechits
+    }  //element had rechits
     ielement += 1;
-  } //rechit clusters
+  }  //rechit clusters
 }
 
 void PFAnalysis::beginRun(edm::Run const& iEvent, edm::EventSetup const& es) {
