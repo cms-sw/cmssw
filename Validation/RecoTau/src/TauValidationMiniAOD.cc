@@ -35,9 +35,13 @@ TauValidationMiniAOD::~TauValidationMiniAOD() {}
 void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
                                           edm::Run const& iRun,
                                           edm::EventSetup const& /* iSetup */) {
-  MonitorElement *ptTemp, *etaTemp, *phiTemp, *massTemp, *decayModeFindingTemp, *decayModeTemp,
+  //summary monitor elements
+  MonitorElement *ptTight, *etaTight, *phiTight, *massTight, *ptTemp , *etaTemp, *phiTemp, *massTemp, *decayModeFindingTemp, *decayModeTemp,
       *byDeepTau2017v2p1VSerawTemp, *byDeepTau2017v2p1VSjetrawTemp, *byDeepTau2017v2p1VSmurawTemp, *summaryTemp;
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_);
+
+  std::cout << "extensionName_: \n";
+  std::cout<< extensionName_ ; 
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/Summary");
 
   //summary plots
   histoInfo summaryHinfo = (histoSettings_.exists("summary"))
@@ -51,15 +55,6 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   summaryMap.insert(std::make_pair("Den", summaryTemp));
   summaryTemp = ibooker.book1D("summaryPlot", "summaryPlot", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
   summaryMap.insert(std::make_pair("", summaryTemp));
-
-  int j = 0;
-  for (const auto& it : discriminators_) {
-    string DiscriminatorLabel = it.getParameter<string>("discriminator");
-    summaryMap.find("Den")->second->setBinLabel(j + 1, DiscriminatorLabel);
-    summaryMap.find("Num")->second->setBinLabel(j + 1, DiscriminatorLabel);
-    summaryMap.find("")->second->setBinLabel(j + 1, DiscriminatorLabel);
-    j = j + 1;
-  }
 
   //other plots
   histoInfo ptHinfo = (histoSettings_.exists("pt")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("pt"))
@@ -89,6 +84,19 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
       (histoSettings_.exists("byDeepTau2017v2p1VSmuraw"))
           ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2p1VSmuraw"))
           : histoInfo(200, 0., 1.);
+
+  int j = 0;
+  for (const auto& it : discriminators_) {
+    string DiscriminatorLabel = it.getParameter<string>("discriminator");
+    std::cout << "Current discriminator miniaod: \n";
+    std::cout << DiscriminatorLabel;
+    summaryMap.find("Den")->second->setBinLabel(j + 1, DiscriminatorLabel);
+    summaryMap.find("Num")->second->setBinLabel(j + 1, DiscriminatorLabel);
+    summaryMap.find("")->second->setBinLabel(j + 1, DiscriminatorLabel);
+
+    j = j + 1;
+  }
+
   ptTemp = ibooker.book1D("tau_pt", "tau_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaTemp = ibooker.book1D("tau_eta", "tau_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
   phiTemp = ibooker.book1D("tau_phi", "tau_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
@@ -124,6 +132,16 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   byDeepTau2017v2p1VSerawMap.insert(std::make_pair("", byDeepTau2017v2p1VSerawTemp));
   byDeepTau2017v2p1VSjetrawMap.insert(std::make_pair("", byDeepTau2017v2p1VSjetrawTemp));
   byDeepTau2017v2p1VSmurawMap.insert(std::make_pair("", byDeepTau2017v2p1VSmurawTemp));
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstJet");
+  ptTight = ibooker.book1D("tau_tight_pt", "tau_tight_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  ptTightMap.insert(std::make_pair("", ptTight));
+  //ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstEle");
+  //ptTight = ibooker.book1D("tau_tight_pt", "tau_tight_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  //ptTightMap.insert(std::make_pair("", ptTight));
+  //ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstMu");
+  //ptTight = ibooker.book1D("tau_tight_pt", "tau_tight_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  //ptTightMap.insert(std::make_pair("", ptTight));
 }
 
 void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -157,6 +175,7 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
     }
     if (dRmin < 0.15) {
       pat::TauRef matchedTau(taus, matchedTauIndex);
+
       ptMap.find("")->second->Fill(matchedTau->pt());
       etaMap.find("")->second->Fill(matchedTau->eta());
       phiMap.find("")->second->Fill(matchedTau->phi());
@@ -179,6 +198,8 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
           summaryMap.find("Num")->second->Fill(j);
         j = j + 1;
       }
+      if (matchedTau->tauID("byTightDeepTau2017v2p1VSjet")>=0.5)
+        ptTightMap.find("")->second->Fill(matchedTau->pt());
     }
   }
 }

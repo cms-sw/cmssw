@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: RECO -s RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM --runUnscheduled --nThreads 8 --mc --era Run2_2018 --scenario pp --conditions auto:run2_mc_FULL --eventcontent AOD,MINIAOD,DQM --datatier AOD,MINIAOD,DQMIO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018 --filein /store/relval/CMSSW_11_0_0_pre7/RelValZEE_13/GEN-SIM-DIGI-RAW/PU25ns_110X_mc2017_realistic_v1-v1/20000/1330D353-E2BD-9544-A693-DF8AA60F9F5C.root -n 30 --python_filename=config.py --no_exec
+# with command line options: RECO -s RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM --runUnscheduled --nThreads 8 --mc --era Run2_2018 --scenario pp --conditions auto:run2_mc_FULL --eventcontent AOD,MINIAOD,DQM --datatier AOD,MINIAOD,DQMIO --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018 --filein /store/relval/CMSSW_11_0_0_pre6/RelValZTT_13/GEN-SIM-DIGI-RAW/110X_mc2017_realistic_v1-v1/20000/D0131A85-A029-444B-8090-1D8FEEF0F4CE.root -n 30 --python_filename=config.py --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
@@ -35,7 +35,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_0_0_pre7/RelValZEE_13/GEN-SIM-DIGI-RAW/PU25ns_110X_mc2017_realistic_v1-v1/20000/1330D353-E2BD-9544-A693-DF8AA60F9F5C.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_11_0_0_pre6/RelValZTT_13/GEN-SIM-DIGI-RAW/110X_mc2017_realistic_v1-v1/20000/D0131A85-A029-444B-8090-1D8FEEF0F4CE.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 

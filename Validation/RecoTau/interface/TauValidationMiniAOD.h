@@ -60,11 +60,12 @@ public:
 private:
   edm::EDGetTokenT<std::vector<pat::Tau> > tauCollection_;
   edm::EDGetTokenT<edm::View<reco::Candidate> > refCollectionInputTagToken_;
-  std::map<std::string, MonitorElement *> ptMap, etaMap, phiMap, massMap, decayModeFindingMap, decayModeMap,
+  std::map<std::string, MonitorElement *> ptMap, ptTightMap, etaMap, phiMap, massMap, decayModeFindingMap, decayModeMap,
       byDeepTau2017v2p1VSerawMap, byDeepTau2017v2p1VSjetrawMap, byDeepTau2017v2p1VSmurawMap, summaryMap;
   edm::ParameterSet histoSettings_;
   std::string extensionName_;
   std::vector<edm::ParameterSet> discriminators_;
+  std::vector<edm::ParameterSet> againstXs_;
 };
 
 #endif

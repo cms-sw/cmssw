@@ -229,6 +229,8 @@ void TauTagValidation::bookHistograms(DQMStore::IBooker& ibooker,
   int j = 0;
   for (const auto& it : discriminators_) {
     string DiscriminatorLabel = it.getParameter<string>("discriminator");
+    std::cout << "Current discriminator: \n";
+    std::cout << DiscriminatorLabel;
     std::string histogramName;
     stripDiscriminatorLabel(DiscriminatorLabel, histogramName);
 
