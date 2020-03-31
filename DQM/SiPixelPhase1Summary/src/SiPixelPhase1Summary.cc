@@ -161,13 +161,13 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
                        0.1);
     residuals_["residual_mean_y_Inner_PXLayer_" + layer] =
         iBooker.book1D("residual_mean_y_Inner_PXLayer_" + layer,
-                       "Mean Track Residuals Y Inner Modules for Layer " + layer + ";mean(x_rec-x_pred)[cm]",
+                       "Mean Track Residuals Y Inner Modules for Layer " + layer + ";mean(y_rec-y_pred)[cm]",
                        100,
                        -0.1,
                        0.1);
     residuals_["residual_mean_y_Outer_PXLayer_" + layer] =
         iBooker.book1D("residual_mean_y_Outer_PXLayer_" + layer,
-                       "Mean Track Residuals Y Outer Modules for Layer " + layer + ";mean(x_rec-x_pred)[cm]",
+                       "Mean Track Residuals Y Outer Modules for Layer " + layer + ";mean(y_rec-y_pred)[cm]",
                        100,
                        -0.1,
                        0.1);
@@ -186,13 +186,13 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
                        0.1);
     residuals_["residual_rms_y_Inner_PXLayer_" + layer] =
         iBooker.book1D("residual_rms_y_Inner_PXLayer_" + layer,
-                       "RMS of Track Residuals Y Inner Modules for Layer " + layer + ";rms(x_rec-x_pred)[cm]",
+                       "RMS of Track Residuals Y Inner Modules for Layer " + layer + ";rms(y_rec-y_pred)[cm]",
                        100,
                        -0.1,
                        0.1);
     residuals_["residual_rms_y_Outer_PXLayer_" + layer] =
         iBooker.book1D("residual_rms_y_Outer_PXLayer_" + layer,
-                       "RMS of Track Residuals Y Outer Modules for Layer " + layer + ";rms(x_rec-x_pred)[cm]",
+                       "RMS of Track Residuals Y Outer Modules for Layer " + layer + ";rms(y_rec-y_pred)[cm]",
                        100,
                        -0.1,
                        0.1);
@@ -205,18 +205,18 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
   residuals_["residual_mean_x_Outer"] = iBooker.book1D(
       "residual_mean_x_Outer", "Mean Track Residuals X Outer Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_mean_y_Inner"] = iBooker.book1D(
-      "residual_mean_y_Inner", "Mean Track Residuals Y Inner Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+      "residual_mean_y_Inner", "Mean Track Residuals Y Inner Modules;mean(y_rec-y_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_mean_y_Outer"] = iBooker.book1D(
-      "residual_mean_y_Outer", "Mean Track Residuals Y Outer Modules;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+      "residual_mean_y_Outer", "Mean Track Residuals Y Outer Modules;mean(y_rec-y_pred)[cm]", 100, -0.1, 0.1);
 
   residuals_["residual_rms_x_Inner"] = iBooker.book1D(
       "residual_rms_x_Inner", "RMS of Track Residuals X Inner Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_rms_x_Outer"] = iBooker.book1D(
       "residual_rms_x_Outer", "RMS of Track Residuals X Outer Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_rms_y_Inner"] = iBooker.book1D(
-      "residual_rms_y_Inner", "RMS of Track Residuals Y Inner Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+      "residual_rms_y_Inner", "RMS of Track Residuals Y Inner Modules;rms(y_rec-y_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_rms_y_Outer"] = iBooker.book1D(
-      "residual_rms_y_Outer", "RMS of Track Residuals Y Outer Modules;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+      "residual_rms_y_Outer", "RMS of Track Residuals Y Outer Modules;rms(y_rec-y_pred)[cm]", 100, -0.1, 0.1);
 
   //New residual plots for the PXForward separated by positive and negative side
   iBooker.setCurrentFolder("PixelPhase1/Tracks/PXForward");
@@ -225,18 +225,18 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker& iBooker) {
   residuals_["residual_mean_x_neg"] =
       iBooker.book1D("residual_mean_x_neg", "Mean Track Residuals X neg. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_mean_y_pos"] =
-      iBooker.book1D("residual_mean_y_pos", "Mean Track Residuals Y pos. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+      iBooker.book1D("residual_mean_y_pos", "Mean Track Residuals Y pos. Side;mean(y_rec-y_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_mean_y_neg"] =
-      iBooker.book1D("residual_mean_y_neg", "Mean Track Residuals Y neg. Side;mean(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+      iBooker.book1D("residual_mean_y_neg", "Mean Track Residuals Y neg. Side;mean(y_rec-y_pred)[cm]", 100, -0.1, 0.1);
 
   residuals_["residual_rms_x_pos"] =
       iBooker.book1D("residual_rms_x_pos", "RMS of Track Residuals X pos. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_rms_x_neg"] =
       iBooker.book1D("residual_rms_x_neg", "RMS of Track Residuals X neg. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_rms_y_pos"] =
-      iBooker.book1D("residual_rms_y_pos", "RMS of Track Residuals Y pos. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+      iBooker.book1D("residual_rms_y_pos", "RMS of Track Residuals Y pos. Side;rms(y_rec-y_pred)[cm]", 100, -0.1, 0.1);
   residuals_["residual_rms_y_neg"] =
-      iBooker.book1D("residual_rms_y_neg", "RMS of Track Residuals Y neg. Side;rms(x_rec-x_pred)[cm]", 100, -0.1, 0.1);
+      iBooker.book1D("residual_rms_y_neg", "RMS of Track Residuals Y neg. Side;rms(y_rec-y_pred)[cm]", 100, -0.1, 0.1);
 
   //Book the summary plot
   iBooker.setCurrentFolder("PixelPhase1/EventInfo");
