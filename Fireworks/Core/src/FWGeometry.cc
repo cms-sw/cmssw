@@ -20,20 +20,15 @@
 #include <stdexcept>
 #include <algorithm>
 
-
-
-FWGeometry::FWGeometry(void) : m_producerVersion(0)
-{
-}
+FWGeometry::FWGeometry(void) : m_producerVersion(0) {}
 
 FWGeometry::~FWGeometry(void) {}
 
-bool FWGeometry::isEmpty() const
-{
-   // AMT this is a check if geomtery is not loaded
-   // e.g. cmsShow starts with no data file and without given explicit argument ( --geometry-file option )
+bool FWGeometry::isEmpty() const {
+  // AMT this is a check if geomtery is not loaded
+  // e.g. cmsShow starts with no data file and without given explicit argument ( --geometry-file option )
 
-   return m_idToInfo.empty();
+  return m_idToInfo.empty();
 }
 
 TFile* FWGeometry::findFile(const char* fileName) {
@@ -57,65 +52,48 @@ TFile* FWGeometry::findFile(const char* fileName) {
   return fp ? TFile::Open(fp) : nullptr;
 }
 
+void FWGeometry::applyGlobalTag(const std::string& globalTag) {
+  const std::string fnRun2 = "cmsGeomRun2.root";
+  const std::string fnRun3 = "cmsGeom2021.root";
+  const std::string fnSLHC = "cmsGeom2026.root";
 
-void FWGeometry::applyGlobalTag(const std::string& globalTag)
-{
-   const std::string fnRun2 = "cmsGeomRun2.root";
-   const std::string fnRun3 = "cmsGeom2021.root";
-   const std::string fnSLHC = "cmsGeom2026.root";
+  TPMERegexp year_re("^[^_]+_[a-zA-Z]*20(\\d\\d)_");
+  TPMERegexp run_re("^[^_]+_[a-zA-Z]*Run(\\d)_");
 
-   TPMERegexp year_re("^[^_]+_[a-zA-Z]*20(\\d\\d)_");
-   TPMERegexp run_re("^[^_]+_[a-zA-Z]*Run(\\d)_");
-
-   TString test = globalTag.c_str();
-   std::string cfn;
-   if (year_re.Match(test)) {
-      TString r = year_re[1];
-      int year = atoi(r.Data());
-      if (year < 18)
-      {
-         cfn = fnRun2;
-      }
-      else if (year < 21)
-      {
-         cfn = fnRun3;
-      }
-      else
-      {
-         cfn = fnSLHC;
-      }
-   }
-   else if (run_re.Match(test)) {
-      TString rn = run_re[1];
-      if (rn  == "1")
-      {
-         fwLog(fwlog::kWarning) << "Run1 geometry not included. Using Run2 geometry." << std::endl;
-         cfn = fnRun2;
-      }
-      else if (rn == "2")
-      {
-         cfn =  fnRun2;
-      }
-      else if (rn == "4")
-      {
-         cfn = fnSLHC;
-      }
-      else
-      {
-         fwLog(fwlog::kWarning) << "Detected Run" << rn << ". Using geometry scenario 2021.\n";
-         cfn = fnRun3;
-      }
-   }
-   else {
-      fwLog(fwlog::kWarning) << "Could not guess geometry from global tag.  Using geometry scenario 2021.\n";
+  TString test = globalTag.c_str();
+  std::string cfn;
+  if (year_re.Match(test)) {
+    TString r = year_re[1];
+    int year = atoi(r.Data());
+    if (year < 18) {
+      cfn = fnRun2;
+    } else if (year < 21) {
       cfn = fnRun3;
-   }
+    } else {
+      cfn = fnSLHC;
+    }
+  } else if (run_re.Match(test)) {
+    TString rn = run_re[1];
+    if (rn == "1") {
+      fwLog(fwlog::kWarning) << "Run1 geometry not included. Using Run2 geometry." << std::endl;
+      cfn = fnRun2;
+    } else if (rn == "2") {
+      cfn = fnRun2;
+    } else if (rn == "4") {
+      cfn = fnSLHC;
+    } else {
+      fwLog(fwlog::kWarning) << "Detected Run" << rn << ". Using geometry scenario 2021.\n";
+      cfn = fnRun3;
+    }
+  } else {
+    fwLog(fwlog::kWarning) << "Could not guess geometry from global tag.  Using geometry scenario 2021.\n";
+    cfn = fnRun3;
+  }
 
-
-   fwLog(fwlog::kInfo) << "Guessed geometry " << cfn << " from global tag " << globalTag << std::endl;
-   if (cfn.compare(m_fileName)) {
-      loadMap(cfn.c_str());
-   }
+  fwLog(fwlog::kInfo) << "Guessed geometry " << cfn << " from global tag " << globalTag << std::endl;
+  if (cfn.compare(m_fileName)) {
+    loadMap(cfn.c_str());
+  }
 }
 
 void FWGeometry::loadMap(const char* iFileName) {
@@ -156,8 +134,8 @@ void FWGeometry::loadMap(const char* iFileName) {
 
   // reset previous values
   m_idToInfo.clear();
-  for ( const auto &p :  m_idToMatrix )
-     delete p.second;
+  for (const auto& p : m_idToMatrix)
+    delete p.second;
   m_trackerTopology.reset();
 
   unsigned int treeSize = tree->GetEntries();

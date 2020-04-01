@@ -110,7 +110,7 @@ bool CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQue
   fwLog(fwlog::kDebug) << "CmsShowNavigator::appendFile [" << fileName << "]" << std::endl;
   FWFileEntry* newFile = nullptr;
   try {
-    newFile = new FWFileEntry(fileName, m_main.getVersionCheck(),  m_main.getGlobalTagCheck());
+    newFile = new FWFileEntry(fileName, m_main.getVersionCheck(), m_main.getGlobalTagCheck());
   } catch (std::exception& iException) {
     fwLog(fwlog::kError) << "Navigator::appendFile caught exception FWFileEntry constructor " << iException.what()
                          << std::endl;
@@ -814,9 +814,9 @@ const char* CmsShowNavigator::frameTitle() {
 }
 
 std::string CmsShowNavigator::getCurrentGlobalTag() {
-   std::string res;
-   if (!m_files.empty()){
-      res = (*m_currentFile)->getGlobalTag();
-   }
-   return res;
+  std::string res;
+  if (!m_files.empty()) {
+    res = (*m_currentFile)->getGlobalTag();
+  }
+  return res;
 }

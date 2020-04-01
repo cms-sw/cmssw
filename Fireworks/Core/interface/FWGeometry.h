@@ -170,7 +170,7 @@ private:
 
   int m_producerVersion;
 
-   std::string m_fileName;
+  std::string m_fileName;
 
   std::unique_ptr<TrackerTopology> m_trackerTopology;
 };
