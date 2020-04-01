@@ -30,28 +30,28 @@ namespace cms {
   struct Filter {
     void print() const {
       edm::LogVerbatim("Geometry").log([&](auto& log) {
-	  for(const auto& it : skeys) {
-	    log << it << ", ";
-	  }
-	  if(next) {
-	    log << "Next:\n";
-	    print(next);
-	  }
-	  if(up) {
-	    log << "Up:\n";
-	    up->print();
-	  }
-	});
+        for (const auto& it : skeys) {
+          log << it << ", ";
+        }
+        if (next) {
+          log << "Next:\n";
+          print(next);
+        }
+        if (up) {
+          log << "Up:\n";
+          up->print();
+        }
+      });
     }
-    
+
     void print(const std::unique_ptr<Filter>& filter) const {
       edm::LogVerbatim("Geometry").log([&](auto& log) {
-	  for(const auto& it : filter->skeys) {
-	    log << it << ", ";
-	  }
-	});
+        for (const auto& it : filter->skeys) {
+          log << it << ", ";
+        }
+      });
     }
-    
+
     std::vector<std::string> skeys;
     std::vector<std::regex> keys;
     std::unique_ptr<Filter> next;

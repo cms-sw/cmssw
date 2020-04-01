@@ -163,12 +163,16 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
         return false;
       });
       if (filter == end(filters_)) {
-        filters_.emplace_back(unique_ptr<Filter>(
-	    new Filter{{std::string(toks.front().data(), toks.front().size())}, {std::regex(std::string(toks.front().data(), toks.front().size()))}, nullptr, nullptr, i}));
-	// initialize current filter if it's empty
-	if (currentFilter_ == nullptr) {
-	  currentFilter_ = filters_.back().get();
-	}
+        filters_.emplace_back(
+            unique_ptr<Filter>(new Filter{{std::string(toks.front().data(), toks.front().size())},
+                                          {std::regex(std::string(toks.front().data(), toks.front().size()))},
+                                          nullptr,
+                                          nullptr,
+                                          i}));
+        // initialize current filter if it's empty
+        if (currentFilter_ == nullptr) {
+          currentFilter_ = filters_.back().get();
+        }
       }
       // all next levels
       for (size_t pos = 1; pos < toks.size(); ++pos) {
@@ -179,11 +183,14 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
           });
           if (l == end(currentFilter_->skeys)) {
             currentFilter_->skeys.emplace_back(std::string(toks[pos].data(), toks[pos].size()));
-            currentFilter_->keys.emplace_back(std::string(toks[pos].data(), toks[pos].size()));	    
+            currentFilter_->keys.emplace_back(std::string(toks[pos].data(), toks[pos].size()));
           }
         } else {
-          currentFilter_->next.reset(
-              new Filter{{std::string(toks[pos].data(), toks[pos].size())}, {std::regex(std::string(toks[pos].data(), toks[pos].size()))}, nullptr, currentFilter_, i});
+          currentFilter_->next.reset(new Filter{{std::string(toks[pos].data(), toks[pos].size())},
+                                                {std::regex(std::string(toks[pos].data(), toks[pos].size()))},
+                                                nullptr,
+                                                currentFilter_,
+                                                i});
         }
       }
     }
@@ -191,7 +198,7 @@ void DDFilteredView::mergedSpecifics(DDSpecParRefs const& specs) {
 }
 
 void DDFilteredView::printFilter() const {
-  for( const auto& f : filters_) {
+  for (const auto& f : filters_) {
     f->print();
   }
 }
@@ -214,11 +221,9 @@ bool DDFilteredView::firstChild() {
   return false;
 }
 
-
 int DDFilteredView::nodeCopyNo(const std::string_view copyNo) const {
   int result;
-  if(auto [p, ec] = std::from_chars(copyNo.data(), copyNo.data() + copyNo.size(), result);
-     ec == std::errc()) {
+  if (auto [p, ec] = std::from_chars(copyNo.data(), copyNo.data() + copyNo.size(), result); ec == std::errc()) {
     return result;
   }
   return -1;
@@ -227,47 +232,45 @@ int DDFilteredView::nodeCopyNo(const std::string_view copyNo) const {
 std::vector<std::pair<std::string_view, int>> DDFilteredView::toNodeNames(const std::string& path) {
   std::vector<std::pair<std::string_view, int>> result;
   std::vector<string_view> names = split(path, "/");
-  for(const auto& i : names) {
+  for (const auto& i : names) {
     auto name = noNamespace(i);
     int copyNo = -1;
     auto lpos = name.find_first_of('[');
-    if(lpos != std::string::npos) {
+    if (lpos != std::string::npos) {
       auto rpos = name.find_last_of(']');
-      if(rpos != std::string::npos) {
-	copyNo = nodeCopyNo(name.substr(lpos + 1, rpos - 1));
+      if (rpos != std::string::npos) {
+        copyNo = nodeCopyNo(name.substr(lpos + 1, rpos - 1));
       }
       result.emplace_back(name.substr(0, lpos), copyNo);
-    }
-    else {
+    } else {
       result.emplace_back(name, -1);
     }
   }
-  
+
   return result;
-} 
+}
 
 bool DDFilteredView::match(const std::string& path, const std::vector<std::pair<std::string_view, int>>& names) const {
   std::vector<std::pair<std::string_view, int>> toks;
   std::vector<string_view> pnames = split(path, "/");
-  for(const auto& i : pnames) {
+  for (const auto& i : pnames) {
     auto name = noNamespace(i);
     auto lpos = name.find_first_of('_');
-    if(lpos != std::string::npos) {
+    if (lpos != std::string::npos) {
       int copyNo = nodeCopyNo(name.substr(lpos + 1));
       toks.emplace_back(name.substr(0, lpos), copyNo);
     }
   }
-  if(toks.size() != names.size()) {
+  if (toks.size() != names.size()) {
     return false;
   }
-  
-  for(unsigned int i = 0; i < names.size(); i++) {
-    if(names[i].first != toks[i].first) {
+
+  for (unsigned int i = 0; i < names.size(); i++) {
+    if (names[i].first != toks[i].first) {
       return false;
-    }
-    else {
-      if(names[i].second != -1 and names[i].second != toks[i].second) {
-	return false;
+    } else {
+      if (names[i].second != -1 and names[i].second != toks[i].second) {
+        return false;
       }
     }
   }
@@ -281,27 +284,26 @@ std::vector<std::vector<Node*>> DDFilteredView::children(const std::string& sele
     return paths;
   }
   if (node_ == nullptr) {
-    throw cms::Exception("DDFilteredView")
-      << "Can't get children of a null node. Please, call firstChild().";
+    throw cms::Exception("DDFilteredView") << "Can't get children of a null node. Please, call firstChild().";
   }
   it_.back().SetType(0);
   std::vector<std::pair<std::string_view, int>> names = toNodeNames(selectPath);
   auto rit = names.rbegin();
-  Node *node = it_.back().Next();
+  Node* node = it_.back().Next();
   while (node != nullptr) {
-    if(node->GetVolume()->GetName() == std::string({rit->first.data(), rit->first.size()})) {
+    if (node->GetVolume()->GetName() == std::string({rit->first.data(), rit->first.size()})) {
       std::string pathToNode = path();
       std::string::size_type n = pathToNode.find(node_->GetName());
       std::string pathFromParent = pathToNode.substr(n);
-      
-      if(match(pathFromParent, names)) {
-	std::vector<Node*> children;
-	LogVerbatim("Geometry") << "Match found: " << pathFromParent;
-	for(int i = startLevel_; i < it_.back().GetLevel(); i++) {
-	  children.emplace_back(it_.back().GetNode(i));
-	}
-	children.emplace_back(node);
-	paths.emplace_back(children);
+
+      if (match(pathFromParent, names)) {
+        std::vector<Node*> children;
+        LogVerbatim("Geometry") << "Match found: " << pathFromParent;
+        for (int i = startLevel_; i < it_.back().GetLevel(); i++) {
+          children.emplace_back(it_.back().GetNode(i));
+        }
+        children.emplace_back(node);
+        paths.emplace_back(children);
       }
     }
     node = it_.back().Next();

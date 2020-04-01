@@ -125,7 +125,7 @@ namespace cms {
 
     //! set current node to the parent node in the filtered tree
     void up();
-    
+
     // Shape of current node
     bool isABox() const;
     bool isAConeSeg() const;
@@ -190,7 +190,7 @@ namespace cms {
 
     //! print Filter paths and selections
     void printFilter() const;
-    
+
   private:
     bool accept(std::string_view);
     int nodeCopyNo(const std::string_view) const;
