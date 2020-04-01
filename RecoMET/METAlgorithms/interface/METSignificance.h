@@ -57,6 +57,7 @@ namespace metsig {
          std::vector<double> jetEtas_;
          std::vector<double> jetParams_;
          std::vector<double> pjetParams_;
+         bool useDeltaRforFootprint_;
 
    };
 
