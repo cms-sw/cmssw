@@ -80,8 +80,8 @@ FWRPZViewGeometry::~FWRPZViewGeometry() {
 //______________________________________________________________________________
 
 void FWRPZViewGeometry::initStdGeoElements(const FWViewType::EType type) {
-   if (m_geom->isEmpty())
-      return;
+  if (m_geom->isEmpty())
+    return;
 
   if (type == FWViewType::kRhoZ) {
     AddElement(makeMuonGeometryRhoZ());

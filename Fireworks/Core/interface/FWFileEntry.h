@@ -98,7 +98,7 @@ private:
   fwlite::Event* m_event;
 
   bool m_needUpdate;  // To be set in navigator::filterChanged/Added, newFile
-  std::string  m_globalTag;
+  std::string m_globalTag;
 
   std::list<Filter*> m_filterEntries;
   FWTEventList* m_globalEventList;

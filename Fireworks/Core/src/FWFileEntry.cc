@@ -40,7 +40,7 @@ FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion, bool checkG
       m_needUpdate(true),
       m_globalTag("gt_undef"),
       m_globalEventList(nullptr) {
-   openFile(checkVersion, checkGT);
+  openFile(checkVersion, checkGT);
 }
 
 FWFileEntry::~FWFileEntry() {
@@ -51,137 +51,136 @@ FWFileEntry::~FWFileEntry() {
 }
 
 void FWFileEntry::openFile(bool checkVersion, bool checkGlobalTag) {
-   gErrorIgnoreLevel = 3000;  // suppress warnings about missing dictionaries
+  gErrorIgnoreLevel = 3000;  // suppress warnings about missing dictionaries
 
-   TFile* newFile = TFile::Open(m_name.c_str());
+  TFile* newFile = TFile::Open(m_name.c_str());
 
-   if (newFile == nullptr || newFile->IsZombie() || !newFile->Get("Events")) {
-      //  std::cout << "Invalid file. Ignored." << std::endl;
-      // return false;
-      throw std::runtime_error("Invalid file. Ignored.");
-   }
-
-   m_file = newFile;
-
-   gErrorIgnoreLevel = -1;
-
-   // check CMSSW relese version for compatibility
-   typedef std::vector<edm::ProcessHistory> provList;
-
-   TTree* metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
-   TBranch* b = metaData->GetBranch("ProcessHistory");
-   edm::ProcessHistoryVector phv_;
-   edm::ProcessHistoryVector* pPhv = &phv_;
-   metaData->SetBranchAddress("ProcessHistory", &pPhv);
-
-   b->GetEntry(0);
-
-   typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
-   ParameterSetMap psm_;
-   TTree* psetTree = dynamic_cast<TTree*>(newFile->Get("ParameterSets"));
-   typedef std::pair<edm::ParameterSetID, edm::ParameterSetBlob> IdToBlobs;
-   IdToBlobs idToBlob;
-   IdToBlobs* pIdToBlob = &idToBlob;
-   psetTree->SetBranchAddress("IdToParameterSetsBlobs", &pIdToBlob);
-   for (long long i = 0; i != psetTree->GetEntries(); ++i) {
-      psetTree->GetEntry(i);
-      psm_.insert(idToBlob);
-   }
-
-   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
-   for (auto const& item : psm_) {
-      edm::ParameterSet pset(item.second.pset());
-      pset.setID(item.first);
-      psetRegistry.insertMapped(pset);
-   }
-
-   const edm::ProcessConfiguration* dd = nullptr;
-   int latestVersion = 0;
-   int currentVersionArr[] = {0, 0, 0};
-   for (auto const& processHistory : phv_) {
-      for (auto const& processConfiguration : processHistory) {
-         // std::cout << processConfiguration.releaseVersion() << "  " << processConfiguration.processName() << std::endl;
-         TString dcv = processConfiguration.releaseVersion();
-         fireworks::getDecomposedVersion(dcv, currentVersionArr);
-         int nvv = currentVersionArr[0] * 100 + currentVersionArr[1] * 10 + currentVersionArr[2];
-         if (nvv > latestVersion) {
-            latestVersion = nvv;
-            dd = &processConfiguration;
-         }
-      }
-   }
-
-   // read first global tag for auto detect of geomtery version
-   if (checkGlobalTag) {
-      std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
-      m_globalTag = "";
-      for (auto const& ph : phv_) {
-         for (auto const& pc : ph) {
-            unsigned int id = simpleIDs[pc.id()];
-            if (0 == id) {
-               id = 1;
-               simpleIDs[pc.id()] = id;
-            }
-            ParameterSetMap::const_iterator itFind = psm_.find(pc.parameterSetID());
-            if (itFind == psm_.end()) {
-               std::cout << "No ParameterSetID for " << pc.parameterSetID() << std::endl;
-               fwLog(fwlog::kInfo) << "FWFileEntry::openFile no ParameterSetID for " << pc.parameterSetID() << std::endl;
-            } else {
-               edm::ParameterSet processConfig(itFind->second.pset());
-               std::vector<std::string> sourceStrings, moduleStrings;
-               std::vector<std::string> sources = processConfig.getParameter<std::vector<std::string>>("@all_essources");
-               for (auto& itM : sources)
-               {
-                  edm::ParameterSet const& pset = processConfig.getParameterSet(itM);
-                  std::string name(pset.getParameter<std::string>("@module_label"));
-                  if (name.empty()) {
-                     name = pset.getParameter<std::string>("@module_type");
-                  }
-                  if (name != "GlobalTag" )
-                     continue;
-
-                  for (auto const& item : pset.tbl()) {
-                     if (item.first == "globaltag") {
-                        m_globalTag =  item.second.getString();
-                        goto gtEnd;
-                     }
-                  }
-               }
-            }
-         }
-      }
-
-   gtEnd:
-      fwLog(fwlog::kDebug) << "FWFileEntry::openFile detected global tag "<<  m_globalTag << "\n";
-   }
-
-   // test compatibility of data with CMSSW
-  if (checkVersion) {
-      if (latestVersion) {
-         fwLog(fwlog::kInfo) << "Checking process history. " << m_name.c_str() << " latest process \"" << dd->processName()
-                             << "\", version " << dd->releaseVersion() << std::endl;
-
-         b->SetAddress(nullptr);
-         TString v = dd->releaseVersion();
-         if (!fireworks::acceptDataFormatsVersion(v)) {
-            int* di = (fireworks::supportedDataFormatsVersion());
-            TString msg = Form(
-                               "incompatible data: Process version does not mactch major data formats version. File produced with %s. "
-                               "Data formats version \"CMSSW_%d_%d_%d\".\n",
-                               dd->releaseVersion().c_str(),
-                               di[0],
-                               di[1],
-                               di[2]);
-            msg += "Use --no-version-check option if you still want to view the file.\n";
-            throw std::runtime_error(msg.Data());
-         }
-      } else {
-         TString msg = "No process history available\n";
-         msg += "Use --no-version-check option if you still want to view the file.\n";
-         throw std::runtime_error(msg.Data());
-      }
+  if (newFile == nullptr || newFile->IsZombie() || !newFile->Get("Events")) {
+    //  std::cout << "Invalid file. Ignored." << std::endl;
+    // return false;
+    throw std::runtime_error("Invalid file. Ignored.");
   }
-   
+
+  m_file = newFile;
+
+  gErrorIgnoreLevel = -1;
+
+  // check CMSSW relese version for compatibility
+  typedef std::vector<edm::ProcessHistory> provList;
+
+  TTree* metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
+  TBranch* b = metaData->GetBranch("ProcessHistory");
+  edm::ProcessHistoryVector phv_;
+  edm::ProcessHistoryVector* pPhv = &phv_;
+  metaData->SetBranchAddress("ProcessHistory", &pPhv);
+
+  b->GetEntry(0);
+
+  typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
+  ParameterSetMap psm_;
+  TTree* psetTree = dynamic_cast<TTree*>(newFile->Get("ParameterSets"));
+  typedef std::pair<edm::ParameterSetID, edm::ParameterSetBlob> IdToBlobs;
+  IdToBlobs idToBlob;
+  IdToBlobs* pIdToBlob = &idToBlob;
+  psetTree->SetBranchAddress("IdToParameterSetsBlobs", &pIdToBlob);
+  for (long long i = 0; i != psetTree->GetEntries(); ++i) {
+    psetTree->GetEntry(i);
+    psm_.insert(idToBlob);
+  }
+
+  edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
+  for (auto const& item : psm_) {
+    edm::ParameterSet pset(item.second.pset());
+    pset.setID(item.first);
+    psetRegistry.insertMapped(pset);
+  }
+
+  const edm::ProcessConfiguration* dd = nullptr;
+  int latestVersion = 0;
+  int currentVersionArr[] = {0, 0, 0};
+  for (auto const& processHistory : phv_) {
+    for (auto const& processConfiguration : processHistory) {
+      // std::cout << processConfiguration.releaseVersion() << "  " << processConfiguration.processName() << std::endl;
+      TString dcv = processConfiguration.releaseVersion();
+      fireworks::getDecomposedVersion(dcv, currentVersionArr);
+      int nvv = currentVersionArr[0] * 100 + currentVersionArr[1] * 10 + currentVersionArr[2];
+      if (nvv > latestVersion) {
+        latestVersion = nvv;
+        dd = &processConfiguration;
+      }
+    }
+  }
+
+  // read first global tag for auto detect of geomtery version
+  if (checkGlobalTag) {
+    std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
+    m_globalTag = "";
+    for (auto const& ph : phv_) {
+      for (auto const& pc : ph) {
+        unsigned int id = simpleIDs[pc.id()];
+        if (0 == id) {
+          id = 1;
+          simpleIDs[pc.id()] = id;
+        }
+        ParameterSetMap::const_iterator itFind = psm_.find(pc.parameterSetID());
+        if (itFind == psm_.end()) {
+          std::cout << "No ParameterSetID for " << pc.parameterSetID() << std::endl;
+          fwLog(fwlog::kInfo) << "FWFileEntry::openFile no ParameterSetID for " << pc.parameterSetID() << std::endl;
+        } else {
+          edm::ParameterSet processConfig(itFind->second.pset());
+          std::vector<std::string> sourceStrings, moduleStrings;
+          std::vector<std::string> sources = processConfig.getParameter<std::vector<std::string>>("@all_essources");
+          for (auto& itM : sources) {
+            edm::ParameterSet const& pset = processConfig.getParameterSet(itM);
+            std::string name(pset.getParameter<std::string>("@module_label"));
+            if (name.empty()) {
+              name = pset.getParameter<std::string>("@module_type");
+            }
+            if (name != "GlobalTag")
+              continue;
+
+            for (auto const& item : pset.tbl()) {
+              if (item.first == "globaltag") {
+                m_globalTag = item.second.getString();
+                goto gtEnd;
+              }
+            }
+          }
+        }
+      }
+    }
+
+  gtEnd:
+    fwLog(fwlog::kDebug) << "FWFileEntry::openFile detected global tag " << m_globalTag << "\n";
+  }
+
+  // test compatibility of data with CMSSW
+  if (checkVersion) {
+    if (latestVersion) {
+      fwLog(fwlog::kInfo) << "Checking process history. " << m_name.c_str() << " latest process \"" << dd->processName()
+                          << "\", version " << dd->releaseVersion() << std::endl;
+
+      b->SetAddress(nullptr);
+      TString v = dd->releaseVersion();
+      if (!fireworks::acceptDataFormatsVersion(v)) {
+        int* di = (fireworks::supportedDataFormatsVersion());
+        TString msg = Form(
+            "incompatible data: Process version does not mactch major data formats version. File produced with %s. "
+            "Data formats version \"CMSSW_%d_%d_%d\".\n",
+            dd->releaseVersion().c_str(),
+            di[0],
+            di[1],
+            di[2]);
+        msg += "Use --no-version-check option if you still want to view the file.\n";
+        throw std::runtime_error(msg.Data());
+      }
+    } else {
+      TString msg = "No process history available\n";
+      msg += "Use --no-version-check option if you still want to view the file.\n";
+      throw std::runtime_error(msg.Data());
+    }
+  }
+
   m_eventTree = dynamic_cast<TTree*>(m_file->Get("Events"));
 
   if (m_eventTree == nullptr) {
@@ -490,7 +489,7 @@ bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
   boost::sregex_token_iterator j;
 
   // filters and how they enter in the logical expression
-  std::vector<std::pair<unsigned int, bool> > filters;
+  std::vector<std::pair<unsigned int, bool>> filters;
 
   while (i != j) {
     std::string filter = *i++;
@@ -521,7 +520,7 @@ bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
 
   for (m_event->toBegin(); !m_event->atEnd(); ++(*m_event)) {
     hTriggerResults.getByLabel(*m_event, "TriggerResults", "", filterEntry->m_selector->m_triggerProcess.c_str());
-    std::vector<std::pair<unsigned int, bool> >::const_iterator filter = filters.begin();
+    std::vector<std::pair<unsigned int, bool>>::const_iterator filter = filters.begin();
     bool passed = hTriggerResults->accept(filter->first) == filter->second;
     while (++filter != filters.end()) {
       if (junction_mode)
