@@ -46,6 +46,11 @@
 #include <dlfcn.h>
 #include <math.h>
 #include <limits>
+#include <filesystem>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 
 static int colors[] = {kGray, kAzure, kOrange+7, kRed+1,
                        kMagenta+2, kGreen-3};
@@ -305,13 +310,12 @@ parseImageSpec(VisDQMImgInfo &i, const std::string &spec, const char *&error)
 
 typedef std::string Filename;
 bool fileExists(Filename const& f) {
-  // TODO
-  return true;
+  return std::filesystem::exists(f);
 }
 
+// no idea what the bools mean, that is from classlib...
 void removeFile(Filename const& f, bool, bool) {
-  // TODO
-
+  std::filesystem::remove(f);
 }
 
 // ----------------------------------------------------------------------
@@ -381,9 +385,6 @@ public:
 
       // Initialise plugins now.
       initPlugins();
-
-      // Establish the network server side.
-      // TODO
     }
 
   ~VisDQMImageServer(void)
@@ -393,7 +394,100 @@ public:
 
     void run() {
       // TODO
+      // stolen here: https://github.com/zappala/socket-programming-examples-c/blob/master/unix-echo/unix-server.cc
+      struct sockaddr_un server_addr;
 
+      // setup socket address structure
+      bzero(&server_addr,sizeof(server_addr));
+      server_addr.sun_family = AF_UNIX;
+      strncpy(server_addr.sun_path,info_.sockpath.c_str(),sizeof(server_addr.sun_path) - 1);
+
+      // create socket
+      auto server_ = socket(PF_UNIX,SOCK_STREAM,0);
+      if (!server_) {
+          perror("socket");
+          exit(-1);
+      }
+
+      // call bind to associate the socket with the UNIX file system
+      if (bind(server_,(const struct sockaddr *)&server_addr,sizeof(server_addr)) < 0) {
+          perror("bind");
+          exit(-1);
+      }
+
+        // convert the socket to listen for incoming connections
+      if (listen(server_,SOMAXCONN) < 0) {
+          perror("listen");
+          exit(-1);
+      }
+
+      int client;
+      struct sockaddr_un client_addr;
+      socklen_t clientlen = sizeof(client_addr);
+
+        // accept clients
+      while ((client = accept(server_,(struct sockaddr *)&client_addr,&clientlen)) > 0) {
+        while (1) {
+            // get a request
+           bool done = false;
+           char buf[1024];
+           std::vector<unsigned char> msg;
+           int len = -1;
+           while (!done) {
+            int nread = recv(client,buf,sizeof(buf),0);
+            if (nread < 0) {
+                if (errno == EINTR)
+                    // the socket call was interrupted -- try again
+                    continue;
+                else
+                    // an error occurred, so break out
+                    break;
+            } else if (nread == 0) {
+                // the socket is closed
+                break;
+            }
+            if (len < 0) {
+              memcpy(&len, buf, 4);
+              msg.insert(msg.end(), buf+4, buf + nread);
+            } else {
+              msg.insert(msg.end(), buf, buf + nread);
+              if (msg.size() >= len) {
+                done = true;
+              }
+            }
+           }
+           if (done) {
+             Bucket out;
+             onMessage(&out, &msg[0], len);
+             
+              const unsigned char* ptr = &out.data[0];
+              int nleft = out.data.size();
+              int nwritten;
+              // loop to be sure it is all sent
+              while (nleft) {
+                  if ((nwritten = send(client, ptr, nleft, 0)) < 0) {
+                      if (errno == EINTR) {
+                          // the socket call was interrupted -- try again
+                          continue;
+                      } else {
+                          // an error occurred, so break out
+                          perror("write");
+                          break;
+                      }
+                  } else if (nwritten == 0) {
+                      // the socket is closed
+                      break;
+                  }
+                  nleft -= nwritten;
+                  ptr += nwritten;
+              }
+           } else {
+             break;
+           }
+        }
+        close(client);
+
+      }
     }
 
 protected:
@@ -405,8 +499,8 @@ protected:
     }
 
   void
-  copydata(Bucket* msg, void* data, size_t size) {
-    // TODO
+  copydata(Bucket* msg, const void* data, size_t len) {
+    msg->data.insert(msg->data.end(), (const unsigned char *)data, (const unsigned char *)data + len);
   }
 
   // Web server facing message handling.  Respond to image requests.
