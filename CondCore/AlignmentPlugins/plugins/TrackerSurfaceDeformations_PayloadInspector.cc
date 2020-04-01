@@ -18,7 +18,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "CondFormats/Alignment/interface/Definitions.h"
 
 // needed for the tracker map
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"

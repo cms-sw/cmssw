@@ -1,7 +1,6 @@
 <use   name="ofast-flag"/>
 <use   name="RecoTracker/FinalTrackSelectors"/>
 <use   name="DataFormats/Common"/>
-<use   name="DataFormats/DetId"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/TrackerCommon"/>
 <use   name="DataFormats/SiPixelDetId"/>
@@ -17,11 +16,9 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="TrackingTools/Records"/>
-<use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
 <use   name="TrackingTools/PatternTools"/>

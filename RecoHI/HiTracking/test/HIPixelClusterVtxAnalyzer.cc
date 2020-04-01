@@ -1,4 +1,11 @@
-#include "HIPixelClusterVtxAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -25,6 +32,43 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+
+// ROOT includes
+#include <TH1.h>
+
+namespace edm {
+  class Run;
+  class Event;
+  class EventSetup;
+}  // namespace edm
+
+class TrackerGeometry;
+
+class HIPixelClusterVtxAnalyzer : public edm::EDAnalyzer {
+public:
+  explicit HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps);
+  ~HIPixelClusterVtxAnalyzer();
+
+private:
+  struct VertexHit {
+    float z;
+    float r;
+    float w;
+  };
+
+  virtual void analyze(const edm::Event &ev, const edm::EventSetup &es);
+  int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
+
+  edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_;  //pixel rec hits
+
+  double minZ_;
+  double maxZ_;
+  double zStep_;
+
+  edm::Service<TFileService> fs;
+  int maxHists_;
+  int counter;
+};
 
 /*****************************************************************************/
 HIPixelClusterVtxAnalyzer::HIPixelClusterVtxAnalyzer(const edm::ParameterSet &ps)
@@ -152,3 +196,6 @@ int HIPixelClusterVtxAnalyzer::getContainedHits(const std::vector<VertexHit> &hi
   }
   return n;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HIPixelClusterVtxAnalyzer);
