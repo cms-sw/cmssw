@@ -14,7 +14,11 @@ IndexEntry = namedtuple('IndexEntry', ['run', 'lumi', 'type', 'file', 'firstidx'
 # failures.
 TESTTIMEOUT = 3
 OPENTIMEOUT = 5
+# keep around that many connections open (not a hard limit)
 CACHEDFILES = 500
+# re-open files after this time, XRootD connections to get stale at some point
+# and don't fail in a friendly way (eternal blocking).
+CACHETIMEOUT = 60
 
 TREENAMES = { 
   0: "Ints",
@@ -128,8 +132,11 @@ class DQMIOFileIO:
 
     def getfromcache(self, name):
         if self.openfiles[name]:
-            tfile, _ = self.openfiles[name].pop()
-            return tfile
+            tfile, lastused = self.openfiles[name].pop()
+            if time.time() - lastused > CACHETIMEOUT:
+              return self.getfromcache(name) # recursive retry
+            else:
+              return tfile
         return None
         
     def addtocache(self, name, tfile):
