@@ -239,47 +239,42 @@ std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > DD4hep_
 
 void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
 
-
   edm::ESTransientHandle<cms::DDCompactView> cpv;
   setup.get<IdealGeometryRecord>().get(m_tag,cpv);
-  cms::DDFilteredView fv((*cpv).detector(),(*cpv).detector()->worldVolume());
-  cms::DDSpecParRefs refs;
-  const std::string_view tmg{"TrackingMaterialGroup"};
-  const cms::DDSpecParRegistry& mypar = (*cpv).specpars();
-  mypar.filter(refs, tmg);
-  fv.mergedSpecifics(refs);
-  bool isOk = fv.firstChild();
-  //UInt_t i = 0;
+  cms::DDFilter filter("TrackingMaterialGroup", "");
+  cms::DDFilteredView fv(*cpv, filter);
 
-  for (const auto& t : refs) {
-    m_group_names.insert(t->strValue(tmg.data()));
-    std::cout << t->strValue(tmg.data()) << std::endl;
+  for (const auto& t : fv.specpars()) {
+    m_group_names.insert(t->strValue("TrackingMaterialGroup"));
+    std::cout << t->strValue("TrackingMaterialGroup") << std::endl;
   }
 
-  for (const auto& i: m_group_names){
-    cms::DDFilteredView fv1((*cpv).detector(),(*cpv).detector()->worldVolume());
-    cms::DDSpecParRefs refs1;
-    const cms::DDSpecParRegistry& mypar1 = ((*cpv).specpars());
-    mypar1.filter(refs1,"TrackingMaterialGroup",i);
-    fv1.mergedSpecifics(refs1);
-    //bool dodet = fv1.firstChild();
+  for (const auto& i: m_group_names) {
+    cms::DDFilter filter1("TrackingMaterialGroup", {i.data(), i.size()});
+    cms::DDFilteredView fv1(*cpv, filter1);
+    bool firstChild = fv1.firstChild();
+    //fv1.printFilter();
+    
     std::cout << "***" << i <<std::endl;
-
-    for(const auto j: refs){
-      for(const auto k: j->paths){
+    
+    for(const auto j: fv1.specpars()) {
+      for(const auto k: j->paths) {
         std::cout<< k << std::endl;
+	if(firstChild) {
+	  std::cout << "Find children matching selection for a parent " << fv1.name() << "\n";
+	  std::vector<std::vector<cms::Node*>> children = fv1.children(k);
+	  for(auto const& path: children) {
+	    for(auto const& node : path) {
+	      std::cout << node->GetName() << ", ";
+	    }
+	    std::cout << "\n";
+	  }
+	  std::cout << "\n";
+	}
       }
     }
-
-    while(fv1.firstChild()){ // next()??
-      std::cout << "name: " << fv1.name() << std::endl;
-      std::cout << "path: " << fv1.path() << std::endl;
-      std::cout << "Perlita: " << fv1.position() << std::endl;
-    }
     std::cout << "*************" <<std::endl;
-
   }
-
 }
 
 void DD4hep_ListGroups::endJob() {}

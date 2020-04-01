@@ -48,8 +48,8 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
 
 process.test = cms.EDAnalyzer("DDTestSpecParsFilter",
                               DDDetector = cms.ESInputTag('','CMS'),
-                              attribute = cms.untracked.string('MuStructure'),
-                              value = cms.untracked.string('MuonEndcapCSC') ###'MuonBarrelDT')
+                              attribute = cms.untracked.string('TrackingMaterialGroup'), ###MuStructure'),
+                              value = cms.untracked.string('') ### MuonEndcapCSC') ###'MuonBarrelDT')
                               )
 
 process.p = cms.Path(process.test)

@@ -102,6 +102,9 @@ namespace cms {
     //! set the current node to the first child
     bool firstChild();
 
+    //! set the current node to the child in path
+    std::vector<std::vector<Node*>> children(const std::string& path);
+
     //! set the current node to the next sibling
     bool nextSibling();
 
@@ -122,7 +125,7 @@ namespace cms {
 
     //! set current node to the parent node in the filtered tree
     void up();
-
+    
     // Shape of current node
     bool isABox() const;
     bool isAConeSeg() const;
@@ -185,8 +188,14 @@ namespace cms {
     //  the current position in the DDFilteredView
     nav_type navPos() const;
 
+    //! print Filter paths and selections
+    void printFilter() const;
+    
   private:
     bool accept(std::string_view);
+    int nodeCopyNo(const std::string_view) const;
+    std::vector<std::pair<std::string_view, int>> toNodeNames(const std::string&);
+    bool match(const std::string&, const std::vector<std::pair<std::string_view, int>>&) const;
     const TClass* getShape() const;
 
     //! set the current node to the first sibling
@@ -199,6 +208,7 @@ namespace cms {
     Node* node_ = nullptr;
     const DDSpecParRegistry* registry_;
     DDSpecParRefs refs_;
+    int startLevel_;
   };
 }  // namespace cms
 
