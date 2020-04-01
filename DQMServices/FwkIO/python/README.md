@@ -113,7 +113,59 @@ mes = r.readlumimes('/EGamma/Run2018B-12Nov2019_UL2018-v2/DQMIO', 317649, 'EcalP
 print(mes)
 ```
 
-By default, all operations print progress indications, since all operations might be quite slow (on remote files). However, on local files and/or with warm caches, this is may slow dwon the operations; use `DQMIOReader(..., progress=False) to disable the progress display on `read*` operations.
+By default, all operations print progress indications, since all operations might be quite slow (on remote files). However, on local files and/or with warm caches, this is may slow dwon the operations; use `DQMIOReader(..., progress=False)` to disable the progress display on `read*` operations.
+
+Example
+-------
+As a more practical example, let's read and aggregate a pair of MEs over a full dataset and compute an efficiency:
+```
+from DQMServices.FwkIO.DQMIO import *
+# You can use this in Jupyter, just start a notebook in a cmsenv using jupyter-notebook3
+# getting it to work in SWAN is hard and seems to fail on various problems.
+%jsroot on
+
+# needs to be on disk somewhere!
+DATASET = '/ZeroBias/Run2017B-09Aug2019_UL2017-v1/DQMIO'
+r = DQMIOReader()
+r.importdataset(DATASET)
+# this can take a while
+r.checkfiles()
+# just to check whatever we are looking for is present.
+#mes = r.filtersample(DATASET, 299178, 0, 'Muons/Tracking/innerTrack/HitEffFromHitPatternAll/Hits_.*_PXB_Subdet1')
+mes = {
+    'Muons/Tracking/innerTrack/HitEffFromHitPatternAll/Hits_total_PXB_Subdet1',
+    'Muons/Tracking/innerTrack/HitEffFromHitPatternAll/Hits_valid_PXB_Subdet1',
+}
+
+def addtohist(th1s, accu):
+    if th1s and accu == None:
+        accu =th1s[0].Clone()
+        accu.Reset()
+    tlist = ROOT.TList()
+    for th1 in th1s:
+        tlist.Add(th1)
+    accu.Merge(tlist)
+    return accu
+
+runs = set(run for dataset, run, lumi in r.samples())
+
+total = None
+valid = None
+ctr = 0
+for run in list(runs):
+    ctr += 1
+    print("run %d, %d of %d" % (run, ctr, len(runs)))
+    runmes = r.readsampleme(DATASET, run, 0, mes)
+    # we need to aggregate right here since the TH1s... somehow... get deleted after a while?
+    total = addtohist([me.data for me in runmes if 'total' in me.name], total)
+    valid = addtohist([me.data for me in runmes if 'valid' in me.name], valid)
+    
+eff = valid.Clone()
+eff.Divide(total)
+c = ROOT.TCanvas()
+eff.Draw()
+c.Draw()
+```
 
 Implementation
 --------------
