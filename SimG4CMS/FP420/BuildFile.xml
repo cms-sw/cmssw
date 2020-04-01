@@ -7,7 +7,6 @@
 <use   name="SimDataFormats/SimHitMaker"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="SimDataFormats/CaloHit"/>
-<use   name="DetectorDescription/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
