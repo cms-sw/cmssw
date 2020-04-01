@@ -215,7 +215,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       int cell = cellx % 1000;
       int type = cellx / 1000;
       if (type != 1 && type != 2) {
-        throw cms::Exception("DDException") << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
+        throw cms::Exception("DDException")
+            << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
       } else {
         auto ktr = wafertype.find(wafer);
         if (ktr == wafertype.end())
@@ -241,10 +242,12 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
             xx += (HGCalParameters::k_ScaleFromDDD * (p2.X()));
             yy += (HGCalParameters::k_ScaleFromDDD * (p2.Y()));
 #ifdef EDM_ML_DEBUG
-	    if (std::abs(p2.X()) < 1.0e-12) p2.SetX(0.0);
-	    if (std::abs(p2.Z()) < 1.0e-12) p2.SetZ(0.0);
-            edm::LogVerbatim("HGCalGeom")
-	      << "Wafer " << wafer << " Type " << type << " Cell " << cellx << " local " << xx << ":" << yy << " new " << p1 << ":" << p2;
+            if (std::abs(p2.X()) < 1.0e-12)
+              p2.SetX(0.0);
+            if (std::abs(p2.Z()) < 1.0e-12)
+              p2.SetZ(0.0);
+            edm::LogVerbatim("HGCalGeom") << "Wafer " << wafer << " Type " << type << " Cell " << cellx << " local "
+                                          << xx << ":" << yy << " new " << p1 << ":" << p2;
 #endif
           }
           HGCalGeomParameters::cellParameters cp(half, wafer, GlobalPoint(xx, yy, 0));
@@ -274,7 +277,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
   std::map<int, HGCalGeomParameters::layerParameters> layers;
   std::vector<HGCalParameters::hgtrform> trforms;
   std::vector<bool> trformUse;
-  std::vector<std::pair<int,int> > trused;
+  std::vector<std::pair<int, int> > trused;
 
   while (fv.firstChild()) {
     const std::vector<double>& pars = fv.parameters();
@@ -305,30 +308,30 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
         HGCalGeomParameters::layerParameters laypar(rin, rout, zz);
         layers[lay] = laypar;
       }
-      std::pair<int,int> layz(lay, zp);
+      std::pair<int, int> layz(lay, zp);
       if (std::find(trused.begin(), trused.end(), layz) == trused.end()) {
-	trused.emplace_back(layz);
-	DD3Vector x, y, z;
-	fv.rotation().GetComponents(x, y, z);
-	const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
-	const CLHEP::HepRotation hr(rotation);
-	double xx = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().X();
-	if (std::abs(xx) < tolerance)
-	  xx = 0;
-	double yy = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Y();
-	if (std::abs(yy) < tolerance)
-	  yy = 0;
-	double zz = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z();
-	const CLHEP::Hep3Vector h3v(xx, yy, zz);
-	HGCalParameters::hgtrform mytrf;
-	mytrf.zp = zp;
-	mytrf.lay = lay;
-	mytrf.sec = 0;
-	mytrf.subsec = 0;
-	mytrf.h3v = h3v;
-	mytrf.hr = hr;
-	trforms.emplace_back(mytrf);
-	trformUse.emplace_back(false);
+        trused.emplace_back(layz);
+        DD3Vector x, y, z;
+        fv.rotation().GetComponents(x, y, z);
+        const CLHEP::HepRep3x3 rotation(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
+        const CLHEP::HepRotation hr(rotation);
+        double xx = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().X();
+        if (std::abs(xx) < tolerance)
+          xx = 0;
+        double yy = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Y();
+        if (std::abs(yy) < tolerance)
+          yy = 0;
+        double zz = HGCalParameters::k_ScaleFromDD4Hep * fv.translation().Z();
+        const CLHEP::Hep3Vector h3v(xx, yy, zz);
+        HGCalParameters::hgtrform mytrf;
+        mytrf.zp = zp;
+        mytrf.lay = lay;
+        mytrf.sec = 0;
+        mytrf.subsec = 0;
+        mytrf.h3v = h3v;
+        mytrf.hr = hr;
+        trforms.emplace_back(mytrf);
+        trformUse.emplace_back(false);
       }
     }
   }
@@ -434,7 +437,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
       int cell = cellx % 1000;
       int type = cellx / 1000;
       if (type != 1 && type != 2) {
-        throw cms::Exception("DDException") << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
+        throw cms::Exception("DDException")
+            << "Funny cell # " << cell << " type " << type << " in " << nsiz << " components";
       } else {
         auto ktr = wafertype.find(wafer);
         if (ktr == wafertype.end())
@@ -460,10 +464,12 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
             xx += (HGCalParameters::k_ScaleFromDDD * (p2.X()));
             yy += (HGCalParameters::k_ScaleFromDDD * (p2.Y()));
 #ifdef EDM_ML_DEBUG
-	    if (std::abs(p2.X()) < 1.0e-12) p2.SetX(0.0);
-	    if (std::abs(p2.Z()) < 1.0e-12) p2.SetZ(0.0);
-            edm::LogVerbatim("HGCalGeom")
-	      << "Wafer " << wafer << " Type " << type << " Cell " << cellx << " local " << xx << ":" << yy << " new " << p1 << ":" << p2;
+            if (std::abs(p2.X()) < 1.0e-12)
+              p2.SetX(0.0);
+            if (std::abs(p2.Z()) < 1.0e-12)
+              p2.SetZ(0.0);
+            edm::LogVerbatim("HGCalGeom") << "Wafer " << wafer << " Type " << type << " Cell " << cellx << " local "
+                                          << xx << ":" << yy << " new " << p1 << ":" << p2;
 #endif
           }
           HGCalGeomParameters::cellParameters cp(half, wafer, GlobalPoint(xx, yy, 0));
@@ -697,7 +703,8 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv, HGCalP
                                     << " lay " << lay << " z " << zside;
 #endif
       if (lay == 0) {
-        throw cms::Exception("DDException") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
+        throw cms::Exception("DDException")
+            << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
       } else {
         if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
           php.layer_.emplace_back(lay);
@@ -771,7 +778,8 @@ void HGCalGeomParameters::loadGeometryHexagon8(const cms::DDCompactView* cpv,
                                     << php.levelZSide_;
 #endif
       if (lay == 0) {
-        throw cms::Exception("DDException") << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
+        throw cms::Exception("DDException")
+            << "Funny layer # " << lay << " zp " << zside << " in " << nsiz << " components";
       } else {
         if (std::find(php.layer_.begin(), php.layer_.end(), lay) == php.layer_.end())
           php.layer_.emplace_back(lay);
@@ -931,7 +939,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
   php.layerGroupM_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "GroupingZMid"));
   php.layerGroupO_ = dbl_to_int(fv.get<std::vector<double> >(sdTag1, "GroupingZOut"));
   php.slopeMin_ = fv.get<std::vector<double> >(sdTag4, "Slope");
-  if (php.slopeMin_.empty()) php.slopeMin_.emplace_back(0);
+  if (php.slopeMin_.empty())
+    php.slopeMin_.emplace_back(0);
 
   // Wafer size
   const auto& dummy = fv.get<std::vector<double> >(sdTag2, "WaferSize");
@@ -1658,11 +1667,14 @@ std::vector<double> HGCalGeomParameters::getDDDArray(const std::string& str, con
     int nval = fvec.size();
     if (nmin > 0) {
       if (nval < nmin) {
-        throw cms::Exception("DDException") << "HGCalGeomParameters:  # of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
+        throw cms::Exception("DDException")
+            << "HGCalGeomParameters:  # of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
       }
     } else {
       if (nval < 1 && nmin == 0) {
-        throw cms::Exception("DDException") << "HGCalGeomParameters: # of " << str << " bins " << nval << " < 1 ==> illegal" << " (nmin=" << nmin << ")";
+        throw cms::Exception("DDException")
+            << "HGCalGeomParameters: # of " << str << " bins " << nval << " < 1 ==> illegal"
+            << " (nmin=" << nmin << ")";
       }
     }
     return fvec;
