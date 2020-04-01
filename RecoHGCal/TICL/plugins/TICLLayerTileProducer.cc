@@ -9,7 +9,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
@@ -24,22 +23,32 @@ public:
 
 private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
+  edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_HFNose_token_;
   hgcal::RecHitTools rhtools_;
+  std::string detector;
 };
 
-TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps) {
+TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps):
+  detector(ps.getParameter<std::string>("detector")) {
+  clusters_HFNose_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_HFNose_clusters"));
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
 
-  produces<TICLLayerTiles>();
+  if (detector == "HGCAL") produces<TICLLayerTiles>();
+  else if (detector == "HFNose") produces<TICLLayerTilesHFNose>();
+
 }
 
 void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es) { rhtools_.getEventSetup(es); }
 
 void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
+
   auto result = std::make_unique<TICLLayerTiles>();
+  auto resultHFNose = std::make_unique<TICLLayerTilesHFNose>();
 
   edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
-  evt.getByToken(clusters_token_, cluster_h);
+  if (detector == "HGCAL") evt.getByToken(clusters_token_, cluster_h);
+  else if (detector == "HFNose") evt.getByToken(clusters_HFNose_token_, cluster_h);
+
   const auto &layerClusters = *cluster_h;
   int lcId = 0;
   for (auto const &lc : layerClusters) {
@@ -47,18 +56,22 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
     int layer = rhtools_.getLayerWithOffset(firstHitDetId) +
                 rhtools_.lastLayerFH() * ((rhtools_.zside(firstHitDetId) + 1) >> 1) - 1;
     assert(layer >= 0);
-    result->fill(layer, lc.eta(), lc.phi(), lcId);
+    if (detector == "HGCAL") result->fill(layer, lc.eta(), lc.phi(), lcId);
+    if (detector == "HFNose") resultHFNose->fill(layer, lc.eta(), lc.phi(), lcId);
     LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
                                       << (*result)[layer].etaBin(lc.eta()) << ", " << (*result)[layer].phiBin(lc.phi())
                                       << "] for layer: " << layer << std::endl;
     lcId++;
   }
-  evt.put(std::move(result));
+  if (detector == "HGCAL") evt.put(std::move(result));
+  if (detector == "HFNose") evt.put(std::move(resultHFNose));
 }
 
 void TICLLayerTileProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("detector", "HGCAL");
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
+  desc.add<edm::InputTag>("layer_HFNose_clusters", edm::InputTag("hgcalLayerClustersHFNose"));
   descriptions.add("ticlLayerTileProducer", desc);
 }
 
