@@ -14,22 +14,18 @@
 <use   name="TrackingTools/Records"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
-<use   name="RecoEcal/EgammaClusterAlgos"/>
-<use   name="Geometry/EcalAlgo"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DataFormats/Math"/>
 <use   name="CommonTools/Statistics"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="RecoEgamma/EgammaMCTools"/>
 <use   name="RecoEgamma/EgammaTools"/>
-<use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/Records"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="TrackingTools/MaterialEffects"/>
-<use   name="DQMServices/Components"/>
 <use   name="DQMServices/Core"/>
 <use   name="clhep"/>
 

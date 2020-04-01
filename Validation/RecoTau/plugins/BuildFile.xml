@@ -4,7 +4,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DQMServices/Core"/>
 <use   name="rootgraphics"/>
-<use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/JetReco"/>

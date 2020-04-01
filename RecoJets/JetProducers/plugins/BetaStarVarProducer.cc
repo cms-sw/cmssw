@@ -38,8 +38,6 @@
 
 #include "DataFormats/Common/interface/View.h"
 
-#include "PhysicsTools/NanoAOD/interface/MatchingUtils.h"
-
 template <typename T>
 class BetaStarVarProducer : public edm::global::EDProducer<> {
 public:

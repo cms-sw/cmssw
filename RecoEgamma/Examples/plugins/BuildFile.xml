@@ -1,8 +1,6 @@
-<use   name="RecoEgamma/EgammaElectronAlgos"/>
 <use   name="RecoEgamma/EgammaMCTools"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoTracker/TkDetLayers"/>
-<use   name="SimTracker/TrackAssociation"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/CommonDetUnit"/>
@@ -32,7 +30,6 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/PatCandidates"/>
-<use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/TrackingRecHit"/>

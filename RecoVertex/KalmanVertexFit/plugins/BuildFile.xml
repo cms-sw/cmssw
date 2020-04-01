@@ -4,13 +4,10 @@
 <use   name="SimTracker/Records"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="CommonTools/Statistics"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
-<use   name="SimTracker/TrackAssociation"/>
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="root"/>
-<use   name="DataFormats/Math"/>
 <use   name="DataFormats/TrackReco"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="*.cc" name="RecoVertexKalmanVertexFitPlugins">
