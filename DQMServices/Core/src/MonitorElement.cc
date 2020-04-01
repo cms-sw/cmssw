@@ -919,6 +919,9 @@ namespace dqm::impl {
                                   MonitorElementData::QReport *&qr,
                                   DQMNet::QValue *&qv) {
     auto access = this->accessMut();
+
+    syncCoreObject(access);
+
     assert(access.value.qreports_.size() == data_.qreports.size());
 
     qr = nullptr;
