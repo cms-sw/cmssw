@@ -1,4 +1,3 @@
-<use   name="DataFormats/VertexReco"/>
 <use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
 <use name="SimDataFormats/TrackingHit"/>
 <use name="SimTracker/TrackerHitAssociation"/>

@@ -1,6 +1,4 @@
 <use   name="FWCore/Framework"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="CLHEP"/>

@@ -2,15 +2,11 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DQMServices/Core"/>
-<use   name="DQMServices/Components"/>
 
-<use   name="CondCore/Utilities"/>
 <use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/PluginManager"/>
 <use name="CondFormats/Luminosity"/>
 <use name="CoralBase"/>
 <use   name="CondCore/DBOutputService"/>
-<use name="CondCore/ESSources"/>
 
 <use   name="DataFormats/Luminosity"/>
 <use name="CondFormats/DataRecord"/>

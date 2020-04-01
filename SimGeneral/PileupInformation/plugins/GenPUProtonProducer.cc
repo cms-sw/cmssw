@@ -121,7 +121,6 @@ namespace {
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "PhysicsTools/HepMCCandAlgos/interface/MCTruthHelper.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
