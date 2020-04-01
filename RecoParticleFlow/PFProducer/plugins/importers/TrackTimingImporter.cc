@@ -19,14 +19,16 @@ public:
       : BlockElementImporterBase(conf, sumes),
         useTimeQuality_(conf.existsAs<edm::InputTag>("timeQualityMap")),
         timeQualityThreshold_(useTimeQuality_ ? conf.getParameter<double>("timeQualityThreshold") : -99.),
-        srcTime_(sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeValueMap"))),
-        srcTimeError_(sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeErrorMap"))),
-        srcTimeQuality_(useTimeQuality_ ? sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeQualityMap"))
-                          : edm::EDGetTokenT<edm::ValueMap<float>>()),
-        srcTimeGsf_(sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeValueMapGsf"))),
-        srcTimeErrorGsf_(sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeErrorMapGsf"))),
-        srcTimeQualityGsf_(useTimeQuality_ ? sumes.consumes<edm::ValueMap<float> >(conf.getParameter<edm::InputTag>("timeQualityMapGsf"))
-                          : edm::EDGetTokenT<edm::ValueMap<float>>()),
+        srcTime_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap"))),
+        srcTimeError_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap"))),
+        srcTimeQuality_(useTimeQuality_
+                            ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeQualityMap"))
+                            : edm::EDGetTokenT<edm::ValueMap<float>>()),
+        srcTimeGsf_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMapGsf"))),
+        srcTimeErrorGsf_(sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMapGsf"))),
+        srcTimeQualityGsf_(useTimeQuality_ ? sumes.consumes<edm::ValueMap<float>>(
+                                                 conf.getParameter<edm::InputTag>("timeQualityMapGsf"))
+                                           : edm::EDGetTokenT<edm::ValueMap<float>>()),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   void importToBlock(const edm::Event&, ElementList&) const override;
@@ -34,7 +36,8 @@ public:
 private:
   const bool useTimeQuality_;
   const double timeQualityThreshold_;
-  edm::EDGetTokenT<edm::ValueMap<float> > srcTime_, srcTimeError_, srcTimeQuality_, srcTimeGsf_, srcTimeErrorGsf_, srcTimeQualityGsf_;
+  edm::EDGetTokenT<edm::ValueMap<float>> srcTime_, srcTimeError_, srcTimeQuality_, srcTimeGsf_, srcTimeErrorGsf_,
+      srcTimeQualityGsf_;
   const bool debug_;
 };
 
@@ -47,7 +50,7 @@ void TrackTimingImporter::importToBlock(const edm::Event& e, BlockElementImporte
   auto const& timeErr = e.get(srcTimeError_);
   auto const& timeGsf = e.get(srcTimeGsf_);
   auto const& timeErrGsf = e.get(srcTimeErrorGsf_);
-  
+
   edm::Handle<edm::ValueMap<float>> timeQualH, timeQualGsfH;
   if (useTimeQuality_) {
     e.getByToken(srcTimeQuality_, timeQualH);
@@ -61,8 +64,7 @@ void TrackTimingImporter::importToBlock(const edm::Event& e, BlockElementImporte
         const bool assocQuality = useTimeQuality_ ? (*timeQualH)[ref] > timeQualityThreshold_ : true;
         if (assocQuality) {
           elem->setTime(time[ref], timeErr[ref]);
-        }
-        else {
+        } else {
           elem->setTime(0., -1.);
         }
       }
@@ -77,8 +79,7 @@ void TrackTimingImporter::importToBlock(const edm::Event& e, BlockElementImporte
         const bool assocQuality = useTimeQuality_ ? (*timeQualGsfH)[ref] > timeQualityThreshold_ : true;
         if (assocQuality) {
           elem->setTime(timeGsf[ref], timeErrGsf[ref]);
-        }
-        else {
+        } else {
           elem->setTime(0., -1.);
         }
       }
