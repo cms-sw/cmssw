@@ -1,7 +1,7 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-
+import sys
 from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
 process = cms.Process("SiStrpDQMLive", Run2_2018_pp_on_AA)
 
@@ -15,6 +15,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 live=True
+unitTest=False
+
+if 'unitTest=True' in sys.argv:
+    live=False
+    unitTest=True
+
 # uncomment for running on lxplus
 #live=False
 offlineTesting=not live
@@ -24,7 +30,9 @@ offlineTesting=not live
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-if (live):
+if (unitTest):
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+elif (live):
     process.load("DQM.Integration.config.inputsource_cfi")
 # for testing in lxplus
 elif(offlineTesting):
