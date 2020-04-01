@@ -197,7 +197,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
 
     // Test only the desired subdetector
 
-    if (exitLoop) { break; }
+    if (exitLoop && isBarrel) { break; }
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
