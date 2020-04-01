@@ -60,8 +60,7 @@ public:
 private:
   edm::EDGetTokenT<std::vector<pat::Tau> > tauCollection_;
   edm::EDGetTokenT<edm::View<reco::Candidate> > refCollectionInputTagToken_;
-  std::map<std::string, MonitorElement *> ptMap, ptTightMap, etaMap, etaTightMap, phiMap, phiTightMap, massMap, massTightMap, decayModeFindingMap, decayModeMap,
-      byDeepTau2017v2p1VSerawMap, byDeepTau2017v2p1VSjetrawMap, byDeepTau2017v2p1VSmurawMap, summaryMap;
+  std::map<std::string, MonitorElement *> ptMap, etaMap, phiMap, massMap, ptTightvsJetMap, ptTightvsEleMap, ptTightvsMuoMap, etaTightvsJetMap, etaTightvsEleMap, etaTightvsMuoMap, phiTightvsJetMap, phiTightvsEleMap, phiTightvsMuoMap, massTightvsJetMap, massTightvsEleMap, massTightvsMuoMap, ptMediumvsJetMap, ptMediumvsEleMap, ptMediumvsMuoMap, etaMediumvsJetMap, etaMediumvsEleMap, etaMediumvsMuoMap, phiMediumvsJetMap, phiMediumvsEleMap, phiMediumvsMuoMap, massMediumvsJetMap, massMediumvsEleMap, massMediumvsMuoMap, ptLoosevsJetMap, ptLoosevsEleMap, ptLoosevsMuoMap, etaLoosevsJetMap, etaLoosevsEleMap, etaLoosevsMuoMap, phiLoosevsJetMap, phiLoosevsEleMap, phiLoosevsMuoMap, massLoosevsJetMap, massLoosevsEleMap, massLoosevsMuoMap,decayModeFindingMap, decayModeMap, byDeepTau2017v2p1VSerawMap, byDeepTau2017v2p1VSjetrawMap, byDeepTau2017v2p1VSmurawMap, summaryMap;
   edm::ParameterSet histoSettings_;
   std::string extensionName_;
   std::vector<edm::ParameterSet> discriminators_;
