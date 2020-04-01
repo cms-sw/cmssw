@@ -68,7 +68,7 @@ private:
   const bool useTiming_;
   const bool useTimingQuality_;
   const double timingQualityThreshold_;
-  
+
   // inputs
   const edm::EDGetTokenT<edm::View<reco::PFRecTrack>> pfRecTracks_;
   const edm::EDGetTokenT<edm::View<reco::Track>> tracks_;
@@ -113,8 +113,8 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf)
                              ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))
                              : edm::EDGetTokenT<edm::ValueMap<float>>()),
       srcTrackTimeQuality_(useTimingQuality_
-                             ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))
-                             : edm::EDGetTokenT<edm::ValueMap<float>>()),
+                               ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))
+                               : edm::EDGetTokenT<edm::ValueMap<float>>()),
       srcGsfTrackTime_(useTiming_
                            ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeValueMap"))
                            : edm::EDGetTokenT<edm::ValueMap<float>>()),
@@ -123,7 +123,7 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf)
                      : edm::EDGetTokenT<edm::ValueMap<float>>()),
       srcGsfTrackTimeQuality_(
           useTimingQuality_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeQualityMap"))
-                     : edm::EDGetTokenT<edm::ValueMap<float>>()),
+                            : edm::EDGetTokenT<edm::ValueMap<float>>()),
       trackingParticles_(consumes<TrackingParticleCollection>(conf.getParameter<edm::InputTag>("trackingParticleSrc"))),
       simClustersTruth_(consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterTruthSrc"))),
       caloParticles_(consumes<CaloParticleCollection>(conf.getParameter<edm::InputTag>("caloParticlesSrc"))),
@@ -170,13 +170,14 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   }
 
   // get timing, if enabled
-  edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, trackTimeQualH, gsfTrackTimeH, gsfTrackTimeErrH, gsfTrackTimeQualH;
+  edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, trackTimeQualH, gsfTrackTimeH, gsfTrackTimeErrH,
+      gsfTrackTimeQualH;
   if (useTiming_) {
     evt.getByToken(srcTrackTime_, trackTimeH);
     evt.getByToken(srcTrackTimeError_, trackTimeErrH);
     evt.getByToken(srcGsfTrackTime_, gsfTrackTimeH);
     evt.getByToken(srcGsfTrackTimeError_, gsfTrackTimeErrH);
-    
+
     if (useTimingQuality_) {
       evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
       evt.getByToken(srcGsfTrackTimeQuality_, gsfTrackTimeQualH);
@@ -324,8 +325,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
       const bool assocQuality = useTimingQuality_ ? (*trackTimeQualH)[tkRef] > timingQualityThreshold_ : true;
       if (assocQuality) {
         candidate.setTime((*trackTimeH)[tkRef], (*trackTimeErrH)[tkRef]);
-      }
-      else {
+      } else {
         candidate.setTime(0., -1.);
       }
     }
