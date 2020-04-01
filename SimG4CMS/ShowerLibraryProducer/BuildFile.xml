@@ -8,7 +8,6 @@
 <use   name="SimDataFormats/HcalTestBeam"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="SimDataFormats/Forward"/>
-<use   name="DetectorDescription/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
