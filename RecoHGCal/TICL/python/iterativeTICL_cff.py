@@ -10,7 +10,6 @@ from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 from RecoHGCal.TICL.trackstersMergeProducer_cfi import trackstersMergeProducer as _trackstersMergeProducer
 from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer as _multiClustersFromTrackstersProducer
 
-
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
 ticlTrackstersMerge = _trackstersMergeProducer.clone()
@@ -35,6 +34,18 @@ iterTICLTask = cms.Task(ticlLayerTileTask
     ,ticlTracksterMergeTask
     ,ticlPFTask
     )
+
+ticlLayerTileHFNose = ticlLayerTileProducer.clone(
+    detector = 'HFNose'
+)
+
+ticlLayerTileHFNoseTask = cms.Task(ticlLayerTileHFNose)
+
+iterHFNoseTICLTask = cms.Task(
+    ticlLayerTileHFNoseTask,
+    ticlHFNoseMIPStepTask,
+    ticlHFNoseEMStepTask
+)
 
 def injectTICLintoPF(process):
     if getattr(process,'particleFlowTmp', None):
