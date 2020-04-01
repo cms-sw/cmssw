@@ -115,6 +115,8 @@ private:
                                          double xx,
                                          double yy);
   void rescale(std::vector<double>&, const double s);
+  void resetZero(std::vector<double>&);
+
   HGCalGeomTools geomTools_;
   const double sqrt3_;
   double waferSize_;
