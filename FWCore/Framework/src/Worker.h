@@ -185,8 +185,7 @@ namespace edm {
 
     void postDoEvent(EventPrincipal const&);
 
-    ModuleDescription const& description() const { return *(moduleCallingContext_.moduleDescription()); }
-    ModuleDescription const* descPtr() const { return moduleCallingContext_.moduleDescription(); }
+    ModuleDescription const* description() const { return moduleCallingContext_.moduleDescription(); }
     ///The signals are required to live longer than the last call to 'doWork'
     /// this was done to improve performance based on profiling
     void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);

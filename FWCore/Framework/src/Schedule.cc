@@ -719,8 +719,8 @@ namespace edm {
     std::vector<std::string> modulesToUse;
     modulesToUse.reserve(streamSchedules_[0]->allWorkers().size());
     for (auto const& worker : streamSchedules_[0]->allWorkers()) {
-      if (worker->description().moduleLabel() != kTriggerResults) {
-        modulesToUse.push_back(worker->description().moduleLabel());
+      if (worker->description()->moduleLabel() != kTriggerResults) {
+        modulesToUse.push_back(worker->description()->moduleLabel());
       }
     }
     //The unscheduled modules are at the end of the list, but we want them at the front
@@ -752,8 +752,8 @@ namespace edm {
     // reduceParameterSet would fail to find it. Just remove it up front.
     std::set<std::string> usedModuleLabels;
     for (auto const& worker : allWorkers()) {
-      if (worker->description().moduleLabel() != kTriggerResults) {
-        usedModuleLabels.insert(worker->description().moduleLabel());
+      if (worker->description()->moduleLabel() != kTriggerResults) {
+        usedModuleLabels.insert(worker->description()->moduleLabel());
       }
     }
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string>>("@all_modules"));
@@ -841,7 +841,7 @@ namespace edm {
       std::transform(workers.begin(),
                      workers.end(),
                      std::back_inserter(modDesc),
-                     [](const Worker* iWorker) -> const ModuleDescription* { return iWorker->descPtr(); });
+                     [](const Worker* iWorker) -> const ModuleDescription* { return iWorker->description(); });
 
       // propagate_const<T> has no reset() function
       summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(prealloc.numberOfStreams(), modDesc, tns, processContext);
@@ -1379,7 +1379,7 @@ namespace edm {
                               eventsetup::ESRecordsToProxyIndices const& iIndices) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
-      if (worker->description().moduleLabel() == iLabel) {
+      if (worker->description()->moduleLabel() == iLabel) {
         found = worker;
         break;
       }
@@ -1427,7 +1427,7 @@ namespace edm {
     result.reserve(allWorkers().size());
 
     for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->descPtr();
+      ModuleDescription const* p = worker->description();
       result.push_back(p);
     }
     return result;
@@ -1481,7 +1481,7 @@ namespace edm {
     std::map<std::string, ModuleDescription const*> labelToDesc;
     unsigned int i = 0;
     for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->descPtr();
+      ModuleDescription const* p = worker->description();
       allModuleDescriptions.push_back(p);
       moduleIDToIndex.push_back(std::pair<unsigned int, unsigned int>(p->id(), i));
       labelToDesc[p->moduleLabel()] = p;
@@ -1496,7 +1496,7 @@ namespace edm {
         worker->modulesWhoseProductsAreConsumed(modules, preg, labelToDesc);
       } catch (cms::Exception& ex) {
         ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
-                      worker->description().moduleLabel());
+                      worker->description()->moduleLabel());
         throw;
       }
       ++i;

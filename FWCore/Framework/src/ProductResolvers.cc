@@ -412,8 +412,8 @@ namespace edm {
 
         } catch (cms::Exception& ex) {
           std::ostringstream ost;
-          ost << "Calling produce method for unscheduled module " << worker_->description().moduleName() << "/'"
-              << worker_->description().moduleLabel() << "'";
+          ost << "Calling produce method for unscheduled module " << worker_->description()->moduleName() << "/'"
+              << worker_->description()->moduleLabel() << "'";
           ex.addContext(ost.str());
           throw;
         }
