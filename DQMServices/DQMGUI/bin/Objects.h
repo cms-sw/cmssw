@@ -1,5 +1,5 @@
 #ifndef DQM_OBJECTS_H
-# define DQM_OBJECTS_H
+#define DQM_OBJECTS_H
 
 #include <string>
 #include <cstdint>
@@ -9,22 +9,18 @@ class TObject;
 static const uint32_t DQM_PROP_TYPE_MASK = 0x000000ff;
 static const uint32_t DQM_PROP_TYPE_SCALAR = 0x0000000f;
 
-
-struct VisDQMRenderInfo
-{
-  std::string		drawOptions;
-  bool			blacklisted;
+struct VisDQMRenderInfo {
+  std::string drawOptions;
+  bool blacklisted;
 };
 
-struct VisDQMAxisInfo
-{
-  std::string		type;
-  double		min;
-  double		max;
+struct VisDQMAxisInfo {
+  std::string type;
+  double min;
+  double max;
 };
 
-enum VisDQMReference
-{
+enum VisDQMReference {
   DQM_REF_OBJECT,
   DQM_REF_OVERLAY,
   DQM_REF_OVERLAY_RATIO,
@@ -33,8 +29,7 @@ enum VisDQMReference
   DQM_REF_STACKED
 };
 
-enum VisDQMStripTrend
-{
+enum VisDQMStripTrend {
   DQM_TREND_OBJECT,
   DQM_TREND_LS_VALUE,
   DQM_TREND_NUM_ENTRIES,
@@ -60,38 +55,36 @@ enum VisDQMStripTrend
   DQM_TREND_Z_NUM_BINS
 };
 
-struct VisDQMImgInfo
-{
-  std::string		imgspec;
-  std::string		drawOptions;
-  std::string           reflabel1;
-  std::string           reflabel2;
-  std::string           reflabel3;
-  std::string           reflabel4;
-  VisDQMReference	reference;
-  VisDQMStripTrend	trend;
-  int			width;
-  int			height;
-  int			showstats;
-  int			showerrbars;
-  double                ktest;
-  VisDQMAxisInfo	xaxis;
-  VisDQMAxisInfo	yaxis;
-  VisDQMAxisInfo	zaxis;
-  std::string           refnorm;
+struct VisDQMImgInfo {
+  std::string imgspec;
+  std::string drawOptions;
+  std::string reflabel1;
+  std::string reflabel2;
+  std::string reflabel3;
+  std::string reflabel4;
+  VisDQMReference reference;
+  VisDQMStripTrend trend;
+  int width;
+  int height;
+  int showstats;
+  int showerrbars;
+  double ktest;
+  VisDQMAxisInfo xaxis;
+  VisDQMAxisInfo yaxis;
+  VisDQMAxisInfo zaxis;
+  std::string refnorm;
 };
 
-struct VisDQMObject 
-{
+struct VisDQMObject {
   uint32_t flags;
   uint64_t version;
   std::string dirname;
   std::string objname;
-  uint32_t tag; // Unused.
-  std::string		name;
-  TObject		*object;
-  TObject		*reference;
-  VisDQMImgInfo		image;
+  uint32_t tag;  // Unused.
+  std::string name;
+  TObject *object;
+  TObject *reference;
+  VisDQMImgInfo image;
 };
 
-#endif // DQM_OBJECTS_H
+#endif  // DQM_OBJECTS_H
