@@ -31,10 +31,9 @@
 #include <TText.h>
 #include <TColor.h>
 
-
 class DD4hep_ListGroups : public edm::one::EDAnalyzer<> {
 public:
-  DD4hep_ListGroups(const edm::ParameterSet& iConfig);
+  DD4hep_ListGroups(const edm::ParameterSet &iConfig);
   ~DD4hep_ListGroups() override;
 
 private:
@@ -50,19 +49,15 @@ private:
   std::vector<int> m_gradient;
   void fillColor();
   void fillGradient();
-  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > overlayEtaReferences();
-
-
+  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> overlayEtaReferences();
 };
 
-DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig) :
-  m_tag(iConfig.getParameter<edm::ESInputTag>("DDDetector")) {
+DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
+    : m_tag(iConfig.getParameter<edm::ESInputTag>("DDDetector")) {
   m_saveSummaryPlot = iConfig.getUntrackedParameter<bool>("SaveSummaryPlot");
 }
 
-DD4hep_ListGroups::~DD4hep_ListGroups() {
-
-}
+DD4hep_ListGroups::~DD4hep_ListGroups() {}
 
 void DD4hep_ListGroups::fillColor(void) {
   // With the introduction of the support for PhaseI and PhaseII detectors it
@@ -157,7 +152,6 @@ void DD4hep_ListGroups::fillColor(void) {
 }
 
 void DD4hep_ListGroups::fillGradient() {
-
   m_gradient.reserve(200);
   unsigned int steps = 100;
   // if no index was given, find the highest used one and start from that plus one
@@ -191,8 +185,8 @@ void DD4hep_ListGroups::fillGradient() {
   m_gradient.push_back(kRed);  // Overflow highest bin
 }
 
-std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > DD4hep_ListGroups::overlayEtaReferences() {
-  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > lines;
+std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> DD4hep_ListGroups::overlayEtaReferences() {
+  std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> lines;
 
   lines.reserve(40);
   std::pair<float, float> deltaZ(293, 298);
@@ -202,13 +196,13 @@ std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > DD4hep_
   for (float eta = 0.; eta <= 3.8; eta += 0.2) {
     float theta = 2. * atan(exp(-eta));
     if (eta >= 1.8) {
-      lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText> >(
+      lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>(
           std::make_shared<TLine>(deltaZ.first, deltaZ.first * tan(theta), deltaZ.second, deltaZ.second * tan(theta)),
           std::make_shared<TText>(deltaZ.first, deltaZ.first * tan(theta), str(boost::format("%2.1f") % eta).c_str())));
       lines.back().second->SetTextFont(42);
       lines.back().second->SetTextSize(text_size);
       lines.back().second->SetTextAlign(33);
-      lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText> >(
+      lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>(
           std::make_shared<TLine>(-deltaZ.first, deltaZ.first * tan(theta), -deltaZ.second, deltaZ.second * tan(theta)),
           std::make_shared<TText>(
               -deltaZ.first, deltaZ.first * tan(theta), str(boost::format("-%2.1f") % eta).c_str())));
@@ -216,14 +210,14 @@ std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > DD4hep_
       lines.back().second->SetTextSize(text_size);
       lines.back().second->SetTextAlign(13);
     } else {
-      lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText> >(
+      lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>(
           std::make_shared<TLine>(deltaR.first / tan(theta), deltaR.first, deltaR.second / tan(theta), deltaR.second),
           std::make_shared<TText>(deltaR.first / tan(theta), deltaR.first, str(boost::format("%2.1f") % eta).c_str())));
       lines.back().second->SetTextFont(42);
       lines.back().second->SetTextSize(text_size);
       lines.back().second->SetTextAlign(23);
       if (eta != 0) {
-        lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText> >(
+        lines.push_back(std::make_pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>(
             std::make_shared<TLine>(
                 -deltaR.first / tan(theta), deltaR.first, -deltaR.second / tan(theta), deltaR.second),
             std::make_shared<TText>(
@@ -238,42 +232,41 @@ std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > DD4hep_
 }
 
 void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &setup) {
-
   edm::ESTransientHandle<cms::DDCompactView> cpv;
-  setup.get<IdealGeometryRecord>().get(m_tag,cpv);
+  setup.get<IdealGeometryRecord>().get(m_tag, cpv);
   cms::DDFilter filter("TrackingMaterialGroup", "");
   cms::DDFilteredView fv(*cpv, filter);
 
-  for (const auto& t : fv.specpars()) {
+  for (const auto &t : fv.specpars()) {
     m_group_names.insert(t->strValue("TrackingMaterialGroup"));
     std::cout << t->strValue("TrackingMaterialGroup") << std::endl;
   }
 
-  for (const auto& i: m_group_names) {
+  for (const auto &i : m_group_names) {
     cms::DDFilter filter1("TrackingMaterialGroup", {i.data(), i.size()});
     cms::DDFilteredView fv1(*cpv, filter1);
     bool firstChild = fv1.firstChild();
     //fv1.printFilter();
-    
-    std::cout << "***" << i <<std::endl;
-    
-    for(const auto j: fv1.specpars()) {
-      for(const auto k: j->paths) {
-        std::cout<< k << std::endl;
-	if(firstChild) {
-	  std::cout << "Find children matching selection for a parent " << fv1.name() << "\n";
-	  std::vector<std::vector<cms::Node*>> children = fv1.children(k);
-	  for(auto const& path: children) {
-	    for(auto const& node : path) {
-	      std::cout << node->GetName() << ", ";
-	    }
-	    std::cout << "\n";
-	  }
-	  std::cout << "\n";
-	}
+
+    std::cout << "***" << i << std::endl;
+
+    for (const auto j : fv1.specpars()) {
+      for (const auto k : j->paths) {
+        std::cout << k << std::endl;
+        if (firstChild) {
+          std::cout << "Find children matching selection for a parent " << fv1.name() << "\n";
+          std::vector<std::vector<cms::Node *>> children = fv1.children(k);
+          for (auto const &path : children) {
+            for (auto const &node : path) {
+              std::cout << node->GetName() << ", ";
+            }
+            std::cout << "\n";
+          }
+          std::cout << "\n";
+        }
       }
     }
-    std::cout << "*************" <<std::endl;
+    std::cout << "*************" << std::endl;
   }
 }
 
