@@ -388,41 +388,39 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
       if (i == (me_x->getNbinsY() / 2 + 1))
         continue;  //Middle bin of y axis is empty
 
-      switch (i <= me_x->getNbinsY() / 2) {
-        case true:
-          if (i % 2 == 0) {
-            for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
-              residuals_["residual_mean_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
-              residuals_["residual_mean_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
-              residuals_["residual_rms_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
-              residuals_["residual_rms_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
-            }
-          } else {
-            for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
-              residuals_["residual_mean_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
-              residuals_["residual_mean_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
-              residuals_["residual_rms_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
-              residuals_["residual_rms_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
-            }
+      if (i <= me_x->getNbinsY() / 2) {
+        if (i % 2 == 0) {
+          for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
+            residuals_["residual_mean_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
+            residuals_["residual_mean_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
+            residuals_["residual_rms_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
+            residuals_["residual_rms_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
           }
-          break;
-
-        case false:
-          if (i % 2 == 1) {
-            for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
-              residuals_["residual_mean_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
-              residuals_["residual_mean_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
-              residuals_["residual_rms_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
-              residuals_["residual_rms_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
-            }
-          } else {
-            for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
-              residuals_["residual_mean_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
-              residuals_["residual_mean_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
-              residuals_["residual_rms_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
-              residuals_["residual_rms_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
-            }
+        } else {
+          for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
+            residuals_["residual_mean_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
+            residuals_["residual_mean_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
+            residuals_["residual_rms_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
+            residuals_["residual_rms_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
           }
+        }
+      }
+      else {
+        if (i % 2 == 1) {
+          for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
+            residuals_["residual_mean_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
+            residuals_["residual_mean_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
+            residuals_["residual_rms_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
+            residuals_["residual_rms_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
+          }
+        } else {
+          for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
+            residuals_["residual_mean_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
+            residuals_["residual_mean_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i));
+            residuals_["residual_rms_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinError(j, i));
+            residuals_["residual_rms_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
+          }
+        }
       }
     }
   }
