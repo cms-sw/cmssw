@@ -33,7 +33,8 @@ std::vector<GEMCoPadDigi> GEMCoPadProcessor::run(const GEMPadDigiCollection* in_
 
     // coincidence pads are not build for ME0
     // -> ignore hits from station 0
-    if (id.station()==0) continue;
+    if (id.station() == 0)
+      continue;
 
     // same chamber (no restriction on the roll number)
     if (id.region() != theRegion or id.station() != theStation or id.chamber() != theChamber)
