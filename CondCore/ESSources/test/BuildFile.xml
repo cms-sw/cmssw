@@ -22,3 +22,6 @@
   <flags   TEST_RUNNER_ARGS=" /bin/bash CondCore/ESSources/test TestConcurrentIOVsCondCore.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
+<library   file="stubs/LumiTestReadAnalyzer.cc" name="LumiTestReadAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
