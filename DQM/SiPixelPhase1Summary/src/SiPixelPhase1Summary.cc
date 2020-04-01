@@ -404,8 +404,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
             residuals_["residual_rms_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinError(j, i));
           }
         }
-      }
-      else {
+      } else {
         if (i % 2 == 1) {
           for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
             residuals_["residual_mean_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i));
