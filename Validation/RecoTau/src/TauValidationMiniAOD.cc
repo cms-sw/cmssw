@@ -137,7 +137,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
 
 
   //tight histograms
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstJet/tight");
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsJet/tight");
 
   ptTightvsJet = ibooker.book1D("tau_tightvsJet_pt", "tau_tightvsJet_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaTightvsJet = ibooker.book1D("tau_tightvsJet_eta", "tau_tightvsJet_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
@@ -148,7 +148,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   phiTightvsJetMap.insert(std::make_pair("", phiTightvsJet));
   massTightvsJetMap.insert(std::make_pair("", massTightvsJet));
 
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstEle/tight");
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsEle/tight");
 
   ptTightvsEle = ibooker.book1D("tau_tightvsEle_pt", "tau_tightvsEle_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaTightvsEle = ibooker.book1D("tau_tightvsEle_eta", "tau_tightvsEle_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
@@ -159,7 +159,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   phiTightvsEleMap.insert(std::make_pair("", phiTightvsEle));
   massTightvsEleMap.insert(std::make_pair("", massTightvsEle));
 
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstMu/tight");
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsMu/tight");
 
   ptTightvsMuo = ibooker.book1D("tau_tightvsMuo_pt", "tau_tightvsMuo_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaTightvsMuo = ibooker.book1D("tau_tightvsMuo_eta", "tau_tightvsMuo_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
@@ -172,7 +172,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
 
   //loose histograms
 
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstJet/medium");
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsJet/medium");
 
   ptMediumvsJet = ibooker.book1D("tau_tightvsJet_pt", "tau_tightvsJet_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaMediumvsJet = ibooker.book1D("tau_tightvsJet_eta", "tau_tightvsJet_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
@@ -183,7 +183,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   phiMediumvsJetMap.insert(std::make_pair("", phiMediumvsJet));
   massMediumvsJetMap.insert(std::make_pair("", massMediumvsJet));
 
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstEle/medium");
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsEle/medium");
 
   ptMediumvsEle = ibooker.book1D("tau_tightvsEle_pt", "tau_tightvsEle_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaMediumvsEle = ibooker.book1D("tau_tightvsEle_eta", "tau_tightvsEle_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
@@ -194,7 +194,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   phiMediumvsEleMap.insert(std::make_pair("", phiMediumvsEle));
   massMediumvsEleMap.insert(std::make_pair("", massMediumvsEle));
 
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstMu/medium");
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsMu/medium");
 
   ptMediumvsMuo = ibooker.book1D("tau_tightvsMuo_pt", "tau_tightvsMuo_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaMediumvsMuo = ibooker.book1D("tau_tightvsMuo_eta", "tau_tightvsMuo_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
@@ -207,7 +207,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
 
   //medium histograms
 
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstJet/loose");
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsJet/loose");
 
   ptLoosevsJet = ibooker.book1D("tau_tightvsJet_pt", "tau_tightvsJet_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaLoosevsJet = ibooker.book1D("tau_tightvsJet_eta", "tau_tightvsJet_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
@@ -218,7 +218,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   phiLoosevsJetMap.insert(std::make_pair("", phiLoosevsJet));
   massLoosevsJetMap.insert(std::make_pair("", massLoosevsJet));
 
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstEle/loose");
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsEle/loose");
 
   ptLoosevsEle = ibooker.book1D("tau_tightvsEle_pt", "tau_tightvsEle_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaLoosevsEle = ibooker.book1D("tau_tightvsEle_eta", "tau_tightvsEle_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
@@ -229,7 +229,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   phiLoosevsEleMap.insert(std::make_pair("", phiLoosevsEle));
   massLoosevsEleMap.insert(std::make_pair("", massLoosevsEle));
 
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/againstMu/loose");
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsMu/loose");
 
   ptLoosevsMuo = ibooker.book1D("tau_tightvsMuo_pt", "tau_tightvsMuo_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaLoosevsMuo = ibooker.book1D("tau_tightvsMuo_eta", "tau_tightvsMuo_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
