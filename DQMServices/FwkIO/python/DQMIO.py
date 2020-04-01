@@ -466,8 +466,8 @@ class DQMIOReader:
         tasks = [(None, self.pool.submit(self.io.locateme, e, fullname)) for e in entries for fullname in fullnames]
         processtasks(tasks, append, "ME locate")
         tasks = [(None, self.pool.submit(self.io.getme, *e_idx)) for e_idx in items if e_idx]
-        processtasks(tasks, append, "ME get")
         items.clear()
+        processtasks(tasks, append, "ME get")
         self.io.cleancache()
         return items
     def readentrymes_fast(self, entries, fullnames):
