@@ -415,7 +415,6 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
         candidates->emplace_back(0, clu_p4, part_type);
         auto& candidate = candidates->back();
         candidate.addElementInBlock(blref, elem.index());
-        candidate.setTime(ref->time(), ref->timeError());
       }
     }
   }
