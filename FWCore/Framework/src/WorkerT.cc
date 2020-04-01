@@ -685,7 +685,7 @@ namespace edm {
       BranchType iBranchType,
       std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
           iIndicies) {
-    resolvePutIndiciesImpl(&module(), iBranchType, iIndicies, description().moduleLabel());
+    resolvePutIndiciesImpl(&module(), iBranchType, iIndicies, description()->moduleLabel());
   }
 
   template <typename T>

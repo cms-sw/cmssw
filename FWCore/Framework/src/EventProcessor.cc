@@ -1914,7 +1914,7 @@ namespace edm {
           s = std::make_unique<LogSystem>("ModulesSynchingOnLumis");
           (*s) << "The following modules require synchronizing on LuminosityBlock boundaries:";
         }
-        (*s) << "\n  " << worker->description().moduleName() << " " << worker->description().moduleLabel();
+        (*s) << "\n  " << worker->description()->moduleName() << " " << worker->description()->moduleLabel();
       }
     }
   }

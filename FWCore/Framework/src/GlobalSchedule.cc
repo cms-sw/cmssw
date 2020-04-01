@@ -99,7 +99,7 @@ namespace edm {
     Worker* found = nullptr;
     for (auto& wm : workerManagers_) {
       for (auto const& worker : wm.allWorkers()) {
-        if (worker->description().moduleLabel() == iLabel) {
+        if (worker->description()->moduleLabel() == iLabel) {
           found = worker;
           break;
         }
@@ -118,7 +118,7 @@ namespace edm {
     result.reserve(allWorkers().size());
 
     for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->descPtr();
+      ModuleDescription const* p = worker->description();
       result.push_back(p);
     }
     return result;
