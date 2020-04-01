@@ -174,7 +174,7 @@ namespace SiPixelPI {
     }
 
     h->SetMarkerSize(0.7);
-    h->Draw("colz");
+    h->Draw("colz1");
 
     auto ltx = TLatex();
     ltx.SetTextFont(62);
@@ -458,6 +458,13 @@ namespace SiPixelPI {
     hist->GetYaxis()->SetLabelFont(42);
     hist->GetYaxis()->SetLabelSize(.05);
     hist->GetXaxis()->SetLabelSize(.05);
+
+    if (hist->InheritsFrom(TH2::Class())) {
+      hist->GetZaxis()->SetLabelFont(42);
+      hist->GetZaxis()->SetLabelFont(42);
+      hist->GetZaxis()->SetLabelSize(.05);
+      hist->GetZaxis()->SetLabelSize(.05);
+    }
   }
 
   enum regions {
