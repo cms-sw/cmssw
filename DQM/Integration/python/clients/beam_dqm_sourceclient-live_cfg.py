@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 #from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
 #process = cms.Process("BeamMonitor", Run2_2018) FIXME
+import sys
 from Configuration.Eras.Era_Run2_2018_pp_on_AA_cff import Run2_2018_pp_on_AA
 process = cms.Process("BeamMonitor", Run2_2018_pp_on_AA)
 
@@ -17,10 +18,17 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # switch
 live = True # FIXME
+unitTest = False
+
+if 'unitTest=True' in sys.argv:
+    live=False
+    unitTest=True
 
 #---------------
 # Input sources
-if (live):
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+elif live:
     process.load("DQM.Integration.config.inputsource_cfi")
 else:
     process.load("DQM.Integration.config.fileinputsource_cfi")

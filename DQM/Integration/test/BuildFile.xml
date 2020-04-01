@@ -1,0 +1,48 @@
+<test name="TestDQMOnlineClient1" command="runtest.sh beam_dqm_sourceclient-live_cfg.py" />
+
+<!-- Need an HLT stream -->
+<!-- <test name="TestDQMOnlineClient2" command="runtest.sh beamhlt_dqm_sourceclient-live_cfg.py" /> -->
+
+<!-- MonitorElement " << getName() << " not backed by any data! -->
+<test name="TestDQMOnlineClient3" command="runtest.sh beampixel_dqm_sourceclient-live_cfg.py" />
+
+<test name="TestDQMOnlineClient4" command="runtest.sh castor_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient5" command="runtest.sh csc_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient6" command="runtest.sh ctpps_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient7" command="runtest.sh dt4ml_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient8" command="runtest.sh dt_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient9" command="runtest.sh ecal_dqm_sourceclient-live_cfg.py" />
+
+<!-- streamDQMCalibration is required -->
+<!-- <test name="TestDQMOnlineClient10" command="runtest.sh ecalcalib_dqm_sourceclient-live_cfg.py" /> -->
+
+<test name="TestDQMOnlineClient11" command="runtest.sh es_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient12" command="runtest.sh fed_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient13" command="runtest.sh gem_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient14" command="runtest.sh hcal2_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient15" command="runtest.sh hcal_dqm_sourceclient-live_cfg.py" />
+
+<!-- streamDQMCalibration is required -->
+<!-- <test name="TestDQMOnlineClient16" command="runtest.sh hcalcalib_dqm_sourceclient-live_cfg.py" /> -->
+
+<test name="TestDQMOnlineClient17" command="runtest.sh hlt_dqm_clientPB-live_cfg.py" />
+
+<!-- An exception of category 'ESGetTokenWrongTransition' occurred while -->
+<test name="TestDQMOnlineClient18" command="runtest.sh hlt_dqm_sourceclient-live_cfg.py" />
+
+<test name="TestDQMOnlineClient19" command="runtest.sh info_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient20" command="runtest.sh l1tstage2_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient21" command="runtest.sh l1tstage2emulator_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient22" command="runtest.sh mutracking_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient23" command="runtest.sh pixel_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient24" command="runtest.sh pixellumi_dqm_sourceclient-live_cfg.py" />
+
+<!-- DQMServices/Core/interface/MonitorElement.h:221 segmentation violation -->
+<test name="TestDQMOnlineClient25" command="runtest.sh rpc_dqm_sourceclient-live_cfg.py" />
+
+<test name="TestDQMOnlineClient26" command="runtest.sh scal_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient27" command="runtest.sh sistrip_dqm_sourceclient-live_cfg.py" />
+
+<!-- No data of type "GBRForestD" with label "electron_eb_ecalOnly_1To300_0p2To2_mean" in record "GBRDWrapperRcd" -->
+<!-- <test name="TestDQMOnlineClient28" command="runtest.sh visualization-live_cfg.py" />  -->
+<!-- <test name="TestDQMOnlineClient29" command="runtest.sh visualization-live-secondInstance_cfg.py" /> -->
