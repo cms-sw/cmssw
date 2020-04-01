@@ -1,23 +1,41 @@
 /** \class TriggerSummaryAnalyzerAOD
  *
- * See header file for documentation
+ *  This class is an EDAnalyzer analyzing the HLT summary object for AOD
  *
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerAOD.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//
+// class declaration
+//
+class TriggerSummaryAnalyzerAOD : public edm::global::EDAnalyzer<> {
+public:
+  explicit TriggerSummaryAnalyzerAOD(const edm::ParameterSet&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  /// InputTag of TriggerEvent to analyze
+  const edm::InputTag inputTag_;
+  const edm::EDGetTokenT<trigger::TriggerEvent> inputToken_;
+};
 
 //
 // constructors and destructor
 //
 TriggerSummaryAnalyzerAOD::TriggerSummaryAnalyzerAOD(const edm::ParameterSet& ps)
     : inputTag_(ps.getParameter<edm::InputTag>("inputTag")), inputToken_(consumes<trigger::TriggerEvent>(inputTag_)) {}
-
-TriggerSummaryAnalyzerAOD::~TriggerSummaryAnalyzerAOD() = default;
 
 //
 // member functions
@@ -30,7 +48,7 @@ void TriggerSummaryAnalyzerAOD::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 // ------------ method called to produce the data  ------------
-void TriggerSummaryAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void TriggerSummaryAnalyzerAOD::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -84,3 +102,5 @@ void TriggerSummaryAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::Eve
 
   return;
 }
+
+DEFINE_FWK_MODULE(TriggerSummaryAnalyzerAOD);
