@@ -58,6 +58,9 @@ uint32_t MtdSD::setDetUnitId(const G4Step* aStep) {
     return MTDDetId();
   } else {
     getBaseNumber(aStep);
+#ifdef EDM_ML_DEBUG
+    edm::LogInfo("MtdSim") << "DetId = " << numberingScheme->getUnitID(theBaseNumber);
+#endif
     return numberingScheme->getUnitID(theBaseNumber);
   }
 }
@@ -79,11 +82,14 @@ void MtdSD::getBaseNumber(const G4Step* aStep) {
     theBaseNumber.setSize(theSize);
   //Get name and copy numbers
   if (theSize > 1) {
+#ifdef EDM_ML_DEBUG
+    edm::LogInfo("MtdSim") << "Building MTD basenumber:";
+#endif
     for (int ii = 0; ii < theSize; ii++) {
       theBaseNumber.addLevel(touch->GetVolume(ii)->GetName(), touch->GetReplicaNumber(ii));
 #ifdef EDM_ML_DEBUG
-      edm::LogInfo("MtdSim") << "MtdSD::getBaseNumber(): Adding level " << ii << ": " << touch->GetVolume(ii)->GetName()
-                             << "[" << touch->GetReplicaNumber(ii) << "]";
+      edm::LogVerbatim("MtdSim") << "MtdSD::getBaseNumber(): Adding level " << ii << ": "
+                                 << touch->GetVolume(ii)->GetName() << "[" << touch->GetReplicaNumber(ii) << "]";
 #endif
     }
   }
