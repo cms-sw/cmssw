@@ -49,7 +49,7 @@ namespace popcon {
       m_targetSession = connPool.createSession(m_targetConnectionString);
       m_targetSession.transaction().start();
     }
-    if (m_targetSession.existsIov(m_tag)) {
+    if (m_targetSession.existsDatabase() && m_targetSession.existsIov(m_tag)) {
       cond::persistency::IOVProxy iov = m_targetSession.readIov(m_tag);
       size_t tagSize = iov.sequenceSize();
       if (tagSize > 0) {
