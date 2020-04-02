@@ -6,9 +6,6 @@
 #include <string>
 #include <thread>
 
-//TEMP
-//#include "CLHEP/Random/JamesRandom.h"
-
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "DataFormats/Common/interface/RandomNumberGeneratorState.h"
@@ -104,9 +101,6 @@ int main(int argc, char* argv[]) {
     std::string const memoryName(vm[kMemoryNameOpt].as<std::string>());
     std::string const uniqueID(vm[kUniqueIDOpt].as<std::string>());
     {
-      //using namespace boost::interprocess;
-      //auto controlNameUnique = unique_name(memoryName, uniqueID);
-
       //This class is holding the lock
       WorkerChannel communicationChannel(memoryName, uniqueID);
 
@@ -146,8 +140,6 @@ int main(int argc, char* argv[]) {
       auto serviceToken =
           edm::ServiceRegistry::createContaining(std::unique_ptr<edm::RandomNumberGenerator>(randomService));
 
-      //CLHEP::HepJamesRandom rng(12345);
-      //randomService->setState(rng.put(), rng.getSeed());
       Harness harness(configuration, serviceToken);
 
       //Either ROOT or the Framework are overriding the signal handlers
