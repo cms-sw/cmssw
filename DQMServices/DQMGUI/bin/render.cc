@@ -52,6 +52,8 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include <png.h>
+
 static int colors[] = {kGray, kAzure, kOrange + 7, kRed + 1, kMagenta + 2, kGreen - 3};
 using DataBlob = std::vector<unsigned char>;
 struct Bucket {
@@ -84,11 +86,16 @@ static void stripNameToLabel(std::string &label, const std::string &name) {
   }
 }
 
+static void PngWriteCallback(png_structp png_ptr, png_bytep data, png_size_t length) {
+  auto *p = (std::vector<unsigned char> *)png_get_io_ptr(png_ptr);
+  p->insert(p->end(), data, data + length);
+}
+
 // ----------------------------------------------------------------------
 // Convert the canvas into a PNG image.
 class DQMImageDump : public TImageDump {
 public:
-  DQMImageDump(TVirtualPad *pad, DataBlob &imgdata) {
+  DQMImageDump(TVirtualPad *pad, DataBlob &pngdata) {
     fImage = new TASImage;
     fType = 114;
     SetName(pad->GetName());
@@ -97,18 +104,48 @@ public:
     pad->Update();
     pad->Paint();
 
+    DataBlob imgdata;
     UInt_t width = fImage->GetWidth();
     UInt_t height = fImage->GetHeight();
     imgdata.resize(width * height * sizeof(uint8_t) * 3);
     uint32_t *argb = (uint32_t *)fImage->GetArgbArray();
     uint8_t *rgb = (uint8_t *)&imgdata[0];
-    for (UInt_t row = 0, idx = 0; row < height; ++row)
+    for (UInt_t row = 0, idx = 0; row < height; ++row) {
       for (UInt_t col = 0; col < width; ++col, ++idx) {
         uint32_t val = argb[idx];
         rgb[idx * 3 + 0] = (val >> 16) & 0xff;
         rgb[idx * 3 + 1] = (val >> 8) & 0xff;
         rgb[idx * 3 + 2] = (val >> 0) & 0xff;
       }
+    }
+    compress(&pngdata, imgdata, width, height);
+  }
+
+  void compress(DataBlob *out, DataBlob &imgbytes, int w, int h) {
+    out->clear();
+    png_structp p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    assert(p || !"png_create_write_struct() failed");
+    png_infop info_ptr = png_create_info_struct(p);
+    assert(info_ptr || !"png_create_info_struct() failed");
+    auto ok = setjmp(png_jmpbuf(p));
+    assert(ok == 0 || !"setjmp(png_jmpbuf(p) failed");
+    png_set_IHDR(p,
+                 info_ptr,
+                 w,
+                 h,
+                 8,
+                 PNG_COLOR_TYPE_RGB,
+                 PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_DEFAULT,
+                 PNG_FILTER_TYPE_DEFAULT);
+    png_set_compression_level(p, 6);
+    std::vector<unsigned char *> rows(h);
+    for (size_t y = 0; y < h; ++y)
+      rows[y] = &imgbytes[y * w * 3];
+    png_set_rows(p, info_ptr, &rows[0]);
+    png_set_write_fn(p, out, PngWriteCallback, NULL);
+    png_write_png(p, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    png_destroy_write_struct(&p, NULL);
   }
 };
 
@@ -375,12 +412,10 @@ public:
           }
           if (len < 0) {
             memcpy(&len, buf, 4);
-            msg.insert(msg.end(), buf + 4, buf + nread);
-          } else {
-            msg.insert(msg.end(), buf, buf + nread);
-            if (msg.size() >= len) {
-              done = true;
-            }
+          }
+          msg.insert(msg.end(), buf, buf + nread);
+          if (msg.size() >= len) {
+            done = true;
           }
         }
         if (done) {

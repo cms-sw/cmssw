@@ -9,8 +9,8 @@ INCLUDE=(
 LIB=(
   "-L/cvmfs/cms-ib.cern.ch/week0/slc7_amd64_gcc820/cms/cmssw/CMSSW_11_1_PY3_X_2020-03-29-2300/external/slc7_amd64_gcc820/lib"
 )
-ROOTLIBS=(-lCore -lRIO -lNet -lHist -lMatrix -lThread -lTree -lMathCore -lTreePlayer -lGpad -lGraf3d -lGraf -lPhysics -lPostscript -lASImage)
-OTHERLIBS=(-ldl -ljpeg -lpng "-lstdc++fs")
+ROOTLIBS=(-lCore -lRIO -lNet -lHist -lMatrix -lThread -lTree -lMathCore -lGpad -lGraf3d -lGraf -lPhysics -lPostscript -lASImage)
+OTHERLIBS=(-ldl -ljpeg -lpng15 "-lstdc++fs")
 # I have no idea why G++ does not read symbols from here with -lstdc++fs. I got that filename out of strace, so it was sure opened...
 HACKS="/cvmfs/cms-ib.cern.ch/nweek-02622/slc7_amd64_gcc820/external/gcc/8.2.0-pafccj/bin/../lib/gcc/x86_64-unknown-linux-gnu/8.3.1/../../../../lib64/libstdc++fs.a" 
 
