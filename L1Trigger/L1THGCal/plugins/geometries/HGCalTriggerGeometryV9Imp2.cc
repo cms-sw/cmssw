@@ -55,6 +55,8 @@ private:
   unsigned hSc_links_per_module_ = 1;
   unsigned hSc_wafers_per_module_ = 3;
 
+  unsigned sector0_mask_ = 0x7f;  // 7 bits to encode module number in 60deg sector
+
   edm::FileInPath l1tModulesMapping_;
   edm::FileInPath l1tLinksMapping_;
 
@@ -506,8 +508,7 @@ unsigned HGCalTriggerGeometryV9Imp2::getLinksInModule(const unsigned module_id) 
     HGCalDetId module_det_id_si(module_id);
     unsigned module = module_det_id_si.wafer();
     unsigned layer = layerWithOffset(module_id);
-    const unsigned sector0_mask = 0x7F;
-    module = (module & sector0_mask);
+    module = (module & sector0_mask_);
     links = links_per_module_.at(packLayerModuleId(layer, module));
   }
   return links;
@@ -618,10 +619,13 @@ void HGCalTriggerGeometryV9Imp2::fillMaps() {
     throw cms::Exception("MissingDataFile") << "Cannot open HGCalTriggerGeometry L1TLinksMapping file\n";
   }
   short links = 0;
+  const short max_modules_60deg_sector = 127;
   for (; l1tLinksMappingStream >> layer >> module >> links;) {
     if (module_to_wafers_.find(packLayerModuleId(layer, module)) == module_to_wafers_.end()) {
       links = 0;
     }
+    if (module > max_modules_60deg_sector)
+      sector0_mask_ = 0xff;  // Use 8 bits to encode module number in 120deg sector
     links_per_module_.emplace(packLayerModuleId(layer, module), links);
   }
   if (!l1tLinksMappingStream.eof()) {
