@@ -116,9 +116,7 @@ HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p) {
   histo.reset(new HcalTB02Histo(m_Anal));
 }
 
-HcalTB02Analysis::~HcalTB02Analysis() {
-  finish();
-}
+HcalTB02Analysis::~HcalTB02Analysis() { finish(); }
 
 //
 // member functions

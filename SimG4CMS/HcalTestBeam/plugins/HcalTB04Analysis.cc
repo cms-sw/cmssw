@@ -177,7 +177,12 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet& p) : myQie(nullptr),
   beamline_RM->rotateZ(-beamPhi);
   beamline_RM->rotateY(-beamThet);
 
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04:: Initialised as observer of BeginOf Job/BeginOfRun/BeginOfEvent/G4Step/EndOfEvent with Parameter values:\n \thcalOnly = " << hcalOnly << "\tecalNoise = " << ecalNoise << "\n\tMode = " << mode << " (0: HB2 Standard; 1:HB2 Segmented)" << "\tType = " << type << " (0: HB; 1 HE; 2 HB+HE)\n\tbeamOffset = " << beamOffset << "\ticeta = " << iceta << "\ticphi = " << icphi << "\n\tbeamline_RM = " << *beamline_RM;
+  edm::LogVerbatim("HcalTBSim")
+      << "HcalTB04:: Initialised as observer of BeginOf Job/BeginOfRun/BeginOfEvent/G4Step/EndOfEvent with Parameter "
+         "values:\n \thcalOnly = "
+      << hcalOnly << "\tecalNoise = " << ecalNoise << "\n\tMode = " << mode << " (0: HB2 Standard; 1:HB2 Segmented)"
+      << "\tType = " << type << " (0: HB; 1 HE; 2 HB+HE)\n\tbeamOffset = " << beamOffset << "\ticeta = " << iceta
+      << "\ticphi = " << icphi << "\n\tbeamline_RM = " << *beamline_RM;
 
   init();
 
@@ -186,7 +191,8 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet& p) : myQie(nullptr),
 }
 
 HcalTB04Analysis::~HcalTB04Analysis() {
-  edm::LogVerbatim("HcalTBSim") << "\n -------->  Total number of selected entries : " << count << "\nPointers:: QIE " << myQie << " Histo " << histo;
+  edm::LogVerbatim("HcalTBSim") << "\n -------->  Total number of selected entries : " << count << "\nPointers:: QIE "
+                                << myQie << " Histo " << histo;
   if (myQie) {
     delete myQie;
     myQie = nullptr;
@@ -216,7 +222,8 @@ void HcalTB04Analysis::init() {
     int id = unitID(idTower[i]);
     idHcal.push_back(id);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "\tTower[" << i << "] Original " << std::hex << idTower[i] << " Stored " << idHcal[i] << std::dec;
+    edm::LogVerbatim("HcalTBSim") << "\tTower[" << i << "] Original " << std::hex << idTower[i] << " Stored "
+                                  << idHcal[i] << std::dec;
 #endif
   }
 
@@ -236,7 +243,8 @@ void HcalTB04Analysis::init() {
     edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save information from " << nCrystal << " ECal Crystals";
 #ifdef EDM_ML_DEBUG
     for (int i = 0; i < nCrystal; i++) {
-      edm::LogVerbatim("HcalTBSim") << "\tCrystal[" << i << "] Original " << std::hex << idEcal[i] << " Stored " << idXtal[i] << std::dec;
+      edm::LogVerbatim("HcalTBSim") << "\tCrystal[" << i << "] Original " << std::hex << idEcal[i] << " Stored "
+                                    << idXtal[i] << std::dec;
     }
 #endif
   }
@@ -280,7 +288,8 @@ void HcalTB04Analysis::update(const BeginOfRun* run) {
                                    << "Setup";
     } else {
       HCalSD* theCaloSD = dynamic_cast<HCalSD*>(aSD);
-      edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::beginOfRun: Finds SD with name " << theCaloSD->GetName() << " in this Setup";
+      edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::beginOfRun: Finds SD with name " << theCaloSD->GetName()
+                                    << " in this Setup";
       HcalNumberingScheme* org = new HcalTestNumberingScheme(false);
       theCaloSD->setNumberingScheme(org);
       edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::beginOfRun: set a new numbering scheme";
@@ -294,7 +303,8 @@ void HcalTB04Analysis::update(const BeginOfRun* run) {
                                      << "Setup";
       } else {
         ECalSD* theCaloSD = dynamic_cast<ECalSD*>(aSD);
-        edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::beginOfRun: Finds SD with name " << theCaloSD->GetName() << " in this Setup";
+        edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::beginOfRun: Finds SD with name " << theCaloSD->GetName()
+                                      << " in this Setup";
         EcalNumberingScheme* org = new HcalTB04XtalNumberingScheme();
         theCaloSD->setNumberingScheme(org);
         edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::beginOfRun: set a new numbering scheme";
@@ -310,7 +320,6 @@ void HcalTB04Analysis::update(const BeginOfEvent* evt) {
   evNum = (*evt)()->GetEventID();
   clear();
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis: =====> Begin of event = " << evNum;
-
 }
 
 void HcalTB04Analysis::update(const G4Step* aStep) {
@@ -363,8 +372,10 @@ void HcalTB04Analysis::update(const G4Step* aStep) {
             thePostPVname = thePostPV->GetName();
         }
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: V1 found at: " << thePostStepPoint << " G4VPhysicalVolume: " << thePostPVname;
-        edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::fill_v1Pos: Primary Track momentum: " << pvMomentum << " psoition " << pvPosition << " u/v/w " << pvUVW;
+        edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: V1 found at: " << thePostStepPoint
+                                      << " G4VPhysicalVolume: " << thePostPVname;
+        edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::fill_v1Pos: Primary Track momentum: " << pvMomentum
+                                      << " psoition " << pvPosition << " u/v/w " << pvUVW;
 #endif
       }
     } else {
@@ -372,7 +383,11 @@ void HcalTB04Analysis::update(const G4Step* aStep) {
       if ((trackID != 1 && parentID == 1 && (aTrack->GetCurrentStepNumber() == 1) && (thePreStepPoint == pvPosition)) ||
           (trackID == 1 && thePreStepPoint == pvPosition)) {
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::A secondary...  PDG:" << partPDGEncoding << " TrackID:" << trackID << " ParentID:" << parentID << " stable: " << isPDGStable << " Tau: " << pDGlifetime << " cTauGamma=" << c_light * pDGlifetime * gammaFactor * 1000. << "um GammaFactor: " << gammaFactor;
+        edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::A secondary...  PDG:" << partPDGEncoding
+                                      << " TrackID:" << trackID << " ParentID:" << parentID
+                                      << " stable: " << isPDGStable << " Tau: " << pDGlifetime
+                                      << " cTauGamma=" << c_light * pDGlifetime * gammaFactor * 1000.
+                                      << "um GammaFactor: " << gammaFactor;
 #endif
         secTrackID.push_back(trackID);
         secPartID.push_back(partPDGEncoding);
@@ -399,7 +414,10 @@ void HcalTB04Analysis::update(const G4Step* aStep) {
             if (*pos == pid) {  //ParentID is on the list of short-lived
                                 // secondary
 #ifdef EDM_ML_DEBUG
-              edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: A tertiary...  PDG:" << partPDGEncoding << " TrackID:" << trackID << " ParentID:" << parentID << " stable: " << isPDGStable << " Tau: " << pDGlifetime << " cTauGamma=" << c_light * pDGlifetime * gammaFactor * 1000. << "um GammaFactor: " << gammaFactor;
+              edm::LogVerbatim("HcalTBSim")
+                  << "HcalTB04Analysis:: A tertiary...  PDG:" << partPDGEncoding << " TrackID:" << trackID
+                  << " ParentID:" << parentID << " stable: " << isPDGStable << " Tau: " << pDGlifetime
+                  << " cTauGamma=" << c_light * pDGlifetime * gammaFactor * 1000. << "um GammaFactor: " << gammaFactor;
 #endif
             }
           }
@@ -463,7 +481,8 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
   idHC = G4SDManager::GetSDMpointer()->GetCollectionID(sdName);
   theHC = (CaloG4HitCollection*)allHC->GetHC(idHC);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName << " of ID " << idHC << " is obtained at " << theHC << " with " << theHC->entries() << " entries";
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName << " of ID " << idHC
+                                << " is obtained at " << theHC << " with " << theHC->entries() << " entries";
 #endif
   int thehc_entries = theHC->entries();
   if (idHC >= 0 && theHC != nullptr) {
@@ -494,7 +513,11 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
       primaries[aHit->getTrackID()] += e;
       etot1 += escl;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit i/p " << j << "  ID 0x" << std::hex << id << " 0x" << idx << std::dec << " time " << std::setw(6) << time << " " << std::setw(6) << jitter << " theta " << std::setw(8) << theta << " eta " << std::setw(8) << eta << " phi " << std::setw(8) << phi << " e " << std::setw(8) << e << " " << std::setw(8) << escl;
+      edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit i/p " << j << "  ID 0x" << std::hex << id << " 0x"
+                                    << idx << std::dec << " time " << std::setw(6) << time << " " << std::setw(6)
+                                    << jitter << " theta " << std::setw(8) << theta << " eta " << std::setw(8) << eta
+                                    << " phi " << std::setw(8) << phi << " e " << std::setw(8) << e << " "
+                                    << std::setw(8) << escl;
 #endif
     }
   }
@@ -528,11 +551,14 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     etot2 += ehit;
     k1 += jump;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit store " << nhit << "  ID 0x" << std::hex << unitID << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta << " phi " << std::setw(8) << phi << " e " << std::setw(8) << ehit;
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit store " << nhit << "  ID 0x" << std::hex << unitID
+                                  << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta
+                                  << " phi " << std::setw(8) << phi << " e " << std::setw(8) << ehit;
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Stores " << nhit << " HCal hits from " << nHit << " input hits E(Hcal) " << etot1 << " " << etot2;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Stores " << nhit << " HCal hits from " << nHit
+                                << " input hits E(Hcal) " << etot1 << " " << etot2;
 #endif
   //Repeat for Hit in each layer (hhits and hhitl sizes are the same)
   for (j = 0, itr = hhitl.begin(); itr != hhitl.end(); j++, itr++) {
@@ -560,11 +586,14 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     etotl += ehit;
     k1 += jump;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit store " << nhitl << "  ID 0x" << std::hex << unitID << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta << " phi " << std::setw(8) << phi << " e " << std::setw(8) << ehit;
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit store " << nhitl << "  ID 0x" << std::hex << unitID
+                                  << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta
+                                  << " phi " << std::setw(8) << phi << " e " << std::setw(8) << ehit;
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Stores " << nhitl << " HCal hits from " << nHit << " input hits E(Hcal) " << etot1 << " " << etotl;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Stores " << nhitl << " HCal hits from " << nHit
+                                << " input hits E(Hcal) " << etot1 << " " << etotl;
 #endif
   // Look for the Hit Collection of ECal
   std::vector<CaloHit> ehits;
@@ -573,7 +602,8 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
   theHC = (CaloG4HitCollection*)allHC->GetHC(idHC);
   etot1 = etot2 = 0;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName << " of ID " << idHC << " is obtained at " << theHC << " with " << theHC->entries() << " entries";
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName << " of ID " << idHC
+                                << " is obtained at " << theHC << " with " << theHC->entries() << " entries";
 #endif
   if (idHC >= 0 && theHC != nullptr) {
     thehc_entries = theHC->entries();
@@ -585,19 +615,22 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
       if (e < 0 || e > 100000.)
         e = 0;
       if (e > 0) {
-	math::XYZPoint pos = aHit->getEntry();
-	unsigned int id = aHit->getUnitID();
-	double theta = pos.theta();
-	double eta = -log(tan(theta * 0.5));
-	double phi = pos.phi();
-	int det, z, group, ieta, iphi, layer;
-	HcalTestNumbering::unpackHcalIndex(id, det, z, group, ieta, iphi, layer);
-	CaloHit hit(det, 0, e, eta, phi, time, id);
-	ehits.push_back(hit);
-	primaries[aHit->getTrackID()] += e;
-	etot1 += e;
+        math::XYZPoint pos = aHit->getEntry();
+        unsigned int id = aHit->getUnitID();
+        double theta = pos.theta();
+        double eta = -log(tan(theta * 0.5));
+        double phi = pos.phi();
+        int det, z, group, ieta, iphi, layer;
+        HcalTestNumbering::unpackHcalIndex(id, det, z, group, ieta, iphi, layer);
+        CaloHit hit(det, 0, e, eta, phi, time, id);
+        ehits.push_back(hit);
+        primaries[aHit->getTrackID()] += e;
+        etot1 += e;
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Ecal Hit i/p " << j << "  ID 0x" << std::hex << id << std::dec << " time " << std::setw(6) << time << " theta " << std::setw(8) << theta << " eta " << std::setw(8) << eta << " phi " << std::setw(8) << phi << " e " << std::setw(8) << e;
+        edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Ecal Hit i/p " << j << "  ID 0x" << std::hex << id
+                                      << std::dec << " time " << std::setw(6) << time << " theta " << std::setw(8)
+                                      << theta << " eta " << std::setw(8) << eta << " phi " << std::setw(8) << phi
+                                      << " e " << std::setw(8) << e;
 #endif
       }
     }
@@ -630,11 +663,14 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     etot2 += ehit;
     k1 += jump;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Ecal Hit store " << nhit << "  ID 0x" << std::hex << unitID << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta << " phi " << std::setw(8) << phi << " e " << std::setw(8) << ehit;
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Ecal Hit store " << nhit << "  ID 0x" << std::hex << unitID
+                                  << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta
+                                  << " phi " << std::setw(8) << phi << " e " << std::setw(8) << ehit;
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Stores " << nhit << " ECal hits from " << nHit << " input hits E(Ecal) " << etot1 << " " << etot2;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Stores " << nhit << " ECal hits from " << nHit
+                                << " input hits E(Ecal) " << etot1 << " " << etot2;
 #endif
   // Find Primary info:
   nPrimary = (int)(primaries.size());
@@ -688,7 +724,8 @@ void HcalTB04Analysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
   std::vector<int> todo(nTower, 0);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::qieAnalysis: Size " << hits.size() << " " << todo.size() << " " << idTower.size() << " " << esimh.size() << " " << eqie.size();
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::qieAnalysis: Size " << hits.size() << " " << todo.size() << " "
+                                << idTower.size() << " " << esimh.size() << " " << eqie.size();
 #endif
   // Loop over all HCal hits
   for (unsigned int k1 = 0; k1 < hcalHitCache.size(); k1++) {
@@ -710,7 +747,9 @@ void HcalTB04Analysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
     std::vector<int> cd = myQie->getCode(nhit, hits, engine);
     double eq = myQie->getEnergy(cd);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << id << std::dec << " registers " << esim << " energy from " << nhit << " hits starting with hit # " << k1 << " energy with noise " << eq;
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << id << std::dec << " registers " << esim
+                                  << " energy from " << nhit << " hits starting with hit # " << k1
+                                  << " energy with noise " << eq;
 #endif
     for (int k2 = 0; k2 < nTower; k2++) {
       if (id == idTower[k2]) {
@@ -729,7 +768,9 @@ void HcalTB04Analysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
       esimh[k2] = 0;
       eqie[k2] = eq;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << idTower[k2] << std::dec << " registers " << esimh[k2] << " energy from hits and energy after QIE analysis " << eqie[k2];
+      edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << idTower[k2] << std::dec
+                                    << " registers " << esimh[k2] << " energy from hits and energy after QIE analysis "
+                                    << eqie[k2];
 #endif
     }
   }
@@ -741,7 +782,8 @@ void HcalTB04Analysis::xtalAnalysis(CLHEP::HepRandomEngine* engine) {
   // Crystal Data
   std::vector<int> iok(nCrystal, 0);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::xtalAnalysis: Size " << iok.size() << " " << idEcal.size() << " " << esime.size() << " " << enois.size();
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::xtalAnalysis: Size " << iok.size() << " " << idEcal.size() << " "
+                                << esime.size() << " " << enois.size();
 #endif
   for (unsigned int k1 = 0; k1 < ecalHitCache.size(); k1++) {
     uint32_t id = ecalHitCache[k1].id();
@@ -757,7 +799,9 @@ void HcalTB04Analysis::xtalAnalysis(CLHEP::HepRandomEngine* engine) {
     nhit++;
     double eq = esim + randGauss.fire(0., ecalNoise);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << id << std::dec << " registers " << esim << " energy from " << nhit << " hits starting with hit # " << k1 << " energy with noise " << eq;
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << id << std::dec << " registers " << esim
+                                  << " energy from " << nhit << " hits starting with hit # " << k1
+                                  << " energy with noise " << eq;
 #endif
     for (int k2 = 0; k2 < nCrystal; k2++) {
       if (id == idEcal[k2]) {
@@ -774,7 +818,9 @@ void HcalTB04Analysis::xtalAnalysis(CLHEP::HepRandomEngine* engine) {
       esime[k2] = 0;
       enois[k2] = randGauss.fire(0., ecalNoise);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << idEcal[k2] << std::dec << " registers " << esime[k2] << " energy from hits and energy from noise " << enois[k2];
+      edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::  ID 0x" << std::hex << idEcal[k2] << std::dec
+                                    << " registers " << esime[k2] << " energy from hits and energy from noise "
+                                    << enois[k2];
 #endif
     }
   }
@@ -797,7 +843,10 @@ void HcalTB04Analysis::finalAnalysis() {
   etots = eecals + ehcals;
   etotq = eecalq + ehcalq;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Energy deposit at Sim Level (Total) " << etots << " (ECal) " << eecals << " (HCal) " << ehcals << "\nHcalTB04Analysis:: Energy deposit at Qie Level (Total) " << etotq << " (ECal) " << eecalq << " (HCal) " << ehcalq;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Energy deposit at Sim Level (Total) " << etots << " (ECal) "
+                                << eecals << " (HCal) " << ehcals
+                                << "\nHcalTB04Analysis:: Energy deposit at Qie Level (Total) " << etotq << " (ECal) "
+                                << eecalq << " (HCal) " << ehcalq;
 #endif
   histo->fillEdep(etots, eecals, ehcals, etotq, eecalq, ehcalq);
 
@@ -849,7 +898,8 @@ void HcalTB04Analysis::finalAnalysis() {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Energy fraction along Eta and Phi (Sim/Qie)";
   for (int i = 0; i < 5; i++)
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: [" << i << "] Eta Sim = " << eseta[i] << " Qie = " << eqeta[i] << " Phi Sim = " << esphi[i] << " Qie = " << eqphi[i];
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: [" << i << "] Eta Sim = " << eseta[i] << " Qie = " << eqeta[i]
+                                  << " Phi Sim = " << esphi[i] << " Qie = " << eqphi[i];
 #endif
   histo->fillTrnsProf(eseta, eqeta, esphi, eqphi);
 
@@ -917,7 +967,10 @@ void HcalTB04Analysis::fillEvent(PHcalTB04Info& product) {
     product.saveHit(det, lay, ieta, iphi, itr->e(), itr->t());
     nhit++;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save Hit " << std::setw(3) << i + 1 << " ID 0x" << std::hex << group << std::dec << " " << std::setw(2) << det << " " << std::setw(2) << lay << " " << std::setw(1) << z << " " << std::setw(3) << ieta << " " << std::setw(3) << iphi << " T " << std::setw(6) << itr->t() << " E " << std::setw(6) << itr->e();
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save Hit " << std::setw(3) << i + 1 << " ID 0x" << std::hex
+                                  << group << std::dec << " " << std::setw(2) << det << " " << std::setw(2) << lay
+                                  << " " << std::setw(1) << z << " " << std::setw(3) << ieta << " " << std::setw(3)
+                                  << iphi << " T " << std::setw(6) << itr->t() << " E " << std::setw(6) << itr->e();
 #endif
   }
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Saves " << nhit << " hits from Crystals";
@@ -931,7 +984,10 @@ void HcalTB04Analysis::fillEvent(PHcalTB04Info& product) {
     product.saveHit(det, lay, ieta, iphi, itr->e(), itr->t());
     nhit++;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save Hit " << std::setw(3) << i + 1 << " ID 0x" << std::hex << group << std::dec << " " << std::setw(2) << det << " " << std::setw(2) << lay << " " << std::setw(1) << z << " " << std::setw(3) << ieta << " " << std::setw(3) << iphi << " T " << std::setw(6) << itr->t() << " E " << std::setw(6) << itr->e();
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save Hit " << std::setw(3) << i + 1 << " ID 0x" << std::hex
+                                  << group << std::dec << " " << std::setw(2) << det << " " << std::setw(2) << lay
+                                  << " " << std::setw(1) << z << " " << std::setw(3) << ieta << " " << std::setw(3)
+                                  << iphi << " T " << std::setw(6) << itr->t() << " E " << std::setw(6) << itr->e();
 #endif
   }
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Saves " << nhit << " hits from HCal";
@@ -1068,7 +1124,8 @@ double HcalTB04Analysis::timeOfFlight(int det, int layer, double eta) {
 
   double tmp = dist / c_light / ns;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::timeOfFlight " << tmp << " for det/lay " << det << " " << layer << " eta/theta " << eta << " " << theta / deg << " dist " << dist;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis::timeOfFlight " << tmp << " for det/lay " << det << " " << layer
+                                << " eta/theta " << eta << " " << theta / deg << " dist " << dist;
 #endif
   return tmp;
 }

@@ -26,7 +26,6 @@
 #include "Geometry/HcalTestBeamData/interface/HcalTB02Parameters.h"
 #include "HcalTB02NumberingScheme.h"
 
-
 class HcalTB02SD : public CaloSD {
 public:
   HcalTB02SD(const std::string&,

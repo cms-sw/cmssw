@@ -54,7 +54,8 @@ uint32_t HcalTB04XtalNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber
   uint32_t idunit = HcalTestNumbering::packHcalIndex(det, 0, 1, idl, idx, 1);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB04XtalNumberingScheme : Crystal " << idx << " Layer " << idl << " UnitID = 0x" << std::hex << idunit << std::dec;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04XtalNumberingScheme : Crystal " << idx << " Layer " << idl << " UnitID = 0x"
+                                << std::hex << idunit << std::dec;
 #endif
   return idunit;
 }
