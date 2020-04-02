@@ -1280,7 +1280,7 @@ step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,5000',
                          '--eventcontent':'RAWSIM,DQM',
                          '--datatier':'GEN,DQMIO',
-                         '--conditions':'auto:run2_mc_FULL'
+                         '--conditions':'auto:run2_mc'
                          },
                         step1Defaults])
 
@@ -1292,7 +1292,7 @@ step1LHEDefaults=merge([{'-s':'LHE',
                          '--relval':'200000,5000',
                          '--eventcontent':'LHE',
                          '--datatier':'GEN',
-                         '--conditions':'auto:run2_mc_FULL'
+                         '--conditions':'auto:run2_mc'
                          },
                         step1Defaults])
 
@@ -2606,7 +2606,7 @@ steps['RECOHIMIX']=merge([steps['RECOHI2018PPRECO'],{'--pileup':'HiMix','--pileu
 
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
-                     '--conditions':'auto:run2_mc_FULL',
+                     '--conditions':'auto:run2_mc',
                      '--mc':'',
                      '--era' :'Run2_2016',
                      '--filetype':'DQM',
