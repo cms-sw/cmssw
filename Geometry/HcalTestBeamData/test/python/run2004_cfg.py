@@ -13,7 +13,6 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
-
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HcalTestBeamData/data/dd4hep/cms-test-ddTB2004-algorithm.xml'),
                                             appendToDataLabel = cms.string('')
@@ -110,8 +109,11 @@ process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.Region = 'HcalRegion'
 process.g4SimHits.Physics.DefaultCutValue = 1.
-process.hcalParameters.fromDD4Hep = cms.bool(True)
-process.caloSimulationParameters.fromDD4Hep = cms.bool(True)
+process.hcalParameters.fromDD4Hep = True
+process.caloSimulationParameters.fromDD4Hep = True
+process.hcalTB02XtalParameters.fromDD4Hep = True
+process.hcalTB02HcalParameters.fromDD4Hep = True
+process.hcalTB06BeamParameters.fromDD4Hep = True
 
 process.g4SimHits.ECalSD.UseBirkLaw = True
 process.g4SimHits.ECalSD.BirkL3Parametrization = True
