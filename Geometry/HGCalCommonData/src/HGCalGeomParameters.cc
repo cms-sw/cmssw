@@ -242,9 +242,9 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
             xx += (HGCalParameters::k_ScaleFromDDD * (p2.X()));
             yy += (HGCalParameters::k_ScaleFromDDD * (p2.Y()));
 #ifdef EDM_ML_DEBUG
-            if (std::abs(p2.X()) < 1.0e-12)
+            if (std::abs(p2.X()) < HGCalParameters::tol)
               p2.SetX(0.0);
-            if (std::abs(p2.Z()) < 1.0e-12)
+            if (std::abs(p2.Z()) < HGCalParameters::tol)
               p2.SetZ(0.0);
             edm::LogVerbatim("HGCalGeom") << "Wafer " << wafer << " Type " << type << " Cell " << cellx << " local "
                                           << xx << ":" << yy << " new " << p1 << ":" << p2;
@@ -464,9 +464,9 @@ void HGCalGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
             xx += (HGCalParameters::k_ScaleFromDDD * (p2.X()));
             yy += (HGCalParameters::k_ScaleFromDDD * (p2.Y()));
 #ifdef EDM_ML_DEBUG
-            if (std::abs(p2.X()) < 1.0e-12)
+            if (std::abs(p2.X()) < HGCalParameters::tol)
               p2.SetX(0.0);
-            if (std::abs(p2.Z()) < 1.0e-12)
+            if (std::abs(p2.Z()) < HGCalParameters::tol)
               p2.SetZ(0.0);
             edm::LogVerbatim("HGCalGeom") << "Wafer " << wafer << " Type " << type << " Cell " << cellx << " local "
                                           << xx << ":" << yy << " new " << p1 << ":" << p2;
