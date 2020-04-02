@@ -18,16 +18,12 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
 
 process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('','MTD'), 
-                                 numFileName = cms.untracked.string('BTL'),
-                                 posFileName = cms.untracked.string('BTLpos'),
                                  ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
                                  theLayout = cms.untracked.uint32(4)
                                 )
 
 process.testETL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('','MTD'), 
-                                 numFileName = cms.untracked.string('ETL'),
-                                 posFileName = cms.untracked.string('ETLpos'),
                                  ddTopNodeName = cms.untracked.string('EndcapTimingLayer'),
                                  theLayout = cms.untracked.uint32(4)
                                 )
@@ -38,7 +34,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                                                threshold = cms.untracked.string('INFO'),
                                                                ),
                                     # For LogDebug/LogTrace output...
-                                    categories = cms.untracked.vstring('DD4hep_TestMTDIdealGeometry','MTDGeom'),
+                                    categories = cms.untracked.vstring('DD4hep_TestMTDIdealGeometry','MTDGeom','DD4hep_TestMTDPath','DD4hep_TestMTDNumbering','DD4hep_TestMTDPosition'),
                                     destinations = cms.untracked.vstring('cout')
                                     )
 
