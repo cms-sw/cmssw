@@ -15,7 +15,6 @@ _chsalgos_94x = cms.VPSet(full_94x_chs,cutbased)
 _chsalgos_102x = cms.VPSet(full_102x_chs,cutbased)
 
 _stdalgos    = _chsalgos_81x
-run2_miniAOD_devel.toReplaceWith(_stdalgos, _chsalgos_102x)
 
 # Calculate+store variables and run MVAs
 pileupJetId = cms.EDProducer('PileupJetIdProducer',
@@ -33,6 +32,7 @@ pileupJetId = cms.EDProducer('PileupJetIdProducer',
      usePuppi = cms.bool(False),
 #     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file
 )
+run2_miniAOD_devel.toModify(pileupJetId, algos = _chsalgos_102x)
 
 # Calculate variables, but don't run MVAs
 pileupJetIdCalculator = pileupJetId.clone(
