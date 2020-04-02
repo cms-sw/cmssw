@@ -20,6 +20,8 @@
 #include "FWCore/SharedMemory/interface/ROOTSerializer.h"
 
 #include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/engineIDulong.h"
+#include "CLHEP/Random/RanecuEngine.h"
 
 using namespace edm::shared_memory;
 namespace testinter {
@@ -83,7 +85,9 @@ namespace testinter {
       edm::RandomNumberGeneratorState state{engine.put(), engine.getSeed()};
       randSerializer_.serialize(state);
       auto v = doTransition(deserializer_, edm::Transition::Event, iTransitionID);
-      engine.setSeed(v.second.seed_, 0);
+      if (v.second.state_[0] != CLHEP::engineIDulong<CLHEP::RanecuEngine>()) {
+        engine.setSeed(v.second.seed_, 0);
+      }
       engine.get(v.second.state_);
       return v.first;
     }
@@ -217,7 +221,9 @@ void TestInterProcessRandomProd::globalBeginLuminosityBlockProduce(edm::Luminosi
       *luminosityBlockCache(iLuminosityBlock.index()), iLuminosityBlock.luminosityBlock(), iLuminosityBlock.index());
   edm::Service<edm::RandomNumberGenerator> gen;
   auto& engine = gen->getEngine(iLuminosityBlock.index());
-  engine.setSeed(v.second.seed_, 0);
+  if (v.second.state_[0] != CLHEP::engineIDulong<CLHEP::RanecuEngine>()) {
+    engine.setSeed(v.second.seed_, 0);
+  }
   engine.get(v.second.state_);
 
   iLuminosityBlock.emplace(blToken_, v.first);
