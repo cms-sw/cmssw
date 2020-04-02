@@ -31,7 +31,6 @@ namespace edmtest {
 
   void RandomIntProducer::produce(edm::Event& iEvent, edm::EventSetup const&) {
     edm::Service<edm::RandomNumberGenerator> gen;
-    std::cout << gen->getEngine(iEvent.streamID()).name() << std::endl;
     iEvent.emplace(evToken_, CLHEP::RandFlat::shootInt(&gen->getEngine(iEvent.streamID()), 10));
   }
 
