@@ -613,16 +613,15 @@ private:
 
   // ----------------------------------------------------------------------
   bool readRequest(VisDQMImgInfo &info, std::string &odata, std::vector<VisDQMObject> &objs, uint32_t &numobjs) {
-    uint32_t lenbits[2];
+    uint32_t lenbits;
     uint32_t firstobj = 0;
     uint32_t pos = 0;
 
     // Read remaining objects, either scalar or real ROOT objects.
     // Draw a scalar only if the string is non-empty; empty means
     // "missing in action" and is handled in render code.  Real ROOT
-    // objects come as (streamer-info, object+reference) pair for as
-    // many objects as we were sent.  For strip charts that is at
-    // most one additional object.
+    // objects come as len, object pairs for
+    // many objects as we were sent.
     if ((objs[0].flags & DQM_PROP_TYPE_MASK) <= DQM_PROP_TYPE_SCALAR) {
       if (odata.size())
         objs[0].object = new TObjString(odata.c_str());
@@ -635,24 +634,20 @@ private:
           return false;
         }
 
-        memcpy(&lenbits[0], &odata[pos], sizeof(lenbits));
+        memcpy(&lenbits, &odata[pos], sizeof(lenbits));
         pos += sizeof(lenbits);
 
-        if (odata.size() - pos < lenbits[0] + lenbits[1]) {
+        if (odata.size() - pos < lenbits) {
           logme() << "ERROR: 'GET IMAGE DATA' missing object data"
-                  << ", expected " << (lenbits[0] + lenbits[1]) << " but " << (odata.size() - pos) << " bytes left of "
-                  << odata.size() << " for image #" << i << " of " << numobjs << std::endl;
+                  << ", expected " << (lenbits) << " but " << (odata.size() - pos) << " bytes left of " << odata.size()
+                  << " for image #" << i << " of " << numobjs << std::endl;
           return false;
         }
 
-        //loadStreamerInfo(&odata[pos], lenbits[0]);
-        pos += lenbits[0];
-
-        TBufferFile buf(TBufferFile::kRead, lenbits[1], &odata[pos], kFALSE);
+        TBufferFile buf(TBufferFile::kRead, lenbits, &odata[pos], kFALSE);
         buf.Reset();
         objs[i].object = extractNextObject(buf);
-        objs[i].reference = extractNextObject(buf);
-        pos += lenbits[1];
+        pos += lenbits;
       }
 
       if (pos != odata.size()) {
