@@ -32,9 +32,8 @@ private:
   bool isItWireChamber(const std::string &);
 
   bool useBirk_;
-  double birk1_, birk2_, birk3_
-;
-  const HcalTB06BeamParameters* hcalBeamPar_;
+  double birk1_, birk2_, birk3_;
+  const HcalTB06BeamParameters *hcalBeamPar_;
 };
 
 #endif  // HcalTB06BeamSD_h

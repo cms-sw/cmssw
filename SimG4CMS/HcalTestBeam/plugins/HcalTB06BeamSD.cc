@@ -31,7 +31,9 @@ HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
   birk3_ = m_HC.getParameter<double>("BirkC3");
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamSD:: Use of Birks law is set to " << useBirk_ << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_ << ", C2 = " << birk3_;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamSD:: Use of Birks law is set to " << useBirk_
+                                << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_
+                                << ", C2 = " << birk3_;
 #endif
 
   // Get pointers to HcalTB06BeamParameters
@@ -52,7 +54,9 @@ double HcalTB06BeamSD::getEnergyDeposit(const G4Step* aStep) {
   if (useBirk_ && aStep->GetPreStepPoint()->GetMaterial()->GetName() == static_cast<G4String>(hcalBeamPar_->material_))
     weight *= getAttenuation(aStep, birk1_, birk2_, birk3_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamSD: Detector " << aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName() << " weight " << weight;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamSD: Detector "
+                                << aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName() << " weight "
+                                << weight;
 #endif
   return weight * destep;
 }

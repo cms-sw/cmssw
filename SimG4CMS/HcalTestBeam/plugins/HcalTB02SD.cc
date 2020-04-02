@@ -61,11 +61,13 @@ HcalTB02SD::HcalTB02SD(const std::string& name,
     setNumberingScheme(scheme);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalTBSim") << "***************************************************\n"
-				<< "*                                                 *\n"
-				<< "* Constructing a HcalTB02SD  with name " << GetName() << "\n"
-				<< "*                                                 *\n"
-				<< "***************************************************";
-  edm::LogVerbatim("HcalTBSim") << "HcalTB02SD:: Use of Birks law is set to      " << useBirk_ << "        with three constants kB = " << birk1_ << ", C1 = " << birk2_ << ", C2 = " << birk3_;
+                                << "*                                                 *\n"
+                                << "* Constructing a HcalTB02SD  with name " << GetName() << "\n"
+                                << "*                                                 *\n"
+                                << "***************************************************";
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02SD:: Use of Birks law is set to      " << useBirk_
+                                << "        with three constants kB = " << birk1_ << ", C1 = " << birk2_
+                                << ", C2 = " << birk3_;
 #endif
   // Get pointers to HcalTB02Parameters
   edm::ESHandle<HcalTB02Parameters> hdc;
@@ -77,7 +79,7 @@ HcalTB02SD::HcalTB02SD(const std::string& name,
   }
 }
 
-HcalTB02SD::~HcalTB02SD() { }
+HcalTB02SD::~HcalTB02SD() {}
 
 //
 // member functions
@@ -95,7 +97,8 @@ double HcalTB02SD::getEnergyDeposit(const G4Step* aStep) {
     weight *= getAttenuation(aStep, birk1_, birk2_, birk3_);
   double edep = aStep->GetTotalEnergyDeposit() * weight;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB02SD:: " << nameVolume << " Light Collection Efficiency " << weight << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV";
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02SD:: " << nameVolume << " Light Collection Efficiency " << weight
+                                << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV";
 #endif
   return edep;
 }
@@ -126,7 +129,9 @@ double HcalTB02SD::curve_LY(const std::string& nameVolume, const G4StepPoint* st
                                  << " take weight = " << weight;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalTBSim") << "HcalTB02SD, light coll curve : " << dapd << " crlength = " << crlength << " crystal name = " << nameVolume << " z of localPoint = " << localPoint.z() << " take weight = " << weight;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB02SD, light coll curve : " << dapd << " crlength = " << crlength
+                                << " crystal name = " << nameVolume << " z of localPoint = " << localPoint.z()
+                                << " take weight = " << weight;
 #endif
   return weight;
 }
