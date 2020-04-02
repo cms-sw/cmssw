@@ -11,9 +11,8 @@ using namespace std;
 
 namespace TMTT {
 
-class DegradeBend {
-
-  /*
+  class DegradeBend {
+    /*
    *-------------------------------------------------------------------------------------------------------------------
    * Implements reduced bits to encode stub bend information: 3 bits for PS, 4 bits for 2S, since the Tracker
    * doesn't have the bandwidth to output the unreduced data from the FE electronics.
@@ -34,48 +33,60 @@ class DegradeBend {
    *-------------------------------------------------------------------------------------------------------------------
    */
 
-public:
+  public:
+    DegradeBend(const TrackerTopology* trackerTopo) : theTrackerTopo_(trackerTopo) {}
 
-  DegradeBend(const TrackerTopology* trackerTopo) : theTrackerTopo_(trackerTopo) {}
+    DegradeBend() {}
 
-  DegradeBend() {}
+    // Given the original bend, flag indicating if this is a PS or 2S module, & detector identifier,
+    // this return the degraded stub bend, a boolean indicatng if stub bend was outside the assumed window
+    // size programmed below, and an integer indicating how many values of the original bend
+    // were grouped together into this single value of the degraded bend.
+    //
+    // (Input argument windowFEnew specifies the stub window size that should be used for this stub instead
+    // of the window sizes specified in TTStubAlgorithmRegister_cfi.py , but it will ONLY replace the latter
+    // sizes if it windowFEnew is smaller. If you always want to use TTStubAlgorithmRegister_cfi.py, then
+    // set windowFEnew to a large number, such as 99999.).
+    void degrade(float bend,
+                 bool psModule,
+                 const DetId& stDetId,
+                 float windowFEnew,
+                 float& degradedBend,
+                 bool& reject,
+                 unsigned int& numInGroup) const;
 
-  // Given the original bend, flag indicating if this is a PS or 2S module, & detector identifier,
-  // this return the degraded stub bend, a boolean indicatng if stub bend was outside the assumed window
-  // size programmed below, and an integer indicating how many values of the original bend
-  // were grouped together into this single value of the degraded bend.
-  //
-  // (Input argument windowFEnew specifies the stub window size that should be used for this stub instead
-  // of the window sizes specified in TTStubAlgorithmRegister_cfi.py , but it will ONLY replace the latter
-  // sizes if it windowFEnew is smaller. If you always want to use TTStubAlgorithmRegister_cfi.py, then
-  // set windowFEnew to a large number, such as 99999.).
-  void degrade(float bend, bool psModule, const DetId& stDetId, float windowFEnew,
-	       float& degradedBend, bool& reject, unsigned int& numInGroup) const;
+  private:
+    // Does the actual work of degrading the bend.
+    void work(float bend,
+              bool psModule,
+              const DetId& stDetId,
+              float windowFEnew,
+              float& degradedBend,
+              bool& reject,
+              unsigned int& numInGroup,
+              unsigned int& windowHalfStrips) const;
 
-private:
+    // Check for mistakes
+    void sanityChecks(bool psModule,
+                      const DetId& stDetId,
+                      float windowFEnew,
+                      float degradedBend,
+                      unsigned int numInGroup,
+                      unsigned int windowHalfStrips) const;
 
-  // Does the actual work of degrading the bend.
-  void work(float bend, bool psModule, const DetId& stDetId, float windowFEnew,
-     	    float& degradedBend, bool& reject, unsigned int& numInGroup, unsigned int& windowHalfStrips) const;
+  private:
+    const TrackerTopology* theTrackerTopo_;
 
-  // Check for mistakes
-  void sanityChecks(bool psModule, const DetId& stDetId, float windowFEnew, float degradedBend, unsigned int numInGroup, unsigned int windowHalfStrips) const;
+    // Number of bits used to encoded bend output by FE electronics.
+    const unsigned int bitsPS_ = 3;
+    const unsigned int bits2S_ = 4;
 
-private:
+    // Stub window sizes as encoded in L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h
+    static std::vector<double> barrelCut_;
+    static std::vector<std::vector<double> > ringCut_;
+    static std::vector<std::vector<double> > tiltedCut_;
+    static std::vector<double> barrelNTilt_;
+  };
 
-  const TrackerTopology* theTrackerTopo_;
-
-  // Number of bits used to encoded bend output by FE electronics.
-  const unsigned int bitsPS_ = 3;
-  const unsigned int bits2S_ = 4;
-
-  // Stub window sizes as encoded in L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h
-  static std::vector< double >                barrelCut_;
-  static std::vector< std::vector< double > > ringCut_;
-  static std::vector< std::vector< double > > tiltedCut_;
-  static std::vector< double >                barrelNTilt_;
-};
-
-}
+}  // namespace TMTT
 #endif
-

@@ -11,9 +11,9 @@
 
   // Adjust these to line up histogram hisTracker with underlying image of CMS Tracker.
   // Then when aligned, comment out line trackerBorder.Draw() below.
-  const float leftMargin   = 23;
-  const float rightMargin  = 33;
-  const float topMargin    = 13;
+  const float leftMargin = 23;
+  const float rightMargin = 33;
+  const float topMargin = 13;
   const float bottomMargin = 14;
 
   gStyle->SetOptTitle(0);
@@ -21,16 +21,16 @@
   gStyle->SetPadGridX(false);
   gStyle->SetPadGridY(false);
 
-  const float trkInRad  = 20;
+  const float trkInRad = 20;
   const float trkOutRad = 110;
   const float trkLength = 270;
-  const float beamLen   = 15;
+  const float beamLen = 15;
 
   const unsigned int nSec = 9;
-  const float chosenR   = 50;
+  const float chosenR = 50;
   const unsigned int nSecEdges = nSec + 1;
   // Standard eta sectors
-  const float eta[nSecEdges] = {0,0.31,0.61,0.89,1.16,1.43,1.7,1.95,2.16,2.4};
+  const float eta[nSecEdges] = {0, 0.31, 0.61, 0.89, 1.16, 1.43, 1.7, 1.95, 2.16, 2.4};
   // Sectors optimised by Ben Gayther to balance GP output data rate (at expense of increased HT tracks).
   //const float eta[nSecEdges] = {0.0, 0.19, 0.38, 0.57, 0.77, 1.01, 1.31, 1.66, 2.03, 2.40};
   const unsigned int nSubSec = 2;
@@ -39,9 +39,9 @@
   // Optionally draw a stub with the given digitized (r,z) coordinates.
   const bool drawStub = true;
   const int iDigi_RT = 492;
-  const int iDigi_Z  = -1403; 
+  const int iDigi_Z = -1403;
 
-  TCanvas d1("d1","d1",1000,800);
+  TCanvas d1("d1", "d1", 1000, 800);
 
   // Open picture of CMS tracker
   // http://ghugo.web.cern.ch/ghugo/layouts/cabling/OT614_200_IT404_layer2_10G/layout.html
@@ -50,21 +50,21 @@
   img->Draw("x");
   d1.Update();
 
-  //Create a transparent pad filling the full canvas  
-  TPad p("p","p",0,0,1,1);
-  p.Range(-beamLen-leftMargin, -1-bottomMargin, trkLength+30+rightMargin, trkOutRad+15+topMargin);
+  //Create a transparent pad filling the full canvas
+  TPad p("p", "p", 0, 0, 1, 1);
+  p.Range(-beamLen - leftMargin, -1 - bottomMargin, trkLength + 30 + rightMargin, trkOutRad + 15 + topMargin);
   p.SetFillStyle(4000);
   p.SetFrameFillStyle(4000);
   p.Draw();
   p.cd();
- 
+
   TPolyLine trackerBorder;
 
-  trackerBorder.SetNextPoint(0.,0.);  
-  trackerBorder.SetNextPoint(295.,0.);  
-  trackerBorder.SetNextPoint(295.,123.);  
-  trackerBorder.SetNextPoint(0.,123.);  
-  trackerBorder.SetNextPoint(0.,0.);  
+  trackerBorder.SetNextPoint(0., 0.);
+  trackerBorder.SetNextPoint(295., 0.);
+  trackerBorder.SetNextPoint(295., 123.);
+  trackerBorder.SetNextPoint(0., 123.);
+  trackerBorder.SetNextPoint(0., 0.);
   //trackerBorder.Draw();
 
   /*
@@ -113,32 +113,32 @@
   // Draw sector boundaries
   for (unsigned int k = 0; k < nSecEdges; k++) {
     // z at r = chosenR;
-    float z = chosenR/tan(2.0 * atan(exp(-eta[k])));
+    float z = chosenR / tan(2.0 * atan(exp(-eta[k])));
     // Calculate (r,z) at periphery of Tracker from two ends of beam spot.
     // Start by assuming exit through barrel.
-    float rPeriphNeg = trkOutRad; 
-    float rPeriphPos = trkOutRad; 
-    float zPeriphNeg = -beamLen + (z + beamLen)*(rPeriphNeg/chosenR); 
-    float zPeriphPos =  beamLen + (z - beamLen)*(rPeriphNeg/chosenR); 
+    float rPeriphNeg = trkOutRad;
+    float rPeriphPos = trkOutRad;
+    float zPeriphNeg = -beamLen + (z + beamLen) * (rPeriphNeg / chosenR);
+    float zPeriphPos = beamLen + (z - beamLen) * (rPeriphNeg / chosenR);
     // Now check if actual exit through endcap.
     if (fabs(zPeriphNeg) > trkLength) {
-      int whichEndcap = (zPeriphNeg + beamLen > 0)  ?  1  :  -1;
-      zPeriphNeg = whichEndcap*trkLength;
-      rPeriphNeg = chosenR*(zPeriphNeg + beamLen)/(z + beamLen);
-    } 
+      int whichEndcap = (zPeriphNeg + beamLen > 0) ? 1 : -1;
+      zPeriphNeg = whichEndcap * trkLength;
+      rPeriphNeg = chosenR * (zPeriphNeg + beamLen) / (z + beamLen);
+    }
     if (fabs(zPeriphPos) > trkLength) {
-      int whichEndcap = (zPeriphPos - beamLen > 0)  ?  1  :  -1;
-      zPeriphPos = whichEndcap*trkLength;
-      rPeriphPos = chosenR*(zPeriphPos - beamLen)/(z - beamLen);
-    } 
-    secBoundary[k].SetNextPoint(-beamLen,0);
+      int whichEndcap = (zPeriphPos - beamLen > 0) ? 1 : -1;
+      zPeriphPos = whichEndcap * trkLength;
+      rPeriphPos = chosenR * (zPeriphPos - beamLen) / (z - beamLen);
+    }
+    secBoundary[k].SetNextPoint(-beamLen, 0);
     secBoundary[k].SetNextPoint(zPeriphNeg, rPeriphNeg);
     secBoundary[k].SetNextPoint(zPeriphPos, rPeriphPos);
-    secBoundary[k].SetNextPoint(beamLen,0);
-    secBoundary[k].SetNextPoint(-beamLen,0);
-    secBoundary[k].SetFillColor(kGreen-2);
+    secBoundary[k].SetNextPoint(beamLen, 0);
+    secBoundary[k].SetNextPoint(-beamLen, 0);
+    secBoundary[k].SetFillColor(kGreen - 2);
     //cout<<k<<" eta "<<eta[k]<<" coords "<<zPeriphNeg<<" "<<rPeriphNeg<<" "<<zPeriphPos<<" "<<rPeriphPos<<endl;
-    unsigned int iHash = 3405+k*9;
+    unsigned int iHash = 3405 + k * 9;
     secBoundary[k].SetFillStyle(iHash);
     secBoundary[k].Draw("f");
     d1.Update();
@@ -176,7 +176,7 @@
 
   d1.Update();
 
-  cout<<"Writing EtaSectors.png"<<endl;
+  cout << "Writing EtaSectors.png" << endl;
   d1.Print("EtaSectors.png");
 
   cin.get();

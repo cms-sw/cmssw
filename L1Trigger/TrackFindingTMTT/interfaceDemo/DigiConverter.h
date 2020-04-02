@@ -13,29 +13,34 @@
 
 namespace demo {
 
-/**
+  /**
  * @brief      Utility class to convert simulation objects into edm did objects
  */
 
-
-class DigiConverter {
+  class DigiConverter {
   public:
-    DigiConverter( const TMTT::Settings* settings );
+    DigiConverter(const TMTT::Settings* settings);
     ~DigiConverter() = default;
 
-    DigiDTCStub makeDigiDTCStub( const TMTT::Stub& aDTCStub, uint32_t aDigiPhiSec ) const;
-    DigiHTStub makeDigiHTStub( const TMTT::Stub& aHTStub, uint32_t aPhiSectorIdInNon, uint32_t aEtaSectorId, int cBin, int aChiZ, int aChiPhi, bool mSel) const;
-    DigiHTMiniStub makeDigiHTMiniStub( const TMTT::Stub& aHTMiniStub, uint32_t aPhiSectorIdInNon, uint32_t aEtaSectorId, int8_t cBin, int8_t mBin) const;
-    DigiKF4Track makeDigiKF4Track( const TMTT::L1fittedTrack& aFitTrk ) const;
+    DigiDTCStub makeDigiDTCStub(const TMTT::Stub& aDTCStub, uint32_t aDigiPhiSec) const;
+    DigiHTStub makeDigiHTStub(const TMTT::Stub& aHTStub,
+                              uint32_t aPhiSectorIdInNon,
+                              uint32_t aEtaSectorId,
+                              int cBin,
+                              int aChiZ,
+                              int aChiPhi,
+                              bool mSel) const;
+    DigiHTMiniStub makeDigiHTMiniStub(const TMTT::Stub& aHTMiniStub,
+                                      uint32_t aPhiSectorIdInNon,
+                                      uint32_t aEtaSectorId,
+                                      int8_t cBin,
+                                      int8_t mBin) const;
+    DigiKF4Track makeDigiKF4Track(const TMTT::L1fittedTrack& aFitTrk) const;
 
   private:
+    const TMTT::Settings* mSettings;  // Configuration parameters.
+  };
 
-    const TMTT::Settings *mSettings; // Configuration parameters.
-
-};
-
-
-
-} // demo
+}  // namespace demo
 
 #endif /* __DEMONSTRATOR_DATAFORMATS_DIGICONVERTER_H__ */

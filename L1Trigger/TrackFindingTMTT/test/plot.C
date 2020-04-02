@@ -21,8 +21,8 @@
   gStyle->SetTitleYOffset(1.3);
   gStyle->SetTitleSize(0.05, "XYZ");
 
-  gStyle->SetLabelSize(.04,"x");
-  gStyle->SetLabelSize(.04,"y");
+  gStyle->SetLabelSize(.04, "x");
+  gStyle->SetLabelSize(.04, "y");
 
   gStyle->SetCanvasDefH(500);
   gStyle->SetCanvasDefW(800);
@@ -30,7 +30,7 @@
   TCanvas d1("d1");
 
   TFile *file[7];
-  
+
   /*
   file[1] = new TFile("out_ttbar_ultimate_off1_20180831_183411/Hist.root"); // Corr 1 off
   file[2] = new TFile("out_ttbar_ultimate_off2_20180831_183030/Hist.root"); // Corr 2 off
@@ -62,20 +62,20 @@
   TLegend leg(0.7,0.15,0.9,0.45);    
   */
 
-  file[1] = new TFile("out_muon_ultimate_off1_20180903_145832/Hist.root"); // Corr 1 off
-  file[2] = new TFile("out_muon_ultimate_off2_20180903_145511/Hist.root"); // Corr 2 off
-  file[3] = new TFile("out_muon_ultimate_off3_20180903_145549/Hist.root"); // Corr 3 off
-  file[4] = new TFile("out_muon_ultimate_off4_20180903_145621/Hist.root"); // Corr 4 off
-  file[5] = new TFile("out_muon_ultimate_20180903_145432/Hist.root");  // All on
-  file[6] = new TFile("out_muon_ultimate_offall_20180903_145655/Hist.root"); // All off
-  TLegend leg(0.2,0.6,0.4,0.9);
+  file[1] = new TFile("out_muon_ultimate_off1_20180903_145832/Hist.root");    // Corr 1 off
+  file[2] = new TFile("out_muon_ultimate_off2_20180903_145511/Hist.root");    // Corr 2 off
+  file[3] = new TFile("out_muon_ultimate_off3_20180903_145549/Hist.root");    // Corr 3 off
+  file[4] = new TFile("out_muon_ultimate_off4_20180903_145621/Hist.root");    // Corr 4 off
+  file[5] = new TFile("out_muon_ultimate_20180903_145432/Hist.root");         // All on
+  file[6] = new TFile("out_muon_ultimate_offall_20180903_145655/Hist.root");  // All off
+  TLegend leg(0.2, 0.6, 0.4, 0.9);
 
   TString name[7] = {"", "Corr. 1 off", "Corr. 2 off", "Corr. 3 off", "Corr. 4 off", "All on", "All off"};
   //TString name[7] = {"", "e", "#mu, #pi, K, p", "e, #mu, #pi, K, p", "Corr. 4 off", "All on", "All off"};
   unsigned int icol[7] = {0, 1, 2, 3, 6, 8, 9};
 
-  TH1F* his;
-  TH2F* his2D;
+  TH1F *his;
+  TH2F *his2D;
   TProfile *prof[7];
   TEfficiency *teffi1, *teffi2, *teffi3;
 
@@ -83,7 +83,6 @@
 
   bool first = true;
   for (unsigned int i = 1; i <= 6; i++) {
-
     //if (i > 3) continue;
 
     file[i]->GetObject("TMTrackProducer/KF4ParamsComb/QoverPtResVsTrueEta_KF4ParamsComb", prof[i]);
@@ -95,13 +94,14 @@
     //file[i]->GetObject("TMTrackProducer/KF4ParamsComb/FitChi2DofVsEtaUnmatched_KF4ParamsComb", prof[i]);
 
     float ym = prof[i]->GetMaximum();
-    if (ymax < ym) ymax = ym;
-    prof[i]->SetMaximum(1.8*ymax);
+    if (ymax < ym)
+      ymax = ym;
+    prof[i]->SetMaximum(1.8 * ymax);
     //prof[i]->SetMaximum(0.02);
     prof[i]->SetMinimum(0.0);
 
     if (prof[i] == nullptr) {
-      cout<<"ERROR: Input histogram missing "<<i<<endl;
+      cout << "ERROR: Input histogram missing " << i << endl;
       cin.get();
       continue;
     }
@@ -116,13 +116,14 @@
     }
     leg.AddEntry(prof[i], name[i], "P");
     leg.Draw();
-    d1.Draw(); d1.Update(); 
+    d1.Draw();
+    d1.Update();
   }
- 
+
   //prof1->SetTitle(";1/Pt (1/GeV); #phi_{0} resolution");
-  
+
   d1.Print("plot.pdf");
-  cin.get(); 
+  cin.get();
 
   for (unsigned int i = 1; i <= 6; i++) {
     file[i]->Close();

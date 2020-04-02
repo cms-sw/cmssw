@@ -35,72 +35,69 @@ using namespace std;
 
 namespace TMTT {
 
-class L1trackBase;
-class L1track2D;
-class L1track3D;
-class L1fittedTrack;
+  class L1trackBase;
+  class L1track2D;
+  class L1track3D;
+  class L1fittedTrack;
 
-template <class T> class KillDupTrks {
+  template <class T>
+  class KillDupTrks {
+  public:
+    KillDupTrks() {
+      // Check that classed used as template "T" inherits from class L1trackBase.
+      static_assert(std::is_base_of<L1trackBase, T>::value,
+                    "KillDupTrks ERROR: You instantiated this with a template class not inheriting from L1trackBase!");
+    }
 
-public:
+    ~KillDupTrks() {}
 
-  KillDupTrks()
-	{
-    // Check that classed used as template "T" inherits from class L1trackBase.
-    static_assert(std::is_base_of<L1trackBase, T>::value, "KillDupTrks ERROR: You instantiated this with a template class not inheriting from L1trackBase!");
-  }
-
-  ~KillDupTrks() {}
-
-  /**
+    /**
   *  Make available cfg parameters & specify which algorithm is to be used for duplicate track removal.
   */
-  void init(const Settings* settings, unsigned int dupTrkAlg);
+    void init(const Settings* settings, unsigned int dupTrkAlg);
 
-  /**
+    /**
   *  Eliminate duplicate tracks from the input collection, and so return a reduced list of tracks.
   */
-  vector<T> filter(const vector<T>& vecTracks) const;
+    vector<T> filter(const vector<T>& vecTracks) const;
 
-private:
-
-  /**
+  private:
+    /**
   *  Implementing "inverse" OSU algorithm, check for stubs in common,
   *  keep largest candidates if common stubs in N or more layers (default 5 at present), both if equal
   *  Implementing "inverse" OSU algorithm, check for stubs in common,
   *  keep largest candidates if common stubs in N or more layers (default 5 at present), both if equal
   */
-  vector<T> filterAlg8(const vector<T>& vecTracks) const;
+    vector<T> filterAlg8(const vector<T>& vecTracks) const;
 
-  /** Implementing "inverse" OSU algorithm, check for layers in common, reverse order as per Luis's suggestion
+    /** Implementing "inverse" OSU algorithm, check for layers in common, reverse order as per Luis's suggestion
    * Comparison window of up to 6
    * Modified version of Algo23, looking for layers in common as in Algo8
    * Check if N or more common layers (default 5 at present)
    * Then keep candidate with most stubs, use |q/pT| as tie-break, finally drop "latest" if still equal
    */
-vector<T> filterAlg25(const vector<T>& vecTracks) const;
+    vector<T> filterAlg25(const vector<T>& vecTracks) const;
 
-  /**
+    /**
   *  Prints out a consistently formatted formatted report of killed duplicate track
   */
-  void printKill(unsigned alg, unsigned dup, unsigned cand, T dupTrack, T candTrack) const;
+    void printKill(unsigned alg, unsigned dup, unsigned cand, T dupTrack, T candTrack) const;
 
-  /**
+    /**
   * Counts candidate layers with stubs in common
   */
-  unsigned int layerMatches(std::vector< std::pair<unsigned int, unsigned int> >* iStubs,
-			    std::vector< std::pair<unsigned int, unsigned int> >* jStubs) const;
-private:
+    unsigned int layerMatches(std::vector<std::pair<unsigned int, unsigned int> >* iStubs,
+                              std::vector<std::pair<unsigned int, unsigned int> >* jStubs) const;
 
-  const Settings *settings_; // Configuration parameters.
+  private:
+    const Settings* settings_;  // Configuration parameters.
 
-  unsigned int dupTrkAlg_; // Specifies choice of algorithm for duplicate track removal.
-  unsigned int dupTrkMinCommonHitsLayers_;  // Min no of matched stubs & layers to keep smaller cand
-};
+    unsigned int dupTrkAlg_;                  // Specifies choice of algorithm for duplicate track removal.
+    unsigned int dupTrkMinCommonHitsLayers_;  // Min no of matched stubs & layers to keep smaller cand
+  };
 
-}
+}  // namespace TMTT
 //=== Include file which implements all the functions in the above class.
 #include "L1Trigger/TrackFindingTMTT/interface/KillDupTrks.icc"
 
 #endif
-

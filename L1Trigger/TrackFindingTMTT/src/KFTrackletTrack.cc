@@ -2,7 +2,6 @@
 
 namespace TMTT {
 
-// Digitize track and degrade helix parameter resolution according to effect of digitisation.
-
+  // Digitize track and degrade helix parameter resolution according to effect of digitisation.
 
 }
