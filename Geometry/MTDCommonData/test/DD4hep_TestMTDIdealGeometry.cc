@@ -49,8 +49,6 @@ public:
 
 private:
   const edm::ESInputTag tag_;
-  std::string fnameNum_;
-  std::string fnamePos_;
   std::string ddTopNodeName_;
   uint32_t theLayout_;
 
@@ -68,8 +66,6 @@ using geant_units::operators::convertCmToMm;
 
 DD4hep_TestMTDIdealGeometry::DD4hep_TestMTDIdealGeometry(const edm::ParameterSet& iConfig)
     : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
-      fnameNum_(iConfig.getUntrackedParameter<std::string>("numFileName", "GeoHistoryNum")),
-      fnamePos_(iConfig.getUntrackedParameter<std::string>("posFileName", "GeoHistoryPos")),
       ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
       theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
       thisN_(),
@@ -103,9 +99,6 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
     edm::LogError("DD4hep_TestMTDIdealGeometry") << "ESTransientHandle<DDSpecParRegistry> pSP is not valid!";
     return;
   }
-
-  const std::string fnameNum = "dump" + fnameNum_;
-  const std::string fnamePos = "dump" + fnamePos_;
 
   DDFilteredView fv(pDD.product(), pDD.product()->description()->worldVolume());
   fv.next(0);
@@ -141,9 +134,6 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
     }
   });
 
-  std::ofstream dumpNum(fnameNum.c_str());
-  std::ofstream dumpPos(fnamePos.c_str());
-
   bool write = false;
   bool isBarrel = true;
   bool exitLoop = false;
@@ -151,15 +141,6 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
   std::vector<std::pair<std::string, uint32_t>> geoHistory;
 
   do {
-
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DD4hep_TestMTDIdealGeometry") << fv.path();
-    for ( const auto& ic : fv.copyNos() ) {
-      edm::LogVerbatim("DD4hep_TestMTDIdealGeometry") << ic;
-    }
-    edm::LogInfo("DD4hep_TestMTDIdealGeometry") << fv.name() << " " << fv.copyNum();
-#endif
-
     uint32_t clevel = fv.navPos().size();
     uint32_t ccopy = (clevel > 1 ? fv.copyNum() : 0);
     geoHistory.resize(clevel);
@@ -182,7 +163,6 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         ss << t.second;
         ss << "]/";
       }
-      ss << "\n";
     };
 
     if (level > 0 && fv.navPos().size() < level) {
@@ -197,19 +177,21 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
 
     // Test only the desired subdetector
 
-    if (exitLoop && isBarrel) { break; }
+    if (exitLoop && isBarrel) {
+      break;
+    }
 
     // Actions for MTD volumes: searchg for sensitive detectors
 
     if (write) {
       print_path(geoHistory);
-      dumpNum << ss.str();
-      dumpPos << ss.str();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("DD4hep_TestMTDIdealGeometry") << level << " " << clevel << " " << fv.name() << " " << ccopy << "\n" << fv.path();
-    edm::LogVerbatim("DD4hep_TestMTDIdealGeometry") << ss.str();
+      edm::LogInfo("DD4hep_TestMTDIdealGeometry") << level << " " << clevel << " " << fv.name() << " " << ccopy << "\n"
+                                                  << fv.path();
 #endif
+
+      edm::LogInfo("DD4hep_TestMTDPath") << ss.str();
 
       bool isSens = false;
 
@@ -223,70 +205,66 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       }
 
       if (isSens) {
-
-//
-// Test of numbering scheme for sensitive detectors
-//
+        //
+        // Test of numbering scheme for sensitive detectors
+        //
 
         theBaseNumber(geoHistory);
+
+        std::stringstream snum;
 
         if (isBarrel) {
           BTLDetId::CrysLayout lay = static_cast<BTLDetId::CrysLayout>(theLayout_);
           BTLDetId theId(btlNS_.getUnitID(thisN_));
           int hIndex = theId.hashedIndex(lay);
           BTLDetId theNewId(theId.getUnhashedIndex(hIndex, lay));
-          dumpNum << theId;
-          dumpNum << "\n layout type = " << static_cast<int>(lay);
-          dumpNum << "\n ieta        = " << theId.ieta(lay);
-          dumpNum << "\n iphi        = " << theId.iphi(lay);
-          dumpNum << "\n hashedIndex = " << theId.hashedIndex(lay);
-          dumpNum << "\n BTLDetId hI = " << theNewId;
+          snum << theId << "\n layout type = " << static_cast<int>(lay) << "\n ieta        = " << theId.ieta(lay)
+               << "\n iphi        = " << theId.iphi(lay) << "\n hashedIndex = " << theId.hashedIndex(lay)
+               << "\n BTLDetId hI = " << theNewId;
           if (theId.mtdSide() != theNewId.mtdSide()) {
-            dumpNum << "\n DIFFERENCE IN SIDE";
+            snum << "\n DIFFERENCE IN SIDE";
           }
           if (theId.mtdRR() != theNewId.mtdRR()) {
-            dumpNum << "\n DIFFERENCE IN ROD";
+            snum << "\n DIFFERENCE IN ROD";
           }
           if (theId.module() != theNewId.module()) {
-            dumpNum << "\n DIFFERENCE IN MODULE";
+            snum << "\n DIFFERENCE IN MODULE";
           }
           if (theId.modType() != theNewId.modType()) {
-            dumpNum << "\n DIFFERENCE IN MODTYPE";
+            snum << "\n DIFFERENCE IN MODTYPE";
           }
           if (theId.crystal() != theNewId.crystal()) {
-            dumpNum << "\n DIFFERENCE IN CRYSTAL";
+            snum << "\n DIFFERENCE IN CRYSTAL";
           }
-          dumpNum << "\n";
+          snum << "\n";
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
-          dumpNum << theId;
-#ifdef EDM_ML_DEBUG
-          edm::LogInfo("DD4hep_TestMTDIdealGeometry")
-              << " ETLDetId = " << theId << "\n geographicalId = " << theId.geographicalId();
-#endif
+          snum << theId;
         }
-        dumpNum << "\n";
+        edm::LogInfo("DD4hep_TestMTDNumbering") << snum.str();
 
-//
-// Test of positions for sensitive detectors
-//
+        //
+        // Test of positions for sensitive detectors
+        //
+
+        std::stringstream spos;
 
         if (!fv.isABox()) {
           throw cms::Exception("TestMTDIdealGeometry") << "MTD sensitive element not a DDBox";
           break;
         }
         dd::DDBox mySens(fv);
-        dumpPos << "Solid shape name: " << DDSolidShapesName::name(fv.legacyShape(dd::getCurrentShape(fv))) << "\n";
-        dumpPos << "Box dimensions: " << convertCmToMm(mySens.halfX()) << " " << convertCmToMm(mySens.halfY()) << " "
+        spos << "Solid shape name: " << DDSolidShapesName::name(fv.legacyShape(dd::getCurrentShape(fv))) << "\n";
+        spos << "Box dimensions: " << convertCmToMm(mySens.halfX()) << " " << convertCmToMm(mySens.halfY()) << " "
              << convertCmToMm(mySens.halfZ()) << "\n";
 
         DD3Vector x, y, z;
         fv.rotation().GetComponents(x, y, z);
-        dumpPos << "Translation vector components: " << std::setw(14) << std::fixed << convertCmToMm(fv.translation().x())
+        spos << "Translation vector components: " << std::setw(14) << std::fixed << convertCmToMm(fv.translation().x())
              << " " << std::setw(14) << convertCmToMm(fv.translation().y()) << " " << std::setw(14)
              << convertCmToMm(fv.translation().z()) << " "
              << "\n";
-        dumpPos << "Rotation matrix components: " << std::setw(14) << x.X() << " " << std::setw(14) << x.Y() << " "
+        spos << "Rotation matrix components: " << std::setw(14) << x.X() << " " << std::setw(14) << x.Y() << " "
              << std::setw(14) << x.Z() << " " << std::setw(14) << y.X() << " " << std::setw(14) << y.Y() << " "
              << std::setw(14) << y.Z() << " " << std::setw(14) << z.X() << " " << std::setw(14) << z.Y() << " "
              << std::setw(14) << z.Z() << "\n";
@@ -300,30 +278,27 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
             std::sqrt(std::pow(zeroGlobal.X() - cn1Global.X(), 2) + std::pow(zeroGlobal.Y() - cn1Global.Y(), 2) +
                       std::pow(zeroGlobal.Z() - cn1Global.Z(), 2));
 
-        dumpPos << "Center global   = " << std::setw(14) << convertCmToMm(zeroGlobal.X()) << std::setw(14)
+        spos << "Center global   = " << std::setw(14) << convertCmToMm(zeroGlobal.X()) << std::setw(14)
              << convertCmToMm(zeroGlobal.Y()) << std::setw(14) << convertCmToMm(zeroGlobal.Z())
              << " r = " << std::setw(14) << convertCmToMm(zeroGlobal.Rho()) << " phi = " << std::setw(14)
              << convertRadToDeg(zeroGlobal.Phi()) << "\n";
 
-        dumpPos << "Corner 1 local  = " << std::setw(14) << convertCmToMm(cn1Local.X()) << std::setw(14)
+        spos << "Corner 1 local  = " << std::setw(14) << convertCmToMm(cn1Local.X()) << std::setw(14)
              << convertCmToMm(cn1Local.Y()) << std::setw(14) << convertCmToMm(cn1Local.Z())
              << " DeltaR = " << std::setw(14) << convertCmToMm(distLocal) << "\n";
 
-        dumpPos << "Corner 1 global = " << std::setw(14) << convertCmToMm(cn1Global.X()) << std::setw(14)
+        spos << "Corner 1 global = " << std::setw(14) << convertCmToMm(cn1Global.X()) << std::setw(14)
              << convertCmToMm(cn1Global.Y()) << std::setw(14) << convertCmToMm(cn1Global.Z())
              << " DeltaR = " << std::setw(14) << convertCmToMm(distGlobal) << "\n";
 
-        dumpPos << "\n";
+        spos << "\n";
         if (std::fabs(convertCmToMm(distGlobal - distLocal)) > 1.e-6) {
-          dumpPos << "DIFFERENCE IN DISTANCE \n";
+          spos << "DIFFERENCE IN DISTANCE \n";
         }
+        edm::LogInfo("DD4hep_TestMTDPosition") << spos.str();
       }
     }
   } while (fv.next(0));
-  dumpNum << std::flush;
-  dumpNum.close();
-  dumpPos << std::flush;
-  dumpPos.close();
 }
 
 void DD4hep_TestMTDIdealGeometry::theBaseNumber(const std::vector<std::pair<std::string, uint32_t>>& gh) {
