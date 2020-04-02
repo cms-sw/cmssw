@@ -15,6 +15,8 @@ from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 
+DQMNone = cms.Sequence()
+
 dqmProvInfo.runType = "hi_run"
 DQMOfflineHeavyIonsDCS = cms.Sequence( dqmProvInfo )
 
