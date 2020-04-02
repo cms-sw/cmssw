@@ -2000,6 +2000,8 @@ class ConfigBuilder(object):
         for name in harvestingList:
             if not name in harvestingConfig.__dict__:
                 print(name,"is not a possible harvesting type. Available are",harvestingConfig.__dict__.keys())
+                # trigger hard error, like for other sequence types
+                getattr(self.process, name)
                 continue
             harvestingstream = getattr(harvestingConfig,name)
             if isinstance(harvestingstream,cms.Path):
