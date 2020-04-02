@@ -2,6 +2,7 @@
 <use   name="DataFormats/Math"/>
 <use   name="Geometry/EcalCommonData"/>
 <use   name="Geometry/HcalCommonData"/>
+<use   name="Geometry/HcalTestBeamData"/>
 <use   name="SimDataFormats/HcalTestBeam"/>
 <use   name="SimG4Core/Notification"/>
 <use   name="SimG4Core/Watcher"/>
