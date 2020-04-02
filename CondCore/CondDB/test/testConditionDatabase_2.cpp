@@ -16,9 +16,11 @@ using namespace cond::persistency;
 int readIov(IOVProxy& proxy, cond::Time_t targetTime, bool expectedOk) {
   bool found = false;
   cond::Iov_t iov;
+  std::cout << "#Testing tag " << proxy.tagInfo().name << std::endl;
   try {
     iov = proxy.getInterval(targetTime);
-    found = true;
+    if (iov.since < cond::time::MAX_VAL)
+      found = true;
   } catch (const Exception& e) {
     std::cout << "# IOV " << targetTime << " not found: " << e.what() << std::endl;
   }
@@ -112,7 +114,7 @@ int main(int argc, char** argv) {
   int ret = 0;
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  std::string connectionString0("sqlite_file:cms_conditions_3.db");
+  std::string connectionString0("sqlite_file:cms_conditions_2.db");
   ret = run(connectionString0);
   return ret;
 }

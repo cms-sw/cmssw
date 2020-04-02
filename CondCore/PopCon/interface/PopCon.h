@@ -78,7 +78,7 @@ namespace popcon {
 
   template <typename T>
   void PopCon::writeOne(T* payload, Time_t time) {
-    m_dbService->writeOne(payload, time, m_record, m_LoggingOn);
+    m_dbService->writeOne(payload, time, m_record);
   }
 
   template <typename Container>
