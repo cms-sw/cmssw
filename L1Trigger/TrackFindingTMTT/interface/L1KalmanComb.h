@@ -87,13 +87,14 @@ class L1KalmanComb : public TrackFitGeneric{
         virtual void calcChi2( const KalmanState &state, double& chi2rphi, double& chi2rz ) const;
 
 	virtual double getRofState( unsigned layerId, const vector<double> &xa )const{ return 0;}
-        virtual unsigned int getKalmanLayer(unsigned int iEtaReg, unsigned int layerIDreduced, bool barrel)const;
+  virtual unsigned int getKalmanLayer(unsigned int iEtaReg, unsigned int layerIDreduced, bool barrel, float r, float z) const;
+        virtual bool getKalmanAmbiguousLayer(unsigned int iEtaReg, unsigned int kfLayer);
 
 	std::vector<const KalmanState *> doKF( const L1track3D &l1track3D, const std::vector<const StubCluster *> &stubClusters, const TP *tpa );
 
         void printTPSummary( std::ostream &os, const TP *tp, bool addReturn=true ) const;
 	void printTP( std::ostream &os, const TP *tp ) const;
-        void printStubLayers( std::ostream &os, std::vector<const Stub *> &stubs ) const;
+        void printStubLayers( std::ostream &os, std::vector<const Stub *> &stubs, unsigned int iEtaReg ) const;
         void printStubCluster( std::ostream &os, const StubCluster * stubCluster, bool addReturn=true ) const;
         void printStubClusters( std::ostream &os, std::vector<const StubCluster *> &stubClusters ) const;
         void printStub( std::ostream &os, const Stub * stub, bool addReturn=true ) const;

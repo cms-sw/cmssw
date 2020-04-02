@@ -11,20 +11,14 @@ import os
 
 process = cms.Process("Demo")
 
-GEOMETRY = "D21"
+GEOMETRY = "D49"
 
-if GEOMETRY == "D17":
-  process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-  process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
-elif GEOMETRY == "D21":
-  process.load('Configuration.Geometry.GeometryExtended2023D21Reco_cff')
-  process.load('Configuration.Geometry.GeometryExtended2023D21_cff')
-elif GEOMETRY == "D41":
-  process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
-  process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
+if GEOMETRY == "D41":
+  process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 elif GEOMETRY == "D49":
-  process.load('Configuration.Geometry.GeometryExtended2023D49Reco_cff')
-  process.load('Configuration.Geometry.GeometryExtended2023D49_cff')
+  process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -36,20 +30,16 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 options = VarParsing.VarParsing ('analysis')
 
 def getTxtFile(txtFileName): 
-  return os.environ['CMSSW_BASE']+'/src/L1Trigger/TrackFindingTMTT/test/'+txtFileName
+  return os.environ['CMSSW_BASE']+'/src/L1Trigger/TrackFindingTMTT/data/'+txtFileName
 
 #--- Specify input MC
-if GEOMETRY == "D17":
-  inputMCtxt = getTxtFile('MCsamples/937/RelVal/TTbar/PU200.txt')
-elif GEOMETRY == "D21":
-  inputMCtxt = getTxtFile('MCsamples/1040/RelVal/TTbar/PU200.txt')
-elif GEOMETRY == "D41":
+if GEOMETRY == "D41":
   inputMCtxt = getTxtFile('MCsamples/1060/RelVal/TTbar/PU200.txt')
 elif GEOMETRY == "D49":
   inputMCtxt = getTxtFile('MCsamples/1110/RelVal/TTbar/PU200.txt')
 
 # Fastest to use a local copy ...
-#inputMCtxt = getTxtFile('MCsamples/1040/RelVal/TTbar/localRAL/PU200.txt') 
+#inputMCtxt = getTxtFile('MCsamples/1110/RelVal/TTbar/localRAL/PU200.txt') 
 
 options.register('inputMC', inputMCtxt, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
 

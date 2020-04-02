@@ -1,3 +1,5 @@
+# N.B. THE GIT INSTRUCTIONS HERE APPLY TO THE ORIGINAL TMTT GIT REPO, SO SHOULD BE IGNORED IF USING THE HYBRID REPO.
+
 # Setup instructions to just run
 
 To checkout and run, or if your modifications won't need to be put into the central repository, do (on an SL7 machine):

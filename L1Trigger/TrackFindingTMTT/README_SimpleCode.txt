@@ -1,3 +1,5 @@
+# N.B. THE GIT INSTRUCTIONS HERE APPLY TO THE ORIGINAL TMTT GIT REPO, SO SHOULD BE IGNORED IF USING THE HYBRID REPO. THE CODE DOCUMENTATION HERE IS VALID.
+
 -------------------------------------------------------------------------------------
 * How to setup the framework and how to run our analysis code:
 
@@ -153,9 +155,6 @@ that produced it, also to the stubs on the track and the associated truth partic
 It inherits from the pure virutal L1trackBase, ensuring it has some common classes with L1track3D and 
 L1track2D.
 
-12) Class "L1fittedTrk4and5" contains a pair of L1fittedTrack objects, containg the result of doing
-either a 4 or 5 parameter helix fit to the track, where the former assumes d0 = 0.
-
 13) Class "DegradeBend" -- This is used by class "Stub" to degrade the resolution on the stub
 bend information to that expected in the electronics, as opposed to that currently in CMSSW.
 
@@ -207,84 +206,11 @@ TMTrackProducer.EnableHistos  = cms.bool(False)
 
 === To run Louise Skinnari's official CMS L1 track performance analysis code ===
 
-i) This runs on the TTTrack objects produced by our TMTrackProducer. As the Tracklet group also 
-produce TTTracks, this performance code can be used by all groups. (N.B. When not comparing our
-results with another group, our own tmtt_tf_analysis_cfg.py analysis software described
-above is usually more convenient).
+(This is an alternative way of running the code, useful for comparing with the Tracklet & Hybrid
+ L1 track algos, since it guarantees identical tracking performance definitions, but providing 
+ no histograms of performance inside the TMTT chain).
 
-ii) To include the official analysis code in your setup, follow this recipe:
-
-cmsrel CMSSW_9_3_8
-cd CMSSW_9_3_8/src 
-cmsenv 
-
-# Checkout the directory containing the ntuple maker analysis code from git.
-git cms-merge-topic skinnari:Tracklet_932
-
-# Checkout the analysis and plotting scripts from gitlab
-git clone https://gitlab.cern.ch/cms-tracker-phase2-backend-development/BE_software/L1TrackTools.git
-
-# Checkout our private analysis code from git as explained previously.
-(see above)
-
-# Compile
-scramv1 b -j8
-
-iii) To run it, do:
-
-    cd L1Trigger/TrackFindingTMTT/test/
-    cmsRun L1TrackNtupleMaker_cfg.py trkFitAlgo=All 
-
-This runs our TMTrackProducer code, exactly as before, and configured with the same python files.
-This will also run the tracklet track finding code.
-
-The argument trkFitAlgo specifies which track finding algorithms to run.
-Possible options are KF4ParamsComb, SimpleLR, Tracklet, All
-
-KF4ParamsComb : TMTT chain with KF4ParamsComb track fitter (HT+KF+DR)
-SimpleLR : TMTT chain with seed filter and SimpleLR track fitter (HT+SF+LR+DR)
-Tracklet : Runs the default tracklet tracking from skinnari:Tracklet_93X
-All : Runs all three
-
-Note that you can run KF4ParamsComb chain without the SF and SimpleLR with the SF in the same job.
-You can also specify a comma separated list e.g. if you just wanted to run two of the fitters, you 
-can specify trkFitAlgo=SimpleLR,Tracklet
-
-It then runs CMS-agreed code to produce an ntuple from these tracks:
-
-  L1Trigger/TrackFindingTracklet/test/L1TrackNtupleMaker.cc
-
-iv) When the job has finished, you will see a Hist.root file containing all the histograms produced
-by our standard analysis TMTrackProducer, plus in addition the ntuples.
-There will be one ntuple corresponding to the tracks produced by each track fitter you ran with, 
-and one ntuple for the tracklet tracks.
-
-v) To make .png files containing histograms of tracking efficiency, resolution etc., start root & type
-the two commands:
-       .L ../../../L1TrackTools/L1TrackNtuplePlot.C++
-       L1TrackNtuplePlot("Hist","_TMTT_KF4ParamsComb")
-
-Altenartively, you can copy/move your output Hist.root file to the L1TrackTools directory:
-        mv Hist.root ../../../L1TrackTools/
-        cd ../../../L1TrackTools/
-        .L L1TrackNtuplePlot.C++
-        L1TrackNtuplePlot("Hist","_TMTT_KF4ParamsComb")
-
-After running, the histograms will be in a root file called "output_Hist_TMTT_KF4ParamsComb.root",
-and also saved as pdf/png in the TrkPlots directory (if this directory doesn't exist, you will need
-to create it and rerun).
-
-The arguments of the macro are explained around line 45, and here are some usage examples:
-
-To produce plots for muons (from the primary interaction), for the KF4ParamsComb fitter:
-      .L L1TrackNtuplePlot.C++
-      L1TrackNtuplePlot("Hist", "_TMTT_KF4ParamsComb", 0, 13 )
-
-To produce plots for all TP in jets with pt>100 GeV:
-      .L L1TrackNtuplePlot.C++
-      L1TrackNtuplePlot("Hist", "_TMTT_KF4ParamsComb", 2, 0 )
-
-Note that by default the efficiency is defined for TPs with pt>2GeV.  To consider pt>3GeV, you need to specify a few more arguments.
-e.g. to produce plots for TP with pt>3GeV in jets with pt>100 GeV:
-      .L L1TrackNtuplePlot.C++
-      L1TrackNtuplePlot("Hist", "_TMTT_KF4ParamsComb", 2, 0, 0, false, false, 3 )
+a) cd L1Trigger/TrackFindingTracklet/test/
+b) Edit L1TrackNtupleMaker_cfg.py, changing: L1TRKALGO = 'TMTT'
+b) cmsRun L1TrackNtupleMaker_cfg.py
+c) ./makeHists.csh (prints tracking performance & adds plots to TrkPlots/

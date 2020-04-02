@@ -1,6 +1,6 @@
 ///=== This is the base class for the Kalman Combinatorial Filter track fit algorithm.
 
-///=== Written by: S. Summers, K. Uchida, M. Pesaresi
+///=== Written by: S. Summers, K. Uchida, M. Pesaresi, I.Tomalin
 
 #include "L1Trigger/TrackFindingTMTT/interface/L1KalmanComb.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Utility.h"
@@ -85,13 +85,24 @@ void L1KalmanComb::printTP( std::ostream &os, const TP *tp ) const {
   os << endl;
 }
 
-void L1KalmanComb::printStubLayers( std::ostream &os, std::vector<const Stub *> &stubs ) const {
+void L1KalmanComb::printStubLayers( std::ostream &os, std::vector<const Stub *> &stubs, unsigned int iEtaReg ) const {
 
   if( stubs.size() == 0 ) os << "stub layers = []" << endl;
   else{
     os << "stub layers = [ ";
-    for( unsigned i=0; i<stubs.size()-1; i++ ) os << stubs[i]->layerId() << ", ";
-    os << stubs.back()->layerId() << " ]" << endl;
+    for( unsigned i=0; i<stubs.size(); i++ ) {
+      os << stubs[i]->layerId();
+      if (i != stubs.size() - 1) os << ", ";
+    }
+    os << " ]   ";
+    os << "KF stub layers = [ ";
+    for( unsigned j=0; j<stubs.size(); j++ ) {
+      unsigned int kalmanLayer = this->getKalmanLayer(iEtaReg, stubs[j]->layerIdReduced(), stubs[j]->barrel(), stubs[j]->r(), stubs[j]->z());
+      os << kalmanLayer;
+      if (j != stubs.size() - 1) os << ", ";
+    }
+    os << " ]" << endl;
+
   }
 }
 
@@ -148,10 +159,9 @@ void L1KalmanComb::printStubs( std::ostream &os, std::vector<const Stub *> &stub
   }
 }
 
-
 //=== Get Kalman layer mapping (i.e. layer order in which stubs should be processed) 
 
-unsigned int L1KalmanComb::getKalmanLayer(unsigned int iEtaReg, unsigned int layerIDreduced, bool barrel) const {
+unsigned int L1KalmanComb::getKalmanLayer(unsigned int iEtaReg, unsigned int layerIDreduced, bool barrel, float r, float z) const {
 
   // index across is GP encoded layer ID (where barrel layers=1,2,7,5,4,3 & endcap wheels=3,4,5,6,7 & 0 never occurs)
   // index down is eta reg
@@ -167,16 +177,23 @@ unsigned int L1KalmanComb::getKalmanLayer(unsigned int iEtaReg, unsigned int lay
 
   if (nEta != numEtaRegions_) throw cms::Exception("ERROR L1KalmanComb::getKalmanLayer hardwired value of nEta differs from NumEtaRegions cfg param");
 
+  // In cases where identical GP encoded layer ID present in this sector from both barrel & endcap, this array filled considering barrel. The endcap is fixed by subsequent code.
+
   static const unsigned layerMap[nEta/2][nGPlayID+1] = 
     { 
-      { 7,  0,  1,  5,  4,  3,  7,  2 },
-      { 7,  0,  1,  5,  4,  3,  7,  2 },
-      { 7,  0,  1,  5,  4,  3,  7,  2 },
-      { 7,  0,  1,  5,  4,  3,  7,  2 },
-      { 7,  0,  1,  5,  4,  3,  7,  2 },
-      { 7,  0,  1,  3,  4,  2,  6,  2 },
-      { 7,  0,  1,  1,  2,  3,  4,  5 },
-      { 7,  0,  7,  1,  2,  3,  4,  5 },
+      { 7,  0,  1,  5,  4,  3,  7,  2 },  // B1 B2 B3 B4 B5 B6
+      { 7,  0,  1,  5,  4,  3,  7,  2 },  // B1 B2 B3 B4 B5 B6
+      { 7,  0,  1,  5,  4,  3,  7,  2 },  // B1 B2 B3 B4 B5 B6
+      { 7,  0,  1,  5,  4,  3,  7,  2 },  // B1 B2 B3 B4 B5 B6
+      { 7,  0,  1,  5,  4,  3,  7,  2 },  // B1 B2 B3 B4(/D3) B5(/D2) B6(/D1)  
+
+      { 7,  0,  1,  3,  4,  2,  6,  2 },  // B1 B2 B3(/D5)+B4(/D3) D1 D2 X D4  -- current FW
+      //{ 7,  0,  1,  3,  4,  3,  6,  2 },  // B1 B2 B3(/D5) D1+B4(/D3) D2 X D4   -- for use with "Fix cases" below. 
+
+      { 7,  0,  1,  1,  2,  3,  4,  5 },  // B1 B2+D1 D2 D3 D5 D6 
+
+      //{ 7,  0,  7,  1,  2,  3,  4,  5 },  // B1 D1 D2 D3 D4 D5  = current FW (or when Ambiguous function used)
+      { 7,  0,  7,  0,  1,  2,  3,  4 }, // Avoid effi loss for eta > 2.3 when Ambiguous function not used.
     };
 
   unsigned int kfEtaReg;  // KF VHDL eta sector def: small in barrel & large in endcap.
@@ -188,31 +205,97 @@ unsigned int L1KalmanComb::getKalmanLayer(unsigned int iEtaReg, unsigned int lay
 
   unsigned int kalmanLayer = layerMap[kfEtaReg][layerIDreduced];
 
-  // Fixes to endcap stubs.
+  // Fixes to endcap stubs, for cases where identical GP encoded layer ID present in this sector from both barrel & endcap.
 
   if ( not barrel ) {
 			
     switch ( kfEtaReg ) {
-    case 4:
+    case 4:  // B1 B2 B3 B4 B5/D1 B6/D2 D3
       if (layerIDreduced==3) kalmanLayer = 4;
       if (layerIDreduced==4) kalmanLayer = 5;
       if (layerIDreduced==5) kalmanLayer = 6;
       break;
-    case 5:
+      //case 5:  // B1 B2 B3+B4 D1 D2 D3 D4/D5
+    case 5:  // B1 B2 B3 D1+B4 D2 D3 D4/D5
       if (layerIDreduced==5) kalmanLayer = 5;
       if (layerIDreduced==7) kalmanLayer = 6;
       break;
     default:
       break;
-    }
-			
+    }			
   }
+
+  /*
+  // Fix cases where a barrel layer only partially crosses the eta sector.
+  // (Logically should work, but actually reduces efficiency).
+
+  const float barrelHalfLength = 120.;
+  const float barrel4Radius = 68.8;
+  const float barrel5Radius = 86.1;
+  
+  if ( not barrel) {
+    switch ( kfEtaReg ) {
+    case 4:
+      if (layerIDreduced==3) {  // D1
+        float disk1_rCut = barrel5Radius*(fabs(z)/barrelHalfLength); 
+        if (r > disk1_rCut) kalmanLayer++;
+      }
+      break;
+    case 5:
+      if (layerIDreduced==3) { // D1
+        float disk1_rCut = barrel4Radius*(fabs(z)/barrelHalfLength); 
+        if (r > disk1_rCut) kalmanLayer++;
+      }
+      if (layerIDreduced==4) { // D2
+        float disk2_rCut = barrel4Radius*(fabs(z)/barrelHalfLength); 
+        if (r > disk2_rCut) kalmanLayer++;
+      }
+      break;
+    default:
+      break;
+    }			
+  }
+  */
 
   return kalmanLayer;
 
 }
 
+//=== Check if particles in given eta sector are uncertain to go through the given KF layer.
+//=== (If so, count layer for numbers of hit layers, but not for number of skipped layers).
 
+bool L1KalmanComb::getKalmanAmbiguousLayer(unsigned int iEtaReg, unsigned int kfLayer) {
+
+  // Only helps in extreme forward sector, and there not significantly.
+
+  /*
+  const unsigned int nEta = 16;
+  const unsigned int nKFlayer = 7;
+  static const bool ambiguityMap[nEta/2][nKFlayer] =
+    {
+      {false, false, false, false, false, false, false},
+      {false, false, false, false, false, false, false},
+      {false, false, false, false, false, false, false},
+      {false, false, false, false, false, false, false},
+      {false, false, false, false, false, false, false},
+      {false, false, false, false, false, false, false},
+      {false, false, false, false, false, false, false},
+      {true , false, false, false, false, false, false},
+    }; 
+
+  unsigned int kfEtaReg;  // KF VHDL eta sector def: small in barrel & large in endcap.
+  if (iEtaReg < numEtaRegions_/2) {
+    kfEtaReg = numEtaRegions_/2 - 1 - iEtaReg;
+  } else {
+    kfEtaReg = iEtaReg - numEtaRegions_/2;
+  }
+
+  bool ambiguous = ambiguityMap[kfEtaReg][kfLayer];
+  */
+
+  bool ambiguous = false;
+  return ambiguous;
+}
 
 L1KalmanComb::L1KalmanComb(const Settings* settings, const uint nPar, const string &fitterName, const uint nMeas ) : TrackFitGeneric(settings, fitterName ){
   nPar_ = nPar;
@@ -430,7 +513,7 @@ L1fittedTrack L1KalmanComb::fit(const L1track3D& l1track3D){
                                 <<" nStubs="<<l1track3D.getNumStubs()<<" d0="<<l1track3D.d0()<<std::endl;
     if (not getSettings()->hybrid()) printTP( cout, tpa );
     if( getSettings()->kalmanDebugLevel() >= 2 ){
-      printStubLayers( cout, stubs );
+      printStubLayers( cout, stubs, l1track3D.iEtaReg() );
       printStubClusters( cout, stubcls );
     }
   }
@@ -529,7 +612,8 @@ L1fittedTrack L1KalmanComb::fit(const L1track3D& l1track3D){
 	cout<<"TRACK LOST: eta="<<l1track3D.iEtaReg()<<" pt="<<l1track3D.pt()<<" tp="<<tpin<<endl;
 				
 	for( auto stubCluster : stubcls ){
-	  cout<<"    Stub: lay_red="<<stubCluster->layerIdReduced()<<" r="<<stubCluster->r()<<" z="<<stubCluster->z()<<"   assoc TPs =";
+	  int kalmanLayer = this->getKalmanLayer(l1track3D.iEtaReg(), stubCluster->layerIdReduced(), stubCluster->barrel(), stubCluster->r(), stubCluster->z());
+	  cout<<"    Stub: lay_red="<<stubCluster->layerIdReduced()<<" KFlay="<<kalmanLayer<<" r="<<stubCluster->r()<<" z="<<stubCluster->z()<<"   assoc TPs =";
 	  std::vector<const Stub *> stubs = stubCluster->stubs();
 	  for( auto stub : stubs ){
 	    for (const TP* tp_i : stub->assocTPs())  cout<<" "<<tp_i->index();
@@ -620,7 +704,7 @@ std::vector<const KalmanState *> L1KalmanComb::doKF( const L1track3D& l1track3D,
   for( auto stubCluster : stubClusters ){
 	
     // Get Kalman encoded layer ID for this stub.
-    int kalmanLayer = this->getKalmanLayer(etaReg, stubCluster->layerIdReduced(), stubCluster->barrel());
+    int kalmanLayer = this->getKalmanLayer(etaReg, stubCluster->layerIdReduced(), stubCluster->barrel(), stubCluster->r(), stubCluster->z());
 		
     if (kalmanLayer != 7) {
       const_cast<StubCluster*>(stubCluster)->setLayerKF(kalmanLayer); // Ugly trick to store KF layer inside stub cluster.
@@ -648,7 +732,6 @@ std::vector<const KalmanState *> L1KalmanComb::doKF( const L1track3D& l1track3D,
 		
       const KalmanState *the_state = *i_state;
 			
-
       unsigned int layer = the_state->nextLayer();
       unsigned skipped = the_state->nSkippedLayers();
 
@@ -657,9 +740,14 @@ std::vector<const KalmanState *> L1KalmanComb::doKF( const L1track3D& l1track3D,
       // However, if there are stubs in this layer, then don't skip (e.g. our phi/eta boundaries might not line up exactly with a dead region)
       // Continue to skip until you reach a functioning layer (or a layer with stubs)
       unsigned nSkippedDeadLayers = 0;
+      unsigned nSkippedAmbiguousLayers = 0;
       while ( kalmanDeadLayers.find(layer) != kalmanDeadLayers.end() && layerStubs[layer].size() == 0 ) {
 	layer += 1;
 	++nSkippedDeadLayers;
+      }
+      while ( this->getKalmanAmbiguousLayer(etaReg, layer) && layerStubs[layer].size() == 0 ) {
+	layer += 1;
+	++nSkippedAmbiguousLayers;
       }
 
       // containers for updated state+stub combinations
@@ -676,12 +764,16 @@ std::vector<const KalmanState *> L1KalmanComb::doKF( const L1track3D& l1track3D,
       // If the next layer (layer+1) is a dead layer, then proceed to the layer after next (layer+2), if possible
       // Also note if we need to increase "skipped" by one more for these states
       unsigned nSkippedDeadLayers_nextStubs = 0;
+      unsigned nSkippedAmbiguousLayers_nextStubs = 0;
       if ( skipped < kalmanMaxSkipLayers ) {
         if ( kalmanDeadLayers.find(layer+1) != kalmanDeadLayers.end()  && layerStubs[layer+1].size() == 0 ) {
 	  next_stubs = layerStubs[layer+2];
-	  nSkippedDeadLayers_nextStubs += 1;
-        } else {
-	  next_stubs = layerStubs[layer+1];
+	  nSkippedDeadLayers_nextStubs++;
+	} else if ( this->getKalmanAmbiguousLayer(etaReg, layer) && layerStubs[layer+1].size() == 0 ) {
+	  next_stubs = layerStubs[layer+2];
+ 	  nSkippedAmbiguousLayers_nextStubs++;
+	} else {
+          next_stubs = layerStubs[layer+1];
 	}
       }
 
@@ -691,6 +783,7 @@ std::vector<const KalmanState *> L1KalmanComb::doKF( const L1track3D& l1track3D,
 
       // If we skipped over a dead layer, only increment "skipped" after the stubs in next+1 layer have been obtained
       skipped += nSkippedDeadLayers;
+      skipped += nSkippedAmbiguousLayers;
 		
       // check to guarantee no fewer than 2PS hits per state at iteration 1 (r<60cm)
       // iteration 0 will always include a PS hit, but iteration 1 could use 2S hits unless we include this
@@ -706,7 +799,6 @@ std::vector<const KalmanState *> L1KalmanComb::doKF( const L1track3D& l1track3D,
 	stubs = temp_stubs;
 	next_stubs = temp_nextstubs;
       }
-
 			
       combinations_per_iteration += stubs.size() + next_stubs.size();
 			
@@ -730,7 +822,7 @@ std::vector<const KalmanState *> L1KalmanComb::doKF( const L1track3D& l1track3D,
 	
 	const StubCluster * next_stubCluster = next_stubs[i];
 				
-	const KalmanState * new_state = kalmanUpdate( skipped+1+nSkippedDeadLayers_nextStubs, layer+2+nSkippedDeadLayers_nextStubs, next_stubCluster, *the_state, tpa );
+	const KalmanState * new_state = kalmanUpdate( skipped+1+nSkippedDeadLayers_nextStubs+nSkippedAmbiguousLayers_nextStubs, layer+2+nSkippedDeadLayers_nextStubs+nSkippedAmbiguousLayers_nextStubs, next_stubCluster, *the_state, tpa );
 				
 	if( getSettings()->kalmanFillInternalHists() ) fillStepHists( tpa, iteration, new_state );
 				
@@ -1659,7 +1751,9 @@ set<unsigned> L1KalmanComb::getKalmanDeadLayers( bool& remove2PSCut ) const {
   for ( const auto& p : deadLayers ) {
     unsigned int layer = p.first;
     bool barrel = p.second;
-    unsigned int kalmanLayer = this->getKalmanLayer(iCurrentEtaReg_, layer, barrel);
+    float r = 0.; // This fails for r-dependent parts of getKalmanLayer(). FIX
+    float z = 999.;
+    unsigned int kalmanLayer = this->getKalmanLayer(iCurrentEtaReg_, layer, barrel, r, z);
     kalmanDeadLayers.insert( kalmanLayer );
   }
 

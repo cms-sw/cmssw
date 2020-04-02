@@ -9,9 +9,9 @@
 
 // OPTION 1:
 // If defined, HLS KF will cope with tracking down to 2 GeV Pt instead of 3 GeV.
-#define PT_2GEV
+//#define PT_2GEV
 
 // If defined, HLS assumes hybrid (=tracklet) input format & digitisation multipliers.
-#define HYBRID_FORMAT
+//#define HYBRID_FORMAT
 
 #endif
