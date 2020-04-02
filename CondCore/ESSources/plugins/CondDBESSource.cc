@@ -362,7 +362,9 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
     std::map<std::string, cond::Time_t>::iterator iRec = m_lastRecordRuns.find(recordname);
     if (iRec != m_lastRecordRuns.end()) {
       cond::Time_t lastRecordRun = iRec->second;
-      if (lastTime - lastRecordRun >= minDiffTime) {
+      cond::Time_t diffTime = lastTime - lastRecordRun;
+      if( lastRecordRun > lastTime ) diffTime = lastRecordRun - lastTime;
+      if (diffTime >= minDiffTime) {
         // a refresh is required!
         doRefresh = true;
         iRec->second = lastTime;
