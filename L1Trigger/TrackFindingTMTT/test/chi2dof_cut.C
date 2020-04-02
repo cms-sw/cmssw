@@ -26,8 +26,8 @@ void chi2dof_cut(int nSkip) {
   gStyle->SetTitleYOffset(1.6);
   gStyle->SetTitleSize(0.05, "XYZ");
 
-  gStyle->SetLabelSize(.04,"x");
-  gStyle->SetLabelSize(.04,"y");
+  gStyle->SetLabelSize(.04, "x");
+  gStyle->SetLabelSize(.04, "y");
 
   gStyle->SetCanvasDefH(600);
   gStyle->SetCanvasDefW(600);
@@ -43,7 +43,7 @@ void chi2dof_cut(int nSkip) {
   //TFile file1("out_ttbar_ultimate_offall_20180831_183257/Hist.root");
   TFile file1("Hist.root");
 
-  TLegend leg(0.25,0.15,0.55,0.30);
+  TLegend leg(0.25, 0.15, 0.55, 0.30);
   file1.GetObject("TMTrackProducer/KF4ParamsComb/FitChi2DofMatched_KF4ParamsComb", hisMatchTot);
   file1.GetObject("TMTrackProducer/KF4ParamsComb/FitChi2DofUnmatched_KF4ParamsComb", hisUnmatchTot);
   if (nSkip == 0) {
@@ -67,46 +67,46 @@ void chi2dof_cut(int nSkip) {
   unsigned int nBins = hisMatchCum->GetNbinsX();
 
   // TH1::GetCumulative() ignores overflow bins, so add them by hand.
-  float overMatch = hisMatchCum->GetBinContent(nBins+1);
-  float overUnmatch = hisUnmatchCum->GetBinContent(nBins+1);
+  float overMatch = hisMatchCum->GetBinContent(nBins + 1);
+  float overUnmatch = hisUnmatchCum->GetBinContent(nBins + 1);
   float lastMatch = hisMatchCum->GetBinContent(nBins);
   float lastUnmatch = hisUnmatchCum->GetBinContent(nBins);
   hisMatchCum->SetBinContent(nBins, lastMatch + overMatch);
   hisUnmatchCum->SetBinContent(nBins, lastUnmatch + overUnmatch);
 
-  hisMatchCum->Scale(1./hisMatchTot->GetEntries());
-  hisUnmatchCum->Scale(1./hisUnmatchTot->GetEntries());
+  hisMatchCum->Scale(1. / hisMatchTot->GetEntries());
+  hisUnmatchCum->Scale(1. / hisUnmatchTot->GetEntries());
   hisMatchCum->SetMarkerStyle(20);
   hisUnmatchCum->SetMarkerStyle(24);
-  hisMatchCum->SetAxisRange(0.9, 35, "X"); // dangerous. don't make lower cut too big.
+  hisMatchCum->SetAxisRange(0.9, 35, "X");  // dangerous. don't make lower cut too big.
   hisMatchCum->SetTitle("; chi2/dof; efficiency loss");
   d1.SetLogx(1);
   d1.SetLogy(1);
   float ymax = max(hisMatchCum->GetMaximum(), hisUnmatchCum->GetMaximum());
-  hisMatchCum->SetMaximum(2*ymax);
+  hisMatchCum->SetMaximum(2 * ymax);
   hisMatchCum->SetMarkerStyle(20);
   hisMatchCum->Draw("P");
-  leg.AddEntry(hisMatchCum,"match","P");
+  leg.AddEntry(hisMatchCum, "match", "P");
   hisUnmatchCum->SetMarkerStyle(24);
   hisUnmatchCum->Draw("P SAME");
-  leg.AddEntry(hisUnmatchCum,"unmatch","P");
+  leg.AddEntry(hisUnmatchCum, "unmatch", "P");
   leg.Draw();
 
   d1.Update();
-  cin.get(); 
+  cin.get();
 
   TGraph graph_killed(nBins);
   graph_killed.SetTitle("; Good tracks killed; Fake tracks killed");
   for (unsigned int i = 1; i <= nBins + 1; i++) {
-    float fracMatch   = hisMatchCum->GetBinContent(i);
+    float fracMatch = hisMatchCum->GetBinContent(i);
     float fracUnmatch = hisUnmatchCum->GetBinContent(i);
-    graph_killed.SetPoint(i-1, fracMatch, fracUnmatch); 
-  } 
+    graph_killed.SetPoint(i - 1, fracMatch, fracUnmatch);
+  }
   graph_killed.Draw("AP");
- 
+
   d1.Update();
   d1.Print("plot.pdf");
-  cin.get(); 
+  cin.get();
 
   file1.Close();
 }
