@@ -12,6 +12,8 @@
 #ifndef L1CaloTower_HH
 #define L1CaloTower_HH
 
+#include <vector>
+
 class L1CaloTower {
 public:
   float ecal_tower_et = 0.0;
