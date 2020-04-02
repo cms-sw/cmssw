@@ -15,7 +15,9 @@
 
 using namespace edm;
 
-const std::vector<RandomEngineState> s_dummyStates;
+namespace {
+  const std::vector<RandomEngineState> s_dummyStates;
+}
 
 ExternalRandomNumberGeneratorService::ExternalRandomNumberGeneratorService() {}
 
