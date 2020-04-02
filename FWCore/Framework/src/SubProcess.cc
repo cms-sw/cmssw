@@ -220,6 +220,49 @@ namespace edm {
 
   SubProcess::~SubProcess() {}
 
+  std::set<ModuleProcessName> SubProcess::keepOnlyConsumedUnscheduledModules() {
+    ServiceRegistry::Operate operate(serviceToken_);
+    schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
+    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
+
+    // Note: all these may throw
+    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
+
+    // Consumes information from the child SubProcesses
+    std::set<ModuleProcessName> consumedByChildren;
+    for_all(subProcesses_, [&consumedByChildren](auto& subProcess) {
+      auto c = subProcess.keepOnlyConsumedUnscheduledModules();
+      consumedByChildren.insert(c.begin(), c.end());
+    });
+
+    // Non-consumed unscheduled modules in this SubProcess, take into account of the consumes from child SubProcesses
+    if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedByChildren);
+        not unusedModules.empty()) {
+      pathsAndConsumesOfModules_.removeModules(unusedModules);
+
+      edm::LogWarning("DeleteModules").log([&unusedModules, this](auto& l) {
+        l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, and "
+             "therefore they are deleted from SubProcess "
+          << processConfiguration_->processName() << " before beginJob transition.";
+        for (auto const& description : unusedModules) {
+          l << "\n " << description->moduleLabel();
+        }
+      });
+      for (auto const& description : unusedModules) {
+        schedule_->deleteModule(description->moduleLabel());
+      }
+    }
+
+    // Products possibly consumed from the parent (Sub)Process
+    for (auto const& description : pathsAndConsumesOfModules_.allModules()) {
+      for (auto const& dep :
+           pathsAndConsumesOfModules_.modulesInPreviousProcessesWhoseProductsAreConsumedBy(description->id())) {
+        consumedByChildren.emplace(dep.moduleLabel(), dep.processName());
+      }
+    }
+    return consumedByChildren;
+  }
+
   void SubProcess::doBeginJob() { this->beginJob(); }
 
   void SubProcess::doEndJob() { endJob(); }
@@ -235,10 +278,6 @@ namespace edm {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
     }
     ServiceRegistry::Operate operate(serviceToken_);
-    schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
-    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
-    //NOTE: this may throw
-    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
     actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
     schedule_->beginJob(*preg_, esp_->recordsToProxyIndices());
     for_all(subProcesses_, [](auto& subProcess) { subProcess.doBeginJob(); });

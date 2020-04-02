@@ -70,6 +70,7 @@ namespace edm {
   class EventPrincipal;
   class EventSetupImpl;
   class EarlyDeleteHelper;
+  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class ProductResolverIndexAndSkipBit;
   class StreamID;
@@ -213,6 +214,7 @@ namespace edm {
     virtual void modulesWhoseProductsAreConsumed(
         std::vector<ModuleDescription const*>& modulesEvent,
         std::vector<ModuleDescription const*>& modulesLumiRun,
+        std::set<ModuleProcessName>& modulesInPreviousProcesses,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
 

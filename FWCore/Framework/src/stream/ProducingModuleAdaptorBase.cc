@@ -120,12 +120,13 @@ namespace edm {
     void ProducingModuleAdaptorBase<T>::modulesWhoseProductsAreConsumed(
         std::vector<ModuleDescription const*>& modulesEvent,
         std::vector<ModuleDescription const*>& modulesLumiRun,
+        std::set<ModuleProcessName>& modulesInPreviousProcesses,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc,
         std::string const& processName) const {
       assert(not m_streamModules.empty());
       return m_streamModules[0]->modulesWhoseProductsAreConsumed(
-          modulesEvent, modulesLumiRun, preg, labelsToDesc, processName);
+          modulesEvent, modulesLumiRun, modulesInPreviousProcesses, preg, labelsToDesc, processName);
     }
 
     template <typename T>

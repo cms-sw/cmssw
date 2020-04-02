@@ -744,21 +744,48 @@ namespace edmtest {
   class MustRunIntProducer : public edm::global::EDProducer<> {
   public:
     explicit MustRunIntProducer(edm::ParameterSet const& p)
-        : token_{produces<IntProduct>()}, value_(p.getParameter<int>("ivalue")) {}
+        : moduleLabel_{p.getParameter<std::string>("@module_label")},
+          token_{produces<IntProduct>()},
+          value_(p.getParameter<int>("ivalue")),
+          produce_{p.getParameter<bool>("produce")},
+          mustRunEvent_{p.getParameter<bool>("mustRunEvent")} {}
+    ~MustRunIntProducer() {
+      if (not wasRunEndJob_) {
+        throw cms::Exception("NotRun") << "This module (" << moduleLabel_
+                                       << ") should have run for endJob transition, but it did not";
+      }
+    }
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue");
+      desc.add<bool>("produce", true);
+      desc.add<bool>("mustRunEvent", true)
+          ->setComment(
+              "If set to false, the endJob() is still required to be called to check that the module was not deleted "
+              "early on");
+      descriptions.addDefault(desc);
+    }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override {
-      wasRun_ = true;
-      e.emplace(token_, value_);
+      wasRunEvent_ = true;
+      if (produce_) {
+        e.emplace(token_, value_);
+      }
     }
     void endJob() override {
-      if (not wasRun_) {
+      wasRunEndJob_ = true;
+      if (mustRunEvent_ and not wasRunEvent_) {
         throw cms::Exception("NotRun") << "This module should have run for event transitions, but it did not";
       }
     }
 
   private:
+    const std::string moduleLabel_;
     const edm::EDPutTokenT<IntProduct> token_;
     const int value_;
-    mutable std::atomic<bool> wasRun_ = false;
+    const bool produce_;
+    const bool mustRunEvent_;
+    mutable std::atomic<bool> wasRunEndJob_ = false;
+    mutable std::atomic<bool> wasRunEvent_ = false;
   };
 }  // namespace edmtest
 

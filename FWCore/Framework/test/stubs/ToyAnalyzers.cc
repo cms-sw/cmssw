@@ -105,24 +105,24 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
-  class GenericIntsAnalyzer : public edm::global::EDAnalyzer<> {
+  template <typename T>
+  class GenericAnalyzerT : public edm::global::EDAnalyzer<> {
   public:
-    GenericIntsAnalyzer(edm::ParameterSet const& iPSet)
-        : tokensBeginRun_(edm::vector_transform(
-              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun"),
-              [this](edm::InputTag const& tag) { return this->consumes<IntProduct, edm::InRun>(tag); })),
-          tokensBeginLumi_(edm::vector_transform(
-              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi"),
-              [this](edm::InputTag const& tag) { return this->consumes<IntProduct, edm::InLumi>(tag); })),
-          tokensEvent_(
-              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent"),
-                                    [this](edm::InputTag const& tag) { return this->consumes<IntProduct>(tag); })),
-          tokensEndLumi_(edm::vector_transform(
-              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndLumi"),
-              [this](edm::InputTag const& tag) { return this->consumes<IntProduct, edm::InLumi>(tag); })),
-          tokensEndRun_(edm::vector_transform(
-              iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndRun"),
-              [this](edm::InputTag const& tag) { return this->consumes<IntProduct, edm::InRun>(tag); })),
+    GenericAnalyzerT(edm::ParameterSet const& iPSet)
+        : tokensBeginRun_(
+              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun"),
+                                    [this](edm::InputTag const& tag) { return this->consumes<T, edm::InRun>(tag); })),
+          tokensBeginLumi_(
+              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi"),
+                                    [this](edm::InputTag const& tag) { return this->consumes<T, edm::InLumi>(tag); })),
+          tokensEvent_(edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent"),
+                                             [this](edm::InputTag const& tag) { return this->consumes<T>(tag); })),
+          tokensEndLumi_(
+              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndLumi"),
+                                    [this](edm::InputTag const& tag) { return this->consumes<T, edm::InLumi>(tag); })),
+          tokensEndRun_(
+              edm::vector_transform(iPSet.getUntrackedParameter<std::vector<edm::InputTag>>("srcEndRun"),
+                                    [this](edm::InputTag const& tag) { return this->consumes<T, edm::InRun>(tag); })),
           shouldExist_(iPSet.getUntrackedParameter<bool>("inputShouldExist")),
           shouldBeMissing_(iPSet.getUntrackedParameter<bool>("inputShouldBeMissing")) {
       if (shouldExist_ and shouldBeMissing_) {
@@ -161,14 +161,16 @@ namespace edmtest {
     }
 
   private:
-    const std::vector<edm::EDGetTokenT<IntProduct>> tokensBeginRun_;
-    const std::vector<edm::EDGetTokenT<IntProduct>> tokensBeginLumi_;
-    const std::vector<edm::EDGetTokenT<IntProduct>> tokensEvent_;
-    const std::vector<edm::EDGetTokenT<IntProduct>> tokensEndLumi_;
-    const std::vector<edm::EDGetTokenT<IntProduct>> tokensEndRun_;
+    const std::vector<edm::EDGetTokenT<T>> tokensBeginRun_;
+    const std::vector<edm::EDGetTokenT<T>> tokensBeginLumi_;
+    const std::vector<edm::EDGetTokenT<T>> tokensEvent_;
+    const std::vector<edm::EDGetTokenT<T>> tokensEndLumi_;
+    const std::vector<edm::EDGetTokenT<T>> tokensEndRun_;
     const bool shouldExist_;
     const bool shouldBeMissing_;
   };
+  using GenericIntsAnalyzer = GenericAnalyzerT<IntProduct>;
+  using GenericUInt64Analyzer = GenericAnalyzerT<UInt64Product>;
 
   //--------------------------------------------------------------------
   //
@@ -396,6 +398,7 @@ DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
 DEFINE_FWK_MODULE(MultipleIntsAnalyzer);
 DEFINE_FWK_MODULE(edmtest::GenericIntsAnalyzer);
+DEFINE_FWK_MODULE(edmtest::GenericUInt64Analyzer);
 DEFINE_FWK_MODULE(IntConsumingAnalyzer);
 DEFINE_FWK_MODULE(edmtest::IntFromRunConsumingAnalyzer);
 DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);
