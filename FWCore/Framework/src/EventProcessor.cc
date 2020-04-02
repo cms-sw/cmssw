@@ -547,10 +547,15 @@ namespace edm {
     actReg_->preallocateSignal_(bounds);
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
+    std::set<ModuleProcessName> consumedBySubProcesses;
+    for_all(subProcesses_, [&consumedBySubProcesses](auto& subProcess) {
+      auto c = subProcess.keepOnlyConsumedUnscheduledModules();
+      consumedBySubProcesses.insert(c.begin(), c.end());
+    });
 
     // Note: all these may throw
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
-    if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_);
+    if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedBySubProcesses);
         not unusedModules.empty()) {
       pathsAndConsumesOfModules_.removeModules(unusedModules);
 

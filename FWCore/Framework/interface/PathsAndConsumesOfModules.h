@@ -15,7 +15,10 @@
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/PathsAndConsumesOfModulesBase.h"
 
+#include "FWCore/Framework/interface/ModuleProcessName.h"
+
 #include <memory>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -28,11 +31,14 @@ namespace edm {
 
   class PathsAndConsumesOfModules : public PathsAndConsumesOfModulesBase {
   public:
+    PathsAndConsumesOfModules();
     ~PathsAndConsumesOfModules() override;
 
     void initialize(Schedule const*, std::shared_ptr<ProductRegistry const>);
 
     void removeModules(std::vector<ModuleDescription const*> const& modules);
+
+    std::set<ModuleProcessName> const& modulesInPreviousProcessesWhoseProductsAreConsumedBy(unsigned int moduleID) const;
 
   private:
     std::vector<std::string> const& doPaths() const override { return paths_; }
@@ -68,12 +74,14 @@ namespace edm {
 
     std::vector<std::vector<ModuleDescription const*> > modulesWhoseProductsAreConsumedByEvent_;
     std::vector<std::vector<ModuleDescription const*> > modulesWhoseProductsAreConsumedByLumiRun_;
+    std::vector<std::set<ModuleProcessName> > modulesInPreviousProcessesWhoseProductsAreConsumedBy_;
 
     Schedule const* schedule_;
     std::shared_ptr<ProductRegistry const> preg_;
   };
 
-  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC);
+  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC,
+                                                                      std::set<ModuleProcessName>& consumedByChildren);
 
   void checkForModuleDependencyCorrectness(edm::PathsAndConsumesOfModulesBase const& iPnC, bool iPrintDependencies);
 }  // namespace edm

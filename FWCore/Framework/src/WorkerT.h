@@ -22,6 +22,7 @@ WorkerT: Code common to all workers.
 namespace edm {
 
   class ModuleCallingContext;
+  class ModuleProcessName;
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
   class WaitingTaskWithArenaHolder;
@@ -111,10 +112,15 @@ namespace edm {
     void modulesWhoseProductsAreConsumed(
         std::vector<ModuleDescription const*>& modulesEvent,
         std::vector<ModuleDescription const*>& modulesLumiRun,
+        std::set<ModuleProcessName>& modulesInPreviousProcesses,
         ProductRegistry const& preg,
         std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
-      module_->modulesWhoseProductsAreConsumed(
-          modulesEvent, modulesLumiRun, preg, labelsToDesc, module_->moduleDescription().processName());
+      module_->modulesWhoseProductsAreConsumed(modulesEvent,
+                                               modulesLumiRun,
+                                               modulesInPreviousProcesses,
+                                               preg,
+                                               labelsToDesc,
+                                               module_->moduleDescription().processName());
     }
 
     void convertCurrentProcessAlias(std::string const& processName) override {

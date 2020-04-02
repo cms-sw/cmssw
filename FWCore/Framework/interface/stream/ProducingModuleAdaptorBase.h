@@ -45,6 +45,7 @@
 namespace edm {
   class Event;
   class ModuleCallingContext;
+  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
@@ -102,6 +103,7 @@ namespace edm {
 
       void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modulesEvent,
                                            std::vector<ModuleDescription const*>& modulesLumiRun,
+                                           std::set<ModuleProcessName>& modulesInPreviousProcesses,
                                            ProductRegistry const& preg,
                                            std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                            std::string const& processName) const;

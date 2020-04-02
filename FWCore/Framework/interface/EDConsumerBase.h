@@ -20,6 +20,7 @@
 
 // system include files
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include <array>
@@ -50,6 +51,7 @@
 
 namespace edm {
   class ModuleDescription;
+  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class ProductRegistry;
   class ConsumesCollector;
@@ -106,6 +108,7 @@ namespace edm {
 
     void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modulesEvent,
                                          std::vector<ModuleDescription const*>& modulesLumiRun,
+                                         std::set<ModuleProcessName>& modulesInPreviousProcesses,
                                          ProductRegistry const& preg,
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) const;

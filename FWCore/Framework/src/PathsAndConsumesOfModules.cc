@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 
 #include "FWCore/Framework/interface/Schedule.h"
+#include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "throwIfImproperDependencies.h"
 
@@ -9,7 +10,8 @@
 #include <algorithm>
 namespace edm {
 
-  PathsAndConsumesOfModules::~PathsAndConsumesOfModules() {}
+  PathsAndConsumesOfModules::PathsAndConsumesOfModules() = default;
+  PathsAndConsumesOfModules::~PathsAndConsumesOfModules() = default;
 
   void PathsAndConsumesOfModules::initialize(Schedule const* schedule, std::shared_ptr<ProductRegistry const> preg) {
     schedule_ = schedule;
@@ -45,6 +47,7 @@ namespace edm {
                                         moduleIDToIndex_,
                                         modulesWhoseProductsAreConsumedByEvent_,
                                         modulesWhoseProductsAreConsumedByLumiRun_,
+                                        modulesInPreviousProcessesWhoseProductsAreConsumedBy_,
                                         *preg);
   }
 
@@ -71,6 +74,8 @@ namespace edm {
         allModuleDescriptions_.erase(allModuleDescriptions_.begin() + iModule);
         modulesWhoseProductsAreConsumedByEvent_.erase(modulesWhoseProductsAreConsumedByEvent_.begin() + iModule);
         modulesWhoseProductsAreConsumedByLumiRun_.erase(modulesWhoseProductsAreConsumedByLumiRun_.begin() + iModule);
+        modulesInPreviousProcessesWhoseProductsAreConsumedBy_.erase(
+            modulesInPreviousProcessesWhoseProductsAreConsumedBy_.begin() + iModule);
         for (auto& idToIndex : moduleIDToIndex_) {
           if (idToIndex.second >= iModule) {
             idToIndex.second--;
@@ -79,6 +84,11 @@ namespace edm {
         --iModule;
       }
     }
+  }
+
+  std::set<ModuleProcessName> const& PathsAndConsumesOfModules::modulesInPreviousProcessesWhoseProductsAreConsumedBy(
+      unsigned int moduleID) const {
+    return modulesInPreviousProcessesWhoseProductsAreConsumedBy_.at(moduleIndex(moduleID));
   }
 
   ModuleDescription const* PathsAndConsumesOfModules::doModuleDescription(unsigned int moduleID) const {
@@ -129,7 +139,8 @@ namespace edm {
     return iter->second;
   }
 
-  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC) {
+  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC,
+                                                                      std::set<ModuleProcessName>& consumedByChildren) {
     const std::string kTriggerResults("TriggerResults");
 
     std::vector<std::string> pathNames = iPnC.paths();
@@ -154,6 +165,7 @@ namespace edm {
 
     // Mark modules whose any output is consumed
     // Mark TriggerResults and all Paths/EndPaths as consumed
+    // Mark anything possibly consumed by child SubProcesses
     auto const& allModules = iPnC.allModules();
     std::unordered_set<unsigned int> consumedModules;
     for (auto const& description : allModules) {
@@ -165,6 +177,11 @@ namespace edm {
       }
       if (description->moduleLabel() == kTriggerResults or
           std::find(pathNames.begin(), pathNames.end(), description->moduleLabel()) != pathNames.end()) {
+        consumedModules.insert(description->id());
+      } else if (consumedByChildren.find(ModuleProcessName{description->moduleLabel(), description->processName()}) !=
+                     consumedByChildren.end() or
+                 consumedByChildren.find(ModuleProcessName{description->moduleLabel(), ""}) !=
+                     consumedByChildren.end()) {
         consumedModules.insert(description->id());
       }
     }

@@ -235,6 +235,7 @@ namespace edm {
         std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
         std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByEvent,
         std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByLumiRun,
+        std::vector<std::set<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
         ProductRegistry const& preg) const;
 
     /// Return the number of events this Schedule has tried to process

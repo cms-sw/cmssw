@@ -1478,16 +1478,19 @@ namespace edm {
       std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
       std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByEvent,
       std::vector<std::vector<ModuleDescription const*>>& modulesWhoseProductsAreConsumedByLumiRun,
+      std::vector<std::set<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
       ProductRegistry const& preg) const {
     allModuleDescriptions.clear();
     moduleIDToIndex.clear();
     modulesWhoseProductsAreConsumedByEvent.clear();
     modulesWhoseProductsAreConsumedByLumiRun.clear();
+    modulesInPreviousProcessesWhoseProductsAreConsumedBy.clear();
 
     allModuleDescriptions.reserve(allWorkers().size());
     moduleIDToIndex.reserve(allWorkers().size());
     modulesWhoseProductsAreConsumedByEvent.resize(allWorkers().size());
     modulesWhoseProductsAreConsumedByLumiRun.resize(allWorkers().size());
+    modulesInPreviousProcessesWhoseProductsAreConsumedBy.resize(allWorkers().size());
 
     std::map<std::string, ModuleDescription const*> labelToDesc;
     unsigned int i = 0;
@@ -1504,8 +1507,11 @@ namespace edm {
     for (auto const& worker : allWorkers()) {
       std::vector<ModuleDescription const*>& modulesEvent = modulesWhoseProductsAreConsumedByEvent.at(i);
       std::vector<ModuleDescription const*>& modulesLumiRun = modulesWhoseProductsAreConsumedByLumiRun.at(i);
+      std::set<ModuleProcessName>& modulesInPreviousProcesses =
+          modulesInPreviousProcessesWhoseProductsAreConsumedBy.at(i);
       try {
-        worker->modulesWhoseProductsAreConsumed(modulesEvent, modulesLumiRun, preg, labelToDesc);
+        worker->modulesWhoseProductsAreConsumed(
+            modulesEvent, modulesLumiRun, modulesInPreviousProcesses, preg, labelToDesc);
       } catch (cms::Exception& ex) {
         ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
                       worker->description()->moduleLabel());
