@@ -131,33 +131,31 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     }
     // Put back indices, in the form of a Trackster, into the results vector
     Trackster tmp;
-    tmp.vertices.reserve(effective_cluster_idx.size());
-    tmp.vertex_multiplicity.resize(effective_cluster_idx.size(), 0);
+    tmp.vertices().reserve(effective_cluster_idx.size());
+    tmp.vertex_multiplicity().resize(effective_cluster_idx.size(), 0);
     //regions and seedIndices can have different size
     //if a seeding region does not lead to any trackster
-    tmp.seedID = input.regions[0].collectionID;
-    tmp.seedIndex = seedIndices[tracksterId];
+    tmp.setSeed(input.regions[0].collectionID, seedIndices[tracksterId]);
     if (isRegionalIter) {
-      seedToTracksterAssociation[tmp.seedIndex].push_back(tracksterId);
+      seedToTracksterAssociation[tmp.seedIndex()].push_back(tracksterId);
     }
 
     std::pair<float, float> timeTrackster(-99., -1.);
     hgcalsimclustertime::ComputeClusterTime timeEstimator;
     timeTrackster = timeEstimator.fixSizeHighestDensity(times, timeErrors);
-    tmp.time = timeTrackster.first;
-    tmp.timeError = timeTrackster.second;
-    std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices));
+    tmp.setTimeAndError(timeTrackster.first, timeTrackster.second);
+    std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices()));
     result.push_back(tmp);
     tracksterId++;
   }
 
   for (auto &trackster : result) {
-    assert(trackster.vertices.size() <= trackster.vertex_multiplicity.size());
-    for (size_t i = 0; i < trackster.vertices.size(); ++i) {
-      trackster.vertex_multiplicity[i] = layer_cluster_usage[trackster.vertices[i]];
+    assert(trackster.vertices().size() <= trackster.vertex_multiplicity().size());
+    for (size_t i = 0; i < trackster.vertices().size(); ++i) {
+      trackster.vertex_multiplicity()[i] = layer_cluster_usage[trackster.vertices(i)];
       if (algo_verbosity_ > Basic)
-        LogDebug("HGCPatternRecoByCA") << "LayerID: " << trackster.vertices[i]
-                                       << " count: " << (int)trackster.vertex_multiplicity[i] << std::endl;
+        LogDebug("HGCPatternRecoByCA") << "LayerID: " << trackster.vertices(i)
+                                       << " count: " << (int)trackster.vertex_multiplicity(i) << std::endl;
     }
   }
 
@@ -182,9 +180,9 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
   if (algo_verbosity_ > Advanced) {
     for (auto &trackster : result) {
       LogDebug("HGCPatternRecoByCA") << "Trackster characteristics: " << std::endl;
-      LogDebug("HGCPatternRecoByCA") << "Size: " << trackster.vertices.size() << std::endl;
+      LogDebug("HGCPatternRecoByCA") << "Size: " << trackster.vertices().size() << std::endl;
       auto counter = 0;
-      for (auto const &p : trackster.id_probabilities) {
+      for (auto const &p : trackster.id_probabilities()) {
         LogDebug("HGCPatternRecoByCA") << counter++ << ": " << p << std::endl;
       }
     }
@@ -204,21 +202,21 @@ void PatternRecognitionbyCA::mergeTrackstersTRK(
       output.emplace_back(input[tracksters[0]]);
       auto &outTrackster = output.back();
       tracksters[0] = output.size() - 1;
-      auto updated_size = outTrackster.vertices.size();
+      auto updated_size = outTrackster.vertices().size();
       for (unsigned int j = 1; j < numberOfTrackstersInSeed; ++j) {
         auto &thisTrackster = input[tracksters[j]];
-        updated_size += thisTrackster.vertices.size();
+        updated_size += thisTrackster.vertices().size();
         if (algo_verbosity_ > Basic) {
           LogDebug("HGCPatternRecoByCA") << "Updated size: " << updated_size << std::endl;
         }
-        outTrackster.vertices.reserve(updated_size);
-        outTrackster.vertex_multiplicity.reserve(updated_size);
-        std::copy(std::begin(thisTrackster.vertices),
-                  std::end(thisTrackster.vertices),
-                  std::back_inserter(outTrackster.vertices));
-        std::copy(std::begin(thisTrackster.vertex_multiplicity),
-                  std::end(thisTrackster.vertex_multiplicity),
-                  std::back_inserter(outTrackster.vertex_multiplicity));
+        outTrackster.vertices().reserve(updated_size);
+        outTrackster.vertex_multiplicity().reserve(updated_size);
+        std::copy(std::begin(thisTrackster.vertices()),
+                  std::end(thisTrackster.vertices()),
+                  std::back_inserter(outTrackster.vertices()));
+        std::copy(std::begin(thisTrackster.vertex_multiplicity()),
+                  std::end(thisTrackster.vertex_multiplicity()),
+                  std::back_inserter(outTrackster.vertex_multiplicity()));
       }
       tracksters.resize(1);
     }
@@ -233,13 +231,10 @@ void PatternRecognitionbyCA::emptyTrackstersFromSeedsTRK(
   for (auto &thisSeed : seedToTracksterAssociation) {
     if (thisSeed.second.empty()) {
       Trackster t;
-      t.regressed_energy = 0.f;
-      for (float &p : t.id_probabilities) {
-        p = 0.f;
-      }
-      t.id_probabilities[int(ticl::Trackster::ParticleType::charged_hadron)] = 1.f;
-      t.seedID = collectionID;
-      t.seedIndex = thisSeed.first;
+      t.setRegressedEnergy(0.f);
+      t.zeroProbabilities();
+      t.setIdProbability(ticl::Trackster::ParticleType::charged_hadron, 1.f);
+      t.setSeed(collectionID, thisSeed.first);
       tracksters.emplace_back(t);
       thisSeed.second.emplace_back(tracksters.size() - 1);
     }
@@ -273,20 +268,17 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
   // and store indices of hard tracksters
   std::vector<int> tracksterIndices;
   for (int i = 0; i < (int)tracksters.size(); i++) {
-    // set default values (1)
-    tracksters[i].regressed_energy = 0.;
-    for (float &p : tracksters[i].id_probabilities) {
-      p = 0.;
-    }
-
     // calculate the cluster energy sum (2)
     // note: after the loop, sumClusterEnergy might be just above the threshold which is enough to
     // decide whether to run inference for the trackster or not
     float sumClusterEnergy = 0.;
-    for (const unsigned int &vertex : tracksters[i].vertices) {
+    for (const unsigned int &vertex : tracksters[i].vertices()) {
       sumClusterEnergy += (float)layerClusters[vertex].energy();
       // there might be many clusters, so try to stop early
       if (sumClusterEnergy >= eidMinClusterEnergy_) {
+        // set default values (1)
+        tracksters[i].setRegressedEnergy(0.f);
+        tracksters[i].zeroProbabilities();
         tracksterIndices.push_back(i);
         break;
       }
@@ -320,12 +312,12 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     // per layer, we only consider the first eidNClusters_ clusters in terms of energy, so in order
     // to avoid creating large / nested structures to do the sorting for an unknown number of total
     // clusters, create a sorted list of layer cluster indices to keep track of the filled clusters
-    std::vector<int> clusterIndices(trackster.vertices.size());
-    for (int k = 0; k < (int)trackster.vertices.size(); k++) {
+    std::vector<int> clusterIndices(trackster.vertices().size());
+    for (int k = 0; k < (int)trackster.vertices().size(); k++) {
       clusterIndices[k] = k;
     }
     sort(clusterIndices.begin(), clusterIndices.end(), [&layerClusters, &trackster](const int &a, const int &b) {
-      return layerClusters[trackster.vertices[a]].energy() > layerClusters[trackster.vertices[b]].energy();
+      return layerClusters[trackster.vertices(a)].energy() > layerClusters[trackster.vertices(b)].energy();
     });
 
     // keep track of the number of seen clusters per layer
@@ -334,7 +326,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     // loop through clusters by descending energy
     for (const int &k : clusterIndices) {
       // get features per layer and cluster and store the values directly in the input tensor
-      const reco::CaloCluster &cluster = layerClusters[trackster.vertices[k]];
+      const reco::CaloCluster &cluster = layerClusters[trackster.vertices(k)];
       int j = rhtools_.getLayerWithOffset(cluster.hitsAndFractions()[0].first) - 1;
       if (j < eidNLayers_ && seenClusters[j] < eidNClusters_) {
         // get the pointer to the first feature value for the current batch, layer and cluster
@@ -370,7 +362,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     float *energy = outputs[0].flat<float>().data();
 
     for (const int &i : tracksterIndices) {
-      tracksters[i].regressed_energy = *(energy++);
+      tracksters[i].setRegressedEnergy(*(energy++));
     }
   }
 
@@ -381,9 +373,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     float *probs = outputs[probsIdx].flat<float>().data();
 
     for (const int &i : tracksterIndices) {
-      for (float &p : tracksters[i].id_probabilities) {
-        p = *(probs++);
-      }
+      tracksters[i].setProbabilities(probs);
     }
   }
 }
