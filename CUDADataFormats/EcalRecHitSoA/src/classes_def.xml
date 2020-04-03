@@ -8,14 +8,6 @@
     <class name="cms::cuda::Product<ecal::UncalibratedRecHit<ecal::Tag::ptr>>" persistent="false" />
     <class name="edm::Wrapper<cms::cuda::Product<ecal::UncalibratedRecHit<ecal::Tag::ptr>>>" persistent="false" />
 
-    <!--
-    <class name="std::vector<double, CUDAHostAllocator<double> >"/>
-    <class name="std::vector<float, CUDAHostAllocator<float> >"/>
-    <class name="std::vector<unsigned int, CUDAHostAllocator<unsigned int> >" />
-    -->
-
-    <!--  <class name="std::array<double, 10>" />
-    <class name="std::array<float, 10>" /> -->
     <class name="ecal::UncalibratedRecHit<ecal::Tag::soa>"/>
     <class name="edm::Wrapper<ecal::UncalibratedRecHit<ecal::Tag::soa> >"/>
 </lcgdict>

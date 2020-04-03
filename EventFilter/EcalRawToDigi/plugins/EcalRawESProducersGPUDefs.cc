@@ -6,9 +6,7 @@
 
 #include <iostream>
 
-using EcalElectronicsMappingGPUESProducer = EcalRawESProducerGPU<
-    ecal::raw::ElectronicsMappingGPU, 
-    EcalMappingElectronics, 
-    EcalMappingElectronicsRcd>;
+using EcalElectronicsMappingGPUESProducer =
+    EcalRawESProducerGPU<ecal::raw::ElectronicsMappingGPU, EcalMappingElectronics, EcalMappingElectronicsRcd>;
 
 DEFINE_FWK_EVENTSETUP_MODULE(EcalElectronicsMappingGPUESProducer);
