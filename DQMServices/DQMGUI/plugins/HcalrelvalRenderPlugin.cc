@@ -5,7 +5,7 @@
  */
 
 //	DQM includes
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 
 //	User includes
 #include "HcalrelvalMaps.h"

@@ -24,17 +24,15 @@
 #include "TColor.h"
 #include "TROOT.h"
 
-# include "DQM/DQMDefinitions.h"
-
-void dqm::QualityTestStatusRenderPlugin::reportSummaryMapPalette(TH2* obj) {
-
     /**
      DQM/DQMDefinitions.h
 
      Numeric constants for quality test results.  The smaller the
      number, the less severe the message.
 
-     namespace qstatus
+
+     */
+     namespace dqm::qstatus
      {
          static const int OTHER          =  30;  //< Anything but 'ok','warning' or 'error'.
          static const int DISABLED       =  50;  //< Test has been disabled.
@@ -46,7 +44,8 @@ void dqm::QualityTestStatusRenderPlugin::reportSummaryMapPalette(TH2* obj) {
          static const int ERROR          =  300; //< Test has failed.
      }
 
-     */
+void dqm::QualityTestStatusRenderPlugin::reportSummaryMapPalette(TH2* obj) {
+
 
     // number of colors to be defined
     // corresponds to maximum value in histogram

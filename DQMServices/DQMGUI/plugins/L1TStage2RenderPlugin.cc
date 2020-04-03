@@ -1,7 +1,7 @@
 // Created 18-04-2016 by N. Smith <nick.smith@cern.ch>
 // This is to be a catch-all for L1 Trigger subsystems
 // who do not have their own render plugin.
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "QualityTestStatusRenderPlugin.h"
 #include "TBox.h"
 #include "TCanvas.h"

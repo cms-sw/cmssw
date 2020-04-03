@@ -1,7 +1,7 @@
 //EMTF Render Plugin
 //Modified By Chad Freer July 2018
 //Doesn't do much but does control the colors for the report summary maps
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "QualityTestStatusRenderPlugin.h"
 #include "TText.h"
 #include "TCanvas.h"

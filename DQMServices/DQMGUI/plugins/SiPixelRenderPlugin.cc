@@ -6,7 +6,7 @@
   \date $Date: 2012/04/10 09:44:09 $
 */
 
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 
 #include "TProfile2D.h"

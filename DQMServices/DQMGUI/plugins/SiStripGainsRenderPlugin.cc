@@ -6,7 +6,7 @@
   \date $Date: 2017/06/01 10:51:56 $
 */
 
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 
 #include "TProfile2D.h"
@@ -208,17 +208,17 @@ private:
     if (o.flags == 0) return;
     else
       {
-        if (o.flags & DQMNet::DQM_PROP_REPORT_ERROR)
+        if (o.flags & DQM_PROP_REPORT_ERROR)
 	  {
 	    tt.SetTextColor(2);
 	    tt.DrawTextNDC(0.5, 0.5, "Error");
 	  }
-        else if (o.flags & DQMNet::DQM_PROP_REPORT_WARN)
+        else if (o.flags & DQM_PROP_REPORT_WARN)
 	  {
 	    tt.SetTextColor(5);
 	    tt.DrawTextNDC(0.5, 0.5, "Warning");
 	  }
-        else if (o.flags & DQMNet::DQM_PROP_REPORT_OTHER)
+        else if (o.flags & DQM_PROP_REPORT_OTHER)
 	  {
 	    tt.SetTextColor(1);
 	    tt.DrawTextNDC(0.5, 0.5, "Other ");
@@ -357,17 +357,17 @@ private:
     if (o.flags == 0) return;
     else
       {
-        if (o.flags & DQMNet::DQM_PROP_REPORT_ERROR)
+        if (o.flags & DQM_PROP_REPORT_ERROR)
           {
             tt.SetTextColor(2);
             tt.DrawTextNDC(0.5, 0.5, "Error");
           }
-        else if (o.flags & DQMNet::DQM_PROP_REPORT_WARN)
+        else if (o.flags & DQM_PROP_REPORT_WARN)
           {
             tt.SetTextColor(5);
             tt.DrawTextNDC(0.5, 0.5, "Warning");
           }
-        else if (o.flags & DQMNet::DQM_PROP_REPORT_OTHER)
+        else if (o.flags & DQM_PROP_REPORT_OTHER)
           {
             tt.SetTextColor(1);
             tt.DrawTextNDC(0.5, 0.5, "Other ");
@@ -437,19 +437,19 @@ private:
       
       if (o.flags != 0)
 	{
-	  if (o.flags & DQMNet::DQM_PROP_REPORT_ERROR)
+	  if (o.flags & DQM_PROP_REPORT_ERROR)
 	    {
 	      tt.SetTextColor(2);
 	      tt.DrawTextNDC(0.5, 0.5, "Error");
 	    }
 	  else
-	    if (o.flags & DQMNet::DQM_PROP_REPORT_WARN)
+	    if (o.flags & DQM_PROP_REPORT_WARN)
 	      {
 		tt.SetTextColor(5);
 		tt.DrawTextNDC(0.5, 0.5, "Warning");
 	      }
 	  else
-	    if (o.flags & DQMNet::DQM_PROP_REPORT_OTHER)
+	    if (o.flags & DQM_PROP_REPORT_OTHER)
 	      {
 		tt.SetTextColor(1);
 		tt.DrawTextNDC(0.5, 0.5, "Other ");
@@ -489,19 +489,19 @@ private:
 
       if (o.flags != 0)
         {
-          if (o.flags & DQMNet::DQM_PROP_REPORT_ERROR)
+          if (o.flags & DQM_PROP_REPORT_ERROR)
             {
               tt.SetTextColor(2);
               tt.DrawTextNDC(0.5, 0.5, "Error");
             }
           else
-            if (o.flags & DQMNet::DQM_PROP_REPORT_WARN)
+            if (o.flags & DQM_PROP_REPORT_WARN)
               {
                 tt.SetTextColor(5);
                 tt.DrawTextNDC(0.5, 0.5, "Warning");
               }
           else
-            if (o.flags & DQMNet::DQM_PROP_REPORT_OTHER)
+            if (o.flags & DQM_PROP_REPORT_OTHER)
               {
                 tt.SetTextColor(1);
                 tt.DrawTextNDC(0.5, 0.5, "Other ");
@@ -578,19 +578,19 @@ private:
 
       if (o.flags != 0)
         {
-          if (o.flags & DQMNet::DQM_PROP_REPORT_ERROR)
+          if (o.flags & DQM_PROP_REPORT_ERROR)
             {
               tt.SetTextColor(2);
               tt.DrawTextNDC(0.5, 0.5, "Error");
             }
           else
-            if (o.flags & DQMNet::DQM_PROP_REPORT_WARN)
+            if (o.flags & DQM_PROP_REPORT_WARN)
               {
                 tt.SetTextColor(5);
                 tt.DrawTextNDC(0.5, 0.5, "Warning");
               }
           else
-            if (o.flags & DQMNet::DQM_PROP_REPORT_OTHER)
+            if (o.flags & DQM_PROP_REPORT_OTHER)
               {
                 tt.SetTextColor(1);
                 tt.DrawTextNDC(0.5, 0.5, "Other ");

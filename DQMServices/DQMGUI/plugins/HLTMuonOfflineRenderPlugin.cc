@@ -41,7 +41,7 @@
   middle of a run
 */
 
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 
 #include "TProfile.h"

@@ -11,7 +11,7 @@
   \date $Date: 2012/11/16 10:01:00 $
 */
 
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 
 #include <iostream>

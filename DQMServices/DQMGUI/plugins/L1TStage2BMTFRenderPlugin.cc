@@ -1,7 +1,7 @@
 #include <cassert>
 #include <string>
 
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "TText.h"
 #include "TCanvas.h"
 #include "TColor.h"

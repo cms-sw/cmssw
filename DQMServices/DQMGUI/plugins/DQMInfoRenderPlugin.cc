@@ -17,7 +17,7 @@
 #include <sstream>
 #include <boost/algorithm/string.hpp>
 
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 #include "TMath.h"
 #include "TH2F.h"

@@ -25,7 +25,7 @@
 // user include files
 
 //    base class
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 
 #include "TProfile2D.h"
 #include "TH1F.h"

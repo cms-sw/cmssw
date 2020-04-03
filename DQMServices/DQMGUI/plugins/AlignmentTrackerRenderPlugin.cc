@@ -1,4 +1,4 @@
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "TCanvas.h"
 #include "TH1F.h"
 #include "TH2F.h"

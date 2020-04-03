@@ -1,5 +1,5 @@
 // Created 03-2016 by N. Smith <nick.smith@cern.ch>
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "TBox.h"
 #include "TCanvas.h"
 #include "TColor.h"

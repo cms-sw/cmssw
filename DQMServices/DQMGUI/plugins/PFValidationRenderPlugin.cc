@@ -6,7 +6,7 @@
   \date $Date: 2013/07/22 17:35:55 $
 */
 
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 
 #include "TProfile2D.h"
@@ -386,17 +386,17 @@ private:
     if (o.flags == 0) return;
     else
       {
-        if (o.flags & DQMNet::DQM_PROP_REPORT_ERROR)
+        if (o.flags & DQM_PROP_REPORT_ERROR)
 	  {
 	    tt.SetTextColor(2);
 	    tt.DrawTextNDC(0.5, 0.5, "Error");
 	  }
-        else if (o.flags & DQMNet::DQM_PROP_REPORT_WARN)
+        else if (o.flags & DQM_PROP_REPORT_WARN)
 	  {
 	    tt.SetTextColor(5);
 	    tt.DrawTextNDC(0.5, 0.5, "Warning");
 	  }
-        else if (o.flags & DQMNet::DQM_PROP_REPORT_OTHER)
+        else if (o.flags & DQM_PROP_REPORT_OTHER)
 	  {
 	    tt.SetTextColor(1);
 	    tt.DrawTextNDC(0.5, 0.5, "Other ");
@@ -416,19 +416,19 @@ private:
       tt.SetTextSize(0.12);
       if (o.flags != 0)
 	{
-	  if (o.flags & DQMNet::DQM_PROP_REPORT_ERROR)
+	  if (o.flags & DQM_PROP_REPORT_ERROR)
 	    {
 	      tt.SetTextColor(2);
 	      tt.DrawTextNDC(0.5, 0.5, "Error");
 	    }
 	  else
-	    if (o.flags & DQMNet::DQM_PROP_REPORT_WARN)
+	    if (o.flags & DQM_PROP_REPORT_WARN)
 	      {
 		tt.SetTextColor(5);
 		tt.DrawTextNDC(0.5, 0.5, "Warning");
 	      }
 	  else
-	    if (o.flags & DQMNet::DQM_PROP_REPORT_OTHER)
+	    if (o.flags & DQM_PROP_REPORT_OTHER)
 	      {
 		tt.SetTextColor(1);
 		tt.DrawTextNDC(0.5, 0.5, "Other ");

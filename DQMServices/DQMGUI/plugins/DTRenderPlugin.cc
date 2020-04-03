@@ -8,7 +8,7 @@
   \date $Date: 2011/11/11 13:34:29 $
 */
 
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 
 #include "TProfile2D.h"
@@ -1126,15 +1126,15 @@ private:
 
         if (line)
         {
-          if (o.flags & DQMNet::DQM_PROP_REPORT_ERROR)
+          if (o.flags & DQM_PROP_REPORT_ERROR)
           {
             line->SetLineColor(TColor::GetColor("#CC0000"));
           }
-          else if (o.flags & DQMNet::DQM_PROP_REPORT_WARN)
+          else if (o.flags & DQM_PROP_REPORT_WARN)
           {
             line->SetLineColor(TColor::GetColor("#993300"));
           }
-          else if (o.flags & DQMNet::DQM_PROP_REPORT_OTHER)
+          else if (o.flags & DQM_PROP_REPORT_OTHER)
           {
             line->SetLineColor(TColor::GetColor("#FFCC00"));
           }

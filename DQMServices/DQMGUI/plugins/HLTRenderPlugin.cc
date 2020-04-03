@@ -65,7 +65,7 @@
   middle of a run
 */
 
-#include "DQM/DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 
 #include "TProfile2D.h"
@@ -428,17 +428,17 @@ private:
 
         else
         {
-          if (o.flags & DQMNet::DQM_PROP_REPORT_ERROR)
+          if (o.flags & DQM_PROP_REPORT_ERROR)
           {
                   tt.SetTextColor(2); // error color = RED
                   tt.DrawTextNDC(0.5, 0.5, "Error");
           } // DQM_PROP_REPORT_ERROR
-          else if (o.flags & DQMNet::DQM_PROP_REPORT_WARN)
+          else if (o.flags & DQM_PROP_REPORT_WARN)
           {
                   tt.SetTextColor(5);
                   tt.DrawTextNDC(0.5, 0.5, "Warning"); // warning color = YELLOW
           } // DQM_PROP_REPORT_WARN
-          else if (o.flags & DQMNet::DQM_PROP_REPORT_OTHER)
+          else if (o.flags & DQM_PROP_REPORT_OTHER)
           {
                   tt.SetTextColor(1); // other color = BLACK
                   tt.DrawTextNDC(0.5, 0.5, "Other ");
