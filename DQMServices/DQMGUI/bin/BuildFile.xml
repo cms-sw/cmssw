@@ -1,0 +1,11 @@
+<bin name="dqmRender" file="render.cc">
+  <use name="DQMServices/DQMGUI" />
+  <use name="boost"/>
+  <use name="root"/>
+  <use name="rootgraphics"/>
+  <lib name="ASImage"/>
+  <lib name="stdc++fs"/>
+  <lib name="png"/>
+</bin>
+
+

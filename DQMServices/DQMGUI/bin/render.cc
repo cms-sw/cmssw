@@ -4,8 +4,8 @@
 
 #define logme() std::cout
 
-#include "Objects.h"
-#include "DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/Objects.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 
 #include <string>
 #include <cstdio>
@@ -121,7 +121,7 @@ public:
     compress(&pngdata, imgdata, width, height);
   }
 
-  void compress(DataBlob *out, DataBlob &imgbytes, int w, int h) {
+  void compress(DataBlob *out, DataBlob &imgbytes, unsigned int w, unsigned int h) {
     out->clear();
     png_structp p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     assert(p || !"png_create_write_struct() failed");
@@ -354,7 +354,7 @@ public:
     initPlugins();
   }
 
-  ~VisDQMImageServer(void) { shutPlugins(); }
+  virtual ~VisDQMImageServer(void) { shutPlugins(); }
 
   void run() {
     // TODO
@@ -414,7 +414,7 @@ public:
             memcpy(&len, buf, 4);
           }
           msg.insert(msg.end(), buf, buf + nread);
-          if (msg.size() >= len) {
+          if (msg.size() >= (unsigned int)(len)) {
             done = true;
           }
         }

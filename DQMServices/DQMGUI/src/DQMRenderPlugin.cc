@@ -1,4 +1,4 @@
-#include "DQMRenderPlugin.h"
+#include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include <algorithm>
 
 std::vector<DQMRenderPlugin *> *DQMRenderPlugin::s_list = 0;
