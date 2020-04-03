@@ -808,7 +808,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #electron projection ==
             pfCandsNoJetsNoEle = cms.EDProducer("CandPtrProjector", 
                                                 src = cms.InputTag("pfCandsNoJets"+postfix),
-                                                veto = electronCollection
+                                                veto = electronCollection,
+                                                useDeltaRforFootprint = cms.bool(True)
                                                 )
             addToProcessAndTask("pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
@@ -816,7 +817,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #muon projection ==
             pfCandsNoJetsNoEleNoMu = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEle"+postfix),
-                                              veto = muonCollection
+                                              veto = muonCollection,
+                                              useDeltaRforFootprint = cms.bool(True)
                                               )
             addToProcessAndTask("pfCandsNoJetsNoEleNoMu"+postfix, pfCandsNoJetsNoEleNoMu, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMu"+postfix)
@@ -824,7 +826,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #tau projection ==
             pfCandsNoJetsNoEleNoMuNoTau = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMu"+postfix),
-                                              veto = tauCollection
+                                              veto = tauCollection,
+                                              useDeltaRforFootprint = cms.bool(True)
                                               )
             addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
@@ -832,7 +835,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #photon projection ==
             pfCandsForUnclusteredUnc = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMuNoTau"+postfix),
-                                              veto = photonCollection
+                                              veto = photonCollection,
+                                              useDeltaRforFootprint = cms.bool(True)
                                               )
             addToProcessAndTask("pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc, process, task)
             metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)
