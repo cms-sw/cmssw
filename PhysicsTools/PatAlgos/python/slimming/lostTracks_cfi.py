@@ -17,7 +17,7 @@ lostTracks = cms.EDProducer("PATLostTracks",
     covarianceSchema = cms.int32(0), #old miniaod like
     qualsToAutoAccept = cms.vstring("highPurity"),
     minPtToStoreProps = cms.double(0.95),
-    passThroughCut = cms.string("pt > 3 && abs(eta) < 2.4")                        
+    passThroughCut = cms.string("pt>2")                        
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(lostTracks, covarianceVersion =1 )
