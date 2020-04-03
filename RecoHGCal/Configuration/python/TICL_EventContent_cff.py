@@ -20,8 +20,8 @@ TICL_RECO = cms.PSet(
       'keep *_ticlTrackstersTrk_*_*',
       'keep *_ticlTrackstersMIP_*_*',
       'keep *_ticlTrackstersMerge_*_*',
-      'keep *_ticlCandidateFromTrackstersProducer_*_*',
-      'keep *_pfTICLProducer_*_*'
+      'keep *_ticlCandidateFromTracksters_*_*',
+      'keep *_pfTICL_*_*'
       )
     )
 TICL_RECO.outputCommands.extend(TICL_AOD.outputCommands)
