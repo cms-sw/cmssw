@@ -347,14 +347,17 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
   }
   //}
   cond::Time_t lastTime = m_lastRun;
-  auto iR = m_refreshTimeForRecord.find(recordname);
-  bool refreshThisRecord = (iR != m_refreshTimeForRecord.end());
   cond::Time_t defaultIovSize = cond::time::MAX_VAL;
   cond::Time_t minDiffTime = 1;
-  if (refreshThisRecord) {
-    lastTime = cond::time::lumiTime(m_lastRun, m_lastLumi);
-    defaultIovSize = iR->second;
-    minDiffTime = defaultIovSize;
+  bool refreshThisRecord = false;
+  if (m_policy != REFRESH_ALWAYS) {
+    auto iR = m_refreshTimeForRecord.find(recordname);
+    refreshThisRecord = (iR != m_refreshTimeForRecord.end());
+    if (refreshThisRecord) {
+      lastTime = cond::time::lumiTime(m_lastRun, m_lastLumi);
+      defaultIovSize = iR->second;
+      minDiffTime = defaultIovSize;
+    }
   }
   bool doRefresh = false;
   if (m_policy == REFRESH_EACH_RUN || m_policy == RECONNECT_EACH_RUN || refreshThisRecord) {
@@ -363,7 +366,8 @@ void CondDBESSource::setIntervalFor(const EventSetupRecordKey& iKey,
     if (iRec != m_lastRecordRuns.end()) {
       cond::Time_t lastRecordRun = iRec->second;
       cond::Time_t diffTime = lastTime - lastRecordRun;
-      if( lastRecordRun > lastTime ) diffTime = lastRecordRun - lastTime;
+      if (lastRecordRun > lastTime)
+        diffTime = lastRecordRun - lastTime;
       if (diffTime >= minDiffTime) {
         // a refresh is required!
         doRefresh = true;
