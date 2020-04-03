@@ -8,35 +8,34 @@
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #endif
 
-#include <cuda_runtime.h>
-
 class EcalPulseShapesGPU {
 public:
-  struct Product {
-    ~Product();
-    EcalPulseShape* values = nullptr;
-  };
+    struct Product {
+        ~Product();
+        EcalPulseShape *values=nullptr;
+    };
 
 #ifndef __CUDACC__
-  // rearrange pedestals
-  EcalPulseShapesGPU(EcalPulseShapes const&);
+    // rearrange pedestals
+    EcalPulseShapesGPU(EcalPulseShapes const&);
 
-  // will call dealloation for Product thru ~Product
-  ~EcalPulseShapesGPU() = default;
+    // will call dealloation for Product thru ~Product
+    ~EcalPulseShapesGPU() = default;
 
-  // get device pointers
-  Product const& getProduct(cudaStream_t) const;
+    // get device pointers
+    Product const& getProduct(cudaStream_t) const;
 
-  //
-  static std::string name() { return std::string{"ecalPulseShapesGPU"}; }
+    // 
+    static std::string name() { return std::string{"ecalPulseShapesGPU"}; }
 
 private:
-  // reuse original vectors (although with default allocator)
-  std::vector<EcalPulseShape> const& valuesEB_;
-  std::vector<EcalPulseShape> const& valuesEE_;
+    // reuse original vectors (although with default allocator)
+    std::vector<EcalPulseShape> const& valuesEB_;
+    std::vector<EcalPulseShape> const& valuesEE_;
 
-  cms::cuda::ESProduct<Product> product_;
+    cms::cuda::ESProduct<Product> product_;
 #endif
 };
+
 
 #endif
