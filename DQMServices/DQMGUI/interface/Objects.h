@@ -6,8 +6,13 @@
 
 class TObject;
 
+// These are duplicated from other parts of DQM, to avoid a dependency.
 static const uint32_t DQM_PROP_TYPE_MASK = 0x000000ff;
 static const uint32_t DQM_PROP_TYPE_SCALAR = 0x0000000f;
+static const uint32_t DQM_PROP_REPORT_ERROR = 0x00000100;
+static const uint32_t DQM_PROP_REPORT_WARN = 0x00000200;
+static const uint32_t DQM_PROP_REPORT_OTHER = 0x00000400;
+static const uint32_t DQM_PROP_REPORT_ALARM = (DQM_PROP_REPORT_ERROR | DQM_PROP_REPORT_WARN | DQM_PROP_REPORT_OTHER);
 
 struct VisDQMRenderInfo {
   std::string drawOptions;

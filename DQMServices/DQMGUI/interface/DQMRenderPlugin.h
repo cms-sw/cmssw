@@ -3,6 +3,8 @@
 
 #include "Objects.h"
 #include <vector>
+// everybody just expects this to be there.
+#include <iostream>
 
 class TCanvas;
 class DQMStore;
