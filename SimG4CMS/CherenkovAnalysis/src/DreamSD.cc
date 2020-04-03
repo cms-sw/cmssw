@@ -50,7 +50,12 @@ DreamSD::DreamSD(const std::string &name,
 
   chAngleIntegrals_.reset(nullptr);
 
-  edm::LogVerbatim("EcalSim") << "Constructing a DreamSD  with name " << GetName() << "\nDreamSD:: Use of Birks law is set to      " << useBirk_ << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_ << ", C2 = " << birk3_ << "\n          Slope for Light yield is set to " << slopeLY_ << "\n          Parameterization of Cherenkov is set to " << doCherenkov_ << ", readout both sides is " << readBothSide_ << " and dd4hep flag " << dd4hep_;
+  edm::LogVerbatim("EcalSim") << "Constructing a DreamSD  with name " << GetName()
+                              << "\nDreamSD:: Use of Birks law is set to      " << useBirk_
+                              << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_ << ", C2 = " << birk3_
+                              << "\n          Slope for Light yield is set to " << slopeLY_
+                              << "\n          Parameterization of Cherenkov is set to " << doCherenkov_
+                              << ", readout both sides is " << readBothSide_ << " and dd4hep flag " << dd4hep_;
 
   initMap(name, es);
 }
@@ -68,7 +73,9 @@ double DreamSD::getEnergyDeposit(const G4Step *aStep) {
     edep += cherenkovDeposit_(aStep);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << "DreamSD:: " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << " Side " << side_ << " Light Collection Efficiency " << weight << " Weighted Energy Deposit " << edep / CLHEP::MeV << " MeV";
+  edm::LogVerbatim("EcalSim") << "DreamSD:: " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << " Side "
+                              << side_ << " Light Collection Efficiency " << weight << " Weighted Energy Deposit "
+                              << edep / CLHEP::MeV << " MeV";
 #endif
   return edep;
 }
@@ -79,7 +86,8 @@ void DreamSD::initRun() {
   DimensionMap::const_iterator ite = xtalLMap_.begin();
   const G4LogicalVolume *lv = (ite->first);
   G4Material *material = lv->GetMaterial();
-  edm::LogVerbatim("EcalSim") << "DreamSD::initRun: Initializes for material " << material->GetName() << " in " << lv->GetName();
+  edm::LogVerbatim("EcalSim") << "DreamSD::initRun: Initializes for material " << material->GetName() << " in "
+                              << lv->GetName();
   materialPropertiesTable_ = material->GetMaterialPropertiesTable();
   if (!materialPropertiesTable_) {
     if (!setPbWO2MaterialProperties_(material)) {
@@ -114,7 +122,8 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
       std::string name = static_cast<std::string>(cms::dd::noNamespace(fv.name()));
       std::vector<double> paras(fv.parameters());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalSim") << "DreamSD::initMap (for " << sd << "): Solid " << name << " Shape " << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Parameter 0 = " << paras[0];
+      edm::LogVerbatim("EcalSim") << "DreamSD::initMap (for " << sd << "): Solid " << name << " Shape "
+                                  << cms::dd::name(cms::DDSolidShapeMap, fv.shape()) << " Parameter 0 = " << paras[0];
 #endif
       // Set length to be the largest size, width the smallest
       std::sort(paras.begin(), paras.end());
@@ -134,7 +143,8 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
       std::vector<double> paras(sol.parameters());
       std::string name = sol.name().name();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("EcalSim") << "DreamSD::initMap (for " << sd << "): Solid " << name << " Shape " << sol.shape() << " Parameter 0 = " << paras[0];
+      edm::LogVerbatim("EcalSim") << "DreamSD::initMap (for " << sd << "): Solid " << name << " Shape " << sol.shape()
+                                  << " Parameter 0 = " << paras[0];
 #endif
       // Set length to be the largest size, width the smallest
       std::sort(paras.begin(), paras.end());
@@ -154,13 +164,14 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
     if (ite->first != nullptr)
       name = (ite->first)->GetName();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalSim") << " " << i << " " << ite->first << " " << name << " L = " << ite->second.first << " W = " << ite->second.second;
+    edm::LogVerbatim("EcalSim") << " " << i << " " << ite->first << " " << name << " L = " << ite->second.first
+                                << " W = " << ite->second.second;
 #endif
   }
 }
 
 //________________________________________________________________________________________
-void DreamSD::fillMap(const std::string& name, double length, double width) {
+void DreamSD::fillMap(const std::string &name, double length, double width) {
   const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
   G4LogicalVolume *lv = nullptr;
@@ -171,9 +182,10 @@ void DreamSD::fillMap(const std::string& name, double length, double width) {
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << "DreamSD::fillMap (for " << name << " Logical Volume " << lv << " Length " << length << " Width " << width;
+  edm::LogVerbatim("EcalSim") << "DreamSD::fillMap (for " << name << " Logical Volume " << lv << " Length " << length
+                              << " Width " << width;
 #endif
-    xtalLMap_.insert(std::pair<G4LogicalVolume *, Doubles>(lv, Doubles(length, width)));
+  xtalLMap_.insert(std::pair<G4LogicalVolume *, Doubles>(lv, Doubles(length, width)));
 }
 
 //________________________________________________________________________________________
@@ -196,7 +208,9 @@ double DreamSD::curve_LY(const G4Step *aStep, int flag) {
                                << " z of localPoint = " << localz << " take weight = " << weight;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << "DreamSD, light coll curve : " << dapd << " crlength = " << crlength << " crystal name = " << nameVolume << " z of localPoint = " << localz << " take weight = " << weight;
+  edm::LogVerbatim("EcalSim") << "DreamSD, light coll curve : " << dapd << " crlength = " << crlength
+                              << " crystal name = " << nameVolume << " z of localPoint = " << localz
+                              << " take weight = " << weight;
 #endif
   return weight;
 }
@@ -394,7 +408,8 @@ double DreamSD::getAverageNumberOfPhotons_(const double charge,
   double numPhotons = rFact * charge / eplus * charge / eplus * (dp - ge * BetaInverse * BetaInverse);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << "@SUB=getAverageNumberOfPhotons\nCAImin = " << CAImin << "\nCAImax = " << CAImax << "\ndp = " << dp << ", ge = " << ge << "\nnumPhotons = " << numPhotons;
+  edm::LogVerbatim("EcalSim") << "@SUB=getAverageNumberOfPhotons\nCAImin = " << CAImin << "\nCAImax = " << CAImax
+                              << "\ndp = " << dp << ", ge = " << ge << "\nnumPhotons = " << numPhotons;
 #endif
   return numPhotons;
 }
