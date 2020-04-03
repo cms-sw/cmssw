@@ -4,6 +4,7 @@ from PhysicsTools.NanoAOD.globals_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
 from PhysicsTools.NanoAOD.lheInfoTable_cfi import *
+from PhysicsTools.NanoAOD.genWeightsTable_cfi import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -43,6 +44,7 @@ nanogenSequence = cms.Sequence(
     rivetProducerHTXS+
     particleLevelTables+
     metGenTable+
+    genWeightsTable+
     lheInfoTable
 )
 
@@ -69,6 +71,7 @@ nanogenMiniSequence = cms.Sequence(
     rivetProducerHTXS+
     particleLevelTables+
     metGenTable+
+    genWeightsTable+
     lheInfoTable
 )
 
@@ -91,6 +94,7 @@ NANOAODGENoutput = cms.OutputModule("NanoAODOutputModule",
 
 def customizeNanoGENFromMini(process):
     process.lheInfoTable.storeLHEParticles = True
+    process.lheInfoTable.precision = 14
     process.genParticleTable.src = "prunedGenParticles"
     process.patJetPartons.particles = "prunedGenParticles"
     process.particleLevel.src = "genParticles2HepMC:unsmeared"
@@ -110,6 +114,7 @@ def customizeNanoGENFromMini(process):
 
 def customizeNanoGEN(process):
     process.lheInfoTable.storeLHEParticles = True
+    process.lheInfoTable.precision = 14
     process.genParticleTable.src = "genParticles"
     process.patJetPartons.particles = "genParticles"
     process.particleLevel.src = "generatorSmeared"
