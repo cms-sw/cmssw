@@ -3,12 +3,14 @@ import time
 import array
 import struct
 import socket
+import signal
 import tempfile
+import subprocess
 
 import ROOT
 
-# TODO: fix buildscripts so this is in PATH
-RENERERNAME="/data/mschneid/CMSSW_11_1_PY3_X_2020-03-29-2300/src/DQMServices/DQMGUI/bin/render"
+RENERERNAME = "dqmRender"
+PLUGINNAME = "libDQMRenderPlugins.so"
 TIMEOUT=20 # timeout for the renderer to start up
 
 # Helper for Jupyter
@@ -25,10 +27,23 @@ def tobuffer(th1):
     return bytes(b[:bf.Length()])
 
 class RenderLink:
-    def __init__(self):
+    def __init__(self, renderplugins=True):
         self.wd = tempfile.mkdtemp()
+        if renderplugins == True:
+            self.renderplugins = subprocess.check_output(
+                # Quick&Dirty way to locate the render plugins library.
+                "for f in `echo $LD_LIBRARY_PATH | tr : ' '`; do find $f -name {PLUGINNAME}; done | head -1", 
+                shell=True)
+        elif renderplugins:
+            self.renderplugins = renderplugins
+        else:
+            self.renderplugins = None
+            
         # TODO: also kill it at the end.
-        os.system(f"{RENERERNAME} --state-directory {self.wd}/ > {self.wd}/render.log 2>&1 &") #TODO: better.
+        loadcmd = ('--load ' + self.renderplugins) if self.renderplugins else ''
+        self.renderprocess = subprocess.Popen(
+            f"{RENERERNAME} --state-directory {self.wd}/ {loadcmd} > {self.wd}/render.log 2>&1", 
+            shell=True)
         self.client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         ex = None
         for i in range(0, TIMEOUT):
@@ -39,6 +54,12 @@ class RenderLink:
                 ex = e
                 time.sleep(1)
         raise ex 
+
+    def __del__(self):
+        with open(f"{self.wd}/pid") as f:
+            pid = f.readline()
+        os.kill(int(pid), signal.SIGTERM)
+        self.renderprocess.communicate()
         
     def renderscalar(self, text, width=600, height=400):
         flags = 0

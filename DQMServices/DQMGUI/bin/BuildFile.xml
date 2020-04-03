@@ -5,7 +5,7 @@
   <use name="rootgraphics"/>
   <lib name="ASImage"/>
   <lib name="stdc++fs"/>
-  <lib name="png"/>
+  <lib name="png15"/>
 </bin>
 
 
