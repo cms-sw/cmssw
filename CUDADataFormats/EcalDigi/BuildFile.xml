@@ -1,6 +1,5 @@
 <use name="DataFormats/Common"/>
 <use name="CUDADataFormats/Common"/>
-<use name="DataFormats/EcalDigi"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="cuda"/>
 
