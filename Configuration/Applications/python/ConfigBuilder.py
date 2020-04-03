@@ -937,6 +937,7 @@ class ConfigBuilder(object):
         self.RECOSIMDefaultCFF="Configuration/StandardSequences/RecoSim_cff"
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
         self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
+        self.NANOGENDefaultCFF="PhysicsTools/NanoAOD/nanogen_cff"
         self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
@@ -986,6 +987,8 @@ class ConfigBuilder(object):
         self.REPACKDefaultSeq='DigiToRawRepack'
         self.PATDefaultSeq='miniAOD'
         self.PATGENDefaultSeq='miniGEN'
+        #TODO: Check based of file input
+        self.NANOGENDefaultSeq='nanogenSequence'
         self.NANODefaultSeq='nanoSequence'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
@@ -1689,6 +1692,17 @@ class ConfigBuilder(object):
                 self._options.customise_commands = self._options.customise_commands + " \n"
             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
 
+    def prepare_NANOGEN(self, sequence = "nanoAOD"):
+        ''' Enrich the schedule with NANOGEN '''
+        # TODO: Need to modify this based on the input file type
+        fromGen = any([x in self.stepMap for x in ['LHE', 'GEN', 'AOD']])
+        self.loadDefaultOrSpecifiedCFF(sequence,self.NANOGENDefaultCFF)
+        self.scheduleSequence(sequence.split('.')[-1],'nanoAOD_step')
+        custom = "customizeNanoGEN" if fromGen else "customizeNanoGENFromMini"
+        if self._options.runUnscheduled:
+            self._options.customisation_file_unsch.insert(0, '.'.join([self.NANOGENDefaultCFF, custom]))
+        else:
+            self._options.customisation_file.insert(0, '.'.join([self.NANOGENDefaultCFF, custom]))
 
     def prepare_EI(self, sequence = None):
         ''' Enrich the schedule with event interpretation '''
