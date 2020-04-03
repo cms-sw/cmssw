@@ -5,25 +5,21 @@ from Validation.RecoParticleFlow.particleFlowDQM_cff import pfPuppiJetAnalyzerDQ
 from Validation.RecoParticleFlow.particleFlowDQM_cff import pfJetDQMPostProcessor
 from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM
 from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetDQMPostProcessor
+# Use also other POGs' analyzers for extended checks
+from Validation.RecoMET.METRelValForDQM_cff import *
+from Validation.RecoJets.JetValidation_cff import *
 
 DQMOfflinePF = cms.Sequence(
   pfJetAnalyzerDQM +
   pfPuppiJetAnalyzerDQM +
-  offsetAnalyzerDQM
-#   pfCandAnalyzerDQM
+  offsetAnalyzerDQM +
+#  pfCandAnalyzerDQM +
+# Extended ones from other POGs
+  METValidationMiniAOD +
+  JetValidationMiniAOD
 )
 
 DQMHarvestPF = cms.Sequence(
   pfJetDQMPostProcessor +
   offsetDQMPostProcessor
-)
-
-# Use also other POGs' analyzers for extended checks
-from Validation.RecoMET.METRelValForDQM_cff import *
-from Validation.RecoJets.JetValidation_cff import *
-
-# MET, Jets & PFCand sequence
-DQMOfflinePFExtended = cms.Sequence(
-    METValidationMiniAOD +
-    JetValidationMiniAOD
 )

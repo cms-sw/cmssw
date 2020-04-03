@@ -177,7 +177,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                            'PostDQMOffline',
                            'DQMHarvestNanoAOD'],
 
-            'pfDQM': ['DQMOfflinePF+DQMOfflinePFExtended',
+            'pfDQM': ['DQMOfflinePF',
                       'PostDQMOffline',
                       'DQMHarvestPF'],
 
