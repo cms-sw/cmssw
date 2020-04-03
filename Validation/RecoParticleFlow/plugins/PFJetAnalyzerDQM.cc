@@ -209,7 +209,6 @@ PFJetAnalyzerDQM::PFJetAnalyzerDQM(const edm::ParameterSet& iConfig) {
   prepareGenJetPlots(genjet_plots);
 
   recoJetsToken = consumes<edm::View<pat::Jet>>(recoJetsLabel);
-  //genJetsToken = consumes<edm::View<pat::Jet>>(genJetsLabel);
   genJetsToken = consumes<edm::View<reco::Jet>>(genJetsLabel);
 }
 
