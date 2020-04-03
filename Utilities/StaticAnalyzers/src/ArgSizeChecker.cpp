@@ -101,7 +101,8 @@ namespace clangcms {
               clang::ento::PathDiagnosticLocation::createBegin(PVD, ctx.getSourceManager());
 
           BugType *BT = new BugType(this, "Function parameter copied by value with size > max", "ArgSize");
-          std::unique_ptr<BasicBugReport> report = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), DLoc);
+          std::unique_ptr<BasicBugReport> report =
+              std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), DLoc);
           report->addRange(PVD->getSourceRange());
           ctx.emitReport(std::move(report));
         }

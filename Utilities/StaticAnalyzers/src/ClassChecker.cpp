@@ -632,7 +632,7 @@ namespace clangcms {
         BugType *BT = new BugType(Checker,
                                   "Const function returns pointer or reference to non-const member data object",
                                   "Data Class Const Correctness");
-	std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
       }
     }
