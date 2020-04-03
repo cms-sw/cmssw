@@ -15,7 +15,7 @@ using namespace std;
 using namespace cms::dd;
 
 dd4hep::Solid DDSolid::solidA() const {
-  if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) || dd4hep::isA<dd4hep::UnionSolid>(solid_) ||
+  if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) or dd4hep::isA<dd4hep::UnionSolid>(solid_) or
       dd4hep::isA<dd4hep::IntersectionSolid>(solid_)) {
     const TGeoCompositeShape* sh = (const TGeoCompositeShape*)solid_.ptr();
     const TGeoBoolNode* boolean = sh->GetBoolNode();
@@ -26,7 +26,7 @@ dd4hep::Solid DDSolid::solidA() const {
 }
 
 dd4hep::Solid DDSolid::solidB() const {
-  if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) || dd4hep::isA<dd4hep::UnionSolid>(solid_) ||
+  if (dd4hep::isA<dd4hep::SubtractionSolid>(solid_) or dd4hep::isA<dd4hep::UnionSolid>(solid_) or
       dd4hep::isA<dd4hep::IntersectionSolid>(solid_)) {
     const TGeoCompositeShape* sh = static_cast<const TGeoCompositeShape*>(solid_.ptr());
     const TGeoBoolNode* boolean = sh->GetBoolNode();
@@ -74,6 +74,9 @@ const PlacedVolume DDFilteredView::volume() const {
 // This should be used for debug purpose only
 //
 const std::string DDFilteredView::path() const {
+  if (it_.empty()) {
+    return std::string();
+  }
   TString fullPath;
   it_.back().GetPath(fullPath);
   return std::string(fullPath.Data());
@@ -85,15 +88,19 @@ const std::string DDFilteredView::path() const {
 //
 const std::vector<int> DDFilteredView::copyNos() const {
   std::vector<int> result;
-
-  for (int i = it_.back().GetLevel(); i > 0; --i) {
-    result.emplace_back(it_.back().GetNode(i)->GetNumber());
+  
+  if (not it_.empty()) {
+    for (int i = it_.back().GetLevel(); i > 0; --i) {
+      result.emplace_back(it_.back().GetNode(i)->GetNumber());
+    }
   }
 
   return result;
 }
 
-const Double_t* DDFilteredView::trans() const { return it_.back().GetCurrentMatrix()->GetTranslation(); }
+const Double_t* DDFilteredView::trans() const {
+  return it_.back().GetCurrentMatrix()->GetTranslation();
+}
 
 const Translation DDFilteredView::translation() const {
   const Double_t* translation = it_.back().GetCurrentMatrix()->GetTranslation();
@@ -101,7 +108,9 @@ const Translation DDFilteredView::translation() const {
   return Translation(translation[0], translation[1], translation[2]);
 }
 
-const Double_t* DDFilteredView::rot() const { return it_.back().GetCurrentMatrix()->GetRotationMatrix(); }
+const Double_t* DDFilteredView::rot() const {
+  return it_.back().GetCurrentMatrix()->GetRotationMatrix();
+}
 
 const RotationMatrix DDFilteredView::rotation() const {
   const Double_t* rotation = it_.back().GetCurrentMatrix()->GetRotationMatrix();
@@ -298,6 +307,7 @@ std::vector<std::vector<Node*>> DDFilteredView::children(const std::string& sele
 
       if (match(pathFromParent, names)) {
         std::vector<Node*> children;
+	auto const nav = navPos();
         LogVerbatim("Geometry") << "Match found: " << pathFromParent;
         for (int i = startLevel_; i < it_.back().GetLevel(); i++) {
           children.emplace_back(it_.back().GetNode(i));
@@ -313,7 +323,7 @@ std::vector<std::vector<Node*>> DDFilteredView::children(const std::string& sele
 
 bool DDFilteredView::firstSibling() {
   assert(node_);
-  if (it_.empty() || currentFilter_ == nullptr)
+  if (it_.empty() or currentFilter_ == nullptr)
     return false;
   Node* node = nullptr;
   if (next(0) == false)
@@ -321,7 +331,7 @@ bool DDFilteredView::firstSibling() {
   node = node_;
   it_.emplace_back(Iterator(it_.back()));
   it_.back().SetType(1);
-  if (currentFilter_ != nullptr && currentFilter_->next != nullptr)
+  if (currentFilter_ != nullptr and currentFilter_->next != nullptr)
     currentFilter_ = currentFilter_->next.get();
   else
     return false;
@@ -337,7 +347,7 @@ bool DDFilteredView::firstSibling() {
 
 bool DDFilteredView::nextSibling() {
   assert(node_);
-  if (it_.empty() || currentFilter_ == nullptr)
+  if (it_.empty() or currentFilter_ == nullptr)
     return false;
   if (it_.back().GetType() == 0)
     return firstSibling();
@@ -357,7 +367,7 @@ bool DDFilteredView::nextSibling() {
 }
 
 bool DDFilteredView::sibling() {
-  if (it_.empty() || currentFilter_ == nullptr)
+  if (it_.empty() or currentFilter_ == nullptr)
     return false;
   it_.back().SetType(1);
   Node* node = nullptr;
@@ -371,7 +381,7 @@ bool DDFilteredView::sibling() {
 }
 
 bool DDFilteredView::checkChild() {
-  if (it_.empty() || currentFilter_ == nullptr)
+  if (it_.empty() or currentFilter_ == nullptr)
     return false;
   it_.back().SetType(1);
   Node* node = nullptr;
@@ -384,7 +394,7 @@ bool DDFilteredView::checkChild() {
 }
 
 bool DDFilteredView::parent() {
-  if (it_.empty() || currentFilter_ == nullptr)
+  if (it_.empty() or currentFilter_ == nullptr)
     return false;
   up();
   it_.back().SetType(0);
@@ -405,7 +415,7 @@ bool DDFilteredView::next(int type) {
 }
 
 void DDFilteredView::down() {
-  if (it_.empty() || currentFilter_ == nullptr)
+  if (it_.empty() or currentFilter_ == nullptr)
     return;
   it_.emplace_back(Iterator(it_.back()));
   next(0);
@@ -414,7 +424,7 @@ void DDFilteredView::down() {
 }
 
 void DDFilteredView::up() {
-  if (it_.size() > 1 && currentFilter_ != nullptr) {
+  if (it_.size() > 1 and currentFilter_ != nullptr) {
     it_.pop_back();
     it_.back().SetType(0);
     if (currentFilter_->up)
@@ -468,7 +478,7 @@ std::string_view DDFilteredView::get<string_view>(const string& key) const {
       auto const& names = split(realTopName(j), "/");
       int count = names.size();
       bool flag = false;
-      for (int nit = level; count > 0 && nit > 0; --nit) {
+      for (int nit = level; count > 0 and nit > 0; --nit) {
         if (!compareEqual(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), names[--count])) {
           flag = false;
           break;
@@ -543,6 +553,18 @@ DDFilteredView::nav_type DDFilteredView::navPos() const {
   return pos;
 }
 
+const std::vector<const Node*> DDFilteredView::geoHistory() const {
+  std::vector<const Node*> result;
+  if (not it_.empty()) {
+    int level = it_.back().GetLevel();
+    for (int nit = level; nit > 0; --nit) {
+      result.emplace_back(it_.back().GetNode(nit));
+    }
+  }
+  
+  return result;
+}
+
 const ExpandedNodes& DDFilteredView::history() {
   assert(registry_);
   nodes_.tags.clear();
@@ -555,8 +577,8 @@ const ExpandedNodes& DDFilteredView::history() {
     for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
       auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
         return (
-            isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), *begin(split(realTopName(j), "/"))) &&
-            (i.second.hasValue("CopyNoTag") || i.second.hasValue("CopyNoOffset")));
+            isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), *begin(split(realTopName(j), "/"))) and
+            (i.second.hasValue("CopyNoTag") or i.second.hasValue("CopyNoOffset")));
       });
       if (k != end(i.second.paths)) {
         nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));
@@ -574,22 +596,6 @@ const TClass* DDFilteredView::getShape() const {
   assert(node_);
   Volume currVol = node_->GetVolume();
   return (currVol->GetShape()->IsA());
-}
-
-bool DDFilteredView::isABox() const { return isA<dd4hep::Box>(); }
-
-bool DDFilteredView::isAConeSeg() const { return isA<dd4hep::ConeSegment>(); }
-
-bool DDFilteredView::isAPseudoTrap() const { return isA<dd4hep::PseudoTrap>(); }
-
-bool DDFilteredView::isATrapezoid() const { return isA<dd4hep::Trap>(); }
-
-bool DDFilteredView::isATruncTube() const { return isA<dd4hep::TruncatedTube>(); }
-
-bool DDFilteredView::isATubeSeg() const { return isA<dd4hep::Tube>(); }
-
-bool DDFilteredView::isASubtraction() const {
-  return (isA<dd4hep::SubtractionSolid>() && !isA<dd4hep::TruncatedTube>() && !isA<dd4hep::PseudoTrap>());
 }
 
 std::string_view DDFilteredView::name() const { return (volume().volume().name()); }
