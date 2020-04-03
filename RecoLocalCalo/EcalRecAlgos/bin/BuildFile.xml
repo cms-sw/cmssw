@@ -1,4 +1,4 @@
-<bin name="makeEcalGpuValidationPlots" file="makeEcalGpuValidationPlots.cpp">
+<bin name="makeEcalMultifitResultsGpuValidationPlots" file="makeEcalMultifitResultsGpuValidationPlots.cpp">
     <use name="root"/>
     <use name="rootgraphics"/>
     <use name="CUDADataFormats/EcalRecHitSoA"/>

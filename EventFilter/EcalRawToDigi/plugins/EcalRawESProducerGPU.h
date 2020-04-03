@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_EcalRecProducers_src_EcalESProducerGPU_h
-#define RecoLocalCalo_EcalRecProducers_src_EcalESProducerGPU_h
+#ifndef RecoLocalCalo_EcalRecProducers_src_EcalRawESProducerGPU_h
+#define RecoLocalCalo_EcalRecProducers_src_EcalRawESProducerGPU_h
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -12,11 +12,11 @@
 #include <iostream>
 
 template<typename Target, typename Source, typename Record>
-class EcalESProducerGPU : public edm::ESProducer {
+class EcalRawESProducerGPU : public edm::ESProducer {
 public:
-    explicit EcalESProducerGPU(edm::ParameterSet const& ps) {
+    explicit EcalRawESProducerGPU(edm::ParameterSet const& ps)  {
         auto const label = ps.getParameter<std::string>("label");
-        std::string name = ps.getParameter<std::string>("ComponentName");
+        auto name = ps.getParameter<std::string>("ComponentName");
         auto cc = setWhatProduced(this, name);
         cc.setConsumes(token_, edm::ESInputTag{"", label});
     }

@@ -18,6 +18,11 @@
 <use   name="RecoLocalCalo/EcalRecProducers"/>
 <use   name="Utilities/StorageFactory"/>
 
+<use   name="cuda"/>
+<use   name="HeterogeneousCore/CUDAUtilities"/>
+<use   name="HeterogeneousCore/CUDACore"/>
+<use   name="CUDADataFormats/EcalDigi" />
+
 <export>
   <lib   name="1"/>
 </export>

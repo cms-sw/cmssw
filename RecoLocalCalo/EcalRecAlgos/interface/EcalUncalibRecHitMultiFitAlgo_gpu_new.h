@@ -3,22 +3,18 @@
 
 #include <vector>
 
-#include <cuda_runtime.h>
+#include <cuda.h>
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/DeclsForKernels.h"
 
-namespace ecal {
-  namespace multifit {
+namespace ecal { namespace multifit {
 
-    void entryPoint(EventInputDataCPU const&,
-                    EventInputDataGPU&,
-                    EventOutputDataGPU&,
-                    EventDataForScratchGPU&,
-                    ConditionsProducts const&,
-                    ConfigurationParameters const&,
-                    cudaStream_t);
+void entryPoint(
+        EventInputDataGPU const&,
+        EventOutputDataGPU&, EventDataForScratchGPU&,
+        ConditionsProducts const&, ConfigurationParameters const&,
+        cudaStream_t);
 
-  }
-}  // namespace ecal
+}}
 
 #endif
