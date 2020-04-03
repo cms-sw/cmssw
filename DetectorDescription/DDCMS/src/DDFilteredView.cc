@@ -88,7 +88,7 @@ const std::string DDFilteredView::path() const {
 //
 const std::vector<int> DDFilteredView::copyNos() const {
   std::vector<int> result;
-  
+
   if (not it_.empty()) {
     for (int i = it_.back().GetLevel(); i > 0; --i) {
       result.emplace_back(it_.back().GetNode(i)->GetNumber());
@@ -98,9 +98,7 @@ const std::vector<int> DDFilteredView::copyNos() const {
   return result;
 }
 
-const Double_t* DDFilteredView::trans() const {
-  return it_.back().GetCurrentMatrix()->GetTranslation();
-}
+const Double_t* DDFilteredView::trans() const { return it_.back().GetCurrentMatrix()->GetTranslation(); }
 
 const Translation DDFilteredView::translation() const {
   const Double_t* translation = it_.back().GetCurrentMatrix()->GetTranslation();
@@ -108,9 +106,7 @@ const Translation DDFilteredView::translation() const {
   return Translation(translation[0], translation[1], translation[2]);
 }
 
-const Double_t* DDFilteredView::rot() const {
-  return it_.back().GetCurrentMatrix()->GetRotationMatrix();
-}
+const Double_t* DDFilteredView::rot() const { return it_.back().GetCurrentMatrix()->GetRotationMatrix(); }
 
 const RotationMatrix DDFilteredView::rotation() const {
   const Double_t* rotation = it_.back().GetCurrentMatrix()->GetRotationMatrix();
@@ -307,7 +303,6 @@ std::vector<std::vector<Node*>> DDFilteredView::children(const std::string& sele
 
       if (match(pathFromParent, names)) {
         std::vector<Node*> children;
-	auto const nav = navPos();
         LogVerbatim("Geometry") << "Match found: " << pathFromParent;
         for (int i = startLevel_; i < it_.back().GetLevel(); i++) {
           children.emplace_back(it_.back().GetNode(i));
@@ -561,7 +556,7 @@ const std::vector<const Node*> DDFilteredView::geoHistory() const {
       result.emplace_back(it_.back().GetNode(nit));
     }
   }
-  
+
   return result;
 }
 
@@ -576,9 +571,9 @@ const ExpandedNodes& DDFilteredView::history() {
   for (int nit = level; nit > 0; --nit) {
     for_each(begin(registry_->specpars), end(registry_->specpars), [&](auto const& i) {
       auto k = find_if(begin(i.second.paths), end(i.second.paths), [&](auto const& j) {
-        return (
-            isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()), *begin(split(realTopName(j), "/"))) and
-            (i.second.hasValue("CopyNoTag") or i.second.hasValue("CopyNoOffset")));
+        return (isMatch(noNamespace(it_.back().GetNode(nit)->GetVolume()->GetName()),
+                        *begin(split(realTopName(j), "/"))) and
+                (i.second.hasValue("CopyNoTag") or i.second.hasValue("CopyNoOffset")));
       });
       if (k != end(i.second.paths)) {
         nodes_.tags.emplace_back(i.second.dblValue("CopyNoTag"));

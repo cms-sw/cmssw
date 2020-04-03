@@ -85,12 +85,11 @@ namespace cms {
     //  along the full path to the current node
     const std::vector<int> copyNos() const;
 
-    template<typename... Ts>
-    auto copyNumbers(Ts&&... ts) const -> decltype(copyNos(std::forward<Ts>(ts)...))
-    {
-        return copyNos(std::forward<Ts>(ts)...);
+    template <typename... Ts>
+    auto copyNumbers(Ts&&... ts) const -> decltype(copyNos(std::forward<Ts>(ts)...)) {
+      return copyNos(std::forward<Ts>(ts)...);
     }
-    
+
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;
@@ -143,54 +142,47 @@ namespace cms {
     }
 
     // Shape of current node
-    
+
     template <class Shape>
     bool isA() const {
       return dd4hep::isA<Shape>(solid());
     }
 
-    template<typename... Ts>
-    auto isABox(Ts&&... ts) const -> decltype(isA<dd4hep::Box>(std::forward<Ts>(ts)...))
-    {
-        return isA<dd4hep::Box>(std::forward<Ts>(ts)...);
-    }
-    
-    template<typename... Ts>
-    auto isAConeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...))
-    {
-        return isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...);
+    template <typename... Ts>
+    auto isABox(Ts&&... ts) const -> decltype(isA<dd4hep::Box>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::Box>(std::forward<Ts>(ts)...);
     }
 
-    template<typename... Ts>
-    auto isAPseudoTrap(Ts&&... ts) const -> decltype(isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...))
-    {
-        return isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...);
+    template <typename... Ts>
+    auto isAConeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...);
     }
 
-    template<typename... Ts>
-    auto isATrapezoid(Ts&&... ts) const -> decltype(isA<dd4hep::Trap>(std::forward<Ts>(ts)...))
-    {
-        return isA<dd4hep::Trap>(std::forward<Ts>(ts)...);
+    template <typename... Ts>
+    auto isAPseudoTrap(Ts&&... ts) const -> decltype(isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...);
     }
 
-    template<typename... Ts>
-    auto isATruncTube(Ts&&... ts) const -> decltype(isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...))
-    {
-        return isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...);
-    }
-    
-    template<typename... Ts>
-    auto isATubeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::Tube>(std::forward<Ts>(ts)...))
-    {
-        return isA<dd4hep::Tube>(std::forward<Ts>(ts)...);
+    template <typename... Ts>
+    auto isATrapezoid(Ts&&... ts) const -> decltype(isA<dd4hep::Trap>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::Trap>(std::forward<Ts>(ts)...);
     }
 
-    template<typename... Ts>
-    auto isASubtraction(Ts&&... ts) const -> decltype(isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...))
-    {
-      return (isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...)
-	      and not isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...)
-	      and not isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...));
+    template <typename... Ts>
+    auto isATruncTube(Ts&&... ts) const -> decltype(isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isATubeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::Tube>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::Tube>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isASubtraction(Ts&&... ts) const -> decltype(isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...)) {
+      return (isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...) and
+              not isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...) and
+              not isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...));
     }
 
     dd4hep::Solid solid() const;
