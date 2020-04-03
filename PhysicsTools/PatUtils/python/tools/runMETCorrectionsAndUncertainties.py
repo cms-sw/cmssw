@@ -33,14 +33,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "enable/disable the uncertainty computation", Type=bool)
         self.addParameter(self._defaultParameters, 'produceIntermediateCorrections', False,
                           "enable/disable the production of all correction schemes (only for the most common)", Type=bool)
-        self.addParameter(self._defaultParameters, 'electronCollection', cms.InputTag('selectedPatElectrons'),
+        self.addParameter(self._defaultParameters, 'electronCollection', cms.InputTag('slimmedElectrons'),
                           "Input electron collection", Type=cms.InputTag, acceptNoneValue=True)
 #  empty default InputTag for photons to avoid double-counting wrt. cleanPatElectrons collection
-        self.addParameter(self._defaultParameters, 'photonCollection', cms.InputTag('selectedPatPhotons'),
+        self.addParameter(self._defaultParameters, 'photonCollection', cms.InputTag('slimmedPhotons'),
                           "Input photon collection", Type=cms.InputTag, acceptNoneValue=True)
-        self.addParameter(self._defaultParameters, 'muonCollection', cms.InputTag('selectedPatMuons'),
+        self.addParameter(self._defaultParameters, 'muonCollection', cms.InputTag('slimmedMuons'),
                           "Input muon collection", Type=cms.InputTag, acceptNoneValue=True)
-        self.addParameter(self._defaultParameters, 'tauCollection', cms.InputTag('selectedPatTaus'),
+        self.addParameter(self._defaultParameters, 'tauCollection', cms.InputTag('slimmedTaus'),
                           "Input tau collection", Type=cms.InputTag, acceptNoneValue=True)
         self.addParameter(self._defaultParameters, 'jetCollectionUnskimmed', cms.InputTag('patJets'),
                           "Input unskimmed jet collection for T1 MET computation", Type=cms.InputTag, acceptNoneValue=True)
@@ -488,6 +488,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             addToProcessAndTask('pat'+metType+'Met'+postfix,  getattr(process,'patPFMet' ).clone(), process, task)
             getattr(process, "patPFMet"+postfix).metSource = cms.InputTag("pfMet"+postfix)
             getattr(process, "patPFMet"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
+        if metType == "PF":
+            getattr(process, "patPFMet"+postfix).srcLeptons = cms.VInputTag(self._parameters["electronCollection"].value,
+                                                                            self._parameters["muonCollection"].value,
+                                                                            self._parameters["photonCollection"].value,
+                                                                            )
 
         if self._parameters["runOnData"].value:
             getattr(process, "patPFMet"+postfix).addGenMET  = False
@@ -601,6 +606,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "T1" in correctionLevel:
             getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(self._parameters["computeMETSignificance"].value)
             getattr(process, "pat"+metType+"Met"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
+            getattr(process, "pat"+metType+"Met"+postfix).srcLeptons = cms.VInputTag(self._parameters["electronCollection"].value,
+                                                                                     self._parameters["muonCollection"].value,
+                                                                                     self._parameters["photonCollection"].value,
+                                                                                     )
             if postfix=="NoHF":
                 getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(False)
             if self._parameters["runOnData"].value:
@@ -617,6 +626,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not self._parameters["onMiniAOD"].value and not postfix=="NoHF":
             getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(self._parameters["computeMETSignificance"].value)
             getattr(process, "patMETs"+postfix).srcPFCands=self._parameters["pfCandCollection"].value
+            getattr(process, "patMETs"+postfix).srcLeptons = cms.VInputTag(self._parameters["electronCollection"].value,
+                                                                           self._parameters["muonCollection"].value,
+                                                                           self._parameters["photonCollection"].value,
+                                                                           )
 
         if hasattr(process, "patCaloMet"):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
@@ -1424,6 +1437,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 addToProcessAndTask('patMETs'+postfix, getattr(process,'patMETs' ).clone(), process, task)
                 getattr(process, "patMETs"+postfix).metSource = cms.InputTag("pfMetT1"+postfix)
                 getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(self._parameters["computeMETSignificance"].value)
+                getattr(process, "patMETs"+postfix).srcLeptons = cms.VInputTag(self._parameters["electronCollection"].value,
+                                                                               self._parameters["muonCollection"].value,
+                                                                               self._parameters["photonCollection"].value,
+                                                                               )
                 if postfix=="NoHF":
                     getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(False)
 
@@ -1683,10 +1700,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if self._parameters["metType"].value == "PF": # not hasattr(process, "pfMet"+postfix)
             if "T1" in self._parameters['correctionLevel'].value:
                 getattr(process, "patPFMet"+postfix).srcJets = jetCollection
-                getattr(process, "patPFMet"+postfix).srcLeptons = cms.VInputTag(self._parameters["electronCollection"].value, 
-                                                                                self._parameters["muonCollection"].value,
-                                                                                self._parameters["photonCollection"].value,
-                                                                                )
             getattr(process, "patPFMet"+postfix).addGenMET  = False
             if not self._parameters["runOnData"].value:
                 getattr(process, "patPFMet"+postfix).addGenMET  = True
@@ -1887,10 +1900,10 @@ runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
 # miniAOD production ===========================
 def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                         jetCollUnskimmed="patJets",
-                                        photonColl="selectedPatPhotons",
-                                        electronColl="selectedPatElectrons",
-                                        muonColl="selectedPatMuons",
-                                        tauColl="selectedPatTaus",
+                                        photonColl="slimmedPhotons",
+                                        electronColl="slimmedElectrons",
+                                        muonColl="slimmedMuons",
+                                        tauColl="slimmedTaus",
                                         pfCandColl = "particleFlow",
                                         jetCleaning="LepClean",
                                         jetSelection="pt>15 && abs(eta)<9.9",
