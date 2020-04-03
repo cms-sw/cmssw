@@ -38,9 +38,9 @@ namespace ticl {
     for (size_t i = 0; i < size; ++i) {
       const auto* trackster = tracksters[i];
       // If there's a track, use it.
-      if (trackster->seedIndex != -1) {
-        assert(trackster->seedID == trkId);
-        auto const& tkRef = trackCollection[trackster->seedIndex];
+      if (trackster->seedIndex() != -1) {
+        assert(trackster->seedID() == trkId);
+        auto const& tkRef = trackCollection[trackster->seedIndex()];
         auto const& three_mom = tkRef.momentum();
         constexpr double mpion2 = 0.13957 * 0.13957;
         double energy = std::sqrt(tkRef.momentum().mag2() + mpion2);
@@ -49,8 +49,8 @@ namespace ticl {
         ticl_cand.setP4(trk_p4);
         ticl_cand.setRawEnergy(energy);
       } else {
-        auto direction = trackster->eigenvectors[0].Unit();
-        auto energy = energy_from_regression_ ? trackster->regressed_energy : trackster->raw_energy;
+        auto direction = trackster->eigenvectors(0).Unit();
+        auto energy = energy_from_regression_ ? trackster->regressed_energy() : trackster->raw_energy();
         direction *= energy;
         math::XYZTLorentzVector cartesian(direction.X(), direction.Y(), direction.Z(), energy);
         auto& ticl_cand = ticl_cands[i];

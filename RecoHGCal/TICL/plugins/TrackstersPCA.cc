@@ -26,12 +26,12 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
     };
 
     // Initialize this trackster with default, dummy values
-    trackster.raw_energy = 0.;
-    trackster.raw_em_energy = 0.;
-    trackster.raw_pt = 0.;
-    trackster.raw_em_pt = 0.;
+    trackster.setRawEnergy(0.f);
+    trackster.setRawEmEnergy(0.f);
+    trackster.setRawPt(0.f);
+    trackster.setRawEmPt(0.f);
 
-    size_t N = trackster.vertices.size();
+    size_t N = trackster.vertices().size();
     float weight = 1.f / N;
     float weights2_sum = 0.f;
     Eigen::Vector3d sigmas;
@@ -41,29 +41,29 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
     Eigen::Matrix3d covM = Eigen::Matrix3d::Zero();
 
     for (size_t i = 0; i < N; ++i) {
-      auto fraction = 1.f / trackster.vertex_multiplicity[i];
-      trackster.raw_energy += layerClusters[trackster.vertices[i]].energy() * fraction;
-      if (std::abs(layerClusters[trackster.vertices[i]].z()) <= z_limit_em)
-        trackster.raw_em_energy += layerClusters[trackster.vertices[i]].energy() * fraction;
+      auto fraction = 1.f / trackster.vertex_multiplicity(i);
+      trackster.addToRawEnergy(layerClusters[trackster.vertices(i)].energy() * fraction);
+      if (std::abs(layerClusters[trackster.vertices(i)].z()) <= z_limit_em)
+        trackster.addToRawEmEnergy(layerClusters[trackster.vertices(i)].energy() * fraction);
 
       // Compute the weighted barycenter.
       if (energyWeight)
-        weight = layerClusters[trackster.vertices[i]].energy() * fraction;
-      fillPoint(layerClusters[trackster.vertices[i]], weight);
+        weight = layerClusters[trackster.vertices(i)].energy() * fraction;
+      fillPoint(layerClusters[trackster.vertices(i)], weight);
       for (size_t j = 0; j < 3; ++j)
         barycenter[j] += point[j];
     }
-    if (energyWeight && trackster.raw_energy)
-      barycenter /= trackster.raw_energy;
+    if (energyWeight && trackster.raw_energy())
+      barycenter /= trackster.raw_energy();
 
     // Compute the Covariance Matrix and the sum of the squared weights, used
     // to compute the correct normalization.
     // The barycenter has to be known.
     for (size_t i = 0; i < N; ++i) {
-      fillPoint(layerClusters[trackster.vertices[i]]);
-      if (energyWeight && trackster.raw_energy)
+      fillPoint(layerClusters[trackster.vertices(i)]);
+      if (energyWeight && trackster.raw_energy())
         weight =
-            (layerClusters[trackster.vertices[i]].energy() / trackster.vertex_multiplicity[i]) / trackster.raw_energy;
+            (layerClusters[trackster.vertices(i)].energy() / trackster.vertex_multiplicity(i)) / trackster.raw_energy();
       weights2_sum += weight * weight;
       for (size_t x = 0; x < 3; ++x)
         for (size_t y = 0; y <= x; ++y) {
@@ -87,41 +87,27 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
 
     // Compute the spread in the both spaces.
     for (size_t i = 0; i < N; ++i) {
-      fillPoint(layerClusters[trackster.vertices[i]]);
+      fillPoint(layerClusters[trackster.vertices(i)]);
       sigmas += weight * (point - barycenter).cwiseAbs2();
       Eigen::Vector3d point_transformed = eigenvectors_fromEigen * (point - barycenter);
-      if (energyWeight && trackster.raw_energy)
+      if (energyWeight && trackster.raw_energy())
         weight =
-            (layerClusters[trackster.vertices[i]].energy() / trackster.vertex_multiplicity[i]) / trackster.raw_energy;
+            (layerClusters[trackster.vertices(i)].energy() / trackster.vertex_multiplicity(i)) / trackster.raw_energy();
       sigmasEigen += weight * (point_transformed.cwiseAbs2());
     }
     sigmas /= (1. - weights2_sum);
     sigmasEigen /= (1. - weights2_sum);
 
     // Add trackster attributes
-    trackster.barycenter = ticl::Trackster::Vector(barycenter[0], barycenter[1], barycenter[2]);
-    for (size_t i = 0; i < 3; ++i) {
-      sigmas[i] = std::sqrt(sigmas[i]);
-      sigmasEigen[i] = std::sqrt(sigmasEigen[i]);
-      trackster.sigmas[i] = sigmas[i];
-      // Reverse the order, since Eigen gives back the eigevalues in increasing order.
-      trackster.eigenvalues[i] = (float)eigenvalues_fromEigen[2 - i];
-      trackster.eigenvectors[i] = ticl::Trackster::Vector(
-          eigenvectors_fromEigen(0, 2 - i), eigenvectors_fromEigen(1, 2 - i), eigenvectors_fromEigen(2, 2 - i));
-      trackster.sigmasPCA[i] = sigmasEigen[2 - i];
-    }
-    if (trackster.eigenvectors[0].z() * trackster.barycenter.z() < 0.0) {
-      trackster.eigenvectors[0] = -ticl::Trackster::Vector(
-          eigenvectors_fromEigen(0, 2), eigenvectors_fromEigen(1, 2), eigenvectors_fromEigen(2, 2));
-    }
-    trackster.raw_pt = std::sqrt((trackster.eigenvectors[0].Unit() * trackster.raw_energy).perp2());
-    trackster.raw_em_pt = std::sqrt((trackster.eigenvectors[0].Unit() * trackster.raw_em_energy).perp2());
+    trackster.setBarycenter(ticl::Trackster::Vector(barycenter));
+    trackster.fillPCAVariables(
+        eigenvalues_fromEigen, eigenvectors_fromEigen, sigmas, sigmasEigen, 3, ticl::Trackster::PCAOrdering::ascending);
 
     LogDebug("TrackstersPCA") << "Use energy weighting: " << energyWeight << std::endl;
     LogDebug("TrackstersPCA") << "\nTrackster characteristics: " << std::endl;
     LogDebug("TrackstersPCA") << "Size: " << N << std::endl;
-    LogDebug("TrackstersPCA") << "Energy: " << trackster.raw_energy << std::endl;
-    LogDebug("TrackstersPCA") << "raw_pt: " << trackster.raw_pt << std::endl;
+    LogDebug("TrackstersPCA") << "Energy: " << trackster.raw_energy() << std::endl;
+    LogDebug("TrackstersPCA") << "raw_pt: " << trackster.raw_pt() << std::endl;
     LogDebug("TrackstersPCA") << "Means:          " << barycenter[0] << ", " << barycenter[1] << ", " << barycenter[2]
                               << std::endl;
     LogDebug("TrackstersPCA") << "EigenValues from Eigen/Tr(cov): " << eigenvalues_fromEigen[2] / covM.trace() << ", "

@@ -177,7 +177,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto filter_on_pids = [&](Trackster& t) -> bool {
     auto cumulative_prob = 0.;
     for (auto index : filter_on_categories_) {
-      cumulative_prob += t.id_probabilities[index];
+      cumulative_prob += t.id_probabilities(index);
     }
     return cumulative_prob <= pid_threshold_;
   };
@@ -187,7 +187,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   // Mask the used elements, accordingly
   for (auto const& trackster : *result) {
-    for (auto const v : trackster.vertices) {
+    for (auto const v : trackster.vertices()) {
       // TODO(rovere): for the moment we mask the layer cluster completely. In
       // the future, properly compute the fraction of usage.
       (*output_mask)[v] = 0.;
