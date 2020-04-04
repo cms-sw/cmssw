@@ -12,10 +12,10 @@ namespace l1t {
   class PFCandidate : public L1Candidate {
   public:
     typedef edm::Ptr<l1t::Muon> MuonRef;
-    enum Kind { ChargedHadron = 0, Electron = 1, NeutralHadron = 2, Photon = 3, Muon = 4 };
+    enum ParticleType { ChargedHadron = 0, Electron = 1, NeutralHadron = 2, Photon = 3, Muon = 4 };
 
     PFCandidate() {}
-    PFCandidate(Kind kind,
+    PFCandidate(ParticleType kind,
                 int charge,
                 const LorentzVector& p,
                 float puppiWeight = -1,
@@ -23,7 +23,7 @@ namespace l1t {
                 int hweta = 0,
                 int hwphi = 0)
         : PFCandidate(kind, charge, PolarLorentzVector(p), puppiWeight, hwpt, hweta, hwphi) {}
-    PFCandidate(Kind kind,
+    PFCandidate(ParticleType kind,
                 int charge,
                 const PolarLorentzVector& p,
                 float puppiWeight = -1,
@@ -31,7 +31,7 @@ namespace l1t {
                 int hweta = 0,
                 int hwphi = 0);
 
-    Kind id() const { return Kind(hwQual()); }
+    ParticleType id() const { return ParticleType(hwQual()); }
 
     const PFTrackRef& pfTrack() const { return trackRef_; }
     void setPFTrack(const PFTrackRef& ref) { trackRef_ = ref; }
@@ -51,7 +51,7 @@ namespace l1t {
     MuonRef muonRef_;
     float puppiWeight_;
 
-    void setPdgIdFromKind_(int charge, Kind kind);
+    void setPdgIdFromParticleType(int charge, ParticleType kind);
   };
 
   typedef std::vector<l1t::PFCandidate> PFCandidateCollection;

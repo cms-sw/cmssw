@@ -7,6 +7,13 @@
 
 namespace l1t {
 
+  static constexpr float PFTAU_NN_LOOSE_CUT = 0.05;
+  static constexpr float PFTAU_NN_TIGHT_CUT = 0.25;
+  static constexpr float PFTAU_PF_LOOSE_CUT = 10.0;
+  static constexpr float PFTAU_PF_TIGHT_CUT = 5.0;
+
+  static constexpr double PFTAU_NN_PT_CUTOFF = 100.0;
+
   class PFTau : public L1Candidate {
   public:
     PFTau() {}
@@ -29,10 +36,14 @@ namespace l1t {
     float chargedIso() const { return iso_; }
     float fullIso() const { return fullIso_; }
     int id() const { return id_; }
-    bool passLooseNN() const { return iso_ * (0.1 + 0.2 * (min(pt(), 100.))) * 1. / 20.1 > 0.05; }
-    bool passLoosePF() const { return fullIso_ < 10.0; }
-    bool passTightNN() const { return iso_ * (0.1 + 0.2 * (min(pt(), 100.))) * 1. / 20.1 > 0.25; }
-    bool passTightPF() const { return fullIso_ < 5.0; }
+    bool passLooseNN() const {
+      return iso_ * (0.1 + 0.2 * (min(pt(), PFTAU_NN_PT_CUTOFF))) * 1. / 20.1 > PFTAU_NN_LOOSE_CUT;
+    }
+    bool passLoosePF() const { return fullIso_ < PFTAU_PF_LOOSE_CUT; }
+    bool passTightNN() const {
+      return iso_ * (0.1 + 0.2 * (min(pt(), PFTAU_NN_PT_CUTOFF))) * 1. / 20.1 > PFTAU_NN_TIGHT_CUT;
+    }
+    bool passTightPF() const { return fullIso_ < PFTAU_PF_TIGHT_CUT; }
 
   private:
     float iso_;

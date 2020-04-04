@@ -1,13 +1,13 @@
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 
 l1t::PFCandidate::PFCandidate(
-    Kind kind, int charge, const PolarLorentzVector& p, float puppiWeight, int hwpt, int hweta, int hwphi)
+    ParticleType kind, int charge, const PolarLorentzVector& p, float puppiWeight, int hwpt, int hweta, int hwphi)
     : L1Candidate(p, hwpt, hweta, hwphi, /*hwQuality=*/int(kind)), puppiWeight_(puppiWeight) {
   setCharge(charge);
-  setPdgIdFromKind_(charge, kind);
+  setPdgIdFromParticleType(charge, kind);
 }
 
-void l1t::PFCandidate::setPdgIdFromKind_(int charge, Kind kind) {
+void l1t::PFCandidate::setPdgIdFromParticleType(int charge, ParticleType kind) {
   switch (kind) {
     case ChargedHadron:
       setPdgId(charge > 0 ? 211 : -211);
