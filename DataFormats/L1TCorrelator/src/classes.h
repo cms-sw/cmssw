@@ -11,7 +11,6 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-//#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 // includes needed for the L1TrackTriggerObjects
 
