@@ -15,5 +15,6 @@
 </bin>
 <bin    file="test_catch2_*.cc" name="testFWCoreServicesCatch2">
   <use name="catch2"/>
+  <use name="clhep"/>
   <use name="FWCore/Services"/>
 </bin>
