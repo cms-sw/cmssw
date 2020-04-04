@@ -17,12 +17,14 @@
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
+#include <vector>
+
 namespace l1t {
 
   class TkElectron : public TkEm {
   public:
     typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-    typedef std::vector<L1TTTrackType> L1TTTrackCollection;
+    typedef vector<L1TTTrackType> L1TTTrackCollection;
 
     TkElectron();
 

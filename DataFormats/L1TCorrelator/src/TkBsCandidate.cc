@@ -7,6 +7,7 @@
 #include "DataFormats/L1TCorrelator/interface/TkPhiCandidate.h"
 #include "DataFormats/L1TCorrelator/interface/TkBsCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include <cmath>
 
 using namespace l1t;
 
@@ -24,6 +25,6 @@ double TkBsCandidate::dRPhiPair() const {
 double TkBsCandidate::dxyPhiPair() const {
   const TkPhiCandidate& phia = phiCandidate(0);
   const TkPhiCandidate& phib = phiCandidate(1);
-  return std::sqrt(std::pow(phia.vx() - phib.vx(), 2) + std::pow(phia.vy() - phib.vy(), 2));
+  return sqrt(pow(phia.vx() - phib.vx(), 2) + pow(phia.vy() - phib.vy(), 2));
 }
 double TkBsCandidate::dzPhiPair() const { return (phiCandidate(0).vz() - phiCandidate(1).vz()); }

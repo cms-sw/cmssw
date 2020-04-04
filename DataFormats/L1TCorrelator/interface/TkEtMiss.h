@@ -4,6 +4,8 @@
 // Class  :     TkEtMiss
 // Original Author:  E. Perez
 //         Created:  Nov 14, 2013
+// Redesign Author: V. Rekovic
+//         Created: Mar 30, 2020
 
 // system include files
 // user include files
@@ -32,10 +34,10 @@ namespace l1t {
              int bx = 0);
 
     // ---------- const member functions ---------------------
-    EtMissType type() const { return type_; }  // kET or kHT
-    // For type = kET, this is |MET|; for type = kHT, this is |MHT|
+    EtMissType type() const { return type_; }  // kMET or kMHT
+    // For type = kMET, this is |MET|; for type = kMHT, this is |MHT|
     double etMiss() const { return et(); }
-    // For type = kET, this is total ET; for type = kHT, this is total HT
+    // For type = kMET, this is total ET; for type = kMHT, this is total HT
     const double& etTotal() const { return etTot_; }
     // EtMiss and EtTot from PU vertices
     double etMissPU() const { return etMissPU_; }

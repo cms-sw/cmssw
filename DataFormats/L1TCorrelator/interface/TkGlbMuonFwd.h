@@ -15,11 +15,11 @@ namespace l1t {
 
   class TkGlbMuon;
 
-  typedef std::vector<TkGlbMuon> TkGlbMuonCollection;
+  typedef vector<TkGlbMuon> TkGlbMuonCollection;
 
   typedef edm::Ref<TkGlbMuonCollection> TkGlbMuonRef;
   typedef edm::RefVector<TkGlbMuonCollection> TkGlbMuonRefVector;
-  typedef std::vector<TkGlbMuonRef> TkGlbMuonVectorRef;
+  typedef vector<TkGlbMuonRef> TkGlbMuonVectorRef;
 }  // namespace l1t
 
 #endif

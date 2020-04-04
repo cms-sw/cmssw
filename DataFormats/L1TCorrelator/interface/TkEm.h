@@ -48,8 +48,6 @@ namespace l1t {
     void setTrkIsol(float TrkIsol) { TrkIsol_ = TrkIsol; }
     void setTrkIsolPV(float TrkIsolPV) { TrkIsolPV_ = TrkIsolPV; }
 
-    //	 int bx() const;
-
   private:
     edm::Ref<EGammaBxCollection> egRef_;
     float TrkIsol_;

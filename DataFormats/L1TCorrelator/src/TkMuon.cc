@@ -21,7 +21,6 @@ TkMuon::TkMuon(const LorentzVector& p4,
 TkMuon::TkMuon(const LorentzVector& p4, const edm::Ptr<L1TTTrackType>& trackPtr, float tkisol)
     : L1Candidate(p4), trkPtr_(trackPtr), theIsolation(tkisol), TrkzVtx_(999), quality_(999) {
   if (trkPtr_.isNonnull()) {
-    float z = trkPtr()->POCA().z();
-    setTrkzVtx(z);
+    setTrkzVtx(trkPtr()->POCA().z());
   }
 }

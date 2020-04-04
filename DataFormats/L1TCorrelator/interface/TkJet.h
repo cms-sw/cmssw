@@ -11,7 +11,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "DataFormats/L1Trigger/interface/Jet.h"
-//#include "DataFormats/L1TCorrelator/interface/TkJetDisp.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 namespace l1t {
@@ -19,16 +18,16 @@ namespace l1t {
   class TkJet : public L1Candidate {
   public:
     typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-    typedef std::vector<L1TTTrackType> L1TTTrackCollection;
+    typedef vector<L1TTTrackType> L1TTTrackCollection;
 
     TkJet();
 
     TkJet(const LorentzVector& p4,
           const edm::Ref<JetBxCollection>& jetRef,
-          const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
+          const vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
           float jetvtx = -999.);
     TkJet(const LorentzVector& p4,
-          const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
+          const vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
           float jetvtx = -999.,
           unsigned int ntracks = 0,
           unsigned int tighttracks = 0,
@@ -41,7 +40,7 @@ namespace l1t {
 
     const edm::Ref<JetBxCollection>& jetRef() const { return jetRef_; }
 
-    const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs() const { return trkPtrs_; }
+    const vector<edm::Ptr<L1TTTrackType> >& trkPtrs() const { return trkPtrs_; }
 
     float jetVtx() const { return JetVtx_; }
     unsigned int ntracks() const { return ntracks_; }
@@ -58,7 +57,7 @@ namespace l1t {
 
   private:
     edm::Ref<JetBxCollection> jetRef_;
-    std::vector<edm::Ptr<L1TTTrackType> > trkPtrs_;
+    vector<edm::Ptr<L1TTTrackType> > trkPtrs_;
     //TkJetDisp counters_;
     float JetVtx_;
     unsigned int ntracks_, tighttracks_, displacedtracks_, tightdisplacedtracks_;

@@ -12,7 +12,7 @@ namespace l1t {
   class TkMuon : public L1Candidate {
   public:
     typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-    typedef std::vector<L1TTTrackType> L1TTTrackCollection;
+    typedef vector<L1TTTrackType> L1TTTrackCollection;
 
     TkMuon() : theIsolation(-999.), TrkzVtx_(999.), quality_(999), pattern_(0) {}
 

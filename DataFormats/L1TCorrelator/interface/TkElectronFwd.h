@@ -14,10 +14,10 @@
 namespace l1t {
   class TkElectron;
 
-  typedef std::vector<TkElectron> TkElectronCollection;
+  typedef vector<TkElectron> TkElectronCollection;
 
   typedef edm::Ref<TkElectronCollection> TkElectronRef;
   typedef edm::RefVector<TkElectronCollection> TkElectronRefVector;
-  typedef std::vector<TkElectronRef> TkElectronVectorRef;
+  typedef vector<TkElectronRef> TkElectronVectorRef;
 }  // namespace l1t
 #endif

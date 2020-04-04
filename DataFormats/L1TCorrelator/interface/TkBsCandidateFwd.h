@@ -14,9 +14,9 @@
 namespace l1t {
   class TkBsCandidate;
 
-  using TkBsCandidateCollection = std::vector<TkBsCandidate>;
+  using TkBsCandidateCollection = vector<TkBsCandidate>;
   using TkBsCandidateRef = edm::Ref<TkBsCandidateCollection>;
   using TkBsCandidateRefVector = edm::RefVector<TkBsCandidateCollection>;
-  using TkBsCandidateVectorRef = std::vector<TkBsCandidateRef>;
+  using TkBsCandidateVectorRef = vector<TkBsCandidateRef>;
 }  // namespace l1t
 #endif

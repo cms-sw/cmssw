@@ -13,11 +13,7 @@
 
 namespace l1t {
   class TkHTMiss;
-  typedef std::vector<TkHTMiss> TkHTMissCollection;
-  //typedef edm::RefProd< TkHTMiss > TkHTMissRefProd ;
-  //typedef edm::Ref< TkHTMissCollection > TkHTMissRef ;
-  //typedef edm::RefVector< TkHTMissCollection > TkHTMissRefVector ;
-  //typedef std::vector< TkHTMissRef > TkHTMissVectorRef ;
+  typedef vector<TkHTMiss> TkHTMissCollection;
 }  // namespace l1t
 
 #endif
