@@ -13,25 +13,21 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.Digi_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
+process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('CalibPPS.ESProducers.CTPPSPixelDAQMappingESSourceXML_cfi')
 
-process.load('SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi')
-############### using only CTPPS geometry 
+# Since the PPS simulation geometry is not yet in the database, the line below is needed
 process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.load("IOMC.RandomEngine.IOMC_cff")
-process.RandomNumberGeneratorService.generator.initialSeed = 456789
-process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
-process.RandomNumberGeneratorService.RPixDetDigitizer = cms.PSet(initialSeed =cms.untracked.uint32(137137))
-process.RandomNumberGeneratorService.RPSiDetDigitizer = cms.PSet(initialSeed =cms.untracked.uint32(137137))
 
 # Input source
 process.source = cms.Source("PoolSource",
@@ -110,25 +106,35 @@ process.load('CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi')
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
     cms.PSet(
       validityRange = cms.EventRange("1:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2017.xml"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2017.xml"),
       maskFileNames = cms.vstring()
     )   
 )
 
-process.load("EventFilter.CTPPSRawToDigi.ctppsDigiToRaw_cff")
-process.load("EventFilter.RawDataCollector.rawDataCollector_cfi")
+#process.load("EventFilter.CTPPSRawToDigi.ctppsDigiToRaw_cff")
+#process.load("EventFilter.RawDataCollector.rawDataCollector_cfi")
 
 # Path and EndPath definitions
-process.mixedigi_step = cms.Path(process.mix*process.RPixDetDigitizer*process.RPSiDetDigitizer)
-process.digi2raw_step = cms.Path(process.ctppsTotemRawData*process.ctppsPixelRawData*process.rawDataCollector)
+process.digitisation_step = cms.Path(process.pdigi)
+process.L1simulation_step = cms.Path(process.SimL1Emulator)
+process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
+# Schedule definition
+process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step)
+process.schedule.extend([process.endjob_step,process.FEVTDEBUGoutput_step])
+
+#process.mixedigi_step = cms.Path(process.mix*process.RPixDetDigitizer*process.RPSiDetDigitizer)
+#process.digi2raw_step = cms.Path(process.ctppsTotemRawData*process.ctppsPixelRawData*process.rawDataCollector)
+#process.endjob_step = cms.EndPath(process.endOfProcess)
+#process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.mixedigi_step,process.digi2raw_step,process.endjob_step,process.FEVTDEBUGoutput_step)
+#process.schedule = cms.Schedule(process.mixedigi_step,process.digi2raw_step,process.endjob_step,process.FEVTDEBUGoutput_step)
+
+
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
-
 
 # Customisation from command line
 

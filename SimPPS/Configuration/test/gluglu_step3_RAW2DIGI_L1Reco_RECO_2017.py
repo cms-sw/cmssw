@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('CommonTools.ParticleFlow.EITopPAG_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi")
+process.load("Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi") # This line must be added while PPS sim geometry is not yet in the DB
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -85,7 +85,7 @@ process.load('CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi')
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
     cms.PSet(
       validityRange = cms.EventRange("1:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2017.xml"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2017.xml"),
       maskFileNames = cms.vstring()
     )
 )
