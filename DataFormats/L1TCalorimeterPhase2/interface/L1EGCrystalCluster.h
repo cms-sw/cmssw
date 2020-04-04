@@ -1,5 +1,5 @@
-#ifndef L1EGammaCrystalsCluster_h
-#define L1EGammaCrystalsCluster_h
+#ifndef DataFormats_L1TCalorimeterPhase2_L1EGammaCrystalsCluster_h
+#define DataFormats_L1TCalorimeterPhase2_L1EGammaCrystalsCluster_h
 
 #include <vector>
 #include <map>
@@ -7,8 +7,9 @@
 #include <algorithm>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-namespace l1slhc {
+namespace l1tp2 {
 
   class L1EGCrystalCluster : public l1t::L1Candidate {
   public:
@@ -72,18 +73,18 @@ namespace l1slhc {
     inline float PUcorrPt() const { return PUcorrPt_; };
     inline float bremStrength() const { return bremStrength_; };
     inline DetId seedCrystal() const { return seedCrystal_; };
-    void SetCrystalPtInfo(std::vector<float> &info) {
+    void SetCrystalPtInfo(std::vector<float> info) {
       std::sort(info.begin(), info.end());
       std::reverse(info.begin(), info.end());
-      crystalPt_ = info;
+      crystalPt_ = std::move(info);
     };
     void SetExperimentalParams(const std::map<std::string, float> &params) { experimentalParams_ = params; };
-    const std::map<std::string, float> GetExperimentalParams() const { return experimentalParams_; };
-    inline float GetExperimentalParam(std::string name) const {
-      try {
+    const std::map<std::string, float> &getExperimentalParams() const { return experimentalParams_; };
+    inline float experimentalParam(std::string name) const {
+      if (experimentalParams_.count(name)) {
         return experimentalParams_.at(name);
-      } catch (...) {
-        std::cout << "Error: no mapping for ExperimentalParam: " << name << std::endl;
+      } else {
+        edm::LogError("L1EGCrystalCluster") << "Error: no mapping for ExperimentalParam: " << name << std::endl;
         return -99.;
       }
     };
@@ -101,9 +102,7 @@ namespace l1slhc {
 
     // The index range depends on the algorithm eta,phi window, currently 3x5
     // The pt should always be ordered.
-    inline float GetCrystalPt(unsigned int index) const {
-      return (index < crystalPt_.size()) ? crystalPt_[index] : 0.;
-    };
+    inline float crystalPt(unsigned int index) const { return (index < crystalPt_.size()) ? crystalPt_[index] : 0.; };
 
   private:
     // pT calibrated to Stage-2 (Phase-I) L1EG Objects.  NOTE
@@ -147,6 +146,6 @@ namespace l1slhc {
   };
 
   // Concrete collection of output objects (with extra tuning information)
-  typedef std::vector<l1slhc::L1EGCrystalCluster> L1EGCrystalClusterCollection;
-}  // namespace l1slhc
+  typedef std::vector<l1tp2::L1EGCrystalCluster> L1EGCrystalClusterCollection;
+}  // namespace l1tp2
 #endif
