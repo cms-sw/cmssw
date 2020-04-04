@@ -18,6 +18,8 @@
 //         Created:  Tue, 12 Mar 2019 09:51:33 CET
 //
 //
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <memory>
 #include <vector>
 #include <regex>
@@ -26,6 +28,31 @@ namespace cms {
   struct DDSpecPar;
 
   struct Filter {
+    void print() const {
+      edm::LogVerbatim("Geometry").log([&](auto& log) {
+        for (const auto& it : skeys) {
+          log << it << ", ";
+        }
+        if (next) {
+          log << "Next:\n";
+          print(next);
+        }
+        if (up) {
+          log << "Up:\n";
+          up->print();
+        }
+      });
+    }
+
+    void print(const std::unique_ptr<Filter>& filter) const {
+      edm::LogVerbatim("Geometry").log([&](auto& log) {
+        for (const auto& it : filter->skeys) {
+          log << it << ", ";
+        }
+      });
+    }
+
+    std::vector<std::string> skeys;
     std::vector<std::regex> keys;
     std::unique_ptr<Filter> next;
     struct Filter* up;
