@@ -303,5 +303,6 @@
     <Include ref='Geometry/ForwardSimData/data/zdcProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml'/>
     <Include ref='Geometry/CMSCommonData/data/FieldParameters.xml'/>
+    <Include ref='SimTracker/TrackerMaterialAnalysis/data/dd4hep_trackingMaterialGroups.xml'/>
   </IncludeSection>
 </DDDefinition>
