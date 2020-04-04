@@ -26,12 +26,12 @@ namespace l1t {
         : L1Candidate(PolarLorentzVector(pt, eta, phi, 0), hwpt, hweta, hwphi, /*hwQuality=*/isEM ? 1 : 0),
           hOverE_(hOverE),
           ptError_(ptError) {
-      setPdgId(isEM ? 22 : 130);
+      setPdgId(isEM ? 22 : 130);  // photon : non-photon(K0)
     }
     PFCluster(
         const LorentzVector& p4, float hOverE, bool isEM, float ptError = 0, int hwpt = 0, int hweta = 0, int hwphi = 0)
         : L1Candidate(p4, hwpt, hweta, hwphi, /*hwQuality=*/isEM ? 1 : 0), hOverE_(hOverE), ptError_(ptError) {
-      setPdgId(isEM ? 22 : 130);
+      setPdgId(isEM ? 22 : 130);  // photon : non-photon(K0)
     }
 
     float hOverE() const { return hOverE_; }
@@ -56,8 +56,8 @@ namespace l1t {
     float ptError() const { return ptError_; }
     void setPtError(float ptError) { ptError_ = ptError; }
 
-    bool isEM() const { return hwQual() == 1; }
-    void setIsEM(bool isEM) { setHwQual(isEM ? 1 : 0); }
+    bool isEM() const { return hwQual(); }
+    void setIsEM(bool isEM) { setHwQual(isEM); }
 
     float egVsPionMVAOut() const { return egVsPionMVAOut_; }
     void setEgVsPionMVAOut(float egVsPionMVAOut) { egVsPionMVAOut_ = egVsPionMVAOut; }
