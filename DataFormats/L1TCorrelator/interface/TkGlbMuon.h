@@ -10,7 +10,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
-//#include "DataFormats/L1Trigger/interface/L1EmFwd.h"
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
@@ -19,7 +18,7 @@ namespace l1t {
   class TkGlbMuon : public L1Candidate {
   public:
     typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-    typedef std::vector<L1TTTrackType> L1TTTrackCollection;
+    typedef vector<L1TTTrackType> L1TTTrackCollection;
 
     TkGlbMuon() : theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}
 

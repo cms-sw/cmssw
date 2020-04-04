@@ -13,7 +13,6 @@ TkGlbMuon::TkGlbMuon(const LorentzVector& p4,
                      float tkisol)
     : L1Candidate(p4), muRef_(muRef), trkPtr_(trackPtr), theIsolation(tkisol), TrkzVtx_(999), quality_(999) {
   if (trkPtr_.isNonnull()) {
-    float z = trkPtr()->POCA().z();
-    setTrkzVtx(z);
+    setTrkzVtx(trkPtr()->POCA().z());
   }
 }

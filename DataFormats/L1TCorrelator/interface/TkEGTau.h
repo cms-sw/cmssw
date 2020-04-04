@@ -16,30 +16,32 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
+#include <vector>
+
 namespace l1t {
 
   class TkEGTau;
 
-  typedef std::vector<TkEGTau> TkEGTauCollection;
+  typedef vector<TkEGTau> TkEGTauCollection;
 
   typedef edm::Ref<TkEGTauCollection> TkEGTauRef;
   typedef edm::RefVector<TkEGTauCollection> TkEGTauRefVector;
-  typedef std::vector<TkEGTauRef> TkEGTauVectorRef;
+  typedef vector<TkEGTauRef> TkEGTauVectorRef;
 
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-  typedef std::vector<L1TTTrackType> L1TTTrackCollection;
+  typedef vector<L1TTTrackType> L1TTTrackCollection;
   typedef edm::Ptr<L1TTTrackType> L1TTTrackRefPtr;
-  typedef std::vector<L1TTTrackRefPtr> L1TTTrackRefPtr_Collection;
+  typedef vector<L1TTTrackRefPtr> L1TTTrackRefPtr_Collection;
   typedef edm::Ref<EGammaBxCollection> EGammaRef;
-  typedef std::vector<EGammaRef> EGammaVectorRef;
+  typedef vector<EGammaRef> EGammaVectorRef;
 
   class TkEGTau : public L1Candidate {
   public:
     TkEGTau();
 
     TkEGTau(const LorentzVector& p4,
-            const std::vector<L1TTTrackRefPtr>& clustTracks,
-            const std::vector<EGammaRef>& clustEGs,
+            const vector<L1TTTrackRefPtr>& clustTracks,
+            const vector<EGammaRef>& clustEGs,
             float iso = -999.);
 
     virtual ~TkEGTau() {}
@@ -48,9 +50,9 @@ namespace l1t {
 
     const L1TTTrackRefPtr seedTrk() const { return clustTracks_.at(0); }
 
-    const std::vector<L1TTTrackRefPtr> trks() const { return clustTracks_; }
+    const vector<L1TTTrackRefPtr> trks() const { return clustTracks_; }
 
-    const std::vector<EGammaRef> EGs() const { return clustEGs_; }
+    const vector<EGammaRef> EGs() const { return clustEGs_; }
 
     float iso() const { return iso_; }
 
@@ -58,11 +60,9 @@ namespace l1t {
 
     void setVtxIso(float iso) { iso_ = iso; }
 
-    //	 int bx() const;
-
   private:
-    std::vector<L1TTTrackRefPtr> clustTracks_;
-    std::vector<EGammaRef> clustEGs_;
+    vector<L1TTTrackRefPtr> clustTracks_;
+    vector<EGammaRef> clustEGs_;
     float iso_;
   };
 }  // namespace l1t

@@ -16,20 +16,22 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
+#include <vector>
+
 namespace l1t {
 
   class L1CaloTkTau;
 
-  typedef std::vector<L1CaloTkTau> L1CaloTkTauCollection;
+  typedef vector<L1CaloTkTau> L1CaloTkTauCollection;
 
   typedef edm::Ref<L1CaloTkTauCollection> L1CaloTkTauRef;
   typedef edm::RefVector<L1CaloTkTauCollection> L1CaloTkTauRefVector;
-  typedef std::vector<L1CaloTkTauRef> L1CaloTkTauVectorRef;
+  typedef vector<L1CaloTkTauRef> L1CaloTkTauVectorRef;
 
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-  typedef std::vector<L1TTTrackType> L1TTTrackCollection;
+  typedef vector<L1TTTrackType> L1TTTrackCollection;
   typedef edm::Ptr<L1TTTrackType> L1TTTrackRefPtr;
-  typedef std::vector<L1TTTrackRefPtr> L1TTTrackRefPtr_Collection;
+  typedef vector<L1TTTrackRefPtr> L1TTTrackRefPtr_Collection;
 
   class L1CaloTkTau : public L1Candidate {
   public:
@@ -37,10 +39,9 @@ namespace l1t {
 
     L1CaloTkTau(const LorentzVector& p4,  // caloTau calibrated p4
                 const LorentzVector& tracksP4,
-                const std::vector<L1TTTrackRefPtr>& clustTracks,
+                const vector<L1TTTrackRefPtr>& clustTracks,
                 Tau& caloTau,
                 float vtxIso = -999.);
-    //float Et = -999. ); // calibrated Et
 
     virtual ~L1CaloTkTau() {}
 
@@ -60,14 +61,11 @@ namespace l1t {
 
     void setVtxIso(float VtxIso) { vtxIso_ = VtxIso; }
 
-    //void setEt(float Et)  { Et_ = Et ; }
-
   private:
     LorentzVector tracksP4_;
-    std::vector<L1TTTrackRefPtr> clustTracks_;
+    vector<L1TTTrackRefPtr> clustTracks_;
     Tau caloTau_;
     float vtxIso_;
-    //float Et_; // calibrated Et
   };
 }  // namespace l1t
 

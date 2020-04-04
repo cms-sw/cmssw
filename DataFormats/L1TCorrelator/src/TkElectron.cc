@@ -19,7 +19,6 @@ TkElectron::TkElectron(const LorentzVector& p4,
 
 {
   if (trkPtr_.isNonnull()) {
-    float z = trkPtr()->POCA().z();
-    setTrkzVtx(z);
+    setTrkzVtx(trkPtr()->POCA().z());
   }
 }

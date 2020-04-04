@@ -25,7 +25,7 @@ namespace l1t {
     float sum_;
   };
 
-  typedef std::vector<TkPrimaryVertex> TkPrimaryVertexCollection;
+  typedef vector<TkPrimaryVertex> TkPrimaryVertexCollection;
 
 }  // namespace l1t
 #endif
