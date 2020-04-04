@@ -76,7 +76,7 @@ process.load('CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi')
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
     cms.PSet(
       validityRange = cms.EventRange("1:min - 999999999:max"),
-      mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2017.xml"),
+      mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_tracking_strip_2017.xml"),
       maskFileNames = cms.vstring()
     )   
 )
@@ -88,10 +88,10 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import totemRPRawToDigi
 totemRPRawToDigi.RawToDigi.testID = cms.uint32(1)
 
-from RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff import totemRPLocalReconstruction
-process.load('RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff')
-from RecoCTPPS.PixelLocal.ctppsPixelLocalReconstruction_cff import ctppsPixelLocalReconstruction
-process.load('RecoCTPPS.PixelLocal.ctppsPixelLocalReconstruction_cff')
+from RecoPPS.Local.totemRPLocalReconstruction_cff import totemRPLocalReconstruction
+process.load('RecoPPS.Local.totemRPLocalReconstruction_cff')
+from RecoPPS.Local.ctppsPixelLocalReconstruction_cff import ctppsPixelLocalReconstruction
+process.load('RecoPPS.Local.ctppsPixelLocalReconstruction_cff')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.ctppsRawToDigi)

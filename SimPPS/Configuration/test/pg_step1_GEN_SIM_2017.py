@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+import random
 import math
 
 from Configuration.StandardSequences.Eras import eras
@@ -17,9 +18,10 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-############### using only CTPPS geometry 
-from Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi import XMLIdealGeometryESSource_CTPPS
-process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
+
+process.load('Configuration.Geometry.GeometryExtended2017_CTPPS_cff')
+
+process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(random.randint(0,900000000))
 
 nEvent_ = 1000
 process.maxEvents = cms.untracked.PSet(
@@ -68,18 +70,13 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.g4Simhits_step = cms.Path(process.g4SimHits)
 
 
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-
 process.outpath = cms.EndPath(process.o1)
-
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.g4Simhits_step,process.outpath)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.outpath)
 
 # filter all path with the production filter sequence
 for path in process.paths:
     getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq
 
-from SimPPS.PPSSimTrackProducer.SimTrackProducerForFullSim_cff import customise
-process = customise(process)
