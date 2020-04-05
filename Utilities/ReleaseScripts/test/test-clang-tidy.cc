@@ -13,7 +13,7 @@ protected:
 };
 
 BaseClass::~BaseClass() {
-  if (ch!=0){
+  if (ch != 0) {
     delete ch;
     ch = 0;
   }
