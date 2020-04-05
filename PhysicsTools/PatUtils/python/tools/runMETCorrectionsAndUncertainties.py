@@ -368,7 +368,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             from PhysicsTools.PatUtils.pfEGammaToCandidate_cfi import pfEGammaToCandidate
             task = getPatAlgosToolsTask(process)
             addToProcessAndTask("pfEGammaToCandidate", pfEGammaToCandidate.clone(
-	        electrons = electronCollection, photons = photonCollection), process, task)
+                                  electrons = electronCollection,
+                                  photons = photonCollection),
+                                process, task)
+            if hasattr(process,"patElectrons") and process.patElectrons.electronSource == cms.InputTag("reducedEgamma","reducedGedGsfElectrons"):
+                process.pfEGammaToCandidate.electron2pf = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap")
+            if hasattr(process,"patPhotons") and process.patPhotons.photonSource == cms.InputTag("reducedEgamma","reducedGedPhotons"):
+                process.pfEGammaToCandidate.photon2pf = cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")
 
         #default MET production
         self.produceMET(process, metType,patMetModuleSequence, postfix)
@@ -839,7 +845,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               veto = tauCollection,
                                               useDeltaRforFootprint = cms.bool(False)
                                               )
-            if not self._parameters["onMiniAOD"].value:
+            if self._parameters["Puppi"].value:
               pfCandsNoJetsNoEleNoMuNoTau.useDeltaRforFootprint = True
             addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
