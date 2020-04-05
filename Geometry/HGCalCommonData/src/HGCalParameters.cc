@@ -4,7 +4,7 @@
 
 //#define EDM_ML_DEBUG
 
-HGCalParameters::HGCalParameters(const std::string& nam) : name_(nam), waferMaskMode_(0) {
+HGCalParameters::HGCalParameters(const std::string& nam) : name_(nam), nCells_(0), waferMaskMode_(0) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Construct HGCalParameters for " << name_;
 #endif
@@ -84,15 +84,15 @@ void HGCalParameters::fillTrForm(const HGCalParameters::hgtrform& mytr) {
   trformTranX_.emplace_back(mytr.h3v.x());
   trformTranY_.emplace_back(mytr.h3v.y());
   trformTranZ_.emplace_back(mytr.h3v.z());
-  trformRotXX_.emplace_back(mytr.hr.xx());
-  trformRotYX_.emplace_back(mytr.hr.yx());
-  trformRotZX_.emplace_back(mytr.hr.zx());
-  trformRotXY_.emplace_back(mytr.hr.xy());
-  trformRotYY_.emplace_back(mytr.hr.yy());
-  trformRotZY_.emplace_back(mytr.hr.zy());
-  trformRotXZ_.emplace_back(mytr.hr.xz());
-  trformRotYZ_.emplace_back(mytr.hr.yz());
-  trformRotZZ_.emplace_back(mytr.hr.zz());
+  trformRotXX_.emplace_back((std::abs(mytr.hr.xx()) > tol) ? mytr.hr.xx() : 0);
+  trformRotYX_.emplace_back((std::abs(mytr.hr.yx()) > tol) ? mytr.hr.yx() : 0);
+  trformRotZX_.emplace_back((std::abs(mytr.hr.zx()) > tol) ? mytr.hr.zx() : 0);
+  trformRotXY_.emplace_back((std::abs(mytr.hr.xy()) > tol) ? mytr.hr.xy() : 0);
+  trformRotYY_.emplace_back((std::abs(mytr.hr.yy()) > tol) ? mytr.hr.yy() : 0);
+  trformRotZY_.emplace_back((std::abs(mytr.hr.zy()) > tol) ? mytr.hr.zy() : 0);
+  trformRotXZ_.emplace_back((std::abs(mytr.hr.xz()) > tol) ? mytr.hr.xz() : 0);
+  trformRotYZ_.emplace_back((std::abs(mytr.hr.yz()) > tol) ? mytr.hr.yz() : 0);
+  trformRotZZ_.emplace_back((std::abs(mytr.hr.zz()) > tol) ? mytr.hr.zz() : 0);
 #ifdef EDM_ML_DEBUG
   unsigned int k = trformIndex_.size() - 1;
   edm::LogVerbatim("HGCalGeom") << "HGCalParameters[" << k << "] Index " << std::hex << trformIndex_[k] << std::dec
