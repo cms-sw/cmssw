@@ -22,26 +22,26 @@ namespace l1t {
 
   class TkEGTau;
 
-  typedef vector<TkEGTau> TkEGTauCollection;
+  typedef std::vector<TkEGTau> TkEGTauCollection;
 
   typedef edm::Ref<TkEGTauCollection> TkEGTauRef;
   typedef edm::RefVector<TkEGTauCollection> TkEGTauRefVector;
-  typedef vector<TkEGTauRef> TkEGTauVectorRef;
+  typedef std::vector<TkEGTauRef> TkEGTauVectorRef;
 
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-  typedef vector<L1TTTrackType> L1TTTrackCollection;
+  typedef std::vector<L1TTTrackType> L1TTTrackCollection;
   typedef edm::Ptr<L1TTTrackType> L1TTTrackRefPtr;
-  typedef vector<L1TTTrackRefPtr> L1TTTrackRefPtr_Collection;
+  typedef std::vector<L1TTTrackRefPtr> L1TTTrackRefPtr_Collection;
   typedef edm::Ref<EGammaBxCollection> EGammaRef;
-  typedef vector<EGammaRef> EGammaVectorRef;
+  typedef std::vector<EGammaRef> EGammaVectorRef;
 
   class TkEGTau : public L1Candidate {
   public:
     TkEGTau();
 
     TkEGTau(const LorentzVector& p4,
-            const vector<L1TTTrackRefPtr>& clustTracks,
-            const vector<EGammaRef>& clustEGs,
+            const std::vector<L1TTTrackRefPtr>& clustTracks,
+            const std::vector<EGammaRef>& clustEGs,
             float iso = -999.);
 
     virtual ~TkEGTau() {}
@@ -50,9 +50,9 @@ namespace l1t {
 
     const L1TTTrackRefPtr seedTrk() const { return clustTracks_.at(0); }
 
-    const vector<L1TTTrackRefPtr> trks() const { return clustTracks_; }
+    const std::vector<L1TTTrackRefPtr> trks() const { return clustTracks_; }
 
-    const vector<EGammaRef> EGs() const { return clustEGs_; }
+    const std::vector<EGammaRef> EGs() const { return clustEGs_; }
 
     float iso() const { return iso_; }
 
@@ -61,8 +61,8 @@ namespace l1t {
     void setVtxIso(float iso) { iso_ = iso; }
 
   private:
-    vector<L1TTTrackRefPtr> clustTracks_;
-    vector<EGammaRef> clustEGs_;
+    std::vector<L1TTTrackRefPtr> clustTracks_;
+    std::vector<EGammaRef> clustEGs_;
     float iso_;
   };
 }  // namespace l1t

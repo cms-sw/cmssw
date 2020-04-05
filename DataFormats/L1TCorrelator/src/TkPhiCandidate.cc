@@ -28,13 +28,13 @@ double TkPhiCandidate::dRTrkPair() const {
 }
 
 // difference from nominal mass
-double TkPhiCandidate::dmass() const { return fabs(phi_polemass - mass()); }
+double TkPhiCandidate::dmass() const { return std::fabs(phi_polemass - mass()); }
 // position difference between track pair
 double TkPhiCandidate::dxyTrkPair() const {
   const edm::Ptr<L1TTTrackType>& itrk = trkPtr(0);
   const edm::Ptr<L1TTTrackType>& jtrk = trkPtr(1);
 
-  return sqrt(pow(itrk->POCA().x() - jtrk->POCA().x(), 2) + pow(itrk->POCA().y() - jtrk->POCA().y(), 2));
+  return std::sqrt(std::pow(itrk->POCA().x() - jtrk->POCA().x(), 2) + std::pow(itrk->POCA().y() - jtrk->POCA().y(), 2));
 }
 double TkPhiCandidate::dzTrkPair() const { return (trkPtr(0)->POCA().z() - trkPtr(1)->POCA().z()); }
 double TkPhiCandidate::vx() const { return 0.5 * (trkPtr(0)->POCA().x() + trkPtr(1)->POCA().x()); }

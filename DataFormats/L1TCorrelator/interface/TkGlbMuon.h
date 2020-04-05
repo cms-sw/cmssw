@@ -18,7 +18,7 @@ namespace l1t {
   class TkGlbMuon : public L1Candidate {
   public:
     typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-    typedef vector<L1TTTrackType> L1TTTrackCollection;
+    typedef std::vector<L1TTTrackType> L1TTTrackCollection;
 
     TkGlbMuon() : theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}
 

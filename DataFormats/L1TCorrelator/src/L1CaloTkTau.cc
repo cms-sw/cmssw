@@ -12,7 +12,7 @@ L1CaloTkTau::L1CaloTkTau() {}
 
 L1CaloTkTau::L1CaloTkTau(const LorentzVector& p4,
                          const LorentzVector& tracksP4,
-                         const vector<L1TTTrackRefPtr>& clustTracks,
+                         const std::vector<L1TTTrackRefPtr>& clustTracks,
                          Tau& caloTau,
                          float vtxIso)
     : L1Candidate(p4), tracksP4_(tracksP4), clustTracks_(clustTracks), caloTau_(caloTau), vtxIso_(vtxIso) {}

@@ -25,6 +25,6 @@ double TkBsCandidate::dRPhiPair() const {
 double TkBsCandidate::dxyPhiPair() const {
   const TkPhiCandidate& phia = phiCandidate(0);
   const TkPhiCandidate& phib = phiCandidate(1);
-  return sqrt(pow(phia.vx() - phib.vx(), 2) + pow(phia.vy() - phib.vy(), 2));
+  return std::sqrt(std::pow(phia.vx() - phib.vx(), 2) + std::pow(phia.vy() - phib.vy(), 2));
 }
 double TkBsCandidate::dzPhiPair() const { return (phiCandidate(0).vz() - phiCandidate(1).vz()); }

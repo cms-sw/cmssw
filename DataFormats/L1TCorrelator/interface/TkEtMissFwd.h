@@ -12,6 +12,6 @@
 
 namespace l1t {
   class TkEtMiss;
-  typedef vector<TkEtMiss> TkEtMissCollection;
+  typedef std::vector<TkEtMiss> TkEtMissCollection;
 }  // namespace l1t
 #endif

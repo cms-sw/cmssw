@@ -12,11 +12,11 @@ TkJet::TkJet() {}
 
 TkJet::TkJet(const LorentzVector& p4,
              const edm::Ref<JetBxCollection>& jetRef,
-             const vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
+             const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
              float jetvtx)
     : L1Candidate(p4), jetRef_(jetRef), trkPtrs_(trkPtrs), JetVtx_(jetvtx) {}
 TkJet::TkJet(const LorentzVector& p4,
-             const vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
+             const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
              float jetvtx,
              unsigned int ntracks,
              unsigned int tighttracks,
