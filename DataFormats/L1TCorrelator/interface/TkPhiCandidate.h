@@ -21,7 +21,7 @@ namespace l1t {
     static constexpr double phi_polemass = 1.019445;  // GeV
 
     using L1TTTrackType = TTTrack<Ref_Phase2TrackerDigi_>;
-    using L1TTTrackCollection = vector<L1TTTrackType>;
+    using L1TTTrackCollection = std::vector<L1TTTrackType>;
 
     TkPhiCandidate();
     TkPhiCandidate(const LorentzVector& p4,
@@ -50,7 +50,7 @@ namespace l1t {
     double vz() const override;
 
   private:
-    vector<edm::Ptr<L1TTTrackType>> trkPtrList_;
+    std::vector<edm::Ptr<L1TTTrackType>> trkPtrList_;
   };
 }  // namespace l1t
 #endif

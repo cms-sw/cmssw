@@ -15,11 +15,11 @@ namespace l1t {
 
   class TkEm;
 
-  typedef vector<TkEm> TkEmCollection;
+  typedef std::vector<TkEm> TkEmCollection;
 
   typedef edm::Ref<TkEmCollection> TkEmRef;
   typedef edm::RefVector<TkEmCollection> TkEmRefVector;
-  typedef vector<TkEmRef> TkEmVectorRef;
+  typedef std::vector<TkEmRef> TkEmVectorRef;
 }  // namespace l1t
 
 #endif

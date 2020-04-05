@@ -17,11 +17,11 @@ namespace l1t {
 
   typedef edm::RefProd<TkJet> TkJetRefProd;
 
-  typedef vector<TkJet> TkJetCollection;
+  typedef std::vector<TkJet> TkJetCollection;
 
   typedef edm::Ref<TkJetCollection> TkJetRef;
   typedef edm::RefVector<TkJetCollection> TkJetRefVector;
-  typedef vector<TkJetRef> TkJetVectorRef;
+  typedef std::vector<TkJetRef> TkJetVectorRef;
 }  // namespace l1t
 
 #endif

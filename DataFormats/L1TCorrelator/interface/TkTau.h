@@ -20,7 +20,7 @@ namespace l1t {
   class TkTau : public L1Candidate {
   public:
     typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
-    typedef vector<L1TTTrackType> L1TTTrackCollection;
+    typedef std::vector<L1TTTrackType> L1TTTrackCollection;
 
     TkTau();
 

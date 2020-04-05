@@ -10,5 +10,5 @@ using namespace l1t;
 
 L1TrkTau::L1TrkTau() {}
 
-L1TrkTau::L1TrkTau(const LorentzVector& p4, const vector<L1TTTrackRefPtr>& clustTracks, float iso)
+L1TrkTau::L1TrkTau(const LorentzVector& p4, const std::vector<L1TTTrackRefPtr>& clustTracks, float iso)
     : L1Candidate(p4), clustTracks_(clustTracks), iso_(iso) {}
