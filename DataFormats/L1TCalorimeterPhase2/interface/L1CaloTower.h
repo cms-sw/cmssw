@@ -9,6 +9,7 @@
 #define DataFormats_L1TCalorimeterPhase2_L1CaloTower_HH
 
 #include <vector>
+#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
 namespace l1tp2 {
 
