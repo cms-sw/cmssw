@@ -15,48 +15,48 @@ Diagnostics:
     DiagnosticMessage:
       Message:         use nullptr
       FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      204
+      FileOffset:      206
       Replacements:
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          204
+          Offset:          206
           Length:          1
           ReplacementText: nullptr
   - DiagnosticName:  modernize-use-nullptr
     DiagnosticMessage:
       Message:         use nullptr
       FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      232
+      FileOffset:      235
       Replacements:
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          232
+          Offset:          235
           Length:          1
           ReplacementText: nullptr
   - DiagnosticName:  modernize-use-override
     DiagnosticMessage:
       Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
       FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      382
+      FileOffset:      385
       Replacements:
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          374
+          Offset:          377
           Length:          8
           ReplacementText: ''
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          396
+          Offset:          399
           Length:          0
           ReplacementText: ' override'
   - DiagnosticName:  modernize-use-override
     DiagnosticMessage:
       Message:         'prefer using ''override'' or (rarely) ''final'' instead of ''virtual'''
       FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-      FileOffset:      412
+      FileOffset:      415
       Replacements:
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          400
+          Offset:          403
           Length:          8
           ReplacementText: ''
         - FilePath:        'Utilities/ReleaseScripts/test/test-clang-tidy.cc'
-          Offset:          424
+          Offset:          427
           Length:          0
           ReplacementText: ' override'
 ...
