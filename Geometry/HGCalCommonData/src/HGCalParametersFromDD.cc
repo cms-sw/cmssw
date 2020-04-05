@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
+
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
@@ -242,9 +243,11 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
   cms::DDFilteredView fv((*cpv), filter);
   std::vector<std::string> tempS;
   std::vector<double> tempD;
-  tempS = fv.get<std::vector<std::string> >(name, "GeometryMode");
-  std::string sv = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Hexagon8Full";
   bool ok = fv.firstChild();
+  tempS = fv.get<std::vector<std::string> >(name2, "GeometryMode");
+  if (tempS.empty())
+    tempS = fv.get<std::vector<std::string> >(name, "GeometryMode");
+  std::string sv = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Hexagon8Full";
   HGCalGeometryMode::WaferMode mode(HGCalGeometryMode::Polyhedra);
 
   if (ok) {
@@ -260,7 +263,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     php.firstMixedLayer_ = -1;  // defined for post TDR geometry
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
-      tempS = fv.get<std::vector<std::string> >(name, "WaferMode");
+      tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
       std::string sv2 = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Polyhedra";
       mode = getGeometryWaferMode(sv2);
 #ifdef EDM_ML_DEBUG
@@ -286,7 +289,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_;
 #endif
 
-      tempS = fv.get<std::vector<std::string> >(name, "WaferMode");
+      tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
       std::string sv2 = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::ExtrudedPolygon";
       mode = getGeometryWaferMode(sv2);
       tempD = fv.get<std::vector<double> >(namet, "NumberOfCellsFine");
