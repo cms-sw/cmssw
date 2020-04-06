@@ -41,8 +41,8 @@ public:
   
 private:
   
-  std::vector<std::pair<uint32_t, float> > m_slope;  // detId -> slope
-  std::vector<std::pair<uint32_t, float> > m_offset; // detId -> offset
+  std::vector<std::pair<uint32_t, float> > m_slope;  // detid -> slope
+  std::vector<std::pair<uint32_t, float> > m_offset; // detid -> offset
   edm::ParameterSet conf_;
   std::string recordName_;
   typedef std::vector<edm::ParameterSet> Parameters;
