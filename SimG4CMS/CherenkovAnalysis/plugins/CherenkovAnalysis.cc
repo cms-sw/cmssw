@@ -38,6 +38,8 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <TH1F.h>
 
+#define EDM_ML_DEBUG
+
 class CherenkovAnalysis : public edm::EDAnalyzer {
 public:
   explicit CherenkovAnalysis(const edm::ParameterSet &);
@@ -90,8 +92,9 @@ void CherenkovAnalysis::analyze(const edm::Event &iEvent, const edm::EventSetup 
     //     edm::LogInfo("CherenkovAnalysis") << "Time = " << (*it).time() <<
     //     std::endl;
   }
-
-  edm::LogInfo("CherenkovAnalysis") << "Total energy = " << totalEnergy;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CherenkovAnalysis") << "CherenkovAnalysis::Total energy = " << totalEnergy;
+#endif
   hEnergy_->Fill(totalEnergy);
 }
 
