@@ -5,6 +5,8 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
 # PROCESS
+run = 313000
+print ">>> run = %s"%run
 process = cms.Process("SiPixelVCalReader",eras.Run2_2017)
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -13,7 +15,7 @@ process.source = cms.Source("EmptySource",
     #lastRun = cms.untracked.uint32(1),
     #timetype = cms.string('runnumber'),
     #interval = cms.uint32(1),
-    firstRun = cms.untracked.uint32(313000) # select the geometry for Phase-I pixels
+    firstRun = cms.untracked.uint32(run) # select the geometry for Phase-I pixels
 )
 
 # LOAD
@@ -33,7 +35,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 print ">>> globaltag = '%s'"%(process.GlobalTag.globaltag)
 
 # EXTRA
-outfile = "siPixelVCal_histo.root"
+outfile = "siPixelVCal.root"
 print ">>> outfile = '%s'"%outfile
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(outfile)

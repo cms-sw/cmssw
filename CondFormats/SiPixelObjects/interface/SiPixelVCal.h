@@ -16,6 +16,7 @@ public:
   inline const std::map<unsigned int, float>& getSlope() const { return m_slope; }
   inline const std::map<unsigned int, float>& getOffset() const { return m_offset; }
 
+  // integer is pixid, see CondTools/SiPixel/test/SiPixelVCalDB.h
   bool putSlope(const uint32_t&, float&);
   bool putOffset(const uint32_t&, float&);
   bool putVCal(const uint32_t&, float&, float&);
