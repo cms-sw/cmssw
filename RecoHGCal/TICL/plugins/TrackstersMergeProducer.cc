@@ -481,6 +481,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
 
     for (const int &i : tracksterIndices) {
       tracksters[i].setProbabilities(probs);
+      probs += tracksters[i].id_probabilities().size();
     }
   }
 }

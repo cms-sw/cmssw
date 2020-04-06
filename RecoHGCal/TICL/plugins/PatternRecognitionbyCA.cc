@@ -374,6 +374,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
 
     for (const int &i : tracksterIndices) {
       tracksters[i].setProbabilities(probs);
+      probs += tracksters[i].id_probabilities().size();
     }
   }
 }
