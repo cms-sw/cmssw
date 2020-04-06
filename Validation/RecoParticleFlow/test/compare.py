@@ -79,8 +79,9 @@ def parse_args():
     parser.add_argument("--doMETPlots",
         action='store_true',
         required=False,
-        help="If enabled, do all MET plots"
+        help="If enabled, do all JetMET plots"
     )
+
     parser.add_argument( "--offsetVar", type=str,   action='store', default="npv", help="variable to bin offset eT" )
     parser.add_argument( "--offsetDR",  type=float, action='store', default=0.4,   help="offset deltaR value" )
     args = parser.parse_args()
@@ -93,7 +94,7 @@ def parse_args():
     for ss in sample_strings:
         name, files = parse_sample_string(ss)
         samp = SimpleSample(name, name, [(fn, fn.split('/')[-2]) for fn in files])
-        samples += [samp]    
+        samples += [samp]
 
     for ss in args.plots:
         folder, name, histograms = parse_plot_string(ss)
@@ -130,16 +131,16 @@ def parse_args():
             for itype in candidateType :
                 offsetHists += [ offset_name( args.offsetVar, ivar, itype ) ]
             plots += [("Offset/{0}Plots/{0}{1}".format(args.offsetVar, ivar), "{0}{1}".format(args.offsetVar, ivar), offsetHists)]
-    
+
     if args.doMETPlots:
         doMETPlots(files, plots)
-        
 
-    return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR, args.doMETPlots
+    return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR
 
-# function that does met plots
+# function that does METValidation from JetMET
 def doMETPlots(files, plots):
-    #get the names of the histograms 
+    #get the names of the histograms
+    #MetValidation
     METHistograms = []
     f = ROOT.TFile(files[0])
     d = f.Get("DQMData/Run 1/JetMET/Run summary/METValidation/slimmedMETsPuppi")
@@ -147,13 +148,22 @@ def doMETPlots(files, plots):
         METHistograms.append([i.GetName()])
     # append plots
     METFolderDirs = ["METValidation/slimmedMETs","METValidation/slimmedMETsPuppi"]
-    for METFolderDir in METFolderDirs: 
+    for METFolderDir in METFolderDirs:
         for  METHistogram in  METHistograms:
             plots += [(METFolderDir, "", METHistogram)]
 
+    #JetValidation
+    JetHistograms = []
+    d = f.Get("DQMData/Run 1/JetMET/Run summary/JetValidation/slimmedJets")
+    for i in d.GetListOfKeys():
+        JetHistograms.append([i.GetName()])
+    JetValFolderDirs = ["JetValidation/slimmedJets", "JetValidation/slimmedJetsAK8", "JetValidation/slimmedJetsPuppi"]
+    for JetValFolderDir in JetValFolderDirs:
+        for JetHistogram in JetHistograms:
+            plots += [(JetValFolderDir, "", JetHistogram)]
+
 def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
     folders = [folder]
-
     #plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
     #KH print plots
     if Offset :
@@ -168,7 +178,7 @@ def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
 	    plot.setProperties(legendDh=0.005)
 	    plot.setProperties(legendDy=0.24)
 	    plot.setProperties(legendDx=0.05)
-    elif "MET" in folder: 
+    elif "JetMET" in folder:
         for h in histograms:
             plots = [PlotGroup(h, [Plot(h, **opts)])]
         for plot in plots:
@@ -176,8 +186,7 @@ def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
             plot.setProperties(legendDh=0.01)
             plot.setProperties(legendDy=0.24)
             plot.setProperties(legendDx=0.05)
-        plotter.append("METValidation/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="MET", section=section))
-
+        plotter.append("JetMET" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="JetMET", section=section))
 
 def main():
 
@@ -198,13 +207,13 @@ def main():
     for iptbin in range(len(ptbins)-1):
         plot_opts["response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1])] = {"stat": True}
 
-    samples, plots, doOffsetPlots, offsetVar, offsetDR, doMETPlots = parse_args()
+    samples, plots, doOffsetPlots, offsetVar, offsetDR = parse_args()
 
     plotter = Plotter()
 
     for folder, name, histograms in plots:
         opts = plot_opts.get(name, {})
-        
+
         #fullfolder =  "DQMData/Run 1/Physics/Run summary/{0}".format(folder)
         #fullfolder =  "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folder)
         fullJetFolder = "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folder)
@@ -215,7 +224,7 @@ def main():
             addPlots(plotter, fullJetFolder, name, folder, histograms, opts, True)
         elif "JetResponse" in folder:
             addPlots(plotter, fullJetFolder, name, folder, histograms, opts)
-        elif "MET" in folder:
+        elif "METValidation" in folder or "JetValidation" in folder:
             addPlots(plotter, fullMETFolder, name, folder, histograms, opts)
 
     outputDir = "plots" # Plot output directory
