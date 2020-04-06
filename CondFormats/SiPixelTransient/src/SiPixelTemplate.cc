@@ -4057,7 +4057,8 @@ void SiPixelTemplate::vavilov_pars(double& mpv, double& sigma, double& kappa)
   // Copy to parameter list
 
   //avoid rounding difference between floats and doubles causing issues later
-  if(kappavav_ == 0.01f) kappavav_ = 0.01f + 0.0000001f;
+  if (kappavav_ == 0.01f)
+    kappavav_ = 0.01f + 0.0000001f;
 
   mpv = (double)mpvvav_;
   sigma = (double)sigmavav_;
