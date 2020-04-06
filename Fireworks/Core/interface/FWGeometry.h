@@ -155,6 +155,10 @@ public:
 
   const TrackerTopology* getTrackerTopology() const { return m_trackerTopology.get(); }
 
+  void applyGlobalTag(const std::string& gt);
+
+  bool isEmpty() const;
+
 private:
   mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
 
@@ -165,6 +169,8 @@ private:
   VersionInfo m_versionInfo;
 
   int m_producerVersion;
+
+  std::string m_fileName;
 
   std::unique_ptr<TrackerTopology> m_trackerTopology;
 };
