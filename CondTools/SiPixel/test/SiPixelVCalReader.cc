@@ -22,6 +22,14 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
       << "[SiPixelVCalReader::analyze] End Reading SiPixelVCal" << std::endl;
   edm::Service<TFileService> fs;
 
+  // Prepare tree
+  TTree* tree = new TTree("tree", "tree");
+  uint32_t pixid;
+  double slope, offset;
+  tree->Branch("pixid", &pixid, "pixid/I");
+  tree->Branch("slope", &slope, "slope/D");
+  tree->Branch("offset", &offset, "offset/D");
+
   // Prepare histograms
   slopeBPix_ = fs->make<TH1F>("VCalSlopeBarrelPixel", "VCalSlopeBarrelPixel", 150, 0, 100);
   slopeFPix_ = fs->make<TH1F>("VCalSlopeForwardPixel", "VCalSlopeForwardPixel", 150, 0, 100);
@@ -30,12 +38,12 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
   std::map<unsigned int, float> slopes = SiPixelVCal_->getSlope();
   std::map<unsigned int, float> offsets = SiPixelVCal_->getOffset();
   std::map<unsigned int, float>::const_iterator it;
-
+  
   // Fill histograms
   for (it = slopes.begin(); it != slopes.end(); it++) {
-    unsigned int pixid = it->first;
-    float slope  = it->second;
-    float offset = 0.;
+    pixid = it->first;
+    slope  = it->second;
+    offset = 0.;
     unsigned int subdet = SiPixelVCalDB::getPixelSubDetector(pixid);
     if (offsets.find(pixid)!=offsets.end()) // assume slopes and offsets have the same keys
       offset = offsets[pixid];
@@ -50,6 +58,7 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
       slopeFPix_->Fill(slope);
       offsetFPix_->Fill(offset);
     }
+    tree->Fill();
   }
 
 }
