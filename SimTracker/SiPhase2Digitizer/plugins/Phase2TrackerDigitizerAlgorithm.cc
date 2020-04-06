@@ -532,10 +532,11 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
     }
   }
   // Fill the global map with all hit pixels from this event
+  float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() / 30.;
   for (auto const& hit_s : hit_signal) {
     int chan = hit_s.first;
     theSignal[chan] +=
-        (makeDigiSimLinks_ ? DigitizerUtility::Amplitude(hit_s.second, &hit, hit_s.second, hitIndex, tofBin)
+        (makeDigiSimLinks_ ? DigitizerUtility::Amplitude(hit_s.second, &hit, hit_s.second, corr_time, hitIndex, tofBin)
                            : DigitizerUtility::Amplitude(hit_s.second, nullptr, hit_s.second));
   }
 }
@@ -940,7 +941,13 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
   for (auto const& s : theSignal) {
     const DigitizerUtility::Amplitude& sig_data = s.second;
     float signalInElectrons = sig_data.ampl();
-    if (signalInElectrons >= theThresholdInE) {  // check threshold
+
+    const auto& info_list = sig_data.simInfoList();
+    const DigitizerUtility::SimHitInfo* hitInfo = nullptr;
+    if (!info_list.empty())
+      hitInfo = std::max_element(info_list.begin(), info_list.end())->second.get();
+
+    if (isAboveThreshold(hitInfo, signalInElectrons, theThresholdInE)) {  // check threshold
       DigitizerUtility::DigiSimInfo info;
       info.sig_tot = convertSignalToAdc(detID, signalInElectrons, theThresholdInE);  // adc
       info.ot_bit = signalInElectrons > theHIPThresholdInE ? true : false;
@@ -976,7 +983,7 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
         temp_signal = std::floor((temp_signal - kink_point) / (pow(2, dualslope_param - 1))) + kink_point;
     }
     signal_in_adc = std::min(temp_signal, theAdcFullScale_);
-    LogTrace("Phase2TrackerDigitizerAlgorithm")
+    LogInfo("Phase2TrackerDigitizerAlgorithm")
         << " DetId " << detID << " signal_in_elec " << signal_in_elec << " threshold " << threshold
         << " signal_above_thr " << signal_in_elec - threshold << " temp conversion "
         << std::floor((signal_in_elec - threshold) / theElectronPerADC_) + 1 << " signal after slope correction "
