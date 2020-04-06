@@ -11,9 +11,14 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWFileEntry.h"
@@ -27,14 +32,15 @@
 
 #include <boost/bind.hpp>
 
-FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion)
+FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion, bool checkGT)
     : m_name(name),
       m_file(nullptr),
       m_eventTree(nullptr),
       m_event(nullptr),
       m_needUpdate(true),
+      m_globalTag("gt_undef"),
       m_globalEventList(nullptr) {
-  openFile(checkVersion);
+  openFile(checkVersion, checkGT);
 }
 
 FWFileEntry::~FWFileEntry() {
@@ -44,7 +50,7 @@ FWFileEntry::~FWFileEntry() {
   delete m_globalEventList;
 }
 
-void FWFileEntry::openFile(bool checkVersion) {
+void FWFileEntry::openFile(bool checkVersion, bool checkGlobalTag) {
   gErrorIgnoreLevel = 3000;  // suppress warnings about missing dictionaries
 
   TFile* newFile = TFile::Open(m_name.c_str());
@@ -60,31 +66,96 @@ void FWFileEntry::openFile(bool checkVersion) {
   gErrorIgnoreLevel = -1;
 
   // check CMSSW relese version for compatibility
-  if (checkVersion) {
-    typedef std::vector<edm::ProcessHistory> provList;
+  typedef std::vector<edm::ProcessHistory> provList;
 
-    TTree* metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
-    TBranch* b = metaData->GetBranch("ProcessHistory");
-    provList* x = nullptr;
-    b->SetAddress(&x);
-    b->GetEntry(0);
+  TTree* metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
+  TBranch* b = metaData->GetBranch("ProcessHistory");
+  edm::ProcessHistoryVector phv_;
+  edm::ProcessHistoryVector* pPhv = &phv_;
+  metaData->SetBranchAddress("ProcessHistory", &pPhv);
 
-    const edm::ProcessConfiguration* dd = nullptr;
-    int latestVersion = 0;
-    int currentVersionArr[] = {0, 0, 0};
-    for (auto const& processHistory : *x) {
-      for (auto const& processConfiguration : processHistory) {
-        // std::cout << processConfiguration.releaseVersion() << "  " << processConfiguration.processName() << std::endl;
-        TString dcv = processConfiguration.releaseVersion();
-        fireworks::getDecomposedVersion(dcv, currentVersionArr);
-        int nvv = currentVersionArr[0] * 100 + currentVersionArr[1] * 10 + currentVersionArr[2];
-        if (nvv > latestVersion) {
-          latestVersion = nvv;
-          dd = &processConfiguration;
+  b->GetEntry(0);
+
+  typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
+  ParameterSetMap psm_;
+  TTree* psetTree = dynamic_cast<TTree*>(newFile->Get("ParameterSets"));
+  typedef std::pair<edm::ParameterSetID, edm::ParameterSetBlob> IdToBlobs;
+  IdToBlobs idToBlob;
+  IdToBlobs* pIdToBlob = &idToBlob;
+  psetTree->SetBranchAddress("IdToParameterSetsBlobs", &pIdToBlob);
+  for (long long i = 0; i != psetTree->GetEntries(); ++i) {
+    psetTree->GetEntry(i);
+    psm_.insert(idToBlob);
+  }
+
+  edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
+  for (auto const& item : psm_) {
+    edm::ParameterSet pset(item.second.pset());
+    pset.setID(item.first);
+    psetRegistry.insertMapped(pset);
+  }
+
+  const edm::ProcessConfiguration* dd = nullptr;
+  int latestVersion = 0;
+  int currentVersionArr[] = {0, 0, 0};
+  for (auto const& processHistory : phv_) {
+    for (auto const& processConfiguration : processHistory) {
+      // std::cout << processConfiguration.releaseVersion() << "  " << processConfiguration.processName() << std::endl;
+      TString dcv = processConfiguration.releaseVersion();
+      fireworks::getDecomposedVersion(dcv, currentVersionArr);
+      int nvv = currentVersionArr[0] * 100 + currentVersionArr[1] * 10 + currentVersionArr[2];
+      if (nvv > latestVersion) {
+        latestVersion = nvv;
+        dd = &processConfiguration;
+      }
+    }
+  }
+
+  // read first global tag for auto detect of geomtery version
+  if (checkGlobalTag) {
+    std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
+    m_globalTag = "";
+    for (auto const& ph : phv_) {
+      for (auto const& pc : ph) {
+        unsigned int id = simpleIDs[pc.id()];
+        if (0 == id) {
+          id = 1;
+          simpleIDs[pc.id()] = id;
+        }
+        ParameterSetMap::const_iterator itFind = psm_.find(pc.parameterSetID());
+        if (itFind == psm_.end()) {
+          std::cout << "No ParameterSetID for " << pc.parameterSetID() << std::endl;
+          fwLog(fwlog::kInfo) << "FWFileEntry::openFile no ParameterSetID for " << pc.parameterSetID() << std::endl;
+        } else {
+          edm::ParameterSet processConfig(itFind->second.pset());
+          std::vector<std::string> sourceStrings, moduleStrings;
+          std::vector<std::string> sources = processConfig.getParameter<std::vector<std::string>>("@all_essources");
+          for (auto& itM : sources) {
+            edm::ParameterSet const& pset = processConfig.getParameterSet(itM);
+            std::string name(pset.getParameter<std::string>("@module_label"));
+            if (name.empty()) {
+              name = pset.getParameter<std::string>("@module_type");
+            }
+            if (name != "GlobalTag")
+              continue;
+
+            for (auto const& item : pset.tbl()) {
+              if (item.first == "globaltag") {
+                m_globalTag = item.second.getString();
+                goto gtEnd;
+              }
+            }
+          }
         }
       }
     }
 
+  gtEnd:
+    fwLog(fwlog::kDebug) << "FWFileEntry::openFile detected global tag " << m_globalTag << "\n";
+  }
+
+  // test compatibility of data with CMSSW
+  if (checkVersion) {
     if (latestVersion) {
       fwLog(fwlog::kInfo) << "Checking process history. " << m_name.c_str() << " latest process \"" << dd->processName()
                           << "\", version " << dd->releaseVersion() << std::endl;
@@ -418,7 +489,7 @@ bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
   boost::sregex_token_iterator j;
 
   // filters and how they enter in the logical expression
-  std::vector<std::pair<unsigned int, bool> > filters;
+  std::vector<std::pair<unsigned int, bool>> filters;
 
   while (i != j) {
     std::string filter = *i++;
@@ -449,7 +520,7 @@ bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
 
   for (m_event->toBegin(); !m_event->atEnd(); ++(*m_event)) {
     hTriggerResults.getByLabel(*m_event, "TriggerResults", "", filterEntry->m_selector->m_triggerProcess.c_str());
-    std::vector<std::pair<unsigned int, bool> >::const_iterator filter = filters.begin();
+    std::vector<std::pair<unsigned int, bool>>::const_iterator filter = filters.begin();
     bool passed = hTriggerResults->accept(filter->first) == filter->second;
     while (++filter != filters.end()) {
       if (junction_mode)
