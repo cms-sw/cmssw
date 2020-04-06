@@ -2,7 +2,6 @@
 <use name="clhep"/>
 <use name="root"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="CondFormats/L1TObjects"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/L1GlobalTrigger"/>
