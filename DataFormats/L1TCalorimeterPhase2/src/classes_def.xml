@@ -4,26 +4,26 @@
 
 <lcgdict>
 
-  <class name="l1tp2::L1EGCrystalCluster"  ClassVersion="3">
-         <version ClassVersion="3" checksum="3974448289"/>
+  <class name="l1tp2::CaloCrystalCluster"  ClassVersion="3">
+         <version ClassVersion="3" checksum="203754523"/>
   </class>
-  <class name="std::vector<l1tp2::L1EGCrystalCluster>" />
-  <class name="l1tp2::L1EGCrystalClusterCollection" />
-  <class name="edm::Wrapper<l1tp2::L1EGCrystalClusterCollection>" />
+  <class name="std::vector<l1tp2::CaloCrystalCluster>" />
+  <class name="l1tp2::CaloCrystalClusterCollection" />
+  <class name="edm::Wrapper<l1tp2::CaloCrystalClusterCollection>" />
 
-  <class name="l1tp2::L1CaloTower"  ClassVersion="3">
-         <version ClassVersion="3" checksum="2741969458"/>
+  <class name="l1tp2::CaloTower"  ClassVersion="3">
+         <version ClassVersion="3" checksum="2608605419"/>
   </class>
-  <class name="std::vector<l1tp2::L1CaloTower>" />
-  <class name="l1tp2::L1CaloTowerCollection" />
-  <class name="edm::Wrapper<l1tp2::L1CaloTowerCollection>" />
+  <class name="std::vector<l1tp2::CaloTower>" />
+  <class name="l1tp2::CaloTowerCollection" />
+  <class name="edm::Wrapper<l1tp2::CaloTowerCollection>" />
 
-  <class name="l1tp2::L1CaloJet"  ClassVersion="3">
-         <version ClassVersion="3" checksum="1487389037"/>
+  <class name="l1tp2::CaloJet"  ClassVersion="3">
+         <version ClassVersion="3" checksum="3671674640"/>
   </class>
-  <class name="std::vector<l1tp2::L1CaloJet>" />
-  <class name="l1tp2::L1CaloJetsCollection" />
-  <class name="edm::Wrapper<l1tp2::L1CaloJetsCollection>" />
+  <class name="std::vector<l1tp2::CaloJet>" />
+  <class name="l1tp2::CaloJetsCollection" />
+  <class name="edm::Wrapper<l1tp2::CaloJetsCollection>" />
 
 </lcgdict>
 

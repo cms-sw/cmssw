@@ -1,5 +1,5 @@
-#ifndef DataFormats_L1TCalorimeterPhase2_L1CaloJets_h
-#define DataFormats_L1TCalorimeterPhase2_L1CaloJets_h
+#ifndef DataFormats_L1TCalorimeterPhase2_CaloJets_h
+#define DataFormats_L1TCalorimeterPhase2_CaloJets_h
 
 #include <vector>
 #include <map>
@@ -10,11 +10,11 @@
 
 namespace l1tp2 {
 
-  class L1CaloJet : public l1t::L1Candidate {
+  class CaloJet : public l1t::L1Candidate {
   public:
-    L1CaloJet() : l1t::L1Candidate(), calibratedPt_(0.), hovere_(0.), iso_(0.), pUcorrPt_(0.){};
+    CaloJet() : l1t::L1Candidate(), calibratedPt_(0.), hovere_(0.), iso_(0.), pUcorrPt_(0.){};
 
-    L1CaloJet(const PolarLorentzVector& p4, float calibratedPt, float hovere, float iso, float PUcorrPt = 0.)
+    CaloJet(const PolarLorentzVector& p4, float calibratedPt, float hovere, float iso, float PUcorrPt = 0.)
         : l1t::L1Candidate(p4), calibratedPt_(calibratedPt), hovere_(hovere), iso_(iso), pUcorrPt_(PUcorrPt){};
 
     inline float calibratedPt() const { return calibratedPt_; };
@@ -29,10 +29,11 @@ namespace l1tp2 {
     const std::map<std::string, float>& experimentalParams() const { return experimentalParams_; };
 
     inline float experimentalParam(std::string const& name) const {
-      if (experimentalParams_.count(name)) {
-        return experimentalParams_.at(name);
+      auto iter = experimentalParams_.find(name);
+      if (iter != experimentalParams_.end()) {
+        return iter->second;
       } else {
-        edm::LogError("L1CaloJet") << "Error: no mapping for ExperimentalParam: " << name << std::endl;
+        edm::LogWarning("CaloJet") << "Error: no mapping for ExperimentalParam: " << name << std::endl;
         return -99.;
       }
     };
@@ -53,6 +54,6 @@ namespace l1tp2 {
   };
 
   // Concrete collection of output objects (with extra tuning information)
-  typedef std::vector<l1tp2::L1CaloJet> L1CaloJetsCollection;
+  typedef std::vector<l1tp2::CaloJet> CaloJetsCollection;
 }  // namespace l1tp2
 #endif

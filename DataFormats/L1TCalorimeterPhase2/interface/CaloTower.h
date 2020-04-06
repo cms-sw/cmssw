@@ -5,17 +5,17 @@
 // is not specifically used in the L1EG algo beyond H/E, so the HCAL values here
 // correspond to the full, initial HCAL TP energy.
 
-#ifndef DataFormats_L1TCalorimeterPhase2_L1CaloTower_HH
-#define DataFormats_L1TCalorimeterPhase2_L1CaloTower_HH
+#ifndef DataFormats_L1TCalorimeterPhase2_CaloTower_HH
+#define DataFormats_L1TCalorimeterPhase2_CaloTower_HH
 
 #include <vector>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
 namespace l1tp2 {
 
-  class L1CaloTower : public l1t::L1Candidate {
+  class CaloTower : public l1t::L1Candidate {
   public:
-    L1CaloTower()
+    CaloTower()
         : l1t::L1Candidate(),
           ecalTowerEt_(0.0),
           hcalTowerEt_(0.0),
@@ -80,7 +80,7 @@ namespace l1tp2 {
   };
 
   // Collection of either ECAL or HCAL TPs with the Layer1 calibration constant attached, et_calibration
-  typedef std::vector<L1CaloTower> L1CaloTowerCollection;
+  typedef std::vector<CaloTower> CaloTowerCollection;
 
 }  // namespace l1tp2
 #endif
