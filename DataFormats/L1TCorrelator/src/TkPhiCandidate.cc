@@ -28,7 +28,7 @@ double TkPhiCandidate::dRTrkPair() const {
 }
 
 // difference from nominal mass
-double TkPhiCandidate::dmass() const { return std::fabs(phi_polemass - mass()); }
+double TkPhiCandidate::dmass() const { return std::abs(phi_polemass - mass()); }
 // position difference between track pair
 double TkPhiCandidate::dxyTrkPair() const {
   const edm::Ptr<L1TTTrackType>& itrk = trkPtr(0);
