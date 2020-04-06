@@ -17,10 +17,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CondTools/SiPixel/test/SiPixelVCalDB.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelVCal.h"
 #include "CondFormats/DataRecord/interface/SiPixelVCalRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelVCalSimRcd.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 //
 //

@@ -28,7 +28,7 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& es) {
       float offset = (float) it->getParameter<double>("offset");
       std::cout  << "  pixid " << pixid << " \t VCal slope " << slope << ", offset " << offset << std::endl;
       //edm::LogInfo("SiPixelVCalReader")  << "  pixid " << pixid << " \t VCal slope " << slope << ", offset " << offset;
-      VCal->putVCal(pixid,slope,offset);
+      VCal->putSlopeAndOffset(pixid,slope,offset);
   }
 
   // Put VCals for FPIX
@@ -43,7 +43,7 @@ void SiPixelVCalDB::analyze(const edm::Event& e, const edm::EventSetup& es) {
       float offset = (float) it->getParameter<double>("offset");
       std::cout  << "  pixid " << pixid << " \t VCal slope " << slope << ", offset " << offset << std::endl;
       //edm::LogInfo("SiPixelVCalReader")  << "  pixid " << pixid << " \t VCal slope " << slope << ", offset " << offset;
-      VCal->putVCal(pixid,slope,offset);
+      VCal->putSlopeAndOffset(pixid,slope,offset);
   }
 
   // Save to DB
