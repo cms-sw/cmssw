@@ -46,7 +46,7 @@ public:
     bool hasSelectedEvents() { return m_eventList && m_eventList->GetN(); }
   };
 
-  FWFileEntry(const std::string& name, bool checkVersion);
+  FWFileEntry(const std::string& name, bool checkVersion, bool checkGlobalTag);
   virtual ~FWFileEntry();
 
   TFile* file() { return m_file; }
@@ -57,7 +57,9 @@ public:
 
   std::list<Filter*>& filters() { return m_filterEntries; }
 
-  void openFile(bool);
+  const std::string& getGlobalTag() const { return m_globalTag; }
+
+  void openFile(bool, bool);
   void closeFile();
 
   bool isEventSelected(int event);
@@ -96,6 +98,7 @@ private:
   fwlite::Event* m_event;
 
   bool m_needUpdate;  // To be set in navigator::filterChanged/Added, newFile
+  std::string m_globalTag;
 
   std::list<Filter*> m_filterEntries;
   FWTEventList* m_globalEventList;
