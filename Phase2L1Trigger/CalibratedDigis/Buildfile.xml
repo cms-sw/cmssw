@@ -1,8 +1,0 @@
-<use   name="DataFormats/DTDigi"/>
-<use   name="DataFormats/Common"/>
-<use   name="Geometry/DTGeometry"/>
-<use   name="CalibMuon/DTDigiSync"/>
-<flags EDM_PLUGIN=1>
-<export>
-  <lib   name="1"/>
-</export>
