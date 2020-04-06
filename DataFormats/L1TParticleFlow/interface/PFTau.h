@@ -9,7 +9,7 @@ namespace l1t {
 
   static constexpr float PFTAU_NN_OFFSET = 0.1;
   static constexpr float PFTAU_NN_SLOPE = 0.2;
-  static constexpr float PFTAU_NN_OVERALL_SCALE = 1./20.1;
+  static constexpr float PFTAU_NN_OVERALL_SCALE = 1. / 20.1;
 
   static constexpr float PFTAU_NN_LOOSE_CUT = 0.05;
   static constexpr float PFTAU_NN_TIGHT_CUT = 0.25;
@@ -42,11 +42,13 @@ namespace l1t {
     float fullIso() const { return fullIso_; }
     int id() const { return id_; }
     bool passLooseNN() const {
-      return iso_ * (PFTAU_NN_OFFSET + PFTAU_NN_SLOPE * (min(pt(), PFTAU_NN_PT_CUTOFF))) * PFTAU_NN_OVERALL_SCALE > PFTAU_NN_LOOSE_CUT;
+      return iso_ * (PFTAU_NN_OFFSET + PFTAU_NN_SLOPE * (min(pt(), PFTAU_NN_PT_CUTOFF))) * PFTAU_NN_OVERALL_SCALE >
+             PFTAU_NN_LOOSE_CUT;
     }
     bool passLoosePF() const { return fullIso_ < PFTAU_PF_LOOSE_CUT; }
     bool passTightNN() const {
-      return iso_ * (PFTAU_NN_OFFSET + PFTAU_NN_SLOPE * (min(pt(), PFTAU_NN_PT_CUTOFF))) * PFTAU_NN_OVERALL_SCALE > PFTAU_NN_TIGHT_CUT;
+      return iso_ * (PFTAU_NN_OFFSET + PFTAU_NN_SLOPE * (min(pt(), PFTAU_NN_PT_CUTOFF))) * PFTAU_NN_OVERALL_SCALE >
+             PFTAU_NN_TIGHT_CUT;
     }
     bool passTightPF() const { return fullIso_ < PFTAU_PF_TIGHT_CUT; }
 
