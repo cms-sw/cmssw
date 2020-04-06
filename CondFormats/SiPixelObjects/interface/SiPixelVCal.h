@@ -11,26 +11,24 @@ public:
   SiPixelVCal(){};
   ~SiPixelVCal(){};
 
-  inline void putSlope(std::map<unsigned int, float>& slope) { m_slope = slope; }
-  inline void putOffset(std::map<unsigned int, float>& offset) { m_offset = offset; }
-  inline const std::map<unsigned int, float>& getSlope() const { return m_slope; }
-  inline const std::map<unsigned int, float>& getOffset() const { return m_offset; }
+  struct VCal { float slope=47; float offset=-60; COND_SERIALIZABLE; };
 
-  // integer is pixid, see CondTools/SiPixel/test/SiPixelVCalDB.h
-  bool putSlope(const uint32_t&, float&);
-  bool putOffset(const uint32_t&, float&);
-  bool putVCal(const uint32_t&, float&, float&);
+  inline void putSlopeAndOffset(std::map<unsigned int,VCal>& offset) { m_vcal = m_vcal; }
+  inline const std::map<unsigned int,VCal>& getSlopeAndOffset() const { return m_vcal; }
+  bool putSlopeAndOffset(const uint32_t&, float&, float&);
+  VCal getSlopeAndOffset(const uint32_t&) const;
   float getSlope(const uint32_t&) const;
   float getOffset(const uint32_t&) const;
+  // uint32_t is pixid, see CondTools/SiPixel/test/SiPixelVCalDB.h
 
 private:
+
   // Convert VCal to #electrons, which changes with irradiation and varies between pixel layers & disks
   //     VCal = (slope) * (#electrons) + offset
   // with
   //   slope  ~  47 (50 for L1)
   //   offset ~ -60 (-670 for L1)
-  std::map<unsigned int, float> m_slope;
-  std::map<unsigned int, float> m_offset;
+  std::map<unsigned int,VCal> m_vcal;
 
   COND_SERIALIZABLE;
 };

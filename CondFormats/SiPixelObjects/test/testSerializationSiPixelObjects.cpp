@@ -24,6 +24,7 @@ int main() {
   testSerialization<SiPixelLorentzAngle>();
   testSerialization<SiPixelPedestals>();
   testSerialization<SiPixelVCal>();
+  testSerialization<SiPixelVCal::VCal>();
   testSerialization<SiPixelPerformanceSummary>();
   testSerialization<SiPixelPerformanceSummary::DetSummary>();
   testSerialization<SiPixelQuality>();
