@@ -9,8 +9,10 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelVCal.h"
+#include "CondFormats/DataRecord/interface/SiPixelVCalRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
 #include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
@@ -40,6 +42,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationOfflineSimRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTSimRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelVCalSimRcd.h"
 
 namespace {
   struct InitRocs {
@@ -67,6 +70,8 @@ REGISTER_PLUGIN_INIT(SiPixelGainCalibrationOfflineSimRcd,
                      InitGains<SiPixelGainCalibrationOffline>);
 REGISTER_PLUGIN(SiPixelLorentzAngleRcd, SiPixelLorentzAngle);
 REGISTER_PLUGIN(SiPixelLorentzAngleSimRcd, SiPixelLorentzAngle);
+REGISTER_PLUGIN(SiPixelVCalRcd, SiPixelVCal);
+REGISTER_PLUGIN(SiPixelVCalSimRcd, SiPixelVCal);
 REGISTER_PLUGIN(SiPixelDynamicInefficiencyRcd, SiPixelDynamicInefficiency);
 REGISTER_PLUGIN(SiPixelCalibConfigurationRcd, SiPixelCalibConfiguration);
 REGISTER_PLUGIN(SiPixelPerformanceSummaryRcd, SiPixelPerformanceSummary);

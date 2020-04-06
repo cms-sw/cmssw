@@ -1,5 +1,4 @@
 #include "CondFormats/Serialization/interface/Test.h"
-
 #include "CondFormats/SiPixelObjects/src/headers.h"
 
 int main() {
@@ -24,6 +23,7 @@ int main() {
   testSerialization<SiPixelGenErrorDBObject>();
   testSerialization<SiPixelLorentzAngle>();
   testSerialization<SiPixelPedestals>();
+  testSerialization<SiPixelVCal>();
   testSerialization<SiPixelPerformanceSummary>();
   testSerialization<SiPixelPerformanceSummary::DetSummary>();
   testSerialization<SiPixelQuality>();
@@ -45,6 +45,5 @@ int main() {
   testSerialization<std::vector<SiPixelGainCalibrationOffline::DetRegistry>>();
   testSerialization<std::vector<SiPixelPerformanceSummary::DetSummary>>();
   testSerialization<std::vector<SiPixelQuality::disabledModuleType>>();
-
   return 0;
 }
