@@ -508,6 +508,9 @@ def gen2018(fragment,howMuch):
 def gen2018prod(fragment,howMuch):
     global step1Up2018ProdDefaults
     return merge([{'cfg':fragment},howMuch,step1Up2018ProdDefaults])
+def gen2018prodml(fragment,howMuch): #Prod with concurrentLumis
+    global step1Up2018ProdDefaults
+    return merge([{'cfg':fragment},howMuch,{'--customise_commands': '"process.source.numberEventsInLuminosityBlock=cms.untracked.uint32(5)"'},concurrentLumis,step1Up2018ProdDefaults]) #this setting is to allow job to cross LS in IB
 def gen2018hiprod(fragment,howMuch):
     global step1Up2018HiProdDefaults
     return merge([{'cfg':fragment},howMuch,step1Up2018HiProdDefaults])
@@ -606,8 +609,10 @@ steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17']=gen2017('SMS-T1tttt_mGl-1500_mLSP-1
 ### 2018 wf: only the ones for premixing (for the moment)
 steps['NuGun_UP18']=gen2018('SingleNuE10_cfi.py',Kby(9,50))
 steps['ProdTTbar_13UP18']=gen2018prod('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['ProdTTbar_13UP18ml']=gen2018prodml('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['TTbar_13UP18']=gen2018('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['ProdZEE_13UP18']=gen2018prod('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['ProdZEE_13UP18ml']=gen2018prodml('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['ZEE_13UP18']=gen2018('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['ProdZMM_13UP18']=gen2018prod('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
 steps['ZMM_13UP18']=gen2018('ZMM_13TeV_TuneCUETP8M1_cfi',Kby(18,100))
@@ -1643,6 +1648,7 @@ steps['DIGIUP18']=merge([step2Upg2018Defaults])
 steps['DIGIUP18ml']=merge([concurrentLumis,step2Upg2018Defaults])
 steps['DIGIUP17PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2017','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2017Defaults])
 steps['DIGIUP18PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2018','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2018Defaults])
+steps['DIGIUP18PROD1ml']=merge([concurrentLumis,steps['DIGIUP18PROD1']])
 steps['DIGIUP17_PU25']=merge([PU25UP17,step2Upg2017Defaults])
 steps['DIGIUP18_PU25']=merge([PU25UP18,step2Upg2018Defaults])
 
@@ -2338,6 +2344,7 @@ steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT','--dat
 steps['RECOPRODUP17']=merge([{ '--era' :'Run2_2017','--conditions': 'auto:phase1_2017_realistic'},steps['RECOPRODUP15']])
 ## for 2018 PROD
 steps['RECOPRODUP18']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI','--era' :'Run2_2018','--conditions': 'auto:phase1_2018_realistic','--datatier':'AODSIM','--eventcontent':'AODSIM'},step3Up2015Defaults])
+steps['RECOPRODUP18ml']=merge([concurrentLumis,steps['RECOPRODUP18']])
 steps['RECOPRODUP18bParking']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI','--era' :'Run2_2018,bParking','--conditions': 'auto:phase1_2018_realistic','--datatier':'AODSIM','--eventcontent':'AODSIM'},step3Up2015Defaults])
 ##
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics','--datatier':'GEN-SIM-RECO,DQMIO','--eventcontent':'RECOSIM,DQM'},stCond,step3Defaults])
@@ -3009,6 +3016,7 @@ steps['MINIAODMCUP17FS']   =merge([{'--filein':'file:step1.root','--fast':'','--
 steps['MINIAODMCUP18']   =merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018'},stepMiniAODMC])
 steps['MINIAODMCUP18bParking']   =merge([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018,bParking'},stepMiniAODMC])
 steps['MINIAODMCUP18FS']   =merge([{'--filein':'file:step1.root','--fast':'','--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018_FastSim'},stepMiniAODMC])
+steps['MINIAODMCUP18ml'] =merge([concurrentLumis,steps['MINIAODMCUP18']])
 
 stepNanoAODDefaults = { '-s': 'NANO,DQM:@nanoAODDQM', '-n': 1000 }
 stepNanoAODData = merge([{ '--data':'', '--eventcontent' : 'NANOAOD,DQM' ,'--datatier': 'NANOAOD,DQMIO'    }, stepNanoAODDefaults ])
@@ -3045,7 +3053,9 @@ steps['NANOUP15Data_PU25_JME']=merge([{'--customise':'PhysicsTools/NanoAOD/custo
 steps['NANOUP17Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP17']])
 steps['NANOUP18'] = merge([{'--conditions': 'auto:phase1_2018_realistic', '--era': 'Run2_2018','-n':'10', '--filein':'file:step3_inMINIAODSIM.root', '--nThreads':'2'}, stepNanoEDMMCProd ])
 steps['NANOUP18Had']=merge([{'--filein':'file:step4_inMINIAODSIM.root'},steps['NANOUP18']])
+steps['NANOPRODUP18']=merge([{'--filein':'file:step4.root'},steps['NANOUP18']])
 steps['NANOUP18ml']=merge([concurrentLumis,steps['NANOUP18']])
+steps['NANOPRODUP18ml']=merge([{'--filein':'file:step4.root'},steps['NANOUP18ml']])
 steps['NANOEDM2017'] = merge([{'--conditions': 'auto:run2_data_relval', '--era': 'Run2_2017'}, stepNanoEDMData ])
 steps['NANOEDM2017_94XMiniAODv1'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv1'}, steps['NANOEDM2017'] ])
 steps['NANOEDM2017_94XMiniAODv2'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_94XMiniAODv2'}, steps['NANOEDM2017'] ])
