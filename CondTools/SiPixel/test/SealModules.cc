@@ -17,6 +17,9 @@
 #include "CondTools/SiPixel/test/SiPixelLorentzAngleReader.h"
 #include "CondTools/SiPixel/test/SiPixelLorentzAngleDB.h"
 
+#include "CondTools/SiPixel/test/SiPixelVCalReader.h"
+#include "CondTools/SiPixel/test/SiPixelVCalDB.h"
+
 #include "CondTools/SiPixel/test/SiPixelDynamicInefficiencyReader.h"
 #include "CondTools/SiPixel/test/SiPixelDynamicInefficiencyDB.h"
 
@@ -61,6 +64,8 @@ DEFINE_FWK_MODULE(SiPixelCondObjOfflineReader);
 DEFINE_FWK_MODULE(SiPixelCondObjAllPayloadsReader);
 DEFINE_FWK_MODULE(SiPixelLorentzAngleReader);
 DEFINE_FWK_MODULE(SiPixelLorentzAngleDB);
+DEFINE_FWK_MODULE(SiPixelVCalReader);
+DEFINE_FWK_MODULE(SiPixelVCalDB);
 DEFINE_FWK_MODULE(SiPixelDynamicInefficiencyReader);
 DEFINE_FWK_MODULE(SiPixelDynamicInefficiencyDB);
 DEFINE_FWK_MODULE(SiPixelPerformanceSummaryBuilder);
