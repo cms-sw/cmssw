@@ -9,6 +9,7 @@
 <use   name="SimDataFormats/SimHitMaker"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="DetectorDescription/Core"/>
+<use   name="DetectorDescription/DDCMS"/>
 <use   name="geant4core"/>
 <export>
   <lib   name="1"/>
