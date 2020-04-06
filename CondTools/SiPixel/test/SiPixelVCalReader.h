@@ -8,6 +8,7 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TH2F.h"
+#include "TTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
