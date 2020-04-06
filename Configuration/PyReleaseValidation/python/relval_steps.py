@@ -2811,7 +2811,7 @@ steps['HARVESTHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:vali
                                                            '--era' : 'Run2_2018_pp_on_AA',
                                                            '--filetype':'DQM'}])
 
-steps['HARVESTHI2018']=merge([hiDefaults2018,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+steps['HARVESTHI2018']=merge([hiDefaults2018,{'-s':'HARVESTING:validationHarvesting+dqmHarvestingFakeHLT',
                     '--mc':'',
                     '--era' : 'Run2_2017',
                     '--filetype':'DQM',
@@ -2820,12 +2820,12 @@ steps['HARVESTHI2017']=merge([hiDefaults2017,{'-s':'HARVESTING:validationHarvest
                     '--mc':'',
                     '--era' : 'Run2_2017_pp_on_XeXe',
                     '--filetype':'DQM'}])
-steps['HARVESTHI2015']=merge([hiDefaults2015,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+steps['HARVESTHI2015']=merge([hiDefaults2015,{'-s':'HARVESTING:validationHarvesting+dqmHarvestingFakeHLT',
                     '--mc':'',
                     '--era' : 'Run2_2016,Run2_HI',
                     '--filetype':'DQM',
                     '--scenario':'HeavyIons'}])
-steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvesting+dqmHarvestingFakeHLT',
                                               '--mc':'',
                                               '--filetype':'DQM'}])
 
