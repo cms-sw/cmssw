@@ -1,9 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
@@ -444,8 +442,19 @@ namespace {
   }
 }  // namespace
 
-PFEGammaAlgo::PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg, GBRForests const& gbrForests)
-    : gbrForests_(gbrForests), cfg_(cfg) {}
+PFEGammaAlgo::PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg,
+                           GBRForests const& gbrForests,
+                           EEtoPSAssociation const& eetops,
+                           ESEEIntercalibConstants const& esEEInterCalib,
+                           ESChannelStatus const& channelStatus,
+                           reco::Vertex const& primaryVertex)
+    : gbrForests_(gbrForests),
+      eetops_(eetops),
+      cfg_(cfg),
+      primaryVertex_(primaryVertex),
+      channelStatus_(channelStatus) {
+  thePFEnergyCalibration_.initAlphaGamma_ESplanes_fromDB(&esEEInterCalib);
+}
 
 float PFEGammaAlgo::evaluateSingleLegMVA(const reco::PFBlockRef& blockRef,
                                          const reco::Vertex& primaryVtx,
@@ -895,7 +904,7 @@ int PFEGammaAlgo::attachPSClusters(const ClusterElement* ecalclus, ClusterMap::m
   edm::Ptr<reco::PFCluster> clusptr = refToPtr(ecalclus->clusterRef());
   EEtoPSElement ecalkey(clusptr.key(), clusptr);
   auto assc_ps =
-      std::equal_range(eetops_->cbegin(), eetops_->cend(), ecalkey, [](const EEtoPSElement& a, const EEtoPSElement& b) {
+      std::equal_range(eetops_.cbegin(), eetops_.cend(), ecalkey, [](const EEtoPSElement& a, const EEtoPSElement& b) {
         return a.first < b.first;
       });
   for (const auto& ps1 : _splayedblock[reco::PFBlockElement::PS1]) {
@@ -1051,7 +1060,7 @@ void PFEGammaAlgo::removeOrLinkECALClustersToKFTracks() {
 
           const int nexhits = trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
           bool fromprimaryvertex = false;
-          for (auto vtxtks = primaryVertex_->tracks_begin(); vtxtks != primaryVertex_->tracks_end(); ++vtxtks) {
+          for (auto vtxtks = primaryVertex_.tracks_begin(); vtxtks != primaryVertex_.tracks_end(); ++vtxtks) {
             if (trackref == vtxtks->castTo<reco::TrackRef>()) {
               fromprimaryvertex = true;
               break;
@@ -1425,7 +1434,7 @@ void PFEGammaAlgo::linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) {
     }
     // go through non-conv-identified kfs and check MVA to add conversions
     for (auto kf = notconvkf; kf != notmatchedkf; ++kf) {
-      float mvaval = evaluateSingleLegMVA(_currentblock, *primaryVertex_, (*kf)->index());
+      float mvaval = evaluateSingleLegMVA(_currentblock, primaryVertex_, (*kf)->index());
       if (mvaval > cfg_.mvaConvCut) {
         const reco::PFBlockElementTrack* elemaskf = docast(const reco::PFBlockElementTrack*, kf->get());
         RO.secondaryKFs.push_back(elemaskf);
@@ -1528,7 +1537,7 @@ PFEGammaAlgo::EgammaObjects PFEGammaAlgo::fillPFCandidates(const std::list<PFEGa
         //by storing 3.0 + mvaval
         float mvaval = (mvavalmapped != RO.singleLegConversionMvaMap.end()
                             ? mvavalmapped->second
-                            : 3.0 + evaluateSingleLegMVA(_currentblock, *primaryVertex_, kf->index()));
+                            : 3.0 + evaluateSingleLegMVA(_currentblock, primaryVertex_, kf->index()));
 
         xtra.addSingleLegConvTrackRefMva(std::make_pair(kf->trackRef(), mvaval));
       }
@@ -1558,7 +1567,7 @@ PFEGammaAlgo::EgammaObjects PFEGammaAlgo::fillPFCandidates(const std::list<PFEGa
     const double scE = the_sc.energy();
     if (scE != 0.0) {
       const math::XYZPoint& seedPos = the_sc.seed()->position();
-      math::XYZVector egDir = the_sc.position() - primaryVertex_->position();
+      math::XYZVector egDir = the_sc.position() - primaryVertex_.position();
       egDir = egDir.Unit();
       cand.setP4(math::XYZTLorentzVector(scE * egDir.x(), scE * egDir.y(), scE * egDir.z(), scE));
       math::XYZPointF ecalPOS_f(seedPos.x(), seedPos.y(), seedPos.z());
@@ -1806,7 +1815,7 @@ reco::SuperCluster PFEGammaAlgo::buildRefinedSuperCluster(const PFEGammaAlgo::Pr
         psClusterPointers.push_back(psc->clusterRef().get());
       }
       auto calibratedEnergies = thePFEnergyCalibration_.calibrateEndcapClusterEnergies(
-          *clusptr, psClusterPointers, *channelStatus_, cfg_.applyCrackCorrections);
+          *clusptr, psClusterPointers, channelStatus_, cfg_.applyCrackCorrections);
       cluscalibe = calibratedEnergies.clusterEnergy;
       ePS1 = calibratedEnergies.ps1Energy;
       ePS2 = calibratedEnergies.ps2Energy;
