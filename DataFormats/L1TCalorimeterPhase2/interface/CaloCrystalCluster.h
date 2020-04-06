@@ -1,5 +1,5 @@
-#ifndef DataFormats_L1TCalorimeterPhase2_L1EGammaCrystalsCluster_h
-#define DataFormats_L1TCalorimeterPhase2_L1EGammaCrystalsCluster_h
+#ifndef DataFormats_L1TCalorimeterPhase2_CaloCrystalsCluster_h
+#define DataFormats_L1TCalorimeterPhase2_CaloCrystalsCluster_h
 
 #include <vector>
 #include <map>
@@ -11,9 +11,9 @@
 
 namespace l1tp2 {
 
-  class L1EGCrystalCluster : public l1t::L1Candidate {
+  class CaloCrystalCluster : public l1t::L1Candidate {
   public:
-    L1EGCrystalCluster()
+    CaloCrystalCluster()
         : l1t::L1Candidate(),
           calibratedPt_(0.),
           hovere_(0.),
@@ -31,7 +31,7 @@ namespace l1tp2 {
           looseL1TkMatchWP_(0.),
           stage2effMatch_(0.){};
 
-    L1EGCrystalCluster(const PolarLorentzVector &p4,
+    CaloCrystalCluster(const PolarLorentzVector &p4,
                        float calibratedPt,
                        float hovere,
                        float iso,
@@ -66,7 +66,7 @@ namespace l1tp2 {
           looseL1TkMatchWP_(looseL1TkMatchWP),
           stage2effMatch_(stage2effMatch){};
 
-    virtual ~L1EGCrystalCluster(){};
+    virtual ~CaloCrystalCluster(){};
     inline float calibratedPt() const { return calibratedPt_; };
     inline float hovere() const { return hovere_; };
     inline float isolation() const { return iso_; };
@@ -81,10 +81,11 @@ namespace l1tp2 {
     void SetExperimentalParams(const std::map<std::string, float> &params) { experimentalParams_ = params; };
     const std::map<std::string, float> &getExperimentalParams() const { return experimentalParams_; };
     inline float experimentalParam(std::string name) const {
-      if (experimentalParams_.count(name)) {
-        return experimentalParams_.at(name);
+      auto iter = experimentalParams_.find(name);
+      if (iter != experimentalParams_.end()) {
+        return iter->second;
       } else {
-        edm::LogError("L1EGCrystalCluster") << "Error: no mapping for ExperimentalParam: " << name << std::endl;
+        edm::LogWarning("CaloCrystalCluster") << "Error: no mapping for ExperimentalParam: " << name << std::endl;
         return -99.;
       }
     };
@@ -146,6 +147,6 @@ namespace l1tp2 {
   };
 
   // Concrete collection of output objects (with extra tuning information)
-  typedef std::vector<l1tp2::L1EGCrystalCluster> L1EGCrystalClusterCollection;
+  typedef std::vector<l1tp2::CaloCrystalCluster> CaloCrystalClusterCollection;
 }  // namespace l1tp2
 #endif

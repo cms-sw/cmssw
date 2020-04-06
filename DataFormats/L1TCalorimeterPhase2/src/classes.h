@@ -8,6 +8,6 @@
 /** L1 CALO TRIGGER **/
 /*********************/
 
-#include "DataFormats/L1TCalorimeterPhase2/interface/L1EGCrystalCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/L1CaloTower.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/L1CaloJet.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/CaloJet.h"
