@@ -67,7 +67,10 @@ public:
   void setBxTolerance(int t) { bxTolerance_ = t; };
   void setMinHits4Fit(int h) { minHits4Fit_ = h; };
   void setChiSquareThreshold(float ch2Thr) { chiSquareThreshold_ = ch2Thr; };
-  void setMinimumQuality(MP_QUALITY q) {  if (minQuality_ >= LOWQGHOST)  minQuality_ = q; };
+  void setMinimumQuality(MP_QUALITY q) {
+    if (minQuality_ >= LOWQGHOST)
+      minQuality_ = q;
+  };
 
   int bxTolerance(void) { return bxTolerance_; };
   int minHits4Fit(void) { return minHits4Fit_; };
@@ -106,7 +109,6 @@ private:
      3    -> Capa más externa */
   void evaluateQuality(MuonPath *mPath);
   // Private attributes
-
 
   /* El máximo de combinaciones de lateralidad para 4 celdas es 16 grupos
      Es feo reservar todo el posible bloque de memoria de golpe, puesto que

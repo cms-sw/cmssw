@@ -11,7 +11,8 @@ Pattern::Pattern(RefPatternHit seedUp, RefPatternHit seedDown) : seedUp_(seedUp)
   //On creation, pattern is based on seeds, with no hits. Due to traslational simmetry we only need the superlayer indexes as well as the cell index difference
   id_ = std::make_tuple(std::get<0>(seedUp), std::get<0>(seedDown), std::get<1>(seedUp) - std::get<1>(seedDown));
   if (debug_)
-    std::cout << "Pattern id: " << std::get<0>(id_) << " , " << std::get<1>(id_) << " , " << std::get<2>(id_) << std::endl;
+    std::cout << "Pattern id: " << std::get<0>(id_) << " , " << std::get<1>(id_) << " , " << std::get<2>(id_)
+              << std::endl;
 }
 
 Pattern::Pattern(int SL1, int SL2, int diff) {
@@ -20,7 +21,8 @@ Pattern::Pattern(int SL1, int SL2, int diff) {
   seedDown_ = std::make_tuple(SL2, diff, 0);
   id_ = std::make_tuple(SL1, SL2, diff);
   if (debug_)
-    std::cout << "Pattern id: " << std::get<0>(id_) << " , " << std::get<1>(id_) << " , " << std::get<2>(id_) << std::endl;
+    std::cout << "Pattern id: " << std::get<0>(id_) << " , " << std::get<1>(id_) << " , " << std::get<2>(id_)
+              << std::endl;
 }
 
 void Pattern::addHit(RefPatternHit hit) {

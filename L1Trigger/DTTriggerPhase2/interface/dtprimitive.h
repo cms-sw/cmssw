@@ -27,26 +27,26 @@ public:
   bool isValidTime(void);
   float wireHorizPos(void);
 
-  void setTimeCorrection(int time)         { timeCorrection_ = time;       };
-  void setTDCTimeStamp(int tstamp)         { tdcTimeStamp_ = tstamp;       };
-  void setOrbit(int orb)                   { orbit_ = orb;                 }
-  void setPayload(double hitTag, int idx)  { this->payLoad_[idx] = hitTag; };
-  void setChannelId(int channel)           { channelId_ = channel;         };
-  void setLayerId(int layer)               { layerId_ = layer;             };
-  void setCameraId(int camera)             { cameraId_ = camera;           };
-  void setSuperLayerId(int lay)            { superLayerId_ = lay;          }; 
-  void setLaterality(LATERAL_CASES lat)    { laterality_ = lat;            };
+  void setTimeCorrection(int time) { timeCorrection_ = time; };
+  void setTDCTimeStamp(int tstamp) { tdcTimeStamp_ = tstamp; };
+  void setOrbit(int orb) { orbit_ = orb; }
+  void setPayload(double hitTag, int idx) { this->payLoad_[idx] = hitTag; };
+  void setChannelId(int channel) { channelId_ = channel; };
+  void setLayerId(int layer) { layerId_ = layer; };
+  void setCameraId(int camera) { cameraId_ = camera; };
+  void setSuperLayerId(int lay) { superLayerId_ = lay; };
+  void setLaterality(LATERAL_CASES lat) { laterality_ = lat; };
 
-  int timeCorrection(void)          { return timeCorrection_;                 }; 
-  int tdcTimeStamp(void)            { return tdcTimeStamp_;                   };
-  int orbit(void)                   { return orbit_;                          };
-  int tdcTimeStampNoOffset(void)    { return tdcTimeStamp_ - timeCorrection_; };
-  double payLoad(int idx)           { return payLoad_[idx];                   };
-  int channelId(void)               { return channelId_;                      };
-  int layerId(void)                 { return layerId_;                        };
-  int cameraId(void)                { return cameraId_;                       };
-  int superLayerId(void)            { return superLayerId_;                   };
-  LATERAL_CASES laterality(void)    { return laterality_;                     };
+  int timeCorrection(void) { return timeCorrection_; };
+  int tdcTimeStamp(void) { return tdcTimeStamp_; };
+  int orbit(void) { return orbit_; };
+  int tdcTimeStampNoOffset(void) { return tdcTimeStamp_ - timeCorrection_; };
+  double payLoad(int idx) { return payLoad_[idx]; };
+  int channelId(void) { return channelId_; };
+  int layerId(void) { return layerId_; };
+  int cameraId(void) { return cameraId_; };
+  int superLayerId(void) { return superLayerId_; };
+  LATERAL_CASES laterality(void) { return laterality_; };
 
 private:
   /* Estos identificadores no tienen nada que ver con el "número de canal"

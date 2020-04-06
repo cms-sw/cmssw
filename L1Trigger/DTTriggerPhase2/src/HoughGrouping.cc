@@ -891,10 +891,10 @@ void HoughGrouping::OrderAndFilter(
     outMuonPath->push_back(ptrMuonPath);
     if (debug) {
       for (UShort_t lay = 0; lay < 8; lay++) {
-        cout << "HoughGrouping::OrderAndFilter - Final cameraID: "
-             << outMuonPath->back()->primitive(lay)->cameraId() << endl;
-        cout << "HoughGrouping::OrderAndFilter - Final channelID: "
-             << outMuonPath->back()->primitive(lay)->channelId() << endl;
+        cout << "HoughGrouping::OrderAndFilter - Final cameraID: " << outMuonPath->back()->primitive(lay)->cameraId()
+             << endl;
+        cout << "HoughGrouping::OrderAndFilter - Final channelID: " << outMuonPath->back()->primitive(lay)->channelId()
+             << endl;
         cout << "HoughGrouping::OrderAndFilter - Final time: " << outMuonPath->back()->primitive(lay)->tdcTimeStamp()
              << endl;
       }

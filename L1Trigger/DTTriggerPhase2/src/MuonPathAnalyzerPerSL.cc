@@ -23,7 +23,6 @@ MuonPathAnalyzerPerSL::MuonPathAnalyzerPerSL(const ParameterSet &pset)
 
   setChiSquareThreshold(chi2Th_ * 100.);
 
-
   //shift
   int rawId;
   shift_filename_ = pset.getParameter<edm::FileInPath>("shift_filename");
@@ -737,9 +736,9 @@ void MuonPathAnalyzerPerSL::validate(LATERAL_CASES sideComb[3],
               << mPath->primitive(layerIndex[2])->tdcTimeStamp() << "." << std::endl;
 
   if (debug_)
-    std::cout << "DTp2:validate \t\t\t\t\t\t\t Valid TIMES: " << mPath->primitive(layerIndex[0])->isValidTime()
-              << "/" << mPath->primitive(layerIndex[1])->isValidTime() << "/"
-              << mPath->primitive(layerIndex[2])->isValidTime() << "." << std::endl;
+    std::cout << "DTp2:validate \t\t\t\t\t\t\t Valid TIMES: " << mPath->primitive(layerIndex[0])->isValidTime() << "/"
+              << mPath->primitive(layerIndex[1])->isValidTime() << "/" << mPath->primitive(layerIndex[2])->isValidTime()
+              << "." << std::endl;
 
   /* Distancias verticales entre capas inferior/media y media/superior */
   int dVertMI = layerIndex[1] - layerIndex[0];
@@ -1052,7 +1051,6 @@ void MuonPathAnalyzerPerSL::calculatePathParameters(MuonPath *mPath) {
     calcTanPhiXPosChamber3Hits(mPath);
   }
 
-
   if (debug_)
     std::cout << "DTp2:calculatePathParameters \t\t\t\t\t\t calcChiSquare(mPath) " << std::endl;
   calcChiSquare(mPath);
@@ -1222,8 +1220,8 @@ void MuonPathAnalyzerPerSL::calcCellDriftAndXcoor(MuonPath *mPath) {
 
   for (int i = 0; i <= 3; i++)
     if (mPath->primitive(i)->isValidTime()) {
-      drift_dist_um_x4 = drift_speed_new *
-                         ((long int)mPath->primitive(i)->tdcTimeStampNoOffset() - (long int)mPath->bxTimeValue());
+      drift_dist_um_x4 =
+          drift_speed_new * ((long int)mPath->primitive(i)->tdcTimeStampNoOffset() - (long int)mPath->bxTimeValue());
       wireHorizPos_x4 = (long)(mPath->primitive(i)->wireHorizPos() * x_prec_inv);
 
       if ((mPath->lateralComb())[i] == LEFT)
@@ -1268,9 +1266,8 @@ void MuonPathAnalyzerPerSL::calcChiSquare(MuonPath *mPath) {
   long int chi2_mm2_x1024 = 0;
   for (int i = 0; i < 4; i++) {
     if (mPath->primitive(i)->isValidTime()) {
-      sum_A =
-          (((int)(mPath->xCoorCell(i) / (10 * x_precision_))) - ((int)(mPath->horizPos() / (10 * x_precision_))))
-          << (14 - numberOfBits);
+      sum_A = (((int)(mPath->xCoorCell(i) / (10 * x_precision_))) - ((int)(mPath->horizPos() / (10 * x_precision_))))
+              << (14 - numberOfBits);
       sum_B = Z_FACTOR[i] * ((int)(mPath->tanPhi() / tanPsi_precision_));
       chi2_mm2_x1024 += (sum_A - sum_B) * (sum_A - sum_B);
       //cout << "sum_A=" << sum_A << " sum_B=" << sum_B << " pow((sum_A - sum_B),2)=" << pow((sum_A - sum_B),2) << " chi2_mm2_x1024=" << chi2_mm2_x1024 << endl;

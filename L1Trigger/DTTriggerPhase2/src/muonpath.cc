@@ -153,7 +153,6 @@ void MuonPath::setCellHorizontalLayout(const int *layout) {
 
 bool MuonPath::isEqualTo(MuonPath *ptr) {
   for (int i = 0; i < ptr->nprimitives(); i++) {
-
     if (this->primitive(i)->isValidTime() && ptr->primitive(i)->isValidTime()) {
       if (ptr->primitive(i)->superLayerId() != this->primitive(i)->superLayerId() ||
 
@@ -165,7 +164,6 @@ bool MuonPath::isEqualTo(MuonPath *ptr) {
           (ptr->lateralComb())[i] != (this->lateralComb())[i])
         return false;
     } else {
-
       if (!this->primitive(i)->isValidTime() && !ptr->primitive(i)->isValidTime())
         continue;
 
@@ -202,7 +200,6 @@ void MuonPath::setBxTimeValue(int time) {
     bxNumId_ = int(bxNumId_ + 1);
 }
 
-
 void MuonPath::setLateralCombFromPrimitives(void) {
   for (int i = 0; i < nprimitives_; i++) {
     if (!this->primitive(i)->isValidTime())
@@ -220,8 +217,3 @@ void MuonPath::setLateralComb(const LATERAL_CASES *latComb) {
   for (int i = 0; i <= 3; i++)
     lateralComb_[i] = latComb[i];
 }
-
-
-
-
-

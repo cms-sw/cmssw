@@ -78,8 +78,7 @@ public:
   rpc_metaprimitive* matchDTwithRPC(metaPrimitive* dt_metaprimitive);
   L1Phase2MuDTPhDigi createL1Phase2MuDTPhDigi(
       RPCDetId rpcDetId, int rpc_bx, double rpc_time, double rpc_global_phi, double phiB, int rpc_flag);
-  
-  
+
   double phiBending(rpc_metaprimitive* rpc_hit_1, rpc_metaprimitive* rpc_hit_2);
   int phiInDTTPFormat(double rpc_global_phi, int rpcSector);
   GlobalPoint RPCGlobalPosition(RPCDetId rpcId, const RPCRecHit& rpcIt) const;

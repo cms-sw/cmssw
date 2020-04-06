@@ -181,8 +181,8 @@ void PseudoBayesGrouping::run(Event& iEvent,
     std::cout << "PseudoBayesGrouping::run Pattern qualities before cleaning: " << std::endl;
     for (std::vector<CandidateGroup*>::iterator cand_it = prelimMatches->begin(); cand_it != prelimMatches->end();
          cand_it++) {
-      std::cout << (*cand_it)->nLayerhits() << ", " << (*cand_it)->nisGood() << ", " << (*cand_it)->nhits()
-                << ", " << (*cand_it)->quality() << ", " << (*cand_it)->candId() << std::endl;
+      std::cout << (*cand_it)->nLayerhits() << ", " << (*cand_it)->nisGood() << ", " << (*cand_it)->nhits() << ", "
+                << (*cand_it)->quality() << ", " << (*cand_it)->candId() << std::endl;
     }
   }
   //And ghostbust patterns to retain higher quality ones
@@ -205,8 +205,7 @@ void PseudoBayesGrouping::FillMuonPaths(std::vector<MuonPath*>* mpaths) {
     std::bitset<8> qualityDTP;
     int intHit = 0;
     //And for each candidate loop over all grouped hits
-    for (std::vector<DTPrimitive>::iterator itDTP = (*itCand)->candHits().begin();
-         itDTP != (*itCand)->candHits().end();
+    for (std::vector<DTPrimitive>::iterator itDTP = (*itCand)->candHits().begin(); itDTP != (*itCand)->candHits().end();
          itDTP++) {
       if (debug)
         std::cout << "PseudoBayesGrouping::run loop over dt hits to fill pointer" << std::endl;
@@ -331,9 +330,8 @@ void PseudoBayesGrouping::RecognisePatterns(std::vector<DTPrimitive> digisinLDow
         if ((cand->nhits() >= minNLayerHits &&
              (cand->nLayerUp() >= minSingleSLHitsMax || cand->nLayerDown() >= minSingleSLHitsMax) &&
              (cand->nLayerUp() >= minSingleSLHitsMin && cand->nLayerDown() >= minSingleSLHitsMin)) ||
-            (allowUncorrelatedPatterns &&
-             ((cand->nLayerUp() >= minUncorrelatedHits && cand->nLayerDown() == 0) ||
-              (cand->nLayerDown() >= minUncorrelatedHits && cand->nLayerUp() == 0)))) {
+            (allowUncorrelatedPatterns && ((cand->nLayerUp() >= minUncorrelatedHits && cand->nLayerDown() == 0) ||
+                                           (cand->nLayerDown() >= minUncorrelatedHits && cand->nLayerUp() == 0)))) {
           if (debug) {
             cout << "PseudoBayesGrouping::RecognisePatterns Pattern found for pair in " << LDown << " ," << wireDown
                  << " ," << LUp << " ," << wireUp << endl;
@@ -402,15 +400,14 @@ void PseudoBayesGrouping::ReCleanPatternsAndDigis() {
   if (prelimMatches->size() == 0) {
     return;
   };
-  while (
-      (prelimMatches->at(0)->nLayerhits() >= minNLayerHits &&
-       (prelimMatches->at(0)->nLayerUp() >= minSingleSLHitsMax ||
-        prelimMatches->at(0)->nLayerDown() >= minSingleSLHitsMax) &&
-       (prelimMatches->at(0)->nLayerUp() >= minSingleSLHitsMin &&
-        prelimMatches->at(0)->nLayerDown() >= minSingleSLHitsMin)) ||
-      (allowUncorrelatedPatterns &&
-       ((prelimMatches->at(0)->nLayerUp() >= minUncorrelatedHits && prelimMatches->at(0)->nLayerDown() == 0) ||
-        (prelimMatches->at(0)->nLayerDown() >= minUncorrelatedHits && prelimMatches->at(0)->nLayerUp() == 0)))) {
+  while ((prelimMatches->at(0)->nLayerhits() >= minNLayerHits &&
+          (prelimMatches->at(0)->nLayerUp() >= minSingleSLHitsMax ||
+           prelimMatches->at(0)->nLayerDown() >= minSingleSLHitsMax) &&
+          (prelimMatches->at(0)->nLayerUp() >= minSingleSLHitsMin &&
+           prelimMatches->at(0)->nLayerDown() >= minSingleSLHitsMin)) ||
+         (allowUncorrelatedPatterns &&
+          ((prelimMatches->at(0)->nLayerUp() >= minUncorrelatedHits && prelimMatches->at(0)->nLayerDown() == 0) ||
+           (prelimMatches->at(0)->nLayerDown() >= minUncorrelatedHits && prelimMatches->at(0)->nLayerUp() == 0)))) {
     finalMatches->push_back(prelimMatches->at(0));
     std::vector<CandidateGroup*>::iterator itSel = finalMatches->end() - 1;
     //std::cout << "Erasing vector: " << std::endl;
@@ -423,8 +420,7 @@ void PseudoBayesGrouping::ReCleanPatternsAndDigis() {
       //std::cout << "Ghostbusting hits: " << std::endl;
       if (*(*cand_it) == *(*itSel) && allowDuplicates)
         continue;
-      for (std::vector<DTPrimitive>::iterator dt_it = (*itSel)->candHits().begin();
-           dt_it != (*itSel)->candHits().end();
+      for (std::vector<DTPrimitive>::iterator dt_it = (*itSel)->candHits().begin(); dt_it != (*itSel)->candHits().end();
            dt_it++) {
         //std::cout << "Ghostbusting hit " << std::endl;
         (*cand_it)->removeHit((*dt_it));
@@ -447,8 +443,8 @@ void PseudoBayesGrouping::ReCleanPatternsAndDigis() {
       std::cout << "Pattern qualities: " << std::endl;
       for (std::vector<CandidateGroup*>::iterator cand_it = prelimMatches->begin(); cand_it != prelimMatches->end();
            cand_it++) {
-        std::cout << (*cand_it)->nLayerhits() << ", " << (*cand_it)->nisGood() << ", " << (*cand_it)->nhits()
-                  << ", " << (*cand_it)->quality() << ", " << (*cand_it)->candId() << std::endl;
+        std::cout << (*cand_it)->nLayerhits() << ", " << (*cand_it)->nisGood() << ", " << (*cand_it)->nhits() << ", "
+                  << (*cand_it)->quality() << ", " << (*cand_it)->candId() << std::endl;
       }
     }
   }

@@ -28,7 +28,7 @@ public:
   int nLayerUp() const { return nLayerUp_; };
   int nLayerDown() const { return nLayerDown_; };
   std::vector<DTPrimitive> candHits() const { return candHits_; };
-  std::bitset<8> quality() { return quality_; };  
+  std::bitset<8> quality() { return quality_; };
   Pattern* pattern() const { return pattern_; };
 
   //Set Methods

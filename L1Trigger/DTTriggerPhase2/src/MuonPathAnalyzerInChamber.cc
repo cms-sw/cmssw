@@ -83,7 +83,6 @@ void MuonPathAnalyzerInChamber::finish() {
     cout << "MuonPathAnalyzer: finish" << endl;
 };
 
-
 //------------------------------------------------------------------
 //--- Métodos privados
 //------------------------------------------------------------------
@@ -100,8 +99,7 @@ void MuonPathAnalyzerInChamber::analyze(MuonPath *inMPath, std::vector<MuonPath 
     std::cout << "DTp2::analyze, looking at mPath: " << std::endl;
     for (int i = 0; i < mPath->nprimitives(); i++)
       std::cout << mPath->primitive(i)->layerId() << " , " << mPath->primitive(i)->superLayerId() << " , "
-                << mPath->primitive(i)->channelId() << " , " << mPath->primitive(i)->laterality()
-                << std::endl;
+                << mPath->primitive(i)->channelId() << " , " << mPath->primitive(i)->laterality() << std::endl;
   }
 
   if (debug_)
@@ -573,8 +571,8 @@ void MuonPathAnalyzerInChamber::calculateFitParameters(MuonPath *mpath,
     setLateralitiesInMP(mpath, laterality);
     if (debug_)
       cout << "In fitPerLat "
-           << "t0 " << mpath->bxTimeValue() << " slope " << mpath->tanPhi() << " pos " << mpath->horizPos()
-           << " chi2 " << mpath->chiSquare() << " rawId " << mpath->rawId() << endl;
+           << "t0 " << mpath->bxTimeValue() << " slope " << mpath->tanPhi() << " pos " << mpath->horizPos() << " chi2 "
+           << mpath->chiSquare() << " rawId " << mpath->rawId() << endl;
   }
   //std::cout<<"Pr 1 " <<mpath->chiSquare() << endl;
 }

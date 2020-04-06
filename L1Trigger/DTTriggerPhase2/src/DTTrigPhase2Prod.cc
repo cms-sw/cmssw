@@ -130,7 +130,6 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   mpathqualityenhancer_->initialise(iEventSetup);  // Filter object initialisation
   mpathredundantfilter_->initialise(iEventSetup);  // Filter object initialisation
   mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
-
 }
 
 void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
@@ -274,9 +273,9 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   if (dump_) {
     for (unsigned int i = 0; i < outmpaths.size(); i++) {
       cout << iEvent.id().event() << " mp " << i << ": " << outmpaths.at(i)->bxTimeValue() << " "
-           << outmpaths.at(i)->horizPos() << " " << outmpaths.at(i)->tanPhi() << " " << outmpaths.at(i)->phi()
-           << " " << outmpaths.at(i)->phiB() << " " << outmpaths.at(i)->quality() << " "
-           << outmpaths.at(i)->chiSquare() << " " << endl;
+           << outmpaths.at(i)->horizPos() << " " << outmpaths.at(i)->tanPhi() << " " << outmpaths.at(i)->phi() << " "
+           << outmpaths.at(i)->phiB() << " " << outmpaths.at(i)->quality() << " " << outmpaths.at(i)->chiSquare() << " "
+           << endl;
     }
     for (unsigned int i = 0; i < metaPrimitives.size(); i++) {
       cout << iEvent.id().event() << " mp " << i << ": ";
@@ -326,7 +325,6 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
               << " filteredMetaPrimitives (superlayer)" << std::endl;
   if (debug_)
     std::cout << "filteredMetaPrimitives: starting correlations" << std::endl;
-
 
   /////////////////////////////////////
   //// CORRELATION:
@@ -402,7 +400,8 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 
   // RPC integration
   if (useRPC_) {
-    if (debug_)       std::cout << "Start integrating RPC" << std::endl;
+    if (debug_)
+      std::cout << "Start integrating RPC" << std::endl;
     rpc_integrator_->initialise(iEventSetup, shift_back);
     rpc_integrator_->prepareMetaPrimitives(rpcRecHits);
     rpc_integrator_->matchWithDTAndUseRPCTime(correlatedMetaPrimitives);
@@ -442,19 +441,19 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
     if (debug_)
       std::cout << "pushing back phase-2 dataformat carlo-federica dataformat" << std::endl;
     outP2Ph.push_back(L1Phase2MuDTPhDigi(
-					 (int)round((*metaPrimitiveIt).t0 / 25.) - shift_back,  // ubx (m_bx) //bx en la orbita
-					 chId.wheel(),    // uwh (m_wheel)     // FIXME: It is not clear who provides this?
-					 sectorTP,        // usc (m_sector)    // FIXME: It is not clear who provides this?
-					 chId.station(),  // ust (m_station)
-					 sl,              // ust (m_station)
-					 (int)round((*metaPrimitiveIt).phi * 65536. / 0.8),    // uphi (_phiAngle)
-					 (int)round((*metaPrimitiveIt).phiB * 2048. / 1.4),    // uphib (m_phiBending)
-					 (*metaPrimitiveIt).quality,                           // uqua (m_qualityCode)
-					 (*metaPrimitiveIt).index,                             // uind (m_segmentIndex)
-					 (int)round((*metaPrimitiveIt).t0) - shift_back * 25,  // ut0 (m_t0Segment)
-					 (int)round((*metaPrimitiveIt).chi2 * 1000000),        // uchi2 (m_chi2Segment)
-					 (*metaPrimitiveIt).rpcFlag                            // urpc (m_rpcFlag)
-					 ));
+        (int)round((*metaPrimitiveIt).t0 / 25.) - shift_back,  // ubx (m_bx) //bx en la orbita
+        chId.wheel(),    // uwh (m_wheel)     // FIXME: It is not clear who provides this?
+        sectorTP,        // usc (m_sector)    // FIXME: It is not clear who provides this?
+        chId.station(),  // ust (m_station)
+        sl,              // ust (m_station)
+        (int)round((*metaPrimitiveIt).phi * 65536. / 0.8),    // uphi (_phiAngle)
+        (int)round((*metaPrimitiveIt).phiB * 2048. / 1.4),    // uphib (m_phiBending)
+        (*metaPrimitiveIt).quality,                           // uqua (m_qualityCode)
+        (*metaPrimitiveIt).index,                             // uind (m_segmentIndex)
+        (int)round((*metaPrimitiveIt).t0) - shift_back * 25,  // ut0 (m_t0Segment)
+        (int)round((*metaPrimitiveIt).chi2 * 1000000),        // uchi2 (m_chi2Segment)
+        (*metaPrimitiveIt).rpcFlag                            // urpc (m_rpcFlag)
+        ));
   }
 
   // Storing RPC hits that were not used elsewhere
@@ -471,7 +470,6 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   iEvent.put(std::move(resultP2Ph));
   outP2Ph.clear();
   outP2Ph.erase(outP2Ph.begin(), outP2Ph.end());
-
 }
 
 void DTTrigPhase2Prod::endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {

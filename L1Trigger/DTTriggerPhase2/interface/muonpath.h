@@ -15,52 +15,52 @@ public:
 
   // setter methods
   void setPrimitive(DTPrimitive *ptr, int layer);
-  void setNPrimitives (short nprim)         { nprimitives_ = nprim;     };
-  void setNPrimitivesUp(short nprim)        { nprimitivesUp_ = nprim;   };
-  void setNPrimitivesDown(short nprim)      { nprimitivesDown_ = nprim; };
+  void setNPrimitives(short nprim) { nprimitives_ = nprim; };
+  void setNPrimitivesUp(short nprim) { nprimitivesUp_ = nprim; };
+  void setNPrimitivesDown(short nprim) { nprimitivesDown_ = nprim; };
   void setCellHorizontalLayout(int layout[4]);
   void setCellHorizontalLayout(const int *layout);
-  void setBaseChannelId(int bch)            { baseChannelId_ = bch;     };
-  void setQuality(MP_QUALITY qty)           { quality_ = qty;           };
+  void setBaseChannelId(int bch) { baseChannelId_ = bch; };
+  void setQuality(MP_QUALITY qty) { quality_ = qty; };
   void setBxTimeValue(int time);
   void setLateralComb(LATERAL_CASES latComb[4]);
   void setLateralComb(const LATERAL_CASES *latComb);
   void setLateralCombFromPrimitives(void);
-  
-  void setHorizPos(float pos)               { horizPos_ = pos;            };
-  void setTanPhi(float tanPhi)              { tanPhi_ = tanPhi;           };
-  void setChiSquare(float chi)              { chiSquare_ = chi;           };
-  void setPhi(float phi)                    { phi_ = phi;                 };
-  void setPhiB(float phib)                  { phiB_ = phib;               }; 
-  void setXCoorCell(float x, int cell)      { xCoorCell_[cell] = x;       };
+
+  void setHorizPos(float pos) { horizPos_ = pos; };
+  void setTanPhi(float tanPhi) { tanPhi_ = tanPhi; };
+  void setChiSquare(float chi) { chiSquare_ = chi; };
+  void setPhi(float phi) { phi_ = phi; };
+  void setPhiB(float phib) { phiB_ = phib; };
+  void setXCoorCell(float x, int cell) { xCoorCell_[cell] = x; };
   void setDriftDistance(float dx, int cell) { xDriftDistance_[cell] = dx; };
-  void setXWirePos(float x, int cell)       { xWirePos_[cell] = x;        };  
-  void setZWirePos(float z, int cell)       { zWirePos_[cell] = z;        };
-  void setTWireTDC(float t, int cell)       { tWireTDC_[cell] = t;        }; 
-  void setRawId(uint32_t id)                { rawId_ = id;                };
+  void setXWirePos(float x, int cell) { xWirePos_[cell] = x; };
+  void setZWirePos(float z, int cell) { zWirePos_[cell] = z; };
+  void setTWireTDC(float t, int cell) { tWireTDC_[cell] = t; };
+  void setRawId(uint32_t id) { rawId_ = id; };
 
   // getter methods
-  DTPrimitive *primitive(int layer)      { return prim_[layer];          };
-  short nprimitives(void)                { return nprimitives_;          };
-  short nprimitivesDown(void)            { return nprimitivesDown_;      };
-  short nprimitivesUp(void)              { return nprimitivesUp_;        };
-  const int *cellLayout(void)            { return cellLayout_;           };
-  int baseChannelId(void)                { return baseChannelId_;        };
-  MP_QUALITY quality(void)               { return quality_;              };     
-  int bxTimeValue(void)                  { return baseChannelId_;        };
-  int bxNumId(void)                      { return bxNumId_;              }; 
-  float tanPhi(void)                     { return tanPhi_;               };
-  const LATERAL_CASES *lateralComb(void) { return (lateralComb_);        };
-  float horizPos(void)                   { return horizPos_;             };
-  float chiSquare(void)                  { return chiSquare_;            };
-  float phi(void)                        { return phi_;                  };        
-  float phiB(void)                       { return phiB_;                 };        
-  float xCoorCell(int cell)              { return xCoorCell_[cell];      };
-  float xDriftDistance(int cell)         { return xDriftDistance_[cell]; };
-  float xWirePos(int cell)               { return xWirePos_[cell];       };
-  float zWirePos(int cell)               { return zWirePos_[cell];       };
-  float tWireTDC(int cell)               { return tWireTDC_[cell];       };
-  uint32_t rawId()                       { return rawId_;                };
+  DTPrimitive *primitive(int layer) { return prim_[layer]; };
+  short nprimitives(void) { return nprimitives_; };
+  short nprimitivesDown(void) { return nprimitivesDown_; };
+  short nprimitivesUp(void) { return nprimitivesUp_; };
+  const int *cellLayout(void) { return cellLayout_; };
+  int baseChannelId(void) { return baseChannelId_; };
+  MP_QUALITY quality(void) { return quality_; };
+  int bxTimeValue(void) { return baseChannelId_; };
+  int bxNumId(void) { return bxNumId_; };
+  float tanPhi(void) { return tanPhi_; };
+  const LATERAL_CASES *lateralComb(void) { return (lateralComb_); };
+  float horizPos(void) { return horizPos_; };
+  float chiSquare(void) { return chiSquare_; };
+  float phi(void) { return phi_; };
+  float phiB(void) { return phiB_; };
+  float xCoorCell(int cell) { return xCoorCell_[cell]; };
+  float xDriftDistance(int cell) { return xDriftDistance_[cell]; };
+  float xWirePos(int cell) { return xWirePos_[cell]; };
+  float zWirePos(int cell) { return zWirePos_[cell]; };
+  float tWireTDC(int cell) { return tWireTDC_[cell]; };
+  uint32_t rawId() { return rawId_; };
 
   // Other methods
   bool isEqualTo(MuonPath *ptr);

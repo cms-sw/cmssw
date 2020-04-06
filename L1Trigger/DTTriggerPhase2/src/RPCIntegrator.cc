@@ -63,9 +63,7 @@ void RPCIntegrator::matchWithDTAndUseRPCTime(std::vector<metaPrimitive>& dt_meta
     if (bestMatch_rpcRecHit) {
       (*dt_metaprimitive).rpcFlag = 4;
       if ((*dt_metaprimitive).quality < m_max_quality_to_overwrite_t0_) {
-        (*dt_metaprimitive).t0 =
-            bestMatch_rpcRecHit->rpc_t0 +
-            25 *                shift_back_; 
+        (*dt_metaprimitive).t0 = bestMatch_rpcRecHit->rpc_t0 + 25 * shift_back_;
         (*dt_metaprimitive).rpcFlag = 1;
       }
     }
@@ -94,7 +92,7 @@ void RPCIntegrator::makeRPCOnlySegments() {
           && rpc_id_l2.sector() == rpc_id_l1.sector() && rpc_cluster_l2->BunchX() == rpc_cluster_l1->BunchX() &&
           (rpc_mp_it_layer2->rpcFlag != 5 ||
            m_storeAllRPCHits_)) {  // avoid building RPC only segment with a hit already matched to DT, except if one aske to store all RPC info
-                                  //&& rpc_mp_it_layer2->rpcFlag != 6) {
+                                   //&& rpc_mp_it_layer2->rpcFlag != 6) {
         float tmp_dPhi = rpc_gp_l1.phi() - rpc_gp_l2.phi();
         if (std::abs(tmp_dPhi) < std::abs(min_dPhi)) {
           min_dPhi = tmp_dPhi;

@@ -106,10 +106,9 @@ public:
   void setChiSquareThreshold(float ch2Thr);
   void setMinimumQuality(MP_QUALITY q);
 
-  // data-members 
+  // data-members
   edm::ESHandle<DTGeometry> dtGeo_;
   std::vector<std::pair<int, MuonPath>> primitives_;
-
 
 private:
   // Trigger Configuration Manager CCB validity flag

@@ -63,11 +63,14 @@ public:
 
   // Other public methods
   void setBXTolerance(int t) { bxTolerance_ = t; };
-  int bxTolerance(void)      { return bxTolerance_;};
+  int bxTolerance(void) { return bxTolerance_; };
 
-  void setChiSquareThreshold(float ch2Thr) { chiSquareThreshold_ = ch2Thr; }; 
+  void setChiSquareThreshold(float ch2Thr) { chiSquareThreshold_ = ch2Thr; };
 
-  void setMinQuality(MP_QUALITY q) { if (minQuality_ >= LOWQGHOST)  minQuality_ = q; };
+  void setMinQuality(MP_QUALITY q) {
+    if (minQuality_ >= LOWQGHOST)
+      minQuality_ = q;
+  };
   MP_QUALITY minQuality(void) { return minQuality_; };
 
   bool hasPosRF(int wh, int sec) { return wh > 0 || (wh == 0 && sec % 4 > 1); };
