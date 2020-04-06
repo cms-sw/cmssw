@@ -9,19 +9,21 @@ class EcalPulseShape;
 class EcalPulseCovariance;
 class EcalUncalibratedRecHit;
 
-namespace ecal { namespace multifit {
+namespace ecal {
+  namespace multifit {
 
-namespace v1 {
+    namespace v1 {
 
-void minimization_procedure(
-        EventInputDataGPU const& eventInputGPU,
-        EventOutputDataGPU& eventOutputGPU, EventDataForScratchGPU& scratch,
-        ConditionsProducts const& conditions,
-        ConfigurationParameters const& configParameters,
-        cudaStream_t cudaStream);
+      void minimization_procedure(EventInputDataGPU const& eventInputGPU,
+                                  EventOutputDataGPU& eventOutputGPU,
+                                  EventDataForScratchGPU& scratch,
+                                  ConditionsProducts const& conditions,
+                                  ConfigurationParameters const& configParameters,
+                                  cudaStream_t cudaStream);
 
-}
+    }
 
-}}
+  }  // namespace multifit
+}  // namespace ecal
 
-#endif // RecoLocalCalo_EcalRecAlgos_src_AmplitudeComputationKernelsV1
+#endif  // RecoLocalCalo_EcalRecAlgos_src_AmplitudeComputationKernelsV1

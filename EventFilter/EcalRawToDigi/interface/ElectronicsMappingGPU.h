@@ -8,38 +8,40 @@
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #endif
 
-namespace ecal { namespace raw {
+namespace ecal {
+  namespace raw {
 
-class ElectronicsMappingGPU {
-public:
-    struct Product {
+    class ElectronicsMappingGPU {
+    public:
+      struct Product {
         ~Product();
-        uint32_t *eid2did;
-    };
+        uint32_t* eid2did;
+      };
 
 #ifndef __CUDACC__
 
-    // rearrange pedestals
-    ElectronicsMappingGPU(EcalMappingElectronics const&);
+      // rearrange pedestals
+      ElectronicsMappingGPU(EcalMappingElectronics const&);
 
-    // will call dealloation for Product thru ~Product
-    ~ElectronicsMappingGPU() = default;
+      // will call dealloation for Product thru ~Product
+      ~ElectronicsMappingGPU() = default;
 
-    // get device pointers
-    Product const& getProduct(cudaStream_t) const;
+      // get device pointers
+      Product const& getProduct(cudaStream_t) const;
 
-    // 
-    static std::string name() { return std::string{"ecalElectronicsMappingGPU"}; }
+      //
+      static std::string name() { return std::string{"ecalElectronicsMappingGPU"}; }
 
-private:
-    // in the future, we need to arrange so to avoid this copy on the host
-    // store eb first then ee
-    std::vector<uint32_t, CUDAHostAllocator<uint32_t>> eid2did_;
+    private:
+      // in the future, we need to arrange so to avoid this copy on the host
+      // store eb first then ee
+      std::vector<uint32_t, CUDAHostAllocator<uint32_t>> eid2did_;
 
-    cms::cuda::ESProduct<Product> product_;
+      cms::cuda::ESProduct<Product> product_;
 #endif
-};
+    };
 
-}}
+  }  // namespace raw
+}  // namespace ecal
 
-#endif // EventFilter_EcalRawToDigi_interface_ElectronicsMappingGPU_h
+#endif  // EventFilter_EcalRawToDigi_interface_ElectronicsMappingGPU_h
