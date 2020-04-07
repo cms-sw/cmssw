@@ -1,7 +1,6 @@
 #ifndef SiPixelVCalReader_H
 #define SiPixelVCalReader_H
 
-// user include files
 #include <iostream>
 #include <stdio.h>
 #include <sys/time.h>
@@ -24,10 +23,6 @@
 #include "CondFormats/DataRecord/interface/SiPixelVCalSimRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-//
-//
-// class decleration
-//
 class SiPixelVCalReader : public edm::EDAnalyzer {
 public:
   explicit SiPixelVCalReader(const edm::ParameterSet&);

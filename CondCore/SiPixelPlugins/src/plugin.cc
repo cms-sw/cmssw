@@ -44,6 +44,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelVCalSimRcd.h"
 
+
 namespace {
   struct InitRocs {
     void operator()(SiPixelFedCablingMap& m) { m.initializeRocs(); }
