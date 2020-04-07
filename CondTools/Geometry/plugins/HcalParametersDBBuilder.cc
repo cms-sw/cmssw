@@ -28,9 +28,11 @@ private:
   bool fromDD4Hep_;
 };
 
-HcalParametersDBBuilder::HcalParametersDBBuilder(const edm::ParameterSet& ps) : fromDD4Hep_(ps.getParameter<bool>("fromDD4Hep")) { 
+HcalParametersDBBuilder::HcalParametersDBBuilder(const edm::ParameterSet& ps)
+    : fromDD4Hep_(ps.getParameter<bool>("fromDD4Hep")) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "HcalParametersDBBuilder::HcalParametersDBBuilder called with dd4hep: " << fromDD4Hep_;
+  edm::LogVerbatim("HCalGeom") << "HcalParametersDBBuilder::HcalParametersDBBuilder called with dd4hep: "
+                               << fromDD4Hep_;
 #endif
 }
 
