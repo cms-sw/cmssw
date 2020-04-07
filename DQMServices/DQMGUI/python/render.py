@@ -30,11 +30,11 @@ class RenderLink:
     def __init__(self, renderplugins=True):
         self.wd = tempfile.mkdtemp()
         if renderplugins == True:
-            self.renderplugins = subprocess.check_output(
+            renderplugins = subprocess.check_output(
                 # Quick&Dirty way to locate the render plugins library.
-                "for f in `echo $LD_LIBRARY_PATH | tr : ' '`; do find $f -name {PLUGINNAME}; done | head -1", 
-                shell=True)
-        elif renderplugins:
+                f"for f in `echo $LD_LIBRARY_PATH | tr : ' '`; do find $f -name {PLUGINNAME}; done | head -1", 
+                shell=True).decode("utf-8")
+        if renderplugins:
             self.renderplugins = renderplugins
         else:
             self.renderplugins = None
