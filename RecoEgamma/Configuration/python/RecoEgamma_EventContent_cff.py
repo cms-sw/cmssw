@@ -15,20 +15,16 @@ RecoEgammaAOD = cms.PSet(
         'keep floatedmValueMap_eidLoose_*_*',
         'keep floatedmValueMap_eidTight_*_*',
         'keep *_egmGedGsfElectronPFIsolation_*_*',
-        #'drop *_egmGsfElectronIDs_*_*',
-        #'drop *_egmPhotonIDs_*_*',
         'keep recoPhotonCores_gedPhotonCore_*_*',
         'keep recoPhotons_gedPhotons_*_*',
         'keep *_particleBasedIsolation_*_*',
-        #'drop *_gedPhotons_valMapPFEgammaCandToPhoton_*',
         'keep recoPhotonCores_photonCore_*_*',
         'keep recoPhotons_photons_*_*', 
         'keep recoPhotonCores_ootPhotonCore_*_*',
         'keep recoPhotons_ootPhotons_*_*',
-        'keep recoConversions_conversions_*_*',
+        'keep recoConversions_conversions__*',
         'keep recoConversions_mustacheConversions_*_*',
         'keep *_gsfTracksOpenConversions_*_*',
-        'drop *_conversions_uncleanedConversions_*',
         'keep recoConversions_allConversions_*_*',
         'keep recoConversions_allConversionsOldEG_*_*',
         'keep recoTracks_ckfOutInTracksFromConversions_*_*', 
@@ -83,20 +79,16 @@ RecoEgammaRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_gedPhotonCore_*_*',
         'keep *_gedPhotons_*_*',
-        #'keep *_gedPhotonsTmp_*_*',        
         'keep recoPhotons_mustachePhotons_*_*',
         'keep recoPhotonCores_mustachePhotonCore_*_*',
-        #'drop *_gedPhotonsTmp_valMapPFEgammaCandToPhoton_*',
         'keep recoTrackExtras_ckfOutInTracksFromConversions_*_*', 
         'keep recoTrackExtras_ckfInOutTracksFromConversions_*_*', 
         'keep TrackingRecHitsOwned_ckfOutInTracksFromConversions_*_*', 
         'keep TrackingRecHitsOwned_ckfInOutTracksFromConversions_*_*',
-        'keep recoConversions_uncleanedOnlyAllConversions_*_*',
         'keep recoTrackExtras_uncleanedOnlyCkfOutInTracksFromConversions_*_*', 
         'keep recoTrackExtras_uncleanedOnlyCkfInOutTracksFromConversions_*_*', 
         'keep TrackingRecHitsOwned_uncleanedOnlyCkfOutInTracksFromConversions_*_*', 
-        'keep TrackingRecHitsOwned_uncleanedOnlyCkfInOutTracksFromConversions_*_*',
-        'keep recoRecoEcalCandidates_hfRecoEcalCandidate_*_*')                                                                 
+        'keep TrackingRecHitsOwned_uncleanedOnlyCkfInOutTracksFromConversions_*_*')                                                                 
 )
 RecoEgammaRECO.outputCommands.extend(RecoEgammaAOD.outputCommands)
 
@@ -118,7 +110,6 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_conversions_*_*',
         'keep *_mustacheConversions_*_*',
         'keep *_gedPhotonCore_*_*',
-        #'keep *_gedPhotonsTmp_*_*', #not really used
         'keep *_gedPhotons_*_*',
         'keep *_photonCore_*_*',
         'keep *_photons_*_*',
@@ -128,8 +119,8 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_ootPhotons_*_*',
         'keep *_allConversions_*_*',
         'keep *_allConversionsOldEG_*_*',
-        'keep *_ckfOutInTracksFrom*Conversions_*_*', 
-        'keep *_ckfInOutTracksFrom*Conversions_*_*',
+        'keep *_ckfOutInTracksFromConversions_*_*', 
+        'keep *_ckfInOutTracksFromConversions_*_*',
         'keep *_uncleanedOnlyAllConversions_*_*',
         'keep *_uncleanedOnlyCkfOutInTracksFromConversions_*_*', 
         'keep *_uncleanedOnlyCkfInOutTracksFromConversions_*_*')                                                                 

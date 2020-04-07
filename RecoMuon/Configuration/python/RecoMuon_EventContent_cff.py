@@ -24,14 +24,13 @@ from RecoMuon.MuonIsolationProducers.muIsolation_EventContent_cff import *
 RecoMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(#'keep *_muons_*_*',
                                            'keep recoMuons_muons_*_*',
-                                           'keep booledmValueMap_muons_muid*_*',
+                                           'keep booledmValueMap_muons_*_*',
                                            'keep doubleedmValueMap_muons_muPFMean*_*',
                                            'keep doubleedmValueMap_muons_muPFSum*_*',
-                                           'keep recoMuonShoweredmValueMap_muons_muonShowerInformation_*',
+                                           'keep *_muons_muonShowerInformation_*',
                                            'keep recoMuonTimeExtraedmValueMap_muons_*_*',
-                                           'keep recoMuonCosmicCompatibilityedmValueMap_muons_cosmicsVeto_*',
-                                           'keep uintedmValueMap_muons_cosmicsVeto_*',
-                                           #'keep *_*_muons_*',
+                                           'keep recoMuonCosmicCompatibilityedmValueMap_muons_*_*',
+                                           'keep uintedmValueMap_muons_*_*',
                                            'keep *_particleFlow_muons_*',
                                            #'drop *_muons_muons1stStep2muonsMap_*',
                                            #'drop recoIsoDepositedmValueMap_muons_*_*', #not really used

@@ -22,6 +22,7 @@ ecalLocalRecoRECO = cms.PSet(
         'keep EBSrFlagsSorted_ecalDigis__*',
         'keep EESrFlagsSorted_ecalDigis__*')
 )
+ecalLocalRecoRECO.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
 #mods for timing
 _phase2_timing_EcalOutputCommands = ['keep *_mix_EBTimeDigi_*',
                                      'keep *_mix_EETimeDigi_*', 
@@ -37,5 +38,3 @@ ecalLocalRecoFEVT = cms.PSet(
         'keep *_ecalMultiFitUncalibRecHit_*_*')
 )
 ecalLocalRecoFEVT.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
-phase2_timing.toModify( ecalLocalRecoFEVT, 
-    outputCommands = ecalLocalRecoFEVT.outputCommands + _phase2_timing_EcalOutputCommands )

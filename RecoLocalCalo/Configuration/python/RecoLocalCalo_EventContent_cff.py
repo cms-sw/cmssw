@@ -13,6 +13,7 @@ RecoLocalCaloAOD = cms.PSet(
     'keep HcalUnpackerReport_hcalDigiAlCaMB_*_*',
     'keep HcalUnpackerReport_hcalDigis_*_*')
 )
+RecoLocalCaloAOD.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
@@ -40,7 +41,6 @@ egamma_lowPt_exclusive.toModify( RecoLocalCaloAOD,
                                                         'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                                         'keep ZDCDataFramesSorted_castorDigis_*_*',
                                                         'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'])
-
 #RECO content
 RecoLocalCaloRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*',
@@ -57,18 +57,10 @@ RecoLocalCaloRECO = cms.PSet(
                                            'keep ZDCRecHitsSorted_zdcreco_*_*')
 )
 RecoLocalCaloRECO.outputCommands.extend(RecoLocalCaloAOD.outputCommands)
+RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
 phase2_hgcal.toModify( RecoLocalCaloRECO, 
-    outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_HGCalRecHit_*_*',
-                                                         'keep recoCaloClusters_hgcalLayerClusters_*_*',
-                                                         'keep *_hgcalLayerClusters_timeLayerCluster_*',
-                                                         'keep *_hgcalLayerClusters_InitialLayerClustersMask_*',
-                                                         'keep *_hgcalMultiClusters_*_*',
+    outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_hgcalMultiClusters_*_*',
                                                          'keep *_iterHGCalMultiClusters_*_*'])
-phase2_hfnose.toModify( RecoLocalCaloRECO, 
-    outputCommands = RecoLocalCaloRECO.outputCommands + ['keep recoCaloClusters_hgcalLayerClustersHFNose_*_*',
-                                                         'keep *_hgcalLayerClustersHFNose_timeLayerCluster_*',
-                                                         'keep *_hgcalLayerClustersHFNose_InitialLayerClustersMask_*'])
- 
 #FEVT content
 RecoLocalCaloFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep HBHERecHitsSorted_hbheprerecoMB_*_*',
@@ -77,19 +69,6 @@ RecoLocalCaloFEVT = cms.PSet(
                                            'keep HcalUnpackerReport_*_*_*')
 )
 RecoLocalCaloFEVT.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
-phase2_hgcal.toModify( RecoLocalCaloFEVT, 
-    outputCommands = RecoLocalCaloFEVT.outputCommands + ['keep *_HGCalRecHit_*_*',
-                                                         'keep *_HGCalUncalibRecHit_*_*',
-                                                         'keep *_hgcalMultiClusters_*_*',
-                                                         'keep *_iterHGCalMultiClusters_*_*',
-                                                         'keep recoCaloClusters_hgcalLayerClusters_*_*',
-                                                         'keep *_hgcalLayerClusters_timeLayerCluster_*',
-                                                         'keep *_hgcalLayerClusters_InitialLayerClustersMask_*'])
-phase2_hfnose.toModify( RecoLocalCaloFEVT,
-    outputCommands = RecoLocalCaloFEVT.outputCommands + ['keep recoCaloClusters_hgcalLayerClustersHFNose_*_*',
-                                                         'keep *_hgcalLayerClustersHFNose_timeLayerCluster_*',
-                                                         'keep *_hgcalLayerClustersHFNose_InitialLayerClustersMask_*'])
-
-RecoLocalCaloAOD.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
-RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
 RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
+phase2_hgcal.toModify( RecoLocalCaloFEVT, 
+    outputCommands = RecoLocalCaloFEVT.outputCommands + ['keep *_HGCalUncalibRecHit_*_*'])
