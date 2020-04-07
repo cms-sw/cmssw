@@ -1,5 +1,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
@@ -447,3 +448,5 @@ int TrackerTopology::getITPixelLayerNumber(const DetId &id) const {
   }
   return layer;
 }
+
+TYPELOOKUP_DATA_REG(TrackerTopology);

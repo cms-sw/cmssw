@@ -1,4 +1,4 @@
-#include "Validation/SiOuterTrackerV/interface/OuterTrackerMCHarvester.h"
+#include "OuterTrackerMCHarvester.h"
 
 OuterTrackerMCHarvester::OuterTrackerMCHarvester(const edm::ParameterSet &iConfig) {}
 

@@ -1,14 +1,11 @@
-<use   name="CalibCalorimetry/EcalTPGTools"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/ESObjects"/>
-<use   name="CondFormats/L1TObjects"/>
 <use   name="DQMServices/Core"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/FEDRawData"/>
-<use   name="DataFormats/GeometryVector"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>

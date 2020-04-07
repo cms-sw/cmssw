@@ -5,9 +5,9 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="RecoJets/JetProducers"/>
-<use   name="Validation/RecoJets"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/HeavyIonEvent"/>
 <use   name="JetMETCorrections/JetCorrector"/>
 <use   name="root"/>
 <library   file="*.cc" name="ValidationRecoJetsPlugins">
