@@ -19,8 +19,6 @@
 #include "gpuFishbone.h"
 #include "gpuPixelDoublets.h"
 
-using namespace gpuPixelDoublets;
-
 using HitsOnGPU = TrackingRecHit2DSOAView;
 using HitsOnCPU = TrackingRecHit2DCUDA;
 
@@ -36,8 +34,8 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
                                       cms::cuda::AtomicPairCounter *apc,
                                       GPUCACell const *__restrict__ cells,
                                       uint32_t const *__restrict__ nCells,
-                                      CellNeighborsVector const *cellNeighbors,
-                                      CellTracksVector const *cellTracks,
+                                      gpuPixelDoublets::CellNeighborsVector const *cellNeighbors,
+                                      gpuPixelDoublets::CellTracksVector const *cellTracks,
                                       GPUCACell::OuterHitOfCell const *__restrict__ isOuterHitOfCell,
                                       uint32_t nHits,
                                       uint32_t maxNumberOfDoublets,
@@ -195,7 +193,7 @@ __global__ void kernel_connect(cms::cuda::AtomicPairCounter *apc1,
                                GPUCACell::Hits const *__restrict__ hhp,
                                GPUCACell *cells,
                                uint32_t const *__restrict__ nCells,
-                               CellNeighborsVector *cellNeighbors,
+                               gpuPixelDoublets::CellNeighborsVector *cellNeighbors,
                                GPUCACell::OuterHitOfCell const *__restrict__ isOuterHitOfCell,
                                float hardCurvCut,
                                float ptmin,
@@ -266,7 +264,7 @@ __global__ void kernel_connect(cms::cuda::AtomicPairCounter *apc1,
 __global__ void kernel_find_ntuplets(GPUCACell::Hits const *__restrict__ hhp,
                                      GPUCACell *__restrict__ cells,
                                      uint32_t const *nCells,
-                                     CellTracksVector *cellTracks,
+                                     gpuPixelDoublets::CellTracksVector *cellTracks,
                                      HitContainer *foundNtuplets,
                                      cms::cuda::AtomicPairCounter *apc,
                                      Quality *__restrict__ quality,

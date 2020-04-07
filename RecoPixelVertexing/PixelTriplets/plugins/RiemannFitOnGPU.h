@@ -18,8 +18,6 @@ using HitsOnGPU = TrackingRecHit2DSOAView;
 using Tuples = pixelTrack::HitContainer;
 using OutputSoA = pixelTrack::TrackSoA;
 
-using namespace Eigen;
-
 template <int N>
 __global__ void kernelFastFit(Tuples const *__restrict__ foundNtuplets,
                               CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,

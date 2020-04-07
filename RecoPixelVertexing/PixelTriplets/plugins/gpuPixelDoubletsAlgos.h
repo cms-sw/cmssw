@@ -15,7 +15,7 @@
 #include "CAConstants.h"
 #include "GPUCACell.h"
 
-namespace gpuPixelDoubletsAlgos {
+namespace gpuPixelDoublets {
 
   using CellNeighbors = CAConstants::CellNeighbors;
   using CellTracks = CAConstants::CellTracks;
@@ -239,6 +239,6 @@ namespace gpuPixelDoubletsAlgos {
     }  // loop in block...
   }
 
-}  // namespace gpuPixelDoubletsAlgos
+}  // namespace gpuPixelDoublets
 
 #endif  // RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelDoupletsAlgos_h

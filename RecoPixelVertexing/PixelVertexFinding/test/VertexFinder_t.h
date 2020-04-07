@@ -9,13 +9,13 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 #ifdef USE_DBSCAN
 #include "../plugins/gpuClusterTracksDBSCAN.h"
-#define CLUSTERIZE clusterTracksDBSCAN
+#define CLUSTERIZE gpuVertexFinder::clusterTracksDBSCAN
 #elif USE_ITERATIVE
 #include "../plugins/gpuClusterTracksIterative.h"
-#define CLUSTERIZE clusterTracksIterative
+#define CLUSTERIZE gpuVertexFinder::clusterTracksIterative
 #else
 #include "../plugins/gpuClusterTracksByDensity.h"
-#define CLUSTERIZE clusterTracksByDensityKernel
+#define CLUSTERIZE gpuVertexFinder::clusterTracksByDensityKernel
 #endif
 #include "../plugins/gpuFitVertices.h"
 #include "../plugins/gpuSortByPt2.h"
@@ -42,8 +42,6 @@ __global__ void vertexFinderOneKernel(gpuVertexFinder::ZVertices* pdata,
 }
 #endif
 #endif
-
-using namespace gpuVertexFinder;
 
 struct Event {
   std::vector<float> zvert;
@@ -103,10 +101,10 @@ struct ClusterGenerator {
 };
 
 // a macro SORRY
-#define LOC_ONGPU(M) ((char*)(onGPU_d.get()) + offsetof(ZVertices, M))
-#define LOC_WS(M) ((char*)(ws_d.get()) + offsetof(WorkSpace, M))
+#define LOC_ONGPU(M) ((char*)(onGPU_d.get()) + offsetof(gpuVertexFinder::ZVertices, M))
+#define LOC_WS(M) ((char*)(ws_d.get()) + offsetof(gpuVertexFinder::WorkSpace, M))
 
-__global__ void print(ZVertices const* pdata, WorkSpace const* pws) {
+__global__ void print(gpuVertexFinder::ZVertices const* pdata, gpuVertexFinder::WorkSpace const* pws) {
   auto const& __restrict__ data = *pdata;
   auto const& __restrict__ ws = *pws;
   printf("nt,nv %d %d,%d\n", ws.ntrks, data.nvFinal, ws.nvIntermediate);
@@ -116,11 +114,11 @@ int main() {
 #ifdef __CUDACC__
   cms::cudatest::requireDevices();
 
-  auto onGPU_d = cms::cuda::make_device_unique<ZVertices[]>(1, nullptr);
-  auto ws_d = cms::cuda::make_device_unique<WorkSpace[]>(1, nullptr);
+  auto onGPU_d = cms::cuda::make_device_unique<gpuVertexFinder::ZVertices[]>(1, nullptr);
+  auto ws_d = cms::cuda::make_device_unique<gpuVertexFinder::WorkSpace[]>(1, nullptr);
 #else
-  auto onGPU_d = std::make_unique<ZVertices>();
-  auto ws_d = std::make_unique<WorkSpace>();
+  auto onGPU_d = std::make_unique<gpuVertexFinder::ZVertices>();
+  auto ws_d = std::make_unique<gpuVertexFinder::WorkSpace>();
 #endif
 
   Event ev;
@@ -183,7 +181,7 @@ int main() {
       cudaCheck(cudaGetLastError());
       cudaDeviceSynchronize();
 
-      cms::cuda::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
+      cms::cuda::launch(gpuVertexFinder::fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
       cudaCheck(cudaGetLastError());
       cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
 
@@ -245,7 +243,7 @@ int main() {
       }
 
 #ifdef __CUDACC__
-      cms::cuda::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
+      cms::cuda::launch(gpuVertexFinder::fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 50.f);
       cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
       cudaCheck(cudaMemcpy(nn, LOC_ONGPU(ndof), nv * sizeof(int32_t), cudaMemcpyDeviceToHost));
       cudaCheck(cudaMemcpy(chi2, LOC_ONGPU(chi2), nv * sizeof(float), cudaMemcpyDeviceToHost));
@@ -265,7 +263,7 @@ int main() {
 
 #ifdef __CUDACC__
       // one vertex per block!!!
-      cms::cuda::launch(splitVerticesKernel, {1024, 64}, onGPU_d.get(), ws_d.get(), 9.f);
+      cms::cuda::launch(gpuVertexFinder::splitVerticesKernel, {1024, 64}, onGPU_d.get(), ws_d.get(), 9.f);
       cudaCheck(cudaMemcpy(&nv, LOC_WS(nvIntermediate), sizeof(uint32_t), cudaMemcpyDeviceToHost));
 #else
       gridDim.x = 1;
@@ -277,10 +275,10 @@ int main() {
       std::cout << "after split " << nv << std::endl;
 
 #ifdef __CUDACC__
-      cms::cuda::launch(fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 5000.f);
+      cms::cuda::launch(gpuVertexFinder::fitVerticesKernel, {1, 1024 - 256}, onGPU_d.get(), ws_d.get(), 5000.f);
       cudaCheck(cudaGetLastError());
 
-      cms::cuda::launch(sortByPt2Kernel, {1, 256}, onGPU_d.get(), ws_d.get());
+      cms::cuda::launch(gpuVertexFinder::sortByPt2Kernel, {1, 256}, onGPU_d.get(), ws_d.get());
       cudaCheck(cudaGetLastError());
       cudaCheck(cudaMemcpy(&nv, LOC_ONGPU(nvFinal), sizeof(uint32_t), cudaMemcpyDeviceToHost));
 #else
