@@ -6,14 +6,17 @@ import FWCore.ParameterSet.Config as cms
 OutALCARECOTkAlCosmics0T_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlCosmicsCTF0T', 
-            'pathALCARECOTkAlCosmicsCosmicTF0T',
-            'pathALCARECOTkAlCosmicsRegional0T')
+                                   'pathALCARECOTkAlCosmicsCosmicTF0T',
+                                   'pathALCARECOTkAlCosmicsRegional0T',
+                                   'pathALCARECOTkAlCosmicsDuringCollisions0T'
+                                   )
     ),
     outputCommands = cms.untracked.vstring(
         #'keep *_ALCARECOTkAlCosmics*0T_*_*',
         'keep *_ALCARECOTkAlCosmicsCTF0T_*_*',
         'keep *_ALCARECOTkAlCosmicsCosmicTF0T_*_*',
         'keep *_ALCARECOTkAlCosmicsRegional0T_*_*',
+        'keep *_ALCARECOTkAlCosmicsDuringCollisions0T_*_*',
         'keep siStripDigis_DetIdCollection_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
