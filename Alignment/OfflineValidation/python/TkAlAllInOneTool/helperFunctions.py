@@ -6,6 +6,7 @@ import re
 import ROOT
 import sys
 from .TkAlExceptions import AllInOneError
+import CondCore.Utilities.conddblib as conddblib
 import six
 
 ####################--- Helpers ---############################
@@ -197,41 +198,14 @@ def cppboolstring(string, name):
     """
     return pythonboolstring(string, name).lower()
 
-def conddb(*args):
-    """
-    Wrapper for conddb, so that you can run
-    conddb("--db", "myfile.db", "listTags"),
-    like from the command line, without explicitly
-    dealing with all the functions in CondCore/Utilities.
-    getcommandoutput2(conddb ...) doesn't work, it imports
-    the wrong sqlalchemy in CondCore/Utilities/python/conddblib.py
-    """
-    from tempfile import NamedTemporaryFile
-
-    with open(getCommandOutput2("which conddb").strip()) as f:
-        conddb = f.read()
-
-    def sysexit(number):
-        if number != 0:
-            raise AllInOneError("conddb exited with status {}".format(number))
-    namespace = {"sysexit": sysexit, "conddboutput": ""}
-
-    conddb = conddb.replace("sys.exit", "sysexit")
-
-    bkpargv = sys.argv
-    sys.argv[1:] = args
-    bkpstdout = sys.stdout
-    with NamedTemporaryFile(bufsize=0) as sys.stdout:
-        exec(conddb, namespace)
-        namespace["main"]()
-        with open(sys.stdout.name) as f:
-            result = f.read()
-
-    sys.argv[:] = bkpargv
-    sys.stdout = bkpstdout
-
-    return result
-
+def getTagsMap(db):
+    con = conddblib.connect(url = conddblib.make_url(db))
+    session = con.session()
+    TAG = session.get_dbtype(conddblib.Tag)
+    q1 = session.query(TAG.object_type).order_by(TAG.name).all()[0]
+    q2 = session.query(TAG.name).order_by(TAG.name).all()[0]
+    dictionary = dict(zip(q1, q2))
+    return dictionary
 
 def clean_name(s):
     """Transforms a string into a valid variable or method name.
