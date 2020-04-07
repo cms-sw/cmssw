@@ -33,7 +33,7 @@ class RenderLink:
             renderplugins = subprocess.check_output(
                 # Quick&Dirty way to locate the render plugins library.
                 f"for f in `echo $LD_LIBRARY_PATH | tr : ' '`; do find $f -name {PLUGINNAME}; done | head -1", 
-                shell=True).decode("utf-8")
+                shell=True).decode("utf-8").strip()
         if renderplugins:
             self.renderplugins = renderplugins
         else:
@@ -42,8 +42,8 @@ class RenderLink:
         # TODO: also kill it at the end.
         loadcmd = ('--load ' + self.renderplugins) if self.renderplugins else ''
         self.renderprocess = subprocess.Popen(
-            f"{RENERERNAME} --state-directory {self.wd}/ {loadcmd} > {self.wd}/render.log 2>&1", 
-            shell=True)
+            f"{RENERERNAME} --state-directory {self.wd}/ {loadcmd} > {self.wd}/render.log", 
+            shell=True, stdout=subprocess.PIPE)
         self.client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         ex = None
         for i in range(0, TIMEOUT):
@@ -98,12 +98,14 @@ class RenderLink:
         msg += name + specb + data
         msg = struct.pack('=i', len(msg) + 4) + msg
         self.client.send(msg)
-        #self.client.recv(4) # response type, ignore
-        #lenbuf = self.client.recv(4)
-        #length, = struct.unpack("=i", lenbuf)
-        #buf = self.client.recv(length) # TODO: maybe retry.
-        buf = self.client.recv(1024*1024)
-        return buf[8:]
+        lenbuf = self.client.recv(4)
+        length, = struct.unpack("=i", lenbuf)
+        buf = b''
+        while length > 0:
+            recvd = self.client.recv(length)
+            length -= len(recvd)
+            buf += recvd
+        return buf
         
         
         

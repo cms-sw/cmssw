@@ -300,8 +300,6 @@ void removeFile(Filename const &f, bool, bool) { std::filesystem::remove(f); }
 // ----------------------------------------------------------------------
 class VisDQMImageServer {
 public:
-  static const uint32_t DQM_MSG_GET_IMAGE_DATA = 4;
-  static const uint32_t DQM_REPLY_IMAGE_DATA = 105;
   static const uint32_t SUMMARY_PROP_EFFICIENCY_PLOT = 0x00200000;
 
   typedef std::vector<DQMRenderPlugin *> RenderPlugins;
@@ -476,110 +474,103 @@ protected:
     uint32_t gotlen;
 
     memcpy(&type, data + sizeof(uint32_t), sizeof(type));
-    if (type == DQM_MSG_GET_IMAGE_DATA) {
-      //TODO
-      //Time start = Time::current();
-      if (len < 9 * sizeof(uint32_t)) {
-        logme() << "ERROR: corrupt 'GET IMAGE DATA' message of length " << len << "\n";
-        return false;
-      }
-
-      memcpy(&flags, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-      memcpy(&tag, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-      memcpy(&vlow, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-      memcpy(&vhigh, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-      memcpy(&numobjs, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-      memcpy(&namelen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-      memcpy(&speclen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-      memcpy(&datalen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-      memcpy(&qlen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-      gotlen = nwords * sizeof(uint32_t) + namelen + speclen + datalen + qlen;
-
-      if (len != gotlen) {
-        logme() << "ERROR: corrupt 'GET IMAGE DATA' message of length " << len << ", expected length "
-                << (nwords * sizeof(uint32_t)) << " + " << namelen << " + " << speclen << " + " << datalen << " + "
-                << qlen << " = " << gotlen << std::endl;
-        return false;
-      }
-
-      if (numobjs < 1 || numobjs > 10) {
-        logme() << "ERROR: 'GET IMAGE DATA' with <1 or >10 parts\n";
-        return false;
-      }
-
-      const char *part = (const char *)data + nwords * sizeof(uint32_t);
-      std::string name(part, namelen);
-      part += namelen;
-      std::string spec(part, speclen);
-      part += speclen;
-      std::string odata(part, datalen);
-      part += datalen;
-      std::string qdata(part, qlen);
-      part += qlen;
-
-      size_t slash = name.rfind('/');
-      size_t dirpos = (slash == std::string::npos ? 0 : slash);
-      size_t namepos = (slash == std::string::npos ? 0 : slash + 1);
-      std::string dirpart(name, 0, dirpos);
-
-      // Validate the image request.
-      VisDQMImgInfo info;
-      const char *error = nullptr;
-
-      if (type == DQM_MSG_GET_IMAGE_DATA && !parseImageSpec(info, spec, error)) {
-        logme() << "ERROR: invalid image specification '" << spec << "' for object '" << name << "': " << error
-                << std::endl;
-        return false;
-      }
-
-      // Reconstruct the object, defaulting to missing in action.
-      std::vector<VisDQMObject> objs(numobjs);
-      for (uint32_t i = 0; i < numobjs; ++i) {
-        objs[i].flags = flags;
-        objs[i].tag = tag;
-        objs[i].version = (((uint64_t)vhigh) << 32) | vlow;
-        objs[i].dirname = dirpart;
-        objs[i].objname.append(name, namepos, std::string::npos);
-        //unpackQualityData(objs[i].qreports, objs[i].flags, qdata.c_str());
-        objs[i].name = name;
-        objs[i].object = nullptr;
-        objs[i].reference = nullptr;
-      }
-
-      if (type == DQM_MSG_GET_IMAGE_DATA)
-        if (!readRequest(info, odata, objs, numobjs))
-          return false;
-
-      // Now render and build response.
-      DataBlob imgdata;
-      bool blacklisted = false;
-      uint32_t words[2] = {sizeof(words), DQM_REPLY_IMAGE_DATA};
-      if (type == DQM_MSG_GET_IMAGE_DATA)
-        blacklisted = doRender(info, &objs[0], numobjs, imgdata);
-      msg->data.reserve(msg->data.size() + words[0]);
-      copydata(msg, &words[0], sizeof(words));
-      if (!imgdata.empty())
-        copydata(msg, &imgdata[0], imgdata.size());
-
-      // Release the objects.
-      bool hadref = objs[0].reference;
-      for (uint32_t i = 0; i < numobjs; ++i) {
-        delete objs[i].object;
-        delete objs[i].reference;
-      }
-
-      // Report how long it took.
-      //Time end = Time::current();
-      logme() << "INFO: rendered '" << objs[0].name << "' version " << objs[0].version << " as '" << spec
-              << (blacklisted ? "', black-listed" : "'") << ", " << numobjs << " objects, main object had"
-              << (hadref ? "" : " no") << " reference, in " << /*((end - start).ns() * 1e-3)*/ "TODO"
-              << " us\n";
-
-      return true;
-    } else {
-      logme() << "ERROR: unrecognised message of length " << len << " and type " << type << std::endl;
+    //TODO
+    //Time start = Time::current();
+    if (len < 9 * sizeof(uint32_t)) {
+      logme() << "ERROR: corrupt 'GET IMAGE DATA' message of length " << len << "\n";
       return false;
     }
+
+    memcpy(&flags, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    memcpy(&tag, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    memcpy(&vlow, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    memcpy(&vhigh, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    memcpy(&numobjs, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    memcpy(&namelen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    memcpy(&speclen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    memcpy(&datalen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    memcpy(&qlen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    gotlen = nwords * sizeof(uint32_t) + namelen + speclen + datalen + qlen;
+
+    if (len != gotlen) {
+      logme() << "ERROR: corrupt 'GET IMAGE DATA' message of length " << len << ", expected length "
+              << (nwords * sizeof(uint32_t)) << " + " << namelen << " + " << speclen << " + " << datalen << " + "
+              << qlen << " = " << gotlen << std::endl;
+      return false;
+    }
+
+    if (numobjs < 1 || numobjs > 10) {
+      logme() << "ERROR: 'GET IMAGE DATA' with <1 or >10 parts\n";
+      return false;
+    }
+
+    const char *part = (const char *)data + nwords * sizeof(uint32_t);
+    std::string name(part, namelen);
+    part += namelen;
+    std::string spec(part, speclen);
+    part += speclen;
+    std::string odata(part, datalen);
+    part += datalen;
+    std::string qdata(part, qlen);
+    part += qlen;
+
+    size_t slash = name.rfind('/');
+    size_t dirpos = (slash == std::string::npos ? 0 : slash);
+    size_t namepos = (slash == std::string::npos ? 0 : slash + 1);
+    std::string dirpart(name, 0, dirpos);
+
+    // Validate the image request.
+    VisDQMImgInfo info;
+    const char *error = nullptr;
+
+    if (!parseImageSpec(info, spec, error)) {
+      logme() << "ERROR: invalid image specification '" << spec << "' for object '" << name << "': " << error
+              << std::endl;
+      return false;
+    }
+
+    // Reconstruct the object, defaulting to missing in action.
+    std::vector<VisDQMObject> objs(numobjs);
+    for (uint32_t i = 0; i < numobjs; ++i) {
+      objs[i].flags = flags;
+      objs[i].tag = tag;
+      objs[i].version = (((uint64_t)vhigh) << 32) | vlow;
+      objs[i].dirname = dirpart;
+      objs[i].objname.append(name, namepos, std::string::npos);
+      //unpackQualityData(objs[i].qreports, objs[i].flags, qdata.c_str());
+      objs[i].name = name;
+      objs[i].object = nullptr;
+      objs[i].reference = nullptr;
+    }
+
+    if (!readRequest(info, odata, objs, numobjs))
+      return false;
+
+    // Now render and build response.
+    DataBlob imgdata;
+    bool blacklisted = false;
+    blacklisted = doRender(info, &objs[0], numobjs, imgdata);
+    uint32_t imgsize = imgdata.size();
+    msg->data.reserve(imgsize + sizeof(imgsize));
+    copydata(msg, &imgsize, sizeof(imgsize));
+    if (imgsize)
+      copydata(msg, &imgdata[0], imgdata.size());
+
+    // Release the objects.
+    bool hadref = objs[0].reference;
+    for (uint32_t i = 0; i < numobjs; ++i) {
+      delete objs[i].object;
+      delete objs[i].reference;
+    }
+
+    // Report how long it took.
+    //Time end = Time::current();
+    logme() << "INFO: rendered '" << objs[0].name << "' version " << objs[0].version << " as '" << spec
+            << (blacklisted ? "', black-listed" : "'") << ", " << numobjs << " objects, main object had"
+            << (hadref ? "" : " no") << " reference, in " << /*((end - start).ns() * 1e-3)*/ "TODO"
+            << " us\n";
+
+    return true;
   }
 
 private:
