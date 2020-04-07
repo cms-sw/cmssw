@@ -5,7 +5,7 @@
 <!--  Upgrade-->
     <CompositeMaterial name="SupplyTubeConn3_Upgrade" density="0.4868*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.560">
-      <rMaterial name="materials:micro_twisted_boundle"/>
+      <rMaterial name="trackermaterial:micro_twisted_boundle"/>
     </MaterialFraction>
     <MaterialFraction fraction="0.440">
       <rMaterial name="materials:CFK"/>
