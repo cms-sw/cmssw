@@ -1,7 +1,7 @@
 import ROOT
 # try to get some better multi-threading support out of root. Needs to happen as early as possible.
 ROOT.ROOT.EnableThreadSafety()
-ROOT.TFile.Open._threaded = True
+#ROOT.TFile.Open._threaded = True
 
 import time
 from functools import lru_cache
