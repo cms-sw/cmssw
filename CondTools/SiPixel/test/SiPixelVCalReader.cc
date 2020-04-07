@@ -1,17 +1,16 @@
-//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "CondTools/SiPixel/test/SiPixelVCalReader.h"
 
 using namespace cms;
 
 SiPixelVCalReader::SiPixelVCalReader(const edm::ParameterSet& iConfig)
-    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)),
+    : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
       useSimRcd_(iConfig.getParameter<bool>("useSimRcd")) {}
 
 SiPixelVCalReader::~SiPixelVCalReader() {}
 
 void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   edm::ESHandle<SiPixelVCal> siPixelVCal;
-  if (useSimRcd_ == true)
+  if (useSimRcd_==true)
     iSetup.get<SiPixelVCalSimRcd>().get(siPixelVCal);
   else
     iSetup.get<SiPixelVCalRcd>().get(siPixelVCal);
@@ -30,11 +29,11 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
   // Prepare histograms
   slopeBPix_ = fs->make<TH1F>("VCalSlopeBarrelPixel", "VCalSlopeBarrelPixel", 150, 0, 100);
   slopeFPix_ = fs->make<TH1F>("VCalSlopeForwardPixel", "VCalSlopeForwardPixel", 150, 0, 100);
-  offsetBPix_ = fs->make<TH1F>("VCalOffsetBarrelPixel", "VCalOffsetBarrelPixel", 150, -300, 100);
-  offsetFPix_ = fs->make<TH1F>("VCalOffsetForwardPixel", "VCalOffsetForwardPixel", 150, -300, 100);
+  offsetBPix_ = fs->make<TH1F>("VCalOffsetBarrelPixel", "VCalOffsetBarrelPixel", 200, -900, 100);
+  offsetFPix_ = fs->make<TH1F>("VCalOffsetForwardPixel", "VCalOffsetForwardPixel", 200, -900, 100);
   std::map<unsigned int,SiPixelVCal::VCal> vcal = siPixelVCal->getSlopeAndOffset();
   std::map<unsigned int,SiPixelVCal::VCal>::const_iterator it;
-  
+
   // Fill histograms
   for (it=vcal.begin(); it!=vcal.end(); it++) {
     pixid  = it->first;
