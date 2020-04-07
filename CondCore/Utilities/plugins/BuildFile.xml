@@ -1,4 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <library   file="EmptyIOVSource.cc" name="CondEmptyIOVSource">
+  <use   name="CondCore/CondDB"/>
+  <use   name="FWCore/Sources"/>
+</library>
+<library   file="FileBasedEmptySource.cc" name="CondFileBasedEmptySource">
   <use   name="CondCore/CondDB"/>
   <use   name="FWCore/Sources"/>
 </library>
