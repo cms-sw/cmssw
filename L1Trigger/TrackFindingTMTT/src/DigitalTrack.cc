@@ -5,7 +5,7 @@
 
 #include <map>
 
-namespace TMTT {
+namespace tmtt {
 
   //=== Note configuration parameters.
 
@@ -335,7 +335,7 @@ namespace TMTT {
       float TF = chisquaredRphi_ - chisquaredRphi_orig_;
       float TG = chisquaredRz_ - chisquaredRz_orig_;
 
-      static map<string, unsigned int> nErr;  // Count precision errors from each fitter.
+      static thread_local map<string, unsigned int> nErr;  // Count precision errors from each fitter.
       if (nErr.find(fitterName_) == nErr.end())
         nErr[fitterName_] = 0;         // Initialize error count.
       const unsigned int maxErr = 20;  // Print error message only this number of times.
@@ -350,4 +350,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

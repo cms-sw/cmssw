@@ -1,5 +1,5 @@
-#ifndef __STUB_CLUSTER_H__
-#define __STUB_CLUSTER_H__
+#ifndef L1Trigger_TrackFindingTMTT_StubCluster_h
+#define L1Trigger_TrackFindingTMTT_StubCluster_h
 
 #include <vector>
 #include <set>
@@ -7,7 +7,7 @@
 // Used to merge all clusters assigned to a track in a single layer into a single StubCluster
 // whose coordinate is the mean of all the individual clusters.
 
-namespace TMTT {
+namespace tmtt {
 
   class Stub;
   class TP;
@@ -80,6 +80,6 @@ namespace TMTT {
     double moduleTilt_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

@@ -4,7 +4,7 @@
 //=== Does this stub lie in a dead region of the tracker?
 //=== This function is only invoked if cfg param DeadSimulate = True & used to kill stubs to emulate dead regions.
 
-namespace TMTT {
+namespace tmtt {
 
   bool DeadModuleDB::killStub(const Stub* stub) const {
     bool dead = false;
@@ -62,4 +62,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

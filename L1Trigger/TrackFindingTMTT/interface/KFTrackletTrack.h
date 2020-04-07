@@ -1,5 +1,5 @@
-#ifndef __KFTrackletTrack_H__
-#define __KFTrackletTrack_H__
+#ifndef L1Trigger_TrackFindingTMTT_KFTrackletTrack_h
+#define L1Trigger_TrackFindingTMTT_KFTrackletTrack_h
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -27,7 +27,7 @@ using namespace std;
 //=== It also calculates & gives access to associated truth particle (Tracking Particle) if any.
 //=== It also gives access to the 3D hough-transform track candidate (L1track3D) on which the fit was run.
 
-namespace TMTT {
+namespace tmtt {
 
   class KFTrackletTrack {
   public:
@@ -281,6 +281,6 @@ namespace TMTT {
     DigitalTrack digitalTrack_;  // Class used to digitize track if required.
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

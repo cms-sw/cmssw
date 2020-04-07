@@ -2,8 +2,8 @@
 
 ///=== Written by: Davide Cieri (davide.cieri@stfc.ac.uk)
 
-#ifndef __SIMPLELR__
-#define __SIMPLELR__
+#ifndef L1Trigger_TrackFindingTMTT_SimpleLR_h
+#define L1Trigger_TrackFindingTMTT_SimpleLR_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/TrackFitGeneric.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
@@ -15,7 +15,7 @@
 #include <sstream>
 #include <string>
 
-namespace TMTT {
+namespace tmtt {
 
   class SimpleLR : public TrackFitGeneric {
   public:
@@ -64,6 +64,6 @@ namespace TMTT {
     unsigned int shiftingBitsLambda_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

@@ -3,7 +3,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <map>
 
-namespace TMTT {
+namespace tmtt {
 
   //=== Make available cfg parameters & specify which algorithm is to be used for duplicate track removal.
 
@@ -122,8 +122,8 @@ namespace TMTT {
           } else {
             if (limitDiff) {
               const unsigned int maxDiff = 1;
-              if (abs(int(trk.getCellLocationHT().first) - int(trk.getCellLocationFit().first)) <= maxDiff &&
-                  abs(int(trk.getCellLocationHT().second) - int(trk.getCellLocationFit().second)) <= maxDiff)
+              if (abs(int(trk.getCellLocationHT().first) - int(trk.getCellLocationFit().first)) <= int(maxDiff) &&
+                  abs(int(trk.getCellLocationHT().second) - int(trk.getCellLocationFit().second)) <= int(maxDiff))
                 tracksRejected.push_back(&trk);
             } else {
               tracksRejected.push_back(&trk);
@@ -272,4 +272,4 @@ namespace TMTT {
       cout << "FOUND " << tracks.size() << endl;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

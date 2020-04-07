@@ -1,5 +1,5 @@
-#ifndef __SETTINGS_H__
-#define __SETTINGS_H__
+#ifndef L1Trigger_TrackFindingTMTT_Settings_h
+#define L1Trigger_TrackFindingTMTT_Settings_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -10,7 +10,7 @@ using namespace std;
 
 // Stores all configuration parameters + some hard-wired constants.
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings {
   public:
@@ -744,6 +744,6 @@ namespace TMTT {
     double zMaxNonTilted_[4];
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

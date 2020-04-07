@@ -1,6 +1,6 @@
 #include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h"
 
-namespace TMTT {
+namespace tmtt {
 
   // Digitize track and degrade helix parameter resolution according to effect of digitisation.
 
@@ -112,4 +112,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

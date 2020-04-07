@@ -2,8 +2,8 @@
 
 ///=== Written by: Sioni Summers and Alexander D. Morton
 
-#ifndef __L1_CHI_SQUARED__
-#define __L1_CHI_SQUARED__
+#ifndef L1Trigger_TrackFindingTMTT_L1ChiSquared_h
+#define L1Trigger_TrackFindingTMTT_L1ChiSquared_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/Matrix.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
@@ -14,7 +14,7 @@
 #include <map>
 #include <utility>
 
-namespace TMTT {
+namespace tmtt {
 
   class L1ChiSquared : public TrackFitGeneric {
   public:
@@ -53,6 +53,6 @@ namespace TMTT {
     unsigned int minStubLayersRed_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

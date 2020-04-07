@@ -1,5 +1,5 @@
-#ifndef __HISTOS_H__
-#define __HISTOS_H__
+#ifndef L1Trigger_TrackFindingTMTT_Histos_h
+#define L1Trigger_TrackFindingTMTT_Histos_h
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -25,7 +25,7 @@ class TGraphAsymmErrors;
 class TGraph;
 class TEfficiency;
 
-namespace TMTT {
+namespace tmtt {
 
   class InputData;
   class TP;
@@ -657,5 +657,5 @@ namespace TMTT {
     bool bApproxMistake_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

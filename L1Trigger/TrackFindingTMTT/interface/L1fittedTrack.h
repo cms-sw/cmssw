@@ -1,5 +1,5 @@
-#ifndef __L1fittedTrack_H__
-#define __L1fittedTrack_H__
+#ifndef L1Trigger_TrackFindingTMTT_L1fittedTrack_h
+#define L1Trigger_TrackFindingTMTT_L1fittedTrack_h
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -26,7 +26,7 @@ using namespace std;
 //=== It also calculates & gives access to associated truth particle (Tracking Particle) if any.
 //=== It also gives access to the 3D hough-transform track candidate (L1track3D) on which the fit was run.
 
-namespace TMTT {
+namespace tmtt {
 
   class L1fittedTrack : public L1trackBase {
   public:
@@ -402,6 +402,6 @@ namespace TMTT {
     bool consistentCell_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

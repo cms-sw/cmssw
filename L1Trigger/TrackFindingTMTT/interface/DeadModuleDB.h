@@ -1,5 +1,5 @@
-#ifndef __DEADMODULEDB_H__
-#define __DEADMODULEDB_H__
+#ifndef L1Trigger_TrackFindingTMTT_DeadModuleDB_h
+#define L1Trigger_TrackFindingTMTT_DeadModuleDB_h
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
   class Stub;
@@ -96,5 +96,5 @@ namespace TMTT {
     set<pair<unsigned int, unsigned int> > reduceLayerCut_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

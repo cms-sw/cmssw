@@ -1,10 +1,11 @@
-#ifndef __HTrphi_H__
-#define __HTrphi_H__
+#ifndef L1Trigger_TrackFindingTMTT_HTrphi_h
+#define L1Trigger_TrackFindingTMTT_HTrphi_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTbase.h"
 
 #include <vector>
 #include <utility>
+#include <atomic>
 
 using namespace std;
 
@@ -13,7 +14,7 @@ using namespace std;
 //=== Its axes are (q/Pt, phiTrk), where phiTrk is the phi at which the track crosses a
 //=== user-configurable radius from the beam-line.
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
   class Stub;
@@ -144,13 +145,13 @@ namespace TMTT {
     //--- Checks that stub filling is compatible with limitations of firmware.
 
     // Maximum |gradient| of line corresponding to any stub. Should be less than the value of 1.0 assumed by the firmware.
-    static float maxLineGradient_;
+    static std::atomic<float> maxLineGradient_;
     // Error count when stub added to cell which does not lie NE, E or SE of stub added to previous HT column.
-    static unsigned int numErrorsTypeA_;
+    static std::atomic<unsigned int> numErrorsTypeA_;
     // Error count when stub added to more than 2 cells in one HT column (problem only for Thomas' firmware).
-    static unsigned int numErrorsTypeB_;
+    static std::atomic<unsigned int> numErrorsTypeB_;
     // Error count normalisation
-    static unsigned int numErrorsNormalisation_;
+    static std::atomic<unsigned int> numErrorsNormalisation_;
 
     // Number of stubs received from GP, irrespective of whether the stub was actually stored in
     // a cell in the HT array.
@@ -161,6 +162,6 @@ namespace TMTT {
     // ... The list of found track candidates is in the base class ...
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

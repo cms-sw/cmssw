@@ -1,5 +1,5 @@
-#ifndef __SECTOR_H__
-#define __SECTOR_H__
+#ifndef L1Trigger_TrackFindingTMTT_Sector_h
+#define L1Trigger_TrackFindingTMTT_Sector_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
 
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
   class Stub;
@@ -137,6 +137,6 @@ namespace TMTT {
     vector<float> zOuterMaxSub_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

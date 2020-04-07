@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
 
@@ -133,4 +133,4 @@ namespace TMTT {
     return assocRecoTrk;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

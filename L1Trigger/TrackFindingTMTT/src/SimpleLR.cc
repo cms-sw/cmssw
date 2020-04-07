@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <limits>
 
-using namespace TMTT;
+using namespace tmtt;
 
 static bool pair_compare(std::pair<const Stub*, float> a, std::pair<const Stub*, float> b) {
   return (a.second < b.second);

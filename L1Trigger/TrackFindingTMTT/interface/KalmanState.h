@@ -1,12 +1,12 @@
-#ifndef __KALMAN_STATE__
-#define __KALMAN_STATE__
+#ifndef L1Trigger_TrackFindingTMTT_KalmanState_h
+#define L1Trigger_TrackFindingTMTT_KalmanState_h
 
 #include <TMatrixD.h>
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1KalmanComb.h"
 #include <map>
 
-namespace TMTT {
+namespace tmtt {
 
   class L1KalmanComb;
   class KalmanState;
@@ -113,6 +113,6 @@ namespace TMTT {
     bool consistentHLS_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

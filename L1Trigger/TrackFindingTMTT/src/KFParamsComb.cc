@@ -6,17 +6,17 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 //#define CKF_DEBUG
 
-namespace TMTT {
+namespace tmtt {
 
   /*
 // Scattering constants - HISTORIC NOT USED.
 
-static unsigned nlayer_eta[25] = 
+constexpr unsigned nlayer_eta[25] = 
 { 6, 6, 6, 6,
 6, 6, 6, 6, 6, 6, 6, 7, 7, 7,
 7, 7, 7, 7, 6, 6, 6, 6, 6, 6};
 
-static double matx_outer[25] = {
+constexpr double matx_outer[25] = {
 0.16, 0.17, 0.18, 0.19, 0.20, 
 0.21, 0.26, 0.22, 0.26, 0.38,
 0.41, 0.40, 0.44, 0.50, 0.54,
@@ -24,7 +24,7 @@ static double matx_outer[25] = {
 0.50, 0.48, 0.64, 0.39, 0.20
 };
 
-static double matx_inner[25] = {
+constexpr double matx_inner[25] = {
 0.14, 0.1, 0.1, 0.1, 0.1, 
 0.1, 0.1, 0.1, 0.1, 0.1, 
 0.12, 0.1, 0.1, 0.1, 0.15,
@@ -462,4 +462,4 @@ static double matx_inner[25] = {
     return goodState;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

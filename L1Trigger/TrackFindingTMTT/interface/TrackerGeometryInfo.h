@@ -1,5 +1,5 @@
-#ifndef __TRACKERGEOMETRYINFO_H__
-#define __TRACKERGEOMETRYINFO_H__
+#ifndef L1Trigger_TrackFindingTMTT_TrackerGeometryInfo_h
+#define L1Trigger_TrackFindingTMTT_TrackerGeometryInfo_h
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -14,7 +14,7 @@ using namespace std;
 class TrackerTopology;
 class TrackerGeometry;
 
-namespace TMTT {
+namespace tmtt {
 
   /** 
  * ========================================================================================================
@@ -47,6 +47,6 @@ namespace TMTT {
     vector<double> moduleB_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

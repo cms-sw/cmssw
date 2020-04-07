@@ -9,8 +9,9 @@
 
 #include <vector>
 #include <limits>
+#include <atomic>
 
-namespace TMTT {
+namespace tmtt {
 
   //=== The r-phi Hough Transform array for a single (eta,phi) sector.
   //===
@@ -20,13 +21,13 @@ namespace TMTT {
   using namespace std;
 
   // Maximum |gradient| of line corresponding to any stub. Should be less than the value of 1.0 assumed by the firmware.
-  float HTrphi::maxLineGradient_ = 0.;
+  std::atomic<float> HTrphi::maxLineGradient_ = 0.;
   // Error count when stub added to cell which does not lie NE, E or SE of stub added to previous HT column.
-  unsigned int HTrphi::numErrorsTypeA_ = 0;
+  std::atomic<unsigned int> HTrphi::numErrorsTypeA_ = 0;
   // Error count when stub added to more than 2 cells in one HT column (problem only for Thomas' firmware).
-  unsigned int HTrphi::numErrorsTypeB_ = 0;
+  std::atomic<unsigned int> HTrphi::numErrorsTypeB_ = 0;
   // Error count normalisation
-  unsigned int HTrphi::numErrorsNormalisation_ = 0;
+  std::atomic<unsigned int> HTrphi::numErrorsNormalisation_ = 0;
 
   //=== Initialise
 
@@ -85,7 +86,7 @@ namespace TMTT {
 
     // Note max. |gradient| that the line corresponding to any stub in any of the r-phi HT arrays could have.
     // Firmware assumes this should not exceed 1.0;
-    HTrphi::maxLineGradient_ = max(HTrphi::maxLineGradient_, this->calcMaxLineGradArray());
+    HTrphi::maxLineGradient_ = max(HTrphi::maxLineGradient_.load(), this->calcMaxLineGradArray());
 
     // Optionally merge 2x2 neighbouring cells into a single cell at low Pt, to reduce efficiency loss due to
     // scattering. (Do this if either of options EnableMerge2x2 or MiniHTstage are enabled.
@@ -179,7 +180,7 @@ namespace TMTT {
       }
     }
 
-    static bool first = true;
+    static std::atomic<bool> first = true;
     if (first) {
       first = false;
       cout << "=== R-PHI HOUGH TRANSFORM AXES RANGES: abs(q/Pt) < " << maxAbsQoverPtAxis_ << " & abs(track-phi) < "
@@ -421,8 +422,8 @@ namespace TMTT {
   //=== Check that limitations of firmware would not prevent stub being stored correctly in this HT column.
 
   void HTrphi::countFirmwareErrors(unsigned int iQoverPtBin, unsigned int iPhiTrkBinMin, unsigned int iPhiTrkBinMax) {
-    static unsigned int iPhiTrkBinMinLast = 0;
-    static unsigned int iPhiTrkBinMaxLast = 99999;
+    static std::atomic<unsigned int> iPhiTrkBinMinLast = 0;
+    static std::atomic<unsigned int> iPhiTrkBinMaxLast = 99999;
     // Reinitialize if this is left-most column in HT array.
     if (iQoverPtBin == 0) {
       iPhiTrkBinMinLast = 0;
@@ -738,4 +739,4 @@ namespace TMTT {
     return iOrder;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

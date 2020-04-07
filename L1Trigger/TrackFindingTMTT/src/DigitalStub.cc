@@ -3,7 +3,9 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-namespace TMTT {
+#include <atomic>
+
+namespace tmtt {
 
   //=== Simplified version of DigitalStub for use with KF in Hybrid tracking.
 
@@ -443,7 +445,7 @@ namespace TMTT {
     float TD = phiO_ - phiO_orig_;
     float TE = bend_ - bend_orig_;
 
-    static unsigned int nErr = 0;
+    static std::atomic<unsigned int> nErr = 0;
     const unsigned int maxErr = 20;  // Print error message only this number of times.
     if (nErr < maxErr) {
       if (fabs(TA) > 0.001 || fabs(TB) > 0.3 || fabs(TC) > 0.25 || fabs(TD) > 0.005 || fabs(TE) > 0.01) {
@@ -454,4 +456,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

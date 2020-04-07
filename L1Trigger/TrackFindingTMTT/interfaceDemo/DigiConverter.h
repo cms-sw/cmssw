@@ -1,5 +1,5 @@
-#ifndef __DEMONSTRATOR_DATAFORMATS_DIGICONVERTER_H__
-#define __DEMONSTRATOR_DATAFORMATS_DIGICONVERTER_H__
+#ifndef L1Trigger_TrackFindingTMTT_DigiConverter_h
+#define L1Trigger_TrackFindingTMTT_DigiConverter_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 
@@ -19,26 +19,26 @@ namespace demo {
 
   class DigiConverter {
   public:
-    DigiConverter(const TMTT::Settings* settings);
+    DigiConverter(const tmtt::Settings* settings);
     ~DigiConverter() = default;
 
-    DigiDTCStub makeDigiDTCStub(const TMTT::Stub& aDTCStub, uint32_t aDigiPhiSec) const;
-    DigiHTStub makeDigiHTStub(const TMTT::Stub& aHTStub,
+    DigiDTCStub makeDigiDTCStub(const tmtt::Stub& aDTCStub, uint32_t aDigiPhiSec) const;
+    DigiHTStub makeDigiHTStub(const tmtt::Stub& aHTStub,
                               uint32_t aPhiSectorIdInNon,
                               uint32_t aEtaSectorId,
                               int cBin,
                               int aChiZ,
                               int aChiPhi,
                               bool mSel) const;
-    DigiHTMiniStub makeDigiHTMiniStub(const TMTT::Stub& aHTMiniStub,
+    DigiHTMiniStub makeDigiHTMiniStub(const tmtt::Stub& aHTMiniStub,
                                       uint32_t aPhiSectorIdInNon,
                                       uint32_t aEtaSectorId,
                                       int8_t cBin,
                                       int8_t mBin) const;
-    DigiKF4Track makeDigiKF4Track(const TMTT::L1fittedTrack& aFitTrk) const;
+    DigiKF4Track makeDigiKF4Track(const tmtt::L1fittedTrack& aFitTrk) const;
 
   private:
-    const TMTT::Settings* mSettings;  // Configuration parameters.
+    const tmtt::Settings* mSettings;  // Configuration parameters.
   };
 
 }  // namespace demo

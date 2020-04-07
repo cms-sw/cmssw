@@ -4,7 +4,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 
-namespace TMTT {
+namespace tmtt {
 
   //=== Initialize configuration parameters, and note eta range covered by sector and phi coordinate of its centre.
 
@@ -365,4 +365,4 @@ namespace TMTT {
     rzHelix_set_ = true;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

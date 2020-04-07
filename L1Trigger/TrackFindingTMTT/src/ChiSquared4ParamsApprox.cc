@@ -1,6 +1,6 @@
 #include "L1Trigger/TrackFindingTMTT/interface/ChiSquared4ParamsApprox.h"
 
-namespace TMTT {
+namespace tmtt {
 
   ChiSquared4ParamsApprox::ChiSquared4ParamsApprox(const Settings* settings, const uint nPar)
       : L1ChiSquared(settings, nPar) {
@@ -218,4 +218,4 @@ namespace TMTT {
     return result;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

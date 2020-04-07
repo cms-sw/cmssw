@@ -1,7 +1,7 @@
 ///=== This is the base class for the Kalman Combinatorial Filter track fit algorithm.
 
-#ifndef __L1_KALMAN_COMB__
-#define __L1_KALMAN_COMB__
+#ifndef L1Trigger_TrackFindingTMTT_L1KalmanComb_h
+#define L1Trigger_TrackFindingTMTT_L1KalmanComb_h
 
 #include <TMatrixD.h>
 #include "L1Trigger/TrackFindingTMTT/interface/TrackFitGeneric.h"
@@ -18,7 +18,7 @@
 class TH1F;
 class TH2F;
 
-namespace TMTT {
+namespace tmtt {
 
   class TP;
   class KalmanState;
@@ -203,6 +203,6 @@ namespace TMTT {
     const TP *tpa_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

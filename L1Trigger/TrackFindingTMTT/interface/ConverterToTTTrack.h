@@ -1,5 +1,5 @@
-#ifndef __ConverterToTTTrack_H__
-#define __ConverterToTTTrack_H__
+#ifndef L1Trigger_TrackFindingTMTT_ConverterToTTTrack_h
+#define L1Trigger_TrackFindingTMTT_ConverterToTTTrack_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> > DetSetVec;
   typedef edm::Ref<DetSetVec, TTStub<Ref_Phase2TrackerDigi_> > TTStubRef;
@@ -56,5 +56,5 @@ namespace TMTT {
     float invPtToInvR_;         // converts 1/Pt to 1/radius_of_curvature
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

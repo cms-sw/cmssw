@@ -1,5 +1,5 @@
-#ifndef __DEGRADEBEND_H__
-#define __DEGRADEBEND_H__
+#ifndef L1Trigger_TrackFindingTMTT_DegradeBend_h
+#define L1Trigger_TrackFindingTMTT_DegradeBend_h
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -9,7 +9,7 @@ class TrackerTopology;
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class DegradeBend {
     /*
@@ -82,11 +82,11 @@ namespace TMTT {
     const unsigned int bits2S_ = 4;
 
     // Stub window sizes as encoded in L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h
-    static std::vector<double> barrelCut_;
-    static std::vector<std::vector<double> > ringCut_;
-    static std::vector<std::vector<double> > tiltedCut_;
-    static std::vector<double> barrelNTilt_;
+    static const std::vector<double> barrelCut_;
+    static const std::vector<std::vector<double> > ringCut_;
+    static const std::vector<std::vector<double> > tiltedCut_;
+    static const std::vector<double> barrelNTilt_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

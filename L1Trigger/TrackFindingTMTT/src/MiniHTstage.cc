@@ -3,7 +3,7 @@
 
 #include <L1Trigger/TrackFindingTMTT/interface/Sector.h>
 
-namespace TMTT {
+namespace tmtt {
 
   MiniHTstage::MiniHTstage(const Settings* settings)
       : settings_(settings),
@@ -269,4 +269,4 @@ namespace TMTT {
     return trueLinkID;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

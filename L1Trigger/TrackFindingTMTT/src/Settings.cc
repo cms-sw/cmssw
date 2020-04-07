@@ -3,7 +3,7 @@
 #include <set>
 #include <cmath>
 
-namespace TMTT {
+namespace tmtt {
 
   // Set config params for HYBRID TRACKING via hard-wired consts to allow use outside CMSSW.
 
@@ -505,4 +505,4 @@ namespace TMTT {
     return whitelisted;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

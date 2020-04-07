@@ -1,11 +1,11 @@
-#ifndef __UTILITY_H__
-#define __UTILITY_H__
+#ifndef L1Trigger_TrackFindingTMTT_Utility_h
+#define L1Trigger_TrackFindingTMTT_Utility_h
 
 #include <vector>
 #include <string>
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class TP;
   class Stub;
@@ -47,6 +47,6 @@ namespace TMTT {
         string algo, const Settings* settings, unsigned int iPhiSec, unsigned int iEtaReg, float invPt, float eta = 0.);
   }  // namespace Utility
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

@@ -15,7 +15,7 @@
 #include <map>
 #include <new>
 
-namespace TMTT {
+namespace tmtt {
 
   //=== Set configuration parameters.
 
@@ -49,4 +49,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

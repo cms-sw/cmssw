@@ -1,5 +1,5 @@
-#ifndef __DIGITALTRACK_H__
-#define __DIGITALTRACK_H__
+#ifndef L1Trigger_TrackFindingTMTT_DigitalTrack_h
+#define L1Trigger_TrackFindingTMTT_DigitalTrack_h
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
 
@@ -441,5 +441,5 @@ namespace TMTT {
     float chisquaredRphi_bcon_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

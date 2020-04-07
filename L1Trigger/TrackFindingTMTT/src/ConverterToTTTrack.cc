@@ -4,7 +4,7 @@
 //=== Convert our non-persistent L1track3D object (track candidate found by Hough transform prior to fit)
 //=== to the official persistent CMSSW EDM TTrack format.
 
-namespace TMTT {
+namespace tmtt {
 
   TTTrack<Ref_Phase2TrackerDigi_> ConverterToTTTrack::makeTTTrack(const L1track3D& trk,
                                                                   unsigned int iPhiSec,
@@ -140,4 +140,4 @@ namespace TMTT {
 
     return track;
   }
-}  // namespace TMTT
+}  // namespace tmtt

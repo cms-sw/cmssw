@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cassert>
 
-namespace TMTT {
+namespace tmtt {
 
   // Parameter Constructor
   template <typename T>
@@ -369,4 +369,4 @@ namespace TMTT {
   template class Matrix<float>;
   template class Matrix<int>;
 
-}  // namespace TMTT
+}  // namespace tmtt

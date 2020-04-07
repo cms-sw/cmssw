@@ -6,6 +6,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Utility.h"
 
 #include <TMatrixD.h>
+#include <TH2F.h>
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
 #include "L1Trigger/TrackFindingTMTT/interface/KalmanState.h"
 #include "L1Trigger/TrackFindingTMTT/interface/StubCluster.h"
@@ -17,7 +18,7 @@
 #include <functional>
 #include <fstream>
 #include <iomanip>
-#include <TH2F.h>
+#include <atomic>
 //#define CKF_DEBUG
 // Enable debug printout to pair with that in Histos.cc enabled by recalc_debug.
 //#define RECALC_DEBUG
@@ -25,7 +26,7 @@
 // Enable merging of nearby stubs.
 //#define MERGE_STUBS
 
-namespace TMTT {
+namespace tmtt {
 
   unsigned LayerId[16] = {1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 21, 22, 23, 24, 25};
 
@@ -177,7 +178,7 @@ namespace TMTT {
 
     // In cases where identical GP encoded layer ID present in this sector from both barrel & endcap, this array filled considering barrel. The endcap is fixed by subsequent code.
 
-    static const unsigned layerMap[nEta / 2][nGPlayID + 1] = {
+    constexpr unsigned layerMap[nEta / 2][nGPlayID + 1] = {
         {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
         {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
         {7, 0, 1, 5, 4, 3, 7, 2},  // B1 B2 B3 B4 B5 B6
@@ -270,7 +271,7 @@ namespace TMTT {
     /*
   const unsigned int nEta = 16;
   const unsigned int nKFlayer = 7;
-  static const bool ambiguityMap[nEta/2][nKFlayer] =
+  constexpr bool ambiguityMap[nEta/2][nKFlayer] =
     {
       {false, false, false, false, false, false, false},
       {false, false, false, false, false, false, false},
@@ -363,7 +364,7 @@ namespace TMTT {
     tpa_ = tpa;
 
     //dump flag
-    static unsigned nthFit(0);
+    static std::atomic<unsigned> nthFit(0);
     nthFit++;
     if (getSettings()->kalmanDebugLevel() >= 3 && nthFit <= maxNfitForDump_) {
       if (tpa)
@@ -484,7 +485,7 @@ namespace TMTT {
     if (getSettings()->kalmanFillInternalHists()) {
       if (tpa && tpa->useForAlgEff()) {
         hTrackEta_->Fill(tpa->eta());
-        static set<const TP *> set_tp;
+        static thread_local set<const TP *> set_tp;
         if (iCurrentPhiSec_ < iLastPhiSec_ && iCurrentEtaReg_ < iLastEtaReg_)
           set_tp.clear();
         if (set_tp.find(tpa) == set_tp.end()) {
@@ -1134,7 +1135,7 @@ namespace TMTT {
     if (getSettings()->kalmanDebugLevel() >= 4) {
       cout << "calcChi2 " << endl;
     }
-    double deltaChi2rphi(0), deltaChi2rz;
+    double deltaChi2rphi(0), deltaChi2rz(0);
 
     if (state.last_state()) {
       const StubCluster *stubCluster = state.stubCluster();
@@ -1695,17 +1696,17 @@ namespace TMTT {
   }
 
   double L1KalmanComb::DeltaRphiForClustering(unsigned layerId, unsigned endcapRing) {
-    static double barrel_drphi[6] = {0.05, 0.04, 0.05, 0.12, 0.13, 0.19};
+    constexpr double barrel_drphi[6] = {0.05, 0.04, 0.05, 0.12, 0.13, 0.19};
     if (layerId < 10)
       return barrel_drphi[layerId - 1];
 
-    static double ec_drphi[16] = {
+    constexpr double ec_drphi[16] = {
         0.04, 0.05, 0.04, 0.06, 0.06, 0.04, 0.06, 0.07, 0.15, 0.08, 0.27, 0.08, 0.27, 0.12, 0.09};
     return ec_drphi[endcapRing - 1];
   };
 
   double L1KalmanComb::DeltaRForClustering(unsigned endcapRing) {
-    static double ec_dr[16] = {
+    constexpr double ec_dr[16] = {
         0.52, 0.56, 0.59, 0.86, 0.66, 0.47, 0.55, 0.72, 1.53, 1.10, 2.72, 0.91, 2.69, 0.67, 0.09};
     return ec_dr[endcapRing - 1];
   }
@@ -1825,4 +1826,4 @@ namespace TMTT {
     return getSettings()->bApprox_gradient() * fabs(z) / r + getSettings()->bApprox_intercept();
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

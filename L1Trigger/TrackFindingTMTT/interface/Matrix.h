@@ -1,9 +1,9 @@
-#ifndef __L1TRK_MATRIX_H__
-#define __L1TRK_MATRIX_H__
+#ifndef L1Trigger_TrackFindingTMTT_Matrix_h
+#define L1Trigger_TrackFindingTMTT_Matrix_h
 
 #include <vector>
 
-namespace TMTT {
+namespace tmtt {
 
   template <typename T>
   class Matrix {
@@ -55,6 +55,6 @@ namespace TMTT {
     void print();
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

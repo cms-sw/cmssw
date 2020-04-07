@@ -1,5 +1,5 @@
-#ifndef __HTCELL_H__
-#define __HTCELL_H__
+#ifndef L1Trigger_TrackFindingTMTT_HTcell_h
+#define L1Trigger_TrackFindingTMTT_HTcell_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/Utility.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
@@ -14,7 +14,7 @@ using namespace std;
 
 //=== A single cell in a Hough Transform array.
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
   class Stub;
@@ -159,5 +159,5 @@ namespace TMTT {
         subSectors_;  // Indicate which subsectors within the sector this stub is consistent with.
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

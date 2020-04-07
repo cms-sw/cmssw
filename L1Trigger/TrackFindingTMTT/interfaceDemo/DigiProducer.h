@@ -1,5 +1,5 @@
-#ifndef __DEMONSTRATOR_PRODUCER_DIGIPRODUCER_HPP__
-#define __DEMONSTRATOR_PRODUCER_DIGIPRODUCER_HPP__
+#ifndef L1Trigger_TrackFindingTMTT_DigiProducer_h
+#define L1Trigger_TrackFindingTMTT_DigiProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,21 +47,21 @@ class TrackFitGeneric;*/
 
   private:
     const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag;
-    const edm::EDGetTokenT<TMTT::DetSetVec> stubInputTag;
-    const edm::EDGetTokenT<TMTT::TTStubAssMap> stubTruthInputTag;
-    const edm::EDGetTokenT<TMTT::TTClusterAssMap> clusterTruthInputTag;
+    const edm::EDGetTokenT<tmtt::DetSetVec> stubInputTag;
+    const edm::EDGetTokenT<tmtt::TTStubAssMap> stubTruthInputTag;
+    const edm::EDGetTokenT<tmtt::TTClusterAssMap> clusterTruthInputTag;
     const edm::EDGetTokenT<reco::GenJetCollection> genJetInputTag_;
 
     // Configuration parameters
-    TMTT::Settings *settings_;
+    tmtt::Settings *settings_;
     vector<string> trackFitters_;
     vector<string> useRZfilter_;
     bool runRZfilter_;
 
-    TMTT::Histos *hists_;
-    map<string, TMTT::TrackFitGeneric *> fitterWorkerMap_;
+    tmtt::Histos *hists_;
+    map<string, tmtt::TrackFitGeneric *> fitterWorkerMap_;
 
-    TMTT::TrackerGeometryInfo trackerGeometryInfo_;
+    tmtt::TrackerGeometryInfo trackerGeometryInfo_;
   };
 
 }  // namespace demo

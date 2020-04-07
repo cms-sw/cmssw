@@ -1,5 +1,5 @@
-#ifndef __L1trackBase_H__
-#define __L1trackBase_H__
+#ifndef L1Trigger_TrackFindingTMTT_L1trackBase_h
+#define L1Trigger_TrackFindingTMTT_L1trackBase_h
 
 #include <vector>
 #include <utility>
@@ -11,7 +11,7 @@ using namespace std;
 //=== However, it declares functions that are common to the derived classes L1trackBase, L1track3D and L1fittedTrack,
 //=== allowing software to analyse objects of all three types in the same way.
 
-namespace TMTT {
+namespace tmtt {
 
   class Stub;
   class TP;
@@ -60,6 +60,6 @@ namespace TMTT {
     virtual unsigned int getNumMatchedLayers() const = 0;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

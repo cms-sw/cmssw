@@ -1,5 +1,5 @@
-#ifndef __TP_H__
-#define __TP_H__
+#ifndef L1Trigger_TrackFindingTMTT_TP_h
+#define L1Trigger_TrackFindingTMTT_TP_h
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -15,7 +15,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class Stub;
 
@@ -131,6 +131,6 @@ namespace TMTT {
     float nearestJetPt_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __L1track3D_H__
-#define __L1track3D_H__
+#ifndef L1Trigger_TrackFindingTMTT_L1track3D_h
+#define L1Trigger_TrackFindingTMTT_L1track3D_h
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1trackBase.h"
@@ -21,7 +21,7 @@ using namespace std;
 //=== Gives access to all stubs on track and to its 3D helix parameters.
 //=== Also calculates & gives access to associated truth particle (Tracking Particle) if any.
 
-namespace TMTT {
+namespace tmtt {
 
   class L1track3D : public L1trackBase {
   public:
@@ -114,7 +114,7 @@ namespace TMTT {
 
     vector<int> getChiPhiDigi() {
       vector<int> result;
-      static const float phiMult = pow(2, settings_->phiSBits()) / settings_->phiSRange();
+      const float phiMult = pow(2, settings_->phiSBits()) / settings_->phiSRange();
       for (const float& chi_phi : this->getChiPhi()) {
         int iDigi_chi_phi = floor(chi_phi * phiMult);
         result.push_back(iDigi_chi_phi);
@@ -133,7 +133,7 @@ namespace TMTT {
 
     vector<int> getChiZDigi() {
       vector<int> result;
-      static const float zMult = pow(2, settings_->zBits()) / settings_->zRange();
+      const float zMult = pow(2, settings_->zBits()) / settings_->zRange();
       for (const float& chi_z : this->getChiZ()) {
         int iDigi_chi_z = floor(chi_z * zMult);
         result.push_back(iDigi_chi_z);
@@ -271,6 +271,6 @@ namespace TMTT {
     unsigned int nMatchedLayers_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

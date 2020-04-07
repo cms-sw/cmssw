@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   //=== Termination. Causes HT array to search for tracks etc.
 
@@ -256,4 +256,4 @@ namespace TMTT {
     return trackCands2D;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

@@ -24,10 +24,11 @@
 #include <algorithm>
 #include <array>
 #include <unordered_set>
+#include <atomic>
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   //=== Store cfg parameters.
 
@@ -1538,7 +1539,7 @@ namespace TMTT {
     // Plot number of tracks & number of stubs per output HT opto-link.
 
     if (TMTT && not withRZfilter) {
-      static bool firstMess = true;
+      static std::atomic<bool> firstMess = true;
       const unsigned int numPhiSecPerNon = numPhiSectors_ / numPhiNonants;
       // Hard-wired bodge
       const unsigned int nLinks = houghNbinsPt_ / 2;  // Hard-wired to number of course HT bins. Check.
@@ -3967,4 +3968,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

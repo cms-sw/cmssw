@@ -1,4 +1,4 @@
-namespace TMTT {
+namespace tmtt {
 
   // Make available cfg parameters & specify which algorithm is to be used for duplicate track removal.
   template <class T>
@@ -316,4 +316,4 @@ namespace TMTT {
   //template class KillDupTrks<L1track3D>;
   //template class KillDupTrks<L1fittedTrack>;
 
-}  // namespace TMTT
+}  // namespace tmtt

@@ -1,5 +1,5 @@
-#ifndef __STUBWINDOWSUGGEST_H__
-#define __STUBWINDOWSUGGEST_H__
+#ifndef L1Trigger_TrackFindingTMTT_StubWindowsSuggest_h
+#define L1Trigger_TrackFindingTMTT_StubWindowsSuggest_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
 
@@ -9,7 +9,7 @@ using namespace std;
 
 class TrackerTopology;
 
-namespace TMTT {
+namespace tmtt {
 
   class Stub;
 
@@ -54,12 +54,12 @@ namespace TMTT {
     const TrackerTopology* theTrackerTopo_;
 
     // Stub window sizes as encoded in L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h
-    static std::vector<double> barrelCut_;
-    static std::vector<std::vector<double> > ringCut_;
-    static std::vector<std::vector<double> > tiltedCut_;
-    static std::vector<double> barrelNTilt_;
+    static thread_local std::vector<double> barrelCut_;
+    static thread_local std::vector<std::vector<double> > ringCut_;
+    static thread_local std::vector<std::vector<double> > tiltedCut_;
+    static thread_local std::vector<double> barrelNTilt_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

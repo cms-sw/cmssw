@@ -2,8 +2,8 @@
 
 ///=== Written by: Alexander D. Morton and Sioni Summers
 
-#ifndef __TrackFitGeneric_H__
-#define __TrackFitGeneric_H__
+#ifndef L1Trigger_TrackFindingTMTT_TrackFitGeneric_h
+#define L1Trigger_TrackFindingTMTT_TrackFitGeneric_h
 
 // Don't fit track candidates if they have more than this number of stubs.
 #define __MAX_STUBS_PER_TRK__ 30
@@ -16,7 +16,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
 
@@ -49,6 +49,6 @@ namespace TMTT {
     unsigned nDupStubs_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

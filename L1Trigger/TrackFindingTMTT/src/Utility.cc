@@ -6,7 +6,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-namespace TMTT {
+namespace tmtt {
 
   //=== Count number of tracker layers a given list of stubs are in.
   //=== By default, consider both PS+2S modules, but optionally consider only the PS ones.
@@ -18,13 +18,13 @@ namespace TMTT {
     //=== Unpack configuration parameters
 
     // Note if using reduced layer ID, so tracker layer can be encoded in 3 bits.
-    static bool reduceLayerID = settings->reduceLayerID();
+    const bool reduceLayerID = settings->reduceLayerID();
     // Define layers using layer ID (true) or by bins in radius of 5 cm width (false).
-    static bool useLayerID = settings->useLayerID();
+    const bool useLayerID = settings->useLayerID();
     // When counting stubs in layers, actually histogram stubs in distance from beam-line with this bin size.
-    static float layerIDfromRadiusBin = settings->layerIDfromRadiusBin();
+    const float layerIDfromRadiusBin = settings->layerIDfromRadiusBin();
     // Inner radius of tracker.
-    static float trackerInnerRadius = settings->trackerInnerRadius();
+    const float trackerInnerRadius = settings->trackerInnerRadius();
 
     // Disable use of reduced layer ID if requested, otherwise take from cfg.
     bool reduce = (disableReducedLayerID) ? false : reduceLayerID;
@@ -196,4 +196,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

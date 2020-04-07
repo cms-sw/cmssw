@@ -1,5 +1,5 @@
-#ifndef __STUB_H__
-#define __STUB_H__
+#ifndef L1Trigger_TrackFindingTMTT_Stub_h
+#define L1Trigger_TrackFindingTMTT_Stub_h
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
@@ -25,6 +25,7 @@
 #include <set>
 #include <array>
 #include <map>
+#include <atomic>
 
 using namespace std;
 
@@ -32,7 +33,7 @@ class TrackerGeometry;
 class TrackerTopology;
 // class DetId;
 
-namespace TMTT {
+namespace tmtt {
 
   class TP;
 
@@ -279,7 +280,7 @@ namespace TMTT {
 
     // Return tracker geometry (T3, T4, T5 ...)
     // See https://github.com/cms-sw/cmssw/blob/CMSSW_9_1_X/Configuration/Geometry/README.md
-    string trackerGeometryVersion() const { return trackerGeometryVersion_; }
+    unsigned int trackerGeometryVersion() const { return trackerGeometryVersion_.load(); }
 
   private:
     // Degrade assumed stub bend resolution.
@@ -384,7 +385,7 @@ namespace TMTT {
     bool digitizeWarningsOn_;   // Enable warnings about accessing non-digitized quantities.
 
     // Which tracker geometry is this?
-    static thread_local string trackerGeometryVersion_;
+    static std::atomic<unsigned int> trackerGeometryVersion_;
 
     // Used to provide TMTT recommendations for stub window sizes that CMS should use.
     StubWindowSuggest stubWindowSuggest_;
@@ -393,9 +394,9 @@ namespace TMTT {
     DegradeBend degradeBend_;
 
     //--- Utility to emulate dead modules.
-    static bool stubKillerInit_;
-    static StubKiller stubKiller_;
+    static std::atomic<bool> stubKillerInit_;
+    static thread_local StubKiller stubKiller_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

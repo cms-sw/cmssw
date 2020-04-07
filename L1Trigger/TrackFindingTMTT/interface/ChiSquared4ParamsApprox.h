@@ -1,9 +1,9 @@
-#ifndef __CHI_SQUARED_4_PARAMS_APPROX__
-#define __CHI_SQUARED_4_PARAMS_APPROX__
+#ifndef L1Trigger_TrackFindingTMTT_ChiSquared4ParamsApprox_h
+#define L1Trigger_TrackFindingTMTT_ChiSquared4ParamsApprox_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/L1ChiSquared.h"
 
-namespace TMTT {
+namespace tmtt {
 
   class ChiSquared4ParamsApprox : public L1ChiSquared {
   public:
@@ -23,6 +23,6 @@ namespace TMTT {
     std::map<std::string, double> vecToMap(std::vector<double> x);
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

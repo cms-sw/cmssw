@@ -12,24 +12,24 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   //--- Stub window sizes copied from L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py
 
-  std::vector<double> DegradeBend::barrelCut_ = {0, 2.0, 2.0, 3.5, 4.5, 5.5, 6.5};
-  std::vector<std::vector<double> > DegradeBend::ringCut_ = {
+  const std::vector<double> DegradeBend::barrelCut_ = {0, 2.0, 2.0, 3.5, 4.5, 5.5, 6.5};
+  const std::vector<std::vector<double> > DegradeBend::ringCut_ = {  // EndcapCutSet
       {0},
-      {0, 1, 1.5, 1.5, 2, 2, 2.5, 3, 3, 3.5, 4, 2.5, 3, 3.5, 4.5, 5.5},
-      {0, 1, 1.5, 1.5, 2, 2, 2, 2.5, 3, 3, 3, 2, 3, 4, 5, 5.5},
-      {0, 1.5, 1.5, 2, 2, 2.5, 2.5, 2.5, 3.5, 2.5, 5, 5.5, 6},
-      {0, 1.0, 1.5, 1.5, 2, 2, 2, 2, 3, 3, 6, 6, 6.5},
-      {0, 1.0, 1.5, 1.5, 1.5, 2, 2, 2, 3, 3, 6, 6, 6.5}};
-  std::vector<std::vector<double> > DegradeBend::tiltedCut_ = {
+      {0, 1, 2.5, 2.5, 3, 2.5, 3, 3.5, 4, 4, 4.5, 3.5, 4, 4.5, 5, 5.5},
+      {0, 0.5, 2.5, 2.5, 3, 2.5, 3, 3, 3.5, 3.5, 4, 3.5, 3.5, 4, 4.5, 5},
+      {0, 1, 3, 3, 2.5, 3.5, 3.5, 3.5, 4, 3.5, 3.5, 4, 4.5},
+      {0, 1, 2.5, 3, 2.5, 3.5, 3, 3, 3.5, 3.5, 3.5, 4, 4},
+      {0, 0.5, 1.5, 3, 2.5, 3.5, 3, 3, 3.5, 4, 3.5, 4, 3.5}};
+  const std::vector<std::vector<double> > DegradeBend::tiltedCut_ = {  // TiltedBarrelCutSet
       {0},
-      {0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2., 2., 1.5, 1.5, 1., 1.},
-      {0, 3., 3., 3., 3., 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2, 2},
-      {0, 4.5, 4.5, 4, 4, 4, 4, 3.5, 3.5, 3.5, 3, 3, 3}};
-  std::vector<double> DegradeBend::barrelNTilt_ = {0., 12., 12., 12., 0., 0., 0.};
+      {0, 3, 3, 2.5, 3, 3, 2.5, 2.5, 2, 1.5, 1.5, 1, 1},
+      {0, 3.5, 3, 3, 3, 3, 2.5, 2.5, 3, 3, 2.5, 2.5, 2.5},
+      {0, 4, 4, 4, 3.5, 3.5, 3.5, 3.5, 3, 3, 3, 3, 3}};
+  const std::vector<double> DegradeBend::barrelNTilt_ = {0., 12., 12., 12., 0., 0., 0.};
 
   //--- Given the original bend, flag indicating if this is a PS or 2S module, & detector identifier,
   //--- this return the degraded stub bend, a boolean indicatng if stub bend was outside the assumed window
@@ -106,7 +106,7 @@ namespace TMTT {
 
     int b = std::round(2 * bend);
 
-    if (abs(b) <= window) {
+    if ((unsigned int)(abs(b)) <= window) {
       reject = false;
       float degradedB;
       unsigned int numBends = 2 * window + 1;
@@ -178,7 +178,7 @@ namespace TMTT {
     pair<unsigned int, bool> p(windowHalfStrips, psModule);
 
     // Map notes if this (window size, psModule) combination has already been checked.
-    static map<pair<unsigned int, bool>, bool> checked;
+    static thread_local map<pair<unsigned int, bool>, bool> checked;
 
     if (checked.find(p) == checked.end()) {
       bool wasDegraded = false;  // Was any stub bend encoding required for this window size?
@@ -228,4 +228,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

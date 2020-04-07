@@ -3,7 +3,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-namespace TMTT {
+namespace tmtt {
 
   StubCluster::StubCluster(std::vector<const Stub *> stubs, double SectorPhi, int lres_dr) : layerKF_(999) {
     r_ = 0;
@@ -122,4 +122,4 @@ namespace TMTT {
     alpha_ /= nstubs_;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

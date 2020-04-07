@@ -1,5 +1,5 @@
-#ifndef __DIGITALSTUB_H__
-#define __DIGITALSTUB_H__
+#ifndef L1Trigger_TrackFindingTMTT_DigitalStub_h
+#define L1Trigger_TrackFindingTMTT_DigitalStub_h
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include <math.h>
@@ -13,7 +13,7 @@ using namespace std;
 //=== WARNING: Not all variables available in the GP are available inside the HT or visa-versa,
 //=== so think about the hardware when calling the functions below.
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
 
@@ -343,5 +343,5 @@ namespace TMTT {
     float zErr_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

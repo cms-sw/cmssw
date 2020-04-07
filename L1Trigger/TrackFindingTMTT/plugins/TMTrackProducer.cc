@@ -31,7 +31,7 @@
 using namespace std;
 using boost::numeric::ublas::matrix;
 
-namespace TMTT {
+namespace tmtt {
 
   TMTrackProducer::TMTrackProducer(const edm::ParameterSet& iConfig)
       : stubInputTag(consumes<DetSetVec>(iConfig.getParameter<edm::InputTag>("stubInputTag"))), trackerGeometryInfo_() {
@@ -377,4 +377,4 @@ namespace TMTT {
 
   DEFINE_FWK_MODULE(TMTrackProducer);
 
-}  // namespace TMTT
+}  // namespace tmtt

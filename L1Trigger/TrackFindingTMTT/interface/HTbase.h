@@ -1,5 +1,5 @@
-#ifndef __HTbase_H__
-#define __HTbase_H__
+#ifndef L1Trigger_TrackFindingTMTT_HTbase_h
+#define L1Trigger_TrackFindingTMTT_HTbase_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTcell.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track2D.h"
@@ -15,7 +15,7 @@ using namespace std;
 
 //=== Base class for Hough Transform array for a single (eta,phi) sector.
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
   class Stub;
@@ -160,6 +160,6 @@ namespace TMTT {
     vector<L1track2D> trackCands2D_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

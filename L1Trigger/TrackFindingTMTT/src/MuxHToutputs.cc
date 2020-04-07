@@ -7,7 +7,9 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-namespace TMTT {
+#include <atomic>
+
+namespace tmtt {
 
   //=== Initialize constants from configuration parameters.
 
@@ -35,7 +37,7 @@ namespace TMTT {
     // Check that the MUX algorithm implemented in linkID() is not obviously wrong.
     this->sanityCheck();
 
-    bool static first = true;
+    static std::atomic<bool> first = true;
     if (first) {
       first = false;
       cout << "=== The R-PHI HT output is multiplexed onto " << this->numLinksPerNonant()
@@ -189,4 +191,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

@@ -1,5 +1,5 @@
-#ifndef __INPUTDATA_H__
-#define __INPUTDATA_H__
+#ifndef L1Trigger_TrackFindingTMTT_InputData_h
+#define L1Trigger_TrackFindingTMTT_InputData_h
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
@@ -10,7 +10,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
 
@@ -60,5 +60,5 @@ namespace TMTT {
         vAllStubs_;  // all stubs, even those that would fail any tightened front-end readout electronic cuts specified in section StubCuts of Analyze_Defaults_cfi.py. (Only used to measure the efficiency of these cuts).
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

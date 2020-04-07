@@ -1,5 +1,5 @@
-#ifndef __Get3Dtracks_H__
-#define __Get3Dtracks_H__
+#ifndef L1Trigger_TrackFindingTMTT_Get3Dtracks_h
+#define L1Trigger_TrackFindingTMTT_Get3Dtracks_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/TrkRZfilter.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
@@ -19,7 +19,7 @@ using namespace std;
 //===
 //=== To create 3D tracks, call the sequence init(), run(), and then get tracks via trackCands3D().
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
   class Stub;
@@ -107,5 +107,5 @@ namespace TMTT {
     vector<L1track3D> vecTracks3D_unfiltered_;  // Before r-z filter run.
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 #endif

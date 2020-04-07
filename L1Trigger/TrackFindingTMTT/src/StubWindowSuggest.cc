@@ -4,12 +4,12 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-namespace TMTT {
+namespace tmtt {
 
-  std::vector<double> StubWindowSuggest::barrelCut_;
-  std::vector<std::vector<double> > StubWindowSuggest::ringCut_;
-  std::vector<std::vector<double> > StubWindowSuggest::tiltedCut_;
-  std::vector<double> StubWindowSuggest::barrelNTilt_;
+  thread_local std::vector<double> StubWindowSuggest::barrelCut_;
+  thread_local std::vector<std::vector<double> > StubWindowSuggest::ringCut_;
+  thread_local std::vector<std::vector<double> > StubWindowSuggest::tiltedCut_;
+  thread_local std::vector<double> StubWindowSuggest::barrelNTilt_;
 
   //=== Analyse stub window required for this stub.
 
@@ -31,9 +31,9 @@ namespace TMTT {
   void StubWindowSuggest::updateStoredWindow(const Stub* stub, double bendHalfWind) {
     // Values set according to L1Trigger/TrackTrigger/python/TTStubAlgorithmRegister_cfi.py
     // parameter NTiltedRings for whichever tracker geometry (T3, T4, T5 ...) is used..
-    const vector<double> barrelNTilt_T5_init = {0., 12., 12., 12., 0., 0., 0.};
-    if (stub->trackerGeometryVersion() == "T5") {
-      barrelNTilt_ = barrelNTilt_T5_init;
+    const vector<double> barrelNTilt_init = {0., 12., 12., 12., 0., 0., 0.};
+    if (stub->trackerGeometryVersion() >= 5) {  // Tilted barrel
+      barrelNTilt_ = barrelNTilt_init;
     } else {
       throw cms::Exception(
           "StubWindowSuggest: the tracker geometry you are using is not yet known to StubWindowSuggest. Please update "
@@ -144,4 +144,4 @@ namespace TMTT {
     cout << "==============================================================================" << endl;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

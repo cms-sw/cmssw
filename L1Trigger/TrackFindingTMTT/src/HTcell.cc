@@ -2,7 +2,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/TP.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 
-namespace TMTT {
+namespace tmtt {
 
   //=== Initialization with cfg params,
   //=== rapidity range of current sector, and estimated q/Pt of cell,
@@ -144,4 +144,4 @@ namespace TMTT {
     return filteredStubs;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

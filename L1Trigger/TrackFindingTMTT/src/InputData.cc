@@ -27,7 +27,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   InputData::InputData(const edm::Event& iEvent,
                        const edm::EventSetup& iSetup,
@@ -147,4 +147,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

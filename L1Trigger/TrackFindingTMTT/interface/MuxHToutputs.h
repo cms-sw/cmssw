@@ -1,5 +1,5 @@
-#ifndef __MUXHTOUTPUTS_H__
-#define __MUXHTOUTPUTS_H__
+#ifndef L1Trigger_TrackFindingTMTT_MuxHToutputs_h
+#define L1Trigger_TrackFindingTMTT_MuxHToutputs_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
 
@@ -22,7 +22,7 @@ using boost::numeric::ublas::matrix;
 */
 //==================================================================================================
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
 
@@ -72,6 +72,6 @@ namespace TMTT {
     bool busySectorUseMbinRanges_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

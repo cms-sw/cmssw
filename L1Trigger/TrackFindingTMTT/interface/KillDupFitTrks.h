@@ -1,5 +1,5 @@
-#ifndef __KILLDUPFITTRKS_H__
-#define __KILLDUPFITTRKS_H__
+#ifndef L1Trigger_TrackFindingTMTT_KillDupFitTrks_h
+#define L1Trigger_TrackFindingTMTT_KillDupFitTrks_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h"
 #include "L1Trigger/TrackFindingTMTT/interface/KillDupTrks.h"
@@ -19,7 +19,7 @@ using namespace std;
 *  implemented inside class KillDupTrks.
 */
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
 
@@ -68,6 +68,6 @@ namespace TMTT {
     KillDupTrks<L1fittedTrack> killDupTrks_;  // Contains duplicate removal algorithms common to all track types.
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

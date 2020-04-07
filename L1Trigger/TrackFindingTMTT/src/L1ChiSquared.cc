@@ -13,7 +13,7 @@
 #include <functional>
 #include <set>
 
-namespace TMTT {
+namespace tmtt {
 
   template <typename T>
   std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b) {
@@ -180,4 +180,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

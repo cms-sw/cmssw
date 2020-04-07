@@ -1,5 +1,5 @@
-#ifndef __KILLDUPTRKS_H__
-#define __KILLDUPTRKS_H__
+#ifndef L1Trigger_TrackFindingTMTT_KillDupTrks_h
+#define L1Trigger_TrackFindingTMTT_KillDupTrks_h
 
 #include <cstddef>
 #include <vector>
@@ -33,7 +33,7 @@ using namespace std;
 *  -------------------------------------------------------------------------------------------
 */
 
-namespace TMTT {
+namespace tmtt {
 
   class L1trackBase;
   class L1track2D;
@@ -96,7 +96,7 @@ namespace TMTT {
     unsigned int dupTrkMinCommonHitsLayers_;  // Min no of matched stubs & layers to keep smaller cand
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 //=== Include file which implements all the functions in the above class.
 #include "L1Trigger/TrackFindingTMTT/interface/KillDupTrks.icc"
 

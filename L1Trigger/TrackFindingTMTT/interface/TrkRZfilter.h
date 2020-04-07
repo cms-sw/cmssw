@@ -1,5 +1,5 @@
-#ifndef __TrkRZfilter_H__
-#define __TrkRZfilter_H__
+#ifndef L1Trigger_TrackFindingTMTT_TrkRZfilter_h
+#define L1Trigger_TrackFindingTMTT_TrkRZfilter_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/L1track2D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
@@ -25,7 +25,7 @@ using namespace std;
 //=== After creating the L1track3D tracks, TrkRZfilter can optionally run duplicate removal on them,
 //=== before they are output.
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
   class Stub;
@@ -133,6 +133,6 @@ namespace TMTT {
     KillDupTrks<L1track3D> killDupTrks_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

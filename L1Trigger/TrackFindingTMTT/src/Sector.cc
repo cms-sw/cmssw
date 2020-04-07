@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   //=== Initialise
 
@@ -347,4 +347,4 @@ namespace TMTT {
     return insideVec;
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

@@ -1,13 +1,13 @@
 ///=== This is the Kalman Combinatorial Filter for 4 & 5 helix parameters track fit algorithm.
 
-#ifndef __KFPARAMSCOMB__
-#define __KFPARAMSCOMB__
+#ifndef L1Trigger_TrackFindingTMTT_KFParamsComb_h
+#define L1Trigger_TrackFindingTMTT_KFParamsComb_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/L1KalmanComb.h"
 #include <TMatrixD.h>
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
 
-namespace TMTT {
+namespace tmtt {
 
   class KFParamsComb : public L1KalmanComb {
   public:
@@ -36,6 +36,6 @@ namespace TMTT {
     std::map<std::string, double> vecToMap(std::vector<double> x) const;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

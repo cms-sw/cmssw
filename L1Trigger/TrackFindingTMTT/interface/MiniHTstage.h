@@ -1,12 +1,12 @@
-#ifndef __MINIHTSTAGE_H__
-#define __MINIHTSTAGE_H__
+#ifndef L1Trigger_TrackFindingTMTT_MiniHTstage_h
+#define L1Trigger_TrackFindingTMTT_MiniHTstage_h
 
 #include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
 
 using namespace std;
 using boost::numeric::ublas::matrix;
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
 
@@ -55,6 +55,6 @@ namespace TMTT {
     unsigned int nHTlinksPerNonant_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

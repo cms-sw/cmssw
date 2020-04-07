@@ -16,14 +16,13 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   // Static variables
 
-  thread_local string Stub::trackerGeometryVersion_ = "UNKNOWN";
-
-  bool Stub::stubKillerInit_ = false;
-  StubKiller Stub::stubKiller_;
+  std::atomic<unsigned int> Stub::trackerGeometryVersion_ = 0;
+  std::atomic<bool> Stub::stubKillerInit_ = false;
+  thread_local StubKiller Stub::stubKiller_;
 
   //=== Store useful info about the stub (for use with HYBRID code), with hard-wired constants to allow use outside CMSSW.
 
@@ -451,10 +450,10 @@ namespace TMTT {
       windowFE = 99999.;  // TMTT is not tightening windows.
     }
 
-    static bool firstErr = true;
-    if (trackerGeometryVersion_ != "T5") {  // Tilted geometry
+    static std::atomic<bool> firstErr = true;
+    if (trackerGeometryVersion_ < 5) {
       if (firstErr) {
-        cout << "Stub: WARNING - Stub windows in DegradeBend class have not been tuned for this tracker geometry, so "
+        cout << "Stub: WARNING - Stub windows in DegradeBend class have not been tuned for flat tracker geometry, so "
                 "may need retuning "
              << trackerGeometryVersion_ << endl;
         firstErr = false;
@@ -498,7 +497,7 @@ namespace TMTT {
     if (settings_->deadSimulateFrac() > 0.) {  // Is option to emulate dead modules enabled?
       const DeadModuleDB dead;
       if (dead.killStub(this)) {
-        static TRandom randomGenerator;
+        static thread_local TRandom randomGenerator;
         if (randomGenerator.Rndm() < settings_->deadSimulateFrac())
           frontendPass_ = false;
       }
@@ -717,7 +716,7 @@ namespace TMTT {
     // Note module ring in endcap
     endcapRing_ = barrel_ ? 0 : trackerTopology->tidRing(detId);
 
-    if (trackerGeometryVersion_ == "T5") {
+    if (trackerGeometryVersion_ >= 5) {  // Tilted geometry
       if (!barrel_) {
         // Apply bodge, since Topology class annoyingly starts ring count at 1, even in endcap wheels where
         // inner rings are absent.
@@ -758,7 +757,7 @@ namespace TMTT {
     // (D13, D17 ...) is documented in
     //  https://github.com/cms-sw/cmssw/blob/CMSSW_9_1_X/Configuration/Geometry/README.md .
 
-    if (trackerGeometryVersion_ == "UNKNOWN") {
+    if (trackerGeometryVersion_ == 0) {
       unsigned int numDet = 0;
       for (const GeomDet* gd : trackerGeometry->dets()) {
         DetId detid = gd->geographicalId();
@@ -771,14 +770,14 @@ namespace TMTT {
         }
       }
 
-      if (numDet == 13296) {
-        trackerGeometryVersion_ = "T5";  // Tilted geometry
-      } else if (numDet == 13556) {
-        trackerGeometryVersion_ = "T3";  // Older tilted geometry
+      if (numDet == 13200) {
+        trackerGeometryVersion_ = 14;  // Tilted geometry T14/T15
+      } else if (numDet == 13296) {
+        trackerGeometryVersion_ = 5;  // Tilted geometry T5/T6
       } else if (numDet == 14850) {
-        trackerGeometryVersion_ = "T4";  // Flat geometry
+        trackerGeometryVersion_ = 4;  // Flat geometry T4
       } else {
-        trackerGeometryVersion_ = "UNRECOGNISED";
+        trackerGeometryVersion_ = -1;
         cout << "Stub: WARNING -- The tracker geometry you are using is yet not known to the stub class. Please update "
                 "Stub::degradeResolution() & Stub::setTrackerGeometryVersion(). Number of tracker modules = "
              << numDet << endl;
@@ -786,4 +785,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

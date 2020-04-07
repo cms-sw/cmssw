@@ -1,5 +1,5 @@
-#ifndef __L1track2D_H__
-#define __L1track2D_H__
+#ifndef L1Trigger_TrackFindingTMTT_L1track2D_h
+#define L1Trigger_TrackFindingTMTT_L1track2D_h
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1trackBase.h"
@@ -17,7 +17,7 @@ using namespace std;
 //=== Gives access to all stubs on track and to its 2D helix parameters.
 //=== Also calculates & gives access to associated truth particle (Tracking Particle) if any.
 
-namespace TMTT {
+namespace tmtt {
 
   class L1track2D : public L1trackBase {
   public:
@@ -137,6 +137,6 @@ namespace TMTT {
     unsigned int nMatchedLayers_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

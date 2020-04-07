@@ -2,7 +2,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/StubCluster.h"
 #include <TMatrixD.h>
 
-namespace TMTT {
+namespace tmtt {
 
   KalmanState::KalmanState()
       : kLayerNext_(0),
@@ -272,4 +272,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt

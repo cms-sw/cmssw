@@ -1,5 +1,5 @@
-#ifndef __TMTRACKPRODUCER_H__
-#define __TMTRACKPRODUCER_H__
+#ifndef L1Trigger_TrackFindingTMTT_TMTrackProducer_h
+#define L1Trigger_TrackFindingTMTT_TMTrackProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,7 +19,7 @@
 
 using namespace std;
 
-namespace TMTT {
+namespace tmtt {
 
   class Settings;
   class Histos;
@@ -56,6 +56,6 @@ namespace TMTT {
     TrackerGeometryInfo trackerGeometryInfo_;
   };
 
-}  // namespace TMTT
+}  // namespace tmtt
 
 #endif

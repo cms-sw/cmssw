@@ -3,7 +3,7 @@
 #include <TGraph.h>
 #include <TF1.h>
 
-namespace TMTT {
+namespace tmtt {
 
   TrackerGeometryInfo::TrackerGeometryInfo()
       : barrelNTiltedModules_(12), barrelNLayersWithTiltedModules_(3), moduleZoR_(), moduleB_() {}
@@ -53,4 +53,4 @@ namespace TMTT {
     }
   }
 
-}  // namespace TMTT
+}  // namespace tmtt
