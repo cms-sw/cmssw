@@ -12,7 +12,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HcalParametersDBBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
