@@ -31,9 +31,9 @@ step1Up2015Defaults = {'-s' : 'GEN,SIM',
 # step1 gensim: for 2017
 step1Up2017Defaults = merge ([{'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--beamspot':'Realistic25ns13TeVEarly2017Collision'},step1Up2015Defaults])
 # step1 gensim: for 2018
-step1Up2018Defaults = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018'},step1Up2017Defaults])
+step1Up2018Defaults = merge ([{'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--beamspot':'Realistic25ns13TeVEarly2018Collision'},step1Up2017Defaults])
 # step1 gensim: for 2018 HI
-step1Up2018HiDefaults = merge ([{'--conditions':'auto:phase1_2018_realistic_hi','--era':'Run2_2018_pp_on_AA'},step1Up2017Defaults])
+step1Up2018HiDefaults = merge ([{'--conditions':'auto:phase1_2018_realistic_hi','--era':'Run2_2018_pp_on_AA','--beamspot':'RealisticPbPbCollision2018'},step1Up2017Defaults])
 # step1 gensim: for 2018 prod
 step1Up2018ProdDefaults = merge ([{'--beamspot':'Realistic25ns13TeVEarly2018Collision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018Defaults])
 # step1 gensim: for 2018 HI prod 
