@@ -60,7 +60,7 @@ from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
 from CommonTools.ParticleFlow.EITopPAG_EventContent_cff import EITopPAGEventContent
 from RecoPPS.Configuration.RecoCTPPS_EventContent_cff import *
-from RecoHGCal.Configuration.TICL_EventContent_cff import *
+from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import *
 
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
