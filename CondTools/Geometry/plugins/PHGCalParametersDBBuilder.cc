@@ -41,8 +41,8 @@ PHGCalParametersDBBuilder::PHGCalParametersDBBuilder(const edm::ParameterSet& iC
   namet_ = iC.getParameter<std::string>("nameT");
   fromDD4Hep_ = iC.getParameter<bool>("fromDD4Hep");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":" << namec_ << ":"
-                                << namet_ << " and fromDD4Hep flag " << fromDD4Hep_;
+  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
+                                << namec_ << ":" << namet_ << " and fromDD4Hep flag " << fromDD4Hep_;
 #endif
 }
 
