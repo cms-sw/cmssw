@@ -20,7 +20,8 @@ def show(pngbytes):
     return HTML('<img src="data:image/png;base64, %s" />' % base64.encodebytes(pngbytes).decode("utf-8"))
     
 def tobuffer(th1):
-    b = array.array("B", b' ' * 1024 * 100) # TODO: variable size?
+    # 24bytes/bin for a TProfile, plus 10K of extra space
+    b = array.array("B", b' ' * (th1.GetNcells() * 24 + 10*1024))
     bf = ROOT.TBufferFile(ROOT.TBufferFile.kWrite)
     bf.SetBuffer(b,len(b),False)
     bf.WriteObject(th1)
