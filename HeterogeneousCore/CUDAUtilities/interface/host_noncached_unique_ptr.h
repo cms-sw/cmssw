@@ -68,6 +68,22 @@ namespace cms {
     template <typename T, typename... Args>
     typename host::noncached::impl::make_host_unique_selector<T>::bounded_array make_host_noncached_unique(Args &&...) =
         delete;
+
+    template <typename T>
+    typename host::noncached::impl::make_host_unique_selector<T>::unbounded_array make_host_noncached_unique_bytes(
+        size_t n, unsigned int flags = cudaHostAllocDefault) {
+      using element_type = typename std::remove_extent<T>::type;
+      static_assert(std::is_trivially_constructible<element_type>::value,
+                    "Allocating with non-trivial constructor on the pinned host memory is not supported");
+      void *mem;
+      cudaCheck(cudaHostAlloc(&mem, n, flags));
+      return typename host::noncached::impl::make_host_unique_selector<T>::unbounded_array(
+          reinterpret_cast<element_type *>(mem));
+    }
+
+    template <typename T, typename... Args>
+    typename host::noncached::impl::make_host_unique_selector<T>::bounded_array make_host_noncached_unique_bytes(Args &&...) =
+        delete;
   }  // namespace cuda
 }  // namespace cms
 
