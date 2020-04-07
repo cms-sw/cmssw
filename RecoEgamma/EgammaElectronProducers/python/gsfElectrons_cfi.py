@@ -1,31 +1,15 @@
-import FWCore.ParameterSet.Config as cms
-from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
-from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
+from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import cleanedHybridSuperClusters
+from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import multi5x5BasicClustersCleaned
 
 from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV1,trkIsol04CfgV1,trkIsol03CfgV2,trkIsol04CfgV2
+
+from RecoEgamma.EgammaElectronProducers.gsfElectronProducer_cfi import gsfElectronProducer
 
 #==============================================================================
 # Producer of transient ecal driven gsf electrons
 #==============================================================================
 
-ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronBaseProducer",
-
-    # input collections
-    gsfElectronCoresTag = cms.InputTag("ecalDrivenGsfElectronCores"),
-
-    # steering
-    gedElectronMode = cms.bool(False),
-    applyPreselection = cms.bool(False),
-    ecalDrivenEcalEnergyFromClassBasedParameterization = cms.bool(True),
-    ecalDrivenEcalErrorFromClassBasedParameterization = cms.bool(True),
-    useEcalRegression = cms.bool(False),
-    useCombinationRegression = cms.bool(False),
-
-    # preselection parameters (ecal driven electrons)
-    preselection = cms.PSet(
-        minSCEtBarrel = cms.double(4.0),
-        minSCEtEndcaps = cms.double(4.0),
-    ),
+ecalDrivenGsfElectrons = gsfElectronProducer.clone(
 
     # Ecal rec hits configuration
     recHitFlagsToBeExcludedBarrel = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
