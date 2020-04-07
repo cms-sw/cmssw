@@ -1,4 +1,3 @@
-<use   name="DataFormats/Common"/>
 <use   name="root"/>
 <use   name="geant4core"/>
 <use   name="boost"/>

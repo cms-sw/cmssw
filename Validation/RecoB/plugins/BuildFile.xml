@@ -7,6 +7,7 @@
 <use name="DataFormats/BTauReco"/>
 <use name="CommonTools/Statistics"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="TrackingTools/IPTools"/>
 <use name="SimTracker/TrackerHitAssociation"/>
 <use name="SimTracker/TrackHistory"/>
 <use name="DQMServices/Core"/>

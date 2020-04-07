@@ -6,6 +6,5 @@
 <use   name="root"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/CaloRecHit"/>
-<use   name="Geometry/CaloGeometry"/>
+<use   name="DataFormats/CaloTowers"/>
 <use   name="SimDataFormats/GeneratorProducts"/>

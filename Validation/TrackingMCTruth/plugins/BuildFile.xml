@@ -2,7 +2,6 @@
 <use   name="DQMServices/Core"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="boost"/>
 <use   name="root"/>

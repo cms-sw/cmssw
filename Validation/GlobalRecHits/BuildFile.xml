@@ -14,7 +14,6 @@
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/SiStripDetId"/>
-<use   name="SimDataFormats/TrackerDigiSimLink"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DataFormats/SiPixelDigi"/>

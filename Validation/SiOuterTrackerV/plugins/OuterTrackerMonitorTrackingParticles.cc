@@ -31,7 +31,8 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
-#include "Validation/SiOuterTrackerV/interface/OuterTrackerMonitorTrackingParticles.h"
+
+#include "OuterTrackerMonitorTrackingParticles.h"
 
 //
 // constructors and destructor

@@ -7,12 +7,8 @@
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Associations"/>
 <use   name="CommonTools/Statistics"/>
-<use   name="RecoVertex/VertexTools"/>
-<use   name="RecoVertex/KalmanVertexFit"/>
-<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="CommonTools/Utils"/>
 <use   name="SimTracker/TrackAssociation"/>
-<use   name="SimMuon/MCTruth"/>
-<use   name="SimTracker/Records"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
 <use   name="DQMServices/Core"/>
