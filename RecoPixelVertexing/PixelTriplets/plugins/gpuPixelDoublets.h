@@ -7,8 +7,6 @@
 
 namespace gpuPixelDoublets {
 
-  using namespace gpuPixelDoubletsAlgos;
-
   constexpr int nPairs = 13 + 2 + 4;
   static_assert(nPairs <= CAConstants::maxNumberOfLayerPairs());
 

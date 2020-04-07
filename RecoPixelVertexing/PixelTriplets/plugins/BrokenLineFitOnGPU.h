@@ -20,8 +20,6 @@ using HitsOnGPU = TrackingRecHit2DSOAView;
 using Tuples = pixelTrack::HitContainer;
 using OutputSoA = pixelTrack::TrackSoA;
 
-using namespace Eigen;
-
 // #define BL_DUMP_HITS
 
 template <int N>
