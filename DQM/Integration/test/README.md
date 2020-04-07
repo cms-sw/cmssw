@@ -24,6 +24,9 @@ Running all tests:
 ``` bash
 voms-proxy-init -voms cms -rfc
 scram b runtests
+
+# to run tests in parallel:
+scram b -k -j 16 runtests
 ```
 
 Running a single client test:
