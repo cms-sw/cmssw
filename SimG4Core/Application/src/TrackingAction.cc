@@ -55,13 +55,14 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
       std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> p(pos, mom);
       eventAction_->addTkCaloStateInfo(id, p);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SimTrackManager") << "TrackingAction addTkCaloStateInfo " << id << " of momentum " << mom << " at "
-                                  << pos;
+      edm::LogVerbatim("SimTrackManager")
+          << "TrackingAction addTkCaloStateInfo " << id << " of momentum " << mom << " at " << pos;
 #endif
     }
 
     bool withAncestor =
-        ((extractor_(aTrack).getIDonCaloSurface() == aTrack->GetTrackID()) || (extractor_(aTrack).getIDfineCalo() == aTrack->GetTrackID()) || (extractor_(aTrack).isAncestor()));
+        ((extractor_(aTrack).getIDonCaloSurface() == aTrack->GetTrackID()) ||
+         (extractor_(aTrack).getIDfineCalo() == aTrack->GetTrackID()) || (extractor_(aTrack).isAncestor()));
 
     if (extractor_(aTrack).isInHistory()) {
       // check with end-of-track information
@@ -72,25 +73,24 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
       eventAction_->addTrack(currentTrack_, true, withAncestor);
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack "  
-					  << currentTrack_->trackID() << " E(GeV)= " << aTrack->GetKineticEnergy()
-					  << "  " << aTrack->GetDefinition()->GetParticleName()
-					  << " added= " << withAncestor 
-					  << " at " << aTrack->GetPosition();
+      edm::LogVerbatim("SimTrackManager")
+          << "TrackingAction addTrack " << currentTrack_->trackID() << " E(GeV)= " << aTrack->GetKineticEnergy() << "  "
+          << aTrack->GetDefinition()->GetParticleName() << " added= " << withAncestor << " at "
+          << aTrack->GetPosition();
 
       math::XYZVectorD pos((aTrack->GetStep()->GetPostStepPoint()->GetPosition()).x(),
                            (aTrack->GetStep()->GetPostStepPoint()->GetPosition()).y(),
                            (aTrack->GetStep()->GetPostStepPoint()->GetPosition()).z());
-      edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << currentTrack_->trackID() << " added with " << true
-                                  << " and " << withAncestor << " at " << pos;
+      edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << currentTrack_->trackID() << " added with "
+                                          << true << " and " << withAncestor << " at " << pos;
 #endif
 
     } else {
       eventAction_->addTrack(currentTrack_, false, false);
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << currentTrack_->trackID() << " added with " << false
-                                  << " and " << false;
+      edm::LogVerbatim("SimTrackManager")
+          << "TrackingAction addTrack " << currentTrack_->trackID() << " added with " << false << " and " << false;
 #endif
 
       delete currentTrack_;

@@ -252,7 +252,8 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
         trkInfo->setIDfineCalo(id);
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: the track " << aStep->GetTrack()->GetTrackID() << " with PDGID " << pdg << " and kinetic energy "
+      edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: the track " << aStep->GetTrack()->GetTrackID()
+                                  << " with PDGID " << pdg << " and kinetic energy "
                                   << aStep->GetTrack()->GetKineticEnergy() / CLHEP::MeV << " is tested against " << cut
                                   << " to be put in history";
 #endif

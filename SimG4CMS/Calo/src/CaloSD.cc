@@ -92,7 +92,14 @@ CaloSD::CaloSD(const std::string& name,
   primAncestor = cleanIndex = totalHits = primIDSaved = 0;
   forceSave = false;
 
-  edm::LogVerbatim("CaloSim") << "CaloSD: Minimum energy of track for saving it " << energyCut / CLHEP::GeV << " GeV\n        Use of HitID Map " << useMap << "\n        Check last " << nCheckedHits << " before saving the hit\n        Correct TOF globally by " << correctT << " ns (Flag =" << corrTOFBeam << ")\n        Save hits recorded before " << tmaxHit << " ns and if energy is above " << eminHit / CLHEP::MeV << " MeV (for depth 0) or " << eminHitD / CLHEP::MeV << " MeV (for nonzero depths);\n        Time Slice Unit " << timeSlice << "\nIgnore TrackID Flag " << ignoreTrackID << " UseFineCaloID flag " << useFineCaloID_;
+  edm::LogVerbatim("CaloSim") << "CaloSD: Minimum energy of track for saving it " << energyCut / CLHEP::GeV
+                              << " GeV\n        Use of HitID Map " << useMap << "\n        Check last " << nCheckedHits
+                              << " before saving the hit\n        Correct TOF globally by " << correctT
+                              << " ns (Flag =" << corrTOFBeam << ")\n        Save hits recorded before " << tmaxHit
+                              << " ns and if energy is above " << eminHit / CLHEP::MeV << " MeV (for depth 0) or "
+                              << eminHitD / CLHEP::MeV << " MeV (for nonzero depths);\n        Time Slice Unit "
+                              << timeSlice << "\nIgnore TrackID Flag " << ignoreTrackID << " UseFineCaloID flag "
+                              << useFineCaloID_;
 }
 
 CaloSD::~CaloSD() {}
@@ -655,7 +662,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
     ok = false;
   }
 #ifdef EDM_ML_DEBUG
-  if (!ok) 
+  if (!ok)
     edm::LogWarning("CaloSim") << "CaloSD:Cannot find track ID for " << aHit->getTrackID();
   edm::LogVerbatim("CaloSim") << "CalosD: Track ID " << aHit->getTrackID() << " changed to " << tkID
                               << " by SimTrackManager Status " << ok;
@@ -663,11 +670,13 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
   double time = aHit->getTimeSlice();
   if (corrTOFBeam)
     time += correctT;
-  slave.get()->processHits(aHit->getUnitID(), aHit->getEM() / CLHEP::GeV, aHit->getHadr() / CLHEP::GeV, time, tkID, aHit->getDepth());
+  slave.get()->processHits(
+      aHit->getUnitID(), aHit->getEM() / CLHEP::GeV, aHit->getHadr() / CLHEP::GeV, time, tkID, aHit->getDepth());
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: Store Hit at " << std::hex << aHit->getUnitID() << std::dec << " "
                               << aHit->getDepth() << " due to " << tkID << " in time " << time << " of energy "
-                              << aHit->getEM() / CLHEP::GeV << " GeV (EM) and " << aHit->getHadr() / CLHEP::GeV << " GeV (Hadr)";
+                              << aHit->getEM() / CLHEP::GeV << " GeV (EM) and " << aHit->getHadr() / CLHEP::GeV
+                              << " GeV (Hadr)";
 #endif
   return ok;
 }
