@@ -7,6 +7,9 @@ process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
         )
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.INFO.limit = -1
+
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/MTDCommonData/data/dd4hep/cms-mtdD50-geometry.xml'),
                                             appendToDataLabel = cms.string('MTD')
@@ -27,16 +30,6 @@ process.testETL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  ddTopNodeName = cms.untracked.string('EndcapTimingLayer'),
                                  theLayout = cms.untracked.uint32(4)
                                 )
-
-process.MessageLogger = cms.Service("MessageLogger",
-                                    cout = cms.untracked.PSet( INFO = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-                                                               noLineBreaks = cms.untracked.bool(True),
-                                                               threshold = cms.untracked.string('INFO'),
-                                                               ),
-                                    # For LogDebug/LogTrace output...
-                                    categories = cms.untracked.vstring('DD4hep_TestMTDIdealGeometry','MTDGeom','DD4hep_TestMTDPath','DD4hep_TestMTDNumbering','DD4hep_TestMTDPosition'),
-                                    destinations = cms.untracked.vstring('cout')
-                                    )
 
 process.Timing = cms.Service("Timing")
 
