@@ -33,7 +33,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     GEMEnable = cms.bool(False),  # Use hits from GEMs in track-building
 
     # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
-    Era = cms.string('Run2_2018'),
+    Era = cms.string('Run2_2016'),
 
     # BX
     MinBX    = cms.int32(-3), # Minimum BX considered
@@ -142,3 +142,7 @@ stage2L1Trigger.toModify(simEmtfDigis, RPCEnable = cms.bool(False), Era = cms.st
 ## Era: Run2_2017
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
 stage2L1Trigger_2017.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2017'))
+
+### Era: Run2_2018
+from Configuration.Eras.Modifier_stage2L1Trigger_2018_cff import stage2L1Trigger_2018
+stage2L1Trigger_2018.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2018'))
