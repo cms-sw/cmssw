@@ -83,7 +83,9 @@ for ls in range(options.minLumi, options.maxLumi+1):
     secFiles.extend(sec)
 
     # Get last eventsPerLumi of events in this file
-    events = subprocess.check_output("edmFileUtil --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0], shell=True)
+    command = "edmFileUtil --catalog file:/cvmfs/cms-ib.cern.ch/SITECONF/local/PhEDEx/storage.xml?protocol=xrootd --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0]
+    print(command)
+    events = subprocess.check_output(command, shell=True)
     events = events.split('\n')
     events = filter(lambda x: x != "", events)
     events = map(int, events)
