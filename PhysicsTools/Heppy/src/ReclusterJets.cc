@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "PhysicsTools/Heppy/interface/ReclusterJets.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "fastjet/tools/Pruner.hh"
