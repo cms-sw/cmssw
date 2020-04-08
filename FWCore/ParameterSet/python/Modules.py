@@ -389,6 +389,10 @@ class SwitchProducer(EDProducer):
         newpset.addString(True, "@module_edm_type", "EDProducer")
         newpset.addVString(True, "@all_cases", [myname+"@"+p for p in self.parameterNames_()])
         newpset.addString(False, "@chosen_case", myname+"@"+self._chooseCase())
+        # The process name is tracked already in the process PSet, no
+        # need to keep tracked here. This way we can also transparently
+        # change the delivery of the process name to SwitchProducer.
+        newpset.addString(False, "@process_name", parameterSet.getString(True, "@process_name"))
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
     def _placeImpl(self,name,proc):
