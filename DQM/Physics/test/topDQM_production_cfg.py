@@ -51,6 +51,9 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ## load jet corrections
 process.load("JetMETCorrections.Configuration.JetCorrectors_cff")
+process.dqmAk4PFCHSL1FastL2L3Corrector = process.ak4PFCHSL1FastL2L3Corrector.clone()
+process.jetCorrectorsSeq =  cms.Sequence(process.jetCorrectorsTask)
+process.dqmAk4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(process.dqmAk4PFCHSL1FastL2L3Corrector)
 
 ## check the event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
@@ -78,7 +81,7 @@ process.p      = cms.Path(
     #process.topSingleMuonLooseDQM      +
     #process.topSingleMuonMediumDQM     +
 #    process.EIsequence * 
-    process.ak4PFCHSL1FastL2L3CorrectorChain *
+    process.jetCorrectorsSeq * process.dqmAk4PFCHSL1FastL2L3CorrectorChain *
     process.topSingleMuonMediumDQM     +
     #process.topSingleElectronLooseDQM  +
     #process.ak4PFCHSL1FastL2L3CorrectorChain * 
