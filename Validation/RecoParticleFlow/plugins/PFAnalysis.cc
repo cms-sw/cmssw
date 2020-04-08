@@ -120,16 +120,16 @@ public:
 
   PFAnalysis();
   explicit PFAnalysis(const edm::ParameterSet&);
-  ~PFAnalysis();
+  ~PFAnalysis() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  virtual void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override;
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void processTrackingParticles(const edm::View<TrackingParticle>& trackingParticles,
                                 edm::Handle<edm::View<TrackingParticle>>& trackingParticlesHandle);
@@ -605,7 +605,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   const auto& all_elements_distances = processBlocks(pfBlocks);
   const auto& all_elements = all_elements_distances.first;
   const auto& all_distances = all_elements_distances.second;
-  assert(all_elements.size() > 0);
+  assert(!all_elements.empty());
   //assert(all_distances.size() > 0);
   for (const auto& d : all_distances) {
     element_distance_i_.push_back(get<0>(d));
@@ -902,7 +902,7 @@ void PFAnalysis::processTrackingParticles(const edm::View<TrackingParticle>& tra
 
     math::XYZTLorentzVectorD vtx(0, 0, 0, 0);
 
-    if (tp.decayVertices().size() > 0) {
+    if (!tp.decayVertices().empty()) {
       vtx = tp.decayVertices().at(0)->position();
     }
     auto orig_vtx = tp.vertex();
@@ -1072,7 +1072,7 @@ void PFAnalysis::associateClusterToSimCluster(const vector<ElementWithIndex>& al
   int ielement = 0;
   for (const auto& detids : detids_elements) {
     int isimcluster = 0;
-    if (detids.size() > 0) {
+    if (!detids.empty()) {
       double sum_e_tot = 0.0;
       for (const auto& c : detids) {
         sum_e_tot += c.second;
