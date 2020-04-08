@@ -105,7 +105,7 @@ bool HcalTB06BeamParametersFromDD::build(HcalTB06BeamParameters& php,
   edm::LogVerbatim("HcalTBSim") << "HcalTB06BeamParametersFromDD: Material name for ReadOut = " << name2 << ":"
                                 << php.material_;
 #endif
-  return 1;
+  return true;
 }
 
 std::vector<std::string> HcalTB06BeamParametersFromDD::getNames(DDFilteredView& fv) {
