@@ -58,7 +58,8 @@ namespace cms {
     typename host::impl::make_host_unique_selector<T>::bounded_array make_host_unique(Args &&...) = delete;
 
     template <typename T>
-    typename host::impl::make_host_unique_selector<T>::unbounded_array make_host_unique_bytes(size_t n, cudaStream_t stream) {
+    typename host::impl::make_host_unique_selector<T>::unbounded_array make_host_unique_bytes(size_t n,
+                                                                                              cudaStream_t stream) {
       using element_type = typename std::remove_extent<T>::type;
       static_assert(std::is_trivially_constructible<element_type>::value,
                     "Allocating with non-trivial constructor on the pinned host memory is not supported");
@@ -96,7 +97,8 @@ namespace cms {
     }
 
     template <typename T, typename... Args>
-    typename host::impl::make_host_unique_selector<T>::bounded_array make_host_unique_uninitialized_bytes(Args &&...) = delete;
+    typename host::impl::make_host_unique_selector<T>::bounded_array make_host_unique_uninitialized_bytes(Args &&...) =
+        delete;
   }  // namespace cuda
 }  // namespace cms
 

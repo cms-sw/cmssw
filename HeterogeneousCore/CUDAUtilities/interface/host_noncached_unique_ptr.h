@@ -82,8 +82,8 @@ namespace cms {
     }
 
     template <typename T, typename... Args>
-    typename host::noncached::impl::make_host_unique_selector<T>::bounded_array make_host_noncached_unique_bytes(Args &&...) =
-        delete;
+    typename host::noncached::impl::make_host_unique_selector<T>::bounded_array make_host_noncached_unique_bytes(
+        Args &&...) = delete;
   }  // namespace cuda
 }  // namespace cms
 
