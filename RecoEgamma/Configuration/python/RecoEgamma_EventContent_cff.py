@@ -22,7 +22,8 @@ RecoEgammaAOD = cms.PSet(
         'keep recoPhotons_photons_*_*', 
         'keep recoPhotonCores_ootPhotonCore_*_*',
         'keep recoPhotons_ootPhotons_*_*',
-        'keep recoConversions_conversions__*',
+        'keep recoConversions_conversions_*_*',
+        'drop *_conversions_uncleanedConversions_*',
         'keep recoConversions_mustacheConversions_*_*',
         'keep *_gsfTracksOpenConversions_*_*',
         'keep recoConversions_allConversions_*_*',
@@ -74,6 +75,7 @@ for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
                                                                    'keep recoPhotonCores_islandPhotonCore_*_*',
                                                                    'keep recoPhotons_islandPhotons_*_*'])
                )
+
 # RECO content
 RecoEgammaRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
