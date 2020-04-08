@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/plugins/CATopJetProducer.h"
 
-
 #include <memory>
 
 #include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
