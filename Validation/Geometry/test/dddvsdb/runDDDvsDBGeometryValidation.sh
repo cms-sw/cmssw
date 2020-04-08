@@ -420,7 +420,19 @@ echo "Start Simulation geometry validation" | tee -a GeometryValidation.log
 # echo "After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33" >> readXML.expected
 # echo "finished" >> readXML.expected
 
-cat > readXML.expected <<END_OF_TEXT  
+if ( ${geometry} == GeometryExtended ) then                                                               
+  cat > readXML.expected <<END_OF_TEXT  
+Here I am 
+Top Most LogicalPart =cms:OCMS 
+ mat=materials:Air
+ solid=cms:OCMS   Polycone_rrz:  startPhi[deg]=0 dPhi[deg]=360 Sizes[cm]=-45000 0 100 -2700 0 100 -2700 0 1750 2700 0 1750 2700 0 100 45000 0 100 
+After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33
+finished
+END_OF_TEXT
+
+else
+
+  cat > readXML.expected <<END_OF_TEXT  
 Here I am 
 Top Most LogicalPart =cms:OCMS 
  mat=materials:Air
@@ -428,6 +440,8 @@ Top Most LogicalPart =cms:OCMS
 After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33
 finished
 END_OF_TEXT
+
+endif
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/readExtendedAndDump.py .
 sed -i "{s/GeometryExtended/${geometry}/}" readExtendedAndDump.py >>  GeometryValidation.log
