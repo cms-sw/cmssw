@@ -676,11 +676,13 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     # case 1: running over jets whose daughters are PackedCandidates (only via updateJetCollection for now)
                     puppi_value_map = ""
                     vertex_associator = ""
+                    fix_daughters = ('slimmed' in jetSource.value().lower()) # when adding ParticleNet to slimmedJetsAK8 in the MiniAOD step
                 elif pfCandidates.value() == 'particleFlow':
                     raise ValueError("Running pfDeepBoostedJetTagInfos with reco::PFCandidates is currently not supported.")
                     # case 2: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
-                    puppi_value_map = "puppi"
-                    vertex_associator = "primaryVertexAssociation:original"
+                    # fix_daughters = False
+                    # puppi_value_map = "puppi"
+                    # vertex_associator = "primaryVertexAssociation:original"
                 else:
                     raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
@@ -689,6 +691,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       vertices = pvSource,
                                       secondary_vertices = svSource,
                                       pf_candidates = pfCandidates,
+                                      fix_daughters = fix_daughters,
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
                                       ),
