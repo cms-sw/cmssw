@@ -3,9 +3,7 @@
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "HTTTopJetProducer.h"
 
-
 #include <memory>
-
 
 using namespace edm;
 using namespace cms;

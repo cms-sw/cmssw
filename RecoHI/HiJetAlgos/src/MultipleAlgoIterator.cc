@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "RecoHI/HiJetAlgos/interface/MultipleAlgoIterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"

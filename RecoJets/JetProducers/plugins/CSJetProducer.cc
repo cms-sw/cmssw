@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/plugins/CSJetProducer.h"
 
-
 #include <memory>
 
 #include "FWCore/Utilities/interface/Exception.h"

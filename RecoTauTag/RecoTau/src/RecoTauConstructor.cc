@@ -1,7 +1,5 @@
 #include <memory>
 
-
-
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
