@@ -31,7 +31,7 @@ bool HcalTB02ParametersFromDD::build(const DDCompactView* cpv, HcalTB02Parameter
   for (; it != php.lengthMap_.end(); it++, i++) {
     edm::LogVerbatim("HcalTBSim") << " " << i << " " << it->first << " L = " << it->second;
   }
-  return 1;
+  return true;
 }
 
 bool HcalTB02ParametersFromDD::build(const cms::DDCompactView* cpv, HcalTB02Parameters& php, const std::string& name) {
@@ -53,5 +53,5 @@ bool HcalTB02ParametersFromDD::build(const cms::DDCompactView* cpv, HcalTB02Para
   for (; it != php.lengthMap_.end(); it++, i++) {
     edm::LogVerbatim("HcalTBSim") << " " << i << " " << it->first << " L = " << it->second;
   }
-  return 1;
+  return true;
 }
