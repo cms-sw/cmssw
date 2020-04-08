@@ -345,15 +345,36 @@ def processtasks(tasks, callback, taskname):
        + (f" ({len(failed)} failed)" if failed else ""))
     return failed
 
+# SQLite is at heart single-threaded. However, since we expect a read-heavy
+# workload, we can work around that by having multiple connections open at the
+# same time. This helper makes sure each connection is only used by one thread
+# at a time.
+class DBHandle:
+    def __init__(self, cache):
+        self.cache = cache
+        self.db = None
+    def __enter__(self):
+        while self.db == None:
+            try:
+                self.db = self.cache.pop()
+            except:
+                # no connections available -- wait and retry
+                print("Out of DB connections, waiting...")
+                time.sleep(1)
+        return self.db
+
+    def __exit__(self, type, value, traceback):
+        self.cache.append(self.db)
+
 class DQMIOReader:
     """
     This class manages data from a set of DQMIO files. This can be a full
     dataset read from DAS. Operations are internally multi-threaded.
     All state is kept in a SQLite database, caches are managed by `DQMIOFileIO`.
     """
-    def __init__(self, dbname="", nthreads=32, pooltype=ThreadPoolExecutor, progress=True):
-        self.db = sqlite3.connect(dbname)
-        self.db.executescript(DBSCHEMA)
+    def __init__(self, dbname="", nthreads=32, pooltype=ThreadPoolExecutor, progress=True, nconnections=1):
+        self.dbs = [sqlite3.connect(dbname, check_same_thread = False) for _ in range(nconnections)]
+        self.dbs[0].executescript(DBSCHEMA)
         self.pool = pooltype(nthreads)
         self.io = DQMIOFileIO()
         if progress:
@@ -361,6 +382,8 @@ class DQMIOReader:
         else:
             self.readentrymes = self.readentrymes_fast
 
+    def getdb(self):
+        return DBHandle(self.dbs)
           
     def importdatasets(self, datasetpattern):
         """
@@ -396,61 +419,65 @@ class DQMIOReader:
         """
         Add ROOT files to the metadata database, under the given dataset name.
         """
-        self.db.execute("BEGIN;")
-        self.db.execute("INSERT OR IGNORE INTO dataset(datasetname) VALUES (?);", (datasetname,))
-        self.db.execute("UPDATE dataset SET lastchecked = datetime('now') WHERE datasetname = ?;", (datasetname,))
-        datasetid = self.db.execute(f"SELECT id FROM dataset WHERE datasetname = ?;", (datasetname,))
-        datasetid = list(datasetid)[0][0]
-        self.db.executemany("INSERT OR IGNORE INTO file(datasetid, name) VALUES (?, ?)", [(datasetid, name) for name in filelist])  
-        self.db.execute("COMMIT;")
+        with self.getdb() as db:
+            db.execute("BEGIN;")
+            db.execute("INSERT OR IGNORE INTO dataset(datasetname) VALUES (?);", (datasetname,))
+            db.execute("UPDATE dataset SET lastchecked = datetime('now') WHERE datasetname = ?;", (datasetname,))
+            datasetid = db.execute(f"SELECT id FROM dataset WHERE datasetname = ?;", (datasetname,))
+            datasetid = list(datasetid)[0][0]
+            db.executemany("INSERT OR IGNORE INTO file(datasetid, name) VALUES (?, ?)", [(datasetid, name) for name in filelist])  
+            db.execute("COMMIT;")
           
     def datasets(self):
         """
         Return a list of known dataset names.
         """
-        return [row[0] for row in self.db.execute("SELECT datasetname FROM dataset;")]
+        with self.getdb() as db:
+            return [row[0] for row in db.execute("SELECT datasetname FROM dataset;")]
 
     def checkfiles(self, since="+1 day"):
         """
         Update metadata for all known files. Checks if files are readable and
         reads the Index trees, re-checks files last checked more than `since` ago.
         """
-        newfiles = list(self.db.execute("""
-           SELECT name FROM file 
-           WHERE (readable and indexed is null)
-              or (  (readable is null or not readable) 
-                and (lastchecked is null or datetime(lastchecked, ?) <  datetime('now')));
-        """, (since,)))
+        with self.getdb() as db:
+            newfiles = list(db.execute("""
+               SELECT name FROM file 
+               WHERE (readable and indexed is null)
+                  or (  (readable is null or not readable) 
+                    and (lastchecked is null or datetime(lastchecked, ?) <  datetime('now')));
+            """, (since,)))
 
-        lastcommit = [time.time()]
-        self.db.execute("BEGIN;")
-        def storeindex(filename, index):
-            self.db.execute("UPDATE file SET readable = ? WHERE name = ?;", (index != None, filename))
-            self.db.execute("UPDATE file SET lastchecked = datetime('now') WHERE name = ?;", (filename,))
-            if index != None:
-                self.db.executemany("""INSERT OR REPLACE INTO indexentry(run, lumi, type, file, firstidx, lastidx) 
-                    VALUES (?, ?, ?, (SELECT id FROM file WHERE name = ?), ?, ?);""", index)
-                self.db.execute('UPDATE file SET indexed = 1 WHERE id = (SELECT id FROM file WHERE name = ?);', (filename,))
+            lastcommit = [time.time()]
+            db.execute("BEGIN;")
+            def storeindex(filename, index):
+                db.execute("UPDATE file SET readable = ? WHERE name = ?;", (index != None, filename))
+                db.execute("UPDATE file SET lastchecked = datetime('now') WHERE name = ?;", (filename,))
+                if index != None:
+                    db.executemany("""INSERT OR REPLACE INTO indexentry(run, lumi, type, file, firstidx, lastidx) 
+                        VALUES (?, ?, ?, (SELECT id FROM file WHERE name = ?), ?, ?);""", index)
+                    db.execute('UPDATE file SET indexed = 1 WHERE id = (SELECT id FROM file WHERE name = ?);', (filename,))
 
-            # SQLite DB transactions can be really slow, so we rate-limit them to 1 in 10s.
-            if (time.time() - lastcommit[0]) > 10:
-                self.db.execute("COMMIT;")
-                self.db.execute("BEGIN;")
-                lastcommit[0] = time.time()
+                # SQLite DB transactions can be really slow, so we rate-limit them to 1 in 10s.
+                if (time.time() - lastcommit[0]) > 10:
+                    db.execute("COMMIT;")
+                    db.execute("BEGIN;")
+                    lastcommit[0] = time.time()
 
 
-        tasks = [(filename, self.pool.submit(self.io.readindex, filename)) for filename, in newfiles]
-        failed = processtasks(tasks, storeindex, "index read")
-        self.db.execute("COMMIT;")
+            tasks = [(filename, self.pool.submit(self.io.readindex, filename)) for filename, in newfiles]
+            failed = processtasks(tasks, storeindex, "index read")
+            db.execute("COMMIT;")
     
     def samples(self):
         """
         Return a list of known samples ((datasetname, run, lumi) tuples).
         """
-        return list(self.db.execute("""
-            SELECT DISTINCT datasetname, run, lumi FROM indexentry 
-            INNER JOIN file ON indexentry.file = file.id 
-            INNER JOIN dataset ON file.datasetid = dataset.id;"""))
+        with self.getdb() as db:
+            return list(db.execute("""
+                SELECT DISTINCT datasetname, run, lumi FROM indexentry 
+                INNER JOIN file ON indexentry.file = file.id 
+                INNER JOIN dataset ON file.datasetid = dataset.id;"""))
 
     def entriesforsample(self, datasetname, run, lumi, onefileonly=False):
         query = f"""
@@ -462,8 +489,9 @@ class DQMIOReader:
         """
         if onefileonly:
             query += "GROUP BY type" #we only need one entry per type, no need to read all files.
-        entries = self.db.execute(query, (datasetname, run, lumi))
-        return [IndexEntry(*row) for row in entries]
+        with self.getdb() as db:
+            entries = db.execute(query, (datasetname, run, lumi))
+            return [IndexEntry(*row) for row in entries]
 
     # there are two of these, one with progress indication, one without.
     # one of them is selected in __init__.
