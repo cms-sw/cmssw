@@ -354,9 +354,9 @@ CmsShowMain::CmsShowMain(int argc, char* argv[])
     f = boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>());
     startupTasks()->addTask(f);
   }
-  if (!geometryFilename().empty()){
-     f = boost::bind(&CmsShowMainBase::loadGeometry, this);
-     startupTasks()->addTask(f);
+  if (!geometryFilename().empty()) {
+    f = boost::bind(&CmsShowMainBase::loadGeometry, this);
+    startupTasks()->addTask(f);
   }
   f = boost::bind(&CmsShowMainBase::setupViewManagers, this);
   startupTasks()->addTask(f);
@@ -495,8 +495,8 @@ void CmsShowMain::fileChangedSlot(const TFile* file) {
     context()->getField()->resetFieldEstimate();
   }
   if (geometryFilename().empty()) {
-     std::string gt = m_navigator->getCurrentGlobalTag();
-     fireworks::Context::getInstance()->getGeom()->applyGlobalTag(gt);
+    std::string gt = m_navigator->getCurrentGlobalTag();
+    fireworks::Context::getInstance()->getGeom()->applyGlobalTag(gt);
   }
   m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
