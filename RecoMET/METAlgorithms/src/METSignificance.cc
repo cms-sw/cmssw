@@ -70,15 +70,12 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
 
    // subtract leptons out of sumPt
    for ( const auto& lep_i : leptons ) {
-     for( const auto& lep : *lep_i ) {
-       if( lep.pt() > 10 ){
-	 for( unsigned int n=0; n < lep.numberOfSourceCandidatePtrs(); n++ ){
-	   if( lep.sourceCandidatePtr(n).isNonnull() and lep.sourceCandidatePtr(n).isAvailable() ){
-	     footprint.insert(lep.sourceCandidatePtr(n));
-	   } 
-	 }
-       }
+    for (const auto& lep : lep_i->ptrs()) {
+      if (lep->pt() > 10) {
+        for (unsigned int n = 0; n < lep->numberOfSourceCandidatePtrs(); n++)
+          footprint.insert(lep->sourceCandidatePtr(n));
      }
+    }
    }
    // subtract jets out of sumPt
    for(const auto& jet : jets) {
@@ -86,9 +83,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
      // disambiguate jets and leptons
      if(!cleanJet(jet, leptons) ) continue;
      for( unsigned int n=0; n < jet.numberOfSourceCandidatePtrs(); n++){
-       if( jet.sourceCandidatePtr(n).isNonnull() and jet.sourceCandidatePtr(n).isAvailable() ){
-	 footprint.insert(jet.sourceCandidatePtr(n));
-       }
+      footprint.insert(jet.sourceCandidatePtr(n));
      }
 
    }
@@ -105,8 +100,9 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
        for( const auto& it : footprint) {
 	 // Special treatment for PUPPI with dR, since jet candidates (puppi) and MET candidates (puppiForMet)
 	 // can't be matched through the sourceCandidatePtrs and may have different energy, but same direction.
-	 if( ((!useDeltaRforFootprint_) && ((it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025)) ||
-	     (( useDeltaRforFootprint_) && (reco::deltaR2(it->p4(),(*pfCandidates)[i].p4())<0.00000025)) ){
+	 if((it.isNonnull()) && (it.isAvailable()) &&
+            (((!useDeltaRforFootprint_) && ((it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025)) ||
+	     (( useDeltaRforFootprint_) && (reco::deltaR2(it->p4(),(*pfCandidates)[i].p4())<0.00000025)))){
 	   cleancand = false;
 	   break;
 	 }
