@@ -30,8 +30,8 @@ void DDTestFilteredView::analyze(const Event&, const EventSetup& iEventSetup) {
   ESTransientHandle<DDCompactView> cpv;
   iEventSetup.get<IdealGeometryRecord>().get(m_tag, cpv);
 
-  DDFilter filter("CMSCutsRegion","Muon");
-  DDFilteredView fv((*cpv),filter);
+  DDFilter filter("CMSCutsRegion", "Muon");
+  DDFilteredView fv((*cpv), filter);
 
   fv.printFilter();
 
