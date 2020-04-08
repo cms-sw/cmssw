@@ -61,7 +61,7 @@ namespace l1t {
           uint32_t raw_data_spare = payload[startIdx + 1];
           uint32_t raw_data_00_31 = payload[i++];
           uint32_t raw_data_32_63 = payload[i++];
-          LogDebug("L1T") << "raw_data_spare = 0x" << hex << raw_data_spare << "raw_data_00_31 = 0x" << raw_data_00_31
+          LogDebug("L1T") << "raw_data_spare = 0x" << hex << raw_data_spare << " raw_data_00_31 = 0x" << raw_data_00_31
                           << " raw_data_32_63 = 0x" << raw_data_32_63;
           // skip empty muons (hwPt == 0)
           if (((raw_data_00_31 >> l1t::MuonRawDigiTranslator::ptShift_) & l1t::MuonRawDigiTranslator::ptMask_) == 0) {
