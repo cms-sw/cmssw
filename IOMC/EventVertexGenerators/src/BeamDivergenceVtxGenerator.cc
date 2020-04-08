@@ -60,7 +60,7 @@ BeamDivergenceVtxGenerator::BeamDivergenceVtxGenerator(const edm::ParameterSet &
     : simulateVertex_(iConfig.getParameter<bool>("simulateVertex")),
       simulateBeamDivergence_(iConfig.getParameter<bool>("simulateBeamDivergence")) {
   const edm::InputTag tagSrcHepMC = iConfig.getParameter<edm::InputTag>("src");
-  if (tagSrcHepMC.label() != "")
+  if (!tagSrcHepMC.label().empty())
     sourceToken_ = consumes<edm::HepMCProduct>(tagSrcHepMC);
 
   for (const auto &it : iConfig.getParameter<std::vector<edm::InputTag>>("srcGenParticle"))
