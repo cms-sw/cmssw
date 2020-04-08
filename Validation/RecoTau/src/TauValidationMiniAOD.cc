@@ -34,9 +34,15 @@ TauValidationMiniAOD::~TauValidationMiniAOD() {}
 void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
                                           edm::Run const& iRun,
                                           edm::EventSetup const& /* iSetup */) {
-  MonitorElement *ptTemp, *etaTemp, *phiTemp, *massTemp, *decayModeFindingTemp, *decayModeTemp,
+
+  MonitorElement *ptTightvsJet, *etaTightvsJet, *phiTightvsJet, *massTightvsJet, *ptTightvsEle, *etaTightvsEle, *phiTightvsEle, *massTightvsEle, *ptTightvsMuo, *etaTightvsMuo, *phiTightvsMuo, *massTightvsMuo, 
+*ptMediumvsJet, *etaMediumvsJet, *phiMediumvsJet, *massMediumvsJet, *ptMediumvsEle, *etaMediumvsEle, *phiMediumvsEle, *massMediumvsEle, *ptMediumvsMuo, *etaMediumvsMuo, *phiMediumvsMuo, *massMediumvsMuo,
+*ptLoosevsJet, *etaLoosevsJet, *phiLoosevsJet, *massLoosevsJet, *ptLoosevsEle, *etaLoosevsEle, *phiLoosevsEle, *massLoosevsEle, *ptLoosevsMuo, *etaLoosevsMuo, *phiLoosevsMuo, *massLoosevsMuo,*ptTemp , *etaTemp, *phiTemp, *massTemp, *decayModeFindingTemp, *decayModeTemp,
       *byDeepTau2017v2p1VSerawTemp, *byDeepTau2017v2p1VSjetrawTemp, *byDeepTau2017v2p1VSmurawTemp, *summaryTemp;
-  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_);
+
+  std::cout << "extensionName_: \n";
+  std::cout<< extensionName_ ; 
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/Summary");
 
   //summary plots
   histoInfo summaryHinfo = (histoSettings_.exists("summary"))
@@ -50,15 +56,6 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   summaryMap.insert(std::make_pair("Den", summaryTemp));
   summaryTemp = ibooker.book1D("summaryPlot", "summaryPlot", summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
   summaryMap.insert(std::make_pair("", summaryTemp));
-
-  int j = 0;
-  for (const auto& it : discriminators_) {
-    string DiscriminatorLabel = it.getParameter<string>("discriminator");
-    summaryMap.find("Den")->second->setBinLabel(j + 1, DiscriminatorLabel);
-    summaryMap.find("Num")->second->setBinLabel(j + 1, DiscriminatorLabel);
-    summaryMap.find("")->second->setBinLabel(j + 1, DiscriminatorLabel);
-    j = j + 1;
-  }
 
   //other plots
   histoInfo ptHinfo = (histoSettings_.exists("pt")) ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("pt"))
@@ -88,6 +85,19 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
       (histoSettings_.exists("byDeepTau2017v2p1VSmuraw"))
           ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("byDeepTau2017v2p1VSmuraw"))
           : histoInfo(200, 0., 1.);
+
+  int j = 0;
+  for (const auto& it : discriminators_) {
+    string DiscriminatorLabel = it.getParameter<string>("discriminator");
+    std::cout << "Current discriminator miniaod: \n";
+    std::cout << DiscriminatorLabel;
+    summaryMap.find("Den")->second->setBinLabel(j + 1, DiscriminatorLabel);
+    summaryMap.find("Num")->second->setBinLabel(j + 1, DiscriminatorLabel);
+    summaryMap.find("")->second->setBinLabel(j + 1, DiscriminatorLabel);
+
+    j = j + 1;
+  }
+
   ptTemp = ibooker.book1D("tau_pt", "tau_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
   etaTemp = ibooker.book1D("tau_eta", "tau_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
   phiTemp = ibooker.book1D("tau_phi", "tau_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
@@ -123,6 +133,111 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   byDeepTau2017v2p1VSerawMap.insert(std::make_pair("", byDeepTau2017v2p1VSerawTemp));
   byDeepTau2017v2p1VSjetrawMap.insert(std::make_pair("", byDeepTau2017v2p1VSjetrawTemp));
   byDeepTau2017v2p1VSmurawMap.insert(std::make_pair("", byDeepTau2017v2p1VSmurawTemp));
+
+
+  //tight histograms
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsJet/tight");
+
+  ptTightvsJet = ibooker.book1D("tau_tightvsJet_pt", "tau_tightvsJet_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaTightvsJet = ibooker.book1D("tau_tightvsJet_eta", "tau_tightvsJet_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiTightvsJet = ibooker.book1D("tau_tightvsJet_phi", "tau_tightvsJet_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massTightvsJet = ibooker.book1D("tau_tightvsJet_mass", "tau_tightvsJet_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  ptTightvsJetMap.insert(std::make_pair("", ptTightvsJet));
+  etaTightvsJetMap.insert(std::make_pair("", etaTightvsJet));
+  phiTightvsJetMap.insert(std::make_pair("", phiTightvsJet));
+  massTightvsJetMap.insert(std::make_pair("", massTightvsJet));
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsEle/tight");
+
+  ptTightvsEle = ibooker.book1D("tau_tightvsEle_pt", "tau_tightvsEle_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaTightvsEle = ibooker.book1D("tau_tightvsEle_eta", "tau_tightvsEle_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiTightvsEle = ibooker.book1D("tau_tightvsEle_phi", "tau_tightvsEle_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massTightvsEle = ibooker.book1D("tau_tightvsEle_mass", "tau_tightvsEle_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  ptTightvsEleMap.insert(std::make_pair("", ptTightvsEle));
+  etaTightvsEleMap.insert(std::make_pair("", etaTightvsEle));
+  phiTightvsEleMap.insert(std::make_pair("", phiTightvsEle));
+  massTightvsEleMap.insert(std::make_pair("", massTightvsEle));
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsMu/tight");
+
+  ptTightvsMuo = ibooker.book1D("tau_tightvsMuo_pt", "tau_tightvsMuo_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaTightvsMuo = ibooker.book1D("tau_tightvsMuo_eta", "tau_tightvsMuo_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiTightvsMuo = ibooker.book1D("tau_tightvsMuo_phi", "tau_tightvsMuo_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massTightvsMuo = ibooker.book1D("tau_tightvsMuo_mass", "tau_tightvsMuo_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  ptTightvsMuoMap.insert(std::make_pair("", ptTightvsMuo));
+  etaTightvsMuoMap.insert(std::make_pair("", etaTightvsMuo));
+  phiTightvsMuoMap.insert(std::make_pair("", phiTightvsMuo));
+  massTightvsMuoMap.insert(std::make_pair("", massTightvsMuo));
+
+  //loose histograms
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsJet/medium");
+
+  ptMediumvsJet = ibooker.book1D("tau_tightvsJet_pt", "tau_tightvsJet_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaMediumvsJet = ibooker.book1D("tau_tightvsJet_eta", "tau_tightvsJet_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiMediumvsJet = ibooker.book1D("tau_tightvsJet_phi", "tau_tightvsJet_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massMediumvsJet = ibooker.book1D("tau_tightvsJet_mass", "tau_tightvsJet_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  ptMediumvsJetMap.insert(std::make_pair("", ptMediumvsJet));
+  etaMediumvsJetMap.insert(std::make_pair("", etaMediumvsJet));
+  phiMediumvsJetMap.insert(std::make_pair("", phiMediumvsJet));
+  massMediumvsJetMap.insert(std::make_pair("", massMediumvsJet));
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsEle/medium");
+
+  ptMediumvsEle = ibooker.book1D("tau_tightvsEle_pt", "tau_tightvsEle_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaMediumvsEle = ibooker.book1D("tau_tightvsEle_eta", "tau_tightvsEle_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiMediumvsEle = ibooker.book1D("tau_tightvsEle_phi", "tau_tightvsEle_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massMediumvsEle = ibooker.book1D("tau_tightvsEle_mass", "tau_tightvsEle_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  ptMediumvsEleMap.insert(std::make_pair("", ptMediumvsEle));
+  etaMediumvsEleMap.insert(std::make_pair("", etaMediumvsEle));
+  phiMediumvsEleMap.insert(std::make_pair("", phiMediumvsEle));
+  massMediumvsEleMap.insert(std::make_pair("", massMediumvsEle));
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsMu/medium");
+
+  ptMediumvsMuo = ibooker.book1D("tau_tightvsMuo_pt", "tau_tightvsMuo_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaMediumvsMuo = ibooker.book1D("tau_tightvsMuo_eta", "tau_tightvsMuo_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiMediumvsMuo = ibooker.book1D("tau_tightvsMuo_phi", "tau_tightvsMuo_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massMediumvsMuo = ibooker.book1D("tau_tightvsMuo_mass", "tau_tightvsMuo_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  ptMediumvsMuoMap.insert(std::make_pair("", ptMediumvsMuo));
+  etaMediumvsMuoMap.insert(std::make_pair("", etaMediumvsMuo));
+  phiMediumvsMuoMap.insert(std::make_pair("", phiMediumvsMuo));
+  massMediumvsMuoMap.insert(std::make_pair("", massMediumvsMuo));
+
+  //medium histograms
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsJet/loose");
+
+  ptLoosevsJet = ibooker.book1D("tau_tightvsJet_pt", "tau_tightvsJet_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaLoosevsJet = ibooker.book1D("tau_tightvsJet_eta", "tau_tightvsJet_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiLoosevsJet = ibooker.book1D("tau_tightvsJet_phi", "tau_tightvsJet_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massLoosevsJet = ibooker.book1D("tau_tightvsJet_mass", "tau_tightvsJet_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  ptLoosevsJetMap.insert(std::make_pair("", ptLoosevsJet));
+  etaLoosevsJetMap.insert(std::make_pair("", etaLoosevsJet));
+  phiLoosevsJetMap.insert(std::make_pair("", phiLoosevsJet));
+  massLoosevsJetMap.insert(std::make_pair("", massLoosevsJet));
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsEle/loose");
+
+  ptLoosevsEle = ibooker.book1D("tau_tightvsEle_pt", "tau_tightvsEle_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaLoosevsEle = ibooker.book1D("tau_tightvsEle_eta", "tau_tightvsEle_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiLoosevsEle = ibooker.book1D("tau_tightvsEle_phi", "tau_tightvsEle_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massLoosevsEle = ibooker.book1D("tau_tightvsEle_mass", "tau_tightvsEle_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  ptLoosevsEleMap.insert(std::make_pair("", ptLoosevsEle));
+  etaLoosevsEleMap.insert(std::make_pair("", etaLoosevsEle));
+  phiLoosevsEleMap.insert(std::make_pair("", phiLoosevsEle));
+  massLoosevsEleMap.insert(std::make_pair("", massLoosevsEle));
+
+  ibooker.setCurrentFolder("RecoTauV/miniAODValidation/" + extensionName_ + "/vsMu/loose");
+
+  ptLoosevsMuo = ibooker.book1D("tau_tightvsMuo_pt", "tau_tightvsMuo_pt", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaLoosevsMuo = ibooker.book1D("tau_tightvsMuo_eta", "tau_tightvsMuo_eta", etaHinfo.nbins, etaHinfo.min, etaHinfo.max);
+  phiLoosevsMuo = ibooker.book1D("tau_tightvsMuo_phi", "tau_tightvsMuo_phi", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  massLoosevsMuo = ibooker.book1D("tau_tightvsMuo_mass", "tau_tightvsMuo_mass", massHinfo.nbins, massHinfo.min, massHinfo.max);
+  ptLoosevsMuoMap.insert(std::make_pair("", ptLoosevsMuo));
+  etaLoosevsMuoMap.insert(std::make_pair("", etaLoosevsMuo));
+  phiLoosevsMuoMap.insert(std::make_pair("", phiLoosevsMuo));
+  massLoosevsMuoMap.insert(std::make_pair("", massLoosevsMuo));
 }
 
 void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -156,6 +271,7 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
     }
     if (dRmin < 0.15) {
       pat::TauRef matchedTau(taus, matchedTauIndex);
+
       ptMap.find("")->second->Fill(matchedTau->pt());
       etaMap.find("")->second->Fill(matchedTau->eta());
       phiMap.find("")->second->Fill(matchedTau->phi());
@@ -177,6 +293,60 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
         if (matchedTau->tauID(currentDiscriminator) >= selectionCut)
           summaryMap.find("Num")->second->Fill(j);
         j = j + 1;
+      }
+      if (matchedTau->tauID("byTightDeepTau2017v2p1VSjet")>=0.5) {
+        ptTightvsJetMap.find("")->second->Fill(matchedTau->pt());
+        etaTightvsJetMap.find("")->second->Fill(matchedTau->eta());
+        phiTightvsJetMap.find("")->second->Fill(matchedTau->phi());
+        massTightvsJetMap.find("")->second->Fill(matchedTau->mass());
+      }
+      if (matchedTau->tauID("byTightDeepTau2017v2p1VSe")>=0.5) {
+        ptTightvsEleMap.find("")->second->Fill(matchedTau->pt());
+        etaTightvsEleMap.find("")->second->Fill(matchedTau->eta());
+        phiTightvsEleMap.find("")->second->Fill(matchedTau->phi());
+        massTightvsEleMap.find("")->second->Fill(matchedTau->mass());
+      }
+      if (matchedTau->tauID("byTightDeepTau2017v2p1VSmu")>=0.5) {
+        ptTightvsMuoMap.find("")->second->Fill(matchedTau->pt());
+        etaTightvsMuoMap.find("")->second->Fill(matchedTau->eta());
+        phiTightvsMuoMap.find("")->second->Fill(matchedTau->phi());
+        massTightvsMuoMap.find("")->second->Fill(matchedTau->mass());
+      }
+      if (matchedTau->tauID("byMediumDeepTau2017v2p1VSjet")>=0.5) {
+        ptMediumvsJetMap.find("")->second->Fill(matchedTau->pt());
+        etaMediumvsJetMap.find("")->second->Fill(matchedTau->eta());
+        phiMediumvsJetMap.find("")->second->Fill(matchedTau->phi());
+        massMediumvsJetMap.find("")->second->Fill(matchedTau->mass());
+      }
+      if (matchedTau->tauID("byMediumDeepTau2017v2p1VSe")>=0.5) {
+        ptMediumvsEleMap.find("")->second->Fill(matchedTau->pt());
+        etaMediumvsEleMap.find("")->second->Fill(matchedTau->eta());
+        phiMediumvsEleMap.find("")->second->Fill(matchedTau->phi());
+        massMediumvsEleMap.find("")->second->Fill(matchedTau->mass());
+      }
+      if (matchedTau->tauID("byMediumDeepTau2017v2p1VSmu")>=0.5) {
+        ptMediumvsMuoMap.find("")->second->Fill(matchedTau->pt());
+        etaMediumvsMuoMap.find("")->second->Fill(matchedTau->eta());
+        phiMediumvsMuoMap.find("")->second->Fill(matchedTau->phi());
+        massMediumvsMuoMap.find("")->second->Fill(matchedTau->mass());
+      }
+      if (matchedTau->tauID("byLooseDeepTau2017v2p1VSjet")>=0.5) {
+        ptLoosevsJetMap.find("")->second->Fill(matchedTau->pt());
+        etaLoosevsJetMap.find("")->second->Fill(matchedTau->eta());
+        phiLoosevsJetMap.find("")->second->Fill(matchedTau->phi());
+        massLoosevsJetMap.find("")->second->Fill(matchedTau->mass());
+      }
+      if (matchedTau->tauID("byLooseDeepTau2017v2p1VSe")>=0.5) {
+        ptLoosevsEleMap.find("")->second->Fill(matchedTau->pt());
+        etaLoosevsEleMap.find("")->second->Fill(matchedTau->eta());
+        phiLoosevsEleMap.find("")->second->Fill(matchedTau->phi());
+        massLoosevsEleMap.find("")->second->Fill(matchedTau->mass());
+      }
+      if (matchedTau->tauID("byLooseDeepTau2017v2p1VSmu")>=0.5) {
+        ptLoosevsMuoMap.find("")->second->Fill(matchedTau->pt());
+        etaLoosevsMuoMap.find("")->second->Fill(matchedTau->eta());
+        phiLoosevsMuoMap.find("")->second->Fill(matchedTau->phi());
+        massLoosevsMuoMap.find("")->second->Fill(matchedTau->mass());
       }
     }
   }
