@@ -10,7 +10,7 @@ cond::service::OnlineDBOutputService::OnlineDBOutputService(const edm::Parameter
       m_lastLumiUrl(iConfig.getUntrackedParameter<std::string>("lastLumiUrl", "")),
       m_preLoadConnectionString(iConfig.getUntrackedParameter<std::string>("preLoadConnectionString", "")),
       m_debug(iConfig.getUntrackedParameter<bool>("debugLogging", false)) {
-  if (m_lastLumiUrl.size() != 0) {
+  if (!m_lastLumiUrl.empty()) {
     startTransaction();
     m_runNumber = PoolDBOutputService::session().getCurrentRun().run;
   } else {
@@ -39,7 +39,7 @@ bool getLatestLumiFromDAQ(const std::string& urlString, std::string& info) {
   curl = curl_easy_init();
   bool ret = false;
   if (curl) {
-    struct curl_slist* chunk = NULL;
+    struct curl_slist* chunk = nullptr;
     chunk = curl_slist_append(chunk, "content-type:document/plain");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
     curl_easy_setopt(curl, CURLOPT_URL, urlString.c_str());
@@ -75,7 +75,7 @@ cond::Time_t cond::service::OnlineDBOutputService::getLastLumiProcessed() {
     edm::LogInfo(MSGSOURCE) << "Last lumi: " << lastLumiProcessed << " Current run: " << m_runNumber
                             << " lumi id:" << lastL;
   } else {
-    if (m_lastLumiFile.size() == 0) {
+    if (m_lastLumiFile.empty()) {
       //auto t1 = std::chrono::steady_clock::now();
       //auto deltat = std::chrono::duration_cast<std::chrono::seconds>( t1 - m_startRunTime ).count();
       //lastL = (unsigned int)(deltat/23);
