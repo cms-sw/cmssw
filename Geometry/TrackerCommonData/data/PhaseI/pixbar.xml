@@ -39,6 +39,14 @@
  <Constant name="Shield4Rout"       value="18.6*cm"/>
  <Constant name="ShieldAL_T"        value="0.005*cm"/>
  <Constant name="ShieldKevlar_T"    value="0.025*cm"/>
+
+ <Constant name="InterFlangesSuppTubRin"    value="0.3*cm"/>
+ <Constant name="InterFlangesSuppTubRout"   value="0.35*cm"/>
+ <Constant name="InterFlangesSuppTubX1"     value="17.32*cm"/>
+ <Constant name="InterFlangesSuppTubY1"     value="5.25*cm"/>
+ <Constant name="InterFlangesSuppTubX2"     value="5.23*cm"/>
+ <Constant name="InterFlangesSuppTubY2"     value="17.33*cm"/>
+
  <Constant name="FlangeRin"         value="2.500*cm"/> <!-- 3.400*cm for 16 faces opt-->
  <Constant name="FlangeRout"        value="18.980*cm"/>
  <Constant name="FlangeR12"         value="4.900*cm"/> <!-- 5.3500*cm for 16 faces opt-->
@@ -232,6 +240,10 @@
        dz="[ShieldL]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelShield4" rMin="[Shield3Rout]"    rMax="[Shield4Rout]"
        dz="[ShieldL]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
+
+ <Tubs name="InterFlangesSuppTub" rMin="[InterFlangesSuppTubRin]"     rMax="[InterFlangesSuppTubRout]"
+       dz="[ShieldL]/2"         startPhi="0*deg"        deltaPhi="360*deg"/>
+
  <Tubs name="PixelBarrelFlange1_Airex"  rMin="[FlangeRin]"      rMax="[FlangeR12]"
        dz="[FlangeT_Airex]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelFlange1_CFK"  rMin="[FlangeRin]"      rMax="[FlangeR12]"
@@ -372,6 +384,10 @@
  <LogicalPart name="PixelBarrelShield4" category="unspecified">
   <rSolid name="PixelBarrelShield4"/>
   <rMaterial name="trackermaterial:T_Kevlar"/>
+ </LogicalPart>
+ <LogicalPart name="InterFlangesSuppTub" category="unspecified">
+  <rSolid name="InterFlangesSuppTub"/>
+  <rMaterial name="pixbarmaterial:InterFlangesSuppTub_CFK"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelFlange1_Airex" category="unspecified">
   <rSolid name="PixelBarrelFlange1_Airex"/>
@@ -566,10 +582,47 @@
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelShield4"/>
  </PosPart>
-<!-- <PosPart copyNumber="1">
-   <rParent name="pixbar:PixelBarrelFlange"/>
-   <rChild name="pixbar:PixelBarrelFlangIn"/>
- </PosPart> -->
+
+ <PosPart copyNumber="1">
+   <rParent name="pixbar:PixelBarrel"/>
+   <rChild name="pixbar:InterFlangesSuppTub"/>
+   <Translation x="[InterFlangesSuppTubX1]" y="[InterFlangesSuppTubY1]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+   <rParent name="pixbar:PixelBarrel"/>
+   <rChild name="pixbar:InterFlangesSuppTub"/>
+   <Translation x="[InterFlangesSuppTubX2]" y="[InterFlangesSuppTubY2]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="3">
+   <rParent name="pixbar:PixelBarrel"/>
+   <rChild name="pixbar:InterFlangesSuppTub"/>
+   <Translation x="-[InterFlangesSuppTubX2]" y="[InterFlangesSuppTubY2]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="4">
+   <rParent name="pixbar:PixelBarrel"/>
+   <rChild name="pixbar:InterFlangesSuppTub"/>
+   <Translation x="-[InterFlangesSuppTubX1]" y="[InterFlangesSuppTubY1]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="5">
+   <rParent name="pixbar:PixelBarrel"/>
+   <rChild name="pixbar:InterFlangesSuppTub"/>
+   <Translation x="-[InterFlangesSuppTubX1]" y="-[InterFlangesSuppTubY1]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="6">
+   <rParent name="pixbar:PixelBarrel"/>
+   <rChild name="pixbar:InterFlangesSuppTub"/>
+   <Translation x="-[InterFlangesSuppTubX2]" y="-[InterFlangesSuppTubY2]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="7">
+   <rParent name="pixbar:PixelBarrel"/>
+   <rChild name="pixbar:InterFlangesSuppTub"/>
+   <Translation x="[InterFlangesSuppTubX2]" y="-[InterFlangesSuppTubY2]" z="[zero]" />
+ </PosPart>
+ <PosPart copyNumber="8">
+   <rParent name="pixbar:PixelBarrel"/>
+   <rChild name="pixbar:InterFlangesSuppTub"/>
+   <Translation x="[InterFlangesSuppTubX1]" y="-[InterFlangesSuppTubY1]" z="[zero]" />
+ </PosPart>
 
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
