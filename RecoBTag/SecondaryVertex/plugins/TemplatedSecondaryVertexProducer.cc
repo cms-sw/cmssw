@@ -295,7 +295,7 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
     token_fatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("fatJets"));
   }
   edm::InputTag srcWeights = params.getParameter<edm::InputTag>("weights");
-  if (srcWeights.label() != "")
+  if (!srcWeights.label().empty())
     token_weights = consumes<edm::ValueMap<float> >(srcWeights);
   if (useGroomedFatJets) {
     token_groomedFatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("groomedFatJets"));
