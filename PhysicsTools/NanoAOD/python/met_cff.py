@@ -58,12 +58,14 @@ puppiMetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     doc = cms.string("PUPPI  MET"),
     singleton = cms.bool(True),  # there's always exactly one MET per event
     extension = cms.bool(False), # this is the main table for the MET
-    variables = cms.PSet(PTVars,
-       sumEt = Var("sumEt()", float, doc="scalar sum of Et",precision=10),
-       ptJERUp = Var("shiftedPt('JetResUp')", float, doc="JER up pt",precision=10),
-       phiJERUp = Var("shiftedPhi('JetResUp')", float, doc="JER up phi",precision=10),
-       ptJESUp = Var("shiftedPt('JetEnUp')", float, doc="JES up pt",precision=10),
-       phiJESUp = Var("shiftedPhi('JetEnUp')", float, doc="JES up phi",precision=10),
+    variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
+       sumEt = Var("shiftedSumEt('NoShift','Type1Smear')", float, doc="scalar sum of Et",precision=10),
+       pt = Var("shiftedPt('NoShift','Type1Smear')", float, doc="pt",precision=-1),
+       phi = Var("shiftedPhi('NoShift',Type1Smear')", float, doc="phi",precision=12),
+       ptJERUp = Var("shiftedPt('JetResUp','Type1Smear')", float, doc="JER up pt",precision=10),
+       phiJERUp = Var("shiftedPhi('JetResUp',Type1Smear)", float, doc="JER up phi",precision=10),
+       ptJESUp = Var("shiftedPt('JetEnUp','Type1Smear')", float, doc="JES up pt",precision=10),
+       phiJESUp = Var("shiftedPhi('JetEnUp','Type1Smear')", float, doc="JES up phi",precision=10),
     ),
 )
 
