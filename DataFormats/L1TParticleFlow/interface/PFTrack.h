@@ -61,7 +61,7 @@ namespace l1t {
     float caloPtError() const { return caloPtError_; }
     void setCaloPtError(float ptErr) { caloPtError_ = ptErr; }
 
-    bool isMuon() const { return isMuon_; }
+    bool isMuon() const override { return isMuon_; }
     void setIsMuon(bool isMuon) { isMuon_ = isMuon; }
 
     int quality() const { return hwQual(); }
