@@ -5,8 +5,6 @@
  <Constant name="zero"              value="0.0*fm"/>
  <Constant name="Rin1"              value="2.50*cm"/>
  <Constant name="Rin2"              value="18.00*cm"/>
-<!-- <Constant name="Rin3"              value="18.50*cm"/> -->
- <Constant name="Rin3"              value="18.6*cm"/> <!--cc useless at the moment -->
  <Constant name="RinSupTubCab"      value="15.00*cm"/>
  <Constant name="Rout1"             value="21.80*cm"/>
  <Constant name="Rout2"             value="21.00*cm"/>
@@ -36,9 +34,9 @@
  <Constant name="Shield1Rin"        value="[FlangeRin]"/> 
  <Constant name="Shield1Rout"       value="[FlangeRin]+[ShieldAL_T]"/>
  <Constant name="Shield2Rout"       value="[FlangeRin]+[ShieldAL_T]+[ShieldKevlar_T]"/>
- <Constant name="Shield3Rin"        value="[FlangeRout]-[ShieldAL_T]-[ShieldKevlar_T]"/> 
- <Constant name="Shield3Rout"       value="[FlangeRout]-[ShieldKevlar_T]"/>
- <Constant name="Shield4Rout"       value="[FlangeRout]"/>
+ <Constant name="Shield3Rin"        value="[Shield4Rout]-[ShieldAL_T]-[ShieldKevlar_T]"/> 
+ <Constant name="Shield3Rout"       value="[Shield4Rout]-[ShieldKevlar_T]"/>
+ <Constant name="Shield4Rout"       value="18.6*cm"/>
  <Constant name="ShieldAL_T"        value="0.005*cm"/>
  <Constant name="ShieldKevlar_T"    value="0.025*cm"/>
  <Constant name="FlangeRin"         value="2.500*cm"/> <!-- 3.400*cm for 16 faces opt-->
@@ -232,10 +230,6 @@
        dz="[ShieldL]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelShield3" rMin="[Shield3Rin]"     rMax="[Shield3Rout]"
        dz="[ShieldL]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
-<!--cc
- <Tubs name="PixelBarrelShield4" rMin="[Shield3Rout]"    rMax="[Rin3]"
-       dz="[ShieldL]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
--->
  <Tubs name="PixelBarrelShield4" rMin="[Shield3Rout]"    rMax="[Shield4Rout]"
        dz="[ShieldL]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelFlange1_Airex"  rMin="[FlangeRin]"      rMax="[FlangeR12]"
