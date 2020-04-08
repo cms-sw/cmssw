@@ -1,3 +1,7 @@
+#include <memory>
+
+
+
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
@@ -42,7 +46,7 @@ namespace reco::tau {
     // RefVectors
     for (auto const& colkey : collections_) {
       // Build an empty list for each collection
-      sortedCollections_[colkey.first] = SortedListPtr(new SortedListPtr::element_type);
+      sortedCollections_[colkey.first] = std::make_shared<SortedListPtr::element_type>();
     }
 
     tau_->setjetRef(jet);

@@ -42,12 +42,12 @@
 class LumiProducerFromBrilcalc : public edm::global::EDProducer<> {
 public:
   explicit LumiProducerFromBrilcalc(const edm::ParameterSet&);
-  ~LumiProducerFromBrilcalc() = default;
+  ~LumiProducerFromBrilcalc() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
   const std::string lumiFile_;
@@ -82,7 +82,7 @@ LumiProducerFromBrilcalc::LumiProducerFromBrilcalc(const edm::ParameterSet& iCon
 
   int nLS = 0;
   std::string line;
-  while (1) {
+  while (true) {
     std::getline(lumiFile, line);
     if (lumiFile.eof() || lumiFile.fail())
       break;
