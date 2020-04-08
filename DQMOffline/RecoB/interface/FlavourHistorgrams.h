@@ -517,7 +517,7 @@ void FlavourHistograms<T>::plot(TPad* theCanvas /* = 0 */) {
       lineStyle[1] = 2;
   }
 
-  histo[0]->setAxisTitle(theBaseNameDescription.c_str());
+  histo[0]->setAxisTitle(theBaseNameDescription);
   histo[0]->getTH1F()->GetYaxis()->SetTitle("Arbitrary Units");
   histo[0]->getTH1F()->GetYaxis()->SetTitleOffset(1.25);
 
