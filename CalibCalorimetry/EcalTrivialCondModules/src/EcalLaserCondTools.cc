@@ -22,8 +22,8 @@
 using namespace std;
 
 EcalLaserCondTools::EcalLaserCondTools(const edm::ParameterSet& ps)
-    : fout_(0),
-      eventList_(0),
+    : fout_(nullptr),
+      eventList_(nullptr),
       eventListFileName_(ps.getParameter<string>("eventListFile")),
       verb_(ps.getParameter<int>("verbosity")),
       mode_(ps.getParameter<string>("mode")),
@@ -35,9 +35,9 @@ EcalLaserCondTools::EcalLaserCondTools(const edm::ParameterSet& ps)
   ferr_ = fopen("corr_errors.txt", "w");
   fprintf(ferr_, "#t1\tdetid\tp1\tp2\tp3");
 
-  if (eventListFileName_.size() != 0) {
+  if (!eventListFileName_.empty()) {
     eventList_ = fopen(eventListFileName_.c_str(), "r");
-    if (eventList_ == 0)
+    if (eventList_ == nullptr)
       throw cms::Exception("User") << "Failed to open file " << eventListFileName_ << "\n";
   }
 }
@@ -252,7 +252,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
       iovStart = db_->beginOfTime();
     }
     timeval t;
-    gettimeofday(&t, 0);
+    gettimeofday(&t, nullptr);
     if (verb_ > 1)
       cout << "[" << timeToString(t.tv_sec) << "] "
            << "Write IOV " << iIov << " starting from " << timeToString(iovStart >> 32) << "... ";
@@ -275,7 +275,7 @@ bool EcalLaserCondTools::FileReader::nextFile() {
       cout << "Opening file " << fnames_[ifile_] << "\n";
     f_ = fopen(fnames_[ifile_].c_str(), "r");
     iline_ = 0;
-    if (f_ == 0) {
+    if (f_ == nullptr) {
       std::cerr << "Failed to open file " << fnames_[ifile_] << ". File skipped!\n";
     } else {
       return true;
@@ -285,19 +285,19 @@ bool EcalLaserCondTools::FileReader::nextFile() {
 
 bool EcalLaserCondTools::FileReader::readTime(int& t1, int t2[EcalLaserCondTools::nLmes], int& t3) {
   trim();
-  if ((f_ == 0 || feof(f_)) && !nextFile()) {
+  if ((f_ == nullptr || feof(f_)) && !nextFile()) {
     if (verb_ > 1)
       cout << "No more record\n";
     return false;
   }
   int i;
-  char* buf = 0;
+  char* buf = nullptr;
   size_t s = 0;
   while ((i = fgetc(f_)) != 'T' && i != 'L' && i >= 0)
     getline(&buf, &s, f_);
   if (buf)
     free(buf);
-  buf = 0;
+  buf = nullptr;
 
   if (i == 'L') {  //last record put 3 consecutive times starting from end of prev. IOV
     t1 = t3;
@@ -333,7 +333,7 @@ bool EcalLaserCondTools::FileReader::readTime(int& t1, int t2[EcalLaserCondTools
 }
 
 bool EcalLaserCondTools::FileReader::readPs(DetId& detid, EcalLaserAPDPNRatios::EcalLaserAPDPNpair& corr) {
-  if (f_ == 0) {
+  if (f_ == nullptr) {
     if (verb_)
       cout << "Requested to read p1..p3 parameter line while no file is closed.\n";
     return false;
@@ -384,7 +384,7 @@ bool EcalLaserCondTools::FileReader::readPs(DetId& detid, EcalLaserAPDPNRatios::
 }
 
 void EcalLaserCondTools::FileReader::trim() {
-  if (f_ == 0)
+  if (f_ == nullptr)
     return;
   bool skipLine = false;
   int c;
@@ -443,9 +443,9 @@ void EcalLaserCondTools::dbToAscii(const edm::EventSetup& es) {
   if (t.size() != EcalLaserCondTools::nLmes)
     throw cms::Exception("LasCor") << "Unexpected number time parameter triplets\n";
 
-  if (fout_ == 0) {
+  if (fout_ == nullptr) {
     fout_ = fopen("corr_dump.txt", "w");
-    if (fout_ == 0)
+    if (fout_ == nullptr)
       throw cms::Exception("LasCor") << "Failed to create file corr_dump.txt\n";
   }
 
