@@ -20,6 +20,7 @@ import FWCore.ParameterSet.Config as cms
 
 #Add Isolation
 from RecoMuon.MuonIsolationProducers.muIsolation_EventContent_cff import *
+
 # AOD content
 RecoMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(#'keep *_muons_*_*',
@@ -64,6 +65,8 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoTrackExtras_displacedStandAloneMuons_*_*',
                                            'keep TrackingRecHitsOwned_displacedStandAloneMuons_*_*')
 )
+RecoMuonAOD.outputCommands.extend(RecoMuonIsolationAOD.outputCommands)
+
 # RECO content
 RecoMuonRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*',
@@ -80,12 +83,11 @@ RecoMuonRECO = cms.PSet(
                                            'keep recoTracks_cosmicsVetoTracks_*_*')
 )
 RecoMuonRECO.outputCommands.extend(RecoMuonAOD.outputCommands)
+RecoMuonRECO.outputCommands.extend(RecoMuonIsolationRECO.outputCommands)
+
 # Full Event content
 RecoMuonFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 RecoMuonFEVT.outputCommands.extend(RecoMuonRECO.outputCommands)
-
-RecoMuonAOD.outputCommands.extend(RecoMuonIsolationAOD.outputCommands)
-RecoMuonRECO.outputCommands.extend(RecoMuonIsolationRECO.outputCommands)
 RecoMuonFEVT.outputCommands.extend(RecoMuonIsolationFEVT.outputCommands)

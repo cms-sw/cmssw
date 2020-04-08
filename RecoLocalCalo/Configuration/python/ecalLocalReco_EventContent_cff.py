@@ -12,6 +12,7 @@ import FWCore.ParameterSet.Config as cms
 ecalLocalRecoAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
+
 #RECO content
 ecalLocalRecoRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -23,6 +24,7 @@ ecalLocalRecoRECO = cms.PSet(
         'keep EESrFlagsSorted_ecalDigis__*')
 )
 ecalLocalRecoRECO.outputCommands.extend(ecalLocalRecoAOD.outputCommands)
+
 #mods for timing
 _phase2_timing_EcalOutputCommands = ['keep *_mix_EBTimeDigi_*',
                                      'keep *_mix_EETimeDigi_*', 

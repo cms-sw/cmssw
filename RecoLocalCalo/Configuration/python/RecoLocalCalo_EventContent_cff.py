@@ -4,6 +4,7 @@ from RecoLocalCalo.Configuration.ecalLocalReco_EventContent_cff import *
 #
 # start with HCAL part
 #
+
 #AOD content
 RecoLocalCaloAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -41,6 +42,7 @@ egamma_lowPt_exclusive.toModify( RecoLocalCaloAOD,
                                                         'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                                         'keep ZDCDataFramesSorted_castorDigis_*_*',
                                                         'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*'])
+
 #RECO content
 RecoLocalCaloRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*',
@@ -61,6 +63,7 @@ RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
 phase2_hgcal.toModify( RecoLocalCaloRECO, 
     outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_hgcalMultiClusters_*_*',
                                                          'keep *_iterHGCalMultiClusters_*_*'])
+
 #FEVT content
 RecoLocalCaloFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep HBHERecHitsSorted_hbheprerecoMB_*_*',
