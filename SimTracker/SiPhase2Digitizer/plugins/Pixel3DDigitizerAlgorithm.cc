@@ -360,7 +360,7 @@ std::vector<DigitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
         const auto lp = pixdet->specificTopology().localPosition(MeasurementPoint(pixel_x, pixel_y));
         mc.migrate_position(LocalPoint(lp.x(), lp.y(), mc.z()));
       }
-      if (migrated_charges.size() > 0) {
+      if (!migrated_charges.empty()) {
         LogDebug("Pixel3DDigitizerAlgorithm::drift") << "****************"
                                                      << "MIGRATING (super-)charges"
                                                      << "****************";
