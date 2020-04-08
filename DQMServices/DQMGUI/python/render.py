@@ -4,6 +4,7 @@ import array
 import struct
 import socket
 import signal
+import shutil
 import tempfile
 import subprocess
 
@@ -61,9 +62,10 @@ class RenderLink:
 
     def __del__(self):
         with open(f"{self.wd}/pid") as f:
-            pid = f.readline()
-        os.kill(int(pid), signal.SIGTERM)
+            self.pid = int(f.readline())
+        os.kill(self.pid, signal.SIGTERM)
         self.renderprocess.communicate()
+        shutil.rmtree(self.wd)
         
     def renderscalar(self, text, width=600, height=400):
         flags = 0
@@ -113,6 +115,27 @@ class RenderLink:
             length -= len(recvd)
             buf += recvd
         return buf, errorcode
-        
-        
-        
+
+class RenderHandle:
+    def __init__(self, cache):
+        self.cache = cache
+        self.link = None
+    def __enter__(self):
+        while self.link == None:
+            try:
+                self.link = self.cache.pop()
+            except:
+                # no workers available -- wait and retry
+                print("Out of renderers, waiting...")
+                time.sleep(1)
+        return self.link
+
+    def __exit__(self, type, value, traceback):
+        self.cache.append(self.link)
+
+class RenderPool:
+    def __init__(self, workers=8, **kwargs):
+        self.workers = [RenderLink(**kwargs) for _ in range(workers)]
+    def renderer(self):
+        return RenderHandle(self.workers)
+
