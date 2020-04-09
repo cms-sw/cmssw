@@ -385,22 +385,24 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
 
   //Fill additional residuals plots
   //PXBarrel
+
+  int minHits = 30;  //Miniminal number of hits needed for module to be filled in histograms
+
   for (std::string layer : {"1", "2", "3", "4"}) {
     MonitorElement* me_x =
         iGetter.get("PixelPhase1/Tracks/PXBarrel/residual_x_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
     MonitorElement* me_y =
         iGetter.get("PixelPhase1/Tracks/PXBarrel/residual_y_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
 
-    bool isLayer_4 = layer == "4";  //Order of inner and outer ladders is reversed for Layer 4
-
     for (int i = 1; i <= me_x->getNbinsY(); i++) {
       if (i == (me_x->getNbinsY() / 2 + 1))
         continue;  //Middle bin of y axis is empty
 
       if (i <= me_x->getNbinsY() / 2) {
-        if ((i % 2 == 0 && !isLayer_4) || (i % 2 == 1 && isLayer_4)) {
+        bool iAmInner = (i % 2 == 0);  //Check whether current ladder is inner or outer ladder
+        if (iAmInner) {
           for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
-            if (me_x->getBinEntries(j + (me_x->getNbinsX() + 2) * i) < 30)  //Fill only if number of hits is above 30
+            if (me_x->getBinEntries(j, i) < minHits)  //Fill only if number of hits is above threshold
               continue;
             residuals_["residual_mean_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i) * 1e4);
             residuals_["residual_mean_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i) * 1e4);
@@ -409,7 +411,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
           }
         } else {
           for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
-            if (me_x->getBinEntries(j + (me_x->getNbinsX() + 2) * i) < 30)  //Fill only if number of hits is above 30
+            if (me_x->getBinEntries(j, i) < minHits)  //Fill only if number of hits is above threshold
               continue;
             residuals_["residual_mean_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i) * 1e4);
             residuals_["residual_mean_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i) * 1e4);
@@ -418,9 +420,10 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
           }
         }
       } else {
-        if ((i % 2 == 1 && !isLayer_4) || (i % 2 == 0 && isLayer_4)) {
+        bool iAmInner = (i % 2 == 1);  //Check whether current ladder is inner or outer ladder
+        if (iAmInner) {
           for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
-            if (me_x->getBinEntries(j + (me_x->getNbinsX() + 2) * i) < 30)  //Fill only if number of hits is above 30
+            if (me_x->getBinEntries(j, i) < minHits)  //Fill only if number of hits is above threshold
               continue;
             residuals_["residual_mean_x_Inner_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i) * 1e4);
             residuals_["residual_mean_y_Inner_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i) * 1e4);
@@ -429,7 +432,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
           }
         } else {
           for (int j : {1, 2, 3, 4, 6, 7, 8, 9}) {
-            if (me_x->getBinEntries(j + (me_x->getNbinsX() + 2) * i) < 30)  //Fill only if number of hits is above 30
+            if (me_x->getBinEntries(j, i) < minHits)  //Fill only if number of hits is above threshold
               continue;
             residuals_["residual_mean_x_Outer_PXLayer_" + layer]->Fill(me_x->getBinContent(j, i) * 1e4);
             residuals_["residual_mean_y_Outer_PXLayer_" + layer]->Fill(me_y->getBinContent(j, i) * 1e4);
@@ -460,10 +463,11 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
           continue;  //Middle bins of y axis is empty
         if (i == (me_x->getNbinsY() / 2) + 1)
           continue;
-        if (me_x->getBinEntries(j + (me_x->getNbinsX() + 2) * i) < 30)  //Fill only if number of hits is above 30
+        if (me_x->getBinEntries(j, i) < minHits)  //Fill only if number of hits is above threshold
           continue;
 
-        if (i % 2 == 0) {  //separate inner and outer modules
+        bool iAmInner = (i % 2 == 0);  //separate inner and outer modules
+        if (iAmInner) {
           residuals_["residual_mean_x_Inner"]->Fill(me_x->getBinContent(j, i) * 1e4);
           residuals_["residual_mean_y_Inner"]->Fill(me_y->getBinContent(j, i) * 1e4);
           residuals_["residual_rms_x_Inner"]->Fill(me_x->getBinError(j, i) * 1e4);
