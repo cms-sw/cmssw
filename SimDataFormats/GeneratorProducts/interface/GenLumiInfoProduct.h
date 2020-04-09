@@ -63,9 +63,12 @@ public:
     double sum2() const { return sum2_; }
 
     void add(const FinalStat &other) {
-      n_ += other.n();
-      sum_ += other.sum();
-      sum2_ += other.sum2();
+      //Hadronizers treat 0, -1., -1. to mean the value is not present
+      if (other.n() != 0 and other.sum_ != -1. and other.sum2() != -1.) {
+        n_ += other.n();
+        sum_ += other.sum();
+        sum2_ += other.sum2();
+      }
     }
 
     bool operator==(const FinalStat &other) const {
