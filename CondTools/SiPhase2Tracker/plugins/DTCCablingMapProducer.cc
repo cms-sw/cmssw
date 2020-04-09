@@ -239,7 +239,7 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
           }
 
           if (pCablingMap_->knowsDTCELinkId(dtcELinkId)) {
-            throw cms::Exception("DuplicateDTCELinkIdInSource") 
+            throw cms::Exception("DuplicateDTCELinkIdInCSV") 
               << "Reading CSV file: CRITICAL ERROR, duplicate dtcELinkId entry about (dtc_id, gbt_id, elink_id) = ("
               << dtc_id << "," << gbt_id << "," << elink_id << ")";
           }
@@ -252,7 +252,7 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
         }
       }
     } else {
-      throw cms::Exception("DTCCablingMapProducer: Unable to open input CSV file") << csvFilePath << endl;
+      throw cms::Exception("CSVFileNotFound") << "Unable to open input CSV file" << csvFilePath << endl;
     }
 
     csvFile.close();
@@ -270,7 +270,7 @@ void DTCCablingMapProducer::endJob() {
   if (poolDbService.isAvailable()) {
     poolDbService->writeOne(pCablingMap_.release(), iovBeginTime_, record_);
   } else {
-    throw cms::Exception("PoolDBService required.");
+    throw cms::Exception("PoolDBServiceNotFound") << "A running PoolDBService instance is required.";
   }
 }
 
