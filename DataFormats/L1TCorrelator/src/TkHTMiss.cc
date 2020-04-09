@@ -9,7 +9,7 @@ TkHTMiss::TkHTMiss(const LorentzVector& p4,
                    const edm::RefProd<TkJetCollection>& jetCollRef,
                    const edm::Ref<TkPrimaryVertexCollection>& avtxRef,
                    int bx)
-    : L1Candidate(p4), EtTot_(etTotal), jetCollectionRef_(jetCollRef), vtxRef_(avtxRef), bx_(bx) {
+    : L1Candidate(p4), etTot_(etTotal), jetCollectionRef_(jetCollRef), vtxRef_(avtxRef), bx_(bx) {
   if (vtxRef_.isNonnull()) {
     float z = vtxRef()->zvertex();
     setVtx(z);

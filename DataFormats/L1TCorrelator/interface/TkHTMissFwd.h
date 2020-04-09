@@ -1,10 +1,5 @@
-#ifndef TkTrigger_TkHTMissFwd_h
-#define TkTrigger_TkHTMissFwd_h
-// Package:     L1Trigger
-// Class  :     TkHTMissFwd
-
-// system include files
-// user include files
+#ifndef DataFormatsL1TCorrelator_TkHTMissFwd_h
+#define DataFormatsL1TCorrelator_TkHTMissFwd_h
 
 // forward declarations
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef TkTrigger_TkPrimaryVertex_h
-#define TkTrigger_TkPrimaryVertex_h
+#ifndef DataFormatsL1TCorrelator_TkPrimaryVertex_h
+#define DataFormatsL1TCorrelator_TkPrimaryVertex_h
 
 // Package:     L1TCorrelator
 // Class  :     TkPrimaryVertex
