@@ -386,7 +386,7 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker& iBooker, DQMStore::I
   //Fill additional residuals plots
   //PXBarrel
 
-  int minHits = 30;  //Miniminal number of hits needed for module to be filled in histograms
+  constexpr int minHits = 30;  //Miniminal number of hits needed for module to be filled in histograms
 
   for (std::string layer : {"1", "2", "3", "4"}) {
     MonitorElement* me_x =
