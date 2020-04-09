@@ -639,6 +639,17 @@ namespace dqm::impl {
     return accessRootObject(access, __PRETTY_FUNCTION__, 1)->GetEntries();
   }
 
+  /// get global bin number (for 2-D profiles)
+  int MonitorElement::getBin(int binx, int biny) const {
+    auto access = this->access();
+    if (kind() == Kind::TPROFILE2D)
+      return static_cast<TProfile2D const *>(accessRootObject(access, __PRETTY_FUNCTION__, 1))->GetBin(binx, biny);
+    else {
+      incompatible(__PRETTY_FUNCTION__);
+      return 0;
+    }
+  }
+
   /// get # of bin entries (for profiles)
   double MonitorElement::getBinEntries(int bin) const {
     auto access = this->access();
@@ -647,6 +658,19 @@ namespace dqm::impl {
     else if (kind() == Kind::TPROFILE2D)
       return static_cast<TProfile2D const *>(accessRootObject(access, __PRETTY_FUNCTION__, 1))->GetBinEntries(bin);
     else {
+      incompatible(__PRETTY_FUNCTION__);
+      return 0;
+    }
+  }
+
+  /// get # of bin entries (for 2-D profiles)
+  double MonitorElement::getBinEntries(int binx, int biny) const {
+    auto access = this->access();
+    if (kind() == Kind::TPROFILE2D) {
+      int globBin =
+          static_cast<TProfile2D const *>(accessRootObject(access, __PRETTY_FUNCTION__, 1))->GetBin(binx, biny);
+      return static_cast<TProfile2D const *>(accessRootObject(access, __PRETTY_FUNCTION__, 1))->GetBinEntries(globBin);
+    } else {
       incompatible(__PRETTY_FUNCTION__);
       return 0;
     }
