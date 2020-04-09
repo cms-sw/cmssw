@@ -13,20 +13,20 @@ public:
 
   struct Item {
     // Translation matrix elements
-    double _dx, _dy, _dz;
+    double dx_, dy_, dz_;
     // Rotation matrix elements
-    double _axx, _axy, _axz, _ayx, _ayy, _ayz, _azx, _azy, _azz;
-    std::string _name;  // save only the name, not the namespace.
-    std::vector<double> _params;
-    uint32_t _geographicalID;  // to be converted to DetId
-    int _copy;
-    float _z;
-    std::string _sensorType;
+    double axx_, axy_, axz_, ayx_, ayy_, ayz_, azx_, azy_, azz_;
+    std::string name_; 
+    std::vector<double> params_;
+    uint32_t geographicalID_;  // to be converted to DetId
+    int copy_;
+    float z_;
+    std::string sensorType_;
 
     COND_SERIALIZABLE;
   };
 
-  std::vector<Item> _container;
+  std::vector<Item> container_;
 
   COND_SERIALIZABLE;
 };
