@@ -82,10 +82,9 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
   buildPDetGeomDesc(&fv, pdet);
     
   // Save geometry in the database
-  if (pdet->_container.empty()) { 
+  if (pdet->container_.empty()) { 
     throw cms::Exception("PPSGeometryBuilder") << "PDetGeomDesc is empty, no geometry to save in the database.";
   } else {
-    // edm::LogInfo("PPSGeometryBuilder") << "PDetGeomDesc size is: " << pdet->_container.size();
     if (dbservice_.isAvailable()) {
       dbservice_->writeOne(pdet, dbservice_->beginOfTime(), "VeryForwardIdealGeometryRecord");
     } else {
@@ -113,9 +112,9 @@ void PPSGeometryBuilder::buildPDetGeomDesc(DDFilteredView* fv, PDetGeomDesc* gd)
     // Fill Item
     // =======================================================================
 
-    item._dx = fv->translation().X();
-    item._dy = fv->translation().Y();
-    item._dz = fv->translation().Z();
+    item.dx_ = fv->translation().X();
+    item.dy_ = fv->translation().Y();
+    item.dz_ = fv->translation().Z();
     const DDRotationMatrix& rot = fv->rotation();
     double xx, xy, xz, 
            yx, yy, yz, 
@@ -123,33 +122,33 @@ void PPSGeometryBuilder::buildPDetGeomDesc(DDFilteredView* fv, PDetGeomDesc* gd)
     rot.GetComponents(xx, xy, xz, 
                       yx, yy, yz, 
                       zx, zy, zz);
-    item._axx = xx;
-    item._axy = xy;
-    item._axz = xz;
-    item._ayx = yx;
-    item._ayy = yy;
-    item._ayz = yz;
-    item._azx = zx;
-    item._azy = zy;
-    item._azz = zz;
-    item._name = ((fv->logicalPart()).ddname()).name();
-    item._params = ((fv->logicalPart()).solid()).parameters();
-    item._copy = fv->copyno();
-    item._z = fv->geoHistory().back().absTranslation().z();
+    item.axx_ = xx;
+    item.axy_ = xy;
+    item.axz_ = xz;
+    item.ayx_ = yx;
+    item.ayy_ = yy;
+    item.ayz_ = yz;
+    item.azx_ = zx;
+    item.azy_ = zy;
+    item.azz_ = zz;
+    item.name_ = ((fv->logicalPart()).ddname()).name();
+    item.params_ = ((fv->logicalPart()).solid()).parameters();
+    item.copy_ = fv->copyno();
+    item.z_ = fv->geoHistory().back().absTranslation().z();
     // Sensor Type
-    item._sensorType = ""; 
+    item.sensorType_ = ""; 
     std::string sensor_name = fv->geoHistory().back().logicalPart().name().fullname();
     std::size_t found = sensor_name.find(DDD_CTPPS_PIXELS_SENSOR_NAME);
     if (found != std::string::npos && sensor_name.substr(found - 4, 3) == DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2) {
-      item._sensorType = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
+      item.sensorType_ = DDD_CTPPS_PIXELS_SENSOR_TYPE_2x2;
     }
     // Geographical ID
-    item._geographicalID = getGeographicalID(fv);
+    item.geographicalID_ = getGeographicalID(fv);
 
     // =======================================================================
     
     // add component
-    gd->_container.push_back(item);
+    gd->container_.push_back(item);
 
     // recursion
     buildPDetGeomDesc(fv, gd);
