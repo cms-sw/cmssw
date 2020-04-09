@@ -16,7 +16,7 @@ public:
     double dx_, dy_, dz_;
     // Rotation matrix elements
     double axx_, axy_, axz_, ayx_, ayy_, ayz_, azx_, azy_, azz_;
-    std::string name_; 
+    std::string name_;
     std::vector<double> params_;
     uint32_t geographicalID_;  // to be converted to DetId
     int copy_;
