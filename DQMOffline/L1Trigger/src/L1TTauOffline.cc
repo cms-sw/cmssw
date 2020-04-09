@@ -44,11 +44,17 @@ const std::map<std::string, unsigned int> L1TTauOffline::PlotConfigNames = {
 //
 L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps)
     : theTauCollection_(consumes<reco::PFTauCollection>(ps.getUntrackedParameter<edm::InputTag>("tauInputTag"))),
-      AntiMuInputTag_(consumes<reco::PFTauDiscriminator>(ps.getUntrackedParameter<edm::InputTag>("antiMuInputTag"))),
-      AntiEleInputTag_(consumes<reco::PFTauDiscriminator>(ps.getUntrackedParameter<edm::InputTag>("antiEleInputTag"))),
+      AntiMuInputTag_(
+          consumes<reco::TauDiscriminatorContainer>(ps.getUntrackedParameter<edm::InputTag>("antiMuInputTag"))),
+      AntiMuWP_(ps.getUntrackedParameter<std::string>("antiMuWP")),
+      AntiEleInputTag_(
+          consumes<reco::TauDiscriminatorContainer>(ps.getUntrackedParameter<edm::InputTag>("antiEleInputTag"))),
+      AntiEleWP_(ps.getUntrackedParameter<std::string>("antiEleWP")),
       DecayModeFindingInputTag_(
           consumes<reco::PFTauDiscriminator>(ps.getUntrackedParameter<edm::InputTag>("decayModeFindingInputTag"))),
-      comb3TInputTag_(consumes<reco::PFTauDiscriminator>(ps.getUntrackedParameter<edm::InputTag>("comb3TInputTag"))),
+      comb3TInputTag_(
+          consumes<reco::TauDiscriminatorContainer>(ps.getUntrackedParameter<edm::InputTag>("comb3TInputTag"))),
+      comb3TWP_(ps.getUntrackedParameter<std::string>("comb3TWP")),
       MuonInputTag_(consumes<reco::MuonCollection>(ps.getUntrackedParameter<edm::InputTag>("muonInputTag"))),
       MetInputTag_(consumes<reco::PFMETCollection>(ps.getUntrackedParameter<edm::InputTag>("metInputTag"))),
       VtxInputTag_(consumes<reco::VertexCollection>(ps.getUntrackedParameter<edm::InputTag>("vtxInputTag"))),
@@ -623,7 +629,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
                                  const reco::Vertex& vertex) {
   m_ProbeTaus.clear();
 
-  edm::Handle<reco::PFTauDiscriminator> antimu;
+  edm::Handle<reco::TauDiscriminatorContainer> antimu;
   iEvent.getByToken(AntiMuInputTag_, antimu);
   if (!antimu.isValid()) {
     edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
@@ -637,14 +643,14 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
     return;
   }
 
-  edm::Handle<reco::PFTauDiscriminator> antiele;
+  edm::Handle<reco::TauDiscriminatorContainer> antiele;
   iEvent.getByToken(AntiEleInputTag_, antiele);
   if (!antiele.isValid()) {
     edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
     return;
   }
 
-  edm::Handle<reco::PFTauDiscriminator> comb3T;
+  edm::Handle<reco::TauDiscriminatorContainer> comb3T;
   iEvent.getByToken(comb3TInputTag_, comb3T);
   if (!comb3T.isValid()) {
     edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
@@ -655,13 +661,50 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
     TLorentzVector mymu;
     mymu.SetPtEtaPhiE(m_TightMuons[0]->pt(), m_TightMuons[0]->eta(), m_TightMuons[0]->phi(), m_TightMuons[0]->energy());
     int iTau = 0;
+
+    // load indices from input provenance config if process history changed, in particular for the first event
+    if (iEvent.processHistoryID() != phID_) {
+      phID_ = iEvent.processHistoryID();
+      {
+        const edm::Provenance* prov = antimu.provenance();
+        const std::vector<edm::ParameterSet> psetsFromProvenance =
+            edm::parameterSet(*prov, iEvent.processHistory())
+                .getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
+        for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+          if (psetsFromProvenance[i].getParameter<std::string>("IDname") == AntiMuWP_)
+            AntiMuWPIndex_ = i;
+        }
+      }
+      {
+        const edm::Provenance* prov = antiele.provenance();
+        const std::vector<std::string> psetsFromProvenance =
+            edm::parameterSet(*prov, iEvent.processHistory()).getParameter<std::vector<std::string>>("workingsPoints");
+        for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+          if (psetsFromProvenance[i] == AntiEleWP_)
+            AntiEleWPIndex_ = i;
+        }
+      }
+      {
+        const edm::Provenance* prov = comb3T.provenance();
+        const std::vector<edm::ParameterSet> psetsFromProvenance =
+            edm::parameterSet(*prov, iEvent.processHistory())
+                .getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
+        for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+          if (psetsFromProvenance[i].getParameter<std::string>("IDname") == comb3TWP_)
+            comb3TWPIndex_ = i;
+        }
+      }
+    }
+
     for (auto tauIt = taus->begin(); tauIt != taus->end(); ++tauIt, ++iTau) {
       reco::PFTauRef tauCandidate(taus, iTau);
       TLorentzVector mytau;
       mytau.SetPtEtaPhiE(tauIt->pt(), tauIt->eta(), tauIt->phi(), tauIt->energy());
 
-      if (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 && (*antimu)[tauCandidate] > 0.5 &&
-          (*antiele)[tauCandidate] > 0.5 && (*dmf)[tauCandidate] > 0.5 && (*comb3T)[tauCandidate] > 0.5) {
+      if (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 &&
+          (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_] &&
+          (*antiele)[tauCandidate].workingPoints[AntiEleWPIndex_] && (*dmf)[tauCandidate] > 0.5 &&
+          (*comb3T)[tauCandidate].workingPoints[comb3TWPIndex_]) {
         if (mymu.DeltaR(mytau) > 0.5 && (mymu + mytau).M() > 40 && (mymu + mytau).M() < 80 &&
             m_TightMuons[0]->charge() * tauIt->charge() < 0) {
           m_ProbeTaus.push_back(&(*tauIt));

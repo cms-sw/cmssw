@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
-from RecoTauTag.RecoTau.PFTauSelector_cfi  import pfTauSelector
+from RecoTauTag.RecoTau.pfTauSelector_cfi  import pfTauSelector
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 import RecoJets.JetProducers.ak4PFJets_cfi as jetConfig
 
@@ -85,7 +85,7 @@ pfTausProducer.src = cms.InputTag("pfTausProducerSansRefs")
 pfTausDiscriminationByDecayModeFinding = hpsPFTauDiscriminationByDecayModeFinding.clone()
 pfTausDiscriminationByDecayModeFinding.PFTauProducer="pfTausProducer"
 
-pfTausDiscriminationByIsolation= hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits.clone()
+pfTausDiscriminationByIsolation= hpsPFTauBasicDiscriminators.clone()
 pfTausDiscriminationByIsolation.PFTauProducer="pfTausProducer"
 
 pfTausrequireDecayMode = cms.PSet(

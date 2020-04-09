@@ -14,7 +14,7 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig)
       nPass_(iConfig.getParameter<int>("nPass")),
       akAxesR0_(iConfig.getParameter<double>("akAxesR0")) {
   edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
-  if (srcWeights.label() != "")
+  if (!srcWeights.label().empty())
     input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
 
   for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {

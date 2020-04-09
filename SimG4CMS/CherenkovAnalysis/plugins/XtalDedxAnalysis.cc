@@ -65,7 +65,8 @@ XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet &ps) {
   simTkLabel_ = ps.getUntrackedParameter<std::string>("moduleLabelTk", "g4SimHits");
   double energyMax = ps.getParameter<double>("EnergyMax");
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("CherenkovAnalysis") << "XtalDedxAnalysis::Source " << caloHitSource_ << " Track Label " << simTkLabel_ << " Energy Max " << energyMax;
+  edm::LogInfo("CherenkovAnalysis") << "XtalDedxAnalysis::Source " << caloHitSource_ << " Track Label " << simTkLabel_
+                                    << " Energy Max " << energyMax;
 #endif
   // register for data access
   tok_calo_ = consumes<edm::PCaloHitContainer>(caloHitSource_);
@@ -181,12 +182,14 @@ void XtalDedxAnalysis::analyzeHits(std::vector<PCaloHit> &hits,
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis:Hit[" << i << "] ID " << id_ << " E " << energy << " time " << time << " track " << trackID << " type " << type;
+    edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis:Hit[" << i << "] ID " << id_ << " E " << energy
+                                          << " time " << time << " track " << trackID << " type " << type;
 #endif
   }
   for (int i = 0; i < 4; i++) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis:Type(" << i << ") Hit " << hit[i] << " E10 " << e10[i] << " E11 " << e11[i] << " E90 " << e90[i] << " E91 " << e91[i];
+    edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis:Type(" << i << ") Hit " << hit[i] << " E10 " << e10[i]
+                                          << " E11 " << e11[i] << " E90 " << e90[i] << " E91 " << e91[i];
 #endif
     meNHit_[i]->Fill(hit[i]);
     meE1T0_[i]->Fill(e10[i]);
@@ -207,7 +210,8 @@ void XtalDedxAnalysis::analyzeHits(std::vector<PCaloHit> &hits,
 #endif
   for (simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++, ++k1) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CherenkovAnalysis") << "Track " << k1 << " PDGId " << simTrkItr->type() << " Vertex ID " << simTrkItr->vertIndex() << " Generator " << simTrkItr->noGenpart();
+    edm::LogVerbatim("CherenkovAnalysis") << "Track " << k1 << " PDGId " << simTrkItr->type() << " Vertex ID "
+                                          << simTrkItr->vertIndex() << " Generator " << simTrkItr->noGenpart();
 #endif
     if (simTrkItr->noGenpart()) {              // This is a secondary
       int vertIndex = simTrkItr->vertIndex();  // Vertex index of origin
@@ -218,7 +222,8 @@ void XtalDedxAnalysis::analyzeHits(std::vector<PCaloHit> &hits,
         int parent = simVtxItr->parentIndex(), k2 = 0;
         for (edm::SimTrackContainer::const_iterator trkItr = SimTk->begin(); trkItr != SimTk->end(); trkItr++, ++k2) {
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis::Track " << k2 << " ID " << trkItr->trackId() << " (" << parent << ")  Generator " << trkItr->noGenpart();
+          edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis::Track " << k2 << " ID " << trkItr->trackId()
+                                                << " (" << parent << ")  Generator " << trkItr->noGenpart();
 #endif
           if ((int)trkItr->trackId() == parent) {  // Parent track
             if (!trkItr->noGenpart()) {            // Generator level
