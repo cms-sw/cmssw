@@ -79,11 +79,16 @@ namespace cms {
     //! The full path to the current node
     const std::string path() const;
 
+    const std::vector<const Node*> geoHistory() const;
+
     //! The list of the volume copy numbers
     //  along the full path to the current node
     const std::vector<int> copyNos() const;
 
-    const std::vector<int> copyNumbers() { return copyNos(); }
+    template <typename... Ts>
+    auto copyNumbers(Ts&&... ts) const -> decltype(copyNos(std::forward<Ts>(ts)...)) {
+      return copyNos(std::forward<Ts>(ts)...);
+    }
 
     //! The absolute translation of the current node
     // Return value is Double_t translation[3] with x, y, z elements.
@@ -126,15 +131,6 @@ namespace cms {
     //! set current node to the parent node in the filtered tree
     void up();
 
-    // Shape of current node
-    bool isABox() const;
-    bool isAConeSeg() const;
-    bool isAPseudoTrap() const;
-    bool isATrapezoid() const;
-    bool isATruncTube() const;
-    bool isATubeSeg() const;
-    bool isASubtraction() const;
-
     // Get shape pointer of current node.
     // Caller must check that current node matches desired type
     // before calling this function.
@@ -145,9 +141,48 @@ namespace cms {
       return (dynamic_cast<Shape*>(currVol->GetShape()));
     }
 
+    // Shape of current node
+
     template <class Shape>
     bool isA() const {
       return dd4hep::isA<Shape>(solid());
+    }
+
+    template <typename... Ts>
+    auto isABox(Ts&&... ts) const -> decltype(isA<dd4hep::Box>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::Box>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isAConeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::ConeSegment>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isAPseudoTrap(Ts&&... ts) const -> decltype(isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isATrapezoid(Ts&&... ts) const -> decltype(isA<dd4hep::Trap>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::Trap>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isATruncTube(Ts&&... ts) const -> decltype(isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isATubeSeg(Ts&&... ts) const -> decltype(isA<dd4hep::Tube>(std::forward<Ts>(ts)...)) {
+      return isA<dd4hep::Tube>(std::forward<Ts>(ts)...);
+    }
+
+    template <typename... Ts>
+    auto isASubtraction(Ts&&... ts) const -> decltype(isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...)) {
+      return (isA<dd4hep::SubtractionSolid>(std::forward<Ts>(ts)...) and
+              not isA<dd4hep::TruncatedTube>(std::forward<Ts>(ts)...) and
+              not isA<dd4hep::PseudoTrap>(std::forward<Ts>(ts)...));
     }
 
     dd4hep::Solid solid() const;
