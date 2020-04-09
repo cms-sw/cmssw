@@ -477,7 +477,7 @@ namespace TopSingleLepton_miniAOD {
   */
 
     // fill monitoring plots for muons
-    unsigned int mMult = 0, mTight = 0;
+    unsigned int mMult = 0, mTight = 0, mTightId = 0;
 
     edm::Handle<edm::View<pat::Muon>> muons;
     edm::View<pat::Muon>::const_iterator muonit;
@@ -511,28 +511,27 @@ namespace TopSingleLepton_miniAOD {
                 muon->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5))
             continue;
 
-          if (mMult == 1) {
+          if (mTightId == 0) {
             // restrict to leading muon
             fill("muonRelIso_", pfRelIso);
             fill("muonChHadIso_", chHadPt);
             fill("muonNeHadIso_", neHadEt);
             fill("muonPhIso_", phoEt);
-            fill("muonRelIso_", pfRelIso);
+            //fill("muonRelIso_", pfRelIso);
           }
 
           if (!(pfRelIso < 0.15))
             continue;
-
-          ++mTight;
-
           //tight id
-          if (mTight == 1) {
+          if (mTight == 0) {
             // restrict to leading muon
 
             fill("muonPt_", muon->pt());
             fill("muonEta_", muon->eta());
             fill("muonPhi_", muon->phi());
           }
+          mTight++;
+          mTightId++;
         }
       }
     }
