@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
+
 <ConstantsSection label="pixbar.xml" eval="true">
+  
+  <!-- OUTERMOST SHAPE CONSTANTS -->
  <Constant name="zero"              value="0.0*fm"/>
  <Constant name="Rin1"              value="2.50*cm"/>
  <Constant name="Rin2"              value="18.00*cm"/>
@@ -17,10 +20,12 @@
  <Constant name="Zv3"               value="110.5*cm"/>
  <Constant name="Zv4"               value="282.0*cm"/>
  <Constant name="ZvSupTubCab"       value="248.0*cm"/>
-
+ 
+ <!-- OUTERMOST SUPPORT TUB -->
  <Constant name="SupportL"          value="221.0*cm"/>
  <Constant name="SupportRin"        value="21.65*cm"/>
 
+ <!-- RAILS AND THEIR SUPPORTING BOX -->
  <Constant name="SupportW"          value="18.80*cm"/>
  <Constant name="SupportT"          value="0.1*cm"/>
  <Constant name="SupportY_base"     value="19.40*cm"/>
@@ -35,6 +40,7 @@
  <Constant name="RailAir2T"         value="0.4*cm"/>
  <Constant name="RailAir2Y"         value="-[RailT]/2+[RailAir1T]+[RailAir2T]/2"/>
  
+ <!-- SHIELDS -->
  <Constant name="ShieldL"           value="54.0*cm"/> <!-- both shields end at the beginning of the flange (for simplicity is not glued on top of it)-->
  <Constant name="Shield1Rin"        value="[FlangeRin]"/> 
  <Constant name="Shield1Rout"       value="[FlangeRin]+[ShieldAL_T]"/>
@@ -45,6 +51,7 @@
  <Constant name="ShieldAL_T"        value="0.005*cm"/>
  <Constant name="ShieldKevlar_T"    value="0.025*cm"/>
 
+ <!-- CFK TUBES CONNECTING THE 2 FLANGES -->
  <Constant name="InterFlangesSuppTubRin"    value="0.3*cm"/>
  <Constant name="InterFlangesSuppTubRout"   value="0.35*cm"/>
  <Constant name="InterFlangesSuppTubX1"     value="17.32*cm"/>
@@ -52,6 +59,7 @@
  <Constant name="InterFlangesSuppTubX2"     value="5.23*cm"/>
  <Constant name="InterFlangesSuppTubY2"     value="17.33*cm"/>
 
+ <!-- FLANGE-->
  <Constant name="FlangeRin"         value="2.500*cm"/> <!-- 3.400*cm for 16 faces opt-->
  <Constant name="FlangeRout"        value="18.980*cm"/>
  <Constant name="FlangeR12"         value="4.900*cm"/> <!-- 5.3500*cm for 16 faces opt-->
@@ -76,7 +84,6 @@
  <Constant name="CableSignal4T1"           value="0.0308*cm"/>
  <Constant name="CableSignal4T2"           value="0.035998*cm"/>
  <Constant name="CableRout"                value="18.70*cm"/>
-
 
  <Constant name="CableSignal4Z1"          value="[FlangeZ]+[FlangeT]/2+[CoolT]+[CoolRadialDZp]"/> <!-- CoolRadialDZp is larger than CoolRadialDZm-->
  <Constant name="CableSignal4Z2"          value="[CableSignal4Z1]+[CableSignal4T1]"/>
@@ -106,8 +113,6 @@
  <Constant name="CablePower4Rin"          value="16.0*cm"/>
  <Constant name="CablePower4T1"           value="0.0902*cm"/>
  <Constant name="CablePower4T2"           value="0.105421*cm"/>
-
- 
 
  <Constant name="CablePower4Z1"          value="[CableSignal1Z3]"/>
  <Constant name="CablePower4Z2"          value="[CablePower4Z1]+[CablePower4T1]"/>
@@ -141,8 +146,6 @@
  <Constant name="PipeFlangeToST_Rmin"           value="[CablePowerFlangeToST_Rmax]"/>
  <Constant name="PipeFlangeToST_Rmax"           value="[PipeFlangeToST_Rmin]+[PipeFlangeToST_dR]"/>
  <Constant name="PixelBarrelPipe_FlangeToST_Z"           value="[FlangeZ]+[FlangeT]/2+[PipeFlangeToST_L]/2"/>
-
- <Constant name="Conn1T"            value="0.190*cm"/>
 
 <!--
  <Constant name="Cable3Z1"          value="[FlangeZ]+[FlangeT]/2"/>
@@ -180,6 +183,13 @@
  <Constant name="Cool2RoutZm"         value="[Cool2Rin]+[Cool2DRZm]"/>
  <Constant name="Cool3RoutZm"         value="[Cool3Rin]+[Cool3DRZm]"/>
  <Constant name="Cool4RoutZm"         value="[Cool4Rin]+[Cool4DRZm]"/>
+
+ <Constant name="RadialCoolZ"        value="29.5*cm"/>
+ <Constant name="RadialCoolDZ"       value="1.0*cm"/>
+ <Constant name="RadialCoolRin"      value="4.0*cm"/>
+
+ <!-- CONNECTORS -->
+ <Constant name="Conn1T"            value="0.190*cm"/>
  <Constant name="Conn1Rin"          value="12.00*cm"/>
  <Constant name="Conn2Rin"          value="11.00*cm"/>
  <Constant name="Conn1Z"            value="[FlangeZ]-[FlangeT]/2-[Conn1T]/2"/>
@@ -204,19 +214,18 @@
  <Constant name="ServCablT"         value="32.2*cm"/>
  <Constant name="ServCablZ"         value="[ServZ]+[ServT]/2+[ServCablT]/2"/>
 
- <Constant name="RadialCoolZ"        value="29.5*cm"/>
- <Constant name="RadialCoolDZ"       value="1.0*cm"/>
- <Constant name="RadialCoolRin"      value="4.0*cm"/>
-
-
 </ConstantsSection>
+
 
 <RotationSection label="pixbar.xml">
   <Rotation name="180D" thetaX="90*deg" phiX="180*deg"   thetaY="90*deg" 
                         phiY="90*deg"   thetaZ="180*deg" phiZ="0*deg" />
 </RotationSection>
 
+
 <SolidSection label="pixbar.xml">
+
+  <!-- OUTERMOST SHAPE -->
  <Polycone name="PixelBarrel" startPhi="0*deg" deltaPhi="360*deg">
   <ZSection z="-[Zv4]"         rMin="[RinSupTubCab]"  rMax="[Rout2]" />
   <ZSection z="-[ZvSupTubCab]" rMin="[RinSupTubCab]"  rMax="[Rout2]" />
@@ -232,10 +241,13 @@
   <ZSection z="[ZvSupTubCab]"  rMin="[Rin2]"          rMax="[Rout2]" />
   <ZSection z="[ZvSupTubCab]"  rMin="[RinSupTubCab]"  rMax="[Rout2]" />
   <ZSection z="[Zv4]"          rMin="[RinSupTubCab]"  rMax="[Rout2]" />
- </Polycone> 
+ </Polycone>
+
+ <!-- OUTERMOST SUPPORT TUB -->
  <Tubs name="PixelBarrelSuppTub" rMin="[SupportRin]"     rMax="[Rout1]"
        dz="[SupportL]/2"         startPhi="0*deg"        deltaPhi="360*deg"/>
 
+ <!-- RAILS AND THEIR SUPPORTING BOX -->
  <Box name="PixelBarrelSuppBox"      dx="[SupportW]/2"    dy="[SupportT]/2"
       dz="[SupportL]/2"/>
  <Box name="PixelBarrelSuppBox_Air"  dx="[RailAirW]/2"    dy="[SupportT]/2"
@@ -249,6 +261,7 @@
 	    alp2="0*deg" bl2="[RailAirW]/2" tl2="[zero]" h2="[RailAir2T]/2" 
 	    phi="0*deg" theta="0*deg"/>
 
+ <!-- SHIELDS -->
  <Tubs name="PixelBarrelShield1" rMin="[Shield1Rin]"     rMax="[Shield1Rout]"
        dz="[ShieldL]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelShield2" rMin="[Shield1Rout]"    rMax="[Shield2Rout]"
@@ -258,9 +271,11 @@
  <Tubs name="PixelBarrelShield4" rMin="[Shield3Rout]"    rMax="[Shield4Rout]"
        dz="[ShieldL]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
 
+ <!-- CFK TUBES CONNECTING THE 2 FLANGES -->
  <Tubs name="InterFlangesSuppTub" rMin="[InterFlangesSuppTubRin]"     rMax="[InterFlangesSuppTubRout]"
        dz="[ShieldL]/2"         startPhi="0*deg"        deltaPhi="360*deg"/>
 
+ <!-- FLANGE-->
  <Tubs name="PixelBarrelFlange1_Airex"  rMin="[FlangeRin]"      rMax="[FlangeR12]"
        dz="[FlangeT_Airex]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelFlange1_CFK"  rMin="[FlangeRin]"      rMax="[FlangeR12]"
@@ -357,6 +372,7 @@
  <Tubs name="PixelBarrelPipes_FlangeToSTXm"   rMin="[PipeFlangeToST_Rmin]"       rMax="[PipeFlangeToST_Rmax]"
        dz="[PipeFlangeToST_L]/2"            startPhi="170*deg"        deltaPhi="20*deg"/>
 	   
+ <!-- CONNECTORS -->
  <Tubs name="PixelBarrelConn1"   rMin="[Conn1Rin]"       rMax="[Shield3Rin]"
        dz="[Conn1T]/2"           startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelConn2"   rMin="[Conn2Rin]"       rMax="[Shield3Rin]"
@@ -371,17 +387,25 @@
        dz="[ServT]/2"            startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelSupTubCables" rMin="[RinSupTubCab]" rMax="[Conn3Rout]"
        dz="[ServCablT]/2"            startPhi="0*deg"        deltaPhi="360*deg"/>
+
 </SolidSection>
 
+
 <LogicalPartSection label="pixbar.xml">
+
+  <!-- OUTERMOST SHAPE -->
  <LogicalPart name="PixelBarrel" category="unspecified">
   <rSolid name="PixelBarrel"/>
   <rMaterial name="materials:Air"/> 
  </LogicalPart>
+
+ <!-- OUTERMOST SUPPORT TUB -->
  <LogicalPart name="PixelBarrelSuppTub" category="unspecified">
   <rSolid name="PixelBarrelSuppTub"/>
   <rMaterial name="trackermaterial:T_CarbonFibreStr"/>
  </LogicalPart>
+
+ <!-- RAILS AND THEIR SUPPORTING BOX -->
  <LogicalPart name="PixelBarrelSuppBox" category="unspecified">
   <rSolid name="PixelBarrelSuppBox"/>
   <rMaterial name="pixbarmaterial:T_CarbonFibreStrBox"/>
@@ -402,6 +426,8 @@
    <rSolid name="PixelBarrelRail_Air2"/>
    <rMaterial name="materials:Air"/>
  </LogicalPart>
+
+ <!-- SHIELDS -->
  <LogicalPart name="PixelBarrelShield1" category="unspecified">
   <rSolid name="PixelBarrelShield1"/>
   <rMaterial name="trackermaterial:T_Aluminium"/>
@@ -418,10 +444,14 @@
   <rSolid name="PixelBarrelShield4"/>
   <rMaterial name="trackermaterial:T_Kevlar"/>
  </LogicalPart>
+
+ <!-- CFK TUBES CONNECTING THE 2 FLANGES -->
  <LogicalPart name="InterFlangesSuppTub" category="unspecified">
   <rSolid name="InterFlangesSuppTub"/>
   <rMaterial name="pixbarmaterial:InterFlangesSuppTub_CFK"/>
  </LogicalPart>
+
+ <!-- FLANGE-->
  <LogicalPart name="PixelBarrelFlange1_Airex" category="unspecified">
   <rSolid name="PixelBarrelFlange1_Airex"/>
   <rMaterial name="pixbarmaterial:Flange1_Airex"/>
@@ -554,6 +584,7 @@
   <rMaterial name="pixbarmaterial:CoolPipesDaisyChain"/>
  </LogicalPart>
  
+ <!-- CONNECTORS -->
  <LogicalPart name="PixelBarrelConn1" category="unspecified">
   <rSolid name="PixelBarrelConn1"/>
   <rMaterial name="pixbarmaterial:Layer3_EndringPrints_Upgrade"/>
@@ -582,19 +613,26 @@
   <rSolid name="PixelBarrelSupTubCables"/>
   <rMaterial name="pixbarmaterial:PixelBarrelSupTubCables"/>
  </LogicalPart>
+
 </LogicalPartSection>
 
+
 <PosPartSection label="pixbar.xml">
+
+  <!-- OUTERMOST SHAPE -->
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelSuppTub"/>
  </PosPart>
 
+ <!-- OUTERMOST SUPPORT TUB -->
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelSuppBox"/>
   <Translation x="[zero]" y="[SupportY]" z="[zero]" />
  </PosPart>
+
+ <!-- RAILS AND THEIR SUPPORTING BOX -->
  <PosPart copyNumber="2">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelSuppBox"/>
@@ -643,6 +681,7 @@
    <Translation x="[zero]" y="[RailAir2Y]" z="[zero]" />
  </PosPart>
 
+ <!-- SHIELDS -->
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelShield1"/>
@@ -660,6 +699,7 @@
    <rChild name="pixbar:PixelBarrelShield4"/>
  </PosPart>
 
+ <!-- CFK TUBES CONNECTING THE 2 FLANGES -->
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:InterFlangesSuppTub"/>
@@ -701,6 +741,7 @@
    <Translation x="[InterFlangesSuppTubX1]" y="-[InterFlangesSuppTubY1]" z="[zero]" />
  </PosPart>
 
+ <!-- FLANGE-->
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelFlange1_Airex"/>
@@ -1054,7 +1095,7 @@
    <Translation x="[zero]" y="[zero]" z="-[PixelBarrelPipe_FlangeToST_Z]" />
  </PosPart>
 
- 
+ <!-- CONNECTORS --> 
  <!--
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
@@ -1136,6 +1177,7 @@
   <Translation x="[zero]" y="[zero]" z="-[ServCablZ]" />
  </PosPart>
 
+ <!-- BARREL LAYERS -->
  <PosPart copyNumber="1">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbarlayer0:PixelBarrelLayer0"/>
@@ -1156,6 +1198,8 @@
    <rChild name="pixbarlayer3:PixelBarrelLayer3"/>
   <rRotation name="pixbar:180D"/>
  </PosPart>
+
 </PosPartSection>
+
 
 </DDDefinition>
