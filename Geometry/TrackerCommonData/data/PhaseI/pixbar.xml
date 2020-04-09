@@ -35,6 +35,7 @@
  <Constant name="RailX"             value="3.3*cm"/>
  <Constant name="RailY"             value="[SupportY_base]+[SupportT]+[RailT]/2"/>
  <Constant name="RailAirW"          value="0.8*cm"/>
+ <Constant name="RailAirSpikeW"     value="1E-4*cm"/>
  <Constant name="RailAir1T"         value="0.5*cm"/>
  <Constant name="RailAir1Y"         value="-[RailT]/2+[RailAir1T]/2"/>
  <Constant name="RailAir2T"         value="0.4*cm"/>
@@ -257,8 +258,8 @@
  <Box name="PixelBarrelRail_Air1"    dx="[RailAirW]/2"    dy="[RailAir1T]/2"
       dz="[SupportL]/2"/>
  <Trapezoid name="PixelBarrelRail_Air2" dz="[SupportL]/2" 
-	    alp1="0*deg" bl1="[RailAirW]/2" tl1="[zero]" h1="[RailAir2T]/2" 
-	    alp2="0*deg" bl2="[RailAirW]/2" tl2="[zero]" h2="[RailAir2T]/2" 
+	    alp1="0*deg" bl1="[RailAirW]/2" tl1="[RailAirSpikeW]/2" h1="[RailAir2T]/2" 
+	    alp2="0*deg" bl2="[RailAirW]/2" tl2="[RailAirSpikeW]/2" h2="[RailAir2T]/2" 
 	    phi="0*deg" theta="0*deg"/>
 
  <!-- SHIELDS -->
