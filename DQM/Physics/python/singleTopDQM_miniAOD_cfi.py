@@ -21,72 +21,6 @@ elecIPcut = "(abs(gsfTrack.d0)<0.05 & abs(gsfTrack.dz)<0.1 & abs(superCluster.et
 tightElecCut = "((full5x5_sigmaIetaIeta < 0.00998 && superCluster.isNonnull && superCluster.seed.isNonnull && (deltaEtaSuperClusterTrackAtVtx - superCluster.eta + superCluster.seed.eta) < 0.00308 && abs(deltaPhiSuperClusterTrackAtVtx) < 0.0816 && hadronicOverEm < 0.0414 && abs(1.0 - eSuperClusterOverP)*1.0/ecalEnergy < 0.0129 && gsfTrack.hitPattern().numberOfLostHits('MISSING_INNER_HITS') <= 1 && abs(superCluster.eta) < 1.479) ||  (full5x5_sigmaIetaIeta() < 0.0292 && superCluster.isNonnull && superCluster.seed.isNonnull && (deltaEtaSuperClusterTrackAtVtx - superCluster.eta + superCluster.seed.eta) < 0.00605 && abs(deltaPhiSuperClusterTrackAtVtx) < 0.0394 && hadronicOverEm < 0.0641  && abs(1.0 - eSuperClusterOverP)*1.0/ecalEnergy < 0.0129 && gsfTrack.hitPattern().numberOfLostHits('MISSING_INNER_HITS') <= 1 && abs(superCluster.eta) > 1.479))"
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-singleTopTChannelLeptonDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniAOD',
-
-  setup = cms.PSet(
- 
-    directory = cms.string("Physics/Top/SingleTopDQM_miniAOD/"),
-
-    sources = cms.PSet(
-      muons = cms.InputTag("slimmedMuons"),
-      elecs = cms.InputTag("slimmedElectrons"),
-      jets  = cms.InputTag("slimmedJets"),
-      mets  = cms.VInputTag("slimmedMETs", "slimmedMETsNoHF", "slimmedMETsPuppi"),
-      pvs   = cms.InputTag("offlineSlimmedPrimaryVertices")
-    ),
-
-    monitoring = cms.PSet(
-      verbosity = cms.string("DEBUG")
-    ),
-
-    pvExtras = cms.PSet(
-      select = cms.string("abs(z) < 24. & position.rho < 2. & ndof > 4 & !isFake")
-    ),
-    elecExtras = cms.PSet(
-                                                                        
-      select = cms.string(looseElecCut+ "&& pt>20 & abs(eta)<2.5 & (abs(superCluster.eta) <= 1.4442 || abs(superCluster.eta) >= 1.5660)"),
-      rho = cms.InputTag("fixedGridRhoFastjetAll"),
-      #isolation = cms.string(ElelooseIsoCut),
-                          
-    ),
-
-    muonExtras = cms.PSet(
-                                                                               
-      select = cms.string(looseMuonCut + " && pt>20 & abs(eta)<2.1"),
-      isolation = cms.string(looseIsoCut),
-    ),
- 
-    jetExtras = cms.PSet(
-
-      select = cms.string("pt>30 & abs(eta)<2.4"),
-    ),
-
-    triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Mu3:HLT_QuadJet15U',
-                           'HLT_Mu5:HLT_QuadJet15U',
-                           'HLT_Mu7:HLT_QuadJet15U',
-                           'HLT_Mu9:HLT_QuadJet15U'])
-    )                                            
-  ),                                  
-
-  preselection = cms.PSet(
-
-  ),  
-
-  selection = cms.VPSet(
-    cms.PSet(
-      label  = cms.string("jets/calo:step0"),
-      src    = cms.InputTag("ak4CaloJets"),
-      select = cms.string("pt>20 & abs(eta)<2.1 & 0.05<emEnergyFraction"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak4JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(2),
-    ),
-  )
-)
 
 singleTopMuonMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniAOD',
   setup = cms.PSet(
@@ -114,7 +48,7 @@ singleTopMuonMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniA
     ),
                      
     muonExtras = cms.PSet(
-      select    = cms.string(looseMuonCut + " && pt>20 & abs(eta)<2.1"),
+      select    = cms.string(tightMuonCut + " && pt>20 & abs(eta)<2.4 && " + looseIsoCut),
       isolation = cms.string(looseIsoCut)
     ),
     jetExtras = cms.PSet(
@@ -155,7 +89,7 @@ singleTopMuonMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_miniA
     cms.PSet(
       label  = cms.string("muons:step0"),
       src    = cms.InputTag("slimmedMuons"),
-      select = cms.string(looseMuonCut + " && pt > 20 & abs(eta)<2.1"), #tightMuonCut +"&&"+ tightIsoCut + " && pt>20 & abs(eta)<2.1"), # CB what about iso? CD Added tightIso
+      select = cms.string(tightMuonCut + " && pt>20 & abs(eta)<2.4 && " + looseIsoCut), #tightMuonCut +"&&"+ tightIsoCut + " && pt>20 & abs(eta)<2.1"), # CB what about iso? CD Added tightIso
       min    = cms.int32(1),
       #max    = cms.int32(1),
     ),
@@ -203,7 +137,7 @@ singleTopElectronMediumDQM_miniAOD = DQMEDAnalyzer('SingleTopTChannelLeptonDQM_m
       #isolation  = cms.string(ElelooseIsoCut),
     ),
     muonExtras = cms.PSet(
-      select    = cms.string(looseMuonCut + " && pt>20 & abs(eta)<2.1"),
+      select    = cms.string(tightMuonCut + " && pt>20 & abs(eta)<2.4 && " + looseIsoCut),
       isolation = cms.string(looseIsoCut)
     ),
 
