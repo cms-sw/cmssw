@@ -1047,7 +1047,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
     php.slopeTop_.emplace_back(0);
 
   const auto& dummy2 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
-  if (dummy2.size() > 0) {
+  if (!dummy2.empty()) {
     php.layerOffset_ = dummy2[0];
   } else {
     php.layerOffset_ = 0;
