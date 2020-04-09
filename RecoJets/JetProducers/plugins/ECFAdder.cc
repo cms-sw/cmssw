@@ -19,7 +19,7 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig)
   }
 
   edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
-  if (srcWeights.label() != "")
+  if (!srcWeights.label().empty())
     input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
 
   for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
