@@ -23,7 +23,6 @@
 #include "CLHEP/Random/engineIDulong.h"
 #include "CLHEP/Random/RanecuEngine.h"
 
-
 #include <stdio.h>
 #include <iostream>
 
@@ -39,8 +38,8 @@ namespace externalgen {
           deserializer_{readBuffer_},
           er_deserializer_{readBuffer_},
           bl_deserializer_{readBuffer_},
-      el_deserializer_(readBuffer_),
-      randSerializer_(writeBuffer_) {
+          el_deserializer_(readBuffer_),
+          randSerializer_(writeBuffer_) {
       //make sure output is flushed before popen does any writing
       fflush(stdout);
       fflush(stderr);
@@ -48,7 +47,8 @@ namespace externalgen {
       channel_.setupWorker([&]() {
         using namespace std::string_literals;
         std::cout << id_ << " starting external process" << std::endl;
-        pipe_ = popen(("cmsExternalGenerator "s + channel_.sharedMemoryName() + " " + channel_.uniqueID()).c_str(), "w");
+        pipe_ =
+            popen(("cmsExternalGenerator "s + channel_.sharedMemoryName() + " " + channel_.uniqueID()).c_str(), "w");
 
         if (NULL == pipe_) {
           abort();
@@ -70,13 +70,9 @@ namespace externalgen {
         -> decltype(iDeserializer.deserialize()) {
       decltype(iDeserializer.deserialize()) value;
       if (not channel_.doTransition(
-                                    [&value, &iDeserializer, this]() {
-                value = iDeserializer.deserialize();
-              },
-              iTrans,
-              iTransitionID)) {
+              [&value, &iDeserializer, this]() { value = iDeserializer.deserialize(); }, iTrans, iTransitionID)) {
         externalFailed_ = true;
-        throw cms::Exception("ExternalFailed") <<"failed waiting for external process";
+        throw cms::Exception("ExternalFailed") << "failed waiting for external process";
       }
       return value;
     }
@@ -96,7 +92,8 @@ namespace externalgen {
       return {};
     }
 
-    ExternalGeneratorLumiInfo beginLumiProduce(unsigned long long iTransitionID, edm::RandomNumberGeneratorState const& iState) {
+    ExternalGeneratorLumiInfo beginLumiProduce(unsigned long long iTransitionID,
+                                               edm::RandomNumberGeneratorState const& iState) {
       //NOTE: root serialize requires a `void*` not a `void const*` even though it doesn't modify the object
       randSerializer_.serialize(const_cast<edm::RandomNumberGeneratorState&>(iState));
       return doTransition(bl_deserializer_, edm::Transition::BeginLuminosityBlock, iTransitionID);
@@ -130,12 +127,13 @@ namespace externalgen {
     ReadBuffer readBuffer_;
     WriteBuffer writeBuffer_;
 
-    template<typename T> using Deserializer = ROOTDeserializer<T, ReadBuffer>;
+    template <typename T>
+    using Deserializer = ROOTDeserializer<T, ReadBuffer>;
     Deserializer<ExternalGeneratorEventInfo> deserializer_;
     Deserializer<GenRunInfoProduct> er_deserializer_;
     Deserializer<ExternalGeneratorLumiInfo> bl_deserializer_;
     Deserializer<GenLumiInfoProduct> el_deserializer_;
-    ROOTSerializer<edm::RandomNumberGeneratorState, WriteBuffer>  randSerializer_;
+    ROOTSerializer<edm::RandomNumberGeneratorState, WriteBuffer> randSerializer_;
 
     bool externalFailed_ = false;
   };
@@ -146,21 +144,20 @@ namespace externalgen {
     CMS_THREAD_SAFE mutable GenRunInfoProduct runInfo_;
   };
   struct LumiCache {
-    LumiCache(std::vector<unsigned long> iState, long iSeed):
-      randomState_(std::move(iState), iSeed) {}
+    LumiCache(std::vector<unsigned long> iState, long iSeed) : randomState_(std::move(iState), iSeed) {}
     //Only stream 0 sets this at stream end Lumi and it is read at global end Lumi
     // the framework guarantees those calls can not happen simultaneously
-    CMS_THREAD_SAFE mutable GenLumiInfoProduct lumiInfo_;
     CMS_THREAD_SAFE mutable edm::RandomNumberGeneratorState randomState_;
   };
 }  // namespace externalgen
 
 class ExternalGeneratorFilter : public edm::global::EDFilter<edm::StreamCache<externalgen::StreamCache>,
-                                                            edm::RunCache<externalgen::RunCache>,
-                                                            edm::EndRunProducer,
-                                                            edm::LuminosityBlockCache<externalgen::LumiCache>,
-                                                            edm::BeginLuminosityBlockProducer,
-                                                            edm::EndLuminosityBlockProducer> {
+                                                             edm::RunCache<externalgen::RunCache>,
+                                                             edm::EndRunProducer,
+                                                             edm::LuminosityBlockCache<externalgen::LumiCache>,
+                                                             edm::LuminosityBlockSummaryCache<GenLumiInfoProduct>,
+                                                             edm::BeginLuminosityBlockProducer,
+                                                             edm::EndLuminosityBlockProducer> {
 public:
   ExternalGeneratorFilter(edm::ParameterSet const&);
 
@@ -175,11 +172,22 @@ public:
 
   void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const final;
   std::shared_ptr<externalgen::LumiCache> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
-                                                                   edm::EventSetup const&) const final;
+                                                                     edm::EventSetup const&) const final;
+  std::shared_ptr<GenLumiInfoProduct> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
+                                                                        edm::EventSetup const&) const final;
   void streamBeginLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const final;
   void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const final;
+  void streamEndLuminosityBlockSummary(edm::StreamID,
+                                       edm::LuminosityBlock const&,
+                                       edm::EventSetup const&,
+                                       GenLumiInfoProduct*) const final;
   void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const final {}
-  void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const final;
+  void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
+                                       edm::EventSetup const&,
+                                       GenLumiInfoProduct*) const final {}
+  void globalEndLuminosityBlockProduce(edm::LuminosityBlock&,
+                                       edm::EventSetup const&,
+                                       GenLumiInfoProduct const*) const final;
 
 private:
   edm::EDPutTokenT<edm::HepMCProduct> const hepMCToken_;
@@ -202,11 +210,11 @@ private:
 };
 
 ExternalGeneratorFilter::ExternalGeneratorFilter(edm::ParameterSet const& iPSet)
-  : hepMCToken_{produces<edm::HepMCProduct>("unsmeared")},
-                     genEventToken_{produces<GenEventInfoProduct>()},
+    : hepMCToken_{produces<edm::HepMCProduct>("unsmeared")},
+      genEventToken_{produces<GenEventInfoProduct>()},
       runInfoToken_{produces<GenRunInfoProduct, edm::Transition::EndRun>()},
-      lumiHeaderToken_{produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>("beginLumi")},
-      lumiInfoToken_{produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>("endLumi")},
+      lumiHeaderToken_{produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>()},
+      lumiInfoToken_{produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>()},
       config_{iPSet.getUntrackedParameter<std::string>("@python_config")} {}
 
 std::unique_ptr<externalgen::StreamCache> ExternalGeneratorFilter::beginStream(edm::StreamID iID) const {
@@ -249,12 +257,11 @@ bool ExternalGeneratorFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm:
 }
 
 std::shared_ptr<externalgen::RunCache> ExternalGeneratorFilter::globalBeginRun(edm::Run const&,
-                                                                          edm::EventSetup const&) const {
+                                                                               edm::EventSetup const&) const {
   return std::make_shared<externalgen::RunCache>();
 }
 
-void ExternalGeneratorFilter::streamBeginRun(edm::StreamID iID, edm::Run const& iRun, edm::EventSetup const&) const {
-}
+void ExternalGeneratorFilter::streamBeginRun(edm::StreamID iID, edm::Run const& iRun, edm::EventSetup const&) const {}
 void ExternalGeneratorFilter::streamEndRun(edm::StreamID iID, edm::Run const& iRun, edm::EventSetup const&) const {
   if (iID.value() == 0) {
     runCache(iRun.index())->runInfo_ = *streamCache(iID)->endRunProduce(iRun.run());
@@ -267,14 +274,15 @@ void ExternalGeneratorFilter::globalEndRunProduce(edm::Run& iRun, edm::EventSetu
 }
 
 void ExternalGeneratorFilter::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& iLuminosityBlock,
-                                                             edm::EventSetup const&) const {
+                                                                edm::EventSetup const&) const {
   while (not availableForBeginLumi_.load()) {
   }
 
-  auto v = availableForBeginLumi_.load()->beginLumiProduce(iLuminosityBlock.luminosityBlock(),
-                                                           luminosityBlockCache(iLuminosityBlock.index())->randomState_);
+  auto v = availableForBeginLumi_.load()->beginLumiProduce(
+      iLuminosityBlock.luminosityBlock(), luminosityBlockCache(iLuminosityBlock.index())->randomState_);
 
-  std::cerr <<"globalBeginLuminosityBlockProduce rand "<<v.randomState_.state_.size()<<" "<<v.randomState_.seed_<<std::endl;
+  std::cerr << "globalBeginLuminosityBlockProduce rand " << v.randomState_.state_.size() << " " << v.randomState_.seed_
+            << std::endl;
 
   edm::Service<edm::RandomNumberGenerator> gen;
   auto& engine = gen->getEngine(iLuminosityBlock.index());
@@ -288,8 +296,8 @@ void ExternalGeneratorFilter::globalBeginLuminosityBlockProduce(edm::LuminosityB
   lastLumiIndex_.store(iLuminosityBlock.index());
 }
 
-std::shared_ptr<externalgen::LumiCache> ExternalGeneratorFilter::globalBeginLuminosityBlock(edm::LuminosityBlock const& iLumi,
-                                                                                       edm::EventSetup const&) const {
+std::shared_ptr<externalgen::LumiCache> ExternalGeneratorFilter::globalBeginLuminosityBlock(
+    edm::LuminosityBlock const& iLumi, edm::EventSetup const&) const {
   edm::Service<edm::RandomNumberGenerator> gen;
   auto& engine = gen->getEngine(iLumi.index());
   auto s = engine.put();
@@ -297,9 +305,14 @@ std::shared_ptr<externalgen::LumiCache> ExternalGeneratorFilter::globalBeginLumi
   return std::make_shared<externalgen::LumiCache>(s, engine.getSeed());
 }
 
+std::shared_ptr<GenLumiInfoProduct> ExternalGeneratorFilter::globalBeginLuminosityBlockSummary(
+    edm::LuminosityBlock const&, edm::EventSetup const&) const {
+  return std::make_shared<GenLumiInfoProduct>();
+}
+
 void ExternalGeneratorFilter::streamBeginLuminosityBlock(edm::StreamID iID,
-                                                      edm::LuminosityBlock const& iLuminosityBlock,
-                                                      edm::EventSetup const&) const {
+                                                         edm::LuminosityBlock const& iLuminosityBlock,
+                                                         edm::EventSetup const&) const {
   auto cache = streamCache(iID);
   if (cache != availableForBeginLumi_.load()) {
     (void)cache->beginLumiProduce(iLuminosityBlock.run(), luminosityBlockCache(iLuminosityBlock.index())->randomState_);
@@ -309,14 +322,14 @@ void ExternalGeneratorFilter::streamBeginLuminosityBlock(edm::StreamID iID,
 }
 
 void ExternalGeneratorFilter::streamEndLuminosityBlock(edm::StreamID iID,
-                                                    edm::LuminosityBlock const& iLuminosityBlock,
-                                                    edm::EventSetup const&) const {
-  if (iID.value() == 0) {
-    luminosityBlockCache(iLuminosityBlock.index())->lumiInfo_ =
-        *streamCache(iID)->endLumiProduce(iLuminosityBlock.run());
-  } else {
-    (void)streamCache(iID)->endLumiProduce(iLuminosityBlock.run());
-  }
+                                                       edm::LuminosityBlock const& iLuminosityBlock,
+                                                       edm::EventSetup const&) const {}
+
+void ExternalGeneratorFilter::streamEndLuminosityBlockSummary(edm::StreamID iID,
+                                                              edm::LuminosityBlock const& iLuminosityBlock,
+                                                              edm::EventSetup const&,
+                                                              GenLumiInfoProduct* iProduct) const {
+  iProduct->mergeProduct(*streamCache(iID)->endLumiProduce(iLuminosityBlock.run()));
 
   if (lastLumiIndex_ == iLuminosityBlock.index()) {
     externalgen::StreamCache* expected = nullptr;
@@ -326,8 +339,9 @@ void ExternalGeneratorFilter::streamEndLuminosityBlock(edm::StreamID iID,
 }
 
 void ExternalGeneratorFilter::globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLuminosityBlock,
-                                                           edm::EventSetup const&) const {
-  iLuminosityBlock.emplace(lumiInfoToken_, std::move(luminosityBlockCache(iLuminosityBlock.index())->lumiInfo_));
+                                                              edm::EventSetup const&,
+                                                              GenLumiInfoProduct const* iProduct) const {
+  iLuminosityBlock.emplace(lumiInfoToken_, std::move(*iProduct));
 }
 
 DEFINE_FWK_MODULE(ExternalGeneratorFilter);
