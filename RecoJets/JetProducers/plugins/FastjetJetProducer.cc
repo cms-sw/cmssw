@@ -74,7 +74,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig) : Virtu
   nFilt_ = iConfig.getParameter<int>("nFilt");
   useDynamicFiltering_ = iConfig.getParameter<bool>("useDynamicFiltering");
   if (useDynamicFiltering_)
-    rFiltDynamic_ = DynamicRfiltPtr(new DynamicRfilt(rFilt_, rFiltFactor_));
+    rFiltDynamic_ = std::make_shared<DynamicRfilt>(rFilt_, rFiltFactor_);
   rFiltFactor_ = iConfig.getParameter<double>("rFiltFactor");
 
   useTrimming_ = iConfig.getParameter<bool>("useTrimming");
@@ -355,7 +355,7 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
   */
 
   if (!doAreaFastjet_ && !doRhoFastjet_) {
-    fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequence(fjInputs_, *fjJetDefinition_));
+    fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>(fjInputs_, *fjJetDefinition_);
   } else if (voronoiRfact_ <= 0) {
     fjClusterSeq_ =
         ClusterSequencePtr(new fastjet::ClusterSequenceArea(fjInputs_, *fjJetDefinition_, *fjAreaDefinition_));

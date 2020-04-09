@@ -154,7 +154,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
     if (srcWeights.label() == src_.label())
       LogWarning("VirtualJetProducer")
           << "Particle and weights collection have the same label. You may be applying the same weights twice.\n";
-    if (srcWeights.label() != "")
+    if (!srcWeights.label().empty())
       input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
   }
 

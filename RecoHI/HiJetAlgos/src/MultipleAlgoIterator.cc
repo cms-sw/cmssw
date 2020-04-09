@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoHI/HiJetAlgos/interface/MultipleAlgoIterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -22,7 +24,7 @@ void MultipleAlgoIterator::offsetCorrectJets() {
   subtractPedestal(*fjInputs_);
   const fastjet::JetDefinition& def = *fjJetDefinition_;
   if (!doAreaFastjet_ && !doRhoFastjet_) {
-    fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequence(*fjInputs_, def));
+    fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>(*fjInputs_, def);
   } else {
     fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequenceArea(*fjInputs_, def, *fjActiveArea_));
   }
