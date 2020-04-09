@@ -30,13 +30,22 @@ void DDTestFilteredView::analyze(const Event&, const EventSetup& iEventSetup) {
   ESTransientHandle<DDCompactView> cpv;
   iEventSetup.get<IdealGeometryRecord>().get(m_tag, cpv);
 
-  DDFilter filter("CMSCutsRegion", "Muon");
-  DDFilteredView fv((*cpv), filter);
+  DDFilteredView fv(cpv->detector(), cpv->detector()->worldVolume());
+
+  std::string attribute{"CMSCutsRegion"};
+  cms::DDSpecParRefs ref;
+  const cms::DDSpecParRegistry& mypar = cpv->specpars();
+  mypar.filter(ref, attribute, "MuonChamber");
+  fv.mergedSpecifics(ref);
 
   fv.printFilter();
 
-  fv.firstChild();
+  bool doLoop = fv.firstChild();
   LogVerbatim("Geometry") << "DDTestFilteredView::analyze: first child " << fv.path();
+  while (doLoop) {
+    edm::LogVerbatim("Geometry") << "DDTestFilteredView::analyze: next node = " << fv.path();
+    doLoop = fv.firstChild();
+  }
 
   LogVerbatim("Geometry") << "DDTestFilteredView::analyze done.";
 }
