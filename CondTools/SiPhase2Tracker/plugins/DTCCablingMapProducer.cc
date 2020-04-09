@@ -47,7 +47,7 @@ static constexpr const unsigned int gbt_id_maxvalue = 72;
 static constexpr const unsigned int elink_id_minvalue = 0;
 static constexpr const unsigned int elink_id_maxvalue = 7;
 
-enum {DUMMY_FILL_DISABLED = 0, DUMMY_FILL_ELINK_ID = 1, DUMMY_FILL_ELINK_ID_AND_GBT_ID = 2};
+enum { DUMMY_FILL_DISABLED = 0, DUMMY_FILL_ELINK_ID = 1, DUMMY_FILL_ELINK_ID_AND_GBT_ID = 2 };
 
 //
 // SOME HELPER FUNCTIONS
@@ -114,16 +114,16 @@ void DTCCablingMapProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 
 DTCCablingMapProducer::DTCCablingMapProducer(const edm::ParameterSet& iConfig)
     : verbosity_(iConfig.getParameter<int>("verbosity")),
-      csvFormat_ncolumns_  (iConfig.getParameter<unsigned>("csvFormat_ncolumns")),
-      csvFormat_idetid_    (iConfig.getParameter<unsigned>("csvFormat_idetid")),
-      csvFormat_idtcid_    (iConfig.getParameter<unsigned>("csvFormat_idtcid")),
+      csvFormat_ncolumns_(iConfig.getParameter<unsigned>("csvFormat_ncolumns")),
+      csvFormat_idetid_(iConfig.getParameter<unsigned>("csvFormat_idetid")),
+      csvFormat_idtcid_(iConfig.getParameter<unsigned>("csvFormat_idtcid")),
       csvFormat_igbtlinkid_(iConfig.getParameter<unsigned>("csvFormat_igbtlinkid")),
-      csvFormat_ielinkid_  (iConfig.getParameter<unsigned>("csvFormat_ielinkid")),
+      csvFormat_ielinkid_(iConfig.getParameter<unsigned>("csvFormat_ielinkid")),
       iovBeginTime_(iConfig.getParameter<long long unsigned int>("iovBeginTime")),
       pCablingMap_(std::make_unique<TrackerDetToDTCELinkCablingMap>()),
       record_(iConfig.getParameter<std::string>("record")) {
   std::string const dummy_fill_mode_param = iConfig.getParameter<std::string>("dummy_fill_mode");
-  
+
   // We pass from the easy to use string to an int representation for this mode flag, as it is more efficient in comparisons
   if (dummy_fill_mode_param == "DUMMY_FILL_DISABLED")
     dummy_fill_mode_ = DUMMY_FILL_DISABLED;
@@ -136,7 +136,7 @@ DTCCablingMapProducer::DTCCablingMapProducer(const edm::ParameterSet& iConfig)
     message << "Parameter dummy_fill_mode with invalid value: " << dummy_fill_mode_param;
     throw cms::Exception(message.str());
   }
-  
+
   LoadModulesToDTCCablingMapFromCSV(iConfig.getParameter<std::vector<std::string>>("modulesToDTCCablingCSVFileNames"));
 }
 
@@ -145,7 +145,7 @@ void DTCCablingMapProducer::beginJob() {}
 void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
     std::vector<std::string> const& modulesToDTCCablingCSVFileNames) {
   using namespace std;
-  
+
   for (std::string const& csvFileName : modulesToDTCCablingCSVFileNames) {
     edm::FileInPath csvFilePath(csvFileName);
 
@@ -213,7 +213,7 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
             case DUMMY_FILL_DISABLED:
               gbt_id = strtoul(csvColumn.at(csvFormat_igbtlinkid_).c_str(), nullptr, 10);
               elink_id = strtoul(csvColumn.at(csvFormat_ielinkid_).c_str(), nullptr, 10);
-              break; 
+              break;
             case DUMMY_FILL_ELINK_ID:
               gbt_id = strtoul(csvColumn.at(csvFormat_igbtlinkid_).c_str(), nullptr, 10);
               for (elink_id = elink_id_minvalue; elink_id < elink_id_maxvalue + 1u; ++elink_id) {
@@ -228,11 +228,11 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
                     goto gbtlink_and_elinkid_generator_end;  //break out of this double loop, this is one of the few "proper" uses of goto
                 }
               }
-              gbtlink_and_elinkid_generator_end:
-                ((void)0);  // This is a NOP, it's here just to have a valid (although dummy) instruction after the goto tag
+            gbtlink_and_elinkid_generator_end:
+              ((void)0);  // This is a NOP, it's here just to have a valid (although dummy) instruction after the goto tag
               break;
           }
-          
+
           DTCELinkId dtcELinkId(dtc_id, gbt_id, elink_id);
 
           if (verbosity_ >= 3) {
