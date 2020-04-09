@@ -39,19 +39,19 @@ namespace l1t {
 
     const double l1RefEt() const { return egRef_->et(); }
 
-    float trkIsol() const { return TrkIsol_; }  // not constrained to the PV, just track ptSum
+    float trkIsol() const { return trkIsol_; }  // not constrained to the PV, just track ptSum
 
-    float trkIsolPV() const { return TrkIsolPV_; }  // constrained to the PV by DZ
+    float trkIsolPV() const { return trkIsolPV_; }  // constrained to the PV by DZ
 
     // ---------- member functions ---------------------------
 
-    void setTrkIsol(float TrkIsol) { TrkIsol_ = TrkIsol; }
-    void setTrkIsolPV(float TrkIsolPV) { TrkIsolPV_ = TrkIsolPV; }
+    void setTrkIsol(float TrkIsol) { trkIsol_ = TrkIsol; }
+    void setTrkIsolPV(float TrkIsolPV) { trkIsolPV_ = TrkIsolPV; }
 
   private:
     edm::Ref<EGammaBxCollection> egRef_;
-    float TrkIsol_;
-    float TrkIsolPV_;
+    float trkIsol_;
+    float trkIsolPV_;
   };
 }  // namespace l1t
 

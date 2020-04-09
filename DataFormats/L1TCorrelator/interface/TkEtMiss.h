@@ -1,14 +1,6 @@
-#ifndef TkTrigger_TkEtMiss_h
-#define TkTrigger_TkEtMiss_h
-// Package:     L1Trigger
-// Class  :     TkEtMiss
-// Original Author:  E. Perez
-//         Created:  Nov 14, 2013
-// Redesign Author: V. Rekovic
-//         Created: Mar 30, 2020
+#ifndef DataFormatsL1TCorrelator_TkEtMiss_h
+#define DataFormatsL1TCorrelator_TkEtMiss_h
 
-// system include files
-// user include files
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
@@ -38,7 +30,7 @@ namespace l1t {
     // For type = kMET, this is |MET|; for type = kMHT, this is |MHT|
     double etMiss() const { return et(); }
     // For type = kMET, this is total ET; for type = kMHT, this is total HT
-    const double& etTotal() const { return etTot_; }
+    double etTotal() const { return etTot_; }
     // EtMiss and EtTot from PU vertices
     double etMissPU() const { return etMissPU_; }
     double etTotalPU() const { return etTotalPU_; }

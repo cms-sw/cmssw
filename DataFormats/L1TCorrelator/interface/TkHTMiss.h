@@ -1,5 +1,5 @@
-#ifndef TkTrigger_TkHTMiss_h
-#define TkTrigger_TkHTMiss_h
+#ifndef DataFormatsL1TCorrelator_TkHTMiss_h
+#define DataFormatsL1TCorrelator_TkHTMiss_h
 // Package:     L1Trigger
 // Class  :     TkHTMiss
 
@@ -25,28 +25,28 @@ namespace l1t {
     double EtMiss() const {  // HTM (missing HT)
       return et();
     }
-    const double& EtTotal() const { return EtTot_; }
+    double etTotal() const { return etTot_; }
     // HTM and HT from PU vertices
-    double EtMissPU() const { return EtMissPU_; }
-    double EtTotalPU() const { return EtTotalPU_; }
+    double etMissPU() const { return etMissPU_; }
+    double etTotalPU() const { return etTotalPU_; }
     int bx() const { return bx_; }
     float vtx() const { return zvtx_; }
     const edm::RefProd<TkJetCollection>& jetCollectionRef() const { return jetCollectionRef_; }
     const edm::Ref<TkPrimaryVertexCollection>& vtxRef() const { return vtxRef_; }
 
     // ---------- member functions ---------------------------
-    void setEtTotal(double EtTotal) { EtTot_ = EtTotal; }
-    void setEtTotalPU(double EtTotalPU) { EtTotalPU_ = EtTotalPU; }
-    void setEtMissPU(double EtMissPU) { EtMissPU_ = EtMissPU; }
+    void setEtTotal(double EtTotal) { etTot_ = EtTotal; }
+    void setEtTotalPU(double EtTotalPU) { etTotalPU_ = EtTotalPU; }
+    void setEtMissPU(double EtMissPU) { etMissPU_ = EtMissPU; }
     void setVtx(const float& zvtx) { zvtx_ = zvtx; }
     void setBx(int bx) { bx_ = bx; }
 
   private:
     // ---------- member data --------------------------------
     float zvtx_;        // zvtx used to constrain the jets
-    double EtTot_;      // HT
-    double EtMissPU_;   // HTM form jets that don't come from zvtx
-    double EtTotalPU_;  // HT from jets that don't come from zvtx
+    double etTot_;      // HT
+    double etMissPU_;   // HTM form jets that don't come from zvtx
+    double etTotalPU_;  // HT from jets that don't come from zvtx
 
     edm::RefProd<TkJetCollection> jetCollectionRef_;
     edm::Ref<TkPrimaryVertexCollection> vtxRef_;

@@ -1,10 +1,6 @@
-#ifndef TkTrigger_TkEtMissFwd_h
-#define TkTrigger_TkEtMissFwd_h
-// Package:     L1Trigger
-// Class  :     TkEtMissFwd
+#ifndef DataFormatsL1TCorrelator_TkEtMissFwd_h
+#define DataFormatsL1TCorrelator_TkEtMissFwd_h
 
-// system include files
-// user include files
 // forward declarations
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"

@@ -1,5 +1,5 @@
-#ifndef TkTrigger_TkEGTau_h
-#define TkTrigger_TkEGTau_h
+#ifndef DataFormatsL1TCorrelator_TkEGTau_h
+#define DataFormatsL1TCorrelator_TkEGTau_h
 
 // -*- C++ -*-
 //
