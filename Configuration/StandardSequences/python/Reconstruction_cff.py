@@ -11,6 +11,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
 from TrackingTools.Configuration.TrackingTools_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoHGCal.Configuration.recoHGCAL_cff import *
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
@@ -146,6 +147,12 @@ _fastSim_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask,muon
 _fastSim_globalrecoTask.add(newCombinedSeeds,trackExtrapolator,caloTowerForTrk,firstStepPrimaryVerticesUnsorted,ak4CaloJetsForTrk,initialStepTrackRefsForJets,firstStepPrimaryVertices)
 fastSim.toReplaceWith(globalrecoTask,_fastSim_globalrecoTask)
 
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+_phase2HGALRecoTask = globalrecoTask.copy()
+_phase2HGALRecoTask.add(iterTICLTask)
+phase2_hgcal.toReplaceWith(globalrecoTask, _phase2HGALRecoTask)
+
+
 globalreco_plusPLTask= cms.Task(globalrecoTask,ctfTracksPixelLessTask)
 globalreco_plusPL= cms.Sequence(globalreco_plusPLTask)
 
@@ -167,7 +174,7 @@ highlevelrecoTask = cms.Task(egammaHighLevelRecoPrePFTask,
                              cosmicDCTracksSeqTask,
                              lowPtGsfElectronTask,
                              conversionOpenTrackTask,
-                             gsfTracksOpenConversions 
+                             gsfTracksOpenConversions
                              )
 highlevelreco = cms.Sequence(highlevelrecoTask)
 

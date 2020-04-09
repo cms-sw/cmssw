@@ -69,8 +69,8 @@ namespace ticl {
     double energy = 0.;
     size_t counter = 0;
 
-    for (auto idx : trackster.vertices) {
-      auto n_vertices = trackster.vertex_multiplicity[counter++];
+    for (auto idx : trackster.vertices()) {
+      auto n_vertices = trackster.vertex_multiplicity(counter++);
       auto fraction = n_vertices ? 1.f / n_vertices : 1.f;
       auto weight = calo_clusters[idx].energy() * fraction;
       energy += weight;
@@ -86,7 +86,7 @@ namespace ticl {
     math::XYZVector direction(barycentre[0] - vertex.x(), barycentre[1] - vertex.y(), barycentre[2] - vertex.z());
     direction = direction.Unit();
     auto raw_energy = energy;
-    energy = energy_from_regression_ ? trackster.regressed_energy : raw_energy;
+    energy = energy_from_regression_ ? trackster.regressed_energy() : raw_energy;
     direction *= energy;
 
     math::XYZTLorentzVector cartesian(direction.X(), direction.Y(), direction.Z(), energy);

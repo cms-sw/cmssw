@@ -16,16 +16,28 @@ namespace ticl {
     PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache);
     ~PatternRecognitionbyCA() override;
 
-    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input, std::vector<Trackster>& result) override;
+    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input,
+                        std::vector<Trackster>& result,
+                        std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
     void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
+    void emptyTrackstersFromSeedsTRK(std::vector<Trackster>& tracksters,
+                                     std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation,
+                                     const edm::ProductID& collectionID) const;
 
   private:
+    void mergeTrackstersTRK(const std::vector<Trackster>&,
+                            const std::vector<reco::CaloCluster>&,
+                            std::vector<Trackster>&,
+                            std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) const;
     const std::unique_ptr<HGCGraph> theGraph_;
+    const bool oneTracksterPerTrackSeed_;
+    const bool promoteEmptyRegionToTrackster_;
     const bool out_in_dfs_;
     const unsigned int max_out_in_hops_;
     const float min_cos_theta_;
     const float min_cos_pointing_;
+    const float etaLimitIncreaseWindow_;
     const int missing_layers_;
     const int min_clusters_per_ntuplet_;
     const float max_delta_time_;
