@@ -36,8 +36,8 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
 
 void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("ticlCandidateSrc", edm::InputTag("ticlCandidateFromTrackstersProducer"));
-  descriptions.add("pfTICLProducer", desc);
+  desc.add<edm::InputTag>("ticlCandidateSrc", edm::InputTag("ticlCandidateFromTracksters"));
+  descriptions.add("pfTICL", desc);
 }
 
 void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
