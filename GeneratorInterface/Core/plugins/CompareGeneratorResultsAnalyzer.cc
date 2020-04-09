@@ -53,6 +53,8 @@ private:
 
   edm::EDGetTokenT<GenRunInfoProduct> runProductToken1_;
   edm::EDGetTokenT<GenRunInfoProduct> runProductToken2_;
+
+  bool allowXSecDifferences_;
 };
 
 CompareGeneratorResultsAnalyzer::CompareGeneratorResultsAnalyzer(edm::ParameterSet const& iPSet)
@@ -67,7 +69,8 @@ CompareGeneratorResultsAnalyzer::CompareGeneratorResultsAnalyzer(edm::ParameterS
       lumiProductToken1_{consumes<GenLumiInfoProduct, edm::InLumi>(mod1_)},
       lumiProductToken2_{consumes<GenLumiInfoProduct, edm::InLumi>(mod2_)},
       runProductToken1_{consumes<GenRunInfoProduct, edm::InRun>(mod1_)},
-      runProductToken2_{consumes<GenRunInfoProduct, edm::InRun>(mod2_)} {}
+      runProductToken2_{consumes<GenRunInfoProduct, edm::InRun>(mod2_)},
+      allowXSecDifferences_{iPSet.getUntrackedParameter<bool>("allowXSecDifferences", false)} {}
 
 std::shared_ptr<cgra::DummyCache> CompareGeneratorResultsAnalyzer::globalBeginRun(edm::Run const&,
                                                                                   edm::EventSetup const&) const {
@@ -112,7 +115,10 @@ std::shared_ptr<cgra::DummyCache> CompareGeneratorResultsAnalyzer::globalBeginLu
 }
 
 namespace {
-  void compare(size_t iIndex, GenLumiInfoProduct::ProcessInfo const& p1, GenLumiInfoProduct::ProcessInfo const& p2) {
+  void compare(size_t iIndex,
+               GenLumiInfoProduct::ProcessInfo const& p1,
+               GenLumiInfoProduct::ProcessInfo const& p2,
+               bool allowXSecDifferences) {
     if (p1.process() != p2.process()) {
       throw cms::Exception("ComparisonFailure") << "The GenLumiInfoProducts have different getProcessInfos()[" << iIndex
                                                 << "] process " << p1.process() << " " << p2.process();
@@ -139,15 +145,28 @@ namespace {
     }
 
     if (p1.lheXSec().error() != p2.lheXSec().error()) {
-      throw cms::Exception("ComparisonFailure")
-          << "The GenLumiInfoProducts have different getProcessInfos()[" << iIndex << "] lheXSec.error "
-          << p1.lheXSec().error() << " " << p2.lheXSec().error();
+      if (allowXSecDifferences) {
+        edm::LogWarning("ComparisonFailure")
+            << "The GenLumiInfoProducts have different getProcessInfos()[" << iIndex << "] lheXSec.error "
+            << p1.lheXSec().error() << " " << p2.lheXSec().error();
+      } else {
+        throw cms::Exception("ComparisonFailure")
+            << "The GenLumiInfoProducts have different getProcessInfos()[" << iIndex << "] lheXSec.error "
+            << p1.lheXSec().error() << " " << p2.lheXSec().error();
+      }
     }
 
     if (p1.lheXSec().value() != p2.lheXSec().value()) {
-      throw cms::Exception("ComparisonFailure")
-          << "The GenLumiInfoProducts have different getProcessInfos()[" << iIndex << "] lheXSec.value "
-          << p1.lheXSec().value() << " " << p2.lheXSec().value();
+      if (allowXSecDifferences) {
+        //throw cms::Exception("ComparisonFailure")
+        edm::LogWarning("ComparisonFailure")
+            << "The GenLumiInfoProducts have different getProcessInfos()[" << iIndex << "] lheXSec.value "
+            << p1.lheXSec().value() << " " << p2.lheXSec().value();
+      } else {
+        throw cms::Exception("ComparisonFailure")
+            << "The GenLumiInfoProducts have different getProcessInfos()[" << iIndex << "] lheXSec.value "
+            << p1.lheXSec().value() << " " << p2.lheXSec().value();
+      }
     }
 
     if (p1.tried().n() != p2.tried().n()) {
@@ -252,10 +271,12 @@ void CompareGeneratorResultsAnalyzer::globalEndLuminosityBlock(edm::LuminosityBl
     }
 
     for (size_t i = 0; i < prod1.getProcessInfos().size(); ++i) {
-      compare(i, prod1.getProcessInfos()[i], prod2.getProcessInfos()[i]);
+      compare(i, prod1.getProcessInfos()[i], prod2.getProcessInfos()[i], allowXSecDifferences_);
     }
 
-    throw cms::Exception("ComparisionFailure") << "The GenLumiInfoProducts are different";
+    if (not allowXSecDifferences_) {
+      throw cms::Exception("ComparisionFailure") << "The GenLumiInfoProducts are different";
+    }
   }
 }
 
@@ -308,8 +329,6 @@ namespace {
   }
 
   void compare(HepMC::GenEvent const& prod1, HepMC::GenEvent const& prod2) {
-    //std::cout <<"2\n"<<s2.str();
-
     if (prod1.signal_process_id() != prod2.signal_process_id()) {
       throw cms::Exception("ComparisonFailure") << "The HepMCProducts have different signal_process_id "
                                                 << prod1.signal_process_id() << " " << prod2.signal_process_id();
