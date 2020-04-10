@@ -44,7 +44,6 @@ namespace l1t {
             const std::vector<EGammaRef>& clustEGs,
             float iso = -999.);
 
-
     // ---------- const member functions ---------------------
 
     const L1TTTrackRefPtr seedTrk() const { return clustTracks_.at(0); }

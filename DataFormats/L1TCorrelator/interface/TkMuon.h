@@ -27,7 +27,6 @@ namespace l1t {
     //! more basic constructor, in case refs/ptrs can't be set or to be set separately
     TkMuon(const L1Candidate& cand) : L1Candidate(cand), theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}
 
-
     const edm::Ptr<L1TTTrackType>& trkPtr() const { return trkPtr_; }
 
     const edm::Ref<l1t::RegionalMuonCandBxCollection>& muRef() const { return muRef_; }
