@@ -15,12 +15,11 @@ template <typename Client>
 class DummyClient : public Client {
 public:
   //constructor
-  DummyClient(const edm::ParameterSet& params) :
-    factor_(params.getParameter<int>("factor")),
-    wait_(params.getParameter<int>("wait")),
-    allowedTries_(params.getParameter<unsigned>("allowedTries")),
-    fails_(params.getParameter<unsigned>("fails"))
-  {}
+  DummyClient(const edm::ParameterSet& params)
+      : factor_(params.getParameter<int>("factor")),
+        wait_(params.getParameter<int>("wait")),
+        allowedTries_(params.getParameter<unsigned>("allowedTries")),
+        fails_(params.getParameter<unsigned>("fails")) {}
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
@@ -42,8 +41,10 @@ protected:
     this->output_ = this->input_ * factor_;
 
     //simulate a failure
-    if(this->tries_ < fails_) this->finish(false);
-    else this->finish(true);
+    if (this->tries_ < fails_)
+      this->finish(false);
+    else
+      this->finish(true);
   }
 
   //members
