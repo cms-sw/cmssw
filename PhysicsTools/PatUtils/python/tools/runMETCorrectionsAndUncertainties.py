@@ -368,8 +368,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             from PhysicsTools.PatUtils.pfeGammaToCandidate_cfi import pfeGammaToCandidate
             task = getPatAlgosToolsTask(process)
             addToProcessAndTask("pfeGammaToCandidate", pfeGammaToCandidate.clone(
-                                  electrons = electronCollection,
-                                  photons = photonCollection),
+                                  electrons = copy.copy(electronCollection),
+                                  photons = copy.copy(photonCollection)),
                                 process, task)
             if hasattr(process,"patElectrons") and process.patElectrons.electronSource == cms.InputTag("reducedEgamma","reducedGedGsfElectrons"):
                 process.pfeGammaToCandidate.electron2pf = "reducedEgamma:reducedGsfElectronPfCandMap"
@@ -499,12 +499,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp, addToTask = True)
             addToProcessAndTask(_myPatMet,  getattr(process,'patPFMet').clone(), process, task)
             getattr(process, _myPatMet).metSource = cms.InputTag("pfMet"+postfix)
-            getattr(process, _myPatMet).srcPFCands = self.getvalue("pfCandCollection")
+            getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
         if metType == "PF":
             getattr(process, _myPatMet).srcLeptons = \
-              cms.VInputTag(self.getvalue("electronCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","electrons"),
-                            self.getvalue("muonCollection"),
-                            self.getvalue("photonCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","photons"))
+              cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
+                              cms.InputTag("pfeGammaToCandidate","electrons"),
+                            copy.copy(self.getvalue("muonCollection")),
+                            copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
+                              cms.InputTag("pfeGammaToCandidate","photons"))
 
         if self.getvalue("runOnData"):
             getattr(process, _myPatMet).addGenMET  = False
@@ -618,11 +620,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "T1" in correctionLevel:
             _myPatMet = "pat"+metType+"Met"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
-            getattr(process, _myPatMet).srcPFCands = self.getvalue("pfCandCollection")
+            getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
             getattr(process, _myPatMet).srcLeptons = \
-              cms.VInputTag(self.getvalue("electronCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","electrons"),
-                            self.getvalue("muonCollection"),
-                            self.getvalue("photonCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","photons"))
+              cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
+                              cms.InputTag("pfeGammaToCandidate","electrons"),
+                            copy.copy(self.getvalue("muonCollection")),
+                            copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
+                              cms.InputTag("pfeGammaToCandidate","photons"))
             if postfix=="NoHF":
                 getattr(process, _myPatMet).computeMETSignificance = cms.bool(False)
             if self.getvalue("runOnData"):
@@ -639,11 +643,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not self._parameters["onMiniAOD"].value and not postfix=="NoHF":
             _myPatMet = "patMETs"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
-            getattr(process, _myPatMet).srcPFCands=self.getvalue("pfCandCollection")
+            getattr(process, _myPatMet).srcPFCands=copy.copy(self.getvalue("pfCandCollection"))
             getattr(process, _myPatMet).srcLeptons = \
-              cms.VInputTag(self.getvalue("electronCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","electrons"),
-                            self.getvalue("muonCollection"),
-                            self.getvalue("photonCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","photons"))
+              cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
+                              cms.InputTag("pfeGammaToCandidate","electrons"),
+                            copy.copy(self.getvalue("muonCollection")),
+                            copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
+                              cms.InputTag("pfeGammaToCandidate","photons"))
 
         if hasattr(process, "patCaloMet"):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
@@ -811,7 +817,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #Jet projection ==
             pfCandsNoJets = cms.EDProducer("CandPtrProjector", 
                                            src = pfCandCollection, 
-                                           veto = jetCollection,
+                                           veto = copy.copy(jetCollection),
                                            useDeltaRforFootprint = cms.bool(False)
                                            )
             if self.getvalue("Puppi"):
@@ -822,19 +828,19 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #electron projection ==
             pfCandsNoJetsNoEle = cms.EDProducer("CandPtrProjector", 
                                                 src = cms.InputTag("pfCandsNoJets"+postfix),
-                                                veto = electronCollection,
+                                                veto = copy.copy(electronCollection),
                                                 useDeltaRforFootprint = cms.bool(False),
                                                 )
             if not self.getvalue("onMiniAOD"):
               pfCandsNoJetsNoEle.useDeltaRforFootprint = True
-              pfCandsNoJetsNoEle.veto = cms.InputTag("pfeGammaToCandidate","electrons")
+              pfCandsNoJetsNoEle.veto = "pfeGammaToCandidate:electrons"
             addToProcessAndTask("pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
 
             #muon projection ==
             pfCandsNoJetsNoEleNoMu = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEle"+postfix),
-                                              veto = muonCollection,
+                                              veto = copy.copy(muonCollection),
                                               useDeltaRforFootprint = cms.bool(False)
                                               )
             if not self.getvalue("onMiniAOD"):
@@ -845,7 +851,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #tau projection ==
             pfCandsNoJetsNoEleNoMuNoTau = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMu"+postfix),
-                                              veto = tauCollection,
+                                              veto = copy.copy(tauCollection),
                                               useDeltaRforFootprint = cms.bool(False)
                                               )
             if self.getvalue("Puppi"):
@@ -856,12 +862,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #photon projection ==
             pfCandsForUnclusteredUnc = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMuNoTau"+postfix),
-                                              veto = photonCollection,
+                                              veto = copy.copy(photonCollection),
                                               useDeltaRforFootprint = cms.bool(False),
                                               )
             if not self.getvalue("onMiniAOD"):
               pfCandsForUnclusteredUnc.useDeltaRforFootprint = True
-              pfCandsForUnclusteredUnc.veto = cms.InputTag("pfeGammaToCandidate","photons")
+              pfCandsForUnclusteredUnc.veto = "pfeGammaToCandidate:photons"
             addToProcessAndTask("pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc, process, task)
             metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)
 
@@ -1466,9 +1472,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process, _myPatMet).metSource = cms.InputTag("pfMetT1"+postfix)
                 getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
                 getattr(process, _myPatMet).srcLeptons = \
-                  cms.VInputTag(self.getvalue("electronCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","electrons"),
-                                self.getvalue("muonCollection"),
-                                self.getvalue("photonCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","photons"))
+                  cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
+                                  cms.InputTag("pfeGammaToCandidate","electrons"),
+                                copy.copy(self.getvalue("muonCollection")),
+                                copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
+                                  cms.InputTag("pfeGammaToCandidate","photons"))
                 if postfix=="NoHF":
                     getattr(process, _myPatMet).computeMETSignificance = cms.bool(False)
 
