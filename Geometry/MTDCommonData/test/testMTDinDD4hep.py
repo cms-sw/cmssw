@@ -7,6 +7,9 @@ process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
         )
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.INFO.limit = -1
+
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/MTDCommonData/data/dd4hep/cms-mtdD50-geometry.xml'),
                                             appendToDataLabel = cms.string('MTD')
@@ -16,43 +19,19 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                      appendToDataLabel = cms.string('MTD')
 )
 
-process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDNumbering",
+process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('','MTD'), 
-                                 outFileName = cms.untracked.string('BTL'),
                                  ddTopNodeName = cms.untracked.string('BarrelTimingLayer'),
                                  theLayout = cms.untracked.uint32(4)
-                                ) 
-
-process.testETL = cms.EDAnalyzer("DD4hep_TestMTDNumbering",
-                                 DDDetector = cms.ESInputTag('','MTD'), 
-                                 outFileName = cms.untracked.string('ETL'),
-                                 ddTopNodeName = cms.untracked.string('EndcapTimingLayer'),
-                               )
-
-
-process.testBTLpos = cms.EDAnalyzer("DD4hep_TestMTDPosition",
-                                    DDDetector = cms.ESInputTag('','MTD'), 
-                                    outFileName = cms.untracked.string('BTLpos'),
-                                    ddTopNodeName = cms.untracked.string('BarrelTimingLayer')
                                 )
 
-process.testETLpos = cms.EDAnalyzer("DD4hep_TestMTDPosition",
-                                    DDDetector = cms.ESInputTag('','MTD'), 
-                                    outFileName = cms.untracked.string('ETLpos'),
-                                    ddTopNodeName = cms.untracked.string('EndcapTimingLayer')
-                               )
-
-process.MessageLogger = cms.Service("MessageLogger",
-                                    cout = cms.untracked.PSet( INFO = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
-                                                               noLineBreaks = cms.untracked.bool(True),
-                                                               threshold = cms.untracked.string('INFO'),
-                                                               ),
-                                    # For LogDebug/LogTrace output...
-                                    categories = cms.untracked.vstring('DD4hep_TestMTDNumbering','MTDGeom','DD4hep_TestMTDPosition'),
-                                    destinations = cms.untracked.vstring('cout')
-                                    )
+process.testETL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
+                                 DDDetector = cms.ESInputTag('','MTD'), 
+                                 ddTopNodeName = cms.untracked.string('EndcapTimingLayer'),
+                                 theLayout = cms.untracked.uint32(4)
+                                )
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.testBTL+process.testETL+process.testBTLpos+process.testETLpos)
+process.p1 = cms.Path(process.testBTL+process.testETL)
 

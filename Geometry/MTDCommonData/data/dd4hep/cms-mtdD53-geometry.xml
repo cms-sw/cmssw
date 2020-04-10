@@ -56,9 +56,9 @@
     <Include ref='Geometry/MTDCommonData/data/dd4hep/tracker.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdMaterial/v2/mtdMaterial.xml'/>
     <Include ref='Geometry/MTDCommonData/data/btl/v1/btl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/btl/v1/btlStructureTopology.xml'/>
     <Include ref='Geometry/MTDCommonData/data/etl/v4/etl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v1/mtdParameters.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v2/mtdStructureTopology.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v2/mtdParameters.xml'/>
     <Include ref='Geometry/MTDSimData/data/v2/mtdsens.xml'/>
     <Include ref='Geometry/MTDSimData/data/v2/mtdProdCuts.xml'/>
   </IncludeSection>
