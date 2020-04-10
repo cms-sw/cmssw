@@ -371,6 +371,7 @@ namespace dqm::impl {
     virtual int getNbinsX() const;
     virtual int getNbinsY() const;
     virtual int getNbinsZ() const;
+    virtual int getBin(int binx, int biny) const;
     virtual std::string getAxisTitle(int axis = 1) const;
     virtual std::string getTitle() const;
 
@@ -387,6 +388,7 @@ namespace dqm::impl {
     virtual double getBinError(int binx, int biny, int binz) const;
     virtual double getEntries() const;
     virtual double getBinEntries(int bin) const;
+    virtual double getBinEntries(int binx, int biny) const;
     virtual double integral() const;
 
     virtual int64_t getIntValue() const;
