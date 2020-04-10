@@ -29,3 +29,15 @@ class ExternalGeneratorFilter(cms.EDFilter):
         newpset.addBool(False,"_external_process_verbose_", self._external_process_verbose_.value())
         self._prod.insertContentsInto(newpset)
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
+    def dumpPython(self, options=cms.PrintOptions()):
+        cms.specialImportRegistry.registerUse(self)
+        result = "%s(" % self.__class__.__name__ # not including cms. since the deriving classes are not in cms "namespace"
+        options.indent()
+        result += "\n"+options.indentation() + self._prod.dumpPython(options)
+        result +=options.indentation()+",\n"
+        result += options.indentation() + self._external_process_verbose_.dumpPython(options)
+        options.unindent()
+        result += "\n)\n"
+        return result
+
+cms.specialImportRegistry.registerSpecialImportForType(ExternalGeneratorFilter, "from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter")
