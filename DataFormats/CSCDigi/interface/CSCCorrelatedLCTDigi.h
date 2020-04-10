@@ -32,7 +32,8 @@ public:
                        const int mpclink = 0,
                        const uint16_t bx0 = 0,
                        const uint16_t syncErr = 0,
-                       const uint16_t cscID = 0);
+                       const uint16_t cscID = 0,
+                       const uint16_t hmt = 0);
   CSCCorrelatedLCTDigi();  /// default
 
   /// clear this LCT
@@ -78,6 +79,7 @@ public:
   int getBX() const { return bx; }
 
   /// return CLCT pattern number (in use again Feb 2011)
+  /// This function should not be used for Run-3
   int getCLCTPattern() const { return (pattern & 0xF); }
 
   /// return strip type (obsolete since mid-2008)
@@ -89,6 +91,12 @@ public:
   uint16_t getCSCID() const { return cscID; }
   uint16_t getBX0() const { return bx0; }
   uint16_t getSyncErr() const { return syncErr; }
+
+  /// Run-3 introduces high-multiplicity bits for CSCs.
+  /// The allocation is different for ME1/1 and non-ME1/1
+  /// chambers. Both LCTs in a chamber are needed for the complete
+  /// high-multiplicity trigger information
+  uint16_t getHMT() const { return hmt; }
 
   /// Set track number (1,2) after sorting LCTs.
   void setTrknmb(const uint16_t number) { trknmb = number; }
@@ -133,6 +141,9 @@ public:
   /// set cscID
   void setCSCID(unsigned int c) { cscID = c; }
 
+  /// set high-multiplicity bits
+  void setHMT(unsigned int h) { hmt = h; }
+
   /// SIMULATION ONLY ////
   enum Type {
     CLCTALCT,      // CLCT-centric
@@ -158,18 +169,45 @@ public:
   const GEMPadDigi& getGEM2() const { return gem2_; }
 
 private:
+  // Note: The Run-3 data format is substantially different than the
+  // Run-1/2 data format. Some explanation is provided below. For
+  // more information, please check "DN-20-016".
+
+  // Run-1, Run-2 and Run-3 trknmb is either 1 or 2.
   uint16_t trknmb;
+  // In Run-3, the valid will be encoded as a quality
+  // value "000" or "00".
   uint16_t valid;
+  // In Run-3, the LCT quality number will be 2 or 3 bits
+  // For ME1/1 chambers: 3 bits
+  // For non-ME1/1 chambers: 2 bits
   uint16_t quality;
+  // 7-bit key wire
   uint16_t keywire;
+  // In Run-3, the strip number receives two additional bits
+  // strip[7:0] -> 1/2 strip value
+  // strip[8]   -> 1/4 strip bit
+  // strip[9]   -> 1/8 strip bit
   uint16_t strip;
+  // In Run-3, the 4-bit pattern number is reinterpreted as the
+  // 4-bit bending value. There will be 16 bending values * 2 (left/right)
   uint16_t pattern;
+  // Common definition for left/right bending in Run-1, Run-2 and Run-3.
+  // 0: right; 1: left
   uint16_t bend;
   uint16_t bx;
   uint16_t mpclink;
   uint16_t bx0;
+  // The synchronization bit is actually not used by MPC or EMTF
   uint16_t syncErr;
+  // 4-bit CSC chamber identifier
   uint16_t cscID;
+  // In Run-3, LCT data will be carrying the high-multiplicity bits
+  // for chamber. These bits may indicate the observation of "exotic" events
+  // Depending on the chamber type 2 or 3 bits will be repurposed
+  // in the 32-bit LCT data word from the synchronization bit and
+  // quality bits.
+  uint16_t hmt;
 
   /// SIMULATION ONLY ////
   int type_;

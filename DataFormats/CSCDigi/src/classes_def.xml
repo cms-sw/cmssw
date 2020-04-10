@@ -11,7 +11,8 @@
    <class name="CSCComparatorDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="656608282"/>
    </class>
-   <class name="CSCCorrelatedLCTDigi" ClassVersion="11">
+   <class name="CSCCorrelatedLCTDigi" ClassVersion="12">
+    <version ClassVersion="12" checksum="3887645155"/>
     <version ClassVersion="11" checksum="2118578151"/>
     <version ClassVersion="10" checksum="1301481852"/>
    </class>
@@ -27,8 +28,9 @@
    <class name="CSCCLCTPreTriggerDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="1207676078"/>
    </class>
-   <class name="CSCALCTDigi" ClassVersion="10">
-    <version ClassVersion="10" checksum="817473300"/>
+   <class name="CSCALCTDigi" ClassVersion="11">
+     <version ClassVersion="11" checksum="2721753237"/>
+     <version ClassVersion="10" checksum="817473300"/>
    </class>
    <class name="CSCALCTPreTriggerDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="2925979693"/>

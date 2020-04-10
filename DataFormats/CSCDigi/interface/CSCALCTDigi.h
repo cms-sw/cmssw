@@ -21,7 +21,8 @@ public:
               const int patternb,
               const int keywire,
               const int bx,
-              const int trknmb = 0);
+              const int trknmb = 0,
+              const int hmt = 0);
   /// default
   CSCALCTDigi();
 
@@ -79,6 +80,12 @@ public:
   /// Set 12-bit full BX.
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
+  /// return the high multiplicity bits
+  int getHMT() const { return hmt_; }
+
+  /// set the high multiplicity bits
+  void setHMT(const int hmt) { hmt_ = hmt; }
+
   /// True if the first ALCT has a larger quality, or if it has the same
   /// quality but a larger wire group.
   bool operator>(const CSCALCTDigi&) const;
@@ -104,6 +111,10 @@ private:
   uint16_t bx_;
   uint16_t trknmb_;
   uint16_t fullbx_;
+  /// Run-3 introduces high-multiplicity bits for CSCs.
+  /// Note: In DN-20-016, 3 bits are allocated for HMT in the
+  /// ALCT board. These bits are copied into the ALCT digi in CMSSW
+  uint16_t hmt_;
 };
 
 std::ostream& operator<<(std::ostream& o, const CSCALCTDigi& digi);
