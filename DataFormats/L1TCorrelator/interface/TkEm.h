@@ -27,7 +27,6 @@ namespace l1t {
          float tkisol = -999.,
          float tkisolPV = -999);
 
-    virtual ~TkEm() {}
 
     // ---------- const member functions ---------------------
 

@@ -44,7 +44,6 @@ namespace l1t {
             const std::vector<EGammaRef>& clustEGs,
             float iso = -999.);
 
-    virtual ~TkEGTau() {}
 
     // ---------- const member functions ---------------------
 

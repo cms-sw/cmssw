@@ -34,7 +34,6 @@ namespace l1t {
           unsigned int displacedtracks = 0,
           unsigned int tightdisplacedtracks = 0);
 
-    virtual ~TkJet() {}
 
     // ---------- const member functions ---------------------
 

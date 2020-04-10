@@ -39,7 +39,6 @@ namespace l1t {
 
     L1TrkTau(const LorentzVector& p4, const std::vector<L1TTTrackRefPtr>& clustTracks, float iso = -999.);
 
-    virtual ~L1TrkTau() {}
 
     // ---------- const member functions ---------------------
 

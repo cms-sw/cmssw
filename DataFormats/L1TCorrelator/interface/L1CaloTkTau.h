@@ -43,8 +43,6 @@ namespace l1t {
                 Tau& caloTau,
                 float vtxIso = -999.);
 
-    virtual ~L1CaloTkTau() {}
-
     // ---------- const member functions ---------------------
 
     const L1TTTrackRefPtr seedTrk() const { return clustTracks_.at(0); }

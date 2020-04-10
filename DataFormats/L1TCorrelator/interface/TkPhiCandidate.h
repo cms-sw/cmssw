@@ -28,7 +28,7 @@ namespace l1t {
                    const edm::Ptr<L1TTTrackType>& trkPtr1,
                    const edm::Ptr<L1TTTrackType>& trkPtr2);
 
-    virtual ~TkPhiCandidate() {}
+    ~TkPhiCandidate() override {}
 
     // ---------- const member functions ---------------------
     const edm::Ptr<L1TTTrackType>& trkPtr(size_t i) const { return trkPtrList_.at(i); }
