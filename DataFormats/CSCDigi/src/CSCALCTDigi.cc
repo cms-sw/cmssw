@@ -20,7 +20,8 @@ CSCALCTDigi::CSCALCTDigi(const int valid,
                          const int patternb,
                          const int keywire,
                          const int bx,
-                         const int trknmb) {
+                         const int trknmb,
+                         const int hmt) {
   valid_ = valid;
   quality_ = quality;
   accel_ = accel;
@@ -28,6 +29,7 @@ CSCALCTDigi::CSCALCTDigi(const int valid,
   keywire_ = keywire;
   bx_ = bx;
   trknmb_ = trknmb;
+  hmt_ = hmt;
 }
 
 /// Default
@@ -45,6 +47,7 @@ void CSCALCTDigi::clear() {
   bx_ = 0;
   trknmb_ = 0;
   fullbx_ = 0;
+  hmt_ = 0;
 }
 
 bool CSCALCTDigi::operator>(const CSCALCTDigi& rhs) const {
@@ -75,7 +78,8 @@ bool CSCALCTDigi::operator==(const CSCALCTDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
   if (isValid() == rhs.isValid() && getQuality() == rhs.getQuality() && getAccelerator() == rhs.getAccelerator() &&
-      getCollisionB() == rhs.getCollisionB() && getKeyWG() == rhs.getKeyWG() && getBX() == rhs.getBX()) {
+      getCollisionB() == rhs.getCollisionB() && getKeyWG() == rhs.getKeyWG() && getBX() == rhs.getBX() &&
+      getHMT() == rhs.getHMT()) {
     returnValue = true;
   }
   return returnValue;
@@ -96,7 +100,8 @@ void CSCALCTDigi::print() const {
                                 << " Quality = " << setw(2) << getQuality() << " Accel. = " << setw(1)
                                 << getAccelerator() << " PatternB = " << setw(1) << getCollisionB()
                                 << " Key wire group = " << setw(3) << getKeyWG() << " BX = " << setw(2) << getBX()
-                                << " Full BX= " << std::setw(1) << getFullBX();
+                                << " Full BX = " << std::setw(1) << getFullBX() << " HMT = " << std::setw(1)
+                                << getHMT();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid Anode LCT.";
   }
@@ -105,5 +110,5 @@ void CSCALCTDigi::print() const {
 std::ostream& operator<<(std::ostream& o, const CSCALCTDigi& digi) {
   return o << "CSC ALCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " Quality = " << digi.getQuality()
            << " Accel. = " << digi.getAccelerator() << " PatternB = " << digi.getCollisionB()
-           << " Key wire group = " << digi.getKeyWG() << " BX = " << digi.getBX();
+           << " Key wire group = " << digi.getKeyWG() << " BX = " << digi.getBX() << " HMT = " << digi.getHMT();
 }

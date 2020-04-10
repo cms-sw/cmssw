@@ -22,7 +22,8 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb,
                                            const int impclink,
                                            const uint16_t ibx0,
                                            const uint16_t isyncErr,
-                                           const uint16_t icscID)
+                                           const uint16_t icscID,
+                                           const uint16_t ihmt)
     : trknmb(itrknmb),
       valid(ivalid),
       quality(iquality),
@@ -34,7 +35,8 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb,
       mpclink(impclink),
       bx0(ibx0),
       syncErr(isyncErr),
-      cscID(icscID) {}
+      cscID(icscID),
+      hmt(ihmt) {}
 
 /// Default
 CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi() {
@@ -55,6 +57,7 @@ void CSCCorrelatedLCTDigi::clear() {
   bx0 = 0;
   syncErr = 0;
   cscID = 0;
+  hmt = 0;
 }
 
 int CSCCorrelatedLCTDigi::getStrip(int n) const {
@@ -107,7 +110,7 @@ float CSCCorrelatedLCTDigi::getFractionalStrip(int n) const {
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi& rhs) const {
   return ((trknmb == rhs.trknmb) && (quality == rhs.quality) && (keywire == rhs.keywire) && (strip == rhs.strip) &&
           (pattern == rhs.pattern) && (bend == rhs.bend) && (bx == rhs.bx) && (valid == rhs.valid) &&
-          (mpclink == rhs.mpclink));
+          (mpclink == rhs.mpclink) && (hmt == rhs.hmt));
 }
 
 /// Debug
@@ -117,7 +120,7 @@ void CSCCorrelatedLCTDigi::print() const {
                                 << " Quality = " << getQuality() << " Key Wire = " << getKeyWG()
                                 << " Strip = " << getStrip() << " Pattern = " << getPattern()
                                 << " Bend = " << ((getBend() == 0) ? 'L' : 'R') << " BX = " << getBX()
-                                << " MPC Link = " << getMPCLink();
+                                << " MPC Link = " << getMPCLink() << " HMT Bit = " << getHMT();
   } else {
     edm::LogVerbatim("CSCDigi") << "Not a valid correlated LCT.";
   }
@@ -129,5 +132,5 @@ std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
            << "  cathode info: Strip = " << digi.getStrip() << " Pattern = " << digi.getPattern()
            << " Bend = " << ((digi.getBend() == 0) ? 'L' : 'R') << "\n"
            << "    anode info: Key wire = " << digi.getKeyWG() << " BX = " << digi.getBX() << " bx0 = " << digi.getBX0()
-           << " syncErr = " << digi.getSyncErr() << "\n";
+           << " syncErr = " << digi.getSyncErr() << " HMT Bit = " << digi.getHMT() << "\n";
 }
