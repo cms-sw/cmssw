@@ -91,6 +91,14 @@ In all cases, the implementation of `evaluate()` must call `finish()`.
 For the `Sync` and `PseudoAsync` modes, `finish()` should be called at the end of `evaluate()`.
 For the `Async` mode, `finish()` should be called inside the communication protocol callback function (implementations may vary).
 
+When `finish()` is called, the success or failure of the call should be conveyed.
+If a call fails, it can optionally be retried.
+To enable retries with a specified maximum number of allowed tries (possibly obtained from a Python configuration parameter), the client should implement the following:
+```cpp
+protected:
+  unsigned allowedTries() const override;
+```
+
 The client must also provide a static method `fillPSetDescription` to populate its parameters in the `fillDescriptions` for the producers that use the client:
 ```cpp
 void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
