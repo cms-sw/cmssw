@@ -71,8 +71,8 @@ private:
   std::string suffixChamber(GEMDetId &id);
   std::string suffixLayer(GEMDetId &id);
 
-  void FillBits(MonitorElement *monitor, uint64_t unVal, int nNumBits);
-  void FillBits(MonitorElement *monitor, uint64_t unVal, int nNumBits, int nY);
+  Bool_t FillBits(MonitorElement *monitor, uint64_t unVal, int nNumBits);
+  Bool_t FillBits(MonitorElement *monitor, uint64_t unVal, int nNumBits, int nY);
 
   const GEMGeometry *GEMGeometry_;
   std::shared_ptr<GEMROMapping> GEMROMapping_;
@@ -144,7 +144,7 @@ private:
   MonitorElement *m_summaryReport_;
 
   // For more information, see SetConfigTimeRecord()
-  std::unordered_map<UInt_t, TimeStoreItem> listTimeStore_;
+  std::map<UInt_t, TimeStoreItem> listTimeStore_;
   Int_t nStackedBin_;
   Int_t nStackedEvt_;
 };
@@ -691,10 +691,6 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/EventInfo");
 
-  // TODO: We need a study for setting the rule for this
-  m_summaryReport_ = ibooker.bookFloat("reportSummary");
-  m_summaryReport_->Fill(1.0);
-
   h3SummaryStatusPre_ = ibooker.book3D(
       "reportSummaryMapPreliminary", ";Chamber;", nNCh_, 0, nNCh_, m_listLayers.size(), 0, m_listLayers.size(), 2, 0, 1);
 
@@ -721,26 +717,36 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   }
 }
 
-void GEMDQMStatusDigi::FillBits(MonitorElement *monitor, uint64_t unVal, int nNumBits) {
+Bool_t GEMDQMStatusDigi::FillBits(MonitorElement *monitor, uint64_t unVal, int nNumBits) {
   int i = 0;
   uint64_t unFlag = 1;
+
+  if (monitor == nullptr)
+    return false;
 
   for (; i < nNumBits; i++, unFlag <<= 1) {
     if ((unVal & unFlag) != 0) {
       monitor->Fill(i);
     }
   }
+
+  return true;
 }
 
-void GEMDQMStatusDigi::FillBits(MonitorElement *monitor, uint64_t unVal, int nNumBits, int nX) {
+Bool_t GEMDQMStatusDigi::FillBits(MonitorElement *monitor, uint64_t unVal, int nNumBits, int nX) {
   int i = 0;
   uint64_t unFlag = 1;
+
+  if (monitor == nullptr)
+    return false;
 
   for (; i < nNumBits; i++, unFlag <<= 1) {
     if ((unVal & unFlag) != 0) {
       monitor->Fill(nX, i);
     }
   }
+
+  return true;
 }
 
 Int_t GEMDQMStatusDigi::seekIdx(std::vector<GEMDetId> &listLayers, UInt_t unId) {
@@ -764,6 +770,8 @@ void GEMDQMStatusDigi::seekIdxSummary(GEMDetId gid, Int_t &nIdxLayer, Int_t &nId
 }
 
 void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &eventSetup) {
+  Bool_t bIsNotEmpty = true;
+
   edm::Handle<GEMVfatStatusDigiCollection> gemVFAT;
   edm::Handle<GEMGEBdataCollection> gemGEB;
   edm::Handle<GEMAMCdataCollection> gemAMC;
@@ -793,10 +801,18 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     const GEMVfatStatusDigiCollection::Range &range = (*vfatIt).second;
 
     GEMDetId chIdStatus(gemid.region(), gemid.ring(), gemid.station(), gemid.layer(), gemid.chamber(), 1);
+    if (listTimeStore_.find((UInt_t)chIdStatus) == listTimeStore_.end()) {
+      edm::LogError("BadGeometry") << "Wrong detId which is not in the current geometry (VFAT status): " << gemchId
+                                   << std::endl;
+      continue;
+    }
+
     auto &listCurr = listTimeStore_[chIdStatus];
 
     for (auto vfatStat = range.first; vfatStat != range.second; ++vfatStat) {
-      uint64_t unQFVFAT = vfatStat->quality() | (vfatStat->flag() << qVFATBit_);
+      bIsNotEmpty = true;
+
+      uint64_t unQFVFAT = vfatStat->quality() /* | (vfatStat->flag() << qVFATBit_)*/;
       if ((unQFVFAT & ~0x1) == 0) {
         unQFVFAT |= 0x1;  // If no error, then it should be 'Good'
       } else {            // Error!!
@@ -806,11 +822,17 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       }
 
       FillBits(h1_vfat_qualityflag_, unQFVFAT, qVFATBit_ + fVFATBit_);
-      FillBits(h2_vfat_qualityflag_, unQFVFAT, qVFATBit_ + fVFATBit_, nIdx);
+      FillBits(h2_vfat_qualityflag_, unQFVFAT, qVFATBit_ + fVFATBit_, nIdx);  // They could be there
 
       int nVFAT = (GEMeMap::maxEtaPartition_ - nRoll) + GEMeMap::maxEtaPartition_ * vfatStat->phi();
+      bIsNotEmpty = FillBits(listVFATQualityFlag_[gemchId], unQFVFAT, qVFATBit_ + fVFATBit_, nVFAT);
 
-      FillBits(listVFATQualityFlag_[gemchId], unQFVFAT, qVFATBit_ + fVFATBit_, nVFAT);
+      if (!bIsNotEmpty) {
+        edm::LogError("BadGeometry") << "Wrong detId which is not in the current geometry (VFAT status): " << gemchId
+                                     << std::endl;
+        continue;
+      }
+
       listVFATEC_[gemchId]->Fill(vfatStat->ec(), nVFAT);
 
       fillTimeHisto(listCurr, nStackedBin_, nVFAT, (unQFVFAT & ~0x1) != 0);
@@ -823,10 +845,19 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
     GEMDetId chid(0, 1, 1, (bPerSuperchamber_ ? 0 : gemid.layer()), gemid.chamber(), 0);
 
     Int_t nCh = seekIdx(m_listChambers, chid);
+
+    if (listTimeStore_.find((UInt_t)lid) == listTimeStore_.end()) {
+      edm::LogError("BadGeometry") << "Wrong detId which is not in the current geometry (GEB status): " << lid
+                                   << std::endl;
+      continue;
+    }
+
     auto &listCurr = listTimeStore_[lid];
 
     const GEMGEBdataCollection::Range &range = (*gebIt).second;
     for (auto GEBStatus = range.first; GEBStatus != range.second; ++GEBStatus) {
+      bIsNotEmpty = true;
+
       uint64_t unBit = 0;
       uint64_t unStatus = 0;
 
@@ -853,7 +884,13 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
         h3SummaryStatusPre_->setBinContent(nIdxChamber, nIdxLayer, m_nIdxSummaryErr, 1.0);
       }
 
-      FillBits(listGEBInputStatus_[lid], unStatus, eBit_, nCh);
+      bIsNotEmpty = FillBits(listGEBInputStatus_[lid], unStatus, eBit_, nCh);
+
+      if (!bIsNotEmpty) {
+        edm::LogError("BadGeometry") << "Wrong detId which is not in the current geometry (GEB status): " << lid
+                                     << std::endl;
+        continue;
+      }
 
       listGEBInputID_[lid]->Fill(nCh, GEBStatus->inputID());
       listGEBVFATWordCnt_[lid]->Fill(nCh, GEBStatus->vfatWordCnt() / 3);
@@ -955,9 +992,6 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
 
         fillTimeHisto(listCurrBx, nStackedBin_, nIdxBx, true);
       }
-
-      if (bIsHit)
-        break;
     }
 
     for (auto bx : mapBXVFAT)
