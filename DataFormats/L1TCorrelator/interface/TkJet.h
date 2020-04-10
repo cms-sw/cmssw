@@ -47,8 +47,6 @@ namespace l1t {
     unsigned int nTightDisptracks() const { return tightdisplacedtracks_; }
 
     // ---------- member functions ---------------------------
-    //     void setDispCounters(TkJetDisp counters){ counters_=counters;};
-    //   TkJetDisp dispCounters() const { return counters_;};
     void setJetVtx(float JetVtx) { JetVtx_ = JetVtx; }
 
     int bx() const;
@@ -56,7 +54,6 @@ namespace l1t {
   private:
     edm::Ref<JetBxCollection> jetRef_;
     std::vector<edm::Ptr<L1TTTrackType> > trkPtrs_;
-    //TkJetDisp counters_;
     float JetVtx_;
     unsigned int ntracks_, tighttracks_, displacedtracks_, tightdisplacedtracks_;
   };

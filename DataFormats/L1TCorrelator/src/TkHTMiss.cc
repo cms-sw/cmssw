@@ -11,7 +11,6 @@ TkHTMiss::TkHTMiss(const LorentzVector& p4,
                    int bx)
     : L1Candidate(p4), etTot_(etTotal), jetCollectionRef_(jetCollRef), vtxRef_(avtxRef), bx_(bx) {
   if (vtxRef_.isNonnull()) {
-    float z = vtxRef()->zvertex();
-    setVtx(z);
+    setVtx(vtxRef()->zvertex());
   }
 }
