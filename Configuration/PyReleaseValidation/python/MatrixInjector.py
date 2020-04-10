@@ -356,7 +356,7 @@ class MatrixInjector(object):
                                     return -12
                                 else:
                                     arg=s[2][index].split()
-                                    ns=map(int,arg[arg.index('--relval')+1].split(','))
+                                    ns=list(map(int,arg[len(arg) - arg[-1::-1].index('--relval')].split(',')))
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['EventsPerJob'] = ns[1]
                                     chainDict['nowmTasklist'][-1]['EventsPerLumi'] = ns[1]
@@ -365,7 +365,7 @@ class MatrixInjector(object):
                                         nEventsInLuminosityBlock = re.findall('process.source.numberEventsInLuminosityBlock=cms.untracked.uint32\(([ 0-9 ]*)\)', s[2][index],re.DOTALL)
                                         if nEventsInLuminosityBlock[-1].isdigit() and int(nEventsInLuminosityBlock[-1]) < ns[1]:
                                             chainDict['nowmTasklist'][-1]['EventsPerLumi'] = int(nEventsInLuminosityBlock[-1])
-                                    if(self.numberEventsInLuminosityBlock > 0 and self.numberEventsInLuminosityBlock < ns[1]):
+                                    if(self.numberEventsInLuminosityBlock > 0 and self.numberEventsInLuminosityBlock <= ns[1]):
                                         chainDict['nowmTasklist'][-1]['EventsPerLumi'] = self.numberEventsInLuminosityBlock
                                 if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
                                     thisLabel+='_FastSim'
