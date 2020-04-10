@@ -26,14 +26,14 @@ class CompareGeneratorResultsAnalyzer
 public:
   CompareGeneratorResultsAnalyzer(edm::ParameterSet const&);
 
-  std::shared_ptr<cgra::DummyCache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const;
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) const;
+  std::shared_ptr<cgra::DummyCache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override;
 
   std::shared_ptr<cgra::DummyCache> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
-                                                               edm::EventSetup const&) const;
-  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const;
+                                                               edm::EventSetup const&) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override;
 
-  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const;
+  void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
 private:
   std::string mod1_;

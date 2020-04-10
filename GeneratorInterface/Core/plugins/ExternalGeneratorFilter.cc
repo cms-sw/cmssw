@@ -23,7 +23,7 @@
 #include "CLHEP/Random/engineIDulong.h"
 #include "CLHEP/Random/RanecuEngine.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 using namespace edm::shared_memory;
@@ -56,7 +56,7 @@ namespace externalgen {
                       .c_str(),
                   "w");
 
-        if (NULL == pipe_) {
+        if (nullptr == pipe_) {
           abort();
         }
 
