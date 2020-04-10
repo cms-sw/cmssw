@@ -76,7 +76,7 @@ namespace externalgen {
         -> decltype(iDeserializer.deserialize()) {
       decltype(iDeserializer.deserialize()) value;
       if (not channel_.doTransition(
-              [&value, &iDeserializer, this]() { value = iDeserializer.deserialize(); }, iTrans, iTransitionID)) {
+              [&value, &iDeserializer]() { value = iDeserializer.deserialize(); }, iTrans, iTransitionID)) {
         externalFailed_ = true;
         throw cms::Exception("ExternalFailed") << "failed waiting for external process";
       }
