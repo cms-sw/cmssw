@@ -397,6 +397,13 @@ def AddQGLTaggerVars(proc):
   proc.jetTable.variables.qgl_ptD   = Var("userFloat('qgl_ptD')", float, doc="pT-weighted average pT of constituents (Quark vs Gluon likelihood input variable)", precision= 6) 
   proc.jetTable.variables.qgl_mult  = Var("userInt('qgl_mult')", int, doc="PF candidates multiplicity (Quark vs Gluon likelihood input variable)") 
 
+def AddDeepJetGluonLQuarkScores(proc):
+  #
+  # Save DeepJet raw score for gluon and light quark
+  #
+  proc.jetTable.variables.btagDeepFlavG   = Var("bDiscriminator('pfDeepFlavourJetTags:probg')",float,doc="DeepFlavour gluon tag raw score",precision=10)
+  proc.jetTable.variables.btagDeepFlavUDS = Var("bDiscriminator('pfDeepFlavourJetTags:probuds')",float,doc="DeepFlavour uds tag raw score",precision=10)
+
 def PrepJMECustomNanoAOD(process,runOnMC):
   #
   # Additional variables to AK4GenJets 
@@ -462,6 +469,10 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   # Add variables for quark guon likelihood tagger studies.
   #
   AddQGLTaggerVars(process)
+  #
+  # Add DeepJet scores for gluon and light quarks tagging
+  #
+  AddDeepJetGluonLQuarkScores(process)
 
   ######################################################################################################################
 
