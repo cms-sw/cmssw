@@ -43,9 +43,9 @@ Implementation:
 //
 
 static constexpr const unsigned int gbt_id_minvalue = 0;
-static constexpr const unsigned int gbt_id_maxvalue = 72;
+static constexpr const unsigned int gbt_id_maxvalue = 71;
 static constexpr const unsigned int elink_id_minvalue = 0;
-static constexpr const unsigned int elink_id_maxvalue = 7;
+static constexpr const unsigned int elink_id_maxvalue = 6;
 
 enum { DUMMY_FILL_DISABLED = 0, DUMMY_FILL_ELINK_ID = 1, DUMMY_FILL_ELINK_ID_AND_GBT_ID = 2 };
 
