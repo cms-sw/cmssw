@@ -31,6 +31,8 @@ static char const* const kUniqueIDOpt = "unique-id";
 static char const* const kUniqueIDCommandOpt = "unique-id,i";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
+static char const* const kVerboseOpt = "verbose";
+static char const* const kVerboseCommandOpt = "verbose,v";
 
 //NOTE: Can use TestProcessor as the harness for the worker
 
@@ -82,7 +84,8 @@ int main(int argc, char* argv[]) {
 
   desc.add_options()(kHelpCommandOpt, "produce help message")(
       kMemoryNameCommandOpt, boost::program_options::value<std::string>(), "memory name")(
-      kUniqueIDCommandOpt, boost::program_options::value<std::string>(), "unique id");
+      kUniqueIDCommandOpt, boost::program_options::value<std::string>(), "unique id")(kVerboseCommandOpt,
+                                                                                      "verbose output");
 
   boost::program_options::positional_options_description p;
   p.add(kMemoryNameOpt, 1);
@@ -104,6 +107,11 @@ int main(int argc, char* argv[]) {
   if (vm.count(kHelpOpt)) {
     std::cout << desc << std::endl;
     return 0;
+  }
+
+  bool verbose = false;
+  if (vm.count(kVerboseOpt)) {
+    verbose = true;
   }
 
   if (!vm.count(kMemoryNameOpt)) {
@@ -158,7 +166,9 @@ int main(int argc, char* argv[]) {
       for (int i = 0; i < nlines; ++i) {
         std::string c;
         std::getline(std::cin, c);
-        std::cerr << c << "\n";
+        if (verbose) {
+          std::cerr << c << "\n";
+        }
         configuration += c + "\n";
       }
 
@@ -170,65 +180,81 @@ int main(int argc, char* argv[]) {
       //Either ROOT or the Framework are overriding the signal handlers
       monitorThread.setupSignalHandling();
 
-      std::cerr << uniqueID << " process: done initializing" << std::endl;
+      if (verbose) {
+        std::cerr << uniqueID << " process: done initializing" << std::endl;
+      }
       communicationChannel.workerSetupDone();
 
-      std::cerr << uniqueID << " process: waiting " << counter << std::endl;
+      if (verbose)
+        std::cerr << uniqueID << " process: waiting " << counter << std::endl;
       communicationChannel.handleTransitions([&](edm::Transition iTransition, unsigned long long iTransitionID) {
         ++counter;
         switch (iTransition) {
           case edm::Transition::BeginRun: {
-            std::cerr << uniqueID << " process: start beginRun " << std::endl;
-            std::cerr << uniqueID << " process: end beginRun " << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: start beginRun " << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: end beginRun " << std::endl;
 
             break;
           }
           case edm::Transition::BeginLuminosityBlock: {
-            std::cerr << uniqueID << " process: start beginLumi " << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: start beginLumi " << std::endl;
             auto randState = random_deserializer.deserialize();
-            std::cerr << uniqueID << " random " << randState.state_.size() << " " << randState.seed_ << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " random " << randState.state_.size() << " " << randState.seed_ << std::endl;
             randomService->setState(randState.state_, randState.seed_);
             auto value = harness.getBeginLumiValue(iTransitionID);
             value.randomState_.state_ = randomService->getState();
             value.randomState_.seed_ = randomService->mySeed();
 
             bl_serializer.serialize(value);
-            std::cerr << uniqueID << " process: end beginLumi " << std::endl;
-            std::cerr << uniqueID << "   rand " << value.randomState_.state_.size() << " " << value.randomState_.seed_
-                      << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: end beginLumi " << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << "   rand " << value.randomState_.state_.size() << " " << value.randomState_.seed_
+                        << std::endl;
             break;
           }
           case edm::Transition::Event: {
-            std::cerr << uniqueID << " process: event " << counter << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: event " << counter << std::endl;
             auto randState = random_deserializer.deserialize();
             randomService->setState(randState.state_, randState.seed_);
             auto value = harness.getEventValue();
             value.randomState_.state_ = randomService->getState();
             value.randomState_.seed_ = randomService->mySeed();
 
-            std::cerr << uniqueID << " process: event " << counter << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: event " << counter << std::endl;
 
             serializer.serialize(value);
-            std::cerr << uniqueID << " process: "
-                      << " " << counter << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: "
+                        << " " << counter << std::endl;
             //usleep(10000000);
             break;
           }
           case edm::Transition::EndLuminosityBlock: {
-            std::cerr << uniqueID << " process: start endLumi " << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: start endLumi " << std::endl;
             auto value = harness.getEndLumiValue();
 
             el_serializer.serialize(value);
-            std::cerr << uniqueID << " process: end endLumi " << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: end endLumi " << std::endl;
 
             break;
           }
           case edm::Transition::EndRun: {
-            std::cerr << uniqueID << " process: start endRun " << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: start endRun " << std::endl;
             auto value = harness.getEndRunValue();
 
             er_serializer.serialize(value);
-            std::cerr << uniqueID << " process: end endRun " << std::endl;
+            if (verbose)
+              std::cerr << uniqueID << " process: end endRun " << std::endl;
 
             break;
           }
@@ -236,7 +262,8 @@ int main(int argc, char* argv[]) {
             assert(false);
           }
         }
-        std::cerr << uniqueID << " process: notifying and waiting " << counter << std::endl;
+        if (verbose)
+          std::cerr << uniqueID << " process: notifying and waiting " << counter << std::endl;
       });
     }
   } catch (std::exception const& iExcept) {

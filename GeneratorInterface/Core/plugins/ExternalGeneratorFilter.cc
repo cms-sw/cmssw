@@ -30,7 +30,7 @@ using namespace edm::shared_memory;
 namespace externalgen {
 
   struct StreamCache {
-    StreamCache(const std::string& iConfig, int id)
+    StreamCache(const std::string& iConfig, int id, bool verbose)
         : id_{id},
           channel_("extGen", id_),
           readBuffer_{channel_.sharedMemoryName(), channel_.fromWorkerBufferInfo()},
@@ -46,9 +46,15 @@ namespace externalgen {
 
       channel_.setupWorker([&]() {
         using namespace std::string_literals;
-        std::cout << id_ << " starting external process" << std::endl;
+        edm::LogSystem("ExternalProcess") << id_ << " starting external process \n";
+        std::string verboseCommand;
+        if (verbose) {
+          verboseCommand = "--verbose ";
+        }
         pipe_ =
-            popen(("cmsExternalGenerator "s + channel_.sharedMemoryName() + " " + channel_.uniqueID()).c_str(), "w");
+            popen(("cmsExternalGenerator "s + verboseCommand + channel_.sharedMemoryName() + " " + channel_.uniqueID())
+                      .c_str(),
+                  "w");
 
         if (NULL == pipe_) {
           abort();
@@ -196,7 +202,8 @@ private:
   edm::EDPutTokenT<GenLumiInfoHeader> const lumiHeaderToken_;
   edm::EDPutTokenT<GenLumiInfoProduct> const lumiInfoToken_;
 
-  std::string config_;
+  std::string const config_;
+  bool const verbose_;
 
   //This is set at beginStream and used for globalBeginRun
   //The framework guarantees that non of those can happen concurrently
@@ -215,7 +222,8 @@ ExternalGeneratorFilter::ExternalGeneratorFilter(edm::ParameterSet const& iPSet)
       runInfoToken_{produces<GenRunInfoProduct, edm::Transition::EndRun>()},
       lumiHeaderToken_{produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>()},
       lumiInfoToken_{produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>()},
-      config_{iPSet.getUntrackedParameter<std::string>("@python_config")} {}
+      config_{iPSet.getUntrackedParameter<std::string>("@python_config")},
+      verbose_{iPSet.getUntrackedParameter<bool>("_external_process_verbose_")} {}
 
 std::unique_ptr<externalgen::StreamCache> ExternalGeneratorFilter::beginStream(edm::StreamID iID) const {
   auto const label = moduleDescription().moduleLabel();
@@ -231,7 +239,7 @@ process = TestProcess()
 process.add_(cms.Service("InitRootHandlers", UnloadRootSigHandler=cms.untracked.bool(True)))
   )_";
 
-  auto cache = std::make_unique<externalgen::StreamCache>(config, iID.value());
+  auto cache = std::make_unique<externalgen::StreamCache>(config, iID.value(), verbose_);
   if (iID.value() == 0) {
     stream0Cache_ = cache.get();
 
@@ -281,14 +289,8 @@ void ExternalGeneratorFilter::globalBeginLuminosityBlockProduce(edm::LuminosityB
   auto v = availableForBeginLumi_.load()->beginLumiProduce(
       iLuminosityBlock.luminosityBlock(), luminosityBlockCache(iLuminosityBlock.index())->randomState_);
 
-  std::cerr << "globalBeginLuminosityBlockProduce rand " << v.randomState_.state_.size() << " " << v.randomState_.seed_
-            << std::endl;
-
   edm::Service<edm::RandomNumberGenerator> gen;
   auto& engine = gen->getEngine(iLuminosityBlock.index());
-  //if (v.randomState_.state_[0] != CLHEP::engineIDulong<CLHEP::RanecuEngine>()) {
-  //  engine.setSeed(v.randomState_.seed_, 0);
-  //}
   engine.get(v.randomState_.state_);
 
   iLuminosityBlock.emplace(lumiHeaderToken_, std::move(v.header_));
@@ -301,7 +303,6 @@ std::shared_ptr<externalgen::LumiCache> ExternalGeneratorFilter::globalBeginLumi
   edm::Service<edm::RandomNumberGenerator> gen;
   auto& engine = gen->getEngine(iLumi.index());
   auto s = engine.put();
-  //std::cerr <<" globalBeginLuminosityBlock rand "<<s.size()<<" "<<engine.getSeed()<<std::endl;
   return std::make_shared<externalgen::LumiCache>(s, engine.getSeed());
 }
 
