@@ -827,7 +827,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                 )
             if not self.getvalue("onMiniAOD"):
               pfCandsNoJetsNoEle.useDeltaRforFootprint = True
-              pfCandsNoJetsNoEle.veto = "pfeGammaToCandidate:electrons"
+              pfCandsNoJetsNoEle.veto = cms.InputTag("pfeGammaToCandidate","electrons")
             addToProcessAndTask("pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
 
@@ -861,7 +861,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               )
             if not self.getvalue("onMiniAOD"):
               pfCandsForUnclusteredUnc.useDeltaRforFootprint = True
-              pfCandsForUnclusteredUnc.veto = "pfeGammaToCandidate:photons"
+              pfCandsForUnclusteredUnc.veto = cms.InputTag("pfeGammaToCandidate","photons")
             addToProcessAndTask("pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc, process, task)
             metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)
 
