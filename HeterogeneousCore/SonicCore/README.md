@@ -13,23 +13,23 @@ To implement a concrete derived producer class, the following skeleton can be us
 
 class MyProducer : public SonicEDProducer<Client>
 {
-	public:
-		explicit MyProducer(edm::ParameterSet const& cfg) : SonicEDProducer<Client>(cfg) {
-			//for debugging
-			setDebugName("MyProducer");
-		}
-		void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
-			//convert event data to client input format
-		}
-		void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
-			//convert client output to event data format
-		}
-		static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-			edm::ParameterSetDescription desc;
-			Client::fillPSetDescription(desc);
-			//add producer-specific parameters
-			descriptions.add("MyProducer",desc);
-		}
+public:
+  explicit MyProducer(edm::ParameterSet const& cfg) : SonicEDProducer<Client>(cfg) {
+    //for debugging
+    setDebugName("MyProducer");
+  }
+  void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
+    //convert event data to client input format
+  }
+  void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
+    //convert client output to event data format
+  }
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+    edm::ParameterSetDescription desc;
+    Client::fillPSetDescription(desc);
+    //add producer-specific parameters
+    descriptions.add("MyProducer",desc);
+  }
 };
 
 DEFINE_FWK_MODULE(MyProducer);
@@ -65,13 +65,13 @@ To implement a concrete client, the following skeleton can be used for the `.h` 
 #include "HeterogeneousCore/SonicCore/interface/SonicClient*.h"
 
 class MyClient : public SonicClient*<Input,Output> {
-	public:
-		MyClient(const edm::ParameterSet& params);
+public:
+  MyClient(const edm::ParameterSet& params);
 
-		static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
-	protected:
-		void evaluate() override;
+protected:
+  void evaluate() override;
 };
 
 #endif
@@ -102,9 +102,9 @@ protected:
 The client must also provide a static method `fillPSetDescription` to populate its parameters in the `fillDescriptions` for the producers that use the client:
 ```cpp
 void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-	edm::ParameterSetDescription descClient;
-	//add parameters
-	iDesc.add<edm::ParameterSetDescription>("Client",descClient);
+  edm::ParameterSetDescription descClient;
+  //add parameters
+  iDesc.add<edm::ParameterSetDescription>("Client",descClient);
 }
 ```
 
