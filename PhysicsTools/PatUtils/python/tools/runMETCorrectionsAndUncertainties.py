@@ -619,7 +619,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             _myPatMet = "pat"+metType+"Met"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
             getattr(process, _myPatMet).srcPFCands = self.getvalue("pfCandCollection")
-            getattr(process, _myPatMet).tons = \
+            getattr(process, _myPatMet).srcLeptons = \
               cms.VInputTag(self.getvalue("electronCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","electrons"),
                             self.getvalue("muonCollection"),
                             self.getvalue("photonCollection") if self.getvalue("onMiniAOD") else cms.InputTag("pfeGammaToCandidate","photons"))

@@ -72,7 +72,7 @@ void PFEGammaToCandidate::produce(edm::StreamID iID, edm::Event &iEvent, const e
 void PFEGammaToCandidate::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("photons", edm::InputTag("selectedPatPhotons"));
-  desc.add<edm::InputTag>("electrons", edm::InputTag("selectedPatElectron"));
+  desc.add<edm::InputTag>("electrons", edm::InputTag("selectedPatElectrons"));
   desc.add<edm::InputTag>("photon2pf", edm::InputTag("particleBasedIsolation", "gedPhotons"));
   desc.add<edm::InputTag>("electron2pf", edm::InputTag("particleBasedIsolation", "gedGsfElectrons"));
   descriptions.addWithDefaultLabel(desc);
