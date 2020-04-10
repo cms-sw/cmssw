@@ -399,6 +399,12 @@ namespace tadqm {
     MonitorElement* DistanceOfClosestApproachErrorVsEta;
     MonitorElement* DistanceOfClosestApproachErrorVsPhi;
     MonitorElement* DistanceOfClosestApproachErrorVsDxy;
+    MonitorElement* DistanceOfClosestApproachAlongZ;
+    MonitorElement* DistanceOfClosestApproachAlongZError;
+    MonitorElement* DistanceOfClosestApproachAlongZErrorVsPt;
+    MonitorElement* DistanceOfClosestApproachAlongZErrorVsEta;
+    MonitorElement* DistanceOfClosestApproachAlongZErrorVsPhi;
+    MonitorElement* DistanceOfClosestApproachAlongZErrorVsDxy;
     MonitorElement* DistanceOfClosestApproachToBS;
     MonitorElement* DistanceOfClosestApproachToBSdz;
     MonitorElement* AbsDistanceOfClosestApproachToBS;
@@ -408,6 +414,8 @@ namespace tadqm {
     MonitorElement* DeltaZToPVZoom;
     MonitorElement* DistanceOfClosestApproachVsTheta;
     MonitorElement* DistanceOfClosestApproachVsPhi;
+    MonitorElement* DistanceOfClosestApproachAlongZVsEta;
+    MonitorElement* DistanceOfClosestApproachAlongZVsPhi;
     MonitorElement* DistanceOfClosestApproachToBSVsPhi;
     MonitorElement* DistanceOfClosestApproachToBSVsEta;
     MonitorElement* DistanceOfClosestApproachToPVVsPhi;
@@ -437,9 +445,12 @@ namespace tadqm {
     MonitorElement* Chi2oNDF_lumiFlag;
     MonitorElement* NumberOfRecHitsPerTrack_lumiFlag;
 
-    //new plots for Heavy Ion DQM
     MonitorElement* LongDCASig;
     MonitorElement* TransDCASig;
+    MonitorElement* LongDCASigVsEta;
+    MonitorElement* TransDCASigVsEta;
+
+    //new plots for Heavy Ion DQM
     MonitorElement* dNdPhi_HighPurity;
     MonitorElement* dNdEta_HighPurity;
     MonitorElement* dNdPt_HighPurity;

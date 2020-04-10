@@ -132,6 +132,12 @@ void TrackAnalyzer::initHistos() {
   DistanceOfClosestApproachErrorVsEta = nullptr;
   DistanceOfClosestApproachErrorVsPhi = nullptr;
   DistanceOfClosestApproachErrorVsDxy = nullptr;
+  DistanceOfClosestApproachAlongZ = nullptr;
+  DistanceOfClosestApproachAlongZError = nullptr;
+  DistanceOfClosestApproachAlongZErrorVsPt = nullptr;
+  DistanceOfClosestApproachAlongZErrorVsEta = nullptr;
+  DistanceOfClosestApproachAlongZErrorVsPhi = nullptr;
+  DistanceOfClosestApproachAlongZErrorVsDxy = nullptr;
   DistanceOfClosestApproachToBS = nullptr;
   DistanceOfClosestApproachToBSdz = nullptr;
   AbsDistanceOfClosestApproachToBS = nullptr;
@@ -171,6 +177,8 @@ void TrackAnalyzer::initHistos() {
   ////////////////////////////////////////////////////////////
   LongDCASig = nullptr;
   TransDCASig = nullptr;
+  LongDCASigVsEta = nullptr;
+  TransDCASigVsEta = nullptr;
   dNdPhi_HighPurity = nullptr;
   dNdEta_HighPurity = nullptr;
   dNdPt_HighPurity = nullptr;
@@ -599,20 +607,32 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker& ibooker) {
     Chi2oNDF->setAxisTitle("Track #chi^{2}/ndf", 1);
     Chi2oNDF->setAxisTitle("Number of Tracks", 2);
 
+    histname = "LongDCASig_";
+    LongDCASig =
+      ibooker.book1D(histname + CategoryName, histname + CategoryName, LongDCABins, LongDCAMin, LongDCAMax);
+    LongDCASig->setAxisTitle("dz/#sigma_{dz}", 1);
+
+    histname = "TransDCASig_";
+    TransDCASig =
+      ibooker.book1D(histname + CategoryName, histname + CategoryName, TransDCABins, TransDCAMin, TransDCAMax);
+    TransDCASig->setAxisTitle("dxy/#sigma_{dxy}", 1);
+
+    histname = "LongDCASigVsEta_";
+    LongDCASigVsEta =
+      ibooker.bookProfile(histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, LongDCAMin, LongDCAMax);
+    LongDCASigVsEta->setAxisTitle("Track #eta", 1);
+    LongDCASigVsEta->setAxisTitle("dz/#sigma_{dz}", 2);
+
+    histname = "TransDCASigVsEta_";
+    TransDCASigVsEta =
+      ibooker.bookProfile(histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, TransDCAMin, TransDCAMax);
+    TransDCASigVsEta->setAxisTitle("Track #eta", 1);
+    TransDCASigVsEta->setAxisTitle("dxy/#sigma_{dxy}", 2);
+
     //////////////
     //HI PLOTS///
     //////////////
     if (doHIPlots_) {
-      histname = "LongDCASig_";
-      LongDCASig =
-          ibooker.book1D(histname + CategoryName, histname + CategoryName, LongDCABins, LongDCAMin, LongDCAMax);
-      LongDCASig->setAxisTitle("dz/#sigma_{dz}", 1);
-
-      histname = "TransDCASig_";
-      TransDCASig =
-          ibooker.book1D(histname + CategoryName, histname + CategoryName, TransDCABins, TransDCAMin, TransDCAMax);
-      TransDCASig->setAxisTitle("dxy/#sigma_{dxy}", 1);
-
       histname = "dNdPhi_HighPurity_";
       dNdPhi_HighPurity = ibooker.book1D(histname + CategoryName, histname + CategoryName, PhiBin, PhiMin, PhiMax);
       dNdPhi_HighPurity->setAxisTitle("#phi", 1);
@@ -787,6 +807,9 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
     int DxyErrBin = conf_->getParameter<int>("DxyErrBin");
     double DxyErrMax = conf_->getParameter<double>("DxyErrMax");
 
+    int DzErrBin = conf_->getParameter<int>("DzErrBin");
+    double DzErrMax = conf_->getParameter<double>("DzErrMax");
+
     int DxyBin = conf_->getParameter<int>("DxyBin");
     double DxyMin = conf_->getParameter<double>("DxyMin");
     double DxyMax = conf_->getParameter<double>("DxyMax");
@@ -854,6 +877,36 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
         ibooker.bookProfile(histname + CategoryName, histname + CategoryName, DxyBin, DxyMin, DxyMax, 0., DxyErrMax);
     DistanceOfClosestApproachErrorVsDxy->setAxisTitle("Track d_{xy}", 1);
     DistanceOfClosestApproachErrorVsDxy->setAxisTitle("Track d_{xy} error (cm)", 2);
+
+    histname = "DistanceOfClosestApproachAlongZError_";
+    DistanceOfClosestApproachAlongZError =
+        ibooker.book1D(histname + CategoryName, histname + CategoryName, DzErrBin, 0., DzErrMax);
+    DistanceOfClosestApproachAlongZError->setAxisTitle("Track d_{z} error (cm)", 1);
+    DistanceOfClosestApproachAlongZError->setAxisTitle("Number of Tracks", 2);
+
+    histname = "DistanceOfClosestApproachAlongZErrorVsPt_";
+    DistanceOfClosestApproachAlongZErrorVsPt =
+        ibooker.bookProfile(histname + CategoryName, histname + CategoryName, PtBin, PtMin, PtMax, 0., DzErrMax);
+    DistanceOfClosestApproachAlongZErrorVsPt->setAxisTitle("Track p_{T} (GeV)", 1);
+    DistanceOfClosestApproachAlongZErrorVsPt->setAxisTitle("Track d_{z} error (cm)", 2);
+
+    histname = "DistanceOfClosestApproachAlongZErrorVsEta_";
+    DistanceOfClosestApproachAlongZErrorVsEta =
+        ibooker.bookProfile(histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, 0., DzErrMax);
+    DistanceOfClosestApproachAlongZErrorVsEta->setAxisTitle("Track #eta", 1);
+    DistanceOfClosestApproachAlongZErrorVsEta->setAxisTitle("Track d_{z} error (cm)", 2);
+
+    histname = "DistanceOfClosestApproachAlongZErrorVsPhi_";
+    DistanceOfClosestApproachAlongZErrorVsPhi =
+        ibooker.bookProfile(histname + CategoryName, histname + CategoryName, PhiBin, PhiMin, PhiMax, 0., DzErrMax);
+    DistanceOfClosestApproachAlongZErrorVsPhi->setAxisTitle("Track #phi", 1);
+    DistanceOfClosestApproachAlongZErrorVsPhi->setAxisTitle("Track d_{z} error (cm)", 2);
+
+    histname = "DistanceOfClosestApproachAlongZErrorVsDxy_";
+    DistanceOfClosestApproachAlongZErrorVsDxy =
+        ibooker.bookProfile(histname + CategoryName, histname + CategoryName, DxyBin, DxyMin, DxyMax, 0., DzErrMax);
+    DistanceOfClosestApproachAlongZErrorVsDxy->setAxisTitle("Track d_{xy}", 1);
+    DistanceOfClosestApproachAlongZErrorVsDxy->setAxisTitle("Track d_{z} error (cm)", 2);
 
     histname = "DistanceOfClosestApproachToBS_";
     DistanceOfClosestApproachToBS =
@@ -1022,6 +1075,10 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
       double DxyMin = conf_->getParameter<double>("DxyMin");
       double DxyMax = conf_->getParameter<double>("DxyMax");
 
+      int DzBin = conf_->getParameter<int>("DzBin");
+      double DzMin = conf_->getParameter<double>("DzMin");
+      double DzMax = conf_->getParameter<double>("DzMax");
+
       if (doThetaPlots_) {
         int ThetaBin = conf_->getParameter<int>("ThetaBin");
         double ThetaMin = conf_->getParameter<double>("ThetaMin");
@@ -1053,6 +1110,25 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
           histname + CategoryName, histname + CategoryName, PhiBin, PhiMin, PhiMax, DxyMin, DxyMax, "");
       DistanceOfClosestApproachVsPhi->setAxisTitle("Track #phi", 1);
       DistanceOfClosestApproachVsPhi->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)", 2);
+
+      histname = "DistanceOfClosestApproachAlongZVsEta_";
+      DistanceOfClosestApproachAlongZVsEta = ibooker.bookProfile(
+          histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, DzMin, DzMax, "");
+      DistanceOfClosestApproachAlongZVsEta->setAxisTitle("Track #eta", 1);
+      DistanceOfClosestApproachAlongZVsEta->setAxisTitle("Track d_{z} wrt (0,0,0) (cm)", 2);
+      // temporary patch in order to put back those MEs in Muon Workspace
+
+      histname = "DistanceOfClosestApproachAlongZ_";
+      DistanceOfClosestApproachAlongZ =
+          ibooker.book1D(histname + CategoryName, histname + CategoryName, DzBin, DzMin, DzMax);
+      DistanceOfClosestApproachAlongZ->setAxisTitle("Track d_{z} wrt (0,0,0) (cm)", 1);
+      DistanceOfClosestApproachAlongZ->setAxisTitle("Number of Tracks", 2);
+
+      histname = "DistanceOfClosestApproachAlongZVsPhi_";
+      DistanceOfClosestApproachAlongZVsPhi = ibooker.bookProfile(
+          histname + CategoryName, histname + CategoryName, PhiBin, PhiMin, PhiMax, DzMin, DzMax, "");
+      DistanceOfClosestApproachAlongZVsPhi->setAxisTitle("Track #phi", 1);
+      DistanceOfClosestApproachAlongZVsPhi->setAxisTitle("Track d_{z} wrt (0,0,0) (cm)", 2);
     }
   }
 
@@ -1246,6 +1322,9 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if (doDCAwrt000Plots_) {
         DistanceOfClosestApproach->Fill(track.dxy());
         DistanceOfClosestApproachVsPhi->Fill(phi, track.dxy());
+
+        DistanceOfClosestApproachAlongZ->Fill(track.dz());
+        DistanceOfClosestApproachAlongZVsPhi->Fill(phi, track.dz());
       }
 
       // PCA
@@ -1283,6 +1362,12 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     DistanceOfClosestApproachErrorVsPhi->Fill(track.phi(), track.dxyError());
     DistanceOfClosestApproachErrorVsDxy->Fill(track.dxy(bs.position()), track.dxyError());
 
+    DistanceOfClosestApproachAlongZError->Fill(track.dzError());
+    DistanceOfClosestApproachAlongZErrorVsPt->Fill(track.pt(), track.dzError());
+    DistanceOfClosestApproachAlongZErrorVsEta->Fill(track.eta(), track.dzError());
+    DistanceOfClosestApproachAlongZErrorVsPhi->Fill(track.phi(), track.dzError());
+    DistanceOfClosestApproachAlongZErrorVsDxy->Fill(track.dxy(bs.position()), track.dzError());
+
     DistanceOfClosestApproachToBS->Fill(track.dxy(bs.position()));
 
     if (Folder == "Tr") {
@@ -1314,21 +1399,24 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (recoPrimaryVerticesHandle.isValid() && !recoPrimaryVerticesHandle->empty()) {
       const reco::Vertex& pv = (*recoPrimaryVerticesHandle)[0];
 
+
+      double longDCAsig = 0, transDCAsig = 0;
+      double zerr2 = track.dzError() * track.dzError() + pv.zError() * pv.zError();
+      double xyerr2 = track.d0Error() * track.d0Error() + pv.xError() * pv.yError();
+      if (zerr2 > 0)
+	longDCAsig = track.dz(pv.position()) / zerr2;
+      if (xyerr2 > 0)
+	transDCAsig = track.dxy(pv.position()) / xyerr2;
+      LongDCASig->Fill(longDCAsig);
+      TransDCASig->Fill(transDCAsig);
+
+      LongDCASigVsEta->Fill(track.eta(),longDCAsig);
+      TransDCASigVsEta->Fill(track.eta(),transDCAsig);
+
       //////////////////
       //HI PLOTS///////
       ////////////////
-
       if (doHIPlots_) {
-        double longDCAsig = 0, transDCAsig = 0;
-        double zerr2 = track.dzError() * track.dzError() + pv.zError() * pv.zError();
-        double xyerr2 = track.d0Error() * track.d0Error() + pv.xError() * pv.yError();
-        if (zerr2 > 0)
-          longDCAsig = track.dz(pv.position()) / zerr2;
-        if (xyerr2 > 0)
-          transDCAsig = track.dxy(pv.position()) / xyerr2;
-        LongDCASig->Fill(longDCAsig);
-        TransDCASig->Fill(transDCAsig);
-
         if (track.quality(reco::TrackBase::qualityByName(qualityString_)) == 1) {
           dNdEta_HighPurity->Fill(track.eta());
           dNdPhi_HighPurity->Fill(track.phi());
@@ -1374,6 +1462,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         DistanceOfClosestApproachVsTheta->Fill(track.theta(), track.d0());
       }
       DistanceOfClosestApproachVsEta->Fill(track.eta(), track.d0());
+      DistanceOfClosestApproachAlongZVsEta->Fill(track.eta(), track.dz());
     }
   }
 

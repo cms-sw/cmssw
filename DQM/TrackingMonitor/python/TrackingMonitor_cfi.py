@@ -414,6 +414,16 @@ LongDCAMax = cms.double(8.0),
 )
 
 # Overcoming the 255 arguments limit
+
+# Track dz (longitudinal impact parameter)
+TrackMon.DzBin = cms.int32(120)
+TrackMon.DzMax = cms.double(30.)
+TrackMon.DzMin = cms.double(-30.)
+
+TrackMon.DzErrBin = cms.int32(250)
+TrackMon.DzErrMax = cms.double(0.5)
+
+
 # binning for 2D plots (identical to 1D, but in muon tracks)
 # track eta 2D histo
 TrackMon.Eta2DBin = cms.int32(26)
