@@ -34,7 +34,6 @@ namespace l1t {
           unsigned int displacedtracks = 0,
           unsigned int tightdisplacedtracks = 0);
 
-
     // ---------- const member functions ---------------------
 
     const edm::Ref<JetBxCollection>& jetRef() const { return jetRef_; }

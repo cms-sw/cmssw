@@ -33,7 +33,6 @@ namespace l1t {
                const edm::Ptr<L1TTTrackType>& trkPtr,
                float tkisol = -999.);
 
-
     // ---------- const member functions ---------------------
 
     const edm::Ptr<L1TTTrackType>& trkPtr() const { return trkPtr_; }

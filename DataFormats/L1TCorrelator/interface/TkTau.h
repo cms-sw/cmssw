@@ -31,7 +31,6 @@ namespace l1t {
           const edm::Ptr<L1TTTrackType>& trkPtr3,  // null for tau -> 1 prong
           float tkisol = -999.);
 
-
     // ---------- const member functions ---------------------
 
     const edm::Ref<TauBxCollection>& tauCaloRef() const { return tauCaloRef_; }
