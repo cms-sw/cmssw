@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GEMDQM')
 
-process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 process.load("DQM.Integration.config.environment_cfi")
@@ -19,7 +19,7 @@ process.load("DQM.GEM.GEMDQM_cff")
 
 
 if (process.runType.getRunType() == process.runType.hi_run):
-  process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")                                                                                                                                          
+  process.muonGEMDigis.InputLabel = cms.InputTag("rawDataRepacker")
 
 process.muonGEMDigis.useDBEMap = True
 process.muonGEMDigis.unPackStatusDigis = True

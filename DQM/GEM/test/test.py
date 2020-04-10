@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 import os
 
-from Configuration.Eras.Era_Phase2_cff import Phase2
-
-process = cms.Process('DQMTEST')
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process('DQM', eras.Run3)
 
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -15,8 +14,7 @@ process.MessageLogger = cms.Service("MessageLogger",
   )
 )
 
-#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 
