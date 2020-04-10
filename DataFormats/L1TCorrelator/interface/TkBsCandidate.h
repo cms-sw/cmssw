@@ -21,7 +21,6 @@ namespace l1t {
     TkBsCandidate();
     TkBsCandidate(const LorentzVector& p4, TkPhiCandidate cand1, TkPhiCandidate cand2);
 
-    virtual ~TkBsCandidate() {}
 
     // ---------- const member functions ---------------------
     const TkPhiCandidate& phiCandidate(size_t i) const { return phiCandList_.at(i); }

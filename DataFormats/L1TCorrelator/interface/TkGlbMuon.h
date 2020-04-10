@@ -30,7 +30,6 @@ namespace l1t {
     //! more basic constructor, in case refs/ptrs can't be set or to be set separately
     TkGlbMuon(const L1Candidate& cand) : L1Candidate(cand), theIsolation(-999.), TrkzVtx_(999.), quality_(999) {}
 
-    virtual ~TkGlbMuon() {}
 
     const edm::Ptr<L1TTTrackType>& trkPtr() const { return trkPtr_; }
 
