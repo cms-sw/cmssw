@@ -145,8 +145,11 @@ void HLTTauRefProducer::doPFTaus(edm::StreamID iID, edm::Event& iEvent) const {
       streamCache(iID)->first = iEvent.processHistoryID();
       streamCache(iID)->second.resize(PFTauDisContWPs_.size());
       for (size_t i = 0; i < PFTauDisCont_.size(); ++i) {
-        const auto psetsFromProvenance =
-            edm::parameterSet(*(iEvent.getHandle(PFTauDisCont_[i]).provenance()), iEvent.processHistory());
+        auto const aHandle = iEvent.getHandle(PFTauDisCont_[i]);
+        auto const aProv = aHandle.provenance();
+        if (aProv == nullptr)
+          aHandle.whyFailed()->raise();
+        const auto& psetsFromProvenance = edm::parameterSet(*aProv, iEvent.processHistory());
         if (psetsFromProvenance.exists("workingPoints")) {
           auto const idlist = psetsFromProvenance.getParameter<std::vector<std::string>>("workingPoints");
           bool found = false;
