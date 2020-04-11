@@ -24,8 +24,8 @@ public:
   ~PedestalTask() override {}
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
 
 protected:

@@ -332,6 +332,9 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   //  extract some info per event
   meNumEvents1LS->Fill(0.5);  // just increment
 
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
+
   //  To fill histograms outside of the loop, you need to determine if there were
   //  any valid det ids first
   uint32_t rawidValid = 0;
@@ -639,12 +642,12 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void DigiPhase1Task::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmBeginLuminosityBlock(lb, es);
+std::shared_ptr<hcaldqm::Cache> DigiPhase1Task::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void DigiPhase1Task::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::dqmEndLuminosityBlock(lb, es);
+/* virtual */ void DigiPhase1Task::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::globalEndLuminosityBlock(lb, es);
 }
 
 DEFINE_FWK_MODULE(DigiPhase1Task);
