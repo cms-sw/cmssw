@@ -24,6 +24,7 @@ F19=${LOCAL_TEST_DIR}/python/testDDCompactView.py
 F20=${LOCAL_TEST_DIR}/python/testDDGEMAngularAlgorithm.py
 F21=${LOCAL_TEST_DIR}/python/testGeometry2021.py
 F22=${LOCAL_TEST_DIR}/python/testGeometry2021FromDB.py
+F23=${LOCAL_TEST_DIR}/python/testDDFilteredView.py
 
 echo " testing DetectorDescription/DDCMS"
 
@@ -74,3 +75,5 @@ echo "===== Test \"cmsRun testGeometry2021.py\" ===="
 (cmsRun $F21) || die "Failure using cmsRun $F21" $?
 echo "===== Test \"cmsRun testGeometry2021FromDB.py\" ===="
 (cmsRun $F22) || die "Failure using cmsRun $F22" $?
+echo "===== Test \"cmsRun testDDFilteredView.py\" ===="
+(cmsRun $F23) || die "Failure using cmsRun $F23" $?
