@@ -94,4 +94,12 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
 
 )
 
+
+
+# PFCandidates
+PFCandAnalyzerDQM = cms.EDProducer("PFCandidateAnalyzerDQM", 
+    PFCandType = cms.InputTag("packedPFCandidates")
+) 
+
+
 #----- ----- ----- ----- ----- ----- ----- -----

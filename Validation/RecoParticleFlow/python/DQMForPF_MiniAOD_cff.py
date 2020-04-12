@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoParticleFlow.particleFlowDQM_cff import pfJetAnalyzerDQM
 from Validation.RecoParticleFlow.particleFlowDQM_cff import pfPuppiJetAnalyzerDQM
 from Validation.RecoParticleFlow.particleFlowDQM_cff import pfJetDQMPostProcessor
+from Validation.RecoParticleFlow.particleFlowDQM_cff import PFCandAnalyzerDQM
 from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM
 from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetDQMPostProcessor
 # Use also other POGs' analyzers for extended checks
@@ -16,7 +17,8 @@ DQMOfflinePF = cms.Sequence(
 #  pfCandAnalyzerDQM +
 # Extended ones from other POGs
   METValidationMiniAOD +
-  JetValidationMiniAOD
+  JetValidationMiniAOD +
+  PFCandAnalyzerDQM
 )
 
 DQMHarvestPF = cms.Sequence(
