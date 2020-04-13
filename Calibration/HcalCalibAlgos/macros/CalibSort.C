@@ -906,3 +906,79 @@ void combine(const std::string fname1, const std::string fname2,
     }
   }
 }
+
+void PlotCombine(const char* infile, bool drawStatBox=true, bool save=false) {
+
+  std::string name[4]  = {"W0", "W1", "W2", "P"};
+  std::string xtitl[4] = {"Correction Factor (All)",
+			  "Correction Factor (Barrel)",
+			  "Correction Factor (Endcap)",
+			  "i#eta"};
+  std::string ytitl[4] = {"Track", "Track", "Track", "Correction Factor"};
+
+  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
+  gStyle->SetOptTitle(0);         gStyle->SetOptStat(111110);
+  gStyle->SetOptFit(0);
+  TFile      *file = new TFile(infile);
+  for (int k=0; k<4; ++k) {
+    char namep[100];
+    sprintf (namep, "c_%s", name[k].c_str());
+    TCanvas *pad(nullptr);
+    if (k == 3) {
+      TProfile* hist = (TProfile*)file->FindObjectAny(name[k].c_str());
+      if (hist != nullptr) {
+	pad = new TCanvas(namep, namep, 700, 500);
+	pad->SetRightMargin(0.10);
+	pad->SetTopMargin(0.10);
+	hist->GetXaxis()->SetTitleSize(0.04);
+	hist->GetXaxis()->SetTitle(xtitl[k].c_str());
+	hist->GetYaxis()->SetTitle(ytitl[k].c_str());
+	hist->GetYaxis()->SetLabelOffset(0.005);
+	hist->GetYaxis()->SetTitleSize(0.04);
+	hist->GetYaxis()->SetLabelSize(0.035);
+	hist->GetYaxis()->SetTitleOffset(1.10);
+	hist->SetMarkerStyle(20);
+	hist->Draw();
+	pad->Update();
+	TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
+	if (st1 != nullptr && drawStatBox) {
+	  st1->SetY1NDC(0.70); st1->SetY2NDC(0.90);
+	  st1->SetX1NDC(0.65); st1->SetX2NDC(0.90);
+	}
+      }
+    } else {
+      TH1D* hist = (TH1D*)file->FindObjectAny(name[k].c_str());
+      if (hist != nullptr) {
+	pad = new TCanvas(namep, namep, 700, 500);
+	pad->SetRightMargin(0.10);
+	pad->SetTopMargin(0.10);
+	pad->SetLogy();
+	hist->GetXaxis()->SetTitleSize(0.04);
+	hist->GetXaxis()->SetTitle(xtitl[k].c_str());
+	hist->GetYaxis()->SetTitle(ytitl[k].c_str());
+	hist->GetYaxis()->SetLabelOffset(0.005);
+	hist->GetYaxis()->SetTitleSize(0.04);
+	hist->GetYaxis()->SetLabelSize(0.035);
+	hist->GetYaxis()->SetTitleOffset(1.10);
+	hist->SetMarkerStyle(20);
+	hist->Draw();
+	pad->Update();
+	TPaveStats* st1 = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
+	if (st1 != nullptr && drawStatBox) {
+	  st1->SetY1NDC(0.70); st1->SetY2NDC(0.90);
+	  st1->SetX1NDC(0.65); st1->SetX2NDC(0.90);
+	}
+
+      }
+    }
+    if (pad != nullptr) {
+      pad->Modified();
+      pad->Update();
+      if (save) {
+	sprintf (namep, "%s.pdf",  pad->GetName());
+	pad->Print(namep);
+      }
+    }
+  }
+}
