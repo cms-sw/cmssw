@@ -18,7 +18,7 @@ namespace l1tp2 {
           calibratedPt_(0.),
           hovere_(0.),
           iso_(0.),
-          PUcorrPt_(0.),
+          puCorrPt_(0.),
           bremStrength_(0.),
           e2x2_(0.),
           e2x5_(0.),
@@ -36,7 +36,7 @@ namespace l1tp2 {
                        float hovere,
                        float iso,
                        DetId seedCrystal,
-                       float PUcorrPt = 0.,
+                       float puCorrPt = 0.,
                        float bremStrength = 0.,
                        float e2x2 = 0.,
                        float e2x5 = 0.,
@@ -53,7 +53,7 @@ namespace l1tp2 {
           hovere_(hovere),
           iso_(iso),
           seedCrystal_(seedCrystal),
-          PUcorrPt_(PUcorrPt),
+          puCorrPt_(puCorrPt),
           bremStrength_(bremStrength),
           e2x2_(e2x2),
           e2x5_(e2x5),
@@ -70,15 +70,15 @@ namespace l1tp2 {
     inline float calibratedPt() const { return calibratedPt_; };
     inline float hovere() const { return hovere_; };
     inline float isolation() const { return iso_; };
-    inline float PUcorrPt() const { return PUcorrPt_; };
+    inline float puCorrPt() const { return puCorrPt_; };
     inline float bremStrength() const { return bremStrength_; };
     inline DetId seedCrystal() const { return seedCrystal_; };
-    void SetCrystalPtInfo(std::vector<float> info) {
+    void setCrystalPtInfo(std::vector<float> info) {
       std::sort(info.begin(), info.end());
       std::reverse(info.begin(), info.end());
       crystalPt_ = std::move(info);
     };
-    void SetExperimentalParams(const std::map<std::string, float> &params) { experimentalParams_ = params; };
+    void setExperimentalParams(const std::map<std::string, float> &params) { experimentalParams_ = params; };
     const std::map<std::string, float> &getExperimentalParams() const { return experimentalParams_; };
     inline float experimentalParam(std::string name) const {
       auto iter = experimentalParams_.find(name);
@@ -117,7 +117,7 @@ namespace l1tp2 {
     // DetId of seed crystal used to make cluster (could be EBDetId or EEDetId)
     DetId seedCrystal_;
     // Pileup-corrected energy deposit, not studied carefully yet, don't use
-    float PUcorrPt_;
+    float puCorrPt_;
     // Bremstrahlung strength, should be proportional to the likelihood of a brem.
     float bremStrength_;
     // Shower shape variable - max 2x2 energy containing seed crystal
