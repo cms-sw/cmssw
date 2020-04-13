@@ -597,9 +597,17 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.pixelClusterTagInfos.clone(jets = jetSource, vertices=pvSource),
                                     process, task)
 
-            if 'Puppi' in jetSource.value() and pfCandidates.value() == 'particleFlow' and\
-	       ('pfBoostedDouble' in btagInfo or 'SecondaryVertex' in btagInfo):
-                _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
+            if 'pfBoostedDouble' in btagInfo or 'SecondaryVertex' in btagInfo:
+              _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
+              if pfCandidates.value() == 'packedPFCandidates':
+                _btagInfo.weights = cms.InputTag("packedpuppi")
+                if not hasattr(process,"packedpuppi"):
+                  from CommonTools.PileupAlgos.Puppi_cff import puppi
+                  addToProcessAndTask('packedpuppi', puppi.clone(
+                        useExistingWeights = True,
+                        candName = 'packedPFCandidates',
+                        vertexName = 'offlineSlimmedPrimaryVertices') , process, task)
+              else:
                 _btagInfo.weights = cms.InputTag("puppi")
 
             if 'DeepFlavourTagInfos' in btagInfo:
