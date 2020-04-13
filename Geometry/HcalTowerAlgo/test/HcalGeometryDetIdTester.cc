@@ -27,7 +27,8 @@ private:
 HcalGeometryDetIdTester::HcalGeometryDetIdTester(const edm::ParameterSet& iConfig) {
   detMin_ = std::min(ndetMax_, std::max(iConfig.getParameter<int>("DetectorMin"), 1));
   detMax_ = std::min(ndetMax_, std::max(iConfig.getParameter<int>("DetectorMax"), 1));
-  if (detMin_ > detMax_) detMin_ = detMax_;
+  if (detMin_ > detMax_)
+    detMin_ = detMax_;
   std::cout << "Study DetIds for SubDetId in the range " << detMin_ << ":" << detMax_ << std::endl;
 }
 
@@ -56,17 +57,19 @@ void HcalGeometryDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::E
 
   for (int subd = (detMin_ - 1); subd < detMax_; ++subd) {
     std::cout << "\n\nStudy Detector = Hcal SubDetector = " << subdets[subd]
-	      << "\n======================================\n\n";
+              << "\n======================================\n\n";
     int nall(0), nbad(0);
     const std::vector<DetId>& ids = hcalGeom->getValidDetIds(DetId::Hcal, subdetd[subd]);
     for (auto id : ids) {
       ++nall;
       if (!(topology.valid(id))) {
-	++nbad;
-	std::cout << "Check " << HcalDetId(id) << " *****\n";
+        ++nbad;
+        std::cout << "Check " << HcalDetId(id) << " *****\n";
       }
     }
-    std::cout << "\n" << nbad << " bad out of " << nall << " detIds\n========================\n\nNow List All IDs\n================\n" ;
+    std::cout << "\n"
+              << nbad << " bad out of " << nall
+              << " detIds\n========================\n\nNow List All IDs\n================\n";
     int k(0);
     for (auto id : ids) {
       std::cout << "[ " << std::setw(4) << k << "] " << HcalDetId(id) << "\n";
@@ -77,16 +80,15 @@ void HcalGeometryDetIdTester::analyze(const edm::Event& /*iEvent*/, const edm::E
     std::cout << "\nNow List all IDs declared valid by Topology\n===========================================\n\n";
     for (int ieta = ietaMin[subd]; ieta <= ietaMax[subd]; ++ieta) {
       for (int depth = depthMin[subd]; depth <= depthMax[subd]; ++depth) {
-	HcalDetId id(subdetd[subd], ieta, 1, depth);
-	if (topology.validHcal(id)) {
-	  std::cout << "[ " << std::setw(2) << n << "] " << id << "\n";
-	  ++n;
-	}
+        HcalDetId id(subdetd[subd], ieta, 1, depth);
+        if (topology.validHcal(id)) {
+          std::cout << "[ " << std::setw(2) << n << "] " << id << "\n";
+          ++n;
+        }
       }
     }
     std::cout << "\nFinds a total of " << n << " IDs\n";
   }
-
 }
 
 DEFINE_FWK_MODULE(HcalGeometryDetIdTester);

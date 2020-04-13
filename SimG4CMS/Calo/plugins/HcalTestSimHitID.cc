@@ -45,17 +45,18 @@ private:
   edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_;
 };
 
-HcalTestSimHitID::HcalTestSimHitID(const edm::ParameterSet& ps) : 
-  g4Label_(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
-  hitLab_(ps.getUntrackedParameter<std::string>("hcCollection", "HcalHits")),
-  testN_(ps.getUntrackedParameter<bool>("testNumbering", false)),
-  dumpHits_(ps.getUntrackedParameter<bool>("dumpHits", false)),
-  maxEvent_(ps.getUntrackedParameter<int>("maxEvent", 100)), nevt_(0) {
-
+HcalTestSimHitID::HcalTestSimHitID(const edm::ParameterSet& ps)
+    : g4Label_(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
+      hitLab_(ps.getUntrackedParameter<std::string>("hcCollection", "HcalHits")),
+      testN_(ps.getUntrackedParameter<bool>("testNumbering", false)),
+      dumpHits_(ps.getUntrackedParameter<bool>("dumpHits", false)),
+      maxEvent_(ps.getUntrackedParameter<int>("maxEvent", 100)),
+      nevt_(0) {
   // register for data access
   toks_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_));
 
-  std::cout << "HcalTestSimHitID::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent: " << maxEvent_ << " Numbering scheme: " << testN_ << " (0 normal; 1 test)\n";
+  std::cout << "HcalTestSimHitID::Module Label: " << g4Label_ << "   Hits: " << hitLab_ << " MaxEvent: " << maxEvent_
+            << " Numbering scheme: " << testN_ << " (0 normal; 1 test)\n";
 }
 
 void HcalTestSimHitID::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -70,7 +71,8 @@ void HcalTestSimHitID::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 void HcalTestSimHitID::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   ++nevt_;
-  std::cout << "HcalTestSimHitID::Serial # " << nevt_ << " Run # " << e.id().run() << " Event # " << e.id().event() << std::endl;
+  std::cout << "HcalTestSimHitID::Serial # " << nevt_ << " Run # " << e.id().run() << " Event # " << e.id().event()
+            << std::endl;
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iS.get<HcalRecNumberingRecord>().get(pHRNDC);
   const HcalDDDRecConstants* hcr = static_cast<const HcalDDDRecConstants*>(&(*pHRNDC));
@@ -90,20 +92,20 @@ void HcalTestSimHitID::analyze(const edm::Event& e, const edm::EventSetup& iS) {
       //Now the testing
       unsigned int good(0);
       for (unsigned int i = 0; i < hits.size(); i++) {
-	unsigned int id = hits[i].id();
-	HcalDetId hid;
-	if (testN_) {
-	  hid = HcalDetId(HcalHitRelabeller::relabel(id, hcr));
-	} else {
-	  hid = HcalDetId(id);
-	}
-	if (theHBHETopology->validHcal(hid)) {
-	  ++good;
-	  if (dumpHits_)
-	    std::cout << "Hit[" << i << "] " << hid << " \n";
-	} else {
-	  std::cout << "Hit[" << i << "] " << hid << " ***** ERROR *****\n";
-	}
+        unsigned int id = hits[i].id();
+        HcalDetId hid;
+        if (testN_) {
+          hid = HcalDetId(HcalHitRelabeller::relabel(id, hcr));
+        } else {
+          hid = HcalDetId(id);
+        }
+        if (theHBHETopology->validHcal(hid)) {
+          ++good;
+          if (dumpHits_)
+            std::cout << "Hit[" << i << "] " << hid << " \n";
+        } else {
+          std::cout << "Hit[" << i << "] " << hid << " ***** ERROR *****\n";
+        }
       }
       std::cout << "HcalTestSimHitID:: " << good << " among " << hits.size() << " hits\n";
     }
