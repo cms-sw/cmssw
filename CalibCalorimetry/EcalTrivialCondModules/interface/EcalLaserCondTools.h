@@ -14,10 +14,10 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include <stdio.h>
-#include <vector>
+#include <cstdio>
+#include <ctime>
 #include <string>
-#include <time.h>
+#include <vector>
 /**
  */
 class EcalLaserCondTools : public edm::EDAnalyzer {
@@ -36,13 +36,13 @@ public:
 
   /** Destructor
    */
-  ~EcalLaserCondTools();
+  ~EcalLaserCondTools() override;
 
   /** Called by CMSSW event loop
    * @param evt the event
    * @param es events setup
    */
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& es);
+  void analyze(const edm::Event& evt, const edm::EventSetup& es) override;
 
 private:
   static std::string toNth(int n);
@@ -61,10 +61,10 @@ private:
 
   class FileReader : public EcalLaserCondTools::CorrReader {
   public:
-    FileReader(const std::vector<std::string>& fnames) : f_(0), fnames_(fnames), ifile_(-1), iline_(0) {}
-    virtual bool readTime(int& t1, int t2[nLmes], int& t3);
-    virtual bool readPs(DetId& rawdetid, EcalLaserAPDPNRatios::EcalLaserAPDPNpair& corr);
-    virtual ~FileReader() {}
+    FileReader(const std::vector<std::string>& fnames) : f_(nullptr), fnames_(fnames), ifile_(-1), iline_(0) {}
+    bool readTime(int& t1, int t2[nLmes], int& t3) override;
+    bool readPs(DetId& rawdetid, EcalLaserAPDPNRatios::EcalLaserAPDPNpair& corr) override;
+    ~FileReader() override {}
 
   private:
     bool nextFile();
