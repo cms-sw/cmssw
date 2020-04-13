@@ -2676,6 +2676,7 @@ steps['DQMHLTonAOD_2017']={
     '--datatier':'DQMIO',
     '--era':'Run2_2017',
     '--fileout':'DQMHLTonAOD.root',
+    '--procModifiers':'tau_readOldDiscriminatorFormat',
     }
 steps['DQMHLTonAODextra_2017'] = merge([ {'-s':'DQM:offlineHLTSourceOnAODextra'}, steps['DQMHLTonAOD_2017'] ])
 
@@ -2690,6 +2691,7 @@ steps['DQMHLTonRAWAOD_2017']={
     '--secondfilein':'filelist:step1_dasparentquery.log',
     '--customise_commands':'"process.HLTAnalyzerEndpath.remove(process.hltL1TGlobalSummary)"',
     '--fileout':'DQMHLTonAOD.root',
+    '--procModifiers':'tau_readOldDiscriminatorFormat',
     }
 
 steps['HARVESTDQMHLTonAOD_2017'] = merge([ {'--filein':'file:DQMHLTonAOD.root','-s':'HARVESTING:hltOfflineDQMClient'}, steps['HARVEST2017'] ]) ### Harvesting step for the DQM-only workflow
