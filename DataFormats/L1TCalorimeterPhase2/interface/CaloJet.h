@@ -12,15 +12,15 @@ namespace l1tp2 {
 
   class CaloJet : public l1t::L1Candidate {
   public:
-    CaloJet() : l1t::L1Candidate(), calibratedPt_(0.), hovere_(0.), iso_(0.), pUcorrPt_(0.){};
+    CaloJet() : l1t::L1Candidate(), calibratedPt_(0.), hovere_(0.), iso_(0.), puCorrPt_(0.){};
 
-    CaloJet(const PolarLorentzVector& p4, float calibratedPt, float hovere, float iso, float PUcorrPt = 0.)
-        : l1t::L1Candidate(p4), calibratedPt_(calibratedPt), hovere_(hovere), iso_(iso), pUcorrPt_(PUcorrPt){};
+    CaloJet(const PolarLorentzVector& p4, float calibratedPt, float hovere, float iso, float puCorrPt = 0.)
+        : l1t::L1Candidate(p4), calibratedPt_(calibratedPt), hovere_(hovere), iso_(iso), puCorrPt_(puCorrPt){};
 
     inline float calibratedPt() const { return calibratedPt_; };
     inline float hovere() const { return hovere_; };
     inline float isolation() const { return iso_; };
-    inline float pUcorrPt() const { return pUcorrPt_; };
+    inline float puCorrPt() const { return puCorrPt_; };
     std::vector<std::vector<float>>& associated_l1EGs() { return associated_l1EGs_; };
 
     void setExperimentalParams(const std::map<std::string, float>& params) { experimentalParams_ = params; };
@@ -46,7 +46,7 @@ namespace l1tp2 {
     // ECal isolation (for outer window size, again look in producer)
     float iso_;
     // Pileup-corrected energy deposit, not studied carefully yet, don't use
-    float pUcorrPt_;
+    float puCorrPt_;
     // For investigating novel algorithm parameters
     std::map<std::string, float> experimentalParams_;
     // For decay mode related checks with CaloTaus

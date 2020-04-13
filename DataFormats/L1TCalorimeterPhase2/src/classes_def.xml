@@ -5,7 +5,7 @@
 <lcgdict>
 
   <class name="l1tp2::CaloCrystalCluster"  ClassVersion="3">
-         <version ClassVersion="3" checksum="203754523"/>
+         <version ClassVersion="3" checksum="811222139"/>
   </class>
   <class name="std::vector<l1tp2::CaloCrystalCluster>" />
   <class name="l1tp2::CaloCrystalClusterCollection" />
@@ -19,7 +19,7 @@
   <class name="edm::Wrapper<l1tp2::CaloTowerCollection>" />
 
   <class name="l1tp2::CaloJet"  ClassVersion="3">
-         <version ClassVersion="3" checksum="3671674640"/>
+         <version ClassVersion="3" checksum="2520028496"/>
   </class>
   <class name="std::vector<l1tp2::CaloJet>" />
   <class name="l1tp2::CaloJetsCollection" />
