@@ -548,8 +548,8 @@ void SiStripQualityChecker::fillDetectorStatusAtLumi(DQMStore& dqm_store) {
     return;
   std::string fullpath = dqm_store.pwd() + "/PerLumiSection/" + "lumiErrorFraction";
   MonitorElement* me = dqm_store.get(fullpath);
-  if (me && me->kind() == MonitorElement::Kind::TH1F) {
-    TH1F* th1 = me->getTH1F();
+  if (me && me->kind() == MonitorElement::Kind::TPROFILE) {
+    TProfile* th1 = me->getTProfile();
     float global_fraction = 0.0;
     float dets = 0.0;
     for (int ibin = 1; ibin <= th1->GetNbinsX(); ibin++) {
