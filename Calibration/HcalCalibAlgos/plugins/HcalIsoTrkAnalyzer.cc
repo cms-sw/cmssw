@@ -1148,7 +1148,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                   ids,
                                   edet0,
                                   useRaw_);
-	if (oldID_.size() > 0) {
+	if (!oldID_.empty()) {
 	  for (unsigned k = 0; k < ids.size(); ++k)
 	    ids[k] = newId(ids[k]);
 	}
@@ -1165,7 +1165,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                     ids1,
                                     edet1,
                                     useRaw_);
-	if (oldID_.size() > 0) {
+	if (!oldID_.empty()) {
 	  for (unsigned k = 0; k < ids1.size(); ++k)
 	    ids1[k] = newId(ids1[k]);
 	}
@@ -1182,7 +1182,7 @@ std::array<int, 3> HcalIsoTrkAnalyzer::fillTree(std::vector<math::XYZTLorentzVec
                                     ids3,
                                     edet3,
                                     useRaw_);
-	if (oldID_.size() > 0) {
+	if (!oldID_.empty()) {
 	  for (unsigned k = 0; k < ids3.size(); ++k)
 	    ids3[k] = newId(ids3[k]);
 	}
