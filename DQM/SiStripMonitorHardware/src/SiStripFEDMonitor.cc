@@ -491,7 +491,7 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
     ibooker.setCurrentFolder("SiStrip/ReadoutView/PerLumiSection"); 
     {
       auto scope = DQMStore::IBooker::UseRunScope(ibooker);
-      lumiErrfac_ = ibooker.bookProfile("lumiErrorFraction", "Fraction of error per lumi section vs subdetector", 6, 0.5, 6.5, 0., 1.);
+      lumiErrfac_ = ibooker.book1D("lumiErrorFraction", "Fraction of error per lumi section vs subdetector", 6, 0.5, 6.5);
       lumiErrfac_->setAxisTitle("SubDetId", 1);
       lumiErrfac_->setBinLabel(1, "TECB");
       lumiErrfac_->setBinLabel(2, "TECF");
