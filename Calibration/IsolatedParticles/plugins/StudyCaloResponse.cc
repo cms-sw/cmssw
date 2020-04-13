@@ -959,7 +959,8 @@ void StudyCaloResponse::fillIsolation(int i, double emaxnearP, double eneutIso1,
   h_ediff[i]->Fill(eneutIso2 - eneutIso1, tr_eventWeight);
 }
 
-void StudyCaloResponse::fillEnergy(int flag, int ieta, double p, double enEcal1, double enHcal1, double enEcal2, double enHcal2) {
+void StudyCaloResponse::fillEnergy(
+    int flag, int ieta, double p, double enEcal1, double enHcal1, double enEcal2, double enHcal2) {
   int ip(-1), ie(-1);
   for (int i = 0; i < nPBin_; ++i) {
     if (p >= pBin_[i] && p < pBin_[i + 1]) {
@@ -995,7 +996,8 @@ std::string StudyCaloResponse::truncate_str(const std::string& str) {
   return (truncated_str);
 }
 
-int StudyCaloResponse::trackPID(const reco::Track* pTrack, const edm::Handle<reco::GenParticleCollection>& genParticles) {
+int StudyCaloResponse::trackPID(const reco::Track* pTrack,
+                                const edm::Handle<reco::GenParticleCollection>& genParticles) {
   int id(0);
   if (genParticles.isValid()) {
     unsigned int indx;
