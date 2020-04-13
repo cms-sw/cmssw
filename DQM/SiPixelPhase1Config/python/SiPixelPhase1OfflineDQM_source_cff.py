@@ -68,18 +68,16 @@ siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1TrackClustersAnalyze
 #heavy ions config
 
 siPixelPhase1OfflineDQM_source_hi = siPixelPhase1OfflineDQM_source.copyAndExclude([
-    SiPixelPhase1RecHitsAnalyzer,
-    SiPixelPhase1TrackResidualsAnalyzer 
+    SiPixelPhase1RecHitsAnalyzer
 ])
 
+SiPixelPhase1TrackResidualsAnalyzer_hi = SiPixelPhase1TrackResidualsAnalyzer.clone()
+SiPixelPhase1TrackResidualsAnalyzer_hi.Tracks = "hiGeneralTracks"
+SiPixelPhase1TrackResidualsAnalyzer_hi.trajectoryInput = "hiRefittedForPixelDQM"
+SiPixelPhase1TrackResidualsAnalyzer_hi.vertices = "hiSelectedVertex"
 
-#SiPixelPhase1TrackResidualsAnalyzer_hi = SiPixelPhase1TrackResidualsAnalyzer.clone()
-#SiPixelPhase1TrackResidualsAnalyzer_hi.Tracks = "hiGeneralTracks"
-#SiPixelPhase1TrackResidualsAnalyzer_hi.trajectoryInput = "hiGeneralTracks"
-#SiPixelPhase1TrackResidualsAnalyzer_hi.vertices = "hiSelectedVertex"
-#
-#siPixelPhase1OfflineDQM_source_hi.replace(SiPixelPhase1TrackResidualsAnalyzer,
-#                                               SiPixelPhase1TrackResidualsAnalyzer_hi)
+siPixelPhase1OfflineDQM_source_hi.replace(SiPixelPhase1TrackResidualsAnalyzer,
+                                          SiPixelPhase1TrackResidualsAnalyzer_hi)
 
 SiPixelPhase1TrackClustersAnalyzer_hi = SiPixelPhase1TrackClustersAnalyzer.clone()
 SiPixelPhase1TrackClustersAnalyzer_hi.tracks = "hiGeneralTracks"
