@@ -323,7 +323,10 @@ namespace edm {
           bool found = false;
           for (auto const& productIter : preg.productList()) {
             BranchKey const& branchKey = productIter.first;
-            // Ignore potential alias-for products from earlier (or other) processes
+            // The alias-for product must be in the same process as
+            // the SwitchProducer (earlier processes or SubProcesses
+            // may contain products with same type, module label, and
+            // instance name)
             if (branchKey.processName() != processName) {
               continue;
             }
