@@ -22,7 +22,6 @@
 #include <map>
 #include <vector>
 
-
 class DTOccupancyEfficiency : public DQMEDAnalyzer {
 public:
   /// Constructor
@@ -39,7 +38,6 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
-
   // Switch for verbosity
   bool debug;
 
@@ -54,16 +52,16 @@ private:
 
   edm::ParameterSet parameters;
 
-  MonitorElement * timeBoxesPerEvent;
-  MonitorElement * digisPerEvent;
-  MonitorElement * segments4DPerEvent;
-  MonitorElement * recHitsPerEvent;
-  MonitorElement * recHitsPer4DSegment;
-  MonitorElement * t0From4DPhiSegment;
-  MonitorElement * t0From4DZSegment;
+  MonitorElement* timeBoxesPerEvent;
+  MonitorElement* digisPerEvent;
+  MonitorElement* segments4DPerEvent;
+  MonitorElement* recHitsPerEvent;
+  MonitorElement* recHitsPer4DSegment;
+  MonitorElement* t0From4DPhiSegment;
+  MonitorElement* t0From4DZSegment;
   // station, wheel for ints
-  std::map<int, std::map<int,MonitorElement*> > timeBoxesPerRing;
-  std::map<int, std::map<int,MonitorElement*> > digisPerRing;
+  std::map<int, std::map<int, MonitorElement*> > timeBoxesPerRing;
+  std::map<int, std::map<int, MonitorElement*> > digisPerRing;
 };
 #endif
 
