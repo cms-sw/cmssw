@@ -103,7 +103,7 @@ void DTRunConditionVarClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
 
   summaryHistos["SigmaT0GlbSummary"] =
       ibooker.book2D("SigmaT0GlbSummary", "# of Chambers with good sigma T0", 12, 1., 13., 5, -2., 3.);
-  allwheelHistos["allSigmaT0"] = ibooker.book1D("T0SigmaAllWheels", "sigma T0 for alla chambers", 50, 0, 25);
+  allwheelHistos["allSigmaT0"] = ibooker.book1D("T0SigmaAllWheels", "sigma T0 for all chambers", 50, 0, 25);
 
   for (int wh = -2; wh <= 2; wh++) {
     bookWheelHistos(ibooker, "MeanVDrift", "02-MeanVDrift", wh, 60, 0.0048, 0.006, true);
