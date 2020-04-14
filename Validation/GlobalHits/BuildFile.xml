@@ -14,7 +14,6 @@
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/RPCGeometry"/>
-<use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/HcalCommonData"/>
 <use   name="Geometry/Records"/>
 <use   name="DQMServices/Core"/>

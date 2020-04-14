@@ -1,7 +1,5 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/HcalDetId"/>
-<use   name="DataFormats/HepMCCandidate"/>
-<use   name="DataFormats/Math"/>
 <use   name="DQMServices/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
@@ -10,10 +8,6 @@
 <use   name="Geometry/Records"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="SimDataFormats/ValidationFormats"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimG4Core/Notification"/>
-<use   name="SimG4Core/Watcher"/>
-<use   name="SimG4CMS/Calo"/>
 <use   name="geant4core"/>
 <use   name="boost"/>
 <use   name="hepmc"/>

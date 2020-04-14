@@ -1,10 +1,7 @@
-<use name="FWCore/PluginManager"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="CondFormats/PPSObjects"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/DataRecord"/>
-<use name="CommonTools/Utils"/>
-<use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/CTPPSDetId"/>
 <use name="rootcore"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
