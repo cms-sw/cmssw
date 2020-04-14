@@ -59,7 +59,9 @@ void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   setupGeometry();
   debugLUTs();
 
-  //  generator_->generateLUTs(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
+  // encode high multiplicity bits
+  unsigned alctBits = alctProc->getHighMultiplictyBits();
+  encodeHighMultiplicityBits(alctBits);
 
   if (gem_g != nullptr) {
     if (infoV >= 0)
