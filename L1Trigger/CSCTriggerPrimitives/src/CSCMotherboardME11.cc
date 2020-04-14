@@ -66,6 +66,10 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc, const CSCCompa
   if (alctV.empty() and clctV.empty())
     return;
 
+  // encode high multiplicity bits
+  unsigned alctBits = alctProc->getHighMultiplictyBits();
+  encodeHighMultiplicityBits(alctBits);
+
   int used_alct_mask[20];
   int used_clct_mask[20];
   for (int b = 0; b < 20; b++)
