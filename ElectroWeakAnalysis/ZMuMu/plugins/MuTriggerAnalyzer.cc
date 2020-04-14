@@ -13,7 +13,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "PhysicsTools/RooStatsCms/interface/ClopperPearsonBinomialInterval.h"
 #include "TGraphAsymmErrors.h"
 #include "TH1.h"
 #include <numeric>
