@@ -109,8 +109,11 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   embedTpfmsMuon_ = iConfig.getParameter<bool>("embedTpfmsMuon");
   embedDytMuon_ = iConfig.getParameter<bool>("embedDytMuon");
   // embedding of inverse beta variable information
-  muonTimeExtraToken_ =
-      consumes<edm::ValueMap<reco::MuonTimeExtra>>(iConfig.getParameter<edm::InputTag>("sourceMuonTimeExtra"));
+  addInverseBeta_ = iConfig.getParameter<bool>("addInverseBeta");
+  if (addInverseBeta_) {
+    muonTimeExtraToken_ =
+        consumes<edm::ValueMap<reco::MuonTimeExtra>>(iConfig.getParameter<edm::InputTag>("sourceMuonTimeExtra"));
+  }
   // Monte Carlo matching
   addGenMatch_ = iConfig.getParameter<bool>("addGenMatch");
   if (addGenMatch_) {
@@ -519,8 +522,10 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     edm::Handle<edm::ValueMap<reco::MuonTimeExtra>> muonsTimeExtra;
-    // get MuonTimerExtra value map
-    iEvent.getByToken(muonTimeExtraToken_, muonsTimeExtra);
+    if (addInverseBeta_) {
+      // get MuonTimerExtra value map
+      iEvent.getByToken(muonTimeExtraToken_, muonsTimeExtra);
+    }
 
     for (edm::View<reco::Muon>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
       // construct the Muon from the ref -> save ref to original object
@@ -612,7 +617,9 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
         }
       }
-      aMuon.readTimeExtra((*muonsTimeExtra)[muonRef]);
+      if (addInverseBeta_) {
+        aMuon.readTimeExtra((*muonsTimeExtra)[muonRef]);
+      }
       // MC info
       aMuon.initSimInfo();
       if (simInfoIsAvailalbe) {

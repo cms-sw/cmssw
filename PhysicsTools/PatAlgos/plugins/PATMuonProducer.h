@@ -173,7 +173,9 @@ namespace pat {
     bool embedTpfmsMuon_;
     /// embed track from DYT muon fit into the muon
     bool embedDytMuon_;
-    /// input tag for reading timing information
+    /// add combined inverse beta measurement into the muon
+    bool addInverseBeta_;
+    /// input tag for reading inverse beta
     edm::EDGetTokenT<edm::ValueMap<reco::MuonTimeExtra>> muonTimeExtraToken_;
     /// add generator match information
     bool addGenMatch_;
