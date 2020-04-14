@@ -7,9 +7,15 @@ SiPixelSimLARecord        =   "SiPixelLorentzAngleSimRcd"
 SiPixelGenErrorRecord     =   "SiPixelGenErrorDBObjectRcd"       
 SiPixelTemplatesRecord    =   "SiPixelTemplateDBObjectRcd"       
 SiPixel2DTemplatesRecord  =   "SiPixel2DTemplateDBObjectRcd"     
+TrackerDTCCablingRecord   =   "TrackerDetToDTCELinkCablingMapRcd"
 
 #combines in a single dict of dict the tags defined below
 allTags={}
+
+## As Outer Tracker in T6 is different from all the subsequent active ones (>=T14), this needs to be specified outside of the Global Tag.
+allTags["DTCCabling"] = {
+    "T6" :  ( ','.join( [ 'TrackerDetToDTCELinkCablingMap__OT614_200_IT404_layer2_10G__T6__OTOnly' ,TrackerDTCCablingRecord, connectionString, "", "2020-03-27 11:30:00.000"] ), ), # DTC cabling map provided for T6 geometry (taken from http://ghugo.web.cern.ch/ghugo/layouts/cabling/OT614_200_IT404_layer2_10G/cablingOuter.html)
+}
 
 allTags["LA"] = {
     'T6'  : ( ','.join( [ 'SiPixelLorentzAngle_phase2_T6_v2_mc'  ,SiPixelLARecord,connectionString, "", "2019-11-05 20:00:00.000"] ), ),  #uH = 0.106/T (TBPX), uH=0.0/T (TEPX+TFPX)
@@ -68,7 +74,7 @@ allTags["Template2Dden"] = {
 }
 
 # list of active tags to be replaced
-activeKeys = ["LA","LAWidth","SimLA","LAfromAlignment","GenError","Template"]
+activeKeys = ["DTCCabling","LA","LAWidth","SimLA","LAfromAlignment","GenError","Template"]
 
 # list of geometries supported
 activeDets = ["T6","T14","T15","T19"]
