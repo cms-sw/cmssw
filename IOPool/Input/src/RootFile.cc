@@ -828,6 +828,7 @@ namespace edm {
     if (entryType == IndexIntoFile::kLumi) {
       run = indexIntoFileIter_.run();
       lumi = indexIntoFileIter_.lumi();
+      runHelper_->checkForNewRun(run, lumi);
       return IndexIntoFile::kLumi;
     } else if (processingMode_ == InputSource::RunsAndLumis) {
       indexIntoFileIter_.advanceToNextLumiOrRun();
