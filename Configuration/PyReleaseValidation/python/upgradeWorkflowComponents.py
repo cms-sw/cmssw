@@ -474,47 +474,6 @@ upgradeWFs['JMENano'] = UpgradeWorkflow_JMENano(
 )
 
 
-class UpgradeWorkflow_TICLOnly(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        result = (fragment=="CloseByParticleGun") and ('2026' in key)
-        if result:
-            skipList = [s for s in stepList if ("HARVEST" in s)]
-            for skip in skipList:
-                stepList.remove(skip)
-        return result
-upgradeWFs['TICLOnly'] = UpgradeWorkflow_TICLOnly(
-    steps = [
-        'RecoFull',
-        'RecoFullGlobal',
-    ],
-    PU = [],
-    suffix = '_TICLOnly',
-    offset = 0.51,
-)
-upgradeWFs['TICLOnly'].step3 = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations'
-}
-
-class UpgradeWorkflow_TICLFullReco(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="CloseByParticleGun") and ('2026' in key)
-upgradeWFs['TICLFullReco'] = UpgradeWorkflow_TICLFullReco(
-    steps = [
-        'RecoFull',
-        'RecoFullGlobal',
-    ],
-    PU = [],
-    suffix = '_TICLFullReco',
-    offset = 0.52,
-)
-upgradeWFs['TICLFullReco'].step3 = {
-    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations_withReco'
-}
-
 # common operations for aging workflows
 class UpgradeWorkflowAging(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
