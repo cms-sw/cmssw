@@ -120,7 +120,15 @@ protected:
   virtual bool preTrigger(const PulseArray pulse, const int start_bx, int& first_bx);
 
   /* For a given clock cycle, check each half-strip if a pattern matches */
-  bool patternFinding(const PulseArray pulse, const int nStrips, const unsigned int bx_time);
+  bool patternFinding(const PulseArray pulse,
+                      const int nStrips,
+                      const unsigned int bx_time,
+                      std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer> >& hits_in_patterns);
+
+  // enum used in the comparator code logic
+  enum CLCT_CompCode { INVALID_HALFSTRIP = 65535 };
+
+  void cleanComparatorContainer(CSCCLCTDigi::ComparatorContainer& compHits) const;
 
   /* Mark the half-strips around the best half-strip as busy */
   void markBusyKeys(const int best_hstrip, const int best_patid, int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
