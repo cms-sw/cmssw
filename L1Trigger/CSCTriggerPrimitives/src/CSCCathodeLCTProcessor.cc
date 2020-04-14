@@ -883,7 +883,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
       CSCCLCTDigi::ComparatorContainer hits_single_pattern;
       hits_single_pattern.resize(6);
       for (auto& p : hits_single_pattern) {
-        p.resize(CSCConstants::CLCT_PATTERN_WIDTH, 65535);
+        p.resize(CSCConstants::CLCT_PATTERN_WIDTH, CSCCathodeLCTProcessor::INVALID_HALFSTRIP);
       }
 
       // clear all medians
@@ -1000,7 +1000,7 @@ void CSCCathodeLCTProcessor::markBusyKeys(const int best_hstrip,
 
 void CSCCathodeLCTProcessor::cleanComparatorContainer(CSCCLCTDigi::ComparatorContainer& compHits) const {
   for (auto& p : compHits) {
-    p.erase(std::remove_if(p.begin(), p.end(), [](unsigned i) -> bool { return i == 65535; }), p.end());
+    p.erase(std::remove_if(p.begin(), p.end(), [](unsigned i) -> bool { return i == CSCCathodeLCTProcessor::INVALID_HALFSTRIP; }), p.end());
   }
 }
 
