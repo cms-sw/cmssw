@@ -243,6 +243,8 @@ void PFRecoTauDiscriminationAgainstMuon2Container::fillDescriptions(edm::Configu
   std::vector<edm::ParameterSet> vpsd_wp;
   vpsd_wp.push_back(pset_wp);
   desc.addVPSet("IDWPdefinitions", desc_wp, vpsd_wp);
+  //add empty raw value config to simplify subsequent provenance searches
+  desc.addVPSet("IDdefinitions", edm::ParameterSetDescription(), {});
 
   descriptions.add("pfRecoTauDiscriminationAgainstMuon2Container", desc);
 }
