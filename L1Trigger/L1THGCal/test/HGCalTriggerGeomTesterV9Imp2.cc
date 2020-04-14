@@ -67,19 +67,20 @@ private:
   TTree* treeCells_;
   TTree* treeCellsBH_;
   TTree* treeCellsNose_;
+  TTree* treeModuleErrors_;
   // tree variables
-  int moduleId_;
-  int moduleSide_;
-  int moduleSubdet_;
-  int moduleLayer_;
-  int moduleIEta_;
-  int moduleIPhi_;
-  int module_;
-  float moduleX_;
-  float moduleY_;
-  float moduleZ_;
-  int moduleTC_N_;
-  int moduleLinks_;
+  int moduleId_ = 0;
+  int moduleSide_ = 0;
+  int moduleSubdet_ = 0;
+  int moduleLayer_ = 0;
+  int moduleIEta_ = 0;
+  int moduleIPhi_ = 0;
+  int module_ = 0;
+  float moduleX_ = 0;
+  float moduleY_ = 0;
+  float moduleZ_ = 0;
+  int moduleTC_N_ = 0;
+  int moduleLinks_ = 0;
   std::shared_ptr<int> moduleTC_id_;
   std::shared_ptr<int> moduleTC_zside_;
   std::shared_ptr<int> moduleTC_subdet_;
@@ -93,7 +94,7 @@ private:
   std::shared_ptr<float> moduleTC_x_;
   std::shared_ptr<float> moduleTC_y_;
   std::shared_ptr<float> moduleTC_z_;
-  int moduleCell_N_;
+  int moduleCell_N_ = 0;
   std::shared_ptr<int> moduleCell_id_;
   std::shared_ptr<int> moduleCell_zside_;
   std::shared_ptr<int> moduleCell_subdet_;
@@ -105,20 +106,20 @@ private:
   std::shared_ptr<float> moduleCell_x_;
   std::shared_ptr<float> moduleCell_y_;
   std::shared_ptr<float> moduleCell_z_;
-  int triggerCellId_;
-  int triggerCellSide_;
-  int triggerCellSubdet_;
-  int triggerCellLayer_;
-  int triggerCellWaferU_;
-  int triggerCellWaferV_;
-  int triggerCellU_;
-  int triggerCellV_;
-  int triggerCellIEta_;
-  int triggerCellIPhi_;
-  float triggerCellX_;
-  float triggerCellY_;
-  float triggerCellZ_;
-  int triggerCellNeighbor_N_;
+  int triggerCellId_ = 0;
+  int triggerCellSide_ = 0;
+  int triggerCellSubdet_ = 0;
+  int triggerCellLayer_ = 0;
+  int triggerCellWaferU_ = 0;
+  int triggerCellWaferV_ = 0;
+  int triggerCellU_ = 0;
+  int triggerCellV_ = 0;
+  int triggerCellIEta_ = 0;
+  int triggerCellIPhi_ = 0;
+  float triggerCellX_ = 0;
+  float triggerCellY_ = 0;
+  float triggerCellZ_ = 0;
+  int triggerCellNeighbor_N_ = 0;
   std::shared_ptr<int> triggerCellNeighbor_id_;
   std::shared_ptr<int> triggerCellNeighbor_zside_;
   std::shared_ptr<int> triggerCellNeighbor_subdet_;
@@ -130,7 +131,7 @@ private:
   std::shared_ptr<int> triggerCellNeighbor_cellIEta_;
   std::shared_ptr<int> triggerCellNeighbor_cellIPhi_;
   std::shared_ptr<float> triggerCellNeighbor_distance_;
-  int triggerCellCell_N_;
+  int triggerCellCell_N_ = 0;
   std::shared_ptr<int> triggerCellCell_id_;
   std::shared_ptr<int> triggerCellCell_zside_;
   std::shared_ptr<int> triggerCellCell_subdet_;
@@ -144,44 +145,49 @@ private:
   std::shared_ptr<float> triggerCellCell_x_;
   std::shared_ptr<float> triggerCellCell_y_;
   std::shared_ptr<float> triggerCellCell_z_;
-  int cellId_;
-  int cellSide_;
-  int cellSubdet_;
-  int cellLayer_;
-  int cellWaferU_;
-  int cellWaferV_;
-  int cellWaferType_;
-  int cellWaferRow_;
-  int cellWaferColumn_;
-  int cellU_;
-  int cellV_;
-  float cellX_;
-  float cellY_;
-  float cellZ_;
-  int cellCornersN_;
+  int cellId_ = 0;
+  int cellSide_ = 0;
+  int cellSubdet_ = 0;
+  int cellLayer_ = 0;
+  int cellWaferU_ = 0;
+  int cellWaferV_ = 0;
+  int cellWaferType_ = 0;
+  int cellWaferRow_ = 0;
+  int cellWaferColumn_ = 0;
+  int cellU_ = 0;
+  int cellV_ = 0;
+  float cellX_ = 0;
+  float cellY_ = 0;
+  float cellZ_ = 0;
+  int cellCornersN_ = 0;
   std::shared_ptr<float> cellCornersX_;
   std::shared_ptr<float> cellCornersY_;
   std::shared_ptr<float> cellCornersZ_;
-  int cellBHId_;
-  int cellBHType_;
-  int cellBHSide_;
-  int cellBHSubdet_;
-  int cellBHLayer_;
-  int cellBHIEta_;
-  int cellBHIPhi_;
-  float cellBHEta_;
-  float cellBHPhi_;
-  float cellBHX_;
-  float cellBHY_;
-  float cellBHZ_;
-  float cellBHX1_;
-  float cellBHY1_;
-  float cellBHX2_;
-  float cellBHY2_;
-  float cellBHX3_;
-  float cellBHY3_;
-  float cellBHX4_;
-  float cellBHY4_;
+  int cellBHId_ = 0;
+  int cellBHType_ = 0;
+  int cellBHSide_ = 0;
+  int cellBHSubdet_ = 0;
+  int cellBHLayer_ = 0;
+  int cellBHIEta_ = 0;
+  int cellBHIPhi_ = 0;
+  float cellBHEta_ = 0;
+  float cellBHPhi_ = 0;
+  float cellBHX_ = 0;
+  float cellBHY_ = 0;
+  float cellBHZ_ = 0;
+  float cellBHX1_ = 0;
+  float cellBHY1_ = 0;
+  float cellBHX2_ = 0;
+  float cellBHY2_ = 0;
+  float cellBHX3_ = 0;
+  float cellBHY3_ = 0;
+  float cellBHX4_ = 0;
+  float cellBHY4_ = 0;
+  //
+  int moduleErrorSubdet_ = 0;
+  int moduleErrorLayer_ = 0;
+  int moduleErrorWaferU_ = 0;
+  int moduleErrorWaferV_ = 0;
 
 private:
   typedef std::unordered_map<uint32_t, std::unordered_set<uint32_t>> trigger_map_set;
@@ -378,6 +384,12 @@ HGCalTriggerGeomTesterV9Imp2::HGCalTriggerGeomTesterV9Imp2(const edm::ParameterS
   treeCellsNose_->Branch("corner_x", cellCornersX_.get(), "corner_x[corner_n]/F");
   treeCellsNose_->Branch("corner_y", cellCornersY_.get(), "corner_y[corner_n]/F");
   treeCellsNose_->Branch("corner_z", cellCornersZ_.get(), "corner_z[corner_n]/F");
+  //
+  treeModuleErrors_ = fs_->make<TTree>("TreeModuleErrors", "Tree of module mapping errors");
+  treeModuleErrors_->Branch("subdet", &moduleErrorSubdet_, "subdet/I");
+  treeModuleErrors_->Branch("layer", &moduleErrorLayer_, "layer/I");
+  treeModuleErrors_->Branch("waferu", &moduleErrorWaferU_, "waferu/I");
+  treeModuleErrors_->Branch("waferv", &moduleErrorWaferV_, "waferv/I");
 }
 
 /*****************************************************************/
@@ -399,6 +411,8 @@ void HGCalTriggerGeomTesterV9Imp2::beginRun(const edm::Run& /*run*/, const edm::
 
 bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency() {
   try {
+    // Set of (subdet,layer,waferU,waferV) with module mapping errors
+    std::set<std::tuple<unsigned, unsigned, int, int>> module_errors;
     trigger_map_set modules_to_triggercells;
     trigger_map_set modules_to_cells;
     trigger_map_set triggercells_to_cells;
@@ -412,11 +426,18 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency() {
       auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
       itr_insert.first->second.emplace(id);
       // fill modules
-      uint32_t module = triggerGeometry_->getModuleFromCell(id);
-      if (module != 0) {
-        itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
-        itr_insert.first->second.emplace(id);
+      uint32_t module = 0;
+      try {
+        module = triggerGeometry_->getModuleFromCell(id);
+      } catch (const cms::Exception& e) {
+        module_errors.emplace(std::make_tuple(HGCalTriggerDetId(trigger_cell).subdet(),
+                                              HGCalTriggerDetId(trigger_cell).layer(),
+                                              HGCalTriggerDetId(trigger_cell).waferU(),
+                                              HGCalTriggerDetId(trigger_cell).waferV()));
+        continue;
       }
+      itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
+      itr_insert.first->second.emplace(id);
     }
     // HSi
     for (const auto& id : triggerGeometry_->hsiGeometry()->getValidDetIds()) {
@@ -427,11 +448,18 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency() {
       auto itr_insert = triggercells_to_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
       itr_insert.first->second.emplace(id);
       // fill modules
-      uint32_t module = triggerGeometry_->getModuleFromCell(id);
-      if (module != 0) {
-        itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
-        itr_insert.first->second.emplace(id);
+      uint32_t module = 0;
+      try {
+        module = triggerGeometry_->getModuleFromCell(id);
+      } catch (const cms::Exception& e) {
+        module_errors.emplace(std::make_tuple(HGCalTriggerDetId(trigger_cell).subdet(),
+                                              HGCalTriggerDetId(trigger_cell).layer(),
+                                              HGCalTriggerDetId(trigger_cell).waferU(),
+                                              HGCalTriggerDetId(trigger_cell).waferV()));
+        continue;
       }
+      itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
+      itr_insert.first->second.emplace(id);
     }
     // HSc
     for (const auto& id : triggerGeometry_->hscGeometry()->getValidDetIds()) {
@@ -468,6 +496,19 @@ bool HGCalTriggerGeomTesterV9Imp2::checkMappingConsistency() {
         }
       }
     }
+
+    if (module_errors.size() > 0) {
+      for (const auto& module : module_errors) {
+        moduleErrorSubdet_ = std::get<0>(module);
+        moduleErrorLayer_ = std::get<1>(module);
+        moduleErrorWaferU_ = std::get<2>(module);
+        moduleErrorWaferV_ = std::get<3>(module);
+        treeModuleErrors_->Fill();
+      }
+      throw cms::Exception("BadGeometry") << "HGCalTriggerGeometry: Found  module mapping problems. Check the produced "
+                                             "tree to see the list of problematic wafers";
+    }
+
     edm::LogPrint("TriggerCellCheck") << "Checking cell -> trigger cell -> cell consistency";
     // Loop over trigger cells
     for (const auto& triggercell_cells : triggercells_to_cells) {
@@ -713,6 +754,8 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
   std::cout << "Filling EE geometry\n";
   for (const auto& id : triggerGeometry_->eeGeometry()->getValidDetIds()) {
     HGCSiliconDetId detid(id);
+    if (!triggerGeometry_->eeTopology().valid(id))
+      continue;
     cellId_ = detid.rawId();
     cellSide_ = detid.zside();
     cellSubdet_ = detid.subdet();
@@ -754,6 +797,8 @@ void HGCalTriggerGeomTesterV9Imp2::fillTriggerGeometry()
   std::cout << "Filling HSi geometry\n";
   for (const auto& id : triggerGeometry_->hsiGeometry()->getValidDetIds()) {
     HGCSiliconDetId detid(id);
+    if (!triggerGeometry_->hsiTopology().valid(id))
+      continue;
     cellId_ = detid.rawId();
     cellSide_ = detid.zside();
     cellSubdet_ = detid.subdet();

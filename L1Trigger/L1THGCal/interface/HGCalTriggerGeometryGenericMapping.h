@@ -129,6 +129,7 @@ public:
   GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const final;
   GlobalPoint getModulePosition(const unsigned module_det_id) const final;
 
+  bool validCell(const unsigned cell_det_id) const final { return true; }
   bool validTriggerCell(const unsigned trigger_cell_det_id) const final;
   bool disconnectedModule(const unsigned module_id) const final;
   unsigned lastTriggerLayer() const final;
