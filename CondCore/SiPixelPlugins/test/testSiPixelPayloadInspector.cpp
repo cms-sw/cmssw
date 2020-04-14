@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
   histo15.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo15.data() << std::endl;
 
-  SiPixelGainCalibrationCorrelations histo16;
+  SiPixelGainCalibrationOfflineCorrelations histo16;
   histo16.process(connectionString, tag, runTimeType, end, end);
   std::cout << histo16.data() << std::endl;
 }

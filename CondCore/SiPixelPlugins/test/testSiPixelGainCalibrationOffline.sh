@@ -9,11 +9,11 @@ eval `scram run -sh`;
 # Go back to original working directory
 cd $W_DIR;
 # Run get payload data script
-if [ -d $W_DIR/plots_GainCalib ]; then
-    rm -fr $W_DIR/plots_GainCalib
+if [ -d $W_DIR/plots_GainCalibOffline ]; then
+    rm -fr $W_DIR/plots_GainCalibOffline
 fi
 
-mkdir $W_DIR/plots_GainCalib
+mkdir $W_DIR/plots_GainCalibOffline
 
 ## single IOV plots
 
@@ -26,7 +26,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/SingleIOVGains.png
+mv *.png  $W_DIR/plots_GainCalibOffline/SingleIOVGains.png
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
@@ -37,7 +37,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/SingleIOVPedestals.png
+mv *.png  $W_DIR/plots_GainCalibOffline/SingleIOVPedestals.png
 
 ## single IOV by Partitions
 
@@ -50,7 +50,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/SingleIOVGainsByPart.png
+mv *.png  $W_DIR/plots_GainCalibOffline/SingleIOVGainsByPart.png
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
@@ -61,7 +61,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/SingleIOVPedestalsByPart.png
+mv *.png  $W_DIR/plots_GainCalibOffline/SingleIOVPedestalsByPart.png
 
 ## two tags plots
 
@@ -76,7 +76,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/TwoTagsGainsComparison.png
+mv *.png  $W_DIR/plots_GainCalibOffline/TwoTagsGainsComparison.png
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
@@ -89,7 +89,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/TwoTagsPedestalsComparison.png
+mv *.png  $W_DIR/plots_GainCalibOffline/TwoTagsPedestalsComparison.png
 
 ## single tag, two IOVs plots
 
@@ -102,7 +102,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/SingleTagGainsComparison.png
+mv *.png  $W_DIR/plots_GainCalibOffline/SingleTagGainsComparison.png
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
@@ -113,7 +113,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/SingleTagPedestalsComparison.png
+mv *.png  $W_DIR/plots_GainCalibOffline/SingleTagPedestalsComparison.png
 
 ## Maps
 
@@ -126,7 +126,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/PedestalBPixMap.png
+mv *.png  $W_DIR/plots_GainCalibOffline/PedestalBPixMap.png
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
@@ -137,7 +137,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/GainBPixMap.png
+mv *.png  $W_DIR/plots_GainCalibOffline/GainBPixMap.png
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
@@ -148,7 +148,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/PedestalFPixMap.png
+mv *.png  $W_DIR/plots_GainCalibOffline/PedestalFPixMap.png
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
@@ -159,7 +159,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/GainFPixMap.png
+mv *.png  $W_DIR/plots_GainCalibOffline/GainFPixMap.png
 
 ## two tags plots by Region
 
@@ -174,7 +174,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/TwoTagsGainsByRegionComparison.png
+mv *.png  $W_DIR/plots_GainCalibOffline/TwoTagsGainsByRegionComparison.png
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
@@ -187,7 +187,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/TwoTagsPedestalsByRegionComparison.png
+mv *.png  $W_DIR/plots_GainCalibOffline/TwoTagsPedestalsByRegionComparison.png
 
 ## single tag, two IOVs plots by Region
 
@@ -200,7 +200,7 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/SingleTagGainsByRegionComparison.png
+mv *.png  $W_DIR/plots_GainCalibOffline/SingleTagGainsByRegionComparison.png
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
@@ -211,17 +211,17 @@ getPayloadData.py \
     --db Prod \
     --test;
 
-mv *.png  $W_DIR/plots_GainCalib/SingleTagPedestalsByRegionComparison.png
+mv *.png  $W_DIR/plots_GainCalibOffline/SingleTagPedestalsByRegionComparison.png
 
 ## correlations
 
 getPayloadData.py \
     --plugin pluginSiPixelGainCalibrationOffline_PayloadInspector \
-    --plot plot_SiPixelGainCalibrationCorrelations \
+    --plot plot_SiPixelGainCalibrationOfflineCorrelations \
     --tag SiPixelGainCalibration_2009runs_express \
     --time_type Run \
     --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test ;
 
-mv *.png  $W_DIR/plots_GainCalib/SingleTagGainsPedestalsCorrelations.png
+mv *.png  $W_DIR/plots_GainCalibOffline/SingleTagGainsPedestalsCorrelations.png
