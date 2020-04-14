@@ -14,6 +14,8 @@
 
 class CSCALCTDigi {
 public:
+  enum ALCTHMT { kIsRun3Mask = 0x1, kHMTMask = 0x7, kIsRun3Shift = 14, kHMTShift = 0 };
+
   /// Constructors
   CSCALCTDigi(const int valid,
               const int quality,
@@ -81,10 +83,10 @@ public:
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
   /// return the high multiplicity bits
-  int getHMT() const { return hmt_; }
+  int getHMT() const;
 
   /// set the high multiplicity bits
-  void setHMT(const int hmt) { hmt_ = hmt; }
+  void setHMT(const int hmt);
 
   /// True if the first ALCT has a larger quality, or if it has the same
   /// quality but a larger wire group.
@@ -101,6 +103,11 @@ public:
 
   /// set wiregroup number
   void setWireGroup(unsigned int wiregroup) { keywire_ = wiregroup; }
+
+  /// Distinguish Run-1/2 from Run-3
+  bool isRun3() const;
+
+  void setRun3(bool isRun3);
 
 private:
   uint16_t valid_;
