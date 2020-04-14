@@ -2,5 +2,5 @@
 <use   name="DQMServices/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="Geometry/CommonDetUnit"/>
-<use   name="RecoMuon/MuonIdentification"/>
+<use   name="Geometry/Records"/>
 <flags   EDM_PLUGIN="1"/>

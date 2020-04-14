@@ -17,7 +17,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Validation/TrackerDigis/interface/SiPixelDigiValid.h"
+#include "SiPixelDigiValid.h"
 
 // using namespace std;
 // using namespace edm;
