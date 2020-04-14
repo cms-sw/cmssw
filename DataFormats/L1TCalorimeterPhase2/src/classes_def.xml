@@ -1,0 +1,29 @@
+<!-- *********************************** -->
+<!-- Phase-2 Calo data dictionaries      -->
+<!-- *********************************** -->
+
+<lcgdict>
+
+  <class name="l1tp2::CaloCrystalCluster"  ClassVersion="3">
+         <version ClassVersion="3" checksum="811222139"/>
+  </class>
+  <class name="std::vector<l1tp2::CaloCrystalCluster>" />
+  <class name="l1tp2::CaloCrystalClusterCollection" />
+  <class name="edm::Wrapper<l1tp2::CaloCrystalClusterCollection>" />
+
+  <class name="l1tp2::CaloTower"  ClassVersion="3">
+         <version ClassVersion="3" checksum="2608605419"/>
+  </class>
+  <class name="std::vector<l1tp2::CaloTower>" />
+  <class name="l1tp2::CaloTowerCollection" />
+  <class name="edm::Wrapper<l1tp2::CaloTowerCollection>" />
+
+  <class name="l1tp2::CaloJet"  ClassVersion="3">
+         <version ClassVersion="3" checksum="2520028496"/>
+  </class>
+  <class name="std::vector<l1tp2::CaloJet>" />
+  <class name="l1tp2::CaloJetsCollection" />
+  <class name="edm::Wrapper<l1tp2::CaloJetsCollection>" />
+
+</lcgdict>
+
