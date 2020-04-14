@@ -890,7 +890,8 @@ for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
     phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
         'keep *_TTClustersFromPhase2TrackerDigis_*_*',
-        'keep *_TTStubsFromPhase2TrackerDigis_*_*'
+        'keep *_TTStubsFromPhase2TrackerDigis_*_*',
+        'keep *_TrackerDTC_*_*'
     ])
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
