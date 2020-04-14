@@ -506,12 +506,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, _myPatMet).metSource = cms.InputTag("pfMet"+postfix)
             getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
         if metType == "PF":
-            getattr(process, _myPatMet).srcLeptons = \
+            from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+            run2_miniAOD_devel.toModify(getattr(process, _myPatMet), srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","electrons"),
                             copy.copy(self.getvalue("muonCollection")),
                             copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
-                              cms.InputTag("pfeGammaToCandidate","photons"))
+                              cms.InputTag("pfeGammaToCandidate","photons")))
 
         if self.getvalue("runOnData"):
             getattr(process, _myPatMet).addGenMET  = False
@@ -626,12 +627,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             _myPatMet = "pat"+metType+"Met"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
             getattr(process, _myPatMet).srcPFCands = copy.copy(self.getvalue("pfCandCollection"))
-            getattr(process, _myPatMet).srcLeptons = \
+            from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+            run2_miniAOD_devel.toModify(getattr(process, _myPatMet), srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","electrons"),
                             copy.copy(self.getvalue("muonCollection")),
                             copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
-                              cms.InputTag("pfeGammaToCandidate","photons"))
+                              cms.InputTag("pfeGammaToCandidate","photons")))
             if postfix=="NoHF":
                 getattr(process, _myPatMet).computeMETSignificance = cms.bool(False)
             if self.getvalue("runOnData"):
@@ -649,12 +651,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             _myPatMet = "patMETs"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
             getattr(process, _myPatMet).srcPFCands=copy.copy(self.getvalue("pfCandCollection"))
-            getattr(process, _myPatMet).srcLeptons = \
+            from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+            run2_miniAOD_devel.toModify(getattr(process, _myPatMet), srcLeptons = \
               cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
                               cms.InputTag("pfeGammaToCandidate","electrons"),
                             copy.copy(self.getvalue("muonCollection")),
                             copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
-                              cms.InputTag("pfeGammaToCandidate","photons"))
+                              cms.InputTag("pfeGammaToCandidate","photons")))
 
         if hasattr(process, "patCaloMet"):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
@@ -1481,12 +1484,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 addToProcessAndTask(_myPatMet, getattr(process,'patMETs' ).clone(), process, task)
                 getattr(process, _myPatMet).metSource = cms.InputTag("pfMetT1"+postfix)
                 getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
-                getattr(process, _myPatMet).srcLeptons = \
+                from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+                run2_miniAOD_devel.toModify(getattr(process, _myPatMet), srcLeptons = \
                   cms.VInputTag(copy.copy(self.getvalue("electronCollection")) if self.getvalue("onMiniAOD") else
                                   cms.InputTag("pfeGammaToCandidate","electrons"),
                                 copy.copy(self.getvalue("muonCollection")),
                                 copy.copy(self.getvalue("photonCollection")) if self.getvalue("onMiniAOD") else
-                                  cms.InputTag("pfeGammaToCandidate","photons"))
+                                  cms.InputTag("pfeGammaToCandidate","photons")))
                 if postfix=="NoHF":
                     getattr(process, _myPatMet).computeMETSignificance = cms.bool(False)
 
@@ -1745,6 +1749,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if self._parameters["metType"].value == "PF": # not hasattr(process, "pfMet"+postfix)
             if "T1" in self._parameters['correctionLevel'].value:
                 getattr(process, "patPFMet"+postfix).srcJets = jetCollection
+                getattr(process, "patPFMet"+postfix).srcLeptons = cms.VInputTag(self._parameters["electronCollection"].value, 
+                                                                                self._parameters["muonCollection"].value,
+                                                                                self._parameters["photonCollection"].value,
+                                                                                )
             getattr(process, "patPFMet"+postfix).addGenMET  = False
             if not self._parameters["runOnData"].value:
                 getattr(process, "patPFMet"+postfix).addGenMET  = True
