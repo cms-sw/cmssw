@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-
-from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-process = cms.Process('DIGI',Phase2C4)
+from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+process = cms.Process('SIM',Phase2C9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D46Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D46_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -102,8 +101,8 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Eventually modify default geometry parameters
-from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
-process = custom_geometry_V9(process, 2)
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_decentralized_V11
+process = custom_geometry_decentralized_V11(process)
 
 process.hgcaltriggergeomtester = cms.EDAnalyzer(
     "HGCalTriggerGeomTesterV9Imp2"
