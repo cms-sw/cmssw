@@ -35,7 +35,11 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/utils.h"
 
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+#include "TrackingTools/RecoGeometry/interface/RecoGeometryRecord.h"
+
 namespace edm {
+  class ConsumesCollector;
   class EventSetup;
   class ConfigurationDescriptions;
   class ParameterSet;
@@ -49,16 +53,7 @@ class TrajSeedMatcher {
 public:
   class SCHitMatch {
   public:
-    SCHitMatch()
-        : detId_(0),
-          dRZ_(std::numeric_limits<float>::max()),
-          dPhi_(std::numeric_limits<float>::max()),
-          hit_(nullptr),
-          et_(0),
-          eta_(0),
-          phi_(0),
-          charge_(0),
-          nrClus_(0) {}
+    SCHitMatch() {}
 
     //does not set charge,et,nrclus
     SCHitMatch(const GlobalPoint& vtxPos, const TrajectoryStateOnSurface& trajState, const TrackingRecHit& hit);
@@ -85,17 +80,17 @@ public:
     const TrackingRecHit* hit() const { return hit_; }
 
   private:
-    DetId detId_;
+    DetId detId_ = 0;
     GlobalPoint hitPos_;
-    float dRZ_;
-    float dPhi_;
-    const TrackingRecHit* hit_;  //we do not own this
+    float dRZ_ = std::numeric_limits<float>::max();
+    float dPhi_ = std::numeric_limits<float>::max();
+    const TrackingRecHit* hit_ = nullptr;  //we do not own this
     //extra quanities which are set later
-    float et_;
-    float eta_;
-    float phi_;
-    int charge_;
-    int nrClus_;
+    float et_ = 0.f;
+    float eta_ = 0.f;
+    float phi_ = 0.f;
+    int charge_ = 0;
+    int nrClus_ = 0;
   };
 
   struct MatchInfo {
@@ -178,19 +173,41 @@ public:
   };
 
 public:
-  explicit TrajSeedMatcher(const edm::ParameterSet& pset);
+  struct Configuration {
+    Configuration(const edm::ParameterSet& pset, edm::ConsumesCollector&& cc);
+
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramMagFieldToken;
+    const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navSchoolToken;
+    const edm::ESGetToken<DetLayerGeometry, RecoGeometryRecord> detLayerGeomToken;
+
+    const bool useRecoVertex;
+    const bool enableHitSkipping;
+    const bool requireExactMatchCount;
+    const bool useParamMagFieldIfDefined;
+
+    //these two varibles determine how hits we require
+    //based on how many valid layers we had
+    //right now we always need atleast two hits
+    //also highly dependent on the seeds you pass in
+    //which also require a given number of hits
+    const std::vector<unsigned int> minNrHits;
+    const std::vector<int> minNrHitsValidLayerBins;
+
+    const std::vector<std::unique_ptr<MatchingCuts> > matchingCuts;
+  };
+
+  explicit TrajSeedMatcher(Configuration const& cfg,
+                           edm::EventSetup const& iSetup,
+                           MeasurementTrackerEvent const& measTkEvt);
   ~TrajSeedMatcher() = default;
 
   static edm::ParameterSetDescription makePSetDescription();
 
-  void doEventSetup(const edm::EventSetup& iSetup);
-
-  std::vector<TrajSeedMatcher::SeedWithInfo> compatibleSeeds(const TrajectorySeedCollection& seeds,
-                                                             const GlobalPoint& candPos,
-                                                             const GlobalPoint& vprim,
-                                                             const float energy);
-
-  void setMeasTkEvtHandle(edm::Handle<MeasurementTrackerEvent> handle) { measTkEvt_ = std::move(handle); }
+  std::vector<TrajSeedMatcher::SeedWithInfo> operator()(const TrajectorySeedCollection& seeds,
+                                                        const GlobalPoint& candPos,
+                                                        const GlobalPoint& vprim,
+                                                        const float energy);
 
 private:
   std::vector<SCHitMatch> processSeed(const TrajectorySeed& seed,
@@ -252,37 +269,23 @@ private:
   //parameterised b-fields may not be valid for entire detector, just tracker volume
   //however need we ecal so we auto select based on the position
   const MagneticField& getMagField(const GlobalPoint& point) const {
-    return useParamMagFieldIfDefined_ && magFieldParam_->isDefined(point) ? *magFieldParam_ : *magField_;
+    return cfg_.useParamMagFieldIfDefined && magFieldParam_.isDefined(point) ? magFieldParam_ : magField_;
   }
 
 private:
   static constexpr float kElectronMass_ = 0.000511;
   static constexpr float kPhiCut_ = -0.801144;  //cos(2.5)
-  std::unique_ptr<PropagatorWithMaterial> forwardPropagator_;
-  std::unique_ptr<PropagatorWithMaterial> backwardPropagator_;
-  unsigned long long cacheIDMagField_;
-  edm::ESHandle<MagneticField> magField_;
-  edm::ESHandle<MagneticField> magFieldParam_;
-  edm::Handle<MeasurementTrackerEvent> measTkEvt_;
-  edm::ESHandle<NavigationSchool> navSchool_;
-  edm::ESHandle<DetLayerGeometry> detLayerGeom_;
-  std::string paramMagFieldLabel_;
-  std::string navSchoolLabel_;
-  std::string detLayerGeomLabel_;
 
-  bool useRecoVertex_;
-  bool enableHitSkipping_;
-  bool requireExactMatchCount_;
-  bool useParamMagFieldIfDefined_;
-  std::vector<std::unique_ptr<MatchingCuts> > matchingCuts_;
+  Configuration const& cfg_;
 
-  //these two varibles determine how hits we require
-  //based on how many valid layers we had
-  //right now we always need atleast two hits
-  //also highly dependent on the seeds you pass in
-  //which also require a given number of hits
-  const std::vector<unsigned int> minNrHits_;
-  const std::vector<int> minNrHitsValidLayerBins_;
+  MagneticField const& magField_;
+  MagneticField const& magFieldParam_;
+  MeasurementTrackerEvent const& measTkEvt_;
+  NavigationSchool const& navSchool_;
+  DetLayerGeometry const& detLayerGeom_;
+
+  PropagatorWithMaterial forwardPropagator_;
+  PropagatorWithMaterial backwardPropagator_;
 
   std::unordered_map<int, TrajectoryStateOnSurface> trajStateFromVtxPosChargeCache_;
   std::unordered_map<int, TrajectoryStateOnSurface> trajStateFromVtxNegChargeCache_;
