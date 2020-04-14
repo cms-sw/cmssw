@@ -54,6 +54,9 @@ DEFINE_FWK_MODULE(DTDCSByLumiTask);
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 DEFINE_FWK_MODULE(DTDataIntegrityTask);
 
+#include <DQM/DTMonitorModule/src/DTOccupancyEfficiency.h>
+DEFINE_FWK_MODULE(DTOccupancyEfficiency);
+
 // Local Variables:
 // show-trailing-whitespace: t
 // truncate-lines: t
