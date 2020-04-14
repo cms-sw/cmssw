@@ -3,16 +3,12 @@
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/EcalDetId"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondFormats/DataRecord"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/EcalAlgo"/>
 <use   name="DataFormats/Math"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DQMServices/Core"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="CommonTools/UtilAlgos"/>
