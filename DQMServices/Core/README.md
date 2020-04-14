@@ -24,7 +24,7 @@ DQM code runs as CMSSW plugins. There are two main types of plugins: *Analyzers*
 
 There are six supported types of DQM modules:
 - `DQMEDAnalyzer`, based on `edm::stream::EDProducer`. Used for the majority of histogram filling in RECO jobs.
-- `DQMOneEDAnalyzer` based on `edm::one::EDProducer`. Used when begin/end job transitions are required. Can accept more `edm::one` specific options. Cannot save per-lumi histograms.
+- `DQMOneEDAnalyzer` based on `edm::one::EDProducer`. Used when begin/end job transitions are required. Can accept more `edm::one` specific options.
 - `DQMOneLumiEDAnalyzer` based on `edm::one::EDProducer`. Used when begin/end lumi transitions are needed. Blocks concurrent lumisections.
 - `DQMGlobalEDAnalyzer` based on `edm::global::EDProducer`. Used for DQM@HLT and a few random other things. Cannot save per-lumi histograms (this is a conflict with the fact that HLT _typically_ saves _only_ per lumi histograms, see #28341).
 - `DQMEDHarvester` based on `edm::one::EDProducer`. Used in harvesting jobs to manipulate histograms in lumi, run, and job transitions. 
