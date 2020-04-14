@@ -126,9 +126,7 @@ protected:
                       std::map<int, std::map<int, CSCCLCTDigi::ComparatorContainer> >& hits_in_patterns);
 
   // enum used in the comparator code logic
-  enum CLCT_CompCode {
-    INVALID_HALFSTRIP = 65535
-  };
+  enum CLCT_CompCode { INVALID_HALFSTRIP = 65535 };
 
   void cleanComparatorContainer(CSCCLCTDigi::ComparatorContainer& compHits) const;
 
