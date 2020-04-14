@@ -74,6 +74,26 @@ bool CSCALCTDigi::operator>(const CSCALCTDigi& rhs) const {
   return returnValue;
 }
 
+int CSCALCTDigi::getHMT() const { return hmt_ & kIsRun3Mask; }
+
+void CSCALCTDigi::setHMT(const int newHmt) {
+  // clear the old value
+  hmt_ &= ~(kHMTMask << kHMTShift);
+
+  // set the new value
+  hmt_ |= newHmt << kHMTShift;
+}
+
+bool CSCALCTDigi::isRun3() const { return (hmt_ >> kIsRun3Shift) & kIsRun3Mask; }
+
+void CSCALCTDigi::setRun3(const bool isRun3) {
+  // clear the old value
+  hmt_ &= ~(kIsRun3Mask << kIsRun3Shift);
+
+  // set the new value
+  hmt_ |= isRun3 << kIsRun3Shift;
+}
+
 bool CSCALCTDigi::operator==(const CSCALCTDigi& rhs) const {
   // Exact equality.
   bool returnValue = false;
