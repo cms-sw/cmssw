@@ -1788,8 +1788,6 @@ if __name__=="__main__":
             self.__insertValue(tracked,label,value)
         def addString(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
-        def getString(self,tracked,label):
-            return self.__getValue(tracked, label)
         def addVString(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
         def getVString(self,tracked,label):
