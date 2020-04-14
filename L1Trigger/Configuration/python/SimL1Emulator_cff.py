@@ -64,6 +64,4 @@ _phase2_siml1emulator = SimL1EmulatorTask.copy()
 _phase2_siml1emulator.add(hgcalTriggerPrimitivesTask)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-from Configuration.Eras.Modifier_phase2_hgcalV11_cff import phase2_hgcalV11
-(phase2_hgcal & ~phase2_hgcalV11).toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator )
-#phase2_hgcal.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator )
+phase2_hgcal.toReplaceWith( SimL1EmulatorTask , _phase2_siml1emulator )
