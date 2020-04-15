@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal
-from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer as _ticlLayerTileProducer
+from RecoHGCal.TICL.TICLSeedingRegions_cff import ticlSeedingGlobal, hfnticlSeedingGlobal
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer as _trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer as _filteredLayerClustersProducer
 from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer as _multiClustersFromTrackstersProducer
@@ -14,6 +13,7 @@ filteredLayerClustersMIP = _filteredLayerClustersProducer.clone(
     max_cluster_size = 2, # inclusive
     iteration_label = "MIP"
 )
+
 
 # CA - PATTERN RECOGNITION
 
@@ -40,3 +40,13 @@ ticlMIPStepTask = cms.Task(ticlSeedingGlobal
     ,ticlTrackstersMIP
     ,ticlMultiClustersFromTrackstersMIP)
 
+##############
+
+hfnfilteredLayerClustersMIP = filteredLayerClustersMIP.clone()
+hfnfilteredLayerClustersMIP.HGCLayerClusters = 'hgcalLayerClustersHFNose'
+hfnfilteredLayerClustersMIP.LayerClustersInputMask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask")
+hfnfilteredLayerClustersMIP.iteration_label = "MIPn"
+
+hfnticlMIPStepTask = cms.Task(hfnticlSeedingGlobal
+                              ,hfnfilteredLayerClustersMIP
+)

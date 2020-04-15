@@ -40,14 +40,13 @@ iterTICLTask = cms.Task(ticlLayerTileTask
 ticlLayerTileHFNoseProducer = ticlLayerTileProducer.clone(
     detector = 'HFNose'
 )
-_hfnose_ticlLayerTileTask = cms.Task(ticlLayerTileHFNoseProducer)
 
-_hfnose_iterTICLTask = iterTICLTask.copy()
-_hfnose_iterTICLTask.add(_hfnose_ticlLayerTileTask)
+hfnticlLayerTileTask = cms.Task(ticlLayerTileHFNoseProducer)
 
-from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
-phase2_hfnose.toReplaceWith(
-    iterTICLTask, _hfnose_iterTICLTask )
+hfniterTICLTask = cms.Task(
+    hfnticlLayerTileTask,
+    hfnticlMIPStepTask
+)
 
 ####
 
