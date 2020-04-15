@@ -8,7 +8,10 @@
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 
+#include <type_traits>
 #include <memory>
 #include <sstream>
 
@@ -41,9 +44,15 @@ namespace gainCalibHelper {
   class SiPixelGainCalibrationValues : public cond::payloadInspector::PlotImage<PayloadType> {
   public:
     SiPixelGainCalibrationValues()
-        : cond::payloadInspector::PlotImage<PayloadType>(
-              Form("SiPixelGainCalibration %s Values", TypeName[myType])) {
+        : cond::payloadInspector::PlotImage<PayloadType>(Form("SiPixelGainCalibration %s Values", TypeName[myType])) {
       this->setSingleIov(true);
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+        label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
+      } else {
+        isForHLT_ = true;
+        label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
+      }
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
@@ -65,23 +74,23 @@ namespace gainCalibHelper {
           minimum = payload->getPedLow();
           break;
         default:
-          edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-              << "Unrecognized type " << myType << std::endl;
+          edm::LogError(label_) << "Unrecognized type " << myType << std::endl;
           break;
       }
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
-      auto h1 = std::make_shared<TH1F>(
-          Form("%s values", TypeName[myType]),
-          Form("SiPixel Gain Calibration Offline - %s;per pixel %s;# pixels", TypeName[myType], TypeName[myType]),
-          200,
-          minimum,
-          maximum);
+      auto h1 = std::make_shared<TH1F>(Form("%s values", TypeName[myType]),
+                                       Form("SiPixel Gain Calibration %s - %s;per %s %s;# %ss",
+                                            (isForHLT_ ? "ForHLT" : "Offline"),
+                                            TypeName[myType],
+                                            (isForHLT_ ? "Column" : "Pixel"),
+                                            TypeName[myType],
+					    (isForHLT_ ? "column" : "pixel")),				       
+                                       200,
+                                       minimum,
+                                       maximum);
       canvas.cd();
-      canvas.SetTopMargin(0.06);
-      canvas.SetBottomMargin(0.12);
-      canvas.SetLeftMargin(0.12);
-      canvas.SetRightMargin(0.05);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(),0.06,0.12,0.12,0.05);
       canvas.Modified();
 
       // fill the histogram
@@ -110,16 +119,7 @@ namespace gainCalibHelper {
 
       TPaveStats* st = (TPaveStats*)h1->FindObject("stats");
       st->SetTextSize(0.03);
-      /*
-      st->SetX1NDC(0.70);  //new x start position
-      st->SetY1NDC(0.77);  //new y start position
-      st->SetX2NDC(0.94);  //new x end position
-      st->SetY2NDC(0.87);  //new y end position
-      */
-      st->SetX1NDC(0.15);  //new x start position
-      st->SetY1NDC(0.83);  //new y start position
-      st->SetX2NDC(0.39);  //new x end position
-      st->SetY2NDC(0.93);  //new y end position
+      SiPixelPI::adjustStats(st,0.15,0.83,0.39,0.93);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -148,8 +148,9 @@ namespace gainCalibHelper {
         int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
         int ncols = payload->getNCols(d);
         int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-	unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),nRowsForHLT); // dirty trick to make it work for the HLT payload
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
 
         //int nrows = 80 * 2 = 160;  // rows in x
         //int ncols = 52 * 8 = 416;  // cols in y
@@ -158,10 +159,10 @@ namespace gainCalibHelper {
         bool isDeadColumn;
         bool isNoisyColumn;
 
-	// std::cout << "NCOLS: " << payload->getNCols(d) << " "<< rangeAndCol.second << " NROWS:" << nrows 
-	// 	  << ", RANGES: " << rangeAndCol.first.second - rangeAndCol.first.first
-	// 	  << ", Ratio: " << float(rangeAndCol.first.second - rangeAndCol.first.first)/rangeAndCol.second << std::endl;
-	
+	COUT << "NCOLS: " << payload->getNCols(d) << " "<< rangeAndCol.second << " NROWS:" << nrows
+	     << ", RANGES: " << rangeAndCol.first.second - rangeAndCol.first.first
+	     << ", Ratio: " << float(rangeAndCol.first.second - rangeAndCol.first.first)/rangeAndCol.second << std::endl;
+
         float quid(-99999.);
 
         for (int col_iter = 0; col_iter < ncols; col_iter++) {
@@ -176,8 +177,7 @@ namespace gainCalibHelper {
                     col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
                 break;
               default:
-                edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-                    << "Unrecognized type " << theType << std::endl;
+                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
                 break;
             }
 
@@ -186,19 +186,29 @@ namespace gainCalibHelper {
         }
       }
     }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
   };
 
   /*******************************************************************
     1d histogram of SiPixelGainCalibration for Gain/Pedestals
     correlation of 1 IOV
   ********************************************************************/
-  template<class PayloadType>
+  template <class PayloadType>
   class SiPixelGainCalibrationCorrelations : public cond::payloadInspector::PlotImage<PayloadType> {
   public:
     SiPixelGainCalibrationCorrelations()
-        : cond::payloadInspector::PlotImage<PayloadType>(
-              "SiPixelGainCalibrationOffline gain/pedestal correlations") {
+        : cond::payloadInspector::PlotImage<PayloadType>("SiPixelGainCalibration gain/pedestal correlations") {
       this->setSingleIov(true);
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+        label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
+      } else {
+        isForHLT_ = true;
+        label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
+      }
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
@@ -213,7 +223,10 @@ namespace gainCalibHelper {
       canvas.cd();
 
       auto hBPix = std::make_shared<TH2F>("Correlation BPIX",
-                                          "SiPixel Gain Calibration Offline BPIx;per pixel gains;per pixel pedestals",
+                                          Form("SiPixel Gain Calibration %s BPIx;per %s gains;per %s pedestals",
+                                               (isForHLT_ ? "ForHLT" : "Offline"),
+                                               (isForHLT_ ? "column" : "pixel"),
+                                               (isForHLT_ ? "column" : "pixel")),
                                           200,
                                           payload->getGainLow(),
                                           payload->getGainHigh(),
@@ -222,7 +235,10 @@ namespace gainCalibHelper {
                                           payload->getPedHigh());
 
       auto hFPix = std::make_shared<TH2F>("Correlation FPIX",
-                                          "SiPixel Gain Calibration Offline FPix;per pixel gains;per pixel pedestals",
+                                          Form("SiPixel Gain Calibration %s FPix;per %s gains;per %s pedestals",
+                                               (isForHLT_ ? "ForHLT" : "Offline"),
+                                               (isForHLT_ ? "column" : "pixel"),
+                                               (isForHLT_ ? "column" : "pixel")),
                                           200,
                                           payload->getGainLow(),
                                           payload->getGainHigh(),
@@ -231,10 +247,7 @@ namespace gainCalibHelper {
                                           payload->getPedHigh());
 
       for (unsigned int i : {1, 2}) {
-        canvas.cd(i)->SetTopMargin(0.04);
-        canvas.cd(i)->SetBottomMargin(0.12);
-        canvas.cd(i)->SetLeftMargin(0.15);
-        canvas.cd(i)->SetRightMargin(0.13);
+	SiPixelPI::adjustCanvasMargins(canvas.cd(i),0.04,0.12,0.15,0.13);
         canvas.cd(i)->Modified();
       }
 
@@ -246,14 +259,14 @@ namespace gainCalibHelper {
       hBPix->Draw("colz");
 
       SiPixelPI::makeNicePlotStyle(hBPix.get());
-      hBPix->GetYaxis()->SetTitleOffset(1.7);
+      hBPix->GetYaxis()->SetTitleOffset(1.65);
 
       canvas.cd(2)->SetLogz();
       hFPix->SetTitle("");
       hFPix->Draw("colz");
 
       SiPixelPI::makeNicePlotStyle(hFPix.get());
-      hFPix->GetYaxis()->SetTitleOffset(1.7);
+      hFPix->GetYaxis()->SetTitleOffset(1.65);
       canvas.Update();
 
       TLegend legend = TLegend(0.3, 0.92, 0.70, 0.95);
@@ -306,9 +319,10 @@ namespace gainCalibHelper {
         int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
         int ncols = payload->getNCols(d);
         int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-	unsigned int nRowsForHLT = 1;
-        int nrows = std::max(payload->getNumberOfRowsToAverageOver() * nRocsInRow,nRowsForHLT); // dirty trick to make it work for the HLT payload
-	
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max(payload->getNumberOfRowsToAverageOver() * nRocsInRow,
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
+
         auto rangeAndCol = payload->getRangeAndNCols(d);
         bool isDeadColumn;
         bool isNoisyColumn;
@@ -328,27 +342,36 @@ namespace gainCalibHelper {
                 hFPix->Fill(gain, ped);
                 break;
               default:
-                edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-                    << d << " is not a Pixel DetId" << std::endl;
+                edm::LogError(label_) << d << " is not a Pixel DetId" << std::endl;
                 break;
             }
           }
         }
       }
     }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
   };
 
   /*******************************************************************
     1d histogram of SiPixelGainCalibration for Pedestals of 1 IOV
   ********************************************************************/
   template <gainCalibPI::type myType, class PayloadType>
-  class SiPixelGainCalibrationValuesByPart
-      : public cond::payloadInspector::PlotImage<PayloadType> {
+  class SiPixelGainCalibrationValuesByPart : public cond::payloadInspector::PlotImage<PayloadType> {
   public:
     SiPixelGainCalibrationValuesByPart()
         : cond::payloadInspector::PlotImage<PayloadType>(
               Form("SiPixelGainCalibrationOffline %s Values By Partition", TypeName[myType])) {
       this->setSingleIov(true);
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+        label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
+      } else {
+        isForHLT_ = true;
+        label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
+      }
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
@@ -374,32 +397,36 @@ namespace gainCalibHelper {
           minimum = payload->getPedLow();
           break;
         default:
-          edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-              << "Unrecognized type " << myType << std::endl;
+          edm::LogError(label_) << "Unrecognized type " << myType << std::endl;
           break;
       }
 
       auto hBPix = std::make_shared<TH1F>(Form("%s BPIX", TypeName[myType]),
-                                          Form("SiPixel Gain Calibration Offline BPIx -%s;per pixel %s (BPix);# pixels",
+                                          Form("SiPixel Gain Calibration %s BPIx -%s;per %s %s (BPix);# %ss",
+                                               (isForHLT_ ? "ForHLT" : "Offline"),
                                                TypeName[myType],
-                                               TypeName[myType]),
+                                               (isForHLT_ ? "Column" : "Pixel"), 
+					       TypeName[myType],
+                                               (isForHLT_ ? "column" : "pixel")
+					       ),
                                           200,
                                           minimum,
                                           maximum);
 
       auto hFPix = std::make_shared<TH1F>(Form("%s FPIX", TypeName[myType]),
-                                          Form("SiPixel Gain Calibration Offline FPix -%s;per pixel %s (FPix);# pixels",
+                                          Form("SiPixel Gain Calibration %s FPix -%s;per %s %s (FPix);# %ss",
+                                               (isForHLT_ ? "ForHLT" : "Offline"),
                                                TypeName[myType],
-                                               TypeName[myType]),
+                                               (isForHLT_ ? "Column" : "Pixel"),
+                                               TypeName[myType],
+					       (isForHLT_ ? "column" : "pixel")
+					       ),
                                           200,
                                           minimum,
                                           maximum);
 
       for (unsigned int i : {1, 2}) {
-        canvas.cd(i)->SetTopMargin(0.04);
-        canvas.cd(i)->SetBottomMargin(0.12);
-        canvas.cd(i)->SetLeftMargin(0.12);
-        canvas.cd(i)->SetRightMargin(0.02);
+	SiPixelPI::adjustCanvasMargins(canvas.cd(i),0.04,0.12,0.12,0.02);
         canvas.cd(i)->Modified();
       }
 
@@ -446,18 +473,12 @@ namespace gainCalibHelper {
       canvas.cd(1);
       TPaveStats* st1 = (TPaveStats*)hBPix->FindObject("stats");
       st1->SetTextSize(0.03);
-      st1->SetX1NDC(0.13);   //new x start position
-      st1->SetY1NDC(0.815);  //new y start position
-      st1->SetX2NDC(0.44);   //new x end position
-      st1->SetY2NDC(0.915);  //new y end position
+      SiPixelPI::adjustStats(st1,0.13,0.815,0.44,0.915);
 
       canvas.cd(2);
       TPaveStats* st2 = (TPaveStats*)hFPix->FindObject("stats");
       st2->SetTextSize(0.03);
-      st2->SetX1NDC(0.14);   //new x start position
-      st2->SetY1NDC(0.815);  //new y start position
-      st2->SetX2NDC(0.44);   //new x end position
-      st2->SetY2NDC(0.915);  //new y end position
+      SiPixelPI::adjustStats(st2,0.14,0.815,0.44,0.915);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -494,8 +515,9 @@ namespace gainCalibHelper {
         int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
         int ncols = payload->getNCols(d);
         int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-	unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),nRowsForHLT); // dirty trick to make it work for the HLT payload
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
 
         //int nrows = 80 * 2;  // rows in x
         //int ncols = 52 * 8;  // cols in y
@@ -518,8 +540,7 @@ namespace gainCalibHelper {
                     col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
                 break;
               default:
-                edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-                    << "Unrecognized type " << theType << std::endl;
+                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
                 break;
             }
 
@@ -531,26 +552,34 @@ namespace gainCalibHelper {
                 hFPix->Fill(quid);
                 break;
               default:
-                edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-                    << d << " is not a Pixel DetId" << std::endl;
+                edm::LogError(label_) << d << " is not a Pixel DetId" << std::endl;
                 break;
             }
           }
         }
       }
     }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
   };
 
   /************************************************
     1d histogram comparison of SiPixelGainCalibration
   *************************************************/
-  template <gainCalibPI::type myType,class PayloadType>
-  class SiPixelGainCalibrationValueComparisonBase
-      : public cond::payloadInspector::PlotImage<PayloadType> {
+  template <gainCalibPI::type myType, class PayloadType>
+  class SiPixelGainCalibrationValueComparisonBase : public cond::payloadInspector::PlotImage<PayloadType> {
   public:
     SiPixelGainCalibrationValueComparisonBase()
         : cond::payloadInspector::PlotImage<PayloadType>(
-              Form("SiPixelGainCalibrationOffline %s Values Comparison", TypeName[myType])) {}
+              Form("SiPixelGainCalibration %s Values Comparison", TypeName[myType])) {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+      } else {
+        isForHLT_ = true;
+      }
+    }
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       gStyle->SetOptStat("emr");
       TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // Y offset
@@ -583,31 +612,37 @@ namespace gainCalibHelper {
           minimum = std::min(last_payload->getPedLow(), first_payload->getPedLow());
           break;
         default:
-          edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-              << "Unrecognized type " << myType << std::endl;
+          edm::LogError(label_) << "Unrecognized type " << myType << std::endl;
           break;
       }
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
-      auto hfirst = std::make_shared<TH1F>(
-          Form("First, IOV %s", firstIOVsince.c_str()),
-          Form("SiPixel Gain Calibration Offline - %s;per pixel %s;# pixels", TypeName[myType], TypeName[myType]),
-          200,
-          minimum,
-          maximum);
+      auto hfirst = std::make_shared<TH1F>(Form("First, IOV %s", firstIOVsince.c_str()),
+                                           Form("SiPixel Gain Calibration %s - %s;per %s %s;# %ss",
+                                                (isForHLT_ ? "ForHLT" : "Offline"),
+                                                TypeName[myType],
+                                                (isForHLT_ ? "Column" : "Pixel"),
+                                                TypeName[myType],
+						(isForHLT_ ? "column" : "pixel")
+						),
+                                           200,
+                                           minimum,
+                                           maximum);
 
-      auto hlast = std::make_shared<TH1F>(
-          Form("Last, IOV %s", lastIOVsince.c_str()),
-          Form("SiPixel Gain Calibration Offline - %s;per pixel %s;# pixels", TypeName[myType], TypeName[myType]),
-          200,
-          minimum,
-          maximum);
+      auto hlast = std::make_shared<TH1F>(Form("Last, IOV %s", lastIOVsince.c_str()),
+                                          Form("SiPixel Gain Calibration %s - %s;per %s %s;# %ss",
+                                               (isForHLT_ ? "ForHLT" : "Offline"),
+                                               TypeName[myType],
+                                               (isForHLT_ ? "Column" : "Pixel"),
+                                               TypeName[myType],
+					       (isForHLT_ ? "column" : "pixel")
+					       ),
+                                          200,
+                                          minimum,
+                                          maximum);
 
-      canvas.SetTopMargin(0.05);
-      canvas.SetBottomMargin(0.12);
-      canvas.SetLeftMargin(0.12);
-      canvas.SetRightMargin(0.03);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(),0.05,0.12,0.12,0.03);
       canvas.Modified();
 
       fillTheHisto(first_payload, hfirst, myType);
@@ -652,19 +687,13 @@ namespace gainCalibHelper {
       st1->SetTextSize(0.022);
       st1->SetLineColor(kRed);
       st1->SetTextColor(kRed);
-      st1->SetX1NDC(0.13);  //new x start position
-      st1->SetY1NDC(0.84);  //new y start position
-      st1->SetX2NDC(0.31);  //new x end position
-      st1->SetY2NDC(0.94);  //new y end position
-
+      SiPixelPI::adjustStats(st1,0.13,0.84,0.31,0.94);
+      
       TPaveStats* st2 = (TPaveStats*)hlast->FindObject("stats");
       st2->SetTextSize(0.022);
       st2->SetLineColor(kBlue);
       st2->SetTextColor(kBlue);
-      st2->SetX1NDC(0.13);  //new x start position
-      st2->SetY1NDC(0.73);  //new y start position
-      st2->SetX2NDC(0.31);  //new x end position
-      st2->SetY2NDC(0.83);  //new y end position
+      SiPixelPI::adjustStats(st2,0.13,0.73,0.31,0.83);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -698,8 +727,9 @@ namespace gainCalibHelper {
         int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
         int ncols = payload->getNCols(d);
         int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-	unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),nRowsForHLT); // dirty trick to make it work for the HLT payload
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
 
         //int nrows = 80 * 2;  // rows in x
         //int ncols = 52 * 8;  // cols in y
@@ -722,8 +752,7 @@ namespace gainCalibHelper {
                     col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
                 break;
               default:
-                edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-                    << "Unrecognized type " << theType << std::endl;
+                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
                 break;
             }
             h1->Fill(quid);
@@ -731,23 +760,27 @@ namespace gainCalibHelper {
         }
       }
     }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
   };
 
-  template <gainCalibPI::type myType,class PayloadType>
+  template <gainCalibPI::type myType, class PayloadType>
   class SiPixelGainCalibrationValueComparisonSingleTag
-    : public SiPixelGainCalibrationValueComparisonBase<myType,PayloadType> {
+      : public SiPixelGainCalibrationValueComparisonBase<myType, PayloadType> {
   public:
     SiPixelGainCalibrationValueComparisonSingleTag()
-      : SiPixelGainCalibrationValueComparisonBase<myType,PayloadType>() {
+        : SiPixelGainCalibrationValueComparisonBase<myType, PayloadType>() {
       this->setSingleIov(false);
     }
   };
 
-  template <gainCalibPI::type myType,class PayloadType>
+  template <gainCalibPI::type myType, class PayloadType>
   class SiPixelGainCalibrationValueComparisonTwoTags
-    : public SiPixelGainCalibrationValueComparisonBase<myType,PayloadType> {
+      : public SiPixelGainCalibrationValueComparisonBase<myType, PayloadType> {
   public:
-    SiPixelGainCalibrationValueComparisonTwoTags() : SiPixelGainCalibrationValueComparisonBase<myType,PayloadType>() {
+    SiPixelGainCalibrationValueComparisonTwoTags() : SiPixelGainCalibrationValueComparisonBase<myType, PayloadType>() {
       this->setTwoTags(true);
     }
   };
@@ -757,14 +790,21 @@ namespace gainCalibHelper {
   /************************************************
    occupancy style map BPix
   *************************************************/
-  template <gainCalibPI::type myType,class PayloadType>
+  template <gainCalibPI::type myType, class PayloadType>
   class SiPixelGainCalibrationBPIXMap : public cond::payloadInspector::PlotImage<PayloadType> {
   public:
     SiPixelGainCalibrationBPIXMap()
         : cond::payloadInspector::PlotImage<PayloadType>(
-              Form("SiPixelGainCalibrationOffline %s Barrel Pixel Map", TypeName[myType])),
+              Form("SiPixelGainCalibration %s Barrel Pixel Map", TypeName[myType])),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+        label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
+      } else {
+        isForHLT_ = true;
+        label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
+      }
       this->setSingleIov(true);
     };
 
@@ -828,9 +868,7 @@ namespace gainCalibHelper {
       canvas.Divide(2, 2);
 
       for (unsigned int lay = 1; lay <= 4; lay++) {
-        canvas.cd(lay)->SetBottomMargin(0.08);
-        canvas.cd(lay)->SetLeftMargin(0.1);
-        canvas.cd(lay)->SetRightMargin(0.13);
+	SiPixelPI::adjustCanvasMargins(canvas.cd(lay),-1,0.08,0.1,0.13);
 
         COUT << " layer:" << lay << " max:" << h_bpix_Gains[lay - 1]->GetMaximum() << " min: " << minima.at(lay - 1)
              << std::endl;
@@ -862,9 +900,7 @@ namespace gainCalibHelper {
       return true;
     }
 
-    void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload,
-                             AvgMap& map,
-                             gainCalibPI::type theType) {
+    void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload, AvgMap& map, gainCalibPI::type theType) {
       std::vector<uint32_t> detids;
       payload->getDetIds(detids);
 
@@ -873,8 +909,9 @@ namespace gainCalibHelper {
         int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
         int ncols = payload->getNCols(d);
         int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-	unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),nRowsForHLT); // dirty trick to make it work for the HLT payload
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
 
         //int nrows = 80 * 2;  // rows in x
         //int ncols = 52 * 8;  // cols in y
@@ -898,8 +935,7 @@ namespace gainCalibHelper {
                     col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
                 break;
               default:
-                edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-                    << "Unrecognized type " << theType << std::endl;
+                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
                 break;
             }  // switch on the type
           }    // rows
@@ -911,21 +947,32 @@ namespace gainCalibHelper {
 
   private:
     TrackerTopology m_trackerTopo;
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
   };
 
   /************************************************
    occupancy style map FPix
   *************************************************/
 
-  template <gainCalibPI::type myType,class PayloadType>
+  template <gainCalibPI::type myType, class PayloadType>
   class SiPixelGainCalibrationFPIXMap : public cond::payloadInspector::PlotImage<PayloadType> {
   public:
     SiPixelGainCalibrationFPIXMap()
         : cond::payloadInspector::PlotImage<PayloadType>(
-              Form("SiPixelGainCalibrationOffline %s Forward Pixel Map", TypeName[myType])),
+              Form("SiPixelGainCalibration %s Forward Pixel Map", TypeName[myType])),
           m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
       this->setSingleIov(true);
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+        label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
+      } else {
+        isForHLT_ = true;
+        label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
+      }
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
@@ -981,9 +1028,7 @@ namespace gainCalibHelper {
       canvas.Divide(2, 1);
 
       for (unsigned int ring = 1; ring <= n_rings; ring++) {
-        canvas.cd(ring)->SetBottomMargin(0.08);
-        canvas.cd(ring)->SetLeftMargin(0.1);
-        canvas.cd(ring)->SetRightMargin(0.13);
+	SiPixelPI::adjustCanvasMargins(canvas.cd(ring),-1,0.08,0.1,0.13);
 
         COUT << " ringer:" << ring << " max:" << h_fpix_Gains[ring - 1]->GetMaximum() << " min: " << minima.at(ring - 1)
              << std::endl;
@@ -1014,9 +1059,7 @@ namespace gainCalibHelper {
       return true;
     }
 
-    void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload,
-                             AvgMap& map,
-                             gainCalibPI::type theType) {
+    void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload, AvgMap& map, gainCalibPI::type theType) {
       std::vector<uint32_t> detids;
       payload->getDetIds(detids);
 
@@ -1025,8 +1068,9 @@ namespace gainCalibHelper {
         int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
         int ncols = payload->getNCols(d);
         int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-	unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),nRowsForHLT); // dirty trick to make it work for the HLT payload
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
 
         //int nrows = 80 * 2;  // rows in x
         //int ncols = 52 * 8;  // cols in y
@@ -1050,8 +1094,7 @@ namespace gainCalibHelper {
                     col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
                 break;
               default:
-                edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-                    << "Unrecognized type " << theType << std::endl;
+                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
                 break;
             }  // switch on the type
           }    // rows
@@ -1063,18 +1106,29 @@ namespace gainCalibHelper {
 
   private:
     TrackerTopology m_trackerTopo;
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
   };
 
   /************************************************
    Summary Comparison per region of SiPixelGainCalibration between 2 IOVs
   *************************************************/
-  template <gainCalibPI::type myType,class PayloadType>
-  class SiPixelGainCalibrationByRegionComparisonBase
-      : public cond::payloadInspector::PlotImage<PayloadType> {
+  template <gainCalibPI::type myType, class PayloadType>
+  class SiPixelGainCalibrationByRegionComparisonBase : public cond::payloadInspector::PlotImage<PayloadType> {
   public:
     SiPixelGainCalibrationByRegionComparisonBase()
         : cond::payloadInspector::PlotImage<PayloadType>(
-              Form("SiPixelGainCalibrationOffline %s Comparison by Region", TypeName[myType])) {}
+              Form("SiPixelGainCalibration %s Comparison by Region", TypeName[myType])) {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGainCalibrationOffline>) {
+        isForHLT_ = false;
+        label_ = "SiPixelGainCalibrationOffline_PayloadInspector";
+      } else {
+        isForHLT_ = true;
+        label_ = "SiPixelGainCalibrationForHLT_PayloadInspector";
+      }
+    }
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
       gStyle->SetPaintTextFormat(".3f");
 
@@ -1120,8 +1174,7 @@ namespace gainCalibHelper {
           minimum = std::min(last_payload->getPedLow(), first_payload->getPedLow());
           break;
         default:
-          edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-              << "Unrecognized type " << myType << std::endl;
+          edm::LogError(label_) << "Unrecognized type " << myType << std::endl;
           break;
       }
 
@@ -1145,19 +1198,23 @@ namespace gainCalibHelper {
                                    maximum);
       }
 
-      summaryFirst = std::make_shared<TH1F>(
-          "first Summary",
-          Form("Summary of #LT per pixel %s #GT;;average %s", TypeName[myType], TypeName[myType]),
-          FirstGains_spectraByRegion.size(),
-          0,
-          FirstGains_spectraByRegion.size());
+      summaryFirst = std::make_shared<TH1F>("first Summary",
+                                            Form("Summary of #LT per %s %s #GT;;average %s",
+                                                 (isForHLT_ ? "Column" : "Pixel"),
+                                                 TypeName[myType],
+                                                 TypeName[myType]),
+                                            FirstGains_spectraByRegion.size(),
+                                            0,
+                                            FirstGains_spectraByRegion.size());
 
-      summaryLast = std::make_shared<TH1F>(
-          "last Summary",
-          Form("Summary of #LT per pixel %s #GT;;average %s", TypeName[myType], TypeName[myType]),
-          LastGains_spectraByRegion.size(),
-          0,
-          LastGains_spectraByRegion.size());
+      summaryLast = std::make_shared<TH1F>("last Summary",
+                                           Form("Summary of #LT per %s %s #GT;;average %s",
+                                                (isForHLT_ ? "Column" : "Pixel"),
+                                                TypeName[myType],
+                                                TypeName[myType]),
+                                           LastGains_spectraByRegion.size(),
+                                           0,
+                                           LastGains_spectraByRegion.size());
 
       const char* path_toTopologyXML = (f_GainsMap_.size() == SiPixelPI::phase0size)
                                            ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
@@ -1175,8 +1232,7 @@ namespace gainCalibHelper {
       // -------------------------------------------------------------------
       for (const auto& it : f_GainsMap_) {
         if (DetId(it.first).det() != DetId::Tracker) {
-          edm::LogWarning("SiPixelGainCalibrationOffline_PayloadInspector")
-              << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
+          edm::LogWarning(label_) << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
           return false;
         }
 
@@ -1204,8 +1260,7 @@ namespace gainCalibHelper {
       // -------------------------------------------------------------------
       for (const auto& it : l_GainsMap_) {
         if (DetId(it.first).det() != DetId::Tracker) {
-          edm::LogWarning("SiPixelGainCalibrationOffline_PayloadInspector")
-              << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
+          edm::LogWarning(label_) << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
           return false;
         }
 
@@ -1253,9 +1308,7 @@ namespace gainCalibHelper {
 
       canvas.cd()->SetGridy();
 
-      canvas.SetBottomMargin(0.18);
-      canvas.SetLeftMargin(0.11);
-      canvas.SetRightMargin(0.02);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(),-1,0.18,0.11,0.02);
       canvas.Modified();
 
       summaryFirst->SetFillColor(kRed);
@@ -1299,9 +1352,7 @@ namespace gainCalibHelper {
       return true;
     }
 
-    void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload,
-                             AvgMap& map,
-                             gainCalibPI::type theType) {
+    void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload, AvgMap& map, gainCalibPI::type theType) {
       std::vector<uint32_t> detids;
       payload->getDetIds(detids);
 
@@ -1310,8 +1361,9 @@ namespace gainCalibHelper {
         int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
         int ncols = payload->getNCols(d);
         int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-	unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),nRowsForHLT); // dirty trick to make it work for the HLT payload
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
 
         auto rangeAndCol = payload->getRangeAndNCols(d);
         bool isDeadColumn;
@@ -1332,8 +1384,7 @@ namespace gainCalibHelper {
                     col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
                 break;
               default:
-                edm::LogError("SiPixelGainCalibrationOffline_PayloadInspector")
-                    << "Unrecognized type " << theType << std::endl;
+                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
                 break;
             }  // switch on the type
           }    // rows
@@ -1342,27 +1393,31 @@ namespace gainCalibHelper {
         map[d] = sumOfX / nPixels;
       }  // loop on the detId
     }
+
+  protected:
+    bool isForHLT_;
+    std::string label_;
   };
 
-  template <gainCalibPI::type myType,class PayloadType>
+  template <gainCalibPI::type myType, class PayloadType>
   class SiPixelGainCalibrationByRegionComparisonSingleTag
-    : public SiPixelGainCalibrationByRegionComparisonBase<myType,PayloadType> {
+      : public SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType> {
   public:
     SiPixelGainCalibrationByRegionComparisonSingleTag()
-      : SiPixelGainCalibrationByRegionComparisonBase<myType,PayloadType>() {
+        : SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType>() {
       this->setSingleIov(false);
     }
   };
 
-  template <gainCalibPI::type myType,class PayloadType>
+  template <gainCalibPI::type myType, class PayloadType>
   class SiPixelGainCalibrationByRegionComparisonTwoTags
-    : public SiPixelGainCalibrationByRegionComparisonBase<myType,PayloadType> {
+      : public SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType> {
   public:
     SiPixelGainCalibrationByRegionComparisonTwoTags()
-      : SiPixelGainCalibrationByRegionComparisonBase<myType,PayloadType>() {
+        : SiPixelGainCalibrationByRegionComparisonBase<myType, PayloadType>() {
       this->setTwoTags(true);
     }
   };
-}
+}  // namespace gainCalibHelper
 
 #endif
