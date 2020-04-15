@@ -151,3 +151,5 @@ process.TFileService = cms.Service('TFileService',
 fileName = cms.string("pixelntuple.root")
 )
 
+if hasattr(process, "TrackerDTCProducer"):
+    process.TrackerDTCProducer.ParamsED.ProcessName = process.process
