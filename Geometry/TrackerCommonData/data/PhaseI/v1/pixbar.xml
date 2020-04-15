@@ -31,12 +31,12 @@
  <Constant name="SupportY_base"     value="19.40*cm"/>
  <Constant name="SupportY"          value="[SupportY_base]+[SupportT]/2"/>
  <Constant name="RailW"             value="1.5*cm"/>
- <Constant name="RailT"             value="1.1*cm"/>
+ <Constant name="RailT"             value="1.0*cm"/>
  <Constant name="RailX"             value="3.3*cm"/>
  <Constant name="RailY"             value="[SupportY_base]+[SupportT]+[RailT]/2"/>
  <Constant name="RailAirW"          value="0.8*cm"/>
  <Constant name="RailAirSpikeW"     value="1E-4*cm"/>
- <Constant name="RailAir1T"         value="0.5*cm"/>
+ <Constant name="RailAir1T"         value="0.46*cm"/>
  <Constant name="RailAir1Y"         value="-[RailT]/2+[RailAir1T]/2"/>
  <Constant name="RailAir2T"         value="0.4*cm"/>
  <Constant name="RailAir2Y"         value="-[RailT]/2+[RailAir1T]+[RailAir2T]/2"/>
