@@ -45,31 +45,31 @@ public:
   void setValid(const int valid) { valid_ = valid; }
 
   /// return quality of a pattern (number of layers hit!)
-  int getQuality() const { return quality_; }
+  uint16_t getQuality() const { return quality_; }
 
   /// set quality
   void setQuality(const int quality) { quality_ = quality; }
 
   /// return pattern
-  int getPattern() const { return pattern_; }
+  uint16_t getPattern() const { return pattern_; }
 
   /// set pattern
   void setPattern(const int pattern) { pattern_ = pattern; }
 
   /// return striptype
-  int getStripType() const { return striptype_; }
+  uint16_t getStripType() const { return striptype_; }
 
   /// set stripType
   void setStripType(const int stripType) { striptype_ = stripType; }
 
   /// return bend
-  int getBend() const { return bend_; }
+  uint16_t getBend() const { return bend_; }
 
   /// set bend
   void setBend(const int bend) { bend_ = bend; }
 
   /// return halfstrip that goes from 0 to 31 in a (D)CFEB
-  int getStrip() const;
+  uint16_t getStrip() const;
 
   /// set strip
   void setStrip(const int strip) { strip_ = strip; }
@@ -87,19 +87,19 @@ public:
   bool getEightStrip() const;
 
   /// return Key CFEB ID
-  int getCFEB() const { return cfeb_; }
+  uint16_t getCFEB() const { return cfeb_; }
 
   /// set Key CFEB ID
   void setCFEB(const int cfeb) { cfeb_ = cfeb; }
 
   /// return BX
-  int getBX() const { return bx_; }
+  uint16_t getBX() const { return bx_; }
 
   /// set bx
   void setBX(const int bx) { bx_ = bx; }
 
   /// return track number (1,2)
-  int getTrknmb() const { return trknmb_; }
+  uint16_t getTrknmb() const { return trknmb_; }
 
   /// Convert strip_ and cfeb_ to keyStrip. Each CFEB has up to 16 strips
   /// (32 halfstrips). There are 5 cfebs.  The "strip_" variable is one
@@ -107,13 +107,13 @@ public:
   /// Halfstrip = (cfeb*32 + strip).
   /// This function can also return the quartstrip or eightstrip
   /// when the comparator code has been set
-  int getKeyStrip(int n = 2) const;
+  uint16_t getKeyStrip(int n = 2) const;
 
   /// Set track number (1,2) after sorting CLCTs.
   void setTrknmb(const uint16_t number) { trknmb_ = number; }
 
   /// return 12-bit full BX.
-  int getFullBX() const { return fullbx_; }
+  uint16_t getFullBX() const { return fullbx_; }
 
   /// Set 12-bit full BX.
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
@@ -162,6 +162,7 @@ private:
   // strip[5]   -> 1/4 strip bit
   // strip[6]   -> 1/8 strip bit
   uint16_t strip_;
+  // There are up to 7 (D)CFEBs in a chamber
   uint16_t cfeb_;
   uint16_t bx_;
   uint16_t trknmb_;
