@@ -449,7 +449,7 @@
  <!-- CFK TUBES CONNECTING THE 2 FLANGES -->
  <LogicalPart name="InterFlangesSuppTub" category="unspecified">
   <rSolid name="InterFlangesSuppTub"/>
-  <rMaterial name="pixbarmaterial:InterFlangesSuppTub_CFK"/>
+  <rMaterial name="pixbarmaterial:Flange4_CFK"/>
  </LogicalPart>
 
  <!-- FLANGE-->
