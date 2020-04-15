@@ -22,7 +22,7 @@ TrackerDTCProducer_params = cms.PSet (
     OffsetDetIdTP                 = cms.int32     ( -1 ),                                                # tk layout det id minus TrackerTopology lower det id
     OffsetLayerDisks              = cms.int32     ( 10 ),                                                # offset in layer ids between barrel layer and endcap disks
     OffsetLayerId                 = cms.int32     (  1 ),                                                # offset between 0 and smallest layer id (barrel layer 1)
-    CheckHistory                  = cms.bool      ( True ),                                              #
+    CheckHistory                  = cms.bool      ( False ),                                              #
     ProcessName                   = cms.string    ( "HLT" ),                                             #
     ProductLabel                  = cms.string    ( "XMLIdealGeometryESSource" )                         #
   ),
