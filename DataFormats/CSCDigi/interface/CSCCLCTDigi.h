@@ -119,7 +119,7 @@ public:
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
   // 12-bit comparator code
-  uint16_t getCompCode() const { return ( (version_ == Version::Run3 ) ? compCode_ : -1 ); }
+  uint16_t getCompCode() const { return ((version_ == Version::Run3) ? compCode_ : -1); }
 
   void setCompCode(const int16_t code) { compCode_ = code; }
 
@@ -145,7 +145,7 @@ public:
   /// Distinguish Run-1/2 from Run-3
   bool isRun3() const { return version_ == Version::Run3; }
 
-  void setRun3(bool isRun3) { isRun3 ?  version_ = Version::Run3 : Version::Legacy; }
+  void setRun3(bool isRun3) { isRun3 ? version_ = Version::Run3 : Version::Legacy; }
 
 private:
   uint16_t valid_;
