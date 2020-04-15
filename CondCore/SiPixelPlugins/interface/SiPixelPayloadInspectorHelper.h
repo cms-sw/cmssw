@@ -426,17 +426,21 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
-  void adjustCanvasMargins(TVirtualPad* pad,float top,float bottom,float left,float right)
+  void adjustCanvasMargins(TVirtualPad* pad, float top, float bottom, float left, float right)
   /*--------------------------------------------------------------------*/
   {
-    if(top>0)    pad->SetTopMargin(top);
-    if(bottom>0) pad->SetBottomMargin(bottom);
-    if(left>0)   pad->SetLeftMargin(left);
-    if(right>0)  pad->SetRightMargin(right);
+    if (top > 0)
+      pad->SetTopMargin(top);
+    if (bottom > 0)
+      pad->SetBottomMargin(bottom);
+    if (left > 0)
+      pad->SetLeftMargin(left);
+    if (right > 0)
+      pad->SetRightMargin(right);
   }
 
   /*--------------------------------------------------------------------*/
-  void adjustStats(TPaveStats* stats,float X1,float Y1,float X2,float Y2)
+  void adjustStats(TPaveStats* stats, float X1, float Y1, float X2, float Y2)
   /*--------------------------------------------------------------------*/
   {
     stats->SetX1NDC(X1);  //new x start position

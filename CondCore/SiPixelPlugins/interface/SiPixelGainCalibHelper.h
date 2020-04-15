@@ -85,12 +85,12 @@ namespace gainCalibHelper {
                                             TypeName[myType],
                                             (isForHLT_ ? "Column" : "Pixel"),
                                             TypeName[myType],
-					    (isForHLT_ ? "column" : "pixel")),				       
+                                            (isForHLT_ ? "column" : "pixel")),
                                        200,
                                        minimum,
                                        maximum);
       canvas.cd();
-      SiPixelPI::adjustCanvasMargins(canvas.cd(),0.06,0.12,0.12,0.05);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.06, 0.12, 0.12, 0.05);
       canvas.Modified();
 
       // fill the histogram
@@ -119,7 +119,7 @@ namespace gainCalibHelper {
 
       TPaveStats* st = (TPaveStats*)h1->FindObject("stats");
       st->SetTextSize(0.03);
-      SiPixelPI::adjustStats(st,0.15,0.83,0.39,0.93);
+      SiPixelPI::adjustStats(st, 0.15, 0.83, 0.39, 0.93);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -159,9 +159,10 @@ namespace gainCalibHelper {
         bool isDeadColumn;
         bool isNoisyColumn;
 
-	COUT << "NCOLS: " << payload->getNCols(d) << " "<< rangeAndCol.second << " NROWS:" << nrows
-	     << ", RANGES: " << rangeAndCol.first.second - rangeAndCol.first.first
-	     << ", Ratio: " << float(rangeAndCol.first.second - rangeAndCol.first.first)/rangeAndCol.second << std::endl;
+        COUT << "NCOLS: " << payload->getNCols(d) << " " << rangeAndCol.second << " NROWS:" << nrows
+             << ", RANGES: " << rangeAndCol.first.second - rangeAndCol.first.first
+             << ", Ratio: " << float(rangeAndCol.first.second - rangeAndCol.first.first) / rangeAndCol.second
+             << std::endl;
 
         float quid(-99999.);
 
@@ -247,7 +248,7 @@ namespace gainCalibHelper {
                                           payload->getPedHigh());
 
       for (unsigned int i : {1, 2}) {
-	SiPixelPI::adjustCanvasMargins(canvas.cd(i),0.04,0.12,0.15,0.13);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.04, 0.12, 0.15, 0.13);
         canvas.cd(i)->Modified();
       }
 
@@ -405,10 +406,9 @@ namespace gainCalibHelper {
                                           Form("SiPixel Gain Calibration %s BPIx -%s;per %s %s (BPix);# %ss",
                                                (isForHLT_ ? "ForHLT" : "Offline"),
                                                TypeName[myType],
-                                               (isForHLT_ ? "Column" : "Pixel"), 
-					       TypeName[myType],
-                                               (isForHLT_ ? "column" : "pixel")
-					       ),
+                                               (isForHLT_ ? "Column" : "Pixel"),
+                                               TypeName[myType],
+                                               (isForHLT_ ? "column" : "pixel")),
                                           200,
                                           minimum,
                                           maximum);
@@ -419,14 +419,13 @@ namespace gainCalibHelper {
                                                TypeName[myType],
                                                (isForHLT_ ? "Column" : "Pixel"),
                                                TypeName[myType],
-					       (isForHLT_ ? "column" : "pixel")
-					       ),
+                                               (isForHLT_ ? "column" : "pixel")),
                                           200,
                                           minimum,
                                           maximum);
 
       for (unsigned int i : {1, 2}) {
-	SiPixelPI::adjustCanvasMargins(canvas.cd(i),0.04,0.12,0.12,0.02);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.04, 0.12, 0.12, 0.02);
         canvas.cd(i)->Modified();
       }
 
@@ -473,12 +472,12 @@ namespace gainCalibHelper {
       canvas.cd(1);
       TPaveStats* st1 = (TPaveStats*)hBPix->FindObject("stats");
       st1->SetTextSize(0.03);
-      SiPixelPI::adjustStats(st1,0.13,0.815,0.44,0.915);
+      SiPixelPI::adjustStats(st1, 0.13, 0.815, 0.44, 0.915);
 
       canvas.cd(2);
       TPaveStats* st2 = (TPaveStats*)hFPix->FindObject("stats");
       st2->SetTextSize(0.03);
-      SiPixelPI::adjustStats(st2,0.14,0.815,0.44,0.915);
+      SiPixelPI::adjustStats(st2, 0.14, 0.815, 0.44, 0.915);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -624,8 +623,7 @@ namespace gainCalibHelper {
                                                 TypeName[myType],
                                                 (isForHLT_ ? "Column" : "Pixel"),
                                                 TypeName[myType],
-						(isForHLT_ ? "column" : "pixel")
-						),
+                                                (isForHLT_ ? "column" : "pixel")),
                                            200,
                                            minimum,
                                            maximum);
@@ -636,13 +634,12 @@ namespace gainCalibHelper {
                                                TypeName[myType],
                                                (isForHLT_ ? "Column" : "Pixel"),
                                                TypeName[myType],
-					       (isForHLT_ ? "column" : "pixel")
-					       ),
+                                               (isForHLT_ ? "column" : "pixel")),
                                           200,
                                           minimum,
                                           maximum);
 
-      SiPixelPI::adjustCanvasMargins(canvas.cd(),0.05,0.12,0.12,0.03);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.05, 0.12, 0.12, 0.03);
       canvas.Modified();
 
       fillTheHisto(first_payload, hfirst, myType);
@@ -687,13 +684,13 @@ namespace gainCalibHelper {
       st1->SetTextSize(0.022);
       st1->SetLineColor(kRed);
       st1->SetTextColor(kRed);
-      SiPixelPI::adjustStats(st1,0.13,0.84,0.31,0.94);
-      
+      SiPixelPI::adjustStats(st1, 0.13, 0.84, 0.31, 0.94);
+
       TPaveStats* st2 = (TPaveStats*)hlast->FindObject("stats");
       st2->SetTextSize(0.022);
       st2->SetLineColor(kBlue);
       st2->SetTextColor(kBlue);
-      SiPixelPI::adjustStats(st2,0.13,0.73,0.31,0.83);
+      SiPixelPI::adjustStats(st2, 0.13, 0.73, 0.31, 0.83);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -868,7 +865,7 @@ namespace gainCalibHelper {
       canvas.Divide(2, 2);
 
       for (unsigned int lay = 1; lay <= 4; lay++) {
-	SiPixelPI::adjustCanvasMargins(canvas.cd(lay),-1,0.08,0.1,0.13);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(lay), -1, 0.08, 0.1, 0.13);
 
         COUT << " layer:" << lay << " max:" << h_bpix_Gains[lay - 1]->GetMaximum() << " min: " << minima.at(lay - 1)
              << std::endl;
@@ -1028,7 +1025,7 @@ namespace gainCalibHelper {
       canvas.Divide(2, 1);
 
       for (unsigned int ring = 1; ring <= n_rings; ring++) {
-	SiPixelPI::adjustCanvasMargins(canvas.cd(ring),-1,0.08,0.1,0.13);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(ring), -1, 0.08, 0.1, 0.13);
 
         COUT << " ringer:" << ring << " max:" << h_fpix_Gains[ring - 1]->GetMaximum() << " min: " << minima.at(ring - 1)
              << std::endl;
@@ -1308,7 +1305,7 @@ namespace gainCalibHelper {
 
       canvas.cd()->SetGridy();
 
-      SiPixelPI::adjustCanvasMargins(canvas.cd(),-1,0.18,0.11,0.02);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(), -1, 0.18, 0.11, 0.02);
       canvas.Modified();
 
       summaryFirst->SetFillColor(kRed);
