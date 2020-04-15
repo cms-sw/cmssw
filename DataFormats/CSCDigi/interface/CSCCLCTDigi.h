@@ -119,7 +119,7 @@ public:
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
   // 12-bit comparator code
-  int getCompCode() const { return compCode_; }
+  uint16_t getCompCode() const { return ( (version_ == Version::Run3 ) ? compCode_ : -1 ); }
 
   void setCompCode(const int16_t code) { compCode_ = code; }
 
@@ -145,14 +145,22 @@ public:
   /// Distinguish Run-1/2 from Run-3
   bool isRun3() const { return version_ == Version::Run3; }
 
-  void setRun3(bool isRun3) { version_ = Version::Run3; }
+  void setRun3(bool isRun3) { isRun3 ?  version_ = Version::Run3 : Version::Legacy; }
 
 private:
   uint16_t valid_;
   uint16_t quality_;
+  // In Run-3, the 4-bit pattern number is reinterpreted as the
+  // 4-bit bending value. There will be 16 bending values * 2 (left/right)
   uint16_t pattern_;
   uint16_t striptype_;  // not used since mid-2008
+  // Common definition for left/right bending in Run-1, Run-2 and Run-3.
+  // 0: right; 1: left
   uint16_t bend_;
+  // In Run-3, the strip number receives two additional bits
+  // strip[4:0] -> 1/2 strip value
+  // strip[5]   -> 1/4 strip bit
+  // strip[6]   -> 1/8 strip bit
   uint16_t strip_;
   uint16_t cfeb_;
   uint16_t bx_;
