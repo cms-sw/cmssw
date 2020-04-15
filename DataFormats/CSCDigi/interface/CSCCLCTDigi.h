@@ -19,6 +19,7 @@ public:
 
   enum CLCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0x1f };
   enum CLCTKeyStripShifts { kEightStripShift = 6, kQuartStripShift = 5, kHalfStripShift = 0 };
+  enum class Version { Legacy = 0, Run3 };
 
   /// Constructors
   CSCCLCTDigi(const int valid,
@@ -31,7 +32,8 @@ public:
               const int bx,
               const int trknmb = 0,
               const int fullbx = 0,
-              const int compCode = -1);
+              const int compCode = -1,
+              const Version version = Version::Legacy);
   /// default
   CSCCLCTDigi();
 
@@ -173,8 +175,6 @@ private:
   int16_t compCode_;
   // which hits are in this CLCT?
   ComparatorContainer hits_;
-
-  enum class Version { Legacy = 0, Run3 };
 
   Version version_;
 };

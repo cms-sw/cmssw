@@ -14,6 +14,8 @@
 
 class CSCALCTDigi {
 public:
+  enum class Version { Legacy = 0, Run3 };
+
   /// Constructors
   CSCALCTDigi(const int valid,
               const int quality,
@@ -22,7 +24,8 @@ public:
               const int keywire,
               const int bx,
               const int trknmb = 0,
-              const int hmt = 0);
+              const int hmt = 0,
+              const Version version = Version::Legacy);
   /// default
   CSCALCTDigi();
 
@@ -120,8 +123,6 @@ private:
   /// Note: In DN-20-016, 3 bits are allocated for HMT in the
   /// ALCT board. These bits are copied into the ALCT digi in CMSSW
   uint16_t hmt_;
-
-  enum class Version { Legacy = 0, Run3 };
 
   Version version_;
 };
