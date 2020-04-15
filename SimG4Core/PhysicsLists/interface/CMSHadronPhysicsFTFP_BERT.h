@@ -39,6 +39,7 @@ private:
 
   G4double minFTFP_;
   G4double maxBERT_;
+  G4double maxBERTpi_;
 };
 
 #endif
