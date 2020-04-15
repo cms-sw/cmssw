@@ -23,7 +23,8 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb,
                                            const uint16_t ibx0,
                                            const uint16_t isyncErr,
                                            const uint16_t icscID,
-                                           const uint16_t ihmt)
+                                           const uint16_t ihmt,
+                                           const Version version)
     : trknmb(itrknmb),
       valid(ivalid),
       quality(iquality),
@@ -36,11 +37,13 @@ CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb,
       bx0(ibx0),
       syncErr(isyncErr),
       cscID(icscID),
-      hmt(ihmt) {}
+      hmt(ihmt),
+      version_(version) {}
 
 /// Default
 CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi() {
   clear();  // set contents to zero
+  version_ = Version::Legacy;
 }
 
 /// Clears this LCT.

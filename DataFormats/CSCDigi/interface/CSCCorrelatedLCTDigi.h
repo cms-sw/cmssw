@@ -19,6 +19,7 @@ class CSCCorrelatedLCTDigi {
 public:
   enum LCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
   enum LCTKeyStripShifts { kEightStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
+  enum class Version { Legacy = 0, Run3 };
 
   /// Constructors
   CSCCorrelatedLCTDigi(const int trknmb,
@@ -33,8 +34,10 @@ public:
                        const uint16_t bx0 = 0,
                        const uint16_t syncErr = 0,
                        const uint16_t cscID = 0,
-                       const uint16_t hmt = 0);
-  CSCCorrelatedLCTDigi();  /// default
+                       const uint16_t hmt = 0,
+                       const Version version = Version::Legacy);
+  /// default
+  CSCCorrelatedLCTDigi();
 
   /// clear this LCT
   void clear();
@@ -223,8 +226,6 @@ private:
   CSCCLCTDigi clct_;
   GEMPadDigi gem1_;
   GEMPadDigi gem2_;
-
-  enum class Version { Legacy = 0, Run3 };
 
   Version version_;
 };

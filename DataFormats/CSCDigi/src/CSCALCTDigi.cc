@@ -21,20 +21,22 @@ CSCALCTDigi::CSCALCTDigi(const int valid,
                          const int keywire,
                          const int bx,
                          const int trknmb,
-                         const int hmt) {
-  valid_ = valid;
-  quality_ = quality;
-  accel_ = accel;
-  patternb_ = patternb;
-  keywire_ = keywire;
-  bx_ = bx;
-  trknmb_ = trknmb;
-  hmt_ = hmt;
-}
+                         const int hmt,
+                         const Version version)
+    : valid_(valid),
+      quality_(quality),
+      accel_(accel),
+      patternb_(patternb),
+      keywire_(keywire),
+      bx_(bx),
+      trknmb_(trknmb),
+      hmt_(hmt),
+      version_(version) {}
 
 /// Default
 CSCALCTDigi::CSCALCTDigi() {
   clear();  // set contents to zero
+  version_ = Version::Legacy;
 }
 
 /// Clears this ALCT.

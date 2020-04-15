@@ -24,7 +24,8 @@ CSCCLCTDigi::CSCCLCTDigi(const int valid,
                          const int bx,
                          const int trknmb,
                          const int fullbx,
-                         const int compCode)
+                         const int compCode,
+                         const Version version)
     : valid_(valid),
       quality_(quality),
       pattern_(pattern),
@@ -35,7 +36,8 @@ CSCCLCTDigi::CSCCLCTDigi(const int valid,
       bx_(bx),
       trknmb_(trknmb),
       fullbx_(fullbx),
-      compCode_(compCode) {
+      compCode_(compCode),
+      version_(version) {
   hits_.resize(NUM_LAYERS);
   for (auto& p : hits_) {
     p.resize(CLCT_PATTERN_WIDTH);
@@ -54,7 +56,8 @@ CSCCLCTDigi::CSCCLCTDigi()
       bx_(0),
       trknmb_(0),
       fullbx_(0),
-      compCode_(-1) {
+      compCode_(-1),
+      version_(Version::Legacy) {
   hits_.resize(NUM_LAYERS);
   for (auto& p : hits_) {
     p.resize(CLCT_PATTERN_WIDTH);
