@@ -81,10 +81,10 @@ public:
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
   /// return the high multiplicity bits
-  uint16_t getHMT() const { return ( (version_ == Version::Run3 ) ? hmt_ : -1 ); }
+  uint16_t getHMT() const { return ((version_ == Version::Run3) ? hmt_ : -1); }
 
   /// set the high multiplicity bits
-  void setHMT(const int hmt) {version_ == Version::Run3 ? hmt_ = hmt : -1; }
+  void setHMT(const int hmt) { version_ == Version::Run3 ? hmt_ = hmt : -1; }
 
   /// True if the first ALCT has a larger quality, or if it has the same
   /// quality but a larger wire group.
@@ -105,7 +105,7 @@ public:
   /// Distinguish Run-1/2 from Run-3
   bool isRun3() const { return version_ == Version::Run3; }
 
-  void setRun3(bool isRun3) { isRun3 ?  version_ = Version::Run3 : Version::Legacy; }
+  void setRun3(bool isRun3) { isRun3 ? version_ = Version::Run3 : Version::Legacy; }
 
 private:
   uint16_t valid_;
