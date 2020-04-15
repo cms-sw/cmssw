@@ -81,7 +81,7 @@ void CSCCLCTDigi::clear() {
   }
 }
 
-int CSCCLCTDigi::getKeyStrip(int n) const {
+uint16_t CSCCLCTDigi::getKeyStrip(int n) const {
   // 10-bit case for strip data word
   if (compCode_ != -1 and n == 8) {
     return getKeyStrip(4) * 2 + getEightStrip();
@@ -96,7 +96,7 @@ int CSCCLCTDigi::getKeyStrip(int n) const {
   }
 }
 
-int CSCCLCTDigi::getStrip() const { return strip_ & kHalfStripMask; }
+uint16_t CSCCLCTDigi::getStrip() const { return strip_ & kHalfStripMask; }
 
 bool CSCCLCTDigi::getQuartStrip() const { return (strip_ >> kQuartStripShift) & kQuartStripMask; }
 
