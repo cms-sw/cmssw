@@ -69,10 +69,11 @@ public:
   /// return the fractional strip. counts from 0.25
   float getFractionalStrip(int n = 2) const;
 
-  /// return pattern
+  /// Legacy: return pattern ID
+  /// Run-3: return the bending angle value
   int getPattern() const { return pattern; }
 
-  /// return bend
+  /// return left/right bending
   int getBend() const { return bend; }
 
   /// return BX
@@ -80,7 +81,7 @@ public:
 
   /// return CLCT pattern number (in use again Feb 2011)
   /// This function should not be used for Run-3
-  int getCLCTPattern() const { return (pattern & 0xF); }
+  int getCLCTPattern() const { return ( (version_ == Version::Legacy) ? (pattern & 0xF) : -1 ); }
 
   /// return strip type (obsolete since mid-2008)
   int getStripType() const { return ((pattern & 0x8) >> 3); }
@@ -96,7 +97,7 @@ public:
   /// The allocation is different for ME1/1 and non-ME1/1
   /// chambers. Both LCTs in a chamber are needed for the complete
   /// high-multiplicity trigger information
-  uint16_t getHMT() const { return hmt; }
+  uint16_t getHMT() const { return ( (version_ == Version::Run3 ) ? hmt : -1 ); }
 
   /// Set track number (1,2) after sorting LCTs.
   void setTrknmb(const uint16_t number) { trknmb = number; }
@@ -142,12 +143,12 @@ public:
   void setCSCID(unsigned int c) { cscID = c; }
 
   /// set high-multiplicity bits
-  void setHMT(const unsigned int h) { hmt = h; }
+  void setHMT(const unsigned int h) { version_ == Version::Run3 ? hmt = h : -1 ; }
 
   /// Distinguish Run-1/2 from Run-3
   bool isRun3() const { return version_ == Version::Run3; }
 
-  void setRun3(bool isRun3) { version_ = Version::Run3; }
+  void setRun3(bool isRun3) { isRun3 ?  version_ = Version::Run3 : Version::Legacy; }
 
   /// SIMULATION ONLY ////
   enum Type {
