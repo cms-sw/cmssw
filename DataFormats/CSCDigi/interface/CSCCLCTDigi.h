@@ -142,6 +142,11 @@ public:
   /// Print content of digi.
   void print() const;
 
+  /// Distinguish Run-1/2 from Run-3
+  bool isRun3() const { return version_ == Version::Run3; }
+
+  void setRun3(bool isRun3) { version_ = Version::Run3; }
+
 private:
   uint16_t valid_;
   uint16_t quality_;
@@ -159,6 +164,10 @@ private:
   int16_t compCode_;
   // which hits are in this CLCT?
   ComparatorContainer hits_;
+
+  enum class Version { Legacy = 0, Run3 };
+
+  Version version_;
 };
 
 std::ostream& operator<<(std::ostream& o, const CSCCLCTDigi& digi);

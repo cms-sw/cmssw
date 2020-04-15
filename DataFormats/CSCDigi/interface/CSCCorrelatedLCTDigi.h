@@ -19,7 +19,6 @@ class CSCCorrelatedLCTDigi {
 public:
   enum LCTKeyStripMasks { kEightStripMask = 0x1, kQuartStripMask = 0x1, kHalfStripMask = 0xff };
   enum LCTKeyStripShifts { kEightStripShift = 9, kQuartStripShift = 8, kHalfStripShift = 0 };
-  enum LCTHMT { kIsRun3Mask = 0x1, kHMTMask = 0x7, kIsRun3Shift = 14, kHMTShift = 0 };
 
   /// Constructors
   CSCCorrelatedLCTDigi(const int trknmb,
@@ -97,7 +96,7 @@ public:
   /// The allocation is different for ME1/1 and non-ME1/1
   /// chambers. Both LCTs in a chamber are needed for the complete
   /// high-multiplicity trigger information
-  uint16_t getHMT() const;
+  uint16_t getHMT() const { return hmt; }
 
   /// Set track number (1,2) after sorting LCTs.
   void setTrknmb(const uint16_t number) { trknmb = number; }
@@ -143,7 +142,12 @@ public:
   void setCSCID(unsigned int c) { cscID = c; }
 
   /// set high-multiplicity bits
-  void setHMT(const unsigned int h);
+  void setHMT(const unsigned int h) { hmt = h; }
+
+  /// Distinguish Run-1/2 from Run-3
+  bool isRun3() const { return version_ == Version::Run3; }
+
+  void setRun3(bool isRun3) { version_ = Version::Run3; }
 
   /// SIMULATION ONLY ////
   enum Type {
@@ -160,11 +164,6 @@ public:
   int getType() const { return type_; }
 
   void setType(int type) { type_ = type; }
-
-  /// Distinguish Run-1/2 from Run-3
-  bool isRun3() const;
-
-  void setRun3(const bool isRun3);
 
   void setALCT(const CSCALCTDigi& alct) { alct_ = alct; }
   void setCLCT(const CSCCLCTDigi& clct) { clct_ = clct; }
@@ -223,6 +222,10 @@ private:
   CSCCLCTDigi clct_;
   GEMPadDigi gem1_;
   GEMPadDigi gem2_;
+
+  enum class Version { Legacy = 0, Run3 };
+
+  Version version_;
 };
 
 std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi);

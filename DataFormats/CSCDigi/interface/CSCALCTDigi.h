@@ -14,8 +14,6 @@
 
 class CSCALCTDigi {
 public:
-  enum ALCTHMT { kIsRun3Mask = 0x1, kHMTMask = 0x7, kIsRun3Shift = 14, kHMTShift = 0 };
-
   /// Constructors
   CSCALCTDigi(const int valid,
               const int quality,
@@ -83,10 +81,10 @@ public:
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
   /// return the high multiplicity bits
-  int getHMT() const;
+  int getHMT() const { return hmt_; }
 
   /// set the high multiplicity bits
-  void setHMT(const int hmt);
+  void setHMT(const int hmt) { hmt_ = hmt; }
 
   /// True if the first ALCT has a larger quality, or if it has the same
   /// quality but a larger wire group.
@@ -105,9 +103,9 @@ public:
   void setWireGroup(unsigned int wiregroup) { keywire_ = wiregroup; }
 
   /// Distinguish Run-1/2 from Run-3
-  bool isRun3() const;
+  bool isRun3() const { return version_ == Version::Run3; }
 
-  void setRun3(bool isRun3);
+  void setRun3(bool isRun3) { version_ = Version::Run3; }
 
 private:
   uint16_t valid_;
@@ -122,6 +120,10 @@ private:
   /// Note: In DN-20-016, 3 bits are allocated for HMT in the
   /// ALCT board. These bits are copied into the ALCT digi in CMSSW
   uint16_t hmt_;
+
+  enum class Version { Legacy = 0, Run3 };
+
+  Version version_;
 };
 
 std::ostream& operator<<(std::ostream& o, const CSCALCTDigi& digi);

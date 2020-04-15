@@ -106,26 +106,6 @@ float CSCCorrelatedLCTDigi::getFractionalStrip(int n) const {
   }
 }
 
-uint16_t CSCCorrelatedLCTDigi::getHMT() const { return hmt & kIsRun3Mask; }
-
-void CSCCorrelatedLCTDigi::setHMT(const unsigned int newHmt) {
-  // clear the old value
-  hmt &= ~(kHMTMask << kHMTShift);
-
-  // set the new value
-  hmt |= newHmt << kHMTShift;
-}
-
-bool CSCCorrelatedLCTDigi::isRun3() const { return (hmt >> kIsRun3Shift) & kIsRun3Mask; }
-
-void CSCCorrelatedLCTDigi::setRun3(const bool isRun3) {
-  // clear the old value
-  hmt &= ~(kIsRun3Mask << kIsRun3Shift);
-
-  // set the new value
-  hmt |= isRun3 << kIsRun3Shift;
-}
-
 /// Comparison
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi& rhs) const {
   return ((trknmb == rhs.trknmb) && (quality == rhs.quality) && (keywire == rhs.keywire) && (strip == rhs.strip) &&
