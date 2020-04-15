@@ -119,7 +119,7 @@ public:
   void setFullBX(const uint16_t fullbx) { fullbx_ = fullbx; }
 
   // 12-bit comparator code
-  uint16_t getCompCode() const { return ((version_ == Version::Run3) ? compCode_ : -1); }
+  int16_t getCompCode() const { return ((version_ == Version::Run3) ? compCode_ : -1); }
 
   void setCompCode(const int16_t code) { compCode_ = code; }
 
