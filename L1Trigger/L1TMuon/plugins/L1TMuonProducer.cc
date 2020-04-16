@@ -340,14 +340,21 @@ void L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                    mu->hwIsoSum(),
                    mu->hwDPhi(),
                    mu->hwDEta(),
-                   mu->hwRank(),
-                   MicroGMTConfiguration::calcMuonHwEtaExtra(outMu),
-                   MicroGMTConfiguration::calcMuonHwPhiExtra(outMu),  // set the coordinates at the vertex
-                   MicroGMTConfiguration::calcMuonEtaExtra(outMu),
-                   MicroGMTConfiguration::calcMuonPhiExtra(outMu),  // set the coordinates at the vertex
-                   mu->hwPtUnconstrained(),
-                   (mu->hwPtUnconstrained() - 1) * 0.5,
-                   mu->hwDXY()};
+                   mu->hwRank()};
+
+        // Set coordinates at the vertex
+        outMu.setHwEtaAtVtx(MicroGMTConfiguration::calcMuonHwEtaExtra(outMu));
+        outMu.setHwPhiAtVtx(MicroGMTConfiguration::calcMuonHwPhiExtra(outMu));
+        outMu.setEtaAtVtx(MicroGMTConfiguration::calcMuonEtaExtra(outMu));
+        outMu.setPhiAtVtx(MicroGMTConfiguration::calcMuonPhiExtra(outMu));
+
+        // Set displacement information
+        int hwPtUnconstrained{mu->hwPtUnconstrained()};
+        outMu.setPtUnconstrained(hwPtUnconstrained == 0 ? 0
+                                                        : (hwPtUnconstrained - 1) * 0.5);  // Don't want negative pT.
+        outMu.setHwPtUnconstrained(hwPtUnconstrained);
+        outMu.setHwDXY(mu->hwDXY());
+
         if (mu->hwSignValid()) {
           outMu.setCharge(1 - 2 * mu->hwSign());
         } else {
@@ -440,6 +447,12 @@ void L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList
                mu->hwDPhi(),
                mu->hwDEta(),
                mu->hwRank()};
+
+    int hwPtUnconstrained{mu->hwPtUnconstrained()};
+    outMu.setPtUnconstrained(hwPtUnconstrained == 0 ? 0 : (hwPtUnconstrained - 1) * 0.5);  // Don't want negative pT.
+    outMu.setHwPtUnconstrained(hwPtUnconstrained);
+    outMu.setHwDXY(mu->hwDXY());
+
     if (mu->hwSignValid()) {
       outMu.setCharge(1 - 2 * mu->hwSign());
     } else {
