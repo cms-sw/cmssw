@@ -30,9 +30,7 @@ namespace edm {
     public:
       explicit SiteLocalConfigService(ParameterSet const& pset);
 
-      std::string const dataCatalog(void) const override;
-      std::string const fallbackDataCatalog(void) const override;
-      std::vector<std::string> const dataCatalogs(void) const override;
+      std::vector<std::string> const& dataCatalogs(void) const override;
       std::string const lookupCalibConnect(std::string const& input) const override;
       std::string const rfioType(void) const override;
 
@@ -61,8 +59,6 @@ namespace edm {
       void computeStatisticsDestination();
       std::string const frontierConnect(std::string const& servlet) const;
       std::string m_url;
-      std::string m_dataCatalog;
-      std::string m_fallbackDataCatalog;
       std::vector<std::string> m_dataCatalogs;
       std::string m_frontierConnect;
       std::string m_rfioType;

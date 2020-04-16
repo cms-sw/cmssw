@@ -83,7 +83,7 @@ int readMultipleStreams(bool verbose) {
     streamFiles.push_back("file:teststreamfile.dat");
 
     edm::InputFileCatalog catalog(streamFiles, "");
-
+    
     edm::StreamerInputFile stream_reader(catalog.fileCatalogItems());
 
     std::cout << "Trying to Read The Init message from Streamer File: "

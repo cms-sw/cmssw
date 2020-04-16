@@ -42,7 +42,7 @@ MCatNLOSource::MCatNLOSource(const edm::ParameterSet &params, const edm::InputSo
       nEvents(0),
       ihpro(0),
       processCode(params.getParameter<int>("processCode")) {
-  std::vector<std::string> allFileNames = fileNames();
+  std::vector<std::string> allFileNames = fileNames(0);
 
   // Only one filename
   if (allFileNames.size() != 1)
