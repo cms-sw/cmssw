@@ -1,16 +1,107 @@
+#include <string>
+#include <vector>
+
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMOffline/Trigger/plugins/HTMonitor.h"
-
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+class HTMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
+  HTMonitor(const edm::ParameterSet&);
+  ~HTMonitor() throw() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+
+private:
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
+  edm::InputTag metInputTag_;
+  edm::InputTag jetInputTag_;
+  edm::InputTag eleInputTag_;
+  edm::InputTag muoInputTag_;
+  edm::InputTag vtxInputTag_;
+
+  edm::EDGetTokenT<reco::PFMETCollection> metToken_;
+  edm::EDGetTokenT<reco::JetView> jetToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> eleToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+
+  std::vector<double> ht_variable_binning_;
+  MEbinning ht_binning_;
+  MEbinning ls_binning_;
+
+  ObjME qME_variableBinning_;
+  ObjME htVsLS_;
+  ObjME deltaphimetj1ME_;
+  ObjME deltaphij1j2ME_;
+
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+
+  StringCutObjectSelector<reco::MET, true> metSelection_;
+  StringCutObjectSelector<reco::Jet, true> jetSelection_;
+  StringCutObjectSelector<reco::GsfElectron, true> eleSelection_;
+  StringCutObjectSelector<reco::Muon, true> muoSelection_;
+  StringCutObjectSelector<reco::Jet, true> jetSelection_HT_;
+  unsigned njets_;
+  unsigned nelectrons_;
+  unsigned nmuons_;
+  double dEtaCut_;
+
+  static constexpr double MAXedge_PHI = 3.2;
+  static constexpr int Nbin_PHI = 64;
+  static constexpr MEbinning phi_binning_{Nbin_PHI, -MAXedge_PHI, MAXedge_PHI};
+
+  bool warningWasPrinted_;
+
+  enum quant { HT, MJJ, SOFTDROP };
+  quant quantity_;
+};
 
 HTMonitor::HTMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       metInputTag_(iConfig.getParameter<edm::InputTag>("met")),
       jetInputTag_(iConfig.getParameter<edm::InputTag>("jets")),
       eleInputTag_(iConfig.getParameter<edm::InputTag>("electrons")),
@@ -39,7 +130,8 @@ HTMonitor::HTMonitor(const edm::ParameterSet& iConfig)
       njets_(iConfig.getParameter<unsigned>("njets")),
       nelectrons_(iConfig.getParameter<unsigned>("nelectrons")),
       nmuons_(iConfig.getParameter<unsigned>("nmuons")),
-      dEtaCut_(iConfig.getParameter<double>("dEtaCut")) {
+      dEtaCut_(iConfig.getParameter<double>("dEtaCut")),
+      warningWasPrinted_(false) {
   /* mia: THIS CODE SHOULD BE DELETED !!!! */
   string quantity = iConfig.getParameter<std::string>("quantity");
   if (quantity == "HT") {
@@ -52,104 +144,37 @@ HTMonitor::HTMonitor(const edm::ParameterSet& iConfig)
     throw cms::Exception("quantity not defined")
         << "the quantity '" << quantity << "' is undefined. Please check your config!" << std::endl;
   }
-
-  // this vector has to be alligned to the the number of Tokens accessed by this module
-  warningPrinted4token_.push_back(false);  // PFMETCollection
-  warningPrinted4token_.push_back(false);  // JetCollection
-  warningPrinted4token_.push_back(false);  // GsfElectronCollection
-  warningPrinted4token_.push_back(false);  // MuonCollection
-  warningPrinted4token_.push_back(false);  // VertexCollection
 }
 
-HTMonitor::~HTMonitor() = default;
-
-HTMonitor::MEHTbinning HTMonitor::getHistoPSet(const edm::ParameterSet& pset) {
-  return HTMonitor::MEHTbinning{
-      pset.getParameter<unsigned>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-  };
-}
-
-HTMonitor::MEHTbinning HTMonitor::getHistoLSPSet(const edm::ParameterSet& pset) {
-  return HTMonitor::MEHTbinning{pset.getParameter<unsigned>("nbins"), 0., double(pset.getParameter<unsigned>("nbins"))};
-}
-
-void HTMonitor::setHTitle(HTME& me, const std::string& titleX, const std::string& titleY) {
-  me.numerator->setAxisTitle(titleX, 1);
-  me.numerator->setAxisTitle(titleY, 2);
-  me.denominator->setAxisTitle(titleX, 1);
-  me.denominator->setAxisTitle(titleY, 2);
-}
-
-void HTMonitor::bookME(DQMStore::IBooker& ibooker,
-                       HTME& me,
-                       const std::string& histname,
-                       const std::string& histtitle,
-                       int nbins,
-                       double min,
-                       double max) {
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
-}
-void HTMonitor::bookME(DQMStore::IBooker& ibooker,
-                       HTME& me,
-                       const std::string& histname,
-                       const std::string& histtitle,
-                       const std::vector<double>& binning) {
-  int nbins = binning.size() - 1;
-  std::vector<float> fbinning(binning.begin(), binning.end());
-  float* arr = &fbinning[0];
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
-}
-void HTMonitor::bookME(DQMStore::IBooker& ibooker,
-                       HTME& me,
-                       const std::string& histname,
-                       const std::string& histtitle,
-                       int nbinsX,
-                       double xmin,
-                       double xmax,
-                       double ymin,
-                       double ymax) {
-  me.numerator =
-      ibooker.bookProfile(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator =
-      ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-void HTMonitor::bookME(DQMStore::IBooker& ibooker,
-                       HTME& me,
-                       const std::string& histname,
-                       const std::string& histtitle,
-                       int nbinsX,
-                       double xmin,
-                       double xmax,
-                       int nbinsY,
-                       double ymin,
-                       double ymax) {
-  me.numerator =
-      ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator =
-      ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-void HTMonitor::bookME(DQMStore::IBooker& ibooker,
-                       HTME& me,
-                       const std::string& histname,
-                       const std::string& histtitle,
-                       const std::vector<double>& binningX,
-                       const std::vector<double>& binningY) {
-  int nbinsX = binningX.size() - 1;
-  std::vector<float> fbinningX(binningX.begin(), binningX.end());
-  float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size() - 1;
-  std::vector<float> fbinningY(binningY.begin(), binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator = ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
+HTMonitor::~HTMonitor() throw() {
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
 }
 
 void HTMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  // Initialize the GenericTriggerEventFlag
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_;
@@ -160,7 +185,7 @@ void HTMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
       histname = "ht_variable";
       histtitle = "HT";
       bookME(ibooker, qME_variableBinning_, histname, histtitle, ht_variable_binning_);
-      setHTitle(qME_variableBinning_, "HT [GeV]", "events / [GeV]");
+      setMETitle(qME_variableBinning_, "HT [GeV]", "events / [GeV]");
 
       histname = "htVsLS";
       histtitle = "HT vs LS";
@@ -173,17 +198,17 @@ void HTMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
              ls_binning_.xmax,
              ht_binning_.xmin,
              ht_binning_.xmax);
-      setHTitle(htVsLS_, "LS", "HT [GeV]");
+      setMETitle(htVsLS_, "LS", "HT [GeV]");
 
       histname = "deltaphi_metjet1";
       histtitle = "DPHI_METJ1";
       bookME(ibooker, deltaphimetj1ME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-      setHTitle(deltaphimetj1ME_, "delta phi (met, j1)", "events / 0.1 rad");
+      setMETitle(deltaphimetj1ME_, "delta phi (met, j1)", "events / 0.1 rad");
 
       histname = "deltaphi_jet1jet2";
       histtitle = "DPHI_J1J2";
       bookME(ibooker, deltaphij1j2ME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-      setHTitle(deltaphij1j2ME_, "delta phi (j1, j2)", "events / 0.1 rad");
+      setMETitle(deltaphij1j2ME_, "delta phi (j1, j2)", "events / 0.1 rad");
       break;
     }
 
@@ -191,7 +216,7 @@ void HTMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
       histname = "mjj_variable";
       histtitle = "Mjj";
       bookME(ibooker, qME_variableBinning_, histname, histtitle, ht_variable_binning_);
-      setHTitle(qME_variableBinning_, "Mjj [GeV]", "events / [GeV]");
+      setMETitle(qME_variableBinning_, "Mjj [GeV]", "events / [GeV]");
       break;
     }
 
@@ -199,34 +224,30 @@ void HTMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
       histname = "softdrop_variable";
       histtitle = "softdropmass";
       bookME(ibooker, qME_variableBinning_, histname, histtitle, ht_variable_binning_);
-      setHTitle(qME_variableBinning_, "leading jet softdropmass [GeV]", "events / [GeV]");
+      setMETitle(qME_variableBinning_, "leading jet softdropmass [GeV]", "events / [GeV]");
       break;
     }
   }
-
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && !den_genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken(metToken_, metHandle);
-  if (!metHandle.isValid()) {
-    if (!warningPrinted4token_[0]) {
+  if (not metHandle.isValid()) {
+    if (not warningWasPrinted_) {
       edm::LogWarning("HTMonitor") << "skipping events because the collection " << metInputTag_.label().c_str()
                                    << " is not available";
-      warningPrinted4token_[0] = true;
+      warningWasPrinted_ = true;
     }
     return;
   }
@@ -237,10 +258,10 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   edm::Handle<reco::JetView> jetHandle;  //add a configurable jet collection & jet pt selection
   iEvent.getByToken(jetToken_, jetHandle);
   if (!jetHandle.isValid()) {
-    if (!warningPrinted4token_[1]) {
+    if (not warningWasPrinted_) {
       edm::LogWarning("HTMonitor") << "skipping events because the collection " << jetInputTag_.label().c_str()
                                    << " is not available";
-      warningPrinted4token_[1] = true;
+      warningWasPrinted_ = true;
     }
     return;
   }
@@ -277,13 +298,14 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     if (electrons.size() < nelectrons_)
       return;
   } else {
-    if (!warningPrinted4token_[2]) {
-      warningPrinted4token_[2] = true;
+    if (not warningWasPrinted_) {
       if (eleInputTag_.label().empty())
         edm::LogWarning("HTMonitor") << "GsfElectronCollection not set";
       else
         edm::LogWarning("HTMonitor") << "skipping events because the collection " << eleInputTag_.label().c_str()
                                      << " is not available";
+
+      warningWasPrinted_ = true;
     }
     if (!eleInputTag_.label().empty())
       return;
@@ -302,13 +324,14 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
       }
     }
   } else {
-    if (!warningPrinted4token_[3]) {
-      warningPrinted4token_[3] = true;
+    if (not warningWasPrinted_) {
       if (vtxInputTag_.label().empty())
         edm::LogWarning("HTMonitor") << "VertexCollection not set";
       else
         edm::LogWarning("HTMonitor") << "skipping events because the collection " << vtxInputTag_.label().c_str()
                                      << " is not available";
+
+      warningWasPrinted_ = true;
     }
     if (!vtxInputTag_.label().empty())
       return;
@@ -331,13 +354,14 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     if (muons.size() < nmuons_)
       return;
   } else {
-    if (!warningPrinted4token_[4]) {
-      warningPrinted4token_[4] = true;
+    if (not warningWasPrinted_) {
       if (muoInputTag_.label().empty())
         edm::LogWarning("HTMonitor") << "MuonCollection not set";
       else
         edm::LogWarning("HTMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str()
                                      << " is not available";
+
+      warningWasPrinted_ = true;
     }
     if (!muoInputTag_.label().empty())
       return;
@@ -415,22 +439,10 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   }
 }
 
-void HTMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins");
-  pset.add<double>("xmin");
-  pset.add<double>("xmax");
-}
-
-void HTMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<unsigned int>("nbins", 2500);
-  pset.add<double>("xmin", 0.);
-  pset.add<double>("xmax", 2500.);
-}
-
 void HTMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/HT");
-  desc.add<std::string>("quantity", "HT");
+  desc.add<bool>("requireValidHLTPaths", true);
 
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
@@ -480,9 +492,9 @@ void HTMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
 
+  desc.add<std::string>("quantity", "HT");
+
   descriptions.add("htMonitoring", desc);
 }
 
-// Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HTMonitor);

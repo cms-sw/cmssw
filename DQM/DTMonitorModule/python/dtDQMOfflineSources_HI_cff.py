@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorModule.dtChamberEfficiencyHI_cfi import *
+from DQM.DTMonitorModule.dtOccupancyEfficiency_cfi import *
 from DQM.DTMonitorModule.dtSegmentTask_cfi import *
 from DQM.DTMonitorModule.dtDCSByLumiTask_cfi import *
 from DQM.DTMonitorModule.dtRunConditionVar_cfi import *
@@ -50,6 +51,7 @@ dtSources = cms.Sequence(dtDataIntegrityUnpacker  +
                          dtResolutionAnalysisMonitor +
                          dtEfficiencyMonitor +
                          dtTriggerEfficiencyMonitor +
+                         dtOccupancyMonitor +
                          dqmInfoDT)
 
 import EventFilter.DTRawToDigi.dturosunpacker_cfi

@@ -67,10 +67,6 @@ private:
   bool isSetup_;
   std::string hltTag_;
 
-  //disabling copying/assignment (in theory this is copyable but lets not just in case)
-  EgHLTOfflineClient(const EgHLTOfflineClient& rhs) {}
-  EgHLTOfflineClient& operator=(const EgHLTOfflineClient& rhs) { return *this; }
-
 public:
   explicit EgHLTOfflineClient(const edm::ParameterSet&);
   ~EgHLTOfflineClient() override;

@@ -5,6 +5,7 @@
 <use   name="openssl"/>
 <use   name="CoralCommon"/>
 <use   name="CoralKernel"/>
+<use   name="CoralBase"/>
 <use   name="RelationalAccess"/>
 <export>
   <lib   name="1"/>

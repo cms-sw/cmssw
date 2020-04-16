@@ -203,13 +203,11 @@ TrajectoryStateClosestToPoint GsfTransientTrack::impactPointTSCP() const {
 }
 
 TrajectoryStateOnSurface GsfTransientTrack::outermostMeasurementState() const {
-  MultiTrajectoryStateTransform theMTransform;
-  return theMTransform.outerStateOnSurface((*this), *theTrackingGeometry, theField);
+  return MultiTrajectoryStateTransform::outerStateOnSurface(*this, *theTrackingGeometry, theField);
 }
 
 TrajectoryStateOnSurface GsfTransientTrack::innermostMeasurementState() const {
-  MultiTrajectoryStateTransform theMTransform;
-  return theMTransform.innerStateOnSurface((*this), *theTrackingGeometry, theField);
+  return MultiTrajectoryStateTransform::innerStateOnSurface(*this, *theTrackingGeometry, theField);
 }
 
 void GsfTransientTrack::calculateTSOSAtVertex() const {

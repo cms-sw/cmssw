@@ -37,7 +37,11 @@ void DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup) 
   LogVerbatim("Geometry") << "DDTestSpecParsFilter::analyze: " << m_tag << " for attribute " << m_attribute
                           << " and value " << m_value;
   LogVerbatim("Geometry") << "DD SpecPar Registry size: " << registry->specpars.size();
-
+  std::cout << "*** Check names in a path:\n";
+  std::vector<std::string_view> namesInPath = registry->names("//ME11AlumFrame");
+  for (auto i : namesInPath) {
+    std::cout << i << "\n";
+  }
   DDSpecParRefs myReg;
   if (m_value.empty())
     registry->filter(myReg, m_attribute);
@@ -60,6 +64,12 @@ void DDTestSpecParsFilter::analyze(const Event&, const EventSetup& iEventSetup) 
       }
     }
   });
+  std::cout << "*** Check names in a path after filtering:\n";
+  for (auto it : myReg) {
+    if (it->hasPath("//ME11AlumFrame")) {
+      std::cout << it->name << "\n";
+    }
+  }
 }
 
 DEFINE_FWK_MODULE(DDTestSpecParsFilter);

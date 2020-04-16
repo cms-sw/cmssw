@@ -5,9 +5,11 @@
 #include <vector>
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-class MagneticField;
 class Trajectory;
 
 namespace edm {
@@ -104,7 +106,6 @@ public:
     std::vector<AVHitStruct> hits;
   };
 
-  TrackerValidationVariables();
   TrackerValidationVariables(const edm::ParameterSet& config, edm::ConsumesCollector&& iC);
   ~TrackerValidationVariables();
 
@@ -120,6 +121,7 @@ public:
 private:
   edm::EDGetTokenT<std::vector<Trajectory>> trajCollectionToken_;
   edm::EDGetTokenT<std::vector<reco::Track>> tracksToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 };
 
 #endif

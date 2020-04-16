@@ -1,10 +1,17 @@
 #include "DQMOffline/Hcal/interface/HcalRecHitsAnalyzer.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
+#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const &conf)
-    : topFolderName_(conf.getParameter<std::string>("TopFolderName")) {
+    : topFolderName_(conf.getParameter<std::string>("TopFolderName")),
+      hcalDDDRecConstantsToken_{esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()},
+      caloGeometryRunToken_{esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()},
+      caloGeometryEventToken_{esConsumes<CaloGeometry, CaloGeometryRecord>()},
+      hcalTopologyToken_{esConsumes<HcalTopology, HcalRecNumberingRecord>()},
+      hcalChannelQualityToken_{esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"))},
+      hcalSeverityLevelComputerToken_{esConsumes<HcalSeverityLevelComputer, HcalSeverityLevelComputerRcd>()} {
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
@@ -63,24 +70,19 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const &conf)
   imc = 0;
 }
 
-void HcalRecHitsAnalyzer::dqmBeginRun(const edm::Run &run, const edm::EventSetup &es) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  es.get<HcalRecNumberingRecord>().get(pHRNDC);
-  hcons = &(*pHRNDC);
-  maxDepthHB_ = hcons->getMaxDepth(0);
-  maxDepthHE_ = hcons->getMaxDepth(1);
-  maxDepthHF_ = std::max(hcons->getMaxDepth(2), 1);
-  maxDepthHO_ = hcons->getMaxDepth(3);
+void HcalRecHitsAnalyzer::dqmBeginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
+  HcalDDDRecConstants const &hcons = iSetup.getData(hcalDDDRecConstantsToken_);
+  maxDepthHB_ = hcons.getMaxDepth(0);
+  maxDepthHE_ = hcons.getMaxDepth(1);
+  maxDepthHF_ = std::max(hcons.getMaxDepth(2), 1);
+  maxDepthHO_ = hcons.getMaxDepth(3);
 
-  edm::ESHandle<CaloGeometry> geometry;
+  CaloGeometry const &geo = iSetup.getData(caloGeometryRunToken_);
 
-  es.get<CaloGeometryRecord>().get(geometry);
-
-  const CaloGeometry *geo = geometry.product();
-  const HcalGeometry *gHB = static_cast<const HcalGeometry *>(geo->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
-  const HcalGeometry *gHE = static_cast<const HcalGeometry *>(geo->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-  const HcalGeometry *gHO = static_cast<const HcalGeometry *>(geo->getSubdetectorGeometry(DetId::Hcal, HcalOuter));
-  const HcalGeometry *gHF = static_cast<const HcalGeometry *>(geo->getSubdetectorGeometry(DetId::Hcal, HcalForward));
+  const HcalGeometry *gHB = static_cast<const HcalGeometry *>(geo.getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
+  const HcalGeometry *gHE = static_cast<const HcalGeometry *>(geo.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+  const HcalGeometry *gHO = static_cast<const HcalGeometry *>(geo.getSubdetectorGeometry(DetId::Hcal, HcalOuter));
+  const HcalGeometry *gHF = static_cast<const HcalGeometry *>(geo.getSubdetectorGeometry(DetId::Hcal, HcalForward));
 
   nChannels_[1] = gHB->getHxSize(1);
   nChannels_[2] = std::max(int(gHE->getHxSize(2)), 1);
@@ -103,11 +105,11 @@ void HcalRecHitsAnalyzer::dqmBeginRun(const edm::Run &run, const edm::EventSetup
   // Get Phi segmentation from geometry, use the max phi number so that all iphi
   // values are included.
 
-  int NphiMax = hcons->getNPhi(0);
+  int NphiMax = hcons.getNPhi(0);
 
-  NphiMax = (hcons->getNPhi(1) > NphiMax ? hcons->getNPhi(1) : NphiMax);
-  NphiMax = (hcons->getNPhi(2) > NphiMax ? hcons->getNPhi(2) : NphiMax);
-  NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
+  NphiMax = (hcons.getNPhi(1) > NphiMax ? hcons.getNPhi(1) : NphiMax);
+  NphiMax = (hcons.getNPhi(2) > NphiMax ? hcons.getNPhi(2) : NphiMax);
+  NphiMax = (hcons.getNPhi(3) > NphiMax ? hcons.getNPhi(3) : NphiMax);
 
   // Center the iphi bins on the integers
   iphi_min_ = 0.5;
@@ -116,10 +118,10 @@ void HcalRecHitsAnalyzer::dqmBeginRun(const edm::Run &run, const edm::EventSetup
 
   // Retain classic behavior, all plots have same ieta range.
 
-  int iEtaMax = (hcons->getEtaRange(0).second > hcons->getEtaRange(1).second ? hcons->getEtaRange(0).second
-                                                                             : hcons->getEtaRange(1).second);
-  iEtaMax = (iEtaMax > hcons->getEtaRange(2).second ? iEtaMax : hcons->getEtaRange(2).second);
-  iEtaMax = (iEtaMax > hcons->getEtaRange(3).second ? iEtaMax : hcons->getEtaRange(3).second);
+  int iEtaMax = (hcons.getEtaRange(0).second > hcons.getEtaRange(1).second ? hcons.getEtaRange(0).second
+                                                                           : hcons.getEtaRange(1).second);
+  iEtaMax = (iEtaMax > hcons.getEtaRange(2).second ? iEtaMax : hcons.getEtaRange(2).second);
+  iEtaMax = (iEtaMax > hcons.getEtaRange(3).second ? iEtaMax : hcons.getEtaRange(3).second);
 
   // Give an empty bin around the subdet ieta range to make it clear that all
   // ieta rings have been included
@@ -130,7 +132,7 @@ void HcalRecHitsAnalyzer::dqmBeginRun(const edm::Run &run, const edm::EventSetup
 
 void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
                                          edm::Run const & /* iRun*/,
-                                         edm::EventSetup const & /* iSetup */)
+                                         edm::EventSetup const &)
 
 {
   Char_t histo[200];
@@ -496,19 +498,19 @@ void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     meRecHitsCleanedEnergyHO = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
 
     sprintf(histo, "HcalRecHitTask_timing_HO");
-    meTimeHO = ibooker.book1DD(histo, histo, 70, -48., 92.);
+    meTimeHO = ibooker.book1DD(histo, histo, 80, -80., 80.);
 
     sprintf(histo, "HcalRecHitTask_timing_vs_energy_HO");
-    meTE_HO = ibooker.book2D(histo, histo, 60, -5., 55., 70, -48., 92.);
+    meTE_HO = ibooker.book2D(histo, histo, 60, -5., 55., 80, -80., 80.);
 
     sprintf(histo, "HcalRecHitTask_timing_vs_energy_High_HO");
-    meTE_High_HO = ibooker.book2D(histo, histo, 100, -5., 995., 70, -48., 92.);
+    meTE_High_HO = ibooker.book2D(histo, histo, 100, -5., 995., 80, -80., 80.);
 
     sprintf(histo, "HcalRecHitTask_timing_vs_energy_profile_HO");
-    meTEprofileHO = ibooker.bookProfile(histo, histo, 60, -5., 55., -48., 92., " ");
+    meTEprofileHO = ibooker.bookProfile(histo, histo, 60, -5., 55., -80., 80., " ");
 
     sprintf(histo, "HcalRecHitTask_timing_vs_energy_profile_High_HO");
-    meTEprofileHO_High = ibooker.bookProfile(histo, histo, 100, -5., 995., -48., 92., " ");
+    meTEprofileHO_High = ibooker.bookProfile(histo, histo, 100, -5., 995., -80., 80., " ");
   }
 
   // ********************** HF ************************************
@@ -542,7 +544,7 @@ void HcalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
   }
 }
 
-void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c) {
+void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &iSetup) {
   using namespace edm;
 
   // cuts for each subdet_ector mimiking  "Scheme B"
@@ -568,23 +570,17 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
   double etaHot = 99999.;
   double phiHot = 99999.;
 
-  //   previously was:  c.get<IdealGeometryRecord>().get (geometry);
-  c.get<CaloGeometryRecord>().get(geometry);
+  //   previously was:  iSetup.get<IdealGeometryRecord>().get (geometry);
+  geometry = &iSetup.getData(caloGeometryEventToken_);
 
   // HCAL Topology **************************************************
-  edm::ESHandle<HcalTopology> topo;
-  c.get<HcalRecNumberingRecord>().get(topo);
-  theHcalTopology = topo.product();
+  theHcalTopology = &iSetup.getData(hcalTopologyToken_);
 
   // HCAL channel status map ****************************************
-  edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  c.get<HcalChannelQualityRcd>().get("withTopo", hcalChStatus);
-  theHcalChStatus = hcalChStatus.product();
+  theHcalChStatus = &iSetup.getData(hcalChannelQualityToken_);
 
   // Assignment of severity levels **********************************
-  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
-  c.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
-  theHcalSevLvlComputer = hcalSevLvlComputerHndl.product();
+  theHcalSevLvlComputer = &iSetup.getData(hcalSeverityLevelComputerToken_);
 
   // Fill working vectors of HCAL RecHits quantities (all of these are drawn)
   fillRecHitsTmp(subdet_, ev);

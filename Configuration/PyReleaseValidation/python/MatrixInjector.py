@@ -5,6 +5,7 @@ import os
 import copy
 import multiprocessing
 import time
+import re
 
 def performInjectionOptionTest(opt):
     if opt.show:
@@ -53,6 +54,7 @@ class MatrixInjector(object):
         self.keep = opt.keep
         self.memoryOffset = opt.memoryOffset
         self.memPerCore = opt.memPerCore
+        self.numberEventsInLuminosityBlock = opt.numberEventsInLuminosityBlock
         self.batchName = ''
         self.batchTime = str(int(time.time()))
         if(opt.batchName):
@@ -128,6 +130,7 @@ class MatrixInjector(object):
             "GlobalTag": None,
             "SplittingAlgo"  : "EventBased",             #Splitting Algorithm
             "EventsPerJob" : None,                       #Size of jobs in terms of splitting algorithm
+            "EventsPerLumi" : None,
             "RequestNumEvents" : None,                      #Total number of events to generate
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
@@ -276,7 +279,31 @@ class MatrixInjector(object):
             wmsplit['HYBRIDZSHI2015']=1
             wmsplit['RECOHID15']=1
             wmsplit['RECOHID18']=1
-                                    
+            wmsplit['DigiFullTriggerPU_2026D35PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D35PU']=1
+            wmsplit['DigiFullTriggerPU_2026D41PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D41PU']=1
+            wmsplit['DigiFullTriggerPU_2026D43PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D43PU']=1
+            wmsplit['DigiFullTriggerPU_2026D44PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D44PU']=1
+            wmsplit['DigiFullTriggerPU_2026D45PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D45PU']=1
+            wmsplit['DigiFullTriggerPU_2026D46PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D46PU']=1
+            wmsplit['DigiFullTriggerPU_2026D47PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D47PU']=1
+            wmsplit['DigiFullTriggerPU_2026D48PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D48PU']=1
+            wmsplit['DigiFullTriggerPU_2026D49PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D49PU']=1
+            wmsplit['DigiFullTriggerPU_2026D50PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D50PU']=1
+            wmsplit['DigiFullTriggerPU_2026D51PU'] = 1
+            wmsplit['RecoFullGlobalPU_2026D51PU']=1
+            wmsplit['DigiFullTriggerPU_2026D52PU'] = 1	
+            wmsplit['RecoFullGlobalPU_2026D52PU']=1           
+                         
             #import pprint
             #pprint.pprint(wmsplit)            
         except:
@@ -329,9 +356,17 @@ class MatrixInjector(object):
                                     return -12
                                 else:
                                     arg=s[2][index].split()
-                                    ns=map(int,arg[arg.index('--relval')+1].split(','))
+                                    ns=list(map(int,arg[len(arg) - arg[-1::-1].index('--relval')].split(',')))
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['EventsPerJob'] = ns[1]
+                                    chainDict['nowmTasklist'][-1]['EventsPerLumi'] = ns[1]
+                                    #overwrite EventsPerLumi if numberEventsInLuminosityBlock is set in cmsDriver
+                                    if 'numberEventsInLuminosityBlock' in s[2][index]:
+                                        nEventsInLuminosityBlock = re.findall('process.source.numberEventsInLuminosityBlock=cms.untracked.uint32\(([ 0-9 ]*)\)', s[2][index],re.DOTALL)
+                                        if nEventsInLuminosityBlock[-1].isdigit() and int(nEventsInLuminosityBlock[-1]) < ns[1]:
+                                            chainDict['nowmTasklist'][-1]['EventsPerLumi'] = int(nEventsInLuminosityBlock[-1])
+                                    if(self.numberEventsInLuminosityBlock > 0 and self.numberEventsInLuminosityBlock <= ns[1]):
+                                        chainDict['nowmTasklist'][-1]['EventsPerLumi'] = self.numberEventsInLuminosityBlock
                                 if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
                                     thisLabel+='_FastSim'
                                 if 'lhe' in s[2][index] in s[2][index]:

@@ -73,9 +73,10 @@ void SiStripDetVOffTkMapPlotter::analyze(const edm::Event& evt, const edm::Event
                                            << "Query the condition database " << m_condDb << " for tag " << m_plotTag;
   cond::persistency::Session condDbSession = m_connectionPool.createSession(m_condDb);
   condDbSession.transaction().start(true);
-  cond::persistency::IOVProxy iovProxy = condDbSession.readIov(m_plotTag, true);
-  auto iiov = iovProxy.find(theIov);
-  if (iiov == iovProxy.end())
+  cond::persistency::IOVProxy iovProxy = condDbSession.readIov(m_plotTag);
+  auto iovs = iovProxy.selectAll();
+  auto iiov = iovs.find(theIov);
+  if (iiov == iovs.end())
     throw cms::Exception("Input IOV " + std::to_string(m_IOV) + "/" + m_Time + " is invalid!");
 
   theIov = (*iiov).since;

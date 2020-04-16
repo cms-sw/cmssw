@@ -31,14 +31,14 @@ TrackingRegion::Hits GlobalTrackingRegion::hits(const edm::EventSetup& es,
   return layer.hits();
 }
 
-HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer,
-                                                  const Hit& outerHit,
-                                                  const edm::EventSetup& iSetup,
-                                                  const DetLayer* outerlayer,
-                                                  float lr,
-                                                  float gz,
-                                                  float dr,
-                                                  float dz) const {
+std::unique_ptr<HitRZCompatibility> GlobalTrackingRegion::checkRZ(const DetLayer* layer,
+                                                                  const Hit& outerHit,
+                                                                  const edm::EventSetup& iSetup,
+                                                                  const DetLayer* outerlayer,
+                                                                  float lr,
+                                                                  float gz,
+                                                                  float dr,
+                                                                  float dz) const {
   bool isBarrel = layer->isBarrel();
   bool isPixel = (layer->subDetector() == PixelBarrel || layer->subDetector() == PixelEndcap);
 
@@ -64,7 +64,7 @@ HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer,
     UNLIKELY((!thePrecise) && (isPixel)) {
       auto VcotMin = PixelRecoLineRZ(vtxR, outerred).cotLine();
       auto VcotMax = PixelRecoLineRZ(vtxL, outerred).cotLine();
-      return new HitEtaCheck(isBarrel, outerred, VcotMax, VcotMin);
+      return std::make_unique<HitEtaCheck>(isBarrel, outerred, VcotMax, VcotMin);
     }
 
   constexpr float nSigmaPhi = 3.;
@@ -109,6 +109,9 @@ HitRZCompatibility* GlobalTrackingRegion::checkRZ(const DetLayer* layer,
       }
     }
 
-  return isBarrel ? (HitRZCompatibility*)(new HitZCheck(rzConstraint, HitZCheck::Margin(corr, corr)))
-                  : (HitRZCompatibility*)(new HitRCheck(rzConstraint, HitRCheck::Margin(corr, corr)));
+  if (isBarrel) {
+    return std::make_unique<HitZCheck>(rzConstraint, HitZCheck::Margin(corr, corr));
+  } else {
+    return std::make_unique<HitRCheck>(rzConstraint, HitRCheck::Margin(corr, corr));
+  }
 }

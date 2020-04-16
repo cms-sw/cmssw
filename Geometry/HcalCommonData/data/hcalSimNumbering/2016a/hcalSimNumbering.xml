@@ -95,7 +95,7 @@
   <SpecPar name="hcal">
     <PartSelector path="//HBS.*"/>
     <PartSelector path="//HTS.*"/>
-    <PartSelector path="//.*HES.*"/>
+    <PartSelector path="//HES.*"/>
     <PartSelector path="//HVQF"/>
     <Parameter name="OnlyForHcalSimNumbering" value="HCAL" eval="false"/>
   </SpecPar>

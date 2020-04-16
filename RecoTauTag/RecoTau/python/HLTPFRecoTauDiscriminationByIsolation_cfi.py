@@ -12,24 +12,9 @@ hltPFRecoTauDiscriminationByIsolation = pfRecoTauDiscriminationByIsolation.clone
     # 2) a track in the signal cone has pT > 5 GeV
     Prediscriminants = noPrediscriminants,
 
-    # Select which collections to use for isolation. You can select one or both
-    ApplyDiscriminationByECALIsolation = cms.bool(False), # use PFGammas when isolating
-    ApplyDiscriminationByTrackerIsolation = cms.bool(True), # use PFChargedHadr when isolating
-
-    applyOccupancyCut = cms.bool(True), # apply a cut on number of isolation objects
-    maximumOccupancy = cms.uint32(0), # no tracks > 1 GeV or gammas > 1.5 GeV allowed
-
-    applySumPtCut = cms.bool(False), # apply a cut on the sum Pt of the isolation objects
-    maximumSumPtCut = cms.double(6.0),
-    storeRawSumPt = cms.bool(False),
-
-    applyRelativeSumPtCut = cms.bool(False), # apply a cut on IsoPt/TotalPt
-    relativeSumPtCut = cms.double(0.0),
-
     qualityCuts = hltPFTauQualityCuts,# set the standard quality cuts
 
     # Delta-Beta corrections to remove Pileup
-    applyDeltaBetaCorrection = cms.bool(False),
     particleFlowSrc = cms.InputTag("hltParticleFlow"),
     vertexSrc = hltPFTauQualityCuts.primaryVertexSrc,
     customOuterCone = cms.double( -1.0 ),
@@ -53,4 +38,13 @@ hltPFRecoTauDiscriminationByIsolation = pfRecoTauDiscriminationByIsolation.clone
     rhoProducer = cms.InputTag("kt6PFJets", "rho"),
     rhoConeSize = cms.double(0.5),
     rhoUEOffsetCorrection = cms.double(1.0),
+
+    IDdefinitions = cms.VPSet(),
+    IDWPdefinitions = cms.VPSet(
+        cms.PSet(
+            IDname = cms.string("pfRecoTauDiscriminationByIsolation"),
+            maximumOccupancy = cms.uint32(0), # no tracks > 1 GeV or gammas > 1.5 GeV allowed
+            ApplyDiscriminationByTrackerIsolation = cms.bool(True), # use PFGammas when isolating
+        )
+    ),
 )

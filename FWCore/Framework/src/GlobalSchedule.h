@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <map>
 #include <memory>
@@ -42,7 +43,8 @@ namespace edm {
           T::preScheduleSignal(a_, context_);
       }
       ~GlobalScheduleSignalSentry() noexcept(false) {
-        try {
+        // Caught exception is rethrown
+        CMS_SA_ALLOW try {
           if (a_)
             T::postScheduleSignal(a_, context_);
         } catch (...) {
@@ -160,7 +162,8 @@ namespace edm {
                                              EventSetupImpl const& es,
                                              ServiceToken const& token,
                                              bool cleaningUpAfterException) {
-    try {
+    // Caught exception is propagated via WaitingTaskHolder
+    CMS_SA_ALLOW try {
       //need the doneTask to own the memory
       auto globalContext = std::make_shared<GlobalContext>(T::makeGlobalContext(ep, processContext_));
 
@@ -195,7 +198,8 @@ namespace edm {
               }
             }
             if (actReg_) {
-              try {
+              // Caught exception is propagated via WaitingTaskHolder
+              CMS_SA_ALLOW try {
                 ServiceRegistry::Operate op(token);
                 T::postScheduleSignal(actReg_.get(), globalContext.get());
               } catch (...) {

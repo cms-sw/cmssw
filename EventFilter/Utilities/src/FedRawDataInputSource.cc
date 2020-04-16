@@ -216,7 +216,7 @@ void FedRawDataInputSource::fillDescriptions(edm::ConfigurationDescriptions& des
   descriptions.add("source", desc);
 }
 
-bool FedRawDataInputSource::checkNextEvent() {
+edm::RawInputSource::Next FedRawDataInputSource::checkNext() {
   if (!startedSupervisorThread_) {
     //this thread opens new files and dispatches reading to worker readers
     //threadInit_.store(false,std::memory_order_release);
@@ -260,15 +260,15 @@ bool FedRawDataInputSource::checkNextEvent() {
       eventsThisLumi_ = 0;
       resetLuminosityBlockAuxiliary();
       edm::LogInfo("FedRawDataInputSource") << "----------------RUN ENDED----------------";
-      return false;
+      return Next::kStop;
     }
     case evf::EvFDaqDirector::noFile: {
       //this is not reachable
-      return true;
+      return Next::kEvent;
     }
     case evf::EvFDaqDirector::newLumi: {
       //std::cout << "--------------NEW LUMI---------------" << std::endl;
-      return true;
+      return Next::kEvent;
     }
     default: {
       if (!getLSFromFilename_) {
@@ -287,7 +287,7 @@ bool FedRawDataInputSource::checkNextEvent() {
 
       setEventCached();
 
-      return true;
+      return Next::kEvent;
     }
   }
 }

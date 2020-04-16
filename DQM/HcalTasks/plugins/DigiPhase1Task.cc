@@ -29,9 +29,6 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   DQTask::bookHistograms(ib, r, es);
 
   //  GET WHAT YOU NEED
-  edm::ESHandle<HcalDbService> dbs;
-  es.get<HcalDbRecord>().get(dbs);
-  _emap = dbs->getHcalMapping();
   std::vector<uint32_t> vVME;
   std::vector<uint32_t> vuTCA;
   vVME.push_back(
@@ -263,8 +260,9 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   _cTimingCut_depth.book(ib, _emap, _subsystem);
 
   _cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
-  _cOccupancy_depth.book(ib, _emap, _subsystem);
   _cOccupancyCut_depth.book(ib, _emap, _subsystem);
+  if (_ptype != fOffline)
+    _cOccupancy_depth.book(ib, _emap, _subsystem);
 
   if (_ptype != fOffline) {  // hidefed2crate
     _cShapeCut_FED.book(ib, _emap, _subsystem);
@@ -289,21 +287,20 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   _dhashmap.initialize(_emap, electronicsmap::fE2DHashMap);
 
   //      MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
+  auto scope = DQMStore::IBooker::UseLumiScope(ib);
   if (_ptype == fOffline) {
     //_cDigiSize_FED.setLumiFlag(); // hidefed2crate : FED stuff not available offline anymore, so this histogram doesn't make sense?
-    _cOccupancy_depth.setLumiFlag();
+    _cOccupancy_depth.book(ib, _emap, _subsystem);
   }
 
   //      book Number of Events vs LS histogram
   ib.setCurrentFolder(_subsystem + "/RunInfo");
   meNumEvents1LS = ib.book1D("NumberOfEvents", "NumberOfEvents", 1, 0, 1);
-  meNumEvents1LS->setLumiFlag();
 
   //      book the flag for unknown ids and the online guy as well
   ib.setCurrentFolder(_subsystem + "/" + _name);
   meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds", 1, 0, 1);
   _unknownIdsPresent = false;
-  meUnknownIds1LS->setLumiFlag();
 }
 
 /* virtual */ void DigiPhase1Task::_resetMonitors(hcaldqm::UpdateFreq uf) {

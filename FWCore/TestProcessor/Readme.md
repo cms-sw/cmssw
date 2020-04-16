@@ -111,6 +111,20 @@ The return value of `test()` is an `edm::test::Event`. The `Event` class gives a
   
 The `edm::test::Event` also has the method `modulePassed()` which is only useful when testing an `EDFilter`. In that case, the method returns `true` if the module passed the Event and `false` otherwise.
 
+### Run and LuminosityBlock product testing
+It is possible to also test Run and LuminosityBlock products created by the module. This can be accomplished by calling
+* `testBeginRun(edm::RunNumber_t)`
+* `testEndRun()`
+* `testBeginLuminosityBlock(edm::LuminosityBlockNumber_t)`
+* `testEndLuminosityBlock()`
+
+Like `test()` one can pass an unlimited number of arguments of type  `std::pair<edm::test::ESPutTokenT<T>, std::unique_ptr<T>` in order to control EventSetup data passed to the module (`EDPutToken` are not supported at this time). Each of the above `test` functions also return either `edm::test::Run` or `edm::test::LuminosityBlock` which has the same interface as `edm::test::Event` except they do not have the method `modulePassed()` because filtering does not occur on those transitions. 
+
+The `test` methods all make sure all the needed transitions occur in the necessary order. For example, calling `test()` and then `testEndRun()` will cause _streamEndLuminosityBlock_ and _globalEndLuminosityBlock_ to occur.
+
+When calling `testBeginRun(edm:RunNumber_t)` or `testBeginLuminosityBlock(edm::LuminosityBlockNumber_t)` one is required to pass in a Run or LuminosityBlock number which is different from the number previously used by any earlier calls to a `test` function. 
+
+
 ### Full Example 
 
 ```cpp

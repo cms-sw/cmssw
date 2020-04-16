@@ -72,8 +72,6 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
 
@@ -181,8 +179,6 @@ void SiStripCMMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
     cmHists_.bookAllFEDHistograms(ibooker);
 }
 
-void SiStripCMMonitorPlugin::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
-
 // ------------ method called to for each event  ------------
 void SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
@@ -224,7 +220,13 @@ void SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent, const edm::EventS
       continue;
     } else {
       //need to construct full object to go any further
-      buffer.reset(new sistrip::FEDBuffer(fedData.data(), fedData.size(), true));
+      const auto st_buffer = sistrip::preconstructCheckFEDBuffer(fedData, true);
+      if (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
+        throw cms::Exception("FEDBuffer") << st_buffer << " (check debug output for more details)";
+      }
+      auto tmp_buffer = std::make_unique<sistrip::FEDBuffer>(fedData, true);
+      tmp_buffer->findChannels();
+      buffer = std::move(tmp_buffer);  // const now
       bool channelLengthsOK = buffer->checkChannelLengthsMatchBufferLength();
       bool channelPacketCodesOK = buffer->checkChannelPacketCodes();
       bool feLengthsOK = buffer->checkFEUnitLengths();

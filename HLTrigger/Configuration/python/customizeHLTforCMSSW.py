@@ -46,7 +46,7 @@ def synchronizeHCALHLTofflineRun3on2018data(process):
     # this function bring back the Run3 menu to a Run2-2018 like meny, for testing in data 2018
 
     #----------------------------------------------------------------------------------------------------------
-    # adapt threshold for HB  - in 2018 only one depth 
+    # adapt threshold for HB  - in 2018 only one depth
 
     for producer in producers_by_type(process, "PFClusterProducer"):
         if producer.seedFinder.thresholdsByDetector[0].detector.value() == 'HCAL_BARREL1':

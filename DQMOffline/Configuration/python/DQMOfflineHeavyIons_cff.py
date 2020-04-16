@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Components.DQMMessageLogger_cfi import *
-from DQMServices.Components.DQMDcsInfo_cfi import *
+from DQMServices.Components.DQMProvInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
 
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
@@ -15,7 +15,10 @@ from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 
-DQMOfflineHeavyIonsDCS = cms.Sequence( dqmDcsInfo )
+DQMNone = cms.Sequence()
+
+dqmProvInfo.runType = "hi_run"
+DQMOfflineHeavyIonsDCS = cms.Sequence( dqmProvInfo )
 
 # L1 trigger sequences
 DQMOfflineHeavyIonsL1T = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is run within this sequence for real data
@@ -95,8 +98,7 @@ dqmElectronTagProbeAnalysis.ElectronCollection = cms.InputTag("gedGsfElectronsTm
 stdPhotonAnalysis.isHeavyIon = True
 stdPhotonAnalysis.barrelRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEB")
 stdPhotonAnalysis.endcapRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
-hltResults.RecHitsEBTag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB")
-hltResults.RecHitsEETag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
+
 #disabled, until an appropriate configuration is set
 hltTauOfflineMonitor_PFTaus.Matching.doMatching = False
 

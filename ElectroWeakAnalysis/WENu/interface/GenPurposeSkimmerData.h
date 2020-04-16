@@ -22,7 +22,6 @@
 #include "TString.h"
 #include "TMath.h"
 //
-#include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerAOD.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -53,7 +52,6 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
 //
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"

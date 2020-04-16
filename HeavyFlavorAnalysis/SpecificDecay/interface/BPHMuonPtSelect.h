@@ -33,6 +33,10 @@ public:
    */
   BPHMuonPtSelect(double pt) : BPHParticlePtSelect(pt) {}
 
+  // deleted copy constructor and assignment operator
+  BPHMuonPtSelect(const BPHMuonPtSelect& x) = delete;
+  BPHMuonPtSelect& operator=(const BPHMuonPtSelect& x) = delete;
+
   /** Destructor
    */
   ~BPHMuonPtSelect() override {}
@@ -45,11 +49,6 @@ public:
       return false;
     return BPHParticlePtSelect::accept(cand);
   }
-
-private:
-  // private copy and assigment constructors
-  BPHMuonPtSelect(const BPHMuonPtSelect& x) = delete;
-  BPHMuonPtSelect& operator=(const BPHMuonPtSelect& x) = delete;
 };
 
 #endif

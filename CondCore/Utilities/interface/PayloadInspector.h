@@ -3,14 +3,14 @@
 
 #include "CondCore/CondDB/interface/Utils.h"
 #include "CondCore/CondDB/interface/Session.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include <iostream>
 
 #include <string>
 #include <tuple>
 #include <vector>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include <boost/python/list.hpp>
+#include <boost/python/dict.hpp>
 
 namespace cond {
 
@@ -159,6 +159,12 @@ namespace cond {
       // required in the browser
       bool isTwoTags() const;
 
+      // required in the browser
+      boost::python::list inputParams() const;
+
+      // required in the browser
+      void setInputParamValues(const boost::python::dict& values);
+
       // returns the json file with the plot data
       std::string data() const;
 
@@ -189,6 +195,8 @@ namespace cond {
 
       void setTwoTags(bool flag);
 
+      void addInputParam(const std::string& paramName);
+
       // access to the fetch function of the configured reader, to be used in the processData implementations
       template <typename PayloadType>
       std::shared_ptr<PayloadType> fetchPayload(const cond::Hash& payloadHash) {
@@ -197,8 +205,7 @@ namespace cond {
 
       cond::Tag_t getTagInfo(const std::string& tag);
 
-      // access to the timeType of the tag in process
-      //cond::TimeType tagTimeType() const;
+      const std::map<std::string, std::string>& inputParamValues() const;
 
       // access to the underlying db session
       cond::persistency::Session dbSession();
@@ -207,12 +214,14 @@ namespace cond {
       PlotAnnotations m_plotAnnotations;
       std::string m_tag0 = "";
       std::string m_tag1 = "";
+      std::set<std::string> m_inputParams;
 
     private:
       cond::persistency::Session m_dbSession;
       //cond::TimeType m_tagTimeType;
 
       std::string m_data = "";
+      std::map<std::string, std::string> m_inputParamValues;
     };
 
     // Concrete plot-types implementations
@@ -603,7 +612,7 @@ namespace cond {
         m_plotAnnotations.m[PlotAnnotations::TITLE_K] = title;
         std::string payloadTypeName = cond::demangledName(typeid(PayloadType));
         m_plotAnnotations.m[PlotAnnotations::PAYLOAD_TYPE_K] = payloadTypeName;
-        m_imageFileName = boost::lexical_cast<std::string>((boost::uuids::random_generator())()) + ".png";
+        m_imageFileName = edm::createGlobalIdentifier() + ".png";
       }
 
       std::string serializeData() { return serialize(m_plotAnnotations, m_imageFileName); }

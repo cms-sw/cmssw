@@ -24,26 +24,21 @@
 
 using namespace pat;
 
-class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationProducerBase {
+class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationContainerProducerBase {
 public:
   explicit PATTauDiscriminationAgainstElectronMVA6(const edm::ParameterSet& cfg)
-      : PATTauDiscriminationProducerBase(cfg), mva_(), category_output_() {
+      : PATTauDiscriminationContainerProducerBase(cfg), mva_() {
     mva_ = std::make_unique<AntiElectronIDMVA6>(cfg);
 
     srcElectrons = cfg.getParameter<edm::InputTag>("srcElectrons");
     electronToken = consumes<pat::ElectronCollection>(srcElectrons);
     vetoEcalCracks_ = cfg.getParameter<bool>("vetoEcalCracks");
     verbosity_ = cfg.getParameter<int>("verbosity");
-
-    // add category index
-    produces<PATTauDiscriminator>("category");
   }
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const TauRef&) const override;
-
-  void endEvent(edm::Event&) override;
+  reco::SingleTauDiscriminatorContainer discriminate(const TauRef&) const override;
 
   ~PATTauDiscriminationAgainstElectronMVA6() override {}
 
@@ -60,8 +55,6 @@ private:
   edm::Handle<pat::ElectronCollection> Electrons;
   edm::Handle<TauCollection> taus_;
 
-  std::unique_ptr<PATTauDiscriminator> category_output_;
-
   bool vetoEcalCracks_;
 
   int verbosity_;
@@ -71,13 +64,14 @@ void PATTauDiscriminationAgainstElectronMVA6::beginEvent(const edm::Event& evt, 
   mva_->beginEvent(evt, es);
 
   evt.getByToken(Tau_token, taus_);
-  category_output_.reset(new PATTauDiscriminator(TauRefProd(taus_)));
 
   evt.getByToken(electronToken, Electrons);
 }
 
-double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTauRef) const {
-  double mvaValue = 1.;
+reco::SingleTauDiscriminatorContainer PATTauDiscriminationAgainstElectronMVA6::discriminate(
+    const TauRef& theTauRef) const {
+  reco::SingleTauDiscriminatorContainer result;
+  result.rawValues = {1., -1.};
   double category = -1.;
   bool isGsfElectronMatched = false;
   float deltaRDummy = 9.9;
@@ -114,10 +108,9 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
           // veto taus that go to Ecal crack
           if (vetoEcalCracks_ &&
               (isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance))) {
-            // add category index
-            category_output_->setValue(tauIndex_, category);
             // return MVA output value
-            return -99;
+            result.rawValues.at(0) = -99;
+            return result;
           }
           // Veto taus that go to Ecal crack
           if (std::abs(tauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder) {  // Barrel
@@ -133,14 +126,14 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
               category = 15.;
             }
           }
-          mvaValue = std::min(mvaValue, mva_match);
+          result.rawValues.at(0) = std::min(result.rawValues.at(0), float(mva_match));
           isGsfElectronMatched = true;
         }  // deltaR < 0.3
       }    // electron pt > 10
     }      // end of loop over electrons
 
     if (!isGsfElectronMatched) {
-      mvaValue = mva_->MVAValue(*theTauRef);
+      result.rawValues.at(0) = mva_->MVAValue(*theTauRef);
       bool hasGsfTrack = false;
       pat::PackedCandidate const* packedLeadTauCand =
           dynamic_cast<pat::PackedCandidate const*>(theTauRef->leadChargedHadrCand().get());
@@ -151,9 +144,10 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
       if (vetoEcalCracks_ &&
           (isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance))) {
         // add category index
-        category_output_->setValue(tauIndex_, category);
+        result.rawValues.at(1) = category;
         // return MVA output value
-        return -99;
+        result.rawValues.at(0) = -99;
+        return result;
       }
       // veto taus that go to Ecal crack
       if (std::abs(tauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder) {  // Barrel
@@ -178,17 +172,12 @@ double PATTauDiscriminationAgainstElectronMVA6::discriminate(const TauRef& theTa
     edm::LogPrint("PATTauAgainstEleMVA6")
         << " deltaREleTau = " << deltaRDummy << ", isGsfElectronMatched = " << isGsfElectronMatched;
     edm::LogPrint("PATTauAgainstEleMVA6") << " #Prongs = " << theTauRef->signalChargedHadrCands().size();
-    edm::LogPrint("PATTauAgainstEleMVA6") << " MVA = " << mvaValue << ", category = " << category;
+    edm::LogPrint("PATTauAgainstEleMVA6") << " MVA = " << result.rawValues.at(0) << ", category = " << category;
   }
   // add category index
-  category_output_->setValue(tauIndex_, category);
+  result.rawValues.at(1) = category;
   // return MVA output value
-  return mvaValue;
-}
-
-void PATTauDiscriminationAgainstElectronMVA6::endEvent(edm::Event& evt) {
-  // add all category indices to event
-  evt.put(std::move(category_output_), "category");
+  return result;
 }
 
 bool PATTauDiscriminationAgainstElectronMVA6::isInEcalCrack(double eta) const {

@@ -37,7 +37,7 @@ namespace edm {
     TBranch *b_parX_, *b_parY_, *b_parZ_;
     TBranch *b_parPx_, *b_parPy_, *b_parPz_;
 
-    static constexpr double mm2cm_ = 0.1;
+    static constexpr double mm2cm_ = 0.1, cm2mm_ = 10.0;
     static constexpr double MeV2GeV_ = 0.001;
   };
 }  // namespace edm

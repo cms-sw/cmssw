@@ -17,6 +17,7 @@
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -24,14 +25,22 @@ class HcalParameters;
 
 class HcalGeomParameters {
 public:
-  HcalGeomParameters();
-  ~HcalGeomParameters();
+  static constexpr double k_ScaleFromDDD = 0.1;
+  static constexpr double k_ScaleToDDD = 10.0;
+  static constexpr double k_ScaleFromDDDToG4 = 1.0;
+  static constexpr double k_ScaleToDDDFromG4 = 1.0;
+  static constexpr double k_ScaleFromDD4Hep = 1.0;
+  static constexpr double k_ScaleToDD4Hep = 1.0;
+  static constexpr double k_ScaleFromDD4HepToG4 = 10.0;
+  static constexpr double k_ScaleToDD4HepFromG4 = 0.1;
+
+  HcalGeomParameters() = default;
 
   double getConstDzHF() const { return dzVcal_; }
   void getConstRHO(std::vector<double>&) const;
   std::vector<int> getModHalfHBHE(const int type) const;
   void loadGeometry(const DDFilteredView& _fv, HcalParameters& php);
-  void loadGeometry(cms::DDFilteredView& fv, HcalParameters& php);
+  void loadGeometry(const cms::DDCompactView& cpv, HcalParameters& php);
 
 private:
   unsigned find(int element, std::vector<int>& array) const;

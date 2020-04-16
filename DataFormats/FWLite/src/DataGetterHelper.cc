@@ -43,8 +43,8 @@ namespace fwlite {
   // static data member definitions
   //
   // empty object used to signal that the branch requested was not found
-  static internal::Data branchNotFound;
-  static char kEmptyString[1] = {0};
+  static internal::Data branchNotFound{};
+  static const char kEmptyString[1] = {0};
 
   //
   // constructors and destructor
@@ -208,18 +208,20 @@ namespace fwlite {
       std::strncpy(newModule, iModuleLabel, moduleLabelLen);
       labels_.push_back(newModule);
 
-      char* newProduct = kEmptyString;
+      char const* newProduct = kEmptyString;
       if (key.product()[0] != 0) {
         size_t newProductLen = strlen(key.product()) + 1;
-        newProduct = new char[newProductLen];
-        std::strncpy(newProduct, key.product(), newProductLen);
+        auto newProductTmp = new char[newProductLen];
+        std::strncpy(newProductTmp, key.product(), newProductLen);
+        newProduct = newProductTmp;
         labels_.push_back(newProduct);
       }
-      char* newProcess = kEmptyString;
+      char const* newProcess = kEmptyString;
       if (key.process()[0] != 0) {
         size_t newProcessLen = strlen(key.process()) + 1;
-        newProcess = new char[newProcessLen];
-        std::strncpy(newProcess, key.process(), newProcessLen);
+        auto newProcessTmp = new char[newProcessLen];
+        std::strncpy(newProcessTmp, key.process(), newProcessLen);
+        newProcess = newProcessTmp;
         labels_.push_back(newProcess);
       }
       internal::DataKey newKey(edm::TypeID(iInfo), newModule, newProduct, newProcess);
@@ -251,8 +253,9 @@ namespace fwlite {
 
       if (!foundProcessLabel.empty()) {
         //also remember it with the process label
-        newProcess = new char[foundProcessLabel.size() + 1];
-        std::strcpy(newProcess, foundProcessLabel.c_str());
+        auto newProcessTmp = new char[foundProcessLabel.size() + 1];
+        std::strcpy(newProcessTmp, foundProcessLabel.c_str());
+        newProcess = newProcessTmp;
         labels_.push_back(newProcess);
         internal::DataKey newKeyWithProcess(edm::TypeID(iInfo), newModule, newProduct, newProcess);
 

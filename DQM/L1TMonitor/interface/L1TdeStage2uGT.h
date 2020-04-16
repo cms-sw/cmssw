@@ -41,7 +41,6 @@ public:
 protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   // Input and config info
@@ -52,9 +51,10 @@ private:
   std::vector<std::string> triggerBlackList_;
   int numBx_;
   std::string histFolder_;
-  l1t::L1TGlobalUtil* gtUtil_;
+  l1t::L1TGlobalUtil gtUtil_;
   int numLS_;
   uint m_currentLumi;
+  uint m_currentRun;
 
   int firstBx, lastBx;
 

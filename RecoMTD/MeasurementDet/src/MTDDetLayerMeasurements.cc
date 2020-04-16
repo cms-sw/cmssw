@@ -35,7 +35,7 @@ MTDRecHitContainer MTDDetLayerMeasurements::recHits(const GeomDet* geomDet, cons
 
   // Create the ChamberId
   DetId detId(geoId.rawId());
-  LogDebug("Track|RecoMTD|MTDDetLayerMeasurements") << "(MTD): " << detId << std::endl;
+  LogDebug("Track|RecoMTD|MTDDetLayerMeasurements") << "(MTD): " << static_cast<MTDDetId>(detId) << std::endl;
 
   // Get the MTD-Segment which relies on this chamber
   //auto cmp = [](const unsigned one, const unsigned two) -> bool { return one < two; };

@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
@@ -13,13 +13,12 @@
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
-class L1TStage2EMTF : public DQMEDAnalyzer {
+class L1TStage2EMTF : public DQMOneEDAnalyzer<> {
 public:
   L1TStage2EMTF(const edm::ParameterSet& ps);
   ~L1TStage2EMTF() override;
 
 protected:
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 

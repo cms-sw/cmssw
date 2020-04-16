@@ -15,7 +15,7 @@
 
 namespace clangcms {
   class StaticLocalChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::VarDecl> > {
-    CMS_THREAD_SAFE mutable std::unique_ptr<clang::ento::BuiltinBug> BT;
+    CMS_SA_ALLOW mutable std::unique_ptr<clang::ento::BuiltinBug> BT;
 
   public:
     void checkASTDecl(const clang::VarDecl *D, clang::ento::AnalysisManager &Mgr, clang::ento::BugReporter &BR) const;

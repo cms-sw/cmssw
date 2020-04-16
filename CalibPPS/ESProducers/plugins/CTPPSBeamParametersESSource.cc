@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *  CondFormats/CTPPSReadoutObjects/plugins/CTPPSBeamParametersESSource.cc
+ *  CondFormats/PPSObjects/plugins/CTPPSBeamParametersESSource.cc
  *
  *  Description :  - Loads CTPPSBeamParameters from the CTPPSBeamParametersESSource_cfi.py
  *                   config file.
@@ -26,7 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSBeamParameters.h"
+#include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h"
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h"
 
 #include <memory>

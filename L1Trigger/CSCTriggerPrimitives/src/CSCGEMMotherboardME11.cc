@@ -46,12 +46,22 @@ CSCGEMMotherboardME11::~CSCGEMMotherboardME11() {}
 
 void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
                                 const CSCComparatorDigiCollection* compdc,
+                                const GEMPadDigiClusterCollection* gemClusters) {
+  std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
+  coPadProcessor->declusterize(gemClusters, *gemPads);
+  run(wiredc, compdc, gemPads.get());
+}
+
+void CSCGEMMotherboardME11::run(const CSCWireDigiCollection* wiredc,
+                                const CSCComparatorDigiCollection* compdc,
                                 const GEMPadDigiCollection* gemPads) {
   CSCGEMMotherboard::clear();
   setupGeometry();
   debugLUTs();
 
-  //  generator_->generateLUTs(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
+  // encode high multiplicity bits
+  unsigned alctBits = alctProc->getHighMultiplictyBits();
+  encodeHighMultiplicityBits(alctBits);
 
   if (gem_g != nullptr) {
     if (infoV >= 0)

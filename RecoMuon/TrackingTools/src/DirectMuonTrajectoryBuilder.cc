@@ -43,7 +43,7 @@ MuonTrajectoryBuilder::TrajectoryContainer DirectMuonTrajectoryBuilder::trajecto
   if (!seedTrajectories.empty())
     for (vector<Trajectory>::const_iterator trajectory = seedTrajectories.begin(); trajectory != seedTrajectories.end();
          ++trajectory)
-      trajectoryContainer.push_back(new Trajectory(*trajectory));
+      trajectoryContainer.push_back(std::make_unique<Trajectory>(*trajectory));
   else
     LogTrace(metname) << "Seed not refitted";
 

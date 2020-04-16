@@ -1,7 +1,6 @@
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <use   name="RecoTracker/MeasurementDet"/>

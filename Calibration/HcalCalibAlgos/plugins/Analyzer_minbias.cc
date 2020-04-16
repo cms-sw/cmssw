@@ -112,11 +112,11 @@ namespace cms {
 
     edm::LogInfo("AnalyzerMB") << " Before ordering Histos ";
 
-    char str0[15];
-    char str1[15];
+    char str0[32];
+    char str1[32];
 
-    char str10[15];
-    char str11[15];
+    char str10[32];
+    char str11[32];
 
     int k = 0;
     nevent = 0;

@@ -33,6 +33,7 @@ namespace ecaldqm {
     float rechitThresholdEE_;
     EcalRecHitCollection const* ebHits_;
     EcalRecHitCollection const* eeHits_;
+    bool fillRecoFlagReduced_;
   };
 
   inline bool RecoSummaryTask::analyze(void const* _p, Collections _collection) {
@@ -45,9 +46,9 @@ namespace ecaldqm {
         break;
       case kEBReducedRecHit:
       case kEEReducedRecHit:
-        if (_p)
+        if (_p && fillRecoFlagReduced_)
           runOnReducedRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
-        return true;
+        return fillRecoFlagReduced_;
         break;
       case kEBBasicCluster:
       case kEEBasicCluster:

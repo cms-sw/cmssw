@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include <algorithm>
 #include <vector>
@@ -27,26 +28,26 @@ namespace edmtest {
   private:
     std::vector<int> runsToGetDataFor_;
     std::vector<int> expectedValues_;
+    edm::ESGetToken<ESTestDataA, ESTestRecordA> token_;
   };
 
   ESTestAnalyzerA::ESTestAnalyzerA(edm::ParameterSet const& pset)
       : runsToGetDataFor_(pset.getParameter<std::vector<int>>("runsToGetDataFor")),
-        expectedValues_(pset.getUntrackedParameter<std::vector<int>>("expectedValues")) {
+        expectedValues_(pset.getUntrackedParameter<std::vector<int>>("expectedValues")),
+        token_(esConsumes<ESTestDataA, ESTestRecordA>()) {
     assert(expectedValues_.empty() or expectedValues_.size() == runsToGetDataFor_.size());
   }
 
   void ESTestAnalyzerA::analyze(edm::Event const& ev, edm::EventSetup const& es) {
     auto found = std::find(runsToGetDataFor_.begin(), runsToGetDataFor_.end(), ev.run());
     if (found != runsToGetDataFor_.end()) {
-      ESTestRecordA const& rec = es.get<ESTestRecordA>();
-      edm::ESHandle<ESTestDataA> dataA;
-      rec.get(dataA);
+      auto const& dataA = es.getData(token_);
       edm::LogAbsolute("ESTestAnalyzerA")
-          << "ESTestAnalyzerA: process = " << moduleDescription().processName() << ": Data value = " << dataA->value();
+          << "ESTestAnalyzerA: process = " << moduleDescription().processName() << ": Data value = " << dataA.value();
       if (not expectedValues_.empty()) {
-        if (expectedValues_[found - runsToGetDataFor_.begin()] != dataA->value()) {
+        if (expectedValues_[found - runsToGetDataFor_.begin()] != dataA.value()) {
           throw cms::Exception("TestError") << "Exptected value " << expectedValues_[found - runsToGetDataFor_.begin()]
-                                            << " but saw " << dataA->value();
+                                            << " but saw " << dataA.value();
         }
       }
     }

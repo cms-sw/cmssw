@@ -396,6 +396,9 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
   filterMuonN_.reserve(filterIndices_.size());
   filterMET_.reserve(filterIndices_.size());
   filterLevel_.reserve(filterIndices_.size());
+#ifdef EDM_ML_DEBUG
+  size_t i(0);
+#endif
   for (auto& filterIndice : filterIndices_) {
     const std::string& filterName = std::get<kName>(filterIndice);
     const std::string& moduleType = HLTCP.moduleType(filterName);
@@ -408,8 +411,9 @@ HLTTauDQMPath::HLTTauDQMPath(std::string pathName,
     filterLevel_.push_back(n.level);
 
 #ifdef EDM_ML_DEBUG
-    ss << "\n    " << i << " " << std::get<kModuleIndex>(filterIndices_[i]) << " " << filterName << " " << moduleType
+    ss << "\n    " << i << " " << std::get<kModuleIndex>(filterIndice) << " " << filterName << " " << moduleType
        << " ntau " << n.tau << " nele " << n.electron << " nmu " << n.muon;
+    i++;
 #endif
   }
 #ifdef EDM_ML_DEBUG

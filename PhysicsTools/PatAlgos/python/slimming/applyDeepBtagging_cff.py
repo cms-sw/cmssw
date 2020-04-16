@@ -43,6 +43,7 @@ def applyDeepBtagging( process, postfix="" ) :
     delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix)
 
     from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
+    from RecoBTag.MXNet.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
 
     # update slimmed jets to include particle-based deep taggers (keep same name)
     # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
@@ -60,7 +61,7 @@ def applyDeepBtagging( process, postfix="" ) :
         'pfMassIndependentDeepDoubleCvLJetTags:probHcc',
         'pfMassIndependentDeepDoubleCvBJetTags:probHbb',
         'pfMassIndependentDeepDoubleCvBJetTags:probHcc',
-        ) + pfDeepBoostedJetTagsAll
+        ) + pfDeepBoostedJetTagsAll + pfParticleNetJetTagsAll
     )
     updateJetCollection(
        process,

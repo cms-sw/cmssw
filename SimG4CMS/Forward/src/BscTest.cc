@@ -627,7 +627,8 @@ void BscTest::update(const EndOfEvent* evt) {
     } else {
       varia = 2;
     }  // no MI end:
-    for (int j = 0; j < theCAFI->entries(); j++) {
+    int nhits = theCAFI->entries();
+    for (int j = 0; j < nhits; j++) {
       BscG4Hit* aHit = (*theCAFI)[j];
       const CLHEP::Hep3Vector& hitPoint = aHit->getEntry();
       double zz = hitPoint.z();
@@ -639,7 +640,7 @@ void BscTest::update(const EndOfEvent* evt) {
     if (varia == 2) {
       int nhit11 = 0, nhit12 = 0, nhit13 = 0;
       double totallosenergy = 0.;
-      for (int j = 0; j < theCAFI->entries(); j++) {
+      for (int j = 0; j < nhits; j++) {
         BscG4Hit* aHit = (*theCAFI)[j];
 
         const CLHEP::Hep3Vector& hitEntryLocalPoint = aHit->getEntryLocalP();
@@ -782,7 +783,7 @@ void BscTest::update(const EndOfEvent* evt) {
       }  // MIonly or noMIonly ENDED
       if (totallosenergy == 0.0) {
         std::cout << "BscTest:     number of hits = " << theCAFI->entries() << std::endl;
-        for (int j = 0; j < theCAFI->entries(); j++) {
+        for (int j = 0; j < nhits; j++) {
           BscG4Hit* aHit = (*theCAFI)[j];
           double losenergy = aHit->getEnergyLoss();
           std::cout << " j hits = " << j << "losenergy = " << losenergy << std::endl;

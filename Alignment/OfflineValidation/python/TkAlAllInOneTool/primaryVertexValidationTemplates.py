@@ -10,7 +10,7 @@ runboundary = .oO[runboundary]Oo.
 isMultipleRuns=False
 if(isinstance(runboundary, (list, tuple))):
      isMultipleRuns=True
-     print "Multiple Runs are selected"
+     print("Multiple Runs are selected")
        
 if(isMultipleRuns):
      process.source.firstRun = cms.untracked.uint32(int(runboundary[0]))
@@ -21,12 +21,12 @@ else:
 # JSON Filtering
 ###################################################################
 if isMC:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!")
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real DATA!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real DATA!")
      if ('.oO[lumilist]Oo.'):
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: .oO[lumilist]Oo. "
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: .oO[lumilist]Oo. ")
           import FWCore.PythonUtilities.LumiList as LumiList
           process.source.lumisToProcess = LumiList.LumiList(filename ='.oO[lumilist]Oo.').getVLuminosityBlockRange()
 
@@ -71,7 +71,7 @@ else:
 # Deterministic annealing clustering
 ####################################################################
 if isDA:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                            TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."),
@@ -118,7 +118,7 @@ if isDA:
 # GAP clustering
 ####################################################################
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                            TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag(".oO[VertexCollection]Oo."),

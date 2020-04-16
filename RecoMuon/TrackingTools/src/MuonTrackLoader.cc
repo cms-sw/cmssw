@@ -115,19 +115,16 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet& parameterSet,
   theL2SeededTkLabel = parameterSet.getUntrackedParameter<string>("MuonSeededTracksInstance", string());
 
   ParameterSet updatorPar = parameterSet.getParameter<ParameterSet>("MuonUpdatorAtVertexParameters");
-  theUpdatorAtVtx = new MuonUpdatorAtVertex(updatorPar, service);
+  theUpdatorAtVtx.reset(new MuonUpdatorAtVertex(updatorPar, service));
 
   thePutTkTrackFlag = parameterSet.getUntrackedParameter<bool>("PutTkTrackIntoEvent", false);
   theSmoothTkTrackFlag = parameterSet.getUntrackedParameter<bool>("SmoothTkTrack", false);
   theAllowNoVtxFlag = parameterSet.getUntrackedParameter<bool>("AllowNoVertex", false);
 }
 
-MuonTrackLoader::~MuonTrackLoader() {
-  if (theUpdatorAtVtx)
-    delete theUpdatorAtVtx;
-}
+MuonTrackLoader::~MuonTrackLoader() {}
 
-OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
+OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(TrajectoryContainer& trajectories,
                                                                 Event& event,
                                                                 const TrackerTopology& ttopo,
                                                                 const string& instance,
@@ -136,7 +133,7 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(const Trajectory
   return loadTracks(trajectories, event, dummyVecBool, ttopo, instance, reallyDoSmoothing);
 }
 
-OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
+OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(TrajectoryContainer& trajectories,
                                                                 Event& event,
                                                                 std::vector<bool>& tkBoolVec,
                                                                 const TrackerTopology& ttopo,
@@ -218,15 +215,16 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(const Trajectory
   }
 
   unsigned int tjCnt = 0;
-  for (TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin(); rawTrajectory != trajectories.end();
-       ++rawTrajectory, ++tjCnt) {
-    Trajectory& trajectory = **rawTrajectory;
+  for (TrajectoryContainer::iterator itRawTrajectory = trajectories.begin(); itRawTrajectory != trajectories.end();
+       ++itRawTrajectory, ++tjCnt) {
+    auto rawTrajectory = std::move(*itRawTrajectory);
+    Trajectory& trajectory = *rawTrajectory;
 
     if (doSmoothing) {
-      vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
+      vector<Trajectory> trajectoriesSM = theSmoother->trajectories(*rawTrajectory);
 
       if (!trajectoriesSM.empty()) {
-        const edm::RefToBase<TrajectorySeed> tmpSeedRef = (**rawTrajectory).seedRef();
+        const edm::RefToBase<TrajectorySeed> tmpSeedRef = (*rawTrajectory).seedRef();
         trajectory = trajectoriesSM.front();
         trajectory.setSeedRef(tmpSeedRef);
         LogDebug(metname) << "theSeedRef.isNonnull " << trajectory.seedRef().isNonnull();
@@ -245,7 +243,6 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(const Trajectory
 
     // Check if the extrapolation went well
     if (!resultOfTrackExtrapAtPCA.first) {
-      delete *rawTrajectory;
       continue;
     }
 
@@ -320,11 +317,6 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(const Trajectory
     if (theUpdatingAtVtx && updateResult.first)
       updatedAtVtxTrackCollection->push_back(updateResult.second);
 
-    // We don't need the original trajectory anymore.
-    // It has been copied by value in the trajectoryCollection, if
-    // it is required to put it into the event.
-    delete *rawTrajectory;
-
     if (tkBoolVec.size() > tjCnt)
       tkBoolVec[tjCnt] = true;
     if (theTrajectoryFlag)
@@ -364,7 +356,7 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(const Trajectory
   return returnTrackHandle;
 }
 
-OrphanHandle<reco::MuonTrackLinksCollection> MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
+OrphanHandle<reco::MuonTrackLinksCollection> MuonTrackLoader::loadTracks(CandidateContainer& muonCands,
                                                                          Event& event,
                                                                          const TrackerTopology& ttopo) {
   const string metname = "Muon|RecoMuon|MuonTrackLoader";
@@ -395,19 +387,17 @@ OrphanHandle<reco::MuonTrackLinksCollection> MuonTrackLoader::loadTracks(const C
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   TrajectoryContainer trackerTrajs;
-  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); ++it) {
+  for (CandidateContainer::iterator it = muonCands.begin(); it != muonCands.end(); ++it) {
     LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull();
     if ((*it)->trackerTrajectory())
       LogDebug(metname) << " "
                         << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
 
-    combinedTrajs.push_back((*it)->trajectory());
-    if (thePutTkTrackFlag)
-      trackerTrajs.push_back((*it)->trackerTrajectory());
-
-    else {
-      if ((*it)->trackerTrajectory())
-        delete ((*it)->trackerTrajectory());
+    combinedTrajs.push_back((*it)->releaseTrajectory());
+    {
+      auto tt = (*it)->releaseTrackerTrajectory();
+      if (thePutTkTrackFlag)
+        trackerTrajs.push_back(std::move(tt));
     }
 
     // // Create the links between sta and tracker tracks
@@ -429,12 +419,9 @@ OrphanHandle<reco::MuonTrackLinksCollection> MuonTrackLoader::loadTracks(const C
   if (thePutTkTrackFlag) {
     LogTrace(metname) << "Build trackerTracks: " << trackerTrajs.size();
     trackerTracks = loadTracks(trackerTrajs, event, trackerTksVec, ttopo, theL2SeededTkLabel, theSmoothTkTrackFlag);
-  } else {
-    for (TrajectoryContainer::iterator it = trackerTrajs.begin(); it != trackerTrajs.end(); ++it) {
-      if (*it)
-        delete *it;
-    }
   }
+
+  trackerTrajs.clear();
 
   LogTrace(metname) << "Set the final links in the MuonTrackLinks collection";
 
@@ -470,8 +457,6 @@ OrphanHandle<reco::MuonTrackLinksCollection> MuonTrackLoader::loadTracks(const C
       if (thePutTkTrackFlag && trackerTksVec[candposition])
         tkposition++;
     }
-
-    delete *it;
   }
 
   if (thePutTkTrackFlag && trackerTracks.isValid() && !(!combinedTracks->empty() && !trackerTracks->empty()))
@@ -485,7 +470,7 @@ OrphanHandle<reco::MuonTrackLinksCollection> MuonTrackLoader::loadTracks(const C
 }
 
 OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
-    const TrajectoryContainer& trajectories,
+    TrajectoryContainer& trajectories,
     Event& event,
     const std::vector<std::pair<Trajectory*, reco::TrackRef>>& miniMap,
     Handle<reco::TrackCollection> const& trackHandle,
@@ -557,22 +542,23 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
     theSmoother->setHitCloner(&hitCloner);
   }
 
-  for (TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin(); rawTrajectory != trajectories.end();
-       ++rawTrajectory) {
+  for (TrajectoryContainer::iterator itRawTrajectory = trajectories.begin(); itRawTrajectory != trajectories.end();
+       ++itRawTrajectory) {
+    auto rawTrajectory = std::move(*itRawTrajectory);
     reco::TrackRef glbRef;
     std::vector<std::pair<Trajectory*, reco::TrackRef>>::const_iterator mmit;
     for (mmit = miniMap.begin(); mmit != miniMap.end(); ++mmit) {
-      if (mmit->first == *rawTrajectory)
+      if (mmit->first == rawTrajectory.get())
         glbRef = mmit->second;
     }
 
-    Trajectory& trajectory = **rawTrajectory;
+    Trajectory& trajectory = *rawTrajectory;
 
     if (doSmoothing) {
-      vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
+      vector<Trajectory> trajectoriesSM = theSmoother->trajectories(*rawTrajectory);
 
       if (!trajectoriesSM.empty()) {
-        const edm::RefToBase<TrajectorySeed> tmpSeedRef = (**rawTrajectory).seedRef();
+        const edm::RefToBase<TrajectorySeed> tmpSeedRef = (*rawTrajectory).seedRef();
         trajectory = trajectoriesSM.front();
         trajectory.setSeedRef(tmpSeedRef);
       } else
@@ -590,7 +576,6 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
 
     // Check if the extrapolation went well
     if (!resultOfTrackExtrapAtPCA.first) {
-      delete *rawTrajectory;
       continue;
     }
 
@@ -648,11 +633,6 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
     trackCollection->push_back(track);
     iTkRef++;
     LogTrace(metname) << "Debug Track being loaded pt " << track.pt();
-
-    // We don't need the original trajectory anymore.
-    // It has been copied by value in the trajectoryCollection, if
-    // it is required to put it into the event.
-    delete *rawTrajectory;
 
     if (theTrajectoryFlag)
       tjTkMap[iTjRef - 1] = iTkRef - 1;

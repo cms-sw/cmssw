@@ -31,5 +31,6 @@
 #include "DataFormats/Common/interface/SecondaryEventIDAndFileInfo.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "DataFormats/Common/interface/RandomNumberGeneratorState.h"
 
 #include <vector>

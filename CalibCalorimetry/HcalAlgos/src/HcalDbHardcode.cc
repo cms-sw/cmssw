@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <memory>
+#include <cassert>
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"

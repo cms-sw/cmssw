@@ -78,7 +78,7 @@ namespace popcon {
     cond::TagInfo_t const& tagInfo() const { return *m_tagInfo; }
 
     // return last paylod of the tag
-    Ref lastPayload() const { return Ref(m_session, tagInfo().lastPayloadToken); }
+    Ref lastPayload() const { return Ref(m_session, tagInfo().lastInterval.payloadId); }
 
     // return last successful log entry for the tag in question
     cond::LogDBEntry_t const& logDBEntry() const { return *m_logDBEntry; }

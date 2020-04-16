@@ -1,15 +1,198 @@
-#include "DQMOffline/Trigger/plugins/BPHMonitor.h"
+#include <string>
+#include <vector>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "CommonTools/TriggerUtils/interface/PrescaleWeightProvider.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
-// -----------------------------
-//  constructors and destructor
-// -----------------------------
+class BPHMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
+public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
+  BPHMonitor(const edm::ParameterSet&);
+  ~BPHMonitor() throw() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+
+  template <typename T>
+  bool matchToTrigger(const std::string& theTriggerName, T t);
+
+  double Prescale(const std::string num,
+                  const std::string den,
+                  edm::Event const& iEvent,
+                  edm::EventSetup const& iSetup,
+                  HLTPrescaleProvider* hltPrescale_);
+
+private:
+  const std::string folderName_;
+
+  const bool requireValidHLTPaths_;
+  bool hltPathsAreValid_;
+
+  edm::InputTag muoInputTag_;
+  edm::InputTag bsInputTag_;
+  edm::InputTag trInputTag_;
+  edm::InputTag phInputTag_;
+  edm::InputTag vtxInputTag_;
+
+  edm::EDGetTokenT<reco::MuonCollection> muoToken_;
+  edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> phToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+
+  std::vector<double> pt_variable_binning_;
+  std::vector<double> dMu_pt_variable_binning_;
+  std::vector<double> prob_variable_binning_;
+  MEbinning phi_binning_;
+  MEbinning eta_binning_;
+  MEbinning d0_binning_;
+  MEbinning z0_binning_;
+  MEbinning dR_binning_;
+  MEbinning mass_binning_;
+  MEbinning Bmass_binning_;
+  MEbinning dca_binning_;
+  MEbinning ds_binning_;
+  MEbinning cos_binning_;
+
+  ObjME muPhi_;
+  ObjME muEta_;
+  ObjME muPt_;
+  ObjME mud0_;
+  ObjME muz0_;
+
+  ObjME mu1Phi_;
+  ObjME mu1Eta_;
+  ObjME mu1Pt_;
+  ObjME mu1d0_;
+  ObjME mu1z0_;
+  ObjME mu2Phi_;
+  ObjME mu2Eta_;
+  ObjME mu2Pt_;
+  ObjME mu2d0_;
+  ObjME mu2z0_;
+  ObjME mu3Phi_;
+  ObjME mu3Eta_;
+  ObjME mu3Pt_;
+  ObjME mu3d0_;
+  ObjME mu3z0_;
+
+  ObjME phPhi_;
+  ObjME phEta_;
+  ObjME phPt_;
+  ObjME DiMuPhi_;
+  ObjME DiMuEta_;
+  ObjME DiMuPt_;
+  ObjME DiMuPVcos_;
+  ObjME DiMuProb_;
+  ObjME DiMuDS_;
+  ObjME DiMuDCA_;
+  ObjME DiMuMass_;
+  ObjME BMass_;
+  ObjME DiMudR_;
+
+  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
+  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+
+  HLTPrescaleProvider* hltPrescale_;
+
+  StringCutObjectSelector<reco::Muon, true> muoSelection_;
+  StringCutObjectSelector<reco::Muon, true> muoSelection_ref;
+  StringCutObjectSelector<reco::Muon, true> muoSelection_tag;
+  StringCutObjectSelector<reco::Muon, true> muoSelection_probe;
+
+  int nmuons_;
+  bool tnp_;
+  int L3_;
+  int ptCut_;
+  int displaced_;
+  int trOrMu_;
+  int Jpsi_;
+  int Upsilon_;
+  int enum_;
+  int seagull_;
+  double maxmass_;
+  double minmass_;
+  double maxmassJpsi;
+  double minmassJpsi;
+  double maxmassUpsilon;
+  double minmassUpsilon;
+  double maxmassTkTk;
+  double minmassTkTk;
+  double maxmassJpsiTk;
+  double minmassJpsiTk;
+  double kaon_mass;
+  double mu_mass;
+  double min_dR;
+  double max_dR;
+
+  double minprob;
+  double mincos;
+  double minDS;
+  edm::EDGetTokenT<edm::TriggerResults> hltTrigResTag_;
+  edm::InputTag hltInputTag_1;
+  edm::EDGetTokenT<trigger::TriggerEvent> hltInputTag_;
+  std::vector<std::string> hltpaths_num;
+  std::vector<std::string> hltpaths_den;
+  StringCutObjectSelector<reco::Track, true> trSelection_;
+  StringCutObjectSelector<reco::Track, true> trSelection_ref;
+  StringCutObjectSelector<reco::Candidate::LorentzVector, true> DMSelection_ref;
+
+  edm::Handle<trigger::TriggerEvent> handleTriggerEvent;
+
+  HLTConfigProvider hltConfig_;
+  edm::Handle<edm::TriggerResults> HLTR;
+  std::string getTriggerName(std::string partialName);
+};
 
 BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       muoInputTag_(iConfig.getParameter<edm::InputTag>("muons")),
       bsInputTag_(iConfig.getParameter<edm::InputTag>("beamSpot")),
       trInputTag_(iConfig.getParameter<edm::InputTag>("tracks")),
@@ -20,12 +203,14 @@ BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
       trToken_(mayConsume<reco::TrackCollection>(trInputTag_)),
       phToken_(mayConsume<reco::PhotonCollection>(phInputTag_)),
       vtxToken_(mayConsume<reco::VertexCollection>(vtxInputTag_)),
+      pt_variable_binning_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("ptBinning")),
+      dMu_pt_variable_binning_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("dMuPtBinning")),
+      prob_variable_binning_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("probBinning")),
       phi_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("phiPSet"))),
-      pt_binning_(
-          getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("ptPSet"))),
-      dMu_pt_binning_(getHistoPSet(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dMu_ptPSet"))),
       eta_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("etaPSet"))),
       d0_binning_(
@@ -44,8 +229,6 @@ BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
           getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("dsPSet"))),
       cos_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("cosPSet"))),
-      prob_binning_(getHistoPSet(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("probPSet"))),
       num_genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
       den_genTriggerEventFlag_(new GenericTriggerEventFlag(
@@ -92,192 +275,44 @@ BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
       trSelection_(iConfig.getParameter<std::string>("muoSelection")),
       trSelection_ref(iConfig.getParameter<std::string>("trSelection_ref")),
       DMSelection_ref(iConfig.getParameter<std::string>("DMSelection_ref")) {
-  muPhi_.numerator = nullptr;
-  muPhi_.denominator = nullptr;
-  muEta_.numerator = nullptr;
-  muEta_.denominator = nullptr;
-  muPt_.numerator = nullptr;
-  muPt_.denominator = nullptr;
-  mud0_.numerator = nullptr;
-  mud0_.denominator = nullptr;
-  muz0_.numerator = nullptr;
-  muz0_.denominator = nullptr;
-
-  mu1Phi_.numerator = nullptr;
-  mu1Phi_.denominator = nullptr;
-  mu1Eta_.numerator = nullptr;
-  mu1Eta_.denominator = nullptr;
-  mu1Pt_.numerator = nullptr;
-  mu1Pt_.denominator = nullptr;
-
-  mu2Phi_.numerator = nullptr;
-  mu2Phi_.denominator = nullptr;
-  mu2Eta_.numerator = nullptr;
-  mu2Eta_.denominator = nullptr;
-  mu2Pt_.numerator = nullptr;
-  mu2Pt_.denominator = nullptr;
-
-  mu3Phi_.numerator = nullptr;
-  mu3Phi_.denominator = nullptr;
-  mu3Eta_.numerator = nullptr;
-  mu3Eta_.denominator = nullptr;
-  mu3Pt_.numerator = nullptr;
-  mu3Pt_.denominator = nullptr;
-
-  phPhi_.numerator = nullptr;
-  phPhi_.denominator = nullptr;
-  phEta_.numerator = nullptr;
-  phEta_.denominator = nullptr;
-  phPt_.numerator = nullptr;
-  phPt_.denominator = nullptr;
-
-  DiMuPhi_.numerator = nullptr;
-  DiMuPhi_.denominator = nullptr;
-  DiMuEta_.numerator = nullptr;
-  DiMuEta_.denominator = nullptr;
-  DiMuPt_.numerator = nullptr;
-  DiMuPt_.denominator = nullptr;
-  DiMuPVcos_.numerator = nullptr;
-  DiMuPVcos_.denominator = nullptr;
-  DiMuProb_.numerator = nullptr;
-  DiMuProb_.denominator = nullptr;
-  DiMuDS_.numerator = nullptr;
-  DiMuDS_.denominator = nullptr;
-  DiMuDCA_.numerator = nullptr;
-  DiMuDCA_.denominator = nullptr;
-  DiMuMass_.numerator = nullptr;
-  DiMuMass_.denominator = nullptr;
-  BMass_.numerator = nullptr;
-  BMass_.denominator = nullptr;
-  DiMudR_.numerator = nullptr;
-  DiMudR_.denominator = nullptr;
-
-  // this vector has to be alligned to the the number of Tokens accessed by this module
-  warningPrinted4token_.push_back(false);  // MuonCollection
-  warningPrinted4token_.push_back(false);  // BeamSpot
-  warningPrinted4token_.push_back(false);  // TrackCollection
-  warningPrinted4token_.push_back(false);  // PhotonCollection
-  warningPrinted4token_.push_back(false);  // VertexCollection
+  if (!tnp_) {
+    magneticFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  }
 }
 
-BPHMonitor::~BPHMonitor() {
-  if (num_genTriggerEventFlag_)
-    delete num_genTriggerEventFlag_;
-  if (den_genTriggerEventFlag_)
-    delete den_genTriggerEventFlag_;
+BPHMonitor::~BPHMonitor() throw() {
+  if (num_genTriggerEventFlag_) {
+    num_genTriggerEventFlag_.reset();
+  }
+  if (den_genTriggerEventFlag_) {
+    den_genTriggerEventFlag_.reset();
+  }
+
   delete hltPrescale_;
 }
 
-MEbinning BPHMonitor::getHistoPSet(edm::ParameterSet pset) {
-  // Due to the setup of the fillDescription only one of the
-  // two cases is possible at this point.
-  if (pset.existsAs<std::vector<double>>("edges")) {
-    return MEbinning{pset.getParameter<std::vector<double>>("edges")};
-  }
-
-  return MEbinning{
-      pset.getParameter<int32_t>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-  };
-}
-
-// MEbinning BPHMonitor::getHistoLSPSet(edm::ParameterSet pset)
-// {
-//   return MEbinning{
-//     pset.getParameter<int32_t>("nbins"),
-//       0.,
-//       double(pset.getParameter<int32_t>("nbins"))
-//       };
-// }
-
-void BPHMonitor::setMETitle(METME& me, std::string titleX, std::string titleY) {
-  me.numerator->setAxisTitle(titleX, 1);
-  me.numerator->setAxisTitle(titleY, 2);
-  me.denominator->setAxisTitle(titleX, 1);
-  me.denominator->setAxisTitle(titleY, 2);
-}
-
-void BPHMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        std::string& histname,
-                        std::string& histtitle,
-                        int& nbins,
-                        double& min,
-                        double& max) {
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
-}
-void BPHMonitor::bookME(
-    DQMStore::IBooker& ibooker, METME& me, std::string& histname, std::string& histtitle, std::vector<double> binning) {
-  int nbins = binning.size() - 1;
-  std::vector<float> fbinning(binning.begin(), binning.end());
-  float* arr = &fbinning[0];
-  me.numerator = ibooker.book1D(histname + "_numerator", histtitle + " (numerator)", nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
-}
-void BPHMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        std::string& histname,
-                        std::string& histtitle,
-                        int& nbinsX,
-                        double& xmin,
-                        double& xmax,
-                        double& ymin,
-                        double& ymax) {
-  me.numerator =
-      ibooker.bookProfile(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator =
-      ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-void BPHMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        std::string& histname,
-                        std::string& histtitle,
-                        int& nbinsX,
-                        double& xmin,
-                        double& xmax,
-                        int& nbinsY,
-                        double& ymin,
-                        double& ymax) {
-  me.numerator =
-      ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator =
-      ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-void BPHMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        std::string& histname,
-                        std::string& histtitle,
-                        std::vector<double> binningX,
-                        std::vector<double> binningY) {
-  int nbinsX = binningX.size() - 1;
-  std::vector<float> fbinningX(binningX.begin(), binningX.end());
-  float* arrX = &fbinningX[0];
-  int nbinsY = binningY.size() - 1;
-  std::vector<float> fbinningY(binningY.begin(), binningY.end());
-  float* arrY = &fbinningY[0];
-
-  me.numerator = ibooker.book2D(histname + "_numerator", histtitle + " (numerator)", nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, arrX, nbinsY, arrY);
-}
-
-void BPHMonitor::bookME(DQMStore::IBooker& ibooker,
-                        METME& me,
-                        std::string& histname,
-                        std::string& histtitle,
-                        /*const*/ MEbinning& binning) {
-  // If the vector in the binning is filled use the bins defined there
-  // otherwise use a linear binning between min and max
-  if (binning.edges.empty()) {
-    this->bookME(ibooker, me, histname, histtitle, binning.nbins, binning.xmin, binning.xmax);
-  } else {
-    this->bookME(ibooker, me, histname, histtitle, binning.edges);
-  }
-}
-
 void BPHMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  // Initialize the GenericTriggerEventFlag
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on()) {
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on()) {
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+  }
+
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle, istnp, trMuPh;
+
   bool Ph_ = false;
   if (enum_ == 7)
     Ph_ = true;
@@ -285,8 +320,10 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     istnp = "Tag_and_Probe/";
   else
     istnp = "";
+
   std::string currentFolder = folderName_ + istnp;
   ibooker.setCurrentFolder(currentFolder);
+
   if (trOrMu_)
     trMuPh = "tr";
   else if (Ph_)
@@ -297,136 +334,131 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   if (enum_ == 7 || enum_ == 1 || enum_ == 9 || enum_ == 10) {
     histname = trMuPh + "Pt";
     histtitle = trMuPh + "_P_{t}";
-    bookME(ibooker, muPt_, histname, histtitle, pt_binning_);
+    bookME(ibooker, muPt_, histname, histtitle, pt_variable_binning_);
     setMETitle(muPt_, trMuPh + "_Pt[GeV]", "events / 1 GeV");
 
     histname = trMuPh + "Phi";
     histtitle = trMuPh + "Phi";
-    bookME(ibooker, muPhi_, histname, histtitle, phi_binning_);
+    bookME(ibooker, muPhi_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
     setMETitle(muPhi_, trMuPh + "_#phi", "events / 0.1 rad");
 
     histname = trMuPh + "Eta";
     histtitle = trMuPh + "_Eta";
-    bookME(ibooker, muEta_, histname, histtitle, eta_binning_);
+    bookME(ibooker, muEta_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
     setMETitle(muEta_, trMuPh + "_#eta", "events / 0.2");
 
     if (enum_ == 9) {
       histname = "BMass";
       histtitle = "BMass";
-      bookME(ibooker, BMass_, histname, histtitle, Bmass_binning_);
+      bookME(ibooker, BMass_, histname, histtitle, Bmass_binning_.nbins, mass_binning_.xmin, mass_binning_.xmax);
       setMETitle(BMass_, "B_#mass", "events /");
     }
   } else {
     if (enum_ != 8) {
       histname = trMuPh + "1Pt";
       histtitle = trMuPh + "1_P_{t}";
-      bookME(ibooker, mu1Pt_, histname, histtitle, pt_binning_);
+      bookME(ibooker, mu1Pt_, histname, histtitle, pt_variable_binning_);
       setMETitle(mu1Pt_, trMuPh + "_Pt[GeV]", "events / 1 GeV");
 
       histname = trMuPh + "1Phi";
       histtitle = trMuPh + "1Phi";
-      bookME(ibooker, mu1Phi_, histname, histtitle, phi_binning_);
+      bookME(ibooker, mu1Phi_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
       setMETitle(mu1Phi_, trMuPh + "_#phi", "events / 0.1 rad");
 
       histname = trMuPh + "1Eta";
       histtitle = trMuPh + "1_Eta";
-      bookME(ibooker, mu1Eta_, histname, histtitle, eta_binning_);
+      bookME(ibooker, mu1Eta_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
       setMETitle(mu1Eta_, trMuPh + "_#eta", "events / 0.2");
 
       histname = trMuPh + "2Pt";
       histtitle = trMuPh + "2_P_{t}";
-      bookME(ibooker, mu2Pt_, histname, histtitle, pt_binning_);
+      bookME(ibooker, mu2Pt_, histname, histtitle, pt_variable_binning_);
       setMETitle(mu2Pt_, trMuPh + "_Pt[GeV]", "events / 1 GeV");
 
       histname = trMuPh + "2Phi";
       histtitle = trMuPh + "2Phi";
-      bookME(ibooker, mu2Phi_, histname, histtitle, phi_binning_);
+      bookME(ibooker, mu2Phi_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
       setMETitle(mu2Phi_, trMuPh + "_#phi", "events / 0.1 rad");
 
       histname = trMuPh + "2Eta";
       histtitle = trMuPh + "2_Eta";
-      bookME(ibooker, mu2Eta_, histname, histtitle, eta_binning_);
+      bookME(ibooker, mu2Eta_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
       setMETitle(mu2Eta_, trMuPh + "_#eta", "events / 0.2");
       if (enum_ == 11) {
         histname = "BMass";
         histtitle = "BMass";
-        bookME(ibooker, BMass_, histname, histtitle, Bmass_binning_);
+        bookME(ibooker, BMass_, histname, histtitle, Bmass_binning_.nbins, mass_binning_.xmin, mass_binning_.xmax);
         setMETitle(BMass_, "B_#mass", "events /");
       }
     }
     if (enum_ == 6) {
       histname = trMuPh + "3Eta";
       histtitle = trMuPh + "3Eta";
-      bookME(ibooker, mu3Eta_, histname, histtitle, eta_binning_);
+      bookME(ibooker, mu3Eta_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
       setMETitle(mu3Eta_, trMuPh + "3#eta", "events / 0.2");
 
       histname = trMuPh + "3Pt";
       histtitle = trMuPh + "3_P_{t}";
-      bookME(ibooker, mu3Pt_, histname, histtitle, pt_binning_);
+      bookME(ibooker, mu3Pt_, histname, histtitle, pt_variable_binning_);
       setMETitle(mu3Pt_, trMuPh + "3_Pt[GeV]", "events / 1 GeV");
 
       histname = trMuPh + "3Phi";
       histtitle = trMuPh + "3Phi";
-      bookME(ibooker, mu3Phi_, histname, histtitle, phi_binning_);
+      bookME(ibooker, mu3Phi_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
       setMETitle(mu3Phi_, trMuPh + "3_#phi", "events / 0.1 rad");
 
     } else if (enum_ == 2 || enum_ == 4 || enum_ == 5 || enum_ == 8) {
       histname = "DiMuEta";
       histtitle = "DiMuEta";
-      bookME(ibooker, DiMuEta_, histname, histtitle, eta_binning_);
+      bookME(ibooker, DiMuEta_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
       setMETitle(DiMuEta_, "DiMu#eta", "events / 0.2");
 
       histname = "DiMuPt";
       histtitle = "DiMu_P_{t}";
-      bookME(ibooker, DiMuPt_, histname, histtitle, dMu_pt_binning_);
+      bookME(ibooker, DiMuPt_, histname, histtitle, dMu_pt_variable_binning_);
       setMETitle(DiMuPt_, "DiMu_Pt[GeV]", "events / 1 GeV");
 
       histname = "DiMuPhi";
       histtitle = "DiMuPhi";
-      bookME(ibooker, DiMuPhi_, histname, histtitle, phi_binning_);
+      bookME(ibooker, DiMuPhi_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
       setMETitle(DiMuPhi_, "DiMu_#phi", "events / 0.1 rad");
 
       if (enum_ == 4 || enum_ == 5) {
         histname = "DiMudR";
         histtitle = "DiMudR";
-        bookME(ibooker, DiMudR_, histname, histtitle, dR_binning_);
+        bookME(ibooker, DiMudR_, histname, histtitle, dR_binning_.nbins, dR_binning_.xmin, dR_binning_.xmax);
         setMETitle(DiMudR_, "DiMu_#dR", "events /");
 
         if (enum_ == 4) {
           histname = "DiMuMass";
           histtitle = "DiMuMass";
-          bookME(ibooker, DiMuMass_, histname, histtitle, mass_binning_);
+          bookME(ibooker, DiMuMass_, histname, histtitle, mass_binning_.nbins, mass_binning_.xmin, mass_binning_.xmax);
           setMETitle(DiMuMass_, "DiMu_#mass", "events /");
         }
       } else if (enum_ == 8) {
         histname = "DiMuProb";
         histtitle = "DiMuProb";
-        bookME(ibooker, DiMuProb_, histname, histtitle, prob_binning_);
+        bookME(ibooker, DiMuProb_, histname, histtitle, prob_variable_binning_);
         setMETitle(DiMuProb_, "DiMu_#prob", "events /");
 
         histname = "DiMuPVcos";
         histtitle = "DiMuPVcos";
-        bookME(ibooker, DiMuPVcos_, histname, histtitle, cos_binning_);
+        bookME(ibooker, DiMuPVcos_, histname, histtitle, cos_binning_.nbins, cos_binning_.xmin, cos_binning_.xmax);
         setMETitle(DiMuPVcos_, "DiMu_#cosPV", "events /");
 
         histname = "DiMuDS";
         histtitle = "DiMuDS";
-        bookME(ibooker, DiMuDS_, histname, histtitle, ds_binning_);
+        bookME(ibooker, DiMuDS_, histname, histtitle, ds_binning_.nbins, ds_binning_.xmin, ds_binning_.xmax);
         setMETitle(DiMuDS_, "DiMu_#ds", "events /");
 
         histname = "DiMuDCA";
         histtitle = "DiMuDCA";
-        bookME(ibooker, DiMuDCA_, histname, histtitle, dca_binning_);
+        bookME(ibooker, DiMuDCA_, histname, histtitle, dca_binning_.nbins, dca_binning_.xmin, dca_binning_.xmax);
         setMETitle(DiMuDCA_, "DiMu_#dca", "events /");
       }
     }  // if (enum_ == 2 || enum_ == 4 || enum_ == 5 || enum_ == 8)
   }
 
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
   bool changed = true;
 
   hltPrescale_->init(iRun, iSetup, "HLT", changed);
@@ -434,36 +466,27 @@ void BPHMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
 }
 
 void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(bsToken_, beamSpot);
   if (!beamSpot.isValid()) {
-    if (!warningPrinted4token_[0]) {
-      warningPrinted4token_[0] = true;
-      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << bsInputTag_.label().c_str()
-                                    << " is not available";
-    }
     return;
   }
 
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken(muoToken_, muoHandle);
   if (!muoHandle.isValid()) {
-    if (!warningPrinted4token_[1]) {
-      warningPrinted4token_[1] = true;
-      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << muoInputTag_.label().c_str()
-                                    << " is not available";
-    }
     return;
   }
 
   edm::Handle<reco::TrackCollection> trHandle;
   iEvent.getByToken(trToken_, trHandle);
   if (!trHandle.isValid()) {
-    if (!warningPrinted4token_[2]) {
-      warningPrinted4token_[2] = true;
-      edm::LogWarning("BPHMonitor") << "skipping events because the collection " << trInputTag_.label().c_str()
-                                    << " is not available";
-    }
     return;
   }
 
@@ -471,8 +494,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken(phToken_, phHandle);
 
   edm::Handle<edm::TriggerResults> handleTriggerTrigRes;
-
-  edm::ESHandle<MagneticField> bFieldHandle;
 
   const std::string& hltpath = getTriggerName(hltpaths_den[0]);
   const std::string& hltpath1 = getTriggerName(hltpaths_num[0]);
@@ -552,11 +573,11 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         }
 
         // dimuon vertex reconstruction
-        iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
+        MagneticField const& magneticField = iSetup.getData(magneticFieldToken_);
         const reco::BeamSpot& vertexBeamSpot = *beamSpot;
         std::vector<reco::TransientTrack> j_tks;
-        reco::TransientTrack mu1TT(m.track(), &(*bFieldHandle));
-        reco::TransientTrack mu2TT(m1.track(), &(*bFieldHandle));
+        reco::TransientTrack mu1TT(m.track(), &magneticField);
+        reco::TransientTrack mu2TT(m1.track(), &magneticField);
         j_tks.push_back(mu1TT);
         j_tks.push_back(mu2TT);
         KalmanVertexFitter jkvf;
@@ -834,14 +855,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                   }
                 }
             } else {
-              if (!warningPrinted4token_[3]) {
-                warningPrinted4token_[3] = true;
-                if (phInputTag_.label().empty())
-                  edm::LogWarning("BPHMonitor") << "PhotonCollection not set";
-                else
-                  edm::LogWarning("BPHMonitor") << "skipping events because the collection "
-                                                << phInputTag_.label().c_str() << " is not available";
-              }
               // if Handle is not valid, because the InputTag has been mis-configured, then skip the event
               if (!phInputTag_.label().empty())
                 return;
@@ -928,7 +941,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                 pB = p1 + p2 + p3;
                 if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
                   continue;
-                reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+                reco::TransientTrack trTT(itrk1, &magneticField);
                 std::vector<reco::TransientTrack> t_tks;
                 t_tks.push_back(mu1TT);
                 t_tks.push_back(mu2TT);
@@ -1005,7 +1018,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                 pB = p2 + p3;
                 if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
                   continue;
-                reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
+                reco::TransientTrack trTT(itrk1, &magneticField);
                 std::vector<reco::TransientTrack> t_tks;
                 t_tks.push_back(mu2TT);
                 t_tks.push_back(trTT);
@@ -1103,10 +1116,10 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                   pB = p1 + p2 + p3 + p4;
                   if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
                     continue;
-                  reco::TransientTrack mu1TT(m.track(), &(*bFieldHandle));
-                  reco::TransientTrack mu2TT(m1.track(), &(*bFieldHandle));
-                  reco::TransientTrack trTT(itrk1, &(*bFieldHandle));
-                  reco::TransientTrack tr1TT(itrk2, &(*bFieldHandle));
+                  reco::TransientTrack mu1TT(m.track(), &magneticField);
+                  reco::TransientTrack mu2TT(m1.track(), &magneticField);
+                  reco::TransientTrack trTT(itrk1, &magneticField);
+                  reco::TransientTrack tr1TT(itrk2, &magneticField);
                   std::vector<reco::TransientTrack> t_tks;
                   t_tks.push_back(mu1TT);
                   t_tks.push_back(mu2TT);
@@ -1175,17 +1188,11 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   }
 }
 
-void BPHMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.addNode((edm::ParameterDescription<int>("nbins", true) and edm::ParameterDescription<double>("xmin", true) and
-                edm::ParameterDescription<double>("xmax", true)) xor
-               edm::ParameterDescription<std::vector<double>>("edges", true));
-}
-
-void BPHMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription& pset) { pset.add<int>("nbins", 2500); }
-
 void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/BPH/");
+  desc.add<bool>("requireValidHLTPaths", true);
+
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("photons", edm::InputTag("photons"));
   desc.add<edm::InputTag>("offlinePVs", edm::InputTag("offlinePrimaryVertices"));
@@ -1234,6 +1241,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<double>("minprob", 0.005);
   desc.add<double>("mincos", 0.95);
   desc.add<double>("minDS", 3.);
+  desc.add<unsigned int>("stageL1Trigger", 1);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -1284,11 +1292,13 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   fillHistoPSetDescription(dsPSet);
   fillHistoPSetDescription(cosPSet);
   fillHistoPSetDescription(probPSet);
+  histoPSet.add<std::vector<double>>("ptBinning", {-0.5, 0, 2, 4, 8, 10, 12, 16, 20, 25, 30, 35, 40, 50});
+  histoPSet.add<std::vector<double>>("dMuPtBinning", {6, 8, 12, 16, 20, 25, 30, 35, 40, 50, 70});
+  histoPSet.add<std::vector<double>>("probBinning",
+                                     {0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0});
   histoPSet.add<edm::ParameterSetDescription>("d0PSet", d0PSet);
   histoPSet.add<edm::ParameterSetDescription>("etaPSet", etaPSet);
   histoPSet.add<edm::ParameterSetDescription>("phiPSet", phiPSet);
-  histoPSet.add<edm::ParameterSetDescription>("ptPSet", ptPSet);
-  histoPSet.add<edm::ParameterSetDescription>("dMu_ptPSet", dMu_ptPSet);
   histoPSet.add<edm::ParameterSetDescription>("z0PSet", z0PSet);
   histoPSet.add<edm::ParameterSetDescription>("dRPSet", dRPSet);
   histoPSet.add<edm::ParameterSetDescription>("massPSet", massPSet);
@@ -1296,8 +1306,8 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   histoPSet.add<edm::ParameterSetDescription>("dcaPSet", dcaPSet);
   histoPSet.add<edm::ParameterSetDescription>("dsPSet", dsPSet);
   histoPSet.add<edm::ParameterSetDescription>("cosPSet", cosPSet);
-  histoPSet.add<edm::ParameterSetDescription>("probPSet", probPSet);
   desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
+
   descriptions.add("bphMonitoring", desc);
 }
 
@@ -1457,5 +1467,4 @@ double BPHMonitor::Prescale(const std::string hltpath1,
   return L1P * HLTP;
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(BPHMonitor);

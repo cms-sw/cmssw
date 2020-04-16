@@ -13,8 +13,8 @@
 #include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
 
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSetCollection.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
+#include "CondFormats/PPSObjects/interface/LHCOpticalFunctionsSetCollection.h"
+#include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
 
 class CTPPSInterpolatedOpticalFunctionsESSource : public edm::ESProducer {
 public:
@@ -38,8 +38,8 @@ private:
 
 CTPPSInterpolatedOpticalFunctionsESSource::CTPPSInterpolatedOpticalFunctionsESSource(const edm::ParameterSet &iConfig)
     : currentCrossingAngle_(-1.), currentDataValid_(false) {
-  setWhatProduced(this, &CTPPSInterpolatedOpticalFunctionsESSource::produce)
-      .setConsumes(opticsToken_)
+  setWhatProduced(this, iConfig.getParameter<std::string>("opticsLabel"))
+      .setConsumes(opticsToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("opticsLabel")))
       .setConsumes(lhcInfoToken_, edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")));
 }
 
@@ -49,6 +49,7 @@ void CTPPSInterpolatedOpticalFunctionsESSource::fillDescriptions(edm::Configurat
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("lhcInfoLabel", "")->setComment("label of the LHCInfo record");
+  desc.add<std::string>("opticsLabel", "")->setComment("label of the optics records");
 
   descriptions.add("ctppsInterpolatedOpticalFunctionsESSource", desc);
 }

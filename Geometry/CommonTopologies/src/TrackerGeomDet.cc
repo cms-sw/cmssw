@@ -3,11 +3,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 bool TrackerGeomDet::setAlignmentPositionError(const AlignmentPositionError& ape) {
-  if (!theAlignmentPositionError) {
-    if (ape.valid())
-      theAlignmentPositionError = new AlignmentPositionError(ape);
-  } else
-    *theAlignmentPositionError = ape;
+  GeomDet::setAlignmentPositionError(ape);
 
   const GlobalErrorExtended& apeError = ape.globalError();
   GlobalError translatApe(

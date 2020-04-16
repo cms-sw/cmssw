@@ -1,33 +1,38 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 
-typedef CaloGeometryLoader<EcalBarrelGeometry, DDCompactView> EcalBGL;
+typedef CaloGeometryLoader<EcalBarrelGeometry> EcalBGL;
 
 template <>
 void EcalBGL::fillGeom(EcalBarrelGeometry* geom,
                        const EcalBGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id);
+                       const DetId& id,
+                       const double& scale);
 template <>
+void EcalBGL::fillNamedParams(const DDFilteredView& fv, EcalBarrelGeometry* geom);
 template <>
-void EcalBGL::fillNamedParams<>(const DDFilteredView& fv, EcalBarrelGeometry* geom);
+void EcalBGL::fillNamedParams(const cms::DDFilteredView& fv, EcalBarrelGeometry* geom);
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
-template class CaloGeometryLoader<EcalBarrelGeometry, DDCompactView>;
+template class CaloGeometryLoader<EcalBarrelGeometry>;
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 
 template <>
 void EcalBGL::fillGeom(EcalBarrelGeometry* geom,
                        const EcalBGL::ParmVec& vv,
                        const HepGeom::Transform3D& tr,
-                       const DetId& id) {
+                       const DetId& id,
+                       const double& scale) {
   std::vector<CCGFloat> pv;
   pv.reserve(vv.size());
   for (unsigned int i(0); i != vv.size(); ++i) {
-    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : (CCGFloat)k_ScaleFromDDDtoGeant);
+    const CCGFloat factor(1 == i || 2 == i || 6 == i || 10 == i ? 1 : (CCGFloat)scale);
 
     pv.emplace_back(factor * vv[i]);
   }
@@ -50,8 +55,7 @@ void EcalBGL::fillGeom(EcalBarrelGeometry* geom,
 }
 
 template <>
-template <>
-void EcalBGL::fillNamedParams<>(const DDFilteredView& _fv, EcalBarrelGeometry* geom) {
+void EcalBGL::fillNamedParams(const DDFilteredView& _fv, EcalBarrelGeometry* geom) {
   DDFilteredView fv = _fv;
   bool doSubDets = fv.firstChild();
 
@@ -109,4 +113,29 @@ void EcalBGL::fillNamedParams<>(const DDFilteredView& _fv, EcalBarrelGeometry* g
 
     doSubDets = fv.nextSibling();  // go to next layer
   }
+}
+
+template <>
+void EcalBGL::fillNamedParams(const cms::DDFilteredView& fv, EcalBarrelGeometry* geom) {
+  const std::string specName = "ecal_eb";
+
+  //nxtalEta
+  std::vector<double> tempD = fv.get<std::vector<double> >(specName, "nxtalEta");
+  assert(tempD.size() == 1);
+  geom->setNumXtalsEtaDirection((int)tempD[0]);
+
+  //nxtalPhi
+  tempD = fv.get<std::vector<double> >(specName, "nxtalPhi");
+  assert(tempD.size() == 1);
+  geom->setNumXtalsPhiDirection((int)tempD[0]);
+
+  //EtaBaskets
+  tempD = fv.get<std::vector<double> >(specName, "EtaBaskets");
+  assert(!tempD.empty());
+  geom->setEtaBaskets(dbl_to_int(tempD));
+
+  //PhiBaskets
+  tempD = fv.get<std::vector<double> >(specName, "PhiBaskets");
+  assert(!tempD.empty());
+  geom->setBasketSizeInPhi((int)tempD[0]);
 }

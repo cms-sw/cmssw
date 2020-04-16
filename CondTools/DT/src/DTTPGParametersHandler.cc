@@ -45,8 +45,8 @@ DTTPGParametersHandler::~DTTPGParametersHandler() {}
 //--------------
 void DTTPGParametersHandler::getNewObjects() {
   //to access the information on the tag inside the offline database:
-  cond::TagInfo const& ti = tagInfo();
-  unsigned int last = ti.lastInterval.first;
+  cond::TagInfo_t const& ti = tagInfo();
+  cond::Time_t last = ti.lastInterval.since;
 
   //to access the information on last successful log entry for this tag:
   //  cond::LogDBEntry const & lde = logDBEntry();

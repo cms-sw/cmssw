@@ -133,7 +133,7 @@ void CosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 }
 
 MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed) {
-  vector<Trajectory*> trajL = vector<Trajectory*>();
+  TrajectoryContainer emptyContainer;
 
   MuonPatternRecoDumper debug;
 
@@ -163,7 +163,7 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
   LogTrace(category_) << "found " << navLayers.size() << " compatible DetLayers for the Seed";
 
   if (navLayers.empty())
-    return trajL;
+    return emptyContainer;
 
   vector<DetWithState> detsWithStates;
   LogTrace(category_) << "Compatible layers: ";
@@ -188,13 +188,13 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
   }
   detsWithStates.clear();
   if (!lastTsos.isValid())
-    return trajL;
+    return emptyContainer;
 
   TrajectoryStateOnSurface secondLast = lastTsos;
 
   lastTsos.rescaleError(10.0);
 
-  Trajectory* theTraj = new Trajectory(seed, alongMomentum);
+  Trajectory theTraj(seed, alongMomentum);
 
   navLayers.clear();
 
@@ -237,14 +237,14 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
       continue;
 
     for (vector<TrajectoryMeasurement>::const_iterator theMeas = measL.begin(); theMeas != measL.end(); ++theMeas) {
-      pair<bool, TrajectoryStateOnSurface> result = updator()->update((&*theMeas), *theTraj, propagator());
+      pair<bool, TrajectoryStateOnSurface> result = updator()->update((&*theMeas), theTraj, propagator());
 
       if (result.first) {
         LogTrace(category_) << "update ok ";
         incrementChamberCounters(
             (*rnxtlayer), DTChamberUsedBack, CSCChamberUsedBack, RPCChamberUsedBack, TotalChamberUsedBack);
         secondLast = lastTsos;
-        if ((!theTraj->empty()) && result.second.isValid()) {
+        if ((!theTraj.empty()) && result.second.isValid()) {
           lastTsos = result.second;
           LogTrace(category_) << "get new lastTsos here " << lastTsos.globalMomentum() << " at "
                               << lastTsos.globalPosition();
@@ -254,16 +254,14 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
     }
   }
   measL.clear();
-  while (!theTraj->empty()) {
-    theTraj->pop();
+  while (!theTraj.empty()) {
+    theTraj.pop();
   }
 
-  if (!theTraj->isValid() || TotalChamberUsedBack < 2 || (DTChamberUsedBack + CSCChamberUsedBack) == 0 ||
+  if (!theTraj.isValid() || TotalChamberUsedBack < 2 || (DTChamberUsedBack + CSCChamberUsedBack) == 0 ||
       !lastTsos.isValid()) {
-    delete theTraj;
-    return trajL;
+    return emptyContainer;
   }
-  delete theTraj;
 
   // if got good trajectory, then do backward refitting
   DTChamberUsedBack = 0;
@@ -358,14 +356,9 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
     }
   }
 
-  for (vector<Trajectory*>::iterator t = trajL.begin(); t != trajL.end(); ++t)
-    delete *t;
-
-  trajL.clear();
-
   if ((!myTraj.isValid()) || (myTraj.empty()) || ((selfDuplicate(myTraj))) || TotalChamberUsedBack < 2 ||
       (DTChamberUsedBack + CSCChamberUsedBack) < 1) {
-    return trajL;
+    return emptyContainer;
   }
 
   if (theTraversingMuonFlag && (allUnusedHits.size() >= 2)) {
@@ -375,12 +368,10 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
     // check if traversing trajectory has hits in both hemispheres
 
     if (theStrict1LegFlag && !utilities()->isTraversing(myTraj)) {
-      trajL.clear();
-      return trajL;
+      return emptyContainer;
     }
   } else if (theStrict1LegFlag && theTraversingMuonFlag) {
-    trajL.clear();
-    return trajL;
+    return emptyContainer;
   }
 
   LogTrace(category_) << " traj ok ";
@@ -389,7 +380,7 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
   if (beamhaloFlag)
     estimateDirection(myTraj);
   if (myTraj.empty())
-    return trajL;
+    return emptyContainer;
 
   // try to smooth it
   vector<Trajectory> smoothed = theSmoother->trajectories(myTraj);
@@ -426,7 +417,7 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
   }
   //  getDirectionByTime(myTraj);
   if (!myTraj.isValid())
-    return trajL;
+    return emptyContainer;
 
   // check direction agree with position!
   PropagationDirection dir = myTraj.direction();
@@ -434,8 +425,7 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
                             myTraj.measurements().front().recHit()->globalPosition();
 
   if (theStrict1LegFlag && !utilities()->isTraversing(myTraj)) {
-    trajL.clear();
-    return trajL;
+    return emptyContainer;
   }
 
   LogTrace(category_) << "last hit " << myTraj.measurements().back().recHit()->globalPosition() << endl;
@@ -459,11 +449,13 @@ MuonTrajectoryBuilder::TrajectoryContainer CosmicMuonTrajectoryBuilder::trajecto
     reverseTrajectoryPropagationDirection(myTraj);
   }
   if (myTraj.empty())
-    return trajL;
+    return emptyContainer;
 
-  trajL.push_back(new Trajectory(myTraj));
   navLayers.clear();
-  return trajL;
+  TrajectoryContainer ret;
+  ret.reserve(1);
+  ret.emplace_back(std::make_unique<Trajectory>(myTraj));
+  return ret;
 }
 
 //

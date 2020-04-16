@@ -5,7 +5,7 @@ from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
 hltTOPmonitoring = topMonitoring.clone()
 
 hltTOPmonitoring.FolderName = 'HLT/TOP/default/'
-hltTOPmonitoring.requireValidHLTPaths = False
+hltTOPmonitoring.requireValidHLTPaths = True
 
 # histo PSets
 hltTOPmonitoring.histoPSet.lsPSet.nbins =  250

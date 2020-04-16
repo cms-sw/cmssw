@@ -7,13 +7,9 @@
 <use name="DataFormats/BTauReco"/>
 <use name="CommonTools/Statistics"/>
 <use name="TrackingTools/TransientTrack"/>
-<use name="SimGeneral/HepPDTRecord"/>
-<use name="SimTracker/Records"/>
-<use name="SimTracker/TrackAssociation"/>
+<use name="TrackingTools/IPTools"/>
 <use name="SimTracker/TrackerHitAssociation"/>
-<use name="SimTracker/VertexAssociation"/>
 <use name="SimTracker/TrackHistory"/>
-<use name="PhysicsTools/Utilities"/>
 <use name="DQMServices/Core"/>
 <use name="DQMOffline/RecoB"/>
 <use name="Validation/RecoB"/>

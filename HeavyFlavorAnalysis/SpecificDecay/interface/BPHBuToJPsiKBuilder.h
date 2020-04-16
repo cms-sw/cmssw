@@ -12,6 +12,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToResTrkBuilder.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -19,15 +20,9 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
 #include "FWCore/Framework/interface/Event.h"
-
-class BPHParticleNeutralVeto;
-class BPHParticlePtSelect;
-class BPHParticleEtaSelect;
-class BPHMassSelect;
-class BPHChi2Select;
-class BPHMassFitSelect;
 
 //---------------
 // C++ Headers --
@@ -39,73 +34,52 @@ class BPHMassFitSelect;
 //              -- Class Interface --
 //              ---------------------
 
-class BPHBuToJPsiKBuilder {
+class BPHBuToJPsiKBuilder : public BPHDecayToResTrkBuilder {
 public:
   /** Constructor
    */
   BPHBuToJPsiKBuilder(const edm::EventSetup& es,
                       const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
-                      const BPHRecoBuilder::BPHGenericCollection* kaonCollection);
+                      const BPHRecoBuilder::BPHGenericCollection* kaonCollection)
+      : BPHDecayToResTrkBuilder(es,
+                                "JPsi",
+                                BPHParticleMasses::jPsiMass,
+                                BPHParticleMasses::jPsiMWidth,
+                                jpsiCollection,
+                                "Kaon",
+                                BPHParticleMasses::kaonMass,
+                                BPHParticleMasses::kaonMSigma,
+                                kaonCollection) {
+    setResMassRange(2.80, 3.40);
+    setTrkPtMin(0.7);
+    setTrkEtaMax(10.0);
+    setMassRange(3.50, 8.00);
+    setProbMin(0.02);
+    setMassFitRange(5.00, 6.00);
+    setConstr(true);
+  }
 
-  /** Destructor
-   */
-  virtual ~BPHBuToJPsiKBuilder();
-
-  /** Operations
-   */
-  /// build Bu candidates
-  std::vector<BPHRecoConstCandPtr> build();
-
-  /// set cuts
-  void setKPtMin(double pt);
-  void setKEtaMax(double eta);
-  void setJPsiMassMin(double m);
-  void setJPsiMassMax(double m);
-  void setMassMin(double m);
-  void setMassMax(double m);
-  void setProbMin(double p);
-  void setMassFitMin(double m);
-  void setMassFitMax(double m);
-  void setConstr(bool flag);
-
-  /// get current cuts
-  double getKPtMin() const;
-  double getKEtaMax() const;
-  double getJPsiMassMin() const;
-  double getJPsiMassMax() const;
-  double getMassMin() const;
-  double getMassMax() const;
-  double getProbMin() const;
-  double getMassFitMin() const;
-  double getMassFitMax() const;
-  bool getConstr() const;
-
-private:
-  // private copy and assigment constructors
+  // deleted copy constructor and assignment operator
   BPHBuToJPsiKBuilder(const BPHBuToJPsiKBuilder& x) = delete;
   BPHBuToJPsiKBuilder& operator=(const BPHBuToJPsiKBuilder& x) = delete;
 
-  std::string jPsiName;
-  std::string kaonName;
+  /** Destructor
+   */
+  ~BPHBuToJPsiKBuilder() override {}
 
-  const edm::EventSetup* evSetup;
-  const std::vector<BPHPlusMinusConstCandPtr>* jCollection;
-  const BPHRecoBuilder::BPHGenericCollection* kCollection;
+  /** Operations
+   */
+  /// set cuts
+  void setKPtMin(double pt) { setTrkPtMin(pt); }
+  void setKEtaMax(double eta) { setTrkEtaMax(eta); }
+  void setJPsiMassMin(double m) { setResMassMin(m); }
+  void setJPsiMassMax(double m) { setResMassMax(m); }
 
-  BPHMassSelect* jpsiSel;
-  BPHParticleNeutralVeto* knVeto;
-  BPHParticlePtSelect* ptSel;
-  BPHParticleEtaSelect* etaSel;
-
-  BPHMassSelect* massSel;
-  BPHChi2Select* chi2Sel;
-  BPHMassFitSelect* mFitSel;
-
-  bool massConstr;
-  float minPDiff;
-  bool updated;
-
-  std::vector<BPHRecoConstCandPtr> buList;
+  /// get current cuts
+  double getKPtMin() const { return getTrkPtMin(); }
+  double getKEtaMax() const { return getTrkEtaMax(); }
+  double getJPsiMassMin() const { return getResMassMin(); }
+  double getJPsiMassMax() const { return getResMassMax(); }
 };
 
 #endif

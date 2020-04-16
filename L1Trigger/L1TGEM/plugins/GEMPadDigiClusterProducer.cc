@@ -175,6 +175,11 @@ void GEMPadDigiClusterProducer::buildClusters(const GEMPadDigiCollection& det_pa
 
   // construct clusters
   for (const auto& part : geometry_->etaPartitions()) {
+    // clusters are not build for ME0
+    // -> ignore hits from station 0
+    if (part->id().station() == 0)
+      continue;
+
     GEMPadDigiClusters all_pad_clusters;
 
     auto pads = det_pads.get(part->id());

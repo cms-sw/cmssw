@@ -535,8 +535,21 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
     int atomicNumber = xmat.attr<int>(DD_CMU(atomicNumber));
     double atomicWeight = xmat.attr<double>(DD_CMU(atomicWeight)) / (dd4hep::g / dd4hep::mole);
     TGeoElementTable* tab = mgr.GetElementTable();
+    int nElem = tab->GetNelements();
+    printout(ns.context()->debug_materials ? ALWAYS : DEBUG, "DD4CMS", "+++ Element table size = %d", nElem);
+
+    if (nElem <= 1) {  // Restore the element table DD4hep destroyed.
+      tab->TGeoElementTable::~TGeoElementTable();
+      new (tab) TGeoElementTable();
+      tab->BuildDefaultElements();
+    }
     TGeoMixture* mix = new TGeoMixture(nam.c_str(), 1, density);
     TGeoElement* elt = tab->FindElement(xmat.nameStr().c_str());
+    printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
+             "DD4CMS",
+             "+++ Searching for material %-48s  elt_ptr = %ld",
+             xmat.nameStr().c_str(),
+             elt);
 
     printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
              "DD4CMS",
@@ -554,12 +567,19 @@ void Converter<DDLElementaryMaterial>::operator()(xml_h element) const {
       // A is Mass of a mole in Geant4 units for atoms with atomic shell
       printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
                "DD4CMS",
-               "    ROOT definition of %-50s Atomic weight %.3f, Atomic number %u, Number of nucleons %u",
+               "    ROOT definition of %-50s Atomic weight %g, Atomic number %u, Number of nucleons %u",
                elt->GetName(),
-               (elt->A()),
+               elt->A(),
                elt->Z(),
                elt->N());
-      if (atomicNumber != elt->Z() || atomicWeight != elt->A())
+      printout(ns.context()->debug_materials ? ALWAYS : DEBUG,
+               "DD4CMS",
+               "+++ Compared to XML values: Atomic weight %g, Atomic number %u",
+               atomicWeight,
+               atomicNumber);
+      static const double weightTolerance = 1.0e-6;
+      if (atomicNumber != elt->Z() ||
+          (std::abs(atomicWeight - elt->A()) > (weightTolerance * (atomicWeight + elt->A()))))
         newMatDef = true;
     }
 
@@ -812,16 +832,10 @@ void Converter<DDLTransform3D>::operator()(xml_h element) const {
     double z = ns.attr<double>(rotation, _U(z));
     rot = RotationZYX(z, y, x);
   } else if (refRotation.ptr()) {
-    string rotName = refRotation.nameStr();
-    if (strchr(rotName.c_str(), NAMESPACE_SEP) == nullptr)
-      rotName = ns.name() + rotName;
-
+    string rotName = ns.prepend(refRotation.nameStr());
     rot = ns.rotation(rotName);
   } else if (refReflectionRotation.ptr()) {
-    string rotName = refReflectionRotation.nameStr();
-    if (strchr(rotName.c_str(), NAMESPACE_SEP) == nullptr)
-      rotName = ns.name() + rotName;
-
+    string rotName = ns.prepend(refReflectionRotation.nameStr());
     rot = ns.rotation(rotName);
   }
   *tr = Transform3D(rot, pos);
@@ -848,11 +862,11 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
            copy);
 
   if (!parent.isValid() && strchr(parentName.c_str(), NAMESPACE_SEP) == nullptr)
-    parentName = ns.name() + parentName;
+    parentName = ns.prepend(parentName);
   parent = ns.volume(parentName);
 
   if (!child.isValid() && strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+    childName = ns.prepend(childName);
   child = ns.volume(childName, false);
 
   printout(ns.context()->debug_placements ? ALWAYS : DEBUG,
@@ -1538,11 +1552,11 @@ void Converter<DDLDivision>::operator()(xml_h element) const {
   xml_dim_t e(element);
   string childName = e.nameStr();
   if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+    childName = ns.prepend(childName);
 
   string parentName = ns.attr<string>(e, DD_CMU(parent));
   if (strchr(parentName.c_str(), NAMESPACE_SEP) == nullptr)
-    parentName = ns.name() + parentName;
+    parentName = ns.prepend(parentName);
   string axis = ns.attr<string>(e, DD_CMU(axis));
 
   // If you divide a tube of 360 degrees the offset displaces
@@ -1673,6 +1687,21 @@ void for_each_token(InputIt first, InputIt last, ForwardIt s_first, ForwardIt s_
 
 namespace {
 
+  std::vector<string> splitString(const string& str, const string& delims = ",") {
+    std::vector<string> output;
+
+    for_each_token(cbegin(str), cend(str), cbegin(delims), cend(delims), [&output](auto first, auto second) {
+      if (first != second) {
+        if (string(first, second).front() == '[' && string(first, second).back() == ']') {
+          first++;
+          second--;
+        }
+        output.emplace_back(string(first, second));
+      }
+    });
+    return output;
+  }
+
   tbb::concurrent_vector<double> splitNumeric(const string& str, const string& delims = ",") {
     tbb::concurrent_vector<double> output;
 
@@ -1710,9 +1739,22 @@ void Converter<DDLVector>::operator()(xml_h element) const {
            name.c_str(),
            nEntries.c_str(),
            val.c_str());
+  try {
+    tbb::concurrent_vector<double> results = splitNumeric(val);
+    registry->insert({name, results});
+  } catch (const exception& e) {
+    printout(INFO,
+             "DD4CMS",
+             "++ Unresolved Vector<%s>:  %s[%s]: %s. Try to resolve later. [%s]",
+             type.c_str(),
+             name.c_str(),
+             nEntries.c_str(),
+             val.c_str(),
+             e.what());
 
-  tbb::concurrent_vector<double> results = splitNumeric(val);
-  registry->insert({name, results});
+    std::vector<string> results = splitString(val);
+    context->unresolvedVectors.insert({name, results});
+  }
 }
 
 template <>
@@ -1852,6 +1894,27 @@ static long load_dddefinition(Detector& det, xml_h element) {
     }
     // Before we continue, we have to resolve all constants NOW!
     Converter<DDRegistry>(det, &context, &res)(dddef);
+    {
+      DDVectorsMap* registry = context.description.load()->extension<DDVectorsMap>();
+
+      printout(context.debug_constants ? ALWAYS : DEBUG,
+               "DD4CMS",
+               "+++ RESOLVING %ld Vectors.....",
+               context.unresolvedVectors.size());
+
+      while (!context.unresolvedVectors.empty()) {
+        for (auto it = context.unresolvedVectors.begin(); it != context.unresolvedVectors.end();) {
+          auto const& name = it->first;
+          tbb::concurrent_vector<double> result;
+          for (const auto& i : it->second) {
+            result.emplace_back(dd4hep::_toDouble(i));
+          }
+          registry->insert({name, result});
+          // All components are resolved
+          it = context.unresolvedVectors.erase(it);
+        }
+      }
+    }
     // Now we can process the include files one by one.....
     for (xml::Document d : res.includes) {
       print_doc((doc = d).root());

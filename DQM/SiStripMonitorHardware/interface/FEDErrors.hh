@@ -148,7 +148,7 @@ public:
   bool fillFatalFEDErrors(const FEDRawData& aFedData, const unsigned int aPrintDebug);
 
   //expensive check: fatal but kept separate
-  bool fillCorruptBuffer(const sistrip::FEDBuffer* aBuffer);
+  bool fillCorruptBuffer(const sistrip::FEDBuffer& aBuffer);
 
   //FE/Channel check: rate of channels with error (only considering connected channels)
   float fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer, const SiStripFedCabling* aCabling = nullptr);
@@ -165,11 +165,11 @@ public:
                      const bool aDoFEMaj,
                      std::vector<std::vector<std::pair<unsigned int, unsigned int> > >& aFeMajFrac);
 
-  bool fillFEErrors(const sistrip::FEDBuffer* aBuffer,
+  bool fillFEErrors(const sistrip::FEDBuffer& aBuffer,
                     const bool aDoFEMaj,
                     std::vector<std::vector<std::pair<unsigned int, unsigned int> > >& aFeMajFrac);
 
-  bool fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
+  bool fillChannelErrors(const sistrip::FEDBuffer& aBuffer,
                          bool& aFullDebug,
                          const unsigned int aPrintDebug,
                          unsigned int& aCounterMonitoring,

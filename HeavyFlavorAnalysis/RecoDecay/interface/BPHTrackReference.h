@@ -28,7 +28,6 @@
 //---------------
 // C++ Headers --
 //---------------
-#include <iostream>
 
 //              ---------------------
 //              -- Class Interface --
@@ -38,32 +37,28 @@ class BPHTrackReference {
 public:
   typedef pat::PackedCandidate candidate;
 
-  /** Constructor
+  /** Only static functions, no data member
    */
-  BPHTrackReference();
-
-  /** Destructor
-   */
-  ~BPHTrackReference();
 
   /** Operations
    */
   /// get associated reco::Track calling a sequence of functions
   /// until a track is found; the list of functions to call is given
   /// as a string where each character identify a function:
-  /// c :  reco ::       Candidate :: get<reco::TrackRef> ()
-  /// f :  reco ::     PFCandidate ::           trackRef  ()
-  /// h :   pat :: GenericParticle ::           track     ()
-  /// b :  reco ::       Candidate ::       bestTrack     ()
-  /// p :   pat :: PackedCandidate ::     pseudoTrack     ()
-  /// m :   pat ::            Muon ::     pfCandidateRef  ()
-  /// n :   pat ::            Muon ::   muonBestTrack     ()
-  /// i :   pat ::            Muon ::      innerTrack     ()
-  /// g :   pat ::            Muon ::     globalTrack     ()
-  /// s :   pat ::            Muon ::      standAloneMuon ()
-  /// e :   pat ::        Electron ::     pfCandidateRef  ()
+  /// c :  reco ::       Candidate ::        get<reco::TrackRef> ()
+  /// f :  reco ::     PFCandidate ::                  trackRef  ()
+  /// h :   pat :: GenericParticle ::                  track     ()
+  /// b :  reco ::       Candidate ::              bestTrack     ()
+  /// p :   pat :: PackedCandidate ::            pseudoTrack     ()
+  /// m :   pat ::            Muon ::pfCandidateRef()::trackRef  ()
+  /// n :   pat ::            Muon ::          muonBestTrack     ()
+  /// i :   pat ::            Muon ::             innerTrack     ()
+  /// g :   pat ::            Muon ::            globalTrack     ()
+  /// s :   pat ::            Muon ::             standAloneMuon ()
+  /// e :   pat ::        Electron ::pfCandidateRef()::trackRef  ()
+  /// t :   pat ::        Electron ::        closestCtfTrackRef  ()
   static const reco::Track* getTrack(const reco::Candidate& rc,
-                                     const char* modeList = "cfhbpmnigse",
+                                     const char* modeList = "cfhbpmnigset",
                                      char* modeFlag = nullptr) {
     if (rc.charge() == 0)
       return nullptr;
@@ -119,13 +114,16 @@ public:
           if ((tkp = getElecPF(rc)) != nullptr)
             return tkp;
           break;
+        case 't':
+          if ((tkp = getElecTC(rc)) != nullptr)
+            return tkp;
+          break;
       }
     }
     return nullptr;
   }
 
   static const reco::Track* getFromRC(const reco::Candidate& rc) {
-    //    std::cout << "getFromRC" << std::endl;
     try {
       const reco::TrackRef& tkr = rc.get<reco::TrackRef>();
       if (tkr.isNonnull() && tkr.isAvailable())
@@ -135,7 +133,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getFromPF(const reco::Candidate& rc) {
-    //    std::cout << "getFromPF" << std::endl;
     const reco::PFCandidate* pf = dynamic_cast<const reco::PFCandidate*>(&rc);
     if (pf == nullptr)
       return nullptr;
@@ -148,7 +145,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getFromGP(const reco::Candidate& rc) {
-    //    std::cout << "getFromGC" << std::endl;
     const pat::GenericParticle* gp = dynamic_cast<const pat::GenericParticle*>(&rc);
     if (gp == nullptr)
       return nullptr;
@@ -161,7 +157,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getFromBT(const reco::Candidate& rc) {
-    //    std::cout << "getFromBT" << std::endl;
     try {
       const reco::Track* trk = rc.bestTrack();
       return trk;
@@ -170,7 +165,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getFromPC(const reco::Candidate& rc) {
-    //    std::cout << "getFromPC" << std::endl;
     const pat::PackedCandidate* pp = dynamic_cast<const pat::PackedCandidate*>(&rc);
     if (pp == nullptr)
       return nullptr;
@@ -182,7 +176,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getMuonPF(const reco::Candidate& rc) {
-    //    std::cout << "getMuonPF" << std::endl;
     const pat::Muon* mu = dynamic_cast<const pat::Muon*>(&rc);
     if (mu == nullptr)
       return nullptr;
@@ -201,7 +194,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getMuonBT(const reco::Candidate& rc) {
-    //    std::cout << "getMuonBT" << std::endl;
     const reco::Muon* mu = dynamic_cast<const reco::Muon*>(&rc);
     if (mu == nullptr)
       return nullptr;
@@ -217,7 +209,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getMuonIT(const reco::Candidate& rc) {
-    //    std::cout << "getMuonIT" << std::endl;
     const pat::Muon* mu = dynamic_cast<const pat::Muon*>(&rc);
     if (mu == nullptr)
       return nullptr;
@@ -235,7 +226,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getMuonGT(const reco::Candidate& rc) {
-    //    std::cout << "getMuonGT" << std::endl;
     const pat::Muon* mu = dynamic_cast<const pat::Muon*>(&rc);
     if (mu == nullptr)
       return nullptr;
@@ -253,7 +243,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getMuonSA(const reco::Candidate& rc) {
-    //    std::cout << "getMuonGT" << std::endl;
     const pat::Muon* mu = dynamic_cast<const pat::Muon*>(&rc);
     if (mu == nullptr)
       return nullptr;
@@ -271,7 +260,6 @@ public:
     return nullptr;
   }
   static const reco::Track* getElecPF(const reco::Candidate& rc) {
-    //    std::cout << "getElecPF" << std::endl;
     const pat::Electron* el = dynamic_cast<const pat::Electron*>(&rc);
     if (el == nullptr)
       return nullptr;
@@ -289,11 +277,22 @@ public:
     }
     return nullptr;
   }
-
-private:
-  // private copy and assigment constructors
-  BPHTrackReference(const BPHTrackReference& x);
-  BPHTrackReference& operator=(const BPHTrackReference& x);
+  static const reco::Track* getElecTC(const reco::Candidate& rc) {
+    const pat::Electron* el = dynamic_cast<const pat::Electron*>(&rc);
+    if (el == nullptr)
+      return nullptr;
+    return getElecTC(el);
+  }
+  static const reco::Track* getElecTC(const pat::Electron* el) {
+    try {
+      // Return the ctftrack closest to the electron
+      const reco::TrackRef& tkr = el->closestCtfTrackRef();
+      if (tkr.isNonnull() && tkr.isAvailable())
+        return tkr.get();
+    } catch (edm::Exception const&) {
+    }
+    return nullptr;
+  }
 };
 
 #endif

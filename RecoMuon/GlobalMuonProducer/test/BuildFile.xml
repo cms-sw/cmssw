@@ -6,8 +6,6 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/MuonReco"/>
-<use   name="DataFormats/Common"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="CLHEP"/>
 <use   name="root"/>

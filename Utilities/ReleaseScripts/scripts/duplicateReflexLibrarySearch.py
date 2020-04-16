@@ -3,15 +3,16 @@
 from __future__ import print_function
 import optparse
 import os
-import commands
 import re
 import sys
 import pprint
-import commands
 import subprocess
 from XML2Python import xml2obj
 import six
-
+try:
+  from subprocess import getoutput
+except:
+  from commands import getoutput
 # These aren't all typedefs, but can sometimes make the output more
 # readable
 typedefsDict = \
@@ -38,6 +39,7 @@ equivDict = \
          {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
                                        '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
          {'L1TrackTrigger'        : ['(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
+         {'L1TCalorimeterPhase2'  : ['l1tp2::CaloTower.*']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
@@ -98,7 +100,7 @@ def searchClassDefXml ():
     xmlFiles = []
     for srcDir in [os.environ.get('CMSSW_BASE'),os.environ.get('CMSSW_RELEASE_BASE')]:
         if not len(srcDir): continue
-        for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def*.xml" -follow -print').split ('\n'):
+        for xml in getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def*.xml" -follow -print').split ('\n'):
             if xml and (not xml in xmlFiles):
                 xmlFiles.append(xml)
     if options.showXMLs:
@@ -255,12 +257,12 @@ def searchDuplicatePlugins ():
         if os.path.exists(libdir+'/.edmplugincache'): edmpluginFile = edmpluginFile + ' ' + libdir+'/.edmplugincache'
     if edmpluginFile == '': edmpluginFile = os.path.join(os.environ.get('CMSSW_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
     cmd = "cat %s | awk '{print $2\" \"$1}' | sort | uniq | awk '{print $1}' | sort | uniq -c | grep '2 ' | awk '{print $2}'" % edmpluginFile
-    output = commands.getoutput (cmd).split('\n')
+    output = getoutput (cmd).split('\n')
     for line in output:
         if line in ignoreEdmDP: continue
         line = line.replace("*","\*")
         cmd = "cat %s | grep ' %s ' | awk '{print $1}' | sort | uniq " % (edmpluginFile,line)
-        out1 = commands.getoutput (cmd).split('\n')
+        out1 = getoutput (cmd).split('\n')
         print(line)
         for plugin in out1:
             if plugin:

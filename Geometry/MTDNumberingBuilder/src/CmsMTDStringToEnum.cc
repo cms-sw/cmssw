@@ -22,46 +22,13 @@ CmsMTDStringToEnum::Impl::Impl() {
                                                                                   GeometricTimingDet::ETL));
   _map.insert(
       std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Disc1", GeometricTimingDet::ETLDisc));
+  _map.insert(
+      std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Disc2", GeometricTimingDet::ETLDisc));
   _map.insert(std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Ring", GeometricTimingDet::ETLRing));
   _map.insert(
       std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("EModule", GeometricTimingDet::ETLModule));
   _map.insert(
       std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Sensor", GeometricTimingDet::ETLSensor));
-
-  //
-  // build reverse map
-  //
-
-  _reverseMap.insert(
-      std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::MTD, "FastTimerRegion"));
-
-  _reverseMap.insert(std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::BTL,
-                                                                                         "BarrelTimingLayer"));
-  _reverseMap.insert(
-      std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::BTLLayer, "Layer"));
-  _reverseMap.insert(
-      std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::BTLTray, "Rod1"));
-  _reverseMap.insert(
-      std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::BTLModule, "Module"));
-  _reverseMap.insert(std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::BTLSensor,
-                                                                                         "SensorPackage"));
-  _reverseMap.insert(
-      std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::BTLCrystal, "Crystal"));
-
-  _reverseMap.insert(std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::ETL,
-                                                                                         "EndcapTimingLayer"));
-  _reverseMap.insert(
-      std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::ETLDisc, "Disc1"));
-  _reverseMap.insert(
-      std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::ETLRing, "Ring"));
-  _reverseMap.insert(
-      std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::ETLModule, "Module"));
-  _reverseMap.insert(
-      std::pair<GeometricTimingDet::GeometricTimingEnumType, std::string>(GeometricTimingDet::ETLSensor, "Sensor"));
-
-  //
-  // done
-  //
 }
 
 GeometricTimingDet::GeometricTimingEnumType CmsMTDStringToEnum::type(std::string const& s) const {
@@ -73,12 +40,4 @@ GeometricTimingDet::GeometricTimingEnumType CmsMTDStringToEnum::type(std::string
   if (p != map().end())
     return p->second;
   return GeometricTimingDet::unknown;
-}
-
-std::string const& CmsMTDStringToEnum::name(GeometricTimingDet::GeometricTimingEnumType t) const {
-  static std::string const u("Unknown");
-  ReverseMapEnumType::const_iterator p = reverseMap().find(t);
-  if (p != reverseMap().end())
-    return p->second;
-  return u;
 }

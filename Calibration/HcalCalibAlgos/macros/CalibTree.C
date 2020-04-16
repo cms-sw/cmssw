@@ -57,7 +57,8 @@
 //  maxIter         (int)     = number of iterations (30)
 //  rcorForm        (int)     = type of rcorFileName: (0) for Raddam correction,
 //                              (1) for depth dependent corrections; (2) for
-//                              RespCorr corrections; (0)
+//                              RespCorr corrections; (3) use machine learning
+//                              method for pileup correction. (Default 0)
 //  useGen          (bool)    = use generator level momentum information (false)
 //  runlo           (int)     = lower value of run number to be included (+ve)
 //                              or excluded (-ve) (default 0)
@@ -165,7 +166,7 @@ public :
 			     bool useWeight, double fraction, bool debug);
   void             fitPol0(TH1D* hist, bool debug);
   void             highEtaFactors(int ietaMax, bool debug);
-  energyCalor      energyHcal(double pmom, bool final);
+  energyCalor      energyHcal(double pmom, const Long64_t& entry, bool final);
 
   TChain                    *fChain;  //!pointer to the analyzed TTree or TChain
   Int_t                      fCurrent;//!current Tree number in a TChain
@@ -262,7 +263,7 @@ private:
   const int                                         phimin_, phimax_;
   const int                                         zside_, nvxlo_, nvxhi_;
   const int                                         sysmode_, rbx_, puCorr_;
-  const int                                         rcorForm_;
+  int                                               rcorForm_;
   const bool                                        useGen_, exclude_;
   const int                                         higheta_;
   bool                                              includeRun_;
@@ -312,6 +313,8 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
     Long64_t nentryTot = chain->GetEntries();
     Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? 
       (Long64_t)(fraction*nentryTot) : nentryTot;
+    static const int maxIterMax = 100;
+    if (maxIter > maxIterMax) maxIter = maxIterMax;
     std::cout << "Tree " << name << " " << chain << " in directory " 
 	      << dirName << " from file " << inFileName 
 	      << " with nentries (tracks): " << nentries << std::endl;
@@ -331,7 +334,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	      << std::endl;
     fout->cd();
 
-    double cvgs[100], itrs[100]; 
+    double cvgs[maxIterMax], itrs[maxIterMax]; 
     for (; k<=kmax; ++k) {
       std::cout << "Calling Loop() "  << k << "th time" << std::endl; 
       double cvg = t.Loop(k, fout, useweight, nMin, inverse, ratMin, ratMax, 
@@ -391,8 +394,11 @@ CalibTree::CalibTree(const char *dupFileName, const char* rcorFileName,
 	    << " Treat RBX " << rbx_ << " with exclusion mode " << exclude_
 	    << std::endl;
   Init(tree, dupFileName);
-  if (std::string(rcorFileName) != "") 
+  if (std::string(rcorFileName) != "") {
     cFactor_ = new CalibCorr(rcorFileName,rcorForm_,false);
+  } else {
+    rcorForm_ = 0;
+  }
   if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx);
 }
 
@@ -623,9 +629,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     sprintf (title, "Correction for Subdet %d #eta %d depth %d (Loop %d)", subdet, zside*ieta, depth, loop);
     TH1D* hist = new TH1D(name,title,100, 0.0, 5.0);
     hist->Sumw2();
-    if (debug) {
+    if (debug) 
       std::cout << "Book Histo " << k << " " << title << std::endl;
-    }
     histos[detIds[k]] = hist;
   }
   std::cout << "Total of " << detIds.size() << " detIds and " << histos.size() 
@@ -667,7 +672,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     if (goodTrack()) {
       ++ntkgood;
-      CalibTree::energyCalor en = energyHcal(pmom, true);
+      CalibTree::energyCalor en = energyHcal(pmom, jentry, true);
       double evWt = (useweight) ? t_EventWeight : 1.0; 
       if (en.ehcal > 0.001) {
 	double pufac = (en.Etot > 0) ? (en.ehcal/en.Etot) : 1.0;
@@ -732,10 +737,9 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       }
     }
   }
-  if (debug) {
+  if (debug)
     std::cout << "# of Good Tracks " << ntkgood << " out of " << nentries 
 	      << std::endl;
-  }
   if (loop==0) {
     h_pbyE->Write("h_pbyE");
     h_Ebyp_bfr->Write("h_Ebyp_bfr");
@@ -763,6 +767,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     }
   }
 
+  if (debug) std::cout << "Histos with " << histos.size() << " entries\n";
   for (std::map<unsigned int,TH1D*>::const_iterator itr = histos.begin();
        itr != histos.end(); ++itr,++kount) {
     std::pair<double,double> result = fitMean(itr->second, 0);
@@ -784,6 +789,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     }
   }
   
+  if (debug) std::cout << "SumW with " << SumW.size() << " entries\n";
   std::map<unsigned int, myEntry>::const_iterator SumWItr = SumW.begin();
   for (; SumWItr != SumW.end(); SumWItr++) {
     unsigned int detid = SumWItr->first;
@@ -815,7 +821,9 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     }
   }
 
-  double dets[150], cfacs[150], wfacs[150], myId[150], nTrk[150];
+  static const int maxch = 500;
+  double dets[maxch], cfacs[maxch], wfacs[maxch], myId[maxch], nTrk[maxch];
+  std::cout << "cafctors: " << cfactors.size() << ":" << maxch << std::endl;
   kount = 0;
   std::map<unsigned int,std::pair<double,double> >::const_iterator itr=cfactors.begin();
   for (; itr !=cfactors.end(); ++itr,++kount) {
@@ -1060,19 +1068,21 @@ void CalibTree::makeplots(double rmin, double rmax, int ietaMax,
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     if (goodTrack()) {
       double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
-      CalibTree::energyCalor en1 = energyHcal(pmom, false);
-      CalibTree::energyCalor en2 = energyHcal(pmom, true);
-      double evWt   = (useweight) ? t_EventWeight : 1.0; 
-      double ratioi = en1.ehcal/(pmom-t_eMipDR);
-      double ratiof = en2.ehcal/(pmom-t_eMipDR);
-      if (t_ieta >= -ietaMax && t_ieta <= ietaMax && t_ieta != 0) {
-	if (ratioi>=rmin && ratioi<=rmax) {
-	  histos[0].first->Fill(ratioi,evWt);
-	  histos[t_ieta].first->Fill(ratioi,evWt);
-	}
-	if (ratiof>=rmin && ratiof<=rmax) {
-	  histos[0].second->Fill(ratiof,evWt);
-	  histos[t_ieta].second->Fill(ratiof,evWt);
+      CalibTree::energyCalor en1 = energyHcal(pmom, jentry, false);
+      CalibTree::energyCalor en2 = energyHcal(pmom, jentry, true);
+      if ((en1.ehcal > 0.001) && (en2.ehcal > 0.001)) {
+	double evWt   = (useweight) ? t_EventWeight : 1.0; 
+	double ratioi = en1.ehcal/(pmom-t_eMipDR);
+	double ratiof = en2.ehcal/(pmom-t_eMipDR);
+	if (t_ieta >= -ietaMax && t_ieta <= ietaMax && t_ieta != 0) {
+	  if (ratioi>=rmin && ratioi<=rmax) {
+	    histos[0].first->Fill(ratioi,evWt);
+	    histos[t_ieta].first->Fill(ratioi,evWt);
+	  }
+	  if (ratiof>=rmin && ratiof<=rmax) {
+	    histos[0].second->Fill(ratiof,evWt);
+	    histos[t_ieta].second->Fill(ratiof,evWt);
+	  }
 	}
       }
     }
@@ -1166,7 +1176,9 @@ void CalibTree::highEtaFactors(int ietaMax, bool debug) {
   }      
 }
 
-CalibTree::energyCalor CalibTree::energyHcal(double pmom, bool final) {
+CalibTree::energyCalor CalibTree::energyHcal(double pmom, 
+					     const Long64_t& entry, 
+					     bool final) {
 
   double etot  = t_eHcal;
   double etot2 = t_eHcal;
@@ -1220,8 +1232,9 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, bool final) {
     ediff = etot3-etot1;
   }
   // PU correction only for loose isolation cut
-  double ehcal = ((puCorr_ == 0) ? etot : 
+  double ehcal = (((rcorForm_ == 3) && (cFactor_ != nullptr)) ?
+		  (etot * cFactor_->getCorr(entry)) : ((puCorr_ == 0) ? etot : 
 		  ((puCorr_ < 0) ? (etot*puFactor(-puCorr_,t_ieta,pmom,etot,ediff)) :
-		   puFactorRho(puCorr_,t_ieta,t_rhoh,etot)));
+		   puFactorRho(puCorr_,t_ieta,t_rhoh,etot))));
   return CalibTree::energyCalor(etot,etot2,ehcal);
 }

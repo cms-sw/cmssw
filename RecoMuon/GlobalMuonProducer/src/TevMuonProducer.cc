@@ -8,6 +8,7 @@
  */
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,16 +45,16 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
 
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
   edm::ConsumesCollector iC = consumesCollector();
 
   // TrackRefitter parameters
   ParameterSet refitterParameters = parameterSet.getParameter<ParameterSet>("RefitterParameters");
-  theRefitter = new GlobalMuonRefitter(refitterParameters, theService, iC);
+  theRefitter = std::make_unique<GlobalMuonRefitter>(refitterParameters, theService.get(), iC);
 
   // TrackLoader parameters
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
-  theTrackLoader = new MuonTrackLoader(trackLoaderParameters, iC, theService);
+  theTrackLoader = std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get());
 
   theRefits = parameterSet.getParameter<std::vector<std::string> >("Refits");
   theRefitIndex = parameterSet.getParameter<std::vector<int> >("RefitIndex");
@@ -73,15 +74,7 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
 //
 // destructor
 //
-TevMuonProducer::~TevMuonProducer() {
-  LogTrace("Muon|RecoMuon|TevMuonProducer") << "destructor called" << endl;
-  if (theService)
-    delete theService;
-  if (theRefitter)
-    delete theRefitter;
-  if (theTrackLoader)
-    delete theTrackLoader;
-}
+TevMuonProducer::~TevMuonProducer() { LogTrace("Muon|RecoMuon|TevMuonProducer") << "destructor called" << endl; }
 
 //
 // reconstruct muons
@@ -125,7 +118,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   for (unsigned int ww = 0; ww < theRefits.size(); ww++) {
     LogDebug(metname) << "TeVRefit for Refit: " << theRefitIndex[ww];
     std::vector<std::pair<Trajectory*, reco::TrackRef> > miniMap;
-    vector<Trajectory*> trajectories;
+    MuonTrackLoader::TrajectoryContainer trajectories;
     reco::TrackRef::key_type trackIndex = 0;
     int glbCounter = 0;
     for (reco::TrackCollection::const_iterator track = glbTracks->begin(); track != glbTracks->end();
@@ -139,11 +132,11 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       glbCounter++;
 
       if (!refitted.empty()) {
-        Trajectory* refit = new Trajectory(refitted.front());
+        auto refit = std::make_unique<Trajectory>(refitted.front());
         LogDebug(metname) << "TeVTrackLoader for Refit: " << theRefits[ww];
-        trajectories.push_back(refit);
-        std::pair<Trajectory*, reco::TrackRef> thisPair(refit, glbRef);
+        std::pair<Trajectory*, reco::TrackRef> thisPair(refit.get(), glbRef);
         miniMap.push_back(thisPair);
+        trajectories.push_back(std::move(refit));
       }
     }
     theTrackLoader->loadTracks(trajectories, event, miniMap, glbMuons, *tTopo, theRefits[ww]);

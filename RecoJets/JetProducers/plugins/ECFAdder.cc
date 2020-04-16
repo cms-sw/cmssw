@@ -18,6 +18,10 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig)
     throw cms::Exception("ConfigurationError") << "cuts and Njets must be the same size in ECFAdder" << std::endl;
   }
 
+  edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
+  if (!srcWeights.label().empty())
+    input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
+
   for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
     std::ostringstream ecfN_str;
     std::shared_ptr<fastjet::FunctionOfPseudoJet<double>> pfunc;
@@ -55,6 +59,10 @@ void ECFAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(src_token_, jets);
 
+  // Get Weights Collection
+  if (!input_weights_token_.isUninitialized())
+    weightsHandle_ = &iEvent.get(input_weights_token_);
+
   unsigned i = 0;
   for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
     // prepare room for output
@@ -82,19 +90,33 @@ void ECFAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 float ECFAdder::getECF(unsigned index, const edm::Ptr<reco::Jet>& object) const {
-  std::vector<fastjet::PseudoJet> FJparticles;
+  std::vector<fastjet::PseudoJet> fjParticles;
   for (unsigned k = 0; k < object->numberOfDaughters(); ++k) {
     const reco::CandidatePtr& dp = object->daughterPtr(k);
     if (dp.isNonnull() && dp.isAvailable()) {
       // Here, the daughters are the "end" node, so this is a PFJet
       if (dp->numberOfDaughters() == 0) {
-        FJparticles.push_back(fastjet::PseudoJet(dp->px(), dp->py(), dp->pz(), dp->energy()));
+        if (object->isWeighted()) {
+          if (input_weights_token_.isUninitialized())
+            throw cms::Exception("MissingConstituentWeight")
+                << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+          float w = (*weightsHandle_)[dp];
+          fjParticles.push_back(fastjet::PseudoJet(dp->px() * w, dp->py() * w, dp->pz() * w, dp->energy() * w));
+        } else
+          fjParticles.push_back(fastjet::PseudoJet(dp->px(), dp->py(), dp->pz(), dp->energy()));
       } else {  // Otherwise, this is a BasicJet, so you need to descend further.
         auto subjet = dynamic_cast<reco::Jet const*>(dp.get());
         for (unsigned l = 0; l < subjet->numberOfDaughters(); ++l) {
           if (subjet != nullptr) {
             const reco::CandidatePtr& ddp = subjet->daughterPtr(l);
-            FJparticles.push_back(fastjet::PseudoJet(ddp->px(), ddp->py(), ddp->pz(), ddp->energy()));
+            if (subjet->isWeighted()) {
+              if (input_weights_token_.isUninitialized())
+                throw cms::Exception("MissingConstituentWeight")
+                    << "ECFAdder: No weights (e.g. PUPPI) given for weighted jet collection" << std::endl;
+              float w = (*weightsHandle_)[ddp];
+              fjParticles.push_back(fastjet::PseudoJet(ddp->px() * w, ddp->py() * w, ddp->pz() * w, ddp->energy() * w));
+            } else
+              fjParticles.push_back(fastjet::PseudoJet(ddp->px(), ddp->py(), ddp->pz(), ddp->energy()));
           } else {
             edm::LogWarning("MissingJetConstituent") << "BasicJet constituent required for ECF computation is missing!";
           }
@@ -104,8 +126,8 @@ float ECFAdder::getECF(unsigned index, const edm::Ptr<reco::Jet>& object) const 
     else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for ECF computation is missing!";
   }
-  if (FJparticles.size() > Njets_[index]) {
-    return routine_[index]->result(join(FJparticles));
+  if (fjParticles.size() > Njets_[index]) {
+    return routine_[index]->result(join(fjParticles));
   } else {
     return -1.0;
   }
@@ -123,6 +145,7 @@ void ECFAdder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   iDesc.add<double>("alpha", 1.0)->setComment("alpha factor, only valid for N2");
   iDesc.add<double>("beta", 1.0)->setComment("angularity factor");
   iDesc.add<std::string>("ecftype", "")->setComment("ECF type: ECF or empty; C; D; N; M; U;");
+  iDesc.add<edm::InputTag>("srcWeights", edm::InputTag("puppi"));
   descriptions.add("ECFAdder", iDesc);
 }
 

@@ -23,7 +23,7 @@ public:
   typedef dqm::reco::DQMStore DQMStore;
   typedef dqm::reco::MonitorElement MonitorElement;
 
-  virtual bool getCanSaveByLumi() { return false; }
+  virtual bool getCanSaveByLumi() { return true; }
 
   // framework calls in the order of invocation
   DQMOneEDAnalyzer() {
@@ -32,22 +32,30 @@ public:
   }
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
+    edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
     dqmBeginRun(run, setup);
     edm::Service<DQMStore>()->bookTransaction(
         [this, &run, &setup](DQMStore::IBooker& booker) {
           booker.cd();
           this->bookHistograms(booker, run, setup);
         },
-        run.run(),
         this->moduleDescription().id(),
         this->getCanSaveByLumi());
+    edm::Service<DQMStore>()->enterLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
   }
 
-  void accumulate(edm::Event const& event, edm::EventSetup const& setup) final { analyze(event, setup); }
+  void accumulate(edm::Event const& event, edm::EventSetup const& setup) {
+    auto& lumi = event.getLuminosityBlock();
+    edm::Service<dqm::legacy::DQMStore>()->enterLumi(
+        lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
+    analyze(event, setup);
+    edm::Service<dqm::legacy::DQMStore>()->leaveLumi(
+        lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
+  }
 
   void endRunProduce(edm::Run& run, edm::EventSetup const& setup) final {
     dqmEndRun(run, setup);
-    edm::Service<DQMStore>()->cloneRunHistograms(run.run(), this->moduleDescription().id());
+    edm::Service<DQMStore>()->leaveLumi(run.run(), /* lumi */ 0, this->moduleDescription().id());
     run.emplace<DQMToken>(runToken_);
   }
 
@@ -71,9 +79,6 @@ protected:
  * lumisections in the entire job!
  * Combining with edm::LuminosityBlockCache is pointless and will not work
  * properly, due to the ordering of global/produce transitions.
- * It would be possible to make this concurrent lumi-able with a bit of work
- * on the DQMStore side, but the kind of modules that need this base class
- * probaby care about seeing lumisections in order anyways.
  */
 
 template <typename... Args>
@@ -89,19 +94,17 @@ public:
   }
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {
+    edm::Service<dqm::legacy::DQMStore>()->enterLumi(
+        lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
     dqmBeginLuminosityBlock(lumi, setup);
   }
 
-  //void accumulate(edm::StreamID id, edm::Event const& event, edm::EventSetup const& setup) final {
-  //  // TODO: we could maybe switch lumis by event here, to allow concurrent
-  //  // lumis. Not for now, though.
-  //  analyze(event, setup);
-  //}
+  void accumulate(edm::Event const& event, edm::EventSetup const& setup) override { this->analyze(event, setup); }
 
   void endLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) final {
     dqmEndLuminosityBlock(lumi, setup);
     // fully qualified name required for... reasons.
-    edm::Service<dqm::legacy::DQMStore>()->cloneLumiHistograms(
+    edm::Service<dqm::legacy::DQMStore>()->leaveLumi(
         lumi.run(), lumi.luminosityBlock(), this->moduleDescription().id());
     lumi.emplace(lumiToken_);
   }

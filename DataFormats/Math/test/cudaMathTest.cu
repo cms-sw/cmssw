@@ -25,12 +25,7 @@ end
 #include <iostream>
 #include <memory>
 #include <random>
-
-#include "cuda/api_wrappers.h"
-
-#include <DataFormats/Math/interface/approx_log.h>
-#include <DataFormats/Math/interface/approx_exp.h>
-#include <DataFormats/Math/interface/approx_atan2.h>
+#include <stdexcept>
 
 #ifdef __CUDACC__
 #define inline __host__ __device__ inline
@@ -39,6 +34,14 @@ end
 #else
 #include <vdt/sin.h>
 #endif
+
+#include "DataFormats/Math/interface/approx_log.h"
+#include "DataFormats/Math/interface/approx_exp.h"
+#include "DataFormats/Math/interface/approx_atan2.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
 
 std::mt19937 eng;
 std::mt19937 eng2;
@@ -85,8 +88,6 @@ void go() {
   auto start = std::chrono::high_resolution_clock::now();
   auto delta = start - start;
 
-  auto current_device = cuda::device::current::get();
-
   int numElements = 200000;
   size_t size = numElements * sizeof(float);
   std::cout << "[Vector of " << numElements << " elements]\n";
@@ -100,12 +101,12 @@ void go() {
   std::generate(h_B.get(), h_B.get() + numElements, [&]() { return rgen(eng); });
 
   delta -= (std::chrono::high_resolution_clock::now() - start);
-  auto d_A = cuda::memory::device::make_unique<float[]>(current_device, numElements);
-  auto d_B = cuda::memory::device::make_unique<float[]>(current_device, numElements);
-  auto d_C = cuda::memory::device::make_unique<float[]>(current_device, numElements);
+  auto d_A = cms::cuda::make_device_unique<float[]>(numElements, nullptr);
+  auto d_B = cms::cuda::make_device_unique<float[]>(numElements, nullptr);
+  auto d_C = cms::cuda::make_device_unique<float[]>(numElements, nullptr);
 
-  cuda::memory::copy(d_A.get(), h_A.get(), size);
-  cuda::memory::copy(d_B.get(), h_B.get(), size);
+  cudaCheck(cudaMemcpy(d_A.get(), h_A.get(), size, cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(d_B.get(), h_B.get(), size, cudaMemcpyHostToDevice));
   delta += (std::chrono::high_resolution_clock::now() - start);
   std::cout << "cuda alloc+copy took " << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << " ms"
             << std::endl;
@@ -116,19 +117,21 @@ void go() {
   std::cout << "CUDA kernel launch with " << blocksPerGrid << " blocks of " << threadsPerBlock << " threads\n";
 
   delta -= (std::chrono::high_resolution_clock::now() - start);
-  cuda::launch(vectorOp<USE, ADDY>, {blocksPerGrid, threadsPerBlock}, d_A.get(), d_B.get(), d_C.get(), numElements);
+  cms::cuda::launch(
+      vectorOp<USE, ADDY>, {blocksPerGrid, threadsPerBlock}, d_A.get(), d_B.get(), d_C.get(), numElements);
   delta += (std::chrono::high_resolution_clock::now() - start);
   std::cout << "cuda computation took " << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << " ms"
             << std::endl;
 
   delta -= (std::chrono::high_resolution_clock::now() - start);
-  cuda::launch(vectorOp<USE, ADDY>, {blocksPerGrid, threadsPerBlock}, d_A.get(), d_B.get(), d_C.get(), numElements);
+  cms::cuda::launch(
+      vectorOp<USE, ADDY>, {blocksPerGrid, threadsPerBlock}, d_A.get(), d_B.get(), d_C.get(), numElements);
   delta += (std::chrono::high_resolution_clock::now() - start);
   std::cout << "cuda computation took " << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << " ms"
             << std::endl;
 
   delta -= (std::chrono::high_resolution_clock::now() - start);
-  cuda::memory::copy(h_C.get(), d_C.get(), size);
+  cudaCheck(cudaMemcpy(h_C.get(), d_C.get(), size, cudaMemcpyDeviceToHost));
   delta += (std::chrono::high_resolution_clock::now() - start);
   std::cout << "cuda copy back took " << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << " ms"
             << std::endl;
@@ -178,27 +181,15 @@ void go() {
 }
 
 int main() {
-  int count = 0;
-  auto status = cudaGetDeviceCount(&count);
-  if (status != cudaSuccess) {
-    std::cerr << "Failed to initialise the CUDA runtime, the test will be skipped."
-              << "\n";
-    exit(EXIT_SUCCESS);
-  }
-  if (count == 0) {
-    std::cerr << "No CUDA devices on this system, the test will be skipped."
-              << "\n";
-    exit(EXIT_SUCCESS);
-  }
+  cms::cudatest::requireDevices();
 
   try {
     go<USEEXP>();
     go<USESIN>();
     go<USELOG>();
-
     go<USELOG, true>();
-  } catch (cuda::runtime_error &ex) {
-    std::cerr << "CUDA error: " << ex.what() << std::endl;
+  } catch (std::runtime_error &ex) {
+    std::cerr << "CUDA or std runtime error: " << ex.what() << std::endl;
     exit(EXIT_FAILURE);
   } catch (...) {
     std::cerr << "A non-CUDA error occurred" << std::endl;

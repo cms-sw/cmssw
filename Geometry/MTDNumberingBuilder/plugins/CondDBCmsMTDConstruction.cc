@@ -4,8 +4,6 @@
 #include "CondFormats/GeometryObjects/interface/PGeometricTimingDet.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
-#include "Geometry/MTDNumberingBuilder/plugins/CmsMTDBuilder.h"
-#include "Geometry/MTDNumberingBuilder/plugins/CmsMTDDetIdBuilder.h"
 
 using namespace cms;
 

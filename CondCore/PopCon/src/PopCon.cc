@@ -49,20 +49,17 @@ namespace popcon {
       m_targetSession = connPool.createSession(m_targetConnectionString);
       m_targetSession.transaction().start();
     }
-    if (m_targetSession.existsIov(m_tag)) {
+    if (m_targetSession.existsDatabase() && m_targetSession.existsIov(m_tag)) {
       cond::persistency::IOVProxy iov = m_targetSession.readIov(m_tag);
-      m_tagInfo.name = m_tag;
-      m_tagInfo.size = iov.sequenceSize();
-      if (m_tagInfo.size > 0) {
-        cond::Iov_t last = iov.getLast();
-        m_tagInfo.lastInterval = cond::ValidityInterval(last.since, last.till);
-        m_tagInfo.lastPayloadToken = last.payloadId;
+      size_t tagSize = iov.sequenceSize();
+      if (tagSize > 0) {
+        m_tagInfo.lastInterval = iov.getLast();
       }
 
       edm::LogInfo("PopCon") << "destination DB: " << connectionStr << ", target DB: "
                              << (m_targetConnectionString.empty() ? connectionStr : m_targetConnectionString) << "\n"
-                             << "TAG: " << m_tag << ", last since/till: " << m_tagInfo.lastInterval.first << "/"
-                             << m_tagInfo.lastInterval.second << ", size: " << m_tagInfo.size << "\n"
+                             << "TAG: " << m_tag << ", last since/till: " << m_tagInfo.lastInterval.since << "/"
+                             << m_tagInfo.lastInterval.till << ", size: " << tagSize << "\n"
                              << std::endl;
     } else {
       edm::LogInfo("PopCon") << "destination DB: " << connectionStr << ", target DB: "

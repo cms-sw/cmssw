@@ -126,10 +126,10 @@ void DDG4ProductionCuts::dd4hepInitialize() {
 
   // Now generate all the regions
   for (auto const& it : dd4hepVec_) {
-    auto regName = it.second->strValue(keywordRegion_.data());
+    auto regName = it.second->strValue(keywordRegion_);
     G4Region* region = G4RegionStore::GetInstance()->FindOrCreateRegion({regName.data(), regName.size()});
     region->AddRootLogicalVolume(it.first);
-    edm::LogVerbatim("Geometry") << it.first->GetName() << ": " << it.second->strValue(keywordRegion_.data());
+    edm::LogVerbatim("Geometry") << it.first->GetName() << ": " << it.second->strValue(keywordRegion_);
     edm::LogVerbatim("Geometry") << " MakeRegions: added " << it.first->GetName() << " to region " << region->GetName();
     edm::LogVerbatim("Geometry").log([&](auto& log) {
       for (auto const& sit : it.second->spars) {
@@ -144,7 +144,7 @@ void DDG4ProductionCuts::dd4hepInitialize() {
                          << " DDG4ProductionCuts : Got " << dd4hepVec_.size() << " region roots.\n"
                          << " DDG4ProductionCuts : List of all roots:";
     for (size_t jj = 0; jj < dd4hepVec_.size(); ++jj)
-      LogDebug("Geometry") << "   DDG4ProductionCuts : root=" << dd4hepVec_[jj];
+      LogDebug("Geometry") << "   DDG4ProductionCuts : root=" << dd4hepVec_[jj].first << " , " << dd4hepVec_[jj].second;
   }
 }
 

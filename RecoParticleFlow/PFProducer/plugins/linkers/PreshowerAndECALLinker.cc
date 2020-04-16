@@ -7,21 +7,22 @@ class PreshowerAndECALLinker : public BlockElementLinkerBase {
 public:
   PreshowerAndECALLinker(const edm::ParameterSet& conf)
       : BlockElementLinkerBase(conf),
-        _useKDTree(conf.getParameter<bool>("useKDTree")),
-        _debug(conf.getUntrackedParameter<bool>("debug", false)) {}
+        useKDTree_(conf.getParameter<bool>("useKDTree")),
+        debug_(conf.getUntrackedParameter<bool>("debug", false)) {}
 
   bool linkPrefilter(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
   double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const override;
 
 private:
-  bool _useKDTree, _debug;
+  bool useKDTree_, debug_;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, PreshowerAndECALLinker, "PreshowerAndECALLinker");
 
 bool PreshowerAndECALLinker::linkPrefilter(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
   bool result = false;
+  // PS-ECAL KDTree multilinks are stored to PS's elem
   switch (elem1->type()) {
     case reco::PFBlockElement::PS1:
     case reco::PFBlockElement::PS2:
@@ -33,7 +34,7 @@ bool PreshowerAndECALLinker::linkPrefilter(const reco::PFBlockElement* elem1, co
     default:
       break;
   }
-  return (_useKDTree ? result : true);
+  return (useKDTree_ ? result : true);
 }
 
 double PreshowerAndECALLinker::testLink(const reco::PFBlockElement* elem1, const reco::PFBlockElement* elem2) const {
@@ -53,7 +54,7 @@ double PreshowerAndECALLinker::testLink(const reco::PFBlockElement* elem1, const
   }
   // Check if the linking has been done using the KDTree algo
   // Glowinski & Gouzevitch
-  if (_useKDTree && pselem->isMultilinksValide()) {  // KDTree algo
+  if (useKDTree_ && pselem->isMultilinksValide()) {  // KDTree algo
     const reco::PFMultilinksType& multilinks = pselem->getMultilinks();
     const reco::PFCluster::REPPoint& ecalreppos = ecalref->positionREP();
     const math::XYZPoint& ecalxyzpos = ecalref->position();
@@ -73,7 +74,7 @@ double PreshowerAndECALLinker::testLink(const reco::PFBlockElement* elem1, const
           ecalxyzpos.X() / 1000., ecalxyzpos.Y() / 1000., psxyzpos.X() / 1000., psxyzpos.Y() / 1000., false);
     }
   } else {  //Old algorithm
-    dist = LinkByRecHit::testECALAndPSByRecHit(*ecalref, *psref, _debug);
+    dist = LinkByRecHit::testECALAndPSByRecHit(*ecalref, *psref, debug_);
   }
   return dist;
 }

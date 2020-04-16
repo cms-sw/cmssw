@@ -27,7 +27,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -47,7 +46,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  MuonServiceProxy* theService;
   edm::ParameterSet parameters;
 
   // triggerNames to be passed from config

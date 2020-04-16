@@ -1,12 +1,9 @@
 #To make sure we rebuild this package when python_tools package updated
 <use name="python_tools"/>
 
-<use name="rootpy"/>
-
 <test name="testPandas" command="testPandas.py"/>
 <test name="testRootNumpy" command="testRootNumpy.py"/>
 <test name="test_pycurl" command="test_pycurl.py"/>
-<test name="testRootpy" command="testRootpy.py"/>
 
 <test name="testBottleneck" command="testBottleneck.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
@@ -128,7 +125,6 @@
 <test name="import-requests" command="python -c 'import requests'"/>
 <test name="import-root_numpy" command="python -c 'import root_numpy'"/>
 <test name="import-root_pandas" command="python -c 'import root_pandas'"/>
-<test name="import-rootpy" command="python -c 'import rootpy'"/>
 <test name="import-scandir" command="python -c 'import scandir'"/>
 <test name="import-schema" command="python -c 'import schema'"/>
 <test name="import-sklearn" command="python -c 'import sklearn'"/>

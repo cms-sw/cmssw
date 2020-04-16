@@ -15,7 +15,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -35,7 +34,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  MuonServiceProxy* theService;
   edm::ParameterSet parameters;
 
   edm::EDGetTokenT<edm::View<reco::Track> > theMuonCollectionLabel_;
@@ -104,7 +102,6 @@ CosmicMuonRecoAnalyzer::CosmicMuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
   // the services:
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   theMuonCollectionLabel_ = consumes<edm::View<reco::Track> >(parameters.getParameter<edm::InputTag>("MuonCollection"));
 
   nTrkBin = parameters.getParameter<int>("nTrkBin");
@@ -139,7 +136,7 @@ CosmicMuonRecoAnalyzer::CosmicMuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   theFolder = parameters.getParameter<string>("folder");
 }
 
-CosmicMuonRecoAnalyzer::~CosmicMuonRecoAnalyzer() { delete theService; }
+CosmicMuonRecoAnalyzer::~CosmicMuonRecoAnalyzer() {}
 
 void CosmicMuonRecoAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
                                             edm::Run const& /*iRun*/,
@@ -215,8 +212,7 @@ void CosmicMuonRecoAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void CosmicMuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  LogTrace(metname) << "[MuonRecoAnalyzer] Analyze the mu";
-  theService->update(iSetup);
+  LogTrace("CosmicMuon") << "[MuonRecoAnalyzer] Analyze the mu";
 
   // Take the muon container
   edm::Handle<edm::View<reco::Track> > muons;

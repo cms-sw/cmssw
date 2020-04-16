@@ -109,7 +109,7 @@ def generate_summary_html(output_dir, pr_list, summary_dir):
         # Make urls
         base_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;sampletype%%3Doffline_relval;workspace%%3DEverything;' % (comp['run_nr'], comp['base_dataset'])
         pr_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;sampletype%%3Doffline_relval;workspace%%3DEverything;' % (comp['run_nr'], comp['pr_dataset'])
-        overlay_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;referenceshow%%3Dall;referenceobj1%%3Dother::%s::;sampletype%%3Doffline_relval;workspace%%3DEverything;' \
+        overlay_url = 'https://cmsweb.cern.ch/dqm/dev/start?runnr=%s;dataset%%3D%s;referenceshow%%3Dall;referencenorm=False;referenceobj1%%3Dother::%s::;sampletype%%3Doffline_relval;workspace%%3DEverything;' \
             % (comp['run_nr'], comp['pr_dataset'], comp['base_dataset'])
 
         table_items += '        <tr>\n'

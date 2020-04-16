@@ -20,10 +20,10 @@
 #include <memory>
 
 // user include files
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -32,10 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
-
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <vector>
 #include <string>
@@ -49,7 +46,7 @@ class GetLumi;
 // class declaration
 //
 
-class LogMessageMonitor : public DQMEDAnalyzer {
+class LogMessageMonitor : public DQMOneEDAnalyzer<> {
 public:
   explicit LogMessageMonitor(const edm::ParameterSet&);
   ~LogMessageMonitor() override;
@@ -60,9 +57,6 @@ private:
   //      virtual void beginJob() ;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-
-  //      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 

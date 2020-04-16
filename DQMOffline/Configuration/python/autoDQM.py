@@ -35,7 +35,7 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                               'DQMHarvestTrackerPhase2'],
 	    'dcs': ['DQMOfflineDCS',
 		    'PostDQMOffline',
-		    'DQMHarvestDCS'],
+		    'DQMNone'],
 
 	    'strip': ['DQMOfflineTrackerStrip',
 		      'PostDQMOffline',

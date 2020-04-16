@@ -78,7 +78,7 @@
   <Constant name="rMaxHEmixMax"          value="[rMaxHGCal3]"/>
 </ConstantsSection>
 
-<SolidSection label="hgcal.xml">
+<SolidSection label="hgcal.xml" eval="true">
   <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[zHGCal1]"   rMin="[rMinHGCal1]"   rMax="[rMaxHGCal1]"/>
     <ZSection z="[zHGCal2]"   rMin="[rMinHGCal2]"   rMax="[rMaxHGCal2]"/>
@@ -101,7 +101,7 @@
   </Polycone>
 </SolidSection>
 
-<LogicalPartSection label="hgcal.xml">
+<LogicalPartSection label="hgcal.xml" eval="true">
   <LogicalPart name="HGCal" category="unspecified">
     <rSolid name="HGCal"/>
     <rMaterial name="materials:Air"/>
@@ -120,7 +120,7 @@
   </LogicalPart>
 </LogicalPartSection>
 
-<PosPartSection label="hgcal.xml">
+<PosPartSection label="hgcal.xml" eval="true">
   <PosPart copyNumber="1">
     <rParent name="caloBase:CALO"/>
     <rChild name="hgcal:HGCal"/>

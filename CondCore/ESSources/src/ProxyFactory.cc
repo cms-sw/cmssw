@@ -43,19 +43,16 @@ void cond::DataProxyWrapperBase::loadTag(std::string const& tag, boost::posix_ti
 }
 
 void cond::DataProxyWrapperBase::reload() {
-  std::string tag = m_iovProxy.tag();
+  std::string tag = m_iovProxy.tagInfo().name;
   if (!tag.empty())
     loadTag(tag);
 }
 
-cond::ValidityInterval cond::DataProxyWrapperBase::setIntervalFor(Time_t time) {
+cond::ValidityInterval cond::DataProxyWrapperBase::setIntervalFor(Time_t time, Time_t defaultIovSize) {
   if (!m_currentIov.isValidFor(time)) {
     m_currentIov.clear();
     m_session.transaction().start(true);
-    auto it = m_iovProxy.find(time);
-    if (it != m_iovProxy.end()) {
-      m_currentIov = *it;
-    }
+    m_currentIov = m_iovProxy.getInterval(time, defaultIovSize);
     m_session.transaction().commit();
   }
   return cond::ValidityInterval(m_currentIov.since, m_currentIov.till);

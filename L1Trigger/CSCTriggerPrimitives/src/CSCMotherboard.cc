@@ -37,6 +37,10 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
 
   clct_to_alct = tmbParams_.getParameter<bool>("clctToAlct");
 
+  // special tmb bits
+  useHighMultiplicityBits_ = tmbParams_.getParameter<bool>("useHighMultiplicityBits");
+  highMultiplicityBits_ = 0;
+
   // whether to readout only the earliest two LCTs in readout window
   readout_earliest_2 = tmbParams_.getParameter<bool>("tmbReadoutEarliest2");
 
@@ -141,6 +145,10 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
   // if there are no ALCTs and no CLCTs, it does not make sense to run this TMB
   if (alctV.empty() and clctV.empty())
     return;
+
+  // encode high multiplicity bits
+  unsigned alctBits = alctProc->getHighMultiplictyBits();
+  encodeHighMultiplicityBits(alctBits);
 
   // CLCT-centric matching
   if (clct_to_alct) {
@@ -478,9 +486,23 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
 
+  // in Run-3 we plan to use the synchronization error bit
+  // to denote the presence of exotic signatures in the chamber
+  unsigned int syncErr = useHighMultiplicityBits_ ? highMultiplicityBits_ : 0;
+
   // construct correlated LCT
-  CSCCorrelatedLCTDigi thisLCT(
-      trknmb, 1, quality, aLCT.getKeyWG(), cLCT.getKeyStrip(), pattern, cLCT.getBend(), bx, 0, 0, 0, theTrigChamber);
+  CSCCorrelatedLCTDigi thisLCT(trknmb,
+                               1,
+                               quality,
+                               aLCT.getKeyWG(),
+                               cLCT.getKeyStrip(),
+                               pattern,
+                               cLCT.getBend(),
+                               bx,
+                               0,
+                               0,
+                               syncErr,
+                               theTrigChamber);
   thisLCT.setType(type);
   // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!
   thisLCT.setALCT(getBXShiftedALCT(aLCT));
@@ -566,55 +588,15 @@ void CSCMotherboard::checkConfigParameters() {
   static const unsigned int max_tmb_l1a_window_size = 1 << 4;
 
   // Checks.
-  if (mpc_block_me1a >= max_mpc_block_me1a) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of mpc_block_me1a, " << mpc_block_me1a << ", exceeds max allowed, " << max_mpc_block_me1a - 1
-          << " +++\n"
-          << "+++ Try to proceed with the default value, mpc_block_me1a=" << def_mpc_block_me1a << " +++\n";
-    mpc_block_me1a = def_mpc_block_me1a;
-  }
-  if (alct_trig_enable >= max_alct_trig_enable) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of alct_trig_enable, " << alct_trig_enable << ", exceeds max allowed, "
-          << max_alct_trig_enable - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, alct_trig_enable=" << def_alct_trig_enable << " +++\n";
-    alct_trig_enable = def_alct_trig_enable;
-  }
-  if (clct_trig_enable >= max_clct_trig_enable) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of clct_trig_enable, " << clct_trig_enable << ", exceeds max allowed, "
-          << max_clct_trig_enable - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, clct_trig_enable=" << def_clct_trig_enable << " +++\n";
-    clct_trig_enable = def_clct_trig_enable;
-  }
-  if (match_trig_enable >= max_match_trig_enable) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of match_trig_enable, " << match_trig_enable << ", exceeds max allowed, "
-          << max_match_trig_enable - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, match_trig_enable=" << def_match_trig_enable << " +++\n";
-    match_trig_enable = def_match_trig_enable;
-  }
-  if (match_trig_window_size >= max_match_trig_window_size) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of match_trig_window_size, " << match_trig_window_size << ", exceeds max allowed, "
-          << max_match_trig_window_size - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, match_trig_window_size=" << def_match_trig_window_size
-          << " +++\n";
-    match_trig_window_size = def_match_trig_window_size;
-  }
-  if (tmb_l1a_window_size >= max_tmb_l1a_window_size) {
-    if (infoV >= 0)
-      edm::LogError("CSCMotherboard|ConfigError")
-          << "+++ Value of tmb_l1a_window_size, " << tmb_l1a_window_size << ", exceeds max allowed, "
-          << max_tmb_l1a_window_size - 1 << " +++\n"
-          << "+++ Try to proceed with the default value, tmb_l1a_window_size=" << def_tmb_l1a_window_size << " +++\n";
-    tmb_l1a_window_size = def_tmb_l1a_window_size;
-  }
+  CSCBaseboard::checkConfigParameters(mpc_block_me1a, max_mpc_block_me1a, def_mpc_block_me1a, "mpc_block_me1a");
+  CSCBaseboard::checkConfigParameters(alct_trig_enable, max_alct_trig_enable, def_alct_trig_enable, "alct_trig_enable");
+  CSCBaseboard::checkConfigParameters(clct_trig_enable, max_clct_trig_enable, def_clct_trig_enable, "clct_trig_enable");
+  CSCBaseboard::checkConfigParameters(
+      match_trig_enable, max_match_trig_enable, def_match_trig_enable, "match_trig_enable");
+  CSCBaseboard::checkConfigParameters(
+      match_trig_window_size, max_match_trig_window_size, def_match_trig_window_size, "match_trig_window_size");
+  CSCBaseboard::checkConfigParameters(
+      tmb_l1a_window_size, max_tmb_l1a_window_size, def_tmb_l1a_window_size, "tmb_l1a_window_size");
 }
 
 void CSCMotherboard::dumpConfigParams() const {
@@ -643,4 +625,13 @@ CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
   CSCCLCTDigi cLCT_shifted = cLCT;
   cLCT_shifted.setBX(cLCT_shifted.getBX() - alctClctOffset_);
   return cLCT_shifted;
+}
+
+void CSCMotherboard::encodeHighMultiplicityBits(unsigned alctBits) {
+  // encode the high multiplicity bits in the (O)TMB based on
+  // the high multiplicity bits from the ALCT processor
+  // draft version: simply rellay the ALCT bits.
+  // future versions may involve also bits from the CLCT processor
+  // this depends on memory constraints in the TMB FPGA
+  highMultiplicityBits_ = alctBits;
 }

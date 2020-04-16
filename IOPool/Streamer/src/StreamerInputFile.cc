@@ -172,20 +172,18 @@ namespace edm {
     startMsg_ = std::make_shared<InitMsgView>(&headerBuf_[0]);  // propagate_const<T> has no reset() function
   }
 
-  bool StreamerInputFile::next() {
+  StreamerInputFile::Next StreamerInputFile::next() {
     if (this->readEventMessage()) {
-      return true;
+      return Next::kEvent;
     }
     if (multiStreams_) {
       //Try opening next file
-      if (openNextFile()) {
-        endOfFile_ = false;
-        if (this->readEventMessage()) {
-          return true;
-        }
+      if (currentFile_ <= streamerNames_.size() - 1) {
+        newHeader_ = true;
+        return Next::kFile;
       }
     }
-    return false;
+    return Next::kStop;
   }
 
   bool StreamerInputFile::openNextFile() {
@@ -198,11 +196,10 @@ namespace edm {
       // previous and new headers
       if (startMsg_) {
         FDEBUG(10) << "Comparing Header" << std::endl;
-        if (!compareHeader()) {
-          return false;
-        }
+        compareHeader();
       }
       ++currentFile_;
+      endOfFile_ = false;
       return true;
     }
     return false;
@@ -219,7 +216,6 @@ namespace edm {
           << "\nhas different run number or protocol version than previous\n";
       return false;
     }
-    newHeader_ = true;
     return true;
   }
 

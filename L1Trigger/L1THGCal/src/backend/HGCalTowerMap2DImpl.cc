@@ -32,7 +32,13 @@ void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalT
   std::unordered_map<int, l1t::HGCalTowerMap> towerMapsTmp = newTowerMaps();
 
   for (auto tc : triggerCellsPtrs) {
+    if (triggerTools_.isNose(tc->detId()))
+      continue;
     unsigned layer = triggerTools_.layerWithOffset(tc->detId());
+    if (towerMapsTmp.find(layer) == towerMapsTmp.end()) {
+      throw cms::Exception("Out of range")
+          << "HGCalTowerMap2dImpl: Found trigger cell in layer " << layer << " for which there is no tower map\n";
+    }
     // FIXME: should actually sum the energy not the Et...
     double calibPt = tc->pt();
     if (useLayerWeights_)

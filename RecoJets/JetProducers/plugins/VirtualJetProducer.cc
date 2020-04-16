@@ -148,6 +148,15 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
   useDeterministicSeed_ = iConfig.getParameter<bool>("useDeterministicSeed");
   minSeed_ = iConfig.getParameter<unsigned int>("minSeed");
   verbosity_ = iConfig.getParameter<int>("verbosity");
+  applyWeight_ = iConfig.getParameter<bool>("applyWeight");
+  if (applyWeight_) {
+    edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
+    if (srcWeights.label() == src_.label())
+      LogWarning("VirtualJetProducer")
+          << "Particle and weights collection have the same label. You may be applying the same weights twice.\n";
+    if (!srcWeights.label().empty())
+      input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
+  }
 
   anomalousTowerDef_ = unique_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
@@ -278,6 +287,10 @@ void VirtualJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     if (!pvCollection->empty())
       vertex_ = pvCollection->begin()->position();
   }
+
+  // Get Weights Collection
+  if ((applyWeight_) && (!input_weights_token_.isUninitialized()))
+    weights_ = iEvent.get(input_weights_token_);
 
   // For Pileup subtraction using offset correction:
   // set up geometry map
@@ -448,6 +461,7 @@ void VirtualJetProducer::inputTowers() {
       const CaloTower& tower = dynamic_cast<const CaloTower&>(input);
       auto const& ct = tower.p4(vertex_);  // very expensive as computed in eta/phi
       fjInputs_.emplace_back(ct.px(), ct.py(), ct.pz(), ct.energy());
+      fjInputs_.back().set_user_index(i - inBegin);
       //std::cout << "tower:" << *tower << '\n';
     } else {
       /*
@@ -456,9 +470,20 @@ void VirtualJetProducer::inputTowers() {
 	std::cout << "PF cand:" << pfc << '\n';
       }
       */
-      fjInputs_.emplace_back(input.px(), input.py(), input.pz(), input.energy());
+      if (!applyWeight_) {
+        fjInputs_.emplace_back(input.px(), input.py(), input.pz(), input.energy());
+        fjInputs_.back().set_user_index(i - inBegin);
+      } else {
+        if (input_weights_token_.isUninitialized())
+          throw cms::Exception("InvalidInput")
+              << "applyWeight set to True, but no weights given in VirtualJetProducer\n";
+        float w = weights_[*i];
+        if (w > 0) {
+          fjInputs_.emplace_back(input.px() * w, input.py() * w, input.pz() * w, input.energy() * w);
+          fjInputs_.back().set_user_index(i - inBegin);
+        }
+      }
     }
-    fjInputs_.back().set_user_index(i - inBegin);
   }
 
   if (restrictInputs_ && fjInputs_.size() > maxInputs_) {
@@ -666,6 +691,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
     // fill jets
     for (unsigned int ijet = 0; ijet < fjJets_.size(); ++ijet) {
       auto& jet = (*jets)[ijet];
+
       // get the fastjet jet
       const fastjet::PseudoJet& fjJet = fjJets_[ijet];
       // get the constituents from fastjet
@@ -676,10 +702,19 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
       // write the specifics to the jet (simultaneously sets 4-vector, vertex).
       // These are overridden functions that will call the appropriate
       // specific allocator.
-      writeSpecific(
-          jet, Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents, iSetup);
+      if ((applyWeight_) && (makePFJet(jetTypeE)))
+        writeSpecific(dynamic_cast<reco::PFJet&>(jet),
+                      Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()),
+                      vertex_,
+                      constituents,
+                      iSetup,
+                      &weights_);
+      else
+        writeSpecific(
+            jet, Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()), vertex_, constituents, iSetup);
       phiJ[ijet] = jet.phi();
       etaJ[ijet] = jet.eta();
+      jet.setIsWeighted(applyWeight_);
     }
 
     // calcuate the jet area
@@ -823,14 +858,18 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
       indices[jetIndex].push_back(subjetCollection->size());
 
       // Add the concrete subjet type to the subjet list to write to event record
-      T jet;
-      reco::writeSpecific(jet, p4Subjet, point, constituents, iSetup);
+      subjetCollection->push_back(*std::make_unique<T>());
+      auto& jet = subjetCollection->back();
+      if ((applyWeight_) && (makePFJet(jetTypeE)))
+        reco::writeSpecific(dynamic_cast<reco::PFJet&>(jet), p4Subjet, point, constituents, iSetup, &weights_);
+      else
+        reco::writeSpecific(jet, p4Subjet, point, constituents, iSetup);
+      jet.setIsWeighted(applyWeight_);
       double subjetArea = 0.0;
       if (doAreaFastjet_ && itSubJet->has_area()) {
         subjetArea = itSubJet->area();
       }
       jet.setJetArea(subjetArea);
-      subjetCollection->push_back(jet);
     }
   }
 
@@ -1016,4 +1055,6 @@ void VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(edm::ParameterSe
   desc.add<unsigned int>("maxRecoveredHcalCells", 9999999);
   vector<double> puCentersDefault;
   desc.add<vector<double>>("puCenters", puCentersDefault);
+  desc.add<bool>("applyWeight", false);
+  desc.add<edm::InputTag>("srcWeights", edm::InputTag(""));
 }

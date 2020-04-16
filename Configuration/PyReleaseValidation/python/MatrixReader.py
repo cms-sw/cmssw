@@ -238,10 +238,7 @@ class MatrixReader(object):
                     continue
                 if self.wm:
                     #cannot put a certain number of things in wm
-                    if stepName in [
-                        #'HARVEST','HARVESTD','HARVESTDreHLT',
-                        'RECODFROMRAWRECO','SKIMD','SKIMCOSD','SKIMDreHLT'
-                        ]:
+                    if stepName in ['SKIMD','SKIMCOSD','SKIMDreHLT']:
                         continue
                     
                 #replace stepName is needed
@@ -338,7 +335,6 @@ class MatrixReader(object):
                 
                 wfName,stepNames= name.split('+',1)
                 
-                stepNames=stepNames.replace('+RECODFROMRAWRECO','')
                 stepNames=stepNames.replace('+SKIMCOSD','')
                 stepNames=stepNames.replace('+SKIMD','')
                 if 'HARVEST' in stepNames:

@@ -476,7 +476,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
             et0Phy = 0.5 * (binEdges.second + binEdges.first);
             lutObj0 = "TAU";
           } break;
-          default: { } break; }  //end switch on calo type.
+          default: {
+          } break;
+        }  //end switch on calo type.
 
         //If needed convert calo scales to muon scales for comparison
         if (convertCaloScales) {
@@ -746,7 +748,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
               et1Phy = 0.5 * (binEdges.second + binEdges.first);
               lutObj1 = "TAU";
             } break;
-            default: { } break; }  //end switch on calo type.
+            default: {
+            } break;
+          }  //end switch on calo type.
 
           //If needed convert calo scales to muon scales for comparison
           if (convertCaloScales) {

@@ -356,7 +356,7 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
         double ft_x = ft.x0() + ft.tx() * (ft_z - rp_z);
         double ft_y = ft.y0() + ft.ty() * (ft_z - rp_z);
 
-        double ft_v = geometry->globalToLocal(plId, CLHEP::Hep3Vector(ft_x, ft_y, ft_z)).y();
+        double ft_v = geometry->globalToLocal(plId, CTPPSGeometry::Vector(ft_x, ft_y, ft_z)).y();
 
         bool hasMatchingHit = false;
         const auto &hit_ds_it = hits->find(plId);
@@ -567,8 +567,8 @@ void TotemRPDQMSource::analyze(edm::Event const &event, edm::EventSetup const &e
       double rp_y = (geometry->sensor(plId_V)->translation().y() + geometry->sensor(plId_U)->translation().y()) / 2.;
 
       // mean read-out direction of U and V planes
-      CLHEP::Hep3Vector rod_U = geometry->localToGlobalDirection(plId_U, CLHEP::Hep3Vector(0., 1., 0.));
-      CLHEP::Hep3Vector rod_V = geometry->localToGlobalDirection(plId_V, CLHEP::Hep3Vector(0., 1., 0.));
+      const auto &rod_U = geometry->localToGlobalDirection(plId_U, CTPPSGeometry::Vector(0., 1., 0.));
+      const auto &rod_V = geometry->localToGlobalDirection(plId_V, CTPPSGeometry::Vector(0., 1., 0.));
 
       double x = ft.x0() - rp_x;
       double y = ft.y0() - rp_y;

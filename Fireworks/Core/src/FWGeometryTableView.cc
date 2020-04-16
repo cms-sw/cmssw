@@ -38,7 +38,7 @@
 #include "TGLViewer.h"
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
-
+#include "TVirtualX.h"
 #include "TEveViewer.h"
 #include "TEveScene.h"
 #include "TEveSceneInfo.h"

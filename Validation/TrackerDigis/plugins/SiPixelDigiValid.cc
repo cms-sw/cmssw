@@ -17,7 +17,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Validation/TrackerDigis/interface/SiPixelDigiValid.h"
+#include "SiPixelDigiValid.h"
 
 // using namespace std;
 // using namespace edm;
@@ -269,13 +269,6 @@ void SiPixelDigiValid::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run
         ibooker.book1D("digi_zp_disk2_panel1", "Digi Num. Panel1 Of 2nd Disk In ZPlus Side ", 30, 0., 30.);
     meNdigiZpDisk2PerPanel2_ =
         ibooker.book1D("digi_zp_disk2_panel2", "Digi Num. Panel2 Of 2nd Disk In ZPlus Side ", 30, 0., 30.);
-  }
-}
-
-void SiPixelDigiValid::endJob() {
-  // Save histos in a file only in standalone mode
-  if (runStandalone && !outputFile_.empty() && dbe_) {
-    dbe_->save(outputFile_);
   }
 }
 

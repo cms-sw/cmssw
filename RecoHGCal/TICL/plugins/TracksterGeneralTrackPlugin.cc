@@ -26,11 +26,11 @@ namespace ticl {
     for (size_t i = 0; i < size; ++i) {
       const auto& trackster = *tracksters[i];
 
-      if (trackster.seedIndex == 0 || !trackster.seedID.isValid()) {
+      if (trackster.seedIndex() == -1 || !trackster.seedID().isValid()) {
         return;  // leave default empty track ref
       }
 
-      TrackPtr ptr(trackster.seedID, trackster.seedIndex, &event.productGetter());
+      TrackPtr ptr(trackster.seedID(), trackster.seedIndex(), &event.productGetter());
       auto& ticl_cand = ticl_cands[i];
       ticl_cand.setTrackPtr(ptr);
     }

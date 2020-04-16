@@ -68,6 +68,7 @@ namespace cms {
     };
 
     std::map<std::string, std::vector<CompositeMaterial>> unresolvedMaterials;
+    std::map<std::string, std::vector<std::string>> unresolvedVectors;
 
     bool geo_inited = false;
 

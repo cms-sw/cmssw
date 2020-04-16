@@ -17,8 +17,17 @@
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 
 /// The reference types
 typedef edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> Ref_Phase2TrackerDigi_;
+
+typedef edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_> > TTClusterDetSetVec;
+typedef edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> > TTStubDetSetVec;
+
+typedef edm::Ref<TTStubDetSetVec, TTStub<Ref_Phase2TrackerDigi_> > TTStubRef;
+typedef edm::Ref<TTClusterDetSetVec, TTCluster<Ref_Phase2TrackerDigi_> > TTClusterRef;
+
+typedef edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_> > TTStubDetSet;
 
 #endif

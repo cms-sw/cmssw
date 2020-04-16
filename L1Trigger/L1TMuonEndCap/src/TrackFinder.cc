@@ -189,7 +189,7 @@ void TrackFinder::process(const edm::Event& iEvent,
                      (sector - emtf::MIN_TRIGSECTOR);
 
       // Run-dependent configure. This overwrites many of the configurables passed by the python config file.
-      if (iEvent.isRealData() && fwConfig_) {
+      if (fwConfig_) {
         sector_processors_.at(es).configure_by_fw_version(condition_helper_.get_fw_version());
       }
 

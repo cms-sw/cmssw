@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <algorithm>
 
@@ -25,6 +26,7 @@ namespace edm {
         timesPassed_(),
         timesFailed_(),
         timesExcept_(),
+        failedModuleIndex_(workers.size()),
         state_(hlt::Ready),
         bitpos_(bitpos),
         trptr_(trptr),
@@ -38,6 +40,7 @@ namespace edm {
     for (auto& workerInPath : workers_) {
       workerInPath.setPathContext(&pathContext_);
     }
+    modulesToRun_ = workers_.size();
   }
 
   Path::Path(Path const& r)
@@ -45,13 +48,13 @@ namespace edm {
         timesPassed_(r.timesPassed_),
         timesFailed_(r.timesFailed_),
         timesExcept_(r.timesExcept_),
+        failedModuleIndex_(r.failedModuleIndex_),
         state_(r.state_),
         bitpos_(r.bitpos_),
         trptr_(r.trptr_),
         actReg_(r.actReg_),
         act_table_(r.act_table_),
         workers_(r.workers_),
-        earlyDeleteHelpers_(r.earlyDeleteHelpers_),
         pathContext_(r.pathContext_),
         stopProcessingEvent_(r.stopProcessingEvent_),
         pathStatusInserter_(r.pathStatusInserter_),
@@ -59,6 +62,7 @@ namespace edm {
     for (auto& workerInPath : workers_) {
       workerInPath.setPathContext(&pathContext_);
     }
+    modulesToRun_ = workers_.size();
   }
 
   bool Path::handleWorkerFailure(cms::Exception& e,
@@ -67,7 +71,7 @@ namespace edm {
                                  bool begin,
                                  BranchType branchType,
                                  ModuleDescription const& desc,
-                                 std::string const& id) {
+                                 std::string const& id) const {
     if (e.context().empty()) {
       exceptionContext(e, isEvent, begin, branchType, desc, id, pathContext_);
     }
@@ -92,10 +96,6 @@ namespace edm {
         break;
       }
       default: {
-        if (isEvent)
-          ++timesExcept_;
-        state_ = hlt::Exception;
-        recordStatus(nwrwue, isEvent);
         if (action == exception_actions::Rethrow) {
           std::string pNF = Exception::codeToString(errors::ProductNotFound);
           if (e.category() == pNF) {
@@ -144,21 +144,52 @@ namespace edm {
     ex.addContext(ost.str());
   }
 
-  void Path::recordStatus(int nwrwue, bool isEvent) {
-    if (isEvent && trptr_) {
-      (*trptr_)[bitpos_] = HLTPathStatus(state_, nwrwue);
+  void Path::threadsafe_setFailedModuleInfo(int nwrwue, std::exception_ptr iExcept) {
+    bool expected = false;
+    while (stateLock_.compare_exchange_strong(expected, true)) {
+      expected = false;
+    }
+    if (iExcept) {
+      if (state_ == hlt::Exception) {
+        if (nwrwue < failedModuleIndex_) {
+          failedModuleIndex_ = nwrwue;
+        }
+      } else {
+        state_ = hlt::Exception;
+        failedModuleIndex_ = nwrwue;
+      }
+    } else {
+      if (state_ != hlt::Exception) {
+        if (nwrwue < failedModuleIndex_) {
+          failedModuleIndex_ = nwrwue;
+        }
+        state_ = hlt::Fail;
+      }
+    }
+
+    stateLock_ = false;
+  }
+
+  void Path::recordStatus(int nwrwue, hlt::HLTState state) {
+    if (trptr_) {
+      (*trptr_)[bitpos_] = HLTPathStatus(state, nwrwue);
     }
   }
 
-  void Path::updateCounters(bool success, bool isEvent) {
-    if (success) {
-      if (isEvent)
+  void Path::updateCounters(hlt::HLTState state) {
+    switch (state) {
+      case hlt::Pass: {
         ++timesPassed_;
-      state_ = hlt::Pass;
-    } else {
-      if (isEvent)
+        break;
+      }
+      case hlt::Fail: {
         ++timesFailed_;
-      state_ = hlt::Fail;
+        break;
+      }
+      case hlt::Exception: {
+        ++timesExcept_;
+      }
+      default:;
     }
   }
 
@@ -169,30 +200,17 @@ namespace edm {
   }
 
   void Path::setEarlyDeleteHelpers(std::map<const Worker*, EarlyDeleteHelper*> const& iWorkerToDeleter) {
-    //we use a temp so we can overset the size but then when moving to earlyDeleteHelpers we only
-    // have to use the space necessary
-    std::vector<EarlyDeleteHelper*> temp;
-    temp.reserve(iWorkerToDeleter.size());
     for (unsigned int index = 0; index != size(); ++index) {
       auto found = iWorkerToDeleter.find(getWorker(index));
       if (found != iWorkerToDeleter.end()) {
-        temp.push_back(found->second);
         found->second->addedToPath();
       }
     }
-    std::vector<EarlyDeleteHelper*> tempCorrectSize(temp.begin(), temp.end());
-    earlyDeleteHelpers_.swap(tempCorrectSize);
   }
 
   void Path::setPathStatusInserter(PathStatusInserter* pathStatusInserter, Worker* pathStatusInserterWorker) {
     pathStatusInserter_ = pathStatusInserter;
     pathStatusInserterWorker_ = pathStatusInserterWorker;
-  }
-
-  void Path::handleEarlyFinish(EventPrincipal const& iEvent) {
-    for (auto helper : earlyDeleteHelpers_) {
-      helper->pathFinished(iEvent);
-    }
   }
 
   void Path::processOneOccurrenceAsync(WaitingTask* iTask,
@@ -202,17 +220,20 @@ namespace edm {
                                        StreamID const& iStreamID,
                                        StreamContext const* iStreamContext) {
     waitingTasks_.reset();
+    modulesToRun_ = workers_.size();
     ++timesRun_;
     waitingTasks_.add(iTask);
     if (actReg_) {
       ServiceRegistry::Operate guard(iToken);
       actReg_->prePathEventSignal_(*iStreamContext, pathContext_);
     }
-    state_ = hlt::Ready;
+    //If the Path succeeds, these are the values we have at the end
+    state_ = hlt::Pass;
+    failedModuleIndex_ = workers_.size() - 1;
 
     if (workers_.empty()) {
       ServiceRegistry::Operate guard(iToken);
-      finished(-1, true, std::exception_ptr(), iStreamContext, iEP, iES, iStreamID);
+      finished(std::exception_ptr(), iStreamContext, iEP, iES, iStreamID);
       return;
     }
 
@@ -240,7 +261,8 @@ namespace edm {
       } catch (cms::Exception& oldEx) {
         pEx = std::unique_ptr<cms::Exception>(oldEx.clone());
       }
-      try {
+      // Caught exception is propagated via WaitingTaskList
+      CMS_SA_ALLOW try {
         std::ostringstream ost;
         ost << iEP.id();
         shouldContinue = handleWorkerFailure(*pEx,
@@ -268,33 +290,39 @@ namespace edm {
     }
     auto const nextIndex = iModuleIndex + 1;
     if (shouldContinue and nextIndex < workers_.size()) {
-      runNextWorkerAsync(nextIndex, iEP, iES, iToken, iID, iContext);
-      return;
+      if (not worker.runConcurrently()) {
+        --modulesToRun_;
+        runNextWorkerAsync(nextIndex, iEP, iES, iToken, iID, iContext);
+        return;
+      }
     }
 
     if (not shouldContinue) {
+      threadsafe_setFailedModuleInfo(iModuleIndex, finalException);
+    }
+    if (not shouldContinue and not worker.runConcurrently()) {
       //we are leaving the path early
       for (auto it = workers_.begin() + nextIndex, itEnd = workers_.end(); it != itEnd; ++it) {
+        --modulesToRun_;
         it->skipWorker(iEP);
       }
-      handleEarlyFinish(iEP);
     }
-    finished(iModuleIndex, shouldContinue, finalException, iContext, iEP, iES, iID);
+    if (--modulesToRun_ == 0) {
+      //The path should only be marked as finished once all outstanding modules finish
+      finished(finalException, iContext, iEP, iES, iID);
+    }
   }
 
-  void Path::finished(int iModuleIndex,
-                      bool iSucceeded,
-                      std::exception_ptr iException,
+  void Path::finished(std::exception_ptr iException,
                       StreamContext const* iContext,
                       EventPrincipal const& iEP,
                       EventSetupImpl const& iES,
                       StreamID const& streamID) {
-    if (not iException) {
-      updateCounters(iSucceeded, true);
-      recordStatus(iModuleIndex, true);
-    }
-    try {
-      HLTPathStatus status(state_, iModuleIndex);
+    updateCounters(state_);
+    recordStatus(failedModuleIndex_, state_);
+    // Caught exception is propagated via WaitingTaskList
+    CMS_SA_ALLOW try {
+      HLTPathStatus status(state_, failedModuleIndex_);
 
       if (pathStatusInserter_) {  // pathStatusInserter is null for EndPaths
         pathStatusInserter_->setPathStatus(streamID, status);
@@ -320,14 +348,21 @@ namespace edm {
                                 ServiceToken const& iToken,
                                 StreamID const& iID,
                                 StreamContext const* iContext) {
-    auto nextTask = make_waiting_task(
-        tbb::task::allocate_root(),
-        [this, iNextModuleIndex, &iEP, &iES, iID, iContext, token = iToken](std::exception_ptr const* iException) {
-          this->workerFinished(iException, iNextModuleIndex, iEP, iES, token, iID, iContext);
-        });
-
-    workers_[iNextModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
-        nextTask, iEP, iES, iToken, iID, iContext);
+    //Figure out which next modules can run concurrently
+    const int firstModuleIndex = iNextModuleIndex;
+    int lastModuleIndex = firstModuleIndex;
+    while (lastModuleIndex + 1 != static_cast<int>(workers_.size()) and workers_[lastModuleIndex].runConcurrently()) {
+      ++lastModuleIndex;
+    }
+    for (; lastModuleIndex >= firstModuleIndex; --lastModuleIndex) {
+      auto nextTask = make_waiting_task(
+          tbb::task::allocate_root(),
+          [this, lastModuleIndex, &iEP, &iES, iID, iContext, token = iToken](std::exception_ptr const* iException) {
+            this->workerFinished(iException, lastModuleIndex, iEP, iES, token, iID, iContext);
+          });
+      workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+          nextTask, iEP, iES, iToken, iID, iContext);
+    }
   }
 
 }  // namespace edm

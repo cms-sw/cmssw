@@ -18,7 +18,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Validation/TrackerDigis/interface/SiStripDigiValid.h"
+#include "SiStripDigiValid.h"
 
 SiStripDigiValid::SiStripDigiValid(const edm::ParameterSet &ps)
     : dbe_(nullptr),
@@ -320,12 +320,6 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run
       sprintf(histo, "ndigi_tec_wheel_%d_zp", i + 1);
       meNDigiTECWheelzp_[i] = ibooker.book1D(histo, "Digi Multiplicity", 100, 0., 500.);
     }
-  }
-}
-
-void SiStripDigiValid::endJob() {
-  if (runStandalone && !outputFile_.empty() && dbe_) {
-    dbe_->save(outputFile_);
   }
 }
 

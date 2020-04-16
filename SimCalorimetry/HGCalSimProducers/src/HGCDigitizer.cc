@@ -256,9 +256,8 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   averageOccupancies_[idx] = (averageOccupancies_[idx] * (nEvents_ - 1) + thisOcc) / nEvents_;
 
   if (premixStage1_) {
-    std::unique_ptr<PHGCSimAccumulator> simResult;
+    auto simResult = std::make_unique<PHGCSimAccumulator>();
     if (!simHitAccumulator_->empty()) {
-      simResult = std::make_unique<PHGCSimAccumulator>();
       saveSimHitAccumulator(*simResult, *simHitAccumulator_, validIds_, premixStage1MinCharge_, premixStage1MaxCharge_);
     }
     e.put(std::move(simResult), digiCollection());
@@ -428,27 +427,40 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
 
     (simHitIt->second).hit_info[0][itime] += charge;
 
+    //for time-of-arrival: save the time-sorted list of timestamps with cumulative charge just above threshold
     //working version with pileup only for in-time hits
     int waferThickness = getCellThickness(geom, id);
     bool orderChanged = false;
     if (itime == 9) {
+      //if start empty => just add charge and time
       if (hitRefs_bx0[id].empty()) {
         hitRefs_bx0[id].emplace_back(charge, tof);
       } else if (tof <= hitRefs_bx0[id].back().second) {
+        //find position to insert new entry preserving time sorting
         std::vector<std::pair<float, float>>::iterator findPos =
             std::upper_bound(hitRefs_bx0[id].begin(),
                              hitRefs_bx0[id].end(),
                              std::pair<float, float>(0.f, tof),
-                             [](const auto& i, const auto& j) { return i.second < j.second; });
+                             [](const auto& i, const auto& j) { return i.second <= j.second; });
 
-        std::vector<std::pair<float, float>>::iterator insertedPos = hitRefs_bx0[id].insert(
-            findPos,
-            (findPos == hitRefs_bx0[id].begin()) ? std::pair<float, float>(charge, tof)
-                                                 : std::pair<float, float>((findPos - 1)->first + charge, tof));
+        std::vector<std::pair<float, float>>::iterator insertedPos = findPos;
+        if (findPos->second == tof) {
+          //just merge timestamps with exact timing
+          findPos->first += charge;
+        } else {
+          //insert new element cumulating the charge
+          insertedPos = hitRefs_bx0[id].insert(findPos,
+                                               (findPos == hitRefs_bx0[id].begin())
+                                                   ? std::pair<float, float>(charge, tof)
+                                                   : std::pair<float, float>((findPos - 1)->first + charge, tof));
+        }
 
-        for (std::vector<std::pair<float, float>>::iterator step = insertedPos + 1; step != hitRefs_bx0[id].end();
-             ++step) {
-          step->first += charge;
+        //cumulate the charge of new entry for all elements that follow in the sorted list
+        //and resize list accounting for cases when the inserted element itself crosses the threshold
+        for (std::vector<std::pair<float, float>>::iterator step = insertedPos; step != hitRefs_bx0[id].end(); ++step) {
+          if (step != insertedPos)
+            step->first += charge;
+          // resize the list stopping with the first timeStamp with cumulative charge above threshold
           if (step->first > tdcForToAOnset[waferThickness - 1] && step->second != hitRefs_bx0[id].back().second) {
             hitRefs_bx0[id].resize(std::upper_bound(hitRefs_bx0[id].begin(),
                                                     hitRefs_bx0[id].end(),
@@ -462,6 +474,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
         }
         orderChanged = true;
       } else {
+        //add new entry at the end of the list
         if (hitRefs_bx0[id].back().first <= tdcForToAOnset[waferThickness - 1]) {
           hitRefs_bx0[id].emplace_back(hitRefs_bx0[id].back().first + charge, tof);
         }
@@ -470,22 +483,16 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
 
     float accChargeForToA = hitRefs_bx0[id].empty() ? 0.f : hitRefs_bx0[id].back().first;
 
-    //time-of-arrival (check how to be used)
+    //now compute the firing ToA through the interpolation of the consecutive time-stamps at threshold
     if (weightToAbyEnergy)
       (simHitIt->second).hit_info[1][itime] += charge * tof;
     else if (accChargeForToA > tdcForToAOnset[waferThickness - 1] &&
              ((simHitIt->second).hit_info[1][itime] == 0 || orderChanged == true)) {
       float fireTDC = hitRefs_bx0[id].back().second;
       if (hitRefs_bx0[id].size() > 1) {
-        float chargeBeforeThr = 0.f;
-        float tofchargeBeforeThr = 0.f;
-        for (const auto& step : hitRefs_bx0[id]) {
-          if (step.first + chargeBeforeThr <= tdcForToAOnset[waferThickness - 1]) {
-            chargeBeforeThr += step.first;
-            tofchargeBeforeThr = step.second;
-          } else
-            break;
-        }
+        float chargeBeforeThr = (hitRefs_bx0[id].end() - 2)->first;
+        float tofchargeBeforeThr = (hitRefs_bx0[id].end() - 2)->second;
+
         float deltaQ = accChargeForToA - chargeBeforeThr;
         float deltaTOF = fireTDC - tofchargeBeforeThr;
         fireTDC = (tdcForToAOnset[waferThickness - 1] - chargeBeforeThr) * deltaTOF / deltaQ + tofchargeBeforeThr;

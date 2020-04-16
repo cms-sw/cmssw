@@ -148,3 +148,7 @@ egamma_lowPt_exclusive.toModify(interestingGedEgammaIsoHCALDetId,
 		           minEleEt= 1.0, #default 20
 			   minPhoEt= 1.0 #default 20
 ) 
+
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toModify(interestingEgammaIsoHCALSel,
+                 minEnergyHB = 0.1)

@@ -4,6 +4,7 @@
 <use   name="DataFormats/TrackerCommon" />
 <use   name="CalibTracker/StandaloneTrackerTopology"/>
 <use   name="DQMServices/Core"/>
+<use   name="CondCore/DBOutputService"/>
 
 <export>
   <lib   name="1"/>

@@ -270,13 +270,8 @@ public:  // interface
         nef = patJet->neutralEmEnergyFraction();
         nch = patJet->chargedMultiplicity();
         muf = patJet->muonEnergyFraction();
-        nconstituents = patJet->numberOfDaughters();
+        nconstituents = patJet->neutralMultiplicity() + patJet->chargedMultiplicity();
         nneutrals = patJet->neutralMultiplicity();
-        // Handle the special case of PUPPI jets with weighted multiplicities
-        if (patJet->hasUserFloat("patPuppiJetSpecificProducer:puppiMultiplicity"))
-          nconstituents = patJet->userFloat("patPuppiJetSpecificProducer:puppiMultiplicity");
-        if (patJet->hasUserFloat("patPuppiJetSpecificProducer:neutralPuppiMultiplicity"))
-          nneutrals = patJet->userFloat("patPuppiJetSpecificProducer:neutralPuppiMultiplicity");
       }
       // Handle the special case where this is a composed jet for
       // subjet analyses
@@ -301,7 +296,7 @@ public:  // interface
             e_nef += patsub->neutralEmEnergy();
             e_muf += patsub->muonEnergy();
             nch += patsub->chargedMultiplicity();
-            nconstituents += patsub->numberOfDaughters();
+            nconstituents += patsub->neutralMultiplicity() + patsub->chargedMultiplicity();
             nneutrals += patsub->neutralMultiplicity();
           } else if (pfsub) {
             e_chf += pfsub->chargedHadronEnergy();
@@ -310,7 +305,7 @@ public:  // interface
             e_nef += pfsub->neutralEmEnergy();
             e_muf += pfsub->muonEnergy();
             nch += pfsub->chargedMultiplicity();
-            nconstituents += pfsub->numberOfDaughters();
+            nconstituents += pfsub->neutralMultiplicity() + pfsub->chargedMultiplicity();
             nneutrals += pfsub->neutralMultiplicity();
           } else
             assert(0);
@@ -340,7 +335,7 @@ public:  // interface
         muf = pfJet->muonEnergy() / jetEnergyUncorrected;
       }
       nch = pfJet->chargedMultiplicity();
-      nconstituents = pfJet->numberOfDaughters();
+      nconstituents = pfJet->neutralMultiplicity() + pfJet->chargedMultiplicity();
       nneutrals = pfJet->neutralMultiplicity();
     }  // end if PF jet
     // Handle the special case where this is a composed jet for
@@ -362,7 +357,7 @@ public:  // interface
         e_nef += pfsub->neutralEmEnergy();
         e_muf += pfsub->muonEnergy();
         nch += pfsub->chargedMultiplicity();
-        nconstituents += pfsub->numberOfDaughters();
+        nconstituents += pfsub->neutralMultiplicity() + pfsub->chargedMultiplicity();
         nneutrals += pfsub->neutralMultiplicity();
       }
       double e = basicJet->energy();

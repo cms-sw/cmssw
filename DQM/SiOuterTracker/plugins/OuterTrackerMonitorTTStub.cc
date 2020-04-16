@@ -84,14 +84,14 @@ void OuterTrackerMonitorTTStub::analyze(const edm::Event &iEvent, const edm::Eve
 
       /// Get det ID (place of the stub)
       //  tempStubRef->getDetId() gives the stackDetId, not rawId
-      DetId detIdStub = theTrackerGeometry->idToDet((tempStubRef->getClusterRef(0))->getDetId())->geographicalId();
+      DetId detIdStub = theTrackerGeometry->idToDet((tempStubRef->clusterRef(0))->getDetId())->geographicalId();
 
       /// Get trigger displacement/offset
-      double displStub = tempStubRef->getTriggerDisplacement();
-      double offsetStub = tempStubRef->getTriggerOffset();
+      double displStub = tempStubRef->rawBend();
+      double offsetStub = tempStubRef->bendOffset();
 
       /// Define position stub by position inner cluster
-      MeasurementPoint mp = (tempStubRef->getClusterRef(0))->findAverageLocalCoordinates();
+      MeasurementPoint mp = (tempStubRef->clusterRef(0))->findAverageLocalCoordinates();
       const GeomDet *theGeomDet = theTrackerGeometry->idToDet(detIdStub);
       Global3DPoint posStub = theGeomDet->surface().toGlobal(theGeomDet->topology().localPosition(mp));
 

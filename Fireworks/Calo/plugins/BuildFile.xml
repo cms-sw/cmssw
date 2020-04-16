@@ -15,8 +15,8 @@
  <use name="Fireworks/Core"/>
  <use name="Fireworks/Tracks"/>
  <use name="rootinteractive"/>
- <lib name="Eve"/>
- <lib name="RGL"/>
- <lib name="Geom"/>
+ <use name="rooteve"/>
+ <use name="rootrgl"/>
+ <use name="rootgeom"/>
  <flags EDM_PLUGIN="1"/>
 </library>

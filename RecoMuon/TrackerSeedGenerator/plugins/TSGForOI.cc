@@ -446,8 +446,8 @@ int TSGForOI::makeSeedsFromHits(const TrackerTopology* tTopo,
     seedHits.push_back(*it->recHit()->hit());
     PTrajectoryStateOnDet const& pstate =
         trajectoryStateTransform::persistentState(updatedTSOS, it->recHit()->geographicalId().rawId());
-    TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: number of seedHits: " << seedHits.size() << endl;
+    TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
     out.push_back(seed);
     found++;
     numSeedsMade++;

@@ -3,7 +3,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="Calibration/IsolatedParticles"/>
-<use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="rootphysics"/>
 <library   file="*.cc" name="CalibrationHcalAlCaRecoProducersPlugins">

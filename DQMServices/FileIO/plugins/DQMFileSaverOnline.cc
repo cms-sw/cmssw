@@ -1,4 +1,5 @@
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/LegacyIOHelper.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -72,18 +73,22 @@ void DQMFileSaverOnline::makeSnapshot(const FileParameters& fp, bool final) cons
   logFileAction("Writing DQM Root file: ", root_fp);
   // logFileAction("Writing DQM Origin file: ", meta_fp);
 
-  char rewrite[128];
-  snprintf(rewrite, 128, "\\1Run %ld/\\2/Run summary", fp.run_);
+  //char rewrite[128];
+  //snprintf(rewrite, 128, "\\1Run %ld/\\2/Run summary", fp.run_);
 
-  store->save(tmp_root_fp,                      /* filename      */
-              "",                               /* path          */
-              "^(Reference/)?([^/]+)",          /* pattern       */
-              rewrite,                          /* rewrite       */
-              store->mtEnabled() ? fp.run_ : 0, /* run           */
-              0,                                /* lumi          */
-              fp.saveReference_,                /* ref           */
-              fp.saveReferenceQMin_,            /* ref minStatus */
-              "RECREATE");                      /* fileupdate    */
+  //store->save(tmp_root_fp,                      /* filename      */
+  //            "",                               /* path          */
+  //            "^(Reference/)?([^/]+)",          /* pattern       */
+  //            rewrite,                          /* rewrite       */
+  //            store->mtEnabled() ? fp.run_ : 0, /* run           */
+  //            0,                                /* lumi          */
+  //            fp.saveReference_,                /* ref           */
+  //            fp.saveReferenceQMin_,            /* ref minStatus */
+  //            "RECREATE");                      /* fileupdate    */
+  // TODO: some parameters prepared here are now unused, and the code should
+  // eventually be removed.
+  LegacyIOHelper h(&*store);
+  h.save(tmp_root_fp, "", fp.run_, /* saveall */ true, "RECREATE");
 
   // write metadata
   // format.origin: md5:d566a34b27f48d507150a332b189398b 294835

@@ -1,5 +1,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/plugins/CSJetProducer.h"
+
+#include <memory>
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
@@ -32,7 +35,7 @@ void CSJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 void CSJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   // run algorithm
   if (!doAreaFastjet_ && !doRhoFastjet_) {
-    fjClusterSeq_ = ClusterSequencePtr(new fastjet::ClusterSequence(fjInputs_, *fjJetDefinition_));
+    fjClusterSeq_ = std::make_shared<fastjet::ClusterSequence>(fjInputs_, *fjJetDefinition_);
   } else if (voronoiRfact_ <= 0) {
     fjClusterSeq_ =
         ClusterSequencePtr(new fastjet::ClusterSequenceArea(fjInputs_, *fjJetDefinition_, *fjAreaDefinition_));

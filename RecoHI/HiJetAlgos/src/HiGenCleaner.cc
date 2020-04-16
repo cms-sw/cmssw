@@ -82,7 +82,7 @@ HiGenCleaner<T2>::~HiGenCleaner() {
 
 // ------------ method called to produce the data  ------------
 template <class T2>
-void HiGenCleaner<T2>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void HiGenCleaner<T2>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
   using namespace reco;
 

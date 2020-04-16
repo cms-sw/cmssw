@@ -576,7 +576,7 @@ bool SiPixelTemplate2D::getid(int id) {
         index_id_ = i;
         id_current_ = id;
 
-        // Copy the charge scaling factor to the private variable
+        // Copy the detector type to the private variable
 
         Dtype_ = thePixelTemp_[index_id_].head.Dtype;
 
@@ -668,6 +668,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
   if (id != id_current_ || cotalpha != cota_current_ || cotbeta != cotb_current_) {
     cota_current_ = cotalpha;
     cotb_current_ = cotbeta;
+    // Try to find the correct template.  Fill the class variable index_id_ .
     success_ = getid(id);
   }
 
@@ -701,7 +702,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
     case 4:
     case 5:
       if (locBx * locBz < 0.f) {
-        cota = fabs(cotalpha);
+        cota = std::abs(cotalpha);
         flip_x_ = true;
       }
       if (locBx < 0.f) {
@@ -744,7 +745,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
 
   // Interpolate the absolute value of cot(beta)
 
-  acotb = fabs(cotbeta);
+  acotb = std::abs(cotbeta);
 
   if (acotb < cotbeta0_) {
     success_ = false;
@@ -883,6 +884,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
 //! \param      sizez - (input) pixel z-size
 // *************************************************************************************************************************************
 
+#ifdef SI_PIXEL_TEMPLATE_STANDALONE
 void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry,
                                  int iDtype,
                                  float locBx,
@@ -971,11 +973,7 @@ void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry,
       }
       break;
     default:
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-      throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::illegal subdetector ID = " << iDtype << std::endl;
-#else
       std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << iDtype << std::endl;
-#endif
   }
 
   //  Calculate signed quantities
@@ -1005,6 +1003,7 @@ void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry,
   }
   return;
 }
+#endif
 
 // *************************************************************************************************************************************
 //! \param       xhit - (input) x-position of hit relative to the lower left corner of pixel[1][1] (to allow for the "padding" of the two-d clusters in the splitter)

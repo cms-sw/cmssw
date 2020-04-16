@@ -37,6 +37,8 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
     std::unordered_map<unsigned, SuperTriggerCell>& STCs, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput) const {
   for (auto& s : STCs) {
     std::vector<uint32_t> output_ids = superTCmapping_.getConstituentTriggerCells(s.second.getSTCId());
+    if (output_ids.empty())
+      continue;
 
     int thickness = (!output_ids.empty() ? triggerTools_.thicknessIndex(output_ids.at(0), true) : 0);
 

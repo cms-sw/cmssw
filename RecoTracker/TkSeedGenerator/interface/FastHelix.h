@@ -1,10 +1,10 @@
 #ifndef TR_FastHelix_H_
 #define TR_FastHelix_H_
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /**
    Generation of track parameters at a vertex using two hits and a vertex.

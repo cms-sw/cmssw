@@ -30,7 +30,7 @@ public:
   static constexpr int32_t maxLayerId0 = 6;
   static constexpr int32_t maxLayerId = 2;  // GE1/GE2 has 2 layers
   static constexpr int32_t minRollId = 0;
-  static constexpr int32_t maxRollId = 15;
+  static constexpr int32_t maxRollId = 16;
 
 private:
   static constexpr uint32_t RegionNumBits = 2;

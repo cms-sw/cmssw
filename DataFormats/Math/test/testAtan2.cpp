@@ -195,6 +195,10 @@ void testIntPhi() {
 }
 
 int main() {
+  constexpr float p2i = ((int)(std::numeric_limits<short>::max()) + 1) / M_PI;
+  constexpr float i2p = M_PI / ((int)(std::numeric_limits<short>::max()) + 1);
+  std::cout << std::hexfloat << "p2i i2p " << p2i << " " << i2p << std::defaultfloat << std::endl;
+
   std::cout << unsafe_atan2f<5>(0.f, 0.f) << " " << std::atan2(0., 0.) << std::endl;
   std::cout << unsafe_atan2f<5>(0.5f, 0.5f) << " " << std::atan2(0.5, 0.5) << std::endl;
   std::cout << unsafe_atan2f<5>(0.5f, -0.5f) << " " << std::atan2(0.5, -0.5) << std::endl;

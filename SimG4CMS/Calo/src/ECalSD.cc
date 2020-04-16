@@ -11,12 +11,6 @@
 #include "Geometry/EcalCommonData/interface/ESTBNumberingScheme.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -53,6 +47,7 @@ ECalSD::ECalSD(const std::string& name,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")),
+      ecalSimParameters_(nullptr),
       numberingScheme_(nullptr) {
   //   static SimpleConfigurable<bool>   on1(false,  "ECalSD:UseBirkLaw");
   //   static SimpleConfigurable<double> bk1(0.00463,"ECalSD:BirkC1");
@@ -86,35 +81,22 @@ ECalSD::ECalSD(const std::string& name,
     ageing.setLumies(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("DelivLuminosity"),
                      p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("InstLuminosity"));
 
-  edm::ESTransientHandle<DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get(cpv);
-
-  //Material list for HB/HE/HO sensitive detectors
-  std::string attribute = "ReadOutName";
-  DDSpecificsMatchesValueFilter filter{DDValue(attribute, name, 0)};
-  DDFilteredView fv(*cpv, filter);
-  fv.firstChild();
-  DDsvalues_type sv(fv.mergedSpecifics());
-  // Use of Weight
-  useWeight = true;
-  std::vector<double> tempD = getDDDArray("EnergyWeight", sv);
-  if (!tempD.empty()) {
-    if (tempD[0] < 0.1)
-      useWeight = false;
+  edm::ESHandle<EcalSimulationParameters> esp;
+  es.get<IdealGeometryRecord>().get(name, esp);
+  if (esp.isValid()) {
+    ecalSimParameters_ = esp.product();
+  } else {
+    edm::LogError("EcalSim") << "ECalSD : Cannot find EcalSimulationParameters for " << name;
+    throw cms::Exception("Unknown", "ECalSD") << "Cannot find EcalSimulationParameters for " << name << "\n";
   }
+
+  // Use of Weight
+  useWeight = ecalSimParameters_->useWeight_;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << "ECalSD:: useWeight " << tempD.size() << ":" << useWeight << std::endl;
+  edm::LogVerbatim("EcalSim") << "ECalSD:: useWeight " << useWeight;
 #endif
-  std::vector<std::string> tempS = getStringArray("Depth1Name", sv);
-  if (!tempS.empty())
-    depth1Name = tempS[0];
-  else
-    depth1Name = " ";
-  tempS = getStringArray("Depth2Name", sv);
-  if (!tempS.empty())
-    depth2Name = tempS[0];
-  else
-    depth2Name = " ";
+  depth1Name = ecalSimParameters_->depth1Name_;
+  depth2Name = ecalSimParameters_->depth2Name_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "Names (Depth 1):" << depth1Name << " (Depth 2):" << depth2Name << std::endl;
 #endif
@@ -161,7 +143,7 @@ ECalSD::ECalSD(const std::string& name,
                               << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")
                               << " ns";
   if (useWeight)
-    initMap(name, es);
+    initMap();
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
   if (tfile.isAvailable()) {
@@ -314,25 +296,16 @@ void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
   }
 }
 
-void ECalSD::initMap(const G4String& sd, const edm::EventSetup& es) {
-  edm::ESTransientHandle<DDCompactView> cpv;
-  es.get<IdealGeometryRecord>().get(cpv);
-
-  G4String attribute = "ReadOutName";
-  DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
-  DDFilteredView fv(*cpv, filter);
-  fv.firstChild();
-
+void ECalSD::initMap() {
   std::vector<const G4LogicalVolume*> lvused;
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   std::map<const std::string, const G4LogicalVolume*> nameMap;
   for (auto lvi = lvs->begin(), lve = lvs->end(); lvi != lve; ++lvi)
     nameMap.emplace((*lvi)->GetName(), *lvi);
 
-  bool dodet = true;
-  while (dodet) {
-    const std::string& matname = fv.logicalPart().material().name().name();
-    const std::string& lvname = fv.logicalPart().name().name();
+  for (unsigned int it = 0; it < ecalSimParameters_->lvNames_.size(); ++it) {
+    const std::string& matname = ecalSimParameters_->matNames_[it];
+    const std::string& lvname = ecalSimParameters_->lvNames_[it];
     const G4LogicalVolume* lv = nameMap[lvname];
     int ibec = (lvname.find("EFRY") == std::string::npos) ? 0 : 1;
     int iref = (lvname.find("refl") == std::string::npos) ? 0 : 1;
@@ -377,19 +350,11 @@ void ECalSD::initMap(const G4String& sd, const edm::EventSetup& es) {
       if (crystalMat.size() == matname.size() && !strcmp(crystalMat.c_str(), matname.c_str())) {
         if (!any(lvused, lv)) {
           lvused.push_back(lv);
-          const DDSolid& sol = fv.logicalPart().solid();
-          const std::vector<double>& paras = sol.parameters();
-#ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("EcalSim") << "ECalSD::initMap (for " << sd << "): Solid " << lvname << " Shape "
-                                      << sol.shape() << " Parameter 0 = " << paras[0] << " Logical Volume " << lv;
-#endif
-          if (sol.shape() == DDSolidShape::ddtrap) {
-            double dz = 2 * paras[0];
-            xtalLMap.insert(std::pair<const G4LogicalVolume*, double>(lv, dz * type));
-            lv = nameMap[lvname + "_refl"];
-            if (lv != nullptr) {
-              xtalLMap.insert(std::pair<const G4LogicalVolume*, double>(lv, -dz * type));
-            }
+          double dz = ecalSimParameters_->dzs_[it];
+          xtalLMap.insert(std::pair<const G4LogicalVolume*, double>(lv, dz * type));
+          lv = nameMap[lvname + "_refl"];
+          if (lv != nullptr) {
+            xtalLMap.insert(std::pair<const G4LogicalVolume*, double>(lv, -dz * type));
           }
         }
       } else {
@@ -410,10 +375,9 @@ void ECalSD::initMap(const G4String& sd, const edm::EventSetup& es) {
         }
       }
     }
-    dodet = fv.next();
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << "ECalSD: Length Table for " << attribute << " = " << sd << ":";
+  edm::LogVerbatim("EcalSim") << "ECalSD: Length Table:";
   int i = 0;
   for (auto ite : xtalLMap) {
     G4String name("Unknown");
@@ -488,38 +452,4 @@ double ECalSD::getBirkL3(const G4Step* aStep) {
 #endif
   }
   return weight;
-}
-
-std::vector<double> ECalSD::getDDDArray(const std::string& str, const DDsvalues_type& sv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << "ECalSD:getDDDArray called for " << str;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv, value)) {
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalSim") << value;
-#endif
-    const std::vector<double>& fvec = value.doubles();
-    return fvec;
-  } else {
-    std::vector<double> fvec;
-    return fvec;
-  }
-}
-
-std::vector<std::string> ECalSD::getStringArray(const std::string& str, const DDsvalues_type& sv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalSim") << "ECalSD:getStringArray called for " << str;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv, value)) {
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("EcalSim") << value;
-#endif
-    const std::vector<std::string>& fvec = value.strings();
-    return fvec;
-  } else {
-    std::vector<std::string> fvec;
-    return fvec;
-  }
 }

@@ -14,8 +14,8 @@
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"

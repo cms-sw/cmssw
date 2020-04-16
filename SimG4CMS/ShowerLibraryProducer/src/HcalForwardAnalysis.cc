@@ -129,9 +129,10 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   std::vector<HFShowerPhoton> LongFiberPhotons;
   LongFiberPhotons.clear();
   ShortFiberPhotons.clear();
+  int thehc_entries = theHC->entries();
   if (idHC >= 0 && theHC != nullptr) {
-    std::cout << "FiberhitSize " << theHC->entries() << std::endl;
-    for (j = 0; j < theHC->entries(); j++) {
+    std::cout << "FiberhitSize " << thehc_entries << std::endl;
+    for (j = 0; j < thehc_entries; j++) {
       FiberG4Hit* aHit = (*theHC)[j];
       std::vector<HFShowerPhoton> thePhotonsFromHit = aHit->photon();
       std::cout << "Fiberhit " << j << " has " << thePhotonsFromHit.size() << " photons." << std::endl;
@@ -172,7 +173,8 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent* evt) {
   //	multiple hits. We want to take last one which is close the HF absorber
   if (idHC >= 0 && theChamberHC != nullptr) {
     LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Chamber Hits size: " << theChamberHC->entries();
-    for (j = 0; j < theChamberHC->entries(); ++j) {
+    int thec_hc_entries = theChamberHC->entries();
+    for (j = 0; j < thec_hc_entries; ++j) {
       HFShowerG4Hit* aHit = (*theChamberHC)[j];
       LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Chamber Hit id " << aHit->hitId() << " track id "
                                  << aHit->trackId() << " prim. pos. " << aHit->globalPosition() << " prom mom. dir. "

@@ -9,7 +9,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -20,12 +19,9 @@
 #include "DQM/TrackingMonitor/interface/VertexMonitor.h"
 #include "DQM/TrackingMonitor/interface/TrackingMonitor.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -106,9 +102,11 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
       doTrackerSpecific_(iConfig.getParameter<bool>("doTrackerSpecific")),
       doLumiAnalysis(iConfig.getParameter<bool>("doLumiAnalysis")),
       doProfilesVsLS_(iConfig.getParameter<bool>("doProfilesVsLS")),
+      doAllSeedPlots(iConfig.getParameter<bool>("doSeedParameterHistos")),
       doAllPlots(iConfig.getParameter<bool>("doAllPlots")),
       doGeneralPropertiesPlots_(iConfig.getParameter<bool>("doGeneralPropertiesPlots")),
       doHitPropertiesPlots_(iConfig.getParameter<bool>("doHitPropertiesPlots")),
+      doTkCandPlots(iConfig.getParameter<bool>("doTrackCandHistos")),
       doPUmonitoring_(iConfig.getParameter<bool>("doPUmonitoring")),
       genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this)),
@@ -116,7 +114,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
       denSelection_(iConfig.getParameter<std::string>("denCut")),
       pvNDOF_(iConfig.getParameter<int>("pvNDOF")) {
   edm::ConsumesCollector c{consumesCollector()};
-  theTrackAnalyzer = new TrackAnalyzer(iConfig, c);
+  theTrackAnalyzer = new tadqm::TrackAnalyzer(iConfig, c);
 
   // input tags for collections from the configuration
   bsSrc_ = iConfig.getParameter<edm::InputTag>("beamSpot");
@@ -174,6 +172,20 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   edm::InputTag pixelClusterInputTag_ = iConfig.getParameter<edm::InputTag>("pixelCluster");
   stripClustersToken_ = mayConsume<edmNew::DetSetVector<SiStripCluster> >(stripClusterInputTag_);
   pixelClustersToken_ = mayConsume<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag_);
+
+  runTrackBuildingAnalyzerForSeed =
+      (doAllSeedPlots || iConfig.getParameter<bool>("doSeedPTHisto") || iConfig.getParameter<bool>("doSeedETAHisto") ||
+       iConfig.getParameter<bool>("doSeedPHIHisto") || iConfig.getParameter<bool>("doSeedPHIVsETAHisto") ||
+       iConfig.getParameter<bool>("doSeedThetaHisto") || iConfig.getParameter<bool>("doSeedQHisto") ||
+       iConfig.getParameter<bool>("doSeedDxyHisto") || iConfig.getParameter<bool>("doSeedDzHisto") ||
+       iConfig.getParameter<bool>("doSeedNRecHitsHisto") || iConfig.getParameter<bool>("doSeedNVsPhiProf") ||
+       iConfig.getParameter<bool>("doSeedNVsEtaProf"));
+
+  if (doTkCandPlots || doAllSeedPlots || runTrackBuildingAnalyzerForSeed) {
+    magneticFieldToken_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+    transientTrackingRecHitBuilderToken_ =
+        esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", builderName));
+  }
 
   doFractionPlot_ = true;
   if (alltrackProducer.label() == trackProducer.label())
@@ -330,6 +342,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   if (doLumiAnalysis) {
     // add by Mia in order to deal with LS transitions
     ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
 
     histname = "NumberOfTracks_lumiFlag_" + CategoryName;
     NumberOfTracks_lumiFlag = ibooker.book1D(histname, histname, 3 * TKNoBin, TKNoMin, (TKNoMax + 0.5) * 3. - 0.5);
@@ -565,26 +578,21 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks", 2);
   }
 
-  theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  if (doLumiAnalysis) {
+    auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  } else {
+    theTrackAnalyzer->initHisto(ibooker, iSetup, *conf);
+  }
 
   // book the Seed Property histograms
   // ---------------------------------------------------------------------------------//
 
   ibooker.setCurrentFolder(MEFolderName + "/TrackBuilding");
 
-  doAllSeedPlots = conf->getParameter<bool>("doSeedParameterHistos");
   doSeedNumberPlot = conf->getParameter<bool>("doSeedNumberHisto");
   doSeedLumiAnalysis_ = conf->getParameter<bool>("doSeedLumiAnalysis");
   doSeedVsClusterPlot = conf->getParameter<bool>("doSeedVsClusterHisto");
-  //    if (doAllPlots) doAllSeedPlots=true;
-
-  runTrackBuildingAnalyzerForSeed =
-      (doAllSeedPlots || conf->getParameter<bool>("doSeedPTHisto") || conf->getParameter<bool>("doSeedETAHisto") ||
-       conf->getParameter<bool>("doSeedPHIHisto") || conf->getParameter<bool>("doSeedPHIVsETAHisto") ||
-       conf->getParameter<bool>("doSeedThetaHisto") || conf->getParameter<bool>("doSeedQHisto") ||
-       conf->getParameter<bool>("doSeedDxyHisto") || conf->getParameter<bool>("doSeedDzHisto") ||
-       conf->getParameter<bool>("doSeedNRecHitsHisto") || conf->getParameter<bool>("doSeedNVsPhiProf") ||
-       conf->getParameter<bool>("doSeedNVsEtaProf"));
 
   edm::InputTag seedProducer = conf->getParameter<edm::InputTag>("SeedProducer");
 
@@ -597,6 +605,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
     if (doSeedLumiAnalysis_) {
       ibooker.setCurrentFolder(MEFolderName + "/LSanalysis");
+      auto scope = DQMStore::IBooker::UseLumiScope(ibooker);
       histname = "NumberOfSeeds_lumiFlag_" + seedProducer.label() + "_" + CategoryName;
       NumberOfSeeds_lumiFlag = ibooker.book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
       NumberOfSeeds_lumiFlag->setAxisTitle("Number of Seeds per Event", 1);
@@ -646,9 +655,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfTrackingRegions->setAxisTitle("Number of Events", 2);
   }
 
-  doTkCandPlots = conf->getParameter<bool>("doTrackCandHistos");
-  //    if (doAllPlots) doTkCandPlots=true;
-
   if (doTkCandPlots) {
     ibooker.setCurrentFolder(MEFolderName + "/TrackBuilding");
 
@@ -666,17 +672,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   }
 
   theTrackBuildingAnalyzer->initHisto(ibooker, *conf);
-
-  if (doLumiAnalysis) {
-    if (NumberOfTracks_lumiFlag)
-      NumberOfTracks_lumiFlag->setLumiFlag();
-    theTrackAnalyzer->setLumiFlag();
-  }
-
-  if (doAllSeedPlots || doSeedNumberPlot) {
-    if (doSeedLumiAnalysis_)
-      NumberOfSeeds_lumiFlag->setLumiFlag();
-  }
 
   if (doTrackerSpecific_ || doAllPlots) {
     ClusterLabels = conf->getParameter<std::vector<std::string> >("ClusterLabels");
@@ -728,20 +723,6 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   
 }
 */
-
-// - BeginLumi
-// ---------------------------------------------------------------------------------//
-void TrackingMonitor::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eSetup) {
-  if (doLumiAnalysis) {
-    if (NumberOfTracks_lumiFlag)
-      NumberOfTracks_lumiFlag->Reset();
-    theTrackAnalyzer->doReset();
-  }
-  if (doAllSeedPlots || doSeedNumberPlot) {
-    if (doSeedLumiAnalysis_)
-      NumberOfSeeds_lumiFlag->Reset();
-  }
-}
 
 // -- Analyse
 // ---------------------------------------------------------------------------------//
@@ -892,8 +873,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     // fill the TrackCandidate info
     if (doTkCandPlots) {
       // magnetic field
-      edm::ESHandle<MagneticField> theMF;
-      iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+      MagneticField const& theMF = iSetup.getData(magneticFieldToken_);
 
       // get the candidate collection
       edm::Handle<TrackCandidateCollection> theTCHandle;
@@ -915,7 +895,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         if (seedHandle.isValid() && !seedCollection.empty())
           FractionCandidatesOverSeeds->Fill(double(theTCCollection.size()) / double(seedCollection.size()));
 
-        iSetup.get<TransientRecHitRecord>().get(builderName, theTTRHBuilder);
+        TransientTrackingRecHitBuilder const& theTTRHBuilder = iSetup.getData(transientTrackingRecHitBuilderToken_);
         for (TrackCandidateCollection::const_iterator cand = theTCCollection.begin(); cand != theTCCollection.end();
              ++cand) {
           theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *cand, bs, theMF, theTTRHBuilder);
@@ -978,15 +958,14 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           if (seedStopInfo.size() == seedCollection.size()) {
             //here duplication of mag field and be informations is needed to allow seed and track cand histos to be independent
             // magnetic field
-            edm::ESHandle<MagneticField> theMF;
-            iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+            MagneticField const& theMF = iSetup.getData(magneticFieldToken_);
 
             // get the beam spot
             edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
             iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle);
             const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
-            iSetup.get<TransientRecHitRecord>().get(builderName, theTTRHBuilder);
+            TransientTrackingRecHitBuilder const& theTTRHBuilder = iSetup.getData(transientTrackingRecHitBuilderToken_);
             for (size_t i = 0; i < seedCollection.size(); ++i) {
               theTrackBuildingAnalyzer->analyze(
                   iEvent, iSetup, seedCollection[i], seedStopInfo[i], bs, theMF, theTTRHBuilder);
@@ -1117,8 +1096,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   }  // trackHandle is valid
 }
-
-void TrackingMonitor::dqmEndRun(const edm::Run&, const edm::EventSetup&) {}
 
 void TrackingMonitor::setMaxMinBin(std::vector<double>& arrayMin,
                                    std::vector<double>& arrayMax,

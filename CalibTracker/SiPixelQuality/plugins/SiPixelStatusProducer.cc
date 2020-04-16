@@ -13,10 +13,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Transition.h"
 // CMSSW DataFormats
 #include "DataFormats/Common/interface/ConditionsInEdm.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -31,9 +31,7 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 // EDProducer related dataformat
@@ -45,7 +43,12 @@
 using namespace std;
 
 //--------------------------------------------------------------------------------------------------
-SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig) {
+SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig)
+    : trackerGeometryToken_(
+          esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginLuminosityBlock>()),
+      trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginLuminosityBlock>()),
+      siPixelFedCablingMapToken_(
+          esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginLuminosityBlock>()) {
   // get parameter
 
   // badPixelFEDChannelCollections
@@ -87,10 +90,11 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
   // The es watcher is acutally not needed if run parallel jobs for each lumi section
   if (siPixelFedCablingMapWatcher_.check(iSetup) || trackerDIGIGeoWatcher_.check(iSetup) ||
       trackerTopoWatcher_.check(iSetup)) {
-    coord_.init(iSetup);
-    iSetup.get<SiPixelFedCablingMapRcd>().get(fCablingMap);
-    fCablingMap_ = fCablingMap.product();
-    iSetup.get<TrackerDigiGeometryRecord>().get(fTG);
+    trackerGeometry_ = &iSetup.getData(trackerGeometryToken_);
+    const TrackerTopology* trackerTopology = &iSetup.getData(trackerTopologyToken_);
+    fCablingMap_ = &iSetup.getData(siPixelFedCablingMapToken_);
+
+    coord_.init(trackerTopology, trackerGeometry_, fCablingMap_);
 
     fFedIds = fCablingMap_->det2fedMap();
 
@@ -98,7 +102,9 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
 
   // init the SiPixelDetectorStatus fDet and sensor size fSensors in the begining (when countLumi is zero)
   if (countLumi_ == 0) {
-    for (TrackerGeometry::DetContainer::const_iterator it = fTG->dets().begin(); it != fTG->dets().end(); it++) {
+    for (TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->dets().begin();
+         it != trackerGeometry_->dets().end();
+         it++) {
       const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
       if (pgdu == nullptr)
         continue;
@@ -145,7 +151,7 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
 }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::EventSetup&) {
   ftotalevents++;
 
   edm::LogInfo("SiPixelStatusProducer") << "start cluster analyzer " << endl;
@@ -290,10 +296,10 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
 }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) {}
+void SiPixelStatusProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup&) {}
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {
+void SiPixelStatusProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup&) {
   edm::LogInfo("SiPixelStatusProducer") << "endlumi producer " << endl;
 
   endLumi_ = lumiSeg.luminosityBlock();
@@ -361,7 +367,7 @@ void SiPixelStatusProducer::onlineRocColRow(
   col = locpixel.rocCol();
   row = locpixel.rocRow();
   //sipixelobjects::CablingPathToDetUnit path = {(unsigned int) fedId, (unsigned int)cabling.link, (unsigned int)cabling.roc};
-  //const sipixelobjects::PixelROC *theRoc = fCablingMap->findItem(path);
+  //const sipixelobjects::PixelROC *theRoc = fCablingMap_->findItem(path);
   const sipixelobjects::PixelROC* theRoc = converter.toRoc(cabling.link, cabling.roc);
   roc = theRoc->idInDetUnit();
 

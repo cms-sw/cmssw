@@ -144,7 +144,7 @@ namespace edmtest {
         produces<int>();
       }
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       void produce(edm::Event& iEvent, edm::EventSetup const&) override {
         ++m_count;
@@ -190,7 +190,7 @@ namespace edmtest {
         produces<int>();
       }
       const unsigned int trans_;
-      mutable unsigned int m_count = 0;
+      mutable std::atomic<unsigned int> m_count = 0;
 
       void produce(edm::Event& iEvent, edm::EventSetup const&) override {
         ++m_count;

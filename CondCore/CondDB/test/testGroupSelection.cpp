@@ -1,5 +1,8 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
@@ -135,7 +138,8 @@ int main(int argc, char** argv) {
   int ret = 0;
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  std::string connectionString("sqlite_file:GroupSelection.db");
-  ret = run(connectionString, connectionString);
+  std::string connectionString0("sqlite_file:group_selection.db");
+  std::string connectionString1("sqlite_file:group_selection.db");
+  ret = run(connectionString0, connectionString1);
   return ret;
 }

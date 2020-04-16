@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1GtUtilsHelper::L1GtUtilsHelper(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, bool useL1GtTriggerMenuLite)
-    : m_consumesCollector(std::move(iC)),
+    : m_consumesCollector(iC),
       m_l1GtRecordInputTag(pset.getParameter<edm::InputTag>("l1GtRecordInputTag")),
       m_l1GtReadoutRecordInputTag(pset.getParameter<edm::InputTag>("l1GtReadoutRecordInputTag")),
       m_l1GtTriggerMenuLiteInputTag(pset.getParameter<edm::InputTag>("l1GtTriggerMenuLiteInputTag")),

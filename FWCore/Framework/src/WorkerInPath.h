@@ -26,7 +26,7 @@ namespace edm {
   public:
     enum FilterAction { Normal = 0, Ignore, Veto };
 
-    WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath);
+    WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath, bool runConcurrently);
 
     template <typename T>
     void runWorkerAsync(WaitingTask* iTask,
@@ -38,7 +38,7 @@ namespace edm {
 
     bool checkResultsOfRunWorker(bool wasEvent);
 
-    void skipWorker(EventPrincipal const& iPrincipal) { worker_->skipOnPath(); }
+    void skipWorker(EventPrincipal const& iPrincipal) { worker_->skipOnPath(iPrincipal); }
     void skipWorker(RunPrincipal const&) {}
     void skipWorker(LuminosityBlockPrincipal const&) {}
 
@@ -51,6 +51,7 @@ namespace edm {
 
     FilterAction filterAction() const { return filterAction_; }
     Worker* getWorker() const { return worker_; }
+    bool runConcurrently() const noexcept { return runConcurrently_; }
 
     void setPathContext(PathContext const* v) { placeInPathContext_.setPathContext(v); }
 
@@ -64,6 +65,7 @@ namespace edm {
     Worker* worker_;
 
     PlaceInPathContext placeInPathContext_;
+    bool runConcurrently_;
   };
 
   inline bool WorkerInPath::checkResultsOfRunWorker(bool wasEvent) {
@@ -109,11 +111,11 @@ namespace edm {
                                     ServiceToken const& token,
                                     StreamID streamID,
                                     typename T::Context const* context) {
-    if (T::isEvent_) {
+    if constexpr (T::isEvent_) {
       ++timesVisited_;
     }
 
-    if (T::isEvent_) {
+    if constexpr (T::isEvent_) {
       ParentContext parentContext(&placeInPathContext_);
       worker_->doWorkAsync<T>(iTask, ep, es, token, streamID, parentContext, context);
     } else {

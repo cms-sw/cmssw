@@ -33,7 +33,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     GEMEnable = cms.bool(False),  # Use hits from GEMs in track-building
 
     # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
-    Era = cms.string('Run2_2018'),
+    Era = cms.string('Run2_2016'),
 
     # BX
     MinBX    = cms.int32(-3), # Minimum BX considered
@@ -131,10 +131,18 @@ simEmtfDigisData = simEmtfDigisMC.clone(
 simEmtfDigis = simEmtfDigisMC.clone()
 
 
+## Load "Era" modules to adjust RPCEnable and Era (which controls the choice of PtAssignmentEngine)
+## If neither 'Run2_2016' nor 'Run2_2017' are invoked, default 2018 settings are used
+## Era configuration files are located in Configuration/Eras/python
+
 ## Era: Run2_2016
-#from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-#stage2L1Trigger.toModify(simEmtfDigis, RPCEnable = cms.bool(False), Era = cms.string('Run2_2016'))
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(simEmtfDigis, RPCEnable = cms.bool(False), Era = cms.string('Run2_2016'))
 
 ## Era: Run2_2017
-#from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
-#stage2L1Trigger_2017.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2017'))
+from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+stage2L1Trigger_2017.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2017'))
+
+### Era: Run2_2018
+from Configuration.Eras.Modifier_stage2L1Trigger_2018_cff import stage2L1Trigger_2018
+stage2L1Trigger_2018.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2018'))

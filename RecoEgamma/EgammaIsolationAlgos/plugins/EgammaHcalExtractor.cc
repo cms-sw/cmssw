@@ -21,7 +21,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"

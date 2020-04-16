@@ -153,7 +153,7 @@ private:
     using edm::one::OutputModuleBase::doPreallocate;
     RunCacheOutputModule(edm::ParameterSet const& iPSet)
         : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::RunCache<DummyCache>>(iPSet) {}
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void write(edm::EventForOutput const&) override { ++m_count; }
     void writeRun(edm::RunForOutput const&) override { ++m_count; }
     void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override { ++m_count; }
@@ -171,7 +171,7 @@ private:
     using edm::one::OutputModuleBase::doPreallocate;
     LumiCacheOutputModule(edm::ParameterSet const& iPSet)
         : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::LuminosityBlockCache<DummyCache>>(iPSet) {}
-    mutable unsigned int m_count = 0;
+    mutable std::atomic<unsigned int> m_count = 0;
     void write(edm::EventForOutput const&) override { ++m_count; }
     void writeRun(edm::RunForOutput const&) override { ++m_count; }
     void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override { ++m_count; }

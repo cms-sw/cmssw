@@ -1,5 +1,4 @@
 <use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="RecoLocalMuon/DTSegment"/>
 <use   name="CLHEP"/>
 <library   file="*.cc" name="RecoLocalMuonDTSegmentPlugins">

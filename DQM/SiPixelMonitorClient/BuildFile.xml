@@ -10,7 +10,6 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DQMServices/Core"/>
 <use   name="DQMServices/Components"/>
-<use   name="DQMServices/ClientConfig"/>
 <use   name="CommonTools/TrackerMap"/>
 <use   name="DQM/SiPixelCommon"/>
 <use   name="DQM/SiStripCommon"/>

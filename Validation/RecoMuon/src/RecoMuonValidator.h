@@ -1,8 +1,8 @@
 #ifndef Validation_RecoMuon_RecoMuonValidator_H
 #define Validation_RecoMuon_RecoMuonValidator_H
 
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -20,16 +20,13 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // for selection cut
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
-class MuonServiceProxy;
 class TrackAssociatorBase;
 
-class RecoMuonValidator : public DQMEDAnalyzer {
+class RecoMuonValidator : public DQMOneEDAnalyzer<> {
 public:
   RecoMuonValidator(const edm::ParameterSet& pset);
   ~RecoMuonValidator() override;
@@ -63,7 +60,6 @@ protected:
   std::string subsystemname_;
   edm::ParameterSet pset;
 
-  MuonServiceProxy* theMuonService;
   DQMStore* dbe_;
 
   bool doAbsEta_;

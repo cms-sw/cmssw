@@ -290,7 +290,7 @@
     <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml'/>
     <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecs.xml'/>
     <Include ref='Geometry/RPCGeometryBuilder/data/RPCSpecs.xml'/>
-    <Include ref='Geometry/GEMGeometryBuilder/data/GEMSpecsFilter17.xml'/>
+    <Include ref='Geometry/GEMGeometryBuilder/data/v8/GEMSpecsFilter17.xml'/>
     <Include ref='Geometry/GEMGeometryBuilder/data/v4/GEMSpecs.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/brmsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/zdcsens.xml'/>
@@ -303,5 +303,6 @@
     <Include ref='Geometry/ForwardSimData/data/zdcProdCuts.xml'/>
     <Include ref='Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml'/>
     <Include ref='Geometry/CMSCommonData/data/FieldParameters.xml'/>
+    <Include ref='SimTracker/TrackerMaterialAnalysis/data/dd4hep_trackingMaterialGroups.xml'/>
   </IncludeSection>
 </DDDefinition>

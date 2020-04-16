@@ -16,7 +16,7 @@ hltMjjmonitoring.histoPSet.htPSet = cms.PSet(
   xmax  = cms.double(19999.5),
 )
 hltMjjmonitoring.met       = cms.InputTag("pfMetEI")
-hltMjjmonitoring.jets      = cms.InputTag("ak8PFJetsCHS")
+hltMjjmonitoring.jets      = cms.InputTag("ak8PFJetsPuppi")
 hltMjjmonitoring.electrons = cms.InputTag("gedGsfElectrons")
 hltMjjmonitoring.muons     = cms.InputTag("muons")
 
@@ -34,4 +34,4 @@ hltMjjmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 25,
 hltMjjmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltMjjmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltMjjmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
-hltMjjmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*","HLT_IsoTkMu27_v*");
+hltMjjmonitoring.denGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_IsoMu27_v*")

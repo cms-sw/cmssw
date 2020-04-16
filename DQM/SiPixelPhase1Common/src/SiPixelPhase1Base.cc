@@ -12,7 +12,7 @@
 // Since constructor of GenericTriggerEventFlag requires
 // EDConsumerBase class protected member calls
 SiPixelPhase1Base::SiPixelPhase1Base(const edm::ParameterSet& iConfig)
-    : DQMEDAnalyzer(), HistogramManagerHolder(iConfig) {
+    : DQMEDAnalyzer(), HistogramManagerHolder(iConfig, consumesCollector()) {
   // Flags will default to empty vector if not specified in configuration file
   auto flags = iConfig.getUntrackedParameter<edm::VParameterSet>("triggerflags", {});
 

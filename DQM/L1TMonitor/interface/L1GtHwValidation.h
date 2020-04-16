@@ -105,7 +105,6 @@ private:
 
 protected:
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   //virtual void analyze(DQMStore::IBooker &ibooker, const edm::Event&, const edm::EventSetup&);
 
 private:

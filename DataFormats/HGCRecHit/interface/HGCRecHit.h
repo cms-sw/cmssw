@@ -89,7 +89,7 @@ public:
   void setOutOfTimeEnergy(float energy);
   void setSignalOverSigmaNoise(float sOverNoise);
 
-  void setTimeError(uint8_t timeErrBits);
+  void setTimeError(float timeErr);
 
   /// set the flags (from Flags or ESFlags)
   void setFlag(int flag) { flagBits_ |= (0x1 << flag); }
@@ -105,6 +105,7 @@ private:
   /// store rechit condition (see Flags enum) in a bit-wise way
   uint32_t flagBits_;
   uint8_t signalOverSigmaNoise_;
+  float timeError_;
 };
 
 std::ostream& operator<<(std::ostream& s, const HGCRecHit& hit);

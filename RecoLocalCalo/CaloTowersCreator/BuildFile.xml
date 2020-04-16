@@ -1,7 +1,6 @@
 <use   name="boost"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/HcalRecHit"/>
-<use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="Geometry/CaloTopology"/>

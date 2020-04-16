@@ -36,17 +36,9 @@ void CSCGEMMotherboard::clear() {
   coPads_.clear();
 }
 
-void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
-                            const CSCComparatorDigiCollection* compdc,
-                            const GEMPadDigiClusterCollection* gemClusters) {
-  std::unique_ptr<GEMPadDigiCollection> gemPads(new GEMPadDigiCollection());
-  coPadProcessor->declusterize(gemClusters, *gemPads);
-  run(wiredc, compdc, gemPads.get());
-}
-
 void CSCGEMMotherboard::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id) {
   pads_.clear();
-  auto superChamber(gem_g->superChamber(id));
+  const auto& superChamber(gem_g->superChamber(id));
   for (const auto& ch : superChamber->chambers()) {
     for (const auto& roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
@@ -183,7 +175,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     bx = gem2.bx(1) + CSCConstants::LCT_CENTRAL_BX;
     keyStrip = clct.getKeyStrip();
     // choose the corresponding wire-group in the middle of the partition
-    keyWG = mymap2[gem2.roll()];
+    keyWG = mymap2[gem2.roll() - 1];
     bend = clct.getBend();
     thisLCT.setCLCT(clct);
     thisLCT.setGEM1(gem2.first());
@@ -197,6 +189,10 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
                                    << " detid " << cscId_ << " with wiregroup " << keyWG << "keyStrip " << keyStrip
                                    << " \n";
 
+  // in Run-3 we plan to use the synchronization error bit
+  // to denote the presence of exotic signatures in the chamber
+  unsigned int syncErr = useHighMultiplicityBits_ ? highMultiplicityBits_ : 0;
+
   // fill the rest of the properties
   thisLCT.setTrknmb(trknmb);
   thisLCT.setValid(valid);
@@ -208,7 +204,7 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   thisLCT.setBX(bx);
   thisLCT.setMPCLink(0);
   thisLCT.setBX0(0);
-  thisLCT.setSyncErr(0);
+  thisLCT.setSyncErr(syncErr);
   thisLCT.setCSCID(theTrigChamber);
 
   // future work: add a section that produces LCTs according

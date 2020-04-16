@@ -11,6 +11,7 @@
  */
 
 // Framework
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -58,25 +59,28 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   edm::ConsumesCollector iC = consumesCollector();
 
   // the services
-  theService = new MuonServiceProxy(serviceParameters);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters, consumesCollector());
 
-  MuonTrackLoader* trackLoader = new MuonTrackLoader(trackLoaderParameters, iC, theService);
-  MuonTrajectoryBuilder* trajectoryBuilder = nullptr;
+  auto trackLoader = std::make_unique<MuonTrackLoader>(trackLoaderParameters, iC, theService.get());
+  std::unique_ptr<MuonTrajectoryBuilder> trajectoryBuilder;
   // instantiate the concrete trajectory builder in the Track Finder
   string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
   if (typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
-    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService, iC);
+    trajectoryBuilder =
+        std::make_unique<StandAloneMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   else if (typeOfBuilder == "DirectMuonTrajectoryBuilder")
-    trajectoryBuilder = new DirectMuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
+    trajectoryBuilder = std::make_unique<DirectMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get());
   else if (typeOfBuilder == "Exhaustive")
-    trajectoryBuilder = new ExhaustiveMuonTrajectoryBuilder(trajectoryBuilderParameters, theService, iC);
+    trajectoryBuilder =
+        std::make_unique<ExhaustiveMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   else {
     LogWarning("Muon|RecoMuon|StandAloneMuonProducer")
         << "No Trajectory builder associated with " << typeOfBuilder
         << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
-    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService, iC);
+    trajectoryBuilder =
+        std::make_unique<StandAloneMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);
   }
-  theTrackFinder = new MuonTrackFinder(trajectoryBuilder, trackLoader);
+  theTrackFinder = std::make_unique<MuonTrackFinder>(std::move(trajectoryBuilder), std::move(trackLoader));
 
   setAlias(parameterSet.getParameter<std::string>("@module_label"));
 
@@ -95,10 +99,6 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
 /// destructor
 StandAloneMuonProducer::~StandAloneMuonProducer() {
   LogTrace("Muon|RecoMuon|StandAloneMuonProducer") << "StandAloneMuonProducer destructor called" << endl;
-  if (theService)
-    delete theService;
-  if (theTrackFinder)
-    delete theTrackFinder;
 }
 
 /// reconstruct muons

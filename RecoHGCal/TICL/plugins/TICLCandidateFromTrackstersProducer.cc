@@ -90,6 +90,7 @@ void TICLCandidateFromTrackstersProducer::fillDescriptions(edm::ConfigurationDes
   desc_momentum.add<bool>("energyFromRegression", false);
   desc_momentum.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc_momentum.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalLayerClusters"));
+  desc_momentum.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::ParameterSetDescription>("momentumPlugin", desc_momentum);
 
   edm::ParameterSetDescription desc_track;
@@ -110,8 +111,8 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
     evt.getByToken(trackster_token, trackster_h);
     for (size_t i_trackster = 0; i_trackster < trackster_h->size(); ++i_trackster) {
       auto const& trackster = trackster_h->at(i_trackster);
-      auto id_prob_begin = std::begin(trackster.id_probabilities);
-      auto max_id_prob_it = std::max_element(id_prob_begin, std::end(trackster.id_probabilities));
+      auto id_prob_begin = std::begin(trackster.id_probabilities());
+      auto max_id_prob_it = std::max_element(id_prob_begin, std::end(trackster.id_probabilities()));
       float max_id_prob = *max_id_prob_it;
       if (max_id_prob < min_particle_prob_)
         continue;
@@ -136,9 +137,26 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
         auto charge = ticl_cand.trackPtr()->charge();
         ticl_cand.setCharge(charge);
         ticl_cand.setPdgId(pdg_id * charge);
+        // If this is a special 0 energy trackster that has been injected
+        // starting from a seed that has not been linked to any shower,
+        // re-assign the energy and momentum to be the ones of the track linked
+        // to the original seeding region.
+        if (ticl_cand.rawEnergy() == 0.) {
+          auto const& three_mom = ticl_cand.trackPtr()->momentum();
+          constexpr double mpion2 = 0.13957 * 0.13957;
+          double energy = std::sqrt(three_mom.mag2() + mpion2);
+          math::XYZTLorentzVector trk_p4(three_mom.x(), three_mom.y(), three_mom.z(), energy);
+          ticl_cand.setP4(trk_p4);
+          ticl_cand.setRawEnergy(energy);
+        }
       } else {
-        // FIXME - placeholder for downstream PF code to work, but proper symmetric charge assignment needed
-        ticl_cand.setCharge(1);
+        // Demote them to be neutral, since there's not track associated.
+        ticl_cand.setCharge(0);
+        if (pdg_id == -11) {
+          ticl_cand.setPdgId(22);
+        } else {
+          ticl_cand.setPdgId(130);
+        }
       }
     }
   }

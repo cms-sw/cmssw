@@ -83,7 +83,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
   ss << "ECAL ";
 
   unsigned int max_since = 0;
-  max_since = static_cast<unsigned int>(tagInfo().lastInterval.first);
+  max_since = static_cast<unsigned int>(tagInfo().lastInterval.since);
   edm::LogInfo("max_since : ") << max_since;
   Ref ped_db = lastPayload();
 
@@ -467,7 +467,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
 
 void popcon::EcalPedestalsHandler::getNewObjectsH2() {
   unsigned int max_since = 0;
-  max_since = static_cast<unsigned int>(tagInfo().lastInterval.first);
+  max_since = static_cast<unsigned int>(tagInfo().lastInterval.since);
   edm::LogInfo("max_since : ") << max_since;
   Ref ped_db = lastPayload();
 

@@ -22,6 +22,7 @@ namespace edm {
      Requires the Producer class to provide following functions
            const InitMsgView* getHeader();
            const EventMsgView* getNextEvent();
+           bool newHeader() const;
   */
   public:
     explicit StreamerInputModule(ParameterSet const& pset, InputSourceDescription const& desc);
@@ -33,10 +34,20 @@ namespace edm {
         pr_->closeFile();
     }
 
-    bool checkNextEvent() override;
+    void genuineReadFile() override {
+      if (isFirstFile_) {
+        isFirstFile_ = false;
+        return;
+      }
 
-    //ProductRegistry const* prod_reg_;
+      InitMsgView const* header = pr_->getHeader();
+      deserializeAndMergeWithRegistry(*header);
+    }
+
+    Next checkNext() override;
+
     edm::propagate_const<std::unique_ptr<Producer>> pr_;
+    bool isFirstFile_ = true;
   };  //end-of-class-def
 
   template <typename Producer>
@@ -53,21 +64,18 @@ namespace edm {
   }
 
   template <typename Producer>
-  bool StreamerInputModule<Producer>::checkNextEvent() {
+  StreamerInputSource::Next StreamerInputModule<Producer>::checkNext() {
     EventMsgView const* eview = pr_->getNextEvent();
 
     if (pr_->newHeader()) {
       FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
-      // A new file has been opened and we must compare Headers here !!
-      //Get header/init from Producer
-      InitMsgView const* header = pr_->getHeader();
-      deserializeAndMergeWithRegistry(*header, true);
+      return Next::kFile;
     }
     if (eview == nullptr) {
-      return false;
+      return Next::kStop;
     }
     deserializeEvent(*eview);
-    return true;
+    return Next::kEvent;
   }
 
 }  // namespace edm

@@ -14,8 +14,7 @@
 #include <iostream>
 
 // user include files
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -43,7 +42,7 @@
 #include <TH2F.h>
 
 //  Define the interface
-class HigPhotonJetHLTOfflineSource : public DQMEDAnalyzer {
+class HigPhotonJetHLTOfflineSource : public DQMOneEDAnalyzer<> {
 public:
   explicit HigPhotonJetHLTOfflineSource(const edm::ParameterSet&);
 
