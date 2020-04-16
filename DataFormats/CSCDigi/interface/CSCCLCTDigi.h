@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <vector>
+#include <limits>
 
 class CSCCLCTDigi {
 public:
@@ -22,17 +23,17 @@ public:
   enum class Version { Legacy = 0, Run3 };
 
   /// Constructors
-  CSCCLCTDigi(const int valid,
-              const int quality,
-              const int pattern,
-              const int striptype,
-              const int bend,
-              const int strip,
-              const int cfeb,
-              const int bx,
-              const int trknmb = 0,
-              const int fullbx = 0,
-              const int compCode = -1,
+  CSCCLCTDigi(const uint16_t valid,
+              const uint16_t quality,
+              const uint16_t pattern,
+              const uint16_t striptype,
+              const uint16_t bend,
+              const uint16_t strip,
+              const uint16_t cfeb,
+              const uint16_t bx,
+              const uint16_t trknmb = 0,
+              const uint16_t fullbx = 0,
+              const int16_t compCode = -1,
               const Version version = Version::Legacy);
   /// default
   CSCCLCTDigi();
@@ -44,37 +45,37 @@ public:
   bool isValid() const { return valid_; }
 
   /// set valid
-  void setValid(const int valid) { valid_ = valid; }
+  void setValid(const uint16_t valid) { valid_ = valid; }
 
   /// return quality of a pattern (number of layers hit!)
   uint16_t getQuality() const { return quality_; }
 
   /// set quality
-  void setQuality(const int quality) { quality_ = quality; }
+  void setQuality(const uint16_t quality) { quality_ = quality; }
 
   /// return pattern
   uint16_t getPattern() const { return pattern_; }
 
   /// set pattern
-  void setPattern(const int pattern) { pattern_ = pattern; }
+  void setPattern(const uint16_t pattern) { pattern_ = pattern; }
 
   /// return striptype
   uint16_t getStripType() const { return striptype_; }
 
   /// set stripType
-  void setStripType(const int stripType) { striptype_ = stripType; }
+  void setStripType(const uint16_t stripType) { striptype_ = stripType; }
 
   /// return bend
   uint16_t getBend() const { return bend_; }
 
   /// set bend
-  void setBend(const int bend) { bend_ = bend; }
+  void setBend(const uint16_t bend) { bend_ = bend; }
 
   /// return halfstrip that goes from 0 to 31 in a (D)CFEB
   uint16_t getStrip() const;
 
   /// set strip
-  void setStrip(const int strip) { strip_ = strip; }
+  void setStrip(const uint16_t strip) { strip_ = strip; }
 
   /// set single quart strip bit
   void setQuartStrip(const bool quartStrip);
@@ -92,13 +93,13 @@ public:
   uint16_t getCFEB() const { return cfeb_; }
 
   /// set Key CFEB ID
-  void setCFEB(const int cfeb) { cfeb_ = cfeb; }
+  void setCFEB(const uint16_t cfeb) { cfeb_ = cfeb; }
 
   /// return BX
   uint16_t getBX() const { return bx_; }
 
   /// set bx
-  void setBX(const int bx) { bx_ = bx; }
+  void setBX(const uint16_t bx) { bx_ = bx; }
 
   /// return track number (1,2)
   uint16_t getTrknmb() const { return trknmb_; }
@@ -109,7 +110,7 @@ public:
   /// Halfstrip = (cfeb*32 + strip).
   /// This function can also return the quartstrip or eightstrip
   /// when the comparator code has been set
-  uint16_t getKeyStrip(int n = 2) const;
+  uint16_t getKeyStrip(uint16_t n = 2) const;
 
   /// Set track number (1,2) after sorting CLCTs.
   void setTrknmb(const uint16_t number) { trknmb_ = number; }

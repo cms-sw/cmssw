@@ -14,14 +14,14 @@
 using namespace std;
 
 /// Constructors
-CSCALCTDigi::CSCALCTDigi(const int valid,
-                         const int quality,
-                         const int accel,
-                         const int patternb,
-                         const int keywire,
-                         const int bx,
-                         const int trknmb,
-                         const int hmt,
+CSCALCTDigi::CSCALCTDigi(const uint16_t valid,
+                         const uint16_t quality,
+                         const uint16_t accel,
+                         const uint16_t patternb,
+                         const uint16_t keywire,
+                         const uint16_t bx,
+                         const uint16_t trknmb,
+                         const uint16_t hmt,
                          const Version version)
     : valid_(valid),
       quality_(quality),
@@ -52,6 +52,13 @@ void CSCALCTDigi::clear() {
   hmt_ = 0;
 }
 
+uint16_t CSCALCTDigi::getHMT() const { return ((version_ == Version::Run3) ? hmt_ : std::numeric_limits<uint16_t>::max()); }
+
+void CSCALCTDigi::setHMT(const uint16_t hmt) { version_ == Version::Run3 ? hmt_ = hmt : std::numeric_limits<uint16_t>::max(); }
+
+void CSCALCTDigi::setRun3(bool isRun3) { isRun3 ? version_ = Version::Run3 : Version::Legacy; }
+
+
 bool CSCALCTDigi::operator>(const CSCALCTDigi& rhs) const {
   bool returnValue = false;
 
@@ -66,8 +73,8 @@ bool CSCALCTDigi::operator>(const CSCALCTDigi& rhs) const {
   // The > operator then checks the quality of ALCTs.
   // If two qualities are equal, the ALCT furthest from the beam axis
   // (lowest eta, highest wire group number) is selected.
-  int quality1 = getQuality();
-  int quality2 = rhs.getQuality();
+  uint16_t quality1 = getQuality();
+  uint16_t quality2 = rhs.getQuality();
   if (quality1 > quality2) {
     returnValue = true;
   } else if (quality1 == quality2 && getKeyWG() > rhs.getKeyWG()) {
