@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import Validation.RecoParticleFlow.defaults_cfi as default
 from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name,jetResponseDir,genjetDir
 
 #----- ----- ----- ----- ----- ----- ----- -----
@@ -98,7 +99,10 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
 
 # PFCandidates
 PFCandAnalyzerDQM = cms.EDProducer("PFCandidateAnalyzerDQM", 
-    PFCandType = cms.InputTag("packedPFCandidates")
+    PFCandType = cms.InputTag("packedPFCandidates"),
+    
+    pdgKeys = cms.vuint32( default.candidateDict.keys() ),
+    pdgStrs = cms.vstring( default.candidateDict.values() )
 ) 
 
 
