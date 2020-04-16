@@ -47,7 +47,7 @@ public:
   const int *cellLayout(void) { return cellLayout_; };
   int baseChannelId(void) { return baseChannelId_; };
   MP_QUALITY quality(void) { return quality_; };
-  int bxTimeValue(void) { return baseChannelId_; };
+  int bxTimeValue(void) { return bxTimeValue_; };
   int bxNumId(void) { return bxNumId_; };
   float tanPhi(void) { return tanPhi_; };
   const LATERAL_CASES *lateralComb(void) { return (lateralComb_); };
