@@ -29,3 +29,12 @@
   <use name="CalibTracker/StandaloneTrackerTopology"/>
   <use name="boost_python"/>
 </library>
+
+<library file="SiPixelTemplateDBObject_PayloadInspector.cc" name="SiPixelTemplateDBObject_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiPixelTransient"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+  <use   name="boost_python"/>
+</library>
