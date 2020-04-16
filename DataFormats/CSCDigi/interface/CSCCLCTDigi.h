@@ -148,7 +148,7 @@ public:
   /// Distinguish Run-1/2 from Run-3
   bool isRun3() const { return version_ == Version::Run3; }
 
-  void setRun3(bool isRun3) { isRun3 ? version_ = Version::Run3 : Version::Legacy; }
+  void setRun3(bool isRun3);
 
 private:
   uint16_t valid_;

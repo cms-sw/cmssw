@@ -152,7 +152,7 @@ public:
   /// Distinguish Run-1/2 from Run-3
   bool isRun3() const { return version_ == Version::Run3; }
 
-  void setRun3(bool isRun3);
+  void setRun3(const bool isRun3);
 
   /// SIMULATION ONLY ////
   enum Type {
