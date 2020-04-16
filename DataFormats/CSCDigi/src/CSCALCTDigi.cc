@@ -52,13 +52,9 @@ void CSCALCTDigi::clear() {
   hmt_ = 0;
 }
 
-uint16_t CSCALCTDigi::getHMT() const {
-  return ((version_ == Version::Run3) ? hmt_ : std::numeric_limits<uint16_t>::max());
-}
+uint16_t CSCALCTDigi::getHMT() const { return (isRun3() ? hmt_ : std::numeric_limits<uint16_t>::max()); }
 
-void CSCALCTDigi::setHMT(const uint16_t h) {
-  hmt_ = (version_ == Version::Run3) ? h : std::numeric_limits<uint16_t>::max();
-}
+void CSCALCTDigi::setHMT(const uint16_t h) { hmt_ = isRun3() ? h : std::numeric_limits<uint16_t>::max(); }
 
 void CSCALCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }
 
