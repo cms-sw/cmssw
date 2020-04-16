@@ -4,7 +4,7 @@ ShiftedParticleMETcorrInputProducer::ShiftedParticleMETcorrInputProducer(const e
     : srcOriginalToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("srcOriginal"))),
       srcShiftedToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("srcShifted"))) {
   edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
-  if (srcWeights.label() != "")
+  if (!srcWeights.label().empty())
     weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
 
   produces<CorrMETData>();

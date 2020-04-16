@@ -6,7 +6,7 @@ ShiftedParticleProducer::ShiftedParticleProducer(const edm::ParameterSet& cfg) {
   srcToken_ = consumes<CandidateView>(cfg.getParameter<edm::InputTag>("src"));
   shiftBy_ = cfg.getParameter<double>("shiftBy");
   edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
-  if (srcWeights.label() != "")
+  if (!srcWeights.label().empty())
     weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
 
   if (cfg.exists("binning")) {

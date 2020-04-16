@@ -45,7 +45,7 @@ MultShiftMETcorrDBInputProducer::MultShiftMETcorrDBInputProducer(const edm::Para
   vertices_ = consumes<edm::View<reco::Vertex>>(cfg.getParameter<edm::InputTag>("vertexCollection"));
 
   edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
-  if (srcWeights.label() != "")
+  if (!srcWeights.label().empty())
     weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
 
   etaMin_.clear();
