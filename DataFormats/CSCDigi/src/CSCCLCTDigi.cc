@@ -14,17 +14,17 @@
 enum Pattern_Info { NUM_LAYERS = 6, CLCT_PATTERN_WIDTH = 11 };
 
 /// Constructors
-CSCCLCTDigi::CSCCLCTDigi(const int valid,
-                         const int quality,
-                         const int pattern,
-                         const int striptype,
-                         const int bend,
-                         const int strip,
-                         const int cfeb,
-                         const int bx,
-                         const int trknmb,
-                         const int fullbx,
-                         const int compCode,
+CSCCLCTDigi::CSCCLCTDigi(const uint16_t valid,
+                         const uint16_t quality,
+                         const uint16_t pattern,
+                         const uint16_t striptype,
+                         const uint16_t bend,
+                         const uint16_t strip,
+                         const uint16_t cfeb,
+                         const uint16_t bx,
+                         const uint16_t trknmb,
+                         const uint16_t fullbx,
+                         const int16_t compCode,
                          const Version version)
     : valid_(valid),
       quality_(quality),
@@ -84,7 +84,7 @@ void CSCCLCTDigi::clear() {
   }
 }
 
-uint16_t CSCCLCTDigi::getKeyStrip(int n) const {
+uint16_t CSCCLCTDigi::getKeyStrip(const uint16_t n) const {
   // 10-bit case for strip data word
   if (compCode_ != -1 and n == 8) {
     return getKeyStrip(4) * 2 + getEightStrip();
@@ -127,24 +127,40 @@ bool CSCCLCTDigi::operator>(const CSCCLCTDigi& rhs) const {
   // the latest one, used in TMB-07 firmware (w/o distrips).
   bool returnValue = false;
 
-  int quality1 = getQuality();
-  int quality2 = rhs.getQuality();
-  // The bend-direction bit pid[0] is ignored (left and right bends have
-  // equal quality).
-  int pattern1 = getPattern() & 14;
-  int pattern2 = rhs.getPattern() & 14;
+  uint16_t quality1 = getQuality();
+  uint16_t quality2 = rhs.getQuality();
 
-  // Better-quality CLCTs are preferred.
-  // If two qualities are equal, larger pattern id (i.e., straighter pattern)
-  // is preferred; left- and right-bend patterns are considered to be of
-  // the same quality.
-  // If both qualities and pattern id's are the same, lower keystrip
-  // is preferred.
-  if ((quality1 > quality2) || (quality1 == quality2 && pattern1 > pattern2) ||
-      (quality1 == quality2 && pattern1 == pattern2 && getKeyStrip() < rhs.getKeyStrip())) {
-    returnValue = true;
+  // Run-3 case
+  if (version_ == Version::Run3) {
+    // Better-quality CLCTs are preferred.
+    // If two qualities are equal, smaller bending is preferred;
+    // left- and right-bend patterns are considered to be of
+    // the same quality. This corresponds to "pattern" being smaller!!!
+    // If both qualities and pattern id's are the same, lower keystrip
+    // is preferred.
+    if ((quality1 > quality2) || (quality1 == quality2 && getPattern() < rhs.getPattern()) ||
+        (quality1 == quality2 && getPattern() == rhs.getPattern() && getKeyStrip() < rhs.getKeyStrip())) {
+      returnValue = true;
+    }
   }
+  // Legacy case:
+  else {
+    // The bend-direction bit pid[0] is ignored (left and right bends have
+    // equal quality).
+    uint16_t pattern1 = getPattern() & 14;
+    uint16_t pattern2 = rhs.getPattern() & 14;
 
+    // Better-quality CLCTs are preferred.
+    // If two qualities are equal, larger pattern id (i.e., straighter pattern)
+    // is preferred; left- and right-bend patterns are considered to be of
+    // the same quality.
+    // If both qualities and pattern id's are the same, lower keystrip
+    // is preferred.
+    if ((quality1 > quality2) || (quality1 == quality2 && pattern1 > pattern2) ||
+        (quality1 == quality2 && pattern1 == pattern2 && getKeyStrip() < rhs.getKeyStrip())) {
+      returnValue = true;
+    }
+  }
   return returnValue;
 }
 

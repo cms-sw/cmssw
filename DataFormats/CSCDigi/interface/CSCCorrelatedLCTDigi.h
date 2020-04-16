@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include <limits>
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
@@ -22,15 +23,15 @@ public:
   enum class Version { Legacy = 0, Run3 };
 
   /// Constructors
-  CSCCorrelatedLCTDigi(const int trknmb,
-                       const int valid,
-                       const int quality,
-                       const int keywire,
-                       const int strip,
-                       const int pattern,
-                       const int bend,
-                       const int bx,
-                       const int mpclink = 0,
+  CSCCorrelatedLCTDigi(const uint16_t trknmb,
+                       const uint16_t valid,
+                       const uint16_t quality,
+                       const uint16_t keywire,
+                       const uint16_t strip,
+                       const uint16_t pattern,
+                       const uint16_t bend,
+                       const uint16_t bx,
+                       const uint16_t mpclink = 0,
                        const uint16_t bx0 = 0,
                        const uint16_t syncErr = 0,
                        const uint16_t cscID = 0,
@@ -43,19 +44,19 @@ public:
   void clear();
 
   /// return track number
-  int getTrknmb() const { return trknmb; }
+  uint16_t getTrknmb() const { return trknmb; }
 
   /// return valid pattern bit
   bool isValid() const { return valid; }
 
   /// return the Quality
-  int getQuality() const { return quality; }
+  uint16_t getQuality() const { return quality; }
 
   /// return the key wire group. counts from 0.
-  int getKeyWG() const { return keywire; }
+  uint16_t getKeyWG() const { return keywire; }
 
   /// return the key halfstrip from 0,159
-  int getStrip(int n = 2) const;
+  uint16_t getStrip(uint16_t n = 2) const;
 
   /// set single quart strip bit
   void setQuartStrip(const bool quartStrip);
@@ -70,27 +71,27 @@ public:
   bool getEightStrip() const;
 
   /// return the fractional strip. counts from 0.25
-  float getFractionalStrip(int n = 2) const;
+  float getFractionalStrip(uint16_t n = 2) const;
 
   /// Legacy: return pattern ID
   /// Run-3: return the bending angle value
-  int getPattern() const { return pattern; }
+  uint16_t getPattern() const { return pattern; }
 
   /// return left/right bending
-  int getBend() const { return bend; }
+  uint16_t getBend() const { return bend; }
 
   /// return BX
-  int getBX() const { return bx; }
+  uint16_t getBX() const { return bx; }
 
   /// return CLCT pattern number (in use again Feb 2011)
   /// This function should not be used for Run-3
-  int getCLCTPattern() const { return ((version_ == Version::Legacy) ? (pattern & 0xF) : -1); }
+  uint16_t getCLCTPattern() const;
 
   /// return strip type (obsolete since mid-2008)
-  int getStripType() const { return ((pattern & 0x8) >> 3); }
+  uint16_t getStripType() const { return ((pattern & 0x8) >> 3); }
 
   /// return MPC link number, 0 means not sorted, 1-3 give MPC sorting rank
-  int getMPCLink() const { return mpclink; }
+  uint16_t getMPCLink() const { return mpclink; }
 
   uint16_t getCSCID() const { return cscID; }
   uint16_t getBX0() const { return bx0; }
@@ -100,7 +101,7 @@ public:
   /// The allocation is different for ME1/1 and non-ME1/1
   /// chambers. Both LCTs in a chamber are needed for the complete
   /// high-multiplicity trigger information
-  uint16_t getHMT() const { return ((version_ == Version::Run3) ? hmt : -1); }
+  uint16_t getHMT() const;
 
   /// Set track number (1,2) after sorting LCTs.
   void setTrknmb(const uint16_t number) { trknmb = number; }
@@ -116,42 +117,42 @@ public:
   bool operator!=(const CSCCorrelatedLCTDigi& rhs) const { return !(this->operator==(rhs)); }
 
   /// set wiregroup number
-  void setWireGroup(unsigned int wiregroup) { keywire = wiregroup; }
+  void setWireGroup(const uint16_t wiregroup) { keywire = wiregroup; }
 
   /// set quality code
-  void setQuality(unsigned int q) { quality = q; }
+  void setQuality(const uint16_t q) { quality = q; }
 
   /// set valid
-  void setValid(unsigned int v) { valid = v; }
+  void setValid(const uint16_t v) { valid = v; }
 
   /// set strip
-  void setStrip(unsigned int s) { strip = s; }
+  void setStrip(const uint16_t s) { strip = s; }
 
   /// set pattern
-  void setPattern(unsigned int p) { pattern = p; }
+  void setPattern(const uint16_t p) { pattern = p; }
 
   /// set bend
-  void setBend(unsigned int b) { bend = b; }
+  void setBend(const uint16_t b) { bend = b; }
 
   /// set bx
-  void setBX(unsigned int b) { bx = b; }
+  void setBX(const uint16_t b) { bx = b; }
 
   /// set bx0
-  void setBX0(unsigned int b) { bx0 = b; }
+  void setBX0(const uint16_t b) { bx0 = b; }
 
   /// set syncErr
-  void setSyncErr(unsigned int s) { syncErr = s; }
+  void setSyncErr(const uint16_t s) { syncErr = s; }
 
   /// set cscID
-  void setCSCID(unsigned int c) { cscID = c; }
+  void setCSCID(const uint16_t c) { cscID = c; }
 
   /// set high-multiplicity bits
-  void setHMT(const unsigned int h) { version_ == Version::Run3 ? hmt = h : -1; }
+  void setHMT(const uint16_t h);
 
   /// Distinguish Run-1/2 from Run-3
   bool isRun3() const { return version_ == Version::Run3; }
 
-  void setRun3(bool isRun3) { isRun3 ? version_ = Version::Run3 : Version::Legacy; }
+  void setRun3(bool isRun3);
 
   /// SIMULATION ONLY ////
   enum Type {

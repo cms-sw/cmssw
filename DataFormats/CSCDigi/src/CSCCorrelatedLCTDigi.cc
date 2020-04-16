@@ -11,15 +11,15 @@
 #include <iostream>
 
 /// Constructors
-CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const int itrknmb,
-                                           const int ivalid,
-                                           const int iquality,
-                                           const int ikeywire,
-                                           const int istrip,
-                                           const int ipattern,
-                                           const int ibend,
-                                           const int ibx,
-                                           const int impclink,
+CSCCorrelatedLCTDigi::CSCCorrelatedLCTDigi(const uint16_t itrknmb,
+                                           const uint16_t ivalid,
+                                           const uint16_t iquality,
+                                           const uint16_t ikeywire,
+                                           const uint16_t istrip,
+                                           const uint16_t ipattern,
+                                           const uint16_t ibend,
+                                           const uint16_t ibx,
+                                           const uint16_t impclink,
                                            const uint16_t ibx0,
                                            const uint16_t isyncErr,
                                            const uint16_t icscID,
@@ -63,7 +63,7 @@ void CSCCorrelatedLCTDigi::clear() {
   hmt = 0;
 }
 
-int CSCCorrelatedLCTDigi::getStrip(int n) const {
+uint16_t CSCCorrelatedLCTDigi::getStrip(const uint16_t n) const {
   // all 10 bits
   if (n == 8) {
     return 2 * getStrip(4) + getEightStrip();
@@ -99,7 +99,7 @@ bool CSCCorrelatedLCTDigi::getQuartStrip() const { return (strip >> kQuartStripS
 bool CSCCorrelatedLCTDigi::getEightStrip() const { return (strip >> kEightStripShift) & kEightStripMask; }
 
 /// return the fractional strip
-float CSCCorrelatedLCTDigi::getFractionalStrip(int n) const {
+float CSCCorrelatedLCTDigi::getFractionalStrip(const uint16_t n) const {
   if (n == 8) {
     return 0.125f * (getStrip() + 1) - 0.0625f;
   } else if (n == 4) {
@@ -108,6 +108,14 @@ float CSCCorrelatedLCTDigi::getFractionalStrip(int n) const {
     return 0.5f * (getStrip() + 1) - 0.25f;
   }
 }
+
+uint16_t CSCCorrelatedLCTDigi::getCLCTPattern() const { return ((version_ == Version::Legacy) ? (pattern & 0xF) : std::numeric_limits<uint16_t>::max()); }
+
+uint16_t CSCCorrelatedLCTDigi::getHMT() const { return ((version_ == Version::Run3) ? hmt : std::numeric_limits<uint16_t>::max()); }
+
+void CSCCorrelatedLCTDigi::setHMT(const uint16_t h) { version_ == Version::Run3 ? hmt = h : std::numeric_limits<uint16_t>::max(); }
+
+void CSCCorrelatedLCTDigi::setRun3(bool isRun3) { isRun3 ? version_ = Version::Run3 : Version::Legacy; }
 
 /// Comparison
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi& rhs) const {
