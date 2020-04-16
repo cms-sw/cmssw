@@ -156,6 +156,7 @@
  <class name="std::vector<std::vector<edm::ParameterSetID > >"/>
  <class name="std::map<edm::ParameterSetID,edm::ParameterSetBlob>"/>
  <class name="std::pair<edm::ParameterSetID,edm::ParameterSetBlob>"/>
+ <class name="std::pair<const edm::ParameterSetID,edm::ParameterSetBlob>"/>
  <class name="edm::ProcessConfigurationID"/>
  <class name="std::vector<edm::ProcessConfigurationID>"/>
  <class name="edm::ParentageID"/>
