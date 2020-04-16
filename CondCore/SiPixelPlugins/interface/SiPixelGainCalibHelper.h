@@ -29,13 +29,165 @@
 
 namespace gainCalibHelper {
 
+  using AvgMap = std::map<uint32_t, float>;
+
   namespace gainCalibPI {
-    enum type { t_gain = 0, t_pedestal = 1 };
-  }
+
+    enum type { t_gain = 0, t_pedestal = 1, t_correlation = 2 };
+
+    //============================================================================
+    // helper method to fill the gain / pedestals distributions
+    template <typename PayloadType>
+    static void fillTheHisto(const std::shared_ptr<PayloadType>& payload,
+                             std::shared_ptr<TH1F> h1,
+                             gainCalibPI::type theType) {
+      std::vector<uint32_t> detids;
+      payload->getDetIds(detids);
+
+      for (const auto& d : detids) {
+        auto range = payload->getRange(d);
+        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
+        int ncols = payload->getNCols(d);
+        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
+
+        auto rangeAndCol = payload->getRangeAndNCols(d);
+        bool isDeadColumn;
+        bool isNoisyColumn;
+
+        COUT << "NCOLS: " << payload->getNCols(d) << " " << rangeAndCol.second << " NROWS:" << nrows
+             << ", RANGES: " << rangeAndCol.first.second - rangeAndCol.first.first
+             << ", Ratio: " << float(rangeAndCol.first.second - rangeAndCol.first.first) / rangeAndCol.second
+             << std::endl;
+
+        float quid(-99999.);
+
+        for (int col = 0; col < ncols; col++) {
+          for (int row = 0; row < nrows; row++) {
+            switch (theType) {
+              case gainCalibPI::t_gain:
+                quid = payload->getGain(col, row, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
+                break;
+              case gainCalibPI::t_pedestal:
+                quid = payload->getPed(col, row, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
+                break;
+              default:
+                edm::LogError("gainCalibPI::fillTheHisto") << "Unrecognized type " << theType << std::endl;
+                break;
+            }
+            h1->Fill(quid);
+          }  // loop on rows
+        }    // loop on cols
+      }      // loop on detids
+    }        // fillTheHisto
+
+    //============================================================================
+    // helper method to fill the gain / pedestal averages per module maps
+    template <typename PayloadType>
+    static void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload,
+                                    AvgMap& map,
+                                    gainCalibPI::type theType) {
+      std::vector<uint32_t> detids;
+      payload->getDetIds(detids);
+
+      for (const auto& d : detids) {
+        auto range = payload->getRange(d);
+        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
+        int ncols = payload->getNCols(d);
+        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
+
+        auto rangeAndCol = payload->getRangeAndNCols(d);
+        bool isDeadColumn;
+        bool isNoisyColumn;
+
+        float sumOfX(0.);
+        int nPixels(0);
+        for (int col = 0; col < ncols; col++) {
+          for (int row = 0; row < nrows; row++) {
+            nPixels++;
+            switch (theType) {
+              case gainCalibPI::t_gain:
+                sumOfX +=
+                    payload->getGain(col, row, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
+                break;
+              case gainCalibPI::t_pedestal:
+                sumOfX += payload->getPed(col, row, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
+                break;
+              default:
+                edm::LogError("gainCalibPI::fillThePerModuleMap") << "Unrecognized type " << theType << std::endl;
+                break;
+            }  // switch on the type
+          }    // rows
+        }      // columns
+        // fill the return value map
+        map[d] = sumOfX / nPixels;
+      }  // loop on the detId
+    }    // fillThePerModuleMap
+
+    //============================================================================
+    // helper method to fill the gain / pedestals distributions
+    template <typename PayloadType>
+    static void fillTheHistos(const std::shared_ptr<PayloadType>& payload,
+                              std::shared_ptr<TH1> hBPix,
+                              std::shared_ptr<TH1> hFPix,
+                              gainCalibPI::type theType) {
+      std::vector<uint32_t> detids;
+      payload->getDetIds(detids);
+
+      bool isCorrelation_ = hBPix.get()->InheritsFrom(TH2::Class()) && (theType == gainCalibPI::t_correlation);
+
+      for (const auto& d : detids) {
+        int subid = DetId(d).subdetId();
+        auto range = payload->getRange(d);
+        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
+        int ncols = payload->getNCols(d);
+        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
+        unsigned int nRowsForHLT = 1;
+        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
+                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
+
+        auto rangeAndCol = payload->getRangeAndNCols(d);
+        bool isDeadColumn;
+        bool isNoisyColumn;
+
+        for (int col = 0; col < ncols; col++) {
+          for (int row = 0; row < nrows; row++) {
+            float gain = payload->getGain(col, row, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
+            float ped = payload->getPed(col, row, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
+
+            switch (subid) {
+              case PixelSubdetector::PixelBarrel: {
+                if (isCorrelation_) {
+                  hBPix->Fill(gain, ped);
+                } else {
+                  hBPix->Fill((theType == gainCalibPI::t_gain ? gain : ped));
+                }
+                break;
+              }
+              case PixelSubdetector::PixelEndcap: {
+                if (isCorrelation_) {
+                  hFPix->Fill(gain, ped);
+                } else {
+                  hFPix->Fill((theType == gainCalibPI::t_gain ? gain : ped));
+                }
+                break;
+              }
+              default:
+                edm::LogError("gainCalibPI::fillTheHistos") << d << " is not a Pixel DetId" << std::endl;
+                break;
+            }  // switch on subid
+          }    // row loop
+        }      // column loop
+      }        // detid loop
+    }          // filltheHistos
+  }            // namespace gainCalibPI
 
   constexpr char const* TypeName[2] = {"Gains", "Pedestals"};
-
-  using AvgMap = std::map<uint32_t, float>;
 
   /*******************************************************************
     1d histogram of SiPixelGainCalibration for Gains of 1 IOV 
@@ -94,7 +246,7 @@ namespace gainCalibHelper {
       canvas.Modified();
 
       // fill the histogram
-      fillTheHisto(payload, h1, myType);
+      gainCalibPI::fillTheHisto(payload, h1, myType);
 
       canvas.cd()->SetLogy();
       h1->SetTitle("");
@@ -134,58 +286,6 @@ namespace gainCalibHelper {
       canvas.SaveAs(fileName.c_str());
 
       return true;
-    }
-
-    // method to avoid filling the histogram twice
-    void fillTheHisto(const std::shared_ptr<PayloadType>& payload,
-                      std::shared_ptr<TH1F> h1,
-                      gainCalibPI::type theType) {
-      std::vector<uint32_t> detids;
-      payload->getDetIds(detids);
-
-      for (const auto& d : detids) {
-        auto range = payload->getRange(d);
-        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
-        int ncols = payload->getNCols(d);
-        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-        unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
-                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
-
-        //int nrows = 80 * 2 = 160;  // rows in x
-        //int ncols = 52 * 8 = 416;  // cols in y
-
-        auto rangeAndCol = payload->getRangeAndNCols(d);
-        bool isDeadColumn;
-        bool isNoisyColumn;
-
-        COUT << "NCOLS: " << payload->getNCols(d) << " " << rangeAndCol.second << " NROWS:" << nrows
-             << ", RANGES: " << rangeAndCol.first.second - rangeAndCol.first.first
-             << ", Ratio: " << float(rangeAndCol.first.second - rangeAndCol.first.first) / rangeAndCol.second
-             << std::endl;
-
-        float quid(-99999.);
-
-        for (int col_iter = 0; col_iter < ncols; col_iter++) {
-          for (int row_iter = 0; row_iter < nrows; row_iter++) {
-            switch (theType) {
-              case gainCalibPI::t_gain:
-                quid = payload->getGain(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              case gainCalibPI::t_pedestal:
-                quid = payload->getPed(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              default:
-                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
-                break;
-            }
-
-            h1->Fill(quid);
-          }
-        }
-      }
     }
 
   protected:
@@ -253,7 +353,7 @@ namespace gainCalibHelper {
       }
 
       // actually fill the histograms
-      fillTheHistos(payload, hBPix, hFPix);
+      fillTheHistos(payload, hBPix, hFPix, gainCalibPI::t_correlation);
 
       canvas.cd(1)->SetLogz();
       hBPix->SetTitle("");
@@ -305,50 +405,6 @@ namespace gainCalibHelper {
       canvas.SaveAs("out.root");
 #endif
       return true;
-    }
-
-    // method to avoid filling the histogram twice
-    void fillTheHistos(const std::shared_ptr<PayloadType>& payload,
-                       std::shared_ptr<TH2F> hBPix,
-                       std::shared_ptr<TH2F> hFPix) {
-      std::vector<uint32_t> detids;
-      payload->getDetIds(detids);
-
-      for (const auto& d : detids) {
-        int subid = DetId(d).subdetId();
-        auto range = payload->getRange(d);
-        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
-        int ncols = payload->getNCols(d);
-        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-        unsigned int nRowsForHLT = 1;
-        int nrows = std::max(payload->getNumberOfRowsToAverageOver() * nRocsInRow,
-                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
-
-        auto rangeAndCol = payload->getRangeAndNCols(d);
-        bool isDeadColumn;
-        bool isNoisyColumn;
-
-        for (int col_iter = 0; col_iter < ncols; col_iter++) {
-          for (int row_iter = 0; row_iter < nrows; row_iter++) {
-            float gain = payload->getGain(
-                col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-            float ped =
-                payload->getPed(col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-
-            switch (subid) {
-              case PixelSubdetector::PixelBarrel:
-                hBPix->Fill(gain, ped);
-                break;
-              case PixelSubdetector::PixelEndcap:
-                hFPix->Fill(gain, ped);
-                break;
-              default:
-                edm::LogError(label_) << d << " is not a Pixel DetId" << std::endl;
-                break;
-            }
-          }
-        }
-      }
     }
 
   protected:
@@ -500,65 +556,6 @@ namespace gainCalibHelper {
       return true;
     }
 
-    // method to avoid filling the histogram twice
-    void fillTheHistos(const std::shared_ptr<PayloadType>& payload,
-                       std::shared_ptr<TH1F> hBPix,
-                       std::shared_ptr<TH1F> hFPix,
-                       gainCalibPI::type theType) {
-      std::vector<uint32_t> detids;
-      payload->getDetIds(detids);
-
-      for (const auto& d : detids) {
-        int subid = DetId(d).subdetId();
-        auto range = payload->getRange(d);
-        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
-        int ncols = payload->getNCols(d);
-        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-        unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
-                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
-
-        //int nrows = 80 * 2;  // rows in x
-        //int ncols = 52 * 8;  // cols in y
-
-        auto rangeAndCol = payload->getRangeAndNCols(d);
-        bool isDeadColumn;
-        bool isNoisyColumn;
-
-        float quid(-99999.);
-
-        for (int col_iter = 0; col_iter < ncols; col_iter++) {
-          for (int row_iter = 0; row_iter < nrows; row_iter++) {
-            switch (theType) {
-              case gainCalibPI::t_gain:
-                quid = payload->getGain(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              case gainCalibPI::t_pedestal:
-                quid = payload->getPed(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              default:
-                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
-                break;
-            }
-
-            switch (subid) {
-              case PixelSubdetector::PixelBarrel:
-                hBPix->Fill(quid);
-                break;
-              case PixelSubdetector::PixelEndcap:
-                hFPix->Fill(quid);
-                break;
-              default:
-                edm::LogError(label_) << d << " is not a Pixel DetId" << std::endl;
-                break;
-            }
-          }
-        }
-      }
-    }
-
   protected:
     bool isForHLT_;
     std::string label_;
@@ -642,8 +639,8 @@ namespace gainCalibHelper {
       SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.05, 0.12, 0.12, 0.03);
       canvas.Modified();
 
-      fillTheHisto(first_payload, hfirst, myType);
-      fillTheHisto(last_payload, hlast, myType);
+      gainCalibPI::fillTheHisto(first_payload, hfirst, myType);
+      gainCalibPI::fillTheHisto(last_payload, hlast, myType);
 
       canvas.cd()->SetLogy();
       auto extrema = SiPixelPI::getExtrema(hfirst.get(), hlast.get());
@@ -710,52 +707,6 @@ namespace gainCalibHelper {
 #endif
 
       return true;
-    }
-
-    // method to avoid filling the histogram twice
-    void fillTheHisto(const std::shared_ptr<PayloadType>& payload,
-                      std::shared_ptr<TH1F> h1,
-                      gainCalibPI::type theType) {
-      std::vector<uint32_t> detids;
-      payload->getDetIds(detids);
-
-      for (const auto& d : detids) {
-        auto range = payload->getRange(d);
-        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
-        int ncols = payload->getNCols(d);
-        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-        unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
-                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
-
-        //int nrows = 80 * 2;  // rows in x
-        //int ncols = 52 * 8;  // cols in y
-
-        auto rangeAndCol = payload->getRangeAndNCols(d);
-        bool isDeadColumn;
-        bool isNoisyColumn;
-
-        float quid(-99999.);
-
-        for (int col_iter = 0; col_iter < ncols; col_iter++) {
-          for (int row_iter = 0; row_iter < nrows; row_iter++) {
-            switch (theType) {
-              case gainCalibPI::t_gain:
-                quid = payload->getGain(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              case gainCalibPI::t_pedestal:
-                quid = payload->getPed(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              default:
-                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
-                break;
-            }
-            h1->Fill(quid);
-          }
-        }
-      }
     }
 
   protected:
@@ -832,7 +783,7 @@ namespace gainCalibHelper {
       }
 
       std::map<uint32_t, float> GainCalibMap_;
-      fillThePerModuleMap(payload, GainCalibMap_, myType);
+      gainCalibPI::fillThePerModuleMap(payload, GainCalibMap_, myType);
 
       // hard-coded phase-I
       std::array<double, 4> minima = {{999., 999., 999., 999.}};
@@ -897,51 +848,6 @@ namespace gainCalibHelper {
       return true;
     }
 
-    void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload, AvgMap& map, gainCalibPI::type theType) {
-      std::vector<uint32_t> detids;
-      payload->getDetIds(detids);
-
-      for (const auto& d : detids) {
-        auto range = payload->getRange(d);
-        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
-        int ncols = payload->getNCols(d);
-        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-        unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
-                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
-
-        //int nrows = 80 * 2;  // rows in x
-        //int ncols = 52 * 8;  // cols in y
-
-        auto rangeAndCol = payload->getRangeAndNCols(d);
-        bool isDeadColumn;
-        bool isNoisyColumn;
-
-        float sumOfX(0.);
-        int nPixels(0);
-        for (int col_iter = 0; col_iter < ncols; col_iter++) {
-          for (int row_iter = 0; row_iter < nrows; row_iter++) {
-            nPixels++;
-            switch (theType) {
-              case gainCalibPI::t_gain:
-                sumOfX += payload->getGain(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              case gainCalibPI::t_pedestal:
-                sumOfX += payload->getPed(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              default:
-                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
-                break;
-            }  // switch on the type
-          }    // rows
-        }      // columns
-        // fill the return value map
-        map[d] = sumOfX / nPixels;
-      }  // loop on the detId
-    }
-
   private:
     TrackerTopology m_trackerTopo;
 
@@ -992,7 +898,7 @@ namespace gainCalibHelper {
       }
 
       std::map<uint32_t, float> GainCalibMap_;
-      fillThePerModuleMap(payload, GainCalibMap_, myType);
+      gainCalibPI::fillThePerModuleMap(payload, GainCalibMap_, myType);
 
       // hardcoded phase-I
       std::array<double, 2> minima = {{999., 999.}};
@@ -1056,51 +962,6 @@ namespace gainCalibHelper {
       return true;
     }
 
-    void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload, AvgMap& map, gainCalibPI::type theType) {
-      std::vector<uint32_t> detids;
-      payload->getDetIds(detids);
-
-      for (const auto& d : detids) {
-        auto range = payload->getRange(d);
-        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
-        int ncols = payload->getNCols(d);
-        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-        unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
-                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
-
-        //int nrows = 80 * 2;  // rows in x
-        //int ncols = 52 * 8;  // cols in y
-
-        auto rangeAndCol = payload->getRangeAndNCols(d);
-        bool isDeadColumn;
-        bool isNoisyColumn;
-
-        float sumOfX(0.);
-        int nPixels(0);
-        for (int col_iter = 0; col_iter < ncols; col_iter++) {
-          for (int row_iter = 0; row_iter < nrows; row_iter++) {
-            nPixels++;
-            switch (theType) {
-              case gainCalibPI::t_gain:
-                sumOfX += payload->getGain(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              case gainCalibPI::t_pedestal:
-                sumOfX += payload->getPed(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              default:
-                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
-                break;
-            }  // switch on the type
-          }    // rows
-        }      // columns
-        // fill the return value map
-        map[d] = sumOfX / nPixels;
-      }  // loop on the detId
-    }
-
   private:
     TrackerTopology m_trackerTopo;
 
@@ -1143,10 +1004,10 @@ namespace gainCalibHelper {
       std::shared_ptr<PayloadType> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
       std::map<uint32_t, float> f_GainsMap_;
-      fillThePerModuleMap(first_payload, f_GainsMap_, myType);
+      gainCalibPI::fillThePerModuleMap(first_payload, f_GainsMap_, myType);
 
       std::map<uint32_t, float> l_GainsMap_;
-      fillThePerModuleMap(last_payload, l_GainsMap_, myType);
+      gainCalibPI::fillThePerModuleMap(last_payload, l_GainsMap_, myType);
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -1347,48 +1208,6 @@ namespace gainCalibHelper {
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
       return true;
-    }
-
-    void fillThePerModuleMap(const std::shared_ptr<PayloadType>& payload, AvgMap& map, gainCalibPI::type theType) {
-      std::vector<uint32_t> detids;
-      payload->getDetIds(detids);
-
-      for (const auto& d : detids) {
-        auto range = payload->getRange(d);
-        int numberOfRowsToAverageOver = payload->getNumberOfRowsToAverageOver();
-        int ncols = payload->getNCols(d);
-        int nRocsInRow = (range.second - range.first) / ncols / numberOfRowsToAverageOver;
-        unsigned int nRowsForHLT = 1;
-        int nrows = std::max((payload->getNumberOfRowsToAverageOver() * nRocsInRow),
-                             nRowsForHLT);  // dirty trick to make it work for the HLT payload
-
-        auto rangeAndCol = payload->getRangeAndNCols(d);
-        bool isDeadColumn;
-        bool isNoisyColumn;
-
-        float sumOfX(0.);
-        int nPixels(0);
-        for (int col_iter = 0; col_iter < ncols; col_iter++) {
-          for (int row_iter = 0; row_iter < nrows; row_iter++) {
-            nPixels++;
-            switch (theType) {
-              case gainCalibPI::t_gain:
-                sumOfX += payload->getGain(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              case gainCalibPI::t_pedestal:
-                sumOfX += payload->getPed(
-                    col_iter, row_iter, rangeAndCol.first, rangeAndCol.second, isDeadColumn, isNoisyColumn);
-                break;
-              default:
-                edm::LogError(label_) << "Unrecognized type " << theType << std::endl;
-                break;
-            }  // switch on the type
-          }    // rows
-        }      // columns
-        // fill the return value map
-        map[d] = sumOfX / nPixels;
-      }  // loop on the detId
     }
 
   protected:
