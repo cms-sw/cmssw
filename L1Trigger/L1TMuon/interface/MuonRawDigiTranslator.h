@@ -51,9 +51,9 @@ namespace l1t {
     static void fillMuonStableQuantities(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
     static void fillMuonCoordinates2016(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
     static void fillMuonCoordinatesFrom2017(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
-    static void fillMuonCoordinatesRun3(
+    static void fillMuonQuantitiesRun3(
         Muon& mu, uint32_t raw_data_spare, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int muInBx);
-    static void fillIntermediateMuonCoordinatesRun3(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
+    static void fillIntermediateMuonQuantitiesRun3(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);
   };
 }  // namespace l1t
 

@@ -22,7 +22,7 @@ void l1t::MuonRawDigiTranslator::fillMuon(Muon& mu,
   } else if ((fed == 1402 && fw < 0x6000000) || (fed == 1404 && fw < 0x1120)) {
     fillMuonCoordinatesFrom2017(mu, raw_data_00_31, raw_data_32_63);
   } else {
-    fillMuonCoordinatesRun3(mu, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx);
+    fillMuonQuantitiesRun3(mu, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx);
   }
 
   // Fill pT, qual, iso, charge, index bits, coordinates at vtx
@@ -41,10 +41,10 @@ void l1t::MuonRawDigiTranslator::fillIntermediateMuon(Muon& mu,
   } else if (fw < 0x6000000) {
     fillMuonCoordinatesFrom2017(mu, raw_data_00_31, raw_data_32_63);
   } else {
-    fillIntermediateMuonCoordinatesRun3(mu, raw_data_00_31, raw_data_32_63);
+    fillIntermediateMuonQuantitiesRun3(mu, raw_data_00_31, raw_data_32_63);
   }
 
-  // Fill pT, qual, iso, charge, index bits, coordinates at vtx
+  // Fill pT, qual, iso, charge, index bits,  phys. coordinates at vtx & unconstrained pT
   fillMuonStableQuantities(mu, raw_data_00_31, raw_data_32_63);
 }
 
@@ -70,6 +70,9 @@ void l1t::MuonRawDigiTranslator::fillMuonStableQuantities(Muon& mu, uint32_t raw
   muAtVtx.setP4(vecAtVtx);
   mu.setEtaAtVtx(muAtVtx.eta());
   mu.setPhiAtVtx(muAtVtx.phi());
+
+  int hwPtUnconstrained{mu.hwPtUnconstrained()};
+  mu.setPtUnconstrained(hwPtUnconstrained == 0 ? 0 : (hwPtUnconstrained - 1) * 0.5);  // Don't want negative pT.
 }
 
 void l1t::MuonRawDigiTranslator::fillMuon(
@@ -112,7 +115,7 @@ void l1t::MuonRawDigiTranslator::fillMuonCoordinatesFrom2017(Muon& mu,
   mu.setHwDPhiExtra(dPhi);
 }
 
-void l1t::MuonRawDigiTranslator::fillMuonCoordinatesRun3(
+void l1t::MuonRawDigiTranslator::fillMuonQuantitiesRun3(
     Muon& mu, uint32_t raw_data_spare, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int muInBx) {
   // coordinates at the muon system
   // Where to find the raw eta depends on which muon we're looking at
@@ -141,12 +144,11 @@ void l1t::MuonRawDigiTranslator::fillMuonCoordinatesRun3(
   // displacement information
   mu.setHwDXY((raw_data_32_63 >> dxyShift_) & dxyMask_);
   mu.setHwPtUnconstrained((raw_data_32_63 >> ptUnconstrainedShift_) & ptUnconstrainedMask_);
-  mu.setPtUnconstrained((mu.hwPtUnconstrained() - 1) * 0.5);
 }
 
-void l1t::MuonRawDigiTranslator::fillIntermediateMuonCoordinatesRun3(Muon& mu,
-                                                                     uint32_t raw_data_00_31,
-                                                                     uint32_t raw_data_32_63) {
+void l1t::MuonRawDigiTranslator::fillIntermediateMuonQuantitiesRun3(Muon& mu,
+                                                                    uint32_t raw_data_00_31,
+                                                                    uint32_t raw_data_32_63) {
   fillMuonCoordinatesFrom2017(mu, raw_data_00_31, raw_data_32_63);
 
   // displacement information
