@@ -260,13 +260,13 @@ namespace cond {
       }
       if (m_session->iovSchema().tagLogTable().exists()) {
         std::stringstream msg;
-        if (m_data->iovBuffer.size())
+        if (!m_data->iovBuffer.empty())
           msg << m_data->iovBuffer.size() << " iov(s) inserted";
-        if (msg.str().size())
+        if (!msg.str().empty())
           msg << "; ";
         else
           msg << ".";
-        if (m_data->deleteBuffer.size())
+        if (!m_data->deleteBuffer.empty())
           msg << m_data->deleteBuffer.size() << " iov(s) deleted.";
         if (ret) {
           m_session->iovSchema().tagLogTable().insert(
