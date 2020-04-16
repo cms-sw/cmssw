@@ -832,10 +832,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsNoJetsNoEle = cms.EDProducer("CandPtrProjector", 
                                                 src = cms.InputTag("pfCandsNoJets"+postfix),
                                                 veto = copy.copy(electronCollection),
-                                                useDeltaRforFootprint = cms.bool(False),
                                                 )
             if not self.getvalue("onMiniAOD"):
-              pfCandsNoJetsNoEle.useDeltaRforFootprint = True
               pfCandsNoJetsNoEle.veto = "pfeGammaToCandidate:electrons"
             addToProcessAndTask("pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
@@ -844,10 +842,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsNoJetsNoEleNoMu = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEle"+postfix),
                                               veto = copy.copy(muonCollection),
-                                              useDeltaRforFootprint = cms.bool(False)
                                               )
-            if not self.getvalue("onMiniAOD"):
-              pfCandsNoJetsNoEleNoMu.useDeltaRforFootprint = True
             addToProcessAndTask("pfCandsNoJetsNoEleNoMu"+postfix, pfCandsNoJetsNoEleNoMu, process, task)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMu"+postfix)
 
@@ -863,10 +858,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCandsForUnclusteredUnc = cms.EDProducer("CandPtrProjector", 
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMuNoTau"+postfix),
                                               veto = copy.copy(photonCollection),
-                                              useDeltaRforFootprint = cms.bool(False),
                                               )
             if not self.getvalue("onMiniAOD"):
-              pfCandsForUnclusteredUnc.useDeltaRforFootprint = True
               pfCandsForUnclusteredUnc.veto = "pfeGammaToCandidate:photons"
             addToProcessAndTask("pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc, process, task)
             metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)

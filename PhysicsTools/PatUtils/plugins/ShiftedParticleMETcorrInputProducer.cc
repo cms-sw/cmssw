@@ -33,7 +33,7 @@ void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt
     float weight = 1.0;
     if (!weightsToken_.isUninitialized()) {
       edm::Ptr<reco::Candidate> particlePtr = originalParticles->ptrAt(i);
-      while (!weights->contains(particlePtr.id()) && (particlePtr->numberOfSourceCandidatePtrs() == 1))
+      while (!weights->contains(particlePtr.id()) && (particlePtr->numberOfSourceCandidatePtrs() > 0))
         particlePtr = particlePtr->sourceCandidatePtr(0);
       weight = (*weights)[particlePtr];
     }
