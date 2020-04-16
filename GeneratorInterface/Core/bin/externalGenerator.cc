@@ -132,9 +132,6 @@ int main(int argc, char* argv[]) {
     std::string const memoryName(vm[kMemoryNameOpt].as<std::string>());
     std::string const uniqueID(vm[kUniqueIDOpt].as<std::string>());
     {
-      //using namespace boost::interprocess;
-      //auto controlNameUnique = unique_name(memoryName, uniqueID);
-
       //This class is holding the lock
       WorkerChannel communicationChannel(memoryName, uniqueID);
 
