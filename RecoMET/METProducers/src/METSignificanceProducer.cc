@@ -29,7 +29,7 @@ namespace cms {
     rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
 
     edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
-    if (srcWeights.label() != "")
+    if (!srcWeights.label().empty())
       weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
 
     metSigAlgo_ = new metsig::METSignificance(iConfig);

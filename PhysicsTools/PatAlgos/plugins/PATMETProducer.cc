@@ -43,7 +43,7 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet& iConfig) : useUserData_(
   calculateMETSignificance_ = iConfig.getParameter<bool>("computeMETSignificance");
   if (calculateMETSignificance_) {
     edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
-    if (srcWeights.label() != "")
+    if (!srcWeights.label().empty())
       weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
     metSigAlgo_ = new metsig::METSignificance(iConfig);
     rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));

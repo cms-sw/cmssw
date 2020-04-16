@@ -24,7 +24,7 @@ namespace cms {
       if (srcWeights.label() == src_.label())
         edm::LogWarning("PFMETProducer")
             << "Particle and weights collection have the same label. You may be applying the same weights twice.\n";
-      if (srcWeights.label() != "")
+      if (!srcWeights.label().empty())
         weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
     }
     if (calculateSignificance_) {

@@ -6,7 +6,7 @@ PFCandMETcorrInputProducer::PFCandMETcorrInputProducer(const edm::ParameterSet& 
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
   token_ = consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("src"));
   edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
-  if (srcWeights.label() != "")
+  if (!srcWeights.label().empty())
     weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
 
   if (cfg.exists("binning")) {
