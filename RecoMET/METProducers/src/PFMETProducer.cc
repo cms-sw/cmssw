@@ -144,13 +144,13 @@ namespace cms {
     desc.add<edm::InputTag>("src", edm::InputTag("particleFlow"));
     desc.add<bool>("calculateSignificance", false);
     desc.add<double>("globalThreshold", 0.);
+    desc.add<std::string>("alias", "pfMet");
     desc.addOptional<edm::InputTag>("srcJets");
     desc.addOptional<std::vector<edm::InputTag>>("srcLeptons");
     desc.addOptional<std::string>("srcJetSF");
     desc.addOptional<std::string>("srcJetResPt");
     desc.addOptional<std::string>("srcJetResPhi");
     desc.addOptional<edm::InputTag>("srcRho");
-    desc.addOptional<std::string>("alias");
     edm::ParameterSetDescription params;
     params.setAllowAnything();
     desc.addOptional<edm::ParameterSetDescription>("parameters", params);
