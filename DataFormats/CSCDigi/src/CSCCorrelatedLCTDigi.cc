@@ -113,9 +113,9 @@ uint16_t CSCCorrelatedLCTDigi::getCLCTPattern() const { return ((version_ == Ver
 
 uint16_t CSCCorrelatedLCTDigi::getHMT() const { return ((version_ == Version::Run3) ? hmt : std::numeric_limits<uint16_t>::max()); }
 
-void CSCCorrelatedLCTDigi::setHMT(const uint16_t h) { version_ == Version::Run3 ? hmt = h : std::numeric_limits<uint16_t>::max(); }
+void CSCCorrelatedLCTDigi::setHMT(const uint16_t h) { hmt = (version_ == Version::Run3) ? h : std::numeric_limits<uint16_t>::max(); }
 
-void CSCCorrelatedLCTDigi::setRun3(bool isRun3) { isRun3 ? version_ = Version::Run3 : Version::Legacy; }
+void CSCCorrelatedLCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }
 
 /// Comparison
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi& rhs) const {

@@ -54,9 +54,9 @@ void CSCALCTDigi::clear() {
 
 uint16_t CSCALCTDigi::getHMT() const { return ((version_ == Version::Run3) ? hmt_ : std::numeric_limits<uint16_t>::max()); }
 
-void CSCALCTDigi::setHMT(const uint16_t hmt) { version_ == Version::Run3 ? hmt_ = hmt : std::numeric_limits<uint16_t>::max(); }
+void CSCALCTDigi::setHMT(const uint16_t h) { hmt_ = (version_ == Version::Run3) ? h : std::numeric_limits<uint16_t>::max(); }
 
-void CSCALCTDigi::setRun3(bool isRun3) { isRun3 ? version_ = Version::Run3 : Version::Legacy; }
+void CSCALCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }
 
 
 bool CSCALCTDigi::operator>(const CSCALCTDigi& rhs) const {

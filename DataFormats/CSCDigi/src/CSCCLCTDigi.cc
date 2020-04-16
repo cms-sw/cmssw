@@ -121,6 +121,8 @@ void CSCCLCTDigi::setEightStrip(const bool eightStrip) {
   strip_ |= eightStrip << kEightStripShift;
 }
 
+void CSCCLCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }
+
 bool CSCCLCTDigi::operator>(const CSCCLCTDigi& rhs) const {
   // Several versions of CLCT sorting criteria were used before 2008.
   // They are available in CMSSW versions prior to 3_1_0; here we only keep
