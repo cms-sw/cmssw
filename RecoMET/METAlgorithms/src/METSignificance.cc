@@ -65,13 +65,10 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
 
   // subtract leptons out of sumPtUnclustered
   for (const auto& lep_i : leptons) {
-    for (const auto& lep : *lep_i) {
-      if (lep.pt() > 10) {
-        for (unsigned int n = 0; n < lep.numberOfSourceCandidatePtrs(); n++) {
-          if (lep.sourceCandidatePtr(n).isNonnull() and lep.sourceCandidatePtr(n).isAvailable()) {
-            footprint.insert(lep.sourceCandidatePtr(n));
-          }
-        }
+    for (const auto& lep : lep_i->ptrs()) {
+      if (lep->pt() > 10) {
+        for (unsigned int n = 0; n < lep->numberOfSourceCandidatePtrs(); n++)
+          footprint.insert(lep->sourceCandidatePtr(n));
       }
     }
   }
@@ -81,9 +78,7 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
     if (!cleanJet(jet, leptons))
       continue;
     for (unsigned int n = 0; n < jet.numberOfSourceCandidatePtrs(); n++) {
-      if (jet.sourceCandidatePtr(n).isNonnull() and jet.sourceCandidatePtr(n).isAvailable()) {
-        footprint.insert(jet.sourceCandidatePtr(n));
-      }
+      footprint.insert(jet.sourceCandidatePtr(n));
     }
   }
 
@@ -94,7 +89,7 @@ reco::METCovMatrix metsig::METSignificance::getCovariance(const edm::View<reco::
     if (footprint.find(pfCandidates->ptrAt(i)) == footprint.end()) {
       //dP4 recovery
       for (const auto& it : footprint) {
-        if (reco::deltaR2(it->p4(), (*pfCandidates)[i].p4()) < 0.00000025) {
+        if ((it.isNonnull()) && (it.isAvailable()) && (reco::deltaR2(it->p4(), (*pfCandidates)[i].p4()) < 0.00000025)) {
           cleancand = false;
           break;
         }
