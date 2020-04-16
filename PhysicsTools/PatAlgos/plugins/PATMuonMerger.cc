@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-
 namespace pat {
   typedef edm::Ptr<pat::PackedCandidate> PackedCandidatePtr;
 }
@@ -38,8 +37,6 @@ private:
   edm::EDGetTokenT<std::vector<pat::Muon>> muonToken_;
   edm::EDGetTokenT<std::vector<pat::PackedCandidate>> pfCandToken_;
   edm::EDGetTokenT<std::vector<pat::PackedCandidate>> lostTrackToken_;
-  
-
 };
 
 PATMuonMerger::PATMuonMerger(const edm::ParameterSet& iConfig)
@@ -55,9 +52,7 @@ PATMuonMerger::PATMuonMerger(const edm::ParameterSet& iConfig)
   produces<std::vector<pat::Muon>>();
 }
 
-
-void
-PATMuonMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PATMuonMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // mergedMuons
   edm::ParameterSetDescription desc;
   desc.add<std::string>("muonCut", "");
@@ -98,12 +93,13 @@ void PATMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     for (auto& muon : *muons) {
       for (unsigned int i = 0, n = muon.numberOfSourceCandidatePtrs(); i < n; ++i) {
         reco::CandidatePtr ptr = muon.sourceCandidatePtr(i);
-        if (ptr.isNonnull() && ptr == pfCandPtr){
+        if (ptr.isNonnull() && ptr == pfCandPtr) {
           isPFMuon = true;
           break;
         }
       }
-      if (isPFMuon) break;
+      if (isPFMuon)
+        break;
     }
     if (isPFMuon) {
       continue;
