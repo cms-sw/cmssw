@@ -63,7 +63,7 @@ void HGCPassive::update(const BeginOfRun* run) {
     unsigned int k(0);
     for (const auto& lvs : mapLV_) {
       edm::LogVerbatim("HGCSim") << "Entry[" << k << "] " << lvs.first << ": (" << (lvs.second).first << ", "
-				 << (lvs.second).second << ")";
+                                 << (lvs.second).second << ")";
       ++k;
     }
 #endif
@@ -97,14 +97,14 @@ void HGCPassive::update(const G4Step* aStep) {
           (aStep->IsLastStepInVolume())) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << plv->GetName() << " F|L Step " << aStep->IsFirstStepInVolume() << ":"
-				   << aStep->IsLastStepInVolume() << " Position"
-				   << aStep->GetPreStepPoint()->GetPosition() << " Track "
-				   << aStep->GetTrack()->GetDefinition()->GetParticleName() << " at"
-				   << aStep->GetTrack()->GetPosition() << " Volume "
-				   << aStep->GetTrack()->GetVolume() << ":" << aStep->GetTrack()->GetNextVolume()
-				   << " Status " << aStep->GetTrack()->GetTrackStatus() << " KE "
-				   << aStep->GetTrack()->GetKineticEnergy() << " Deposit "
-				   << aStep->GetTotalEnergyDeposit() << " Map " << (it != mapLV_.end());
+                                   << aStep->IsLastStepInVolume() << " Position"
+                                   << aStep->GetPreStepPoint()->GetPosition() << " Track "
+                                   << aStep->GetTrack()->GetDefinition()->GetParticleName() << " at"
+                                   << aStep->GetTrack()->GetPosition() << " Volume " << aStep->GetTrack()->GetVolume()
+                                   << ":" << aStep->GetTrack()->GetNextVolume() << " Status "
+                                   << aStep->GetTrack()->GetTrackStatus() << " KE "
+                                   << aStep->GetTrack()->GetKineticEnergy() << " Deposit "
+                                   << aStep->GetTotalEnergyDeposit() << " Map " << (it != mapLV_.end());
 #endif
         energy += (aStep->GetPreStepPoint()->GetKineticEnergy() / CLHEP::GeV);
       } else {
@@ -131,8 +131,8 @@ void HGCPassive::update(const G4Step* aStep) {
         G4LogicalVolume* plv = touchable->GetVolume(i)->GetLogicalVolume();
         auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCSim") << "Level: " << level << ":" << i << " " << plv->GetName()
-				   << " flag in the List " << (it != mapLV_.end());
+        edm::LogVerbatim("HGCSim") << "Level: " << level << ":" << i << " " << plv->GetName() << " flag in the List "
+                                   << (it != mapLV_.end());
 #endif
         if (it != mapLV_.end()) {
           unsigned int copy =
@@ -210,8 +210,8 @@ void HGCPassive::storeInfo(const HGCPassive::volumeIterator it,
 #ifdef EDM_ML_DEBUG
   itr = store_.find(key);
   edm::LogVerbatim("HGCSim") << "HGCPassive: Element " << (it->second).first << ":" << (it->second).second << ":"
-			     << copy << " T " << (itr->second)[0] << " E " << (itr->second)[1] << ":"
-			     << (itr->second)[2];
+                             << copy << " T " << (itr->second)[0] << " E " << (itr->second)[1] << ":"
+                             << (itr->second)[2];
 #endif
 }
 
