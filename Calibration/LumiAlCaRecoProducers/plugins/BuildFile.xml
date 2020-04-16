@@ -29,4 +29,3 @@
 <library   file="AlcaPCCIntegrator.cc" name="AlcaPCCIntegrator">
   <flags   EDM_PLUGIN="1"/>
 </library>
-
