@@ -11,15 +11,20 @@
 #include "DataFormats/Common/interface/getRef.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+
 namespace pat {
   typedef edm::Ptr<pat::PackedCandidate> PackedCandidatePtr;
 }
 
-class PatMuonMerger : public edm::stream::EDProducer<> {
+class PATMuonMerger : public edm::stream::EDProducer<> {
 public:
-  explicit PatMuonMerger(const edm::ParameterSet& iConfig);
-  ~PatMuonMerger() override {}
+  explicit PATMuonMerger(const edm::ParameterSet& iConfig);
+  ~PATMuonMerger() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
@@ -33,24 +38,38 @@ private:
   edm::EDGetTokenT<std::vector<pat::Muon>> muonToken_;
   edm::EDGetTokenT<std::vector<pat::PackedCandidate>> pfCandToken_;
   edm::EDGetTokenT<std::vector<pat::PackedCandidate>> lostTrackToken_;
+  
+
 };
 
-PatMuonMerger::PatMuonMerger(const edm::ParameterSet& iConfig)
+PATMuonMerger::PATMuonMerger(const edm::ParameterSet& iConfig)
     : muons_(iConfig.getParameter<edm::InputTag>("muons")),
-      muonsCut_(iConfig.existsAs<std::string>("muonCut") ? iConfig.getParameter<std::string>("muonCut") : ""),
+      muonsCut_(iConfig.getParameter<std::string>("muonCut")),
       pfCandidate_(iConfig.getParameter<edm::InputTag>("pfCandidates")),
-      pfCandidateCut_(
-          iConfig.existsAs<std::string>("pfCandidatesCut") ? iConfig.getParameter<std::string>("pfCandidatesCut") : ""),
+      pfCandidateCut_(iConfig.getParameter<std::string>("pfCandidatesCut")),
       lostTrack_(iConfig.getParameter<edm::InputTag>("otherTracks")),
-      lostTrackCut_(iConfig.existsAs<std::string>("lostTrackCut") ? iConfig.getParameter<std::string>("lostTrackCut")
-                                                                  : "") {
+      lostTrackCut_(iConfig.getParameter<std::string>("lostTrackCut")) {
   muonToken_ = consumes<std::vector<pat::Muon>>(muons_);
   pfCandToken_ = consumes<std::vector<pat::PackedCandidate>>(pfCandidate_);
   lostTrackToken_ = consumes<std::vector<pat::PackedCandidate>>(lostTrack_);
   produces<std::vector<pat::Muon>>();
 }
 
-void PatMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+void
+PATMuonMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // mergedMuons
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("muonCut", "pt>15 && abs(eta)<2.4");
+  desc.add<edm::InputTag>("otherTracks", edm::InputTag("lostTracks"));
+  desc.add<edm::InputTag>("pfCandidates", edm::InputTag("packedPFCandidates"));
+  desc.add<std::string>("pfCandidatesCut", "pt>15 && abs(eta)<2.4");
+  desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
+  desc.add<std::string>("lostTrackCut", "pt>15 && abs(eta)<2.4");
+  descriptions.add("mergedMuons", desc);
+}
+
+void PATMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<pat::Muon>> muons;
   edm::Handle<std::vector<pat::PackedCandidate>> pfCands;
   edm::Handle<std::vector<pat::PackedCandidate>> lostTracks;
@@ -79,9 +98,12 @@ void PatMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     for (auto& muon : *muons) {
       for (unsigned int i = 0, n = muon.numberOfSourceCandidatePtrs(); i < n; ++i) {
         reco::CandidatePtr ptr = muon.sourceCandidatePtr(i);
-        if (ptr.isNonnull() && ptr == pfCandPtr)
+        if (ptr.isNonnull() && ptr == pfCandPtr){
           isPFMuon = true;
+	  break;
+	}
       }
+      if (isPFMuon) break;
     }
     if (isPFMuon) {
       continue;
@@ -99,7 +121,7 @@ void PatMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (auto& lostTrack : *lostTracks) {
     if (!lostTrackCut_(lostTrack))
       continue;
-    if (abs(lostTrack.pdgId()) == 13)
+    if (std::abs(lostTrack.pdgId()) == 13)
       continue;
 
     // now make a reco::Muon and recast to pat::Muon
@@ -113,4 +135,4 @@ void PatMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(PatMuonMerger);
+DEFINE_FWK_MODULE(PATMuonMerger);
