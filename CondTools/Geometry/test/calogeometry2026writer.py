@@ -4,6 +4,8 @@ process = cms.Process("CaloGeometryWriter")
 process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 process.load('Geometry.CaloEventSetup.CaloGeometry2026DBWriter_cfi')
+process.load('CondTools.Geometry.HcalParametersWriter_cff')
+
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
                             timetype = cms.string('runnumber'),
@@ -16,8 +18,7 @@ process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder",
                                             EcalP = cms.untracked.bool(False),
                                             HGCal = cms.untracked.bool(True))
 
-process.HcalParametersWriter = cms.EDAnalyzer("HcalParametersDBBuilder")
-
+process.HcalParametersWriter.fromDD4Hep = cms.bool(False)
 process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
