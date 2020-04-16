@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-mergedMuons = cms.EDProducer("PatMuonMerger",
+mergedMuons = cms.EDProducer("PATMuonMerger",
                              muons     = cms.InputTag("slimmedMuons"), 
                              pfCandidates=cms.InputTag("packedPFCandidates"),
                              otherTracks = cms.InputTag("lostTracks"),
