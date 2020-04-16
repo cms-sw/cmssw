@@ -101,7 +101,7 @@ void PATMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if (ptr.isNonnull() && ptr == pfCandPtr){
           isPFMuon = true;
           break;
-	}
+        }
       }
       if (isPFMuon) break;
     }
