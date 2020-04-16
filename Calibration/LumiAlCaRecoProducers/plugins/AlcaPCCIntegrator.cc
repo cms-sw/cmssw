@@ -53,10 +53,8 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 AlcaPCCIntegrator::AlcaPCCIntegrator(const edm::ParameterSet& iConfig) {
-  pccSource_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters")
-                           .getParameter<std::string>("inputPccLabel");
-  auto trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters")
-                    .getUntrackedParameter<std::string>("trigstring","alcaPCC");
+  pccSource_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getParameter<std::string>("inputPccLabel");
+  auto trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getUntrackedParameter<std::string>("trigstring","alcaPCC");
  
   prodInst_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getParameter<std::string>("ProdInst");
 	 
