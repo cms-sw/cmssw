@@ -616,7 +616,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "Txy" in correctionLevel:
             self.tuneTxyParameters(process, corScheme, postfix)
             getattr(process, "patPFMetTxyCorr"+postfix).srcPFlow = self._parameters["pfCandCollection"].value
-            if self._parameters["Puppi"].value:
+            if self.getvalue("Puppi"):
                 getattr(process, "patPFMetTxyCorr"+postfix).srcWeights = "puppiNoLep"
 
 
@@ -1193,7 +1193,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #MM: FIXME MVA
             #if  "MVA" in metModName and identifier == "Jet": #dummy fix
             #    modName = "uncorrectedshiftedPat"+preId+identifier+varType+mod+postfix
-            if (identifier=="Photon" or identifier=="Unclustered") and self._parameters["Puppi"].value:
+            if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
                 shiftedCollModules[mod].srcWeights = "puppiNoLep"
             if not hasattr(process, modName):
                 addToProcessAndTask(modName, shiftedCollModules[mod], process, task)
@@ -1206,7 +1206,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if "PF" in metModName:
                 #create the MET shifts and add them to the sequence
                 shiftedMETCorrModule = self.createShiftedMETModule(process, objectCollection, modName)
-                if (identifier=="Photon" or identifier=="Unclustered") and self._parameters["Puppi"].value:
+                if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
                    shiftedMETCorrModule.srcWeights = "puppiNoLep"
                 modMETShiftName = "shiftedPatMETCorr"+preId+identifier+varType+mod+postfix
                 if not hasattr(process, modMETShiftName):
@@ -1465,7 +1465,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             addToProcessAndTask("pfMet"+postfix, pfMet.clone(), process, task)
             getattr(process, "pfMet"+postfix).src = pfCandCollection
             getattr(process, "pfMet"+postfix).calculateSignificance = False
-            if self._parameters["Puppi"].value:
+            if self.getvalue("Puppi"):
                 getattr(process, "pfMet"+postfix).applyWeight = True
                 getattr(process, "pfMet"+postfix).srcWeights = "puppiNoLep"
             patMetModuleSequence += getattr(process, "pfMet"+postfix)
