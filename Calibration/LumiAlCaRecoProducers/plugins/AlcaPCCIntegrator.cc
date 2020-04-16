@@ -3,7 +3,7 @@ class:   AlcaPCCIntegrator.cc
 
 
 
-authors: Attila Radl (attila.radl@cern.ch) 
+authors: Sam Higginbotham (shigginb@cern.ch), Chris Palmer (capalmer@cern.ch), Attila Radl (attila.radl@cern.ch) 
 
 ________________________________________________________________**/
 
