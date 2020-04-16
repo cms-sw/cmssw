@@ -34,6 +34,20 @@ namespace reco {
 
     void eventCounter(unsigned int bxID) { m_events.at(bxID - 1)++; }
 
+    void Add(reco::PixelClusterCountsInEvent pccInEvent) {
+      std::vector<int> countsInEvent = pccInEvent.counts();
+      std::vector<int> modIDInEvent = pccInEvent.modID();
+      int bxIDInEvent = pccInEvent.bxID();
+      for (unsigned int i = 0; i < modIDInEvent.size(); i++) {
+        size_t modIndex = std::distance(m_ModID.begin(), std::find(m_ModID.begin(), m_ModID.end(), modIDInEvent.at(i)));
+        if (modIndex == m_ModID.size()) {
+          m_ModID.push_back(modIDInEvent.at(i));
+          m_counts.resize(m_counts.size() + LumiConstants::numBX, 0);
+        }
+        m_counts.at(LumiConstants::numBX * modIndex + bxIDInEvent - 1) += countsInEvent.at(i);
+      }
+    }
+
     std::vector<int> const& readCounts() const { return (m_counts); }
     std::vector<int> const& readEvents() const { return (m_events); }
     std::vector<int> const& readModID() const { return (m_ModID); }
