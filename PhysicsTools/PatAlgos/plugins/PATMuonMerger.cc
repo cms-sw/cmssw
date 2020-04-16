@@ -60,13 +60,13 @@ void
 PATMuonMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // mergedMuons
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("muonCut", "pt>15 && abs(eta)<2.4");
+  desc.add<std::string>("muonCut", "");
   desc.add<edm::InputTag>("otherTracks", edm::InputTag("lostTracks"));
   desc.add<edm::InputTag>("pfCandidates", edm::InputTag("packedPFCandidates"));
-  desc.add<std::string>("pfCandidatesCut", "pt>15 && abs(eta)<2.4");
+  desc.add<std::string>("pfCandidatesCut", "");
   desc.add<edm::InputTag>("muons", edm::InputTag("slimmedMuons"));
-  desc.add<std::string>("lostTrackCut", "pt>15 && abs(eta)<2.4");
-  descriptions.add("mergedMuons", desc);
+  desc.add<std::string>("lostTrackCut", "");
+  descriptions.add("mergedMuonsNoCuts", desc);
 }
 
 void PATMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -100,7 +100,7 @@ void PATMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         reco::CandidatePtr ptr = muon.sourceCandidatePtr(i);
         if (ptr.isNonnull() && ptr == pfCandPtr){
           isPFMuon = true;
-	  break;
+          break;
 	}
       }
       if (isPFMuon) break;
