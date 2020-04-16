@@ -23,8 +23,6 @@ namespace edm {
     using FromFiles::fileNames;
     using FromFiles::logicalFileNames;
 
-    bool noFiles() const override { return fileNames().empty(); }
-
     static void fillDescription(ParameterSetDescription& desc);
 
   protected:

@@ -424,8 +424,8 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_openFiles(std::vector<TFile*>()),
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
-
-  if (m_catalog.fileNames().empty()) {
+  
+  if (m_catalog.fileNames(0).empty()) {
     m_nextItemType = edm::InputSource::IsStop;
   } else {
     m_treeReaders[kIntIndex].reset(new TreeSimpleReader<Long64_t>(MonitorElementData::Kind::INT, m_rescope));

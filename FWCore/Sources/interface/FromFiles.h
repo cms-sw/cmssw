@@ -19,7 +19,7 @@ namespace edm {
     ~FromFiles();
 
     std::vector<std::string> const& logicalFileNames() const { return catalog_.logicalFileNames(); }
-    std::vector<std::string> const& fileNames() const { return catalog_.fileNames(); }
+    std::vector<std::string> fileNames(unsigned iCatalog) const { return catalog_.fileNames(iCatalog); }
     InputFileCatalog& catalog() { return catalog_; }
 
     static void fillDescription(ParameterSetDescription& desc);

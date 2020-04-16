@@ -34,12 +34,7 @@ namespace edm {
         duplicateChecker_(new DuplicateChecker(pset)),
         usingGoToEvent_(false),
         enablePrefetching_(false),
-        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")),
-        useMultipleDataCatalogs_(false) {
-    if (useMultipleDataCatalogs_ && !catalog.hasMultipleDataCatalogs()) {
-      LogWarning("RootPrimaryFileSequence") << "Multiple data catalogs not available, use default settings.\n";
-      useMultipleDataCatalogs_ = false;
-    }
+        enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
@@ -57,7 +52,7 @@ namespace edm {
 
     // Prestage the files
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
-      StorageFactory::get()->stagein(fileName());
+      StorageFactory::get()->stagein(fileNames()[0]);
     }
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
@@ -112,15 +107,12 @@ namespace edm {
     // If we can't delete all of it, then we can delete the parts we do not need.
     bool deleteIndexIntoFile = !usingGoToEvent_ && !(duplicateChecker_ && duplicateChecker_->checkingAllFiles() &&
                                                      !duplicateChecker_->checkDisabled());
-    if (!useMultipleDataCatalogs_)
-      initTheFile(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
-    else
-      initTheFileDataCatalogs(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
+    initTheFile(skipBadFiles, deleteIndexIntoFile, &input_, "primaryFiles", InputType::Primary);
   }
 
   RootPrimaryFileSequence::RootFileSharedPtr RootPrimaryFileSequence::makeRootFile(std::shared_ptr<InputFile> filePtr) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(fileName(),
+    return std::make_shared<RootFile>(fileNames()[0],
                                       input_.processConfiguration(),
                                       logicalFileName(),
                                       filePtr,
@@ -164,11 +156,12 @@ namespace edm {
     if (not rootFile()) {
       return false;
     }
+    
     // make sure the new product registry is compatible with the main one
     std::string mergeInfo =
-        input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileName(), branchesMustMatch_);
+       input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
     if (!mergeInfo.empty()) {
-      throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::nextFile()") << mergeInfo;
+       throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::nextFile()") << mergeInfo;
     }
     return true;
   }
@@ -184,7 +177,7 @@ namespace edm {
     if (rootFile()) {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo =
-          input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileName(), branchesMustMatch_);
+          input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
       if (!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::previousEvent()") << mergeInfo;
       }

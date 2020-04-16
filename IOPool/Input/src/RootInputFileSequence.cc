@@ -177,10 +177,13 @@ namespace edm {
     }
     return true;
   }
-
+ 
+  //Initiate the file using multiple data catalogs
   void RootInputFileSequence::initTheFile(
       bool skipBadFiles, bool deleteIndexIntoFile, InputSource* input, char const* inputTypeName, InputType inputType) {
+    //std::cout << "\n Use initTheFile" << std::endl;
     // We are really going to close the open file.
+
     if (fileIterLastOpened_ != fileIterEnd_) {
       size_t currentIndexIntoFile = fileIterLastOpened_ - fileIterBegin_;
       if (deleteIndexIntoFile) {
@@ -199,12 +202,12 @@ namespace edm {
     }
 
     // Check if the logical file name was found.
-    if (fileName().empty()) {
+    if (fileNames()[0].empty()) {
       // LFN not found in catalog.
-      InputFile::reportSkippedFile(fileName(), logicalFileName());
+      InputFile::reportSkippedFile(fileNames()[0], logicalFileName());
       if (!skipBadFiles) {
         throw cms::Exception("LogicalFileNameNotFound", "RootFileSequenceBase::initTheFile()\n")
-            << "Logical file name '" << logicalFileName() << "' was not found in the file catalog.\n"
+            << "Physical file name '" << logicalFileName() << "' was not found in the file catalog.\n"
             << "If you wanted a local file, you forgot the 'file:' prefix\n"
             << "before the file name in your configuration file.\n";
       }
@@ -213,130 +216,7 @@ namespace edm {
       return;
     }
 
-    lfn_ = logicalFileName().empty() ? fileName() : logicalFileName();
-    lfnHash_ = std::hash<std::string>()(lfn_);
-    usedFallback_ = false;
-
-    // Determine whether we have a fallback URL specified; if so, prepare it;
-    // Only valid if it is non-empty and differs from the original filename.
-    bool hasFallbackUrl = !fallbackFileName().empty() && fallbackFileName() != fileName();
-
-    std::shared_ptr<InputFile> filePtr;
-    std::list<std::string> originalInfo;
-    try {
-      std::unique_ptr<InputSource::FileOpenSentry> sentry(
-          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
-      std::unique_ptr<char[]> name(gSystem->ExpandPathName(fileName().c_str()));
-      ;
-      filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
-    } catch (cms::Exception const& e) {
-      if (!skipBadFiles) {
-        if (hasFallbackUrl) {
-          std::ostringstream out;
-          out << e.explainSelf();
-
-          std::unique_ptr<char[]> name(gSystem->ExpandPathName(fallbackFileName().c_str()));
-          std::string pfn(name.get());
-          InputFile::reportFallbackAttempt(pfn, logicalFileName(), out.str());
-          originalInfo = e.additionalInfo();
-        } else {
-          InputFile::reportSkippedFile(fileName(), logicalFileName());
-          Exception ex(errors::FileOpenError, "", e);
-          ex.addContext("Calling RootFileSequenceBase::initTheFile()");
-          std::ostringstream out;
-          out << "Input file " << fileName() << " could not be opened.";
-          ex.addAdditionalInfo(out.str());
-          throw ex;
-        }
-      }
-    }
-    if (!filePtr && (hasFallbackUrl)) {
-      try {
-        usedFallback_ = true;
-        std::unique_ptr<InputSource::FileOpenSentry> sentry(
-            input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
-        std::unique_ptr<char[]> fallbackFullName(gSystem->ExpandPathName(fallbackFileName().c_str()));
-        filePtr.reset(new InputFile(fallbackFullName.get(), "  Fallback request to file ", inputType));
-      } catch (cms::Exception const& e) {
-        if (!skipBadFiles) {
-          InputFile::reportSkippedFile(fileName(), logicalFileName());
-          Exception ex(errors::FallbackFileOpenError, "", e);
-          ex.addContext("Calling RootFileSequenceBase::initTheFile()");
-          std::ostringstream out;
-          out << "Input file " << fileName() << " could not be opened.\n";
-          out << "Fallback Input file " << fallbackFileName() << " also could not be opened.";
-          if (!originalInfo.empty()) {
-            out << std::endl << "Original exception info is above; fallback exception info is below.";
-            ex.addAdditionalInfo(out.str());
-            for (auto const& s : originalInfo) {
-              ex.addAdditionalInfo(s);
-            }
-          } else {
-            ex.addAdditionalInfo(out.str());
-          }
-          throw ex;
-        }
-      }
-    }
-    if (filePtr) {
-      size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
-      rootFile_ = makeRootFile(filePtr);
-      if (input) {
-        rootFile_->setSignals(&(input->preEventReadFromSourceSignal_), &(input->postEventReadFromSourceSignal_));
-      }
-      assert(rootFile_);
-      fileIterLastOpened_ = fileIter_;
-      setIndexIntoFile(currentIndexIntoFile);
-      rootFile_->reportOpened(inputTypeName);
-    } else {
-      InputFile::reportSkippedFile(fileName(), logicalFileName());
-      if (!skipBadFiles) {
-        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFile(): Input file " << fileName()
-                                               << " was not found or could not be opened.\n";
-      }
-      LogWarning("") << "Input file: " << fileName() << " was not found or could not be opened, and will be skipped.\n";
-    }
-  }
-
-  //Initiate the file using multiple data catalogs
-  void RootInputFileSequence::initTheFileDataCatalogs(
-      bool skipBadFiles, bool deleteIndexIntoFile, InputSource* input, char const* inputTypeName, InputType inputType) {
-    //std::cout << "\n Use initTheFileDataCatalogs" << std::endl;
-    // We are really going to close the open file.
-
-    if (fileIterLastOpened_ != fileIterEnd_) {
-      size_t currentIndexIntoFile = fileIterLastOpened_ - fileIterBegin_;
-      if (deleteIndexIntoFile) {
-        indexesIntoFiles_[currentIndexIntoFile].reset();
-      } else {
-        if (indexesIntoFiles_[currentIndexIntoFile])
-          indexesIntoFiles_[currentIndexIntoFile]->inputFileClosed();
-      }
-      fileIterLastOpened_ = fileIterEnd_;
-    }
-    closeFile_();
-
-    if (noMoreFiles()) {
-      // No files specified
-      return;
-    }
-
-    // Check if the logical file name was found.
-    if (fileName().empty()) {
-      // LFN not found in catalog.
-      InputFile::reportSkippedFile(fileName(), logicalFileName());
-      if (!skipBadFiles) {
-        throw cms::Exception("LogicalFileNameNotFound", "RootFileSequenceBase::initTheFileDataCatalogs()\n")
-            << "Logical file name '" << logicalFileName() << "' was not found in the file catalog.\n"
-            << "If you wanted a local file, you forgot the 'file:' prefix\n"
-            << "before the file name in your configuration file.\n";
-      }
-      LogWarning("") << "Input logical file: " << logicalFileName()
-                     << " was not found in the catalog, and will be skipped.\n";
-      return;
-    }
-
-    lfn_ = logicalFileName().empty() ? fileName() : logicalFileName();
+    lfn_ = logicalFileName().empty() ? fileNames()[0] : logicalFileName();
     lfnHash_ = std::hash<std::string>()(lfn_);
 
     std::shared_ptr<InputFile> filePtr;
@@ -354,17 +234,18 @@ namespace edm {
         break;
       } catch (cms::Exception const& e) {
         if (!skipBadFiles) {
-          if (std::next(it) == fNames.end())
-            LogWarning("RootInputFileSequence") << "Fail to open the file after trying all data catalogs.\n";
-          continue;
-        } else {
-          InputFile::reportSkippedFile((*it), logicalFileName());
-          Exception ex(errors::FileOpenError, "", e);
-          ex.addContext("Calling RootFileSequenceBase::initTheFileDataCatalogs()");
-          std::ostringstream out;
-          out << "Input file " << (*it) << " could not be opened.";
-          ex.addAdditionalInfo(out.str());
-          throw ex;
+          if (std::next(it) == fNames.end()) {
+            InputFile::reportSkippedFile((*it), logicalFileName());
+            Exception ex(errors::FileOpenError, "", e);
+            ex.addContext("Calling RootFileSequenceBase::initTheFile()");
+            std::ostringstream out;
+            out << "Input file " << (*it) << " could not be opened.";
+            ex.addAdditionalInfo(out.str());
+            throw ex;
+          }
+          else {
+            LogWarning("RootInputFileSequence") << "Fail to open the file try next data catalog.\n"; 
+          }
         }
       }
     }
@@ -383,7 +264,7 @@ namespace edm {
       std::string fName = !fNames.empty() ? fNames[0] : "";
       InputFile::reportSkippedFile(fName, logicalFileName());  //0 cause exception?
       if (!skipBadFiles) {
-        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFileDataCatalogs(): Input file "
+        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFile(): Input file "
                                                << fName << " was not found or could not be opened.\n";
       }
       LogWarning("RootInputFileSequence")
