@@ -23,7 +23,7 @@ echo geometry = ${geometry}
 #global tag gtag is assumed to be of the form GeometryWORD such as GeometryExtended or GeometryIdeal
 #as of 3.4.X loaded objects in the DB, these correspond to condlabels Extended, Ideal, etc...
 # Run 2 Extended condlabel corresponds to GeometryExtended2015 scenario. 
-set condlabel = `(echo $geometry | sed '{s/Geometry//g}' | sed '{s/2015//g}')`
+set condlabel = `(echo $geometry | sed -e '{s/Geometry//g}' -e '{s/Plan//g}' -e '{s/[0-9]*//g}')`
 echo ${condlabel} " geometry label from db"
 
 set workArea = `(echo $geometry)`
@@ -420,7 +420,8 @@ echo "Start Simulation geometry validation" | tee -a GeometryValidation.log
 # echo "After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33" >> readXML.expected
 # echo "finished" >> readXML.expected
 
-cat > readXML.expected <<END_OF_TEXT  
+if ( ${geometry} == GeometryExtended2021 ) then                                                               
+  cat > readXML.expected <<END_OF_TEXT  
 Here I am 
 Top Most LogicalPart =cms:OCMS 
  mat=materials:Air
@@ -428,6 +429,19 @@ Top Most LogicalPart =cms:OCMS
 After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33
 finished
 END_OF_TEXT
+
+else
+
+  cat > readXML.expected <<END_OF_TEXT  
+Here I am 
+Top Most LogicalPart =cms:OCMS 
+ mat=materials:Air
+ solid=cms:OCMS   Polycone_rrz:  startPhi[deg]=0 dPhi[deg]=360 Sizes[cm]=-45000 0 100 -2700 0 100 -2700 0 1750 2700 0 1750 2700 0 100 45000 0 100 
+After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33
+finished
+END_OF_TEXT
+
+endif
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/readExtendedAndDump.py .
 sed -i "{s/GeometryExtended/${geometry}/}" readExtendedAndDump.py >>  GeometryValidation.log
@@ -438,8 +452,7 @@ cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testRea
 sed -i "{/process.GlobalTag.globaltag/d}" testReadXMLFromGTDB.py >> GeometryValidation.log
 sed -i "{/process.XMLFromDBSource.label/d}" testReadXMLFromGTDB.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testReadXMLFromGTDB.py >> GeometryValidation.log
-set shortlabel = `(echo $condlabel | sed '{s/[0-9]*//g}')`
-sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${shortlabel}')" testReadXMLFromGTDB.py >> GeometryValidation.log
+sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testReadXMLFromGTDB.py >> GeometryValidation.log
 cmsRun testReadXMLFromGTDB.py > readXMLfromGTDB.log
 
 cp $CMSSW_RELEASE_BASE/src/GeometryReaders/XMLIdealGeometryESSource/test/testReadXMLFromDB.py .
