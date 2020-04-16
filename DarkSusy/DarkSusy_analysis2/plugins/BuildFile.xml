@@ -1,0 +1,11 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="PhysicsTools/UtilAlgos"/>
+<use name="FWCore/ServiceRegistry"/>
+<library file="DarkSusy_analysis2.cc" name="DarkSusy_analysis2">
+<flags EDM_PLUGIN="1"/>
+</library>
