@@ -5,20 +5,17 @@ g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HGCalTBMB = cms.PSet(
         DetectorNames = cms.vstring(
             'HGCalBeamWChamb',  
-            'HGCalBeamS1',
-            'HGCalBeamS2',
-            'HGCalBeamS3',
-            'HGCalBeamS4',
-            'HGCalBeamS5',
-            'HGCalBeamS6',
-            'HGCalBeamCK3',
-            'HGCalBeamHaloCounter',
-            'HGCalBeamMuonCounter',
+            'HGCalBeamAl1',
+            'HGCalBeamAl2',
+            'HGCalBeamAl3',
+            'HGCalBeamTube1',
+            'HGCalBeamTube2',
+            'HGCalBeamTube3',
             'HGCalEE',
             'HGCalHE',
             'HGCalAH'
         ),
-        MaximumZ = cms.double(150000.),
+        MaximumZ = cms.double(15000.),
         StopName = cms.string("Junk"),
     ),
     type = cms.string('HGCalTBMB')
