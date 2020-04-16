@@ -1,5 +1,5 @@
 /*!
-  \file SiPixelQulity_PayloadInspector
+  \file SiPixelQuality_PayloadInspector
   \Payload Inspector Plugin for SiPixelQuality
   \author M. Musich
   \version $Revision: 1.0 $
