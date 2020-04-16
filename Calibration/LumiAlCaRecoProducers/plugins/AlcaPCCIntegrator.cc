@@ -29,7 +29,8 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "TMath.h"
 //The class
-class AlcaPCCIntegrator : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks> {
+class AlcaPCCIntegrator
+	: public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks> {
 public:
   explicit AlcaPCCIntegrator(const edm::ParameterSet&);
   ~AlcaPCCIntegrator() override;
@@ -53,10 +54,12 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 AlcaPCCIntegrator::AlcaPCCIntegrator(const edm::ParameterSet& iConfig) {
-  pccSource_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getParameter<std::string>("inputPccLabel");
-  auto trigstring_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getUntrackedParameter<std::string>("trigstring","alcaPCC");
- 
-  prodInst_ = iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getParameter<std::string>("ProdInst");
+  pccSource_ =
+	iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getParameter<std::string>("inputPccLabel");
+  auto trigstring_ =
+	iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getUntrackedParameter<std::string>("trigstring","alcaPCC");
+  prodInst_ =
+	iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getParameter<std::string>("ProdInst");
 	 
   edm::InputTag PCCInputTag_(pccSource_,trigstring_);
 
