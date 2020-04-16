@@ -18,6 +18,7 @@ int main() {
   testSerialization<PHGCalParameters>();
   testSerialization<PMTDParameters>();
   testSerialization<HcalSimulationParameters>();
+  testSerialization<PDetGeomDesc>();
 
   return 0;
 }
