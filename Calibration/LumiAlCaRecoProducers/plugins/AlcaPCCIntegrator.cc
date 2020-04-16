@@ -60,7 +60,7 @@ AlcaPCCIntegrator::AlcaPCCIntegrator(const edm::ParameterSet& iConfig) {
                          .getUntrackedParameter<std::string>("trigstring", "alcaPCC");
   prodInst_ =
       iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getParameter<std::string>("ProdInst");
- 
+
   edm::InputTag PCCInputTag_(pccSource_, trigstring_);
 
   countLumi_ = 0;
