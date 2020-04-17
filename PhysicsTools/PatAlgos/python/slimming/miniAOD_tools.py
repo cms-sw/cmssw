@@ -30,6 +30,7 @@ def miniAOD_customizeCommon(process):
     process.patMuons.computeSoftMuonMVA = True
 
     process.patMuons.addTriggerMatching = True
+    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
     from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
     from Configuration.Eras.Modifier_run2_muon_2017_cff import run2_muon_2017
     from Configuration.Eras.Modifier_run2_muon_2018_cff import run2_muon_2018
@@ -37,7 +38,7 @@ def miniAOD_customizeCommon(process):
     run2_muon_2017.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2018.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2016.toModify( process.patMuons, mvaTrainingFile = "RecoMuon/MuonIdentification/data/mu_2016_BDTG.weights.xml")
-
+    run2_miniAOD_devel.toModify( process.patMuons, getdBFromTrack = True) 
     process.patMuons.computePuppiCombinedIso = True
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
@@ -373,7 +374,6 @@ def miniAOD_customizeCommon(process):
     process.deepTau2017v2p1.taus = _noUpdatedTauName
     deepTauIDTaskNew_ = cms.Task(process.deepTau2017v2p1,process.slimmedTaus)
 
-    from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
     from Configuration.Eras.Modifier_run2_tau_ul_2016_cff import run2_tau_ul_2016
     from Configuration.Eras.Modifier_run2_tau_ul_2018_cff import run2_tau_ul_2018
     for era in [run2_miniAOD_devel,run2_tau_ul_2016,run2_tau_ul_2018]:

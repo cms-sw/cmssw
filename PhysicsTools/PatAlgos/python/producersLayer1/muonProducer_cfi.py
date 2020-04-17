@@ -74,6 +74,10 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # Read and store combined inverse beta
     addInverseBeta    = cms.bool(True),  
     sourceMuonTimeExtra = cms.InputTag("muons","combined"), #Use combined info, not only csc or dt
+
+    # Get 2D-IP from the best track instead of using IPTools
+    getdBFromTrack = cms.bool(False),
+
     # mc matching
     addGenMatch   = cms.bool(True),
     embedGenMatch = cms.bool(True),
