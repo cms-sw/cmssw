@@ -1,5 +1,4 @@
 <test name="TestDQMOnlineClient-beam_dqm_sourceclient" command="runtest.sh beam_dqm_sourceclient-live_cfg.py" />
-<!-- beampixel_dqm_sourceclient-live_cfg.py -->
 <test name="TestDQMOnlineClient-beampixel_dqm_sourceclient" command="runtest.sh beampixel_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-castor_dqm_sourceclient" command="runtest.sh castor_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-csc_dqm_sourceclient" command="runtest.sh csc_dqm_sourceclient-live_cfg.py" />
@@ -20,7 +19,6 @@
 <test name="TestDQMOnlineClient-mutracking_dqm_sourceclient" command="runtest.sh mutracking_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-pixel_dqm_sourceclient" command="runtest.sh pixel_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-pixellumi_dqm_sourceclient" command="runtest.sh pixellumi_dqm_sourceclient-live_cfg.py" />
-<!-- segmentation violation -->
 <test name="TestDQMOnlineClient-rpc_dqm_sourceclient" command="runtest.sh rpc_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-sistrip_dqm_sourceclient" command="runtest.sh sistrip_dqm_sourceclient-live_cfg.py" />
