@@ -4,6 +4,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 
 #include <iostream>
 #include <vector>

@@ -1,9 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/BlockElementImporterBase.h"
 #include "RecoParticleFlow/PFProducer/interface/PhotonSelectorAlgo.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
 
