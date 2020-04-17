@@ -823,14 +823,19 @@ namespace edmtest {
       }
     };
 
-    class TestAccumulator : public edm::limited::EDProducer<edm::Accumulator> {
+    class TestAccumulator : public edm::limited::EDProducer<edm::Accumulator, edm::EndLuminosityBlockProducer> {
     public:
       explicit TestAccumulator(edm::ParameterSet const& p)
           : edm::limited::EDProducerBase(p),
-            edm::limited::EDProducer<edm::Accumulator>(p),
-            m_expectedCount(p.getParameter<unsigned int>("expectedCount")) {}
+            edm::limited::EDProducer<edm::Accumulator, edm::EndLuminosityBlockProducer>(p),
+            m_expectedCount(p.getParameter<unsigned int>("expectedCount")),
+            m_putToken(produces<unsigned int, edm::Transition::EndLuminosityBlock>()) {}
 
       void accumulate(edm::StreamID iID, edm::Event const&, edm::EventSetup const&) const override { ++m_count; }
+
+      void globalEndLuminosityBlockProduce(edm::LuminosityBlock& l, edm::EventSetup const&) const override {
+        l.emplace(m_putToken, m_count.load());
+      }
 
       ~TestAccumulator() {
         if (m_count.load() != m_expectedCount) {
@@ -841,6 +846,7 @@ namespace edmtest {
 
       mutable std::atomic<unsigned int> m_count{0};
       const unsigned int m_expectedCount;
+      const edm::EDPutTokenT<unsigned int> m_putToken;
     };
   }  // namespace limited
 }  // namespace edmtest
