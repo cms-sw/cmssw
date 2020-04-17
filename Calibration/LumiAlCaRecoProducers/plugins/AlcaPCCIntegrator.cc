@@ -86,7 +86,7 @@ void AlcaPCCIntegrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(pccToken_, pccHandle);
 
   const reco::PixelClusterCountsInEvent inputPcc = *(pccHandle.product());
-  thePCCob->Add(inputPcc);
+  thePCCob->add(inputPcc);
 }
 
 //--------------------------------------------------------------------------------------------------
