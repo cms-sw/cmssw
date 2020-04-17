@@ -30,7 +30,6 @@ namespace edm {
   private:
     std::vector<std::string> pfns_;
     std::string lfn_;
-    std::string fallbackPfn_;
   };
 
   class InputFileCatalog {
