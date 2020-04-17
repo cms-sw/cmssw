@@ -88,17 +88,17 @@ namespace edm {
     rule.chain = chain;
     rules[protocol].emplace_back(std::move(rule));
   }
-  
+
   void FileLocator::init(std::string const& catUrl, unsigned iCatalog) {
     std::string m_url = catUrl;
-    
+
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
         throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
-      m_url =  localconfservice->dataCatalogs()[iCatalog];
+      m_url = localconfservice->dataCatalogs()[iCatalog];
     }
-    
+
     //if (m_url.empty()) throw cms::Exception("FileLocator", "Data catalog url is empty");
 
     if (m_url.find("file:") == std::string::npos) {

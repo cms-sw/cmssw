@@ -29,7 +29,7 @@ namespace edm {
   public:
     SiteLocalConfig() {}
     virtual ~SiteLocalConfig() {}
-    
+
     virtual std::vector<std::string> const& dataCatalogs(void) const = 0;
     virtual std::string const lookupCalibConnect(std::string const& input) const = 0;
     virtual std::string const rfioType(void) const = 0;

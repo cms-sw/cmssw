@@ -177,7 +177,7 @@ namespace edm {
     }
     return true;
   }
- 
+
   //Initiate the file using multiple data catalogs
   void RootInputFileSequence::initTheFile(
       bool skipBadFiles, bool deleteIndexIntoFile, InputSource* input, char const* inputTypeName, InputType inputType) {
@@ -242,9 +242,8 @@ namespace edm {
             out << "Input file " << (*it) << " could not be opened.";
             ex.addAdditionalInfo(out.str());
             throw ex;
-          }
-          else {
-            LogWarning("RootInputFileSequence") << "Fail to open the file try next data catalog.\n"; 
+          } else {
+            LogWarning("RootInputFileSequence") << "Fail to open the file try next data catalog.\n";
           }
         }
       }
@@ -264,8 +263,8 @@ namespace edm {
       std::string fName = !fNames.empty() ? fNames[0] : "";
       InputFile::reportSkippedFile(fName, logicalFileName());  //0 cause exception?
       if (!skipBadFiles) {
-        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFile(): Input file "
-                                               << fName << " was not found or could not be opened.\n";
+        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFile(): Input file " << fName
+                                               << " was not found or could not be opened.\n";
       }
       LogWarning("RootInputFileSequence")
           << "Input file: " << fName << " was not found or could not be opened, and will be skipped.\n";

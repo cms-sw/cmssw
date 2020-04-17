@@ -48,9 +48,9 @@ TEST_CASE("FileLocator", "[filelocator]") {
                                    : CMSSW_RELEASE_BASE + file_name;
 
   //create the services
-  std::vector<std::string> tmp{std::string("trivialcatalog_file:") + full_file_name + "?protocol=xrd"} ;
-  edm::ServiceToken tempToken(edm::ServiceRegistry::createContaining(std::unique_ptr<edm::SiteLocalConfig>(
-      new TestSiteLocalConfig(tmp))));
+  std::vector<std::string> tmp{std::string("trivialcatalog_file:") + full_file_name + "?protocol=xrd"};
+  edm::ServiceToken tempToken(
+      edm::ServiceRegistry::createContaining(std::unique_ptr<edm::SiteLocalConfig>(new TestSiteLocalConfig(tmp))));
 
   //make the services available
   SECTION("standard") {
@@ -84,7 +84,7 @@ TEST_CASE("FileLocator", "[filelocator]") {
     std::string override_full_file_name = boost::filesystem::exists((CMSSW_BASE + override_file_name).c_str())
                                               ? CMSSW_BASE + override_file_name
                                               : CMSSW_RELEASE_BASE + override_file_name;
-    
+
     edm::FileLocator fl(("trivialcatalog_file:" + override_full_file_name + "?protocol=override").c_str());
 
     std::array<const char*, 8> lfn = {{"/store/group/bha/bho",

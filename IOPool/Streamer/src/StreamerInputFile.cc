@@ -70,7 +70,7 @@ namespace edm {
     closeStreamerFile();
 
     currentFileName_ = name;
-    
+
     // Check if the logical file name was found.
     if (currentFileName_.empty()) {
       // LFN not found in catalog.
@@ -188,10 +188,10 @@ namespace edm {
 
   bool StreamerInputFile::openNextFile() {
     if (currentFile_ <= streamerNames_.size() - 1) {
-      
       FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).fileNames()[0].c_str() << std::endl;
 
-      openStreamerFile(streamerNames_.at(currentFile_).fileNames()[0], streamerNames_.at(currentFile_).logicalFileName());
+      openStreamerFile(streamerNames_.at(currentFile_).fileNames()[0],
+                       streamerNames_.at(currentFile_).logicalFileName());
 
       // If start message was already there, then compare the
       // previous and new headers
