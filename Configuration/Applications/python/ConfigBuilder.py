@@ -106,14 +106,14 @@ def filesFromList(fileName,s=None):
         if line.count(".root")>=2:
             #two files solution...
             entries=line.replace("\n","").split()
-            if not entries[0] in prim:
-                prim.append(entries[0])
-            if not entries[1] in sec:
-                sec.append(entries[1])
+            prim.append(entries[0])
+            sec.append(entries[1])
         elif (line.find(".root")!=-1):
             entry=line.replace("\n","")
-            if not entry in prim:
-                prim.append(entry)
+            prim.append(entry)
+    # remove any duplicates
+    prim = sorted(list(set(prim)))
+    sec = sorted(list(set(sec)))
     if s:
         if not hasattr(s,"fileNames"):
             s.fileNames=cms.untracked.vstring(prim)
@@ -156,14 +156,14 @@ def filesFromDASQuery(query,option="",s=None):
         if line.count(".root")>=2:
             #two files solution...
             entries=line.replace("\n","").split()
-            if not entries[0] in prim:
-                prim.append(entries[0])
-            if not entries[1] in sec:
-                sec.append(entries[1])
+            prim.append(entries[0])
+            sec.append(entries[1])
         elif (line.find(".root")!=-1):
             entry=line.replace("\n","")
-            if not entry in prim:
-                prim.append(entry)
+            prim.append(entry)
+    # remove any duplicates
+    prim = sorted(list(set(prim)))
+    sec = sorted(list(set(sec)))
     if s:
         if not hasattr(s,"fileNames"):
             s.fileNames=cms.untracked.vstring(prim)
