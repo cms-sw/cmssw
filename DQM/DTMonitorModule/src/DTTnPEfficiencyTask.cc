@@ -56,21 +56,21 @@ void DTTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
   LogTrace("DTDQM|DTMonitorModule|DTTnPEfficiencyTask") 
     << "[DTTnPEfficiencyTask]: bookHistograms" << std::endl;
 
+  if (m_detailedAnalysis) 
+    {
+      std::string baseDir = topFolder() + "/detailed/";
+      iBooker.setCurrentFolder(baseDir);
+      
+      LogTrace("DTDQM|DTMonitorModule|DTTnPEfficiencyTask")
+	<< "[DTTnPEfficiencyTask]: booking histos in " << baseDir << std::endl;
+      
+      MonitorElement* me = iBooker.book1D("muonPt", "muonPt", 125, 0., 250.);
+      
+      m_histos["muonPt"] = me;
+    }
+      
   for (int wheel = -2; wheel <= 2; ++wheel) 
     {
-      if (m_detailedAnalysis) 
-	{
-	  std::string baseDir = topFolder() + "/detailed/";
-	  iBooker.setCurrentFolder(baseDir);
-
-	  LogTrace("DTDQM|DTMonitorModule|DTTnPEfficiencyTask")
-	    << "[DTTnPEfficiencyTask]: booking histos in " << baseDir << std::endl;
-
-	  MonitorElement* me = iBooker.book1D("muonPt", "muonPt", 250, 0., 500.);
-
-	  m_histos["muonPt"] = me;
-	}
-      
       bookWheelHistos(iBooker, wheel, "Task");
     }
 
@@ -89,8 +89,11 @@ void DTTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup
       if (!m_selector(muon))
 	continue;
 
-      std::string hName = "muonPt"; 
-      m_histos.find(hName)->second->Fill(muon.pt());
+      if (m_detailedAnalysis)
+	{
+	  std::string hName = "muonPt"; 
+	  m_histos.find(hName)->second->Fill(muon.pt());
+	}
 
       for (const auto chambMatch : muon.matches() ) 
 	{
@@ -108,7 +111,7 @@ void DTTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup
 	      int sector  = chId.sector();
 	      int station = chId.station();
 
-	      hName = std::string("nEntriesPerCh_W") + std::to_string(wheel);  
+	      std::string hName = std::string("nEntriesPerCh_W") + std::to_string(wheel);  
 	      m_histos.find(hName)->second->Fill(sector, station);
 	    }
 	  
