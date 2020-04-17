@@ -4,6 +4,9 @@
 #include <vector>
 #include <numeric>
 #include <string>
+#include <boost/tokenizer.hpp>
+#include <boost/range/adaptor/indexed.hpp>
+
 #include "TGraph.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -14,8 +17,10 @@
 #include "TPaveText.h"
 #include "TStyle.h"
 #include "TCanvas.h"
+
 #include "CondCore/CondDB/interface/Time.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
@@ -186,7 +191,7 @@ namespace SiPixelPI {
 
     // Draw Lines around modules
     if (lay > 0) {
-      std::vector<std::vector<int> > nladder = {{10, 16, 22}, {6, 14, 22, 32}};
+      std::vector<std::vector<int>> nladder = {{10, 16, 22}, {6, 14, 22, 32}};
       int nlad = nladder[phase][lay - 1];
       for (int xsign = -1; xsign <= 1; xsign += 2)
         for (int ysign = -1; ysign <= 1; ysign += 2) {
@@ -688,10 +693,10 @@ namespace SiPixelPI {
 
   // overloaded method: mask entire module
   /*--------------------------------------------------------------------*/
-  std::vector<std::pair<int, int> > maskedBarrelRocsToBins(int layer, int ladder, int module)
+  std::vector<std::pair<int, int>> maskedBarrelRocsToBins(int layer, int ladder, int module)
   /*--------------------------------------------------------------------*/
   {
-    std::vector<std::pair<int, int> > rocsToMask;
+    std::vector<std::pair<int, int>> rocsToMask;
 
     int nlad_list[4] = {6, 14, 22, 32};
     int nlad = nlad_list[layer - 1];
@@ -718,11 +723,11 @@ namespace SiPixelPI {
 
   // overloaded method: mask single ROCs
   /*--------------------------------------------------------------------*/
-  std::vector<std::tuple<int, int, int> > maskedBarrelRocsToBins(
+  std::vector<std::tuple<int, int, int>> maskedBarrelRocsToBins(
       int layer, int ladder, int module, std::bitset<16> bad_rocs, bool isFlipped)
   /*--------------------------------------------------------------------*/
   {
-    std::vector<std::tuple<int, int, int> > rocsToMask;
+    std::vector<std::tuple<int, int, int>> rocsToMask;
 
     int nlad_list[4] = {6, 14, 22, 32};
     int nlad = nlad_list[layer - 1];
@@ -794,10 +799,10 @@ namespace SiPixelPI {
 
   // overloaded method: mask entire module
   /*--------------------------------------------------------------------*/
-  std::vector<std::pair<int, int> > maskedForwardRocsToBins(int ring, int blade, int panel, int disk)
+  std::vector<std::pair<int, int>> maskedForwardRocsToBins(int ring, int blade, int panel, int disk)
   /*--------------------------------------------------------------------*/
   {
-    std::vector<std::pair<int, int> > rocsToMask;
+    std::vector<std::pair<int, int>> rocsToMask;
 
     //int nblade_list[2] = {11, 17};
     int nybins_list[2] = {92, 140};
@@ -828,11 +833,11 @@ namespace SiPixelPI {
 
   // overloaded method: mask single ROCs
   /*--------------------------------------------------------------------*/
-  std::vector<std::tuple<int, int, int> > maskedForwardRocsToBins(
+  std::vector<std::tuple<int, int, int>> maskedForwardRocsToBins(
       int ring, int blade, int panel, int disk, std::bitset<16> bad_rocs, bool isFlipped)
   /*--------------------------------------------------------------------*/
   {
-    std::vector<std::tuple<int, int, int> > rocsToMask;
+    std::vector<std::tuple<int, int, int>> rocsToMask;
 
     //int nblade_list[2] = {11, 17};
     int nybins_list[2] = {92, 140};
@@ -906,5 +911,67 @@ namespace SiPixelPI {
     return rocsToMask;
   }
 
+  using indexedCorners = std::map<unsigned int, std::pair<std::vector<float>, std::vector<float>>>;
+
+  /*--------------------------------------------------------------------*/
+  const indexedCorners retrieveCorners(const std::vector<edm::FileInPath>& cornerFiles, const unsigned int reads)
+  /*--------------------------------------------------------------------*/
+  {
+    indexedCorners theOutMap;
+
+    for (const auto& file : cornerFiles) {
+      auto cornerFileName = file.fullPath();
+      std::ifstream cornerFile(cornerFileName.c_str());
+      if (!cornerFile.good()) {
+        throw cms::Exception("FileError") << "Problem opening corner file: " << cornerFileName;
+      }
+      std::string line;
+      while (std::getline(cornerFile, line)) {
+        if (!line.empty()) {
+          std::istringstream iss(line);
+          unsigned int id;
+          std::string name;
+          std::vector<std::string> corners(reads, "");
+          std::vector<float> xP, yP;
+
+          iss >> id >> name;
+          for (unsigned int i = 0; i < reads; ++i) {
+            iss >> corners.at(i);
+          }
+
+          COUT << id << " : ";
+          for (unsigned int i = 0; i < reads; i++) {
+            // remove the leading and trailing " signs in the corners list
+            (corners[i]).erase(std::remove(corners[i].begin(), corners[i].end(), '"'), corners[i].end());
+            COUT << corners.at(i) << " ";
+            typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
+            boost::char_separator<char> sep{","};
+            tokenizer tok{corners.at(i), sep};
+            for (const auto& t : tok | boost::adaptors::indexed(0)) {
+              if (t.index() == 0) {
+                xP.push_back(atof((t.value()).c_str()));
+              } else if (t.index() == 1) {
+                yP.push_back(atof((t.value()).c_str()));
+              } else {
+		edm::LogError("LogicError") << "There should not be any token with index " << t.index() << std::endl;
+              }
+            }
+          }
+          COUT << std::endl;
+
+          xP.push_back(xP.front());
+          yP.push_back(yP.front());
+
+          for (unsigned int i = 0; i < xP.size(); i++) {
+            COUT << "x[" << i << "]=" << xP[i] << " y[" << i << "]" << yP[i] << std::endl;
+          }
+
+          theOutMap[id] = std::make_pair(xP, yP);
+
+        }  // if line is empty
+      }    // loop on lines
+    }      // loop on files
+    return theOutMap;
+  }
 };  // namespace SiPixelPI
 #endif
