@@ -1,30 +1,64 @@
-#include "GsfElectronBaseProducer.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EleTkIsolFromCands.h"
-
-#include "FWCore/Common/interface/Provenance.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
+#include "FWCore/Common/interface/Provenance.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EleTkIsolFromCands.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
+
+using namespace reco;
 
 namespace {
+
+  void setMVAOutputs(reco::GsfElectronCollection& electrons,
+                     const GsfElectronAlgo::HeavyObjectCache* hoc,
+                     reco::VertexCollection const& vertices) {
+    for (auto& el : electrons) {
+      GsfElectron::MvaOutput mvaOutput;
+      mvaOutput.mva_e_pi = hoc->sElectronMVAEstimator->mva(el, vertices);
+      mvaOutput.mva_Isolated = hoc->iElectronMVAEstimator->mva(el, vertices.size());
+      el.setMvaOutput(mvaOutput);
+    }
+  }
+
+  // Something more clever has to be found. The collections are small, so the timing is not
+  // an issue here; but it is clearly suboptimal
+
+  auto matchWithPFCandidates(std::vector<reco::PFCandidate> const& pfCandidates) {
+    std::map<reco::GsfTrackRef, reco::GsfElectron::MvaInput> gsfMVAInputs{};
+
+    //Loop over the collection of PFFCandidates
+    for (auto const& pfCand : pfCandidates) {
+      reco::GsfElectronRef myRef;
+      // First check that the GsfTrack is non null
+      if (pfCand.gsfTrackRef().isNonnull()) {
+        reco::GsfElectron::MvaInput input;
+        input.earlyBrem = pfCand.egammaExtraRef()->mvaVariable(reco::PFCandidateEGammaExtra::MVA_FirstBrem);
+        input.lateBrem = pfCand.egammaExtraRef()->mvaVariable(reco::PFCandidateEGammaExtra::MVA_LateBrem);
+        input.deltaEta = pfCand.egammaExtraRef()->mvaVariable(reco::PFCandidateEGammaExtra::MVA_DeltaEtaTrackCluster);
+        input.sigmaEtaEta = pfCand.egammaExtraRef()->sigmaEtaEta();
+        input.hadEnergy = pfCand.egammaExtraRef()->hadEnergy();
+        gsfMVAInputs[pfCand.gsfTrackRef()] = input;
+      }
+    }
+    return gsfMVAInputs;
+  }
 
   void logElectrons(reco::GsfElectronCollection const& electrons, edm::Event const& event, const std::string& title) {
     LogTrace("GsfElectronAlgo") << "========== " << title << " ==========";
@@ -39,36 +73,76 @@ namespace {
 
 }  // namespace
 
-using namespace reco;
+class GsfElectronProducer : public edm::stream::EDProducer<edm::GlobalCache<GsfElectronAlgo::HeavyObjectCache>> {
+public:
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-void GsfElectronBaseProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  explicit GsfElectronProducer(const edm::ParameterSet&, const GsfElectronAlgo::HeavyObjectCache*);
+
+  static std::unique_ptr<GsfElectronAlgo::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
+    return std::make_unique<GsfElectronAlgo::HeavyObjectCache>(conf);
+  }
+
+  static void globalEndJob(GsfElectronAlgo::HeavyObjectCache const*) {}
+
+  // ------------ method called to produce the data  ------------
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
+
+private:
+  std::unique_ptr<GsfElectronAlgo> algo_;
+
+  // configurables
+  GsfElectronAlgo::Tokens inputCfg_;
+  GsfElectronAlgo::StrategyConfiguration strategyCfg_;
+  const GsfElectronAlgo::CutsConfiguration cutsCfg_;
+  ElectronHcalHelper::Configuration hcalCfg_;
+
+  bool isPreselected(reco::GsfElectron const& ele) const;
+  void setAmbiguityData(reco::GsfElectronCollection& electrons,
+                        edm::Event const& event,
+                        bool ignoreNotPreselected = true) const;
+
+  // check expected configuration of previous modules
+  bool ecalSeedingParametersChecked_;
+  void checkEcalSeedingParameters(edm::ParameterSet const&);
+
+  const edm::EDPutTokenT<reco::GsfElectronCollection> electronPutToken_;
+  const edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> egmPFCandidateCollection_;
+
+  const bool useGsfPfRecTracks_;
+
+  const bool resetMvaValuesUsingPFCandidates_;
+};
+
+void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // input collections
-  desc.add<edm::InputTag>("gsfElectronCoresTag", edm::InputTag("gedGsfElectronCores"));
-  desc.add<edm::InputTag>("hcalTowers", edm::InputTag("towerMaker"));
-  desc.add<edm::InputTag>("vtxTag", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<edm::InputTag>("conversionsTag", edm::InputTag("allConversions"));
-  desc.add<edm::InputTag>("gsfPfRecTracksTag", edm::InputTag("pfTrackElec"));
-  desc.add<edm::InputTag>("barrelRecHitCollectionTag", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
-  desc.add<edm::InputTag>("endcapRecHitCollectionTag", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
-  desc.add<edm::InputTag>("seedsTag", edm::InputTag("ecalDrivenElectronSeeds"));
-  desc.add<edm::InputTag>("beamSpotTag", edm::InputTag("offlineBeamSpot"));
-  desc.add<edm::InputTag>("egmPFCandidatesTag", edm::InputTag("particleFlowEGamma"));
+  desc.add<edm::InputTag>("gsfElectronCoresTag", {"ecalDrivenGsfElectronCores"});
+  desc.add<edm::InputTag>("hcalTowers", {"towerMaker"});
+  desc.add<edm::InputTag>("vtxTag", {"offlinePrimaryVertices"});
+  desc.add<edm::InputTag>("conversionsTag", {"allConversions"});
+  desc.add<edm::InputTag>("gsfPfRecTracksTag", {"pfTrackElec"});
+  desc.add<edm::InputTag>("barrelRecHitCollectionTag", {"ecalRecHit", "EcalRecHitsEB"});
+  desc.add<edm::InputTag>("endcapRecHitCollectionTag", {"ecalRecHit", "EcalRecHitsEE"});
+  desc.add<edm::InputTag>("seedsTag", {"ecalDrivenElectronSeeds"});
+  desc.add<edm::InputTag>("beamSpotTag", {"offlineBeamSpot"});
+  desc.add<edm::InputTag>("egmPFCandidatesTag", {"particleFlowEGamma"});
   desc.add<bool>("checkHcalStatus", true);
 
   // steering
-  desc.add<bool>("gedElectronMode", true);
-  desc.add<bool>("useCombinationRegression", true);
-  desc.add<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization", false);
-  desc.add<bool>("ecalDrivenEcalErrorFromClassBasedParameterization", false);
-  desc.add<bool>("applyPreselection", true);
-  desc.add<bool>("useEcalRegression", true);
+  desc.add<bool>("useCombinationRegression", false);
+  desc.add<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization", true);
+  desc.add<bool>("ecalDrivenEcalErrorFromClassBasedParameterization", true);
+  desc.add<bool>("applyPreselection", false);
+  desc.add<bool>("useEcalRegression", false);
   desc.add<bool>("applyAmbResolution", false);
   desc.add<bool>("useGsfPfRecTracks", true);
   desc.add<bool>("pureTrackerDrivenEcalErrorFromSimpleParameterization", true);
   desc.add<unsigned int>("ambSortingStrategy", 1);
   desc.add<unsigned int>("ambClustersOverlapStrategy", 1);
   desc.add<bool>("fillConvVtxFitProb", true);
+  desc.add<bool>("resetMvaValuesUsingPFCandidates", false);
 
   // Ecal rec hits configuration
   desc.add<std::vector<std::string>>("recHitFlagsToBeExcludedBarrel");
@@ -95,31 +169,31 @@ void GsfElectronBaseProducer::fillDescriptions(edm::ConfigurationDescriptions& d
 
   // backward compatibility mechanism for ctf tracks
   desc.add<bool>("ctfTracksCheck", true);
-  desc.add<edm::InputTag>("ctfTracksTag", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("ctfTracksTag", {"generalTracks"});
 
   desc.add<double>("MaxElePtForOnlyMVA", 50.0);
   desc.add<double>("PreSelectMVA", -0.1);
 
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<double>("minSCEtBarrel", 0.0);
-    psd0.add<double>("minSCEtEndcaps", 0.0);
+    psd0.add<double>("minSCEtBarrel", 4.0);
+    psd0.add<double>("minSCEtEndcaps", 4.0);
     psd0.add<double>("minEOverPBarrel", 0.0);
     psd0.add<double>("minEOverPEndcaps", 0.0);
     psd0.add<double>("maxEOverPBarrel", 999999999.0);
     psd0.add<double>("maxEOverPEndcaps", 999999999.0);
-    psd0.add<double>("maxDeltaEtaBarrel", 999999999.0);
-    psd0.add<double>("maxDeltaEtaEndcaps", 999999999.0);
-    psd0.add<double>("maxDeltaPhiBarrel", 999999999.0);
-    psd0.add<double>("maxDeltaPhiEndcaps", 999999999.0);
+    psd0.add<double>("maxDeltaEtaBarrel", 0.02);
+    psd0.add<double>("maxDeltaEtaEndcaps", 0.02);
+    psd0.add<double>("maxDeltaPhiBarrel", 0.15);
+    psd0.add<double>("maxDeltaPhiEndcaps", 0.15);
     psd0.add<double>("hOverEConeSize", 0.15);
     psd0.add<double>("hOverEPtMin", 0.0);
-    psd0.add<double>("maxHOverEBarrelCone", 999999999.0);
-    psd0.add<double>("maxHOverEEndcapsCone", 999999999.0);
+    psd0.add<double>("maxHOverEBarrelCone", 0.15);
+    psd0.add<double>("maxHOverEEndcapsCone", 0.15);
     psd0.add<double>("maxHBarrelCone", 0.0);
     psd0.add<double>("maxHEndcapsCone", 0.0);
-    psd0.add<double>("maxHOverEBarrelTower", 999999999.0);
-    psd0.add<double>("maxHOverEEndcapsTower", 999999999.0);
+    psd0.add<double>("maxHOverEBarrelTower", 0.15);
+    psd0.add<double>("maxHOverEEndcapsTower", 0.15);
     psd0.add<double>("maxHBarrelTower", 0.0);
     psd0.add<double>("maxHEndcapsTower", 0.0);
     psd0.add<double>("maxSigmaIetaIetaBarrel", 999999999.0);
@@ -166,7 +240,7 @@ void GsfElectronBaseProducer::fillDescriptions(edm::ConfigurationDescriptions& d
           "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_7Feb2014.weights.xml",
       });
 
-  descriptions.addDefault(desc);
+  descriptions.add("gsfElectronProducer", desc);
 }
 
 namespace {
@@ -205,13 +279,18 @@ namespace {
   }
 };  // namespace
 
-GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache*)
-    : cutsCfg_(makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection"))),
+GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const GsfElectronAlgo::HeavyObjectCache*)
+    : cutsCfg_{makeCutsConfiguration(cfg.getParameter<edm::ParameterSet>("preselection"))},
       ecalSeedingParametersChecked_(false),
       electronPutToken_(produces<GsfElectronCollection>()),
       gsfPfRecTracksTag_(consumes<reco::GsfPFRecTrackCollection>(cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag"))),
-      gedElectronMode_(cfg.getParameter<bool>("gedElectronMode")),
-      useGsfPfRecTracks_(cfg.getParameter<bool>("useGsfPfRecTracks")) {
+      useGsfPfRecTracks_(cfg.getParameter<bool>("useGsfPfRecTracks")),
+      resetMvaValuesUsingPFCandidates_(cfg.getParameter<bool>("resetMvaValuesUsingPFCandidates")) {
+  if (resetMvaValuesUsingPFCandidates_) {
+    egmPFCandidateCollection_ =
+        consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
+  }
+
   inputCfg_.gsfElectronCores =
       consumes<reco::GsfElectronCoreCollection>(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
   inputCfg_.hcalTowersTag = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers"));
@@ -266,7 +345,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, c
   auto const& severitynamesendcaps = cfg.getParameter<std::vector<std::string>>("recHitSeverityToBeExcludedEndcaps");
   recHitsCfg.recHitSeverityToBeExcludedEndcaps =
       StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesendcaps);
-  //recHitsCfg.severityLevelCut = cfg.getParameter<int>("severityLevelCut") ;
 
   // isolation
   const GsfElectronAlgo::IsolationConfiguration isoCfg{
@@ -310,47 +388,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer(const edm::ParameterSet& cfg, c
       consumesCollector());
 }
 
-GsfElectronBaseProducer::~GsfElectronBaseProducer() = default;
-
-void GsfElectronBaseProducer::beginEvent(edm::Event& event, const edm::EventSetup& setup) {
-  // check configuration
-  if (!ecalSeedingParametersChecked_) {
-    ecalSeedingParametersChecked_ = true;
-    edm::Handle<reco::ElectronSeedCollection> seeds;
-    event.getByToken(inputCfg_.seedsTag, seeds);
-    if (!seeds.isValid()) {
-      edm::LogWarning("GsfElectronAlgo|UnreachableSeedsProvenance")
-          << "Cannot check consistency of parameters with ecal seeding ones,"
-          << " because the original collection of seeds is not any more available.";
-    } else {
-      checkEcalSeedingParameters(edm::parameterSet(*seeds.provenance(), event.processHistory()));
-    }
-  }
-}
-
-const edm::OrphanHandle<reco::GsfElectronCollection> GsfElectronBaseProducer::fillEvent(
-    reco::GsfElectronCollection& electrons, edm::Event& event) {
-  // all electrons
-  logElectrons(electrons, event, "GsfElectronAlgo Info (before preselection)");
-  // preselection
-  if (strategyCfg_.applyPreselection) {
-    electrons.erase(
-        std::remove_if(electrons.begin(), electrons.end(), [this](auto const& ele) { return !isPreselected(ele); }),
-        electrons.end());
-    logElectrons(electrons, event, "GsfElectronAlgo Info (after preselection)");
-  }
-  // ambiguity
-  setAmbiguityData(electrons, event);
-  if (strategyCfg_.applyAmbResolution) {
-    electrons.erase(std::remove_if(electrons.begin(), electrons.end(), std::mem_fn(&reco::GsfElectron::ambiguous)),
-                    electrons.end());
-    logElectrons(electrons, event, "GsfElectronAlgo Info (after amb. solving)");
-  }
-  // final filling
-  return event.emplace(electronPutToken_, std::move(electrons));
-}
-
-void GsfElectronBaseProducer::checkEcalSeedingParameters(edm::ParameterSet const& pset) {
+void GsfElectronProducer::checkEcalSeedingParameters(edm::ParameterSet const& pset) {
   if (!pset.exists("SeedConfiguration")) {
     return;
   }
@@ -387,9 +425,9 @@ void GsfElectronBaseProducer::checkEcalSeedingParameters(edm::ParameterSet const
 // Ambiguity solving
 //=======================================================================================
 
-void GsfElectronBaseProducer::setAmbiguityData(reco::GsfElectronCollection& electrons,
-                                               edm::Event const& event,
-                                               bool ignoreNotPreselected) const {
+void GsfElectronProducer::setAmbiguityData(reco::GsfElectronCollection& electrons,
+                                           edm::Event const& event,
+                                           bool ignoreNotPreselected) const {
   // Getting required event data
   auto const& beamspot = event.get(inputCfg_.beamSpotTag);
   auto gsfPfRecTracks =
@@ -485,26 +523,64 @@ void GsfElectronBaseProducer::setAmbiguityData(reco::GsfElectronCollection& elec
   }
 }
 
-bool GsfElectronBaseProducer::isPreselected(GsfElectron const& ele) const {
+bool GsfElectronProducer::isPreselected(GsfElectron const& ele) const {
   bool passCutBased = ele.passingCutBasedPreselection();
   bool passPF = ele.passingPflowPreselection();
   // it is worth nothing for gedGsfElectrons, this does nothing as its not set
   // till GedGsfElectron finaliser, this is always false
-  if (gedElectronMode_) {
-    bool passmva = ele.passingMvaPreselection();
-    if (!ele.ecalDrivenSeed()) {
-      if (ele.pt() > strategyCfg_.MaxElePtForOnlyMVA)
-        return passmva && passCutBased;
-      else
-        return passmva;
-    } else
-      return (passCutBased || passPF || passmva);
+  bool passmva = ele.passingMvaPreselection();
+  if (!ele.ecalDrivenSeed()) {
+    if (ele.pt() > strategyCfg_.MaxElePtForOnlyMVA)
+      return passmva && passCutBased;
+    else
+      return passmva;
   } else {
-    return passCutBased || passPF;
+    return passCutBased || passPF || passmva;
+  }
+}
+
+// ------------ method called to produce the data  ------------
+void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+  // check configuration
+  if (!ecalSeedingParametersChecked_) {
+    ecalSeedingParametersChecked_ = true;
+    auto seeds = event.getHandle(inputCfg_.seedsTag);
+    if (!seeds.isValid()) {
+      edm::LogWarning("GsfElectronAlgo|UnreachableSeedsProvenance")
+          << "Cannot check consistency of parameters with ecal seeding ones,"
+          << " because the original collection of seeds is not any more available.";
+    } else {
+      checkEcalSeedingParameters(edm::parameterSet(*seeds.provenance(), event.processHistory()));
+    }
   }
 
-  return true;
+  auto electrons = algo_->completeElectrons(event, setup, globalCache());
+  if (resetMvaValuesUsingPFCandidates_) {
+    const auto gsfMVAInputMap = matchWithPFCandidates(event.get(egmPFCandidateCollection_));
+    setMVAOutputs(electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag));
+    for (auto& el : electrons)
+      el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set MVA inputs
+  }
+
+  // all electrons
+  logElectrons(electrons, event, "GsfElectronAlgo Info (before preselection)");
+  // preselection
+  if (strategyCfg_.applyPreselection) {
+    electrons.erase(
+        std::remove_if(electrons.begin(), electrons.end(), [this](auto const& ele) { return !isPreselected(ele); }),
+        electrons.end());
+    logElectrons(electrons, event, "GsfElectronAlgo Info (after preselection)");
+  }
+  // ambiguity
+  setAmbiguityData(electrons, event);
+  if (strategyCfg_.applyAmbResolution) {
+    electrons.erase(std::remove_if(electrons.begin(), electrons.end(), std::mem_fn(&reco::GsfElectron::ambiguous)),
+                    electrons.end());
+    logElectrons(electrons, event, "GsfElectronAlgo Info (after amb. solving)");
+  }
+  // final filling
+  event.emplace(electronPutToken_, std::move(electrons));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(GsfElectronBaseProducer);
+DEFINE_FWK_MODULE(GsfElectronProducer);
