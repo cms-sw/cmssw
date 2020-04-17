@@ -71,7 +71,7 @@
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer1.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer2.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer3.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbar.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v1/pixbar.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/Run2/trackerpatchpannel.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/Run2/trackerpixelnose.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/tibmodpar.xml"/>
