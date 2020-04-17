@@ -22,7 +22,7 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     pset.addUntrackedParameter<std::string>("siteLocalConfigFileUrl", dirString + "/full-site-local-config.testfile");
 
     edm::service::SiteLocalConfigService slc(pset);
-    
+
     CHECK(slc.dataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
     REQUIRE(slc.sourceCacheTempDir() != nullptr);
     CHECK(*slc.sourceCacheTempDir() == "/a/b/c");
@@ -65,7 +65,7 @@ TEST_CASE("Test SiteLocalConfigService", "[sitelocalconfig]") {
     pset.addUntrackedParameter<std::vector<std::string> >("overrideStatisticsInfo", {{"nodn"}});
 
     edm::service::SiteLocalConfigService slc(pset);
-    
+
     CHECK(slc.dataCatalogs()[0] == "trivialcatalog_file:/dummy/storage.xml?protocol=dcap");
     REQUIRE(slc.sourceCacheTempDir() != nullptr);
     CHECK(*slc.sourceCacheTempDir() == "/a/d");

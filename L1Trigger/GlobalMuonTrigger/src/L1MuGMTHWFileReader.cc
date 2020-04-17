@@ -42,7 +42,7 @@ L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps, edm::Input
   produces<std::vector<L1MuRegionalCand> >("RPCf");
 
   produces<L1CaloRegionCollection>();
-  
+
   if (fileNames(0).empty()) {
     throw std::runtime_error("L1MuGMTHWFileReader: no input file");
   }

@@ -140,9 +140,8 @@ namespace edm {
         m_statisticsAddrInfo = nullptr;
       }
     }
-    
 
-    std::vector<std::string> const& SiteLocalConfigService::dataCatalogs(void) const {
+    std::vector<std::string> const &SiteLocalConfigService::dataCatalogs(void) const {
       if (!m_connected) {
         //throw cms::Exception("Incomplete configuration")
         //    << "Valid site-local-config not found at " << m_url;
@@ -157,7 +156,6 @@ namespace edm {
 
       return m_dataCatalogs;
     }
-    
 
     std::string const SiteLocalConfigService::frontierConnect(std::string const &servlet) const {
       if (!m_connected) {

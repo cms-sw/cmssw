@@ -35,7 +35,6 @@ namespace edm {
         usingGoToEvent_(false),
         enablePrefetching_(false),
         enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
-
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {
@@ -156,12 +155,12 @@ namespace edm {
     if (not rootFile()) {
       return false;
     }
-    
+
     // make sure the new product registry is compatible with the main one
     std::string mergeInfo =
-       input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
+        input_.productRegistryUpdate().merge(*rootFile()->productRegistry(), fileNames()[0], branchesMustMatch_);
     if (!mergeInfo.empty()) {
-       throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::nextFile()") << mergeInfo;
+      throw Exception(errors::MismatchedInputFiles, "RootPrimaryFileSequence::nextFile()") << mergeInfo;
     }
     return true;
   }

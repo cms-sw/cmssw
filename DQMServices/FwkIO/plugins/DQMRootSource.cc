@@ -424,7 +424,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_openFiles(std::vector<TFile*>()),
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
-  
+
   if (m_catalog.fileNames(0).empty()) {
     m_nextItemType = edm::InputSource::IsStop;
   } else {
@@ -470,9 +470,10 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
   for (auto& fileitem : m_catalog.fileCatalogItems()) {
     TFile* file;
     std::list<std::string> originalInfo;
-    //loop over names of a file, each of them corresponds to a data catalog 
-    bool isGoodFile(true) ;
-    std::vector<std::string> fNames = fileitem.fileNames() ; //get all names of a file, each of them corresponds to a data catalog
+    //loop over names of a file, each of them corresponds to a data catalog
+    bool isGoodFile(true);
+    std::vector<std::string> fNames =
+        fileitem.fileNames();  //get all names of a file, each of them corresponds to a data catalog
     for (std::vector<std::string>::iterator it = fNames.begin(); it != fNames.end(); ++it) {
       // Try to open a file
       try {
@@ -486,15 +487,15 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
         }
 
       } catch (cms::Exception const& e) {
-        file = nullptr;  // is there anything we need to free?
-        if (std::next(it) == fNames.end()) { //last name corresponding to the last data catalog to try
-          if (!m_skipBadFiles) { 
+        file = nullptr;                       // is there anything we need to free?
+        if (std::next(it) == fNames.end()) {  //last name corresponding to the last data catalog to try
+          if (!m_skipBadFiles) {
             edm::Exception ex(edm::errors::FileOpenError, "", e);
             ex.addContext("Opening DQM Root file");
             ex << "\nInput file " << it->c_str() << " was not found, could not be opened, or is corrupted.\n";
             throw ex;
           }
-          isGoodFile = false ;
+          isGoodFile = false;
         }
         originalInfo = e.additionalInfo();  // save in case of error when trying next name
       }
@@ -502,7 +503,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       // Check if a file is usable
       if (file && !file->IsZombie()) {
         logFileAction("Successfully opened file ", it->c_str());
-        break ;
+        break;
       } else {
         if (std::next(it) == fNames.end()) {
           if (!m_skipBadFiles) {
@@ -511,16 +512,17 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
             ex.addContext("Opening DQM Root file");
             throw ex;
           }
-          isGoodFile = false ;
+          isGoodFile = false;
         }
         if (file) {
           delete file;
           file = nullptr;
         }
       }
-    } //end loop over names of the file
+    }  //end loop over names of the file
 
-    if (!isGoodFile && m_skipBadFiles) continue ;
+    if (!isGoodFile && m_skipBadFiles)
+      continue;
 
     m_openFiles.insert(m_openFiles.begin(), file);
 
@@ -552,9 +554,8 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
         m_fileMetadatas.push_back(temp);
       }
     }
- 
-  } //end loop over files
 
+  }  //end loop over files
 
   // Sort to make sure runs and lumis appear in sequential order
   std::stable_sort(m_fileMetadatas.begin(), m_fileMetadatas.end());
