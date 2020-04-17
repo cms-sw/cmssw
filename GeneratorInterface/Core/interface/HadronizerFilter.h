@@ -94,7 +94,7 @@ namespace edm {
   template <class HAD, class DEC>
   HadronizerFilter<HAD, DEC>::HadronizerFilter(ParameterSet const& ps)
       : EDFilter(),
-        hadronizer_(ps),
+        hadronizer_(ps, consumesCollector()),
         decayer_(nullptr),
         filter_(nullptr),
         runInfoProductTag_(),

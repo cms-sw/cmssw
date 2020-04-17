@@ -19,7 +19,7 @@ namespace CLHEP {
 namespace gen {
   class PomwigHadronizer : public gen::BaseHadronizer, public gen::Herwig6Instance {
   public:
-    PomwigHadronizer(const edm::ParameterSet& params);
+    PomwigHadronizer(const edm::ParameterSet& params, edm::ConsumesCollector&&);
     ~PomwigHadronizer() override;
 
     bool readSettings(int);

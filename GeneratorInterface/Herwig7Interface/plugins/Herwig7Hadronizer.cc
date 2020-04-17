@@ -35,7 +35,7 @@ namespace CLHEP {
 
 class Herwig7Hadronizer : public Herwig7Interface, public gen::BaseHadronizer {
 public:
-  Herwig7Hadronizer(const edm::ParameterSet& params);
+  Herwig7Hadronizer(const edm::ParameterSet& params, edm::ConsumesCollector&&);
   ~Herwig7Hadronizer() override;
 
   bool readSettings(int) { return true; }
@@ -73,7 +73,7 @@ private:
   unsigned int currentLumiBlock = 0;
 };
 
-Herwig7Hadronizer::Herwig7Hadronizer(const edm::ParameterSet& pset)
+Herwig7Hadronizer::Herwig7Hadronizer(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
     : Herwig7Interface(pset),
       BaseHadronizer(pset),
       eventsToPrint(pset.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),

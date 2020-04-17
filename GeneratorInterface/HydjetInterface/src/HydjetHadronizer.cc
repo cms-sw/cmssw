@@ -1,14 +1,8 @@
-/*
-
- ######################## 
- #  Hydjet1		#
- #  version: 1.9 patch1 #
- ########################
-
- * Interface to the HYDJET generator, produces HepMC events
- *
- * Original Author: Camelia Mironov
- */
+/**
+   \brief Interface to the HYDJET generator, produces HepMC events
+   \version 1.9.1
+   \author Camelia Mironov
+*/
 
 #include <iostream>
 #include <cmath>
@@ -61,7 +55,7 @@ const std::vector<std::string> HydjetHadronizer::theSharedResources = {edm::Shar
                                                                        gen::FortranInstance::kFortranInstance};
 
 //_____________________________________________________________________
-HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset)
+HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset, edm::ConsumesCollector&& iC)
     : BaseHadronizer(pset),
       evt(nullptr),
       pset_(pset),
@@ -107,8 +101,13 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet& pset)
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint", 0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_;
 
-  if (embedding_)
-    src_ = pset.getParameter<edm::InputTag>("backgroundLabel");
+  if (embedding_){
+    cflag_ = 0;
+    src_ = iC.consumes<CrossingFrame<edm::HepMCProduct> >(pset.getUntrackedParameter<edm::InputTag>( "backgroundLabel", edm::InputTag("mix", "generatorSmeared") ));
+  }
+
+  int cm = 1, va, vb, vc;
+  HYJVER(cm, va, vb, vc);
 }
 
 //_____________________________________________________________________
@@ -191,22 +190,30 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
 
   // generate single event
   if (embedding_) {
-    cflag_ = 0;
     const edm::Event& e = getEDMEvent();
-    Handle<HepMCProduct> input;
-    e.getByLabel(src_, input);
-    const HepMC::GenEvent* inev = input->GetEvent();
-    const HepMC::HeavyIon* hi = inev->heavy_ion();
-    if (hi) {
-      bfixed_ = hi->impact_parameter();
-      phi0_ = hi->event_plane_angle();
-      sinphi0_ = sin(phi0_);
-      cosphi0_ = cos(phi0_);
-    } else {
-      LogWarning("EventEmbedding") << "Background event does not have heavy ion record!";
-    }
-  } else if (rotate_)
-    rotateEvtPlane();
+
+    MixCollection<HepMCProduct>* cfhepmcprod = 0;
+    size_t npiles;
+
+    Handle<CrossingFrame<edm::HepMCProduct> > cf;
+    e.getByToken(src_,cf);
+
+    cfhepmcprod = new MixCollection<HepMCProduct>(cf.product());
+    npiles = cfhepmcprod->size();
+
+    for(unsigned int icf = 0; icf < npiles; ++icf){
+      const HepMC::HeavyIon* hi = cfhepmcprod->getObject(icf).GetEvent()->heavy_ion();
+      if (hi) { 
+        bfixed_ = (hi->impact_parameter())/nuclear_radius();
+        phi0_ = hi->event_plane_angle();
+        sinphi0_ = sin(phi0_);
+        cosphi0_ = cos(phi0_);
+      } else {
+        LogWarning("EventEmbedding") << "Background event does not have heavy ion record!";
+      }
+    } 
+
+  } else if (rotate_) rotateEvtPlane();
 
   nsoft_ = 0;
   nhard_ = 0;
@@ -231,7 +238,7 @@ bool HydjetHadronizer::generatePartonsAndHadronize() {
       edm::Exception except(edm::errors::EventCorruption, sstr.str());
       throw except;
     } else {
-      HYEVNT();
+      HYEVNT(bfixed_);
       nsoft_ = hyfpar.nhyd;
       nsub_ = hyjpar.njet;
       nhard_ = hyfpar.npyt;

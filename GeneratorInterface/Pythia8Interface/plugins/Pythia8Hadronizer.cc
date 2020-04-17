@@ -75,7 +75,7 @@ using namespace gen;
 
 class Pythia8Hadronizer : public Py8InterfaceBase {
 public:
-  Pythia8Hadronizer(const edm::ParameterSet &params);
+  Pythia8Hadronizer(const edm::ParameterSet &params, edm::ConsumesCollector&&);
   ~Pythia8Hadronizer() override;
 
   bool initializeForInternalPartons() override;
@@ -167,7 +167,7 @@ private:
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = {edm::SharedResourceNames::kPythia8};
 
-Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
+Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params, edm::ConsumesCollector&& iC)
     : Py8InterfaceBase(params),
       comEnergy(params.getParameter<double>("comEnergy")),
       LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName", "")),

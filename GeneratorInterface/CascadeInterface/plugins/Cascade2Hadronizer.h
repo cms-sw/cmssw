@@ -23,7 +23,7 @@ namespace gen {
 
   class Cascade2Hadronizer : public BaseHadronizer {
   public:
-    Cascade2Hadronizer(edm::ParameterSet const& ps);
+    Cascade2Hadronizer(edm::ParameterSet const& ps, edm::ConsumesCollector&&);
     ~Cascade2Hadronizer() override;
 
     bool readSettings(int);

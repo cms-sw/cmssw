@@ -75,7 +75,7 @@ namespace edm {
 
   template <class HAD, class DEC>
   GeneratorFilter<HAD, DEC>::GeneratorFilter(ParameterSet const& ps)
-      : EDFilter(), hadronizer_(ps), decayer_(nullptr), nEventsInLumiBlock_(0) {
+      : EDFilter(), hadronizer_(ps, consumesCollector()), decayer_(nullptr), nEventsInLumiBlock_(0) {
     // TODO:
     // Put the list of types produced by the filters here.
     // The current design calls for:

@@ -127,7 +127,7 @@ const std::vector<std::string> Hydjet2Hadronizer::theSharedResources = {edm::Sha
                                                                         gen::FortranInstance::kFortranInstance};
 
 //____________________________________________________________________________________________
-Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet& pset)
+Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
     : BaseHadronizer(pset),
       fSqrtS(pset.getParameter<double>("fSqrtS")),  // C.m.s. energy per nucleon pair
       fAw(pset.getParameter<double>("fAw")),        // Atomic weigth of nuclei, fAw

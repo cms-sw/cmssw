@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 	input = cms.untracked.int32(100)
 )
 
-process.ana = cms.EDAnalyzer('Hydjet2Analyzer',
+process.ana = cms.EDAnalyzer('HydjetAnalyzer',
 
 	doHistos		= cms.untracked.bool(True),
 	userHistos		= cms.untracked.bool(False),

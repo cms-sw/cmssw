@@ -55,7 +55,7 @@ double gen::drangen_(int* idummy) {
 }
 }
 
-ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet& pset)
+ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet& pset, edm::ConsumesCollector&& iC)
     : BaseHadronizer(pset),
       pset_(pset),
       m_BeamMomentum(pset.getParameter<double>("beammomentum")),

@@ -37,7 +37,7 @@ namespace {
 
 class SherpaHadronizer : public gen::BaseHadronizer {
 public:
-  SherpaHadronizer(const edm::ParameterSet &params);
+  SherpaHadronizer(const edm::ParameterSet &params, edm::ConsumesCollector&&);
   ~SherpaHadronizer() override;
 
   bool readSettings(int) { return true; }
@@ -103,7 +103,7 @@ void SherpaHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine *v) {
   }
 }
 
-SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params)
+SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params, edm::ConsumesCollector&& iC)
     : BaseHadronizer(params),
       SherpaParameterSet(params.getParameter<edm::ParameterSet>("SherpaParameters")),
       isRNGinitialized(false) {

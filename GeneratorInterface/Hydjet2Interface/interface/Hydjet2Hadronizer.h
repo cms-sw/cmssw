@@ -64,7 +64,7 @@ namespace gen {
   class Pythia6Service;
   class Hydjet2Hadronizer : public InitialState, public BaseHadronizer {
   public:
-    Hydjet2Hadronizer(const edm::ParameterSet&);
+    Hydjet2Hadronizer(const edm::ParameterSet&, edm::ConsumesCollector&&);
     ~Hydjet2Hadronizer() override;
 
     bool readSettings(int);

@@ -80,7 +80,7 @@ namespace {
 
 class Herwig6Hadronizer : public gen::BaseHadronizer, public gen::Herwig6Instance {
 public:
-  Herwig6Hadronizer(const edm::ParameterSet &params);
+  Herwig6Hadronizer(const edm::ParameterSet &params, edm::ConsumesCollector&&);
   ~Herwig6Hadronizer() override;
 
   void setSLHAFromHeader(const std::vector<std::string> &lines);
@@ -158,7 +158,7 @@ void mysetpdfpath_(const char *path);
 const std::vector<std::string> Herwig6Hadronizer::theSharedResources = {edm::SharedResourceNames::kHerwig6,
                                                                         gen::FortranInstance::kFortranInstance};
 
-Herwig6Hadronizer::Herwig6Hadronizer(const edm::ParameterSet &params)
+Herwig6Hadronizer::Herwig6Hadronizer(const edm::ParameterSet &params, edm::ConsumesCollector&& iC)
     : BaseHadronizer(params),
       needClear(false),
       parameters(params.getParameter<edm::ParameterSet>("HerwigParameters")),

@@ -26,7 +26,7 @@ namespace gen {
 
   class HijingHadronizer : public BaseHadronizer {
   public:
-    HijingHadronizer(const edm::ParameterSet&);
+    HijingHadronizer(const edm::ParameterSet&, edm::ConsumesCollector&&);
     ~HijingHadronizer() override;
 
     bool generatePartonsAndHadronize();

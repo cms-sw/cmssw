@@ -8,7 +8,7 @@ namespace gen {
 
   class Py8EGun : public Py8GunBase {
   public:
-    Py8EGun(edm::ParameterSet const&);
+    Py8EGun(edm::ParameterSet const&, edm::ConsumesCollector&&);
     ~Py8EGun() override {}
 
     bool generatePartonsAndHadronize() override;
@@ -25,7 +25,7 @@ namespace gen {
 
   // implementation
   //
-  Py8EGun::Py8EGun(edm::ParameterSet const& ps) : Py8GunBase(ps) {
+  Py8EGun::Py8EGun(edm::ParameterSet const& ps, edm::ConsumesCollector&& iC) : Py8GunBase(ps) {
     // ParameterSet defpset ;
     edm::ParameterSet pgun_params = ps.getParameter<edm::ParameterSet>("PGunParameters");  // , defpset ) ;
     fMinEta = pgun_params.getParameter<double>("MinEta");                                  // ,-2.2);

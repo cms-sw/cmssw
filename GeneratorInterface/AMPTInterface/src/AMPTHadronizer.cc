@@ -39,7 +39,7 @@ extern "C" {
 float gen::ran1_(int*) { return amptRandomEngine->flat(); }
 }
 
-AMPTHadronizer::AMPTHadronizer(const ParameterSet& pset)
+AMPTHadronizer::AMPTHadronizer(const ParameterSet& pset, edm::ConsumesCollector&& iC)
     : BaseHadronizer(pset),
       evt(nullptr),
       pset_(pset),

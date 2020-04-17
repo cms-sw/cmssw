@@ -73,7 +73,7 @@ namespace gen {
   const std::vector<std::string> ExhumeHadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6,
                                                                          gen::FortranInstance::kFortranInstance};
 
-  ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset)
+  ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC)
       : BaseHadronizer(pset),
         pythia6Service_(new Pythia6Service(pset)),
         randomEngine_(nullptr),

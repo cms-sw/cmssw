@@ -29,7 +29,7 @@ namespace gen {
 
   class PyquenHadronizer : public BaseHadronizer {
   public:
-    PyquenHadronizer(const edm::ParameterSet&);
+    PyquenHadronizer(const edm::ParameterSet&, edm::ConsumesCollector&&);
     ~PyquenHadronizer() override;
 
     bool generatePartonsAndHadronize();

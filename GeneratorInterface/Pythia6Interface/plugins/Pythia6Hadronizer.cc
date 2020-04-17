@@ -93,7 +93,7 @@ namespace gen {
   const std::vector<std::string> Pythia6Hadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6,
                                                                           gen::FortranInstance::kFortranInstance};
 
-  Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
+  Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps, edm::ConsumesCollector&& iC)
       : BaseHadronizer(ps),
         fPy6Service(new Pythia6ServiceWithCallback(ps)),  // this will store py6 params for further settings
         fInitialState(PP),

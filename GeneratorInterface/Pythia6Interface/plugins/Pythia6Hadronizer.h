@@ -36,7 +36,7 @@ namespace gen {
 
   class Pythia6Hadronizer : public BaseHadronizer {
   public:
-    Pythia6Hadronizer(edm::ParameterSet const& ps);
+    Pythia6Hadronizer(edm::ParameterSet const& ps, edm::ConsumesCollector&&);
     ~Pythia6Hadronizer() override;
 
     // bool generatePartons();

@@ -77,7 +77,7 @@ namespace gen {
   const std::vector<std::string> Cascade2Hadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6,
                                                                            gen::FortranInstance::kFortranInstance};
 
-  Cascade2Hadronizer::Cascade2Hadronizer(edm::ParameterSet const& pset)
+  Cascade2Hadronizer::Cascade2Hadronizer(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC)
       : BaseHadronizer(pset),
         fPy6Service(new Pythia6ServiceWithCallback(pset)),  //-- this will store py6 parameters for further settings
 

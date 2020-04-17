@@ -19,7 +19,7 @@ namespace HepMC {
 namespace gen {
   class ReggeGribovPartonMCHadronizer : public BaseHadronizer {
   public:
-    ReggeGribovPartonMCHadronizer(const edm::ParameterSet &);
+    ReggeGribovPartonMCHadronizer(const edm::ParameterSet&, edm::ConsumesCollector&&);
     ~ReggeGribovPartonMCHadronizer() override;
   };
 
