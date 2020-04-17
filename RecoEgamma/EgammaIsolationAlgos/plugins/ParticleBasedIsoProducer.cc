@@ -26,11 +26,10 @@ ParticleBasedIsoProducer::ParticleBasedIsoProducer(const edm::ParameterSet& conf
   valueMapPFCandPhoton_ = conf_.getParameter<std::string>("valueMapPhoToEG");
   valueMapPFCandEle_ = conf_.getParameter<std::string>("valueMapEleToEG");
 
-  valMapPFCandToPhoton_ =
-      consumes<edm::ValueMap<reco::PhotonRef>>(edm::InputTag("gedPhotonsTmp", valueMapPFCandPhoton_));
+  valMapPFCandToPhoton_ = consumes<edm::ValueMap<reco::PhotonRef>>({"gedPhotonsTmp", valueMapPFCandPhoton_});
 
   valMapPFCandToEle_ =
-      consumes<edm::ValueMap<reco::GsfElectronRef>>(edm::InputTag("gedGsfElectronsTmp", valueMapPFCandEle_));
+      consumes<edm::ValueMap<reco::GsfElectronRef>>({"gedGsfElectronValueMapsTmp", valueMapPFCandEle_});
 
   valueMapPhoPFCandIso_ = conf_.getParameter<std::string>("valueMapPhoPFblockIso");
   valueMapElePFCandIso_ = conf_.getParameter<std::string>("valueMapElePFblockIso");

@@ -336,7 +336,7 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   // EGamma-related
   desc.add<edm::InputTag>("PFEGammaCandidates", edm::InputTag("particleFlowEGamma"));
-  desc.add<edm::InputTag>("GedElectronValueMap", edm::InputTag("gedGsfElectronsTmp"));
+  desc.add<edm::InputTag>("GedElectronValueMap", {"gedGsfElectronValueMapsTmp"});
   desc.add<edm::InputTag>("GedPhotonValueMap", edm::InputTag("gedPhotonsTmp", "valMapPFEgammaCandToPhoton"));
 
   desc.add<bool>("useEGammaElectrons", true);
