@@ -608,24 +608,23 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker& ibooker) {
     Chi2oNDF->setAxisTitle("Number of Tracks", 2);
 
     histname = "LongDCASig_";
-    LongDCASig =
-      ibooker.book1D(histname + CategoryName, histname + CategoryName, LongDCABins, LongDCAMin, LongDCAMax);
+    LongDCASig = ibooker.book1D(histname + CategoryName, histname + CategoryName, LongDCABins, LongDCAMin, LongDCAMax);
     LongDCASig->setAxisTitle("dz/#sigma_{dz}", 1);
 
     histname = "TransDCASig_";
     TransDCASig =
-      ibooker.book1D(histname + CategoryName, histname + CategoryName, TransDCABins, TransDCAMin, TransDCAMax);
+        ibooker.book1D(histname + CategoryName, histname + CategoryName, TransDCABins, TransDCAMin, TransDCAMax);
     TransDCASig->setAxisTitle("dxy/#sigma_{dxy}", 1);
 
     histname = "LongDCASigVsEta_";
-    LongDCASigVsEta =
-      ibooker.bookProfile(histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, LongDCAMin, LongDCAMax);
+    LongDCASigVsEta = ibooker.bookProfile(
+        histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, LongDCAMin, LongDCAMax);
     LongDCASigVsEta->setAxisTitle("Track #eta", 1);
     LongDCASigVsEta->setAxisTitle("dz/#sigma_{dz}", 2);
 
     histname = "TransDCASigVsEta_";
-    TransDCASigVsEta =
-      ibooker.bookProfile(histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, TransDCAMin, TransDCAMax);
+    TransDCASigVsEta = ibooker.bookProfile(
+        histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, TransDCAMin, TransDCAMax);
     TransDCASigVsEta->setAxisTitle("Track #eta", 1);
     TransDCASigVsEta->setAxisTitle("dxy/#sigma_{dxy}", 2);
 
@@ -1399,19 +1398,18 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (recoPrimaryVerticesHandle.isValid() && !recoPrimaryVerticesHandle->empty()) {
       const reco::Vertex& pv = (*recoPrimaryVerticesHandle)[0];
 
-
       double longDCAsig = 0, transDCAsig = 0;
       double zerr2 = track.dzError() * track.dzError() + pv.zError() * pv.zError();
       double xyerr2 = track.d0Error() * track.d0Error() + pv.xError() * pv.yError();
       if (zerr2 > 0)
-	longDCAsig = track.dz(pv.position()) / zerr2;
+        longDCAsig = track.dz(pv.position()) / zerr2;
       if (xyerr2 > 0)
-	transDCAsig = track.dxy(pv.position()) / xyerr2;
+        transDCAsig = track.dxy(pv.position()) / xyerr2;
       LongDCASig->Fill(longDCAsig);
       TransDCASig->Fill(transDCAsig);
 
-      LongDCASigVsEta->Fill(track.eta(),longDCAsig);
-      TransDCASigVsEta->Fill(track.eta(),transDCAsig);
+      LongDCASigVsEta->Fill(track.eta(), longDCAsig);
+      TransDCASigVsEta->Fill(track.eta(), transDCAsig);
 
       //////////////////
       //HI PLOTS///////
