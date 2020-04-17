@@ -110,7 +110,7 @@ float CSCCorrelatedLCTDigi::getFractionalStrip(const uint16_t n) const {
 }
 
 uint16_t CSCCorrelatedLCTDigi::getCLCTPattern() const {
-  return (isRun3() ? (pattern & 0xF) : std::numeric_limits<uint16_t>::max());
+  return (isRun3() ? std::numeric_limits<uint16_t>::max() : (pattern & 0xF));
 }
 
 uint16_t CSCCorrelatedLCTDigi::getHMT() const { return (isRun3() ? hmt : std::numeric_limits<uint16_t>::max()); }
