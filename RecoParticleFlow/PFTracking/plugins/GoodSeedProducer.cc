@@ -6,34 +6,176 @@
 // Original Author:  Michele Pioppi
 // March 2010. F. Beaudette. Produce PreId information
 
-#include "RecoParticleFlow/PFTracking/plugins/GoodSeedProducer.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
+/// \brief Abstract
+/*!
+\author Michele Pioppi
+\date January 2007
 
+ GoodSeedProducer is the class
+ for electron preidentification in PFLow FW.
+ It reads refitted tracks and PFCluster collection, 
+ and following some criteria divides electrons from hadrons.
+ Then it saves the seed of the tracks preidentified as electrons.
+ It also transform  all the tracks in the first PFRecTrack collection.
+*/
+
+#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
+#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "DataFormats/ParticleFlowReco/interface/PreId.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include <fstream>
-#include <string>
 #include "TMath.h"
 #include "Math/VectorUtil.h"
+
+#include <fstream>
+
+namespace goodseedhelpers {
+  struct HeavyObjectCache {
+    constexpr static unsigned int kMaxWeights = 9;
+    HeavyObjectCache(const edm::ParameterSet& conf);
+    std::array<std::unique_ptr<const GBRForest>, kMaxWeights> gbr;
+  };
+}  // namespace goodseedhelpers
+
+class GoodSeedProducer final : public edm::stream::EDProducer<edm::GlobalCache<goodseedhelpers::HeavyObjectCache>> {
+  typedef TrajectoryStateOnSurface TSOS;
+
+public:
+  explicit GoodSeedProducer(const edm::ParameterSet&, const goodseedhelpers::HeavyObjectCache*);
+
+  static std::unique_ptr<goodseedhelpers::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
+    return std::make_unique<goodseedhelpers::HeavyObjectCache>(conf);
+  }
+
+  static void globalEndJob(goodseedhelpers::HeavyObjectCache const*) {}
+
+private:
+  void beginRun(const edm::Run& run, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  ///Find the bin in pt and eta
+  int getBin(float, float);
+
+  void fillPreIdRefValueMap(edm::Handle<reco::TrackCollection> tkhandle,
+                            const edm::OrphanHandle<reco::PreIdCollection>&,
+                            edm::ValueMap<reco::PreIdRef>::Filler& filler);
+  // ----------member data ---------------------------
+
+  ///Name of the Seed(Ckf) Collection
+  std::string preidckf_;
+
+  ///Name of the Seed(Gsf) Collection
+  std::string preidgsf_;
+
+  ///Name of the preid Collection (FB)
+  std::string preidname_;
+
+  // needed by the above
+  TkClonerImpl hitCloner;
+
+  ///PFTrackTransformer
+  std::unique_ptr<PFTrackTransformer> pfTransformer_;
+
+  ///Number of hits in the seed;
+  int nHitsInSeed_;
+
+  ///Minimum transverse momentum and maximum pseudorapidity
+  double minPt_;
+  double maxPt_;
+  double maxEta_;
+
+  double HcalIsolWindow_;
+  double EcalStripSumE_minClusEnergy_;
+  double EcalStripSumE_deltaEta_;
+  double EcalStripSumE_deltaPhiOverQ_minValue_;
+  double EcalStripSumE_deltaPhiOverQ_maxValue_;
+  double minEoverP_;
+  double maxHoverP_;
+
+  ///Cut on the energy of the clusters
+  double clusThreshold_;
+
+  ///Min and MAx allowed values forEoverP
+  double minEp_;
+  double maxEp_;
+
+  ///Produce the Seed for Ckf tracks?
+  bool produceCkfseed_;
+
+  ///  switch to disable the pre-id
+  bool disablePreId_;
+
+  ///Produce the pre-id debugging collection
+  bool producePreId_;
+
+  /// Threshold to save Pre Idinfo
+  double PtThresholdSavePredId_;
+
+  ///vector of thresholds for different bins of eta and pt
+  float thr[150];
+
+  // ----------access to event data
+  edm::ParameterSet conf_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagPSLabel_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagECLabel_;
+  edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagHCLabel_;
+  std::vector<edm::EDGetTokenT<std::vector<Trajectory>>> trajContainers_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection>> tracksContainers_;
+
+  std::string fitterName_;
+  std::string smootherName_;
+  std::string propagatorName_;
+  std::string trackerRecHitBuilderName_;
+
+  std::unique_ptr<PFResolutionMap> resMapEtaECAL_;
+  std::unique_ptr<PFResolutionMap> resMapPhiECAL_;
+
+  ///TRACK QUALITY
+  bool useQuality_;
+  reco::TrackBase::TrackQuality trackQuality_;
+
+  ///VARIABLES NEEDED FOR TMVA
+  float nhit, dpt, chired, chiRatio;
+  float chikfred, trk_ecalDeta, trk_ecalDphi;
+  double Min_dr_;
+
+  ///USE OF TMVA
+  bool useTmva_;
+
+  ///B field
+  math::XYZVector B_;
+
+  /// Map used to create the TrackRef, PreIdRef value map
+  std::map<reco::TrackRef, unsigned> refMap_;
+};
 
 using namespace edm;
 using namespace std;
@@ -136,19 +278,22 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   auto preIdMap_p = std::make_unique<edm::ValueMap<reco::PreIdRef>>();
   edm::ValueMap<reco::PreIdRef>::Filler mapFiller(*preIdMap_p);
 
+  std::unique_ptr<TrajectoryFitter> fitter;
+  std::unique_ptr<TrajectorySmoother> smoother;
+
   //Tracking Tools
   if (!disablePreId_) {
     edm::ESHandle<TrajectoryFitter> aFitter;
     edm::ESHandle<TrajectorySmoother> aSmoother;
     iSetup.get<TrajectoryFitter::Record>().get(fitterName_, aFitter);
     iSetup.get<TrajectoryFitter::Record>().get(smootherName_, aSmoother);
-    smoother_.reset(aSmoother->clone());
-    fitter_ = aFitter->clone();
+    smoother.reset(aSmoother->clone());
+    fitter = aFitter->clone();
     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
     iSetup.get<TransientRecHitRecord>().get(trackerRecHitBuilderName_, theTrackerRecHitBuilder);
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product())->cloner();
-    fitter_->setHitCloner(&hitCloner);
-    smoother_->setHitCloner(&hitCloner);
+    fitter->setHitCloner(&hitCloner);
+    smoother->setHitCloner(&hitCloner);
   }
 
   // clear temporary maps
@@ -343,10 +488,10 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           GlobalPoint gp(theTrack.innerPosition().x(), theTrack.innerPosition().y(), theTrack.innerPosition().z());
           GlobalTrajectoryParameters gtps(gp, gv, theTrack.charge(), &*magneticField);
           TrajectoryStateOnSurface tsos(gtps, theTrack.innerStateCovariance(), *tmp[0]->surface());
-          Trajectory&& FitTjs = fitter_->fitOne(Seed, tmp, tsos);
+          Trajectory&& FitTjs = fitter->fitOne(Seed, tmp, tsos);
 
           if (FitTjs.isValid()) {
-            Trajectory&& SmooTjs = smoother_->trajectory(FitTjs);
+            Trajectory&& SmooTjs = smoother->trajectory(FitTjs);
             if (SmooTjs.isValid()) {
               //Track refitted with electron hypothesis
 
@@ -361,10 +506,7 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
           //TMVA Analysis
           if (useTmva_) {
-            eta = tketa;
-            pt = tkpt;
-            eP = EP;
-            float vars[10] = {nhit, chikfred, dpt, eP, chiRatio, chired, trk_ecalDeta, trk_ecalDphi, pt, eta};
+            float vars[10] = {nhit, chikfred, dpt, EP, chiRatio, chired, trk_ecalDeta, trk_ecalDphi, tkpt, tketa};
 
             float Ytmva = globalCache()->gbr[ipteta]->GetClassifier(vars);
 
@@ -465,14 +607,14 @@ void GoodSeedProducer::beginRun(const edm::Run& run, const EventSetup& es) {
   es.get<IdealMagneticFieldRecord>().get(magneticField);
   B_ = magneticField->inTesla(GlobalPoint(0, 0, 0));
 
-  pfTransformer_.reset(new PFTrackTransformer(B_));
+  pfTransformer_ = std::make_unique<PFTrackTransformer>(B_);
   pfTransformer_->OnlyProp();
 
   //Resolution maps
   FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
   FileInPath ecalPhiMap(conf_.getParameter<string>("PhiMap"));
-  resMapEtaECAL_.reset(new PFResolutionMap("ECAL_eta", ecalEtaMap.fullPath().c_str()));
-  resMapPhiECAL_.reset(new PFResolutionMap("ECAL_phi", ecalPhiMap.fullPath().c_str()));
+  resMapEtaECAL_ = std::make_unique<PFResolutionMap>("ECAL_eta", ecalEtaMap.fullPath().c_str());
+  resMapPhiECAL_ = std::make_unique<PFResolutionMap>("ECAL_phi", ecalPhiMap.fullPath().c_str());
 
   //read threshold
   FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
