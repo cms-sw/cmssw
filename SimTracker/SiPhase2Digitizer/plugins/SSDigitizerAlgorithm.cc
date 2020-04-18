@@ -23,13 +23,13 @@ SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf)
                                 .getParameter<std::vector<double> >("PulseShapeParameters")),
       deadTime_(conf.getParameter<ParameterSet>("SSDigitizerAlgorithm").getParameter<double>("CBCDeadTime")) {
   pixelFlag_ = false;
-  LogInfo("SSDigitizerAlgorithm ") << "SSDigitizerAlgorithm constructed "
-                                   << "Configuration parameters:"
-                                   << "Threshold/Gain = "
-                                   << "threshold in electron Endcap = " << theThresholdInE_Endcap_
-                                   << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
-                                   << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
-                                   << tMax_ << " pix-inefficiency " << addPixelInefficiency_;
+  LogDebug("SSDigitizerAlgorithm ") << "SSDigitizerAlgorithm constructed "
+                                    << "Configuration parameters:"
+                                    << "Threshold/Gain = "
+                                    << "threshold in electron Endcap = " << theThresholdInE_Endcap_
+                                    << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
+                                    << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
+                                    << tMax_ << " pix-inefficiency " << addPixelInefficiency_;
   storeSignalShape();
 }
 SSDigitizerAlgorithm::~SSDigitizerAlgorithm() { LogDebug("SSDigitizerAlgorithm") << "SSDigitizerAlgorithm deleted"; }
@@ -60,7 +60,7 @@ void SSDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 
     double signalScale = 1.0;
     // fill collection_points for this SimHit, indpendent of topology
-    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() / 30.), signalScale)) {
+    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv), signalScale)) {
       primary_ionization(hit, ionization_points);  // fills ionization_points
 
       // transforms ionization_points -> collection_points
@@ -84,8 +84,7 @@ bool SSDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& 
     result = select_hit_latchedMode(hit, tCorr, sigScale);
   else {
     double toa = hit.tof() - tCorr;
-    if (toa > theTofLowerCut_ && toa < theTofUpperCut_)
-      result = true;
+    result = (toa > theTofLowerCut_ && toa < theTofUpperCut_);
   }
   return result;
 }
@@ -101,10 +100,7 @@ bool SSDigitizerAlgorithm::select_hit_sampledMode(const PSimHit& hit, double tCo
       (det_id.subdetId() == StripSubdetector::TOB) ? theThresholdInE_Barrel_ : theThresholdInE_Endcap_;
 
   sigScale = getSignalScale(sampling_time - toa);
-  if (sigScale * hit.energyLoss() / GeVperElectron_ > theThresholdInE)
-    return true;
-
-  return false;
+  return (sigScale * hit.energyLoss() / GeVperElectron_ > theThresholdInE);
 }
 //
 // -- Select Hits in Hit Detection Mode
@@ -124,25 +120,23 @@ bool SSDigitizerAlgorithm::select_hit_latchedMode(const PSimHit& hit, double tCo
   for (float i = deadTime_; i <= bx_time; i++) {
     sigScale = getSignalScale(sampling_time - toa + i);
 
-    if (sigScale * hit.energyLoss() / GeVperElectron_ > theThresholdInE)
-      aboveThr = true;
-    else
-      aboveThr = false;
-    if (!lastPulse && aboveThr) {
+    aboveThr = (sigScale * hit.energyLoss() / GeVperElectron_ > theThresholdInE);
+    if (!lastPulse && aboveThr)
       return true;
-    }
+
     lastPulse = aboveThr;
   }
   return false;
 }
 
-double SSDigitizerAlgorithm::nFactorial(int n) { return TMath::Gamma(n + 1); }
+double SSDigitizerAlgorithm::nFactorial(int n) { return std::tgamma(n + 1); }
 double SSDigitizerAlgorithm::aScalingConstant(int N, int i) {
   return std::pow(-1, (double)i) * nFactorial(N) * nFactorial(N + 2) /
          (nFactorial(N - i) * nFactorial(N + 2 - i) * nFactorial(i));
 }
 double SSDigitizerAlgorithm::cbc3PulsePolarExpansion(double x) {
-  if (pulseShapeParameters_.size() < 6)
+  constexpr size_t max_par = 6;
+  if (pulseShapeParameters_.size() < max_par)
     return -1;
   double xOffset = pulseShapeParameters_[0];
   double tau = pulseShapeParameters_[1];
@@ -160,9 +154,8 @@ double SSDigitizerAlgorithm::cbc3PulsePolarExpansion(double x) {
     double temporalTerm = 0;
     double rTerm = std::pow(r, i) / (std::pow(tau, 2. * i) * nFactorial(i + 2));
     for (int j = 0; j <= i; j++) {
-      double aij = nFactorial(i) * nFactorial(i + 2) / (nFactorial(i - j) * nFactorial(i + 2 - j) * nFactorial(j));
       angularTerm += std::pow(std::cos(theta), (double)(i - j)) * std::pow(std::sin(theta), (double)j);
-      temporalTerm += std::pow(-1., (double)j) * aij * std::pow(xx, (double)(i - j)) * std::pow(tau, (double)j);
+      temporalTerm += aScalingConstant(i, j) * std::pow(xx, (double)(i - j)) * std::pow(tau, (double)j);
     }
     double fi = rTerm * angularTerm * temporalTerm;
 
@@ -173,17 +166,14 @@ double SSDigitizerAlgorithm::cbc3PulsePolarExpansion(double x) {
 double SSDigitizerAlgorithm::signalShape(double x) {
   double xOffset = pulseShapeParameters_[0];
   double tau = pulseShapeParameters_[1];
-  //  double r = pulseShapeParameters_[2];
-  //  double theta = pulseShapeParameters_[3];
-  //  double nTerms = pulseShapeParameters_[4];
   double maxCharge = pulseShapeParameters_[5];
 
   double xx = x - xOffset;
-  return maxCharge * (TMath::Exp(-xx / tau) * std::pow(xx / tau, 2.) * cbc3PulsePolarExpansion(x));
+  return maxCharge * (std::exp(-xx / tau) * std::pow(xx / tau, 2.) * cbc3PulsePolarExpansion(x));
 }
 void SSDigitizerAlgorithm::storeSignalShape() {
-  for (int i = 0; i < 1000; i++) {
-    float val = i * 0.1;
+  for (size_t i = 0; i < interpolationPoints; i++) {
+    float val = i / interpolationStep;
 
     pulseShapeVec_.push_back(signalShape(val));
   }
@@ -192,14 +182,12 @@ double SSDigitizerAlgorithm::getSignalScale(double xval) {
   double res = 0.0;
   int len = pulseShapeVec_.size();
 
-  if (xval * 10 >= len)
-    return res;
-  if (xval < 0.0)
+  if (xval < 0.0 || xval * interpolationStep >= len)
     return res;
 
-  unsigned int lower = std::floor(xval) * 10;
-  unsigned int upper = std::ceil(xval) * 10;
-  for (size_t i = lower + 1; i < upper * 10; i++) {
+  unsigned int lower = std::floor(xval) * interpolationStep;
+  unsigned int upper = std::ceil(xval) * interpolationStep;
+  for (size_t i = lower + 1; i < upper * interpolationStep; i++) {
     float val = i * 0.1;
     if (val > xval) {
       res = pulseShapeVec_[i - 1];
@@ -208,11 +196,11 @@ double SSDigitizerAlgorithm::getSignalScale(double xval) {
   }
   return res;
 }
+//
+// -- Compare Signal with Threshold
+//
 bool SSDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* const hisInfo,
                                             float charge,
                                             float thr) {
-  if (charge >= thr)
-    return true;
-  else
-    return false;
+  return (charge >= thr);
 }

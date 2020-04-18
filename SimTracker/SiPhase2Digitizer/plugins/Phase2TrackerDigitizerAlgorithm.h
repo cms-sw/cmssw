@@ -16,6 +16,11 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/DigitizerUtility.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
+// Units and Constants
+#include "DataFormats/Math/interface/CMSUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
 // forward declarations
 // For the random numbers
 namespace CLHEP {
@@ -38,6 +43,17 @@ class SiPixelLorentzAngle;
 class SiPixelQuality;
 class TrackerGeometry;
 class TrackerTopology;
+
+// REMEMBER CMS conventions:
+// -- Energy: GeV
+// -- momentum: GeV/c
+// -- mass: GeV/c^2
+// -- Distance, position: cm
+// -- Time: ns
+// -- Angles: radian
+// Some constants in convenient units
+constexpr double c_cm_ns = CLHEP::c_light * CLHEP::ns / CLHEP::cm;
+constexpr double c_inv = 1.0 / c_cm_ns;
 
 class Phase2TrackerDigitizerAlgorithm {
 public:

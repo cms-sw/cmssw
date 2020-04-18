@@ -16,11 +16,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
-// Units and Constants
-#include "DataFormats/Math/interface/CMSUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 //#include <iostream>
 #include <cmath>
 #include <vector>
@@ -28,16 +23,6 @@
 
 using namespace sipixelobjects;
 
-// REMEMBER CMS conventions:
-// -- Energy: GeV
-// -- momentum: GeV/c
-// -- mass: GeV/c^2
-// -- Distance, position: cm
-// -- Time: ns
-// -- Angles: radian
-// Some constants in convenient units
-constexpr double c_cm_ns = CLHEP::c_light * CLHEP::ns / CLHEP::cm;
-constexpr double c_inv = 1.0 / c_cm_ns;
 // Analogously to CMSUnits (no um defined)
 constexpr double operator""_um(long double length) { return length * 1e-4; }
 constexpr double operator""_um_inv(long double length) { return length * 1e4; }

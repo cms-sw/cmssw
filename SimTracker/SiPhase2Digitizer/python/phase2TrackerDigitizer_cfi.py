@@ -58,7 +58,7 @@ phase2TrackerDigitizer = cms.PSet(
       EfficiencyFactors_Endcap = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 
       0.999, 0.999 ),#Efficiencies kept as Side2Disk1,Side1Disk1 and so on
       CellsToKill = cms.VPSet(),
-      ApplyTimeWalk = cms.bool(False),
+      ApplyTimewalk = cms.bool(False),
       TimewalkModel = cms.PSet(
         ThresholdValues = cms.vdouble(1000, 1200, 1500, 3000),
         Curves = cms.VPSet(
