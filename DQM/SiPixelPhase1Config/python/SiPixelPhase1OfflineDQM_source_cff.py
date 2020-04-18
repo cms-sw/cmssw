@@ -67,9 +67,13 @@ siPixelPhase1OfflineDQM_source_cosmics.replace(SiPixelPhase1TrackClustersAnalyze
 
 #heavy ions config
 
-siPixelPhase1OfflineDQM_source_hi = siPixelPhase1OfflineDQM_source.copyAndExclude([
-    SiPixelPhase1RecHitsAnalyzer
-])
+siPixelPhase1OfflineDQM_source_hi = siPixelPhase1OfflineDQM_source.copy()
+
+SiPixelPhase1RecHitsAnalyzer_hi = SiPixelPhase1RecHitsAnalyzer.clone()
+SiPixelPhase1RecHitsAnalyzer_hi.src = "hiGeneralTracks"
+
+siPixelPhase1OfflineDQM_source_hi.replace(SiPixelPhase1RecHitsAnalyzer,
+                                          SiPixelPhase1RecHitsAnalyzer_hi)
 
 SiPixelPhase1TrackResidualsAnalyzer_hi = SiPixelPhase1TrackResidualsAnalyzer.clone()
 SiPixelPhase1TrackResidualsAnalyzer_hi.Tracks = "hiGeneralTracks"
