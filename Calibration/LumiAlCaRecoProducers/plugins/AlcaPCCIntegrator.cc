@@ -10,8 +10,6 @@ ________________________________________________________________**/
 // C++ standard
 #include <string>
 // CMS
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
 #include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
 
