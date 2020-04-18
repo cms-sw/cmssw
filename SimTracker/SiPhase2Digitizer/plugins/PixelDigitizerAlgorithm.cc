@@ -50,17 +50,18 @@ PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf)
       even_column_interchannelCoupling_next_column_(
           conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm")
               .getParameter<double>("Even_column_interchannelCoupling_next_column")),
-      apply_timewalk_(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<bool>("ApplyTimeWalk")),
+      apply_timewalk_(conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<bool>("ApplyTimewalk")),
       timewalk_model_(
           conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm").getParameter<edm::ParameterSet>("TimewalkModel")) {
   pixelFlag_ = true;
-  LogInfo("PixelDigitizerAlgorithm") << "Algorithm constructed "
-                                     << "Configuration parameters:"
-                                     << "Threshold/Gain = "
-                                     << "threshold in electron Endcap = " << theThresholdInE_Endcap_
-                                     << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
-                                     << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
-                                     << tMax_ << " pix-inefficiency " << addPixelInefficiency_;
+  LogDebug("PixelDigitizerAlgorithm") << "Algorithm constructed "
+                                      << "Configuration parameters:"
+                                      << "Threshold/Gain = "
+                                      << "threshold in electron Endcap = " << theThresholdInE_Endcap_
+                                      << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
+                                      << theElectronPerADC_ << " " << theAdcFullScale_
+                                      << " The delta cut-off is set to " << tMax_ << " pix-inefficiency "
+                                      << addPixelInefficiency_;
 }
 PixelDigitizerAlgorithm::~PixelDigitizerAlgorithm() { LogDebug("PixelDigitizerAlgorithm") << "Algorithm deleted"; }
 void PixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
@@ -90,7 +91,7 @@ void PixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iter
 
     double signalScale = 1.0;
     // fill collection_points for this SimHit, indpendent of topology
-    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() / 30.), signalScale)) {
+    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv), signalScale)) {
       primary_ionization(hit, ionization_points);  // fills ionization_points
 
       // transforms ionization_points -> collection_points
@@ -103,7 +104,9 @@ void PixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iter
     ++simHitGlobalIndex;
   }
 }
-
+//
+// -- Select the Hit for Digitization
+//
 bool PixelDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& sigScale) {
   double time = hit.tof() - tCorr;
   return (time >= theTofLowerCut_ && time < theTofUpperCut_);
@@ -215,7 +218,8 @@ void PixelDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetUnit* pix
 PixelDigitizerAlgorithm::TimewalkCurve::TimewalkCurve(const edm::ParameterSet& pset)
     : x_(pset.getParameter<std::vector<double>>("charge")), y_(pset.getParameter<std::vector<double>>("delay")) {
   if (x_.size() != y_.size())
-    throw cms::Exception("Configuration") << "Timewalk model error: Invalid curve.";
+    throw cms::Exception("Configuration")
+        << "Timewalk model error: the number of charge values does not match the number of delay values!";
 }
 
 double PixelDigitizerAlgorithm::TimewalkCurve::operator()(double x) const {
@@ -260,6 +264,9 @@ std::size_t PixelDigitizerAlgorithm::TimewalkModel::find_closest_index(const std
     return std::distance(vec.begin(), closest);
   }
 }
+//
+// -- Compare Signal with Threshold
+//
 bool PixelDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo, float charge, float thr) {
   if (charge < thr)
     return false;

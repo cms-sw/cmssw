@@ -18,13 +18,13 @@ PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf)
     : Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
                                       conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm")) {
   pixelFlag_ = false;
-  LogInfo("PSPDigitizerAlgorithm") << "Algorithm constructed "
-                                   << "Configuration parameters:"
-                                   << "Threshold/Gain = "
-                                   << "threshold in electron Endcap = " << theThresholdInE_Endcap_
-                                   << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
-                                   << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
-                                   << tMax_ << " pix-inefficiency " << addPixelInefficiency_;
+  LogDebug("PSPDigitizerAlgorithm") << "Algorithm constructed "
+                                    << "Configuration parameters:"
+                                    << "Threshold/Gain = "
+                                    << "threshold in electron Endcap = " << theThresholdInE_Endcap_
+                                    << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
+                                    << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
+                                    << tMax_ << " pix-inefficiency " << addPixelInefficiency_;
 }
 PSPDigitizerAlgorithm::~PSPDigitizerAlgorithm() { LogDebug("PSPDigitizerAlgorithm") << "Algorithm deleted"; }
 void PSPDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
@@ -54,7 +54,7 @@ void PSPDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterat
 
     double signalScale = 1.0;
     // fill collection_points for this SimHit, indpendent of topology
-    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() / 30.), signalScale)) {
+    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv), signalScale)) {
       primary_ionization(hit, ionization_points);  // fills ionization_points
 
       // transforms ionization_points -> collection_points
@@ -68,20 +68,15 @@ void PSPDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterat
   }
 }
 //
-// -- Select the Hit for Digitization
+// -- Select the Hit for Digitization (sigScale will be implemented in future)
 //
 bool PSPDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& sigScale) {
-  bool result = false;
-  sigScale = 1.0;
   double toa = hit.tof() - tCorr;
-  if (toa > theTofLowerCut_ && toa < theTofUpperCut_)
-    result = true;
-
-  return result;
+  return (toa > theTofLowerCut_ && toa < theTofUpperCut_);
 }
+//
+// -- Compare Signal with Threshold
+//
 bool PSPDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo, float charge, float thr) {
-  if (charge >= thr)
-    return true;
-  else
-    return false;
+  return (charge >= thr);
 }

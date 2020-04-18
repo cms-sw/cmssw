@@ -37,5 +37,7 @@ private:
   std::vector<double> pulseShapeParameters_;
   float deadTime_;
   static constexpr float bx_time{25};
+  static constexpr size_t interpolationPoints{1000};
+  static constexpr int interpolationStep{10};
 };
 #endif

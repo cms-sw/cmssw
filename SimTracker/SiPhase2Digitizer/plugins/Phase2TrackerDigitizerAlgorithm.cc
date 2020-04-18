@@ -156,7 +156,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
       theSiPixelGainCalibrationService_(
           use_ineff_from_db_ ? std::make_unique<SiPixelGainCalibrationOfflineSimService>(conf_specific) : nullptr),
       subdetEfficiencies_(conf_specific) {
-  LogInfo("Phase2TrackerDigitizerAlgorithm")
+  LogDebug("Phase2TrackerDigitizerAlgorithm")
       << "Phase2TrackerDigitizerAlgorithm constructed\n"
       << "Configuration parameters:\n"
       << "Threshold/Gain = "
@@ -532,7 +532,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
     }
   }
   // Fill the global map with all hit pixels from this event
-  float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() / 30.;
+  float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
   for (auto const& hit_s : hit_signal) {
     int chan = hit_s.first;
     theSignal[chan] +=
@@ -983,7 +983,7 @@ int Phase2TrackerDigitizerAlgorithm::convertSignalToAdc(uint32_t detID, float si
         temp_signal = std::floor((temp_signal - kink_point) / (pow(2, dualslope_param - 1))) + kink_point;
     }
     signal_in_adc = std::min(temp_signal, theAdcFullScale_);
-    LogInfo("Phase2TrackerDigitizerAlgorithm")
+    LogTrace("Phase2TrackerDigitizerAlgorithm")
         << " DetId " << detID << " signal_in_elec " << signal_in_elec << " threshold " << threshold
         << " signal_above_thr " << signal_in_elec - threshold << " temp conversion "
         << std::floor((signal_in_elec - threshold) / theElectronPerADC_) + 1 << " signal after slope correction "
