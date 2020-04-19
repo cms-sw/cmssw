@@ -156,13 +156,16 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
           ++index_counter;
         }
 
-	if(storeWithHalfPrecisionFloatingPoint) {
-	   outPFCandidates->emplace_back(MiniFloatConverter::float16to32(MiniFloatConverter::float32to16(cand.pt())), MiniFloatConverter::float16to32(MiniFloatConverter::float32to16(cand.eta())), MiniFloatConverter::float16to32(MiniFloatConverter::float32to16(cand.phi())), MiniFloatConverter::float16to32(MiniFloatConverter::float32to16(cand.mass())), cand.pdgId(), vertex_index);
-	} 
-	else {
-	   outPFCandidates->emplace_back(cand.pt(), cand.eta(), cand.phi(), cand.mass(), cand.pdgId(), vertex_index);
-	}
-
+        if (storeWithHalfPrecisionFloatingPoint) {
+          outPFCandidates->emplace_back(MiniFloatConverter::float16to32(MiniFloatConverter::float32to16(cand.pt())),
+                                        MiniFloatConverter::float16to32(MiniFloatConverter::float32to16(cand.eta())),
+                                        MiniFloatConverter::float16to32(MiniFloatConverter::float32to16(cand.phi())),
+                                        MiniFloatConverter::float16to32(MiniFloatConverter::float32to16(cand.mass())),
+                                        cand.pdgId(),
+                                        vertex_index);
+        } else {
+          outPFCandidates->emplace_back(cand.pt(), cand.eta(), cand.phi(), cand.mass(), cand.pdgId(), vertex_index);
+        }
       }
     }
   }
