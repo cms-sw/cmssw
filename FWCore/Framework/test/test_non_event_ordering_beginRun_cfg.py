@@ -14,4 +14,5 @@ process.c = cms.EDProducer("NonEventIntProducer", ivalue = cms.int32(3),
                            consumesBeginRun = cms.InputTag("a", "beginRun"),
                            expectBeginRun = cms.untracked.int32(1))
 
-process.schedule = cms.Schedule(tasks=cms.Task(process.a,process.b,process.c))
+process.t = cms.Task(process.a, process.c)
+process.p = cms.Path(process.b, process.t)
