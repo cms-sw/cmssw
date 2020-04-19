@@ -157,7 +157,6 @@ private:
 // constructors and destructor
 //
 
-using namespace std;
 SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& conf)
     : scalerToken_(consumes<LumiScalersCollection>(conf.getParameter<edm::InputTag>("lumiScalers"))),
       commonModeToken_(mayConsume<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>("commonMode"))),
@@ -206,10 +205,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
   //  bool DEBUG = false;
 
-  LogDebug("SiStripHitEfficiency:HitEff") << "beginning analyze from HitEff" << endl;
+  LogDebug("SiStripHitEfficiency:HitEff") << "beginning analyze from HitEff" << std::endl;
 
-  using namespace edm;
-  using namespace reco;
   // Step A: Get Inputs
 
   int run_nr = e.id().run();
@@ -281,7 +278,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   //e.getByLabel("siStripDigis", fedErrorIds );
   e.getByToken(digis_token_, fedErrorIds);
 
-  ESHandle<MeasurementTracker> measurementTrackerHandle;
+  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
   es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
@@ -321,21 +318,21 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
       LocalPoint lp = parameters.first;
       GlobalPoint gp = surface->toGlobal(lp);
       unsigned int layer = checkLayer(ClusterId, tTopo);
-            if(DEBUG) cout << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << endl;
+            if(DEBUG) std::cout << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << std::endl;
     }
   }
   */
 
   // Tracking
   const reco::TrackCollection* tracksCKF = trackCollectionCKF.product();
-  LogDebug("SiStripHitEfficiency:HitEff") << "number ckf tracks found = " << tracksCKF->size() << endl;
+  LogDebug("SiStripHitEfficiency:HitEff") << "number ckf tracks found = " << tracksCKF->size() << std::endl;
   //if (tracksCKF->size() == 1 ){
   if (!tracksCKF->empty()) {
     if (cutOnTracks_ && (tracksCKF->size() >= trackMultiplicityCut_))
       return;
     if (cutOnTracks_)
       LogDebug("SiStripHitEfficiency:HitEff")
-          << "starting checking good event with < " << trackMultiplicityCut_ << " tracks" << endl;
+          << "starting checking good event with < " << trackMultiplicityCut_ << " tracks" << std::endl;
 
     EventTrackCKF++;
 
@@ -354,7 +351,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
       highPurity = itrack->quality(reco::TrackBase::TrackQuality::highPurity);
 
       std::vector<TrajectoryMeasurement> TMeas = itraj->measurements();
-      vector<TrajectoryMeasurement>::iterator itm;
+      std::vector<TrajectoryMeasurement>::iterator itm;
       double xloc = 0.;
       double yloc = 0.;
       double xErr = 0.;
@@ -375,14 +372,14 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
       for (itm = TMeas.begin(); itm != TMeas.end(); itm++) {
         auto theInHit = (*itm).recHit();
 
-        LogDebug("SiStripHitEfficiency:HitEff") << "theInHit is valid = " << theInHit->isValid() << endl;
+        LogDebug("SiStripHitEfficiency:HitEff") << "theInHit is valid = " << theInHit->isValid() << std::endl;
 
         unsigned int iidd = theInHit->geographicalId().rawId();
 
         unsigned int TKlayers = checkLayer(iidd, tTopo);
         LogDebug("SiStripHitEfficiency:HitEff") << "TKlayer from trajectory: " << TKlayers << "  from module = " << iidd
                                                 << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/"
-                                                << ((iidd & 0x3) == 1) << "/" << ((iidd & 0x3) == 2) << endl;
+                                                << ((iidd & 0x3) == 1) << "/" << ((iidd & 0x3) == 2) << std::endl;
 
         // Test first and last points of the trajectory
         // the list of measurements starts from outer layers  !!! This could change -> should add a check
@@ -401,7 +398,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
         // If Trajectory measurement from TOB 6 or TEC 9, skip it because it's always valid they are filled later
         if (TKlayers == 10 || TKlayers == 22) {
-          LogDebug("SiStripHitEfficiency:HitEff") << "skipping original TM for TOB 6 or TEC 9" << endl;
+          LogDebug("SiStripHitEfficiency:HitEff") << "skipping original TM for TOB 6 or TEC 9" << std::endl;
           continue;
         }
 
@@ -424,7 +421,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           // the matched layer should be added to the study as well
           TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 1));
           TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 2));
-          LogDebug("SiStripHitEfficiency:HitEff") << " found a hit with a missing partner" << endl;
+          LogDebug("SiStripHitEfficiency:HitEff") << " found a hit with a missing partner" << std::endl;
         } else {
           //only add one TM for the single surface and the other will be added in the next iteration
           TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator));
@@ -457,11 +454,11 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           const LayerMeasurements* theLayerMeasurements =
               new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
           const TrajectoryStateOnSurface tsosTOB5 = itm->updatedState();
-          vector<TrajectoryMeasurement> tmp =
+          std::vector<TrajectoryMeasurement> tmp =
               theLayerMeasurements->measurements(*tob6, tsosTOB5, *thePropagator, *estimator);
 
           if (!tmp.empty()) {
-            LogDebug("SiStripHitEfficiency:HitEff") << "size of TM from propagation = " << tmp.size() << endl;
+            LogDebug("SiStripHitEfficiency:HitEff") << "size of TM from propagation = " << tmp.size() << std::endl;
 
             // take the last of the TMs, which is always an invalid hit
             // if no detId is available, ie detId==0, then no compatible layer was crossed
@@ -470,7 +467,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             const auto& tob6Hit = tob6TM.recHit();
 
             if (tob6Hit->geographicalId().rawId() != 0) {
-              LogDebug("SiStripHitEfficiency:HitEff") << "tob6 hit actually being added to TM vector" << endl;
+              LogDebug("SiStripHitEfficiency:HitEff") << "tob6 hit actually being added to TM vector" << std::endl;
               TMs.push_back(TrajectoryAtInvalidHit(tob6TM, tTopo, tkgeom, propagator));
             }
           }
@@ -500,17 +497,17 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
           // check if track on positive or negative z
           if (!(iidd == StripSubdetector::TEC))
-            LogDebug("SiStripHitEfficiency:HitEff") << "there is a problem with TEC 9 extrapolation" << endl;
+            LogDebug("SiStripHitEfficiency:HitEff") << "there is a problem with TEC 9 extrapolation" << std::endl;
 
-          //cout << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << endl;
-          vector<TrajectoryMeasurement> tmp;
+          //cout << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << std::endl;
+          std::vector<TrajectoryMeasurement> tmp;
           if (tTopo->tecSide(iidd) == 1) {
             tmp = theLayerMeasurements->measurements(*tec9neg, tsosTEC9, *thePropagator, *estimator);
-            //cout << "on negative side" << endl;
+            //cout << "on negative side" << std::endl;
           }
           if (tTopo->tecSide(iidd) == 2) {
             tmp = theLayerMeasurements->measurements(*tec9pos, tsosTEC9, *thePropagator, *estimator);
-            //cout << "on positive side" << endl;
+            //cout << "on positive side" << std::endl;
           }
 
           if (!tmp.empty()) {
@@ -523,10 +520,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             unsigned int tec9id = tec9Hit->geographicalId().rawId();
             LogDebug("SiStripHitEfficiency:HitEff")
                 << "tec9id = " << tec9id << " is Double sided = " << isDoubleSided(tec9id, tTopo)
-                << "  and 0x3 = " << (tec9id & 0x3) << endl;
+                << "  and 0x3 = " << (tec9id & 0x3) << std::endl;
 
             if (tec9Hit->geographicalId().rawId() != 0) {
-              LogDebug("SiStripHitEfficiency:HitEff") << "tec9 hit actually being added to TM vector" << endl;
+              LogDebug("SiStripHitEfficiency:HitEff") << "tec9 hit actually being added to TM vector" << std::endl;
               // in tec the hit can be single or doubled sided. whenever the invalid hit at the end of vector of TMs is
               // double sided it is always on the matched surface, so we need to split it into the true sensor surfaces
               if (isDoubleSided(tec9id, tTopo)) {
@@ -535,7 +532,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               } else
                 TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator));
             }
-          }  //else cout << "tec9 tmp empty" << endl;
+          }  //else std::cout << "tec9 tmp empty" << std::endl;
         }
 
         ////////////////////////////////////////////////////////
@@ -568,7 +565,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
           if ((layers == TKlayers) || (layers == 0)) {  // Look at the layer not used to reconstruct the track
             whatlayer = TKlayers;
-            LogDebug("SiStripHitEfficiency:HitEff") << "Looking at layer under study" << endl;
+            LogDebug("SiStripHitEfficiency:HitEff") << "Looking at layer under study" << std::endl;
             ModIsBad = 2;
             Id = 0;
             SiStripQualBad = 0;
@@ -584,18 +581,18 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             // RPhi RecHit Efficiency
 
             if (!input.empty()) {
-              LogDebug("SiStripHitEfficiency:HitEff") << "Checking clusters with size = " << input.size() << endl;
+              LogDebug("SiStripHitEfficiency:HitEff") << "Checking clusters with size = " << input.size() << std::endl;
               int nClusters = 0;
               std::vector<std::vector<float> >
                   VCluster_info;  //fill with X residual, X residual pull, local X, sig(X), local Y, sig(Y), StoN
               for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = input.begin(); DSViter != input.end();
                    DSViter++) {
                 // DSViter is a vector of SiStripClusters located on a single module
-                //if (DEBUG)      cout << "the ID from the DSViter = " << DSViter->id() << endl;
+                //if (DEBUG)      std::cout << "the ID from the DSViter = " << DSViter->id() << std::endl;
                 unsigned int ClusterId = DSViter->id();
                 if (ClusterId == iidd) {
                   LogDebug("SiStripHitEfficiency:HitEff")
-                      << "found  (ClusterId == iidd) with ClusterId = " << ClusterId << " and iidd = " << iidd << endl;
+                      << "found  (ClusterId == iidd) with ClusterId = " << ClusterId << " and iidd = " << iidd << std::endl;
                   DetId ClusterDetId(ClusterId);
                   const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
                   const StripTopology& Topo = stripdet->specificTopology();
@@ -666,38 +663,38 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                     VCluster_info.push_back(cluster_info);
                     nClusters++;
                     LogDebug("SiStripHitEfficiency:HitEff") << "Have ID match. residual = " << VCluster_info.back()[0]
-                                                            << "  res sigma = " << VCluster_info.back()[1] << endl;
+                                                            << "  res sigma = " << VCluster_info.back()[1] << std::endl;
                     LogDebug("SiStripHitEfficiency:HitEff")
-                        << "trajectory measurement compatability estimate = " << (*itm).estimate() << endl;
+                        << "trajectory measurement compatability estimate = " << (*itm).estimate() << std::endl;
                     LogDebug("SiStripHitEfficiency:HitEff")
                         << "hit position = " << parameters.first.x() << "  hit error = " << sqrt(parameters.second.xx())
-                        << "  trajectory position = " << xloc << "  traj error = " << xErr << endl;
+                        << "  trajectory position = " << xloc << "  traj error = " << xErr << std::endl;
                   }
                 }
               }
               float FinalResSig = 1000.0;
               float FinalCluster[7] = {1000.0, 1000.0, 0.0, 0.0, 0.0, 0.0, 0.0};
               if (nClusters > 0) {
-                LogDebug("SiStripHitEfficiency:HitEff") << "found clusters > 0" << endl;
+                LogDebug("SiStripHitEfficiency:HitEff") << "found clusters > 0" << std::endl;
                 if (nClusters > 1) {
                   //get the smallest one
-                  vector<vector<float> >::iterator ires;
+                  std::vector<std::vector<float> >::iterator ires;
                   for (ires = VCluster_info.begin(); ires != VCluster_info.end(); ires++) {
                     if (abs((*ires)[1]) < abs(FinalResSig)) {
                       FinalResSig = (*ires)[1];
                       for (unsigned int i = 0; i < ires->size(); i++) {
                         LogDebug("SiStripHitEfficiency:HitEff")
                             << "filling final cluster. i = " << i << " before fill FinalCluster[i]=" << FinalCluster[i]
-                            << " and (*ires)[i] =" << (*ires)[i] << endl;
+                            << " and (*ires)[i] =" << (*ires)[i] << std::endl;
                         FinalCluster[i] = (*ires)[i];
                         LogDebug("SiStripHitEfficiency:HitEff")
                             << "filling final cluster. i = " << i << " after fill FinalCluster[i]=" << FinalCluster[i]
-                            << " and (*ires)[i] =" << (*ires)[i] << endl;
+                            << " and (*ires)[i] =" << (*ires)[i] << std::endl;
                       }
                     }
                     LogDebug("SiStripHitEfficiency:HitEff")
                         << "iresidual = " << (*ires)[0] << "  isigma = " << (*ires)[1]
-                        << "  and FinalRes = " << FinalCluster[0] << endl;
+                        << "  and FinalRes = " << FinalCluster[0] << std::endl;
                   }
                 } else {
                   FinalResSig = VCluster_info.at(0)[1];
@@ -710,13 +707,13 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               }
 
               LogDebug("SiStripHitEfficiency:HitEff")
-                  << "Final residual in X = " << FinalCluster[0] << "+-" << (FinalCluster[0] / FinalResSig) << endl;
+                  << "Final residual in X = " << FinalCluster[0] << "+-" << (FinalCluster[0] / FinalResSig) << std::endl;
               LogDebug("SiStripHitEfficiency:HitEff") << "Checking location of trajectory: abs(yloc) = " << abs(yloc)
-                                                      << "  abs(xloc) = " << abs(xloc) << endl;
+                                                      << "  abs(xloc) = " << abs(xloc) << std::endl;
               LogDebug("SiStripHitEfficiency:HitEff")
                   << "Checking location of cluster hit: yloc = " << FinalCluster[4] << "+-" << FinalCluster[5]
-                  << "  xloc = " << FinalCluster[2] << "+-" << FinalCluster[3] << endl;
-              LogDebug("SiStripHitEfficiency:HitEff") << "Final cluster signal to noise = " << FinalCluster[6] << endl;
+                  << "  xloc = " << FinalCluster[2] << "+-" << FinalCluster[3] << std::endl;
+              LogDebug("SiStripHitEfficiency:HitEff") << "Final cluster signal to noise = " << FinalCluster[6] << std::endl;
 
               float exclusionWidth = 0.4;
               float TOBexclusion = 0.0;
@@ -776,10 +773,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               //if ( SiStripQuality_->IsModuleBad(iidd) ) {
               if (SiStripQuality_->getBadApvs(iidd) != 0) {
                 SiStripQualBad = 1;
-                LogDebug("SiStripHitEfficiency:HitEff") << "strip is bad from SiStripQuality" << endl;
+                LogDebug("SiStripHitEfficiency:HitEff") << "strip is bad from SiStripQuality" << std::endl;
               } else {
                 SiStripQualBad = 0;
-                LogDebug("SiStripHitEfficiency:HitEff") << "strip is good from SiStripQuality" << endl;
+                LogDebug("SiStripHitEfficiency:HitEff") << "strip is good from SiStripQuality" << std::endl;
               }
 
               //check for FED-detected errors and include those in SiStripQualBad
@@ -794,7 +791,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               if (FinalResSig != FinalCluster[1])
                 LogDebug("SiStripHitEfficiency:HitEff")
                     << "Problem with best cluster selection because FinalResSig = " << FinalResSig
-                    << " and FinalCluster[1] = " << FinalCluster[1] << endl;
+                    << " and FinalCluster[1] = " << FinalCluster[1] << std::endl;
               ClusterLocX = FinalCluster[2];
 
               // CM of APV crossed by traj
@@ -806,7 +803,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                       commonMode = digiframe->data.at(TrajStrip / 128).adc();
                 }
 
-              LogDebug("SiStripHitEfficiency:HitEff") << "before check good" << endl;
+              LogDebug("SiStripHitEfficiency:HitEff") << "before check good" << std::endl;
 
               if (FinalResSig < 999.0) {  //could make requirement on track/hit consistency, but for
                 //now take anything with a hit on the module
@@ -814,36 +811,36 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                     << "hit being counted as good " << FinalCluster[0] << " FinalRecHit " << iidd << "   TKlayers  "
                     << TKlayers << " xloc " << xloc << " yloc  " << yloc << " module " << iidd
                     << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/" << ((iidd & 0x3) == 1) << "/"
-                    << ((iidd & 0x3) == 2) << endl;
+                    << ((iidd & 0x3) == 2) << std::endl;
                 ModIsBad = 0;
               } else {
                 LogDebug("SiStripHitEfficiency:HitEff")
                     << "hit being counted as bad   ######### Invalid RPhi FinalResX " << FinalCluster[0]
                     << " FinalRecHit " << iidd << "   TKlayers  " << TKlayers << " xloc " << xloc << " yloc  " << yloc
                     << " module " << iidd << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/"
-                    << ((iidd & 0x3) == 1) << "/" << ((iidd & 0x3) == 2) << endl;
+                    << ((iidd & 0x3) == 1) << "/" << ((iidd & 0x3) == 2) << std::endl;
                 ModIsBad = 1;
                 LogDebug("SiStripHitEfficiency:HitEff") << " RPhi Error " << sqrt(xErr * xErr + yErr * yErr)
-                                                        << " ErrorX " << xErr << " yErr " << yErr << endl;
+                                                        << " ErrorX " << xErr << " yErr " << yErr << std::endl;
               }
               // traj->Fill(); // TODO - here is one entry for the calibtree -> histograms
-              LogDebug("SiStripHitEfficiency:HitEff") << "after good location check" << endl;
+              LogDebug("SiStripHitEfficiency:HitEff") << "after good location check" << std::endl;
             }
-            LogDebug("SiStripHitEfficiency:HitEff") << "after list of clusters" << endl;
+            LogDebug("SiStripHitEfficiency:HitEff") << "after list of clusters" << std::endl;
           }
-          LogDebug("SiStripHitEfficiency:HitEff") << "After layers=TKLayers if" << endl;
+          LogDebug("SiStripHitEfficiency:HitEff") << "After layers=TKLayers if" << std::endl;
         }
-        LogDebug("SiStripHitEfficiency:HitEff") << "After looping over TrajAtValidHit list" << endl;
+        LogDebug("SiStripHitEfficiency:HitEff") << "After looping over TrajAtValidHit list" << std::endl;
       }
-      LogDebug("SiStripHitEfficiency:HitEff") << "end TMeasurement loop" << endl;
+      LogDebug("SiStripHitEfficiency:HitEff") << "end TMeasurement loop" << std::endl;
     }
-    LogDebug("SiStripHitEfficiency:HitEff") << "end of trajectories loop" << endl;
+    LogDebug("SiStripHitEfficiency:HitEff") << "end of trajectories loop" << std::endl;
   }
 }
 
 void SiStripHitEfficiencyWorker::endJob() {
-  LogDebug("SiStripHitEfficiency:HitEff") << " Events Analysed             " << events << endl;
-  LogDebug("SiStripHitEfficiency:HitEff") << " Number Of Tracked events    " << EventTrackCKF << endl;
+  LogDebug("SiStripHitEfficiency:HitEff") << " Events Analysed             " << events << std::endl;
+  LogDebug("SiStripHitEfficiency:HitEff") << " Number Of Tracked events    " << EventTrackCKF << std::endl;
 }
 
 double SiStripHitEfficiencyWorker::checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr) {
