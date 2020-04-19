@@ -19,7 +19,7 @@
 //             For plotting stored histograms from FitHist's
 //  PlotHist(infile, prefix, text, modePlot, kopt, lumi, ener, dataMC,
 //           drawStatBox, save);
-//      Defaults: modePlot=0, kopt=0, lumi=0, ener=13, dataMC=false,
+//      Defaults: modePlot=4, kopt=100, lumi=0, ener=13, dataMC=false,
 //                drawStatBox=true, save=false
 //
 //             For plotting several histograms in the same plot
@@ -55,14 +55,15 @@
 //
 //             For plotting correction factors
 //  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, save);
-//      Defaults: nmin=20, save=false
+//      Defaults: nmin=100, save=false
+//
+//             For plotting (fractional) asymmetry in the correction factors
+//
+//  PlotHistCorrAsymmetry(infile, text, prefixF, save);
+//      Defaults: prefixF="", save=false
 //
 //             For plotting correction factors from upto 5 different runs 
 //             on the same canvas
-//
-//  PlotHistCorrAsymmetry(infile, text, prefixF, save);
-//
-//             For plotting (fractional) asymmetry in the correction factors
 //
 //  PlotHistCorrFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, prefixF, ratio,
@@ -82,6 +83,12 @@
 //             For plottong correlation of correction factors
 //  PlotHistCorrRel(infile1, infile2, text1, text2, save)
 //      Defaults: save=false
+//
+//             For plottong four histograms
+//  PlotFourHists(infile, prefix0, type, drawStatBox, normalize, save, prefix1,
+//                text1, prefix2, text2, prefix3, text3, prefix4, text4)
+//      Defaults: type=0, drawStatBox=0, normalize=false, save=false,
+//                prefixN="", textN=""
 //
 //  where:
 //  infile   (std::string)  = Name of the input ROOT file
@@ -887,7 +894,7 @@ void FitHistRBX(const char* infile, const char* outfile, std::string prefix,
 }
 
 void PlotHist(const char* infile, std::string prefix, std::string text,
-	      int mode=0, int kopt=0, double lumi=0, double ener=13.0,
+	      int mode=4, int kopt=100, double lumi=0, double ener=13.0,
 	      bool dataMC=false, bool drawStatBox=true, bool save=false) {
 
   std::string name0[5] = {"ratio00","ratio10","ratio20","ratio30","ratio40"};
@@ -1589,7 +1596,7 @@ void PlotHistCorrResults(std::string infile, std::string text,
 
 void PlotHistCorrFactor(char* infile, std::string text, 
 			std::string prefixF="", double scale=1.0,
-			int nmin=20, bool save=false) {
+			int nmin=100, bool save=false) {
 
   std::map<int,cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);

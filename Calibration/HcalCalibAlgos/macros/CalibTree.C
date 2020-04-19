@@ -35,14 +35,14 @@
 //  ratMin          (double)  = Lower  cut on E/p to select a track (0.25)
 //  ratMax          (double)  = Higher cut on E/p to select a track (3.0)
 //  ietaMax         (int)     = Maximum ieta value for which correcttion
-//                              factor is to be determined (23)
+//                              factor is to be determined (25)
 //  ietaTrack       (int)     = Maximum track ieta (at HCAL) to be considered
 //                              for these; -1 means no check on track ieta (-1)
 //  sysmode         (int)     = systematic error study (-1 if default)
 //                              -1 loose, -2 flexible, > 0 for systematic
 //  puCorr          (int)     = PU correction to be applied or not: 0 no
 //                              correction; < 0 use eDelta; > 0 rho dependent
-//                              correction (-1)
+//                              correction (-2)
 //  applyL1Cut      (int)     = Flag to see if closeness to L1 object to be
 //                              applied: 0 no check; 1 only to events with
 //                              datatype not equal to 1; 2 to all (1)
@@ -71,12 +71,13 @@
 //  nvxlo           (int)     = minimum # of vertex in event to be used (0)
 //  nvxhi           (int)     = maximum # of vertex in event to be used (1000)
 //  rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
+//                              HEP17 should correspond to 217
 //  exclude         (bool)    = RBX specified by *rbx* to be exluded or only
 //                              considered (false)
 //  higheta         (int)     = take correction factors for |ieta| > ietamax
 //                              as 1 (0) or of ieta = ietamax with same sign
 //                              and depth 1 (1) (default 1)
-//  fraction        (double)  = fraction of events to be done (-1)    
+//  fraction        (double)  = fraction of events to be done (1.0)    
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (false)
 //  debug           (bool)    = To produce more debug printing on screen
@@ -115,7 +116,7 @@ void Run(const char *inFileName="Silver.root",
 	 const char *dupFileName="events_DXS2.txt", 
 	 const char *rcorFileName="",
 	 bool useweight=true, bool useMean=false, int nMin=0, bool inverse=true,
-	 double ratMin=0.25, double ratMax=3., int ietaMax=23, int ietaTrack=-1,
+	 double ratMin=0.25, double ratMax=3., int ietaMax=25, int ietaTrack=-1,
 	 int sysmode=-1, int puCorr=-2, int applyL1Cut=1, double l1Cut=0.5, 
 	 int truncateFlag=0, int maxIter=30, int rcorForm=0, bool useGen=false,
 	 int runlo=0, int runhi=99999999, int phimin=1, int phimax=72, 
@@ -285,7 +286,7 @@ void doIt(const char* infile, const char* dup) {
     double lumi = (k==0) ? -1 : lumt;
     lumt *= fac;
     Run(infile,"HcalIsoTrkAnalyzer","CalibTree",outf1,outf2,dup,"",true,false,0,
-	true,0.25,3.0,25,-1,-1,true,1,0.5,0,30,false,false,-1,99999999,1,72,0,0,
+	true,0.25,3.0,25,-1,-1,-2,1,0.5,0,30,0,false,0,99999999,1,72,0,1000,0,
 	true,1,lumi,false,false);
   }
 }
@@ -663,6 +664,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     }
     bool selTrack = ((ietaTrack <= 0) || (abs(t_ieta) <= ietaTrack));
     if (!selTrack)                                continue;
+    if ((rcorForm_ == 3) && (cFactor_ != nullptr) && 
+	(cFactor_->absent(ientry)))               continue;
 
     if (debug) {
       std::cout << "***Entry (Track) Number : " << ientry << std::endl;

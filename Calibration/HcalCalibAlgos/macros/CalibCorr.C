@@ -1,3 +1,38 @@
+//////////////////////////////////////////////////////////////////////////////
+// Contains several utility functions used by CalibMonitor/CalibSort/CalibTree:
+//
+// void unpackDetId(detId, subdet, zside, ieta, iphi, depth)
+//      Unpacks rawId for Hadron calorimeter
+// unsigned int truncateId(detId, truncateFlag, debug)
+//      Defines depth of the DetId guided by the value of truncateFlag
+// double puFactor(type, ieta, pmom, eHcal, ediff, debug)
+//      Returns a multiplicative factor to the energy as PU correction
+// double puFactorRho(type, ieta, rho, double eHcal)
+//      Returns a multiplicative factor as PU correction evaluated from rho
+// double puweight(vtx) 
+//      Return PU weight for QCD PU sample
+// bool fillChain(chain, inputFileList)
+//      Prepares a Tchain by chaining several ROOT files specified
+// std::vector<std::string> splitString (fLine)
+//      Splits a string into several items which are separated by blank in i/p
+// CalibCorrFactor(infile, useScale, scale, etamax, debug)
+//      A class which reads a file with correction factors and provides
+//        bool   doCorr() : flag saying if correction is available
+//        double getCorr(id): correction factor for a given cell
+// CalibCorr(infile, flag, debug)
+//      A second class which reads a file and provide corrections through
+//        float getCorr(run, id): Run and ID dependent correction
+//        double getCorr(entry): Entry # (in the file) dependent correction
+//        bool absent(entry) : if correction factor absent
+//        bool present(entry): or present (relevant for ML motivated)
+// CalibSelectRBX(rbx, debug)
+//      A class for selecting a given Read Out Box and provides
+//        bool isItRBX(detId): if it/they is in the chosen RBX
+//        bool isItRBX(ieta, iphi): if it is in the chosen RBX
+// void CalibCorrTest(infile, flag)
+//      Tests a file which contains correction factors used by CalibCorr
+//////////////////////////////////////////////////////////////////////////////
+
 #include <algorithm>
 #include <map>
 #include <vector>
@@ -257,6 +292,9 @@ public :
 
   float getCorr(int run, unsigned int id);
   double getCorr(const Long64_t& entry);
+  double getTrueCorr(const Long64_t& entry);
+  bool absent(const Long64_t& entry);
+  bool present(const Long64_t& entry);
 private:
   void                     readCorrRun(const char* infile);
   void                     readCorrDepth(const char* infile);
@@ -425,10 +463,25 @@ float CalibCorr::getCorr(int run, unsigned int id) {
 }
 
 double CalibCorr::getCorr(const Long64_t& entry) {
-  double cfac(-1.0);
+  double cfac(0.0);
+  std::map<Long64_t,double>::iterator itr = cfactors_.find(entry);
+  if (itr != cfactors_.end()) cfac = std::min(itr->second, 10.0);
+  return cfac;
+}
+
+double CalibCorr::getTrueCorr(const Long64_t& entry) {
+  double cfac(0.0);
   std::map<Long64_t,double>::iterator itr = cfactors_.find(entry);
   if (itr != cfactors_.end()) cfac = itr->second;
   return cfac;
+}
+
+bool CalibCorr::absent(const Long64_t& entry) {
+  return (cfactors_.find(entry) == cfactors_.end());
+}
+
+bool CalibCorr::present(const Long64_t& entry) {
+  return (cfactors_.find(entry) != cfactors_.end());
 }
 
 void CalibCorr::readCorrRun(const char* infile) {
