@@ -1422,12 +1422,12 @@ namespace edm {
     return true;
   }
 
-  void Schedule::deleteModule(std::string const& iLabel) {
+  void Schedule::deleteModule(std::string const& iLabel, ActivityRegistry* areg) {
     globalSchedule_->deleteModule(iLabel);
     for (auto& stream : streamSchedules_) {
       stream->deleteModule(iLabel);
     }
-    moduleRegistry_->deleteModule(iLabel);
+    moduleRegistry_->deleteModule(iLabel, areg->preModuleDestructionSignal_, areg->postModuleDestructionSignal_);
   }
 
   std::vector<ModuleDescription const*> Schedule::getAllModuleDescriptions() const {

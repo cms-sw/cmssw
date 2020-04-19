@@ -209,6 +209,9 @@ namespace edm {
     preModuleConstructionSignal_.connect(std::cref(iOther.preModuleConstructionSignal_));
     postModuleConstructionSignal_.connect(std::cref(iOther.postModuleConstructionSignal_));
 
+    preModuleDestructionSignal_.connect(std::cref(iOther.preModuleDestructionSignal_));
+    postModuleDestructionSignal_.connect(std::cref(iOther.postModuleDestructionSignal_));
+
     preModuleBeginJobSignal_.connect(std::cref(iOther.preModuleBeginJobSignal_));
     postModuleBeginJobSignal_.connect(std::cref(iOther.postModuleBeginJobSignal_));
 
@@ -413,6 +416,9 @@ namespace edm {
 */
     copySlotsToFrom(preModuleConstructionSignal_, iOther.preModuleConstructionSignal_);
     copySlotsToFromReverse(postModuleConstructionSignal_, iOther.postModuleConstructionSignal_);
+
+    copySlotsToFrom(preModuleDestructionSignal_, iOther.preModuleDestructionSignal_);
+    copySlotsToFromReverse(postModuleDestructionSignal_, iOther.postModuleDestructionSignal_);
 
     copySlotsToFrom(preModuleBeginJobSignal_, iOther.preModuleBeginJobSignal_);
     copySlotsToFromReverse(postModuleBeginJobSignal_, iOther.postModuleBeginJobSignal_);
