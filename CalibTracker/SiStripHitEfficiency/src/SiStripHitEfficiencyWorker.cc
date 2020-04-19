@@ -74,11 +74,7 @@
 class SiStripHitEfficiencyWorker : public DQMEDAnalyzer {
 public:
   explicit SiStripHitEfficiencyWorker(const edm::ParameterSet& conf);
-  double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr);
-  bool isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const;
-  bool check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj);
   ~SiStripHitEfficiencyWorker() override;
-  unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo);
 
 private:
   void beginJob(); // TODO remove
@@ -86,7 +82,6 @@ private:
   void bookHistograms(DQMStore::IBooker& booker, const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  bool isInBondingExclusionZone(double yLoc, double yErr, const TrackerTopology* tTopo);
   // ----------member data ---------------------------
 
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
@@ -195,6 +190,135 @@ void SiStripHitEfficiencyWorker::beginJob() {
 void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker, const edm::Run& run, const edm::EventSetup& setup) {
 
 }
+
+namespace {
+
+double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr) {
+  double error = sqrt(parameters.second.xx() + xerr * xerr);
+  double separation = abs(parameters.first.x() - xx);
+  double consistency = separation / error;
+  return consistency;
+}
+
+bool isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) {
+  StripSubdetector strip = StripSubdetector(iidd);
+  unsigned int subid = strip.subdetId();
+  unsigned int layer = 0;
+  if (subid == StripSubdetector::TIB) {
+    layer = tTopo->tibLayer(iidd);
+    if (layer == 1 || layer == 2)
+      return true;
+    else
+      return false;
+  } else if (subid == StripSubdetector::TOB) {
+    layer = tTopo->tobLayer(iidd) + 4;
+    if (layer == 5 || layer == 6)
+      return true;
+    else
+      return false;
+  } else if (subid == StripSubdetector::TID) {
+    layer = tTopo->tidRing(iidd) + 10;
+    if (layer == 11 || layer == 12)
+      return true;
+    else
+      return false;
+  } else if (subid == StripSubdetector::TEC) {
+    layer = tTopo->tecRing(iidd) + 13;
+    if (layer == 14 || layer == 15 || layer == 18)
+      return true;
+    else
+      return false;
+  } else
+    return false;
+}
+
+bool check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj) {
+  unsigned int partner_iidd = 0;
+  bool found2DPartner = false;
+  // first get the id of the other detector
+  if ((iidd & 0x3) == 1)
+    partner_iidd = iidd + 1;
+  if ((iidd & 0x3) == 2)
+    partner_iidd = iidd - 1;
+  // next look in the trajectory measurements for a measurement from that detector
+  // loop through trajectory measurements to find the partner_iidd
+  for ( const auto& tm : traj ) {
+    if (tm.recHit()->geographicalId().rawId() == partner_iidd) {
+      found2DPartner = true;
+    }
+  }
+  return found2DPartner;
+}
+
+unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
+  StripSubdetector strip = StripSubdetector(iidd);
+  unsigned int subid = strip.subdetId();
+  if (subid == StripSubdetector::TIB) {
+    return tTopo->tibLayer(iidd);
+  }
+  if (subid == StripSubdetector::TOB) {
+    return tTopo->tobLayer(iidd) + 4;
+  }
+  if (subid == StripSubdetector::TID) {
+    return tTopo->tidWheel(iidd) + 10;
+  }
+  if (subid == StripSubdetector::TEC) {
+    return tTopo->tecWheel(iidd) + 13;
+  }
+  return 0;
+}
+
+bool isInBondingExclusionZone(unsigned int iidd, unsigned int TKlayers, double yloc, double yErr, const TrackerTopology* tTopo) {
+  constexpr float exclusionWidth = 0.4;
+  constexpr float TOBexclusion = 0.0;
+  constexpr float TECexRing5 = -0.89;
+  constexpr float TECexRing6 = -0.56;
+  constexpr float TECexRing7 = 0.60;
+
+  //Added by Chris Edelmaier to do TEC bonding exclusion
+  const int subdetector = ((iidd >> 25) & 0x7);
+  const int ringnumber = ((iidd >> 5) & 0x7);
+
+  bool inZone = false;
+  //New TOB and TEC bonding region exclusion zone
+  if ((TKlayers >= 5 && TKlayers < 11) ||
+      ((subdetector == 6) && ((ringnumber >= 5) && (ringnumber <= 7)))) {
+    //There are only 2 cases that we need to exclude for
+    float highzone = 0.0;
+    float lowzone = 0.0;
+    float higherr = yloc + 5.0 * yErr;
+    float lowerr = yloc - 5.0 * yErr;
+    if (TKlayers >= 5 && TKlayers < 11) {
+      //TOB zone
+      highzone = TOBexclusion + exclusionWidth;
+      lowzone = TOBexclusion - exclusionWidth;
+    } else if (ringnumber == 5) {
+      //TEC ring 5
+      highzone = TECexRing5 + exclusionWidth;
+      lowzone = TECexRing5 - exclusionWidth;
+    } else if (ringnumber == 6) {
+      //TEC ring 6
+      highzone = TECexRing6 + exclusionWidth;
+      lowzone = TECexRing6 - exclusionWidth;
+    } else if (ringnumber == 7) {
+      //TEC ring 7
+      highzone = TECexRing7 + exclusionWidth;
+      lowzone = TECexRing7 - exclusionWidth;
+    }
+    //Now that we have our exclusion region, we just have to properly identify it
+    if ((highzone <= higherr) && (highzone >= lowerr))
+      inZone = true;
+    if ((lowzone >= lowerr) && (lowzone <= higherr))
+      inZone = true;
+    if ((higherr <= highzone) && (higherr >= lowzone))
+      inZone = true;
+    if ((lowerr >= lowzone) && (lowerr <= highzone))
+      inZone = true;
+  }
+  return inZone;
+}
+
+} // anonymous namespace
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
@@ -502,7 +626,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           // reget layer from iidd here, to account for TOB 6 and TEC 9 TKlayers being off
           TKlayers = checkLayer(iidd, tTopo);
 
-          withinAcceptance = tm.withinAcceptance() && ( ! isInBondingExclusionZone(TKlayers, yloc, yErr, tTopo) );
+          withinAcceptance = tm.withinAcceptance() && ( ! isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo) );
 
           if ((layers == TKlayers) || (layers == 0)) {  // Look at the layer not used to reconstruct the track
             whatlayer = TKlayers;
@@ -728,131 +852,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 void SiStripHitEfficiencyWorker::endJob() {
   LogDebug("SiStripHitEfficiency:HitEff") << " Events Analysed             " << events << std::endl;
   LogDebug("SiStripHitEfficiency:HitEff") << " Number Of Tracked events    " << EventTrackCKF << std::endl;
-}
-
-double SiStripHitEfficiencyWorker::checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr) {
-  double error = sqrt(parameters.second.xx() + xerr * xerr);
-  double separation = abs(parameters.first.x() - xx);
-  double consistency = separation / error;
-  return consistency;
-}
-
-bool SiStripHitEfficiencyWorker::isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const {
-  StripSubdetector strip = StripSubdetector(iidd);
-  unsigned int subid = strip.subdetId();
-  unsigned int layer = 0;
-  if (subid == StripSubdetector::TIB) {
-    layer = tTopo->tibLayer(iidd);
-    if (layer == 1 || layer == 2)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TOB) {
-    layer = tTopo->tobLayer(iidd) + 4;
-    if (layer == 5 || layer == 6)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TID) {
-    layer = tTopo->tidRing(iidd) + 10;
-    if (layer == 11 || layer == 12)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TEC) {
-    layer = tTopo->tecRing(iidd) + 13;
-    if (layer == 14 || layer == 15 || layer == 18)
-      return true;
-    else
-      return false;
-  } else
-    return false;
-}
-
-bool SiStripHitEfficiencyWorker::check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj) {
-  unsigned int partner_iidd = 0;
-  bool found2DPartner = false;
-  // first get the id of the other detector
-  if ((iidd & 0x3) == 1)
-    partner_iidd = iidd + 1;
-  if ((iidd & 0x3) == 2)
-    partner_iidd = iidd - 1;
-  // next look in the trajectory measurements for a measurement from that detector
-  // loop through trajectory measurements to find the partner_iidd
-  for ( const auto& tm : traj ) {
-    if (tm.recHit()->geographicalId().rawId() == partner_iidd) {
-      found2DPartner = true;
-    }
-  }
-  return found2DPartner;
-}
-
-unsigned int SiStripHitEfficiencyWorker::checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
-  StripSubdetector strip = StripSubdetector(iidd);
-  unsigned int subid = strip.subdetId();
-  if (subid == StripSubdetector::TIB) {
-    return tTopo->tibLayer(iidd);
-  }
-  if (subid == StripSubdetector::TOB) {
-    return tTopo->tobLayer(iidd) + 4;
-  }
-  if (subid == StripSubdetector::TID) {
-    return tTopo->tidWheel(iidd) + 10;
-  }
-  if (subid == StripSubdetector::TEC) {
-    return tTopo->tecWheel(iidd) + 13;
-  }
-  return 0;
-}
-
-bool SiStripHitEfficiencyWorker::isInBondingExclusionZone(unsigned int TKlayers, double yLoc, double yErr, const TrackerTopology* tTopo) {
-  constexpr float exclusionWidth = 0.4;
-  constexpr float TOBexclusion = 0.0;
-  constexpr float TECexRing5 = -0.89;
-  constexpr float TECexRing6 = -0.56;
-  constexpr float TECexRing7 = 0.60;
-
-  //Added by Chris Edelmaier to do TEC bonding exclusion
-  const int subdetector = ((iidd >> 25) & 0x7);
-  const int ringnumber = ((iidd >> 5) & 0x7);
-
-  bool inZone = False;
-  //New TOB and TEC bonding region exclusion zone
-  if ((TKlayers >= 5 && TKlayers < 11) ||
-      ((subdetector == 6) && ((ringnumber >= 5) && (ringnumber <= 7)))) {
-    //There are only 2 cases that we need to exclude for
-    float highzone = 0.0;
-    float lowzone = 0.0;
-    float higherr = yloc + 5.0 * yErr;
-    float lowerr = yloc - 5.0 * yErr;
-    if (TKlayers >= 5 && TKlayers < 11) {
-      //TOB zone
-      highzone = TOBexclusion + exclusionWidth;
-      lowzone = TOBexclusion - exclusionWidth;
-    } else if (ringnumber == 5) {
-      //TEC ring 5
-      highzone = TECexRing5 + exclusionWidth;
-      lowzone = TECexRing5 - exclusionWidth;
-    } else if (ringnumber == 6) {
-      //TEC ring 6
-      highzone = TECexRing6 + exclusionWidth;
-      lowzone = TECexRing6 - exclusionWidth;
-    } else if (ringnumber == 7) {
-      //TEC ring 7
-      highzone = TECexRing7 + exclusionWidth;
-      lowzone = TECexRing7 - exclusionWidth;
-    }
-    //Now that we have our exclusion region, we just have to properly identify it
-    if ((highzone <= higherr) && (highzone >= lowerr))
-      inZone = true;
-    if ((lowzone >= lowerr) && (lowzone <= higherr))
-      inZone = true;
-    if ((higherr <= highzone) && (higherr >= lowzone))
-      inZone = true;
-    if ((lowerr >= lowzone) && (lowerr <= highzone))
-      inZone = true;
-  }
-  return inZone;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
