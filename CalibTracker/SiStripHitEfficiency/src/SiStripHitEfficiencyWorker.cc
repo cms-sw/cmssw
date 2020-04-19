@@ -294,35 +294,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
   events++;
 
-  // *************** SiStripCluster Collection
-  const edmNew::DetSetVector<SiStripCluster>& input = *theClusters;
-
-  //go through clusters to write out global position of good clusters for the layer understudy for comparison
-  // Loop through clusters just to print out locations
-  // Commented out to avoid discussion, should really be deleted.
-  /*
-  for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = input.begin(); DSViter != input.end(); DSViter++) {
-    // DSViter is a vector of SiStripClusters located on a single module
-    unsigned int ClusterId = DSViter->id();
-    DetId ClusterDetId(ClusterId);
-    const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
-    
-    edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
-    edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
-    for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
-      //iter is a single SiStripCluster
-      StripClusterParameterEstimator::LocalValues parameters=stripcpe.localParameters(*iter,*stripdet);
-      
-      const Surface* surface;
-      surface = &(tracker->idToDet(ClusterDetId)->surface());
-      LocalPoint lp = parameters.first;
-      GlobalPoint gp = surface->toGlobal(lp);
-      unsigned int layer = checkLayer(ClusterId, tTopo);
-            if(DEBUG) std::cout << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << std::endl;
-    }
-  }
-  */
-
   // Tracking
   const reco::TrackCollection* tracksCKF = trackCollectionCKF.product();
   LogDebug("SiStripHitEfficiency:HitEff") << "number ckf tracks found = " << tracksCKF->size() << std::endl;
@@ -339,19 +310,12 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
     // actually should do a loop over all the tracks in the event here
 
     // Looping over traj-track associations to be able to get traj & track informations
-    for (TrajTrackAssociationCollection::const_iterator it = trajTrackAssociationHandle->begin();
-         it != trajTrackAssociationHandle->end();
-         it++) {
-      edm::Ref<std::vector<Trajectory> > itraj = it->key;
-      reco::TrackRef itrack = it->val;
-
+    for ( const auto& trajTrack : *trajTrackAssociationHandle ) {
       // for each track, fill some variables such as number of hits and momentum
 
-      // track quality
-      highPurity = itrack->quality(reco::TrackBase::TrackQuality::highPurity);
+      highPurity = trajTrack.val->quality(reco::TrackBase::TrackQuality::highPurity);
+      auto TMeas = trajTrack.key->measurements();
 
-      std::vector<TrajectoryMeasurement> TMeas = itraj->measurements();
-      std::vector<TrajectoryMeasurement>::iterator itm;
       double xloc = 0.;
       double yloc = 0.;
       double xErr = 0.;
@@ -360,17 +324,16 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
       // Check whether the trajectory has some missing hits
       bool hasMissingHits = false;
-      for (itm = TMeas.begin(); itm != TMeas.end(); itm++) {
-        auto theHit = (*itm).recHit();
+      for ( const auto& tm : TMeas ) {
+        auto theHit = tm.recHit();
         if (theHit->getType() == TrackingRecHit::Type::missing)
           hasMissingHits = true;
       }
 
       // Loop on each measurement and take it into consideration
       //--------------------------------------------------------
-
-      for (itm = TMeas.begin(); itm != TMeas.end(); itm++) {
-        auto theInHit = (*itm).recHit();
+      for (auto itm = TMeas.cbegin(); itm != TMeas.cend(); ++itm) {
+        const auto theInHit = (*itm).recHit();
 
         LogDebug("SiStripHitEfficiency:HitEff") << "theInHit is valid = " << theInHit->isValid() << std::endl;
 
@@ -539,24 +502,24 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
         // Modules Constraints
 
-        for (std::vector<TrajectoryAtInvalidHit>::const_iterator TM = TMs.begin(); TM != TMs.end(); ++TM) {
+        for ( const auto& tm : TMs ) {
           // --> Get trajectory from combinatedState
-          iidd = TM->monodet_id();
+          iidd = tm.monodet_id();
           LogDebug("SiStripHitEfficiency:HitEff") << "setting iidd = " << iidd << " before checking efficiency and ";
 
-          xloc = TM->localX();
-          yloc = TM->localY();
+          xloc = tm.localX();
+          yloc = tm.localY();
 
-          xglob = TM->globalX();
-          yglob = TM->globalY();
-          zglob = TM->globalZ();
-          xErr = TM->localErrorX();
-          yErr = TM->localErrorY();
+          xglob = tm.globalX();
+          yglob = tm.globalY();
+          zglob = tm.globalZ();
+          xErr = tm.localErrorX();
+          yErr = tm.localErrorY();
 
           TrajGlbX = 0.0;
           TrajGlbY = 0.0;
           TrajGlbZ = 0.0;
-          withinAcceptance = TM->withinAcceptance();
+          withinAcceptance = tm.withinAcceptance();
 
           int TrajStrip = -1;
 
@@ -580,21 +543,20 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
             // RPhi RecHit Efficiency
 
-            if (!input.empty()) {
-              LogDebug("SiStripHitEfficiency:HitEff") << "Checking clusters with size = " << input.size() << std::endl;
+            if (!theClusters->empty()) {
+              LogDebug("SiStripHitEfficiency:HitEff") << "Checking clusters with size = " << theClusters->size() << std::endl;
               int nClusters = 0;
               std::vector<std::vector<float> >
                   VCluster_info;  //fill with X residual, X residual pull, local X, sig(X), local Y, sig(Y), StoN
-              for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = input.begin(); DSViter != input.end();
-                   DSViter++) {
-                // DSViter is a vector of SiStripClusters located on a single module
-                //if (DEBUG)      std::cout << "the ID from the DSViter = " << DSViter->id() << std::endl;
-                unsigned int ClusterId = DSViter->id();
+              for ( const auto& dsv : *theClusters ) {
+                // dsv is a vector of SiStripClusters located on a single module
+                //if (DEBUG)      std::cout << "the ID from the dsv = " << dsv.id() << std::endl;
+                unsigned int ClusterId = dsv.id();
                 if (ClusterId == iidd) {
                   LogDebug("SiStripHitEfficiency:HitEff")
                       << "found  (ClusterId == iidd) with ClusterId = " << ClusterId << " and iidd = " << iidd << std::endl;
                   DetId ClusterDetId(ClusterId);
-                  const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
+                  const auto stripdet = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(ClusterDetId));
                   const StripTopology& Topo = stripdet->specificTopology();
 
                   float hbedge = 0.0;
@@ -629,17 +591,15 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                     //cout<<" Layer "<<TKlayers<<" TrajStrip: "<<nstrips<<" "<<pitch<<" "<<TrajStrip<<endl;
                   }
 
-                  for (edmNew::DetSet<SiStripCluster>::const_iterator iter = DSViter->begin(); iter != DSViter->end();
-                       ++iter) {
-                    //iter is a single SiStripCluster
-                    StripClusterParameterEstimator::LocalValues parameters = stripcpe.localParameters(*iter, *stripdet);
+                  for ( const auto& clus : dsv ) {
+                    StripClusterParameterEstimator::LocalValues parameters = stripcpe.localParameters(clus, *stripdet);
                     float res = (parameters.first.x() - xloc);
                     float sigma = checkConsistency(parameters, xloc, xErr);
                     // The consistency is probably more accurately measured with the Chi2MeasurementEstimator. To use it
                     // you need a TransientTrackingRecHit instead of the cluster
                     //theEstimator=       new Chi2MeasurementEstimator(30);
                     //const Chi2MeasurementEstimator *theEstimator(100);
-                    //theEstimator->estimate(TM->tsos(), TransientTrackingRecHit);
+                    //theEstimator->estimate(tm.tsos(), TransientTrackingRecHit);
 
                     if (TKlayers >= 11) {
                       res = parameters.first.x() - xloc / uxlden;  // radialy extrapolated x loc position at middle
@@ -648,7 +608,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                                    yErr * yErr * xloc * xloc * uylfac * uylfac / uxlden / uxlden / uxlden / uxlden);
                     }
 
-                    siStripClusterInfo_.setCluster(*iter, ClusterId);
+                    siStripClusterInfo_.setCluster(clus, ClusterId);
                     // signal to noise from SiStripClusterInfo not working in 225. I'll fix this after the interface
                     // redesign in 300 -ku
                     //float cluster_info[7] = {res, sigma, parameters.first.x(), sqrt(parameters.second.xx()), parameters.first.y(), sqrt(parameters.second.yy()), signal_to_noise};
@@ -678,22 +638,21 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                 LogDebug("SiStripHitEfficiency:HitEff") << "found clusters > 0" << std::endl;
                 if (nClusters > 1) {
                   //get the smallest one
-                  std::vector<std::vector<float> >::iterator ires;
-                  for (ires = VCluster_info.begin(); ires != VCluster_info.end(); ires++) {
-                    if (abs((*ires)[1]) < abs(FinalResSig)) {
-                      FinalResSig = (*ires)[1];
-                      for (unsigned int i = 0; i < ires->size(); i++) {
+                  for ( const auto& res : VCluster_info ) {
+                    if (abs(res[1]) < abs(FinalResSig)) {
+                      FinalResSig = res[1];
+                      for (unsigned int i = 0; i < res.size(); i++) {
                         LogDebug("SiStripHitEfficiency:HitEff")
                             << "filling final cluster. i = " << i << " before fill FinalCluster[i]=" << FinalCluster[i]
-                            << " and (*ires)[i] =" << (*ires)[i] << std::endl;
-                        FinalCluster[i] = (*ires)[i];
+                            << " and res[i] =" << res[i] << std::endl;
+                        FinalCluster[i] = res[i];
                         LogDebug("SiStripHitEfficiency:HitEff")
                             << "filling final cluster. i = " << i << " after fill FinalCluster[i]=" << FinalCluster[i]
-                            << " and (*ires)[i] =" << (*ires)[i] << std::endl;
+                            << " and res[i] =" << res[i] << std::endl;
                       }
                     }
                     LogDebug("SiStripHitEfficiency:HitEff")
-                        << "iresidual = " << (*ires)[0] << "  isigma = " << (*ires)[1]
+                        << "iresidual = " << res[0] << "  isigma = " << res[1]
                         << "  and FinalRes = " << FinalCluster[0] << std::endl;
                   }
                 } else {
@@ -797,7 +756,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               // CM of APV crossed by traj
               if (addCommonMode_)
                 if (commonModeDigis.isValid() && TrajStrip >= 0 && TrajStrip <= 768) {
-                  edm::DetSetVector<SiStripRawDigi>::const_iterator digiframe = commonModeDigis->find(iidd);
+                  const auto digiframe = commonModeDigis->find(iidd);
                   if (digiframe != commonModeDigis->end())
                     if ((unsigned)TrajStrip / 128 < digiframe->data.size())
                       commonMode = digiframe->data.at(TrajStrip / 128).adc();
@@ -892,8 +851,8 @@ bool SiStripHitEfficiencyWorker::check2DPartner(unsigned int iidd, const std::ve
     partner_iidd = iidd - 1;
   // next look in the trajectory measurements for a measurement from that detector
   // loop through trajectory measurements to find the partner_iidd
-  for (std::vector<TrajectoryMeasurement>::const_iterator iTM = traj.begin(); iTM != traj.end(); ++iTM) {
-    if (iTM->recHit()->geographicalId().rawId() == partner_iidd) {
+  for ( const auto& tm : traj ) {
+    if (tm.recHit()->geographicalId().rawId() == partner_iidd) {
       found2DPartner = true;
     }
   }
@@ -918,6 +877,5 @@ unsigned int SiStripHitEfficiencyWorker::checkLayer(unsigned int iidd, const Tra
   return 0;
 }
 
-//define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripHitEfficiencyWorker);
