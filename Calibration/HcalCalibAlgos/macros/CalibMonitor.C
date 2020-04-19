@@ -32,7 +32,7 @@
 //
 //   where:
 // 
-//   fname   (std::string)     = file name of the input ROOT tree
+//   fname   (const char*)     = file name of the input ROOT tree
 //                               or name of the file containing a list of
 //                               file names of input ROOT trees
 //   dirname (std::string)     = name of the directory where Tree resides
@@ -50,8 +50,9 @@
 //                               factors to be used (default="", no corr.)
 //   rcorFileName (char*)      = name of the text file having the correction
 //                               factors as a function of run numbers or depth
-//                               to be used for raddam/depth dependent 
-//                               correction  (default="", no corr.)
+//                               or entry number to be used for raddam/depth/
+//                               pileup dependent correction  (default="",
+//                               no corr.)
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-2)
@@ -92,38 +93,43 @@
 //                               with values > 1 as depth 2 (3), all depths in 
 //                               HB with values > 1 as depth 2 (4), all depths 
 //                               in HB and HE with values > 1 as depth 2 (5)
-//                               (Default 0)
+//                               (default = 0)
 //   useGen (bool)             = true/false to use generator level momentum
-//                               or reconstruction level momentum (def false)
+//                               or reconstruction level momentum
+//                               (default = false)
 //   scale (double)            = energy scale if correction factor to be used
 //                               (default = 1.0)
 //   useScale (int)            = application of scale factor (0: nowehere,
 //                               1: barrel; 2: endcap, 3: everywhere)
 //                               barrel => |ieta| < 16; endcap => |ieta| > 15
-//   etalo/etahi (int,int)     = |eta| ranges (0:30)
+//                               (default = 0)
+//   etalo/etahi (int,int)     = |eta| ranges (default = 0:30)
 //   runlo  (int)              = lower value of run number to be included (+ve)
-//                               or excluded (-ve) (default 0)
+//                               or excluded (-ve) (default = 0)
 //   runhi  (int)              = higher value of run number to be included 
-//                               (+ve) or excluded (-ve) (def 9999999)
-//   phimin          (int)     = minimum iphi value (1)
-//   phimax          (int)     = maximum iphi value (72)
+//                               (+ve) or excluded (-ve) (default = 9999999)
+//   phimin          (int)     = minimum iphi value (default = 1)
+//   phimax          (int)     = maximum iphi value (default = 72)
 //   zside           (int)     = the side of the detector if phimin and phimax
-//                               differ from 1-72 (1)
-//   nvxlo           (int)     = minimum # of vertex in event to be used (0)
-//   nvxhi           (int)     = maximum # of vertex in event to be used (1000)
-//   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
+//                               differ from 1-72 (default = 1)
+//   nvxlo           (int)     = minimum # of vertex in event to be used 
+//                               (default = 0)
+//   nvxhi           (int)     = maximum # of vertex in event to be used 
+//                               (default = 1000)
+//   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered
+//                               (default = 0). For HEP17 it will be 217
 //   exclude         (bool)    = RBX specified by *rbx* to be exluded or only
-//                               considered (false)
+//                               considered (default = false)
 //   etamax          (bool)    = if set and if the corr-factor not found in the
 //                               corrFactor table, the corr-factor for the
 //                               corresponding zside, depth=1 and maximum ieta
-//                               in the table is taken (false)
+//                               in the table is taken (default = false)
 //
 //   histFileName (std::string)= name of the file containing saved histograms
 //   append (bool)             = true/false if the histogram file to be opened
-//                               in append/output mode
+//                               in append/output mode (default = true)
 //   all (bool)                = true/false if all histograms to be saved or
-//                               not (def false)
+//                               not (default = false)
 //
 //   bitX (unsigned int)       = bit number of the HLT used in the selection
 //        (X = 1, 2)             for example the bits of HLT_IsoTrackHB(HE)
@@ -275,7 +281,7 @@ public :
   void                       plotHist(int type, int num, bool save=false);
   template<class Hist> void  drawHist(Hist*, TCanvas*);
   void                       savePlot(const std::string& theName, 
-				      bool append, bool all=false);
+				      bool append=true, bool all=false);
   void                       correctEnergy(double & ener, const Long64_t& entry);
 private:
 
@@ -863,6 +869,8 @@ void CalibMonitor::Loop() {
       continue;
     }
     if (p4060) ++kount50[6];
+    if ((ifDepth_ == 3) && (cFactor_ != nullptr) && 
+	(cFactor_->absent(ientry))) continue;
 
     // if (Cut(ientry) < 0) continue;
     int kp(-1), jp(-1), jp1(-1);
@@ -1929,7 +1937,7 @@ public :
 					const Long64_t& entry, bool debug);
   bool                       selectPhi(bool debug);
   void                       savePlot(const std::string& theName, 
-				      bool append, bool all=false);
+				      bool append=true, bool all=false);
   void                       correctEnergy(double & ener, const Long64_t& entry);
 private:
 
@@ -2415,6 +2423,8 @@ void CalibPlotProperties::Loop() {
       continue;
     }
 
+    if ((ifDepth_ == 3) && (cFactor_ != nullptr) && 
+	(cFactor_->absent(ientry))) continue;
     // if (Cut(ientry) < 0) continue;
     unsigned int kp = ps_.size();
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
