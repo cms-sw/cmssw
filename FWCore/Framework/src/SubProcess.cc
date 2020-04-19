@@ -249,7 +249,7 @@ namespace edm {
         }
       });
       for (auto const& description : unusedModules) {
-        schedule_->deleteModule(description->moduleLabel());
+        schedule_->deleteModule(description->moduleLabel(), actReg_.get());
       }
     }
 

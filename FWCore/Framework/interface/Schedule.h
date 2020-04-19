@@ -281,7 +281,7 @@ namespace edm {
                       eventsetup::ESRecordsToProxyIndices const&);
 
     /// Deletes module with label iLabel
-    void deleteModule(std::string const& iLabel);
+    void deleteModule(std::string const& iLabel, ActivityRegistry* areg);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;

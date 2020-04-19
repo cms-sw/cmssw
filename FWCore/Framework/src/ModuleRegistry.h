@@ -48,7 +48,9 @@ namespace edm {
                                        edm::ParameterSet const& iPSet,
                                        edm::PreallocationConfiguration const&);
 
-    void deleteModule(std::string const& iModuleLabel /* TODO: signals */);
+    void deleteModule(std::string const& iModuleLabel,
+                      signalslot::Signal<void(ModuleDescription const&)>& iPre,
+                      signalslot::Signal<void(ModuleDescription const&)>& iPost);
 
     template <typename F>
     void forAllModuleHolders(F iFunc) {
