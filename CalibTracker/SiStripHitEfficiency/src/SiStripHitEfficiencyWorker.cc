@@ -225,64 +225,42 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
     }
   }
 
-  // CM
   edm::Handle<edm::DetSetVector<SiStripRawDigi> > commonModeDigis;
   if (addCommonMode_)
     e.getByToken(commonModeToken_, commonModeDigis);
 
-  //CombinatoriaTrack
-  edm::Handle<reco::TrackCollection> trackCollectionCKF;
-  //edm::InputTag TkTagCKF = conf_.getParameter<edm::InputTag>("combinatorialTracks");
-  e.getByToken(combinatorialTracks_token_, trackCollectionCKF);
+  edm::Handle<reco::TrackCollection> tracksCKF;
+  e.getByToken(combinatorialTracks_token_, tracksCKF);
 
   edm::Handle<std::vector<Trajectory> > TrajectoryCollectionCKF;
-  //edm::InputTag TkTrajCKF = conf_.getParameter<edm::InputTag>("trajectories");
   e.getByToken(trajectories_token_, TrajectoryCollectionCKF);
 
   edm::Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
   e.getByToken(trajTrackAsso_token_, trajTrackAssociationHandle);
 
-  // Clusters
-  // get the SiStripClusters from the event
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > theClusters;
-  //e.getByLabel("siStripClusters", theClusters);
   e.getByToken(clusters_token_, theClusters);
 
-  //get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
-  const TrackerGeometry* tkgeom = &(*tracker);
+  const TrackerGeometry* tkgeom = tracker.product();
 
-  //get Cluster Parameter Estimator
-  //std::string cpe = conf_.getParameter<std::string>("StripCPE");
-  edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
-  es.get<TkStripCPERecord>().get("StripCPEfromTrackAngle", parameterestimator);
-  const StripClusterParameterEstimator& stripcpe(*parameterestimator);
+  edm::ESHandle<StripClusterParameterEstimator> stripcpe;
+  es.get<TkStripCPERecord>().get("StripCPEfromTrackAngle", stripcpe);
 
-  // get the SiStripQuality records
   edm::ESHandle<SiStripQuality> SiStripQuality_;
-  //LQ commenting the try/catch that causes problem in 74X calibTree production
-  //  try {
-  //    es.get<SiStripQualityRcd>().get("forCluster",SiStripQuality_);
-  //  }
-  //  catch (...) {
   es.get<SiStripQualityRcd>().get(SiStripQuality_);
-  //  }
 
-  edm::ESHandle<MagneticField> magFieldHandle;
-  es.get<IdealMagneticFieldRecord>().get(magFieldHandle);
-  const MagneticField* magField_ = magFieldHandle.product();
+  edm::ESHandle<MagneticField> magField;
+  es.get<IdealMagneticFieldRecord>().get(magField);
 
-  // get the list of module IDs with FED-detected errors
   edm::Handle<DetIdCollection> fedErrorIds;
-  //e.getByLabel("siStripDigis", fedErrorIds );
   e.getByToken(digis_token_, fedErrorIds);
 
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
   es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
-  //e.getByLabel("MeasurementTrackerEvent", measurementTrackerEvent);
   e.getByToken(trackerEvent_token_, measurementTrackerEvent);
 
   edm::ESHandle<Chi2MeasurementEstimatorBase> est;
@@ -290,14 +268,12 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
   edm::ESHandle<Propagator> prop;
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", prop);
-  const Propagator* thePropagator = prop.product();
+  const Propagator& thePropagator = *prop;
 
   events++;
 
   // Tracking
-  const reco::TrackCollection* tracksCKF = trackCollectionCKF.product();
   LogDebug("SiStripHitEfficiency:HitEff") << "number ckf tracks found = " << tracksCKF->size() << std::endl;
-  //if (tracksCKF->size() == 1 ){
   if (!tracksCKF->empty()) {
     if (cutOnTracks_ && (tracksCKF->size() >= trackMultiplicityCut_))
       return;
@@ -369,7 +345,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         std::vector<TrajectoryAtInvalidHit> TMs;
 
         // Make AnalyticalPropagator to use in TAVH constructor
-        AnalyticalPropagator propagator(magField_, anyDirection);
+        AnalyticalPropagator propagator(magField.product(), anyDirection);
 
         // for double sided layers check both sensors--if no hit was found on either sensor surface,
         // the trajectory measurements only have one invalid hit entry on the matched surface
@@ -418,7 +394,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
           const TrajectoryStateOnSurface tsosTOB5 = itm->updatedState();
           std::vector<TrajectoryMeasurement> tmp =
-              theLayerMeasurements->measurements(*tob6, tsosTOB5, *thePropagator, *estimator);
+              theLayerMeasurements->measurements(*tob6, tsosTOB5, thePropagator, *estimator);
 
           if (!tmp.empty()) {
             LogDebug("SiStripHitEfficiency:HitEff") << "size of TM from propagation = " << tmp.size() << std::endl;
@@ -465,11 +441,11 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           //cout << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << std::endl;
           std::vector<TrajectoryMeasurement> tmp;
           if (tTopo->tecSide(iidd) == 1) {
-            tmp = theLayerMeasurements->measurements(*tec9neg, tsosTEC9, *thePropagator, *estimator);
+            tmp = theLayerMeasurements->measurements(*tec9neg, tsosTEC9, thePropagator, *estimator);
             //cout << "on negative side" << std::endl;
           }
           if (tTopo->tecSide(iidd) == 2) {
-            tmp = theLayerMeasurements->measurements(*tec9pos, tsosTEC9, *thePropagator, *estimator);
+            tmp = theLayerMeasurements->measurements(*tec9pos, tsosTEC9, thePropagator, *estimator);
             //cout << "on positive side" << std::endl;
           }
 
@@ -545,98 +521,93 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
             if (!theClusters->empty()) {
               LogDebug("SiStripHitEfficiency:HitEff") << "Checking clusters with size = " << theClusters->size() << std::endl;
-              int nClusters = 0;
               std::vector<std::vector<float> >
                   VCluster_info;  //fill with X residual, X residual pull, local X, sig(X), local Y, sig(Y), StoN
-              for ( const auto& dsv : *theClusters ) {
-                // dsv is a vector of SiStripClusters located on a single module
+              const auto idsv = theClusters->find(iidd);
+              if ( idsv != theClusters->end() ) {
                 //if (DEBUG)      std::cout << "the ID from the dsv = " << dsv.id() << std::endl;
-                unsigned int ClusterId = dsv.id();
-                if (ClusterId == iidd) {
-                  LogDebug("SiStripHitEfficiency:HitEff")
-                      << "found  (ClusterId == iidd) with ClusterId = " << ClusterId << " and iidd = " << iidd << std::endl;
-                  DetId ClusterDetId(ClusterId);
-                  const auto stripdet = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(ClusterDetId));
-                  const StripTopology& Topo = stripdet->specificTopology();
+                LogDebug("SiStripHitEfficiency:HitEff")
+                    << "found  (ClusterId == iidd) with ClusterId = " << idsv->id() << " and iidd = " << iidd << std::endl;
+                const auto stripdet = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(iidd)));
+                const StripTopology& Topo = stripdet->specificTopology();
 
-                  float hbedge = 0.0;
-                  float htedge = 0.0;
-                  float hapoth = 0.0;
-                  float uylfac = 0.0;
-                  float uxlden = 0.0;
+                float hbedge = 0.0;
+                float htedge = 0.0;
+                float hapoth = 0.0;
+                float uylfac = 0.0;
+                float uxlden = 0.0;
+                if (TKlayers >= 11) {
+                  const BoundPlane& plane = stripdet->surface();
+                  const TrapezoidalPlaneBounds* trapezoidalBounds(
+                      dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+                  std::array<const float, 4> const& parameterTrap =
+                      (*trapezoidalBounds).parameters();  // el bueno aqui
+                  hbedge = parameterTrap[0];
+                  htedge = parameterTrap[1];
+                  hapoth = parameterTrap[3];
+                  uylfac = (htedge - hbedge) / (htedge + hbedge) / hapoth;
+                  uxlden = 1 + yloc * uylfac;
+                }
+
+                // Need to know position of trajectory in strip number for selecting the right APV later
+                if (TrajStrip == -1) {
+                  int nstrips = Topo.nstrips();
+                  float pitch = stripdet->surface().bounds().width() / nstrips;
+                  TrajStrip = xloc / pitch + nstrips / 2.0;
+                  // Need additionnal corrections for endcap
                   if (TKlayers >= 11) {
-                    const BoundPlane& plane = stripdet->surface();
-                    const TrapezoidalPlaneBounds* trapezoidalBounds(
-                        dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-                    std::array<const float, 4> const& parameterTrap =
-                        (*trapezoidalBounds).parameters();  // el bueno aqui
-                    hbedge = parameterTrap[0];
-                    htedge = parameterTrap[1];
-                    hapoth = parameterTrap[3];
-                    uylfac = (htedge - hbedge) / (htedge + hbedge) / hapoth;
-                    uxlden = 1 + yloc * uylfac;
+                    float TrajLocXMid = xloc / (1 + (htedge - hbedge) * yloc / (htedge + hbedge) /
+                                                        hapoth);  // radialy extrapolated x loc position at middle
+                    TrajStrip = TrajLocXMid / pitch + nstrips / 2.0;
+                  }
+                  //cout<<" Layer "<<TKlayers<<" TrajStrip: "<<nstrips<<" "<<pitch<<" "<<TrajStrip<<endl;
+                }
+
+                for ( const auto& clus : *idsv ) {
+                  StripClusterParameterEstimator::LocalValues parameters = stripcpe->localParameters(clus, *stripdet);
+                  float res = (parameters.first.x() - xloc);
+                  float sigma = checkConsistency(parameters, xloc, xErr);
+                  // The consistency is probably more accurately measured with the Chi2MeasurementEstimator. To use it
+                  // you need a TransientTrackingRecHit instead of the cluster
+                  //theEstimator=       new Chi2MeasurementEstimator(30);
+                  //const Chi2MeasurementEstimator *theEstimator(100);
+                  //theEstimator->estimate(tm.tsos(), TransientTrackingRecHit);
+
+                  if (TKlayers >= 11) {
+                    res = parameters.first.x() - xloc / uxlden;  // radialy extrapolated x loc position at middle
+                    sigma = abs(res) /
+                            sqrt(parameters.second.xx() + xErr * xErr / uxlden / uxlden +
+                                 yErr * yErr * xloc * xloc * uylfac * uylfac / uxlden / uxlden / uxlden / uxlden);
                   }
 
-                  // Need to know position of trajectory in strip number for selecting the right APV later
-                  if (TrajStrip == -1) {
-                    int nstrips = Topo.nstrips();
-                    float pitch = stripdet->surface().bounds().width() / nstrips;
-                    TrajStrip = xloc / pitch + nstrips / 2.0;
-                    // Need additionnal corrections for endcap
-                    if (TKlayers >= 11) {
-                      float TrajLocXMid = xloc / (1 + (htedge - hbedge) * yloc / (htedge + hbedge) /
-                                                          hapoth);  // radialy extrapolated x loc position at middle
-                      TrajStrip = TrajLocXMid / pitch + nstrips / 2.0;
-                    }
-                    //cout<<" Layer "<<TKlayers<<" TrajStrip: "<<nstrips<<" "<<pitch<<" "<<TrajStrip<<endl;
-                  }
-
-                  for ( const auto& clus : dsv ) {
-                    StripClusterParameterEstimator::LocalValues parameters = stripcpe.localParameters(clus, *stripdet);
-                    float res = (parameters.first.x() - xloc);
-                    float sigma = checkConsistency(parameters, xloc, xErr);
-                    // The consistency is probably more accurately measured with the Chi2MeasurementEstimator. To use it
-                    // you need a TransientTrackingRecHit instead of the cluster
-                    //theEstimator=       new Chi2MeasurementEstimator(30);
-                    //const Chi2MeasurementEstimator *theEstimator(100);
-                    //theEstimator->estimate(tm.tsos(), TransientTrackingRecHit);
-
-                    if (TKlayers >= 11) {
-                      res = parameters.first.x() - xloc / uxlden;  // radialy extrapolated x loc position at middle
-                      sigma = abs(res) /
-                              sqrt(parameters.second.xx() + xErr * xErr / uxlden / uxlden +
-                                   yErr * yErr * xloc * xloc * uylfac * uylfac / uxlden / uxlden / uxlden / uxlden);
-                    }
-
-                    siStripClusterInfo_.setCluster(clus, ClusterId);
-                    // signal to noise from SiStripClusterInfo not working in 225. I'll fix this after the interface
-                    // redesign in 300 -ku
-                    //float cluster_info[7] = {res, sigma, parameters.first.x(), sqrt(parameters.second.xx()), parameters.first.y(), sqrt(parameters.second.yy()), signal_to_noise};
-                    std::vector<float> cluster_info;
-                    cluster_info.push_back(res);
-                    cluster_info.push_back(sigma);
-                    cluster_info.push_back(parameters.first.x());
-                    cluster_info.push_back(sqrt(parameters.second.xx()));
-                    cluster_info.push_back(parameters.first.y());
-                    cluster_info.push_back(sqrt(parameters.second.yy()));
-                    cluster_info.push_back(siStripClusterInfo_.signalOverNoise());
-                    VCluster_info.push_back(cluster_info);
-                    nClusters++;
-                    LogDebug("SiStripHitEfficiency:HitEff") << "Have ID match. residual = " << VCluster_info.back()[0]
-                                                            << "  res sigma = " << VCluster_info.back()[1] << std::endl;
-                    LogDebug("SiStripHitEfficiency:HitEff")
-                        << "trajectory measurement compatability estimate = " << (*itm).estimate() << std::endl;
-                    LogDebug("SiStripHitEfficiency:HitEff")
-                        << "hit position = " << parameters.first.x() << "  hit error = " << sqrt(parameters.second.xx())
-                        << "  trajectory position = " << xloc << "  traj error = " << xErr << std::endl;
-                  }
+                  siStripClusterInfo_.setCluster(clus, idsv->id());
+                  // signal to noise from SiStripClusterInfo not working in 225. I'll fix this after the interface
+                  // redesign in 300 -ku
+                  //float cluster_info[7] = {res, sigma, parameters.first.x(), sqrt(parameters.second.xx()), parameters.first.y(), sqrt(parameters.second.yy()), signal_to_noise};
+                  std::vector<float> cluster_info;
+                  cluster_info.push_back(res);
+                  cluster_info.push_back(sigma);
+                  cluster_info.push_back(parameters.first.x());
+                  cluster_info.push_back(sqrt(parameters.second.xx()));
+                  cluster_info.push_back(parameters.first.y());
+                  cluster_info.push_back(sqrt(parameters.second.yy()));
+                  cluster_info.push_back(siStripClusterInfo_.signalOverNoise());
+                  // TODO all but 0,1,2 can go (only used for debug prinout, after removing the rest)
+                  VCluster_info.push_back(cluster_info);
+                  LogDebug("SiStripHitEfficiency:HitEff") << "Have ID match. residual = " << VCluster_info.back()[0]
+                                                          << "  res sigma = " << VCluster_info.back()[1] << std::endl;
+                  LogDebug("SiStripHitEfficiency:HitEff")
+                      << "trajectory measurement compatability estimate = " << (*itm).estimate() << std::endl;
+                  LogDebug("SiStripHitEfficiency:HitEff")
+                      << "hit position = " << parameters.first.x() << "  hit error = " << sqrt(parameters.second.xx())
+                      << "  trajectory position = " << xloc << "  traj error = " << xErr << std::endl;
                 }
               }
               float FinalResSig = 1000.0;
               float FinalCluster[7] = {1000.0, 1000.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-              if (nClusters > 0) {
+              if (! VCluster_info.empty()) {
                 LogDebug("SiStripHitEfficiency:HitEff") << "found clusters > 0" << std::endl;
-                if (nClusters > 1) {
+                if (VCluster_info.size() > 1) {
                   //get the smallest one
                   for ( const auto& res : VCluster_info ) {
                     if (abs(res[1]) < abs(FinalResSig)) {
@@ -661,7 +632,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                     FinalCluster[i] = VCluster_info.at(0)[i];
                   }
                 }
-                nClusters = 0;
                 VCluster_info.clear();
               }
 
@@ -729,7 +699,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               run = run_nr;
               event = ev_nr;
               bunchx = bunch_nr;
-              //if ( SiStripQuality_->IsModuleBad(iidd) ) {
+              //if ( SiStripQuality_->IsModuleBad(iidd) )
               if (SiStripQuality_->getBadApvs(iidd) != 0) {
                 SiStripQualBad = 1;
                 LogDebug("SiStripHitEfficiency:HitEff") << "strip is bad from SiStripQuality" << std::endl;
