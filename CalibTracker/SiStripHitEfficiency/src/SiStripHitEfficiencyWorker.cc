@@ -97,40 +97,47 @@ private:
 
   edm::ParameterSet conf_;
 
-  TTree* traj;
   int events, EventTrackCKF;
 
-  int compSettings;
   unsigned int layers;
   bool DEBUG;
-  unsigned int whatlayer;
 
 // Tree declarations
+  unsigned int whatlayer;
 // Trajectory positions for modules included in the study
-#ifdef ExtendedCALIBTree
-  float timeDT, timeDTErr;
-  int timeDTDOF;
-  float timeECAL, dedx;
-  int dedxNOM;
-  int nLostHits;
-  float p, chi2;
-#endif
   float TrajGlbX, TrajGlbY, TrajGlbZ;
-  float TrajLocX, TrajLocY, TrajLocAngleX, TrajLocAngleY;
-  float TrajLocErrX, TrajLocErrY;
-  float ClusterLocX, ClusterLocY, ClusterLocErrX, ClusterLocErrY, ClusterStoN;
-  float ResX, ResXSig;
+  float TrajLocX, TrajLocY;
+  float ClusterLocX;
+  float ResXSig;
   unsigned int ModIsBad;
   unsigned int Id;
   unsigned int SiStripQualBad;
   bool withinAcceptance;
   bool highPurity;
-  int nHits;
-  float pT;
-  unsigned int trajHitValid, run, event, bunchx;
-  int tquality;
+  unsigned int run, event, bunchx;
   float instLumi, PU;
   float commonMode;
+  /* Used in SiStripHitEffFromCalibTree:
+   * run              -> "run"              -> run
+   * event            -> "event"            -> evt
+   * ModIsBad         -> "ModIsBad"         -> isBad
+   * SiStripQualBad   -> "SiStripQualBad""  -> quality
+   * Id               -> "Id"               -> id
+   * withinAcceptance -> "withinAcceptance" -> accept
+   * whatlayer        -> "layer"            -> layer_wheel
+   * highPurity       -> "highPurity"       -> highPurity
+   * TrajGlbX         -> "TrajGlbX"         -> x
+   * TrajGlbY         -> "TrajGlbY"         -> y
+   * TrajGlbZ         -> "TrajGlbZ"         -> z
+   * ResXSig          -> "ResXSig"          -> resxsig
+   * TrajLocX         -> "TrajLocX"         -> TrajLocX
+   * TrajLocY         -> "TrajLocY"         -> TrajLocY
+   * ClusterLocX      -> "ClusterLocX"      -> ClusterLocX
+   * bunchx           -> "bunchx"           -> bx
+   * instLumi         -> "instLumi"         -> instLumi         ## if addLumi_
+   * PU               -> "PU"               -> PU               ## if addLumi_
+   * commonMode       -> "commonMode"       -> CM               ## if addCommonMode_ / _useCM
+  */
 };
 
 //#endif
@@ -170,7 +177,6 @@ private:
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "DataFormats/TrackReco/interface/DeDxData.h"
 //#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -185,9 +191,6 @@ private:
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "TMath.h"
 #include "TH1F.h"
@@ -210,7 +213,6 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       digis_token_(consumes<DetIdCollection>(conf.getParameter<edm::InputTag>("siStripDigis"))),
       trackerEvent_token_(consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent"))),
       conf_(conf) {
-  compSettings = conf_.getUntrackedParameter<int>("CompressionSettings", -1);
   layers = conf_.getParameter<int>("Layer");
   DEBUG = conf_.getParameter<bool>("Debug");
   addLumi_ = conf_.getUntrackedParameter<bool>("addLumi", false);
@@ -227,60 +229,7 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
 SiStripHitEfficiencyWorker::~SiStripHitEfficiencyWorker() {}
 
 void SiStripHitEfficiencyWorker::beginJob() {
-  edm::Service<TFileService> fs;
-  if (compSettings > 0) {
-    edm::LogInfo("SiStripHitEfficiency:HitEff") << "the compressions settings are:" << compSettings << std::endl;
-    fs->file().SetCompressionSettings(compSettings);
-  }
-
-  traj = fs->make<TTree>("traj", "tree of trajectory positions");
-#ifdef ExtendedCALIBTree
-  traj->Branch("timeDT", &timeDT, "timeDT/F");
-  traj->Branch("timeDTErr", &timeDTErr, "timeDTErr/F");
-  traj->Branch("timeDTDOF", &timeDTDOF, "timeDTDOF/I");
-  traj->Branch("timeECAL", &timeECAL, "timeECAL/F");
-  traj->Branch("dedx", &dedx, "dedx/F");
-  traj->Branch("dedxNOM", &dedxNOM, "dedxNOM/I");
-  traj->Branch("nLostHits", &nLostHits, "nLostHits/I");
-  traj->Branch("chi2", &chi2, "chi2/F");
-  traj->Branch("p", &p, "p/F");
-#endif
-  traj->Branch("TrajGlbX", &TrajGlbX, "TrajGlbX/F");
-  traj->Branch("TrajGlbY", &TrajGlbY, "TrajGlbY/F");
-  traj->Branch("TrajGlbZ", &TrajGlbZ, "TrajGlbZ/F");
-  traj->Branch("TrajLocX", &TrajLocX, "TrajLocX/F");
-  traj->Branch("TrajLocY", &TrajLocY, "TrajLocY/F");
-  traj->Branch("TrajLocAngleX", &TrajLocAngleX, "TrajLocAngleX/F");
-  traj->Branch("TrajLocAngleY", &TrajLocAngleY, "TrajLocAngleY/F");
-  traj->Branch("TrajLocErrX", &TrajLocErrX, "TrajLocErrX/F");
-  traj->Branch("TrajLocErrY", &TrajLocErrY, "TrajLocErrY/F");
-  traj->Branch("ClusterLocX", &ClusterLocX, "ClusterLocX/F");
-  traj->Branch("ClusterLocY", &ClusterLocY, "ClusterLocY/F");
-  traj->Branch("ClusterLocErrX", &ClusterLocErrX, "ClusterLocErrX/F");
-  traj->Branch("ClusterLocErrY", &ClusterLocErrY, "ClusterLocErrY/F");
-  traj->Branch("ClusterStoN", &ClusterStoN, "ClusterStoN/F");
-  traj->Branch("ResX", &ResX, "ResX/F");
-  traj->Branch("ResXSig", &ResXSig, "ResXSig/F");
-  traj->Branch("ModIsBad", &ModIsBad, "ModIsBad/i");
-  traj->Branch("SiStripQualBad", &SiStripQualBad, "SiStripQualBad/i");
-  traj->Branch("withinAcceptance", &withinAcceptance, "withinAcceptance/O");
-  traj->Branch("nHits", &nHits, "nHits/I");
-  traj->Branch("pT", &pT, "pT/F");
-  traj->Branch("highPurity", &highPurity, "highPurity/O");
-  traj->Branch("trajHitValid", &trajHitValid, "trajHitValid/i");
-  traj->Branch("Id", &Id, "Id/i");
-  traj->Branch("run", &run, "run/i");
-  traj->Branch("event", &event, "event/i");
-  traj->Branch("layer", &whatlayer, "layer/i");
-  traj->Branch("tquality", &tquality, "tquality/I");
-  traj->Branch("bunchx", &bunchx, "bunchx/I");
-  if (addLumi_) {
-    traj->Branch("instLumi", &instLumi, "instLumi/F");
-    traj->Branch("PU", &PU, "PU/F");
-  }
-  if (addCommonMode_)
-    traj->Branch("commonMode", &commonMode, "commonMode/F");
-
+  // TODO convert to counters, or simply remove?
   events = 0;
   EventTrackCKF = 0;
 }
@@ -432,42 +381,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
     EventTrackCKF++;
 
-#ifdef ExtendedCALIBTree
-    //get dEdx info if available
-    Handle<ValueMap<DeDxData> > dEdxUncalibHandle;
-    if (e.getByLabel("dedxMedianCTF", dEdxUncalibHandle)) {
-      const ValueMap<DeDxData> dEdxTrackUncalib = *dEdxUncalibHandle.product();
-
-      reco::TrackRef itTrack = reco::TrackRef(trackCollectionCKF, 0);
-      dedx = dEdxTrackUncalib[itTrack].dEdx();
-      dedxNOM = dEdxTrackUncalib[itTrack].numberOfMeasurements();
-    } else {
-      dedx = -999.0;
-      dedxNOM = -999;
-    }
-
-    //get muon and ecal timing info if available
-    Handle<MuonCollection> muH;
-    if (e.getByLabel("muonsWitht0Correction", muH)) {
-      const MuonCollection& muonsT0 = *muH.product();
-      if (!muonsT0.empty()) {
-        MuonTime mt0 = muonsT0[0].time();
-        timeDT = mt0.timeAtIpInOut;
-        timeDTErr = mt0.timeAtIpInOutErr;
-        timeDTDOF = mt0.nDof;
-
-        bool hasCaloEnergyInfo = muonsT0[0].isEnergyValid();
-        if (hasCaloEnergyInfo)
-          timeECAL = muonsT0[0].calEnergy().ecal_time;
-      }
-    } else {
-      timeDT = -999.0;
-      timeDTErr = -999.0;
-      timeDTDOF = -999;
-      timeECAL = -999.0;
-    }
-
-#endif
     // actually should do a loop over all the tracks in the event here
 
     // Looping over traj-track associations to be able to get traj & track informations
@@ -478,16 +391,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
       reco::TrackRef itrack = it->val;
 
       // for each track, fill some variables such as number of hits and momentum
-      nHits = itraj->foundHits();
-#ifdef ExtendedCALIBTree
-      nLostHits = itraj->lostHits();
-      chi2 = (itraj->chiSquared() / itraj->ndof());
-      p = itraj->lastMeasurement().updatedState().globalMomentum().mag();
-#endif
-      pT = sqrt((itraj->lastMeasurement().updatedState().globalMomentum().x() *
-                 itraj->lastMeasurement().updatedState().globalMomentum().x()) +
-                (itraj->lastMeasurement().updatedState().globalMomentum().y() *
-                 itraj->lastMeasurement().updatedState().globalMomentum().y()));
 
       // track quality
       highPurity = itrack->quality(reco::TrackBase::TrackQuality::highPurity);
@@ -498,8 +401,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
       double yloc = 0.;
       double xErr = 0.;
       double yErr = 0.;
-      double angleX = -999.;
-      double angleY = -999.;
       double xglob, yglob, zglob;
 
       // Check whether the trajectory has some missing hits
@@ -691,12 +592,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           xloc = TM->localX();
           yloc = TM->localY();
 
-          angleX = atan(TM->localDxDz());
-          angleY = atan(TM->localDyDz());
-
-          TrajLocErrX = 0.0;
-          TrajLocErrY = 0.0;
-
           xglob = TM->globalX();
           yglob = TM->globalY();
           zglob = TM->globalZ();
@@ -708,7 +603,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           TrajGlbZ = 0.0;
           withinAcceptance = TM->withinAcceptance();
 
-          trajHitValid = TM->validHit();
           int TrajStrip = -1;
 
           // reget layer from iidd here, to account for TOB 6 and TEC 9 TKlayers being off
@@ -724,15 +618,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             event = 0;
             TrajLocX = 0.0;
             TrajLocY = 0.0;
-            TrajLocAngleX = -999.0;
-            TrajLocAngleY = -999.0;
-            ResX = 0.0;
             ResXSig = 0.0;
             ClusterLocX = 0.0;
-            ClusterLocY = 0.0;
-            ClusterLocErrX = 0.0;
-            ClusterLocErrY = 0.0;
-            ClusterStoN = 0.0;
             bunchx = 0;
             commonMode = -100;
 
@@ -924,9 +811,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               TrajGlbY = yglob;
               TrajGlbZ = zglob;
 
-              TrajLocErrX = xErr;
-              TrajLocErrY = yErr;
-
               Id = iidd;
               run = run_nr;
               event = ev_nr;
@@ -948,19 +832,12 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
               TrajLocX = xloc;
               TrajLocY = yloc;
-              TrajLocAngleX = angleX;
-              TrajLocAngleY = angleY;
-              ResX = FinalCluster[0];
               ResXSig = FinalResSig;
               if (FinalResSig != FinalCluster[1])
                 LogDebug("SiStripHitEfficiency:HitEff")
                     << "Problem with best cluster selection because FinalResSig = " << FinalResSig
                     << " and FinalCluster[1] = " << FinalCluster[1] << endl;
               ClusterLocX = FinalCluster[2];
-              ClusterLocY = FinalCluster[4];
-              ClusterLocErrX = FinalCluster[3];
-              ClusterLocErrY = FinalCluster[5];
-              ClusterStoN = FinalCluster[6];
 
               // CM of APV crossed by traj
               if (addCommonMode_)
@@ -981,7 +858,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                     << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/" << ((iidd & 0x3) == 1) << "/"
                     << ((iidd & 0x3) == 2) << endl;
                 ModIsBad = 0;
-                traj->Fill();
               } else {
                 LogDebug("SiStripHitEfficiency:HitEff")
                     << "hit being counted as bad   ######### Invalid RPhi FinalResX " << FinalCluster[0]
@@ -989,11 +865,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                     << " module " << iidd << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/"
                     << ((iidd & 0x3) == 1) << "/" << ((iidd & 0x3) == 2) << endl;
                 ModIsBad = 1;
-                traj->Fill();
-
                 LogDebug("SiStripHitEfficiency:HitEff") << " RPhi Error " << sqrt(xErr * xErr + yErr * yErr)
                                                         << " ErrorX " << xErr << " yErr " << yErr << endl;
               }
+              // traj->Fill(); // TODO - here is one entry for the calibtree -> histograms
               LogDebug("SiStripHitEfficiency:HitEff") << "after good location check" << endl;
             }
             LogDebug("SiStripHitEfficiency:HitEff") << "after list of clusters" << endl;
@@ -1009,9 +884,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 }
 
 void SiStripHitEfficiencyWorker::endJob() {
-  traj->GetDirectory()->cd();
-  traj->Write();
-
   LogDebug("SiStripHitEfficiency:HitEff") << " Events Analysed             " << events << endl;
   LogDebug("SiStripHitEfficiency:HitEff") << " Number Of Tracked events    " << EventTrackCKF << endl;
 }
