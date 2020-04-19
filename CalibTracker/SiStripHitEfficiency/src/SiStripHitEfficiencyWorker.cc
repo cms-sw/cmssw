@@ -86,6 +86,7 @@ private:
   void bookHistograms(DQMStore::IBooker& booker, const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
+  bool isInBondingExclusionZone(double yLoc, double yErr, const TrackerTopology* tTopo);
   // ----------member data ---------------------------
 
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
@@ -495,12 +496,13 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           TrajGlbX = 0.0;
           TrajGlbY = 0.0;
           TrajGlbZ = 0.0;
-          withinAcceptance = tm.withinAcceptance();
 
           int TrajStrip = -1;
 
           // reget layer from iidd here, to account for TOB 6 and TEC 9 TKlayers being off
           TKlayers = checkLayer(iidd, tTopo);
+
+          withinAcceptance = tm.withinAcceptance() && ( ! isInBondingExclusionZone(TKlayers, yloc, yErr, tTopo) );
 
           if ((layers == TKlayers) || (layers == 0)) {  // Look at the layer not used to reconstruct the track
             whatlayer = TKlayers;
@@ -644,51 +646,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                   << "  xloc = " << FinalCluster[2] << "+-" << FinalCluster[3] << std::endl;
               LogDebug("SiStripHitEfficiency:HitEff") << "Final cluster signal to noise = " << FinalCluster[6] << std::endl;
 
-              float exclusionWidth = 0.4;
-              float TOBexclusion = 0.0;
-              float TECexRing5 = -0.89;
-              float TECexRing6 = -0.56;
-              float TECexRing7 = 0.60;
-              //Added by Chris Edelmaier to do TEC bonding exclusion
-              int subdetector = ((iidd >> 25) & 0x7);
-              int ringnumber = ((iidd >> 5) & 0x7);
-
-              //New TOB and TEC bonding region exclusion zone
-              if ((TKlayers >= 5 && TKlayers < 11) ||
-                  ((subdetector == 6) && ((ringnumber >= 5) && (ringnumber <= 7)))) {
-                //There are only 2 cases that we need to exclude for
-                float highzone = 0.0;
-                float lowzone = 0.0;
-                float higherr = yloc + 5.0 * yErr;
-                float lowerr = yloc - 5.0 * yErr;
-                if (TKlayers >= 5 && TKlayers < 11) {
-                  //TOB zone
-                  highzone = TOBexclusion + exclusionWidth;
-                  lowzone = TOBexclusion - exclusionWidth;
-                } else if (ringnumber == 5) {
-                  //TEC ring 5
-                  highzone = TECexRing5 + exclusionWidth;
-                  lowzone = TECexRing5 - exclusionWidth;
-                } else if (ringnumber == 6) {
-                  //TEC ring 6
-                  highzone = TECexRing6 + exclusionWidth;
-                  lowzone = TECexRing6 - exclusionWidth;
-                } else if (ringnumber == 7) {
-                  //TEC ring 7
-                  highzone = TECexRing7 + exclusionWidth;
-                  lowzone = TECexRing7 - exclusionWidth;
-                }
-                //Now that we have our exclusion region, we just have to properly identify it
-                if ((highzone <= higherr) && (highzone >= lowerr))
-                  withinAcceptance = false;
-                if ((lowzone >= lowerr) && (lowzone <= higherr))
-                  withinAcceptance = false;
-                if ((higherr <= highzone) && (higherr >= lowzone))
-                  withinAcceptance = false;
-                if ((lowerr >= lowzone) && (lowerr <= highzone))
-                  withinAcceptance = false;
-              }
-
+              //
               // fill ntuple varibles
               //get global position from module id number iidd
               TrajGlbX = xglob;
@@ -845,6 +803,56 @@ unsigned int SiStripHitEfficiencyWorker::checkLayer(unsigned int iidd, const Tra
     return tTopo->tecWheel(iidd) + 13;
   }
   return 0;
+}
+
+bool SiStripHitEfficiencyWorker::isInBondingExclusionZone(unsigned int TKlayers, double yLoc, double yErr, const TrackerTopology* tTopo) {
+  constexpr float exclusionWidth = 0.4;
+  constexpr float TOBexclusion = 0.0;
+  constexpr float TECexRing5 = -0.89;
+  constexpr float TECexRing6 = -0.56;
+  constexpr float TECexRing7 = 0.60;
+
+  //Added by Chris Edelmaier to do TEC bonding exclusion
+  const int subdetector = ((iidd >> 25) & 0x7);
+  const int ringnumber = ((iidd >> 5) & 0x7);
+
+  bool inZone = False;
+  //New TOB and TEC bonding region exclusion zone
+  if ((TKlayers >= 5 && TKlayers < 11) ||
+      ((subdetector == 6) && ((ringnumber >= 5) && (ringnumber <= 7)))) {
+    //There are only 2 cases that we need to exclude for
+    float highzone = 0.0;
+    float lowzone = 0.0;
+    float higherr = yloc + 5.0 * yErr;
+    float lowerr = yloc - 5.0 * yErr;
+    if (TKlayers >= 5 && TKlayers < 11) {
+      //TOB zone
+      highzone = TOBexclusion + exclusionWidth;
+      lowzone = TOBexclusion - exclusionWidth;
+    } else if (ringnumber == 5) {
+      //TEC ring 5
+      highzone = TECexRing5 + exclusionWidth;
+      lowzone = TECexRing5 - exclusionWidth;
+    } else if (ringnumber == 6) {
+      //TEC ring 6
+      highzone = TECexRing6 + exclusionWidth;
+      lowzone = TECexRing6 - exclusionWidth;
+    } else if (ringnumber == 7) {
+      //TEC ring 7
+      highzone = TECexRing7 + exclusionWidth;
+      lowzone = TECexRing7 - exclusionWidth;
+    }
+    //Now that we have our exclusion region, we just have to properly identify it
+    if ((highzone <= higherr) && (highzone >= lowerr))
+      inZone = true;
+    if ((lowzone >= lowerr) && (lowzone <= higherr))
+      inZone = true;
+    if ((higherr <= highzone) && (higherr >= lowzone))
+      inZone = true;
+    if ((lowerr >= lowzone) && (lowerr <= highzone))
+      inZone = true;
+  }
+  return inZone;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
