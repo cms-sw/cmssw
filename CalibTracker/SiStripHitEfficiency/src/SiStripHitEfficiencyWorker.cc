@@ -7,9 +7,11 @@
 // Original Author:  Christopher Edelmaier
 //
 ///////////////////////////////////////////////////////////////////////////////
+//
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+//
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -56,7 +58,7 @@
 
 class TrackerTopology;
 
-class SiStripHitEfficiencyWorker : public edm::EDAnalyzer {
+class SiStripHitEfficiencyWorker : public DQMEDAnalyzer {
 public:
   explicit SiStripHitEfficiencyWorker(const edm::ParameterSet& conf);
   double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr);
@@ -66,8 +68,9 @@ public:
   unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo);
 
 private:
-  void beginJob() override;
-  void endJob() override;
+  void beginJob(); // TODO remove
+  void endJob(); // TODO remove
+  void bookHistograms(DQMStore::IBooker& booker, const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // ----------member data ---------------------------
@@ -280,6 +283,10 @@ void SiStripHitEfficiencyWorker::beginJob() {
 
   events = 0;
   EventTrackCKF = 0;
+}
+
+void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker, const edm::Run& run, const edm::EventSetup& setup) {
+
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
