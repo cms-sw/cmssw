@@ -17,9 +17,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -33,7 +30,6 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
@@ -43,18 +39,6 @@
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
-
-#include "TROOT.h"
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include <vector>
-#include "TTree.h"
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
-#include "Riostream.h"
-#include "TRandom2.h"
 
 class TrackerTopology;
 
@@ -142,26 +126,10 @@ private:
 
 //#endif
 
-// system include files
-#include <memory>
-#include <string>
-#include <iostream>
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -171,29 +139,20 @@ private:
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-//#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
-#include "TMath.h"
-#include "TH1F.h"
 
 //
 // constructors and destructor
@@ -964,4 +923,5 @@ unsigned int SiStripHitEfficiencyWorker::checkLayer(unsigned int iidd, const Tra
 }
 
 //define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripHitEfficiencyWorker);
