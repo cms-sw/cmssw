@@ -45,8 +45,10 @@ foreach gtag ( $1 )
     set config = `grep tableName OnLine_HLT_${table}.py | cut -f2 -d "'"`
     if ($table == Fake) then
       set basegt = auto:run1_${infix}_${table}
-    else 
+    else if ( ($table == Fake1) || ($table == Fake2) || ($table == 2018) ) then
       set basegt = auto:run2_${infix}_${table}
+    else
+      set basegt = auto:run3_${infix}_${table}
     endif
     set autogt = "--globaltag=${basegt}"
     set infile = file:../RelVal_Raw_${table}_${gtag}.root
