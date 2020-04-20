@@ -92,7 +92,8 @@ For the `Sync` and `PseudoAsync` modes, `finish()` should be called at the end o
 For the `Async` mode, `finish()` should be called inside the communication protocol callback function (implementations may vary).
 
 When `finish()` is called, the success or failure of the call should be conveyed.
-If a call fails, it can optionally be retried.
+If a call fails, it can optionally be retried. This is only allowed if the call failure does not cause an exception.
+Therefore, if retrying is desired, any exception should be converted to a `LogWarning` or `LogError` message by the client.
 To enable retries with a specified maximum number of allowed tries (possibly obtained from a Python configuration parameter), the client should implement the following:
 ```cpp
 protected:

@@ -36,7 +36,8 @@ protected:
   }
 
   void finish(bool success, std::exception_ptr eptr = std::exception_ptr{}) {
-    if (!success) {
+    //retries are only allowed if no exception was raised
+    if (!success and !eptr) {
       ++tries_;
       //if max retries has not been exceeded, call evaluate again
       if (tries_ < allowedTries()) {
@@ -44,8 +45,8 @@ protected:
         //avoid calling doneWaiting() twice
         return;
       }
-      //prepare an exception if there isn't one already
-      else if (!eptr) {
+      //prepare an exception if exceeded
+      else {
         cms::Exception ex("SonicCallFailed");
         ex << "call failed after max " << tries_ << " tries";
         eptr = make_exception_ptr(ex);
