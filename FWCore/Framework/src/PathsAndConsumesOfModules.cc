@@ -138,7 +138,29 @@ namespace edm {
     }
     return iter->second;
   }
+}  // namespace edm
 
+namespace {
+  // helper function for nonConsumedUnscheduledModules,
+  void findAllConsumedModules(edm::PathsAndConsumesOfModulesBase const& iPnC,
+                              edm::ModuleDescription const* module,
+                              std::unordered_set<unsigned int>& consumedModules) {
+    // If this node of the DAG has been processed already, no need to
+    // reprocess again
+    if (consumedModules.find(module->id()) != consumedModules.end()) {
+      return;
+    }
+    consumedModules.insert(module->id());
+    for (auto const& c : iPnC.modulesWhoseProductsAreConsumedBy(module->id())) {
+      findAllConsumedModules(iPnC, c, consumedModules);
+    }
+    for (auto const& c : iPnC.modulesWhoseProductsAreConsumedByLumiRun(module->id())) {
+      findAllConsumedModules(iPnC, c, consumedModules);
+    }
+  }
+}  // namespace
+
+namespace edm {
   std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC,
                                                                       std::set<ModuleProcessName>& consumedByChildren) {
     const std::string kTriggerResults("TriggerResults");
@@ -147,10 +169,13 @@ namespace edm {
     const unsigned int kFirstEndPathIndex = pathNames.size();
     pathNames.insert(pathNames.end(), iPnC.endPaths().begin(), iPnC.endPaths().end());
 
-    std::unordered_set<unsigned int> moduleIndicesInPaths;
-
-    // Exctract all modules in Paths and EndPaths (need to be kept) to
-    // get the list of unscheduled modules
+    // The goal is to find modules that are not depended upon by
+    // scheduled modules. To do that, we identify all modules that are
+    // depended upon by scheduled modules, and do a set subtraction.
+    //
+    // First, denote all scheduled modules (i.e. in Paths and
+    // EndPaths) as "consumers".
+    std::vector<ModuleDescription const*> consumerModules;
     for (unsigned int pathIndex = 0; pathIndex != pathNames.size(); ++pathIndex) {
       std::vector<ModuleDescription const*> const* moduleDescriptions;
       if (pathIndex < kFirstEndPathIndex) {
@@ -158,42 +183,41 @@ namespace edm {
       } else {
         moduleDescriptions = &(iPnC.modulesOnEndPath(pathIndex - kFirstEndPathIndex));
       }
-      for (auto const& description : *moduleDescriptions) {
-        moduleIndicesInPaths.insert(description->id());
-      }
+      std::copy(moduleDescriptions->begin(), moduleDescriptions->end(), std::back_inserter(consumerModules));
     }
 
-    // Mark modules whose any output is consumed
-    // Mark TriggerResults and all Paths/EndPaths as consumed
-    // Mark anything possibly consumed by child SubProcesses
+    // Then add TriggerResults, and all Paths and EndPaths themselves
+    // to the set of "consumers" (even if they don't depend on any
+    // data products, they must not be deleted). Also add anything
+    // consumed by child SubProcesses to the set of "consumers".
     auto const& allModules = iPnC.allModules();
-    std::unordered_set<unsigned int> consumedModules;
     for (auto const& description : allModules) {
-      for (auto const& c : iPnC.modulesWhoseProductsAreConsumedBy(description->id())) {
-        consumedModules.insert(c->id());
-      }
-      for (auto const& c : iPnC.modulesWhoseProductsAreConsumedByLumiRun(description->id())) {
-        consumedModules.insert(c->id());
-      }
       if (description->moduleLabel() == kTriggerResults or
           std::find(pathNames.begin(), pathNames.end(), description->moduleLabel()) != pathNames.end()) {
-        consumedModules.insert(description->id());
+        consumerModules.push_back(description);
       } else if (consumedByChildren.find(ModuleProcessName{description->moduleLabel(), description->processName()}) !=
                      consumedByChildren.end() or
                  consumedByChildren.find(ModuleProcessName{description->moduleLabel(), ""}) !=
                      consumedByChildren.end()) {
-        consumedModules.insert(description->id());
+        consumerModules.push_back(description);
       }
     }
 
-    // Keep modules that are in Paths/EndPaths or whose output is consumed
+    // Find modules that have any data dependence path to any module
+    // in consumerModules.
+    std::unordered_set<unsigned int> consumedModules;
+    for (auto& description : consumerModules) {
+      findAllConsumedModules(iPnC, description, consumedModules);
+    }
+
+    // All other modules will then be classified as non-consumed, even
+    // if they would have dependencies within them.
     std::vector<ModuleDescription const*> unusedModules;
     std::copy_if(allModules.begin(),
                  allModules.end(),
                  std::back_inserter(unusedModules),
-                 [&moduleIndicesInPaths, &consumedModules](ModuleDescription const* description) {
-                   return moduleIndicesInPaths.find(description->id()) == moduleIndicesInPaths.end() and
-                          consumedModules.find(description->id()) == consumedModules.end();
+                 [&consumedModules](ModuleDescription const* description) {
+                   return consumedModules.find(description->id()) == consumedModules.end();
                  });
     return unusedModules;
   }
