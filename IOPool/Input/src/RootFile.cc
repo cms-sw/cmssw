@@ -65,7 +65,6 @@
 
 #include <algorithm>
 #include <list>
-#include <iostream>
 
 namespace edm {
 
