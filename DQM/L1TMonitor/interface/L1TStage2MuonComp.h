@@ -31,6 +31,8 @@ private:
     MUONALL,
     MUONGOOD,
     PTBAD,
+    PTUNCONSTRBAD,
+    DXYBAD,
     ETABAD,
     PHIBAD,
     ETAATVTXBAD,
@@ -46,6 +48,8 @@ private:
     RNMUON,
     RMUON,
     RPT,
+    RPTUNCONSTR,
+    RDXY,
     RETA,
     RPHI,
     RETAATVTX,
@@ -75,6 +79,8 @@ private:
   MonitorElement* muColl1BxRange;
   MonitorElement* muColl1nMu;
   MonitorElement* muColl1hwPt;
+  MonitorElement* muColl1hwPtUnconstrained;
+  MonitorElement* muColl1hwDXY;
   MonitorElement* muColl1hwEta;
   MonitorElement* muColl1hwPhi;
   MonitorElement* muColl1hwEtaAtVtx;
@@ -89,6 +95,8 @@ private:
   MonitorElement* muColl2BxRange;
   MonitorElement* muColl2nMu;
   MonitorElement* muColl2hwPt;
+  MonitorElement* muColl2hwPtUnconstrained;
+  MonitorElement* muColl2hwDXY;
   MonitorElement* muColl2hwEta;
   MonitorElement* muColl2hwPhi;
   MonitorElement* muColl2hwEtaAtVtx;
