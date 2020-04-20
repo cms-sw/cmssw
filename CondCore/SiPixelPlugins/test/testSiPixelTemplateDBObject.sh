@@ -28,11 +28,44 @@ mv *.png $W_DIR/plots_Template/Test.png
 
 getPayloadData.py \
     --plugin pluginSiPixelTemplateDBObject_PayloadInspector \
-    --plot plot_SiPixelTemplateIDs \
+    --plot plot_SiPixelTemplateIDsBPixMap \
     --tag SiPixelTemplateDBObject38Tv3_express \
     --time_type Run \
     --iovs '{"start_iov": "326083", "end_iov": "326083"}' \
     --db Prod \
     --test ;
 
-mv *.png $W_DIR/plots_Template/Test.png
+mv *.png $W_DIR/plots_Template/IDsBPixMap.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelTemplateDBObject_PayloadInspector \
+    --plot plot_SiPixelTemplateIDsFPixMap \
+    --tag SiPixelTemplateDBObject38Tv3_express \
+    --time_type Run \
+    --iovs '{"start_iov": "326083", "end_iov": "326083"}' \
+    --db Prod \
+    --test ;
+
+mv *.png $W_DIR/plots_Template/IDsFPixMap.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelTemplateDBObject_PayloadInspector \
+    --plot plot_SiPixelTemplateLABPixMap \
+    --tag SiPixelTemplateDBObject38Tv3_express \
+    --time_type Run \
+    --iovs '{"start_iov": "326083", "end_iov": "326083"}' \
+    --db Prod \
+    --test ;
+
+mv *.png $W_DIR/plots_Template/LABPixMap.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelTemplateDBObject_PayloadInspector \
+    --plot plot_SiPixelTemplateLAFPixMap \
+    --tag SiPixelTemplateDBObject38Tv3_express \
+    --time_type Run \
+    --iovs '{"start_iov": "326083", "end_iov": "326083"}' \
+    --db Prod \
+    --test ;
+
+mv *.png $W_DIR/plots_Template/LAFPixMap.png

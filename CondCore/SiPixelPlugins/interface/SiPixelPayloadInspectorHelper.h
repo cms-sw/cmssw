@@ -953,7 +953,7 @@ namespace SiPixelPI {
               } else if (t.index() == 1) {
                 yP.push_back(atof((t.value()).c_str()));
               } else {
-		edm::LogError("LogicError") << "There should not be any token with index " << t.index() << std::endl;
+                edm::LogError("LogicError") << "There should not be any token with index " << t.index() << std::endl;
               }
             }
           }
