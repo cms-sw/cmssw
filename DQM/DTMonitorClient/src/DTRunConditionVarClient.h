@@ -65,7 +65,8 @@ protected:
                        int nbins,
                        float min,
                        float max,
-                       bool isVDCorr = false);
+                       bool isVDCorr = false,
+                       bool makeRings = false);
 
   /// DQM Client Diagnostic
   void dqmEndLuminosityBlock(DQMStore::IBooker&,
@@ -105,6 +106,7 @@ private:
   MonitorElement* glbT0Summary;
 
   std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
+  std::map<int, std::map<int, std::map<std::string, MonitorElement*> > > wheelRingHistos;
   std::map<std::string, MonitorElement*> summaryHistos;
   std::map<std::string, MonitorElement*> allwheelHistos;
 };
