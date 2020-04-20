@@ -28,7 +28,6 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -86,8 +85,6 @@ private:
 
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
   const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > commonModeToken_;
-
-  SiStripClusterInfo siStripClusterInfo_;
 
   bool addLumi_;
   bool addCommonMode_;
@@ -156,7 +153,6 @@ private:
 SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& conf)
     : scalerToken_(consumes<LumiScalersCollection>(conf.getParameter<edm::InputTag>("lumiScalers"))),
       commonModeToken_(mayConsume<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>("commonMode"))),
-      siStripClusterInfo_(consumesCollector()),
       combinatorialTracks_token_(
           consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("combinatorialTracks"))),
       trajectories_token_(consumes<std::vector<Trajectory> >(conf.getParameter<edm::InputTag>("trajectories"))),
@@ -318,6 +314,13 @@ bool isInBondingExclusionZone(unsigned int iidd, unsigned int TKlayers, double y
   return inZone;
 }
 
+struct ClusterInfo {
+  float xResidual;
+  float xResidualPull;
+  float xLocal;
+  ClusterInfo(float xRes, float xResPull, float xLoc) : xResidual(xRes), xResidualPull(xResPull), xLocal(xLoc) {}
+};
+
 } // anonymous namespace
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -325,8 +328,6 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   edm::ESHandle<TrackerTopology> tTopoHandle;
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  siStripClusterInfo_.initEvent(es);
 
   //  bool DEBUG = false;
 
@@ -647,8 +648,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
             if (!theClusters->empty()) {
               LogDebug("SiStripHitEfficiency:HitEff") << "Checking clusters with size = " << theClusters->size() << std::endl;
-              std::vector<std::vector<float> >
-                  VCluster_info;  //fill with X residual, X residual pull, local X, sig(X), local Y, sig(Y), StoN
+              std::vector<ClusterInfo> VCluster_info; //fill with X residual, X residual pull, local X
               const auto idsv = theClusters->find(iidd);
               if ( idsv != theClusters->end() ) {
                 //if (DEBUG)      std::cout << "the ID from the dsv = " << dsv.id() << std::endl;
@@ -706,22 +706,9 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                                  yErr * yErr * xloc * xloc * uylfac * uylfac / uxlden / uxlden / uxlden / uxlden);
                   }
 
-                  siStripClusterInfo_.setCluster(clus, idsv->id());
-                  // signal to noise from SiStripClusterInfo not working in 225. I'll fix this after the interface
-                  // redesign in 300 -ku
-                  //float cluster_info[7] = {res, sigma, parameters.first.x(), sqrt(parameters.second.xx()), parameters.first.y(), sqrt(parameters.second.yy()), signal_to_noise};
-                  std::vector<float> cluster_info;
-                  cluster_info.push_back(res);
-                  cluster_info.push_back(sigma);
-                  cluster_info.push_back(parameters.first.x());
-                  cluster_info.push_back(sqrt(parameters.second.xx()));
-                  cluster_info.push_back(parameters.first.y());
-                  cluster_info.push_back(sqrt(parameters.second.yy()));
-                  cluster_info.push_back(siStripClusterInfo_.signalOverNoise());
-                  // TODO all but 0,1,2 can go (only used for debug prinout, after removing the rest)
-                  VCluster_info.push_back(cluster_info);
-                  LogDebug("SiStripHitEfficiency:HitEff") << "Have ID match. residual = " << VCluster_info.back()[0]
-                                                          << "  res sigma = " << VCluster_info.back()[1] << std::endl;
+                  VCluster_info.emplace_back(res, sigma, parameters.first.x());
+
+                  LogDebug("SiStripHitEfficiency:HitEff") << "Have ID match. residual = " << res << "  res sigma = " << sigma << std::endl;
                   LogDebug("SiStripHitEfficiency:HitEff")
                       << "trajectory measurement compatability estimate = " << (*itm).estimate() << std::endl;
                   LogDebug("SiStripHitEfficiency:HitEff")
@@ -729,46 +716,29 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                       << "  trajectory position = " << xloc << "  traj error = " << xErr << std::endl;
                 }
               }
-              float FinalResSig = 1000.0;
-              float FinalCluster[7] = {1000.0, 1000.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+              ClusterInfo finalCluster{1000.0, 1000.0, 0.0};
               if (! VCluster_info.empty()) {
                 LogDebug("SiStripHitEfficiency:HitEff") << "found clusters > 0" << std::endl;
                 if (VCluster_info.size() > 1) {
                   //get the smallest one
                   for ( const auto& res : VCluster_info ) {
-                    if (abs(res[1]) < abs(FinalResSig)) {
-                      FinalResSig = res[1];
-                      for (unsigned int i = 0; i < res.size(); i++) {
-                        LogDebug("SiStripHitEfficiency:HitEff")
-                            << "filling final cluster. i = " << i << " before fill FinalCluster[i]=" << FinalCluster[i]
-                            << " and res[i] =" << res[i] << std::endl;
-                        FinalCluster[i] = res[i];
-                        LogDebug("SiStripHitEfficiency:HitEff")
-                            << "filling final cluster. i = " << i << " after fill FinalCluster[i]=" << FinalCluster[i]
-                            << " and res[i] =" << res[i] << std::endl;
-                      }
+                    if (std::abs(res.xResidualPull) < std::abs(finalCluster.xResidualPull)) {
+                      finalCluster = res;
                     }
                     LogDebug("SiStripHitEfficiency:HitEff")
-                        << "iresidual = " << res[0] << "  isigma = " << res[1]
-                        << "  and FinalRes = " << FinalCluster[0] << std::endl;
+                        << "iresidual = " << res.xResidual << "  isigma = " << res.xResidualPull
+                        << "  and FinalRes = " << finalCluster.xResidual << std::endl;
                   }
                 } else {
-                  FinalResSig = VCluster_info.at(0)[1];
-                  for (unsigned int i = 0; i < VCluster_info.at(0).size(); i++) {
-                    FinalCluster[i] = VCluster_info.at(0)[i];
-                  }
+                  finalCluster = VCluster_info[0];
                 }
                 VCluster_info.clear();
               }
 
               LogDebug("SiStripHitEfficiency:HitEff")
-                  << "Final residual in X = " << FinalCluster[0] << "+-" << (FinalCluster[0] / FinalResSig) << std::endl;
+                  << "Final residual in X = " << finalCluster.xResidual << "+-" << (finalCluster.xResidual / finalCluster.xResidualPull) << std::endl;
               LogDebug("SiStripHitEfficiency:HitEff") << "Checking location of trajectory: abs(yloc) = " << abs(yloc)
                                                       << "  abs(xloc) = " << abs(xloc) << std::endl;
-              LogDebug("SiStripHitEfficiency:HitEff")
-                  << "Checking location of cluster hit: yloc = " << FinalCluster[4] << "+-" << FinalCluster[5]
-                  << "  xloc = " << FinalCluster[2] << "+-" << FinalCluster[3] << std::endl;
-              LogDebug("SiStripHitEfficiency:HitEff") << "Final cluster signal to noise = " << FinalCluster[6] << std::endl;
 
               //
               // fill ntuple varibles
@@ -798,12 +768,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
               TrajLocX = xloc;
               TrajLocY = yloc;
-              ResXSig = FinalResSig;
-              if (FinalResSig != FinalCluster[1])
-                LogDebug("SiStripHitEfficiency:HitEff")
-                    << "Problem with best cluster selection because FinalResSig = " << FinalResSig
-                    << " and FinalCluster[1] = " << FinalCluster[1] << std::endl;
-              ClusterLocX = FinalCluster[2];
+              ResXSig = finalCluster.xResidualPull;
+              ClusterLocX = finalCluster.xLocal;
 
               // CM of APV crossed by traj
               if (addCommonMode_)
@@ -816,17 +782,17 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
               LogDebug("SiStripHitEfficiency:HitEff") << "before check good" << std::endl;
 
-              if (FinalResSig < 999.0) {  //could make requirement on track/hit consistency, but for
+              if (finalCluster.xResidualPull < 999.0) {  //could make requirement on track/hit consistency, but for
                 //now take anything with a hit on the module
                 LogDebug("SiStripHitEfficiency:HitEff")
-                    << "hit being counted as good " << FinalCluster[0] << " FinalRecHit " << iidd << "   TKlayers  "
+                    << "hit being counted as good " << finalCluster.xResidual << " FinalRecHit " << iidd << "   TKlayers  "
                     << TKlayers << " xloc " << xloc << " yloc  " << yloc << " module " << iidd
                     << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/" << ((iidd & 0x3) == 1) << "/"
                     << ((iidd & 0x3) == 2) << std::endl;
                 ModIsBad = 0;
               } else {
                 LogDebug("SiStripHitEfficiency:HitEff")
-                    << "hit being counted as bad   ######### Invalid RPhi FinalResX " << FinalCluster[0]
+                    << "hit being counted as bad   ######### Invalid RPhi FinalResX " << finalCluster.xResidual
                     << " FinalRecHit " << iidd << "   TKlayers  " << TKlayers << " xloc " << xloc << " yloc  " << yloc
                     << " module " << iidd << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/"
                     << ((iidd & 0x3) == 1) << "/" << ((iidd & 0x3) == 2) << std::endl;
