@@ -75,6 +75,10 @@ cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py 'f
 cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py 'file:firstLumiTest1.root' 4 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py with first lumi 4' $?
 cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py 'file:firstLumiTest1.root' 3 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis_Test_cfg.py with first lumi 3' $?
 
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py 'file:firstLumiTest1.root' 2 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py with first lumi 2' $?
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py 'file:firstLumiTest1.root' 4 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py with first lumi 4' $?
+cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py 'file:firstLumiTest1.root' 3 || die 'Failure using firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py with first lumi 3' $?
+
 
 #test merging of heterogeneous files with extra provenenace in subsequent files
 
