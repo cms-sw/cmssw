@@ -146,73 +146,30 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
   iCD = (iC >= 0 && iD >= 0) ? 5 : -1;
 
   // Fill variable info from pT LUT data
-  int st1_ring2, dTheta;
-  int dPhiAB, dPhiBC, dPhiCD;
-  int sPhiAB, sPhiBC, sPhiCD;
-  int frA, frB;
-  int clctA, clctB, clctC, clctD;
-  int mode15_8b;  // Combines track theta, stations with RPC hits, and station 1 bend information
-  int rpc_2b;     // Identifies which stations have RPC hits in 3-station tracks
-
-  st1_ring2 = data.st1_ring2;
+  int st1_ring2 = data.st1_ring2;
   if (nHits == 4) {
-    dPhiAB = data.delta_ph[iAB];
-    dPhiBC = data.delta_ph[iBC];
-    dPhiCD = data.delta_ph[iCD];
-    sPhiAB = data.sign_ph[iAB];
-    sPhiBC = (data.sign_ph[iBC] == sPhiAB);
-    sPhiCD = (data.sign_ph[iCD] == sPhiAB);
-    dTheta = data.delta_th[iAD] * (data.sign_th[iAD] ? 1 : -1);
-    frA = data.fr[iA];
-    clctA = data.cpattern[iA];
-    clctB = data.cpattern[iB];
-    clctC = data.cpattern[iC];
-    clctD = data.cpattern[iD];
-  } else if (nHits == 3) {
-    dPhiAB = data.delta_ph[iAB];
-    dPhiBC = data.delta_ph[iBC];
-    sPhiAB = data.sign_ph[iAB];
-    sPhiBC = (data.sign_ph[iBC] == sPhiAB);
-    dTheta = data.delta_th[iAC] * (data.sign_th[iAC] ? 1 : -1);
-    frA = data.fr[iA];
-    frB = data.fr[iB];
-    clctA = data.cpattern[iA];
-    clctB = data.cpattern[iB];
-    clctC = data.cpattern[iC];
-  } else if (nHits == 2) {
-    dPhiAB = data.delta_ph[iAB];
-    sPhiAB = data.sign_ph[iAB];
-    dTheta = data.delta_th[iAB] * (data.sign_th[iAB] ? 1 : -1);
-    frA = data.fr[iA];
-    frB = data.fr[iB];
-    clctA = data.cpattern[iA];
-    clctB = data.cpattern[iB];
-  }
+    int dPhiAB = data.delta_ph[iAB];
+    int dPhiBC = data.delta_ph[iBC];
+    int dPhiCD = data.delta_ph[iCD];
+    int sPhiAB = data.sign_ph[iAB];
+    int sPhiBC = (data.sign_ph[iBC] == sPhiAB);
+    int sPhiCD = (data.sign_ph[iCD] == sPhiAB);
+    int dTheta = data.delta_th[iAD] * (data.sign_th[iAD] ? 1 : -1);
+    int frA = data.fr[iA];
+    int clctA = data.cpattern[iA];
+    int clctB = data.cpattern[iB];
+    int clctC = data.cpattern[iC];
+    int clctD = data.cpattern[iD];
 
-  // Convert variables to words for pT LUT address
-  if (nHits == 4) {
+    // Convert variables to words for pT LUT address
     dPhiAB = aux().getNLBdPhiBin(dPhiAB, 7, 512);
     dPhiBC = aux().getNLBdPhiBin(dPhiBC, 5, 256);
     dPhiCD = aux().getNLBdPhiBin(dPhiCD, 4, 256);
     dTheta = aux().getdTheta(dTheta, 2);
-    mode15_8b = aux().get8bMode15(theta, st1_ring2, endcap, (sPhiAB == 1 ? 1 : -1), clctA, clctB, clctC, clctD);
-  } else if (nHits == 3) {
-    dPhiAB = aux().getNLBdPhiBin(dPhiAB, 7, 512);
-    dPhiBC = aux().getNLBdPhiBin(dPhiBC, 5, 256);
-    dTheta = aux().getdTheta(dTheta, 3);
-    rpc_2b = aux().get2bRPC(clctA, clctB, clctC);  // Have to use un-compressed CLCT words
-    clctA = aux().getCLCT(clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2);
-    theta = aux().getTheta(theta, st1_ring2, 5);
-  } else if (nHits == 2) {
-    dPhiAB = aux().getNLBdPhiBin(dPhiAB, 7, 512);
-    dTheta = aux().getdTheta(dTheta, 3);
-    clctA = aux().getCLCT(clctA, endcap, (sPhiAB == 1 ? 1 : -1), 3);
-    clctB = aux().getCLCT(clctB, endcap, (sPhiAB == 1 ? 1 : -1), 3);
-    theta = aux().getTheta(theta, st1_ring2, 5);
-  }
+    // Combines track theta, stations with RPC hits, and station 1 bend information
+    int mode15_8b = aux().get8bMode15(theta, st1_ring2, endcap, (sPhiAB == 1 ? 1 : -1), clctA, clctB, clctC, clctD);
 
-  // Form the pT LUT address
-  if (nHits == 4) {
+    // Form the pT LUT address
     address |= (dPhiAB & ((1 << 7) - 1)) << (0);
     address |= (dPhiBC & ((1 << 5) - 1)) << (0 + 7);
     address |= (dPhiCD & ((1 << 4) - 1)) << (0 + 7 + 5);
@@ -226,7 +183,29 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
       edm::LogError("L1T") << "address = " << address;
       return 0;
     }
+
   } else if (nHits == 3) {
+    int dPhiAB = data.delta_ph[iAB];
+    int dPhiBC = data.delta_ph[iBC];
+    int sPhiAB = data.sign_ph[iAB];
+    int sPhiBC = (data.sign_ph[iBC] == sPhiAB);
+    int dTheta = data.delta_th[iAC] * (data.sign_th[iAC] ? 1 : -1);
+    int frA = data.fr[iA];
+    int frB = data.fr[iB];
+    int clctA = data.cpattern[iA];
+    int clctB = data.cpattern[iB];
+    int clctC = data.cpattern[iC];
+
+    // Convert variables to words for pT LUT address
+    dPhiAB = aux().getNLBdPhiBin(dPhiAB, 7, 512);
+    dPhiBC = aux().getNLBdPhiBin(dPhiBC, 5, 256);
+    dTheta = aux().getdTheta(dTheta, 3);
+    // Identifies which stations have RPC hits in 3-station tracks
+    int rpc_2b = aux().get2bRPC(clctA, clctB, clctC);  // Have to use un-compressed CLCT words
+    clctA = aux().getCLCT(clctA, endcap, (sPhiAB == 1 ? 1 : -1), 2);
+    theta = aux().getTheta(theta, st1_ring2, 5);
+
+    // Form the pT LUT address
     address |= (dPhiAB & ((1 << 7) - 1)) << (0);
     address |= (dPhiBC & ((1 << 5) - 1)) << (0 + 7);
     address |= (sPhiBC & ((1 << 1) - 1)) << (0 + 7 + 5);
@@ -253,7 +232,24 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
         return 0;
       }
     }
+
   } else if (nHits == 2) {
+    int dPhiAB = data.delta_ph[iAB];
+    int sPhiAB = data.sign_ph[iAB];
+    int dTheta = data.delta_th[iAB] * (data.sign_th[iAB] ? 1 : -1);
+    int frA = data.fr[iA];
+    int frB = data.fr[iB];
+    int clctA = data.cpattern[iA];
+    int clctB = data.cpattern[iB];
+
+    // Convert variables to words for pT LUT address
+    dPhiAB = aux().getNLBdPhiBin(dPhiAB, 7, 512);
+    dTheta = aux().getdTheta(dTheta, 3);
+    clctA = aux().getCLCT(clctA, endcap, (sPhiAB == 1 ? 1 : -1), 3);
+    clctB = aux().getCLCT(clctB, endcap, (sPhiAB == 1 ? 1 : -1), 3);
+    theta = aux().getTheta(theta, st1_ring2, 5);
+
+    // Form the pT LUT address
     address |= (dPhiAB & ((1 << 7) - 1)) << (0);
     address |= (dTheta & ((1 << 3) - 1)) << (0 + 7);
     address |= (frA & ((1 << 1) - 1)) << (0 + 7 + 3);
@@ -267,7 +263,6 @@ PtAssignmentEngine::address_t PtAssignmentEngine2017::calculate_address(const EM
       return 0;
     }
   }
-
   return address;
 }  // End function: PtAssignmentEngine2017::calculate_address()
 
