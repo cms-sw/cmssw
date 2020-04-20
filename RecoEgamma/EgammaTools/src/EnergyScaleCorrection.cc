@@ -250,6 +250,9 @@ void EnergyScaleCorrection::readScalesFromFile(const std::string& filename) {
       file >> runMax >> etaMin >> etaMax >> r9Min >> r9Max >> etMin >> etMax >> gain >> energyScale >> energyScaleErr;
       file.ignore(1000, 10);
       energyScaleErrStat = energyScaleErr;
+      energyScaleErrSyst = 0;
+      energyScaleErrGain = 0;
+
       addScale(runMin,
                runMax,
                etaMin,
