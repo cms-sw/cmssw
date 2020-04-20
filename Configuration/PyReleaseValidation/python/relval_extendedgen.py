@@ -22,7 +22,7 @@ workflows[510]=['',['SoftQCDinelastic_13TeV_pythia8','HARVESTGEN']]
 
 # Matrix Element Generations (sherpa & Herwig)
 #workflows[533]=['',['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER','HARVESTGEN']]
-workflows[534]=['',['sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER','HARVESTGEN']]
+workflows[534]=['',['sherpa_ZtoLL_2j_MEPSatNLO_13TeV_MASTER','HARVESTGEN']]
 workflows[535]=['',['TTbar_13TeV_Pow_herwig7','HARVESTGEN']]
 workflows[536]=['',['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER','HARVESTGEN']]
 
@@ -64,5 +64,3 @@ workflows[528]=['WTolNuJets_LO_Mad_13TeV_py8_Ta_taurhonu',['WTolNu01234Jets_5f_L
 workflows[560]=['',['ZprimeToll_M3000_13TeV_pythia8','HARVESTGEN']]
 workflows[561]=['',['WprimeTolNu_M3000_13TeV_pythia8','HARVESTGEN']]
 workflows[562]=['BulkG_ZZ_2L2Q_M1200_narrow_13TeV_pythia8',['BulkG_M1200_narrow_2L2Q_LHE_13TeV','Hadronizer_TuneCUETP8M1_Mad_pythia8','HARVESTGEN2']]
-
-
