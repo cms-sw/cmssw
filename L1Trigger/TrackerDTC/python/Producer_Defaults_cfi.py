@@ -6,7 +6,8 @@ TrackerDTCProducer_params = cms.PSet (
 
   ParamsED = cms.PSet (
     InputTagTTStubDetSetVec       = cms.InputTag  ( "TTStubsFromPhase2TrackerDigis", "StubAccepted" ),   # 
-    ProductBranch                 = cms.string    ( "StubAccepted" ),                                    #
+    ProductBranchAccepted         = cms.string    ( "StubAccepted" ),                                    #
+    ProductBranchLost             = cms.string    ( "StubLost" ),                                        #
     InputTagMagneticField         = cms.ESInputTag( "VolumeBasedMagneticFieldESProducer", "" ),          #
     InputTagTrackerGeometry       = cms.ESInputTag( "trackerGeometry", "" ),                             #
     InputTagTrackerTopology       = cms.ESInputTag( "trackerTopology", "" ),                             #
@@ -22,7 +23,7 @@ TrackerDTCProducer_params = cms.PSet (
     OffsetDetIdTP                 = cms.int32     ( -1 ),                                                # tk layout det id minus TrackerTopology lower det id
     OffsetLayerDisks              = cms.int32     ( 10 ),                                                # offset in layer ids between barrel layer and endcap disks
     OffsetLayerId                 = cms.int32     (  1 ),                                                # offset between 0 and smallest layer id (barrel layer 1)
-    CheckHistory                  = cms.bool      ( False ),                                              #
+    CheckHistory                  = cms.bool      ( False ),                                             #
     ProcessName                   = cms.string    ( "HLT" ),                                             #
     ProductLabel                  = cms.string    ( "XMLIdealGeometryESSource" )                         #
   ),
@@ -30,7 +31,7 @@ TrackerDTCProducer_params = cms.PSet (
   #=== router parameter
 
   ParamsRouter = cms.PSet (
-    EnableTruncation = cms.bool  ( False  ), # enables emulation of truncation
+    EnableTruncation = cms.bool  ( True  ), # enables emulation of truncation
     FreqDTC          = cms.double( 360.  ), # Frequency in MHz, has to be integer multiple of FreqLHC
     TMP_TFP          = cms.int32 (  18   ), # time multiplexed period of track finding processor
     NumFramesInfra   = cms.int32 (   6   ), # needed gap between events of emp-infrastructure firmware
