@@ -5,8 +5,6 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-import sys
-
 #ignore script name and anything before it
 argv = []
 foundpy = False
@@ -64,4 +62,3 @@ process.source = cms.Source("PoolSource",
 )
 
 process.e = cms.EndPath(process.check)
-
