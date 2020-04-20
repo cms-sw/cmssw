@@ -31,10 +31,12 @@ GlobalPoint TTDTCConverter(trackerDTC::Settings* settings, const TTDTC::Frame& f
     const std::vector<double>& diskZs = format->diskZs();
     const std::vector<double>& layerRs = format->layerRs();
 
-    const DetId detId = frame.first->getDetId();
+    const DetId detId(frame.first->getDetId() + settings->offsetDetIdDSV());
     const bool barrel = detId.subdetId() == StripSubdetector::TOB;
     const bool psModule = trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP;
     const int layerId = barrel ? trackerTopology->layer(detId) : trackerTopology->tidWheel(detId) + 10;
+    const GeomDetUnit* det = trackerGeometry->idToDetUnit(detId);
+    const bool side = det->position().z() >= 0.;
 
     trackerDTC::SettingsHybrid::SensorType type;
     if (barrel && psModule)
@@ -52,16 +54,19 @@ GlobalPoint TTDTCConverter(trackerDTC::Settings* settings, const TTDTC::Frame& f
     bv >>= format->widthPhi(type);
     double z = (bv.val(format->widthZ(type), 0, true) + .5) * format->baseZ(type);
     bv >>= format->widthZ(type);
-    double r = (bv.val(format->widthR(type), 0, true) + .5) * format->baseR(type);
+    double r = (bv.val(format->widthR(type), 0, barrel) + .5) * format->baseR(type);
 
-    r += barrel ? layerRs.at(layerId - 1) : 0.;
-    z += barrel ? 0. : diskZs.at(layerId - 11);
+    if (barrel) {
+      r += layerRs.at(layerId - settings->offsetLayerId());
+    } else {
+      z += diskZs.at(layerId - settings->offsetLayerId() - settings->offsetLayerDisks()) * (side ? 1. : -1.);
+    }
 
     phi = reco::deltaPhi(phi + region * settings->baseRegion(), 0.);
 
     if (type == trackerDTC::SettingsHybrid::disk2S) {
       r = bv.val(format->widthR(type));
-      r = format->disk2SR(layerId - 11, (int)r);
+      r = format->disk2SR(layerId - settings->offsetLayerId() - settings->offsetLayerDisks(), (int)r);
     }
 
     p = GlobalPoint(GlobalPoint::Cylindrical(r, phi, z));

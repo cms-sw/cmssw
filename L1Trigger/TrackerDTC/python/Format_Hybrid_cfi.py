@@ -32,14 +32,14 @@ TrackerDTCFormat_params = cms.PSet (
     RangesZ      = cms.vdouble( 240.,  240.,    7.5,    7.5 ), # range in stub z which needs to be covered for module types (barrelPS, barrel2S, diskPS, disk2S)
     RangesAlpha  = cms.vdouble(   0.,    0.,    0.,  1024.  ), # range in stub row which needs to be covered for module types (barrelPS, barrel2S, diskPS, disk2S)
 
-    LayerRs      = cms.vdouble(  24.8656,  37.1678,  52.2700,  68.7000,  86.0000, 110.8000 ), # mean radius of outer tracker barrel layer
-    DiskZs       = cms.vdouble( 131.1800, 155.0000, 185.3400, 221.6190, 265.0000           ), # mean z of outer tracker endcap disks
+    LayerRs      = cms.vdouble(  24.9316,  37.1777,  52.2656,  68.7598,  86.0156, 108.3105 ), # mean radius of outer tracker barrel layer
+    DiskZs       = cms.vdouble( 131.1914, 154.9805, 185.3320, 221.6016, 265.0195           ), # mean z of outer tracker endcap disks
     Disk2SRsSet  = cms.VPSet(                                                                 # center radius of outer tracker endcap 2S diks strips
-      cms.PSet( Disk2SRs = cms.vdouble( 66.7345, 71.7345, 77.5056, 82.5056, 84.8444, 89.8444, 95.7515, 100.7515, 102.475, 107.475 ) ), # disk 1
-      cms.PSet( Disk2SRs = cms.vdouble( 66.7345, 71.7345, 77.5056, 82.5056, 84.8444, 89.8444, 95.7515, 100.7515, 102.475, 107.475 ) ), # disk 2
-      cms.PSet( Disk2SRs = cms.vdouble( 65.1317, 70.1317, 75.6300, 80.6300, 83.9293, 88.9293, 94.6316,  99.6316, 102.475, 107.475 ) ), # disk 3
-      cms.PSet( Disk2SRs = cms.vdouble( 65.1317, 70.1317, 75.6300, 80.6300, 83.9293, 88.9293, 94.6316,  99.6316, 102.475, 107.475 ) ), # disk 4
-      cms.PSet( Disk2SRs = cms.vdouble( 65.1317, 70.1317, 75.6300, 80.6300, 83.9293, 88.9293, 94.6316,  99.6316, 102.475, 107.475 ) )  # disk 5
+      cms.PSet( Disk2SRs = cms.vdouble( 66.4391, 71.4391, 76.2750, 81.2750, 82.9550, 87.9550, 93.8150, 98.8150, 99.8160, 104.8160 ) ), # disk 1
+      cms.PSet( Disk2SRs = cms.vdouble( 66.4391, 71.4391, 76.2750, 81.2750, 82.9550, 87.9550, 93.8150, 98.8150, 99.8160, 104.8160 ) ), # disk 2
+      cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) ), # disk 3
+      cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) ), # disk 4
+      cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) )  # disk 5
     )
 
   )

@@ -3,37 +3,28 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "L1Trigger/TrackerDTC/interface/Settings.h"
+#include "L1Trigger/TrackerDTC/interface/SettingsHybrid.h"
 
 #include <vector>
 
 namespace trackerDTC {
+
+  class Settings;
 
   // representation of an outer tracker sensormodule
   class Module {
     friend class Stub;
 
   public:
-    Module(Settings* settings, const ::DetId& detId, int modId);
+    Module(Settings* settings, const ::DetId& detId, int dtcId);
     ~Module() {}
-
-    // track trigger dtc id [0-215]
-    int dtcId() const { return dtcId_; }
-    // DTC module id [0-71]
-    int dtcChannelId() const { return dtcChannelId_; }
 
   private:
     // handles 2 pi overflow
     double deltaPhi(double phi) { return reco::deltaPhi(phi, 0.); }
 
-    // track trigger dtc id [0-215]
-    int dtcId_;
-    // DTC module id [0-71]
-    int dtcChannelId_;
-    // outer tracker dtc routing block id [0-1]
-    int blockId_;
-    // routing block channel id [0-35]
-    int blockChannelId_;
+    // detector region [0-8]
+    int region_;
     // +z or -z
     bool side_;
     // barrel or endcap

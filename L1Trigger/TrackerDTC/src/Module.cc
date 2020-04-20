@@ -1,4 +1,5 @@
 #include "L1Trigger/TrackerDTC/interface/Module.h"
+#include "L1Trigger/TrackerDTC/interface/Settings.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -15,29 +16,22 @@ using namespace edm;
 
 namespace trackerDTC {
 
-  Module::Module(Settings* settings, const DetId& detId, int modId)
-      : dtcId_(modId / settings->numModulesPerDTC()),
-        dtcChannelId_(modId % settings->numModulesPerDTC()),
-        blockId_(dtcChannelId_ / settings->numModulesPerRoutingBlock()),
-        blockChannelId_(dtcChannelId_ % settings->numModulesPerRoutingBlock()) {
-    // detector region [0-8]
-    const int region = modId / (settings->numModulesPerDTC() * settings->numDTCsPerRegion());
-
+  Module::Module(Settings* settings, const DetId& detId, int dtcId) {
     const TrackerGeometry* trackerGeometry = settings->trackerGeometry();
     const TrackerTopology* trackerTopology = settings->trackerTopology();
-
     const GeomDetUnit* det0 = trackerGeometry->idToDetUnit(detId);
-    const GlobalPoint pos0 = GlobalPoint(det0->position());
-    const GlobalPoint pos1 =
-        GlobalPoint(trackerGeometry->idToDetUnit(trackerTopology->partnerDetId(detId))->position());
     const PixelTopology* topol =
         dynamic_cast<const PixelTopology*>(&(dynamic_cast<const PixelGeomDetUnit*>(det0)->specificTopology()));
     const Plane& plane = dynamic_cast<const PixelGeomDetUnit*>(det0)->surface();
-
+    const GlobalPoint pos0 = GlobalPoint(det0->position());
+    const GlobalPoint pos1 =
+        GlobalPoint(trackerGeometry->idToDetUnit(trackerTopology->partnerDetId(detId))->position());
+    // detector region_ [0-8]
+    region_ = dtcId / settings->numDTCsPerRegion();
     // module radius in cm
     R_ = pos0.perp();
-    // module phi w.r.t. detector region centre in rad
-    Phi_ = deltaPhi(pos0.phi() - (region + .5) * settings->baseRegion());
+    // module phi w.r.t. detector region_ centre in rad
+    Phi_ = deltaPhi(pos0.phi() - (region_ + .5) * settings->baseRegion());
     // module z in cm
     Z_ = pos0.z();
     // sensor separation in cm
@@ -50,7 +44,7 @@ namespace trackerDTC {
     numColumns_ = topol->ncolumns();
     // number of rows [2S=8*127,PS=8*120]
     numRows_ = topol->nrows();
-    side_ = pos0.z() > 0.;
+    side_ = pos0.z() >= 0.;
     flipped_ = pos0.mag() > pos1.mag();
     barrel_ = detId.subdetId() == StripSubdetector::TOB;
     // module tilt measured w.r.t. beam axis (0=barrel), tk layout measures w.r.t. radial axis
@@ -61,8 +55,8 @@ namespace trackerDTC {
     // cosinus of module tilt measured w.r.t. beam axis (+-1=endcap), tk layout measures w.r.t. radial axis
     cos_ = cos(tilt_);
     // layer id [1-6,11-15]
-    layerId_ = barrel_ ? trackerTopology->layer(detId) : trackerTopology->tidWheel(detId) + 10;
-
+    layerId_ =
+        barrel_ ? trackerTopology->layer(detId) : trackerTopology->tidWheel(detId) + settings->offsetLayerDisks();
     // TTStub row needs flip of sign
     signRow_ = signbit(deltaPhi(plane.rotation().x().phi() - pos0.phi()));
     // TTStub col needs flip of sign
@@ -70,9 +64,9 @@ namespace trackerDTC {
     // TTStub bend needs flip of sign
     signBend_ = barrel_ || (!barrel_ && side_);
 
+    // sets hybrid specific member
     if (settings->dataFormat() != "Hybrid")
       return;
-
     // gettings hybrid config
     SettingsHybrid* format = settings->hybrid();
     const vector<int>& numRingsPS = format->numRingsPS();
@@ -85,7 +79,6 @@ namespace trackerDTC {
     const vector<vector<double> >& bendEncodingsPS = format->bendEncodingsPS();
     const vector<vector<double> >& bendEncodings2S = format->bendEncodings2S();
     const vector<vector<int> >& layerIdEncodings = format->layerIdEncodings();
-
     // determing sensor type
     const bool psModule = trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP;
     if (barrel_ && psModule)
@@ -119,9 +112,10 @@ namespace trackerDTC {
     // r and z offsets
     offsetR_ = barrel_ ? layerRs.at(layerId_ - settings->offsetLayerId()) : 0.;
     offsetZ_ = barrel_ ? 0. : diskZs.at(layerId_ - settings->offsetLayerId() - settings->offsetLayerDisks());
+    if (!side_)
+      offsetZ_ *= -1.;
     // layer id encoding
-    const int dtcId = modId / settings->numModulesPerDTC();
-    const vector<int>& layerIdEncoding = layerIdEncodings.at(dtcId);
+    const vector<int>& layerIdEncoding = layerIdEncodings.at(dtcId % settings->numDTCsPerRegion());
     layerId_ = distance(layerIdEncoding.begin(), find(layerIdEncoding.begin(), layerIdEncoding.end(), layerId_));
   }
 

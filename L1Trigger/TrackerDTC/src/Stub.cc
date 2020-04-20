@@ -120,12 +120,14 @@ namespace trackerDTC {
       return;
 
     // stub r w.r.t. an offset in cm
-    r_ -= module->offsetR_;
+    r_ -= module->offsetR_ - settings_->chosenRofPhi();
     // stub z w.r.t. an offset in cm
     z_ -= module->offsetZ_;
-    if (module->type_ == SettingsHybrid::disk2S)
+    if (module->type_ == SettingsHybrid::disk2S) {
       // decoded r
-      r_ = (module->decodedR_ + .5) * settings_->hybrid()->baseR(module->type_);
+      r_ = module->decodedR_ + (module->side_ ? -col_ : (col_ + module->numColumns_ / 2));
+      r_ = (r_ + 0.5) * settings_->hybrid()->baseR(module->type_);
+    }
 
     // decode bend
     const vector<double>& bendEncoding = module->bendEncoding_;
@@ -137,12 +139,6 @@ namespace trackerDTC {
   TTDTC::BV Stub::frame(int region) const {
     return settings_->dataFormat() == "Hybrid" ? formatHybrid(region) : formatTMTT(region);
   }
-
-  // outer tracker dtc routing block id [0-1]
-  int Stub::blockId() const { return module_->blockId_; }
-
-  // outer tracker dtc routing block channel id [0-35]
-  int Stub::channelId() const { return module_->blockChannelId_; }
 
   // returns true if stub belongs to region
   bool Stub::inRegion(int region) const { return find(regions_.begin(), regions_.end(), region) != regions_.end(); }

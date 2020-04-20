@@ -15,7 +15,8 @@
 #include <set>
 #include <vector>
 #include <memory>
-#include <iterator>
+#include <map>
+#include <utility>
 
 using namespace std;
 using namespace edm;
@@ -75,6 +76,7 @@ namespace trackerDTC {
     basesR_.reserve(numSensorTypes);
     for (int type = 0; type < numSensorTypes; type++)
       basesR_.push_back(rangesR_[type] / pow(2., widthsR_[type]));
+    basesR_[disk2S] = 1.;
 
     basesPhi_.reserve(numSensorTypes);
     for (int type = 0; type < numSensorTypes; type++)
@@ -100,6 +102,8 @@ namespace trackerDTC {
     settings->baseR_ = *min_element(basesR_.begin(), basesR_.end(), comp);
     settings->basePhi_ = *min_element(basesPhi_.begin(), basesPhi_.end(), comp);
     settings->baseQoverPt_ = settings->rangeQoverPt_ / pow(2., settings->widthQoverPt_);
+
+    layerIdEncodings_.reserve(settings->numDTCsPerRegion_);
   }
 
   // check current coniguration consistency with input configuration
@@ -132,28 +136,25 @@ namespace trackerDTC {
   }
 
   void SettingsHybrid::createEncodingsLayer(Settings* settings) {
-    layerIdEncodings_.reserve(settings->numDTCs_);
-    for (int dtcId = 0; dtcId < settings->numDTCs_; dtcId++) {
-      auto begin = next(settings->cablingMap_.begin(), dtcId * settings->numModulesPerDTC_);
-      auto end = next(begin, settings->numModulesPerDTC_);
-      auto last = find_if(begin, end, [](const DetId& detId) { return detId.null(); });
-      if (last < end)
-        end = last;
-      // assess layerIds connected to this DTC
-      set<int> layerIds;
-      for (auto it = begin; it < end; it++)
-        layerIds.insert(it->subdetId() == StripSubdetector::TOB
-                            ? settings->trackerTopology_->layer(*it)
-                            : settings->trackerTopology_->tidWheel(*it) + settings->offsetLayerDisks_);
+    const TrackerTopology* trackerTopology = settings->trackerTopology_;
+    // assess layerIds connected to each DTC per region, accumulated over all regions
+    vector<set<int>> layerIdEncodings(settings->numDTCsPerRegion_);
+    for (const pair<DetId, int>& map : settings->cablingMap_) {
+      const bool barrel = map.first.subdetId() == StripSubdetector::TOB;
+      const int layerId = barrel ? trackerTopology->layer(map.first) : trackerTopology->tidWheel(map.first) + 10;
+      const int dtcId = (map.second / settings->numModulesPerDTC_) % settings->numDTCsPerRegion_;
+      layerIdEncodings[dtcId].insert(layerId);
+    }
+    for (const set<int>& layerIdEncoding : layerIdEncodings) {
       // check configuration
-      if ((int)layerIds.size() > settings->numLayers_) {
+      if ((int)layerIdEncoding.size() > settings->numLayers_) {
         cms::Exception exception("overflow");
-        exception << "Cabling map connects more than " << settings->numLayers_ << " layers to DTC " << dtcId << ".";
-        exception.addContext("trackerDTC::SettingsHybrid::beginRun");
+        exception << "Cabling map connects more than " << settings->numLayers_ << " layers to a DTC.";
+        exception.addContext("trackerDTC::SettingsHybrid::createEncodingsLayer");
         throw exception;
       }
       // index = decoded layerId, value = encoded layerId
-      layerIdEncodings_.emplace_back(layerIds.begin(), layerIds.end());
+      layerIdEncodings_.emplace_back(layerIdEncoding.begin(), layerIdEncoding.end());
     }
   }
 

@@ -21,25 +21,35 @@ namespace trackerDTC {
     typedef std::vector<Stubss> Stubsss;
 
   public:
-    DTC(Settings* settings, int nStubs);
+    DTC(Settings* settings, int dtcId, const std::vector<std::vector<TTStubRef>>& modules);
     ~DTC() {}
-    // convert and assign TTStubRef to DTC routing block channel
-    void consume(const std::vector<TTStubRef>& ttStubRefStream, Module* module);
-    // board level routing in two steps and product filling
-    void produce(TTDTC& product, int dtcId);
+    // board level routing in two steps and products filling
+    void produce(TTDTC& accepted, TTDTC& lost);
 
   private:
     // router step 1: merges stubs of all modules connected to one routing block into one stream
-    void merge(Stubss& inputs, Stubs& output);
+    void merge(Stubss& inputs, Stubs& output, Stubs& lost);
     // router step 2: merges stubs of all routing blocks and splits stubs into one stream per overlapping region
     void split(Stubss& inputs, Stubss& outputs);
+    // conversion from Stubss to TTDTC
+    void produce(const Stubss& stubss, TTDTC& product);
     // pop_front function which additionally returns copy of deleted front
     Stub* pop_front(Stubs& stubs);
 
     // helper class to store configurations
     Settings* settings_;
+    // outer tracker detector region [0-8]
+    int region_;
+    // outer tracker dtc id in region [0-23]
+    int board_;
+    // container of modules connected to this DTC
+    std::vector<Module*> modules_;
     // container of stubs on this DTC
     std::vector<Stub> stubs_;
+    // input stubs organised in routing blocks [0..1] and channel [0..35]
+    Stubsss input_;
+    // lost stubs organised in dtc output channel [0..1]
+    Stubss lost_;
   };
 
 }  // namespace trackerDTC

@@ -6,5 +6,5 @@ def useTMTT(process):
     from L1Trigger.TrackerDTC.Analyzer_Defaults_cfi import TrackerDTCAnalyzer_params
     TrackerDTCProducer_params.ParamsED.DataFormat = "TMTT"
     TrackerDTCAnalyzer_params.ParamsTP.MinPt = cms.double( 3. )
-    process.TrackerDTCProducer = cms.EDProducer('trackerDTC::Producer', TrackerDTCProducer_params, TrackerDTCFormat_params, TrackerDTCAnalyzer_params)
+    process.TrackerDTCAnalyzer = cms.EDAnalyzer('trackerDTC::Analyzer', TrackerDTCAnalyzer_params, TrackerDTCProducer_params, TrackerDTCFormat_params)
     return process
