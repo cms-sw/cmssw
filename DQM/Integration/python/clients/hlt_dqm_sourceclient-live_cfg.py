@@ -1,9 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
+import sys
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
 process = cms.Process("DQM", run2_HECollapse_2018)
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+	unitTest=True
+
+if unitTest:
+  process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+  # for live online DQM in P5
+  process.load("DQM.Integration.config.inputsource_cfi")
 # used in the old input source
 #process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputHLTDQM')
 

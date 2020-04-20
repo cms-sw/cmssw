@@ -1,13 +1,21 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("DTDQM")
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+  unitTest=True
 
 #----------------------------
 #### Event Source
 #----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    # for live online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -28,7 +36,8 @@ process.dqmSaver.tag = "DT"
 
 #Enable HLT*Mu* filtering to monitor on Muon events
 #OR HLT_Physics* to monitor FEDs in commissioning runs
-process.source.SelectEvents = cms.untracked.vstring("HLT*Mu*","HLT_*Physics*")
+if not unitTest:
+    process.source.SelectEvents = cms.untracked.vstring("HLT*Mu*","HLT_*Physics*")
 
 # DT reco and DQM sequences
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")

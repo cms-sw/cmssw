@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 process = cms.Process("DQM")
+
+unitTest = False
+if 'unitTest=True' in sys.argv:
+    unitTest=True
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
@@ -11,8 +16,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 #----------------------------
 #### Event Source
 #----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
+if unitTest:
+    process.load("DQM.Integration.config.unittestinputsource_cfi")
+else:
+    # for live online DQM in P5
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
