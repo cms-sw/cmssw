@@ -7,6 +7,8 @@
 #include <cmath>
 #include <iomanip>
 #include <algorithm>
+#include <sstream>
+#include <iterator>
 
 EnergyScaleCorrection::EnergyScaleCorrection(const std::string& correctionFileName, unsigned int genSeed)
     : smearingType_(ECALELF) {
@@ -148,6 +150,26 @@ void EnergyScaleCorrection::addScale(const std::string& category,
   std::sort(scales_.begin(), scales_.end(), Sorter<CorrectionCategory, ScaleCorrection>());
 }
 
+void EnergyScaleCorrection::addScale(int runMin, int runMax, 
+				     double etaMin, double etaMax,  
+				     double r9Min, double r9Max,  
+				     double etMin, double etMax,   
+				     unsigned int gain,   
+				     double energyScale, double energyScaleErrStat, 
+				     double energyScaleErrSyst, double energyScaleErrGain) { 
+  CorrectionCategory cat(runMin, runMax, etaMin, etaMax, r9Min, r9Max, etMin, etMax, gain); // build the category from the string 
+
+  auto result = std::equal_range(scales_.begin(),scales_.end(),cat,Sorter<CorrectionCategory,ScaleCorrection>());
+  if(result.first!=result.second){
+    throw cms::Exception("ConfigError") << "Category already defined! "<<cat;
+  }
+  
+  ScaleCorrection corr(energyScale,energyScaleErrStat,energyScaleErrSyst,energyScaleErrGain); 
+  scales_.push_back({cat,corr});
+  std::sort(scales_.begin(),scales_.end(),Sorter<CorrectionCategory,ScaleCorrection>()); 
+
+ }
+
 void EnergyScaleCorrection::addSmearing(const std::string& category,
                                         int runMin,
                                         int runMax,
@@ -189,12 +211,47 @@ void EnergyScaleCorrection::readScalesFromFile(const std::string& filename) {
   std::string category, region2;
   double energyScale, energyScaleErr, energyScaleErrStat, energyScaleErrSyst, energyScaleErrGain;
 
-  for (file >> category; file.good(); file >> category) {
-    file >> region2 >> runMin >> runMax >> energyScale >> energyScaleErr >> energyScaleErrStat >> energyScaleErrSyst >>
-        energyScaleErrGain;
-    addScale(category, runMin, runMax, energyScale, energyScaleErrStat, energyScaleErrSyst, energyScaleErrGain);
-  }
+ double etaMin; ///< Min eta value for the bin 
+  double etaMax; ///< Max eta value for the bin 
+  double r9Min;  ///< Min R9 vaule for the bin 
+  double r9Max;  ///< Max R9 value for the bin 
+  double etMin;  ///< Min Et value for the bin 
+  double etMax;  ///< Max Et value for the bin unsigned int gain; ///< 12, 6, 1, 61 (double gain switch) 
+  unsigned int gain; ///< 12, 6, 1, 61 (double gain switch)
+  
+  // TO count the #columns in that txt file and decide based on that the version to read
+  std::string line;
+  std::stringstream stream;
+  getline(file, line);
+  stream.clear();
+  stream << line;
+    
+  int ncols =  std::distance(std::istream_iterator<std::string>(stream), std::istream_iterator<std::string>());
+  
+  file.seekg(0, std::ios::beg);
 
+  if(ncols == 9){
+    
+    for (file >> category; file.good(); file >> category) {
+      file >> region2 >> runMin >> runMax >> energyScale >> energyScaleErr >> energyScaleErrStat >> energyScaleErrSyst >>
+        energyScaleErrGain;
+      addScale(category, runMin, runMax, energyScale, energyScaleErrStat, energyScaleErrSyst, energyScaleErrGain);
+    }
+  }else{
+
+    if(file.peek()=='r') file.ignore(1000,10); 
+    
+    for(file >> runMin; file.good(); file >> runMin) 
+      { 
+	file >> runMax >> etaMin >> etaMax >> r9Min >> r9Max >> etMin 
+	     >> etMax >> gain  >> energyScale >> energyScaleErr; 
+	file.ignore(1000,10);
+	energyScaleErrStat = energyScaleErr; 
+	addScale(runMin, runMax, etaMin, etaMax, r9Min, r9Max, etMin, etMax, gain, energyScale, energyScaleErrStat, energyScaleErrSyst, energyScaleErrGain); 
+      } 
+  }
+      
+  
   file.close();
   return;
 }
@@ -394,7 +451,7 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
   r9Max_ = std::nextafterf(r9Max_, std::numeric_limits<float>::min());
 }
 bool EnergyScaleCorrection::CorrectionCategory::inCategory(
-    const unsigned int runnr, const float et, const float eta, const float r9, const unsigned int gainSeed) const {
+    const unsigned int runnr, const double et, const double eta, const double r9, const unsigned int gainSeed) const {
   return runnr >= runMin_ && runnr <= runMax_ && et >= etMin_ && et <= etMax_ && eta >= etaMin_ && eta <= etaMax_ &&
          r9 >= r9Min_ && r9 <= r9Max_ && (gain_ == 0 || gainSeed == gain_);
 }
