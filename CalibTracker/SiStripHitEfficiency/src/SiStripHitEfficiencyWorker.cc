@@ -69,7 +69,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
 class SiStripHitEfficiencyWorker : public DQMEDAnalyzer {
 public:
   explicit SiStripHitEfficiencyWorker(const edm::ParameterSet& conf);
@@ -389,8 +388,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   e.getByToken(trackerEvent_token_, measurementTrackerEvent);
 
-  edm::ESHandle<Chi2MeasurementEstimatorBase> est;
-  es.get<TrackingComponentsRecord>().get("Chi2", est);
+  edm::ESHandle<Chi2MeasurementEstimatorBase> estimator;
+  es.get<TrackingComponentsRecord>().get("Chi2", estimator);
 
   edm::ESHandle<Propagator> prop;
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", prop);
@@ -424,13 +423,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
       double yErr = 0.;
       double xglob, yglob, zglob;
 
-      // Check whether the trajectory has some missing hits
-      bool hasMissingHits = false;
-      for ( const auto& tm : TMeas ) {
-        auto theHit = tm.recHit();
-        if (theHit->getType() == TrackingRecHit::Type::missing)
-          hasMissingHits = true;
-      }
+      const bool hasMissingHits = std::any_of(std::begin(TMeas), std::end(TMeas), [] (const auto& tm) { return tm.recHit()->getType() == TrackingRecHit::Type::missing; });
 
       // Loop on each measurement and take it into consideration
       //--------------------------------------------------------
@@ -479,17 +472,17 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         if (isDoubleSided(iidd, tTopo) && ((iidd & 0x3) == 0)) {
           // do hit eff check twice--once for each sensor
           //add a TM for each surface
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 1));
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 2));
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 1);
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 2);
         } else if (isDoubleSided(iidd, tTopo) && (!check2DPartner(iidd, TMeas))) {
           // if only one hit was found the trajectory measurement is on that sensor surface, and the other surface from
           // the matched layer should be added to the study as well
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 1));
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 2));
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 1);
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 2);
           LogDebug("SiStripHitEfficiency:HitEff") << " found a hit with a missing partner" << std::endl;
         } else {
           //only add one TM for the single surface and the other will be added in the next iteration
-          TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator));
+          TMs.emplace_back(*itm, tTopo, tkgeom, propagator);
         }
 
         //////////////////////////////////////////////
@@ -502,25 +495,19 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         bool isLast = (itm == (TMeas.end() - 1));
         bool isLastTOB5 = true;
         if (!isLast) {
-          if (checkLayer((++itm)->recHit()->geographicalId().rawId(), tTopo) == 9)
+          if (checkLayer((itm+1)->recHit()->geographicalId().rawId(), tTopo) == 9)
             isLastTOB5 = false;
           else
             isLastTOB5 = true;
-          --itm;
         }
 
         if (TKlayers == 9 && isValid && isLastTOB5) {
           //	  if ( TKlayers==9 && itm==TMeas.rbegin()) {
           //	  if ( TKlayers==9 && (itm==TMeas.back()) ) {	  // to check for only the last entry in the trajectory for propagation
-          std::vector<BarrelDetLayer const*> barrelTOBLayers =
-              measurementTrackerHandle->geometricSearchTracker()->tobLayers();
-          const DetLayer* tob6 = barrelTOBLayers[barrelTOBLayers.size() - 1];
-          const MeasurementEstimator* estimator = est.product();
-          const LayerMeasurements* theLayerMeasurements =
-              new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
+          const DetLayer* tob6 = measurementTrackerHandle->geometricSearchTracker()->tobLayers().back();
+          const LayerMeasurements theLayerMeasurements{*measurementTrackerHandle, *measurementTrackerEvent};
           const TrajectoryStateOnSurface tsosTOB5 = itm->updatedState();
-          std::vector<TrajectoryMeasurement> tmp =
-              theLayerMeasurements->measurements(*tob6, tsosTOB5, thePropagator, *estimator);
+          const auto tmp = theLayerMeasurements.measurements(*tob6, tsosTOB5, thePropagator, *estimator);
 
           if (!tmp.empty()) {
             LogDebug("SiStripHitEfficiency:HitEff") << "size of TM from propagation = " << tmp.size() << std::endl;
@@ -528,36 +515,28 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             // take the last of the TMs, which is always an invalid hit
             // if no detId is available, ie detId==0, then no compatible layer was crossed
             // otherwise, use that TM for the efficiency measurement
-            TrajectoryMeasurement tob6TM(tmp.back());
+            const auto& tob6TM = tmp.back();
             const auto& tob6Hit = tob6TM.recHit();
-
             if (tob6Hit->geographicalId().rawId() != 0) {
               LogDebug("SiStripHitEfficiency:HitEff") << "tob6 hit actually being added to TM vector" << std::endl;
-              TMs.push_back(TrajectoryAtInvalidHit(tob6TM, tTopo, tkgeom, propagator));
+              TMs.emplace_back(tob6TM, tTopo, tkgeom, propagator);
             }
           }
         }
 
         bool isLastTEC8 = true;
         if (!isLast) {
-          if (checkLayer((++itm)->recHit()->geographicalId().rawId(), tTopo) == 21)
+          if (checkLayer((itm+1)->recHit()->geographicalId().rawId(), tTopo) == 21)
             isLastTEC8 = false;
           else
             isLastTEC8 = true;
-          --itm;
         }
 
         if (TKlayers == 21 && isValid && isLastTEC8) {
-          std::vector<const ForwardDetLayer*> posTecLayers =
-              measurementTrackerHandle->geometricSearchTracker()->posTecLayers();
-          const DetLayer* tec9pos = posTecLayers[posTecLayers.size() - 1];
-          std::vector<const ForwardDetLayer*> negTecLayers =
-              measurementTrackerHandle->geometricSearchTracker()->negTecLayers();
-          const DetLayer* tec9neg = negTecLayers[negTecLayers.size() - 1];
+          const DetLayer* tec9pos = measurementTrackerHandle->geometricSearchTracker()->posTecLayers().back();
+          const DetLayer* tec9neg = measurementTrackerHandle->geometricSearchTracker()->negTecLayers().back();
 
-          const MeasurementEstimator* estimator = est.product();
-          const LayerMeasurements* theLayerMeasurements =
-              new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
+          const LayerMeasurements theLayerMeasurements{*measurementTrackerHandle, *measurementTrackerEvent};
           const TrajectoryStateOnSurface tsosTEC9 = itm->updatedState();
 
           // check if track on positive or negative z
@@ -567,11 +546,11 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
           //cout << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << std::endl;
           std::vector<TrajectoryMeasurement> tmp;
           if (tTopo->tecSide(iidd) == 1) {
-            tmp = theLayerMeasurements->measurements(*tec9neg, tsosTEC9, thePropagator, *estimator);
+            tmp = theLayerMeasurements.measurements(*tec9neg, tsosTEC9, thePropagator, *estimator);
             //cout << "on negative side" << std::endl;
           }
           if (tTopo->tecSide(iidd) == 2) {
-            tmp = theLayerMeasurements->measurements(*tec9pos, tsosTEC9, thePropagator, *estimator);
+            tmp = theLayerMeasurements.measurements(*tec9pos, tsosTEC9, thePropagator, *estimator);
             //cout << "on positive side" << std::endl;
           }
 
@@ -579,10 +558,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             // take the last of the TMs, which is always an invalid hit
             // if no detId is available, ie detId==0, then no compatible layer was crossed
             // otherwise, use that TM for the efficiency measurement
-            TrajectoryMeasurement tec9TM(tmp.back());
+            const auto& tec9TM = tmp.back();
             const auto& tec9Hit = tec9TM.recHit();
 
-            unsigned int tec9id = tec9Hit->geographicalId().rawId();
+            const unsigned int tec9id = tec9Hit->geographicalId().rawId();
             LogDebug("SiStripHitEfficiency:HitEff")
                 << "tec9id = " << tec9id << " is Double sided = " << isDoubleSided(tec9id, tTopo)
                 << "  and 0x3 = " << (tec9id & 0x3) << std::endl;
@@ -592,10 +571,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
               // in tec the hit can be single or doubled sided. whenever the invalid hit at the end of vector of TMs is
               // double sided it is always on the matched surface, so we need to split it into the true sensor surfaces
               if (isDoubleSided(tec9id, tTopo)) {
-                TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator, 1));
-                TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator, 2));
+                TMs.emplace_back(tec9TM, tTopo, tkgeom, propagator, 1);
+                TMs.emplace_back(tec9TM, tTopo, tkgeom, propagator, 2);
               } else
-                TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator));
+                TMs.emplace_back(tec9TM, tTopo, tkgeom, propagator);
             }
           }  //else std::cout << "tec9 tmp empty" << std::endl;
         }
