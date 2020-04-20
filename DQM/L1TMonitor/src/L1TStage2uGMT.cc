@@ -46,6 +46,13 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     ugmtBMTFhwPt = ibooker.book1D("ugmtBMTFhwPt", "uGMT BMTF Input HW p_{T}", 512, -0.5, 511.5);
     ugmtBMTFhwPt->setAxisTitle("Hardware p_{T}", 1);
 
+    ugmtBMTFhwPtUnconstrained =
+        ibooker.book1D("ugmtBMTFhwPtUnconstrained", "uGMT BMTF Input HW p_{T} unconstrained", 256, -0.5, 255.5);
+    ugmtBMTFhwPtUnconstrained->setAxisTitle("Hardware p_{T} unconstrained", 1);
+
+    ugmtBMTFhwDXY = ibooker.book1D("ugmtBMTFhwDXY", "uGMT BMTF Input HW impact parameter", 4, -0.5, 3.5);
+    ugmtBMTFhwDXY->setAxisTitle("Hardware dXY", 1);
+
     ugmtBMTFhwEta = ibooker.book1D("ugmtBMTFhwEta", "uGMT BMTF Input HW #eta", 201, -100.5, 100.5);
     ugmtBMTFhwEta->setAxisTitle("Hardware #eta", 1);
 
@@ -327,6 +334,13 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtMuonhwPt = ibooker.book1D("ugmtMuonhwPt", "uGMT Muon HW p_{T}", 512, -0.5, 511.5);
   ugmtMuonhwPt->setAxisTitle("Hardware p_{T}", 1);
 
+  ugmtMuonhwPtUnconstrained =
+      ibooker.book1D("ugmtMuonhwPtUnconstrained", "uGMT Muon HW p_{T} unconstrained", 256, -0.5, 255.5);
+  ugmtMuonhwPtUnconstrained->setAxisTitle("Hardware p_{T} unconstrained", 1);
+
+  ugmtMuonhwDXY = ibooker.book1D("ugmtMuonhwDXY", "uGMT Muon HW impact parameter", 4, -0.5, 3.5);
+  ugmtMuonhwDXY->setAxisTitle("Hardware dXY", 1);
+
   ugmtMuonhwEta = ibooker.book1D("ugmtMuonhwEta", "uGMT Muon HW #eta", 461, -230.5, 230.5);
   ugmtMuonhwEta->setAxisTitle("Hardware Eta", 1);
 
@@ -353,6 +367,10 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   ugmtMuonPt = ibooker.book1D("ugmtMuonPt", "uGMT Muon p_{T}", 128, -0.5, 255.5);
   ugmtMuonPt->setAxisTitle("p_{T} [GeV]", 1);
+
+  ugmtMuonPtUnconstrained =
+      ibooker.book1D("ugmtMuonPtUnconstrained", "uGMT Muon p_{T} unconstrained", 128, -0.5, 255.5);
+  ugmtMuonPtUnconstrained->setAxisTitle("p_{T} unconstrained [GeV]", 1);
 
   ugmtMuonEta = ibooker.book1D("ugmtMuonEta", "uGMT Muon #eta", 52, -2.6, 2.6);
   ugmtMuonEta->setAxisTitle("#eta", 1);
@@ -660,6 +678,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
            ++BMTF) {
         ugmtBMTFBX->Fill(itBX);
         ugmtBMTFhwPt->Fill(BMTF->hwPt());
+        ugmtBMTFhwPtUnconstrained->Fill(BMTF->hwPtUnconstrained());
+        ugmtBMTFhwDXY->Fill(BMTF->hwDXY());
         ugmtBMTFhwEta->Fill(BMTF->hwEta());
         ugmtBMTFhwPhi->Fill(BMTF->hwPhi());
         ugmtBMTFhwSign->Fill(BMTF->hwSign());
@@ -891,6 +911,8 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       ugmtMuonBX->Fill(itBX);
       ugmtMuonIndex->Fill(tfMuonIndex);
       ugmtMuonhwPt->Fill(Muon->hwPt());
+      ugmtMuonhwPtUnconstrained->Fill(Muon->hwPtUnconstrained());
+      ugmtMuonhwDXY->Fill(Muon->hwDXY());
       ugmtMuonhwEta->Fill(Muon->hwEta());
       ugmtMuonhwPhi->Fill(Muon->hwPhi());
       ugmtMuonhwEtaAtVtx->Fill(Muon->hwEtaAtVtx());
@@ -901,6 +923,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       ugmtMuonhwIso->Fill(Muon->hwIso());
 
       ugmtMuonPt->Fill(Muon->pt());
+      ugmtMuonPtUnconstrained->Fill(Muon->ptUnconstrained());
       ugmtMuonEta->Fill(Muon->eta());
       ugmtMuonPhi->Fill(Muon->phi());
       ugmtMuonEtaAtVtx->Fill(Muon->etaAtVtx());
