@@ -64,7 +64,7 @@ void DTRunConditionVar::bookHistograms(DQMStore::IBooker& ibooker,
     for (int sec = 1; sec <= 14; sec++) {
       for (int stat = 1; stat <= 4; stat++) {
         bookChamberHistos(ibooker, DTChamberId(wheel, stat, sec), "VDrift_FromSegm", 100, 0.0043, 0.0065);
-        bookChamberHistos(ibooker, DTChamberId(wheel, stat, sec), "T0_FromSegm", 100, -15., 15.);
+        bookChamberHistos(ibooker, DTChamberId(wheel, stat, sec), "T0_FromSegm", 100, -25., 25.);
       }
     }
   }
