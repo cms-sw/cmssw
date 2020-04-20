@@ -46,6 +46,8 @@
 
 namespace {
 
+  enum MapType { t_barrel = 0, t_forward = 1 };
+
   /************************************************
     test class
   *************************************************/
@@ -110,133 +112,141 @@ namespace {
   /************************************************
   // testing TH2Poly classes for plotting
   *************************************************/
+  template <MapType myType>
   class SiPixelTemplateLA : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject> {
-
-    struct header_info{
-      int ID;                       //!< template ID number
-      float lorywidth;              //!< estimate of y-lorentz width for optimal resolution
-      float lorxwidth;              //!< estimate of x-lorentz width for optimal resolution
-      float lorybias;               //!< estimate of y-lorentz bias
-      float lorxbias;               //!< estimate of x-lorentz bias
-      float Vbias;                  //!< detector bias potential in Volts
-      float temperature;            //!< detector temperature in deg K
-      int   templ_version;          //!< Version number of the template to ensure code compatibility
-      float Bfield;                 //!< Bfield in Tesla
-      float xsize;                  //!< pixel size (for future use in upgraded geometry)
-      float ysize;                  //!< pixel size (for future use in upgraded geometry)
-      float zsize;                  //!< pixel size (for future use in upgraded geometry)
+    struct header_info {
+      int ID;             //!< template ID number
+      float lorywidth;    //!< estimate of y-lorentz width for optimal resolution
+      float lorxwidth;    //!< estimate of x-lorentz width for optimal resolution
+      float lorybias;     //!< estimate of y-lorentz bias
+      float lorxbias;     //!< estimate of x-lorentz bias
+      float Vbias;        //!< detector bias potential in Volts
+      float temperature;  //!< detector temperature in deg K
+      int templ_version;  //!< Version number of the template to ensure code compatibility
+      float Bfield;       //!< Bfield in Tesla
+      float xsize;        //!< pixel size (for future use in upgraded geometry)
+      float ysize;        //!< pixel size (for future use in upgraded geometry)
+      float zsize;        //!< pixel size (for future use in upgraded geometry)
     };
 
   public:
     SiPixelTemplateLA()
-      : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject>("SiPixelTemplate assumed value of uH"){
+        : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject>("SiPixelTemplate assumed value of uH") {
       setSingleIov(true);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      //gStyle->SetPalette(kRainBow);
       auto iov = iovs.front();
 
       std::vector<SiPixelTemplateStore> thePixelTemp_;
       std::shared_ptr<SiPixelTemplateDBObject> payload = fetchPayload(std::get<1>(iov));
 
       if (payload.get()) {
-	if (!SiPixelTemplate::pushfile(*payload, thePixelTemp_)) {
-	  throw cms::Exception("") << "\nERROR: Templates not filled correctly. Check the sqlite file. Using "
-	    "SiPixelTemplateDBObject version "
-				   << payload->version() << "\n\n";
-	}
+        if (!SiPixelTemplate::pushfile(*payload, thePixelTemp_)) {
+          throw cms::Exception("") << "\nERROR: Templates not filled correctly. Check the sqlite file. Using "
+                                      "SiPixelTemplateDBObject version "
+                                   << payload->version() << "\n\n";
+        }
 
-	// store the map of ID / interesting quantities
-	SiPixelTemplate templ(thePixelTemp_);
-	std::map<int, header_info> theInfos;
-	for (const auto& theTemp : thePixelTemp_) {
-	  header_info info;
-	  info.ID            = theTemp.head.ID;
-	  info.lorywidth     = theTemp.head.lorywidth;     
-	  info.lorxwidth     = theTemp.head.lorxwidth;     
-	  info.lorybias      = theTemp.head.lorybias;      
-	  info.lorxbias      = theTemp.head.lorxbias;      
-	  info.Vbias         = theTemp.head.Vbias;         
-	  info.temperature   = theTemp.head.temperature;   
-	  info.templ_version = theTemp.head.templ_version; 
-	  info.Bfield        = theTemp.head.Bfield;      
-	  info.xsize         = theTemp.head.xsize;
-	  info.ysize         = theTemp.head.ysize;
-	  info.zsize         = theTemp.head.zsize;
+        // store the map of ID / interesting quantities
+        SiPixelTemplate templ(thePixelTemp_);
+        std::map<int, header_info> theInfos;
+        for (const auto& theTemp : thePixelTemp_) {
+          header_info info;
+          info.ID = theTemp.head.ID;
+          info.lorywidth = theTemp.head.lorywidth;
+          info.lorxwidth = theTemp.head.lorxwidth;
+          info.lorybias = theTemp.head.lorybias;
+          info.lorxbias = theTemp.head.lorxbias;
+          info.Vbias = theTemp.head.Vbias;
+          info.temperature = theTemp.head.temperature;
+          info.templ_version = theTemp.head.templ_version;
+          info.Bfield = theTemp.head.Bfield;
+          info.xsize = theTemp.head.xsize;
+          info.ysize = theTemp.head.ysize;
+          info.zsize = theTemp.head.zsize;
 
-	  theInfos[theTemp.head.ID]=info;
-	}
+          theInfos[theTemp.head.ID] = info;
+        }
 
         // Book the TH2Poly
-	Phase1PixelMaps theMaps("COLZ L");
-        theMaps.bookBarrelHistograms("templateLABarrel");
-	theMaps.bookBarrelBins("templateLABarrel");
-        theMaps.bookForwardHistograms("templateLAForward");
-        theMaps.bookForwardBins("templateLAForward");
+        Phase1PixelMaps theMaps("COLZ L");
+
+        if (myType == t_barrel) {
+          theMaps.bookBarrelHistograms("templateLABarrel");
+          theMaps.bookBarrelBins("templateLABarrel");
+        } else if (myType == t_forward) {
+          theMaps.bookForwardHistograms("templateLAForward");
+          theMaps.bookForwardBins("templateLAForward");
+        }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
-	for (auto const& entry : templMap) {
+        for (auto const& entry : templMap) {
+          templ.interpolate(entry.second, 0.f, 0.f, 1.f, 1.f);
 
-	  templ.interpolate(entry.second, 0.f, 0.f, 1.f, 1.f);
-	  
-	  //mu_H = lorentz width / sensor thickness / B field
-	  float uH =  templ.lorxwidth() / theInfos[entry.second].zsize / theInfos[entry.second].Bfield;
-	  COUT << "uH: " << uH 
-	       << " lor x width:"  << templ.lorxwidth() 
-	       << " z size: " << theInfos[entry.second].zsize 
-	       << " B-field: " << theInfos[entry.second].Bfield
-	       << std::endl;
+          //mu_H = lorentz width / sensor thickness / B field
+          float uH = templ.lorxwidth() / theInfos[entry.second].zsize / theInfos[entry.second].Bfield;
+          COUT << "uH: " << uH << " lor x width:" << templ.lorxwidth() << " z size: " << theInfos[entry.second].zsize
+               << " B-field: " << theInfos[entry.second].Bfield << std::endl;
 
-	  auto detid = DetId(entry.first);
-          if (detid.subdetId() == PixelSubdetector::PixelBarrel) {
-	    theMaps.fillBarrelBin("templateLABarrel",entry.first,uH);
-	  } else if (detid.subdetId() == PixelSubdetector::PixelEndcap) {
-	    theMaps.fillEndcapBin("templateLAForward",entry.first,uH);
-	  }
-	}
+          auto detid = DetId(entry.first);
+          if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == t_barrel)) {
+            theMaps.fillBarrelBin("templateLABarrel", entry.first, uH);
+          } else if ((detid.subdetId() == PixelSubdetector::PixelEndcap) && (myType == t_forward)) {
+            theMaps.fillForwardBin("templateLAForward", entry.first, uH);
+          }
+        }
 
-	/*
-	TCanvas canvas("Canv", "Canv", 1200, 1000);
-	std::cout << "draw canvas" << std::endl;
-	theMaps.DrawBarrelMaps("templateLABarrel",canvas);
-	*/	
-	
-	TCanvas canvas("Canv", "Canv", 1500, 1000);
-	std::cout << "draw canvas" << std::endl;
-	theMaps.DrawEndcapMaps("templateLAForward",canvas);
+        TCanvas canvas("Canv", "Canv", (myType == t_barrel) ? 1200 : 1500, 1000);
+        if (myType == t_barrel) {
+          theMaps.DrawBarrelMaps("templateLABarrel", canvas);
+        } else if (myType == t_forward) {
+          theMaps.DrawForwardMaps("templateLAForward", canvas);
+        }
 
-	canvas.cd();
-	std::string fileName(m_imageFileName);
+        canvas.cd();
+        std::string fileName(m_imageFileName);
         canvas.SaveAs(fileName.c_str());
-
       }
       return true;
-    } // fill
+    }  // fill
   };
+
+  using SiPixelTemplateLABPixMap = SiPixelTemplateLA<t_barrel>;
+  using SiPixelTemplateLAFPixMap = SiPixelTemplateLA<t_forward>;
 
   /************************************************
   // testing TH2Poly classes for plotting
   *************************************************/
+  template <MapType myType>
   class SiPixelTemplateIDs : public cond::payloadInspector::PlotImage<SiPixelTemplateDBObject> {
   public:
-    SiPixelTemplateIDs()
-      : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject>("SiPixelTemplate ID Values"){
+    SiPixelTemplateIDs() : cond::payloadInspector::PlotImage<SiPixelTemplateDBObject>("SiPixelTemplate ID Values") {
       setSingleIov(true);
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      gStyle->SetPalette(kRainBow);
       auto iov = iovs.front();
       std::shared_ptr<SiPixelTemplateDBObject> payload = fetchPayload(std::get<1>(iov));
 
       if (payload.get()) {
         // Book the TH2Poly
-	Phase1PixelMaps theMaps("COLZ L");
-        theMaps.bookBarrelHistograms("templateIDsBarrel");
-        theMaps.bookForwardHistograms("templateIDsForward");
+        Phase1PixelMaps theMaps("text");
+        if (myType == t_barrel) {
+          theMaps.bookBarrelHistograms("templateIDsBarrel");
+          // book the barrel bins of the TH2Poly
+          theMaps.bookBarrelBins("templateIDsBarrel");
+        } else if (myType == t_forward) {
+          theMaps.bookForwardHistograms("templateIDsForward");
+          // book the forward bins of the TH2Poly
+          theMaps.bookForwardBins("templateIDsForward");
+        }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
 
-	/*
+        /*
         std::vector<unsigned int> detids;
         std::transform(templMap.begin(),
                        templMap.end(),
@@ -244,29 +254,22 @@ namespace {
                        [](const std::map<unsigned int, short>::value_type& pair) { return pair.first; });
 	*/
 
-        // book the barrel bins of the TH2Poly
-        theMaps.bookBarrelBins("templateIDsBarrel");
-
-        // book the forward bins of the TH2Poly
-        theMaps.bookForwardBins("templateIDsForward");
-
         for (auto const& entry : templMap) {
           COUT << "DetID: " << entry.first << " template ID: " << entry.second << std::endl;
           auto detid = DetId(entry.first);
-          if (detid.subdetId() == PixelSubdetector::PixelBarrel) {
-	    theMaps.fillBarrelBin("templateIDsBarrel",entry.first,entry.second);
-          } else if (detid.subdetId() == PixelSubdetector::PixelEndcap) {
-	    theMaps.fillBarrelBin("templateIDsBarrel",entry.first,entry.second);
+          if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == t_barrel)) {
+            theMaps.fillBarrelBin("templateIDsBarrel", entry.first, entry.second);
+          } else if ((detid.subdetId() == PixelSubdetector::PixelEndcap) && (myType == t_forward)) {
+            theMaps.fillForwardBin("templateIDsForward", entry.first, entry.second);
           }
         }
 
-        TCanvas canvas("Canv", "Canv", 1200, 1000);
-	theMaps.DrawBarrelMaps("templateIDsBarrel",canvas);
-
-	/*
-        TCanvas canvas("Canv", "Canv", 1500, 1000);
-	theMaps.DrawEndcapMaps("templateIDsForward",canvas);
-	*/
+        TCanvas canvas("Canv", "Canv", (myType == t_barrel) ? 1200 : 1500, 1000);
+        if (myType == t_barrel) {
+          theMaps.DrawBarrelMaps("templateIDsBarrel", canvas);
+        } else if (myType == t_forward) {
+          theMaps.DrawForwardMaps("templateIDsForward", canvas);
+        }
 
         canvas.cd();
 
@@ -276,11 +279,17 @@ namespace {
       return true;
     }
   };
+
+  using SiPixelTemplateIDsBPixMap = SiPixelTemplateIDs<t_barrel>;
+  using SiPixelTemplateIDsFPixMap = SiPixelTemplateIDs<t_forward>;
+
 }  // namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiPixelTemplateDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateDBObjectTest);
-  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDs);
-  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLA);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsBPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateIDsFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLABPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLAFPixMap);
 }
