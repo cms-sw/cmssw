@@ -26,7 +26,7 @@ private:
   std::vector<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>> geomTokens_;
 };
 
-HGCalGeometryDump::HGCalGeometryDump(const edm::ParameterSet& iC) 
+HGCalGeometryDump::HGCalGeometryDump(const edm::ParameterSet& iC)
     : names_(iC.getParameter<std::vector<std::string>>("detectorNames")),
       types_(iC.getParameter<std::vector<int>>("detectorTypes")) {
   for (unsigned int k = 0; k < names_.size(); ++k) {
@@ -38,9 +38,9 @@ HGCalGeometryDump::HGCalGeometryDump(const edm::ParameterSet& iC)
 void HGCalGeometryDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   std::vector<std::string> names = {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"};
-  desc.add<std::vector<std::string> >("detectorNames", names);
+  desc.add<std::vector<std::string>>("detectorNames", names);
   std::vector<int> types = {0, 0, 1};
-  desc.add<std::vector<int> >("detectorTypes", types);
+  desc.add<std::vector<int>>("detectorTypes", types);
   descriptions.add("hgcalGeometryDump", desc);
 }
 
@@ -55,20 +55,20 @@ void HGCalGeometryDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
       ++nall;
       auto cell = geom->getGeometry(id);
       if (types_[k] == 0) {
-	HGCSiliconDetId hid(id);
-	std::cout << "[" << nall << "] " << hid << " Reference " << std::setprecision(4) << cell->getPosition()
-		  << " Back " << cell->getBackPoint() << " [r,eta,phi] (" << cell->rhoPos() << ", " << cell->etaPos() << ", "
-		  << cell->phiPos() << ")\n";
+        HGCSiliconDetId hid(id);
+        std::cout << "[" << nall << "] " << hid << " Reference " << std::setprecision(4) << cell->getPosition()
+                  << " Back " << cell->getBackPoint() << " [r,eta,phi] (" << cell->rhoPos() << ", " << cell->etaPos()
+                  << ", " << cell->phiPos() << ")\n";
       } else if (types_[k] == 1) {
-	HGCScintillatorDetId hid(id);
-	std::cout << "[" << nall << "] " << hid << " Reference " << std::setprecision(4) << cell->getPosition()
-		  << " Back " << cell->getBackPoint() << " [r,eta,phi] (" << cell->rhoPos() << ", " << cell->etaPos() << ", "
-		  << cell->phiPos() << ")\n";
+        HGCScintillatorDetId hid(id);
+        std::cout << "[" << nall << "] " << hid << " Reference " << std::setprecision(4) << cell->getPosition()
+                  << " Back " << cell->getBackPoint() << " [r,eta,phi] (" << cell->rhoPos() << ", " << cell->etaPos()
+                  << ", " << cell->phiPos() << ")\n";
       } else {
-	HFNoseDetId hid(id);
-	std::cout << "[" << nall << "] " << hid << " Reference " << std::setprecision(4) << cell->getPosition()
-		  << " Back " << cell->getBackPoint() << " [r,eta,phi] (" << cell->rhoPos() << ", " << cell->etaPos() << ","
-		  << cell->phiPos() << ")\n";
+        HFNoseDetId hid(id);
+        std::cout << "[" << nall << "] " << hid << " Reference " << std::setprecision(4) << cell->getPosition()
+                  << " Back " << cell->getBackPoint() << " [r,eta,phi] (" << cell->rhoPos() << ", " << cell->etaPos()
+                  << "," << cell->phiPos() << ")\n";
       }
     }
     std::cout << "\n\nDumps" << nall << " cells of the detector\n" << std::endl;
