@@ -7,11 +7,12 @@
 class CACut {
 public:
   explicit CACut(const double defaultCut, const std::vector<edm::ParameterSet> &tripletCuts)
-      : usingCACuts(true), defaultCut_(defaultCut) {
+      : useCACuts(true), foundAllLayerIds(false), defaultCut_(defaultCut) {
 
     if  ( tripletCuts.size() == 1 && tripletCuts[0].getParameter<double>("cut") == -1. ) {
-      usingCACuts = false;
-      edm::LogWarning("Configuration") << "No CACut VPSet. Using default cut value of " << defaultCut << " for all layer triplets";
+      useCACuts = false;
+      //TODO Uncomment the Following warning after tuning
+      //edm::LogWarning("Configuration") << "No CACut VPSet. Using default cut value of " << defaultCut << " for all layer triplets";
       return;
     }
 
@@ -25,14 +26,18 @@ public:
     for (const auto &thisTriplet : tripletCuts) {
       valuesByTripletNames_.emplace_back();
       auto &thisCACut =  valuesByTripletNames_.back();
- 
+
       thisCACut.tripletName = thisTriplet.getParameter<std::string>("seedingLayers");
       thisCACut.cutValue = thisTriplet.getParameter<double>("cut");
     }
   }
 
   void setCutValuesByLayerIds(CAGraph &caLayers) {
-    if ( !usingCACuts ) return;
+    if ( !useCACuts || foundAllLayerIds ) return;
+
+    foundAllLayerIds = true;
+    valuesByLayerIds_.clear();
+
     for (const auto &thisTriplet : valuesByTripletNames_) {
       valuesByLayerIds_.emplace_back();
       auto &thisCACut = valuesByLayerIds_.back();
@@ -54,6 +59,7 @@ public:
         // Get layer ID
         thisCACut.layerIds.emplace_back(caLayers.getLayerId(layerName));
         if (thisCACut.layerIds.back() == -1) {
+          foundAllLayerIds = false;
           edm::LogWarning("Configuration")
               << "Layer name '" << layerName
               << "' not found in the CAGraph. Please check CACuts parameter set.";
@@ -62,6 +68,48 @@ public:
 
       // Cut
       thisCACut.cutValue = thisTriplet.cutValue;
+      thisCACut.hasValueByInnerLayerId = false;
+    }
+
+    setCutValuesByInnerLayerIds(caLayers);
+
+  }
+
+  void setCutValuesByInnerLayerIds(CAGraph &caLayers) { //TODO: Is "const {" needed here?
+
+    for ( auto &thisTriplet : valuesByLayerIds_ ) {
+
+      if (thisTriplet.hasValueByInnerLayerId) continue;
+      auto it = std::find(thisTriplet.layerIds.begin(), thisTriplet.layerIds.end(), -1);
+      if ( it != thisTriplet.layerIds.end()) continue;
+
+      std::cout << "(" << thisTriplet.layerIds[0]
+                << ", " << thisTriplet.layerIds[1]
+                << ", " << thisTriplet.layerIds[2]
+                << "), " << thisTriplet.cutValue << std::endl;
+
+      bool foundOuterDoublet = false;
+
+      for ( auto &thisOuterDoublet : valuesByInnerLayerIds_ ) {
+        if ( thisOuterDoublet.outerDoubletIds[0] == thisTriplet.layerIds[1] &&
+             thisOuterDoublet.outerDoubletIds[1] == thisTriplet.layerIds[2]) {
+          thisOuterDoublet.innerLayerIds.emplace_back(thisTriplet.layerIds[0]);
+          thisOuterDoublet.cutValues.emplace_back(thisTriplet.cutValue);
+          foundOuterDoublet = true;
+        }
+      }
+
+      if (!foundOuterDoublet) {
+        valuesByInnerLayerIds_.emplace_back(defaultCut_);
+        auto &newOuterDoublet = valuesByInnerLayerIds_.back();
+
+        newOuterDoublet.outerDoubletIds.emplace_back(thisTriplet.layerIds[1]);
+        newOuterDoublet.outerDoubletIds.emplace_back(thisTriplet.layerIds[2]);
+        newOuterDoublet.innerLayerIds.emplace_back(thisTriplet.layerIds[0]);
+        newOuterDoublet.cutValues.emplace_back(thisTriplet.cutValue);
+      }
+
+      thisTriplet.hasValueByInnerLayerId = true;
 
     }
   }
@@ -70,35 +118,33 @@ public:
   public:
     explicit CAValuesByInnerLayerIds(float cut) : defaultCut_(cut) {}
 
-    float at(int layerId) {
-      for (size_t thisLayer : layerIds) {
-        if (layerIds.at(thisLayer) == layerId)
+    float at(int layerId) const {
+      for (size_t thisLayer = 0; thisLayer < innerLayerIds.size(); thisLayer++) {
+        if (innerLayerIds.at(thisLayer) == layerId)
           return cutValues.at(thisLayer);
       }
 
-      return defaultCut_; // Add LogWarning?
+      return defaultCut_;
     }
 
-    
-    std::vector<int> layerIds;
+    std::vector<int> outerDoubletIds;
+    std::vector<int> innerLayerIds;
     std::vector<float> cutValues;
 
   private:
     double defaultCut_;
   };
 
-  // Check all triplets with outer cell (layerId1, layerId2) and return a map of (layerId0, cut)
   CAValuesByInnerLayerIds getCutsByInnerLayer(int layerIds1, int layerIds2) const {
-    CAValuesByInnerLayerIds cutsByInnerLayer(defaultCut_);
 
-    for (const auto &thisCut : valuesByLayerIds_) {
-      if (thisCut.layerIds[1] == layerIds1 && thisCut.layerIds[2] == layerIds2) {
-        cutsByInnerLayer.layerIds.emplace_back(thisCut.layerIds[0]);
-        cutsByInnerLayer.cutValues.emplace_back(thisCut.cutValue);
+    for (const auto &thisCut : valuesByInnerLayerIds_) {
+      if (thisCut.outerDoubletIds[0] == layerIds1 && thisCut.outerDoubletIds[1] == layerIds2) {
+        return thisCut;
       }
     }
 
-    return cutsByInnerLayer;
+    CAValuesByInnerLayerIds emptyCutsByInnerLayer(defaultCut_);
+    return emptyCutsByInnerLayer;
   }
 
 private:
@@ -112,13 +158,17 @@ private:
   public:
     std::vector<int> layerIds;
     float cutValue;
+    bool hasValueByInnerLayerId;
   };
 
 public:
-  bool usingCACuts;
+  bool useCACuts;
+  bool foundAllLayerIds;
+
 private:
   std::vector<CAValueByTripletName> valuesByTripletNames_;
   std::vector<CAValueByLayerIds> valuesByLayerIds_;
+  std::vector<CAValuesByInnerLayerIds> valuesByInnerLayerIds_;
   const float defaultCut_;
 };
 
