@@ -45,7 +45,6 @@ from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
 dtSourcesCosmics = cms.Sequence(dtDataIntegrityUnpacker  +
                                 DTDataIntegrityTask +
-                                dtDCSByLumiMonitor + 
                                 dtRunConditionVar + 
                                 dtSegmentAnalysisMonitor +
                                 dtResolutionAnalysisMonitor +
