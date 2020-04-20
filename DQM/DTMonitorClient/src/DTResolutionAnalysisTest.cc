@@ -76,6 +76,29 @@ void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker& ibooker) {
   meanDistr[2] =
       ibooker.book1D("MeanDistr_ThetaWh2", "Mean value of the residuals #theta SL Wh +/-2 (cm)", 100, -0.1, 0.1);
 
+  for(int wh=-2; wh<=2; wh++){
+      stringstream wheel;
+      wheel << wh;
+      for(int st=1; st<=4; st++){
+         stringstream station;
+         station << st;
+         for(int sl=1; sl<=3; sl++){
+             stringstream SL;
+             SL << sl;
+             if(sl==2 && st ==4) continue;
+             string histoLabel = "MeanDistr";
+             string histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_SL" + SL.str();
+             string histoType = histoLabel + "_SL" + SL.str();
+             (wheelRingHistos[wh][st])[histoType] = ibooker.book1D(histoName, histoLabel, 100, -0.1, 0.1);
+
+             histoLabel = "SigmaDistr";
+             histoName = histoLabel  + "_W" + wheel.str() + "_MB" + station.str() + "_SL" + SL.str();
+             histoType = histoLabel + "_SL" + SL.str();
+            (wheelRingHistos[wh][st])[histoType] = ibooker.book1D(histoName, histoLabel, 50, 0.0, 0.2);
+         }
+      }
+  }
+
   string histoTitle = "# of SLs with good mean of residuals";
 
   wheelMeanHistos[3] = ibooker.book2D("MeanResGlbSummary", histoTitle.c_str(), 12, 1, 13, 5, -2, 3);
@@ -189,6 +212,14 @@ void DTResolutionAnalysisTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::I
               meanDistr[-1]->Fill(mean);
               sigmaDistr[-1]->Fill(sigma);
             }
+
+            stringstream SL;
+            SL << slID.superlayer();
+            string histoType = "MeanDistr_SL" + SL.str();
+            (wheelRingHistos[slID.wheel()][slID.station()])[histoType]->Fill(mean);
+
+            histoType = "SigmaDistr_SL" + SL.str();
+            (wheelRingHistos[slID.wheel()][slID.station()])[histoType]->Fill(sigma);
 
             // sector summaries
             MeanHistos[make_pair(slID.wheel(), binSect)]->setBinContent(binSL, mean);
