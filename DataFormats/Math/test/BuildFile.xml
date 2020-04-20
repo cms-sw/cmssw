@@ -53,6 +53,9 @@
 <bin file="arc.cpp" name="DataFormatsAsin_t">
 </bin>
 
+<bin file="roundAtPrecision_t.cpp" name="DataFormatsRoundAtPrecision_t">
+</bin>
+
 <bin file="testAtan2.cpp">
   <flags CXXFLAGS="-fwrapv"/>
 </bin>
