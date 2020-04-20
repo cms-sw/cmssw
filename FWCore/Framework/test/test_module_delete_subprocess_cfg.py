@@ -93,6 +93,14 @@ process.producerEventConsumedInBA2 = intEventProducerMustRun.clone()
 process.producerEventConsumedInC1 = intEventProducerMustRun.clone()
 process.producerEventConsumedInC2 = intEventProducerMustRun.clone()
 
+process.producerANotConsumedChainEvent = cms.EDProducer("edmtest::TestModuleDeleteProducer")
+process.producerANotConsumedChainLumi = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer",
+    srcEvent = cms.untracked.VInputTag("producerANotConsumedChainEvent")
+)
+process.producerANotConsumedChainRun = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer",
+    srcEvent = cms.untracked.VInputTag("producerANotConsumedChainEvent")
+)
+
 process.intAnalyzerDelete = cms.EDAnalyzer("edmtest::TestModuleDeleteAnalyzer")
 
 process.t = cms.Task(
@@ -126,6 +134,10 @@ process.t = cms.Task(
     process.producerEventConsumedInBA2,
     process.producerEventConsumedInC1,
     process.producerEventConsumedInC2,
+    #
+    process.producerANotConsumedChainEvent,
+    process.producerANotConsumedChainLumi,
+    process.producerANotConsumedChainRun,
 )
 
 process.p = cms.Path(
@@ -191,6 +203,16 @@ subprocessB.consumerBEventConsumedInB1 = intGenericConsumer.clone(srcEvent = ["p
 subprocessB.consumerBEventConsumedInB2 = intGenericConsumer.clone(srcEvent = ["producerBEventConsumedInB2::B"])
 subprocessB.consumerBEventConsumedInB3 = intGenericConsumer.clone(srcEvent = [cms.InputTag("producerBEventConsumedInB3", "", cms.InputTag.currentProcess())])
 
+subprocessB.producerBNotConsumedChainEvent = cms.EDProducer("edmtest::TestModuleDeleteProducer",
+    srcBeginRun = cms.untracked.VInputTag("producerANotConsumedChainRun")
+)
+subprocessB.producerBNotConsumedChainLumi = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer",
+    srcEvent = cms.untracked.VInputTag("producerANotConsumedChainEvent")
+)
+subprocessB.producerBNotConsumedChainRun = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer",
+    srcBeginLumi = cms.untracked.VInputTag("producerANotConsumedChainLumi")
+)
+
 subprocessB.t = cms.Task(
     subprocessB.producerEventNotConsumed,
     subprocessB.producerBeginLumiNotConsumed,
@@ -213,6 +235,10 @@ subprocessB.t = cms.Task(
     subprocessB.producerBEventConsumedInB1,
     subprocessB.producerBEventConsumedInB2,
     subprocessB.producerBEventConsumedInB3,
+    #
+    subprocessB.producerBNotConsumedChainEvent,
+    subprocessB.producerBNotConsumedChainLumi,
+    subprocessB.producerBNotConsumedChainRun,
 )
 subprocessB.p = cms.Path(
     subprocessB.consumerEventFromA+
@@ -284,6 +310,22 @@ subprocessBA.consumerEventNotConsumedInBA2 = intGenericConsumer.clone(srcEvent =
     cms.InputTag("producerBEventConsumedInBA2", "", cms.InputTag.skipCurrentProcess())
 ])
 
+subprocessBA.producerBANotConsumedChainEvent = cms.EDProducer("edmtest::TestModuleDeleteProducer",
+    srcBeginLumi = cms.untracked.VInputTag("producerBNotConsumedChainLumi")
+)
+subprocessBA.producerBANotConsumedChainLumi = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer",
+    srcBeginRun = cms.untracked.VInputTag("producerBNotConsumedChainRun")
+)
+subprocessBA.producerBANotConsumedChainRun = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer",
+    srcEvent = cms.untracked.VInputTag("producerBNotConsumedChainEvent")
+)
+subprocessBA.producerBANotConsumedChainEvent2 = cms.EDProducer("edmtest::TestModuleDeleteProducer",
+    srcBeginRun = cms.untracked.VInputTag("producerANotConsumedChainRun"),
+    srcBeginLumi = cms.untracked.VInputTag("producerANotConsumedChainLumi"),
+    srcEvent = cms.untracked.VInputTag("producerANotConsumedChainEvent"),
+)
+
+
 subprocessBA.t = cms.Task(
     subprocessBA.producerEventMaybeConsumedInBA,
     #
@@ -293,6 +335,11 @@ subprocessBA.t = cms.Task(
     subprocessBA.producerEventConsumedInBA2,
     subprocessBA.producerBEventConsumedInBA1,
     subprocessBA.producerBEventConsumedInBA2,
+    #
+    subprocessBA.producerBANotConsumedChainEvent,
+    subprocessBA.producerBANotConsumedChainLumi,
+    subprocessBA.producerBANotConsumedChainRun,
+    subprocessBA.producerBANotConsumedChainEvent2,
 )
 subprocessBA.p = cms.Path(
     subprocessBA.consumerEventFromA+
@@ -355,6 +402,16 @@ subprocessC.consumerEventNotConsumedInC2 = intGenericConsumer.clone(srcEvent = [
 subprocessC.consumerBEventConsumedInC1 = intGenericConsumer.clone(srcEvent = ["producerBEventConsumedInC1"], inputShouldExist=False)
 subprocessC.consumerBEventConsumedInC2 = intGenericConsumer.clone(srcEvent = ["producerBEventConsumedInC1::B"], inputShouldExist=False)
 
+subprocessC.producerCNotConsumedChainEvent = cms.EDProducer("edmtest::TestModuleDeleteProducer",
+    srcEvent = cms.untracked.VInputTag("producerANotConsumedChainEvent")
+)
+subprocessC.producerCNotConsumedChainLumi = cms.EDProducer("edmtest::TestModuleDeleteInLumiProducer",
+    srcBeginLumi = cms.untracked.VInputTag("producerANotConsumedChainLumi")
+)
+subprocessC.producerCNotConsumedChainRun = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer",
+    srcBeginRun = cms.untracked.VInputTag("producerANotConsumedChainRun")
+)
+
 subprocessC.t = cms.Task(
     subprocessC.producerEventMaybeConsumedInC,
     #
@@ -362,6 +419,10 @@ subprocessC.t = cms.Task(
     #
     subprocessC.producerEventConsumedInC1,
     subprocessC.producerEventConsumedInC2,
+    #
+    subprocessC.producerCNotConsumedChainEvent,
+    subprocessC.producerCNotConsumedChainLumi,
+    subprocessC.producerCNotConsumedChainRun,
 )
 subprocessC.p = cms.Path(
     subprocessC.consumerEndLumiFromA+
@@ -437,7 +498,18 @@ subprocessDA.consumerDEventNotConsumedInDA = intGenericConsumer.clone(
     inputShouldExist = False,
 )
 
+subprocessDA.producerDNotConsumedChainRun = cms.EDProducer("edmtest::TestModuleDeleteInRunProducer",
+    srcBeginRun = cms.untracked.VInputTag("producerANotConsumedChainRun"),
+    srcBeginLumi = cms.untracked.VInputTag("producerANotConsumedChainLumi"),
+    srcEvent = cms.untracked.VInputTag("producerANotConsumedChainEvent"),
+)
+
+subprocessDA.t = cms.Task(
+    subprocessDA.producerDNotConsumedChainRun
+)
+
 subprocessDA.p = cms.Path(
     subprocessDA.consumerAEventNotConsumedInD+
-    subprocessDA.consumerDEventNotConsumedInDA
+    subprocessDA.consumerDEventNotConsumedInDA,
+    subprocessDA.t
 )

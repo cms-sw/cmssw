@@ -29,10 +29,26 @@ namespace edmtest {
   public:
     explicit TestModuleDeleteProducer(edm::ParameterSet const& p)
         : moduleLabel_{p.getParameter<std::string>("@module_label")} {
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
+        consumes<IntProduct, edm::InRun>(tag);
+      }
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi")) {
+        consumes<IntProduct, edm::InLumi>(tag);
+      }
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent")) {
+        consumes<IntProduct>(tag);
+      }
       produces<IntProduct>();
       g_constructed.push_back(moduleLabel_);
     }
     ~TestModuleDeleteProducer() override { g_destructed.push_back(moduleLabel_); }
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
+      descriptions.addDefault(desc);
+    }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override {
       throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
     }
@@ -45,10 +61,26 @@ namespace edmtest {
   public:
     explicit TestModuleDeleteInLumiProducer(edm::ParameterSet const& p)
         : moduleLabel_{p.getParameter<std::string>("@module_label")} {
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
+        consumes<IntProduct, edm::InRun>(tag);
+      }
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi")) {
+        consumes<IntProduct, edm::InLumi>(tag);
+      }
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent")) {
+        consumes<IntProduct, edm::InRun>(tag);
+      }
       produces<IntProduct, edm::Transition::BeginLuminosityBlock>();
       g_lumi_constructed.push_back(moduleLabel_);
     }
     ~TestModuleDeleteInLumiProducer() override { g_lumi_destructed.push_back(moduleLabel_); }
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
+      descriptions.addDefault(desc);
+    }
     void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override {
       throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
     }
@@ -64,10 +96,26 @@ namespace edmtest {
   public:
     explicit TestModuleDeleteInRunProducer(edm::ParameterSet const& p)
         : moduleLabel_{p.getParameter<std::string>("@module_label")} {
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginRun")) {
+        consumes<IntProduct, edm::InRun>(tag);
+      }
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcBeginLumi")) {
+        consumes<IntProduct, edm::InLumi>(tag);
+      }
+      for (const auto& tag : p.getUntrackedParameter<std::vector<edm::InputTag>>("srcEvent")) {
+        consumes<IntProduct, edm::InRun>(tag);
+      }
       produces<IntProduct, edm::Transition::BeginRun>();
       g_run_constructed.push_back(moduleLabel_);
     }
     ~TestModuleDeleteInRunProducer() override { g_run_destructed.push_back(moduleLabel_); }
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginRun", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcBeginLumi", std::vector<edm::InputTag>{});
+      desc.addUntracked<std::vector<edm::InputTag>>("srcEvent", std::vector<edm::InputTag>{});
+      descriptions.addDefault(desc);
+    }
     void globalBeginRunProduce(edm::Run&, edm::EventSetup const&) const override {
       throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
     }
