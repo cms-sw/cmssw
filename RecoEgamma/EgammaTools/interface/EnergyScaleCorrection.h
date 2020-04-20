@@ -92,24 +92,31 @@ public:
           etMax_(et),
           gain_(gainSeed) {}
 
-  CorrectionCategory(unsigned int runMin, unsigned int runMax, 
-		     double etaMin, double etaMax, 
-		     double r9Min, double r9Max, 
-		     double etMin, double etMax, 
-		     unsigned int gainSeed)
-    : runMin_(runMin),
-      runMax_(runMax),
-      etaMin_(etaMin),
-      etaMax_(etaMax),
-      r9Min_(r9Min),
-      r9Max_(r9Max),
-      etMin_(etMin),
-      etMax_(etMax),
-      gain_(gainSeed){};
-    
+    CorrectionCategory(unsigned int runMin,
+                       unsigned int runMax,
+                       double etaMin,
+                       double etaMax,
+                       double r9Min,
+                       double r9Max,
+                       double etMin,
+                       double etMax,
+                       unsigned int gainSeed)
+        : runMin_(runMin),
+          runMax_(runMax),
+          etaMin_(etaMin),
+          etaMax_(etaMax),
+          r9Min_(r9Min),
+          r9Max_(r9Max),
+          etMin_(etMin),
+          etMax_(etMax),
+          gain_(gainSeed){};
+
     bool operator<(const CorrectionCategory& b) const;
-    bool inCategory(
-        const unsigned int runnr, const double et, const double eta, const double r9, const unsigned int gainSeed) const;
+    bool inCategory(const unsigned int runnr,
+                    const double et,
+                    const double eta,
+                    const double r9,
+                    const unsigned int gainSeed) const;
 
     friend std::ostream& operator<<(std::ostream& os, const CorrectionCategory& a) { return a.print(os); }
     std::ostream& print(std::ostream& os) const;
@@ -118,12 +125,12 @@ public:
     //all boundaries are inclusive (X<=Y<=Z)
     unsigned int runMin_;
     unsigned int runMax_;
-    double etaMin_;       ///< min eta value for the bin
-    double etaMax_;       ///< max eta value for the bin
-    double r9Min_;        ///< min R9 vaule for the bin
-    double r9Max_;        ///< max R9 value for the bin
-    double etMin_;        ///< min Et value for the bin
-    double etMax_;        ///< max Et value for the bin
+    double etaMin_;      ///< min eta value for the bin
+    double etaMax_;      ///< max eta value for the bin
+    double r9Min_;       ///< min R9 vaule for the bin
+    double r9Max_;       ///< max R9 value for the bin
+    double etMin_;       ///< min Et value for the bin
+    double etMax_;       ///< max Et value for the bin
     unsigned int gain_;  ///< 12, 6, 1, 61 (double gain switch)
   };
 
@@ -165,14 +172,19 @@ private:
                 double errSystDeltaP,
                 double errDeltaPGain);
 
-  void addScale(int runMin, int runMax, 
-		double etaMin, double etaMax,
-		double r9Min, double r9Max, 
-		double etMin, double etMax,
-		unsigned int gain,  
-		double energyScale, double energyScaleErrStat,
-		double energyScaleErrSyst, double energyScaleErrGain
-		);
+  void addScale(int runMin,
+                int runMax,
+                double etaMin,
+                double etaMax,
+                double r9Min,
+                double r9Max,
+                double etMin,
+                double etMax,
+                unsigned int gain,
+                double energyScale,
+                double energyScaleErrStat,
+                double energyScaleErrSyst,
+                double energyScaleErrGain);
 
   void addSmearing(const std::string& category,
                    int runMin,
