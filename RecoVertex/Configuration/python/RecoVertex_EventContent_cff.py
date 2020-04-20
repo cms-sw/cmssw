@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+
 #AOD content
 RecoVertexAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep  *_offlinePrimaryVertices__*', 
@@ -23,11 +24,13 @@ phase2_timing.toModify( RecoVertexAOD,
      outputCommands = RecoVertexAOD.outputCommands + _phase2_tktiming_RecoVertexEventContent)
 phase2_timing_layer.toModify( RecoVertexAOD,
      outputCommands = RecoVertexAOD.outputCommands + _phase2_tktiming_layer_RecoVertexEventContent)
+
 #RECO content
 RecoVertexRECO = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 RecoVertexRECO.outputCommands.extend(RecoVertexAOD.outputCommands)
+
 #FEVT content
 RecoVertexFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
