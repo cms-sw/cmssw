@@ -45,6 +45,7 @@ for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
                 func=lambda outputCommands: outputCommands.extend(['keep recoSuperClusters_correctedIslandBarrelSuperClusters_*_*',
                                                                    'keep recoSuperClusters_correctedIslandEndcapSuperClusters_*_*'])
               )
+
 # RECO content
 RecoEcalRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -53,17 +54,15 @@ RecoEcalRECO = cms.PSet(
         'keep recoSuperClusters_correctedHybridSuperClusters_*_*',
 	# Endcap clusters
         'keep *_multi5x5SuperClusters_*_*',
-        'keep recoSuperClusters_multi5x5SuperClusters_*_*',
         'keep recoSuperClusters_multi5x5SuperClustersWithPreshower_*_*',
         # Particle Flow superclusters
         'keep *_particleFlowSuperClusterECAL_*_*',
         'keep *_particleFlowSuperClusterOOTECAL_*_*',
-	# DROP statements # not used
-        #'drop recoClusterShapes_*_*_*', 
-        #'drop recoBasicClustersToOnerecoClusterShapesAssociation_*_*_*',
-        #'drop recoBasicClusters_multi5x5BasicClusters_multi5x5BarrelBasicClusters_*',
-        #'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
-        )
+	# DROP statements 
+        'drop recoClusterShapes_*_*_*', 
+        'drop recoBasicClustersToOnerecoClusterShapesAssociation_*_*_*',
+        'drop recoBasicClusters_multi5x5BasicClusters_multi5x5BarrelBasicClusters_*',
+        'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
 )
 RecoEcalRECO.outputCommands.extend(RecoEcalAOD.outputCommands)
 _phase2_hgcal_scCommands = ['keep *_particleFlowSuperClusterHGCal_*_*',
@@ -75,6 +74,7 @@ for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
     e.toModify( RecoEcalRECO.outputCommands,
                 func=lambda outputCommands: outputCommands.extend(['keep recoCaloClusters_islandBasicClusters_*_*'])
               )
+
 # Full Event content 
 RecoEcalFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -88,7 +88,6 @@ RecoEcalFEVT = cms.PSet(
 	# Barrel clusters
         'keep *_correctedHybridSuperClusters_*_*',
 	# Endcap clusters
-        'keep *_multi5x5*_*_*',
-        'keep *_correctedMulti5x5*_*_*')
+        'keep *_multi5x5*_*_*')
 )
 RecoEcalFEVT.outputCommands.extend(RecoEcalRECO.outputCommands)
