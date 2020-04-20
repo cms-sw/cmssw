@@ -26,3 +26,6 @@
 <library   file="AlcaPCCEventProducer.cc" name="AlcaPCCEventProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="AlcaPCCIntegrator.cc" name="AlcaPCCIntegrator">
+  <flags   EDM_PLUGIN="1"/>
+</library>
