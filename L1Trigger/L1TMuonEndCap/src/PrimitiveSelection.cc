@@ -1,7 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveSelection.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
-
 #include "helper.h"  // merge_map_into_map, assert_no_abort
 
 // 18 in ME1; 9x3 in ME2,3,4; 9 from neighbor sector.

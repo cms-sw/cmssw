@@ -1,6 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/AngleCalculation.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 #include "helper.h"  // to_hex, to_binary
 
 namespace {

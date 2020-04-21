@@ -14,6 +14,8 @@
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/EMTFSubsystemTag.h"
+#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
+#include "L1Trigger/L1TMuonEndCap/interface/DebugTools.h"
 
 // Resolve namespaces
 
