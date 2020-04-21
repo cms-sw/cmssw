@@ -1,7 +1,9 @@
 #ifndef L1TMuonEndCap_PtAssignmentEngineAux2017_h
 #define L1TMuonEndCap_PtAssignmentEngineAux2017_h
 
-class PtAssignmentEngineAux2017 {
+#include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux.h"
+
+class PtAssignmentEngineAux2017 : public PtAssignmentEngineAux {
 public:
   int getNLBdPhi(int dPhi, int bits = 7, int max = 512) const;
 

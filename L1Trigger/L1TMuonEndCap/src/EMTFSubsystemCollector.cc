@@ -63,7 +63,7 @@ void EMTFSubsystemCollector::extractPrimitives(emtf::DTTag tag,
                 }
               }
             }
-            assert(bti_group1 != -1 && bti_group2 != -1);
+            emtf_assert(bti_group1 != -1 && bti_group2 != -1);
           }
 
           // 1st phi segment
@@ -450,8 +450,8 @@ void EMTFSubsystemCollector::make_copad_gem(const TriggerPrimitiveCollection& mu
 
   for (; tp_it != tp_end; ++tp_it) {
     GEMDetId detid = tp_it->detId<GEMDetId>();
-    assert(detid.layer() == 1 || detid.layer() == 2);
-    assert(1 <= detid.roll() && detid.roll() <= 8);
+    emtf_assert(detid.layer() == 1 || detid.layer() == 2);
+    emtf_assert(1 <= detid.roll() && detid.roll() <= 8);
     uint32_t layer = detid.layer();
 
     // Remove layer number and roll number from detid

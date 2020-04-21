@@ -15,10 +15,7 @@ void PtAssignment::configure(PtAssignmentEngine* pt_assign_engine,
                              bool bugGMTPhi,
                              bool promoteMode7,
                              int modeQualVer) {
-  if (not(pt_assign_engine != nullptr)) {
-    edm::LogError("L1T") << "pt_assign_engine == nullptr ";
-    return;
-  }
+  emtf_assert(pt_assign_engine != nullptr);
 
   pt_assign_engine_ = pt_assign_engine;
 
@@ -76,9 +73,9 @@ void PtAssignment::process(EMTFTrackCollection& best_tracks) {
       // Check address packing / unpacking using PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track)
       if (pt_assign_engine_->get_pt_lut_version() > 5 &&
           not(fabs(xmlpt - pt_assign_engine_->calculate_pt(track)) < 0.001)) {
-        edm::LogWarning("L1T") << "EMTF pT assignment mismatch: xmlpt = " << xmlpt
-                               << ", pt_assign_engine_->calculate_pt(track)) = "
-                               << pt_assign_engine_->calculate_pt(track);
+        edm::LogError("L1T") << "EMTF pT assignment mismatch: xmlpt = " << xmlpt
+                             << ", pt_assign_engine_->calculate_pt(track)) = "
+                             << pt_assign_engine_->calculate_pt(track);
       }
 
       pt = (xmlpt < 0.) ? 1. : xmlpt;  // Matt used fabs(-1) when mode is invalid
@@ -154,7 +151,7 @@ void PtAssignment::process(EMTFTrackCollection& best_tracks) {
       return (lhs_addr_1 == rhs_addr_1) && (lhs_addr_2 == rhs_addr_2);
     };
 
-    assert(best_tracks.size() <= 3);
+    emtf_assert(best_tracks.size() <= 3);
     if (best_tracks.size() == 3) {
       bool same_bank = is_in_same_bank(best_tracks.at(0), best_tracks.at(2)) ||
                        is_in_same_bank(best_tracks.at(1), best_tracks.at(2));
