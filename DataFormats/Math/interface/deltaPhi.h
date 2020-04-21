@@ -38,7 +38,12 @@ namespace reco {
 
   template <typename T>
   constexpr T deltaPhi(T phi1, T phi2) {
-    return reduceRange(phi1 - phi2);
+    constexpr T epsilon = 1.e-13;
+    constexpr T diff = phi1 - phi2;
+    if (std::abs(diff) <= epsilon)
+      return (0.);
+    else
+      return reduceRange(diff);
   }
 }  // namespace reco
 
