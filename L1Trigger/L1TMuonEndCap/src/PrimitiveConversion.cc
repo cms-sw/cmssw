@@ -21,8 +21,8 @@ void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
                                     bool useNewZones,
                                     bool fixME11Edges,
                                     bool bugME11Dupes) {
-  assert(tp_geom != nullptr);
-  assert(lut != nullptr);
+  emtf_assert(tp_geom != nullptr);
+  emtf_assert(lut != nullptr);
 
   tp_geom_ = tp_geom;
   lut_ = lut;
@@ -76,7 +76,7 @@ void PrimitiveConversion::process(const std::map<int, TriggerPrimitiveCollection
       } else if (tp_it->subsystem() == TriggerPrimitive::kDT) {
         convert_dt(pc_sector, 0, selected, pc_segment, *tp_it, conv_hit);  // pc_station and pc_chamber are meaningless
       } else {
-        assert(false && "Incorrect subsystem type");
+        emtf_assert(false && "Incorrect subsystem type");
       }
       conv_hits.push_back(conv_hit);
       pc_segment += 1;
@@ -119,7 +119,7 @@ void PrimitiveConversion::convert_csc(int pc_sector,
     csc_nID += 1;
 
     if (tp_station == 1) {  // neighbor ME1
-      assert(tp_subsector == 2);
+      emtf_assert(tp_subsector == 2);
     }
   }
 
@@ -257,7 +257,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   } else if (pc_station == 5 && pc_chamber < 9) {  // neighbor ME4: 59 - 60
     pc_lut_id += 50 + 9 - 7;
   }
-  assert(pc_lut_id < 61);
+  emtf_assert(pc_lut_id < 61);
 
   if (verbose_ > 1) {  // debug
     std::cout << "pc_station: " << pc_station << " pc_chamber: " << pc_chamber << " fw_station: " << fw_station
@@ -291,7 +291,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
     eighth_strip = fw_strip << 3;  // multiply by 2, uses all 3 bits of pattern correction
     eighth_strip += clct_pat_corr_sign * (clct_pat_corr >> 0);
   }
-  assert(bugStrip0BeforeFW48200 == true || eighth_strip >= 0);
+  emtf_assert(bugStrip0BeforeFW48200 == true || eighth_strip >= 0);
 
   // Multiplicative factor for eighth_strip
   // +----------------------------+-------------+------------------+
@@ -345,8 +345,8 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   if (fixZonePhi_)
     zone_hit = zone_hit_fixed;
 
-  assert(0 <= fph && fph < 5000);
-  assert(0 <= zone_hit && zone_hit < 192);
+  emtf_assert(0 <= fph && fph < 5000);
+  emtf_assert(0 <= zone_hit && zone_hit < 192);
 
   // ___________________________________________________________________________
   // theta conversion
@@ -407,7 +407,7 @@ void PrimitiveConversion::convert_csc_details(EMTFHit& conv_hit) const {
   int th = lut().get_th_init(fw_endcap, fw_sector, pc_lut_id);
   th = th + th_tmp;
 
-  assert(0 <= th && th < 128);
+  emtf_assert(0 <= th && th < 128);
   th = (th == 0) ? 1 : th;  // protect against invalid value
 
   // ___________________________________________________________________________
@@ -562,17 +562,17 @@ void PrimitiveConversion::convert_rpc(int pc_sector,
     int fph = emtf::calc_phi_loc_int_rpc(glob_phi, conv_hit.PC_sector());
     int th = emtf::calc_theta_int_rpc(glob_theta, conv_hit.Endcap());
 
-    //assert(0 <= fph && fph < 1024);
-    assert(0 <= fph && fph < 1250);
-    assert(0 <= th && th < 32);
-    assert(th != 0b11111);    // RPC hit valid when data is not all ones
-    fph <<= 2;                // upgrade to full CSC precision by adding 2 zeros
-    th <<= 2;                 // upgrade to full CSC precision by adding 2 zeros
-    th = (th == 0) ? 1 : th;  // protect against invalid value
+    //emtf_assert(0 <= fph && fph < 1024);
+    emtf_assert(0 <= fph && fph < 1250);
+    emtf_assert(0 <= th && th < 32);
+    emtf_assert(th != 0b11111);  // RPC hit valid when data is not all ones
+    fph <<= 2;                   // upgrade to full CSC precision by adding 2 zeros
+    th <<= 2;                    // upgrade to full CSC precision by adding 2 zeros
+    th = (th == 0) ? 1 : th;     // protect against invalid value
 
     if (is_irpc) {
       const RPCRoll* roll = dynamic_cast<const RPCRoll*>(tp_geom_->getRPCGeometry().roll(tp_detId));
-      assert(roll != nullptr);  // failed to get RPC roll
+      emtf_assert(roll != nullptr);  // failed to get RPC roll
       const GlobalPoint& new_gp = roll->surface().toGlobal(LocalPoint(tp_data.x, tp_data.y, 0));
       glob_phi = emtf::rad_to_deg(gp.phi().value());  // using 'gp' instead of 'new_gp' for phi
       glob_theta = emtf::rad_to_deg(new_gp.theta());
@@ -583,8 +583,8 @@ void PrimitiveConversion::convert_rpc(int pc_sector,
       fph = emtf::calc_phi_loc_int(glob_phi, conv_hit.PC_sector());
       th = emtf::calc_theta_int(glob_theta, conv_hit.Endcap());
 
-      assert(0 <= fph && fph < 5000);
-      assert(0 <= th && th < 128);
+      emtf_assert(0 <= fph && fph < 5000);
+      emtf_assert(0 <= th && th < 128);
       th = (th == 0) ? 1 : th;  // protect against invalid value
     }
 
@@ -624,7 +624,7 @@ void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit, bool isCPPF) co
 
   if (use_cppf_lut) {
     int halfstrip = (conv_hit.Strip_low() + conv_hit.Strip_hi() - 1);
-    assert(1 <= halfstrip && halfstrip <= 64);
+    emtf_assert(1 <= halfstrip && halfstrip <= 64);
 
     int fph2 = lut().get_cppf_ph_lut(conv_hit.Endcap(),
                                      conv_hit.Sector_RPC(),
@@ -640,18 +640,18 @@ void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit, bool isCPPF) co
                                     conv_hit.Ring(),
                                     conv_hit.Subsector_RPC(),
                                     conv_hit.Roll());
-    //assert(abs((fph>>2) - fph2) <= 4); // arbitrary tolerance
-    //assert(abs((th>>2) - th2) <= 1);   // arbitrary tolerance
+    //emtf_assert(abs((fph>>2) - fph2) <= 4); // arbitrary tolerance
+    //emtf_assert(abs((th>>2) - th2) <= 1);   // arbitrary tolerance
     fph = fph2;
     th = th2;
 
-    //assert(0 <= fph && fph < 1024);
-    assert(0 <= fph && fph < 1250);
-    assert(0 <= th && th < 32);
-    assert(th != 0b11111);    // RPC hit valid when data is not all ones
-    fph <<= 2;                // upgrade to full CSC precision by adding 2 zeros
-    th <<= 2;                 // upgrade to full CSC precision by adding 2 zeros
-    th = (th == 0) ? 1 : th;  // protect against invalid value
+    //emtf_assert(0 <= fph && fph < 1024);
+    emtf_assert(0 <= fph && fph < 1250);
+    emtf_assert(0 <= th && th < 32);
+    emtf_assert(th != 0b11111);  // RPC hit valid when data is not all ones
+    fph <<= 2;                   // upgrade to full CSC precision by adding 2 zeros
+    th <<= 2;                    // upgrade to full CSC precision by adding 2 zeros
+    th = (th == 0) ? 1 : th;     // protect against invalid value
   }
 
   if (verbose_ > 1) {  // debug
@@ -795,8 +795,8 @@ void PrimitiveConversion::convert_gem(int pc_sector,
     int fph = emtf::calc_phi_loc_int(glob_phi, conv_hit.PC_sector());
     int th = emtf::calc_theta_int(glob_theta, conv_hit.Endcap());
 
-    assert(0 <= fph && fph < 5000);
-    assert(0 <= th && th < 128);
+    emtf_assert(0 <= fph && fph < 5000);
+    emtf_assert(0 <= th && th < 128);
     th = (th == 0) ? 1 : th;  // protect against invalid value
 
     // _________________________________________________________________________
@@ -973,8 +973,8 @@ void PrimitiveConversion::convert_me0(int pc_sector,
         th = 0;
     }
 
-    assert(0 <= fph && fph < 5000);
-    assert(0 <= th && th < 128);
+    emtf_assert(0 <= fph && fph < 5000);
+    emtf_assert(0 <= th && th < 128);
     th = (th == 0) ? 1 : th;  // protect against invalid value
 
     // _________________________________________________________________________
@@ -1107,9 +1107,9 @@ void PrimitiveConversion::convert_dt(int pc_sector,
         fph = 0;
     }
 
-    assert(0 <= fph && fph < 5400);
-    assert(0 <= th && th < 180);  // Note: eta = 0.73 -> theta_int = 150
-    th = (th == 0) ? 1 : th;      // protect against invalid value
+    emtf_assert(0 <= fph && fph < 5400);
+    emtf_assert(0 <= th && th < 180);  // Note: eta = 0.73 -> theta_int = 150
+    th = (th == 0) ? 1 : th;           // protect against invalid value
 
     // _________________________________________________________________________
     // Output
@@ -1155,7 +1155,7 @@ int PrimitiveConversion::get_zone_code(const EMTFHit& conv_hit, int th) const {
       }
     }
   }
-  assert(zone_code > 0);
+  emtf_assert(zone_code > 0);
   return zone_code;
 }
 
@@ -1197,7 +1197,7 @@ int PrimitiveConversion::get_fs_zone_code(const EMTFHit& conv_hit) const {
 
   unsigned int istation = (conv_hit.Station() - 1);
   unsigned int iring = (conv_hit.Ring() == 4) ? 0 : (conv_hit.Ring() - 1);
-  assert(istation < 4 && iring < 3);
+  emtf_assert(istation < 4 && iring < 3);
   unsigned int zone_code = useNewZones_ ? zone_code_table_new[istation][iring] : zone_code_table[istation][iring];
   return zone_code;
 }
@@ -1225,7 +1225,7 @@ int PrimitiveConversion::get_fs_segment(const EMTFHit& conv_hit, int fw_station,
     fs_chamber = is_neighbor ? 0 : 1 + n;
   }
 
-  assert(fs_history == 0 && (0 <= fs_chamber && fs_chamber < 7) && (0 <= fs_segment && fs_segment < 2));
+  emtf_assert(fs_history == 0 && (0 <= fs_chamber && fs_chamber < 7) && (0 <= fs_segment && fs_segment < 2));
   // fs_segment is a 6-bit word, HHCCCS, encoding the segment number S in the chamber (1 or 2),
   // the chamber number CCC ("j" above: uniquely identifies chamber within station and ring),
   // and the history HH (0 for current BX, 1 for previous BX, 2 for BX before that)
@@ -1257,7 +1257,7 @@ int PrimitiveConversion::get_bt_segment(const EMTFHit& conv_hit, int fw_station,
   if (fw_station == 0 && bt_chamber >= 13)  // ME1 neighbor chambers 13,14,15 -> 10,11,12
     bt_chamber -= 3;
 
-  assert(bt_history == 0 && (0 <= bt_chamber && bt_chamber < 13) && (0 <= bt_segment && bt_segment < 2));
+  emtf_assert(bt_history == 0 && (0 <= bt_chamber && bt_chamber < 13) && (0 <= bt_segment && bt_segment < 2));
   // bt_segment is a 7-bit word, HHCCCCS, encoding the segment number S in the chamber (1 or 2),
   // the chamber number CCCC ("j" above: uniquely identifies chamber within station and ring),
   // and the history HH (0 for current BX, 1 for previous BX, 2 for BX before that)

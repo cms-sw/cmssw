@@ -49,13 +49,13 @@ void SectorProcessor::configure(const GeometryTranslator* tp_geom,
                                 bool bugGMTPhi,
                                 bool promoteMode7,
                                 int modeQualVer) {
-  assert(emtf::MIN_ENDCAP <= endcap && endcap <= emtf::MAX_ENDCAP);
-  assert(emtf::MIN_TRIGSECTOR <= sector && sector <= emtf::MAX_TRIGSECTOR);
+  emtf_assert(emtf::MIN_ENDCAP <= endcap && endcap <= emtf::MAX_ENDCAP);
+  emtf_assert(emtf::MIN_TRIGSECTOR <= sector && sector <= emtf::MAX_TRIGSECTOR);
 
-  assert(tp_geom != nullptr);
-  assert(cond != nullptr);
-  assert(lut != nullptr);
-  assert(pt_assign_engine != nullptr);
+  emtf_assert(tp_geom != nullptr);
+  emtf_assert(cond != nullptr);
+  emtf_assert(lut != nullptr);
+  emtf_assert(pt_assign_engine != nullptr);
 
   tp_geom_ = tp_geom;
   cond_ = cond;

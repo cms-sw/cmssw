@@ -1,8 +1,7 @@
-#include <cassert>
-#include <cstdlib>
 #include "L1Trigger/L1TMuonEndCap/interface/PtLUTVarCalc.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <cstdlib>
 
 // From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLUTVarCalc.cc
 
@@ -24,10 +23,7 @@ int CalcTrackTheta(const int th1,
   else if ((mode % 2) > 0)  // Has station 4 hit
     theta = th4;
 
-  if (not(theta > 0)) {
-    edm::LogError("L1T") << "theta = " << theta;
-    return 0;
-  }
+  emtf_assert(theta > 0);
 
   if (BIT_COMP) {
     int nBits = (mode == 15 ? 4 : 5);
@@ -80,10 +76,7 @@ void CalcDeltaPhis(int& dPh12,
       dPhSign = (dPh34 >= 0 ? +1 : -1);
   }
 
-  if (not(dPhSign != 0)) {
-    edm::LogError("L1T") << "dPhSign = " << dPhSign;
-    return;
-  }
+  emtf_assert(dPhSign != 0);
 
   dPh12 *= dPhSign;
   dPh13 *= dPhSign;
@@ -304,10 +297,7 @@ int CalcBendFromPattern(const int pattern, const int endcap) {
   if (endcap == 1)
     bend *= -1;
 
-  if (not(bend != -99)) {
-    edm::LogError("L1T") << "bend = " << bend;
-    return 0;
-  }
+  emtf_assert(bend != -99);
   return bend;
 }
 

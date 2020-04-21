@@ -1,6 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 
-#include <cassert>
 #include <iostream>
 #include <fstream>
 
@@ -356,7 +355,7 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename,
       size_t ph_index = (th_index * 64) + (halfstrip - 1);
 
       // std::cout << id << " " << rpc_region << " " << rpc_sector << " " << rpc_station << " " << rpc_ring << " "
-      // 		<< rpc_subsector << " " << rpc_roll << " " << halfstrip << " " << th_index << " " << ph_index << std::endl;
+      //    << rpc_subsector << " " << rpc_roll << " " << halfstrip << " " << th_index << " " << ph_index << std::endl;
 
       vec1.at(ph_index) = ph;
       if (halfstrip == 1)

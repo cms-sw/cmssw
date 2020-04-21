@@ -88,8 +88,7 @@ void SingleHitTrack::process(const EMTFHitCollection& conv_hits, EMTFTrackCollec
       else if (zone_code & 0b0001)
         zone = 1;
       else {
-        edm::LogError("L1T") << "EMTF SingleHitTrack.cc - bizzare case where zone_code = " << zone_code;
-        return;
+        emtf_assert(false && "Incorrect zone_code");
       }
 
       EMTFTrack new_trk;
