@@ -29,6 +29,7 @@
 // user include files
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/SharedMemory/interface/BufferInfo.h"
 
 // forward declarations
 
@@ -48,7 +49,7 @@ namespace edm::shared_memory {
     // ---------- member functions ---------------------------
 
     /** setupWorker must be called only once and done before any calls to doTransition. The functor iF should setup values associated
-     with shared memory use, such as manipulating the value from toWorkerBufferIndex(). The call to setupWorker proper synchronizes
+     with shared memory use, such as manipulating the value from toWorkerBufferInfo(). The call to setupWorker proper synchronizes
      the Controller and Worker processes.
      */
     template <typename F>
@@ -83,9 +84,9 @@ namespace edm::shared_memory {
     }
 
     ///This can be used with WriteBuffer to keep Controller and Worker in sync
-    char* toWorkerBufferIndex() { return toWorkerBufferIndex_; }
+    BufferInfo* toWorkerBufferInfo() { return toWorkerBufferInfo_; }
     ///This can be used with ReadBuffer to keep Controller and Worker in sync
-    char* fromWorkerBufferIndex() { return fromWorkerBufferIndex_; }
+    BufferInfo* fromWorkerBufferInfo() { return fromWorkerBufferInfo_; }
 
     void stopWorker() {
       //std::cout <<"stopWorker"<<std::endl;
@@ -104,7 +105,7 @@ namespace edm::shared_memory {
     bool shouldKeepEvent() const { return *keepEvent_; }
 
   private:
-    static char* bufferIndex(const char* iWhich, boost::interprocess::managed_shared_memory& mem);
+    static BufferInfo* bufferInfo(const char* iWhich, boost::interprocess::managed_shared_memory& mem);
 
     std::string uniqueName(std::string iBase) const;
 
@@ -116,8 +117,8 @@ namespace edm::shared_memory {
     int id_;
     std::string smName_;
     boost::interprocess::managed_shared_memory managed_sm_;
-    char* toWorkerBufferIndex_;
-    char* fromWorkerBufferIndex_;
+    BufferInfo* toWorkerBufferInfo_;
+    BufferInfo* fromWorkerBufferInfo_;
 
     boost::interprocess::named_mutex mutex_;
     boost::interprocess::named_condition cndFromMain_;

@@ -57,7 +57,7 @@ const bool operator==(const GenLumiInfoProduct& lhs, const GenLumiInfoProduct& r
   unsigned int rhssize = rhsVector.size();
 
   bool condition = (lhs.getHEPIDWTUP() == rhs.getHEPIDWTUP()) && (lhssize == rhssize);
-  unsigned int passCounts = -999;
+  unsigned int passCounts = 0;
   if (condition) {
     for (unsigned int i = 0; i < lhssize; i++) {
       if (lhsVector[i] == rhsVector[i])
