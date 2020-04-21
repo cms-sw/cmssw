@@ -56,9 +56,7 @@ GeneInfo = cms.Sequence(GeneInfoTask)
 genJetMET = cms.Sequence(genJetMETTask)
 
 from SimPPS.Configuration.GenPPS_cff import *
-PPSTransport = cms.Sequence(PPSTransportTask)
-
-pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genJetMET+PPSTransport)
+pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genJetMET, PPSTransportTask)
 
 # sequence for bare generator result only, without vertex smearing and analysis objects added
 
