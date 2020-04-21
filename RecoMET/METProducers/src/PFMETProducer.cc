@@ -134,18 +134,16 @@ namespace cms {
     desc.add<edm::InputTag>("src", edm::InputTag("particleFlow"));
     desc.add<double>("globalThreshold", 0.);
     desc.add<std::string>("alias", "@module_label");
+    desc.add<bool>("calculateSignificance", false);
+    desc.addOptional<edm::InputTag>("srcJets");
+    desc.addOptional<std::vector<edm::InputTag>>("srcLeptons");
+    desc.addOptional<std::string>("srcJetSF");
+    desc.addOptional<std::string>("srcJetResPt");
+    desc.addOptional<std::string>("srcJetResPhi");
+    desc.addOptional<edm::InputTag>("srcRho");
     edm::ParameterSetDescription params;
     params.setAllowAnything();
-    edm::EmptyGroupDescription emptyGroup;
-    desc.ifValue(edm::ParameterDescription<bool>("calculateSignificance", false, true),
-                 true >> (edm::ParameterDescription<edm::InputTag>("srcJets", true) and
-                          edm::ParameterDescription<std::vector<edm::InputTag>>("srcLeptons", true) and
-                          edm::ParameterDescription<std::string>("srcJetSF", true) and
-                          edm::ParameterDescription<std::string>("srcJetResPt", true) and
-                          edm::ParameterDescription<std::string>("srcJetResPhi", true) and
-                          edm::ParameterDescription<edm::InputTag>("srcRho", true) and
-                          edm::ParameterDescription<edm::ParameterSetDescription>("parameters", params, true)) or
-                     false >> emptyGroup);
+    desc.addOptional<edm::ParameterSetDescription>("parameters", params);
     edm::ParameterSetDescription desc1 = desc;
     edm::ParameterSetDescription desc2 = desc;
     desc1.add<bool>("applyWeight", false);
