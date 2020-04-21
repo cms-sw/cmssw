@@ -182,6 +182,23 @@ namespace {
         }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
+        if (templMap.size() != SiPixelPI::phase1size) {
+          edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
+              << "SiPixelTempateLA maps are not supported for non-Phase1 Pixel geometries !";
+          std::string phase = (templMap.size() < SiPixelPI::phase1size) ? "Phase-0" : "Phase-2";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          canvas.cd();
+          TLatex t2;
+          t2.SetTextAlign(21);
+          t2.SetTextSize(0.1);
+          t2.SetTextAngle(45);
+          t2.SetTextColor(kRed);
+          t2.DrawLatexNDC(0.6, 0.50, Form("%s NOT SUPPORTED!", phase.c_str()));
+          std::string fileName(m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        }
+
         for (auto const& entry : templMap) {
           templ.interpolate(entry.second, 0.f, 0.f, 1.f, 1.f);
 
@@ -197,6 +214,8 @@ namespace {
             theMaps.fillForwardBin("templateLAForward", entry.first, uH);
           }
         }
+
+        theMaps.beautifyAllHistograms();
 
         TCanvas canvas("Canv", "Canv", (myType == t_barrel) ? 1200 : 1500, 1000);
         if (myType == t_barrel) {
@@ -245,6 +264,22 @@ namespace {
         }
 
         std::map<unsigned int, short> templMap = payload->getTemplateIDs();
+        if (templMap.size() != SiPixelPI::phase1size) {
+          edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
+              << "SiPixelTempateIDs maps are not supported for non-Phase1 Pixel geometries !";
+          std::string phase = (templMap.size() < SiPixelPI::phase1size) ? "Phase-0" : "Phase-2";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          canvas.cd();
+          TLatex t2;
+          t2.SetTextAlign(21);
+          t2.SetTextSize(0.1);
+          t2.SetTextAngle(45);
+          t2.SetTextColor(kRed);
+          t2.DrawLatexNDC(0.6, 0.50, Form("%s  NOT SUPPORTED!", phase.c_str()));
+          std::string fileName(m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        }
 
         /*
         std::vector<unsigned int> detids;
@@ -263,6 +298,8 @@ namespace {
             theMaps.fillForwardBin("templateIDsForward", entry.first, entry.second);
           }
         }
+
+        theMaps.beautifyAllHistograms();
 
         TCanvas canvas("Canv", "Canv", (myType == t_barrel) ? 1200 : 1500, 1000);
         if (myType == t_barrel) {

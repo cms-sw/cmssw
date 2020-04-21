@@ -38,6 +38,7 @@ namespace SiPixelPI {
 
   // size of the phase-0 pixel detID list
   static const unsigned int phase0size = 1440;
+  static const unsigned int phase1size = 1856;
 
   //============================================================================
   std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
