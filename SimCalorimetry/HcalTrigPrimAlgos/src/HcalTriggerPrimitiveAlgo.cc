@@ -28,6 +28,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
                                                    uint32_t ZS_threshold,
                                                    int numberOfSamples,
                                                    int numberOfPresamples,
+                                                   int numberOfSamplesQIE11,
+                                                   int numberOfPresamplesQIE11,
                                                    int numberOfSamplesHF,
                                                    int numberOfPresamplesHF,
                                                    bool useTDCInMinBiasBits,
@@ -44,6 +46,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
       ZS_threshold_(ZS_threshold),
       numberOfSamples_(numberOfSamples),
       numberOfPresamples_(numberOfPresamples),
+      numberOfSamplesQIE11_(numberOfSamplesQIE11),
+      numberOfPresamplesQIE11_(numberOfPresamplesQIE11),
       numberOfSamplesHF_(numberOfSamplesHF),
       numberOfPresamplesHF_(numberOfPresamplesHF),
       useTDCInMinBiasBits_(useTDCInMinBiasBits),
@@ -369,71 +373,77 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples& samples, HcalTriggerP
 void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
                                             HcalTriggerPrimitiveDigi& result,
                                             const HcalFinegrainBit& fg_algo) {
-  int shrink = weights_.size() - 1;
-  auto& msb = fgUpgradeMap_[samples.id()];
-  IntegerCaloSamples sum(samples.id(), samples.size());
 
-  HcalDetId detId(samples.id());
-  std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
-  //slide algo window
-  for (int ibin = 0; ibin < int(samples.size()) - shrink; ++ibin) {
-    int algosumvalue = 0;
-    for (unsigned int i = 0; i < weights_.size(); i++) {
-      //add up value * scale factor
-      // In addition, divide by two in the 10 degree phi segmentation region
-      // to mimic 5 degree segmentation for the trigger
-      unsigned int sample = samples[ibin + i];
-      if (sample > QIE11_MAX_LINEARIZATION_ET)
-        sample = QIE11_MAX_LINEARIZATION_ET;
-      if (ids.size() == 2)
-        algosumvalue += int(sample * 0.5 * weights_[i]);
-      else
-        algosumvalue += int(sample * weights_[i]);
-    }
-    if (algosumvalue < 0)
-      sum[ibin] = 0;  // low-side
-                      //high-side
-    //else if (algosumvalue>QIE11_LINEARIZATION_ET) sum[ibin]=QIE11_LINEARIZATION_ET;
-    else
-      sum[ibin] = algosumvalue;  //assign value to sum[]
-  }
+   unsigned int tpSamples = numberOfSamplesQIE11_;
+   unsigned int dgPresamples = samples.presamples(); 
+   unsigned int tpPresamples = numberOfPresamplesQIE11_;
+   unsigned int shift = dgPresamples - tpPresamples;
+   unsigned int dgSamples = samples.size();
 
-  // Align digis and TP
-  int dgPresamples = samples.presamples();
-  int tpPresamples = numberOfPresamples_;
-  int shift = dgPresamples - tpPresamples;
-  int dgSamples = samples.size();
-  int tpSamples = numberOfSamples_;
+   unsigned int shrink = tpSamples - 1;
+   auto& msb = fgUpgradeMap_[samples.id()];
+   IntegerCaloSamples sum(samples.id(), samples.size());
 
-  if ((shift < shrink) || (shift + tpSamples + shrink > dgSamples - (peak_finder_algorithm_ - 1))) {
-    edm::LogInfo("HcalTriggerPrimitiveAlgo::analyze") << "TP presample or size from the configuration file is out of "
-                                                         "the accessible range. Using digi values from data instead...";
-    shift = shrink;
-    tpPresamples = dgPresamples - shrink;
-    tpSamples = dgSamples - (peak_finder_algorithm_ - 1) - shrink - shift;
-  }
+   HcalDetId detId(samples.id());
 
-  std::vector<int> finegrain(tpSamples, false);
+   // Get the |ieta| for current sample
+   unsigned int theIeta = detId.ietaAbs();
 
-  IntegerCaloSamples output(samples.id(), tpSamples);
-  output.setPresamples(tpPresamples);
+   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
+   //slide algo window
+   for(unsigned int ibin = 0; ibin < dgSamples - shrink; ++ibin) {
+      int algosumvalue = 0;
+      for(unsigned int i = 0; i < tpSamples; i++) {
+	      //add up value * scale factor
+	      // In addition, divide by two in the 10 degree phi segmentation region
+	      // to mimic 5 degree segmentation for the trigger
+	      unsigned int sample = samples[ibin+i];
+	      if(sample>QIE11_MAX_LINEARIZATION_ET) sample = QIE11_MAX_LINEARIZATION_ET;
 
-  for (int ibin = 0; ibin < tpSamples; ++ibin) {
-    // ibin - index for output TP
-    // idx - index for samples + shift
-    int idx = ibin + shift;
-    bool isPeak = (sum[idx] > sum[idx - 1] && sum[idx] >= sum[idx + 1] && sum[idx] > theThreshold);
+          // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
+          double segmentationFactor = 1.0;
+          if (ids.size() == 2) { segmentationFactor = 0.5; } 
 
-    if (isPeak) {
-      output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
-    } else {
-      // Not a peak
-      output[ibin] = 0;
-    }
-    // peak-finding is not applied for FG bits
-    finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
-  }
-  outcoder_->compress(output, finegrain, result);
+          // Based on the |ieta| of the sample, retrieve the correct region weight
+          double theWeight = weightsQIE11_[theIeta][i];
+
+	      algosumvalue += int(sample * segmentationFactor * theWeight);
+      }
+      if (algosumvalue<0) sum[ibin]=0;            // low-side
+                                                  //high-side
+      //else if (algosumvalue>QIE11_LINEARIZATION_ET) sum[ibin]=QIE11_LINEARIZATION_ET;
+      else sum[ibin] = algosumvalue;              //assign value to sum[]
+   }
+
+   std::vector<int> finegrain(tpSamples,false);
+
+   IntegerCaloSamples output(samples.id(), tpSamples);
+   output.setPresamples(tpPresamples);
+
+   for (unsigned int ibin = 0; ibin < tpSamples; ++ibin) {
+      // ibin - index for output TP
+      // idx - index for samples + shift - tpPresamples
+      // Subtract tpPresamples one more time to get SOI in the right position
+      int idx = ibin + shift - tpPresamples;
+
+      // When idx is <= 0 peakfind would compare out-of-bounds of the vector. Avoid this ambiguity
+      if (idx <= 0) {
+         output[ibin] = 0;
+         continue;
+      }
+
+      bool isPeak = (sum[idx] > sum[idx-1] && sum[idx] >= sum[idx+1] && sum[idx] > theThreshold);
+
+      if (isPeak){
+         output[ibin] = std::min<unsigned int>(sum[idx],QIE11_MAX_LINEARIZATION_ET);
+      } else {
+         // Not a peak
+         output[ibin] = 0;
+      }
+      // peak-finding is not applied for FG bits
+      finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
+   }
+   outcoder_->compress(output, finegrain, result);
 }
 
 void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples& samples,
@@ -833,6 +843,16 @@ void HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id,
     it->second[i][1][depth - 1] = bits[i][1];
   }
 }
+
+void HcalTriggerPrimitiveAlgo::setWeightsQIE11(const edm::ParameterSet& weightsQIE11) {
+
+    // Names are just abs(ieta) for HBHE
+    std::vector<std::string> ietaStrs = weightsQIE11.getParameterNames();
+    for (auto& ietaStr : ietaStrs) {
+        weightsQIE11_[std::stod(ietaStr)] = weightsQIE11.getUntrackedParameter<std::vector<double>>(ietaStr);
+    }
+}
+
 
 void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo) {
   if (algo <= 0 || algo > 2)
