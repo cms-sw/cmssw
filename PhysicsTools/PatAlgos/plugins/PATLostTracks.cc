@@ -77,6 +77,8 @@ namespace pat {
     const int covarianceVersion_;
     const int covarianceSchema_;
     std::vector<reco::TrackBase::TrackQuality> qualsToAutoAccept_;
+    const edm::EDGetTokenT<reco::MuonCollection> muons_;
+    StringCutObjectSelector<reco::Track, false> passThroughCut_;
   };
 }
 
@@ -233,7 +235,8 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
 					    const reco::VertexRef& pvSlimmed,
 					    const reco::VertexRefProd& pvSlimmedColl,
 					    const reco::Vertex& pvOrig,
-					    const pat::PATLostTracks::TrkStatus trkStatus)const
+					    const pat::PATLostTracks::TrkStatus trkStatus,
+                                            edm::Handle<reco::MuonCollection> muons) const
 {
     const float mass = 0.13957018;
     
