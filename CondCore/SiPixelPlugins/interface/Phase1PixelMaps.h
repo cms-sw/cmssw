@@ -194,6 +194,21 @@ public:
   }
 
   //============================================================================
+  void beautifyAllHistograms() {
+    for (const auto& vec : pxbTh2PolyBarrel) {
+      for (const auto& plot : vec.second) {
+        SiPixelPI::makeNicePlotStyle(plot);
+      }
+    }
+
+    for (const auto& vec : pxfTh2PolyForward) {
+      for (const auto& plot : vec.second) {
+        SiPixelPI::makeNicePlotStyle(plot);
+      }
+    }
+  }
+
+  //============================================================================
   void DrawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas) {
     canvas.Divide(2, 2);
     for (int i = 1; i <= 4; i++) {
