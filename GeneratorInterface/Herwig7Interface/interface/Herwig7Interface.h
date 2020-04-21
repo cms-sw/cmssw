@@ -24,9 +24,13 @@ Marco A. Harrendorf
 namespace ThePEG {
 
   template <>
-  struct HepMCTraits<HepMC::GenEvent>
-      : public HepMCTraitsBase<HepMC::GenEvent, HepMC::GenParticle, HepMC::GenVertex, HepMC::Polarization, HepMC::PdfInfo> {
-  };
+  struct HepMCTraits<HepMC::GenEvent> : public HepMCTraitsBase<HepMC::GenEvent,
+                                                               HepMC::GenParticle,
+                                                               HepMC::GenParticle *,
+                                                               HepMC::GenVertex,
+                                                               HepMC::GenVertex *,
+                                                               HepMC::Polarization,
+                                                               HepMC::PdfInfo> {};
 
 }  // namespace ThePEG
 
