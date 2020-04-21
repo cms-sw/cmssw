@@ -516,7 +516,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //tcMETmuCorValueMap  = *tcMETmuCorValueMap_h;
     }
 
-    if ((embedPfEcalEnergy_) || (embedPFCandidate_)) {
+    if (embedPfEcalEnergy_ || embedPFCandidate_) {
       // get the PFCandidates of type muons
       iEvent.getByToken(pfMuonToken_, pfMuons);
     }
@@ -604,7 +604,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (embedTcMETMuonCorrs_)
         aMuon.embedTcMETMuonCorrs((*tcMETMuonCorrs)[muonRef]);
 
-      if ((embedPfEcalEnergy_) || (embedPFCandidate_)) {
+      if (embedPfEcalEnergy_ || embedPFCandidate_) {
         if (embedPfEcalEnergy_)
           aMuon.setPfEcalEnergy(-99.0);
         unsigned index = 0;

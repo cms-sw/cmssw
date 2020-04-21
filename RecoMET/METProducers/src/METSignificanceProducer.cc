@@ -88,24 +88,23 @@ namespace cms {
     // compute the significance
     //
     double sumPtUnclustered = 0;
-    reco::METCovMatrix cov;
+    const edm::ValueMap<float>* weightsPtr = nullptr;
     if (met.isWeighted()) {
       if (weightsToken_.isUninitialized())
         throw cms::Exception("InvalidInput")
             << "MET is weighted (e.g. PUPPI), but no weights given in METSignificanceProducer\n";
-      cov = metSigAlgo_->getCovariance(*jets,
-                                       leptons,
-                                       pfCandidates,
-                                       *rho,
-                                       resPtObj,
-                                       resPhiObj,
-                                       resSFObj,
-                                       event.isRealData(),
-                                       sumPtUnclustered,
-                                       &*weights);
-    } else
-      cov = metSigAlgo_->getCovariance(
-          *jets, leptons, pfCandidates, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered);
+      weightsPtr = &*weights;
+    }
+    reco::METCovMatrix cov = metSigAlgo_->getCovariance(*jets,
+                                                        leptons,
+                                                        pfCandidates,
+                                                        *rho,
+                                                        resPtObj,
+                                                        resPhiObj,
+                                                        resSFObj,
+                                                        event.isRealData(),
+                                                        sumPtUnclustered,
+                                                        weightsPtr);
     double sig = metSigAlgo_->getSignificance(cov, met);
 
     auto significance = std::make_unique<double>();

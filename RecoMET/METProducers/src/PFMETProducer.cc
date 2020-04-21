@@ -8,6 +8,7 @@
 //____________________________________________________________________________||
 #include "RecoMET/METProducers/interface/PFMETProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 
 //____________________________________________________________________________||
 namespace cms {
@@ -18,14 +19,16 @@ namespace cms {
         inputToken_(consumes<edm::View<reco::Candidate>>(src_)),
         calculateSignificance_(iConfig.getParameter<bool>("calculateSignificance")),
         globalThreshold_(iConfig.getParameter<double>("globalThreshold")),
-        applyWeight_(iConfig.getParameter<bool>("applyWeight")) {
+        applyWeight_(iConfig.getParameter<bool>("applyWeight")),
+        weights_(nullptr) {
     if (applyWeight_) {
       edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
+      if (srcWeights.label().empty())
+        throw cms::Exception("InvalidInput") << "applyWeight set to True, but no weights given in PFMETProducer\n";
       if (srcWeights.label() == src_.label())
         edm::LogWarning("PFMETProducer")
             << "Particle and weights collection have the same label. You may be applying the same weights twice.\n";
-      if (!srcWeights.label().empty())
-        weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
+      weightsToken_ = consumes<edm::ValueMap<float>>(srcWeights);
     }
     if (calculateSignificance_) {
       metSigAlgo_ = new metsig::METSignificance(iConfig);
@@ -52,27 +55,19 @@ namespace cms {
     edm::Handle<edm::View<reco::Candidate>> input;
     event.getByToken(inputToken_, input);
 
-    if ((applyWeight_) && (!weightsToken_.isUninitialized()))
+    if (applyWeight_)
       weights_ = &event.get(weightsToken_);
 
     METAlgo algo;
     CommonMETData commonMETdata;
-    if (applyWeight_) {
-      if (weightsToken_.isUninitialized())
-        throw cms::Exception("InvalidInput") << "applyWeight set to True, but no weights given in PFMETProducer\n";
-      commonMETdata = algo.run(*input.product(), globalThreshold_, weights_);
-    } else
-      commonMETdata = algo.run(*input.product(), globalThreshold_);
+    commonMETdata = algo.run(*input.product(), globalThreshold_, weights_);
 
     const math::XYZTLorentzVector p4(commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
     const math::XYZPoint vtx(0.0, 0.0, 0.0);
 
     PFSpecificAlgo pf;
     SpecificPFMETData specific;
-    if (applyWeight_)
-      specific = pf.run(*input.product(), weights_);
-    else
-      specific = pf.run(*input.product());
+    specific = pf.run(*input.product(), weights_);
 
     reco::PFMET pfmet(specific, commonMETdata.sumet, p4, vtx);
     pfmet.setIsWeighted(applyWeight_);
@@ -120,21 +115,16 @@ namespace cms {
 
     //Compute the covariance matrix and fill it
     double sumPtUnclustered = 0;
-    reco::METCovMatrix cov;
-    if (applyWeight_)
-      cov = metSigAlgo_->getCovariance(*inputJets,
-                                       leptons,
-                                       candInput,
-                                       *rho,
-                                       resPtObj,
-                                       resPhiObj,
-                                       resSFObj,
-                                       event.isRealData(),
-                                       sumPtUnclustered,
-                                       weights_);
-    else
-      cov = metSigAlgo_->getCovariance(
-          *inputJets, leptons, candInput, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered);
+    reco::METCovMatrix cov = metSigAlgo_->getCovariance(*inputJets,
+                                                        leptons,
+                                                        candInput,
+                                                        *rho,
+                                                        resPtObj,
+                                                        resPhiObj,
+                                                        resSFObj,
+                                                        event.isRealData(),
+                                                        sumPtUnclustered,
+                                                        weights_);
 
     return cov;
   }
@@ -142,18 +132,20 @@ namespace cms {
   void PFMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src", edm::InputTag("particleFlow"));
-    desc.add<bool>("calculateSignificance", false);
     desc.add<double>("globalThreshold", 0.);
-    desc.add<std::string>("alias", "pfMet");
-    desc.addOptional<edm::InputTag>("srcJets");
-    desc.addOptional<std::vector<edm::InputTag>>("srcLeptons");
-    desc.addOptional<std::string>("srcJetSF");
-    desc.addOptional<std::string>("srcJetResPt");
-    desc.addOptional<std::string>("srcJetResPhi");
-    desc.addOptional<edm::InputTag>("srcRho");
+    desc.add<std::string>("alias", "@module_label");
     edm::ParameterSetDescription params;
     params.setAllowAnything();
-    desc.addOptional<edm::ParameterSetDescription>("parameters", params);
+    edm::EmptyGroupDescription emptyGroup;
+    desc.ifValue(edm::ParameterDescription<bool>("calculateSignificance", false, true),
+                 true >> (edm::ParameterDescription<edm::InputTag>("srcJets", true) and
+                          edm::ParameterDescription<std::vector<edm::InputTag>>("srcLeptons", true) and
+                          edm::ParameterDescription<std::string>("srcJetSF", true) and
+                          edm::ParameterDescription<std::string>("srcJetResPt", true) and
+                          edm::ParameterDescription<std::string>("srcJetResPhi", true) and
+                          edm::ParameterDescription<edm::InputTag>("srcRho", true) and
+                          edm::ParameterDescription<edm::ParameterSetDescription>("parameters", params, true)) or
+                     false >> emptyGroup);
     edm::ParameterSetDescription desc1 = desc;
     edm::ParameterSetDescription desc2 = desc;
     desc1.add<bool>("applyWeight", false);

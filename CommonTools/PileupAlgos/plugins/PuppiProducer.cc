@@ -98,6 +98,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       double pD0 = -9999;
       int pVtxId = -9999;
       bool lFirst = true;
+      bool isLepton = ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13));
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       if (lPack == nullptr) {
         const reco::PFCandidate* pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
@@ -151,8 +152,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if (std::abs(pReco.charge) == 0) {
           pReco.id = 0;
         } else {
-          if ((fPuppiNoLep) &&
-              ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13) || (std::abs(pReco.pdgId) == 15)))
+          if ((fPuppiNoLep) && (isLepton))
             pReco.id = 3;
           else if (tmpFromPV == 0) {
             pReco.id = 2;
@@ -184,8 +184,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           pReco.id = 0;
         }
         if (std::abs(pReco.charge) > 0) {
-          if ((fPuppiNoLep) &&
-              ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13) || (std::abs(pReco.pdgId) == 15)))
+          if ((fPuppiNoLep) && (isLepton))
             pReco.id = 3;
           else if (lPack->fromPV() == 0) {
             pReco.id = 2;
