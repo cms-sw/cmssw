@@ -86,7 +86,7 @@ namespace emtf {
     int result = 0;
     if (station > 1 && ring > 1) {
       result = ((static_cast<unsigned>(chamber - 3) & 0x7f) / 6) + 1;  // ch 3-8->1, 9-14->2, ... 1,2 -> 6
-    } else if (station == 1 && ring != 4) {
+    } else if (station == 1) {
       result = ((static_cast<unsigned>(chamber - 3) & 0x7f) / 6) + 1;  // ch 3-8->1, 9-14->2, ... 1,2 -> 6
     } else {
       result = ((static_cast<unsigned>(chamber - 2) & 0x1f) / 3) + 1;  // ch 2-4-> 1, 5-7->2, ...

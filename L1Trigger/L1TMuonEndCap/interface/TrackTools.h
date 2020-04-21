@@ -3,9 +3,6 @@
 
 #include <cmath>
 
-#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
-#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
-
 namespace emtf {
 
   // Please refers to DN-2015/017 for uGMT conventions

@@ -1,6 +1,5 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConversion.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"  // for special treatments for iRPC
