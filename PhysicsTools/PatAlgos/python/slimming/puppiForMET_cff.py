@@ -14,14 +14,14 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
     task = getPatAlgosToolsTask(process)
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     task.add(process.puppi)
-    process.puppi.candName = cms.InputTag('packedPFCandidates')
+    process.puppi.candName = 'packedPFCandidates'
     process.puppi.clonePackedCands = True
-    process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+    process.puppi.vertexName = 'offlineSlimmedPrimaryVertices'
     process.puppi.useExistingWeights = True
     task.add(process.puppiNoLep)
-    process.puppiNoLep.candName = cms.InputTag('packedPFCandidates')
+    process.puppiNoLep.candName = 'packedPFCandidates'
     process.puppiNoLep.clonePackedCands = True
-    process.puppiNoLep.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+    process.puppiNoLep.vertexName = 'offlineSlimmedPrimaryVertices'
     process.puppiNoLep.useExistingWeights = True
 
     #making a sequence for people running the MET tool in scheduled mode

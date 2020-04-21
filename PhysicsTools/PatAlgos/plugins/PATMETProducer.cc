@@ -192,24 +192,22 @@ const reco::METCovMatrix PATMETProducer::getMETCovMatrix(const edm::Event& event
   JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(iSetup, jetSFType_);
 
   //Compute the covariance matrix and fill it
-  reco::METCovMatrix cov;
+  const edm::ValueMap<float>* weightsPtr = nullptr;
   if (met.isWeighted()) {
     if (weightsToken_.isUninitialized())
       throw cms::Exception("InvalidInput") << "MET is weighted (e.g. PUPPI), but no weights given in PATMETProducer\n";
-    else
-      cov = metSigAlgo_->getCovariance(*inputJets,
-                                       leptons,
-                                       inputCands,
-                                       *rho,
-                                       resPtObj,
-                                       resPhiObj,
-                                       resSFObj,
-                                       event.isRealData(),
-                                       sumPtUnclustered,
-                                       &*weights);
-  } else
-    cov = metSigAlgo_->getCovariance(
-        *inputJets, leptons, inputCands, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData(), sumPtUnclustered);
+    weightsPtr = &*weights;
+  }
+  reco::METCovMatrix cov = metSigAlgo_->getCovariance(*inputJets,
+                                                      leptons,
+                                                      inputCands,
+                                                      *rho,
+                                                      resPtObj,
+                                                      resPhiObj,
+                                                      resSFObj,
+                                                      event.isRealData(),
+                                                      sumPtUnclustered,
+                                                      weightsPtr);
 
   return cov;
 }
