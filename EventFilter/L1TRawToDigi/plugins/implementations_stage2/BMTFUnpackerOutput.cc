@@ -74,7 +74,7 @@ namespace l1t {
 
           if (isKalman) {
             LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi()
-                            << " diplacedPt = " << muCand.hwPt2();
+                            << " diplacedPt = " << muCand.hwPtUnconstrained();
           } else {
             LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
           }
