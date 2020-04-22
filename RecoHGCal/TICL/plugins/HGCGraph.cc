@@ -233,3 +233,5 @@ void HGCGraphT<TILE>::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtu
     }
   }
 }
+template class HGCGraphT<TICLLayerTiles>;
+template class HGCGraphT<TICLLayerTilesHFNose>;
