@@ -79,6 +79,7 @@ namespace pat {
     std::vector<reco::TrackBase::TrackQuality> qualsToAutoAccept_;
     const edm::EDGetTokenT<reco::MuonCollection> muons_;
     StringCutObjectSelector<reco::Track, false> passThroughCut_;
+    bool allowPassThroughAndMuonId_;
   };
 }
 
@@ -98,7 +99,8 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
   covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
   covarianceSchema_(iConfig.getParameter<int >("covarianceSchema")),
   muons_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-  passThroughCut_(iConfig.getParameter<std::string>("passThroughCut")) {
+  passThroughCut_(iConfig.getParameter<std::string>("passThroughCut")),
+  allowPassThroughAndMuonId_(iConfig.getParameter<bool>("allowPassThroughAndMuonId")){
   std::vector<std::string> trkQuals(iConfig.getParameter<std::vector<std::string> >("qualsToAutoAccept"));
   std::transform(trkQuals.begin(),trkQuals.end(),std::back_inserter(qualsToAutoAccept_),reco::TrackBase::qualityByName);
   
@@ -227,7 +229,7 @@ bool pat::PATLostTracks::passTrkCuts(const reco::Track& tr)const
                              tr.hitPattern().numberOfValidPixelHits() >= minPixelHits_;
     const bool passTrkQual = passesQuality(tr,qualsToAutoAccept_);
 
-    return passTrkHits || passTrkQual || passThroughCut_(tr);
+    return passTrkHits || passTrkQual || (passThroughCut_(tr) && allowPassThroughAndMuonId_);
 }
 
 void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& cands,
@@ -245,10 +247,12 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
     else if(trkStatus==TrkStatus::PFPOSITRON) id=-11; 
 
     // assign the proper pdgId for tracks that are reconstructed as a muon
-    for (auto& mu : *muons) {
-      if (reco::TrackRef(mu.innerTrack()) == trk) {
-        id = -13 * trk->charge();
-        break;
+    if (allowPassThroughAndMuonId_){
+      for (auto& mu : *muons) {
+        if (reco::TrackRef(mu.innerTrack()) == trk) {
+          id = -13 * trk->charge();
+          break;
+        }
       }
     }
 
