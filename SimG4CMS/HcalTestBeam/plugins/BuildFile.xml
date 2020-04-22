@@ -22,4 +22,3 @@
 <library   file="*.cc" name="SimG4CMSHcalTestBeamPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
-
