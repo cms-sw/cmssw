@@ -1,12 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DQMOffline/Muon/interface/DTSegmentsTask.h"
-#include "DQMOffline/Muon/interface/MuonTrackResidualsTest.h"
-#include "DQMOffline/Muon/interface/MuonRecoTest.h"
 #include "DQMOffline/Muon/interface/EfficiencyPlotter.h"
-#include "DQMOffline/Muon/interface/MuonTestSummary.h"
-
 #include "DQMOffline/Muon/interface/DiMuonHistograms.h"
 #include "DQMOffline/Muon/interface/MuonKinVsEtaAnalyzer.h"
 #include "DQMOffline/Muon/interface/EfficiencyAnalyzer.h"
@@ -22,11 +17,8 @@
 #include "DQMOffline/Muon/interface/TriggerMatchMonitor.h"
 #include "DQMOffline/Muon/interface/TriggerMatchEfficiencyPlotter.h"
 
-DEFINE_FWK_MODULE(MuonTrackResidualsTest);
-DEFINE_FWK_MODULE(MuonRecoTest);
+
 DEFINE_FWK_MODULE(EfficiencyPlotter);
-DEFINE_FWK_MODULE(DTSegmentsTask);
-DEFINE_FWK_MODULE(MuonTestSummary);
 DEFINE_FWK_MODULE(DiMuonHistograms);
 DEFINE_FWK_MODULE(MuonKinVsEtaAnalyzer);
 DEFINE_FWK_MODULE(EfficiencyAnalyzer);
