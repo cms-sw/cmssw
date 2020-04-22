@@ -23,6 +23,8 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
                ps.getParameter<uint32_t>("ZS_threshold"),
                ps.getParameter<int>("numberOfSamples"),
                ps.getParameter<int>("numberOfPresamples"),
+               ps.getParameter<int>("numberOfSamplesQIE11"),
+               ps.getParameter<int>("numberOfPresamplesQIE11"),
                ps.getParameter<int>("numberOfSamplesHF"),
                ps.getParameter<int>("numberOfPresamplesHF"),
                ps.getParameter<bool>("useTDCInMinBiasBits"),
