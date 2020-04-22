@@ -86,6 +86,7 @@ for ls in range(options.minLumi, options.maxLumi+1):
     command = "edmFileUtil --catalog file:/cvmfs/cms-ib.cern.ch/SITECONF/local/PhEDEx/storage.xml?protocol=xrootd --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0]
     print(command)
     events = subprocess.check_output(command, shell=True)
+    events = str(events, 'utf-8')
     events = events.split('\n')
     events = filter(lambda x: x != "", events)
     events = map(int, events)
