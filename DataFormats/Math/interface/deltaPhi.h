@@ -9,6 +9,12 @@
  */
 
 #include <cmath>
+#include <iostream>
+#include <limits>
+#include <iomanip>
+#include <iostream>
+#include <type_traits>
+#include <algorithm>
 #include "DataFormats/Math/interface/angle_units.h"
 
 namespace reco {
@@ -38,7 +44,8 @@ namespace reco {
 
   template <typename T>
   constexpr T deltaPhi(T phi1, T phi2) {
-    constexpr T epsilon = 1.e-13;
+    std::cout << std::fixed << std::setprecision(20) << "phi1=" << phi1 << "\nphi2=" << phi2 << '\n';
+    constexpr T epsilon = std::numeric_limits<T>::epsilon();
     constexpr T diff = phi1 - phi2;
     if (std::abs(diff) <= epsilon)
       return (0.);
@@ -72,7 +79,7 @@ namespace angle0to2pi {
   inline constexpr valType make0To2pi(valType angle) {
     constexpr valType twoPi = 2._pi;
     constexpr valType oneOverTwoPi = 1. / twoPi;
-    constexpr valType epsilon = 1.e-13;
+    constexpr valType epsilon = std::numeric_limits<valType>::epsilon();
 
     if ((std::abs(angle) <= epsilon) || (std::abs(twoPi - std::abs(angle)) <= epsilon))
       return (0.);
