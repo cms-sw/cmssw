@@ -4,7 +4,7 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -95,7 +95,7 @@ private:
   MonitorElement* muColl1TrkAddrSize;
   MonitorElement* muColl1TrkAddr;
   MonitorElement* muColl1hwDXY;
-  MonitorElement* muColl1hwPt2;
+  MonitorElement* muColl1hwPtUnconstrained;
 
   MonitorElement* muColl2BxRange;
   MonitorElement* muColl2nMu;
@@ -112,7 +112,7 @@ private:
   MonitorElement* muColl2TrkAddrSize;
   MonitorElement* muColl2TrkAddr;
   MonitorElement* muColl2hwDXY;
-  MonitorElement* muColl2hwPt2;
+  MonitorElement* muColl2hwPtUnconstrained;
 };
 
 #endif

@@ -80,7 +80,8 @@ void L1TStage2BMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& i
   bmtf_hwQual_bx->setTitle("; HW Quality; BX");
 
   bmtf_hwDXY = ibooker.book1D(histoPrefix + "_hwDXY", "HW DXY", 4, 0, 4);
-  bmtf_hwPt2 = ibooker.book1D(histoPrefix + "_hwPt2", "HW p_{T}2", 512, -0.5, 511.5);
+  bmtf_hwPtUnconstrained =
+      ibooker.book1D(histoPrefix + "_hwPtUnconstrained", "HW p_{T} unconstrained", 512, -0.5, 511.5);
 
   // bmtf_twinmuxInput_PhiBX = ibooker.book1D(histoPrefix+"_twinmuxInput_PhiBX"  , "TwinMux Input Phi BX"      ,  5, -2.5, 2.5);
   // bmtf_twinmuxInput_PhiPhi = ibooker.book1D(histoPrefix+"_twinmuxInput_PhiPhi"  , "TwinMux Input Phi HW Phi"      , 201, -100.5, 100.5);
@@ -136,7 +137,7 @@ void L1TStage2BMTF::analyze(const edm::Event& eve, const edm::EventSetup& eveSet
       bmtf_proc->Fill(itMuon->processor());
 
       bmtf_hwDXY->Fill(itMuon->hwDXY());
-      bmtf_hwPt2->Fill(itMuon->hwPt2());
+      bmtf_hwPtUnconstrained->Fill(itMuon->hwPtUnconstrained());
 
       if (fabs(bmtfMuon->getLastBX() - bmtfMuon->getFirstBX()) > 3) {
         bmtf_wedge_bx->Fill(itMuon->processor(), itBX);
