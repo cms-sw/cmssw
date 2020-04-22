@@ -81,6 +81,11 @@ def parse_args():
         required=False,
         help="If enabled, do all JetMET plots"
     )
+    parser.add_argument("--doPFCandPlots",
+        action='store_true',
+        required=False,
+        help="If enabled, do all PFCandidate plots"
+    )
 
     parser.add_argument( "--offsetVar", type=str,   action='store', default="npv", help="variable to bin offset eT" )
     parser.add_argument( "--offsetDR",  type=float, action='store', default=0.4,   help="offset deltaR value" )
@@ -135,7 +140,11 @@ def parse_args():
     if args.doMETPlots:
         doMETPlots(files, plots)
 
-    return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR
+
+    if args.doPFCandPlots:
+        doPFCandPlots(files, plots)
+
+    return samples, plots, args.doOffsetPlots, args.offsetVar, args.offsetDR, args.doPFCandPlots
 
 # function that does METValidation from JetMET
 def doMETPlots(files, plots):
@@ -162,6 +171,23 @@ def doMETPlots(files, plots):
         for JetHistogram in JetHistograms:
             plots += [(JetValFolderDir, "", JetHistogram)]
 
+# does PFCandidate Plots
+def doPFCandPlots(files, plots):
+    #we are going to hard code the end part of the histogram names because there's only 4
+    hist_list = ["Charge", "Eta", "Phi", "Pt(log GeV)", "Pt(log freq)"]
+    f = ROOT.TFile(files[0])
+    d = f.Get("DQMData/Run 1/ParticleFlow/Run summary/PackedCandidates")
+    #get the name of the folders, which can use to complete plot name as well probably
+    PFFolderNames = []
+
+    for i in d.GetListOfKeys():
+        PFFolderNames.append(i.GetName())
+
+    for PFFolderName in PFFolderNames:
+        for hist in hist_list:
+            plots += [(PFFolderName, "", [PFFolderName + hist])]
+
+
 def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
     folders = [folder]
     #plots = [PlotGroup(name, [Plot(h, **opts) for h in histograms])]
@@ -187,6 +213,23 @@ def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
             plot.setProperties(legendDy=0.24)
             plot.setProperties(legendDx=0.05)
         plotter.append("JetMET" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="JetMET", section=section))
+    if "PackedCandidates" in folder:
+        for h in histograms:
+            if ("log freq" in h):
+                #plotting log in y for pt
+                plots = [PlotGroup(h, [Plot(h, ymin = pow(10,-1), ylog = True, **opts)])]
+
+            else:
+                plots = [PlotGroup(h, [Plot(h, **opts)])]
+
+            #plots = [PlotGroup(h, [Plot(h, **opts)])]
+        for plot in plots:
+            plot.setProperties(legendDw=-0.5)
+            plot.setProperties(legendDh=0.01)
+            plot.setProperties(legendDy=0.24)
+            plot.setProperties(legendDx=0.05)
+        plotter.append("ParticleFlow/PackedCandidates/" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="PackedCandidates", section= section))
+
 
 def main():
 
@@ -207,9 +250,10 @@ def main():
     for iptbin in range(len(ptbins)-1):
         plot_opts["response_{0:.0f}_{1:.0f}".format(ptbins[iptbin], ptbins[iptbin+1])] = {"stat": True}
 
-    samples, plots, doOffsetPlots, offsetVar, offsetDR = parse_args()
+    samples, plots, doOffsetPlots, offsetVar, offsetDR, doPFCandPlots = parse_args()
 
     plotter = Plotter()
+
 
     for folder, name, histograms in plots:
         opts = plot_opts.get(name, {})
@@ -218,14 +262,17 @@ def main():
         #fullfolder =  "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folder)
         fullJetFolder = "DQMData/Run 1/ParticleFlow/Run summary/{0}".format(folder)
         fullMETFolder = "DQMData/Run 1/JetMET/Run summary/{0}".format(folder)
+        fullPFCandFolder = "DQMData/Run 1/ParticleFlow/Run summary/PackedCandidates/{0}".format(folder)
         print "Booking histogram group {0}={1} from folder {2}".format(name, histograms, folder)
         if "Offset/" in folder:
             opts = {'xtitle':'Default', 'ytitle':'Default'}
             addPlots(plotter, fullJetFolder, name, folder, histograms, opts, True)
-        elif "JetResponse" in folder:
+        if "JetResponse" in folder:
             addPlots(plotter, fullJetFolder, name, folder, histograms, opts)
-        elif "METValidation" in folder or "JetValidation" in folder:
+        if "METValidation" in folder or "JetValidation" in folder:
             addPlots(plotter, fullMETFolder, name, folder, histograms, opts)
+        if doPFCandPlots:
+            addPlots(plotter, fullPFCandFolder, name, folder, histograms, opts)
 
     outputDir = "plots" # Plot output directory
     description = "Simple ParticleFlow comparison"

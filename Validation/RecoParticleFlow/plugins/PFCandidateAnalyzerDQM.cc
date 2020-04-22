@@ -13,6 +13,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "TH1F.h"
+
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -21,11 +23,12 @@
 #include <ostream>
 #include <map>
 #include <string>
-
+#include <cstring>
+#include <typeinfo>
 
 class PFCandidateAnalyzerDQM : public DQMEDAnalyzer {
 public:
-  explicit PFCandidateAnalyzerDQM ( const edm::ParameterSet&);
+  explicit PFCandidateAnalyzerDQM(const edm::ParameterSet&);
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 protected:
@@ -33,19 +36,21 @@ protected:
 
 private:
   //from config file
+  edm::InputTag PFCandTag;
   edm::EDGetTokenT<edm::View<pat::PackedCandidate>> PFCandToken;
-  std::map<std::string, MonitorElement *> me;
-  
+  std::vector<double> etabins;
+  std::map<std::string, MonitorElement*> me;
+
   std::map<uint32_t, std::string> pdgMap;
 };
 
-
-
 // constructor
 PFCandidateAnalyzerDQM::PFCandidateAnalyzerDQM(const edm::ParameterSet& iConfig) {
-  PFCandToken = consumes<edm::View<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("PFCandType"));
-  
-  //create map of pdgId 
+  PFCandTag = iConfig.getParameter<edm::InputTag>("PFCandType");
+  PFCandToken = consumes<edm::View<pat::PackedCandidate>>(PFCandTag);
+  etabins = iConfig.getParameter<std::vector<double>>("etabins");
+
+  //create map of pdgId
   std::vector<uint32_t> pdgKeys = iConfig.getParameter<std::vector<uint32_t>>("pdgKeys");
   std::vector<std::string> pdgStrs = iConfig.getParameter<std::vector<std::string>>("pdgStrs");
   for (int i = 0, n = pdgKeys.size(); i < n; i++)
@@ -53,59 +58,68 @@ PFCandidateAnalyzerDQM::PFCandidateAnalyzerDQM(const edm::ParameterSet& iConfig)
 }
 
 void PFCandidateAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const&, edm::EventSetup const&) {
-    // all candidate
-  
-  booker.setCurrentFolder("ParticleFlow/PFCandidates/AllCandidates");
-  
-  me["CandidatePt"] = booker.book1D("CandidatePt", "CandidatePt", 1000, 0, 1000);
-  me["CandidateEta"] = booker.book1D("CandidateEta", "CandidateEta", 200, -5, 5);
-  me["CandidatePhi"] = booker.book1D("CandidatePhi", "CandidatePhi", 200, -M_PI, M_PI);
-  me["CandidateCharge"] = booker.book1D("CandidateCharge", "CandidateCharge", 5, -2, 2);
-    
-  for (auto& pair: pdgMap){
-    booker.setCurrentFolder("ParticleFlow/PFCandidates/" + pair.second);
-    me[pair.second + "Pt"] = booker.book1D(pair.second + "Pt", pair.second + "Pt", 1000, 0, 1000);
-    me[pair.second + "Eta"] = booker.book1D(pair.second + "Eta", pair.second + "Eta", 200, -5, 5);
-    me[pair.second + "Phi"] = booker.book1D(pair.second + "Phi", pair.second + "Phi", 200, -M_PI, M_PI);
-    me[pair.second + "Charge"] = booker.book1D(pair.second + "Charge", pair.second + "Charge", 5, -2, 2);
-  }
+  // all candidate
 
+  booker.setCurrentFolder("ParticleFlow/PackedCandidates/AllCandidate");
+
+  // for eta binning
+  int n = etabins.size() - 1;
+  float etabinArray[etabins.size()];
+  std::copy(etabins.begin(), etabins.end(), etabinArray);
+
+  //eta has variable bin sizes, use 4th def of TH1F constructor
+  TH1F* etaHist = new TH1F("AllCandidateEta", "AllCandidateEta", n, etabinArray);
+  me["AllCandidateEta"] = booker.book1D("AllCandidateEta", etaHist);
+
+  me["AllCandidatePt(log GeV)"] = booker.book1D("AllCandidatePt(log GeV)", "AllCandidatePt(log GeV)", 140, -2, 4);
+  me["AllCandidatePt(log freq)"] = booker.book1D("AllCandidatePt(log freq)", "AllCandidatePt(log freq)", 500, 0, 1000);
+  me["AllCandidatePhi"] = booker.book1D("AllCandidatePhi", "AllCandidatePhi", 72, -M_PI, M_PI);
+  me["AllCandidateCharge"] = booker.book1D("AllCandidateCharge", "AllCandidateCharge", 3, -1.5, 1.5);
+
+  for (auto& pair : pdgMap) {
+    booker.setCurrentFolder("ParticleFlow/PackedCandidates/" + pair.second);
+
+    //TH1F only takes char*, so have to do conversions for histogram name
+    const char* etaHistName = (pair.second + "Eta").c_str();
+    TH1F* etaHist = new TH1F(etaHistName, etaHistName, n, etabinArray);
+    me[pair.second + "Eta"] = booker.book1D(pair.second + "Eta", etaHist);
+
+    me[pair.second + "Pt(log GeV)"] = booker.book1D(pair.second + "Pt(log GeV)", pair.second + "Pt(log GeV)", 140, -2, 4);
+    me[pair.second + "Pt(log freq)"] = booker.book1D(pair.second + "Pt(log freq)", pair.second + "Pt(log freq)", 500, 0, 1000);
+    me[pair.second + "Phi"] = booker.book1D(pair.second + "Phi", pair.second + "Phi", 72, -M_PI, M_PI);
+    me[pair.second + "Charge"] = booker.book1D(pair.second + "Charge", pair.second + "Charge", 3, -1.5, 1.5);
+  }
 }
 
-void PFCandidateAnalyzerDQM::analyze (const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  
+void PFCandidateAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //retrieve
   edm::Handle<edm::View<pat::PackedCandidate>> pfHandle;
   iEvent.getByToken(PFCandToken, pfHandle);
-  
+
   if (!pfHandle.isValid()) {
     edm::LogInfo("OutputInfo") << " failed to retrieve data required by ParticleFlow Task";
     edm::LogInfo("OutputInfo") << " ParticleFlow Task cannot continue...!";
     return;
-  }
-  else {
+  } else {
     //Analyze
     // Loop Over Particle Flow Candidates
-    
-    for (unsigned int i = 0; i < pfHandle->size() ; i++){ 
-      // Fill Histograms for Candidate Methods      
+
+    for (unsigned int i = 0; i < pfHandle->size(); i++) {
+      // Fill Histograms for Candidate Methods
       // all candidates
-      me["CandidatePt"]->Fill(pfHandle->at(i).pt());
-      me["CandidateEta"]->Fill(pfHandle->at(i).eta());
-      me["CandidatePhi"]->Fill(pfHandle->at(i).phi());
-      me["CandidateCharge"]->Fill(pfHandle->at(i).charge());
-      //me["CandidatePdgId"]->Fill(pfHandle->at(i).pdgId());
-      
-      // Fill Histograms for PFCandidate Specific Methods
+      me["AllCandidatePt(log GeV)"]->Fill(log10(pfHandle->at(i).pt()));
+      me["AllCandidatePt(log freq)"]->Fill(pfHandle->at(i).pt());
+      me["AllCandidateEta"]->Fill(pfHandle->at(i).eta());
+      me["AllCandidatePhi"]->Fill(pfHandle->at(i).phi());
+      me["AllCandidateCharge"]->Fill(pfHandle->at(i).charge());
       int pdgId = abs(pfHandle->at(i).pdgId());
-      if(pdgMap.find(pdgId) != pdgMap.end()){
-	me[pdgMap[pdgId] + "Pt"]->Fill(pfHandle->at(i).pt());
-	me[pdgMap[pdgId] +"Eta"]->Fill(pfHandle->at(i).eta());
-	me[pdgMap[pdgId] +"Phi"]->Fill(pfHandle->at(i).phi());
-	me[pdgMap[pdgId] +"Charge"]->Fill(pfHandle->at(i).charge());
+      if (pdgMap.find(pdgId) != pdgMap.end()) {
+        me[pdgMap[pdgId] + "Pt(log GeV)"]->Fill(log10(pfHandle->at(i).pt()));
+        me[pdgMap[pdgId] + "Pt(log freq)"]->Fill(pfHandle->at(i).pt());
+	me[pdgMap[pdgId] + "Eta"]->Fill(pfHandle->at(i).eta());
+        me[pdgMap[pdgId] + "Phi"]->Fill(pfHandle->at(i).phi());
+        me[pdgMap[pdgId] + "Charge"]->Fill(pfHandle->at(i).charge());
       }
-
-
     }
   }
 }
