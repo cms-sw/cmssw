@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # Parameters for runType
 import FWCore.ParameterSet.VarParsing as VarParsing
 import fnmatch
-import subprocess
+from future.moves import subprocess
 from .dqmPythonTypes import *
 
 # part of the runTheMatrix magic
@@ -86,8 +86,8 @@ for ls in range(options.minLumi, options.maxLumi+1):
     command = "edmFileUtil --catalog file:/cvmfs/cms-ib.cern.ch/SITECONF/local/PhEDEx/storage.xml?protocol=xrootd --events %s | tail -n +9 | head -n -5 | awk '{ print $3 }'" % read[0]
     print(command)
     events = subprocess.check_output(command, shell=True)
-    events = events.split('\n')
-    events = filter(lambda x: x != "", events)
+    events = events.split(b'\n')
+    events = filter(lambda x: x != b"", events)
     events = map(int, events)
     events = sorted(events)
     events = events[-options.eventsPerLumi:]
