@@ -17,11 +17,12 @@ lostTracks = cms.EDProducer("PATLostTracks",
     covarianceSchema = cms.int32(0), #old miniaod like
     qualsToAutoAccept = cms.vstring("highPurity"),
     minPtToStoreProps = cms.double(0.95),
-    passThroughCut = cms.string("pt>2"),
-    allowPassThroughAndMuonId = cms.bool(False)
+    passThroughCut = cms.string("0"),
+    allowMuonId = cms.bool(False)
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(lostTracks, covarianceVersion =1 )
 
 from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
-run2_miniAOD_devel.toModify(lostTracks, allowPassThroughAndMuonId=True)
+run2_miniAOD_devel.toModify(lostTracks, passThroughCut="pt>2", allowMuonId=True)
+
