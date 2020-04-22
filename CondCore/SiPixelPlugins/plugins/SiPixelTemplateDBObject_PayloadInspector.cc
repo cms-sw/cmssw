@@ -43,6 +43,7 @@
 #include "TLatex.h"
 #include "TPave.h"
 #include "TPaveStats.h"
+#include "TGaxis.h"
 
 namespace {
 
@@ -136,7 +137,9 @@ namespace {
     }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      //gStyle->SetPalette(kRainBow);
+      gStyle->SetPalette(kBlackBody);
+      TGaxis::SetMaxDigits(2);
+
       auto iov = iovs.front();
 
       std::vector<SiPixelTemplateStore> thePixelTemp_;
@@ -174,10 +177,10 @@ namespace {
         Phase1PixelMaps theMaps("COLZ L");
 
         if (myType == t_barrel) {
-          theMaps.bookBarrelHistograms("templateLABarrel");
+          theMaps.bookBarrelHistograms("templateLABarrel", "#muH");
           theMaps.bookBarrelBins("templateLABarrel");
         } else if (myType == t_forward) {
-          theMaps.bookForwardHistograms("templateLAForward");
+          theMaps.bookForwardHistograms("templateLAForward", "#muH");
           theMaps.bookForwardBins("templateLAForward");
         }
 
@@ -217,7 +220,7 @@ namespace {
 
         theMaps.beautifyAllHistograms();
 
-        TCanvas canvas("Canv", "Canv", (myType == t_barrel) ? 1200 : 1500, 1000);
+        TCanvas canvas("Canv", "Canv", (myType == t_barrel) ? 1200 : 1600, 1000);
         if (myType == t_barrel) {
           theMaps.DrawBarrelMaps("templateLABarrel", canvas);
         } else if (myType == t_forward) {
@@ -254,11 +257,11 @@ namespace {
         // Book the TH2Poly
         Phase1PixelMaps theMaps("text");
         if (myType == t_barrel) {
-          theMaps.bookBarrelHistograms("templateIDsBarrel");
+          theMaps.bookBarrelHistograms("templateIDsBarrel", "IDs");
           // book the barrel bins of the TH2Poly
           theMaps.bookBarrelBins("templateIDsBarrel");
         } else if (myType == t_forward) {
-          theMaps.bookForwardHistograms("templateIDsForward");
+          theMaps.bookForwardHistograms("templateIDsForward", "IDs");
           // book the forward bins of the TH2Poly
           theMaps.bookForwardBins("templateIDsForward");
         }

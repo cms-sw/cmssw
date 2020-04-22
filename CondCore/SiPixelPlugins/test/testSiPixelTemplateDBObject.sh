@@ -24,8 +24,6 @@ getPayloadData.py \
     --db Prod \
     --test ;
 
-mv *.png $W_DIR/plots_Template/Test.png
-
 getPayloadData.py \
     --plugin pluginSiPixelTemplateDBObject_PayloadInspector \
     --plot plot_SiPixelTemplateIDsBPixMap \
