@@ -4,7 +4,7 @@
 /*
  * \file L1TStage2BMTF.h
  * \Author Esmaeel Eskandari Tadavani
- * \December 2015 
+ * \December 2015
 */
 
 // system requirements
@@ -33,7 +33,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 // dqm requirements
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -95,7 +95,7 @@ private:
   MonitorElement* bmtf_hwQual_bx;
 
   MonitorElement* bmtf_hwDXY;
-  MonitorElement* bmtf_hwPt2;
+  MonitorElement* bmtf_hwPtUnconstrained;
 
   /* MonitorElement* bmtf_twinmuxInput_PhiBX; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhi; */

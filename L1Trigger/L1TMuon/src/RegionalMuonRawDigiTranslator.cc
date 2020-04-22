@@ -55,7 +55,7 @@ void l1t::RegionalMuonRawDigiTranslator::fillRegionalMuonCand(
       mu.setTrackSubAddress(RegionalMuonCand::kStat3, statAddr2);
       mu.setTrackSubAddress(RegionalMuonCand::kStat4, statAddr1);
       // Additionally we now have displacement information from the BMTF
-      mu.setHwPt2((raw_data_32_63 >> ptUnconstrainedShift_) & ptUnconstrainedMask_);
+      mu.setHwPtUnconstrained((raw_data_32_63 >> ptUnconstrainedShift_) & ptUnconstrainedMask_);
       mu.setHwDXY((raw_data_32_63 >> dxyShift_) & dxyMask_);
     }
     mu.setTrackSubAddress(RegionalMuonCand::kSegSelStat1, 0);

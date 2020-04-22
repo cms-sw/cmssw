@@ -106,7 +106,7 @@ namespace l1t {
 
             LogDebug("L1T") << "Mu" << nWord / 2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT "
                             << mu.hwPt() << " qual " << mu.hwQual() << " sign " << mu.hwSign() << " sign valid "
-                            << mu.hwSignValid() << " unconstrained pT " << mu.hwPt2();
+                            << mu.hwSignValid() << " unconstrained pT " << mu.hwPtUnconstrained();
 
             res->push_back(bx, mu);
           }
