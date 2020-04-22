@@ -8,7 +8,6 @@ import FWCore.ParameterSet.Config as cms
 # AOD content
 RecoParticleFlowAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
-    'drop CaloTowersSorted_towerMakerPF_*_*',
     'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*',
     'keep recoPFRecHits_particleFlowClusterHCAL_Cleaned_*',
     'keep recoPFRecHits_particleFlowClusterHO_Cleaned_*',
@@ -35,7 +34,6 @@ RecoParticleFlowAOD = cms.PSet(
     'keep *_particleFlow_electrons_*',
     'keep *_particleFlow_photons_*',
     'keep *_particleFlow_muons_*',
-    'drop *_pfElectronTranslator_*_*', #please check pf*Translator really use in AOD
     'keep recoCaloClusters_pfElectronTranslator_*_*',
     'keep recoPreshowerClusters_pfElectronTranslator_*_*',
     'keep recoSuperClusters_pfElectronTranslator_*_*',
