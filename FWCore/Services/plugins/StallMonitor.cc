@@ -197,6 +197,7 @@ namespace edm {
 
     private:
       void preModuleConstruction(edm::ModuleDescription const&);
+      void preModuleDestruction(edm::ModuleDescription const&);
       void postBeginJob();
       void preSourceEvent(StreamID);
       void postSourceEvent(StreamID);
@@ -253,6 +254,7 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
       stallThreshold_{
           std::chrono::round<duration_t>(duration<double>(iPS.getUntrackedParameter<double>("stallThreshold")))} {
   iRegistry.watchPreModuleConstruction(this, &StallMonitor::preModuleConstruction);
+  iRegistry.watchPreModuleDestruction(this, &StallMonitor::preModuleDestruction);
   iRegistry.watchPostBeginJob(this, &StallMonitor::postBeginJob);
   iRegistry.watchPostModuleEventPrefetching(this, &StallMonitor::postModuleEventPrefetching);
   iRegistry.watchPreModuleEventAcquire(this, &StallMonitor::preModuleEventAcquire);
@@ -371,6 +373,12 @@ void StallMonitor::preModuleConstruction(ModuleDescription const& md) {
     moduleLabels_.resize(mid + 1);
     moduleLabels_.back() = md.moduleLabel();
   }
+}
+
+void StallMonitor::preModuleDestruction(ModuleDescription const& md) {
+  // Reset the module label back if the module is deleted before
+  // beginJob() so that the entry is ignored in the summary printouts.
+  moduleLabels_[md.id()] = "";
 }
 
 void StallMonitor::postBeginJob() {
