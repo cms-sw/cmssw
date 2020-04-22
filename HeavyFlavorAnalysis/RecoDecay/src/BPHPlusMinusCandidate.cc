@@ -105,7 +105,7 @@ vector<BPHPlusMinusConstCandPtr> BPHPlusMinusCandidate::build(
 
 /// clone object, cloning daughters as well up to required depth
 /// level = -1 to clone all levels
-const BPHRecoCandidate* BPHPlusMinusCandidate::clone(int level) const {
+BPHRecoCandidate* BPHPlusMinusCandidate::clone(int level) const {
   BPHPlusMinusCandidate* ptr = new BPHPlusMinusCandidate(getEventSetup());
   fill(ptr, level);
   return ptr;

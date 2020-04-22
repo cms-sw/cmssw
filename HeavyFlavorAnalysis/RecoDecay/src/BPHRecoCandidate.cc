@@ -50,7 +50,7 @@ vector<BPHRecoConstCandPtr> BPHRecoCandidate::build(const BPHRecoBuilder& builde
 
 /// clone object, cloning daughters as well up to required depth
 /// level = -1 to clone all levels
-const BPHRecoCandidate* BPHRecoCandidate::clone(int level) const {
+BPHRecoCandidate* BPHRecoCandidate::clone(int level) const {
   BPHRecoCandidate* ptr = new BPHRecoCandidate(getEventSetup());
   fill(ptr, level);
   return ptr;
