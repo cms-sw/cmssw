@@ -13,8 +13,10 @@ ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset)
       tdcNbits_(pset.getParameter<uint32_t>("tdcNbits")),
       adcSaturation_MIP_(pset.getParameter<double>("adcSaturation_MIP")),
       adcLSB_MIP_(adcSaturation_MIP_ / std::pow(2., adcNbits_)),
+      adcBitSaturation_( std::pow(2,adcNbits_)-1 ),
       adcThreshold_MIP_(pset.getParameter<double>("adcThreshold_MIP")),
-      toaLSB_ns_(pset.getParameter<double>("toaLSB_ns")) {}
+      toaLSB_ns_(pset.getParameter<double>("toaLSB_ns")),
+      tdcBitSaturation_( std::pow(2,tdcNbits_)-1 ) {}
 
 void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
                             ETLDigiCollection& output,
@@ -77,8 +79,8 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame& dataFrame,
   //set new ADCs
   for (int it = 0; it < (int)(chargeColl.size()); it++) {
     //brute force saturation, maybe could to better with an exponential like saturation
-    const uint32_t adc = std::floor(std::min(chargeColl[it], adcSaturation_MIP_) / adcLSB_MIP_);
-    const uint32_t tdc_time = std::floor(toa[it] / toaLSB_ns_);
+    const uint32_t adc = std::min( (uint32_t) std::floor(chargeColl[it]/adcLSB_MIP_), adcBitSaturation_ );
+    const uint32_t tdc_time = std::min( (uint32_t) std::floor(toa[it]/toaLSB_ns_), tdcBitSaturation_);
     ETLSample newSample;
     newSample.set(chargeColl[it] > adcThreshold_MIP_, false, tdc_time, adc, row, col);
     dataFrame.setSample(it, newSample);
