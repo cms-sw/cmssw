@@ -187,6 +187,7 @@ namespace edm {
         }
       }
       activityRegistry.watchPreModuleConstruction(this, &RandomNumberGeneratorService::preModuleConstruction);
+      activityRegistry.watchPreModuleDestruction(this, &RandomNumberGeneratorService::preModuleDestruction);
 
       activityRegistry.watchPreallocate(this, &RandomNumberGeneratorService::preallocate);
 
@@ -379,6 +380,13 @@ namespace edm {
       std::map<std::string, SeedsAndName>::iterator iter = seedsAndNameMap_.find(description.moduleLabel());
       if (iter != seedsAndNameMap_.end()) {
         iter->second.setModuleID(description.id());
+      }
+    }
+
+    void RandomNumberGeneratorService::preModuleDestruction(ModuleDescription const& description) {
+      std::map<std::string, SeedsAndName>::iterator iter = seedsAndNameMap_.find(description.moduleLabel());
+      if (iter != seedsAndNameMap_.end()) {
+        iter->second.setModuleID(SeedsAndName::kInvalid);
       }
     }
 
