@@ -96,10 +96,10 @@ namespace edm {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
         throw cms::Exception("TrivialFileCatalog", "edm::SiteLocalConfigService is not available");
+      if (iCatalog >= localconfservice->dataCatalogs().size())
+        throw cms::Exception("TrivialFileCatalog", "edm::FileLocator: Request nonexistence data catalog");
       m_url = localconfservice->dataCatalogs()[iCatalog];
     }
-
-    //if (m_url.empty()) throw cms::Exception("FileLocator", "Data catalog url is empty");
 
     if (m_url.find("file:") == std::string::npos) {
       throw cms::Exception("TrivialFileCatalog",

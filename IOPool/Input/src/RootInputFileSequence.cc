@@ -181,7 +181,6 @@ namespace edm {
   //Initiate the file using multiple data catalogs
   void RootInputFileSequence::initTheFile(
       bool skipBadFiles, bool deleteIndexIntoFile, InputSource* input, char const* inputTypeName, InputType inputType) {
-    //std::cout << "\n Use initTheFile" << std::endl;
     // We are really going to close the open file.
 
     if (fileIterLastOpened_ != fileIterEnd_) {
@@ -207,7 +206,7 @@ namespace edm {
       InputFile::reportSkippedFile(fileNames()[0], logicalFileName());
       if (!skipBadFiles) {
         throw cms::Exception("LogicalFileNameNotFound", "RootFileSequenceBase::initTheFile()\n")
-            << "Physical file name '" << logicalFileName() << "' was not found in the file catalog.\n"
+            << "Logical file name '" << logicalFileName() << "' was not found in the file catalog.\n"
             << "If you wanted a local file, you forgot the 'file:' prefix\n"
             << "before the file name in your configuration file.\n";
       }
@@ -222,10 +221,11 @@ namespace edm {
     std::shared_ptr<InputFile> filePtr;
     std::list<std::string> originalInfo;
 
-    std::vector<std::string> fNames = fileNames();
+    std::vector<std::string> const& fNames = fileNames();
 
     //this tries to open the file using multiple PFNs corresponding to different data catalogs
-    for (std::vector<std::string>::iterator it = fNames.begin(); it != fNames.end(); ++it) {
+    std::list<std::string> exInfo;
+    for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
       try {
         std::unique_ptr<InputSource::FileOpenSentry> sentry(
             input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
@@ -233,18 +233,18 @@ namespace edm {
         filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
         break;
       } catch (cms::Exception const& e) {
-        if (!skipBadFiles) {
-          if (std::next(it) == fNames.end()) {
+        if (!skipBadFiles && std::next(it) == fNames.end()) {
             InputFile::reportSkippedFile((*it), logicalFileName());
             Exception ex(errors::FileOpenError, "", e);
-            ex.addContext("Calling RootFileSequenceBase::initTheFile()");
+            ex.addContext("Calling RootInputFileSequence::initTheFile()");
             std::ostringstream out;
             out << "Input file " << (*it) << " could not be opened.";
             ex.addAdditionalInfo(out.str());
+            //report previous exceptions when use other names to open file
+            for (auto const& s: exInfo) ex.addAdditionalInfo(s);
             throw ex;
-          } else {
-            LogWarning("RootInputFileSequence") << "Fail to open the file try next data catalog.\n";
-          }
+        } else {
+            exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
         }
       }
     }

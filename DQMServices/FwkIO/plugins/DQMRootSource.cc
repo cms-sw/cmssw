@@ -469,12 +469,13 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
 
   for (auto& fileitem : m_catalog.fileCatalogItems()) {
     TFile* file;
-    std::list<std::string> originalInfo;
+    std::list<std::string> exInfo;
     //loop over names of a file, each of them corresponds to a data catalog
     bool isGoodFile(true);
-    std::vector<std::string> fNames =
-        fileitem.fileNames();  //get all names of a file, each of them corresponds to a data catalog
-    for (std::vector<std::string>::iterator it = fNames.begin(); it != fNames.end(); ++it) {
+    //get all names of a file, each of them corresponds to a data catalog
+    const std::vector<std::string>& fNames =
+        fileitem.fileNames();
+    for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
       // Try to open a file
       try {
         file = TFile::Open(it->c_str());
@@ -493,11 +494,14 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
             edm::Exception ex(edm::errors::FileOpenError, "", e);
             ex.addContext("Opening DQM Root file");
             ex << "\nInput file " << it->c_str() << " was not found, could not be opened, or is corrupted.\n";
+            //report previous exceptions when use other names to open file
+            for (auto const& s: exInfo) ex.addAdditionalInfo(s);
             throw ex;
           }
           isGoodFile = false;
         }
-        originalInfo = e.additionalInfo();  // save in case of error when trying next name
+        // save in case of error when trying next name
+        for (auto const& s: e.additionalInfo()) exInfo.push_back(s);
       }
 
       // Check if a file is usable
@@ -510,6 +514,8 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
             edm::Exception ex(edm::errors::FileOpenError);
             ex << "Input file " << it->c_str() << " could not be opened.\n";
             ex.addContext("Opening DQM Root file");
+            //report previous exceptions when use other names to open file
+            for (auto const& s: exInfo) ex.addAdditionalInfo(s);
             throw ex;
           }
           isGoodFile = false;
