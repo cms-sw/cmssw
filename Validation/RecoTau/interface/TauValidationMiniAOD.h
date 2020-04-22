@@ -29,10 +29,17 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+// Math Tools
+#include "TLorentzVector.h"
+#include <vector>
+
 // Include DQM core
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
+typedef math::XYZTLorentzVectorD LV;
+typedef std::vector<LV> LVCollection;
 
 struct histoInfo {
   int nbins;
@@ -76,7 +83,8 @@ private:
   std::map<std::string, MonitorElement *> ptLoosevsEleMap, phiLoosevsEleMap, etaLoosevsEleMap, massLoosevsEleMap, puLoosevsEleMap;
   std::map<std::string, MonitorElement *> ptLoosevsMuoMap, phiLoosevsMuoMap, etaLoosevsMuoMap, massLoosevsMuoMap, puLoosevsMuoMap;
   std::map<std::string, MonitorElement *> decayModeFindingMap, decayModeMap, byDeepTau2017v2p1VSerawMap, byDeepTau2017v2p1VSjetrawMap, byDeepTau2017v2p1VSmurawMap, summaryMap;
-  
+  std::map<std::string, MonitorElement *> mtau_dm0Map, mtau_dm1Map, mtau_dm2Map, mtau_dm10Map, mtau_dm11Map;
+ 
   edm::ParameterSet histoSettings_;
   std::string extensionName_;
   std::vector<edm::ParameterSet> discriminators_;

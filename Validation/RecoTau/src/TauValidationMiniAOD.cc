@@ -60,6 +60,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   MonitorElement *ptTemp ,       *etaTemp,        *phiTemp,        *massTemp,        *puTemp;
   MonitorElement *decayModeFindingTemp, *decayModeTemp, *byDeepTau2017v2p1VSerawTemp;
   MonitorElement *byDeepTau2017v2p1VSjetrawTemp, *byDeepTau2017v2p1VSmurawTemp, *summaryTemp;
+  MonitorElement *mtau_dm0, *mtau_dm1, *mtau_dm2, *mtau_dm10, *mtau_dm11;
   
   // temp:
   std::cout << "extensionName_: \n";
@@ -84,6 +85,27 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
 			       summaryHinfo.nbins, summaryHinfo.min, summaryHinfo.max);
   summaryMap.insert(std::make_pair("", summaryTemp));
 
+  histoInfo mtauHinfo = histoInfo(20, 0.0, 2.0);
+
+  mtau_dm0 = ibooker.book1D("mtau_dm0", "mtau_dm0", 
+			       mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm0Map.insert(std::make_pair("", mtau_dm0));
+
+  mtau_dm1 = ibooker.book1D("mtau_dm1", "mtau_dm1", 
+			       mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm1Map.insert(std::make_pair("", mtau_dm1));
+
+  mtau_dm2 = ibooker.book1D("mtau_dm2", "mtau_dm2", 
+			       mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm2Map.insert(std::make_pair("", mtau_dm2));
+
+  mtau_dm10 = ibooker.book1D("mtau_dm10", "mtau_dm10", 
+			       mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm10Map.insert(std::make_pair("", mtau_dm10));
+
+  mtau_dm11 = ibooker.book1D("mtau_dm11", "mtau_dm11", 
+			       mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
+  mtau_dm11Map.insert(std::make_pair("", mtau_dm11));
   // add discriminator labels to summary plots 
   int j = 0;
   for (const auto& it : discriminators_) {
@@ -441,7 +463,21 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
         byDeepTau2017v2p1VSjetrawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2p1VSjetraw"));
       if (matchedTau->isTauIDAvailable("byDeepTau2017v2p1VSmuraw"))
         byDeepTau2017v2p1VSmurawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2p1VSmuraw"));
-      
+     
+      // fill tau mass for decay modes 0 , 1, 2 , 10 ,11
+      TLorentzVector TAU;
+      TAU.SetPtEtaPhiE(matchedTau->pt(), matchedTau->eta(), matchedTau->phi(), matchedTau->energy());
+      if (matchedTau->decayMode() == 0) {
+        mtau_dm0Map.find("")->second->Fill(TAU.M());
+      } else if (matchedTau->decayMode() == 1) {
+        mtau_dm1Map.find("")->second->Fill(TAU.M());
+      } else if (matchedTau->decayMode() == 2) {
+        mtau_dm2Map.find("")->second->Fill(TAU.M());
+      } else if (matchedTau->decayMode() == 10) {
+        mtau_dm10Map.find("")->second->Fill(TAU.M());
+      } else if (matchedTau->decayMode() == 11) {
+        mtau_dm11Map.find("")->second->Fill(TAU.M());
+      }
       // count number of taus passing each discriminator's selection cut
       int j = 0;
       for (const auto& it : discriminators_) {
