@@ -392,7 +392,7 @@ void BPHKinematicFit::addParticles(vector<RefCountedKinematicParticle>& kl,
     const BPHRecoCandidate* cptr = comp[m].get();
     const FlyingParticle& fp = cKinP.at(cptr);
     if (fp.flag) {
-      BPHRecoCandidate* tptr = const_cast<BPHRecoCandidate*>(cptr->clone());
+      BPHRecoCandidate* tptr = cptr->clone();
       double mass = fp.mass;
       double sigma = fp.sigma;
       if ((mass > 0.0) && (sigma > 0.0))
