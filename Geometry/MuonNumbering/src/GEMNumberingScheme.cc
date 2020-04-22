@@ -59,31 +59,40 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   //  ring    = num.getSuperNo(theRingLevel);
   // GEM are only on the first ring
   ring = 1;
-  station = num.getSuperNo(theStationLevel);
-#ifdef LOCAL_DEBUG
-  edm::LogVerbatim("GEMNumberingScheme") << "GEMNumbering: Ring " << ring << " Station "
-                                         << num.getSuperNo(theStationLevel) << ":" << station;
-#endif
 
-  roll = num.getBaseNo(theRollLevel) + 1;
-  const int copyno = num.getBaseNo(theSectorLevel) + 1;
-  if (copyno < 50) {
-    if (copyno % 2 == 0) {
-      layer = 2;
-      chamber = copyno - 1;
+  // GE0 has the layer encoded in the ring level
+  if (num.getBaseNo(theRingLevel) == 0) { // 0 => GE1/1, GE2/1
+    station = num.getSuperNo(theStationLevel);
+#ifdef LOCAL_DEBUG
+    edm::LogVerbatim("GEMNumberingScheme") << "GEMNumbering: Ring " << ring << " Station "
+					   << num.getSuperNo(theStationLevel) << ":" << station;
+#endif
+    
+    roll = num.getBaseNo(theRollLevel) + 1;
+    const int copyno = num.getBaseNo(theSectorLevel) + 1;
+    if (copyno < 50) {
+      if (copyno % 2 == 0) {
+	layer = 2;
+	chamber = copyno - 1;
+      } else {
+	layer = 1;
+	chamber = copyno;
+      }
     } else {
-      layer = 1;
-      chamber = copyno;
+      int copynp = copyno - 50;
+      if (copynp % 2 != 0) {
+	layer = 2;
+	chamber = copynp - 1;
+      } else {
+	layer = 1;
+	chamber = copynp;
+      }
     }
-  } else {
-    int copynp = copyno - 50;
-    if (copynp % 2 != 0) {
-      layer = 2;
-      chamber = copynp - 1;
-    } else {
-      layer = 1;
-      chamber = copynp;
-    }
+  } else { // GE0 encodes the layer
+    station = 0;
+    layer = num.getBaseNo(theRingLevel);
+    chamber = num.getBaseNo(theSectorLevel) + 1;
+    roll = num.getBaseNo(theRollLevel) + 1;
   }
 
   // collect all info
