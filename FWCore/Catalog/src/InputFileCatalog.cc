@@ -25,8 +25,9 @@ namespace edm {
 
   std::vector<std::string> InputFileCatalog::fileNames(unsigned iCatalog) const {
     std::vector<std::string> tmp;
-    for (auto it = fileCatalogItems_.begin(); it != fileCatalogItems_.end(); ++it) {
-      tmp.push_back(it->fileName(iCatalog));
+    tmp.reserve(fileCatalogItems_.size());
+    for (auto const& item : fileCatalogItems_) {
+      tmp.push_back(item.fileName(iCatalog));
     }
     return tmp;
   }
@@ -51,6 +52,10 @@ namespace edm {
       try {
         fileLocators_.push_back(std::make_unique<FileLocator>(*it));
       } catch (cms::Exception const& e) {
+        //try all data catalogs but none work so throw exception
+        if (std::next(it) == tmp_dataCatalogs.end()) {
+          throw cms::Exception("TrivialFileCatalog", "edm::InputFileCatalog: none of data catalogs are valid to make a FileLocator");
+        }
         continue;
       }
     }
