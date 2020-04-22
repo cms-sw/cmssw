@@ -171,11 +171,11 @@ void BPHK0sToPiPiBuilder::buildFromV0(const T* v0Collection) {
 
     // check which daughter has positive/negative charge
     if (kv0.daughter(0)->charge() > 0) {
-      k0s->add(pionPosName, kv0.daughter(0), sList, BPHParticleMasses::pionMass);
-      k0s->add(pionNegName, kv0.daughter(1), sList, BPHParticleMasses::pionMass);
+      k0s->add(pionPosName, kv0.daughter(0), sList, BPHParticleMasses::pionMass, BPHParticleMasses::pionMSigma);
+      k0s->add(pionNegName, kv0.daughter(1), sList, BPHParticleMasses::pionMass, BPHParticleMasses::pionMSigma);
     } else {
-      k0s->add(pionPosName, kv0.daughter(1), sList, BPHParticleMasses::pionMass);
-      k0s->add(pionNegName, kv0.daughter(0), sList, BPHParticleMasses::pionMass);
+      k0s->add(pionPosName, kv0.daughter(1), sList, BPHParticleMasses::pionMass, BPHParticleMasses::pionMSigma);
+      k0s->add(pionNegName, kv0.daughter(0), sList, BPHParticleMasses::pionMass, BPHParticleMasses::pionMSigma);
     }
 
     if (k0s->daughters().size() != 2)

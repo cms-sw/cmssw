@@ -170,10 +170,10 @@ void BPHLambda0ToPPiBuilder::buildFromV0(const T* v0Collection) {
     BPHPlusMinusCandidatePtr plY = BPHPlusMinusCandidateWrap::create(evSetup);
     BPHPlusMinusCandidate* lambdaX = plX.get();
     BPHPlusMinusCandidate* lambdaY = plY.get();
-    lambdaX->add(protonName, lv0.daughter(0), sList, BPHParticleMasses::protonMass);
-    lambdaX->add(pionName, lv0.daughter(1), sList, BPHParticleMasses::pionMass);
-    lambdaY->add(protonName, lv0.daughter(1), sList, BPHParticleMasses::protonMass);
-    lambdaY->add(pionName, lv0.daughter(0), sList, BPHParticleMasses::pionMass);
+    lambdaX->add(protonName, lv0.daughter(0), sList, BPHParticleMasses::protonMass, BPHParticleMasses::protonMSigma);
+    lambdaX->add(pionName, lv0.daughter(1), sList, BPHParticleMasses::pionMass, BPHParticleMasses::pionMSigma);
+    lambdaY->add(protonName, lv0.daughter(1), sList, BPHParticleMasses::protonMass, BPHParticleMasses::protonMSigma);
+    lambdaY->add(pionName, lv0.daughter(0), sList, BPHParticleMasses::pionMass, BPHParticleMasses::pionMSigma);
     if (lambdaX->daughters().size() != 2)
       continue;
     if (lambdaY->daughters().size() != 2)
