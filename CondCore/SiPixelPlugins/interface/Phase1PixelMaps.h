@@ -28,20 +28,26 @@ public:
   ~Phase1PixelMaps() {}
 
   //============================================================================
-  void bookBarrelHistograms(const std::string& currentHistoName) {
+  void bookBarrelHistograms(const std::string& currentHistoName, const char* what) {
     std::string histName;
     TH2Poly* th2p;
 
     for (unsigned i = 0; i < 4; ++i) {
       histName = "barrel_layer_";
 
-      th2p = new TH2Poly(
-          (histName + std::to_string(i + 1)).c_str(), Form("PXBMap - Layer %i", i + 1), -15.0, 15.0, 0.0, 5.0);
+      th2p = new TH2Poly((histName + std::to_string(i + 1)).c_str(),
+                         Form("PXBMap of %s - Layer %i", what, i + 1),
+                         -15.0,
+                         15.0,
+                         0.0,
+                         5.0);
 
       th2p->SetFloat();
 
       th2p->GetXaxis()->SetTitle("z [cm]");
       th2p->GetYaxis()->SetTitle("ladder");
+      //th2p->GetXaxis()->SetTitleOffset(0.09);
+      //th2p->GetYaxis()->SetTitleOffset(0.09);
       th2p->SetStats(false);
       th2p->SetOption(m_option);
       pxbTh2PolyBarrel[currentHistoName].push_back(th2p);
@@ -58,7 +64,7 @@ public:
   }
 
   //============================================================================
-  void bookForwardHistograms(const std::string& currentHistoName) {
+  void bookForwardHistograms(const std::string& currentHistoName, const char* what) {
     std::string histName;
     TH2Poly* th2p;
 
@@ -67,7 +73,7 @@ public:
         histName = "forward_disk_";
 
         th2p = new TH2Poly((histName + std::to_string((side == 1 ? -(int(disk)) : (int)disk))).c_str(),
-                           Form("PXFMap - Side %i Disk %i", side, disk),
+                           Form("PXFMap of %s - Side %i Disk %i", what, side, disk),
                            -15.0,
                            15.0,
                            -15.0,
@@ -75,6 +81,8 @@ public:
         th2p->SetFloat();
         th2p->GetXaxis()->SetTitle("x [cm]");
         th2p->GetYaxis()->SetTitle("y [cm]");
+        //th2p->GetXaxis()->SetTitleOffset(0.09);
+        //th2p->GetYaxis()->SetTitleOffset(0.09);
         th2p->SetStats(false);
         th2p->SetOption(m_option);
         pxfTh2PolyForward[currentHistoName].push_back(th2p);
@@ -198,12 +206,16 @@ public:
     for (const auto& vec : pxbTh2PolyBarrel) {
       for (const auto& plot : vec.second) {
         SiPixelPI::makeNicePlotStyle(plot);
+        plot->GetXaxis()->SetTitleOffset(0.9);
+        plot->GetYaxis()->SetTitleOffset(0.9);
       }
     }
 
     for (const auto& vec : pxfTh2PolyForward) {
       for (const auto& plot : vec.second) {
         SiPixelPI::makeNicePlotStyle(plot);
+        plot->GetXaxis()->SetTitleOffset(0.9);
+        plot->GetYaxis()->SetTitleOffset(0.9);
       }
     }
   }
@@ -214,7 +226,10 @@ public:
     for (int i = 1; i <= 4; i++) {
       canvas.cd(i);
       if (strcmp(m_option, "text") == 0) {
+        canvas.cd(i)->SetRightMargin(0.02);
         pxbTh2PolyBarrel[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
+      } else {
+        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.14);
       }
       pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw();
     }
@@ -226,7 +241,10 @@ public:
     for (int i = 1; i <= 6; i++) {
       canvas.cd(i);
       if (strcmp(m_option, "text") == 0) {
+        canvas.cd(i)->SetRightMargin(0.02);
         pxfTh2PolyForward[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
+      } else {
+        SiPixelPI::adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.16);
       }
       pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw();
     }
