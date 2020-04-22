@@ -1,5 +1,5 @@
 <flags   EDM_PLUGIN="1"/>
-<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/Common"/>
 <use   name="SimG4Core/Notification"/>
 <use   name="SimG4Core/Watcher"/>
 <use   name="SimG4Core/Geometry"/>

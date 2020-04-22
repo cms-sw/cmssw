@@ -1,7 +1,8 @@
+<use   name="DataFormats/Common"/>
 <use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="boost"/>
+<use   name="hepmc"/>
 <use   name="roothistmatrix"/>
 <library   file="*.cc" name="SimTrackerTrackerFiltersPlugins">
   <flags   EDM_PLUGIN="1"/>
