@@ -29,17 +29,10 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-// Math Tools
-#include "TLorentzVector.h"
-#include <vector>
-
 // Include DQM core
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-
-typedef math::XYZTLorentzVectorD LV;
-typedef std::vector<LV> LVCollection;
 
 struct histoInfo {
   int nbins;

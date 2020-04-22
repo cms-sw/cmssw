@@ -465,18 +465,16 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
         byDeepTau2017v2p1VSmurawMap.find("")->second->Fill(matchedTau->tauID("byDeepTau2017v2p1VSmuraw"));
      
       // fill tau mass for decay modes 0 , 1, 2 , 10 ,11
-      TLorentzVector TAU;
-      TAU.SetPtEtaPhiE(matchedTau->pt(), matchedTau->eta(), matchedTau->phi(), matchedTau->energy());
       if (matchedTau->decayMode() == 0) {
-        mtau_dm0Map.find("")->second->Fill(TAU.M());
+        mtau_dm0Map.find("")->second->Fill(matchedTau->mass());
       } else if (matchedTau->decayMode() == 1) {
-        mtau_dm1Map.find("")->second->Fill(TAU.M());
+        mtau_dm1Map.find("")->second->Fill(matchedTau->mass());
       } else if (matchedTau->decayMode() == 2) {
-        mtau_dm2Map.find("")->second->Fill(TAU.M());
+        mtau_dm2Map.find("")->second->Fill(matchedTau->mass());
       } else if (matchedTau->decayMode() == 10) {
-        mtau_dm10Map.find("")->second->Fill(TAU.M());
+        mtau_dm10Map.find("")->second->Fill(matchedTau->mass());
       } else if (matchedTau->decayMode() == 11) {
-        mtau_dm11Map.find("")->second->Fill(TAU.M());
+        mtau_dm11Map.find("")->second->Fill(matchedTau->mass());
       }
       // count number of taus passing each discriminator's selection cut
       int j = 0;
