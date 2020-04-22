@@ -86,6 +86,12 @@ ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, e
         }
       }
     });
+    iReg.watchPreModuleDestruction([this](ModuleDescription const& iMod) {
+      auto found = std::find(m_excludedModuleIds.begin(), m_excludedModuleIds.end(), iMod.id());
+      if (found != m_excludedModuleIds.end()) {
+        m_excludedModuleIds.erase(found);
+      }
+    });
     iReg.watchPreModuleEvent([this](StreamContext const&, ModuleCallingContext const& iContext) {
       if (trackModule(iContext)) {
         start();
