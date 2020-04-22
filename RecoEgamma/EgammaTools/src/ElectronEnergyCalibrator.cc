@@ -30,8 +30,8 @@ std::array<float, EGEnergySysIndex::kNrSysErrs> ElectronEnergyCalibrator::calibr
     const EcalRecHitCollection* recHits,
     const float smearNrSigma,
     const ElectronEnergyCalibrator::EventType eventType) const {
-  const double scEtaAbs = std::abs(ele.superCluster()->eta());
-  const double et = ele.ecalEnergy() / cosh(scEtaAbs);
+  const float scEtaAbs = std::abs(ele.superCluster()->eta());
+  const float et = ele.ecalEnergy() / cosh(scEtaAbs);
 
   if (et < minEt_ || edm::isNotFinite(et)) {
     std::array<float, EGEnergySysIndex::kNrSysErrs> retVal;

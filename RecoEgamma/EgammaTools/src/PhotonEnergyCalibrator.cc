@@ -29,8 +29,8 @@ std::array<float, EGEnergySysIndex::kNrSysErrs> PhotonEnergyCalibrator::calibrat
     const EcalRecHitCollection* recHits,
     const float smearNrSigma,
     const PhotonEnergyCalibrator::EventType eventType) const {
-  const double scEtaAbs = std::abs(photon.superCluster()->eta());
-  const double et = photon.getCorrectedEnergy(reco::Photon::P4type::regression2) / cosh(scEtaAbs);
+  const float scEtaAbs = std::abs(photon.superCluster()->eta());
+  const float et = photon.getCorrectedEnergy(reco::Photon::P4type::regression2) / cosh(scEtaAbs);
 
   if (et < minEt_ || edm::isNotFinite(et)) {
     std::array<float, EGEnergySysIndex::kNrSysErrs> retVal;
