@@ -11,7 +11,6 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="DQMServices/Core"/>
 <use   name="DataFormats/Common"/>
-<use   name="SimTracker/SiPhase2Digitizer"/>
 <use   name="boost_system"/>
 <use   name="rootcling"/>
 <flags EDM_PLUGIN="1"/>

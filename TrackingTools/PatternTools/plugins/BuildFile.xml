@@ -1,6 +1,4 @@
 <use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/Records"/>
 <library   file="*.cc" name="TrackingToolsPatternToolsPlugins">

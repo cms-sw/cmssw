@@ -1,10 +1,7 @@
-<use   name="FWCore/PluginManager"/>
 <use   name="SimG4CMS/Forward"/>
-<use   name="DataFormats/Math"/>
 <use   name="SimDataFormats/CaloTest"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
 <use   name="boost"/>
 <use   name="geant4core"/>
 <use   name="root"/>

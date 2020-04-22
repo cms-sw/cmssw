@@ -50,7 +50,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/TrackCandidateToTrajectoryMap.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
-#include "RecoTracker/NuclearSeedGenerator/interface/NuclearTrackCorrector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"

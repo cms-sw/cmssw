@@ -7,16 +7,14 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
-<use   name="FWCore/PluginManager"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="SimMuon/Neutron"/>
-<use   name="Utilities/General"/>
 <use   name="boost"/>
 <use   name="clhep"/>
 <export>

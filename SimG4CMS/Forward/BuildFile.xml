@@ -1,4 +1,3 @@
-<use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
@@ -7,13 +6,11 @@
 <use   name="SimG4Core/Notification"/>
 <use   name="SimG4Core/Physics"/>
 <use   name="SimG4CMS/Calo"/>
-<use   name="SimG4CMS/Tracker"/>
 <use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/Math"/>
 <use   name="SimDataFormats/SimHitMaker"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="SimDataFormats/Forward"/>
-<use   name="Geometry/HGCalCommonData"/>
 <use   name="Geometry/MTDCommonData"/>
 <use   name="boost"/>
 <use   name="clhep"/>

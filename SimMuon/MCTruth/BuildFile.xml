@@ -4,7 +4,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="DataFormats/Common"/>
-<use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/DTRecHit"/>
 <use   name="DataFormats/RPCRecHit"/>
@@ -20,11 +19,9 @@
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="CondFormats/CSCObjects"/>
-<use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
-<use   name="Geometry/TrackerNumberingBuilder"/>
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="root"/>

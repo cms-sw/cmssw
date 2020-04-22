@@ -23,6 +23,7 @@
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimTracker/Records"/>
 <use   name="SimTracker/TrackAssociation"/>
+<use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="Geometry/CommonDetUnit"/> 
