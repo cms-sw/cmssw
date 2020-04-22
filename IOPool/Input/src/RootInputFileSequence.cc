@@ -234,17 +234,18 @@ namespace edm {
         break;
       } catch (cms::Exception const& e) {
         if (!skipBadFiles && std::next(it) == fNames.end()) {
-            InputFile::reportSkippedFile((*it), logicalFileName());
-            Exception ex(errors::FileOpenError, "", e);
-            ex.addContext("Calling RootInputFileSequence::initTheFile()");
-            std::ostringstream out;
-            out << "Input file " << (*it) << " could not be opened.";
-            ex.addAdditionalInfo(out.str());
-            //report previous exceptions when use other names to open file
-            for (auto const& s: exInfo) ex.addAdditionalInfo(s);
-            throw ex;
+          InputFile::reportSkippedFile((*it), logicalFileName());
+          Exception ex(errors::FileOpenError, "", e);
+          ex.addContext("Calling RootInputFileSequence::initTheFile()");
+          std::ostringstream out;
+          out << "Input file " << (*it) << " could not be opened.";
+          ex.addAdditionalInfo(out.str());
+          //report previous exceptions when use other names to open file
+          for (auto const& s : exInfo)
+            ex.addAdditionalInfo(s);
+          throw ex;
         } else {
-            exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
+          exInfo.push_back("Calling RootInputFileSequence::initTheFile(): fail to open the file with name " + (*it));
         }
       }
     }

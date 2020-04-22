@@ -54,7 +54,8 @@ namespace edm {
       } catch (cms::Exception const& e) {
         //try all data catalogs but none work so throw exception
         if (std::next(it) == tmp_dataCatalogs.end()) {
-          throw cms::Exception("TrivialFileCatalog", "edm::InputFileCatalog: none of data catalogs are valid to make a FileLocator");
+          throw cms::Exception("TrivialFileCatalog",
+                               "edm::InputFileCatalog: none of data catalogs are valid to make a FileLocator");
         }
         continue;
       }
