@@ -1,5 +1,4 @@
 <use   name="clhep"/>
-<use   name="DataFormats/BTauReco"/>
 <library   file="printJetFlavourInfo.cc">
   <flags   EDM_PLUGIN="1"/>
   <use   name="FWCore/Framework"/>
@@ -23,6 +22,7 @@
 </library>
 <library   file="printPartonJet.cc">
   <flags   EDM_PLUGIN="1"/>
+  <use   name="DataFormats/Candidate"/>
   <use   name="FWCore/Framework"/>
 </library>
 <library   file="printTrackJet.cc">
