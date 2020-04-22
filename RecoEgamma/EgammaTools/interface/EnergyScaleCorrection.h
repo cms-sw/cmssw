@@ -103,11 +103,8 @@ public:
                        unsigned int gainSeed);
 
     bool operator<(const CorrectionCategory& b) const;
-    bool inCategory(const unsigned int runnr,
-                    const float et,
-                    const float eta,
-                    const float r9,
-                    const unsigned int gainSeed) const;
+    bool inCategory(
+        const unsigned int runnr, const float et, const float eta, const float r9, const unsigned int gainSeed) const;
 
     friend std::ostream& operator<<(std::ostream& os, const CorrectionCategory& a) { return a.print(os); }
     std::ostream& print(std::ostream& os) const;
@@ -116,12 +113,12 @@ public:
     //all boundaries are inclusive (X<=Y<=Z)
     unsigned int runMin_;
     unsigned int runMax_;
-    float etaMin_;      ///< min eta value for the bin
-    float etaMax_;      ///< max eta value for the bin
-    float r9Min_;       ///< min R9 vaule for the bin
-    float r9Max_;       ///< max R9 value for the bin
-    float etMin_;       ///< min Et value for the bin
-    float etMax_;       ///< max Et value for the bin
+    float etaMin_;       ///< min eta value for the bin
+    float etaMax_;       ///< max eta value for the bin
+    float r9Min_;        ///< min R9 vaule for the bin
+    float r9Max_;        ///< max R9 value for the bin
+    float etMin_;        ///< min Et value for the bin
+    float etMax_;        ///< max Et value for the bin
     unsigned int gain_;  ///< 12, 6, 1, 61 (double gain switch)
   };
 

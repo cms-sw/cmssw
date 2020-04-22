@@ -470,35 +470,32 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
 
 ///for the new file format
 EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(unsigned int runMin,
-					  unsigned int runMax,
-					  float etaMin,
-					  float etaMax,
-					  float r9Min,
-					  float r9Max,
-					  float etMin,
-					  float etMax,
-					  unsigned int gainSeed)
-  : runMin_(runMin),
-    runMax_(runMax),
-    etaMin_(etaMin),
-    etaMax_(etaMax),
-    r9Min_(r9Min),
-    r9Max_(r9Max),
-    etMin_(etMin),
-    etMax_(etMax),
-    gain_(gainSeed){
-  
-  
+                                                              unsigned int runMax,
+                                                              float etaMin,
+                                                              float etaMax,
+                                                              float r9Min,
+                                                              float r9Max,
+                                                              float etMin,
+                                                              float etMax,
+                                                              unsigned int gainSeed)
+    : runMin_(runMin),
+      runMax_(runMax),
+      etaMin_(etaMin),
+      etaMax_(etaMax),
+      r9Min_(r9Min),
+      r9Max_(r9Max),
+      etMin_(etMin),
+      etMax_(etMax),
+      gain_(gainSeed) {
   //so turns out the code does an includes X<=Y<=Z search for bins
   //which is what we want for run numbers
   //however then the problem is when we get a value exactly at the bin boundary
   //for the et/eta/r9 which then gives multiple bins
-  //so we just decrement the maxValues ever so slightly to ensure that they are different            //from the next bins min value 
+  //so we just decrement the maxValues ever so slightly to ensure that they are different            //from the next bins min value
   etMax_ = std::nextafterf(etMax_, std::numeric_limits<float>::min());
   etaMax_ = std::nextafterf(etaMax_, std::numeric_limits<float>::min());
   r9Max_ = std::nextafterf(r9Max_, std::numeric_limits<float>::min());
-  
-    };
+};
 
 bool EnergyScaleCorrection::CorrectionCategory::inCategory(
     const unsigned int runnr, const float et, const float eta, const float r9, const unsigned int gainSeed) const {
