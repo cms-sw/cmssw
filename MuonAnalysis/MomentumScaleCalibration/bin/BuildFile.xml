@@ -1,12 +1,7 @@
-<use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/FWLite"/>
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/FWLite"/>
 <use   name="boost"/>
-<use   name="CommonTools/Utils"/>
-<use   name="PhysicsTools/Utilities"/>
 <use   name="PhysicsTools/FWLite"/>
-<use   name="PhysicsTools/SelectorUtils"/>
 <environment>
   <use   name="hepmc"/>
   <use   name="heppdt"/>
