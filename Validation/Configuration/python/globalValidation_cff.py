@@ -160,7 +160,12 @@ globalValidationHCAL = cms.Sequence(
     + calotowersValidationSequence
 )
 
-globalValidationHGCal = cms.Sequence(hgcalValidation)
+HGCRecHitMapProducer = cms.EDProducer("HGCalRecHitMapProducer",
+)
+globalValidationHGCal = cms.Sequence(
+      HGCRecHitMapProducer
+    * hgcalValidation
+)
 
 globalValidationMTD = cms.Sequence()
 
