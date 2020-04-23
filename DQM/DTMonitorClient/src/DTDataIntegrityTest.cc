@@ -30,8 +30,6 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps) : nevents(0) {
   // prescale on the # of LS to update the test
   prescaleFactor = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
-  checkUros = ps.getUntrackedParameter<bool>("checkUros", false);
-
   bookingdone = false;
 }
 
@@ -92,12 +90,8 @@ void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
   //Loop on FED id
   //Monitoring only real used FEDs
-  int FEDIDmax = FEDNumbering::MAXDTFEDID;
-  int FEDIDmin = FEDNumbering::MINDTFEDID;
-  if (checkUros) {
-    FEDIDmin = FEDNumbering::MINDTUROSFEDID;
-    FEDIDmax = FEDNumbering::MAXDTUROSFEDID;
-  }
+  int  FEDIDmin = FEDNumbering::MINDTUROSFEDID;
+  int  FEDIDmax = FEDNumbering::MAXDTUROSFEDID;
 
   for (int dduId = FEDIDmin; dduId <= FEDIDmax; ++dduId) {
     LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest]:FED Id: " << dduId;
@@ -108,20 +102,16 @@ void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     string histoType;
 
     //Check if the list of ROS is compatible with the channels enabled
-    string rosStatusName = "DT/00-DataIntegrity/FED" + dduId_s + "/FED" + dduId_s + "_ROSStatus";
-    if (checkUros)
-      rosStatusName = "DT/00-DataIntegrity/FED" + dduId_s + "/FED" + dduId_s + "_uROSStatus";
+    string rosStatusName = "DT/00-DataIntegrity/FED" + dduId_s + "/FED" + dduId_s + "_uROSStatus";
     MonitorElement* FED_ROSStatus = igetter.get(rosStatusName);
 
     // Get the error summary histo
     string fedSummaryName = "DT/00-DataIntegrity/FED" + dduId_s + "_ROSSummary";
-    MonitorElement* FED_ROSSummary = nullptr;
     MonitorElement* FED_ROSSummary1 = nullptr;
     MonitorElement* FED_ROSSummary2 = nullptr;
     string fedSummaryName1 = "";
     string fedSummaryName2 = "";
     string sign = "-";
-    if (checkUros) {
       if (dduId == FEDIDmin || dduId == FEDIDmax) {
         if (dduId == FEDIDmax)
           sign = "";
@@ -134,8 +124,6 @@ void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
         FED_ROSSummary1 = igetter.get(fedSummaryName);
         FED_ROSSummary2 = igetter.get(fedSummaryName);  //for wheel compatibility...
       }
-    } else
-      FED_ROSSummary = igetter.get(fedSummaryName);  //legacy case
 
     // Get the event length plot (used to count # of processed evts)
     string fedEvLenName = "DT/00-DataIntegrity/FED" + dduId_s + "/FED" + dduId_s + "_EventLength";
@@ -144,10 +132,7 @@ void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     // Get the histos for FED integrity
     string fedIntegrityFolder = "DT/00-DataIntegrity/";
     MonitorElement* hFEDEntry = igetter.get(fedIntegrityFolder + "FEDEntries");
-    MonitorElement* hFEDFatal = igetter.get(fedIntegrityFolder + "FEDFatal");
-    MonitorElement* hFEDNonFatal = igetter.get(fedIntegrityFolder + "FEDNonFatal");
 
-    if (checkUros) {
       if (hFEDEntry) {
         int offsetFED = 1368;
         // Check that the FED is in the ReadOut using the FEDIntegrity histos
@@ -255,62 +240,6 @@ void DTDataIntegrityTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
         }    // no data in this FED: it is off, no ROS suummary/status or evLength
 
       }       //FEDentry
-    } else {  //legacy case
-      if (hFEDEntry && hFEDFatal && hFEDNonFatal) {
-        if (FED_ROSSummary && FED_ROSStatus && FED_EvLength) {
-          TH2F* histoFEDSummary = FED_ROSSummary->getTH2F();
-          TH2F* histoROSStatus = FED_ROSStatus->getTH2F();
-          TH1F* histoEvLength = FED_EvLength->getTH1F();
-          // Check that the FED is in the ReadOut using the FEDIntegrity histos
-          bool fedNotReadout =
-              (hFEDEntry->getBinContent(dduId - 769) == 0 && hFEDFatal->getBinContent(dduId - 769) == 0 &&
-               hFEDNonFatal->getBinContent(dduId - 769) == 0);
-
-          int nFEDEvts = histoEvLength->Integral();
-          for (int rosNumber = 1; rosNumber <= 12; ++rosNumber) {  // loop on the ROS
-            int wheelNumber, sectorNumber;
-            if (!readOutToGeometry(dduId, rosNumber, wheelNumber, sectorNumber)) {
-              float nErrors = histoFEDSummary->Integral(1, 14, rosNumber, rosNumber);
-              float nROBErrors = histoROSStatus->Integral(2, 8, rosNumber, rosNumber);
-              nErrors += nROBErrors;
-              float result = 0.;
-              if (nFEDEvts != 0)
-                result = max((float)0., ((float)nFEDEvts - nROBErrors) / (float)nFEDEvts);
-              summaryHisto->setBinContent(sectorNumber, wheelNumber + 3, result);
-              int tdcResult = -2;
-              float nTDCErrors = histoFEDSummary->Integral(15, 15, rosNumber, rosNumber);
-              if (nTDCErrors == 0) {  // no errors
-                tdcResult = 0;
-              } else {  // there are errors
-                tdcResult = 2;
-              }
-              summaryTDCHisto->setBinContent(sectorNumber, wheelNumber + 3, tdcResult);
-              // FIXME: different errors should have different weights
-              float sectPerc = max((float)0., ((float)nFEDEvts - nErrors) / (float)nFEDEvts);
-              glbSummaryHisto->setBinContent(sectorNumber, wheelNumber + 3, sectPerc);
-
-              if (fedNotReadout) {
-                // no data in this FED: it is off
-                summaryHisto->setBinContent(sectorNumber, wheelNumber + 3, 0);
-                summaryTDCHisto->setBinContent(sectorNumber, wheelNumber + 3, 1);
-                glbSummaryHisto->setBinContent(sectorNumber, wheelNumber + 3, 0);
-              }   //fedNotReadout
-            }     //mapping
-          }       //loop on ros
-        } else {  // no data in this FED: it is off, no ROS suummary/status or evLength
-          for (int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
-            int wheelNumber, sectorNumber;
-            if (!readOutToGeometry(dduId, rosNumber, wheelNumber, sectorNumber)) {
-              summaryHisto->setBinContent(sectorNumber, wheelNumber + 3, 0);
-              summaryTDCHisto->setBinContent(sectorNumber, wheelNumber + 3, 1);
-              glbSummaryHisto->setBinContent(sectorNumber, wheelNumber + 3, 0);
-            }  //mapping
-          }    //loop on ros
-        }      // no data in this FED: it is off, no ROS suummary/status or evLength
-
-      }  // no FED entry, fatal, nonfatal
-
-    }  //legacy case
 
   }  //  loop on dduIds
 }
@@ -328,14 +257,6 @@ string DTDataIntegrityTest::getMEName(string histoType, int FEDId) {
 
   string histoName = folderName + "/FED" + dduID_s.str() + "_" + histoType;
   return histoName;
-}
-
-void DTDataIntegrityTest::bookHistos(DQMStore::IBooker& ibooker, string histoType, int dduId) {
-  stringstream dduId_s;
-  dduId_s << dduId;
-
-  ibooker.setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str());
-  string histoName;
 }
 
 int DTDataIntegrityTest::readOutToGeometry(int dduId, int ros, int& wheel, int& sector) {
