@@ -33,6 +33,7 @@ def tobuffer(th1):
 
 class RenderLink:
     def __init__(self, renderplugins=True):
+        self.dead = False
         self.wd = tempfile.mkdtemp()
         if renderplugins == True:
             renderplugins = subprocess.check_output(
@@ -47,7 +48,7 @@ class RenderLink:
         # TODO: also kill it at the end.
         loadcmd = ('--load ' + self.renderplugins) if self.renderplugins else ''
         self.renderprocess = subprocess.Popen(
-            f"{RENERERNAME} --state-directory {self.wd}/ {loadcmd} > {self.wd}/render.log", 
+            f"{RENERERNAME} --state-directory {self.wd}/ {loadcmd} > {self.wd}/render.log 2>&1", 
             shell=True, stdout=subprocess.PIPE)
         self.client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         ex = None
@@ -106,24 +107,30 @@ class RenderLink:
         msg = struct.pack("=iiiiiiiiii", mtype, flags, vlow, vhigh, numobjs, filelen, namelen, speclen, datalen, qlen)
         msg += streamerfile + name + specb + data
         msg = struct.pack('=i', len(msg) + 4) + msg
-        self.client.send(msg)
-        lenbuf = self.client.recv(8)
-        errorcode, length = struct.unpack("=ii", lenbuf)
-        buf = b''
-        while length > 0:
-            recvd = self.client.recv(length)
-            length -= len(recvd)
-            buf += recvd
-        return buf, errorcode
+        try:
+            self.client.send(msg)
+            lenbuf = self.client.recv(8)
+            errorcode, length = struct.unpack("=ii", lenbuf)
+            buf = b''
+            while length > 0:
+                recvd = self.client.recv(length)
+                length -= len(recvd)
+                buf += recvd
+            return buf, errorcode
+        except BrokenPipeError:
+            # looks like our renderer died.
+            self.dead = True
+            return b'', -1
+            
 
 class RenderHandle:
-    def __init__(self, cache):
-        self.cache = cache
+    def __init__(self, pool):
+        self.pool = pool
         self.link = None
     def __enter__(self):
         while self.link == None:
             try:
-                self.link = self.cache.pop()
+                self.link = self.pool.workers.pop()
             except:
                 # no workers available -- wait and retry
                 print("Out of renderers, waiting...")
@@ -131,11 +138,15 @@ class RenderHandle:
         return self.link
 
     def __exit__(self, type, value, traceback):
-        self.cache.append(self.link)
+        if self.link.dead:
+            # restart worker
+            self.link = RenderLink(**self.pool.args)
+        self.pool.workers.append(self.link)
 
 class RenderPool:
     def __init__(self, workers=8, **kwargs):
-        self.workers = [RenderLink(**kwargs) for _ in range(workers)]
+        self.args = kwargs
+        self.workers = [RenderLink(**self.args) for _ in range(workers)]
     def renderer(self):
-        return RenderHandle(self.workers)
+        return RenderHandle(self)
 
