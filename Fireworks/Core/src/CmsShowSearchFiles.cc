@@ -84,7 +84,8 @@ CmsShowSearchFiles::CmsShowSearchFiles(
 
   SetWindowName(windowname);
 
-  std::string path = Form("http://cmsshow-rels.web.cern.ch/cmsShow-rels/samples/%d/", fireworks::supportedDataFormatsVersion()[0]);
+  std::string path =
+      Form("http://cmsshow-rels.web.cern.ch/cmsShow-rels/samples/%d/", fireworks::supportedDataFormatsVersion()[0]);
 
   if (!path.empty())
     fwLog(fwlog::kInfo) << "Search files at " << path << "." << std::endl;
@@ -170,7 +171,7 @@ void CmsShowSearchFiles::openClicked() {
 void CmsShowSearchFiles::showPrefixes() {
   if (nullptr == m_prefixMenu) {
     m_prefixMenu = new TGPopupMenu(this);
-    const char* const(*itEnd)[s_columns] = s_prefixes + sizeof(s_prefixes) / sizeof(const char* [3]);
+    const char* const(*itEnd)[s_columns] = s_prefixes + sizeof(s_prefixes) / sizeof(const char * [3]);
     int index = 0;
     for (const char* const(*it)[s_columns] = s_prefixes; it != itEnd; ++it, ++index) {
       //only add the protocols this version of the code actually can load
