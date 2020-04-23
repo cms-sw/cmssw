@@ -18,12 +18,10 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/EZArrayFL.h"
 
-
 #include <iomanip>
 #include <iostream>
 
 typedef EZArrayFL<GlobalPoint> CornersVec;
-
 
 class ecalBarrelCellParameterDump : public edm::one::EDAnalyzer<> {
 public:
@@ -55,7 +53,8 @@ void ecalBarrelCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
-  const CaloSubdetectorGeometry* ecalGeom = static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
+  const CaloSubdetectorGeometry* ecalGeom =
+      static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
 
   std::string subdets[detMax_] = {"EB"};
 
@@ -66,20 +65,20 @@ void ecalBarrelCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
   for (auto id : ids) {
     ++nall;
     std::shared_ptr<const CaloCellGeometry> geom = ecalGeom->getGeometry(id);
-    EBDetId ebid( id.rawId() );
-      
-        std::cout << "IEta = " << ebid.ieta() << ";  IPhi = " << ebid.iphi() << " geom->getPosition " << std::setprecision(4) << geom->getPosition()
-              << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] (" << geom->rhoPos() << ", " << geom->etaPos() << ":"
+    EBDetId ebid(id.rawId());
+
+    std::cout << "IEta = " << ebid.ieta() << ";  IPhi = " << ebid.iphi() << " geom->getPosition "
+              << std::setprecision(4) << geom->getPosition() << " BackPoint " << geom->getBackPoint()
+              << " [rho,eta:etaSpan,phi:phiSpan] (" << geom->rhoPos() << ", " << geom->etaPos() << ":"
               << geom->etaSpan() << ", " << geom->phiPos() << ":" << geom->phiSpan() << ")";
 
-	const CaloCellGeometry::CornersVec& corners(geom->getCorners()); 
-	
-	for (unsigned int ci(0); ci != corners.size(); ci++) {
- 		std::cout  << " Corner: "<< ci << "  Location" << corners[ci]<< " ; ";
-	}
+    const CaloCellGeometry::CornersVec& corners(geom->getCorners());
 
-	std::cout << std::endl;
+    for (unsigned int ci(0); ci != corners.size(); ci++) {
+      std::cout << " Corner: " << ci << "  Location" << corners[ci] << " ; ";
+    }
 
+    std::cout << std::endl;
   }
   std::cout << "\n\nDumps a total of : " << nall << " cells of the detector\n" << std::endl;
 }
