@@ -15,6 +15,8 @@ process.source = cms.Source("EmptySource")
 # - event/lumi/run product with the same module label and instance name but with skipCurrentProcess, module deleted
 # - DAG of event/lumi/run producers that are not consumed by an always-running module, whole DAG deleted
 # - DAG of event(/lumi/run) producers that are partly consumed (kept) and partly non-consumed (delete)
+# - EDAlias with one instance consumed (original producer kept) and another non-consumed (original producer deleted)
+# - SwitchProducer non-chosen case deleted
 
 intEventProducer = cms.EDProducer("IntProducer", ivalue = cms.int32(1))
 intNonEventProducer = cms.EDProducer("NonEventIntProducer", ivalue = cms.int32(1))
@@ -83,6 +85,42 @@ process.producerEventPartiallyConsumedChain4 = cms.EDProducer("edmtest::TestModu
     srcEvent = cms.untracked.VInputTag("producerEventPartiallyConsumedChain2", "producerEventPartiallyConsumedChain4")
 )
 
+process.producerEventAliasNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteProducer")
+process.producerEventAliasConsumed = intEventProducerMustRun.clone()
+process.producerEventAlias = cms.EDAlias(
+    producerEventAliasNotConsumed = cms.VPSet(
+        cms.PSet(
+            type = cms.string("edmtestIntProduct"),
+            fromProductInstance = cms.string(""),
+            toProductInstance = cms.string("notConsumed"),
+        )
+    ),
+    producerEventAliasConsumed = cms.VPSet(
+        cms.PSet(
+            type = cms.string("edmtestIntProduct"),
+            fromProductInstance = cms.string(""),
+            toProductInstance = cms.string("consumed"),
+        )
+    )
+)
+process.consumerEventAlias = cms.EDAnalyzer("edmtest::GenericIntsAnalyzer",
+    srcEvent = cms.untracked.VInputTag("producerEventAlias:consumed")
+)
+
+class SwitchProducerTest(cms.SwitchProducer):
+    def __init__(self, **kargs):
+        super(SwitchProducerTest,self).__init__(
+            dict(
+                test1 = lambda: (True, -10),
+                test2 = lambda: (True, -9)
+            ), **kargs)
+process.producerEventSwitchProducerNotConsumed = cms.EDProducer("edmtest::TestModuleDeleteProducer")
+process.producerEventSwitchProducerConsumed = intEventProducerMustRun.clone()
+process.producerEventSwitchProducer = SwitchProducerTest(
+    test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("producerEventSwitchProducerNotConsumed")),
+    test2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("producerEventSwitchProducerConsumed")),
+)
+
 process.consumerNotExist = cms.EDAnalyzer("edmtest::GenericIntsAnalyzer",
     inputShouldBeMissing = cms.untracked.bool(True),
     srcBeginRun = cms.untracked.VInputTag(
@@ -124,6 +162,12 @@ process.t = cms.Task(
     process.producerEventPartiallyConsumedChain1,
     process.producerEventPartiallyConsumedChain3,
     process.producerEventPartiallyConsumedChain4,
+    #
+    process.producerEventAliasNotConsumed,
+    process.producerEventAliasConsumed,
+    #
+    process.producerEventSwitchProducerNotConsumed,
+    process.producerEventSwitchProducerConsumed,
 )
 
 process.p = cms.Path(
@@ -138,6 +182,10 @@ process.p = cms.Path(
     process.consumerNotExist+
     #
     process.producerEventPartiallyConsumedChain2+
+    #
+    process.consumerEventAlias+
+    #
+    process.producerEventSwitchProducer+
     #
     process.intAnalyzerDelete
     ,
