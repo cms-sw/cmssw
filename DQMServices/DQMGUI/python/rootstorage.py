@@ -322,7 +322,7 @@ def readobject(file, mekey):
         return head + classname + b'\0' + buf
 
 # Samples search API
-def searchsamples(datasetre, runre):
+def searchsamples(datasetre = None, runre = None):
     dsmatch = re.compile(datasetre) if datasetre else None
     runmatch = re.compile(runre) if runre else None
     out = []
@@ -347,7 +347,12 @@ def listmes(sample, path, match=None, recursive=True):
         return set(cand)
     else:
         # return only next-level names
-        # TODO: return path/ for dirs, name for objects.
-        return set(x[len(path):].split(b'/', 1)[0] for x in cand)
+        def relativize(subpath):
+            tail = subpath[len(path):]
+            if b'/' in tail:
+                return tail.split(b'/')[0] + b'/'
+            else:
+                return tail
+        return set(relativize(x) for x in cand)
         
 
