@@ -65,6 +65,8 @@ public:
     linearLSB_QIE11_ = lsb11;
     linearLSB_QIE11Overlap_ = lsb11overlap;
   };
+  void set1TSContain(bool contain1TS) { contain1TS_ = contain1TS; }
+  void setContainPhase(double containPhaseNS) { containPhaseNS_ = containPhaseNS; }
   void lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const;
   void lookupMSB(const QIE10DataFrame& df, std::vector<std::bitset<2>>& msb) const;
   void lookupMSB(const QIE11DataFrame& df, std::vector<std::bitset<2>>& msb) const;
@@ -109,6 +111,8 @@ private:
   // edge cases not covered by the cosh_ieta_ map
   double cosh_ieta_28_HE_low_depths_, cosh_ieta_28_HE_high_depths_, cosh_ieta_29_HE_;
   bool allLinear_;
+  bool contain1TS_;
+  double containPhaseNS_;
   double linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_;
   std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
 };
