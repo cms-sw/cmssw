@@ -7,9 +7,7 @@ This package contains experimental code for a DQMGUI similar to https://cmsweb.c
 There are multiple relevant parts:
 - The _render service_ in `bin/render.cc`, extracted from the classic DQMGUI: https://github.com/rovere/dqmgui
 - The _render plugins_ in `plugins/`, traditionally hosted on https://github.com/dmwm/deployment/tree/master/dqmgui/style
-- A simple proof-of-concept web server, in `python/server.py`
-
-The sverer code uses the Python DQMIO library from `DQMServices/FwkIO`as its storage backend.
+- A web server (TBD).
 
 ## The render service
 
@@ -34,31 +32,4 @@ The render plugins need to register with their base class so that they can be ca
 The render plugins are compiled separately in `plugins/` and linked dynamically against `DQMRenderPlugin.cc` (via `DQMServices/DQMGUI` in the `BuildFile`). This results in a new shared library `.so`, which can then be dynamically loaded at runtime in `render.cc` (via `dlopen`), and all the plugins will automatically register. The render plugins are also linked against some other stuff from ROOT that they might need. They could actually depend on other CMSSW code now where it makes sense (e.g. detector geometries).
 
 There is some hacky code in `render.py` that locates the `.so` with the render plugins and passes it to `render.cc` as a command line argument.
-
-## The proof-of-concept server
-
-To run the server, prepare a database named `server.db` by manually calling the `DQMIO` code:
-```
-from DQMServices.FwkIO.DQMIO import DQMIOReader
-
-r = DQMIOReader("server.db")
-r.importdatasets("<somedatasets>")
-r.checkfiles()
-```
-
-Then, run the server
-```
-python3 DQMServices/DQMGUI/python/server.py
-```
-
-It will provide a browsable HTML interface showing the rendered plots as well as most of the JSON APIs that the classic GUI provides, in a way that attempts to be compatible as far as possible.
-
-### How does it work?
-
-The server is very bare-bones (based on `SimpleHTTPServer`) and does not care much about input sanitization or error handling. It is not desinged to be used in production setting. It is, however, designed to be fast to allow performance studies.
-
-It uses the `threading` mode of `SimpleHTTPServer`, where each request is handled in a new thread. Each thread then does the DQMIO IO using the code from `DQMServices.FwkIO.DQMIO`, borrowing DB connections and open files from the shared pools. Then, after potentially merging the MEs that were found, it will borrow a renderer from a pool managed in `render.py` and send the data there for rendering. Then it returns the response. This _one thread per request_ model is not the most efficient, but the limited number of objects in each pool should keep the amount of CPU-heavy operations running in parallel limited. All heavy operations should release the GIL (apart from some ROOT operations where it is not possible -- but for the `GetEntry` that does most of the IO, it works), allowing for decent performance even with Python multithreading.
-
-In practice, operations are typically limited by the time needed to read the DQMIO data from disk/remote; this could be sped up (especially when reading unharvested data, where a single ME might need to be collected from many files) using thread pools, but submitting work to thread pools from multiple threads seems to not work well.
-
 
