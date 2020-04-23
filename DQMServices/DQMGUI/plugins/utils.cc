@@ -15,32 +15,24 @@
 
 using namespace dqm;
 bool utils::init = false;
-void utils::reportSummaryMapPalette(TH2* obj)
-{
+void utils::reportSummaryMapPalette(TH2* obj) {
   static int pcol[20];
 
-  if( ! utils::init )
-  {
+  if (!utils::init) {
     utils::init = true;
 
     float rgb[20][3];
 
-    for( int i=0; i<20; i++ )
-    {
-      if ( i < 17 )
-      {
-        rgb[i][0] = 0.80+0.01*i;
-        rgb[i][1] = 0.00+0.03*i;
+    for (int i = 0; i < 20; i++) {
+      if (i < 17) {
+        rgb[i][0] = 0.80 + 0.01 * i;
+        rgb[i][1] = 0.00 + 0.03 * i;
         rgb[i][2] = 0.00;
-      }
-      else if ( i < 19 )
-      {
-        rgb[i][0] = 0.80+0.01*i;
-        rgb[i][1] = 0.00+0.03*i+0.15+0.10*(i-17);
+      } else if (i < 19) {
+        rgb[i][0] = 0.80 + 0.01 * i;
+        rgb[i][1] = 0.00 + 0.03 * i + 0.15 + 0.10 * (i - 17);
         rgb[i][2] = 0.00;
-      }
-      else if ( i == 19 )
-      {
+      } else if (i == 19) {
         rgb[i][0] = 0.00;
         rgb[i][1] = 0.80;
         rgb[i][2] = 0.00;
@@ -51,8 +43,7 @@ void utils::reportSummaryMapPalette(TH2* obj)
 
   gStyle->SetPalette(20, pcol);
 
-  if( obj )
-  {
+  if (obj) {
     obj->SetMinimum(-1.e-15);
     obj->SetMaximum(+1.0);
     obj->SetOption("colz");

@@ -36,63 +36,56 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 
-
 struct ChamberID {
   Int_t nRegion;
   Int_t nStation;
   Int_t nLayer;
   Int_t nChamber;
-  
+
   Bool_t bIsDouble;
-  
+
   Int_t nIdx;
 };
 
-
-uint32_t ChIdToInt(ChamberID &id);
-
+uint32_t ChIdToInt(ChamberID& id);
 
 /**
  * @class SummaryChamber
  * @brief Class that draws GEM Map diagram
  */
 class SummaryChamber {
-  private:
+private:
+  static const unsigned short COLOR_WHITE = 0;
+  static const unsigned short COLOR_GREEN = 3;
+  static const unsigned short COLOR_RED = 2;
+  static const unsigned short COLOR_BLUE = 4;
+  static const unsigned short COLOR_GREY = 17;
+  static const unsigned short COLOR_YELLOW = 5;
 
-    static const unsigned short COLOR_WHITE  = 0;
-    static const unsigned short COLOR_GREEN  = 3;
-    static const unsigned short COLOR_RED    = 2;
-    static const unsigned short COLOR_BLUE   = 4;
-    static const unsigned short COLOR_GREY   = 17;
-    static const unsigned short COLOR_YELLOW = 5;
-    
-    std::unordered_map<uint32_t, ChamberID> bGEM_ChInfo;
-    std::unordered_map<uint32_t, TBox *>    bGEM_box;
-    std::unordered_map<uint32_t, TText *>  bGEM_label;
-    
-    Int_t m_nNumLayer, m_nNumChamber;
-    Float_t m_fScaleX, m_fScaleY;
+  std::unordered_map<uint32_t, ChamberID> bGEM_ChInfo;
+  std::unordered_map<uint32_t, TBox*> bGEM_box;
+  std::unordered_map<uint32_t, TText*> bGEM_label;
 
-    TBox*  bBlank;
-    TBox*  bLegend[10];
-    TText* tLegend[10];
-    TText* tStatusTitle;
-    TText* tLegendTitle;
+  Int_t m_nNumLayer, m_nNumChamber;
+  Float_t m_fScaleX, m_fScaleY;
 
-  public:
+  TBox* bBlank;
+  TBox* bLegend[10];
+  TText* tLegend[10];
+  TText* tStatusTitle;
+  TText* tLegendTitle;
 
-    SummaryChamber();
-    ~SummaryChamber();
-    void drawStats(TH2*& me);
+public:
+  SummaryChamber();
+  ~SummaryChamber();
+  void drawStats(TH2*& me);
 
-  private:
-
-    void printLegendBox(const unsigned int& number, const std::string title, int color);
-    float GetXmin(ChamberID &id) const;
-    float GetXmax(ChamberID &id) const;
-    float GetYmin(ChamberID &id) const;
-    float GetYmax(ChamberID &id) const;
-
+private:
+  void printLegendBox(const unsigned int& number, const std::string title, int color);
+  float GetXmin(ChamberID& id) const;
+  float GetXmax(ChamberID& id) const;
+  float GetYmin(ChamberID& id) const;
+  float GetYmax(ChamberID& id) const;
 };
 
 #endif

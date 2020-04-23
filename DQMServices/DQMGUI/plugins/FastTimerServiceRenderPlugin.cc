@@ -13,50 +13,36 @@
 #include "utils.h"
 
 class FastTimerServiceRenderPlugin : public DQMRenderPlugin {
-
 public:
-  virtual bool applies( const VisDQMObject &o, const VisDQMImgInfo & ) {
-
-    if (o.name.find( "HLT/TimerService" ) == 0)
+  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+    if (o.name.find("HLT/TimerService") == 0)
       return true;
 
     return false;
-
   }
 
-  virtual void preDraw( TCanvas *, const VisDQMObject & , const VisDQMImgInfo &, VisDQMRenderInfo & ) {
-  }
+  virtual void preDraw(TCanvas *, const VisDQMObject &, const VisDQMImgInfo &, VisDQMRenderInfo &) {}
 
-  virtual void postDraw( TCanvas * c, const VisDQMObject & o, const VisDQMImgInfo & i) {
-    if (
-      (o.name == "HLT/TimerService/event_bylumi")         or
-      (o.name == "HLT/TimerService/source_bylumi")        or
-      (o.name == "HLT/TimerService/all_paths_bylumi")     or
-      (o.name == "HLT/TimerService/all_endpaths_bylumi")
-    ) {
+  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i) {
+    if ((o.name == "HLT/TimerService/event_bylumi") or (o.name == "HLT/TimerService/source_bylumi") or
+        (o.name == "HLT/TimerService/all_paths_bylumi") or (o.name == "HLT/TimerService/all_endpaths_bylumi")) {
       customiseLumisectionRange(c, o, i);
     }
 
-    if (
-      (o.name == "HLT/TimerService/paths_active_time")    or
-      (o.name == "HLT/TimerService/paths_total_time")     or
-      (o.name == "HLT/TimerService/paths_exclusive_time") or
-      (o.name == "HLT/TimerService/event_bylumi")         or
-      (o.name == "HLT/TimerService/source_bylumi")        or
-      (o.name == "HLT/TimerService/all_paths_bylumi")     or
-      (o.name == "HLT/TimerService/all_endpaths_bylumi")
-    ) {
+    if ((o.name == "HLT/TimerService/paths_active_time") or (o.name == "HLT/TimerService/paths_total_time") or
+        (o.name == "HLT/TimerService/paths_exclusive_time") or (o.name == "HLT/TimerService/event_bylumi") or
+        (o.name == "HLT/TimerService/source_bylumi") or (o.name == "HLT/TimerService/all_paths_bylumi") or
+        (o.name == "HLT/TimerService/all_endpaths_bylumi")) {
       customiseTProfile(c, o, i);
     }
   }
 
 private:
-
-  void customiseTProfile( TCanvas * c, const VisDQMObject & o, const VisDQMImgInfo & ) {
+  void customiseTProfile(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
     // is this needed ?
     c->cd();
 
-    TProfile * obj = dynamic_cast<TProfile *>(o.object);
+    TProfile *obj = dynamic_cast<TProfile *>(o.object);
     // this is supposed to be a TProfile
     if (not obj)
       return;
@@ -67,15 +53,15 @@ private:
     obj->SetLineColor(kBlack);
 
     // make a copy and draw red Y error bars
-    TProfile * copy = (TProfile *) obj->DrawCopy("SAME E1 X0");
+    TProfile *copy = (TProfile *)obj->DrawCopy("SAME E1 X0");
     copy->SetLineColor(kRed);
   }
 
-  void customiseLumisectionRange( TCanvas * c, const VisDQMObject & o, const VisDQMImgInfo & i) {
+  void customiseLumisectionRange(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i) {
     // is this needed ?
     c->cd();
 
-    TH1 * obj = dynamic_cast<TH1 *>(o.object);
+    TH1 *obj = dynamic_cast<TH1 *>(o.object);
     // this is supposed to be a TH1 or derived object
     if (not obj)
       return;
@@ -86,11 +72,10 @@ private:
       for (int i = 1; i <= obj->GetNbinsX(); ++i)
         if (obj->GetBinContent(i))
           xmax = i;
-      TAxis * a = obj->GetXaxis();
+      TAxis *a = obj->GetXaxis();
       a->SetRange(a->GetFirst(), xmax);
     }
   }
-
 };
 
 static FastTimerServiceRenderPlugin instance;

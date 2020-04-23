@@ -59,210 +59,167 @@
 // Define constants
 TPRegexp efficiencyRegexp("(efficiency[^_]*$|genEff|recEff|TurnOn|MaxPt)");
 
-class HLTMuonOfflineRenderPlugin : public DQMRenderPlugin
-{
+class HLTMuonOfflineRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &)
-    {
-      // determine whether core object is an HLT object
-      if (o.name.find( "HLT/Muon" ) != std::string::npos  )
-        return true;
+  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+    // determine whether core object is an HLT object
+    if (o.name.find("HLT/Muon") != std::string::npos)
+      return true;
 
-      return false;
+    return false;
+  }
+
+  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+    c->cd();
+
+    // object is TProfile histogram
+    if (dynamic_cast<TProfile *>(o.object)) {
+      preDrawTProfile(c, o);
     }
 
-  virtual void preDraw (TCanvas * c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &)
-    {
-      c->cd();
-
-      // object is TProfile histogram
-      if( dynamic_cast<TProfile*>( o.object ) )
-      {
-        preDrawTProfile( c, o );
-      }
-
-      // object is TH2 histogram
-      if( dynamic_cast<TH2F*>( o.object ) )
-      {
-        preDrawTH2F( c, o );
-      }
-
-      // object is TH1 histogram
-      else if( dynamic_cast<TH1F*>( o.object ) )
-      {
-        preDrawTH1F( c, o );
-      }
+    // object is TH2 histogram
+    if (dynamic_cast<TH2F *>(o.object)) {
+      preDrawTH2F(c, o);
     }
 
-  virtual void postDraw (TCanvas * c, const VisDQMObject &o, const VisDQMImgInfo &)
-    {
-
-      // object is TProfile histogram
-      if( dynamic_cast<TProfile*>( o.object ) )
-      {
-        postDrawTProfile( c, o );
-      }
-
-      // object is TH2 histogram
-      if( dynamic_cast<TH2F*>( o.object ) )
-      {
-        postDrawTH2F( c, o );
-      }
-
-      // object is TH1 histogram
-      else if( dynamic_cast<TH1F*>( o.object ) )
-      {
-        postDrawTH1F( c, o );
-      }
-
+    // object is TH1 histogram
+    else if (dynamic_cast<TH1F *>(o.object)) {
+      preDrawTH1F(c, o);
     }
+  }
+
+  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+    // object is TProfile histogram
+    if (dynamic_cast<TProfile *>(o.object)) {
+      postDrawTProfile(c, o);
+    }
+
+    // object is TH2 histogram
+    if (dynamic_cast<TH2F *>(o.object)) {
+      postDrawTH2F(c, o);
+    }
+
+    // object is TH1 histogram
+    else if (dynamic_cast<TH1F *>(o.object)) {
+      postDrawTH1F(c, o);
+    }
+  }
 
 private:
-  void preDrawTProfile ( TCanvas *, const VisDQMObject &o )
-    {
+  void preDrawTProfile(TCanvas *, const VisDQMObject &o) {
+    // Do we want to do anything special yet with TProfile histograms?
+    TProfile *obj = dynamic_cast<TProfile *>(o.object);
+    assert(obj);  // checks that object indeed exists
 
-      // Do we want to do anything special yet with TProfile histograms?
-      TProfile* obj = dynamic_cast<TProfile*>( o.object );
-      assert (obj); // checks that object indeed exists
+    // if this isn't a muon hlt plot, skip it
+    if (o.name.find("HLT/Muon") == std::string::npos)
+      return;
 
-      // if this isn't a muon hlt plot, skip it
-      if (o.name.find("HLT/Muon") == std::string::npos)
-        return;
-
-      if (TString(o.name).Contains(efficiencyRegexp))
-      {
-
-          gStyle->SetOptStat(10);
-
-            obj->SetMinimum(0);
-          obj->SetMaximum(1.1);
-          obj->SetMarkerStyle(4);
-
-          }
-
-      if (o.name.find("TurnOn") != std::string::npos)
-          {
-
-            gPad->SetLogx();
-            obj->GetXaxis()->SetRangeUser(2., 300.);
-
-          }
-
-      }
-
-  void preDrawTH1F ( TCanvas *, const VisDQMObject &o )
-      {
-      // Do we want to do anything special yet with TH1F histograms?
-      TH1F* obj = dynamic_cast<TH1F*>( o.object );
-      assert (obj); // checks that object indeed exists
-
-      // if this isn't a muon hlt plot, skip it
-      if (o.name.find("HLT/Muon") == std::string::npos)
-        return;
-
-      // Do these for all your histos
+    if (TString(o.name).Contains(efficiencyRegexp)) {
       gStyle->SetOptStat(10);
 
-      // FourVector eff histograms
-
-      if (TString(o.name).Contains(efficiencyRegexp))
-          {
-
-            obj->SetMinimum(0);
-            obj->SetMaximum(1.0);
-
-          }
-
-      if (o.name.find("TurnOn") != std::string::npos)
-          {
-
-          gPad->SetLogx();
-          obj->GetXaxis()->SetRangeUser(2., 300.);
-
-          }
-
+      obj->SetMinimum(0);
+      obj->SetMaximum(1.1);
+      obj->SetMarkerStyle(4);
     }
 
-  void preDrawTH2F ( TCanvas *, const VisDQMObject &o )
-    {
-      TH2F* obj = dynamic_cast<TH2F*>( o.object );
-      assert( obj );
+    if (o.name.find("TurnOn") != std::string::npos) {
+      gPad->SetLogx();
+      obj->GetXaxis()->SetRangeUser(2., 300.);
+    }
+  }
 
-      // if this isn't a muon hlt plot, skip it
-      if (o.name.find("HLT/Muon") == std::string::npos)
-        return;
+  void preDrawTH1F(TCanvas *, const VisDQMObject &o) {
+    // Do we want to do anything special yet with TH1F histograms?
+    TH1F *obj = dynamic_cast<TH1F *>(o.object);
+    assert(obj);  // checks that object indeed exists
 
-      // You'll want to do all of these things
-      // Regardless of the histo
-
-      gStyle->SetOptStat(10);
-      gStyle->SetPalette(1,0);
-      obj->SetOption("colz");
-      // gPad->SetGrid(1,1);
-
-      //Handle the 2D eff histograms
-      if (TString(o.name).Contains(efficiencyRegexp))
-        {
-
-          obj->SetOption("text colz");
-          gStyle->SetPaintTextFormat(".2f");
-
-          const Int_t NRGBs = 3;
-          const Int_t NCont = 255;
-          Double_t stops[NRGBs] = { 0.00, 0.88, 1.00 };
-          Double_t red[NRGBs]   = { 1.00, 1.00, 0.00 };
-          Double_t green[NRGBs] = { 0.00, 1.00, 1.00 };
-          Double_t blue[NRGBs]  = { 0.00, 0.00, 0.00 };
-          TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
-          gStyle->SetNumberContours(NCont);
-
-          obj->SetMinimum(0.0);
-          obj->SetMaximum(1.0);
-
-          return;
-        }
-
-      // if not a 2D eff, do nothing special
+    // if this isn't a muon hlt plot, skip it
+    if (o.name.find("HLT/Muon") == std::string::npos)
       return;
 
+    // Do these for all your histos
+    gStyle->SetOptStat(10);
+
+    // FourVector eff histograms
+
+    if (TString(o.name).Contains(efficiencyRegexp)) {
+      obj->SetMinimum(0);
+      obj->SetMaximum(1.0);
     }
 
-  void postDrawTProfile( TCanvas *, const VisDQMObject &o)
-    {
+    if (o.name.find("TurnOn") != std::string::npos) {
+      gPad->SetLogx();
+      obj->GetXaxis()->SetRangeUser(2., 300.);
+    }
+  }
 
-      TProfile* obj = dynamic_cast<TProfile*>( o.object );
+  void preDrawTH2F(TCanvas *, const VisDQMObject &o) {
+    TH2F *obj = dynamic_cast<TH2F *>(o.object);
+    assert(obj);
 
-      if (TString(o.name).Contains(efficiencyRegexp))
-        {
-
-          TLine l;
-          l.SetLineStyle(2); // dashed
-          float xmin = obj->GetBinLowEdge(1);
-          float xmax = obj->GetBinLowEdge(obj->GetNbinsX() + 1);
-          l.DrawLine(xmin, 1.0, xmax, 1.0);
-
-        }
-
+    // if this isn't a muon hlt plot, skip it
+    if (o.name.find("HLT/Muon") == std::string::npos)
       return;
 
-    }
+    // You'll want to do all of these things
+    // Regardless of the histo
 
-  void postDrawTH1F( TCanvas *, const VisDQMObject & )
-    {
+    gStyle->SetOptStat(10);
+    gStyle->SetPalette(1, 0);
+    obj->SetOption("colz");
+    // gPad->SetGrid(1,1);
 
-      // No special actions necessary right now
+    //Handle the 2D eff histograms
+    if (TString(o.name).Contains(efficiencyRegexp)) {
+      obj->SetOption("text colz");
+      gStyle->SetPaintTextFormat(".2f");
+
+      const Int_t NRGBs = 3;
+      const Int_t NCont = 255;
+      Double_t stops[NRGBs] = {0.00, 0.88, 1.00};
+      Double_t red[NRGBs] = {1.00, 1.00, 0.00};
+      Double_t green[NRGBs] = {0.00, 1.00, 1.00};
+      Double_t blue[NRGBs] = {0.00, 0.00, 0.00};
+      TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+      gStyle->SetNumberContours(NCont);
+
+      obj->SetMinimum(0.0);
+      obj->SetMaximum(1.0);
 
       return;
-
     }
 
-  void postDrawTH2F( TCanvas *, const VisDQMObject & )
-    {
-      // nothing to put here just yet
-      // in the future, we can add text output based on error status,
-      // or set bin range based on filled histograms, etc.
-      // Maybe add a big "OK" sign to histograms with no entries (i.e., no errors)?
+    // if not a 2D eff, do nothing special
+    return;
+  }
+
+  void postDrawTProfile(TCanvas *, const VisDQMObject &o) {
+    TProfile *obj = dynamic_cast<TProfile *>(o.object);
+
+    if (TString(o.name).Contains(efficiencyRegexp)) {
+      TLine l;
+      l.SetLineStyle(2);  // dashed
+      float xmin = obj->GetBinLowEdge(1);
+      float xmax = obj->GetBinLowEdge(obj->GetNbinsX() + 1);
+      l.DrawLine(xmin, 1.0, xmax, 1.0);
     }
+
+    return;
+  }
+
+  void postDrawTH1F(TCanvas *, const VisDQMObject &) {
+    // No special actions necessary right now
+
+    return;
+  }
+
+  void postDrawTH2F(TCanvas *, const VisDQMObject &) {
+    // nothing to put here just yet
+    // in the future, we can add text output based on error status,
+    // or set bin range based on filled histograms, etc.
+    // Maybe add a big "OK" sign to histograms with no entries (i.e., no errors)?
+  }
 };
 
 static HLTMuonOfflineRenderPlugin instance;

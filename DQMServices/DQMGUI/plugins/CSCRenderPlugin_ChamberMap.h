@@ -36,41 +36,36 @@
  * @brief Class that draws CSC Map diagram
  */
 class ChamberMap {
+private:
+  static const unsigned short COLOR_WHITE = 0;
+  static const unsigned short COLOR_GREEN = 3;
+  static const unsigned short COLOR_RED = 2;
+  static const unsigned short COLOR_BLUE = 4;
+  static const unsigned short COLOR_GREY = 17;
+  static const unsigned short COLOR_YELLOW = 5;
 
-  private:
+  TBox* bBlank;
+  TBox* bCSC_box[2][4][3][36];
+  TText* tCSC_label[2][4][3][36];
+  TBox* bLegend[10];
+  TText* tLegend[10];
+  TText* tStatusTitle;
+  TText* tLegendTitle;
 
-    static const unsigned short COLOR_WHITE  = 0;
-    static const unsigned short COLOR_GREEN  = 3;
-    static const unsigned short COLOR_RED    = 2;
-    static const unsigned short COLOR_BLUE   = 4;
-    static const unsigned short COLOR_GREY   = 17;
-    static const unsigned short COLOR_YELLOW = 5;
+public:
+  ChamberMap();
+  ~ChamberMap();
+  void draw(TH2*& me);
+  void drawStats(TH2*& me);
 
-    TBox*  bBlank;
-    TBox*  bCSC_box[2][4][3][36];
-    TText* tCSC_label[2][4][3][36];
-    TBox*  bLegend[10];
-    TText* tLegend[10];
-    TText* tStatusTitle;
-    TText* tLegendTitle;
-
-  public:
-
-    ChamberMap();
-    ~ChamberMap();
-    void draw(TH2*& me);
-    void drawStats(TH2*& me);
-
-  private:
-
-    void printLegendBox(const unsigned int& number, const std::string title, int color);
-    float Xmin_local_derived_from_ChamberID(int side, int station, int ring, int chamber) const;
-    float Xmax_local_derived_from_ChamberID(int side, int station, int ring, int chamber) const;
-    float Ymin_local_derived_from_ChamberID(int side, int station, int ring, int chamber) const;
-    float Ymax_local_derived_from_ChamberID(int side, int station, int ring, int chamber) const;
-    int N_ring(int station) const;
-    int N_chamber(int station, int ring) const;
-
+private:
+  void printLegendBox(const unsigned int& number, const std::string title, int color);
+  float Xmin_local_derived_from_ChamberID(int side, int station, int ring, int chamber) const;
+  float Xmax_local_derived_from_ChamberID(int side, int station, int ring, int chamber) const;
+  float Ymin_local_derived_from_ChamberID(int side, int station, int ring, int chamber) const;
+  float Ymax_local_derived_from_ChamberID(int side, int station, int ring, int chamber) const;
+  int N_ring(int station) const;
+  int N_chamber(int station, int ring) const;
 };
 
 #endif

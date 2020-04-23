@@ -29,16 +29,14 @@
 class TH2;
 
 namespace dqm {
-    class QualityTestStatusRenderPlugin {
+  class QualityTestStatusRenderPlugin {
+  public:
+    static void reportSummaryMapPalette(TH2* obj);
 
-    public:
-        static void reportSummaryMapPalette(TH2* obj);
+  private:
+    static bool init;
+  };
 
-    private:
-        static bool init;
-
-    };
-
-}
+}  // namespace dqm
 
 #endif

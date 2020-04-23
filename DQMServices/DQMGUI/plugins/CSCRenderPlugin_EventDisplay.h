@@ -36,47 +36,53 @@
  * @brief Class that draws CSC Map diagram
  */
 class EventDisplay {
+private:
+  static const unsigned int HISTO_WIDTH = 225;
 
-  private:
+  TPad* pad0;
+  TPad* pad1;
+  TPad* pad2;
+  TPad* pad3;
+  TPad* pad4;
 
-    static const unsigned int   HISTO_WIDTH = 225;
+  TH2F* histos[3];
 
-    TPad* pad0;
-    TPad* pad1;
-    TPad* pad2;
-    TPad* pad3;
-    TPad* pad4;
+  TText* tTitle;
+  TText* tLayer;
+  TText* tYLabel[6];
+  TText* tXTitle[3];
+  TText* tXLabel[3][224];
+  TBox* bBlank;
+  TBox* bBox[3][6][224];
+  TBox* bKey[3][224];
+  TText* tKey[3][224];
 
-    TH2F* histos[3];
+  TExec* greyscaleExec;
+  TExec* normalExec;
 
-    TText* tTitle;
-    TText* tLayer;
-    TText* tYLabel[6];
-    TText* tXTitle[3];
-    TText* tXLabel[3][224];
-    TBox*  bBlank;
-    TBox*  bBox[3][6][224];
-    TBox*  bKey[3][224];
-    TText* tKey[3][224];
+public:
+  EventDisplay();
+  ~EventDisplay();
+  void drawSingleChamber(TH2*& data);
 
-    TExec* greyscaleExec;
-    TExec* normalExec;
-
-  public:
-
-    EventDisplay();
-    ~EventDisplay();
-    void drawSingleChamber(TH2*& data);
-
-  private:
-
-    int countWiregroups(int station, int ring) const;
-    int countStrips(int station, int ring) const;
-    int countStripsNose(int station, int ring) const;
-    void drawEventDisplayGrid(int hnum, TH2* data, int data_first_col, int data_time_col, int data_quality_col,
-                              int count_x, float shift_x, float min_z, float max_z, int split_after_x, int time_corr, int d_corr,
-                              const char* title_x, bool greyscale);
-
+private:
+  int countWiregroups(int station, int ring) const;
+  int countStrips(int station, int ring) const;
+  int countStripsNose(int station, int ring) const;
+  void drawEventDisplayGrid(int hnum,
+                            TH2* data,
+                            int data_first_col,
+                            int data_time_col,
+                            int data_quality_col,
+                            int count_x,
+                            float shift_x,
+                            float min_z,
+                            float max_z,
+                            int split_after_x,
+                            int time_corr,
+                            int d_corr,
+                            const char* title_x,
+                            bool greyscale);
 };
 
 #endif

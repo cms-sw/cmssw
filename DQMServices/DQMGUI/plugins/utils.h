@@ -11,16 +11,14 @@
 
 class TH2;
 
-namespace dqm
-{
-  class utils
-  {
+namespace dqm {
+  class utils {
   public:
     static void reportSummaryMapPalette(TH2* obj);
 
   private:
     static bool init;
   };
-}
+}  // namespace dqm
 
-#endif // dqm_utils_H
+#endif  // dqm_utils_H

@@ -27,7 +27,7 @@
 #include "CSCDQM_Detector.h"
 #endif
 
-#define N_TICS    100
+#define N_TICS 100
 
 class TH2;
 class TH2F;
@@ -40,34 +40,31 @@ class TText;
  * @brief Class that draws CSC Summary Map diagram
  */
 class SummaryMap {
+public:
+  SummaryMap();
+  ~SummaryMap();
+  void drawDetector(TH2 *me);
+  void drawStation(TH2 *me, const int station);
 
-  public:
+private:
+  cscdqm::Detector detector;
 
-    SummaryMap();
-    ~SummaryMap();
-    void drawDetector(TH2* me);
-    void drawStation(TH2* me, const int station);
+  TBox *bDetector[N_TICS][N_TICS];
+  TLine *lDetector[N_TICS - 1][2];
+  TText *tDetector;
 
-  private:
+  TBox *bStation[4][N_ELEMENTS];
+  TLine *lStation[4][3456];
+  TText *tStationCSC_label[4][864];
+  TText *tStationRing_label[4][6];
+  TText *tStation_minus_label;
+  TText *tStation_plus_label;
+  TText *tStation_title;
 
-    cscdqm::Detector detector;
-
-    TBox  *bDetector[N_TICS][N_TICS];
-    TLine *lDetector[N_TICS - 1][2];
-    TText *tDetector;
-
-    TBox *bStation[4][N_ELEMENTS];
-    TLine *lStation[4][3456];
-    TText *tStationCSC_label[4][864];
-    TText *tStationRing_label[4][6];
-    TText *tStation_minus_label;
-    TText *tStation_plus_label;
-    TText *tStation_title;
-
-    TBox* bEmptyPlus;
-    TH2*  h1;
-    TBox* bBlank;
-    TBox* bEmptyMinus;
+  TBox *bEmptyPlus;
+  TH2 *h1;
+  TBox *bBlank;
+  TBox *bEmptyMinus;
 };
 
 #endif
