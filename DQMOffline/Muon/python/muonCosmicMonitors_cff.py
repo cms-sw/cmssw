@@ -36,7 +36,7 @@ muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*
                                   muonIdDQM*
                                   dqmInfoMuons)
 
-##muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*cscMonitor*muonCosmicAnalyzer)
+##muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*cscMonitor*muonCosmicAnalyzer)
 
 muonCosmicMonitors_woCSC = cms.Sequence(cms.SequencePlaceholder("muonTrackAnalyzers")*
                                         muonCosmicMonitors)
