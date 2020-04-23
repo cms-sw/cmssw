@@ -9,12 +9,13 @@ import re
 from collections import namedtuple, defaultdict
 from functools import lru_cache
 
-DBNAME = "directory2.sqlite"
+DBNAME = "directory.sqlite"
 
 DBSCHEMA = """
 BEGIN;
 CREATE TABLE IF NOT EXISTS samples(dataset, run, lumi, filename, menamesid, meoffsetsid);
 CREATE INDEX IF NOT EXISTS samplelookup ON samples(dataset, run, lumi);
+CREATE UNIQUE INDEX IF NOT EXISTS uniquesamples on samples(dataset, run, lumi, filename);
 CREATE TABLE IF NOT EXISTS menames(menamesid INTEGER PRIMARY KEY, menameblob);
 CREATE UNIQUE INDEX IF NOT EXISTS menamesdedup ON menames(menameblob);
 CREATE TABLE IF NOT EXISTS meoffsets(meoffsetsid INTEGER PRIMARY KEY, meoffsetsblob);
@@ -46,18 +47,26 @@ dbcache = None # Actually, we don't really need any cache. Makeing sqlite connec
 
 # TODO: this should go somewhere else, just some glue code for now.
 # TODO: this is where Rucio comes in in the future.
-# TODO: do layzy indexing, first only register, then import on first access.
+def registerfiles(fileurls):
+    def tosample(fileurl):
+        name = fileurl.split("/")[-1]
+        mainpart = name[11:-5] # remove DQM_V00x_R .root
+        parts = mainpart.split("__")
+        run = int(parts[0])
+        dataset = "/" + "/".join(parts[1:])
+        lumi = 0
+        return Sample(dataset, run, lumi, fileurl, None, None)
+    samples = [tosample(f) for f in fileurls]
+    with DBHandle(dbcache) as db:
+        db.execute("BEGIN;")
+        db.executemany("INSERT OR REPLACE INTO samples(dataset, run, lumi, filename) VALUES(?, ?, ?, ?);", 
+                   [(sample.dataset, sample.run, sample.lumi, sample.filename) for sample in samples])
+        db.execute("COMMIT;")
+
 # TODO: do the slow recursivelist in a separate process, returning the blobs.
-def addfiletoindex(fileurl):
-    name = fileurl.split("/")[-1]
-    mainpart = name[11:-5] # remove DQM_V00x_R .root
-    parts = mainpart.split("__")
-    run = int(parts[0])
-    dataset = "/" + "/".join(parts[1:])
-    lumi = 0
-    sample = Sample(dataset, run, lumi, fileurl, None, None)
+def importsample(sample):
     melist = []
-    rootf = uproot.open(fileurl)
+    rootf = uproot.open(sample.filename)
     recursivelist(rootf, b"", melist)
     storemelist(sample, melist)
     rootf.close()
@@ -130,8 +139,8 @@ def storemelist(sample, melist):
         db.execute("INSERT INTO meoffsets(meoffsetsblob) VALUES(?);", (offsetblob,))
         cur = db.execute("SELECT last_insert_rowid();")
         meoffsetsid = list(cur)[0][0]
-        db.execute("INSERT INTO samples VALUES(?, ?, ?, ?, ?, ?)", 
-                   (sample.dataset, sample.run, sample.lumi, sample.filename, menamesid, meoffsetsid))
+        db.execute("UPDATE samples SET (menamesid, meoffsetsid) = (?, ?) WHERE (dataset, run, lumi, filename) == (?, ?, ?, ?);", 
+                   (menamesid, meoffsetsid, sample.dataset, sample.run, sample.lumi, sample.filename))
         db.execute("COMMIT;")
 
 def melisttoblob(melist):
@@ -207,15 +216,17 @@ def readme(sample, fullname):
     
 # Collect sample info from DB.
 # All DB accesses are per-sample and cached.
-# TODO: trigger lazy import here.
-# TODO: needs another endpoint for search.
 @lru_cache(maxsize=10)
 def queryforsample(sample):
     with DBHandle(dbcache) as db:
         cur = db.execute("SELECT filename, menamesid, meoffsetsid FROM samples WHERE (dataset, run, lumi) == (?, ?, ?);", 
                          (sample.dataset, sample.run, sample.lumi))
         file, menamesid, meoffsetsid = list(cur)[0]
-        return Sample(sample.dataset, sample.run, sample.lumi, file, menamesid, meoffsetsid)
+        sample = Sample(sample.dataset, sample.run, sample.lumi, file, menamesid, meoffsetsid)
+    if file and menamesid == None or meoffsetsid == None:
+        importsample(sample)
+        return queryforsample(sample) # retry
+    return sample
 
 # These are primarily to have a place for the caches.
 # The menames cache should have a high hit rate.
