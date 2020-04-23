@@ -24,7 +24,7 @@
 class DQMFEDClientRenderPlugin : public DQMRenderPlugin {
 public:
   // These functions may be different that parent version
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     // determine whether core object is an FED Client object
     if (o.name.find("FED/") != std::string::npos || o.name.find("FEDTest/") != std::string::npos)
       return true;
@@ -32,7 +32,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
     gPad->SetLogy(0);
     if (o.name.find("Fatal") != std::string::npos)

@@ -23,18 +23,18 @@
 #include "CSCRenderPlugin_EmuEventDisplay.h"
 #include "CSC_TPE_hAll.h"
 
-#include <math.h>
-#include <string>
-#include <iostream>
-#include <bitset>
+#include <TBox.h>
+#include <TCanvas.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
-#include <TBox.h>
-#include <TText.h>
 #include <TPRegexp.h>
 #include <TStyle.h>
-#include <TCanvas.h>
+#include <TText.h>
+#include <bitset>
+#include <cmath>
+#include <iostream>
+#include <string>
 
 #define REREPLACE(pat, str, rep)      \
   {                                   \
@@ -59,37 +59,37 @@ private:
   CSC_TPE_hAll hAll;
 
 public:
-  virtual bool applies(const VisDQMObject& o, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& o, const VisDQMImgInfo&) override {
     if (o.name.find("CSC/") != std::string::npos)
       return true;
     return false;
   }
 
-  virtual void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) {
-    if (o.object == NULL)
+  void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) override {
+    if (o.object == nullptr)
       return;
 
     TH1* obj = dynamic_cast<TH1*>(o.object);
-    if (obj == NULL)
+    if (obj == nullptr)
       return;
 
     c->cd();
 
-    gStyle->SetPalette(1, 0);
+    gStyle->SetPalette(1, nullptr);
     obj->SetFillColor(45);
   }
 
-  virtual void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) {
-    if (o.object == NULL)
+  void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) override {
+    if (o.object == nullptr)
       return;
 
     TH1* obj = dynamic_cast<TH1*>(o.object);
-    if (obj == NULL)
+    if (obj == nullptr)
       return;
 
     c->cd();
 
-    gStyle->SetPalette(1, 0);
+    gStyle->SetPalette(1, nullptr);
     obj->SetFillColor(45);
 
     if (reMatch(".*CSC_[0-9]+_[0-9]+/Chamber_Event_Display_No[0-9]$", o.name)) {

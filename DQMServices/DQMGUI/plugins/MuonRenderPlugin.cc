@@ -27,7 +27,7 @@ public:
     label_staHO = new TLatex(3.5, 3.5, "NA");
   }
 
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if ((o.name.find("Muons/E") != std::string::npos) || (o.name.find("Muons/M") != std::string::npos) ||
         (o.name.find("Muons/R") != std::string::npos) || (o.name.find("Muons/S") != std::string::npos) ||
         (o.name.find("Muons/T") != std::string::npos) || (o.name.find("Muons/c") != std::string::npos) ||
@@ -37,7 +37,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     if (dynamic_cast<TProfile2D *>(o.object)) {
@@ -51,7 +51,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TProfile2D *>(o.object)) {

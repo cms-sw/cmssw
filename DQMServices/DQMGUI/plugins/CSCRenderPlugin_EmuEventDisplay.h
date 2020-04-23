@@ -76,7 +76,7 @@ public:
 
   virtual ~EmuHit() { delete hit; }
 
-  void Draw(const char* option) { hit->Draw(option); }
+  void Draw(const char* option) override { hit->Draw(option); }
 };
 
 struct EmuChamberPart {
@@ -197,7 +197,7 @@ private:
 
 public:
   EmuChamber(bool xscale_ = true, bool yscale_ = true) {
-    bounds = 0;
+    bounds = nullptr;
     xscale = xscale_;
     yscale = yscale_;
   }
@@ -218,8 +218,8 @@ public:
     }
   }
 
-  void Draw(const char* option) {
-    if (bounds == 0) {
+  void Draw(const char* option) override {
+    if (bounds == nullptr) {
       double x_[POINTS], y_[POINTS];
       for (unsigned int i = 0; i < POINTS; i++) {
         x_[i] = x[i] * (xscale ? CSC_HIT_SCALE : 1.0);

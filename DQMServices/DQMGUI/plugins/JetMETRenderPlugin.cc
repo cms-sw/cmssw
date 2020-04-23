@@ -42,7 +42,7 @@ class JetMETRenderPlugin : public DQMRenderPlugin {
   float l1t_rgb[60][3];
 
 public:
-  virtual void initialise(int, char **) {
+  void initialise(int, char **) override {
     // same as RenderPlugin default for now (no special action taken)
 
     dummybox = new TH2F("dummyJetMET", "", 22, -0.5, 21.5, 18, -0.5, 17.5);
@@ -96,14 +96,14 @@ public:
     b_box_b->SetFillColor(l1t_pcol[22]);
   }
 
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     // determine whether core object is an JetMET object
     if (o.name.find("JetMET/") != std::string::npos)
       return true;
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     // object is TH2 histogram
@@ -116,7 +116,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     // object is TH2 histogram
     if (dynamic_cast<TH2F *>(o.object)) {
       postDrawTH2F(c, o);

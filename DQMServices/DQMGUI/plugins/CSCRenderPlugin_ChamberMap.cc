@@ -30,16 +30,16 @@ ChamberMap::ChamberMap() {
     for (int station = 1; station <= 4; station++) {
       for (int n_ring = 1; n_ring <= N_ring(station); n_ring++) {
         for (int n_chamber = 1; n_chamber <= N_chamber(station, n_ring); n_chamber++) {
-          bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] = 0;
-          tCSC_label[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] = 0;
+          bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] = nullptr;
+          tCSC_label[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] = nullptr;
         }
       }
     }
   }
 
   for (int i = 0; i < 5; i++) {
-    bLegend[i] = 0;
-    tLegend[i] = 0;
+    bLegend[i] = nullptr;
+    tLegend[i] = nullptr;
   }
 
   tStatusTitle = new TText(39.5, 17.5, "Status");
@@ -222,7 +222,7 @@ int ChamberMap::N_chamber(int station, int ring) const {
 }
 
 void ChamberMap::draw(TH2*& me) {
-  gStyle->SetPalette(1, 0);
+  gStyle->SetPalette(1, nullptr);
 
   /** VR: Moved this up and made float */
   float HistoMaxValue = me->GetMaximum();
@@ -279,7 +279,7 @@ void ChamberMap::draw(TH2*& me) {
               fillColor = 51;
           }
 
-          if (bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] == 0) {
+          if (bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] == nullptr) {
             bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] =
                 new TBox(x_min_chamber + 1, y_min_chamber, x_max_chamber + 1, y_max_chamber);
             bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1]->SetLineColor(1);
@@ -288,7 +288,7 @@ void ChamberMap::draw(TH2*& me) {
           bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1]->SetFillColor(fillColor);
           bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1]->Draw("l");
 
-          if (tCSC_label[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] == 0) {
+          if (tCSC_label[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] == nullptr) {
             TString ChamberID = Form("%d", n_chamber);
             tCSC_label[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] =
                 new TText((x_min_chamber + x_max_chamber) / 2.0 + 1, (y_min_chamber + y_max_chamber) / 2.0, ChamberID);
@@ -304,7 +304,7 @@ void ChamberMap::draw(TH2*& me) {
 }
 
 void ChamberMap::drawStats(TH2*& me) {
-  gStyle->SetPalette(1, 0);
+  gStyle->SetPalette(1, nullptr);
 
   /** Cosmetics... */
   me->GetXaxis()->SetTitle("Chamber");
@@ -395,7 +395,7 @@ void ChamberMap::drawStats(TH2*& me) {
               break;
           }
 
-          if (bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] == 0) {
+          if (bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] == nullptr) {
             bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] =
                 new TBox(x_min_chamber + 1, y_min_chamber, x_max_chamber + 1, y_max_chamber);
             bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1]->SetLineColor(1);
@@ -404,7 +404,7 @@ void ChamberMap::drawStats(TH2*& me) {
           bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1]->SetFillColor(fillColor);
           bCSC_box[n_side - 1][station - 1][n_ring - 1][n_chamber - 1]->Draw("l");
 
-          if (tCSC_label[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] == 0) {
+          if (tCSC_label[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] == nullptr) {
             TString ChamberID = Form("%d", n_chamber);
             tCSC_label[n_side - 1][station - 1][n_ring - 1][n_chamber - 1] =
                 new TText((x_min_chamber + x_max_chamber) / 2.0 + 1, (y_min_chamber + y_max_chamber) / 2.0, ChamberID);
@@ -464,7 +464,7 @@ void ChamberMap::drawStats(TH2*& me) {
 }
 
 void ChamberMap::printLegendBox(const unsigned int& number, const std::string title, int color) {
-  if (bLegend[number] == 0) {
+  if (bLegend[number] == nullptr) {
     bLegend[number] = new TBox(38, 17 - number * 2, 41, 17 - number * 2 - 1);
     bLegend[number]->SetLineColor(1);
     bLegend[number]->SetLineStyle(2);
@@ -472,7 +472,7 @@ void ChamberMap::printLegendBox(const unsigned int& number, const std::string ti
   bLegend[number]->SetFillColor(color);
   bLegend[number]->Draw("l");
 
-  if (tLegend[number] == 0) {
+  if (tLegend[number] == nullptr) {
     tLegend[number] = new TText((38 + 41) / 2.0, (2 * (17 - number * 2) - 1) / 2.0, title.c_str());
     tLegend[number]->SetTextAlign(22);
     tLegend[number]->SetTextFont(42);

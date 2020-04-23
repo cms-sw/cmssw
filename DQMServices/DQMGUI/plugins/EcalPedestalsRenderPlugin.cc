@@ -5,11 +5,11 @@
 
 class EcalPedestalsPCLRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &dqmObject, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &dqmObject, const VisDQMImgInfo &) override {
     return (dqmObject.name.substr(0, 33) == "AlCaReco/EcalPedestalsPCL/Summary");
   }
 
-  virtual void preDraw(TCanvas *, const VisDQMObject &dqmObject, const VisDQMImgInfo &, VisDQMRenderInfo &renderInfo) {
+  void preDraw(TCanvas *, const VisDQMObject &dqmObject, const VisDQMImgInfo &, VisDQMRenderInfo &renderInfo) override {
     TH2 *obj(dynamic_cast<TH2 *>(dqmObject.object));
 
     // apply colz to all 2D histos

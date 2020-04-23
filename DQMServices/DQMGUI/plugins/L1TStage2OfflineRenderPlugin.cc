@@ -17,7 +17,7 @@ class L1TStage2OfflineRenderPlugin : public DQMRenderPlugin {
   TText tlabels_;
 
 public:
-  virtual void initialise(int, char**) {
+  void initialise(int, char**) override {
     // Laugh all you want, but they do look pretty
     // http://arxiv.org/pdf/1509.03700v1.pdf
     // linear_kry_5-98_c75_n256 reversed
@@ -106,14 +106,14 @@ public:
     }
   }
 
-  virtual bool applies(const VisDQMObject& o, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& o, const VisDQMImgInfo&) override {
     if (o.name.find("L1TriggerVsReco/") != std::string::npos)
       return true;
 
     return false;
   }
 
-  virtual void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo& r) {
+  void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo& r) override {
     if (dynamic_cast<TH1F*>(o.object)) {
       preDrawTH1F(c, o);
     } else if (dynamic_cast<TH2F*>(o.object)) {
@@ -123,7 +123,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) {
+  void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) override {
     if (dynamic_cast<TH1F*>(o.object)) {
       postDrawTH1F(c, o);
     } else if (dynamic_cast<TH2F*>(o.object)) {

@@ -24,7 +24,7 @@ class L1T2016Layer1RenderPlugin : public DQMRenderPlugin {
   int palette_yrk[256];
 
 public:
-  virtual void initialise(int, char **) {
+  void initialise(int, char **) override {
     // For masking areas
     exclusionBox_ = new TBox();
     exclusionBox_->SetFillColor(kGray + 2);
@@ -127,7 +127,7 @@ public:
     }
   }
 
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("L1TStage2CaloLayer1") != std::string::npos)
       return true;
     // For a brief time (March-April 2016) this module was in different location
@@ -140,7 +140,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i, VisDQMRenderInfo &r) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i, VisDQMRenderInfo &r) override {
     c->cd();
 
     gStyle->Reset("Default");
@@ -168,7 +168,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i) override {
     c->cd();
 
     // Unstash the draw option

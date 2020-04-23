@@ -64,14 +64,14 @@ private:
   };
 
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if ((o.name.find("GEM/") != std::string::npos))
       return true;
 
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     gStyle->SetOptStat(10);
@@ -83,7 +83,7 @@ public:
       preDrawTH2F(c, o);
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     gStyle->SetOptStat(10);
@@ -92,7 +92,7 @@ public:
         o.name.rfind("reportSummaryMap") != std::string::npos) {
       TH2 *obj2 = dynamic_cast<TH2 *>(o.object);
       //assert(obj2);
-      if (obj2 == NULL)
+      if (obj2 == nullptr)
         return;
 
       summaryCh.drawStats(obj2);

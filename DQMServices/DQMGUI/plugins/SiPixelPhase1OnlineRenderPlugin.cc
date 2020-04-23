@@ -53,7 +53,7 @@ using namespace std;
 
 class SiPixelPhase1OnlineRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject& o, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& o, const VisDQMImgInfo&) override {
     if ((o.name.find("PixelPhase1") != std::string::npos) && o.object &&
         o.name.find("OnlineBlock") != std::string::npos) {
       return true;
@@ -63,18 +63,18 @@ public:
   }
 
   // Here, we disable the rendering of the DQM GUI, using the AXIS draw option.
-  virtual void preDraw(TCanvas* canvas, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo& renderInfo) {
+  void preDraw(TCanvas* canvas, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo& renderInfo) override {
     canvas->cd();
     TH2* obj = dynamic_cast<TH2*>(o.object);
 
-    obj->SetStats(1);
+    obj->SetStats(true);
     gStyle->SetOptStat(111);
     renderInfo.drawOptions = "AXIS";
   }
 
   // Here, we render our own 1D-view. Some tricks are needed to undo settings that the GUI did.
   // We also at a Legend, for which the LS ranges of the OnlineBlocks are reconstructed.
-  virtual void postDraw(TCanvas* canvas, const VisDQMObject& o, const VisDQMImgInfo& ri) {
+  void postDraw(TCanvas* canvas, const VisDQMObject& o, const VisDQMImgInfo& ri) override {
     canvas->cd();
     TH2* obj = dynamic_cast<TH2*>(o.object);
     if (!obj)

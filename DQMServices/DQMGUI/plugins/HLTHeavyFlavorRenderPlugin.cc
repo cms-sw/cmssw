@@ -16,11 +16,11 @@
 
 class HLTHeavyFlavorRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     return o.name.find("HLT/HeavyFlavor") != std::string::npos;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     if (o.name.find("effPathGlob_recoPt") != std::string::npos)
       return;
     c->cd();
@@ -36,7 +36,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("effPathGlob_recoPt") == std::string::npos)
       return;
     c->cd();

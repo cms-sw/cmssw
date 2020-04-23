@@ -12,14 +12,14 @@
 
 class AlignmentTrackerRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("Alignment/Tracker/") != std::string::npos)
       return true;
     else
       return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH1F *>(o.object)) {
@@ -33,7 +33,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH1F *>(o.object)) {

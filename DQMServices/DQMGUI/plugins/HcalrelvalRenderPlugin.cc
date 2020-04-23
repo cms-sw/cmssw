@@ -21,7 +21,7 @@
 // Render Plugin Class for Hcal Calib
 class HcalrelvalRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual void initialise(int, char** argv) {
+  void initialise(int, char** argv) override {
     flavour = argv[2];  //Get the flavour of server
     if (flavour.find("/relval/") != std::string::npos)
       flavour = "relval";
@@ -34,7 +34,7 @@ public:
   }
 
   //	Check if we should draw this object
-  virtual bool applies(VisDQMObject const& o, VisDQMImgInfo const&) {
+  bool applies(VisDQMObject const& o, VisDQMImgInfo const&) override {
     //return false;
     return ((o.name.find("HcalNoiseRatesD/") != std::string::npos ||
              o.name.find("HcalRecHitsD/") != std::string::npos || o.name.find("CaloTowersD/") != std::string::npos ||
@@ -44,7 +44,7 @@ public:
   }
 
   //	if applies gives true - execute just before calling
-  virtual void preDraw(TCanvas* c, VisDQMObject const& object, VisDQMImgInfo const& iinfo, VisDQMRenderInfo& rinfo) {
+  void preDraw(TCanvas* c, VisDQMObject const& object, VisDQMImgInfo const& iinfo, VisDQMRenderInfo& rinfo) override {
     //	Check that the Object exists and inherits from TH1
     if (!object.object || !object.object->InheritsFrom(TH1::Class()))
       return;
@@ -74,7 +74,7 @@ public:
     return;
   }
   //	is called right after TObject::Draw()
-  virtual void postDraw(TCanvas* c, VisDQMObject const& object, VisDQMImgInfo const& iinfo) {
+  void postDraw(TCanvas* c, VisDQMObject const& object, VisDQMImgInfo const& iinfo) override {
     //	skip everything besides TH1 derived classes
     if (!object.object || !object.object->InheritsFrom(TH1::Class()))
       return;

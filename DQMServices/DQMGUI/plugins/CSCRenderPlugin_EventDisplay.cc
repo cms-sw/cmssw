@@ -67,25 +67,25 @@ EventDisplay::EventDisplay() {
   bBlank->SetLineColor(0);
   bBlank->SetLineStyle(0);
 
-  tTitle = 0;
+  tTitle = nullptr;
 
   for (int h = 0; h < 3; h++) {
     for (int l = 0; l < 6; l++) {
       for (int x = 0; x < 224; x++) {
-        bBox[h][l][x] = 0;
-        bKey[h][x] = 0;
-        tKey[h][x] = 0;
-        tXLabel[h][x] = 0;
+        bBox[h][l][x] = nullptr;
+        bKey[h][x] = nullptr;
+        tKey[h][x] = nullptr;
+        tXLabel[h][x] = nullptr;
       }
-      tYLabel[l] = 0;
+      tYLabel[l] = nullptr;
     }
   }
 
-  tLayer = 0;
+  tLayer = nullptr;
 
-  tXTitle[0] = 0;
-  tXTitle[1] = 0;
-  tXTitle[2] = 0;
+  tXTitle[0] = nullptr;
+  tXTitle[1] = nullptr;
+  tXTitle[2] = nullptr;
 }
 
 /**
@@ -216,7 +216,7 @@ void EventDisplay::drawSingleChamber(TH2*& data) {
     t = Form("Chamber ME%s%d/%d/%d Event #%d", (endcap == 1 ? "+" : "-"), station, ring, chamber, event);
   }
 
-  if (tTitle == 0) {
+  if (tTitle == nullptr) {
     tTitle = new TText(0.02, 0.30, t);
     tTitle->SetTextAlign(11);
     tTitle->SetTextFont(62);
@@ -298,7 +298,7 @@ void EventDisplay::drawEventDisplayGrid(int hnum,
         }
       }
 
-      if (bBox[hnum][l][xg] != 0) {
+      if (bBox[hnum][l][xg] != nullptr) {
         delete bBox[hnum][l][xg];
       }
       bBox[hnum][l][xg] = new TBox(x, y, x + w, y - 1);
@@ -316,7 +316,7 @@ void EventDisplay::drawEventDisplayGrid(int hnum,
 
         color = 51 + (int)(((float)time / (float)(max_z - min_z)) * 49.0);
 
-        if (bKey[hnum][xg] != 0) {
+        if (bKey[hnum][xg] != nullptr) {
           delete bKey[hnum][xg];
         }
         bKey[hnum][xg] = new TBox(x - w * 0.25, y - 0.25, x + w * 1.25, y - 1 + 0.25);
@@ -326,7 +326,7 @@ void EventDisplay::drawEventDisplayGrid(int hnum,
         post_draw[p_post_draw++] = bKey[hnum][xg];
 
         TString h = Form("%d", quality);
-        if (tKey[hnum][xg] == 0) {
+        if (tKey[hnum][xg] == nullptr) {
           tKey[hnum][xg] = new TText(x + w / 2, y - 0.53, h);
           tKey[hnum][xg]->SetTextAlign(22);
           tKey[hnum][xg]->SetTextFont(42);
@@ -339,7 +339,7 @@ void EventDisplay::drawEventDisplayGrid(int hnum,
 
       if (l == 5 && (count_x < 100 || (count_x > 100 && (xg + 1) % 2))) {
         TString ts = Form("%d", (section_shift > 0 ? xg - split_after_x + 1 : xg + 1));
-        if (tXLabel[hnum][xg] == 0) {
+        if (tXLabel[hnum][xg] == nullptr) {
           tXLabel[hnum][xg] = new TText(x + w / 2, y - 1.2, ts);
           tXLabel[hnum][xg]->SetTextFont(42);
           tXLabel[hnum][xg]->SetTextSize(0.03);
@@ -352,7 +352,7 @@ void EventDisplay::drawEventDisplayGrid(int hnum,
       }
     }
 
-    if (tYLabel[l] == 0) {
+    if (tYLabel[l] == nullptr) {
       TString ts = Form("%d", l + 1);
       tYLabel[l] = new TText(-2, y - 0.5, ts);
       tYLabel[l]->SetTextAlign(22);
@@ -362,7 +362,7 @@ void EventDisplay::drawEventDisplayGrid(int hnum,
     tYLabel[l]->Draw();
   }
 
-  if (tLayer == 0) {
+  if (tLayer == nullptr) {
     tLayer = new TText(-7, 3, "layer");
     tLayer->SetTextAlign(22);
     tLayer->SetTextFont(42);
@@ -371,7 +371,7 @@ void EventDisplay::drawEventDisplayGrid(int hnum,
   }
   tLayer->Draw();
 
-  if (tXTitle[hnum] == 0) {
+  if (tXTitle[hnum] == nullptr) {
     tXTitle[hnum] = new TText(HISTO_WIDTH, -0.7, title_x);
     tXTitle[hnum]->SetTextAlign(32);
     tXTitle[hnum]->SetTextFont(42);

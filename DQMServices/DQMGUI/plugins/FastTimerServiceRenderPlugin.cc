@@ -14,16 +14,16 @@
 
 class FastTimerServiceRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("HLT/TimerService") == 0)
       return true;
 
     return false;
   }
 
-  virtual void preDraw(TCanvas *, const VisDQMObject &, const VisDQMImgInfo &, VisDQMRenderInfo &) {}
+  void preDraw(TCanvas *, const VisDQMObject &, const VisDQMImgInfo &, VisDQMRenderInfo &) override {}
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i) override {
     if ((o.name == "HLT/TimerService/event_bylumi") or (o.name == "HLT/TimerService/source_bylumi") or
         (o.name == "HLT/TimerService/all_paths_bylumi") or (o.name == "HLT/TimerService/all_endpaths_bylumi")) {
       customiseLumisectionRange(c, o, i);

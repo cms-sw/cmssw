@@ -20,14 +20,14 @@
 
 class OfflinePVAlignmentRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("OfflinePV/Alignment/") != std::string::npos)
       return true;
     else
       return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH1F *>(o.object)) {
@@ -41,7 +41,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH1F *>(o.object)) {
@@ -146,7 +146,7 @@ private:
 
     gPad->Update();
     TPaveStats *st = (TPaveStats *)obj->GetListOfFunctions()->FindObject("stats");
-    if (st != 0) {
+    if (st != nullptr) {
       st->SetBorderSize(0);
       st->SetOptStat(1110);
       st->SetTextColor(obj->GetLineColor());

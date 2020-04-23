@@ -29,7 +29,7 @@
 
 class HLXRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("HLX/Luminosity") != std::string::npos)
       return true;
 
@@ -60,7 +60,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &r) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &r) override {
     c->cd();
 
     gStyle->Reset("Plain");

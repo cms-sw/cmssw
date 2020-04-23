@@ -31,13 +31,12 @@
 #include <string>
 #include <vector>
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <dirent.h>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <map>
-#include <cstdio>
 using namespace std;
 
 //	hcaldqm includes

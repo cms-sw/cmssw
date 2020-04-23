@@ -61,7 +61,7 @@ TPRegexp efficiencyRegexp("(efficiency[^_]*$|genEff|recEff|TurnOn|MaxPt)");
 
 class HLTMuonOfflineRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     // determine whether core object is an HLT object
     if (o.name.find("HLT/Muon") != std::string::npos)
       return true;
@@ -69,7 +69,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     // object is TProfile histogram
@@ -88,7 +88,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     // object is TProfile histogram
     if (dynamic_cast<TProfile *>(o.object)) {
       postDrawTProfile(c, o);
@@ -166,7 +166,7 @@ private:
     // Regardless of the histo
 
     gStyle->SetOptStat(10);
-    gStyle->SetPalette(1, 0);
+    gStyle->SetPalette(1, nullptr);
     obj->SetOption("colz");
     // gPad->SetGrid(1,1);
 

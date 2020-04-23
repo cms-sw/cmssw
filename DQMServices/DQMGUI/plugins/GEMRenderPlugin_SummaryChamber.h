@@ -23,18 +23,18 @@
  * =====================================================================================
  */
 
-#include <math.h>
-#include <unordered_map>
-#include <string>
-#include <iostream>
-#include <bitset>
+#include <TBox.h>
+#include <TCanvas.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <TBox.h>
-#include <TText.h>
 #include <TPRegexp.h>
 #include <TStyle.h>
-#include <TCanvas.h>
+#include <TText.h>
+#include <bitset>
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <unordered_map>
 
 struct ChamberID {
   Int_t nRegion;

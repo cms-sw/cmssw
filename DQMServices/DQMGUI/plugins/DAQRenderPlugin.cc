@@ -22,7 +22,7 @@ class DAQRenderPlugin : public DQMRenderPlugin {
   Double_t contour_level[25];
 
 public:
-  virtual void initialise(int, char **) {
+  void initialise(int, char **) override {
     Double_t contour_level_t[25] = {0.02,  0.025, 0.03,  0.032, 0.036, 0.040, 0.044, 0.048, 0.052,
                                     0.056, 0.060, 0.065, 0.070, 0.075, 0.085, 0.090, 0.095, 0.12,
                                     0.25,  0.4,   0.5,   0.6,   0.7,   0.8,   0.9};
@@ -30,7 +30,7 @@ public:
       contour_level[i] = contour_level_t[i];
   }
 
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     // determine whether core object is an DAQ object. DAQ objects start with "DAQ/", "DAQval/" or "DAQdev/"
     const size_t beginning = 0;
     if (o.name.find("DAQ/") == beginning || o.name.find("DAQval/") == beginning || o.name.find("DAQdev/") == beginning)
@@ -39,7 +39,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &r) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &r) override {
     c->cd();
 
     // object is TH1 histogram
@@ -53,7 +53,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     // object is TH2 histogram
     if (dynamic_cast<TH2F *>(o.object)) {
       postDrawTH2F(c, o);
@@ -71,7 +71,7 @@ private:
     assert(obj);  // checks that object indeed exists
 
     // rate histograms
-    if (1) {
+    if (true) {
       gStyle->SetOptStat(11);
       obj->GetXaxis()->SetTitle("Luminosity Section");
       if (o.name.find("RATE") != std::string::npos) {

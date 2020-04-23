@@ -224,7 +224,7 @@ CSC_TPE_hAll::~CSC_TPE_hAll() {
 void CSC_TPE_hAll::draw(TH3*& me) {
   TColor* color = gROOT->GetColor(kTeal);
   color->SetRGB(1.0 * 51 / 256, 1.0, 1.0 * 102 / 256);
-  gStyle->SetPalette(1, 0);
+  gStyle->SetPalette(1, nullptr);
   gStyle->SetOptStat("");
 
   me->GetXaxis()->SetTicks("0");

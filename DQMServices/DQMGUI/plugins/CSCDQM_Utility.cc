@@ -23,7 +23,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
 #endif
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace cscdqm {
 
@@ -226,7 +226,7 @@ namespace cscdqm {
     uint32_t hash = len, tmp;
     int rem;
 
-    if (len <= 0 || data == NULL)
+    if (len <= 0 || data == nullptr)
       return 0;
     rem = len & 3;
     len >>= 2;

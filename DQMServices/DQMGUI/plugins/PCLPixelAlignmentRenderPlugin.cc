@@ -20,16 +20,16 @@ class PCLPixelAlignmentRenderPlugin : public DQMRenderPlugin {
   std::array<double, 6> maxErrorCut_;
 
 public:
-  virtual void initialise(int, char **) {}
+  void initialise(int, char **) override {}
 
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("SiPixelAli/") != std::string::npos)
       return true;
     else
       return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH1F *>(o.object)) {
@@ -43,7 +43,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (o.name.find("SiPixelAli") != std::string::npos && o.name.find("PedeExitCode") != std::string::npos) {

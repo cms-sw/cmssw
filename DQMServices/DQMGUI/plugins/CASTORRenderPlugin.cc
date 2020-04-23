@@ -18,7 +18,7 @@
 class CASTORRenderPlugin : public DQMRenderPlugin {
 public:
   ////---- define the histograms
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     ////---- determine whether the object is a CASTOR object
     if ((o.name.find("Castor/EventInfo/reportSummaryMap") != std::string::npos) ||
         (o.name.find("Castor/CastorPSMonitor/CASTOR Digi ChannelSummaryMap") != std::string::npos) ||
@@ -81,7 +81,7 @@ public:
   //==================== preDraw ============================//
   //==========================================================//
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     ////---- TH3
@@ -104,7 +104,7 @@ public:
   //==================== postDraw ============================//
   //==========================================================//
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     ////--- TH3

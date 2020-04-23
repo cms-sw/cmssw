@@ -14,14 +14,13 @@
 #ifndef _HCAL_RELVAL_MAPS_H
 #define _HCAL_RELVAL_MAPS_H
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <dirent.h>
 #include <iostream>
-#include <vector>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <map>
-#include <cstdio>
+#include <vector>
 
 using namespace std;
 

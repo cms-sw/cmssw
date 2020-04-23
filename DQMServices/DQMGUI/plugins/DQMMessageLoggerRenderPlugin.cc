@@ -17,7 +17,7 @@
 
 class DQMMessageLoggerRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("MessageLogger") != std::string::npos) {
       if (o.name.find("Errors") != std::string::npos) {
         if (o.name.find("categoriesErrorsFound") != std::string::npos) {
@@ -49,13 +49,13 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     if (dynamic_cast<TH1F *>(o.object)) {
       preDrawTH1(c, o);
     }
   }
 
-  virtual void postDraw(TCanvas *, const VisDQMObject &, const VisDQMImgInfo &){};
+  void postDraw(TCanvas *, const VisDQMObject &, const VisDQMImgInfo &) override{};
 
 private:
   void preDrawTH1(TCanvas *c, const VisDQMObject &o) {

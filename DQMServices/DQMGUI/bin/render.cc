@@ -10,43 +10,43 @@
 #include <string>
 #include <cstdio>
 
-#include "boost/algorithm/string.hpp"
-#include "TObjString.h"
-#include "TDirectory.h"
-#include "TImageDump.h"
 #include "TASImage.h"
+#include "TAxis.h"
+#include "TBufferFile.h"
 #include "TCanvas.h"
-#include "TText.h"
+#include "TColor.h"
+#include "TDirectory.h"
+#include "TGraphAsymmErrors.h"
+#include "TGraphErrors.h"
 #include "TH1D.h"
 #include "TH2.h"
 #include "TH3.h"
-#include "TProfile.h"
-#include "TColor.h"
-#include "TAxis.h"
+#include "THStack.h"
+#include "TImageDump.h"
 #include "TList.h"
+#include "TObjString.h"
+#include "TPaveStats.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 #include "TROOT.h"
 #include "TStyle.h"
-#include "TGraphErrors.h"
-#include "TGraphAsymmErrors.h"
-#include "TPaveStats.h"
-#include "TProfile2D.h"
-#include "THStack.h"
-#include "TBufferFile.h"
-#include <fstream>
-#include <sstream>
-#include <iostream>
+#include "TText.h"
+#include "boost/algorithm/string.hpp"
+#include <algorithm>
 #include <cassert>
 #include <cerrno>
-#include <map>
-#include <algorithm>
-#include <sys/wait.h>
-#include <sys/time.h>
-#include <sys/mman.h>
-#include <unistd.h>
+#include <cmath>
 #include <dlfcn.h>
-#include <math.h>
-#include <limits>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <limits>
+#include <map>
+#include <sstream>
+#include <sys/mman.h>
+#include <sys/time.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -66,9 +66,9 @@ struct Bucket {
     serialised at this location. */
 inline TObject *extractNextObject(TBufferFile &buf) {
   if (buf.Length() == buf.BufferSize())
-    return 0;
+    return nullptr;
   buf.InitMap();
-  return (TObject *)buf.ReadObjectAny(0);
+  return (TObject *)buf.ReadObjectAny(nullptr);
 }
 
 // ----------------------------------------------------------------------
@@ -123,7 +123,7 @@ public:
 
   void compress(DataBlob *out, DataBlob &imgbytes, unsigned int w, unsigned int h) {
     out->clear();
-    png_structp p = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_structp p = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     assert(p || !"png_create_write_struct() failed");
     png_infop info_ptr = png_create_info_struct(p);
     assert(info_ptr || !"png_create_info_struct() failed");
@@ -143,9 +143,9 @@ public:
     for (size_t y = 0; y < h; ++y)
       rows[y] = &imgbytes[y * w * 3];
     png_set_rows(p, info_ptr, &rows[0]);
-    png_set_write_fn(p, out, PngWriteCallback, NULL);
-    png_write_png(p, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-    png_destroy_write_struct(&p, NULL);
+    png_set_write_fn(p, out, PngWriteCallback, nullptr);
+    png_write_png(p, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
+    png_destroy_write_struct(&p, nullptr);
   }
 };
 
@@ -243,7 +243,7 @@ static bool parseOption(const char *&p, const char *name, size_t len, std::strin
 // The image specification is expected to be a series of "key=value"
 // pairs separated by semicolons.
 static bool parseImageSpec(VisDQMImgInfo &i, const std::string &spec, const char *&error) {
-  error = 0;
+  error = nullptr;
   i.imgspec = spec;
   i.width = -1;
   i.height = -1;
@@ -324,7 +324,7 @@ private:
   ServerInfo info_;
 
 public:
-  VisDQMImageServer(const ServerInfo &info) : standardStyle_(0), info_(info) {
+  VisDQMImageServer(const ServerInfo &info) : standardStyle_(nullptr), info_(info) {
     // Prevent histograms from getting attached to the global directory.
     TH1::AddDirectory(kFALSE);
 
@@ -391,7 +391,7 @@ public:
 
     // accept clients
     while ((client = accept(server_, (struct sockaddr *)&client_addr, &clientlen)) > 0) {
-      while (1) {
+      while (true) {
         // get a request
         bool done = false;
         char buf[1024];
@@ -524,7 +524,7 @@ protected:
 
       // Validate the image request.
       VisDQMImgInfo info;
-      const char *error = 0;
+      const char *error = nullptr;
 
       if (type == DQM_MSG_GET_IMAGE_DATA && !parseImageSpec(info, spec, error)) {
         logme() << "ERROR: invalid image specification '" << spec << "' for object '" << name << "': " << error
@@ -542,8 +542,8 @@ protected:
         objs[i].objname.append(name, namepos, std::string::npos);
         //unpackQualityData(objs[i].qreports, objs[i].flags, qdata.c_str());
         objs[i].name = name;
-        objs[i].object = 0;
-        objs[i].reference = 0;
+        objs[i].object = nullptr;
+        objs[i].reference = nullptr;
       }
 
       if (type == DQM_MSG_GET_IMAGE_DATA)
@@ -558,7 +558,7 @@ protected:
         blacklisted = doRender(info, &objs[0], numobjs, imgdata);
       msg->data.reserve(msg->data.size() + words[0]);
       copydata(msg, &words[0], sizeof(words));
-      if (imgdata.size())
+      if (!imgdata.empty())
         copydata(msg, &imgdata[0], imgdata.size());
 
       // Release the objects.
@@ -623,7 +623,7 @@ private:
     // objects come as len, object pairs for
     // many objects as we were sent.
     if ((objs[0].flags & DQM_PROP_TYPE_MASK) <= DQM_PROP_TYPE_SCALAR) {
-      if (odata.size())
+      if (!odata.empty())
         objs[0].object = new TObjString(odata.c_str());
     } else {
       for (uint32_t i = firstobj; i < numobjs; ++i) {
@@ -912,7 +912,7 @@ private:
             if (objs[0].flags & SUMMARY_PROP_EFFICIENCY_PLOT)
               norm = sum = 1.;
             den->Scale(norm / sum);
-            num->SetStats(0);
+            num->SetStats(false);
             if (!num->GetSumw2N())
               num->Sumw2();
             num->Divide(den);
@@ -1051,7 +1051,7 @@ private:
     std::string samePlotOptions("same p");
     TObject *ob = objs[0].object;
     TH1 *h = dynamic_cast<TH1 *>(ob);
-    bool isMultiDimensional = dynamic_cast<TH2 *>(ob) ? 1 : 0;
+    bool isMultiDimensional = dynamic_cast<TH2 *>(ob) ? true : false;
     isMultiDimensional |= dynamic_cast<TH3 *>(ob) ? 1 : 0;
     float max_value_in_Y = std::numeric_limits<float>::lowest();
 
@@ -1079,7 +1079,7 @@ private:
       float norm = h->GetSumOfWeights();
       if (i.refnorm != "False" && norm > 0 && !(objs[0].flags & SUMMARY_PROP_EFFICIENCY_PLOT) && !isMultiDimensional) {
         for (size_t n = 0; n < numobjs; ++n) {
-          TObject *refobj = 0;
+          TObject *refobj = nullptr;
           if (n == 0)
             refobj = objs[0].reference;
           else if (n > 0)
@@ -1110,7 +1110,7 @@ private:
 
     // Maybe draw overlay from reference and other objects.
     for (size_t n = 0; n < numobjs; ++n) {
-      TObject *refobj = 0;
+      TObject *refobj = nullptr;
       // Compute colors array size on the fly and use it to loop
       // over defined colors in case the number of objects to
       // overlay is greater than the available colors
@@ -1199,7 +1199,7 @@ private:
     timer.it_value.tv_usec = 0;
     timer.it_interval.tv_sec = 0;
     timer.it_interval.tv_usec = 0;
-    setitimer(ITIMER_VIRTUAL, &timer, 0);
+    setitimer(ITIMER_VIRTUAL, &timer, nullptr);
 
     // Prepare render defaults and the canvas.
     delete gStyle;
@@ -1218,7 +1218,7 @@ private:
     TObject *ob = o.object;
     if (i.reference == DQM_REF_REFERENCE) {
       ob = o.object = o.reference;
-      o.reference = 0;
+      o.reference = nullptr;
     }
 
     TCanvas c("", "", i.width + 4, i.height + 28);
@@ -1315,7 +1315,7 @@ private:
     timer.it_value.tv_usec = 0;
     timer.it_interval.tv_sec = 0;
     timer.it_interval.tv_usec = 0;
-    setitimer(ITIMER_VIRTUAL, &timer, 0);
+    setitimer(ITIMER_VIRTUAL, &timer, nullptr);
 
     // Indicate whether it was blacklisted.
     return ri.blacklisted;
@@ -1329,8 +1329,8 @@ int main(int argc, char **argv) {
   std::cout.flush();
   std::cerr.flush();
   std::ios_base::sync_with_stdio(true);
-  setvbuf(stdout, 0, _IOLBF, 1024);
-  setvbuf(stderr, 0, _IOLBF, 1024);
+  setvbuf(stdout, nullptr, _IOLBF, 1024);
+  setvbuf(stderr, nullptr, _IOLBF, 1024);
 
   // Check and process arguments.
   VisDQMImageServer::ServerInfo params;

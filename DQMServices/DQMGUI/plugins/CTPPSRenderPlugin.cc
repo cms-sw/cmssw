@@ -12,14 +12,14 @@
 //*****************************************************
 class CTPPSRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if ((o.name.find("CTPPS/") != std::string::npos))
       return true;
 
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH1F *>(o.object))
@@ -31,7 +31,7 @@ public:
       preDrawTH2D(c, o);
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH1F *>(o.object))

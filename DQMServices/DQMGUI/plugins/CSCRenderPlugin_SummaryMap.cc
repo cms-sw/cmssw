@@ -19,18 +19,18 @@
  */
 
 #include "CSCRenderPlugin_SummaryMap.h"
-#include <math.h>
-#include <string>
-#include <iostream>
-#include <bitset>
+#include <TBox.h>
+#include <TCanvas.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <TBox.h>
-#include <TText.h>
+#include <TLine.h>
 #include <TPRegexp.h>
 #include <TStyle.h>
-#include <TCanvas.h>
-#include <TLine.h>
+#include <TText.h>
+#include <bitset>
+#include <cmath>
+#include <iostream>
+#include <string>
 
 SummaryMap::SummaryMap() : detector(N_TICS, N_TICS) {
   h1 = new TH2F("h1", "", 10, -2.5, 2.5, 10, 0.0, 2.0 * 3.14159);
@@ -65,34 +65,34 @@ SummaryMap::SummaryMap() : detector(N_TICS, N_TICS) {
 
   for (unsigned int x = 0; x < N_TICS; x++) {
     for (unsigned int y = 0; y < N_TICS; y++) {
-      bDetector[x][y] = 0;
+      bDetector[x][y] = nullptr;
     }
     if (x > 0) {
-      lDetector[x - 1][0] = 0;
-      lDetector[x - 1][1] = 0;
+      lDetector[x - 1][0] = nullptr;
+      lDetector[x - 1][1] = nullptr;
     }
   }
 
-  tDetector = 0;
+  tDetector = nullptr;
 
   for (int station = 0; station < 4; station++) {
     for (int i = 0; i < N_ELEMENTS; i++) {
-      bStation[station][i] = 0;
+      bStation[station][i] = nullptr;
     }
     for (int i = 0; i < 3456; i++) {
-      lStation[station][i] = 0;
+      lStation[station][i] = nullptr;
     }
     for (int i = 0; i < 864; i++) {
-      tStationCSC_label[station][i] = 0;
+      tStationCSC_label[station][i] = nullptr;
     }
     for (int i = 0; i < 6; i++) {
-      tStationRing_label[station][i] = 0;
+      tStationRing_label[station][i] = nullptr;
     }
   }
 
-  tStation_minus_label = 0;
-  tStation_plus_label = 0;
-  tStation_title = 0;
+  tStation_minus_label = nullptr;
+  tStation_plus_label = nullptr;
+  tStation_title = nullptr;
 }
 
 SummaryMap::~SummaryMap() {
@@ -103,7 +103,7 @@ SummaryMap::~SummaryMap() {
 }
 
 void SummaryMap::drawDetector(TH2* me) {
-  gStyle->SetPalette(1, 0);
+  gStyle->SetPalette(1, nullptr);
 
   h1->Draw();
   bBlank->Draw("l");
@@ -130,7 +130,7 @@ void SummaryMap::drawDetector(TH2* me) {
       int value = int(me->GetBinContent(x + 1, y + 1));
 
       if (value != 0) {
-        if (bDetector[x][y] == 0) {
+        if (bDetector[x][y] == nullptr) {
           bDetector[x][y] = new TBox(xmin, ymin, xmax, ymax);
           bDetector[x][y]->SetFillStyle(1001);
         }
@@ -154,14 +154,14 @@ void SummaryMap::drawDetector(TH2* me) {
   }
 
   for (unsigned int x = 1; x < N_TICS; x++) {
-    if (lDetector[x - 1][0] == 0) {
+    if (lDetector[x - 1][0] == nullptr) {
       lDetector[x - 1][0] = new TLine(-2.5 + xd * x, 0.0, -2.5 + xd * x, 2.0 * 3.14159);
       lDetector[x - 1][0]->SetLineColor(12);
       lDetector[x - 1][0]->SetLineStyle(1);
       lDetector[x - 1][0]->SetLineWidth(1);
     }
     lDetector[x - 1][0]->Draw();
-    if (lDetector[x - 1][1] == 0) {
+    if (lDetector[x - 1][1] == nullptr) {
       lDetector[x - 1][1] = new TLine(-2.5, yd * x, 2.5, yd * x);
       lDetector[x - 1][1]->SetLineColor(12);
       lDetector[x - 1][1]->SetLineStyle(1);
@@ -170,7 +170,7 @@ void SummaryMap::drawDetector(TH2* me) {
     lDetector[x - 1][1]->Draw();
   }
 
-  if (tDetector == 0) {
+  if (tDetector == nullptr) {
     tDetector = new TText(0.0, 2.0 * 3.14159 + 0.5, me->GetTitle());
     tDetector->SetTextAlign(22);
     tDetector->SetTextFont(62);
@@ -184,7 +184,7 @@ void SummaryMap::drawDetector(TH2* me) {
 void SummaryMap::drawStation(TH2* me, const int station) {
   cscdqm::Address adr;
 
-  gStyle->SetPalette(1, 0);
+  gStyle->SetPalette(1, nullptr);
 
   h1->Draw();
   bBlank->Draw("l");
@@ -199,7 +199,7 @@ void SummaryMap::drawStation(TH2* me, const int station) {
 
   unsigned int i = 0, p_hw = 0, p_l = 0, p_csc = 0, p_ring = 0;
   while (detector.NextAddressBox(i, box, adr)) {
-    if (bStation[station - 1][p_hw] == 0) {
+    if (bStation[station - 1][p_hw] == nullptr) {
       bStation[station - 1][p_hw] = new TBox(box->xmin, box->ymin, box->xmax, box->ymax);
       bStation[station - 1][p_hw]->SetLineColor(12);
       bStation[station - 1][p_hw]->SetLineStyle(1);
@@ -239,7 +239,7 @@ void SummaryMap::drawStation(TH2* me, const int station) {
       x_max_chamber = box->xmax;
       y_max_chamber = box->ymax;
 
-      if (lStation[station - 1][p_l] == 0) {
+      if (lStation[station - 1][p_l] == nullptr) {
         lStation[station - 1][p_l] = new TLine(x_min_chamber, y_min_chamber, x_min_chamber, y_max_chamber);
         lStation[station - 1][p_l + 1] = new TLine(x_max_chamber, y_min_chamber, x_max_chamber, y_max_chamber);
         lStation[station - 1][p_l + 2] = new TLine(x_min_chamber, y_min_chamber, x_max_chamber, y_min_chamber);
@@ -257,7 +257,7 @@ void SummaryMap::drawStation(TH2* me, const int station) {
 
       p_l += 4;
 
-      if (tStationCSC_label[station - 1][p_csc] == 0) {
+      if (tStationCSC_label[station - 1][p_csc] == nullptr) {
         TString ChamberID = Form("%d", box->adr.chamber);
         tStationCSC_label[station - 1][p_csc] =
             new TText((x_min_chamber + x_max_chamber) / 2.0, (y_min_chamber + y_max_chamber) / 2.0, ChamberID);
@@ -270,7 +270,7 @@ void SummaryMap::drawStation(TH2* me, const int station) {
 
       // Last HW element in Ring? display ring label
       if (box->adr.chamber == detector.NumberOfChambers(box->adr.station, box->adr.ring)) {
-        if (tStationRing_label[station - 1][p_ring] == 0) {
+        if (tStationRing_label[station - 1][p_ring] == nullptr) {
           TString ringID = Form("%d", box->adr.ring);
           tStationRing_label[station - 1][p_ring] =
               new TText((x_min_chamber + x_max_chamber) / 2.0, 2.0 * 3.14159 + 0.1, ringID);
@@ -288,7 +288,7 @@ void SummaryMap::drawStation(TH2* me, const int station) {
   }
 
   TString stationID_minus = Form("ME-%d", station);
-  if (tStation_minus_label == 0) {
+  if (tStation_minus_label == nullptr) {
     tStation_minus_label = new TText(-1.7, 2.0 * 3.14159 + 0.25, stationID_minus);
     tStation_minus_label->SetTextAlign(22);
     tStation_minus_label->SetTextFont(62);
@@ -299,7 +299,7 @@ void SummaryMap::drawStation(TH2* me, const int station) {
   tStation_minus_label->Draw();
 
   TString stationID_plus = Form("ME+%d", station);
-  if (tStation_plus_label == 0) {
+  if (tStation_plus_label == nullptr) {
     tStation_plus_label = new TText(1.7, 2.0 * 3.14159 + 0.25, stationID_plus);
     tStation_plus_label->SetTextAlign(22);
     tStation_plus_label->SetTextFont(62);
@@ -309,7 +309,7 @@ void SummaryMap::drawStation(TH2* me, const int station) {
   }
   tStation_plus_label->Draw();
 
-  if (tStation_title == 0) {
+  if (tStation_title == nullptr) {
     tStation_title = new TText(0.0, 2.0 * 3.14159 + 0.5, me->GetTitle());
     tStation_title->SetTextAlign(22);
     tStation_title->SetTextFont(62);

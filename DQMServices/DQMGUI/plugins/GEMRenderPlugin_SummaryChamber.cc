@@ -78,8 +78,8 @@ SummaryChamber::SummaryChamber() {
       uint32_t nIdxFull = ChIdToInt(id);
       bGEM_ChInfo[nIdxFull] = id;
 
-      bGEM_box[nIdxFull] = 0;
-      bGEM_label[nIdxFull] = 0;
+      bGEM_box[nIdxFull] = nullptr;
+      bGEM_label[nIdxFull] = nullptr;
     }
   }
 
@@ -89,8 +89,8 @@ SummaryChamber::SummaryChamber() {
   bBlank->SetLineStyle(1);
 
   for (int i = 0; i < 5; i++) {
-    bLegend[i] = 0;
-    tLegend[i] = 0;
+    bLegend[i] = nullptr;
+    tLegend[i] = nullptr;
   }
 
   tStatusTitle = new TText(3.5 + m_fScaleX * m_nNumChamber, 17.5, "Status");
@@ -120,7 +120,7 @@ float SummaryChamber::GetYmin(ChamberID &id) const { return m_fScaleY * (id.nIdx
 float SummaryChamber::GetYmax(ChamberID &id) const { return m_fScaleY * (id.nIdx); }
 
 void SummaryChamber::drawStats(TH2 *&me) {
-  gStyle->SetPalette(1, 0);
+  gStyle->SetPalette(1, nullptr);
 
   // Useless labels for the current layout
   for (int i = 0; i < me->GetNbinsX(); i++)
@@ -207,7 +207,7 @@ void SummaryChamber::drawStats(TH2 *&me) {
         break;
     }
 
-    if (bGEM_box[itemBox.first] == 0) {
+    if (bGEM_box[itemBox.first] == nullptr) {
       bGEM_box[itemBox.first] = new TBox(fXMin, fYMin, fXMax, fYMax);
 
       bGEM_box[itemBox.first]->SetLineColor(1);
@@ -217,7 +217,7 @@ void SummaryChamber::drawStats(TH2 *&me) {
     bGEM_box[itemBox.first]->SetFillColor(fillColor);
     bGEM_box[itemBox.first]->Draw("l");
 
-    if (bGEM_label[itemBox.first] == 0) {
+    if (bGEM_label[itemBox.first] == nullptr) {
       TString strChamberID = Form("%d", gid.nChamber);
       bGEM_label[itemBox.first] = new TText((fXMin + fXMax) / 2.0, (fYMin + fYMax) / 2.0, strChamberID);
 
@@ -298,7 +298,7 @@ void SummaryChamber::printLegendBox(const unsigned int &number, const std::strin
 
   Int_t nNumItem = 6;
 
-  if (bLegend[number] == 0) {
+  if (bLegend[number] == nullptr) {
     bLegend[number] = new TBox(fBasisX,
                                fRatioY * (fBasisY + 2 * (nNumItem - number)),
                                fBasisX + 3,
@@ -309,7 +309,7 @@ void SummaryChamber::printLegendBox(const unsigned int &number, const std::strin
   bLegend[number]->SetFillColor(color);
   bLegend[number]->Draw("l");
 
-  if (tLegend[number] == 0) {
+  if (tLegend[number] == nullptr) {
     tLegend[number] = new TText(fBasisX + 1.5, fRatioY * (fBasisY + 2 * (nNumItem - number) - 0.5), title.c_str());
     tLegend[number]->SetTextAlign(22);
     tLegend[number]->SetTextFont(42);

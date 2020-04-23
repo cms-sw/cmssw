@@ -32,7 +32,7 @@
 class DQMInfoRenderPlugin : public DQMRenderPlugin {
 public:
   // Test if this render plugin should be used for the given histogram
-  virtual bool applies(const VisDQMObject& o, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& o, const VisDQMImgInfo&) override {
     if (o.name.find("Info/EventInfo/reportSummaryMap") != std::string::npos ||
         o.name.find("Info/LhcInfo/") != std::string::npos ||
         o.name.find("Info/ProvInfo/Taglist") != std::string::npos) {
@@ -43,7 +43,7 @@ public:
   }
 
   // Implementation of preDraw: What is done before calling the standard draw
-  virtual void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) {
+  void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) override {
     // Only continue if there is an actual histogram
     if (not o.object) {
       return;
@@ -65,7 +65,7 @@ public:
 
   // Implementation of postDraw: What is done after calling the standard draw
   // (e.g. you can draw some more stuff, like lines or text)
-  virtual void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) {
+  void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) override {
     // Only continue if there is an actual histogram
     if (not o.object) {
       return;

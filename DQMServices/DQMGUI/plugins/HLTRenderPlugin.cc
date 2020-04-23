@@ -82,7 +82,7 @@
 
 class HLTRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     // determine whether core object is an HLT object
     if (o.name.find("HLT/") != std::string::npos)
       return true;
@@ -90,7 +90,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     // object is TH2 histogram
@@ -103,7 +103,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     // object is TH2 histogram
     if (dynamic_cast<TH2F *>(o.object)) {
       postDrawTH2F(c, o);
@@ -291,7 +291,7 @@ private:
     if (o.name.find("FourVector") != std::string::npos) {
       gStyle->SetOptStat(10);
       obj->SetOption("colz");
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       //obj->GetXaxis()->CenterLabels();
       //obj->GetYaxis()->CenterLabels();
 

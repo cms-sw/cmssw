@@ -26,7 +26,7 @@ class L1TStage2RenderPlugin : public DQMRenderPlugin {
   TText tlabels_;
 
 public:
-  virtual void initialise(int, char **) {
+  void initialise(int, char **) override {
     // Laugh all you want, but they do look pretty
     // http://arxiv.org/pdf/1509.03700v1.pdf
     // linear_kry_5-98_c75_n256 reversed
@@ -115,7 +115,7 @@ public:
     }
   }
 
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("L1T") != std::string::npos || o.name.find("L1TEMU") != std::string::npos) {
       // Put here the Stage2 subsystems who provide their own plugin:
       if (o.name.find("L1TStage2CaloLayer1") != std::string::npos)
@@ -141,7 +141,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i, VisDQMRenderInfo &r) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i, VisDQMRenderInfo &r) override {
     c->cd();
 
     if (dynamic_cast<TH2F *>(o.object)) {
@@ -151,7 +151,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i) override {
     c->cd();
 
     if (dynamic_cast<TH2F *>(o.object)) {

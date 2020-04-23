@@ -19,13 +19,13 @@
 #ifndef CSCDQM_Detector_H
 #define CSCDQM_Detector_H
 
-#include <math.h>
-#include <float.h>
-#include <map>
-#include <vector>
-#include <iostream>
-#include <sstream>
+#include <cfloat>
+#include <cmath>
 #include <iomanip>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <vector>
 
 #ifdef CSC_RENDER_PLUGIN
 #include "CSCDQM_Utility.h"

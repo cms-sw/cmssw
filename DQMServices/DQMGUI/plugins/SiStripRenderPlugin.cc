@@ -23,7 +23,7 @@
 
 class SiStripRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if ((o.name.find("SiStrip/") == std::string::npos) && (o.name.find("Tracking/") == std::string::npos))
       return false;
 
@@ -51,7 +51,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     if ((dynamic_cast<TProfile *>(o.object) || dynamic_cast<TProfile2D *>(o.object) || dynamic_cast<TH1F *>(o.object) ||
@@ -78,7 +78,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH1F *>(o.object)) {
@@ -175,14 +175,14 @@ private:
 
     if (o.name.find("StripClusVsPixClus") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("ClusterWidths_vs_Amplitudes") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       c->SetLogz(1);
       obj->SetOption("colz");
       return;
@@ -190,7 +190,7 @@ private:
 
     if (o.name.find("TrackEtaPhi") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       c->SetLogz(1);
       obj->SetOption("colz");
       return;
@@ -198,76 +198,76 @@ private:
 
     if (o.name.find("Foldingmap") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("ControlView") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("ControlView") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("PhiVsEta") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("PtVsEta") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("SeedsVsClusters") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("toppingSourceVS") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("TracksVs") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("DeltaBx_vs_ApvCycle") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("ADCvsAPVs") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
     if (o.name.find("FedIdVsApvId") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
@@ -275,7 +275,7 @@ private:
       gPad->SetGrid();
       gPad->SetLeftMargin(0.2);
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       obj->GetYaxis()->SetTitle("");
 
@@ -288,7 +288,7 @@ private:
       return;
     }
     if (o.name.find("ErrorsVsModules") != std::string::npos) {
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       gStyle->SetOptStat(10);
       obj->SetOption("colz");
 
@@ -422,7 +422,7 @@ private:
 
     if (o.name.find("TkHMap") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       if (o.name.find("TkHMap_FractionOfBadChannels") != std::string::npos) {
         obj->SetMinimum(0.0001);
@@ -433,28 +433,28 @@ private:
 
     if (o.name.find("PhiVsEta") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("PtVsEta") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("fedErrorsVsIdVsLumi") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("StripClusVsBXandOrbit") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
@@ -470,13 +470,13 @@ private:
         obj->GetYaxis()->SetRangeUser(1, 3);
       }
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
     }
 
     if (o.name.find("NumberOfClusterPerRingVsTrendVar") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       if (((TString)obj->GetTitle()).Contains("TID")) {
         obj->GetYaxis()->SetRangeUser(1, 3);
@@ -524,7 +524,7 @@ private:
 
     if (o.name.find("TkHMap") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       if (o.name.find("TkHMap_FractionOfBadChannels") != std::string::npos) {
         obj->SetMinimum(0.0001);

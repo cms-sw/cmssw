@@ -9,25 +9,25 @@
 #include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 
-#include "TROOT.h"
-#include "TProfile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TStyle.h"
 #include "TCanvas.h"
 #include "TColor.h"
-#include "TText.h"
-#include "TPaveStats.h"
 #include "TGaxis.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TPaveStats.h"
+#include "TProfile.h"
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TText.h"
 #include <cassert>
-#include <math.h>
+#include <cmath>
 
 class BeamPixelRenderPlugin : public DQMRenderPlugin {
   int hcalRainbowColors[100];
   int NCont_rainbow;
 
 public:
-  virtual void initialise(int, char**) {
+  void initialise(int, char**) override {
     // Make rainbow colors. Assign colors positions 1101-1200
     NCont_rainbow = 100;  // Specify number of contours for rainbow
 
@@ -58,14 +58,14 @@ public:
     }
   }
 
-  virtual bool applies(const VisDQMObject& o, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& o, const VisDQMImgInfo&) override {
     if (o.name.find("BeamPixel/") != std::string::npos)
       return true;
 
     return false;
   }
 
-  virtual void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) {
+  void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) override {
     c->cd();
 
     if (dynamic_cast<TH2F*>(o.object))
@@ -76,7 +76,7 @@ public:
       preDrawTProfile(c, o);
   }
 
-  virtual void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) {
+  void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) override {
     c->cd();
 
     if (dynamic_cast<TH2F*>(o.object))

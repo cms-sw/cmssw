@@ -23,12 +23,12 @@ using namespace std;
 
 class PFTauRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     return ((o.name.find("RecoTauV/") != std::string::npos) &&
             (o.name.find("Eff") != std::string::npos));  //Size and SumPt are already configured
   }
 
-  virtual void preDraw(TCanvas *canvas, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &renderInfo) {
+  void preDraw(TCanvas *canvas, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &renderInfo) override {
     canvas->cd();
     TH1 *obj = dynamic_cast<TH1 *>(o.object);
     if (!obj)
@@ -54,7 +54,7 @@ public:
     obj->SetMarkerStyle(20);
   }
 
-  virtual void postDraw(TCanvas *, const VisDQMObject &, const VisDQMImgInfo &) {}
+  void postDraw(TCanvas *, const VisDQMObject &, const VisDQMImgInfo &) override {}
 
 private:
   string stripDicriminator(string name) {

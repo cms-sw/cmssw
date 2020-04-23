@@ -21,7 +21,7 @@
 
 class BeamRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if ((o.name.find("BeamMonitor/") == std::string::npos) &&
         (o.name.find("BeamMonitor_PixelLess/") == std::string::npos) &&
         (o.name.find("TrackingHLTBeamspotStream/") == std::string::npos))
@@ -42,7 +42,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH2F *>(o.object)) {
@@ -58,7 +58,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH2F *>(o.object)) {

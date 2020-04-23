@@ -11,14 +11,14 @@
 #include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include "utils.h"
 
-#include "TProfile2D.h"
-#include "TStyle.h"
 #include "TCanvas.h"
 #include "TColor.h"
-#include <cassert>
-#include <math.h>
 #include "TLatex.h"
 #include "TLine.h"
+#include "TProfile2D.h"
+#include "TStyle.h"
+#include <cassert>
+#include <cmath>
 
 class DTRenderPlugin : public DQMRenderPlugin {
   TLatex *labelMB4Sect_global;
@@ -27,12 +27,12 @@ class DTRenderPlugin : public DQMRenderPlugin {
 
 public:
   DTRenderPlugin() {
-    labelMB4Sect_global = 0;
+    labelMB4Sect_global = nullptr;
     labelMB4Sect4and13_wheel = new TLatex(4, 4.5, "4/13");
     labelMB4Sect10and14_wheel = new TLatex(9.85, 4.5, "10/14");
   }
 
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if ((o.name.find("DT/R") != std::string::npos) || (o.name.find("DT/0") != std::string::npos) ||
         (o.name.find("DT/1") != std::string::npos) || (o.name.find("DT/9") != std::string::npos) ||
         (o.name.find("DT/E") != std::string::npos) || (o.name.find("DT/F") != std::string::npos) ||
@@ -44,7 +44,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     //  c->SetFrameFillColor(10);
@@ -63,7 +63,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TProfile2D *>(o.object)) {
@@ -1372,7 +1372,7 @@ private:
       TH1F *histo = dynamic_cast<TH1F *>(o.object);
       TH1F *hRef = dynamic_cast<TH1F *>(o.reference);
 
-      if (hRef != 0 && histo != 0) {
+      if (hRef != nullptr && histo != nullptr) {
         double nEntries = histo->Integral();
         if (nEntries != 0 && hRef->Integral() != 0) {
           hRef->Scale(nEntries / hRef->Integral());

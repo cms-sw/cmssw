@@ -23,7 +23,7 @@
 
 class PFValidationRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("ParticleFlow/") == std::string::npos)
       return false;
 
@@ -48,7 +48,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH2F *>(o.object)) {
@@ -62,7 +62,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH1F *>(o.object)) {
@@ -104,7 +104,7 @@ private:
         o.name.find("delta_et_VS_et") != std::string::npos or o.name.find("delta_eta_VS_et") != std::string::npos or
         o.name.find("delta_phi_VS_et") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
@@ -112,7 +112,7 @@ private:
     if (o.name.find("delta_set_Over_set_VS_set") != std::string::npos or
         o.name.find("delta_set_VS_set") != std::string::npos or o.name.find("delta_ex_VS_set") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
@@ -203,7 +203,7 @@ private:
 
     if (o.name.find("TkHMap") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       if (o.name.find("TkHMap_FractionOfBadChannels") != std::string::npos) {
         obj->SetMinimum(0.0001);
@@ -214,14 +214,14 @@ private:
 
     if (o.name.find("NumberOfRecHitVsPhiVsEta") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
 
     if (o.name.find("NumberOfLayersVsPhiVsEta") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       return;
     }
@@ -255,7 +255,7 @@ private:
 
     if (o.name.find("TkHMap") != std::string::npos) {
       obj->SetStats(kFALSE);
-      gStyle->SetPalette(1, 0);
+      gStyle->SetPalette(1, nullptr);
       obj->SetOption("colz");
       if (o.name.find("TkHMap_FractionOfBadChannels") != std::string::npos) {
         obj->SetMinimum(0.0001);

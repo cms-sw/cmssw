@@ -28,7 +28,7 @@ using namespace std;
 
 class SiPixelMapsRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject& o, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& o, const VisDQMImgInfo&) override {
     if ((o.name.find("PixelPhase1/Phase1_MechanicalView") != std::string::npos ||
          o.name.find("PixelPhase1/Tracks") != std::string::npos ||
          o.name.find("PixelPhase1/FED") != std::string::npos ||
@@ -48,7 +48,7 @@ public:
   //if(!obj) return;
   //}
 
-  virtual void postDraw(TCanvas* canvas, const VisDQMObject& o, const VisDQMImgInfo& /*ri*/) {
+  void postDraw(TCanvas* canvas, const VisDQMObject& o, const VisDQMImgInfo& /*ri*/) override {
     canvas->cd();
     TH2* obj = dynamic_cast<TH2*>(o.object);
     if (!obj)
@@ -103,7 +103,7 @@ private:
     l->Draw();
   }
 
-  void dress_occup_plot(TH2* h, int lay, int ring = 0, int phase = 0, bool half_shift = 1, bool mark_zero = 1) {
+  void dress_occup_plot(TH2* h, int lay, int ring = 0, int phase = 0, bool half_shift = true, bool mark_zero = true) {
     // Draw Lines around modules
     if (lay > 0) {
       std::vector<std::vector<int> > nladder = {{10, 16, 22}, {6, 14, 22, 32}};

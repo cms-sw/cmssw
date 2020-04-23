@@ -15,8 +15,8 @@
 #include "TProfile.h"
 #include "TProfile2D.h"
 
-#include <math.h>
 #include <cassert>
+#include <cmath>
 
 class ESRenderPlugin : public DQMRenderPlugin {
 public:
@@ -28,7 +28,7 @@ public:
   int colorbar1[10];
   int colorbar2[8];
 
-  virtual void initialise(int, char **) {
+  void initialise(int, char **) override {
     float rgb[10][3] = {{0.87, 0.00, 0.00},
                         {0.91, 0.27, 0.00},
                         {0.95, 0.54, 0.00},
@@ -51,11 +51,11 @@ public:
     colorbar2[7] = 800;
   }
 
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &i);
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &i) override;
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i, VisDQMRenderInfo &r);
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i, VisDQMRenderInfo &r) override;
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i);
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &i) override;
 
 private:
   void preDrawTH1(TCanvas *c, const VisDQMObject &o);

@@ -1,7 +1,7 @@
 #include "DQMServices/DQMGUI/interface/DQMRenderPlugin.h"
 #include <algorithm>
 
-std::vector<DQMRenderPlugin *> *DQMRenderPlugin::s_list = 0;
+std::vector<DQMRenderPlugin *> *DQMRenderPlugin::s_list = nullptr;
 
 DQMRenderPlugin::DQMRenderPlugin(void) { s_list->push_back(this); }
 

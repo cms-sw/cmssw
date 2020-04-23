@@ -19,22 +19,22 @@
  * =====================================================================================
  */
 
-#include <math.h>
-#include <string>
-#include <iostream>
-#include <bitset>
+#include <TBox.h>
+#include <TCanvas.h>
+#include <TColor.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
-#include <TBox.h>
-#include <TPave.h>
-#include <TText.h>
 #include <TPRegexp.h>
-#include <TColor.h>
-#include <TStyle.h>
+#include <TPave.h>
 #include <TPaveText.h>
-#include <TCanvas.h>
 #include <TROOT.h>
+#include <TStyle.h>
+#include <TText.h>
+#include <bitset>
+#include <cmath>
+#include <iostream>
+#include <string>
 
 /**
  * @class CSC_TPE_hAll

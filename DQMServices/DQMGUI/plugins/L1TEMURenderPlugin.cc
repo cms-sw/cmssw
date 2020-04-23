@@ -44,7 +44,7 @@
 class L1TEMURenderPlugin : public DQMRenderPlugin {
 public:
   // determine whether core object is an L1TEMU object
-  virtual bool applies(const VisDQMObject& dqmObj, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& dqmObj, const VisDQMImgInfo&) override {
     if (dqmObj.name.find("L1TEMU/") != std::string::npos) {
       // return true for all L1TEMU, except L1TdeRCT, L1TStage2 and reportSummaryMap
       if (dqmObj.name.find("L1TEMU/L1TdeRCT/") != std::string::npos ||
@@ -60,7 +60,7 @@ public:
   }
 
   // pre-draw, separated per histogram type
-  virtual void preDraw(TCanvas* canvas, const VisDQMObject& dqmObj, const VisDQMImgInfo&, VisDQMRenderInfo&) {
+  void preDraw(TCanvas* canvas, const VisDQMObject& dqmObj, const VisDQMImgInfo&, VisDQMRenderInfo&) override {
     canvas->cd();
 
     if (dynamic_cast<TH2F*>(dqmObj.object)) {
@@ -74,7 +74,7 @@ public:
   }
 
   // post-draw, separated per histogram type
-  virtual void postDraw(TCanvas* canvas, const VisDQMObject& dqmObj, const VisDQMImgInfo&) {
+  void postDraw(TCanvas* canvas, const VisDQMObject& dqmObj, const VisDQMImgInfo&) override {
     if (dynamic_cast<TH2F*>(dqmObj.object)) {
       // object is TH2 histogram
       postDrawTH2F(canvas, dqmObj);

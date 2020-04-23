@@ -19,13 +19,13 @@
 #ifndef CSCDQM_Utility_H
 #define CSCDQM_Utility_H
 
-#include <string>
+#include <cmath>
+#include <cstdint>
 #include <map>
 #include <set>
-#include <vector>
 #include <sstream>
-#include <stdint.h>
-#include <math.h>
+#include <string>
+#include <vector>
 
 #ifndef CSC_RENDER_PLUGIN
 #include <xercesc/util/XMLString.hpp>

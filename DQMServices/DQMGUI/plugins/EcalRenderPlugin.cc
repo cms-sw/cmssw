@@ -82,13 +82,13 @@ private:
 
 public:
   EcalRenderPlugin();
-  virtual ~EcalRenderPlugin();
+  ~EcalRenderPlugin() override;
 
-  virtual void initialise(int, char**);
-  virtual bool applies(const VisDQMObject&, const VisDQMImgInfo&);
+  void initialise(int, char**) override;
+  bool applies(const VisDQMObject&, const VisDQMImgInfo&) override;
 
-  virtual void preDraw(TCanvas*, const VisDQMObject&, const VisDQMImgInfo&, VisDQMRenderInfo&);
-  virtual void postDraw(TCanvas*, const VisDQMObject&, const VisDQMImgInfo&);
+  void preDraw(TCanvas*, const VisDQMObject&, const VisDQMImgInfo&, VisDQMRenderInfo&) override;
+  void postDraw(TCanvas*, const VisDQMObject&, const VisDQMImgInfo&) override;
 
 private:
   void preDrawByName(TCanvas*, VisDQMObject const&, VisDQMImgInfo const&, VisDQMRenderInfo&, bool&);
@@ -138,54 +138,54 @@ private:
 
 inline EcalRenderPlugin::EcalRenderPlugin()
     : DQMRenderPlugin(),
-      ebTTLabels(0),
-      ebSMLabels(0),
-      ebSMShiftedLabels(0),
-      eeTTLabels(0),
-      eemTCCLabels(0),
-      eepTCCLabels(0),
-      eemSCLabels(0),
-      eepSCLabels(0),
-      eemSMLabels(0),
-      eepSMLabels(0),
-      eeSMLabels(0),
-      eePNLabels(0),
-      ecalSMLabels(0),
-      MEMLabels(0),
+      ebTTLabels(nullptr),
+      ebSMLabels(nullptr),
+      ebSMShiftedLabels(nullptr),
+      eeTTLabels(nullptr),
+      eemTCCLabels(nullptr),
+      eepTCCLabels(nullptr),
+      eemSCLabels(nullptr),
+      eepSCLabels(nullptr),
+      eemSMLabels(nullptr),
+      eepSMLabels(nullptr),
+      eeSMLabels(nullptr),
+      eePNLabels(nullptr),
+      ecalSMLabels(nullptr),
+      MEMLabels(nullptr),
       qualityPalette(),
       tpTimingPalette(),
       accumPalette(),
       accumMaskedPalette(),
       timingPalette(),
       pedestalPalette(),
-      timingAxis(0) {
+      timingAxis(nullptr) {
   for (int i(0); i < 330; ++i)
-    eeDCCSectors[i] = 0;
+    eeDCCSectors[i] = nullptr;
   for (int i(0); i < 707; ++i) {
-    eemTCCSectors[i] = 0;
-    eepTCCSectors[i] = 0;
+    eemTCCSectors[i] = nullptr;
+    eepTCCSectors[i] = nullptr;
   }
   for (int i(0); i < 2413; ++i) {
-    eemTTSectors[i] = 0;
-    eepTTSectors[i] = 0;
+    eemTTSectors[i] = nullptr;
+    eepTTSectors[i] = nullptr;
   }
   for (int i(0); i < 3; ++i)
-    ecalSubdetPartitions[i] = 0;
+    ecalSubdetPartitions[i] = nullptr;
   for (int i(0); i < 36; ++i)
-    ecalRCTSectors[i] = 0;
+    ecalRCTSectors[i] = nullptr;
 
   for (int i(0); i < 10; ++i) {
-    eeDCCArray[i] = 0;
-    eemTCCArray[i] = 0;
-    eepTCCArray[i] = 0;
+    eeDCCArray[i] = nullptr;
+    eemTCCArray[i] = nullptr;
+    eepTCCArray[i] = nullptr;
   }
   for (int i(0); i < 9; ++i) {
-    eemTTArray[i] = 0;
-    eepTTArray[i] = 0;
+    eemTTArray[i] = nullptr;
+    eepTTArray[i] = nullptr;
   }
 
   for (int i(0); i < 18; ++i)
-    ebpSMPhiAxis[i] = 0;
+    ebpSMPhiAxis[i] = nullptr;
 }
 
 inline EcalRenderPlugin::~EcalRenderPlugin() {
@@ -235,7 +235,7 @@ inline EcalRenderPlugin::~EcalRenderPlugin() {
   }
 
   int iCol(10001);
-  TColor* color(0);
+  TColor* color(nullptr);
   while ((color = gROOT->GetColor(iCol++)))
     delete color;
 }
@@ -2167,7 +2167,7 @@ inline void EcalRenderPlugin::postDraw(TCanvas* canvas, const VisDQMObject& dqmO
             int iSM(TString(matches->At(1)->GetName()).Atoi());
             int iSMCopy = iSM;
 
-            TH2C* labels(0);
+            TH2C* labels(nullptr);
             if (btype == kTriggerTower || btype == kPseudoStrip)
               labels = eeTTLabels;
             else
@@ -2435,7 +2435,7 @@ inline void EcalRenderPlugin::postDrawByName(TCanvas* canvas,
     canvas->Update();
     if (timingAxis) {
       delete timingAxis;
-      timingAxis = 0;
+      timingAxis = nullptr;
     }
     float xup = canvas->GetUxmax();
     float x2 = canvas->PadtoX(canvas->GetX2());
@@ -2710,7 +2710,7 @@ inline std::pair<unsigned, unsigned> EcalRenderPlugin::getPlotType(TH1 const* ob
 inline void EcalRenderPlugin::drawEESectors(
     char c, int iSM, TH1 const* obj, float factor /* = 1.*/, float offset /* = 0.*/) const {
   bool needsMirroring = (iSM < 0 && (c == 't' || c == 'T'));
-  TObjArray* const* array(0);
+  TObjArray* const* array(nullptr);
   switch (c) {
     case 'D':
       array = eeDCCArray;
@@ -2780,7 +2780,7 @@ inline void EcalRenderPlugin::drawEESectors(
   float ymin(obj->GetYaxis()->GetXmin());
 
   TObjArrayIter* itr(static_cast<TObjArrayIter*>(array[arrayInd]->MakeIterator()));
-  TLine* l(0);
+  TLine* l(nullptr);
   while ((l = static_cast<TLine*>(itr->Next()))) {
     if (iLine++ == limit)
       break;

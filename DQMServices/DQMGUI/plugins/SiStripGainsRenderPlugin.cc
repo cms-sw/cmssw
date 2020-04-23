@@ -27,13 +27,13 @@
 
 class SiStripGainsRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("SiStripGains") != std::string::npos)
       return true;
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &) override {
     c->cd();
 
     // This applies to all
@@ -54,7 +54,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TH2D *>(o.object) && (o.name.find("Error") != std::string::npos)) {
@@ -215,7 +215,7 @@ private:
     tl.SetLineWidth(3);
     tl.SetLineStyle(7);
 
-    TLegend *legend = 0;
+    TLegend *legend = nullptr;
     if (o.name.find("MPVError") != std::string::npos) {
       obj->SetLineColor(4);
       xa->SetTitle("Error on MPV [ADC/mm]");
@@ -260,7 +260,7 @@ private:
     gPad->Update();
 
     TPaveStats *st = (TPaveStats *)obj->GetListOfFunctions()->FindObject("stats");
-    if (st != 0) {
+    if (st != nullptr) {
       st->SetBorderSize(0);
       st->SetOptStat(1110);
       st->SetTextColor(obj->GetLineColor());
@@ -277,7 +277,7 @@ private:
       }
     }
 
-    if (legend != 0) {
+    if (legend != nullptr) {
       if (o.name.find("TIB") != std::string::npos)
         legend->AddEntry(obj, "TIB", "l");
       else if (o.name.find("TOB") != std::string::npos)
@@ -471,7 +471,7 @@ private:
       gPad->Update();
 
       TPaveStats *st = (TPaveStats *)obj->GetListOfFunctions()->FindObject("stats");
-      if (st != 0) {
+      if (st != nullptr) {
         st->SetBorderSize(0);
         st->SetOptStat(10);
         st->SetTextColor(4);

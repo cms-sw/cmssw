@@ -28,14 +28,14 @@
 
 class IntegrationTestRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject& o, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& o, const VisDQMImgInfo&) override {
     if (o.name.find("IntegrationTest/") != std::string::npos)
       return true;
 
     return false;
   }
 
-  virtual void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) {
+  void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) override {
     c->cd();
 
     if (dynamic_cast<TH2*>(o.object)) {
@@ -47,7 +47,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) {
+  void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) override {
     c->cd();
     putName(o);
 
@@ -142,7 +142,7 @@ private:
     TAxis* ax = obj->GetXaxis();
     auto label = std::string(ax->GetTitle());
     auto res = LabelMarkerParser<std::string::iterator>::parse_label(label.begin(), label.end());
-    if (!res.first || res.second.markers.size() == 0)
+    if (!res.first || res.second.markers.empty())
       return;  // parse failed, probably no markers
 
     std::string newlabel = res.second.text;

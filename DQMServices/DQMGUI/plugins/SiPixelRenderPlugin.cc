@@ -24,7 +24,7 @@
 
 class SiPixelRenderPlugin : public DQMRenderPlugin {
 public:
-  virtual bool applies(const VisDQMObject& o, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& o, const VisDQMImgInfo&) override {
     if (o.name.find("Pixel/") == 0)
       return true;
     if (o.name.find("PixelPhase1/") == 0)
@@ -41,7 +41,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) {
+  void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) override {
     c->cd();
 
     if ((dynamic_cast<TProfile*>(o.object) || dynamic_cast<TProfile2D*>(o.object) || dynamic_cast<TH1*>(o.object)) &&
@@ -69,7 +69,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) {
+  void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) override {
     c->cd();
     putName(o);
 
@@ -168,7 +168,7 @@ private:
     TAxis* ax = obj->GetXaxis();
     auto label = std::string(ax->GetTitle());
     auto res = LabelMarkerParser<std::string::iterator>::parse_label(label.begin(), label.end());
-    if (!res.first || res.second.markers.size() == 0)
+    if (!res.first || res.second.markers.empty())
       return;  // parse failed, probably no markers
 
     std::string newlabel = res.second.text;

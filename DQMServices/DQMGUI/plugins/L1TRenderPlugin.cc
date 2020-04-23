@@ -51,7 +51,7 @@ class L1TRenderPlugin : public DQMRenderPlugin {
   float l1t_rgb[60][3];
 
 public:
-  virtual void initialise(int, char**) {
+  void initialise(int, char**) override {
     dummybox = new TH2F("dummyL1T", "", 22, -0.5, 21.5, 18, -0.5, 17.5);
 
     for (int i = 0; i < 22; i++) {
@@ -108,7 +108,7 @@ public:
     b_box_b->SetFillColor(1923);
   }
 
-  virtual bool applies(const VisDQMObject& o, const VisDQMImgInfo&) {
+  bool applies(const VisDQMObject& o, const VisDQMImgInfo&) override {
     // determine whether core object is an L1T object
     if (o.name.find("L1T/") != std::string::npos)
       // Stage 2 trigger will have new render plugin
@@ -118,7 +118,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) {
+  void preDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&, VisDQMRenderInfo&) override {
     c->cd();
 
     // object is TH2 histogram
@@ -131,7 +131,7 @@ public:
     }
   }
 
-  virtual void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) {
+  void postDraw(TCanvas* c, const VisDQMObject& o, const VisDQMImgInfo&) override {
     // object is TH2 histogram
     if (dynamic_cast<TH2F*>(o.object)) {
       postDrawTH2F(c, o);

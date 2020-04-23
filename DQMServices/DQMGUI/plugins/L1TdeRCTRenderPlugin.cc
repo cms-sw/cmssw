@@ -33,7 +33,7 @@ class L1TdeRCTRenderPlugin : public DQMRenderPlugin {
   Int_t pOvereff[100];
 
 public:
-  virtual void initialise(int, char **) {
+  void initialise(int, char **) override {
     Float_t rgb[300] = {0};
     paletteSize = 100;
     nContours = 100;
@@ -131,7 +131,7 @@ public:
     }
   }
 
-  virtual bool applies(const VisDQMObject &o, const VisDQMImgInfo &) {
+  bool applies(const VisDQMObject &o, const VisDQMImgInfo &) override {
     if (o.name.find("L1TdeRCT") != std::string::npos)
       return true;
 
@@ -170,7 +170,7 @@ public:
     return false;
   }
 
-  virtual void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &r) {
+  void preDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &, VisDQMRenderInfo &r) override {
     c->cd();
 
     gStyle->Reset("Default");
@@ -207,7 +207,7 @@ public:
     r.drawOptions = "";
   }
 
-  virtual void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) {
+  void postDraw(TCanvas *c, const VisDQMObject &o, const VisDQMImgInfo &) override {
     c->cd();
 
     if (dynamic_cast<TProfile2D *>(o.object)) {
