@@ -23,6 +23,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
+#include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -163,12 +164,15 @@ public:
                          std::string pathtomatbudfile);
   void bookMultiClusterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned layers);
   void layerClusters_to_CaloParticles(const Histograms& histograms,
+                                      edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                       const reco::CaloClusterCollection& clusters,
+                                      edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
                                       std::vector<CaloParticle> const& cP,
                                       std::vector<size_t> const& cPIndices,
                                       std::vector<size_t> const& cPSelectedIndices,
                                       std::map<DetId, const HGCRecHit*> const&,
-                                      unsigned layers) const;
+                                      unsigned layers,
+                                      const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
                                       int count,
                                       const std::vector<reco::HGCalMultiCluster>& multiClusters,
@@ -185,15 +189,18 @@ public:
   void fill_cluster_histos(const Histograms& histograms, int count, const reco::CaloCluster& cluster) const;
   void fill_generic_cluster_histos(const Histograms& histograms,
                                    int count,
+                                   edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                    const reco::CaloClusterCollection& clusters,
                                    const Density& densities,
+                                   edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
                                    std::vector<CaloParticle> const& cP,
                                    std::vector<size_t> const& cPIndices,
                                    std::vector<size_t> const& cPSelectedIndices,
                                    std::map<DetId, const HGCRecHit*> const&,
                                    std::map<double, double> cummatbudg,
                                    unsigned layers,
-                                   std::vector<int> thicknesses) const;
+                                   std::vector<int> thicknesses,
+                                   edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const;
   void fill_multi_cluster_histos(const Histograms& histograms,
                                  int count,
                                  const std::vector<reco::HGCalMultiCluster>& multiClusters,

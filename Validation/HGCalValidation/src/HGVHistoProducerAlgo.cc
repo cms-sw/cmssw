@@ -809,12 +809,15 @@ void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
 }
 
 void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& histograms,
+                                                          edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                                           const reco::CaloClusterCollection& clusters,
+                                                          edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
                                                           std::vector<CaloParticle> const& cP,
                                                           std::vector<size_t> const& cPIndices,
                                                           std::vector<size_t> const& cPSelectedIndices,
                                                           std::map<DetId, const HGCRecHit*> const& hitMap,
-                                                          unsigned layers) const {
+                                                          unsigned layers,
+                                                          const edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const {
   auto nLayerClusters = clusters.size();
   //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
   auto nCaloParticles = cPIndices.size();
@@ -1053,6 +1056,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                << energyFractionOfLCinCP << "\t" << std::setw(25) << energyFractionOfCPinLC << "\n";
   }  // End of loop over LayerClusters
 
+  hgcal::RecoToSimCollection cPOnLayer_ = LCAssocByEnergyScoreHandle->associateRecoToSim(clusterHandle, caloParticleHandle);
+
   LogDebug("HGCalValidator") << "Improved cPOnLayer INFO" << std::endl;
   for (size_t cp = 0; cp < cPOnLayer.size(); ++cp) {
     LogDebug("HGCalValidator") << "For CaloParticle Idx: " << cp << " we have: " << std::endl;
@@ -1185,7 +1190,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
   }  // End of loop over LayerClusters
 
   // Here we do fill the plots to compute the different metrics linked to
-  // gen-level, namely efficiency an duplicate. In this loop we should restrict
+  // gen-level, namely efficiency and duplicate. In this loop we should restrict
   // only to the selected caloParaticles.
   for (const auto& cpId : cPSelectedIndices) {
     for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
@@ -1308,15 +1313,18 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
 
 void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histograms,
                                                        int count,
+                                                       edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                                        const reco::CaloClusterCollection& clusters,
                                                        const Density& densities,
+                                                       edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
                                                        std::vector<CaloParticle> const& cP,
                                                        std::vector<size_t> const& cPIndices,
                                                        std::vector<size_t> const& cPSelectedIndices,
                                                        std::map<DetId, const HGCRecHit*> const& hitMap,
                                                        std::map<double, double> cummatbudg,
                                                        unsigned layers,
-                                                       std::vector<int> thicknesses) const {
+                                                       std::vector<int> thicknesses,
+                                                       edm::Handle<hgcal::LayerClusterToCaloParticleAssociator>& LCAssocByEnergyScoreHandle) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
@@ -1341,7 +1349,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
   tnlcpthplus.insert(std::pair<std::string, int>("mixed", 0));
   tnlcpthminus.insert(std::pair<std::string, int>("mixed", 0));
 
-  layerClusters_to_CaloParticles(histograms, clusters, cP, cPIndices, cPSelectedIndices, hitMap, layers);
+  layerClusters_to_CaloParticles(histograms, clusterHandle, clusters, caloParticleHandle, cP, cPIndices, cPSelectedIndices, hitMap, layers, LCAssocByEnergyScoreHandle);
 
   //To find out the total amount of energy clustered per layer
   //Initialize with zeros because I see clear gives weird numbers.

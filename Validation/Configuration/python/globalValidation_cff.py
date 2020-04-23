@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
+from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import *
 from Validation.TrackerHits.trackerHitsValidation_cff import *
 from Validation.TrackerDigis.trackerDigisValidation_cff import *
 from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
@@ -160,12 +161,12 @@ globalValidationHCAL = cms.Sequence(
     + calotowersValidationSequence
 )
 
-HGCRecHitMapProducer = cms.EDProducer("HGCalRecHitMapProducer",
-)
-globalValidationHGCal = cms.Sequence(
+globalValidationHGCal = cms.Sequence(hgcalValidation)
+globalPrevalidationHGCalOnly = cms.Task(
       HGCRecHitMapProducer
-    * hgcalValidation
+    , LCAssocByEnergyScoreProducer
 )
+globalValidationHGCal.associate(globalPrevalidationHGCalOnly)
 
 globalValidationMTD = cms.Sequence()
 
