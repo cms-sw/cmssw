@@ -174,7 +174,7 @@ def doMETPlots(files, plots):
 # does PFCandidate Plots
 def doPFCandPlots(files, plots):
     #we are going to hard code the end part of the histogram names because there's only 4
-    hist_list = ["Charge", "Eta", "Phi", "Pt(log GeV)", "Pt(log freq)"]
+    hist_list = ["Charge", "Eta", "Phi", "Pt(log GeV)", "Pt(log y)"]
     f = ROOT.TFile(files[0])
     d = f.Get("DQMData/Run 1/ParticleFlow/Run summary/PackedCandidates")
     #get the name of the folders, which can use to complete plot name as well probably
@@ -215,14 +215,12 @@ def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
         plotter.append("JetMET" + section, folders, PlotFolder(*plots, loopSubFolders=False, page="JetMET", section=section))
     if "PackedCandidates" in folder:
         for h in histograms:
-            if ("log freq" in h):
+            if ("log y" in h):
                 #plotting log in y for pt
                 plots = [PlotGroup(h, [Plot(h, ymin = pow(10,-1), ylog = True, **opts)])]
-
             else:
                 plots = [PlotGroup(h, [Plot(h, **opts)])]
 
-            #plots = [PlotGroup(h, [Plot(h, **opts)])]
         for plot in plots:
             plot.setProperties(legendDw=-0.5)
             plot.setProperties(legendDh=0.01)
