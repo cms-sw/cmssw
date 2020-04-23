@@ -61,6 +61,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder()
       cosh_ieta_28_HE_high_depths_{},
       cosh_ieta_29_HE_{},
       allLinear_{},
+      contain1TS_{},
       linearLSB_QIE8_{},
       linearLSB_QIE11_{},
       linearLSB_QIE11Overlap_{} {}
@@ -74,6 +75,7 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) 
   FG_HF_thresholds_ = {0, 0};
   bitToMask_ = 0;
   allLinear_ = false;
+  contain1TS_ = false;
   linearLSB_QIE8_ = 1.;
   linearLSB_QIE11_ = 1.;
   linearLSB_QIE11Overlap_ = 1.;
@@ -414,12 +416,13 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       int granularity = meta->getLutGranularity();
 
       double correctionPhaseNS = conditions.getHcalRecoParam(cell)->correctionPhaseNS();
+      if (containPhaseNS_ != -1.0) correctionPhaseNS = containPhaseNS_;
       for (unsigned int adc = 0; adc < SIZE; ++adc) {
         if (isMasked)
           lut[adc] = 0;
         else {
           double nonlinearityCorrection = 1.0;
-          double containmentCorrection2TSCorrected = 1.0;
+          double containmentCorrection = 1.0;
           // SiPM nonlinearity was not corrected in 2017
           // and containment corrections  were not
           // ET-dependent prior to 2018
@@ -428,7 +431,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             // Use the 1-TS containment correction to estimate the charge of the pulse
             // from the individual samples
             double correctedCharge = containmentCorrection1TS * adc2fC(adc);
-            containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
+            double containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
+            if (contain1TS_) containmentCorrection = containmentCorrection1TS;
+            else containmentCorrection = containmentCorrection2TSCorrected; 
             if (qieType == QIE11) {
               const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
               HcalSiPMnonlinearity corr(
@@ -441,14 +446,14 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
           if (allLinear_)
             lut[adc] = (LutElement)std::min(std::max(0,
                                                      int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection *
-                                                         containmentCorrection2TSCorrected / linearLSB /
+                                                         containmentCorrection / linearLSB /
                                                          cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))),
                                             MASK);
           else
             lut[adc] =
                 (LutElement)std::min(std::max(0,
                                               int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection *
-                                                  containmentCorrection2TSCorrected / nominalgain_ / granularity)),
+                                                  containmentCorrection / nominalgain_ / granularity)),
                                      MASK);
 
           if (qieType == QIE11) {
