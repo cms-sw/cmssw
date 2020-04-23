@@ -31,6 +31,7 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TText.h"
+#include "TError.h"
 #include "boost/algorithm/string.hpp"
 #include <algorithm>
 #include <cassert>
@@ -59,6 +60,16 @@ using DataBlob = std::vector<unsigned char>;
 struct Bucket {
   DataBlob data;
 };
+
+// ROOT uses global state in many places, ut not to report errors...
+// We set a custom error handler to know if any errors happend, but then call
+// the default handler. The `haderror` flag is then reported to the client.
+ErrorHandlerFunc_t defaulterrorhandler;
+bool haderror = false;
+void RootErrorHandler(int level, Bool_t abort, const char *location, const char *msg) {
+  haderror = true;  // TOOD: mayb check level here?
+  defaulterrorhandler(level, abort, location, msg);
+}
 
 //----------------------------------------------------------------------
 /** Extract the next serialised ROOT object from @a buf.  Returns null
@@ -519,6 +530,9 @@ protected:
     size_t namepos = (slash == std::string::npos ? 0 : slash + 1);
     std::string dirpart(name, 0, dirpos);
 
+    // reset global error flag, then check in the end if there were errors.
+    ::haderror = false;
+
     // Validate the image request.
     VisDQMImgInfo info;
     const char *error = nullptr;
@@ -550,8 +564,10 @@ protected:
     DataBlob imgdata;
     bool blacklisted = false;
     blacklisted = doRender(info, &objs[0], numobjs, imgdata);
+    uint32_t returncode = ::haderror ? 1 : 0;
     uint32_t imgsize = imgdata.size();
-    msg->data.reserve(imgsize + sizeof(imgsize));
+    msg->data.reserve(imgsize + sizeof(returncode) + sizeof(imgsize));
+    copydata(msg, &returncode, sizeof(returncode));
     copydata(msg, &imgsize, sizeof(imgsize));
     if (imgsize)
       copydata(msg, &imgdata[0], imgdata.size());
@@ -568,8 +584,9 @@ protected:
     logme() << "INFO: rendered '" << objs[0].name << "' version " << objs[0].version << " as '" << spec
             << (blacklisted ? "', black-listed" : "'") << ", " << numobjs << " objects, main object had"
             << (hadref ? "" : " no") << " reference, in " << /*((end - start).ns() * 1e-3)*/ "TODO"
-            << " us\n";
+            << "us" << (::haderror ? " (ERROR)" : " (OK)") << "\n";
 
+    ::haderror = false;
     return true;
   }
 
@@ -1380,6 +1397,9 @@ int main(int argc, char **argv) {
   // Re-capture signals from ROOT after ROOT has initialised.
   ROOT::GetROOT();
   // TODO, maybe?
+
+  // set up custom error handling.
+  ::defaulterrorhandler = ::SetErrorHandler(&::RootErrorHandler);
 
   // Start serving.
   VisDQMImageServer server(params);

@@ -103,8 +103,9 @@ class RenderLink:
         msg += name + specb + data
         msg = struct.pack('=i', len(msg) + 4) + msg
         self.client.send(msg)
-        lenbuf = self.client.recv(4)
-        length, = struct.unpack("=i", lenbuf)
+        lenbuf = self.client.recv(8)
+        errorcode, length = struct.unpack("=ii", lenbuf)
+        print("Error: ", errorcode)
         buf = b''
         while length > 0:
             recvd = self.client.recv(length)
