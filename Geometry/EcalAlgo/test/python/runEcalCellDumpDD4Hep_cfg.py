@@ -11,7 +11,6 @@ process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
-#process.load("Geometry.HcalTowerAlgo.hcalCellParameterDump_cfi")
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/EcalCommonData/data/dd4hep/cms-ecal-geometry.xml'),
