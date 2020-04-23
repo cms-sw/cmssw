@@ -46,11 +46,9 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
 from DQM.DTMonitorClient.dtDataIntegrityTest_cfi import *
 from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
-DTDataIntegrityTask.processingMode = 'Online'
-DTDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
-DTDataIntegrityTask.checkUros      = True
+dtDataIntegrityTask.processingMode = 'Online'
+dtDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
 blockedROChannelTest.checkUros      = True
-dataIntegrityTest.checkUros      = True
 
 # Digi task
 from DQM.DTMonitorModule.dtDigiTask_cfi import *
@@ -112,7 +110,7 @@ unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis + scalersRawToDigi)
 reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
 # sequence of DQM tasks to be run on physics events only
-dtDQMTask = cms.Sequence(DTDataIntegrityTask + dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
+dtDQMTask = cms.Sequence(dtDataIntegrityTask + dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
 
 # DQM clients to be run on physics event only
 dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTest + triggerTest + dtOccupancyTest + dtOccupancyTestML + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
