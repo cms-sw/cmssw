@@ -24,6 +24,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 namespace {
   bool passesQuality(const reco::Track& trk,const std::vector<reco::TrackBase::TrackQuality>& allowedQuals){
@@ -57,7 +58,8 @@ namespace pat {
 			    const reco::VertexRef& pvSlimmed,
 			    const reco::VertexRefProd& pvSlimmedColl,
 			    const reco::Vertex& pvOrig,
-			    const TrkStatus trkStatus)const;
+			    const TrkStatus trkStatus,
+                            edm::Handle<reco::MuonCollection> muons) const;
       
   private:
     const edm::EDGetTokenT<reco::PFCandidateCollection>    cands_;
@@ -75,6 +77,9 @@ namespace pat {
     const int covarianceVersion_;
     const int covarianceSchema_;
     std::vector<reco::TrackBase::TrackQuality> qualsToAutoAccept_;
+    const edm::EDGetTokenT<reco::MuonCollection> muons_;
+    StringCutObjectSelector<reco::Track, false> passThroughCut_;
+    bool allowMuonId_;
   };
 }
 
@@ -92,9 +97,10 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
   minPixelHits_(iConfig.getParameter<uint32_t>("minPixelHits")) ,
   minPtToStoreProps_(iConfig.getParameter<double>("minPtToStoreProps")),
   covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
-  covarianceSchema_(iConfig.getParameter<int >("covarianceSchema"))
-
-{ 
+  covarianceSchema_(iConfig.getParameter<int >("covarianceSchema")),
+  muons_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+  passThroughCut_(iConfig.getParameter<std::string>("passThroughCut")),
+  allowMuonId_(iConfig.getParameter<bool>("allowMuonId")){
   std::vector<std::string> trkQuals(iConfig.getParameter<std::vector<std::string> >("qualsToAutoAccept"));
   std::transform(trkQuals.begin(),trkQuals.end(),std::back_inserter(qualsToAutoAccept_),reco::TrackBase::qualityByName);
   
@@ -125,6 +131,9 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     
     edm::Handle<reco::VertexCollection> vertices;
     iEvent.getByToken( vertices_, vertices );
+
+    edm::Handle<reco::MuonCollection> muons;
+    iEvent.getByToken(muons_, muons);
 
     edm::Handle<reco::VertexCompositeCandidateCollection> kshorts;
     iEvent.getByToken( kshorts_, kshorts );
@@ -189,7 +198,7 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
 	   (trkStatus[trkIndx]==TrkStatus::NOTUSED && passTrkCuts(*trk)) ) { 
 	
 	    outPtrTrks->emplace_back(*trk);
-	    addPackedCandidate(*outPtrTrksAsCands,trk,pv,pvRefProd,pvOrig,trkStatus[trkIndx]);
+	    addPackedCandidate(*outPtrTrksAsCands, trk, pv, pvRefProd, pvOrig, trkStatus[trkIndx], muons);
 	
 	    //for creating the reco::Track -> pat::PackedCandidate map
 	    //not done for the lostTrack:eleTracks collection
@@ -197,7 +206,7 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
 	    lostTrkIndx++;
 	}else if( (trkStatus[trkIndx]==TrkStatus::PFELECTRON || trkStatus[trkIndx]==TrkStatus::PFPOSITRON ) 
 		  && passTrkCuts(*trk) ) {
-   	    addPackedCandidate(*outPtrEleTrksAsCands,trk,pv,pvRefProd,pvOrig,trkStatus[trkIndx]);
+             addPackedCandidate(*outPtrEleTrksAsCands, trk, pv, pvRefProd, pvOrig, trkStatus[trkIndx], muons);
 
 	
       }	      
@@ -220,7 +229,7 @@ bool pat::PATLostTracks::passTrkCuts(const reco::Track& tr)const
                              tr.hitPattern().numberOfValidPixelHits() >= minPixelHits_;
     const bool passTrkQual = passesQuality(tr,qualsToAutoAccept_);
 
-    return passTrkHits || passTrkQual;
+    return passTrkHits || passTrkQual || passThroughCut_(tr) ;
 }
 
 void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& cands,
@@ -228,14 +237,25 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
 					    const reco::VertexRef& pvSlimmed,
 					    const reco::VertexRefProd& pvSlimmedColl,
 					    const reco::Vertex& pvOrig,
-					    const pat::PATLostTracks::TrkStatus trkStatus)const
+					    const pat::PATLostTracks::TrkStatus trkStatus,
+                                            edm::Handle<reco::MuonCollection> muons) const
 {
     const float mass = 0.13957018;
     
     int id=211*trk->charge();
     if(trkStatus==TrkStatus::PFELECTRON) id=11;
     else if(trkStatus==TrkStatus::PFPOSITRON) id=-11; 
-    
+
+    // assign the proper pdgId for tracks that are reconstructed as a muon
+    if (allowMuonId_){
+      for (auto& mu : *muons) {
+        if (reco::TrackRef(mu.innerTrack()) == trk) {
+          id = -13 * trk->charge();
+          break;
+        }
+      }
+    }
+
     reco::Candidate::PolarLorentzVector p4(trk->pt(),trk->eta(),trk->phi(),mass);
     cands.emplace_back(pat::PackedCandidate(p4,trk->vertex(),
 					    trk->pt(),trk->eta(),trk->phi(),
