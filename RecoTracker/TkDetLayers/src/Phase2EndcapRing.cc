@@ -179,8 +179,21 @@ SubLayerCrossings Phase2EndcapRing::computeCrossings(const TrajectoryStateOnSurf
   SubLayerCrossing backSLC(1, backIndex, gBackPoint);
 
   // 0ss: frontDisk has index=0, backDisk has index=1
-  float frontDist = std::abs(Geom::deltaPhi(gFrontPoint.barePhi(), theFrontDets[frontIndex]->surface().phi()));
-  float backDist = std::abs(Geom::deltaPhi(gBackPoint.barePhi(), theBackDets[backIndex]->surface().phi()));
+  auto frontPhi1 = gFrontPoint.barePhi();
+  auto frontPhi2 = theFrontDets[frontIndex]->surface().phi();
+  auto frontPX = gFrontPoint.x();
+  auto frontPY = gFrontPoint.y();
+  //edm::LogWarning("Phase2EndcapRing::computeCrossings Front Phi1, Phi2 ") << frontPhi1 <<","<< frontPhi2<<std::endl;
+  //edm::LogWarning("Phase2EndcapRing::computeCrossings Front X, Y ") << frontPX<< "," << frontPY<<std::endl;
+  auto frontDist = std::abs(Geom::deltaPhi(frontPhi1, frontPhi2));
+
+  auto backPhi1 = gBackPoint.barePhi();
+  auto backPhi2 = theBackDets[frontIndex]->surface().phi();
+  auto backPX = gBackPoint.x();
+  auto backPY = gBackPoint.y();
+  //edm::LogWarning("Phase2EndcapRing::computeCrossings Back Phi1, Phi2 ") << backPhi1 <<","<< backPhi2<<std::endl;
+  //edm::LogWarning("Phase2EndcapRing::computeCrossings Back X, Y ") << backPX<< "," << backPY<<std::endl;
+  float backDist = std::abs(Geom::deltaPhi(backPhi1, backPhi2));
 
   if (frontDist < backDist) {
     return SubLayerCrossings(frontSLC, backSLC, 0);
