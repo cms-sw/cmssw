@@ -13,9 +13,11 @@ PLUGINNAME = "libDQMRenderPlugins.so"
 TIMEOUT=20 # timeout for the renderer to start up
 
 # Helper for Jupyter
-def show(pngbytes):
+def show(pngbytes, error = None):
     from IPython.core.display import HTML
     import base64
+    if error:
+        print("Error", error)
     return HTML('<img src="data:image/png;base64, %s" />' % base64.encodebytes(pngbytes).decode("utf-8"))
     
 def tobuffer(th1):
@@ -68,7 +70,7 @@ class RenderLink:
         data = text.encode("utf-8")
         return self.renderbasic(width, height, flags=flags, data=data)
     
-    def renderhisto(self, th1, refth1s, name = "", spec="", efficiency=False, width=600, height=400):
+    def renderhisto(self, th1, refth1s, name = "", spec="", efficiency=False, width=600, height=400, streamerfile=b''):
         DQM_PROP_TYPE_SCALAR = 0x0000000f;
         flags = DQM_PROP_TYPE_SCALAR + 1 # real type is not needed.
         if efficiency:
@@ -82,16 +84,16 @@ class RenderLink:
             data += struct.pack("=i", len(buf)) + buf
         numobjs = len(refth1s) + 1
         nameb = name.encode("utf-8")
-        return self.renderbasic(width, height, flags, numobjs, nameb, spec, data)
+        return self.renderbasic(width, height, flags, numobjs, nameb, spec, data, streamerfile)
     
-    def renderbasic(self, width, height, flags = 0, numobjs = 1, name = b'', spec = '', data = b''):
+    def renderbasic(self, width, height, flags = 0, numobjs = 1, name = b'', spec = '', data = b'', streamerfile = b''):
         mtype = 4 # DQM_MSG_GET_IMAGE_DATA
         # flags
-        tag = 0
         vlow = 0
         vhigh = 0
         # numobjs
         # name
+        filelen = len(streamerfile)
         namelen = len(name)
         sep = ';' if spec else ''
         specb = f"h={height:d};w={width:d}{sep}{spec}".encode("utf-8")
@@ -99,19 +101,18 @@ class RenderLink:
         # data
         datalen = len(data)
         qlen = 0
-        msg = struct.pack("=iiiiiiiiii", mtype, flags, tag, vlow, vhigh, numobjs, namelen, speclen, datalen, qlen)
-        msg += name + specb + data
+        msg = struct.pack("=iiiiiiiiii", mtype, flags, vlow, vhigh, numobjs, filelen, namelen, speclen, datalen, qlen)
+        msg += streamerfile + name + specb + data
         msg = struct.pack('=i', len(msg) + 4) + msg
         self.client.send(msg)
         lenbuf = self.client.recv(8)
         errorcode, length = struct.unpack("=ii", lenbuf)
-        print("Error: ", errorcode)
         buf = b''
         while length > 0:
             recvd = self.client.recv(length)
             length -= len(recvd)
             buf += recvd
-        return buf
+        return buf, errorcode
         
         
         

@@ -16,6 +16,8 @@
 #include "TCanvas.h"
 #include "TColor.h"
 #include "TDirectory.h"
+#include "TError.h"
+#include "TFile.h"
 #include "TGraphAsymmErrors.h"
 #include "TGraphErrors.h"
 #include "TH1D.h"
@@ -31,7 +33,6 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TText.h"
-#include "TError.h"
 #include "boost/algorithm/string.hpp"
 #include <algorithm>
 #include <cassert>
@@ -474,10 +475,10 @@ protected:
     uint32_t type;
     uint32_t nwords = 2;
     uint32_t flags;
-    uint32_t tag;  // Unused.
     uint32_t vlow;
     uint32_t vhigh;
     uint32_t numobjs;
+    uint32_t filelen;
     uint32_t namelen;
     uint32_t speclen;
     uint32_t datalen;
@@ -493,20 +494,20 @@ protected:
     }
 
     memcpy(&flags, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-    memcpy(&tag, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
     memcpy(&vlow, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
     memcpy(&vhigh, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
     memcpy(&numobjs, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
+    memcpy(&filelen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
     memcpy(&namelen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
     memcpy(&speclen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
     memcpy(&datalen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
     memcpy(&qlen, data + nwords++ * sizeof(uint32_t), sizeof(uint32_t));
-    gotlen = nwords * sizeof(uint32_t) + namelen + speclen + datalen + qlen;
+    gotlen = nwords * sizeof(uint32_t) + filelen + namelen + speclen + datalen + qlen;
 
     if (len != gotlen) {
       logme() << "ERROR: corrupt 'GET IMAGE DATA' message of length " << len << ", expected length "
-              << (nwords * sizeof(uint32_t)) << " + " << namelen << " + " << speclen << " + " << datalen << " + "
-              << qlen << " = " << gotlen << std::endl;
+              << (nwords * sizeof(uint32_t)) << " + " << filelen << " + " << namelen << " + " << speclen << " + "
+              << datalen << " + " << qlen << " = " << gotlen << std::endl;
       return false;
     }
 
@@ -516,6 +517,8 @@ protected:
     }
 
     const char *part = (const char *)data + nwords * sizeof(uint32_t);
+    std::string file(part, filelen);
+    part += filelen;
     std::string name(part, namelen);
     part += namelen;
     std::string spec(part, speclen);
@@ -533,6 +536,17 @@ protected:
     // reset global error flag, then check in the end if there were errors.
     ::haderror = false;
 
+    // if a file name/URL was passed, open this file first to get its streamers.
+    // the data in the file is not actually used.
+    if (filelen > 0) {
+      TFile *streamerfile = TFile::Open(file.c_str());
+      if (streamerfile) {
+        streamerfile->ReadStreamerInfo();  // redundant, should happen automatically
+        streamerfile->Close();
+        delete streamerfile;
+      }
+    }
+
     // Validate the image request.
     VisDQMImgInfo info;
     const char *error = nullptr;
@@ -547,7 +561,6 @@ protected:
     std::vector<VisDQMObject> objs(numobjs);
     for (uint32_t i = 0; i < numobjs; ++i) {
       objs[i].flags = flags;
-      objs[i].tag = tag;
       objs[i].version = (((uint64_t)vhigh) << 32) | vlow;
       objs[i].dirname = dirpart;
       objs[i].objname.append(name, namepos, std::string::npos);
