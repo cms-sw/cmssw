@@ -4,11 +4,12 @@ import uproot
 import struct
 import zlib
 import time
+import re
 
 from collections import namedtuple, defaultdict
 from functools import lru_cache
 
-DBNAME = "directory.sqlite"
+DBNAME = "directory2.sqlite"
 
 DBSCHEMA = """
 BEGIN;
@@ -59,7 +60,7 @@ def addfiletoindex(fileurl):
     rootf = uproot.open(fileurl)
     recursivelist(rootf, b"", melist)
     storemelist(sample, melist)
-    f.close()
+    rootf.close()
     
 # This traverses a full TDirectory based file. Slow.
 def recursivelist(d, path, out):
@@ -95,7 +96,7 @@ def normalizepath(k):
             return None # known obsolete stuff
         else:
             return k # not sure what this could be, better leave as is.
-    return parts[2]+ b'/' + b'/'.join(parts[4:-1])
+    return parts[2]+ b'/' + b'/'.join(parts[4:-1]) + b'/'
 
 def parsestringentry(val):
     # non-object data is stored in fake-XML stings in the TDirectory.
@@ -121,7 +122,7 @@ def storemelist(sample, melist):
     nameblob, offsetblob = melisttoblob(melist)
     # TODO: Sqlite does not like MT-writing. Use a RWLock or sth.?
     # TODO: make this an upsert if the sample already exists.
-    with DBHandle(dbs) as db:
+    with DBHandle(dbcache) as db:
         db.execute("BEGIN;")
         db.execute("INSERT OR IGNORE INTO menames(menameblob) VALUES(?);", (nameblob,))
         cur = db.execute("SELECT menamesid FROM menames WHERE menameblob = ?;",  (nameblob,))
@@ -210,7 +211,7 @@ def readme(sample, fullname):
 # TODO: needs another endpoint for search.
 @lru_cache(maxsize=10)
 def queryforsample(sample):
-    with DBHandle(dbs) as db:
+    with DBHandle(dbcache) as db:
         cur = db.execute("SELECT filename, menamesid, meoffsetsid FROM samples WHERE (dataset, run, lumi) == (?, ?, ?);", 
                          (sample.dataset, sample.run, sample.lumi))
         file, menamesid, meoffsetsid = list(cur)[0]
@@ -220,14 +221,14 @@ def queryforsample(sample):
 # The menames cache should have a high hit rate.
 @lru_cache(maxsize=10)
 def melistfromid(menamesid):
-    with DBHandle(dbs) as db:
+    with DBHandle(dbcache) as db:
         cur = db.execute("SELECT menameblob FROM menames WHERE menamesid = ?;", (menamesid,))
         blob = list(cur)[0][0]
         return melistfromblob(blob)
     
 @lru_cache(maxsize=10)
 def meoffsetsfromid(meoffsetsid):
-    with DBHandle(dbs) as db:
+    with DBHandle(dbcache) as db:
         cur = db.execute("SELECT meoffsetsblob FROM meoffsets WHERE meoffsetsid = ?;", (meoffsetsid,))
         blob = list(cur)[0][0]
         return meoffsetsfromblob(blob)
@@ -239,7 +240,7 @@ def locateme(mes, offsets, fullname):
     # This is different from the (path, name) order in DQMIO FullName column.
     # But fine, since we make the list ourselves.
     def access(i):
-        return mes[i]
+        return mes[i].name
     idx = bound(access, fullname, 0, len(mes))
     out = []
     while idx < len(mes) and access(idx) == fullname:
@@ -320,5 +321,33 @@ def readobject(file, mekey):
         head = struct.pack(">II", totlen | 0x40000000, 0xFFFFFFFF)
         return head + classname + b'\0' + buf
 
+# Samples search API
+def searchsamples(datasetre, runre):
+    dsmatch = re.compile(datasetre) if datasetre else None
+    runmatch = re.compile(runre) if runre else None
+    out = []
+    with DBHandle(dbcache) as db:
+        # TODO: use SQLite with regex extension, pass down re's here.
+        cur = db.execute("SELECT DISTINCT dataset, run FROM samples ORDER BY dataset, run;")
+        for dataset, run in cur:
+            if (not dsmatch or dsmatch.search(dataset)) and (not runmatch or runmatch.search(str(run))):
+                out.append(Sample(dataset, run, 0, None, None, None))
+        return out
 
+# list API, should be sort-of compatible with old GUI behaviour with recursive = False
+def listmes(sample, path, match=None, recursive=True):
+    s = queryforsample(sample)
+    mes = melistfromid(s.menamesid)
+    if match:
+        exp = re.compile(match)
+        cand = [x.name for x in mes if x.name.startswith(path) and exp.search(x.name)]
+    else:
+        cand = [x.name for x in mes if x.name.startswith(path)]
+    if recursive:
+        return set(cand)
+    else:
+        # return only next-level names
+        # TODO: return path/ for dirs, name for objects.
+        return set(x[len(path):].split(b'/', 1)[0] for x in cand)
+        
 
