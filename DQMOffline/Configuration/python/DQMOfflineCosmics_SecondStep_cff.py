@@ -43,7 +43,6 @@ DQMOfflineCosmics_SecondStepDPG = cms.Sequence(
                                                 DQMMessageLoggerClientSeq )
 
 from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_Cosmic_cff import *
-from DQMOffline.Muon.muonQualityTests_cff import *
 from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
@@ -52,7 +51,6 @@ from DQMOffline.JetMET.SusyPostProcessor_cff import *
 
 DQMOfflineCosmics_SecondStepTracking = cms.Sequence( TrackingCosmicDQMClient )
 
-DQMOfflineCosmics_SecondStepMUO = cms.Sequence( cosmicMuonQualityTests )
 
 DQMOfflineCosmics_SecondStepEGamma = cms.Sequence( photonOfflineDQMClient )
 
@@ -63,7 +61,6 @@ DQMOfflineCosmics_SecondStepTrigger = cms.Sequence( triggerOfflineDQMClient *
 
 DQMOfflineCosmics_SecondStepJetMET = cms.Sequence( SusyPostProcessorSequence )
 DQMOfflineCosmics_SecondStep_PrePOG = cms.Sequence( DQMOfflineCosmics_SecondStepTracking *
-                                                    DQMOfflineCosmics_SecondStepMUO *
                                                     DQMOfflineCosmics_SecondStepEGamma *
                                                     DQMOfflineCosmics_SecondStepL1T *
                                                     DQMOfflineCosmics_SecondStepJetMET 

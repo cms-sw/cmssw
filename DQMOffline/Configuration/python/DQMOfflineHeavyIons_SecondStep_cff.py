@@ -43,7 +43,7 @@ DQMOfflineHeavyIons_SecondStepDPG = cms.Sequence(
                                          DQMOfflineHeavyIons_SecondStep_PreDPG *
                                          DQMMessageLoggerClientSeq )
 
-from DQMOffline.Muon.muonQualityTests_cff import *
+
 from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
@@ -51,7 +51,7 @@ from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQM.TrackingMonitorClient.TrackingDQMClientHeavyIons_cfi import *
 from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 
-DQMOfflineHeavyIons_SecondStepMUO = cms.Sequence( muonQualityTests )
+
 
 DQMOfflineHeavyIons_SecondStepEGamma = cms.Sequence( photonOfflineDQMClient )
 
@@ -61,7 +61,7 @@ DQMOfflineHeavyIons_SecondStepBeam = cms.Sequence( alcaBeamMonitorClient )
 
 DQMOfflineHeavyIons_SecondStepTracking = cms.Sequence( hiTrackingDqmClientHeavyIons )
 
-DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( DQMOfflineHeavyIons_SecondStepMUO * 
+DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence(  
                                                       DQMOfflineHeavyIons_SecondStepEGamma *
                                                       DQMOfflineHeavyIons_SecondStepTrigger *
                                                       DQMOfflineHeavyIons_SecondStepBeam *
