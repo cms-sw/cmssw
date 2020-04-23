@@ -91,12 +91,13 @@ namespace hcaldqm {
     this->_resetMonitors(f100LS);
   }
 
-  std::shared_ptr<hcaldqm::Cache> DQTask::globalBeginLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const &es) const {
+  std::shared_ptr<hcaldqm::Cache> DQTask::globalBeginLuminosityBlock(edm::LuminosityBlock const &lb,
+                                                                     edm::EventSetup const &es) const {
     auto d = std::make_shared<hcaldqm::Cache>();
     d->currentLS = lb.luminosityBlock();
     d->EvtCntLS = 0;
 
-/*   //// these resets were not useful anymore
+    /*   //// these resets were not useful anymore
     this->_resetMonitors(f1LS);
     if (_procLSs % 10 == 0)
       this->_resetMonitors(f10LS);
