@@ -164,7 +164,7 @@ void EnergyScaleCorrection::addScale(int runMin,
                                      double energyScaleErrSyst,
                                      double energyScaleErrGain) {
   CorrectionCategory cat(
-      runMin, runMax, etaMin, etaMax, r9Min, r9Max, etMin, etMax, gain);  // build the category from the string
+      runMin, runMax, etaMin, etaMax, r9Min, r9Max, etMin, etMax, gain);  
 
   auto result = std::equal_range(scales_.begin(), scales_.end(), cat, Sorter<CorrectionCategory, ScaleCorrection>());
   if (result.first != result.second) {
@@ -222,7 +222,7 @@ void EnergyScaleCorrection::readScalesFromFile(const std::string& filename) {
   double r9Min;       ///< Min R9 vaule for the bin
   double r9Max;       ///< Max R9 value for the bin
   double etMin;       ///< Min Et value for the bin
-  double etMax;       ///< Max Et value for the bin unsigned int gain; ///< 12, 6, 1, 61 (double gain switch)
+  double etMax;       ///< Max Et value for the bin 
   unsigned int gain;  ///< 12, 6, 1, 61 (double gain switch)
 
   // TO count the #columns in that txt file and decide based on that the version to read
@@ -457,7 +457,7 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
     p2 = category.find("-", p1);  // Position of - or end of string
     gain_ = std::stoul(category.substr(p1, p2 - p1), nullptr);
   }
-  //so turns out the code does an includes X<=Y<=Z search for bins
+  //so turns out the code does an inclusive X<=Y<=Z search for bins
   //which is what we want for run numbers
   //however then the problem is when we get a value exactly at the bin boundary
   //for the et/eta/r9 which then gives multiple bins
@@ -487,11 +487,10 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(unsigned int runMi
       etMin_(etMin),
       etMax_(etMax),
       gain_(gainSeed) {
-  //so turns out the code does an includes X<=Y<=Z search for bins
-  //which is what we want for run numbers
-  //however then the problem is when we get a value exactly at the bin boundary
-  //for the et/eta/r9 which then gives multiple bins
-  //so we just decrement the maxValues ever so slightly to ensure that they are different            //from the next bins min value
+  ///Same logic as the above constructor to avoid problems at the bin 
+  ///boundary of et/eta/R9 - just decrement the maxValues
+  ///ever so slightly to ensure that they are different 
+  ///from the next bins min value
   etMax_ = std::nextafterf(etMax_, std::numeric_limits<float>::min());
   etaMax_ = std::nextafterf(etaMax_, std::numeric_limits<float>::min());
   r9Max_ = std::nextafterf(r9Max_, std::numeric_limits<float>::min());
