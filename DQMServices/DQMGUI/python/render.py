@@ -7,7 +7,6 @@ import signal
 import tempfile
 import subprocess
 
-import ROOT
 
 RENERERNAME = "dqmRender"
 PLUGINNAME = "libDQMRenderPlugins.so"
@@ -20,6 +19,8 @@ def show(pngbytes):
     return HTML('<img src="data:image/png;base64, %s" />' % base64.encodebytes(pngbytes).decode("utf-8"))
     
 def tobuffer(th1):
+    # avoid importing ROOT is not needed.
+    import ROOT
     # 24bytes/bin for a TProfile, plus 10K of extra space
     b = array.array("B", b' ' * (th1.GetNcells() * 24 + 10*1024))
     bf = ROOT.TBufferFile(ROOT.TBufferFile.kWrite)
@@ -74,7 +75,10 @@ class RenderLink:
             flags |= 0x00200000 # SUMMARY_PROP_EFFICIENCY_PLOT
         data = b''
         for o in [th1] + refth1s:
-            buf = tobuffer(o)
+            if isinstance(o, bytes):
+                buf = o
+            else:
+                buf = tobuffer(o)
             data += struct.pack("=i", len(buf)) + buf
         numobjs = len(refth1s) + 1
         nameb = name.encode("utf-8")
