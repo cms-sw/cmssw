@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Create and update THStack object</title>
+
+   <script src="../scripts/JSRootCore.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+  <h3>Text Before </h3>
+
+  <div id="object_draw" style="width: 800px; height:600px"></div>
+
+  <h3>Text After</h3>
+
+   <script type='text/javascript'>
+
+
+     function CreateStack(loop) {
+        var stack = JSROOT.Create("THStack");
+
+       for (var n=0;n<5;n++) {
+           var hist = JSROOT.CreateHistogram("TH1I", 10);
+           hist.fName ="hist"+n;
+           hist.Fill(n*2,10);
+           if (loop%5 === n) hist.Fill(n*2,2);
+           hist.fLineColor = n+2;
+           stack.fHists.Add(hist);
+        }
+        return stack;
+     }
+
+     JSROOT.draw("object_draw", CreateStack(0), "nostack");
+
+     var cnt = 0;
+
+     setInterval(function() {
+         JSROOT.redraw("object_draw", CreateStack(++cnt), "nostack");
+     }, 3000);
+
+   </script>
+
+</body>
+</html>
+

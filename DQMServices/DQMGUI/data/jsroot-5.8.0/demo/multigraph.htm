@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>TMultiGraph creation and update</title>
+
+   <script src="../scripts/JSRootCore.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+  <h3>Text Before </h3>
+
+  <div id="object_draw" style="width: 800px; height:600px"></div>
+
+  <h3>Text After</h3>
+
+   <script type='text/javascript'>
+
+      var cnt = 0, drawing_ready = true;
+
+      function updateGUI() {
+         if (!drawing_ready) return;
+
+        // this is just generation of graph
+         var npoints = 20;
+         var xpts=[];
+         var ypts=[];
+         for (var i=0; i<npoints; i++) {
+             switch(cnt%2) {
+                 case 1 : xpts.push(i); ypts.push(5*i); break;
+                 default: xpts.push(i); ypts.push(i); break;
+             }
+         }
+         var graph1 = JSROOT.CreateTGraph(npoints, xpts, ypts);
+         graph1.fLineColor = 2;
+         graph1.fMarkerSize = 2;
+         xpts = [];
+         ypts = [];
+         for (i=0; i<npoints; i++) {
+             switch(cnt%2) {
+                 case 1 : xpts.push(i); ypts.push(i*i); break;
+                 default: xpts.push(i); ypts.push(Math.sqrt(i)); break;
+             }
+         }
+         var graph2 = JSROOT.CreateTGraph(npoints, xpts, ypts);
+         graph2.fLineColor = 3;
+         graph2.fMarkerSize = 2;
+
+         var mgraph = JSROOT.CreateTMultiGraph(graph1, graph2);
+         mgraph.fTitle = "Drawing " + cnt++;
+
+         // set fixed Y-range if required
+         // mgraph.fMinimum = 0;
+         // mgraph.fMaximum = 400;
+
+         drawing_ready = false;
+         JSROOT.redraw('object_draw', mgraph, "", function() { drawing_ready = true; });
+      }
+
+      updateGUI();
+
+      setInterval(updateGUI, 3000);
+
+   </script>
+
+</body>
+</html>
+

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <!-- As template three.js web site was used -->
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>JavaScript ROOT API examples</title>
+      <link rel="shortcut icon" href="img/RootIcon.ico">
+      <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+      <script type="text/javascript" src="scripts/JSRootCore.js"></script>
+      <style>
+
+         body {
+            background-color: #ffffff;
+            margin: 0px;
+            font-family: 'Verdana, Geneva, sans-serif';
+            font-size: 15px;
+            color: #555;
+            overflow: hidden;
+         }
+
+         h1 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            margin-left: 20px;
+            font-size: 25px;
+            font-weight: normal;
+         }
+
+         h2 {
+            color: #999;
+            font-size: 18px;
+            font-weight: normal;
+
+            margin-top: 10px;
+            margin-bottom: 5px;
+         }
+
+         hr {
+            border: 0px;
+            height: 1px;
+            background-color: #ccc;
+            margin: 30px 0px;
+         }
+
+         a {
+            color: #2194CE;
+            text-decoration: none;
+         }
+
+         a:hover {
+            text-decoration: underline;
+         }
+
+         #panel {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            bottom: 0px;
+            width: 240px;
+            background: #ffffff;
+            overflow: auto;
+         }
+
+         #panel #content {
+            padding: 0px 20px;
+         }
+
+         #panel img {
+            border: 1px solid #ccc;
+         }
+
+
+         #panel #book {
+            text-align: center;
+            margin-top: 15px;
+         }
+
+         #viewer {
+            position: absolute;
+            border: 0px;
+            left: 240px;
+            width: calc(100% - 240px);
+            height: 100%;
+            overflow: hidden;
+         }
+
+         #srcviewer {
+            display : none;
+            position: absolute;
+            border: 0px;
+            left: 240px;
+            width: calc(100% - 240px);
+            height: 100%;
+            overflow: auto;
+            margin: 5px;
+         }
+
+         #srcviewer pre {
+            margin: 3px;
+         }
+
+         .link:hover {
+            text-decoration: underline;
+         }
+
+      </style>
+   </head>
+   <body>
+
+      <div id="panel">
+         <h1 id="version"><a href=".." style="color:green">JSROOT</a></h1>
+         <div id="content"></div>
+         <br/>
+      </div>
+
+      <iframe id="viewer"></iframe>
+
+      <div id="srcviewer"></div>
+
+      <script>
+         var jsroot_path = "./";
+         var filepath = "../files/";
+
+         document.getElementById( 'version' ).title = JSROOT.version + ", " + JSROOT.source_dir;
+
+         if ((window.location.host.indexOf('jsroot.gsi.de') < 0) &&
+             (window.location.host.indexOf('root.cern') < 0)) {
+                filepath = "https://root.cern/js/files/";
+             }
+
+         if (window.location.protocol == "file:") {
+            jsroot_path = "https://root.cern/js/dev/";
+            filepath = "https://root.cern/js/files/";
+         }
+
+         var examples = {
+            'URL syntax': [
+              { name: "Open file", url: "?file=" + filepath + "hsimple.root", title: "Open ROOT file with the JSROOT" },
+              { name: "Display item", url: "?file=" + filepath + "hsimple.root&item=hpxpy;1&opt=colz", title: "Open ROOT file and display item" },
+              { name: "Enable status", url: "?status&file=" + filepath + "hsimple.root&item=hpxpy;1&opt=colz", title: "Show tooltip information in special status line" },
+              { name: "Hide browser", url: "?nobrowser&file=" + filepath + "hsimple.root&item=hprof;1", title: "Hide browser - only display items, browser can be activated later" },
+              { name: "Float browser", url: "?float&file=" + filepath + "hsimple.root&item=ntuple;1&opt=px:pz", title: "Display floating browser, which overlays objects drawings" },
+              { name: "Flexible layout", url: "?file=" + filepath + "hsimple.root&layout=flex&items=[hpx;1,hpxpy;1,hprof;1]&opts=[hist,colz,e1]", title: "Display several items with flexible layout" },
+              { name: "Grid layout", url: "?path=" + filepath + "&layout=grid2x2&files=[hsimple.root,glbox.root]&items=[hsimple.root/hpx;1,hsimple.root/hpxpy;1,hsimple.root/hprof;1,glbox.root/h31;1]&opts=[hist,lego20,e1,box2]", title: "Example of grid layout with 2D and 3D drawings" },
+              { name: "Tabs layout", url: "?file=" + filepath + "hsimple.root&layout=tabs&items=[hpx;1,hpxpy;1,hprof;1]&opts=[hist,colz,e1]", title: "Example of tabs layout" },
+              { name: "Collapsible layout", url: "?file=" + filepath + "hsimple.root&layout=collapsible&items=[hpx;1,hpxpy;1,hprof;1]&opts=[hist,colz,e1]", title: "Example of collapsible layout (JSROOT roots)" },
+              { name: "Veritcal layout", url: "?file=" + filepath + "hsimple.root&layout=vert121&items=[hpx;1,hpxpy;1,ntuple;1,hprof;1]&opts=[hist,colz,px:pz,e1]", title: "Display several items in vertical layout" },
+              { name: "Horizontal layout", url: "?file=" + filepath + "hsimple.root&layout=horiz32_12&items=[ntuple,ntuple,ntuple,hpx,hpxpy]&opts=[px:py,px:pz,py:pz,hist,lego2]", title: "Display several items in horizontal layout, adjust size ratio" },
+              { name: "Inspector", url: "?file=" + filepath + "hsimple.root&item=hpx;1&opt=inspect", title: "Show objects data memebers" },
+              { name: "Projection", url: "?nobrowser&file=" + filepath + "hsimple.root&item=hpxpy;1&opt=col,projx3", title: "Enable X projection with 3 bins" },
+              { name: "Images", url: "?path=" + filepath + "&layout=grid2x2&file=hsimple.root&items=[hpx;1,hpxpy;1,img:../files/img/ALICE.png,img:../files/img/ATLAS.png]&opts=[hist,colz,scale,center]", title: "Example of adding images from the web server" },
+              { name: "Use JSON", url: "?nobrowser&json=" + filepath + "danilo6.json", title: "Read and display data from JSON file, produced with TBufferJSON class"  },
+              { name: "Superimpose", url: "?file=" + filepath + "fillrandom.root&item=h1f;1+sqroot;1", title: "Superimpose histogram and function" },
+              { name: "Several files", url: "?layout=grid2x2&path=" + filepath + "&files=[hsimple.root,graph.root,ct.root]&items=[hsimple.root/[1],graph.root/[11],graph.root/[3],ct.root/[0]]&opts=[lego]", title: "Open several files simultaneusely"  },
+              { name: "Superimpose 2 files", url: "?files=[" + filepath + "hsimple.root," + filepath + "graph.root]&item=graph.root/Graph;1+hsimple.root/hprof;1", title: "Superimpose items from two different files"  },
+              { name: "Superimpose 3 files", url: "?path=" + filepath + "&files=[temp44.root,temp35.root,temp28.root]&item=temp44.root/Histograms/TDC_C100/Ch1/TDC_C100_Ch1_RisingCalibr;1+temp35.root/_same_+temp28.root/_same_&opt=plc,nostat+plc+plc&tooltip=2", title: "Superimpose same item from three different files" },
+              { name: "Use autozoom", url: "?layout=grid1x3&path=" + filepath + "&files=[temp44.root,temp35.root,temp28.root]&items=[temp44.root/Histograms/TDC_C100/Ch3/TDC_C100_Ch3_RisingRef;1,temp35.root/_same_,temp28.root/_same_]&opts=[autozoom,autozoom,autozoom]", title: "Let display only non-empty bins of the histogram(s)" }
+            ],
+            'Custom HTML' : [
+              { name: "Read JSON", url: "demo/read_json.htm", title: "Custom web page to read and display object from JSON file", src: true },
+              { name: "Read ROOT file", url: "demo/read_file.htm", title: "Read and display object from ROOT file", src: true },
+              { name: "Without id attr", url: "demo/without_id.htm", title: "Do not use explicit id attribute for traget HTML element", src: true },
+              { name: "With require.js", url: "demo/use_requirejs.htm", title: "Load JSROOT libraries with require.js", src: true },
+              { name: "UI with require.js", url: "indexr.htm?file=" + filepath + "danilo5.root&item=canvas;1", title: "Load and use default JSROOT UI with require.js, show data from ROOT file" },
+              { name: "TH2", url: "demo/th2.htm", title: "Produce and draw ROOT histogram in JavaScript", src: true },
+              { name: "TH2 req", url: "demo/th2_requirejs.htm", title: "Produce and draw ROOT histogram in JavaScript (use require.js)", src: true },
+              { name: "TF1 req", url: "demo/tf1_requirejs.htm", title: "Load ROOT canvas with TF1, use require.js for scripts loading", src: true },
+              { name: "THStack", url: "demo/thstack.htm", title: "Produce and draw THStack", src: true },
+              { name: "TMultiGraph", url: "demo/multigraph.htm", title: "Produce and update TMultiGraph in JavaScript", src: true },
+              { name: "TLegend", url: "demo/multigraph_legend.htm", title: "Show and update TLegend with multi-graph", src: true },
+              { name: "TGeo", url: "demo/read_geometry_tracks.htm", title : "Example how to draw geometry with tracks", src: true },
+              { name: "Tooltip hanlder", url: "demo/tooltip.htm", title: "User handler function called when tooltip is shown, let build custom UI", src: true },
+              { name: "Update drawing", url: "demo/update_draw.htm", title: "Update drawing, reading 20 histograms in loop", src: true },
+              { name: "Update in grid", url: "demo/update_draw.htm?layout=grid3x2", title: "Update drawing on the grid layout", src: "demo/update_draw.htm" },
+              { name: "Adopt colors", url: "demo/adopt_colors.htm", title: "Read set of ROOT colors before display of the object", src: true },
+              { name: "File hierarchy", url: "demo/file_hierarchy.htm", title: "Use HierarchyPainter to display file objects hierarchy", src: true },
+              { name: "Zooming", url: "demo/zoom_handler.htm", title: "Redefine Zoom function to make synchronous zooming in other histogram", src: true },
+              { name: "User IO", url: "index.htm?file=" + filepath + "amore.root&item=moH1F_0;1&load=demo/amore.js", title : "Example of custom streamer and custom draw function (AMORE)", src: "demo/amore.js" },
+              { name: "Store JSON", url: "demo/store_json.htm", title: "Store drawn objects into JSON, can be reused to display once again", src: true },
+              { name: "Geometry", url: "demo/tgeo_build.htm", title : "Example how one can create three.js model for TGeo object, using JSROOT.GEO.build function", src: "demo/tgeo_build.htm" },
+              { name: "OpenUI5", url: "demo/openui5/", title : "Use of JSROOT graphics inside OpenUI5", src: "demo/openui5/Readme.md" }
+            ],
+            'TTree': [
+               { name: "TSelector", url: "demo/read_tree.htm", title: "Simple example of reading TTree using TSelector class", src: true, syn: "custom_html_read_tree" },
+               { name: "User class", url: "index.htm?file=https://root.cern/files/markus.root&item=_Event;1/Refs&opt=dump&load=demo/gaudi.js", title : "Example of user custom streamer for reading TTree data (Gaudi)", src: "demo/gaudi.js", syn: "custom_html_user_tree" },
+               { name: "Extract tracks", url: "index.htm?files=[https://root.cern/files/alice_ESDgeometry.root,https://root.cern/files/alice_ESDs.root]&item=[[0]/Gentle;1,[1]/esdTree;1]&load=demo/alice_esd.js", title : "Extract tracks from the custom tree", src: "demo/alice_esd.js" }
+            ],
+            'Node.js': [
+               { name: "Create SVG", title: "Example how to read object from ROOT file and create SVG", src: "demo/node/makesvg.js", srcload: "github" },
+               { name: "Process TTree", title: "Example shows performing of TTree::Draw inside Node.js", src: "demo/node/tree.js", srcload: "github" },
+               { name: "Gulp concat", title: "Concantenate JSROOT sources and all dependend library in one script", src: "demo/gulp/gulpfile.js", srcload: "github" },
+               { name: "Testing", title : "Test suite to test JSROOT functionality with Node.js", src: "https://github.com/linev/jsroot-test/", srcload: "https://raw.githubusercontent.com/linev/jsroot-test/master/test.js" }
+             ],
+            'httpserver.C' : [
+              { link: 'https://github.com/root-project/root/blob/master/tutorials/http/httpserver.C' },
+              { name: "Default page", url: "httpserver.C/", title : "Default HTML page of running httpserver.C macro (snapshot)" },
+              { name: "Sub-folder", url: "httpserver.C/Files/job1.root/", title : "Browse server objects from sub-folder" },
+              { name: "Display item", url: "httpserver.C/?item=Files/job1.root/hpxpy&opt=colz&monitoring=1000", title : "Display histogram and enable monitoring (not updating while snapshot is used)" },
+              { name: "No browser (1)", url: "httpserver.C/Files/job1.root/hpxpy/draw.htm?opt=colz", title : "Display item without browser, using provided draw.htm page" },
+              { name: "No browser (2)", url: "httpserver.C/?nobrowser&item=Files/job1.root/hpxpy&opt=colz", title : "Display item without browser, using nobrowser option and normal UI" },
+              { name: "Produce PNG", url: "httpserver.C/Files/job1.root/hpxpy/root.png", title : "Use normal ROOT drawing to produce PNG image" },
+              { name: "Access object members", url: "httpserver.C/?item=Canvases/c1/fPrimitives/hpx", title : "Show histogram from TCanvas lists of primitives (all other objects not cached in this example)" },
+              { name: "Get object title", url: "httpserver.C/Files/job1.root/hpxpy/exe.json?method=GetTitle", title : "Access object methods with exe.json request" },
+              { name: "Tree player", url: "httpserver.C/?item=Files/job1.root/ntuple", title : "Custom UI to execute TTree::Draw on running application" },
+              { name: "Read file", url: "httpserver.C/?file=../../files/hsimple.root&layout=grid2x2&items=[hsimple.root/hpx;1,hsimple.root/hpxpy;1,job1/Files/job1.root/hpx,job1/Files/job1.root/hpxpy]&opts=[hist,col,hist,col]", title : "Show histograms from ROOT file and THttpServer" },
+              { name: "Superimpose", url: "httpserver.C/?file=../../files/hsimple.root&item=[job1/Files/job1.root/hpx,hsimple.root/hpx;1]&opt=logy", title : "Superimpose objects from ROOT file and online server" }
+            ],
+            'httpcontrol.C' : [
+              { link: 'https://github.com/root-project/root/blob/master/tutorials/http/httpcontrol.C' },
+              { name: "Default page", url: "httpcontrol.C/", title : "Default HTML page of running httpscontrol.C macro (snapshot)" },
+              { name: "Text output", url: "httpcontrol.C/?layout=simple&item=Debug&monitoring=0", title : "Custom text output, using MathJax.js; also disable default monitoring" },
+              { name: "Text output (2)", url: "httpcontrol.C/Debug/draw.htm", title : "Custom text output without browser" }
+            ],
+            'Go4ExampleSimple' : [
+              { link: 'https://github.com/linev/go4/tree/master/Go4ExampleSimple' },
+              { name: "Main page", url: "Go4ExampleSimple/", title : "Main page of running Go4ExampleSimple example (snapshot)" },
+              { name: "Without status line", url: "Go4ExampleSimple/?nostatus", title : "Suppress output of status line" },
+              { name: "Draw condition", url: "Go4ExampleSimple/?nostatus&item=Conditions/cHis1", title : "Show TGo4Condition values correspondent histogram" },
+              { name: "Edit condition", url: "Go4ExampleSimple/?item=Conditions/cHis1&opt=editor", title : "Editing condition values" },
+              { name: "Edit parameter", url: "Go4ExampleSimple/?item=Parameters/Par1&opt=editor", title : "Editing parameter values" },
+              { name: "Debug output", url: "Go4ExampleSimple/?item=Status/Log", title : "Show analysis log output" },
+              { name: "Processing rate", url: "Go4ExampleSimple/?item=Status/EventsRate", title : "Show analysis events processing rate as TGraph" },
+              { name: "Analysis configuration", url: "Go4ExampleSimple/?item=Control/Analysis", title : "Change analysis configurations" },
+              { name: "Terminal", url: "Go4ExampleSimple/?item=Control/Terminal", title : "Analysis terminal output plus sveral control elements" }
+            ]
+         };
+
+         var content = document.getElementById('content');
+
+         function ProcessClick(durl) {
+            var viewer = document.getElementById( 'viewer' );
+            var srcviewer = document.getElementById( 'srcviewer' );
+            viewer.style.display = '';
+            srcviewer.style.display = 'none';
+
+             if (durl.indexOf("http")==0)
+                viewer.src = durl;
+             else
+                viewer.src = jsroot_path + durl;
+             viewer.focus();
+         }
+
+         function SetListener(elem, shortname, durl) {
+             elem.addEventListener( 'click', function (event) {
+                event.preventDefault();
+                window.location.hash = shortname;
+                ProcessClick(durl);
+             });
+         }
+
+         function ProcessSourceClick(entry) {
+
+            var srcload = entry.srcload || entry.src;
+            if (srcload === "github")
+               srcload = "https://raw.githubusercontent.com/root-project/jsroot/" +
+                          ((JSROOT.source_dir.indexOf("/dev/")>0) ? "dev/" : "master/") +
+                          entry.src;
+
+            JSROOT.NewHttpRequest(srcload, "text", function(res) {
+               if (!res) return console.error("Cannot find " + srcload);
+
+               var viewer = document.getElementById( 'viewer' );
+               var srcviewer = document.getElementById( 'srcviewer' );
+               viewer.style.display = 'none';
+               srcviewer.style.display = 'block';
+               srcviewer.innerHTML = "";
+
+               var lines = res.split("\n");
+               for (var k=0;k<lines.length;++k) {
+                  var pre = document.createElement('pre');
+                  pre.textContent = lines[k] || " ";
+                  srcviewer.appendChild(pre);
+               }
+               srcviewer.focus();
+
+            }).send();
+         }
+
+         function SetSourceListener(elem, shortname, entry) {
+            elem.addEventListener( 'click', function (event) {
+               event.preventDefault();
+               window.location.hash = shortname;
+               ProcessSourceClick(entry);
+            });
+         }
+
+         function MakeShortName(name1, name2) {
+            return name1.toLowerCase().replace(" ","_").replace(".","_") + "_" +
+                   name2.toLowerCase().replace(" (2)","_2").replace(" (1)","_1").replace("(","").replace(")","").replace(".","_").replace(" ","_").replace(" ","_");
+         }
+
+         for (var key in examples) {
+
+            var opts = examples[key];
+
+            var div = document.createElement( 'h2' );
+            if ('link' in opts[0]) {
+               var ll = document.createElement( 'a' );
+               ll.textContent = key;
+               ll.href = opts[0].link;
+               ll.style.color = 'green';
+               div.appendChild(ll);
+            } else {
+               div.textContent = key;
+            }
+
+            content.appendChild( div );
+
+            for (var n=0; n<opts.length;++n) {
+               var entry = opts[n];
+
+               if (!('name' in entry)) continue;
+
+               var shortname = MakeShortName(key, entry.name);
+
+               var url = entry.url;
+
+               if (url) {
+                  var aaa = document.createElement( 'a' );
+                  aaa.textContent = entry.name;
+                  aaa.href = jsroot_path + url;
+                  if ('title' in entry) aaa.title = entry.title;
+                  content.appendChild( aaa );
+                  SetListener(aaa, shortname, url);
+               }
+
+               if ('src' in entry) {
+
+                  var srcurl = "", github = "https://github.com/root-project/jsroot/blob/";
+                  if (JSROOT.source_dir.indexOf("/dev/")>0) github+="dev/"; else github+="master/";
+                  if (entry.src===true) {
+                     srcurl = github + url;
+                     entry.src = JSROOT.source_dir + url;
+                  } else
+                  if (entry.src.indexOf("http")===0) srcurl = entry.src; else
+                               srcurl = github + entry.src;
+
+                  var saaa = document.createElement( 'a' );
+
+                  if (url) {
+                     saaa.textContent = " (src)";
+                     saaa.title = "Click to see source of the example";
+                  } else {
+                     saaa.textContent = entry.name;
+                     saaa.title = entry.title;
+                  }
+
+                  saaa.href = srcurl;
+                  content.appendChild( saaa );
+                  SetSourceListener(saaa, shortname + "_src", entry);
+
+                  if ((window.location.hash == "#" + shortname + "_src") || (entry.syn && window.location.hash == "#" + entry.syn + "_src")) {
+                     saaa.focus();
+                     ProcessSourceClick(entry);
+                  }
+               }
+
+               content.appendChild(document.createElement('br'));
+
+              if ((window.location.hash == "#" + shortname) || (entry.syn && window.location.hash == "#" + entry.syn)) {
+                 aaa.focus();
+                 ProcessClick(url);
+              }
+            }
+         }
+
+
+      </script>
+
+   </body>
+</html>

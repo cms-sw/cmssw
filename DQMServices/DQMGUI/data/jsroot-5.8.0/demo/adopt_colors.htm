@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Reading object from the ROOT file</title>
+
+   <script src="../scripts/JSRootCore.min.js?io&2d&onload=DrawMg" type="text/javascript"></script>
+
+   <script type='text/javascript'>
+     // absolute file path can be used as well
+     var filename = "../../files/transparency_test.root";
+
+     function DrawMg() {
+        JSROOT.OpenFile(filename, function(file) {
+          file.ReadObject("mycolors", function(obj) {
+           JSROOT.Painter.adoptRootColors(obj);
+           file.ReadObject("mg", function(obj_g) {
+              JSROOT.draw("drawing", obj_g, "AL");
+           });
+          });
+        });
+     }
+   </script>
+
+</head>
+
+<body>
+  <div id="drawing" style="width:800px; height:600px"></div>
+</body>
+
+</html>
+

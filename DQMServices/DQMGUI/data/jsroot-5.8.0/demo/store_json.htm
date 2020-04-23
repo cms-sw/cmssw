@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Store canvas in JSON to replicate it</title>
+
+   <script src="../scripts/JSRootCore.min.js" type="text/javascript"></script>
+
+   <script type='text/javascript'>
+
+     // absolute file path can be used as well
+     var filename = "../../files/hsimple.root";
+
+     JSROOT.OpenFile(filename, function(file) {
+        file.ReadObject("hpxpy;1", function(obj) {
+           JSROOT.draw("drawing", obj, "colz");
+        });
+     });
+
+     function StoreJson() {
+        // produce JSON code
+        var json = JSROOT.StoreJSON("drawing");
+
+        // parse JSON and get new TCanvas
+        var obj2 = JSROOT.parse(json);
+
+        // cleanup previous drawing
+        JSROOT.cleanup("replica");
+
+        // draw canvas again
+        JSROOT.draw("replica", obj2);
+
+     }
+   </script>
+
+</head>
+
+<body>
+  <div id="drawing" style="width:600px; height:400px"></div>
+  <p>Example show replication of TCanvas with all primitives, using JSROOT.StoreJSON() function</p>
+  <button onclick="StoreJson()" type="button">Replicate</button>
+  <div id="replica" style="width:600px; height:400px"></div>
+
+</body>
+
+</html>
+

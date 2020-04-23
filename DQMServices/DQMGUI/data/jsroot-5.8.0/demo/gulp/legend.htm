@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Drawing with MathJax, loaded from root.cern/js/mathjax</title>
+
+   <script src="build/js/lib.min.js" type="text/javascript"></script>
+   <link rel="stylesheet" href="build/css/lib.min.css">
+
+   <script type='text/javascript'>
+
+     JSROOT.gStyle.Latex = "MathJax";
+
+     var filename = "https://root.cern/js/files/legends.root";
+     JSROOT.OpenFile(filename, function(file) {
+        file.ReadObject("legends;1", function(obj) {
+           JSROOT.draw("drawing", obj, "");
+        });
+     });
+   </script>
+
+</head>
+
+<body>
+  <div id="drawing" style="width:800px; height:600px"></div>
+</body>
+
+</html>
+
