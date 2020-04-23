@@ -1,37 +1,53 @@
 import re
+import os
 import json
 import time
 import traceback
 import http.server
 
 from urllib.parse import parse_qs
+from urllib.parse import urlparse
 
 from DQMServices.DQMGUI.render import RenderPool
 import DQMServices.DQMGUI.rootstorage as storage
 
-renderpool = RenderPool(workers=8)
+BASE = os.getenv("CMSSW_BASE") + "/src/DQMServices/DQMGUI/data/"
+os.chdir(BASE)
+
+renderpool = RenderPool(workers=5)
+
+if len(storage.searchsamples()) == 0:
+    import glob
+    EOSPATH = "/eos/cms/store/group/comm_dqm/DQMGUI_data/Run*/*/R000*/DQM_*.root"
+    EOSPREFIX = "root://eoscms.cern.ch/"
+    files = glob.glob(EOSPATH)
+    storage.registerfiles([EOSPREFIX + f for f in files])
+
+
 
 def samples(args):
     args = parse_qs(args)
-    match = args['match'] if 'match' in args else None
-    run = args['run'] if 'run' in args else None
+    match = args['match'][0] if 'match' in args else None
+    run = args['run'][0] if 'run' in args else None
     items = []
     structure = {'samples': [
         {'type':'dqmio_data', 'items': items }]}
 
     for s in storage.searchsamples(match, run):
-        if lumi == 0 and match(ds, run, lumi) and runm(ds, run, lumi):
-            item = {'type':'dqmio_data', 'run': s.run, 'dataset': s.dataset, 'version':''}
-            items.append(item)
+        item = {'type':'dqmio_data', 'run': s.run, 'dataset': s.dataset, 'version':''}
+        items.append(item)
     return structure
 
 def list(run, dataset, folder):
     run = int(run)
     sample = storage.Sample(dataset, run, 0, None, None, None)
-    items = storage.listmes(sample, folder, recursive = False)
+    if len(folder) > 1 and not folder.endswith("/"):
+        folder += "/"
+    items = storage.listmes(sample, folder.encode("utf-8"), recursive = False)
     contents = [{ "streamerinfo":"" }]
     structure = {"contents": contents}
-    for item in sorted(items):
+    for itembytes in sorted(items):
+        item = itembytes.decode("utf-8")
         if item[-1] == "/":
             contents.append({'subdir': item[:-1]})
         else:
@@ -53,11 +69,11 @@ def plotpng(run, dataset, fullname, args):
     args = parse_qs(args)
     width = int(args['w'][0]) if 'w' in args else 400
     height = int(args['h'][0]) if 'h' in args else 320
-    while width < 300 or height < 200:
-        width, height = width * 2, height * 2
+    #while width < 300 or height < 200:
+    #    width, height = width * 2, height * 2
     if 'w' in args: del args['w']
     if 'h' in args: del args['h']
-    spec = "&".join(k + "=" + v[0] for k, v in args.items())
+    spec = ";".join(k + "=" + v[0] for k, v in args.items())
     sample = storage.Sample(dataset, run, 0, None, None, None)
     mes = storage.readme(sample, fullname.encode("utf-8"))
     if mes:
@@ -121,15 +137,19 @@ ROUTES = [
     (re.compile('/$'), index, "html"),
     (re.compile('/runsfordataset/(.*)$'), listruns, "html"),
     (re.compile('/showdata/([0-9]+)(/[^/]+/[^/]+/[^/]+)/(.*)'), showdata, "html"),
-    (re.compile('/data/json/samples[?]?(.+)?'), samples, "json"),
-    (re.compile('/data/json/archive/([0-9]+)(/[^/]+/[^/]+/[^/]+)/(.*)'), list, "json"),
-    (re.compile('/jsrootfairy/archive/([0-9]+)(/[^/]+/[^/]+/[^/]+)/([^?]*)[?]?(.+)?'), jsroot, "application/json"),
-    (re.compile('/plotfairy/archive/([0-9]+)(/[^/]+/[^/]+/[^/]+)/([^?]*)[?]?(.+)?'), plotpng, "image/png"),
+    (re.compile('/+data/json/samples[?]?(.+)?'), samples, "json"),
+    (re.compile('/+data/json/archive/([0-9]+)(/[^/]+/[^/]+/[^/]+)/?(.*)'), list, "json"),
+    (re.compile('/+jsrootfairy/archive/([0-9]+)(/[^/]+/[^/]+/[^/]+)/([^?]*)[?]?(.+)?'), jsroot, "application/json"),
+    (re.compile('/+plotfairy/archive/([0-9]+)(/[^/]+/[^/]+/[^/]+)/([^?]*)[?]?(.+)?'), plotpng, "image/png"),
 ]
+
 
 # the server boilerplate.
 class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
+        parsedParams = urlparse(self.path)
+        if os.access("./" + parsedParams.path.replace("..", ""), os.R_OK):
+            return http.server.SimpleHTTPRequestHandler.do_GET(self);
         try:
             res = None
             for pattern, func, type in ROUTES:

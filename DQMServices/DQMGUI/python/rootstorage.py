@@ -309,7 +309,7 @@ class FileHandle:
 # Actually fetch a remote object.
 def readobject(file, mekey):
     if mekey.secondary == b'e=1': # nothing to read here.
-        return EfficiencyFlag(mekey.path + mekey.name)
+        return EfficiencyFlag(mekey.name)
     # using uproot TKey to read the TKey metadata, and then the value
     # this will typically do only 1 request, since uproot xrootd reads 1M `chunkbytes` at once.
     # going via the TKey gives us ROOT class name and compression handling for free.
