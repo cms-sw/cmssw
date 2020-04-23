@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from DQM.DTMonitorModule.dtChamberEfficiencyHI_cfi import *
 from DQM.DTMonitorModule.dtOccupancyEfficiency_cfi import *
 from DQM.DTMonitorModule.dtSegmentTask_cfi import *
-from DQM.DTMonitorModule.dtDCSByLumiTask_cfi import *
 from DQM.DTMonitorModule.dtRunConditionVar_cfi import *
 dtSegmentAnalysisMonitor.detailedAnalysis = True
 dtSegmentAnalysisMonitor.slideTimeBins = False
@@ -39,12 +38,11 @@ dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
 )
 
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
-DTDataIntegrityTask.processingMode = "Offline"
 
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
 dtSources = cms.Sequence(dtDataIntegrityUnpacker  +
-                         DTDataIntegrityTask +
+                         dtDataIntegrityTaskOffline +
                          dtRunConditionVar + 
                          dtSegmentAnalysisMonitor +
                          dtResolutionAnalysisMonitor +
