@@ -54,6 +54,12 @@ DEFINE_FWK_MODULE(DTDCSByLumiTask);
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 DEFINE_FWK_MODULE(DTDataIntegrityTask);
 
+#include <DQM/DTMonitorModule/interface/DTDataIntegrityUrosOffline.h>
+DEFINE_FWK_MODULE(DTDataIntegrityUrosOffline);
+
+#include <DQM/DTMonitorModule/interface/DTDataIntegrityROSOffline.h>
+DEFINE_FWK_MODULE(DTDataIntegrityROSOffline);
+
 #include <DQM/DTMonitorModule/src/DTOccupancyEfficiency.h>
 DEFINE_FWK_MODULE(DTOccupancyEfficiency);
 
