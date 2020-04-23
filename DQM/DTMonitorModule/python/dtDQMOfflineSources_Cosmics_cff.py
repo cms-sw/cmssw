@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorModule.dtChamberEfficiency_Cosmics_cfi import *
-from DQM.DTMonitorModule.dtDCSByLumiTask_cfi import *
 from DQM.DTMonitorModule.dtOccupancyEfficiency_cfi import *
 from DQM.DTMonitorModule.dtSegmentTask_cfi import *
 from DQM.DTMonitorModule.dtRunConditionVar_cfi import *
@@ -39,12 +38,11 @@ dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
 )
 
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
-DTDataIntegrityTask.processingMode = "Offline"
 
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
 dtSourcesCosmics = cms.Sequence(dtDataIntegrityUnpacker  +
-                                DTDataIntegrityTask +
+                                dtDataIntegrityTaskOffline +
                                 dtRunConditionVar + 
                                 dtSegmentAnalysisMonitor +
                                 dtResolutionAnalysisMonitor +
