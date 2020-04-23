@@ -245,7 +245,8 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-/* virtual */ void TPComparisonTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void TPComparisonTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                              edm::EventSetup const& es) {
   //	in the end always
   DQTask::globalEndLuminosityBlock(lb, es);
 }

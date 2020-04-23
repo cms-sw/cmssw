@@ -125,7 +125,8 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-std::shared_ptr<hcaldqm::Cache> NoCQTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) const {
+std::shared_ptr<hcaldqm::Cache> NoCQTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                     edm::EventSetup const& es) const {
   return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 

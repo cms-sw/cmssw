@@ -642,7 +642,8 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 }
 
-std::shared_ptr<hcaldqm::Cache> DigiPhase1Task::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) const {
+std::shared_ptr<hcaldqm::Cache> DigiPhase1Task::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                           edm::EventSetup const& es) const {
   return DQTask::globalBeginLuminosityBlock(lb, es);
 }
 
