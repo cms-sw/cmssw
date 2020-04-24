@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <!-- As template three.js web site was used -->
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>JavaScript ROOT examples</title>
+      <!-- link rel="shortcut icon" href="img/RootIcon.ico" -->
+      <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+      <style>
+         * {
+             box-sizing: border-box;
+         }
+         body {
+            background-color: #ffffff;
+            margin: 0px;
+            font-family: 'Verdana, Geneva, sans-serif';
+            font-size: 15px;
+            line-height: 18px;
+            color: #555;
+            overflow: hidden;
+         }
+         h1 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            margin-left: 20px;
+            font-size: 25px;
+            font-weight: normal;
+         }
+         h2 {
+            color: #999;
+            font-size: 18px;
+            font-weight: normal;
+            margin-top: 10px;
+            margin-bottom: 5px;
+         }
+         hr {
+            border: 0px;
+            height: 1px;
+            background-color: #ccc;
+            margin: 30px 0px;
+         }
+         a {
+            color: #2194CE;
+            text-decoration: none;
+         }
+         a:hover {
+            text-decoration: underline;
+         }
+         #panel {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            bottom: 0px;
+            width: 240px;
+            background: #ffffff;
+            overflow: auto;
+         }
+            #panel #content {
+               padding: 0px 10px;
+            }
+            #panel img {
+               border: 1px solid #ccc;
+            }
+            #panel #book {
+               text-align: center;
+               margin-top: 15px;
+            }
+         #viewer {
+            position: absolute;
+            border: 0px;
+            left: 240px;
+            width: calc(100% - 240px);
+            height: 100%;
+            overflow: hidden;
+         }
+
+         #viewer_frame {
+            border: 0px;
+            width: 100%;
+            height: 100%;
+         }
+
+         .link:hover {
+            text-decoration: underline;
+         }
+      </style>
+   </head>
+   <body>
+
+      <div id="panel">
+         <h1 id="version"><a href=".." style="color:green">JSROOT</a></h1>
+         <div id="content"></div>
+         <br/>
+      </div>
+
+      <div id="viewer">
+      </div>
+
+      <!-- script type="text/javascript" src="demo/examples.js"> </script>
+      <script type="text/javascript" src="../demo/examples.js"> </script-->
+
+      <script type="text/javascript" >
+         var scripts = "scripts/",
+             jsroot_path = "./",
+             demo_path = "demo/",
+             filepath = "../files/",
+             use_requirejs = false,
+             extra_opts = ""; // extra options like webgl=no
+
+         var icon = document.createElement("link");
+         icon.setAttribute('src', "img/RootIcon.ico");
+         icon.setAttribute('rel', "shortcut icon");
+
+         if (window.location.search.indexOf("requirejs")>0) {
+            jsroot_path = "./indexr.htm";
+            use_requirejs = true;
+            document.title += ' (with require.js)';
+         }
+
+         if (window.location.search.indexOf("nowebgl")>0)
+            extra_opts = "&webgl=0";
+
+         if ((window.location.host.indexOf('jsroot.gsi.de') < 0) &&
+             (window.location.host.indexOf('root.cern') < 0)) {
+                filepath = "https://root.cern/js/files/";
+         }
+
+         if ((window.location.protocol == "file:") || (window.location.host.indexOf('rawgit.com') >= 0)) {
+            scripts = "../scripts/";
+            jsroot_path = "../index.htm";
+            demo_path = "../demo/",
+            filepath = "https://root.cern/js/files/";
+            use_requirejs = false;
+            icon.setAttribute('src', "../img/RootIcon.ico");
+         }
+
+         if (window.location.protocol == "file:") filepath = "http://jsroot.gsi.de/files/";
+
+         document.getElementsByTagName("head")[0].appendChild(icon);
+
+         function loadScript(name, load_callback) {
+            var element = document.createElement("script");
+            element.setAttribute('type', "text/javascript");
+            element.setAttribute('src', name);
+
+            if (element.readyState) { // Internet Explorer specific
+               element.onreadystatechange = function() {
+                  if (element.readyState == "loaded" || element.readyState == "complete") {
+                     element.onreadystatechange = null;
+                     load_callback();
+                  }
+              }
+            } else { // Other browsers
+               element.onload = function() {
+                  element.onload = null;
+                  load_callback();
+               }
+            }
+
+            document.getElementsByTagName("head")[0].appendChild(element);
+         }
+
+
+         loadScript(use_requirejs ? "//cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" : scripts + 'JSRootCore.js',
+            function() {
+
+               if (!use_requirejs) return FillContent();
+
+               require([scripts + 'JSRootCore.js'], function(handle) {
+                  JSROOT = handle;
+                  FillContent();
+               });
+           });
+
+         var keyid = null, optid, testfile, testobj, testinterval = 200, hpainter = null;
+
+         function ProcessClick(durl, filename, itemname, opt, jsonname) {
+
+            keyid = null; // stop execution of running test loop (if any)
+
+          //  if (viewer && viewer.contentWindow) {
+          //     var jsroot = viewer.contentWindow.JSROOT;
+          //     if (jsroot && jsroot.hpainter) {
+          //        console.log('CLEANUP PAINTER IN IFRAME');
+          //        jsroot.hpainter.Cleanup();
+          //     }
+          //  }
+
+            if (JSROOT.hpainter)
+               JSROOT.hpainter.Cleanup();
+
+            if (typeof JSROOT.cleanup === 'function')
+               JSROOT.cleanup('viewer');
+
+            if (durl.length > 0) {
+               var viewer = document.getElementById( 'viewer_frame' );
+               if (viewer == null) {
+                  document.getElementById('viewer').innerHTML = "";
+                  viewer = document.createElement('iframe');
+                  viewer.id = "viewer_frame";
+                  document.getElementById('viewer').appendChild(viewer);
+               }
+               viewer.src = jsroot_path + durl + (opt.length>0 ? ("&opt=" + opt) : "") + extra_opts;
+               viewer.focus();
+             } else {
+
+                JSROOT.gStyle.NoWebGL = (extra_opts.indexOf("webgl=0")>=0);
+
+                document.getElementById('viewer').innerHTML = "";
+                document.getElementById('viewer').style['background-color'] = "";
+
+                if (jsonname) {
+                   JSROOT.NewHttpRequest(jsonname, 'object', function(obj) {
+                      JSROOT.draw("viewer", obj, opt);
+                   }).send();
+                } else {
+                   JSROOT.OpenFile(filename, function(file) {
+                      file.ReadObject(itemname, function(obj) {
+                         JSROOT.draw("viewer", obj, opt);
+                      });
+                   });
+                }
+             }
+         };
+
+         function SetListener(elem, shortname, durl, filename, itemname, opt, jsonname) {
+             elem.addEventListener( 'click', function (event) {
+                event.preventDefault();
+                window.location.hash = shortname;
+                ProcessClick(durl, filename, itemname, opt, jsonname);
+            });
+         };
+
+         function RunBigTest(interval, doinit) {
+            if (doinit) {
+               var running = (keyid != null); // indication that test running - no need to relaunch events
+               keyid = 'TH1'; optid = -1;
+               testfile = testobj = null;
+               var ii = JSROOT.GetUrlOption("interval");
+               if (ii && !isNaN(parseInt(ii))) testinterval = parseInt(ii);
+                                          else testinterval = interval;
+               if (running) return;
+               return JSROOT.AssertPrerequisites("2d;hierarchy", function() { RunBigTest(0); });
+            }
+
+            if (!keyid) return; // this is indication of test break
+
+            if ((interval === undefined) || isNaN(interval) || (typeof interval !== "number")) interval = testinterval;
+            if (interval > 0)
+               return setTimeout(function() { RunBigTest(0); }, interval);
+
+            if (++optid >= examples_main[keyid].length) {
+               var found = false, next = null;
+               for (var key in examples_main) {
+                   if (found) { next = key; break; }
+                   if (key == keyid) found = true;
+               }
+               keyid = next;
+               if (!next) return; // stop condition
+               optid = -1; testfile = testobj = null;
+               // console.log("Switch key ", keyid);
+               return RunBigTest(0);
+            }
+
+            var entry = examples_main[keyid][optid];
+
+            // exclude some entries from the test
+            if (entry.notest) return RunBigTest(0);
+
+            var filename = "", itemname = "", jsonname = "", url = "", opt = "";
+
+            if (entry.file) {
+                filename = entry.file;
+                if ((filename.indexOf("http:")<0) && (filename.indexOf("https:")<0)) filename = filepath + filename;
+            }
+            if (entry.item) itemname = entry.item;
+            if (entry.testopt !== undefined) opt = entry.testopt; else if (entry.opt) opt = entry.opt;
+            if (entry.json) {
+               jsonname = entry.json;
+               if ((jsonname.indexOf("http:")<0) && (jsonname.indexOf("https:")<0)) jsonname = filepath + jsonname;
+            }
+
+            if (entry.url) url = entry.url.replace(/\$\$\$/g, filepath); else
+            if (entry.items) {
+               url = "?nobrowser&file=" + filename;
+               if (entry.layout) url += "&layout=" + entry.layout;
+               url += "&items=[" + entry.items.join(",") + "]";
+               if (entry.opts) url += "&opts=[" + entry.opts.join(",") + "]";
+               if (entry.mathjax) url += "&mathjax";
+               if (entry.latex) url += "&latex=" + entry.latex;
+               if (entry.style) url += "&style=" + entry.style;
+            } else
+            if (entry.asurl) {
+               url = ((entry.asurl === "browser") ? "?" : "?nobrowser&");
+               url += jsonname ? "json=" + jsonname : "file=" + filename + "&item=" + itemname;
+               url += itemname + "&opt=" + opt;
+               if (entry.mathjax) url += "&mathjax";
+               if (entry.latex) url += "&latex=" + entry.latex;
+               if (entry.style) url += "&style=" + entry.style;
+            }
+
+            JSROOT.gStyle.NoWebGL = (extra_opts.indexOf("webgl=0")>=0); // disbale wbgl
+
+            // console.log('KEY ', keyid, 'opt', opt);
+            // if ((url.length==0) || (keyid != 'Misc')) return RunBigTest(0);
+
+            if (hpainter) { hpainter.Cleanup(); hpainter = null; }
+            JSROOT.cleanup("viewer");
+
+            if (url.length > 0) {
+               testfile = testobj = null;
+               // if (keyid == 'TGeo') return RunBigTest(0);  // ignore TGeo URLs - too complex
+
+               var layout = JSROOT.GetUrlOption("layout", url, "simple"),
+                   nobrowser = JSROOT.GetUrlOption("nobrowser", url, null);
+
+               if (nobrowser !== null) {
+                  // return RunBigTest(0);
+                  document.getElementById('viewer').innerHTML = "";
+                  hpainter = new JSROOT.HierarchyPainter('root', null);
+                  hpainter.SetDisplay(layout, "viewer");
+               } else {
+                  document.getElementById('viewer').innerHTML =
+                      "<div id='left-div' style='float:left; width:25%; overflow:auto; height:100%;'>" +
+                      '<div id="browser"></div></div>' +
+                      '<div id="right-div" style="float:right; width:73%; height:100%;"></div>';
+
+                  hpainter = new JSROOT.HierarchyPainter('root', 'browser');
+                  hpainter.SetDisplay(layout,"right-div");
+               }
+
+               hpainter.StartGUI(null, RunBigTest, url);
+            } else
+            if (jsonname.length > 0) {
+               testfile = testobj = null;
+               JSROOT.NewHttpRequest(jsonname, 'object', function(obj) {
+                  testobj = obj;
+                  JSROOT.draw("viewer", obj, opt, RunBigTest);
+               }).send();
+            } else
+            if (filename.length > 0) {
+                JSROOT.OpenFile(filename, function(file) {
+                   testfile = file;
+                   testfile.ReadObject(itemname, function(obj) {
+                      testobj = obj;
+                      JSROOT.draw("viewer", obj, opt, RunBigTest);
+                   });
+                });
+            } else
+            if (itemname.length > 0) {
+                testfile.ReadObject(itemname, function(obj) {
+                    testobj = obj;
+                    JSROOT.draw("viewer", obj, opt, RunBigTest);
+                 });
+            } else {
+                JSROOT.draw("viewer", testobj, opt, RunBigTest);
+            }
+         }
+
+         function FillContent() {
+
+            if (typeof examples_main == 'undefined')
+               return loadScript(demo_path + 'examples.js', FillContent);
+
+
+            if (window.location.search.indexOf("?more")==0) {
+               if (typeof examples_more == 'undefined')
+                  return loadScript(demo_path + 'examples_more.js', FillContent);
+
+               for (var key in examples_more) {
+                  if (key in examples_main) {
+                     for (var n in examples_more[key])
+                        examples_main[key].push(examples_more[key][n]);
+                  } else {
+                     examples_main[key] = examples_more[key];
+                  }
+               }
+            }
+
+            // all painter assigned to viewer element will be automatically informed about resize
+            JSROOT.AssertPrerequisites("2d;hierarchy", function() {
+               JSROOT.RegisterForResize('viewer');
+            });
+
+            document.getElementById( 'version' ).title = JSROOT.version + ", " + JSROOT.source_dir;
+
+            var content = document.getElementById( 'content' );
+
+            for (var key in examples_main) {
+
+               var opts = examples_main[key];
+
+               var div = document.createElement( 'h2' );
+               div.textContent = key;
+               content.appendChild( div );
+
+               var url = "", filename = "", itemname = "", jsonname = "";
+
+               for (var n=0; n<opts.length;++n) {
+                  var entry = opts[n];
+
+                  var shortname = key.toLowerCase().replace(" ","_");
+
+                  jsonname = ""; url = "";
+
+                  if ('url' in entry) {
+                     url = entry.url.replace(/\$\$\$/g,filepath);
+                  } else
+                  if ('json' in entry) {
+                     jsonname = entry.json;
+                     if ((jsonname.indexOf("http:")<0) && (jsonname.indexOf("https:")<0)) jsonname = filepath + jsonname;
+                  } else {
+                     if ('file' in entry) {
+                        url = ""; filename = entry.file;
+                        if ((filename.indexOf("http:")<0) && (filename.indexOf("https:")<0)) filename = filepath + filename;
+                     }
+                     if ('item' in entry) { url = ""; itemname = entry.item; } else
+                     if ('items' in entry) {
+                        url = "?nobrowser&file=" + filename;
+                        if (entry.layout) url += "&layout=" + entry.layout;
+                        url += "&items=[" + entry.items.join(",") + "]";
+                        if (entry.opts) url += "&opts=[" + entry.opts.join(",") + "]";
+                        if (entry.mathjax) url += "&mathjax";
+                        if (entry.latex) url += "&latex=" + entry.latex;
+                        if (entry.style) url += "&style=" + entry.style;
+                     }
+                  }
+
+                  var opt = ('opt' in entry) ? entry.opt : "";
+                  var aaa = document.createElement( 'a' );
+
+                  if ('name' in entry)
+                     aaa.textContent = entry.name;
+                  else
+                  if (opt != "")
+                     aaa.textContent = opt;
+                  else
+                     aaa.textContent = "<dflt>";
+
+                  if (aaa.textContent != "<dflt>") shortname += "_" + aaa.textContent.toLowerCase().replace(" ","_");
+
+                  var prefix = (entry.asurl === "browser") ? "?" : "?nobrowser&";
+
+                  if (entry.asurl) {
+                     if (jsonname)
+                        url = prefix + 'json=' + jsonname;
+                     else
+                        url = prefix + "file=" + filename + "&item=" + itemname;
+                     if (entry.style) url += "&style=" + entry.style;
+                     if (entry.mathjax) url += "&mathjax";
+                     if (entry.latex) url += "&latex="+entry.latex;
+                  }
+
+                  if (url)
+                     aaa.href = jsroot_path + url;
+                  else
+                  if (jsonname)
+                     aaa.href = jsroot_path + prefix + "json=" + jsonname;
+                  else
+                     aaa.href = jsroot_path + prefix + "file=" + filename + "&item=" + itemname;
+
+                  if (opt != "")
+                     aaa.href += "&opt=" + opt;
+
+                  if (extra_opts) aaa.href += extra_opts;
+
+                  if ('title' in entry) {
+                     aaa.title = entry.title;
+                     // aaa.href += "&title='" + entry.title + "'";
+                  }
+
+                  content.appendChild( aaa );
+                  SetListener(aaa, shortname, url, filename, itemname, opt, jsonname);
+
+                  if (n < opts.length-1) {
+                     content.appendChild(document.createTextNode(", "));
+                  } else {
+                     content.appendChild(document.createElement('br'));
+                  }
+
+                  if (window.location.hash == "#" + shortname) {
+                     aaa.focus();
+                     ProcessClick(url, filename, itemname, opt, jsonname);
+                  }
+               }
+            }
+
+            if (window.location.search.indexOf("?more")==0) {
+                var div = document.createElement( 'h2' );
+                div.textContent = "Testing";
+                content.appendChild( div );
+
+                var aaa = document.createElement( 'a' );
+                aaa.textContent = "run";
+                aaa.title = "Run all examples after each other";
+                content.appendChild( aaa );
+                aaa.addEventListener( 'click', function (event) {
+                    event.preventDefault();
+                    window.location.hash = "run";
+                    RunBigTest(100,true);
+                });
+
+                content.appendChild(document.createTextNode(", "));
+
+                aaa = document.createElement( 'a' );
+                aaa.textContent = "slow";
+                aaa.title = "Run all examples slowly after each other";
+                content.appendChild( aaa );
+                aaa.addEventListener( 'click', function (event) {
+                    event.preventDefault();
+                    window.location.hash = "slow";
+                    RunBigTest(5000,true);
+                });
+
+                content.appendChild(document.createTextNode(", "));
+                aaa = document.createElement( 'a' );
+                aaa.textContent = "stop";
+                aaa.title = "Stop running example";
+                content.appendChild( aaa );
+                aaa.addEventListener( 'click', function (event) {
+                    event.preventDefault();
+                    keyid = null;
+                });
+            }
+            if (window.location.hash == "#run") RunBigTest(100,true);
+            if (window.location.hash == "#slow") RunBigTest(5000,true);
+
+         }; // FillContent
+
+      </script>
+   </body>
+</html>

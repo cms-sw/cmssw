@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Reading object from the ROOT file</title>
+
+   <script src="../scripts/JSRootCore.min.js" type="text/javascript"></script>
+
+   <script type='text/javascript'>
+     // absolute file path can be used as well
+     var filename = "../../files/hsimple.root";
+     JSROOT.OpenFile(filename, function(file) {
+        file.ReadObject("ntuple;1", function(tree) {
+
+              var selector = new JSROOT.TSelector();
+
+              selector.AddBranch("px");
+              selector.AddBranch("py");
+
+              var cnt = 0, sumpx = 0, sumpy = 0;
+
+              selector.Begin = function() {
+                 // function called before reading of TTree starts
+                 document.getElementById('p_start').innerHTML = "Start reading TTree";
+              }
+
+              selector.Process = function() {
+                 // function called for every entry
+                 sumpx += this.tgtobj.px;
+                 sumpy += this.tgtobj.py;
+                 cnt++;
+                 document.getElementById('p_process').innerHTML = "Process " + cnt + " entries";
+              }
+
+              selector.Terminate = function(res) {
+                 // function called when processing finishes
+                 if (!res || (cnt===0)) {
+                    res = "Fail to process TTree";
+                 } else {
+                    var meanpx = sumpx/cnt, meanpy = sumpy/cnt;
+                    res = 'MeanPX = ' + meanpx.toFixed(4) + '  MeanPY = ' + meanpy.toFixed(4);
+                 }
+
+                 document.getElementById('p_ready').innerHTML = res;
+              }
+
+              tree.Process(selector);
+        });
+     });
+   </script>
+
+</head>
+
+<body>
+  <p id="p_start">...</p>
+  <p id="p_process">...</p>
+  <p id="p_ready">...</p>
+</body>
+
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Reading object from the JSON file</title>
+
+   <script src="../scripts/JSRootCore.min.js" type="text/javascript"></script>
+
+   <script type='text/javascript'>
+      // json file stored in same folder, absolute address can be used as well
+      JSROOT.NewHttpRequest("hpx.json", 'object', function(obj) {
+         JSROOT.draw("drawing", obj, "hist");
+      }).send();
+   </script>
+</head>
+
+<body>
+  <div id="drawing" style="width:800px; height:600px"></div>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+ddemo/
+jsdoc/
+.settings
+.project
+.gitattributes
+*.root
+*.json
+*.html
+demo/node/node_modules
+demo/node/*.svg
+node_modules/
+openui5dist
+package-lock.json

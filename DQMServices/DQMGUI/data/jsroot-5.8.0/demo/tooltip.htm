@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Use of tooltip callback in JSROOT</title>
+
+   <script src="../scripts/JSRootCore.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+  <div id="user_tooltip">Place for info</div>
+
+  <form action="">
+     <input type="radio" name="kind" id="btn1" value="Tooltip"> Tooltip
+     <input type="radio" name="kind" id="btn2" value="Click"> Click
+     <input type="radio" name="kind" id="btn3" value="Dblclick"> Doubleclk
+  </form>
+
+  <div id="object_draw" style="width:800px; height:600px"></div>
+
+  <div id="tooltip_draw" style="width:400px; height:300px"></div>
+
+<script type='text/javascript'>
+
+      var cnt = 0, kind = "";
+
+      function UserHandler(info) {
+         if (!info)  {
+            d3.select("#user_tooltip").html("No tooltip");
+            return false;
+         }
+
+         // set tooltip info
+         d3.select("#user_tooltip").html("name: " + info.name + "  bin: " + info.bin + "  cont: " + info.cont);
+
+         var h1 = JSROOT.CreateHistogram("TH1I", 20);
+         // copy content from TH2 to TH1
+         for (var n=0;n<20;n++)
+            h1.setBinContent(n+1, info.obj.getBinContent(n+1, info.biny));
+         h1.fName = "tooltip";
+         h1.fTitle = "Projection of biny=" + info.biny;
+         JSROOT.redraw("tooltip_draw", h1);
+         return true; // means event is handled and can be ignored
+      }
+
+      function updateGUI() {
+         // if getting histogram from THttpServer as JSON string, one should parse it like:
+         // var histo = JSROOT.parse(your_json_string);
+
+         // this is just generation of histogram
+         var histo = JSROOT.CreateHistogram("TH2I", 20, 20);
+         for (var iy=0;iy<20;iy++)
+            for (var ix=0;ix<20;ix++) {
+               var bin = histo.getBin(ix+1, iy+1), val = 0;
+               switch (cnt % 4) {
+                  case 1: val = ix + 19 - iy; break;
+                  case 2: val = 38 - ix - iy; break;
+                  case 3: val = 19 - ix + iy; break;
+                  default: val = ix + iy; break;
+               }
+               histo.setBinContent(bin, val);
+            }
+
+         histo.fName = "generated";
+         histo.fTitle = "Drawing " + cnt++;
+
+         JSROOT.redraw('object_draw', histo, "colz", function(painter) {
+            // in callback call painter object is returned
+            if (!painter) return;
+
+            var chkd = document.getElementById("btn1").checked;
+
+            painter.ConfigureUserTooltipCallback(chkd ? UserHandler : null);
+
+            chkd = document.getElementById("btn2").checked;
+
+            painter.ConfigureUserClickHandler(chkd ? UserHandler : null);
+
+            chkd = document.getElementById("btn3").checked;
+
+            painter.ConfigureUserDblclickHandler(chkd ? UserHandler : null);
+         });
+      }
+
+      updateGUI();
+
+      // update drawing every 3 sec
+      setInterval(updateGUI, 3000);
+
+   </script>
+
+</body>
+</html>
+

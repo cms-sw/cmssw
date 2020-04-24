@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Automatic zooming in second histogram</title>
+
+   <!-- Example derived from https://jsfiddle.net/obj9vffj/4/ -->
+
+   <!-- Load all required functionality in advance and call user function when ready -->
+   <script src="../scripts/JSRootCore.min.js" type="text/javascript"></script>
+
+   <script type='text/javascript'>
+
+      var h1painter = null,
+          filename = "https://root.cern/js/files/hsimple.root";
+
+      JSROOT.OpenFile(filename, function(file) {
+         file.ReadObject("hpx;1", function(obj) {
+            JSROOT.draw("drawth1", obj, "hist", function(painter) {
+               h1painter = painter;
+            });
+         });
+         file.ReadObject("hpxpy;1", function(obj) {
+            JSROOT.draw("drawth2", obj, "col", function(painter) {
+               // zooming handled in frame painter now
+               var fp = painter.frame_painter();
+               // keep old function to be able invoke it again
+               fp.OldZoom = fp.Zoom;
+               // redefine zoom function of TH2 painter to make synchronous zooming of TH1 object
+               fp.Zoom = function(xmin,xmax,ymin,ymax,zmin,zmax) {
+                  if (h1painter) h1painter.frame_painter().Zoom(xmin, xmax);
+                  this.OldZoom(xmin,xmax,ymin,ymax,zmin,zmax);
+               }
+            });
+         });
+      });
+
+   </script>
+</head>
+
+<body>
+  <div id="drawth2" style="width:600px; height:400px"></div>
+  <div id="drawth1" style="width:600px; height:400px"></div>
+</body>
+
+</html>
+

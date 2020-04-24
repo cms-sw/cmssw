@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>TMultiGraph with TLegend and custom labels</title>
+
+   <script src="../scripts/JSRootCore.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+  <h3>Text Before </h3>
+
+  <div id="object_draw" style="width: 800px; height:600px"></div>
+
+  <h3>Text After</h3>
+
+   <script type='text/javascript'>
+
+      var cnt = 0, drawing_ready = true;
+
+      function CreateLegendEntry(obj, lbl) {
+         var entry = JSROOT.Create("TLegendEntry");
+         entry.fObject = obj;
+         entry.fLabel = lbl;
+         entry.fOption = "l";
+         return entry;
+      }
+
+      function updateGUI() {
+         if (!drawing_ready) return;
+
+        // this is just generation of graph
+         var npoints = 20;
+         var xpts = [], ypts = [];
+         for (var i=0; i<npoints; i++) {
+            xpts.push(i);
+            ypts.push(50*Math.sin((i+cnt)));
+         }
+         var graph1 = JSROOT.CreateTGraph(npoints, xpts, ypts);
+         graph1.fLineColor = 2;
+         graph1.fMarkerSize = 2;
+
+         xpts = []; ypts = [];
+         for (var i=0; i<npoints; i++) {
+            xpts.push(i);
+            ypts.push(50*Math.cos((i+cnt)));
+         }
+         var graph2 = JSROOT.CreateTGraph(npoints, xpts, ypts);
+         graph2.fLineColor = 3;
+         graph2.fMarkerSize = 2;
+
+         var mgraph = JSROOT.CreateTMultiGraph(graph1, graph2);
+         mgraph.fTitle = "Drawing " + cnt++;
+
+         var h1 = JSROOT.CreateHistogram("TH1I", 20);
+         h1.fName = "axis_draw";
+         h1.fTitle = mgraph.fTitle;
+         h1.fXaxis.fTitle = "xaxis"+cnt;
+         h1.fYaxis.fTitle = "yaxis"+cnt;
+         h1.fXaxis.fLabelSize = 0.02;
+         h1.fXaxis.fLabels = JSROOT.Create("THashList");
+         for (var i=0; i<npoints; i++) {
+            var lbl = JSROOT.Create("TObjString");
+            lbl.fString = 'pnt'+((i+cnt)%20);
+            lbl.fUniqueID = i+1;
+            h1.fXaxis.fLabels.Add(lbl, "");
+         }
+         h1.fYaxis.fXmin = -60;
+         h1.fYaxis.fXmax = +60;
+         mgraph.fHistogram = h1;
+
+         var leg = JSROOT.Create("TLegend");
+         // leg.fName = "graphs_legend";
+         JSROOT.extend(leg, { fX1NDC: 0.2, fY1NDC:0.75, fX2NDC: 0.6, fY2NDC:0.9 });
+
+         leg.fPrimitives.Add(CreateLegendEntry(graph1, "Math.sin " + cnt));
+         leg.fPrimitives.Add(CreateLegendEntry(graph2, "Math.cos " + cnt));
+
+         mgraph.fFunctions.Add(leg,"");
+
+         // set fixed Y-range if required
+         // mgraph.fMinimum = 0;
+         // mgraph.fMaximum = 400;
+
+         drawing_ready = false;
+
+         JSROOT.redraw('object_draw', mgraph, "", function() { drawing_ready = true; });
+      }
+
+      updateGUI();
+
+      setInterval(updateGUI, 500);
+
+   </script>
+
+</body>
+</html>

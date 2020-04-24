@@ -1,0 +1,117 @@
+<mvc:View
+   controllerName="NavExample.controller.Main"
+   xmlns:core="sap.ui.core"
+   xmlns:mvc="sap.ui.core.mvc"
+   xmlns:example="NavExample"
+   xmlns="sap.m">
+   <VBox class="sapUiSmallMargin">
+      <NavContainer
+         id="navCon"
+         width="98%"
+         height="500px"
+         class="navContainerControl sapUiSmallMarginBottom">
+         <Page id="p1" title="TH1 drawing" >
+            <content>
+               <example:Drawing file="https://root.cern/js/files/hsimple.root" item="hpx" drawopt="">
+               </example:Drawing>
+            </content>
+         </Page>
+         <Page id="p2" title="TH2 lego drawing" >
+            <content>
+               <example:Drawing file="https://root.cern/js/files/hsimple.root" item="hpxpy" drawopt="lego2">
+               </example:Drawing>
+            </content>
+         </Page>
+         <Page id="p3" title="TCanvas drawing" >
+            <content>
+               <example:Drawing file="https://root.cern/js/files/zdemo.root" item="zdemo" drawopt="">
+               </example:Drawing>
+            </content>
+         </Page>
+         <Page id="p4" title="Geometry drawing" >
+            <content>
+               <example:Drawing jsonfile="https://root.cern/js/files/simple_alice.json.gz" drawopt="">
+               </example:Drawing>
+            </content>
+         </Page>
+      </NavContainer>
+
+      <HBox>
+         <Button
+            text="To 1"
+            press="handleNav">
+            <layoutData>
+               <FlexItemData growFactor="1" />
+            </layoutData>
+            <customData>
+               <core:CustomData
+                  key="target"
+                  value="p1" />
+            </customData>
+         </Button>
+         <Button
+            text="To 2"
+            press="handleNav">
+            <layoutData>
+               <FlexItemData growFactor="1" />
+            </layoutData>
+            <customData>
+               <core:CustomData
+                  key="target"
+                  value="p2" />
+            </customData>
+         </Button>
+         <Button
+            text="To 3"
+            press="handleNav">
+            <layoutData>
+               <FlexItemData growFactor="1" />
+            </layoutData>
+            <customData>
+               <core:CustomData
+                  key="target"
+                  value="p3" />
+            </customData>
+         </Button>
+         <Button
+            text="To 4"
+            press="handleNav">
+            <layoutData>
+               <FlexItemData growFactor="1" />
+            </layoutData>
+            <customData>
+               <core:CustomData
+                  key="target"
+                  value="p4" />
+            </customData>
+         </Button>
+      </HBox>
+
+      <HBox>
+         <Button
+            text="Back"
+            type="Back"
+            press="handleNav">
+            <layoutData>
+               <FlexItemData growFactor="1" />
+            </layoutData>
+         </Button>
+         <Select id="animationSelect">
+            <core:Item text="Slide animation" key="slide" />
+            <core:Item text="Fade animation" key="fade" />
+            <core:Item text="Flip animation" key="flip" />
+            <core:Item text="Show animation" key="show" />
+            <layoutData>
+               <FlexItemData growFactor="1" />
+            </layoutData>
+         </Select>
+         <Button
+            text="Painter"
+            press="handlePainter">
+            <layoutData>
+               <FlexItemData growFactor="1" />
+            </layoutData>
+         </Button>
+      </HBox>
+   </VBox>
+</mvc:View>

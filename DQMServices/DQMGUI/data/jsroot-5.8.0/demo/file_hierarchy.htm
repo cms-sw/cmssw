@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Use of JSROOT hierarchy painter</title>
+
+   <script src="../scripts/JSRootCore.js?jq2d&onload=createGUI" type="text/javascript"></script>
+
+   <script type='text/javascript'>
+
+      function createGUI() {
+         var h = new JSROOT.HierarchyPainter("example", "myTreeDiv");
+
+         // configure 'simple' in provided <dev> element
+         // one also can specify "grid2x2" or "flex" or "tabs"
+         h.SetDisplay("simple", "myMainDiv");
+
+         // open file and display element
+         h.OpenRootFile("../../files/hsimple.root", function() {
+            h.display("hpxpy;1","colz");
+         });
+      }
+
+   </script>
+
+</head>
+
+<body>
+
+  <div style="top: 0; bottom:0; left: 0; right: 0; position: absolute;">
+
+  <div id="myTreeDiv" style="width: 250px; height: 100%; float:left"></div>
+
+  <div id="myMainDiv" style="width: calc(100% - 250px); height: calc(100%); float:right"></div>
+
+  </div>
+
+</body>
+</html>
+

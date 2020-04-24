@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+   <title>Use require.js together with JSROOT</title>
+
+   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../scripts/JSRootCore.min"></script>
+
+   <script type='text/javascript'>
+
+      // first ensure that require is ready (using of data-main is not really good)
+      require(['require'], function(r) {
+         // now request JSRootCore
+         require(['JSRootCore'], function(jsroot) {
+            // request data from JSON file
+            jsroot.NewHttpRequest("canvas_tf1.json", 'object', function(obj) {
+               // display object
+               jsroot.draw("drawing", obj, "hist");
+            }).send();
+          });
+     });
+
+   </script>
+</head>
+
+<body>
+  <div id="drawing" style="width:800px; height:600px"></div>
+</body>
+
+</html>
+
