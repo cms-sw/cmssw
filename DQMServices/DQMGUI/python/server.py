@@ -8,11 +8,12 @@ import http.server
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
+BASE = os.getenv("CMSSW_BASE") + "/src/DQMServices/DQMGUI/data/"
+# to get the frontend files, and also the DB there.
+os.chdir(BASE)
+
 from DQMServices.DQMGUI.render import RenderPool
 import DQMServices.DQMGUI.rootstorage as storage
-
-BASE = os.getenv("CMSSW_BASE") + "/src/DQMServices/DQMGUI/data/"
-os.chdir(BASE)
 
 renderpool = RenderPool(workers=5)
 
@@ -20,10 +21,10 @@ if len(storage.searchsamples()) == 0:
     import glob
     EOSPATH = "/eos/cms/store/group/comm_dqm/DQMGUI_data/Run*/*/R000*/DQM_*.root"
     EOSPREFIX = "root://eoscms.cern.ch/"
+    print(f"Listing all files on EOS ({EOSPATH}), this can take a while...")
     files = glob.glob(EOSPATH)
     storage.registerfiles([EOSPREFIX + f for f in files])
-
-
+    print(f"Done, registered {len(files)} files.")
 
 def samples(args):
     args = parse_qs(args)
