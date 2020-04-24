@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
+from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import *
 from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
 from Validation.HGCalValidation.rechitValidation_cff    import *
@@ -12,6 +14,9 @@ hgcalValidatorSequence = cms.Sequence(hgcalValidator)
 hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValidation/HGCAlCompWithGenJet',
     VariablePtBins=[10., 30., 80., 120., 250., 600.],
     DeltaPtOvPtHistoParameter = dict(EROn=True,EREtaMax=3.0, EREtaMin=1.6, slicingOn=True))
+
+hgcalAssociators = cms.Task(HGCRecHitMapProducer
+        , LCAssocByEnergyScoreProducer)
 
 hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalSimHitValidationHEF
