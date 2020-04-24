@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import *
 from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
