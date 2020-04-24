@@ -48,7 +48,7 @@ MagGeometry::MagGeometry(int geomVersion,
   for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
     LogTrace("MagGeometry") << "  Barrel layer at " << (*ilay)->minR() << endl;
     //FIXME assume layers are already sorted in minR
-    rBorders.push_back((*ilay)->minR());
+    rBorders.push_back((*ilay)->minR() * (*ilay)->minR());
   }
 
   theBarrelBinFinder = new MagBinFinders::GeneralBinFinderInR<double>(rBorders);
@@ -177,12 +177,12 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
 
   MagVolume const* result = nullptr;
   if (inBarrel(gp)) {  // Barrel
-    double R = gp.perp();
-    int bin = theBarrelBinFinder->binIndex(R);
+    double aRsq = gp.perp2();
+    int bin = theBarrelBinFinder->binIndex(aRsq);
 
     // Search up to 3 layers inwards. This may happen for very thin layers.
     for (int bin1 = bin; bin1 >= max(0, bin - 3); --bin1) {
-      LogTrace("MagGeometry") << "Trying layer at R " << theBLayers[bin1]->minR() << " " << R << endl;
+      LogTrace("MagGeometry") << "Trying layer at R " << theBLayers[bin1]->minR() << " " << sqrt(aRsq) << endl;
       result = theBLayers[bin1]->findVolume(gp, tolerance);
       LogTrace("MagGeometry") << "***In blayer " << bin1 - bin << " " << (result == nullptr ? " failed " : " OK ")
                               << endl;
