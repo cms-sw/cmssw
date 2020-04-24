@@ -46,9 +46,6 @@ public:
   /// Find a volume
   MagVolume const* findVolume(const GlobalPoint& gp, double tolerance = 0.) const;
 
-  // Deprecated, will be removed
-  bool isZSymmetric() const { return false; }
-
   // FIXME: only for temporary tests, should be removed.
   const std::vector<MagVolume6Faces const*>& barrelVolumes() const { return theBVolumes; }
   const std::vector<MagVolume6Faces const*>& endcapVolumes() const { return theEVolumes; }
@@ -75,5 +72,12 @@ private:
 
   bool cacheLastVolume;
   int geometryVersion;
+
+  // boundaries of internal barrel-endcap volume separation
+  float barrelRsq1;
+  float barrelRsq2;
+  float barrelZ0;
+  float barrelZ1;
+  float barrelZ2;
 };
 #endif

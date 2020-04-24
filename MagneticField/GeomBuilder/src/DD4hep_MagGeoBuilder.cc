@@ -23,7 +23,6 @@
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
-#include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 

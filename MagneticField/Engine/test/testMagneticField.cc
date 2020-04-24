@@ -53,8 +53,6 @@ using namespace edm;
 using namespace Geom;
 using namespace std;
 
-// #include "MagneticField/Layers/interface/MagVerbosity.h"
-
 class testMagneticField : public edm::EDAnalyzer {
 public:
   testMagneticField(const edm::ParameterSet& pset) {
@@ -91,6 +89,7 @@ public:
 
     if (outputFile != "") {
       writeValidationTable(numberOfPoints, outputFile);
+      return;
     }
 
     if (inputFileType == "TOSCA") {
@@ -147,7 +146,8 @@ private:
 void testMagneticField::writeValidationTable(int npoints, string filename) {
   GlobalPointProvider p(InnerRadius, OuterRadius, -Geom::pi(), Geom::pi(), -HalfLength, HalfLength);
 
-  if (filename.substr(filename.rfind(".")) == ".txt") {
+  std::string::size_type ps = filename.rfind(".");
+  if (ps != std::string::npos && filename.substr(ps) == ".txt") {
     ofstream file(filename.c_str());
 
     for (int i = 0; i < npoints; ++i) {
@@ -188,7 +188,8 @@ void testMagneticField::validate(string filename, string type) {
   edm::FileInPath mydata(filename);
   fullPath = mydata.fullPath();
 
-  if (filename.substr(filename.rfind(".")) == ".txt") {
+  std::string::size_type ps = filename.rfind(".");
+  if (ps != std::string::npos && filename.substr(filename.rfind(".")) == ".txt") {
     binary = false;
     file.open(fullPath.c_str());
   } else {

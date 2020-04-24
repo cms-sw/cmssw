@@ -8,7 +8,6 @@
 #include "printUniqueNames.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/Layers/interface/MagBLayer.h"
-#include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
