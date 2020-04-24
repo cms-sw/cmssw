@@ -7,7 +7,9 @@ This package contains experimental code for a DQMGUI similar to https://cmsweb.c
 There are multiple relevant parts:
 - The _render service_ in `bin/render.cc`, extracted from the classic DQMGUI: https://github.com/rovere/dqmgui
 - The _render plugins_ in `plugins/`, traditionally hosted on https://github.com/dmwm/deployment/tree/master/dqmgui/style
-- A web server (TBD).
+- A storage backend.
+- A web server.
+- A HTML frontend.
 
 ## The render service
 
@@ -16,6 +18,8 @@ The histogram rendering using ROOT and the render plugins is done in a separate 
 A client that implements this protocol is implemented in `python/render.py`.
 
 The render process is single-threaded and does not do any IO apart from the UNIX socket. Many of them can be launched in parallel. They might crash now and then (because ROOT), so some  precautions should be taken to restart them if they fail.
+
+Since the `TBufferFile` data does not contain streamers, but we also don't want to repack all data into the latest format before rendering, the renderer has a mechanism to load streamers. This is done by passing a file name with the request, the renderer will simply open this file once (which reads the streamers as a side effect). This should only be done as needed, since it is quite slow (compared to the actual rendering).
 
 ### The render plugins
 
@@ -33,3 +37,27 @@ The render plugins are compiled separately in `plugins/` and linked dynamically 
 
 There is some hacky code in `render.py` that locates the `.so` with the render plugins and passes it to `render.cc` as a command line argument.
 
+## The storage backend
+
+The storage backend is based on legacy, `TDirectory` ROOT files. The code is in `rootstorage.py`. It keeps a SQLite database of metadata, about _samples_ (run/dataset/lumi, effectively _files_, for the legacy format), and _ME lists_, which represent the MEs present in a sample. These are stored compressed to make their size manageable. The ME list is built on first access; this makes it feasible to register all ~80000 files that we have on EOS at the moment as samples.
+
+The storage backend is based on `uproot`, it never uses actual ROOT. To produce the `TBufferFile` format for the renderer, there is some custom byte-level packing code to add the required headers.
+
+## The web server
+
+There is a simple web server in `server.py`. It simply maps the classic DQMGUI API to the matching calls in the storage layer. It also does rendering using the render service.  The request parsing is very bad, so it fails in some cases and probably has lots of security issues.
+
+The server is _threaded_, which allows it to do some of the IO waiting in parallel. But Python threading is not very efficient, so it limits at around 100 requests/s, which is less than the renderers could handle.
+
+The server is started like this:
+```
+python3 DQMServices/DQMGUI/python/server.py
+```
+
+It will listen on `http://localhost:8889` (and you can't just change that, see below), and It will automatically create a DB file in `DQMServices/DQMGUI/data/` and populate it using data from EOS. 
+
+## The HTML frontend
+
+The frontend is developed here: https://github.com/cms-DQM/dqmgui_frontend
+
+This package contains compiled code from there, which is served from the web server to get a working GUI. It is hardcoded to `localhost:8889`, so you can't easily change the port number in the server.
