@@ -15,9 +15,6 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include <iostream>
 
 using namespace std;
@@ -49,25 +46,49 @@ MagGeometry::MagGeometry(int geomVersion,
   vector<double> rBorders;
 
   for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
-    if (verbose::debugOut)
-      cout << "  Barrel layer at " << (*ilay)->minR() << endl;
+    LogTrace("MagGeometry") << "  Barrel layer at " << (*ilay)->minR() << endl;
     //FIXME assume layers are already sorted in minR
     rBorders.push_back((*ilay)->minR());
   }
 
   theBarrelBinFinder = new MagBinFinders::GeneralBinFinderInR<double>(rBorders);
 
-  if (verbose::debugOut) {
-    for (vector<MagESector const*>::const_iterator isec = theESectors.begin(); isec != theESectors.end(); ++isec) {
-      cout << "  Endcap sector at " << (*isec)->minPhi() << endl;
-    }
+#ifdef EDM_ML_DEBUG
+  for (vector<MagESector const*>::const_iterator isec = theESectors.begin(); isec != theESectors.end(); ++isec) {
+    LogTrace("MagGeometry") << "  Endcap sector at " << (*isec)->minPhi() << endl;
   }
+#endif
 
   //FIXME assume sectors are already sorted in phi
   //FIXME: PeriodicBinFinderInPhi gets *center* of first bin
   int nEBins = theESectors.size();
   if (nEBins > 0)
     theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi() + Geom::pi() / nEBins, nEBins);
+
+  // Compute barrel dimensions based on geometry version
+  switch (geomVersion >= 120812 ? 0 : (geomVersion >= 90812 ? 1 : 2)) {
+    case 0:  // since 120812
+      barrelRsq1 = 172.400f * 172.400f;
+      barrelRsq2 = 308.735f * 308.735f;
+      barrelZ0 = 350.000f;
+      barrelZ1 = 633.290f;
+      barrelZ2 = 662.010f;
+      break;
+    case 1:  // version 90812 (no longer in use)
+      barrelRsq1 = 172.400f * 172.400f;
+      barrelRsq2 = 308.755f * 308.755f;
+      barrelZ0 = 350.000f;
+      barrelZ1 = 633.890f;
+      barrelZ2 = 662.010f;
+      break;
+    case 2:  // versions 71212, 90322
+      barrelRsq1 = 172.400f * 172.400f;
+      barrelRsq2 = 308.755f * 308.755f;
+      barrelZ0 = 350.000f;
+      barrelZ1 = 633.290f;
+      barrelZ2 = 661.010f;
+      break;
+  }
 }
 
 MagGeometry::~MagGeometry() {
@@ -113,7 +134,7 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
   if (inBarrel(gp)) {  // Barrel
     for (vector<MagVolume6Faces const*>::const_iterator v = theBVolumes.begin(); v != theBVolumes.end(); ++v) {
       if ((*v) == nullptr) {  //FIXME: remove this check
-        cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume for barrel not set" << endl;
+        LogError("MagGeometry") << endl << "***ERROR: MagGeometry::findVolume: MagVolume for barrel not set" << endl;
         ++errCnt;
         if (errCnt < 3)
           continue;
@@ -129,7 +150,7 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
   } else {  // Endcaps
     for (vector<MagVolume6Faces const*>::const_iterator v = theEVolumes.begin(); v != theEVolumes.end(); ++v) {
       if ((*v) == nullptr) {  //FIXME: remove this check
-        cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume for endcap not set" << endl;
+        LogError("MagGeometry") << endl << "***ERROR: MagGeometry::findVolume: MagVolume for endcap not set" << endl;
         ++errCnt;
         if (errCnt < 3)
           continue;
@@ -161,11 +182,10 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
 
     // Search up to 3 layers inwards. This may happen for very thin layers.
     for (int bin1 = bin; bin1 >= max(0, bin - 3); --bin1) {
-      if (verbose::debugOut)
-        cout << "Trying layer at R " << theBLayers[bin1]->minR() << " " << R << endl;
+      LogTrace("MagGeometry") << "Trying layer at R " << theBLayers[bin1]->minR() << " " << R << endl;
       result = theBLayers[bin1]->findVolume(gp, tolerance);
-      if (verbose::debugOut)
-        cout << "***In blayer " << bin1 - bin << " " << (result == nullptr ? " failed " : " OK ") << endl;
+      LogTrace("MagGeometry") << "***In blayer " << bin1 - bin << " " << (result == nullptr ? " failed " : " OK ")
+                              << endl;
       if (result != nullptr)
         break;
     }
@@ -174,11 +194,9 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
     Geom::Phi<float> phi = gp.phi();
     if (theEndcapBinFinder != nullptr && !theESectors.empty()) {
       int bin = theEndcapBinFinder->binIndex(phi);
-      if (verbose::debugOut)
-        cout << "Trying endcap sector at phi " << theESectors[bin]->minPhi() << " " << phi << endl;
+      LogTrace("MagGeometry") << "Trying endcap sector at phi " << theESectors[bin]->minPhi() << " " << phi << endl;
       result = theESectors[bin]->findVolume(gp, tolerance);
-      if (verbose::debugOut)
-        cout << "***In guessed esector " << (result == nullptr ? " failed " : " OK ") << endl;
+      LogTrace("MagGeometry") << "***In guessed esector " << (result == nullptr ? " failed " : " OK ") << endl;
     } else
       edm::LogError("MagGeometry") << "Endcap empty";
   }
@@ -187,8 +205,7 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
     // If search fails, retry with a 300 micron tolerance.
     // This is a hack for thin gaps on air-iron boundaries,
     // which will not be present anymore once surfaces are matched.
-    if (verbose::debugOut)
-      cout << "Increasing the tolerance to 0.03" << endl;
+    LogTrace("MagGeometry") << "Increasing the tolerance to 0.03" << endl;
     result = findVolume(gp, 0.03);
   }
 
@@ -199,15 +216,8 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
 }
 
 bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
-  float Z = fabs(gp.z());
-  float R = gp.perp();
+  float aZ = fabs(gp.z());
+  float aRsq = gp.perp2();
 
-  // FIXME: Get these dimensions from the builder.
-  if (geometryVersion >= 120812) {
-    return (Z < 350. || (R > 172.4 && Z < 633.29) || (R > 308.735 && Z < 662.01));
-  } else if (geometryVersion >= 90812) {  // FIXME no longer supported
-    return (Z < 350. || (R > 172.4 && Z < 633.89) || (R > 308.755 && Z < 662.01));
-  } else {  // versions 71212, 90322
-    return (Z < 350. || (R > 172.4 && Z < 633.29) || (R > 308.755 && Z < 661.01));
-  }
+  return ((aZ < barrelZ0) || (aZ < barrelZ1 && aRsq > barrelRsq1) || (aZ < barrelZ2 && aRsq > barrelRsq2));
 }

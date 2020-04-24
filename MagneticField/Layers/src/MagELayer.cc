@@ -27,10 +27,10 @@ MagELayer::~MagELayer() {
 const MagVolume* MagELayer::findVolume(const GlobalPoint& gp, double tolerance) const {
   for (vector<MagVolume*>::const_iterator ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
     // FIXME : use a binfinder
-#ifdef MF_DEBUG
+#ifdef EDM_ML_DEBUG
     {
       MagVolume6Faces* mv = static_cast<MagVolume6Faces*>(*ivol);
-      cout << "        Trying volume " << mv->volumeNo << " " << int(mv->copyno) << endl;
+      LogTrace("MagGeometry") << "        Trying volume " << mv->volumeNo << " " << int(mv->copyno) << endl;
     }
 #endif
     if ((*ivol)->inside(gp, tolerance))

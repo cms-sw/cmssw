@@ -16,8 +16,6 @@
 
 #include "DetectorDescription/DDCMS/interface/DDShapes.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
-
 #include <string>
 #include <iterator>
 
