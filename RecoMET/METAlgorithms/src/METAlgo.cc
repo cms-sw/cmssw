@@ -17,9 +17,9 @@ CommonMETData METAlgo::run(const edm::View<reco::Candidate>& candidates,
                            double globalThreshold,
                            edm::ValueMap<float> const* weights) {
   math::XYZTLorentzVector p4;
-  for (auto candPtr = candidates.ptrs().begin(); candPtr != candidates.ptrs().end(); ++candPtr) {
-    const reco::Candidate* cand = candPtr->get();
-    float weight = (weights != nullptr) ? (*weights)[*candPtr] : 1.0;
+  for (auto const& candPtr : candidates.ptrs()) {
+    const reco::Candidate* cand = candPtr.get();
+    float weight = (weights != nullptr) ? (*weights)[candPtr] : 1.0;
     if (!(cand->et() * weight > globalThreshold))
       continue;
     p4 += cand->p4() * weight;
@@ -37,9 +37,9 @@ CommonMETData METAlgo::run(const edm::View<reco::Candidate>& candidates,
   ret.met = met.Pt();
 
   double et = 0.0;
-  for (auto candPtr = candidates.ptrs().begin(); candPtr != candidates.ptrs().end(); ++candPtr) {
-    const reco::Candidate* cand = candPtr->get();
-    float weight = (weights != nullptr) ? (*weights)[*candPtr] : 1.0;
+  for (auto const& candPtr : candidates.ptrs()) {
+    const reco::Candidate* cand = candPtr.get();
+    float weight = (weights != nullptr) ? (*weights)[candPtr] : 1.0;
     if (!(cand->et() * weight > globalThreshold))
       continue;
     et += cand->et() * weight;

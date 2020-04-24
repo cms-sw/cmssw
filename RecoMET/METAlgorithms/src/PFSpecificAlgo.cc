@@ -24,9 +24,9 @@ SpecificPFMETData PFSpecificAlgo::run(const edm::View<reco::Candidate>& pfCands,
   double type6Et = 0.0;
   double type7Et = 0.0;
 
-  for (auto pfCandPtr = pfCands.ptrs().begin(); pfCandPtr != pfCands.ptrs().end(); ++pfCandPtr) {
-    const reco::Candidate* pfCand = pfCandPtr->get();
-    float weight = (weights != nullptr) ? (*weights)[*pfCandPtr] : 1.0;
+  for (auto const& pfCandPtr : pfCands.ptrs()) {
+    const reco::Candidate* pfCand = pfCandPtr.get();
+    float weight = (weights != nullptr) ? (*weights)[pfCandPtr] : 1.0;
     if (!pfCand)
       continue;
     const double theta = pfCand->theta();

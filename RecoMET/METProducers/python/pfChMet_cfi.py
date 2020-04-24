@@ -12,8 +12,8 @@ particleFlowForChargedMET = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfChMet = pfMet.clone(
-    src = cms.InputTag("particleFlowForChargedMET"),
-    alias = cms.string('pfChMet'),
+    src = "particleFlowForChargedMET",
+    alias = 'pfChMet',
     )
 
 ##____________________________________________________________________________||
