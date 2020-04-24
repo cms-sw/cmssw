@@ -42,11 +42,11 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   egamma_token_ = collector.consumes<l1t::EGammaBxCollection>(conf.getParameter<edm::InputTag>("Egamma"));
 
   tree.Branch(branch_name_w_prefix("n"),     &egamma_n_, branch_name_w_prefix("n/I"));
-  tree.Branch(branch_name_w_prefix("_pt"),     &egamma_pt_);
-  tree.Branch(branch_name_w_prefix("_energy"), &egamma_energy_);
-  tree.Branch(branch_name_w_prefix("_eta"),    &egamma_eta_);
-  tree.Branch(branch_name_w_prefix("_phi"),    &egamma_phi_);
-  tree.Branch(branch_name_w_prefix("_hwQual"), &egamma_hwQual_);
+  tree.Branch(branch_name_w_prefix("pt"),     &egamma_pt_);
+  tree.Branch(branch_name_w_prefix("energy"), &egamma_energy_);
+  tree.Branch(branch_name_w_prefix("eta"),    &egamma_eta_);
+  tree.Branch(branch_name_w_prefix("phi"),    &egamma_phi_);
+  tree.Branch(branch_name_w_prefix("hwQual"), &egamma_hwQual_);
 
 }
 
