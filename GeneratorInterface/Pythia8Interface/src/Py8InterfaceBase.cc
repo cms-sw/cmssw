@@ -52,6 +52,9 @@ bool Py8InterfaceBase::readSettings( int )
    if(!fMasterGen.get()) fMasterGen.reset(new Pythia);
    fDecayer.reset(new Pythia);
 
+   //add setting for forced tau decay
+   fMasterGen->settings.addFlag("ResonanceTauDecayHook:use",false);
+
    //add settings for resonance decay filter
    fMasterGen->settings.addFlag("ResonanceDecayFilter:filter",false);
    fMasterGen->settings.addFlag("ResonanceDecayFilter:exclusive",false);
