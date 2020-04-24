@@ -46,13 +46,6 @@ namespace edmtest
   PathAnalyzer::beginJob()
   {
     dumpTriggerNamesServiceInfo("beginJob");
-
-    // Make sure we can get a the process parameter set. This test
-    // doesn't really belong here, but I had to stick it somewhere
-    // quickly...
-
-    edm::ParameterSet ppset = edm::getProcessParameterSet();
-    assert (ppset.id().isValid());
   }
 
   void

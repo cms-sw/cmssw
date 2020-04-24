@@ -16,7 +16,7 @@ if __name__ == '__main__':
                        help='Save output to file OUTPUT')
     (options, args) = parser.parse_args()
     if not args:
-        raise RuntimeError, "Must provide at least one input file"
+        raise RuntimeError("Must provide at least one input file")
 
     runsLumisDict = {}
     for fjr in args:

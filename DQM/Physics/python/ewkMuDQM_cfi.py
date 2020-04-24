@@ -6,7 +6,7 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("pfMet"),
-      JetTag = cms.untracked.InputTag("ak5PFJets"),
+      JetTag = cms.untracked.InputTag("ak4PFJets"),
       VertexTag= cms.untracked.InputTag("offlinePrimaryVertices"),
       TrigPathNames = cms.untracked.vstring("HLT_Mu","HLT_DoubleMu","HLT_IsoMu"),
 
@@ -24,10 +24,10 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
 
       # Muon quality cuts ->
       DxyCut = cms.untracked.double(0.2), # dxy < 0.2 cm (cosmics)
-      NormalizedChi2Cut = cms.untracked.double(10.), # chi2/ndof < 10. 
+      NormalizedChi2Cut = cms.untracked.double(10.), # chi2/ndof < 10.
       TrackerHitsCut = cms.untracked.int32(11),  # Hits in inner track > 10
-      PixelHitsCut = cms.untracked.int32(1),  # Pixel Hits  > 0 
-      MuonHitsCut = cms.untracked.int32(1),  # Valid Muon Hits  > 0 
+      PixelHitsCut = cms.untracked.int32(1),  # Pixel Hits  > 0
+      MuonHitsCut = cms.untracked.int32(1),  # Valid Muon Hits  > 0
       IsAlsoTrackerMuon = cms.untracked.bool(True),
       NMatchesCut = cms.untracked.int32(2),  # At least 2 Chambers matched with segments
 

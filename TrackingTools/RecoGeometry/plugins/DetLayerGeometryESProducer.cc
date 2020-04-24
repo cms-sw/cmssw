@@ -19,11 +19,11 @@ DetLayerGeometryESProducer::DetLayerGeometryESProducer(const edm::ParameterSet &
  
 DetLayerGeometryESProducer::~DetLayerGeometryESProducer() {}
 
-boost::shared_ptr<DetLayerGeometry> 
+std::shared_ptr<DetLayerGeometry> 
 DetLayerGeometryESProducer::produce(const RecoGeometryRecord & iRecord){ 
 
 
-  geometry_  = boost::shared_ptr<DetLayerGeometry>(new DetLayerGeometry());
+  geometry_ = std::make_shared<DetLayerGeometry>();
   return geometry_;
 }
 

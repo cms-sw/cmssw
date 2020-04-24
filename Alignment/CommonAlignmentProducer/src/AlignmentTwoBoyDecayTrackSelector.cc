@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //DataFormats
 #include <DataFormats/TrackReco/interface/Track.h>
@@ -10,7 +11,7 @@
 #include <DataFormats/Math/interface/deltaPhi.h>
 
 //STL
-#include <math.h>
+#include <cmath>
 //ROOT
 #include "TLorentzVector.h"
 
@@ -20,8 +21,7 @@ using namespace std;
 using namespace edm; 
 // constructor ----------------------------------------------------------------
 
-AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm::ParameterSet & cfg) :
-  theMissingETSource("met")
+AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC)
 {
  LogDebug("Alignment")   << "> applying two body decay Trackfilter ...";
   theMassrangeSwitch = cfg.getParameter<bool>( "applyMassrangeFilter" );
@@ -53,7 +53,8 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
   }
   theMissingETSwitch = cfg.getParameter<bool>( "applyMissingETFilter" );
   if(theMissingETSwitch){
-    theMissingETSource = cfg.getParameter<InputTag>( "missingETSource" );
+    edm::InputTag theMissingETSource = cfg.getParameter<InputTag>( "missingETSource" );
+    theMissingETToken = iC.consumes<reco::CaloMETCollection>(theMissingETSource);
     LogDebug("Alignment") << ">  missing Et Source: "<< theMissingETSource;
   }
   theAcoplanarityFilterSwitch = cfg.getParameter<bool>( "applyAcoplanarityFilter" );
@@ -155,7 +156,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
     }
   }
 
-  if (candCollection.size()==0) return result;
+  if (candCollection.empty()) return result;
 
   sort(candCollection.begin(), candCollection.end(), 
        higherTwoBodyDecayPt<candCollectionItem>());
@@ -191,14 +192,14 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   
   LogDebug("Alignment") <<">  cands size : "<< cands.size();
   
-  if (cands.size()==0) return result;
+  if (cands.empty()) return result;
 
   TLorentzVector track;
   TLorentzVector met4;
   TLorentzVector mother;
 
   Handle<reco::CaloMETCollection> missingET;
-  iEvent.getByLabel(theMissingETSource ,missingET);
+  iEvent.getByToken(theMissingETToken ,missingET);
   if (!missingET.isValid()) {
     LogError("Alignment")<< "@SUB=AlignmentTwoBodyDecayTrackSelector::checkMETMass"
 			 << ">  could not optain missingET Collection!";
@@ -244,7 +245,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
     }
   }
 
-  if (candCollection.size()==0) return result;
+  if (candCollection.empty()) return result;
 
   sort(candCollection.begin(), candCollection.end(), 
        higherTwoBodyDecayPt<candCollectionItem>());

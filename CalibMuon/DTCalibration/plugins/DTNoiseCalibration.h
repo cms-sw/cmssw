@@ -34,12 +34,12 @@ class DTNoiseCalibration: public edm::EDAnalyzer{
   /// Constructor
   DTNoiseCalibration(const edm::ParameterSet& ps);
   /// Destructor
-  virtual ~DTNoiseCalibration();
+  ~DTNoiseCalibration() override;
 
-  void beginJob();
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup );
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void endJob();
+  void beginJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup ) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string getChannelName(const DTWireId&) const;

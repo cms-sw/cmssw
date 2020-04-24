@@ -45,7 +45,9 @@ namespace fftjetcms {
                                              peak.scale(),
                                              peak.nearestNeighborDistance(),
                                              peak.clusterRadius(),
-                                             peak.clusterSeparation()),
+                                             peak.clusterSeparation(),
+                                             peak.splitTime(),
+                                             peak.mergeTime()),
                                   jet.vec(), jet.ncells(), jet.etSum(),
                                   jet.centroidEta(), jet.centroidPhi(),
                                   jet.etaWidth(), jet.phiWidth(),
@@ -69,17 +71,20 @@ namespace fftjetcms {
         p.hessian(hessian);
         const double pileupPt = jet.f_pileup().Pt();
 
-        return RecoFFTJet(fftjet::Peak(p.eta(), p.phi(), p.magnitude(),
-                                       hessian, p.driftSpeed(),
-                                       p.magSpeed(), p.lifetime(),
-                                       p.scale(), p.nearestNeighborDistance(),
-                                       jet.f_membershipFactor(),
-                                       jet.f_recoScale(),
-                                       jet.f_recoScaleRatio(),
-                                       p.clusterRadius(),
-                                       p.clusterSeparation(), jet.f_code(),
-                                       jet.f_status()),
-                          jet.f_vec(), jet.f_ncells(), jet.f_etSum(),
+        fftjet::Peak peak(p.eta(), p.phi(), p.magnitude(),
+			  hessian, p.driftSpeed(),
+			  p.magSpeed(), p.lifetime(),
+			  p.scale(), p.nearestNeighborDistance(),
+			  jet.f_membershipFactor(),
+			  jet.f_recoScale(),
+			  jet.f_recoScaleRatio(),
+			  p.clusterRadius(),
+			  p.clusterSeparation(), jet.f_code(),
+			  jet.f_status());
+        peak.setSplitTime(p.splitTime());
+        peak.setMergeTime(p.mergeTime());
+
+        return RecoFFTJet(peak, jet.f_vec(), jet.f_ncells(), jet.f_etSum(),
                           jet.f_centroidEta(), jet.f_centroidPhi(),
                           jet.f_etaWidth(), jet.f_phiWidth(),
                           jet.f_etaPhiCorr(), jet.f_fuzziness(),

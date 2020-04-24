@@ -173,9 +173,9 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
         
         for i in self.domains.keys():
             for j in self.domains[i]:
-                if not self.data[i].has_key(self.__ParseItem(j)):
+                if self.__ParseItem(j) not in self.data[i]:
                     self.data[i][self.__ParseItem(j)] = {}
-                if not self.data[i][self.__ParseItem(j)].has_key(self.__ParseSubItem(j)):
+                if self.__ParseSubItem(j) not in self.data[i][self.__ParseItem(j)]:
                     self.data[i][self.__ParseItem(j)][self.__ParseSubItem(j)] = {}
                 
                 self.data[i][self.__ParseItem(j)][self.__ParseSubItem(j)]["__DATA__"] = {
@@ -235,19 +235,19 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
         self.classesURLs = {}
         # add items to self.classesURLs
         for i in td:
-            if i.a and i.a.has_key('href'):
+            if i.a and 'href' in i.a:
                 self.classesURLs[i.a.text] = i.a['href']
         print "Class URLs was loaded... (%s)" % len(self.classesURLs)
         
         for i in self.data.keys():
             for j in self.data[i].keys():
-                if not self.classes.has_key(j): continue
+                if j not in self.classes: continue
                 for k in self.data[i][j].keys():
                     if "Package " + j + "/" + k in self.packages:
                         self.data[i][j][k]["__DATA__"]["packageDoc"] = '../' + self.packages["Package " + j + "/" + k]
-                    if not self.classes[j].has_key(k): continue
+                    if k not in self.classes[j]: continue
                     for h in self.classes[j][k]:
-                        if self.classesURLs.has_key(self.GetFileName(h)):
+                        if self.GetFileName(h) in self.classesURLs:
                             self.data[i][j][k][self.GetFileName(h)] = {"__DATA__": '../' + self.classesURLs[self.GetFileName(h)]}
                         else:
                             self.data[i][j][k][self.GetFileName(h) + ".h"] = {"__DATA__": '../' + self.classes[j][k][h]}
@@ -341,7 +341,7 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
     
     def __NewTreePage(self, domain):
         
-        if not self.data.has_key(domain): return
+        if domain not in self.data: return
         
         content = ''
         keysI = self.data[domain].keys()
@@ -363,12 +363,12 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
                 length = len(keysK)
 #                content += "<!-- Begin -->"
                 if length > 1:
-                    if self.data[domain][i][j].has_key("__DATA__"):
+                    if "__DATA__" in self.data[domain][i][j]:
                         content += self.HTMLTreeBegin(j, self.data[domain][i][j]["__DATA__"])
                     else:
                         content += self.HTMLTreeBegin(j)
                 else:
-                    if self.data[domain][i][j].has_key("__DATA__"):
+                    if "__DATA__" in self.data[domain][i][j]:
                         content += self.HTMLTreeAddItem(j, self.data[domain][i][j]["__DATA__"], folder = True)
                     else:
                         content += self.HTMLTreeAddItem(j, folder = True)
@@ -381,7 +381,7 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
                     content += self.HTMLTreeEnd()
 #                content += "<!-- End -->"
             content += self.HTMLTreeEnd()
-        if self.tWikiLinks.has_key(domain):
+        if domain in self.tWikiLinks:
             self.WriteFile("iframes/%s.html" % domain.lower().replace(' ', '_'), self.treePageTamplate % (domain, self.tWikiLinks[domain], content))
         else:
             print 'Warning: The twiki link of "%s" domain not found...' % domain

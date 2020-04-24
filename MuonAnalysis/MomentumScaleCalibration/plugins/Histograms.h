@@ -5,7 +5,8 @@
  *  Collection of histograms for GLB muon analysis
  *
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
- */
+ * revised S. Casasso, E. Migliore - UniTo & INFN Torino 
+*/
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -37,15 +38,15 @@ public:
 
   // Constructor
   // -----------
-  Histograms() : theWeight_(1), histoDir_(0) {};
-  Histograms( const TString & name ) : theWeight_(1), name_(name), histoDir_(0) {}
+  Histograms() : theWeight_(1), histoDir_(nullptr) {};
+  Histograms( const TString & name ) : theWeight_(1), name_(name), histoDir_(nullptr) {}
   Histograms( TFile * outputFile, const TString & name ) :
     theWeight_(1),
     name_(name),
     outputFile_(outputFile),
     histoDir_( outputFile->GetDirectory(name) )
   {
-    if( histoDir_ == 0 ) {
+    if( histoDir_ == nullptr ) {
       histoDir_ = outputFile->mkdir(name);
     }
     histoDir_->cd();
@@ -135,20 +136,20 @@ public:
          const int yBins, const double & yMin, const double & yMax ) : Histograms(outputFile, dirName),
                                                                        tH2d_( new TH2D(name, title, xBins, xMin, xMax, yBins, yMin, yMax) ),
                                                                        tProfile_( new TProfile(name+"Prof", title+" profile", xBins, xMin, xMax, yMin, yMax) ) {}
-  ~HTH2D() {
+  ~HTH2D() override {
     delete tH2d_;
     delete tProfile_;
   }
-  virtual void Fill( const double & x, const double & y ) {
+  void Fill( const double & x, const double & y ) override {
     tH2d_->Fill(x,y);
     tProfile_->Fill(x,y);
   }
-  virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+  void Write() override {
+    if(histoDir_ != nullptr) histoDir_->cd();
     tH2d_->Write();
     tProfile_->Write();
   }
-  virtual void Clear() {
+  void Clear() override {
     tH2d_->Clear();
     tProfile_->Clear();
   }
@@ -174,17 +175,17 @@ public:
   HTH1D( TFile * outputFile, const TString & name, const TString & title,
          const int xBins, const double & xMin, const double & xMax ) : Histograms(outputFile, name),
                                                                        tH1D_( new TH1D(name, title, xBins, xMin, xMax) ) {}
-  ~HTH1D() {
+  ~HTH1D() override {
     delete tH1D_;
   }
-  virtual void Fill( const double & x, const double & y ) {
+  void Fill( const double & x, const double & y ) override {
     tH1D_->Fill(x, y);
   }
-  virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+  void Write() override {
+    if(histoDir_ != nullptr) histoDir_->cd();
     tH1D_->Write();
   }
-  virtual void Clear() {
+  void Clear() override {
     tH1D_->Clear();
   }
   virtual void SetXTitle(const TString & title) {
@@ -206,17 +207,17 @@ public:
              const int xBins, const double & xMin, const double & xMax,
              const double & yMin, const double & yMax ) : Histograms(outputFile, name),
                                                           tProfile_( new TProfile(name+"Prof", title+" profile", xBins, xMin, xMax, yMin, yMax) ) {}
-  ~HTProfile() {
+  ~HTProfile() override {
     delete tProfile_;
   }
-  virtual void Fill( const double & x, const double & y ) {
+  void Fill( const double & x, const double & y ) override {
     tProfile_->Fill(x,y);
   }
-  virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+  void Write() override {
+    if(histoDir_ != nullptr) histoDir_->cd();
     tProfile_->Write();
   }
-  virtual void Clear() {
+  void Clear() override {
     tProfile_->Clear();
   }
   virtual void SetXTitle(const TString & title) {
@@ -304,7 +305,7 @@ class HParticle : public Histograms {
     hNumber_( (TH1F *) file->Get(name_+"_Number") )
   {}
 
-  ~HParticle()
+  ~HParticle() override
   {
     delete hPt_;
     delete hPtVsEta_;
@@ -324,12 +325,12 @@ class HParticle : public Histograms {
     delete hNumber_;
   }
 
-  virtual void Fill( const reco::Particle::LorentzVector & p4, const int charge, const double & weight = 1. )
+  void Fill( const reco::Particle::LorentzVector & p4, const int charge, const double & weight = 1. ) override
   {
     Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()),charge, weight);
   }
 
-  virtual void Fill( const CLHEP::HepLorentzVector & momentum, const int charge, const double & weight =1.)
+  void Fill( const CLHEP::HepLorentzVector & momentum, const int charge, const double & weight =1.) override
   {
     hPt_->Fill(momentum.perp(), weight);
     hPtVsEta_->Fill(momentum.perp(), momentum.eta(), weight);
@@ -351,14 +352,14 @@ class HParticle : public Histograms {
 
 
   
-  virtual void Fill( unsigned int number )
+  void Fill( unsigned int number ) override
   {
     hNumber_->Fill(number);
   }
 
-  virtual void Write()
+  void Write() override
   {
-    if(histoDir_ != 0) histoDir_->cd();
+    if(histoDir_ != nullptr) histoDir_->cd();
     hPt_->Write();
     hPtVsEta_->Write();
    
@@ -377,7 +378,7 @@ class HParticle : public Histograms {
     hNumber_->Write();
   }
   
-  virtual void Clear()
+  void Clear() override
   {
     hPt_->Clear();
     hPtVsEta_->Clear();
@@ -456,7 +457,7 @@ class HDelta : public Histograms
     hDeltaR_    = (TH1F *) file->Get(name+"_DeltaR");
    }
 
-  ~HDelta() {
+  ~HDelta() override {
     delete hEta_;
     delete hEtaSign_;
     delete hPhi_;
@@ -465,16 +466,16 @@ class HDelta : public Histograms
     delete hDeltaR_;
   }
   
-  virtual void Fill (const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2) {
+  void Fill (const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2) override {
     Fill (CLHEP::HepLorentzVector(p1.x(),p1.y(),p1.z(),p1.t()), 
 	  CLHEP::HepLorentzVector(p2.x(),p2.y(),p2.z(),p2.t()));
   }
 
-  virtual void Fill (const CLHEP::HepLorentzVector & p1, const reco::Particle::LorentzVector & p2) {
+  void Fill (const CLHEP::HepLorentzVector & p1, const reco::Particle::LorentzVector & p2) override {
     Fill (p1,CLHEP::HepLorentzVector(p2.x(),p2.y(),p2.z(),p2.t()));
   }
 
-  virtual void Fill (const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2) {
+  void Fill (const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2) override {
     hEta_->Fill(fabs( momentum1.eta()-momentum2.eta() ));
     hEtaSign_->Fill(momentum1.eta()-momentum2.eta());
     hPhi_->Fill(MuScleFitUtils::deltaPhi(momentum1.phi(),momentum2.phi()));
@@ -488,8 +489,8 @@ class HDelta : public Histograms
                         (MuScleFitUtils::deltaPhi(momentum1.phi(),momentum2.phi()))));
   }
   
-  virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+  void Write() override {
+    if(histoDir_ != nullptr) histoDir_->cd();
 
     hEta_->Write();
     hEtaSign_->Write();
@@ -499,7 +500,7 @@ class HDelta : public Histograms
     hDeltaR_->Write();
   }
   
-  virtual void Clear() {
+  void Clear() override {
     hEta_->Clear();
     hEtaSign_->Clear();
     hPhi_->Clear();
@@ -540,7 +541,7 @@ class HPartVSEta : public Histograms
                                      32, -3.2, 3.2, 0, 1. );
   }
 
-  ~HPartVSEta() {
+  ~HPartVSEta() override {
     delete hPtVSEta_;
     delete hMassVSEta_;
     delete hPtVSEta_prof_;
@@ -548,11 +549,11 @@ class HPartVSEta : public Histograms
     delete hCurvVSEta_prof_;
   }
 
-  virtual void Fill (const reco::Particle::LorentzVector & p4, const double & weight = 1.) {
+  void Fill (const reco::Particle::LorentzVector & p4, const double & weight = 1.) override {
     Fill (CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
   }
 
-  virtual void Fill (const CLHEP::HepLorentzVector & momentum, const double & weight = 1.) {
+  void Fill (const CLHEP::HepLorentzVector & momentum, const double & weight = 1.) override {
     hPtVSEta_->Fill(momentum.eta(),momentum.perp(), weight);
     hPtVSEta_prof_->Fill(momentum.eta(),momentum.perp(), weight);
 
@@ -561,7 +562,7 @@ class HPartVSEta : public Histograms
     hCurvVSEta_prof_->Fill(momentum.eta(),1/momentum.perp(), weight);
   }
     
-  virtual void Write() {
+  void Write() override {
     hPtVSEta_->Write();
     hPtVSEta_prof_->Write();
     hCurvVSEta_prof_->Write();
@@ -574,7 +575,7 @@ class HPartVSEta : public Histograms
     //     }
   }
 
-  virtual void Clear() {
+  void Clear() override {
     hPtVSEta_->Clear();
     hPtVSEta_prof_->Clear();
     hCurvVSEta_prof_->Clear();
@@ -626,7 +627,7 @@ class HPartVSPhi : public Histograms
                                      16, -3.2, 3.2, 0, 200);
   }
 
-  ~HPartVSPhi() {
+  ~HPartVSPhi() override {
     delete hPtVSPhi_;
     delete hMassVSPhi_;
     delete hMassVSPhi_prof_;
@@ -641,11 +642,11 @@ class HPartVSPhi : public Histograms
 //     delete hMassVSPhiF_;
   }
 
-  void Fill(const reco::Particle::LorentzVector & p4, const double & weight =1.) {
+  void Fill(const reco::Particle::LorentzVector & p4, const double & weight =1.) override {
     Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
   }
 
-  void Fill(const CLHEP::HepLorentzVector & momentum, const double & weight= 1.) {
+  void Fill(const CLHEP::HepLorentzVector & momentum, const double & weight= 1.) override {
     hPtVSPhi_->Fill(momentum.phi(),momentum.perp(), weight);
     hMassVSPhi_->Fill(momentum.phi(),momentum.m(), weight);
     hMassVSPhi_prof_->Fill(momentum.phi(),momentum.m(), weight);
@@ -660,7 +661,7 @@ class HPartVSPhi : public Histograms
 //     else if (momentum.eta()>1.2)                         hMassVSPhiF_->Fill(momentum.phi(),momentum.m(), weight);
   }
 
-  virtual void Write() {
+  void Write() override {
     hPtVSPhi_->Write();
     hMassVSPhi_->Write();
     hMassVSPhi_prof_->Write();
@@ -708,7 +709,7 @@ class HPartVSPhi : public Histograms
 //     }
   }
 
-  virtual void Clear() {
+  void Clear() override {
     hPtVSPhi_->Clear();
     hMassVSPhi_->Clear();
     hPtVSPhi_prof_->Clear();
@@ -752,21 +753,21 @@ class HPartVSPt : public Histograms
                                     12, -3, 3, 86, 116 );
   }
 
-  ~HPartVSPt(){
+  ~HPartVSPt() override{
     delete hMassVSPt_;
     delete hMassVSPt_prof_;
   }
 
-  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & weight = 1.) {
+  void Fill(const reco::Particle::LorentzVector & p4, const double & weight = 1.) override {
     Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
   }
 
-  virtual void Fill(const CLHEP::HepLorentzVector & momentum, const double & weight = 1.) {
+  void Fill(const CLHEP::HepLorentzVector & momentum, const double & weight = 1.) override {
     hMassVSPt_->Fill(momentum.eta(),momentum.m(), weight);
     hMassVSPt_prof_->Fill(momentum.eta(),momentum.m(), weight);    
   }
     
-  virtual void Write() {
+  void Write() override {
     hMassVSPt_->Write();
     hMassVSPt_prof_->Write();
    
@@ -776,7 +777,7 @@ class HPartVSPt : public Histograms
 //     }
   }
   
-  virtual void Clear() {
+  void Clear() override {
     hMassVSPt_->Clear();
     hMassVSPt_prof_->Clear();
   }
@@ -856,7 +857,7 @@ class HMassVSPart : public Histograms
     //hMassVSPhiMinus_prof = (TProfile *) file->Get(name+"_MassVSPhiMinus_prof");
   }
 
-  ~HMassVSPart(){
+  ~HMassVSPart() override{
     delete hMassVSPt_;
     delete hMassVSEta_;
     delete hMassVSPhiPlus_;
@@ -874,16 +875,16 @@ class HMassVSPart : public Histograms
     delete hMassVSCosThetaCS_prof;  
   }
 
-  virtual void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.)
+  void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.) override
   {
     Fill(CLHEP::HepLorentzVector(p41.x(),p41.y(),p41.z(),p41.t()),
 	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()), charge, weight);
   }
 
-  virtual void Fill(const reco::Particle::LorentzVector & p41,
+  void Fill(const reco::Particle::LorentzVector & p41,
 		    const reco::Particle::LorentzVector & p42,
 		    const reco::Particle::LorentzVector & p4Res,
-		    const double & weight = 1.)
+		    const double & weight = 1.) override
   {
     Fill(CLHEP::HepLorentzVector(p41.x(),p41.y(),p41.z(),p41.t()),
 	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()),
@@ -892,10 +893,10 @@ class HMassVSPart : public Histograms
   }
 
   /// Used to fill 2D histograms for comparison of opposite charge muons quantities
-  virtual void Fill(const CLHEP::HepLorentzVector & momentum1,
+  void Fill(const CLHEP::HepLorentzVector & momentum1,
 		    const CLHEP::HepLorentzVector & momentum2,
 		    const CLHEP::HepLorentzVector & momentumRes,
-		    const double & weight = 1.)
+		    const double & weight = 1.) override
   {
 
     /************************************************************************
@@ -907,8 +908,8 @@ class HMassVSPart : public Histograms
     
     double costhetaCS, phiCS;
 
-    CLHEP::HepLorentzVector mu= momentum1;
-    CLHEP::HepLorentzVector mubar= momentum2;    
+    const CLHEP::HepLorentzVector& mu= momentum1;
+    const CLHEP::HepLorentzVector& mubar= momentum2;    
     CLHEP::HepLorentzVector Q(mu+mubar);
     double muplus  = 1.0/sqrt(2.0) * (mu.e() + mu.z());
     double muminus = 1.0/sqrt(2.0) * (mu.e() - mu.z());
@@ -957,7 +958,7 @@ class HMassVSPart : public Histograms
     hMassVSEtaPlusMinusDiff_->Fill( (momentum1.eta()-momentum2.eta()), momentumRes.m(), weight);
   }
   
-  virtual void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.)
+  void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) override
   {
      hMassVSPt_->Fill(momentum1.perp(),momentum2.m(), weight); 
      //hMassVSPt_prof_->Fill(momentum1.perp(),momentum2.m()); 
@@ -982,7 +983,7 @@ class HMassVSPart : public Histograms
      }
    }
 
-  virtual void Write() {
+  void Write() override {
     hMassVSPt_->Write();
     hMassVSEta_->Write();
     hMassVSPhiPlus_->Write();
@@ -1008,7 +1009,7 @@ class HMassVSPart : public Histograms
     //hMassVSPhiMinus_prof_->Write();
   }
 
-  virtual void Clear() {
+  void Clear() override {
     hMassVSPt_->Clear();
     hMassVSEta_->Clear();    
     hMassVSPhiPlus_->Clear();
@@ -1085,19 +1086,19 @@ class HMassVSPartProfile : public Histograms
     hMassVSPhiMinus_ = (TProfile2D *) file->Get(name+"_MassVSPhiMinus");
   }
 
-  ~HMassVSPartProfile(){
+  ~HMassVSPartProfile() override{
     delete hMassVSPt_;
     delete hMassVSEta_;
     delete hMassVSPhiPlus_;
     delete hMassVSPhiMinus_;
   }
 
-  virtual void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.) {
+  void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.) override {
     Fill(CLHEP::HepLorentzVector(p41.x(),p41.y(),p41.z(),p41.t()),
 	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()), charge, weight);
   }
   
-  virtual void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) { 
+  void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) override { 
     hMassVSPt_->Fill(momentum1.perp(),momentum2.m(), weight); 
     hMassVSEta_->Fill(momentum1.eta(),momentum2.m(), weight); 
     if(charge>0){
@@ -1112,14 +1113,14 @@ class HMassVSPartProfile : public Histograms
     }
   }
 
-  virtual void Write() {
+  void Write() override {
     hMassVSPt_->Write();
     hMassVSEta_->Write();
     hMassVSPhiPlus_->Write();
     hMassVSPhiMinus_->Write();
   }
 
-  virtual void Clear() {
+  void Clear() override {
     hMassVSPt_->Clear();
     hMassVSEta_->Clear();    
     hMassVSPhiPlus_->Clear();
@@ -1218,7 +1219,7 @@ class HResolutionVSPart : public Histograms
     }
   }
 
-  ~HResolutionVSPart() {
+  ~HResolutionVSPart() override {
     delete hReso_;
     delete hResoVSPtEta_;
     delete hResoVSPt_;
@@ -1247,7 +1248,7 @@ class HResolutionVSPart : public Histograms
     }
   }
 
-  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) { 
+  void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) override { 
     double pt = p4.Pt();
     double eta = p4.Eta();
     hReso_->Fill(resValue);
@@ -1292,8 +1293,8 @@ class HResolutionVSPart : public Histograms
     }
   }
 
-  virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+  void Write() override {
+    if(histoDir_ != nullptr) histoDir_->cd();
 
     hReso_->Write();
     hResoVSPtEta_->Write();
@@ -1323,7 +1324,7 @@ class HResolutionVSPart : public Histograms
     }
   }
   
-  virtual void Clear() {
+  void Clear() override {
     hReso_->Clear();
     hResoVSPtEta_->Clear();
     hResoVSPt_->Clear();
@@ -1409,7 +1410,7 @@ class HLikelihoodVSPart : public Histograms
     hLikeVSPhi_prof_ = (TProfile *) file->Get(name+"_LikelihoodVSPhi_prof");
   }
 
-  ~HLikelihoodVSPart(){
+  ~HLikelihoodVSPart() override{
     delete hLikeVSPt_;
     delete hLikeVSEta_;
     delete hLikeVSPhi_;
@@ -1418,7 +1419,7 @@ class HLikelihoodVSPart : public Histograms
     delete hLikeVSPhi_prof_;
   } 
 
-  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & likeValue) {
+  void Fill(const reco::Particle::LorentzVector & p4, const double & likeValue) override {
     Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), likeValue);
   }
   
@@ -1431,7 +1432,7 @@ class HLikelihoodVSPart : public Histograms
      hLikeVSPhi_prof_->Fill(momentum.phi(),likeValue); 
    } 
   
-  virtual void Write() {
+  void Write() override {
     hLikeVSPt_->Write();
     hLikeVSEta_->Write();    
     hLikeVSPhi_->Write();
@@ -1440,7 +1441,7 @@ class HLikelihoodVSPart : public Histograms
     hLikeVSPhi_prof_->Write();
   }
   
-  virtual void Clear() {
+  void Clear() override {
     hLikeVSPt_->Reset("ICE");
     hLikeVSEta_->Reset("ICE");
     hLikeVSPhi_->Reset("ICE");
@@ -1505,7 +1506,7 @@ class HFunctionResolution : public Histograms
     hResoVSPhiMinus_prof_ = new TProfile( name+"_ResoVSPhiMinus_prof", "resolution VS phi mu-", 16, -3.2, 3.2, 0, 1);
     hResoVSPhi_prof_      = new TProfile( name+"_ResoVSPhi_prof", "resolution VS phi", 16, -3.2, 3.2, -1, 1);
   }
-  ~HFunctionResolution() {
+  ~HFunctionResolution() override {
     delete hReso_;
     delete hResoVSPtEta_;
     // Free the resolution arrays
@@ -1528,7 +1529,7 @@ class HFunctionResolution : public Histograms
     delete hResoVSPhiMinus_prof_;
     delete hResoVSPhi_prof_;
   }
-  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) {
+  void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) override {
     if( resValue != resValue ) return;
     hReso_->Fill(resValue);
 
@@ -1569,8 +1570,8 @@ class HFunctionResolution : public Histograms
     }
   }
 
-  virtual void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+  void Write() override {
+    if(histoDir_ != nullptr) histoDir_->cd();
 
     hReso_->Write();
 
@@ -1608,7 +1609,7 @@ class HFunctionResolution : public Histograms
     outputFile_->cd();
   }
   
-  virtual void Clear() {
+  void Clear() override {
     hReso_->Clear();
     hResoVSPtEta_->Clear();
     hResoVSPt_prof_->Clear();
@@ -1669,7 +1670,7 @@ public:
       }
     }
   }
-  ~HFunctionResolutionVarianceCheck() {
+  ~HFunctionResolutionVarianceCheck() override {
     for( int i=0; i<totBinsX_; ++i ) {
       for( int j=0; j<totBinsY_; ++j ) {
         delete histoVarianceCheck_[i][j];
@@ -1678,7 +1679,7 @@ public:
     }
     delete[] histoVarianceCheck_;
   }
-  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) {
+  void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) override {
     if( resValue != resValue ) return;
     // Need to convert the (x,y) values to the array indeces
     int xIndex = getXindex(p4.Pt());
@@ -1690,8 +1691,8 @@ public:
     // Call also the fill of the base class
     HFunctionResolution::Fill( p4, resValue, charge );
   }
-  void Write() {
-    if(histoDir_ != 0) histoDir_->cd();
+  void Write() override {
+    if(histoDir_ != nullptr) histoDir_->cd();
     for( int xBin=0; xBin<totBinsX_; ++xBin ) {
       for( int yBin=0; yBin<totBinsY_; ++yBin ) {
         histoVarianceCheck_[xBin][yBin]->Write();
@@ -1715,32 +1716,32 @@ class HResolution : public TH1F {
 public:
   HResolution( const TString & name, const TString & title,
                const int totBins, const double & xMin, const double & xMax,
-               const double & yMin, const double & yMax, TDirectory * dir = 0) :
+               const double & yMin, const double & yMax, TDirectory * dir = nullptr) :
     dir_(dir),
-    dir2D_(0),
-    diffDir_(0)
+    dir2D_(nullptr),
+    diffDir_(nullptr)
   {
-    if( dir_ != 0 ) {
+    if( dir_ != nullptr ) {
       dir2D_ = (TDirectory*) dir_->Get("2D");
-      if(dir2D_ == 0) dir2D_ = dir_->mkdir("2D");
+      if(dir2D_ == nullptr) dir2D_ = dir_->mkdir("2D");
       diffDir_ = (TDirectory*) dir_->Get("deltaXoverX");
-      if(diffDir_ == 0) diffDir_ = dir->mkdir("deltaXoverX");
+      if(diffDir_ == nullptr) diffDir_ = dir->mkdir("deltaXoverX");
     }
     diffHisto_ = new TProfile(name+"_prof", title+" profile", totBins, xMin, xMax, yMin, yMax);
     histo2D_ = new TH2F(name+"2D", title, totBins, xMin, xMax, 4000, yMin, yMax);
     resoHisto_ = new TH1F(name, title, totBins, xMin, xMax);
   }
-  ~HResolution() {
+  ~HResolution() override {
     delete diffHisto_;
     delete histo2D_;
     delete resoHisto_;
   }
-  virtual Int_t Fill( Double_t x, Double_t y ) {
+  Int_t Fill( Double_t x, Double_t y ) override {
     diffHisto_->Fill(x, y);
     histo2D_->Fill(x, y);
     return 0;
   }
-  virtual Int_t	Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0) {
+  Int_t	Write(const char* name = nullptr, Int_t option = 0, Int_t bufsize = 0) override {
     // Loop on all the bins and take the rms.
     // The TProfile bin error is by default the standard error on the mean, that is
     // rms/sqrt(N). If it is created with the "S" option (as we did NOT do), it would
@@ -1753,11 +1754,11 @@ public:
       // std::cout << "iBin = " << iBin << ", " << diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) << std::endl;
       resoHisto_->SetBinContent( iBin, diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) );
     }
-    if( dir_ != 0 ) dir_->cd();
+    if( dir_ != nullptr ) dir_->cd();
     resoHisto_->Write();
-    if( diffDir_ != 0 ) diffDir_->cd();
+    if( diffDir_ != nullptr ) diffDir_->cd();
     diffHisto_->Write();
-    if( dir2D_ != 0 ) dir2D_->cd();
+    if( dir2D_ != nullptr ) dir2D_->cd();
     histo2D_->Write();
 
     return 0;
@@ -1820,7 +1821,7 @@ class HCovarianceVSxy : public Histograms
   HCovarianceVSxy( const TString & name, const TString & title,
                    const int totBinsX, const double & xMin, const double & xMax,
                    const int totBinsY, const double & yMin, const double & yMax,
-                   TDirectory * dir = 0, bool varianceCheck = false ) :
+                   TDirectory * dir = nullptr, bool varianceCheck = false ) :
     totBinsX_(totBinsX), totBinsY_(totBinsY),
     xMin_(xMin), deltaX_(xMax-xMin), yMin_(yMin), deltaY_(yMax-yMin),
     readMode_(false),
@@ -1853,7 +1854,7 @@ class HCovarianceVSxy : public Histograms
     readMode_(true)
   {
     histoDir_ = (TDirectory*)(inputFile->Get(dirName.Data()));
-    if( histoDir_ == 0 ) {
+    if( histoDir_ == nullptr ) {
       std::cout << "Error: directory not found" << std::endl;
       exit(0);
     }
@@ -1866,7 +1867,7 @@ class HCovarianceVSxy : public Histograms
     deltaY_ = histoCovariance_->GetYaxis()->GetBinUpEdge(totBinsY_) - yMin_;
   }
 
-  ~HCovarianceVSxy() {
+  ~HCovarianceVSxy() override {
     delete histoCovariance_;
     // Free covariances
     for(int i=0; i<totBinsX_; ++i) {
@@ -1889,7 +1890,7 @@ class HCovarianceVSxy : public Histograms
    * x and y should be the variables VS which we are computing the covariance (pt and eta)
    * a and b should be the variables OF which we are computing the covariance </br>
    */
-  virtual void Fill( const double & x, const double & y, const double & a, const double & b ) {
+  void Fill( const double & x, const double & y, const double & a, const double & b ) override {
     // Need to convert the (x,y) values to the array indeces
     int xIndex = getXindex(x);
     int yIndex = getYindex(y);
@@ -1914,7 +1915,7 @@ class HCovarianceVSxy : public Histograms
     return histoCovariance_->GetBinContent(xIndex+1, yIndex+1);
   }
 
-  void Write() {
+  void Write() override {
     if( !readMode_ ) {
       std::cout << "writing: " << histoCovariance_->GetName() << std::endl;
       for( int xBin=0; xBin<totBinsX_; ++xBin ) {
@@ -1925,7 +1926,7 @@ class HCovarianceVSxy : public Histograms
           histoCovariance_->SetBinContent(xBin+1, yBin+1, covariance);
         }
       }
-      if( histoDir_ != 0 ) histoDir_->cd();
+      if( histoDir_ != nullptr ) histoDir_->cd();
       TCanvas canvas(TString(histoCovariance_->GetName())+"_canvas", TString(histoCovariance_->GetTitle())+" canvas", 1000, 800);
       canvas.Divide(2);
       canvas.cd(1);
@@ -1935,11 +1936,11 @@ class HCovarianceVSxy : public Histograms
       canvas.Write();
       histoCovariance_->Write();
 
-      TDirectory * binsDir = 0;
+      TDirectory * binsDir = nullptr;
       if( varianceCheck_ ) {
-        if ( histoDir_ != 0 ) {
+        if ( histoDir_ != nullptr ) {
           histoDir_->cd();
-          if( binsDir == 0 ) binsDir = histoDir_->mkdir(name_+"Bins");
+          if( binsDir == nullptr ) binsDir = histoDir_->mkdir(name_+"Bins");
           binsDir->cd();
         }
         for( int xBin=0; xBin<totBinsX_; ++xBin ) {
@@ -1950,7 +1951,7 @@ class HCovarianceVSxy : public Histograms
       }
     }
   }
-  void Clear() {
+  void Clear() override {
     histoCovariance_->Clear();
     if( varianceCheck_ ) {
       for( int i=0; i<totBinsX_; ++i ) {
@@ -2031,21 +2032,21 @@ class HCovarianceVSParts : public Histograms
     mapHisto_[name_+"CotgTheta12-Phi21"]     = new HCovarianceVSxy(inputFile, name_+"CotgTheta12_Phi21_"+name_, name_);
   }
 
-  ~HCovarianceVSParts() {
+  ~HCovarianceVSParts() override {
     for (std::map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
       delete (*histo).second;
     }
   }
 
-  virtual double Get( const reco::Particle::LorentzVector & recoP1, const TString & covarianceName ) {
+  double Get( const reco::Particle::LorentzVector & recoP1, const TString & covarianceName ) override {
     return mapHisto_[name_+covarianceName]->Get(recoP1.pt(), recoP1.eta());
   }
 
-  virtual void Fill( const reco::Particle::LorentzVector & recoP1,
+  void Fill( const reco::Particle::LorentzVector & recoP1,
                      const reco::Particle::LorentzVector & genP1,
                      const reco::Particle::LorentzVector & recoP2,
-                     const reco::Particle::LorentzVector & genP2 ) {
+                     const reco::Particle::LorentzVector & genP2 ) override {
 
     double pt1 = recoP1.pt();
     double eta1 = recoP1.eta();
@@ -2111,7 +2112,7 @@ class HCovarianceVSParts : public Histograms
     mapHisto_[name_+"CotgTheta12-Phi21"]->Fill(pt1, eta1, diffCotgTheta1, diffPhi2);
     mapHisto_[name_+"CotgTheta12-Phi21"]->Fill(pt2, eta2, diffCotgTheta2, diffPhi1);
   }
-  virtual void Write() {
+  void Write() override {
     if( !readMode_ ) {
       histoDir_->cd();
       for (std::map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
@@ -2120,7 +2121,7 @@ class HCovarianceVSParts : public Histograms
       }
     }
   }
-  virtual void Clear() {
+  void Clear() override {
     for (std::map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
       (*histo).second->Clear();
@@ -2165,29 +2166,29 @@ class HMassResolutionVSPart : public Histograms
     muPlus.reset( new HDelta("muPlus") );
   }
 
-  ~HMassResolutionVSPart(){
+  ~HMassResolutionVSPart() override{
     for (std::map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
       delete (*histo).second;
     }
   }
 
-  virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
+  void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
                      const reco::Particle::LorentzVector & genP1,
                      const reco::Particle::LorentzVector & recoP2, const int charge2,
                      const reco::Particle::LorentzVector & genP2,
-                     const double & recoMass, const double & genMass ) {
+                     const double & recoMass, const double & genMass ) override {
     muMinus->Fill(recoP1, genP1);
     muPlus->Fill(recoP2, genP2);
 
     Fill( recoP1, charge1, recoP2, charge2, recoMass, genMass );
   }
 
-  virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
+  void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
                      // const reco::Particle::LorentzVector & genP1,
                      const reco::Particle::LorentzVector & recoP2, const int charge2,
                      // const reco::Particle::LorentzVector & genP2,
-                     const double & recoMass, const double & genMass ) {
+                     const double & recoMass, const double & genMass ) override {
 
     if ( charge1 == charge2 ) std::cout << "Error: must get two opposite charge particles" << std::endl;
 
@@ -2231,7 +2232,7 @@ class HMassResolutionVSPart : public Histograms
     }
   } 
 
-  virtual void Write() {
+  void Write() override {
     histoDir_->cd();
     for (std::map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
@@ -2243,7 +2244,7 @@ class HMassResolutionVSPart : public Histograms
     muPlus->Write();
   }
   
-  virtual void Clear() {
+  void Clear() override {
     for (std::map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
       (*histo).second->Clear();
@@ -2253,7 +2254,7 @@ class HMassResolutionVSPart : public Histograms
   }
 
 //   HMassResolutionVSPart(const TString & name, TFile* file){
-//     string nameSuffix[] = {"Plus", "Minus"};
+//     TString nameSuffix[] = {"Plus", "Minus"};
 //     name_ = name;
 //     hReso                    = (TH1F *)     file->Get(name+"_Reso");
 //     hResoVSPairPt            = (TH2F *)     file->Get(name+"_ResoVSPairPt");

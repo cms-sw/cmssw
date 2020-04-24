@@ -50,43 +50,43 @@ namespace pat {
       /// constructor from ref to Candidate
       GenericParticle(const edm::Ptr<reco::Candidate> & aGenericParticleRef);
       /// destructor
-      virtual ~GenericParticle();
+      ~GenericParticle() override;
 
       /// required reimplementation of the Candidate's clone method
-      virtual GenericParticle * clone() const { return new GenericParticle(*this); }
+      GenericParticle * clone() const override { return new GenericParticle(*this); }
 
       /// Checks for overlap with another candidate. 
       /// It will return 'true' if the other candidate is a RecoCandidate, 
       /// and if they reference to at least one same non null track, supercluster or calotower (except for the multiple tracks)
       /// NOTE: It won't work with embedded references
-      virtual bool overlap( const Candidate & ) const ;
+      bool overlap( const Candidate & ) const override ;
 
       /// reference to a master track (might be transient refs if Tracks are embedded)
       /// returns null ref if there is no master track
-      virtual reco::TrackRef track() const    { return track_.empty() ? trackRef_ : reco::TrackRef(&track_, 0); }
+      reco::TrackRef track() const override    { return track_.empty() ? trackRef_ : reco::TrackRef(&track_, 0); }
       /// reference to one of a set of multiple tracks (might be transient refs if Tracks are embedded)
       /// throws exception if idx >= numberOfTracks()
-      virtual reco::TrackRef track( size_t idx ) const {  
+      reco::TrackRef track( size_t idx ) const override {  
             if (idx >= numberOfTracks()) throw cms::Exception("Index out of bounds") << "Requested track " << idx << " out of " << numberOfTracks() << ".\n";
             return (tracks_.empty() ? trackRefs_[idx] : reco::TrackRef(&tracks_, idx) );
       }
       /// number of multiple tracks (not including the master one)
-      virtual size_t numberOfTracks() const { return tracks_.empty() ? trackRefs_.size() : tracks_.size(); }
+      size_t numberOfTracks() const override { return tracks_.empty() ? trackRefs_.size() : tracks_.size(); }
       /// reference to a GsfTrack (might be transient ref if SuperCluster is embedded)
       /// returns null ref if there is no gsf track
-      virtual reco::GsfTrackRef gsfTrack() const    { return (gsfTrack_.empty() ? gsfTrackRef_ : reco::GsfTrackRef(&gsfTrack_, 0)); }
+      reco::GsfTrackRef gsfTrack() const override    { return (gsfTrack_.empty() ? gsfTrackRef_ : reco::GsfTrackRef(&gsfTrack_, 0)); }
       /// reference to a stand-alone muon Track (might be transient ref if SuperCluster is embedded)
       /// returns null ref if there is no stand-alone muon track
-      virtual reco::TrackRef standAloneMuon() const { return (standaloneTrack_.empty() ? standaloneTrackRef_ : reco::TrackRef(&standaloneTrack_, 0)); }
+      reco::TrackRef standAloneMuon() const override { return (standaloneTrack_.empty() ? standaloneTrackRef_ : reco::TrackRef(&standaloneTrack_, 0)); }
       /// reference to a combined muon Track (might be transient ref if SuperCluster is embedded)
       /// returns null ref if there is no combined muon track
-      virtual reco::TrackRef combinedMuon()   const { return (combinedTrack_.empty() ? combinedTrackRef_ : reco::TrackRef(&combinedTrack_, 0)); }
+      reco::TrackRef combinedMuon()   const override { return (combinedTrack_.empty() ? combinedTrackRef_ : reco::TrackRef(&combinedTrack_, 0)); }
       /// reference to a SuperCluster (might be transient ref if SuperCluster is embedded)
       /// returns null ref if there is no supercluster
-      virtual reco::SuperClusterRef superCluster() const { return superCluster_.empty() ? superClusterRef_ : reco::SuperClusterRef(&superCluster_, 0); }
+      reco::SuperClusterRef superCluster() const override { return superCluster_.empty() ? superClusterRef_ : reco::SuperClusterRef(&superCluster_, 0); }
       /// reference to a CaloTower  (might be transient ref if CaloTower is embedded)
       /// returns null ref if there is no calotower
-      virtual CaloTowerRef caloTower() const { return caloTower_.empty() ? caloTowerRef_ : CaloTowerRef(&caloTower_, 0); }
+      CaloTowerRef caloTower() const override { return caloTower_.empty() ? caloTowerRef_ : CaloTowerRef(&caloTower_, 0); }
 
       /// sets master track reference (or even embed it into the object)
       virtual void setTrack(const reco::TrackRef &ref, bool embed=false) ;
@@ -220,7 +220,7 @@ namespace pat {
           {
               if (it->first == key) return & it->second;
           }
-          return 0;
+          return nullptr;
       } 
 
       /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
@@ -245,7 +245,7 @@ namespace pat {
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
       /// Vertex association (or associations, if any). Return null pointer if none has been set
-      const pat::VertexAssociation              * vertexAssociation(size_t index=0) const { return vtxAss_.size() > index ? & vtxAss_[index] : 0; }
+      const pat::VertexAssociation              * vertexAssociation(size_t index=0) const { return vtxAss_.size() > index ? & vtxAss_[index] : nullptr; }
       /// Vertex associations. Can be empty if it was not enabled in the config file
       const std::vector<pat::VertexAssociation> & vertexAssociations()              const { return vtxAss_; }
       /// Set a single vertex association

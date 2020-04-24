@@ -219,8 +219,7 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
 Digi2Raw2Digi::Digi2Raw2Digi(const edm::ParameterSet& iConfig)
   : inputTag1_(iConfig.getParameter<edm::InputTag>("digiLabel1")),
     inputTag2_(iConfig.getParameter<edm::InputTag>("digiLabel2")),
-    outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile")),
-    dbe_(0)
+    outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile"))
 {
 
   // register for data access
@@ -244,25 +243,23 @@ Digi2Raw2Digi::Digi2Raw2Digi(const edm::ParameterSet& iConfig)
       << " Hcal RecHit Task histograms will NOT be saved";
   }
 
-  // DQM service initialization
-  dbe_ = edm::Service<DQMStore>().operator->();
    
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("Digi2Raw2DigiV/Digi2Raw2DigiTask");
-  }
+}
+
+void Digi2Raw2Digi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &run, edm::EventSetup const &es )
+{
+
+  ibooker.setCurrentFolder("Digi2Raw2DigiV/Digi2Raw2DigiTask");
+ 
 
   // const char * sub = hcalselector_.c_str();
   char histo[100];
+
   sprintf (histo, "Digi2Raw2Digi_status") ;
   // bins: 1)full match 2)ID match, not content 3) no match 
   // 4) number of events with diff number of Digis
-  meStatus    = dbe_->book1D(histo, histo, 5, 0., 5.);
+  meStatus    = ibooker.book1D(histo, histo, 5, 0., 5.);
 
-}
-
-void Digi2Raw2Digi::beginJob() {}
-void Digi2Raw2Digi::endJob() {
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 Digi2Raw2Digi::~Digi2Raw2Digi() {}

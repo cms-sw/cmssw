@@ -9,7 +9,8 @@
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/not.hpp>
 #include <boost/mpl/int.hpp>
- 
+#include <boost/mpl/if.hpp>
+
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
 
 namespace funct {

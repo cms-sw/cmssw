@@ -16,7 +16,7 @@ ForwardDiskSectorBuilderFromWedges::operator()( const vector<const TECWedge*>& w
   float wphimin, wphimax;
   for (vector<const TECWedge*>::const_iterator i = wedges.begin(); i != wedges.end(); i++){
     float zdiff = (**i).surface().position().z() - zStart;
-    if ( fabs( zdiff) > 5.) 
+    if ( std::abs( zdiff) > 5.) 
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromWedges: Trying to build " 
 				   << "Petal from Wedges at different z ! Delta Z = " << zdiff ;
     float wphi = (**i).surface().position().phi();

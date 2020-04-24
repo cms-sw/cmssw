@@ -34,8 +34,12 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+
+
 EcalUncalibRecHitWorkerAnalFit::EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerBaseClass( ps ,c)
+  EcalUncalibRecHitWorkerRunOneDigiBase( ps ,c)
 {
 }
 
@@ -114,7 +118,7 @@ EcalUncalibRecHitWorkerAnalFit::run( const edm::Event& evt,
         gainRatios[2] = aGain.gain6Over1()*aGain.gain12Over6();
 
         if ( detid.subdetId() == EcalBarrel ) {
-                EcalUncalibratedRecHit aHit = algoEB_.makeRecHit(*itdg, pedVec, gainRatios, 0 ,0);
+                EcalUncalibratedRecHit aHit = algoEB_.makeRecHit(*itdg, pedVec, gainRatios, nullptr ,nullptr);
                 result.push_back( aHit );
                 if(aHit.amplitude()>0.) {
                         LogDebug("EcalUncalibRecHitInfo") << "EcalUncalibRecHitWorkerAnalFit: processed EBDataFrame with id: "
@@ -122,7 +126,7 @@ EcalUncalibRecHitWorkerAnalFit::run( const edm::Event& evt,
                                 << "\n" << "uncalib rechit amplitude: " << aHit.amplitude();
                 }
         } else {
-                EcalUncalibratedRecHit aHit = algoEE_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
+                EcalUncalibratedRecHit aHit = algoEE_.makeRecHit(*itdg, pedVec, gainRatios, nullptr, nullptr);
                 result.push_back( aHit );
                 if(aHit.amplitude()>0.) {
                         LogDebug("EcalUncalibRecHitInfo") << "EcalUncalibRecHitWorkerAnalFit: processed EEDataFrame with id: "
@@ -133,6 +137,21 @@ EcalUncalibRecHitWorkerAnalFit::run( const edm::Event& evt,
         return true;
 }
 
+edm::ParameterSetDescription
+EcalUncalibRecHitWorkerAnalFit::getAlgoDescription() {
+
+  edm::ParameterSetDescription psd;
+//psd.addNode(edm::ParameterSet<edm::InputTag>("EBdigiCollection", edm::InputTag("ecalDigis","ebDigis")) and
+//	       edm::ParameterSet<std::string>("EEhitCollection", "EcalUncalibRecHitsEE") and
+//	       edm::ParameterSet<edm::InputTag>("EEdigiCollection", edm::InputTag("ecalDigis","eeDigis")) and
+//	       edm::ParameterSet<std::string>("algo", "EcalUncalibRecHitWorkerAnalFit") and
+//	       edm::ParameterSet<std::string>("EBhitCollection", "EcalUncalibRecHitsEB"));
+//
+  return psd;
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
 DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerAnalFit, "EcalUncalibRecHitWorkerAnalFit" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitFillDescriptionWorkerFactory.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitFillDescriptionWorkerFactory, EcalUncalibRecHitWorkerAnalFit, "EcalUncalibRecHitWorkerAnalFit" );

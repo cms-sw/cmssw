@@ -1,13 +1,10 @@
 #include "DetectorDescription/Core/interface/DDString.h"
-//#include "DetectorDescription/Base/interface/DDException.h"
 
-// Evaluator 
-//#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include <utility>
 
-
+#include "DetectorDescription/Core/interface/Store.h"
 
 DDString::DDString() : DDBase<DDName,std::string*>() { }
-
 
 DDString::DDString(const DDName & name) : DDBase<DDName,std::string*>() 
 {
@@ -18,7 +15,6 @@ DDString::DDString(const DDName & name,std::string* vals)
 {
   prep_ = StoreT::instance().create(name,vals);
 }  
-
 
 std::ostream & operator<<(std::ostream & os, const DDString & cons)
 {
@@ -32,5 +28,3 @@ std::ostream & operator<<(std::ostream & os, const DDString & cons)
   }  
   return os;
 }
-
-

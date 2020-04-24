@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -47,7 +49,7 @@ public:
     L1GtCaloTemplate( const L1GtCaloTemplate& );
 
     // destructor
-    virtual ~L1GtCaloTemplate();
+    ~L1GtCaloTemplate() override;
 
     // assign operator
     L1GtCaloTemplate& operator= (const L1GtCaloTemplate&);
@@ -60,7 +62,9 @@ public:
         unsigned int etThreshold;
         unsigned int etaRange;
         unsigned int phiRange;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
     /// typedef for correlation parameters
     struct CorrelationParameter
@@ -69,7 +73,9 @@ public:
 
         unsigned long long deltaPhiRange;
         unsigned int deltaPhiMaxbits;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 
 public:
@@ -91,7 +97,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtCaloTemplate&);
@@ -108,6 +114,8 @@ protected:
     std::vector<ObjectParameter> m_objectParameter;
     CorrelationParameter m_correlationParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

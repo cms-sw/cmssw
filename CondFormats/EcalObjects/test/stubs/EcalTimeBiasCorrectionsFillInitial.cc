@@ -16,6 +16,12 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/External/interface/EcalDetID.h"
+#include "CondFormats/External/interface/SMatrix.h"
+#include "CondFormats/External/interface/Timestamp.h"
+
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -27,7 +33,6 @@ class EcalTimeBiasCorrectionsFillInitial : public edm::EDAnalyzer {
   ~EcalTimeBiasCorrectionsFillInitial();
 
   void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob(const edm::EventSetup &);
   void endJob();
 
  private:
@@ -78,8 +83,6 @@ EcalTimeBiasCorrectionsFillInitial::EcalTimeBiasCorrectionsFillInitial(
 
 EcalTimeBiasCorrectionsFillInitial::~EcalTimeBiasCorrectionsFillInitial() {}
 
-void EcalTimeBiasCorrectionsFillInitial::beginJob(
-    const edm::EventSetup &iSetup) {}
 void EcalTimeBiasCorrectionsFillInitial::analyze(
     const edm::Event &iEvent, const edm::EventSetup &iSetup) {}
 void EcalTimeBiasCorrectionsFillInitial::endJob() {

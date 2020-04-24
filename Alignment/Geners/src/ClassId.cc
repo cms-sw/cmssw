@@ -102,7 +102,7 @@ namespace gs {
     bool ClassId::validatePrefix(const char* prefix)
     {
         // Prefix can not be an empty string
-        if (prefix == NULL)
+        if (prefix == nullptr)
             return false;
         const unsigned len = strlen(prefix);
         if (len == 0)

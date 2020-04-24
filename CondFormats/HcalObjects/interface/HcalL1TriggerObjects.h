@@ -2,6 +2,8 @@
 #define HcalL1TriggerObjects_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <cstring>
 #include <string>
 
@@ -13,7 +15,7 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
- HcalL1TriggerObjects():HcalCondObjectContainer<HcalL1TriggerObject>(0) { }
+ HcalL1TriggerObjects():HcalCondObjectContainer<HcalL1TriggerObject>(nullptr) { }
 #endif
   HcalL1TriggerObjects(const HcalTopology* topo):HcalCondObjectContainer<HcalL1TriggerObject>(topo) {}
 
@@ -24,11 +26,13 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
   std::string getTagString() const {return (std::string)mTag;}
   std::string getAlgoString() const {return (std::string)mAlgo;}
 
-  std::string myname() const {return (std::string)"HcalL1TriggerObjects";}
+  std::string myname() const override {return (std::string)"HcalL1TriggerObjects";}
 
  private:
   char mTag[128];
   char mAlgo[128];
 
+
+ COND_SERIALIZABLE;
 };
 #endif

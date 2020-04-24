@@ -33,6 +33,7 @@ class DTSegmentExtendedCand;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 /* ====================================================================== */
 
@@ -46,21 +47,21 @@ class DTCombinatorialExtendedPatternReco : private DTRecSegment2DBaseAlgo {
     DTCombinatorialExtendedPatternReco(const edm::ParameterSet& pset) ;
 
     /// Destructor
-    virtual ~DTCombinatorialExtendedPatternReco() ;
+    ~DTCombinatorialExtendedPatternReco() override ;
 
     /* Operations */
 
     /// this function is called in the producer
-    virtual edm::OwnVector<DTSLRecSegment2D>
+    edm::OwnVector<DTSLRecSegment2D>
       reconstruct(const DTSuperLayer* sl,
-                  const std::vector<DTRecHit1DPair>& hits);
+                  const std::vector<DTRecHit1DPair>& hits) override;
 
     /// return the algo name
-    virtual std::string algoName() const { return theAlgoName; }
+    std::string algoName() const override { return theAlgoName; }
 
     /// Through this function the EventSetup is percolated to the
     /// objs which request it
-    virtual void setES(const edm::EventSetup& setup);
+    void setES(const edm::EventSetup& setup) override;
 
     // pass clusters to algo
     void setClusters(const std::vector<DTSLRecCluster>& clusters);
@@ -68,23 +69,22 @@ class DTCombinatorialExtendedPatternReco : private DTRecSegment2DBaseAlgo {
   protected:
 
   private:
-    typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
 
     // create the DTHitPairForFit from the pairs for easy use
-    std::vector<DTHitPairForFit*> initHits(const DTSuperLayer* sl,
+    std::vector<std::shared_ptr<DTHitPairForFit>> initHits(const DTSuperLayer* sl,
                                            const std::vector<DTRecHit1DPair>& hits);
 
     // search for candidate, starting from pairs of hits in different layers
     std::vector<DTSegmentCand*> buildSegments(const DTSuperLayer* sl,
-                                              const std::vector<DTHitPairForFit*>& hits);
+                                              const std::vector<std::shared_ptr<DTHitPairForFit>>& hits);
 
     // find all the hits compatible with the candidate
-    std::vector<AssPoint> findCompatibleHits(const LocalPoint& pos,
+    std::vector<DTSegmentCand::AssPoint> findCompatibleHits(const LocalPoint& pos,
                                              const LocalVector& dir,
-                                             const std::vector<DTHitPairForFit*>& hits);
+                                             const std::vector<std::shared_ptr<DTHitPairForFit>>& hits);
 
     // build segments from hits collection
-    DTSegmentExtendedCand* buildBestSegment(std::vector<AssPoint>& assHits,
+    DTSegmentExtendedCand* buildBestSegment(std::vector<DTSegmentCand::AssPoint>& assHits,
                                             const DTSuperLayer* sl) ;
 
     bool checkDoubleCandidates(std::vector<DTSegmentCand*>& segs,
@@ -92,8 +92,8 @@ class DTCombinatorialExtendedPatternReco : private DTRecSegment2DBaseAlgo {
 
     /** build collection of compatible hits for L/R hits: the candidates is
      * updated with the segment candidates found */
-    void buildPointsCollection(std::vector<AssPoint>& points, 
-                               std::deque<DTHitPairForFit* >& pointsNoLR,
+    void buildPointsCollection(std::vector<DTSegmentCand::AssPoint>& points, 
+                               std::deque<std::shared_ptr<DTHitPairForFit>>& pointsNoLR,
                                std::vector<DTSegmentCand*>& candidates,
                                const DTSuperLayer* sl);
 

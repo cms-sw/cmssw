@@ -2,7 +2,7 @@
 #define DDRoot_h
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 
 //!  Defines the root of the CompactView
 /**
@@ -13,8 +13,9 @@
 */
 class DDRoot
 {
-  friend class DDI::Singleton<DDRoot>; //FIXME: should not be, because DDSingleton inherits from DDRoot!
 public:
+  DDRoot();
+  ~DDRoot();
   //! set the root by using its qualified name DDName
   void set(const DDName & rootName);
   
@@ -23,10 +24,7 @@ public:
   
   //! returns the root of the geometrical hierarchy
   DDLogicalPart root() const;
-  //const DDLogicalPart & root() const; 
-protected:
-  DDRoot();
-  ~DDRoot();
+
 private:
   DDLogicalPart root_;
 };

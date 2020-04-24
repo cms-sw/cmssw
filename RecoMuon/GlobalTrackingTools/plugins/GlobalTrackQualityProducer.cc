@@ -21,23 +21,20 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "DataFormats/MuonReco/interface/MuonQuality.h"
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& iConfig):
-  inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),inputLinksCollection_(iConfig.getParameter<edm::InputTag>("InputLinksCollection")),theService(0),theGlbRefitter(0),theGlbMatcher(0)
+  inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),inputLinksCollection_(iConfig.getParameter<edm::InputTag>("InputLinksCollection")),theService(nullptr),theGlbRefitter(nullptr),theGlbMatcher(nullptr)
 {
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);     
   
   // TrackRefitter parameters
+  edm::ConsumesCollector iC  = consumesCollector();
   edm::ParameterSet refitterParameters = iConfig.getParameter<edm::ParameterSet>("RefitterParameters");
-  theGlbRefitter = new GlobalMuonRefitter(refitterParameters, theService);
+  theGlbRefitter = new GlobalMuonRefitter(refitterParameters, theService, iC);
 
   edm::ParameterSet trackMatcherPSet = iConfig.getParameter<edm::ParameterSet>("GlobalMuonTrackMatcher");
   theGlbMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
@@ -45,7 +42,10 @@ GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& 
   double maxChi2 = iConfig.getParameter<double>("MaxChi2");
   double nSigma = iConfig.getParameter<double>("nSigma");
   theEstimator = new Chi2MeasurementEstimator(maxChi2,nSigma);
- 
+
+  glbMuonsToken=consumes<reco::TrackCollection>(inputCollection_);
+  linkCollectionToken=consumes<reco::MuonTrackLinksCollection>(inputLinksCollection_);
+
   produces<edm::ValueMap<reco::MuonQuality> >();
 }
 
@@ -69,14 +69,14 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   // Take the GLB muon container(s)
   edm::Handle<reco::TrackCollection> glbMuons;
-  iEvent.getByLabel(inputCollection_,glbMuons);
+  iEvent.getByToken(glbMuonsToken,glbMuons);
   
   edm::Handle<reco::MuonTrackLinksCollection>    linkCollectionHandle;
-  iEvent.getByLabel(inputLinksCollection_, linkCollectionHandle);
+  iEvent.getByToken(linkCollectionToken,linkCollectionHandle);
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 
@@ -97,7 +97,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     double relative_muon_chi2 = 0.0;
     double relative_tracker_chi2 = 0.0;
     double glbTrackProbability = 0.0;
-    if(refitted.size()>0) {
+    if(!refitted.empty()) {
       thisKink = kink(refitted.front()) ;      
       std::pair<double,double> chi = newChi2(refitted.front());
       relative_muon_chi2 = chi.second; //normalized inside to /sum(muHits.dimension)
@@ -127,8 +127,8 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	    }
 	  if (links->globalTrack() == glbRef) {
 	    staTrack = !links->standAloneTrack().isNull() ? links->standAloneTrack() : reco::TrackRef();
-	    TrackCand staCand = TrackCand((Trajectory*)(0),links->standAloneTrack());
-	    TrackCand tkCand = TrackCand((Trajectory*)(0),links->trackerTrack());
+	    TrackCand staCand = TrackCand((Trajectory*)nullptr,links->standAloneTrack());
+	    TrackCand tkCand = TrackCand((Trajectory*)nullptr,links->trackerTrack());
 	    chi2 = theGlbMatcher->match(staCand,tkCand,0,0);
 	    d    = theGlbMatcher->match(staCand,tkCand,1,0);
 	    Rpos = theGlbMatcher->match(staCand,tkCand,2,0);
@@ -163,13 +163,13 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   */
 
   // create and fill value maps
-  std::auto_ptr<edm::ValueMap<reco::MuonQuality> > outQual(new edm::ValueMap<reco::MuonQuality>());
+  auto outQual = std::make_unique<edm::ValueMap<reco::MuonQuality>>();
   edm::ValueMap<reco::MuonQuality>::Filler fillerQual(*outQual);
   fillerQual.insert(glbMuons, valuesQual.begin(), valuesQual.end());
   fillerQual.fill();
   
   // put value map into event
-  iEvent.put(outQual);
+  iEvent.put(std::move(outQual));
 }
 
 std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) const {
@@ -262,7 +262,9 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
   for ( TMI m = meas.begin(); m != meas.end(); m++ ) {
     TransientTrackingRecHit::ConstRecHitPointer hit = m->recHit();
     const TrajectoryStateOnSurface& uptsos = (*m).updatedState();
-    TransientTrackingRecHit::RecHitPointer preciseHit = hit->clone(uptsos);
+    // FIXME FIXME CLONE!!!
+    // TrackingRecHit::RecHitPointer preciseHit = hit->clone(uptsos);
+    const auto& preciseHit = hit;
     double estimate = 0.0;
     if (preciseHit->isValid() && uptsos.isValid()) {
       estimate = theEstimator->estimate(uptsos, *preciseHit ).second;

@@ -1,156 +1,46 @@
 
-Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
+Machine parameters:  mode = NOMERGE
+	startingNewLoop
     *** nextItemType: Restart 0 ***
-	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
 	rewind
+	startingNewLoop
     *** nextItemType: Event ***
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
+Left processing loop.
+	startingNewLoop
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
+Left processing loop.
+	startingNewLoop
     *** nextItemType: Run 1 ***
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
+Left processing loop.
 	startingNewLoop
+    *** nextItemType: Stop 1 ***
 	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.
 
-Machine parameters:  mode = NOMERGE  emptyRunLumiMode = handleEmptyRuns
+Machine parameters:  mode = FULLMERGE
+	startingNewLoop
     *** nextItemType: Restart 0 ***
-	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
 	rewind
+	startingNewLoop
     *** nextItemType: Event ***
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
+Left processing loop.
+	startingNewLoop
     *** nextItemType: Lumi 1 ***
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
+Left processing loop.
+	startingNewLoop
     *** nextItemType: Run 1 ***
 	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
+Left processing loop.
 	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = NOMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndLumis
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Event ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Lumi 1 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Run 1 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
     *** nextItemType: Stop 1 ***
-	startingNewLoop
 	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumis
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Event ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Lumi 1 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Run 1 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Event ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Lumi 1 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Run 1 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
-
-Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAndLumis
-    *** nextItemType: Restart 0 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Event ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Lumi 1 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Run 1 ***
-	doErrorStuff
-	endOfLoop
-	prepareForNextLoop
-	rewind
-    *** nextItemType: Stop 1 ***
-	startingNewLoop
-	endOfLoop
-The state machine reports it has been terminated
+Left processing loop.

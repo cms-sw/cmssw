@@ -13,26 +13,29 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-typedef math::XYZTLorentzVectorD LV;
-typedef std::vector<LV> LVColl;
+using LV = math::XYZTLorentzVectorD;
+using LVColl = std::vector<LV>;
 
 struct HLTTauDQMOfflineObjects {
   void clear() {
     electrons.clear();
     muons.clear();
     taus.clear();
+    met.clear();
   };
   std::vector<LV> electrons;
   std::vector<LV> muons;
   std::vector<LV> taus;
+  std::vector<LV> met;
 };
 
 //Virtual base class for HLT-Tau-DQM Plotters
 class HLTTauDQMPlotter {
 public:
-    HLTTauDQMPlotter(const edm::ParameterSet& pset, const std::string& dqmBaseFolder);
+    HLTTauDQMPlotter(const edm::ParameterSet& pset, std::string  dqmBaseFolder);
+    HLTTauDQMPlotter(const std::string& dqmFolder, const std::string& dqmBaseFolder);
     ~HLTTauDQMPlotter();
-    bool isValid() const { return configValid_ && runValid_; }
+    bool isValid() const { return configValid_; }
 
 protected:
     //Helper functions
@@ -45,6 +48,5 @@ protected:
     
     //Validity check
     bool configValid_;
-    bool runValid_;
 };
 #endif

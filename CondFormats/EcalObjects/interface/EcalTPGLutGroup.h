@@ -1,6 +1,8 @@
 #ifndef EcalTPGLutGroup_h
 #define EcalTPGLutGroup_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 
 /*
@@ -17,6 +19,8 @@ class EcalTPGLutGroup : public EcalTPGGroups
   EcalTPGLutGroup() ;
   ~EcalTPGLutGroup() ;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

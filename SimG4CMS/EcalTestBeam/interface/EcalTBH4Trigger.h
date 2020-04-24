@@ -72,7 +72,7 @@ class EcalTBH4Trigger : public SimWatcher,
   //UPDATEH4(BeginOfJob)
   //UPDATEH4(BeginOfRun)
     //  UPDATEH4(BeginOfEvent)
-  void update(const BeginOfEvent* anEvent) 
+  void update(const BeginOfEvent* anEvent) override 
     {
       //      std::cout <<"++ signal BeginOfEvent " ;
       //      m_enteringTBH4BeamLine=false;
@@ -86,7 +86,7 @@ class EcalTBH4Trigger : public SimWatcher,
     } 
 
   //  UPDATEH4(BeginOfTrack)
-  void update(const G4Step* iStep) 
+  void update(const G4Step* iStep) override 
     { 
       if (trigEvents_ >= 0 && nTriggeredEvents_ >= trigEvents_)
 	throw SimG4Exception("Number of needed trigger events reached in ECALTBH4");
@@ -106,7 +106,7 @@ class EcalTBH4Trigger : public SimWatcher,
 	}
 	std::cout <<std::endl; 
 	const G4Track* theTrack = iStep->GetTrack();
-	const G4ThreeVector pos = post->GetPosition();
+	const G4ThreeVector& pos = post->GetPosition();
 	std::cout << "( "<<pos.x()<<","<<pos.y()<<","<<pos.z()<<") ";
 	std::cout << " released energy (MeV) " 
 		  <<  iStep->GetTotalEnergyDeposit()/CLHEP::MeV  ;
@@ -152,7 +152,7 @@ class EcalTBH4Trigger : public SimWatcher,
 //UPDATEH4(G4Step)
 //UPDATEH4(EndOfRun)
 //UPDATEH4(EndOfEvent)
-  void update(const EndOfEvent* anEvent) 
+  void update(const EndOfEvent* anEvent) override 
     {
       //      std::cout <<"++ signal BeginOfEvent " ;
       //      m_enteringTBH4BeamLine=false;

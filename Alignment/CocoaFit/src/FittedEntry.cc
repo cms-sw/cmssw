@@ -57,7 +57,7 @@ FittedEntry::FittedEntry( ALIstring name, float value, float sigma)
   //  std::cout << " building theEntryName " << theEntryName << " " << pointold << " " << name << std::endl;
   Entry* entry = Model::getEntryByName( theOptOName, theEntryName ); 
 
-  theEntry = 0;
+  theEntry = nullptr;
 
   //------ store values and sigmas in dimensions indicated by global options
   ALIdouble dimv = entry->OutputValueDimensionFactor();
@@ -89,7 +89,7 @@ FittedEntry::FittedEntry( const std::vector<FittedEntry*>& _vFEntry )
   theSigma = 0.;
   theOrigValue = 0.;
   theOrigSigma = 0.;
-  for( ite = vFEntry.begin(); ite != vFEntry.end(); ite++) {
+  for( ite = vFEntry.begin(); ite != vFEntry.end(); ++ite) {
     if( (*ite)->getOptOName() != theOptOName || (*ite)->getEntryName() != theEntryName ){
       std::cerr << "!!! FATAL ERROR FittedEntry::FittedEntry  one entry in list has different opto or entry names : " << (*ite)->getOptOName() << " !=  " << theOptOName << " " << (*ite)->getEntryName() << " != " << theEntryName << std::endl;
       exit(1);

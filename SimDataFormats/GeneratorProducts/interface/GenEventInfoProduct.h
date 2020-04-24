@@ -25,8 +25,12 @@ class GenEventInfoProduct {
 
 	// getters
 
+	std::vector<double> &weights() { return weights_; }
 	const std::vector<double> &weights() const { return weights_; }
-	double weight() const;
+	
+	double weight() const { return weights_.empty() ? 1.0 : weights_[0]; }
+	
+	double weightProduct() const;
 
 	unsigned int signalProcessID() const { return signalProcessID_; }
 
@@ -35,10 +39,17 @@ class GenEventInfoProduct {
 	double alphaQED() const { return alphaQED_; }
 
 	const PDF *pdf() const { return pdf_.get(); }
-	bool hasPDF() const { return pdf() != 0; }
+	bool hasPDF() const { return pdf() != nullptr; }
 
 	const std::vector<double> &binningValues() const { return binningValues_; }
 	bool hasBinningValues() const { return !binningValues_.empty(); }
+
+        const std::vector<float> &DJRValues() const { return DJRValues_; }
+        bool hasDJRValues() const { return !DJRValues_.empty(); }
+
+        int nMEPartons() const { return nMEPartons_; }
+        
+        int nMEPartonsFiltered() const { return nMEPartonsFiltered_; }
 
 	// setters
 
@@ -51,10 +62,17 @@ class GenEventInfoProduct {
 	void setScales(double q = -1., double qcd = -1., double qed = -1.)
 	{ qScale_ = q, alphaQCD_ = qcd, alphaQED_ = qed; }
 
-	void setPDF(const PDF *pdf) { pdf_.reset(pdf ? new PDF(*pdf) : 0); }
+	void setPDF(const PDF *pdf) { pdf_.reset(pdf ? new PDF(*pdf) : nullptr); }
 
 	void setBinningValues(const std::vector<double> &values)
 	{ binningValues_ = values; }
+ 
+	void setDJR(const std::vector<float> &values)
+	{DJRValues_ = values;}
+
+	void setNMEPartons(int n) {nMEPartons_ = n;}
+	
+	void setNMEPartonsFiltered(int n) {nMEPartonsFiltered_ = n;}
 
     private:
 	// HepMC::GenEvent provides a list of weights
@@ -78,6 +96,9 @@ class GenEventInfoProduct {
 	// will contain the information what physical
 	// quantity these values actually belong to
 	std::vector<double>	binningValues_;
+        std::vector<float>      DJRValues_;
+        int                     nMEPartons_;
+        int                     nMEPartonsFiltered_;
 };
 
 #endif // SimDataFormats_GeneratorProducts_GenEventInfoProduct_h

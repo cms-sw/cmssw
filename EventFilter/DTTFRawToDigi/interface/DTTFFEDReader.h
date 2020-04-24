@@ -14,17 +14,22 @@
 #ifndef DTTFRawToDigi_DTTFFEDReader_h
 #define DTTFRawToDigi_DTTFFEDReader_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
 
-#include <FWCore/Framework/interface/EDProducer.h>
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include <DataFormats/FEDRawData/interface/FEDRawData.h>
+#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
+
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 
 #include <string>
 
-class DTTFFEDReader : public edm::EDProducer {
+class DTTFFEDReader : public edm::stream::EDProducer<> {
 
  public:
 
@@ -32,10 +37,10 @@ class DTTFFEDReader : public edm::EDProducer {
   DTTFFEDReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTTFFEDReader();
+  ~DTTFFEDReader() override;
 
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 
   /// Generate and fill FED raw data for a full event
   bool fillRawData(edm::Event& e,
@@ -93,6 +98,8 @@ class DTTFFEDReader : public edm::EDProducer {
   void calcCRC(int myD1, int myD2, int &myC);
 
   edm::InputTag getDTTFInputTag() { return DTTFInputTag; }
+
+  edm::EDGetTokenT<FEDRawDataCollection> Raw_token;
 
 };
 #endif

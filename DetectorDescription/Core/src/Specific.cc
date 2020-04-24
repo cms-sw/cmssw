@@ -1,45 +1,53 @@
 #include "DetectorDescription/Core/src/Specific.h"
+
+#include <cassert>
+#include <ext/alloc_traits.h>
+#include <cstddef>
+#include <memory>
+
+#include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-
-// Message logger.
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <assert.h>
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace DDI {
    
    Specific::Specific(const std::vector<std::string>& selections,
                       const DDsvalues_type & specs,
                       bool doRegex)
-   : specifics_(specs), 
-   partSelections_(0), 
-   valid_(false),
-   doRegex_(doRegex)			
+     : specifics_(specs), 
+       partSelections_(0), 
+       valid_(false),
+       doRegex_(doRegex)			
    {
-      std::vector<std::string>::const_iterator it = selections.begin();
-      for(; it != selections.end(); ++it) {
-         createPartSelections(*it);
-      }
+     for( const auto& it : selections ) {
+       createPartSelections( it );
+     }
    }
    
    Specific::Specific(const std::vector<DDPartSelection> & selections,
                       const DDsvalues_type & specs)
-   : specifics_(specs), partSelections_(selections), valid_(false), doRegex_(false) 	   
+     : specifics_(specs), partSelections_(selections), valid_(false), doRegex_(false) 	   
    { }		   
    
    void Specific::createPartSelections(const std::string & selString)
-   {
-      
+   {      
       std::vector<DDPartSelRegExpLevel> regv;
       std::vector<DDPartSelection> temp;
       DDTokenize2(selString,regv);
       
-      if (!regv.size()) throw cms::Exception("DDException") << "Could not evaluate the selection-std::string ->" << selString << "<-";
-      std::vector<DDPartSelRegExpLevel>::const_iterator it = regv.begin();
+      if (regv.empty()) throw cms::Exception("DDException")
+			  << "Could not evaluate the selection-std::string ->"
+			  << selString << "<-";
+      
       std::pair<bool,std::string> res;
-      for (; it != regv.end(); ++it) {
+      for( const auto& it : regv ) {
          std::vector<DDLogicalPart> lpv;
-         res = DDIsValid(it->ns_,it->nm_,lpv,doRegex_);
+         res = DDIsValid( it.ns_, it.nm_, lpv, doRegex_ );
          if (!res.first) {
             std::string msg("Could not process q-name of a DDLogicalPart, reason:\n"+res.second);
             msg+="\nSpecPar selection is:\n" + selString + "\n";
@@ -47,46 +55,38 @@ namespace DDI {
             edm::LogError("Specific") << msg;
             break; //EXIT for loop
          }
-         //edm::LogInfo ("Specific") << "call addSelectionLevel" << std::endl;
-         addSelectionLevel(lpv,it->copyno_,it->selectionType_,temp);
+         addSelectionLevel( lpv, it.copyno_, it.selectionType_, temp );
       }
       if ( res.first ) { // i.e. it wasn't "thrown" out of the loop
-         std::vector<DDPartSelection>::const_iterator iit = temp.begin();
          partSelections_.reserve(temp.size() + partSelections_.size());
-         for (; iit != temp.end(); ++iit) {
-            partSelections_.push_back(*iit);
-            //edm::LogInfo ("Specific") << *iit << std::endl;
+         for( const auto& iit : temp ) {
+            partSelections_.emplace_back( iit );
          } 
       }
    }
    
-   
-   
    void Specific::addSelectionLevel(std::vector<DDLogicalPart> & lpv, int copyno, ddselection_type st, 
                                     std::vector<DDPartSelection> & selv)
    {
-      if (!selv.size()) { // create one, no entry yet!
-         selv.push_back(DDPartSelection());
+      if (selv.empty()) { // create one, no entry yet!
+         selv.emplace_back(DDPartSelection());
       }
       typedef std::vector<DDLogicalPart>::size_type lpv_sizetype;
       typedef std::vector<DDPartSelection>::size_type ps_sizetype;
       ps_sizetype ps_sz = selv.size();
       lpv_sizetype lpv_sz = lpv.size();
-      //edm::LogInfo ("Specific") << "lpv_sz=" << lpv_sz << std::endl;
       lpv_sizetype lpv_i = 0;
       std::vector<DDPartSelection> result;
       for (; lpv_i < lpv_sz; ++lpv_i) {
          std::vector<DDPartSelection>::const_iterator ps_it = selv.begin();
          for (; ps_it != selv.end(); ++ps_it) {
-            result.push_back(*ps_it);
+            result.emplace_back(*ps_it);
          }
       }
-      //edm::LogInfo ("Specific") << "result-size=" << result.size() << std::endl;
-      //ps_sizetype ps_sz = result.size();
       ps_sizetype ps_i = 0;
       for(lpv_i=0; lpv_i < lpv_sz; ++lpv_i) {
          for(ps_i = ps_sz*lpv_i; ps_i < ps_sz*(lpv_i+1); ++ps_i) {
-            result[ps_i].push_back(DDPartSelectionLevel(lpv[lpv_i],copyno,st));
+            result[ps_i].emplace_back(DDPartSelectionLevel(lpv[lpv_i],copyno,st));
          }
       }    
       selv = result;
@@ -96,53 +96,43 @@ namespace DDI {
    {
       return partSelections_; 
    }  
-   
-   
+      
    void Specific::stream(std::ostream &  os) const
    {
-      //  os << " no output available yet, sorry. ";
       os << " Size: " << specifics_.size() << std::endl;
       os << "\tSelections:" << std::endl;
-      partsel_type::const_iterator pit(partSelections_.begin()), pend(partSelections_.end());
-      for (;pit!=pend;++pit) {
-         os << *pit << std::endl;
+      for( const auto& pit : partSelections_ ) {
+         os << pit << std::endl;
       }
-      
-      DDsvalues_type::const_iterator vit(specifics_.begin()), ved(specifics_.end());
-      for (;vit!=ved;++vit) {
-         const DDValue & v = vit->second;
+      for( const auto& vit : specifics_ ) {
+         const DDValue & v = vit.second;
          os << "\tParameter name= \"" << v.name() << "\" " << std::endl;
          os << "\t\t Value pairs: " << std::endl;
          size_t s=v.size();
          size_t i=0;
          if ( v.isEvaluated() ) {
-            for (; i<s; ++i) {
+            for( ; i<s; ++i) {
                os << "\t\t\t\"" << v[i].first << "\"" << ", " << v[i].second << std::endl;
             }
          } else { // v is not evaluated
-            const std::vector<std::string>& vs =  v.strings();
-            for (; i<s; ++i) {
-               os << "\t\t\t\"" << vs[i] << "\"" << ", not evaluated" << std::endl;
+            for( const auto& i : v.strings()) {
+               os << "\t\t\t\"" << i << "\"" << ", not evaluated" << std::endl;
             }
          }
       } 
    }
    
-   void Specific::updateLogicalPart(std::vector<std::pair<DDLogicalPart, std::pair<DDPartSelection*,DDsvalues_type*> > >& result) const
+   void Specific::updateLogicalPart(std::vector<std::pair<DDLogicalPart, std::pair<const DDPartSelection*, const DDsvalues_type*> > >& result) const
    {
-      if (partSelections_.size()) {
-         partsel_type::const_iterator it = partSelections_.begin();
-         DDsvalues_type* sv = const_cast<DDsvalues_type*>(&specifics_);
-         for (; it != partSelections_.end(); ++it) {
-            DDLogicalPart logp = it->back().lp_; 
-            /*if (!logp.isDefined().second) {
-             throw DDException("Specific::updateLogicalPart(..): LogicalPart not defined, name=" + std::string(logp.ddname()));
-             }*/
-            DDPartSelection * ps = const_cast<DDPartSelection*>(&(*it));
+      if (!partSelections_.empty()) {
+         const DDsvalues_type* sv = (&specifics_);
+         for( const auto& it : partSelections_ ) {
+            DDLogicalPart logp = it.back().lp_; 
+            const DDPartSelection * ps = (&it);
             assert(ps); 
             assert(sv);
-            std::pair<DDPartSelection*,DDsvalues_type*> pssv(ps,sv);
-            result.push_back(std::make_pair(logp,pssv));
+            std::pair<const DDPartSelection*,const DDsvalues_type*> pssv(ps,sv);
+            result.emplace_back(std::make_pair(logp,pssv));
          }  
       }  
    }
@@ -198,14 +188,4 @@ namespace DDI {
       }
       return std::make_pair(result,e);
    }
-   
-   
-   Specific::~Specific()
-   {
-      //   DDsvalues_type::iterator it = specifics_.begin();
-      //   for (; it != specifics_.end(); ++it) {
-      //     it->second.clear();
-      //   }
-   }
-   
 }

@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "CommonTools/CandUtils/interface/NamedCandCombiner.h"
 #include "CommonTools/CandAlgos/interface/decayParser.h"
-#include "CommonTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

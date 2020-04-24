@@ -7,7 +7,7 @@ ttSemiLepHypHitFit = cms.EDProducer("TtSemiLepHypHitFit",
     ## met input
     mets  = cms.InputTag("patMETs"),
     ## jet input
-    jets  = cms.InputTag("selectedPatJetsAK5PF"),
+    jets  = cms.InputTag("selectedPatJetsAK4PF"),
     ## lepton input                    
     leps  = cms.InputTag("selectedPatMuons"),
     ## kin fit results

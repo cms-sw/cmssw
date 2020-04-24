@@ -30,3 +30,6 @@ ckftracks_plus_pixelless = cms.Sequence(ckftracks*ctfTracksPixelLess)
 
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
 trackingGlobalReco = cms.Sequence(ckftracks*trackExtrapolator)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(trackingGlobalReco,cms.Sequence(doAlldEdXEstimators*trackExtrapolator))

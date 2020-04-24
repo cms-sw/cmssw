@@ -23,7 +23,7 @@
 
 // Version: $Id: ProtonTaggerFilter.h,v 1.1 2008/11/25 17:34:15 beaudett Exp $
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FastSimulation/ForwardDetectors/plugins/AcceptanceTableHelper.h"
 
@@ -31,7 +31,7 @@
 
 #include "TFile.h"
 
-class ProtonTaggerFilter : public edm::EDFilter
+class ProtonTaggerFilter : public edm::stream::EDFilter <>
 {
 
  public:
@@ -40,7 +40,7 @@ class ProtonTaggerFilter : public edm::EDFilter
   explicit ProtonTaggerFilter(edm::ParameterSet const & p);
 
   /// empty destructor
-  virtual ~ProtonTaggerFilter();
+  ~ProtonTaggerFilter() override;
 
   /// startup function of the EDFilter
   virtual void beginJob();
@@ -49,7 +49,7 @@ class ProtonTaggerFilter : public edm::EDFilter
   virtual void endJob();
 
   /// decide if the event is accepted by the proton taggers
-  virtual bool filter(edm::Event & e, const edm::EventSetup & c);
+  bool filter(edm::Event & e, const edm::EventSetup & c) override;
 
  private:
 

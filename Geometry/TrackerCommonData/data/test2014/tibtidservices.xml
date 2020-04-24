@@ -156,7 +156,6 @@
 			<ZSection z="[OpticalPanelZ1]" rMin="[tid:SupportRin]" rMax="[MargheritaRb]"/>
 			<ZSection z="[OpticalPanelZ2]" rMin="[tid:SupportRin]" rMax="[MargheritaRb]"/>
 			<ZSection z="[OpticalPanelZ2]" rMin="[tid:SupportRin]" rMax="[PowerConnectorsRin]"/>
-			<ZSection z="[OpticalPanelZ2]" rMin="[tid:SupportRin]" rMax="[PowerConnectorsRin]"/>
 			<ZSection z="[OpticalPanelZb]" rMin="[tid:SupportRin]" rMax="[PowerConnectorsRin]"/>
 		</Polycone>
 		<!-- "Margherita" Panel  -->

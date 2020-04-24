@@ -34,7 +34,6 @@
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include <string>
 
@@ -62,7 +61,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   theService = new MuonServiceProxy(serviceParameters);
 
   MuonTrackLoader * trackLoader = new MuonTrackLoader(trackLoaderParameters,iC,theService);
-  MuonTrajectoryBuilder * trajectoryBuilder = 0;
+  MuonTrajectoryBuilder * trajectoryBuilder = nullptr;
   // instantiate the concrete trajectory builder in the Track Finder
   string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
   if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
@@ -117,11 +116,10 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
 
   // Update the services
   theService->update(eventSetup);
-  NavigationSetter setter(*theService->muonNavigationSchool());
 
   // Reconstruct 
   LogTrace(metname)<<"Track Reconstruction"<<endl;
-  theTrackFinder->reconstruct(seeds,event);
+  theTrackFinder->reconstruct(seeds,event, eventSetup);
  
   LogTrace(metname)<<"Event loaded"
 		   <<"================================"

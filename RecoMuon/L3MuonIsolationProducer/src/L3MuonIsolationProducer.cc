@@ -1,7 +1,6 @@
 #include "L3MuonIsolationProducer.h"
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -38,7 +37,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   theConfig(par),
   theMuonCollectionLabel(par.getParameter<InputTag>("inputMuonCollection")),
   optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits")),
-  theExtractor(0),
+  theExtractor(nullptr),
   theTrackPt_Min(-1)
   {
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer CTOR";
@@ -103,8 +102,8 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   Handle<TrackCollection> muons;
   event.getByToken(theMuonCollectionToken,muons);
 
-  std::auto_ptr<reco::IsoDepositMap> depMap( new reco::IsoDepositMap());
-  std::auto_ptr<edm::ValueMap<bool> > isoMap( new edm::ValueMap<bool> ());
+  auto depMap = std::make_unique<reco::IsoDepositMap>();
+  auto isoMap = std::make_unique<edm::ValueMap<bool>>();
 
 
   //
@@ -157,12 +156,12 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
     reco::IsoDepositMap::Filler depFiller(*depMap);
     depFiller.insert(muons, deps.begin(), deps.end());
     depFiller.fill();
-    event.put(depMap);
+    event.put(std::move(depMap));
   }
   edm::ValueMap<bool> ::Filler isoFiller(*isoMap);
   isoFiller.insert(muons, isos.begin(), isos.end());
   isoFiller.fill();
-  event.put(isoMap);
+  event.put(std::move(isoMap));
 
   LogTrace(metname) <<" END OF EVENT " <<"================================";
 }

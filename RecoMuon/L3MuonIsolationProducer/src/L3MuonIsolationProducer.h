@@ -4,7 +4,7 @@
 /**  \class L3MuonIsolationProducer
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
@@ -17,7 +17,7 @@
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class L3MuonIsolationProducer : public edm::EDProducer {
+class L3MuonIsolationProducer : public edm::stream::EDProducer<> {
 
 public:
 
@@ -25,10 +25,10 @@ public:
   L3MuonIsolationProducer(const edm::ParameterSet&);
 
   /// destructor
-  virtual ~L3MuonIsolationProducer();
+  ~L3MuonIsolationProducer() override;
 
   /// Produce isolation maps
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

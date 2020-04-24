@@ -16,12 +16,12 @@
 //
 // Author:      
 // Created:     Sat Mar  1 15:49:28 CET 2008
-// $Id: HcalLutMetadataRcd.h,v 1.1 2009/09/18 14:25:15 kukartse Exp $
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalLutMetadataRcd : public edm::eventsetup::DependentRecordImplementation<HcalLutMetadataRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalLutMetadataRcd : public edm::eventsetup::DependentRecordImplementation<HcalLutMetadataRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
 
 #endif

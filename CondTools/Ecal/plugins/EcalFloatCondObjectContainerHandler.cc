@@ -3,14 +3,11 @@
    Implementation of class EcalFloatCondObjectContainerHandler
 
    \author Stefano ARGIRO
-   \version $Id: EcalFloatCondObjectContainerHandler.cc,v 1.1 2009/06/30 14:40:11 argiro Exp $
    \date 09 Sep 2008
 */
 
-static const char CVSId[] = "$Id: EcalFloatCondObjectContainerHandler.cc,v 1.1 2009/06/30 14:40:11 argiro Exp $";
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/CondDB/interface/Time.h"
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerHandler.h"
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"

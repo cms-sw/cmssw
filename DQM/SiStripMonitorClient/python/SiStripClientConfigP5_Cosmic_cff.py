@@ -11,21 +11,6 @@ SiStripAnalyserCosmic = cms.EDAnalyzer("SiStripAnalyser",
     SummaryConfigPath        = cms.untracked.string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml"),
     PrintFaultyModuleList    = cms.untracked.bool(True),                                
     RawDataTag               = cms.untracked.InputTag("source"),                              
-    TrackRatePSet            = cms.PSet(
-           Name     = cms.string("NumberOfTracks_"),
-                  LowerCut = cms.double(1.0),
-                  UpperCut = cms.double(100.0),
-               ),
-                                            TrackChi2PSet            = cms.PSet(
-           Name     = cms.string("Chi2oNDF_"),
-                  LowerCut = cms.double(0.0),
-                  UpperCut = cms.double(25.0),
-               ),
-                                            TrackHitPSet            = cms.PSet(
-           Name     = cms.string("NumberOfRecHitsPerTrack_"),
-                  LowerCut = cms.double(3.0),
-                  UpperCut = cms.double(35.0),
-               ),
     TkmapParameters = cms.PSet(
         loadFedCabling = cms.untracked.bool(True),
         loadFecCabling = cms.untracked.bool(True),
@@ -57,10 +42,6 @@ SiStripAnalyserCosmic = cms.EDAnalyzer("SiStripAnalyser",
     SiStripHighThresholdDQM_PSet = OnDemandMonitoring.SiStripHighThresholdDQM_PSet,
 )
 # Track Efficiency Client
-
-from DQM.TrackingMonitor.TrackEfficiencyClient_cfi import *
-TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
-TrackEffClient.AlgoName   = 'CKFTk'
 
 # Services needed for TkHistoMap
 TkDetMap = cms.Service("TkDetMap")

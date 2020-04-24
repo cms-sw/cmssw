@@ -56,29 +56,20 @@ ZdcTestAnalysis::ZdcTestAnalysis(const edm::ParameterSet &p){
        new TNtuple("NTzdcevent","NTzdcevent",
 		   "evt:ihit:fiberid:zside:subdet:layer:fiber:channel:enem:enhad:hitenergy:x:y:z:time:etot");
 
+   theZdcNumScheme = nullptr;
    //theZdcSD = new ZdcSD("ZDCHITSB", new ZdcNumberingScheme());
 }
    
 ZdcTestAnalysis::~ZdcTestAnalysis() {
   // destructor
   finish();
-  if (verbosity > 0) {
-    std::cout << std::endl << "ZdcTestAnalysis Dextructor  -------->  End of ZdcTestAnalysis : "
-      << std::endl << std::endl; 
-  }
-
-  //if (doNTzdcstep  > 0)delete zdcstepntuple;
-  //if (doNTzdcevent > 0)delete zdceventntuple;
-
-  std::cout<<"ZdcTestAnalysis: End of process"<<std::endl;
+  delete theZdcNumScheme;
 }
-
 
 void ZdcTestAnalysis::update(const BeginOfJob * job) {
   //job
   std::cout<<"beggining of job"<<std::endl;;
 }
-
 
 //==================================================================== per RUN
 void ZdcTestAnalysis::update(const BeginOfRun * run) {
@@ -101,16 +92,12 @@ void ZdcTestAnalysis::update(const BeginOfRun * run) {
   eventIndex = 0;
 }
 
-
-
-
 void ZdcTestAnalysis::update(const BeginOfEvent * evt) {
   //event
   std::cout << "ZdcTest: Processing Event Number: "<<eventIndex<< std::endl;
   eventIndex++;
   stepIndex = 0;
 }
-
 
 void ZdcTestAnalysis::update(const G4Step * aStep) {
   //step;
@@ -131,14 +118,14 @@ void ZdcTestAnalysis::update(const G4Step * aStep) {
     G4String particleType = theTrack->GetDefinition()->GetParticleName();
     G4int pdgcode         = theTrack->GetDefinition()->GetPDGEncoding();
     
-    G4ThreeVector vert_mom = theTrack->GetVertexMomentumDirection();
+    const G4ThreeVector& vert_mom = theTrack->GetVertexMomentumDirection();
     G4double vpx = vert_mom.x();
     G4double vpy = vert_mom.y();
     G4double vpz = vert_mom.z();
     double eta = 0.5 * log( (1.+vpz) / (1.-vpz) );
     double phi = atan2(vpy,vpx);
     
-    G4ThreeVector hitPoint = preStepPoint->GetPosition();
+    const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
     G4ThreeVector localPoint = theTrack->GetTouchable()->GetHistory()->
     GetTopTransform().TransformPoint(hitPoint);
     
@@ -201,11 +188,11 @@ void ZdcTestAnalysis::update(const G4Step * aStep) {
     else if (historyDepth == 0) { 
       int theReplicaNumber = touch->GetReplicaNumber(0);
       G4VPhysicalVolume* thePhysicalVolume = touch->GetVolume(0);
-      G4String thePVname = thePhysicalVolume->GetName();
+      const G4String& thePVname = thePhysicalVolume->GetName();
       G4LogicalVolume * theLogicalVolume = thePhysicalVolume->GetLogicalVolume();
-      G4String theLVname = theLogicalVolume->GetName();
+      const G4String& theLVname = theLogicalVolume->GetName();
       G4Material * theMaterial = theLogicalVolume->GetMaterial();
-      G4String theMaterialName = theMaterial->GetName();
+      const G4String& theMaterialName = theMaterial->GetName();
       if (verbosity >= 2)
 	std::cout << " hd=0 " << theReplicaNumber << "," 
 		  << thePVname << "," << theLVname << "," 
@@ -257,7 +244,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
   CaloG4HitCollection* theZDCHC = (CaloG4HitCollection*) allHC->GetHC(theZDCHCid);
   std::cout << " - theZDCHC = " << theZDCHC << std::endl;
   
-  ZdcNumberingScheme * theZdcNumScheme = new ZdcNumberingScheme(1);
+  if(!theZdcNumScheme) { theZdcNumScheme = new ZdcNumberingScheme(1); }
   
   float ETot=0., SEnergy=0.;
   int maxTime=0;
@@ -333,7 +320,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 
       // Find Primary info:
       int trackID = 0;
-      G4PrimaryParticle* thePrim=0;
+      G4PrimaryParticle* thePrim=nullptr;
       G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
       std::cout << "Event has " << nvertex << " vertex" << std::endl;
       if (nvertex==0)
@@ -342,20 +329,22 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
       for (int i = 0 ; i<nvertex; i++) {
 	
 	G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-	if (avertex == 0)
+	if (avertex == nullptr) {
 	  std::cout << "ZdcTest End Of Event ERR: pointer to vertex = 0"
 		       << std::endl;
-	std::cout << "Vertex number :" <<i << std::endl;
-	int npart = avertex->GetNumberOfParticle();
-	if (npart ==0)
-	  std::cout << "ZdcTest End Of Event ERR: no primary!" << std::endl;
-	if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+	} else {
+	  std::cout << "Vertex number :" <<i << std::endl;
+	  int npart = avertex->GetNumberOfParticle();
+	  if (npart ==0)
+	    std::cout << "ZdcTest End Of Event ERR: no primary!" << std::endl;
+	  if (thePrim==nullptr) thePrim=avertex->GetPrimary(trackID);
+	}
       }
       
       double px=0.,py=0.,pz=0.;
       double pInit = 0.;
       
-      if (thePrim != 0) {
+      if (thePrim != nullptr) {
 	px = thePrim->GetPx();
 	py = thePrim->GetPy();
 	pz = thePrim->GetPz();
@@ -402,6 +391,5 @@ void ZdcTestAnalysis::finish(){
    std::cout << "ZdcTestAnalysis: Ntuple event written for event: "<<eventIndex<<std::endl;   
    zdcOutputEventFile->Close();
    std::cout << "ZdcTestAnalysis: Event file closed" << std::endl;
- }
- 
+ } 
 }

@@ -1,4 +1,0 @@
-<use   name="DQM/EcalEndcapMonitorModule"/>
-<library   file="plugins.cc" name="DQMEcalEndcapMonitorModulePlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

@@ -6,6 +6,8 @@
 // Zongru Wan, Kansas State University
 //
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 class PhysicsPerformancePayload
@@ -29,6 +31,8 @@ class PhysicsPerformancePayload
  protected:
   int stride_;
   std::vector<float> table_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

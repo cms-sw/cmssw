@@ -29,17 +29,16 @@ namespace edm {
     return &singleInstance_;
   }
 
-  std::auto_ptr<InputSource>
+  std::unique_ptr<InputSource>
   InputSourceFactory::makeInputSource(ParameterSet const& conf,
 					InputSourceDescription const& desc) const
     
   {
     std::string modtype = conf.getParameter<std::string>("@module_type");
     FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << std::endl;
-    std::auto_ptr<InputSource> wm;
-    wm = std::auto_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
+    std::unique_ptr<InputSource> wm = std::unique_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
     
-    if(wm.get()==0) {
+    if(wm.get() == nullptr) {
 	throw edm::Exception(errors::Configuration,"NoSourceModule")
 	  << "InputSource Factory:\n"
 	  << "Cannot find source type from ParameterSet: "

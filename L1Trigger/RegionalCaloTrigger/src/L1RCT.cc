@@ -164,6 +164,9 @@ void L1RCT::digiInput(const EcalTrigPrimDigiCollection& ecalCollection,
   //if (nHcalDigi != 4176){ std::cout << "L1RCT: Warning: There are " << nHcalDigi << "hcal digis instead of 4176!" << std::endl;}
   // incl HF 4032 + 144 = 4176
   for (int i = 0; i < nHcalDigi; i++){
+    if (hcalCollection[i].id().version() != 0) {
+      continue;
+    }
     short ieta = (short) hcalCollection[i].id().ieta(); 
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short cal_iphi = (unsigned short) hcalCollection[i].id().iphi();

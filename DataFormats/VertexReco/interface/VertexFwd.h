@@ -17,6 +17,8 @@ namespace reco {
   typedef edm::RefVector<VertexCollection> VertexRefVector;
   /// iterator over a vector of references to Vertex objects in the same collection
   typedef VertexRefVector::iterator vertex_iterator;
+  /// persistent reference to a Vertex, using views
+  typedef edm::RefToBase<reco::Vertex> VertexBaseRef;
 }
 
 #endif

@@ -50,7 +50,7 @@ void DTTTrigCorrectionFirst::endJob() {
   // Create the object to be written to DB
   DTTtrig* tTrigNewMap = new DTTtrig();  
   //Get the superlayers list
-  vector<DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
+  vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
 
   //Loop on all superlayers to compute the mean 
   double average = 0.;
@@ -63,7 +63,7 @@ void DTTTrigCorrectionFirst::endJob() {
   double averagekfactor = 0;
   float kfactor = 0;
 
-  for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
+  for (auto sl = dtSupLylist.begin();
        sl != dtSupLylist.end(); sl++) {
     float ttrigMean = 0;
     float ttrigSigma = 0;   
@@ -86,7 +86,7 @@ void DTTTrigCorrectionFirst::endJob() {
 
   //  cout << " average counter "<< average << " "<< counter <<endl;
 
-  for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
+  for (auto sl = dtSupLylist.begin();
        sl != dtSupLylist.end(); sl++) {
     float ttrigMean = 0;
     float ttrigSigma = 0;
@@ -109,7 +109,7 @@ void DTTTrigCorrectionFirst::endJob() {
   cout << "average averageSigma counter rms "<< average <<" " << averageSigma << " " << counter << " " << rms  <<endl;
 
 
-  for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
+  for (auto sl = dtSupLylist.begin();
        sl != dtSupLylist.end(); sl++) {
     //Compute new ttrig
     double newTTrigMean =  0;

@@ -7,17 +7,15 @@
 #include <iostream>
 
 #include "DataFormats/Math/interface/Point3D.h"
-#include "Rtypes.h" 
 #include "DataFormats/Math/interface/Vector3D.h"
-// #include "DataFormats/DetId/interface/DetId.h"
 #include "Math/GenVector/PositionVector3D.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
-//C decide what is the default rechit index. 
-//C maybe 0 ? -> compression 
-//C then the position is index-1. 
-//C provide a helper class to access the rechit. 
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 
 namespace reco {
@@ -27,80 +25,85 @@ namespace reco {
           
      \author Colin Bernet
      \date   July 2006
+
+     Feb 2014 [Michalis: 8 years later!Modifying the class to be able to generalize the neighbours for 3D calorimeters ]
   */
   class PFRecHit {
 
   public:
+    using PositionType = GlobalPoint::BasicVectorType;
+    using REPPoint = RhoEtaPhi;
+    using RepCorners = CaloCellGeometry::RepCorners;
+    using REPPointVector = RepCorners;
+    using CornersVec = CaloCellGeometry::CornersVec;
+
+    struct Neighbours {
+      using Pointer = unsigned int const *;
+      Neighbours(){}
+      Neighbours(Pointer ib, unsigned int n) : b(ib), e(ib+n){}
+      Pointer b, e;
+      Pointer begin() const {return b;}
+      Pointer end() const {return e;}
+      unsigned int size() const { return e-b;}
+    };
     
     enum {
       NONE=0
     };
-
-    typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
-
-    typedef std::vector<REPPoint> REPPointVector;
- 
     /// default constructor. Sets energy and position to zero
-    PFRecHit();
+    PFRecHit(){}
 
-    /// constructor from values
-    PFRecHit(unsigned detId,
+    PFRecHit(CaloCellGeometry const * caloCell, unsigned int detId,
              PFLayer::Layer layer,
-             double energy, 
-             const math::XYZPoint& posxyz, 
-             const math::XYZVector& axisxyz, 
-             const std::vector< math::XYZPoint >& cornersxyz);
+             float energy) :
+        caloCell_(caloCell),  detId_(detId),
+        layer_(layer), energy_(energy){}
 
-    PFRecHit(unsigned detId,
-             PFLayer::Layer layer,
-             double energy, 
-             double posx, double posy, double posz, 
-             double axisx, double axisy, double axisz);    
 
+    
     /// copy
-    PFRecHit(const PFRecHit& other);
+    PFRecHit(const PFRecHit& other) = default;
+    PFRecHit(PFRecHit&& other) = default;
+    PFRecHit & operator=(const PFRecHit& other) = default;
+    PFRecHit & operator=(PFRecHit&& other) = default;
+
 
     /// destructor
-    virtual ~PFRecHit();
+    ~PFRecHit()=default;
 
-   
-    /// NICHOLAS JIN
-    /// Zeros the energy
+    void setEnergy( float energy) { energy_ = energy; }
 
-    void setEnergy( double energy) { energy_ = energy; }
 
-    /// calculates rho eta phi position once and for all
-    void calculatePositionREP();
-
-    //C neighbours must be initialized correctly !!
-    /*     void setNeighbours( const std::vector< unsigned >& neighbours ); */
-    void add4Neighbour( unsigned index );
-    void add8Neighbour( unsigned index );
-    void setEnergyUp( double eUp) { energyUp_ = eUp; }
-    void setRescale( double factor) { rescale_ = factor; }
-    
+    void addNeighbour(short x,short y, short z, unsigned int);
+    unsigned int getNeighbour(short x,short y, short z) const;
+    void setTime( double time) { time_ = time; }
+    void setDepth( int depth) { depth_ = depth; }
     void clearNeighbours() {
-      neighbours4_.clear();
-      neighbours8_.clear();
-      neighbours4_.reserve(4);
-      neighbours8_.reserve(8);    
+      neighbours_.clear();
+      neighbourInfos_.clear();
+      neighbours4_ = neighbours8_ = 0;
     }
 
+    Neighbours neighbours4() const {
+      return buildNeighbours(neighbours4_);
+    }
+    Neighbours neighbours8() const {
+	return buildNeighbours(neighbours8_);
+    }
+
+    Neighbours neighbours() const {
+      return buildNeighbours(neighbours_.size());
+    }
+
+    const std::vector<unsigned short>& neighbourInfos() {
+      return neighbourInfos_;
+    }
+
+
+    /// calo cell
+    CaloCellGeometry const & caloCell() const { return  *caloCell_; }
+    bool hasCaloCell() const { return caloCell_; }
     
-
-    /// \brief search for pointers to neighbours, using neighbours' DetId.
-    /// 
-    /// pointers to neighbours are not persistent, in contrary to the DetId's 
-    /// of the neighbours. This function searches a map of rechits 
-    /// for the DetId's stored in neighboursIds4_ and  neighboursIds8_. 
-    /// The corresponding pointers are stored in neighbours4_ and neighbours8_.
-    // void      findPtrsToNeighbours( const std::map<unsigned,  reco::PFRecHit* >& allhits );
-
-    void      setNWCorner( double posx, double posy, double posz );
-    void      setSWCorner( double posx, double posy, double posz );
-    void      setSECorner( double posx, double posy, double posz );
-    void      setNECorner( double posx, double posy, double posz );
-
     /// rechit detId
     unsigned detId() const {return detId_;}
 
@@ -108,81 +111,31 @@ namespace reco {
     PFLayer::Layer layer() const { return layer_; }
 
     /// rechit energy
-    double energy() const { return energy_; }
+    float energy() const { return energy_; }
 
-    /// rescaling factor (obsolete)
-    double rescale() const { return rescale_; }
 
     /// timing for cleaned hits
-    double time() const { return rescale_; }
+    float time() const { return time_; }
 
-    /// For HF hits: rechit energy (and neighbour's) in the other HF layer
-    double energyUp() const { return energyUp_; }
+    /// depth for segemntation
+    int  depth() const { return depth_; }
 
     /// rechit momentum transverse to the beam, squared.
     double pt2() const { return energy_ * energy_ *
-			   ( position_.X()*position_.X() + 
-			     position_.Y()*position_.Y() ) / 
-			   ( position_.X()*position_.X() +
-			     position_.Y()*position_.Y() + 
-			     position_.Z()*position_.Z()) ; }
+	( position().perp2()/ position().mag2());}
 
-    //C remove cause I want to be able to run on const rechits
-    /// \return seed state (-1:unknown, 0:no, 1 yes)
-    // int  seedState() const { return seedState_; }
-    
-    /// is seed ? 
-    // bool isSeed() const { return (seedState_>0) ? true : false; }
-
-    /// set seed status
-    // void youAreSeed(int seedstate=1) {seedState_ = seedstate;} 
 
     /// rechit cell centre x, y, z
-    const math::XYZPoint& position() const { return position_; }
-
-    /// rechit cell centre rho, eta, phi. call calculatePositionREP before !
-    const REPPoint& positionREP() const;
-
-    /// rechit cell axis x, y, z
-    const math::XYZVector& getAxisXYZ() const { return axisxyz_; }    
-
-    /// rechit corners
-    const std::vector< math::XYZPoint >& getCornersXYZ() const 
-      { return cornersxyz_; }    
-
-    /// rechit corners
-    const REPPointVector& getCornersREP() const 
-      { return cornersrep_; }    
-
-    const std::vector< unsigned >& neighbours4() const 
-      {return neighbours4_;}  
-
-    const std::vector< unsigned >& neighbours8() const 
-      {return neighbours8_;}  
-
-    const std::vector< unsigned >& neighboursIds4() const 
-      {return neighboursIds4_;}  
-
-    const std::vector< unsigned >& neighboursIds8() const 
-      {return neighboursIds8_;}  
-
-    /*     const std::vector< unsigned >& getNeighboursIds4() const  */
-    /*       {return neighboursIds4_;}   */
-
-    /*     const std::vector< unsigned >& getNeighboursIds8() const  */
-    /*       {return neighboursIds8_;}   */
-
-    /// is rechit 'id' a direct neighbour of this ? 
-    /// id is the rechit index ! not the detId
-    bool  isNeighbour4(unsigned id) const;
-
-    /// is rechit 'id' a neighbour of this ? 
-    /// id is the rechit index ! not the detId
-    bool  isNeighbour8(unsigned id) const;
+    PositionType const & position() const { return caloCell().getPosition().basicVector(); }
     
+    RhoEtaPhi const &  positionREP() const { return caloCell().repPos(); }
 
-    void size(double& deta, double& dphi) const;
+    /// rechit corners
+    CornersVec const & getCornersXYZ() const { return caloCell().getCorners(); }    
 
+    RepCorners const & getCornersREP() const { return caloCell().getCornersREP();}
+ 
+ 
     /// comparison >= operator
     bool operator>=(const PFRecHit& rhs) const { return (energy_>=rhs.energy_); }
 
@@ -195,64 +148,40 @@ namespace reco {
     /// comparison < operator
     bool operator< (const PFRecHit& rhs) const { return (energy_< rhs.energy_); }
 
-    friend std::ostream& operator<<(std::ostream& out, 
-                                    const reco::PFRecHit& hit);
-
+ 
   private:
 
-    ///C cell detid - should be detid or index in collection ?
-    unsigned            detId_;             
+    Neighbours buildNeighbours(unsigned int n) const { return  Neighbours(&neighbours_.front(),n);}
+    
+    /// cell geometry
+    CaloCellGeometry const * caloCell_=nullptr;
+ 
+    ///cell detid
+    unsigned  int        detId_=0;             
 
     /// rechit layer
-    PFLayer::Layer                 layer_;
+    PFLayer::Layer      layer_=PFLayer::NONE;
 
     /// rechit energy 
-    double              energy_;
+    float              energy_=0;
 
-    /// Internal rescaling factor of the energy (1. = default, 0 = killed channels, x = rescaled)
-    double              rescale_;
+    /// time
+    float              time_=-1;
 
-    /// For HF hits : hit energy in the other layer (EM for HAD, and HAD for EM)
-    double              energyUp_;
+    /// depth
+    int      depth_=0;
 
-    /// is this a seed ? (-1:unknown, 0:no, 1 yes) (transient)
-    // int                 seedState_;
- 
-    /// rechit cell centre: x, y, z
-    math::XYZPoint      position_;
-
-    /// rechit cell centre: rho, eta, phi (transient)
-    REPPoint            posrep_;
-
-    /// rechit cell axisxyz
-    math::XYZVector     axisxyz_;
-
-    /// rechit cell corners
-    std::vector< math::XYZPoint > cornersxyz_;
-    REPPointVector cornersrep_;
   
     /// indices to existing neighbours (1 common side)
-    std::vector< unsigned >   neighbours4_;
+    std::vector< unsigned int > neighbours_;
+    std::vector< unsigned short >   neighbourInfos_;
 
-    /// indices to existing neighbours (1 common side or diagonal) 
-    std::vector< unsigned >   neighbours8_;
-
-    /// detids of existing neighbours (1 common side)
-    std::vector< unsigned >   neighboursIds4_;
-
-    /// detids of existing neighbours (1 common side or diagonal) 
-    std::vector< unsigned >   neighboursIds8_;
-
-    /// number of neighbours
-    static const unsigned    nNeighbours_;
-    
-    /// number of corners
-    static const unsigned    nCorners_;
-
-    /// set position of one of the corners
-    void      setCorner( unsigned i, double posx, double posy, double posz );
+    //Caching the neighbours4/8 per request of Lindsey
+    unsigned int neighbours4_ = 0;
+    unsigned int neighbours8_ = 0;
   };
-  
+
 }
+std::ostream& operator<<(std::ostream& out, const reco::PFRecHit& hit);
 
 #endif

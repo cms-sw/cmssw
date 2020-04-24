@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -16,16 +16,16 @@
 //
 
 
-class HybridClusterProducer : public edm::EDProducer 
+class HybridClusterProducer : public edm::stream::EDProducer<>
 {
   
   public:
 
       HybridClusterProducer(const edm::ParameterSet& ps);
 
-      ~HybridClusterProducer();
+      ~HybridClusterProducer() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
       int nEvt_;         // internal counter of events

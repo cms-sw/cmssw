@@ -10,17 +10,17 @@
 template <typename T, 
 	  template <typename,int> class StepWithPrec, 
 	  int N>
-class dso_internal RKAdaptiveSolver GCC11_FINAL : public RKSolver<T,N> {
+class dso_internal RKAdaptiveSolver final : public RKSolver<T,N> {
 public:
 
     typedef RKSolver<T,N>                       Base;
     typedef typename Base::Scalar               Scalar;
     typedef typename Base::Vector               Vector;
 
-    virtual Vector operator()( Scalar startPar, const Vector& startState,
+    Vector operator()( Scalar startPar, const Vector& startState,
 			       Scalar step, const RKDerivative<T,N>& deriv,
 			       const RKDistance<T,N>& dist,
-			       float eps);
+			       float eps) override;
 
 };
 

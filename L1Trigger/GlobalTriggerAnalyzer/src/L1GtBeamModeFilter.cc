@@ -181,7 +181,7 @@ bool L1GtBeamModeFilter::filter(edm::Event& iEvent,
     //
 
     if (m_invertResult) {
-        filterResult = ~filterResult;
+        filterResult = !filterResult;
     }
 
     return filterResult;

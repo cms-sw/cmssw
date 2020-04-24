@@ -12,12 +12,12 @@
 #include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsQGSP_BERT.hh"
+#include "G4HadronPhysicsQGSP_BERT.hh"
 
 QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
-			   sim::FieldBuilder *fieldBuilder_, 
-			   const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+			   sim::ChordFinderSetter *chordFinderSetter_, 
+			   const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -26,7 +26,7 @@ QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_BERT with Flags for EM Physics "
+			      << "QGSP_BERT \n Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking;
 
@@ -35,7 +35,8 @@ QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4EmStandardPhysics(ver));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics( new G4EmExtraPhysics(ver));
+    G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
+    RegisterPhysics(gn);
   }
 
   // Decays
@@ -48,7 +49,7 @@ QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new HadronPhysicsQGSP_BERT(ver));
+    RegisterPhysics(  new G4HadronPhysicsQGSP_BERT(ver));
 
     // Stopping Physics
     RegisterPhysics( new G4StoppingPhysics(ver));
@@ -63,6 +64,6 @@ QGSPCMS_BERT::QGSPCMS_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
   }
 
   // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,p));
+  RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
 }
 

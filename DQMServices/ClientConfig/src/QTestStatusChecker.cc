@@ -54,7 +54,7 @@ void QTestStatusChecker::processAlarms(const std::vector<std::string>& allPathNa
   
  for(std::vector<std::string>::const_iterator fullMePath=allPathNames.begin();fullMePath!=allPathNames.end(); ++fullMePath ){		
         
-        MonitorElement * me=0;	
+        MonitorElement * me=nullptr;	
         me= bei->get(*fullMePath);
 
 	if(me){

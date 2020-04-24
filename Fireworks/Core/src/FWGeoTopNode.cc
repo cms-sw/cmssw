@@ -47,7 +47,7 @@
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-TGLViewer* FWGeoTopNode::s_pickedViewer = 0;
+TGLViewer* FWGeoTopNode::s_pickedViewer = nullptr;
 TGLVector3 FWGeoTopNode::s_pickedCamera3DCenter;
 
 UInt_t FWGeoTopNode::phyID(int tableIdx) 
@@ -186,11 +186,9 @@ bool FWGeoTopNode::selectPhysicalFromTable( int tableIndex)
       // printf("selectPhysicalFromTable found physical \n");
       return true;
    }
-   else if ( tableManager()->refEntries().at(tableIndex).testBit(FWGeometryTableManagerBase::kVisNodeSelf));
-   {
+   else if ( tableManager()->refEntries().at(tableIndex).testBit(FWGeometryTableManagerBase::kVisNodeSelf))
       fwLog(fwlog::kInfo) << "Selected entry not drawn in GL viewer. \n" ;
-      return false;
-   }
+   return false;
 }
 
 //______________________________________________________________________________
@@ -254,6 +252,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
    // printf("trans %d \n", transparency );
    if (transparency >= 100) return;
    
+   if (data.m_node->GetVolume()->IsAssembly()) return;
    TGeoShape* shape = data.m_node->GetVolume()->GetShape();
    
    TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
@@ -371,19 +370,21 @@ FWPopupMenu* FWGeoTopNode::setPopupMenu(int iX, int iY, TGLViewer* v, bool overl
    if (getFirstSelectedTableIndex() < 0)
    {
       if (fSted.empty()) fwLog(fwlog::kInfo) << "No menu -- no node/entry selected \n";
-      return 0;
+      return nullptr;
    }
    
    FWPopupMenu* nodePopup = new FWPopupMenu();
    
    nodePopup->AddEntry("Set As Top Node", kSetTopNode);
-   nodePopup->AddEntry("Set As Top Node And Reset Camera", kSetTopNodeCam);
+   nodePopup->AddEntry("Set As Top Node and Reset Camera", kSetTopNodeCam);
    nodePopup->AddSeparator();
    if (v) { 
        nodePopup->AddEntry("Rnr Off", kVisSelfOff);
    }
-   nodePopup->AddEntry("Rnr Off For All Children", kVisChldOff);
-   nodePopup->AddEntry("Rnr On For All Children", kVisChldOn);      
+   nodePopup->AddEntry("Turn Render On For Children", kVisChldOn);      
+   nodePopup->AddEntry("Turn Render Off For Children", kVisChldOff);
+   nodePopup->AddEntry("Apply Color To Children", kApplyChldCol);      
+   nodePopup->AddEntry("Apply Color Recursively", kApplyChldColRec);      
    nodePopup->AddSeparator();
    
    if (overlap)

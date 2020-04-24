@@ -1,42 +1,70 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("CALIB")
+process = cms.Process("SiStripQualityStatisticsCabling")
+
+#prepare options
+
+options = VarParsing.VarParsing("analysis")
+
+options.register ('cablingTagName',
+                  "SiStripFedCabling_GR10_v1_hlt",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "Cabling DB tag name")
+options.register ('runNumber',
+                  1,
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "Run Number")
+
+options.parseArguments()
+
 process.MessageLogger = cms.Service("MessageLogger",
-    log_cabling = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING')
     ),
-    destinations = cms.untracked.vstring('log_cabling.txt')
+    log_cabling = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO'),
+        default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+        SiStripQualityStatistics = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+    ),
+    destinations = cms.untracked.vstring('log_cabling','cout'),
+    categories = cms.untracked.vstring('SiStripQualityStatistics')
 )
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
-    firstValue= cms.uint64(66615),
-    lastValue= cms.uint64(70674),
+    firstValue= cms.uint64(options.runNumber),
+    lastValue= cms.uint64(options.runNumber),
     interval = cms.uint64(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(1)
 )
 
 #-------------------------------------------------
 # Calibration
 #-------------------------------------------------
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect='frontier://FrontierProd/CMS_COND_21X_STRIP'
+
+process.load("Configuration.Geometry.GeometryIdeal_cff")   # needed because the GlobalTag is NOT used
+
+process.load("CondCore.DBCommon.CondDBCommon_cfi")   # needed because the GlobalTag is NOT used
+process.CondDBCommon.connect='frontier://FrontierProd/CMS_CONDITIONS'
 process.poolDBESSource=cms.ESSource("PoolDBESSource",
                                     process.CondDBCommon,
                                     BlobStreamerName=cms.untracked.string('TBufferBlobStreamingService'),
                                     toGet           =cms.VPSet(
     cms.PSet(
     record=cms.string('SiStripFedCablingRcd'),
-    tag   =cms.string('SiStripFedCabling_CRAFT_21X_v2_offline')
+    tag   =cms.string(options.cablingTagName)
     )
     )
                                     )
     
 #process.load("CalibTracker.Configuration.Tracker_DependentRecords_forGlobalTag_nofakes_cff")                                    )
-process.sistripconn = cms.ESProducer("SiStripConnectivity")
+process.sistripconn = cms.ESProducer("SiStripConnectivity")  # needed because the GlobalTag is NOT used
 
 # Include masking #
 
@@ -47,14 +75,16 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
 process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 
 
-process.load("DQM.SiStripMonitorClient.SiStripDQMOnline_cff")
-process.DQMStore.referenceFileName = ''
+#-------------------------------------------------
+# Services for the TkHistoMap
+#-------------------------------------------------
+process.load("DQMServices.Core.DQMStore_cfg")
 process.TkDetMap = cms.Service("TkDetMap")
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
                               dataLabel = cms.untracked.string(""),
-                              TkMapFileName = cms.untracked.string("Cabling/TkMapBadComponents_Cabling.png")  #available filetypes: .pdf .png .jpg .svg
+                              TkMapFileName = cms.untracked.string("TkMapBadComponents_Cabling.png")  #available filetypes: .pdf .png .jpg .svg
                               )
 
 process.p = cms.Path(process.stat)

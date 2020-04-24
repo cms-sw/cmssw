@@ -145,7 +145,7 @@ parser.add_option("-B","--black_list",
 original_pickle_name=""
 if options.compare:
 
-  if os.environ.has_key("RELMON_SA"):
+  if "RELMON_SA" in os.environ:
     from dqm_interfaces import DirID,DQMcommunicator,DirWalkerDB
     from dirstructure import Directory
   else:  
@@ -235,7 +235,7 @@ if options.compare:
 
 #-------------------------------------------------------------------------------
 if options.report:
-  if os.environ.has_key("RELMON_SA"):  
+  if "RELMON_SA" in os.environ:  
     from directories2html import directory2html
     from dirstructure import Directory
   else:

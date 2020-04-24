@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Utilities/Timing/interface/TimingReport.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -38,19 +37,20 @@ JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector && iC
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theExcludeMuonVeto(par.getParameter<bool>("ExcludeMuonVeto")),
-  theService(0),
-  theAssociator(0),
+  theService(nullptr),
+  theAssociator(nullptr),
   thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport"))
 {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
+  //  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC_);
+  theAssociatorParameters = new TrackAssociatorParameters();
+  theAssociatorParameters->loadParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
   theAssociator = new TrackDetectorAssociator();
 }
 
 JetExtractor::~JetExtractor(){
-  if (thePrintTimeReport) TimingReport::current()->dump(std::cout);
   if (theAssociatorParameters) delete theAssociatorParameters;
   if (theService) delete theService;
   if (theAssociator) delete theAssociator;

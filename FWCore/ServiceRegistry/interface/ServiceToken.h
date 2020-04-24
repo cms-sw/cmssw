@@ -21,11 +21,14 @@
 //
 
 // system include files
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 // user include files
 
 // forward declarations
+class testServicesManager;
+class TestServicesManagerOrder;
+
 namespace edm {
    class ServiceRegistry;
    class ActivityRegistry;
@@ -38,6 +41,10 @@ namespace edm {
    {
       friend class edm::ServiceRegistry;
       friend class edm::serviceregistry::ServicesManager;
+      //for testing
+      friend class ::testServicesManager;
+      friend class ::TestServicesManagerOrder;
+     
     public:
       ServiceToken() {}
       //virtual ~ServiceToken();
@@ -59,7 +66,7 @@ namespace edm {
       void copySlotsFrom(ActivityRegistry&);
       
     private:
-      ServiceToken(boost::shared_ptr<edm::serviceregistry::ServicesManager>  iManager):
+      ServiceToken(std::shared_ptr<edm::serviceregistry::ServicesManager>  iManager):
       manager_(iManager) {}
       
       //ServiceToken(const ServiceToken&); // stop default
@@ -67,7 +74,7 @@ namespace edm {
       //const ServiceToken& operator=(const ServiceToken&); // stop default
 
       // ---------- member data --------------------------------
-      boost::shared_ptr<edm::serviceregistry::ServicesManager> manager_;
+      std::shared_ptr<edm::serviceregistry::ServicesManager> manager_;
    };
 }
 

@@ -18,8 +18,8 @@ namespace edm {
 class HLTHcalNoiseFilter : public HLTFilter {
    public:
       explicit HLTHcalNoiseFilter(const edm::ParameterSet&);
-      ~HLTHcalNoiseFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTHcalNoiseFilter() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

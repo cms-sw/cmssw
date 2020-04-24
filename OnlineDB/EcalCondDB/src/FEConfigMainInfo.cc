@@ -46,7 +46,7 @@ void FEConfigMainInfo::clear() {
 
 
 }
-int FEConfigMainInfo::fetchNextId()  throw(std::runtime_error) {
+int FEConfigMainInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -68,7 +68,7 @@ int FEConfigMainInfo::fetchNextId()  throw(std::runtime_error) {
 }
 
 int FEConfigMainInfo::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -120,7 +120,7 @@ int FEConfigMainInfo::fetchID()
 
 
 void FEConfigMainInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -143,7 +143,7 @@ void FEConfigMainInfo::prepareWrite()
 
 
 void FEConfigMainInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -188,7 +188,7 @@ void FEConfigMainInfo::writeDB()
 
 
 int FEConfigMainInfo::fetchIDLast()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();
@@ -216,7 +216,7 @@ int FEConfigMainInfo::fetchIDLast()
 
 
 void FEConfigMainInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -261,7 +261,7 @@ void FEConfigMainInfo::setByID(int id)
 
 
 void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 { std::cout << " ### 1 getId from FEConfigMainInfo = " << result->getId() << std::endl;
  std::cout << " tag/version " << result->getConfigTag() <<"/"<<result->getVersion() << std::endl;
   
@@ -314,7 +314,7 @@ void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
 }
 
  void FEConfigMainInfo::insertConfig()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
 

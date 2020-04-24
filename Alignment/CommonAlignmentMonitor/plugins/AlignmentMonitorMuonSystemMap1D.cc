@@ -24,19 +24,25 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 
 class AlignmentMonitorMuonSystemMap1D: public AlignmentMonitorBase
 {
 public:
   AlignmentMonitorMuonSystemMap1D(const edm::ParameterSet& cfg);
-  virtual ~AlignmentMonitorMuonSystemMap1D() {}
+  ~AlignmentMonitorMuonSystemMap1D() override {}
 
   void book() override;
 
   void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& iTrajTracks) override;
   void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const edm::Event &iEvent);
 
-  void afterAlignment(const edm::EventSetup &iSetup) override;
+  void afterAlignment() override;
 
 private:
 
@@ -260,6 +266,15 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel(m_beamSpotTag, beamSpot);
 
+  edm::ESHandle<DetIdAssociator> muonDetIdAssociator_;
+  iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
+
+  edm::ESHandle<Propagator> prop;
+  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",prop);
+ 
+  edm::ESHandle<MagneticField> magneticField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+
   if (m_muonCollectionTag.label().empty()) // use trajectories
   {
     for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
@@ -275,7 +290,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
         {
           m_counter_trackdxy++;
 
-          MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, track, pNavigator(), 1000.);
+          MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, pNavigator(), 1000.);
           processMuonResidualsFromTrack(muonResidualsFromTrack, iEvent);
         }
       } // end if track has acceptable momentum
@@ -337,7 +352,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 
       m_counter_dt++;
 
-      if (id.station() < 4 && dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits && dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits)
+      if (id.station() < 4 && dt13 != nullptr  &&  dt13->numHits() >= m_minDT13Hits && dt2 != nullptr  &&  dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0)
       {
         m_counter_13numhits++;
 
@@ -379,7 +394,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
         m_DTvsphi_station[id.station()-1][id.wheel()+2]->fill_dydz(charge, phi, resslope, chi2, dof);
       }
 
-      if (id.station() == 4 && dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits)
+      if (id.station() == 4 && dt13 != nullptr  &&  dt13->numHits() >= m_minDT13Hits)
       {
         m_counter_13numhits++;
 
@@ -413,7 +428,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 
       m_counter_csc++;
 
-      if (csc != NULL  &&  csc->numHits() >= m_minCSCHits)
+      if (csc != nullptr  &&  csc->numHits() >= m_minCSCHits)
       {
         m_counter_cscnumhits++;
 
@@ -465,7 +480,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 }
 
 
-void AlignmentMonitorMuonSystemMap1D::afterAlignment(const edm::EventSetup &iSetup)
+void AlignmentMonitorMuonSystemMap1D::afterAlignment()
 {
   std::cout << "AlignmentMonitorMuonSystemMap1D counters:"<<std::endl;
   std::cout << " monitor m_counter_event      = " << m_counter_event << std::endl;
@@ -484,7 +499,7 @@ void AlignmentMonitorMuonSystemMap1D::afterAlignment(const edm::EventSetup &iSet
 AlignmentMonitorMuonSystemMap1D::MuonSystemMapPlot1D::MuonSystemMapPlot1D(std::string name, AlignmentMonitorMuonSystemMap1D *module, int bins, double low, double high, bool xy, bool add_1d)
    : m_name(name), m_bins(bins), m_xy(xy), m_1d(add_1d)
 {
-  m_x_2d = m_y_2d = m_dxdz_2d = m_dydz_2d = NULL;
+  m_x_2d = m_y_2d = m_dxdz_2d = m_dydz_2d = nullptr;
   std::stringstream name_x_2d, name_y_2d, name_dxdz_2d, name_dydz_2d;
   name_x_2d << m_name << "_x_2d";
   name_y_2d << m_name << "_y_2d";
@@ -494,16 +509,16 @@ AlignmentMonitorMuonSystemMap1D::MuonSystemMapPlot1D::MuonSystemMapPlot1D(std::s
   const int nbins = 200;
   const double window = 100.;
 
-  m_x_2d = module->book2D("/iterN/", name_x_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
-  if (m_xy) m_y_2d = module->book2D("/iterN/", name_y_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
-  m_dxdz_2d = module->book2D("/iterN/", name_dxdz_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
-  if (m_xy) m_dydz_2d = module->book2D("/iterN/", name_dydz_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
+  m_x_2d = module->book2D("/iterN/", name_x_2d.str(), "", m_bins, low, high, nbins, -window, window);
+  if (m_xy) m_y_2d = module->book2D("/iterN/", name_y_2d.str(), "", m_bins, low, high, nbins, -window, window);
+  m_dxdz_2d = module->book2D("/iterN/", name_dxdz_2d.str(), "", m_bins, low, high, nbins, -window, window);
+  if (m_xy) m_dydz_2d = module->book2D("/iterN/", name_dydz_2d.str(), "", m_bins, low, high, nbins, -window, window);
 
-  m_x_1d = NULL;
+  m_x_1d = nullptr;
   if (m_1d) {
     std::stringstream name_x_1d;//, name_y_1d, name_dxdz_1d, name_dydz_1d;
     name_x_1d << m_name << "_x_1d";
-    m_x_1d = module->book1D("/iterN/", name_x_1d.str().c_str(), "", nbins, -window, window);
+    m_x_1d = module->book1D("/iterN/", name_x_1d.str(), "", nbins, -window, window);
   }
 }
 

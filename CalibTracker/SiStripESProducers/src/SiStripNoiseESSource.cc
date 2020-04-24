@@ -16,7 +16,7 @@ SiStripNoiseESSource::SiStripNoiseESSource( const edm::ParameterSet& pset ) {
 
 // -----------------------------------------------------------------------------
 //
-std::auto_ptr<SiStripNoises> SiStripNoiseESSource::produce( const SiStripNoisesRcd& ) { 
+std::unique_ptr<SiStripNoises> SiStripNoiseESSource::produce( const SiStripNoisesRcd& ) { 
   
   SiStripNoises* noise = makeNoise();
   
@@ -26,7 +26,7 @@ std::auto_ptr<SiStripNoises> SiStripNoiseESSource::produce( const SiStripNoisesR
       << " Null pointer to SiStripNoises object!";
   }
   
-  std::auto_ptr<SiStripNoises> ptr(noise);
+  std::unique_ptr<SiStripNoises> ptr(noise);
   return ptr;
 
 }

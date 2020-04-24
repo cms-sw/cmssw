@@ -23,6 +23,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -52,7 +54,7 @@ public:
     L1GtExternalTemplate(const L1GtExternalTemplate&);
 
     // destructor
-    virtual ~L1GtExternalTemplate();
+    ~L1GtExternalTemplate() override;
 
     // assign operator
     L1GtExternalTemplate& operator=(const L1GtExternalTemplate&);
@@ -60,7 +62,7 @@ public:
 public:
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtExternalTemplate&);
@@ -71,6 +73,8 @@ private:
     /// copy function for copy constructor and operator=
     void copy(const L1GtExternalTemplate& cp);
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

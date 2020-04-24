@@ -10,10 +10,10 @@ RootOutputTree.h // used by ROOT output modules
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
-#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "TTree.h"
 
@@ -21,10 +21,9 @@ class TFile;
 class TBranch;
 
 namespace edm {
-  class WrapperInterfaceBase;
   class RootOutputTree {
   public:
-    RootOutputTree(boost::shared_ptr<TFile> filePtr,
+    RootOutputTree(std::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
                    int splitLevel,
                    int treeMaxVirtualSize);
@@ -66,7 +65,6 @@ namespace edm {
 
     void addBranch(std::string const& branchName,
                    std::string const& className,
-                   WrapperInterfaceBase const* interface,
                    void const*& pProd,
                    int splitLevel,
                    int basketSize,
@@ -80,12 +78,16 @@ namespace edm {
 
     void maybeFastCloneTree(bool canFastClone, bool canFastCloneAux, TTree* tree, std::string const& option);
 
-    void fillTree() const;
+    void fillTree();
 
-    void writeTree() const;
+    void writeTree();
 
-    TTree* tree() const {
-      return tree_;
+    TTree const* tree() const {
+      return tree_.get();
+    }
+
+    TTree* tree() {
+      return tree_.get();
     }
 
     void setEntries() {
@@ -111,13 +113,15 @@ namespace edm {
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore, using smart pointers here will do no good.
-    boost::shared_ptr<TFile> filePtr_;
-    TTree* tree_;
+    edm::propagate_const<std::shared_ptr<TFile>> filePtr_;
+    edm::propagate_const<TTree*> tree_;
+
     std::vector<TBranch*> producedBranches_; // does not include cloned branches
     std::vector<TBranch*> readBranches_;
     std::vector<TBranch*> auxBranches_;
     std::vector<TBranch*> unclonedAuxBranches_;
     std::vector<TBranch*> unclonedReadBranches_;
+
     std::set<std::string> clonedReadBranchNames_;
     bool currentlyFastCloning_;
     bool fastCloneAuxBranches_;

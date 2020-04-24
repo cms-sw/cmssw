@@ -11,19 +11,21 @@
 #    define _LARGEFILE64_SOURCE
 #  endif //_LARGEFILE64_SOURCE not defined
 #  define  _FILE_OFFSET_BITS 64 
-#  include <stdio.h>
+#  include <cstdio>
 #endif //USE_STORAGE_MANAGER defined
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
 #include "EventFilter/EcalRawToDigi/src/MatacqDataFormatter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <string>
-#include <inttypes.h>
+#include <cinttypes>
 #include <fstream>
 #include <memory>
 
@@ -52,7 +54,7 @@ public:
 private:
 #ifdef USE_STORAGE_MANAGER
   typedef IOOffset filepos_t;
-  typedef std::auto_ptr<Storage> FILE_t;
+  typedef std::unique_ptr<Storage> FILE_t;
 #else
   typedef off_t filepos_t;
   typedef FILE* FILE_t;
@@ -124,14 +126,14 @@ public:
 
   /** Destructor
    */
-  ~MatacqProducer();
+  ~MatacqProducer() override;
 
   /** Produces the EDM products
    * @param CMS event
    * @param eventSetup event conditions
    */
-  virtual void
-  produce(edm::Event& event, const edm::EventSetup& eventSetup);
+  void
+  produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
   /** Add matacq digi to the event
@@ -149,7 +151,7 @@ private:
    * found.
    */
   bool
-  getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* fileChange =0);
+  getMatacqFile(uint32_t runNumber, uint32_t orbitId, bool* fileChange =nullptr);
 
   bool
   getMatacqEvent(uint32_t runNumber, int32_t orbitId,
@@ -158,6 +160,10 @@ private:
 
   uint32_t getRunNumber(edm::Event& ev) const;
   uint32_t getOrbitId(edm::Event& ev) const;
+
+  
+  bool getOrbitRange(uint32_t& firstOrb, uint32_t& lastOrb);
+
   int getCalibTriggerType(edm::Event& ev) const;
 
   /** Loading orbit correction table from file. @see orbitOffsetFile_
@@ -170,7 +176,7 @@ private:
    * @param mess text to insert in the eventual error message.
    * @return true on success, false on failure
    */  
-  bool mseek(filepos_t offset, int whence = SEEK_SET, const char* mess = 0);
+  bool mseek(filepos_t offset, int whence = SEEK_SET, const char* mess = nullptr);
 
   bool mtell(filepos_t& pos);
   
@@ -182,7 +188,7 @@ private:
    * @param peek if true file position is restored after the data read
    * @return true on success, false on failure
    */
-  bool mread(char* buf, size_t n, const char* mess = 0, bool peek = false);
+  bool mread(char* buf, size_t n, const char* mess = nullptr, bool peek = false);
 
   bool mcheck(const std::string& name);
 
@@ -233,10 +239,16 @@ private:
    */
   bool produceRaw_;
 
-  /** Name of raw data collection the Matacq data must be merge to
+  /** Name of the raw data collection the Matacq data must be merge to
    * if merging is enabled.
    */
   edm::InputTag inputRawCollection_;
+
+
+  /** EDM token to access the raw data collection the Matacq data must be merge to
+   * if merging is enabled.
+   */
+  edm::EDGetTokenT<FEDRawDataCollection> inputRawCollectionToken_;
 
   /** Switch for merging Matacq raw data with existing raw data
    * collection.

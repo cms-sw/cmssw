@@ -30,7 +30,7 @@ public:
   virtual ~MagBSector();  
 
   /// Find the volume containing a point, with a given tolerance
-  MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
+  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
 
   /// Phi of sector start
   Geom::Phi<float> minPhi() const {return thePhiMin;}

@@ -15,7 +15,7 @@ public:
   CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a);
   /// buf may need to stay pinned in memory as long
   /// as this data is used.  Not sure
-  explicit CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner=NULL);
+  explicit CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner=nullptr);
 
   ~CSCDCCEventData();
 
@@ -38,21 +38,26 @@ public:
   /// from the header or trailer
   int sizeInWords() const {return theSizeInWords;}
 
-  void addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID);
+  void addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID, uint16_t format_version = 2005);
 
   ///packs data into bits
   boost::dynamic_bitset<> pack();  
 
-  static std::atomic<bool> debug;
+#ifdef LOCAL_UNPACK
+  static bool debug;
+#else
+  static std::atomic<bool> debug;  
+#endif
 
 
 protected:
-  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=NULL);
+  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=nullptr);
   CSCDCCHeader theDCCHeader;
   // DDUData is unpacked and stored in this vector
   std::vector<CSCDDUEventData> theDDUData;
   CSCDCCTrailer theDCCTrailer;
   int theSizeInWords;
+  
 };
 
 #endif

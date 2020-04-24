@@ -70,7 +70,7 @@ namespace edm {
     // defined TFileService
     edm::Service<TFileService> fileService;
     // create analysis class of type BasicAnalyzer
-    analyzer_ = boost::shared_ptr<T>( new T( cfg, fileService->tFileDirectory()) );
+    analyzer_ = boost::shared_ptr<T>( new T( cfg, fileService->tFileDirectory(), consumesCollector()) );
   }
 
 }

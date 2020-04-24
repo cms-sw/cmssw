@@ -21,6 +21,10 @@ namespace cond {
 
   namespace persistency {
 
+    // required to handle the tag overriding
+    std::string fullyQualifiedTag( const std::string& tag, const std::string& connectionString );
+    std::pair<std::string,std::string> parseTag( const std::string& tag );
+
     class SessionImpl;
     class GTProxyData;
 

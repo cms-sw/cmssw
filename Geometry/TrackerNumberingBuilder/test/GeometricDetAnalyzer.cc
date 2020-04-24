@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -45,15 +45,14 @@
 // class decleration
 //
 
-class GeometricDetAnalyzer : public edm::EDAnalyzer {
+class GeometricDetAnalyzer : public edm::one::EDAnalyzer<> {
    public:
       explicit GeometricDetAnalyzer( const edm::ParameterSet& );
-      ~GeometricDetAnalyzer();
+      ~GeometricDetAnalyzer() override;
 
-
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
-      // ----------member data ---------------------------
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
 //
@@ -102,8 +101,8 @@ GeometricDetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    edm::LogInfo("GeometricDetAnalyzer")<< " Top node is  "<< pDD.product();   
    edm::LogInfo("GeometricDetAnalyzer")<< " And Contains  Daughters: "<< pDD->deepComponents().size();   
    std::vector<const GeometricDet*> det = pDD->deepComponents();   
-   for(std::vector<const GeometricDet*>::iterator it = det.begin();it!=det.end();it++){
-     DDRotationMatrix res = (*it)->rotation();
+   for(auto & it : det){
+     const DDRotationMatrix& res = it->rotation();
      DD3Vector x, y, z;
      res.GetComponents(x, y, z);
      DD3Vector colx(x.X(),x.Y(),x.Z());
@@ -115,7 +114,7 @@ GeometricDetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
      DD3Vector cx, cy, cz;
      result.GetComponents(cx, cy, cz);
      if (cx.Cross(cy).Dot(cz) < 0.5){
-       edm::LogInfo("GeometricDetAnalyzer") <<"Left Handed Rotation Matrix detected; making it right handed: "<<(*it)->name();
+       edm::LogInfo("GeometricDetAnalyzer") <<"Left Handed Rotation Matrix detected; making it right handed: "<<it->name();
      }
    }
 

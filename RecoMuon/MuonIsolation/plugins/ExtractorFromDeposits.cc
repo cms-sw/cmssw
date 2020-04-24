@@ -21,7 +21,7 @@ void ExtractorFromDeposits::fillVetos (const edm::Event & ev,
 IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
     const EventSetup & eventSetup, const Track & muon) const
 {
-  static std::string metname = "RecoMuon|ExtractorFromDeposits";
+  static const std::string metname = "RecoMuon|ExtractorFromDeposits";
   Handle<reco::IsoDepositMap> depMap;
   event.getByToken(theCollectionToken, depMap);
 
@@ -49,7 +49,6 @@ IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
 IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
     const EventSetup & eventSetup, const TrackRef & muon) const
 {
-  static std::string metname = "RecoMuon|ExtractorFromDeposits";
   Handle<reco::IsoDepositMap> depMap;
   event.getByToken(theCollectionToken, depMap);
 

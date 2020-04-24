@@ -25,9 +25,9 @@
 class HcalDcsMapHandler : public popcon::PopConSourceHandler<HcalDcsMap>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalDcsMapHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalDcsMapHandler() override;
   HcalDcsMapHandler(edm::ParameterSet const &);
 
   void initObject(HcalDcsMap*);

@@ -8,7 +8,7 @@
 
 /** \class EtaPtBin
  *
- *  Decide if jet/parton lie within desired rapidity/pt range.
+ *  Decide if jet/parton lie within desired abs(pseudo-rapidity)/pt range.
  *
  */
 
@@ -43,7 +43,7 @@ class EtaPtBin {
 
   /// Check if jet/parton are within rapidity/pt cuts.
   bool inBin(const double & eta , const double & pt) const;
-  bool inBin(const reco::Jet & jet) const;
+  bool inBin(const reco::Jet & jet, const double jec) const;
 //   bool inBin(const BTagMCTools::JetFlavour & jetFlavour) const;
 
  private:

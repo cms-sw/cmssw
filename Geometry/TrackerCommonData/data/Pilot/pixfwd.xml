@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!-- 
+         
+         == CMS Forward Pixels Geometry ==
+         
+         @version 3.02.01 May 30, 2006
+         @created Dmitry Onoprienko
+         @modified Xingtao Huang to implement the simplified fpix service cylinder
+         
+         == Subsystem or component described by the file ==
+         
+         Forward pixels endcap (contains two disks inside a service cylinder).
+         
+         == Root volume and its reference frame ==
+         
+         Two root volumes are defined:
+         
+         PixelForwardZPlus  : +Z half of the detector
+         PixelForwardZMinus : -Z half of the detector
+         
+         X horizontal
+         Y vertical
+         Z along the beam line, pointing away from IP
+         
+         == Positioning ==
+         
+         Anchor point of this component is at the IP-side edge of the service cylider, on 
+         the axis of the detector (see annotated drawings).
+         The file defines [AnchorZ] constant that corresponds to the Z coordinate
+         of the anchor point in the forward pixels endcap reference frame, and the
+         [ZPixelForward] constant equal to the distance from CMS IP to the 
+         anchor point. 
+         
+         Therefore, in the CMS global reference frame,
+         PixelForwardZPlus has to be positioned at 
+         (0., 0., 0.) with no rotation, and 
+         PixelForwardZMinus has to be positioned at
+         (0., 0., 0.) 
+         with pixfwdCommon:Y180 rotation (180 degrees around Y axis).
+         
+         -->
+    <!-- Root volumes -->
+    <ConstantsSection label="Root" eval="true">
+        <Constant name="RootRadius" value="[pixfwdCylinder:CylindersOuterRmax]"/>
+        <Constant name="RootHalfLength" value="[pixfwdCylinder:CylindersOuterLength]/2.+ [pixfwdCylinder:CylindersEndFlangeLength]/2."/>
+        <Constant name="AnchorZ" value="0.*mm"/>
+        <Constant name="ZPixelForward" value="325.*mm"/>
+        <Constant name="RootStartZ" value="-2*mm"/>
+        <Constant name="RootMidZ3" value="[cms:TrackBeamZ1]-[ZPixelForward]"/>
+        <Constant name="RootEndZ" value="2*[RootHalfLength]"/>
+    </ConstantsSection>
+    <SolidSection label="Root">
+        <Polycone name="PixelForward" startPhi="0*deg" deltaPhi="360*deg">
+            <ZSection z="[RootStartZ]" rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
+            <ZSection z="[RootMidZ3]" rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
+            <ZSection z="[RootEndZ]" rMin="[cms:TrackBeamR2]" rMax="[RootRadius]"/>
+        </Polycone>
+    </SolidSection>
+    <LogicalPartSection label="Root">
+        <LogicalPart name="PixelForwardZPlus" category="envelope">
+            <rSolid name="PixelForward"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardZMinus" category="envelope">
+            <rSolid name="PixelForward"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <!-- Position disks inside root -->
+    <ConstantsSection label="Disks" eval="true">
+        <!-- Distances from IP-side edge of PixelForwardRoot to disk centers -->
+        <Constant name="Disk1Z" value="30*mm"/>
+        <Constant name="Disk2Z" value="160*mm"/>
+        <!-- <Constant name="Disk3Z" value="290*mm"/> -->
+        <Constant name="Disk3Z" value="288.5*mm"/>
+    </ConstantsSection>
+    <PosPartSection label="Disks">
+        <!-- +Z endcap -->
+        <PosPart copyNumber="1">
+            <rParent name="PixelForwardZPlus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskZPlus"/>
+            <Translation x="0." y="0." z="[AnchorZ]+[Disk1Z]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="PixelForwardZPlus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskZPlus"/>
+            <Translation x="0." y="0." z="[AnchorZ]+[Disk2Z]"/>
+        </PosPart>
+        <!--
+        <PosPart copyNumber="3">
+            <rParent name="PixelForwardZPlus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskZPlus"/>
+            <Translation x="0." y="0." z="[AnchorZ]+ [Disk3Z]" />
+        </PosPart>
+        -->
+        <PosPart copyNumber="1">
+            <rParent name="PixelForwardZMinus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskZMinus"/>
+            <Translation x="0." y="0." z="[AnchorZ]+[Disk1Z]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="PixelForwardZMinus"/>
+            <rChild name="pixfwdDisk:PixelForwardDiskZMinus"/>
+            <Translation x="0." y="0." z="[AnchorZ]+[Disk2Z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="PixelForwardZMinus"/>
+            <rChild name="pixfwdDisk:PixelForwardPilotDiskZMinus"/>
+            <Translation x="0." y="0." z="[AnchorZ]+[Disk3Z]" />
+        </PosPart>
+    </PosPartSection>
+    <!-- Position service cylinders inside root.
+         Since shapeless volumes are not useable at the moment, 
+         PixelForwardCylinder.xml does the actual positioning, we just tell it where to place the
+         cylinders by defining Z position of IP-side edge of service cylinder in PixelForward frame:
+         -->
+    <ConstantsSection label="ServiceCylinder" eval="true">
+        <Constant name="ZCylinder" value="[AnchorZ]"/>
+    </ConstantsSection>
+    <PosPartSection label="Cylinders">
+        <!-- +Z endcap -->
+        <PosPart copyNumber="1">
+            <rParent name="pixfwd:PixelForwardZPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
+            <Translation x="0." y="0." z="0."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwd:PixelForwardZPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderEndFlange"/>
+            <Translation x="0." y="0." z="[pixfwd:ZCylinder]+[pixfwdCylinder:CylindersOuterLength]+[pixfwdCylinder:CylindersEndFlangeLength]/2."/>
+            <rRotation name="pixfwdCylinder:EndFlangeRot1"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwd:PixelForwardZPlus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderEndFlange"/>
+            <Translation x="0." y="0." z="[pixfwd:ZCylinder]+[pixfwdCylinder:CylindersOuterLength]+[pixfwdCylinder:CylindersEndFlangeLength]/2."/>
+            <rRotation name="pixfwdCylinder:EndFlangeRot2"/>
+            <!-- xt rRotation name="pixfwdCommon:Z180" / xt-->
+        </PosPart>
+        <!-- xt PosPart copyNumber="1">
+             <rParent name="pixfwd:PixelForwardZPlus"/>
+             <rChild name="pixfwdCylinder:PixelForwardCylinderBackCyl"/>
+             <Translation x="0." y="0." z="[pixfwd:ZCylinder]+[pixfwdCylinder:CylindersFrontLength]+[pixfwdCylinder:CylinderBackLength]/2." />
+        </PosPart xt -->
+        <!-- -Z endcap -->
+        <PosPart copyNumber="1">
+            <rParent name="pixfwd:PixelForwardZMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
+            <Translation x="0." y="0." z="0."/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="pixfwd:PixelForwardZMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderEndFlange"/>
+            <Translation x="0." y="0." z="[pixfwd:ZCylinder]+[pixfwdCylinder:CylindersOuterLength]+[pixfwdCylinder:CylindersEndFlangeLength]/2."/>
+            <rRotation name="pixfwdCylinder:EndFlangeRot1"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="pixfwd:PixelForwardZMinus"/>
+            <rChild name="pixfwdCylinder:PixelForwardCylinderEndFlange"/>
+            <Translation x="0." y="0." z="[pixfwd:ZCylinder]+[pixfwdCylinder:CylindersOuterLength]+[pixfwdCylinder:CylindersEndFlangeLength]/2."/>
+            <rRotation name="pixfwdCylinder:EndFlangeRot2"/>
+        </PosPart>
+        <!-- xt PosPart copyNumber="1">
+             <rParent name="pixfwd:PixelForwardZMinus"/>
+             <rChild name="pixfwdCylinder:PixelForwardCylinderBackCyl"/>
+             <Translation x="0." y="0." z="[pixfwd:ZCylinder]+[pixfwdCylinder:CylindersFrontLength]+[pixfwdCylinder:CylinderBackLength]/2." />
+        </PosPart xt -->
+    </PosPartSection>
+</DDDefinition>

@@ -8,17 +8,8 @@
 #define __EcalTPGCrystalStatusXMLTranslator_h_
 
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
-
-static const char CVSId__EcalTPGCrystalStatusXMLTranslator[] = 
-"$Id: EcalTPGCrystalStatusXMLTranslator.h,v 1.1 2011/04/04 fay Exp $";
-
-
-//class EcalTPGCrystalStatus;
 
 class EcalTPGCrystalStatusXMLTranslator {
 
@@ -27,6 +18,8 @@ public:
   static  int writeXML(const std::string& filename, 
 		       const EcalCondHeader& header,
 		       const EcalTPGCrystalStatus& record);
+
+ private:
 
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalTPGCrystalStatus& record);

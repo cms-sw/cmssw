@@ -30,12 +30,12 @@ class TtSemiLepSignalSelMVATrainer : public edm::EDAnalyzer {
  public:
 
   explicit TtSemiLepSignalSelMVATrainer(const edm::ParameterSet&);
-  ~TtSemiLepSignalSelMVATrainer();
+  ~TtSemiLepSignalSelMVATrainer() override;
 
  private:
 
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
-  virtual void beginJob();
+  void analyze(const edm::Event& evt, const edm::EventSetup& setup) override;
+  void beginJob() override;
 
   double DeltaPhi(const math::XYZTLorentzVector& v1,const math::XYZTLorentzVector& v2);
   double DeltaR(const math::XYZTLorentzVector& v1,const math::XYZTLorentzVector& v2);

@@ -22,6 +22,7 @@ recoTauDiscriminantCutMultiplexer = cms.EDProducer(
             )
         ),
     key = cms.InputTag("fixme"), # a discriminator
+    loadMVAfromDB = cms.bool(True),
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),

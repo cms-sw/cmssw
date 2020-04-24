@@ -18,7 +18,6 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -28,6 +27,8 @@
 #define CONTROL_FOLDER_NAME "ControlView"
 #define MECHANICAL_FOLDER_NAME "MechanicalView"
 #define SEP "/"
+
+#include <cstring>
 
 SiStripFolderOrganizer::SiStripFolderOrganizer()
 {
@@ -146,6 +147,64 @@ std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayer(const u
       edm::LogWarning("SiStripMonitorTrack") << "WARNING!!! this detid does not belong to tracker" << std::endl;
     }
   return std::make_pair(cSubDet,layer);
+}
+
+std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayerThickness(const uint32_t& detid, const TrackerTopology* tTopo, std::string & cThickness){
+  std::string cSubDet;
+  int32_t layer=0;
+  int32_t ring=0;
+  switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId())) {
+  case StripSubdetector::TIB:
+    cSubDet="TIB";
+    layer=tTopo->tibLayer(detid);
+    cThickness = "THIN";
+    break;
+  case StripSubdetector::TOB:
+    cSubDet="TOB";
+    layer=tTopo->tobLayer(detid);
+    cThickness = "THICK";
+    break;
+  case StripSubdetector::TID:
+    cSubDet="TID";
+    layer=tTopo->tidWheel(detid) * ( tTopo->tidSide(detid)==1 ? -1 : +1);
+    cThickness = "THIN";
+    break;
+  case StripSubdetector::TEC:
+    cSubDet="TEC";
+    layer=tTopo->tecWheel(detid) * ( tTopo->tecSide(detid)==1 ? -1 : +1);
+    ring=tTopo->tecRing(detid) * ( tTopo->tecSide(detid)==1 ? -1 : +1);
+    if ( ring >= 1 && ring <= 4) cThickness = "THIN";
+    else cThickness = "THICK";
+    break;
+  default:
+    edm::LogWarning("SiStripMonitorTrack") << "WARNING!!! this detid does not belong to tracker" << std::endl;
+  }
+  return std::make_pair(cSubDet,layer);
+}
+
+std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndRing(const uint32_t& detid, const TrackerTopology* tTopo){
+  std::string cSubDet;
+  int32_t ring=0;
+  switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
+    {
+    case StripSubdetector::TIB:
+      cSubDet="TIB";
+      break;
+    case StripSubdetector::TOB:
+      cSubDet="TOB";
+      break;
+    case StripSubdetector::TID:
+      cSubDet="TID";
+      ring=tTopo->tidRing(detid) * ( tTopo->tidSide(detid)==1 ? -1 : +1);
+      break;
+    case StripSubdetector::TEC:
+      cSubDet="TEC";
+      ring=tTopo->tecRing(detid) * ( tTopo->tecSide(detid)==1 ? -1 : +1);
+      break;
+    default:
+      edm::LogWarning("SiStripMonitorTrack") << "WARNING!!! this detid does not belong to tracker" << std::endl;
+    }
+  return std::make_pair(cSubDet,ring);
 }
 
 
@@ -394,106 +453,48 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t 
 //
 // -- Get Subdetector Folder name and the Tag
 //
-std::pair<std::string, std::string> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo) {
-  std::pair<std::string, std::string> result;
-  result.first = TopFolderName + SEP MECHANICAL_FOLDER_NAME SEP;
-  std::string subdet_folder;
+std::pair<const std::string, const char *> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo) {
+
+  const char *subdet_folder = "";
+  const char *tag = "";
   switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
     {
     case StripSubdetector::TIB:
       subdet_folder = "TIB";
-      result.second = subdet_folder;
+      tag = subdet_folder;
       break;
     case StripSubdetector::TOB:
       subdet_folder = "TOB";
-      result.second = subdet_folder;
+      tag = subdet_folder;
       break;
     case StripSubdetector::TID:
       if (tTopo->tidSide(detid) == 2) {
         subdet_folder = "TID/PLUS";
-	result.second = "TID__PLUS";
+        tag = "TID__PLUS";
       } else if (tTopo->tidSide(detid) == 1) {
         subdet_folder = "TID/MINUS";
-	result.second = "TID__MINUS";
+        tag = "TID__MINUS";
       }
       break;
     case StripSubdetector::TEC:
       if (tTopo->tecSide(detid) == 2) {
         subdet_folder = "TEC/PLUS";
-	result.second = "TEC__PLUS";
+        tag = "TEC__PLUS";
       } else if (tTopo->tecSide(detid) == 1) {
         subdet_folder = "TEC/MINUS";
-	result.second = "TEC__MINUS";
+        tag = "TEC__MINUS";
       }
       break;
     default:
       {
-	edm::LogWarning("SiStripCommon") << "WARNING!!! this detid does not belong to tracker" << std::endl;
+        edm::LogWarning("SiStripCommon") << "WARNING!!! this detid does not belong to tracker" << std::endl;
         subdet_folder = "";
       }
     }
-  result.first += subdet_folder;
-  return result; 
-}
 
+  std::string folder;
+  folder.reserve(TopFolderName.size() + strlen(SEP MECHANICAL_FOLDER_NAME SEP) + strlen(subdet_folder) + 1);
+  folder = TopFolderName + SEP MECHANICAL_FOLDER_NAME SEP + subdet_folder;
 
-// This is the deprecated version, still needed for now.
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-
-void SiStripFolderOrganizer::getFolderName(int32_t rawdetid, std::string& lokal_folder){
-  lokal_folder = ""; 
-  if(rawdetid == 0 ){ // just top MechanicalFolder if rawdetid==0;
-    return;
-  }
-  std::stringstream rest;
-  SiStripDetId stripdet = SiStripDetId(rawdetid);
-  
-  if (stripdet.subDetector() == SiStripDetId::TIB){
-  // ---------------------------  TIB  --------------------------- //
-    TIBDetId tib = TIBDetId(rawdetid);
-    getSubDetLayerFolderName(rest,stripdet.subDetector(),tib.layerNumber());
-    if (tib.isZMinusSide())      rest << "backward_strings" << SEP;
-    else                         rest << "forward_strings"  << SEP;
-    if (tib.isExternalString())  rest << "external_strings" << SEP;
-    else                         rest << "internal_strings" << SEP;
-    rest << "string_" << tib.stringNumber() << SEP << "module_" << rawdetid;
-  } else if(stripdet.subDetector() == SiStripDetId::TID){
-  // ---------------------------  TID  --------------------------- //
-    TIDDetId tid = TIDDetId(rawdetid);
-    getSubDetLayerFolderName(rest,stripdet.subDetector(),tid.wheel(),tid.side());
-    rest<< "ring_"  << tid.ring() << SEP;
-
-    if (tid.isStereo()) rest << "stereo_modules" << SEP;
-    else                rest << "mono_modules" << SEP;
-    rest  << "module_" << rawdetid;
-  } else if( stripdet.subDetector() == SiStripDetId::TOB){
-  // ---------------------------  TOB  --------------------------- //
-    TOBDetId tob = TOBDetId(rawdetid);
-    getSubDetLayerFolderName(rest,stripdet.subDetector(),tob.layerNumber());
-    if (tob.isZMinusSide()) rest << "backward_rods" << SEP;
-    else                    rest << "forward_rods" << SEP;
-    rest << "rod_" << tob.rodNumber() << SEP<< "module_" << rawdetid;
-  }else if(stripdet.subDetector() == SiStripDetId::TEC){
-  // ---------------------------  TEC  --------------------------- //
-    TECDetId tec = TECDetId(rawdetid);
-    getSubDetLayerFolderName(rest,stripdet.subDetector(),tec.wheel(),tec.side());
-    if (tec.isBackPetal()) rest << "backward_petals" << SEP;
-    else                   rest << "forward_petals" << SEP;
-
-    rest << "petal_" << tec.petalNumber() << SEP
-         << "ring_"<< tec.ringNumber() << SEP;
-
-    if (tec.isStereo())    rest << "stereo_modules" << SEP;
-    else                   rest << "mono_modules" << SEP;
-
-    rest << "module_" << rawdetid;
-  }else{
-     // ---------------------------  ???  --------------------------- //
-    edm::LogWarning("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<stripdet.subDetector() <<" no folder set!"<<std::endl;
-    return;
-  }
-  lokal_folder += rest.str();
+  return std::pair<const std::string, const char *>(folder, tag);
 }

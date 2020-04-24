@@ -47,7 +47,7 @@ class CorrelatedNoisifier
       template<class T>
       void noisify( T& frame ,  // applies random noise to frame
                     CLHEP::HepRandomEngine*,
-		    const VecDou* rangau = 0 ) const ; // use these 
+		    const VecDou* rangau = nullptr ) const ; // use these 
 
       const M& cholMat() const ; // return decomposition
 

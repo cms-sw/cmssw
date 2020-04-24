@@ -41,11 +41,11 @@
 class HLTHcalSimpleRecHitFilter : public HLTFilter {
 public:
     explicit HLTHcalSimpleRecHitFilter(const edm::ParameterSet&);
-    ~HLTHcalSimpleRecHitFilter();
+    ~HLTHcalSimpleRecHitFilter() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
     // ----------member data ---------------------------
     edm::EDGetTokenT<HFRecHitCollection> HcalRecHitsToken_;
@@ -74,7 +74,7 @@ HLTHcalSimpleRecHitFilter::HLTHcalSimpleRecHitFilter(const edm::ParameterSet& iC
       //worry about possible user menus with the old interface
       if (iConfig.existsAs<std::vector<int> >("maskedChannels")) {
 	std::vector<int> tVec=iConfig.getParameter<std::vector<int> >("maskedChannels");
-	if ( tVec.size() > 0 ) {
+	if ( !tVec.empty() ) {
 	  edm::LogError("cfg error")  << "masked list of channels missing from HLT menu. Migration from vector of ints to vector of uints needed for this release";
 	  cms::Exception("Invalid/obsolete masked list of channels");
 	}
@@ -128,9 +128,7 @@ HLTHcalSimpleRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& 
     bool accept = false ;
 
     int nHitsNeg=0, nHitsPos=0;
-    for ( HFRecHitCollection::const_iterator hitItr = crudeHits->begin(); hitItr != crudeHits->end(); ++hitItr ) {
-       HFRecHit hit = (*hitItr);
-
+    for (auto hit : *crudeHits) {
        // masking noisy channels
        if (std::find( maskedList_.begin(), maskedList_.end(), hit.id().rawId() ) != maskedList_.end())
            continue;

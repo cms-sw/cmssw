@@ -43,7 +43,7 @@ namespace gen
     bool initializeForInternalPartons();
     bool declareStableParticles( const std::vector<int>& );
     bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
-    virtual bool select(HepMC::GenEvent* evtTry) const { return selector_->filter(evtTry); }
+    virtual bool select(HepMC::GenEvent* evtTry) const override { return selector_->filter(evtTry); }
     void finalizeEvent();
     void statistics();
     const char* classname() const;

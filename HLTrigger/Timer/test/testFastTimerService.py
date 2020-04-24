@@ -13,7 +13,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.source.fileNames = (
-    '/store/group/comm_trigger/TriggerStudiesGroup/Timing/sample.root',
+    '/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/Timing/sample.root',
 )
 
 process.maxEvents.input = -1
@@ -23,22 +23,9 @@ if process.FastTimerService:
   del process.FastTimerService
 
 process.load('HLTrigger/Timer/FastTimerService_cff')
-process.FastTimerService.useRealTimeClock         = False
-process.FastTimerService.enableTimingPaths        = True
-process.FastTimerService.enableTimingModules      = True
-process.FastTimerService.enableTimingExclusive    = True
-process.FastTimerService.enableTimingSummary      = True
-process.FastTimerService.skipFirstPath            = False
+process.FastTimerService.printRunSummary          = True
+process.FastTimerService.printJobSummary          = True
 process.FastTimerService.enableDQM                = True
-process.FastTimerService.enableDQMbyPathActive    = True
-process.FastTimerService.enableDQMbyPathTotal     = True
-process.FastTimerService.enableDQMbyPathOverhead  = True
-process.FastTimerService.enableDQMbyPathDetails   = True
-process.FastTimerService.enableDQMbyPathCounters  = True
-process.FastTimerService.enableDQMbyPathExclusive = True
 process.FastTimerService.enableDQMbyModule        = True
-process.FastTimerService.enableDQMbyModuleType    = True
-process.FastTimerService.enableDQMbyLuminosity    = True
 process.FastTimerService.enableDQMbyLumiSection   = True
 process.FastTimerService.enableDQMbyProcesses     = True
-process.FastTimerService.enableDQMSummary         = True

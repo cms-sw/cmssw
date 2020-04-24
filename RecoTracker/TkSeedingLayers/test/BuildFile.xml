@@ -1,0 +1,4 @@
+<use   name="RecoTracker/TkSeedingLayers"/>
+<library   file="*.cc" name="RecoTrackerTkSeedingLayersTests">
+  <flags   EDM_PLUGIN="1"/>
+</library>

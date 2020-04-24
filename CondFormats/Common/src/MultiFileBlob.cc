@@ -49,7 +49,7 @@ MultiFileBlob::Range MultiFileBlob::rawBlob(const std::string& name) const {
   Positions::const_iterator pos = positions.find(name);
   if (pos==positions.end()) {
     edm::LogError("MultiFileBlob:")<< name << "not in this object";
-    return Range(0,0);
+    return Range(nullptr,nullptr);
   }
   unsigned long long b = (*pos).second;
   unsigned long long e = isize;

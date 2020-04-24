@@ -6,7 +6,14 @@
 #include <string>
 #include <cassert>
 
-static const edm::ProcessHistory s_emptyHistory;
+namespace {
+  edm::ProcessHistory initializeEmpty() {
+    edm::ProcessHistory tmp{};
+    tmp.setProcessHistoryID();
+    return tmp;
+  }
+}
+static const edm::ProcessHistory s_emptyHistory = initializeEmpty();
 
 namespace edm {
 
@@ -14,7 +21,7 @@ namespace edm {
   {
   }
 
-  boost::shared_ptr<ProcessHistory const>
+  std::shared_ptr<ProcessHistory const>
   HistoryAppender::appendToProcessHistory(ProcessHistoryID const& inputPHID,
                                           ProcessHistory const* iInputProcessHistory,
                                           ProcessConfiguration const& pc)  {
@@ -34,7 +41,7 @@ namespace edm {
       }
     }
 
-    boost::shared_ptr<ProcessHistory> newProcessHistory(new ProcessHistory);
+    auto newProcessHistory = std::make_shared<ProcessHistory>();
     *newProcessHistory = *inputProcessHistory;
     checkProcessHistory(*newProcessHistory, pc);
     newProcessHistory->push_back(pc);

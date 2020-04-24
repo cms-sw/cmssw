@@ -90,7 +90,7 @@ namespace cms
     reader_->AddVariable( "dAxis1t", &dAxis1t );
     reader_->AddVariable( "dAxis2t", &dAxis2t );
 
-    reco::details::loadTMVAWeights(reader_, tmvaMethod_.c_str(), tmvaWeights_.c_str());
+    reco::details::loadTMVAWeights(reader_, tmvaMethod_, tmvaWeights_);
 
     //std::cout<<" Method booked "<<std::endl;
 
@@ -104,7 +104,7 @@ namespace cms
     readerF_->AddVariable( "dAxis1c", &dAxis1c );
     readerF_->AddVariable( "dAxis2c", &dAxis2c );
 
-    reco::details::loadTMVAWeights(readerF_, tmvaMethod_.c_str(), tmvaWeightsF_.c_str());
+    reco::details::loadTMVAWeights(readerF_, tmvaMethod_, tmvaWeightsF_);
 
    // std::cout<<" Method booked F "<<std::endl;
   }
@@ -130,11 +130,6 @@ float PileupJPTJetIdAlgo::fillJPTBlock(const reco::JPTJet* jet
       double dphi1=0.;
       double dphideta=0.;     
       double deta1=0.;
-      double ffrac01=0.;
-      double ffrac02=0.;
-      double ffrac03=0.;
-      double ffrac04=0.;
-      double ffrac05=0.;
       double EE=0.;
       double HE=0.;
       double EELong=0.;
@@ -156,13 +151,6 @@ float PileupJPTJetIdAlgo::fillJPTBlock(const reco::JPTJet* jet
 
        if (verbosity > 0)  std::cout<<" CaloTower jet eta "<<(*jet).eta()<<" tower eta "<<(*icalot)->eta()<<" jet phi "<<(*jet).phi()<<" tower phi "<<(*icalot)->phi()<<" dphi "<<dphi<<" "<<(*icalot)->pt()<<" ieta "<<(*icalot)->ieta()<<" "<<abs((*icalot)->ieta())<<std::endl;
 
-        double dr = sqrt(dphi*dphi+deta*deta);
-        double enc = (*icalot)->emEnergy()+(*icalot)->hadEnergy();
-        if(dr < 0.1) ffrac01 = ffrac01 + enc;
-        if(dr < 0.2) ffrac02 = ffrac02 + enc;
-        if(dr < 0.3) ffrac03 = ffrac03 + enc;
-        if(dr < 0.4) ffrac04 = ffrac04 + enc;
-        if(dr < 0.5) ffrac05 = ffrac05 + enc;
 	
         if(abs((*icalot)->ieta())<30) EE = EE + (*icalot)->emEnergy();
         if(abs((*icalot)->ieta())<30) HE = HE + (*icalot)->hadEnergy();
@@ -199,13 +187,6 @@ float PileupJPTJetIdAlgo::fillJPTBlock(const reco::JPTJet* jet
       double x2 = (detavar+dphivar-det)/2.;
       
       
-  // Energy fraction in cone
- 
-      ffrac01 = ffrac01/(*jet).energy();
-      ffrac02 = ffrac02/(*jet).energy();
-      ffrac03 = ffrac03/(*jet).energy();
-      ffrac04 = ffrac04/(*jet).energy();
-      ffrac05 = ffrac05/(*jet).energy();
   
 if (verbosity > 0)  
 std::cout<<" ncalo "<<ncalotowers<<" deta2 "<<deta2<<" dphi2 "<<dphi2<<" deta1 "<<deta1<<" dphi1 "<<dphi1<<" detavar "<<detavar<<" dphivar "<<dphivar<<" dphidetacov "<<dphidetacov<<" sqrt(det) "<<sqrt(det)<<" x1 "<<x1<<" x2 "<<x2<<std::endl;

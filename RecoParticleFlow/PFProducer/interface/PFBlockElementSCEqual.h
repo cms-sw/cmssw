@@ -9,8 +9,11 @@ class PFBlockElementSCEqual {
  public:
   PFBlockElementSCEqual(reco::SuperClusterRef scRef):ref_(scRef) {;}
     ~PFBlockElementSCEqual(){;}
+    inline bool operator() (const std::unique_ptr<reco::PFBlockElement>& el) {
+      return (el->type()==reco::PFBlockElement::SC && (static_cast<const reco::PFBlockElementSuperCluster*>(el.get()))->superClusterRef()==ref_);
+    }
     inline bool operator() (const reco::PFBlockElement* el) {
-      return (el->type()==reco::PFBlockElement::SC && (dynamic_cast<const reco::PFBlockElementSuperCluster*>(el))->superClusterRef()==ref_);
+      return (el->type()==reco::PFBlockElement::SC && (static_cast<const reco::PFBlockElementSuperCluster*>(el))->superClusterRef()==ref_);
     }
  private:
     reco::SuperClusterRef ref_;

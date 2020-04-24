@@ -2,7 +2,6 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 # verbose flags for the PF2PAT modules
-process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 
 runOnMC = True
@@ -17,13 +16,16 @@ else:
 
 # load the PAT config (for the PAT only part)
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 # An empty postfix means that only PF2PAT is run,
 # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
 # collections have standard names + postfix (e.g. patElectronPFlow)
 postfix = "PFlow"
-jetAlgo = "AK5"
+jetAlgo = "AK4"
 #Define Objects to be excluded from Top Projection. Default is Tau, so objects are not cleaned for taus
 excludeFromTopProjection=['Tau']
 
@@ -74,7 +76,7 @@ process.out.outputCommands = cms.untracked.vstring('drop *',
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-#   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
+#   process.source.fileNames =  ...
 #
 process.maxEvents.input = 10
 #                                         ##

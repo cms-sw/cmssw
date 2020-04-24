@@ -17,14 +17,12 @@
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <typeinfo>
 #include <map>
 #include <vector>
 #include <memory>
 #include <cstring>
-#include "boost/shared_ptr.hpp"
 
 #include "Rtypes.h"
 
@@ -40,7 +38,7 @@
 
 // forward declarations
 namespace edm {
-   class WrapperHolder;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -59,16 +57,16 @@ namespace fwlite {
          // NOTE: Does NOT take ownership so iFile must remain around
          // at least as long as Run
          Run(TFile* iFile);
-         Run(boost::shared_ptr<BranchMapReader> branchMap);
-         virtual ~Run();
+         Run(std::shared_ptr<BranchMapReader> branchMap);
+         ~Run() override;
 
-         const Run& operator++();
+         const Run& operator++() override;
 
          /// Go to event by Run & Run number
          bool to (edm::RunNumber_t run);
 
          // Go to the very first Event.
-         const Run& toBegin();
+         const Run& toBegin() override;
 
          // ---------- const member functions ---------------------
          virtual std::string const getBranchNameFor(std::type_info const&,
@@ -78,17 +76,16 @@ namespace fwlite {
 
          // This function should only be called by fwlite::Handle<>
          using fwlite::RunBase::getByLabel;
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
+         bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          bool isValid() const;
          operator bool () const;
-         virtual bool atEnd() const;
+         bool atEnd() const override;
 
          Long64_t size() const;
 
-         virtual edm::RunAuxiliary const& runAuxiliary() const;
+         edm::RunAuxiliary const& runAuxiliary() const override;
 
          std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
             return branchMap_->getBranchDescriptions();
@@ -96,7 +93,7 @@ namespace fwlite {
 
 //       void setGetter(//Copy from Event if needed
 
-         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
          // ---------- static member functions --------------------
          static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
@@ -107,15 +104,15 @@ namespace fwlite {
          friend class internal::ProductGetter;
          friend class RunHistoryGetter;
 
-         Run(const Run&); // stop default
+         Run(const Run&) = delete; // stop default
 
-         const Run& operator=(const Run&); // stop default
+         const Run& operator=(const Run&) = delete; // stop default
 
          const edm::ProcessHistory& history() const;
          void updateAux(Long_t runIndex) const;
 
          // ---------- member data --------------------------------
-         mutable boost::shared_ptr<BranchMapReader> branchMap_;
+         mutable std::shared_ptr<BranchMapReader> branchMap_;
 
          //takes ownership of the strings used by the DataKey keys in data_
          mutable std::vector<char const*> labels_;
@@ -123,8 +120,8 @@ namespace fwlite {
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::RunAuxiliary aux_;
          mutable EntryFinder entryFinder_;
-         edm::RunAuxiliary* pAux_;
-         edm::RunAux* pOldAux_;
+         edm::RunAuxiliary const* pAux_;
+         edm::RunAux const* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
 
@@ -132,5 +129,4 @@ namespace fwlite {
    };
 
 }
-#endif /*__CINT__ */
 #endif

@@ -2,10 +2,7 @@
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondCore/PopCon"/>
-<use   name="CondCore/IOVService"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="L1Trigger/RPCTrigger"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>

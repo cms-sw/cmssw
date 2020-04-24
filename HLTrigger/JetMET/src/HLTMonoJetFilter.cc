@@ -5,11 +5,6 @@
 *
 */
 
-#include "HLTrigger/JetMET/interface/HLTMonoJetFilter.h"
-
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,8 +13,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "HLTrigger/JetMET/interface/HLTMonoJetFilter.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-#include<typeinfo>
 
 //
 // constructors and destructor
@@ -40,7 +39,7 @@ HLTMonoJetFilter<T>::HLTMonoJetFilter(const edm::ParameterSet& iConfig) : HLTFil
 }
 
 template<typename T>
-HLTMonoJetFilter<T>::~HLTMonoJetFilter(){}
+HLTMonoJetFilter<T>::~HLTMonoJetFilter()= default;
 
 template<typename T>
 void 
@@ -51,7 +50,7 @@ HLTMonoJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("maxPtSecondJet",9999.);
   desc.add<double>("maxDeltaPhi",99.);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTMonoJetFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTMonoJetFilter<T>>(), desc);
 }
 
 //
@@ -82,7 +81,7 @@ HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  if(objects->size() > 0){ 
+  if(!objects->empty()){ 
     int countJet(0);
     double jet1Phi = 0.;
     double jet2Phi = 0.;

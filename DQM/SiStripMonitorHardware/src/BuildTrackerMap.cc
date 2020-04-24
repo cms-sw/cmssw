@@ -37,6 +37,8 @@
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
@@ -55,11 +57,11 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
  public:
 
   explicit BuildTrackerMapPlugin(const edm::ParameterSet&);
-  ~BuildTrackerMapPlugin();
+  ~BuildTrackerMapPlugin() override;
  private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void read(bool aMechView,
 	    std::string aFile,
@@ -158,7 +160,7 @@ void BuildTrackerMapPlugin::read(bool aMechView,
   std::vector<TkHistoMap *> tkHistoMap;
 
   unsigned int nHists = tkHistoMapNameVec_.size();
-  tkHistoMap.resize(nHists,0);
+  tkHistoMap.resize(nHists,nullptr);
   aValidVec.resize(nHists,true);
 
   std::string dirName = folderName_;
@@ -315,9 +317,13 @@ BuildTrackerMapPlugin::analyze(const edm::Event& iEvent,
   edm::ESHandle<SiStripFedCabling> fedcabling;
   iSetup.get<SiStripFedCablingRcd>().get(fedcabling );
   
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   if (firstEvent) {
     for (unsigned int i(0); i<tkHistoMapNameVec_.size(); i++){
-      tkmap_.push_back(new TrackerMap(pset_,&(*fedcabling)));
+      tkmap_.push_back(new TrackerMap(pset_,&(*fedcabling),tTopo));
     }
 
   }
@@ -363,7 +369,7 @@ BuildTrackerMapPlugin::endJob()
 
     //(pset_,pDD1); 
     lTkMap->setPalette(1);
-    lTkMap->showPalette(1);
+    lTkMap->showPalette(true);
     if (!tkHistoMapVec_.at(i) || !isValidMap_.at(i)) {
       std::cout << "Warning, tkHistoMap is invalid for element " << i << "... continuing ..." << std::endl;
       continue;

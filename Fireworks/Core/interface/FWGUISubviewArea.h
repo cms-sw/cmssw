@@ -34,7 +34,7 @@ class FWGUISubviewArea : public TGHorizontalFrame
 {
 public:
    FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* parent, Int_t height);
-   virtual ~FWGUISubviewArea();
+   ~FWGUISubviewArea() override;
 
    // ---------- const member functions ---------------------
 
@@ -73,7 +73,7 @@ public:
 
    static FWGUISubviewArea* getToolBarFromWindow(TEveWindow*);
 
-   ClassDef(FWGUISubviewArea, 0);
+   ClassDefOverride(FWGUISubviewArea, 0);
 
 private:
    FWGUISubviewArea(const FWGUISubviewArea&);    // stop default

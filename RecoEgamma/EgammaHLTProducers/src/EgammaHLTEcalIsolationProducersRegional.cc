@@ -101,7 +101,6 @@ void EgammaHLTEcalIsolationProducersRegional::produce(edm::Event& iEvent, const 
 
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> isolMap(new reco::RecoEcalCandidateIsolationMap(isoMap));
-  iEvent.put(isolMap);
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(isoMap));
 
 }

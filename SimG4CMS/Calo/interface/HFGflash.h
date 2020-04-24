@@ -36,10 +36,10 @@ public:
   struct Hit {
     Hit() {}
     G4ThreeVector       position;
-    int                 depth;
-    double              time;
-    double              edep;
-    double              pez;
+    int                 depth = 0;
+    double              time = 0.;
+    double              edep = 0.;
+    double              pez = 0.;
   };
 
   std::vector<Hit> gfParameterization(G4Step * aStep, bool & ok, bool onlyLong=false);

@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,17 +16,17 @@
 //
 
 
-class Multi5x5SuperClusterProducer : public edm::EDProducer 
+class Multi5x5SuperClusterProducer : public edm::stream::EDProducer<>
 {
   
   public:
 
       Multi5x5SuperClusterProducer(const edm::ParameterSet& ps);
 
-      ~Multi5x5SuperClusterProducer();
+      ~Multi5x5SuperClusterProducer() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endStream() override;
 
    private:
 

@@ -9,8 +9,8 @@ process = cms.Process("HARVESTING")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ""
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
@@ -53,4 +53,4 @@ else:
 
 process.dqm_step = cms.Path(process.EDMtoMEConverter*
                             process.ALCARECODTCalibSynchDQMClient*process.dqmSaver)
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''

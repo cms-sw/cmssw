@@ -5,7 +5,7 @@ using namespace std;
 TBPositionCalc::TBPositionCalc(const std::map<std::string,double>& providedParameters, std::string const & fullMapName, const CaloSubdetectorGeometry *passedGeometry ) 
 {
   // barrel geometry initialization
-  if(passedGeometry == NULL)
+  if(passedGeometry == nullptr)
     throw(std::runtime_error("\n\n TBPositionCalc: wrong initialization.\n\n"));
   theGeometry_ = passedGeometry;
   
@@ -27,7 +27,7 @@ CLHEP::Hep3Vector TBPositionCalc::CalculateTBPos(const std::vector<EBDetId>& upa
   
   std::vector<EBDetId> passedDetIds = upassedDetIds;
   // throw an error if the cluster was not initialized properly  
-  if(passedRecHitsMap == NULL)
+  if(passedRecHitsMap == nullptr)
     throw(std::runtime_error("\n\n TBPositionCalc::CalculateTBPos called uninitialized.\n\n"));
   
   // check DetIds are nonzero

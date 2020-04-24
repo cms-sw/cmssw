@@ -18,4 +18,8 @@ gsfElectronCores = cms.EDProducer("GsfElectronCoreProducer",
     pfSuperClusterTrackMap = cms.InputTag("pfElectronTranslator:pf")
 )
 
+ecalDrivenGsfElectronCoresFromMultiCl = ecalDrivenGsfElectronCores.clone(
+  gsfTracks = 'electronGsfTracksFromMultiCl',
+  useGsfPfRecTracks = False
+)
 

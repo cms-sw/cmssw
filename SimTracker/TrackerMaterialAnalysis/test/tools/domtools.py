@@ -11,7 +11,7 @@ class DOMIterator:
     elif isinstance(element, minidom.Node):
       self.element = element
     else:
-      raise TypeError, "type not supported by DOMIterator"
+      raise TypeError("type not supported by DOMIterator")
 
   def __iter__(self):
     return self

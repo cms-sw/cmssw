@@ -6,7 +6,7 @@ tnum=5
 numev=10
 step=a
 
-cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun -n ${numev} --conditions auto:startup_GRun --relval 9000,50 --datatier 'GEN-SIM-RAW' --eventcontent RAWSIM --no_exec --python_filename=test_${tnum}_${step}_1.py
+cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:@fake -n ${numev} --conditions auto:startup_GRun --relval 9000,50 --datatier 'GEN-SIM-RAW' --eventcontent RAWSIM --no_exec --python_filename=test_${tnum}_${step}_1.py
 
 cmsRun -e test_${tnum}_${step}_1.py >& p5.0.log
 

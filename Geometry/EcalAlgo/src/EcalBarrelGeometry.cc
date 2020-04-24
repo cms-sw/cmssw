@@ -24,7 +24,7 @@ EcalBarrelGeometry::EcalBarrelGeometry() :
    m_borderMgr    ( nullptr ),
    m_borderPtrVec ( nullptr ) ,
    m_radius       ( -1. ),
-   m_check        ( nullptr ),
+   m_check        ( false ),
    m_cellVec      ( k_NumberOfCellsForCorners )
 {
    const int neba[] = {25,45,65,85} ;
@@ -38,12 +38,12 @@ EcalBarrelGeometry::~EcalBarrelGeometry()
   {
     auto ptr = m_borderPtrVec.load(std::memory_order_acquire);
     for(auto& v: (*ptr)) {
-        if(v) delete v;
+        delete v;
         v = nullptr;
     }
-    delete m_borderPtrVec ;
+    delete m_borderPtrVec.load() ;
   }
-  delete m_borderMgr ;
+  delete m_borderMgr.load() ;
 }
 
 
@@ -428,7 +428,7 @@ EcalBarrelGeometry::getClosestEndcapCells( EBDetId id ) const
                     olist[il++]=EEDetId( jx + kx*xout, jy + ky*yout, kz ) ;
                  }
               }
-              ptrVec->push_back( &olist ) ;
+              ptrVec->emplace_back( &olist ) ;
           }
           bool exchanged = m_borderPtrVec.compare_exchange_strong(expect, ptrVec, std::memory_order_acq_rel);
           if(!exchanged) delete ptrVec;
@@ -481,7 +481,7 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
       for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
       {
 	 const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
-	 if( 0 != cell )
+	 if( nullptr != cell )
 	 {
 	    const GlobalPoint& pos ( cell->getPosition() ) ;
 	    sum += pos.perp() ;
@@ -498,5 +498,5 @@ EcalBarrelGeometry::cellGeomPtr( uint32_t index ) const
 {
    const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
    return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+	    nullptr == cell->param() ? nullptr : cell ) ;
 }

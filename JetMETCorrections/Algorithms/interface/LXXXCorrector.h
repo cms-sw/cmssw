@@ -3,7 +3,7 @@
 #define LXXXCorrector_h
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
 //----- classes declaration -----------------------------------
@@ -37,7 +37,7 @@ class LXXXCorrector : public JetCorrector
   private:
     //----- member data ---------------------------------------
     unsigned mLevel;
-    FactorizedJetCorrector* mCorrector;
+    FactorizedJetCorrectorCalculator* mCorrector;
 };
 
 #endif

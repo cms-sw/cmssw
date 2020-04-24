@@ -1,10 +1,13 @@
-
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentGlobalTrackSelector_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentGlobalTrackSelector_h
 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 //Framework
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 //STL
 #include <vector>
 
@@ -19,7 +22,7 @@ class AlignmentGlobalTrackSelector
   typedef std::vector<const reco::Track*> Tracks; 
 
   /// constructor
-  AlignmentGlobalTrackSelector(const edm::ParameterSet & cfg);
+  AlignmentGlobalTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
 
   /// destructor
   ~AlignmentGlobalTrackSelector();
@@ -47,18 +50,18 @@ class AlignmentGlobalTrackSelector
   bool theJetCountFilterSwitch;
 
   //global Muon Filter
-  edm::InputTag theMuonSource;
+  edm::EDGetTokenT<reco::MuonCollection> theMuonToken;
   double theMaxTrackDeltaR;
   int theMinGlobalMuonCount;
 
   //isolation Cut
-  edm::InputTag theJetIsoSource;
+  edm::EDGetTokenT<reco::CaloJetCollection> theJetIsoToken;
   double theMaxJetPt;
   double theMinJetDeltaR;
   int theMinIsolatedCount;
 
   //jet count Filter
-  edm::InputTag theJetCountSource;
+  edm::EDGetTokenT<reco::CaloJetCollection> theJetCountToken;
   double theMinJetPt;
   int theMaxJetCount;
 

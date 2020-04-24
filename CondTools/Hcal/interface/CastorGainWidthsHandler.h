@@ -25,9 +25,9 @@
 class CastorGainWidthsHandler : public popcon::PopConSourceHandler<CastorGainWidths>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~CastorGainWidthsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~CastorGainWidthsHandler() override;
   CastorGainWidthsHandler(edm::ParameterSet const &);
 
   void initObject(CastorGainWidths*);

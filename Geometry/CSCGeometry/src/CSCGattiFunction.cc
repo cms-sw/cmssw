@@ -14,7 +14,7 @@ CSCGattiFunction::CSCGattiFunction()
   h(0.),
   norm(0.),
   sqrtk3(0.),
-  thePreviousSpecs(0)
+  thePreviousSpecs(nullptr)
 {
 }
 

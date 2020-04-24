@@ -11,13 +11,15 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
-#include <boost/mem_fn.hpp>
-
 #include <boost/filesystem/operations.hpp>
 
 #include <fstream>
+#include <functional>
 #include <set>
+
+// TEMPORARY
+#include "TInterpreter.h"
+#include "TVirtualMutex.h"
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -37,16 +39,36 @@ namespace edmplugin {
 // static data member definitions
 //
 
+static bool readCacheFile(const boost::filesystem::path &cacheFile,
+                          const boost::filesystem::path &dir, 
+                          PluginManager::CategoryToInfos &categoryToInfos) 
+{
+  if(exists(cacheFile) ) {
+    std::ifstream file(cacheFile.string().c_str());
+    if(not file) {
+      throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.string()
+      <<"'. Please check permissions on file";
+    }
+    CacheParser::read(file, dir, categoryToInfos);          
+    return true;
+  }
+  return false;
+}
 //
 // constructors and destructor
 //
 PluginManager::PluginManager(const PluginManager::Config& iConfig) :
   searchPath_( iConfig.searchPath() )
 {
-    const boost::filesystem::path kCacheFile(standard::cachefileName());
+    using std::placeholders::_1;
+    const boost::filesystem::path& kCacheFile(standard::cachefileName());
+    // This is the filename of a file which contains plugins which exist in the
+    // base release and which should exists in the local area, otherwise they
+    // were removed and we want to catch their usage.
+    const boost::filesystem::path& kPoisonedCacheFile(standard::poisonedCachefileName());
     //NOTE: This may not be needed :/
     PluginFactoryManager* pfm = PluginFactoryManager::get();
-    pfm->newFactory_.connect(boost::bind(boost::mem_fn(&PluginManager::newFactory),this,_1));
+    pfm->newFactory_.connect(std::bind(std::mem_fn(&PluginManager::newFactory),this,_1));
 
     // When building a single big executable the plugins are already registered in the 
     // PluginFactoryManager, we therefore only need to populate the categoryToInfos_ map
@@ -76,15 +98,15 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
         }
         boost::filesystem::path cacheFile = dir/kCacheFile;
         
-        if(exists(cacheFile) ) {
-          std::ifstream file(cacheFile.string().c_str());
-          if(not file) {
-            throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.string()
-            <<"'. Please check permissions on file";
-          }
-          foundAtLeastOneCacheFile=true;
-          CacheParser::read(file, dir, categoryToInfos_);          
+        if (readCacheFile(cacheFile, dir, categoryToInfos_))
+        {
+          foundAtLeastOneCacheFile=true; 
         }
+
+        // We do not check for return code since we do not want to consider a
+        // poison cache file as a valid cache file having been found.
+        boost::filesystem::path poisonedCacheFile = dir/kPoisonedCacheFile;
+        readCacheFile(poisonedCacheFile, dir/"poisoned", categoryToInfos_);
       }
     }
     if(not foundAtLeastOneCacheFile) {
@@ -160,7 +182,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
       "' because the category '"<<iCategory<<"' has no known plugins";
     } else {
       ioThrowIfFailElseSucceedStatus = false;
-      static boost::filesystem::path s_path;
+      static const boost::filesystem::path s_path;
       return s_path;
     }
   }
@@ -179,7 +201,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
       <<"' in category '"<<iCategory<<"'. Please check spelling of name.";
     } else {
       ioThrowIfFailElseSucceedStatus = false;
-      static boost::filesystem::path s_path;
+      static const boost::filesystem::path s_path;
       return s_path;
     }
   }
@@ -241,7 +263,13 @@ PluginManager::load(const std::string& iCategory,
       goingToLoad_(p);
       Sentry s(loadingLibraryNamed_(), p.string());
       //boost::filesystem::path native(p.string());
-      boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
+      std::shared_ptr<SharedLibrary> ptr;
+      {
+	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
+	// take the lock ourselves
+	R__LOCKGUARD2(gInterpreterMutex);
+	ptr.reset( new SharedLibrary(p) );
+      }
       loadables_[p]=ptr;
       justLoaded_(*ptr);
       return *ptr;
@@ -259,7 +287,7 @@ PluginManager::tryToLoad(const std::string& iCategory,
   const boost::filesystem::path& p = loadableFor_(iCategory,iPlugin, ioThrowIfFailElseSucceedStatus);
   
   if( not ioThrowIfFailElseSucceedStatus ) {
-    return 0;
+    return nullptr;
   }
   
 
@@ -275,7 +303,13 @@ PluginManager::tryToLoad(const std::string& iCategory,
       goingToLoad_(p);
       Sentry s(loadingLibraryNamed_(), p.string());
       //boost::filesystem::path native(p.string());
-      boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
+      std::shared_ptr<SharedLibrary> ptr;
+      {
+	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
+	// take the lock ourselves
+	R__LOCKGUARD(gInterpreterMutex);
+	ptr.reset( new SharedLibrary(p) );
+      }
       loadables_[p]=ptr;
       justLoaded_(*ptr);
       return ptr.get();
@@ -291,7 +325,7 @@ PluginManager*
 PluginManager::get()
 {
   PluginManager* manager = singleton();
-  if(0==manager) {
+  if(nullptr==manager) {
     throw cms::Exception("PluginManagerNotConfigured")<<"PluginManager::get() was called before PluginManager::configure.";
   }
   return manager;
@@ -301,11 +335,11 @@ PluginManager&
 PluginManager::configure(const Config& iConfig )
 {
   PluginManager*& s = singleton();
-  if( 0 != s ){
+  if( nullptr != s ){
     throw cms::Exception("PluginManagerReconfigured");
   }
   
-  Config realConfig = iConfig;
+  const Config& realConfig = iConfig;
   if (realConfig.searchPath().empty() ) {
     throw cms::Exception("PluginManagerEmptySearchPath");
   }
@@ -326,20 +360,20 @@ PluginManager::loadingLibraryNamed_()
 {
   //NOTE: pluginLoadMutex() indirectly guards this since this value
   // is only accessible via the Sentry call which us guarded by the mutex
-  static std::string s_name(staticallyLinkedLoadingFileName());
+  [[cms::thread_safe]] static std::string s_name(staticallyLinkedLoadingFileName());
   return s_name;
 }
 
 PluginManager*& PluginManager::singleton()
 {
-  static PluginManager* s_singleton=0;
+  [[cms::thread_safe]] static PluginManager* s_singleton=nullptr;
   return s_singleton;
 }
 
 bool
 PluginManager::isAvailable()
 {
-  return 0 != singleton();
+  return nullptr != singleton();
 }
 
 }

@@ -34,11 +34,12 @@
 
 // helper files
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
 #include <map>
+#include <tuple>
 
 #include "TString.h"
 #include "TList.h"
@@ -52,18 +53,18 @@ class EDMtoMEConverter : public edm::EDAnalyzer
  public:
 
   explicit EDMtoMEConverter(const edm::ParameterSet&);
-  virtual ~EDMtoMEConverter();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-  virtual void respondToOpenInputFile(const edm::FileBlock&);
+  ~EDMtoMEConverter() override;
+  void beginJob() override;
+  void endJob() override;  
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void respondToOpenInputFile(const edm::FileBlock&) override;
 
   template <class T>
-  void getData(T& iGetFrom, bool iEndRun);
+  void getData(T& iGetFrom);
 
   typedef std::vector<uint32_t> TagList;
 
@@ -77,17 +78,44 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   bool convertOnEndRun;
 
   DQMStore *dbe;
-  std::vector<MonitorElement*> me1, me2, me3, me4, me5, me6, me7, me8;
 
   // private statistics information
   unsigned int iCountf;
   std::map<int,int> iCount;
 
-  std::vector<std::string> classtypes;
+  template <typename T>
+  class Tokens {
+  public:
+    using type = T;
+    using Product = MEtoEDM<T>;
 
-  edm::InputTag runInputTag_;
-  edm::InputTag lumiInputTag_;
+    Tokens() {}
 
+    void set(const edm::InputTag& runInputTag, const edm::InputTag& lumiInputTag, edm::ConsumesCollector& iC);
+
+    void getData(const edm::Run& iRun, edm::Handle<Product>& handle) const;
+    void getData(const edm::LuminosityBlock& iLumi, edm::Handle<Product>& handle) const;
+    
+  private:
+    edm::EDGetTokenT<Product> runToken;
+    edm::EDGetTokenT<Product> lumiToken;
+  };
+
+  std::tuple<
+    Tokens<TH1F>,
+    Tokens<TH1S>,
+    Tokens<TH1D>,
+    Tokens<TH2F>,
+    Tokens<TH2S>,
+    Tokens<TH2D>,
+    Tokens<TH3F>,
+    Tokens<TProfile>,
+    Tokens<TProfile2D>,
+    Tokens<double>,
+    Tokens<int>,
+    Tokens<long long>,
+    Tokens<TString>
+    > tokens_;
 }; // end class declaration
 
 #endif

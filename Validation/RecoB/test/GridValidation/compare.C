@@ -2,6 +2,7 @@
 #include <string>
 using namespace std;
 
+TGraphErrors * computeGraph(TH1F * effdiscrb, TH1F* effdiscruds);
 
 int colorList[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}; 
 int markerStyleList[] = {21,21,23,23,22,22,23,23,24,24,24,24,25,25,25,25,26,26,26,26};  
@@ -70,7 +71,6 @@ TGraphErrors *  drawAll()
   algos.push_back("jetBProbabilityBJetTags");
   algos.push_back("simpleSecondaryVertexBJetTags");
   algos.push_back("combinedSecondaryVertexBJetTags");
-  algos.push_back("combinedSecondaryVertexMVABJetTags");
   algos.push_back("softMuonBJetTags");
   algos.push_back("softMuonByIP3dBJetTags");
   algos.push_back("softMuonByPtBJetTags");
@@ -134,6 +134,7 @@ TGraphErrors *  drawAll()
 
   leg->Draw("same");
 
+  return 0;
 }
 
 

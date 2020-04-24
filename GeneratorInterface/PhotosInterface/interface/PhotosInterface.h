@@ -24,7 +24,7 @@ namespace gen {
     // ctor & dtor
     PhotosInterface(); 
     PhotosInterface( const edm::ParameterSet& );
-    ~PhotosInterface() {}
+    ~PhotosInterface();
 
     void init();
     const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
@@ -36,13 +36,7 @@ namespace gen {
     static double flat();
     
   private: 
-    struct Scaling {
-      HepMC::ThreeVector weights;
-      int                flag;
-    Scaling( const HepMC::ThreeVector& vec, int flg )	
-    : weights(HepMC::ThreeVector(1.,1.,1)), flag(1) { weights=vec; flag=flg; }
-    };
-    
+
     int                      fOnlyPDG;
     bool                     fAvoidTauLeptonicDecays;  
     std::vector<int>         fBarcodes;

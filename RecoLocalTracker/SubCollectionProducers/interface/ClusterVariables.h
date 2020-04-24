@@ -10,12 +10,13 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include <numeric>
 
+// never seen a more useless class...
 class ClusterVariables {
 
  public:
 
-  ClusterVariables(){};
-  ~ClusterVariables(){};
+  ClusterVariables(){}
+  ~ClusterVariables(){}
   
   ClusterVariables(const SiStripCluster& cluster): cluster_ptr(&cluster){}
 
@@ -28,12 +29,12 @@ class ClusterVariables {
   const unsigned clusterSize() const {return cluster()->amplitudes().size();}  
 
 
-  const std::vector<uint8_t>& stripCharges() const {return cluster()->amplitudes();}
+  auto stripCharges() const -> decltype(cluster()->amplitudes()) {return cluster()->amplitudes();}
 
   /*
     Returns the total charge of all the strips in the Cluster 
   */
-  uint16_t charge() const    {return   accumulate( stripCharges().begin(), stripCharges().end(), uint16_t(0));}
+  uint16_t charge() const    {return   std::accumulate( stripCharges().begin(), stripCharges().end(), uint16_t(0));}
   
 
  private:

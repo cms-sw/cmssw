@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace DataFormats_StdDictionaries {
@@ -44,7 +45,6 @@ namespace DataFormats_StdDictionaries {
   std::vector<std::pair<unsigned int,unsigned int> > dummyvpuu;
   std::vector<std::pair<unsigned long long,std::basic_string<char> > > v_ull_s;
   std::vector<std::string> dummy5;
-  std::vector<std::string>::iterator itstring;
   std::vector<std::vector<double> > v_v_d;
   std::vector<std::vector<float> > v_v_f;
   std::vector<std::vector<int> > v_v_i;
@@ -53,6 +53,7 @@ namespace DataFormats_StdDictionaries {
   std::vector<std::vector<std::vector<int> > > dummy16_6;
   std::vector<std::vector<unsigned int> > dummy2v;
   std::vector<std::vector<unsigned short> > dummy9v;
+  std::vector<std::vector<unsigned char> > dummy10v;
   std::vector<unsigned char*> dummy7p;
   std::vector<unsigned char> dummy7;
   std::vector<unsigned int> dummy2;
@@ -65,5 +66,6 @@ namespace DataFormats_StdDictionaries {
   std::vector<unsigned short>::iterator itus;
   std::vector<void *>::iterator itvp;
   std::vector<const void *> dummyVCPtr;
+  std::vector<std::pair<int,std::bitset<6> > > v_p_i_b;
   };
 }

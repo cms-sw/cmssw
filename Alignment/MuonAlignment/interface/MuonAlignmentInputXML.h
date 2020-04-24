@@ -33,8 +33,8 @@
 
 class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
    public:
-      MuonAlignmentInputXML(std::string fileName);
-      virtual ~MuonAlignmentInputXML();
+      MuonAlignmentInputXML(const std::string& fileName);
+      ~MuonAlignmentInputXML() override;
 
       // ---------- const member functions ---------------------
 
@@ -42,20 +42,20 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
 
       // ---------- member functions ---------------------------
 
-      virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
+      AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const override;
 
    private:
-      MuonAlignmentInputXML(const MuonAlignmentInputXML&); // stop default
+      MuonAlignmentInputXML(const MuonAlignmentInputXML&) = delete; // stop default
 
-      const MuonAlignmentInputXML& operator=(const MuonAlignmentInputXML&); // stop default
+      const MuonAlignmentInputXML& operator=(const MuonAlignmentInputXML&) = delete; // stop default
 
       void recursiveGetId(std::map<unsigned int, Alignable*> &alignableNavigator, const align::Alignables &alignables) const;
 
       void fillAliToIdeal(std::map<Alignable*, Alignable*> &alitoideal, const align::Alignables& alignables, const align::Alignables& ideals) const;
 
-      Alignable *getNode(std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const;
-      Alignable *getDTnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const;
-      Alignable *getCSCnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const;
+      Alignable *getNode(std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node, const AlignableObjectId&) const;
+      Alignable *getDTnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node, const AlignableObjectId&) const;
+      Alignable *getCSCnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node, const AlignableObjectId&) const;
 
       double parseDouble(const XMLCh *str, const char *attribute) const;
       void set_one_position(Alignable *ali, const align::PositionType &pos, const align::RotationType &rot) const;

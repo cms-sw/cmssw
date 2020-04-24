@@ -7,12 +7,11 @@
 #include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "boost/foreach.hpp"
 
 ShallowClustersProducer::ShallowClustersProducer(const edm::ParameterSet& iConfig) 
-  : theClustersLabel(iConfig.getParameter<edm::InputTag>("Clusters")),
-    Prefix(iConfig.getParameter<std::string>("Prefix") )
+  : Prefix(iConfig.getParameter<std::string>("Prefix") )
 {
   produces <std::vector<unsigned> >    ( Prefix + "number"       );
   produces <std::vector<unsigned> >    ( Prefix + "width"        );
@@ -51,57 +50,61 @@ ShallowClustersProducer::ShallowClustersProducer(const edm::ParameterSet& iConfi
   produces <std::vector<int> >         ( Prefix + "petal"         );
   produces <std::vector<int> >         ( Prefix + "stereo"        );
 
+  theClustersToken_ = consumes<edmNew::DetSetVector<SiStripCluster> >          (iConfig.getParameter<edm::InputTag>("Clusters"));
+  theDigisToken_    = consumes<edm::DetSetVector<SiStripProcessedRawDigi> > (edm::InputTag("siStripProcessedRawDigis", ""));
 }
 
 void ShallowClustersProducer::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
  
-  std::auto_ptr<std::vector<unsigned> >       number       ( new std::vector<unsigned>(7,0) );
-  std::auto_ptr<std::vector<unsigned> >       width        ( new std::vector<unsigned>() );
-  std::auto_ptr<std::vector<float> >          variance     ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          barystrip    ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          middlestrip  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<unsigned> >       charge       ( new std::vector<unsigned>() );
-  std::auto_ptr<std::vector<float> >          noise        ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          ston         ( new std::vector<float>() );
-  std::auto_ptr<std::vector<unsigned> >       seedstrip    ( new std::vector<unsigned>() );
-  std::auto_ptr<std::vector<unsigned> >       seedindex    ( new std::vector<unsigned>() );
-  std::auto_ptr<std::vector<unsigned> >       seedcharge   ( new std::vector<unsigned>() );
-  std::auto_ptr<std::vector<float> >          seednoise    ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          seedgain     ( new std::vector<float>() );
-  std::auto_ptr<std::vector<unsigned> >       qualityisbad ( new std::vector<unsigned>() );
+  auto       number        = std::make_unique<std::vector<unsigned>>(7,0);
+  auto       width         = std::make_unique<std::vector<unsigned>>();
+  auto       variance      = std::make_unique<std::vector<float>>();
+  auto       barystrip     = std::make_unique<std::vector<float>>();
+  auto       middlestrip   = std::make_unique<std::vector<float>>();
+  auto       charge        = std::make_unique<std::vector<unsigned>>();
+  auto       noise         = std::make_unique<std::vector<float>>();
+  auto       ston          = std::make_unique<std::vector<float>>();
+  auto       seedstrip     = std::make_unique<std::vector<unsigned>>();
+  auto       seedindex     = std::make_unique<std::vector<unsigned>>();
+  auto       seedcharge    = std::make_unique<std::vector<unsigned>>();
+  auto       seednoise     = std::make_unique<std::vector<float>>();
+  auto       seedgain      = std::make_unique<std::vector<float>>();
+  auto       qualityisbad  = std::make_unique<std::vector<unsigned>>();
 
-  std::auto_ptr<std::vector<float> >          rawchargeC   ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          rawchargeL   ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          rawchargeR   ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          rawchargeLL  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          rawchargeRR  ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          etaX         ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          eta          ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          foldedeta    ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          etaasymm     ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          outsideasymm ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          neweta       ( new std::vector<float>() );
-  std::auto_ptr<std::vector<float> >          newetaerr    ( new std::vector<float>() );
+  auto       rawchargeC    = std::make_unique<std::vector<float>>();
+  auto       rawchargeL    = std::make_unique<std::vector<float>>();
+  auto       rawchargeR    = std::make_unique<std::vector<float>>();
+  auto       rawchargeLL   = std::make_unique<std::vector<float>>();
+  auto       rawchargeRR   = std::make_unique<std::vector<float>>();
+  auto       etaX          = std::make_unique<std::vector<float>>();
+  auto       eta           = std::make_unique<std::vector<float>>();
+  auto       foldedeta     = std::make_unique<std::vector<float>>();
+  auto       etaasymm      = std::make_unique<std::vector<float>>();
+  auto       outsideasymm  = std::make_unique<std::vector<float>>();
+  auto       neweta        = std::make_unique<std::vector<float>>();
+  auto       newetaerr     = std::make_unique<std::vector<float>>();
   
-  std::auto_ptr<std::vector<unsigned> >       detid          ( new std::vector<unsigned>() );
-  std::auto_ptr<std::vector<int> >            subdetid       ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> >            side           ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> >            module         ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> >            layerwheel     ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> >            stringringrod  ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> >            petal          ( new std::vector<int>() );
-  std::auto_ptr<std::vector<int> >            stereo         ( new std::vector<int>());
+  auto       detid         = std::make_unique<std::vector<unsigned>>();
+  auto       subdetid      = std::make_unique<std::vector<int>>();
+  auto       side          = std::make_unique<std::vector<int>>();
+  auto       module        = std::make_unique<std::vector<int>>();
+  auto       layerwheel    = std::make_unique<std::vector<int>>();
+  auto       stringringrod = std::make_unique<std::vector<int>>();
+  auto       petal         = std::make_unique<std::vector<int>>();
+  auto       stereo        = std::make_unique<std::vector<int>>();
 
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
-  iEvent.getByLabel(theClustersLabel, clusters);
+  //  iEvent.getByLabel(theClustersLabel, clusters);
+  iEvent.getByToken(theClustersToken_, clusters);
   
   edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > rawProcessedDigis;
-  iEvent.getByLabel("siStripProcessedRawDigis", "", rawProcessedDigis);
+  //  iEvent.getByLabel("siStripProcessedRawDigis", "", rawProcessedDigis);
+  iEvent.getByToken(theDigisToken_,rawProcessedDigis);
  
   edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters=clusters->begin();
   for(;itClusters!=clusters->end();++itClusters){
@@ -151,54 +154,54 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
-  iEvent.put( number,       Prefix + "number"       );
-  iEvent.put( width,        Prefix + "width"        );
-  iEvent.put( variance,     Prefix + "variance"     );
-  iEvent.put( barystrip,    Prefix + "barystrip"    );
-  iEvent.put( middlestrip,  Prefix + "middlestrip"  );
-  iEvent.put( charge,       Prefix + "charge"       );
-  iEvent.put( noise,        Prefix + "noise"        );
-  iEvent.put( ston,         Prefix + "ston"         );
-  iEvent.put( seedstrip,    Prefix + "seedstrip"    );
-  iEvent.put( seedindex,    Prefix + "seedindex"    );
-  iEvent.put( seedcharge,   Prefix + "seedcharge"   );
-  iEvent.put( seednoise,    Prefix + "seednoise"    );
-  iEvent.put( seedgain,     Prefix + "seedgain"     );
-  iEvent.put( qualityisbad, Prefix + "qualityisbad" );
+  iEvent.put(std::move(number),      Prefix + "number"       );
+  iEvent.put(std::move(width),       Prefix + "width"        );
+  iEvent.put(std::move(variance),    Prefix + "variance"     );
+  iEvent.put(std::move(barystrip),   Prefix + "barystrip"    );
+  iEvent.put(std::move(middlestrip), Prefix + "middlestrip"  );
+  iEvent.put(std::move(charge),      Prefix + "charge"       );
+  iEvent.put(std::move(noise),       Prefix + "noise"        );
+  iEvent.put(std::move(ston),        Prefix + "ston"         );
+  iEvent.put(std::move(seedstrip),   Prefix + "seedstrip"    );
+  iEvent.put(std::move(seedindex),   Prefix + "seedindex"    );
+  iEvent.put(std::move(seedcharge),  Prefix + "seedcharge"   );
+  iEvent.put(std::move(seednoise),   Prefix + "seednoise"    );
+  iEvent.put(std::move(seedgain),    Prefix + "seedgain"     );
+  iEvent.put(std::move(qualityisbad),Prefix + "qualityisbad" );
 
-  iEvent.put( rawchargeC,   Prefix + "rawchargeC"   );
-  iEvent.put( rawchargeL,   Prefix + "rawchargeL"   );
-  iEvent.put( rawchargeR,   Prefix + "rawchargeR"   );
-  iEvent.put( rawchargeLL,  Prefix + "rawchargeLL"  );
-  iEvent.put( rawchargeRR,  Prefix + "rawchargeRR"  );
-  iEvent.put( etaX,         Prefix + "etaX"         );
-  iEvent.put( eta,          Prefix + "eta"          );
-  iEvent.put( foldedeta,    Prefix + "foldedeta"    );
-  iEvent.put( etaasymm,     Prefix + "etaasymm"     );
-  iEvent.put( outsideasymm, Prefix + "outsideasymm" );
-  iEvent.put( neweta,       Prefix + "neweta"       );
-  iEvent.put( newetaerr,    Prefix + "newetaerr"    );
+  iEvent.put(std::move(rawchargeC),  Prefix + "rawchargeC"   );
+  iEvent.put(std::move(rawchargeL),  Prefix + "rawchargeL"   );
+  iEvent.put(std::move(rawchargeR),  Prefix + "rawchargeR"   );
+  iEvent.put(std::move(rawchargeLL), Prefix + "rawchargeLL"  );
+  iEvent.put(std::move(rawchargeRR), Prefix + "rawchargeRR"  );
+  iEvent.put(std::move(etaX),        Prefix + "etaX"         );
+  iEvent.put(std::move(eta),         Prefix + "eta"          );
+  iEvent.put(std::move(foldedeta),   Prefix + "foldedeta"    );
+  iEvent.put(std::move(etaasymm),    Prefix + "etaasymm"     );
+  iEvent.put(std::move(outsideasymm),Prefix + "outsideasymm" );
+  iEvent.put(std::move(neweta),      Prefix + "neweta"       );
+  iEvent.put(std::move(newetaerr),   Prefix + "newetaerr"    );
 
-  iEvent.put( detid,         Prefix + "detid"         );
-  iEvent.put( subdetid,      Prefix + "subdetid"      );
-  iEvent.put( module,        Prefix + "module"        );
-  iEvent.put( side,          Prefix + "side"          );
-  iEvent.put( layerwheel,    Prefix + "layerwheel"    );
-  iEvent.put( stringringrod, Prefix + "stringringrod" );
-  iEvent.put( petal,         Prefix + "petal"         );
-  iEvent.put( stereo,        Prefix + "stereo"        );
+  iEvent.put(std::move(detid),        Prefix + "detid"         );
+  iEvent.put(std::move(subdetid),     Prefix + "subdetid"      );
+  iEvent.put(std::move(module),       Prefix + "module"        );
+  iEvent.put(std::move(side),         Prefix + "side"          );
+  iEvent.put(std::move(layerwheel),   Prefix + "layerwheel"    );
+  iEvent.put(std::move(stringringrod),Prefix + "stringringrod" );
+  iEvent.put(std::move(petal),        Prefix + "petal"         );
+  iEvent.put(std::move(stereo),       Prefix + "stereo"        );
 
 }
 
 ShallowClustersProducer::NearDigis::
 NearDigis(const SiStripClusterInfo& info) {
   max =  info.maxCharge();
-  left =           info.maxIndex()    > uint16_t(0)                ? info.stripCharges().at(info.maxIndex()-1)      : 0 ;
-  Lleft =          info.maxIndex()    > uint16_t(1)                ? info.stripCharges().at(info.maxIndex()-2)      : 0 ;
-  right=  unsigned(info.maxIndex()+1) < info.stripCharges().size() ? info.stripCharges().at(info.maxIndex()+1)      : 0 ;
-  Rright= unsigned(info.maxIndex()+2) < info.stripCharges().size() ? info.stripCharges().at(info.maxIndex()+2)      : 0 ;
-  first = info.stripCharges().at(0);
-  last =  info.stripCharges().at(info.width()-1);
+  left =           info.maxIndex()    > uint16_t(0)                ? info.stripCharges()[info.maxIndex()-1]      : 0 ;
+  Lleft =          info.maxIndex()    > uint16_t(1)                ? info.stripCharges()[info.maxIndex()-2]      : 0 ;
+  right=  unsigned(info.maxIndex()+1) < info.stripCharges().size() ? info.stripCharges()[info.maxIndex()+1]      : 0 ;
+  Rright= unsigned(info.maxIndex()+2) < info.stripCharges().size() ? info.stripCharges()[info.maxIndex()+2]      : 0 ;
+  first = info.stripCharges()[0];
+  last =  info.stripCharges()[info.width()-1];
 }
 
 ShallowClustersProducer::NearDigis::

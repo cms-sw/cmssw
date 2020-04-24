@@ -48,7 +48,7 @@ void AssociationVectorSelector<KeyRefProd, CVal, KeySelector, ValSelector>::prod
   using namespace std;
   Handle<association_t> association;
   evt.getByToken(associationToken_, association);
-  auto_ptr<collection_t> selected(new collection_t);
+  unique_ptr<collection_t> selected(new collection_t);
   vector<typename CVal::value_type> selectedValues;
   size_t size = association->size();
   selected->reserve(size);
@@ -65,12 +65,12 @@ void AssociationVectorSelector<KeyRefProd, CVal, KeySelector, ValSelector>::prod
   // new association must be created after the
   // selected collection is full because it uses the size
   KeyRefProd ref = evt.getRefBeforePut<collection_t>();
-  auto_ptr<association_t> selectedAssociation(new association_t(ref, selected.get()));
+  unique_ptr<association_t> selectedAssociation(new association_t(ref, selected.get()));
   size = selected->size();
-  OrphanHandle<collection_t> oh = evt.put(selected);
+  OrphanHandle<collection_t> oh = evt.put(std::move(selected));
   for(size_t i = 0; i != size; ++i)
     selectedAssociation->setValue(i, selectedValues[i]);
-  evt.put(selectedAssociation);
+  evt.put(std::move(selectedAssociation));
 }
 
 #endif

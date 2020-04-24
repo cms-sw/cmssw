@@ -3,8 +3,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -12,12 +14,13 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
@@ -31,6 +34,7 @@
 #include <utility>
 #include <vector>
 #include <fstream>
+#include <memory>
 
 using namespace std;
 
@@ -47,22 +51,22 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
  public:
    explicit ClusterShapeExtractor(const edm::ParameterSet& pset);
    ~ClusterShapeExtractor();
-   virtual void beginRun(edm::Run & run,       const edm::EventSetup& es);
-   virtual void analyze (const edm::Event& ev, const edm::EventSetup& es);
-   virtual void endJob();
+   virtual void beginRun(const edm::Run & run, const edm::EventSetup& es) override;
+   virtual void analyze (const edm::Event& ev, const edm::EventSetup& es) override;
+   virtual void endJob() override;
 
  private:
    bool isSuitable(const PSimHit & simHit);
 
    // Sim
    void processSim(const SiPixelRecHit &   recHit,
-                   const PSimHit & simHit, vector<TH2F *> & hspc);
+                   const PSimHit & simHit, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & hspc);
    void processSim(const SiStripRecHit2D & recHit,
                    const PSimHit & simHit, vector<TH1F *> & hssc);
 
    // Rec
    void processRec(const SiPixelRecHit &   recHit,
-                   LocalVector ldir, vector<TH2F *> & hrpc);
+                   LocalVector ldir, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & hrpc);
    void processRec(const SiStripRecHit2D & recHit,
                    LocalVector ldir, vector<TH1F *> & hrsc);
 
@@ -71,7 +75,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
      pair<unsigned int, float> & key);
 
    void processPixelRecHits
-     (const SiPixelRecHitCollection::DataContainer * recHits);
+     (const SiPixelRecHitCollection::DataContainer * recHits, const SiPixelClusterShapeCache& clusterShapeCache);
    void processStripRecHits
      (const SiStripRecHit2DCollection::DataContainer * recHits);
    void processMatchedRecHits
@@ -82,13 +86,16 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 
    TFile * file;
 
-   edm::ParameterSet theConfig;
    string trackProducer;
    bool hasSimHits;
    bool hasRecTracks;
 
+   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelRecHit>> pixelRecHits_token;
+   edm::EDGetTokenT<SiPixelClusterShapeCache> clusterShapeCache_token;
+
    const TrackerGeometry * theTracker;
-   TrackerHitAssociator  * theHitAssociator;
+   std::unique_ptr<TrackerHitAssociator> theHitAssociator;
+   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
    const ClusterShapeHitFilter * theClusterShape;
 
    vector<TH2F *> hspc; // simulated pixel cluster
@@ -99,7 +106,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 };
 
 /*****************************************************************************/
-void ClusterShapeExtractor::beginRun(edm::Run & run, const edm::EventSetup& es)
+void ClusterShapeExtractor::beginRun(const edm::Run & run, const edm::EventSetup& es)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry>          tracker;
@@ -147,8 +154,10 @@ void ClusterShapeExtractor::beginRun(edm::Run & run, const edm::EventSetup& es)
 }
 
 /*****************************************************************************/
-ClusterShapeExtractor::ClusterShapeExtractor
-  (const edm::ParameterSet& pset) : theConfig(pset)
+ClusterShapeExtractor::ClusterShapeExtractor(const edm::ParameterSet& pset) :
+  pixelRecHits_token(consumes<edmNew::DetSetVector<SiPixelRecHit>>(edm::InputTag("siPixelRecHits"))),
+  clusterShapeCache_token(consumes<SiPixelClusterShapeCache>(pset.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
+  trackerHitAssociatorConfig_(pset, consumesCollector())
 {
   trackProducer = pset.getParameter<string>("trackProducer"); 
   hasSimHits    = pset.getParameter<bool>("hasSimHits"); 
@@ -188,7 +197,8 @@ bool ClusterShapeExtractor::isSuitable(const PSimHit & simHit)
 {
   // Outgoing?
   DetId id = DetId(simHit.detUnitId());
-
+  const GeomDetUnit *gdu = theTracker->idToDetUnit(id);
+  if (gdu == 0) throw cms::Exception("MissingData") << "Missing DetUnit for detid " << id.rawId() << "\n" << std::endl;
   GlobalVector gvec = theTracker->idToDetUnit(id)->position() -
                       GlobalPoint(0,0,0);
   LocalVector  lvec = theTracker->idToDetUnit(id)->toLocal(gvec);
@@ -196,13 +206,17 @@ bool ClusterShapeExtractor::isSuitable(const PSimHit & simHit)
 
   bool isOutgoing = (lvec.z()*ldir.z() > 0); 
 
+    static const std::set<unsigned> RelevantProcesses = { 0 };
+    //static const std::set<unsigned> RelevantProcesses = { 2, 7, 9, 11, 13, 15 };
+    const bool isRelevant = RelevantProcesses.count(simHit.processType());
   // From a relevant process? primary or decay
-  bool isRelevant = (simHit.processType() == 2 ||
-                     simHit.processType() == 4);
+  //bool isRelevant = (simHit.processType() == 2 ||
+  //                   simHit.processType() == 4);
 
   // Fast enough? pt > 50 MeV/c
   bool isFast = (simHit.momentumAtEntry().perp() > 0.050);
 
+    //std::cout << "isOutgoing = " << isOutgoing << ", isRelevant = " << simHit.processType() << ", isFast = " << isFast << std::endl;
   return (isOutgoing && isRelevant && isFast);
 }
 
@@ -213,20 +227,20 @@ void ClusterShapeExtractor::processRec(const SiStripRecHit2D & recHit,
   int meas;
   float pred;
  
-  if(theClusterShape->getSizes(recHit,ldir, meas,pred))
+  if(theClusterShape->getSizes(recHit,LocalPoint(0,0,0), ldir, meas,pred))
     if(meas <= ewMax)
       histo[meas]->Fill(pred);
 }
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processRec(const SiPixelRecHit & recHit,
-     LocalVector ldir, vector<TH2F *> & histo)
+    LocalVector ldir, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & histo)
 {
   int part;
-  vector<pair<int,int> > meas;
+  ClusterData::ArrayType meas;
   pair<float,float> pred;
  
-  if(theClusterShape->getSizes(recHit,ldir, part,meas,pred))
+  if(theClusterShape->getSizes(recHit,ldir,clusterShapeCache, part,meas,pred))
    if(meas.size() == 1)
     if(meas.front().first  <= exMax && 
        meas.front().second <= eyMax)
@@ -240,10 +254,10 @@ void ClusterShapeExtractor::processRec(const SiPixelRecHit & recHit,
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processSim(const SiPixelRecHit & recHit,
-     const PSimHit & simHit, vector<TH2F *> & histo)
+     const PSimHit & simHit, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & histo)
 {
   LocalVector ldir = simHit.exitPoint() - simHit.entryPoint();
-  processRec(recHit, ldir, histo);
+  processRec(recHit, ldir, clusterShapeCache, histo);
 }
 
 /*****************************************************************************/
@@ -261,6 +275,7 @@ bool ClusterShapeExtractor::checkSimHits
 {
   vector<PSimHit> simHits = theHitAssociator->associateHit(recHit);
 
+    //std::cout << "simHits.size() = " << simHits.size() << std::endl;
   if(simHits.size() == 1)
   {
     simHit = simHits[0];
@@ -278,34 +293,39 @@ bool ClusterShapeExtractor::checkSimHits
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processPixelRecHits
-  (const SiPixelRecHitCollection::DataContainer * recHits)
+  (const SiPixelRecHitCollection::DataContainer * recHits, const SiPixelClusterShapeCache& clusterShapeCache)
 {
   map<pair<unsigned int, float>, const SiPixelRecHit *> simHitMap;
 
   PSimHit simHit;
   pair<unsigned int, float> key;
+    size_t counter = 0, counter_2 = 0;
 
   for(  SiPixelRecHitCollection::DataContainer::const_iterator
         recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-  if(checkSimHits(*recHit, simHit, key))
-  {
-    // Fill map
-    if(simHitMap.count(key) == 0)
-       simHitMap[key] = &(*recHit);
-    else
-      if(        recHit->cluster()->size() >
-         simHitMap[key]->cluster()->size())
-         simHitMap[key] = &(*recHit);
-  }
+      if(checkSimHits(*recHit, simHit, key))
+        {
+          // Fill map
+          if(simHitMap.count(key) == 0)
+              { simHitMap[key] = &(*recHit); }
+          else if(        recHit->cluster()->size() >
+                   simHitMap[key]->cluster()->size())
+                   simHitMap[key] = &(*recHit);
+          ++counter_2;
+        }
 
   for(  SiPixelRecHitCollection::DataContainer::const_iterator
         recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-  if(checkSimHits(*recHit, simHit, key))
-  {
-    // Check whether the present rechit is the largest
-    if(&(*recHit) == simHitMap[key])
-      processSim(*recHit, simHit, hspc);
-  }
+      if(checkSimHits(*recHit, simHit, key))
+        {
+          // Check whether the present rechit is the largest
+            if(&(*recHit) == simHitMap[key]) {
+                processSim(*recHit, simHit, clusterShapeCache, hspc);
+                ++counter;
+            }
+        }
+//    std::cout << "recHits->size() = " << recHits->size() << ", counter = " << counter
+//              << ", counter_2 = " << counter_2 << std::endl;
 }
 
 /*****************************************************************************/
@@ -347,6 +367,7 @@ void ClusterShapeExtractor::processMatchedRecHits
   map<pair<unsigned int, float>, const SiStripRecHit2D *> simHitMap;
   // VI very very quick fix
   std::vector<SiStripRecHit2D> cache;
+  cache.reserve(2*recHits->size());
   PSimHit simHit;
   pair<unsigned int, float> key;
 
@@ -409,18 +430,25 @@ void ClusterShapeExtractor::analyzeSimHits
   (const edm::Event& ev, const edm::EventSetup& es)
 {
   // Get associator
-  theHitAssociator = new TrackerHitAssociator(ev,theConfig);
+  theHitAssociator.reset(new TrackerHitAssociator(ev,trackerHitAssociatorConfig_));
 
   // Pixel hits
   {
     edm::Handle<SiPixelRecHitCollection> coll;
-    ev.getByLabel("siPixelRecHits", coll);
-  
+    //ev.getByLabel("siPixelRecHits", coll);
+    ev.getByToken(pixelRecHits_token, coll);
+
+	  
+
+    edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
+    ev.getByToken(clusterShapeCache_token, clusterShapeCache);
+
     const SiPixelRecHitCollection::DataContainer * recHits =
           & coll.product()->data();
-    processPixelRecHits(recHits);
+    processPixelRecHits(recHits, *clusterShapeCache);
   }
 
+  /*
   // Strip hits
   { // rphi and stereo
     vector<edm::Handle<SiStripRecHit2DCollection> > colls;
@@ -448,8 +476,7 @@ void ClusterShapeExtractor::analyzeSimHits
     processMatchedRecHits(recHits);
   }
   }
-
-  delete theHitAssociator;
+  */
 }
 
 /*****************************************************************************/
@@ -460,6 +487,9 @@ void ClusterShapeExtractor::analyzeRecTracks
   edm::Handle<vector<Trajectory> > trajeHandle;
   ev.getByLabel(trackProducer,     trajeHandle);
   const vector<Trajectory> & trajeCollection = *(trajeHandle.product());
+
+  edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
+  ev.getByToken(clusterShapeCache_token, clusterShapeCache);
 
   // Take all trajectories
   for(vector<Trajectory>::const_iterator trajectory = trajeCollection.begin();
@@ -476,19 +506,16 @@ void ClusterShapeExtractor::analyzeRecTracks
     {
       LocalVector ldir = meas->updatedState().localDirection();
 
-      if(theTracker->idToDet(id)->subDetector() ==
-           GeomDetEnumerators::PixelBarrel ||
-         theTracker->idToDet(id)->subDetector() ==
-           GeomDetEnumerators::PixelEndcap)
+      if(GeomDetEnumerators::isTrackerPixel(theTracker->geomDetSubDetector(id.subdetId())))
       {
         // Pixel
         const SiPixelRecHit* pixelRecHit =
           dynamic_cast<const SiPixelRecHit *>(recHit);
 
         if(pixelRecHit != 0)
-          processRec(*pixelRecHit, ldir, hrpc);
+          processRec(*pixelRecHit, ldir, *clusterShapeCache, hrpc);
       }
-      else
+      else if(GeomDetEnumerators::isTrackerStrip(theTracker->geomDetSubDetector(id.subdetId())))
       {
         // Strip
         const SiStripMatchedRecHit2D* stripMatchedRecHit =

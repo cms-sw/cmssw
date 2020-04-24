@@ -113,8 +113,8 @@ void DTRangeT0ValidateHandler::addNewObject( int runNumber ) {
                                     << sec << " "
                                     << qua << " , status = "
                                     << status << std::endl;
-              if ( ( fabs( ckt0min - t0min ) > 0.0001 ) ||
-                   ( fabs( ckt0max - t0max ) > 0.0001 ) )
+              if ( ( std::abs( ckt0min - t0min ) > 0.0001 ) ||
+                   ( std::abs( ckt0max - t0max ) > 0.0001 ) )
                    logFile << "MISMATCH WHEN WRITING range T0 "
                            << whe << " "
                            << sta << " "

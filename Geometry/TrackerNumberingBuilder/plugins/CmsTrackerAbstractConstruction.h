@@ -11,6 +11,7 @@ class DDFilteredView;
  */
 class CmsTrackerAbstractConstruction{
  public:
+  virtual ~CmsTrackerAbstractConstruction() = default;
   virtual void build(DDFilteredView& , GeometricDet*, std::string) = 0;
 
 };

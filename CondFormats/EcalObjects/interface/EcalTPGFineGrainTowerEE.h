@@ -1,6 +1,8 @@
 #ifndef EcalTPGFineGrainTowerEE_h
 #define EcalTPGFineGrainTowerEE_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 
@@ -17,6 +19,8 @@ class EcalTPGFineGrainTowerEE
  private:
   std::map<uint32_t, uint32_t> map_ ;
 
+
+ COND_SERIALIZABLE;
 };
 
 typedef std::map<uint32_t, uint32_t>                 EcalTPGFineGrainTowerEEMap;

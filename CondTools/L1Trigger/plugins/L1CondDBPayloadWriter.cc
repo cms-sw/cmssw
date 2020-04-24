@@ -89,7 +89,7 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 	 }
      }
 
-   L1TriggerKeyList* keyList = 0 ;
+   L1TriggerKeyList* keyList = nullptr ;
 
    // Write L1TriggerKey to ORCON with no IOV
    std::string token ;

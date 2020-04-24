@@ -62,7 +62,7 @@ MuRingForwardDoubleLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
                                                                vector<int>& rings,
                                                                const CSCGeometry& geo) {
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonCSCDetLayerGeometryBuilder";
-  MuRingForwardDoubleLayer* result=0;
+  MuRingForwardDoubleLayer* result=nullptr;
   
   vector<const ForwardDetRing*> frontRings, backRings;
   
@@ -73,7 +73,7 @@ MuRingForwardDoubleLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
       const GeomDet* geomDet = geo.idToDet(detId);
       // we sometimes loop over more chambers than there are in ring
       bool isInFront = isFront(station, *ring, chamber);
-      if(geomDet != 0)
+      if(geomDet != nullptr)
       {
         if(isInFront)
         {

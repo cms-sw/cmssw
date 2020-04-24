@@ -51,7 +51,7 @@ class FWCollectionSummaryWidget : public TGCompositeFrame
 
 public:
    FWCollectionSummaryWidget(TGFrame* iParent, FWEventItem& iItem, TGLayoutHints*);
-   virtual ~FWCollectionSummaryWidget();
+   ~FWCollectionSummaryWidget() override;
    
    // ---------- const member functions ---------------------
 
@@ -79,7 +79,7 @@ public:
    void stateClicked();
    void labelClicked();
    
-   ClassDef(FWCollectionSummaryWidget,0);
+   ClassDefOverride(FWCollectionSummaryWidget,0);
    
    void itemColorClicked(int iIndex, Int_t iRootX, Int_t iRootY);
    void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);

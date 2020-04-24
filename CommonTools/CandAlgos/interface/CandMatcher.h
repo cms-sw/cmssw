@@ -17,7 +17,7 @@ namespace reco {
       public:
         CandMatcher(  const edm::ParameterSet & cfg ) : 
           Matcher<Collection, Collection, S, D, typename reco::helper::CandMapTrait<Collection>::type>( cfg ) { }
-      ~CandMatcher() { }
+      ~CandMatcher() override { }
     };
 
   }

@@ -22,18 +22,19 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 //
 // class declaration
 //
 
-class __class__ : public edm::EDFilter {
+class __class__ : public edm::stream::EDFilter<> {
    public:
       explicit __class__(const edm::ParameterSet&);
       ~__class__();
@@ -41,10 +42,10 @@ class __class__ : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
+      virtual void beginStream(edm::StreamID) override;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-      
+      virtual void endStream() override;
+
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -74,7 +75,7 @@ __class__::__class__(const edm::ParameterSet& iConfig)
 __class__::~__class__()
 {
  
-   // do anything here that needs to be done at desctruction time
+   // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 
 }
@@ -101,15 +102,15 @@ __class__::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    return true;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-__class__::beginJob()
+// ------------ method called once each stream before processing any runs, lumis or events  ------------
+void
+__class__::beginStream(edm::StreamID)
 {
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-__class__::endJob() {
+// ------------ method called once each stream after processing all runs, lumis and events  ------------
+void
+__class__::endStream() {
 }
 
 // ------------ method called when starting to processes a run  ------------

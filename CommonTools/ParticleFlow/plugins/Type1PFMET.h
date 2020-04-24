@@ -12,7 +12,7 @@
 
 // system include files
 #include <memory>
-#include <string.h>
+#include <cstring>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -23,7 +23,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/METReco/interface/METFwd.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 
 
@@ -33,17 +33,17 @@ class Type1PFMET : public edm::EDProducer
  public:
   explicit Type1PFMET( const edm::ParameterSet& );
   explicit Type1PFMET();
-  virtual ~Type1PFMET();
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  ~Type1PFMET() override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
  private:
   edm::EDGetTokenT<reco::METCollection> tokenUncorMet;
   edm::EDGetTokenT<reco::PFJetCollection> tokenUncorJets;
-  std::string correctorLabel;
+  edm::EDGetTokenT<reco::JetCorrector> correctorToken;
   double jetPTthreshold;
   double jetEMfracLimit;
   double jetMufracLimit;
   void run(const reco::METCollection& uncorMET,
-	   const JetCorrector& corrector,
+	   const reco::JetCorrector& corrector,
 	   const reco::PFJetCollection& uncorJet,
 	   double jetPTthreshold,
 	   double jetEMfracLimit,

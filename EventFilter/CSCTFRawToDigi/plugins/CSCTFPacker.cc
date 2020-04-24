@@ -2,13 +2,9 @@
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
 
 #include <strings.h>
-#include <errno.h>
+#include <cerrno>
 #include <iostream>
 #include <cstdio>
-
-#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
-#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
-#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -24,7 +20,7 @@
 #include "FWCore/Utilities/interface/CRC16.h"
 
 
-CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
+CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::one::EDProducer<>(){
 	// "Readout" configuration
 	zeroSuppression = conf.getParameter<bool>("zeroSuppression");
 	nTBINs          = conf.getParameter<int> ("nTBINs");
@@ -40,8 +36,8 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	// Swap: if(swapME1strips && me1b && !zplus) strip = 65 - strip; // 1-64 -> 64-1 :
 	swapME1strips = conf.getParameter<bool>("swapME1strips");
 
-	file = 0;
-	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==NULL )
+	file = nullptr;
+	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==nullptr )
 		throw cms::Exception("OutputFile ")<<"CSCTFPacker: cannot open output file (errno="<<errno<<"). Try outputFile=\"\"";
 
 	// BX window bounds in CMSSW:
@@ -56,6 +52,12 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	central_sp_bx = int(nTBINs/2);
 
 	produces<FEDRawDataCollection>("CSCTFRawData");
+
+	CSCTC_Tok = consumes<CSCTriggerContainer<csctf::TrackStub> >( edm::InputTag(mbProducer.label(),mbProducer.instance()) ); 
+	CSCCDC_Tok = consumes<CSCCorrelatedLCTDigiCollection>( edm::InputTag(lctProducer.label(),lctProducer.instance()) );  
+	L1CSCTr_Tok = consumes<L1CSCTrackCollection>( edm::InputTag(trackProducer.label(),trackProducer.instance()) );  
+
+
 }
 
 CSCTFPacker::~CSCTFPacker(void){
@@ -64,7 +66,7 @@ CSCTFPacker::~CSCTFPacker(void){
 
 void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
-	e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
+	e.getByToken(CSCCDC_Tok ,corrlcts);
 
 	CSCSP_MEblock meDataRecord[12][7][5][9][2]; // LCT in sector X, tbin Y, station Z, csc W, and lct I
 	bzero(&meDataRecord,sizeof(meDataRecord));
@@ -142,7 +144,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	bzero(&mbDataRecord,sizeof(mbDataRecord));
 	edm::Handle< CSCTriggerContainer<csctf::TrackStub> > barrelStubs;
 	if( mbProducer.label() != "null" ){
-		e.getByLabel(mbProducer.label(),mbProducer.instance(),barrelStubs);
+		e.getByToken(CSCTC_Tok ,barrelStubs);
 		if( barrelStubs.isValid() ){
 			std::vector<csctf::TrackStub> stubs = barrelStubs.product()->get();
 			for(std::vector<csctf::TrackStub>::const_iterator dt=stubs.begin(); dt!=stubs.end(); dt++){
@@ -179,7 +181,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 	edm::Handle<L1CSCTrackCollection> tracks;
 	if( trackProducer.label() != "null" ){
-		e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
+		e.getByToken(L1CSCTr_Tok ,tracks);
 
 		for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk!=tracks->end(); trk++){
 			int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
@@ -331,7 +333,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
 
 	if( putBufferToEvent ){
-		std::auto_ptr<FEDRawDataCollection> data(new FEDRawDataCollection);
+		auto data = std::make_unique<FEDRawDataCollection>();
 		FEDRawData& fedRawData = data->FEDData((unsigned int)FEDNumbering::MINCSCTFFEDID);
 		fedRawData.resize((pos-spDDUrecord)*sizeof(unsigned short));
 		std::copy((unsigned char*)spDDUrecord,(unsigned char*)pos,fedRawData.data());
@@ -339,7 +341,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 		csctfFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, FEDNumbering::MINCSCTFFEDID);
 		FEDTrailer csctfFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
 		csctfFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), fedRawData.size()/8, evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
-		e.put(data,"CSCTFRawData");
+		e.put(std::move(data),"CSCTFRawData");
 	}
 
 	if(file) fwrite(spDDUrecord,2,pos-spDDUrecord,file);

@@ -58,8 +58,8 @@ process.TFileService = cms.Service("TFileService",
 #                                        connect = cms.string("sqlite_file:/afs/cern.ch/user/k/kaschube/cms/CMSSW_3_2_4/src/Alignment/MillePedeAlignmentAlgorithm/test/LAS_Ideal_Gaussian.db"),
 #                                        toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
 #                                                                   tag = cms.string("Alignments"))#, #"Alignments"
-#                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-#                                                                   tag = cms.string("")) #"AlignmentErrors"
+#                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
+#                                                                   tag = cms.string("")) #"AlignmentErrorsExtended"
 #                                        )
 #)
 #process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")

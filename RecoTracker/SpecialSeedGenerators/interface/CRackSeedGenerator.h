@@ -17,14 +17,16 @@ class CRackSeedGenerator : public edm::EDProducer
 
   explicit CRackSeedGenerator(const edm::ParameterSet& conf);
 
-  virtual ~CRackSeedGenerator();
+  ~CRackSeedGenerator() override;
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   edm::ParameterSet conf_;
   SeedGeneratorForCRack  cosmic_seed;
-
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedrecHitsToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> rphirecHitsToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> stereorecHitsToken_;
 };
 
 #endif

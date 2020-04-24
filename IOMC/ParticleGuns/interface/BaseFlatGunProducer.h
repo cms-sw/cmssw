@@ -19,9 +19,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RandFlat.h"
-
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
@@ -34,7 +31,7 @@ namespace edm
   
   public:
     BaseFlatGunProducer(const ParameterSet &);
-    virtual ~BaseFlatGunProducer();
+    ~BaseFlatGunProducer() override;
     void beginRun(const edm::Run & r, const edm::EventSetup&) override;
     void endRun(edm::Run const& r, const edm::EventSetup&) override;
     void endRunProduce(edm::Run& r, const edm::EventSetup&) override;
@@ -68,9 +65,6 @@ namespace edm
             	    	
     int              fVerbosity ;
 
-    CLHEP::HepRandomEngine& fRandomEngine ;
-    CLHEP::RandFlat*        fRandomGenerator; 
-    
     bool             fAddAntiParticle;
     
   };

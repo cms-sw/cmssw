@@ -10,7 +10,6 @@
 #include "G4ThreeVector.hh"
 #include "G4LogicalVolume.hh"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 
 class HFShowerG4Hit : public G4VHit {
@@ -19,7 +18,7 @@ public:
 
   HFShowerG4Hit();
   HFShowerG4Hit(G4int hitId, G4int tkID, double edep, double time);
-  virtual ~HFShowerG4Hit();
+  ~HFShowerG4Hit() override;
   HFShowerG4Hit(const HFShowerG4Hit &right);
   const HFShowerG4Hit& operator=(const HFShowerG4Hit &right);
   G4int operator==(const HFShowerG4Hit &right) const;
@@ -59,15 +58,15 @@ public:
 
 typedef G4THitsCollection<HFShowerG4Hit> HFShowerG4HitsCollection;
 
-extern G4Allocator<HFShowerG4Hit> HFShowerG4HitAllocator;
+extern G4ThreadLocal G4Allocator<HFShowerG4Hit>* fHFShowerG4HitAllocator;
 
 inline void* HFShowerG4Hit::operator new(size_t) {
-  void* aHit;
-  aHit = (void*) HFShowerG4HitAllocator.MallocSingle();
-  return aHit;
+  if (!fHFShowerG4HitAllocator) fHFShowerG4HitAllocator = 
+    new G4Allocator<HFShowerG4Hit>;
+  return (void*)fHFShowerG4HitAllocator->MallocSingle();
 }
 
 inline void HFShowerG4Hit::operator delete(void *aHit) {
-  HFShowerG4HitAllocator.FreeSingle((HFShowerG4Hit*) aHit);
+  fHFShowerG4HitAllocator->FreeSingle((HFShowerG4Hit*) aHit);
 }
 #endif

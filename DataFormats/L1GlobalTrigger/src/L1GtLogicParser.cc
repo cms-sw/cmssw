@@ -1548,7 +1548,7 @@ const L1GtLogicParser::OperationRule* L1GtLogicParser::getRuleFromType(Operation
     }
 
     if (m_operationRules[i].opType == OP_NULL) {
-        return 0;
+        return nullptr;
     }
 
     return &(m_operationRules[i]);
@@ -1653,6 +1653,6 @@ const struct L1GtLogicParser::OperationRule L1GtLogicParser::m_operationRules[] 
         { "NOT",  OP_NOT,           OP_OPERAND | OP_CLOSEBRACKET                       },
         { "(",    OP_OPENBRACKET,   OP_OPERAND | OP_CLOSEBRACKET                       },
         { ")",    OP_CLOSEBRACKET,  OP_AND | OP_OR | OP_NOT | OP_OPENBRACKET           },
-        { NULL,   OP_OPERAND,       OP_OPERAND | OP_CLOSEBRACKET                       },
-        { NULL,   OP_NULL,          OP_NULL                                            }
+        { nullptr,   OP_OPERAND,       OP_OPERAND | OP_CLOSEBRACKET                       },
+        { nullptr,   OP_NULL,          OP_NULL                                            }
     };

@@ -148,7 +148,7 @@ parser.add_option("--standalone",
 
 def blackListedHistos():
         ##GET a black-list file of histograms##
-    if os.environ.has_key("RELMON_SA"):
+    if "RELMON_SA" in os.environ:
         black_list_file="../data/blacklist.txt"
     else:
         black_list_file="%s/src/Utilities/RelMon/data/blacklist.txt"%(os.environ["CMSSW_BASE"])
@@ -176,7 +176,7 @@ if len(args)!=2 and options.compare:
 original_pickle_name=""
 if options.compare:
   
-  if os.environ.has_key("RELMON_SA"):
+  if "RELMON_SA" in os.environ:
     import definitions  
     from dqm_interfaces import DirID,DirWalkerFile,string2blacklist
     from dirstructure import Directory
@@ -309,7 +309,7 @@ if options.compare:
 #-------------------------------------------------------------------------------
 if options.report:
   
-  if os.environ.has_key("RELMON_SA"):
+  if "RELMON_SA" in os.environ:
     from directories2html import directory2html
     from dirstructure import Directory
   else:

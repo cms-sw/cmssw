@@ -58,7 +58,7 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
    m_detailViewManager(iManager),
    m_colorManager(iColorMgr),
-   m_dialogBuilder(0)
+   m_dialogBuilder(nullptr)
 {
    m_changes = iSelMgr->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, this, _1));
 
@@ -179,7 +179,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    {
       m_modelLabel->SetText(item->modelName(id->index()).c_str());
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*id);
-      m_openDetailedViewButtons.front()->SetEnabled(viewChoices.size()>0);
+      m_openDetailedViewButtons.front()->SetEnabled(!viewChoices.empty());
       //be sure we show just the right number of buttons
       if(viewChoices.size() > m_openDetailedViewButtons.size()) 
       {
@@ -194,7 +194,6 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
          TGTextButton *button;
          for(size_t index = m_openDetailedViewButtons.size(); index < viewChoices.size(); ++index)
          { 
-            // printf("add new button %s \n ",  viewChoices[index].c_str());
             button = new TGTextButton(this, "dummy", index);
             AddFrame(button, new TGLayoutHints(kLHintsExpandX, 4, 4, 4, 4));
             TGCompositeFrame* cf = (TGCompositeFrame*)button->GetParent();
@@ -218,7 +217,15 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
       //set the names
       for (size_t i = 0, e = viewChoices.size(); i != e; ++i)
       {
-         m_openDetailedViewButtons[i]->SetText(("Open " + viewChoices[i] + " Detail View ...").c_str());
+         if ( viewChoices[i][0] == '!') {
+            m_openDetailedViewButtons[i]->SetEnabled(false);
+            m_openDetailedViewButtons[i]->SetText(("Open " + viewChoices[i].substr(1) + " Detail View ...").c_str());
+
+         }
+         else {
+            m_openDetailedViewButtons[i]->SetText(("Open " + viewChoices[i] + " Detail View ...").c_str());
+            m_openDetailedViewButtons[i]->SetEnabled(true);
+         }
       }
    }
    

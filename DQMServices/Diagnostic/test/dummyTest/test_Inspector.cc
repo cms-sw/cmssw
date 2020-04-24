@@ -12,7 +12,7 @@
 
 gSystem->Load("libFWCoreFWLite");  
 
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
    
 gROOT->Reset();
 

@@ -2,17 +2,21 @@
 #define CutBasedElectronID_H
 
 #include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class CutBasedElectronID : public ElectronIDAlgo {
 
 public:
+  
+  CutBasedElectronID(const edm::ParameterSet& conf,edm::ConsumesCollector & iC);
 
-  CutBasedElectronID(){};
+  ~CutBasedElectronID() override {};
 
-  virtual ~CutBasedElectronID() {};
-
-  void setup(const edm::ParameterSet& conf);
-  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
+  void setup(const edm::ParameterSet& conf) override;
+  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;
   double cicSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
   double robustSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
   int classify(const reco::GsfElectron*);
@@ -24,7 +28,7 @@ public:
   std::string type_;
   std::string quality_;
   std::string version_;
-  edm::InputTag verticesCollection_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > verticesCollection_;
   edm::ParameterSet cuts_;
 
 };

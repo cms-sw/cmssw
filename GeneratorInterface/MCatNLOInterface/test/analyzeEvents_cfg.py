@@ -11,7 +11,7 @@ process.source = cms.Source("PoolSource",
 
 process.myanalysis = cms.EDAnalyzer("ZeeAnalyzer",
                                     OutputFilename = cms.untracked.string('Zee_histos.root'),
-                                    hepMCProductTag = cms.InputTag("generator"),
+                                    hepMCProductTag = cms.InputTag("VtxSmeared"),
                                     genEventInfoProductTag = cms.InputTag("generator")
 )
 

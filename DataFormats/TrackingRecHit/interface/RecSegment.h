@@ -31,7 +31,7 @@ class RecSegment : public TrackingRecHit{
   RecSegment(TrackingRecHit::id_type id=0) : TrackingRecHit(id) {}
 
   /// Destructor
-  virtual ~RecSegment() {};
+  ~RecSegment() override {};
 
   /// Local direction
   virtual LocalVector localDirection() const = 0;
@@ -46,7 +46,7 @@ class RecSegment : public TrackingRecHit{
   virtual int degreesOfFreedom() const = 0 ;
 
   /// Dimension (in parameter space)
-  virtual int dimension() const = 0 ;
+  int dimension() const override = 0 ;
 
 };
 #endif // TrackingRecHit_RecSegment_h

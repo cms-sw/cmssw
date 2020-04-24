@@ -21,9 +21,9 @@ class HLTHcalMETNoiseCleaner : public edm::EDFilter {
   
  public:
   explicit HLTHcalMETNoiseCleaner(const edm::ParameterSet&);
-  ~HLTHcalMETNoiseCleaner();
+  ~HLTHcalMETNoiseCleaner() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
   edm::EDGetTokenT<reco::CaloMETCollection> m_theCaloMetToken;
@@ -49,7 +49,7 @@ class HLTHcalMETNoiseCleaner : public edm::EDFilter {
   double maxRBXEMF_;
 
   // imported from the RecoMET/METProducers/python/hcalnoiseinfoproducer_cfi
-  double minRecHitE_, minLowHitE_, minHighHitE_;
+  double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_;
 
   double TS4TS5EnergyThreshold_;
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;

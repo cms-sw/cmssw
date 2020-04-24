@@ -59,13 +59,13 @@ namespace {
       StandAloneScribe() {}
             
       // ---------- member functions ---------------------------
-      virtual
+      
       void  runCommand(edm::MessageLoggerQ::OpCode  opcode, void * operand) override;
       
    private:
-      StandAloneScribe(const StandAloneScribe&); // stop default
+      StandAloneScribe(const StandAloneScribe&) = delete; // stop default
       
-      const StandAloneScribe& operator=(const StandAloneScribe&); // stop default
+      const StandAloneScribe& operator=(const StandAloneScribe&) = delete; // stop default
       
       // ---------- member data --------------------------------
       
@@ -107,16 +107,15 @@ namespace {
    }   
 
   // Changelog 14
-  boost::shared_ptr<StandAloneScribe> obtainStandAloneScribePtr() {   
-    static boost::shared_ptr<StandAloneScribe> 
-      standAloneScribe_ptr( new StandAloneScribe );
+  std::shared_ptr<StandAloneScribe> obtainStandAloneScribePtr() {   
+    static auto standAloneScribe_ptr = std::make_shared<StandAloneScribe>();
     return standAloneScribe_ptr;
   }
 
 
 } // end of anonymous namespace
 
-boost::shared_ptr<edm::service::AbstractMLscribe>  
+std::shared_ptr<edm::service::AbstractMLscribe>  
   MessageLoggerQ::mlscribe_ptr = obtainStandAloneScribePtr();  
   				// changeLog 8, 11, 14
 
@@ -137,7 +136,7 @@ MessageLoggerQ *
 
 void
   MessageLoggerQ::setMLscribe_ptr
-  	(boost::shared_ptr<edm::service::AbstractMLscribe> m) // changeLog 8, 14
+  	(std::shared_ptr<edm::service::AbstractMLscribe> m) // changeLog 8, 14
 {
   if (!m) { 
     mlscribe_ptr = obtainStandAloneScribePtr();
@@ -176,13 +175,13 @@ void
 void
   MessageLoggerQ::MLqEND()
 {
-  simpleCommand (END_THREAD, (void *)0); 
+  simpleCommand (END_THREAD, (void *)nullptr); 
 }  // MessageLoggerQ::END()
 
 void
   MessageLoggerQ::MLqSHT()
 {
-  simpleCommand (SHUT_UP, (void *)0); 
+  simpleCommand (SHUT_UP, (void *)nullptr); 
 }  // MessageLoggerQ::SHT()
 
 void
@@ -199,15 +198,9 @@ void
 }  // MessageLoggerQ::CFG()
 
 void
-MessageLoggerQ::MLqEXT( service::NamedDestination* p )
-{
-  simpleCommand (EXTERN_DEST, static_cast<void *>(p)); 
-}
-
-void
   MessageLoggerQ::MLqSUM( )
 {
-  simpleCommand (SUMMARIZE, 0); 
+  simpleCommand (SUMMARIZE, nullptr); 
 }  // MessageLoggerQ::SUM()
 
 void
@@ -224,7 +217,7 @@ void
   // place to convey exception information.  FLS does not need this, nor does
   // it need the parameter set, but we are reusing ConfigurationHandshake 
   // rather than reinventing the mechanism.
-  handshakedCommand(FLUSH_LOG_Q, 0, "FLS" );
+  handshakedCommand(FLUSH_LOG_Q, nullptr, "FLS" );
 }  // MessageLoggerQ::FLS()
 
 void

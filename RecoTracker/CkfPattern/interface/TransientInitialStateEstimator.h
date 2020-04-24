@@ -2,15 +2,16 @@
 #define TransientInitialStateEstimator_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 
 #include <utility>
 
 class Propagator;
 class GeomDet;
 class Trajectory;
+class TrackingComponentsRecord;
 namespace edm { class EventSetup;}
 
 /// Computes the trajectory state to be used as a starting state for the track fit
@@ -22,20 +23,20 @@ public:
 
   typedef TrajectoryStateOnSurface TSOS;
 
-  TransientInitialStateEstimator( const edm::EventSetup& es, const edm::ParameterSet& conf);
-  /// Call this at each event until this object will come from the EventSetup as it should
-  void setEventSetup( const edm::EventSetup& es );
+  TransientInitialStateEstimator(const edm::ParameterSet& conf);
+  void setEventSetup( const edm::EventSetup& es, const TkClonerImpl& hc );
 
   std::pair<TrajectoryStateOnSurface, const GeomDet*>
     innerState( const Trajectory& traj, bool doBackFit=true) const;
 
 
 private:
-  std::string thePropagatorAlongName;    
-  std::string thePropagatorOppositeName;  
-  edm::ESHandle<Propagator>  thePropagatorAlong; 
-  edm::ESHandle<Propagator>  thePropagatorOpposite;
-  int theNumberMeasurementsForFit;
+  const std::string thePropagatorAlongName;
+  const std::string thePropagatorOppositeName;
+  const Propagator *thePropagatorAlong;
+  const Propagator *thePropagatorOpposite; // not used? can we remove it?
+  TkClonerImpl theHitCloner;
+  const int theNumberMeasurementsForFit;
 };
 
 #endif

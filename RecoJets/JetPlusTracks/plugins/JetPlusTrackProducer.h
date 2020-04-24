@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,13 +40,11 @@
 // class declaration
 //
 
-class JetPlusTrackProducer : public edm::EDProducer {
+class JetPlusTrackProducer : public edm::stream::EDProducer<> {
    public:
       explicit JetPlusTrackProducer(const edm::ParameterSet&);
-      ~JetPlusTrackProducer();
-      virtual void beginJob();
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      ~JetPlusTrackProducer() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    // ---------- private data members ---------------------------
    private:

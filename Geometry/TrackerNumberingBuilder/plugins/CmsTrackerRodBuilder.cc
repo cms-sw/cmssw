@@ -14,12 +14,12 @@ void CmsTrackerRodBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, s
 }
 
 void CmsTrackerRodBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  GeometricDet::GeometricDetContainer & comp = det->components();
+  GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
   std::stable_sort(comp.begin(),comp.end(),LessModZ()); 	
 
   for(uint32_t i=0; i<comp.size();i++){
-     comp[i]->setGeographicalID(i+1);
+    det->component(i)->setGeographicalID(i+1);
   }
     
   if (comp.empty() ){

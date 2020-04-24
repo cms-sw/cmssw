@@ -14,21 +14,21 @@
 class VolumeMaterialEffectsEstimate;
 class VolumeMediumProperties;
 
-class VolumeMultipleScatteringEstimator GCC11_FINAL : public VolumeMaterialEffectsEstimator
+class VolumeMultipleScatteringEstimator final : public VolumeMaterialEffectsEstimator
 {  
 public:
   /// Constructor with explicit mass hypothesis
   VolumeMultipleScatteringEstimator ( float mass ) :
     VolumeMaterialEffectsEstimator(mass) {}
   
-  virtual ~VolumeMultipleScatteringEstimator () {}
+  ~VolumeMultipleScatteringEstimator () override {}
 
   /// Creates an estimate
-  virtual VolumeMaterialEffectsEstimate estimate (const TrajectoryStateOnSurface refTSOS,
+  VolumeMaterialEffectsEstimate estimate (const TrajectoryStateOnSurface refTSOS,
 						  double pathLength,
-						  const VolumeMediumProperties& medium) const;
+						  const VolumeMediumProperties& medium) const override;
 
-  virtual VolumeMultipleScatteringEstimator* clone()  const;
+  VolumeMultipleScatteringEstimator* clone()  const override;
 };
 
 #endif

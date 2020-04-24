@@ -20,8 +20,6 @@ process.a1 = cms.EDAnalyzer("TestResultAnalyzer",
     name = cms.untracked.string('a1'),
     dump = cms.untracked.bool(True),
     numbits = cms.untracked.int32(0),
-    pathname = cms.untracked.string('e1'),
-    modlabel = cms.untracked.string('a1')
 )
 
 process.testout1 = cms.OutputModule("TestOutputModule",

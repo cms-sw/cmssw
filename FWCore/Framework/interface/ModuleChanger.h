@@ -23,34 +23,37 @@
 #include <string>
 
 // user include files
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 
 namespace edm {
    class ParameterSet;
    class Schedule;
-   
+   class ProductRegistry;
+
    class ModuleChanger {
 
    public:
-      ModuleChanger(Schedule*);
+      ModuleChanger(Schedule*, ProductRegistry const* iReg);
       virtual ~ModuleChanger();
 
       // ---------- const member functions ---------------------
-      bool changeModule(const std::string& iLabel,
-                        const ParameterSet& iPSet) const;
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+      bool changeModule(const std::string& iLabel,
+                        const ParameterSet& iPSet);
 
    private:
-      ModuleChanger(const ModuleChanger&); // stop default
+      ModuleChanger(const ModuleChanger&) = delete; // stop default
 
-      const ModuleChanger& operator=(const ModuleChanger&); // stop default
+      const ModuleChanger& operator=(const ModuleChanger&) = delete; // stop default
 
       // ---------- member data --------------------------------
-      Schedule* schedule_;
+      edm::propagate_const<Schedule*> schedule_;
+      ProductRegistry const* registry_;
    };
 }
 #endif

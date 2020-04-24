@@ -7,6 +7,7 @@
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -27,6 +28,7 @@ class CkfComponentsRecord : public edm::eventsetup::DependentRecordImplementatio
 			                       TransientRecHitRecord,
                                                TrackingComponentsRecord,
 			                       TrackerRecoGeometryRecord,
+                                               TrackerTopologyRcd,
                                                SiStripQualityRcd,
 					       SiStripDetCablingRcd,
                                                SiStripNoisesRcd,

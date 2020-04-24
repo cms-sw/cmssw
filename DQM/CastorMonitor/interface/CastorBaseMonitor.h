@@ -31,28 +31,13 @@ public:
   CastorBaseMonitor(); 
   virtual ~CastorBaseMonitor(); 
 
-  virtual void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  virtual void done();
-  virtual void clearME();
-
-  void setVerbosity(int verb) { fVerbosity = verb; }
-  int getVerbosity() const { return fVerbosity; }
-  
-  void setDiagnostics(bool myval) { makeDiagnostics=myval;}
-  bool getDiagnostics() const { return makeDiagnostics;}
-
-  bool vetoCell(HcalCastorDetId id);
+  virtual void setup(const edm::ParameterSet& ps);
 
 protected:
-  
   int fVerbosity;
   bool showTiming; //-- controls whether to show timing diagnostic info
   edm::CPUTimer cpu_timer; 
 
-  bool makeDiagnostics; //-- controls whether to make diagnostic plots
-
-  DQMStore* m_dbe;
-  //vector<std::string> hotCells_;
   std::string rootFolder_;
   std::string baseFolder_;
 

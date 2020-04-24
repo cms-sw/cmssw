@@ -15,17 +15,18 @@ class FWMuonLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>
 {
 public:
    FWMuonLegoProxyBuilder( void ) {}
-   virtual ~FWMuonLegoProxyBuilder( void ) {}
+   ~FWMuonLegoProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    // Disable default copy constructor
-   FWMuonLegoProxyBuilder( const FWMuonLegoProxyBuilder& );
+   FWMuonLegoProxyBuilder( const FWMuonLegoProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWMuonLegoProxyBuilder& operator=( const FWMuonLegoProxyBuilder& );
+   const FWMuonLegoProxyBuilder& operator=( const FWMuonLegoProxyBuilder& ) = delete;
 
-   virtual void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+   using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
+   void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

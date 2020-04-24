@@ -1,9 +1,11 @@
 #include "EventFilter/ESRawToDigi/interface/ESRawToDigi.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/EcalRawData/interface/ESListOfFEDS.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h" 
 #include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
@@ -12,10 +14,12 @@
 
 ESRawToDigi::ESRawToDigi(edm::ParameterSet const& ps) 
 {
-  sourceTag_        = ps.getParameter<edm::InputTag>("sourceTag");
+   
+  edm::InputTag sourceTag = ps.getParameter<edm::InputTag>("sourceTag");
   ESdigiCollection_ = ps.getParameter<std::string>("ESdigiCollection");
   regional_         = ps.getUntrackedParameter<bool>("DoRegional",false);
-  fedsListLabel_    = ps.getUntrackedParameter<edm::InputTag>("ESFedsListLabel", edm::InputTag(":esfedslist"));
+  edm::InputTag fedsListLabel     
+      = ps.getUntrackedParameter<edm::InputTag>("ESFedsListLabel", edm::InputTag(":esfedslist"));
   debug_            = ps.getUntrackedParameter<bool>("debugMode", false);
 
   ESUnpacker_ = new ESUnpacker(ps);
@@ -23,6 +27,10 @@ ESRawToDigi::ESRawToDigi(edm::ParameterSet const& ps)
   produces<ESRawDataCollection>();
   produces<ESLocalRawDataCollection>();
   produces<ESDigiCollection>();
+  dataToken_=consumes<FEDRawDataCollection>(sourceTag);
+  if (regional_){
+      fedsToken_=consumes<ESListOfFEDS>(fedsListLabel);
+  }
 }
 
 ESRawToDigi::~ESRawToDigi(){
@@ -31,11 +39,21 @@ ESRawToDigi::~ESRawToDigi(){
 
 }
 
+void ESRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("sourceTag",edm::InputTag("rawDataCollector"));
+  desc.addUntracked<bool>("debugMode",false);
+  desc.add<std::string>("InstanceES","");
+  desc.add<edm::FileInPath>("LookupTable",edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"));
+  desc.add<std::string>("ESdigiCollection","");
+  descriptions.add("esRawToDigi",desc);
+}
+
 void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Input
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel(sourceTag_, rawdata);
+  e.getByToken(dataToken_, rawdata);
   if (!rawdata.isValid()) {
     LogDebug("") << "ESRawToDigi : Error! can't get rawdata!" << std::endl;
   }
@@ -43,14 +61,14 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   std::vector<int> esFeds_to_unpack;
   if (regional_) {
     edm::Handle<ESListOfFEDS> fedslist;
-    e.getByLabel(fedsListLabel_, fedslist);
+    e.getByToken(fedsToken_, fedslist);
     esFeds_to_unpack = fedslist->GetList();
   }
 
   // Output
-  std::auto_ptr<ESRawDataCollection> productDCC(new ESRawDataCollection);
-  std::auto_ptr<ESLocalRawDataCollection> productKCHIP(new ESLocalRawDataCollection);
-  std::auto_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
+  auto productDCC = std::make_unique<ESRawDataCollection>();
+  auto productKCHIP = std::make_unique<ESLocalRawDataCollection>();
+  auto productDigis = std::make_unique<ESDigiCollection>();  
   
   ESDigiCollection digis;
 
@@ -72,8 +90,8 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
     }   
   }
 
-  e.put(productDCC);
-  e.put(productKCHIP);
-  e.put(productDigis, ESdigiCollection_);
+  e.put(std::move(productDCC));
+  e.put(std::move(productKCHIP));
+  e.put(std::move(productDigis), ESdigiCollection_);
 }
 

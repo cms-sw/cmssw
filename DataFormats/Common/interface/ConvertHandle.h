@@ -1,12 +1,12 @@
 #ifndef DataFormats_Common_ConvertHandle_h
 #define DataFormats_Common_ConvertHandle_h
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include <typeinfo>
+#include <algorithm>
 
 namespace edm {
 
@@ -25,11 +25,11 @@ namespace edm {
       return;
     }
     void const* basicWrapper = bh.wrapper();
-    if(basicWrapper == 0) {
+    if(basicWrapper == nullptr) {
       handleimpl::throwInvalidReference();
     }
-    if(!(bh.interface()->dynamicTypeInfo() == typeid(T))) {
-      handleimpl::throwConvertTypeError(typeid(T), bh.interface()->dynamicTypeInfo());
+    if(!(bh.wrapper()->dynamicTypeInfo() == typeid(T))) {
+      handleimpl::throwConvertTypeError(typeid(T), bh.wrapper()->dynamicTypeInfo());
     }
     Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(basicWrapper);
 
@@ -37,15 +37,5 @@ namespace edm {
     h.swap(result);
   }
 }
-#else
-namespace edm {
-  class BasicHandle;
-  template<typename T> class Handle;
-  
-  template<typename T>
-  void convert_handle(BasicHandle & bh,
-                      Handle<T>& result);
-}
-#endif
 
 #endif

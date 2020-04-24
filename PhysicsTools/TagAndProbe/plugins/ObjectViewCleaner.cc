@@ -38,7 +38,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -117,8 +117,7 @@ ObjectViewCleaner<T>::~ObjectViewCleaner()
 template<typename T>
 void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
-  auto_ptr<edm::RefToBaseVector<T> >
-    cleanObjects(new edm::RefToBaseVector<T >());
+  auto cleanObjects = std::make_unique<edm::RefToBaseVector<T>>();
 
   edm::Handle<edm::View<T> > candidates;
   iEvent.getByToken(srcCandsToken_,candidates);
@@ -151,7 +150,7 @@ void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSe
   nObjectsClean_+=cleanObjects->size();
 
   delete [] isClean;
-  iEvent.put(cleanObjects);
+  iEvent.put(std::move(cleanObjects));
 }
 
 
@@ -162,10 +161,9 @@ void ObjectViewCleaner<T>::endJob()
   stringstream ss;
   ss<<"nObjectsTot="<<nObjectsTot_<<" nObjectsClean="<<nObjectsClean_
     <<" fObjectsClean="<<100.*(nObjectsClean_/(double)nObjectsTot_)<<"%\n";
-  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++"
-      <<"\n"<<moduleLabel_<<"(ObjectViewCleaner) SUMMARY:\n"<<ss.str()
-      <<"++++++++++++++++++++++++++++++++++++++++++++++++++"
-      <<endl;
+  edm::LogInfo("ObjectViewCleaner")<<"++++++++++++++++++++++++++++++++++++++++++++++++++"
+	      <<"\n"<<moduleLabel_<<"(ObjectViewCleaner) SUMMARY:\n"<<ss.str()
+	      <<"++++++++++++++++++++++++++++++++++++++++++++++++++";
 }
 
 

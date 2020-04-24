@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -24,6 +24,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalAssistant.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -70,14 +71,14 @@ int LMap::impl::read( std::string map_file, std::string type )
   ifstream inFile( map_file . c_str(), std::ios::in );
   if (!inFile)
     {
-      std::cout << "Unable to open file with the logical map: " << map_file << std::endl;
+      edm::LogError("LMap") << "Unable to open file with the logical map: " << map_file;
     }
   else
     {
-      std::cout << "File with the logical map opened successfully: " << map_file << std::endl;
-      std::cout << "Type: " << type << std::endl;
+      edm::LogInfo("LMap") << "File with the logical map opened successfully: " << map_file << std::endl
+        << "Type: " << type;
     }
-  while ( getline( inFile, _row ) > 0 )
+  while (getline( inFile, _row ))
     {
       LMapRow aRow;
       char det[32];
@@ -156,7 +157,7 @@ int LMap::impl::read( std::string map_file, std::string type )
 	}
     }
   inFile.close();
-  std::cout << "LMap: " << lines . getCount() << " lines read" << std::endl;
+  edm::LogInfo("LMap") << lines . getCount() << " lines read";
 
   return 0;
 }
@@ -186,7 +187,8 @@ EMap::EMap( const HcalElectronicsMap * emap ){
       row.fiber     = eId->fiberIndex();
       row.fiberchan = eId->fiberChanId();
       if (eId->htrTopBottom()==1) row.topbottom = "t";
-      else row.topbottom = "b";
+      else if (eId->htrTopBottom()==0) row.topbottom = "b";
+      else row.topbottom = "u";
       //
       HcalGenericDetId _gid( emap->lookup(*eId) );
       if ( !(_gid.null()) &&
@@ -231,10 +233,11 @@ EMap::EMap( const HcalElectronicsMap * emap ){
       row.slot      = eId->htrSlot();
       row.dcc       = eId->dccid();
       row.spigot    = eId->spigot();
-      row.fiber     = eId->slbSiteNumber();
-      row.fiberchan = eId->slbChannelIndex();
+      row.fiber     = eId->isVMEid() ? eId->slbSiteNumber()   : eId->fiberIndex();
+      row.fiberchan = eId->isVMEid() ? eId->slbChannelIndex() : eId->fiberChanId();
       if (eId->htrTopBottom()==1) row.topbottom = "t";
-      else row.topbottom = "b";
+      else if (eId->htrTopBottom()==0) row.topbottom = "b";
+      else row.topbottom = "u";
       //
       HcalTrigTowerDetId _id( emap->lookupTrigger(*eId) );
       if ( !(_id.null()) ){
@@ -249,7 +252,7 @@ EMap::EMap( const HcalElectronicsMap * emap ){
     }
   }
   else{
-    std::cerr << "Pointer to HcalElectronicsMap is 0!!!" << std::endl;
+    edm::LogError("EMap") << "Pointer to HcalElectronicsMap is 0!!!";
   }
 }
 
@@ -261,12 +264,12 @@ int EMap::read_map( std::string filename )
   std::string _row;
   ifstream inFile( filename . c_str(), std::ios::in );
   if (!inFile){
-    std::cout << "Unable to open file with the electronic map: " << filename << std::endl;
+    edm::LogError("EMap") << "Unable to open file with the electronic map: " << filename;
   }
   else{
-    std::cout << "File with the electronic map opened successfully: " << filename << std::endl;
+    edm::LogInfo("EMap") << "File with the electronic map opened successfully: " << filename;
   }
-  while ( getline( inFile, _row ) > 0 ){
+  while (getline( inFile, _row )) {
     EMapRow aRow;
     char fpga[32];
     char subdet[32];
@@ -293,7 +296,7 @@ int EMap::read_map( std::string filename )
     }  
   }
   inFile.close();
-  std::cout << "EMap: " << lines . getCount() << " lines read" << std::endl;
+  edm::LogInfo("EMap") << lines . getCount() << " lines read";
 
   return 0;
 }

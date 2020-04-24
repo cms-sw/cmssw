@@ -20,7 +20,7 @@
 
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
 
-#include <string.h>
+#include <cstring>
 
 //____________________________________________________________________________||
 namespace cms
@@ -34,8 +34,8 @@ namespace cms
     , applyFiducialThresholdForFractions_(iConfig.getParameter<bool>("applyFiducialThresholdForFractions"))
     , usePt_(iConfig.getParameter<bool>("usePt"))
   {
-    std::string alias(iConfig.getParameter<std::string>("alias"));
-    produces<reco::GenMETCollection>().setBranchAlias(alias.c_str());
+    std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
+    produces<reco::GenMETCollection>().setBranchAlias(alias);
   }
 
 
@@ -48,10 +48,9 @@ namespace cms
     CommonMETData commonMETdata;
 
     GenSpecificAlgo gen;
-    std::auto_ptr<reco::GenMETCollection> genmetcoll;
-    genmetcoll.reset(new reco::GenMETCollection);
+    auto genmetcoll = std::make_unique<reco::GenMETCollection>();
     genmetcoll->push_back(gen.addInfo(input, &commonMETdata, globalThreshold_, onlyFiducial_, applyFiducialThresholdForFractions_, usePt_));
-    event.put(genmetcoll);
+    event.put(std::move(genmetcoll));
   }
 
 //____________________________________________________________________________||

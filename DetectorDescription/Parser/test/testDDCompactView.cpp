@@ -17,19 +17,26 @@
  *                     for now use the "main" of cmssw                     *
  ***************************************************************************/
 
+#include <exception>
 #include <iostream>
-#include <stdlib.h>
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include <memory>
+#include <string>
 
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "FWCore/PluginManager/interface/PresenceFactory.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Presence.h"
+#include "boost/smart_ptr/shared_ptr.hpp"
 
 int main(int argc, char *argv[])
 {

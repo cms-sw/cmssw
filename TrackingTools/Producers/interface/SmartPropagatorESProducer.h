@@ -12,7 +12,7 @@
 #include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
   
 
 namespace edm {class ParameterSet;}
@@ -27,13 +27,13 @@ class  SmartPropagatorESProducer: public edm::ESProducer{
   SmartPropagatorESProducer(const edm::ParameterSet &);
   
   /// Destructor
-  virtual ~SmartPropagatorESProducer(); 
+  ~SmartPropagatorESProducer() override; 
   
   // Operations
-  boost::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
   
  private:
-  boost::shared_ptr<Propagator> thePropagator;
+  std::shared_ptr<Propagator> thePropagator;
   PropagationDirection thePropagationDirection;
   std::string theTrackerPropagatorName;
   std::string theMuonPropagatorName;

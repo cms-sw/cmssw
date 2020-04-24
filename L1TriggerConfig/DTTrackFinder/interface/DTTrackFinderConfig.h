@@ -34,7 +34,6 @@
 #include "CondFormats/DataRecord/interface/L1MuDTTFMasksRcd.h"
 
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 
@@ -45,19 +44,19 @@ class DTTrackFinderConfig : public edm::ESProducer {
 
   ~DTTrackFinderConfig();
   
-  std::auto_ptr<L1MuDTExtLut> produceL1MuDTExtLut(const L1MuDTExtLutRcd&);
+  std::unique_ptr<L1MuDTExtLut> produceL1MuDTExtLut(const L1MuDTExtLutRcd&);
 
-  std::auto_ptr<L1MuDTPhiLut> produceL1MuDTPhiLut(const L1MuDTPhiLutRcd&);
+  std::unique_ptr<L1MuDTPhiLut> produceL1MuDTPhiLut(const L1MuDTPhiLutRcd&);
 
-  std::auto_ptr<L1MuDTPtaLut> produceL1MuDTPtaLut(const L1MuDTPtaLutRcd&);
+  std::unique_ptr<L1MuDTPtaLut> produceL1MuDTPtaLut(const L1MuDTPtaLutRcd&);
 
-  std::auto_ptr<L1MuDTEtaPatternLut> produceL1MuDTEtaPatternLut(const L1MuDTEtaPatternLutRcd&);
+  std::unique_ptr<L1MuDTEtaPatternLut> produceL1MuDTEtaPatternLut(const L1MuDTEtaPatternLutRcd&);
 
-  std::auto_ptr<L1MuDTQualPatternLut> produceL1MuDTQualPatternLut(const L1MuDTQualPatternLutRcd&);
+  std::unique_ptr<L1MuDTQualPatternLut> produceL1MuDTQualPatternLut(const L1MuDTQualPatternLutRcd&);
 
-  std::auto_ptr<L1MuDTTFParameters> produceL1MuDTTFParameters(const L1MuDTTFParametersRcd&);
+  std::unique_ptr<L1MuDTTFParameters> produceL1MuDTTFParameters(const L1MuDTTFParametersRcd&);
 
-  std::auto_ptr<L1MuDTTFMasks> produceL1MuDTTFMasks(const L1MuDTTFMasksRcd&);
+  std::unique_ptr<L1MuDTTFMasks> produceL1MuDTTFMasks(const L1MuDTTFMasksRcd&);
 
  private:
 

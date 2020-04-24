@@ -10,8 +10,8 @@ class PixelVertexProducerMedian : public edm::EDProducer
 {
 public:
   explicit PixelVertexProducerMedian(const edm::ParameterSet& ps);
-  ~PixelVertexProducerMedian();
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+  ~PixelVertexProducerMedian() override;
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
  
 private:
   edm::ParameterSet theConfig;

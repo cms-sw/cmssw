@@ -48,11 +48,11 @@ void MVATrainerFileSave::analyze(const edm::Event& event,
 	edm::LogInfo("MVATrainerFileSave")
 		<< "Got the trained calibration data";
 
-	std::auto_ptr<Calibration::MVAComputerContainer> calib(
+	std::unique_ptr<Calibration::MVAComputerContainer> calib(
 					new Calibration::MVAComputerContainer);
 	*calib = *toPutCalib;
 
-	this->calib = calib;
+	this->calib = std::move(calib);
 }
 
 void MVATrainerFileSave::endJob()

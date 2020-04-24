@@ -6,8 +6,9 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include <vector>
 #include <string>
@@ -17,16 +18,16 @@ public:
 
   explicit DTCalibMuonSelection(const edm::ParameterSet&);
 
-  ~DTCalibMuonSelection();
+  ~DTCalibMuonSelection() override;
   
 private:
-  virtual void beginJob() ;
+  void beginJob() override ;
 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-  virtual void endJob() ;
+  void endJob() override ;
   
-  edm::InputTag muonList;
+  edm::EDGetTokenT<reco::MuonCollection> muonList;
 
   double etaMin;
   double etaMax;

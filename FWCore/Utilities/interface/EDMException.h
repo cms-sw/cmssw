@@ -12,15 +12,11 @@
 #include <map>
 #include <string>
 
-#define EDM_MAP_ENTRY(map, ns, name) map[ns::name]=#name
-#define EDM_MAP_ENTRY_NONS(map, name) map[name]=#name
-
 namespace edm {
   namespace errors {
 
     // If you add a new entry to the set of values, make sure to
-    // update the translation map in EDMException.cc, the actions
-    // table in FWCore/Framework/src/Actions.cc, and the configuration
+    // update the translation map in EDMException.cc, and the configuration
     // fragment FWCore/Framework/python/test/cmsExceptionsFatalOption_cff.py.
 
     enum ErrorCodes {
@@ -66,6 +62,8 @@ namespace edm {
        ExceededResourceRSS = 8031,
        ExceededResourceTime = 8032,
       
+       FileNameInconsistentWithGUID = 8034,
+
        CaughtSignal = 9000
     };
 
@@ -85,7 +83,7 @@ namespace edm {
 
     Exception(Exception const& other);
 
-    virtual ~Exception() throw();
+    ~Exception() noexcept override;
 
     void swap(Exception& other) {
       std::swap(category_, other.category_);
@@ -95,9 +93,7 @@ namespace edm {
 
     Code categoryCode() const { return category_; }
 
-    static std::string codeToString(Code);
-
-    typedef std::map<Code, std::string> CodeMap; 
+    static const std::string& codeToString(Code);
 
     static void throwThis(Code category,
                           char const* message0 = "",
@@ -107,12 +103,12 @@ namespace edm {
                           char const* message4 = "");
     static void throwThis(Code category, char const* message0, int intVal, char const* message2 = "");
 
-    virtual Exception* clone() const;
+    Exception* clone() const override;
 
   private:
 
-    virtual void rethrow();
-    virtual int returnCode_() const;
+    void rethrow() override;
+    int returnCode_() const override;
 
     Code category_;
   };

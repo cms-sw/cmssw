@@ -1,5 +1,6 @@
 
 import cStringIO,operator
+from functools import reduce
 
 def indent(rows, hasHeader=False, headerChar='-', delim=' | ', justify='left',
            separateRows=False, prefix='', postfix='', wrapfunc=lambda x:x):

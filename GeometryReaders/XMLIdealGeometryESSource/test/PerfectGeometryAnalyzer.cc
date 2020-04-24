@@ -16,15 +16,12 @@
 //
 //
 
-
-// system include files
 #include <memory>
 #include <iostream>
 #include <fstream>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -43,22 +40,17 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-//#include "DataSvc/RefException.h"
-//#include "CoralBase/Exception.h"
-
-//
-// class decleration
-//
-
-class PerfectGeometryAnalyzer : public edm::EDAnalyzer {
+class PerfectGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit PerfectGeometryAnalyzer( const edm::ParameterSet& );
-  ~PerfectGeometryAnalyzer();
+  ~PerfectGeometryAnalyzer() override;
 
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
-  // ----------member data ---------------------------
+
   std::string label_;
   bool isMagField_;
   bool dumpHistory_;
@@ -70,17 +62,6 @@ private:
   std::string ddRootNodeName_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 PerfectGeometryAnalyzer::PerfectGeometryAnalyzer( const edm::ParameterSet& iConfig ) :
   label_(iConfig.getUntrackedParameter<std::string>("label","")),
   isMagField_(iConfig.getUntrackedParameter<bool>("isMagField",false)),
@@ -97,18 +78,10 @@ PerfectGeometryAnalyzer::PerfectGeometryAnalyzer( const edm::ParameterSet& iConf
   }
 }
 
-
 PerfectGeometryAnalyzer::~PerfectGeometryAnalyzer()
 {
- 
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -135,6 +108,4 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
    std::cout << "finished" << std::endl;
 }
 
-
-//define this as a plug-in
 DEFINE_FWK_MODULE(PerfectGeometryAnalyzer);

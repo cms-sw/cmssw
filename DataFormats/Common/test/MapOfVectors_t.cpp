@@ -1,9 +1,7 @@
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 
-#define private public
 #include "DataFormats/Common/interface/MapOfVectors.h"
-#undef private
 
 #include<vector>
 #include<algorithm>

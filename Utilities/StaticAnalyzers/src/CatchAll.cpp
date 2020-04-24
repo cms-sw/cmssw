@@ -9,7 +9,7 @@
 #include "CmsSupport.h"
 using namespace clangcms;
 
-void CatchAll::checkASTCodeBody(const clang::Decl*& D, clang::ento::AnalysisManager& AM, clang::ento::BugReporter& BR) const
+void CatchAll::checkASTCodeBody(const clang::Decl* D, clang::ento::AnalysisManager& AM, clang::ento::BugReporter& BR) const
 {
   const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
   if ((!sfile) || (!support::isCmsLocalFile(sfile))) return;
@@ -19,7 +19,7 @@ void CatchAll::checkASTCodeBody(const clang::Decl*& D, clang::ento::AnalysisMana
   if (!s) return;
   clang::ento::LocationOrAnalysisDeclContext x(AM.getAnalysisDeclContext(D));
   clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(s, BR.getSourceManager(),x);
-  BR.EmitBasicReport(D, "'catch(...)' in sources","CMS code rules","using 'catch(...)' is forbidden", DLoc,s->getSourceRange ());
+  BR.EmitBasicReport(D, this, "'catch(...)' in sources","CMS code rules","using 'catch(...)' is forbidden", DLoc,s->getSourceRange ());
   
 }
 

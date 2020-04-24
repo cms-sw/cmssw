@@ -62,6 +62,7 @@
 #include <vector>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace edm {
   class StreamID;
@@ -71,7 +72,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class EcalMixingModuleValidation: public edm::EDAnalyzer{
+class EcalMixingModuleValidation: public DQMEDAnalyzer{
 
     typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
@@ -83,19 +84,18 @@ EcalMixingModuleValidation(const edm::ParameterSet& ps);
 /// Destructor
 ~EcalMixingModuleValidation();
 
+void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+
 protected:
 
 /// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c);
+void analyze(edm::Event const & e, edm::EventSetup const & c) override;
 
-// BeginRun
-void beginRun(edm::Run const &, edm::EventSetup const & c);
+void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 // EndRun
-void endRun(const edm::Run& r, const edm::EventSetup& c);
+void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
-// EndJob
-void endJob(void);
 
 private:
 
@@ -160,7 +160,7 @@ private:
  CaloHitResponse * theEBResponse;
  CaloHitResponse * theEEResponse;
  
- void computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine*);
+ void computeSDBunchDigi(const edm::EventSetup & eventSetup, const MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine*);
 
  void bunchSumTest(std::vector<MonitorElement *> & theBunches, MonitorElement* & theTotal, MonitorElement* & theRatio, int nSample);
 

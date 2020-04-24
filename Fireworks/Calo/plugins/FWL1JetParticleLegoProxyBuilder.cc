@@ -15,15 +15,16 @@ class FWL1JetParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<l1ex
 {
 public:
    FWL1JetParticleLegoProxyBuilder() {}
-   virtual ~FWL1JetParticleLegoProxyBuilder() {}
+   ~FWL1JetParticleLegoProxyBuilder() override {}
    
    REGISTER_PROXYBUILDER_METHODS();
    
 private:
-   FWL1JetParticleLegoProxyBuilder(const FWL1JetParticleLegoProxyBuilder&);    // stop default
-   const FWL1JetParticleLegoProxyBuilder& operator=(const FWL1JetParticleLegoProxyBuilder&);    // stop default
+   FWL1JetParticleLegoProxyBuilder(const FWL1JetParticleLegoProxyBuilder&) = delete;    // stop default
+   const FWL1JetParticleLegoProxyBuilder& operator=(const FWL1JetParticleLegoProxyBuilder&) = delete;    // stop default
    
-   virtual void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
+   using FWSimpleProxyBuilderTemplate<l1extra::L1JetParticle>::build;
+   void build( const l1extra::L1JetParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) override;
 };
 
 void

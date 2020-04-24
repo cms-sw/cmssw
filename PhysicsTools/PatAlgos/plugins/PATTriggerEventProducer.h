@@ -29,7 +29,8 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 
 #include <string>
 #include <vector>
@@ -46,7 +47,7 @@
 
 namespace pat {
 
-  class PATTriggerEventProducer : public edm::EDProducer {
+  class PATTriggerEventProducer : public edm::stream::EDProducer<> {
 
     public:
 
@@ -76,7 +77,7 @@ namespace pat {
       HLTConfigProvider            hltConfig_;
       bool                         hltConfigInit_;
       edm::InputTag                tagTriggerResults_;  // configuration (optional with default)
-//       edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
+      edm::GetterOfProducts< edm::TriggerResults > triggerResultsGetter_;
       edm::InputTag                tagTriggerEvent_;    // configuration (optional with default)
       // Conditions
       edm::InputTag                tagCondGt_;          // configuration (optional with default)

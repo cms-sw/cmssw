@@ -15,11 +15,11 @@ class ShallowDigisProducer : public edm::EDProducer {
 
  private:  
   struct products {
-    std::auto_ptr<std::vector<unsigned> > id;
-    std::auto_ptr<std::vector<unsigned> > subdet;
-    std::auto_ptr<std::vector<unsigned> > strip;
-    std::auto_ptr<std::vector<unsigned> > adc;
-    std::auto_ptr<std::vector<float> > noise;
+    std::unique_ptr<std::vector<unsigned> > id;
+    std::unique_ptr<std::vector<unsigned> > subdet;
+    std::unique_ptr<std::vector<unsigned> > strip;
+    std::unique_ptr<std::vector<unsigned> > adc;
+    std::unique_ptr<std::vector<float> > noise;
     products() 
       : id(new std::vector<unsigned>()), 
 	subdet(new std::vector<unsigned>()), 
@@ -30,7 +30,7 @@ class ShallowDigisProducer : public edm::EDProducer {
   std::vector<edm::InputTag> inputTags;
   edm::ESHandle<SiStripNoises> noiseHandle;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   template<class T> bool findInput(edm::Handle<T>&, const edm::Event&);
   template<class T> void recordDigis(const T &, products&);
   void insert(products&, edm::Event&);  

@@ -29,9 +29,9 @@ class MonRunList  : public IDBObject {
   std::vector<MonRunIOV> getRuns() ;
   
   // Methods from IUniqueDBObject
-  void fetchRuns() throw(std::runtime_error);
-  void fetchRuns(int min_run, int max_run) throw(std::runtime_error);
-  void fetchLastNRuns( int max_run, int n_runs  )throw(std::runtime_error);
+  void fetchRuns() noexcept(false);
+  void fetchRuns(int min_run, int max_run) noexcept(false);
+  void fetchLastNRuns( int max_run, int n_runs  )noexcept(false);
 
  private:
   // User data for this IOV

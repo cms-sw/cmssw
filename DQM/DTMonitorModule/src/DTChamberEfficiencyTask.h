@@ -26,6 +26,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <string>
 #include <map>
 #include <vector>
@@ -34,31 +40,26 @@ class DQMStore;
 class MonitorElement;
 
 
-class DTChamberEfficiencyTask: public edm::EDAnalyzer{
+class DTChamberEfficiencyTask: public DQMEDAnalyzer{
 public:
   /// Constructor
   DTChamberEfficiencyTask(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTChamberEfficiencyTask();
-
-  /// BeginJob
-  void beginJob();
+  ~DTChamberEfficiencyTask() override;
 
   /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Endjob
-  void endJob();
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
 
   // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
-protected:
-
+ protected:
+// Book the histograms
+void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
 
@@ -69,10 +70,8 @@ private:
   LocalPoint interpolate(const DTRecSegment4D& seg1,
 			 const DTRecSegment4D& seg3,
 			 const DTChamberId& MB2) const;
-  void bookHistos(DTChamberId chId);
 
-
-  DQMStore* theDbe;
+  void bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId);
 
   // Switch for verbosity
   bool debug;

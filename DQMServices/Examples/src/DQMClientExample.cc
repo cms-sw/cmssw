@@ -24,9 +24,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TF1.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;
@@ -168,7 +168,7 @@ void DQMClientExample::performClient(){
 
       ////---- make the Gaussian fit to this histogram
       TF1 *f1 = new TF1("f1","gaus",1,3);
-      rootHisto->Fit("f1");
+      rootHisto->Fit(f1);
       mean = f1->GetParameter(1);
       rms = f1->GetParameter(2);
     }

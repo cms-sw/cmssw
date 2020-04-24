@@ -27,8 +27,7 @@ HLTHcalPhiSymFilter::HLTHcalPhiSymFilter(const edm::ParameterSet& iConfig) : HLT
 }
 
 
-HLTHcalPhiSymFilter::~HLTHcalPhiSymFilter()
-{}
+HLTHcalPhiSymFilter::~HLTHcalPhiSymFilter() = default;
 
 void
 HLTHcalPhiSymFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -60,41 +59,41 @@ HLTHcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByToken(HFHitsToken_,HFRecHitsH);
 
   //Create empty output collections
-  std::auto_ptr< HBHERecHitCollection > phiSymHBHERecHitCollection( new HBHERecHitCollection );
-  std::auto_ptr< HORecHitCollection > phiSymHORecHitCollection( new HORecHitCollection );
-  std::auto_ptr< HFRecHitCollection > phiSymHFRecHitCollection( new HFRecHitCollection );
+  std::unique_ptr< HBHERecHitCollection > phiSymHBHERecHitCollection( new HBHERecHitCollection );
+  std::unique_ptr< HORecHitCollection > phiSymHORecHitCollection( new HORecHitCollection );
+  std::unique_ptr< HFRecHitCollection > phiSymHFRecHitCollection( new HFRecHitCollection );
 
   //Select interesting HBHERecHits
-  for (HBHERecHitCollection::const_iterator it=HBHERecHitsH->begin(); it!=HBHERecHitsH->end(); it++) {
-    if (it->energy()>eCut_HB_&&it->id().subdet()==1) {
-        phiSymHBHERecHitCollection->push_back(*it);
+  for (auto const & it : *HBHERecHitsH) {
+    if (it.energy()>eCut_HB_&&it.id().subdet()==1) {
+        phiSymHBHERecHitCollection->push_back(it);
     }
-    if (it->energy()>eCut_HE_&&it->id().subdet()==2) {
-        phiSymHBHERecHitCollection->push_back(*it);
+    if (it.energy()>eCut_HE_&&it.id().subdet()==2) {
+        phiSymHBHERecHitCollection->push_back(it);
     }
 
   }
 
   //Select interesting HORecHits
-  for (HORecHitCollection::const_iterator it=HORecHitsH->begin(); it!=HORecHitsH->end(); it++) {
-    if (it->energy()>eCut_HO_&&it->id().subdet()==3) {
-      phiSymHORecHitCollection->push_back(*it);
+  for (auto const & it : *HORecHitsH) {
+    if (it.energy()>eCut_HO_&&it.id().subdet()==3) {
+      phiSymHORecHitCollection->push_back(it);
     }
   }
 
   //Select interesting HFRecHits
-  for (HFRecHitCollection::const_iterator it=HFRecHitsH->begin(); it!=HFRecHitsH->end(); it++) {
-    if (it->energy()>eCut_HF_&&it->id().subdet()==4) {
-      phiSymHFRecHitCollection->push_back(*it);
+  for (auto const & it : *HFRecHitsH) {
+    if (it.energy()>eCut_HF_&&it.id().subdet()==4) {
+      phiSymHFRecHitCollection->push_back(it);
     }
   }
 
-  if ((!phiSymHBHERecHitCollection->size() ) && (!phiSymHORecHitCollection->size()) && (!phiSymHFRecHitCollection->size())) return false;
+  if ((phiSymHBHERecHitCollection->empty() ) && (phiSymHORecHitCollection->empty()) && (phiSymHFRecHitCollection->empty())) return false;
 
   //Put selected information in the event
-  if (phiSymHBHERecHitCollection->size()>0) iEvent.put( phiSymHBHERecHitCollection, phiSymHBHEHits_);
-  if (phiSymHORecHitCollection->size()>0) iEvent.put( phiSymHORecHitCollection, phiSymHOHits_);
-  if (phiSymHFRecHitCollection->size()>0) iEvent.put( phiSymHFRecHitCollection, phiSymHFHits_);
+  if (!phiSymHBHERecHitCollection->empty()) iEvent.put(std::move(phiSymHBHERecHitCollection), phiSymHBHEHits_);
+  if (!phiSymHORecHitCollection->empty()) iEvent.put(std::move(phiSymHORecHitCollection), phiSymHOHits_);
+  if (!phiSymHFRecHitCollection->empty()) iEvent.put(std::move(phiSymHFRecHitCollection), phiSymHFHits_);
 
   return true;
 }

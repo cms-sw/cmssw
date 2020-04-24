@@ -21,7 +21,7 @@ namespace tauImpactParameter {
 class TauA1NuConstrainedFitter : public MultiProngTauSolver{
  public:
     TauA1NuConstrainedFitter(unsigned int ambiguity,const LorentzVectorParticle& A1,const TVector3& PVertex, const TMatrixTSym<double>& VertexCov);
-  virtual ~TauA1NuConstrainedFitter(){};
+  ~TauA1NuConstrainedFitter() override{};
 
   enum Pars{tau_phi=0,tau_theta,a1_px,a1_py,a1_pz,a1_m,nu_px,nu_py,nu_pz,npar};
   enum ExpandedPars{a1_vx=9,a1_vy,a1_vz,nexpandedpar};
@@ -39,8 +39,8 @@ class TauA1NuConstrainedFitter : public MultiProngTauSolver{
   static TVectorT<double> ComputeNuLorentzVectorPar(const TVectorT<double> &inpar);
   static TVectorT<double> ComputeA1LorentzVectorPar(const TVectorT<double> &inpar);
   static TVectorT<double> ComputeMotherLorentzVectorPar(const TVectorT<double> &inpar);
-  static TVectorT<double> SolveAmbiguityAnalytically(const TVectorT<double> &inpar);
-  static TVectorT<double> SolveAmbiguityAnalyticallywithRot(const TVectorT<double> &inpar);
+  static TVectorT<double> SolveAmbiguityAnalytically(const TVectorT<double> &inpar, unsigned int ambiguity);
+  static TVectorT<double> SolveAmbiguityAnalyticallywithRot(const TVectorT<double> &inpar, unsigned int ambiguity);
   static TVectorT<double> TauRot(const TVectorT<double> &inpar);
 
   void UpdateExpandedPar();

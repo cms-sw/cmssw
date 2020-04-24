@@ -14,9 +14,9 @@ class PrintTrackNumberAction : public SimWatcher,
 {
 public:
     PrintTrackNumberAction(edm::ParameterSet const & p);
-    ~PrintTrackNumberAction();
-    void update(const EndOfTrack * trk);
-    void update(const EndOfEvent * trk);
+    ~PrintTrackNumberAction() override;
+    void update(const EndOfTrack * trk) override;
+    void update(const EndOfEvent * trk) override;
 private:
     int theNoTracks;
     int theNoTracksThisEvent;

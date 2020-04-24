@@ -203,7 +203,7 @@ void EcalDigiDisplay::analyze( edm::Event const & e, edm::EventSetup const & c) 
   edm::Handle<EBDigiCollection>  eb_digis;    
   try {
     e.getByLabel(digiProducer_,ebDigiCollection_, eb_digis);
-    if ( eb_digis->size() != 0 )
+    if ( !eb_digis->empty() )
       ebDigisFound = true;
   } catch (cms::Exception& ex) {
     edm::LogError("EcalDigiUnpackerModule") << "EB Digis were not found!";
@@ -213,7 +213,7 @@ void EcalDigiDisplay::analyze( edm::Event const & e, edm::EventSetup const & c) 
   edm::Handle<EEDigiCollection>  ee_digis;    
   try {
     e.getByLabel(digiProducer_,eeDigiCollection_, ee_digis);
-    if ( ee_digis->size() != 0 )
+    if ( !ee_digis->empty() )
       eeDigisFound = true;
   } catch (cms::Exception& ex) {
     edm::LogError("EcalDigiUnpackerModule") << "EE Digis were not found!";
@@ -223,7 +223,7 @@ void EcalDigiDisplay::analyze( edm::Event const & e, edm::EventSetup const & c) 
   edm::Handle<EcalPnDiodeDigiCollection>  pn_digis;
   try {
     e.getByLabel(digiProducer_, pn_digis);
-    if ( pn_digis->size() != 0)
+    if ( !pn_digis->empty())
       pnDigisFound = true;
   } catch (cms::Exception& ex) {
     edm::LogError("EcalDigiUnpackerModule") << "PNs were not found!";

@@ -15,6 +15,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -38,7 +39,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include <memory>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -59,7 +60,7 @@ class HistoFiller {
   EmDQM* dqm;
 };
 
-class EmDQM : public edm::EDAnalyzer{
+class EmDQM : public DQMEDAnalyzer{
 public:
 
   friend class HistoFiller<reco::ElectronCollection>;
@@ -70,20 +71,20 @@ public:
   explicit EmDQM(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~EmDQM();
+  ~EmDQM() override;
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup&);
+  void analyze(const edm::Event & event, const edm::EventSetup&) override;
   void beginJob();
   void endJob();
 
-  void beginRun(edm::Run const&, edm::EventSetup const&);
-  void endRun(edm::Run const&, edm::EventSetup const&);
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // interface to DQM framework
-  DQMStore * dbe;
   std::string dirname_;
 
   HistoFiller<reco::ElectronCollection>* histoFillerEle;
@@ -107,6 +108,9 @@ private:
   double etaMax_;
   double phiMax_;
   unsigned int nbins_;
+  double eta2DMax_;
+  double phi2DMax_;
+  unsigned int nbins2D_;
   unsigned int minEtForEtaEffPlot_;
   bool useHumanReadableHistTitles_;
   bool mcMatchedOnly_;
@@ -131,6 +135,7 @@ private:
   HLTConfigProvider hltConfig_;
 
   // routines to build validation configuration from HLTConfiguration
+  int countSubstring(const std::string&, const std::string&);
   std::vector<std::vector<std::string> > findEgammaPaths();
   std::vector<std::string> getFilterModules(const std::string&);
   double getPrimaryEtCut(const std::string&);
@@ -201,17 +206,9 @@ private:
   std::vector<std::vector<MonitorElement*> > histEtOfHltObjMatchToGens;
   std::vector<std::vector<MonitorElement*> > histEtaOfHltObjMatchToGens;
   std::vector<std::vector<MonitorElement*> > histPhiOfHltObjMatchToGens;
-  // commented out because uses data not included in HTLDEBUG and uses getByLabel
-  // Isolation distributions
-  //std::vector<std::vector<MonitorElement*> > etahistisos;
-  //std::vector<std::vector<MonitorElement*> > phihistisos;
-  //std::vector<std::vector<MonitorElement*> > ethistisos;
-  //std::vector<std::vector<MonitorElement*> > etahistisomatchs;
-  //std::vector<std::vector<MonitorElement*> > phihistisomatchs;
-  //std::vector<std::vector<MonitorElement*> > ethistisomatchs;
-  //std::vector<std::vector<MonitorElement*> > histEtIsoOfHltObjMatchToGens; 
-  //std::vector<std::vector<MonitorElement*> > histEtaIsoOfHltObjMatchToGens;
-  //std::vector<std::vector<MonitorElement*> > histPhiIsoOfHltObjMatchToGens;
+  std::vector<std::vector<MonitorElement*> > etaphihists;
+  std::vector<std::vector<MonitorElement*> > etaphihistmatchs;
+  std::vector<std::vector<MonitorElement*> > histEtaPhiOfHltObjMatchToGens;
   // Plots of efficiency per step
   std::vector<MonitorElement*> totals;
   std::vector<MonitorElement*> totalmatchs;
@@ -219,6 +216,7 @@ private:
   std::vector<MonitorElement*> etgens;
   std::vector<MonitorElement*> etagens;
   std::vector<MonitorElement*> phigens;
+  std::vector<MonitorElement*> etaphigens;
 
   GreaterByPt<reco::Particle> pTComparator_;
   GreaterByPt<reco::GenParticle> pTGenComparator_;
@@ -229,6 +227,7 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> hltResults_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidWenu_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidZee_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidTripleEle_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidGammaJet_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidDiGamma_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_manualConf_token;

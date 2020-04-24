@@ -13,8 +13,8 @@
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 
-#include <math.h>
-#include <time.h>
+#include <cmath>
+#include <ctime>
 
 namespace fireworks
 {
@@ -112,12 +112,14 @@ namespace fireworks
 
    std::string getLocalTime( const edm::EventBase& event )
    {
+
       time_t t( event.time().value() >> 32 );
-      std::string text( asctime( localtime( &t ) ) );
+      struct tm * xx =  localtime( &t );
+      std::string text( asctime(xx) );
       size_t pos = text.find('\n');
       if( pos != std::string::npos ) text = text.substr( 0, pos );
       text += " ";
-      if( daylight )
+      if( xx->tm_isdst )
          text += tzname[1];
       else
          text += tzname[0];

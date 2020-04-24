@@ -3,9 +3,11 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## to run in un-scheduled mode uncomment the following lines
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
 
-process.options.allowUnscheduled = cms.untracked.bool(True)
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
+
 process.Tracer = cms.Service("Tracer")
 
 ## ------------------------------------------------------
@@ -33,6 +35,7 @@ process.patConversions = cms.EDProducer("PATConversionProducer",
     electronSource = cms.InputTag("selectedPatElectrons")
     # this should be your last selected electron collection name since currently index is used to match with electron later. We can fix this using reference pointer. ,
 )
+patAlgosToolsTask.add(process.patConversions)
 
 process.mvaTrigNoIPPAT = cms.EDProducer("ElectronPATIdMVAProducer",
                                     verbose = cms.untracked.bool(True),
@@ -50,7 +53,7 @@ process.mvaTrigNoIPPAT = cms.EDProducer("ElectronPATIdMVAProducer",
                                     Trig = cms.bool(True),
                                     NoIP = cms.bool(True),
                                     )
-
+patAlgosToolsTask.add(process.mvaTrigNoIPPAT)
 
 process.out.outputCommands.append( 'keep *_patConversions_*_*' )
 process.out.outputCommands.append( 'keep *_mvaTrigNoIPPAT_*_*' )

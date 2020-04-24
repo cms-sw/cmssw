@@ -2,7 +2,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,7 +18,7 @@
 #include <vector>
 
 //____________________________________________________________________________||
-class Type2CorrectionProducer : public edm::EDProducer
+class Type2CorrectionProducer : public edm::stream::EDProducer<>
 {
 public:
   explicit Type2CorrectionProducer(const edm::ParameterSet&);
@@ -159,8 +159,8 @@ void Type2CorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& es
       product += (unclEnergyScaleFactor - 1.)*unclEnergySum;
   }
 
-  std::auto_ptr<CorrMETData> pprod(new CorrMETData(product));
-  evt.put(pprod, "");
+  std::unique_ptr<CorrMETData> pprod(new CorrMETData(product));
+  evt.put(std::move(pprod), "");
 }
 
 //____________________________________________________________________________||

@@ -101,8 +101,6 @@ template <class TRecord, typename TResult> static void extractRecordData(const e
 									 const std::string& prefix,
                                                                          uint32_t (*packingFunction)(uint32_t) = NULL)
 {
-  uint32_t valueCount;
-
   // Extract record from event.
   edm::Handle<std::vector<TRecord> > handle;
   iEvent.getByLabel(label, instance, handle);
@@ -124,7 +122,6 @@ template <class TRecord, typename TResult> static void extractRecordData(const e
     } 
 
     line.push(prefix, value);
-    ++valueCount;
   }
 }
 

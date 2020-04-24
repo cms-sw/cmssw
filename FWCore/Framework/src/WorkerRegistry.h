@@ -9,11 +9,12 @@
    \date 18 May 2005
 */
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <map>
 #include <string>
 
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
 
@@ -38,9 +39,9 @@ namespace edm {
 
   public:
 
-    explicit WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg);
-    WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg,
-                   boost::shared_ptr<ModuleRegistry> iModReg);
+    explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg);
+    WorkerRegistry(std::shared_ptr<ActivityRegistry> areg,
+                   std::shared_ptr<ModuleRegistry> iModReg);
     ~WorkerRegistry();
         
     WorkerRegistry(WorkerRegistry const&) = delete; // Disallow copying and moving
@@ -55,13 +56,13 @@ namespace edm {
     
   private:
     /// the container of workers
-    typedef std::map<std::string, boost::shared_ptr<Worker> > WorkerMap;
+    typedef std::map<std::string, edm::propagate_const<std::shared_ptr<Worker>>> WorkerMap;
 
-    boost::shared_ptr<ModuleRegistry> modRegistry_;
+    edm::propagate_const<std::shared_ptr<ModuleRegistry>> modRegistry_;
     
     /// internal map of registered workers (owned).
     WorkerMap m_workerMap;
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
      
   }; // WorkerRegistry
 

@@ -19,8 +19,8 @@ namespace cms
  class TrackMTCCFilter : public edm::EDFilter {
   public:
     TrackMTCCFilter(const edm::ParameterSet& ps);
-    virtual ~TrackMTCCFilter() {}
-    virtual bool filter(edm::Event & e, edm::EventSetup const& c);
+    ~TrackMTCCFilter() override {}
+    bool filter(edm::Event & e, edm::EventSetup const& c) override;
 
   private:
    std::string TrackProducer;

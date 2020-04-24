@@ -32,6 +32,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 class DQMStore;
 class MonitorElement;
@@ -46,27 +47,27 @@ class SiStripDcsInfo: public edm::EDAnalyzer {
   SiStripDcsInfo(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~SiStripDcsInfo();
+  ~SiStripDcsInfo() override;
 
  private:
 
   /// BeginJob
-  void beginJob();
+  void beginJob() override;
 
   /// Begin Run
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// Begin Luminosity Block
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override ;
 
   /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
 
   /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// Analyze
-  void analyze(edm::Event const&, edm::EventSetup const&);
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 
 
@@ -86,6 +87,7 @@ private:
     MonitorElement* DcsFractionME;
     int TotalDetectors;
     std::vector<uint32_t> FaultyDetectors;
+    std::unordered_map<uint32_t,uint16_t> NLumiDetectorIsFaulty;
   };
 
   std::map <std::string, SubDetMEs> SubDetMEsMap;
@@ -97,6 +99,11 @@ private:
   int  nFEDConnected_;
 
   int nLumiAnalysed_;
+
+  bool IsLumiGoodDcs_;
+  int nGoodDcsLumi_;
+  float MinAcceptableDcsDetFrac_ = 0.90;
+  float MaxAcceptableBadDcsLumi_ = 2;
 
   edm::ESHandle< SiStripDetCabling > detCabling_;
 };

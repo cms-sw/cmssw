@@ -2,7 +2,6 @@
 #include <cassert>
 #include <TROOT.h>
 #include <TSystem.h>
-#include <Cintex/Cintex.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TBranch.h>
@@ -15,7 +14,7 @@
 #include <TStyle.h>
 #include <TKey.h>
 #include <vector>
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 
@@ -82,7 +81,7 @@ std::vector<int> obsNrs;
 
 int main() { 
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   
   
   // define all histograms & fit functions

@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"

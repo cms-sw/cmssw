@@ -44,7 +44,7 @@ class RPCPhiEff:public edm::EDAnalyzer {
 
 
  private:
-  virtual void beginJob(const edm::EventSetup &);
+  virtual void beginJob();
   virtual void analyze(const edm::Event &, const edm::EventSetup &);
   std::string fromCones(const edm::Event & iEvent);
   std::string fromRaw(const edm::Event & iEvent);

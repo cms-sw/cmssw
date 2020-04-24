@@ -23,6 +23,7 @@
 #include "fftjet/ProximityClusteringTree.hh"
 #include "fftjet/SparseClusteringTree.hh"
 #include "fftjet/PeakEtaPhiDistance.hh"
+#include "fftjet/peakEtLifetime.hh"
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -54,12 +55,14 @@ public:
     typedef fftjet::SparseClusteringTree<fftjet::Peak,long> SparseTree;
 
     explicit FFTJetDijetFilter(const edm::ParameterSet&);
-    ~FFTJetDijetFilter();
+    ~FFTJetDijetFilter() override;
 
 private:
-    FFTJetDijetFilter();
-    FFTJetDijetFilter(const FFTJetDijetFilter&);
-    FFTJetDijetFilter& operator=(const FFTJetDijetFilter&);
+    typedef reco::PattRecoTree<float,reco::PattRecoPeak<float> > StoredTree;
+
+    FFTJetDijetFilter() = delete;
+    FFTJetDijetFilter(const FFTJetDijetFilter&) = delete;
+    FFTJetDijetFilter& operator=(const FFTJetDijetFilter&) = delete;
 
     void beginJob() override;
     bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -68,7 +71,7 @@ private:
     template<class Ptr>
     inline void checkConfig(const Ptr& ptr, const char* message) const
     {
-        if (ptr.get() == NULL)
+        if (ptr.get() == nullptr)
             throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 
@@ -110,6 +113,8 @@ private:
     // pass/fail decision counters
     unsigned long nPassed;
     unsigned long nRejected;
+
+    edm::EDGetTokenT<StoredTree> treeToken;
 };   
 
 
@@ -128,8 +133,8 @@ FFTJetDijetFilter::FFTJetDijetFilter(const edm::ParameterSet& ps)
       init_param(double, minPt1),
       init_param(double, maxPeakEta),
       init_param(bool, insertCompleteEvent),
-      clusteringTree(0),
-      sparseTree(0)
+      clusteringTree(nullptr),
+      sparseTree(nullptr)
 {
     // Parse the set of scales
     iniScales = fftjet_ScaleSet_parser(
@@ -146,6 +151,8 @@ FFTJetDijetFilter::FFTJetDijetFilter(const edm::ParameterSet& ps)
     // Create the clustering tree
     clusteringTree = new ClusteringTree(distanceCalc.get());
     sparseTree = new SparseTree();
+
+    treeToken = consumes<StoredTree>(treeLabel);
 }
 
 
@@ -174,10 +181,8 @@ void FFTJetDijetFilter::endJob()
 bool FFTJetDijetFilter::filter(
     edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    typedef reco::PattRecoTree<float,reco::PattRecoPeak<float> > StoredTree;
-
     edm::Handle<StoredTree> input;
-    iEvent.getByLabel(treeLabel, input);
+    iEvent.getByToken(treeToken, input);
 
     // Convert the stored tree into a normal FFTJet clustering tree
     // and extract the set of peaks at the requested scale
@@ -187,6 +192,8 @@ bool FFTJetDijetFilter::filter(
         sparsePeakTreeFromStorable(*input, iniScales.get(),
                                    eventScale, sparseTree);
         sparseTree->sortNodes();
+        fftjet::updateSplitMergeTimes(*sparseTree, sparseTree->minScale(),
+                                      sparseTree->maxScale());
         const unsigned usedLevel = sparseTree->getLevel(fixedScale);
         sparseTree->getLevelNodes(usedLevel, &nodes);
         const unsigned numNodes = nodes.size();

@@ -18,6 +18,7 @@
 #include <vector>
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
+class TrackerTopology;
 
 class MuonTrajectoryBuilder;
 class MuonTrajectoryCleaner;
@@ -47,12 +48,13 @@ class MuonTrackFinder {
   
     /// reconstruct standalone tracks starting from a collection of seeds
     edm::OrphanHandle<reco::TrackCollection> reconstruct(const edm::Handle<edm::View<TrajectorySeed> >&,
-							 edm::Event&);
+                                                         edm::Event&,
+                                                         const edm::EventSetup&);
 
     /// reconstruct global tracks starting from a collection of
     /// standalone tracks and one of trakectories. If the latter
     /// is invalid, trajectories are refitted.
-    void reconstruct(const std::vector<TrackCand>&, edm::Event&);
+    void reconstruct(const std::vector<TrackCand>&, edm::Event&, const edm::EventSetup&);
     
  private:
     
@@ -60,10 +62,10 @@ class MuonTrackFinder {
     void setEvent(const edm::Event&);
 
     /// convert the trajectories into tracks and load them in to the event
-    edm::OrphanHandle<reco::TrackCollection> load(const TrajectoryContainer&, edm::Event&);
+    edm::OrphanHandle<reco::TrackCollection> load(const TrajectoryContainer&, edm::Event&, const TrackerTopology &ttopo);
 
     /// convert the trajectories into tracks and load them in to the event
-    void load(const CandidateContainer&, edm::Event&);
+    void load(const CandidateContainer&, edm::Event&, const TrackerTopology &ttopo);
 
   private:
 

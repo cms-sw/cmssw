@@ -101,7 +101,10 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    table("reco::Jet").
    column("pT", 1, "pt").
    column("eta", 3).
-   column("phi", 3);
+   column("phi", 3).
+   column("electronEnergyFraction", 3, "electronEnergyFraction()").
+   column("muonEnergyFraction", 3, "muonEnergyFraction()").
+   column("photonEnergyFraction", 3, "photonEnergyFraction()");
 
    table("reco::MET").
    column("et", 1).
@@ -175,6 +178,37 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("energy",3).
    column("time",3).
    column("flags",TableEntry::INT,"flags");
+
+   table("reco::PFCandidate").
+   column("et", 1, "Et").
+   column("eta", 3).
+   column("phi", 3).
+   column("ecalEnergy", 3,"ecalEnergy()").
+   column("hcalEnergy", 3,"hcalEnergy()").
+   column("track pt", 3,"trackRef().pt()");
+
+   table("reco::Electron").
+   column("pT", 1, "pt").
+   column("eta", 3).
+   column("phi", 3).
+   column("E/p", 3, "eSuperClusterOverP").
+   column("H/E", 3, "hadronicOverEm").
+   column("fbrem", 3,"(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()" ).
+   column("dei",3, "deltaEtaSuperClusterTrackAtVtx" ).
+   column("dpi", 3, "deltaPhiSuperClusterTrackAtVtx()").
+   column("charge", 0, "charge").
+   column("isPF", 0, "isPF()").
+   column("sieie", 3, "sigmaIetaIeta").
+   column("isNotConv", 1, "passConversionVeto");
+
+   table("pat::PackedCandidate").
+   column("pT", 1, "pt").
+   column("eta", 3).
+   column("phi", 3).
+   column("pdgId", 0).
+   column("charge", 0).
+   column("dxy", 3).
+   column("dzAssociatedPV", 3, "dzAssociatedPV()");
 }
 
 FWTableViewManager::~FWTableViewManager()
@@ -290,13 +324,13 @@ FWTableViewManager::tableFormats(const edm::TypeWithDict &key)
          continue;
       if (!m.isConst())
          continue;
-      if (m.returnType().name() == isint)
+      if (m.finalReturnType().name() == isint)
          handle.column(m.name().c_str(), TableEntry::INT);
-      else if (m.returnType().name() == isbool)
+      else if (m.finalReturnType().name() == isbool)
          handle.column(m.name().c_str(), TableEntry::BOOL);
-      else if (m.returnType().name() == isdouble)
+      else if (m.finalReturnType().name() == isdouble)
          handle.column(m.name().c_str(), 5);
-      else if (m.returnType().name() == isfloat)
+      else if (m.finalReturnType().name() == isfloat)
          handle.column(m.name().c_str(), 3);
    }
    edm::TypeDataMembers dataMembers(key);
@@ -334,7 +368,7 @@ class FWViewBase*
 FWTableViewManager::buildView(TEveWindowSlot* iParent, const std::string& /*type*/)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
-   boost::shared_ptr<FWTableView> view(new FWTableView(iParent, this));
+   auto view = std::make_shared<FWTableView>(iParent, this);
    view->setBackgroundColor(colorManager().background());
    m_views.push_back(view);
    view->beingDestroyed_.connect(boost::bind(&FWTableViewManager::beingDestroyed,
@@ -392,7 +426,7 @@ FWTableViewManager::destroyItem(const FWEventItem *iItem)
    {
       if (m_items[i] != iItem)
          continue;
-      m_items[i] = 0;
+      m_items[i] = nullptr;
    }
 
    notifyViews();
@@ -496,7 +530,7 @@ FWTableViewManager::setFrom(const FWConfiguration &iFrom)
    try
    {
       const FWConfiguration *typeNames = iFrom.valueForKey(kConfigTypeNames);
-      if (typeNames == 0)
+      if (typeNames == nullptr)
       {
          fwLog(fwlog::kWarning) << "no table column configuration stored, using defaults\n";
          return;
@@ -513,7 +547,7 @@ FWTableViewManager::setFrom(const FWConfiguration &iFrom)
       {
          //std::cout << "reading type " << *iType << std::endl;
 	 const FWConfiguration *columns = iFrom.valueForKey(*iType);
-	 assert(columns != 0);
+	 assert(columns != nullptr);
          TableHandle handle = table(iType->c_str());
 	 for (FWConfiguration::StringValuesIt 
 	      it = columns->stringValues()->begin(),

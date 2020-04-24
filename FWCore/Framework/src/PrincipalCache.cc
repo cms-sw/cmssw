@@ -26,17 +26,17 @@ namespace edm {
   PrincipalCache::runPrincipal(ProcessHistoryID const& phid, RunNumber_t run) const {
     if (phid != reducedInputProcessHistoryID_ ||
         run != run_ ||
-        runPrincipal_.get() == 0) {
+        runPrincipal_.get() == nullptr) {
       throwRunMissing();
     }
     return *runPrincipal_.get();
   }
 
-  boost::shared_ptr<RunPrincipal> const&
+  std::shared_ptr<RunPrincipal> const&
   PrincipalCache::runPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run) const {
     if (phid != reducedInputProcessHistoryID_ ||
         run != run_ ||
-        runPrincipal_.get() == 0) {
+        runPrincipal_.get() == nullptr) {
       throwRunMissing();
     }
     return runPrincipal_;
@@ -44,15 +44,15 @@ namespace edm {
 
   RunPrincipal&
   PrincipalCache::runPrincipal() const {
-    if (runPrincipal_.get() == 0) {
+    if (runPrincipal_.get() == nullptr) {
       throwRunMissing();
     }
     return *runPrincipal_.get();
   }
 
-  boost::shared_ptr<RunPrincipal> const&
+  std::shared_ptr<RunPrincipal> const&
   PrincipalCache::runPrincipalPtr() const {
-    if (runPrincipal_.get() == 0) {
+    if (runPrincipal_.get() == nullptr) {
       throwRunMissing();
     }
     return runPrincipal_;
@@ -63,18 +63,18 @@ namespace edm {
     if (phid != reducedInputProcessHistoryID_ ||
         run != run_ ||
         lumi != lumi_ ||
-        lumiPrincipal_.get() == 0) {
+        lumiPrincipal_.get() == nullptr) {
       throwLumiMissing();
     }
     return *lumiPrincipal_.get();
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal> const&
+  std::shared_ptr<LuminosityBlockPrincipal> const&
   PrincipalCache::lumiPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const {
     if (phid != reducedInputProcessHistoryID_ ||
         run != run_ ||
         lumi != lumi_ ||
-        lumiPrincipal_.get() == 0) {
+        lumiPrincipal_.get() == nullptr) {
       throwLumiMissing();
     }
     return lumiPrincipal_;
@@ -82,22 +82,22 @@ namespace edm {
 
   LuminosityBlockPrincipal&
   PrincipalCache::lumiPrincipal() const {
-    if (lumiPrincipal_.get() == 0) {
+    if (lumiPrincipal_.get() == nullptr) {
       throwLumiMissing();
     }
     return *lumiPrincipal_.get();
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal> const&
+  std::shared_ptr<LuminosityBlockPrincipal> const&
   PrincipalCache::lumiPrincipalPtr() const {
-    if (lumiPrincipal_.get() == 0) {
+    if (lumiPrincipal_.get() == nullptr) {
       throwLumiMissing();
     }
     return lumiPrincipal_;
   }
 
-  void PrincipalCache::merge(boost::shared_ptr<RunAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg) {
-    if (runPrincipal_.get() == 0) {
+  void PrincipalCache::merge(std::shared_ptr<RunAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg) {
+    if (runPrincipal_.get() == nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::merge\n"
         << "Illegal attempt to merge run into cache\n"
@@ -126,8 +126,8 @@ namespace edm {
     runPrincipal_->mergeAuxiliary(*aux);
   }
 
-  void PrincipalCache::merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg) {
-    if (lumiPrincipal_.get() == 0) {
+  void PrincipalCache::merge(std::shared_ptr<LuminosityBlockAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg) {
+    if (lumiPrincipal_.get() == nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::merge\n"
         << "Illegal attempt to merge luminosity block into cache\n"
@@ -157,8 +157,8 @@ namespace edm {
     lumiPrincipal_->mergeAuxiliary(*aux);
   }
 
-  void PrincipalCache::insert(boost::shared_ptr<RunPrincipal> rp) {
-    if (runPrincipal_.get() != 0) {
+  void PrincipalCache::insert(std::shared_ptr<RunPrincipal> rp) {
+    if (runPrincipal_.get() != nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::insert\n"
         << "Illegal attempt to insert run into cache\n"
@@ -172,14 +172,14 @@ namespace edm {
     runPrincipal_ = rp; 
   }
 
-  void PrincipalCache::insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    if (lumiPrincipal_.get() != 0) {
+  void PrincipalCache::insert(std::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    if (lumiPrincipal_.get() != nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::insert\n"
         << "Illegal attempt to insert lumi into cache\n"
         << "Contact a Framework Developer\n";
     }
-    if (runPrincipal_.get() == 0) {
+    if (runPrincipal_.get() == nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::insert\n"
         << "Illegal attempt to insert lumi into cache\n"
@@ -207,14 +207,14 @@ namespace edm {
     lumiPrincipal_ = lbp; 
   }
 
-  void PrincipalCache::insert(boost::shared_ptr<EventPrincipal> ep) {
+  void PrincipalCache::insert(std::shared_ptr<EventPrincipal> ep) {
     unsigned int iStreamIndex = ep->streamID().value();
     assert(iStreamIndex < eventPrincipals_.size());
     eventPrincipals_[iStreamIndex] = ep;
   }
 
   void PrincipalCache::deleteRun(ProcessHistoryID const& phid, RunNumber_t run) {
-    if (runPrincipal_.get() == 0) {
+    if (runPrincipal_.get() == nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::deleteRun\n"
         << "Illegal attempt to delete run from cache\n"
@@ -233,7 +233,7 @@ namespace edm {
   }
 
   void PrincipalCache::deleteLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
-    if (lumiPrincipal_.get() == 0) {
+    if (lumiPrincipal_.get() == nullptr) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::deleteLumi\n"
         << "Illegal attempt to delete luminosity block from cache\n"
@@ -252,7 +252,7 @@ namespace edm {
     lumiPrincipal_.reset();
   }
 
-  void PrincipalCache::adjustEventsToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg) {
+  void PrincipalCache::adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const> reg) {
     for(auto &eventPrincipal : eventPrincipals_) {
       if (eventPrincipal) {
         eventPrincipal->adjustIndexesAfterProductRegistryAddition();

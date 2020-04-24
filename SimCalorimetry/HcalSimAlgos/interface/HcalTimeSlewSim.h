@@ -18,7 +18,7 @@ namespace CLHEP {
 class HcalTimeSlewSim
 {
 public:
-  HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap);
+  HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap, double minFCToDelay);
 
   void delay(CaloSamples & samples, CLHEP::HepRandomEngine*) const;
 
@@ -26,6 +26,7 @@ private:
   double charge(const CaloSamples & samples) const;
 
   const CaloVSimParameterMap * theParameterMap;
+  double minFCToDelay_;
 };
 
 #endif

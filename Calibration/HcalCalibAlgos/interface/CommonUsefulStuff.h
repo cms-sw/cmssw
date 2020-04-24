@@ -246,7 +246,7 @@ inline double ecalEnergyInCone(const GlobalPoint center, double radius, const Ec
       usedHitsEcal.push_back(hitHashedIndex);
       // -----------------------------------------------
       
-      GlobalPoint pos = geo->getPosition((*ehit).detid());
+      const GlobalPoint& pos = geo->getPosition((*ehit).detid());
   
       if (getDistInPlaneSimple(center,pos) < radius)
         {
@@ -286,7 +286,7 @@ inline double ecalEnergyInCone(const GlobalVector trackMom, const GlobalPoint ce
       usedHitsEcal.push_back(hitHashedIndex);
       // -----------------------------------------------
 
-      GlobalPoint pos = geo->getPosition((*ehit).detid());
+      const GlobalPoint& pos = geo->getPosition((*ehit).detid());
   
       if (getDistInPlaneTrackDir(center, trackMom ,pos) < radius)
         {

@@ -223,7 +223,7 @@ vector < CachingVertex<5> > MultiVertexFitter::vertices (
     const vector < TransientTrack > & primaries )
 {
   // FIXME if vtces.size < 1 return sth that includes the primaries
-  if ( vtces.size() < 1 )
+  if ( vtces.empty() )
   {
     return vector < CachingVertex<5> > ();
   };
@@ -255,7 +255,7 @@ vector < CachingVertex<5> > MultiVertexFitter::vertices (
   clear();
   createPrimaries ( primaries );
   // FIXME if initials size < 1 return sth that includes the primaries
-  if (  initials.size() < 1 ) return initials;
+  if (  initials.empty() ) return initials;
   for ( vector< CachingVertex<5> >::const_iterator vtx=initials.begin();
         vtx!=initials.end() ; ++vtx )
   {
@@ -652,7 +652,7 @@ void MultiVertexFitter::printSeeds() const
 
 void MultiVertexFitter::lostVertexClaimer()
 {
-  if ( !theReviveBelow < 0. ) return;
+  if ( !(theReviveBelow < 0.) ) return;
   // this experimental method is used to get almost lost vertices
   // back into the play by upweighting vertices with very low total weights
 

@@ -24,14 +24,6 @@
     <use   name="SimTracker/TrackAssociation"/>
     <use   name="SimTracker/Records"/>
   </library>
-  <library   file="FastsimHitNtuplizer.cc" name="FastsimHitNtuplizerExample">
-    <flags   EDM_PLUGIN="1"/>
-    <use   name="FWCore/Framework"/>
-    <use   name="DataFormats/Common"/>
-    <use   name="FWCore/ParameterSet"/>
-    <use   name="SimTracker/TrackerHitAssociation"/>
-    <use   name="RecoLocalTracker/SiPixelRecHits"/>
-  </library>
   <library file="ModuleInfo_Phase2.cc" name="ModuleInfo_Phase2">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>

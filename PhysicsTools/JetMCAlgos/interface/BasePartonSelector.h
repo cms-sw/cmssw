@@ -14,11 +14,10 @@ class BasePartonSelector
 {
   public:
     BasePartonSelector();
-    ~BasePartonSelector();
+    virtual ~BasePartonSelector();
 
     virtual void run(const edm::Handle<reco::GenParticleCollection> & particles,
-                     std::auto_ptr<reco::GenParticleRefVector> & partons);
-    bool isParton(const reco::Candidate* const cand);
+                     std::unique_ptr<reco::GenParticleRefVector> & partons);
 };
 
 #endif

@@ -24,20 +24,21 @@ class FWCSCStripDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWCSCStripDigiProxyBuilder() {}
-  virtual ~FWCSCStripDigiProxyBuilder() {}
+  ~FWCSCStripDigiProxyBuilder() override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWCSCStripDigiProxyBuilder(const FWCSCStripDigiProxyBuilder&);    
-  const FWCSCStripDigiProxyBuilder& operator=(const FWCSCStripDigiProxyBuilder&);
+  using FWProxyBuilderBase::build;
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+  FWCSCStripDigiProxyBuilder(const FWCSCStripDigiProxyBuilder&) = delete;    
+  const FWCSCStripDigiProxyBuilder& operator=(const FWCSCStripDigiProxyBuilder&) = delete;
 };
 
 void
 FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-   const CSCStripDigiCollection* digis = 0;
+   const CSCStripDigiCollection* digis = nullptr;
   
    iItem->get(digis);
 

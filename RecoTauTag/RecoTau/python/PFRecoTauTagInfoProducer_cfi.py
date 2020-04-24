@@ -9,7 +9,7 @@ pfRecoTauTagInfoProducer = cms.EDProducer("PFRecoTauTagInfoProducer",
     ChargedHadrCand_tkminPt    = cms.double(0.5),  # charged PF objects
     tkminPt                    = cms.double(0.5),  # track (non-PF) objects
     NeutrHadrCand_HcalclusMinEt = cms.double(1.0),  # PF neutral hadrons (HCAL)
-    GammaCand_EcalclusMinEt     = cms.double(0.5),  # PF gamma candidates (ECAL)
+    GammaCand_EcalclusMinEt     = cms.double(1.0),  # PF gamma candidates (ECAL)
 
     # The size of the delta R cone used to collect objects from the jet
     ChargedHadrCand_AssociationCone   = cms.double(0.8),
@@ -17,7 +17,7 @@ pfRecoTauTagInfoProducer = cms.EDProducer("PFRecoTauTagInfoProducer",
     PVProducer                    = PFTauQualityCuts.primaryVertexSrc,
     UsePVconstraint               = cms.bool(True),
     PFCandidateProducer           = cms.InputTag('particleFlow'),
-    PFJetTracksAssociatorProducer = cms.InputTag('ak5PFJetTracksAssociatorAtVertex'),
+    PFJetTracksAssociatorProducer = cms.InputTag('ak4PFJetTracksAssociatorAtVertex'),
 
     # Quality cuts for tracks (non-PF, from JetTracksAssociator)
     tkminTrackerHitsn = cms.int32(3),

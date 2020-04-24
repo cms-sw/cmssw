@@ -20,11 +20,11 @@
 #include "CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
 
 
@@ -34,12 +34,12 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","")),
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   saveTkHistoMap_(iConfig.getUntrackedParameter<bool>("SaveTkHistoMap",true)),
-  tkMap(0),tkMapFullIOVs(0)
+  tkMap(nullptr),tkMapFullIOVs(nullptr)
 {  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
   tkMapFullIOVs=new TrackerMap( "BadComponents" );
-  tkhisto=0;
+  tkhisto=nullptr;
   if (TkMapFileName_!=""){
     tkhisto   =new TkHistoMap("BadComp","BadComp",-1.); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
   }
@@ -49,9 +49,9 @@ void SiStripQualityStatistics::endJob(){
 
   std::string filename=TkMapFileName_;
   if (filename!=""){
-    tkMapFullIOVs->save(false,0,0,filename.c_str());
+    tkMapFullIOVs->save(false,0,0,filename);
     filename.erase(filename.begin()+filename.find("."),filename.end());
-    tkMapFullIOVs->print(false,0,0,filename.c_str());
+    tkMapFullIOVs->print(false,0,0,filename);
   
     if(saveTkHistoMap_){
       tkhisto->save(filename+".root");
@@ -63,7 +63,7 @@ void SiStripQualityStatistics::endJob(){
 void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
@@ -122,10 +122,10 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
     //&&&&&&&&&&&&&&&&&
     //Single SubSyste
     //&&&&&&&&&&&&&&&&&
-
     int component;
-    SiStripDetId a(BC[i].detid);
-    if ( a.subdetId() == SiStripDetId::TIB ){
+    DetId detectorId=DetId(BC[i].detid);
+    int subDet = detectorId.subdetId();
+    if ( subDet == StripSubdetector::TIB ){
       //&&&&&&&&&&&&&&&&&
       //TIB
       //&&&&&&&&&&&&&&&&&
@@ -133,7 +133,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       component=tTopo->tibLayer(BC[i].detid);
       SetBadComponents(0, component, BC[i]);         
 
-    } else if ( a.subdetId() == SiStripDetId::TID ) {
+    } else if ( subDet == StripSubdetector::TID ) {
       //&&&&&&&&&&&&&&&&&
       //TID
       //&&&&&&&&&&&&&&&&&
@@ -141,7 +141,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       component=tTopo->tidSide(BC[i].detid)==2?tTopo->tidWheel(BC[i].detid):tTopo->tidWheel(BC[i].detid)+3;
       SetBadComponents(1, component, BC[i]);         
 
-    } else if ( a.subdetId() == SiStripDetId::TOB ) {
+    } else if ( subDet == StripSubdetector::TOB ) {
       //&&&&&&&&&&&&&&&&&
       //TOB
       //&&&&&&&&&&&&&&&&&
@@ -149,7 +149,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       component=tTopo->tobLayer(BC[i].detid);
       SetBadComponents(2, component, BC[i]);         
 
-    } else if ( a.subdetId() == SiStripDetId::TEC ) {
+    } else if ( subDet == StripSubdetector::TEC ) {
       //&&&&&&&&&&&&&&&&&
       //TEC
       //&&&&&&&&&&&&&&&&&
@@ -172,17 +172,18 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
     uint32_t detid=rp->detid;
 
     int subdet=-999; int component=-999;
-    SiStripDetId a(detid);
-    if ( a.subdetId() == 3 ){
+    DetId detectorId=DetId(detid);
+    int subDet = detectorId.subdetId();
+    if ( subDet == StripSubdetector::TIB ){
       subdet=0;
       component=tTopo->tibLayer(detid);
-    } else if ( a.subdetId() == 4 ) {
+    } else if ( subDet == StripSubdetector::TID ) {
       subdet=1;
       component=tTopo->tidSide(detid)==2?tTopo->tidWheel(detid):tTopo->tidWheel(detid)+3;
-    } else if ( a.subdetId() == 5 ) {
+    } else if ( subDet == StripSubdetector::TOB ) {
       subdet=2;
       component=tTopo->tobLayer(detid);
-    } else if ( a.subdetId() == 6 ) {
+    } else if ( subDet == StripSubdetector::TEC ) {
       subdet=3;
       component=tTopo->tecSide(detid)==2?tTopo->tecWheel(detid):tTopo->tecWheel(detid)+9;
     } 
@@ -204,7 +205,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
     //------- Global Statistics on percentage of bad components along the IOVs ------//
     tkMapFullIOVs->fill(detid,percentage);
-    if(tkhisto!=NULL)
+    if(tkhisto!=nullptr)
       tkhisto->fill(detid,percentage);
   }
   
@@ -268,9 +269,9 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
     
   if (filename!=""){
     filename.insert(filename.find("."),sRun.str());
-    tkMap->save(true,0,0,filename.c_str());
+    tkMap->save(true,0,0,filename);
     filename.erase(filename.begin()+filename.find("."),filename.end());
-    tkMap->print(true,0,0,filename.c_str());
+    tkMap->print(true,0,0,filename);
   }
 }
 

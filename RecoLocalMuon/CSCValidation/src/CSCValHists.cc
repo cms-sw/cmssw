@@ -24,7 +24,7 @@ using namespace std;
 
     std::map<std::string,std::pair<TH1*,string> >::const_iterator mapit;
     for (mapit = theMap.begin(); mapit != theMap.end(); mapit++){
-      std::string folder = (*mapit).second.second.c_str();
+      std::string folder = (*mapit).second.second;
       fit = find(theFolders.begin(), theFolders.end(), folder);
       if (fit == theFolders.end()){
         theFolders.push_back(folder);

@@ -34,7 +34,6 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "DataFormats/Common/interface/RefGetter.h"
 
 
 
@@ -42,13 +41,13 @@
 class HLTTrackerHaloFilter : public HLTFilter {
 public:
   explicit HLTTrackerHaloFilter(const edm::ParameterSet&);
-  ~HLTTrackerHaloFilter();
+  ~HLTTrackerHaloFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
-  edm::EDGetTokenT<edm::RefGetter<SiStripCluster> > inputToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterInputToken_;
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
   int max_clusTp_; // Maximum number of TEC+ clusters
   int max_clusTm_; // Maximum number of TEC- clusters

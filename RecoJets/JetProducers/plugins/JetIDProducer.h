@@ -27,7 +27,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,16 +42,14 @@
 // class decleration
 //
 
-class JetIDProducer : public edm::EDProducer {
+class JetIDProducer : public edm::stream::EDProducer<> {
    public:
 
       explicit JetIDProducer(const edm::ParameterSet&);
-      ~JetIDProducer();
+      ~JetIDProducer() override;
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
       edm::InputTag                 src_;         // input jet source

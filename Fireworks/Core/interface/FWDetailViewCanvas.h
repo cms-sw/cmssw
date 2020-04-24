@@ -3,15 +3,16 @@
 
 class TCanvas;
 class TGCompositeFrame;
+class TEveWindowSlot;
 
 #include "Fireworks/Core/interface/FWDetailView.h"
 
 template <typename T> class FWDetailViewCanvas : public FWDetailView<T> {
 public:
   FWDetailViewCanvas ();
-  virtual ~FWDetailViewCanvas();
+  ~FWDetailViewCanvas() override;
   
-  virtual void init(TEveWindowSlot*);
+  void init(TEveWindowSlot*) override;
   
 protected:
   TCanvas*          m_infoCanvas;

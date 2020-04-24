@@ -12,10 +12,11 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/Records/interface/PEcalBarrelRcd.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <vector>
 #include <atomic>
 
-class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry 
+class EcalBarrelGeometry final : public CaloSubdetectorGeometry 
 {
    public:
 
@@ -46,12 +47,12 @@ class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry
 
       static std::string dbString() { return "PEcalBarrelRcd" ; }
 
-      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
-      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
+      unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
+      unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
 
       EcalBarrelGeometry() ;
   
-      virtual ~EcalBarrelGeometry();
+      ~EcalBarrelGeometry() override;
 
       int getNumXtalsPhiDirection()           const { return _nnxtalPhi ; }
 
@@ -72,10 +73,10 @@ class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry
       const OrderedListOfEEDetId* getClosestEndcapCells( EBDetId id ) const ;
 
       // Get closest cell, etc...
-      virtual DetId getClosestCell( const GlobalPoint& r ) const ;
+      DetId getClosestCell( const GlobalPoint& r ) const override ;
 
-      virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-							  double             dR ) const ;
+      CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
+							  double             dR ) const override ;
 
       CCGFloat avgRadiusXYFrontFaceCenter() const ;
 
@@ -96,14 +97,14 @@ class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry
 				unsigned int    i   ,
 				Pt3D&           ref   ) ;
 
-      virtual void newCell( const GlobalPoint& f1 ,
+      void newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,
-			    const DetId&       detId ) ;
+			    const DetId&       detId ) override ;
    protected:
 
-      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
 
    private:
 
@@ -125,8 +126,7 @@ class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry
       mutable std::atomic<EZMgrFL<EEDetId>*>     m_borderMgr ;
 
       mutable std::atomic<VecOrdListEEDetIdPtr*> m_borderPtrVec ;
-
-      mutable CCGFloat m_radius ; // CMS-THREADING protected by m_check
+      CMS_THREAD_GUARD(m_check) mutable CCGFloat m_radius ; 
       mutable std::atomic<bool> m_check;
 
       CellVec m_cellVec ;

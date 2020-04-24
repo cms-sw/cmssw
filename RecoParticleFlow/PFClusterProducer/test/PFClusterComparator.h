@@ -19,7 +19,9 @@
 /**\class PFClusterAnalyzer 
 \brief test analyzer for PFClusters
 */
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TH1F.h"
 
 
 
@@ -28,11 +30,11 @@ class PFClusterComparator : public edm::EDAnalyzer {
 
   explicit PFClusterComparator(const edm::ParameterSet&);
 
-  ~PFClusterComparator();
+  ~PFClusterComparator() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginRun(const edm::Run & r, const edm::EventSetup & c);
+  void beginRun(const edm::Run & r, const edm::EventSetup & c) override;
 
  private:
   
@@ -50,6 +52,13 @@ class PFClusterComparator : public edm::EDAnalyzer {
   edm::InputTag   inputTagPFClusters_;
   edm::InputTag   inputTagPFClustersCompare_;
   
+  edm::Service<TFileService> fs_;
+  TH1F *log10E_old, *log10E_new, *deltaEnergy;
+  TH1F *posX_old, *posX_new, *deltaX;
+  TH1F *posY_old, *posY_new, *deltaY;
+  TH1F *posZ_old, *posZ_new, *deltaZ;
+  
+
   /// verbose ?
   bool   verbose_;
 

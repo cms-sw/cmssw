@@ -4,13 +4,23 @@
      -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 	<ConstantsSection label="cavern.xml" eval="true">
-		<Constant name="SideWallRmin" value="12.0*m"/>
+		<Constant name="SideWallRmin" value="13.3*m"/>
 		<Constant name="dzwall" value="([cms:HallZ]-[cms:CMSZ2])/2"/>
 		<Constant name="zposwall" value="([cms:HallZ]+[cms:CMSZ2])/2"/>
+		<Constant name="sidewallwidth" value="0.5*(8.8*m+2.16*m)"/>
 	</ConstantsSection>
 	<SolidSection label="cavern.xml">
-		<Tubs name="OSWL" rMin="[SideWallRmin]" rMax="[cms:HallR]" dz="[cms:HallZ]" startPhi="0*deg" deltaPhi="360*deg"/>
-		<Tubs name="OZWL" rMin="[cms:CMSR2]" rMax="[SideWallRmin]" dz="[dzwall]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="OSWL" rMin="[SideWallRmin]" rMax="[cms:HallR]" dz="[cms:HallZ]" startPhi="0*deg" deltaPhi="180*deg"/>
+		<Tubs name="OZWL" rMin="0.0*fm" rMax="[SideWallRmin]" dz="[dzwall]" startPhi="0*deg" deltaPhi="180*deg"/>
+		<Box name="OSFL" dx="[SideWallRmin]+1.*m" dy="0.5*m" dz="[cms:HallZ]"/>
+		<Box name="OSSL" dx="0.5*m" dy="[sidewallwidth]" dz="[cms:HallZ]"/>
+		<Box name="WALL" dx="[SideWallRmin]" dy="[sidewallwidth]" dz="0.5*m"/>
+		<Tubs name="WALL_HOLE" rMin="0.*fm" rMax="[cms:CMSR2]" dz="0.6*m" startPhi="0.*deg" deltaPhi="360.*deg"/>
+		<SubtractionSolid name="OWWL">
+		  <rSolid name="WALL"/>
+		  <rSolid name="WALL_HOLE"/>
+		  <Translation x="0.*fm" y="[sidewallwidth]-2.16*m" z="0.*fm"/>
+		</SubtractionSolid>
 	</SolidSection>
 	<LogicalPartSection label="cavern.xml">
 		<LogicalPart name="OSWL" category="unspecified">
@@ -21,24 +31,67 @@
 			<rSolid name="OZWL"/>
 			<rMaterial name="materials:Stand.Concrete"/>
 		</LogicalPart>
+		<LogicalPart name="OWWL" category="unspecified">
+			<rSolid name="OWWL"/>
+			<rMaterial name="materials:Stand.Concrete"/>
+		</LogicalPart>
+		<LogicalPart name="OSFL" category="unspecified">
+			<rSolid name="OSFL"/>
+			<rMaterial name="materials:Stand.Concrete"/>
+		</LogicalPart>
+		<LogicalPart name="OSSL" category="unspecified">
+			<rSolid name="OSSL"/>
+			<rMaterial name="materials:Stand.Concrete"/>
+		</LogicalPart>
 	</LogicalPartSection>
 	<PosPartSection label="cavern.xml">
 		<PosPart copyNumber="1">
 			<rParent name="cms:OCMS"/>
 			<rChild name="cavern:OSWL"/>
 			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="2.16*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:OCMS"/>
+			<rChild name="cavern:OSFL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-9.3*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:OCMS"/>
+			<rChild name="cavern:OSSL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-([SideWallRmin]+0.5*m)" y="-[sidewallwidth]+2.16*m" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:OCMS"/>
+			<rChild name="cavern:OSSL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="([SideWallRmin]+0.5*m)" y="-[sidewallwidth]+2.16*m" z="0*fm"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="cms:OCMS"/>
 			<rChild name="cavern:OZWL"/>
 			<rRotation name="rotations:000D"/>
-			<Translation x="0*fm" y="0*fm" z="[zposwall]"/>
+			<Translation x="0*fm" y="2.16*m" z="[zposwall]"/>
 		</PosPart>
 		<PosPart copyNumber="2">
 			<rParent name="cms:OCMS"/>
 			<rChild name="cavern:OZWL"/>
 			<rRotation name="rotations:000D"/>
-			<Translation x="0*fm" y="0*fm" z="-[zposwall]"/>
+			<Translation x="0*fm" y="2.16*m" z="-[zposwall]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cms:OCMS"/>
+			<rChild name="cavern:OWWL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-[sidewallwidth]+2.16*m" z="[zposwall]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cms:OCMS"/>
+			<rChild name="cavern:OWWL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-[sidewallwidth]+2.16*m" z="-[zposwall]"/>
 		</PosPart>
 	</PosPartSection>
 </DDDefinition>

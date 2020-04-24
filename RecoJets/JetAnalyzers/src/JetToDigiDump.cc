@@ -18,7 +18,7 @@
 //in CaloJet: #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 // just for the CaloTowerPtr declaration:
 // in CaloTowerCollection: #include "DataFormats/CaloTowers/interface/CaloTower.h"
-// in CaloTowerCollection: #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+// in CaloTowerCollection: #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"

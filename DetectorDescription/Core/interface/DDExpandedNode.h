@@ -1,11 +1,13 @@
 #ifndef DDExpandedNode_h
 #define DDExpandedNode_h
 
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include <vector>
 #include <iosfwd>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 
 class DDExpandedView;
 struct DDPosData;
@@ -17,7 +19,7 @@ class DDExpandedNode
 
 public:
   DDExpandedNode(const DDLogicalPart & lp, 
-                 DDPosData * pd, 
+                 const DDPosData * pd, 
 	         const DDTranslation & t, 
 	         const DDRotationMatrix & r,
 		 int siblingno);
@@ -49,7 +51,7 @@ public:
    
 private:
   DDLogicalPart logp_; // logicalpart to provide access to solid & material information
-  DDPosData * posd_;
+  const DDPosData * posd_;
   DDTranslation trans_;  // absolute translation
   DDRotationMatrix rot_; // absolute rotation
   int siblingno_; // internal sibling-numbering from 0 to max-sibling

@@ -103,7 +103,7 @@ TH1D* AverageRunMultiplicity(TFile& ff, const char* module, const bool excludeLa
   CommonAnalyzer camult(&ff,"",module);
 
   TH1D* clusmult = new TH1D("clusmult","Average Multiplicity vs run",10,0.,10.);
-  clusmult->SetBit(TH1::kCanRebin);
+  clusmult->SetCanExtend(TH1::kXaxis);
 
   std::vector<unsigned int> runs = camult.getRunList();
   std::sort(runs.begin(),runs.end());
@@ -118,8 +118,8 @@ TH1D* AverageRunMultiplicity(TFile& ff, const char* module, const bool excludeLa
       camult.setPath(runpath);
       
       
-      TProfile* multvstime=0;
-      if(multvstime==0) multvstime = (TProfile*)camult.getObject(histo);
+      TProfile* multvstime=nullptr;
+      if(multvstime==nullptr) multvstime = (TProfile*)camult.getObject(histo);
       if(multvstime) {
 	// compute mean exlucing the last filled bins
 

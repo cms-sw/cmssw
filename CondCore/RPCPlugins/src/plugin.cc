@@ -63,3 +63,19 @@ REGISTER_PLUGIN(RBCBoardSpecsRcd,RBCBoardSpecs);
 REGISTER_PLUGIN(TTUBoardSpecsRcd,TTUBoardSpecs);
 REGISTER_PLUGIN(RPCObGasMixRcd,RPCObGasMix);
 REGISTER_PLUGIN(RPCObGasHumRcd,RPCObGasHum);
+
+#include "CondFormats/DataRecord/interface/RPCLBLinkMapRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCLBLinkMap.h"
+REGISTER_PLUGIN(RPCLBLinkMapRcd, RPCLBLinkMap);
+
+#include "CondFormats/DataRecord/interface/RPCDCCLinkMapRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCDCCLinkMap.h"
+REGISTER_PLUGIN(RPCDCCLinkMapRcd, RPCDCCLinkMap);
+
+#include "CondFormats/DataRecord/interface/RPCTwinMuxLinkMapRcd.h"
+#include "CondFormats/DataRecord/interface/RPCOMTFLinkMapRcd.h"
+#include "CondFormats/DataRecord/interface/RPCCPPFLinkMapRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
+REGISTER_PLUGIN(RPCTwinMuxLinkMapRcd, RPCAMCLinkMap);
+REGISTER_PLUGIN(RPCOMTFLinkMapRcd   , RPCAMCLinkMap);
+REGISTER_PLUGIN(RPCCPPFLinkMapRcd   , RPCAMCLinkMap);

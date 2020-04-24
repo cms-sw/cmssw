@@ -85,10 +85,8 @@ DirectTrackerNavigation::compatibleLayers(const FreeTrajectoryState& fts,
 //
 void DirectTrackerNavigation::inOutPx(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<BarrelDetLayer*>& barrel = theGeometricSearchTracker->pixelBarrelLayers();
-
-  for (vector<BarrelDetLayer*>::const_iterator iter_B = barrel.begin(); iter_B != barrel.end(); iter_B++) {
-    if ( checkCompatible(fts,(*iter_B)) ) output.push_back((*iter_B));
+  for (const auto i : theGeometricSearchTracker->pixelBarrelLayers()) {
+    if ( checkCompatible(fts,i) ) output.push_back(i);
   }
 
 }
@@ -99,10 +97,8 @@ void DirectTrackerNavigation::inOutPx(const FreeTrajectoryState& fts, vector<con
 //
 void DirectTrackerNavigation::inOutTIB(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<BarrelDetLayer*>& barrel = theGeometricSearchTracker->tibLayers();
-
-  for (vector<BarrelDetLayer*>::const_iterator iter_B = barrel.begin(); iter_B != barrel.end(); iter_B++) {
-    if ( checkCompatible(fts,(*iter_B)) ) output.push_back((*iter_B));
+  for(const auto i : theGeometricSearchTracker->tibLayers() ) {
+    if ( checkCompatible(fts,i) ) output.push_back(i);
   }
 
 }
@@ -113,10 +109,8 @@ void DirectTrackerNavigation::inOutTIB(const FreeTrajectoryState& fts, vector<co
 //
 void DirectTrackerNavigation::inOutTOB(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<BarrelDetLayer*>& barrel = theGeometricSearchTracker->tobLayers();
-
-  for (vector<BarrelDetLayer*>::const_iterator iter_B = barrel.begin(); iter_B != barrel.end(); iter_B++) {
-    if ( checkCompatible(fts,(*iter_B)) ) output.push_back((*iter_B));
+  for( const auto i : theGeometricSearchTracker->tobLayers()) {
+    if ( checkCompatible(fts,i) ) output.push_back(i);
   }
 
 }
@@ -127,10 +121,8 @@ void DirectTrackerNavigation::inOutTOB(const FreeTrajectoryState& fts, vector<co
 //
 void DirectTrackerNavigation::inOutFPx(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<ForwardDetLayer*>& forward = theGeometricSearchTracker->posPixelForwardLayers();
-
-  for (vector<ForwardDetLayer*>::const_iterator iter_E = forward.begin(); iter_E != forward.end(); iter_E++) {
-    if ( checkCompatible(fts,(*iter_E)) ) output.push_back((*iter_E));
+  for(const auto i : theGeometricSearchTracker->posPixelForwardLayers()) {
+    if ( checkCompatible(fts,i) ) output.push_back(i);
   }
 
 }
@@ -141,10 +133,8 @@ void DirectTrackerNavigation::inOutFPx(const FreeTrajectoryState& fts, vector<co
 //
 void DirectTrackerNavigation::inOutFTID(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<ForwardDetLayer*>& forward = theGeometricSearchTracker->posTidLayers();
-
-  for (vector<ForwardDetLayer*>::const_iterator iter_E = forward.begin(); iter_E != forward.end(); iter_E++) {
-    if ( checkCompatible(fts,(*iter_E)) ) output.push_back((*iter_E));
+  for(const auto i: theGeometricSearchTracker->posTidLayers()) {
+    if ( checkCompatible(fts,i) ) output.push_back(i);
   }
 
 }
@@ -155,10 +145,8 @@ void DirectTrackerNavigation::inOutFTID(const FreeTrajectoryState& fts, vector<c
 //
 void DirectTrackerNavigation::inOutFTEC(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<ForwardDetLayer*>& forward = theGeometricSearchTracker->posTecLayers();
-
-  for (vector<ForwardDetLayer*>::const_iterator iter_E = forward.begin(); iter_E != forward.end(); iter_E++) {
-    if ( checkCompatible(fts,(*iter_E)) ) output.push_back((*iter_E));
+  for(const auto i : theGeometricSearchTracker->posTecLayers()) {
+    if ( checkCompatible(fts,i) ) output.push_back(i);
   }
 
 }
@@ -169,10 +157,8 @@ void DirectTrackerNavigation::inOutFTEC(const FreeTrajectoryState& fts, vector<c
 //
 void DirectTrackerNavigation::inOutBPx(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<ForwardDetLayer*>& forward = theGeometricSearchTracker->negPixelForwardLayers();
-
-  for (vector<ForwardDetLayer*>::const_iterator iter_E = forward.begin(); iter_E != forward.end(); iter_E++) {
-    if ( checkCompatible(fts,(*iter_E)) ) output.push_back((*iter_E));
+  for(const auto i: theGeometricSearchTracker->negPixelForwardLayers()) {
+    if ( checkCompatible(fts,i) ) output.push_back(i);
   }
 
 }
@@ -183,10 +169,8 @@ void DirectTrackerNavigation::inOutBPx(const FreeTrajectoryState& fts, vector<co
 //
 void DirectTrackerNavigation::inOutBTID(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<ForwardDetLayer*>& forward = theGeometricSearchTracker->negTidLayers();
-
-  for (vector<ForwardDetLayer*>::const_iterator iter_E = forward.begin(); iter_E != forward.end(); iter_E++) {
-      if ( checkCompatible(fts,(*iter_E)) ) output.push_back((*iter_E));
+  for(const auto i: theGeometricSearchTracker->negTidLayers()) {
+      if ( checkCompatible(fts,i) ) output.push_back(i);
   }
 
 }
@@ -197,10 +181,8 @@ void DirectTrackerNavigation::inOutBTID(const FreeTrajectoryState& fts, vector<c
 //
 void DirectTrackerNavigation::inOutBTEC(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<ForwardDetLayer*>& forward = theGeometricSearchTracker->negTecLayers();
-
-  for (vector<ForwardDetLayer*>::const_iterator iter_E = forward.begin(); iter_E != forward.end(); iter_E++) {
-    if ( checkCompatible(fts,(*iter_E)) ) output.push_back((*iter_E));
+  for(const auto i: theGeometricSearchTracker->negTecLayers()) {
+    if ( checkCompatible(fts,i) ) output.push_back(i);
   }
 
 }

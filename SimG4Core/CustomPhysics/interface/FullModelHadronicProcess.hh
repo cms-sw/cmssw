@@ -8,8 +8,7 @@
 #include "G4ReactionProduct.hh"
 #include <vector>
 #include "G4HadronicException.hh"
-
-
+#include "FullModelReactionDynamics.hh"
 
 class G4ProcessHelper;
 //class HistoHelper;
@@ -18,14 +17,15 @@ class FullModelHadronicProcess : public G4VDiscreteProcess
 {
 public:
   
-  FullModelHadronicProcess(G4ProcessHelper * aHelper, const G4String& processName = "FullModelHadronicProcess");
+  FullModelHadronicProcess(G4ProcessHelper * aHelper, 
+			   const G4String& processName = "FullModelHadronicProcess");
     
-  virtual ~FullModelHadronicProcess();
+  ~FullModelHadronicProcess() override;
 
   
-  G4bool IsApplicable(const G4ParticleDefinition& aP);
+  G4bool IsApplicable(const G4ParticleDefinition& aP) override;
   
-  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
+  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) override;
 
 protected:
   
@@ -40,9 +40,9 @@ private:
 					       const G4Element *anElement, 
 					       G4double aTemp );
 
-  G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*);
+  G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*) override;
   
-  void CalculateMomenta( G4FastVector<G4ReactionProduct,GHADLISTSIZE> &vec,
+  void CalculateMomenta( G4FastVector<G4ReactionProduct,MYGHADLISTSIZE> &vec,
 			 G4int &vecLen,
 			 const G4HadProjectile *originalIncident,
 			 const G4DynamicParticle *originalTarget,
@@ -59,7 +59,7 @@ private:
 				    const G4ReactionProduct &targetParticle,
 				    G4ReactionProduct &leadParticle );
     
-  void Rotate(G4FastVector<G4ReactionProduct,GHADLISTSIZE> &vec, G4int &vecLen);
+  void Rotate(G4FastVector<G4ReactionProduct,MYGHADLISTSIZE> &vec, G4int &vecLen);
 
   const G4DynamicParticle* FindRhadron(G4ParticleChange*);
 
@@ -67,9 +67,6 @@ private:
   G4bool toyModel;
   G4double cache;
   G4ThreeVector what;
-
-
-
 };
 
 #endif

@@ -10,7 +10,7 @@ using namespace edm;
 class TrackerHitAssociator;
 
 myTrackAnalyzer::myTrackAnalyzer(edm::ParameterSet const& conf) : 
-  conf_(conf),
+  trackerHitAssociatorConfig_(conf, consumesCollector()),
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ),
   trackCollectionTag_(conf.getParameter<edm::InputTag>("trackCollectionTag")) {
@@ -51,7 +51,7 @@ void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& se
     if(!doPixel_ && !doStrip_)  throw edm::Exception(errors::Configuration,"Strip and pixel association disabled");
     //NEW
     std::vector<PSimHit> matched;
-    TrackerHitAssociator associate(event, conf_);
+    TrackerHitAssociator associate(event, trackerHitAssociatorConfig_);
     std::vector<unsigned int> SimTrackIds;
 
     const reco::TrackCollection tC = *(trackCollection.product());

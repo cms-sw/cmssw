@@ -2,6 +2,9 @@
 #define Analysis_AnalysisFilters_interface_PVSelector_h
 
 #include "FWCore/Common/interface/EventBase.h"
+#ifndef __GCCXML__
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#endif
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "PhysicsTools/SelectorUtils/interface/EventSelector.h"
@@ -14,15 +17,23 @@ public:
 
   PVSelector() {}
 
- PVSelector( edm::ParameterSet const & params ) :
-  pvSrc_ (params.getParameter<edm::InputTag>("pvSrc") ),
-  pvSel_ (params)
+  PVSelector( edm::ParameterSet const & params ) :
+    pvSrc_ (params.getParameter<edm::InputTag>("pvSrc") ),
+    pvSel_ (params)
   {
     push_back("NPV", params.getParameter<int>("NPV") );
     set("NPV");
     retInternal_ = getBitTemplate();
     indexNPV_ = index_type(&bits_, "NPV");
   }
+
+#ifndef __GCCXML__
+  PVSelector( edm::ParameterSet const & params, edm::ConsumesCollector&& iC ) :
+    PVSelector(params)
+  {
+    pvSrcToken_ = iC.consumes<std::vector<reco::Vertex> >(pvSrc_);
+  }
+#endif
 
   bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) {
     ret.set(false);
@@ -81,6 +92,9 @@ public:
 
 private:
   edm::InputTag                           pvSrc_;
+#ifndef __GCCXML__
+  edm::EDGetTokenT<std::vector<reco::Vertex> >                           pvSrcToken_;
+#endif
   PVObjectSelector                        pvSel_;
   edm::Handle<std::vector<reco::Vertex> > h_primVtx;
   std::vector<edm::Ptr<reco::Vertex> >    mvSelPvs; // selected vertices

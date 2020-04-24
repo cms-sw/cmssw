@@ -1,6 +1,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 
 bool SiStripBackPlaneCorrection::putBackPlaneCorrection(const uint32_t& detid, float value){
   std::map<unsigned int,float>::const_iterator id=m_BPC.find(detid);
@@ -20,7 +20,7 @@ float SiStripBackPlaneCorrection::getBackPlaneCorrection(const uint32_t& detid) 
   return 0;
 }
 
-void SiStripBackPlaneCorrection::printDebug(std::stringstream& ss) const
+void SiStripBackPlaneCorrection::printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const
 {
   std::map<unsigned int,float> detid_la = getBackPlaneCorrections();
   std::map<unsigned int,float>::const_iterator it;
@@ -28,19 +28,17 @@ void SiStripBackPlaneCorrection::printDebug(std::stringstream& ss) const
   ss << "SiStripBackPlaneCorrectionReader:" << std::endl;
   ss << "detid \t Geometry \t Back Plane Corrections" << std::endl;
   for( it=detid_la.begin(); it!=detid_la.end(); ++it ) {
-    SiStripDetId SSdetId(it->first);
-    unsigned int moduleGeometry = SSdetId.moduleGeometry();
-    ss << it->first << "\t" << moduleGeometry << "\t" << it->second << std::endl;
+    ss << it->first << "\t" << trackerTopo->moduleGeometry(it->first) << "\t" << it->second << std::endl;
     ++count;
   }
 }
 
-void SiStripBackPlaneCorrection::printSummary(std::stringstream& ss) const
+void SiStripBackPlaneCorrection::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const
 {
   std::map<unsigned int,float> detid_la = getBackPlaneCorrections();
   std::map<unsigned int,float>::const_iterator it;
 
-  SiStripDetSummary summary;
+  SiStripDetSummary summary{trackerTopo};
 
   for( it=detid_la.begin(); it!=detid_la.end(); ++it ) {
     DetId detid(it->first);

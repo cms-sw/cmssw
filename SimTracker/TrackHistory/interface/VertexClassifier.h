@@ -2,6 +2,7 @@
 #ifndef VertexClassifier_h
 #define VertexClassifier_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -9,6 +10,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include "SimTracker/TrackHistory/interface/CMSProcessTypes.h"
 #include "SimTracker/TrackHistory/interface/VertexCategories.h"
 #include "SimTracker/TrackHistory/interface/VertexHistory.h"
 
@@ -22,7 +24,8 @@ public:
     typedef VertexCategories Categories;
 
     //! Constructor by ParameterSet
-    VertexClassifier(edm::ParameterSet const & pset);
+    VertexClassifier(edm::ParameterSet const & pset,
+                     edm::ConsumesCollector&&);
 
     virtual ~VertexClassifier() {}
 
@@ -51,34 +54,12 @@ private:
 
     VertexHistory tracer_;
 
+    const G4toCMSLegacyProcTypeMap g4toCMSProcMap_;
+
     const edm::InputTag hepMCLabel_;
 
     double longLivedDecayLength_;
     double vertexClusteringDistance_;
-
-    struct G4
-    {
-        enum Process
-        {
-            Undefined = 0,
-            Unknown,
-            Primary,
-            Hadronic,
-            Decay,
-            Compton,
-            Annihilation,
-            EIoni,
-            HIoni,
-            MuIoni,
-            Photon,
-            MuPairProd,
-            Conversions,
-            EBrem,
-            SynchrotronRadiation,
-            MuBrem,
-            MuNucl
-        };
-    };
 
     edm::Handle<edm::HepMCProduct> mcInformation_;
 

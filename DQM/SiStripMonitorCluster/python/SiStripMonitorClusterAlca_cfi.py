@@ -4,12 +4,9 @@ import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 
 # SiStripMonitorCluster
 SiStripCalZeroBiasMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-    # by default do not write out any file with histograms
-    # can overwrite this in .cfg file with: replace SiStripMonitorCluster.OutputMEsInRootFile = true
+
 SiStripCalZeroBiasMonitorCluster.ClusterProducerStrip = cms.InputTag("calZeroBiasClusters")
 SiStripCalZeroBiasMonitorCluster.ClusterProducerPix = cms.InputTag('siPixelClusters')
-SiStripCalZeroBiasMonitorCluster.OutputMEsInRootFile = cms.bool(False)
-SiStripCalZeroBiasMonitorCluster.OutputFileName = cms.string('SiStripMonitorCluster.root')
 
 SiStripCalZeroBiasMonitorCluster.ResetMEsEachRun = cms.bool(False)
 
@@ -22,6 +19,8 @@ SiStripCalZeroBiasMonitorCluster.ClusterLabel = cms.string('')
 
 SiStripCalZeroBiasMonitorCluster.TkHistoMap_On = cms.bool(False)
 
+SiStripCalZeroBiasMonitorCluster.ClusterChTkHistoMap_On = cms.bool(False)
+
 SiStripCalZeroBiasMonitorCluster.TopFolderName = cms.string('AlcaReco/SiStrip')
 
 SiStripCalZeroBiasMonitorCluster.BPTXfilter     = cms.PSet()
@@ -29,13 +28,7 @@ SiStripCalZeroBiasMonitorCluster.PixelDCSfilter = cms.PSet()
 SiStripCalZeroBiasMonitorCluster.StripDCSfilter = cms.PSet()
 
 SiStripCalZeroBiasMonitorCluster.CreateTrendMEs = cms.bool(False)
-SiStripCalZeroBiasMonitorCluster.Trending = cms.PSet(
-    Nbins = cms.int32(600),
-    xmin = cms.double(0.0),
-    xmax = cms.double(1.0*60*60),
-    ymin = cms.double(0.0),
-    ymax = cms.double(100000.0)
-)
+SiStripCalZeroBiasMonitorCluster.TrendVsLS = cms.bool(True)
 SiStripCalZeroBiasMonitorCluster.TH1ClusterNoise = cms.PSet(
     Nbinx          = cms.int32(20),
     xmin           = cms.double(-0.5),
@@ -54,7 +47,7 @@ SiStripCalZeroBiasMonitorCluster.TH1ClusterPos = cms.PSet(
     Nbinx          = cms.int32(768),
     xmin           = cms.double(-0.5),
     xmax           = cms.double(767.5),
-    layerswitchon  = cms.bool(False),
+    layerswitchon  = cms.bool(True),
     moduleswitchon = cms.bool(False)
 )
 SiStripCalZeroBiasMonitorCluster.TH1ClusterDigiPos = cms.PSet(
@@ -100,14 +93,16 @@ SiStripCalZeroBiasMonitorCluster.TH1ClusterCharge = cms.PSet(
     xmin           = cms.double(-0.5),        
     xmax           = cms.double(799.5),
     layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(False)
+    moduleswitchon = cms.bool(False),
+    subdetswitchon = cms.bool(True)
 )
 SiStripCalZeroBiasMonitorCluster.TH1ClusterWidth = cms.PSet(
-    Nbinx          = cms.int32(20),
+    Nbinx          = cms.int32(30),
     xmin           = cms.double(-0.5),
-    xmax           = cms.double(19.5),
+    xmax           = cms.double(29.5),
     layerswitchon  = cms.bool(False),        
-    moduleswitchon = cms.bool(False)
+    moduleswitchon = cms.bool(False),
+    subdetswitchon = cms.bool(True)
 )
 SiStripCalZeroBiasMonitorCluster.TProfNumberOfCluster = cms.PSet(
     Nbinx            = cms.int32(100),
@@ -131,11 +126,6 @@ SiStripCalZeroBiasMonitorCluster.ClusterConditions = cms.PSet(
     maxWidth   = cms.double(10000.0)
 )
 SiStripCalZeroBiasMonitorCluster.TProfTotalNumberOfClusters = cms.PSet(
-    Nbins = cms.int32(600),
-    xmin = cms.double(0.0),
-    xmax = cms.double(1.0*60*60),
-    ymin = cms.double(0.0),
-    ymax = cms.double(0.0),
     subdetswitchon = cms.bool(True)
 )
 SiStripCalZeroBiasMonitorCluster.TH1TotalNumberOfClusters = cms.PSet(

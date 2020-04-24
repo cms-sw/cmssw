@@ -30,10 +30,10 @@ DQMLumiMonitor::DQMLumiMonitor( const edm::ParameterSet& ps ) : parameters_(ps) 
   pixelClusterInputTag_= consumes<edmNew::DetSetVector<SiPixelCluster> >(parameters_.getParameter<edm::InputTag>("PixelClusterInputTag"));
   lumiRecordName_      = consumes<LumiSummary,edm::InLumi>(parameters_.getParameter<std::string>("LumiRecordName"));
 
-  nClusME_ = 0;
-  nClusVsLSME_ = 0;
-  intLumiVsLSME_= 0;  
-  corrIntLumiAndClusVsLSME_ = 0;
+  nClusME_ = nullptr;
+  nClusVsLSME_ = nullptr;
+  intLumiVsLSME_= nullptr;  
+  corrIntLumiAndClusVsLSME_ = nullptr;
 }
 
 DQMLumiMonitor::~DQMLumiMonitor() {
@@ -47,27 +47,27 @@ void DQMLumiMonitor::bookHistograms() {
   edm::ParameterSet LumiSecHistoPar =  parameters_.getParameter<edm::ParameterSet>("TH1LSPar");
 
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
-  if (nClusME_ == 0) nClusME_ = dbe_->book1D("nPlxClus", " Number of Pixel Clusters ",
+  if (nClusME_ == nullptr) nClusME_ = dbe_->book1D("nPlxClus", " Number of Pixel Clusters ",
 					     ClusHistoPar.getParameter<int32_t>("Xbins"),
 					     ClusHistoPar.getParameter<double>("Xmin"),
 					     ClusHistoPar.getParameter<double>("Xmax"));
   else nClusME_->Reset();
-  if (nClusVsLSME_ == 0) nClusVsLSME_ = dbe_->bookProfile("nClusVsLS", " Number of Pixel Cluster Vs LS number",
+  if (nClusVsLSME_ == nullptr) nClusVsLSME_ = dbe_->bookProfile("nClusVsLS", " Number of Pixel Cluster Vs LS number",
 							      LumiSecHistoPar.getParameter<int32_t>("Xbins"),
 							      LumiSecHistoPar.getParameter<double>("Xmin"),
 							      LumiSecHistoPar.getParameter<double>("Xmax"),
 							  0.0, 0.0, "");
   else nClusVsLSME_->Reset();
-  if (intLumiVsLSME_ == 0) intLumiVsLSME_ = dbe_->bookProfile("intLumiVsLS", " Integrated Luminosity Vs LS number",
+  if (intLumiVsLSME_ == nullptr) intLumiVsLSME_ = dbe_->bookProfile("intLumiVsLS", " Integrated Luminosity Vs LS number",
 							      LumiSecHistoPar.getParameter<int32_t>("Xbins"),
 							      LumiSecHistoPar.getParameter<double>("Xmin"),
 							      LumiSecHistoPar.getParameter<double>("Xmax"),
 							      0.0, 0.0, "");
   else intLumiVsLSME_->Reset();
 
-  if (corrIntLumiAndClusVsLSME_== 0) corrIntLumiAndClusVsLSME_ = dbe_->bookProfile2D("corrIntLumiAndClusVsLS", " Correlation of nCluster and Integrated Luminosity Vs LS number",
+  if (corrIntLumiAndClusVsLSME_== nullptr) corrIntLumiAndClusVsLSME_ = dbe_->bookProfile2D("corrIntLumiAndClusVsLS", " Correlation of nCluster and Integrated Luminosity Vs LS number",
 										     LumiSecHistoPar.getParameter<int32_t>("Xbins"),
 										     LumiSecHistoPar.getParameter<double>("Xmin"),
 										     LumiSecHistoPar.getParameter<double>("Xmax"),

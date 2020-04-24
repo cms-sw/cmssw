@@ -1,7 +1,7 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,15 +23,15 @@ class SiStripFedCabling;
 
 namespace sistrip {
   
-  class RawToDigiModule : public edm::EDProducer {
+  class dso_hidden RawToDigiModule final : public edm::stream::EDProducer<> {
     
   public:
     
     RawToDigiModule( const edm::ParameterSet& );
-    ~RawToDigiModule();
+    ~RawToDigiModule() override;
     
-    virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
-    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    void beginRun( const edm::Run&, const edm::EventSetup& ) override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
     
   private: 
     

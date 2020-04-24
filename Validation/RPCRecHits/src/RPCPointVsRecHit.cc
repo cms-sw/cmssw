@@ -17,38 +17,11 @@ RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet& pset)
   refHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("refHit"));
   recHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("recHit"));
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if ( !dbe_ )
-  {
-    edm::LogError("RPCPointVsRecHit") << "No DQMStore instance\n";
-    return;
-  }
-
-  // Book MonitorElements
-  const std::string subDir = pset.getParameter<std::string>("subDir");
-  h_.bookHistograms(dbe_, subDir);
-}
-
-RPCPointVsRecHit::~RPCPointVsRecHit()
-{
-}
-
-void RPCPointVsRecHit::beginJob()
-{
-}
-
-void RPCPointVsRecHit::endJob()
-{
+  subDir_ = pset.getParameter<std::string>("subDir");
 }
 
 void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  if ( !dbe_ )
-  {
-    edm::LogError("RPCPointVsRecHit") << "No DQMStore instance\n";
-    return;
-  }
-
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
   eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
@@ -256,92 +229,15 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
     }
   }
 
-/*
-  // Find Lost hits
-  for ( RecHitIter refHitIter = refHitHandle->begin();
-        refHitIter != refHitHandle->end(); ++refHitIter )
-  {
-    const RPCDetId detId = static_cast<const RPCDetId>(refHitIter->rpcId());
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
-
-    const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    //const int sector = roll->id().sector();
-    const int station = roll->id().station();
-    //const int layer = roll->id().layer();
-    //const int subsector = roll->id().subsector();
-
-    bool matched = false;
-    for ( RecToRecHitMap::const_iterator match = refToRecHitMap.begin();
-          match != refToRecHitMap.end(); ++match )
-    {
-      if ( refHitIter == match->first )
-      {
-        matched = true;
-        break;
-      }
-    }
-
-    if ( !matched )
-    {
-      if ( region == 0 )
-      {
-        h_.nUrefHitOccupancyBarrel_wheel->Fill(ring);
-        h_.nUrefHitOccupancyBarrel_wheel_ring->Fill(ring, station);
-      }
-      else
-      {
-        h_.nUnMatchedRefHit_disk->Fill(region*station);
-        h_.nUnMatchedRefHit_disk_ring->Fill(region*station, ring);
-      }
-    }
-  }
-*/
-
-  // Find Noisy hits
-  for ( RecHitIter recHitIter = recHitHandle->begin();
-        recHitIter != recHitHandle->end(); ++recHitIter )
-  {
-    const RPCDetId detId = static_cast<const RPCDetId>(recHitIter->rpcId());
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
-
-    const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    //const int sector = roll->id().sector();
-    const int station = roll->id().station();
-    //const int layer = roll->id().layer();
-    //const int subsector = roll->id().subsector();
-
-    bool matched = false;
-    for ( RecToRecHitMap::const_iterator match = refToRecHitMap.begin();
-          match != refToRecHitMap.end(); ++match )
-    {
-      if ( recHitIter == match->second )
-      {
-        matched = true;
-        break;
-      }
-    }
-
-    if ( !matched )
-    {
-      if ( region == 0 )
-      {
-        h_.umOccupancyBarrel_wheel->Fill(ring);
-        h_.umOccupancyBarrel_station->Fill(station);
-        h_.umOccupancyBarrel_wheel_station->Fill(ring, station);
-      }
-      else
-      {
-        h_.umOccupancyEndcap_disk->Fill(region*station);
-        h_.umOccupancyEndcap_disk_ring->Fill(region*station, ring);
-      }
-
-      //const GlobalPoint pos = roll->toGlobal(recHitIter->localPosition());
-      //h_[HName::NoisyHitEta]->Fill(pos.eta());
-    }
-  }
 }
+
+void RPCPointVsRecHit::bookHistograms(DQMStore::IBooker& booker,
+                                      edm::Run const & run, edm::EventSetup const & eventSetup)
+{
+  // Book MonitorElements
+  h_.bookHistograms(booker, subDir_);
+}
+
 
 DEFINE_FWK_MODULE(RPCPointVsRecHit);
 

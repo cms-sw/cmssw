@@ -35,7 +35,7 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
 }
 
 
-boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
+std::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
 {
   
   edm::LogInfo("SiStripQualityESProducer") << "produce called" << std::endl;
@@ -66,6 +66,9 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
 
     if (recordName=="SiStripBadModuleRcd"){
       iRecord.getRecord<SiStripBadModuleRcd>().get(tagName,obj); 
+      quality->add( obj.product() );
+    } else if (recordName=="SiStripBadModuleFedErrRcd"){
+      iRecord.getRecord<SiStripBadModuleFedErrRcd>().get(tagName,obj); 
       quality->add( obj.product() );
     } else if (recordName=="SiStripBadFiberRcd"){
       iRecord.getRecord<SiStripBadFiberRcd>().get(tagName,obj); 

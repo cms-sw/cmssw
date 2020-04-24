@@ -51,7 +51,7 @@ class BuildViewer(object):
         ib, wkDay = getIB(checkPath)
 
         rulesResults = readPicFiles(self.pickleDir, True)
-        createLogFiles(rulesResults, self.logsDir, wkDay)
+        createLogFiles(rulesResults, self.logsDir, ib)
 
         self.formatter.writeAnchor(ref='top')
         self.formatter.writeH2("CMSSW code rules violation for "+ib)
@@ -135,7 +135,7 @@ def numberConverter(number):
        number = (3-length)*str(0) + number
     return number
 
-def createLogFiles(rulesResult, logsDir, wkDay):
+def createLogFiles(rulesResult, logsDir, ib):
     logDir = join(logsDir,"logs")
     if os.path.exists(logDir):
         rmtree(logDir)
@@ -144,14 +144,14 @@ def createLogFiles(rulesResult, logsDir, wkDay):
             ruleResult = rulesResult[ruleName]
             for package, packageResult in ruleResult:
                 logsDir = join(logDir, package)
-                if not os.path.exists(logsDir): os.makedirs(logsDir, 0755)
+                if not os.path.exists(logsDir): os.makedirs(logsDir, 0o755)
                 file = open(join(logsDir, "log.html"), 'a')
                 file.write('Rule %s'%ruleName)
                 file.write("<br/>")
                 for path, lineNumbers in packageResult:
                     for line in lineNumbers:
                         directory = join(package, path)
-                        file.write('<a href="http://cmssdt.cern.ch/SDT/lxr/source/%s?v=%s#%s">%s:%s</a>\n'%(directory, wkDay, numberConverter(line), directory, line))
+                        file.write('<a href="http://cmslxr.fnal.gov/lxr/source/%s?v=%s#%s">%s:%s</a>\n'%(directory, ib, numberConverter(line), directory, line))
                         file.write("<br/>")
                 file.write('\n')
                 file.close()

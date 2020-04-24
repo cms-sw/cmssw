@@ -21,6 +21,7 @@
 #include <iosfwd> 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 class Alignable;
 class AlignableTracker;
@@ -114,15 +115,17 @@ class PedeSteerer
   // data members
   const AlignmentParameterStore *myParameterStore; /// not the owner!
   const PedeLabelerBase         *myLabels; /// pointer to labeler (not the owner)
+  const AlignableObjectId alignableObjectId_;
 
-  edm::ParameterSet myConfig;
+  const edm::ParameterSet myConfig;
   std::string myDirectory; /// directory of all files
   bool myNoSteerFiles; /// flag to write steering files to /dev/null
   bool myIsSteerFileDebug; /// whether or not to fill pede steering files with debug info
   int myParameterSign; /// old pede versions (before May '07) need a sign flip...
   double theMinHieraConstrCoeff; /// min absolute value of coefficients in hierarchy constraints
   unsigned int theMinHieraParPerConstr; /// hierarchy constraints with less params are ignored
-
+  unsigned int theConstrPrecision; /// precision for writing constraints to text file
+  
   std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files
 
   std::set<const Alignable*> myNoHieraCollection; /// Alignables deselected for hierarchy constr.

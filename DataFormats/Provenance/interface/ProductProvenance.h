@@ -11,7 +11,7 @@ and how it came into existence.
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iosfwd>
 #include <vector>
@@ -24,16 +24,15 @@ namespace edm {
   class ProductProvenance {
   public:
     ProductProvenance();
-    explicit ProductProvenance(BranchID const& bid);
-    ProductProvenance(BranchID const& bid,
-                      boost::shared_ptr<Parentage> parentagePtr);
-    ProductProvenance(BranchID const& bid,
-                      ParentageID const& id);
+    explicit ProductProvenance(BranchID bid);
+    ProductProvenance(BranchID bid,
+                      ParentageID id);
 
-    ProductProvenance(BranchID const& bid,
+    ProductProvenance(BranchID bid,
                       std::vector<BranchID> const& parents);
 
-    ~ProductProvenance() {}
+    ProductProvenance(BranchID bid,
+                      std::vector<BranchID>&& parents);
 
     ProductProvenance makeProductProvenance() const;
 
@@ -43,24 +42,10 @@ namespace edm {
     ParentageID const& parentageID() const {return parentageID_;}
     Parentage const& parentage() const;
 
-    bool& noParentage() const {return transient_.noParentage_;}
-
-    void initializeTransients() const {transient_.reset();}
-
-    struct Transients {
-      Transients();
-      void reset();
-      boost::shared_ptr<Parentage> parentagePtr_;
-      bool noParentage_;
-    };
-
   private:
-
-    boost::shared_ptr<Parentage>& parentagePtr() const {return transient_.parentagePtr_;}
 
     BranchID branchID_;
     ParentageID parentageID_;
-    mutable Transients transient_;
   };
 
   inline

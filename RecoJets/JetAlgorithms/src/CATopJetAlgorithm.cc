@@ -302,7 +302,7 @@ bool CATopJetAlgorithm::decomposeJet(const fastjet::PseudoJet & theJet,
 	leftovers.clear();
 	if ( verbose_ )cout<<"start while loop"<<endl;
 	
-	while (1) {                                                      // watch out for infinite loop!
+	while (true) {                                                      // watch out for infinite loop!
 		goodBreak = theClusterSequence.has_parents(j,ja,jb);
 		if (!goodBreak){
 			if ( verbose_ )cout<<"bad break. this is one cell. can't decluster anymore."<<endl;

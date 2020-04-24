@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <map>
@@ -27,21 +27,21 @@ class DCCTowerBlock : public DCCFEBlock {
 
     DCCTowerBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack, bool forceToKeepFRdata );
     
-    void updateCollectors();
+    void updateCollectors() override;
 	 
   protected:
 	 
-    int unpackXtalData(unsigned int stripID, unsigned int xtalID);
-    void fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * );
+    int unpackXtalData(unsigned int stripID, unsigned int xtalID) override;
+    void fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * ) override;
 
-    std::auto_ptr<EBDigiCollection>     * digis_;
+    std::unique_ptr<EBDigiCollection>     * digis_;
     
     EBDetId                             * pDetId_;
 
     // to restructure as common collections to DCCSCBlock, to inherit from DCCFEBlock
-    std::auto_ptr<EBDetIdCollection>    * invalidGains_;  
-    std::auto_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;
-    std::auto_ptr<EBDetIdCollection>    * invalidChIds_;
+    std::unique_ptr<EBDetIdCollection>    * invalidGains_;  
+    std::unique_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;
+    std::unique_ptr<EBDetIdCollection>    * invalidChIds_;
 	 
 };
 

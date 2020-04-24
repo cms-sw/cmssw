@@ -8,22 +8,6 @@ ShallowClonePtrCandidate * ShallowClonePtrCandidate::clone() const {
   return new ShallowClonePtrCandidate( *this ); 
 }
 
-ShallowClonePtrCandidate::const_iterator ShallowClonePtrCandidate::begin() const { 
-  return masterClone_->begin(); 
-}
-
-ShallowClonePtrCandidate::const_iterator ShallowClonePtrCandidate::end() const { 
-  return masterClone_->end(); 
-}
-
-Candidate::iterator ShallowClonePtrCandidate::begin() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
-Candidate::iterator ShallowClonePtrCandidate::end() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
 size_t ShallowClonePtrCandidate::numberOfDaughters() const { 
   return masterClone_->numberOfDaughters(); 
 }
@@ -41,7 +25,7 @@ const Candidate * ShallowClonePtrCandidate::mother( size_type i ) const {
 }
 
 Candidate * ShallowClonePtrCandidate::daughter( size_type i ) { 
-  return 0;
+  return nullptr;
 }
 
 bool ShallowClonePtrCandidate::hasMasterClonePtr() const {

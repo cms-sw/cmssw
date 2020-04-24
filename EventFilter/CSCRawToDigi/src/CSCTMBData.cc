@@ -12,20 +12,24 @@
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 #include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
 
+#ifdef LOCAL_UNPACK
 bool CSCTMBData::debug =false;
+#else
+std::atomic<bool> CSCTMBData::debug{false};
+#endif
 
 CSCTMBData::CSCTMBData() 
-  : theOriginalBuffer(0), 
+  : theOriginalBuffer(nullptr), 
     theB0CLine( 0 ),
     theE0FLine( 0 ),
     theTMBHeader(2007, 0x50c3),
     theCLCTData(&theTMBHeader),
     theTMBScopeIsPresent(false), 
-    theTMBScope(0),
+    theTMBScope(nullptr),
     theTMBMiniScopeIsPresent(false), 
-    theTMBMiniScope(0),
+    theTMBMiniScope(nullptr),
     theBlockedCFEBIsPresent(false),
-    theTMBBlockedCFEB(0),
+    theTMBBlockedCFEB(nullptr),
     theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
     size_( 0 ), 
     cWordCnt( 0 ),
@@ -35,17 +39,41 @@ CSCTMBData::CSCTMBData()
 
 }
 
+CSCTMBData::CSCTMBData(int firmwareVersion, int firmwareRevision, int cfebs)
+  : theOriginalBuffer(nullptr),
+    theB0CLine( 0 ),
+    theE0FLine( 0 ),
+    theTMBHeader(firmwareVersion, firmwareRevision),
+    theCLCTData(&theTMBHeader),
+    theTMBScopeIsPresent(false),
+    theTMBScope(nullptr),
+    theTMBMiniScopeIsPresent(false),
+    theTMBMiniScope(nullptr),
+    theBlockedCFEBIsPresent(false),
+    theTMBBlockedCFEB(nullptr),
+    theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), firmwareVersion),
+    size_( 0 ),
+    cWordCnt( 0 ),
+    theRPCDataIsPresent(false)
+{
+
+   theTMBHeader.setNCFEBs(cfebs);
+   theCLCTData = CSCCLCTData(&theTMBHeader);
+   theTMBTrailer = CSCTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), firmwareVersion);
+
+
+}
 
 CSCTMBData::CSCTMBData(unsigned short *buf) 
   : theOriginalBuffer(buf), 
     theTMBHeader(2007, 0x50c3),
     theCLCTData(&theTMBHeader),
     theTMBScopeIsPresent(false), 
-    theTMBScope(0), 
+    theTMBScope(nullptr), 
     theTMBMiniScopeIsPresent(false), 
-    theTMBMiniScope(0), 
+    theTMBMiniScope(nullptr), 
     theBlockedCFEBIsPresent(false),
-    theTMBBlockedCFEB(0),
+    theTMBBlockedCFEB(nullptr),
     theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
     theRPCDataIsPresent(false){
   size_ = UnpackTMB(buf);
@@ -69,21 +97,21 @@ CSCTMBData::CSCTMBData(const CSCTMBData& data):
     theTMBScope = new CSCTMBScope(*(data.theTMBScope));
   }
   else {
-    theTMBScope = 0;
+    theTMBScope = nullptr;
   }
   
   if (theTMBMiniScopeIsPresent) {
     theTMBMiniScope = new CSCTMBMiniScope(*(data.theTMBMiniScope));
   }
   else {
-    theTMBMiniScope = 0;
+    theTMBMiniScope = nullptr;
   }
   
   if (theBlockedCFEBIsPresent) {
      theTMBBlockedCFEB = new CSCTMBBlockedCFEB(*(data.theTMBBlockedCFEB));
   }
   else {
-    theTMBBlockedCFEB = 0;
+    theTMBBlockedCFEB = nullptr;
   }
   
 }
@@ -123,7 +151,7 @@ int CSCTMBData::TMBCRCcalc() {
     theTotalTMBData[i] = std::bitset<16>(theOriginalBuffer[line]);
     ++i;
   }
-  if ( theTotalTMBData.size() > 0 )   {
+  if ( !theTotalTMBData.empty() )   {
     std::bitset<22> CRC=calCRC22(theTotalTMBData);
     LogTrace("CSCTMBData|CSCRawToDigi") << " Test here " << CRC.to_ulong();
     return CRC.to_ulong();
@@ -190,8 +218,9 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   }
 
   int currentPosition = theTMBHeader.sizeInWords();
+  int theFirmwareVersion = theTMBHeader.FirmwareVersion();
 
-  theCLCTData = CSCCLCTData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf+e0bLine+1);
+  theCLCTData = CSCCLCTData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf+e0bLine+1, theFirmwareVersion);
 
   if(!theCLCTData.check())   {
     LogTrace("CSCTMBData|CSCRawToDigi") << "+++ CSCTMBData warning: Bad CLCT data";

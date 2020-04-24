@@ -18,3 +18,17 @@ DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory,PixelTripletNoTipG
 #include "CombinedHitTripletGenerator.h"
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitTripletGenerator, "StandardHitTripletGenerator");
 
+#include "CombinedHitQuadrupletGenerator.h"
+DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitQuadrupletGenerator, "CombinedHitQuadrupletGenerator");
+
+#include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGeneratorFromTripletAndLayers.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGeneratorFromTripletAndLayersFactory.h"
+#include "PixelQuadrupletGenerator.h"
+DEFINE_EDM_PLUGIN(HitQuadrupletGeneratorFromTripletAndLayersFactory, PixelQuadrupletGenerator, "PixelQuadrupletGenerator");
+
+#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletEDProducerT.h"
+using PixelTripletHLTEDProducer = HitTripletEDProducerT<PixelTripletHLTGenerator>;
+DEFINE_FWK_MODULE(PixelTripletHLTEDProducer);
+
+using PixelTripletLargeTipEDProducer = HitTripletEDProducerT<PixelTripletLargeTipGenerator>;
+DEFINE_FWK_MODULE(PixelTripletLargeTipEDProducer);

@@ -2,7 +2,7 @@
 #define FastSimDataFilter_h
 
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include <vector>
@@ -22,15 +22,15 @@ namespace edm {
 namespace cms
 {
 
-class  FastSimDataFilter : public edm::EDFilter
+  class  FastSimDataFilter : public edm::stream::EDFilter <>
 {
 public:  
 
   FastSimDataFilter(const edm::ParameterSet& pset);
 
-  virtual ~FastSimDataFilter();
+  ~FastSimDataFilter() override;
 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   virtual void beginJob();
   virtual void endJob();
    

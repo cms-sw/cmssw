@@ -7,6 +7,8 @@
 POOL object to store LUT Corrections
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorr.h"
 
@@ -16,13 +18,15 @@ class HcalLUTCorrs: public HcalCondObjectContainer<HcalLUTCorr>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalLUTCorrs():HcalCondObjectContainer<HcalLUTCorr>(0) {}
+  HcalLUTCorrs():HcalCondObjectContainer<HcalLUTCorr>(nullptr) {}
 #endif
   HcalLUTCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalLUTCorr>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalLUTCorrs";}
+  std::string myname() const override {return (std::string)"HcalLUTCorrs";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif

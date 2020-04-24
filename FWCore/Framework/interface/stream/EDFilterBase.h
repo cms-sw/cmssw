@@ -30,6 +30,9 @@
 
 // forward declarations
 namespace edm {
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+
   namespace stream {
     class EDFilterAdaptorBase;
     template<typename> class ProducingModuleAdaptorBase;
@@ -45,7 +48,7 @@ namespace edm {
 
 
       EDFilterBase();
-      virtual ~EDFilterBase();
+      ~EDFilterBase() override;
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
@@ -67,6 +70,9 @@ namespace edm {
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream(){}
+
+      virtual void registerThinnedAssociations(ProductRegistry const&,
+                                               ThinnedAssociationsHelper&) { }
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) {
         moduleDescriptionPtr_ = iDesc;

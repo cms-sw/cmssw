@@ -19,6 +19,9 @@
 //
 TestResolution::TestResolution(const edm::ParameterSet& iConfig) :
   theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
+  glbMuonsToken_(mayConsume<reco::MuonCollection>(theMuonLabel_)),
+  saMuonsToken_(mayConsume<reco::TrackCollection>(theMuonLabel_)),
+  tracksToken_(mayConsume<reco::TrackCollection>(theMuonLabel_)),
   theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
   theRootFileName_( iConfig.getUntrackedParameter<std::string>("OutputFileName") )
 {
@@ -75,23 +78,23 @@ void TestResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   if (theMuonType_==1) { // GlobalMuons
     Handle<reco::MuonCollection> glbMuons;
-    iEvent.getByLabel (theMuonLabel_, glbMuons);
+    iEvent.getByToken (glbMuonsToken_, glbMuons);
     muons = fillMuonCollection(*glbMuons);
   }
   else if (theMuonType_==2) { // StandaloneMuons
     Handle<reco::TrackCollection> saMuons;
-    iEvent.getByLabel (theMuonLabel_, saMuons);
+    iEvent.getByToken (saMuonsToken_, saMuons);
     muons = fillMuonCollection(*saMuons);
   }
   else if (theMuonType_==3) { // Tracker tracks
     Handle<reco::TrackCollection> tracks;
-    iEvent.getByLabel (theMuonLabel_, tracks);
+    iEvent.getByToken (tracksToken_, tracks);
     muons = fillMuonCollection(*tracks);
   }
 
   // Loop on the recMuons
   std::vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
-  for ( ; recMuon!=muons.end(); ++recMuon ) {  
+  for ( ; recMuon!=muons.end(); ++recMuon ) {
 
     // Fill the histogram with uncorrected pt values
     sigmaPt_->Fill(resolutionFunction_->sigmaPt(*recMuon, 0), recMuon->pt());

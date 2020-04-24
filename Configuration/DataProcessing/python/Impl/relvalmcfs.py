@@ -14,6 +14,8 @@ import FWCore.ParameterSet.Config as cms
 
 
 class relvalmcfs(Scenario):
+    def __init__(self):
+        Scenario.__init__(self)
     """
     _relvalmcfs_
 
@@ -38,7 +40,7 @@ class relvalmcfs(Scenario):
         options.name = "EDMtoMEConvert"
         options.conditions = globalTag
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         process.source = cms.Source("PoolSource")
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
@@ -50,7 +52,7 @@ class relvalmcfs(Scenario):
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
-        if args.has_key('referenceFile') and args.get('referenceFile', ''):
+        if 'referenceFile' in args and args.get('referenceFile', ''):
             process.DQMStore.referenceFileName = \
                                 cms.untracked.string(args['referenceFile'])
         

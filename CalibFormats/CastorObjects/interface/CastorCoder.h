@@ -14,6 +14,7 @@ class CastorCoder {
 public:
   virtual void adc2fC(const CastorDataFrame& df, CaloSamples& lf) const = 0;
   virtual void fC2adc(const CaloSamples& clf, CastorDataFrame& df, int fCapIdOffset) const = 0;
+  virtual ~CastorCoder() = default;
 };
 
 #endif

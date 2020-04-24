@@ -18,7 +18,7 @@ namespace edm {
 	class HepMCProduct {
 	    public:
 		HepMCProduct() :
-			evt_(0), isVtxGenApplied_(false),
+			evt_(nullptr), isVtxGenApplied_(false),
 			isVtxBoostApplied_(false), isPBoostApplied_(false) {}
 
 		explicit HepMCProduct(HepMC::GenEvent *evt);
@@ -26,9 +26,12 @@ namespace edm {
 
 		void addHepMCData(HepMC::GenEvent *evt);
 
-		void applyVtxGen(HepMC::FourVector *vtxShift) const;
+		void applyVtxGen(HepMC::FourVector const* vtxShift) {
+                  applyVtxGen(*vtxShift);
+                }
+		void applyVtxGen(HepMC::FourVector const& vtxShift);
 
-		void boostToLab(TMatrixD *lorentz, std::string type) const;
+		void boostToLab(TMatrixD const* lorentz, std::string const& type);
 
 		const HepMC::GenEvent &getHepMCData() const;
 
@@ -45,9 +48,9 @@ namespace edm {
 	    private:
 		HepMC::GenEvent	*evt_;
 
-		mutable bool	isVtxGenApplied_ ;
-		mutable bool	isVtxBoostApplied_;
-		mutable bool	isPBoostApplied_;
+		bool	isVtxGenApplied_ ;
+		bool	isVtxBoostApplied_;
+		bool	isPBoostApplied_;
 	
 	};
 

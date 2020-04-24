@@ -28,69 +28,69 @@ class TtSemiLeptonicEvent: public TtEvent {
   /// empty constructor
   TtSemiLeptonicEvent(){};
   /// default destructor
-  virtual ~TtSemiLeptonicEvent(){};
+  ~TtSemiLeptonicEvent() override{};
 
   /// get hadronic top of the given hypothesis
   const reco::Candidate* hadronicDecayTop(const std::string& key, const unsigned& cmb=0) const { return hadronicDecayTop(hypoClassKeyFromString(key), cmb); };
   /// get hadronic top of the given hypothesis
-  const reco::Candidate* hadronicDecayTop(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : eventHypo(key,cmb). daughter(TtSemiLepDaughter::HadTop); };
+  const reco::Candidate* hadronicDecayTop(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : eventHypo(key,cmb). daughter(TtSemiLepDaughter::HadTop); };
   /// get hadronic b of the given hypothesis
   const reco::Candidate* hadronicDecayB(const std::string& key, const unsigned& cmb=0) const { return hadronicDecayB(hypoClassKeyFromString(key), cmb); };
   /// get hadronic b of the given hypothesis
-  const reco::Candidate* hadronicDecayB(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : hadronicDecayTop(key,cmb)->daughter(TtSemiLepDaughter::HadB); };
+  const reco::Candidate* hadronicDecayB(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : hadronicDecayTop(key,cmb)->daughter(TtSemiLepDaughter::HadB); };
   /// get hadronic W of the given hypothesis
   const reco::Candidate* hadronicDecayW(const std::string& key, const unsigned& cmb=0) const { return hadronicDecayW(hypoClassKeyFromString(key), cmb); };
   /// get hadronic W of the given hypothesis
-  const reco::Candidate* hadronicDecayW(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : hadronicDecayTop(key,cmb)->daughter(TtSemiLepDaughter::HadW); };
+  const reco::Candidate* hadronicDecayW(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : hadronicDecayTop(key,cmb)->daughter(TtSemiLepDaughter::HadW); };
   /// get hadronic light quark of the given hypothesis
   const reco::Candidate* hadronicDecayQuark(const std::string& key, const unsigned& cmb=0) const { return hadronicDecayQuark(hypoClassKeyFromString(key), cmb); };
   /// get hadronic light quark of the given hypothesis
-  const reco::Candidate* hadronicDecayQuark(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : hadronicDecayW(key,cmb)->daughter(TtSemiLepDaughter::HadP); };
+  const reco::Candidate* hadronicDecayQuark(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : hadronicDecayW(key,cmb)->daughter(TtSemiLepDaughter::HadP); };
   /// get hadronic light quark of the given hypothesis
   const reco::Candidate* hadronicDecayQuarkBar(const std::string& key, const unsigned& cmb=0) const { return hadronicDecayQuarkBar(hypoClassKeyFromString(key), cmb); };
   /// get hadronic light quark of the given hypothesis
-  const reco::Candidate* hadronicDecayQuarkBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : hadronicDecayW(key,cmb)->daughter(TtSemiLepDaughter::HadQ); };
+  const reco::Candidate* hadronicDecayQuarkBar(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : hadronicDecayW(key,cmb)->daughter(TtSemiLepDaughter::HadQ); };
   /// get leptonic top of the given hypothesis
   const reco::Candidate* leptonicDecayTop(const std::string& key, const unsigned& cmb=0) const { return leptonicDecayTop(hypoClassKeyFromString(key), cmb); };
   /// get leptonic top of the given hypothesis
-  const reco::Candidate* leptonicDecayTop(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : eventHypo(key,cmb). daughter(TtSemiLepDaughter::LepTop); };
+  const reco::Candidate* leptonicDecayTop(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : eventHypo(key,cmb). daughter(TtSemiLepDaughter::LepTop); };
   /// get leptonic b of the given hypothesis
   const reco::Candidate* leptonicDecayB(const std::string& key, const unsigned& cmb=0) const { return leptonicDecayB(hypoClassKeyFromString(key), cmb); };
   /// get leptonic b of the given hypothesis
-  const reco::Candidate* leptonicDecayB(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicDecayTop(key,cmb)->daughter(TtSemiLepDaughter::LepB); };
+  const reco::Candidate* leptonicDecayB(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : leptonicDecayTop(key,cmb)->daughter(TtSemiLepDaughter::LepB); };
   /// get leptonic W of the given hypothesis
   const reco::Candidate* leptonicDecayW(const std::string& key, const unsigned& cmb=0) const { return leptonicDecayW(hypoClassKeyFromString(key), cmb); };
   /// get leptonic W of the given hypothesis
-  const reco::Candidate* leptonicDecayW(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicDecayTop(key,cmb)->daughter(TtSemiLepDaughter::LepW); };
+  const reco::Candidate* leptonicDecayW(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : leptonicDecayTop(key,cmb)->daughter(TtSemiLepDaughter::LepW); };
   /// get leptonic light quark of the given hypothesis
   const reco::Candidate* singleNeutrino(const std::string& key, const unsigned& cmb=0) const { return singleNeutrino(hypoClassKeyFromString(key), cmb); };
   /// get leptonic light quark of the given hypothesis
-  const reco::Candidate* singleNeutrino(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicDecayW(key,cmb)->daughter(TtSemiLepDaughter::Nu); };
+  const reco::Candidate* singleNeutrino(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : leptonicDecayW(key,cmb)->daughter(TtSemiLepDaughter::Nu); };
   /// get leptonic light quark of the given hypothesis
   const reco::Candidate* singleLepton(const std::string& key, const unsigned& cmb=0) const { return singleLepton(hypoClassKeyFromString(key), cmb); };
   /// get leptonic light quark of the given hypothesis
-  const reco::Candidate* singleLepton(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : leptonicDecayW(key,cmb)->daughter(TtSemiLepDaughter::Lep); };
+  const reco::Candidate* singleLepton(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : leptonicDecayW(key,cmb)->daughter(TtSemiLepDaughter::Lep); };
 
   /// get hadronic top of the TtGenEvent
-  const reco::GenParticle* hadronicDecayTop() const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayTop()); };
+  const reco::GenParticle* hadronicDecayTop() const { return (!genEvt_ ? nullptr : this->genEvent()->hadronicDecayTop()); };
   /// get hadronic b of the TtGenEvent
-  const reco::GenParticle* hadronicDecayB() const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayB()); };
+  const reco::GenParticle* hadronicDecayB() const { return (!genEvt_ ? nullptr : this->genEvent()->hadronicDecayB()); };
   /// get hadronic W of the TtGenEvent
-  const reco::GenParticle* hadronicDecayW() const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayW()); };
+  const reco::GenParticle* hadronicDecayW() const { return (!genEvt_ ? nullptr : this->genEvent()->hadronicDecayW()); };
   /// get hadronic light quark of the TtGenEvent
-  const reco::GenParticle* hadronicDecayQuark() const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayQuark()); };
+  const reco::GenParticle* hadronicDecayQuark() const { return (!genEvt_ ? nullptr : this->genEvent()->hadronicDecayQuark()); };
   /// get hadronic light quark of the TtGenEvent
-  const reco::GenParticle* hadronicDecayQuarkBar() const { return (!genEvt_ ? 0 : this->genEvent()->hadronicDecayQuarkBar()); };
+  const reco::GenParticle* hadronicDecayQuarkBar() const { return (!genEvt_ ? nullptr : this->genEvent()->hadronicDecayQuarkBar()); };
   /// get leptonic top of the TtGenEvent
-  const reco::GenParticle* leptonicDecayTop() const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayTop()); };
+  const reco::GenParticle* leptonicDecayTop() const { return (!genEvt_ ? nullptr : this->genEvent()->leptonicDecayTop()); };
   /// get leptonic b of the TtGenEvent
-  const reco::GenParticle* leptonicDecayB() const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayB()); };
+  const reco::GenParticle* leptonicDecayB() const { return (!genEvt_ ? nullptr : this->genEvent()->leptonicDecayB()); };
   /// get leptonic W of the TtGenEvent
-  const reco::GenParticle* leptonicDecayW() const { return (!genEvt_ ? 0 : this->genEvent()->leptonicDecayW()); };
+  const reco::GenParticle* leptonicDecayW() const { return (!genEvt_ ? nullptr : this->genEvent()->leptonicDecayW()); };
   /// get lepton top of the TtGenEvent
-  const reco::GenParticle* singleLepton() const { return (!genEvt_ ? 0 : this->genEvent()->singleLepton());   };
+  const reco::GenParticle* singleLepton() const { return (!genEvt_ ? nullptr : this->genEvent()->singleLepton());   };
   /// get neutrino of the TtGenEvent
-  const reco::GenParticle* singleNeutrino() const { return (!genEvt_ ? 0 : this->genEvent()->singleNeutrino()); };
+  const reco::GenParticle* singleNeutrino() const { return (!genEvt_ ? nullptr : this->genEvent()->singleNeutrino()); };
 
   /// print full content of the structure as formated 
   /// LogInfo to the MessageLogger output for debugging

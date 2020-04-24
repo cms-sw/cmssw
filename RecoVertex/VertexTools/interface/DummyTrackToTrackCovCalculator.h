@@ -13,8 +13,8 @@ class DummyTrackToTrackCovCalculator : public TrackToTrackCovCalculator<N> {
 
 public:
 
-  virtual typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> &) const;
-  virtual DummyTrackToTrackCovCalculator * clone() const;
+  typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> &) const override;
+  DummyTrackToTrackCovCalculator * clone() const override;
 
 };
 

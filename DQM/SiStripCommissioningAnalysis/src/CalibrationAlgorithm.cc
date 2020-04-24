@@ -19,9 +19,9 @@ using namespace sistrip;
 // 
 CalibrationAlgorithm::CalibrationAlgorithm( const edm::ParameterSet & pset, CalibrationAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    deconv_fitter_(0),
-    peak_fitter_(0),
-    cal_(0)
+    deconv_fitter_(nullptr),
+    peak_fitter_(nullptr),
+    cal_(nullptr)
 {
   deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
   deconv_fitter_->FixParameter(0,0);
@@ -261,8 +261,8 @@ TF1* CalibrationAlgorithm::fitPulse( TH1* histo,
 				     float rangeLow, 
 				     float rangeHigh ) 
 {
-  if(!cal_) return 0;
-  if(!histo) return 0;
+  if(!cal_) return nullptr;
+  if(!histo) return nullptr;
   float noise = 4.;
   float N = round(histo->GetMaximum()/125.);
   float error = sqrt(2*N)*noise;

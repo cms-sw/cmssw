@@ -10,10 +10,8 @@ pat::JetSelector<JetType>::JetSelector( const pat::JetSelection& config ) :
 {
 
   if (config_.selectionType=="custom") {
-    CaloJetSelector_ = std::auto_ptr<CaloJetSelector>( 
-                                new CaloJetSelector(config) );
-    //PFJetSelector_ = std::auto_ptr<PFJetSelector>( 
-    //                          new PFJetSelector(config) );
+    CaloJetSelector_ = std::make_unique<CaloJetSelector>(config);
+    //PFJetSelector_ = std::make_unique<PFJetSelector>(config);
   }
 
 }

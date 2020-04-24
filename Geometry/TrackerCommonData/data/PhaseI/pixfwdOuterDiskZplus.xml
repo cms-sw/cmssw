@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="pixfwdOuterDiskZplus.xml" eval="true">
+  <Constant name="OuterRingHalfWidth"   value="[pixfwdSupportRingParameters:OuterDiskOuterRingHalfWidth]"/>
+  <Constant name="OuterRingZ"           value="-[pixfwdDisks:DiskHalfWidth]+[OuterRingHalfWidth]+[pixfwd:FlexCableDiskHalfThickness]*2"/>
+  <Constant name="InnerRingHalfWidth"   value="[pixfwdSupportRingParameters:OuterDiskInnerRingHalfWidth]"/>
+  <Constant name="InnerRingZ"           value="-[pixfwdDisks:DiskHalfWidth]+[InnerRingHalfWidth]+[pixfwd:FlexCableDiskHalfThickness]*2"/>
+</ConstantsSection>
+
+<!-- support ring solids -->
+<!-- each Algorithm creates on composite (union) solid that describes a cut
+     ring according to the given outline. The z_l and z_t arrays describe the 
+     -Z and +Z sides by giving the Z value for each of the values of the Phi
+     array. The z values are only considered relatively, the object will be 
+     centered around the origin and has to be placed using zPos.
+     There are two instances each, for the Core and Skin (CF), which use the
+     same parameters. The parameters are not defined in-place, but names are
+     passed, which are defined in a different file, to avoid duplication.
+--> 
+<Algorithm name="track:DDCutTubsFromPoints">
+  <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+  <String  name="SolidName"        value="PixelForwardOuterDiskOuterRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:C_C_OuterOuterRing"/> 
+  <Numeric name="zPos"             value="[OuterRingZ]"/>
+  <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingRMin]"/>
+  <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingRMax]"/>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_t_Plus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_l_Plus"/>
+</Algorithm>
+<Algorithm name="track:DDCutTubsFromPoints">
+  <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+  <String  name="SolidName"        value="PixelForwardOuterDiskCFOuterRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:FPix_CFSkin_OuterOuterRing"/> 
+  <Numeric name="zPos"             value="[OuterRingZ]"/>
+  <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMin]"/>
+  <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMax]"/>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_t_Plus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_l_Plus"/>
+</Algorithm>
+<Algorithm name="track:DDCutTubsFromPoints">
+  <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+  <String  name="SolidName"        value="PixelForwardOuterDiskInnerRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:C_C_OuterInnerRing"/> 
+  <Numeric name="zPos"             value="[InnerRingZ]"/>
+  <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingRMin]"/>
+  <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingRMax]"/>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_t_Plus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_l_Plus"/>
+</Algorithm>
+<Algorithm name="track:DDCutTubsFromPoints">
+  <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+  <String  name="SolidName"        value="PixelForwardOuterDiskCFInnerRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:FPix_CFSkin_OuterInnerRing"/> 
+  <Numeric name="zPos"             value="[InnerRingZ]"/>
+  <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingCFRMin]"/>
+  <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingCFRMax]"/>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_t_Plus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_l_Plus"/>
+</Algorithm>
+
+
+<!-- Blades -->
+
+<Algorithm name="track:DDPixPhase1FwdDiskAlgo">
+  <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+  <String  name="ChildName"        value="pixfwdbladeOuterZplus:PixelForwardBlade"/> 
+  <Numeric name="StartCopyNo"      value="22"/>
+  <Numeric name="NumberOfBlades"   value="34"/>
+  <Numeric name="BladeAngle"       value="-20*deg"/>
+  <Numeric name="BladeTilt"        value="0*deg"/>
+  <Numeric name="BladeCommonZ"     value="0.825*mm-4*mm"/>
+  <Vector  name="BladeZShift" type="numeric" nEntries="34">
+   -25.381*mm, -22.881*mm, -20.381*mm, -17.881*mm, -15.381*mm, -12.881*mm, -10.381*mm, -7.881*mm,
+   -25.381*mm, -22.881*mm, -20.381*mm, -17.881*mm, -15.381*mm, -12.881*mm, -10.381*mm, -7.881*mm, -3.381*mm,
+   -25.381*mm, -22.881*mm, -20.381*mm, -17.881*mm, -15.381*mm, -12.881*mm, -10.381*mm, -7.881*mm,
+   -25.381*mm, -22.881*mm, -20.381*mm, -17.881*mm, -15.381*mm, -12.881*mm, -10.381*mm, -7.881*mm, -3.381*mm
+  </Vector> 
+  <Numeric name="AnchorRadius"     value="127.819*mm"/>
+  <String  name="RotationName"     value="pixfwdOuterDiskZplus:PixOuter"/>
+  <String  name="FlagString"       value="YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"/>
+</Algorithm>
+
+<SolidSection label="pixfwdOuterDiskZplus.xml">
+ <Tubs name="FlexCableDisk" rMin="[pixfwd:FlexCableDiskRmin]" rMax="[pixfwd:FlexCableDiskRmax]" dz="[pixfwd:FlexCableDiskHalfThickness]" startPhi="0." deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="pixfwdOuterDiskZplus.xml">
+ <LogicalPart name="FlexCableDisk" category="support">
+    <rSolid name="FlexCableDisk"/>
+    <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFlexCable2"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="pixfwdOuterDiskZplus.xml">
+  <PosPart copyNumber="1">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="FlexCableDisk"/>
+    <Translation x="0." y="0." z="-[pixfwdDisks:DiskHalfWidth]+[pixfwd:FlexCableDiskHalfThickness]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="FlexCableDisk"/>
+    <Translation x="0." y="0." z="-[pixfwdDisks:DiskHalfWidth]-[pixfwd:FlexCableDiskHalfThickness]+[OuterRingHalfWidth]*2"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

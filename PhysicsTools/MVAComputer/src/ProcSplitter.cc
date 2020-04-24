@@ -40,7 +40,7 @@ class ProcSplitter : public VarProcessor {
 	unsigned int	count;
 };
 
-static ProcSplitter::Registry registry("ProcSplitter");
+ProcSplitter::Registry registry("ProcSplitter");
 
 ProcSplitter::ProcSplitter(const char *name,
                           const Calibration::ProcSplitter *calib,

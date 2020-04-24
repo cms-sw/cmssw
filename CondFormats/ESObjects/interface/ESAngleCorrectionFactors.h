@@ -4,6 +4,6 @@
 
 typedef float ESAngleCorrectionFactor;
 typedef ESFloatCondObjectContainer ESAngleCorrectionFactorMap;
-typedef ESIntercalibConstantMap ESAngleCorrectionFactors;
+typedef ESAngleCorrectionFactorMap ESAngleCorrectionFactors;
 
 #endif

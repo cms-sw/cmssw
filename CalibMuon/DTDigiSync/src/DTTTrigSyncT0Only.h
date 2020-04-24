@@ -27,32 +27,32 @@ public:
   DTTTrigSyncT0Only(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~DTTTrigSyncT0Only();
+  ~DTTTrigSyncT0Only() override;
 
   // Operations
 
   /// Pass the Event Setup to the algo at each event
-  virtual void setES(const edm::EventSetup& setup);
+  void setES(const edm::EventSetup& setup) override;
 
 
   /// Time (ns) to be subtracted to the digi time,
   /// Parameters are the layer and the wireId to which the
   /// digi is referred and the estimation of
   /// the 3D hit position (globPos)
-  virtual double offset(const DTLayer* layer,
+  double offset(const DTLayer* layer,
 			const DTWireId& wireId,
 			const GlobalPoint& globPos,
 			double& tTrig,
 			double& wirePropCorr,
-			double& tofCorr);
+			double& tofCorr) override;
 
-  virtual double offset(const DTWireId& wireId);
+  double offset(const DTWireId& wireId) override;
 
   /// Time (ns) to be subtracted to the digi time for emulation purposes
   /// Returns just 0 in this implementation of the plugin
-  virtual double emulatorOffset(const DTWireId& wireId,
+  double emulatorOffset(const DTWireId& wireId,
 				double &tTrig,
-				double &t0cell);
+				double &t0cell) override;
 
 
  private:

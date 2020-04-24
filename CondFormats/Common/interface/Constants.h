@@ -15,4 +15,4 @@ namespace cond {
 
 }
 
-#endif CondCommon_Constants_h
+#endif //CondCommon_Constants_h

@@ -2,6 +2,7 @@
 #ifndef TrackCategories_h
 #define TrackCategories_h
 
+#include <ostream>
 #include <vector>
 
 class TrackCategories
@@ -67,7 +68,7 @@ public:
     };
 
     //! Name of the different categories
-    static const char * Names[];
+    static const char * const Names[];
 
     //! Main types associated to the class
     typedef std::vector<bool> Flags;

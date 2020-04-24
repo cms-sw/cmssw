@@ -34,6 +34,7 @@ inline GlobalPoint operator / ( const GlobalPoint & a, const double b )
     return GlobalPoint ( a.x() / b, a.y() / b, a.z() / b );
 }
 
+#ifndef __clang__
 inline GlobalPoint operator * ( const GlobalPoint & a, const double b )
 {
     return GlobalPoint ( a.x() * b, a.y() * b, a.z() * b );
@@ -43,6 +44,7 @@ inline GlobalPoint operator * ( const double b , const GlobalPoint & a )
 {
     return GlobalPoint ( a.x() * b, a.y() * b, a.z() * b );
 }
+#endif
 
 inline unsigned int sum ( unsigned int nr )
 {
@@ -103,7 +105,7 @@ void graphicsDebug ( const std::vector < PointAndDistance > & input )
 
 CrossingPtBasedLinearizationPointFinder::CrossingPtBasedLinearizationPointFinder(
     const ModeFinder3d & algo, const signed int n_pairs ) :
-        useMatrix ( false ) , theNPairs ( n_pairs ), theMatrix ( 0 ),
+        useMatrix ( false ) , theNPairs ( n_pairs ), theMatrix ( nullptr ),
         theAlgo ( algo.clone() )
 {}
 
@@ -173,7 +175,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
 	 } // If sth goes wrong, we just dont add. Who cares?
         }
     }
-    if (! vgp.size() )
+    if (vgp.empty() )
     {
         return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
     }
@@ -198,7 +200,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useFullMatrix(
             vgp.push_back ( v );
         }
     }
-    if (! vgp.size() )
+    if (vgp.empty() )
     {
         return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
     }
@@ -229,9 +231,9 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::find (
 GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
     const std::vector<reco::TransientTrack> & tracks ) const
 {
-    if ( tracks.size() < 2 )
-        throw LinPtException
-        ("CrossingPtBasedLinPtFinder: too few tracks given.");
+        if ( tracks.size() < 2 )
+          throw LinPtException
+          ("CrossingPtBasedLinPtFinder: too few tracks given.");
         std::vector < PointAndDistance > vgp;
         if ( theNPairs == -1 )
         {
@@ -329,7 +331,7 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
                 }
             }
         }
-        if (! vgp.size() )
+        if (vgp.empty() )
         {
             // no crossing points? Fallback to a crossingpoint-less lin pt finder!
             return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );

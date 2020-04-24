@@ -8,9 +8,9 @@
  *
 */
 
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
-#include <DataFormats/MuonData/interface/MuonDigiCollection.h>
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/MuonData/interface/MuonDigiCollection.h"
 
 typedef MuonDigiCollection<CSCDetId, CSCCLCTDigi> CSCCLCTDigiCollection;
 

@@ -7,12 +7,14 @@
 #include "DQMEventInfo.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include <TSystem.h>
 
-#include <stdio.h>
+#include <algorithm>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
+
+#include <boost/algorithm/string/join.hpp>
 
 
 static inline double stampToReal(edm::Timestamp time)
@@ -25,7 +27,7 @@ static inline double stampToReal(const timeval &time)
 DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
 
   struct timeval now;
-  gettimeofday(&now, 0);
+  gettimeofday(&now, nullptr);
 
   parameters_ = ps;
   pEvent_ = 0;
@@ -75,14 +77,19 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
 
   //Static Contents
   processId_= ibooker.bookInt("processID");
-  processId_->Fill(gSystem->GetPid());
+  processId_->Fill(getpid());
   processStartTimeStamp_ = ibooker.bookFloat("processStartTimeStamp");
   processStartTimeStamp_->Fill(currentTime_);
   runStartTimeStamp_ = ibooker.bookFloat("runStartTimeStamp");
   runStartTimeStamp_->Fill(stampToReal(iRun.beginTime()));
-  hostName_= ibooker.bookString("hostName",gSystem->HostName());
+  char hostname[65];
+  gethostname(hostname,64);
+  hostname[64] = 0;
+  hostName_= ibooker.bookString("hostName",hostname);
   processName_= ibooker.bookString("processName",subsystemname_);
-  workingDir_= ibooker.bookString("workingDir",gSystem->pwd());
+  char* pwd = getcwd(nullptr, 0);
+  workingDir_= ibooker.bookString("workingDir",pwd);
+  free(pwd);
   cmsswVer_= ibooker.bookString("CMSSW_Version",edm::getReleaseVersion());
 
   // Folder to be populated by sub-systems' code
@@ -90,16 +97,29 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.setCurrentFolder(subfolder);
 
   //Online static histograms
-  const edm::ParameterSet &sourcePSet = edm::getProcessParameterSet().getParameterSet("@main_input");
-  if (sourcePSet.getParameter<std::string>("@module_type") == "EventStreamHttpReader" ){
+  const edm::ParameterSet &sourcePSet =
+    edm::getProcessParameterSetContainingModule(moduleDescription())
+    .getParameterSet("@main_input");
+
+  if (sourcePSet.getParameter<std::string>("@module_type") == "DQMStreamerReader" ){
     std::string evSelection;
     std::vector<std::string> evSelectionList;
-    const edm::ParameterSet &evSelectionPSet = sourcePSet.getUntrackedParameterSet("SelectEvents");
-    evSelectionList = evSelectionPSet.getParameter<std::vector<std::string> >("SelectEvents");
-    for ( std::vector<std::string>::iterator it = evSelectionList.begin(); it <  evSelectionList.end(); it++ )
-      evSelection += "'"+ *it + "', ";
-
-    evSelection.resize(evSelection.length()-2);
+    std::string delimiter( ", " );
+    evSelectionList = sourcePSet.getUntrackedParameter<std::vector<std::string> >("SelectEvents");
+    // add single quotes inline in the vector of HLT paths:
+    // we do copy assignment, and getUntrackedParameter returns
+    // a by-value copy of the vector of strings 
+    std::for_each( evSelectionList.begin(), evSelectionList.end(),
+                   []( std::string & s ){ std::string squote( "'" );
+                                          s = squote + s + squote;
+                                          }
+                   );
+    evSelection = boost::algorithm::join( evSelectionList, delimiter );
+    // if no HLT paths are specified, no selections are performed:
+    // we mark this with an asterisk.
+    if( evSelection.empty() ) {
+      evSelection = std::string( "'*'" );
+    }
     ibooker.setCurrentFolder(eventInfoFolder_);
     ibooker.bookString("eventSelection",evSelection);
   }
@@ -115,7 +135,7 @@ void DQMEventInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm
 
 void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  eventId_->Fill(int64_t(e.id().event()));
+  eventId_->Fill(e.id().event()); // Handing edm::EventNumber_t to Fill method which will handle further casting
   eventTimeStamp_->Fill(stampToReal(e.time()));
 
   pEvent_++;
@@ -123,7 +143,7 @@ void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
   processEvents_->Fill(pEvent_);
 
   struct timeval now;
-  gettimeofday(&now, 0);
+  gettimeofday(&now, nullptr);
   lastUpdateTime_ = currentTime_;
   currentTime_ = stampToReal(now);
 

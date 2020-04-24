@@ -1,51 +1,39 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
-// Message logger.
+#include <iterator>
+#include <memory>
+#include <ostream>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDFilteredView::DDFilteredView(const DDCompactView & cpv)
- : epv_(cpv)
+class DDCompactView;
+class DDLogicalPart;
+
+DDFilteredView::DDFilteredView(const DDCompactView & cpv, const DDFilter& fltr)
+  : epv_(cpv), filter_(&fltr)
 {
-   parents_.push_back(epv_.geoHistory());
+   parents_.emplace_back(epv_.geoHistory());
 }
-
-
-DDFilteredView::~DDFilteredView()
-{ }
-
 
 const DDLogicalPart & DDFilteredView::logicalPart() const
 {
   return epv_.logicalPart();
 }
 
-
-void DDFilteredView::addFilter(const DDFilter & f, log_op op)
-{
-  criteria_.push_back(&f); 
-  logOps_.push_back(op);
-  //DCOUT('F',"DDQuery::addFilter(): log-op=" << op );
-}
-
-  
 const DDTranslation & DDFilteredView::translation() const
 {
    return epv_.translation();
 }
-
 	 
 const DDRotationMatrix & DDFilteredView::rotation() const		           
 {
    return epv_.rotation();
 }
-
    
 const DDGeoHistory &  DDFilteredView::geoHistory() const
 {
    return epv_.geoHistory();
 }
-
 
 std::vector<const DDsvalues_type * > DDFilteredView::specifics() const
 {
@@ -65,62 +53,51 @@ void  DDFilteredView::mergedSpecificsV(DDsvalues_type & merged) const
 
 DDsvalues_type DDFilteredView::mergedSpecifics() const
 {
-   DDsvalues_type merged;epv_.mergedSpecificsV(merged);
+  DDsvalues_type merged;
+  epv_.mergedSpecificsV(merged);
   return merged;
 }
-
 
 int DDFilteredView::copyno() const
 {
   return epv_.copyno();
 }
 
-
 const DDGeoHistory & DDFilteredView::scope() const
 {
   return epv_.scope();
 }
-
 
 bool DDFilteredView::setScope(const DDGeoHistory & hist)
 {
   bool result = epv_.setScope(hist,0);
   if (result) {
     parents_.clear();
-    parents_.push_back(hist);
+    parents_.emplace_back(hist);
   }  
   return result;
 }  
-
 
 void DDFilteredView::clearScope()
 {
    epv_.clearScope();
    parents_.clear();
-   parents_.push_back(epv_.geoHistory());
+   parents_.emplace_back(epv_.geoHistory());
 }
-
 
 bool DDFilteredView::next()
 {
    bool result = false;
    int i=0;
-   //epv_.scope_.clear();
-   //DCOUT('F', "DDFilteredView::next(): scope of ExpandedView = " << epv_.scope_ );
    while(epv_.next()) {
-     //DCOUT('F', " node " << i << " " << epv_.logicalPart().ddname() );
      ++i;
-     //DCOUT('F', "DDFilteredView::next() at " << epv_.geoHistory().back() );
      if ( filter() ) {
        result = true;
-       //DCOUT('F', "DDFilteredView::next(): filter()==true at " << epv_.geoHistory() );
        break;
      }
    }
-   //DCOUT('F', "DDFilteredView::next(): just iterated over " << i << " nodes."); 
    return result;
 }
-
 
 /**
  Algorithm:
@@ -156,12 +133,11 @@ bool DDFilteredView::firstChild()
    }
    
    if (result) {
-     parents_.push_back(epv_.geoHistory());
+     parents_.emplace_back(epv_.geoHistory());
    }
      
    return result;
 }
-
 
 /**
   Algorithm:
@@ -176,8 +152,6 @@ bool DDFilteredView::nextSibling()
   //      B is the firstChild matching the filter in the subtrees of A's siblings
   bool result = false;
   DDGeoHistory savedPos = epv_.geoHistory();
-  
-  //DDGeoHistory::size_type level = parents_.back().size();
   
   bool flag = true;
   //bool shuffleParent = false;
@@ -210,7 +184,6 @@ bool DDFilteredView::nextSibling()
   return result;
 }
 
-
 bool DDFilteredView::parent()
 {
    bool result = false;
@@ -235,55 +208,27 @@ bool DDFilteredView::parent()
    return result;
 }
 
-
 void DDFilteredView::reset()
 {
-  //while (epv_.parent())
-  //  ;
   epv_.reset();
   parents_.clear();
-  parents_.push_back(epv_.geoHistory());          
+  parents_.emplace_back(epv_.geoHistory());          
 }
-
 
 bool DDFilteredView::filter()
 {
-  bool result = true;
-  //DCOUT('Q', "Filter: " << epv_.history_);
-  criteria_type::const_iterator it = criteria_.begin();
-  logops_type::const_iterator logOpIt = logOps_.begin();
-  // loop over all user-supplied criteria (==filters)
-  for (; it != criteria_.end(); ++it, ++logOpIt) {
-    // avoid useless evaluations
-    if ( (   result &&(*logOpIt)==OR ) ||
-	 ( (!result)&&(*logOpIt)==AND) ) continue; 
-    
-    bool locres = (*it)->accept(epv_);
-    // need correction DCOUT('F', " Filter(" << criteria_.end()-it << ") accepted: " << epv_.geoHistory().back());
-    
-    // now do the logical-operations on the results encountered so far:
-    if (*logOpIt==AND) { // AND
-      result &= locres; 
-    }
-    else { // OR
-      result |= locres;  
-    }
-  } // <-- loop over filters     
-  return result;
+  return filter_->accept(epv_) ;
 }
-
 
 DDFilteredView::nav_type DDFilteredView::navPos() const
 {
   return epv_.navPos();
 }
 
-
 DDFilteredView::nav_type DDFilteredView::copyNumbers() const
 {
   return epv_.copyNumbers();
 }
-
 
 bool DDFilteredView::goTo(const DDFilteredView::nav_type & /*n*/)
 {
@@ -293,17 +238,15 @@ bool DDFilteredView::goTo(const DDFilteredView::nav_type & /*n*/)
  return result;
 }
 
-
 void DDFilteredView::print() {
   edm::LogInfo("DDFliteredView") << "FilteredView Status" << std::endl
        << "-------------------" << std::endl
        << "scope = " << epv_.scope_ << std::endl
        << "parents:" << std::endl;
-  for (unsigned int i=0; i<parents_.size(); ++i)
-    edm::LogInfo("DDFliteredView") << "  " << parents_[i] << std::endl;
+  for (const auto & parent : parents_)
+    edm::LogInfo("DDFliteredView") << "  " << parent << std::endl;
     
 }
-
 
 const std::vector<DDGeoHistory> & DDFilteredView::history() const
 {

@@ -1,7 +1,5 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
 
 #ifdef COUNT_HITS
 #include<cstdio>
@@ -21,22 +19,3 @@ void countTTRH(TrackingRecHit::Type type) {
 }
 #endif
 
-
-const GeomDetUnit * TransientTrackingRecHit::detUnit() const
-{
-  return dynamic_cast<const GeomDetUnit*>(det());
-}
-
-
-
-
-TransientTrackingRecHit::ConstRecHitContainer TransientTrackingRecHit::transientHits() const 
-{
-  // no components by default
-  return ConstRecHitContainer();
-}
-
-TransientTrackingRecHit::RecHitPointer 
-TransientTrackingRecHit::clone( const TrajectoryStateOnSurface&) const {
-  return RecHitPointer(const_cast<TransientTrackingRecHit*>(this));
-}

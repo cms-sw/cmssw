@@ -249,7 +249,7 @@ class OpticalObject
   bool eq2ang( double ang1, double ang2 );
   double approxTo0( double val );
   double addPii( double val );
-  int checkMatrixEquations( double angleX, double angleY, double angleZ, CLHEP::HepRotation* rot = 0);
+  int checkMatrixEquations( double angleX, double angleY, double angleZ, CLHEP::HepRotation* rot = nullptr);
 
   //-  CLHEP::Hep3Vector GetAxisForDisplacement( const XYZcoor coor );
   void setGlobalCoordinates();

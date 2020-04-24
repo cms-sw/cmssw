@@ -1,11 +1,10 @@
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 
-#define private public
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/Common/interface/DataFrame.h"
 #include "DataFormats/Common/interface/DataFrameContainer.h"
-#undef private
+
 #include<vector>
 #include<algorithm>
 #include<boost/function.hpp>
@@ -151,7 +150,7 @@ namespace {
   }
   void verifyEndcapId(edm::DataFrame::id_type id) {
     try {
-      EEDetId detid(DetId(id)); // detid(id) does not throw
+      EEDetId detid{DetId(id)}; // detid(id) does not throw
     } catch(...) {
       bool NotEndcapID=false;
       CPPUNIT_ASSERT(NotEndcapID);

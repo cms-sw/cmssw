@@ -26,7 +26,7 @@ qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial tem
 pyquenParameters  = cms.PSet(doIsospin = cms.bool(True),
                              angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum :
                              embeddingMode = cms.bool(False),
-                             backgroundLabel = cms.InputTag("generator") ## ineffective in no mixing
+                             backgroundLabel = cms.InputTag("generator","unsmeared") ## ineffective in no mixing
                              )
 
 hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),

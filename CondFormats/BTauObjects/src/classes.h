@@ -1,9 +1,5 @@
-#include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
-#include "CondFormats/BTauObjects/interface/TrackProbabilityCategoryData.h"
-#include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
-#include "CondFormats/BTauObjects/interface/CombinedSVCategoryData.h"
-#include "CondFormats/BTauObjects/interface/CombinedSVCalibration.h"
-#include "CondFormats/BTauObjects/interface/CombinedTauTagCalibration.h"
+#include "CondFormats/BTauObjects/src/headers.h"
+
 
 
 namespace CondFormats_BTauObjects {
@@ -27,5 +23,10 @@ namespace CondFormats_BTauObjects {
     CombinedSVCalibration::Entry cs3;
     std::vector<CombinedSVCalibration::Entry> cs4;
 
+    BTagEntry bte1;
+    BTagEntry::Parameters bte_p1;
+    std::vector<BTagEntry> v_bte1;
+    std::map<std::string, std::vector<BTagEntry> > mv_bte1;
+    BTagCalibration btc1;
   };
 }

@@ -8,7 +8,7 @@
 // Description:
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -28,14 +28,14 @@ namespace edm
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-class GsfElectronCoreBaseProducer : public edm::EDProducer
+class GsfElectronCoreBaseProducer : public edm::stream::EDProducer<>
  {
   public:
 
     static void fillDescription( edm::ParameterSetDescription & ) ;
 
     explicit GsfElectronCoreBaseProducer( const edm::ParameterSet & conf ) ;
-    virtual ~GsfElectronCoreBaseProducer() ;
+    ~GsfElectronCoreBaseProducer() override ;
 
 
   protected:

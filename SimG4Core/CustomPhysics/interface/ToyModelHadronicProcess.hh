@@ -4,11 +4,11 @@
 #include "G4VDiscreteProcess.hh"
 
 class HadronicProcessHelper;
+class G4FermiPhaseSpaceDecay;
 class HistoHelper;
 class TProfile;
 class TH1D;
 class TH2D;
-
 
 class ToyModelHadronicProcess : public G4VDiscreteProcess
 {
@@ -16,11 +16,11 @@ public:
   
   ToyModelHadronicProcess(HadronicProcessHelper * aHelper, const G4String& processName = "ToyModelHadronicProcess");
     
-  virtual ~ToyModelHadronicProcess(){};
+  ~ToyModelHadronicProcess() override{};
   
-  G4bool IsApplicable(const G4ParticleDefinition& aP);
+  G4bool IsApplicable(const G4ParticleDefinition& aP) override;
   
-  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
+  G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) override;
  
   void setVerbosity(int level) { m_verboseLevel = level; }
 private:    
@@ -29,18 +29,13 @@ private:
 					       const G4Element *anElement, 
 					       G4double aTemp );
   
-  G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*);
+  G4double GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*) override;
   
-
-  const G4DynamicParticle* FindRhadron(G4ParticleChange*);
-
   int m_verboseLevel;
   HadronicProcessHelper* m_helper;
+  G4FermiPhaseSpaceDecay* m_decay;
   G4ParticleChange m_particleChange;
   bool m_detachCloud;
-  
-
-
 };
 
 #endif

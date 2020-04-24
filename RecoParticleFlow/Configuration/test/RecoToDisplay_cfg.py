@@ -19,10 +19,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(    
-    #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/2AAA5F86-8D57-E111-B6E8-003048678B84.root',
-    #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/38D32839-8A57-E111-849D-0026189438E4.root'
-    #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_6_1_0/SingleGammaPt300ExtRelVal610/GEN-SIM-RECO/START61_V8_NoPuCustomEvC-v1/00000/00110DD9-9390-E211-88AB-5404A63886E6.root'
-    '/store/relval/CMSSW_7_0_0_pre5/RelValSingleGammaPt35/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/00FB34CE-D32F-E311-8968-002354EF3BDE.root'
+    '/store/relval/CMSSW_7_1_0_pre5/RelValTTbar_13/GEN-SIM-RECO/PU25ns_POSTLS171_V1-v2/00000/1A198FA1-B3BC-E311-963F-02163E00CD6B.root'
     ),
     eventsToProcess = cms.untracked.VEventRange(),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),

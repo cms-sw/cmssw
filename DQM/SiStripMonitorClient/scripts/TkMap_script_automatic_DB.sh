@@ -1,18 +1,25 @@
 #!/bin/bash
 
+curdir="$(pwd)"
+echo ${curdir}
+
 export PATH=/afs/cern.ch/cms/common:${PATH}
 if [[ "$#" == "0" ]]; then
     echo "usage: 'TkMap_script_automatic.sh Cosmics|MinimumBias|StreamExpress|StreamExpressCosmics runNumber1 runNumber2...'";
     exit 1;
 fi
 
-export WORKINGDIR=${CMSSW_BASE}/src
-#export WORKINGDIR=/afs/cern.ch/user/c/cctrack/scratch0/TKMap/AndreaTests
+FORCE=0
+echo $2
+if [ "${2}" == "0" ]; then
+    FORCE=0
+else
+    if [ "${2}" == "f" ]; then
+        FORCE=1
+    fi
+fi
 
-#echo " Moving to CMSSW release"
-#cd /afs/cern.ch/user/c/cctrack/scratch0/TKMap/CMSSW_4_2_3/src
-#export SCRAM_ARCH=slc5_amd64_gcc434
-#eval `/afs/cern.ch/cms/common/scram runtime -sh`
+export WORKINGDIR=${CMSSW_BASE}/src
 
 cd ${WORKINGDIR}
 
@@ -22,27 +29,61 @@ DataOflineDir=''
 for Run_numb in $@;
 do
 
+    if [ $Run_numb -gt 284500 ]; then
+
+        DataLocalDir='Data2017'
+        DataOfflineDir='Run2017'
+    else
+
+
     if [ "$Run_numb" == "$1" ]; then continue; fi
 
-    if [ $Run_numb -le 209634 ]; then
-	DataLocalDir='Data2012'
-	DataOfflineDir='Run2012'
-    fi
+##2016 data taking period run > 271024
+    if [ $Run_numb -gt 271024 ]; then
 
-    #2013 HI run
-    if [ $Run_numb -gt 209634 -a $Run_numb -lt 211658 ]; then
-	DataLocalDir='Data2013'
-	DataOfflineDir='HIRun2013'
-    fi
-    
+        DataLocalDir='Data2016'
+        DataOfflineDir='Run2016'
+    else
+
+#2016 - Commissioning period                                                                                                                               
+    if [ $Run_numb -gt 264200 ]; then
+
+        DataLocalDir='Data2016'
+        DataOfflineDir='Commissioning2016'
+    else
+
+    #Run2015A
+    if [ $Run_numb -gt 246907 ]; then
+        DataLocalDir='Data2015'
+        DataOfflineDir='Run2015'
+    else
+
+    #2015 Commissioning period (since January)
+    if [ $Run_numb -gt 232881 ]; then
+	DataLocalDir='Data2015'
+	DataOfflineDir='Commissioning2015'
+    else
     #2013 pp run (2.76 GeV)
-    if [ $Run_numb -gt 211658 ]; then
-	DataLocalDir='Data2013'
-	DataOfflineDir='Run2013'
+	if [ $Run_numb -gt 211658 ]; then
+	    DataLocalDir='Data2013'
+	    DataOfflineDir='Run2013'
+	else
+    #2013 HI run
+	    if [ $Run_numb -gt 209634 ]; then
+		DataLocalDir='Data2013'
+		DataOfflineDir='HIRun2013'
+	    else
+		if [ $Run_numb -gt 190450 ]; then
+		    DataLocalDir='Data2012'
+		    DataOfflineDir='Run2012'
+		fi
+	    fi
+	fi
     fi
-
-# copy of the file
-
+    fi
+    fi
+    fi
+    fi
     #loop over datasets
     #if Cosmics, do StreamExpressCosmics as well
 
@@ -62,22 +103,40 @@ do
 
       nnn=`echo $Run_numb | awk '{print substr($0,0,4)}'` 
 
+      echo 'Directory to fetch the DQM file from: https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'${DataOfflineDir}'/'$thisDataset'/000'${nnn}'xx/'
+  
     curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'${DataOfflineDir}'/'$thisDataset'/000'${nnn}'xx/' > index.html
-    dqmFileNames=`cat index.html | grep ${Run_numb} | grep "_DQM.root" | egrep "Prompt|Express" | sed 's/.*>\(.*\)<\/a.*/\1/' `
+    dqmFileNames=`cat index.html | grep ${Run_numb} | egrep "_DQM.root|_DQMIO.root" | egrep "Prompt|Express|22Jan2013" | sed 's/.*>\(.*\)<\/a.*/\1/' `
     dqmFileName=`expr "$dqmFileNames" : '\(DQM[A-Za-z0-9_/.\-]*root\)'`
     echo ' dqmFileNames = '$dqmFileNames
     echo ' dqmFileName = ['$dqmFileName']'
     curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/$DataOfflineDir/$thisDataset/000${nnn}xx/${dqmFileName} > /tmp/${dqmFileName}
     checkFile=`ls /tmp/${dqmFileName} | grep ${Run_numb}`
 
-##check if the full run is completely saved (Info/Run summary/ProvInfo/ runIsComplete flag == 1? 
+##check if the full run is fully processed in GUI (Info/Run summary/ProvInfo/ runIsComplete flag == 1? 
 ##if not, throw a warning
 
     file_path="/tmp/"
 
-#    check_runcomplete $Run_numb  ${1}
-    check_runcomplete ${file_path}/$dqmFileName
-    #if [ $? -ne  0 ]; then continue; fi
+    echo "FORCE is " ${FORCE}
+    ## check if run is complete - LG
+    echo "get the run status from DQMFile"
+    runStatus=-1
+    runStatus="$(${pathTools}getRunStatusFromDQMFile.py ${file_path}/$dqmFileName $Run_numb runIsComplete | wc -l)"
+    if [[ ${runStatus} == 0 ]] 
+	then 
+	echo ${Run_numb} >> ${curdir}/runsNotComplete_tmp.txt
+        if [ ${FORCE} == 0 ] 
+	then 
+	    continue; 
+	fi
+    fi
+    ## LG end
+
+    if [ $FORCE == 0 ]; then
+	check_runcomplete ${file_path}/$dqmFileName
+	if [ $? -ne 0 ]; then continue; fi
+    fi
 
     echo Process ${file_path}/$dqmFileName
 
@@ -107,10 +166,16 @@ do
     rm -f *.log
     rm -f *.txt
     rm -f *.html
+    rm -f *.root
+
+
+    cp ${WORKINGDIR}/DQM/SiStripMonitorClient/scripts/DeadROCCounter.py .
+    cp ${WORKINGDIR}/DQM/SiStripMonitorClient/scripts/DeadROCCounter_Phase1.py .
 
 # Determine the GlobalTag name used to process the data and the DQM
 
     GLOBALTAG=`getGTfromDQMFile.py ${file_path}/$dqmFileName $Run_numb globalTag_Step1`
+    
     if [[ "${GLOBALTAG}" == "" ]]
         then
         echo " No GlobalTag found: trying from DAS.... "
@@ -121,19 +186,23 @@ do
         echo " No GlobalTag found: skipping this run.... "
         continue
     fi
-    echo "The GlobalTag is $GLOBALTAG"
+
+#Temporary fix to remove hidden ASCII characters
+    GLOBALTAG=`echo $GLOBALTAG | cut -c 9-${#GLOBALTAG}`
+#    GLOBALTAG=`sed -i 's/[\d128-\d255]//g' <<< "${GLOBALTAG}"`
+#    GLOBALTAG=`echo $GLOBALTAG | sed 's/[\d128-\d255]//'`
+#    echo `expr length $GLOBALTAG`
 
     echo " Creating the TrackerMap.... "
 
+    detIdInfoFileName=`echo "file://TkDetIdInfo_Run${Run_numb}_${thisDataset}.root"`
 
-    cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName  # update GlobalTag
+    #cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName  # update GlobalTag
+    cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName  detIdInfoFile=${detIdInfoFileName} # update GlobalTag
 
 # rename bad module list file
 
      mv QTBadModules.log QualityTest_run${Run_numb}.txt
-#    mv *.png $Run_numb/$thisDataset
-#    mv *.xml $Run_numb/$thisDataset
-#    mv PCLBadComponents.log $Run_numb/$thisDataset
 
     if [ $thisDataset == "Cosmics" ]; then  # should I add StreamExpressCosmics too
 	cat ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/index_template_TKMap_cosmics.html | sed -e "s@RunNumber@$Run_numb@g" > index.html
@@ -151,6 +220,17 @@ do
     echo " Creating the list of bad modules "
     
     listbadmodule ${file_path}/$dqmFileName PCLBadComponents.log
+   if [ "$thisDataset" != "StreamExpress" ] ; then
+       sefile=QualityTest_run${Run_numb}.txt
+
+       if [ "$thisDataset" == "Cosmics" ]; then
+           python ../../DQM/SiStripMonitorClient/scripts/findBadModT9.py -p $sefile -s /data/users/event_display/${DataLocalDir}/Cosmics/${nnn}/${Run_numb}/StreamExpressCosmics/${sefile}
+       else
+
+           python ../../DQM/SiStripMonitorClient/scripts/findBadModT9.py -p $sefile -s /data/users/event_display/${DataLocalDir}/Beam/${nnn}/${Run_numb}/StreamExpress/${sefile}
+
+       fi
+   fi
 
 #    mv QualityTest*txt $Run_numb/$thisDataset
 
@@ -163,7 +243,7 @@ do
     fi
 
 ## Producing the PrimaryVertex/BeamSpot quality test by LS..
-    if [ $thisDataset == "MinimumBias" -o $thisDataset == "Jet" ]; then	
+    if [ "$thisDataset" != "Cosmics" ]  &&  [ "$thisDataset" != "StreamExpress" ]  &&  [ "$thisDataset" != "StreamExpressCosmics" ]; then
 	echo " Creating the BeamSpot Calibration certification summary:"
 
 	lsbs_cert  ${file_path}/$dqmFileName
@@ -179,7 +259,6 @@ do
 	echo " Creating the Module Status Difference summary:"
 
 #	modulediff $Run_numb ${1}
-
 #	./modulediff_summary $Run_numb
 #	mv ModuleDifference_${Run_numb}.txt $Run_numb/$thisDataset
     fi
@@ -188,24 +267,40 @@ do
     if [ $thisDataset == "Cosmics" -o $thisDataset == "StreamExpressCosmics" ]; then dest="Cosmics"; fi
 
 # overwrite destination for tests
+# dest=FinalTest
 
-#    dest=FinalTest
+## create merged list of BadComponent from (PCL, RunInfo and FED Errors)
+    cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/mergeBadChannel_Template_cfg.py globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName
+    mv MergedBadComponents.log MergedBadComponents_run${Run_numb}.txt
 
-#    ssh cmstacuser@cmstac05 "mkdir -p /storage/data2/SiStrip/event_display/Data2011/${dest}/${nnn}/${Run_numb} 2> /dev/null"
-    mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 2> /dev/null
-     rm -f *.xml
-     rm -f *svg
+    rm -f *.xml
+    rm -f *svg
 
-#    scp -r ${Run_numb}/$thisDataset cmstacuser@cmstac05:/storage/data2/SiStrip/event_display/Data2011/${dest}/${nnn}/${Run_numb}/
+    ssh cctrack@vocms061 "mkdir -p /data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest} 2> /dev/null"
+    scp *.root cctrack@vocms061:/data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest}
+    rm *.root
+
+    echo "counting dead pixel ROCs" 
+    echo "DataLocalDir = ${DataLocalDir}"
+    if [[ $DataLocalDir == "Data2016" || $DataLocalDir == "Data2015" || $DataLocalDir == "Data2013" || $DataLocalDir == "Data2016" ]]; then 
+       ./DeadROCCounter.py ${file_path}/$dqmFileName
+    else 
+       ./DeadROCCounter_Phase1.py ${file_path}/$dqmFileName
+    fi
+    rm -f DeadROCCounter.py
+    rm -f DeadROCCounter_Phase1.py
+
+#    mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset #2> /dev/null
 #    cp -r ${Run_numb}/$thisDataset /data/users/event_display/Data2011/${dest}/${nnn}/${Run_numb}/
-     ssh cctrack@vocms01 "mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 2> /dev/null"
-#     scp -r ${Run_numb}/$thisDataset cctrack@vocms01:/data/users/event_display/Data2012/${dest}/${nnn}/${Run_numb}/
-     scp -r * cctrack@vocms01:/data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset
+#    cp -r ${Run_numb}/$thisDataset /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 
+    ssh cctrack@vocms061 "mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 2> /dev/null"
+    scp -r * cctrack@vocms061:/data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset
 
      rm ${file_path}/$dqmFileName
 
      cd ${WORKINGDIR}    
      rm -rf $Run_numb
+     rm -rf index.html
 
 #done with loop over thisDataset
 done

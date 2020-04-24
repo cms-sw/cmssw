@@ -12,11 +12,7 @@
 #include <boost/foreach.hpp>
 #include <cassert>
 
-#define private public
-#define protected public
 #include "CalibFormats/SiStripObjects/interface/SiStripDelay.h"
-#undef private
-#undef protected
 
 #ifndef TestSiStripDelay_cc
 #define TestSiStripDelay_cc

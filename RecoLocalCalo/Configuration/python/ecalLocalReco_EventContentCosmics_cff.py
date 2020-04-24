@@ -9,7 +9,9 @@ ecalLocalRecoFEVT = cms.PSet(
         'keep *_ecalFixedAlphaBetaFitUncalibRecHit_*_*', 
         'keep *_ecalPreshowerRecHit_*_*', 
         'keep *_ecalRecHit_*_*',
-        'keep ESDataFramesSorted_ecalPreshowerDigis_*_*'
+        'keep ESDataFramesSorted_ecalPreshowerDigis_*_*',
+        'keep EBSrFlagsSorted_ecalDigis__*',
+        'keep EESrFlagsSorted_ecalDigis__*'
         )
 )
 # RECO content
@@ -19,7 +21,9 @@ ecalLocalRecoRECO = cms.PSet(
         'keep *_ecalPreshowerRecHit_*_*', 
         'keep *_ecalRecHit_*_*',
         'keep *_ecalCompactTrigPrim_*_*',
-        'keep ESDataFramesSorted_ecalPreshowerDigis_*_*'
+        'keep ESDataFramesSorted_ecalPreshowerDigis_*_*',
+        'keep EBSrFlagsSorted_ecalDigis__*',
+        'keep EESrFlagsSorted_ecalDigis__*'
         )
 )
 # AOD content

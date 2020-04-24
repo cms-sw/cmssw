@@ -4,6 +4,10 @@
 // Symmetric matrix
 //
 #include "Rtypes.h"
+
+#define SMATRIX_USE_CONSTEXPR
+
+
 #include "Math/SMatrix.h"
 #include "Math/BinaryOperators.h"
 

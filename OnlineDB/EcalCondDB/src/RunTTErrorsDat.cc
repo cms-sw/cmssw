@@ -28,7 +28,7 @@ RunTTErrorsDat::~RunTTErrorsDat()
 
 
 void RunTTErrorsDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -47,7 +47,7 @@ void RunTTErrorsDat::prepareWrite()
 
 
 void RunTTErrorsDat::writeDB(const EcalLogicID* ecid, const RunTTErrorsDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -61,7 +61,7 @@ void RunTTErrorsDat::writeDB(const EcalLogicID* ecid, const RunTTErrorsDat* item
   try {
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
-    m_writeStmt->setString(3, ( boost::lexical_cast<std::string>(item->getErrorBits()) ).c_str());
+    m_writeStmt->setString(3, ( std::to_string(item->getErrorBits()) ).c_str());
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
     throw(std::runtime_error("RunTTErrorsDat::writeDB():  "+e.getMessage()));
@@ -71,7 +71,7 @@ void RunTTErrorsDat::writeDB(const EcalLogicID* ecid, const RunTTErrorsDat* item
 
 
 void RunTTErrorsDat::fetchData(map< EcalLogicID, RunTTErrorsDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

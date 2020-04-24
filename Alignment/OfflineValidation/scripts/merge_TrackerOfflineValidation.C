@@ -26,7 +26,7 @@ you can get by these lines (add them to your rootlogon.C):
 if (gSystem->Getenv("CMSSW_RELEASE_BASE") != '\0') {
   printf("\nLoading CMSSW FWLite...\n");
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 }
 
 */
@@ -60,10 +60,10 @@ float getMedian(const TH1 *histo);
 //////////////////////////////////////////////////////////////////////////
 // master method
 //////////////////////////////////////////////////////////////////////////
-void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile = "") {
-//void merge_TrackerOfflineValidation(const char *filesSeparatedByKommaOrEmpty = "") {
+int hadd(const char *filesSeparatedByCommaOrEmpty = "", const char * outputFile = "") {
+//void merge_TrackerOfflineValidation(const char *filesSeparatedByCommaOrEmpty = "") {
 
-  TString fileNames(filesSeparatedByKommaOrEmpty);
+  TString fileNames(filesSeparatedByCommaOrEmpty);
   TObjArray *names = 0;
 
   if (fileNames.Length() == 0) {
@@ -72,7 +72,7 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
     Int_t nEvt = 0;
     //get file name
     std::cout<<"Type in general file name (ending is added automatically)."<<std::endl;
-    std::cout<<"i.e. Validation_CRUZET_data as name, code adds 1,2,3 + .root"<<std::endl;
+    std::cout<<"i.e. Validation_CRUZET_data_ as name, code adds 1,2,3 + .root"<<std::endl;
     std::cin>>inputFileName;
     
     std::cout << "Type number of files to merge." << std::endl;
@@ -85,7 +85,7 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
       names->Add(new TObjString((fileName += i) += ".root"));
     }
   } else {
-    // decode file name from komma separated list
+    // decode file name from comma separated list
     names = fileNames.Tokenize(","); // is already owner
   }
 
@@ -109,7 +109,7 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
     } else {
       cout << "File " << names->At(iFile)->GetName() << " does not exist!" << endl;
       delete names; names = 0;
-      return;
+      return 1;
     }
   }
   delete names;
@@ -117,10 +117,9 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
   TString outputFileString;
 
   if (strlen(outputFile)!=0) 
-    outputFileString = TString("$OUTPUTDIR/")+ TString(outputFile);
+    outputFileString = TString(outputFile);
   else
-    outputFileString = "$OUTPUTDIR/merge_output.root";
-  
+    outputFileString = "merge_output.root";
   TFile *Target = TFile::Open( outputFileString, "RECREATE" );
   MergeRootfile( Target, FileList);
   std::cout << "Finished merging of histograms." << std::endl;
@@ -162,10 +161,12 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
   // The abort() command is ugly, but much quicker than the clean return()
   // Use of return() can take 90 minutes, while abort() takes 10 minutes
   // (merging 20 jobs with 1M events in total)
-  abort();
+  // BUT abort creates an error signal and incorrect functioning
+  // at higher level
+  // abort();
 
   std::cout << "Now returning from merge_TrackerOfflineValidation.C" << std::endl;
-  return;
+  return 0;
 } 
 
 /////////////////////////////////////////////////////////////////////////
@@ -173,9 +174,9 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
 /////////////////////////////////////////////////////////////////////////
 void MergeRootfile( TDirectory *target, TList *sourcelist) {
 
- 
-  TString path( (char*)strstr( target->GetPath(), ":" ) );
-  path.Remove( 0, 2 );
+  cout << target->GetPath() << endl;
+  TString path( (char*)strstr( target->GetPath(), ".root:" ) );
+  path.Remove( 0, 7 );
   //  TString tmp;
   TFile *first_source = (TFile*)sourcelist->First();
   first_source->cd( path );

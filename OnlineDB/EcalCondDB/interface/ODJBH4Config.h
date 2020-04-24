@@ -46,12 +46,12 @@ class ODJBH4Config : public IODConfig {
 
 
  private:
-  void prepareWrite()  throw(std::runtime_error);
-  void writeDB()       throw(std::runtime_error);
+  void prepareWrite()  noexcept(false);
+  void writeDB()       noexcept(false);
   void clear();
-  void fetchData(ODJBH4Config * result)     throw(std::runtime_error);
-  int fetchID()  throw(std::runtime_error);
-  int fetchNextId() throw(std::runtime_error);
+  void fetchData(ODJBH4Config * result)     noexcept(false);
+  int fetchID()  noexcept(false);
+  int fetchNextId() noexcept(false);
 
 
   // User data

@@ -38,7 +38,7 @@ class EZMgrVL
 	 }
 	 for( size_type  i ( 0 ) ; i != size ; ++i )
 	 {
-	    m_vec.push_back( t ) ;
+	    m_vec.emplace_back( t ) ;
 	 }
 	 return ( m_vec.end() - size )  ;
       }

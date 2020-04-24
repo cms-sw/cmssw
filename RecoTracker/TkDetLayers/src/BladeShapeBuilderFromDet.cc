@@ -63,7 +63,7 @@ namespace {
     float rmed = (rmin+rmax)/2.;
     if ( phiWin < 0. ) {
       if ( (phimin < Geom::pi() / 2.) || (phimax > -Geom::pi()/2.) ){
-	edm::LogError("TkDetLayers") << " something strange going on, please check " ;
+	edm::LogError("TkDetLayers") << " something strange going on, please check " << phimin << " " << phimax << " " << phiWin ;
       }
       //edm::LogInfo(TkDetLayers) << " Wedge at pi: phi " << phimin << " " << phimax << " " << phiWin 
       //	 << " " << 2.*Geom::pi()+phiWin << " " ;
@@ -97,7 +97,7 @@ namespace {
     GlobalVector zAxis;
     
     GlobalVector planeXAxis    = plane.toGlobal( LocalVector( 1, 0, 0));
-    GlobalPoint  planePosition = plane.position();
+    const GlobalPoint&  planePosition = plane.position();
     
     if(planePosition.x()*planeXAxis.x()+planePosition.y()*planeXAxis.y() > 0.){
       yAxis = planeXAxis;

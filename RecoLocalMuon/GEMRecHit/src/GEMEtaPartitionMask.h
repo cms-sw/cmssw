@@ -4,7 +4,7 @@
 #include <bitset>
 #include <vector>
 
-const int maskSIZE=96;
+const int maskSIZE=768;
 typedef std::bitset<maskSIZE> EtaPartitionMask;
 
 #endif

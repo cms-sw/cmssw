@@ -21,9 +21,9 @@ public:
 
   ~PosteriorWeightsCalculator() {}
   /// Create random state
-  std::vector<double> weights(const TransientTrackingRecHit& tsos) const;
+  std::vector<double> weights(const TrackingRecHit& tsos) const;
   template <unsigned int D>
-  std::vector<double> weights(const TransientTrackingRecHit& tsos) const;
+  std::vector<double> weights(const TrackingRecHit& tsos) const;
 
 private:
   std::vector<TSOS> predictedComponents;

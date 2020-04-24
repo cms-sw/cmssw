@@ -1,6 +1,8 @@
 #ifndef ECAL_COND_OBJECT_CONTAINER_HH
 #define ECAL_COND_OBJECT_CONTAINER_HH
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -107,30 +109,12 @@ class EcalCondObjectContainer {
 
                 inline
                 Item & operator[]( uint32_t rawId ) 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
                 {
                         DetId id(rawId);
-                        switch (id.subdetId()) {
-                                case EcalBarrel :
-                                        { 
-                                                return eb_[rawId];
-                                        }
-                                        break;
-                                case EcalEndcap :
-                                        { 
-                                                return ee_[rawId];
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        thread_local static Item dummy;
-                                        return dummy;
-                        }
+                        return (id.subdetId()==EcalBarrel) ? eb_[rawId] : ee_[rawId];
+
                 }
-#else
-		{ }
-#endif
-                
+
                 inline
                 Item operator[]( uint32_t rawId ) const {
                         DetId id(rawId);
@@ -156,6 +140,8 @@ class EcalCondObjectContainer {
                 
                 EcalContainer< EBDetId, Item > eb_;
                 EcalContainer< EEDetId, Item > ee_;
+
+        COND_SERIALIZABLE;
 };
 
 typedef EcalCondObjectContainer<float> EcalFloatCondObjectContainer;

@@ -1,54 +1,53 @@
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerHardcodeGeometryLoader.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
+#include <iterator>
+#include <algorithm>
+
+//#define DebugLog
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
-std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const HcalTopology *limits) {
-    m_limits = limits;
-    
-  CaloTowerGeometry* geom=new CaloTowerGeometry();
+std::unique_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const CaloTowerTopology *limits, const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons) {
 
-  if( 0 == geom->cornersMgr() ) geom->allocateCorners ( 
-     CaloTowerGeometry::k_NumberOfCellsForCorners ) ;
-  if( 0 == geom->parMgr() ) geom->allocatePar (
-     CaloTowerGeometry::k_NumberOfParametersPerShape*CaloTowerGeometry::k_NumberOfShapes,
-     CaloTowerGeometry::k_NumberOfParametersPerShape ) ;
+  m_limits = limits;
+  m_hcaltopo = hcaltopo;
+  m_hcons = hcons;
 
-  int nnn=0;
+  //get eta limits from hcal rec constants
+  theHFEtaBounds   = m_hcons->getEtaTableHF();
+  theHBHEEtaBounds = m_hcons->getEtaTable();
+
+#ifdef DebugLog
+  std::cout << "CaloTowerHardcodeGeometryLoader: theHBHEEtaBounds = ";
+  std::copy(theHBHEEtaBounds.begin(), theHBHEEtaBounds.end(), std::ostream_iterator<double>(std::cout, ","));
+  std::cout << std::endl;
+
+  std::cout << "CaloTowerHardcodeGeometryLoader: lastHBRing = " << m_limits->lastHBRing() << ", lastHERing = " << m_limits->lastHERing() << std::endl;
+  std::cout << "CaloTowerHardcodeGeometryLoader: HcalTopology: firstHBRing = " << hcaltopo->firstHBRing() << ", lastHBRing = " << hcaltopo->lastHBRing() << ", firstHERing = " << hcaltopo->firstHERing() << ", lastHERing = " << hcaltopo->lastHERing() << ", firstHFRing = " << hcaltopo->firstHFRing() << ", lastHFRing = " << hcaltopo->lastHFRing() << std::endl;
+#endif
+
+  CaloTowerGeometry* geom=new CaloTowerGeometry(m_limits);
+
+  if( nullptr == geom->cornersMgr() ) geom->allocateCorners ( 
+     geom->numberOfCellsForCorners() ) ;
+  if( nullptr == geom->parMgr() ) geom->allocatePar (
+     geom->numberOfParametersPerShape()*geom->numberOfShapes(),
+     geom->numberOfParametersPerShape() ) ;
+
   // simple loop
-  for (int ieta=-m_limits->lastHFRing(); ieta<=m_limits->lastHFRing(); ieta++) {
-    if (ieta==0) continue; // skip not existing eta=0 ring
-    for (int iphi=1; iphi<=72; iphi++) {
-      if (abs(ieta)>=m_limits->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
-      if (abs(ieta)>=m_limits->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
-      ++nnn;
-    }
+  for (uint32_t din = 0; din < m_limits->sizeForDenseIndexing(); ++din) {
+    makeCell(din, geom);
   }
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( nnn ) ; 
-  if( geom->parMgr()     == 0 ) geom->allocatePar( 41, 3 ) ;
-
-  int n=0;
-  // simple loop
-  for (int ieta=-m_limits->lastHFRing(); ieta<=m_limits->lastHFRing(); ieta++) {
-    if (ieta==0) continue; // skip not existing eta=0 ring
-    for (int iphi=1; iphi<=72; iphi++) {
-      if (abs(ieta)>=m_limits->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
-      if (abs(ieta)>=m_limits->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
-      makeCell(ieta,iphi, geom);
-      n++;
-    }
-  }
-  edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << n << " towers.";
-  return std::auto_ptr<CaloSubdetectorGeometry>(geom); 
+  edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << m_limits->sizeForDenseIndexing() << " towers.";
+  return std::unique_ptr<CaloSubdetectorGeometry>(geom); 
 }
 
 void
-CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
-					   int iphi,
+CaloTowerHardcodeGeometryLoader::makeCell( uint32_t din,
 					   CaloSubdetectorGeometry* geom ) const {
   const double EBradius = 143.0; // cm
   const double HOradius = 406.0+1.0;
@@ -58,35 +57,50 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   const double HFthick = 165;
   // Tower 17 is the last EB tower
 
-  int etaRing=abs(ieta);
+  //use CT topology to get the DetId for this dense index
+  CaloTowerDetId id = m_limits->detIdFromDenseIndex(din);
+  int ieta = id.ieta();
+  int iphi = id.iphi();
+  
+  //use CT topology to get proper ieta for hcal
+  int etaRing=m_limits->convertCTtoHcal(abs(ieta));
   int sign=(ieta>0)?(1):(-1);
   double eta1, eta2;
-  if (etaRing>m_limits->lastHERing()) {
-    eta1 = theHFEtaBounds[etaRing-m_limits->firstHFRing()];
-    eta2 = theHFEtaBounds[etaRing-m_limits->firstHFRing()+1];
+
+#ifdef DebugLog
+  std::cout << "CaloTowerHardcodeGeometryLoader: ieta = " << ieta << ", iphi = " << iphi << ", etaRing = " << etaRing << std::endl;
+#endif
+
+  if (abs(ieta)>m_limits->lastHERing()) {
+    eta1 = theHFEtaBounds.at(etaRing-m_hcaltopo->firstHFRing());
+    eta2 = theHFEtaBounds.at(etaRing-m_hcaltopo->firstHFRing()+1);
   } else {
-    eta1 = theHBHEEtaBounds[etaRing-1];
-    eta2 = theHBHEEtaBounds[etaRing];
+    eta1 = theHBHEEtaBounds.at(etaRing-1);
+    eta2 = theHBHEEtaBounds.at(etaRing);
   }
   double eta = 0.5*(eta1+eta2);
   double deta = (eta2-eta1);  
 
   // in radians
-  double dphi_nominal = 2.0*M_PI / m_limits->nPhiBins(1); // always the same
-  double dphi_half = M_PI / m_limits->nPhiBins(etaRing); // half-width
+  double dphi_nominal = 2.0*M_PI / m_hcaltopo->nPhiBins(1); // always the same
+  double dphi_half = M_PI / m_hcaltopo->nPhiBins(etaRing); // half-width
   
   double phi_low = dphi_nominal*(iphi-1); // low-edge boundaries are constant...
   double phi = phi_low+dphi_half;
 
+#ifdef DebugLog
+  std::cout << "CaloTowerHardcodeGeometryLoader: eta1 = " << eta1 << ", eta2 = " << eta2 <<", eta = " << eta << ", phi = " << phi << std::endl;
+#endif
+
   double x,y,z,thickness;
   bool alongZ=true;
-  if (etaRing>m_limits->lastHERing()) { // forward
+  if (abs(ieta)>m_limits->lastHERing()) { // forward
     z=HFz;
     double r=z/sinh(eta);
     x=r * cos(phi);
     y=r * sin(phi);
     thickness=HFthick/tanh(eta);
-  } else if (etaRing>17) { // EE-containing
+  } else if (abs(ieta)>m_limits->firstHERing()+1) { // EE-containing
     z=EEz;
     double r=z/sinh(eta);
     x=r * cos(phi);
@@ -106,16 +120,20 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   const double mysign ( !alongZ ? 1 : -1 ) ;
   std::vector<CCGFloat> hh ;
   hh.reserve(5) ;
-  hh.push_back( deta/2 ) ;
-  hh.push_back( dphi_half ) ;
-  hh.push_back( mysign*thickness/2. ) ;
+  hh.emplace_back( deta/2 ) ;
+  hh.emplace_back( dphi_half ) ;
+  hh.emplace_back( mysign*thickness/2. ) ;
 
-  hh.push_back( fabs( eta ) ) ;
-  hh.push_back( fabs( z ) ) ;
+  hh.emplace_back( fabs( eta ) ) ;
+  hh.emplace_back( fabs( z ) ) ;
+
+#ifdef DebugLog
+  std::cout << "CaloTowerHardcodeGeometryLoader: x = " << x << ", y = " << y << ", z = " << z << ", thickness = " << thickness << std::endl;
+#endif
 
   geom->newCell( point, point, point,
 		 CaloCellGeometry::getParmPtr( hh, 
 					       geom->parMgr(), 
 					       geom->parVecVec() ),
-		 CaloTowerDetId( ieta, iphi ) ) ;
+		 id ) ;
 }

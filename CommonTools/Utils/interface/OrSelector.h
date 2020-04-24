@@ -1,5 +1,5 @@
 #ifndef CommonTools_Utils_OrSelector_h
-#define CommonTools_Utils__OrSelector_h
+#define CommonTools_Utils_OrSelector_h
 /* \class OrSelector
  *
  * \author Luca Lista, INFN

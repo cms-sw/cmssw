@@ -38,12 +38,12 @@
 class ResolutionCreator : public edm::EDAnalyzer {
    public:
       explicit ResolutionCreator(const edm::ParameterSet&);
-      ~ResolutionCreator();
+      ~ResolutionCreator() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 		  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
@@ -173,8 +173,8 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    else if(objectType_ == "met"){
      edm::Handle<std::vector<pat::MET> >  mets;
      iEvent.getByToken(metsToken_,mets);
-     if(mets->size()>=1) {
-       if( genEvt->isSemiLeptonic() && genEvt->singleNeutrino() != 0 && ROOT::Math::VectorUtil::DeltaR(genEvt->singleNeutrino()->p4(), (*mets)[0].p4()) < minDR_) {
+     if(!mets->empty()) {
+       if( genEvt->isSemiLeptonic() && genEvt->singleNeutrino() != nullptr && ROOT::Math::VectorUtil::DeltaR(genEvt->singleNeutrino()->p4(), (*mets)[0].p4()) < minDR_) {
          //p4gen.push_back(new reco::Particle(0,genEvt->singleNeutrino()->p4(),math::XYZPoint()));
          //p4rec.push_back(new reco::Particle((pat::MET)((*mets)[0])));
        }

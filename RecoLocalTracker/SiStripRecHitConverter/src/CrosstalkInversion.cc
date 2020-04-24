@@ -1,10 +1,12 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/CrosstalkInversion.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
 namespace reco {
 
 std::vector<stats_t<float> > InverseCrosstalkMatrix::
-unfold(const std::vector<uint8_t>& q, const float x) {
+unfold(const SiStripCluster& clus, const float x) {
+  auto const & q = clus.amplitudes();
   const stats_t<float> suppressed(-5,100);
   const stats_t<float> saturated(254,400);
   #define STATS(value) ( (value<254) ? stats_t<float>(value) : saturated )
@@ -27,10 +29,13 @@ unfold(const std::vector<uint8_t>& q, const float x) {
     for(unsigned i=0; i<(N+1)/2; i++) {
       for(unsigned j=i; j<N-i; j++) {
 	const float Cij = inverse(i+1,j+1);
-	Q[i+1] += Cij * STATS(q[  j  ]) ;  if( i!=j)   
-	Q[j+1] += Cij * STATS(q[  i  ]) ;  if( N!=i+j+1) {
-	Q[N-i] += Cij * STATS(q[N-j-1]) ;  if( i!=j)
-	Q[N-j] += Cij * STATS(q[N-i-1]) ;
+	Q[i+1] += Cij * STATS(q[  j  ]) ;
+        if( i!=j)   
+	  Q[j+1] += Cij * STATS(q[  i  ]) ;
+        if( N!=i+j+1) {
+	  Q[N-i] += Cij * STATS(q[N-j-1]) ;
+          if( i!=j)
+	    Q[N-j] += Cij * STATS(q[N-i-1]) ;
 	}
       }
     }

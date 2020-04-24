@@ -85,7 +85,7 @@ def getContent(target_url, cert_path, key_path, post_data=None, debug=False, adf
     getSSOCookie(opener, target_url, cookie, debug)
     hasCookie = True 
     result = getResponseContent(opener, target_url, post_data, debug)
-  except Exception, e:
+  except Exception as e:
     result = ""
     print sys.stderr.write("ERROR:"+str(e))
   if hasCookie:

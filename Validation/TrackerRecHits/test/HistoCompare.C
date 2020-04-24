@@ -1,4 +1,11 @@
-#include <iostream.h>
+#include <iostream>     // std::cout
+#include <string>       // std::string
+#include <sstream>      // std::stringstream
+#include <fstream>      // std::filestream
+#include "TH1F.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TText.h"
 
 class HistoCompare {
 
@@ -6,14 +13,12 @@ class HistoCompare {
 
   HistoCompare() { std::cout << "Initializing HistoCompare... " << std::endl; } ;
 
-  void PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te );
-  void PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te );
-  void PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te );
+  void PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te, const double x=0.6, const double y=0.7);
+  void PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te, const double x=0.2, const double y=0.7);
+  void PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te, const double x=0.2, const double y=0.7);
 
  private:
   
-  Double_t mypv;
-
   TH1 * myoldHisto1;
   TH1 * mynewHisto1;
 
@@ -27,7 +32,7 @@ class HistoCompare {
 
 };
 
-HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
+void HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te, const double x, const double y)
 {
 
   myoldHisto1 = oldHisto;
@@ -35,20 +40,19 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
   myte = te;
 
   Double_t mypv = myoldHisto1->Chi2Test(mynewHisto1,"UUNORM");
-  //  Double_t mypv = myoldHisto1->Chi2Test(mynewHisto1,"OU");
-  std::strstream buf;
+  std::stringstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
   buf>>value;
   
-  myte->DrawTextNDC(0.2,0.7, value.c_str());
+  myte->DrawTextNDC(x, y, value.c_str());
 
   std::cout << "[OVAL] " << myoldHisto1->GetName() << " PV = " << mypv << std::endl;
   return;
 
 }
 
-HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
+void HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te, const double x, const double y)
 {
 
   myoldHisto2 = oldHisto;
@@ -56,13 +60,12 @@ HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
   myte = te;
 
   Double_t mypv = myoldHisto2->Chi2Test(mynewHisto2,"UUNORM");
-  //  Double_t mypv = myoldHisto2->Chi2Test(mynewHisto2,"OU");
-  std::strstream buf;
+  std::stringstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
   buf>>value;
   
-  myte->DrawTextNDC(0.2,0.7, value.c_str());
+  myte->DrawTextNDC(x, y, value.c_str());
 
   std::cout << "[OVAL] " << myoldHisto2->GetName() << " PV = " << mypv << std::endl;
   return;
@@ -70,7 +73,7 @@ HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
 }
 
 
-HistoCompare::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
+void HistoCompare::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te, const double x, const double y)
 {
 
   myoldProfile = oldHisto;
@@ -78,13 +81,12 @@ HistoCompare::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
   myte = te;
 
   Double_t mypv = myoldProfile->Chi2Test(mynewProfile,"UUNORM");
-  //  Double_t mypv = myoldProfile->Chi2Test(mynewProfile,"OU");
-  std::strstream buf;
+  std::stringstream buf;
   std::string value;
   buf<<"PV="<<mypv<<std::endl;
   buf>>value;
   
-  myte->DrawTextNDC(0.2,0.7, value.c_str());
+  myte->DrawTextNDC(x, y, value.c_str());
 
   std::cout << "[OVAL] " << myoldProfile->GetName() << " PV = " << mypv << std::endl;
   return;

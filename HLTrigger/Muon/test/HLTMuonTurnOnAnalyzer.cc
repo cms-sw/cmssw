@@ -41,8 +41,8 @@ HLTMuonTurnOnAnalyzer::HLTMuonTurnOnAnalyzer(const ParameterSet& pset)
   theHLTCollectionLabels = pset.getUntrackedParameter<std::vector<InputTag> >("HLTCollectionLabels");
   theGenToken = consumes<edm::HepMCProduct>(theGenLabel);
   theL1CollectionToken = consumes<trigger::TriggerFilterObjectWithRefs>(theL1CollectionLabel);
-  for (unsigned int i=0; i<theHLTCollectionLabels.size(); ++i) {
-    theHLTCollectionTokens.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(theHLTCollectionLabels[i]));
+  for (auto & theHLTCollectionLabel : theHLTCollectionLabels) {
+    theHLTCollectionTokens.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(theHLTCollectionLabel));
   }
   theReferenceThreshold = pset.getUntrackedParameter<double>("ReferenceThreshold");
 
@@ -56,8 +56,7 @@ HLTMuonTurnOnAnalyzer::HLTMuonTurnOnAnalyzer(const ParameterSet& pset)
 }
 
 /// Destructor
-HLTMuonTurnOnAnalyzer::~HLTMuonTurnOnAnalyzer(){
-}
+HLTMuonTurnOnAnalyzer::~HLTMuonTurnOnAnalyzer()= default;
 
 void HLTMuonTurnOnAnalyzer::beginJob(){
   // Create the root file
@@ -71,9 +70,9 @@ void HLTMuonTurnOnAnalyzer::beginJob(){
   hL1eff = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
   hL1nor = new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax);
 
-  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-      snprintf(chname, 255, "eff_%s", theHLTCollectionLabels[i].encode().c_str());
-      snprintf(chtitle, 255, "Efficiency (%%) vs Generated Pt (GeV), label=%s", theHLTCollectionLabels[i].encode().c_str());
+  for (auto & theHLTCollectionLabel : theHLTCollectionLabels) {
+      snprintf(chname, 255, "eff_%s", theHLTCollectionLabel.encode().c_str());
+      snprintf(chtitle, 255, "Efficiency (%%) vs Generated Pt (GeV), label=%s", theHLTCollectionLabel.encode().c_str());
       hHLTeff.push_back(new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax));
       hHLTnor.push_back(new TH1F(chname, chtitle, theNbins, thePtMin, thePtMax));
   }
@@ -156,8 +155,8 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
       unsigned int i=modules_in_this_event-1;
       vector<RecoChargedCandidateRef> vref;
       hltcands[i]->getObjects(TriggerMuon,vref);
-      for (unsigned int k=0; k<vref.size(); k++) {
-	RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[k]);
+      for (auto & k : vref) {
+	RecoChargedCandidateRef candref =  RecoChargedCandidateRef(k);
             TrackRef tk = candref->get<TrackRef>();
             double pt = tk->pt();
             if (pt>ptuse) {
@@ -179,8 +178,8 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
   double epsilon = 0.001;
   vector<L1MuonParticleRef> l1mu;
   l1cands->getObjects(TriggerL1Mu,l1mu);
-  for (unsigned int k=0; k<l1mu.size(); k++) {
-      L1MuonParticleRef candref = L1MuonParticleRef(l1mu[k]);
+  for (auto & k : l1mu) {
+      L1MuonParticleRef candref = L1MuonParticleRef(k);
       // L1 PTs are "quantized" due to LUTs. 
       // Their meaning: true_pt > ptLUT more than 90% pof the times
       double ptLUT = candref->pt();
@@ -198,8 +197,8 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
       unsigned nFound = 0;
       vector<RecoChargedCandidateRef> vref;
       hltcands[i]->getObjects(TriggerMuon,vref);
-      for (unsigned int k=0; k<vref.size(); k++) {
-            RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[k]);
+      for (auto & k : vref) {
+            RecoChargedCandidateRef candref =  RecoChargedCandidateRef(k);
             TrackRef tk = candref->get<TrackRef>();
             double pt = tk->pt();
             if (pt>ptcut) nFound++;

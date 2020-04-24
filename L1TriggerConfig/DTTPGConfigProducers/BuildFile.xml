@@ -1,7 +1,4 @@
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondFormats/DTObjects"/>
 <use   name="CondFormats/DataRecord"/>
@@ -14,6 +11,6 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="RelationalAccess"/>
-<use   name="rootrflx"/>
+
 <use   name="L1TriggerConfig/DTTPGConfig"/>
 <flags   EDM_PLUGIN="1"/>

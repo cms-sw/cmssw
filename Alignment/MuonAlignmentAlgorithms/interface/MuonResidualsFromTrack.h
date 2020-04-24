@@ -20,6 +20,26 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+//#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include "TMatrixDSym.h"
 #include "TMatrixD.h"
@@ -33,14 +53,19 @@ class MuonResidualsFromTrack
 {
 public:
   // residuals from global muon trajectories
-  MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
-                         const Trajectory *traj,
-                         const reco::Track* trk,
-                         AlignableNavigator *navigator, double maxResidual);
+  MuonResidualsFromTrack( const edm::EventSetup& iSetup,
+                          edm::ESHandle<MagneticField> magneticField,
+                          edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
+			  edm::ESHandle<DetIdAssociator> muonDetIdAssociator_,
+                          edm::ESHandle<Propagator> prop,
+                          const Trajectory *traj,
+                          const reco::Track* recoTrack,
+                          AlignableNavigator *navigator,
+                          double maxResidual );
 
   // residuals from tracker muons
   MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
-                         const reco::Muon *mu,
+                         const reco::Muon *recoMuon,
                          AlignableNavigator *navigator,
                          double maxResidual);
 
@@ -48,7 +73,8 @@ public:
   
   void clear();
 
-  const reco::Track *getTrack() { return track; }
+  const reco::Track *getTrack() { return m_recoTrack; }
+  const reco::Muon  *getMuon()  { return m_recoMuon; }
 
   int trackerNumHits() const { return m_tracker_numHits; }
 
@@ -80,10 +106,10 @@ private:
   void addTrkCovMatrix(DetId, TrajectoryStateOnSurface &);
 
   // pointer to its track
-  const reco::Track *track;
+  const reco::Track *m_recoTrack;
 
   // track muon
-  const reco::Muon *muon;
+  const reco::Muon *m_recoMuon;
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonResidualsFromTrack_H

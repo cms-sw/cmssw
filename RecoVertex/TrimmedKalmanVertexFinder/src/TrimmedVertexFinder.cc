@@ -137,7 +137,7 @@ TrimmedVertexFinder::vertices(std::vector<TransientTrack> & tks,
     const PerigeeLinearizedTrackState* plts = 
       dynamic_cast<const PerigeeLinearizedTrackState*>
       ((**i).linearizedTrack().get());
-    if (plts == 0) {
+    if (plts == nullptr) {
       throw cms::Exception("TrimmedVertexFinder: can't take track from non-perigee track state");
     }
 

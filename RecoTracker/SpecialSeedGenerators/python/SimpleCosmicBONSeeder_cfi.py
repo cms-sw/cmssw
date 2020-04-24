@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi import layerInfo
+import RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi
 
 def makeSimpleCosmicSeedLayers(*layers):
     layerList = cms.vstring()
@@ -28,7 +28,10 @@ def makeSimpleCosmicSeedLayers(*layers):
                        'TOB6+TOB5+TEC1_neg' ]
     #print "SEEDING LAYER LIST = ", layerList
     return layerList
-    
+
+layerInfo = RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi.layerInfo.clone()
+layerInfo.TEC.useSimpleRphiHitsCleaner = False
+layerList = makeSimpleCosmicSeedLayers('ALL'),
 
 simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
     TTRHBuilder = cms.string('WithTrackAngle'),
@@ -49,11 +52,8 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
         ptMin = cms.double(0.5),               # pt cut, applied both at the triplet finding and at the seeding level
         pMin  = cms.double(1.0),               # p  cut, applied only at the seeding level
     ),
-    TripletsPSet = cms.PSet(
-        layerInfo,
-        layerList = makeSimpleCosmicSeedLayers('ALL'),
-        debugLevel = cms.untracked.uint32(0),  # debug triplet finding (0 to 3)
-    ),
+    TripletsSrc = cms.InputTag("simpleCosmicBONSeedingLayers"),
+    TripletsDebugLevel = cms.untracked.uint32(0),  # debug triplet finding (0 to 3)
     seedOnMiddle    = cms.bool(False), # after finding the triplet, add only two hits to the seed
     rescaleError    = cms.double(1.0), # we don't need it anymore. At least for runs with BON
 
@@ -86,4 +86,4 @@ simpleCosmicBONSeeds = cms.EDProducer("SimpleCosmicBONSeeder",
     NegativeYOnly = cms.bool(False)
     #***
 )
-simpleCosmicBONSeeds.TripletsPSet.TEC.useSimpleRphiHitsCleaner = False
+

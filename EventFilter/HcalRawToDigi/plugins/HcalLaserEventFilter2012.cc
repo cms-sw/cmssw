@@ -107,7 +107,7 @@ void HcalLaserEventFilter2012::readEventListFile(const string & eventFileName)
   unsigned int i;
   char * pch;
 
-  while (1) {
+  while (true) {
     bytes_read = gzread (file, buffer, LENGTH - 1);
     buffer[bytes_read] = '\0';
     i=0;
@@ -117,7 +117,7 @@ void HcalLaserEventFilter2012::readEventListFile(const string & eventFileName)
       ++i;
     } else b2+=pch;
   
-    while (pch != NULL)
+    while (pch != nullptr)
     {
       i+=strlen(pch)+1;
       if (i>b2.size()) b2= pch;
@@ -129,7 +129,7 @@ void HcalLaserEventFilter2012::readEventListFile(const string & eventFileName)
       } else if (i<LENGTH) {
 	addEventString(b2);
       } 
-      pch = strtok (NULL, "\n");
+      pch = strtok (nullptr, "\n");
     }
     if (bytes_read < LENGTH - 1) {
       if (gzeof (file)) break;

@@ -9,7 +9,7 @@
  ***/
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,7 +27,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
@@ -63,17 +63,17 @@
 class TransientTrackBuilder;
 class ConversionVertexFinder;
 
-class ConversionProducer : public edm::EDProducer {
+class ConversionProducer : public edm::stream::EDProducer<> {
     public:
       explicit ConversionProducer(const edm::ParameterSet&);
-      ~ConversionProducer();
+      ~ConversionProducer() override;
 
 
 
 
    private:
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       void buildSuperAndBasicClusterGeoMap(const edm::Event&,  
 					   std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,

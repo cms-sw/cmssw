@@ -12,9 +12,11 @@ public:
 
   ElectronNeuralNet(){};
 
-  virtual ~ElectronNeuralNet(){};
+  ~ElectronNeuralNet() override{};
 
-  void setup(const edm::ParameterSet& conf){};
+  void setup(const edm::ParameterSet& conf) override {} ;
+  using ElectronIDAlgo::result;
+  //the following is a new function not in the base class
   double result(const reco::GsfElectron* electron, const edm::Event&);
 
  private:

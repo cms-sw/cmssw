@@ -22,7 +22,7 @@ Implementation:
 #include "SiPixelGainCalibrationAnalysis.h"
 #include <sstream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include "TGraphErrors.h"
 #include "TMath.h"
 
@@ -240,14 +240,14 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
   
   // calculate plateau value from last 4 entries
   double plateauval=0;
-  bool noPlateau=0;
+  bool noPlateau=false;
   if(nallpoints>=4){
     for(int ii=nallpoints-1; ii>nallpoints-5; --ii) plateauval+=yvalsall[ii];
     plateauval/=4;
     for(int ii=nallpoints-1; ii>nallpoints-5; --ii){
       if(fabs(yvalsall[ii]-plateauval)>5){
         plateauval=255;
-	noPlateau=1;
+	noPlateau=true;
         continue;
       }
     }
@@ -343,7 +343,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     graph_->SetPoint(ipointtemp,xvals[ipointtemp],yvals[ipointtemp]);
     graph_->SetPointError(ipointtemp,0,yerrvals[ipointtemp]);
   }
-  Int_t tempresult = graph_->Fit("func","FQ0N");
+  Int_t tempresult = graph_->Fit(func_,"FQ0N");
   slope=func_->GetParameter(1);
   slopeerror=func_->GetParError(1);
   intercept=func_->GetParameter(0);
@@ -359,7 +359,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
     for(int ii=0; ii<npoints; ++ii){
       edm::LogWarning("SiPixelGainCalibrationAnalysis")<< "vcal " << xvals[ii] << " response: " << yvals[ii] << "+/-" << yerrvals[ii] << std::endl; 
     } 
-    tempresult = graph_->Fit("func","FQ0NW");
+    tempresult = graph_->Fit(func_,"FQ0NW");
     slope=func_->GetParameter(1);
     slopeerror=func_->GetParError(1);
     intercept = func_->GetParameter(0);
@@ -432,7 +432,7 @@ SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelCalibD
 
     if(!savePixelHists_)
     return true;
-  if(detidfinder==listofdetids_.end() && listofdetids_.size()!=0)
+  if(detidfinder==listofdetids_.end() && !listofdetids_.empty())
     return true;
   if(makehistopersistent){
     std::ostringstream pixelinfo;

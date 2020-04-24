@@ -3,6 +3,7 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
@@ -26,29 +27,28 @@ public:
   typedef RecHitContainer::const_iterator const_iterator;
   typedef std::pair<const_iterator,const_iterator> range;
   
- TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0) {}
-  virtual ~TrackCandidate(){}
+TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_((uint8_t)StopReason::UNINITIALIZED) {}
 
-  TrackCandidate(RecHitContainer & rh) :
-  rh_(),  seed_(), state_(), seedRef_(), nLoops_(0) {rh_.swap(rh);}
+  explicit TrackCandidate(RecHitContainer & rh) :
+  rh_(),  seed_(), state_(), seedRef_(), nLoops_(0), stopReason_((uint8_t)StopReason::UNINITIALIZED) {rh_.swap(rh);}
   
   TrackCandidate(RecHitContainer & rh,
 		 TrajectorySeed const & s,
 		 PTrajectoryStateOnDet const & st,
-		 signed char nLoops=0):
-    rh_(), seed_(s), state_(st), seedRef_(),nLoops_(nLoops) {rh_.swap(rh);}
+		 signed char nLoops=0,
+                 uint8_t stopReason=(uint8_t)StopReason::UNINITIALIZED):
+  rh_(), seed_(s), state_(st), seedRef_(),nLoops_(nLoops), stopReason_(stopReason) {rh_.swap(rh);}
 
   
   TrackCandidate(RecHitContainer & rh,
 		 TrajectorySeed const & s,
 		 PTrajectoryStateOnDet const & st,
 		 const edm::RefToBase<TrajectorySeed> & seedRef,
-		 signed char nLoops=0) :
-    rh_(), seed_(s), state_(st), seedRef_(seedRef),nLoops_(nLoops) {rh_.swap(rh);}
+		 signed char nLoops=0,
+                 uint8_t stopReason=(uint8_t)StopReason::UNINITIALIZED) :
+  rh_(), seed_(s), state_(st), seedRef_(seedRef),nLoops_(nLoops), stopReason_(stopReason) {rh_.swap(rh);}
 
 
-
-  
   PTrajectoryStateOnDet const & trajectoryStateOnDet() const { return state_;}
   
   range recHits() const {return std::make_pair(rh_.begin(), rh_.end());}
@@ -58,8 +58,11 @@ public:
 
   bool isLooper() const {return (nLoops_>0);}
   signed char nLoops() const {return nLoops_;}
+  uint8_t stopReason() const {return stopReason_;}
+
 
   void setNLoops(signed char value) {nLoops_=value;}
+  void setStopReason(uint8_t value) {stopReason_ = value;}
 
   /**  return the edm::reference to the trajectory seed in the original
    *   seeds collection. If the collection has been dropped from the
@@ -76,5 +79,6 @@ private:
   PTrajectoryStateOnDet state_;
   edm::RefToBase<TrajectorySeed> seedRef_;
   signed char nLoops_;
+  uint8_t stopReason_;
 };
 #endif

@@ -1,4 +1,4 @@
-#ifndef _FWPFAPATJETLEGOPROXYBUILDER_H_
+#ifndef _FWPFPATJETLEGOPROXYBUILDER_H_
 #define _FWPFPATJETLEGOPROXYBUILDER_H_
 
 // -*- C++ -*-
@@ -30,20 +30,26 @@ class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFPatJetLegoProxyBuilder();
-      virtual ~FWPFPatJetLegoProxyBuilder();
+      ~FWPFPatJetLegoProxyBuilder() override;
 
    // --------------------- Member Functions --------------------------
-      virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-      virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
-      virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc);
+      using FWProxyBuilderBase::havePerViewProduct;
+      bool havePerViewProduct(FWViewType::EType) const override { return true; }
 
+      using FWProxyBuilderBase::scaleProduct;
+      void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
+
+      using FWProxyBuilderBase::localModelChanges;
+      void localModelChanges(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc) override;
+
+      using FWSimpleProxyBuilderTemplate<T>::build;
+      void build( const T&, unsigned int, TEveElement&, const FWViewContext* ) override;
    private:
-      FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&);             //stop default
-      const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&);  //stop default
+      FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&) = delete;             //stop default
+      const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&) = delete;  //stop default
 
    // --------------------- Member Functions --------------------------
-      void build( const T&, unsigned int, TEveElement&, const FWViewContext* );
 
 };
-#endif
+#endif // FWPFPATJETLEGOPROXYBUILDER
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

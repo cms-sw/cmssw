@@ -1,10 +1,11 @@
 #ifndef DDConstant_h
 #define DDConstant_h
 
+#include <iostream>
+#include <vector>
+
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include <vector>
-#include <iostream>
 
 class DDConstant;
 

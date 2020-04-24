@@ -18,7 +18,7 @@ TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referen
     theField = &(originalFTS.parameters().magneticField());
   } catch (const cms::Exception &ex) {
     if (ex.category() != "PerigeeConversions") throw;
-    edm::LogWarning("TrajectoryStateClosestToPoint_PerigeeConversions") << "Caught exception " << ex.explainSelf() << ".\n";
+    edm::LogInfo("TrajectoryStateClosestToPoint_PerigeeConversions") << "Caught exception " << ex.explainSelf() << ".\n";
     valid = false;
   }
 }

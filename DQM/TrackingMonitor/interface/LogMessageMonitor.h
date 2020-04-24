@@ -35,6 +35,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <vector>
 #include <string>
@@ -49,23 +50,25 @@ class GetLumi;
 // class declaration
 //
 
-class LogMessageMonitor : public edm::EDAnalyzer {
+class LogMessageMonitor : public DQMEDAnalyzer {
    public:
       explicit LogMessageMonitor(const edm::ParameterSet&);
-      ~LogMessageMonitor();
+      ~LogMessageMonitor() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  //      virtual void beginJob() ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() ;
 
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  //      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
+      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
       // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > errorToken_;

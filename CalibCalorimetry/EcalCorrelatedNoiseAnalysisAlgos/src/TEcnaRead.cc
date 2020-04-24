@@ -31,7 +31,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString& SubDet)
 
  //----------------------- Object management
   //............................ fCnaParCout
-  fCnaParCout = 0;
+  fCnaParCout = nullptr;
   Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
@@ -39,7 +39,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString& SubDet)
     {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
 
   //............................ fCnaParPaths
-  fCnaParPaths = 0;
+  fCnaParPaths = nullptr;
   Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
@@ -47,7 +47,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString& SubDet)
     {fCnaParPaths = (TEcnaParPaths*)iCnaParPaths;}
 
   //............................ fEcalNumbering
-  fEcalNumbering = 0;
+  fEcalNumbering = nullptr;
   Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -55,7 +55,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString& SubDet)
     {fEcalNumbering = (TEcnaNumbering*)iEcalNumbering;}
 
   //............................ fCnaParHistos
-  fCnaParHistos = 0;
+  fCnaParHistos = nullptr;
   Long_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
   if( iCnaParHistos == 0 )
     {fCnaParHistos = new TEcnaParHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -63,7 +63,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString& SubDet)
     {fCnaParHistos = (TEcnaParHistos*)iCnaParHistos;}
 
   //............................ fCnaWrite
-  fCnaWrite = 0;
+  fCnaWrite = nullptr;
   Long_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
   if( iCnaWrite == 0 )
     {fCnaWrite = new TEcnaWrite(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -72,7 +72,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString& SubDet)
 
   // fEcal = 0; fEcal = new TEcnaParEcal(SubDet.Data());            // Anew("fEcal");
   //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
+  fEcal = nullptr;
   Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -94,7 +94,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString& SubDet)
   // h =(TEcnaHeader*)gCnaRootFile->fRootFile->Get("CnaHeader");
   //
 
-  fFileHeader = 0;
+  fFileHeader = nullptr;
   Long_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
   if( iFileHeader == 0 )
     {fFileHeader = new TEcnaHeader(pObjectManager, h_name, h_title); /*fCnew++*/}
@@ -127,9 +127,9 @@ void TEcnaRead::Init()
   fFlagPrint = fCodePrintWarnings;
 
   //................................ tags and array Stin numbers
-  fTagStinNumbers  = 0;
+  fTagStinNumbers  = nullptr;
   fMemoStinNumbers = 0;
-  fT1d_StexStinFromIndex = 0;
+  fT1d_StexStinFromIndex = nullptr;
 
   //................................ 
   //  fMemoReadNumberOfEventsforSamples = 0;
@@ -138,9 +138,9 @@ void TEcnaRead::Init()
   fDataExist = kFALSE;
 
   //......................... transfert Sample ADC Values 3D array   (Init)
-  fT3d_AdcValues  = 0;
-  fT3d2_AdcValues = 0;
-  fT3d1_AdcValues = 0;
+  fT3d_AdcValues  = nullptr;
+  fT3d2_AdcValues = nullptr;
+  fT3d1_AdcValues = nullptr;
 
   //................................. path for .root files
   Int_t MaxCar = fgMaxCar;
@@ -149,7 +149,7 @@ void TEcnaRead::Init()
   fPathRoot  = "fPathRoot not defined";
 
   //.................................. Pointer and Flags for Root File   (Init)
-  gCnaRootFile = 0;
+  gCnaRootFile = nullptr;
 
   fOpenRootFile = kFALSE;
   fReadyToReadRootFile = 0;
@@ -277,12 +277,12 @@ TEcnaRead::~TEcnaRead()
   //if (fCnaWrite      != 0){delete fCnaWrite;      Adelete("fCnaWrite");}
   //if (fEcalNumbering != 0){delete fEcalNumbering; Adelete("fEcalNumbering");}
 
-  if (fT1d_StexStinFromIndex != 0){delete [] fT1d_StexStinFromIndex; Adelete("fT1d_StexStinFromIndex");}
-  if (fTagStinNumbers        != 0){delete [] fTagStinNumbers;        Adelete("fTagStinNumbers");}
+  if (fT1d_StexStinFromIndex != nullptr){delete [] fT1d_StexStinFromIndex; Adelete("fT1d_StexStinFromIndex");}
+  if (fTagStinNumbers        != nullptr){delete [] fTagStinNumbers;        Adelete("fTagStinNumbers");}
 
-  if (fT3d_AdcValues  != 0){delete [] fT3d_AdcValues;  Adelete("fT3d_AdcValues");}
-  if (fT3d2_AdcValues != 0){delete [] fT3d2_AdcValues; Adelete("fT3d2_AdcValues");}
-  if (fT3d1_AdcValues != 0){delete [] fT3d1_AdcValues; Adelete("fT3d1_AdcValues");}
+  if (fT3d_AdcValues  != nullptr){delete [] fT3d_AdcValues;  Adelete("fT3d_AdcValues");}
+  if (fT3d2_AdcValues != nullptr){delete [] fT3d2_AdcValues; Adelete("fT3d2_AdcValues");}
+  if (fT3d1_AdcValues != nullptr){delete [] fT3d1_AdcValues; Adelete("fT3d1_AdcValues");}
 
   if ( fCnew != fCdelete )
     {
@@ -655,7 +655,7 @@ void TEcnaRead::FileParameters(const TString&      typ_ana,    const Int_t& nb_o
   // Preliminary save of the arguments values because they can be of the form: fFileHeader->...
   // and because fFileHeader can be deleted and re-created in this method
 
-  TString sTypAna      = typ_ana;
+  const TString& sTypAna      = typ_ana;
   Int_t   nNbOfSamples = nb_of_samples;
   Int_t   nRunNumber   = run_number;
   Int_t   nFirstEvt    = nfirst;
@@ -682,7 +682,7 @@ void TEcnaRead::FileParameters(const TString&      typ_ana,    const Int_t& nb_o
   //-------------------------------------------------------------------------
 
   //---------- new version
-  if( fFileHeader == 0 ){fFileHeader = new TEcnaHeader(fObjectManager, h_name, h_title);  /* Anew("fFileHeader") */ ;}
+  if( fFileHeader == nullptr ){fFileHeader = new TEcnaHeader(fObjectManager, h_name, h_title);  /* Anew("fFileHeader") */ ;}
   fFileHeader->HeaderParameters(sTypAna,   nNbOfSamples, nRunNumber,
 				nFirstEvt, nLastEvt,     nReqNbOfEvts, nStexNumber);
 
@@ -879,7 +879,7 @@ Bool_t TEcnaRead::CloseRootFile(const Text_t *name) {
 
   if (fOpenRootFile == kTRUE ) 
     {
-      if( gCnaRootFile != 0 )
+      if( gCnaRootFile != nullptr )
 	{
 	  gCnaRootFile->CloseFile();
 	  
@@ -932,10 +932,10 @@ Bool_t TEcnaRead::LookAtRootFile()
       if( ReadRootFileHeader(iprint) == kTRUE )   //    (1) = print, (0) = no print
 	{
 	  //........................................ allocation tags      
-	  if( fTagStinNumbers == 0 ){fTagStinNumbers = new Int_t[1]; Anew("fTagStinNumbers");}
+	  if( fTagStinNumbers == nullptr ){fTagStinNumbers = new Int_t[1]; Anew("fTagStinNumbers");}
 
 	  //...................... allocation for fT1d_StexStinFromIndex[]
-	  if(fT1d_StexStinFromIndex == 0)
+	  if(fT1d_StexStinFromIndex == nullptr)
 	    {fT1d_StexStinFromIndex = new Int_t[fEcal->MaxStinEcnaInStex()]; Anew("fT1d_StexStinFromIndex");}
 	  
 	  //.. recover of the Stin numbers from the ROOT file (= init fT1d_StexStinFromIndex+init TagStin)
@@ -4166,7 +4166,7 @@ Double_t*** TEcnaRead::ReadSampleAdcValuesSameFile(const Int_t& DimX, const Int_
 //                                           DimY = fFileHeader->fNbOfSamples
 //                                           DimZ = fFileHeader->fReqNbOfEvts
 
-  if(fT3d_AdcValues == 0)
+  if(fT3d_AdcValues == nullptr)
     {
       //............ Allocation for the 3d array 
       fT3d_AdcValues   = new Double_t**[DimX];                         fCnew++;  
@@ -4289,7 +4289,7 @@ Int_t TEcnaRead::GetNumberOfEvents(const Int_t& xFapNbOfReqEvts, const Int_t& xS
   xFapNbOfEvts =
     fCnaWrite->NumberOfEventsAnalysis(NOFE_int, fEcal->MaxCrysEcnaInStex(), xFapNbOfReqEvts, xStexNumber);
 
-  delete [] NOFE_int; NOFE_int = 0;                          fCdelete++;
+  delete [] NOFE_int; NOFE_int = nullptr;                          fCdelete++;
 
   return xFapNbOfEvts;
 }

@@ -46,7 +46,7 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -105,8 +105,7 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   edm::EDGetTokenT<reco::PFClusterCollection> clustersECALToken_;
   edm::EDGetTokenT<reco::PFClusterCollection> clustersHCALToken_;
-  edm::EDGetTokenT<reco::PFClusterCollection> clustersHFEMToken_;
-  edm::EDGetTokenT<reco::PFClusterCollection> clustersHFHADToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection> clustersHFToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapToken_;
 
@@ -133,7 +132,7 @@ private:
   double  minhits_tight_;
   double  maxPtErr_tight_;
   int     nMinOuterHits_;
-  int     maxTrackAlgo_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trackAlgos_;
   double  usedeltaRRejection_;
   double  deltaRShower_;
   double  minpt_;
@@ -151,7 +150,7 @@ private:
   double  eVetoMinElectronPt_;
   double  hOverECut_;
   std::vector<int> trkQuality_;
-  std::vector<int> trkAlgos_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trkAlgos_;
 
   bool isCosmics_;
   bool correctShowerTracks_;

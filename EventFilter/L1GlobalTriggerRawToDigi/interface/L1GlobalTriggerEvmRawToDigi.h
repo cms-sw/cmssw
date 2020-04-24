@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,7 +41,7 @@ class FEDTrailer;
 
 
 // class declaration
-class L1GlobalTriggerEvmRawToDigi : public edm::EDProducer
+class L1GlobalTriggerEvmRawToDigi : public edm::stream::EDProducer<>
 {
 
 public:
@@ -50,13 +50,11 @@ public:
     explicit L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GlobalTriggerEvmRawToDigi();
+    ~L1GlobalTriggerEvmRawToDigi() override;
 
 private:
 
-    virtual void beginJob();
-
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     /// block unpackers
 
@@ -71,9 +69,6 @@ private:
 
     /// dump FED raw data
     void dumpFedRawData(const unsigned char*, int, std::ostream&);
-
-    ///
-    virtual void endJob();
 
 private:
 

@@ -1,13 +1,16 @@
 #include "DetectorDescription/Core/src/EllipticalTube.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
 #include <ostream>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 void DDI::EllipticalTube::stream(std::ostream & os) const
 {
-   os << " xSemiAxis[cm]=" << p_[0]/cm
-      << " ySemiAxis[cm]=" << p_[1]/cm
-      << " zHeight[cm]=" << p_[2]/cm;
-
+  os << " xSemiAxis[cm]=" << p_[0]/cm
+     << " ySemiAxis[cm]=" << p_[1]/cm
+     << " zHeight[cm]=" << p_[2]/cm;
 }
 
 double DDI::EllipticalTube::volume() const { 

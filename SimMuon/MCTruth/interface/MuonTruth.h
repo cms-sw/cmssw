@@ -19,6 +19,7 @@
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class MuonTruth
 {
@@ -29,8 +30,9 @@ public:
   typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
 
   MuonTruth(const edm::Event&, const edm::EventSetup&, const edm::ParameterSet&); 
-  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &);
-  std::vector<SimHitIdpr> associateCSCHitId(const CSCRecHit2D *);
+  MuonTruth(const edm::ParameterSet&, edm::ConsumesCollector && iC);
+ 
+  void initEvent(const edm::Event &, const edm::EventSetup& );
 
   void analyze(const CSCRecHit2D & recHit);
   void analyze(const CSCStripDigi & stripDigi, int rawDetIdCorrespondingToCSCLayer);
@@ -47,7 +49,7 @@ public:
 
 private:
 
-  std::vector<PSimHit> hitsFromSimTrack(SimHitIdpr truthId);
+  std::vector<PSimHit> hitsFromSimTrack(SimHitIdpr truthId) ;
   // goes to SimHits for information
   int particleType(SimHitIdpr truthId);
 

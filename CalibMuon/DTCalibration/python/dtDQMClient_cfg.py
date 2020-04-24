@@ -27,9 +27,13 @@ process.options = cms.untracked.PSet(
     fileMode = cms.untracked.string(config.fileMode)
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.GlobalTag.globaltag = ''
+
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
+process.DTGeometryESModule.fromDDD = False
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("DQMServices.Core.DQM_cfg")
@@ -92,4 +96,4 @@ else:
 process.dqm_step = cms.Path(process.EDMtoMEConverter*
                             process.dqmSaver)
 
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''

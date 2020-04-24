@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 from TrackingTools.MaterialEffects.Propagators_cff import *
 from TrackingTools.TrackFitters.TrackFitters_cff import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -11,8 +11,8 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 
 
 #could it just use the standard KFFittingSmootherWithOutliersRejectionAndRK ??
-import TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi
-FittingSmootherRKP5 = TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi.KFFittingSmoother.clone()
+import TrackingTools.TrackFitters.KFFittingSmoother_cfi
+FittingSmootherRKP5 = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFittingSmoother.clone()
 FittingSmootherRKP5.ComponentName = 'FittingSmootherRKP5'
 FittingSmootherRKP5.Fitter = 'RKFitter'
 FittingSmootherRKP5.Smoother = 'RKSmoother'

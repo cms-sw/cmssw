@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <assert.h>
+#include <cassert>
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
@@ -31,7 +31,7 @@
 // constructors and destructor
 //
 FWItemSingleAccessor::FWItemSingleAccessor(const TClass* iClass) :
-   m_type(iClass), m_data(0)
+   m_type(iClass), m_data(nullptr)
 {
 }
 
@@ -62,20 +62,20 @@ FWItemSingleAccessor::~FWItemSingleAccessor()
 void
 FWItemSingleAccessor::setData(const edm::ObjectWithDict& product)
 {
-   if (product.address() == 0)
+   if (product.address() == nullptr)
    {
       reset();
       return;
    }
    
    m_data = product.address();
-   assert(0!=m_data);
+   assert(nullptr!=m_data);
 }
 
 void
 FWItemSingleAccessor::reset()
 {
-   m_data = 0;
+   m_data = nullptr;
 }
 
 //
@@ -87,7 +87,7 @@ FWItemSingleAccessor::modelData(int iIndex) const
    if(0==iIndex) {
       return m_data;
    }
-   return 0;
+   return nullptr;
 }
 
 const void*
@@ -99,7 +99,7 @@ FWItemSingleAccessor::data() const
 unsigned int
 FWItemSingleAccessor::size() const
 {
-   return 0 == m_data ? 0 : 1;
+   return nullptr == m_data ? 0 : 1;
 }
 
 const TClass*

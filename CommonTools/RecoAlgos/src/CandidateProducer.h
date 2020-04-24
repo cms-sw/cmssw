@@ -14,7 +14,7 @@
  */
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -65,7 +65,7 @@ template<typename TColl, typename CColl, typename Selector = AnySelector,
 	 typename Conv = typename converter::helper::CandConverter<typename TColl::value_type>::type,
 	 typename Creator = typename converter::helper::CandCreator<CColl>::type,
 	 typename Init = typename ::reco::modules::EventSetupInit<Selector>::type>
-class CandidateProducer : public edm::EDProducer {
+class CandidateProducer : public edm::stream::EDProducer<> {
 public:
   /// constructor from parameter set
   CandidateProducer(const edm::ParameterSet & cfg) :
@@ -76,7 +76,7 @@ public:
     produces<CColl>();
   }
   /// destructor
-  ~CandidateProducer() { }
+  ~CandidateProducer() override { }
 
 private:
   /// begin job (first run)
@@ -91,9 +91,9 @@ private:
     edm::Handle<TColl> src;
     evt.getByToken(srcToken_, src);
     Init::init(selector_, evt, es);
-    ::helper::MasterCollection<TColl> master(src);
-    std::auto_ptr<CColl> cands(new CColl);
-    if(src->size()!= 0) {
+    ::helper::MasterCollection<TColl> master(src, evt);
+    std::unique_ptr<CColl> cands(new CColl);
+    if(!src->empty()) {
       size_t size = src->size();
       cands->reserve(size);
       for(size_t idx = 0; idx != size; ++ idx) {
@@ -101,7 +101,7 @@ private:
 	  Creator::create(master.index(idx), *cands, master, converter_);
       }
     }
-    evt.put(cands);
+    evt.put(std::move(cands));
   }
   /// label of source collection and tag
   edm::EDGetTokenT<TColl> srcToken_;

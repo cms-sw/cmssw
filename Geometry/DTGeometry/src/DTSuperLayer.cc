@@ -18,10 +18,10 @@
 /* ====================================================================== */
 
 /* Constructor */ 
-DTSuperLayer::DTSuperLayer(DTSuperLayerId id,
+DTSuperLayer::DTSuperLayer(const DTSuperLayerId& id,
                            ReferenceCountingPointer<BoundPlane>& plane,
                            const DTChamber* ch) :
-  GeomDet(plane), theId(id) , theLayers(4,(const DTLayer*)0), theCh(ch) {
+  GeomDet(plane), theId(id) , theLayers(4,(const DTLayer*)nullptr), theCh(ch) {
   setDetId(id);
 }
 
@@ -65,8 +65,8 @@ const DTChamber* DTSuperLayer::chamber() const {
   return theCh;
 }
 
-const DTLayer* DTSuperLayer::layer(DTLayerId id) const {
-  if (id.superlayerId()!=theId) return 0; // not in this SL!
+const DTLayer* DTSuperLayer::layer(const DTLayerId& id) const {
+  if (id.superlayerId()!=theId) return nullptr; // not in this SL!
   return layer(id.layer());
 }
   
@@ -74,6 +74,6 @@ const DTLayer* DTSuperLayer::layer(int ilay) const{
   if ((ilay>=1) && (ilay<=4)) {
     return theLayers[ilay-1];
   } else {
-    return 0;
+    return nullptr;
   }
 }

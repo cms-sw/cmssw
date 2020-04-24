@@ -36,7 +36,7 @@ void CachingSeedCleanerByHitPosition::add(const Trajectory *trj) {
 }
 
 bool CachingSeedCleanerByHitPosition::good(const TrajectorySeed *seed) {
-    static RecHitComparatorByPosition comp;
+    const RecHitComparatorByPosition comp;
     typedef TrajectorySeed::const_iterator SI;
     typedef Trajectory::RecHitContainer::const_iterator TI;
     TrajectorySeed::range range = seed->recHits();

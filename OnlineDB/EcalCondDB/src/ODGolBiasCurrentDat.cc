@@ -32,7 +32,7 @@ ODGolBiasCurrentDat::~ODGolBiasCurrentDat()
 
 
 void ODGolBiasCurrentDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -48,7 +48,7 @@ void ODGolBiasCurrentDat::prepareWrite()
 
 
 void ODGolBiasCurrentDat::writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurrentInfo* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -71,7 +71,7 @@ void ODGolBiasCurrentDat::writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurr
 
 
 void ODGolBiasCurrentDat::fetchData(std::vector< ODGolBiasCurrentDat >* p, ODGolBiasCurrentInfo* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -111,7 +111,7 @@ void ODGolBiasCurrentDat::fetchData(std::vector< ODGolBiasCurrentDat >* p, ODGol
 //  ************************************************************************   // 
 
 void ODGolBiasCurrentDat::writeArrayDB(const std::vector< ODGolBiasCurrentDat >& data, ODGolBiasCurrentInfo* iov)
-    throw(std::runtime_error)
+    noexcept(false)
 {
   this->checkConnection();
 

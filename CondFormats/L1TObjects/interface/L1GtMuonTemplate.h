@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -47,7 +49,7 @@ public:
     L1GtMuonTemplate( const L1GtMuonTemplate& );
 
     // destructor
-    virtual ~L1GtMuonTemplate();
+    ~L1GtMuonTemplate() override;
 
     // assign operator
     L1GtMuonTemplate& operator= (const L1GtMuonTemplate&);
@@ -66,7 +68,9 @@ public:
         unsigned long long etaRange;
         unsigned int phiHigh;
         unsigned int phiLow;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
     // typedef for correlation parameters
     // chargeCorrelation is defined always
@@ -79,7 +83,9 @@ public:
         unsigned long long deltaPhiRange0Word;
         unsigned long long deltaPhiRange1Word;
         unsigned int deltaPhiMaxbits;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 public:
 
@@ -100,7 +106,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtMuonTemplate&);
@@ -118,6 +124,8 @@ private:
     std::vector<ObjectParameter> m_objectParameter;
     CorrelationParameter m_correlationParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

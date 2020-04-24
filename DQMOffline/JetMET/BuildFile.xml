@@ -1,4 +1,5 @@
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
 <use   name="MagneticField/Engine"/>
 <use   name="DQMServices/Core"/>
 <use   name="DQMServices/Components"/>
@@ -13,6 +14,8 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="RecoJets/JetProducers"/>
+<use   name="RecoHI/HiJetAlgos"/>
+<use   name="RecoHI/HiCentralityAlgos"/> 
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/DetId"/>
@@ -21,6 +24,7 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/CSCGeometryBuilder"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/Math"/>
@@ -31,11 +35,13 @@
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/SiStripDetId"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CommonTools/TriggerUtils"/>
 <use   name="RecoMuon/TrackingTools"/>
-#<flags   CXXFLAGS="-O0 -g3 -fno-inline"/>
+<use   name="CommonTools/RecoAlgos"/> 
+<use   name="JetMETCorrections/Objects"/>
 <flags   EDM_PLUGIN="1"/>

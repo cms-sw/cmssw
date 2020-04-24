@@ -12,7 +12,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -27,6 +27,7 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
@@ -35,6 +36,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
@@ -49,6 +51,10 @@
 #include <string>
 #include <vector>
 
+#include <functional>
+#include "tbb/concurrent_unordered_set.h"
+#include <regex>
+
 namespace edm {
   class EventSetup;
 }
@@ -61,16 +67,34 @@ namespace edm {
 // class declaration
 //
 
-class TriggerSummaryProducerAOD : public edm::EDProducer {
+/// GlobalCache
+struct InputTagHash {
+  std::size_t operator()(const edm::InputTag& inputTag) const {
+    std::hash<std::string> Hash;
+    // bit-wise xor
+    return Hash(inputTag.label()) ^ Hash(inputTag.instance()) ^ Hash(inputTag.process());
+  }
+};
+struct GlobalInputTags {
+  GlobalInputTags(): filterTagsGlobal_(),collectionTagsGlobal_(){ }
+  mutable tbb::concurrent_unordered_set<edm::InputTag,InputTagHash> filterTagsGlobal_;
+  mutable tbb::concurrent_unordered_set<edm::InputTag,InputTagHash> collectionTagsGlobal_;
+};
+ 
+class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCache<GlobalInputTags>> {
   
  public:
-  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&);
-  ~TriggerSummaryProducerAOD();
+  explicit TriggerSummaryProducerAOD(const edm::ParameterSet&, const GlobalInputTags *);
+  ~TriggerSummaryProducerAOD() override;
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
+  static  void globalEndJob(const GlobalInputTags *);
 
   // additional
+  static std::unique_ptr<GlobalInputTags> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::unique_ptr<GlobalInputTags> (new GlobalInputTags());
+  };
 
   template <typename C>
   void fillTriggerObjectCollections(const edm::Event&, edm::GetterOfProducts<C>& );
@@ -79,6 +103,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   void fillTriggerObject(const T& );
   void fillTriggerObject(const l1extra::L1HFRings& );
   void fillTriggerObject(const l1extra::L1EtMissParticle& );
+  void fillTriggerObject(const reco::PFMET& );
   void fillTriggerObject(const reco::CaloMET& );
   void fillTriggerObject(const reco::MET& );
 
@@ -89,12 +114,18 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<C>&);
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<l1extra::L1HFRingsCollection>&);
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<l1extra::L1EtMissParticleCollection>&);
+  void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::PFMETCollection>&);
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::CaloMETCollection>&);
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::METCollection>&);
 
  private:
+  /// throw on error
+  bool throw_;
   /// process name
   std::string pn_;
+  /// module labels which should be avoided
+  std::vector<std::regex> moduleLabelPatternsToMatch_;
+  std::vector<std::regex> moduleLabelPatternsToSkip_;
 
   /// InputTag ordering class
   struct OrderInputTag {
@@ -118,11 +149,11 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
 
   /// list of L3 filter tags
   InputTagSet filterTagsEvent_;
-  InputTagSet filterTagsGlobal_;
+  InputTagSet filterTagsStream_;
 
   /// list of L3 collection tags
   InputTagSet collectionTagsEvent_;
-  InputTagSet collectionTagsGlobal_;
+  InputTagSet collectionTagsStream_;
 
   /// trigger object collection
   trigger::TriggerObjectCollection toc_;
@@ -146,6 +177,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   edm::GetterOfProducts<reco::CompositeCandidateCollection> getCompositeCandidateCollection_;
   edm::GetterOfProducts<reco::METCollection> getMETCollection_;
   edm::GetterOfProducts<reco::CaloMETCollection> getCaloMETCollection_;
+  edm::GetterOfProducts<reco::PFMETCollection> getPFMETCollection_;
   edm::GetterOfProducts<reco::IsolatedPixelTrackCandidateCollection> getIsolatedPixelTrackCandidateCollection_;
   edm::GetterOfProducts<l1extra::L1EmParticleCollection> getL1EmParticleCollection_;
   edm::GetterOfProducts<l1extra::L1MuonParticleCollection> getL1MuonParticleCollection_;
@@ -154,5 +186,10 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   edm::GetterOfProducts<l1extra::L1HFRingsCollection> getL1HFRingsCollection_;
   edm::GetterOfProducts<reco::PFJetCollection> getPFJetCollection_;
   edm::GetterOfProducts<reco::PFTauCollection> getPFTauCollection_;
+  edm::GetterOfProducts<l1t::MuonBxCollection> getL1TMuonParticleCollection_;
+  edm::GetterOfProducts<l1t::EGammaBxCollection> getL1TEGammaParticleCollection_;
+  edm::GetterOfProducts<l1t::JetBxCollection> getL1TJetParticleCollection_;
+  edm::GetterOfProducts<l1t::TauBxCollection> getL1TTauParticleCollection_;
+  edm::GetterOfProducts<l1t::EtSumBxCollection> getL1TEtSumParticleCollection_;
 };
 #endif

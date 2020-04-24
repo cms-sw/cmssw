@@ -47,8 +47,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-
 #include <cmath>
 
 using namespace std;
@@ -61,10 +59,6 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
 
   LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
     << "DTChamberEfficiency: constructor called";
-
-  // Get the DQM needed services
-  theDbe = Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("DT/05-ChamberEff/Task");
 
   // service parameters
   ParameterSet serviceParameters = pSet.getParameter<ParameterSet>("ServiceParameters");
@@ -85,7 +79,7 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
   edm::ConsumesCollector iC = consumesCollector();
 
   theMeasurementExtractor = new MuonDetLayerMeasurements(thedt4DSegments,thecscSegments,
-							 labelRPCRecHits,iC,true,false,false);
+  							 labelRPCRecHits,InputTag(),InputTag(),iC,true,false,false,false); 
 
   theNavigationType = pSet.getParameter<string>("NavigationType");
 
@@ -104,17 +98,7 @@ DTChamberEfficiency::~DTChamberEfficiency()
   delete theEstimator;
 }
 
-void DTChamberEfficiency::beginJob() {
-
-  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
-    << "DTChamberEfficiency: beginOfJob";
-
-  bookHistos();
-
-  return;
-}
-
-void DTChamberEfficiency::beginRun(const Run& run, const EventSetup& setup)
+void DTChamberEfficiency::dqmBeginRun(const Run& run, const EventSetup& setup)
 {
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
@@ -125,22 +109,14 @@ void DTChamberEfficiency::beginRun(const Run& run, const EventSetup& setup)
   return;
 }
 
-void DTChamberEfficiency::endJob()
-{
-  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
-    << "DTChamberEfficiency: endOfJob";
 
-  return;
-}
+void DTChamberEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
-// Book a set of histograms for a given Layer
-void DTChamberEfficiency::bookHistos()
-{
   LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
     << "DTChamberEfficiency: booking histos";
 
   // Create the monitor elements
-  theDbe->setCurrentFolder("DT/05-ChamberEff/Task");
+  ibooker.setCurrentFolder("DT/05-ChamberEff/Task");
 
   for(int wheel=-2;wheel<=2;wheel++){
 
@@ -148,14 +124,14 @@ void DTChamberEfficiency::bookHistos()
 
     stringstream wheel_str; wheel_str << wheel;
 
-    histos.push_back(theDbe->book2D("hCountSectVsChamb_All_W"+ wheel_str.str(),
+    histos.push_back(ibooker.book2D("hCountSectVsChamb_All_W"+ wheel_str.str(),
 				    "Countings for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
 
-    histos.push_back(theDbe->book2D("hCountSectVsChamb_Qual_W"+ wheel_str.str(),
+    histos.push_back(ibooker.book2D("hCountSectVsChamb_Qual_W"+ wheel_str.str(),
 				    "Countings for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
 
 
-    histos.push_back(theDbe->book2D("hExtrapSectVsChamb_W"+ wheel_str.str(),
+    histos.push_back(ibooker.book2D("hExtrapSectVsChamb_W"+ wheel_str.str(),
 				    "Extrapolations for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
 
     histosPerW.push_back(histos);
@@ -174,8 +150,6 @@ void DTChamberEfficiency::analyze(const Event & event,
 
   theService->update(eventSetup);
   theMeasurementExtractor->setEvent(event);
-  // set navigation school
-  NavigationSetter setter(*theService->muonNavigationSchool());
 
   //Read tracks from event
   Handle<reco::TrackCollection> tracks;
@@ -214,8 +188,8 @@ void DTChamberEfficiency::analyze(const Event & event,
       const FreeTrajectoryState *init_fs_free = init_fs.freeState();
 
       //get the list of compatible layers
-      vector<const DetLayer*> layer_list = compatibleLayers(initialLayer,*init_fs_free,alongMomentum);
-      vector<const DetLayer*> layer_list_2 = compatibleLayers(initialLayer,*init_fs_free,oppositeToMomentum);
+      vector<const DetLayer*> layer_list = compatibleLayers(*theService->muonNavigationSchool(), initialLayer,*init_fs_free,alongMomentum);
+      vector<const DetLayer*> layer_list_2 = compatibleLayers(*theService->muonNavigationSchool(), initialLayer,*init_fs_free,oppositeToMomentum);
 
       layer_list.insert(layer_list.end(),layer_list_2.begin(),layer_list_2.end());
 
@@ -231,7 +205,7 @@ void DTChamberEfficiency::analyze(const Event & event,
 	//determine the chambers kinematically compatible with the track on the i-th layer
 	vector<DetWithState> dss = layer_list.at(i)->compatibleDets(tsos, *propagator(), *theEstimator);
 
-	if(dss.size() == 0) continue;
+	if(dss.empty()) continue;
 
 	// get the first det (it's the most compatible)
 	const DetWithState detWithState = dss.front();
@@ -262,8 +236,8 @@ void DTChamberEfficiency::analyze(const Event & event,
 	// get the histos for this chamber
 	vector<MonitorElement *> histos =  histosPerW[DTid.wheel()+2];
 	// fill them
-	if (detMeasurements_initial.size() != 0) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
-	if (detMeasurements.size() != 0) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
+	if (!detMeasurements_initial.empty()) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
+	if (!detMeasurements.empty()) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
 	histos[2]->Fill(DTid.sector(),DTid.station(),1.);
 
 
@@ -287,8 +261,6 @@ bool DTChamberEfficiency::chamberSelection(const DetId& idDetLay, reco::Transien
 
   return true;
 }
-
-//riempi una per ogni segmento e una per segmento sopra 12 hit
 
 MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContainer& seg_list) const
 {
@@ -318,7 +290,7 @@ MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContain
   return result;
 }
 
-vector<const DetLayer*> DTChamberEfficiency::compatibleLayers(const DetLayer *initialLayer,
+vector<const DetLayer*> DTChamberEfficiency::compatibleLayers(const NavigationSchool& navigationSchool, const DetLayer *initialLayer,
                                 const FreeTrajectoryState& fts, PropagationDirection propDir)
 {
 
@@ -326,8 +298,8 @@ vector<const DetLayer*> detLayers;
 
 if(theNavigationType == "Standard"){
    // ask for compatible layers
-   detLayers = initialLayer->compatibleLayers(fts,propDir);
-    // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
+   detLayers = navigationSchool.compatibleLayers(*initialLayer,fts,propDir);
+   // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
    // In fact the first layer is not returned by initialLayer->compatibleLayers.
 
    detLayers.insert(detLayers.begin(),initialLayer);

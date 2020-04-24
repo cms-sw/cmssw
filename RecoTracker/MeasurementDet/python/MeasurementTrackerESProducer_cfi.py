@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     ComponentName = cms.string(''),
-    OnDemand = cms.bool(False),
-    Regional = cms.bool(False),
 
     PixelCPE = cms.string('PixelCPEGeneric'),
     StripCPE = cms.string('StripCPEfromTrackAngle'),
@@ -31,4 +29,5 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     DebugPixelROCQualityDB    = cms.untracked.bool(False), ## dump out info om module status
 )
 
-
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(MeasurementTracker, Phase2StripCPE = cms.string('Phase2StripCPE'))

@@ -6,7 +6,7 @@ process = cms.Process("RPCRecHitValidation")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Services_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
@@ -53,7 +53,7 @@ process.dqmSaver.workflow = '/RPC/MC/Validation'
 process.load("Validation.RPCRecHits.rpcRecHitValidation_cfi")
 
 #### RPCPorintProducer-Reco validation
-process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cfi")
+process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cff")
 process.load("Validation.RPCRecHits.rpcPointValidation_cfi")
 
 process.rpcPointProducerPlusValidation_step = cms.Sequence(

@@ -1827,7 +1827,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const Candidate * mother = mcIter->mother();
       matchingMotherID=false;
       for (unsigned int i=0; i<matchingMotherIDs_.size(); i++)
-        if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
+        if ((mother == nullptr) || ((mother != nullptr) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
 
       if (matchingMotherID) {
 
@@ -1906,7 +1906,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const Candidate * mother = mcIter->mother();
       matchingMotherID=false;
       for (unsigned int i=0; i<matchingMotherIDs_.size(); i++)
-       if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
+       if ((mother == nullptr) || ((mother != nullptr) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
 
       if (matchingMotherID) {
 
@@ -2284,8 +2284,8 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	   h_ele_PtinVsPtoutShowering_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
         }
 
-        h_ele_mva->Fill(bestGsfElectron.mva());
-        if (bestGsfElectron.ecalDrivenSeed()) h_ele_mva_eg->Fill(bestGsfElectron.mva());
+        h_ele_mva->Fill(bestGsfElectron.mva_e_pi());
+        if (bestGsfElectron.ecalDrivenSeed()) h_ele_mva_eg->Fill(bestGsfElectron.mva_e_pi());
 	if (bestGsfElectron.ecalDrivenSeed()) h_ele_provenance->Fill(1.);
 	if (bestGsfElectron.trackerDrivenSeed()) h_ele_provenance->Fill(-1.);
 	if (bestGsfElectron.trackerDrivenSeed()||bestGsfElectron.ecalDrivenSeed()) h_ele_provenance->Fill(0.);

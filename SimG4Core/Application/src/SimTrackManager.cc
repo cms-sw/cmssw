@@ -23,6 +23,7 @@
 #include "G4VProcess.hh"
 
 //#define DebugLog
+//using namespace std;
 
 //
 // constants, enums and typedefs
@@ -36,14 +37,14 @@
 // constructors and destructor
 //
 SimTrackManager::SimTrackManager(bool iCollapsePrimaryVertices) :
-  m_trksForThisEvent(0),m_nVertices(0),
+  m_trksForThisEvent(nullptr),m_nVertices(0),
   m_collapsePrimaryVertices(iCollapsePrimaryVertices),
-  lastTrack(0),lastHist(0),theLHCTlink(0){}
+  lastTrack(0),lastHist(0),theLHCTlink(nullptr){}
 
 
 SimTrackManager::~SimTrackManager()
 {
-  if ( m_trksForThisEvent != 0 ) deleteTracks() ;
+  if ( m_trksForThisEvent != nullptr ) deleteTracks() ;
 }
 
 //
@@ -51,7 +52,7 @@ SimTrackManager::~SimTrackManager()
 //
 void SimTrackManager::reset()
 {
-  if (m_trksForThisEvent==0) { m_trksForThisEvent = new TrackContainer(); }
+  if (m_trksForThisEvent==nullptr) { m_trksForThisEvent = new TrackContainer(); }
   else
     {
       for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++) {
@@ -74,7 +75,7 @@ void SimTrackManager::deleteTracks()
     delete (*m_trksForThisEvent)[i];
   }
   delete m_trksForThisEvent;
-  m_trksForThisEvent = 0;
+  m_trksForThisEvent = nullptr;
 }
 
 /// this saves a track and all its parents looping over the non ordered vector
@@ -82,7 +83,7 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory * trkWHist)
 {
   using namespace std;
   TrackWithHistory * trkH = trkWHist;
-  if (trkH == 0)
+  if (trkH == nullptr)
     {
       edm::LogError("SimTrackManager") 
 	<< " SimTrackManager::saveTrackAndItsBranch got 0 pointer ";
@@ -140,7 +141,7 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
       
       math::XYZVectorD pm(0.,0.,0.);
       unsigned int iParentID = trkH->parentID();
-      for(unsigned int iit = 0; iit < m_trksForThisEvent->size(); iit++)
+      for(unsigned int iit = 0; iit < m_trksForThisEvent->size(); ++iit)
         {
           if((*m_trksForThisEvent)[iit]->trackID()==iParentID){
             pm = (*m_trksForThisEvent)[iit]->momentum();
@@ -268,7 +269,7 @@ int SimTrackManager::idSavedTrack (int id) const
 
 void SimTrackManager::fillMotherList() 
 {
-  if ( ancestorList.size() > 0 && lastHist > ancestorList.size() ) {
+  if ( !ancestorList.empty() && lastHist > ancestorList.size() ) {
     lastHist = ancestorList.size();
     edm::LogError("SimTrackManager") 
       << " SimTrackManager::fillMotherList track index corrupted";
@@ -304,9 +305,7 @@ void SimTrackManager::fillMotherList()
 
 void SimTrackManager::cleanTracksWithHistory(){
 
-  using namespace std;
-
-  if ((*m_trksForThisEvent).size() == 0 && idsave.size() == 0) { return; }
+  if ((*m_trksForThisEvent).empty() && idsave.empty()) { return; }
 
 #ifdef DebugLog
   LogDebug("SimTrackManager") 
@@ -324,7 +323,7 @@ void SimTrackManager::cleanTracksWithHistory(){
   stable_sort(m_trksForThisEvent->begin()+lastTrack,m_trksForThisEvent->end(),trkIDLess());
   
   stable_sort(idsave.begin(),idsave.end());
-  
+ 
 #ifdef DebugLog
   LogDebug("SimTrackManager")  
     << " SimTrackManager::cleanTracksWithHistory knows " << m_trksForThisEvent->size()
@@ -366,7 +365,7 @@ void SimTrackManager::cleanTracksWithHistory(){
     }
   
   (*m_trksForThisEvent).resize(num);
-  
+
 #ifdef DebugLog
   LogDebug("SimTrackManager")  
     << " AFTER CLEANING, I GET " << (*m_trksForThisEvent).size()
@@ -376,19 +375,20 @@ void SimTrackManager::cleanTracksWithHistory(){
       << " Track in position " << it
       << " G4 track number " << (*m_trksForThisEvent)[it]->trackID()
       << " mother " << (*m_trksForThisEvent)[it]->parentID()
-      << " Status " << (*m_trksForThisEvent)[it]->saved();
+      << " Status " << (*m_trksForThisEvent)[it]->saved() 
+      << " id " << (*m_trksForThisEvent)[it]->particleID()
+      << " E(MeV)= " <<  (*m_trksForThisEvent)[it]->totalEnergy();
   }
 #endif  
 
   fillMotherList();
 
   lastTrack = (*m_trksForThisEvent).size();
-
 }
 
 void SimTrackManager::resetGenID() 
 {
-  if ( theLHCTlink == 0 ) return;
+  if ( theLHCTlink == nullptr ) return;
 
   for  (unsigned int it = 0; it < m_trksForThisEvent->size(); it++)
     {
@@ -405,6 +405,6 @@ void SimTrackManager::resetGenID()
       }
     }
 
-  theLHCTlink = 0;
+  theLHCTlink = nullptr;
 
 }

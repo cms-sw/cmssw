@@ -40,4 +40,4 @@ regionalCosmicTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.c
     src = cms.InputTag( "regionalCosmicCkfTrackCandidates" ),
 )
 # Final Sequence
-regionalCosmicTracksSeq = cms.Sequence( regionalCosmicTrackerSeeds * regionalCosmicCkfTrackCandidates * regionalCosmicTracks )
+regionalCosmicTracksSeq = cms.Sequence( regionalCosmicTrackerSeedingLayers * regionalCosmicTrackerSeeds * regionalCosmicCkfTrackCandidates * regionalCosmicTracks )

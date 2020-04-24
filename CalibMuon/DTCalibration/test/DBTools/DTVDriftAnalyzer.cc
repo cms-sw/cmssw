@@ -41,7 +41,7 @@ void DTVDriftAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& even
 void DTVDriftAnalyzer::endJob() {
    // Loop over DB entries
    for(DTMtime::const_iterator mtime = mTimeMap->begin();
-       mtime != mTimeMap->end(); mtime++) {
+       mtime != mTimeMap->end(); ++mtime) {
      DTWireId wireId((*mtime).first.wheelId,
 		     (*mtime).first.stationId,
 		     (*mtime).first.sectorId,
@@ -117,24 +117,24 @@ void DTVDriftAnalyzer::endJob() {
   theFile->cd();
   for(map<pair<int,int>, TH1D*>::const_iterator lHisto = theVDriftHistoMap.begin();
       lHisto != theVDriftHistoMap.end();
-      lHisto++) {
+      ++lHisto) {
     (*lHisto).second->GetXaxis()->LabelsOption("v");
     (*lHisto).second->Write(); 
   }    
   for(map<pair<int,int>, TH1D*>::const_iterator lHisto = theResoHistoMap.begin();
       lHisto != theResoHistoMap.end();
-      lHisto++) {
+      ++lHisto) {
     (*lHisto).second->GetXaxis()->LabelsOption("v");
     (*lHisto).second->Write(); 
   } 
    for(map<vector<int>, TH1D*>::const_iterator lDistrib = theVDriftDistribMap.begin();
       lDistrib != theVDriftDistribMap.end();
-      lDistrib++) {
+      ++lDistrib) {
     (*lDistrib).second->Write(); 
   }    
   for(map<vector<int>, TH1D*>::const_iterator lDistrib = theResoDistribMap.begin();
       lDistrib != theResoDistribMap.end();
-      lDistrib++) {
+      ++lDistrib) {
     (*lDistrib).second->Write(); 
   }  
 

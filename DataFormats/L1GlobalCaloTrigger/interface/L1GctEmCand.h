@@ -43,31 +43,31 @@ public:
   L1GctEmCand(L1CaloEmCand& c);
 
   /// destructor (virtual to prevent compiler warnings)
-  virtual ~L1GctEmCand();
+  ~L1GctEmCand() override;
   
   /// region associated with the candidate
-  L1CaloRegionDetId regionId() const;
+  L1CaloRegionDetId regionId() const override;
 
   /// name of object
   std::string name() const;
 
   /// was an object really found?
-  bool empty() const  {  return (rank() == 0); }
+  bool empty() const override  {  return (rank() == 0); }
  
   /// get the raw data
   uint16_t raw() const { return m_data; }
   
   /// get rank bits
-  unsigned rank() const  { return m_data & 0x3f; }
+  unsigned rank() const override  { return m_data & 0x3f; }
 
   /// get eta index -6 to -0, +0 to +6 (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
-  unsigned etaIndex() const  { return (m_data>>6) & 0xf; } 
+  unsigned etaIndex() const override  { return (m_data>>6) & 0xf; } 
 
   /// get eta sign (1 for -ve Z, 0 for +ve Z) 
-  unsigned etaSign() const { return (m_data>>9) & 0x1; } 
+  unsigned etaSign() const override { return (m_data>>9) & 0x1; } 
 
   /// get phi index (0-17)
-  unsigned phiIndex() const  { return (m_data>>10) & 0x1f; } 
+  unsigned phiIndex() const override  { return (m_data>>10) & 0x1f; } 
 
   /// which stream did this come from
   bool isolated() const { return m_iso; }

@@ -1,6 +1,9 @@
 #ifndef PhysicsTools_PatUtils_interface_PFMuonSelector_h
 #define PhysicsTools_PatUtils_interface_PFMuonSelector_h
 
+#ifndef __GCCXML__
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#endif
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -19,6 +22,12 @@ class PFMuonSelector : public Selector<pat::Muon> {
   enum Version_t { TOPPAG12_LJETS, N_VERSIONS };
 
   PFMuonSelector() {}
+
+#ifndef __GCCXML__
+  PFMuonSelector( edm::ParameterSet const & parameters, edm::ConsumesCollector&& iC ) :
+    PFMuonSelector( parameters )
+  {}
+#endif
 
   PFMuonSelector( edm::ParameterSet const & parameters ) {
 

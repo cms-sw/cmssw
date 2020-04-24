@@ -13,7 +13,6 @@ using edm::LogInfo;
 
 SPYHistograms::SPYHistograms()
 {
-  dqm_ = 0;
 }
 
 SPYHistograms::~SPYHistograms()
@@ -181,8 +180,8 @@ void SPYHistograms::fillDetailedHistograms(const Errors & aErr,
 					   const sistrip::SpyUtilities::Frame & aFrame, 
 					   const unsigned int aFedId,
 					   const unsigned int aFedChannel) {
-
-  bookFEDHistograms(aFedId,aErr);
+  //removed: tomas
+  //bookFEDHistograms(aFedId,aErr);
 
   if (!aErr.hasNoData) {
     fillHistogram(frameRange_,sistrip::SpyUtilities::range(aFrame));
@@ -246,10 +245,8 @@ void SPYHistograms::fillDetailedHistograms(const Errors & aErr,
 }
 
 
-void SPYHistograms::bookTopLevelHistograms(DQMStore* dqm)
+void SPYHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker)
 {
-
-  dqm_ = dqm;
   //get FED IDs
   const unsigned int siStripFedIdMin = sistrip::FED_ID_MIN;
   const unsigned int siStripFedIdMax = sistrip::FED_ID_MAX;
@@ -260,60 +257,60 @@ void SPYHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
 
   //book histos
-  bookHistogram(nNoData_,"nNoData",
+  bookHistogram(ibooker , nNoData_,"nNoData",
 		";n_{noData};n_{entries}",
 		"n_{noData}");
 
-  bookHistogram(nLowRange_,"nLowRange",
+  bookHistogram(ibooker , nLowRange_,"nLowRange",
 		";n_{LowRange};n_{entries}",
 		"n_{LowRange}");
 
-  bookHistogram(nHighRange_,"nHighRange",
+  bookHistogram(ibooker , nHighRange_,"nHighRange",
 		";n_{HighRange};n_{entries}",
 		"n_{HighRange}");
 
-  bookHistogram(nMinZero_,"nMinZero",
+  bookHistogram(ibooker , nMinZero_,"nMinZero",
 		";n_{MinZero};n_{entries}",
 		"n_{MinZero}");
 
-  bookHistogram(nMaxSat_,"nMaxSat",
+  bookHistogram(ibooker , nMaxSat_,"nMaxSat",
 		";n_{MaxSat};n_{entries}",
 		"n_{MaxSat}");
   
-  bookHistogram(nLowPb_,"nLowPb",
+  bookHistogram(ibooker , nLowPb_,"nLowPb",
 		";n_{lowPb};n_{entries}",
 		"n_{lowPb}");
 
-  bookHistogram(nHighPb_,"nHighPb",
+  bookHistogram(ibooker , nHighPb_,"nHighPb",
 		";n_{highPb};n_{entries}",
 		"n_{highPb}");
   
-  bookHistogram(nOutOfSync_,"nOutOfSync",
+  bookHistogram(ibooker , nOutOfSync_,"nOutOfSync",
 		";n_{OOS};n_{entries}",
 		"n_{OOS}");
 
-  bookHistogram(nOtherPbs_,"nOtherPbs",
+  bookHistogram(ibooker , nOtherPbs_,"nOtherPbs",
 		";n_{OtherPbs};n_{entries}",
 		"n_{OtherPbs}");
 
-  bookHistogram(nApvErrorBit_,"nApvErrorBit",
+  bookHistogram(ibooker , nApvErrorBit_,"nApvErrorBit",
 		";n_{APVerror};n_{entries}",
 		"n_{APVerror}"
 		);
 
-  bookHistogram(nApvAddressError_,"nApvAddressError",
+  bookHistogram(ibooker , nApvAddressError_,"nApvAddressError",
 		";n_{APVAddressError};n_{entries}",
 		"n_{APVAddressError}"
 		);
 
-  bookHistogram(nNegativePeds_,"nNegativePeds",
+  bookHistogram(ibooker , nNegativePeds_,"nNegativePeds",
 		";n_{negPeds};n_{entries}",
 		"n_{negPeds}"
 		);
   
 
 
-  bookHistogram(noData_,"NoData",
+  bookHistogram(ibooker , noData_,"NoData",
 		";delayFPGA;n_{noData}",
 		//24*(siStripFedIdMax+1)-24*siStripFedIdMin,
 		//24*siStripFedIdMin,24*(siStripFedIdMax+1),
@@ -321,99 +318,99 @@ void SPYHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		"delayFPGA index"
 		);
 
-  bookHistogram(lowRange_,"LowRange",
+  bookHistogram(ibooker , lowRange_,"LowRange",
 		";fedId;n_{LowRange}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
   
-  bookHistogram(highRange_,"HighRange",
+  bookHistogram(ibooker , highRange_,"HighRange",
 		";fedId;n_{HighRange}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
 
-  bookHistogram(minZero_,"MinZero",
+  bookHistogram(ibooker , minZero_,"MinZero",
 		";fedId;n_{MinZero}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
 
-  bookHistogram(maxSat_,"MaxSat",
+  bookHistogram(ibooker , maxSat_,"MaxSat",
 		";fedId;n_{MaxSat}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
   
-  bookHistogram(lowPb_,"LowPb",
+  bookHistogram(ibooker , lowPb_,"LowPb",
 		";fedId;n_{lowPb}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
 
-  bookHistogram(highPb_,"HighPb",
+  bookHistogram(ibooker , highPb_,"HighPb",
 		";fedId;n_{highPb}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
   
-  bookHistogram(outOfSync_,"OutOfSync",
+  bookHistogram(ibooker , outOfSync_,"OutOfSync",
 		";fedId;n_{OOS}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
 
-  bookHistogram(otherPbs_,"OtherPbs",
+  bookHistogram(ibooker , otherPbs_,"OtherPbs",
 		";fedId;n_{OtherPbs}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
 
-  bookHistogram(apvErrorBit_,"ApvErrorBit",
+  bookHistogram(ibooker , apvErrorBit_,"ApvErrorBit",
 		";fedId;n_{APVerror}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
 
-  bookHistogram(apvAddressError_,"ApvAddressError",
+  bookHistogram(ibooker , apvAddressError_,"ApvAddressError",
 		";fedId;n_{APVAddressError}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
 
-  bookHistogram(negativePeds_,"NegativePeds",
+  bookHistogram(ibooker , negativePeds_,"NegativePeds",
 		";fedId;n_{negPeds}",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,
 		"FED-ID"
 		);
   
-  bookHistogram(frameRange_,"FrameRange",
+  bookHistogram(ibooker , frameRange_,"FrameRange",
 		";range;n_{entries}",
 		1024,0,1024,
 		"range (adc counts)");
 
-  bookHistogram(frameMin_,"FrameMin",
+  bookHistogram(ibooker , frameMin_,"FrameMin",
 		";Zero-light level;n_{entries}",
 		800,0,800,
 		"Zero-light level (adc counts)");
 
-  bookHistogram(frameMax_,"FrameMax",
+  bookHistogram(ibooker , frameMax_,"FrameMax",
 		";Tick height;n_{entries}",
 		824,200,1024,
 		"Tick height (adc counts)");
 
-  bookHistogram(baseline_,"Baseline",
+  bookHistogram(ibooker , baseline_,"Baseline",
 		";Baseline;n_{entries}",
 		1024,0,1024,
 		"Baseline (adc counts)");
@@ -422,21 +419,21 @@ void SPYHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
   //book histos
  
-  bookProfile(nNoDatavsTime_,"nNoDatavsTime",
+  bookProfile(ibooker , nNoDatavsTime_,"nNoDatavsTime",
 	      ";time;n_{noData}",
 	      0,
 	      42241,//total number of channels 
 	      "Time",
 	      "n_{noData}");
 
-  bookProfile(nLowRangevsTime_,"nLowRangevsTime",
+  bookProfile(ibooker , nLowRangevsTime_,"nLowRangevsTime",
 	      ";time;n_{LowRange}",
 	      0,
 	      42241,//total number of channels 
 	      "Time",
 	      "n_{LowRange}");
 
-  bookProfile(nHighRangevsTime_,"nHighRangevsTime",
+  bookProfile(ibooker , nHighRangevsTime_,"nHighRangevsTime",
 	      ";time;n_{HighRange}",
 	      0,
 	      42241,//total number of channels 
@@ -444,28 +441,28 @@ void SPYHistograms::bookTopLevelHistograms(DQMStore* dqm)
 	      "n_{HighRange}");
 
 
-  bookProfile(nMinZerovsTime_,"nMinZerovsTime",
+  bookProfile(ibooker , nMinZerovsTime_,"nMinZerovsTime",
 	      ";time;n_{MinZero}",
 	      0,
 	      42241,//total number of channels 
 	      "Time",
 	      "n_{MinZero}");
 
-  bookProfile(nMaxSatvsTime_,"nMaxSatvsTime",
+  bookProfile(ibooker , nMaxSatvsTime_,"nMaxSatvsTime",
 	      ";time;n_{MaxSat}",
 	      0,
 	      42241,//total number of channels 
 	      "Time",
 	      "n_{MaxSat}");
   
-  bookProfile(nLowPbvsTime_,"nLowPbvsTime",
+  bookProfile(ibooker , nLowPbvsTime_,"nLowPbvsTime",
 	      ";time;n_{lowPb}",
 	      0,
 	      42241,//total number of channels 
 	      "Time",
 	      "n_{lowPb}");
 
-  bookProfile(nHighPbvsTime_,"nHighPbvsTime",
+  bookProfile(ibooker , nHighPbvsTime_,"nHighPbvsTime",
 	      ";time;n_{highPb}",
 	      0,
 	      42241,//total number of channels 
@@ -473,35 +470,35 @@ void SPYHistograms::bookTopLevelHistograms(DQMStore* dqm)
 	      "n_{highPb}");
 
  
-  bookProfile(nOutOfSyncvsTime_,"nOutOfSyncvsTime",
+  bookProfile(ibooker , nOutOfSyncvsTime_,"nOutOfSyncvsTime",
 	      ";time;n_{OOS}",
 	      0,
 	      42241,//total number of channels 
 	      "Time",
 	      "n_{OOS}");
 
-  bookProfile(nOtherPbsvsTime_,"nOtherPbsvsTime",
+  bookProfile(ibooker , nOtherPbsvsTime_,"nOtherPbsvsTime",
 	      ";time;n_{OtherPbs}",
 	      0,
 	      42241,//total number of channels 
 	      "Time",
 	      "n_{OtherPbs}");
 
-  bookProfile(nApvErrorBitvsTime_,"nApvErrorBitvsTime",
+  bookProfile(ibooker , nApvErrorBitvsTime_,"nApvErrorBitvsTime",
 	      ";time;n_{APVerror}",
 	      0,
 	      42241,//total number of channels 
 	      "Time",
 	      "n_{APVerror}");
 
-  bookProfile(nApvAddressErrorvsTime_,"nApvAddressErrorvsTime",
+  bookProfile(ibooker , nApvAddressErrorvsTime_,"nApvAddressErrorvsTime",
 	      ";time;n_{APVAddressError}",
 	      0,
 	      42241,//total number of channels 
 	      "Time",
 	      "n_{APVAddressError}");
 
-  bookProfile(nNegativePedsvsTime_,"nNegativePedsvsTime",
+  bookProfile(ibooker , nNegativePedsvsTime_,"nNegativePedsvsTime",
 	      ";time;n_{negPeds}",
 	      0,
 	      42241,//total number of channels 
@@ -513,26 +510,15 @@ void SPYHistograms::bookTopLevelHistograms(DQMStore* dqm)
   //book histos
 
 
-  bookProfile(meanDigitalLowvsTime_,"meanDigitalLowvsTime",
+  bookProfile(ibooker , meanDigitalLowvsTime_,"meanDigitalLowvsTime",
 	      ";time;meanDigitalLow",
 	      0,
 	      800,//maximum for digitalLow 
 	      "Time",
 	      "meanDigitalLow");
-
-
-
-
-
-
-  LogInfo("SPYHistograms") << " ---- Toplevel histograms book ! Number of MEs : " 
-			   << dqm_->getMEs().size()
-			   << std::endl;
-  
-
 }
 
-void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
+void SPYHistograms::bookFEDHistograms(DQMStore::IBooker & ibooker , const unsigned int fedId,
 				      const Errors & aErr,
 				      bool doAll)
 {
@@ -561,10 +547,10 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
     SiStripFedKey fedKey(fedId,0,0,0);
     std::stringstream fedIdStream;
     fedIdStream << fedId;
-    dqm_->setCurrentFolder(fedKey.path());
+    ibooker.setCurrentFolder(fedKey.path());
     
 
-    bookHistogram(noDataDetailed_,
+    bookHistogram(ibooker , noDataDetailed_,
 		  noDataDetailedMap_[fedId],
 		  "NoDataForFED"+fedIdStream.str(),
 		  "No data for FED ID "+fedIdStream.str(),
@@ -572,7 +558,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "Channel Index"
 		  );
 
-    bookHistogram(lowRangeDetailed_,
+    bookHistogram(ibooker , lowRangeDetailed_,
 		  lowRangeDetailedMap_[fedId],
 		  "LowRangeForFED"+fedIdStream.str(),
 		  "Max-min<VAL for FED ID "+fedIdStream.str(),
@@ -580,7 +566,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "Channel Index"
 		  );
 
-    bookHistogram(highRangeDetailed_,
+    bookHistogram(ibooker , highRangeDetailed_,
 		  highRangeDetailedMap_[fedId],
 		  "HighRangeForFED"+fedIdStream.str(),
 		  "Max-min>VAL for FED ID "+fedIdStream.str(),
@@ -588,7 +574,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "Channel Index"
 		  );
 
-    bookHistogram(minZeroDetailed_,
+    bookHistogram(ibooker , minZeroDetailed_,
 		  minZeroDetailedMap_[fedId],
 		  "MinZeroForFED"+fedIdStream.str(),
 		  "min=0 for FED ID "+fedIdStream.str(),
@@ -596,7 +582,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "Channel Index"
 		  );
 
-    bookHistogram(maxSatDetailed_,
+    bookHistogram(ibooker , maxSatDetailed_,
 		  maxSatDetailedMap_[fedId],
 		  "MaxSatForFED"+fedIdStream.str(),
 		  "max=1023 for FED ID "+fedIdStream.str(),
@@ -604,7 +590,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "Channel Index"
 		  );
 
-    bookHistogram(lowPbDetailed_,
+    bookHistogram(ibooker , lowPbDetailed_,
 		  lowPbDetailedMap_[fedId],
 		  "LowPbForFED"+fedIdStream.str(),
 		  "Pb with digitalLow for FED ID "+fedIdStream.str(),
@@ -612,7 +598,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "Channel Index"
 		  );
 
-    bookHistogram(highPbDetailed_,
+    bookHistogram(ibooker , highPbDetailed_,
 		  highPbDetailedMap_[fedId],
 		  "HighPbForFED"+fedIdStream.str(),
 		  "Pb with digitalHigh for FED ID "+fedIdStream.str(),
@@ -620,7 +606,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "Channel Index"
 		  );
 
-    bookHistogram(outOfSyncDetailed_,
+    bookHistogram(ibooker , outOfSyncDetailed_,
 		  outOfSyncDetailedMap_[fedId],
 		  "OutOfSyncForFED"+fedIdStream.str(),
 		  "Out-of-sync for FED ID "+fedIdStream.str(),
@@ -628,7 +614,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "Channel Index"
 		  );
 
-    bookHistogram(otherPbsDetailed_,
+    bookHistogram(ibooker , otherPbsDetailed_,
 		  otherPbsDetailedMap_[fedId],
 		  "OtherPbsForFED"+fedIdStream.str(),
 		  "Other issues for FED ID "+fedIdStream.str(),
@@ -636,7 +622,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "Channel Index"
 		  );
 
-    bookHistogram(apvErrorBitDetailed_,
+    bookHistogram(ibooker , apvErrorBitDetailed_,
 		  apvErrorBitDetailedMap_[fedId],
 		  "ApvErrorBitForFED"+fedIdStream.str(),
 		  "APV error for FED ID "+fedIdStream.str(),
@@ -644,7 +630,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "APV Index"
 		  );
 
-    bookHistogram(apvAddressErrorDetailed_,
+    bookHistogram(ibooker , apvAddressErrorDetailed_,
 		  apvAddressErrorDetailedMap_[fedId],
 		  "ApvAddressErrorForFED"+fedIdStream.str(),
 		  "APV address error for FED ID "+fedIdStream.str(),
@@ -652,7 +638,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "APV Index"
 		  );
 
-    bookHistogram(negativePedsDetailed_,
+    bookHistogram(ibooker , negativePedsDetailed_,
 		  negativePedsDetailedMap_[fedId],
 		  "NegativePedsForFED"+fedIdStream.str(),
 		  "Negative ped subtr for FED ID "+fedIdStream.str(),
@@ -662,7 +648,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 
 
 
-    bookHistogram(positionOfFirstHeaderBitDetailed_,
+    bookHistogram(ibooker , positionOfFirstHeaderBitDetailed_,
 		  positionOfFirstHeaderBitDetailedMap_[fedId],
 		  "PositionOfFirstHeaderBitForFED"+fedIdStream.str(),
 		  "FED ID "+fedIdStream.str(),
@@ -670,7 +656,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "first header bit"
 		  );
 
-    bookHistogram(positionOfFirstTrailerBitDetailed_,
+    bookHistogram(ibooker , positionOfFirstTrailerBitDetailed_,
 		  positionOfFirstTrailerBitDetailedMap_[fedId],
 		  "PositionOfFirstTrailerBitForFED"+fedIdStream.str(),
 		  "FED ID "+fedIdStream.str(),
@@ -678,7 +664,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 		  "first trailer bit"
 		  );
 					    
-    bookHistogram(distanceHeaderTrailerDetailed_,
+    bookHistogram(ibooker , distanceHeaderTrailerDetailed_,
 		  distanceHeaderTrailerDetailedMap_[fedId],
 		  "DistanceHeaderTrailerForFED"+fedIdStream.str(),
 		  "FED ID "+fedIdStream.str(),
@@ -694,7 +680,7 @@ void SPYHistograms::bookFEDHistograms(const unsigned int fedId,
 
 }
 
-void SPYHistograms::bookAllFEDHistograms()
+void SPYHistograms::bookAllFEDHistograms(DQMStore::IBooker & ibooker)
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
@@ -703,6 +689,6 @@ void SPYHistograms::bookAllFEDHistograms()
   for (unsigned int iFed = siStripFedIdMin; iFed <= siStripFedIdMax; iFed++) {
     //dummy error object
     Errors lError;
-    bookFEDHistograms(iFed,lError,true);
+    bookFEDHistograms(ibooker , iFed,lError,true);
   }
 }

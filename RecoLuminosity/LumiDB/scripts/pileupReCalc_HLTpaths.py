@@ -54,11 +54,11 @@ if __name__ == '__main__':
     parser.add_option('--inputLumiJSON',dest='inputLumiJSON',action='store',
                         help='Input Lumi/Pileup file in JSON format (required)')
     parser.add_option('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
-    
+    parser.add_option('--runperiod',dest='runperiod',action='store', default='Run1',help='select runperiod Run1 or Run2, default Run1' )
     # parse arguments
     try:
         (options, args) = parser.parse_args()
-    except Exception , e:
+    except Exception as e:
         print e
 #    if not args:
 #        parser.print_usage()
@@ -75,10 +75,11 @@ if __name__ == '__main__':
         print '\toutputfile: ',options.outputfile
         print '\tinput selection file: ',options.inputfile
 
-
+    #print options.runperiod
     #inpf = open (options.inputfile, 'r')
     #inputfilecontent = inpf.read()
-    inputRange =  csvLumibyLSParser.csvLumibyLSParser (options.inputfile).runsandls()
+      
+    inputRange =  csvLumibyLSParser.csvLumibyLSParser (options.inputfile,options.runperiod).runsandls()
 
     #print 'number of runs processed %d' % csvLumibyLSParser.csvLumibyLSParser (options.inputfile).numruns()
 
@@ -166,8 +167,7 @@ if __name__ == '__main__':
 
     outputfile = open(options.outputfile,'w')
     if not outputfile:
-        raise RuntimeError, \
-              "Could not open '%s' as an output JSON file" % output
+        raise RuntimeError("Could not open '%s' as an output JSON file" % output)
                     
     outputfile.write(OUTPUTLINE)
     outputfile.close()

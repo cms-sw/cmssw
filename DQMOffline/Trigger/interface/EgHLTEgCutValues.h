@@ -68,7 +68,7 @@ namespace egHLT {
     double maxHLTDPhiIn;
     double maxHLTInvEInvP;
 
-    EgCutValues(){}
+    EgCutValues()= default;
     explicit EgCutValues(const edm::ParameterSet& iConfig){setup(iConfig);}
     void setup(const edm::ParameterSet& iConfig);
 

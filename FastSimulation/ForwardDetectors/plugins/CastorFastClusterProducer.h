@@ -1,6 +1,8 @@
 #ifndef FastSimulation_ForwardDetectors_CastorFastClusterProducer_h
 #define FastSimulation_ForwardDetectors_CastorFastClusterProducer_h
 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+
 // Castorobject includes
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
 
@@ -9,17 +11,18 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 
+
 //
 // class decleration
 //
 
-class CastorFastClusterProducer : public edm::EDProducer {
+class CastorFastClusterProducer : public edm::stream::EDProducer <>{
    public:
       explicit CastorFastClusterProducer(const edm::ParameterSet&);
-      ~CastorFastClusterProducer();
+      ~CastorFastClusterProducer() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       double make_noise();
       
       // ----------member data ---------------------------

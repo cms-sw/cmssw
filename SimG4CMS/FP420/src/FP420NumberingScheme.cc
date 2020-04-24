@@ -8,6 +8,7 @@
 //
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "globals.hh"
+#include "G4Step.hh"
 #include <iostream>
 
 //UserVerbosity FP420NumberingScheme::cout("FP420NumberingScheme","silent","FP420NumberingScheme");

@@ -2,11 +2,13 @@
  <class name="Alignments" id="2F16F0A9-79D5-4881-CE0B-C271DD84A7F3"/>
  <class name="AlignTransform"/>
  <class name="std::vector<AlignTransform>"/>
- <class name="uint32_t"/>
 
  <class name="AlignmentErrors"/>
+ <class name="AlignmentErrorsExtended"/>
  <class name="AlignTransformError"/>
  <class name="std::vector<AlignTransformError>"/>
+ <class name="AlignTransformErrorExtended"/>
+ <class name="std::vector<AlignTransformErrorExtended>"/>
 
  <class name="AlignmentSurfaceDeformations">
    <field name="m_items" mapping="blob"/>

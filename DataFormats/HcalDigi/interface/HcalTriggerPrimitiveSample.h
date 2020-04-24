@@ -13,19 +13,14 @@ public:
   HcalTriggerPrimitiveSample();
   HcalTriggerPrimitiveSample(uint16_t data);
   HcalTriggerPrimitiveSample(int encodedEt, bool finegrain, int slb, int slbchan);
+  HcalTriggerPrimitiveSample(int encodedEt, int finegrainExtended);
   
   /// get the raw word
   uint16_t raw() const { return theSample; }
   /// get the encoded/compressed Et
   int compressedEt() const { return theSample&0xFF; }
-  /// get the fine-grain bit
-  bool fineGrain() const { return (theSample&0x100)!=0; }
-  /// get the slb site number
-  int slb() const { return ((theSample>>13)&0x7); }
-  /// get the slb channel number
-  int slbChan() const { return (theSample>>11)&0x3; }
-  /// get the id channel
-  int slbAndChan() const { return (theSample>>11)&0x1F; }
+  /// get fine-grain bit (traditional)
+  bool fineGrain(int i=0) const { return (((theSample)>>(i+8))&0x1)!=0; }
   
 private:
   uint16_t theSample;

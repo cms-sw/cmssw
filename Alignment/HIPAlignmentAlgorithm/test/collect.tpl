@@ -26,7 +26,7 @@ process Alignment =
     VPSet toGet =
     {
       { string record = "TrackerSurveyRcd"      string tag = "valueTag" },
-      { string record = "TrackerSurveyErrorRcd" string tag = "errorTag" }
+      { string record = "TrackerSurveyErrorExtendedRcd" string tag = "errorTag" }
     }
   }
 }

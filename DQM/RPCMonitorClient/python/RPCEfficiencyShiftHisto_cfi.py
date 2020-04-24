@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-rpcEfficiencyShiftHisto = cms.EDAnalyzer("RPCEfficiencyShiftHisto",
+rpcEfficiencyShiftHisto = DQMEDHarvester("RPCEfficiencyShiftHisto",
    EffCut = cms.untracked.int32(90),
    GlobalFolder = cms.untracked.string('RPC/RPCEfficiency/'),
-   SaveFile = cms.untracked.bool(False),
-   NameFile = cms.untracked.string('/afs/cern.ch/user/c/calabria/scratch0/RPCEfficiency.root'),
-   NumberOfEndcapDisks = cms.untracked.int32(3)
+   NumberOfEndcapDisks = cms.untracked.int32(4)
 )

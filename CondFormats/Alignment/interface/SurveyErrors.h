@@ -12,6 +12,8 @@
  *  \author Chung Khim Lae
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Alignment/interface/SurveyError.h"
 
 struct SurveyErrors
@@ -19,6 +21,8 @@ struct SurveyErrors
   SurveyErrors() {}
 
   std::vector<SurveyError> m_surveyErrors;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

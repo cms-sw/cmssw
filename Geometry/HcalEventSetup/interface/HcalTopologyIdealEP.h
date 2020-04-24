@@ -4,7 +4,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -12,6 +11,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 namespace edm {
@@ -26,24 +26,20 @@ class HcalTopologyIdealEP : public edm::ESProducer {
 
 public:
   HcalTopologyIdealEP(const edm::ParameterSet&);
-  ~HcalTopologyIdealEP();
+  ~HcalTopologyIdealEP() override;
 
-  typedef boost::shared_ptr<HcalTopology> ReturnType;
+  typedef std::shared_ptr<HcalTopology> ReturnType;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
-  ReturnType produce(const IdealGeometryRecord&);
+  ReturnType produce(const HcalRecNumberingRecord&);
+
+  void       hcalRecordCallBack( const IdealGeometryRecord& ) {}
 
 private:
   // ----------member data ---------------------------
   std::string m_restrictions;
+  bool        m_mergePosition;
   const edm::ParameterSet m_pSet;
-    
-  // can be specified in the config
-  struct RingSegmentation {
-    int ring;
-    std::vector<int> segmentation;
-  };
-  std::vector<RingSegmentation> m_segmentation;
 };
 #endif

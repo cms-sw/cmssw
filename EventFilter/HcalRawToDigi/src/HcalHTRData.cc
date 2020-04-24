@@ -9,15 +9,15 @@
 const int HcalHTRData::CHANNELS_PER_SPIGOT         = 24;
 const int HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
 #endif
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 
-HcalHTRData::HcalHTRData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(0), m_ownData(0) { }
+HcalHTRData::HcalHTRData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(nullptr), m_ownData(nullptr) { }
 HcalHTRData::HcalHTRData(const unsigned short* data, int length) {
   adoptData(data,length);
-  m_ownData=0;
+  m_ownData=nullptr;
 }
-HcalHTRData::HcalHTRData(const HcalHTRData& hd) : m_formatVersion(hd.m_formatVersion), m_rawLength(hd.m_rawLength), m_rawConst(hd.m_rawConst), m_ownData(0) { }
+HcalHTRData::HcalHTRData(const HcalHTRData& hd) : m_formatVersion(hd.m_formatVersion), m_rawLength(hd.m_rawLength), m_rawConst(hd.m_rawConst), m_ownData(nullptr) { }
 
 HcalHTRData::HcalHTRData(int version_to_create) : m_formatVersion(version_to_create) {
   allocate(version_to_create);
@@ -36,7 +36,7 @@ void HcalHTRData::allocate(int version_to_create) {
 }
 
 HcalHTRData& HcalHTRData::operator=(const HcalHTRData& hd) {
-  if (m_ownData==0) {
+  if (m_ownData==nullptr) {
     m_formatVersion=hd.m_formatVersion;
     m_rawLength=hd.m_rawLength;
     m_rawConst=hd.m_rawConst;
@@ -172,8 +172,8 @@ static const int channelDecoder[32] = { 0, 1, 2, 99, 3, 4, 5, 99,
 void HcalHTRData::unpack(unsigned char* daq_lengths, unsigned short* daq_samples,
 			 unsigned char* tp_lengths, unsigned short* tp_samples) const {
 
-  if (daq_lengths!=0) memset(daq_lengths,0,CHANNELS_PER_SPIGOT);
-  if (tp_lengths!=0) memset(tp_lengths,0,CHANNELS_PER_SPIGOT);
+  if (daq_lengths!=nullptr) memset(daq_lengths,0,CHANNELS_PER_SPIGOT);
+  if (tp_lengths!=nullptr) memset(tp_lengths,0,CHANNELS_PER_SPIGOT);
 
   // currently, the major differences between the versions are
   //  -1 : 6 word header, no zero suppression, trailer setup
@@ -186,7 +186,7 @@ void HcalHTRData::unpack(unsigned char* daq_lengths, unsigned short* daq_samples
   int wordPtr;
   const unsigned short* tpBase=m_rawConst+headerLen;
   // process the trigger primitive words
-  if (tp_lengths!=0) {
+  if (tp_lengths!=nullptr) {
     for (wordPtr=0; wordPtr<tp_words_total; wordPtr++) {
       int ichan=channelDecoder[tpBase[wordPtr]>>11];
       if (ichan>=24) continue;
@@ -199,7 +199,7 @@ void HcalHTRData::unpack(unsigned char* daq_lengths, unsigned short* daq_samples
   // process the DAQ words [ assumes that data from one channel will always be together ]
   int lastChan=-1;
   int lastCapid=0;
-  if (daq_lengths!=0) {
+  if (daq_lengths!=nullptr) {
     for (wordPtr=0; wordPtr<daq_words_total; wordPtr++) {
       int ichan=channelDecoder[daqBase[wordPtr]>>11];
       if (ichan>=24) continue;
@@ -233,9 +233,9 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
 
   // trigger primitive words
   unsigned short* ptr=m_ownData+headerLen;
-  if (tp_samples!=0 && tp_lengths!=0) {
+  if (tp_samples!=nullptr && tp_lengths!=nullptr) {
     for (ichan=0; ichan<24; ichan++) {
-      unsigned short chanid=((ichan%3)+((ichan/3)<<2))<<11;
+      unsigned short chanid=((ichan%4)+(((ichan/4)+1)<<2))<<11;
       for (isample=0; isample<tp_lengths[ichan] && isample<MAXIMUM_SAMPLES_PER_CHANNEL; isample++) {
 	ptr[tp_words_total]=chanid|(tp_samples[ichan*MAXIMUM_SAMPLES_PER_CHANNEL+isample]&0x3FF);
 	tp_words_total++;
@@ -248,7 +248,7 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
   for (ichan=0; ichan<24; ichan++) {
     unsigned short chanid=((ichan%3)+((ichan/3)<<2))<<11;
     for (isample=0; isample<daq_lengths[ichan] && isample<MAXIMUM_SAMPLES_PER_CHANNEL; isample++) {
-      unsigned short basedata=daq_samples[ichan*MAXIMUM_SAMPLES_PER_CHANNEL+isample]&0x3FF;
+      unsigned short basedata=daq_samples[ichan*MAXIMUM_SAMPLES_PER_CHANNEL+isample]&0x7FF;
       if (do_capid) basedata=(basedata&0x7F)|(0x200)|((isample%4)<<7);
       ptr[daq_words_total]=chanid|basedata;
       daq_words_total++;
@@ -280,7 +280,7 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
 
 }
 
-void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int ndd, int nps, int firmwareRev) {
+void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int ndd, int nps, int firmwareRev, int firmwareFlav) {
   m_ownData[0]=L1Anumber&0xFF;
   m_ownData[1]=(L1Anumber&0xFFFF00)>>8;
   if (m_formatVersion==-1) {
@@ -297,7 +297,7 @@ void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int o
     m_ownData[4]=((m_formatVersion&0xF)<<12)|(bcn&0xFFF);
     m_ownData[5]|=((nps&0x1F)<<3)|0x1;
     m_ownData[6]=((firmwareRev&0x70000)>>3)|(firmwareRev&0x1FFF);
-    m_ownData[7]=pipeline&0xFF;
+    m_ownData[7]=(pipeline&0xFF)|((firmwareFlav&0x3F)<<8);
     m_ownData[m_rawLength-4]&=0x7FF;
     m_ownData[m_rawLength-4]|=(ndd&0x1F)<<11;
   }

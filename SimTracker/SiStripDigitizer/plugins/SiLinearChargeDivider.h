@@ -31,13 +31,13 @@ class SiLinearChargeDivider : public SiChargeDivider{
   SiLinearChargeDivider(const edm::ParameterSet& conf);
 
   // destructor
-  virtual ~SiLinearChargeDivider();
+  ~SiLinearChargeDivider() override;
 
   // main method: divide the charge (from the PSimHit) into several energy deposits in the bulk
-  SiChargeDivider::ionization_type divide(const PSimHit*, const LocalVector&, double, const StripGeomDetUnit& det, CLHEP::HepRandomEngine*);
+  SiChargeDivider::ionization_type divide(const PSimHit*, const LocalVector&, double, const StripGeomDetUnit& det, CLHEP::HepRandomEngine*) override;
 
   // set the ParticleDataTable (used to fluctuate the charge properly)
-  void setParticleDataTable(const ParticleDataTable * pdt) { theParticleDataTable = pdt; }
+  void setParticleDataTable(const ParticleDataTable * pdt) override { theParticleDataTable = pdt; }
   
  private:
   // configuration data

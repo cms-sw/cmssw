@@ -1,5 +1,5 @@
-#ifndef MuonSlaveSD_h
-#define MuonSlaveSD_h
+#ifndef SimG4CMS_Muon_MuonSlaveSD_h
+#define SimG4CMS_Muon_MuonSlaveSD_h
 
 /** \class MuonSlaveSD
  *
@@ -31,11 +31,11 @@ public:
   typedef std::vector<PSimHit> Collection;
   typedef Collection::const_iterator const_iterator;
   MuonSlaveSD(MuonSubDetector*,const SimTrackManager*);
-  virtual ~MuonSlaveSD();
+  ~MuonSlaveSD() override;
   virtual void clearHits();
-  virtual bool format();
-  virtual const_iterator begin() { return hits_.begin();}
-  virtual const_iterator end()   { return hits_.end();}
+  bool format() override;
+  const_iterator begin() override { return hits_.begin();}
+  const_iterator end() override   { return hits_.end();}
 
 protected: 
   Collection 	     hits_;
@@ -60,6 +60,18 @@ class FormatEndcapHits {
 };
 
 class FormatRpcHits {
+ public:
+  bool operator() (const PSimHit & a, const PSimHit & b);
+  int sortId (const PSimHit & a)  const;
+};
+
+class FormatGemHits {
+ public:
+  bool operator() (const PSimHit & a, const PSimHit & b);
+  int sortId (const PSimHit & a)  const;
+};
+
+class FormatMe0Hits {
  public:
   bool operator() (const PSimHit & a, const PSimHit & b);
   int sortId (const PSimHit & a)  const;

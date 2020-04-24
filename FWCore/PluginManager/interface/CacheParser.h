@@ -34,6 +34,8 @@ If a space exists in either of these three fields, it will be replaced with a %,
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 
 // forward declarations
+class TestCacheParser;
+
 namespace edmplugin {
 class CacheParser
 {
@@ -59,9 +61,11 @@ class CacheParser
       static void read(std::istream&, LoadableToPlugins& oOut);
       static void write(LoadableToPlugins& iIn, std::ostream&);
    private:
-      CacheParser(const CacheParser&); // stop default
+      //for testing
+      friend class ::TestCacheParser;
+      CacheParser(const CacheParser&) = delete; // stop default
 
-      const CacheParser& operator=(const CacheParser&); // stop default
+      const CacheParser& operator=(const CacheParser&) = delete; // stop default
 
       static bool readline(std::istream& iIn, const boost::filesystem::path& iDirectory,
                unsigned long iRecordNumber, PluginInfo &oInfo, std::string& oPluginType);

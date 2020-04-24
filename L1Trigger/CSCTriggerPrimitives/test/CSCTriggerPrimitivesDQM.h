@@ -12,27 +12,28 @@
  *
  */
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-//#include <FWCore/ParameterSet/interface/InputTag.h>
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 
-#include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h> // TMB07
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h" // TMB07
 
-#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include <TH1.h>
-#include <TH2.h>
+#include "TH1.h"
+#include "TH2.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -96,6 +97,19 @@ class CSCTriggerPrimitivesDQM : public edm::EDAnalyzer
   edm::InputTag simHitProducer_;
   edm::InputTag wireDigiProducer_;
   edm::InputTag compDigiProducer_;
+
+  edm::EDGetTokenT<edm::PSimHitContainer> simHit_token_;
+  edm::EDGetTokenT<CSCWireDigiCollection> wireDigi_token_;
+  edm::EDGetTokenT<CSCComparatorDigiCollection> compDigi_token_;
+
+  edm::EDGetTokenT<CSCALCTDigiCollection> alcts_d_token_;
+  edm::EDGetTokenT<CSCCLCTDigiCollection> clcts_d_token_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_tmb_d_token_;
+  edm::EDGetTokenT<CSCALCTDigiCollection> alcts_e_token_;
+  edm::EDGetTokenT<CSCCLCTDigiCollection> clcts_e_token_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_tmb_e_token_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lcts_mpc_e_token_;
+
   std::vector<std::string> bad_chambers;
   std::vector<std::string> bad_wires;
   std::vector<std::string> bad_strips;

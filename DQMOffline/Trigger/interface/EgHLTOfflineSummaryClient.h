@@ -74,19 +74,19 @@ public:
 
  public:
   explicit EgHLTOfflineSummaryClient(const edm::ParameterSet& );
-  virtual ~EgHLTOfflineSummaryClient();
+  ~EgHLTOfflineSummaryClient() override;
   
   
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&); //dummy
-  virtual void endJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override; //dummy
+  void endJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& c) override;
   
   
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context){}
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context) override{}
   // DQM Client Diagnostic
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override;
 
 
 

@@ -12,9 +12,11 @@ process.source = cms.Source("PoolSource",
 )
 
 process.Thing = cms.EDProducer("SecondaryProducer",
-    sequential = cms.untracked.bool(True),
-    lumiSpecified = cms.untracked.bool(True),
-    input = cms.SecSource("PoolSource",
+    seq = cms.untracked.bool(True),
+    input = cms.SecSource("EmbeddedRootSource",
+        sequential = cms.untracked.bool(True),
+        sameLumiBlock = cms.untracked.bool(True),
+        skipEvents = cms.untracked.uint32(3),
         fileNames = cms.untracked.vstring('file:SecondaryInputTest2.root')
     )
 )

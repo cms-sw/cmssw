@@ -169,8 +169,6 @@ public:
   //  int numStripsMax;    // max number of strips in the module
   float moduleThickness; // plate thickness 
 
-  FP420NumberingScheme * theFP420NumberingScheme;
-
   void push_digis(const DigitalMapType&,
                   const HitToDigisMapType&,
                   const PileUpFP420::signal_map_type&

@@ -15,7 +15,7 @@
 class  RPCStripNoisesRcdRead : public edm::EDAnalyzer {
 public:
   RPCStripNoisesRcdRead(const edm::ParameterSet& iConfig );
-  ~RPCStripNoisesRcdRead();
+  ~RPCStripNoisesRcdRead() override;
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 };
 

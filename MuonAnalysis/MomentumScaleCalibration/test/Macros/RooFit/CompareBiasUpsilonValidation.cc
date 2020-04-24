@@ -7,68 +7,68 @@
 #include "TLegend.h"
 
 #include "FitMassSlices.cc"
+#include "FitMass1D.cc"
 #include "Legend.h"
 
-//gSystem->Load("libRooFitCore");
-//gSystem->Load("libRooFit");
 
 class CompareBiasUpsilonValidation
 {
 public:
-  CompareBiasUpsilonValidation(const TString& leg) 
+  CompareBiasUpsilonValidation(const int rebinXphi = 4, const int rebinXetadiff = 2, const int rebinXeta = 2, const int rebinXpt = 8)
   {
-
-
     gROOT->SetStyle("Plain");
 
     doFit_ = false;
 
 
-    TString inputFileName("0_ymumuHisto.root");
+    TString inputFileName("0_zmumuHisto.root");
     TString outputFileName("BiasCheck.root");
 
 
     FitMassSlices fitter;
 
-
-    fitter.rebinX = 4; // for further rebinning for phi use rebinXphi in FitMassSlices.cc (L20)
+    fitter.rebinX = 2; // for further rebinning for phi use rebinXphi in FitMassSlices.cc (L20)
     fitter.rebinY = 2; // default 2
     fitter.rebinZ = 1; // default 2
 
     fitter.useChi2 = false;
     fitter.sigma2 = 1.;
-    fitter.fit(inputFileName, outputFileName, "gaussian", "exponential", 9.5, 9.1, 9.8, 0.3, 0.001, 2.);
 
-    /*
-    file_ = new TFile(outputFile, "READ");
+    double Mmin(9.1), Mmax(9.7);
+    fitter.fit(
+      inputFileName, outputFileName, "breitWignerTimesCB", "exponential", 9.46, Mmin, Mmax, 0.3, 0.001, 2.,
+      rebinXphi, rebinXetadiff, rebinXeta, rebinXpt
+      );
 
-    
+    FitMass1D fitMass1D;
+    fitMass1D.fitter()->initMean(9.46, Mmin, Mmax);
+    fitMass1D.fitter()->initGamma(5.4e-5, 0., 10.);
+    fitMass1D.fitter()->gamma()->setConstant(kTRUE);
+    fitMass1D.fitter()->initMean2(0., -20., 20.);
+    fitMass1D.fitter()->mean2()->setConstant(kTRUE);
+    fitMass1D.fitter()->initSigma(0.07, 0., 5.);
+    fitMass1D.fitter()->initAlpha(1.5, 0.05, 10.);
+    fitMass1D.fitter()->initN(1, 0.01, 100.);
+    fitMass1D.fitter()->initExpCoeffA0(-1., -10., 10.);
+    fitMass1D.fitter()->initExpCoeffA1(0., -10., 10.);
+    fitMass1D.fitter()->initExpCoeffA2(0., -2., 2.);
+    fitMass1D.fitter()->initFsig(0.9, 0., 1.);
+    fitMass1D.fitter()->initA0(0., -10., 10.);
+    fitMass1D.fitter()->initA1(0., -10., 10.);
+    fitMass1D.fitter()->initA2(0., -10., 10.);
+    fitMass1D.fitter()->initA3(0., -10., 10.);
+    fitMass1D.fitter()->initA4(0., -10., 10.);
+    fitMass1D.fitter()->initA5(0., -10., 10.);
+    fitMass1D.fitter()->initA6(0., -10., 10.);
 
-    TFile * outputFile = new TFile("CompareBias.root", "RECREATE");
-    outputFile->cd();
+    /// Let's fit
+    fitMass1D.fit(inputFileName, outputFileName, "UPDATE", Mmin, Mmax, "breitWignerTimesCB", "exponentialpol");
 
-    compare("MassVsPt", "uniform", 1., 8., "muon pt (GeV)", "Mass (GeV)",leg);
-    compare("MassVsEta", "uniform", -2.8, 2.8, "muon #eta", "Mass (GeV)",leg);
-    
-    compare("MassVsEtaPlus", "uniform", -2.8, 2.8, "muon + #eta", "Mass (GeV)",leg);
-    compare("MassVsEtaMinus", "uniform", -2.8, 2.8, "muon - #eta", "Mass (GeV)",leg);   
-    compare("MassVsPhiPlus", "sinusoidal", -3.14, 3.14, "muon(+) #phi", "Mass (GeV)",leg);
-    compare("MassVsPhiMinus", "sinusoidal", -3.14, 3.14, "muon(-) #phi", "Mass (GeV)",leg);
-    
-    compare("MassVsEtaPlusMinusDiff", "uniform", -3.3, 3.3, "(#eta neg. muon - #eta pos. muon)", "Mean mass (GeV)",leg); 
-    compare("MassVsCosThetaCS", "uniform", -1.1, 1.1, " cos#theta (CS)  ", "Mass (GeV)",leg); 
-    compare("MassVsPhiCS", "uniform", -3.14, 3.14, " #phi (CS)  ", "Mass (GeV)",leg); 
-
-    compare("MassVsEtaPhiPlus" , -3.14, 3.14, "positive muon #phi", -2.5, 2.5, "positive muon #eta", "#Delta Mass (GeV)",leg);  
-    compare("MassVsEtaPhiMinus", -3.14, 3.14, "negative muon #phi", -2.5, 2.5, "negative muon #eta", "#Delta Mass (GeV)",leg);
-    
-    outputFile->Write();
-    outputFile->Close();
-    */
   }
-protected:  
+protected:
+
   void compare(const TString & histoName, const TString & fitType, const double & xMin, const double & xMax,
-	       const TString & xAxisTitle, const TString & yAxisTitle, const TString& leg)
+    const TString & xAxisTitle, const TString & yAxisTitle, const TString& leg)
   {
     gDirectory->mkdir(histoName);
     gDirectory->cd(histoName);
@@ -82,7 +82,7 @@ protected:
     // The polynomial in RooFit is a pdf, so it is normalized to unity. This seems to give problems.
     // fitWithRooFit(histo, histoName, fitType, xMin, xMax);
     // Fit with standard root, but then we also need to build the legends.
-    if( doFit_ ) {
+    if (doFit_) {
       fitWithRoot(histo, xMin, xMax, fitType);
     }
     else {
@@ -92,10 +92,10 @@ protected:
     gDirectory->GetMotherDir()->cd();
   }
 
-  void compare(const TString & histoName, 
-		     const double & xMin, const double & xMax, const TString & xAxisTitle, 
-		     const double & yMin, const double & yMax, const TString & yAxisTitle, 
-		     const TString & zAxisTitle, const TString& leg)
+  void compare(const TString & histoName,
+    const double & xMin, const double & xMax, const TString & xAxisTitle,
+    const double & yMin, const double & yMax, const TString & yAxisTitle,
+    const TString & zAxisTitle, const TString& leg)
   {
     gDirectory->mkdir(histoName);
     gDirectory->cd(histoName);
@@ -103,16 +103,16 @@ protected:
     TH2 * histo = (TH2*)getHisto(file_, histoName);
     histo->GetXaxis()->SetTitle(xAxisTitle);
     histo->GetYaxis()->SetTitle(yAxisTitle);
-//    histo->GetYaxis()->SetTitleOffset(1.25);
+    //histo->GetYaxis()->SetTitleOffset(1.25);
 
     // Fit using RooFit
     // The polynomial in RooFit is a pdf, so it is normalized to unity. This seems to give problems.
     // fitWithRooFit(histo, histo2, histoName, fitType, xMin, xMax);
     // Fit with standard root, but then we also need to build the legends.
-  
+
     TCanvas * canvas = drawCanvas(histo);
     canvas->Write();
-  
+
     gDirectory->GetMotherDir()->cd();
   }
 
@@ -127,10 +127,10 @@ protected:
   void fitWithRoot(TH1 * histo, const double & xMin, const double & xMax, const TString & fitType)
   {
     TF1 * f1 = 0;
-    if( fitType == "uniform" ) {
+    if (fitType == "uniform") {
       f1 = new TF1("uniform1", "pol0", xMin, xMax);
     }
-    else if( fitType == "sinusoidal" ) {
+    else if (fitType == "sinusoidal") {
       f1 = new TF1("sinusoidal1", "[0] + [1]*sin([2]*x + [3])", xMin, xMax);
       f1->SetParameter(1, 2.);
       f1->SetParameter(2, 1.);
@@ -146,14 +146,14 @@ protected:
     TCanvas * canvas = drawCanvas(histo);
 
     f1->Draw("same");
-    //    TLegend legend;
-    //    legend.setText(f1);
-    //    legend.Draw("same");
+    //TLegend legend;
+    //legend.setText(f1);
+    //legend.Draw("same");
 
     canvas->Write();
   }
 
-  TCanvas * drawCanvas(TH1 * histo,TString legText="geo 1", const bool addLegend = false)
+  TCanvas * drawCanvas(TH1 * histo, TString legText="geo 1", const bool addLegend = false)
   {
     TCanvas * canvas = new TCanvas(TString(histo->GetName())+"_canvas", TString(histo->GetName())+" canvas", 1000, 800);
     canvas->Draw();
@@ -163,9 +163,9 @@ protected:
     histo->SetMarkerSize(0.5);
 
 
-    if( addLegend ) {
-      TLegend * leg = new TLegend(0.1,0.7,0.48,0.9);
-      leg->AddEntry(histo,legText,"pl");
+    if (addLegend) {
+      TLegend * leg = new TLegend(0.1, 0.7, 0.48, 0.9);
+      leg->AddEntry(histo, legText, "pl");
       leg->Draw("same");
     }
 
@@ -173,15 +173,15 @@ protected:
   }
 
   void fitWithRooFit(TH1 * histo, const TString & histoName,
-		     const TString & fitType, const double & xMin, const double & xMax)
+    const TString & fitType, const double & xMin, const double & xMax)
   {
     FitWithRooFit fitter;
-    fitter.initConstant(3.097, 3.05, 3.15);
+    fitter.initA0(3.097, 3.05, 3.15);
     // fitter.initLinearTerm(0., -1., 1.);
 
-    RooPlot * rooPlot1 = fit( histo, file_->GetName(), &fitter, fitType, xMin, xMax );
+    RooPlot * rooPlot1 = fit(histo, file_->GetName(), &fitter, fitType, xMin, xMax);
 
-    RooRealVar * constant = fitter.constant();
+    RooRealVar * constant = fitter.a0();
     std::cout << "fitted value for constant 1 = " << constant->getVal() << std::endl;
 
     TCanvas * canvas = new TCanvas(histoName+"_canvas", histoName+" canvas", 1000, 800);
@@ -192,7 +192,7 @@ protected:
   }
 
   RooPlot * fit(TH1 * histo, const TString & fileName, FitWithRooFit * fitter,
-		const TString & fitType, const double & xMin, const double & xMax)
+    const TString & fitType, const double & xMin, const double & xMax)
   {
     gDirectory->mkdir(fileName);
     gDirectory->cd(fileName);

@@ -11,7 +11,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
@@ -76,11 +76,11 @@ class SiStripBaseCondObjDQM {
   protected:
     
     struct ModMEs{ 
-      ModMEs():ProfileDistr(0),	    
-	       CumulDistr(0),	    
-	       SummaryOfProfileDistr(0),
-	       SummaryOfCumulDistr(0),  
-	       SummaryDistr(0){;}
+      ModMEs():ProfileDistr(nullptr),	    
+	       CumulDistr(nullptr),	    
+	       SummaryOfProfileDistr(nullptr),
+	       SummaryOfCumulDistr(nullptr),  
+	       SummaryDistr(nullptr){;}
       MonitorElement* ProfileDistr;
       MonitorElement* CumulDistr;
       MonitorElement* SummaryOfProfileDistr;

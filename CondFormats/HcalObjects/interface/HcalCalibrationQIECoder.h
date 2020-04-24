@@ -8,6 +8,8 @@ POOL object to store calibration mode QIE coder parameters for one channel
 $Id
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
 #include <boost/cstdint.hpp>
@@ -63,6 +65,8 @@ class HcalCalibrationQIECoder {
   float bin31;
   const float* base () const {return &bin0;}
   float* base () {return &bin0;}
+
+ COND_SERIALIZABLE;
 };
 
 #endif

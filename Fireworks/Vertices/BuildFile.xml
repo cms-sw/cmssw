@@ -6,6 +6,7 @@
 <lib name="Geom"/>
 <lib name="Physics"/>
 <lib name="RGL"/>
+<lib name="Core"/>
 <export>
   <lib name="1"/>
 </export>

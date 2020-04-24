@@ -1,3 +1,5 @@
+<use   name="RecoTracker/Record"/>
+<use   name="RecoTracker/SiTrackerMRHTools"/>
 <use   name="RecoTracker/TrackProducer"/>
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="TrackingTools/TransientTrack"/>

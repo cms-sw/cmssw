@@ -8,17 +8,31 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
+#include<iostream>
+#include<algorithm>
+
+#include "DataFormats/Math/interface/normalizedPhi.h"
+#include "DataFormats/Math/interface/approx_asin.h"
+
 // there are tons of safety checks.
 // Try to move all of the out the regular control flow using gcc magic
+#include "DataFormats/Math/interface/approx_atan2.h"
+namespace {
+  inline
+  float f_atan2f(float y, float x) { return unsafe_atan2f<7>(y,x); }
+  template<typename V> inline float f_phi(V v) { return f_atan2f(v.y(),v.x());}
+}
 
 
 namespace {
   template<class T> inline T sqr(T t) { return t * t; }
   template<class T> inline T sgn(T t) { return std::signbit(t) ? -T(1.) : T(1.); }
-  template<class T> inline T clamped_acos(T t)
-  { return unlikely(t <= T(-1)) ? T(M_PI) : unlikely(t >= T(1)) ? T(0) : std::acos(t); }
-  template<class T> inline T clamped_sqrt(T t)
-  { return likely(t > 0) ? std::sqrt(t) : T(0); }
+  template<class T> inline T clamped_acos(T x) {
+    x = std::min(T(1.),std::max(-T(1.),x));
+    return unsafe_acos<5>(x);
+  }
+
+  template<class T> inline T clamped_sqrt(T t) { return std::sqrt(std::max(T(0),t)); }
 }
 
 ThirdHitPredictionFromCircle::ThirdHitPredictionFromCircle( 
@@ -45,15 +59,11 @@ float ThirdHitPredictionFromCircle::phi(float curvature, float radius) const
     float orthog = clamped_sqrt(radius2 - delta2);
     Basic2DVector<float> lcenter = Basic2DVector<float>(center) - sign * orthog *  Basic2DVector<float>(axis);
     float rc2 = lcenter.mag2();
-    float cos = (rc2 + sqr(radius) - radius2) /
-      (2.f *std:: sqrt(rc2) * radius);
-    phi = lcenter.barePhi() + sign * clamped_acos(cos);
+    float r2 = sqr(radius);
+    float cos = (rc2 + r2 - radius2)/std::sqrt(4.f*rc2*r2);
+    phi = f_phi(lcenter) + sign * clamped_acos(cos);
  }
-
-  while(unlikely(phi >= float(M_PI))) phi -= float(2. * M_PI);
-  while(unlikely(phi < -float(M_PI))) phi += float(2. * M_PI);
-
-  return phi;
+  return phi;  // not normalized
 }
 
 float ThirdHitPredictionFromCircle::angle(float curvature, float radius) const
@@ -75,10 +85,9 @@ float ThirdHitPredictionFromCircle::angle(float curvature, float radius) const
 ThirdHitPredictionFromCircle::Range
 ThirdHitPredictionFromCircle::operator()(Range curvature, float radius) const
 {
-  float phi1 = phi(curvature.second, radius);
-  float phi2 = phi(curvature.first, radius);
-
-  while(unlikely(phi2 <  phi1)) phi2 += float(2. * M_PI); 
+  float phi1 = normalizedPhi(phi(curvature.second, radius));
+  float phi2 = proxim(phi(curvature.first, radius),phi1);
+  if(phi2 < phi1) std::swap(phi2,phi1);
 
   return Range(phi1 * radius - theTolerance, phi2 * radius + theTolerance);
 }
@@ -182,6 +191,22 @@ double ThirdHitPredictionFromCircle::transverseIP(const Vector2D &p2) const
 
 //------------------------------------------------------------------------------
 
+
+namespace {
+  // 2asin(cd)/c
+  inline
+float arc(float c, float d) {
+    float z = c*d; z*=z;
+    float x = 2.f*d;
+
+    if (z>0.5f) return std::min(1.f,2.f*unsafe_asin<5>(c*d)/c);
+
+    return x*approx_asin_P<7>(z);
+
+  }
+}
+
+
 ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
   const ThirdHitPredictionFromCircle * icircle, double iz1, double z2, double curv) :
   circle(icircle), curvature(curv), radius(1./curv), z1(iz1)
@@ -191,15 +216,8 @@ ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
 
   Scalar absCurv = std::abs(curv);
   seg = circle->delta;
-
-  if (likely(absCurv > 1.0e-5)) {
-    seg *= absCurv;
-    seg = seg < -1.0 ? -M_PI_2 : seg > 1.0 ? M_PI_2 : std::asin(seg);
-    seg /= absCurv;
-  }
-
-  seg *= 2.;
-  dzdu = likely(std::abs(seg) > 1.0e-5) ? ((z2 - z1) / seg) : 99999.0;
+  seg = arc(absCurv,seg);
+  dzdu = (z2 - z1) / seg;
 }
 
 double ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
@@ -242,6 +260,9 @@ ThirdHitPredictionFromCircle::HelixRZ::zAtR(Scalar r) const {
   return z1 + ((u1 >= seg && u1 < u2)? u1 : u2) * dzdu;
 }
 
+
+#include<vdt/sincos.h>
+
 ThirdHitPredictionFromCircle::HelixRZ::Scalar
 ThirdHitPredictionFromCircle::HelixRZ::rAtZ(Scalar z) const {
   if (unlikely(std::abs(dzdu) < 1.0e-5))
@@ -274,8 +295,9 @@ ThirdHitPredictionFromCircle::HelixRZ::rAtZ(Scalar z) const {
 
   Vector2D rel = circle->p1 - center;
 
-  Scalar c = std::cos(phi);
-  Scalar s = std::sin(phi);
+  float c;
+  float s;
+  vdt::fast_sincosf(phi,s,c);
 
   Vector2D p(center.x() + c * rel.x() - s * rel.y(),
             center.y() + s * rel.x() + c * rel.y());

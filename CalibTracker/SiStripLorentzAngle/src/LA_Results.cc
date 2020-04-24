@@ -37,8 +37,8 @@ result(Method m, const std::string name, const Book& book) {
       p.ndof = (unsigned) (f->GetParameter(3));
       p.entries = 
 	(m&PROB1)         ? (unsigned) book[base+"_w1"]->GetEntries() : 
-	(m&(AVGV2|RMSV2)) ? (unsigned) book[base+method(AVGV2,0)]->GetEntries() : 
-	(m&(AVGV3|RMSV3)) ? (unsigned) book[base+method(AVGV3,0)]->GetEntries() : 0 ;
+	(m&(AVGV2|RMSV2)) ? (unsigned) book[base+method(AVGV2,false)]->GetEntries() : 
+	(m&(AVGV3|RMSV3)) ? (unsigned) book[base+method(AVGV3,false)]->GetEntries() : 0 ;
       break;
     }
     default: break;
@@ -95,9 +95,11 @@ summarize_ensembles(Book& book) const {
       book.fill( p.measured.second, name+"_merr",         500, 0, 0.01);
       book.fill( (p.measured.first-p.reco.first)/p.measured.second, name+"_pull", 500, -10,10);
     }
-    book[name+"_measure"]->Fit("gaus","LLQ");
-    book[name+"_merr"]->Fit("gaus","LLQ");
-    book[name+"_pull"]->Fit("gaus","LLQ");
+    //Need our own copy for thread safety
+    TF1 gaus("mygaus","gaus");
+    book[name+"_measure"]->Fit(&gaus,"LLQ");
+    book[name+"_merr"]->Fit(&gaus,"LLQ");
+    book[name+"_pull"]->Fit(&gaus,"LLQ");
   }
 }
 
@@ -137,7 +139,9 @@ offset_slope(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
       yerr.push_back(ensemble.meanMeasured.second);
     }
     TGraphErrors graph(x.size(),&(x[0]),&(y[0]),&(xerr[0]),&(yerr[0]));
-    graph.Fit("pol1");
+    //Need our own copy for thread safety
+    TF1 pol1("mypol1","pol1");
+    graph.Fit(&pol1);
     const TF1*const fit = graph.GetFunction("pol1");
     
     return std::make_pair( std::make_pair(fit->GetParameter(0), fit->GetParError(0)),

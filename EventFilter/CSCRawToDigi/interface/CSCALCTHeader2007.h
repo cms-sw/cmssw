@@ -10,7 +10,7 @@
 #include <vector>
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include <boost/dynamic_bitset.hpp>
-#include <string.h>
+#include <cstring>
 
 class CSCDMBHeader;
 

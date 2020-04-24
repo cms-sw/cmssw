@@ -4,14 +4,14 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/thread/thread.hpp>
+#include <memory>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 #include <iostream>
 #include <vector>
 
-typedef boost::mutex::scoped_lock ScopedLock;
+typedef std::lock_guard<std::mutex> ScopedLock;
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -30,16 +30,6 @@ struct IsDoneWriting
   bool operator()() { return flag_ == 0; }
 };
 
-class thread_adapter
-{
-public:
-  thread_adapter(void (*func)(void*), void* param) : _func(func), _param(param) { }
-  void operator()() const { _func(_param); }
-private:
-  void (*_func)(void*);
-  void* _param;
-};
-
 class OutputDropBox
 {
 public:
@@ -49,7 +39,7 @@ public:
   bool set (std::vector<char> &ibuf, IOSize n)
   {
     // wait that all threads finish write to swap
-    ScopedLock gl(lock);
+    std::unique_lock<std::mutex> gl(lock);
     done.wait(gl, IsDoneWriting(writing));
 
     bool ret = true;
@@ -72,7 +62,7 @@ public:
   // called by thread
   bool write (Storage *os, int id)
   {
-    ScopedLock gl(lock);
+    std::unique_lock<std::mutex> gl(lock);
     // wait if box empty or this thread already consumed...
     if (m_done[id])
       doit.wait(gl);
@@ -122,11 +112,11 @@ public:
   std::string ce;
   int writing;
   // writing lock
-  mutable boost::mutex wlock;
+  mutable std::mutex wlock;
   // swap lock
-  mutable boost::mutex lock;
-  mutable boost::condition doit;
-  mutable boost::condition done;
+  mutable std::mutex lock;
+  mutable std::condition_variable doit;
+  mutable std::condition_variable done;
 };
 
 class InputDropBox
@@ -137,7 +127,7 @@ public:
   // called by main 
   IOSize get(std::vector<char> &ibuf)
   {
-    ScopedLock gl(lock);
+    std::unique_lock<std::mutex> gl(lock);
     if (end)
       // if thread is over return...
       return 0;
@@ -162,7 +152,7 @@ public:
   // called by thread
   bool read (Storage *os)
   {
-    ScopedLock gl(lock);
+    std::unique_lock<std::mutex> gl(lock);
     if (nin != 0)
       // wait if box empty or this thread already consumed...
       doit.wait(gl);
@@ -201,17 +191,16 @@ public:
   IOSize nin;
   std::string ce;
   // swap lock
-  mutable boost::mutex lock;
-  mutable boost::condition doit;
-  mutable boost::condition done;
+  mutable std::mutex lock;
+  mutable std::condition_variable doit;
+  mutable std::condition_variable done;
 };
 
 static InputDropBox  inbox;
 static OutputDropBox dropbox;
 
-static void writeThread (void *param)
+static void writeThread (Storage* os)
 {
-  Storage *os = static_cast<Storage *> (param);
   int myid = dropbox.addWriter();
 
   std::cout << "start writing thread " << myid << std::endl;
@@ -220,10 +209,8 @@ static void writeThread (void *param)
   std::cout << "end writing thread " << myid << std::endl;
 }
 
-static void readThread (void *param)
+static void readThread (Storage* os)
 {
-  Storage *os = static_cast<Storage *> (param);
-
   std::cout << "start reading thread" << std::endl;
   while (inbox.read(os))
     ;
@@ -240,23 +227,23 @@ int main (int argc, char **argv) try
     return EXIT_FAILURE;
   }
 
-  boost::shared_ptr<Storage>			is;
-  std::vector<boost::shared_ptr<Storage> >	os(argc-2);
-  boost::thread_group				threads;
+  std::shared_ptr<Storage>			is;
+  std::vector<std::unique_ptr<Storage> >	os(argc-2);
+  std::vector<std::thread> threads;
   bool						readThreadActive = true;
   bool						writeThreadActive = true;
   IOOffset					size = -1;
 
-  StorageFactory::get ()->enableAccounting(true);
-  bool exists = StorageFactory::get ()->check(argv [1], &size);
+  StorageFactory::getToModify ()->enableAccounting(true);
+  bool exists = StorageFactory::getToModify ()->check(argv [1], &size);
   std::cerr << "input file exists = " << exists << ", size = " << size << "\n";
   if (! exists) return EXIT_SUCCESS;
 
   try
   {
-    is.reset(StorageFactory::get ()->open (argv [1]));
+    is = StorageFactory::getToModify ()->open (argv [1]);
     if (readThreadActive) 
-      threads.create_thread(thread_adapter(&readThread,is.get())); 
+      threads.emplace_back(&readThread,is.get());
   }
   catch (cms::Exception &e)
   {
@@ -269,12 +256,12 @@ int main (int argc, char **argv) try
   for (int i=0; i < argc-2; i++)
     try
     {
-      os[i].reset(StorageFactory::get ()->open (argv[i+2],
+      os[i]= StorageFactory::getToModify ()->open (argv[i+2],
 						IOFlags::OpenWrite
 						| IOFlags::OpenCreate
-						| IOFlags::OpenTruncate));
+						| IOFlags::OpenTruncate);
     if (writeThreadActive) 
-	threads.create_thread(thread_adapter(&writeThread,os[i].get())); 
+      threads.emplace_back(&writeThread,os[i].get());
   }
   catch (cms::Exception &e)
   {
@@ -313,10 +300,13 @@ int main (int argc, char **argv) try
   if (writeThreadActive)
     dropbox.set(outbuf, 0);
 
-  if (writeThreadActive || readThreadActive)
-    threads.join_all();
+  if (writeThreadActive || readThreadActive) {
+    for(auto& t: threads) {
+      t.join();
+    }
+  }
 
-  std::cout << StorageAccount::summaryXML () << std::endl;
+  std::cout << StorageAccount::summaryText(true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

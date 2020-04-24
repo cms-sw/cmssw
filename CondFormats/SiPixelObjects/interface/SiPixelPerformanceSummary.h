@@ -2,6 +2,8 @@
 #define SiPixelPerformanceSummary_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -17,7 +19,9 @@ public:
   struct DetSummary { 
     uint32_t detId_;
     std::vector<float> performanceValues_;
-  }; 
+  
+  COND_SERIALIZABLE;
+}; 
   
   class StrictWeakOrdering { // sort detSummaries by detId
   public:
@@ -106,6 +110,8 @@ private:
   unsigned int numberOfEvents_;
   
   std::vector<DetSummary> allDetSummaries_;
+
+ COND_SERIALIZABLE;
 };
 
 

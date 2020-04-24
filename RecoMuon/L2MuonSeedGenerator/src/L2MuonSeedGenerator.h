@@ -18,7 +18,7 @@
 //
 //--------------------------------------------------
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // Data Formats 
@@ -47,7 +47,7 @@ class TrajectoryStateOnSurface;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class L2MuonSeedGenerator : public edm::EDProducer {
+class L2MuonSeedGenerator : public edm::stream::EDProducer<> {
  
  public:
   
@@ -55,9 +55,9 @@ class L2MuonSeedGenerator : public edm::EDProducer {
   explicit L2MuonSeedGenerator(const edm::ParameterSet&);
 
   /// Destructor
-  ~L2MuonSeedGenerator();
+  ~L2MuonSeedGenerator() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

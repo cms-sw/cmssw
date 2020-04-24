@@ -18,6 +18,9 @@
 #include <map>
 #include <string>
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
 
 namespace edm {
   class ParameterSet;
@@ -39,6 +42,9 @@ public:
 
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+
+  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
+
   // Write the histos to file
   void endJob();
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
@@ -58,6 +64,8 @@ private:
   //Labels to read from event
   edm::InputTag simHitLabel;
   edm::InputTag segment4DLabel;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
   //Sigma resolution on position
   double sigmaResPos;
   //Sigma resolution on angle

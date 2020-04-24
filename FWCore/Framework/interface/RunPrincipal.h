@@ -15,7 +15,7 @@ is the DataBlock.
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
@@ -26,7 +26,6 @@ namespace edm {
 
   class HistoryAppender;
   class ModuleCallingContext;
-  class UnscheduledHandler;
 
   class RunPrincipal : public Principal {
   public:
@@ -34,14 +33,15 @@ namespace edm {
     typedef Principal Base;
 
     RunPrincipal(
-        boost::shared_ptr<RunAuxiliary> aux,
-        boost::shared_ptr<ProductRegistry const> reg,
+        std::shared_ptr<RunAuxiliary> aux,
+        std::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int iRunIndex);
-    ~RunPrincipal() {}
+        unsigned int iRunIndex,
+        bool isForPrimaryProcess=true);
+    ~RunPrincipal() override {}
 
-    void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = 0);
+    void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = nullptr);
 
     /** Multiple Runs may be processed simultaneously. The
      return value can be used to identify a particular Run.
@@ -86,13 +86,12 @@ namespace edm {
       return aux_->mergeAuxiliary(aux);
     }
 
-    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
-
     void put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp);
+        std::unique_ptr<WrapperBase> edp) const;
 
-    void readImmediate() const;
+    void put(ProductResolverIndex index,
+             std::unique_ptr<WrapperBase> edp) const;
 
     void setComplete() {
       complete_ = true;
@@ -100,16 +99,11 @@ namespace edm {
 
   private:
 
-    virtual bool isComplete_() const override {return complete_;}
+    bool isComplete_() const override {return complete_;}
 
-    virtual bool unscheduledFill(std::string const&,
-                                 ModuleCallingContext const* mcc) const override {return false;}
+    unsigned int transitionIndex_() const override;
 
-    virtual unsigned int transitionIndex_() const override;
-
-    void resolveProductImmediate(ProductHolderBase const& phb) const;
-
-    boost::shared_ptr<RunAuxiliary> aux_;
+    edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
     ProcessHistoryID m_reducedHistoryID;
     RunIndex index_;
 

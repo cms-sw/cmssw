@@ -7,6 +7,8 @@
  *
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <sstream>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -37,6 +39,8 @@ class SimBeamSpotObjects {
     femittance = p.getParameter<double>("Emittance")*cm; // this is not the normalized emittance
     fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light; // HepMC time units are mm
   }
+
+ COND_SERIALIZABLE;
 };
 
 std::ostream& operator<< ( std::ostream&, SimBeamSpotObjects beam );

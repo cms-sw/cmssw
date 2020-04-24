@@ -21,8 +21,8 @@ class HLTSingleVertexPixelTrackFilter : public HLTFilter {
 
    public:
       explicit HLTSingleVertexPixelTrackFilter(const edm::ParameterSet&);
-      ~HLTSingleVertexPixelTrackFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTSingleVertexPixelTrackFilter() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

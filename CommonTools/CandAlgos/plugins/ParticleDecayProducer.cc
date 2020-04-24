@@ -15,10 +15,10 @@
 class ParticleDecayProducer : public edm::EDProducer {
  public:
   explicit ParticleDecayProducer(const edm::ParameterSet&);
-  ~ParticleDecayProducer();
+  ~ParticleDecayProducer() override;
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<reco::CandidateCollection> genCandidatesToken_;
   int motherPdgId_;
   std::vector<int> daughtersPdgId_;
@@ -62,8 +62,8 @@ void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<CandidateCollection> genCandidatesCollection;
   iEvent.getByToken(genCandidatesToken_, genCandidatesCollection);
 
-  auto_ptr<CandidateCollection> mothercands(new CandidateCollection);
-  auto_ptr<CandidateCollection> daughterscands(new CandidateCollection);
+  unique_ptr<CandidateCollection> mothercands(new CandidateCollection);
+  unique_ptr<CandidateCollection> daughterscands(new CandidateCollection);
   size_t daughtersize = daughtersPdgId_.size();
   for( CandidateCollection::const_iterator p = genCandidatesCollection->begin();p != genCandidatesCollection->end(); ++ p ) {
     if (p->pdgId() == motherPdgId_  && p->status() == 3){
@@ -79,13 +79,13 @@ void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
   }
 
-  iEvent.put(mothercands, decayChain_ + "Mother");
+  iEvent.put(std::move(mothercands), decayChain_ + "Mother");
   daughterscands->sort(GreaterByPt<reco::Candidate>());
 
   for (unsigned int row = 0; row < daughtersize; ++ row ){
-    auto_ptr<CandidateCollection> leptonscands_(new CandidateCollection);
+    unique_ptr<CandidateCollection> leptonscands_(new CandidateCollection);
     leptonscands_->push_back((daughterscands->begin()+row)->clone());
-    iEvent.put(leptonscands_, valias.at(row));
+    iEvent.put(std::move(leptonscands_), valias.at(row));
   }
 }
 

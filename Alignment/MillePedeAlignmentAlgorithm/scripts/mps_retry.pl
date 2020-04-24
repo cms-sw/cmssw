@@ -129,8 +129,8 @@ sub reSchedule() {
     $theIsn = sprintf "%03d",$i;
     print "mps_split.pl $infiList $i $nJobs >jobData/$theJobDir/theSplit\n";
     system "mps_split.pl $infiList $i $nJobs >jobData/$theJobDir/theSplit";
-    print "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn\n";
-    system "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn";
+    print "mps_splice.py $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn\n";
+    system "mps_splice.py $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.py $theIsn";
     # create the run script
     print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn\n";
     system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.py jobData/$theJobDir/theSplit $theIsn";
@@ -150,8 +150,8 @@ sub reScheduleM() {
     $theJobData = "$thePwd/jobData";
     $theJobDir = @JOBDIR[$_[0]];
     $batchScriptMerge = $batchScript . "merge";
-    print "mps_merge.pl $cfgTemplate jobData/$theJobDir/alignment_merge.py $theJobData/$theJobDir $nJobs\n";
-    system "mps_merge.pl $cfgTemplate jobData/$theJobDir/alignment_merge.py $theJobData/$theJobDir $nJobs";
+    print "mps_merge.py $cfgTemplate jobData/$theJobDir/alignment_merge.py $theJobData/$theJobDir $nJobs\n";
+    system "mps_merge.py $cfgTemplate jobData/$theJobDir/alignment_merge.py $theJobData/$theJobDir $nJobs";
     # create the merge job script
     print "mps_scriptm.pl $batchScriptMerge jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs\n";
     system "mps_scriptm.pl $batchScriptMerge jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs";

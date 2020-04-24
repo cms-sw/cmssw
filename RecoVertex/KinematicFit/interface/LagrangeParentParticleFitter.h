@@ -22,7 +22,7 @@ public:
 
  LagrangeParentParticleFitter();
 
- ~LagrangeParentParticleFitter(){}
+ ~LagrangeParentParticleFitter() override{}
 
   /**
    * Configuration through PSet: number of iterations(maxDistance) and
@@ -39,9 +39,9 @@ public:
  * constraints may not work with single tracks (back to back for ex.)
  */
  std::vector<RefCountedKinematicTree>  fit(const std::vector<RefCountedKinematicTree> & trees,
-                                             KinematicConstraint * cs)const;
+                                             KinematicConstraint * cs)const override;
 
- LagrangeParentParticleFitter * clone() const
+ LagrangeParentParticleFitter * clone() const override
  {return new LagrangeParentParticleFitter(*this);}
 
 private:

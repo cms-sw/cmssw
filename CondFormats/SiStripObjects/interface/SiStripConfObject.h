@@ -1,6 +1,8 @@
 #ifndef SiStripConfObject_h
 #define SiStripConfObject_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -9,6 +11,8 @@
 #include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class TrackerTopology;
 
 /**
  * Author M. De Mattia - 16/11/2009
@@ -38,6 +42,7 @@ class SiStripConfObject
     return false;
   }
 
+
   /// Updating the value stored as 'name' with 'inputValue'. 
   /// False if parameter 'name' does not exist (and nothing is done then - use put(..) instead!),
   /// otherwise true.
@@ -60,7 +65,7 @@ class SiStripConfObject
   template <class valueType>
   valueType get( const std::string & name ) const
   {
-    valueType returnValue;
+    valueType returnValue = 0;
     parMap::const_iterator it = parameters.find(name);
     std::stringstream ss;
     if( it != parameters.end() ) {
@@ -79,13 +84,31 @@ class SiStripConfObject
   }
 
   /// Prints the full list of parameters
-  void printSummary(std::stringstream & ss) const;
+  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
   /// Prints the full list of parameters
-  void printDebug(std::stringstream & ss) const;
+  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
 
   typedef std::map<std::string, std::string> parMap;
 
   parMap parameters;
+
+ COND_SERIALIZABLE;
 };
+
+template <>
+std::string SiStripConfObject::get<std::string>( const std::string & name ) const;
+template <>
+bool SiStripConfObject::put<std::vector<int> >( const std::string & name, const std::vector<int> & inputValue );
+template <>
+bool SiStripConfObject::update<std::vector<int> >( const std::string & name, const std::vector<int> & inputValue );
+template <>
+std::vector<int> SiStripConfObject::get<std::vector<int> >( const std::string & name ) const;
+template <>
+bool SiStripConfObject::put<std::vector<std::string> >( const std::string & name, const std::vector<std::string> & inputValue );
+template <>
+bool SiStripConfObject::update<std::vector<std::string> >( const std::string & name, const std::vector<std::string> & inputValue );
+template <>
+std::vector<std::string> SiStripConfObject::get<std::vector<std::string> >( const std::string & name ) const;
+
 
 #endif

@@ -125,13 +125,7 @@ SpecificGenMETData GenSpecificAlgo::mkSpecificGenMETData(edm::Handle<edm::View<r
   };
   const static std::set<int> invisiblepdgIdSet(invisiblepdgId, invisiblepdgId + sizeof(invisiblepdgId)/sizeof(int));
   
-  SpecificGenMETData specific = SpecificGenMETData();
-  specific.NeutralEMEtFraction     = 0.0;
-  specific.NeutralHadEtFraction    = 0.0;
-  specific.ChargedEMEtFraction     = 0.0;
-  specific.ChargedHadEtFraction    = 0.0;
-  specific.MuonEtFraction          = 0.0;
-  specific.InvisibleEtFraction     = 0.0;
+  SpecificGenMETData specific;
   double Et_unclassified = 0.0;
   
   for(edm::View<reco::Candidate>::const_iterator iParticle = (particles.product())->begin(); iParticle != (particles.product())->end(); ++iParticle)

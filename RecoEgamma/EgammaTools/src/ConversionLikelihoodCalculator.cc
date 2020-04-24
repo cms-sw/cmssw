@@ -3,7 +3,7 @@
 
 ConversionLikelihoodCalculator::ConversionLikelihoodCalculator()
 {
-   reader_ = new TMVA::Reader("!Color:Silent");
+   reader_ = std::make_unique<TMVA::Reader>("!Color:Silent");
    
 //   std::cout << "Init Reader()" << std::endl;
 

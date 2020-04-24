@@ -1,14 +1,8 @@
 <lcgdict>
   <class name="DTReadOutMapping" id="6E1247AF-2A00-DA11-96EE-000E0C4DE431">
-    <field name="mType" transient="true"/>
+    <field name="atomicCache_" transient="true"/>
     <field name="rgBuf" transient="true"/>
-    <field name="rgROB" transient="true"/>
-    <field name="rgROS" transient="true"/>
-    <field name="rgDDU" transient="true"/>
     <field name="grBuf" transient="true"/>
-    <field name="grROB" transient="true"/>
-    <field name="grROS" transient="true"/>
-    <field name="grDDU" transient="true"/>
   </class>
   <class name="std::vector<DTReadOutGeometryLink>"/> 
   <class name="DTReadOutGeometryLink" id="C428DA7A-EE34-DA11-89FB-000E0C5CE283"/>
@@ -91,6 +85,17 @@
   <class name="std::vector<std::pair<DTTPGParametersId,DTTPGParametersData> >"/>
   <class name="DTTPGParametersId" id="D0D7107B-C7C5-DD11-AA5A-000E0C5CE282"/>
   <class name="DTTPGParametersData" id="5EEE8E7B-C7C5-DD11-A18E-000E0C5CE282"/>
+  <class name="std::pair<uint32_t, std::vector<float> >"/> 
+  <class name="std::map<uint32_t, std::vector<float> >"/> 
+  <class name="DTRecoUncertainties" class_version="10">
+    <field name="payload" mapping="blob" />
+  </class>
+  <class name="std::map<uint32_t, std::vector<double> >"/> 
+  <class name="DTRecoConditions">
+    <field name="formulaType" transient="true"/>
+    <field name="formula" transient="true"/>
+    <field name="payload" mapping="blob" />
+  </class>
 <!-- comment -->
 </lcgdict>
 

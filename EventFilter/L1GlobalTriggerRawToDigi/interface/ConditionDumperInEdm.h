@@ -39,6 +39,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/ConditionsInEdm.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 //
 // class declaration
@@ -48,12 +49,12 @@ class ConditionDumperInEdm : public edm::one::EDProducer<edm::EndRunProducer,
                                                          edm::EndLuminosityBlockProducer> {
    public:
       explicit ConditionDumperInEdm(const edm::ParameterSet&);
-      ~ConditionDumperInEdm();
+      ~ConditionDumperInEdm() override;
 
    private:
-      virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) override final;
-      virtual void endRunProduce(edm::Run& , const edm::EventSetup&) override final;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+      void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) final;
+      void endRunProduce(edm::Run& , const edm::EventSetup&) final;
+      void produce(edm::Event&, const edm::EventSetup&) final;
 
   template <typename R, typename T>
   const T * get(const edm::EventSetup & setup) {
@@ -69,6 +70,9 @@ class ConditionDumperInEdm : public edm::one::EDProducer<edm::EndRunProducer,
   edm::ConditionsInLumiBlock lumiBlock_;
   edm::ConditionsInRunBlock runBlock_;
   edm::ConditionsInEventBlock eventBlock_;
+
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmDigisLabelToken_;
+
 
 };
 

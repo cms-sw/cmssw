@@ -1,8 +1,6 @@
 #ifndef SOMEPACKAGE_WRITEESALIGNMENTS_H
 #define SOMEPACKAGE_WRITEESALIGNMENTS_H 1
 
-#include "boost/shared_ptr.hpp"
-
 namespace edm
 {
    class EventSetup ;

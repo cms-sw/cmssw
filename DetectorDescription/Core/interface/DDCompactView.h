@@ -1,19 +1,32 @@
 #ifndef DDCompactView_h
 #define DDCompactView_h
 
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/DDAlgo.h"
-#include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
-#include "DetectorDescription/Core/interface/graphwalker.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 
-
+class DDCompactViewImpl;
+class DDDivision;
+class DDName;
 class DDPartSelector;
 class DDPhysicalPart;
+struct DDPosData;
+
 namespace DDI {
+  class LogicalPart;
   class Material;
   class Solid;
-  class LogicalPart;
   class Specific;
 }
 
@@ -87,16 +100,11 @@ public:
   //! pair ...
   typedef std::pair<DDLogicalPart,DDPosData*> pos_type;
   
-  //! not used
-  //:typedef GraphWalker<DDLogicalPart,DDPosData*> walker_type;
-  typedef graphwalker<DDLogicalPart,DDPosData*> walker_type;
-  
-  //! not used
-  //:typedef walker_type::value_type value_type;
+  typedef math::GraphWalker<DDLogicalPart,DDPosData*> walker_type;
   
   //! type of representation of the compact-view (acyclic directed multigraph)
   /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
-  typedef ::graph<DDLogicalPart,DDPosData*> graph_type;
+  typedef math::Graph<DDLogicalPart,DDPosData*> graph_type;
     
   //! Creates a compact-view 
   explicit DDCompactView();
@@ -111,29 +119,26 @@ public:
 
   //! returns the DDLogicalPart representing the root of the geometrical hierarchy
   const DDLogicalPart & root() const;
+  
+  //! The absolute position of the world
+  const DDPosData * worldPosition() const;
 
   //! Prototype version of calculating the weight of a detector component
   double weight(const DDLogicalPart & p) const;
 
-  //! positioning...
-  void algoPosPart(const DDLogicalPart & self,
-		   const DDLogicalPart & parent,
-		   DDAlgo & algo
-		   );
-  
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
-		 std::string copyno,
+		 const std::string& copyno,
 		 const DDTranslation & trans,
 		 const DDRotation & rot,
-		 const DDDivision * div = NULL);
+		 const DDDivision * div = nullptr);
   
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
 		 int copyno,
 		 const DDTranslation & trans,
 		 const DDRotation & rot,
-		 const DDDivision * div = NULL);
+		 const DDDivision * div = nullptr);
   
   // ************************************************************************
   // UNSTABLE STUFF below! DON'T USE!
@@ -155,10 +160,10 @@ public:
 
   void lockdown();
   
- protected:
-  DDCompactViewImpl* rep_;
-
  private:
+  std::unique_ptr<DDCompactViewImpl> rep_;
+  std::unique_ptr<DDPosData> worldpos_ ;
+  
     // 2010-01-27 memory patch
     // for copying and protecting DD Store's after parsing is complete.
     DDI::Store<DDName, DDI::Material*> matStore_;

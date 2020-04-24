@@ -44,7 +44,7 @@ FWTriggerTableViewManager::~FWTriggerTableViewManager()
 class FWViewBase*
 FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, const std::string& type)
 {
-   boost::shared_ptr<FWTriggerTableView> view;
+   std::shared_ptr<FWTriggerTableView> view;
    
    if (type == FWViewType::sName[FWViewType::kTableHLT])
       view.reset( new FWHLTTriggerTableView(iParent));
@@ -54,7 +54,7 @@ FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, const std::string&
    view->setProcessList(&(context().metadataManager()->processNamesInJob()));   
  
    view->setBackgroundColor(colorManager().background());
-   m_views.push_back(boost::shared_ptr<FWTriggerTableView> (view));
+   m_views.push_back(std::shared_ptr<FWTriggerTableView> (view));
    view->beingDestroyed_.connect(boost::bind(&FWTriggerTableViewManager::beingDestroyed,
                                              this,_1));
    return view.get();
@@ -63,7 +63,7 @@ FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, const std::string&
 void
 FWTriggerTableViewManager::beingDestroyed(const FWViewBase* iView)
 {
-   for(std::vector<boost::shared_ptr<FWTriggerTableView> >::iterator it=
+   for(std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it=
           m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
@@ -77,7 +77,7 @@ FWTriggerTableViewManager::beingDestroyed(const FWViewBase* iView)
 void
 FWTriggerTableViewManager::colorsChanged()
 {
-   for(std::vector<boost::shared_ptr<FWTriggerTableView> >::iterator it=
+   for(std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it=
           m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
@@ -88,7 +88,7 @@ FWTriggerTableViewManager::colorsChanged()
 void
 FWTriggerTableViewManager::eventEnd()
 {
-   for(std::vector<boost::shared_ptr<FWTriggerTableView> >::iterator it=
+   for(std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it=
           m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {
@@ -100,7 +100,7 @@ void
 FWTriggerTableViewManager::updateProcessList()
 { 
    // printf("FWTriggerTableViewManager::updateProcessLi\n");
-   for(std::vector<boost::shared_ptr<FWTriggerTableView> >::iterator it=
+   for(std::vector<std::shared_ptr<FWTriggerTableView> >::iterator it=
           m_views.begin(), itEnd = m_views.end();
        it != itEnd;
        ++it) {

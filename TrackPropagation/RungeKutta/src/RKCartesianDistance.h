@@ -10,15 +10,15 @@
 
 /// Estimator of the distance between two state vectors, e.g. for convergence test
 
-class dso_internal RKCartesianDistance GCC11_FINAL : public RKDistance<double,6> {
+class dso_internal RKCartesianDistance final : public RKDistance<double,6> {
 public:
  
   typedef double                                 Scalar;
   typedef RKSmallVector<double,6>                Vector;
 
-  virtual ~RKCartesianDistance() {}
+  ~RKCartesianDistance() override {}
 
-  virtual Scalar operator()( const Vector& rka, const Vector& rkb, const Scalar& s) const {
+  Scalar operator()( const Vector& rka, const Vector& rkb, const Scalar& s) const override {
     CartesianStateAdaptor a(rka), b(rkb);
 
     return (a.position()-b.position()).mag() + 

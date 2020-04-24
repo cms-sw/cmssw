@@ -1,5 +1,6 @@
 
 #include "GeneratorInterface/GenFilters/interface/PythiaFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCFilterZboostHelper.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
@@ -9,7 +10,7 @@ using namespace std;
 
 
 PythiaFilter::PythiaFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
 minpcut(iConfig.getUntrackedParameter("MinP", 0.)),
 maxpcut(iConfig.getUntrackedParameter("MaxP", 10000.)),
@@ -23,7 +24,8 @@ minphicut(iConfig.getUntrackedParameter("MinPhi", -3.5)),
 maxphicut(iConfig.getUntrackedParameter("MaxPhi", 3.5)),
 status(iConfig.getUntrackedParameter("Status", 0)),
 motherID(iConfig.getUntrackedParameter("MotherID", 0)),
-processID(iConfig.getUntrackedParameter("ProcessID", 0))
+processID(iConfig.getUntrackedParameter("ProcessID", 0)),
+betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
 {
    //now do what ever initialization is needed
 
@@ -44,12 +46,12 @@ PythiaFilter::~PythiaFilter()
 //
 
 // ------------ method called to produce the data  ------------
-bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool PythiaFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    bool accepted = false;
    Handle<HepMCProduct> evt;
-   iEvent.getByLabel(label_, evt);
+   iEvent.getByToken(token_, evt);
 
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
     
@@ -57,16 +59,16 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	   p != myGenEvent->particles_end(); ++p ) {
-       
-       rapidity = 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) );
+       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
+       double rapidity = 0.5*log( (mom.e()+mom.pz()) / (mom.e()-mom.pz()) );
        
        if ( abs((*p)->pdg_id()) == particleID 
-	    && (*p)->momentum().rho() > minpcut 
-	    && (*p)->momentum().rho() < maxpcut
+	    && mom.rho() > minpcut 
+	    && mom.rho() < maxpcut
 	    && (*p)->momentum().perp() > minptcut 
 	    && (*p)->momentum().perp() < maxptcut
-	    && (*p)->momentum().eta() > minetacut
-	    && (*p)->momentum().eta() < maxetacut 
+	    && mom.eta() > minetacut
+	    && mom.eta() < maxetacut 
 	    && rapidity > minrapcut
 	    && rapidity < maxrapcut 
 	    && (*p)->momentum().phi() > minphicut
@@ -121,4 +123,3 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    return true; } else {return false;}
 
 }
-

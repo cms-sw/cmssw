@@ -1,5 +1,5 @@
 #ifndef _HLTHFAsymmetryFilter_H
-#define _HLTHFAsymetryFilter_H
+#define _HLTHFAsymmetryFilter_H
 
 
 ///////////////////////////////////////////////////////
@@ -50,10 +50,10 @@
 class HLTHFAsymmetryFilter : public edm::EDFilter {
    public:
       explicit HLTHFAsymmetryFilter(const edm::ParameterSet&);
-      ~HLTHFAsymmetryFilter();
+      ~HLTHFAsymmetryFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event &, const edm::EventSetup&);
+      bool filter(edm::Event &, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
 
@@ -65,4 +65,4 @@ class HLTHFAsymmetryFilter : public edm::EDFilter {
 
 };
 
-#endif
+#endif // _HLTHFAsymmetryFilter_H

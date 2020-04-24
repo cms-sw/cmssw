@@ -10,19 +10,19 @@
 //*****************************************************************************
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class EgammaElectronTkIsolationProducer : public edm::EDProducer {
+class EgammaElectronTkIsolationProducer : public edm::stream::EDProducer<> {
  public:
   explicit EgammaElectronTkIsolationProducer(const edm::ParameterSet&);
-  ~EgammaElectronTkIsolationProducer();
+  ~EgammaElectronTkIsolationProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::InputTag electronProducer_;

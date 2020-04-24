@@ -13,13 +13,13 @@
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/VertexReco"/>
+  <use name="DataFormats/PatCandidates"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="RecoBTag/SoftLepton"/>
   <use name="RecoBTau/JetTagComputer"/>
-  <use name="RecoCaloTools/MetaCollections"/>
   <use name="RecoCaloTools/Selectors"/>
   <use name="TrackingTools/IPTools"/>
   <use name="TrackingTools/Records"/>

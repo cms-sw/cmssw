@@ -6,12 +6,12 @@
 
 class CMSEmStandardPhysics : public G4VPhysicsConstructor {
 
-public:
-  CMSEmStandardPhysics(const G4String& name, G4int ver);
-  virtual ~CMSEmStandardPhysics();
+public: 
+  CMSEmStandardPhysics(G4int ver);
+  ~CMSEmStandardPhysics() override;
 
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
 private:
   G4int               verbose;

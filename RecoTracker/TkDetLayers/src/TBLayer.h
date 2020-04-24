@@ -21,22 +21,22 @@ class TBLayer: public BarrelDetLayer {
     theOuterComps(outer.begin(),outer.end()), me(ime){}
 
 
-  ~TBLayer() __attribute__ ((cold));
+  ~TBLayer() override __attribute__ ((cold));
 
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const final {return theBasicComps;}
+  const std::vector<const GeomDet*>& basicComponents() const final {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const final  __attribute__ ((cold)) {return theComps;}
+  const std::vector<const GeometricSearchDet*>& components() const final  __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const final __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
 
 
   // DetLayer interface
-  virtual SubDetector subDetector() const final {return me;}
+  SubDetector subDetector() const final {return GeomDetEnumerators::subDetGeom[me];}
 
 
 protected:
@@ -68,6 +68,7 @@ protected:
   bool isTIB() const { return me==GeomDetEnumerators::TIB;}
   bool isTOB() const { return me==GeomDetEnumerators::TOB;}
   bool isPixel() const { return me==GeomDetEnumerators::PixelBarrel;}
+  bool isPhase2OT() const { return me==GeomDetEnumerators::P2OTB;}
 
   virtual void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				const Propagator& prop,

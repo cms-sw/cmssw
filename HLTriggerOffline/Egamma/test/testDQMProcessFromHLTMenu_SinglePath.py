@@ -13,6 +13,7 @@ pathToTest = "HLT_Ele17_SW_TighterEleIdIsol_L1R_v3"
 #----------------------------------------------------------------------
 
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("TEST")
 
@@ -70,7 +71,7 @@ process.dqmPath = cms.Path(
 # E/gamma HLT specific DQM configuration
 #----------------------------------------
 
-process.post=cms.EDAnalyzer("EmDQMPostProcessor",
+process.post=DQMEDProducer("EmDQMPostProcessor",
                             subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
                             dataSet = cms.untracked.string("unknown"),
     )

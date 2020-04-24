@@ -58,7 +58,7 @@ void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)
 	  SiStripMatchedRecHit2D const & rechit=*iter;
 	  LocalPoint position=rechit.localPosition();
 	  LocalError error=rechit.localPositionError();
-	  //GeomDet& det=rechit->det();
+	  auto det=rechit.det();
 	  //DetId id=rechit.geographicalId();
 	  //	  std::vector<const SiStripCluster*> clust=rechit.cluster();
 	  edm::LogInfo("ReadRecHit")<<"local position: "<<position.x()<<" "<<position.y()<<" "<<position.z()<<"\n"
@@ -66,8 +66,8 @@ void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)
 
           auto m = iter->monoHit();
           auto s = iter->stereoHit();
-	  ProjectedSiStripRecHit2D projrechit(m.localPosition() ,m.localPositionError() , rechit.geographicalId(), &m );
-	  ProjectedSiStripRecHit2D projsrechit(s.localPosition() ,s.localPositionError() , rechit.geographicalId(), &s );
+	  ProjectedSiStripRecHit2D projrechit(m.localPosition() ,m.localPositionError() , *det, m );
+	  ProjectedSiStripRecHit2D projsrechit(s.localPosition() ,s.localPositionError() , *det, s );
 	  
 	  edm::LogVerbatim("ReadRecHit")<<"Checking shareinput\nALL:";
 	  

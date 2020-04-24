@@ -2,6 +2,7 @@
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/TrackFitters"/>
+<use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="RecoMuon/TransientTrackingRecHit"/>
 <use   name="MagneticField/Engine"/>
 <use   name="DataFormats/TrackerCommon"/>

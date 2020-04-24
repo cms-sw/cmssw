@@ -8,18 +8,21 @@ class TkPixelMeasurementDet;
 class SiStripRecHitMatcher;
 class StripClusterParameterEstimator;
 class PixelClusterParameterEstimator;
+class Phase2StripCPE;
 
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/RefGetter.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <unordered_map>
 
 // #define VISTAT
 
@@ -56,9 +59,8 @@ public:
   
   
   StMeasurementConditionSet(const SiStripRecHitMatcher* matcher,
-		           const StripClusterParameterEstimator* cpe,
-		           bool regional):
-    theMatcher(matcher), theCPE(cpe), regional_(regional){}
+		           const StripClusterParameterEstimator* cpe):
+    theMatcher(matcher), theCPE(cpe){}
   
   
   void init(int size);
@@ -75,7 +77,6 @@ public:
     return std::lower_bound(id_.begin()+i,id_.end(),jd)-id_.begin();
   }
   
-  bool isRegional() const { return regional_;}
   bool isActiveThisPeriod(int i) const { return activeThisPeriod_[i]; }
 
  
@@ -90,6 +91,10 @@ public:
   bool maskBad128StripBlocks() const { return maskBad128StripBlocks_;}
   bool hasAny128StripBad(int i) const { return  hasAny128StripBad_[i];}
   
+  /// note: index is 6*detector index + offset!
+  bool bad128Strip(int offset) const { return  bad128Strip_[offset];}
+  bool bad128Strip(int index, int strip) const { return  bad128Strip_[nbad128*index+(strip>>7)];}
+
   std::vector<BadStripBlock> & getBadStripBlocks(int i) { return badStripBlocks_[i]; }
   std::vector<BadStripBlock> const & badStripBlocks(int i) const {return badStripBlocks_[i]; }
 
@@ -119,7 +124,6 @@ private:
   // globals
   const SiStripRecHitMatcher*       theMatcher;
   const StripClusterParameterEstimator* theCPE;
-  bool  regional_;
   
   bool maskBad128StripBlocks_;
   BadStripCuts badStripCuts_[4];
@@ -145,24 +149,18 @@ public:
   typedef edmNew::DetSet<SiStripCluster> StripDetset;
   typedef StripDetset::const_iterator new_const_iterator;
   
-  typedef std::vector<SiStripCluster>::const_iterator const_iterator;
-  
-  typedef edm::LazyGetter<SiStripCluster> LazyGetter;
-  typedef edm::RefGetter<SiStripCluster> RefGetter;
 
   StMeasurementDetSet(const StMeasurementConditionSet & cond) : 
     conditionSet_(&cond),
     empty_(cond.nDet(), true),
     activeThisEvent_(cond.nDet(), true),
-    detSet_(!cond.isRegional() ? cond.nDet() : 0),
-    detIndex_(!cond.isRegional() ? cond.nDet() : 0,-1),
-    ready_(!cond.isRegional() ? cond.nDet() : 0,true),
-    clusterI_(cond.isRegional() ? 2*cond.nDet() : 0),
-    refGetter_(0),
+    detSet_(cond.nDet()),
+    detIndex_(cond.nDet(),-1),
+    ready_(cond.nDet(),true),
     theRawInactiveStripDetIds_(),
-    stripDefined_(cond.isRegional() ? cond.nDet() : 0), 
-    stripUpdated_(cond.isRegional() ? cond.nDet() : 0), 
-    stripRegions_(cond.isRegional() ? cond.nDet() : 0) 
+    stripDefined_(0), 
+    stripUpdated_(0), 
+    stripRegions_(0) 
   {
   }
 
@@ -172,7 +170,6 @@ public:
 
   const StMeasurementConditionSet & conditions() const { return *conditionSet_; } 
  
-  void setLazyGetter( edm::Handle<LazyGetter> const & lg) { regionalHandle_=lg;}
  
   void update(int i,const StripDetset & detSet ) { 
     detSet_[i] = detSet;     
@@ -186,16 +183,6 @@ public:
     incReady();
   }
 
-  void update(int i, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end) { 
-    clusterI_[2*i] = begin - regionalHandle_->begin_record();
-    clusterI_[2*i+1] = end - regionalHandle_->begin_record();
-    
-    empty_[i] = false;
-    activeThisEvent_[i] = true;
-  }
- 
-  bool isRegional() const { return conditions().isRegional(); }
- 
   int size() const { return conditions().nDet(); }
   int nDet() const { return size();}
   unsigned int id(int i) const { return conditions().id(i); }
@@ -227,13 +214,6 @@ public:
   // StripDetset & detSet(int i) { return detSet_[i]; }
   const StripDetset & detSet(int i) const { if (ready_[i]) const_cast<StMeasurementDetSet*>(this)->getDetSet(i);     return detSet_[i]; }
   
-  edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_; }
-  const edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() const { return regionalHandle_; }
-  unsigned int beginClusterI(int i) const {return clusterI_[2*i];}
-  unsigned int endClusterI(int i) const {return clusterI_[2*i+1];}
-  
-  const edm::RefGetter<SiStripCluster> & refGetter() const { return *refGetter_; }
-  void setRefGetter(const edm::RefGetter<SiStripCluster> &getter) { refGetter_ = &getter; }
 
   //// ------- pieces for on-demand unpacking -------- 
   std::vector<uint32_t> & rawInactiveStripDetIds() { return theRawInactiveStripDetIds_; } 
@@ -247,8 +227,6 @@ public:
     stripUpdated_[i] = false;
     stripRegions_[i] = range; 
   }
-  //const bool gluedUpdated(int i) const { return gluedUpdated_(i); }
-  const std::pair<unsigned int,unsigned int> & regionRange(int i) const { return stripRegions_[i]; }
 
 private:
 
@@ -267,13 +245,14 @@ private:
 
 
   friend class  MeasurementTrackerImpl;
-  friend class  MeasurementTrackerSiStripRefGetterProducer;
 
   const StMeasurementConditionSet *conditionSet_; 
- 
+
+
+  // Globals, per-event
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
-  edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
-  
+
+ 
   std::vector<bool> empty_;
   std::vector<bool> activeThisEvent_;
   
@@ -282,12 +261,7 @@ private:
   std::vector<int> detIndex_;
   std::vector<bool> ready_; // to be cleaned
   
-  // --- regional unpacking
-  // begin,end "pairs"
-  std::vector<unsigned int> clusterI_;
  
-  //// ------- pieces for on-demand unpacking -------- 
-  const edm::RefGetter<SiStripCluster> * refGetter_;
   // note: not aligned to the index
   std::vector<uint32_t> theRawInactiveStripDetIds_;
   // keyed on si-strip index
@@ -365,12 +339,13 @@ class PxMeasurementDetSet {
 public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> SiPixelClusterRef;
   typedef edmNew::DetSet<SiPixelCluster> PixelDetSet;
+  typedef std::vector<std::pair<LocalPoint,LocalPoint> > BadFEDChannelPositions;
 
   PxMeasurementDetSet(const PxMeasurementConditionSet &cond) : 
     conditionSet_(&cond),
     detSet_(cond.nDet()),
     empty_(cond.nDet(), true),
-    activeThisEvent_(cond.nDet(), true)  {}
+    activeThisEvent_(cond.nDet(), true) {}
 
   const PxMeasurementConditionSet & conditions() const { return *conditionSet_; } 
 
@@ -389,16 +364,40 @@ public:
   bool empty(int i) const { return empty_[i];}  
   bool isActive(int i) const { return activeThisEvent_[i] && conditions().isActiveThisPeriod(i); }
 
-  void setEmpty(int i) {empty_[i] = true; activeThisEvent_[i] = true; }
+  void setEmpty(int i) {
+    empty_[i] = true;
+    activeThisEvent_[i] = true;
+    auto found = badFEDChannelPositionsSet_.find(i);
+    if(found != badFEDChannelPositionsSet_.end()) {
+      badFEDChannelPositionsSet_.erase(found);
+    }
+  }
   
   void setEmpty() {
     std::fill(empty_.begin(),empty_.end(),true);
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),true);
+    badFEDChannelPositionsSet_.clear();
   }
   void setActiveThisEvent(bool active) {
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),active);
   }
   
+  const BadFEDChannelPositions* getBadFEDChannelPositions(int i) const {
+    auto found = badFEDChannelPositionsSet_.find(i);
+    if(found == badFEDChannelPositionsSet_.end())
+      return nullptr;
+    return &(found->second);
+  }
+  void addBadFEDChannelPositions(int i, BadFEDChannelPositions& positions) {
+    auto found = badFEDChannelPositionsSet_.find(i);
+    if(found == badFEDChannelPositionsSet_.end()) {
+      badFEDChannelPositionsSet_.emplace(i, positions);
+    }
+    else {
+      found->second.insert(found->second.end(), positions.begin(), positions.end());
+    }
+  }
+
   /** \brief Turn on/off the module for reconstruction for one events.
       This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
   void setActiveThisEvent(int i, bool active) { activeThisEvent_[i] = active;  if (!active) empty_[i] = true; }
@@ -415,6 +414,96 @@ private:
 
   // Locals, per-event
   std::vector<PixelDetSet> detSet_;
+  std::vector<bool> empty_;
+  std::vector<bool> activeThisEvent_;
+  std::unordered_map<int, BadFEDChannelPositions> badFEDChannelPositionsSet_;
+};
+
+//FIXME:just temporary solution for phase2 OT that works!
+class Phase2OTMeasurementConditionSet {
+public:
+  Phase2OTMeasurementConditionSet(const ClusterParameterEstimator<Phase2TrackerCluster1D> *cpe) :
+    theCPE(cpe) {}
+
+  void init(int size);
+
+  int nDet() const { return id_.size();}
+  unsigned int id(int i) const { return id_[i]; }
+  int find(unsigned int jd, int i=0) const {
+    return std::lower_bound(id_.begin()+i,id_.end(),jd)-id_.begin();
+  }
+
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>*  cpe() const { return theCPE;}
+  bool isActiveThisPeriod(int i) const { return activeThisPeriod_[i]; }
+
+  /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
+ *       This also resets the 'setActiveThisEvent' to true */
+  void setActive(int i, bool active) { activeThisPeriod_[i] = active; }
+
+
+private:
+  friend class MeasurementTrackerImpl;
+
+  // Globals (not-per-event)
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>* theCPE;
+  
+  // Locals, per-event
+  std::vector<unsigned int> id_;
+  std::vector<bool> activeThisPeriod_;
+  
+};
+
+class Phase2OTMeasurementDetSet {
+public:
+  typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2TrackerCluster1DRef;
+  typedef edmNew::DetSet<Phase2TrackerCluster1D> Phase2DetSet;
+
+  Phase2OTMeasurementDetSet(const Phase2OTMeasurementConditionSet &cond) :
+    conditionSet_(&cond),
+    detSet_(cond.nDet()),
+    empty_(cond.nDet(), true),
+    activeThisEvent_(cond.nDet(), true)  {}
+
+  const Phase2OTMeasurementConditionSet & conditions() const { return *conditionSet_; }
+
+  int size() const { return conditions().nDet(); }
+  int nDet() const { return size();}
+  unsigned int id(int i) const { return conditions().id(i); }
+  int find(unsigned int jd, int i=0) const {
+    return conditions().find(jd,i);
+  }
+
+  void update(int i,const Phase2DetSet & detSet ) {
+    detSet_[i] = detSet;
+    empty_[i] = false;
+  }
+
+  bool empty(int i) const { return empty_[i];}
+  bool isActive(int i) const { return activeThisEvent_[i] && conditions().isActiveThisPeriod(i); }
+
+  void setEmpty(int i) {empty_[i] = true; activeThisEvent_[i] = true; }
+
+  void setEmpty() {
+    std::fill(empty_.begin(),empty_.end(),true);
+    std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),true);
+  }
+  void setActiveThisEvent(bool active) {
+    std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),active);
+  }
+  void setActiveThisEvent(int i, bool active) { activeThisEvent_[i] = active;  if (!active) empty_[i] = true; }
+  const edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > & handle() const {  return handle_;}
+  edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > & handle() {  return handle_;}
+  const Phase2DetSet & detSet(int i) const { return detSet_[i];}
+private:
+  friend class MeasurementTrackerImpl;
+
+  const Phase2OTMeasurementConditionSet *conditionSet_;
+
+  //Globals, per-event
+  edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > handle_;
+ 
+  // Locals, per-event
+  std::vector<Phase2DetSet> detSet_;
   std::vector<bool> empty_;
   std::vector<bool> activeThisEvent_;
 };

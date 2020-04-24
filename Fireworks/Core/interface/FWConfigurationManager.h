@@ -27,6 +27,7 @@
 // forward declarations
 class FWConfigurable;
 class FWConfiguration;
+class FWJobMetadataManager;
 
 class FWConfigurationManager
 {
@@ -41,20 +42,25 @@ public:
 
    void writeToFile(const std::string&) const;
    void readFromFile(const std::string&) const;
+   std::string guessAndReadFromFile(FWJobMetadataManager*) const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
    ///does not take ownership
    void add(const std::string& iName, FWConfigurable*);
 
-private:
-   FWConfigurationManager(const FWConfigurationManager&);    // stop default
+   void setIgnore() { m_ignore = true; }
+   bool getIgnore() const { return m_ignore; }
 
-   const FWConfigurationManager& operator=(const FWConfigurationManager&);    // stop default
+private:
+   FWConfigurationManager(const FWConfigurationManager&) = delete;    // stop default
+
+   const FWConfigurationManager& operator=(const FWConfigurationManager&) = delete;    // stop default
    void readFromOldFile(const std::string&) const;
 
    // ---------- member data --------------------------------
    std::map<std::string, FWConfigurable*> m_configurables;
+   bool m_ignore;
 };
 
 

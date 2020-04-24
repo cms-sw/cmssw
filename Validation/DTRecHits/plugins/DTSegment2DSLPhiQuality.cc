@@ -44,8 +44,10 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
 
   // the name of the simhit collection
   simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
-  // the name of the 4D rec hit collection
+  simHitToken_ = consumes<PSimHitContainer>(pset.getUntrackedParameter<InputTag>("simHitLabel"));
+  // the name of the 2D rec hit collection
   segment4DLabel = pset.getUntrackedParameter<InputTag>("segment4DLabel");
+  segment4DToken_ = consumes<DTRecSegment4DCollection>(pset.getUntrackedParameter<InputTag>("segment4DLabel"));
 
   //sigma resolution on position
   sigmaResPos = pset.getParameter<double>("sigmaResPos");
@@ -53,11 +55,11 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   sigmaResAngle = pset.getParameter<double>("sigmaResAngle");
   doall = pset.getUntrackedParameter<bool>("doall", false);
   local = pset.getUntrackedParameter<bool>("local", false);
+}
 
-  // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
-  // ----------------------                 
+
+void DTSegment2DSLPhiQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
+
   // get hold of back-end interface 
   dbe_ = 0;
   dbe_ = Service<DQMStore>().operator->();
@@ -110,7 +112,7 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
-  event.getByLabel(simHitLabel, simHits); //FIXME: second string to be removed
+  event.getByToken(simHitToken_, simHits); //FIXME: second string to be removed
 
   //Map simHits by chamber
   map<DTChamberId, PSimHitContainer > simHitsPerCh;
@@ -124,7 +126,7 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
 
   // Get the 4D rechits from the event
   Handle<DTRecSegment4DCollection> segment4Ds;
-  event.getByLabel(segment4DLabel, segment4Ds);
+  event.getByToken(segment4DToken_, segment4Ds);
 
   if(!segment4Ds.isValid()) {
     if(debug) cout << "[DTSegment2DSLPhiQuality]**Warning: no 4D Segments with label: " << segment4DLabel

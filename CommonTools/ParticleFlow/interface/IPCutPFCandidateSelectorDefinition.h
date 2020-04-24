@@ -43,11 +43,11 @@ namespace pf2pat {
 	   pfc != hc->end(); ++pfc, ++key) {
 
 	bool passing = true;
-	const reco::Track *tk = 0;
+	const reco::Track *tk = nullptr;
 	if (pfc->gsfTrackRef().isNonnull())   tk = pfc->gsfTrackRef().get();
 	else if (pfc->trackRef().isNonnull()) tk = pfc->trackRef().get();
 
-	if (tk != 0) {
+	if (tk != nullptr) {
 	  double d0 =  fabs(tk->dxy(vtx.position()));
 	  double dz =  fabs(tk->dz(vtx.position()));
 	  double d0e = hypot(tk->dxyError(), hypot(vtx.xError(), vtx.yError()));

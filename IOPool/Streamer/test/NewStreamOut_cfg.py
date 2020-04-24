@@ -11,7 +11,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50)
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstEvent = cms.untracked.uint64(10123456789)
+)
 
 process.m1 = cms.EDProducer("StreamThingProducer",
     instance_count = cms.int32(5),

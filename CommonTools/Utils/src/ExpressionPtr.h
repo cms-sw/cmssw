@@ -13,7 +13,7 @@
 
 namespace reco {
   namespace parser {
-    class ExpressionBase;
+    struct ExpressionBase;
     typedef boost::shared_ptr<ExpressionBase> ExpressionPtr;
   }
 }

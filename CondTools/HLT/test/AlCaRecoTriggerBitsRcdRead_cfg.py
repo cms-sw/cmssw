@@ -24,28 +24,29 @@ process.source = cms.Source("EmptySource",
 # With 'numberEventsInRun = 1' above,
 # this will check IOVs until run (!) number specified as 'input' here,
 # so take care to choose a one that is not too small...:
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(250000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(350000) )
 
 # Input for AlCaRecoTriggerBitsRcd,
-# either via GloblalTag (use of _cfi instead of _cff sufficient and faster):
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
-process.GlobalTag.globaltag = "GR09_P_V8_34X::All"#"DESIGN_3X_V13::All" #choose your tag
+# either via GlobalTag
+# (loading of Configuration.StandardSequences.CondDBESSource_cff equivalent to CondCore.ESSources.CondDBESSource_cfi
+# as entry point for condition records in the EventSetup,
+# but sufficient and faster than Configuration.StandardSequences.FrontierConditions_GlobalTag_cff):
+from Configuration.AlCa.autoCond import autoCond
+process.load("Configuration.StandardSequences.CondDBESSource_cff")
+process.GlobalTag.globaltag = autoCond['run2_data'] #choose your tag
 
 # ...or specify database and tag:  
-#import CondCore.DBCommon.CondDBSetup_cfi
-#process.dbInput = cms.ESSource(
-#    "PoolDBESSource",
-#    CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
-##    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
-#    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_HLT'),
-#    toGet = cms.VPSet(cms.PSet(
-#        record = cms.string('AlCaRecoTriggerBitsRcd'),
-##        tag = cms.string('TestTag') # choose tag you want
-#        tag = cms.string('AlCaRecoHLTpaths8e29_1e31_v5_hlt') # choose tag you want
-#
-#        )
-#                      )
-#    )
+#from CondCore.CondDB.CondDB_cfi import *
+#CondDBTriggerBits = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_COND_31X_HLT'))
+##CondDBTriggerBits = CondDB.clone(connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'))
+#process.dbInput = cms.ESSource("PoolDBESSource",
+#                               CondDBTriggerBits,
+#                               toGet = cms.VPSet(cms.PSet(record = cms.string('AlCaRecoTriggerBitsRcd'),
+##                                                          tag = cms.string('TestTag') # choose tag you want
+#                                                          tag = cms.string('AlCaRecoHLTpaths8e29_1e31_v5_hlt') # choose tag you want
+#                                                          )
+#                                                 )
+#                               )
 
 # Put module in path:
 process.p = cms.Path(process.AlCaRecoTriggerBitsRcdRead)

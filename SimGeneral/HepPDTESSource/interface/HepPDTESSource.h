@@ -18,7 +18,6 @@
 //
 #include <memory>
 #include <fstream>
-#include "boost/shared_ptr.hpp"
 #include "HepPDT/TableBuilder.hh"
 #include "HepPDT/ParticleDataTable.hh"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -33,17 +32,17 @@ public:
   /// constructor from parameter set
   HepPDTESSource( const edm::ParameterSet& );
   /// destructor
-  ~HepPDTESSource();
+  ~HepPDTESSource() override;
   /// define the particle data table type
   typedef HepPDT::ParticleDataTable PDT;
   /// define the return type
-  typedef std::auto_ptr<PDT> ReturnType;
+  typedef std::unique_ptr<PDT> ReturnType;
   /// return the particle table
   ReturnType produce( const PDTRecord & );
   /// set validity interval
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey &,
 		       const edm::IOVSyncValue &,
-		       edm::ValidityInterval & );
+		       edm::ValidityInterval & ) override;
 
 private:
   edm::FileInPath pdtFileName;

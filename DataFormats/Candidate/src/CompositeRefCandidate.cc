@@ -10,32 +10,16 @@ CompositeRefCandidate * CompositeRefCandidate::clone() const {
   return new CompositeRefCandidate( * this ); 
 }
 
-Candidate::const_iterator CompositeRefCandidate::begin() const { 
-  return const_iterator( new const_iterator_imp_specific( dau.begin() ) ); 
-}
-
-Candidate::const_iterator CompositeRefCandidate::end() const { 
-  return const_iterator( new const_iterator_imp_specific( dau.end() ) ); 
-}    
-
-Candidate::iterator CompositeRefCandidate::begin() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
-Candidate::iterator CompositeRefCandidate::end() { 
-  return iterator( new iterator_imp_specific ); 
-}    
-
 const Candidate * CompositeRefCandidate::daughter( size_type i ) const { 
-  return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0; // i >= 0, since i is unsigned
+  return ( i < numberOfDaughters() ) ? & * dau[ i ] : nullptr; // i >= 0, since i is unsigned
 }
 
 const Candidate * CompositeRefCandidate::mother( size_type i ) const { 
-  return ( i < numberOfMothers() ) ? & * mom[ i ] : 0; // i >= 0, since i is unsigned
+  return ( i < numberOfMothers() ) ? & * mom[ i ] : nullptr; // i >= 0, since i is unsigned
 }
 
 Candidate * CompositeRefCandidate::daughter( size_type i ) { 
-  return 0;
+  return nullptr;
 }
 
 size_t CompositeRefCandidate::numberOfDaughters() const { 

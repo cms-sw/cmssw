@@ -17,6 +17,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -61,18 +62,18 @@ namespace helper {
     
   private:
      //--- Collections to store:
-    std::auto_ptr<reco::MuonCollection> selMuons_;
-    std::auto_ptr<reco::TrackCollection> selTracks_;
-    std::auto_ptr<reco::TrackExtraCollection> selTracksExtras_;
-    std::auto_ptr<TrackingRecHitCollection> selTracksHits_;
-    std::auto_ptr<reco::TrackCollection> selGlobalMuonTracks_;
-    std::auto_ptr<reco::TrackExtraCollection> selGlobalMuonTracksExtras_;
-    std::auto_ptr<TrackingRecHitCollection> selGlobalMuonTracksHits_;
-    std::auto_ptr<reco::TrackCollection> selStandAloneTracks_;
-    std::auto_ptr<reco::TrackExtraCollection> selStandAloneTracksExtras_;
-    std::auto_ptr<TrackingRecHitCollection> selStandAloneTracksHits_;
-    std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >  selStripClusters_;
-    std::auto_ptr< edmNew::DetSetVector<SiPixelCluster> >  selPixelClusters_;
+    std::unique_ptr<reco::MuonCollection> selMuons_;
+    std::unique_ptr<reco::TrackCollection> selTracks_;
+    std::unique_ptr<reco::TrackExtraCollection> selTracksExtras_;
+    std::unique_ptr<TrackingRecHitCollection> selTracksHits_;
+    std::unique_ptr<reco::TrackCollection> selGlobalMuonTracks_;
+    std::unique_ptr<reco::TrackExtraCollection> selGlobalMuonTracksExtras_;
+    std::unique_ptr<TrackingRecHitCollection> selGlobalMuonTracksHits_;
+    std::unique_ptr<reco::TrackCollection> selStandAloneTracks_;
+    std::unique_ptr<reco::TrackExtraCollection> selStandAloneTracksExtras_;
+    std::unique_ptr<TrackingRecHitCollection> selStandAloneTracksHits_;
+    std::unique_ptr< edmNew::DetSetVector<SiStripCluster> >  selStripClusters_;
+    std::unique_ptr< edmNew::DetSetVector<SiPixelCluster> >  selPixelClusters_;
 
     reco::MuonRefProd rMuons_;      
     reco::TrackRefProd rTracks_;      

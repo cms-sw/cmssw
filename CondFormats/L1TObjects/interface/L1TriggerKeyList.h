@@ -20,6 +20,8 @@
 //
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <map>
 
@@ -94,6 +96,8 @@ class L1TriggerKeyList
       // map of subsystem key (second/first) to configuration data payload
       // token (second/second), keyed by record@type (first)
       RecordToKeyToToken m_recordKeyToken ;
+
+  COND_SERIALIZABLE;
 };
 
 

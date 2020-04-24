@@ -27,22 +27,22 @@ public:
   /// destructor
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
-  std::auto_ptr<OutputCollection> 
+  std::unique_ptr<OutputCollection> 
   combine(const std::vector<edm::Handle<reco::CandidateView> > &, const vstring& = vstring()) const;
   /// return all selected candidate pairs
-  std::auto_ptr<OutputCollection> 
+  std::unique_ptr<OutputCollection> 
   combine(const edm::Handle<reco::CandidateView> &, const vstring& = vstring()) const;
   /// return all selected candidate pairs
-  std::auto_ptr<OutputCollection> 
+  std::unique_ptr<OutputCollection> 
   combine(const edm::Handle<reco::CandidateView> &, 
 	  const edm::Handle<reco::CandidateView> &, const vstring& = vstring()) const;
   /// return all selected candidate pairs
-  std::auto_ptr<OutputCollection> 
+  std::unique_ptr<OutputCollection> 
   combine(const edm::Handle<reco::CandidateView> &, 
 	  const edm::Handle<reco::CandidateView> &, 
 	  const edm::Handle<reco::CandidateView> &, const vstring& = vstring()) const;
   /// return all selected candidate pairs
-  std::auto_ptr<OutputCollection> 
+  std::unique_ptr<OutputCollection> 
   combine(const edm::Handle<reco::CandidateView> &, 
 	  const edm::Handle<reco::CandidateView> &, 
 	  const edm::Handle<reco::CandidateView> &, 
@@ -63,7 +63,7 @@ private:
   void combine(size_t collectionIndex, CandStack &, ChargeStack &,
 	       std::vector<edm::Handle<reco::CandidateView> >::const_iterator begin,
 	       std::vector<edm::Handle<reco::CandidateView> >::const_iterator end,
-	       std::auto_ptr<OutputCollection> & comps,
+	       OutputCollection* comps,
 	       const vstring& name = vstring()) const;
   /// select a candidate
   virtual bool select(const reco::Candidate &) const = 0;
@@ -144,7 +144,7 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(typename OutputCollect
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<OutputCollection> 
+std::unique_ptr<OutputCollection> 
 CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Handle<reco::CandidateView> > & src,
 						     const vstring& names) const {
   size_t srcSize = src.size();
@@ -152,7 +152,7 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Hand
     throw edm::Exception(edm::errors::Configuration) 
       << "CandCombiner: trying to combine " << srcSize << " collections"
       << " but configured to check against " << dauCharge_.size() << " charges.";
-  std::auto_ptr<OutputCollection> comps(new OutputCollection);
+  std::unique_ptr<OutputCollection> comps(new OutputCollection);
   size_t namesSize = names.size();
   if(srcSize == 2) {
     std::string name1="", name2="";
@@ -203,14 +203,14 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Hand
   } else {
     CandStack stack;
     ChargeStack qStack;
-    combine(0, stack, qStack, src.begin(), src.end(), comps, names);
+    combine(0, stack, qStack, src.begin(), src.end(), comps.get(), names);
   }
 
   return comps;
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<OutputCollection> 
+std::unique_ptr<OutputCollection> 
 CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src,
 						     const vstring& names) const {
   if(checkCharge_ && dauCharge_.size() != 2)
@@ -218,7 +218,7 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::Can
       << "CandCombiner: trying to combine 2 collections"
       << " but configured to check against " << dauCharge_.size() << " charges.";
 
-  std::auto_ptr<OutputCollection> comps(new OutputCollection);
+  std::unique_ptr<OutputCollection> comps(new OutputCollection);
   size_t namesSize = names.size();
   std::string name1, name2;
   if(namesSize > 0) {
@@ -250,7 +250,7 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::Can
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<OutputCollection> 
+std::unique_ptr<OutputCollection> 
 CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, 
 						     const edm::Handle<reco::CandidateView> & src2,
 						     const vstring& names) const {
@@ -261,7 +261,7 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::Can
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<OutputCollection> 
+std::unique_ptr<OutputCollection> 
 CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, 
 						     const edm::Handle<reco::CandidateView> & src2, 
 						     const edm::Handle<reco::CandidateView> & src3,
@@ -274,7 +274,7 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::Can
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<OutputCollection> 
+std::unique_ptr<OutputCollection> 
 CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, 
 						     const edm::Handle<reco::CandidateView> & src2, 
 						     const edm::Handle<reco::CandidateView> & src3, 
@@ -292,7 +292,7 @@ template<typename OutputCollection, typename CandPtr>
 void CandCombinerBase<OutputCollection, CandPtr>::combine(size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
 							  std::vector<edm::Handle<reco::CandidateView> >::const_iterator collBegin,
 							  std::vector<edm::Handle<reco::CandidateView> >::const_iterator collEnd,
-							  std::auto_ptr<OutputCollection> & comps,
+							  OutputCollection* comps,
 							  const vstring& names) const {
   if(collBegin == collEnd) {
     static const int undetermined = 0, sameDecay = 1, conjDecay = -1, wrongDecay = 2;
@@ -318,7 +318,7 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(size_t collectionIndex
       typename OutputCollection::value_type c;
       size_t nameIndex = 0;
       for(typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i, ++ nameIndex) {
-	if ( names.size() > 0 )
+	if ( !names.empty() )
 	  addDaughter(c, i->first.first, names[nameIndex]);
 	else
 	  addDaughter(c, i->first.first);	  

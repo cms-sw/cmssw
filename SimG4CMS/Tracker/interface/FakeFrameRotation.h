@@ -13,7 +13,8 @@
 class FakeFrameRotation : public FrameRotation 
 {
 public:
-    virtual Local3DPoint transformPoint(Local3DPoint &,G4VPhysicalVolume *) const;
+    ~FakeFrameRotation() override = default;
+    Local3DPoint transformPoint(Local3DPoint &,G4VPhysicalVolume *) const override;
 };
 
 #endif

@@ -5,6 +5,7 @@
 <use name="rootcore"/>
 <use name="rootinteractive"/>
 <lib name="Geom"/>
+<lib name="Gui"/>
 <lib name="Eve"/>
 <export>
 <lib name="1"/>

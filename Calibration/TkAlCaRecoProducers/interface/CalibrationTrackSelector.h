@@ -50,7 +50,8 @@ class CalibrationTrackSelector
   ComparePt ptComparator;
 
   const bool applyBasicCuts_, applyNHighestPt_, applyMultiplicityFilter_;
-  const bool seedOnlyFromAbove_, applyIsolation_, chargeCheck_ ;
+  const int seedOnlyFromAbove_;
+  const bool applyIsolation_, chargeCheck_ ;
   const int nHighestPt_, minMultiplicity_, maxMultiplicity_;
   const bool multiplicityOnInput_; /// if true, cut min/maxMultiplicity on input instead of on final result
   const double ptMin_,ptMax_,etaMin_,etaMax_,phiMin_,phiMax_,nHitMin_,nHitMax_,chi2nMax_;

@@ -24,7 +24,7 @@ SteppingHelixPropagatorESProducer::SteppingHelixPropagatorESProducer(const edm::
 
 SteppingHelixPropagatorESProducer::~SteppingHelixPropagatorESProducer() {}
 
-boost::shared_ptr<Propagator> 
+std::shared_ptr<Propagator> 
 SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -51,7 +51,7 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
   // Force "useInTeslaFromMagField=true" for a B=0 VBF map.
   if (useMagVolumes==true && !useInTeslaFromMagField && !setVBFPointer && magfield->nominalValue() == 0) {
     const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*magfield));
-    if (vbfCPtr ==0 ){
+    if (vbfCPtr ==nullptr ){
       edm::LogWarning("SteppingHelixPropagator") << "Config specifies useMagVolumes==True but no VBF field available: SHP has no access to yoke material properties. Use setVBFPointer=true and VBFName cards to set a VBF field, otherwise set useMagVolumes==False." << std::endl;
     } else {
       edm::LogInfo("SteppingHelixPropagator") << "Config specifies useMagVolumes==true and VBF field available: Forcing useInTeslaFromMagField = True." <<std::endl;
@@ -106,6 +106,6 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
     shProp->setEndcapShiftsInZPosNeg(valPos, valNeg);
   }
 
-  _propagator  = boost::shared_ptr<Propagator>(shProp);
+  _propagator  = std::shared_ptr<Propagator>(shProp);
   return _propagator;
 }

@@ -17,13 +17,13 @@
 class HcalCalibFEDSelector : public edm::EDProducer {
 public:
   HcalCalibFEDSelector(const edm::ParameterSet&);
-  ~HcalCalibFEDSelector();
+  ~HcalCalibFEDSelector() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<FEDRawDataCollection> tok_fed_;
@@ -49,7 +49,7 @@ void
 HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
+  auto producedData = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<FEDRawDataCollection> rawIn;
   iEvent.getByToken(tok_fed_,rawIn);
@@ -118,7 +118,7 @@ HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
    }
 
- iEvent.put(producedData);
+ iEvent.put(std::move(producedData));
 }
 
 

@@ -30,8 +30,8 @@ TtSemiLepJetCombMaxSumPtWMass::~TtSemiLepJetCombMaxSumPtWMass()
 void
 TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr<std::vector<std::vector<int> > > pOut(new std::vector<std::vector<int> >);
-  std::auto_ptr<int> pJetsConsidered(new int);
+  std::unique_ptr<std::vector<std::vector<int> > > pOut(new std::vector<std::vector<int> >);
+  std::unique_ptr<int> pJetsConsidered(new int);
 
   std::vector<int> match;
   for(unsigned int i = 0; i < 4; ++i)
@@ -49,16 +49,16 @@ TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSetup& s
   // skip events without lepton candidate or less than 4 jets or no MET
   if(leps->empty() || jets->size() < 4){
     pOut->push_back( match );
-    evt.put(pOut);
+    evt.put(std::move(pOut));
     *pJetsConsidered = jets->size();
-    evt.put(pJetsConsidered, "NumberOfConsideredJets");
+    evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
     return;
   }
 
   unsigned maxNJets = maxNJets_;
   if(maxNJets_ == -1 || (int)jets->size() < maxNJets_) maxNJets = jets->size();
   *pJetsConsidered = maxNJets;
-  evt.put(pJetsConsidered, "NumberOfConsideredJets");
+  evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 
   std::vector<bool> isBJet;
   std::vector<bool> isLJet;
@@ -160,5 +160,5 @@ TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSetup& s
   match[TtSemiLepEvtPartons::LepB     ] = lepB;
 
   pOut->push_back( match );
-  evt.put(pOut);
+  evt.put(std::move(pOut));
 }

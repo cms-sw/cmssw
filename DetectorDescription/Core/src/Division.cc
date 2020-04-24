@@ -1,8 +1,8 @@
 #include "DetectorDescription/Core/src/Division.h"
 
-#include "DetectorDescription/Core/interface/DDSolid.h"
+#include <string>
 
-#include <algorithm>
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
 using DDI::Division;
 
@@ -39,8 +39,6 @@ void Division::stream(std::ostream & os)
   os << std::endl;
   os << "  LogicalPart: " << parent_ << std::endl;
   os << "  Solid: " << parent_.solid() << std::endl;
-  os << " axis: " << axis() << " nReplicas: " << nReplicas()
+  os << " axis: " << DDAxesNames::name( axis()) << " nReplicas: " << nReplicas()
      << " width: " << width() << " offset: " << offset() << std::endl; 
 }
-
-

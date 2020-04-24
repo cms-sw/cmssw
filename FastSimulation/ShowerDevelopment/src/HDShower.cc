@@ -1,26 +1,13 @@
 //updated by Reza Goldouzian
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDShower.h"
-//#include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
-
-
-//////////////////////////////////////////////////////////////////////
-// What's this?
-//#include "FastSimulation/FamosCalorimeters/interface/FASTCalorimeter.h"
 
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 
 // CMSSW headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-///////////////////////////////////////////////////////////////
-// And This???? Doesn't seem to be needed
-// #include "Calorimetry/CaloDetector/interface/CellGeometry.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <cmath>
 
@@ -37,16 +24,14 @@ HDShower::HDShower(const RandomEngineAndDistribution* engine,
 		   HcalHitMaker* myHcalHitMaker,
 		   int onECAL,
 		   double epart,
-                   double pmip,
-           DQMStore * const dbeIn)
+                   double pmip)
   : theParam(myParam), 
     theGrid(myGrid),
     theHcalHitMaker(myHcalHitMaker),
     onEcal(onECAL),
     e(epart),
 //    pmip(pmip),
-    random(engine),
-	dbe(dbeIn)
+    random(engine)
 { 
   // To get an access to constants read in FASTCalorimeter
   //  FASTCalorimeter * myCalorimeter= FASTCalorimeter::instance();
@@ -83,13 +68,6 @@ HDShower::HDShower(const RandomEngineAndDistribution* engine,
   theECALproperties = theParam->ecalProperties();
   theHCALproperties = theParam->hcalProperties();
 
-  if (dbe) {
-    dbe->cd();             
-    if (!dbe->get("HDShower/ParticlesEnergy")) {}//std::cout << "NOT FOUND IN Shower.cc" << std::endl;}
-    else {
-      dbe->get("HDShower/ParticlesEnergy")->Fill(log10(e));
-    }
-  }
 
   double emax = theParam->emax(); 
   double emid = theParam->emid(); 
@@ -519,18 +497,6 @@ bool HDShower::compute() {
 	    theHcalHitMaker->setSpotEnergy(espot);
 		
 	    //fill hcal longitudinal distribution histogram
-        if (dbe) {
-	      dbe->cd();             
-	      if (!dbe->get("HDShower/LongitudinalShapeHCAL")) {}//std::cout << "NOT FOUND IN Shower.cc" << std::endl;}
-	      else {
-	        //bins of 0.1 L0
-	        double dt = 0.1;
-	        // eStep is a real energy - scale by particle energy e
-			// subtract distance to hcal from current depth
-	        dbe->get("HDShower/LongitudinalShapeHCAL")->Fill(currentDepthL0 - depthToHCAL, 1/e*eStep[i]/dt);
-	      }
-        }
-		
       }
       else {
 	    ecal = 1;
@@ -554,16 +520,6 @@ bool HDShower::compute() {
         theGrid->setSpotEnergy(espot);
 		
 	    //fill ecal longitudinal distribution histogram
-        if (dbe) {
-	      dbe->cd();             
-	      if (!dbe->get("HDShower/LongitudinalShapeECAL")) {}//std::cout << "NOT FOUND IN Shower.cc" << std::endl;}
-	      else {
-	        //bins of 0.1 L0
-	        double dt = 0.1;
-	        // eStep is a real energy - scale by particle energy e
-	        dbe->get("HDShower/LongitudinalShapeECAL")->Fill(currentDepthL0, 1/e*eStep[i]/dt);
-	      }
-        }
       }  
       
       // Transverse distribition
@@ -593,15 +549,6 @@ bool HDShower::compute() {
 	      if(debug == 2) LogInfo("FastCalorimetry") << " FamosHDShower::compute - " << " theGrid->addHit result = " << result << std::endl;
 		  
 		  //fill ecal transverse distribution histogram
-          if (dbe) {
-            dbe->cd();             
-	        if (!dbe->get("HDShower/TransverseShapeECAL")) {}//std::cout << "NOT FOUND IN Shower.cc" << std::endl;}
-	        else {
-		      double drho = 0.1;
-		      // espot is a real energy - scale by particle energy
-		      dbe->get("HDShower/TransverseShapeECAL")->Fill(radius,1/e*espot/drho);
-	        }
-	      }
 	    }
 	    else {
 	      result = theHcalHitMaker->addHit(radius,phi,0); 
@@ -609,15 +556,6 @@ bool HDShower::compute() {
 	      if(debug == 2) LogInfo("FastCalorimetry") << " FamosHDShower::compute - " << " theHcalHitMaker->addHit result = " << result << std::endl;
 		  
 		  //fill hcal transverse distribution histogram
-          if (dbe) {
-            dbe->cd();             
-	        if (!dbe->get("HDShower/TransverseShapeHCAL")) {}//std::cout << "NOT FOUND IN Shower.cc" << std::endl;}
-	        else {
-		      double drho = 0.1;
-		      // espot is a real energy - scale by particle energy
-		      dbe->get("HDShower/TransverseShapeHCAL")->Fill(radius,1/e*espot/drho);
-	        }
-	      }
 	    }    
 	    
 		if(result) nok ++; 

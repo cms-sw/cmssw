@@ -30,12 +30,14 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 namespace reco {class Track;}
 
 class MuonServiceProxy;
 class TrajectorySeed;
 class MuonUpdatorAtVertex;
-
+class DQMStore;
 //
 // class decleration
 //

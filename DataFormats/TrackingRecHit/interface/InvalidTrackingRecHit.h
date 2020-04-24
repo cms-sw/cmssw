@@ -5,38 +5,59 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-class InvalidTrackingRecHit GCC11_FINAL : public TrackingRecHit {
+class InvalidTrackingRecHit : public TrackingRecHit {
 public:
   typedef TrackingRecHit::Type Type;
-
-  InvalidTrackingRecHit(DetId id, Type type ) : TrackingRecHit(id, type) {}
-  InvalidTrackingRecHit() : TrackingRecHit(0, TrackingRecHit::missing) {}
-
-  virtual ~InvalidTrackingRecHit() {}
   
-  virtual InvalidTrackingRecHit * clone() const {return new InvalidTrackingRecHit(*this);}
+  InvalidTrackingRecHit(GeomDet const & idet, Type type ) : TrackingRecHit(idet, type)  {}
+  explicit InvalidTrackingRecHit(Type type) : TrackingRecHit(DetId(0), type) {}
+
+  InvalidTrackingRecHit() : TrackingRecHit(DetId(0), TrackingRecHit::missing) {}
+
+  ~InvalidTrackingRecHit() override {}
+
+  InvalidTrackingRecHit * clone() const override {return new InvalidTrackingRecHit(*this);}
+#ifndef __GCCXML__
+  RecHitPointer cloneSH() const override { return RecHitPointer(clone());}
+#endif
+
   
-  virtual AlgebraicVector parameters() const;
+  AlgebraicVector parameters() const override;
 
-  virtual AlgebraicSymMatrix parametersError() const;
+  AlgebraicSymMatrix parametersError() const override;
 
-  virtual AlgebraicMatrix projectionMatrix() const;
+  AlgebraicMatrix projectionMatrix() const override;
 
-  virtual int dimension() const;
+  int dimension() const override { return 0;}
 
-  virtual LocalPoint localPosition() const;
+  LocalPoint localPosition() const override;
 
-  virtual LocalError localPositionError() const;
+  LocalError localPositionError() const override;
 
-  virtual std::vector<const TrackingRecHit*> recHits() const;
+  std::vector<const TrackingRecHit*> recHits() const override;
 
-  virtual std::vector<TrackingRecHit*> recHits();
+  std::vector<TrackingRecHit*> recHits() override;
 
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+  bool sharesInput( const TrackingRecHit* other, SharedInputType what) const override;
 
 private:
 
   void throwError() const;
+
+};
+
+class InvalidTrackingRecHitNoDet final : public InvalidTrackingRecHit {
+public:
+
+  InvalidTrackingRecHitNoDet() {}
+  InvalidTrackingRecHitNoDet(Surface const & surface, Type type) : InvalidTrackingRecHit(type), m_surface(&surface){}
+
+  InvalidTrackingRecHitNoDet * clone() const override {return new InvalidTrackingRecHitNoDet(*this);}
+
+  const Surface* surface() const override {  return  m_surface; }
+
+ private:
+  Surface const * m_surface;
 
 };
 

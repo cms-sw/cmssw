@@ -19,7 +19,7 @@ struct GenJetClosestMatchSelectorDefinition {
 
   GenJetClosestMatchSelectorDefinition ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) {
 
-    matchTo_ = cfg.getParameter< edm::InputTag >( "MatchTo" );
+    matchTo_ = iC.consumes< edm::View<reco::Candidate> >(cfg.getParameter< edm::InputTag >( "MatchTo" ));
   }
 
   const_iterator begin() const { return selected_.begin(); }
@@ -34,7 +34,7 @@ struct GenJetClosestMatchSelectorDefinition {
     selected_.clear();
 
     edm::Handle< edm::View<reco::Candidate> > matchCandidates;
-    e.getByLabel( matchTo_, matchCandidates);
+    e.getByToken( matchTo_, matchCandidates);
 
 
     unsigned key=0;
@@ -90,7 +90,7 @@ struct GenJetClosestMatchSelectorDefinition {
 
 private:
   container selected_;
-  edm::InputTag  matchTo_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> >  matchTo_;
 };
 
 #endif

@@ -11,7 +11,8 @@ namespace edm {
     branchIDLists_(),
     branchIDToIndexMap_(),
     inputIndexToJobIndex_(),
-    producedBranchListIndex_(std::numeric_limits<BranchListIndex>::max())
+    producedBranchListIndex_(std::numeric_limits<BranchListIndex>::max()),
+    nAlreadyCopied_(0)
   {}
 
   bool
@@ -43,12 +44,30 @@ namespace edm {
   }
 
   void
+  BranchIDListHelper::updateFromParent(BranchIDLists const& bidlists) {
+
+    inputIndexToJobIndex_.resize(bidlists.size());
+    for(auto it = bidlists.begin() + nAlreadyCopied_, itEnd = bidlists.end(); it != itEnd; ++it) {
+      BranchListIndex oldBlix = it - bidlists.begin();
+      BranchListIndex blix = branchIDLists_.size();
+      branchIDLists_.push_back(*it);
+      for(BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
+        ProductIndex pix = i - it->begin();
+        branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
+      }
+      inputIndexToJobIndex_[oldBlix]=blix;
+    }
+    nAlreadyCopied_ = bidlists.size();
+  }
+
+  void
   BranchIDListHelper::updateFromRegistry(ProductRegistry const& preg) {
     BranchIDList bidlist;
     // Add entries for current process for ProductID to BranchID mapping.
     for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(), itEnd = preg.productList().end();
         it != itEnd; ++it) {
-      if(it->second.produced()) {
+      //In the case of the alias, we always use the original branches BranchID
+      if(it->second.produced() and not it->second.isAlias()) {
         if(it->second.branchType() == InEvent) {
           bidlist.push_back(it->second.branchID().id());
         }

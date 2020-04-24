@@ -8,16 +8,14 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -46,12 +44,19 @@ class TFile;
 SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet& ps) : 
   dbe_(edm::Service<DQMStore>().operator->()),	
   conf_(ps),
+  trackerHitAssociatorConfig_(ps, consumesCollector()),
   m_cacheID_(0)
   // trajectoryInput_( ps.getParameter<edm::InputTag>("trajectoryInput") )
 {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+
+  runStandalone = conf_.getParameter<bool>("runStandalone");
+
+  outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
+
+  outputFileName = conf_.getParameter<std::string>("outputFile");
   
-  trajectoryInputToken_ = consumes<std::vector<Trajectory> >( conf_.getParameter<edm::InputTag>("trajectoryInput") ); 
+  tracksInputToken_ = consumes<std::vector<reco::Track> >( conf_.getParameter<edm::InputTag>("tracksInput") ); 
 
   edm::ParameterSet ParametersResolx_LF =  conf_.getParameter<edm::ParameterSet>("TH1Resolx_LF");
   layerswitchResolx_LF = ParametersResolx_LF.getParameter<bool>("layerswitchon");
@@ -418,16 +423,14 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
 
   edm::ParameterSet ParametersPullyMatched =  conf_.getParameter<edm::ParameterSet>("TH1PullyMatched");
   layerswitchPullyMatched = ParametersPullyMatched.getParameter<bool>("layerswitchon");
- 
+
 }
 
 //Destructor
-SiStripTrackingRecHitsValid::~SiStripTrackingRecHitsValid()
-{
-  // if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+SiStripTrackingRecHitsValid::~SiStripTrackingRecHitsValid(){
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::beginRun(const edm::Run& run, const edm::EventSetup& es){
+void SiStripTrackingRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
 
   unsigned long long cacheID = es.get<SiStripDetCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
@@ -435,7 +438,7 @@ void SiStripTrackingRecHitsValid::beginRun(const edm::Run& run, const edm::Event
     edm::LogInfo("SiStripRecHitsValid") <<"SiStripRecHitsValid::beginRun: " 
 					<< " Creating MEs for new Cabling ";     
     
-    createMEs(es);
+    createMEs(ibooker,es);
   }
 }
 
@@ -446,11 +449,8 @@ void SiStripTrackingRecHitsValid::beginJob(const edm::EventSetup& es){
 
 void SiStripTrackingRecHitsValid::endJob() {
 
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("outputFile");
- 
-  // save histos in a file
-  if(outputMEsInRootFile) dbe_->save(outputFileName);
+  //Only in standalone mode save local root file 
+  if(runStandalone && outputMEsInRootFile){dbe_->save(outputFileName);}
 
 }
 
@@ -468,12 +468,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
   DetId detid;
   uint32_t myid;
 
-  TrackerHitAssociator associate(e, conf_);
-  PSimHit closest;
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::ESHandle < TrackerGeometry > pDD;
@@ -496,211 +495,180 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 
   // Mangano's
 
-  edm::Handle < std::vector<Trajectory> > trajCollectionHandle;
-  // e.getByLabel(trajectoryInput_, trajCollectionHandle);
-  e.getByToken(trajectoryInputToken_, trajCollectionHandle);
+  edm::Handle < std::vector<reco::Track> > trackCollectionHandle;
+  e.getByToken(tracksInputToken_, trackCollectionHandle);
 
-  edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size();
-  //cout<<"trajColl->size() = "<<trajCollectionHandle->size()<<endl;
+  edm::LogVerbatim("TrajectoryAnalyzer") << "trackColl->size(): " << trackCollectionHandle->size();
+  auto const & tracks = *trackCollectionHandle;
+  for (auto const & track : tracks) {
 
-  for (vector < Trajectory >::const_iterator it = trajCollectionHandle->begin(); it != trajCollectionHandle->end(); it++) {
-
-    edm::LogVerbatim("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits" << " , " << "isValid: " << it->isValid();
-
-    vector < TrajectoryMeasurement > tmColl = it->measurements();
-    for (vector < TrajectoryMeasurement >::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); itTraj++) {
-      if (!itTraj->updatedState().isValid()) continue;
-      
-      rechitrphi.clear();
-      rechitstereo.clear();
-      rechitmatched.clear();
-      
-      //edm::LogVerbatim("TrajectoryAnalyzer") << "tm number: " <<
-      //   (itTraj - tmColl.begin()) + 1<< " , " << "tm.backwardState.pt: " <<
-      //   itTraj->backwardPredictedState().globalMomentum().perp() << " , " <<
-      //   "tm.forwardState.pt:  " << itTraj->forwardPredictedState().globalMomentum().perp() <<
-      //   " , " << "tm.updatedState.pt:  " << itTraj->updatedState().globalMomentum().perp() <<
-      //   " , " << "tm.globalPos.perp: "   << itTraj->updatedState().globalPosition().perp();
-
-      if (itTraj->updatedState().globalMomentum().perp() < 0.5)	continue;
-
-      TrajectoryStateOnSurface tsos = itTraj->updatedState();
-
-      DetId detid2 = itTraj->recHit()->geographicalId();
-
-      const TransientTrackingRecHit::ConstRecHitPointer thit2 = itTraj->recHit();
-      const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * >((*thit2).hit());
-      const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >((*thit2).hit());
-      const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >((*thit2).hit());
-      //if(matchedhit) cout<<"manganomatchedhit"<<endl;
-      //if(hit) cout<<"manganosimplehit"<<endl;
-      //if (hit && matchedhit) cout<<"manganosimpleandmatchedhit"<<endl;
-      const TrackingRecHit *thit = (*thit2).hit();
-
-      detid = (thit)->geographicalId();
-      myid = ((thit)->geographicalId()).rawId();
-      //Here due to the fact that the SiStripHistoId::getSubdetid complains when 
-      //a subdet of 1 or 2 appears we add an if statement. 
-      if(detid.subdetId()==1 ||detid.subdetId()==2 ){
-	continue;
-      }
-      SiStripHistoId hidmanager;
-      std::string label = hidmanager.getSubdetid(myid,tTopo,true);
-      // std::cout<< "label " << label << " and id " << detid.subdetId() << std::endl;
-
-      StripSubdetector StripSubdet = (StripSubdetector) detid;
-      //Variable to define the case we are dealing with
-      std::string matchedmonorstereo;
-
-      isrechitmatched = 0;
+    if (track.pt()<0.5) continue;
+    edm::LogVerbatim("TrajectoryAnalyzer") << "this track has " << track.found() << " valid hits";
   
-      if (matchedhit) {
-	
-  	isrechitmatched = 1;
-	const GluedGeomDet *gluedDet = (const GluedGeomDet *) tracker.idToDet(matchedhit->geographicalId());
-	//Analysis
-	matchedmonorstereo = "matched";
-	rechitanalysis_matched(tsos, thit2, gluedDet, associate, stripcpe, matchedmonorstereo );
-	// rechitmatched.push_back(rechitpro);
+    auto const & trajParams = track.extra()->trajParams();
+    assert(trajParams.size()==track.recHitsSize());
+    auto hb = track.recHitsBegin();
+    for(unsigned int h=0;h<track.recHitsSize();h++){
+      auto recHit = *(hb+h);
+      if(!recHit->isValid()) continue;
+      auto ldir = trajParams[h].direction();
+      auto gmom = recHit->surface()->toGlobal(trajParams[h].momentum());
+      if (gmom.perp() < 0.5)	continue; // redundant...
+      {  
 
-      }
+        auto thit2 = recHit;
+        DetId detid2 = thit2->geographicalId();
+        const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * >(thit2);
+        const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >(thit2);
+        const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >(thit2);
 
-      std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
+        auto thit = thit2;
 
-      //Filling Histograms for Matched hits
+        detid = (thit)->geographicalId();
+        myid = detid.rawId();
+        //Here due to the fact that the SiStripHistoId::getSubdetid complains when 
+        //a subdet of 1 or 2 appears we add an if statement. 
+        if(detid.subdetId()==1 ||detid.subdetId()==2 ){
+	  continue;
+        }
+        SiStripHistoId hidmanager;
+        std::string label = hidmanager.getSubdetid(myid,tTopo,true);
+        // std::cout<< "label " << label << " and id " << detid.subdetId() << std::endl;
 
-      if (isrechitmatched) {
+        StripSubdetector StripSubdet = (StripSubdetector) detid;
+        //Variable to define the case we are dealing with
+        std::string matchedmonorstereo;
 
-	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-	  fillME(iStereoAndMatchedME->second.mePosxMatched,rechitpro.x);
-	  fillME(iStereoAndMatchedME->second.mePosyMatched,rechitpro.y);
-	  fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt(rechitpro.resolxx));
-	  fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt(rechitpro.resolyy));
-	  fillME(iStereoAndMatchedME->second.meResxMatched,rechitpro.resx);
-	  fillME(iStereoAndMatchedME->second.meResyMatched,rechitpro.resy);
-	  fillME(iStereoAndMatchedME->second.mePullxMatched,rechitpro.pullx);
-	  fillME(iStereoAndMatchedME->second.mePullyMatched,rechitpro.pully);
-	}
-	
-      }
+        isrechitmatched = 0;
+  
+        if (matchedhit) {
+  	  isrechitmatched = 1;
+	  const GluedGeomDet *gluedDet = (const GluedGeomDet *) tracker.idToDet(matchedhit->geographicalId());
+	  //Analysis
+	  rechitanalysis_matched(ldir, thit2, gluedDet, associate, stripcpe, MatchStatus::matched);
+	  // rechitmatched.push_back(rechitpro);
+        }
+
+        std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
+
+        //Filling Histograms for Matched hits
+
+        if (isrechitmatched) {
+
+	  if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
+	    fillME(iStereoAndMatchedME->second.mePosxMatched,rechitpro.x);
+	    fillME(iStereoAndMatchedME->second.mePosyMatched,rechitpro.y);
+	    fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt(rechitpro.resolxx));
+	    fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt(rechitpro.resolyy));
+	    fillME(iStereoAndMatchedME->second.meResxMatched,rechitpro.resx);
+	    fillME(iStereoAndMatchedME->second.meResyMatched,rechitpro.resy);
+	    fillME(iStereoAndMatchedME->second.mePullxMatched,rechitpro.pullx);
+	    fillME(iStereoAndMatchedME->second.mePullyMatched,rechitpro.pully);
+	  }
+        }
     
-      //Reset Variables here for the current event
-      isrechitrphi    = 0;
-      isrechitsas     = 0;
+        //Reset Variables here for the current event
+        isrechitrphi    = 0;
+        isrechitsas     = 0;
      
-      ///////////////////////////////////////////////////////
-      // simple hits from matched hits
-      ///////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////
+        // simple hits from matched hits
+        ///////////////////////////////////////////////////////
  
-      if (tsos.globalDirection().transverse() != 0) {
-	track_rapidity = tsos.globalDirection().eta();
-      } else {
-	track_rapidity = -999.0;
-      }
+        if (gmom.transverse() != 0) {
+	  track_rapidity = gmom.eta();
+        } else {
+	  track_rapidity = -999.0;
+        }
 
-      GluedGeomDet *gdet;
-      const SiStripRecHit2D *monohit;
-
-      if (matchedhit) {
-	auto hm = matchedhit->monoHit();
-	monohit = &hm;
-	//      const GeomDetUnit * monodet=gdet->monoDet();
-	gdet = (GluedGeomDet *) tracker2->idToDet(matchedhit->geographicalId());
+        if (matchedhit) {
+          auto hm = matchedhit->monoHit();
+	  const SiStripRecHit2D *monohit = &hm;
+	  //      const GeomDetUnit * monodet=gdet->monoDet();
+	  GluedGeomDet *gdet = (GluedGeomDet *) tracker2->idToDet(matchedhit->geographicalId());
 	  
-	if (monohit) {
+	  if (monohit) {
 
-	  isrechitrphi = 1;
+	    isrechitrphi = 1;
 	  
-	  //Analysis
-	  matchedmonorstereo = "monoHit";
-	  rechitanalysis_matched(tsos, thit2, gdet, associate, stripcpe, matchedmonorstereo );
+	    //Analysis
+	    rechitanalysis_matched(ldir, thit2, gdet, associate, stripcpe, MatchStatus::monoHit);
 
-	}
+	  }
 
-	auto s = matchedhit->stereoHit();
-	const SiStripRecHit2D *stereohit = &s;
+	  auto s = matchedhit->stereoHit();
+	  const SiStripRecHit2D *stereohit = &s;
 	
-	if (stereohit) {
+	  if (stereohit) {
 	
-	  isrechitsas = 1;
+	    isrechitsas = 1;
 	  
-	  //Analysis
-	  matchedmonorstereo = "stereoHit";
-	  rechitanalysis_matched(tsos, thit2, gdet, associate, stripcpe, matchedmonorstereo );
-	}
-      }
+	    //Analysis
+	    rechitanalysis_matched(ldir, thit2, gdet, associate, stripcpe, MatchStatus::stereoHit);
+	  }
+        }
       
-      if (hit1d) {
-	// simple hits are mono or stereo
-	//      cout<<"simple hit"<<endl;
-	if (StripSubdet.stereo() == 0) {
-	  isrechitrphi = 1;
-	  //      cout<<"simple hit mono"<<endl;
+        if (hit1d) {
+	  // simple hits are mono or stereo
+	  //      cout<<"simple hit"<<endl; 
+	  if (StripSubdet.stereo()) {
 
-	  const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-	  const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
+	    //cout<<"simple hit stereo"<<endl;
+	    isrechitsas = 1;
+
+	    const GeomDetUnit *det = tracker.idToDetUnit(detid2);
+	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
+
+	    //Analysis for hit1d stereo
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, true);
+	  } else {
+	    isrechitrphi = 1;
+	    //      cout<<"simple hit mono"<<endl;
+
+	    const GeomDetUnit *det = tracker.idToDetUnit(detid2);
+	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 	  
-	  //Analysis for hit1d mono
-	  rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, true);
+	    //Analysis for hit1d mono
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, true);
 
-	}
-
-	if (StripSubdet.stereo() == 1) {
-
-	  //cout<<"simple hit stereo"<<endl;
-	  isrechitsas = 1;
-
-	  const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-	  const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
-
-	  //Analysis for hit1d stereo
-	  rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, true);
-
-	}
-      }
+	  }
+        }
     
+        if (hit2d) {
+	  // simple hits are mono or stereo
+	  //      cout<<"simple hit"<<endl;
+	  if (StripSubdet.stereo()) {
 
-      if (hit2d) {
-	// simple hits are mono or stereo
-	//      cout<<"simple hit"<<endl;
-	if (StripSubdet.stereo() == 0) {
-	  isrechitrphi = 1;
-	  //      cout<<"simple hit mono"<<endl;
+	    //cout<<"simple hit stereo"<<endl;
+	    isrechitsas = 1;
 
-	  const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-	  const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
+	    const GeomDetUnit *det = tracker.idToDetUnit(detid2);
+	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 
-	  //Analysis for hit2d mono
-	  rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, false);
+	    //Analysis for hit2d stereo
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, false);
 
-	}
+	  } else {
+	    isrechitrphi = 1;
+	    //      cout<<"simple hit mono"<<endl;
 
-	if (StripSubdet.stereo() == 1) {
+	    const GeomDetUnit *det = tracker.idToDetUnit(detid2);
+	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 
-	  //cout<<"simple hit stereo"<<endl;
-	  isrechitsas = 1;
+	    //Analysis for hit2d mono
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, false);
 
-	  const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-	  const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
+	  }
+        }
 
-	  //Analysis for hit2d stereo
-	  rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, false);
+//------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	}
-      }
+        //Filling Histograms for simple hits
+        //cout<<"isrechitrphi,isrechitsas = "<<isrechitrphi<<","<<isrechitsas<<endl;
 
-      //Filling Histograms for simple hits
-      //cout<<"isrechitrphi,isrechitsas = "<<isrechitrphi<<","<<isrechitsas<<endl;
-
-      std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
-
-      if (isrechitrphi > 0 || isrechitsas > 0) {
-
-
-
-	if (isrechitrphi > 0) {
-
-	  fillME(simplehitsMEs.meCategory,rechitpro.category);
+        std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
+        if (isrechitrphi) {
+          fillME(simplehitsMEs.meCategory,rechitpro.category);
 	  fillME(simplehitsMEs.meTrackwidth,rechitpro.trackwidth);
 	  fillME(simplehitsMEs.meExpectedwidth,rechitpro.expectedwidth);
 	  fillME(simplehitsMEs.meClusterwidth,rechitpro.clusiz);
@@ -713,19 +681,16 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	  if (rechitpro.clusiz == 1) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus1,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus1,rechitpro.trackwidth, fabs(rechitpro.resxMF));
-	  }
-	  if (rechitpro.clusiz == 2) {
+	  } else if (rechitpro.clusiz == 2) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus2,rechitpro.trackwidth, fabs(rechitpro.resxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus21,rechitpro.trackwidth,fabs(rechitpro.resxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus22,rechitpro.trackwidth,fabs(rechitpro.resxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus23,rechitpro.trackwidth,fabs(rechitpro.resxMF));
-	  }
-	  if (rechitpro.clusiz == 3) {
+	  } else if (rechitpro.clusiz == 3) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus3,rechitpro.trackwidth, fabs(rechitpro.resxMF));
-	  }
-	  if (rechitpro.clusiz == 4) {
+	  } else if (rechitpro.clusiz == 4) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus4,rechitpro.trackwidth, fabs(rechitpro.resxMF));
 	  }
@@ -733,14 +698,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	  if (rechitpro.category == 1) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory1,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResolxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 2) {
+	  } else if (rechitpro.category == 2) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 3) {
+	  } else if (rechitpro.category == 3) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 4) {
+	  } else if (rechitpro.category == 4) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	  }
 
@@ -751,66 +713,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	  fillME(simplehitsMEs.mePullMF,rechitpro.pullxMF);
 	  fillME(simplehitsMEs.mePullLF,rechitpro.pullx);
 
-	}
-
-	if (isrechitsas > 0) {
-
-	  fillME(simplehitsMEs.meCategory,rechitpro.category);
-	  fillME(simplehitsMEs.meTrackwidth,rechitpro.trackwidth);
-	  fillME(simplehitsMEs.meExpectedwidth,rechitpro.expectedwidth);
-	  fillME(simplehitsMEs.meClusterwidth,rechitpro.clusiz);
-	  fillME(simplehitsMEs.meTrackanglealpha,rechitpro.trackangle);
-	  fillME(simplehitsMEs.meTrackanglebeta,rechitpro.trackanglebeta);
-
-	  fillME(simplehitsMEs.meResolxMFAngleProfile,rechitpro.trackangle, sqrt(rechitpro.resolxxMF));
-	  fillME(simplehitsMEs.meResolxMFTrackwidthProfile,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-
-	  if (rechitpro.clusiz == 1) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus1,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus1,rechitpro.trackwidth, rechitpro.resxMF);
-	  }
-
-	  if (rechitpro.clusiz == 2) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus2,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus2,rechitpro.trackwidth, rechitpro.resxMF);
-	  }
-	  if (rechitpro.clusiz == 3) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus3,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus3,rechitpro.trackwidth, rechitpro.resxMF);
-	  }
-	  if (rechitpro.clusiz == 4) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus4,rechitpro.trackwidth, rechitpro.resxMF);
-	  }
-	  if (rechitpro.category == 1) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory1,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResolxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 2) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 3) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 4) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-
-	  fillME(simplehitsMEs.meResolxMF,sqrt(rechitpro.resolxxMF));
-	  fillME(simplehitsMEs.meResolxLF,sqrt(rechitpro.resolxx));
-	  fillME(simplehitsMEs.meResMF,rechitpro.resxMF);
-	  fillME(simplehitsMEs.meResLF,rechitpro.resx);
-	  fillME(simplehitsMEs.mePullMF,rechitpro.pullxMF);
-	  fillME(simplehitsMEs.mePullLF,rechitpro.pullx);
-
-	}
-
-
-	
-	if(iLayerME != LayerMEsMap.end()){
-
-	  if (isrechitrphi > 0) {
-
+          if(iLayerME != LayerMEsMap.end()){
 	    fillME(iLayerME->second.meWclusRphi,rechitpro.clusiz);
 	    fillME(iLayerME->second.meAdcRphi,rechitpro.cluchg);
 	    fillME(iLayerME->second.meResolxLFRphi,sqrt(rechitpro.resolxx));
@@ -820,6 +723,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.meResolxMFRphiwclus2,sqrt(rechitpro.resolxxMF));}
 	    if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.meResolxMFRphiwclus3,sqrt(rechitpro.resolxxMF));}
 	    if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.meResolxMFRphiwclus4,sqrt(rechitpro.resolxxMF));}
+
 
 	    fillME(iLayerME->second.meResLFRphi,rechitpro.resx);
 	    fillME(iLayerME->second.meResMFRphi,rechitpro.resxMF);
@@ -874,16 +778,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	      fillME(iLayerME->second.mePullTrackwidthProfileCategory1Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
 	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory1Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	      fillME(iLayerME->second.meResolxMFClusterwidthProfileCategory1Rphi,rechitpro.clusiz,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 2) {
+	    } else if(rechitpro.category == 2) {
 	      fillME(iLayerME->second.mePullTrackwidthProfileCategory2Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
 	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory2Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 3) {
+	    } else if (rechitpro.category == 3) {
 	      fillME(iLayerME->second.mePullTrackwidthProfileCategory3Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
 	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory3Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 4) {
+	    } else if (rechitpro.category == 4) {
 	      fillME(iLayerME->second.mePullTrackwidthProfileCategory4Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
 	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory4Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    }
@@ -895,13 +796,50 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    fillME(iLayerME->second.meResolxMFTrackwidthProfileRphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(iLayerME->second.meResolxMFAngleProfileRphi,rechitpro.trackangle,sqrt(rechitpro.resolxxMF));
 	  }
+        }
 
-	}
+        if (isrechitsas > 0) {
+          fillME(simplehitsMEs.meCategory,rechitpro.category);
+	  fillME(simplehitsMEs.meTrackwidth,rechitpro.trackwidth);
+	  fillME(simplehitsMEs.meExpectedwidth,rechitpro.expectedwidth);
+	  fillME(simplehitsMEs.meClusterwidth,rechitpro.clusiz);
+	  fillME(simplehitsMEs.meTrackanglealpha,rechitpro.trackangle);
+	  fillME(simplehitsMEs.meTrackanglebeta,rechitpro.trackanglebeta);
 
-	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-	  
-	  if (isrechitsas > 0) {
+	  fillME(simplehitsMEs.meResolxMFAngleProfile,rechitpro.trackangle, sqrt(rechitpro.resolxxMF));
+	  fillME(simplehitsMEs.meResolxMFTrackwidthProfile,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
 
+	  if (rechitpro.clusiz == 1) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus1,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus1,rechitpro.trackwidth, rechitpro.resxMF);
+	  } else if (rechitpro.clusiz == 2) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus2,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus2,rechitpro.trackwidth, rechitpro.resxMF);
+	  } else if (rechitpro.clusiz == 3) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus3,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus3,rechitpro.trackwidth, rechitpro.resxMF);
+	  } else if (rechitpro.clusiz == 4) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus4,rechitpro.trackwidth, rechitpro.resxMF);
+	  } if (rechitpro.category == 1) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory1,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResolxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.resolxxMF));
+	  } else if (rechitpro.category == 2) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	  } else if (rechitpro.category == 3) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	  } else if (rechitpro.category == 4) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	  }
+
+	  fillME(simplehitsMEs.meResolxMF,sqrt(rechitpro.resolxxMF));
+	  fillME(simplehitsMEs.meResolxLF,sqrt(rechitpro.resolxx));
+	  fillME(simplehitsMEs.meResMF,rechitpro.resxMF);
+	  fillME(simplehitsMEs.meResLF,rechitpro.resx);
+	  fillME(simplehitsMEs.mePullMF,rechitpro.pullxMF);
+	  fillME(simplehitsMEs.mePullLF,rechitpro.pullx);
+
+	  if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
 	    fillME(iStereoAndMatchedME->second.meWclusSas,rechitpro.clusiz);
 	    fillME(iStereoAndMatchedME->second.meAdcSas,rechitpro.cluchg);
 	    fillME(iStereoAndMatchedME->second.meResolxLFSas,sqrt(rechitpro.resolxx));
@@ -917,16 +855,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory1Sas,rechitpro.trackwidth,rechitpro.pullxMF);
 	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory1Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	      fillME(iStereoAndMatchedME->second.meResolxMFClusterwidthProfileCategory1Sas,rechitpro.clusiz,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 2) {
+	    } else if (rechitpro.category == 2) {
 	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory2Sas,rechitpro.trackwidth,rechitpro.pullxMF);
 	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory2Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 3) {
+	    } else if (rechitpro.category == 3) {
 	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory3Sas,rechitpro.trackwidth,rechitpro.pullxMF);
 	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory3Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 4) {
+	    } else if (rechitpro.category == 4) {
 	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory4Sas,rechitpro.trackwidth,rechitpro.pullxMF);
 	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory4Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    }
@@ -937,19 +872,10 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileSas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(iStereoAndMatchedME->second.meResolxMFAngleProfileSas,rechitpro.trackangle, rechitpro.resolxxMF);
 	  }
-	
-	}
-	
-
-      }                     //simplehits
-      //cout<<"DebugLine301"<<endl;
-
+        } 
+      }
     }
-    //cout<<"DebugLine302"<<endl;
-
   }
-  //cout<<"DebugLine303"<<endl;
-
 }
 
 
@@ -988,13 +914,10 @@ std::pair < LocalPoint, LocalVector > SiStripTrackingRecHitsValid::projectHit(co
   return std::pair < LocalPoint, LocalVector > (projectedPos, localStripDir);
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const GluedGeomDet* gluedDet, TrackerHitAssociator&  associate, edm::ESHandle<StripClusterParameterEstimator> stripcpe, std::string matchedmonorstereo){
+void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir, const TrackingRecHit *rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator&  associate, edm::ESHandle<StripClusterParameterEstimator> stripcpe, const MatchStatus matchedmonorstereo){
   
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.;   rechitpro.resolyy = -999999.; 
-  rechitpro.resolxxMF = -999999.; rechitpro.phi = -999999.;rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
-  rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.; 
-  rechitpro.trackangle2 = -999999.; rechitpro.trackwidth = -999999.; rechitpro.expectedwidth = -999999.; rechitpro.category = -999999.; rechitpro.thickness = -999999.; 
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; 
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
+  rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.;
 
   const GeomDetUnit *monodet = gluedDet->monoDet(); 
   const GeomDetUnit *stereodet = gluedDet->stereoDet();
@@ -1002,16 +925,16 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   //and it will change value in the stereoHit case. The matched case do not use this
   const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (monodet) ; 
 
-  const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * >((*thit).hit());
-  const SiStripRecHit2D *monohit;
-  const SiStripRecHit2D *stereohit;
-
-  if (matchedmonorstereo == "monoHit"){
+  const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * > (rechit);
+  const SiStripRecHit2D *monohit = nullptr;
+  const SiStripRecHit2D *stereohit = nullptr;
+  SiStripRecHit2D::ClusterRef clust;
+ 
+  if (matchedmonorstereo == MatchStatus::monoHit){
     auto hm = matchedhit->monoHit();
     monohit = &hm;
     stripdet = (const StripGeomDetUnit *) (monodet);
-  } 
-  if (matchedmonorstereo == "stereoHit"){
+  } else if (matchedmonorstereo == MatchStatus::stereoHit){
     auto s = matchedhit->stereoHit();
     stereohit = &s;
     stripdet = (const StripGeomDetUnit *) (stereodet);
@@ -1020,47 +943,41 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   //if(hit) cout<<"manganosimplehit"<<endl;
   //if (hit && matchedhit) cout<<"manganosimpleandmatchedhit"<<endl;
   const StripTopology & topol = (const StripTopology &) stripdet->topology();
-  const TrackingRecHit *rechit = (*thit).hit();
 
+  LocalVector trackdirection = ldir;
+
+  GlobalVector gtrkdir = gluedDet->toGlobal(trackdirection);
+  LocalVector monotkdir = monodet->toLocal(gtrkdir);
+  LocalVector stereotkdir = stereodet->toLocal(gtrkdir);
+ 
   LocalPoint position;
   LocalError error;
   MeasurementPoint Mposition;
   MeasurementError Merror;
 
-  if (matchedmonorstereo == "matched"){
+  if (matchedmonorstereo == MatchStatus::matched){
     position=rechit->localPosition();
     error=rechit->localPositionError();
-  }
-  if(matchedmonorstereo == "monoHit"){
+  } else if(matchedmonorstereo == MatchStatus::monoHit){
     position = monohit->localPosition();
     error = monohit->localPositionError();
     Mposition = topol.measurementPosition(position);
     Merror = topol.measurementError(position, error);
-  } 
-  if (matchedmonorstereo == "stereoHit"){
+    if (monotkdir.z()) {
+      rechitpro.trackangle = atan(monotkdir.x() / monotkdir.z()) * TMath::RadToDeg();
+      rechitpro.trackanglebeta = atan(monotkdir.y() / monotkdir.z()) * TMath::RadToDeg();
+    }
+    clust = monohit->cluster(); 
+  } else if (matchedmonorstereo == MatchStatus::stereoHit){
     position = stereohit->localPosition();
     error = stereohit->localPositionError();
     Mposition = topol.measurementPosition(position);
     Merror = topol.measurementError(position, error);
-  }
-
-  LocalVector trackdirection = tsos.localDirection();
-
-  GlobalVector gtrkdir = gluedDet->toGlobal(trackdirection);
-  LocalVector monotkdir = monodet->toLocal(gtrkdir);
-  LocalVector stereotkdir = stereodet->toLocal(gtrkdir);
-  
-  if(matchedmonorstereo == "monoHit"){
-    if (monotkdir.z() != 0) {
-      rechitpro.trackangle = atan(monotkdir.x() / monotkdir.z()) * TMath::RadToDeg();
-      rechitpro.trackanglebeta = atan(monotkdir.y() / monotkdir.z()) * TMath::RadToDeg();
-    }
-  }
-  if (matchedmonorstereo == "stereoHit"){
-    if (stereotkdir.z() != 0) {
+    if (stereotkdir.z()) {
       rechitpro.trackangle = atan(stereotkdir.x() / stereotkdir.z()) * TMath::RadToDeg();
       rechitpro.trackanglebeta = atan(stereotkdir.y() / stereotkdir.z()) * TMath::RadToDeg();
     }
+    clust = stereohit->cluster();
   }
 
   LocalVector drift = stripcpe->driftDirection(stripdet);
@@ -1074,15 +991,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   int Sm = int (position.x() / pitch + SLorentz - 0.5 * rechitpro.trackwidth);
   rechitpro.expectedwidth = 1 + Sp - Sm;
 
-  SiStripRecHit2D::ClusterRef clust;
-  if(matchedmonorstereo == "monoHit"){clust = monohit->cluster();}
-  if(matchedmonorstereo == "stereoHit"){clust = stereohit->cluster();}
-
-  int clusiz=0;
+  const auto & amplitudes=clust->amplitudes();
+  rechitpro.clusiz = amplitudes.size();
   int totcharge=0;
-  clusiz = clust->amplitudes().size();
-  const std::vector<uint8_t> amplitudes=clust->amplitudes();
-  for(size_t ia=0; ia<amplitudes.size();ia++){
+  for(size_t ia=0; ia<amplitudes.size();++ia){
     totcharge+=amplitudes[ia];
   }
 
@@ -1093,97 +1005,105 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
   rechitpro.resolxxMF = Merror.uu();
-  rechitpro.clusiz = clusiz;
   rechitpro.cluchg = totcharge;
  
-  unsigned int iopt;
   if (rechitpro.clusiz > rechitpro.expectedwidth + 2) {
-    iopt = 1;
+    rechitpro.category = 1;
   } else if (rechitpro.expectedwidth == 1) {
-    iopt = 2;
+    rechitpro.category = 2;
   } else if (rechitpro.clusiz <= rechitpro.expectedwidth) {
-    iopt = 3;
+    rechitpro.category = 3;
   } else {
-    iopt = 4;
+    rechitpro.category = 4;
   }
-  rechitpro.category = iopt;
 
-  if(matchedmonorstereo == "matched"){matched.clear();matched = associate.associateHit(*matchedhit);}
-  if(matchedmonorstereo == "monoHit"){matched.clear();matched = associate.associateHit(*monohit);}
-  if(matchedmonorstereo == "stereoHit"){matched.clear();matched = associate.associateHit(*stereohit);}
-
-  double mindist = 999999;
-  double dist = 999999;
-  double distx = 999999;
-  double disty = 999999;
-  std::pair<LocalPoint,LocalVector> closestPair;
-  PSimHit closest;
+  if(matchedmonorstereo == MatchStatus::matched){matched.clear();matched = associate.associateHit(*matchedhit);}
+  else if(matchedmonorstereo == MatchStatus::monoHit){matched.clear();matched = associate.associateHit(*monohit);}
+  else if(matchedmonorstereo == MatchStatus::stereoHit){matched.clear();matched = associate.associateHit(*stereohit);}
 
   if(!matched.empty()){
+    float mindist = std::numeric_limits<float>::max();
+    float dist = std::numeric_limits<float>::max();
+    float distx = std::numeric_limits<float>::max();
+    float disty = std::numeric_limits<float>::max();
+    std::pair<LocalPoint,LocalVector> closestPair;
+    PSimHit* closest = NULL;
 
-    const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
+    const StripGeomDetUnit* partnerstripdet = static_cast<const StripGeomDetUnit*>(gluedDet->stereoDet());
     std::pair<LocalPoint,LocalVector> hitPair;
-    
-    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-      //project simhit;
-      if(matchedmonorstereo == "matched"){
-	hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
+   
+    if (matchedmonorstereo ==MatchStatus::matched) {
+      for(auto &m : matched){
+        //project simhit;
+ 	hitPair= projectHit(m,partnerstripdet,gluedDet->surface());
 	distx = fabs(rechitpro.x - hitPair.first.x());
 	disty = fabs(rechitpro.y - hitPair.first.y());
 	dist = sqrt(distx*distx+disty*disty);
+	if(dist<mindist){
+	  mindist = dist;
+	  closestPair = hitPair;
+	  closest = &m;
+        }
       }
-      if(matchedmonorstereo == "monoHit"){dist = abs((monohit)->localPosition().x() - (*m).localPosition().x());}
-      if(matchedmonorstereo == "stereoHit"){dist = abs((stereohit)->localPosition().x() - (*m).localPosition().x());}
-
-      // std::cout << " Simhit position x = " << hitPair.first.x() 
-      //      << " y = " << hitPair.first.y() << " dist = " << dist << std::endl;
-      if(dist<mindist){
-	mindist = dist;
-	closestPair = hitPair;
-	closest = (*m);
-      }
-    }  
-    
-    if(matchedmonorstereo == "matched"){
-      rechitpro.resx = rechitpro.x - closestPair.first.x();
+      float closestX = closestPair.first.x();
+      float closestY = closestPair.first.y();
+      rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resy = rechitpro.y - closestPair.first.y();
-      rechitpro.pullx = ((rechit)->localPosition().x() - (closestPair.first.x())) / sqrt(error.xx());
-      rechitpro.pully = ((rechit)->localPosition().y() - (closestPair.first.y())) / sqrt(error.yy());
-    }
-    
-    if( (matchedmonorstereo == "monoHit") || (matchedmonorstereo == "stereoHit") ){
-      rechitpro.resx = rechitpro.x - closest.localPosition().x();
-      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest.localPosition())).x();
-      rechitpro.pullx = (rechit->localPosition().x() - (closest).localPosition().x()) / sqrt(error.xx());
+      rechitpro.pullx = ((rechit)->localPosition().x() - closestX) / sqrt(error.xx());
+      rechitpro.pully = ((rechit)->localPosition().y() - closestY) / sqrt(error.yy());
+    } else if(matchedmonorstereo == MatchStatus::monoHit){
+      for(auto &m : matched ){
+        //project simhit;
+        dist = abs((monohit)->localPosition().x() - m.localPosition().x());
+        if(dist<mindist){
+	  mindist = dist;
+	  closestPair = hitPair;
+	  closest = &m;
+        }
+      }
+      float closestX = closest->localPosition().x();
+      rechitpro.resx = rechitpro.x - closestX;
+      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
+      rechitpro.pullx = (rechit->localPosition().x() - closestX) / sqrt(error.xx());
+      rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
+     } else if(matchedmonorstereo == MatchStatus::stereoHit){
+      for(auto &m : matched){
+        //project simhit;
+        dist = abs((stereohit)->localPosition().x() - m.localPosition().x());
+        if(dist<mindist){
+	  mindist = dist;
+	  closestPair = hitPair;
+	  closest = &m;
+        }
+      }
+      float closestX =  closest->localPosition().x();
+      rechitpro.resx = rechitpro.x - closestX;
+      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
+      rechitpro.pullx = (rechit->localPosition().x() - closestX) / sqrt(error.xx());
       rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
     }
-
   }
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const StripGeomDetUnit *stripdet,edm::ESHandle<StripClusterParameterEstimator> stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D){
+void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir, const TrackingRecHit *rechit, const StripGeomDetUnit *stripdet,edm::ESHandle<StripClusterParameterEstimator> stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D){
 
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.;   rechitpro.resolyy = -999999.; 
-  rechitpro.resolxxMF = -999999.; rechitpro.phi = -999999.;rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
-  rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.; 
-  rechitpro.trackangle2 = -999999.; rechitpro.trackwidth = -999999.; rechitpro.expectedwidth = -999999.; rechitpro.category = -999999.; rechitpro.thickness = -999999.; 
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; 
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
+  rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.;
   
   //If simplehit1or2D is true we are dealing with hit1d, false is for hit2d
-  const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >((*thit).hit());;
-  const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >((*thit).hit());;
+  const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >(rechit);
+  const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >(rechit);
 
   const StripTopology & topol = (const StripTopology &) stripdet->topology();
-  const TrackingRecHit *rechit = (*thit).hit();
 
   LocalPoint position = rechit->localPosition();
   LocalError error = rechit->localPositionError();
   MeasurementPoint Mposition = topol.measurementPosition(position);
   MeasurementError Merror = topol.measurementError(position,error);
  
-  LocalVector trackdirection = tsos.localDirection();
-  rechitpro.trackangle = atan(trackdirection.x() / trackdirection.z()) * TMath::RadToDeg();
-  rechitpro.trackanglebeta = atan(trackdirection.y() / trackdirection.z()) * TMath::RadToDeg();
+  LocalVector trackdirection = ldir;
+  rechitpro.trackangle = std::atan(trackdirection.x() / trackdirection.z()) * TMath::RadToDeg();
+  rechitpro.trackanglebeta = std::atan(trackdirection.y() / trackdirection.z()) * TMath::RadToDeg();
 
   LocalVector drift = stripcpe->driftDirection(stripdet);
   rechitpro.thickness = stripdet->surface().bounds().thickness();
@@ -1196,24 +1116,22 @@ void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, 
   int Sm = int (position.x() / pitch + SLorentz - 0.5 * rechitpro.trackwidth);
   rechitpro.expectedwidth = 1 + Sp - Sm;
 
-  SiStripRecHit1D::ClusterRef clust1d;
-  SiStripRecHit2D::ClusterRef clust2d;
-  int clusiz=0;
   int totcharge=0;
- 
-  if(!simplehit1or2D){
-    clust2d = hit2d->cluster();
-    clusiz = clust2d->amplitudes().size();
-    const std::vector<uint8_t> amplitudes2d = clust2d->amplitudes();
-    for(size_t ia=0; ia<amplitudes2d.size();ia++){
-      totcharge+=amplitudes2d[ia];
-    }
-  } else {
+  if(simplehit1or2D){ 
+    SiStripRecHit1D::ClusterRef clust1d;
     clust1d = hit1d->cluster();
-    clusiz = clust1d->amplitudes().size();
-    const std::vector<uint8_t> amplitudes1d = clust1d->amplitudes();
-    for(size_t ia=0; ia<amplitudes1d.size();ia++){
+    const auto & amplitudes1d = clust1d->amplitudes();
+    rechitpro.clusiz = amplitudes1d.size();
+    for(size_t ia=0; ia<amplitudes1d.size();++ia){
       totcharge+=amplitudes1d[ia];
+    }
+  } else {    
+    SiStripRecHit2D::ClusterRef clust2d;
+    clust2d = hit2d->cluster();
+    const auto & amplitudes2d = clust2d->amplitudes();
+    rechitpro.clusiz = amplitudes2d.size();
+    for(size_t ia=0; ia<amplitudes2d.size();++ia){
+      totcharge+=amplitudes2d[ia];
     }
   }
 
@@ -1224,61 +1142,63 @@ void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, 
   rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
   rechitpro.resolxxMF = Merror.uu();
-  rechitpro.clusiz = clusiz;
   rechitpro.cluchg = totcharge;
 
-  unsigned int iopt;
   if (rechitpro.clusiz > rechitpro.expectedwidth + 2) {
-    iopt = 1;
+    rechitpro.category = 1;
   } else if (rechitpro.expectedwidth == 1) {
-    iopt = 2;
+    rechitpro.category = 2;
   } else if (rechitpro.clusiz <= rechitpro.expectedwidth) {
-    iopt = 3;
+    rechitpro.category = 3;
   } else {
-    iopt = 4;
+    rechitpro.category = 4;
   }
-  rechitpro.category = iopt;
-
 
   matched.clear();
-  if(!simplehit1or2D){
-    matched = associate.associateHit(*hit2d);
-  } else {
+  float mindist = std::numeric_limits<float>::max();
+  float dist = std::numeric_limits<float>::max();
+  PSimHit* closest = NULL;
+ 
+  if(simplehit1or2D){
     matched = associate.associateHit(*hit1d);
-  }
-
-  double mindist = 999999;
-  double dist = 999999;
-  PSimHit closest;
-  
-  if(!matched.empty()){
-
-    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-      if(!simplehit1or2D){
-	dist = abs((hit2d)->localPosition().x() - (*m).localPosition().x());
-      } else {
-	dist = abs((hit1d)->localPosition().x() - (*m).localPosition().x());
+    if(!matched.empty()){
+      for(auto &m : matched ){
+        dist = abs((hit1d)->localPosition().x() - m.localPosition().x());
+        if(dist<mindist){
+	  mindist = dist;
+	  closest = &m;
+        }
+      } 
+      float closestX = closest->localPosition().x();
+      rechitpro.resx = rechitpro.x - closestX;
+      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
+      rechitpro.pullx = (rechit->localPosition().x() - closestX) / sqrt(error.xx());
+      rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
+    }
+  } else {
+    matched = associate.associateHit(*hit2d);
+    if(!matched.empty()){
+      for(auto &m : matched ){
+        dist = abs((hit2d)->localPosition().x() - m.localPosition().x());
+        if(dist<mindist){
+	  mindist = dist;
+	  closest = &m;
+        }
       }
-	  
-      if(dist<mindist){
-	mindist = dist;
-	closest = (*m);
-      }
-    }  
-    rechitpro.resx = rechitpro.x - closest.localPosition().x();
-    rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest.localPosition())).x();
-    rechitpro.pullx = (rechit->localPosition().x() - (closest).localPosition().x()) / sqrt(error.xx());
-    rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
-    
+      float closestX = closest->localPosition().x(); 
+      rechitpro.resx = rechitpro.x - closestX;
+      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
+      rechitpro.pullx = (rechit->localPosition().x() - closestX) / sqrt(error.xx());
+      rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
+    }
   }
-
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::createMEs(const edm::EventSetup& es){
+void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::EventSetup& es){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
@@ -1298,11 +1218,12 @@ void SiStripTrackingRecHitsValid::createMEs(const edm::EventSetup& es){
 
   // std::cout << "curfold " << curfold << std::endl;
 
-  createSimpleHitsMEs();
+  createSimpleHitsMEs(ibooker);
 
   // loop over detectors and book MEs
   edm::LogInfo("SiStripTrackingRecHitsValid|SiStripTrackingRecHitsValid")<<"nr. of activeDets:  "<<activeDets.size();
-  for(std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(); detid_iterator!=activeDets.end(); detid_iterator++){
+  const std::string& tec = "TEC", tid = "TID", tob = "TOB", tib = "TIB";
+  for(std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(), detid_end = activeDets.end(); detid_iterator!=detid_end; ++detid_iterator){
     uint32_t detid = (*detid_iterator);
     // remove any eventual zero elements - there should be none, but just in case
     if(detid == 0) {
@@ -1322,19 +1243,24 @@ void SiStripTrackingRecHitsValid::createMEs(const edm::EventSetup& es){
       // get detids for the layer
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
       int32_t lnumber = det_layer_pair.second;
+      const std::string& lname = det_layer_pair.first;
       std::vector<uint32_t> layerDetIds;        
-      if (det_layer_pair.first == "TIB") {
-	substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
-      } else if (det_layer_pair.first == "TOB") {
+      if (lname == tec) { 
+        if (lnumber > 0) {
+	  substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
+        } else if (lnumber < 0) {
+	  substructure.getTECDetectors(activeDets,layerDetIds,1,0,0,0,abs(lnumber),0);
+        }
+      } else if (lname == tid) {
+        if (lnumber > 0) {
+	  substructure.getTIDDetectors(activeDets,layerDetIds,2,0,abs(lnumber),0);
+        } else if (lnumber < 0) {
+	  substructure.getTIDDetectors(activeDets,layerDetIds,1,0,abs(lnumber),0);
+        }
+      } else if (lname == tob) {
 	substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
-      } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-	substructure.getTIDDetectors(activeDets,layerDetIds,2,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-	substructure.getTIDDetectors(activeDets,layerDetIds,1,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-	substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-	substructure.getTECDetectors(activeDets,layerDetIds,1,0,0,0,abs(lnumber),0);
+      } else if (lname == tib) {
+	substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
       }
       LayerDetMap[label] = layerDetIds;
 
@@ -1344,7 +1270,7 @@ void SiStripTrackingRecHitsValid::createMEs(const edm::EventSetup& es){
       // folder_organizer.getLayerFolderName(ss, detid, tTopo, true); 
       // std::cout << "Folder Name " << ss.str().c_str() << std::endl;
       // folder_organizer.setLayerFolder(detid,det_layer_pair.second,true);
-      createLayerMEs(label);
+      createLayerMEs(ibooker,label);
     }
     //Create StereoAndMatchedMEs
     std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
@@ -1353,27 +1279,33 @@ void SiStripTrackingRecHitsValid::createMEs(const edm::EventSetup& es){
       // get detids for the stereo and matched layer. We are going to need a bool for these layers
       bool isStereo = false;
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
-      int32_t stereolnumber = det_layer_pair.second;
       std::vector<uint32_t> stereoandmatchedDetIds;        
-      if ( (det_layer_pair.first == "TIB") &&  (TIBDetId(detid).stereo()== 1) ) {
-	substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TOB") &&  (TOBDetId(detid).stereo()== 1) ) {
-	substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber > 0) && (TIDDetId(detid).stereo()== 1) ) {
-	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber < 0) && (TIDDetId(detid).stereo()== 1) ) {
-	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber > 0) && (TECDetId(detid).stereo()== 1) ) {
-	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber < 0) && (TECDetId(detid).stereo()== 1) ) {
-	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
-	isStereo = true;
+      int32_t stereolnumber = det_layer_pair.second;
+      const std::string& stereolname = det_layer_pair.first;
+      if ( stereolname == tec && (tTopo->tecIsStereo(detid)) ) {
+        if ( stereolnumber > 0 ) {
+          substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
+          isStereo = true;
+        } else if ( stereolnumber < 0 ) {
+          substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
+          isStereo = true;
+        }
+      } else if ( stereolname == tid && (tTopo->tidIsStereo(detid)) ) {
+        if ( stereolnumber > 0 ) {
+          substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
+          isStereo = true;
+        } else if ( stereolnumber < 0 ) {
+          substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
+          isStereo = true;
+        }
+      } else if ( stereolname == tob && (tTopo->tobIsStereo(detid)) ) {
+        substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
+        isStereo = true;
+      } else if ( stereolname == tib && (tTopo->tibIsStereo(detid)) ) {
+        substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
+        isStereo = true;
       }
+
       StereoAndMatchedDetMap[label] = stereoandmatchedDetIds;
 
       // book StereoAndMatched MEs 
@@ -1383,7 +1315,7 @@ void SiStripTrackingRecHitsValid::createMEs(const edm::EventSetup& es){
 	// folder_organizer.getLayerFolderName(ss1, detid, tTopo, true);  
 	// std::cout << "Folder Name stereo " <<  ss1.str().c_str() << std::endl;
 	//Create the Monitor Elements only when we have a stereo module
-	createStereoAndMatchedMEs(label);
+	createStereoAndMatchedMEs(ibooker,label);
       }
     }
  
@@ -1391,7 +1323,7 @@ void SiStripTrackingRecHitsValid::createMEs(const edm::EventSetup& es){
   }//end of loop over detectors
 }
 //------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::createSimpleHitsMEs() 
+void SiStripTrackingRecHitsValid::createSimpleHitsMEs(DQMStore::IBooker & ibooker) 
 {
   simplehitsMEs.meCategory = 0;
   simplehitsMEs.meTrackwidth = 0;
@@ -1428,142 +1360,142 @@ void SiStripTrackingRecHitsValid::createSimpleHitsMEs()
     
 
   if(layerswitchResolx_LF) { 
-    simplehitsMEs.meResolxLF = bookME1D("TH1Resolx_LF", "TH1Resolx_LF" ,"RecHit resol(x) coord. (local frame)");
+    simplehitsMEs.meResolxLF = bookME1D(ibooker,"TH1Resolx_LF", "TH1Resolx_LF" ,"RecHit resol(x) coord. (local frame)");
     simplehitsMEs.meResolxLF->setAxisTitle("resol(x) RecHit coord. (local frame)");
   }
   if(layerswitchResolx_MF) { 
-    simplehitsMEs.meResolxMF = bookME1D("TH1Resolx_MF", "TH1Resolx_MF" ,"RecHit resol(x) coord. (measurement frame)");
+    simplehitsMEs.meResolxMF = bookME1D(ibooker,"TH1Resolx_MF", "TH1Resolx_MF" ,"RecHit resol(x) coord. (measurement frame)");
     simplehitsMEs.meResolxMF->setAxisTitle("resol(x) RecHit coord. (measurement frame)");
   }
   if(layerswitchRes_LF) { 
-    simplehitsMEs.meResLF = bookME1D("TH1Res_LF", "TH1Res_LF" ,"Residual of the hit x coordinate (local frame)");
+    simplehitsMEs.meResLF = bookME1D(ibooker,"TH1Res_LF", "TH1Res_LF" ,"Residual of the hit x coordinate (local frame)");
     simplehitsMEs.meResLF->setAxisTitle("Hit Res(x) (local frame)");
   }
   if(layerswitchRes_MF) {
-    simplehitsMEs.meResMF = bookME1D("TH1Res_MF", "TH1Res_MF" ,"Residual of the hit x coordinate (measurement frame)");
+    simplehitsMEs.meResMF = bookME1D(ibooker,"TH1Res_MF", "TH1Res_MF" ,"Residual of the hit x coordinate (measurement frame)");
     simplehitsMEs.meResMF->setAxisTitle("Hit Res(x) (measurement frame)");
   }
   if(layerswitchPull_LF) {
-    simplehitsMEs.mePullLF = bookME1D("TH1Pull_LF", "TH1Pull_LF" ,"Pull distribution (local frame)");
+    simplehitsMEs.mePullLF = bookME1D(ibooker,"TH1Pull_LF", "TH1Pull_LF" ,"Pull distribution (local frame)");
     simplehitsMEs.mePullLF->setAxisTitle("Pull distribution (local frame)");
   } 
   if(layerswitchPull_MF) { 
-    simplehitsMEs.mePullMF = bookME1D("TH1Pull_MF", "TH1Pull_MF" ,"Pull distribution (measurement frame)");
+    simplehitsMEs.mePullMF = bookME1D(ibooker,"TH1Pull_MF", "TH1Pull_MF" ,"Pull distribution (measurement frame)");
     simplehitsMEs.mePullMF->setAxisTitle("Pull distribution (measurement frame)");
   }
   if(layerswitchCategory) {
-    simplehitsMEs.meCategory = bookME1D("TH1Category", "TH1Category" ,"Category");
+    simplehitsMEs.meCategory = bookME1D(ibooker,"TH1Category", "TH1Category" ,"Category");
     simplehitsMEs.meCategory->setAxisTitle("Category");
   } 
   if(layerswitchTrackwidth) { 
-    simplehitsMEs.meTrackwidth = bookME1D("TH1Trackwidth", "TH1Trackwidth" ,"Track width");
+    simplehitsMEs.meTrackwidth = bookME1D(ibooker,"TH1Trackwidth", "TH1Trackwidth" ,"Track width");
     simplehitsMEs.meTrackwidth->setAxisTitle("Track width");
   }
   if(layerswitchExpectedwidth) { 
-    simplehitsMEs.meExpectedwidth = bookME1D("TH1Expectedwidth", "TH1Expectedwidth" ,"Expected width");
+    simplehitsMEs.meExpectedwidth = bookME1D(ibooker,"TH1Expectedwidth", "TH1Expectedwidth" ,"Expected width");
     simplehitsMEs.meExpectedwidth->setAxisTitle("Expected width");
   }
   if(layerswitchClusterwidth) { 
-    simplehitsMEs.meClusterwidth = bookME1D("TH1Clusterwidth", "TH1Clusterwidth" ,"Cluster width");
+    simplehitsMEs.meClusterwidth = bookME1D(ibooker,"TH1Clusterwidth", "TH1Clusterwidth" ,"Cluster width");
     simplehitsMEs.meClusterwidth->setAxisTitle("Cluster width");
   } 
   if(layerswitchTrackanglealpha) { 
-    simplehitsMEs.meTrackanglealpha = bookME1D("TH1Trackanglealpha", "TH1Trackanglealpha" ,"Track angle alpha");
+    simplehitsMEs.meTrackanglealpha = bookME1D(ibooker,"TH1Trackanglealpha", "TH1Trackanglealpha" ,"Track angle alpha");
     simplehitsMEs.meTrackanglealpha->setAxisTitle("Track angle alpha");
   } 
   if(layerswitchTrackanglebeta) { 
-    simplehitsMEs.meTrackanglebeta = bookME1D("TH1Trackanglebeta", "TH1Trackanglebeta" ,"Track angle beta");
+    simplehitsMEs.meTrackanglebeta = bookME1D(ibooker,"TH1Trackanglebeta", "TH1Trackanglebeta" ,"Track angle beta");
     simplehitsMEs.meTrackanglebeta->setAxisTitle("Track angle beta");
   } 
   if(layerswitchResolxMFTrackwidthProfile_WClus1) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus1 = bookMEProfile("TProfResolxMFTrackwidthProfile_WClus1","TProfResolxMFTrackwidthProfile_WClus1","Profile of Resolution in MF vs track width for w=1");
+    simplehitsMEs.meResolxMFTrackwidthProfileWClus1 = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfile_WClus1","TProfResolxMFTrackwidthProfile_WClus1","Profile of Resolution in MF vs track width for w=1");
     simplehitsMEs.meResolxMFTrackwidthProfileWClus1->setAxisTitle("Track width",1);
     simplehitsMEs.meResolxMFTrackwidthProfileWClus1->setAxisTitle("Resolution (measurement frame) w=1",2);
   }
   if(layerswitchResolxMFTrackwidthProfile_WClus2) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus2 = bookMEProfile("TProfResolxMFTrackwidthProfile_WClus2","TProfResolxMFTrackwidthProfile_WClus2","Profile of Resolution in MF vs track width for w=2");
+    simplehitsMEs.meResolxMFTrackwidthProfileWClus2 = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfile_WClus2","TProfResolxMFTrackwidthProfile_WClus2","Profile of Resolution in MF vs track width for w=2");
     simplehitsMEs.meResolxMFTrackwidthProfileWClus2->setAxisTitle("Track width",1);
     simplehitsMEs.meResolxMFTrackwidthProfileWClus2->setAxisTitle("Resolution (measurement frame) w=2",2);
 
   } 
   if(layerswitchResolxMFTrackwidthProfile_WClus3) {
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus3 = bookMEProfile("TProfResolxMFTrackwidthProfile_WClus3","TProfResolxMFTrackwidthProfile_WClus3","Profile of Resolution in MF vs track width for w=3");
+    simplehitsMEs.meResolxMFTrackwidthProfileWClus3 = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfile_WClus3","TProfResolxMFTrackwidthProfile_WClus3","Profile of Resolution in MF vs track width for w=3");
     simplehitsMEs.meResolxMFTrackwidthProfileWClus3->setAxisTitle("Track width",1);
     simplehitsMEs.meResolxMFTrackwidthProfileWClus3->setAxisTitle("Resolution (measurement frame) w=3",2);
   }  
   if(layerswitchResolxMFTrackwidthProfile_WClus4) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus4 = bookMEProfile("TProfResolxMFTrackwidthProfile_WClus4","TProfResolxMFTrackwidthProfile_WClus4","Profile of Resolution in MF vs track width for w=4");
+    simplehitsMEs.meResolxMFTrackwidthProfileWClus4 = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfile_WClus4","TProfResolxMFTrackwidthProfile_WClus4","Profile of Resolution in MF vs track width for w=4");
     simplehitsMEs.meResolxMFTrackwidthProfileWClus4->setAxisTitle("Track width",1);
     simplehitsMEs.meResolxMFTrackwidthProfileWClus4->setAxisTitle("Resolution (measurement frame) w=3",2);
   } 
   if(layerswitchResMFTrackwidthProfile_WClus1) { 
-    simplehitsMEs.meResMFTrackwidthProfileWClus1 = bookMEProfile("TProfResMFTrackwidthProfile_WClus1","TProfResMFTrackwidthProfile_WClus1","Profile of Residuals(x) in MF vs track width for w=1");
+    simplehitsMEs.meResMFTrackwidthProfileWClus1 = bookMEProfile(ibooker,"TProfResMFTrackwidthProfile_WClus1","TProfResMFTrackwidthProfile_WClus1","Profile of Residuals(x) in MF vs track width for w=1");
     simplehitsMEs.meResMFTrackwidthProfileWClus1->setAxisTitle("Track width",1);
     simplehitsMEs.meResMFTrackwidthProfileWClus1->setAxisTitle("Residuals(x) (measurement frame) w=1",2);
   } 
   if(layerswitchResMFTrackwidthProfile_WClus2) { 
-    simplehitsMEs.meResMFTrackwidthProfileWClus2 = bookMEProfile("TProfResMFTrackwidthProfile_WClus2","TProfResMFTrackwidthProfile_WClus2","Profile of Residuals(x) in MF vs track width for w=2");
+    simplehitsMEs.meResMFTrackwidthProfileWClus2 = bookMEProfile(ibooker,"TProfResMFTrackwidthProfile_WClus2","TProfResMFTrackwidthProfile_WClus2","Profile of Residuals(x) in MF vs track width for w=2");
     simplehitsMEs.meResMFTrackwidthProfileWClus2->setAxisTitle("Track width",1);
     simplehitsMEs.meResMFTrackwidthProfileWClus2->setAxisTitle("Residuals(x) (measurement frame) w=2",2);
   } 
   if(layerswitchResMFTrackwidthProfile_WClus21) { 
-    simplehitsMEs.meResMFTrackwidthProfileWClus21 = bookMEProfile("TProfResMFTrackwidthProfile_WClus21","TProfResMFTrackwidthProfile_WClus21","Profile of Residuals(x) in MF vs track width for w=2");
+    simplehitsMEs.meResMFTrackwidthProfileWClus21 = bookMEProfile(ibooker,"TProfResMFTrackwidthProfile_WClus21","TProfResMFTrackwidthProfile_WClus21","Profile of Residuals(x) in MF vs track width for w=2");
     simplehitsMEs.meResMFTrackwidthProfileWClus21->setAxisTitle("Track width",1);
     simplehitsMEs.meResMFTrackwidthProfileWClus21->setAxisTitle("Residuals(x) (measurement frame) w=2",2);
   }
   if(layerswitchResMFTrackwidthProfile_WClus22) { 
-    simplehitsMEs.meResMFTrackwidthProfileWClus22 = bookMEProfile("TProfResMFTrackwidthProfile_WClus22","TProfResMFTrackwidthProfile_WClus22","Profile of Residuals(x) in MF vs track width for w=2");
+    simplehitsMEs.meResMFTrackwidthProfileWClus22 = bookMEProfile(ibooker,"TProfResMFTrackwidthProfile_WClus22","TProfResMFTrackwidthProfile_WClus22","Profile of Residuals(x) in MF vs track width for w=2");
     simplehitsMEs.meResMFTrackwidthProfileWClus22->setAxisTitle("Track width",1);
     simplehitsMEs.meResMFTrackwidthProfileWClus22->setAxisTitle("Residuals(x) (measurement frame) w=2",2);
 
   } 
   if(layerswitchResMFTrackwidthProfile_WClus23) {
-    simplehitsMEs.meResMFTrackwidthProfileWClus23 = bookMEProfile("TProfResMFTrackwidthProfile_WClus23","TProfResMFTrackwidthProfile_WClus23","Profile of Residuals(x) in MF vs track width for w=2");
+    simplehitsMEs.meResMFTrackwidthProfileWClus23 = bookMEProfile(ibooker,"TProfResMFTrackwidthProfile_WClus23","TProfResMFTrackwidthProfile_WClus23","Profile of Residuals(x) in MF vs track width for w=2");
     simplehitsMEs.meResMFTrackwidthProfileWClus23->setAxisTitle("Track width",1);
     simplehitsMEs.meResMFTrackwidthProfileWClus23->setAxisTitle("Residuals(x) (measurement frame) w=2",2);
   } 
   if(layerswitchResMFTrackwidthProfile_WClus3) { 
-    simplehitsMEs.meResMFTrackwidthProfileWClus3 = bookMEProfile("TProfResMFTrackwidthProfile_WClus3","TProfResMFTrackwidthProfile_WClus3","Profile of Residuals(x) in MF vs track width for w=3");
+    simplehitsMEs.meResMFTrackwidthProfileWClus3 = bookMEProfile(ibooker,"TProfResMFTrackwidthProfile_WClus3","TProfResMFTrackwidthProfile_WClus3","Profile of Residuals(x) in MF vs track width for w=3");
     simplehitsMEs.meResMFTrackwidthProfileWClus3->setAxisTitle("Track width",1);
     simplehitsMEs.meResMFTrackwidthProfileWClus3->setAxisTitle("Residuals(x) (measurement frame) w=3",2);
   } 
   if(layerswitchResMFTrackwidthProfile_WClus4) { 
-    simplehitsMEs.meResMFTrackwidthProfileWClus4 = bookMEProfile("TProfResMFTrackwidthProfile_WClus4","TProfResMFTrackwidthProfile_WClus4","Profile of Residuals(x) in MF vs track width for w=4");
+    simplehitsMEs.meResMFTrackwidthProfileWClus4 = bookMEProfile(ibooker,"TProfResMFTrackwidthProfile_WClus4","TProfResMFTrackwidthProfile_WClus4","Profile of Residuals(x) in MF vs track width for w=4");
     simplehitsMEs.meResMFTrackwidthProfileWClus4->setAxisTitle("Track width",1);
     simplehitsMEs.meResMFTrackwidthProfileWClus4->setAxisTitle("Residuals(x) (measurement frame) w=4",2);
   } 
   if(layerswitchResolxMFTrackwidthProfile) {  
-    simplehitsMEs.meResolxMFTrackwidthProfile = bookMEProfile("TProfResolxMFTrackwidthProfile","TProfResolxMFTrackwidthProfile","Profile of Resolution in MF vs track width");
+    simplehitsMEs.meResolxMFTrackwidthProfile = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfile","TProfResolxMFTrackwidthProfile","Profile of Resolution in MF vs track width");
     simplehitsMEs.meResolxMFTrackwidthProfile->setAxisTitle("Track width",1);
     simplehitsMEs.meResolxMFTrackwidthProfile->setAxisTitle("Resolution (measurement frame)",2);
   }
   if(layerswitchResolxMFTrackwidthProfile_Category1) {  
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory1 = bookMEProfile("TProfResolxMFTrackwidthProfile_Category1","TProfResolxMFTrackwidthProfile_Category1","Profile of Resolution in MF vs track width (Category 1)");
+    simplehitsMEs.meResolxMFTrackwidthProfileCategory1 = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfile_Category1","TProfResolxMFTrackwidthProfile_Category1","Profile of Resolution in MF vs track width (Category 1)");
     simplehitsMEs.meResolxMFTrackwidthProfileCategory1->setAxisTitle("Track width",1);
     simplehitsMEs.meResolxMFTrackwidthProfileCategory1->setAxisTitle("Resolution (measurement frame) Category 1",2);
   }
   if(layerswitchResolxMFTrackwidthProfile_Category2) {  
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory2 = bookMEProfile("TProfResolxMFTrackwidthProfile_Category2","TProfResolxMFTrackwidthProfile_Category2","Profile of Resolution in MF vs track width (Category 2)");
+    simplehitsMEs.meResolxMFTrackwidthProfileCategory2 = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfile_Category2","TProfResolxMFTrackwidthProfile_Category2","Profile of Resolution in MF vs track width (Category 2)");
     simplehitsMEs.meResolxMFTrackwidthProfileCategory2->setAxisTitle("Track width",1);
     simplehitsMEs.meResolxMFTrackwidthProfileCategory2->setAxisTitle("Resolution (measurement frame) Category 2",2);
   }
   if(layerswitchResolxMFTrackwidthProfile_Category3) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory3 = bookMEProfile("TProfResolxMFTrackwidthProfile_Category3","TProfResolxMFTrackwidthProfile_Category3","Profile of Resolution in MF vs track width (Category 3)");
+    simplehitsMEs.meResolxMFTrackwidthProfileCategory3 = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfile_Category3","TProfResolxMFTrackwidthProfile_Category3","Profile of Resolution in MF vs track width (Category 3)");
     simplehitsMEs.meResolxMFTrackwidthProfileCategory3->setAxisTitle("Track width",1);
     simplehitsMEs.meResolxMFTrackwidthProfileCategory3->setAxisTitle("Resolution (measurement frame) Category 3",2);
   }
   if(layerswitchResolxMFTrackwidthProfile_Category4) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory4 = bookMEProfile("TProfResolxMFTrackwidthProfile_Category4","TProfResolxMFTrackwidthProfile_Category4","Profile of Resolution in MF vs track width (Category 4)");
+    simplehitsMEs.meResolxMFTrackwidthProfileCategory4 = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfile_Category4","TProfResolxMFTrackwidthProfile_Category4","Profile of Resolution in MF vs track width (Category 4)");
     simplehitsMEs.meResolxMFTrackwidthProfileCategory4->setAxisTitle("Track width",1);
     simplehitsMEs.meResolxMFTrackwidthProfileCategory4->setAxisTitle("Resolution (measurement frame) Category 4",2);
   }
   if(layerswitchResolxMFClusterwidthProfile_Category1) {
-    simplehitsMEs.meResolxMFClusterwidthProfileCategory1 = bookMEProfile("TProfResolxMFClusterwidthProfile_Category1","TProfResolxMFClusterwidthProfile_Category1","Profile of Resolution in MF vs cluster width (Category 1)");
+    simplehitsMEs.meResolxMFClusterwidthProfileCategory1 = bookMEProfile(ibooker,"TProfResolxMFClusterwidthProfile_Category1","TProfResolxMFClusterwidthProfile_Category1","Profile of Resolution in MF vs cluster width (Category 1)");
     simplehitsMEs.meResolxMFClusterwidthProfileCategory1->setAxisTitle("Cluster width",1);
     simplehitsMEs.meResolxMFClusterwidthProfileCategory1->setAxisTitle("Resolution (measurement frame) Category 1",2);
   }
   if(layerswitchResolxMFAngleProfile) { 
-    simplehitsMEs.meResolxMFAngleProfile = bookMEProfile("TProfResolxMFAngleProfile","TProfResolxMFAngleProfile","Profile of Resolution in MF vs Track angle alpha");
+    simplehitsMEs.meResolxMFAngleProfile = bookMEProfile(ibooker,"TProfResolxMFAngleProfile","TProfResolxMFAngleProfile","Profile of Resolution in MF vs Track angle alpha");
     simplehitsMEs.meResolxMFAngleProfile->setAxisTitle("Track angle alpha",1);
     simplehitsMEs.meResolxMFAngleProfile->setAxisTitle("Resolution (measurement frame)",2);
   } 
@@ -1571,7 +1503,7 @@ void SiStripTrackingRecHitsValid::createSimpleHitsMEs()
          
 }
 //------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::createLayerMEs(std::string label) 
+void SiStripTrackingRecHitsValid::createLayerMEs(DQMStore::IBooker & ibooker,std::string label) 
 {
   SiStripHistoId hidmanager;
   LayerMEs layerMEs; 
@@ -1639,283 +1571,283 @@ void SiStripTrackingRecHitsValid::createLayerMEs(std::string label)
 
   //WclusRphi
   if(layerswitchWclusRphi) {
-    layerMEs.meWclusRphi = bookME1D("TH1WclusRphi", hidmanager.createHistoLayer("Wclus_rphi","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster"); 
+    layerMEs.meWclusRphi = bookME1D(ibooker,"TH1WclusRphi", hidmanager.createHistoLayer("Wclus_rphi","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster"); 
     layerMEs.meWclusRphi->setAxisTitle(("Cluster Width [nr strips] in "+ label).c_str());
   }
   //AdcRphi
   if(layerswitchAdcRphi) {
-    layerMEs.meAdcRphi = bookME1D("TH1AdcRphi", hidmanager.createHistoLayer("Adc_rphi","layer",label,"").c_str() ,"RecHit Cluster Charge");
+    layerMEs.meAdcRphi = bookME1D(ibooker,"TH1AdcRphi", hidmanager.createHistoLayer("Adc_rphi","layer",label,"").c_str() ,"RecHit Cluster Charge");
     layerMEs.meAdcRphi->setAxisTitle(("cluster charge [ADC] in " + label).c_str());
   }
   //ResolxLFRphi
   if(layerswitchResolxLFRphi) {
-    layerMEs.meResolxLFRphi = bookME1D("TH1ResolxLFRphi", hidmanager.createHistoLayer("Resolx_LF_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord.");   //<resolor>~20micron  
+    layerMEs.meResolxLFRphi = bookME1D(ibooker,"TH1ResolxLFRphi", hidmanager.createHistoLayer("Resolx_LF_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord.");   //<resolor>~20micron  
     layerMEs.meResolxLFRphi->setAxisTitle(("resol(x) RecHit coord. (local frame) in " + label).c_str());
   }
   //ResolxMFRphi
   if(layerswitchResolxMFRphi) {
-    layerMEs.meResolxMFRphi = bookME1D("TH1ResolxMFRphi", hidmanager.createHistoLayer("Resolx_MF_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord.");   //<resolor>~20micron  
+    layerMEs.meResolxMFRphi = bookME1D(ibooker,"TH1ResolxMFRphi", hidmanager.createHistoLayer("Resolx_MF_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord.");   //<resolor>~20micron  
     layerMEs.meResolxMFRphi->setAxisTitle(("resol(x) RecHit coord. (measurement frame) in " + label).c_str());
   }
   //ResolxMFRphiwclus1
   if(layerswitchResolxMFRphiwclus1) {
-    layerMEs.meResolxMFRphiwclus1 = bookME1D("TH1ResolxMFRphiwclus1", hidmanager.createHistoLayer("Resolx_MF_wclus1_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=1 ");   //<resolor>~20micron  
+    layerMEs.meResolxMFRphiwclus1 = bookME1D(ibooker,"TH1ResolxMFRphiwclus1", hidmanager.createHistoLayer("Resolx_MF_wclus1_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=1 ");   //<resolor>~20micron  
     layerMEs.meResolxMFRphiwclus1->setAxisTitle(("resol(x) RecHit coord. (measurement frame) for w=1 in " + label).c_str());
   }
   //ResolxMFRphiwclus2
   if(layerswitchResolxMFRphiwclus2) {
-    layerMEs.meResolxMFRphiwclus2 = bookME1D("TH1ResolxMFRphiwclus2", hidmanager.createHistoLayer("Resolx_MF_wclus2_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=2 ");   //<resolor>~20micron  
+    layerMEs.meResolxMFRphiwclus2 = bookME1D(ibooker,"TH1ResolxMFRphiwclus2", hidmanager.createHistoLayer("Resolx_MF_wclus2_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=2 ");   //<resolor>~20micron  
     layerMEs.meResolxMFRphiwclus2->setAxisTitle(("resol(x) RecHit coord. (measurement frame) for w=2 in " + label).c_str());
   }
   //ResolxMFRphiwclus3
   if(layerswitchResolxMFRphiwclus3) {
-    layerMEs.meResolxMFRphiwclus3 = bookME1D("TH1ResolxMFRphiwclus3", hidmanager.createHistoLayer("Resolx_MF_wclus3_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=3 ");   //<resolor>~20micron  
+    layerMEs.meResolxMFRphiwclus3 = bookME1D(ibooker,"TH1ResolxMFRphiwclus3", hidmanager.createHistoLayer("Resolx_MF_wclus3_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=3 ");   //<resolor>~20micron  
     layerMEs.meResolxMFRphiwclus3->setAxisTitle(("resol(x) RecHit coord. (measurement frame) for w=3 in " + label).c_str());
   }
   //ResolxMFRphiwclus4
   if(layerswitchResolxMFRphiwclus4) {
-    layerMEs.meResolxMFRphiwclus4 = bookME1D("TH1ResolxMFRphiwclus4", hidmanager.createHistoLayer("Resolx_MF_wclus4_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=4 ");   //<resolor>~20micron  
+    layerMEs.meResolxMFRphiwclus4 = bookME1D(ibooker,"TH1ResolxMFRphiwclus4", hidmanager.createHistoLayer("Resolx_MF_wclus4_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=4 ");   //<resolor>~20micron  
     layerMEs.meResolxMFRphiwclus4->setAxisTitle(("resol(x) RecHit coord. (measurement frame) for w=4 in " + label).c_str());
   }
   //ResLFRphi
   if(layerswitchResLFRphi) {
-    layerMEs.meResLFRphi = bookME1D("TH1ResLFRphi", hidmanager.createHistoLayer("Res_LF_rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate"); 
+    layerMEs.meResLFRphi = bookME1D(ibooker,"TH1ResLFRphi", hidmanager.createHistoLayer("Res_LF_rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate"); 
     layerMEs.meResLFRphi->setAxisTitle(("Hit Residuals(x) (local frame) in " + label).c_str());
   }
   //ResMFRphi
   if(layerswitchResMFRphi) {
-    layerMEs.meResMFRphi = bookME1D("TH1ResMFRphi",hidmanager.createHistoLayer("Res_MF_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate");
+    layerMEs.meResMFRphi = bookME1D(ibooker,"TH1ResMFRphi",hidmanager.createHistoLayer("Res_MF_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate");
     layerMEs.meResMFRphi->setAxisTitle(("Hit Residuals(x) (measurement frame) in "+ label).c_str());
   }
   //ResMFRphiwclus1
   if(layerswitchResMFRphiwclus1) {
-    layerMEs.meResMFRphiwclus1 = bookME1D("TH1ResMFRphiwclus1",hidmanager.createHistoLayer("Res_MF_wclus1_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate w=1");
+    layerMEs.meResMFRphiwclus1 = bookME1D(ibooker,"TH1ResMFRphiwclus1",hidmanager.createHistoLayer("Res_MF_wclus1_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate w=1");
     layerMEs.meResMFRphiwclus1->setAxisTitle(("Hit Residuals(x) (measurement frame) for w=1 in "+ label).c_str());
   }
   //ResMFRphiwclus2
   if(layerswitchResMFRphiwclus2) {
-    layerMEs.meResMFRphiwclus2 = bookME1D("TH1ResMFRphiwclus2",hidmanager.createHistoLayer("Res_MF_wclus2_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate w=2");
+    layerMEs.meResMFRphiwclus2 = bookME1D(ibooker,"TH1ResMFRphiwclus2",hidmanager.createHistoLayer("Res_MF_wclus2_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate w=2");
     layerMEs.meResMFRphiwclus2->setAxisTitle(("Hit Residuals(x) (measurement frame) for w=2 in "+ label).c_str());
   }
   //ResMFRphiwclus3
   if(layerswitchResMFRphiwclus3) {
-    layerMEs.meResMFRphiwclus3 = bookME1D("TH1ResMFRphiwclus3",hidmanager.createHistoLayer("Res_MF_wclus3_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate w=3");
+    layerMEs.meResMFRphiwclus3 = bookME1D(ibooker,"TH1ResMFRphiwclus3",hidmanager.createHistoLayer("Res_MF_wclus3_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate w=3");
     layerMEs.meResMFRphiwclus3->setAxisTitle(("Hit Residuals(x) (measurement frame) for w=3 in "+ label).c_str());
   }
   //ResMFRphiwclus4
   if(layerswitchResMFRphiwclus4) {
-    layerMEs.meResMFRphiwclus4 = bookME1D("TH1ResMFRphiwclus4",hidmanager.createHistoLayer("Res_MF_wclus4_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate w=4");
+    layerMEs.meResMFRphiwclus4 = bookME1D(ibooker,"TH1ResMFRphiwclus4",hidmanager.createHistoLayer("Res_MF_wclus4_Rphi","layer",label,"").c_str() ,"Residual of the hit x coordinate w=4");
     layerMEs.meResMFRphiwclus4->setAxisTitle(("Hit Residuals(x) (measurement frame) for w=4 in "+ label).c_str());
   }
   //PullLFRphi
   if(layerswitchPullLFRphi) {
-    layerMEs.mePullLFRphi = bookME1D("TH1PullLFRphi", hidmanager.createHistoLayer("Pull_LF_rphi","layer",label,"").c_str() ,"Pull distribution");  
+    layerMEs.mePullLFRphi = bookME1D(ibooker,"TH1PullLFRphi", hidmanager.createHistoLayer("Pull_LF_rphi","layer",label,"").c_str() ,"Pull distribution");  
     layerMEs.mePullLFRphi->setAxisTitle(("Pull distribution (local frame) in " + label).c_str());
   }
   //PullMFRphi
   if(layerswitchPullMFRphi) {
-    layerMEs.mePullMFRphi = bookME1D("TH1PullMFRphi", hidmanager.createHistoLayer("Pull_MF_rphi","layer",label,"").c_str() ,"Pull distribution");  
+    layerMEs.mePullMFRphi = bookME1D(ibooker,"TH1PullMFRphi", hidmanager.createHistoLayer("Pull_MF_rphi","layer",label,"").c_str() ,"Pull distribution");  
     layerMEs.mePullMFRphi->setAxisTitle(("Pull distribution (measurement frame) in " + label).c_str());
   }
   //PullMFRphiwclus1
   if(layerswitchPullMFRphiwclus1) {
-    layerMEs.mePullMFRphiwclus1 = bookME1D("TH1PullMFRphiwclus1", hidmanager.createHistoLayer("Pull_MF_wclus1_rphi","layer",label,"").c_str() ,"Pull distribution w=1");  
+    layerMEs.mePullMFRphiwclus1 = bookME1D(ibooker,"TH1PullMFRphiwclus1", hidmanager.createHistoLayer("Pull_MF_wclus1_rphi","layer",label,"").c_str() ,"Pull distribution w=1");  
     layerMEs.mePullMFRphiwclus1->setAxisTitle(("Pull distribution (measurement frame) for w=1 in " + label).c_str());
   }
   //PullMFRphiwclus2
   if(layerswitchPullMFRphiwclus2) {
-    layerMEs.mePullMFRphiwclus2 = bookME1D("TH1PullMFRphiwclus2", hidmanager.createHistoLayer("Pull_MF_wclus2_rphi","layer",label,"").c_str() ,"Pull distribution w=2");  
+    layerMEs.mePullMFRphiwclus2 = bookME1D(ibooker,"TH1PullMFRphiwclus2", hidmanager.createHistoLayer("Pull_MF_wclus2_rphi","layer",label,"").c_str() ,"Pull distribution w=2");  
     layerMEs.mePullMFRphiwclus2->setAxisTitle(("Pull distribution (measurement frame) for w=2 in " + label).c_str());
   }
   //PullMFRphiwclus3
   if(layerswitchPullMFRphiwclus3) {
-    layerMEs.mePullMFRphiwclus3 = bookME1D("TH1PullMFRphiwclus3", hidmanager.createHistoLayer("Pull_MF_wclus3_rphi","layer",label,"").c_str() ,"Pull distribution w=3");  
+    layerMEs.mePullMFRphiwclus3 = bookME1D(ibooker,"TH1PullMFRphiwclus3", hidmanager.createHistoLayer("Pull_MF_wclus3_rphi","layer",label,"").c_str() ,"Pull distribution w=3");  
     layerMEs.mePullMFRphiwclus3->setAxisTitle(("Pull distribution (measurement frame) for w=3 in " + label).c_str());
   }
   //PullMFRphiwclus4
   if(layerswitchPullMFRphiwclus4) {
-    layerMEs.mePullMFRphiwclus4 = bookME1D("TH1PullMFRphiwclus4", hidmanager.createHistoLayer("Pull_MF_wclus4_rphi","layer",label,"").c_str() ,"Pull distribution w=4");  
+    layerMEs.mePullMFRphiwclus4 = bookME1D(ibooker,"TH1PullMFRphiwclus4", hidmanager.createHistoLayer("Pull_MF_wclus4_rphi","layer",label,"").c_str() ,"Pull distribution w=4");  
     layerMEs.mePullMFRphiwclus4->setAxisTitle(("Pull distribution (measurement frame) for w=4 in " + label).c_str());
   }
 
   if(layerswitchTrackangleRphi) {
-    layerMEs.meTrackangleRphi = bookME1D("TH1TrackangleRphi",hidmanager.createHistoLayer("Track_angle_Rphi","layer",label,"").c_str() ,"Track angle alpha");
+    layerMEs.meTrackangleRphi = bookME1D(ibooker,"TH1TrackangleRphi",hidmanager.createHistoLayer("Track_angle_Rphi","layer",label,"").c_str() ,"Track angle alpha");
     layerMEs.meTrackangleRphi->setAxisTitle(("Track angle in "+ label).c_str());
   }
   if(layerswitchTrackanglebetaRphi) {
-    layerMEs.meTrackanglebetaRphi = bookME1D("TH1TrackanglebetaRphi",hidmanager.createHistoLayer("Track_angle_beta_Rphi","layer",label,"").c_str() ,"Track angle beta");
+    layerMEs.meTrackanglebetaRphi = bookME1D(ibooker,"TH1TrackanglebetaRphi",hidmanager.createHistoLayer("Track_angle_beta_Rphi","layer",label,"").c_str() ,"Track angle beta");
     layerMEs.meTrackanglebetaRphi->setAxisTitle((""+ label).c_str());
   }
   if(layerswitchTrackangle2Rphi) {
-    layerMEs.meTrackangle2Rphi = bookME1D("TH1Trackangle2Rphi",hidmanager.createHistoLayer("Track_angle2_Rphi","layer",label,"").c_str() ,"");
+    layerMEs.meTrackangle2Rphi = bookME1D(ibooker,"TH1Trackangle2Rphi",hidmanager.createHistoLayer("Track_angle2_Rphi","layer",label,"").c_str() ,"");
     layerMEs.meTrackangle2Rphi->setAxisTitle((""+ label).c_str());
   }
   if(layerswitchPullTrackangleProfileRphi) {
-    layerMEs.mePullTrackangleProfileRphi = bookMEProfile("TProfPullTrackangleProfileRphi",hidmanager.createHistoLayer("Pull_Trackangle_Profile_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track angle alpha");
+    layerMEs.mePullTrackangleProfileRphi = bookMEProfile(ibooker,"TProfPullTrackangleProfileRphi",hidmanager.createHistoLayer("Pull_Trackangle_Profile_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track angle alpha");
     layerMEs.mePullTrackangleProfileRphi->setAxisTitle(("Track angle alpha in "+ label).c_str(),1);
     layerMEs.mePullTrackangleProfileRphi->setAxisTitle(("Pull (MF) in "+ label).c_str(),2);
   }
   if(layerswitchPullTrackangle2DRphi) {
-    layerMEs.mePullTrackangle2DRphi = bookME1D("TH1PullTrackangle2DRphi",hidmanager.createHistoLayer("Pull_Trackangle_2D_Rphi","layer",label,"").c_str() ,"");
+    layerMEs.mePullTrackangle2DRphi = bookME1D(ibooker,"TH1PullTrackangle2DRphi",hidmanager.createHistoLayer("Pull_Trackangle_2D_Rphi","layer",label,"").c_str() ,"");
     layerMEs.mePullTrackangle2DRphi->setAxisTitle((""+ label).c_str());
   }
   if(layerswitchTrackwidthRphi) {
-    layerMEs.meTrackwidthRphi = bookME1D("TH1TrackwidthRphi",hidmanager.createHistoLayer("Track_width_Rphi","layer",label,"").c_str() ,"Track width");
+    layerMEs.meTrackwidthRphi = bookME1D(ibooker,"TH1TrackwidthRphi",hidmanager.createHistoLayer("Track_width_Rphi","layer",label,"").c_str() ,"Track width");
     layerMEs.meTrackwidthRphi->setAxisTitle(("Track width in "+ label).c_str());
   }
   if(layerswitchExpectedwidthRphi) {
-    layerMEs.meExpectedwidthRphi = bookME1D("TH1ExpectedwidthRphi",hidmanager.createHistoLayer("Expected_width_Rphi","layer",label,"").c_str() ,"Expected width");
+    layerMEs.meExpectedwidthRphi = bookME1D(ibooker,"TH1ExpectedwidthRphi",hidmanager.createHistoLayer("Expected_width_Rphi","layer",label,"").c_str() ,"Expected width");
     layerMEs.meExpectedwidthRphi->setAxisTitle(("Expected width in "+ label).c_str());
   }
   if(layerswitchClusterwidthRphi) {
-    layerMEs.meClusterwidthRphi = bookME1D("TH1ClusterwidthRphi",hidmanager.createHistoLayer("Cluster_width_Rphi","layer",label,"").c_str() ,"Cluster width");
+    layerMEs.meClusterwidthRphi = bookME1D(ibooker,"TH1ClusterwidthRphi",hidmanager.createHistoLayer("Cluster_width_Rphi","layer",label,"").c_str() ,"Cluster width");
     layerMEs.meClusterwidthRphi->setAxisTitle(("Cluster width in "+ label).c_str());
   }
   if(layerswitchCategoryRphi) {
-    layerMEs.meCategoryRphi = bookME1D("TH1CategoryRphi",hidmanager.createHistoLayer("Category_Rphi","layer",label,"").c_str() ,"Category");
+    layerMEs.meCategoryRphi = bookME1D(ibooker,"TH1CategoryRphi",hidmanager.createHistoLayer("Category_Rphi","layer",label,"").c_str() ,"Category");
     layerMEs.meCategoryRphi->setAxisTitle(("Category in "+ label).c_str());
   }
   if(layerswitchPullTrackwidthProfileRphi) {
-    layerMEs.mePullTrackwidthProfileRphi = bookMEProfile("TProfPullTrackwidthProfileRphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width");
+    layerMEs.mePullTrackwidthProfileRphi = bookMEProfile(ibooker,"TProfPullTrackwidthProfileRphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width");
     layerMEs.mePullTrackwidthProfileRphi->setAxisTitle(("track width in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileRphi->setAxisTitle(("Pull (MF) in "+ label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileRphiwclus1) {
-    layerMEs.mePullTrackwidthProfileRphiwclus1 = bookMEProfile("TProfPullTrackwidthProfileRphiwclus1",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi_wclus1","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for w=1");
+    layerMEs.mePullTrackwidthProfileRphiwclus1 = bookMEProfile(ibooker,"TProfPullTrackwidthProfileRphiwclus1",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi_wclus1","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for w=1");
     layerMEs.mePullTrackwidthProfileRphiwclus1->setAxisTitle(("track width for w=1 in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileRphiwclus1->setAxisTitle(("Pull (MF) for w=1 in "+ label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileRphiwclus2) {
-    layerMEs.mePullTrackwidthProfileRphiwclus2 = bookMEProfile("TProfPullTrackwidthProfileRphiwclus2",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi_wclus2","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for w=2");
+    layerMEs.mePullTrackwidthProfileRphiwclus2 = bookMEProfile(ibooker,"TProfPullTrackwidthProfileRphiwclus2",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi_wclus2","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for w=2");
     layerMEs.mePullTrackwidthProfileRphiwclus2->setAxisTitle(("track width for w=2 in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileRphiwclus2->setAxisTitle(("Pull (MF) for w=2 in "+ label).c_str(),2);
 
   }
   if(layerswitchPullTrackwidthProfileRphiwclus3) {
-    layerMEs.mePullTrackwidthProfileRphiwclus3 = bookMEProfile("TProfPullTrackwidthProfileRphiwclus3",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi_wclus3","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for w=3");
+    layerMEs.mePullTrackwidthProfileRphiwclus3 = bookMEProfile(ibooker,"TProfPullTrackwidthProfileRphiwclus3",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi_wclus3","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for w=3");
     layerMEs.mePullTrackwidthProfileRphiwclus3->setAxisTitle(("track width for w=3 in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileRphiwclus3->setAxisTitle(("Pull (MF) for w=3 in "+ label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileRphiwclus4) {
-    layerMEs.mePullTrackwidthProfileRphiwclus4 = bookMEProfile("TProfPullTrackwidthProfileRphiwclus4",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi_wclus4","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for w=4");
+    layerMEs.mePullTrackwidthProfileRphiwclus4 = bookMEProfile(ibooker,"TProfPullTrackwidthProfileRphiwclus4",hidmanager.createHistoLayer("Pull_Track_width_Profile_Rphi_wclus4","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for w=4");
     layerMEs.mePullTrackwidthProfileRphiwclus4->setAxisTitle(("track width for w=4 in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileRphiwclus4->setAxisTitle(("Pull (MF) for w=4 in "+ label).c_str(),2);
 
   }
   if(layerswitchPullTrackwidthProfileCategory1Rphi) {
-    layerMEs.mePullTrackwidthProfileCategory1Rphi = bookMEProfile("TProfPullTrackwidthProfileCategory1Rphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for Category 1");
+    layerMEs.mePullTrackwidthProfileCategory1Rphi = bookMEProfile(ibooker,"TProfPullTrackwidthProfileCategory1Rphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for Category 1");
     layerMEs.mePullTrackwidthProfileCategory1Rphi->setAxisTitle(("track width for Category 1 in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileCategory1Rphi->setAxisTitle(("Pull (MF) for Category 1 in "+ label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileCategory2Rphi) {
-    layerMEs.mePullTrackwidthProfileCategory2Rphi = bookMEProfile("TProfPullTrackwidthProfileCategory2Rphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category2_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for Category 2");
+    layerMEs.mePullTrackwidthProfileCategory2Rphi = bookMEProfile(ibooker,"TProfPullTrackwidthProfileCategory2Rphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category2_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for Category 2");
     layerMEs.mePullTrackwidthProfileCategory2Rphi->setAxisTitle(("track width for Category 2 in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileCategory2Rphi->setAxisTitle(("Pull (MF) for Category 2 in "+ label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileCategory3Rphi) {
-    layerMEs.mePullTrackwidthProfileCategory3Rphi = bookMEProfile("TProfPullTrackwidthProfileCategory3Rphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for Category 3");
+    layerMEs.mePullTrackwidthProfileCategory3Rphi = bookMEProfile(ibooker,"TProfPullTrackwidthProfileCategory3Rphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for Category 3");
     layerMEs.mePullTrackwidthProfileCategory3Rphi->setAxisTitle(("track width for Category 3 in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileCategory3Rphi->setAxisTitle(("Pull (MF) for Category 3 in "+ label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileCategory4Rphi) {
-    layerMEs.mePullTrackwidthProfileCategory4Rphi = bookMEProfile("TProfPullTrackwidthProfileCategory4Rphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category4_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for Category 4");
+    layerMEs.mePullTrackwidthProfileCategory4Rphi = bookMEProfile(ibooker,"TProfPullTrackwidthProfileCategory4Rphi",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category4_Rphi","layer",label,"").c_str() ,"Profile of Pull in MF vs track width for Category 4");
     layerMEs.mePullTrackwidthProfileCategory4Rphi->setAxisTitle(("track width for Category 4 in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileCategory4Rphi->setAxisTitle(("Pull (MF) for Category 4 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileRphi) {
-    layerMEs.meResolxMFTrackwidthProfileRphi = bookMEProfile("TProfResolxMFTrackwidthProfileRphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width");
+    layerMEs.meResolxMFTrackwidthProfileRphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileRphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width");
     layerMEs.meResolxMFTrackwidthProfileRphi->setAxisTitle(("track width in "+ label).c_str(),1);
     layerMEs.meResolxMFTrackwidthProfileRphi->setAxisTitle(("Resolution in MF in "+ label).c_str(),2);
   }
 
   if(layerswitchResolxMFTrackwidthProfileWclus1Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileWclus1Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileWclus1Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=1");
+    layerMEs.meResolxMFTrackwidthProfileWclus1Rphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileWclus1Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=1");
     layerMEs.meResolxMFTrackwidthProfileWclus1Rphi->setAxisTitle(("track width for w=1 in "+ label).c_str(),1);
     layerMEs.meResolxMFTrackwidthProfileWclus1Rphi->setAxisTitle(("Resolution in MF for w=1 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileWclus2Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileWclus2Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileWclus2Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus2_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=2");
+    layerMEs.meResolxMFTrackwidthProfileWclus2Rphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileWclus2Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus2_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=2");
     layerMEs.meResolxMFTrackwidthProfileWclus2Rphi->setAxisTitle(("track width for w=2 in "+ label).c_str(),1);
     layerMEs.meResolxMFTrackwidthProfileWclus2Rphi->setAxisTitle(("Resolution in MF for w=2 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileWclus3Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileWclus3Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileWclus3Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=3");
+    layerMEs.meResolxMFTrackwidthProfileWclus3Rphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileWclus3Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=3");
     layerMEs.meResolxMFTrackwidthProfileWclus3Rphi->setAxisTitle(("track width for w=3 in "+ label).c_str(),1);
     layerMEs.meResolxMFTrackwidthProfileWclus3Rphi->setAxisTitle(("Resolution in MF for w=3 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileWclus4Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileWclus4Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileWclus4Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus4_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=4");
+    layerMEs.meResolxMFTrackwidthProfileWclus4Rphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileWclus4Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus4_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=4");
     layerMEs.meResolxMFTrackwidthProfileWclus4Rphi->setAxisTitle(("track width for w=4 in "+ label).c_str(),1);
     layerMEs.meResolxMFTrackwidthProfileWclus4Rphi->setAxisTitle(("Resolution in MF for w=4 in "+ label).c_str(),2);
   }
   if(layerswitchResMFTrackwidthProfileWclus1Rphi) {
-    layerMEs.meResMFTrackwidthProfileWclus1Rphi = bookMEProfile("TProfResMFTrackwidthProfileWclus1Rphi",hidmanager.createHistoLayer("ResMF_Track_width_Profile_Wclus1_Rphi","layer",label,"").c_str() ,"Profile of Residuals(x) in MF vs track width for w=1");
+    layerMEs.meResMFTrackwidthProfileWclus1Rphi = bookMEProfile(ibooker,"TProfResMFTrackwidthProfileWclus1Rphi",hidmanager.createHistoLayer("ResMF_Track_width_Profile_Wclus1_Rphi","layer",label,"").c_str() ,"Profile of Residuals(x) in MF vs track width for w=1");
     layerMEs.meResMFTrackwidthProfileWclus1Rphi->setAxisTitle(("track width for w=1 in "+ label).c_str(),1);
     layerMEs.meResMFTrackwidthProfileWclus1Rphi->setAxisTitle(("Residuals(x) in MF for w=1 in "+ label).c_str(),2);
   }
   if(layerswitchResMFTrackwidthProfileWclus2Rphi) {
-    layerMEs.meResMFTrackwidthProfileWclus2Rphi = bookMEProfile("TProfResMFTrackwidthProfileWclus2Rphi",hidmanager.createHistoLayer("ResMF_Track_width_Profile_Wclus2_Rphi","layer",label,"").c_str() ,"Profile of Residuals(x) in MF vs track width for w=2");
+    layerMEs.meResMFTrackwidthProfileWclus2Rphi = bookMEProfile(ibooker,"TProfResMFTrackwidthProfileWclus2Rphi",hidmanager.createHistoLayer("ResMF_Track_width_Profile_Wclus2_Rphi","layer",label,"").c_str() ,"Profile of Residuals(x) in MF vs track width for w=2");
     layerMEs.meResMFTrackwidthProfileWclus2Rphi->setAxisTitle(("track width for w=2 in "+ label).c_str(),1);
     layerMEs.meResMFTrackwidthProfileWclus2Rphi->setAxisTitle(("Residuals(x) in MF for w=2 in "+ label).c_str(),2);
   }
   if(layerswitchResMFTrackwidthProfileWclus3Rphi) {
-    layerMEs.meResMFTrackwidthProfileWclus3Rphi = bookMEProfile("TProfResMFTrackwidthProfileWclus3Rphi",hidmanager.createHistoLayer("ResMF_Track_width_Profile_Wclus3_Rphi","layer",label,"").c_str() ,"Profile of Residuals(x) in MF vs track width for w=3");
+    layerMEs.meResMFTrackwidthProfileWclus3Rphi = bookMEProfile(ibooker,"TProfResMFTrackwidthProfileWclus3Rphi",hidmanager.createHistoLayer("ResMF_Track_width_Profile_Wclus3_Rphi","layer",label,"").c_str() ,"Profile of Residuals(x) in MF vs track width for w=3");
     layerMEs.meResMFTrackwidthProfileWclus3Rphi->setAxisTitle(("track width for w=3 in "+ label).c_str(),1);
     layerMEs.meResMFTrackwidthProfileWclus3Rphi->setAxisTitle(("Residuals(x) in MF for w=3 in "+ label).c_str(),2);
   }
   if(layerswitchResMFTrackwidthProfileWclus4Rphi) {
-    layerMEs.meResMFTrackwidthProfileWclus4Rphi = bookMEProfile("TProfResMFTrackwidthProfileWclus4Rphi",hidmanager.createHistoLayer("ResMF_Track_width_Profile_Wclus4_Rphi","layer",label,"").c_str() ,"Profile of Residuals(x) in MF vs track width for w=4");
+    layerMEs.meResMFTrackwidthProfileWclus4Rphi = bookMEProfile(ibooker,"TProfResMFTrackwidthProfileWclus4Rphi",hidmanager.createHistoLayer("ResMF_Track_width_Profile_Wclus4_Rphi","layer",label,"").c_str() ,"Profile of Residuals(x) in MF vs track width for w=4");
     layerMEs.meResMFTrackwidthProfileWclus4Rphi->setAxisTitle(("track width for w=4 in "+ label).c_str(),1);
     layerMEs.meResMFTrackwidthProfileWclus4Rphi->setAxisTitle(("Residuals(x) in MF for w=4 in "+ label).c_str(),2);
   }
 
   if(layerswitchResolxMFTrackwidthProfileCategory1Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileCategory1Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileCategory1Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 1");
+    layerMEs.meResolxMFTrackwidthProfileCategory1Rphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileCategory1Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 1");
     layerMEs.meResolxMFTrackwidthProfileCategory1Rphi->setAxisTitle(("track width for Category 1 in "+ label).c_str(),1);
     layerMEs.meResolxMFTrackwidthProfileCategory1Rphi->setAxisTitle(("Resolution in MF for Category 1 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileCategory2Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileCategory2Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileCategory2Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category2_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 2");
+    layerMEs.meResolxMFTrackwidthProfileCategory2Rphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileCategory2Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category2_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 2");
     layerMEs.meResolxMFTrackwidthProfileCategory2Rphi->setAxisTitle(("track width for Category 2 in "+ label).c_str(),1);
     layerMEs.meResolxMFTrackwidthProfileCategory2Rphi->setAxisTitle(("Resolution in MF for Category 2 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileCategory3Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileCategory3Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 3");
+    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileCategory3Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 3");
     layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("track width for Category 3 in "+ label).c_str(),1);
     layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("Resolution in MF for Category 3 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileCategory4Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileCategory4Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileCategory4Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 4");
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("track width for Category 4 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("Resolution in MF for Category 4 in "+ label).c_str(),2);
+    layerMEs.meResolxMFTrackwidthProfileCategory4Rphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileCategory4Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 4");
+    layerMEs.meResolxMFTrackwidthProfileCategory4Rphi->setAxisTitle(("track width for Category 4 in "+ label).c_str(),1);
+    layerMEs.meResolxMFTrackwidthProfileCategory4Rphi->setAxisTitle(("Resolution in MF for Category 4 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFClusterwidthProfileCategory1Rphi) {
-    layerMEs.meResolxMFClusterwidthProfileCategory1Rphi = bookMEProfile("TProfResolxMFClusterwidthProfileCategory1Rphi",hidmanager.createHistoLayer("ResolxMF_Cluster_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs cluster width for Category 1");
+    layerMEs.meResolxMFClusterwidthProfileCategory1Rphi = bookMEProfile(ibooker,"TProfResolxMFClusterwidthProfileCategory1Rphi",hidmanager.createHistoLayer("ResolxMF_Cluster_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs cluster width for Category 1");
     layerMEs.meResolxMFClusterwidthProfileCategory1Rphi->setAxisTitle(("cluster width for Category 1 in "+ label).c_str(),1);
     layerMEs.meResolxMFClusterwidthProfileCategory1Rphi->setAxisTitle(("Resolution in MF for Category 1 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFAngleProfileRphi) {
-    layerMEs.meResolxMFAngleProfileRphi = bookMEProfile("TProfResolxMFAngleProfileRphi",hidmanager.createHistoLayer("ResolxMF_Angle_Profile_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track angle alpha");
+    layerMEs.meResolxMFAngleProfileRphi = bookMEProfile(ibooker,"TProfResolxMFAngleProfileRphi",hidmanager.createHistoLayer("ResolxMF_Angle_Profile_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track angle alpha");
     layerMEs.meResolxMFAngleProfileRphi->setAxisTitle(("track angle alpha in "+ label).c_str(),1);
     layerMEs.meResolxMFAngleProfileRphi->setAxisTitle(("Resolution in MF in "+ label).c_str(),2);
   }
   if(layerswitchrapidityResProfilewclus1) {
-    layerMEs.merapidityResProfilewclus1 = bookMEProfile("TProfrapidityResProfilewclus1",hidmanager.createHistoLayer("rapidity_Res_Profile_wclus1","layer",label,"").c_str() ,"Profile of rapidity vs Res for w=1");
+    layerMEs.merapidityResProfilewclus1 = bookMEProfile(ibooker,"TProfrapidityResProfilewclus1",hidmanager.createHistoLayer("rapidity_Res_Profile_wclus1","layer",label,"").c_str() ,"Profile of rapidity vs Res for w=1");
     layerMEs.merapidityResProfilewclus1->setAxisTitle(("Res for w=1 in "+ label).c_str(),1);
     layerMEs.merapidityResProfilewclus1->setAxisTitle(("rapidity for w=1 in "+ label).c_str(),2);
   }
   if(layerswitchrapidityResProfilewclus2) {
-    layerMEs.merapidityResProfilewclus2 = bookMEProfile("TProfrapidityResProfilewclus2",hidmanager.createHistoLayer("rapidity_Res_Profile_wclus2","layer",label,"").c_str() ,"Profile of rapidity vs Res for w=2");
+    layerMEs.merapidityResProfilewclus2 = bookMEProfile(ibooker,"TProfrapidityResProfilewclus2",hidmanager.createHistoLayer("rapidity_Res_Profile_wclus2","layer",label,"").c_str() ,"Profile of rapidity vs Res for w=2");
     layerMEs.merapidityResProfilewclus2->setAxisTitle(("Res for w=2 in "+ label).c_str(),1);
     layerMEs.merapidityResProfilewclus2->setAxisTitle(("rapidity for w=2 in "+ label).c_str(),2);
   }
   if(layerswitchrapidityResProfilewclus3) {
-    layerMEs.merapidityResProfilewclus3 = bookMEProfile("TProfrapidityResProfilewclus3",hidmanager.createHistoLayer("rapidity_Res_Profile_wclus3","layer",label,"").c_str() ,"Profile of rapidity vs Res for w=3");
+    layerMEs.merapidityResProfilewclus3 = bookMEProfile(ibooker,"TProfrapidityResProfilewclus3",hidmanager.createHistoLayer("rapidity_Res_Profile_wclus3","layer",label,"").c_str() ,"Profile of rapidity vs Res for w=3");
     layerMEs.merapidityResProfilewclus3->setAxisTitle(("Res for w=3 in "+ label).c_str(),1);
     layerMEs.merapidityResProfilewclus3->setAxisTitle(("rapidity for w=3 in "+ label).c_str(),2);
   }
   if(layerswitchrapidityResProfilewclus4) {
-    layerMEs.merapidityResProfilewclus4 = bookMEProfile("TProfrapidityResProfilewclus4",hidmanager.createHistoLayer("rapidity_Res_Profile_wclus4","layer",label,"").c_str() ,"Profile of rapidity vs Res for w=4");
+    layerMEs.merapidityResProfilewclus4 = bookMEProfile(ibooker,"TProfrapidityResProfilewclus4",hidmanager.createHistoLayer("rapidity_Res_Profile_wclus4","layer",label,"").c_str() ,"Profile of rapidity vs Res for w=4");
     layerMEs.merapidityResProfilewclus4->setAxisTitle(("Res for w=4 in "+ label).c_str(),1);
     layerMEs.merapidityResProfilewclus4->setAxisTitle(("rapidity for w=4 in "+ label).c_str(),2);
   }
@@ -1925,7 +1857,7 @@ void SiStripTrackingRecHitsValid::createLayerMEs(std::string label)
  
 }
 //------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(std::string label) 
+void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,std::string label) 
 {
   SiStripHistoId hidmanager;
   StereoAndMatchedMEs stereoandmatchedMEs; 
@@ -1969,162 +1901,162 @@ void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(std::string label)
 
   //WclusSas
   if(layerswitchWclusSas) {
-    stereoandmatchedMEs.meWclusSas = bookME1D("TH1WclusSas", hidmanager.createHistoLayer("Wclus_sas","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster");  
+    stereoandmatchedMEs.meWclusSas = bookME1D(ibooker,"TH1WclusSas", hidmanager.createHistoLayer("Wclus_sas","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster");  
     stereoandmatchedMEs.meWclusSas->setAxisTitle(("Cluster Width [nr strips] (stereo) in "+ label).c_str());
   }
   //AdcSas
   if(layerswitchAdcSas) {
-    stereoandmatchedMEs.meAdcSas = bookME1D("TH1AdcSas", hidmanager.createHistoLayer("Adc_sas","layer",label,"").c_str() ,"RecHit Cluster Charge"); 
+    stereoandmatchedMEs.meAdcSas = bookME1D(ibooker,"TH1AdcSas", hidmanager.createHistoLayer("Adc_sas","layer",label,"").c_str() ,"RecHit Cluster Charge"); 
     stereoandmatchedMEs.meAdcSas->setAxisTitle(("cluster charge [ADC] (stereo) in " + label).c_str());
   }
   //ResolxLFSas
   if(layerswitchResolxLFSas) {
-    stereoandmatchedMEs.meResolxLFSas = bookME1D("TH1ResolxLFSas", hidmanager.createHistoLayer("Resolx_LF_sas","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
+    stereoandmatchedMEs.meResolxLFSas = bookME1D(ibooker,"TH1ResolxLFSas", hidmanager.createHistoLayer("Resolx_LF_sas","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
     stereoandmatchedMEs.meResolxLFSas->setAxisTitle(("resol(x) RecHit coord. (local frame) (stereo) in " + label).c_str());
   }
   //ResolxMFSas
   if(layerswitchResolxMFSas) {
-    stereoandmatchedMEs.meResolxMFSas = bookME1D("TH1ResolxMFSas", hidmanager.createHistoLayer("Resolx_MF_sas","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
+    stereoandmatchedMEs.meResolxMFSas = bookME1D(ibooker,"TH1ResolxMFSas", hidmanager.createHistoLayer("Resolx_MF_sas","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
     stereoandmatchedMEs.meResolxMFSas->setAxisTitle(("resol(x) RecHit coord. (measurement frame) (stereo) in " + label).c_str());
   }
   //ResLFSas
   if(layerswitchResLFSas) {
-    stereoandmatchedMEs.meResLFSas = bookME1D("TH1ResLFSas", hidmanager.createHistoLayer("Res_LF_sas","layer",label,"").c_str() ,"Residual of the hit x coordinate"); 
+    stereoandmatchedMEs.meResLFSas = bookME1D(ibooker,"TH1ResLFSas", hidmanager.createHistoLayer("Res_LF_sas","layer",label,"").c_str() ,"Residual of the hit x coordinate"); 
     stereoandmatchedMEs.meResLFSas->setAxisTitle(("Hit Residuals(x) (local frame) (stereo) in " + label).c_str());
   }
   //ResMFSas
   if(layerswitchResMFSas) {
-    stereoandmatchedMEs.meResMFSas = bookME1D("TH1ResMFSas", hidmanager.createHistoLayer("Res_MF_sas","layer",label,"").c_str() ,"Residual of the hit x coordinate"); 
+    stereoandmatchedMEs.meResMFSas = bookME1D(ibooker,"TH1ResMFSas", hidmanager.createHistoLayer("Res_MF_sas","layer",label,"").c_str() ,"Residual of the hit x coordinate"); 
     stereoandmatchedMEs.meResMFSas->setAxisTitle(("Hit Residuals(x) (stereo) in " + label).c_str());
   }
   //PullLFSas
   if(layerswitchPullLFSas) {
-    stereoandmatchedMEs.mePullLFSas = bookME1D("TH1PullLFSas", hidmanager.createHistoLayer("Pull_LF_sas","layer",label,"").c_str() ,"Pull distribution");  
+    stereoandmatchedMEs.mePullLFSas = bookME1D(ibooker,"TH1PullLFSas", hidmanager.createHistoLayer("Pull_LF_sas","layer",label,"").c_str() ,"Pull distribution");  
     stereoandmatchedMEs.mePullLFSas->setAxisTitle(("Pull distribution (local frame) (stereo) in " + label).c_str());
   }
   //PullMFSas
   if(layerswitchPullMFSas) {
-    stereoandmatchedMEs.mePullMFSas = bookME1D("TH1PullMFSas", hidmanager.createHistoLayer("Pull_MF_sas","layer",label,"").c_str() ,"Pull distribution");  
+    stereoandmatchedMEs.mePullMFSas = bookME1D(ibooker,"TH1PullMFSas", hidmanager.createHistoLayer("Pull_MF_sas","layer",label,"").c_str() ,"Pull distribution");  
     stereoandmatchedMEs.mePullMFSas->setAxisTitle(("Pull distribution (measurement frame) (stereo) in " + label).c_str());
   }
 
   if(layerswitchTrackangleSas) {
-    stereoandmatchedMEs.meTrackangleSas = bookME1D("TH1TrackangleSas",hidmanager.createHistoLayer("Track_angle_Sas","layer",label,"").c_str() ,"Track angle");
+    stereoandmatchedMEs.meTrackangleSas = bookME1D(ibooker,"TH1TrackangleSas",hidmanager.createHistoLayer("Track_angle_Sas","layer",label,"").c_str() ,"Track angle");
     stereoandmatchedMEs.meTrackangleSas->setAxisTitle(("Track angle (stereo) in " + label).c_str());
   }
   if(layerswitchTrackanglebetaSas) {
-    stereoandmatchedMEs.meTrackanglebetaSas = bookME1D("TH1TrackanglebetaSas",hidmanager.createHistoLayer("Track_angle_beta_Sas","layer",label,"").c_str() ,"Track angle beta");
+    stereoandmatchedMEs.meTrackanglebetaSas = bookME1D(ibooker,"TH1TrackanglebetaSas",hidmanager.createHistoLayer("Track_angle_beta_Sas","layer",label,"").c_str() ,"Track angle beta");
     stereoandmatchedMEs.meTrackanglebetaSas->setAxisTitle(("Track angle beta (stereo) in " + label).c_str());
   }
   if(layerswitchPullTrackangleProfileSas) {
-    stereoandmatchedMEs.mePullTrackangleProfileSas = bookMEProfile("TProfPullTrackangleProfileSas",hidmanager.createHistoLayer("Pull_Track_angle_Profile_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track angle (stereo)");
+    stereoandmatchedMEs.mePullTrackangleProfileSas = bookMEProfile(ibooker,"TProfPullTrackangleProfileSas",hidmanager.createHistoLayer("Pull_Track_angle_Profile_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track angle (stereo)");
     stereoandmatchedMEs.mePullTrackangleProfileSas->setAxisTitle(("track angle (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.mePullTrackangleProfileSas->setAxisTitle(("Pull in MF (stereo) in " + label).c_str(),2);
   }
   if(layerswitchTrackwidthSas) {
-    stereoandmatchedMEs.meTrackwidthSas = bookME1D("TH1TrackwidthSas",hidmanager.createHistoLayer("Track_width_Sas","layer",label,"").c_str() ,"Track width");
+    stereoandmatchedMEs.meTrackwidthSas = bookME1D(ibooker,"TH1TrackwidthSas",hidmanager.createHistoLayer("Track_width_Sas","layer",label,"").c_str() ,"Track width");
     stereoandmatchedMEs.meTrackwidthSas->setAxisTitle(("Track width (stereo) in " + label).c_str());
   }
   if(layerswitchExpectedwidthSas) {
-    stereoandmatchedMEs.meExpectedwidthSas = bookME1D("TH1ExpectedwidthSas",hidmanager.createHistoLayer("Expected_width_Sas","layer",label,"").c_str() ,"Expected width");
+    stereoandmatchedMEs.meExpectedwidthSas = bookME1D(ibooker,"TH1ExpectedwidthSas",hidmanager.createHistoLayer("Expected_width_Sas","layer",label,"").c_str() ,"Expected width");
     stereoandmatchedMEs.meExpectedwidthSas->setAxisTitle(("Expected width (stereo) in " + label).c_str());
   }
   if(layerswitchClusterwidthSas) {
-    stereoandmatchedMEs.meClusterwidthSas = bookME1D("TH1ClusterwidthSas",hidmanager.createHistoLayer("Cluster_width_Sas","layer",label,"").c_str() ,"Cluster width");
+    stereoandmatchedMEs.meClusterwidthSas = bookME1D(ibooker,"TH1ClusterwidthSas",hidmanager.createHistoLayer("Cluster_width_Sas","layer",label,"").c_str() ,"Cluster width");
     stereoandmatchedMEs.meClusterwidthSas->setAxisTitle(("Cluster width (stereo) in " + label).c_str());
   }
   if(layerswitchCategorySas) {
-    stereoandmatchedMEs.meCategorySas = bookME1D("TH1CategorySas",hidmanager.createHistoLayer("Category_Sas","layer",label,"").c_str() ,"Category");
+    stereoandmatchedMEs.meCategorySas = bookME1D(ibooker,"TH1CategorySas",hidmanager.createHistoLayer("Category_Sas","layer",label,"").c_str() ,"Category");
     stereoandmatchedMEs.meCategorySas->setAxisTitle(("Category (stereo) in " + label).c_str());
   }
   if(layerswitchPullTrackwidthProfileSas) {
-    stereoandmatchedMEs.mePullTrackwidthProfileSas = bookMEProfile("TProfPullTrackwidthProfileSas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (stereo)");
+    stereoandmatchedMEs.mePullTrackwidthProfileSas = bookMEProfile(ibooker,"TProfPullTrackwidthProfileSas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (stereo)");
     stereoandmatchedMEs.mePullTrackwidthProfileSas->setAxisTitle(("track width (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.mePullTrackwidthProfileSas->setAxisTitle(("Pull in MF (stereo) in " + label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileCategory1Sas) {
-    stereoandmatchedMEs.mePullTrackwidthProfileCategory1Sas = bookMEProfile("TProfPullTrackwidthProfileCategory1Sas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (Category 1) (stereo)");
+    stereoandmatchedMEs.mePullTrackwidthProfileCategory1Sas = bookMEProfile(ibooker,"TProfPullTrackwidthProfileCategory1Sas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (Category 1) (stereo)");
     stereoandmatchedMEs.mePullTrackwidthProfileCategory1Sas->setAxisTitle(("track width (Category 1) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.mePullTrackwidthProfileCategory1Sas->setAxisTitle(("Pull in MF (Category 1) (stereo) in " + label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileCategory2Sas) {
-    stereoandmatchedMEs.mePullTrackwidthProfileCategory2Sas = bookMEProfile("TProfPullTrackwidthProfileCategory2Sas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category2_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (Category 2) (stereo)");
+    stereoandmatchedMEs.mePullTrackwidthProfileCategory2Sas = bookMEProfile(ibooker,"TProfPullTrackwidthProfileCategory2Sas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category2_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (Category 2) (stereo)");
     stereoandmatchedMEs.mePullTrackwidthProfileCategory2Sas->setAxisTitle(("track width (Category 2) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.mePullTrackwidthProfileCategory2Sas->setAxisTitle(("Pull in MF (Category 2) (stereo) in " + label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileCategory3Sas) {
-    stereoandmatchedMEs.mePullTrackwidthProfileCategory3Sas = bookMEProfile("TProfPullTrackwidthProfileCategory3Sas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category3_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (Category 3) (stereo)");
+    stereoandmatchedMEs.mePullTrackwidthProfileCategory3Sas = bookMEProfile(ibooker,"TProfPullTrackwidthProfileCategory3Sas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category3_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (Category 3) (stereo)");
     stereoandmatchedMEs.mePullTrackwidthProfileCategory3Sas->setAxisTitle(("track width (Category 3) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.mePullTrackwidthProfileCategory3Sas->setAxisTitle(("Pull in MF (Category 3) (stereo) in " + label).c_str(),2);
   }
   if(layerswitchPullTrackwidthProfileCategory4Sas) {
-    stereoandmatchedMEs.mePullTrackwidthProfileCategory4Sas = bookMEProfile("TProfPullTrackwidthProfileCategory4Sas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category4_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (Category 4) (stereo)");
+    stereoandmatchedMEs.mePullTrackwidthProfileCategory4Sas = bookMEProfile(ibooker,"TProfPullTrackwidthProfileCategory4Sas",hidmanager.createHistoLayer("Pull_Track_width_Profile_Category4_Sas","layer",label,"").c_str() ,"Profile of Pull in MF vs track width (Category 4) (stereo)");
     stereoandmatchedMEs.mePullTrackwidthProfileCategory4Sas->setAxisTitle(("track width (Category 4) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.mePullTrackwidthProfileCategory4Sas->setAxisTitle(("Pull in MF (Category 4) (stereo) in " + label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileSas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileSas = bookMEProfile("TProfResolxMFTrackwidthProfileSas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (stereo)");
+    stereoandmatchedMEs.meResolxMFTrackwidthProfileSas = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileSas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (stereo)");
     stereoandmatchedMEs.meResolxMFTrackwidthProfileSas->setAxisTitle(("track width (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.meResolxMFTrackwidthProfileSas->setAxisTitle(("Resolution in MF (stereo) in " + label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileCategory1Sas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory1Sas = bookMEProfile("TProfResolxMFTrackwidthProfileCategory1Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 1) (stereo)");
+    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory1Sas = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileCategory1Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 1) (stereo)");
     stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory1Sas->setAxisTitle((" track width (Category 1) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory1Sas->setAxisTitle(("  Resolution in MF (Category 1) (stereo) in " + label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileCategory2Sas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory2Sas = bookMEProfile("TProfResolxMFTrackwidthProfileCategory2Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category2_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 2) (stereo)");
+    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory2Sas = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileCategory2Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category2_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 2) (stereo)");
     stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory2Sas->setAxisTitle((" track width (Category 2) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory2Sas->setAxisTitle((" Resolution in MF (Category 2) (stereo) in " + label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileCategory3Sas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory3Sas = bookMEProfile("TProfResolxMFTrackwidthProfileCategory3Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 3) (stereo)");
+    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory3Sas = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileCategory3Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 3) (stereo)");
     stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory3Sas->setAxisTitle((" track width (Category 3) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory3Sas->setAxisTitle((" Resolution in MF (Category 3) (stereo) in " + label).c_str(),2);
   }
   if(layerswitchResolxMFTrackwidthProfileCategory4Sas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory4Sas = bookMEProfile("TProfResolxMFTrackwidthProfileCategory4Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category4_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 4) (stereo)");
+    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory4Sas = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileCategory4Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category4_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 4) (stereo)");
     stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory4Sas->setAxisTitle((" track width (Category 4) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory4Sas->setAxisTitle((" Resolution in MF (Category 4) (stereo) in " + label).c_str(),2);
   }
   if(layerswitchResolxMFClusterwidthProfileCategory1Sas) {
-    stereoandmatchedMEs.meResolxMFClusterwidthProfileCategory1Sas = bookMEProfile("TProfResolxMFClusterwidthProfileCategory1Sas",hidmanager.createHistoLayer("ResolxMF_Cluster_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs cluster width (Category 1) (stereo)");
+    stereoandmatchedMEs.meResolxMFClusterwidthProfileCategory1Sas = bookMEProfile(ibooker,"TProfResolxMFClusterwidthProfileCategory1Sas",hidmanager.createHistoLayer("ResolxMF_Cluster_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs cluster width (Category 1) (stereo)");
     stereoandmatchedMEs.meResolxMFClusterwidthProfileCategory1Sas->setAxisTitle(("cluster width (Category 1) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.meResolxMFClusterwidthProfileCategory1Sas->setAxisTitle((" Resolution in MF (Category 1) (stereo) in " + label).c_str(),2);
   }
   if(layerswitchResolxMFAngleProfileSas) {
-    stereoandmatchedMEs.meResolxMFAngleProfileSas = bookMEProfile("TProfResolxMFAngleProfileSas",hidmanager.createHistoLayer("ResolxMF_Angle_Profile_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track angle (stereo)");
+    stereoandmatchedMEs.meResolxMFAngleProfileSas = bookMEProfile(ibooker,"TProfResolxMFAngleProfileSas",hidmanager.createHistoLayer("ResolxMF_Angle_Profile_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track angle (stereo)");
     stereoandmatchedMEs.meResolxMFAngleProfileSas->setAxisTitle(("track angle (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.meResolxMFAngleProfileSas->setAxisTitle(("Resolution in MF (stereo) in " + label).c_str(),2);
   }
   //PosxMatched
   if(layerswitchPosxMatched) {
-    stereoandmatchedMEs.mePosxMatched = bookME1D("TH1PosxMatched", hidmanager.createHistoLayer("Posx_matched","layer",label,"").c_str() ,"RecHit x coord.");  
+    stereoandmatchedMEs.mePosxMatched = bookME1D(ibooker,"TH1PosxMatched", hidmanager.createHistoLayer("Posx_matched","layer",label,"").c_str() ,"RecHit x coord.");  
     stereoandmatchedMEs.mePosxMatched->setAxisTitle(("x coord. matched RecHit (local frame) in " + label).c_str());
   }
   //PosyMatched
   if(layerswitchPosyMatched) {
-    stereoandmatchedMEs.mePosyMatched = bookME1D("TH1PosyMatched", hidmanager.createHistoLayer("Posy_matched","layer",label,"").c_str() ,"RecHit y coord."); 
+    stereoandmatchedMEs.mePosyMatched = bookME1D(ibooker,"TH1PosyMatched", hidmanager.createHistoLayer("Posy_matched","layer",label,"").c_str() ,"RecHit y coord."); 
     stereoandmatchedMEs.mePosyMatched->setAxisTitle(("y coord. matched RecHit (local frame) in " + label).c_str());
   }
   //ResolxMatched
   if(layerswitchResolxMatched) {
-    stereoandmatchedMEs.meResolxMatched = bookME1D("TH1ResolxMatched", hidmanager.createHistoLayer("Resolx_matched","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
+    stereoandmatchedMEs.meResolxMatched = bookME1D(ibooker,"TH1ResolxMatched", hidmanager.createHistoLayer("Resolx_matched","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
     stereoandmatchedMEs.meResolxMatched->setAxisTitle(("resol(x) coord. matched RecHit (local frame) in " + label).c_str());
   }
   //ResolyMatched
   if(layerswitchResolyMatched) {
-    stereoandmatchedMEs.meResolyMatched = bookME1D("TH1ResolyMatched", hidmanager.createHistoLayer("Resoly_matched","layer",label,"").c_str() ,"RecHit resol(y) coord."); 
+    stereoandmatchedMEs.meResolyMatched = bookME1D(ibooker,"TH1ResolyMatched", hidmanager.createHistoLayer("Resoly_matched","layer",label,"").c_str() ,"RecHit resol(y) coord."); 
     stereoandmatchedMEs.meResolyMatched->setAxisTitle(("resol(y) coord. matched RecHit (local frame) in " + label).c_str());
   }
   //ResxMatched
   if(layerswitchResxMatched) {
-    stereoandmatchedMEs.meResxMatched = bookME1D("TH1ResxMatched", hidmanager.createHistoLayer("Resx_matched","layer",label,"").c_str() ,"Residual of the hit x coord."); 
+    stereoandmatchedMEs.meResxMatched = bookME1D(ibooker,"TH1ResxMatched", hidmanager.createHistoLayer("Resx_matched","layer",label,"").c_str() ,"Residual of the hit x coord."); 
     stereoandmatchedMEs.meResxMatched->setAxisTitle(("Residuals(x) in matched RecHit in " + label).c_str());
   }
   //ResyMatched
   if(layerswitchResyMatched) {
-    stereoandmatchedMEs.meResyMatched = bookME1D("TH1ResyMatched", hidmanager.createHistoLayer("Resy_matched","layer",label,"").c_str() ,"Residual of the hit x coord."); 
+    stereoandmatchedMEs.meResyMatched = bookME1D(ibooker,"TH1ResyMatched", hidmanager.createHistoLayer("Resy_matched","layer",label,"").c_str() ,"Residual of the hit x coord."); 
     stereoandmatchedMEs.meResyMatched->setAxisTitle(("Res(y) in matched RecHit in " + label).c_str());
   }
 
@@ -2132,21 +2064,21 @@ void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(std::string label)
  
 }
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripTrackingRecHitsValid::bookME1D(const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
+inline MonitorElement* SiStripTrackingRecHitsValid::bookME1D(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-  return dbe_->book1D(HistoName,HistoTitle,
+  return ibooker.book1D(HistoName,HistoTitle,
 		      Parameters.getParameter<int32_t>("Nbinx"),
 		      Parameters.getParameter<double>("xmin"),
 		      Parameters.getParameter<double>("xmax")
 		      );
 }
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripTrackingRecHitsValid::bookMEProfile(const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
+inline MonitorElement* SiStripTrackingRecHitsValid::bookMEProfile(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   //The number of channels in Y is disregarded in a profile plot.
-  return dbe_->bookProfile(HistoName,HistoTitle,
+  return ibooker.bookProfile(HistoName,HistoTitle,
 			   Parameters.getParameter<int32_t>("Nbinx"),
 			   Parameters.getParameter<double>("xmin"),
 			   Parameters.getParameter<double>("xmax"),

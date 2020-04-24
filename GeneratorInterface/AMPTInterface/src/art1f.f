@@ -274,7 +274,7 @@ c
 cbz11/16/98end
       common /lastt/itimeh,bimp 
 cc      SAVE /lastt/
-      common/snn/efrm,npart1,npart2
+      common/snn/efrm,npart1,npart2,epsiPz,epsiPt,PZPROJ,PZTARG
 cc      SAVE /snn/
       COMMON/hbt/lblast(MAXSTR),xlast(4,MAXSTR),plast(4,MAXSTR),nlast
 cc      SAVE /hbt/
@@ -581,7 +581,6 @@ cbz12/22/98end
 cbz11/16/98end
         
       DO 10000 NT = 1,NTMAX
-
 *TEMPORARY PARTICLE COUNTERS
 *4.2 PION COUNTERS : LP1,LP2 AND LP3 ARE THE NO. OF P+,P0 AND P-
       LP1=0
@@ -1624,7 +1623,7 @@ cc      SAVE /RNDF77/
       COMMON/FTMAX/ftsv(MAXSTR),ftsvt(MAXSTR, MAXR)
       dimension ftpisv(MAXSTR,MAXR),fttemp(MAXSTR)
       common /dpi/em2,lb2
-      common/phidcy/iphidcy,pttrig,ntrig,maxmiss
+      common/phidcy/iphidcy,pttrig,ntrig,maxmiss,ipi0dcy
 clin-5/2008:
       DIMENSION dptemp(MAXSTR)
       common /para8/ idpert,npertd,idxsec
@@ -1748,12 +1747,15 @@ c         write(91,*) 'A:',nt,enetot,massr(irun),bimp
          DO 800 J1 = J10,MASSR(IRUN)
             I1  = J1 + MSUM
 * E(I)=0 are for pions having been absorbed or photons which do not enter here:
-            IF(E(I1).EQ.0.)GO TO 800
-
+clin-4/2012 option of pi0 decays:
+c            IF(E(I1).EQ.0.)GO TO 800
+            IF(E(I1).EQ.0.)GO TO 798
 c     To include anti-(Delta,N*1440 and N*1535):
 c          IF ((LB(I1) .LT. -13 .OR. LB(I1) .GT. 28)
 c     1         .and.iabs(LB(I1)) .ne. 30 ) GOTO 800
-            IF (LB(I1) .LT. -45 .OR. LB(I1) .GT. 45) GOTO 800
+clin-4/2012 option of pi0 decays:
+c            IF (LB(I1) .LT. -45 .OR. LB(I1) .GT. 45) GOTO 800
+            IF (LB(I1) .LT. -45 .OR. LB(I1) .GT. 45) GOTO 798
             X1  = R(1,I1)
             Y1  = R(2,I1)
             Z1  = R(3,I1)
@@ -1787,7 +1789,10 @@ c     only decay K0short when iksdcy=1:
      &           .or.lb1.eq.28.or.lb1.eq.29.or.iabs(lb1).eq.30
      &           .or.(iabs(lb1).ge.6.and.iabs(lb1).le.13)
      &           .or.(iksdcy.eq.1.and.lb1.eq.24)
-     &           .or.iabs(lb1).eq.16) then
+     &           .or.iabs(lb1).eq.16
+     &           .or.(ipi0dcy.eq.1.and.nt.eq.ntmax.and.lb1.eq.4)) then
+clin-4/2012-above for option of pi0 decay:
+c     &           .or.iabs(lb1).eq.16) then
                continue
             else
                goto 1
@@ -1820,6 +1825,9 @@ cc             WID=0.40
              WID=W1440(EM1)
           ELSEIF((iabs(LB1).EQ.12).OR.(iabs(LB1).EQ.13)) then
              WID=W1535(EM1)
+clin-4/2012 for option of pi0 decay:
+          ELSEIF(ipi0dcy.eq.1.and.nt.eq.ntmax.and.lb1.eq.4) then
+             wid=7.85e-9
           ENDIF
 
 * if it is the last time step, FORCE all resonance to strong-decay
@@ -1828,6 +1836,10 @@ cc             WID=0.40
              pdecay=1.1
 clin-5b/2008 forbid phi decay at the end of hadronic cascade:
              if(iphidcy.eq.0.and.iabs(LB1).eq.29) pdecay=0.
+ctest off clin-9/2012 forbid long-time decays (eta,omega,K*,Sigma0)
+c     at the end of hadronic cascade to analyze freezeout time:
+c             if(LB1.eq.0.or.LB1.eq.28.or.iabs(LB1).eq.30
+c     1            .or.iabs(LB1).eq.16) pdecay=0.
           else
              T0=0.19733/WID
              GFACTR=E1/EM1
@@ -1859,7 +1871,10 @@ clin-10/28/03 keep formation time of hadrons unformed at nt=ntmax-1:
      &           .or.lb1.eq.28.or.lb1.eq.29.or.iabs(lb1).eq.30
      &           .or.(iabs(lb1).ge.6.and.iabs(lb1).le.9)
      &           .or.(iksdcy.eq.1.and.lb1.eq.24)
-     &           .or.iabs(lb1).eq.16) then
+     &           .or.iabs(lb1).eq.16
+     &           .or.(ipi0dcy.eq.1.and.nt.eq.ntmax.and.lb1.eq.4)) then
+clin-4/2012 Above for option of pi0 decay:
+c     &           .or.iabs(lb1).eq.16) then
 c     previous rho decay performed in rhodecay():
 c                nnn=nnn+1
 c                call rhodecay(idecay,i1,nnn,iseed)
@@ -1867,7 +1882,10 @@ c
 ctest off record decays of phi,K*,Lambda(1520) resonances:
 c                if(lb1.eq.29.or.iabs(lb1).eq.30) 
 c     1               write(18,112) 'decay',lb1,px1,py1,pz1,am1,nt
-                call resdec(i1,nt,nnn,wid,idecay)
+c
+clin-4/2012 option of pi0 decays:
+c                call resdec(i1,nt,nnn,wid,idecay)
+                call resdec(i1,nt,nnn,wid,idecay,0)
                 p(1,i1)=px1n
                 p(2,i1)=py1n
                 p(3,i1)=pz1n
@@ -1932,7 +1950,12 @@ c     1            .iabs(lb1).eq.12.or.iabs(lb1).eq.13)) then
                 elseif(lb(i1).eq.0) then
                    wid=1.18e-6
                 elseif(lb(i1).eq.24.and.iksdcy.eq.1) then
-                   wid=7.36e-17
+clin-4/2012 corrected K0s decay width:
+c                   wid=7.36e-17
+                   wid=7.36e-15
+clin-4/2012 option of pi0 decays:
+                elseif(ipi0dcy.eq.1.and.lb(i1).eq.4) then
+                   wid=7.85e-9
                 else
                    goto 9000
                 endif
@@ -1942,7 +1965,9 @@ c     1            .iabs(lb1).eq.12.or.iabs(lb1).eq.13)) then
                 PZ1=P(3,I1)
                 EM1=E(I1)
                 E1=SQRT(EM1**2+PX1**2+PY1**2+PZ1**2)
-                call resdec(i1,nt,nnn,wid,idecay)
+clin-4/2012 option of pi0 decays:
+c                call resdec(i1,nt,nnn,wid,idecay)
+                call resdec(i1,nt,nnn,wid,idecay,0)
                 p(1,i1)=px1n
                 p(2,i1)=py1n
                 p(3,i1)=pz1n
@@ -1954,12 +1979,38 @@ clin-5/2008:
                 dpertp(i1)=dp1n
              endif
 
+c     Decay daughter of the above decay in lb(i1) may be a pi0:
+             if(nt.eq.ntmax.and.ipi0dcy.eq.1.and.lb(i1).eq.4) then
+                wid=7.85e-9
+                LB1=LB(I1)
+                PX1=P(1,I1)
+                PY1=P(2,I1)
+                PZ1=P(3,I1)
+                EM1=E(I1)
+                E1=SQRT(EM1**2+PX1**2+PY1**2+PZ1**2)
+                call resdec(i1,nt,nnn,wid,idecay,0)
+                p(1,i1)=px1n
+                p(2,i1)=py1n
+                p(3,i1)=pz1n
+                R(1,i1)=xfnl
+                R(2,i1)=yfnl
+                R(3,i1)=zfnl
+                tfdcy(i1)=tfnl
+                dpertp(i1)=dp1n
+             endif
+
 * negelecting the Pauli blocking at high energies
- 9000        go to 800
+clin-4/2012 option of pi0 decays:
+c 9000        go to 800
+ 9000        go to 798
+
           ENDIF
 * LOOP OVER ALL PSEUDOPARTICLES 2 IN THE SAME RUN
 * SAVE ALL THE COORDINATES FOR POSSIBLE CHANGE IN THE FOLLOWING COLLISION
- 1        if(nt.eq.ntmax)go to 800
+clin-4/2012 option of pi0 decays:
+c 1        if(nt.eq.ntmax)go to 800
+ 1        if(nt.eq.ntmax)go to 798
+
           X1 = R(1,I1)
           Y1 = R(2,I1)
           Z1 = R(3,I1)
@@ -1970,6 +2021,7 @@ c
             IF(E(I2).EQ.0.) GO TO 600
 clin-5/2008 in case the first particle is already destroyed:
             IF(E(I1).EQ.0.) GO TO 800
+clin-4/2012 option of pi0 decays:
             IF (LB(I2) .LT. -45 .OR. LB(I2) .GT. 45) GOTO 600
 clin-7/26/03 improve speed
             X2=R(1,I2)
@@ -2222,7 +2274,8 @@ c
             ipz2 = nint(pz2/dpz)
 * FIND MOMENTA OF PARTICLES IN THE CMS OF THE TWO COLLIDING PARTICLES
 * AND THE CMS ENERGY SRT
-          CALL CMS(I1,I2,PCX,PCY,PCZ,SRT)
+            CALL CMS(I1,I2,PCX,PCY,PCZ,SRT)
+
 clin-7/26/03 improve speed
           drmax=dr0max
           call distc0(drmax,deltr0,DT,
@@ -4325,6 +4378,28 @@ c               write(10,*) nt,i1,i2,iblock,x1,z1,x2,z2
 c            endif
 
   600     CONTINUE
+
+clin-4/2012 option of pi0 decays:
+c     particles in lpion() may be a pi0, and when ipi0dcy=1 
+c     we need to decay them at nt=ntmax after all lb(i1) decays are done:
+ 798      if(nt.eq.ntmax.and.ipi0dcy.eq.1
+     1         .and.i1.eq.(MASSR(IRUN)+MSUM)) then
+             do ipion=1,NNN
+                if(LPION(ipion,IRUN).eq.4) then
+                   wid=7.85e-9
+                   call resdec(i1,nt,nnn,wid,idecay,ipion)
+                endif
+             enddo
+          endif
+ctest off
+c          if(nt.eq.ntmax.and.i1.eq.(MASSR(IRUN)+MSUM)) then
+c             do ip=1,i1
+c                write(98,*) lb(ip),e(ip),ip
+c             enddo
+c          endif
+
+clin-4/2012 option of pi0 decays-end
+
   800   CONTINUE
 * RELABLE MESONS LEFT IN THIS RUN EXCLUDING THOSE BEING CREATED DURING
 * THIS TIME STEP AND COUNT THE TOTAL NO. OF PARTICLES IN THIS RUN
@@ -4459,6 +4534,53 @@ c        call hbtout(MASSR(IRUN),nt,ntmax)
 c
       RETURN
       END
+
+clin-9/2012: use double precision for S in CMS(): to avoid crash 
+c     (segmentation fault due to s<0, which happened at high energies 
+c     such as LHC with large NTMAX for two almost-comoving hadrons
+c     that have small Pt but large |Pz|):
+****************************************
+c            SUBROUTINE CMS(I1,I2,PX1CM,PY1CM,PZ1CM,SRT)
+* PURPOSE : FIND THE MOMENTA OF PARTICLES IN THE CMS OF THE
+*          TWO COLLIDING PARTICLES
+* VARIABLES :
+*****************************************
+c            PARAMETER (MAXSTR=150001)
+c            COMMON   /AA/  R(3,MAXSTR)
+ccc      SAVE /AA/
+c            COMMON   /BB/  P(3,MAXSTR)
+ccc      SAVE /BB/
+c            COMMON   /CC/  E(MAXSTR)
+ccc      SAVE /CC/
+c            COMMON   /BG/  BETAX,BETAY,BETAZ,GAMMA
+ccc      SAVE /BG/
+c            SAVE   
+c            PX1=P(1,I1)
+c            PY1=P(2,I1)
+c            PZ1=P(3,I1)
+c            PX2=P(1,I2)
+c            PY2=P(2,I2)
+c            PZ2=P(3,I2)
+c            EM1=E(I1)
+c            EM2=E(I2)
+c            E1=SQRT(EM1**2+PX1**2+PY1**2+PZ1**2)
+c            E2=SQRT(EM2**2 + PX2**2 + PY2**2 + PZ2**2 )
+c            S=(E1+E2)**2-(PX1+PX2)**2-(PY1+PY2)**2-(PZ1+PZ2)**2
+c            SRT=SQRT(S)
+c*LORENTZ-TRANSFORMATION IN I1-I2-C.M. SYSTEM
+c              ETOTAL = E1 + E2
+c              BETAX  = (PX1+PX2) / ETOTAL
+c              BETAY  = (PY1+PY2) / ETOTAL
+c              BETAZ  = (PZ1+PZ2) / ETOTAL
+c              GAMMA  = 1.0 / SQRT(1.0-BETAX**2-BETAY**2-BETAZ**2)
+c*TRANSFORMATION OF MOMENTA (PX1CM = - PX2CM)
+c              P1BETA = PX1*BETAX + PY1*BETAY + PZ1 * BETAZ
+c              TRANSF = GAMMA * ( GAMMA * P1BETA / (GAMMA + 1) - E1 )
+c              PX1CM  = BETAX * TRANSF + PX1
+c              PY1CM  = BETAY * TRANSF + PY1
+c              PZ1CM  = BETAZ * TRANSF + PZ1
+c              RETURN
+c              END
 ****************************************
             SUBROUTINE CMS(I1,I2,PX1CM,PY1CM,PZ1CM,SRT)
 * PURPOSE : FIND THE MOMENTA OF PARTICLES IN THE CMS OF THE
@@ -4466,41 +4588,51 @@ c
 * VARIABLES :
 *****************************************
             PARAMETER (MAXSTR=150001)
-            COMMON   /AA/  R(3,MAXSTR)
-cc      SAVE /AA/
+            double precision px1,py1,pz1,px2,py2,pz2,em1,em2,e1,e2,
+     1      s,ETOTAL,P1BETA,TRANSF,dBETAX,dBETAY,dBETAZ,dGAMMA,scheck
             COMMON   /BB/  P(3,MAXSTR)
-cc      SAVE /BB/
             COMMON   /CC/  E(MAXSTR)
-cc      SAVE /CC/
             COMMON   /BG/  BETAX,BETAY,BETAZ,GAMMA
-cc      SAVE /BG/
-      SAVE   
-            PX1=P(1,I1)
-            PY1=P(2,I1)
-            PZ1=P(3,I1)
-            PX2=P(1,I2)
-            PY2=P(2,I2)
-            PZ2=P(3,I2)
-            EM1=E(I1)
-            EM2=E(I2)
-            E1=SQRT(EM1**2+PX1**2+PY1**2+PZ1**2)
-            E2=SQRT(EM2**2 + PX2**2 + PY2**2 + PZ2**2 )
+            SAVE   
+            PX1=dble(P(1,I1))
+            PY1=dble(P(2,I1))
+            PZ1=dble(P(3,I1))
+            PX2=dble(P(1,I2))
+            PY2=dble(P(2,I2))
+            PZ2=dble(P(3,I2))
+            EM1=dble(E(I1))
+            EM2=dble(E(I2))
+            E1=dSQRT(EM1**2+PX1**2+PY1**2+PZ1**2)
+            E2=dSQRT(EM2**2+PX2**2+PY2**2+PZ2**2)
             S=(E1+E2)**2-(PX1+PX2)**2-(PY1+PY2)**2-(PZ1+PZ2)**2
-            SRT=SQRT(S)
+            IF(S.LE.0) S=0d0
+            SRT=sngl(dSQRT(S))
 *LORENTZ-TRANSFORMATION IN I1-I2-C.M. SYSTEM
-              ETOTAL = E1 + E2
-              BETAX  = (PX1+PX2) / ETOTAL
-              BETAY  = (PY1+PY2) / ETOTAL
-              BETAZ  = (PZ1+PZ2) / ETOTAL
-              GAMMA  = 1.0 / SQRT(1.0-BETAX**2-BETAY**2-BETAZ**2)
+            ETOTAL = E1 + E2
+            dBETAX  = (PX1+PX2) / ETOTAL
+            dBETAY  = (PY1+PY2) / ETOTAL
+            dBETAZ  = (PZ1+PZ2) / ETOTAL
+clin-9/2012: check argument in sqrt():
+            scheck=1.d0-dBETAX**2-dBETAY**2-dBETAZ**2
+            if(scheck.le.0d0) then
+               write(99,*) 'scheck1: ', scheck
+               stop
+            endif
+            dGAMMA=1.d0/dSQRT(scheck)
 *TRANSFORMATION OF MOMENTA (PX1CM = - PX2CM)
-              P1BETA = PX1*BETAX + PY1*BETAY + PZ1 * BETAZ
-              TRANSF = GAMMA * ( GAMMA * P1BETA / (GAMMA + 1) - E1 )
-              PX1CM  = BETAX * TRANSF + PX1
-              PY1CM  = BETAY * TRANSF + PY1
-              PZ1CM  = BETAZ * TRANSF + PZ1
-              RETURN
-              END
+            P1BETA = PX1*dBETAX + PY1*dBETAY + PZ1 * dBETAZ
+            TRANSF = dGAMMA * ( dGAMMA * P1BETA / (dGAMMA + 1d0) - E1 )
+            PX1CM  = sngl(dBETAX * TRANSF + PX1)
+            PY1CM  = sngl(dBETAY * TRANSF + PY1)
+            PZ1CM  = sngl(dBETAZ * TRANSF + PZ1)
+            BETAX  = sngl(dBETAX)
+            BETAY  = sngl(dBETAY)
+            BETAZ  = sngl(dBETAZ)
+            GAMMA  = sngl(dGAMMA)
+            RETURN
+            END
+clin-9/2012-end
+
 ***************************************
             SUBROUTINE DISTCE(I1,I2,DELTAR,DS,DT,EC,SRT
      1      ,IC,PX1CM,PY1CM,PZ1CM)
@@ -5338,7 +5470,15 @@ c         cc1=ptr(0.33*pr,iseed)
              cc1=ptr(xptr,iseed)
 clin-10/25/02-end
 
-         c1=sqrt(pr**2-cc1**2)/pr
+clin-9/2012: check argument in sqrt():
+             scheck=pr**2-cc1**2
+             if(scheck.lt.0) then
+                write(99,*) 'scheck2: ', scheck
+                scheck=0.
+             endif
+             c1=sqrt(scheck)/pr
+c             c1=sqrt(pr**2-cc1**2)/pr
+
          endif
           T1   = 2.0 * PI * RANART(NSEED)
        if(ianti.eq.1 .and. lb(i1).ge.1 .and. lb(i2).ge.1)then
@@ -6406,7 +6546,16 @@ clin-10/25/02-end
       S1   = 1.0 - C1**2 
        IF(S1.LE.0)S1=0
        S1=SQRT(S1)
-      S2  =  SQRT( 1.0 - C2**2 )
+
+clin-9/2012: check argument in sqrt():
+       scheck=1.0 - C2**2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck3: ', scheck
+          scheck=0.
+       endif
+       S2=SQRT(scheck)
+c       S2  =  SQRT( 1.0 - C2**2 )
+
       CT1  = COS(T1)
       ST1  = SIN(T1)
       CT2  = COS(T2)
@@ -6578,7 +6727,7 @@ cbzdbg10/15/99 end
           PR=SQRT(PR2)/(2.*SRT)
           C1   = 1.0 - 2.0 * RANART(NSEED)
           T1   = 2.0 * PI * RANART(NSEED)
-      S1   = SQRT( 1.0 - C1**2 )
+          S1   = SQRT( 1.0 - C1**2 )
       CT1  = COS(T1)
       ST1  = SIN(T1)
       PZ   = PR * C1
@@ -7526,7 +7675,15 @@ c         cc1=ptr(0.33*pr,iseed)
          cc1=ptr(xptr,iseed)
 clin-10/25/02-end
 
-         c1=sqrt(pr**2-cc1**2)/pr
+clin-9/2012: check argument in sqrt():
+         scheck=pr**2-cc1**2
+         if(scheck.lt.0) then
+            write(99,*) 'scheck4: ', scheck
+            scheck=0.
+         endif
+         c1=sqrt(scheck)/pr
+c         c1=sqrt(pr**2-cc1**2)/pr
+
          endif
           T1   = 2.0 * PI * RANART(NSEED)
           IBLOCK=3
@@ -7543,8 +7700,25 @@ clin-10/25/02-end
       ELSE
          T2=ATAN2(PY,PX)
       END IF
-      S1   = SQRT( 1.0 - C1**2 )
-      S2  =  SQRT( 1.0 - C2**2 )
+
+clin-9/2012: check argument in sqrt():
+      scheck=1.0 - C1**2
+      if(scheck.lt.0) then
+         write(99,*) 'scheck5: ', scheck
+         scheck=0.
+      endif
+      S1=SQRT(scheck)
+c      S1   = SQRT( 1.0 - C1**2 )
+
+clin-9/2012: check argument in sqrt():
+      scheck=1.0 - C2**2
+      if(scheck.lt.0) then
+         write(99,*) 'scheck6: ', scheck
+         scheck=0.
+      endif
+      S2=SQRT(scheck)
+c      S2  =  SQRT( 1.0 - C2**2 )
+
       CT1  = COS(T1)
       ST1  = SIN(T1)
       CT2  = COS(T2)
@@ -8815,7 +8989,15 @@ c         cc1=ptr(0.33*pr,iseed)
          cc1=ptr(xptr,iseed)
 clin-10/25/02-end
 
-         c1=sqrt(pr**2-cc1**2)/pr
+clin-9/2012: check argument in sqrt():
+         scheck=pr**2-cc1**2
+         if(scheck.lt.0) then
+            write(99,*) 'scheck7: ', scheck
+            scheck=0.
+         endif
+         c1=sqrt(scheck)/pr
+c         c1=sqrt(pr**2-cc1**2)/pr
+
          endif
           T1   = 2.0 * PI * RANART(NSEED)
        if(ianti.eq.1 .and. lb(i1).ge.1 .and. lb(i2).ge.1)then
@@ -8824,8 +9006,25 @@ clin-10/25/02-end
        endif
          ENDIF
 *COM: SET THE NEW MOMENTUM COORDINATES
-107   S1   = SQRT( 1.0 - C1**2 )
-      S2  =  SQRT( 1.0 - C2**2 )
+
+clin-9/2012: check argument in sqrt():
+ 107     scheck=1.0 - C1**2
+         if(scheck.lt.0) then
+            write(99,*) 'scheck8: ', scheck
+            scheck=0.
+         endif
+         S1=SQRT(scheck)
+c107   S1   = SQRT( 1.0 - C1**2 )
+
+clin-9/2012: check argument in sqrt():
+      scheck=1.0 - C2**2
+      if(scheck.lt.0) then
+         write(99,*) 'scheck9: ', scheck
+         scheck=0.
+      endif
+      S2=SQRT(scheck)
+c      S2  =  SQRT( 1.0 - C2**2 )
+
       CT1  = COS(T1)
       ST1  = SIN(T1)
       CT2  = COS(T2)
@@ -9184,13 +9383,21 @@ cc      SAVE /RNDF77/
 *----------------------------------------------------------------------
 *     PREPARATION FOR LORENTZ-TRANSFORMATIONS
 *
-      ISEED=ISEED
       IF (P0 .NE. 0.) THEN
         SIGN = P0 / ABS(P0)
       ELSE
         SIGN = 0.
       END IF
-      BETA = SIGN * SQRT(GAMMA**2-1.)/GAMMA
+
+clin-9/2012: check argument in sqrt():
+      scheck=GAMMA**2-1.
+      if(scheck.lt.0) then
+         write(99,*) 'scheck10: ', scheck
+         scheck=0.
+      endif
+      BETA=SIGN*SQRT(scheck)/GAMMA
+c      BETA = SIGN * SQRT(GAMMA**2-1.)/GAMMA
+
 *-----------------------------------------------------------------------
 *     TARGET-ID = 1 AND PROJECTILE-ID = -1
 *
@@ -9885,12 +10092,30 @@ cc      SAVE /ss/
         FD=4.*(AM0**2)*W1535(DMASS)/((DMASS**2-1.535**2)**2
      1  +AM0**2*W1535(DMASS)**2)
         IF(CON.EQ.1.)THEN
-        P1=SQRT((SRT**2+DMASS**2-AMN**2)**2
-     1  /(4.*SRT**2)-DMASS**2)
+
+clin-9/2012: check argument in sqrt():
+           scheck=(SRT**2+DMASS**2-AMN**2)**2/(4.*SRT**2)-DMASS**2
+           if(scheck.lt.0) then
+              write(99,*) 'scheck11: ', scheck
+              scheck=0.
+           endif
+           P1=SQRT(scheck)
+c           P1=SQRT((SRT**2+DMASS**2-AMN**2)**2
+c     1          /(4.*SRT**2)-DMASS**2)
+
         ELSE
         DMASS=AMN+AVPI
-        P1=SQRT((SRT**2+DMASS**2-AMN**2)**2
-     1  /(4.*SRT**2)-DMASS**2)
+
+clin-9/2012: check argument in sqrt():
+        scheck=(SRT**2+DMASS**2-AMN**2)**2/(4.*SRT**2)-DMASS**2
+        if(scheck.lt.0) then
+           write(99,*) 'scheck12: ', scheck
+           scheck=0.
+        endif
+        P1=SQRT(scheck)
+c        P1=SQRT((SRT**2+DMASS**2-AMN**2)**2
+c     1  /(4.*SRT**2)-DMASS**2)
+
         ENDIF
         FD5=FD*P1*DMASS
         RETURN
@@ -9906,12 +10131,29 @@ c     BY USING OF BREIT-WIGNER FORMULA
         AN0=1.43
         FN=4.*(AN0**2)*WIDTH/((DMASS**2-1.44**2)**2+AN0**2*WIDTH**2)
         IF(CON.EQ.1.)THEN
-        P1=SQRT((SRT**2+DMASS**2-AMN**2)**2
-     1  /(4.*SRT**2)-DMASS**2)
+
+clin-9/2012: check argument in sqrt():
+           scheck=(SRT**2+DMASS**2-AMN**2)**2/(4.*SRT**2)-DMASS**2
+           if(scheck.lt.0) then
+              write(99,*) 'scheck13: ', scheck
+              scheck=0.
+           endif
+           P1=SQRT(scheck)
+c        P1=SQRT((SRT**2+DMASS**2-AMN**2)**2
+c     1  /(4.*SRT**2)-DMASS**2)
+
         ELSE
         DMASS=AMN+AVPI
-        P1=SQRT((SRT**2+DMASS**2-AMN**2)**2
-     1  /(4.*SRT**2)-DMASS**2)
+clin-9/2012: check argument in sqrt():
+        scheck=(SRT**2+DMASS**2-AMN**2)**2/(4.*SRT**2)-DMASS**2
+        if(scheck.lt.0) then
+           write(99,*) 'scheck14: ', scheck
+           scheck=0.
+        endif
+        P1=SQRT(scheck)
+c        P1=SQRT((SRT**2+DMASS**2-AMN**2)**2
+c     1  /(4.*SRT**2)-DMASS**2)
+
         ENDIF
         FNS=FN*P1*DMASS
         RETURN
@@ -10142,7 +10384,6 @@ cc      SAVE /RNDF77/
      2     dpp1(MAXSTR,MAXR),dppion(MAXSTR,MAXR)
         EXTERNAL IARFLV, INVFLV
       SAVE   
-        ISEED=ISEED
 * READ IN THE COORDINATES OF DELTA OR N* UNDERGOING DECAY
         PX=P(1,I)
         PY=P(2,I)
@@ -10235,9 +10476,9 @@ c     lorentz boost:
            tfdpi(NNN,IRUN)=tfnl
         endif
 
-cc 200    format(a30,2(1x,e10.4))
-cc 210    format(i6,5(1x,f8.3))
-cc 220    format(a2,i5,5(1x,f8.3))
+cms 200    format(a30,2(1x,e10.4))
+cms 210    format(i6,5(1x,f8.3))
+cms 220    format(a2,i5,5(1x,f8.3))
 
         RETURN
         END
@@ -10412,8 +10653,7 @@ cc      SAVE /RNDF77/
      1     dpdcy(MAXSTR),dpdpi(MAXSTR,MAXR),dpt(MAXSTR, MAXR),
      2     dpp1(MAXSTR,MAXR),dppion(MAXSTR,MAXR)
       SAVE   
- 
-        ISEED=ISEED
+
 * READ IN THE COORDINATES OF THE N*(1440) UNDERGOING DECAY
         PX=P(1,I)
         PY=P(2,I)
@@ -10429,7 +10669,16 @@ cc      SAVE /RNDF77/
        IF(NLAB.EQ.1)AM=AMP
 * THE MAXIMUM MOMENTUM OF THE NUCLEON FROM THE DECAY OF A N*
        PMAX2=(DM**2-(AM+PM1+PM2)**2)*(DM**2-(AM-PM1-PM2)**2)/4/DM**2
-       PMAX=SQRT(PMAX2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=PMAX2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck15: ', scheck
+          scheck=0.
+       endif
+       PMAX=SQRT(scheck)
+c       PMAX=SQRT(PMAX2)
+
 * GENERATE THE MOMENTUM OF THE NUCLEON IN THE N* REST FRAME
        CSS=1.-2.*RANART(NSEED)
        SSS=SQRT(1-CSS**2)
@@ -10444,7 +10693,16 @@ c     without no relative momentum, thus producing them with equal momenta,
        BETAX=-PX0/(DM-EP0)
        BETAY=-PY0/(DM-EP0)
        BETAZ=-PZ0/(DM-EP0)
-       GD1=1./SQRT(1-BETAX**2-BETAY**2-BETAZ**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=1-BETAX**2-BETAY**2-BETAZ**2
+       if(scheck.le.0) then
+          write(99,*) 'scheck16: ', scheck
+          stop
+       endif
+       GD1=1./SQRT(scheck)
+c       GD1=1./SQRT(1-BETAX**2-BETAY**2-BETAZ**2)
+
        FGD1=GD1/(1+GD1)
 * GENERATE THE MOMENTA OF PIONS IN THE CMS OF PION+PION-
         Q2=((DM-EP0)/(2.*GD1))**2-PM1**2
@@ -10574,9 +10832,9 @@ c     lorentz boost:
            tfdpi(NNN+1,IRUN)=tfnl
         endif
 
-cc 200    format(a30,2(1x,e10.4))
-cc 210    format(i6,5(1x,f8.3))
-cc 220    format(a2,i5,5(1x,f8.3))
+cms 200    format(a30,2(1x,e10.4))
+cms 210    format(i6,5(1x,f8.3))
+cms 220    format(a2,i5,5(1x,f8.3))
 
         RETURN
         END
@@ -10591,6 +10849,8 @@ cc 220    format(a2,i5,5(1x,f8.3))
         PARAMETER (MAXSTR=150001,MAXR=1,
      1  AMN=0.939457,AMP=0.93828,
      2  AP1=0.13496,AP2=0.13957,AM0=1.232,PI=3.1415926)
+clin-9/2012: improve precision for argument in sqrt():
+        double precision e10,e20,scheck,p1,p2,p3
         COMMON /AA/ R(3,MAXSTR)
 cc      SAVE /AA/
         COMMON /BB/ P(3,MAXSTR)
@@ -10611,8 +10871,17 @@ cc      SAVE /PC/
 cc      SAVE /PD/
       SAVE   
 * 1. DETERMINE THE MOMENTUM COMPONENT OF DELTA/N* IN THE LAB. FRAME
-        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
-        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
+clin-9/2012: improve precision for argument in sqrt():
+c        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
+c        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
+        E10=dSQRT(dble(E(I1))**2+dble(P(1,I1))**2
+     1     +dble(P(2,I1))**2+dble(P(3,I1))**2)
+        E20=dSQRT(dble(E(I2))**2+dble(P(1,I2))**2
+     1       +dble(P(2,I2))**2+dble(P(3,I2))**2)
+        p1=dble(P(1,I1))+dble(P(1,I2))
+        p2=dble(P(2,I1))+dble(P(2,I2))
+        p3=dble(P(3,I1))+dble(P(3,I2))
+
         IF(iabs(LB(I2)) .EQ. 1 .OR. iabs(LB(I2)) .EQ. 2 .OR.
      &     (iabs(LB(I2)) .GE. 6 .AND. iabs(LB(I2)) .LE. 17)) THEN
         E(I1)=0.
@@ -10625,7 +10894,19 @@ cc      SAVE /PD/
         P(2,I)=P(2,I1)+P(2,I2)
         P(3,I)=P(3,I1)+P(3,I2)
 * 2. DETERMINE THE MASS OF DELTA/N* BY USING THE REACTION KINEMATICS
-        DM=SQRT((E10+E20)**2-P(1,I)**2-P(2,I)**2-P(3,I)**2)
+
+clin-9/2012: check argument in sqrt():
+        scheck=(E10+E20)**2-p1**2-p2**2-p3**2
+        if(scheck.lt.0) then
+           write(99,*) 'scheck17: ', scheck
+           write(99,*) 'scheck17', scheck,E10,E20,P(1,I),P(2,I),P(3,I)
+           write(99,*) 'scheck17-1',E(I1),P(1,I1),P(2,I1),P(3,I1)
+           write(99,*) 'scheck17-2',E(I2),P(1,I2),P(2,I2),P(3,I2)
+           scheck=0.d0
+        endif
+        DM=SQRT(sngl(scheck))
+c        DM=SQRT((E10+E20)**2-P(1,I)**2-P(2,I)**2-P(3,I)**2)
+
         E(I)=DM
         RETURN
         END
@@ -10637,6 +10918,8 @@ cc      SAVE /PD/
         PARAMETER (MAXSTR=150001,MAXR=1,
      1  AMN=0.939457,AMP=0.93828,
      2  AP1=0.13496,AP2=0.13957,AM0=1.232,PI=3.1415926)
+clin-9/2012: improve precision for argument in sqrt():
+        double precision e10,e20,scheck,p1,p2,p3
         COMMON /AA/ R(3,MAXSTR)
 cc      SAVE /AA/
         COMMON /BB/ P(3,MAXSTR)
@@ -10658,13 +10941,31 @@ cc      SAVE /PD/
       SAVE   
 * 1. DETERMINE THE MOMENTUM COMPONENT OF THE RHO IN THE CMS OF NN FRAME
 *    WE LET I1 TO BE THE RHO AND ABSORB I2
-        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
-        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
+clin-9/2012: improve precision for argument in sqrt():
+c        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
+c        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
+        E10=dSQRT(dble(E(I1))**2+dble(P(1,I1))**2
+     1     +dble(P(2,I1))**2+dble(P(3,I1))**2)
+        E20=dSQRT(dble(E(I2))**2+dble(P(1,I2))**2
+     1       +dble(P(2,I2))**2+dble(P(3,I2))**2)
+        p1=dble(P(1,I1))+dble(P(1,I2))
+        p2=dble(P(2,I1))+dble(P(2,I2))
+        p3=dble(P(3,I1))+dble(P(3,I2))
+
         P(1,I1)=P(1,I1)+P(1,I2)
         P(2,I1)=P(2,I1)+P(2,I2)
         P(3,I1)=P(3,I1)+P(3,I2)
 * 2. DETERMINE THE MASS OF THE RHO BY USING THE REACTION KINEMATICS
-        DM=SQRT((E10+E20)**2-P(1,I1)**2-P(2,I1)**2-P(3,I1)**2)
+
+clin-9/2012: check argument in sqrt():
+        scheck=(E10+E20)**2-p1**2-p2**2-p3**2
+        if(scheck.lt.0) then
+           write(99,*) 'scheck18: ', scheck
+           scheck=0.d0
+        endif
+        DM=SQRT(sngl(scheck))
+c        DM=SQRT((E10+E20)**2-P(1,I1)**2-P(2,I1)**2-P(3,I1)**2)
+
         E(I1)=DM
        E(I2)=0
         RETURN
@@ -10680,6 +10981,8 @@ cc      SAVE /PD/
         PARAMETER (MAXSTR=150001,MAXR=1,
      1  AMN=0.939457,AMP=0.93828,
      2  AP1=0.13496,AP2=0.13957,AM0=1.232,PI=3.1415926)
+clin-9/2012: improve precision for argument in sqrt():
+        double precision e10,e20,scheck,p1,p2,p3
         COMMON /AA/ R(3,MAXSTR)
 cc      SAVE /AA/
         COMMON /BB/ P(3,MAXSTR)
@@ -10702,13 +11005,31 @@ cc      SAVE /PD/
         AVMASS=0.5*(AMN+AMP)
         AVPI=(2.*AP2+AP1)/3.
 * 1. DETERMINE THE MOMENTUM COMPONENT OF DELTA IN THE LAB. FRAME
-        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
-        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
-        P1=P(1,I1)+P(1,I2)
-        P2=P(2,I1)+P(2,I2)
-        P3=P(3,I1)+P(3,I2)
+clin-9/2012: improve precision for argument in sqrt():
+c        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
+c        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
+        E10=dSQRT(dble(E(I1))**2+dble(P(1,I1))**2
+     1     +dble(P(2,I1))**2+dble(P(3,I1))**2)
+        E20=dSQRT(dble(E(I2))**2+dble(P(1,I2))**2
+     1       +dble(P(2,I2))**2+dble(P(3,I2))**2)
+c        P1=P(1,I1)+P(1,I2)
+c        P2=P(2,I1)+P(2,I2)
+c        P3=P(3,I1)+P(3,I2)
+        p1=dble(P(1,I1))+dble(P(1,I2))
+        p2=dble(P(2,I1))+dble(P(2,I2))
+        p3=dble(P(3,I1))+dble(P(3,I2))
+
 * 2. DETERMINE THE MASS OF DELTA BY USING OF THE REACTION KINEMATICS
-        DM=SQRT((E10+E20)**2-P1**2-P2**2-P3**2)
+
+clin-9/2012: check argument in sqrt():
+        scheck=(E10+E20)**2-p1**2-p2**2-p3**2
+        if(scheck.lt.0) then
+           write(99,*) 'scheck19: ', scheck
+           scheck=0.d0
+        endif
+        DM=SQRT(sngl(scheck))
+c        DM=SQRT((E10+E20)**2-P1**2-P2**2-P3**2)
+
         IF(DM.LE.1.1) THEN
         XNPI=1.e-09
         RETURN
@@ -10810,7 +11131,16 @@ cc      SAVE /PD/
         ENDIF
         SS0=AM0**2
         Q02=(SS0-(AMU-AMP)**2)*(SS0-(AMU+AMP)**2)/(4.*SS0)
-        Q0=SQRT(Q02)
+
+clin-9/2012: check argument in sqrt():
+        scheck=Q02
+        if(scheck.lt.0) then
+           write(99,*) 'scheck20: ', scheck
+           scheck=0.
+        endif
+        Q0=SQRT(scheck)
+c        Q0=SQRT(Q02)
+
         SIGMA=PI*(HC)**2/(2.*P2)*ALFA*(PR/P0)**BETA*AM0**2*T**2
      1  *(Q/Q0)**3/((SS-AM0**2)**2+AM0**2*T**2)
         SIGMA=SIGMA*10.
@@ -10886,7 +11216,6 @@ cc      SAVE /PD/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-      ISEED=ISEED 
 c        if(srt.le.2.14)then
 c       b1s=0.5
 c       b2s=0.
@@ -11189,6 +11518,8 @@ c              w1440=0.2
         PARAMETER (MAXSTR=150001,MAXR=1,
      1  AMN=0.939457,AMP=0.93828,ETAM=0.5475,
      2  AP1=0.13496,AP2=0.13957,AM0=1.232,PI=3.1415926)
+clin-9/2012: improve precision for argument in sqrt():
+        double precision e10,e20,scheck,p1,p2,p3
         COMMON /AA/ R(3,MAXSTR)
 cc      SAVE /AA/
         COMMON /BB/ P(3,MAXSTR)
@@ -11211,13 +11542,31 @@ cc      SAVE /PD/
         AVMASS=0.5*(AMN+AMP)
         AVPI=(2.*AP2+AP1)/3.
 * 1. DETERMINE THE MOMENTUM COMPONENT OF N*(1535) IN THE LAB. FRAME
-        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
-        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
-        P1=P(1,I1)+P(1,I2)
-        P2=P(2,I1)+P(2,I2)
-        P3=P(3,I1)+P(3,I2)
+clin-9/2012: improve precision for argument in sqrt():
+c        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
+c        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
+        E10=dSQRT(dble(E(I1))**2+dble(P(1,I1))**2
+     1     +dble(P(2,I1))**2+dble(P(3,I1))**2)
+        E20=dSQRT(dble(E(I2))**2+dble(P(1,I2))**2
+     1       +dble(P(2,I2))**2+dble(P(3,I2))**2)
+c        P1=P(1,I1)+P(1,I2)
+c        P2=P(2,I1)+P(2,I2)
+c        P3=P(3,I1)+P(3,I2)
+        p1=dble(P(1,I1))+dble(P(1,I2))
+        p2=dble(P(2,I1))+dble(P(2,I2))
+        p3=dble(P(3,I1))+dble(P(3,I2))
+
 * 2. DETERMINE THE MASS OF DELTA BY USING OF THE REACTION KINEMATICS
-        DM=SQRT((E10+E20)**2-P1**2-P2**2-P3**2)
+
+clin-9/2012: check argument in sqrt():
+        scheck=(E10+E20)**2-p1**2-p2**2-p3**2
+        if(scheck.lt.0) then
+           write(99,*) 'scheck21: ', scheck
+           scheck=0.d0
+        endif
+        DM=SQRT(sngl(scheck))
+c        DM=SQRT((E10+E20)**2-P1**2-P2**2-P3**2)
+
         IF(DM.LE.1.1) THEN
         XN1535=1.E-06
         RETURN
@@ -11348,7 +11697,16 @@ clin-8/17/00       IF(xratio.LT.RANART(NSEED).and.ntryx.le.50)GO TO 9
        bx=-Px/eln
        by=-Py/eln
        bz=-Pz/eln
-       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=1.-bx**2-by**2-bz**2
+       if(scheck.le.0) then
+          write(99,*) 'scheck22: ', scheck
+          stop
+       endif
+       ga=1./sqrt(scheck)
+c       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
 * the momentum of delta2 and pion in their cms frame
        elnc=eln/ga 
        pn2=((elnc**2+dm2**2-amp**2)/(2.*elnc))**2-dm2**2
@@ -11369,7 +11727,16 @@ clin-10/25/02-end
        pny=pnT*sin(fain)
        SIG=1
        IF(X.GT.0)SIG=-1
-       pnz=SIG*SQRT(pn**2-PNT**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=pn**2-PNT**2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck23: ', scheck
+          scheck=0.
+       endif
+       pnz=SIG*SQRT(scheck)
+c       pnz=SIG*SQRT(pn**2-PNT**2)
+
        en=sqrt(dm2**2+pnx**2+pny**2+pnz**2)
 * (2) the momentum for the pion
        ppx=-pnx
@@ -11429,7 +11796,16 @@ cc      SAVE /RNDF77/
 * (2.1) estimate the maximum transverse momentum
        PTMAX2=(SRT**2-(DM1+DM2+AMP)**2)*
      1  (SRT**2-(DM1-AMP-DM2)**2)/4./SRT**2
-       PTMAX=SQRT(PTMAX2)*1./3.
+
+clin-9/2012: check argument in sqrt():
+       scheck=PTMAX2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck24: ', scheck
+          scheck=0.
+       endif
+       PTMAX=SQRT(scheck)*1./3.
+c       PTMAX=SQRT(PTMAX2)*1./3.
+
 7       PT=PTR(PTMAX,ISEED)
 * (3) GENGRATE THE LONGITUDINAL MOMENTUM FOR DM1
 *     USING THE GIVEN DISTRIBUTION
@@ -11478,7 +11854,16 @@ clin-8/17/00       IF(xratio.LT.RANART(NSEED).and.ntryx.le.50)GO TO 9
        bx=-Px/eln
        by=-Py/eln
        bz=-Pz/eln
-       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=1.-bx**2-by**2-bz**2
+       if(scheck.le.0) then
+          write(99,*) 'scheck25: ', scheck
+          stop
+       endif
+       ga=1./sqrt(scheck)
+c       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
        elnc=eln/ga
        pn2=((elnc**2+dm2**2-amp**2)/(2.*elnc))**2-dm2**2
        if(pn2.le.0)then
@@ -11498,7 +11883,16 @@ clin-10/25/02-end
        pny=pnT*sin(fain)
        SIG=1
        IF(X.GT.0)SIG=-1
-       pnz=SIG*SQRT(pn**2-PNT**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=pn**2-PNT**2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck26: ', scheck
+          scheck=0.
+       endif
+       pnz=SIG*SQRT(scheck)
+c       pnz=SIG*SQRT(pn**2-PNT**2)
+
        en=sqrt(dm2**2+pnx**2+pny**2+pnz**2)
 * (2) the momentum for the rho
        ppx=-pnx
@@ -11558,7 +11952,16 @@ cc      SAVE /RNDF77/
 * (2.1) estimate the maximum transverse momentum
        PTMAX2=(SRT**2-(DM1+DM2+AMP)**2)*
      1  (SRT**2-(DM1-AMP-DM2)**2)/4./SRT**2
-       PTMAX=SQRT(PTMAX2)*1./3.
+
+clin-9/2012: check argument in sqrt():
+       scheck=PTMAX2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck27: ', scheck
+          scheck=0.
+       endif
+       PTMAX=SQRT(scheck)*1./3.
+c       PTMAX=SQRT(PTMAX2)*1./3.
+
 7       PT=PTR(PTMAX,ISEED)
 * (3) GENGRATE THE LONGITUDINAL MOMENTUM FOR DM1
 *     USING THE GIVEN DISTRIBUTION
@@ -11608,7 +12011,16 @@ clin-8/17/00       IF(xratio.LT.RANART(NSEED).and.ntryx.le.50)GO TO 9
        bx=-Px/eln
        by=-Py/eln
        bz=-Pz/eln
-       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=1.-bx**2-by**2-bz**2
+       if(scheck.le.0) then
+          write(99,*) 'scheck28: ', scheck
+          stop
+       endif
+       ga=1./sqrt(scheck)
+c       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
         elnc=eln/ga
        pn2=((elnc**2+dm2**2-amp**2)/(2.*elnc))**2-dm2**2
        if(pn2.le.0)then
@@ -11628,7 +12040,16 @@ clin-10/25/02-end
        pny=pnT*sin(fain)
        SIG=1
        IF(X.GT.0)SIG=-1
-       pnz=SIG*SQRT(pn**2-PNT**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=pn**2-PNT**2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck29: ', scheck
+          scheck=0.
+       endif
+       pnz=SIG*SQRT(scheck)
+c       pnz=SIG*SQRT(pn**2-PNT**2)
+
        en=sqrt(dm2**2+pnx**2+pny**2+pnz**2)
 * (2) the momentum for the rho
        ppx=-pnx
@@ -11682,7 +12103,16 @@ cc      SAVE /RNDF77/
 * (2.1) estimate the maximum transverse momentum
        PTMAX2=(SRT**2-(DM1+DM2+AMP)**2)*
      1  (SRT**2-(DM1-AMP-DM2)**2)/4./SRT**2
-       PTMAX=SQRT(PTMAX2)*1./3.
+
+clin-9/2012: check argument in sqrt():
+       scheck=PTMAX2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck30: ', scheck
+          scheck=0.
+       endif
+       PTMAX=SQRT(scheck)*1./3.
+c       PTMAX=SQRT(PTMAX2)*1./3.
+
 7       PT=PTR(PTMAX,ISEED)
 * (3) GENGRATE THE LONGITUDINAL MOMENTUM FOR DM1
 *     USING THE GIVEN DISTRIBUTION
@@ -11731,7 +12161,16 @@ clin-8/17/00       IF(xratio.LT.RANART(NSEED).and.ntryx.le.50)GO TO 9
        bx=-Px/eln
        by=-Py/eln
        bz=-Pz/eln
-       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=1.-bx**2-by**2-bz**2
+       if(scheck.le.0) then
+          write(99,*) 'scheck31: ', scheck
+          stop
+       endif
+       ga=1./sqrt(scheck)
+c       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
        elnc=eln/ga
        pn2=((elnc**2+dm2**2-amp**2)/(2.*elnc))**2-dm2**2
        if(pn2.le.0)then
@@ -11751,7 +12190,16 @@ clin-10/25/02-end
        pny=pnT*sin(fain)
        SIG=1
        IF(X.GT.0)SIG=-1
-       pnz=SIG*SQRT(pn**2-PNT**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=pn**2-PNT**2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck32: ', scheck
+          scheck=0.
+       endif
+       pnz=SIG*SQRT(scheck)
+c       pnz=SIG*SQRT(pn**2-PNT**2)
+
        en=sqrt(dm2**2+pnx**2+pny**2+pnz**2)
 * (2) the momentum for the rho
        ppx=-pnx
@@ -11780,7 +12228,6 @@ clin-10/25/02-end
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-          ISEED=ISEED 
 * THE MINIMUM MASS FOR DELTA
           DMIN = 1.078
 * Delta(1232) production
@@ -11822,7 +12269,6 @@ c     (here taken as its central value + 2* B-W fullwidth):
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-          ISEED=ISEED
 * THE MINIMUM MASS FOR DELTA
           DMIN = 0.28
 * RHO(770) production
@@ -12109,7 +12555,16 @@ c      real*4 function pp2(srt)
 * 1.Calculate p(lab)  from srt [GeV]
 *   Formula used:   DSQRT(s) = 2 m DSQRT(E_kin/(2m) + 1)
 c      ekin = 2.*pmass*((srt/(2.*pmass))**2 - 1.)
-      plab=sqrt(((srt**2-2.*pmass**2)/(2.*pmass))**2-pmass**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=((srt**2-2.*pmass**2)/(2.*pmass))**2-pmass**2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck33: ', scheck
+          scheck=0.
+       endif
+       plab=sqrt(scheck)
+c      plab=sqrt(((srt**2-2.*pmass**2)/(2.*pmass))**2-pmass**2)
+
        pmin=2.
        pmax=2050
        if(plab.gt.pmax)then
@@ -12146,7 +12601,16 @@ c      real*4 function ppt(srt)
 * 1.Calculate p(lab)  from srt [GeV]
 *   Formula used:   DSQRT(s) = 2 m DSQRT(E_kin/(2m) + 1)
 c      ekin = 2.*pmass*((srt/(2.*pmass))**2 - 1.)
-      plab=sqrt(((srt**2-2.*pmass**2)/(2.*pmass))**2-pmass**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=((srt**2-2.*pmass**2)/(2.*pmass))**2-pmass**2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck34: ', scheck
+          scheck=0.
+       endif
+       plab=sqrt(scheck)
+c      plab=sqrt(((srt**2-2.*pmass**2)/(2.*pmass))**2-pmass**2)
+
        pmin=3. 
        pmax=2100
       if ((plab .lt. pmin).or.(plab.gt.pmax)) then
@@ -12329,7 +12793,16 @@ c      real*4 function pplpk(srt)
 *   find the center of mass energy corresponding to the given pm as
 *   if Lambda+N+K are produced
        pplpk=0.
-        plab=sqrt(((srt**2-2.*pmass**2)/(2.*pmass))**2-pmass**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=((srt**2-2.*pmass**2)/(2.*pmass))**2-pmass**2
+       if(scheck.lt.0) then
+          write(99,*) 'scheck35: ', scheck
+          scheck=0.
+       endif
+       plab=sqrt(scheck)
+c        plab=sqrt(((srt**2-2.*pmass**2)/(2.*pmass))**2-pmass**2)
+
        pmin=2.82
        pmax=25.0
        if(plab.gt.pmax)then
@@ -13314,7 +13787,15 @@ c         cc1=ptr(0.33*pr,iseed)
          cc1=ptr(xptr,iseed)
 clin-10/25/02-end
 
-         c1=sqrt(pr**2-cc1**2)/pr
+clin-9/2012: check argument in sqrt():
+         scheck=pr**2-cc1**2
+         if(scheck.lt.0) then
+            write(99,*) 'scheck36: ', scheck
+            scheck=0.
+         endif
+         c1=sqrt(scheck)/pr
+c         c1=sqrt(pr**2-cc1**2)/pr
+
 *          C1   = 1.0 - 2.0 * RANART(NSEED)
           T1   = 2.0 * PI * RANART(NSEED)
       S1   = SQRT( 1.0 - C1**2 )
@@ -13482,7 +13963,15 @@ c         cc1=ptr(0.33*pr,iseed)
          cc1=ptr(xptr,iseed)
 clin-10/25/02-end
 
-         c1=sqrt(pr**2-cc1**2)/pr
+clin-9/2012: check argument in sqrt():
+         scheck=pr**2-cc1**2
+         if(scheck.lt.0) then
+            write(99,*) 'scheck37: ', scheck
+            scheck=0.
+         endif
+         c1=sqrt(scheck)/pr
+c         c1=sqrt(pr**2-cc1**2)/pr
+
            T1   = 2.0 * PI * RANART(NSEED)
       S1   = SQRT( 1.0 - C1**2 )
       CT1  = COS(T1)
@@ -14146,7 +14635,15 @@ c         cc1=ptr(0.33*pr,iseed)
          cc1=ptr(xptr,iseed)
 clin-10/25/02-end
 
-         c1=sqrt(pr**2-cc1**2)/pr
+clin-9/2012: check argument in sqrt():
+         scheck=pr**2-cc1**2
+         if(scheck.lt.0) then
+            write(99,*) 'scheck38: ', scheck
+            scheck=0.
+         endif
+         c1=sqrt(scheck)/pr
+c         c1=sqrt(pr**2-cc1**2)/pr
+
 c         C1   = 1.0 - 2.0 * RANART(NSEED)
           T1   = 2.0 * PI * RANART(NSEED)
       S1   = SQRT( 1.0 - C1**2 )
@@ -14998,7 +15495,15 @@ c         cc1=ptr(0.33*pr,iseed)
          cc1=ptr(xptr,iseed)
 clin-10/25/02-end
 
-         c1=sqrt(pr**2-cc1**2)/pr
+clin-9/2012: check argument in sqrt():
+         scheck=pr**2-cc1**2
+         if(scheck.lt.0) then
+            write(99,*) 'scheck39: ', scheck
+            scheck=0.
+         endif
+         c1=sqrt(scheck)/pr
+c         c1=sqrt(pr**2-cc1**2)/pr
+
           T1   = 2.0 * PI * RANART(NSEED)
       S1   = SQRT( 1.0 - C1**2 )
       CT1  = COS(T1)
@@ -15045,7 +15550,6 @@ cc      SAVE /input1/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-      NT=NT
 c
       PX0=PX
       PY0=PY
@@ -15361,9 +15865,8 @@ cc      SAVE /input1/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
- 
-        XSK11=XSK11
-        IBLOCK=1907
+
+       IBLOCK=1907
         X1 = RANART(NSEED) * SIGK
         XSK2 = XSK1 + XSK2
         XSK3 = XSK2 + XSK3
@@ -15492,7 +15995,6 @@ cc      SAVE /input1/
 cc      SAVE /RNDF77/
       SAVE   
 
-       XKY17=XKY17
        PX0=PX
        PY0=PY
        PZ0=PZ
@@ -15811,9 +16313,25 @@ c
           sig2 = 372.378
        if(srt .gt. aphi+aka)then
         pff = sqrt((srt**2-(aphi+aka)**2)*(srt**2-(aphi-aka)**2))
+
+clin-9/2012: check argument in sqrt():
+        scheck=pdd
+        if(scheck.le.0) then
+           write(99,*) 'scheck40: ', scheck
+           stop
+        endif
+        
          XKP9 = sig1*pff/sqrt(pdd)*1./32./pi/srt**2
         if(srt .gt. aphi+aks)then
         pff = sqrt((srt**2-(aphi+aks)**2)*(srt**2-(aphi-aks)**2))
+
+clin-9/2012: check argument in sqrt():
+        scheck=pdd
+        if(scheck.le.0) then
+           write(99,*) 'scheck41: ', scheck
+           stop
+        endif
+
          XKP10 = sig2*pff/sqrt(pdd)*3./32./pi/srt**2
        endif
         endif
@@ -16282,8 +16800,25 @@ c               sig2 = 15.0
 c         sig11=sig1*(6./dnr)*(srt**2-(aphi+aka)**2)*
 c    &           (srt**2-(aphi-aka)**2)/(srt**2-(e(i1)+e(i2))**2)/
 c    &           (srt**2-(e(i1)-e(i2))**2)
-        pii = sqrt((srt**2-(e(i1)+e(i2))**2)*(srt**2-(e(i1)-e(i2))**2))
-        pff = sqrt((srt**2-(aphi+aka)**2)*(srt**2-(aphi-aka)**2))
+
+clin-9/2012: check argument in sqrt():
+            scheck=(srt**2-(e(i1)+e(i2))**2)*(srt**2-(e(i1)-e(i2))**2)
+            if(scheck.le.0) then
+               write(99,*) 'scheck42: ', scheck
+               stop
+            endif
+            pii=sqrt(scheck)
+c        pii = sqrt((srt**2-(e(i1)+e(i2))**2)*(srt**2-(e(i1)-e(i2))**2))
+
+clin-9/2012: check argument in sqrt():
+            scheck=(srt**2-(aphi+aka)**2)*(srt**2-(aphi-aka)**2)
+            if(scheck.lt.0) then
+               write(99,*) 'scheck43: ', scheck
+               scheck=0.
+            endif
+        pff = sqrt(scheck)
+c        pff = sqrt((srt**2-(aphi+aka)**2)*(srt**2-(aphi-aka)**2))
+
           sig11 = sig1*pff/pii*6./dnr/32./pi/srt**2
 c
           if(srt .gt. aphi+aks)then
@@ -16440,7 +16975,16 @@ cc      SAVE /RNDF77/
        bx=-pkx/eln
        by=-pky/eln
        bz=-pkz/eln
-       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
+clin-9/2012: check argument in sqrt():
+       scheck=1.-bx**2-by**2-bz**2
+       if(scheck.le.0) then
+          write(99,*) 'scheck44: ', scheck
+          stop
+       endif
+       ga=1./sqrt(scheck)
+c       ga=1./sqrt(1.-bx**2-by**2-bz**2)
+
         elnc=eln/ga
        pn2=((elnc**2+ana**2-ala**2)/(2.*elnc))**2-ana**2
        if(pn2.le.0.)pn2=1.e-09
@@ -16956,7 +17500,16 @@ cc      SAVE /EE/
       ELSE
         T2=ATAN2(PY0,PX0)
       END IF
-      S2  =  SQRT( 1.0 - C2**2 )
+
+clin-9/2012: check argument in sqrt():
+      scheck=1.0 - C2**2
+      if(scheck.lt.0) then
+         write(99,*) 'scheck45: ', scheck
+         scheck=0.
+      endif
+      S2=sqrt(scheck)
+c      S2  =  SQRT( 1.0 - C2**2 )
+
       CT2  = COS(T2)
       ST2  = SIN(T2)
 * the momentum, polar and azimuthal angles of the momentum to be rotated
@@ -16968,7 +17521,16 @@ cc      SAVE /EE/
       ELSE
       T1=ATAN2(PY,PX)
       ENDIF
-      S1   = SQRT( 1.0 - C1**2 )
+
+clin-9/2012: check argument in sqrt():
+      scheck=1.0 - C1**2
+      if(scheck.lt.0) then
+         write(99,*) 'scheck46: ', scheck
+         scheck=0.
+      endif
+      S1=sqrt(scheck)
+c      S1   = SQRT( 1.0 - C1**2 )
+
       CT1  = COS(T1)
       ST1  = SIN(T1)
       SS   = C2 * S1 * CT1  +  S2 * C1
@@ -16998,7 +17560,7 @@ c      real*4   xarray(14), earray(14)
      &31.6,25.9,24.0,23.1,
      &24.0,28.3,33.6,41.5,47/
 
-      xpp=0.
+       xpp=0.
        pmass=0.9383 
 * 1.Calculate E_kin(lab) [MeV] from srt [GeV]
 *   Formula used:   DSQRT(s) = 2 m DSQRT(E_kin/(2m) + 1)
@@ -17100,7 +17662,6 @@ cc      SAVE /TABLE/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-       ISEED=ISEED
        ptr=0.
        if(ptmax.le.1.e-02)then
        ptr=ptmax
@@ -17687,7 +18248,7 @@ c      real*4   xarray(122), earray(122)
      &6.420560,6.431045,6.441367,6.451529,6.461533,6.471386,6.481091,    
      &6.490650,6.476413,6.297259,6.097826/
 
-      dirct1=0
+      dirct1=0.
       if (srt .lt. earray(1)) then
         dirct1 = 0.00001
         return
@@ -18116,7 +18677,6 @@ c        REAL*4 FUNCTION FD2(DMASS,aj,al,width,widb0,EM1,EM2,srt)
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-       ISEED=ISEED
        amn=0.94
        amp=0.14
 * the maximum mass for resonance 1
@@ -18241,7 +18801,6 @@ cc      SAVE /RUN/
 cc      SAVE /input1/
       SAVE   
 *----------------------------------------------------------------------*
-       NT=NT
        ycut1=-2.6
        ycut2=2.6
        DY=0.2
@@ -18399,7 +18958,6 @@ cbz2/25/99end
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-       ISEED=ISEED 
 C the factorial coefficients in the pion no. distribution 
 * from n=2 to 6 calculated use the formula in the reference
        factor(2)=1.
@@ -18590,7 +19148,16 @@ c        END IF
 
 c* K+ + K- --> phi
           fwdp = 1.68*(aphi**2-4.*aka**2)**1.5/6./aphi/aphi     
-          pkaon=0.5*sqrt(srt**2-4.0*aka**2)
+
+clin-9/2012: check argument in sqrt():
+          scheck=srt**2-4.0*aka**2
+          if(scheck.le.0) then
+             write(99,*) 'scheck47: ', scheck
+             stop
+          endif
+          pkaon=0.5*sqrt(scheck)
+c          pkaon=0.5*sqrt(srt**2-4.0*aka**2)
+
           XSK11 = 30.*3.14159*0.1973**2*(aphi*fwdp)**2/
      &             ((srt**2-aphi**2)**2+(aphi*fwdp)**2)/pkaon**2
 c
@@ -18964,7 +19531,15 @@ c
 c   !! mb, elastic
          XSK1 = 5.0
          
-           pii = sqrt((S-(em1+em2)**2)*(S-(em1-em2)**2))
+clin-9/2012: check argument in sqrt():
+         scheck=(S-(em1+em2)**2)*(S-(em1-em2)**2)
+         if(scheck.le.0) then
+            write(99,*) 'scheck48: ', scheck
+            stop
+         endif
+         pii=sqrt(scheck)
+c           pii = sqrt((S-(em1+em2)**2)*(S-(em1-em2)**2))
+
 * phi + K(-bar) channel
        if( lb1.eq.23.or.lb2.eq.23 .or. lb1.eq.21.or.lb2.eq.21 )then
           if(srt .gt. (ap1+akap))then
@@ -19676,7 +20251,7 @@ cc      SAVE /ppmm/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-      ISEED=ISEED
+
 c     determine which final BbarB channel occurs:
       rd=RANART(NSEED)
       wsum=0.
@@ -20021,7 +20596,6 @@ cc      SAVE /ppmm/
 * for rho rho -> pi pi, assumed a constant cross section (in mb)
       real function rtop(srt)
 *****************************************
-      srt=srt
       rtop=5.
       return
       END
@@ -20040,7 +20614,7 @@ cc      SAVE /ppmm/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-      iseed=iseed
+
       if((lb(i1).ge.3.and.lb(i1).le.5)
      1     .and.(lb(i2).ge.3.and.lb(i2).le.5)) then
          iblock=1850
@@ -20104,7 +20678,7 @@ cc      SAVE /ppmm/
 * for eta eta -> pi pi, assumed a constant cross section (in mb)
       real function etop(srt)
 *****************************************
-      srt=srt
+
 c     eta equilibration:
 c     most important channel is found to be pi pi <-> pi eta, then
 c     rho pi <-> rho eta.
@@ -20127,7 +20701,6 @@ cc      SAVE /ppmm/
 cc      SAVE /RNDF77/
       SAVE   
 
-      iseed=iseed
       if((lb(i1).ge.3.and.lb(i1).le.5)
      1     .and.(lb(i2).ge.3.and.lb(i2).le.5)) then
          iblock=1860
@@ -20194,7 +20767,7 @@ cc      SAVE /ppmm/
 * for pi eta -> pi pi, assumed a constant cross section (in mb)
       real function petopp(srt)
 *****************************************
-      srt=srt
+
 c     eta equilibration:
       petopp=5.
       return
@@ -20215,7 +20788,6 @@ cc      SAVE /ppmm/
 cc      SAVE /RNDF77/
       SAVE   
 
-      ISEED=ISEED
       if((lb(i1).ge.3.and.lb(i1).le.5)
      1     .and.(lb(i2).ge.3.and.lb(i2).le.5)) then
          iblock=1870
@@ -20286,7 +20858,7 @@ cc      SAVE /ppmm/
 * for rho eta -> rho pi, assumed a constant cross section (in mb)
       real function retorp(srt)
 *****************************************
-      srt=srt
+
 c     eta equilibration:
       retorp=5.
       return
@@ -20306,7 +20878,7 @@ cc      SAVE /ppmm/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-      ISEED=ISEED
+
       if((lb(i1).ge.25.and.lb(i1).le.27
      1     .and.lb(i2).ge.3.and.lb(i2).le.5).or.
      2     (lb(i1).ge.3.and.lb(i1).le.5
@@ -20376,7 +20948,7 @@ cc      SAVE /ppmm/
 * for omega eta -> omega pi, assumed a constant cross section (in mb)
       real function xoe2op(srt)
 *****************************************
-      srt=srt
+
 c     eta equilibration:
       xoe2op=5.
       return
@@ -20397,7 +20969,6 @@ cc      SAVE /ppmm/
 cc      SAVE /RNDF77/
       SAVE   
 
-      iseed=iseed
       if((lb(i1).ge.3.and.lb(i1).le.5.and.lb(i2).eq.28).or.
      1     (lb(i2).ge.3.and.lb(i2).le.5.and.lb(i1).eq.28)) then
          iblock=1890
@@ -20462,7 +21033,7 @@ cc      SAVE /ppmm/
 * for rho rho -> eta eta, assumed a constant cross section (in mb)
       real function rrtoee(srt)
 *****************************************
-      srt=srt
+
 c     eta equilibration:
       rrtoee=5.
       return
@@ -20483,7 +21054,6 @@ cc      SAVE /ppmm/
 cc      SAVE /RNDF77/
       SAVE   
 
-      ISEED=ISEED
       if(lb(i1).ge.25.and.lb(i1).le.27.and.
      1     lb(i2).ge.25.and.lb(i2).le.27) then
          iblock=1895
@@ -20640,6 +21210,8 @@ cc      SAVE /RNDF77/
         PARAMETER (MAXSTR=150001,MAXR=1,
      1  AMN=0.939457,AMP=0.93828,
      2  AP1=0.13496,AP2=0.13957,AM0=1.232,PI=3.1415926)
+clin-9/2012: improve precision for argument in sqrt():
+        double precision e10,e20,scheck,p1,p2,p3
         COMMON /AA/ R(3,MAXSTR)
 cc      SAVE /AA/
         COMMON /BB/ P(3,MAXSTR)
@@ -20661,8 +21233,18 @@ cc      SAVE /PD/
       SAVE   
 * 1. DETERMINE THE MOMENTUM COMPONENT OF THE K* IN THE CMS OF PI-K FRAME
 *    WE LET I1 TO BE THE K* AND ABSORB I2
-        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
-        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
+
+clin-9/2012: improve precision for argument in sqrt():
+c        E10=SQRT(E(I1)**2+P(1,I1)**2+P(2,I1)**2+P(3,I1)**2)
+c        E20=SQRT(E(I2)**2+P(1,I2)**2+P(2,I2)**2+P(3,I2)**2)
+        E10=dSQRT(dble(E(I1))**2+dble(P(1,I1))**2
+     1     +dble(P(2,I1))**2+dble(P(3,I1))**2)
+        E20=dSQRT(dble(E(I2))**2+dble(P(1,I2))**2
+     1       +dble(P(2,I2))**2+dble(P(3,I2))**2)
+        p1=dble(P(1,I1))+dble(P(1,I2))
+        p2=dble(P(2,I1))+dble(P(2,I2))
+        p3=dble(P(3,I1))+dble(P(3,I2))
+
         IF(LB(I2) .EQ. 21 .OR. LB(I2) .EQ. 23) THEN
         E(I1)=0.
         I=I2
@@ -20679,7 +21261,18 @@ cc      SAVE /PD/
         P(2,I)=P(2,I1)+P(2,I2)
         P(3,I)=P(3,I1)+P(3,I2)
 * 2. DETERMINE THE MASS OF K* BY USING THE REACTION KINEMATICS
-        DM=SQRT((E10+E20)**2-P(1,I)**2-P(2,I)**2-P(3,I)**2)
+
+clin-9/2012: check argument in sqrt():
+        scheck=(E10+E20)**2-p1**2-p2**2-p3**2
+        if(scheck.lt.0) then
+           write(99,*) 'scheck49: ',scheck
+           write(99,*) 'scheck49',scheck,E10,E20,P(1,I),P(2,I),P(3,I)
+           write(99,*) 'scheck49-1',E(I1),P(1,I1),P(2,I1),P(3,I1)
+           write(99,*) 'scheck49-2',E(I2),P(1,I2),P(2,I2),P(3,I2)
+        endif
+        DM=sqrt(sngl(scheck))
+c        DM=SQRT((E10+E20)**2-P(1,I)**2-P(2,I)**2-P(3,I)**2)
+
         E(I)=DM
         RETURN
         END
@@ -20749,14 +21342,11 @@ cc      SAVE /RNDF77/
      1     dpdcy(MAXSTR),dpdpi(MAXSTR,MAXR),dpt(MAXSTR, MAXR),
      2     dpp1(MAXSTR,MAXR),dppion(MAXSTR,MAXR)
       SAVE   
-      kp=kp
-      nt=nt
 
       px0 = px
       py0 = py
       pz0 = pz
       LB1 = LB(I1)
-      lb1abs = iabs(lb1)
       EM1 = E(I1)
       X1  = R(1,I1)
       Y1  = R(2,I1)
@@ -20807,7 +21397,7 @@ c
 c----------------------------------------------------
 *  for process:  K-bar + L(S) --> Ca + pi 
 *
-60         if(lb1abs.ge.14 .and. lb1abs.le.17)then 
+60         if(iabs(lb1).ge.14 .and. iabs(lb1).le.17)then 
              asap = e(i1)
              akap = e(i2)
              idp = i1
@@ -20892,7 +21482,7 @@ c else only cascade(bar) formed perturbatively
 c----------------------------------------------------
 *  for process:  Cas(bar) + K_bar(K) --> Om(bar) + pi  !! eta
 *
-70         if(lb1abs.eq.40 .or. lb1abs.eq.41)then 
+70         if(iabs(lb1).eq.40 .or. iabs(lb1).eq.41)then 
              acap = e(i1)
              akap = e(i2)
              idp = i1
@@ -20967,7 +21557,7 @@ c else omega(bar) formed perturbatively and cascade destroyed
 c-----------------------------------------------------------
 *  for process:  Ca + pi/eta --> K-bar + L(S)
 *
-90         if(lb1abs.eq.40 .or. lb1abs.eq.41)then 
+90         if(iabs(lb1).eq.40 .or. iabs(lb1).eq.41)then 
              acap = e(i1)
              app = e(i2)
              idp = i1
@@ -21383,7 +21973,6 @@ clin-7/26/03 improve speed
             COMMON   /BG/  BETAX,BETAY,BETAZ,GAMMA
 cc      SAVE /BG/
       SAVE   
-            deltr0=deltr0 
             Ifirst=-1
             E1=SQRT(EM1**2+PX1**2+PY1**2+PZ1**2)
 *NOW PARTICLES ARE CLOSE ENOUGH TO EACH OTHER !
@@ -21458,7 +22047,16 @@ c         em2=1.535
 c      endif
 c
       s=srt**2
-      pinitial=sqrt((s-(em1+em2)**2)*(s-(em1-em2)**2))/2./srt
+
+clin-9/2012: check argument in sqrt():
+      scheck=(s-(em1+em2)**2)*(s-(em1-em2)**2)
+      if(scheck.le.0) then
+         write(99,*) 'scheck50: ', scheck
+         stop
+      endif
+      pinitial=sqrt(scheck)/2./srt
+c      pinitial=sqrt((s-(em1+em2)**2)*(s-(em1-em2)**2))/2./srt
+
       fs=fnndpi(s)
 c     Determine isospin and spin factors for the ratio between 
 c     BB->Deuteron+Meson and Deuteron+Meson->BB cross sections:
@@ -21538,23 +22136,23 @@ c     factor of 1/2 for pn or np initial states:
          else
 c     for other BB initial states (spin- and isospin averaged):
             if(idxsec.eq.1) then
-c     1: assume the same |matrix element|**2 (after averaging over initial 
+c     1: assume the same |matrix element|**2/s (after averaging over initial 
 c     spins and isospins) for B+B -> deuteron+meson at the same sqrt(s);
                sbbdpi=fs*pfinal/pinitial*3./16.
             elseif(idxsec.eq.2.or.idxsec.eq.4) then
                threshold=amax1(xmd+xmm,em1+em2)
                snew=(srt-threshold+srt0)**2
                if(idxsec.eq.2) then
-c     2: assume the same |matrix element|**2 for B+B -> deuteron+meson 
+c     2: assume the same |matrix element|**2/s for B+B -> deuteron+meson 
 c     at the same sqrt(s)-threshold:
                   sbbdpi=fnndpi(snew)*pfinal/pinitial*3./16.
                elseif(idxsec.eq.4) then
-c     4: assume the same |matrix element|**2 for B+B <- deuteron+meson 
+c     4: assume the same |matrix element|**2/s for B+B <- deuteron+meson 
 c     at the same sqrt(s)-threshold:
                   sbbdpi=fnndpi(snew)*pfinal/pinitial/6.*pifactor
                endif
             elseif(idxsec.eq.3) then
-c     3: assume the same |matrix element|**2 for B+B <- deuteron+meson 
+c     3: assume the same |matrix element|**2/s for B+B <- deuteron+meson 
 c     at the same sqrt(s):
                sbbdpi=fs*pfinal/pinitial/6.*pifactor
             endif
@@ -21764,11 +22362,11 @@ c     Assume d+Meson -> B+B has the same cross sections as d+pi -> N+N:
       endif
 clin-9/2008 For elastic collisions:
       if(idxsec.eq.1.or.idxsec.eq.3) then
-c     1/3: assume the same |matrix element|**2 (after averaging over initial 
+c     1/3: assume the same |matrix element|**2/s (after averaging over initial 
 c     spins and isospins) for d+Meson elastic at the same sqrt(s);
          sdmel=fdpiel(s)
       elseif(idxsec.eq.2.or.idxsec.eq.4) then
-c     2/4: assume the same |matrix element|**2 (after averaging over initial 
+c     2/4: assume the same |matrix element|**2/s (after averaging over initial 
 c     spins and isospins) for d+Meson elastic at the same sqrt(s)-threshold:
          threshold=em1+em2
          snew=(srt-threshold+srt0)**2
@@ -21803,23 +22401,23 @@ c
       if(srt.gt.(xmnn1+xmnn2)) then
          pfinal=sqrt((s-(xmnn1+xmnn2)**2)*(s-(xmnn1-xmnn2)**2))/2./srt
          if(idxsec.eq.1) then
-c     1: assume the same |matrix element|**2 (after averaging over initial 
+c     1: assume the same |matrix element|**2/s (after averaging over initial 
 c     spins and isospins) for B+B -> deuteron+meson at the same sqrt(s);
             sdmnn=fs*pfinal/pinitial*3./16.*xnnfactor
          elseif(idxsec.eq.2.or.idxsec.eq.4) then
             threshold=amax1(xmnn1+xmnn2,em1+em2)
             snew=(srt-threshold+srt0)**2
             if(idxsec.eq.2) then
-c     2: assume the same |matrix element|**2 for B+B -> deuteron+meson 
+c     2: assume the same |matrix element|**2/s for B+B -> deuteron+meson 
 c     at the same sqrt(s)-threshold:
                sdmnn=fnndpi(snew)*pfinal/pinitial*3./16.*xnnfactor
             elseif(idxsec.eq.4) then
-c     4: assume the same |matrix element|**2 for B+B <- deuteron+meson 
+c     4: assume the same |matrix element|**2/s for B+B <- deuteron+meson 
 c     at the same sqrt(s)-threshold:
                sdmnn=fnndpi(snew)*pfinal/pinitial/6.
             endif
          elseif(idxsec.eq.3) then
-c     3: assume the same |matrix element|**2 for B+B <- deuteron+meson 
+c     3: assume the same |matrix element|**2/s for B+B <- deuteron+meson 
 c     at the same sqrt(s):
             sdmnn=fs*pfinal/pinitial/6.
          endif
@@ -22125,7 +22723,16 @@ c     Elastic collisions:
                write(91,*) '  d+',lbm,' (pert dbar M elastic) @nt=',nt
      1              ,' @prob=',dpertp(ideut)
             endif
-            pfinal=sqrt((s-(em1+em2)**2)*(s-(em1-em2)**2))/2./srt
+
+clin-9/2012: check argument in sqrt():
+            scheck=(s-(em1+em2)**2)*(s-(em1-em2)**2)
+            if(scheck.lt.0) then
+               write(99,*) 'scheck51: ', scheck
+               scheck=0.
+            endif
+            pfinal=sqrt(scheck)/2./srt
+c            pfinal=sqrt((s-(em1+em2)**2)*(s-(em1-em2)**2))/2./srt
+
             CALL dmelangle(pxn,pyn,pzn,pfinal)
             CALL ROTATE(PX,PY,PZ,Pxn,Pyn,Pzn)
             EdCM=SQRT(E(ideut)**2+Pxn**2+Pyn**2+Pzn**2)
@@ -22234,8 +22841,16 @@ c     Elastic collision:
       E(I2)=xmb2
       lb1=lb(i1)
       lb2=lb(i2)
-      pfinal=sqrt((s-(xmb1+xmb2)**2)*(s-(xmb1-xmb2)**2))/2./srt
-c
+
+clin-9/2012: check argument in sqrt():
+      scheck=(s-(xmb1+xmb2)**2)*(s-(xmb1-xmb2)**2)
+      if(scheck.lt.0) then
+         write(99,*) 'scheck52: ', scheck
+         scheck=0.
+      endif
+      pfinal=sqrt(scheck)/2./srt
+c      pfinal=sqrt((s-(xmb1+xmb2)**2)*(s-(xmb1-xmb2)**2))/2./srt
+
       if(iblock.eq.502) then
          CALL dmangle(pxn,pyn,pzn,nt,ianti,pfinal,lbm)
       elseif(iblock.eq.504) then
@@ -22353,11 +22968,11 @@ c
       s=srt**2
 c     For elastic collisions:
       if(idxsec.eq.1.or.idxsec.eq.3) then
-c     1/3: assume the same |matrix element|**2 (after averaging over initial 
+c     1/3: assume the same |matrix element|**2/s (after averaging over initial 
 c     spins and isospins) for d+Baryon elastic at the same sqrt(s);
          sdbel=fdbel(s)
       elseif(idxsec.eq.2.or.idxsec.eq.4) then
-c     2/4: assume the same |matrix element|**2 (after averaging over initial 
+c     2/4: assume the same |matrix element|**2/s (after averaging over initial 
 c     spins and isospins) for d+Baryon elastic at the same sqrt(s)-threshold:
          threshold=em1+em2
          snew=(srt-threshold+srt0)**2
@@ -22413,7 +23028,16 @@ cccc  Elastic collision of perturbatively-produced deuterons:
      1           ,' @prob=',dpertp(ideut),p(1,idb),p(2,idb)
      2           ,p(1,ideut),p(2,ideut)
          endif
-         pfinal=sqrt((s-(em1+em2)**2)*(s-(em1-em2)**2))/2./srt
+
+clin-9/2012: check argument in sqrt():
+         scheck=(s-(em1+em2)**2)*(s-(em1-em2)**2)
+         if(scheck.lt.0) then
+            write(99,*) 'scheck53: ', scheck
+            scheck=0.
+         endif
+         pfinal=sqrt(scheck)/2./srt
+c         pfinal=sqrt((s-(em1+em2)**2)*(s-(em1-em2)**2))/2./srt
+
          CALL dbelangle(pxn,pyn,pzn,pfinal)
          CALL ROTATE(PX,PY,PZ,Pxn,Pyn,Pzn)
          EdCM=SQRT(E(ideut)**2+Pxn**2+Pyn**2+Pzn**2)
@@ -22446,7 +23070,15 @@ c     Elastic collision of regularly-produced deuterons:
          write (91,*) ' d+',lbb,' (regular dbar Bbar elastic) @evt#',
      1        iaevt,' @nt=',nt,' lb1,2=',lb1,lb2
       endif
-      pfinal=sqrt((s-(em1+em2)**2)*(s-(em1-em2)**2))/2./srt
+clin-9/2012: check argument in sqrt():
+      scheck=(s-(em1+em2)**2)*(s-(em1-em2)**2)
+      if(scheck.lt.0) then
+         write(99,*) 'scheck54: ', scheck
+         scheck=0.
+      endif
+      pfinal=sqrt(scheck)/2./srt
+c      pfinal=sqrt((s-(em1+em2)**2)*(s-(em1-em2)**2))/2./srt
+
       CALL dbelangle(pxn,pyn,pzn,pfinal)
 *     ROTATE THE MOMENTA OF PARTICLES IN THE CMS OF P1+P2
 c     (This is not needed for isotropic distributions)

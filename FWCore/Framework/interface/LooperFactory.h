@@ -19,8 +19,8 @@
 //
 
 // system include files
+#include <memory>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
@@ -39,9 +39,9 @@ namespace edm {
 
       namespace looper {
       template<class T>
-         void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const DataProxyProvider*) 
+         void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const DataProxyProvider*) 
       {
-            boost::shared_ptr<DataProxyProvider> pProvider(iComponent);
+            std::shared_ptr<DataProxyProvider> pProvider(iComponent);
             ComponentDescription description = pProvider->description();
             description.isSource_=true;
             description.isLooper_=true;
@@ -53,15 +53,15 @@ namespace edm {
             iProvider.add(pProvider);
       }
       template<class T>
-         void addProviderTo(EventSetupProvider& /* iProvider */, boost::shared_ptr<T> /*iComponent*/, const void*) 
+         void addProviderTo(EventSetupProvider& /* iProvider */, std::shared_ptr<T> /*iComponent*/, const void*) 
       {
             //do nothing
       }
 
       template<class T>
-        void addFinderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const EventSetupRecordIntervalFinder*) 
+        void addFinderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const EventSetupRecordIntervalFinder*) 
       {
-          boost::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
+          std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
 
           ComponentDescription description = pFinder->descriptionForFinder();
           description.isSource_=true;
@@ -75,7 +75,7 @@ namespace edm {
           iProvider.add(pFinder);
       }
       template<class T>
-        void addFinderTo(EventSetupProvider& /* iProvider */, boost::shared_ptr<T> /*iComponent*/, const void*) 
+        void addFinderTo(EventSetupProvider& /* iProvider */, std::shared_ptr<T> /*iComponent*/, const void*) 
       {
           //do nothing
       }
@@ -85,7 +85,7 @@ namespace edm {
          static std::string name();
          template<class T>
          static void addTo(EventSetupProvider& iProvider,
-                           boost::shared_ptr<T> iComponent,
+                           std::shared_ptr<T> iComponent,
                            ParameterSet const&,
                            bool)
             {
@@ -94,13 +94,13 @@ namespace edm {
                looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
             }
 
-         static void replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<EDLooperBase> iComponent); 
+         static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<EDLooperBase> iComponent); 
 
-         static boost::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
+         static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
                                                                             ParameterSet const& iConfiguration);               
          static void putComponent(EventSetupsController& esController,
                                   ParameterSet const& iConfiguration,
-                                  boost::shared_ptr<base_type> const& component);
+                                  std::shared_ptr<base_type> const& component);
       };
       template< class TType>
          struct LooperMaker : public ComponentMaker<edm::eventsetup::LooperMakerTraits,TType> {};

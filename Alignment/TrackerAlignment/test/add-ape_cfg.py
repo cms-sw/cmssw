@@ -17,7 +17,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBSetup,
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
+        record = cms.string('TrackerAlignmentErrorExtendedRcd'),
         tag = cms.string('TrackerNoErrors150')
     )),
     connect = cms.string('sqlite_file:TrackerIdealGeometry.db')

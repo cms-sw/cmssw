@@ -4,7 +4,7 @@
 #include "RecoTracker/DebugTools/interface/FTSFromSimHitFactory.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 class SimHit;
 class MagneticField;

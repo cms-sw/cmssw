@@ -65,9 +65,9 @@ namespace fwlite
       void syncTo(const edm::EventID&, const edm::Timestamp&);
 
    private:
-      Record(const Record&); // stop default
+      Record(const Record&) = delete; // stop default
 
-      const Record& operator=(const Record&); // stop default
+      const Record& operator=(const Record&) = delete; // stop default
 
       cms::Exception* get(const edm::TypeID&, const char* iLabel, const void*&) const;
       void resetCaches();
@@ -86,14 +86,14 @@ namespace fwlite
    bool
    Record::get(HANDLE& iHandle, const char* iLabel) const
    {
-      const void* value = 0;
+      const void* value = nullptr;
       cms::Exception* e = get(edm::TypeID(iHandle.typeInfo()),iLabel,value);
-      if(0==e){
+      if(nullptr == e){
          iHandle = HANDLE(value);
       } else {
          iHandle = HANDLE(e);
       }
-      return 0==e;
+      return nullptr == e;
    }
 
 } /* fwlite */

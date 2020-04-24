@@ -5,8 +5,8 @@
 #include "TrackingTools/GsfTools/interface/DistanceBetweenComponents.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
-#include "boost/shared_ptr.hpp"
 #include <map>
+#include <algorithm>
 
 
 /** Merging of a Gaussian mixture by clustering components
@@ -16,19 +16,19 @@
  */
 
 template <unsigned int N>
-class CloseComponentsMerger : public MultiGaussianStateMerger<N> {
+class CloseComponentsMerger final : public MultiGaussianStateMerger<N> {
 
  private:
-  typedef SingleGaussianState<N> SingleState;
-  typedef MultiGaussianState<N> MultiState;
-  typedef boost::shared_ptr<SingleState> SingleStatePtr;
+  using SingleState = SingleGaussianState<N>;
+  using MultiState =  MultiGaussianState<N> ;
+  using SingleStatePtr = std::shared_ptr<SingleState>;
 
  public:
 
   CloseComponentsMerger(int n,
 			   const DistanceBetweenComponents<N>* distance);
 
-  virtual CloseComponentsMerger* clone() const
+  CloseComponentsMerger* clone() const override
   {  
     return new CloseComponentsMerger(*this);
   }
@@ -36,8 +36,10 @@ class CloseComponentsMerger : public MultiGaussianStateMerger<N> {
   /** Method which does the actual merging. Returns a trimmed MultiGaussianState.
    */
 
-  virtual MultiState merge(const MultiState& mgs) const;
+  MultiState merge(const MultiState& mgs) const override;
   
+  MultiState mergeOld(const MultiState& mgs) const;
+
 
 public:
   typedef std::multimap< double, SingleStatePtr > SingleStateMap;

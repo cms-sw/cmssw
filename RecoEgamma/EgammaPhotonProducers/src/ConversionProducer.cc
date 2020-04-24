@@ -71,7 +71,7 @@ Implementation:
 
 
 ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
-  theVertexFinder_(0)
+  theVertexFinder_(nullptr)
 
 {
   algoName_ = iConfig.getParameter<std::string>( "AlgorithmName" );
@@ -159,7 +159,7 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
 
   theVertexFinder_ = new ConversionVertexFinder ( iConfig );
 
-  thettbuilder_ = 0;
+  thettbuilder_ = nullptr;
 
   //output
   ConvertedPhotonCollection_     = iConfig.getParameter<std::string>("convertedPhotonCollection");
@@ -185,7 +185,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   reco::ConversionCollection outputConvPhotonCollection;
-  std::auto_ptr<reco::ConversionCollection> outputConvPhotonCollection_p(new reco::ConversionCollection);
+  auto outputConvPhotonCollection_p = std::make_unique<reco::ConversionCollection>();
 
   //std::cout << " ConversionProducer::produce " << std::endl;
   //Read multiple track input collections
@@ -195,7 +195,11 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //build map of ConversionTracks ordered in eta
   std::multimap<float, edm::Ptr<reco::ConversionTrack> > convTrackMap;
-  for (edm::PtrVector<reco::ConversionTrack>::const_iterator tk_ref = trackCollectionHandle->ptrVector().begin(); tk_ref != trackCollectionHandle->ptrVector().end(); ++tk_ref ){
+  edm::PtrVector<reco::ConversionTrack> trackPtrVector;
+  for (size_t i = 0; i < trackCollectionHandle->size(); ++i)
+    trackPtrVector.push_back(trackCollectionHandle->ptrAt(i));
+
+  for (edm::PtrVector<reco::ConversionTrack>::const_iterator tk_ref = trackPtrVector.begin(); tk_ref != trackPtrVector.end(); ++tk_ref ){
     convTrackMap.insert(std::make_pair((*tk_ref)->track()->eta(),*tk_ref));
   }
 
@@ -222,7 +226,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     the_pvtx = *(vertexCollection.begin());
     
   if (trackCollectionHandle->size()> maxNumOfTrackInPU_){
-    iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+    iEvent.put(std::move(outputConvPhotonCollection_p), ConvertedPhotonCollection_);
     return;
   }
     
@@ -237,7 +241,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   buildCollection( iEvent, iSetup, convTrackMap,  superClusterPtrs, basicClusterPtrs, the_pvtx, outputConvPhotonCollection);//allow empty basicClusterPtrs
     
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(), outputConvPhotonCollection.end());
-  iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+  iEvent.put(std::move(outputConvPhotonCollection_p), ConvertedPhotonCollection_);
     
 }
 
@@ -434,9 +438,9 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
       double approachDist = -999.;
       //apply preselection to track pair, overriding preselection for gsf+X or ecalseeded+X pairs if so configured
       bool preselected = preselectTrackPair(ttk_l,ttk_r, approachDist);
-      preselected = preselected || (bypassPreselGsf_ && (left->algo()==29 || right->algo()==29));
-      preselected = preselected || (bypassPreselEcal_ && (left->algo()==15 || right->algo()==15 || left->algo()==16 || right->algo()==16));
-      preselected = preselected || (bypassPreselEcalEcal_ && (left->algo()==15 || left->algo()==16) && (right->algo()==15 || right->algo()==16));
+      preselected = preselected || (bypassPreselGsf_ && (left->algo()==reco::TrackBase::gsf || right->algo()==reco::TrackBase::gsf));
+      preselected = preselected || (bypassPreselEcal_ && (left->algo()==reco::TrackBase::outInEcalSeededConv || right->algo()==reco::TrackBase::outInEcalSeededConv || left->algo()==reco::TrackBase::inOutEcalSeededConv || right->algo()==reco::TrackBase::inOutEcalSeededConv));
+      preselected = preselected || (bypassPreselEcalEcal_ && (left->algo()==reco::TrackBase::outInEcalSeededConv || left->algo()==reco::TrackBase::inOutEcalSeededConv) && (right->algo()==reco::TrackBase::outInEcalSeededConv || right->algo()==reco::TrackBase::inOutEcalSeededConv));
       
       if (!preselected) {
         continue;
@@ -484,11 +488,8 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
         trackPin.push_back(toFConverterV(right->innerMomentum()));
         trackPout.push_back(toFConverterV(left->outerMomentum()));
 	trackPout.push_back(toFConverterV(right->outerMomentum()));
-      }
-          
-      if (ll->second->trajRef().isNonnull() && rr->second->trajRef().isNonnull()) {
-        std::pair<uint8_t,Measurement1DFloat> leftWrongHits = hitChecker.nHitsBeforeVtx(*ll->second->trajRef().get(),theConversionVertex);
-        std::pair<uint8_t,Measurement1DFloat> rightWrongHits = hitChecker.nHitsBeforeVtx(*rr->second->trajRef().get(),theConversionVertex);
+        auto leftWrongHits = hitChecker.nHitsBeforeVtx(*left->extra(),theConversionVertex);
+        auto rightWrongHits = hitChecker.nHitsBeforeVtx(*right->extra(),theConversionVertex);
         nHitsBeforeVtx.push_back(leftWrongHits.first);
         nHitsBeforeVtx.push_back(rightWrongHits.first);
         dlClosestHitToVtx.push_back(leftWrongHits.second);

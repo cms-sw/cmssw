@@ -21,7 +21,7 @@
 // system include files
 #include <vector>
 #ifndef __CINT__
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <sigc++/sigc++.h>
 #endif
 #include "TGFrame.h"
@@ -51,7 +51,7 @@ class ViewerParameterGUI : public TGCompositeFrame,
 {
 public:
    ViewerParameterGUI(const TGFrame*);
-   virtual ~ViewerParameterGUI(){}
+   ~ViewerParameterGUI() override{}
 
    ViewerParameterGUI& requestTab(const char*);
    ViewerParameterGUI& addParam(const FWParameterBase*);
@@ -66,7 +66,7 @@ private:
    TGTab*      m_tab;
    std::string m_selectedTabName;
 #ifndef __CINT__
-   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+   std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
 }; 
 
@@ -75,8 +75,8 @@ private:
 class CmsShowViewPopup : public TGTransientFrame
 {
 public:
-   CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=0, FWViewBase* wb=0, TEveWindow* ew = 0);
-   virtual ~CmsShowViewPopup();
+   CmsShowViewPopup(const TGWindow* p = nullptr, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=nullptr, FWViewBase* wb=nullptr, TEveWindow* ew = nullptr);
+   ~CmsShowViewPopup() override;
 
    // ---------- const member functions ---------------------
 
@@ -84,9 +84,9 @@ public:
 
    // ---------- member functions ---------------------------
 
-   virtual void CloseWindow();
-   virtual void MapWindow();
-   virtual void UnmapWindow();
+   void CloseWindow() override;
+   void MapWindow() override;
+   void UnmapWindow() override;
 
    bool mapped() { return m_mapped; }
 
@@ -100,7 +100,7 @@ public:
    sigc::signal<void> closed_;
 #endif
 
-   ClassDef(CmsShowViewPopup, 0);
+   ClassDefOverride(CmsShowViewPopup, 0);
 
 private:
    CmsShowViewPopup(const CmsShowViewPopup&);                  // stop default

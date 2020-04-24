@@ -3,7 +3,6 @@
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="Geometry/CaloGeometry"/>
-<use   name="RecoCaloTools/MetaCollections"/>
 <use   name="clhep"/>
 <use   name="root"/>
 <use   name="PhysicsTools/MVAComputer"/>
@@ -13,6 +12,7 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="DataFormats/ParticleFlowReco"/>
+<use   name="CommonTools/Utils"/>
 <use name="roottmva"/>
 <export>
   <lib   name="1"/>

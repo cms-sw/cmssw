@@ -4,26 +4,28 @@
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseIsolator.h"
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 
 class SimpleCutsIsolator : public muonisolation::MuIsoBaseIsolator {
  public:
-  SimpleCutsIsolator(const edm::ParameterSet & par):
+ SimpleCutsIsolator(const edm::ParameterSet & par, edm::ConsumesCollector && iC):
     theCuts(par.getParameter<std::vector<double> > ("EtaBounds"),
 	    par.getParameter<std::vector<double> > ("ConeSizes"),
 	    par.getParameter<std::vector<double> > ("Thresholds"))
     {
     }
 
-  virtual ResultType resultType() const {return ISOL_BOOL_TYPE;}
+  ResultType resultType() const override {return ISOL_BOOL_TYPE;}
 
-  virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const {
+  Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const override {
     Result answer(ISOL_BOOL_TYPE);
     answer.valBool = false;
     // fail miserably...
     return answer;
   }
 
-  virtual Result result(const DepositContainer& deposits, const reco::Track& tk, const edm::Event* = 0) const {
+  Result result(const DepositContainer& deposits, const reco::Track& tk, const edm::Event* = nullptr) const override {
     Result answer(ISOL_BOOL_TYPE);
 
     muonisolation::Cuts::CutSpec cuts_here = theCuts(tk.eta());

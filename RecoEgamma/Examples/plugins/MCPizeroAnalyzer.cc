@@ -44,7 +44,7 @@ using namespace std;
 
 MCPizeroAnalyzer::MCPizeroAnalyzer( const edm::ParameterSet& pset )
    : fOutputFileName_( pset.getUntrackedParameter<string>("HistOutFile",std::string("TestConversions.root")) ),
-     fOutputFile_(0)
+     fOutputFile_(nullptr)
 {
 
 
@@ -195,7 +195,7 @@ void MCPizeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
   theSimVertices.insert(theSimVertices.end(),SimVtx->begin(),SimVtx->end());
   std::cout << " MCPizeroAnalyzer This Event has " <<  theSimTracks.size() << " sim tracks " << std::endl;
   std::cout << " MCPizeroAnalyzer This Event has " <<  theSimVertices.size() << " sim vertices " << std::endl;
-  if (  ! theSimTracks.size() ) std::cout << " Event number " << e.id() << " has NO sim tracks " << std::endl;
+  if (  theSimTracks.empty() ) std::cout << " Event number " << e.id() << " has NO sim tracks " << std::endl;
 
 
   std::vector<PizeroMCTruth> MCPizeroeros=thePizeroMCTruthFinder_->find (theSimTracks,  theSimVertices);

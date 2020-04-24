@@ -18,18 +18,18 @@ public:
 
   TangentApproachInRPhi() {status_ = false; intersection_ = false;}
 
-  virtual bool calculate(const TrajectoryStateOnSurface & sta, 
-	 const TrajectoryStateOnSurface & stb);
+  bool calculate(const TrajectoryStateOnSurface & sta, 
+	 const TrajectoryStateOnSurface & stb) override;
 
-  virtual bool calculate(const FreeTrajectoryState & sta,
-	const FreeTrajectoryState & stb);
+  bool calculate(const FreeTrajectoryState & sta,
+	const FreeTrajectoryState & stb) override;
 
-  virtual bool status() const {return status_;}
+  bool status() const override {return status_;}
 
   /**
    * Returns the two PCA on the trajectories.
    */
-  virtual std::pair<GlobalPoint, GlobalPoint> points() const;
+  std::pair<GlobalPoint, GlobalPoint> points() const override;
 
   /** Returns not only the points, but the full GlobalTrajectoryParemeters 
    *  at the points of closest approach */
@@ -37,10 +37,10 @@ public:
 	trajectoryParameters () const;
 
   /** arithmetic mean of the two points of closest approach */
-  virtual GlobalPoint crossingPoint() const;
+  GlobalPoint crossingPoint() const override;
 
   /** distance between the two points of closest approach in 3D */
-  virtual float distance() const;
+  float distance() const override;
   
   /** signed distance between two points of closest approach in r-phi plane (-ive if circles intersect) */
   float perpdist() const;
@@ -48,7 +48,7 @@ public:
   /**
    *  Clone method
    */
-  virtual TangentApproachInRPhi * clone() const {
+  TangentApproachInRPhi * clone() const override {
     return new TangentApproachInRPhi(* this);
   }
 

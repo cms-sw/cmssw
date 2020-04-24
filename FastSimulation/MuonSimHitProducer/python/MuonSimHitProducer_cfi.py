@@ -10,7 +10,7 @@ MuonSimHits = cms.EDProducer("MuonSimHitProducer",
     # Muons
     MUONS = cms.PSet(
         # The muon simtrack's must be taken from there
-        simModuleLabel = cms.string('famosSimHits'),
+        simModuleLabel = cms.string('fastSimProducer'),
         simModuleProcess = cms.string('MuonSimTracks'),
         # The reconstruted tracks must be taken from there
         trackModuleLabel = cms.string('generalTracks'),

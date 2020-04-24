@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -47,17 +49,28 @@ namespace edm {
     }
     
     bool
-    EDProducerBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+    EDProducerBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
+                            ActivityRegistry* act,
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
+      e.setProducer(this, &previousParentage_);
+      e.setSharedResourcesAcquirer(&resourcesAcquirer_);
+      EventSignalsSentry sentry(act,mcc);
       this->produce(e, c);
-      commit_(e,&previousParentage_, &previousParentageId_);
+      commit_(e, &previousParentageId_);
       return true;
     }
     
+    SharedResourcesAcquirer EDProducerBase::createAcquirer() {
+      return SharedResourcesAcquirer{
+        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
+    }
+
     void
     EDProducerBase::doBeginJob() {
+      resourcesAcquirer_ = createAcquirer();
+      
       this->beginJob();
     }
     
@@ -67,45 +80,55 @@ namespace edm {
     }
     
     void
-    EDProducerBase::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+    EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
+      auto const nThreads = iPrealloc.numberOfThreads();
+      preallocThreads(nThreads);
+    }
+   
+    void
+    EDProducerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                                ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
+      r.setProducer(this);
       this->doBeginRunProduce_(r,c);
       commit_(r);
     }
     
     void
-    EDProducerBase::doEndRun(RunPrincipal& rp, EventSetup const& c,
+    EDProducerBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doEndRun_(cnstR, c);
+      r.setProducer(this);
       this->doEndRunProduce_(r, c);
       commit_(r);
     }
     
     void
-    EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                            ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
+      lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
     
     void
-    EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doEndLuminosityBlock_(cnstLb, c);
+      lb.setProducer(this);
       this->doEndLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
@@ -118,16 +141,6 @@ namespace edm {
     void
     EDProducerBase::doRespondToCloseInputFile(FileBlock const& fb) {
       //respondToCloseInputFile(fb);
-    }
-    
-    void
-    EDProducerBase::doPreForkReleaseResources() {
-      //preForkReleaseResources();
-    }
-    
-    void
-    EDProducerBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      //postForkReacquireResources(iChildIndex, iNumberOfChildren);
     }
     
     void EDProducerBase::doBeginRun_(Run const& rp, EventSetup const& c) {}

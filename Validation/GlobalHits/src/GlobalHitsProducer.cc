@@ -7,6 +7,7 @@
 
 #include "Validation/GlobalHits/interface/GlobalHitsProducer.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 GlobalHitsProducer::GlobalHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
@@ -177,8 +178,8 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
   ++count;
 
   // get event id information
-  int nrun = iEvent.id().run();
-  int nevt = iEvent.id().event();
+  edm::RunNumber_t nrun = iEvent.id().run();
+  edm::EventNumber_t nevt = iEvent.id().event();
 
   if (verbosity > 0) {
     edm::LogInfo(MsgLoggerCat)
@@ -198,8 +199,8 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -245,7 +246,7 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
       << "Done gathering data from event.";
 
   // produce object to put into event
-  std::auto_ptr<PGlobalSimHit> pOut(new PGlobalSimHit);
+  std::unique_ptr<PGlobalSimHit> pOut(new PGlobalSimHit);
 
   if (verbosity > 2)
     edm::LogInfo (MsgLoggerCat)
@@ -264,7 +265,7 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
   storeHCal(*pOut);
 
   // store information in event
-  iEvent.put(pOut,label);
+  iEvent.put(std::move(pOut),label);
 
   return;
 }
@@ -290,7 +291,7 @@ void GlobalHitsProducer::fillG4MC(edm::Event& iEvent)
   // should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
     HepMCEvt = AllHepMCEvt[i];
-    if ((HepMCEvt.provenance()->product()).moduleLabel() == "VtxSmeared")
+    if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
       break;
   }
 
@@ -300,7 +301,7 @@ void GlobalHitsProducer::fillG4MC(edm::Event& iEvent)
     return;
   } else {
     eventout += "\n          Using HepMCProduct: ";
-    eventout += (HepMCEvt.provenance()->product()).moduleLabel();
+    eventout += (HepMCEvt.provenance()->branchDescription()).moduleLabel();
   }
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
   nRawGenPart = MCEvt->particles_size();
@@ -1480,8 +1481,8 @@ void GlobalHitsProducer::fillHCal(edm::Event& iEvent,
 	 (subdetector == sdHcalFwd))) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      const HcalGeometry *theDet = (HcalGeometry*)
+	(theCalo.getSubdetectorGeometry(theDetUnitId));
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
@@ -1492,7 +1493,7 @@ void GlobalHitsProducer::fillHCal(edm::Event& iEvent,
       ++j;
 
       // get the global position of the cell
-      const GlobalPoint& globalposition = theDet->getPosition();
+      const GlobalPoint& globalposition = theDet->getPosition(theDetUnitId);
 
       // gather necessary information
       HCalE.push_back(itHit->energy());

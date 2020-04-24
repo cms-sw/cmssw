@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -47,7 +49,7 @@ public:
     L1GtHfBitCountsTemplate( const L1GtHfBitCountsTemplate& );
 
     // destructor
-    virtual ~L1GtHfBitCountsTemplate();
+    ~L1GtHfBitCountsTemplate() override;
 
     // assign operator
     L1GtHfBitCountsTemplate& operator= (const L1GtHfBitCountsTemplate&);
@@ -60,7 +62,9 @@ public:
         unsigned int countIndex;
         unsigned int countThreshold;
 
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 
 public:
@@ -76,7 +80,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtHfBitCountsTemplate&);
@@ -92,6 +96,8 @@ private:
     /// variables containing the parameters
     std::vector<ObjectParameter> m_objectParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

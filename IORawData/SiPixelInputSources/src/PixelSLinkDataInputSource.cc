@@ -135,11 +135,11 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
   m_fileindex++;
   // reading both castor and other ('normal'/dcap) files.
   IOOffset size = -1;
-  StorageFactory::get()->enableAccounting(true);
+  StorageFactory::getToModify()->enableAccounting(true);
     
   edm::LogInfo("PixelSLinkDataInputSource") << " unsigned long int size = " << sizeof(unsigned long int) <<"\n unsigned long size = " << sizeof(unsigned long)<<"\n unsigned long long size = " << sizeof(unsigned long long) <<  "\n uint32_t size = " << sizeof(uint32_t) << "\n uint64_t size = " << sizeof(uint64_t) << std::endl;
 
-  bool exists = StorageFactory::get() -> check(currentfilename.c_str(), &size);
+  bool exists = StorageFactory::get() -> check(currentfilename, &size);
   
   edm::LogInfo("PixelSLinkDataInputSource") << "file size " << size << std::endl;
   
@@ -148,7 +148,7 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
     return;
   }
   // now open the file stream:
-  storage.reset(StorageFactory::get()->open(currentfilename.c_str()));
+  storage =StorageFactory::get()->open(currentfilename);
   // (throw if storage is 0)
 
   // check run number by opening up data file...
@@ -172,7 +172,7 @@ PixelSLinkDataInputSource::~PixelSLinkDataInputSource() {
 
 }
 
-bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time) {
+bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) {
   Storage & m_file = *storage;
 
   // create product (raw data)
@@ -229,7 +229,7 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeVa
     while((m_data >> 60) != 0xa);
     //  std::cout << "read " <<  buffer.size() << " long words" << std::endl;
 
-    std::auto_ptr<FEDRawData> rawData(new FEDRawData(8*buffer.size()));
+    auto rawData = std::make_unique<FEDRawData>(8*buffer.size());
     //  FEDRawData * rawData = new FEDRawData(8*buffer.size());
     unsigned char* dataptr=rawData->data();
 
@@ -269,7 +269,7 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeVa
 
 // produce() method. This is the worker method that is called every event.
 void PixelSLinkDataInputSource::produce(edm::Event& event) {
-  event.put(buffers);
+  event.put(std::move(buffers));
   buffers.reset();  
 }
 

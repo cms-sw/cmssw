@@ -24,8 +24,8 @@ class HLTEgammaTriggerFilterObjectWrapper : public HLTFilter {
 
    public:
       explicit HLTEgammaTriggerFilterObjectWrapper(const edm::ParameterSet&);
-      ~HLTEgammaTriggerFilterObjectWrapper();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTEgammaTriggerFilterObjectWrapper() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

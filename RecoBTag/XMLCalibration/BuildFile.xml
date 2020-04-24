@@ -1,6 +1,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Concurrency"/>
 <use   name="xerces-c"/>
+<use   name="boost_serialization"/>
 <export>
   <lib   name="1"/>
 </export>

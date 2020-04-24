@@ -15,8 +15,8 @@
 
 #define THIS_CLASS DTTime2DriftParametrization
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 #ifndef MB_DT_STANDALONE
 #include "DTTime2DriftParametrization.h"

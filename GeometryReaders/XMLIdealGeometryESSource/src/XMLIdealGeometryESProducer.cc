@@ -18,7 +18,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -37,7 +36,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Solid.h"
@@ -51,9 +50,9 @@
 class XMLIdealGeometryESProducer : public edm::ESProducer {
 public:
   XMLIdealGeometryESProducer(const edm::ParameterSet&);
-  ~XMLIdealGeometryESProducer();
+  ~XMLIdealGeometryESProducer() override;
   
-  typedef std::auto_ptr<DDCompactView> ReturnType;
+  typedef std::unique_ptr<DDCompactView> ReturnType;
   
   ReturnType produce(const IdealGeometryRecord&);
 private:
@@ -129,13 +128,11 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    DDLParser parser(*returnValue);
    parser.getDDLSAX2FileHandler()->setUserNS(true);
    parser.clearFiles();
-   
-   std::vector<unsigned char>* tb = (*gdd).getUncompressedBlob();
-   
-   parser.parse(*tb, tb->size()); 
-   
-   delete tb;
-   
+
+   std::unique_ptr<std::vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
+
+   parser.parse(*tb, tb->size());
+
    //std::cout << "In XMLIdealGeometryESProducer::produce" << std::endl;
    returnValue->lockdown();
 

@@ -6,7 +6,6 @@
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/SiStripCommon"/>
-<use   name="RecoLocalTracker/SiStripZeroSuppression"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>

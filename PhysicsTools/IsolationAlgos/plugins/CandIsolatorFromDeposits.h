@@ -1,7 +1,7 @@
 #ifndef MuonIsolationProducers_CandIsolatorFromDeposits_H
 #define MuonIsolationProducers_CandIsolatorFromDeposits_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -20,7 +20,7 @@
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class CandIsolatorFromDeposits : public edm::EDProducer {
+class CandIsolatorFromDeposits : public edm::stream::EDProducer<> {
 
 public:
   typedef edm::ValueMap<double> CandDoubleMap;

@@ -1,0 +1,11 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="EventFilter/RctRawToDigi"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="DataFormats/L1CaloTrigger"/>
+<use   name="DataFormats/L1GlobalCaloTrigger"/>
+<use   name="DataFormats/L1Trigger"/>
+<library   file="*.cc" name="EventFilterRctRawToDigiPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

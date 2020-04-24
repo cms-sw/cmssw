@@ -163,7 +163,7 @@ We also have Bias and Ground Wires: Copper V = 0.0362 cm3
 
 SERVICE CYLINDER MATERIAL (V. Cuplov)
 =============================================
-The following description has been done by B. Gobbi and E. Spencer.
+The following description (Volumes 1-8) has been done by B. Gobbi and E. Spencer.
 See FPix DOC DB: 1628-v2
 https://docdb.fnal.gov/CMS-private/DocDB/DocumentDatabase 
 
@@ -225,6 +225,31 @@ https://docdb.fnal.gov/CMS-private/DocDB/DocumentDatabase
 * 2 "C6F14" "FPix_Cylind_C6F14" 170 1 COL
 * 3 "Aluminium (cooling tube)" "Aluminium" 82 1 COL
 * 4 "Poliax" "FPix_Cylind_POLIAX" 78 1 CAB 
+
+# "Volume 9: " "Pix_Fwd_DCDC_Converter"  24.497 1
+* 1 "Copper" "Copper" 0.475 1 ELE
+* 2 "G10" "FPix_Cylind_G10" 16.454 1 ELE
+* 3 "Kapton" "FPix_Kapton" 0.107 1 CAB
+* 4 "Polyester" "FPix_Cylind_Polyester" 3.526 1 CAB 
+* 5 "Solder" "FPix_TinLeadSolder" 0.009 1 ELE
+* 6 "Aluminium" "FPix_Alumina" 3.926 1 COL
+
+# "Volume 10: " "Pix_Fwd_Port_Cards_Phase1" 2703 1
+* 1 "G10" "FPix_Cylind_G10" 419.09 1 ELE
+* 2 "Copper" "Copper" 44.75 1 ELE
+* 3 "Polyimide (extension cable)" "FPix_Kapton" 134.29 1 CAB
+* 4 "Port card/ CCU connectors" "FPix_Cylind_Polyester" 48.83 1 CAB
+* 5 "Solder" "FPix_TinLeadSolder" 4.08 1 ELE
+* 6 "Resistors" "FPix_Alumina" 8.11 1 ELE
+* 7 "Capacitors" "Barium_Titanate" 4.08 1 ELE
+* 8 "Chips" "Silicon" 4.08 1 ELE
+* 9 "OH parts (mostly G10)" "FPix_Cylind_G10" 109.85 1 ELE
+* 10 "DCDC Copper" "Copper" 15.08 1 ELE
+* 11 "DCDC G10" "FPix_Cylind_G10" 521.97 1 ELE
+* 12 "DCDC Kapton" "FPix_Kapton" 3.39 1 CAB
+* 13 "DCDC Polyester" "FPix_Cylind_Polyester" 111.82 1 CAB 
+* 14 "DCDC Solder" "FPix_TinLeadSolder" 0.28 1 ELE
+* 15 "DCDC Aluminium" "FPix_Alumina" 124.52 1 COL
 
 # "END"  "END"  0.  0.   
 this has to be the last line !

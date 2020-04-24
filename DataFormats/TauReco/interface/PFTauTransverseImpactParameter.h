@@ -35,8 +35,8 @@ namespace reco
 
     PFTauTransverseImpactParameter(){}
     /// constructor from values
-    PFTauTransverseImpactParameter(const Point&, double, double, const VertexRef&);
-    PFTauTransverseImpactParameter(const Point&, double, double, const VertexRef&, const Point&, double, const VertexRef&);
+    PFTauTransverseImpactParameter(const Point&, double, double, const Point&, double, double, const VertexRef&);
+    PFTauTransverseImpactParameter(const Point&, double, double, const Point&, double, double, const VertexRef&, const Point&, double, const VertexRef&);
     
     virtual ~PFTauTransverseImpactParameter(){}
     PFTauTransverseImpactParameter* clone() const;
@@ -45,6 +45,10 @@ namespace reco
     double           dxy() const { return dxy_; }
     double           dxy_error() const { return dxy_error_; }
     double           dxy_Sig() const { return ( dxy_error_ != 0 ) ? (dxy_/dxy_error_) : 0.; }
+    const Point&     ip3d_PCA() const { return pca3d_; }
+    double           ip3d() const { return ip3d_; }
+    double           ip3d_error() const { return ip3d_error_; }
+    double           ip3d_Sig() const { return ( ip3d_error_ != 0 ) ? (ip3d_/ip3d_error_) : 0.; }
     const VertexRef& primaryVertex() const { return PV_; }
     Point            primaryVertexPos() const; 
     CovMatrix        primaryVertexCov() const;
@@ -60,6 +64,9 @@ namespace reco
     Point      pca_;
     double     dxy_;
     double     dxy_error_;
+    Point      pca3d_;
+    double     ip3d_;
+    double     ip3d_error_;
     VertexRef  PV_;
     bool       hasSV_;
     Vector     FlightLength_;

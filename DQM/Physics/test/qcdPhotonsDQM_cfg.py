@@ -10,7 +10,7 @@ process.DQM.collectorHost = ''
 process.dqmSaver.workflow = cms.untracked.string('/My/Test/DataSet')
 
 ## Geometry and Detector Conditions (needed for spike removal code)
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('START38_V9::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")

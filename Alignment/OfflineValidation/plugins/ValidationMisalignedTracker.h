@@ -11,8 +11,6 @@
 
 // 
 #include "FWCore/Framework/interface/ESHandle.h" 
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
@@ -35,12 +33,12 @@
 class ValidationMisalignedTracker : public edm::EDAnalyzer {
 public:
   explicit ValidationMisalignedTracker(const edm::ParameterSet&);
-  ~ValidationMisalignedTracker();
+  ~ValidationMisalignedTracker() override;
   
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   // ----------member data ---------------------------
   
@@ -92,7 +90,6 @@ private:
   bool onlyDiag;
   edm::ESHandle<MagneticField> theMF;
   std::vector<std::string> associators;
-  std::vector<const TrackAssociatorBase*> associatore;
  
   std::vector<edm::InputTag> label;
   edm::InputTag label_tp_effic;
@@ -100,8 +97,6 @@ private:
 
   GlobalVector magField;
   std::vector<float> ptused;
-
-  edm::ESWatcher<TrackAssociatorRecord> watchTrackAssociatorRecord_;
 };
 
 #endif

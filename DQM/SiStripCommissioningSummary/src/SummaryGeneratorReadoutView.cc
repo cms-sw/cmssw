@@ -43,7 +43,7 @@ void SummaryGeneratorReadoutView::fill( const std::string& top_level_dir,
   
   // Path and std::string for "present working directory" as defined by device key
   SiStripFedKey path( device_key );
-  std::string pwd = path.path();
+  const std::string& pwd = path.path();
   
   // Check path is "within" top-level directory structure 
   if ( top.isValid() &&

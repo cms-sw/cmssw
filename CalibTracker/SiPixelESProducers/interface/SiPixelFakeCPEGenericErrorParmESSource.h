@@ -2,7 +2,6 @@
 #define CalibTracker_SiPixelESProducers_SiPixelFakeCPEGenericErrorParmESSource_h
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -14,15 +13,15 @@ class SiPixelFakeCPEGenericErrorParmESSource : public edm::ESProducer, public ed
 
  public:
   SiPixelFakeCPEGenericErrorParmESSource(const edm::ParameterSet &);
-  ~SiPixelFakeCPEGenericErrorParmESSource();
+  ~SiPixelFakeCPEGenericErrorParmESSource() override;
   
-   virtual std::auto_ptr<SiPixelCPEGenericErrorParm>  produce(const SiPixelCPEGenericErrorParmRcd &);
+   virtual std::unique_ptr<SiPixelCPEGenericErrorParm>  produce(const SiPixelCPEGenericErrorParmRcd &);
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   

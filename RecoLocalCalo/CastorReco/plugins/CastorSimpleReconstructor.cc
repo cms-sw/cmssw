@@ -1,4 +1,3 @@
-using namespace std;
 #include "CastorSimpleReconstructor.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
@@ -16,11 +15,12 @@ using namespace std;
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
 #include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
+using namespace std;
 
 CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& conf):
 reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),
@@ -85,7 +85,7 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
         e.getByToken(tok_input_,digi);
         
         // create empty output
-        std::auto_ptr<CastorRecHitCollection> rec(new CastorRecHitCollection);
+        auto rec = std::make_unique<CastorRecHitCollection>();
         // run the algorithm
         CastorDigiCollection::const_iterator i;
         for (i=digi->begin(); i!=digi->end(); i++) {
@@ -118,6 +118,6 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
             }
         }
         // return result
-        e.put(rec);     
+        e.put(std::move(rec));
     }
 }

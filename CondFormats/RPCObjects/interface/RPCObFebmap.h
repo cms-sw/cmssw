@@ -9,6 +9,8 @@
 
 #ifndef RPCObFebmap_h
 #define RPCObFebmap_h
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 
@@ -32,11 +34,15 @@ class RPCObFebmap {
         int   noise2;
         int   noise3;
         int   noise4;
-    };
+    
+  COND_SERIALIZABLE;
+};
     RPCObFebmap(){}
     virtual ~RPCObFebmap(){}
     std::vector<Feb_Item> ObFebMap_rpc;
-   };
+   
+  COND_SERIALIZABLE;
+};
 
 #endif
 

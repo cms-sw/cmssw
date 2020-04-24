@@ -49,8 +49,6 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 
-#include "Utilities/Timing/interface/TimerStack.h"
- 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -119,14 +117,14 @@ public:
   CSCEfficiency(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~CSCEfficiency();
+  ~CSCEfficiency() override;
 
  private:
-  virtual void beginJob() ;
+  void beginJob() override ;
   //---- analysis + filter
-  virtual bool filter(edm::Event & event, const edm::EventSetup& eventSetup);
+  bool filter(edm::Event & event, const edm::EventSetup& eventSetup) override;
 
-  virtual void endJob() ;
+  void endJob() override ;
 
   //---- (input) parameters
   //---- Root file name

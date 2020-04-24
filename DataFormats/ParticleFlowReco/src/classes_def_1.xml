@@ -42,8 +42,10 @@
 <class name="edm::Ref<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::VertexCompositeCandidate>,reco::VertexCompositeCandidate> >" />
 
 
-  <class name="reco::ConvBremSeed" ClassVersion="10">
+  <class name="reco::ConvBremSeed" ClassVersion="12">
    <version ClassVersion="10" checksum="2980747190"/>
+   <version ClassVersion="11" checksum="637662266"/>
+   <version ClassVersion="12" checksum="2604169839"/>
   </class>
   <class name="std::vector<reco::ConvBremSeed>"/>
   <class name="edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> >"/>

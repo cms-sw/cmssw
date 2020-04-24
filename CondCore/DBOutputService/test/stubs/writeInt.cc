@@ -7,6 +7,8 @@
 #include<vector>
 #include<sstream>
 
+#include <boost/serialization/vector.hpp>
+
 typedef std::vector<int> Payload;
 
 

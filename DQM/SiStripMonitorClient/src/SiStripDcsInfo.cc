@@ -18,13 +18,14 @@
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 //
 // -- Contructor
@@ -34,7 +35,8 @@ SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet) :
     m_cacheIDCabling_(0),
     m_cacheIDDcs_(0),
     bookedStatus_(false),
-    nLumiAnalysed_(0)
+    nLumiAnalysed_(0),
+    nGoodDcsLumi_(0)
 { 
   // Create MessageSender
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
@@ -55,42 +57,42 @@ void SiStripDcsInfo::beginJob() {
   
   tag = "TIB";   
   local_mes.folder_name = "TIB";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
       
   tag = "TOB";
   local_mes.folder_name = "TOB";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TECB";
   local_mes.folder_name = "TEC/MINUS";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TECF";
   local_mes.folder_name = "TEC/PLUS";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TIDB";
   local_mes.folder_name = "TID/MINUS";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 
   tag = "TIDF";
   local_mes.folder_name = "TID/PLUS";
-  local_mes.DcsFractionME  = 0;
+  local_mes.DcsFractionME  = nullptr;
   local_mes.TotalDetectors = 0; 
   local_mes.FaultyDetectors.clear();
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
@@ -106,7 +108,7 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
 
   // Count Tracker FEDs from RunInfo
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != 0) {
+  if( eSetup.find( recordKey ) != nullptr) {
     
     edm::ESHandle<RunInfo> sumFED;
     eSetup.get<RunInfoRcd>().get(sumFED);    
@@ -135,7 +137,7 @@ void SiStripDcsInfo::analyze(edm::Event const& event, edm::EventSetup const& eSe
 //
 void SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::beginLuminosityBlock";
-  
+
   if (nFEDConnected_ == 0) return;
 
   // initialise BadModule list 
@@ -143,7 +145,7 @@ void SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     it->second.FaultyDetectors.clear();
   }
   readStatus(eSetup);
-  nLumiAnalysed_++;   
+  nLumiAnalysed_++;
 }
 
 //
@@ -168,7 +170,6 @@ void SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
     it->second.FaultyDetectors.clear();
   }
   readStatus(eSetup); 
-  fillStatus();
   addBadModules();
 } 
 //
@@ -178,7 +179,7 @@ void SiStripDcsInfo::bookStatus() {
   if (!bookedStatus_) {
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo");
        
     DcsFraction_= dqmStore_->bookFloat("DCSSummary");  
@@ -186,7 +187,7 @@ void SiStripDcsInfo::bookStatus() {
     DcsFraction_->setLumiFlag();
     
     dqmStore_->cd();
-    if (strip_dir.size() > 0)  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
+    if (!strip_dir.empty())  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents"); 
     for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
       SubDetMEs local_mes;	
@@ -206,7 +207,7 @@ void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   unsigned long long cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
@@ -247,7 +248,7 @@ void SiStripDcsInfo::readStatus(edm::EventSetup const& eSetup) {
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   eSetup.get<SiStripDetVOffRcd>().get(siStripDetVOff_);
@@ -295,6 +296,14 @@ void SiStripDcsInfo::fillStatus(){
     else fraction = 1 - faulty_det/total_det;
     DcsFraction_->Reset();
     DcsFraction_->Fill(fraction);
+    IsLumiGoodDcs_ = fraction > MinAcceptableDcsDetFrac_;
+    if(IsLumiGoodDcs_) nGoodDcsLumi_++;
+    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+      for (std::vector<uint32_t>::iterator ifaulty = it->second.FaultyDetectors.begin(); ifaulty != it->second.FaultyDetectors.end(); ifaulty++) {
+        uint32_t detId_faulty = (*ifaulty);
+        if(IsLumiGoodDcs_) it->second.NLumiDetectorIsFaulty[detId_faulty]++;
+      }
+    }
   } 
 }
 //
@@ -325,17 +334,20 @@ void SiStripDcsInfo::addBadModules() {
   std::string tag = "DCSError";
 
   for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-    std::vector<uint32_t> badModules = it->second.FaultyDetectors; 
-    for (std::vector<uint32_t>::iterator ibad = badModules.begin(); 
-	 ibad != badModules.end(); ibad++) {
 
+    std::unordered_map<uint32_t,uint16_t> lumiCountBadModules = it->second.NLumiDetectorIsFaulty;
+    for(std::unordered_map<uint32_t,uint16_t>::iterator ilumibad = lumiCountBadModules.begin(); 
+        ilumibad != lumiCountBadModules.end(); ilumibad++) {
+      uint32_t ibad = (*ilumibad).first;
+      uint32_t nBadLumi = (*ilumibad).second;
+      if(nBadLumi <= MaxAcceptableBadDcsLumi_) continue;
       std::string bad_module_folder = mechanical_dir + "/" +
                                       it->second.folder_name + "/"     
                                       "BadModuleList";      
       dqmStore_->setCurrentFolder(bad_module_folder);
 
       std::ostringstream detid_str;
-      detid_str << (*ibad);
+      detid_str << ibad;
       std::string full_path = bad_module_folder + "/" + detid_str.str();
       MonitorElement* me = dqmStore_->get(full_path);
       uint16_t flag = 0; 

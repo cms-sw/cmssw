@@ -8,7 +8,7 @@
 namespace muon {
 SelectionType selectionTypeFromString( const std::string &label )
 {
-   static SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
+   static const SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
       { "All", All },
       { "AllGlobalMuons", AllGlobalMuons },
       { "AllStandAloneMuons", AllStandAloneMuons },
@@ -34,7 +34,11 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "TMLastStationOptimizedBarrelLowPtLoose", TMLastStationOptimizedBarrelLowPtLoose },
       { "TMLastStationOptimizedBarrelLowPtTight", TMLastStationOptimizedBarrelLowPtTight },
       { "RPCMuLoose", RPCMuLoose },
-      { 0, (SelectionType)-1 }
+      { "AllME0Muons", AllME0Muons },
+      { "ME0MuonArbitrated", ME0MuonArbitrated },
+      { "AllGEMMuons", AllGEMMuons },
+      { "GEMMuonArbitrated", GEMMuonArbitrated },
+      { nullptr, (SelectionType)-1 }
    };
 
    SelectionType value = (SelectionType)-1;
@@ -357,7 +361,7 @@ bool muon::isGoodMuon( const reco::Muon& muon,
             minNumberOfMatches = 1;
       }
 
-      if(numSegs >= minNumberOfMatches) goodMuon = 1;
+      if(numSegs >= minNumberOfMatches) goodMuon = true;
 
       // Require that last required station have segment
       // If there are zero required stations keep track
@@ -392,11 +396,11 @@ bool muon::isGoodMuon( const reco::Muon& muon,
       detector = lastSegBit < 4 ? 1 : 2;
 
       // Check x information
-      if(fabs(muon.pullX(station,detector,arbitrationType,1)) > maxAbsPullX &&
+      if(fabs(muon.pullX(station,detector,arbitrationType,true)) > maxAbsPullX &&
             fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx)
          return false;
 
-      if(applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,1)) > maxAbsPullX)
+      if(applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,true)) > maxAbsPullX)
          return false;
 
       // Is this a tight algorithm, i.e. do we bother to check y information?
@@ -404,11 +408,11 @@ bool muon::isGoodMuon( const reco::Muon& muon,
 
          // Check y information
          if (detector == 2) { // CSC
-            if(fabs(muon.pullY(station,2,arbitrationType,1)) > maxAbsPullY &&
+            if(fabs(muon.pullY(station,2,arbitrationType,true)) > maxAbsPullY &&
                   fabs(muon.dY(station,2,arbitrationType)) > maxAbsDy)
                return false;
 
-            if(applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,1)) > maxAbsPullY)
+            if(applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,true)) > maxAbsPullY)
                return false;
          } else {
             //
@@ -433,12 +437,12 @@ bool muon::isGoodMuon( const reco::Muon& muon,
                if(muon.dY(stationIdx,1,arbitrationType) > 999998) // no y-information
                   continue;
 
-               if(fabs(muon.pullY(stationIdx,1,arbitrationType,1)) > maxAbsPullY &&
+               if(fabs(muon.pullY(stationIdx,1,arbitrationType,true)) > maxAbsPullY &&
                      fabs(muon.dY(stationIdx,1,arbitrationType)) > maxAbsDy) {
                   return false;
                }
 
-               if(applyAlsoAngularCuts && fabs(muon.pullDyDz(stationIdx,1,arbitrationType,1)) > maxAbsPullY)
+               if(applyAlsoAngularCuts && fabs(muon.pullDyDz(stationIdx,1,arbitrationType,true)) > maxAbsPullY)
                   return false;
 
                // If we get this far then great this is a good muon
@@ -481,9 +485,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
             station  = stationIdx < 4 ? stationIdx+1 : stationIdx-3;
             detector = stationIdx < 4 ? 1 : 2;
 
-            if((fabs(muon.pullX(station,detector,arbitrationType,1)) > maxAbsPullX &&
+            if((fabs(muon.pullX(station,detector,arbitrationType,true)) > maxAbsPullX &&
                   fabs(muon.dX(station,detector,arbitrationType)) > maxAbsDx) ||
-                  (applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,1)) > maxAbsPullX))
+                  (applyAlsoAngularCuts && fabs(muon.pullDxDz(station,detector,arbitrationType,true)) > maxAbsPullX))
                continue;
             else if (detector == 1)
                existsGoodDTSegX = true;
@@ -491,9 +495,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
             // Is this a tight algorithm?  If yes, use y information
             if (maxAbsDy < 999999) {
                if (detector == 2) { // CSC
-                  if((fabs(muon.pullY(station,2,arbitrationType,1)) > maxAbsPullY &&
+                  if((fabs(muon.pullY(station,2,arbitrationType,true)) > maxAbsPullY &&
                         fabs(muon.dY(station,2,arbitrationType)) > maxAbsDy) ||
-                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,1)) > maxAbsPullY))
+                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,2,arbitrationType,true)) > maxAbsPullY))
                      continue;
                } else {
 
@@ -502,9 +506,9 @@ bool muon::isGoodMuon( const reco::Muon& muon,
                   else
                      existsDTSegY = true;
 
-                  if((fabs(muon.pullY(station,1,arbitrationType,1)) > maxAbsPullY &&
+                  if((fabs(muon.pullY(station,1,arbitrationType,true)) > maxAbsPullY &&
                         fabs(muon.dY(station,1,arbitrationType)) > maxAbsDy) ||
-                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,1,arbitrationType,1)) > maxAbsPullY)) {
+                        (applyAlsoAngularCuts && fabs(muon.pullDyDz(station,1,arbitrationType,true)) > maxAbsPullY)) {
                      continue;
                   }
                }
@@ -560,6 +564,82 @@ bool muon::isGoodMuon( const reco::Muon& muon,
     if ( nMatch >= minNumberOfMatches ) return true;
     else return false;
   } // RPCMu
+    
+  if ( type == ME0Mu )
+  {
+    if ( minNumberOfMatches == 0 ) return true;
+    
+    int nMatch = 0;
+    for ( const auto& chamberMatch : muon.matches() )
+    {
+      if ( chamberMatch.detector() != MuonSubdetId::ME0 ) continue;
+
+      const double trkX = chamberMatch.x;
+      const double errX = chamberMatch.xErr;
+      const double trkY = chamberMatch.y;
+      const double errY = chamberMatch.yErr;
+
+      for ( const auto& segment : chamberMatch.me0Matches )
+      {
+          
+        const double me0X = segment.x;
+        const double me0ErrX = segment.xErr;
+        const double me0Y = segment.y;
+        const double me0ErrY = segment.yErr;
+
+        const double dX   = fabs(me0X - trkX);
+        const double dY   = fabs(me0Y - trkY);
+        const double pullX   = dX/std::sqrt(errX + me0ErrX);
+        const double pullY   = dY/std::sqrt(errY + me0ErrY);
+          
+        if ( (dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY) )
+        {
+          ++nMatch;
+          break;
+        }
+      }
+    }
+
+  return ( nMatch >= minNumberOfMatches );
+  } // ME0Mu
+    
+  if ( type == GEMMu )
+  {
+    if ( minNumberOfMatches == 0 ) return true;
+    
+    int nMatch = 0;
+    for ( const auto& chamberMatch : muon.matches() )
+    {
+      if ( chamberMatch.detector() != MuonSubdetId::GEM ) continue;
+
+      const double trkX = chamberMatch.x;
+      const double errX = chamberMatch.xErr;
+      const double trkY = chamberMatch.y;
+      const double errY = chamberMatch.yErr;
+
+      for ( const auto& segment : chamberMatch.gemMatches )
+      {
+          
+        const double gemX = segment.x;
+        const double gemErrX = segment.xErr;
+        const double gemY = segment.y;
+        const double gemErrY = segment.yErr;
+
+        const double dX   = fabs(gemX - trkX);
+        const double dY   = fabs(gemY - trkY);
+        const double pullX   = dX/std::sqrt(errX + gemErrX);
+        const double pullY   = dY/std::sqrt(errY + gemErrY);
+          
+        if ( (dX < maxAbsDx or pullX < maxAbsPullX) and (dY < maxAbsDy or pullY < maxAbsPullY) )
+        {
+          ++nMatch;
+          break;
+        }
+      }
+    }
+
+   return ( nMatch >= minNumberOfMatches );
+   } // GEMMu
 
    return goodMuon;
 }
@@ -668,6 +748,18 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type,
     case muon::RPCMuLoose:
 	return muon.isRPCMuon() && isGoodMuon(muon, RPCMu, 2, 20, 4, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
       break;
+    case muon::AllME0Muons:
+	  return muon.isME0Muon();
+      break;
+    case muon::ME0MuonArbitrated:
+	  return muon.isME0Muon() && isGoodMuon(muon, ME0Mu, 1, 1e9, 1e9, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
+      break;
+    case muon::AllGEMMuons:
+	  return muon.isGEMMuon();
+      break;
+    case muon::GEMMuonArbitrated:
+	  return muon.isGEMMuon() && isGoodMuon(muon, GEMMu, 1, 1e9, 1e9, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
+      break;
     default:
       return false;
     }
@@ -764,20 +856,37 @@ bool muon::isLooseMuon(const reco::Muon& muon){
 }
 
 
-bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
+bool muon::isMediumMuon(const reco::Muon& muon, bool run2016_hip_mitigation){
+  if( not isLooseMuon(muon) ) return false;
+  if (run2016_hip_mitigation){
+    if (muon.innerTrack()->validFraction() < 0.49 ) return false; 
+  } else {
+    if (muon.innerTrack()->validFraction() < 0.8 ) return false; 
+  }
+
+  bool goodGlb = muon.isGlobalMuon() && 
+    muon.globalTrack()->normalizedChi2() < 3. && 
+    muon.combinedQuality().chi2LocalPosition < 12. && 
+    muon.combinedQuality().trkKink < 20.; 
+
+  return (segmentCompatibility(muon) > (goodGlb ? 0.303 : 0.451)); 
+}
+
+bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx,
+		      bool run2016_hip_mitigation){
 
   bool muID = muon::isGoodMuon(muon, TMOneStationTight);
 
   if(!muID) return false;
   
   bool layers = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
+    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0;
 
-  bool chi2 = muon.innerTrack()->normalizedChi2() < 1.8;  
+  bool ishighq = muon.innerTrack()->quality(reco::Track::highPurity); 
   
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 3. && fabs(muon.innerTrack()->dz(vtx.position())) < 30.;
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && fabs(muon.innerTrack()->dz(vtx.position())) < 20.;
   
-  return muID && layers && ip && chi2 ;
+  return layers && ip && (ishighq|run2016_hip_mitigation);
 }
 
 
@@ -789,9 +898,24 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
 
-  bool momQuality = muon.muonBestTrack()->ptError()/muon.muonBestTrack()->pt() < 0.3;
+  bool momQuality = muon.tunePMuonBestTrack()->ptError()/muon.tunePMuonBestTrack()->pt() < 0.3;
 
-  bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.bestTrack()->dz(vtx.position())) < 0.5;
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.innerTrack()->dz(vtx.position())) < 0.5;
+  
+  return muID && hits && momQuality && ip;
+
+}
+
+bool muon::isTrackerHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
+  bool muID =   muon.isTrackerMuon() && muon.track().isNonnull() && (muon.numberOfMatchedStations() > 1);
+  if(!muID) return false;
+
+  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+
+  bool momQuality = muon.tunePMuonBestTrack()->ptError()/muon.tunePMuonBestTrack()->pt() < 0.3;
+
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.innerTrack()->dz(vtx.position())) < 0.5;
   
   return muID && hits && momQuality && ip;
 
@@ -824,4 +948,49 @@ int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned 
     } // chamber of mu1
   
     return ret; 
+}
+
+void muon::setCutBasedSelectorFlags(reco::Muon& muon, 
+				    const reco::Vertex* vertex,
+				    bool run2016_hip_mitigation)
+{
+  // https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
+  unsigned int selectors = muon.selectors();
+  // Compute Id and Isolation variables
+  double chIso  = muon.pfIsolationR04().sumChargedHadronPt;
+  double nIso   = muon.pfIsolationR04().sumNeutralHadronEt;
+  double phoIso = muon.pfIsolationR04().sumPhotonEt;
+  double puIso  = muon.pfIsolationR04().sumPUPt;
+  double dbCorrectedIsolation = chIso + std::max( nIso + phoIso - .5*puIso, 0. ) ;
+  double dbCorectedRelIso = dbCorrectedIsolation/muon.pt();
+  double tkRelIso = muon.isolationR03().sumPt/muon.pt();
+
+  // Base selectors
+  if (muon::isLooseMuon(muon))        selectors |= reco::Muon::CutBasedIdLoose;
+  if (vertex){
+    if (muon::isTightMuon(muon,*vertex))  selectors |= reco::Muon::CutBasedIdTight;
+    if (muon::isSoftMuon(muon,*vertex,run2016_hip_mitigation))   selectors |= reco::Muon::SoftCutBasedId;
+    if (muon::isHighPtMuon(muon,*vertex)) selectors |= reco::Muon::CutBasedIdGlobalHighPt;
+    if (muon::isTrackerHighPtMuon(muon,*vertex)) selectors |= reco::Muon::CutBasedIdTrkHighPt;
+  }
+  if (muon::isMediumMuon(muon,run2016_hip_mitigation)){
+    selectors |= reco::Muon::CutBasedIdMedium;
+    if ( vertex and 
+	 fabs(muon.muonBestTrack()->dz( vertex->position()))<0.1 and 
+	 fabs(muon.muonBestTrack()->dxy(vertex->position()))< 0.02 )
+      selectors |= reco::Muon::CutBasedIdMediumPrompt;
+  }
+
+  // PF isolation
+  if (dbCorectedRelIso<0.40)    selectors |= reco::Muon::PFIsoVeryLoose;
+  if (dbCorectedRelIso<0.25)    selectors |= reco::Muon::PFIsoLoose;
+  if (dbCorectedRelIso<0.20)    selectors |= reco::Muon::PFIsoMedium;
+  if (dbCorectedRelIso<0.15)    selectors |= reco::Muon::PFIsoTight;
+  if (dbCorectedRelIso<0.10)    selectors |= reco::Muon::PFIsoVeryTight;
+  
+  // Tracker isolation
+  if (tkRelIso<0.10)            selectors |= reco::Muon::TkIsoLoose;
+  if (tkRelIso<0.05)            selectors |= reco::Muon::TkIsoTight;
+
+  muon.setSelectors(selectors);
 }

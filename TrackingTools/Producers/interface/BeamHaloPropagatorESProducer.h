@@ -12,7 +12,7 @@
 #include "TrackingTools/GeomPropagators/interface/BeamHaloPropagator.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
   
 
 namespace edm {class ParameterSet;}
@@ -27,13 +27,13 @@ class  BeamHaloPropagatorESProducer: public edm::ESProducer{
   BeamHaloPropagatorESProducer(const edm::ParameterSet &);
   
   /// Destructor
-  virtual ~BeamHaloPropagatorESProducer(); 
+  ~BeamHaloPropagatorESProducer() override; 
   
   // Operations
-  boost::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
+  std::shared_ptr<Propagator> produce(const TrackingComponentsRecord &);
   
  private:
-  boost::shared_ptr<Propagator> thePropagator;
+  std::shared_ptr<Propagator> thePropagator;
   PropagationDirection thePropagationDirection;
   std::string myname;
   std::string theEndCapTrackerPropagatorName;

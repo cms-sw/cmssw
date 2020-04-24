@@ -48,7 +48,7 @@ try:
     query.setCondition("RUNNUM=:runnum",queryBind)
     query.defineOutput(queryresult)
     cursor=query.execute()
-    while cursor.next():
+    while next(cursor):
         startT=cursor.currentRow()['starttime']
         print 'startT ',startT.data()
         s=datetime.strptime(startT.data(),'%m/%d/%y %H:%M:%S.%f')
@@ -63,7 +63,7 @@ try:
         print '3rd LS would be in ',s+2*delta
     del query
     dbsession.transaction().commit()
-except Exception,e:
+except Exception as e:
     print 'caught exception ',str(e)
     dbsession.transaction().rollback()
 del dbsession

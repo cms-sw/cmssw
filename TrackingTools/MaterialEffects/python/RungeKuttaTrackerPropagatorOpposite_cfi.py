@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 RungeKuttaTrackerPropagatorOpposite = cms.ESProducer("PropagatorWithMaterialESProducer",
+    SimpleMagneticField = cms.string(""),
     MaxDPhi = cms.double(1.6),
     ComponentName = cms.string('RungeKuttaTrackerPropagatorOpposite'),
     Mass = cms.double(0.105),

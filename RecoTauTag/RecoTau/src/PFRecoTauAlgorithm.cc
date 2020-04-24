@@ -120,7 +120,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       if(myleadPFCand_rectk.isNonnull()) {
          myleadPFCand_rectkavailable=true;
          myleadPFCand_rectkDZ=(*myleadPFCand_rectk).dz(myPV.position());
-         if(TransientTrackBuilder_!=0) {
+         if(TransientTrackBuilder_!=nullptr) {
             const TransientTrack myleadPFCand_rectransienttk=TransientTrackBuilder_->build(&(*myleadPFCand_rectk));
             GlobalVector myPFJetdir((*myPFJet).px(),(*myPFJet).py(),(*myPFJet).pz());
             if(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).first)
@@ -201,7 +201,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       myPFTau.setsignalPFGammaCands(mySignalPFGammaCands);
 
       // Add charged objects to signal cone, and calculate charge
-      if(mySignalPFChargedHadrCands.size() != 0) {
+      if(!mySignalPFChargedHadrCands.empty()) {
          int mySignalPFChargedHadrCands_qsum=0;
          for(size_t i = 0; i < mySignalPFChargedHadrCands.size(); i++) {
             mySignalPFChargedHadrCands_qsum += mySignalPFChargedHadrCands[i]->charge();

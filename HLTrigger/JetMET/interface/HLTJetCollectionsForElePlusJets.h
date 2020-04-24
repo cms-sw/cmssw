@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -39,14 +39,14 @@ namespace edm {
 //
 
 template<typename T>
-class HLTJetCollectionsForElePlusJets: public edm::EDProducer {
+class HLTJetCollectionsForElePlusJets: public edm::stream::EDProducer<> {
   public:
     explicit HLTJetCollectionsForElePlusJets(const edm::ParameterSet&);
-    ~HLTJetCollectionsForElePlusJets();
+    ~HLTJetCollectionsForElePlusJets() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theElectronToken;
     edm::EDGetTokenT<std::vector<T>> m_theJetToken;

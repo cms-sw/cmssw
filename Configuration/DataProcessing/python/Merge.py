@@ -27,6 +27,8 @@ def mergeProcess(*inputFiles, **options):
     - newDQMIO : specifies if the new DQM format should be used to merge the files
     - output_file : sets the output file name
     - output_lfn : sets the output LFN
+    - mergeNANO : to merge NanoAOD
+    - bypassVersionCheck : to bypass version check in case merging happened in lower version of CMSSW (i.e. UL HLT case). This will be TRUE by default.
 
     """
     #  //
@@ -38,7 +40,8 @@ def mergeProcess(*inputFiles, **options):
     outputLFN = options.get("output_lfn", None)
     dropDQM = options.get("drop_dqm", False)
     newDQMIO = options.get("newDQMIO", False)
-    
+    mergeNANO = options.get("mergeNANO", False)
+    bypassVersionCheck = options.get("bypassVersionCheck", True)
     #  //
     # // build process
     #//
@@ -52,6 +55,7 @@ def mergeProcess(*inputFiles, **options):
         process.add_(Service("DQMStore"))
     else:
         process.source = Source("PoolSource")
+        process.source.bypassVersionCheck = CfgTypes.untracked.bool(bypassVersionCheck)
         if dropDQM:
             process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
@@ -63,8 +67,12 @@ def mergeProcess(*inputFiles, **options):
     #//
     if newDQMIO:
         outMod = OutputModule("DQMRootOutputModule")
+    elif mergeNANO:
+        import Configuration.EventContent.EventContent_cff
+        outMod = OutputModule("NanoAODOutputModule",Configuration.EventContent.EventContent_cff.NANOAODEventContent.clone())
     else:
         outMod = OutputModule("PoolOutputModule")
+
     outMod.fileName = CfgTypes.untracked.string(outputFilename)
     if outputLFN != None:
         outMod.logicalFileName = CfgTypes.untracked.string(outputLFN)

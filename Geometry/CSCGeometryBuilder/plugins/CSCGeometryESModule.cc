@@ -18,11 +18,11 @@
 
 // Alignments
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -88,7 +88,7 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p)
 CSCGeometryESModule::~CSCGeometryESModule(){}
 
 
-boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
+std::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRecord& record) {
 
   initCSCGeometry_(record);
 
@@ -101,15 +101,15 @@ boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRe
     record.getRecord<GlobalPositionRcd>().get(alignmentsLabel_, globalPosition);
     edm::ESHandle<Alignments> alignments;
     record.getRecord<CSCAlignmentRcd>().get(alignmentsLabel_, alignments);
-    edm::ESHandle<AlignmentErrors> alignmentErrors;
+    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
 // <<<<<<< CSCGeometryESModule.cc
-//     record.getRecord<CSCAlignmentErrorRcd>().get( alignmentErrors );
+//     record.getRecord<CSCAlignmentErrorExtendedRcd>().get( alignmentErrors );
 //     GeometryAligner aligner;
 //     aligner.applyAlignments<CSCGeometry>( &(*_cscGeometry),
 // 					  &(*alignments), &(*alignmentErrors),
 // 	 align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
 // =======
-    record.getRecord<CSCAlignmentErrorRcd>().get(alignmentsLabel_,  alignmentErrors);
+    record.getRecord<CSCAlignmentErrorExtendedRcd>().get(alignmentsLabel_,  alignmentErrors);
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=CSCGeometryRecord::produce"
@@ -134,8 +134,8 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
 
   // Updates whenever a dependent Record was changed
 
-  cscGeometry = boost::shared_ptr<CSCGeometry>( new CSCGeometry( debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry,
-								 useCentreTIOffsets ) );
+  cscGeometry = std::make_shared<CSCGeometry>( debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry,
+								 useCentreTIOffsets );
 
   //  cscGeometry->setUseRealWireGeometry( useRealWireGeometry );
   //  cscGeometry->setOnlyWiresInME1a( useOnlyWiresInME1a );
@@ -153,7 +153,7 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
     record.getRecord<IdealGeometryRecord>().get(cpv);
     record.getRecord<MuonNumberingRecord>().get( mdc );
     CSCGeometryBuilderFromDDD builder;
-    //    _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(_cscGeometry, &(*cpv), *mdc));
+    //    _cscGeometry = std::shared_ptr<CSCGeometry>(builder.build(_cscGeometry, &(*cpv), *mdc));
     builder.build(cscGeometry, &(*cpv), *mdc);
   } else {
     edm::ESHandle<RecoIdealGeometry> rig;
@@ -161,7 +161,7 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
     record.getRecord<CSCRecoGeometryRcd>().get(rig);
     record.getRecord<CSCRecoDigiParametersRcd>().get(rdp);
     CSCGeometryBuilder cscgb;
-    //    _cscGeometry = boost::shared_ptr<CSCGeometry>(cscgb.build(_cscGeometry, *rig, *rdp));
+    //    _cscGeometry = std::shared_ptr<CSCGeometry>(cscgb.build(_cscGeometry, *rig, *rdp));
     cscgb.build(cscGeometry, *rig, *rdp);
   }
   recreateGeometry_=false;

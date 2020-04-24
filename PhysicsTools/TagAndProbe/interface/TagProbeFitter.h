@@ -50,11 +50,19 @@ class TagProbeFitter {
   /// set number of bins to use when making the plots; 0 = automatic
   void setBinsForMassPlots(int bins) ;
 
+  //// turn on or off the saving of distribution plots)
+  void setSaveDistributionsPlot(bool saveDistributionsPlot_) { doSaveDistributionsPlot = saveDistributionsPlot_; }
+
   /// set a variable to be used as weight for a dataset. empty string means no weights.
   void setWeightVar(const std::string &weight);
 
   /// suppress most of the output from RooFit and Minuit
   void setQuiet(bool quiet_=true);
+  
+  /// split mode - use it for very large input files (slower that non-split mode, which is the default)
+  ///    0 - import input TTree as a whole (non-split mode)
+  ///    non-zero value - use split reading mode and read specified number of events for each iteration
+  void setSplitMode(unsigned int nevents);
 
   protected:
   ///pointer to the input TTree Chain of data
@@ -68,6 +76,9 @@ class TagProbeFitter {
 
   ///number of CPUs to use for the fit
   int numCPU;
+
+  ///save distribution plots
+  bool doSaveDistributionsPlot;
 
   ///the default option wether to save the workspace for each bin
   bool saveWorkspace;
@@ -110,6 +121,11 @@ class TagProbeFitter {
   /// suppress most printout
   bool quiet;
 
+  /// split mode - use it for very large input files (slower that non-split mode, which is the default)
+  ///    0 - import input TTree as a whole (non-split mode)
+  ///    non-zero value - use split reading mode and read specified number of events for each iteration
+  unsigned int split_mode;
+
   ///fix or release variables selected by user
   void varFixer(RooWorkspace* w, bool fix);
   ///store values in the vector
@@ -142,10 +158,10 @@ class TagProbeFitter {
   void saveEfficiencyPlots(RooDataSet& eff, const TString& effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories);
   
   ///makes the 1D plot
-  void makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, const TString& plotName, const TString& plotTitle, const TString& effName);
-  
+  void makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, const TString& plotName, const TString& plotTitle, const TString& effName, const char *catName = 0, int catIndex = -1);
+   
   ///makes the 2D plot
-  void makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, const TString& plotName, const TString& plotTitle, const TString& effName);
+  void makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, const TString& plotName, const TString& plotTitle, const TString& effName, const char *catName = 0, int catIndex = -1);
   
 };
 

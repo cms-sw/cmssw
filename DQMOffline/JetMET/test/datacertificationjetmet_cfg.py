@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("Demo")
 
@@ -21,7 +22,7 @@ process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
                                      )
 
 process.load("DQMOffline.JetMET.dataCertificationJetMET_cfi")
-process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
+process.dataCertificationJetMET = DQMEDHarvester('DataCertificationJetMET',
                               fileName       = cms.untracked.string("/uscms_data/d1/hatake/DQM-data/DQM_V0001_R000066594__Cosmics__Commissioning08-PromptReco-v2__RECO.root"),
                               refFileName    = cms.untracked.string("/uscms_data/d1/hatake/DQM-data/DQM_V0001_R000066714__Cosmics__Commissioning08-PromptReco-v2__RECO.root"),
                               OutputFile     = cms.untracked.bool(False),

@@ -81,7 +81,7 @@ class FindAlgorithm(ObjectHolder):
                 try:
                     foundScripts=(foundScripts and\
                        (findScript=="" or dataAccessorObject.runScript(findScript)))
-                except Exception,e:
+                except Exception as e:
                     foundScripts=False
                     logging.info("Error in script: "+ exception_traceback())
                     self._message="Error in script: "+ str(e)

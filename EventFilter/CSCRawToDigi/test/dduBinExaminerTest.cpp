@@ -14,7 +14,7 @@
 //	6) prints out the finals statistics of errors and warnings for the whole file
 //	7) produces a few histograms (ad hoc feature)
 //==============================================================================================
-// To compile: g++ -o dduBinExaminerTest dduBinExaminerTest.cpp -I../src -I../interface/ -I../../../
+// To compile: g++ -DLOCAL_UNPACK -o dduBinExaminerTest dduBinExaminerTest.cpp -I../src -I../interface/ -I../../../
 
 #include <iostream>
 #include <fstream>
@@ -196,13 +196,15 @@ int main(int argc, char **argv){
 				}
 			}
 
-			std::map<int,long> payloads = examiner.payloadDetailed();
-			for(std::map<int,long>::const_iterator csc=payloads.begin(); csc!=payloads.end(); csc++)
+			// std::map<int,long> payloads = examiner.payloadDetailed();
+			std::map<CSCIdType, ExaminerStatusType> payloads = examiner.payloadDetailed();
+			for(std::map<CSCIdType, ExaminerStatusType>::const_iterator csc=payloads.begin(); csc!=payloads.end(); csc++)
 				for(int bit=0; bit<examiner.nPAYLOADS; bit++)
 					if( csc->second & (1<<bit) ) cntChambPAYLOAD[csc->first][bit]++;
 
-			std::map<int,long> statuses = examiner.statusDetailed();
-			for(std::map<int,long>::const_iterator csc=statuses.begin(); csc!=statuses.end(); csc++)
+			// std::map<int,long> statuses = examiner.statusDetailed();
+			std::map<CSCIdType, ExaminerStatusType> statuses = examiner.statusDetailed();
+			for(std::map<CSCIdType, ExaminerStatusType>::const_iterator csc=statuses.begin(); csc!=statuses.end(); csc++)
 				for(int bit=0; bit<examiner.nSTATUSES; bit++)
 					if( csc->second & (1<<bit) ) cntChambSTATUS[csc->first][bit]++;
 
@@ -271,7 +273,7 @@ int main(int argc, char **argv){
 
 	//hash_map< int, hash_map<int,int32_t> >::iterator chamber = cntChambERROR.begin();
 	//while( chamber != cntChambERROR.end() ){
-	map<int,long>::const_iterator chamber = examiner.cntCHAMB_Headers.begin();
+	std::map<CSCIdType, ExaminerStatusType>::const_iterator chamber = examiner.cntCHAMB_Headers.begin();
 	while( chamber != examiner.cntCHAMB_Headers.end() ){
 		cerr << endl << endl << endl;
 		cerr << "-------------------------------------------------------------------------" << endl << endl;

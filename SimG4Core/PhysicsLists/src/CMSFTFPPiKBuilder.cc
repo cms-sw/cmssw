@@ -2,9 +2,9 @@
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTable.hh"
 #include "G4ProcessManager.hh"
+#include "G4SystemOfUnits.hh"
 
-CMSFTFPPiKBuilder::
-CMSFTFPPiKBuilder(G4bool quasiElastic) 
+CMSFTFPPiKBuilder::CMSFTFPPiKBuilder(G4bool quasiElastic) 
  {
    thePiData = new G4PiNuclearCrossSection;
    theMin = 4*GeV;
@@ -25,14 +25,14 @@ CMSFTFPPiKBuilder(G4bool quasiElastic)
       theQuasiElastic=new G4QuasiElasticChannel;
       theModel->SetQuasiElasticChannel(theQuasiElastic);
    } else 
-   {  theQuasiElastic=0;}  
+   {  theQuasiElastic=nullptr;}  
 
    theModel->SetTransport(theCascade);
    theModel->SetMinEnergy(theMin);
    theModel->SetMaxEnergy(100*TeV);
  }
 
-CMSFTFPPiKBuilder:: ~CMSFTFPPiKBuilder() 
+CMSFTFPPiKBuilder::~CMSFTFPPiKBuilder() 
  {
    delete theCascade;
    delete theStringDecay;

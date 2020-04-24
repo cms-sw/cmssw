@@ -65,6 +65,10 @@ class QTestConfigure{
  void EnableComp2RefChi2Test(std::string testName, 
                      const std::map<std::string, std::string>& params,DQMStore * bei); 
 
+///Creates Comp2Ref2DChi2 test
+ void EnableComp2Ref2DChi2Test(std::string testName, 
+                     const std::map<std::string, std::string>& params,DQMStore * bei); 
+
  ///Creates EnableComp2RefKolmogorov test
  void EnableComp2RefKolmogorovTest(std::string testName, 
                      const std::map<std::string, std::string>& params,DQMStore * bei); 

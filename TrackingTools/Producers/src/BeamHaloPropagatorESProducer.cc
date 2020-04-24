@@ -44,7 +44,7 @@ BeamHaloPropagatorESProducer::BeamHaloPropagatorESProducer(const ParameterSet& p
 
 BeamHaloPropagatorESProducer::~BeamHaloPropagatorESProducer() {}
 
-boost::shared_ptr<Propagator> 
+std::shared_ptr<Propagator> 
 BeamHaloPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){ 
 
   ESHandle<MagneticField> magField;
@@ -60,8 +60,8 @@ BeamHaloPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){
 				<<"\n with EndCap Propagator: "<<theEndCapTrackerPropagatorName
 				<<"\n with Crossing Propagator: "<<theCrossingTrackerPropagatorName;
 
-  thePropagator  = boost::shared_ptr<Propagator>(new BeamHaloPropagator(*endcapPropagator,*crossPropagator,
-									&*magField,
-									thePropagationDirection));
+  thePropagator = std::make_shared<BeamHaloPropagator>(*endcapPropagator,*crossPropagator,
+							&*magField,
+							thePropagationDirection);
   return thePropagator;
 }

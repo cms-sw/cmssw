@@ -19,7 +19,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include<cmath>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include <cmath>
 
 //
 // constructors and destructor
@@ -67,9 +68,7 @@ HLTDoublet<T1,T2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iCon
 }
 
 template<typename T1, typename T2>
-HLTDoublet<T1,T2>::~HLTDoublet()
-{
-}
+HLTDoublet<T1,T2>::~HLTDoublet() = default;
 template<typename T1, typename T2>
 void
 HLTDoublet<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -94,7 +93,7 @@ HLTDoublet<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<double>("MinPt"  ,+1.0);
   desc.add<double>("MaxPt"  ,-1.0);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoublet<T1,T2>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTDoublet<T1,T2>>(), desc);
 }
 
 //

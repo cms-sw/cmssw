@@ -42,7 +42,7 @@ namespace edm {
     currentRun_ = invalidRun;
     currentLumi_ = invalidLumi;
     numberOfEvents_ = 0;
-    eventFinder_.reset();
+    eventFinder_ = nullptr; // propagate_const<T> has no reset() function
     runOrLumiIndexes_.clear();
     eventNumbers_.clear();
     eventEntries_.clear();
@@ -733,12 +733,12 @@ namespace edm {
 
   bool
   IndexIntoFile::containsItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
-        return event ? containsEvent(run, lumi, event) : (lumi ? containsLumi(run, lumi) : containsRun(run));
+    return (event != 0) ? containsEvent(run, lumi, event) : (lumi ? containsLumi(run, lumi) : containsRun(run));
   }
 
   bool
   IndexIntoFile::containsEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
-        return findEventPosition(run, lumi, event).getEntryType() != kEnd;
+    return findEventPosition(run, lumi, event).getEntryType() != kEnd;
   }
 
   bool
@@ -787,7 +787,7 @@ namespace edm {
     if(iter2 == iEnd2) return;
     if(back1 < iter2.runOrLumiIndexes()) return;
 
-    RunOrLumiIndexes const* previousIndexes = 0;
+    RunOrLumiIndexes const* previousIndexes = nullptr;
 
     // Loop through the both IndexIntoFile objects and look for matching lumis
     while(iter1 != iEnd1 && iter2 != iEnd2) {
@@ -862,7 +862,7 @@ namespace edm {
 
   bool IndexIntoFile::containsDuplicateEvents() const {
 
-    RunOrLumiIndexes const* previousIndexes = 0;
+    RunOrLumiIndexes const* previousIndexes = nullptr;
 
     for(SortedRunOrLumiItr iter = beginRunOrLumi(),
                             iEnd = endRunOrLumi();

@@ -49,7 +49,7 @@ class FourLepFilter : public edm::EDFilter {
 
       // ----------member data ---------------------------
     
-       std::string label_;
+       edm::EDGetToken token_;
        double minPt;
        double maxEta;
        double maxPt;
@@ -69,7 +69,7 @@ class FourLepFilter : public edm::EDFilter {
 // constructors and destructor
 //
 FourLepFilter::FourLepFilter(const edm::ParameterSet& iConfig):
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 minPt(iConfig.getUntrackedParameter("MinPt", 0.)),
 maxEta(iConfig.getUntrackedParameter("MaxEta", 10.)),
 maxPt(iConfig.getUntrackedParameter("MaxPt", 1000.)),
@@ -105,7 +105,7 @@ FourLepFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int nLeptons = 0;
     
    Handle< HepMCProduct > evt;
-   iEvent.getByLabel(label_, evt);
+   iEvent.getByToken(token_, evt);
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
 

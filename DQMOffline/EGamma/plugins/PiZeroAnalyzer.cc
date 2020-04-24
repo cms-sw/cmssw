@@ -1,8 +1,6 @@
 #include <iostream>
-//
 
 #include "DQMOffline/EGamma/plugins/PiZeroAnalyzer.h"
-
 
 //#define TWOPI 6.283185308
 //
@@ -17,138 +15,76 @@
  **
  ***/
 
-
-
 using namespace std;
-
 
 PiZeroAnalyzer::PiZeroAnalyzer( const edm::ParameterSet& pset )
 {
+  fName_              = pset.getUntrackedParameter<std::string>("Name");
+  prescaleFactor_     = pset.getUntrackedParameter<int>("prescaleFactor",1);
 
-    fName_              = pset.getUntrackedParameter<std::string>("Name");
-    verbosity_          = pset.getUntrackedParameter<int>("Verbosity");
-
-    prescaleFactor_     = pset.getUntrackedParameter<int>("prescaleFactor",1);
-
-
-
-    barrelEcalHits_token_ = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("barrelEcalHits"));
-    endcapEcalHits_token_ = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("endcapEcalHits"));
-
-
-    standAlone_         = pset.getParameter<bool>("standAlone");
-
-
-
-
-
-    // parameters for Pizero finding
-    seleXtalMinEnergy_    = pset.getParameter<double> ("seleXtalMinEnergy");
-    clusSeedThr_          = pset.getParameter<double> ("clusSeedThr");
-    clusEtaSize_          = pset.getParameter<int> ("clusEtaSize");
-    clusPhiSize_          = pset.getParameter<int> ("clusPhiSize");
-    ParameterLogWeighted_ = pset.getParameter<bool> ("ParameterLogWeighted");
-    ParameterX0_          = pset.getParameter<double> ("ParameterX0");
-    ParameterT0_barl_     = pset.getParameter<double> ("ParameterT0_barl");
-    ParameterW0_          = pset.getParameter<double> ("ParameterW0");
-
-    selePtGammaOne_       = pset.getParameter<double> ("selePtGammaOne");
-    selePtGammaTwo_       = pset.getParameter<double> ("selePtGammaTwo");
-    seleS4S9GammaOne_     = pset.getParameter<double> ("seleS4S9GammaOne");
-    seleS4S9GammaTwo_     = pset.getParameter<double> ("seleS4S9GammaTwo");
-    selePtPi0_            = pset.getParameter<double> ("selePtPi0");
-    selePi0Iso_           = pset.getParameter<double> ("selePi0Iso");
-    selePi0BeltDR_        = pset.getParameter<double> ("selePi0BeltDR");
-    selePi0BeltDeta_      = pset.getParameter<double> ("selePi0BeltDeta");
-    seleMinvMaxPi0_       = pset.getParameter<double> ("seleMinvMaxPi0");
-    seleMinvMinPi0_       = pset.getParameter<double> ("seleMinvMinPi0");
-
-    parameters_ = pset;
-
-
-}
-
-
-
-PiZeroAnalyzer::~PiZeroAnalyzer() {
-
-
-
-
-}
-
-
-void PiZeroAnalyzer::beginJob()
-{
-
+  barrelEcalHits_token_ = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("barrelEcalHits"));
+  endcapEcalHits_token_ = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("endcapEcalHits"));
 
   nEvt_=0;
-  nEntry_=0;
 
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();
+  // parameters for Pizero finding
+  seleXtalMinEnergy_    = pset.getParameter<double> ("seleXtalMinEnergy");
+  clusSeedThr_          = pset.getParameter<double> ("clusSeedThr");
+  clusEtaSize_          = pset.getParameter<int> ("clusEtaSize");
+  clusPhiSize_          = pset.getParameter<int> ("clusPhiSize");
+  ParameterLogWeighted_ = pset.getParameter<bool> ("ParameterLogWeighted");
+  ParameterX0_          = pset.getParameter<double> ("ParameterX0");
+  ParameterT0_barl_     = pset.getParameter<double> ("ParameterT0_barl");
+  ParameterW0_          = pset.getParameter<double> ("ParameterW0");
 
+  selePtGammaOne_       = pset.getParameter<double> ("selePtGammaOne");
+  selePtGammaTwo_       = pset.getParameter<double> ("selePtGammaTwo");
+  seleS4S9GammaOne_     = pset.getParameter<double> ("seleS4S9GammaOne");
+  seleS4S9GammaTwo_     = pset.getParameter<double> ("seleS4S9GammaTwo");
+  selePtPi0_            = pset.getParameter<double> ("selePtPi0");
+  selePi0Iso_           = pset.getParameter<double> ("selePi0Iso");
+  selePi0BeltDR_        = pset.getParameter<double> ("selePi0BeltDR");
+  selePi0BeltDeta_      = pset.getParameter<double> ("selePi0BeltDeta");
+  seleMinvMaxPi0_       = pset.getParameter<double> ("seleMinvMaxPi0");
+  seleMinvMinPi0_       = pset.getParameter<double> ("seleMinvMinPi0");
 
-
- if (dbe_) {
-    if (verbosity_ > 0 ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if (dbe_) {
-    if (verbosity_ > 0 ) dbe_->showDirStructure();
-  }
-
-
-
-
-  //booking all histograms
-
-  if (dbe_) {
-
-    currentFolder_.str("");
-    currentFolder_ << "Egamma/PiZeroAnalyzer/";
-    dbe_->setCurrentFolder(currentFolder_.str());
-
-
-
-
-    hMinvPi0EB_ = dbe_->book1D("Pi0InvmassEB","Pi0 Invariant Mass in EB",100,0.,0.5);
-    hMinvPi0EB_->setAxisTitle("Inv Mass [GeV] ",1);
-
-    hPt1Pi0EB_ = dbe_->book1D("Pt1Pi0EB","Pt 1st most energetic Pi0 photon in EB",100,0.,20.);
-    hPt1Pi0EB_->setAxisTitle("1st photon Pt [GeV] ",1);
-
-    hPt2Pi0EB_ = dbe_->book1D("Pt2Pi0EB","Pt 2nd most energetic Pi0 photon in EB",100,0.,20.);
-    hPt2Pi0EB_->setAxisTitle("2nd photon Pt [GeV] ",1);
-
-    hPtPi0EB_ = dbe_->book1D("PtPi0EB","Pi0 Pt in EB",100,0.,20.);
-    hPtPi0EB_->setAxisTitle("Pi0 Pt [GeV] ",1);
-
-    hIsoPi0EB_ = dbe_->book1D("IsoPi0EB","Pi0 Iso in EB",50,0.,1.);
-    hIsoPi0EB_->setAxisTitle("Pi0 Iso",1);
-
-
-  }
-
+  posCalcParameters_    = pset.getParameter<edm::ParameterSet>("posCalcParameters");
 }
 
+PiZeroAnalyzer::~PiZeroAnalyzer() {
+}
 
-
-
-
-
-void PiZeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
+void PiZeroAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+                                    edm::Run const & /* iRun */,
+                                    edm::EventSetup const & /* iSetup */)
 {
+  currentFolder_.str("");
+  currentFolder_ << "Egamma/PiZeroAnalyzer/";
+  ibooker.setCurrentFolder(currentFolder_.str());
 
+  hMinvPi0EB_ = ibooker.book1D("Pi0InvmassEB","Pi0 Invariant Mass in EB",100,0.,0.5);
+  hMinvPi0EB_->setAxisTitle("Inv Mass [GeV] ",1);
+
+  hPt1Pi0EB_ = ibooker.book1D("Pt1Pi0EB","Pt 1st most energetic Pi0 photon in EB",100,0.,20.);
+  hPt1Pi0EB_->setAxisTitle("1st photon Pt [GeV] ",1);
+
+  hPt2Pi0EB_ = ibooker.book1D("Pt2Pi0EB","Pt 2nd most energetic Pi0 photon in EB",100,0.,20.);
+  hPt2Pi0EB_->setAxisTitle("2nd photon Pt [GeV] ",1);
+
+  hPtPi0EB_ = ibooker.book1D("PtPi0EB","Pi0 Pt in EB",100,0.,20.);
+  hPtPi0EB_->setAxisTitle("Pi0 Pt [GeV] ",1);
+
+  hIsoPi0EB_ = ibooker.book1D("IsoPi0EB","Pi0 Iso in EB",50,0.,1.);
+  hIsoPi0EB_->setAxisTitle("Pi0 Iso",1);
+}
+
+void PiZeroAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup)
+{
   using namespace edm;
 
   if (nEvt_% prescaleFactor_ ) return;
   nEvt_++;
   LogInfo("PiZeroAnalyzer") << "PiZeroAnalyzer Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
-
 
   // Get EcalRecHits
   bool validEcalRecHits=true;
@@ -169,13 +105,9 @@ void PiZeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   }
 
   if (validEcalRecHits) makePizero(esup,  barrelHitHandle, endcapHitHandle);
-
-
-
 }
 
-void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> rhEB,  const edm::Handle<EcalRecHitCollection> rhEE ) {
-
+void PiZeroAnalyzer::makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> rhEB,  const edm::Handle<EcalRecHitCollection> rhEE ) {
   const EcalRecHitCollection *hitCollection_p = rhEB.product();
 
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -184,7 +116,6 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
   edm::ESHandle<CaloTopology> theCaloTopology;
   es.get<CaloTopologyRecord>().get(theCaloTopology);
 
-
   const CaloSubdetectorGeometry *geometry_p;
   const CaloSubdetectorTopology *topology_p;
   const CaloSubdetectorGeometry *geometryES_p;
@@ -192,9 +123,7 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   // Parameters for the position calculation:
-  edm::ParameterSet posCalcParameters =
-    parameters_.getParameter<edm::ParameterSet>("posCalcParameters");
-  PositionCalc posCalculator_ = PositionCalc(posCalcParameters);
+  PositionCalc posCalculator_ = PositionCalc(posCalcParameters_);
   //
   std::map<DetId, EcalRecHit> recHitsEB_map;
   //
@@ -413,24 +342,4 @@ void PiZeroAnalyzer::makePizero ( const edm::EventSetup& es, const edm::Handle<E
       }
     }
   }
-
 }
-
-
-
-void PiZeroAnalyzer::endJob()
-{
-
-
-
-  bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-    dbe_->save(outputFileName);
-  }
-
-  edm::LogInfo("PiZeroAnalyzer") << "Analyzed " << nEvt_  << "\n";
-  return ;
-}
-
-

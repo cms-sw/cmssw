@@ -20,7 +20,7 @@
 class CSCBadChambersConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCBadChambersConditions(const edm::ParameterSet&);
-  ~CSCBadChambersConditions();
+  ~CSCBadChambersConditions() override;
   
 
   inline static CSCBadChambers *  prefillBadChambers();
@@ -31,7 +31,7 @@ class CSCBadChambersConditions: public edm::ESProducer, public edm::EventSetupRe
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCBadChambers *cndbBadChambers ;
 
 };

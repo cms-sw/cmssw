@@ -19,7 +19,7 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
   
   DaqScopeModeAlgorithm( const edm::ParameterSet & pset, DaqScopeModeAnalysis* const );
 
-  virtual ~DaqScopeModeAlgorithm() {;}
+  ~DaqScopeModeAlgorithm() override {;}
   
   inline const float& entries() const;
   inline const float& mean() const; 
@@ -35,9 +35,9 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
   
   DaqScopeModeAlgorithm() {;}
   
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
-  void analyse();
+  void analyse() override;
   
  private:
   

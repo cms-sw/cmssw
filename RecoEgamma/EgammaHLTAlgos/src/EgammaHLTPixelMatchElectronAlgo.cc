@@ -52,7 +52,7 @@ EgammaHLTPixelMatchElectronAlgo::EgammaHLTPixelMatchElectronAlgo(const edm::Para
   useGsfTracks_(conf.getParameter<bool>("UseGsfTracks")),
   bsProducer_(iC.consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BSProducer"))), 
   mtsMode_(new MultiTrajectoryStateMode()),
-  mtsTransform_(0),
+  mtsTransform_(nullptr),
   cacheIDTDGeom_(0),
   cacheIDMagField_(0)
 {
@@ -151,7 +151,7 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 
     // clean gsf tracks
     std::vector<unsigned int> flag(gsfTracksH->size(), 0);
-    if (gsfTracksH->size() == 0)
+    if (gsfTracksH->empty())
       return;
 
     for (unsigned int i=0; i<gsfTracksH->size()-1; ++i) {
@@ -233,8 +233,8 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 bool EgammaHLTPixelMatchElectronAlgo::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrack, const reco::GsfTrackRef& iGsfTrack, bool& sameLayer) {
   
   // define closest using the lost hits on the expectedhitsineer
-  unsigned int nLostHits = nGsfTrack->trackerExpectedHitsInner().numberOfLostHits();
-  unsigned int iLostHits = iGsfTrack->trackerExpectedHitsInner().numberOfLostHits();
+  unsigned int nLostHits = nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  unsigned int iLostHits = iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
   
   if (nLostHits!=iLostHits) {
     return (nLostHits > iLostHits);

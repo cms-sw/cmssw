@@ -27,7 +27,7 @@
 using namespace reco;
 using namespace std;
 
-PFMETBenchmark::PFMETBenchmark() : file_(0) {}
+PFMETBenchmark::PFMETBenchmark() : file_(nullptr) {}
 
 PFMETBenchmark::~PFMETBenchmark() {
   if(file_) file_->Close();
@@ -35,9 +35,9 @@ PFMETBenchmark::~PFMETBenchmark() {
 
 void PFMETBenchmark::write() {
    // Store the DAQ Histograms 
-  if (outputFile_.size() != 0) {
+  if (!outputFile_.empty()) {
     if (dbe_)
-          dbe_->save(outputFile_.c_str());
+          dbe_->save(outputFile_);
     // use bare Root if no DQM (FWLite applications)
     else if (file_) {
        file_->Write(outputFile_.c_str());
@@ -59,7 +59,7 @@ void PFMETBenchmark::setup(
   debug_ = debug; 
   plotAgainstReco_ = plotAgainstReco;
   outputFile_=Filename;
-  file_ = NULL;
+  file_ = nullptr;
   dbe_ = dbe_store;
   // print parameters
   //cout<< "PFMETBenchmark Setup parameters =============================================="<<endl;
@@ -74,7 +74,7 @@ void PFMETBenchmark::setup(
   string path = "PFTask/Benchmarks/"+ benchmarkLabel_ + "/";
   if (plotAgainstReco) path += "Reco"; else path += "Gen";
   if (dbe_) {
-    dbe_->setCurrentFolder(path.c_str());
+    dbe_->setCurrentFolder(path);
   }
   else {
     file_ = new TFile(outputFile_.c_str(), "recreate");

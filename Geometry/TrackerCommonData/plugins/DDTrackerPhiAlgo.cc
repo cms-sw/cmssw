@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerPhiAlgo.h"
@@ -85,7 +84,7 @@ void DDTrackerPhiAlgo::execute(DDCompactView& cpv) {
     double phiy = phix + 90.*CLHEP::deg;
     double phideg = phi[i]/CLHEP::deg;
 
-    std::string rotstr = DDSplit(childName).first + dbl_to_string(phideg);
+    std::string rotstr = DDSplit(childName).first + std::to_string(phideg);
     DDRotation rotation = DDRotation(DDName(rotstr, idNameSpace));
     if (!rotation) {
       LogDebug("TrackerGeom") << "DDTrackerPhiAlgo test: Creating a new "

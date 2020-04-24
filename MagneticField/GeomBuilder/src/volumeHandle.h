@@ -63,7 +63,7 @@ public:
 
   /// Just for debugging...
   static void printUniqueNames(handles::const_iterator begin,
-			       handles::const_iterator end);
+			       handles::const_iterator end, bool uniq=true);
 
 
   // Phi ranges: Used by: LessDPhiMax; bSector; bSlab::[min|max]Phi();
@@ -113,8 +113,8 @@ public:
 private:
   // Disallow Default/copy ctor & assignment op.
   // (we want to handle only pointers!!!)
-  volumeHandle(const volumeHandle& v);
-  volumeHandle operator=(const volumeHandle &v);
+  volumeHandle(const volumeHandle& v) = delete;
+  volumeHandle operator=(const volumeHandle &v) = delete;
 
   // The volume's six surfaces.
   RCPS surfaces[6];

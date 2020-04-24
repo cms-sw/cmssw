@@ -59,7 +59,6 @@
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -76,8 +75,7 @@ namespace fftjetcms {
 //
 // class declaration
 //
-class FFTJetProducer : public edm::EDProducer, 
-                       public fftjetcms::FFTJetInterface
+class FFTJetProducer : public fftjetcms::FFTJetInterface
 {
 public:
     typedef fftjet::RecombinedJet<fftjetcms::VectorLike> RecoFFTJet;
@@ -105,16 +103,16 @@ public:
     };
 
     explicit FFTJetProducer(const edm::ParameterSet&);
-    virtual ~FFTJetProducer();
+    ~FFTJetProducer() override;
 
     // Parser for the resolution enum
     static Resolution parse_resolution(const std::string& name);
 
 protected:
     // Functions which should be overriden from the base
-    virtual void beginJob();
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
+    void beginJob() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
     // The following functions can be overriden by derived classes 
     // in order to adjust jet reconstruction algorithm behavior.
@@ -196,9 +194,9 @@ private:
         fftjetcms::Real,fftjetcms::VectorLike,fftjetcms::BgData> GridAlg;
 
     // Explicitly disable other ways to construct this object
-    FFTJetProducer();
-    FFTJetProducer(const FFTJetProducer&);
-    FFTJetProducer& operator=(const FFTJetProducer&);
+    FFTJetProducer() = delete;
+    FFTJetProducer(const FFTJetProducer&) = delete;
+    FFTJetProducer& operator=(const FFTJetProducer&) = delete;
 
     // Useful local utilities
     template<class Real>
@@ -429,8 +427,6 @@ private:
     edm::EDGetTokenT<std::vector<reco::FFTAnyJet<reco::GenJet> > > input_genjet_token_;
     edm::EDGetTokenT<reco::DiscretizedEnergyFlow> input_energyflow_token_;
     edm::EDGetTokenT<reco::FFTJetPileupSummary> input_pusummary_token_;
-
-
 };
 
 #endif // RecoJets_FFTJetProducers_FFTJetProducer_h

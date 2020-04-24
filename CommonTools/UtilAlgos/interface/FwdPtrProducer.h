@@ -11,7 +11,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -24,7 +24,7 @@ namespace edm {
 
 
   template < class T, class H = FwdPtrFromProductFactory<T> >
-  class FwdPtrProducer : public edm::EDProducer {
+    class FwdPtrProducer : public edm::stream::EDProducer<> {
   public :
     explicit FwdPtrProducer( edm::ParameterSet const & params ) :
        srcToken_( consumes<edm::View<T> >( params.getParameter<edm::InputTag>("src") ) )
@@ -32,14 +32,14 @@ namespace edm {
       produces< std::vector< edm::FwdPtr<T> > > ();
     }
 
-    ~FwdPtrProducer() {}
+    ~FwdPtrProducer() override {}
 
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override {
+    void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override {
 
       edm::Handle< edm::View<T> > hSrc;
       iEvent.getByToken( srcToken_, hSrc );
 
-      std::auto_ptr< std::vector< edm::FwdPtr<T> > > pOutputFwdPtr ( new std::vector<edm::FwdPtr<T> > );
+      std::unique_ptr< std::vector< edm::FwdPtr<T> > > pOutputFwdPtr ( new std::vector<edm::FwdPtr<T> > );
 
       for ( typename edm::View<T>::const_iterator ibegin = hSrc->begin(),
 	      iend = hSrc->end(),
@@ -50,7 +50,7 @@ namespace edm {
       }
 
 
-      iEvent.put( pOutputFwdPtr );
+      iEvent.put(std::move(pOutputFwdPtr));
     }
 
   protected :

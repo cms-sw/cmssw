@@ -1,9 +1,9 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include <algorithm> // for "max"
-#include <math.h>
+#include <cmath>
 #include <TH1.h>
 #include <TF1.h>
 
@@ -58,7 +58,7 @@ void HBHETimeProfileStatusBitSetter::hbheSetTimeFlagsFromDigi(HBHERecHitCollecti
 {
   
   bool Bits[4]={false, false, false, false};
-  std::vector<HBHEDataFrame> digi = const_cast<std::vector<HBHEDataFrame>&>(udigi);
+  std::vector<HBHEDataFrame> digi(udigi);
   std::sort(digi.begin(), digi.end(), compare_digi_energy()); // sort digis according to energies
   std::vector<double> PulseShape; // store fC values for each time slice
   int DigiSize=0;
@@ -84,7 +84,7 @@ void HBHETimeProfileStatusBitSetter::hbheSetTimeFlagsFromDigi(HBHERecHitCollecti
 
 
     
-  if(RecHitIndex.size()>0)
+  if(!RecHitIndex.empty())
     {
       double FracInLeader=-1;
       //double Slope=0; // not currently used

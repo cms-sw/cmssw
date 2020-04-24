@@ -1,4 +1,5 @@
 <use   name="DataFormats/METReco"/>
+<use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/CSCRecHit"/>
@@ -9,6 +10,7 @@
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
@@ -18,6 +20,7 @@
 <use   name="CondFormats/JetMETObjects"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
+<use   name="JetMETCorrections/Modules"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -22,22 +22,22 @@ public:
   TrackExtractor(){};
   TrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
-  virtual ~TrackExtractor(){}
+  ~TrackExtractor() override{}
 
-  virtual void fillVetos (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::TrackCollection & track) {}
+  void fillVetos (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::TrackCollection & track) override {}
 
   virtual reco::IsoDeposit::Vetos vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & track)const;
 
-  virtual reco::IsoDeposit deposit (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Track & muon) const;
+  reco::IsoDeposit deposit (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::Track & muon) const override;
 
 private:
   reco::IsoDeposit::Veto veto( const reco::IsoDeposit::Direction & dir) const;
 private:
   // Parameter set
-  edm::EDGetTokenT<edm::View<reco::Track> > theTrackCollectionToken; //! Track Collection Label
+  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken; //! Track Collection Label
   std::string theDepositLabel;         //! name for deposit
   double theDiff_r;                    //! transverse distance to vertex
   double theDiff_z;                    //! z distance to vertex

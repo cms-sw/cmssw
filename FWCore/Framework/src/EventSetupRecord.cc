@@ -102,7 +102,7 @@ EventSetupRecord::add(const DataKey& iKey ,
 {
    //
    const DataProxy* proxy = find(iKey);
-   if (0 != proxy) {
+   if (nullptr != proxy) {
       //
       // we already know the field exist, so do not need to check against end()
       //
@@ -176,20 +176,14 @@ EventSetupRecord::getFromProxy(DataKey const & iKey ,
 
    const DataProxy* proxy = this->find(iKey);
    
-   const void* hold = 0;
+   const void* hold = nullptr;
    
-   if(0!=proxy) {
+   if(nullptr!=proxy) {
       try {
-         try {
+        convertException::wrap([&]() {
             hold = proxy->get(*this, iKey,iTransientAccessOnly);
             iDesc = proxy->providerDescription(); 
-         }
-         catch (cms::Exception& e) { throw; }
-         catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-         catch (std::exception& e) { convertException::stdToEDM(e); }
-         catch(std::string& s) { convertException::stringToEDM(s); }
-         catch(char const* c) { convertException::charPtrToEDM(c); }
-         catch (...) { convertException::unknownToEDM(); }
+        });
       }
       catch(cms::Exception& e) {
          addTraceInfoToCmsException(e,iKey.name().value(),proxy->providerDescription(), iKey);
@@ -208,23 +202,17 @@ EventSetupRecord::find(const DataKey& iKey) const
    if (entry != proxies_.end()) {
       return entry->second;
    }
-   return 0;
+   return nullptr;
 }
       
 bool 
 EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
    const DataProxy* proxy = find(aKey);
-   if(0 != proxy) {
+   if(nullptr != proxy) {
       try {
-         try {
+         convertException::wrap([&]() {
             proxy->doGet(*this, aKey, aGetTransiently);
-         }
-         catch (cms::Exception& e) { throw; }
-         catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-         catch (std::exception& e) { convertException::stdToEDM(e); }
-         catch(std::string& s) { convertException::stringToEDM(s); }
-         catch(char const* c) { convertException::charPtrToEDM(c); }
-         catch (...) { convertException::unknownToEDM(); }
+         });
       }
       catch( cms::Exception& e) {
          addTraceInfoToCmsException(e,aKey.name().value(),proxy->providerDescription(), aKey);
@@ -233,13 +221,13 @@ EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
          throw;
       }
    }
-   return 0 != proxy;
+   return nullptr != proxy;
 }
 
 bool 
 EventSetupRecord::wasGotten(const DataKey& aKey) const {
    const DataProxy* proxy = find(aKey);
-   if(0 != proxy) {
+   if(nullptr != proxy) {
       return proxy->cacheIsValid();
    }
    return false;
@@ -248,10 +236,10 @@ EventSetupRecord::wasGotten(const DataKey& aKey) const {
 edm::eventsetup::ComponentDescription const* 
 EventSetupRecord::providerDescription(const DataKey& aKey) const {
    const DataProxy* proxy = find(aKey);
-   if(0 != proxy) {
+   if(nullptr != proxy) {
       return proxy->providerDescription();
    }
-   return 0;
+   return nullptr;
 }
 
 void 
@@ -271,7 +259,7 @@ EventSetupRecord::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const
 void 
 EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& iTag) const
 {
-   if(iDesc && iTag.module().size()) {
+   if(iDesc && !iTag.module().empty()) {
       bool matched = false;
       if(iDesc->label_.empty()) {
          matched = iDesc->type_ == iTag.module();

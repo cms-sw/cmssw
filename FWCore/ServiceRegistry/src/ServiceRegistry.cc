@@ -78,18 +78,18 @@ namespace edm {
 
    ServiceToken
    ServiceRegistry::createServicesFromConfig(std::string const& config) {
-      boost::shared_ptr<ParameterSet> params;
+      std::shared_ptr<ParameterSet> params;
       makeParameterSets(config, params);
 
-      std::auto_ptr<std::vector<ParameterSet> > serviceSets = params->popVParameterSet(std::string("services"));
+      auto serviceSets = params->popVParameterSet(std::string("services"));
       //create the services
-      return ServiceToken(ServiceRegistry::createSet(*serviceSets));
+      return ServiceToken(ServiceRegistry::createSet(serviceSets));
    }
 
    ServiceToken 
    ServiceRegistry::createSet(std::vector<ParameterSet>& iPS) {
       using namespace serviceregistry;
-      boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iPS));
+      auto returnValue = std::make_shared<ServicesManager>(iPS);
       return ServiceToken(returnValue);
    }
 
@@ -99,7 +99,7 @@ namespace edm {
                                    serviceregistry::ServiceLegacy iLegacy,
                                    bool associate) {
       using namespace serviceregistry;
-      boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iToken, iLegacy, iPS, associate));
+      auto returnValue = std::make_shared<ServicesManager>(iToken, iLegacy, iPS, associate);
       return ServiceToken(returnValue);
    }
 

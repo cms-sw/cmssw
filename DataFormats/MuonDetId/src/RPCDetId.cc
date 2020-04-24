@@ -167,12 +167,25 @@ RPCDetId::buildfromTrIndex(int trIndex)
   }
   trIndex = trIndex%10000;
   int sector_id = trIndex/100;
+
+  // RE+1/1 :: the chamber at x=0 (phi=0) start as CH02 instead of CH01, which is not desired
+  // while for other chambers: RE+1/(2,3) and RE+2,3,4/(2,3) the rotation seems to be arbitrary
+  // I will leave the code for the existing chambers as it is, but will remove RE+1/1 from selection
+  // These lines are programmed very asymmetric between Pos \& Neg endcap:
+  // - it affects the whole Negative Endcap
+  // - it affects the whole RE+/-1 Station
+  // - it affects all RE+(1,2,3,4)/(2,3)
+  // ==> why does it act differently on RE-(2,3,4)/1 and RE+(2,3,4)/1 ???
   if (region!=0) {
-        if ( !(ring == 1 && station > 1 && region==1)) {     
-         sector_id+=1;
-         if (sector_id==37)sector_id=1;
-     }
+    if ( !(ring == 1 && station > 1 && region==1)) {
+      // skip RE+1/1 (ri=1, st=1, re=-1,+1)
+      if(!(ring == 1 && station == 1 && region!=0)) {
+	sector_id+=1;
+	if (sector_id==37) sector_id=1;
+      }
+    }
   }
+    
   if (region==-1){
     if (sector_id < 20 ){
       sector_id = 19+ 1-sector_id;

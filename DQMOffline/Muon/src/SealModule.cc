@@ -12,9 +12,12 @@
 #include "DQMOffline/Muon/interface/EfficiencyAnalyzer.h"
 #include "DQMOffline/Muon/interface/MuonRecoOneHLT.h"
 #include "DQMOffline/Muon/interface/MuonRecoAnalyzer.h"
+#include "DQMOffline/Muon/interface/MuonTiming.h"
 #include "DQMOffline/Muon/interface/SegmentTrackAnalyzer.h"
 #include "DQMOffline/Muon/interface/MuonSeedsAnalyzer.h"
 #include "DQMOffline/Muon/interface/MuonEnergyDepositAnalyzer.h"
+
+#include "DQMOffline/Muon/interface/MuonMiniAOD.h"
 
 DEFINE_FWK_MODULE(MuonTrackResidualsTest);
 DEFINE_FWK_MODULE(MuonRecoTest);
@@ -26,10 +29,11 @@ DEFINE_FWK_MODULE(MuonKinVsEtaAnalyzer);
 DEFINE_FWK_MODULE(EfficiencyAnalyzer);
 DEFINE_FWK_MODULE(MuonRecoOneHLT);
 DEFINE_FWK_MODULE(MuonRecoAnalyzer);
+DEFINE_FWK_MODULE(MuonTiming);
 DEFINE_FWK_MODULE(SegmentTrackAnalyzer);
 DEFINE_FWK_MODULE(MuonEnergyDepositAnalyzer);
 DEFINE_FWK_MODULE(MuonSeedsAnalyzer);
-
+DEFINE_FWK_MODULE(MuonMiniAOD);
 
 
 

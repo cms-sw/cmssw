@@ -8,7 +8,6 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
-#include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
 void dumpInitHeader(const InitMsgView* view);
@@ -21,8 +20,6 @@ void dumpEventHeader(const EventMsgView* eview);
 void dumpEventView(const EventMsgView* eview);
 void dumpEventIndex(const EventMsgView* eview);
 void dumpEvent(uint8* buf);
-void dumpDQMEventHeader(const DQMEventMsgView* dview);
-void dumpDQMEventView(const DQMEventMsgView* dview);
 void dumpFRDEventView(const FRDEventMsgView* fview);
 
 #endif

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-cscCertificationInfo = cms.EDAnalyzer("CSCCertificationInfo")
+cscCertificationInfo = DQMEDHarvester("CSCCertificationInfo")
 

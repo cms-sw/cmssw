@@ -26,21 +26,21 @@ ________________________________________________________________**/
 class BeamSpotAnalyzer : public edm::EDAnalyzer {
  public:
   explicit BeamSpotAnalyzer(const edm::ParameterSet&);
-  ~BeamSpotAnalyzer();
+  ~BeamSpotAnalyzer() override;
 
  private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-									const edm::EventSetup& context) ;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-								  const edm::EventSetup& c);
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+									const edm::EventSetup& context) override ;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+								  const edm::EventSetup& c) override;
 
   int    ftotalevents;
   int fitNLumi_;
   int resetFitNLumi_;
-  int countEvt_;       //counter
+  // int countEvt_;       //counter
   int countLumi_;      //counter
   int Org_resetFitNLumi_;
   int previousLumi_;
@@ -53,7 +53,7 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   bool write2DB_;
   bool runbeamwidthfit_;
   bool runallfitters_;
-  double inputBeamWidth_;
+  //  double inputBeamWidth_;
 
   BeamFitter * theBeamFitter;
 };

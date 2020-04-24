@@ -125,7 +125,7 @@ ESDataFormatterV1_1::~ESDataFormatterV1_1() {
 //   return rawData;
 // }
 
-void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawData) {
+void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawData, const Meta_Data & meta_data) const{
 
   map<int, vector<Word64> > map_data;
   map_data.clear();  
@@ -213,7 +213,7 @@ void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawD
   
   // DCC words
   vector<Word64> DCCwords;
-  word2 = (0 << sDHEAD) | (1 <<sDH) | (run_number_ << sDRUN);
+  word2 = (0 << sDHEAD) | (1 <<sDH) | (meta_data.run_number << sDRUN);
   word1 = (dataSize << sDEL);
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
@@ -222,7 +222,7 @@ void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawD
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
   word2 = (0 << sDHEAD) | (3 <<sDH) | (1 << sDVMAJOR) | (1 << sDVMINOR); 
-  word1 = (orbit_number_ << sDORBIT);
+  word1 = (meta_data.orbit_number << sDORBIT);
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
   word2 = (0 << sDHEAD) | (4 <<sDH);
@@ -244,7 +244,7 @@ void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawD
   Word64 * w = reinterpret_cast<Word64* >(fedRawData.data());
   
   // header
-  FEDHeader::set( reinterpret_cast<unsigned char*>(w), trgtype_, lv1_, bx_, fedId); 
+  FEDHeader::set( reinterpret_cast<unsigned char*>(w), trgtype_, meta_data.lv1, meta_data.bx, fedId); 
   w++;
 
   // ES-DCC 

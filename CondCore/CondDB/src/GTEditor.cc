@@ -28,6 +28,11 @@ namespace cond {
       std::vector<std::tuple<std::string,std::string,std::string> > tagListBuffer;
     };
 
+    GTEditor::GTEditor():
+      m_data(),
+      m_session(){
+    }
+
     GTEditor::GTEditor( const std::shared_ptr<SessionImpl>& session ):
       m_data( new GTEditorData ),
       m_session( session ){
@@ -42,11 +47,13 @@ namespace cond {
     }
     
     GTEditor::GTEditor( const GTEditor& rhs ):
-      m_data( rhs.m_data ){
+      m_data( rhs.m_data ),
+      m_session( rhs.m_session ){
     }
     
     GTEditor& GTEditor::operator=( const GTEditor& rhs ){
       m_data = rhs.m_data;
+      m_session = rhs.m_session;
       return *this;
     }
     
@@ -144,7 +151,7 @@ namespace cond {
 	}
 	m_data->change = false;  
       }
-      if( m_data->tagListBuffer.size() ) {
+      if( !m_data->tagListBuffer.empty() ) {
 	
 	// insert the new iovs
 	m_session->gtSchema().gtMapTable().insert( m_data->name, m_data->tagListBuffer );

@@ -17,7 +17,7 @@
  * $Id: Merger.h,v 1.2 2010/02/20 20:55:21 wmtan Exp $
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/transform.h"
@@ -28,16 +28,16 @@
 template<typename InputCollection,
 	 typename OutputCollection = InputCollection,
 	 typename P = typename edm::clonehelper::CloneTrait<InputCollection>::type>
-class Merger : public edm::EDProducer {
+class Merger : public edm::global::EDProducer<> {
 public:
   /// constructor from parameter set
   explicit Merger( const edm::ParameterSet& );
   /// destructor
-  ~Merger();
+  ~Merger() override;
 
 private:
   /// process an event
-  virtual void produce( edm::Event&, const edm::EventSetup&) override;
+  void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   /// vector of strings
   typedef std::vector<edm::EDGetTokenT<InputCollection> > vtoken;
   /// labels of the collections to be merged
@@ -55,8 +55,8 @@ Merger<InputCollection, OutputCollection, P>::~Merger() {
 }
 
 template<typename InputCollection, typename OutputCollection, typename P>
-void Merger<InputCollection, OutputCollection, P>::produce( edm::Event& evt, const edm::EventSetup&) {
-  std::auto_ptr<OutputCollection> coll( new OutputCollection );
+void Merger<InputCollection, OutputCollection, P>::produce( edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
+  std::unique_ptr<OutputCollection> coll( new OutputCollection );
   for( typename vtoken::const_iterator s = srcToken_.begin(); s != srcToken_.end(); ++ s ) {
     edm::Handle<InputCollection> h;
     evt.getByToken( * s, h );
@@ -64,7 +64,7 @@ void Merger<InputCollection, OutputCollection, P>::produce( edm::Event& evt, con
       coll->push_back( P::clone( * c ) );
     }
   }
-  evt.put( coll );
+  evt.put(std::move(coll));
 }
 
 #endif

@@ -55,7 +55,7 @@ process.VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
     SigmaX = cms.double(0.0001),
     SigmaZ = cms.double(0.0001),
     TimeOffset = cms.double(0.0),
-    src = cms.InputTag("source")
+    src = cms.InputTag("generator","unsmeared")
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",

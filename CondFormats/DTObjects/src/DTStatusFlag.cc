@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/25 12:03:20 $
- *  $Revision: 1.11 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,7 +13,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-//#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 
 //---------------
 // C++ Headers --
@@ -27,16 +25,16 @@
 // Constructors --
 //----------------
 DTStatusFlag::DTStatusFlag():
-  dataVersion( " " ) {
+  dataVersion( " " ),
+  dBuf(new DTBufferTree<int,int>) {
   dataList.reserve( 1000 );
-  dBuf = 0;
 }
 
 
 DTStatusFlag::DTStatusFlag( const std::string& version ):
-  dataVersion( version ) {
+  dataVersion( version ),
+  dBuf(new DTBufferTree<int,int>) {
   dataList.reserve( 1000 );
-  dBuf = 0;
 }
 
 
@@ -64,8 +62,6 @@ DTStatusFlagData::DTStatusFlagData() :
 // Destructor --
 //--------------
 DTStatusFlag::~DTStatusFlag() {
-//  DTDataBuffer<int,int>::dropBuffer( mapName() );
-  delete dBuf;
 }
 
 
@@ -99,16 +95,6 @@ int DTStatusFlag::get( int   wheelId,
    trigMask =
    deadFlag =
    nohvFlag = false;
-
-//  std::string mName = mapName();
-//  DTBufferTree<int,int>* dBuf =
-//  DTDataBuffer<int,int>::findBuffer( mName );
-//  if ( dBuf == 0 ) {
-//    cacheMap();
-//    dBuf =
-//    DTDataBuffer<int,int>::findBuffer( mName );
-//  }
-  if ( dBuf == 0 ) cacheMap();
 
   std::vector<int> chanKey;
   chanKey.reserve(6);
@@ -165,10 +151,8 @@ std::string& DTStatusFlag::version() {
 
 
 void DTStatusFlag::clear() {
-//  DTDataBuffer<int,int>::dropBuffer( mapName() );
-  delete dBuf;
-  dBuf = 0;
   dataList.clear();
+  initialize();
   return;
 }
 
@@ -186,15 +170,6 @@ int DTStatusFlag::set( int   wheelId,
                        bool  deadFlag,
                        bool  nohvFlag ) {
 
-//  std::string mName = mapName();
-//  DTBufferTree<int,int>* dBuf =
-//  DTDataBuffer<int,int>::findBuffer( mName );
-//  if ( dBuf == 0 ) {
-//    cacheMap();
-//    dBuf =
-//    DTDataBuffer<int,int>::findBuffer( mName );
-//  }
-  if ( dBuf == 0 ) cacheMap();
   std::vector<int> chanKey;
   chanKey.reserve(6);
   chanKey.push_back(   wheelId );
@@ -608,14 +583,9 @@ std::string DTStatusFlag::mapName() const {
 }
 
 
-void DTStatusFlag::cacheMap() const {
+void DTStatusFlag::initialize() {
 
-//  std::string mName = mapName();
-//  DTBufferTree<int,int>* dBuf =
-//  DTDataBuffer<int,int>::openBuffer( mName );
-  DTBufferTree<int,int>** pBuf;
-  pBuf = const_cast<DTBufferTree<int,int>**>( &dBuf );
-  *pBuf = new DTBufferTree<int,int>;
+  dBuf->clear();
 
   int entryNum = 0;
   int entryMax = dataList.size();

@@ -27,6 +27,7 @@
 
 //=== Class SigInputObj ==============================//
 namespace metsig{
+  
   class SigInputObj{
 
   public:

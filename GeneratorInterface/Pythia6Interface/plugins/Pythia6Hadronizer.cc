@@ -360,6 +360,13 @@ void Pythia6Hadronizer::finalizeEvent()
 
    event()->set_pdf_info( pdf ) ;
 
+   HepMC::GenCrossSection xsec;
+   double cs = pypars.pari[0]; // cross section in mb
+   cs *= 1.0e9; // translate to pb
+   double cserr = cs / sqrt(pypars.msti[4]);
+   xsec.set_cross_section(cs, cserr);
+   event()->set_cross_section(xsec);
+
    // this is "standard" Py6 event weight (corresponds to PYINT1/VINT(97)
    //
    if (lhe && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)

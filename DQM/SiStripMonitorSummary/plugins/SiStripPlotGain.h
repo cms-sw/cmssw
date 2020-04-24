@@ -49,13 +49,13 @@ class TrackerTopology;
 class SiStripPlotGain : public edm::EDAnalyzer {
 public:
   explicit SiStripPlotGain(const edm::ParameterSet&);
-  ~SiStripPlotGain();
+  ~SiStripPlotGain() override;
   
   
 private:
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& es);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&){};
-  virtual void endJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  void endJob() override;
   
   void DoAnalysis(const edm::EventSetup& es, const SiStripApvGain&);
   void getHistos(const uint32_t & detid, const TrackerTopology* tTopo, std::vector<TH1F*>& histos);

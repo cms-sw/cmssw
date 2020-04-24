@@ -1,19 +1,23 @@
-//
-// ********************************************************************
-// 25.04.04 - M. Case ddd-ize G4ParameterisationPolycone*
-//---------------------------------------------------------------------
 #include "DetectorDescription/Parser/src/DDDividedPolycone.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
-
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+class DDCompactView;
 
 DDDividedPolyconeRho::DDDividedPolyconeRho( const DDDivision& div, DDCompactView* cpv )
   :  DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )
@@ -37,12 +41,7 @@ DDDividedPolyconeRho::DDDividedPolyconeRho( const DDDivision& div, DDCompactView
   {
     compWidth_ = calculateWidth( localrMaxVec[0] - localrMinVec[0], div_.nReplicas(), div_.offset());
   }
-
-  DCOUT_V( 'P', " DDDividedPolyconeRho - # divisions " << compNDiv_ << " = " << div_.nReplicas() << "/n Offset " << div_.offset() << " Width " << compWidth_ << " = " << div_.width() << "\n" );
 }
-
-DDDividedPolyconeRho::~DDDividedPolyconeRho( void )
-{}
 
 void
 DDDividedPolyconeRho::checkParametersValidity( void )
@@ -87,7 +86,6 @@ DDRotation
 DDDividedPolyconeRho::makeDDRotation( const int copyNo ) const
 {
   DDRotation myddrot; // sets to identity.
-  DCOUT_V ('P', "DDDividedPolyconeRho::makeDDRotation : " << myddrot);
   return myddrot;
 }
 
@@ -124,10 +122,10 @@ DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
     // not compWidth_
     // 	  newrMinVec[ii] = localrMinVec[ii]+div_.offset()+compWidth_*copyNo;
     // 	  newrMaxVec[ii] = localrMinVec[ii]+div_.offset()+compWidth_*(copyNo+1);
-    newrMinVec.push_back(localrMinVec[ii]+div_.offset()+width*copyNo);
-    newrMaxVec.push_back(localrMinVec[ii]+div_.offset()+width*(copyNo+1));
+    newrMinVec.emplace_back(localrMinVec[ii]+div_.offset()+width*copyNo);
+    newrMaxVec.emplace_back(localrMinVec[ii]+div_.offset()+width*(copyNo+1));
   }
-  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + DDXMLElement::itostr(copyNo),
+  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo),
 		    div_.parent().ddname().ns());
       
   ddpolycone = DDSolidFactory::polycone( solname,
@@ -138,7 +136,6 @@ DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
 					 newrMaxVec );
 
   DDLogicalPart ddlp = DDLogicalPart( solname, usemat, ddpolycone );
-  DCOUT_V ('P', " DDDividedPolyconeRho::makeDDLogicalPart() lp:" << ddlp);
   return ddlp;
 }
 
@@ -167,12 +164,7 @@ DDDividedPolyconePhi::DDDividedPolyconePhi( const DDDivision& div, DDCompactView
       compWidth_ = calculateWidth( msol.deltaPhi(), div_.nReplicas(), div_.offset() );
     }
   }
-  
-  DCOUT_V ('P', " DDDividedPolyconePhi - # divisions " << compNDiv_ << " = " << div_.nReplicas() << "/n Offset " << div_.offset() << " Width " << compWidth_ << " = " << div_.width() << "\n");
 }
-
-DDDividedPolyconePhi::~DDDividedPolyconePhi( void )
-{}
 
 void
 DDDividedPolyconePhi::checkParametersValidity( void )
@@ -195,11 +187,10 @@ DDDividedPolyconePhi::makeDDRotation( const int copyNo ) const
   DDRotationMatrix* rotMat = changeRotMatrix( posi );
   // how to name the rotation??
   // i do not like this
-  DDName ddrotname( div_.parent().ddname().name() + "_DIVCHILD_ROT" + DDXMLElement::itostr( copyNo ),
+  DDName ddrotname( div_.parent().ddname().name() + "_DIVCHILD_ROT" + std::to_string( copyNo ),
 		    div_.parent().ddname().ns());
   myddrot = DDrot( ddrotname, rotMat );
 
-  DCOUT_V( 'P', "DDDividedPolyconePhi::makeDDRotation : " << myddrot );
   return myddrot;
 }
 
@@ -239,7 +230,7 @@ DDDividedPolyconePhi::makeDDLogicalPart( const int copyNo ) const
   {
     ddlp = DDLogicalPart( solname, usemat, ddpolycone );
   }
-  DCOUT_V( 'P', " DDDividedPolyconePhi::makeDDLogicalPart() lp:" << ddlp );
+
   return ddlp;
 }
 
@@ -264,12 +255,7 @@ DDDividedPolyconeZ::DDDividedPolyconeZ( const DDDivision& div, DDCompactView* cp
       calculateNDiv( localzVec[localzVec.size()-1]
 		     - localzVec[0] , div_.nReplicas(), div_.offset() );
   }
-   
-  DCOUT_V ('P', " DDDividedPolyconeZ - # divisions " << compNDiv_ << " = " << div_.nReplicas() << "/n Offset " << div_.offset() << " Width " << compWidth_ << " = " << div_.width() << "\n");
 }
-
-DDDividedPolyconeZ::~DDDividedPolyconeZ( void )
-{}
 
 void
 DDDividedPolyconeZ::checkParametersValidity( void )
@@ -291,8 +277,8 @@ DDDividedPolyconeZ::checkParametersValidity( void )
     std::string s = "ERROR - DDDividedPolyconeZ::checkParametersValidity()";
     s += "\n\tDivision along Z will be done splitting in the defined";
     s += "\n\tz_planes, i.e, the number of division would be :";
-    s += "\n\t" + DDXMLElement::itostr( msol.zVec().size() - 1 );
-    s += "\n\tinstead of " + DDXMLElement::itostr(tempNDiv) + " !\n";
+    s += "\n\t" + std::to_string( msol.zVec().size() - 1 );
+    s += "\n\tinstead of " + std::to_string(tempNDiv) + " !\n";
 
     throw cms::Exception("DDException") << s;
   }
@@ -311,7 +297,6 @@ DDRotation
 DDDividedPolyconeZ::makeDDRotation( const int copyNo ) const
 {
   DDRotation myddrot; // sets to identity.
-  DCOUT_V ('P', "DDDividedPolyconeZ::makeDDRotation : " << myddrot);
   return myddrot;
 }
 
@@ -338,7 +323,7 @@ DDDividedPolyconeZ::makeDDLogicalPart( const int copyNo ) const
   std::vector<double> localrMinVec = msol.rMinVec();
   std::vector<double> localzVec = msol.zVec();
 
-  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + DDXMLElement::itostr(copyNo),
+  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo),
 		    div_.parent().ddname().ns());
   ddpolycone = DDSolidFactory::cons( solname,
 				     compWidth_ / 2,
@@ -350,8 +335,6 @@ DDDividedPolyconeZ::makeDDLogicalPart( const int copyNo ) const
 				     msol.deltaPhi());
 
   DDLogicalPart ddlp = DDLogicalPart( solname, usemat, ddpolycone );
-
-  DCOUT_V( 'P', " DDDividedPolyconeZ::makeDDLogicalPart() lp:" << ddlp );
 
   return ddlp;
 }

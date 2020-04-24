@@ -16,7 +16,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
 
 ///ESHANDLE
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -49,12 +49,12 @@ class ConvBremSeedProducer : public edm::EDProducer {
  
  public:
   explicit ConvBremSeedProducer(const edm::ParameterSet&);
-  ~ConvBremSeedProducer();
+  ~ConvBremSeedProducer() override;
   
  private:
-  virtual void beginRun(const edm::Run&,const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&,const edm::EventSetup&) override;
+  void beginRun(const edm::Run&,const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&,const edm::EventSetup&) override;
   void initializeLayerMap();
   std::vector<const DetLayer*>                theLayerMap;
   TrajectoryStateOnSurface makeTrajectoryState( const DetLayer* layer, 
@@ -62,7 +62,7 @@ class ConvBremSeedProducer : public edm::EDProducer {
 						const MagneticField* field) const;
   const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
 
-  bool isGsfTrack(const TrackingRecHitRefVector&, const TrackingRecHit *);
+  bool isGsfTrack(const reco::Track &, const TrackingRecHit *);
 
   int GoodCluster(const BaseParticlePropagator& bpg, const reco::PFClusterCollection& pfc, 
 		  float minep, bool sec=false);

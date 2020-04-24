@@ -83,6 +83,10 @@ bool Py8JetGun::generatePartonsAndHadronize()
          particleID = std::fabs(particleID) ;
       }
       (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass ); 
+      int eventSize = (fMasterGen->event).size()-1;
+      // -log(flat) = exponential distribution
+      double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+      (fMasterGen->event)[eventSize].tau( tauTmp );
       
       // values for computing total mass
       //

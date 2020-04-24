@@ -1,17 +1,19 @@
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include <ostream>
+#include <string>
+#include <vector>
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/src/Material.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using DDI::Material;
 
-
-//DDBase<DDName,Material*>::StoreT::pointer_type 
-//  DDBase<DDName,Material*>::StoreT::instance_ = 0;
-
-
 DDMaterial::DDMaterial() : DDBase<DDName,Material*>() { }
-
 
 /**
    If a DDMaterial with \a name was already defined, this constructor creates a
@@ -75,7 +77,6 @@ int DDMaterial::addMaterial(const DDMaterial & m, double fm)
     throw cms::Exception("DDException") << "DDMaterial::addMaterial(..): name-clash\n        trying to add material " << m << " to itself! ";
   }  
   rep().addMaterial(m,fm);
-  DCOUT('c', std::string(" -> ADDED MATERIAL=") + m.toString() );
   return rep().noOfConstituents();
 }
 
@@ -88,8 +89,6 @@ int DDMaterial::noOfConstituents() const
 
 DDMaterial::FractionV::value_type DDMaterial::constituent(int i) const 
 { 
-  //const DDMaterialImpl::Fraction & f(rep().constituent(i));
-  //return std::make_pair(DDMaterial(f.first,true), f.second);  
   return rep().constituent(i);
 }
 
@@ -110,17 +109,6 @@ double DDMaterial::density() const
 {
   return rep().density(); 
 }
-
-// void DDMaterial::clear()
-// {
-//   StoreT::instance().clear();
-// }
-// private ctor for internal use
-//DDMaterial::DDMaterial(DDRedirect<DDMaterialImpl>* p, bool dummy)
-// : DDRegistered<DDMaterialImpl>(p,true)
-//{ 
-//  DCOUT_V('C',"DC: (redir) init=" << rep_ ); 
-//}   
 
 namespace {
   std::ostream &doStream(std::ostream & os, const DDMaterial & mat, int level)

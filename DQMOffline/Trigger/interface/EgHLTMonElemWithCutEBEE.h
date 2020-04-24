@@ -16,6 +16,8 @@
 //       
 //      
 
+#include <cmath>
+
 #include "DQMOffline/Trigger/interface/EgHLTMonElemWithCut.h"
 
 namespace egHLT {
@@ -25,25 +27,25 @@ namespace egHLT {
     MonElemWithCut<T,varType> endcap_;
     
   public: 
-    MonElemWithCutEBEE(const std::string& name,const std::string& title,int nrBins,float min,float max,
+    MonElemWithCutEBEE(DQMStore::IBooker &iBooker,const std::string& name,const std::string& title,int nrBins,float min,float max,
 		       varType (T::*varFunc)()const):
-      barrel_(name+"_eb","Barrel "+title,nrBins,min,max,varFunc,NULL),
-      endcap_(name+"_ee","Endcap "+title,nrBins,min,max,varFunc,NULL){}
+      barrel_(iBooker,name+"_eb","Barrel "+title,nrBins,min,max,varFunc,nullptr),
+      endcap_(iBooker,name+"_ee","Endcap "+title,nrBins,min,max,varFunc,nullptr){}
     
-    MonElemWithCutEBEE(const std::string& name,const std::string& title,int nrBins,float min,float max,
+    MonElemWithCutEBEE(DQMStore::IBooker &iBooker,const std::string& name,const std::string& title,int nrBins,float min,float max,
 		       varType (T::*varFunc)()const,const EgHLTDQMCut<T>* cut):
-      barrel_(name+"_eb","Barrel "+title,nrBins,min,max,varFunc,cut),
-      endcap_(name+"_ee","Endcap "+title,nrBins,min,max,varFunc,cut ? cut->clone() : NULL){}
-    ~MonElemWithCutEBEE(){}
+      barrel_(iBooker,name+"_eb","Barrel "+title,nrBins,min,max,varFunc,cut),
+      endcap_(iBooker,name+"_ee","Endcap "+title,nrBins,min,max,varFunc,cut ? cut->clone() : nullptr){}
+    ~MonElemWithCutEBEE() override= default;
     
-    void fill(const T& obj,const OffEvt& evt,float weight);
+    void fill(const T& obj,const OffEvt& evt,float weight) override;
     
   };
 }
 
 template<class T,typename varType> void egHLT::MonElemWithCutEBEE<T,varType>::fill(const T& obj,const OffEvt& evt,float weight)
 {
-  if(fabs(obj.detEta())<1.5) barrel_.fill(obj,evt,weight);
+  if(std::fabs(obj.detEta())<1.5) barrel_.fill(obj,evt,weight);
   else endcap_.fill(obj,evt,weight);
 }
 

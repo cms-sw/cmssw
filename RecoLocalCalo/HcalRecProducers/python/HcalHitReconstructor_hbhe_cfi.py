@@ -1,18 +1,27 @@
 import FWCore.ParameterSet.Config as cms
+import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
+import RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi as method2
+import RecoLocalCalo.HcalRecProducers.HBHEMethod0Parameters_cfi as method0
+import RecoLocalCalo.HcalRecProducers.HBHEPulseShapeFlagSetter_cfi as pulseShapeFlag
+import RecoLocalCalo.HcalRecProducers.HBHEStatusBitSetter_cfi as hbheStatusFlag
 
 hbheprereco = cms.EDProducer(
     "HcalHitReconstructor",
-    correctionPhaseNS = cms.double(6.0),
+    method3.m3Parameters,
+    method2.m2Parameters,
+    method0.m0Parameters,
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HBHE'),
-    correctForPhaseContainment = cms.bool(True),
     correctForTimeslew = cms.bool(True),
     dropZSmarkedPassed = cms.bool(True),
-    firstSample = cms.int32(4),
-    samplesToAdd = cms.int32(2),
     tsFromDB = cms.bool(True),
     recoParamsFromDB = cms.bool(True),
     useLeakCorrection = cms.bool(False),
+    dataOOTCorrectionName = cms.string("HBHE"),
+    dataOOTCorrectionCategory = cms.string("Data"),
+    mcOOTCorrectionName = cms.string("HBHE"),
+    mcOOTCorrectionCategory = cms.string("MC"),
+    puCorrMethod = cms.int32(2),
 
     # Set time slice for first digi to be stored in aux word
     # (HBHE uses time slices 4-7 for reco)
@@ -27,16 +36,13 @@ hbheprereco = cms.EDProducer(
     setTimingTrustFlags       = cms.bool(False), # timing flags currently only implemented for HF
     setPulseShapeFlags        = cms.bool(True),
 
-    flagParameters= cms.PSet(nominalPedestal=cms.double(3.0),  #fC
-                             hitEnergyMinimum=cms.double(1.0), #GeV
-                             hitMultiplicityThreshold=cms.int32(17),
-                             pulseShapeParameterSets = cms.VPSet(
-    cms.PSet(pulseShapeParameters=cms.vdouble(   0.0, 100.0, -50.0, 0.0, -15.0, 0.15)),
-    cms.PSet(pulseShapeParameters=cms.vdouble( 100.0, 2.0e3, -50.0, 0.0,  -5.0, 0.05)),
-    cms.PSet(pulseShapeParameters=cms.vdouble( 2.0e3, 1.0e6, -50.0, 0.0,  95.0, 0.0 )),
-    cms.PSet(pulseShapeParameters=cms.vdouble(-1.0e6, 1.0e6,  45.0, 0.1, 1.0e6, 0.0 )),
-    )
-                             ),
+    # Enable negative energy filter
+    setNegativeFlags          = cms.bool(True),
+
+    flagParameters = cms.PSet(
+        hbheStatusFlag.qie8Config
+    ),
+
     saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
     hscpParameters=        cms.PSet(r1Min = cms.double(0.15),  # was 0.1
                                     r1Max = cms.double(1.0),   # was 0.7
@@ -50,26 +56,9 @@ hbheprereco = cms.EDProducer(
                                     outerMax      = cms.double(0.1), # was 0.1
                                     TimingEnergyThreshold = cms.double(30.)),
 
-    pulseShapeParameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
-                                    TS4TS5ChargeThreshold = cms.double(70),
-                                    TrianglePeakTS = cms.uint32(4),
-                                    LinearThreshold = cms.vdouble(20, 100, 100000),
-                                    LinearCut = cms.vdouble(-3, -0.054, -0.054),
-                                    RMS8MaxThreshold = cms.vdouble(20, 100, 100000),
-                                    RMS8MaxCut = cms.vdouble(-13.5, -11.5, -11.5),
-                                    LeftSlopeThreshold = cms.vdouble(250, 500, 100000),
-                                    LeftSlopeCut = cms.vdouble(5, 2.55, 2.55),
-                                    RightSlopeThreshold = cms.vdouble(250, 400, 100000),
-                                    RightSlopeCut = cms.vdouble(5, 4.15, 4.15),
-                                    RightSlopeSmallThreshold = cms.vdouble(150, 200, 100000),
-                                    RightSlopeSmallCut = cms.vdouble(1.08, 1.16, 1.16),
-                                    MinimumTS4TS5Threshold = cms.double(100),
-                                    TS4TS5UpperThreshold = cms.vdouble(70, 90, 100, 400),
-                                    TS4TS5UpperCut = cms.vdouble(1, 0.8, 0.75, 0.72),
-                                    TS4TS5LowerThreshold = cms.vdouble(100, 120, 160, 200, 300, 500),
-                                    TS4TS5LowerCut = cms.vdouble(-1, -0.7, -0.5, -0.4, -0.3, 0.1),
-                                    UseDualFit = cms.bool(True),
-                                    TriangleIgnoreSlow = cms.bool(False)),
+    pulseShapeParameters = cms.PSet(
+        pulseShapeFlag.qie8Parameters
+    ),
 
     # shaped cut parameters are triples of (energy, low time threshold, high time threshold) values.
     # The low and high thresholds must straddle zero (i.e., low<0, high>0); use win_offset to shift.
@@ -101,5 +90,5 @@ hbheprereco = cms.EDProducer(
                                           win_gain   = cms.double(3.0),
                                           ignorelowest=cms.bool(True),
                                           ignorehighest=cms.bool(False)
-                                          )
-    )
+                                          ),
+)

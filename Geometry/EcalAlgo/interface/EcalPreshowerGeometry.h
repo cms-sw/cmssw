@@ -9,9 +9,10 @@
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "Geometry/Records/interface/PEcalPreshowerRcd.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include <vector>
 
-class EcalPreshowerGeometry : public CaloSubdetectorGeometry
+class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 {
    public:
 
@@ -39,13 +40,13 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
       static std::string dbString() { return "PEcalPreshowerRcd" ; }
 
-      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
-      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
+      unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
+      unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
 
       EcalPreshowerGeometry() ;
   
       /// The EcalPreshowerGeometry will delete all its cell geometries at destruction time
-      virtual ~EcalPreshowerGeometry();
+      ~EcalPreshowerGeometry() override;
 
       void setzPlanes( CCGFloat z1minus, 
 		       CCGFloat z2minus,
@@ -53,7 +54,7 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 		       CCGFloat z2plus ) ;
 
       // Get closest cell
-      virtual DetId getClosestCell( const GlobalPoint& r ) const ;
+      DetId getClosestCell( const GlobalPoint& r ) const override;
 
 
       // Get closest cell in arbitrary plane (1 or 2)
@@ -61,8 +62,8 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 					   int                plane   ) const ;
 
 
-      virtual void initializeParms() ;
-      virtual unsigned int numberOfTransformParms() const { return 3 ; }
+      void initializeParms() override;
+      unsigned int numberOfTransformParms() const override { return 3 ; }
 
       static std::string hitString() { return "EcalHitsES" ; }
 
@@ -81,14 +82,28 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 				unsigned int    i   ,
 				Pt3D&           ref   ) ;
 
-      virtual void newCell( const GlobalPoint& f1 ,
+      void newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,
-			    const DetId&       detId   ) ;
+			    const DetId&       detId   ) override;
+
+
+  /// is this detid present in the geometry?
+  bool present( const DetId& id ) const override {
+    if(id==DetId(0)) return false;
+    // not needed???
+    auto index = CaloGenericDetId( id ).denseIndex();
+    return index < m_cellVec.size();
+  }
+
+  /// Get the cell geometry of a given detector id.  Should return nulptr if not found.
+  // const CaloCellGeometry* getGeometry( const DetId& id ) const override;
+
+
    protected:
 
-      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
 
    private:
 

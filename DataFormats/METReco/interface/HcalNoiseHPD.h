@@ -21,6 +21,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 namespace reco {
 
@@ -101,6 +102,7 @@ namespace reco {
     
     // integral of rechit energies in the HPD with E>threshold (default is 1.5 GeV)
     float recHitEnergy(float threshold=1.5) const;
+    float recHitEnergyFailR45(float threshold=1.5) const;
     
     // minimum and maximum time for rechits with E>threshold (default is 10.0 GeV)
     float minRecHitTime(float threshold=10.0) const;
@@ -108,6 +110,7 @@ namespace reco {
     
     // number of rechits with E>threshold (default is 1.5 GeV)
     int numRecHits(float threshold=1.5) const;
+    int numRecHitsFailR45(float threshold=1.5) const;
 
     //
     // CaloTower accessors
@@ -133,7 +136,7 @@ namespace reco {
     int maxZeros_;
     std::vector<float> bigCharge_;
     std::vector<float> big5Charge_;
-    
+
     // a vector of references to rechits
     edm::RefVector<HBHERecHitCollection> rechits_;
 

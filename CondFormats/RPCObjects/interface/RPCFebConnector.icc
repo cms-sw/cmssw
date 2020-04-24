@@ -1,0 +1,116 @@
+#ifndef CondFormats_RPCObjects_RPCFebConnector_icc
+#define CondFormats_RPCObjects_RPCFebConnector_icc
+
+#include "CondFormats/RPCObjects/interface/RPCFebConnector.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+
+inline unsigned int RPCFebConnector::bit_count(std::uint16_t value)
+{
+    // sum per nibble
+    value -= ((  (value >> 1) & 0x7777)
+              + ((value >> 2) & 0x3333)
+              + ((value >> 3) & 0x1111)
+              );
+    value = (value + (value >> 4)) & 0x0f0f;
+    return ((value + (value >> 8)) & 0x1f);
+}
+
+inline void RPCFebConnector::reset()
+{
+    first_strip_ = 1;
+    slope_ = 1;
+    channels_ = 0x0;
+    rpc_det_id_ = RPCDetId(0, 0, 1, 1, 1, 1, 0).rawId();
+}
+
+inline RPCDetId RPCFebConnector::getRPCDetId() const
+{
+    return RPCDetId(rpc_det_id_);
+}
+
+inline unsigned int RPCFebConnector::getFirstStrip() const
+{
+    return first_strip_;
+}
+
+inline int RPCFebConnector::getSlope() const
+{
+    return slope_;
+}
+
+inline std::uint16_t RPCFebConnector::getChannels() const
+{
+    return channels_;
+}
+
+inline RPCFebConnector & RPCFebConnector::setRPCDetId(RPCDetId const & rpc_det_id)
+{
+    rpc_det_id_ = rpc_det_id.rawId();
+    return *this;
+}
+
+inline RPCFebConnector & RPCFebConnector::setFirstStrip(unsigned int first_strip)
+{
+    if (first_strip >= min_first_strip_ && first_strip <= max_first_strip_)
+        first_strip_ = first_strip;
+    else
+        throw cms::Exception("OutOfRange")
+            << "Out-of-range input for RPCFebConnector first strip: " << first_strip;
+    return *this;
+}
+
+inline RPCFebConnector & RPCFebConnector::setSlope(int slope)
+{
+    slope_ = (slope < 0 ? -1 : 1);
+    return *this;
+}
+
+inline RPCFebConnector & RPCFebConnector::setChannels(std::uint16_t channels)
+{
+    channels_ = channels;
+    return *this;
+}
+
+inline bool RPCFebConnector::isActive(unsigned int channel) const
+{
+    if (channel > 0 && channel <= nchannels_)
+        return (channels_ & (0x1 << (channel - 1)));
+    return false;
+}
+
+inline unsigned int RPCFebConnector::getNChannels() const
+{
+    return bit_count(channels_);
+}
+
+inline unsigned int RPCFebConnector::getStrip(unsigned int channel) const
+{
+    if (!isActive(channel))
+        return 0;
+    int active_channels = bit_count(std::uint16_t(channels_ & ((0x1 << (channel - 1)) - 1)));
+    return (int)first_strip_ + slope_ * active_channels;
+}
+
+inline bool RPCFebConnector::hasStrip(unsigned int strip) const
+{
+    int offset = slope_ * (strip - first_strip_);
+    return (offset >=0 && offset < (int)getNChannels());
+}
+
+inline unsigned int RPCFebConnector::getChannel(unsigned int strip) const
+{
+    int offset = slope_ * (strip - first_strip_);
+    if (offset < 0 || offset >= (int)getNChannels())
+        return 0;
+    std::uint16_t channels(channels_);
+    for (unsigned int channel = 1 ; channels ; channels >>= 1, ++channel)
+        if (channels & 0x1) {
+            if (!offset)
+                return channel;
+            --offset;
+        }
+    return 0;
+}
+
+#endif // CondFormats_RPCObjects_RPCFebConnector_icc

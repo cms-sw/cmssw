@@ -22,8 +22,8 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-#include "boost/bind.hpp"
-#include "boost/shared_ptr.hpp"
+#include <functional>
+#include <memory>
 
 // user include files
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
@@ -57,7 +57,7 @@ namespace simproducer {
 	 ProductInfo(const std::string& iInstanceName) :
 	    ProductInfoBase(iInstanceName) {}
 
-         void registerProduct(edm::ProducerBase* iProd) const {
+         void registerProduct(edm::ProducerBase* iProd) const override {
 	    (*iProd). template produces<T>(this->instanceName());
 	 }
    };
@@ -79,7 +79,7 @@ class SimProducer : public SimWatcher
       
       void registerProducts(edm::ProducerBase& iProd) {
 	 std::for_each(m_info.begin(), m_info.end(),
-		       boost::bind(&simproducer::ProductInfoBase::registerProduct,_1, &iProd));
+                       std::bind(&simproducer::ProductInfoBase::registerProduct, std::placeholders::_1, &iProd));
       }
    protected:
       template<class T>
@@ -90,16 +90,16 @@ class SimProducer : public SimWatcher
       template<class T>
       void produces(const std::string& instanceName) {
 	 m_info.push_back( 
-			  boost::shared_ptr<simproducer::ProductInfo<T> >(new simproducer::ProductInfo<T>(instanceName) ));
+			  std::make_shared<simproducer::ProductInfo<T> >(instanceName) );
       }
 
    private:
-      SimProducer(const SimProducer&); // stop default
+      SimProducer(const SimProducer&) = delete; // stop default
 
-      const SimProducer& operator=(const SimProducer&); // stop default
+      const SimProducer& operator=(const SimProducer&) = delete; // stop default
 
       // ---------- member data --------------------------------
-      std::vector<boost::shared_ptr< simproducer::ProductInfoBase> > m_info;
+      std::vector<std::shared_ptr< simproducer::ProductInfoBase> > m_info;
 };
 
 

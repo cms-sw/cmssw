@@ -40,7 +40,7 @@ SequentialVertexSmoother<N>::smooth(const CachingVertex<N> & vertex) const
   // Track refit
 
   std::vector<RefCountedVertexTrack> newTracks;
-  if (theVertexTrackUpdator != 0) {
+  if (theVertexTrackUpdator != nullptr) {
     const std::vector<RefCountedVertexTrack>&  vOut=vertex.tracks();
     for(typename std::vector<RefCountedVertexTrack>::const_iterator i = vOut.begin();
   	  i != vOut.end();i++)
@@ -64,12 +64,12 @@ SequentialVertexSmoother<N>::smooth(const CachingVertex<N> & vertex) const
   // Smoothed chi2
 
   float smChi2 = vertex.totalChiSquared();
-  if (theVertexSmoothedChiSquaredEstimator != 0) {
+  if (theVertexSmoothedChiSquaredEstimator != nullptr) {
     std::pair<bool, double> result = theVertexSmoothedChiSquaredEstimator->estimate(interVertex);
     smChi2 = result.second;
   }
 
-  if (theTrackToTrackCovCalculator == 0) {
+  if (theTrackToTrackCovCalculator == nullptr) {
     if  (vertex.hasPrior()) {
       return CachingVertex<N>(vertex.priorVertexState(), vertex.vertexState(),
     		  newTracks, smChi2);

@@ -9,6 +9,7 @@
 <use   name="CalibFormats/CaloObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="xerces-c"/>
+<use   name="md5"/>
 <export>
   <lib   name="1"/>
 </export>

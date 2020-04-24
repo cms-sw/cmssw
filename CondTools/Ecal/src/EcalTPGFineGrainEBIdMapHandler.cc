@@ -11,7 +11,7 @@
 #include<fstream>
 
 
-#include <time.h>
+#include <ctime>
 #include <unistd.h>
 
 #include <string>
@@ -273,6 +273,7 @@ void  popcon::EcalTPGFineGrainEBIdMapHandler::readFromFile(const char* inputFile
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGFineGrainEBIdMapHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

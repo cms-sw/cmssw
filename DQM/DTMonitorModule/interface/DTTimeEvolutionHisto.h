@@ -10,6 +10,8 @@
 #include <string>
 #include <map>
 
+#include "DQMServices/Core/interface/DQMStore.h"
+
 class DQMStore;
 class MonitorElement;
 
@@ -28,7 +30,7 @@ public:
   ///         1 -> # of entries <br>
   ///         2 -> # of events <br>
   ///         3 -> mean over LSs <br>
-  DTTimeEvolutionHisto(DQMStore *dbe, const std::string& name,
+  DTTimeEvolutionHisto(DQMStore::IBooker& ibooker, const std::string& name,
 		       const std::string& title,
 		       int nbins,
 		       int lsPrescale,
@@ -36,7 +38,7 @@ public:
 		       int mode = 0);
 
 
-  DTTimeEvolutionHisto(DQMStore *dbe, const std::string& name,
+  DTTimeEvolutionHisto(DQMStore::IBooker& ibooker, const std::string& name,
 		       const std::string& title,
 		       int nbins,
 		       int firstLS,
@@ -45,9 +47,8 @@ public:
 		       int mode = 0);
 
 
-
-  /// retrieve the monitor element from DQMStore
-  DTTimeEvolutionHisto(DQMStore *dbe, const std::string& name);
+  //FR changed the previous 2 argument constructor to the following one
+  DTTimeEvolutionHisto(MonitorElement*);
 
   /// Destructor
   virtual ~DTTimeEvolutionHisto();

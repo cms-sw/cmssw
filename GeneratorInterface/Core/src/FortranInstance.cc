@@ -34,7 +34,7 @@ const std::string gen::FortranInstance::kFortranInstance = "FortranInstance";
 
 // FortranInstance methods
 
-gen::FortranInstance::~FortranInstance()
+gen::FortranInstance::~FortranInstance() noexcept(false)
 {
 	if (currentInstance == this) {
 		edm::LogWarning("ReentrancyProblem")

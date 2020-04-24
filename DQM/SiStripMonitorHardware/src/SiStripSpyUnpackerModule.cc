@@ -58,8 +58,8 @@ namespace sistrip {
     {
       public:
         SpyUnpackerModule( const edm::ParameterSet& );
-        virtual ~SpyUnpackerModule();
-        virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+        ~SpyUnpackerModule() override;
+        void produce( edm::Event&, const edm::EventSetup& ) override;
       private:
         static const char* msgLb_;
 
@@ -93,11 +93,11 @@ namespace sistrip {
     allowIncompleteEvents_(pset.getParameter<bool>("AllowIncompleteEvents")),
     storeCounters_(pset.getParameter<bool>("StoreCounters")),
     storeScopeRawDigis_(pset.getParameter<bool>("StoreScopeRawDigis")),
-    unpacker_(NULL)
+    unpacker_(nullptr)
   {
     productToken_ = consumes<FEDRawDataCollection>(productLabel_);
 
-    if ((fed_ids_.size()==0)) {
+    if ((fed_ids_.empty())) {
       LogInfo(msgLb_) << "No FED IDs specified, so will try to unpack all FEDs with data" << std::endl;
       fed_ids_.reserve(FEDNumbering::MAXSiStripFEDID-FEDNumbering::MINSiStripFEDID+1);
       for ( uint32_t ifed = FEDNumbering::MINSiStripFEDID; ifed <= FEDNumbering::MAXSiStripFEDID; ifed++ ) {
@@ -142,17 +142,16 @@ namespace sistrip {
 
     //retrieve FED raw data (by label, which is "source" by default)
     edm::Handle<FEDRawDataCollection> buffers;
-    //    event.getByLabel( productLabel_, buffers ); 
     event.getByToken( productToken_, buffers ); 
     
     //create container for digis
-    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > digis(new edm::DetSetVector<SiStripRawDigi>);
+    std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > digis(new edm::DetSetVector<SiStripRawDigi>);
     
     //if necessary, create container for event counters
-    std::auto_ptr< std::vector<uint32_t> > pTotalCounts(new std::vector<uint32_t>);
-    std::auto_ptr< std::vector<uint32_t> > pL1ACounts(new std::vector<uint32_t>);
+    std::unique_ptr< std::vector<uint32_t> > pTotalCounts(new std::vector<uint32_t>);
+    std::unique_ptr< std::vector<uint32_t> > pL1ACounts(new std::vector<uint32_t>);
     //and for run number
-    std::auto_ptr<uint32_t> pGlobalRun(new uint32_t);
+    std::unique_ptr<uint32_t> pGlobalRun(new uint32_t);
     //create digis
     // Using FED IDs...
     unpacker_->createDigis(*lCabling, 
@@ -165,16 +164,16 @@ namespace sistrip {
 			   );
     
     // Add digis to event
-    if (storeScopeRawDigis_) event.put( digis, "ScopeRawDigis" );
+    if (storeScopeRawDigis_) event.put(std::move(digis), "ScopeRawDigis" );
     
     //add counters to event
     if (storeCounters_) {
-      event.put(pTotalCounts, "TotalEventCount");
-      event.put(pL1ACounts, "L1ACount");
+      event.put(std::move(pTotalCounts), "TotalEventCount");
+      event.put(std::move(pL1ACounts), "L1ACount");
     }
 
     //add global run to the event
-    event.put(pGlobalRun, "GlobalRunNumber");
+    event.put(std::move(pGlobalRun), "GlobalRunNumber");
 
   } // end of SpyUnpackerModule::produce method.
 

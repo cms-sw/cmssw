@@ -1,0 +1,7 @@
+<use   name="FWCore/PluginManager"/>
+<use   name="DQM/L1TMonitor" />
+
+<library  file="*.cc" name="DQML1TMonitorPlugins">
+  <flags   EDM_PLUGIN="1" />
+</library>
+

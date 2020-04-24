@@ -15,7 +15,9 @@ namespace DataFormats_StdDictionaries {
   std::allocator<short> ashort;
   std::basic_string<char> bschar;
   std::bidirectional_iterator_tag bidirectiter;
+  std::bitset<6> dummybitset6;
   std::bitset<7> dummybitset7;
+  std::bitset<15> dummybitset15;
   std::deque<int> dummy18;
   std::forward_iterator_tag fowitertag;
   std::input_iterator_tag initertag;
@@ -26,10 +28,6 @@ namespace DataFormats_StdDictionaries {
   std::random_access_iterator_tag randaccitertag;
   std::set<int> dummy19;
   std::set<std::basic_string<char> > dummy20;
-  __gnu_cxx::new_allocator<char> dummy21;
-  __gnu_cxx::new_allocator<double> dummy22;
-  __gnu_cxx::new_allocator<int> dummy23;
-  __gnu_cxx::new_allocator<short> dummy24;
   std::binary_function<int,int,bool> dummy25;
   };
 }

@@ -17,7 +17,7 @@ class FakeInterpolator : public MagProviderInterpol {
   FakeInterpolator() {};
   
   // Operations
-  virtual LocalVectorType valueInTesla( const LocalPointType& p) const {
+  LocalVectorType valueInTesla( const LocalPointType& p) const override {
     return LocalVectorType(0.,0.,0.);
   }
 };

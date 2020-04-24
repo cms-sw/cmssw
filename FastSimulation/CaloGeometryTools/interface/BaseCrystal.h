@@ -43,7 +43,7 @@ class BaseCrystal
   /// 
   void setCorners(const CaloCellGeometry::CornersVec& vec,const GlobalPoint& pos);
 
-  inline const std::vector<XYZPoint>& getCorners() const {return corners_;}
+  // inline const std::vector<XYZPoint>& getCorners() const {return corners_;}
 
   /// get the i-th corner
   inline const XYZPoint& getCorner(unsigned i) const { return corners_[i];};
@@ -108,7 +108,7 @@ class BaseCrystal
   void computeBasicProperties();
 
  private:
-  std::vector<XYZPoint> corners_;
+  XYZPoint corners_[8];
   DetId cellid_;
   int subdetn_;
   XYZPoint center_;
@@ -117,8 +117,8 @@ class BaseCrystal
   XYZVector firstedgedirection_;
   XYZVector fifthedgedirection_;
   XYZVector crystalaxis_;
-  std::vector<XYZVector> lateraldirection_;
-  std::vector<Plane3D> lateralPlane_;
-  std::vector<XYZVector> exitingNormal_;
+  XYZVector lateraldirection_[4];
+  Plane3D lateralPlane_[6];
+  XYZVector exitingNormal_[6];
 };
 #endif

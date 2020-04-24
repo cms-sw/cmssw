@@ -7,105 +7,163 @@ process.MessageLogger = cms.Service("MessageLogger",
      default = cms.untracked.PSet( limit = cms.untracked.int32(10) )
 )
 
+
+#Adding SimpleMemoryCheck service:
+process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
+                                   ignoreTotal=cms.untracked.int32(1),
+                                   oncePerEventMode=cms.untracked.bool(True)
+)
+
+process.Timing = cms.Service("Timing"
+    ,summaryOnly = cms.untracked.bool(True)
+)
+
 # source
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/CE62D4D8-85ED-DE11-8BD2-000423D9853C.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/A0FB9B2E-85ED-DE11-8A8D-001D09F290CE.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/9A2F0DDF-85ED-DE11-B5D1-001D09F290CE.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/820C7C8C-86ED-DE11-83D4-001D09F295FB.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/685C77F0-87ED-DE11-A4A5-000423D60FF6.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/4CFCC894-86ED-DE11-B3F4-001D09F2447F.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/3EA206BD-B5ED-DE11-B481-000423D6C8E6.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/3CCCE28D-86ED-DE11-A583-000423D986C4.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/2CF90F4D-87ED-DE11-A3AF-003048D375AA.root' ] );
+       '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-RECO/PU25ns_MCRUN2_74_V1-v3/00000/067739D0-AFAB-E411-AC03-0025905A48D0.root'
+                  ] )
 
 
 secFiles.extend( [
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/FA6E452B-85ED-DE11-AC27-001D09F25109.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/FA66FD3B-88ED-DE11-9A5D-001D09F28D4A.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/F2274DDB-85ED-DE11-9DED-003048D37580.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/D26001EE-87ED-DE11-BF98-000423D94494.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/D07779E8-87ED-DE11-9FE2-000423D98EC4.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/C6F3B22B-85ED-DE11-911C-001D09F24D67.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/BEAB94D5-85ED-DE11-9AEA-000423D6B444.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/BAB131B6-B5ED-DE11-A151-000423D6CA02.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/B8A44F23-85ED-DE11-92D7-001617E30E28.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/9637D444-87ED-DE11-9E21-000423D94534.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/8CFE0431-85ED-DE11-89B6-001D09F29597.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/86046CDD-85ED-DE11-AA2E-001617C3B654.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/704E4641-87ED-DE11-B6AC-000423D9A212.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/6271E489-86ED-DE11-BE7A-000423D99AAA.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/5C364B96-86ED-DE11-9140-0019B9F72BAA.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/54B8E090-86ED-DE11-A9B0-001D09F276CF.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/5087EC8C-86ED-DE11-BA63-001D09F2438A.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/42BFDFD9-85ED-DE11-BB7F-003048D375AA.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/2AE78E46-87ED-DE11-A50F-001D09F28755.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/10A1B68E-86ED-DE11-80C0-001D09F24DDF.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/0EC22640-87ED-DE11-855A-001D09F244BB.root',
-       '/store/relval/CMSSW_3_4_1/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP3X_V14-v1/0004/041DBE8A-86ED-DE11-A83E-001D09F24FEC.root'] );
-
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/041672CC-60AB-E411-B86C-003048FFCC0A.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/06DFB267-64AB-E411-A22D-0025905A60EE.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/0E932222-60AB-E411-952C-0025905A6088.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/1272643C-62AB-E411-969A-0025905A48B2.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/12BCC0BA-60AB-E411-83AA-0025905B85EE.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/2628B0FE-66AB-E411-83C3-0025905A48BC.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/26CA1B5B-61AB-E411-B134-0025905A612A.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/2CDDCDFD-66AB-E411-9ABA-0025905A60AA.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/32E319C0-60AB-E411-B983-0025905B855C.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/349C841F-63AB-E411-8805-0025905A48D8.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/36CBCF5E-61AB-E411-A75C-003048FF86CA.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/36E480F6-5EAB-E411-B272-0025905A48BC.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/4A703881-63AB-E411-A2BA-0025905B858A.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/4C0C75D7-5FAB-E411-9B34-0025905A608E.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/4E0352FF-66AB-E411-8751-0025905B8576.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/4E2491BA-64AB-E411-8F76-0025905B85D8.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/541FAFC2-60AB-E411-8B77-0025905A60A6.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/583B2424-60AB-E411-80B3-0025905B858E.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/58DBD23C-62AB-E411-8F4C-0025905A60EE.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/603F7120-60AB-E411-B0F6-0025905964C4.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/62ECB36D-71AB-E411-8BA6-003048FFD720.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/64BE7CF9-75AB-E411-A588-0025905B85E8.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/68815A64-61AB-E411-99D1-0025905A48BC.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/6EEC89BF-60AB-E411-9D75-0025905B85D8.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/76680CD8-5FAB-E411-99D8-0025905964A2.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/84CE7508-61AB-E411-9124-0025905B85EE.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/84FD8400-76AB-E411-8D13-0025905A612C.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/8670B486-5FAB-E411-A4B1-0025905A60B6.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/88BBBFD3-5FAB-E411-866C-0025905B85B2.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/88CF55D6-62AB-E411-924D-0025905A60B6.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/8A63EA7C-6EAB-E411-A961-0025905B85A2.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/8C717324-60AB-E411-B721-0025905AA9F0.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/9462F7B8-6CAB-E411-A0CC-0025905964B6.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/9E532222-60AB-E411-9353-0025905A60CE.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/A64050C2-60AB-E411-B9B9-0025905A60B0.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/AE05F253-65AB-E411-A528-0025905A60B6.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/AE8613EF-68AB-E411-9283-003048FFD744.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/BC55E7BE-60AB-E411-96A2-0025905A606A.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/CA18EDF3-5EAB-E411-BABF-002618943862.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/D6FF76A7-65AB-E411-8CA0-0025905B8610.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/DCB00F5C-61AB-E411-8A47-003048FFCB96.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/E295E1D2-5FAB-E411-8205-0026189438A9.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/E8821C20-6CAB-E411-8FC1-0025905A6126.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/F27EA4C0-60AB-E411-BD34-003048FFD744.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/F8D4970C-61AB-E411-B866-0025905A48D0.root',
+        '/store/relval/CMSSW_7_4_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V1-v3/00000/FE40619E-61AB-E411-B453-0025905B858C.root',
+        ] )
 process.source = source
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(400) )
 
 ### conditions
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'STARTUP3X_V14::All'
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 ### standard includes
 process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration.StandardSequences.GeometryPilot2_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+
 
 ### validation-specific includes
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Validation.Configuration.postValidation_cff")
-process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+process.quickTrackAssociatorByHits.SimToRecoDenominator = 'reco'
+
+
+
 
 ########### configuration MultiTrackValidator ########
-process.multiTrackValidator.outputFile = 'multitrackvalidator.root'
 process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
-process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
-#process.cutsRecoTracks.quality = cms.vstring('','highPurity')
-#process.cutsRecoTracks.quality = cms.vstring('')
+#process.cutsRecoTracks.quality = ['','highPurity']
+#process.cutsRecoTracks.quality = ['']
 process.multiTrackValidator.label = ['cutsRecoTracks']
-process.multiTrackValidator.useLogPt=cms.untracked.bool(True)
-process.multiTrackValidator.minpT = cms.double(0.1)
-process.multiTrackValidator.maxpT = cms.double(3000.0)
-process.multiTrackValidator.nintpT = cms.int32(40)
-process.multiTrackValidator.UseAssociators = cms.bool(True)
+process.multiTrackValidator.histoProducerAlgoBlock.useLogPt = True
+process.multiTrackValidator.histoProducerAlgoBlock.minPt = 0.1
+process.multiTrackValidator.histoProducerAlgoBlock.maxPt = 3000.0
+process.multiTrackValidator.histoProducerAlgoBlock.nintPt = 40
+process.multiTrackValidator.UseAssociators = True
+
 
 #process.load("Validation.RecoTrack.cuts_cff")
-#process.cutsRecoTracks.ptMin    = cms.double(0.5)
-#process.cutsRecoTracks.minHit   = cms.int32(10)
-#process.cutsRecoTracks.minRapidity  = cms.int32(-1.0)
-#process.cutsRecoTracks.maxRapidity  = cms.int32(1.0)
+#process.cutsRecoTracks.quality = ['highPurity']
+#process.cutsRecoTracks.ptMin    = 0.5
+#process.cutsRecoTracks.minHit   = 10
+#process.cutsRecoTracks.minRapidity  = -1.0
+#process.cutsRecoTracks.maxRapidity  = 1.0
 
-process.quickTrackAssociatorByHits.useClusterTPAssociation = cms.bool(True)
-process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
+process.quickTrackAssociatorByHits.useClusterTPAssociation = True
+process.load("SimTracker.TrackerHitAssociation.tpClusterProducer_cfi")
 
 process.validation = cms.Sequence(
     process.tpClusterProducer *
+    process.quickTrackAssociatorByHits *
     process.multiTrackValidator
 )
 
 # paths
-process.p = cms.Path(
+process.val = cms.Path(
       process.cutsRecoTracks
     * process.validation
 )
-process.schedule = cms.Schedule(
-      process.p
+
+# Output definition
+process.DQMoutput = cms.OutputModule("PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    outputCommands = process.DQMEventContent.outputCommands,
+    fileName = cms.untracked.string('file:MTV_inDQM.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('DQM')
+    )
 )
+
+process.endjob_step = cms.EndPath(process.endOfProcess)
+process.DQMoutput_step = cms.EndPath(process.DQMoutput)
+
+
+process.schedule = cms.Schedule(
+      process.val,process.endjob_step,process.DQMoutput_step
+)
+
+process.options = cms.untracked.PSet(
+    numberOfThreads = cms.untracked.uint32(8),
+    numberOfStreams = cms.untracked.uint32(8),
+    wantSummary = cms.untracked.bool(True)
+)
+
 
 

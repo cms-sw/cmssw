@@ -11,7 +11,7 @@
 class SiStripDCSFilter : public edm::EDFilter {
  public:
  SiStripDCSFilter( const edm::ParameterSet & );
- ~SiStripDCSFilter();
+ ~SiStripDCSFilter() override;
 
   private:
   bool filter( edm::Event &, edm::EventSetup const& ) override;
@@ -22,7 +22,7 @@ class SiStripDCSFilter : public edm::EDFilter {
 // -- Constructor
 //
 SiStripDCSFilter::SiStripDCSFilter( const edm::ParameterSet & pset ) {
-  dcsStatus_ = new SiStripDCSStatus(); 
+  dcsStatus_ = new SiStripDCSStatus(consumesCollector()); 
 }
 //
 // -- Destructor

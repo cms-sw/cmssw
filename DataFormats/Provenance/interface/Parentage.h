@@ -16,7 +16,7 @@ Parentage: The products that were read in producing this product.
   Parentage
 
   definitions:
-  Product: The EDProduct to which a provenance object is associated
+  Product: The WrapperBase to which a provenance object is associated
 
   Parents: The EDProducts used as input by the creator.
 */
@@ -27,7 +27,14 @@ namespace edm {
     Parentage();
 
     explicit Parentage(std::vector<BranchID> const& parents);
+    explicit Parentage(std::vector<BranchID>&& parents);
 
+    Parentage(Parentage const&) = default;
+    Parentage(Parentage&&) = default;
+
+    Parentage& operator=(Parentage const&) = default;
+    Parentage& operator=(Parentage&&) = default;
+    
     ~Parentage() {}
 
     ParentageID id() const;

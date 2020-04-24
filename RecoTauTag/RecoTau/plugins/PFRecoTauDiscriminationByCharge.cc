@@ -17,14 +17,14 @@ class PFRecoTauDiscriminationByCharge : public PFTauDiscriminationProducerBase  
          chargeReq_        = iConfig.getParameter<uint32_t>("AbsChargeReq");
          oneOrThreeProng_  = iConfig.getParameter<bool>("ApplyOneOrThreeProngCut");
       }
-      ~PFRecoTauDiscriminationByCharge(){} 
-      double discriminate(const PFTauRef& pfTau) override;
+      ~PFRecoTauDiscriminationByCharge() override{} 
+      double discriminate(const PFTauRef& pfTau) const override;
    private:
       uint32_t chargeReq_;
       bool oneOrThreeProng_;
 };
 
-double PFRecoTauDiscriminationByCharge::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationByCharge::discriminate(const PFTauRef& thePFTauRef) const
 {
    uint16_t nSigTk        =  thePFTauRef->signalPFChargedHadrCands().size();
    bool chargeok          =  (std::abs(thePFTauRef->charge()) == int(chargeReq_));

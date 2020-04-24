@@ -1,5 +1,7 @@
 #ifndef CONDFORMATS_HLTOBJECTS_ALCARECOTRIGGERBITS_H
 #define CONDFORMATS_HLTOBJECTS_ALCARECOTRIGGERBITS_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <map>
 #include <vector>
@@ -17,5 +19,7 @@ public:
   static const std::string::value_type delimeter_;
 
   std::map<std::string,std::string> m_alcarecoToTrig;
+
+  COND_SERIALIZABLE;
 };
 #endif

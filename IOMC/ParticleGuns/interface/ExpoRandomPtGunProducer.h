@@ -8,7 +8,7 @@
  ***************************************/
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
-#include "CLHEP/Random/RandExponential.h"
+
 namespace edm
 {
   
@@ -17,11 +17,11 @@ namespace edm
   
   public:
     ExpoRandomPtGunProducer(const ParameterSet & pset);
-    virtual ~ExpoRandomPtGunProducer();
+    ~ExpoRandomPtGunProducer() override;
 
   private:
    
-    virtual void produce(Event & e, const EventSetup& es) override;
+    void produce(Event & e, const EventSetup& es) override;
     
   protected :
   
@@ -30,8 +30,6 @@ namespace edm
     double            fMinPt   ;
     double            fMaxPt   ;
     double            fMeanPt ;
-    CLHEP::RandExponential * fRandomExpoGenerator;
-
   };
 } 
 

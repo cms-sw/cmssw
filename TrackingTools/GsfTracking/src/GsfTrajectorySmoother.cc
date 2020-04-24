@@ -6,6 +6,9 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TrackingTools/TrackFitters/interface/DebugHelpers.h"
+
+
 GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aPropagator,
 					     const TrajectoryStateUpdator& aUpdator,
 					     const MeasurementEstimator& aEstimator,
@@ -13,9 +16,10 @@ GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aP
 					     float errorRescaling,
 					     const bool materialBeforeUpdate,
 					     const DetLayerGeometry* detLayerGeometry) :
-  thePropagator(aPropagator.clone()),
-  theGeomPropagator(0),
-  theConvolutor(0),
+  theAlongPropagator(nullptr),
+  theOppositePropagator(nullptr),
+  theGeomPropagator(nullptr),
+  theConvolutor(nullptr),
   theUpdator(aUpdator.clone()),
   theEstimator(aEstimator.clone()),
   theMerger(aMerger.clone()),
@@ -23,19 +27,24 @@ GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aP
   theErrorRescaling(errorRescaling),
   theGeometry(detLayerGeometry)
 {
+  auto p = aPropagator.clone();
+  p->setPropagationDirection(alongMomentum);
+  theAlongPropagator = p;
+  p = aPropagator.clone();
+  p->setPropagationDirection(oppositeToMomentum);
+  theOppositePropagator = p;
   if ( !theMatBeforeUpdate ) {
-    theGeomPropagator = new GsfPropagatorAdapter(thePropagator->geometricalPropagator());
-    theConvolutor = thePropagator->convolutionWithMaterial().clone();
+    theGeomPropagator = new GsfPropagatorAdapter(aPropagator.geometricalPropagator());
+    theConvolutor = aPropagator.convolutionWithMaterial().clone();
   }
 
   if(!theGeometry) theGeometry = &dummyGeometry;
 
-  //   static SimpleConfigurable<bool> timeConf(false,"GsfTrajectorySmoother:activateTiming");
-  //   theTiming = timeConf.value();
 }
 
 GsfTrajectorySmoother::~GsfTrajectorySmoother() {
-  delete thePropagator;
+  delete theAlongPropagator;
+  delete theOppositePropagator;
   delete theGeomPropagator;
   delete theConvolutor;
   delete theUpdator;
@@ -46,25 +55,17 @@ GsfTrajectorySmoother::~GsfTrajectorySmoother() {
 Trajectory 
 GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
-  //   static TimingReport::Item* propTimer =
-  //     &(*TimingReport::current())[string("GsfTrajectorySmoother:propagation")];
-  //   propTimer->switchCPU(false);
-  //   if ( !theTiming )  propTimer->switchOn(false);
-  //   static TimingReport::Item* updateTimer =
-  //     &(*TimingReport::current())[string("GsfTrajectorySmoother:update")];
-  //   updateTimer->switchCPU(false);
-  //   if ( !theTiming )  updateTimer->switchOn(false);
-  
   if(aTraj.empty()) return Trajectory();
   
+  const Propagator* usePropagator = theAlongPropagator;
   if (  aTraj.direction() == alongMomentum) {
-    thePropagator->setPropagationDirection(oppositeToMomentum);
+    usePropagator = theOppositePropagator;
   }
-  else {
-    thePropagator->setPropagationDirection(alongMomentum);
+  if( not usePropagator) {
+    usePropagator = theGeomPropagator;
   }
 
-  Trajectory myTraj(aTraj.seed(), propagator()->propagationDirection());
+  Trajectory myTraj(aTraj.seed(), usePropagator->propagationDirection());
   
   std::vector<TM> const & avtm = aTraj.measurements();
   
@@ -72,7 +73,7 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
   predTsos.rescaleError(theErrorRescaling);
 
   if(!predTsos.isValid()) {
-    edm::LogInfo("GsfTrajectorySmoother") 
+    edm::LogInfo("GsfTrackFitters") 
       << "GsfTrajectorySmoother: predicted tsos of last measurement not valid!";
     return Trajectory();
   }
@@ -119,49 +120,30 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
   
   TrajectoryStateCombiner combiner;
 
+  int hitcounter = avtm.size()-1;
   for(std::vector<TM>::const_reverse_iterator itm = avtm.rbegin() + 1; 
       itm < avtm.rend() - 1; ++itm) {
-    {
-      //       TimeMe t(*propTimer,false);
-      //       //
-      //       // check type of surface in case of invalid hit
-      //       // (in this version only propagations to planes are
-      //       // supported for multi trajectory states)
-      //       //
-      //       if ( !(*itm).recHit().isValid() ) {
-      // 	const BoundPlane* plane = 
-      // 	  dynamic_cast<const BoundPlane*>(&(*itm).recHit().det().surface());
-      // 	//
-      // 	// no plane: insert invalid 
-      // 	if ( plane==0 ) {
-      // 	  myTraj.push(TM(TrajectoryStateOnSurface(),
-      // 			 (*itm).recHit());
-      // 	  continue;
-      // 	}
-      //     }
-      predTsos = propagator()->propagate(currTsos,
+
+     predTsos = usePropagator->propagate(currTsos,
 					 *(*itm).recHit()->surface());
-    }
     if ( predTsos.isValid() && theConvolutor && theMatBeforeUpdate )
       predTsos = (*theConvolutor)(predTsos,
-				  propagator()->propagationDirection());
+				  usePropagator->propagationDirection());
     if(!predTsos.isValid()) {
-      edm::LogInfo("GsfTrajectorySmoother") << "GsfTrajectorySmoother: predicted tsos not valid!";
+      edm::LogInfo("GsfTrackFitters") << "GsfTrajectorySmoother: predicted tsos not valid!";
       return Trajectory();
     }
     if ( theMerger )  predTsos = theMerger->merge(predTsos);
 
     if((*itm).recHit()->isValid()) {
       //update
-      {
-	// 	TimeMe t(*updateTimer,false);
 	currTsos = updator()->update(predTsos, *(*itm).recHit());
-      }
+
       if ( currTsos.isValid() && theConvolutor && !theMatBeforeUpdate )
 	currTsos = (*theConvolutor)(currTsos,
-				    propagator()->propagationDirection());
+				    usePropagator->propagationDirection());
       if(!currTsos.isValid()) {
-	edm::LogInfo("GsfTrajectorySmoother") 
+	edm::LogInfo("GsfTrackFitters") 
 	  << "GsfTrajectorySmoother: tsos not valid after update / material effects!";
 	return Trajectory();
       }
@@ -171,7 +153,7 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       //3: combine bwd-prediction with fwd-filter
       TSOS combTsos = combiner(predTsos, (*itm).forwardPredictedState());
       if(!combTsos.isValid()) {
-	LogDebug("GsfTrajectorySmoother") << 
+	LogDebug("GsfTrackFitters") << 
 	  "KFTrajectorySmoother: combined tsos not valid!\n"<<
 	  "pred Tsos pos: "<<predTsos.globalPosition()<< "\n" <<
 	  "pred Tsos mom: "<<predTsos.globalMomentum()<< "\n" <<
@@ -182,7 +164,7 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       TSOS smooTsos = combiner((*itm).updatedState(), predTsos);
 
       if(!smooTsos.isValid()) {
-	LogDebug("GsfTrajectorySmoother") <<
+	LogDebug("GsfTrackFitters") <<
 	  "KFTrajectorySmoother: smoothed tsos not valid!";
 	return Trajectory();
       }
@@ -192,21 +174,25 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	return Trajectory();
       }
 
-
+      auto chi2 = estimator()->estimate(combTsos, *(*itm).recHit()).second;
       myTraj.push(TM((*itm).forwardPredictedState(),
 		     predTsos,
 		     smooTsos,
 		     (*itm).recHit(),
-		     estimator()->estimate(combTsos, *(*itm).recHit()).second,
+		     chi2,
 		     theGeometry->idToLayer((*itm).recHit()->geographicalId() ) ),
 		  (*itm).estimate());
+       LogDebug("GsfTrackFitters") << "added measurement #" << hitcounter-- <<" with chi2 " << chi2;
+       dump(predTsos,"predTsos","GsfTrackFitters");
+       dump(smooTsos,"smooTsos","GsfTrackFitters");
+
     } 
     else {
       currTsos = predTsos;
       TSOS combTsos = combiner(predTsos, (*itm).forwardPredictedState());
       
       if(!combTsos.isValid()) {
-    	LogDebug("GsfTrajectorySmoother") << 
+    	LogDebug("GsfTrackFitters") << 
     	  "KFTrajectorySmoother: combined tsos not valid!";
     	return Trajectory();
       }
@@ -222,36 +208,35 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     		     (*itm).recHit(),
 		     0.,
 		     theGeometry->idToLayer((*itm).recHit()->geographicalId()) ));
+       LogDebug("GsfTrackFitters") << "added invalid measurement #" << hitcounter--;
+       dump(predTsos,"predTsos","GsfTrackFitters");
+       dump(combTsos,"smooTsos","GsfTrackFitters");
     }
     if ( theMerger )  currTsos = theMerger->merge(currTsos);
+
+    dump(currTsos,"currTsos","GsfTrackFitters");
   }
 
   //last smoothed tm is last filtered
-  {
-    //     TimeMe t(*propTimer,false);
-    predTsos = propagator()->propagate(currTsos,
+    predTsos = usePropagator->propagate(currTsos,
 				       *avtm.front().recHit()->surface());
-  }
   if ( predTsos.isValid() && theConvolutor && theMatBeforeUpdate )
     predTsos = (*theConvolutor)(predTsos,
-				propagator()->propagationDirection());
+				usePropagator->propagationDirection());
   if(!predTsos.isValid()) {
-    edm::LogInfo("GsfTrajectorySmoother") << "GsfTrajectorySmoother: predicted tsos not valid!";
+    edm::LogInfo("GsfTrackFitters") << "GsfTrajectorySmoother: predicted tsos not valid!";
     return Trajectory();
   }
   if ( theMerger )  predTsos = theMerger->merge(predTsos);
 
   if(avtm.front().recHit()->isValid()) {
     //update
-    {
-      //       TimeMe t(*updateTimer,false);
-      currTsos = updator()->update(predTsos, *avtm.front().recHit());
-    }
+    currTsos = updator()->update(predTsos, *avtm.front().recHit());
     if ( currTsos.isValid() && theConvolutor && !theMatBeforeUpdate )
       currTsos = (*theConvolutor)(currTsos,
-				  propagator()->propagationDirection());
+				  usePropagator->propagationDirection());
     if(!currTsos.isValid()) {
-      edm::LogInfo("GsfTrajectorySmoother") 
+      edm::LogInfo("GsfTrackFitters") 
 	<< "GsfTrajectorySmoother: tsos not valid after update / material effects!";
       return Trajectory();
     }
@@ -261,14 +246,18 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       return Trajectory();
     }
 
+    auto chi2 = estimator()->estimate(predTsos, *avtm.front().recHit()).second;
     myTraj.push(TM(avtm.front().forwardPredictedState(),
 		   predTsos,
 		   currTsos,
 		   avtm.front().recHit(),
-		   estimator()->estimate(predTsos, *avtm.front().recHit()).second,
+		   chi2,
 		   theGeometry->idToLayer(avtm.front().recHit()->geographicalId() )),
 		avtm.front().estimate());
-    //estimator()->estimate(predTsos, avtm.front().recHit()));
+    LogDebug("GsfTrackFitters") << "added measurement #" << hitcounter-- <<" with chi2 " << chi2;
+    dump(predTsos,"predTsos","GsfTrackFitters");
+    dump(currTsos,"smooTsos","GsfTrackFitters");
+
   }
   else {
     if (!avtm.front().forwardPredictedState().isValid()){
@@ -279,6 +268,7 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 		   avtm.front().recHit(),
 		   0.,
 		   theGeometry->idToLayer(avtm.front().recHit()->geographicalId()) ));
+    LogDebug("GsfTrackFitters") << "added invalid measurement #" << hitcounter--;
   }
 
   return myTraj; 

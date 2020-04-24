@@ -1,6 +1,8 @@
 #ifndef CondFormats_SiPixelObjects_SiPixelCPEGenericErrorParm_h
 #define CondFormats_SiPixelObjects_SiPixelCPEGenericErrorParm_h 1
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <iosfwd>
 
@@ -23,7 +25,9 @@ class SiPixelCPEGenericErrorParm {
 				 bias(NONSENSE), pix_height(NONSENSE), 
 				 ave_Qclus(NONSENSE) {}
 	  ~DbEntry() {}
-	};
+	
+  COND_SERIALIZABLE;
+};
 	typedef std::vector<DbEntry> DbVector;
 
 	//! A struct to hold the binning information for (part, size, alpha, beta)
@@ -35,7 +39,9 @@ class SiPixelCPEGenericErrorParm {
 		DbEntryBinSize() : partBin_size(NONSENSE_I), sizeBin_size(NONSENSE_I),
 				           alphaBin_size(NONSENSE_I), betaBin_size(NONSENSE_I) {}
 		~DbEntryBinSize() {}
-	};
+	
+  COND_SERIALIZABLE;
+};
 	typedef std::vector<DbEntryBinSize> DbBinSizeVector;
 
 	SiPixelCPEGenericErrorParm() : errors_(), errorsBinSize_() {}
@@ -76,6 +82,8 @@ class SiPixelCPEGenericErrorParm {
 	DbVector errors_ ;
 	DbBinSizeVector errorsBinSize_;
 	double version_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -13,8 +13,9 @@
 using namespace reco;
 
 namespace {
+#ifndef __clang__
 	static inline double sqr(double arg) { return arg * arg; }
-
+#endif
 	using namespace ROOT::Math;
 
 	typedef SVector<double, 3> Vector3;
@@ -24,7 +25,7 @@ namespace {
 	typedef SMatrix<double, 3, 3> Matrix33;
 	typedef SMatrix<double, 3, 6> Matrix36;
 
-	static inline Vector3 conv(const GlobalVector &vec)
+	inline Vector3 conv(const GlobalVector &vec)
 	{
 		Vector3 result;
 		result[0] = vec.x();

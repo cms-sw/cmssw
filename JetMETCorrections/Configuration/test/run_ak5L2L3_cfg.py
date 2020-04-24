@@ -55,7 +55,7 @@ process.TFileService=cms.Service("TFileService",fileName=cms.string('histos.root
 #!
 from JetMETCorrections.Configuration.JetCorrectionEra_cff import *
 JetCorrectionEra.era = 'Summer09_7TeV' # FIXME for input
-process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
+process.load('JetMETCorrections.Configuration.CorrectedJetProducers_cff')
 
 # correct kt4CaloJets
 process.kt4CaloL2Relative = process.ak5CaloL2Relative.clone(algorithm = 'KT4CALO')

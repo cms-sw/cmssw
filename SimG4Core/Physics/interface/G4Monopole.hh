@@ -20,7 +20,7 @@ public:
 
 private:
 
-  virtual ~G4Monopole();
+  ~G4Monopole() override;
 
 private:
 

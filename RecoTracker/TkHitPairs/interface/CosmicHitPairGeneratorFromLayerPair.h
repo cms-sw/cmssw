@@ -1,7 +1,7 @@
 #ifndef CosmicHitPairGeneratorFromLayerPair_h
 #define CosmicHitPairGeneratorFromLayerPair_h
 
-#include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -37,7 +37,7 @@ class LayerWithHits;
  private:
    edm::ESHandle<TrackerGeometry> tracker;
  };
-class CosmicHitPairGeneratorFromLayerPair : public HitPairGenerator {
+class CosmicHitPairGeneratorFromLayerPair {
 
 public:
 
@@ -46,20 +46,12 @@ public:
 				const LayerWithHits* inner, 
 				const LayerWithHits* outer, 
 				const edm::EventSetup& iSetup);
-  virtual ~CosmicHitPairGeneratorFromLayerPair() { }
-
-  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) override {}
+  ~CosmicHitPairGeneratorFromLayerPair();
 
 //  virtual OrderedHitPairs hitPairs( const TrackingRegion& region,const edm::EventSetup& iSetup ) {
 //    return HitPairGenerator::hitPairs(region, iSetup);
 //  }
-  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap, const edm::EventSetup& iSetup);
-
-  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap, const edm::Event & ev, const edm::EventSetup& iSetup) {}
-
-  virtual CosmicHitPairGeneratorFromLayerPair* clone() const {
-    return new CosmicHitPairGeneratorFromLayerPair(*this);
-  }
+  void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap, const edm::EventSetup& iSetup);
 
   const LayerWithHits* innerLayer() const { return theInnerLayer; }
   const LayerWithHits* outerLayer() const { return theOuterLayer; }

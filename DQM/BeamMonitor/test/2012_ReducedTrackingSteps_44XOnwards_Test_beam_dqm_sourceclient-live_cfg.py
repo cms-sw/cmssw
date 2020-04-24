@@ -84,7 +84,7 @@ process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-----------------------------
 # Magnetic Field
@@ -124,6 +124,7 @@ process.initialStepSeeds.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("o
 
 
 #Reduced tracking steps goes in reco
+process.load("RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder")
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 process.generalTracksForDQM = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (cms.InputTag('initialStepTracks'),

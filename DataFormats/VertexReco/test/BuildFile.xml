@@ -7,7 +7,6 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/VertexReco"/>
-<use   name="rootcintex"/>
 <use   name="root"/>
 <bin   name="testDataFormatsVertexReco" file="testVertex.cc,testRunner.cpp">
   <use   name="cppunit"/>

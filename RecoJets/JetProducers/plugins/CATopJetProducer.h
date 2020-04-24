@@ -49,6 +49,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -65,7 +67,6 @@
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "CATopJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CMSTopTagger.h"
-#include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapper.h"
 
 #include <fastjet/tools/RestFrameNSubjettinessTagger.hh>
 #include "fastjet/SISConePlugin.hh"
@@ -79,16 +80,16 @@ namespace cms
 
     CATopJetProducer(const edm::ParameterSet& ps);
 
-    virtual ~CATopJetProducer() {}
+    ~CATopJetProducer() override {}
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
-    virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
   private:
     std::auto_ptr<CATopJetAlgorithm>        legacyCMSTopTagger_;         /// The algorithm to do the work
     std::auto_ptr<fastjet::CMSTopTagger>     fjCMSTopTagger_;    // The FastJet implementation of the CMS tagger
-    std::auto_ptr<fastjet::HEPTopTagger>     fjHEPTopTagger_;
     std::auto_ptr<fastjet::JHTopTagger>     fjJHUTopTagger_;
     std::auto_ptr<fastjet::RestFrameNSubjettinessTagger>   fjNSUBTagger_;
 
@@ -101,7 +102,6 @@ namespace cms
     enum tagalgos {
 	CA_TOPTAGGER,
 	FJ_CMS_TOPTAG,
-	FJ_HEP_TOPTAG,
 	FJ_JHU_TOPTAG,
 	FJ_NSUB_TAG
     };

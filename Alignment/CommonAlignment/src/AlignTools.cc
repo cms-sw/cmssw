@@ -49,7 +49,7 @@ AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli, const
 
 	//adjust translational difference factoring in different rotational CM
 	//needed because rotateInGlobalFrame is about CM of alignable, not points
-	align::GlobalVector::BasicVectorType lpvgf = cmdiff.basicVector();
+	const align::GlobalVector::BasicVectorType& lpvgf = cmdiff.basicVector();
 	align::GlobalVector moveV( rot.multiplyInverse(lpvgf) - lpvgf);
 	align::GlobalVector theRprime(theR + moveV);
 	//convert to local movement

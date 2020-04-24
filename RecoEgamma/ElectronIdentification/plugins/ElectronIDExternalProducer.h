@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 template<class algo>
-class ElectronIDExternalProducer : public edm::EDProducer {
+class ElectronIDExternalProducer : public edm::stream::EDProducer<> {
  public:
    explicit ElectronIDExternalProducer(const edm::ParameterSet& iConfig) :
             srcToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("src"))),
@@ -24,9 +24,9 @@ class ElectronIDExternalProducer : public edm::EDProducer {
         produces<edm::ValueMap<float> >();
    }
 
-   virtual ~ElectronIDExternalProducer() {}
+   ~ElectronIDExternalProducer() override {}
 
-   void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+   void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
 
  private:
    edm::EDGetTokenT<reco::GsfElectronCollection> srcToken_ ;
@@ -52,12 +52,12 @@ void ElectronIDExternalProducer<algo>::produce(edm::Event & iEvent, const edm::E
      }
 
      // fill in the ValueMap
-     std::auto_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>());
+     auto out = std::make_unique<edm::ValueMap<float>>();
      edm::ValueMap<float>::Filler filler(*out);
      filler.insert(electrons, values.begin(), values.end());
      filler.fill();
      // and put it into the event
-     iEvent.put(out);
+     iEvent.put(std::move(out));
 
 }
 #endif

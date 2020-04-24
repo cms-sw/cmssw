@@ -84,7 +84,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
   //Get the CSC Geometry :
   theService->update(eventSetup);
 
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   Handle<View<TrajectorySeed> > seeds; 
 
@@ -166,7 +166,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
       continue;
     }
     //---- are there measurements (or detLayers) used at all?
-    if( filter()->layers().size() )
+    if( !filter()->layers().empty() )
       LogTrace(metname) << debug.dumpLayer( filter()->lastDetLayer());
     else {
       continue;
@@ -221,7 +221,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
       continue;
     }
   }
-  event.put(output);
+  event.put(std::move(output));
   theFilter->reset();
 }
 

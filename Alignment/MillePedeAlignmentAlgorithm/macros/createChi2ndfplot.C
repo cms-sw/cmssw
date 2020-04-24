@@ -231,7 +231,7 @@ void createChi2ndfplot(const char *txtFile)
         leg->Draw();
         
         
-        c->Print("chi2ndfperbinary.eps");
+        c->Print("chi2ndfperbinary.pdf");
         c->Print("chi2ndfperbinary.C");
     
 

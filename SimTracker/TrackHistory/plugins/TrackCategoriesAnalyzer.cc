@@ -8,7 +8,7 @@
 #include "TH1F.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -21,20 +21,20 @@
 // class decleration
 //
 
-class TrackCategoriesAnalyzer : public edm::EDAnalyzer
+class TrackCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
 public:
 
     explicit TrackCategoriesAnalyzer(const edm::ParameterSet&);
-    ~TrackCategoriesAnalyzer();
+    ~TrackCategoriesAnalyzer() override;
 
 private:
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     // Member data
 
-    edm::InputTag trackProducer_;
+    edm::EDGetTokenT<edm::View<reco::Track> > trackProducer_;
 
     std::size_t totalTracks_;
 
@@ -46,12 +46,13 @@ private:
 };
 
 
-TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+TrackCategoriesAnalyzer::TrackCategoriesAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
     // Get the track collection
-    trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+    trackProducer_ = consumes<edm::View<reco::Track>>(config.getUntrackedParameter<edm::InputTag> ( "trackProducer" ));
 
     // Get the file service
+    usesResource("TFileService");
     edm::Service<TFileService> fs;
 
     // Create a sub directory associated to the analyzer
@@ -82,7 +83,7 @@ void TrackCategoriesAnalyzer::analyze(const edm::Event& event, const edm::EventS
 {
     // Track collection
     edm::Handle<edm::View<reco::Track> > trackCollection;
-    event.getByLabel(trackProducer_, trackCollection);
+    event.getByToken(trackProducer_, trackCollection);
 
     // Set the classifier for a new event
     classifier_.newEvent(event, setup);

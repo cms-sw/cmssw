@@ -28,7 +28,7 @@ MagGeoBuilderFromDDD::bSector::~bSector(){}
 MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 					handles::const_iterator end) :
   volumes(begin,end),
-  msector(0)
+  msector(nullptr)
 {
   if (MagGeoBuilderFromDDD::debug) cout << "   Sector at Phi  " <<  volumes.front()->center().phi() << " " 
 		  << volumes.back()->center().phi() <<  endl;
@@ -124,7 +124,8 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 	DZ1 = 0.;
       }
     }
-
+    
+    if (rods.empty()) cout << " *** ERROR: bSector has no rods " << DZ << " " << DZ1 << endl;
     if (MagGeoBuilderFromDDD::debug) cout << "-----------------------" << endl;
 
   }
@@ -132,7 +133,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 
 
 MagBSector* MagGeoBuilderFromDDD::bSector::buildMagBSector() const{
-  if (msector==0) {
+  if (msector==nullptr) {
     vector<MagBRod*> mRods;
     for (vector<bRod>::const_iterator rod = rods.begin();
 	 rod!=rods.end(); ++rod) {

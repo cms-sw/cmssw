@@ -76,8 +76,8 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
   MuonPairVector savedPairVector;
   MuonPairVector genPairVector;
-  
-  std::vector<std::pair<int, int> > evtRun;
+
+  std::vector<std::pair<unsigned int, unsigned long long> > evtRun;
   rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPairVector, 0, &evtRun, &genPairVector);
   MuonPairVector::iterator savedPair = savedPairVector.begin();
   MuonPairVector::iterator genPair = genPairVector.begin();
@@ -89,22 +89,22 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   if( (eventCounter_ % 10000) == 0 ) {
     std::cout << "event = " << eventCounter_ << std::endl;
   }
-  
+
   lorentzVector recMu1( savedPair->first );
   lorentzVector recMu2( savedPair->second );
-  
+
   if ( resonance_ ) {
 
     // Histograms with genParticles characteristics
     // --------------------------------------------
 
     reco::Particle::LorentzVector genMother( genPair->first + genPair->second );
-  
+
     mapHisto_["GenMother"]->Fill( genMother );
     mapHisto_["DeltaGenMotherMuons"]->Fill( genPair->first, genPair->second );
     mapHisto_["GenMotherMuons"]->Fill( genPair->first );
     mapHisto_["GenMotherMuons"]->Fill( genPair->second );
-  
+
     // Match the reco muons with the gen and sim tracks
     // ------------------------------------------------
     if(checkDeltaR(genPair->first,recMu1)){
@@ -136,7 +136,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         recoPtVsgenPtEta12_->Fill(genPair->second.Pt(), recMu2.Pt());
         deltaPtOverPtForEta12_->Fill( (recMu2.Pt() - genPair->second.Pt())/genPair->second.Pt() );
       }
-    }  
+    }
 
     // Fill the mass resolution histograms
     // -----------------------------------
@@ -149,14 +149,14 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       double genMass = (genPair->first + genPair->second).mass();
       // first is always mu-, second is always mu+
       mapHisto_["MassResolution"]->Fill(recMu1, -1, genPair->first, recMu2, +1, genPair->second, recoMass, genMass);
-  
+
       // Fill the reconstructed resonance
       reco::Particle::LorentzVector recoResonance( recMu1+recMu2 );
       mapHisto_["RecoResonance"]->Fill( recoResonance );
       mapHisto_["DeltaRecoResonanceMuons"]->Fill( recMu1, recMu2 );
       mapHisto_["RecoResonanceMuons"]->Fill( recMu1 );
       mapHisto_["RecoResonanceMuons"]->Fill( recMu2 );
-  
+
       // Fill the mass resolution (computed from MC), we use the covariance class to compute the variance
       if( genMass != 0 ) {
         // double diffMass = (recoMass - genMass)/genMass;
@@ -181,7 +181,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         mapHisto_["hFunctionResolMass"]->Fill( recMu1, std::pow(massRes,2), -1 );
         mapHisto_["hFunctionResolMass"]->Fill( recMu2, std::pow(massRes,2), +1 );
       }
-  
+
       // Fill resolution functions for the muons (fill the squared value to make it comparable with the variance)
       mapHisto_["hFunctionResolPt"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu1.Pt(), recMu1.Eta(), MuScleFitUtils::parResol), -1 );
       mapHisto_["hFunctionResolCotgTheta"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu1.Pt(), recMu1.Eta(), MuScleFitUtils::parResol), -1 );
@@ -204,17 +204,17 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         double theta2 = 2*atan(exp(-eta2));
         // Derivatives
         double mMu2 = MuScleFitUtils::mMu2;
-        double dmdpt1  = (pt1/std::pow(sin(theta1),2)*sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2))- 
+        double dmdpt1  = (pt1/std::pow(sin(theta1),2)*sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2))-
                           pt2*(cos(phi1-phi2)+cos(theta1)*cos(theta2)/(sin(theta1)*sin(theta2))))/mass;
-        double dmdpt2  = (pt2/std::pow(sin(theta2),2)*sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2))- 
+        double dmdpt2  = (pt2/std::pow(sin(theta2),2)*sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2))-
                           pt1*(cos(phi2-phi1)+cos(theta2)*cos(theta1)/(sin(theta2)*sin(theta1))))/mass;
         double dmdphi1 = pt1*pt2/mass*sin(phi1-phi2);
         double dmdphi2 = pt2*pt1/mass*sin(phi2-phi1);
         double dmdcotgth1 = (pt1*pt1*cos(theta1)/sin(theta1)*
-                             sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2)) - 
+                             sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2)) -
                              pt1*pt2*cos(theta2)/sin(theta2))/mass;
         double dmdcotgth2 = (pt2*pt2*cos(theta2)/sin(theta2)*
-                             sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2)) - 
+                             sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2)) -
                              pt2*pt1*cos(theta1)/sin(theta1))/mass;
 
         // Multiplied by the pt here
@@ -252,7 +252,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
           double pt12_cotgTheta21 = mapHisto_["ReadCovariances"]->Get(*(recMu[i]), "Pt12-CotgTheta21");
           double pt12_phi21 = mapHisto_["ReadCovariances"]->Get(*(recMu[i]), "Pt12-Phi21");
           double cotgTheta12_phi21 = mapHisto_["ReadCovariances"]->Get(*(recMu[i]), "CotgTheta12-Phi21");
-  
+
           // ATTENTION: Pt covariance terms are multiplied by Pt, since DeltaPt/Pt was used to compute them
           mapHisto_["MassResolutionPt"]->Fill( *(recMu[i]), ptVariance*std::pow(dmdpt[i],2), charge[i] );
           mapHisto_["MassResolutionCotgTheta"]->Fill( *(recMu[i]), cotgThetaVariance*std::pow(dmdcotgth[i],2), charge[i] );
@@ -374,14 +374,14 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   } // end if resonance
   }
 //   else {
-// 
+//
 //     // Loop on the recMuons
 //     std::vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
-//     for ( ; recMuon!=muons.end(); ++recMuon ) {  
+//     for ( ; recMuon!=muons.end(); ++recMuon ) {
 //       int charge = recMuon->charge();
-// 
+//
 //       lorentzVector recMu(recMuon->p4());
-// 
+//
 //       // Find the matching MC muon
 //       const HepMC::GenEvent* Evt = evtMC->GetEvent();
 //       //Loop on generated particles
@@ -391,10 +391,10 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 //         if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {
 //           lorentzVector genMu = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
 //                                                (*part)->momentum().pz(),(*part)->momentum().e()));
-// 
+//
 //           double deltaR = sqrt(MuScleFitUtils::deltaPhi(recMu.Phi(),genPair->Phi()) * MuScleFitUtils::deltaPhi(recMu.Phi(),genPair->Phi()) +
 //                                ((recMu.Eta()-genPair->Eta()) * (recMu.Eta()-genPair->Eta())));
-// 
+//
 //           // 13 for the muon (-1) and -13 for the antimuon (+1), thus pdg*charge = -13.
 //           // Only in this case we consider it matching.
 //           if( ((*part)->pdg_id())*charge == -13 ) genAssocMap.insert(std::make_pair(deltaR, genMu));
@@ -402,10 +402,10 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 //       }
 //       // Take the closest in deltaR
 //       lorentzVector genMu(genAssocMap.begin()->second);
-// 
+//
 //       // Histograms with genParticles characteristics
 //       // --------------------------------------------
-// 
+//
 //       if(checkDeltaR(genMu,recMu)){
 //         mapHisto_["PtResolutionGenVSMu"]->Fill(genMu,(-genPair->Pt()+recMu.Pt())/genPair->Pt(),charge);
 //         mapHisto_["ThetaResolutionGenVSMu"]->Fill(genMu,(-genPair->Theta()+recMu.Theta()),charge);
@@ -431,27 +431,27 @@ void ResolutionAnalyzer::fillHistoMap() {
   mapHisto_["GenMother"]               = new HParticle(outputFile_, "GenMother", minMass, maxMass);
   mapHisto_["SimResonance"]            = new HParticle(outputFile_, "SimResonance", minMass, maxMass);
   mapHisto_["RecoResonance"]           = new HParticle(outputFile_, "RecoResonance", minMass, maxMass);
-  
+
   // Resonance muons
   mapHisto_["GenMotherMuons"]          = new HParticle(outputFile_, "GenMotherMuons", minMass, 1.);
   mapHisto_["SimResonanceMuons"]       = new HParticle(outputFile_, "SimResonanceMuons", minMass, 1.);
   mapHisto_["RecoResonanceMuons"]      = new HParticle(outputFile_, "RecoResonanceMuons", minMass, 1.);
-  
+
   // Deltas between resonance muons
   mapHisto_["DeltaGenMotherMuons"]     = new HDelta (outputFile_, "DeltaGenMotherMuons");
   mapHisto_["DeltaSimResonanceMuons"]  = new HDelta (outputFile_, "DeltaSimResonanceMuons");
   mapHisto_["DeltaRecoResonanceMuons"] = new HDelta (outputFile_, "DeltaRecoResonanceMuons");
-  
+
   //   //Reconstructed muon kinematics
   //   //-----------------------------
   //   mapHisto_["hRecBestMu"]             = new HParticle         ("hRecBestMu");
-  //   mapHisto_["hRecBestMu_Acc"]         = new HParticle         ("hRecBestMu_Acc"); 
+  //   mapHisto_["hRecBestMu_Acc"]         = new HParticle         ("hRecBestMu_Acc");
   //   mapHisto_["hDeltaRecBestMu"]        = new HDelta            ("hDeltaRecBestMu");
-  
+
   //   mapHisto_["hRecBestRes"]            = new HParticle         ("hRecBestRes");
-  //   mapHisto_["hRecBestRes_Acc"]        = new HParticle         ("hRecBestRes_Acc"); 
+  //   mapHisto_["hRecBestRes_Acc"]        = new HParticle         ("hRecBestRes_Acc");
   //   mapHisto_["hRecBestResVSMu"]        = new HMassVSPart       ("hRecBestResVSMu");
-  
+
   //Resolution VS muon kinematic
   //----------------------------
   mapHisto_["PtResolutionGenVSMu"]        = new HResolutionVSPart (outputFile_, "PtResolutionGenVSMu");
@@ -472,9 +472,9 @@ void ResolutionAnalyzer::fillHistoMap() {
   // Mass resolution
   // ---------------
   mapHisto_["MassResolution"] = new HMassResolutionVSPart (outputFile_,"MassResolution");
-  
+
   //  mapHisto_["hResolRecoMassVSGenMassVSPt"] = new HResolutionVSPart
-  
+
   // Mass resolution vs (pt, eta) of the muons from MC
   massResolutionVsPtEta_ = new HCovarianceVSxy ( "Mass", "Mass", 100, 0., ptMax, 60, -3, 3 );
   // Mass resolution vs (pt, eta) of the muons from function
@@ -537,7 +537,7 @@ void ResolutionAnalyzer::fillHistoMap() {
 }
 
 void ResolutionAnalyzer::writeHistoMap() {
-  for (std::map<std::string, Histograms*>::const_iterator histo=mapHisto_.begin(); 
+  for (std::map<std::string, Histograms*>::const_iterator histo=mapHisto_.begin();
        histo!=mapHisto_.end(); histo++) {
     (*histo).second->Write();
   }

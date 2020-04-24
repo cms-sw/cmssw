@@ -4,7 +4,6 @@
   <use   name="boost_program_options"/>
   <use   name="FWCore/FWLite"/>
   <use   name="FWCore/Framework"/>
-  <use   name="rootcintex"/>
   <use   name="rootgraphics"/>
   <use   name="root"/>
 </bin>
@@ -13,7 +12,6 @@
   <use   name="boost"/>
   <use   name="FWCore/FWLite"/>
   <use   name="FWCore/Framework"/>
-  <use   name="rootcintex"/>
   <use   name="rootgraphics"/>
   <use   name="root"/>
 </bin>

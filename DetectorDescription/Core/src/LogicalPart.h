@@ -2,13 +2,14 @@
 #define DDI_LogicalPart_h
 
 #include <iostream>
-#include <vector>
-#include <utility>
 #include <map>
+#include <utility>
+#include <vector>
 
+#include "DetectorDescription/Core/interface/DDEnums.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDEnums.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 //class DDsvalues_type;
@@ -28,9 +29,9 @@ namespace DDI {
     void specificsV(std::vector<const DDsvalues_type*> & result) const;
     DDsvalues_type mergedSpecifics() const;
     void mergedSpecificsV(DDsvalues_type & res) const;
-    void addSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> &);
-    void removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> &);
-    const std::vector<std::pair< DDPartSelection*, DDsvalues_type* > > &
+    void addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> &);
+    void removeSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> &);
+    const std::vector<std::pair<const DDPartSelection*,const DDsvalues_type* > > &
          attachedSpecifics() const { return specifics_; }
     bool hasDDValue(const DDValue &) const;
     //const std::vector<DDPartSelection*> & partSelections(const DDValue &) const;	 
@@ -44,7 +45,7 @@ namespace DDI {
 
     //std::vector<DDSpecifics> specifics_;
     std::map<DDValue, std::vector<DDPartSelection*> > valToParsel_;
-    std::vector<std::pair<DDPartSelection*,DDsvalues_type* > > specifics_;
+    std::vector<std::pair<const DDPartSelection*, const DDsvalues_type* > > specifics_;
     std::vector<bool> hasDDValue_;
   };
 }

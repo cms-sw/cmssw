@@ -104,7 +104,7 @@ void PFRecoTauChargedHadron::print(std::ostream& stream) const
     stream << "N/A" << std::endl;
   }
   stream << "neutral PFCandidates:";
-  if ( neutralPFCandidates_.size() >= 1 ) {
+  if ( !neutralPFCandidates_.empty() ) {
     stream << std::endl;
     int idx = 0;
     for ( std::vector<PFCandidatePtr>::const_iterator neutralPFCandidate = neutralPFCandidates_.begin();

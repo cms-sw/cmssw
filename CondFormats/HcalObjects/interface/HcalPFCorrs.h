@@ -7,6 +7,8 @@
 POOL object to store PF Corrections
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCorr.h"
 
@@ -16,13 +18,15 @@ class HcalPFCorrs: public HcalCondObjectContainer<HcalPFCorr>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalPFCorrs():HcalCondObjectContainer<HcalPFCorr>(0) {}
+  HcalPFCorrs():HcalCondObjectContainer<HcalPFCorr>(nullptr) {}
 #endif
   HcalPFCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalPFCorr>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalPFCorrs";}
+  std::string myname() const override {return (std::string)"HcalPFCorrs";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -17,3 +17,9 @@ CSCGeometryESModule = cms.ESProducer("CSCGeometryESModule",
     applyAlignment = cms.bool(True), ## GF: to be abandoned
     useDDD = cms.bool(False)
 )
+
+#
+# Modify for running in run 2
+#
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( CSCGeometryESModule, useGangedStripsInME1a=False )

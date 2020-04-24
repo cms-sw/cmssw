@@ -1,18 +1,11 @@
 #include <iostream>
 
-// Trick to expose all the class to be tested
-// ------------------------------------------
-#define protected public
-#define private public
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
-#undef protected
-#undef private
-// ------------------------------------------
 
 int main()
 {
-  cout << "Testing MuScleFitUtils" << endl;
-  cout << endl;
+  std::cout << "Testing MuScleFitUtils" << std::endl;
+  std::cout << std::endl;
 
   int iY = 0;
   double mass = 90.;
@@ -32,6 +25,6 @@ int main()
                                              MuScleFitUtils::GLZValue, MuScleFitUtils::GLZNorm,
                                              iRes, iY );
 
-  cout << "Probability = " << prob << endl;
+  std::cout << "Probability = " << prob << std::endl;
 
 }

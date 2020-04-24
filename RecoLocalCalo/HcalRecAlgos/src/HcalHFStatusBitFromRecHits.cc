@@ -1,6 +1,6 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHFStatusBitFromRecHits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <algorithm> // for "max"
 #include <cmath>
@@ -49,7 +49,10 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec,
 
       ieta =iHF->id().ieta();  // int between 29-41
       // eta = average value between cell eta bounds
-      coshEta=fabs(cosh(0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28])));
+      std::pair<double,double> etas = myqual->topo()->etaRange(HcalForward,abs(ieta));
+      double eta1 = etas.first;
+      double eta2 = etas.second;
+      coshEta=fabs(cosh(0.5*(eta1+eta2)));
 
       status=0; // status bit for rechit
 

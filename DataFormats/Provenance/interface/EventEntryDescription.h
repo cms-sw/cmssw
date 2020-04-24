@@ -17,7 +17,7 @@ and how it came into existence.
   EventEntryDescription
 
   definitions:
-  Product: The EDProduct to which a provenance object is associated
+  Product: The WrapperBase to which a provenance object is associated
 
   Creator: The EDProducer that made the product.
 

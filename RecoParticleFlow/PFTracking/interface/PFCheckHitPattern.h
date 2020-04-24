@@ -48,8 +48,8 @@ class PFCheckHitPattern {
   /// on track.
 
   PFTrackHitFullInfo 
-    analyze(edm::ESHandle<TrackerGeometry>, const reco::TrackBaseRef track, 
-	    const TransientVertex& vert);
+    analyze(const TrackerTopology* tkerTopo, const TrackerGeometry* tkerGeom,
+            const reco::TrackBaseRef track, const TransientVertex& vert);
 
   /// Print hit pattern on track
   void print(const reco::TrackBaseRef track) const;
@@ -58,17 +58,16 @@ class PFCheckHitPattern {
 
 private:
   /// Create map indicating r/z values of all layers/disks.
-  void init (edm::ESHandle<TrackerGeometry>);
+  void init (const TrackerTopology*, const TrackerGeometry*);
 
-  /// Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to 
+  /// a pair<uint32, uint32> consisting of the numbers used by HitPattern to
   /// identify subdetector and layer number respectively.
   typedef std::pair<uint32_t, uint32_t> DetInfo;
-  static DetInfo interpretDetId(DetId detId);
 
   /// Return a bool indicating if a given subdetector is in the barrel.
   static bool barrel(uint32_t subDet);
 
-  void print(const reco::HitPattern& hp) const;
+  void print(const reco::HitPattern::HitCategory, const reco::HitPattern& hp) const;
 
 private:
   /// Note if geometry info is already initialized.
@@ -77,7 +76,7 @@ private:
   /// For a given subdetector & layer number, this stores the minimum and maximum
   /// r (or z) values if it is barrel (or endcap) respectively.
   typedef std::map< DetInfo, std::pair< double, double> > RZrangeMap;
-  static RZrangeMap rangeRorZ_;
+  RZrangeMap rangeRorZ_;
 
 
 };

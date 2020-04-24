@@ -57,7 +57,8 @@ GFlashEMShowerModel::IsApplicable(const G4ParticleDefinition& particleType)
 G4bool GFlashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) 
 {
   // Mininum energy cutoff to parameterize
-  if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < GeV) { return false; }
+  if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < Gflash::energyCutOff) 
+    { return false; }
   if(excludeDetectorRegion(fastTrack)) { return false; }
 
   // This will be changed accordingly when the way 
@@ -65,7 +66,7 @@ G4bool GFlashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack )
   G4TouchableHistory* touch = 
     (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
   G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
-  if( pCurrentVolume == 0) { return false; }
+  if( pCurrentVolume == nullptr) { return false; }
 
   G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
   if(lv->GetRegion() != theRegion) { return false; }
@@ -133,12 +134,15 @@ void GFlashEMShowerModel::makeHits(const G4FastTrack& fastTrack)
 
     // Put touchable for each hit so that touchable history 
     //     keeps track of each step.
-    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),theGflashTouchableHandle, false);
+    theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),
+								  G4ThreeVector(0,0,0),
+								  theGflashTouchableHandle, false);
     updateGflashStep(spotIter->getPosition(),spotIter->getTime());
 
     // If there is a watcher defined in a job and the flag is turned on
     if(theWatcherOn) {
-      SteppingAction* userSteppingAction = (SteppingAction*) G4EventManager::GetEventManager()->GetUserSteppingAction();
+      SteppingAction* userSteppingAction = 
+	(SteppingAction*) G4EventManager::GetEventManager()->GetUserSteppingAction();
       userSteppingAction->m_g4StepSignal(theGflashStep);
     }
 
@@ -147,7 +151,7 @@ void GFlashEMShowerModel::makeHits(const G4FastTrack& fastTrack)
     
     G4VPhysicalVolume* aCurrentVolume = 
       theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
-    if( aCurrentVolume == 0 ) { continue; }
+    if( aCurrentVolume == nullptr ) { continue; }
 
     G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
     if(lv->GetRegion() != theRegion) { continue; }
@@ -155,7 +159,7 @@ void GFlashEMShowerModel::makeHits(const G4FastTrack& fastTrack)
     theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
     G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
       
-    if( aSensitive == 0 ) { continue; }
+    if( aSensitive == nullptr ) { continue; }
 
     theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
     aSensitive->Hit(theGflashStep);

@@ -2,7 +2,7 @@
 #ifndef HcalHTRData_H
 #define HcalHTRData_H
 
-#include <stdint.h>
+#include <cstdint>
 
 /**  \class HcalHTRData
  *
@@ -20,7 +20,7 @@ class HcalHTRData {
   static const int FORMAT_VERSION_COMPACT_DATA =  6;
   
   HcalHTRData();
-  ~HcalHTRData() { if (m_ownData!=0) delete [] m_ownData; }
+  ~HcalHTRData() { if (m_ownData!=nullptr) delete [] m_ownData; }
   HcalHTRData(int version_to_create);
   HcalHTRData(const unsigned short* data, int length);
   HcalHTRData(const HcalHTRData&);
@@ -100,7 +100,8 @@ class HcalHTRData {
 	    do_capid=false);
   /** \brief pack header and trailer (call _after_ pack)*/
   void packHeaderTrailer(int L1Anumber, int bcn, int submodule, int
-			 orbitn, int pipeline, int ndd, int nps, int firmwareRev=0);
+			 orbitn, int pipeline, int ndd, int nps, int firmwareRev=0,
+			 int firmwareFlav=0);
 
   /** \brief pack trailer with Mark and Pass bits */
   void packUnsuppressed(const bool* mp);

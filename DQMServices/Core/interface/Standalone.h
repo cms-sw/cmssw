@@ -1,6 +1,7 @@
 #ifndef DQMSERVICES_CORE_STANDALONE_H
 # define DQMSERVICES_CORE_STANDALONE_H
 # if !WITHOUT_CMS_FRAMEWORK
+#  include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #  include "FWCore/ParameterSet/interface/ParameterSet.h"
 #  include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #  include "FWCore/ServiceRegistry/interface/Service.h"
@@ -18,8 +19,9 @@ namespace edm
   std::string getReleaseVersion(void)
   { return "CMSSW_STANDALONE"; }
 
-  struct ParameterSet
+  class ParameterSet
   {
+    public:
     template <class T> static const T &
     getUntrackedParameter(const char * /* key */, const T &value)
     { return value; }
@@ -30,8 +32,9 @@ namespace edm
     ServiceToken(int) {}
   };
 
-  struct ServiceRegistry
+  class ServiceRegistry
   {
+  public:
     struct Operate
     {
       Operate(const ServiceToken &) {}
@@ -41,8 +44,9 @@ namespace edm
   };
 
   template <class T>
-  struct Service
+  class  Service
   {
+  public:
     bool isAvailable(void) { return false; }
     T *operator->(void)
     {
@@ -53,15 +57,33 @@ namespace edm
     T &operator*(void) { return * operator->(); }
   };
 
-  struct ActivityRegistry
+  namespace service {
+    struct SystemBounds {
+      unsigned int maxNumberOfStreams() const { return 0; }
+    };
+  }
+
+  struct PreallocationSignal {
+    template <typename T>
+    void connect( T&& ) {};
+  };
+
+  class ActivityRegistry
   {
+  public:
     template <typename T>
     void watchPostSourceRun(void*, T) {}
+
+    template <typename T>
+    void watchPostSourceLumi(void*, T) {}
+
+    PreallocationSignal preallocateSignal_;
   };
   
   
-  struct JobReport
+  class JobReport
   {
+  public:
     JobReport(const edm::ParameterSet &) {}
     void reportAnalysisFile(const std::string &, const std::map<std::string, std::string> &) {}
   };

@@ -10,7 +10,7 @@ using namespace std;
 
 
 MCDijetResonance::MCDijetResonance(const edm::ParameterSet& iConfig) :
-  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))
+  token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared")))
 {
    //here do whatever other initialization is needed
    
@@ -49,7 +49,7 @@ bool MCDijetResonance::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   cout << endl << "Event=" << nEvents << endl;
   using namespace edm;
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
   //If process is not the desired primary process, cleanup and reject the event.

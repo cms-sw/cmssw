@@ -22,14 +22,14 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   
   ApvTimingAnalysis();
   
-  virtual ~ApvTimingAnalysis() {;}
+  ~ApvTimingAnalysis() override {;}
   
   friend class ApvTimingAlgorithm;
   
   // ---------- public interface ----------
   
   /** Identifies if analysis is valid or not. */
-  bool isValid() const;
+  bool isValid() const override;
   
   /** Identifies if tick mark is found or not. */
   bool foundTickMark() const;
@@ -67,13 +67,13 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   // ---------- misc ----------
 
   /** Prints analysis results. */
-  void print( std::stringstream&, uint32_t not_used = 0 );
+  void print( std::stringstream&, uint32_t not_used = 0 ) override;
   
   /** Adds error codes for analysis (overrides private base). */ 
-  inline void addErrorCode( const std::string& error );
+  inline void addErrorCode( const std::string& error ) override;
   
   /** Resets analysis member data. */
-  void reset();
+  void reset() override;
   
   // ---------- public static data ----------
   

@@ -63,12 +63,12 @@ class ValidateGeometry : public edm::EDAnalyzer
 {
 public:
   explicit ValidateGeometry(const edm::ParameterSet&);
-  ~ValidateGeometry();
+  ~ValidateGeometry() override;
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;  
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;  
 
   void validateRPCGeometry(const int regionNumber, 
                            const char* regionName);
@@ -86,9 +86,6 @@ private:
                             const char* detname);
 
   void validateTrackerGeometry(const TrackerGeometry::DetContainer& dets, 
-                               const char* detname);
-
-  void validateTrackerGeometry(const TrackerGeometry::DetUnitContainer& dets, 
                                const char* detname);
 
   void validatePixelTopology(const TrackerGeometry::DetContainer& dets,
@@ -142,6 +139,10 @@ private:
               lengths_.empty() && 
               thicknesses_.empty());
     }
+
+  bool doTracker_;
+  bool doMuon_;
+  bool doCalo_;
 };
 
 
@@ -149,6 +150,10 @@ ValidateGeometry::ValidateGeometry(const edm::ParameterSet& iConfig)
   : infileName_(iConfig.getUntrackedParameter<std::string>("infileName")),
     outfileName_(iConfig.getUntrackedParameter<std::string>("outfileName"))
 {
+  doTracker_ = iConfig.getUntrackedParameter<bool>( "Tracker", true );
+  doMuon_ = iConfig.getUntrackedParameter<bool>( "Muon", true );
+  doCalo_ = iConfig.getUntrackedParameter<bool>( "Calo", true );
+
   fwGeometry_.loadMap(infileName_.c_str());
 
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
@@ -162,123 +167,130 @@ ValidateGeometry::~ValidateGeometry()
 void 
 ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeometry_);
-
-  if ( rpcGeometry_.isValid() )
+  if( doMuon_ )
   {
-    std::cout<<"Validating RPC -z endcap geometry"<<std::endl;
-    validateRPCGeometry(-1, "RPC -z endcap");
+    eventSetup.get<MuonGeometryRecord>().get(rpcGeometry_);
 
-    std::cout<<"Validating RPC +z endcap geometry"<<std::endl;
-    validateRPCGeometry(+1, "RPC +z endcap");
+    if ( rpcGeometry_.isValid() )
+    {
+      std::cout<<"Validating RPC -z endcap geometry"<<std::endl;
+      validateRPCGeometry(-1, "RPC -z endcap");
 
-    std::cout<<"Validating RPC barrel geometry"<<std::endl;
-    validateRPCGeometry(0, "RPC barrel");
+      std::cout<<"Validating RPC +z endcap geometry"<<std::endl;
+      validateRPCGeometry(+1, "RPC +z endcap");
+
+      std::cout<<"Validating RPC barrel geometry"<<std::endl;
+      validateRPCGeometry(0, "RPC barrel");
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid RPC geometry"<<std::endl; 
+
+
+    eventSetup.get<MuonGeometryRecord>().get(dtGeometry_);
+
+    if ( dtGeometry_.isValid() )
+    {
+      std::cout<<"Validating DT chamber geometry"<<std::endl;
+      validateDTChamberGeometry();
+
+      std::cout<<"Validating DT layer geometry"<<std::endl;
+      validateDTLayerGeometry();
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid DT geometry"<<std::endl; 
+
+
+    eventSetup.get<MuonGeometryRecord>().get(cscGeometry_);
+
+    if ( cscGeometry_.isValid() )
+    {
+      std::cout<<"Validating CSC -z geometry"<<std::endl;
+      validateCSChamberGeometry(-1, "CSC chamber -z endcap");
+
+      std::cout<<"Validating CSC +z geometry"<<std::endl;
+      validateCSChamberGeometry(+1, "CSC chamber +z endcap");
+
+      std::cout<<"Validating CSC layer -z geometry"<<std::endl;
+      validateCSCLayerGeometry(-1, "CSC layer -z endcap");
+
+      std::cout<<"Validating CSC layer +z geometry"<<std::endl;
+      validateCSCLayerGeometry(+1, "CSC layer +z endcap");
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid CSC geometry"<<std::endl;
   }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid RPC geometry"<<std::endl; 
 
-
-  eventSetup.get<MuonGeometryRecord>().get(dtGeometry_);
-
-  if ( dtGeometry_.isValid() )
+  if( doTracker_ )
   {
-    std::cout<<"Validating DT chamber geometry"<<std::endl;
-    validateDTChamberGeometry();
+    eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
 
-    std::cout<<"Validating DT layer geometry"<<std::endl;
-    validateDTLayerGeometry();
+    if ( trackerGeometry_.isValid() )
+    {
+      std::cout<<"Validating TIB geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsTIB(), "TIB");
+      validateStripTopology(trackerGeometry_->detsTIB(), "TIB");
+
+      std::cout<<"Validating TOB geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsTOB(), "TOB");
+      validateStripTopology(trackerGeometry_->detsTOB(), "TOB");
+
+      std::cout<<"Validating TEC geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsTEC(), "TEC");
+      validateStripTopology(trackerGeometry_->detsTEC(), "TEC");
+
+      std::cout<<"Validating TID geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsTID(), "TID");
+      validateStripTopology(trackerGeometry_->detsTID(), "TID");
+
+      std::cout<<"Validating PXB geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsPXB(), "PXB");
+      validatePixelTopology(trackerGeometry_->detsPXB(), "PXB");
+
+      std::cout<<"Validating PXF geometry and topology"<<std::endl;
+      validateTrackerGeometry(trackerGeometry_->detsPXF(), "PXF");
+      validatePixelTopology(trackerGeometry_->detsPXF(), "PXF");
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid Tracker geometry"<<std::endl;
   }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid DT geometry"<<std::endl; 
 
-
-  eventSetup.get<MuonGeometryRecord>().get(cscGeometry_);
-
-  if ( cscGeometry_.isValid() )
+  if( doCalo_ )
   {
-    std::cout<<"Validating CSC -z geometry"<<std::endl;
-    validateCSChamberGeometry(-1, "CSC chamber -z endcap");
+    eventSetup.get<CaloGeometryRecord>().get(caloGeometry_);
 
-    std::cout<<"Validating CSC +z geometry"<<std::endl;
-    validateCSChamberGeometry(+1, "CSC chamber +z endcap");
 
-    std::cout<<"Validating CSC layer -z geometry"<<std::endl;
-    validateCSCLayerGeometry(-1, "CSC layer -z endcap");
+    if ( caloGeometry_.isValid() )
+    {
+      std::cout<<"Validating EB geometry"<<std::endl;
+      validateCaloGeometry(DetId::Ecal, EcalBarrel, "EB");
 
-    std::cout<<"Validating CSC layer +z geometry"<<std::endl;
-    validateCSCLayerGeometry(+1, "CSC layer +z endcap");
-  }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid CSC geometry"<<std::endl; 
+      std::cout<<"Validating EE geometry"<<std::endl;
+      validateCaloGeometry(DetId::Ecal, EcalEndcap, "EE");
 
+      std::cout<<"Validating ES geometry"<<std::endl;
+      validateCaloGeometry(DetId::Ecal, EcalPreshower, "ES");
+
+      std::cout<<"Validating HB geometry"<<std::endl;
+      validateCaloGeometry(DetId::Hcal, HcalBarrel, "HB");
   
-  eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry_);
+      std::cout<<"Validating HE geometry"<<std::endl;
+      validateCaloGeometry(DetId::Hcal, HcalEndcap, "HE");
 
-  if ( trackerGeometry_.isValid() )
-  {
-    std::cout<<"Validating TIB geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsTIB(), "TIB");
-    validateStripTopology(trackerGeometry_->detsTIB(), "TIB");
-
-    std::cout<<"Validating TOB geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsTOB(), "TOB");
-    validateStripTopology(trackerGeometry_->detsTOB(), "TOB");
-
-    std::cout<<"Validating TEC geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsTEC(), "TEC");
-    validateStripTopology(trackerGeometry_->detsTEC(), "TEC");
-
-    std::cout<<"Validating TID geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsTID(), "TID");
-    validateStripTopology(trackerGeometry_->detsTID(), "TID");
-
-    std::cout<<"Validating PXB geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsPXB(), "PXB");
-    validatePixelTopology(trackerGeometry_->detsPXB(), "PXB");
-
-    std::cout<<"Validating PXF geometry and topology"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsPXF(), "PXF");
-    validatePixelTopology(trackerGeometry_->detsPXF(), "PXF");
-  }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid Tracker geometry"<<std::endl;
-
-  eventSetup.get<CaloGeometryRecord>().get(caloGeometry_);
-
-
-  if ( caloGeometry_.isValid() )
-  {
-    std::cout<<"Validating EB geometry"<<std::endl;
-    validateCaloGeometry(DetId::Ecal, EcalBarrel, "EB");
-
-    std::cout<<"Validating EE geometry"<<std::endl;
-    validateCaloGeometry(DetId::Ecal, EcalEndcap, "EE");
-
-    std::cout<<"Validating ES geometry"<<std::endl;
-    validateCaloGeometry(DetId::Ecal, EcalPreshower, "ES");
-
-    std::cout<<"Validating HB geometry"<<std::endl;
-    validateCaloGeometry(DetId::Hcal, HcalBarrel, "HB");
-  
-    std::cout<<"Validating HE geometry"<<std::endl;
-    validateCaloGeometry(DetId::Hcal, HcalEndcap, "HE");
-
-    std::cout<<"Validating HO geometry"<<std::endl;
-    validateCaloGeometry(DetId::Hcal, HcalOuter, "HO");
+      std::cout<<"Validating HO geometry"<<std::endl;
+      validateCaloGeometry(DetId::Hcal, HcalOuter, "HO");
     
-    std::cout<<"Validating HF geometry"<<std::endl;
-    validateCaloGeometry(DetId::Hcal, HcalForward, "HF");
+      std::cout<<"Validating HF geometry"<<std::endl;
+      validateCaloGeometry(DetId::Hcal, HcalForward, "HF");
 
-    std::cout<<"Validating Castor geometry"<<std::endl;
-    validateCaloGeometry(DetId::Calo, HcalCastorDetId::SubdetectorId, "Castor");
+      std::cout<<"Validating Castor geometry"<<std::endl;
+      validateCaloGeometry(DetId::Calo, HcalCastorDetId::SubdetectorId, "Castor");
 
-    std::cout<<"Validating ZDC geometry"<<std::endl;
-    validateCaloGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId, "ZDC");
+      std::cout<<"Validating ZDC geometry"<<std::endl;
+      validateCaloGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId, "ZDC");
+    }
+    else
+      fwLog(fwlog::kWarning)<<"Invalid Calo geometry"<<std::endl; 
   }
-  else
-    fwLog(fwlog::kWarning)<<"Invalid Calo geometry"<<std::endl; 
-
 }
 
 
@@ -289,10 +301,10 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
  
   std::vector<double> centers;
  
-  std::vector<RPCRoll*> rolls = rpcGeometry_->rolls();
+  auto const& rolls = rpcGeometry_->rolls();
   
-  for ( std::vector<RPCRoll*>::const_iterator it = rolls.begin(), 
-                                           itEnd = rolls.end();
+  for ( auto it = rolls.begin(), 
+	  itEnd = rolls.end();
         it != itEnd; ++it )
   {
     const RPCRoll* roll = *it;
@@ -330,7 +342,7 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
 
         const float* parameters = fwGeometry_.getParameters(rpcDetId.rawId());
 
-        if ( parameters == 0 )
+        if ( parameters == nullptr )
         {
           std::cout<<"Parameters empty for RPC with detid: "
                    << rpcDetId.rawId() <<std::endl;
@@ -375,10 +387,10 @@ ValidateGeometry::validateDTChamberGeometry()
 {
   clearData();
 
-  std::vector<DTChamber*> chambers = dtGeometry_->chambers();
+  auto const& chambers = dtGeometry_->chambers();
   
-  for ( std::vector<DTChamber*>::const_iterator it = chambers.begin(), 
-                                             itEnd = chambers.end(); 
+  for ( auto it = chambers.begin(), 
+	  itEnd = chambers.end(); 
         it != itEnd; ++it)
   {
     const DTChamber* chamber = *it;
@@ -423,10 +435,10 @@ ValidateGeometry::validateDTLayerGeometry()
   
   std::vector<double> wire_positions;
 
-  std::vector<DTLayer*> layers = dtGeometry_->layers();
+  auto const& layers = dtGeometry_->layers();
   
-  for ( std::vector<DTLayer*>::const_iterator it = layers.begin(), 
-                                           itEnd = layers.end(); 
+  for ( auto it = layers.begin(), 
+	  itEnd = layers.end(); 
         it != itEnd; ++it)
   {
     const DTLayer* layer = *it;
@@ -461,7 +473,7 @@ ValidateGeometry::validateDTLayerGeometry()
         
       const float* parameters = fwGeometry_.getParameters(layerId.rawId());
       
-      if ( parameters == 0 )
+      if ( parameters == nullptr )
       {
         std::cout<<"Parameters empty for DT layer with detid: " 
                  << layerId.rawId() <<std::endl;
@@ -508,10 +520,10 @@ ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detnam
 {
   clearData();
 
-  std::vector<CSCChamber *> chambers = cscGeometry_->chambers();
+  auto const& chambers = cscGeometry_->chambers();
      
-  for ( std::vector<CSCChamber*>::const_iterator it = chambers.begin(), 
-                                              itEnd = chambers.end(); 
+  for ( auto it = chambers.begin(), 
+	  itEnd = chambers.end(); 
         it != itEnd; ++it )
   {
     const CSCChamber* chamber = *it;
@@ -566,10 +578,10 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
   std::vector<double> me41_wiresLocal;
   std::vector<double> me42_wiresLocal;
   
-  std::vector<CSCLayer*> layers = cscGeometry_->layers();
+  auto const& layers = cscGeometry_->layers();
      
-  for ( std::vector<CSCLayer*>::const_iterator it = layers.begin(), 
-                                            itEnd = layers.end(); 
+  for ( auto it = layers.begin(), 
+	  itEnd = layers.end(); 
         it != itEnd; ++it )
   {
     const CSCLayer* layer = *it;
@@ -617,7 +629,7 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 
       const float* parameters = fwGeometry_.getParameters(detId.rawId());
 
-      if ( parameters == 0 )
+      if ( parameters == nullptr )
       {
         std::cout<<"Parameters empty for CSC layer with detid: "
                  << detId.rawId() <<std::endl;
@@ -836,15 +848,15 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
 
   const std::vector<DetId>& ids = geometry->getValidDetIds(detector, subdetector);
 
-  for (std::vector<DetId>::const_iterator it = ids.begin(), 
-                                        iEnd = ids.end(); 
+  for (auto it = ids.begin(), 
+	 iEnd = ids.end(); 
        it != iEnd; ++it) 
   {
     unsigned int rawId = (*it).rawId();
 
     const float* points = fwGeometry_.getCorners(rawId);
 
-    if ( points == 0 )
+    if ( points == nullptr )
     { 
       std::cout <<"Failed to get points of "<< detname 
                 <<" element with detid: "<< rawId <<std::endl;
@@ -911,46 +923,6 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
 }
 
 
-void
-ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContainer& dets,
-                                          const char* detname)
-{
-  clearData();
-
-  for ( TrackerGeometry::DetUnitContainer::const_iterator it = dets.begin(), 
-                                                       itEnd = dets.end(); 
-        it != itEnd; ++it )
-  {
-    GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
-    unsigned int rawId = (*it)->geographicalId().rawId();
-
-    const TGeoMatrix* matrix = fwGeometry_.getMatrix(rawId);
-
-    if ( ! matrix )
-    {
-      std::cout<< "Failed to get matrix of "<< detname 
-               <<" element with detid: "<< rawId <<std::endl;
-      continue;
-    }
-
-    compareTransform(gp, matrix);
-
-
-    const float* shape = fwGeometry_.getShapePars(rawId);
-
-    if ( ! shape )
-    {
-      std::cout<<"Failed to get shape of "<< detname 
-               <<" element with detid: "<< rawId <<std::endl;
-      continue;
-    }
-
-    compareShape(*it, shape);
-  }
-  
-  makeHistograms(detname);
-}
-
 void 
 ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& dets,
                                         const char* detname)
@@ -966,7 +938,7 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
 
     const float* parameters = fwGeometry_.getParameters(rawId);
 
-    if ( parameters == 0 )
+    if ( parameters == nullptr )
     {
       std::cout<<"Parameters empty for "<< detname <<" element with detid: "
                << rawId <<std::endl;
@@ -980,18 +952,15 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
       { 
         int nrows = rpt->nrows();
         int ncolumns = rpt->ncolumns();
-        
-        assert(parameters[0] == nrows);
-        assert(parameters[1] == ncolumns);
-        
+                
         for ( int row = 1; row <= nrows; ++row )
         {
           for ( int column = 1; column <= ncolumns; ++column )
           {
             LocalPoint localPoint = rpt->localPosition(MeasurementPoint(row, column));
 
-            pixelLocalXs.push_back(localPoint.x() - fireworks::pixelLocalX(row, nrows));
-            pixelLocalYs.push_back(localPoint.y() - fireworks::pixelLocalY(column, ncolumns));
+            pixelLocalXs.push_back(localPoint.x() - fireworks::pixelLocalX(row, parameters));
+            pixelLocalYs.push_back(localPoint.y() - fireworks::pixelLocalY(column, parameters));
            }
         }
       }
@@ -1024,7 +993,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
     
     const float* parameters = fwGeometry_.getParameters(rawId);
 
-    if ( parameters == 0 )
+    if ( parameters == nullptr )
     {    
       std::cout<<"Parameters empty for "<< detname <<" element with detid: "
                << rawId <<std::endl;

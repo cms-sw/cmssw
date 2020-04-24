@@ -47,6 +47,8 @@
 #include "G4SafetyHelper.hh"
 #include "G4FieldManagerStore.hh"
 #include "SimG4Core/Physics/interface/G4Monopole.hh"
+#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
+#include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 class G4VSensitiveDetector;
 
@@ -55,14 +57,14 @@ class G4VSensitiveDetector;
 // Constructor
 
 namespace {
-  static const G4TouchableHandle nullTouchableHandle;  // Points to (G4VTouchable*) 0
+  const G4TouchableHandle nullTouchableHandle;  // Points to (G4VTouchable*) 0
 }
 
 G4MonopoleTransportation::G4MonopoleTransportation(const G4Monopole* mpl,
-						   sim::FieldBuilder* fieldBuilder,
+						   sim::ChordFinderSetter* chordFinderSetter,
 						   G4int verb)
   : G4VProcess( G4String("MonopoleTransportation"), fTransportation ),
-    fFieldBuilder(fieldBuilder),
+    fChordFinderSetter(chordFinderSetter),
     fParticleIsLooping( false ),
     fPreviousSftOrigin (0.,0.,0.),
     fPreviousSafety    ( 0.0 ),
@@ -128,11 +130,10 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
                                              G4double& currentSafety,
                                              G4GPILSelection* selection )
 {
-  
-  //magSetup->SetStepperAndChordFinder(1); 
   // change to monopole equation
-  G4FieldManager* fieldMgrX=fFieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
-  fFieldBuilder->setStepperAndChordFinder (fieldMgrX, 1);
+  G4FieldManager* fieldMgr = fFieldPropagator->FindAndSetFieldManager(track.GetVolume()); 
+  CMSFieldManager* fieldMgrCMS = static_cast<CMSFieldManager*>(fieldMgr);
+  if(fieldMgrCMS) { fieldMgrCMS->SetMonopoleTracking(true); }
   
   G4double geometryStepLength, newSafety ; 
   fParticleIsLooping = false ;
@@ -151,7 +152,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   // Get initial Energy/Momentum of the track
   //
   const G4DynamicParticle* pParticle      = track.GetDynamicParticle() ;
-  G4ThreeVector startMomentumDir          = pParticle->GetMomentumDirection() ;
+  const G4ThreeVector& startMomentumDir          = pParticle->GetMomentumDirection() ;
   G4ThreeVector startPosition             = track.GetPosition() ;
 
   // G4double   theTime        = track.GetGlobalTime() ;
@@ -185,21 +186,19 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
 
   // Check whether the particle have an (EM) field force exerting upon it
   //
-  G4FieldManager* fieldMgr=0;
   G4bool          fieldExertsForce = false ;
     
   if( (particleMagneticCharge != 0.0) )
   {      
-     fieldMgr= fFieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
-     if (fieldMgr != 0) {
-  // Message the field Manager, to configure it for this track
-  fieldMgr->ConfigureForTrack( &track );
-  // Moved here, in order to allow a transition
-  //   from a zero-field  status (with fieldMgr->(field)0
-  //   to a finite field  status
+     if (fieldMgr) {
+       // Message the field Manager, to configure it for this track
+       fieldMgr->ConfigureForTrack( &track );
+       // Moved here, in order to allow a transition
+       //   from a zero-field  status (with fieldMgr->(field)0
+       //   to a finite field  status
 
-        // If the field manager has no field, there is no field !
-        fieldExertsForce = (fieldMgr->GetDetectorField() != 0);
+       // If the field manager has no field, there is no field !
+       fieldExertsForce = (fieldMgr->GetDetectorField() != nullptr);
      }      
   }
 
@@ -268,16 +267,29 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
     //     G4double       momentumMagnitude = pParticle->GetTotalMomentum() ;
      G4ThreeVector  EndUnitMomentum ;
      G4double       lengthAlongCurve ;
-     G4double       restMass = pParticleDef->GetPDGMass() ;
- 
-     fFieldPropagator->SetChargeMomentumMass( particleMagneticCharge,    // in Mev/c 
-                                              particleElectricCharge,    // in e+ units
-                                              restMass           ) ;  
+     G4double       restMass = pParticleDef->GetPDGMass();
+     G4double       momentumMagnitude = pParticle->GetTotalMomentum();
+
+     // The charge can change (dynamic)
+     //  Magnetic moment:  pParticleDef->GetMagneticMoment(),
+     //  Electric Dipole moment - not in Particle Definition 
+     G4ChargeState chargeState(particleElectricCharge,             
+                               pParticleDef->GetPDGSpin(),
+                               0,  
+                               0,   
+                               particleMagneticCharge );   
+
+     G4EquationOfMotion* equationOfMotion = 
+     (fFieldPropagator->GetChordFinder()->GetIntegrationDriver()->GetStepper())
+     ->GetEquationOfMotion();
+
+     equationOfMotion->SetChargeMomentumMass( chargeState, 
+                                              momentumMagnitude, 
+                                              restMass ) ;  
      
      // SetChargeMomentumMass is _not_ used here as it would in everywhere else, 
      // it's just a workaround to pass the electric charge as well.
      
-
      G4ThreeVector spin        = track.GetPolarization() ;
      G4FieldTrack  aFieldTrack = G4FieldTrack( startPosition, 
                                                track.GetMomentumDirection(),
@@ -462,7 +474,7 @@ G4VParticleChange* G4MonopoleTransportation::AlongStepDoIt( const G4Track& track
            G4ParticleTable::GetParticleTable()->FindParticle("opticalphoton");
 
 #ifdef G4VERBOSE
-  static G4int noCalls=0;
+  static thread_local G4int noCalls=0;
   noCalls++;
 #endif
 
@@ -599,10 +611,10 @@ PostStepGetPhysicalInteractionLength( const G4Track& track,
                                             G4double, // previousStepSize
                                             G4ForceCondition* pForceCond )
 {  
-  //magSetup->SetStepperAndChordFinder(0);
   // change back to usual equation
   G4FieldManager* fieldMgr=fFieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
-  fFieldBuilder->setStepperAndChordFinder (fieldMgr, 0);
+  CMSFieldManager* fieldMgrCMS = static_cast<CMSFieldManager*>(fieldMgr);
+  if(fieldMgrCMS) { fieldMgrCMS->SetMonopoleTracking(true); }
   
   *pForceCond = Forced ; 
   return DBL_MAX ;  // was kInfinity ; but convention now is DBL_MAX
@@ -640,7 +652,7 @@ G4VParticleChange* G4MonopoleTransportation::PostStepDoIt( const G4Track& track,
     // Check whether the particle is out of the world volume 
     // If so it has exited and must be killed.
     //
-    if( fCurrentTouchableHandle->GetVolume() == 0 )
+    if( fCurrentTouchableHandle->GetVolume() == nullptr )
     {
        fParticleChange.ProposeTrackStatus( fStopAndKill ) ;
     }
@@ -663,10 +675,10 @@ G4VParticleChange* G4MonopoleTransportation::PostStepDoIt( const G4Track& track,
   }         // endif ( fGeometryLimitedStep ) 
 
   const G4VPhysicalVolume* pNewVol = retCurrentTouchable->GetVolume() ;
-  const G4Material* pNewMaterial   = 0 ;
-  const G4VSensitiveDetector* pNewSensitiveDetector   = 0 ;
-                                                                                       
-  if( pNewVol != 0 )
+  const G4Material* pNewMaterial   = nullptr ;
+  const G4VSensitiveDetector* pNewSensitiveDetector   = nullptr ;
+
+  if( pNewVol != nullptr )
   {
     pNewMaterial= pNewVol->GetLogicalVolume()->GetMaterial();
     pNewSensitiveDetector= pNewVol->GetLogicalVolume()->GetSensitiveDetector();
@@ -678,13 +690,13 @@ G4VParticleChange* G4MonopoleTransportation::PostStepDoIt( const G4Track& track,
   fParticleChange.SetMaterialInTouchable( (G4Material *) pNewMaterial ) ;
   fParticleChange.SetSensitiveDetectorInTouchable( (G4VSensitiveDetector *) pNewSensitiveDetector ) ;
 
-  const G4MaterialCutsCouple* pNewMaterialCutsCouple = 0;
-  if( pNewVol != 0 )
+  const G4MaterialCutsCouple* pNewMaterialCutsCouple = nullptr;
+  if( pNewVol != nullptr )
   {
     pNewMaterialCutsCouple=pNewVol->GetLogicalVolume()->GetMaterialCutsCouple();
   }
 
-  if( pNewVol!=0 && pNewMaterialCutsCouple!=0 && pNewMaterialCutsCouple->GetMaterial()!=pNewMaterial )
+  if( pNewVol!=nullptr && pNewMaterialCutsCouple!=nullptr && pNewMaterialCutsCouple->GetMaterial()!=pNewMaterial )
   {
     // for parametrized volume
     //
@@ -740,7 +752,7 @@ G4MonopoleTransportation::StartTracking(G4Track* aTrack)
   }
 
   // Make sure to clear the chord finders of all fields (ie managers)
-  static G4FieldManagerStore* fieldMgrStore= G4FieldManagerStore::GetInstance();
+  G4FieldManagerStore* fieldMgrStore= G4FieldManagerStore::GetInstance();
   fieldMgrStore->ClearAllChordFindersState(); 
 
   // Update the current touchable handle  (from the track's)

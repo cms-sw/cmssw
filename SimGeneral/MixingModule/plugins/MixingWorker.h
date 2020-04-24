@@ -27,6 +27,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "FWCore/Utilities/interface/InputTag.h" 
 
+#include <memory>
 #include <vector>
 #include <string>
 #include <typeinfo>
@@ -49,9 +50,13 @@ namespace edm
         subdet_(std::string(" ")),
         label_(std::string(" ")),
         labelCF_(std::string(" ")),
-        maxNbSources_(5) {
-	    tag_=InputTag();
-	    tagSignal_=InputTag();
+        maxNbSources_(5),
+	tag_(),
+	tagSignal_(),
+        allTags_(),
+        crFrame_(nullptr),
+        secSourceCF_(nullptr)
+        {
 	}
 
       /*Normal constructor*/ 
@@ -68,16 +73,41 @@ namespace edm
 	labelCF_(labelCF),
 	maxNbSources_(maxNbSources),
 	tag_(tag),
-	tagSignal_(tagCF)
+	tagSignal_(tagCF),
+        allTags_(),
+        crFrame_(nullptr),
+        secSourceCF_(nullptr)
+	{
+	}
+
+       /*constructor for HepMCproduct case*/  
+      MixingWorker(int minBunch,int maxBunch, int bunchSpace,
+		   std::string subdet,std::string label,
+		   std::string labelCF,int maxNbSources, InputTag& tag,
+		   InputTag& tagCF,
+		   std::vector<InputTag> const& tags) : 
+	MixingWorkerBase(),
+	minBunch_(minBunch),
+	maxBunch_(maxBunch),
+	bunchSpace_(bunchSpace),
+	subdet_(subdet),
+	label_(label),
+	labelCF_(labelCF),
+	maxNbSources_(maxNbSources),
+	tag_(tag),
+	tagSignal_(tagCF),
+        allTags_(tags),
+        crFrame_(nullptr),
+        secSourceCF_(nullptr)
 	{
 	}
 
       /**Default destructor*/
-      virtual ~MixingWorker() {;}
+      ~MixingWorker() override {;}
 
     public:
 
-      virtual void reload(const edm::EventSetup & setup){
+      void reload(const edm::EventSetup & setup) override{
 	//get the required parameters from DB.
 	// watch the label/tag
 	edm::ESHandle<MixingModuleConfig> config;
@@ -87,7 +117,7 @@ namespace edm
 	bunchSpace_=config->bunchSpace();
       }
 
-      virtual bool checkSignal(const edm::Event &e){
+      bool checkSignal(const edm::Event &e) override{
           bool got;
 	  InputTag t;
 	  edm::Handle<std::vector<T> >  result_t;
@@ -102,11 +132,11 @@ namespace edm
       }
       
       
-      virtual void createnewEDProduct(){        
+      void createnewEDProduct() override{        
           crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);
       }
            
-      virtual void addSignals(const edm::Event &e){
+      void addSignals(const edm::Event &e) override{
 	edm::Handle<std::vector<T> > result_t;
 	bool got = e.getByLabel(tag_,result_t);
 	if (got) {
@@ -117,19 +147,18 @@ namespace edm
         }
       }
 
-      virtual void addPileups(const EventPrincipal &ep, ModuleCallingContext const*, unsigned int eventNr);
+      void addPileups(const EventPrincipal &ep, ModuleCallingContext const*, unsigned int eventNr) override;
 
-      virtual void setBcrOffset() {crFrame_->setBcrOffset();}
-      virtual void setSourceOffset(const unsigned int s) {crFrame_->setSourceOffset(s);}
+      void setBcrOffset() override {crFrame_->setBcrOffset();}
+      void setSourceOffset(const unsigned int s) override {crFrame_->setSourceOffset(s);}
 
-      void setTof();
+      void setTof() override;
 
-      virtual void put(edm::Event &e) {	
-        std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
-	e.put(pOut,label_);
+      void put(edm::Event &e) override {	
+        std::unique_ptr<CrossingFrame<T> > pOut(crFrame_);
+	e.put(std::move(pOut),label_);
 	LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
       }
-
 
       // When using mixed secondary source 
       // Copy the data from the PCrossingFrame to the CrossingFrame
@@ -145,6 +174,7 @@ namespace edm
       unsigned int const maxNbSources_;
       InputTag tag_;
       InputTag tagSignal_;
+      std::vector<InputTag> allTags_; // for HepMCProduct
 
       CrossingFrame<T> * crFrame_;
       PCrossingFrame<T> * secSourceCF_;
@@ -152,7 +182,7 @@ namespace edm
 
   template <typename T>
   void  MixingWorker<T>::addPileups(const EventPrincipal &ep, ModuleCallingContext const* mcc, unsigned int eventNr) {
-    boost::shared_ptr<Wrapper<std::vector<T> > const> shPtr = getProductByTag<std::vector<T> >(ep, tag_, mcc);
+    std::shared_ptr<Wrapper<std::vector<T> > const> shPtr = getProductByTag<std::vector<T> >(ep, tag_, mcc);
     if (shPtr) {
       LogDebug("MixingModule") << shPtr->product()->size() << "  pileup objects  added, eventNr " << eventNr;
       crFrame_->setPileupPtr(shPtr);

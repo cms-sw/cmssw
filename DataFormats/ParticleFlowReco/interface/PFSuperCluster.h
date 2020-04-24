@@ -41,9 +41,6 @@ namespace reco {
     
     PFSuperCluster& operator=(const PFSuperCluster&);
     
-    friend    std::ostream& operator<<(std::ostream& out, 
-				       const PFSuperCluster& cluster);
-
   private:
     
     /// vector of clusters
@@ -51,6 +48,10 @@ namespace reco {
     
     friend class ::PFSuperClusterAlgo;
   };
+
+  std::ostream& operator<<(std::ostream& out, 
+                           const PFSuperCluster& cluster);
+
 }
 
 #endif

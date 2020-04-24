@@ -1,10 +1,14 @@
 #ifndef SiStripLatency_h
 #define SiStripLatency_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
-#include <stdint.h>
+#include <cstdint>
 #include <sstream>
+
+class TrackerTopology;
 
 #define READMODEMASK 8
 
@@ -75,7 +79,9 @@ class SiStripLatency
     uint32_t detIdAndApv;
     unsigned char latency;
     unsigned char mode;
-  };
+  
+  COND_SERIALIZABLE;
+};
   typedef std::vector<Latency>::iterator latIt;
   typedef std::vector<Latency>::const_iterator latConstIt;
 
@@ -110,9 +116,9 @@ class SiStripLatency
   uint16_t singleMode() const;
 
   /// Prints the number of ranges as well as the value of singleLatency and singleMode
-  void printSummary(std::stringstream & ss) const;
+  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
   /// Prints the full list of all ranges and corresponding values of latency and mode
-  void printDebug(std::stringstream & ss) const;
+  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
 
   struct OrderByDetIdAndApv
   {
@@ -153,6 +159,8 @@ class SiStripLatency
     return pos;
   }
   std::vector<Latency> latencies_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

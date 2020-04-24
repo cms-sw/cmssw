@@ -1,13 +1,8 @@
-<use   name="clhep"/>
-<use   name="DataFormats/HcalDetId"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CondFormats/HcalObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
-<use   name="Geometry/Records"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="Geometry/Records"/>
 <bin file="HcalShapeIntegrator.cpp"/>
 <bin file="HcalPulseContainmentTest.cpp"/>
 <library name="MapTester" file="MapTester.cc">

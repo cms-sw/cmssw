@@ -16,4 +16,9 @@ validSimHit = cms.EDAnalyzer("MuonSimHitsValidAnalyzer",
     Label = cms.string('Hits')
 )
 
-
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
+    validSimHit.DTHitsSrc = cms.InputTag("MuonSimHits","MuonDTHits")
+    validSimHit.CSCHitsSrc = cms.InputTag("MuonSimHits","MuonCSCHits")
+    validSimHit.RPCHitsSrc = cms.InputTag("MuonSimHits","MuonRPCHits")
+    

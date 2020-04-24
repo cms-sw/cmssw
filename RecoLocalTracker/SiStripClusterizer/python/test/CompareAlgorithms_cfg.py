@@ -24,17 +24,6 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 
 
 # Configuration which varies depending on what to compare
-process.OldClusterizer = cms.EDProducer("SiStripClusterizer",
-                                        Clusterizer = cms.PSet( Algorithm = cms.string("OldThreeThresholdAlgorithm"),
-                                                                ChannelThreshold = cms.double(2),
-                                                                SeedThreshold    = cms.double(3),
-                                                                ClusterThreshold = cms.double(5),
-                                                                MaxSequentialHoles = cms.uint32(0),
-                                                                QualityLabel = cms.string("")),
-                                        DigiProducersList = cms.VInputTag( cms.InputTag('siStripDigis','ZeroSuppressed'),
-                                                                           cms.InputTag('siStripZeroSuppression','VirginRaw'),
-                                                                           cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
-                                                                           cms.InputTag('siStripZeroSuppression','ScopeMode')))
 process.NewClusterizer = cms.EDProducer("SiStripClusterizer",
                                         Clusterizer = cms.PSet( Algorithm = cms.string("ThreeThresholdAlgorithm"),
                                                                 ChannelThreshold = cms.double(2),
@@ -66,18 +55,11 @@ process.HLTStripByStrip = cms.EDProducer("StripByStripTestDriver",
                                          SeedThreshold = cms.untracked.double(3.0),
                                          MaxHolesInCluster = cms.untracked.uint32(0),
                                          ClusterThreshold = cms.untracked.double(5.0),
-
                                          DigiProducer = cms.InputTag('siStripDigis','ZeroSuppressed'),
                                          HLT = cms.bool(True)
                                          )
-
-process.CompareOldNew = cms.EDAnalyzer("CompareClusters",
-                                       Clusters1 = cms.InputTag('OldClusterizer',''),
-                                       Clusters2 = cms.InputTag('NewClusterizer',''),
-                                       Digis     = cms.InputTag('siStripDigis','ZeroSuppressed')
-                                       )
-process.CompareOldHLT = cms.EDAnalyzer("CompareClusters",
-                                       Clusters1 = cms.InputTag('OldClusterizer',''),
+process.CompareNewHLT = cms.EDAnalyzer("CompareClusters",
+                                       Clusters1 = cms.InputTag('NewClusterizer',''),
                                        Clusters2 = cms.InputTag('HLTStripByStrip',''),
                                        Digis     = cms.InputTag('siStripDigis','ZeroSuppressed')
                                        )
@@ -90,13 +72,10 @@ process.CompareNewNew = cms.EDAnalyzer("CompareClusters",
 process.p1 = cms.Path(   process.siStripDigis *
                          process.siStripZeroSuppression *
                          #process.profilerStart *
-                         process.OldClusterizer *
                          process.NewClusterizer *
                          process.HLTStripByStrip *
                          process.NewStripByStrip *
                          #process.profilerStop *
-                         
-                         process.CompareOldNew *
                          process.CompareOldHLT *
                          process.CompareNewNew
                          )

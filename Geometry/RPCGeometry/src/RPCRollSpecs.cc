@@ -26,7 +26,7 @@ RPCRollSpecs::RPCRollSpecs( SubDetector rss, const std::string& name, const RPCS
   
     _top = new TrapezoidalStripTopology(nstrip,pitch,striplength,r0);
   } else {
-    _top = 0;
+    _top = nullptr;
   }
 }
 
@@ -35,7 +35,7 @@ RPCRollSpecs::~RPCRollSpecs()
 {
   if (_top)
     delete _top;
-  _top=0;
+  _top=nullptr;
 }
 
 

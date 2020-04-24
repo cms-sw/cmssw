@@ -8,13 +8,14 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 
 #include <utility>
 #include <unordered_map>
-#include <vector>
 #include <cstring>
 
 
@@ -134,73 +135,134 @@ struct StripLimits {
 namespace edm { class EventSetup; }
 
 class TrackerGeometry;
+class TrackerTopology;
 class MagneticField;
 class SiPixelLorentzAngle;
 class SiStripLorentzAngle;
 class PixelGeomDetUnit;
 class StripGeomDetUnit;
+class StripTopology;
+
+// Function for testing ClusterShapeHitFilter
+namespace test {
+  namespace ClusterShapeHitFilterTest {
+    int test();
+  }
+}
 
 class ClusterShapeHitFilter
 {
+  // For tests
+  friend int test::ClusterShapeHitFilterTest::test();
+
  public:
 
   struct PixelData {
     const PixelGeomDetUnit * det;
-    unsigned int part;
+    unsigned short part;
+    unsigned short layer;
     std::pair<float,float> drift;
     std::pair<float,float> cotangent;
 
   };
 
+  struct StripData {
+    const StripGeomDetUnit * det;
+    StripTopology const * topology;
+    float drift;
+    float thickness;
+    int nstrips;
+  };
+
   typedef TrajectoryFilter::Record Record;
-  //  typedef CkfComponentsRecord Record;
 
   ClusterShapeHitFilter(const TrackerGeometry * theTracker_,
+                        const TrackerTopology * theTkTopol_,
                         const MagneticField          * theMagneticField_,
                         const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
                         const SiStripLorentzAngle    * theSiStripLorentzAngle_,
-                        const std::string            * use_PixelShapeFile_);
+                        const std::string            & pixelShapeFile_,
+                        const std::string            & pixelShapeFileL1_);
  
   ~ClusterShapeHitFilter();
 
+  void setShapeCuts(bool cutOnPixelShape, bool cutOnStripShape) {
+    cutOnPixelShape_ = cutOnPixelShape; cutOnStripShape_ = cutOnStripShape;}
+
+  void setChargeCuts(bool cutOnPixelCharge, float minGoodPixelCharge,
+	bool cutOnStripCharge, float minGoodStripCharge) {
+    cutOnPixelCharge_ = cutOnPixelCharge; minGoodPixelCharge_= minGoodPixelCharge;
+    cutOnStripCharge_ = cutOnStripCharge; minGoodStripCharge_= minGoodStripCharge; } 
+
   bool getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
-   int & part, std::vector<std::pair<int,int> > & meas,
+   const SiPixelClusterShapeCache& clusterShapeCache,
+   int & part, ClusterData::ArrayType& meas,
    std::pair<float,float> & predr,
    PixelData const * pd=nullptr) const;
   bool isCompatible(const SiPixelRecHit   & recHit,
                     const LocalVector & ldir,
+                    const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * pd=nullptr) const;
   bool isCompatible(const SiPixelRecHit   & recHit,
                     const GlobalVector & gdir,
+                    const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * pd=nullptr ) const;
 
 
-  bool getSizes(DetId detId, const SiStripCluster & cluster, const LocalVector & ldir,
+  bool getSizes(DetId detId, const SiStripCluster & cluster, const LocalPoint &lpos, const LocalVector & ldir,
      int & meas, float & pred) const;
-  bool getSizes(const SiStripRecHit2D & recHit, const LocalVector & ldir,
+  bool getSizes(const SiStripRecHit2D & recHit, const LocalPoint &lpos, const LocalVector & ldir,
      int & meas, float & pred) const {
-    return getSizes(recHit.geographicalId(), recHit.stripCluster(), ldir, meas, pred);
+    return getSizes(recHit.geographicalId(), recHit.stripCluster(), lpos, ldir, meas, pred);
   }
   bool isCompatible(DetId detId,
                     const SiStripCluster & cluster,
+                    const LocalPoint  & lpos,
                     const LocalVector & ldir) const;
   bool isCompatible(DetId detId,
                     const SiStripCluster & cluster,
+                    const LocalVector & ldir) const { 
+      return isCompatible(detId, cluster, LocalPoint(0,0,0), ldir); 
+  }
+
+  bool isCompatible(DetId detId,
+                    const SiStripCluster & cluster,
+                    const GlobalPoint  & gpos,
                     const GlobalVector & gdir ) const;
+  bool isCompatible(DetId detId,
+                    const SiStripCluster & cluster,
+                    const GlobalVector & gdir ) const;
+
+
+  bool isCompatible(const SiStripRecHit2D & recHit,
+                    const LocalPoint  & lpos,
+                    const LocalVector & ldir) const {
+            return isCompatible(recHit.geographicalId(), recHit.stripCluster(), lpos, ldir);
+  }
   bool isCompatible(const SiStripRecHit2D & recHit,
                     const LocalVector & ldir) const {
             return isCompatible(recHit.geographicalId(), recHit.stripCluster(), ldir);
   }
+  bool isCompatible(const SiStripRecHit2D & recHit,
+                    const GlobalPoint  & gpos,
+                    const GlobalVector & gdir ) const {
+            return isCompatible(recHit.geographicalId(), recHit.stripCluster(), gpos, gdir);
+  } 
   bool isCompatible(const SiStripRecHit2D & recHit,
                     const GlobalVector & gdir ) const {
             return isCompatible(recHit.geographicalId(), recHit.stripCluster(), gdir);
   } 
 
 
+
  private:
   // for testing purposes only
-  ClusterShapeHitFilter(){}
+  ClusterShapeHitFilter(std::string const& f1,std::string const& f2) {
+     loadPixelLimits(f1,pixelLimits);
+     loadPixelLimits(f2,pixelLimitsL1);
+      loadStripLimits();
+  }
 
   const PixelData & getpd(const SiPixelRecHit   & recHit, PixelData const * pd=nullptr) const{
     if (pd) return *pd;
@@ -210,12 +272,16 @@ class ClusterShapeHitFilter
     return (*p).second;
   }
 
-  void loadPixelLimits();
+  const StripData & getsd(DetId id) const {return stripData.find(id)->second;}
+
+  void loadPixelLimits(std::string const & file, PixelLimits *plim);
   void loadStripLimits();
   void fillPixelData();
+  void fillStripData();
+
 
   std::pair<float,float> getCotangent(const PixelGeomDetUnit * pixelDet) const;
-                   float getCotangent(const StripGeomDetUnit * stripDet) const;
+                   float getCotangent(const ClusterShapeHitFilter::StripData& sd, const LocalPoint &p) const;
 
   std::pair<float,float> getDrift(const PixelGeomDetUnit * pixelDet) const;
                    float getDrift(const StripGeomDetUnit * stripDet) const;
@@ -223,21 +289,26 @@ class ClusterShapeHitFilter
   bool isNormalOriented(const GeomDetUnit * geomDet) const;
 
   const TrackerGeometry * theTracker;
+  const TrackerTopology * theTkTopol;
   const MagneticField * theMagneticField;
 
   const SiPixelLorentzAngle * theSiPixelLorentzAngle;
   const SiStripLorentzAngle * theSiStripLorentzAngle;
 
-  const std::string * PixelShapeFile;
-
   std::unordered_map<unsigned int, PixelData> pixelData;
+  std::unordered_map<unsigned int, StripData> stripData;
 
   PixelLimits pixelLimits[PixelKeys::N+1]; // [2][2][2]
+  PixelLimits pixelLimitsL1[PixelKeys::N+1]; // for BPIX1
 
   StripLimits stripLimits[StripKeys::N+1]; // [2][2]
 
   float theAngle[6];
+  bool cutOnPixelCharge_, cutOnStripCharge_;
+  float minGoodPixelCharge_, minGoodStripCharge_;
+  bool cutOnPixelShape_, cutOnStripShape_;
+  bool checkClusterCharge(DetId detId, const SiStripCluster& cluster, const LocalVector & ldir) const;
+  bool checkClusterCharge(DetId detId, const SiPixelCluster& cluster, const LocalVector & ldir) const;
 };
 
 #endif
-

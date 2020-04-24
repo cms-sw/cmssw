@@ -34,7 +34,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -56,24 +56,21 @@ using namespace std;
 // class decleration
 //
 
-class HLTMuonCertSummary : public edm::EDAnalyzer {
+class HLTMuonCertSummary : public DQMEDHarvester {
 
    public:
       explicit HLTMuonCertSummary(const edm::ParameterSet& pset);
-      ~HLTMuonCertSummary();
+      ~HLTMuonCertSummary() override;
 
 
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) override ;
+      void beginJob() override;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override ;
+      void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
 
 
 
    private:
 
-      DQMStore *dbe_;
       edm::ParameterSet parameters_;
 
       bool verbose_;
@@ -88,15 +85,7 @@ HLTMuonCertSummary::HLTMuonCertSummary(const edm::ParameterSet& pset)
 {
 
   using namespace edm;
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (!dbe_) {
-    LogInfo ("DQMGenericClient") << "Can't find DQMStore, no results will be saved"
-                           << endl;
-  } else {
-    dbe_->setVerbose(0);
-  }
-  
+
   parameters_ = pset;
   verbose_ = parameters_.getUntrackedParameter<bool>("verbose", false);
   
@@ -105,36 +94,23 @@ HLTMuonCertSummary::HLTMuonCertSummary(const edm::ParameterSet& pset)
 }
 
 
-HLTMuonCertSummary::~HLTMuonCertSummary()
-{
-}
+
+HLTMuonCertSummary::~HLTMuonCertSummary() = default;
+
 
 
 //
 // member functions
 //
 
-// ------------ method called to for each event  ------------
-void
-HLTMuonCertSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-
-   if(verbose_) LogInfo ("HLTMuonVal")  << ">>> Analyze (HLTMuonCertSummary) <<<" << std::endl;
-
-}
-
 // ------------ method called once each job just before starting event loop  ------------
 void 
 HLTMuonCertSummary::beginJob()
 {
+
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTMuonCertSummary::endJob() 
-{
-}
+
 
 // ------------ method called just before starting a new run  ------------
 void 
@@ -147,18 +123,15 @@ HLTMuonCertSummary::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 }
 
+
+
 // ------------ method called right after a run ends ------------
 void 
-HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
+HLTMuonCertSummary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter)
 {
-
+  
   using namespace edm;
   if(verbose_) LogInfo ("HLTMuonVal")  << ">>> EndRun (HLTMuonCertSummary) <<<" << std::endl;
-
-  if(!dbe_) {
-    LogInfo ("DQMGenericClient") << "No dqmstore... skipping processing step" << endl;
-    return;
-  }
   
   std::vector<string> histoNameVector;
 
@@ -167,19 +140,19 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 
 
-  dbe_->setCurrentFolder("HLT/EventInfo/muonQuality");  
+  iBooker.setCurrentFolder("HLT/EventInfo/muonQuality");  
 
-  MonitorElement*  reportSummary = dbe_->bookFloat("HLT_MUON_REPORT_SUMMARY");
+  MonitorElement*  reportSummary = iBooker.bookFloat("HLT_MUON_REPORT_SUMMARY");
 
   int SummaryBitResult = 100;
   
-  MonitorElement*  CertificationSummary = dbe_->bookFloat("HLT_MUON_CERTIFICATION_SUMMARY");
+  MonitorElement*  CertificationSummary = iBooker.bookFloat("HLT_MUON_CERTIFICATION_SUMMARY");
 
   
 
   //for now these will hold values from eta/phi tests for spikes/holes
-  MonitorElement*  reportSummaryMap = dbe_->book2D("HLT_MUON_ReportSummaryMap","HLT_MUON: ReportSummaryMap",6,-0.5,5.5,1,-0.5,0.5);
-  MonitorElement*  CertificationSummaryMap = dbe_->book2D("HLT_MUON_CertificationSummaryMap","HLT_MUON: CertificationSummaryMap",6,-0.5,5.5,1,-0.5,0.5);
+  MonitorElement*  reportSummaryMap = iBooker.book2D("HLT_MUON_ReportSummaryMap","HLT_MUON: ReportSummaryMap",6,-0.5,5.5,1,-0.5,0.5);
+  MonitorElement*  CertificationSummaryMap = iBooker.book2D("HLT_MUON_CertificationSummaryMap","HLT_MUON: CertificationSummaryMap",6,-0.5,5.5,1,-0.5,0.5);
 
   TH2 * reportSummaryMapTH2 = reportSummaryMap->getTH2F();
 
@@ -205,31 +178,31 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
   CertificationSummaryMapTH2->GetYaxis()->SetBinLabel(1,"HLT_Mu5_allMuons");
 
 
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_All");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhiVsEta_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPt_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhi_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffEta_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_All");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhiVsEta_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPt_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhi_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffEta_L3Filtered");
   
   // to do:  what do we want in certification contents?
-  //  dbe_->setCurrentFolder("Egamma/EventInfo/CertificationContents/"); 
+  //  iBooker.setCurrentFolder("Egamma/EventInfo/CertificationContents/"); 
 
 
   //   //looping over histograms to be tested
   if(verbose_) LogInfo ("HLTMuonVal")  << "\n>>> looping over histograms to be tested <<<\n\n";
   
-  for(std::vector<string>::iterator it=histoNameVector.begin();it!=histoNameVector.end();++it){
+  for(auto & it : histoNameVector){
 
-    string HistoName = (*it);
+    const string& HistoName = it;
     if(verbose_) LogInfo ("HLTMuonVal")  << ">>> " << HistoName;        
     
 
-    MonitorElement * TestHist=0;
+    MonitorElement * TestHist=nullptr;
 
-    TestHist = dbe_->get(HistoName);
+    TestHist = iGetter.get(HistoName);
 
-    bool validMe = TestHist!=0;
+    bool validMe = TestHist!=nullptr;
     if(verbose_)  LogInfo ("HLTMuonVal")  << " is valid? " << validMe << "\n";
     if(!validMe) continue;
 
@@ -254,8 +227,8 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
 
       
       //book and fill float for each test done
-      dbe_->setCurrentFolder("HLT/EventInfo/muonQuality/");  
-      MonitorElement * qValueInt  = dbe_->bookFloat(histNameNoPath+"_HLT_Mu5_"+qtname);
+      iBooker.setCurrentFolder("HLT/EventInfo/muonQuality/");  
+      MonitorElement * qValueInt  = iBooker.bookFloat(histNameNoPath+"_HLT_Mu5_"+qtname);
       qValueInt->Fill(qtstatus);
 
       // We're assuming that you want all of the bits to go into the decision
@@ -265,7 +238,7 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
         reportSummaryMapTH2->SetBinContent(reportSummaryMapTH2->GetBin(1,1), qtstatus);
         CertificationSummaryMapTH2->SetBinContent(CertificationSummaryMapTH2->GetBin(1,1), qtstatus );
         if ( (qtstatus == 200) && (SummaryBitResult < 300)) SummaryBitResult = 200;
-        if ( (qtstatus == 300) ) SummaryBitResult = 300;
+        if ( qtstatus == 300 ) SummaryBitResult = 300;
 
       }
 
@@ -311,18 +284,17 @@ HLTMuonCertSummary::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   // Set the final bits
 
-  dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents");
-  MonitorElement* muonHLTQualityBinaryBit = dbe_->bookFloat ("HLT_Muon");
+  iBooker.setCurrentFolder("HLT/EventInfo/reportSummaryContents");
+  MonitorElement* muonHLTQualityBinaryBit = iBooker.bookFloat ("HLT_Muon");
   
   if (SummaryBitResult == 100){
     muonHLTQualityBinaryBit->Fill(1);
   } else {
     muonHLTQualityBinaryBit->Fill(0);
-  }
-  
-
+  }  
 
 }
+
 
 
 DEFINE_FWK_MODULE(HLTMuonCertSummary);

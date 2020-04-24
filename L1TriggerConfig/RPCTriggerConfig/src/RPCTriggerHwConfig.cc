@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -41,7 +40,7 @@ class RPCTriggerHwConfig : public edm::ESProducer {
       RPCTriggerHwConfig(const edm::ParameterSet&);
       ~RPCTriggerHwConfig();
 
-      typedef std::auto_ptr<L1RPCHwConfig> ReturnType;
+      typedef std::unique_ptr<L1RPCHwConfig> ReturnType;
 
       ReturnType produce(const L1RPCHwConfigRcd&);
    private:
@@ -116,7 +115,7 @@ RPCTriggerHwConfig::ReturnType
 RPCTriggerHwConfig::produce(const L1RPCHwConfigRcd& iRecord)
 {
    using namespace edm::es;
-   std::auto_ptr<L1RPCHwConfig> pL1RPCHwConfig = std::auto_ptr<L1RPCHwConfig>( new L1RPCHwConfig() );
+   auto pL1RPCHwConfig = std::make_unique<L1RPCHwConfig>();
 
    if (m_disableAll) {
      pL1RPCHwConfig->enableAll(false);

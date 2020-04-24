@@ -26,31 +26,31 @@
 class BeamConditionsMonitor : public edm::EDAnalyzer {
  public:
   BeamConditionsMonitor( const edm::ParameterSet& );
-  ~BeamConditionsMonitor();
+  ~BeamConditionsMonitor() override;
 
  protected:
    
   // BeginJob
-  void beginJob();
+  void beginJob() override;
 
   // BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
   
   // Fake Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			    const edm::EventSetup& context);
+			    const edm::EventSetup& context) override;
   
   // DQM Client Diagnostic
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			  const edm::EventSetup& c);
+			  const edm::EventSetup& c) override;
   
   // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
   
   // Endjob
-  void endJob();
+  void endJob() override;
   
  private:
   

@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
-hiMixedTripletClusters = cms.EDProducer("TrackClusterRemover",
+hiMixedTripletClusters = cms.EDProducer("HITrackClusterRemover",
                                         clusterLessSolution= cms.bool(True),
-                                        oldClusterRemovalInfo = cms.InputTag("hiSecondPixelTripletClusters"),
-                                        trajectories = cms.InputTag("hiSecondPixelTripletGlobalPrimTracks"),
-                                        overrideTrkQuals = cms.InputTag('hiSecondPixelTripletStepSelector','hiSecondPixelTripletStep'),
+                                        oldClusterRemovalInfo = cms.InputTag("hiLowPtTripletStepClusters"),
+                                        trajectories = cms.InputTag("hiLowPtTripletStepTracks"),
+                                        overrideTrkQuals = cms.InputTag('hiLowPtTripletStepSelector','hiLowPtTripletStep'),
                                         TrackQuality = cms.string('highPurity'),
                                         pixelClusters = cms.InputTag("siPixelClusters"),
                                         stripClusters = cms.InputTag("siStripClusters"),
@@ -24,6 +24,7 @@ hiMixedTripletClusters = cms.EDProducer("TrackClusterRemover",
 
 
 # SEEDING LAYERS
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 hiMixedTripletSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
                                              layerList = cms.vstring('FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg'),
                                                                      #'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),
@@ -41,6 +42,7 @@ hiMixedTripletSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     useRingSlector = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
     minRing = cms.int32(1),
     maxRing = cms.int32(1),
     skipClusters = cms.InputTag('hiMixedTripletClusters')
@@ -67,6 +69,7 @@ hiMixedTripletSeedsA.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
 
 
 # SEEDING LAYERS
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 hiMixedTripletSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
                                    layerList = cms.vstring(
     #'BPix1+BPix2+TIB1',
@@ -113,14 +116,11 @@ hiMixedTripletSeeds.seedCollections = cms.VInputTag(
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-hiMixedTripletTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'hiMixedTripletTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+hiMixedTripletTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 0,
     minimumNumberOfHits = 6,
     minPt = 1.0
-    )
     )
 
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
@@ -135,19 +135,18 @@ hiMixedTripletPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMateria
     ptMin = 1.0
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-hiMixedTripletChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+hiMixedTripletChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('hiMixedTripletChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(16.0)
     )
 
 # TRACK BUILDING
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-hiMixedTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = 'hiMixedTripletTrajectoryBuilder',
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+hiMixedTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilterName = 'hiMixedTripletTrajectoryFilter',
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiMixedTripletTrajectoryFilter')),
     propagatorAlong = cms.string('hiMixedTripletPropagator'),
     propagatorOpposite = cms.string('hiMixedTripletPropagatorOpposite'),
     clustersToSkip = cms.InputTag('hiMixedTripletClusters'),
@@ -159,14 +158,14 @@ hiMixedTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBui
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiMixedTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiMixedTripletSeeds'),
-    TrajectoryBuilder = 'hiMixedTripletTrajectoryBuilder',
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiMixedTripletTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
     )
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiMixedTripletGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('iter4'),
+    AlgorithmName = cms.string('mixedTripletStep'),
     src = 'hiMixedTripletTrackCandidates'
     )
 

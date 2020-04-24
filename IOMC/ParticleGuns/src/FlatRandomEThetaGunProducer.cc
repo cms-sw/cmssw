@@ -31,7 +31,7 @@ FlatRandomEThetaGunProducer::FlatRandomEThetaGunProducer(const edm::ParameterSet
   fMinE = pgun_params.getParameter<double>("MinE");
   fMaxE = pgun_params.getParameter<double>("MaxE"); 
   
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 
 //  edm::LogInfo("FlatThetaGun") << "Internal FlatRandomEThetaGun is initialzed"
@@ -110,12 +110,12 @@ void FlatRandomEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup&
     fEvt->print() ;  
   }  
 
-  std::auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
+  std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
   BProduct->addHepMCData( fEvt );
-  e.put(BProduct);
+  e.put(std::move(BProduct), "unsmeared");
 
-  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-  e.put(genEventInfo);
+  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+  e.put(std::move(genEventInfo));
 
   if ( fVerbosity > 0 ) {
     LogDebug("FlatThetaGun") << "FlatRandomEThetaGunProducer : Event Generation Done";

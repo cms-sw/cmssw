@@ -242,12 +242,12 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
   reco::Particle::LorentzVector p4Muon;
   reco::Particle::LorentzVector p4JPsi;
 //   std::ostringstream stream3;
-  for ( unsigned int im=0; im<selectedMuonRefs.size(); ++im ) {
-    const reco::RecoChargedCandidate& muon = *selectedMuonRefs[im];
+  for (auto & selectedMuonRef : selectedMuonRefs) {
+    const reco::RecoChargedCandidate& muon = *selectedMuonRef;
     int qMuon = muon.charge();
     p4Muon = muon.p4();
-    for ( unsigned int it=0; it<selectedTrackRefs.size(); ++it ) {
-      const reco::RecoChargedCandidate& track = *selectedTrackRefs[it];
+    for (auto & selectedTrackRef : selectedTrackRefs) {
+      const reco::RecoChargedCandidate& track = *selectedTrackRef;
 //       stream3 << "Combination " << im << " / " << it << " with dz / q / mass = "
 // 	      << muon.track()->dz(beamspot)-track.track()->dz(beamspot) << " "
 // 	      << track.charge()+qMuon << " "
@@ -283,15 +283,15 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 
       if ( checkPrevTracks ) {
 	if ( !pairMatched(prevMuonRefs,prevTrackRefs,
-			  selectedMuonRefs[im],
-			  selectedTrackRefs[it]) ) continue;
+			  selectedMuonRef,
+			  selectedTrackRef) ) continue;
       }
       double mass = (p4Muon+track.p4()).mass();
       for ( unsigned int j=0; j<minMasses_.size(); ++j ) {
 	if ( mass>minMasses_[j] && mass<maxMasses_[j] ) {
 	  ++nComb;
-	  filterproduct.addObject(trigger::TriggerMuon,selectedMuonRefs[im]);
-	  filterproduct.addObject(trigger::TriggerTrack,selectedTrackRefs[it]);
+	  filterproduct.addObject(trigger::TriggerMuon,selectedMuonRef);
+	  filterproduct.addObject(trigger::TriggerTrack,selectedTrackRef);
 // 	  stream3 << "... accepted\n";
 	  break;
 	}

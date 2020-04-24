@@ -1,11 +1,15 @@
 #ifndef SiStripDetVOff_h
 #define SiStripDetVOff_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
 #include<boost/cstdint.hpp>
 #include <string>
+
+class TrackerTopology;
 
 /**
  * This class stores the information if the HV or LV of a detId were off. <br>
@@ -65,8 +69,8 @@ class SiStripDetVOff
 
   bool IsModuleLVOff(const uint32_t DetID) const;
 
-  void printDebug(std::stringstream & ss) const;
-  void printSummary(std::stringstream & ss) const;
+  void printDebug(std::stringstream & ss, const TrackerTopology*) const;
+  void printSummary(std::stringstream & ss, const TrackerTopology*) const;
 
   /// Returns the total number of modules with LV off
   int getLVoffCounts() const;
@@ -79,6 +83,8 @@ class SiStripDetVOff
  private:
 
   std::vector<uint32_t> v_Voff; 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

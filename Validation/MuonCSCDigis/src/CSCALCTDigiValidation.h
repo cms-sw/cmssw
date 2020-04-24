@@ -12,12 +12,11 @@
 class CSCALCTDigiValidation : public CSCBaseValidation
 {
 public:
-  CSCALCTDigiValidation(DQMStore* dbe,
-                        const edm::InputTag & inputTag,
+  CSCALCTDigiValidation(const edm::InputTag & inputTag,
                         edm::ConsumesCollector && iC);
   ~CSCALCTDigiValidation();
+  void bookHistograms(DQMStore::IBooker &);
   void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob() {}
 
 private:
   edm::EDGetTokenT<CSCALCTDigiCollection> alcts_Token_;
@@ -25,8 +24,6 @@ private:
   MonitorElement* theTimeBinPlots[10];
   MonitorElement* theNDigisPerLayerPlots[10];
   MonitorElement* theNDigisPerEventPlot;
-
 };
 
 #endif
-

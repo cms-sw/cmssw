@@ -1,9 +1,11 @@
 #ifndef FWCore_ParameterSet_ProcessDesc_h
 #define FWCore_ParameterSet_ProcessDesc_h
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace edm {
 
@@ -12,7 +14,7 @@ namespace edm {
   class ProcessDesc {
 
   public:
-    explicit ProcessDesc(boost::shared_ptr<ParameterSet> pset);
+    explicit ProcessDesc(std::shared_ptr<ParameterSet> pset);
 
     /// construct from the configuration language string
     explicit ProcessDesc(std::string const& config);
@@ -20,10 +22,12 @@ namespace edm {
     ~ProcessDesc();
 
     /// get the parameter set
-    boost::shared_ptr<ParameterSet> getProcessPSet() const;
+    std::shared_ptr<ParameterSet const> getProcessPSet() const {return get_underlying_safe(pset_);}
+    std::shared_ptr<ParameterSet>& getProcessPSet() {return get_underlying_safe(pset_);}
 
     /// get the descriptions of the services
-    boost::shared_ptr<std::vector<ParameterSet> > getServicesPSets() const;
+    auto const& getServicesPSets() const {return services_;}
+    auto& getServicesPSets() {return services_;}
 
     void addService(ParameterSet& pset);
     /// add a service as an empty pset
@@ -38,8 +42,8 @@ namespace edm {
 
     std::string dump() const;
   private:
-    boost::shared_ptr<ParameterSet> pset_;
-    boost::shared_ptr<std::vector<ParameterSet> > services_;
+    edm::propagate_const<std::shared_ptr<ParameterSet>> pset_;
+    std::vector<ParameterSet> services_;
   };
 }
 

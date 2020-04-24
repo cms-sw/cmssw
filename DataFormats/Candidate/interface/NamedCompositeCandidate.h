@@ -12,7 +12,6 @@
  *
  */
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 #include <string>
 #include <map>
@@ -41,9 +40,9 @@ namespace reco {
 			     const Candidate & p );
  
     /// destructor
-    virtual ~NamedCompositeCandidate();
+    ~NamedCompositeCandidate() override;
     /// returns a clone of the candidate
-    virtual NamedCompositeCandidate * clone() const;
+    NamedCompositeCandidate * clone() const override;
     // get name
     std::string             name() const { return name_; }
     // set name
@@ -53,14 +52,14 @@ namespace reco {
     // set roles
     void                    setRoles( const NamedCompositeCandidate::role_collection & roles ) { roles_.clear(); roles_ = roles; }
     // Get candidate based on role
-    virtual Candidate *       daughter(const std::string& s );
-    virtual const Candidate * daughter(const std::string& s ) const;
+    Candidate *       daughter(const std::string& s ) override;
+    const Candidate * daughter(const std::string& s ) const override;
     // Get candidate based on index
-    virtual Candidate *       daughter( size_type i ) { return CompositeCandidate::daughter(i); }
-    virtual const Candidate * daughter( size_type i ) const  { return CompositeCandidate::daughter(i); }
+    Candidate *       daughter( size_type i ) override { return CompositeCandidate::daughter(i); }
+    const Candidate * daughter( size_type i ) const override  { return CompositeCandidate::daughter(i); }
     // Add daughters
     void                    addDaughter( const Candidate &, const std::string&s );
-    void                    addDaughter( std::auto_ptr<Candidate>, const std::string& s );
+    void                    addDaughter( std::unique_ptr<Candidate>, const std::string& s );
     // Clear daughters and roles
     void                    clearDaughters() { CompositeCandidate::clearDaughters(); }
     void                    clearRoles() { roles_.clear(); }

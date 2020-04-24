@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-### put L1 track trigger configs here
+from L1Trigger.TrackTrigger.TrackTrigger_cff import *
+##from SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff import *
 
-from SLHCUpgradeSimulations.L1TrackTrigger.L1TrackTrigger_cff import *
+#L1TrackTrigger=cms.Sequence(TrackTriggerClustersStubs*TrackTriggerAssociatorClustersStubs*TrackTriggerTTTracks*TrackTriggerAssociatorTracks)
+L1TrackTrigger=cms.Sequence(TrackTriggerClustersStubs)
 
-
+TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = cms.bool(True)

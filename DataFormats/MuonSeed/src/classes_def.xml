@@ -1,5 +1,7 @@
 <lcgdict>
-      <class name="L2MuonTrajectorySeed"  ClassVersion="10">
+      <class name="L2MuonTrajectorySeed"  ClassVersion="12">
+       <version ClassVersion="12" checksum="2773784798"/>
+       <version ClassVersion="11" checksum="541533207"/>
        <version ClassVersion="10" checksum="2502730614"/>
       </class>
       <class name="edm::RefToBase<L2MuonTrajectorySeed>"/>
@@ -18,12 +20,18 @@
       <class name="edm::reftobase::Holder<L2MuonTrajectorySeed,edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
 
       <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<L2MuonTrajectorySeed> >, edm::RefProd<std::vector<L2MuonTrajectorySeed> > >"/>
-      <class name="edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>, unsigned int > >"/>
+      <class name="edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>, unsigned int > >">
+        <field name="transientMap_" transient="true"/>
+      </class>
+
       <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>, unsigned int > > >"/>
       <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >,edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > > >"/>
       <class name="edm::helpers::KeyVal<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >,edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
 
-      <class name="L3MuonTrajectorySeed"  ClassVersion="10">
+
+      <class name="L3MuonTrajectorySeed"  ClassVersion="12">
+       <version ClassVersion="12" checksum="3249417346"/>
+       <version ClassVersion="11" checksum="981061883"/>
        <version ClassVersion="10" checksum="2200485484"/>
       </class>
       <class name="edm::RefToBase<L3MuonTrajectorySeed>"/>

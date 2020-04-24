@@ -23,7 +23,7 @@ namespace reco { class VertexCompositeCandidate; }
 class PFCandCommonVertexFitterBase {
 public:
   typedef reco::Vertex::CovarianceMatrix CovarianceMatrix;
-  PFCandCommonVertexFitterBase(const edm::ParameterSet &) : bField_(0) { }
+  PFCandCommonVertexFitterBase(const edm::ParameterSet &) : bField_(nullptr) { }
   virtual ~PFCandCommonVertexFitterBase() { }
   void set(const MagneticField * bField) { bField_ = bField; }
   void set(reco::VertexCompositeCandidate &) const;
@@ -55,7 +55,7 @@ public:
     fitter_(Fitter(cfg, true)) { 
   }
   bool fit(TransientVertex & vertex, 
-	   const std::vector<reco::TransientTrack> & tracks) const {
+	   const std::vector<reco::TransientTrack> & tracks) const override {
     try {
       vertex = fitter_.vertex(tracks);
     } catch (std::exception & err) {

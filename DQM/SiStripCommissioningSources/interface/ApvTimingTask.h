@@ -11,14 +11,14 @@ class ApvTimingTask : public CommissioningTask {
  public:
   
   ApvTimingTask( DQMStore*, const FedChannelConnection& );
-  virtual ~ApvTimingTask();
+  ~ApvTimingTask() override;
   
  private:
   
-  virtual void book();
-  virtual void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& );
-  virtual void update();
+  void book() override;
+  void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>& ) override;
+  void update() override;
   
   HistoSet timing_;
 

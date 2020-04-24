@@ -6,7 +6,6 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
 // this is generic: to be moved elsewhere
 #include<tuple>
 #include<functional>
@@ -215,7 +214,5 @@ private:
   Constraints constraints;
   
 };
-
-#endif // __GXX_EXPERIMENTAL_CXX0X__
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef PerformancePayloadFromTable_h
 #define PerformancePayloadFromTable_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsPerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 
@@ -23,15 +25,15 @@ class PerformancePayloadFromTable : public PerformancePayload {
       results_(r), binning_(b) {}
 
   PerformancePayloadFromTable(){}
-virtual ~PerformancePayloadFromTable(){}
+~PerformancePayloadFromTable() override{}
 
-  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const ; // gets from the full payload
+  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const override ; // gets from the full payload
 
   virtual bool isParametrizedInVariable(const BinningVariables::BinningVariablesType p)  const {
     return (minPos(p) != PerformancePayloadFromTable::InvalidPos);
   }
   
-  virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const ;
+  bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const override ;
 
 const PhysicsPerformancePayload & payLoad() const {return pl;}
 
@@ -68,6 +70,8 @@ const PhysicsPerformancePayload & payLoad() const {return pl;}
   std::vector<PerformanceResult::ResultType> results_;
   std::vector<BinningVariables::BinningVariablesType> binning_;
   
+
+ COND_SERIALIZABLE;
 };
 
 #endif

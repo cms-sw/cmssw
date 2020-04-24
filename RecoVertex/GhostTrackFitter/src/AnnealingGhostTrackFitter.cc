@@ -9,11 +9,7 @@
 
 using namespace reco;
 
-namespace {
-	static inline double sqr(double arg) { return arg * arg; }
-}
-
-AnnealingGhostTrackFitter::AnnealingGhostTrackFitter()
+AnnealingGhostTrackFitter::AnnealingGhostTrackFitter() : firstStep(true)
 {
 	annealing.reset(new GeometricAnnealing(3.0, 64.0, 0.25));
 }

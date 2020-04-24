@@ -1,0 +1,59 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/MessageLogger"/>
+
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/MuonDetId"/>
+<use   name="DataFormats/RPCDigi"/>
+<use   name="DataFormats/RPCRecHit"/>
+<use   name="DataFormats/GEMDigi"/>
+<use   name="DataFormats/GEMRecHit"/>
+<use   name="DataFormats/TrackCandidate"/>
+<use   name="DataFormats/TrajectorySeed"/>
+
+<use   name="EventFilter/RPCRawToDigi"/>
+
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/GEMGeometry"/>
+<use   name="Geometry/RPCGeometry"/>
+<use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/Records"/>
+
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+
+<use   name="RecoMuon/DetLayers"/>
+<use   name="RecoMuon/TrackingTools"/>
+
+<use   name="SimDataFormats/Track"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="SimDataFormats/Vertex"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/Records"/>
+<use   name="TrackingTools/TransientTrack"/>
+
+<use   name="rootcore"/>
+<use   name="rootgraphics"/>
+<use   name="Root"/>
+
+<use   name="boost"/>
+
+<flags   EDM_PLUGIN="1"/>
+
+<library   file="TestGEMCSCSegmentAnalyzer.cc" name="testGEMCSCSegmentAnalyzer">
+</library>
+
+<export>
+</export>
+
+

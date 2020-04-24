@@ -221,7 +221,7 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
 
 
  //take the collection of recHits in the barrel
- const EBRecHitCollection* barrelHitsCollection = 0;
+ const EBRecHitCollection* barrelHitsCollection = nullptr;
  edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
  iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
  barrelHitsCollection = barrelRecHitsHandle.product () ;
@@ -231,7 +231,7 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
     }
 
  //take the collection of rechis in the endcap
- const EERecHitCollection * endcapHitsCollection = 0 ;
+ const EERecHitCollection * endcapHitsCollection = nullptr ;
  edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
  iEvent.getByLabel (m_endcapAlCa, endcapRecHitsHandle) ;
  endcapHitsCollection = endcapRecHitsHandle.product () ;
@@ -257,7 +257,7 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
      double pTk = 0 ;
      std::map<int , double> xtlMap;
      DetId Max =0;
-     if (fabs(eleIt->eta()<1.49))
+     if (std::abs(eleIt->eta())<1.49)
 	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),barrelHitsCollection).first;
      else 
 	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),endcapHitsCollection).first;

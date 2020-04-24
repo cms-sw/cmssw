@@ -19,13 +19,13 @@ public:
   DTDigiSyncFromTable(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~DTDigiSyncFromTable();
+  ~DTDigiSyncFromTable() override;
 
   /// Delays to be added to digi times during digitization, in ns.
-  double digitizerOffset(const DTWireId * id, const DTLayer* layer=0) const;
+  double digitizerOffset(const DTWireId * id, const DTLayer* layer=nullptr) const override;
 
   /// Offset to obtain "raw" TDCs for the L1 emulator from digis.
-  double emulatorOffset(const DTWireId * id) const;
+  double emulatorOffset(const DTWireId * id) const override;
 
 private:
 };

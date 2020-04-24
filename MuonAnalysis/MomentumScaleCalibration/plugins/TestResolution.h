@@ -5,7 +5,7 @@
 //
 // Package:    TestResolution
 // Class:      TestResolution
-// 
+//
 /**\class TestResolution TestResolution.cc MuonAnalysis/MomentumScaleCalibration/plugins/TestResolution.cc
 
  Description: <one line class summary>
@@ -53,11 +53,11 @@
 class TestResolution : public edm::EDAnalyzer {
 public:
   explicit TestResolution(const edm::ParameterSet&);
-  ~TestResolution();
+  ~TestResolution() override;
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {};
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {};
   template<typename T>
   std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks) {
     std::vector<reco::LeafCandidate> muons;
@@ -72,13 +72,16 @@ private:
       muons.push_back (muon);
     }
     return muons;
-  } 
+  }
 
   // ----------member data ---------------------------
 
   // Collections labels
   // ------------------
   edm::InputTag theMuonLabel_;
+  edm::EDGetTokenT<reco::MuonCollection> glbMuonsToken_;
+  edm::EDGetTokenT<reco::TrackCollection> saMuonsToken_;
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
 
   int theMuonType_;
   std::string theRootFileName_;

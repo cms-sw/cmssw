@@ -4,9 +4,15 @@
 # include "Utilities/StorageFactory/interface/Storage.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
 # include "FWCore/Utilities/interface/Exception.h"
-# include "XrdClient/XrdClient.hh"
+# include "FWCore/Utilities/interface/propagate_const.h"
+# include "XrdCl/XrdClFile.hh"
 # include <string>
-# include <pthread.h>
+# include <memory>
+# include <atomic>
+
+namespace XrdAdaptor {
+class RequestManager;
+}
 
 class XrdFile : public Storage
 {
@@ -15,7 +21,7 @@ public:
   XrdFile (IOFD fd);
   XrdFile (const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
   XrdFile (const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
-  ~XrdFile (void);
+  ~XrdFile (void) override;
 
   virtual void	create (const char *name,
     			bool exclusive = false,
@@ -35,37 +41,36 @@ public:
   using Storage::write;
   using Storage::position;
 
-  virtual bool		prefetch (const IOPosBuffer *what, IOSize n);
-  virtual IOSize	read (void *into, IOSize n);
-  virtual IOSize	read (void *into, IOSize n, IOOffset pos);
-  virtual IOSize	readv (IOBuffer *into, IOSize n);
-  virtual IOSize	readv (IOPosBuffer *into, IOSize n);
-  virtual IOSize	write (const void *from, IOSize n);
-  virtual IOSize	write (const void *from, IOSize n, IOOffset pos);
+  bool		prefetch (const IOPosBuffer *what, IOSize n) override;
+  IOSize	read (void *into, IOSize n) override;
+  IOSize	read (void *into, IOSize n, IOOffset pos) override;
+  IOSize	readv (IOBuffer *into, IOSize n) override;
+  IOSize	readv (IOPosBuffer *into, IOSize n) override;
+  IOSize	write (const void *from, IOSize n) override;
+  IOSize	write (const void *from, IOSize n, IOOffset pos) override;
 
-  virtual IOOffset	position (IOOffset offset, Relative whence = SET);
-  virtual void		resize (IOOffset size);
+  IOOffset	position (IOOffset offset, Relative whence = SET) override;
+  void		resize (IOOffset size) override;
 
-  virtual void		close (void);
+  void		close (void) override;
   virtual void		abort (void);
 
 private:
 
   void                  addConnection(cms::Exception &);
 
-  // "Real" implementation of readv that interacts directly with Xrootd.
-  IOSize                readv_send(char **result_buffer, readahead_list &read_chunk_list, IOSize n, IOSize total_len);
-  IOSize                readv_unpack(char **result_buffer, std::vector<char> &res_buf, IOSize datalen, readahead_list &read_chunk_list, IOSize n);
+  /**
+   * Returns a file handle from one of the active sources.
+   * Verifies the file is open and throws an exception as necessary.
+   */
+  std::shared_ptr<XrdCl::File>   getActiveFile();
 
-
-  XrdClient		*m_client;
-  IOOffset		m_offset;
-  XrdClientStatInfo	m_stat;
-  bool			m_close;
-  std::string		m_name;
-
-  // We could do away with this.. if not for the race condition with LastServerResp in XrdReadv.
-  pthread_mutex_t       m_readv_mutex;
+  edm::propagate_const<std::shared_ptr<XrdAdaptor::RequestManager>> m_requestmanager;
+  IOOffset	 	         m_offset;
+  IOOffset                       m_size;
+  bool			         m_close;
+  std::string		         m_name;
+  std::atomic<unsigned int>      m_op_count;
 
 };
 

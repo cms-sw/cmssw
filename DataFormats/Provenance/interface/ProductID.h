@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
   
-ProductID: A unique identifier for each EDProduct within a process.
+ProductID: A unique identifier for each WrapperBase within a process.
 Used only in Ref, Ptr, and similar classes.
 
 The high order 16 bits is the process index, identifying the process

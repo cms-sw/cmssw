@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <vector>
+
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 
@@ -17,9 +18,11 @@ see also EcalTrigPrimCompactColl.
 class EcalTriggerPrimitiveDigi {
  public:
   typedef EcalTrigTowerDetId key_type; ///< For the sorted collection
+  
 
   EcalTriggerPrimitiveDigi(); // for persistence
   explicit EcalTriggerPrimitiveDigi(const EcalTrigTowerDetId& id);
+  
   
 
   void swap(EcalTriggerPrimitiveDigi& rh) {
@@ -28,6 +31,7 @@ class EcalTriggerPrimitiveDigi {
     std::swap(data_,rh.data_);
   }
   
+  
   const EcalTrigTowerDetId& id() const { return id_; }
   int size() const { return size_; }
     
@@ -35,7 +39,7 @@ class EcalTriggerPrimitiveDigi {
   const EcalTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
     
   void setSize(int size);
-  void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam; }
+  void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam;}
   void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
     
   static const int MAXSAMPLES = 20;
@@ -68,7 +72,6 @@ class EcalTriggerPrimitiveDigi {
   int sampleOfInterest() const;
 
 private:
-  
   EcalTrigTowerDetId id_;
   int size_;
   std::vector<EcalTriggerPrimitiveSample> data_;

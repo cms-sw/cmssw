@@ -20,12 +20,11 @@ cleanPatCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
     )
 )
 
-
-cleanPatCandidates = cms.Sequence(
-    cleanPatMuons     *        # NOW WE MUST USE '*' AS THE ORDER MATTERS
-    cleanPatElectrons *
-    cleanPatPhotons   *
-    cleanPatTaus      *
-    cleanPatJets      *
-    cleanPatCandidateSummary
+cleanPatCandidatesTask = cms.Task(
+    cleanPatMuons,
+    cleanPatElectrons,
+    cleanPatPhotons,
+    cleanPatTaus,
+    cleanPatJets
 )
+cleanPatCandidates = cms.Sequence(cleanPatCandidateSummary, cleanPatCandidatesTask)

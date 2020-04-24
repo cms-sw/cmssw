@@ -596,7 +596,7 @@ BaseParticlePropagator::propagateToHOLayer(bool first) {
   bool done = propagate();
   propDir = 1;
   
-  if ( done && abs(Z()) > 700.25) success = 0;
+  if ( done && std::abs(Z()) > 700.25) success = 0;
   
   return done;
 }

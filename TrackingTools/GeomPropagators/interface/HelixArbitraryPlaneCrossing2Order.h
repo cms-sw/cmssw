@@ -7,7 +7,7 @@
 /** Calculates intersections of a helix with planes of
  *  any orientation using a parabolic approximation. */
 
-class HelixArbitraryPlaneCrossing2Order GCC11_FINAL : public HelixPlaneCrossing {
+class HelixArbitraryPlaneCrossing2Order final : public HelixPlaneCrossing {
 
 
 public:
@@ -31,21 +31,21 @@ public:
     thePropDir(propDir) {}
 
   // destructor
-  virtual ~HelixArbitraryPlaneCrossing2Order() {}
+  ~HelixArbitraryPlaneCrossing2Order() override {}
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the plane. The 
    *  starting point is given in the constructor.
    */
-  virtual std::pair<bool,double> pathLength(const Plane&);
+  std::pair<bool,double> pathLength(const Plane&) override;
 
   /** Position at pathlength s from the starting point.
    */
-  virtual PositionType position(double s) const;
+  PositionType position(double s) const override;
 
   /** Direction at pathlength s from the starting point.
    */
-  virtual DirectionType direction(double s) const;
+  DirectionType direction(double s) const override;
   //
   // double precision vectors
   //

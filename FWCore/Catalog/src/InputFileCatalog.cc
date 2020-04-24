@@ -59,20 +59,20 @@ namespace edm {
         lt->clear();
       } else {
         if (!fileLocator_) {
-          fileLocator_.reset(new FileLocator("", false));
+          fileLocator_ = std::make_unique<FileLocator>("", false); // propagate_const<T> has no reset() function
         }
         if (!overrideFileLocator_ && !inputOverride.empty()) {
-          overrideFileLocator_.reset(new FileLocator(inputOverride, false));
+          overrideFileLocator_ = std::make_unique<FileLocator>(inputOverride, false); // propagate_const<T> has no reset() function
         }
         if (!fallbackFileLocator_) {
           try {
-            fallbackFileLocator_.reset(new FileLocator("", true));
+            fallbackFileLocator_ = std::make_unique<FileLocator>("", true); // propagate_const<T> has no reset() function
           } catch (cms::Exception const& e) {
             // No valid fallback locator is OK too.
           }
         }
         if (!overrideFallbackFileLocator_ && !inputOverrideFallback.empty()) {
-          overrideFallbackFileLocator_.reset(new FileLocator(inputOverrideFallback, true));
+          overrideFallbackFileLocator_ = std::make_unique<FileLocator>(inputOverrideFallback, true); // propagate_const<T> has no reset() function
         }
         boost::trim(*lt);
         findFile(*it, *ft, *lt, useLFNasPFNifLFNnotFound);

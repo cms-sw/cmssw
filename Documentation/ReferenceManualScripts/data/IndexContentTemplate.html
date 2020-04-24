@@ -1,0 +1,83 @@
+<div class="content">
+<script>
+function changeState(item) {
+    item.slideToggle("slow");
+}
+
+$( document ).ready(function() {
+    $(".doxyTable > tbody > tr").each(function(){
+        var row = $(this);
+        // skip first row (header), you dont need to assing it accordion
+        // trigger function. it is also the same for rows which doesn't have
+        // id attribute. if a row doesn't have id attr, that means it is
+        // accordion row
+        if(row.attr('id') == 'header' || !row.attr('id')) return;
+
+        // if it has id attribute, assign trigger function
+        row.click(function(){
+            $('div#'+row.attr('id')).slideToggle(256);
+            // we dont want to load whole iframes before they are showed
+            var iframe = $('div#'+row.attr('id')).find('iframe');
+            // no need to set the source again again if already set
+            if(iframe.attr('src')) return;
+
+            iframe.attr('src', iframe.attr('data-src'));
+        });
+    });
+});
+</script>
+
+<h1>CMSSW Documentation</h1>
+<h2 id="version"></h2>
+
+<table class="doxyTable" cellpadding="0" cellspacing="0">
+  <tr class="top" valign="top" id="header">
+    <th class="domain">Domain</th>
+    <th class="contact">Contact</th>
+  </tr>
+</table>
+
+<br>
+
+<p style="margin:2px 10px;">
+Learn <a onClick='$("#howToBuildRefMan").slideToggle(100);' style="cursor:pointer;">how to build Reference Manual</a>
+</p>
+<div id="howToBuildRefMan" style="display:none;text-align:left; border: 1px solid #999; margin:2px 10px;padding:10px">
+    This is the CMSSW Reference Manual, the reference documentation of all classes and packages in CMSSW.<p>
+    This page explains how to write the documentation for your code.
+
+    </p><h2 style="text-align:left">Class Documentation</h2>
+
+    Classes and methods are documented with properly formatted <a target="_blank" class="el" href="d3/d88/namespacecomments.html">comments</a> in the code.<p>
+    Here is a template of a documented <a target="_blank" href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/CodingRules/Template.h?rev=HEAD&amp;cvsroot=CMSSW&amp;content-type=text/vnd.viewcvs-markup">.h file</a>, and of a <a target="_blank" href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/CodingRules/Template.cc?rev=HEAD&amp;cvsroot=CMSSW&amp;content-type=text/vnd.viewcvs-markup">.cc file</a>. The resulting doxygen page is <a target="_blank" class="el" href="d6/d3e/classTemplate.html">here</a>.
+
+    </p><h2 style="text-align:left">Package Documentation</h2>
+
+    Each package should contain a very brief description of its content and purpose. Remember that this is a reference, and not a user's guide: tutorials, howtos, etc. are best documented in the <a target="_blank" href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide">CMS Offline Guide</a> and in the <a target="_blank" href="https://twiki.cern.ch/twiki/bin/view/CMS/WorkBook">WorkBook</a>. Cross links between the CMS Offline Guide and the WorkBook and this manual are a good way to avoid duplication of content.<p>
+    This documentation should be written in a file [Package]/doc/[Package].doc. The simplest way of doing this is to go to the doc/ directory in your package and then run the script  
+    <a target="_blank" href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/*checkout*/CMSSW/Documentation/ReferenceManualScripts/scripts/makePackageDoc?rev=HEAD&amp;cvsroot=CMSSW">makePackageDoc</a>,
+     which is available in your PATH.
+
+    </p><h2 style="text-align:left"> How to generate your documentation locally </h2>
+    One you have updated your documentation, you can look at how it displays in the following way:
+
+     <ul>
+       <li>check out the following packages:  
+    <pre> &gt; cmsrel CMSSW_7_X_X
+     &gt; cd CMSSW_7_X_X/
+     &gt; cmsenv
+     &gt; git cms-addpkg Documentation
+
+     &gt; generate_reference_manual
+
+     wait...
+
+     &gt; firefox doc/html/index.html </pre>
+      </li>
+    </ul>
+</div>
+<p style="margin-left:10px;">
+Learn more about <a target="_blank" href="http://www.stack.nl/~dimitri/doxygen/commands.html">special doxygen commands</a>
+</p>
+
+</div>

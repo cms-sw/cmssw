@@ -70,26 +70,26 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 
 #############   Calo Jets  ###########################
 process.calo = cms.EDAnalyzer("CaloJetPlotsExample",
-    JetAlgorithm  = cms.string('ak5CaloJets'),
+    JetAlgorithm  = cms.string('ak4CaloJets'),
     HistoFileName = cms.string('CaloJetPlotsExample.root'),
     NJets         = cms.int32(NJetsToKeep)
 )
 #############   PF Jets    ###########################
 process.pf = cms.EDAnalyzer("PFJetPlotsExample",
-    JetAlgorithm  = cms.string('ak5PFJets'),
+    JetAlgorithm  = cms.string('ak4PFJets'),
     HistoFileName = cms.string('PFJetPlotsExample.root'),
     NJets         = cms.int32(NJetsToKeep)
 )
 #############   JPT Jets    ###########################
 process.jpt = cms.EDAnalyzer("JPTJetPlotsExample",
-    JetAlgorithm  = cms.string('JetPlusTrackZSPCorJetAntiKt5'),
+    JetAlgorithm  = cms.string('JetPlusTrackZSPCorJetAntiKt4'),
     HistoFileName = cms.string('JPTJetPlotsExample.root'),
     NJets         = cms.int32(NJetsToKeep)
 )
 #############   Gen Jets   ###########################
 if isMC:
     process.gen = cms.EDAnalyzer("GenJetPlotsExample",
-        JetAlgorithm  = cms.string('ak5GenJets'),
+        JetAlgorithm  = cms.string('ak4GenJets'),
         HistoFileName = cms.string('GenJetPlotsExample.root'),
         NJets         = cms.int32(NJetsToKeep)
     )

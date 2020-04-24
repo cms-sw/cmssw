@@ -21,8 +21,6 @@
 //         Created:  Tue Jan 12 15:31:00 CDT 2010
 //
 
-#if !defined(__CINT__) && !defined(__MAKECINT__)
-
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -57,7 +55,6 @@ namespace edm {
 
   };
 
-#if !defined(__REFLEX__)
    template<typename T>
    bool
    RunBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
@@ -69,8 +66,6 @@ namespace edm {
       }
       return true;
    }
-#endif
 
 }
-#endif /*!defined(__CINT__) && !defined(__MAKECINT__)*/
 #endif

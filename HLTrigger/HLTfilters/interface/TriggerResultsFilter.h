@@ -19,7 +19,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
@@ -36,10 +36,11 @@ namespace triggerExpression {
 // class declaration
 //
 
-class TriggerResultsFilter : public edm::EDFilter {
+class TriggerResultsFilter : public edm::stream::EDFilter<>
+{
 public:
   explicit TriggerResultsFilter(const edm::ParameterSet &);
-  ~TriggerResultsFilter();
+  ~TriggerResultsFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   bool filter(edm::Event &, const edm::EventSetup &) override;
 

@@ -33,16 +33,16 @@ class ODDCUCycle :  public IODConfig  {
   // User data 
   int m_ID;
   int  m_dcu_config_id;
-  void writeDB() throw(std::runtime_error);
-  void prepareWrite()  throw(std::runtime_error);
+  void writeDB() noexcept(false);
+  void prepareWrite() noexcept(false);
   void clear();
-  void fetchData(ODDCUCycle * result)     throw(std::runtime_error);
-  void insertConfig() throw(std::runtime_error);
+  void fetchData(ODDCUCycle * result) noexcept(false);
+  void insertConfig() noexcept(false);
 
 
   // Methods from IUniqueDBObject
-  int fetchID() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false);
+  void setByID(int id) noexcept(false);
 
 
 };

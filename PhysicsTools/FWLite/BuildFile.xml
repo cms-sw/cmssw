@@ -1,6 +1,5 @@
 <use   name="boost"/>
 <use   name="rootcore"/>
-<use   name="rootcintex"/>
 <use   name="roothistmatrix"/>
 <use   name="CommonTools/Utils"/>
 <use   name="DataFormats/FWLite"/>

@@ -1,0 +1,75 @@
+#include "TH2F.h"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TLine.h"
+#include "TLatex.h"
+
+#include <memory>
+
+class EcalDrawMaps {
+public:
+  void DrawEB(TH2F* ebmap, float min, float max) {
+    ebmap->SetXTitle("i#phi");
+    ebmap->SetYTitle("i#eta");
+    ebmap->GetXaxis()->SetNdivisions(-418,kFALSE);
+    ebmap->GetYaxis()->SetNdivisions(-1702,kFALSE);
+    ebmap->GetXaxis()->SetLabelSize(0.03);
+    ebmap->GetYaxis()->SetLabelSize(0.03);
+    ebmap->GetXaxis()->SetTickLength(0.01);
+    ebmap->GetYaxis()->SetTickLength(0.01);
+    ebmap->SetMaximum(max);
+    ebmap->SetMinimum(min);
+    ebmap->Draw("colz");
+    TLine* l = new TLine;
+    l->SetLineWidth(1);
+    for(int i = 0; i <17; i++) {
+      Double_t x = 20.+ (i *20);
+      l = new TLine(x, -85., x, 85.);
+      l->Draw();
+    }
+    l = new TLine(0., 85., 360., 85.);
+    l->Draw();
+    l = new TLine(0., 0., 360., 0.);
+    l->Draw();
+  }   //   DrawEB method
+
+  void DrawEE(TH2F* endc, float min, float max) {
+    int ixSectorsEE[202] = {
+      62, 62, 61, 61, 60, 60, 59, 59, 58, 58, 56, 56, 46, 46, 44, 44, 43, 43, 42, 42, 
+      41, 41, 40, 40, 41, 41, 42, 42, 43, 43, 44, 44, 46, 46, 56, 56, 58, 58, 59, 59, 
+      60, 60, 61, 61, 62, 62,  0,101,101, 98, 98, 96, 96, 93, 93, 88, 88, 86, 86, 81, 
+      81, 76, 76, 66, 66, 61, 61, 41, 41, 36, 36, 26, 26, 21, 21, 16, 16, 14, 14,  9,
+       9,  6,  6,  4,  4,  1,  1,  4,  4,  6,  6,  9,  9, 14, 14, 16, 16, 21, 21, 26, 
+      26, 36, 36, 41, 41, 61, 61, 66, 66, 76, 76, 81, 81, 86, 86, 88, 88, 93, 93, 96, 
+      96, 98, 98,101,101,  0, 62, 66, 66, 71, 71, 81, 81, 91, 91, 93,  0, 62, 66, 66, 
+      91, 91, 98,  0, 58, 61, 61, 66, 66, 71, 71, 76, 76, 81, 81,  0, 51, 51,  0, 44, 
+      41, 41, 36, 36, 31, 31, 26, 26, 21, 21,  0, 40, 36, 36, 11, 11,  4,  0, 40, 36, 
+      36, 31, 31, 21, 21, 11, 11,  9,  0, 46, 46, 41, 41, 36, 36,  0, 56, 56, 61, 61, 66, 66};
+
+    int iySectorsEE[202] = {
+      51, 56, 56, 58, 58, 59, 59, 60, 60, 61, 61, 62, 62, 61, 61, 60, 60, 59, 59, 58, 
+      58, 56, 56, 46, 46, 44, 44, 43, 43, 42, 42, 41, 41, 40, 40, 41, 41, 42, 42, 43, 
+      43, 44, 44, 46, 46, 51,  0, 51, 61, 61, 66, 66, 76, 76, 81, 81, 86, 86, 88, 88, 
+      93, 93, 96, 96, 98, 98,101,101, 98, 98, 96, 96, 93, 93, 88, 88, 86, 86, 81, 81, 
+      76, 76, 66, 66, 61, 61, 41, 41, 36, 36, 26, 26, 21, 21, 16, 16, 14, 14,  9,  9, 
+       6,  6,  4,  4,  1,  1,  4,  4,  6,  6,  9,  9, 14, 14, 16, 16, 21, 21, 26, 26, 
+      36, 36, 41, 41, 51,  0, 46, 46, 41, 41, 36, 36, 31, 31, 26, 26,  0, 51, 51, 56, 
+      56, 61, 61,  0, 61, 61, 66, 66, 71, 71, 76, 76, 86, 86, 88,  0, 62,101,  0, 61, 
+      61, 66, 66, 71, 71, 76, 76, 86, 86, 88,  0, 51, 51, 56, 56, 61, 61,  0, 46, 46, 
+      41, 41, 36, 36, 31, 31, 26, 26,  0, 40, 31, 31, 16, 16,  6,  0, 40, 31, 31, 16, 16,  6};
+
+    TLine* l = new TLine;
+    l->SetLineWidth(1);
+
+    endc->SetMaximum(max);
+    endc->SetMinimum(min);
+    endc->Draw("colz1");
+    for ( int i=0; i<201; i=i+1) {
+      if ( (ixSectorsEE[i]!=0 || iySectorsEE[i]!=0) && 
+	   (ixSectorsEE[i+1]!=0 || iySectorsEE[i+1]!=0) ) {
+	l->DrawLine(ixSectorsEE[i], iySectorsEE[i], 
+		    ixSectorsEE[i+1], iySectorsEE[i+1]);
+      }
+    }
+  }   //   DrawEE method
+};    // class EcalDrawMaps

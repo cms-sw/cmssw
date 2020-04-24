@@ -14,7 +14,7 @@ DQM class to compute the tracking efficiency
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -22,15 +22,16 @@ DQM class to compute the tracking efficiency
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 //#include <map>
 
-class DQMStore;
-
-class TrackEfficiencyClient: public edm::EDAnalyzer {
+class TrackEfficiencyClient: public DQMEDHarvester
+{
 
  public:
 
@@ -38,32 +39,24 @@ class TrackEfficiencyClient: public edm::EDAnalyzer {
   TrackEfficiencyClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~TrackEfficiencyClient();
+  ~TrackEfficiencyClient() override;
 
  protected:
 
   /// BeginJob
-  void beginJob(void);
+  void beginJob(void) override;
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
-  /// Analyze                                                                                                                                               
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  /// EndJob
+  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) override;
 
-  /// Endjob
-  void endJob();
-  
-  /// EndRun
-  void endRun();
- 
-  /// End Luminosity Block
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
-
- 
  private:
 
-  DQMStore* dqmStore_;
+  /// book MEs
+  void bookMEs(DQMStore::IBooker & ibooker_);
+
   edm::ParameterSet conf_;
   
   bool trackEfficiency_; //1 if one wants to measure the tracking efficiency

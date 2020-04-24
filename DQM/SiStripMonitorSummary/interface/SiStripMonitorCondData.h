@@ -36,6 +36,7 @@ class SiStripThresholdDQM;
 class SiStripQualityDQM;
 class SiStripApvGainsDQM;
 class SiStripLorentzAngleDQM;
+class SiStripBackPlaneCorrectionDQM;
 class SiStripCablingDQM;
 
 class SiStripMonitorCondData : public edm::EDAnalyzer {
@@ -44,13 +45,13 @@ class SiStripMonitorCondData : public edm::EDAnalyzer {
  
    explicit SiStripMonitorCondData(const edm::ParameterSet&);
  
-   ~SiStripMonitorCondData();
+   ~SiStripMonitorCondData() override;
    
-   virtual void beginJob() ;  
-   virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-   virtual void endJob() ;
+   void beginJob() override ;  
+   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+   void analyze(const edm::Event&, const edm::EventSetup&) override;
+   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+   void endJob() override ;
   
   
  private:  
@@ -64,6 +65,7 @@ class SiStripMonitorCondData : public edm::EDAnalyzer {
    bool monitorQuality_     ;
    bool monitorApvGains_    ;
    bool monitorLorentzAngle_;
+   bool monitorBackPlaneCorrection_;
    bool monitorCabling_;
      
    std::string outPutFileName;
@@ -75,6 +77,7 @@ class SiStripMonitorCondData : public edm::EDAnalyzer {
    SiStripQualityDQM*               qualityDQM_; 
    SiStripApvGainsDQM*             apvgainsDQM_;  
    SiStripLorentzAngleDQM*     lorentzangleDQM_; 
+   SiStripBackPlaneCorrectionDQM*     bpcorrectionDQM_; 
    SiStripCablingDQM*               cablingDQM_;  
   
 };

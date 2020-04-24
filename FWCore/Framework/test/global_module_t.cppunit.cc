@@ -18,9 +18,11 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 
@@ -65,8 +67,6 @@ public:
   void endRunSummaryProdTest();
   void endLumiSummaryProdTest();
 
-private:
-
   enum class Trans {
     kBeginJob,
     kBeginStream,
@@ -83,23 +83,27 @@ private:
     kEndStream,
     kEndJob
   };
+  typedef std::vector<Trans> Expectations;
+
+private:
+
   
   std::map<Trans,std::function<void(edm::Worker*)>> m_transToFunc;
-  typedef std::vector<Trans> Expectations;
   
   edm::ProcessConfiguration m_procConfig;
-  boost::shared_ptr<edm::ProductRegistry> m_prodReg;
-  boost::shared_ptr<edm::BranchIDListHelper> m_idHelper;
+  std::shared_ptr<edm::ProductRegistry> m_prodReg;
+  std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
+  std::shared_ptr<edm::ThinnedAssociationsHelper> m_associationsHelper;
   std::unique_ptr<edm::EventPrincipal> m_ep;
   edm::HistoryAppender historyAppender_;
-  boost::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
-  boost::shared_ptr<edm::RunPrincipal> m_rp;
+  std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
+  std::shared_ptr<edm::RunPrincipal> m_rp;
+  std::shared_ptr<edm::ActivityRegistry> m_actReg; // We do not use propagate_const because the registry itself is mutable.
   edm::EventSetup* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
-  edm::CPUTimer* m_timer = nullptr;
   
   template<typename T>
-  void testTransitions(T* iMod, Expectations const& iExpect);
+  void testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect);
   
   class BasicProd : public edm::global::EDProducer<> {
   public:
@@ -341,28 +345,31 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testGlobalModule);
 testGlobalModule::testGlobalModule():
 m_prodReg(new edm::ProductRegistry{}),
 m_idHelper(new edm::BranchIDListHelper{}),
+m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
 m_ep()
 {
   //Setup the principals
   m_prodReg->setFrozen();
   m_idHelper->updateFromRegistry(*m_prodReg);
-  edm::EventID eventID;
+  edm::EventID eventID = edm::EventID::firstValidEvent();
   
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
-  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(eventID.run(), now, now));
+  auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
   m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_,0));
-  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(m_rp->run(), 1, now, now));
+  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
   m_lbp.reset(new edm::LuminosityBlockPrincipal(lumiAux, m_prodReg, m_procConfig, &historyAppender_,0));
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
   m_ep.reset(new edm::EventPrincipal(m_prodReg,
                                      m_idHelper,
+                                     m_associationsHelper,
                                      m_procConfig,nullptr));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
   m_ep->setLuminosityBlockPrincipal(m_lbp);
+  m_actReg.reset(new edm::ActivityRegistry);
 
 
   //For each transition, bind a lambda which will call the proper method of the Worker
@@ -374,43 +381,45 @@ m_ep()
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, nullParentContext, nullptr); };
   m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, nullParentContext, nullptr); };
   
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, nullParentContext, nullptr); };
   m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, nullParentContext, nullptr); };
   
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
-    edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_ep,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext nullParentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
+    iBase->doWork<Traits>(*m_ep,*m_es, s_streamID0, nullParentContext, nullptr); };
 
   m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, nullParentContext, nullptr); };
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, nullParentContext, nullptr); };
 
   m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, nullParentContext, nullptr); };
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, nullParentContext, nullptr); };
 
   m_transToFunc[Trans::kEndStream] = [this](edm::Worker* iBase) {
     edm::StreamContext streamContext(s_streamID0, nullptr);
@@ -422,7 +431,7 @@ m_ep()
 namespace {
   template<typename T>
   void
-  testTransition(T* iMod, edm::Worker* iWorker, testGlobalModule::Trans iTrans, testGlobalModule::Expectations const& iExpect, std::function<void(edm::Worker*)> iFunc) {
+  testTransition(std::shared_ptr<T> iMod, edm::Worker* iWorker, testGlobalModule::Trans iTrans, testGlobalModule::Expectations const& iExpect, std::function<void(edm::Worker*)> iFunc) {
     assert(0==iMod->m_count);
     iFunc(iWorker);
     auto count = std::count(iExpect.begin(),iExpect.end(),iTrans);
@@ -437,7 +446,7 @@ namespace {
 
 template<typename T>
 void
-testGlobalModule::testTransitions(T* iMod, Expectations const& iExpect) {
+testGlobalModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   edm::WorkerT<edm::global::EDProducerBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,keyVal.first,iExpect,keyVal.second);
@@ -447,101 +456,100 @@ testGlobalModule::testTransitions(T* iMod, Expectations const& iExpect) {
 
 void testGlobalModule::basicTest()
 {
-  std::unique_ptr<BasicProd> testProd{ new BasicProd };
+  auto testProd = std::make_shared<BasicProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kEvent});
+  testTransitions(testProd, {Trans::kEvent});
 }
 
 void testGlobalModule::streamTest()
 {
-  std::unique_ptr<StreamProd> testProd{ new StreamProd };
-  edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(testProd.get(),nullptr);
+  auto testProd = std::make_shared<StreamProd>();
+  edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(testProd,nullptr);
   h.preallocate(edm::PreallocationConfiguration{});
-  h.release();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kBeginStream, Trans::kStreamBeginRun, Trans::kStreamBeginLuminosityBlock, Trans::kEvent,
+  testTransitions(testProd, {Trans::kBeginStream, Trans::kStreamBeginRun, Trans::kStreamBeginLuminosityBlock, Trans::kEvent,
     Trans::kStreamEndLuminosityBlock,Trans::kStreamEndRun,Trans::kEndStream});
 }
 
 void testGlobalModule::runTest()
 {
-  std::unique_ptr<RunProd> testProd{ new RunProd };
+  auto testProd = std::make_shared<RunProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun});
 }
 
 void testGlobalModule::runSummaryTest()
 {
-  std::unique_ptr<RunSummaryProd> testProd{ new RunSummaryProd };
+  auto testProd = std::make_shared<RunSummaryProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kStreamEndRun, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
 void testGlobalModule::lumiTest()
 {
-  std::unique_ptr<LumiProd> testProd{ new LumiProd };
+  auto testProd = std::make_shared<LumiProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
+  testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
 }
 
 void testGlobalModule::lumiSummaryTest()
 {
-  std::unique_ptr<LumiSummaryProd> testProd{ new LumiSummaryProd };
+  auto testProd = std::make_shared<LumiSummaryProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock});
+  testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock});
 }
 
 void testGlobalModule::beginRunProdTest()
 {
-  std::unique_ptr<BeginRunProd> testProd{ new BeginRunProd };
+  auto testProd = std::make_shared<BeginRunProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginRun, Trans::kEvent});
+  testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent});
 }
 
 void testGlobalModule::beginLumiProdTest()
 {
-  std::unique_ptr<BeginLumiProd> testProd{ new BeginLumiProd };
+  auto testProd = std::make_shared<BeginLumiProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent});
+  testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent});
 }
 
 void testGlobalModule::endRunProdTest()
 {
-  std::unique_ptr<EndRunProd> testProd{ new EndRunProd };
+  auto testProd = std::make_shared<EndRunProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalEndRun, Trans::kEvent});
+  testTransitions(testProd, {Trans::kGlobalEndRun, Trans::kEvent});
 }
 
 void testGlobalModule::endLumiProdTest()
 {
-  std::unique_ptr<EndLumiProd> testProd{ new EndLumiProd };
+  auto testProd = std::make_shared<EndLumiProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalEndLuminosityBlock, Trans::kEvent});
+  testTransitions(testProd, {Trans::kGlobalEndLuminosityBlock, Trans::kEvent});
 }
 
 void testGlobalModule::endRunSummaryProdTest()
 {
-  std::unique_ptr<EndRunSummaryProd> testProd{ new EndRunSummaryProd };
+  auto testProd = std::make_shared<EndRunSummaryProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalEndRun, Trans::kEvent, Trans::kGlobalBeginRun, Trans::kStreamEndRun, Trans::kGlobalEndRun});
+  testTransitions(testProd, {Trans::kGlobalEndRun, Trans::kEvent, Trans::kGlobalBeginRun, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
 void testGlobalModule::endLumiSummaryProdTest()
 {
-  std::unique_ptr<EndLumiSummaryProd> testProd{ new EndLumiSummaryProd };
+  auto testProd = std::make_shared<EndLumiSummaryProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
-  testTransitions(testProd.get(), {Trans::kGlobalEndLuminosityBlock, Trans::kEvent, Trans::kGlobalBeginLuminosityBlock, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock}); 
+  testTransitions(testProd, {Trans::kGlobalEndLuminosityBlock, Trans::kEvent, Trans::kGlobalBeginLuminosityBlock, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock}); 
 }
 

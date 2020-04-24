@@ -237,7 +237,7 @@
         <rMaterial name="trackermaterial:T_Aluminium" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="Pix_Fwd_Servi_Cylind" density="0.261469*g/cm3" method="mixture by weight"  symbol=" ">
+    <CompositeMaterial name="Pix_Fwd_Servi_Cylind" density="0.20113*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.96427">
         <rMaterial name="pixfwdMaterials:FPix_Cylind_CF" />
       </MaterialFraction>
@@ -305,7 +305,7 @@
         <rMaterial name="pixfwdMaterials:FPix_Cylind_Polyester" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="Pix_Fwd_End_Coil_Fiber" density="0.259779*g/cm3" method="mixture by weight"  symbol=" ">
+    <CompositeMaterial name="Pix_Fwd_End_Coil_Fiber" density="0.19983*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.55642">
         <rMaterial name="pixfwdMaterials:FPix_Cylind_Polyester" />
       </MaterialFraction>
@@ -350,7 +350,7 @@
         <rMaterial name="pixfwdMaterials:FPix_Cylind_POLIAX" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="Pix_Fwd_Port_Cards" density="1.59614*g/cm3" method="mixture by weight"  symbol=" ">
+    <CompositeMaterial name="Pix_Fwd_Port_Cards" density="1.2278*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.54216">
         <rMaterial name="pixfwdMaterials:FPix_Cylind_G10" />
       </MaterialFraction>

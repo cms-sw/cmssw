@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,17 +18,17 @@
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
-namespace edm 
+namespace edm
 {
   class ParameterSet;
 }
 
 class JetCorrector;
 
-namespace cms 
+namespace cms
 {
   template<class T>
-  class JetCorrectionProducer : public edm::EDProducer
+  class JetCorrectionProducer : public edm::stream::EDProducer<>
   {
   public:
     typedef std::vector<T> JetCollection;
@@ -36,7 +36,7 @@ namespace cms
     virtual ~JetCorrectionProducer () {}
     virtual void produce(edm::Event&, const edm::EventSetup&);
   private:
-    edm::InputTag mInput;
+    edm::EDGetTokenT<JetCollection> mInput;
     std::vector <std::string> mCorrectorNames;
     // cache
     std::vector <const JetCorrector*> mCorrectors;
@@ -48,31 +48,31 @@ namespace cms
 // ---------- implementation ----------
 
 namespace cms {
-  
+
   template<class T>
   JetCorrectionProducer<T>::JetCorrectionProducer(const edm::ParameterSet& fConfig)
-    : mInput(fConfig.getParameter <edm::InputTag> ("src"))
+    : mInput(consumes<JetCollection>(fConfig.getParameter <edm::InputTag> ("src")))
     , mCorrectorNames(fConfig.getParameter<std::vector<std::string> >("correctors"))
     , mCorrectors(mCorrectorNames.size(), 0)
     , mCacheId (0)
-    , mVerbose (fConfig.getUntrackedParameter <bool> ("verbose", false)) 
+    , mVerbose (fConfig.getUntrackedParameter <bool> ("verbose", false))
   {
     std::string alias = fConfig.getUntrackedParameter <std::string> ("alias", "");
     if (alias.empty ())
       produces <JetCollection>();
-    else 
+    else
       produces <JetCollection>().setBranchAlias(alias);
   }
-  
+
   template<class T>
   void JetCorrectionProducer<T>::produce(edm::Event& fEvent,
-					 const edm::EventSetup& fSetup) 
+					 const edm::EventSetup& fSetup)
   {
     // look for correctors
     const JetCorrectionsRecord& record = fSetup.get <JetCorrectionsRecord> ();
-    if (record.cacheIdentifier() != mCacheId) 
+    if (record.cacheIdentifier() != mCacheId)
       { // need to renew cache
-	for (unsigned i = 0; i < mCorrectorNames.size(); i++) 
+	for (unsigned i = 0; i < mCorrectorNames.size(); i++)
 	  {
 	    edm::ESHandle <JetCorrector> handle;
 	    record.get (mCorrectorNames [i], handle);
@@ -81,10 +81,10 @@ namespace cms {
 	mCacheId = record.cacheIdentifier();
       }
     edm::Handle<JetCollection> jets;                         //Define Inputs
-    fEvent.getByLabel (mInput, jets);                        //Get Inputs
-    std::auto_ptr<JetCollection> result (new JetCollection); //Corrected jets
+    fEvent.getByToken (mInput, jets);                        //Get Inputs
+    std::unique_ptr<JetCollection> result (new JetCollection); //Corrected jets
     typename JetCollection::const_iterator jet;
-    for (jet = jets->begin(); jet != jets->end(); jet++) 
+    for (jet = jets->begin(); jet != jets->end(); jet++)
       {
 	const T* referenceJet = &*jet;
 	int index = jet-jets->begin();
@@ -92,12 +92,12 @@ namespace cms {
 	T correctedJet = *jet; //copy original jet
 	if (mVerbose)
 	  std::cout<<"JetCorrectionProducer::produce-> original jet: "
-		   <<jet->print()<<std::endl; 
-	for (unsigned i = 0; i < mCorrectors.size(); ++i) 
+		   <<jet->print()<<std::endl;
+	for (unsigned i = 0; i < mCorrectors.size(); ++i)
 	  {
 	    if ( !(mCorrectors[i]->vectorialCorrection()) ) {
 	      // Scalar correction
-              double scale = 1.; 
+              double scale = 1.;
               if (!(mCorrectors[i]->refRequired()))
 	        scale = mCorrectors[i]->correction (*referenceJet,fEvent,fSetup);
               else
@@ -121,16 +121,16 @@ namespace cms {
 	  }
 	if (mVerbose)
 	  std::cout<<"JetCorrectionProducer::produce-> corrected jet: "
-		   <<correctedJet.print ()<<std::endl; 
+		   <<correctedJet.print ()<<std::endl;
 	result->push_back (correctedJet);
       }
     NumericSafeGreaterByPt<T> compJets;
     // reorder corrected jets
     std::sort (result->begin (), result->end (), compJets);
     // put corrected jet collection into event
-    fEvent.put(result);
+    fEvent.put(std::move(result));
   }
-  
+
 }
 
 #endif

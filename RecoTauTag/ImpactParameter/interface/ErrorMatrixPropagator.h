@@ -6,6 +6,7 @@
  * author: Ian M. Nugent
  * Humboldt Foundations
  */
+#include <functional>
 
 #include "TMatrixT.h"
 #include "TMatrixTSym.h"
@@ -17,7 +18,7 @@ class  ErrorMatrixPropagator {
  public:
   ErrorMatrixPropagator(){};
   virtual ~ErrorMatrixPropagator(){};
-  static TMatrixTSym<double> propagateError(TVectorT<double> (*f)(const TVectorT<double> &par), const TVectorT<double>& inPar, TMatrixTSym<double>& inCov, double epsilon=0.001, double errorEpsilonRatio=1000);
+  static TMatrixTSym<double> propagateError(std::function<TVectorT<double>(const TVectorT<double>&)> f, const TVectorT<double>& inPar, TMatrixTSym<double>& inCov, double epsilon=0.001, double errorEpsilonRatio=1000);
 };
 
 }

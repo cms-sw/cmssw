@@ -90,10 +90,6 @@ EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventS
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
-  //create the meta hit collections inorder that we can pass them into the isolation objects
-
-  EcalRecHitMetaCollection ecalBarrelHits(*ecalBarrelRecHitHandle);
-  EcalRecHitMetaCollection ecalEndcapHits(*ecalEndcapRecHitHandle);
 
   //Get Calo Geometry
   edm::ESHandle<CaloGeometry> pG;
@@ -101,15 +97,15 @@ EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventS
   const CaloGeometry* caloGeom = pG.product();
 
   //reco::CandViewDoubleAssociations* isoMap = new reco::CandViewDoubleAssociations( reco::CandidateBaseRefProd( emObjectHandle ) );
-  std::auto_ptr<edm::ValueMap<double> > isoMap(new edm::ValueMap<double>());
+  auto isoMap = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler filler(*isoMap);
   std::vector<double> retV(emObjectHandle->size(),0);
 
-  EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,caloGeom,&ecalBarrelHits,sevLevel,DetId::Ecal);
+  EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,caloGeom,*ecalBarrelRecHitHandle,sevLevel,DetId::Ecal);
   ecalBarrelIsol.setUseNumCrystals(useNumCrystals_);
   ecalBarrelIsol.setVetoClustered(vetoClustered_);
 
-  EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,caloGeom,&ecalEndcapHits,sevLevel,DetId::Ecal);
+  EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,caloGeom,*ecalEndcapRecHitHandle,sevLevel,DetId::Ecal);
   ecalEndcapIsol.setUseNumCrystals(useNumCrystals_);
   ecalEndcapIsol.setVetoClustered(vetoClustered_);
   
@@ -153,8 +149,7 @@ EgammaEcalRecHitIsolationProducer::produce(edm::Event& iEvent, const edm::EventS
   filler.insert(emObjectHandle,retV.begin(),retV.end());
   filler.fill();
 
-  //std::auto_ptr<reco::CandViewDoubleAssociations> isolMap(isoMap);
-  iEvent.put(isoMap);
+  iEvent.put(std::move(isoMap));
 
 }
 

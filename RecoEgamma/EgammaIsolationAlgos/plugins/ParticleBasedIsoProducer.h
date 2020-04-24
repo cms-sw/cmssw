@@ -1,13 +1,13 @@
 #ifndef ParticleBasedIsoProducer_h
 #define ParticleBasedIsoProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PfBlockBasedIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/PFBlockBasedIsolation.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -15,16 +15,16 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 
-class ParticleBasedIsoProducer : public edm::EDProducer
+class ParticleBasedIsoProducer : public edm::stream::EDProducer<>
 {
  public:
 
   ParticleBasedIsoProducer(const edm::ParameterSet& conf);
-  ~ParticleBasedIsoProducer();
+  ~ParticleBasedIsoProducer() override;
   
-  virtual void beginRun (edm::Run const& r, edm::EventSetup const & es) override;
-  virtual void endRun(edm::Run const&,  edm::EventSetup const&) override;
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  void beginRun (edm::Run const& r, edm::EventSetup const & es) override;
+  void endRun(edm::Run const&,  edm::EventSetup const&) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
    
  private:
  
@@ -52,7 +52,7 @@ class ParticleBasedIsoProducer : public edm::EDProducer
  std::string valueMapPFCandEle_;
  std::string valueMapElePFCandIso_;
 
- PfBlockBasedIsolation* thePFBlockBasedIsolation_;
+ PFBlockBasedIsolation* thePFBlockBasedIsolation_;
 
 };
 

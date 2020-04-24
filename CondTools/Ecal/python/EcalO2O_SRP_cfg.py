@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-#process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_34X_ECAL'
-#process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
-process.CondDBCommon.connect = 'sqlite_file:EcalSRSettings_v00_beam10.db'
+process.load("CondCore.CondDB.CondDB_cfi")
+#process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_COND_34X_ECAL'
+#process.CondDB.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
+process.CondDB.connect = 'sqlite_file:EcalSRSettings.db'
 
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -21,24 +22,26 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('EcalSRSettingsRcd'),
-            tag = cms.string('EcalSRSettings_beam2010_v01_offline')
+            tag = cms.string('EcalSRSettings_v01_offline')
         )
     )
 )
 
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    process.CondDB,
     logconnect = cms.untracked.string('sqlite_file:DBLog.db'),
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(
         cms.PSet(
             record = cms.string('EcalSRSettingsRcd'),
-            tag = cms.string('EcalSRSettings_beam2010_v01_offline')
+            tag = cms.string('EcalSRSettings_v01_offline')
         )
     )
 )
@@ -50,10 +53,10 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalSRPAnalyzer",
     Source = cms.PSet(
         firstRun = cms.string('160970'),
         lastRun = cms.string('100000000'),
-        OnlineDBUser = cms.string('cms_ecal_r'),
         debug = cms.bool(True),
-        OnlineDBPassword = cms.string('xxxxx'),
-        OnlineDBSID = cms.string('cms_orcon_prod'),
+     OnlineDBSID = cms.string(db_service),
+     OnlineDBUser = cms.string(db_user),
+     OnlineDBPassword = cms.string( db_pwd ),
         location = cms.string('P5_Co'),
         runtype = cms.string('Physics'), 
         gentag = cms.string('global'),

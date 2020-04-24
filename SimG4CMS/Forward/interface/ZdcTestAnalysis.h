@@ -52,15 +52,13 @@
 #include "TMath.h"
 #include "TF1.h"
 
-
-
-
 class G4Step;
 class BeginOfJob;
 class BeginOfRun;
 class EndOfRun;
 class BeginOfEvent;
 class EndOfEvent;
+class ZdcNumberingScheme;
 
 class ZdcTestAnalysis : public SimWatcher,
 			public Observer<const BeginOfJob *>, 
@@ -72,16 +70,16 @@ class ZdcTestAnalysis : public SimWatcher,
   
 public:
   ZdcTestAnalysis(const edm::ParameterSet &p);
-  virtual ~ZdcTestAnalysis();
+  ~ZdcTestAnalysis() override;
 
 private:
   // observer classes
-  void update(const BeginOfJob * run);
-  void update(const BeginOfRun * run);
-  void update(const EndOfRun * run);
-  void update(const BeginOfEvent * evt);
-  void update(const EndOfEvent * evt);
-  void update(const G4Step * step);
+  void update(const BeginOfJob * run) override;
+  void update(const BeginOfRun * run) override;
+  void update(const EndOfRun * run) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const EndOfEvent * evt) override;
+  void update(const G4Step * step) override;
   
 private:
 
@@ -104,6 +102,8 @@ private:
 
   Float_t zdcsteparray[18];
   Float_t zdceventarray[16];
+
+  ZdcNumberingScheme* theZdcNumScheme;
 
 };
 

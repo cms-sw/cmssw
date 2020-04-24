@@ -28,6 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/typedefs.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 // forward declarations
 class FEDRawDataCollection;
@@ -47,15 +48,15 @@ public:
     explicit L1GTEvmDigiToRaw(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GTEvmDigiToRaw();
+    ~L1GTEvmDigiToRaw() override;
 
 private:
 
     /// beginning of job stuff
-    virtual void beginJob();
+    void beginJob() override;
 
     /// loop over events
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     /// block packers -------------
 
@@ -79,7 +80,7 @@ private:
     void packTrailer(unsigned char*, unsigned char*, int);
 
     /// end of job stuff
-    virtual void endJob();
+    void endJob() override;
 
 private:
 
@@ -88,6 +89,7 @@ private:
     int m_evmGtFedId;
 
     /// input tag for GT EVM record
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_evmGtInputToken;
     edm::InputTag m_evmGtInputTag;
 
     /// mask for active boards

@@ -210,7 +210,7 @@ void EcalTestPulseAnalyzer:: analyze( const edm::Event & e, const  edm::EventSet
 
   // Retrieve DCC header
   edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const  EcalRawDataCollection* DCCHeader=0;
+  const  EcalRawDataCollection* DCCHeader=nullptr;
   try {
     e.getByLabel(eventHeaderProducer_,eventHeaderCollection_, pDCCHeader);
     DCCHeader=pDCCHeader.product();
@@ -221,11 +221,11 @@ void EcalTestPulseAnalyzer:: analyze( const edm::Event & e, const  edm::EventSet
 
   // retrieving crystal EB data from Event
   edm::Handle<EBDigiCollection>  pEBDigi;
-  const  EBDigiCollection* EBDigi=0;
+  const  EBDigiCollection* EBDigi=nullptr;
 
   // retrieving crystal EE data from Event
   edm::Handle<EEDigiCollection>  pEEDigi;
-  const  EEDigiCollection* EEDigi=0;
+  const  EEDigiCollection* EEDigi=nullptr;
 
   if (_ecalPart == "EB") {
     try {
@@ -246,7 +246,7 @@ void EcalTestPulseAnalyzer:: analyze( const edm::Event & e, const  edm::EventSet
 
   // Retrieve crystal PN diodes from Event
   edm::Handle<EcalPnDiodeDigiCollection>  pPNDigi;
-  const  EcalPnDiodeDigiCollection* PNDigi=0;
+  const  EcalPnDiodeDigiCollection* PNDigi=nullptr;
   try {
     e.getByLabel(digiProducer_,digiPNCollection_, pPNDigi);
     PNDigi=pPNDigi.product(); 
@@ -257,7 +257,7 @@ void EcalTestPulseAnalyzer:: analyze( const edm::Event & e, const  edm::EventSet
 
   // retrieving electronics mapping
   edm::ESHandle< EcalElectronicsMapping > ecalmapping;
-  const EcalElectronicsMapping* TheMapping=0; 
+  const EcalElectronicsMapping* TheMapping=nullptr; 
   try{
     c.get< EcalMappingRcd >().get(ecalmapping);
     TheMapping = ecalmapping.product();

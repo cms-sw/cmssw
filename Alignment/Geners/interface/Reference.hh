@@ -17,6 +17,23 @@ namespace gs {
             :  AbsReference(ar, ClassId::makeId<T>(), "gs::Single",
                             name, category) {}
 
+#ifndef SWIG
+        inline Reference(AbsArchive& ar, const std::string& name,
+                         const char* category)
+            :  AbsReference(ar, ClassId::makeId<T>(), "gs::Single",
+                            name.c_str(), category) {}
+
+        inline Reference(AbsArchive& ar, const char* name,
+                         const std::string& category)
+            :  AbsReference(ar, ClassId::makeId<T>(), "gs::Single",
+                            name, category.c_str()) {}
+
+        inline Reference(AbsArchive& ar, const std::string& name,
+                         const std::string& category)
+            :  AbsReference(ar, ClassId::makeId<T>(), "gs::Single",
+                            name.c_str(), category.c_str()) {}
+#endif
+
         inline Reference(AbsArchive& ar, const SearchSpecifier& namePattern,
                          const SearchSpecifier& categoryPattern)
             :  AbsReference(ar, ClassId::makeId<T>(), "gs::Single",

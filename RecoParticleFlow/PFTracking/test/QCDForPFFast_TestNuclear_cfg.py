@@ -16,11 +16,13 @@ process.generator.comEnergy = 14000.
 #fastsim
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("FastSimulation.Configuration.CommonInputs_cff")
-process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 process.RandomNumberGeneratorService.generator.initialSeed=1
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions    - not applied in the HCAL, see below
@@ -31,12 +33,6 @@ process.GlobalTag.globaltag = "MC_3XY_V14::All"
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
-
-# process.famosSimHits.MaterialEffects.PairProduction = False
-# process.famosSimHits.MaterialEffects.Bremsstrahlung = False
-# process.famosSimHits.MaterialEffects.EnergyLoss = False
-# process.famosSimHits.MaterialEffects.MultipleScattering = False
-# process.famosSimHits.MaterialEffects.NuclearInteraction = False
 
 process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 process.load("RecoParticleFlow.PFTracking.particleFlowDisplacedVertexCandidate_cff")

@@ -12,7 +12,6 @@
  *
  */
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include <string>
 #include <vector> 
@@ -37,7 +36,7 @@ namespace reco {
     /// constructor from values
     explicit CompositeCandidate( const Candidate & p, const std::string& name, role_collection const & roles );
     /// destructor
-    virtual ~CompositeCandidate();
+    ~CompositeCandidate() override;
     /// get the name of the candidate
     std::string name() const { return name_;}
     /// set the name of the candidate
@@ -47,28 +46,20 @@ namespace reco {
     /// set the roles    
     void                    setRoles( const role_collection & roles ) { roles_.clear(); roles_ = roles; }
     /// returns a clone of the candidate
-    virtual CompositeCandidate * clone() const;
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter const_iterator
-    virtual iterator end();
+    CompositeCandidate * clone() const override;
     /// number of daughters
-    virtual size_type numberOfDaughters() const;
+    size_type numberOfDaughters() const override;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    virtual const Candidate * daughter( size_type ) const;
+    const Candidate * daughter( size_type ) const override;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    virtual Candidate * daughter( size_type );
+    Candidate * daughter( size_type ) override;
     // Get candidate based on role
-    virtual Candidate *       daughter(const std::string& s );
-    virtual const Candidate * daughter(const std::string& s ) const;
+    Candidate *       daughter(const std::string& s ) override;
+    const Candidate * daughter(const std::string& s ) const override;
     /// add a clone of the passed candidate as daughter 
     void addDaughter( const Candidate &, const std::string& s="" );
     /// add a clone of the passed candidate as daughter 
-    void addDaughter( std::auto_ptr<Candidate>, const std::string& s="" );
+    void addDaughter( std::unique_ptr<Candidate>, const std::string& s="" );
     /// clear daughters
     void clearDaughters() { dau.clear(); }
     // clear roles
@@ -76,19 +67,15 @@ namespace reco {
     // Apply the roles to the objects
     void applyRoles();
     /// number of mothers (zero or one in most of but not all the cases)
-    virtual size_type numberOfMothers() const;
+    size_type numberOfMothers() const override;
     /// return pointer to mother
-    virtual const Candidate * mother( size_type i = 0 ) const;
+    const Candidate * mother( size_type i = 0 ) const override;
 
   private:
-    // const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
     /// collection of daughters
     daughters dau;
     /// check overlap with another daughter
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
     /// candidate name
     std::string name_;
     /// candidate roles

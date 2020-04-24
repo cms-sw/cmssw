@@ -29,6 +29,7 @@
 #include "Math/GenVector/RotationXfwd.h"
 #include "Math/GenVector/RotationYfwd.h"
 #include "Math/GenVector/RotationZfwd.h"
+#include "Math/GenVector/Plane3D.h"
 
 #include <iostream>
 
@@ -40,7 +41,7 @@ namespace ROOT {
 
   namespace Math { 
 
-    class Plane3D; 
+    using ROOT::Math::Plane3D;
 
 
 

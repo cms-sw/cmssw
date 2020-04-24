@@ -61,8 +61,8 @@ void DTResidualCalibration::beginRun(const edm::Run& run, const edm::EventSetup&
 
   // Loop over all the chambers
   if(histoMapTH1F_.size() == 0) { 	 
-     std::vector<DTChamber*>::const_iterator ch_it = dtGeom_->chambers().begin(); 	 
-     std::vector<DTChamber*>::const_iterator ch_end = dtGeom_->chambers().end(); 	 
+     auto ch_it = dtGeom_->chambers().begin(); 	 
+     auto ch_end = dtGeom_->chambers().end(); 	 
      for (; ch_it != ch_end; ++ch_it) { 	 
         std::vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 	 
         std::vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 

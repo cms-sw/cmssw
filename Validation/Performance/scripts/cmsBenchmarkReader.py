@@ -70,7 +70,7 @@ def printBenchmarkData(afile):
                                     print "step: " + str(stepkey)
                                     for evtdat in stepdata[stepkey]:
                                         print evtdat
-        except TypeError, detail:
+        except TypeError as detail:
             print "Data: does not exist for this machine, the server failed to return a valid data structure"
             print detail
 

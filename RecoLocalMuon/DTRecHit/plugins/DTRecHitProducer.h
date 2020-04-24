@@ -9,8 +9,9 @@
  *  \author G. Cerminara
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 namespace edm {
   class ParameterSet;
@@ -20,22 +21,22 @@ namespace edm {
 
 class DTRecHitBaseAlgo;
 
-class DTRecHitProducer : public edm::EDProducer {
+class DTRecHitProducer : public edm::stream::EDProducer<> {
 public:
   /// Constructor
   DTRecHitProducer(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~DTRecHitProducer();
+  ~DTRecHitProducer() override;
 
   /// The method which produces the rechits
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
   // Switch on verbosity
   const bool debug;
   // The label to be used to retrieve DT digis from the event
-  edm::InputTag theDTDigiLabel;
+  edm::EDGetTokenT<DTDigiCollection> DTDigiToken_;
   // The reconstruction algorithm
   DTRecHitBaseAlgo *theAlgo;
 //   static string theAlgoName;

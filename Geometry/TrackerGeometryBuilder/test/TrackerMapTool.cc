@@ -27,7 +27,7 @@
 #include <vector>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -52,15 +52,14 @@
 // class decleration
 //
 
-class TrackerMapTool : public edm::EDAnalyzer {
+class TrackerMapTool : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackerMapTool( const edm::ParameterSet& );
-  ~TrackerMapTool();
+  ~TrackerMapTool() override;
   
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-private:
-  // ----------member data ---------------------------
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
 //
@@ -144,8 +143,8 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   float width,length,thickness,widthAtHalfLength;
   std::ofstream output("tracker.dat",std::ios::out);
   
-  std::vector<GeomDetUnit*>::const_iterator begin = pDD->detUnits().begin();
-  std::vector<GeomDetUnit*>::const_iterator end = pDD->detUnits().end();
+  auto begin = pDD->detUnits().begin();
+  auto end = pDD->detUnits().end();
   
   for ( ; begin != end; ++begin) {
     ntotmod++;

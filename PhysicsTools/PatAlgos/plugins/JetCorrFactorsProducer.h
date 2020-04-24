@@ -38,14 +38,14 @@
 
 #include <map>
 #include <string>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -56,7 +56,7 @@
 
 namespace pat {
 
-  class JetCorrFactorsProducer : public edm::EDProducer {
+  class JetCorrFactorsProducer : public edm::stream::EDProducer<> {
   public:
     /// value map for JetCorrFactors (to be written into the event)
     typedef edm::ValueMap<pat::JetCorrFactors> JetCorrFactorsMap;
@@ -83,7 +83,7 @@ namespace pat {
     /// result in an empty string as this correction level is not available
     std::vector<std::string> expand(const std::vector<std::string>& levels, const JetCorrFactors::Flavor& flavor);
     /// evaluate jet correction factor up to a given level
-    float evaluate(edm::View<reco::Jet>::const_iterator& jet, boost::shared_ptr<FactorizedJetCorrector>& corrector, boost::shared_ptr<FactorizedJetCorrector>& extraJPTOffset, int level);
+    float evaluate(edm::View<reco::Jet>::const_iterator& jet, const JetCorrFactors::Flavor& flavor, int level);
     /// determines the number of valid primary vertices for the standard L1Offset correction of JetMET
     int numberOf(const edm::Handle<std::vector<reco::Vertex> >& primaryVertices);
     /// map jet algorithm to payload in DB
@@ -123,6 +123,12 @@ namespace pat {
     /// per definition the vectors for all elements in this map should
     /// have the same size
     FlavorCorrLevelMap levels_;
+    /// cache identifier for JetCorrectionsRecord
+    unsigned long long cacheId_;
+    /// cache container for jet corrections
+    std::map<JetCorrFactors::Flavor, std::unique_ptr<FactorizedJetCorrector> > correctors_;
+    /// cache container for JPTOffset jet corrections
+    std::unique_ptr<FactorizedJetCorrector> extraJPTOffsetCorrector_;
   };
 
   inline int

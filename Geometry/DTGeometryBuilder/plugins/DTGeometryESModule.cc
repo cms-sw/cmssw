@@ -14,11 +14,12 @@
 
 // Alignments
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/ESTransientHandle.h>
@@ -52,7 +53,7 @@ DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p)
 
 DTGeometryESModule::~DTGeometryESModule(){}
 
-boost::shared_ptr<DTGeometry> 
+std::shared_ptr<DTGeometry> 
 DTGeometryESModule::produce(const MuonGeometryRecord & record) {
 
   //
@@ -65,8 +66,8 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
     record.getRecord<GlobalPositionRcd>().get(alignmentsLabel_, globalPosition);
     edm::ESHandle<Alignments> alignments;
     record.getRecord<DTAlignmentRcd>().get(alignmentsLabel_, alignments);
-    edm::ESHandle<AlignmentErrors> alignmentErrors;
-    record.getRecord<DTAlignmentErrorRcd>().get(alignmentsLabel_, alignmentErrors);
+    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+    record.getRecord<DTAlignmentErrorExtendedRcd>().get(alignmentsLabel_, alignmentErrors);
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"
@@ -90,7 +91,7 @@ void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record ) 
   // Called whenever the muon numbering (or ideal geometry) changes
   //
 
-  _dtGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
+  _dtGeometry = std::make_shared<DTGeometry>();
   edm::ESHandle<MuonDDDConstants> mdc;
   record.get( mdc );
 
@@ -107,7 +108,7 @@ void DTGeometryESModule::dbGeometryCallback_( const DTRecoGeometryRcd& record ) 
   // Called whenever the muon numbering (or ideal geometry) changes
   //
 
-  _dtGeometry = boost::shared_ptr<DTGeometry>(new DTGeometry );
+  _dtGeometry = std::make_shared<DTGeometry>();
   edm::ESHandle<RecoIdealGeometry> rig;
   record.get(rig);
   

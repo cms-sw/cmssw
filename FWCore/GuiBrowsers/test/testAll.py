@@ -24,5 +24,5 @@ if __name__ == "__main__":
         print test
     print "---"
     for test in sorted(tests):
-        exec "from " + str(test) + " import *"
+        exec("from " + str(test) + " import *")
     unittest.main()

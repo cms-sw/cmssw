@@ -1,0 +1,10 @@
+# This file contains Effective Area constants for 
+# computing pile-up corrections for the HCAL PF Cluster isolation used by HLT
+# for an electron object.
+#   Documentation:
+#   slide 5 in  
+#      https://indico.cern.ch/event/491507/contributions/2192817/attachments/1285452/1911768/EGM_HLTsafeCuts_31May16.pdf
+#
+# |eta| min   |eta| max   effective area
+0.0000         1.4790        0.060
+1.4790         5.0000        0.131

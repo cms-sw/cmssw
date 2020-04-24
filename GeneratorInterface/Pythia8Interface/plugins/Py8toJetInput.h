@@ -1,7 +1,7 @@
 #ifndef gen_Py8toJetInput_h
 #define gen_Py8toJetInput_h
 
-#include "Pythia8/FastJet3.h" // Py8 overhead on top of FastJets package
+#include "Pythia8Plugins/FastJet3.h" // Py8 overhead on top of FastJets package
 #include "Pythia8/Event.h"
 
 namespace lhef {
@@ -17,7 +17,7 @@ class Py8toJetInput
       typedef Pythia8::Particle Particle;
    
       Py8toJetInput(): fJetEtaMax(10.) {}
-      ~Py8toJetInput() {}
+      virtual ~Py8toJetInput() {}
       
       virtual const std::vector<fastjet::PseudoJet> fillJetAlgoInput( const Event&, const Event&, 
                                                                       const lhef::LHEEvent* lhee=0,
@@ -41,7 +41,7 @@ class Py8toJetInputHEPEVT : public Py8toJetInput
    public:
    
       Py8toJetInputHEPEVT() {}
-      ~Py8toJetInputHEPEVT() {}
+      virtual ~Py8toJetInputHEPEVT() {}
       
       const std::vector<fastjet::PseudoJet> fillJetAlgoInput( const Event&, const Event&, 
                                                               const lhef::LHEEvent*,

@@ -99,17 +99,17 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
   std::list<TtFullHadKinFitter::KinFitResult> fitResults = kinFitter->fit(*jets);
 
   // pointer for output collections
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsB( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsBBar( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsLightQ   ( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsLightQBar( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsLightP   ( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsLightPBar( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsB( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsBBar( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsLightQ   ( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsLightQBar( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsLightP   ( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsLightPBar( new std::vector<pat::Particle> );
   // pointer for meta information
-  std::auto_ptr< std::vector<std::vector<int> > > pCombi ( new std::vector<std::vector<int> > );
-  std::auto_ptr< std::vector<double> > pChi2  ( new std::vector<double> );
-  std::auto_ptr< std::vector<double> > pProb  ( new std::vector<double> );
-  std::auto_ptr< std::vector<int> > pStatus( new std::vector<int> );
+  std::unique_ptr< std::vector<std::vector<int> > > pCombi ( new std::vector<std::vector<int> > );
+  std::unique_ptr< std::vector<double> > pChi2  ( new std::vector<double> );
+  std::unique_ptr< std::vector<double> > pProb  ( new std::vector<double> );
+  std::unique_ptr< std::vector<int> > pStatus( new std::vector<int> );
 
   unsigned int iComb = 0;
   for(std::list<TtFullHadKinFitter::KinFitResult>::const_iterator res = fitResults.begin(); res != fitResults.end(); ++res){
@@ -132,16 +132,16 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
 
   }
 
-  event.put(pCombi);
-  event.put(pPartonsB        , "PartonsB"        );
-  event.put(pPartonsBBar     , "PartonsBBar"     );
-  event.put(pPartonsLightQ   , "PartonsLightQ"   );
-  event.put(pPartonsLightQBar, "PartonsLightQBar");
-  event.put(pPartonsLightP   , "PartonsLightP"   );
-  event.put(pPartonsLightPBar, "PartonsLightPBar");
-  event.put(pChi2   , "Chi2"   );
-  event.put(pProb   , "Prob"   );
-  event.put(pStatus , "Status" );
+  event.put(std::move(pCombi));
+  event.put(std::move(pPartonsB        ), "PartonsB"        );
+  event.put(std::move(pPartonsBBar     ), "PartonsBBar"     );
+  event.put(std::move(pPartonsLightQ   ), "PartonsLightQ"   );
+  event.put(std::move(pPartonsLightQBar), "PartonsLightQBar");
+  event.put(std::move(pPartonsLightP   ), "PartonsLightP"   );
+  event.put(std::move(pPartonsLightPBar), "PartonsLightPBar");
+  event.put(std::move(pChi2   ), "Chi2"   );
+  event.put(std::move(pProb   ), "Prob"   );
+  event.put(std::move(pStatus ), "Status" );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

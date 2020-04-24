@@ -29,7 +29,6 @@ SegmentTrackAnalyzer::SegmentTrackAnalyzer(const edm::ParameterSet& pSet) {
   
   // MuonService
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-  theDbe = edm::Service<DQMStore>().operator->();
   
   // Read Data:
   theMuTrackCollectionLabel_ = consumes<reco::TrackCollection>(parameters.getParameter<edm::InputTag>("MuTrackCollection"));
@@ -39,32 +38,36 @@ SegmentTrackAnalyzer::SegmentTrackAnalyzer(const edm::ParameterSet& pSet) {
 
   edm::ConsumesCollector iC   = consumesCollector();
   theSegmentsAssociator = new SegmentsTrackAssociator(SegmentsTrackAssociatorParameters,iC);
-  
-  
-}
-void SegmentTrackAnalyzer::beginJob() {
-  metname = "segmTrackAnalyzer";
-  LogTrace(metname)<<"[SegmentTrackAnalyzer] Parameters initialization";
-  
-}
-void SegmentTrackAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-  metname = "segmTrackAnalyzer";
-  
-  theDbe->cd();
-  theDbe->setCurrentFolder("Muons/SegmentTrackAnalyzer");
-  
-  string trackCollection = parameters.getParameter<edm::InputTag>("MuTrackCollection").label() + parameters.getParameter<edm::InputTag>("MuTrackCollection").instance();
 
+  trackCollection = parameters.getParameter<edm::InputTag>("MuTrackCollection").label() + parameters.getParameter<edm::InputTag>("MuTrackCollection").instance();
+
+  etaBin = parameters.getParameter<int>("etaBin");
+  etaMin = parameters.getParameter<double>("etaMin");
+  etaMax = parameters.getParameter<double>("etaMax");
+  phiBin = parameters.getParameter<int>("phiBin");
+  phiMin = parameters.getParameter<double>("phiMin");
+  phiMax = parameters.getParameter<double>("phiMax");
+  ptBin  = parameters.getParameter<int>("ptBin");
+  ptMin  = parameters.getParameter<double>("ptMin");
+  ptMax  = parameters.getParameter<double>("ptMax");
+}
+void SegmentTrackAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
+					  const edm::Run& /*iRun*/, 
+					  const edm::EventSetup& /*iSetup*/){
+  ibooker.cd();
+  ibooker.setCurrentFolder("Muons/SegmentTrackAnalyzer");
+  
+  
   // histograms initalization
-  hitsNotUsed = theDbe->book1D("HitsNotUsedForGlobalTracking_"+trackCollection, "recHits not used for GLB    ["+trackCollection+"]", 50, -0.5, 49.5);
-  hitsNotUsedPercentual = theDbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, "(recHits_{notUsedForGLB}) / (recHits_{GLB})    ["+trackCollection+"]", 100, 0, 1.);
+  hitsNotUsed = ibooker.book1D("HitsNotUsedForGlobalTracking_"+trackCollection, "recHits not used for GLB    ["+trackCollection+"]", 50, -0.5, 49.5);
+  hitsNotUsedPercentual = ibooker.book1D("HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, "(recHits_{notUsedForGLB}) / (recHits_{GLB})    ["+trackCollection+"]", 100, 0, 1.);
 
-  TrackSegm = theDbe->book2D("trackSegments_"+trackCollection, "Number of segments associated to the track    ["+trackCollection+"]", 3, 0.5, 3.5, 8, 0, 8);
+  TrackSegm = ibooker.book2D("trackSegments_"+trackCollection, "Number of segments associated to the track    ["+trackCollection+"]", 3, 0.5, 3.5, 8, 0, 8);
   TrackSegm->setBinLabel(1,"DT+CSC",1);
   TrackSegm->setBinLabel(2,"DT",1);
   TrackSegm->setBinLabel(3,"CSC",1);
   
-  hitStaProvenance = theDbe->book1D("trackHitStaProvenance_"+trackCollection, "Number of recHits_{STAinTrack}    ["+trackCollection+"]", 7, 0.5, 7.5);
+  hitStaProvenance = ibooker.book1D("trackHitStaProvenance_"+trackCollection, "Number of recHits_{STAinTrack}    ["+trackCollection+"]", 7, 0.5, 7.5);
   hitStaProvenance->setBinLabel(1,"DT");
   hitStaProvenance->setBinLabel(2,"CSC");
   hitStaProvenance->setBinLabel(3,"RPC");
@@ -75,7 +78,7 @@ void SegmentTrackAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&
 
 
   if(trackCollection!="standAloneMuons"){
-    hitTkrProvenance = theDbe->book1D("trackHitTkrProvenance_"+trackCollection, "Number of recHits_{TKinTrack}    ["+trackCollection+"]", 6, 0.5, 6.5);
+    hitTkrProvenance = ibooker.book1D("trackHitTkrProvenance_"+trackCollection, "Number of recHits_{TKinTrack}    ["+trackCollection+"]", 6, 0.5, 6.5);
     hitTkrProvenance->setBinLabel(1,"PixBarrel");
     hitTkrProvenance->setBinLabel(2,"PixEndCap");
     hitTkrProvenance->setBinLabel(3,"TIB");
@@ -84,38 +87,27 @@ void SegmentTrackAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&
     hitTkrProvenance->setBinLabel(6,"TEC");
   }
 
-  int etaBin = parameters.getParameter<int>("etaBin");
-  double etaMin = parameters.getParameter<double>("etaMin");
-  double etaMax = parameters.getParameter<double>("etaMax");
-  trackHitPercentualVsEta = theDbe->book2D("trackHitDivtrackSegmHitVsEta_"+trackCollection, "(recHits_{Track} / recHits_{associatedSegm}) vs #eta    [" +trackCollection+"]", etaBin, etaMin, etaMax, 20, 0, 1);
-  dtTrackHitPercentualVsEta = theDbe->book2D("dtTrackHitDivtrackSegmHitVsEta_"+trackCollection, "(recHits_{DTinTrack} / recHits_{associatedSegm}) vs #eta    [" +trackCollection+"]", etaBin, etaMin, etaMax, 20, 0, 1);
-  cscTrackHitPercentualVsEta = theDbe->book2D("cscTrackHitDivtrackSegmHitVsEta_"+trackCollection, "(recHits_{CSCinTrack} / recHits_{associatedSegm}) vs #eta    [" +trackCollection+"]", etaBin, etaMin, etaMax, 20, 0, 1);
+  trackHitPercentualVsEta = ibooker.book2D("trackHitDivtrackSegmHitVsEta_"+trackCollection, "(recHits_{Track} / recHits_{associatedSegm}) vs #eta    [" +trackCollection+"]", etaBin, etaMin, etaMax, 20, 0, 1);
+  dtTrackHitPercentualVsEta = ibooker.book2D("dtTrackHitDivtrackSegmHitVsEta_"+trackCollection, "(recHits_{DTinTrack} / recHits_{associatedSegm}) vs #eta    [" +trackCollection+"]", etaBin, etaMin, etaMax, 20, 0, 1);
+  cscTrackHitPercentualVsEta = ibooker.book2D("cscTrackHitDivtrackSegmHitVsEta_"+trackCollection, "(recHits_{CSCinTrack} / recHits_{associatedSegm}) vs #eta    [" +trackCollection+"]", etaBin, etaMin, etaMax, 20, 0, 1);
 
-  int phiBin = parameters.getParameter<int>("phiBin");
-  double phiMin = parameters.getParameter<double>("phiMin");
-  double phiMax = parameters.getParameter<double>("phiMax");
-  trackHitPercentualVsPhi = theDbe->book2D("trackHitDivtrackSegmHitVsPhi_"+trackCollection, "(recHits_{Track} / recHits_{associatedSegm}) vs #phi    [" +trackCollection+"]", phiBin, phiMin, phiMax, 20, 0, 1);
+  trackHitPercentualVsPhi = ibooker.book2D("trackHitDivtrackSegmHitVsPhi_"+trackCollection, "(recHits_{Track} / recHits_{associatedSegm}) vs #phi    [" +trackCollection+"]", phiBin, phiMin, phiMax, 20, 0, 1);
   trackHitPercentualVsPhi->setAxisTitle("rad",2);
-  dtTrackHitPercentualVsPhi = theDbe->book2D("dtTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "(recHits_{DTinTrack} / recHits_{associatedSegm}) vs #phi    [" +trackCollection+"]", phiBin, phiMin, phiMax, 20, 0, 1);
+  dtTrackHitPercentualVsPhi = ibooker.book2D("dtTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "(recHits_{DTinTrack} / recHits_{associatedSegm}) vs #phi    [" +trackCollection+"]", phiBin, phiMin, phiMax, 20, 0, 1);
   dtTrackHitPercentualVsPhi->setAxisTitle("rad",2);
-  cscTrackHitPercentualVsPhi = theDbe->book2D("cscTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "(recHits_{CSCinTrack} / recHits_{associatedSegm}) vs #phi    [" +trackCollection+"]", phiBin, phiMin, phiMax, 20, 0, 1);
+  cscTrackHitPercentualVsPhi = ibooker.book2D("cscTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "(recHits_{CSCinTrack} / recHits_{associatedSegm}) vs #phi    [" +trackCollection+"]", phiBin, phiMin, phiMax, 20, 0, 1);
   cscTrackHitPercentualVsPhi->setAxisTitle("rad",2);
 
-  int ptBin = parameters.getParameter<int>("ptBin");
-  double ptMin = parameters.getParameter<double>("ptMin");
-  double ptMax = parameters.getParameter<double>("ptMax");
-  trackHitPercentualVsPt = theDbe->book2D("trackHitDivtrackSegmHitVsPt_"+trackCollection, "(recHits_{Track} / recHits_{associatedSegm}) vs 1/p_{t}    [" +trackCollection+"]", ptBin, ptMin, ptMax, 20, 0, 1);
+  trackHitPercentualVsPt = ibooker.book2D("trackHitDivtrackSegmHitVsPt_"+trackCollection, "(recHits_{Track} / recHits_{associatedSegm}) vs 1/p_{t}    [" +trackCollection+"]", ptBin, ptMin, ptMax, 20, 0, 1);
   trackHitPercentualVsPt->setAxisTitle("GeV",2);
-  dtTrackHitPercentualVsPt = theDbe->book2D("dtTrackHitDivtrackSegmHitVsPt_"+trackCollection, "(recHits_{DTinTrack} / recHits_{associatedSegm}) vs 1/p_{t}    [" +trackCollection+"]", ptBin, ptMin, ptMax, 20, 0, 1);
+  dtTrackHitPercentualVsPt = ibooker.book2D("dtTrackHitDivtrackSegmHitVsPt_"+trackCollection, "(recHits_{DTinTrack} / recHits_{associatedSegm}) vs 1/p_{t}    [" +trackCollection+"]", ptBin, ptMin, ptMax, 20, 0, 1);
   dtTrackHitPercentualVsPt->setAxisTitle("GeV",2);
-  cscTrackHitPercentualVsPt = theDbe->book2D("cscTrackHitDivtrackSegmHitVsPt_"+trackCollection, "(recHits_{CSCinTrack} / recHits_{associatedSegm}) vs 1/p_{t}    [" +trackCollection+"]", ptBin, ptMin, ptMax, 20, 0, 1);
+  cscTrackHitPercentualVsPt = ibooker.book2D("cscTrackHitDivtrackSegmHitVsPt_"+trackCollection, "(recHits_{CSCinTrack} / recHits_{associatedSegm}) vs 1/p_{t}    [" +trackCollection+"]", ptBin, ptMin, ptMax, 20, 0, 1);
   cscTrackHitPercentualVsPt->setAxisTitle("GeV",2);
-
 }
 
 
 void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-  LogTrace(metname)<<"[SegmentTrackAnalyzer] Filling the histos";
   theService->update(iSetup);
   
   Handle<reco::TrackCollection> glbTracks;
@@ -127,7 +119,6 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 #ifdef DEBUG
     cout << "[SegmentTrackAnalyzer] # of segments associated to the track: "<<(segments).size() <<endl;
 #endif
-    LogTrace(metname)<<"[SegmentTrackAnalyzer] # of segments associated to the track: "<<(segments).size();
 
     // hit counters
     int hitsFromDt=0;

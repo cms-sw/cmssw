@@ -21,6 +21,8 @@
 // C++ Headers --
 //---------------
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <map>
 
@@ -77,10 +79,12 @@ class L1MuDTQualPatternLut {
     /// return iterator which points to the one-past-last entry of the LUT
     inline EMULut_iter end() { return m_lut.end(); }
     
-  private:
+  public:
 
     LUT m_lut;        // coarse eta values and list of qualified patterns
     
+
+ COND_SERIALIZABLE;
 };
 
 #endif

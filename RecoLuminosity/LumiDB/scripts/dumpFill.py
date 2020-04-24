@@ -72,7 +72,7 @@ if __name__ == '__main__':
             runsperfill=lumiCalcAPI.fillrunMap(session.nominalSchema(),fillnum=int(options.fillnum))
             allruns=runsperfill[ int(options.fillnum) ]
             allls=[None]*len(allruns)
-            irunlsdict=dict(zip(allruns,allls))
+            irunlsdict=dict(list(zip(allruns,allls)))
             runresults=lumiCalcAPI.runsummary(session.nominalSchema(),irunlsdict)
             for r in runresults:
                 runtimes[r[0]]=r[7]
@@ -83,7 +83,7 @@ if __name__ == '__main__':
             runs=runsperfill.values()#list of lists
             allruns=[item for sublist in runs for item in sublist]
             allls=[None]*len(allruns)
-            irunlsdict=dict(zip(allruns,allls))
+            irunlsdict=dict(list(zip(allruns,allls)))
             runresults=lumiCalcAPI.runsummary(session.nominalSchema(),irunlsdict)
             for r in runresults:
                 runtimes[r[0]]=r[7]

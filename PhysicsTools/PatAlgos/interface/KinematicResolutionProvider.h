@@ -22,6 +22,7 @@ namespace edm  { class ParameterSet; class EventSetup; }
 class KinematicResolutionProvider {
 
  public:
+  virtual ~KinematicResolutionProvider() = default;
   /// everything that needs to be done before the event loop
   virtual void setup(const edm::EventSetup &iSetup) const { }
   /// get a CandKinResolution object from the service; this

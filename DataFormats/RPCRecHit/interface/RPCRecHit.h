@@ -46,32 +46,32 @@ class RPCRecHit : public RecHit2DLocalPos {
 	    const LocalError& err);
   
   /// Destructor
-  virtual ~RPCRecHit();
+  ~RPCRecHit() override;
 
 
   /// Return the 3-dimensional local position
-  virtual LocalPoint localPosition() const {
+  LocalPoint localPosition() const override {
     return theLocalPosition;
   }
 
 
   /// Return the 3-dimensional error on the local position
-  virtual LocalError localPositionError() const {
+  LocalError localPositionError() const override {
     return theLocalError;
   }
 
 
-  virtual RPCRecHit* clone() const;
+  RPCRecHit* clone() const override;
 
   
   /// Access to component RecHits.
   /// No components rechits: it returns a null vector
-  virtual std::vector<const TrackingRecHit*> recHits() const;
+  std::vector<const TrackingRecHit*> recHits() const override;
 
 
   /// Non-const access to component RecHits.
   /// No components rechits: it returns a null vector
-  virtual std::vector<TrackingRecHit*> recHits();
+  std::vector<TrackingRecHit*> recHits() override;
 
 
   /// Set local position 
@@ -90,6 +90,12 @@ class RPCRecHit : public RecHit2DLocalPos {
   void setPositionAndError(LocalPoint pos, LocalError err) {
     theLocalPosition = pos;
     theLocalError = err;
+  }
+
+  /// Set the time and its error
+  void setTimeAndError(float time, float err ) {
+    theTime = time;
+    theTimeError = err;
   }
   
 
@@ -110,6 +116,14 @@ class RPCRecHit : public RecHit2DLocalPos {
     return theClusterSize;
   }
 
+  float time() const {
+    return theTime;
+  }
+
+  float timeError() const {
+    return theTimeError;
+  }
+
   /// Comparison operator, based on the rpcId and the digi time
   bool operator==(const RPCRecHit& hit) const;
 
@@ -121,6 +135,7 @@ class RPCRecHit : public RecHit2DLocalPos {
   // Position and error in the Local Ref. Frame of the RPCLayer
   LocalPoint theLocalPosition;
   LocalError theLocalError;
+  float theTime, theTimeError;
 
 };
 #endif

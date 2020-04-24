@@ -2,6 +2,6 @@
 <use name="DQMOffline/RecoB"/>
 <use name="DQMServices/Core"/>
 <use name="CommonTools/Statistics"/>
-<library file="BTagPerformanceAnalyzerOnData.cc PrimaryVertexMonitor.cc" name="DQMOfflineRecoBPlugins">
+<library file="BTagPerformanceAnalyzerOnData.cc PrimaryVertexMonitor.cc BTagPerformanceHarvester.cc" name="DQMOfflineRecoBPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

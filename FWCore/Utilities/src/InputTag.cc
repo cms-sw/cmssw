@@ -5,6 +5,8 @@
 namespace edm {
 
   const std::string InputTag::kSkipCurrentProcess("@skipCurrentProcess");
+  const std::string InputTag::kCurrentProcess("@currentProcess");
+  static std::string const separator(":");
 
   InputTag::InputTag()
   : label_(),
@@ -12,7 +14,7 @@ namespace edm {
     process_(),
     typeID_(),
     productRegistry_(nullptr),
-    index_(ProductHolderIndexInvalid),
+    index_(ProductResolverIndexInvalid),
     branchType_(NumBranchTypes),
     skipCurrentProcess_(false) {
   }
@@ -24,7 +26,7 @@ namespace edm {
     process_(processName),
     typeID_(),
     productRegistry_(nullptr),
-    index_(ProductHolderIndexInvalid),
+    index_(ProductResolverIndexInvalid),
     branchType_(NumBranchTypes),
     skipCurrentProcess_(calcSkipCurrentProcess()) {
   }
@@ -35,7 +37,7 @@ namespace edm {
     process_(processName),
     typeID_(),
     productRegistry_(nullptr),
-    index_(ProductHolderIndexInvalid),
+    index_(ProductResolverIndexInvalid),
     branchType_(NumBranchTypes),
     skipCurrentProcess_(calcSkipCurrentProcess()) {
   }
@@ -46,12 +48,12 @@ namespace edm {
     process_(),
     typeID_(),
     productRegistry_(nullptr),
-    index_(ProductHolderIndexInvalid),
+    index_(ProductResolverIndexInvalid),
     branchType_(NumBranchTypes),
     skipCurrentProcess_(false) {
 
     // string is delimited by colons
-    std::vector<std::string> tokens = tokenize(s, ":");
+    std::vector<std::string> tokens = tokenize(s, separator);
     size_t nwords = tokens.size();
     if(nwords > 3) {
       throw edm::Exception(errors::Configuration,"InputTag")
@@ -71,12 +73,12 @@ namespace edm {
     process_(other.process()),
     typeID_(),
     productRegistry_(nullptr),
-    index_(ProductHolderIndexInvalid),
+    index_(ProductResolverIndexInvalid),
     branchType_(NumBranchTypes),
     skipCurrentProcess_(other.willSkipCurrentProcess()) {
 
-    ProductHolderIndex otherIndex = other.index_.load();
-    if (otherIndex < ProductHolderIndexInitializing) {
+    ProductResolverIndex otherIndex = other.index_.load();
+    if (otherIndex < ProductResolverIndexInitializing) {
       branchType_ = other.branchType_;
       typeID_ = other.typeID_;
       productRegistry_ = other.productRegistry_;
@@ -90,12 +92,12 @@ namespace edm {
     process_(std::move(other.process())),
     typeID_(),
     productRegistry_(nullptr),
-    index_(ProductHolderIndexInvalid),
+    index_(ProductResolverIndexInvalid),
     branchType_(NumBranchTypes),
     skipCurrentProcess_(other.willSkipCurrentProcess()) {
 
-    ProductHolderIndex otherIndex = other.index_.load();
-    if (otherIndex < ProductHolderIndexInitializing) {
+    ProductResolverIndex otherIndex = other.index_.load();
+    if (otherIndex < ProductResolverIndexInitializing) {
       branchType_ = other.branchType_;
       typeID_ = other.typeID_;
       productRegistry_ = other.productRegistry_;
@@ -111,8 +113,8 @@ namespace edm {
       process_ = other.process_;
       skipCurrentProcess_ = other.skipCurrentProcess_;
 
-      ProductHolderIndex otherIndex = other.index_.load();
-      if (otherIndex < ProductHolderIndexInitializing) {
+      ProductResolverIndex otherIndex = other.index_.load();
+      if (otherIndex < ProductResolverIndexInitializing) {
         branchType_ = other.branchType_;
         typeID_ = other.typeID_;
         productRegistry_ = other.productRegistry_;
@@ -121,7 +123,7 @@ namespace edm {
         branchType_ = NumBranchTypes;
         typeID_ = TypeID();
         productRegistry_ = nullptr;
-        index_.store(ProductHolderIndexInvalid);
+        index_.store(ProductResolverIndexInvalid);
       }
     }
     return *this;
@@ -135,8 +137,8 @@ namespace edm {
       process_ = std::move(other.process_);
       skipCurrentProcess_ = other.skipCurrentProcess_;
 
-      ProductHolderIndex otherIndex = other.index_.load();
-      if (otherIndex < ProductHolderIndexInitializing) {
+      ProductResolverIndex otherIndex = other.index_.load();
+      if (otherIndex < ProductResolverIndexInitializing) {
         branchType_ = other.branchType_;
         typeID_ = other.typeID_;
         productRegistry_ = other.productRegistry_;
@@ -145,7 +147,7 @@ namespace edm {
         branchType_ = NumBranchTypes;
         typeID_ = TypeID();
         productRegistry_ = nullptr;
-        index_.store(ProductHolderIndexInvalid);
+        index_.store(ProductResolverIndexInvalid);
       }
     }
     return *this;
@@ -165,7 +167,6 @@ namespace edm {
     //NOTE: since the encoding gets used to form the configuration hash I did not want
     // to change it so that not specifying a process would cause two colons to appear in the
     // encoding and thus not being backwards compatible
-    static std::string const separator(":");
     std::string result = label_;
     if(!instance_.empty() || !process_.empty()) {
       result += separator + instance_;
@@ -182,29 +183,29 @@ namespace edm {
         && (process_ == tag.process_);
   }
 
-  ProductHolderIndex
+  ProductResolverIndex
   InputTag::indexFor(TypeID const& typeID, BranchType branchType, void const* productRegistry) const {
 
-    ProductHolderIndex index = index_.load();
+    ProductResolverIndex index = index_.load();
 
     // This will no longer be necessary when the compiler supports the memory
     // order associated with atomics.
     __sync_synchronize();
 
-    if (index < ProductHolderIndexInitializing &&
+    if (index < ProductResolverIndexInitializing &&
         typeID_ == typeID &&
         branchType_ == branchType &&
         productRegistry_ == productRegistry) {
       return index;
     }
-    return ProductHolderIndexInvalid;
+    return ProductResolverIndexInvalid;
   }
 
   void
-  InputTag::tryToCacheIndex(ProductHolderIndex index, TypeID const& typeID, BranchType branchType, void const* productRegistry) const {
-    unsigned int invalidValue = static_cast<unsigned int>(ProductHolderIndexInvalid);
+  InputTag::tryToCacheIndex(ProductResolverIndex index, TypeID const& typeID, BranchType branchType, void const* productRegistry) const {
+    unsigned int invalidValue = static_cast<unsigned int>(ProductResolverIndexInvalid);
     if (index_.compare_exchange_strong(invalidValue,
-                                       static_cast<unsigned int>(ProductHolderIndexInitializing))) {
+                                       static_cast<unsigned int>(ProductResolverIndexInitializing))) {
         typeID_ = typeID;
         branchType_ = branchType;
         productRegistry_ = productRegistry;

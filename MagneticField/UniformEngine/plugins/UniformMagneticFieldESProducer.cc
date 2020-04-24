@@ -4,7 +4,7 @@
  */
 
 #include "MagneticField/UniformEngine/plugins/UniformMagneticFieldESProducer.h"
-#include "MagneticField/UniformEngine/src/UniformMagneticField.h"
+#include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -17,10 +17,9 @@ UniformMagneticFieldESProducer::UniformMagneticFieldESProducer(const edm::Parame
 }
 
 
-std::auto_ptr<MagneticField> UniformMagneticFieldESProducer::produce(const IdealMagneticFieldRecord & iRecord)
+std::unique_ptr<MagneticField> UniformMagneticFieldESProducer::produce(const IdealMagneticFieldRecord & iRecord)
 {
-  std::auto_ptr<MagneticField> s(new UniformMagneticField(value));
-  return s;
+  return std::make_unique<UniformMagneticField>(value);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(UniformMagneticFieldESProducer);

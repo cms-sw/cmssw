@@ -22,19 +22,19 @@ class ConfigurableMultiVertexFitter : public AbstractConfReconstructor
      */
     ConfigurableMultiVertexFitter ();
     ConfigurableMultiVertexFitter ( const ConfigurableMultiVertexFitter & o );
-    ~ConfigurableMultiVertexFitter();
-    ConfigurableMultiVertexFitter * clone () const;
+    ~ConfigurableMultiVertexFitter() override;
+    ConfigurableMultiVertexFitter * clone () const override;
     std::vector < TransientVertex > vertices ( 
-        const std::vector < reco::TransientTrack > & t ) const;
+        const std::vector < reco::TransientTrack > & t ) const override;
     std::vector < TransientVertex > vertices ( 
         const std::vector < reco::TransientTrack > & t,
-        const reco::BeamSpot & s ) const;
+        const reco::BeamSpot & s ) const override;
     std::vector < TransientVertex > vertices ( 
         const std::vector < reco::TransientTrack > & prims,
         const std::vector < reco::TransientTrack > & secs,
-        const reco::BeamSpot & s ) const;
-    void configure ( const edm::ParameterSet & );
-    edm::ParameterSet defaults() const;
+        const reco::BeamSpot & s ) const override;
+    void configure ( const edm::ParameterSet & ) override;
+    edm::ParameterSet defaults() const override;
   private:
     const MultiVertexReconstructor * theRector;
     int theCheater;

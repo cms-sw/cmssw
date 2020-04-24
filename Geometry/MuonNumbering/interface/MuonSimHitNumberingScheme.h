@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_MuonSimHitNumberingScheme_h
-#define MuonNumbering_MuonSimHitNumberingScheme_h
+#ifndef Geometry_MuonNumbering_MuonSimHitNumberingScheme_h
+#define Geometry_MuonNumbering_MuonSimHitNumberingScheme_h
 
 /** \class MuonSimHitNumberingScheme
  *
@@ -15,15 +15,17 @@
 class MuonBaseNumber;
 class MuonSubDetector;
 class DDCompactView; 
+class MuonDDDConstants;
 
 class MuonSimHitNumberingScheme : public MuonNumberingScheme {
 
  public:
 
   MuonSimHitNumberingScheme(MuonSubDetector*, const DDCompactView& cpv);
-  ~MuonSimHitNumberingScheme();
+  MuonSimHitNumberingScheme(MuonSubDetector*, const MuonDDDConstants& muonConstants);
+  ~MuonSimHitNumberingScheme() override;
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
   
  private:
 

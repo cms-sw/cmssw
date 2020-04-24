@@ -6,7 +6,7 @@
  */
  
 #include "Validation/EventGenerator/interface/DuplicationChecker.h"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 using namespace edm;
 
 DuplicationChecker::DuplicationChecker(const edm::ParameterSet& iPSet):
@@ -31,10 +31,10 @@ DuplicationChecker::~DuplicationChecker()
 
 void DuplicationChecker::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
   ///Setting the DQM top directories
-  i.setCurrentFolder("Generator/DuplicationCheck");
+  DQMHelper dqm(&i); i.setCurrentFolder("Generator/DuplicationCheck");
   
   ///Booking the ME's
-  xBjorkenME = i.book1D("xBjorkenME", "x Bjorken ratio", 1000000, 0., 1.);
+  xBjorkenME = dqm.book1dHisto("xBjorkenME", "x Bjorken ratio", 1000000, 0., 1.);
 }
 
 void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)

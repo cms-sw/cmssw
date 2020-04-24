@@ -1,0 +1,22 @@
+# This file contains Effective Area constants for 
+# computing pile-up corrections for the photons isolation
+# for a photon object.
+#    
+#  The constants are based on 90% contours of isolation.
+# These effective areas are also found on the following slides:
+#      https://indico.cern.ch/event/491517/contributions/2349134/attachments/1359450/2056689/CutBasedPhotonID_24-10-2016.pdf
+#
+# IMPORTANT: this file with effective area constants was created after a bug was
+# discovered in the photon MVA implementation of Spring 16. The bug was in using abs(eta)
+# outside of std namespace, which means that abs was returning an int, truncating the
+# eta values. To fix the bug but preserve the behavior of the ID that has been in use
+# for a while at that point, the effectively used effective area was created that
+# has 3 meaningful bins instead of the original 6 bins (and the bug is fixed).
+#   The photon MVA uses only the pf photon isolation, and doesn't use the other types,
+# so only this file was necessary to create.
+#
+# |eta| min   |eta| max   effective area
+0.0000         1.0000        0.1210   
+1.0000         2.0000        0.1107
+2.0000         3.0000        0.1056
+3.0000         5.0000        0.1998

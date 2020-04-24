@@ -165,7 +165,7 @@ if doRegit:
     
     
 process.load("edwenger.HiTrkEffAnalyzer.HiTPCuts_cff")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("MitHig.PixelTrackletAnalyzer.trackAnalyzer_cff")
 process.cutsTPForEff.primaryOnly = False

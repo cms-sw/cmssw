@@ -53,11 +53,11 @@ class CmsShowEDI : public TGTransientFrame
 {
 
 public:
-   CmsShowEDI(const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1, FWSelectionManager* selMgr = 0,
-              FWColorManager* colorMgr=0);
-   virtual ~CmsShowEDI();
+   CmsShowEDI(const TGWindow* p = nullptr, UInt_t w = 1, UInt_t h = 1, FWSelectionManager* selMgr = nullptr,
+              FWColorManager* colorMgr=nullptr);
+   ~CmsShowEDI() override;
 
-   virtual void CloseWindow() { UnmapWindow(); }
+   void CloseWindow() override { UnmapWindow(); }
 
    // ---------- const member functions ---------------------
    
@@ -86,7 +86,7 @@ public:
    void moveToLayer(Long_t);
    void show(FWDataCategories);
 
-   ClassDef(CmsShowEDI, 0);
+   ClassDefOverride(CmsShowEDI, 0);
 
 private:
    CmsShowEDI(const CmsShowEDI&);    // stop default

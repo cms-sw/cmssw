@@ -1,3 +1,5 @@
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Common/interface/Time.h"
 #include <bitset>
 #include <iostream>
@@ -60,7 +62,11 @@ class FillInfo {
   cond::Time_t const endTime() const;
   
   std::string const & injectionScheme() const;
-    
+
+  //returns a boolean, true if the injection scheme has a leading 25ns
+  //TODO: parse the circulating bunch configuration, instead of the string.
+  bool is25nsBunchSpacing() const;
+
   //returns a boolean, true if the bunch slot number is in the circulating bunch configuration
   bool isBunchInBeam1( size_t const & bunch ) const;
   
@@ -149,6 +155,8 @@ class FillInfo {
   //the size of the bitset must be incremented by one,
   //in order to avoid off-by-one
   std::bitset<bunchSlots+1> m_bunchConfiguration1, m_bunchConfiguration2;
+
+ COND_SERIALIZABLE;
 };
 
 std::ostream & operator<<( std::ostream &, FillInfo fillInfo );

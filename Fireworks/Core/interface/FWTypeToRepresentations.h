@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 #include "Fireworks/Core/interface/FWRepresentationInfo.h"
@@ -42,7 +42,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void add( boost::shared_ptr<FWRepresentationCheckerBase> iChecker);
+   void add( std::shared_ptr<FWRepresentationCheckerBase> iChecker);
    void insert( const FWTypeToRepresentations& );
 
 private:
@@ -52,7 +52,7 @@ private:
 
    // ---------- member data --------------------------------
    mutable std::map<std::string, std::vector<FWRepresentationInfo> > m_typeToReps;
-   std::vector<boost::shared_ptr<FWRepresentationCheckerBase> > m_checkers;
+   std::vector<std::shared_ptr<FWRepresentationCheckerBase> > m_checkers;
 };
 
 

@@ -10,21 +10,21 @@
 
 void  dumpScaleFactorTables() {
 
-dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "WP90");
-dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "WP85");
-dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "WP80");
+// dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "WP90");
+// dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "WP85");
+// dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "WP80");
 
-dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "CicLoose");
-dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "CicTight");
-dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "CicSuperTight");
-dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "CicHyperTight1");
+// dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "CicLoose");
+// dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "CicTight");
+// dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "CicSuperTight");
+// dumpScaleFactorTables("efficiency-data-GsfElectronToId.root", "efficiency-mc-GsfElectronToId.root", "GsfElectronToId", "CicHyperTight1");
 
-dumpScaleFactorTables("efficiency-data-SCToGsfElectron.root", "efficiency-mc-SCToGsfElectron.root", "SuperClusterToGsfElectron", "efficiency");
- dumpScaleFactorTables("efficiency-data-WP90ToHLT.root", "efficiency-mc-WP90ToHLT.root", "WP90ToHLT", "efficiency");
- dumpScaleFactorTables("efficiency-data-WP85ToHLT.root", "efficiency-mc-WP85ToHLT.root", "WP85ToHLT", "efficiency");
- dumpScaleFactorTables("efficiency-data-WP80ToHLT.root", "efficiency-mc-WP80ToHLT.root", "WP80ToHLT", "efficiency");
- dumpScaleFactorTables("efficiency-data-CicLooseToHLT.root", "efficiency-mc-CicLooseToHLT.root", "CicLooseToHLT", "efficiency");
- dumpScaleFactorTables("efficiency-data-CicTightToHLT.root", "efficiency-mc-CicTightToHLT.root", "CicTightToHLT", "efficiency");
+// dumpScaleFactorTables("efficiency-data-SCToGsfElectron.root", "efficiency-mc-SCToGsfElectron.root", "SuperClusterToGsfElectron", "efficiency");
+ dumpScaleFactorTables("Eff-defaultBin-data/efficiency-data-WP90ToHLT.root", "efficiency-mc-WP90ToHLT.root", "WP90ToHLT", "efficiency");
+ dumpScaleFactorTables("Eff-defaultBin-data/efficiency-data-WP85ToHLT.root", "efficiency-mc-WP85ToHLT.root", "WP85ToHLT", "efficiency");
+ dumpScaleFactorTables("Eff-defaultBin-data/efficiency-data-WP80ToHLT.root", "efficiency-mc-WP80ToHLT.root", "WP80ToHLT", "efficiency");
+ dumpScaleFactorTables("Eff-defaultBin-data/efficiency-data-CicLooseToHLT.root", "efficiency-mc-CicLooseToHLT.root", "CicLooseToHLT", "efficiency");
+ dumpScaleFactorTables("Eff-defaultBin-data/efficiency-data-CicTightToHLT.root", "efficiency-mc-CicTightToHLT.root", "CicTightToHLT", "efficiency");
 }
 
 

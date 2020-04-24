@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -31,7 +31,7 @@ produces the corresponding collection of PileUpCandidates.
 
 
 
-class PFPileUp : public edm::EDProducer {
+class PFPileUp : public edm::stream::EDProducer<> {
  public:
 
   typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
@@ -40,11 +40,9 @@ class PFPileUp : public edm::EDProducer {
 
   explicit PFPileUp(const edm::ParameterSet&);
 
-  ~PFPileUp();
+  ~PFPileUp() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-
-  virtual void beginJob();
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 
@@ -52,6 +50,8 @@ class PFPileUp : public edm::EDProducer {
 
   /// PFCandidates to be analyzed
   edm::EDGetTokenT<PFCollection>   tokenPFCandidates_;
+  /// fall-back token
+  edm::EDGetTokenT<PFView>   tokenPFCandidatesView_;
 
   /// vertices
   edm::EDGetTokenT<reco::VertexCollection>   tokenVertices_;

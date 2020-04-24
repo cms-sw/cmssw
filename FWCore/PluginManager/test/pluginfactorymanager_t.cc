@@ -13,8 +13,7 @@
 // system include files
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
-#include <boost/bind.hpp>
-#include <boost/mem_fn.hpp>
+#include <functional>
 #include <iostream>
 
 // user include files
@@ -59,11 +58,12 @@ void
 TestPluginFactoryManager::test()
 {
   using namespace edmplugin;
+  using std::placeholders::_1;
   PluginFactoryManager& pfm = *(PluginFactoryManager::get());
   CPPUNIT_ASSERT(pfm.begin()==pfm.end());
   
   Catcher catcher;
-  pfm.newFactory_.connect(boost::bind(boost::mem_fn(&Catcher::catchIt),&catcher,_1));
+  pfm.newFactory_.connect(std::bind(std::mem_fn(&Catcher::catchIt),&catcher,_1));
   
   DummyTestPlugin one("one");
   CPPUNIT_ASSERT((pfm.begin()!=pfm.end()));

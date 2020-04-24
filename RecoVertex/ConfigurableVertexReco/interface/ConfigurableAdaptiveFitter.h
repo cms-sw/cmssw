@@ -17,11 +17,11 @@ class ConfigurableAdaptiveFitter : public AbstractConfFitter
      *  Tini:    The initial temparature. Default: 256
      */
     ConfigurableAdaptiveFitter ();
-    void configure ( const edm::ParameterSet & );
+    void configure ( const edm::ParameterSet & ) override;
     ConfigurableAdaptiveFitter ( const ConfigurableAdaptiveFitter & o );
-    ~ConfigurableAdaptiveFitter();
-    ConfigurableAdaptiveFitter * clone () const;
-    edm::ParameterSet defaults() const;
+    ~ConfigurableAdaptiveFitter() override;
+    ConfigurableAdaptiveFitter * clone () const override;
+    edm::ParameterSet defaults() const override;
 };
 
 #endif

@@ -11,7 +11,7 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -34,7 +34,7 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-class SVTagInfoValidationAnalyzer : public edm::EDAnalyzer
+class SVTagInfoValidationAnalyzer : public edm::one::EDAnalyzer<>
 {
 
 public:
@@ -43,8 +43,8 @@ public:
 
 private:
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
     // Member data
 
     VertexClassifierByProxy<reco::SecondaryVertexTagInfoCollection> classifier_;
@@ -88,7 +88,7 @@ private:
 };
 
 
-SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(const edm::ParameterSet& config) : classifier_(config, consumesCollector())
 {
   //Initialize counters
     n_event = 0;
@@ -110,9 +110,11 @@ SVTagInfoValidationAnalyzer::SVTagInfoValidationAnalyzer(const edm::ParameterSet
 
     // Get the track collection
     svTagInfoProducer_ = config.getUntrackedParameter<edm::InputTag> ( "svTagInfoProducer" );
+    consumes<reco::SecondaryVertexTagInfoCollection>(svTagInfoProducer_);
 
     // Name of the traking pariticle collection
     trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
+    consumes<TrackingVertexCollection>(trackingTruth_);
 
     // Number of track categories
     numberVertexClassifier_ = VertexCategories::Unknown+1;

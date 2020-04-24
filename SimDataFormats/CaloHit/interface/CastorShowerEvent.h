@@ -20,7 +20,7 @@
     typedef math::XYZPoint Point;
 
     CastorShowerEvent();
-    ~CastorShowerEvent();
+    ~CastorShowerEvent() override;
     
     void Clear();
     
@@ -62,7 +62,7 @@
     float getPrimY()             { return primY; };
     float getPrimZ()             { return primZ; };
     
-    ClassDef(CastorShowerEvent,1)
+    ClassDefOverride(CastorShowerEvent,2)
     
   };
 

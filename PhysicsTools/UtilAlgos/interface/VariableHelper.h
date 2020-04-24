@@ -1,14 +1,16 @@
 #ifndef ConfigurableAnalysis_VariableHelper_H
 #define ConfigurableAnalysis_VariableHelper_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 class VariableHelper {
  public:
-  VariableHelper(const edm::ParameterSet & iConfig);
+  VariableHelper(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC);
   ~VariableHelper() {
     for (iterator it = variables_.begin() ; it!=variables_.end() ;++it){
       delete it->second;
@@ -39,11 +41,13 @@ class VariableHelperService {
   bool printValuesForEachEvent_;
   std::string printValuesForEachEventCategory_;
  public:
-  VariableHelperService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ){
-    r.watchPreModule(this, &VariableHelperService::preModule );
-    r.watchPostProcessEvent(this, &VariableHelperService::postProcess );
+  VariableHelperService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & r ) : SetVariableHelperUniqueInstance_(0){
+    //r.watchPreModule(this, &VariableHelperService::preModule );
+    r.watchPreModuleEvent(this, &VariableHelperService::preModule );
+    //r.watchPostProcessEvent(this, &VariableHelperService::postProcess );
+    r.watchPostEvent(this, &VariableHelperService::postProcess);
     printValuesForEachEvent_ = iConfig.exists("printValuesForEachEventCategory");
-    if (printValuesForEachEvent_) 
+    if (printValuesForEachEvent_)
       printValuesForEachEventCategory_ = iConfig.getParameter<std::string>("printValuesForEachEventCategory");
   }
   ~VariableHelperService(){
@@ -52,18 +56,18 @@ class VariableHelperService {
     }
   }
 
-  VariableHelper & init(std::string user, const edm::ParameterSet & iConfig){
+  VariableHelper & init(std::string user, const edm::ParameterSet & iConfig, edm::ConsumesCollector&& iC){
     if (multipleInstance_.find(user)!=multipleInstance_.end()){
       std::cerr<<user<<" VariableHelper user already defined."<<std::endl;
       throw;}
-    else SetVariableHelperUniqueInstance_ = new VariableHelper(iConfig);
+    else SetVariableHelperUniqueInstance_ = new VariableHelper(iConfig, iC);
     multipleInstance_[user] = SetVariableHelperUniqueInstance_;
     SetVariableHelperUniqueInstance_->setHolder(user);
 
     SetVariableHelperUniqueInstance_->print();
     return (*SetVariableHelperUniqueInstance_);
   }
-  
+
   VariableHelper & get(){
     if (!SetVariableHelperUniqueInstance_)
       {
@@ -73,25 +77,31 @@ class VariableHelperService {
     else return (*SetVariableHelperUniqueInstance_);
   }
 
-  void preModule(const edm::ModuleDescription& desc){
+  void preModule(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
+    const edm::ModuleDescription & desc = *mcc.moduleDescription();
     //does a set with the module name, except that it does not throw on non-configured modules
     std::map<std::string, VariableHelper* >::iterator f=multipleInstance_.find(desc.moduleLabel());
-    if (f != multipleInstance_.end())  SetVariableHelperUniqueInstance_ = (f->second);
-    else { 
-      //do not say anything but set it to zero to get a safe crash in get() if ever called
-      SetVariableHelperUniqueInstance_ =0;}
+    if (f != multipleInstance_.end()) { 
+      SetVariableHelperUniqueInstance_ = (f->second);
+      return ;
+    }
+    SetVariableHelperUniqueInstance_ =0;
   }
 
-  void postProcess(const edm::Event & event, const edm::EventSetup & setup){
+  void postProcess(edm::StreamContext const & sc){
+    
     if (!printValuesForEachEvent_) return;
-    std::map<std::string, VariableHelper* >::iterator f= multipleInstance_.begin();
-    for (; f!=multipleInstance_.end();++f){
+
+    /*const edm::Event & event;
+      std::map<std::string, VariableHelper* >::iterator f= multipleInstance_.begin();
+      for (; f!=multipleInstance_.end();++f){
       //      std::cout<<" category is: "<<printValuesForEachEventCategory_+"|"+f->first<<std::endl;
       //      std::cout<<f->first<<"\n"	       <<f->second->printValues(event);
-
+      
       edm::LogInfo(printValuesForEachEventCategory_+"|"+f->first)<<f->first<<"\n"
-								 <<f->second->printValues(event);
-    }
+      <<f->second->printValues(event);
+      }
+    */
   }
 
   VariableHelper & set(std::string user){

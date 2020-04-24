@@ -1,50 +1,44 @@
 #ifndef DATAFORMATS_SISTRIPCLUSTER_H
 #define DATAFORMATS_SISTRIPCLUSTER_H
 
-//#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include <vector>
+#include <numeric>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class SiStripCluster  /*: public edm::DoNotSortUponInsertion*/ {
+class SiStripCluster  {
 public:
 
   typedef std::vector<SiStripDigi>::const_iterator   SiStripDigiIter;
   typedef std::pair<SiStripDigiIter,SiStripDigiIter>   SiStripDigiRange;
 
+  static const uint16_t stripIndexMask = 0x7FFF;  // The first strip index is in the low 15 bits of firstStrip_
+  static const uint16_t mergedValueMask = 0x8000;  // The merged state is given by the high bit of firstStrip_
+
+
   /** Construct from a range of digis that form a cluster and from 
    *  a DetID. The range is assumed to be non-empty.
    */
   
-  SiStripCluster() : detId_(0), error_x( -99999.9 ) {}
+  SiStripCluster() {}
 
-  SiStripCluster( uint32_t detid, const SiStripDigiRange& range);
+  explicit SiStripCluster(const SiStripDigiRange& range);
 
   template<typename Iter>
-  SiStripCluster(const uint32_t& detid, 
-		 const uint16_t& firstStrip, 
+  SiStripCluster(const uint16_t& firstStrip, 
 		 Iter begin, Iter end ):
-	  detId_(0), firstStrip_(firstStrip), amplitudes_(begin,end),
-  // ggiurgiu@fnal.gov, 01/05/12
-  // Initialize the split cluster errors to un-physical values.
-  // The CPE will check these errors and if they are not un-physical,
-  // it will recognize the clusters as split and assign these (increased)
-  // errors to the corresponding rechit.
-  error_x(-99999.9){}
+	 amplitudes_(begin,end), firstStrip_(firstStrip) {}
 
-  /** The number of the first strip in the cluster
-   */
-  uint16_t firstStrip() const {return firstStrip_;}
+  template<typename Iter>
+  SiStripCluster(const uint16_t& firstStrip, Iter begin, Iter end, bool merged):
+	 amplitudes_(begin,end), firstStrip_(firstStrip) {
+	   if (merged) firstStrip_ |= mergedValueMask;  // if this is a candidate merged cluster
+	 }
 
-  /** The geographical ID of the corresponding DetUnit, 
-   *  to be used for transformations to local and to global reference 
-   *  frames etc.
+  /** The number of the first strip in the cluster.
+   *  The high bit of firstStrip_ indicates whether the cluster is a candidate for being merged.
    */
-  uint32_t geographicalId() const {
-    if (detId_==0) edm::LogError("Deprecation")<<"this method will give zero offline";
-    return detId_;
-  }
-  void setId(uint32_t id) { detId_=id; }
+  uint16_t firstStrip() const {return firstStrip_ & stripIndexMask;}
 
   /** The amplitudes of the strips forming the cluster.
    *  The amplitudes are on consecutive strips; if a strip is missing
@@ -64,16 +58,26 @@ public:
    */
   float barycenter() const;
 
+  /** total charge
+   *
+   */
+   int  charge() const { return std::accumulate(amplitudes().begin(), amplitudes().end(), int(0)); }
+
+  /** Test (set) the merged status of the cluster
+   *
+   */
+  bool isMerged() const {return (firstStrip_ & mergedValueMask) != 0;}
+  void setMerged(bool mergedState) {mergedState ? firstStrip_ |= mergedValueMask : firstStrip_ &= stripIndexMask;}
+
   float getSplitClusterError () const    {  return error_x;  }
   void  setSplitClusterError ( float errx ) { error_x = errx; }
 
 
 private:
 
-  uint32_t                detId_;
-  uint16_t                firstStrip_;
-
   std::vector<uint8_t>   amplitudes_;
+
+  uint16_t                firstStrip_ = 0;
 
   // ggiurgiu@fnal.gov, 01/05/12
   // Add cluster errors to be used by rechits from split clusters. 
@@ -83,24 +87,19 @@ private:
   // appropriate errors for split clusters.
   // To avoid increase of data size on disk,these new data members are set as transient in: 
   // DataFormats/SiStripCluster/src/classes_def.xml
-  float error_x;
+  float error_x = -99999.9;
+
+  // ggiurgiu@fnal.gov, 01/05/12
+  // Initialize the split cluster errors to un-physical values.
+  // The CPE will check these errors and if they are not un-physical,
+  // it will recognize the clusters as split and assign these (increased)
+  // errors to the corresponding rechit.
   
 };
 
 // Comparison operators
 inline bool operator<( const SiStripCluster& one, const SiStripCluster& other) {
-  if(one.geographicalId() == other.geographicalId()) {
     return one.firstStrip() < other.firstStrip();
-  }
-  return one.geographicalId() < other.geographicalId();
-} 
-
-inline bool operator<(const SiStripCluster& cluster, const uint32_t& detid) {
-  return cluster.geographicalId() < detid;
-} 
-
-inline bool operator<(const uint32_t& detid,const SiStripCluster& cluster) {
-  return detid < cluster.geographicalId();
 } 
 
 inline bool operator<(const SiStripCluster& cluster, const uint16_t& firstStrip) {

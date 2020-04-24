@@ -6,9 +6,6 @@
    \date 28 Jun 2005
 */
 
-static const char CVSId[] = "$Id: FEDRawDataProduct_t.cc,v 1.3 2005/10/04 12:23:56 namapane Exp $";
-
-
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>

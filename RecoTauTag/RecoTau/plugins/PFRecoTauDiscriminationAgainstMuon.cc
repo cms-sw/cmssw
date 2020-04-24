@@ -32,9 +32,9 @@ class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBas
     checkNumMatches_ = iConfig.exists("checkNumMatches") ? iConfig.getParameter<bool>("checkNumMatches") : false;
   }
 
-  ~PFRecoTauDiscriminationAgainstMuon() {} 
+  ~PFRecoTauDiscriminationAgainstMuon() override {} 
 
-  double discriminate(const PFTauRef& pfTau) override;
+  double discriminate(const PFTauRef& pfTau) const override;
 
  private:  
   std::string discriminatorOption_;
@@ -46,7 +46,7 @@ class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBas
   bool checkNumMatches_;
 };
 
-double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTauRef) const
 {
   bool decision = true;
 

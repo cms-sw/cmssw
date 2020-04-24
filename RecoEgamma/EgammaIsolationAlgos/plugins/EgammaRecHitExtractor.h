@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,12 +43,12 @@ namespace egammaisolation {
     EgammaRecHitExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC) :
       EgammaRecHitExtractor(par, iC) {}
     EgammaRecHitExtractor(const edm::ParameterSet& par, edm::ConsumesCollector & iC);
-    virtual ~EgammaRecHitExtractor() ;
-    virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) { }
-    virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const {
+    ~EgammaRecHitExtractor() override ;
+    void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) override { }
+    reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override {
       throw cms::Exception("Configuration Error") << "This extractor " << (typeid(this).name()) << " is not made for tracks";
     }
-    virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Candidate & c) const ;
+    reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Candidate & c) const override ;
 
   private:
     void collect(reco::IsoDeposit &deposit,

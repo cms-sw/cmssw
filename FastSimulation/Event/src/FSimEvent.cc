@@ -6,34 +6,23 @@
 FSimEvent::FSimEvent(const edm::ParameterSet& kine) 
     : FBaseSimEvent(kine), id_(edm::EventID(0,0,0)), weight_(0)
 {}
- 
-FSimEvent::FSimEvent(const edm::ParameterSet& vtx,
-		     const edm::ParameterSet& kine)
-    : FBaseSimEvent(vtx,kine), id_(edm::EventID(0,0,0)), weight_(0)
-{}
- 
+  
 FSimEvent::~FSimEvent()
 {}
 
 void 
-FSimEvent::fill(const reco::GenParticleCollection& parts, edm::EventID& Id, RandomEngineAndDistribution const* random) {
-  FBaseSimEvent::fill(parts, random);
+FSimEvent::fill(const HepMC::GenEvent& hev, edm::EventID& Id) {
+  FBaseSimEvent::fill(hev);
   id_ = Id;
 }
-    
-void 
-FSimEvent::fill(const HepMC::GenEvent& hev, edm::EventID& Id, RandomEngineAndDistribution const* random) {
-  FBaseSimEvent::fill(hev, random);
-  id_ = Id;
-}
-    
+
 void
 FSimEvent::fill(const std::vector<SimTrack>& simTracks, 
 		const std::vector<SimVertex>& simVertices) {
   FBaseSimEvent::fill(simTracks,simVertices);
   id_ = edm::EventID();
 } 
-
+    
 edm::EventID 
 FSimEvent::id() const { 
   return id_; 

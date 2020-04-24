@@ -27,7 +27,7 @@
 
 //________________________________________________________________________________________
 DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
-	       SensitiveDetectorCatalog & clg, 
+	       const SensitiveDetectorCatalog & clg,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager) {
 
@@ -76,7 +76,7 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
 //________________________________________________________________________________________
 bool DreamSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     side = 1;
@@ -194,11 +194,8 @@ uint32_t DreamSD::setDetUnitId(G4Step * aStep) {
 void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,sd,0);
-  filter.setCriteria(ddv,DDSpecificsFilter::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
+  DDFilteredView fv(cpv,filter);
   fv.firstChild();
 
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
@@ -208,7 +205,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
     const DDSolid & sol  = fv.logicalPart().solid();
     std::vector<double> paras(sol.parameters());
     G4String name = sol.name().name();
-    G4LogicalVolume* lv=0;
+    G4LogicalVolume* lv=nullptr;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
       if ((*lvcite)->GetName() == name) {
 	lv = (*lvcite);
@@ -231,7 +228,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
   int i=0;
   for (; ite != xtalLMap.end(); ite++, i++) {
     G4String name = "Unknown";
-    if (ite->first != 0) name = (ite->first)->GetName();
+    if (ite->first != nullptr) name = (ite->first)->GetName();
     LogDebug("EcalSim") << " " << i << " " << ite->first << " " << name 
 			<< " L = " << ite->second.first
                         << " W = " << ite->second.second;
@@ -301,7 +298,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
 
   // Retrieve refractive index
   G4MaterialPropertyVector* Rindex = materialPropertiesTable->GetProperty("RINDEX"); 
-  if ( Rindex == NULL ) {
+  if ( Rindex == nullptr ) {
     edm::LogWarning("EcalSim") << "Couldn't retrieve refractive index";
     return cherenkovEnergy;
   }
@@ -318,7 +315,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   // Get particle properties
   G4StepPoint* pPreStepPoint  = aStep->GetPreStepPoint();
   G4StepPoint* pPostStepPoint = aStep->GetPostStepPoint();
-  G4ThreeVector x0 = pPreStepPoint->GetPosition();
+  const G4ThreeVector& x0 = pPreStepPoint->GetPosition();
   G4ThreeVector p0 = aStep->GetDeltaPosition().unit();
   const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
   const double charge = aParticle->GetDefinition()->GetPDGCharge();

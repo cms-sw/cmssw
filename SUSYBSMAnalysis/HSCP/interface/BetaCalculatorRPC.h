@@ -6,11 +6,12 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/Handle.h" 
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
@@ -28,11 +29,11 @@
 
 class  BetaCalculatorRPC{
    public:
-      BetaCalculatorRPC(const edm::ParameterSet& iConfig);
+      BetaCalculatorRPC(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
       void  algo(const std::vector<susybsm::RPCHit4D>& HSCPRPCRecHits);
       void  addInfoToCandidate(susybsm::HSCParticle& candidate, const edm::Event& iEvent, const edm::EventSetup& iSetup);
       float beta(){return betavalue;}
-       
+
    private:
       bool foundvalue;
       float phivalue;
@@ -43,7 +44,7 @@ class  BetaCalculatorRPC{
       float dist(float phi1,float phi2);
       float dist3(float phi1,float phi2,float phi3);
 
-      edm::InputTag rpcRecHitsLabel;
+      edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
 };
 
 

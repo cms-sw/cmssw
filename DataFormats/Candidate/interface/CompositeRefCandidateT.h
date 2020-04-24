@@ -11,7 +11,7 @@
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 namespace reco {
 
@@ -35,28 +35,20 @@ namespace reco {
     /// constructor from a particle
     explicit CompositeRefCandidateT( const LeafCandidate& c ) : LeafCandidate( c ) { }
     /// destructor
-    virtual ~CompositeRefCandidateT();
+    ~CompositeRefCandidateT() override;
     /// returns a clone of the candidate
-    virtual CompositeRefCandidateT<D> * clone() const;
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
+    CompositeRefCandidateT<D> * clone() const override;
     /// number of daughters
-    virtual size_t numberOfDaughters() const;
+    size_t numberOfDaughters() const override;
     /// number of mothers
-    virtual size_t numberOfMothers() const;
+    size_t numberOfMothers() const override;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    virtual const Candidate * daughter(size_type) const;
+    const Candidate * daughter(size_type) const override;
     using ::reco::LeafCandidate::daughter; // avoid hiding the base
     /// return mother at a given position, i = 0, ... numberOfMothers() - 1 (read only mode)
-    virtual const Candidate * mother(size_type = 0) const;
+    const Candidate * mother(size_type = 0) const override;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    virtual Candidate * daughter(size_type);
+    Candidate * daughter(size_type) override;
     /// add a daughter via a reference
     void addDaughter( const typename daughters::value_type & );    
     /// add a daughter via a reference
@@ -78,18 +70,15 @@ namespace reco {
     /// set mother product ID
     void resetMothers( const edm::ProductID & id ) { mom = mothers( id ); }
 
+    CMS_CLASS_VERSION(13)
 
   private:
-    /// const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    /// iterator implementation
-    typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
     /// collection of references to mothers
     daughters mom;
     /// check overlap with another candidate
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
   };
 
   template<typename D>
@@ -112,38 +101,18 @@ namespace reco {
   }
   
   template<typename D>
-  Candidate::const_iterator CompositeRefCandidateT<D>::begin() const { 
-    return const_iterator( new const_iterator_imp_specific( dau.begin() ) ); 
-  }
-  
-  template<typename D>
-  Candidate::const_iterator CompositeRefCandidateT<D>::end() const { 
-    return const_iterator( new const_iterator_imp_specific( dau.end() ) ); 
-  }    
-  
-  template<typename D>
-  Candidate::iterator CompositeRefCandidateT<D>::begin() { 
-    return iterator( new iterator_imp_specific ); 
-  }
-  
-  template<typename D>
-  Candidate::iterator CompositeRefCandidateT<D>::end() { 
-    return iterator( new iterator_imp_specific ); 
-  }    
-  
-  template<typename D>
   const Candidate * CompositeRefCandidateT<D>::daughter( size_type i ) const { 
-    return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0;
+    return ( i < numberOfDaughters() ) ? & * dau[ i ] : nullptr;
   }
   
   template<typename D>
   const Candidate * CompositeRefCandidateT<D>::mother( size_type i ) const { 
-    return ( i < numberOfMothers() ) ? & * mom[ i ] : 0;
+    return ( i < numberOfMothers() ) ? & * mom[ i ] : nullptr;
   }
   
   template<typename D>
   Candidate * CompositeRefCandidateT<D>::daughter( size_type i ) { 
-    return 0;
+    return nullptr;
   }
   
   template<typename D>

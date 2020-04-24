@@ -2,6 +2,7 @@
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
+
 #include "SimG4CMS/Calo/interface/CaloTrkProcessing.h"
 
 #include "SimG4Core/Application/interface/SimTrackManager.h"
@@ -12,6 +13,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4EventManager.hh"
+
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Step.hh"
@@ -23,7 +25,7 @@
 
 CaloTrkProcessing::CaloTrkProcessing(G4String name, 
 				     const DDCompactView & cpv,
-				     SensitiveDetectorCatalog & clg, 
+				     const SensitiveDetectorCatalog & clg,
 				     edm::ParameterSet const & p,
 				     const SimTrackManager* manager) : 
   SensitiveCaloDetector(name, cpv, clg, p), lastTrackID(-1),
@@ -41,11 +43,8 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   //Get the names 
   G4String attribute = "ReadOutName"; 
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,name,0);
-  filter.setCriteria(ddv,DDSpecificsFilter::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute,name,0)};
+  DDFilteredView fv(cpv,filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
 
@@ -101,7 +100,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
   int istart = 0;
   for (unsigned int i=0; i<caloNames.size(); i++) {
-    G4LogicalVolume* lv     = 0;
+    G4LogicalVolume* lv     = nullptr;
     G4String         name   = caloNames[i];
     int              number = static_cast<int>(neighbours[i]);
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
@@ -110,7 +109,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 	break;
       }
     }
-    if (lv != 0) {
+    if (lv != nullptr) {
      CaloTrkProcessing::Detector detector;
      detector.name  = name;
      detector.lv    = lv;
@@ -126,7 +125,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
      std::vector<G4LogicalVolume*> insideLV;
      std::vector<int>              insideLevels;
      for (int k = 0; k < number; k++) {
-       lv   = 0;
+       lv   = nullptr;
        name = insideNames[istart+k];
        for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
 	 if ((*lvcite)->GetName() == name) {
@@ -179,7 +178,7 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
   TrackInformation* trkInfo = dynamic_cast<TrackInformation*>
     (theTrack->GetUserInformation());
   
-  if (trkInfo == 0) {
+  if (trkInfo == nullptr) {
     edm::LogError("CaloSim") << "CaloTrkProcessing: No trk info !!!! abort ";
     throw cms::Exception("Unknown", "CaloTrkProcessing")
       << "cannot get trkInfo for Track " << id << "\n";
@@ -309,7 +308,7 @@ std::vector<double> CaloTrkProcessing::getNumbers(const G4String str,
 int CaloTrkProcessing::isItCalo(const G4VTouchable* touch) {
 
   int lastLevel = -1;
-  G4LogicalVolume* lv=0;
+  G4LogicalVolume* lv=nullptr;
   for (unsigned int it=0; it < detectors.size(); it++) {
     if (lastLevel != detectors[it].level) {
       lastLevel = detectors[it].level;
@@ -338,7 +337,7 @@ int CaloTrkProcessing::isItCalo(const G4VTouchable* touch) {
 int CaloTrkProcessing::isItInside(const G4VTouchable* touch, int idcal,
 				  int idin) {
   int lastLevel = -1;
-  G4LogicalVolume* lv=0;
+  G4LogicalVolume* lv=nullptr;
   int id1, id2;
   if (idcal < 0) {id1 = 0; id2 = static_cast<int>(detectors.size());}
   else           {id1 = idcal; id2 = id1+1;}
@@ -402,7 +401,7 @@ int CaloTrkProcessing::detLevels(const G4VTouchable* touch) const {
 G4LogicalVolume* CaloTrkProcessing::detLV(const G4VTouchable* touch,
 					  int currentlevel) const {
 
-  G4LogicalVolume* lv=0;
+  G4LogicalVolume* lv=nullptr;
   if (touch) {
     int level = ((touch->GetHistoryDepth())+1);
     if (level > 0 && level >= currentlevel) {
@@ -423,7 +422,7 @@ void CaloTrkProcessing::detectorLevel(const G4VTouchable* touch, int& level,
     for (int ii = 0; ii < level; ii++) {
       int i      = level - ii - 1;
       G4VPhysicalVolume* pv = touch->GetVolume(i);
-      if (pv != 0) 
+      if (pv != nullptr) 
 	name[ii] = pv->GetName();
       else
 	name[ii] = unknown;

@@ -151,7 +151,7 @@ public:
 
   //FE/Channel check: rate of channels with error (only considering connected channels)
   float fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer,
-			      const SiStripFedCabling* aCabling = 0);
+			      const SiStripFedCabling* aCabling = nullptr);
 
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
@@ -204,9 +204,9 @@ public:
 
   const unsigned int fedID();
 
-  static FEDCounters & getFEDErrorsCounters();
+  FEDCounters & getFEDErrorsCounters();
 
-  static ChannelCounters & getChannelErrorsCounters();
+  ChannelCounters & getChannelErrorsCounters();
 
   FECounters & getFEErrorsCounters();
 
@@ -268,6 +268,9 @@ private:
   
   FECounters feCounter_;
   FEDLevelErrors fedErrors_;
+  ChannelCounters lChCounter_;
+  FEDCounters lFedCounter_;
+
   std::vector<FELevelErrors> feErrors_;
   std::vector<ChannelLevelErrors> chErrorsDetailed_;
   std::vector<APVLevelErrors> apvErrors_;

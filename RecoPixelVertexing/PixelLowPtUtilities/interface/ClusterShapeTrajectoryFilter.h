@@ -2,8 +2,9 @@
 #define _ClusterShapeTrajectoryFilter_h_
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
-namespace edm { class EventSetup; }
+namespace edm { class ParameterSet; class EventSetup; }
 
 class SiPixelRecHit;
 class SiStripRecHit2D;
@@ -12,26 +13,27 @@ class MagneticField;
 class SiPixelLorentzAngle;
 class SiStripLorentzAngle;
 class ClusterShapeHitFilter;
+class SiPixelClusterShapeCache;
 
 class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
  public:
-  //  ClusterShapeTrajectoryFilter(const edm::EventSetup& es);
+  ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
 
-  ClusterShapeTrajectoryFilter
-    (const ClusterShapeHitFilter * f):theFilter(f){}
+  ~ClusterShapeTrajectoryFilter() override;
 
-  virtual ~ClusterShapeTrajectoryFilter();
+  void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  virtual bool qualityFilter(const TempTrajectory&) const;
-  virtual bool qualityFilter(const Trajectory&) const;
+  bool qualityFilter(const TempTrajectory&) const override;
+  bool qualityFilter(const Trajectory&) const override;
  
-  virtual bool toBeContinued(TempTrajectory&) const;
-  virtual bool toBeContinued(Trajectory&) const;
+  bool toBeContinued(TempTrajectory&) const override;
+  bool toBeContinued(Trajectory&) const override;
 
-  virtual std::string name() const { return "ClusterShapeTrajectoryFilter"; }
+  std::string name() const override { return "ClusterShapeTrajectoryFilter"; }
 
  private:
-
+  edm::EDGetTokenT<SiPixelClusterShapeCache> theCacheToken;
+  const SiPixelClusterShapeCache *theCache;
   const ClusterShapeHitFilter * theFilter;
 };
 

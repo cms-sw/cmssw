@@ -20,7 +20,7 @@ using namespace muonisolation;
 
 
 MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf, edm::ConsumesCollector && iC)
-  : theExtractor(0), theIsolator(0)
+  : theExtractor(nullptr), theIsolator(nullptr)
 {
   edm::ParameterSet extractorPSet = conf.getParameter<edm::ParameterSet>("ExtractorPSet");
   string extractorName = extractorPSet.getParameter<string>("ComponentName");

@@ -1,48 +1,45 @@
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
+
+#include <cassert>
+#include <ostream>
+
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 
 DDExpandedNode::DDExpandedNode(const DDLogicalPart & lp, 
-                               DDPosData * pd, 
+                               const DDPosData * pd, 
 	                       const DDTranslation & t, 
 	                       const DDRotationMatrix & r,
 			       int siblingno)
  : logp_(lp), posd_(pd), trans_(t), rot_(r), siblingno_(siblingno)
 { }
 
-
 DDExpandedNode::~DDExpandedNode()
 { }   
-   
 
 bool DDExpandedNode::operator==(const DDExpandedNode & n) const {
   return ( (logp_==n.logp_) && 
-	   (posd_->copyno_ == n.posd_->copyno_) ); 
-  
+	   (posd_->copyno() == n.posd_->copyno()) );  
 }	 		  		 
-
      
 int DDExpandedNode::copyno() const 
-{ 
-  return posd_->copyno_; 
+{
+  assert( posd_ );
+  return posd_->copyno(); 
 }
-
-#include <ostream>
 
 std::ostream & operator<<(std::ostream & os, const DDExpandedNode & n)
 {
   os << n.logicalPart().name() 
      << '[' << n.copyno() << ']';
-     //<< ',' << n.siblingno()  << ']';
   return os;
 }
 
-
 std::ostream & operator<<(std::ostream & os, const DDGeoHistory & h)
 {
-   DDGeoHistory::const_iterator it = h.begin();
-   for (; it != h.end(); ++it) {
-     os << '/' << *it;
+   for( const auto& it : h ) {
+     os << '/' << it;
    }
    return os;
 }
-

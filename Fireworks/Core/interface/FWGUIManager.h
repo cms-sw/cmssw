@@ -21,7 +21,6 @@
 // system include files
 #include <map>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <sigc++/sigc++.h>
 #include "Rtypes.h"
 #include "GuiTypes.h"
@@ -108,24 +107,26 @@ public:
                 const FWViewManagerManager* iVMMgr,
                 FWNavigatorBase* navigator);
 
-   virtual ~FWGUIManager();
+   ~FWGUIManager() override;
    void     evePreTerminate();
    
    //configuration management interface
-   void addTo(FWConfiguration&) const;
-   void setFrom(const FWConfiguration&);
+   void addTo(FWConfiguration&) const override;
+   void setFrom(const FWConfiguration&) override;
    void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
+   void initEmpty();
 
    TGVerticalFrame* createList(TGCompositeFrame *p);
    void createViews(TEveWindowSlot *slot);
    void exportImageOfMainView();
    void exportImagesOfAllViews();
-   void exportAllViews(const std::string& format);
+   void exportAllViews(const std::string& format, int height);
 
    void createEDIFrame();
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
    
+   void open3DRegion();
    void showCommonPopup();
    
    void createModelPopup();
@@ -151,7 +152,8 @@ public:
    
    // ---------- static member functions --------------------
    static FWGUIManager* getGUIManager();
-   static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
+   fireworks::Context*  getContext() { return m_context; }
+   static TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
    
    // ---------- member functions ---------------------------
    //have to use the portable syntax else the reflex code will not build
@@ -159,7 +161,7 @@ public:
                             ViewBuildFunctor& iBuilder);
    
    
-   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = 0);
+   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = nullptr);
    void newViewSlot(const std::string& iName);
    
    void connectSubviewAreaSignals(FWGUISubviewArea*);
@@ -205,7 +207,9 @@ public:
    sigc::signal<void> filterButtonClicked_;
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
+   sigc::signal<void, const std::string&> writePartialToConfigurationFile_;
    sigc::signal<void, const std::string&> loadFromConfigurationFile_;
+   sigc::signal<void, const std::string&> loadPartialFromConfigurationFile_;
    sigc::signal<void, edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
@@ -215,8 +219,8 @@ public:
    sigc::signal<void, Float_t> changedDelayBetweenEvents_;
    
 private:
-   FWGUIManager(const FWGUIManager&);    // stop default
-   const FWGUIManager& operator=(const FWGUIManager&);    // stop default
+   FWGUIManager(const FWGUIManager&) = delete;    // stop default
+   const FWGUIManager& operator=(const FWGUIManager&) = delete;    // stop default
       
    TEveWindow* getSwapCandidate();
    
@@ -224,7 +228,10 @@ private:
 
    bool promptForConfigurationFile(std::string &result, enum EFileDialogMode mode);
    void promptForSaveConfigurationFile();
+   void promptForPartialSaveConfigurationFile();
    void promptForLoadConfigurationFile();
+   void promptForPartialLoadConfigurationFile();
+   void savePartialToConfigurationFile();
    
    void delaySliderChanged(Int_t);
    
@@ -275,7 +282,7 @@ private:
    sigc::connection   m_modelChangeConn;
 
    std::auto_ptr<CmsShowTaskExecutor> m_tasks;
-
+    std::vector<FWViewBase*> m_regionViews;
    int m_WMOffsetX, m_WMOffsetY, m_WMDecorH;
 };
 

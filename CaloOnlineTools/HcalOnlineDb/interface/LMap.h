@@ -23,7 +23,7 @@
 
 // system include files
 #include<vector>
-#include <string.h>
+#include <cstring>
 #include <fstream>
 #include <boost/shared_ptr.hpp>
 

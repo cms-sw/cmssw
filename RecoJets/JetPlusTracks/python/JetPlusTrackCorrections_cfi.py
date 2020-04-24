@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import * 
 
-JPTZSPCorrectorICone5 = cms.PSet(
+JPTZSPCorrectorAntiKt4 = cms.PSet(
 
     # General Configuration
     Verbose = cms.bool(True),
@@ -17,8 +17,8 @@ JPTZSPCorrectorICone5 = cms.PSet(
     UseOutOfVertexTracks = cms.bool(True),
     
     # Jet-tracks association
-    JetTracksAssociationAtVertex   = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertexJPT"), 
-    JetTracksAssociationAtCaloFace = cms.InputTag("iterativeCone5JetTracksAssociatorAtCaloFace"),
+    JetTracksAssociationAtVertex   = cms.InputTag("ak4JetTracksAssociatorAtVertexJPT"), 
+    JetTracksAssociationAtCaloFace = cms.InputTag("ak4JetTracksAssociatorAtCaloFace"),
 
     # Jet merging/splitting
     JetSplitMerge = cms.int32(0),

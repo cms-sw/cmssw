@@ -82,7 +82,6 @@ process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
 # ==================
 # process.Timing = cms.Service("Timing")
 # process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
-# process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")
 # process.Tracer = cms.Service("Tracer")
 
 process.out = cms.OutputModule("PoolOutputModule",

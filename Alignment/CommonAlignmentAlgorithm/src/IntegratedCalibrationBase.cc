@@ -23,7 +23,7 @@ IntegratedCalibrationBase::IntegratedCalibrationBase(const edm::ParameterSet &cf
   
 //============================================================================
 std::vector<IntegratedCalibrationBase::Values>
-IntegratedCalibrationBase::derivatives(const TransientTrackingRecHit &hit,
+IntegratedCalibrationBase::derivatives(const TrackingRecHit &hit,
 				       const TrajectoryStateOnSurface &tsos,
 				       const edm::EventSetup &setup,
 				       const EventInfo &eventInfo) const

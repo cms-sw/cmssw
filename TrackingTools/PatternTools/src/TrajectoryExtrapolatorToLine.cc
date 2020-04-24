@@ -13,7 +13,7 @@ TrajectoryStateOnSurface TrajectoryExtrapolatorToLine::extrapolate(const FreeTra
   DeepCopyPointerByClone<Propagator> p(aPropagator.clone());
   p->setPropagationDirection(anyDirection);
 
-  FreeTrajectoryState fastFts(fts.parameters());
+  FreeTrajectoryState fastFts(fts.parameters(), fts.curvilinearError());
   GlobalVector T1 = fastFts.momentum().unit();
    GlobalPoint T0 = fastFts.position();
    double distance = 9999999.9;
@@ -21,9 +21,9 @@ TrajectoryStateOnSurface TrajectoryExtrapolatorToLine::extrapolate(const FreeTra
    int n_iter = 0;
    bool refining = true;
 
- 
+   LogDebug("TrajectoryExtrapolatorToLine") << "START REFINING";  
    while (refining) {
- 
+     LogDebug("TrajectoryExtrapolatorToLine") << "Refining cycle...";
      // describe orientation of target surface on basis of track parameters
      n_iter++;
      Line T(T0,T1);
@@ -37,6 +37,11 @@ TrajectoryStateOnSurface TrajectoryExtrapolatorToLine::extrapolate(const FreeTra
      GlobalVector YY(T1.cross(XX));
      Surface::RotationType rot(XX,YY);
      ReferenceCountingPointer<Plane> surface = Plane::build(pos, rot);
+     LogDebug("TrajectoryExtrapolatorToLine") << "Current plane position: " << surface->toGlobal(LocalPoint(0.,0.,0.));
+     LogDebug("TrajectoryExtrapolatorToLine") << "Current plane normal: " <<  surface->toGlobal(LocalVector(0,0,1));
+     LogDebug("TrajectoryExtrapolatorToLine") << "Current momentum:     " <<  T1;
+
+
 
      // extrapolate fastFts to target surface
      TrajectoryStateOnSurface tsos = p->propagate(fastFts, *surface);

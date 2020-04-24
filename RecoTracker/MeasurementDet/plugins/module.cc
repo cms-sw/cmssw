@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoTracker/MeasurementDet/plugins/MeasurementTrackerESProducer.h"
-#include "RecoTracker/MeasurementDet/plugins/MeasurementTrackerSiStripRefGetterProducer.h"
+
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -10,4 +10,3 @@
 
 
 DEFINE_FWK_EVENTSETUP_MODULE(MeasurementTrackerESProducer);
-DEFINE_FWK_MODULE(MeasurementTrackerSiStripRefGetterProducer);

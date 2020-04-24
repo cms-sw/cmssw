@@ -29,7 +29,7 @@
 
 
 // constructor
-L1RetrieveL1Extra::L1RetrieveL1Extra(const edm::ParameterSet& paramSet) :
+L1RetrieveL1Extra::L1RetrieveL1Extra(const edm::ParameterSet& paramSet, edm::ConsumesCollector &&iC) :
     //
     m_tagL1ExtraMuon(paramSet.getParameter<edm::InputTag>("TagL1ExtraMuon")),
     m_tagL1ExtraIsoEG(paramSet.getParameter<edm::InputTag>("TagL1ExtraIsoEG")),
@@ -72,6 +72,16 @@ L1RetrieveL1Extra::L1RetrieveL1Extra(const edm::ParameterSet& paramSet) :
 
     {
 
+      m_tagL1ExtraMuonTok=iC.consumes<l1extra::L1MuonParticleCollection>(m_tagL1ExtraMuon);
+      m_tagL1ExtraIsoEGTok=iC.consumes<l1extra::L1EmParticleCollection>(m_tagL1ExtraIsoEG);
+      m_tagL1ExtraNoIsoEGTok=iC.consumes<l1extra::L1EmParticleCollection>(m_tagL1ExtraNoIsoEG);
+      m_tagL1ExtraCenJetTok=iC.consumes<l1extra::L1JetParticleCollection>(m_tagL1ExtraCenJet);
+      m_tagL1ExtraForJetTok=iC.consumes<l1extra::L1JetParticleCollection>(m_tagL1ExtraForJet);
+      m_tagL1ExtraTauJetTok=iC.consumes<l1extra::L1JetParticleCollection>(m_tagL1ExtraTauJet);
+      m_tagL1ExtraEtMissMETTok=iC.consumes<l1extra::L1EtMissParticleCollection>(m_tagL1ExtraEtMissMET);
+      m_tagL1ExtraEtMissHTMTok=iC.consumes<l1extra::L1EtMissParticleCollection>(m_tagL1ExtraEtMissHTM);
+      m_tagL1ExtraHFRingsTok=iC.consumes<l1extra::L1HFRingsCollection>(m_tagL1ExtraHFRings);
+
     // empty
 }
 
@@ -89,7 +99,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
 
     //
     edm::Handle<l1extra::L1MuonParticleCollection> collL1ExtraMuon;
-    iEvent.getByLabel(m_tagL1ExtraMuon, collL1ExtraMuon);
+    iEvent.getByToken(m_tagL1ExtraMuonTok, collL1ExtraMuon);
 
     if (collL1ExtraMuon.isValid()) {
         m_validL1ExtraMuon = true;
@@ -108,7 +118,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
 
     //
     edm::Handle<l1extra::L1EmParticleCollection> collL1ExtraIsoEG;
-    iEvent.getByLabel(m_tagL1ExtraIsoEG, collL1ExtraIsoEG);
+    iEvent.getByToken(m_tagL1ExtraIsoEGTok, collL1ExtraIsoEG);
 
     if (collL1ExtraIsoEG.isValid()) {
         m_validL1ExtraIsoEG = true;
@@ -126,7 +136,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
     }
 
     edm::Handle<l1extra::L1EmParticleCollection> collL1ExtraNoIsoEG;
-    iEvent.getByLabel(m_tagL1ExtraNoIsoEG, collL1ExtraNoIsoEG);
+    iEvent.getByToken(m_tagL1ExtraNoIsoEGTok, collL1ExtraNoIsoEG);
 
     if (collL1ExtraNoIsoEG.isValid()) {
         m_validL1ExtraNoIsoEG = true;
@@ -145,7 +155,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
 
     //
     edm::Handle<l1extra::L1JetParticleCollection> collL1ExtraCenJet;
-    iEvent.getByLabel(m_tagL1ExtraCenJet, collL1ExtraCenJet);
+    iEvent.getByToken(m_tagL1ExtraCenJetTok, collL1ExtraCenJet);
 
     if (collL1ExtraCenJet.isValid()) {
         m_validL1ExtraCenJet = true;
@@ -163,7 +173,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
     }
 
     edm::Handle<l1extra::L1JetParticleCollection> collL1ExtraForJet;
-    iEvent.getByLabel(m_tagL1ExtraForJet, collL1ExtraForJet);
+    iEvent.getByToken(m_tagL1ExtraForJetTok, collL1ExtraForJet);
 
     if (collL1ExtraForJet.isValid()) {
         m_validL1ExtraForJet = true;
@@ -181,7 +191,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
     }
 
     edm::Handle<l1extra::L1JetParticleCollection> collL1ExtraTauJet;
-    iEvent.getByLabel(m_tagL1ExtraTauJet, collL1ExtraTauJet);
+    iEvent.getByToken(m_tagL1ExtraTauJetTok, collL1ExtraTauJet);
 
     if (collL1ExtraTauJet.isValid()) {
         m_validL1ExtraTauJet = true;
@@ -200,7 +210,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
 
     //
     edm::Handle<l1extra::L1EtMissParticleCollection> collL1ExtraEtMissMET;
-    iEvent.getByLabel(m_tagL1ExtraEtMissMET, collL1ExtraEtMissMET);
+    iEvent.getByToken(m_tagL1ExtraEtMissMETTok, collL1ExtraEtMissMET);
 
     if (collL1ExtraEtMissMET.isValid()) {
         m_validL1ExtraETT = true;
@@ -222,7 +232,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
     }
 
     edm::Handle<l1extra::L1EtMissParticleCollection> collL1ExtraEtMissHTM;
-    iEvent.getByLabel(m_tagL1ExtraEtMissHTM, collL1ExtraEtMissHTM);
+    iEvent.getByToken(m_tagL1ExtraEtMissHTMTok, collL1ExtraEtMissHTM);
 
     if (collL1ExtraEtMissHTM.isValid()) {
         m_validL1ExtraHTT = true;
@@ -245,7 +255,7 @@ void L1RetrieveL1Extra::retrieveL1ExtraObjects(const edm::Event& iEvent,
 
     //
     edm::Handle<l1extra::L1HFRingsCollection> collL1ExtraHFRings;
-    iEvent.getByLabel(m_tagL1ExtraHFRings, collL1ExtraHFRings);
+    iEvent.getByToken(m_tagL1ExtraHFRingsTok, collL1ExtraHFRings);
 
     if (collL1ExtraHFRings.isValid()) {
         m_validL1ExtraHfBitCounts = true;

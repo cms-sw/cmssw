@@ -14,7 +14,7 @@ Adapted for CASTOR by L. Mundim
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-CastorElectronicsMap::CastorElectronicsMap() : 
+CastorElectronicsMap::CastorElectronicsMap() :
   mPItems(CastorElectronicsId::maxLinearIndex+1),
   mTItems(CastorElectronicsId::maxLinearIndex+1),
   mPItemsById(nullptr), mTItemsByTrigId(nullptr)
@@ -26,14 +26,8 @@ namespace castor_impl {
 }
 
 CastorElectronicsMap::~CastorElectronicsMap() {
-    if (mPItemsById) {
-        delete mPItemsById;
-        mPItemsById = nullptr;
-    }
-    if (mTItemsByTrigId) {
-        delete mTItemsByTrigId;
-        mTItemsByTrigId = nullptr;
-    }
+	delete mPItemsById.load();
+	delete mTItemsByTrigId.load();
 }
 // copy-ctor
 CastorElectronicsMap::CastorElectronicsMap(const CastorElectronicsMap& src)
@@ -68,7 +62,7 @@ const CastorElectronicsMap::PrecisionItem* CastorElectronicsMap::findById (unsig
   item = std::lower_bound ((*mPItemsById).begin(), (*mPItemsById).end(), &target, castor_impl::LessById());
   if (item == (*mPItemsById).end() || (*item)->mId != fId) 
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
-    return 0;
+    return nullptr;
   return *item;
 }
 
@@ -76,7 +70,7 @@ const CastorElectronicsMap::PrecisionItem* CastorElectronicsMap::findPByElId (un
   CastorElectronicsId eid(fElId);
   const PrecisionItem* i=&(mPItems[eid.linearIndex()]);
   
-  if (i!=0 && i->mElId!=fElId) i=0;
+  if (i!=nullptr && i->mElId!=fElId) i=nullptr;
   return i;
 }
 
@@ -84,7 +78,7 @@ const CastorElectronicsMap::TriggerItem* CastorElectronicsMap::findTByElId (unsi
   CastorElectronicsId eid(fElId);
   const TriggerItem* i=&(mTItems[eid.linearIndex()]);
   
-  if (i!=0 && i->mElId!=fElId) i=0;
+  if (i!=nullptr && i->mElId!=fElId) i=nullptr;
   return i;
 }
 
@@ -98,7 +92,7 @@ const CastorElectronicsMap::TriggerItem* CastorElectronicsMap::findByTrigId (uns
   item = std::lower_bound ((*mTItemsByTrigId).begin(), (*mTItemsByTrigId).end(), &target, castor_impl::LessByTrigId());
   if (item == (*mTItemsByTrigId).end() || (*item)->mTrigId != fTrigId) 
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
-    return 0;
+    return nullptr;
   return *item;
 }
 
@@ -124,7 +118,7 @@ const CastorElectronicsId CastorElectronicsMap::lookupTrigger(DetId fId) const {
 
 bool CastorElectronicsMap::lookup(const CastorElectronicsId pid, CastorElectronicsId& eid, HcalGenericDetId& did) const {
   const PrecisionItem* i=&(mPItems[pid.linearIndex()]);
-  if (i!=0 && i->mId!=0) {
+  if (i!=nullptr && i->mId!=0) {
     eid=CastorElectronicsId(i->mElId);
     did=HcalGenericDetId(i->mId);
     return true;
@@ -133,7 +127,7 @@ bool CastorElectronicsMap::lookup(const CastorElectronicsId pid, CastorElectroni
 
 bool CastorElectronicsMap::lookup(const CastorElectronicsId pid, CastorElectronicsId& eid, HcalTrigTowerDetId& did) const {
   const TriggerItem* i=&(mTItems[pid.linearIndex()]);
-  if (i!=0 && i->mTrigId!=0) {
+  if (i!=nullptr && i->mTrigId!=0) {
     eid=CastorElectronicsId(i->mElId);
     did=HcalGenericDetId(i->mTrigId);
     return true;

@@ -23,6 +23,7 @@ namespace edm {
   class Provenance;
   class RunAuxiliary;
   class RunID;
+  class StableProvenance;
   class Timestamp;
   class ProductProvenanceRetriever;
 }

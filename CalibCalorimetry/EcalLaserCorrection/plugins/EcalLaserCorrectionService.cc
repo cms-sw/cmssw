@@ -56,7 +56,7 @@ EcalLaserCorrectionService::~EcalLaserCorrectionService()
 //
 
 // ------------ method called to produce the data  ------------
-boost::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce( const EcalLaserDbRecord& )
+std::shared_ptr<EcalLaserDbService> EcalLaserCorrectionService::produce( const EcalLaserDbRecord& )
 {
   return mService_;
 }

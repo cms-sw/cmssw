@@ -33,6 +33,8 @@ siStripQTesterHI = cms.EDAnalyzer("QualityTester",
 )
 
 # define new HI sequence
+#removed modules using TkDetMap
+#SiStripOfflineDQMClientHI = cms.Sequence(siStripQTesterHI)
 SiStripOfflineDQMClientHI = cms.Sequence(siStripQTesterHI*siStripOfflineAnalyser)
 
 # Services needed for TkHistoMap

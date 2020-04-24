@@ -33,10 +33,10 @@ public:
        theDisk = dynamic_cast<BoundDisk*>(theSurface);
        theDiskInnerRadius = theDisk->innerRadius();
        theDiskOuterRadius = theDisk->outerRadius();
-       theCylinder = 0;
+       theCylinder = nullptr;
      } else {
        theCylinder = dynamic_cast<BoundCylinder*>(theSurface);
-       theDisk = 0;
+       theDisk = nullptr;
        theDiskInnerRadius = 0.;
        theDiskOuterRadius = 0.;
      }
@@ -60,7 +60,7 @@ public:
      theDisk = dynamic_cast<BoundDisk*>(theSurface);
      theDiskInnerRadius = theDisk->innerRadius();
      theDiskOuterRadius = theDisk->outerRadius();
-     theCylinder = 0;
+     theCylinder = nullptr;
    }
 
   /// Is the layer sensitive ?
@@ -73,10 +73,10 @@ public:
   inline const BoundSurface& surface() const { return *theSurface; }
 
   /// Returns the cylinder
-  inline BoundCylinder* cylinder() const { return theCylinder; }
+  inline BoundCylinder const* cylinder() const { return theCylinder; }
 
   /// Returns the surface
-  inline BoundDisk* disk() const { return theDisk; }
+  inline BoundDisk const* disk() const { return theDisk; }
 
   /// Returns the layer number  
   inline unsigned int layerNumber() const { return theLayerNumber; }

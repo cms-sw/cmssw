@@ -27,8 +27,7 @@ HLTElectronMissingHitsFilter::HLTElectronMissingHitsFilter(const edm::ParameterS
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
 }
 
-HLTElectronMissingHitsFilter::~HLTElectronMissingHitsFilter()
-{}
+HLTElectronMissingHitsFilter::~HLTElectronMissingHitsFilter() = default;
 
 void HLTElectronMissingHitsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -62,22 +61,23 @@ bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::Even
   int n(0);
 
   edm::RefToBase<reco::Candidate> candref;
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+  for (auto & recoecalcand : recoecalcands) {
 
-    reco::SuperClusterRef scCand = recoecalcands[i]->superCluster();
-    for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++) {
+    reco::SuperClusterRef scCand = recoecalcand->superCluster();
+    for(auto iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++) {
       reco::ElectronRef electronref(reco::ElectronRef(electronHandle, iElectron - electronHandle->begin()));
       const reco::SuperClusterRef scEle = electronref->superCluster();
       if(scCand == scEle) {
 	
 	int missinghits = 0;
-	if (electronref->gsfTrack().isNonnull())
-	  missinghits = electronref->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
-	else if (electronref->gsfTrack().isNonnull())
-	  missinghits = electronref->track()->trackerExpectedHitsInner().numberOfLostHits();
-	else
-	  std::cerr << "Electron without track..." << std::endl;
-	
+	if (electronref->gsfTrack().isNonnull()){
+        missinghits = electronref->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    } else if (electronref->track().isNonnull()){
+        missinghits = electronref->track()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    }else{
+        std::cerr << "Electron without track..." << std::endl;
+    }
+
 	if(fabs(electronref->eta()) < 1.479) {
 	  if (missinghits < barrelcut_) {
 	    n++;

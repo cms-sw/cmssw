@@ -8,8 +8,6 @@
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 
-
-
 #include "CondFormats/Calibration/interface/Efficiency.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"

@@ -19,11 +19,12 @@
 //
 
 // system include files
+#include <memory>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -33,26 +34,26 @@ namespace edm {
          
       public:
          explicit IntersectingIOVRecordIntervalFinder(const EventSetupRecordKey&);
-         virtual ~IntersectingIOVRecordIntervalFinder();
+         ~IntersectingIOVRecordIntervalFinder() override;
          
          // ---------- const member functions ---------------------
          
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
-         void swapFinders(std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >&);
+         void swapFinders(std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>&);
       protected:
-         virtual void setIntervalFor(const EventSetupRecordKey&,
+         void setIntervalFor(const EventSetupRecordKey&,
                                      const IOVSyncValue& , 
-                                     ValidityInterval&);
+                                     ValidityInterval&) override;
          
       private:
-         IntersectingIOVRecordIntervalFinder(const IntersectingIOVRecordIntervalFinder&); // stop default
+         IntersectingIOVRecordIntervalFinder(const IntersectingIOVRecordIntervalFinder&) = delete; // stop default
          
-         const IntersectingIOVRecordIntervalFinder& operator=(const IntersectingIOVRecordIntervalFinder&); // stop default
+         const IntersectingIOVRecordIntervalFinder& operator=(const IntersectingIOVRecordIntervalFinder&) = delete; // stop default
          
          // ---------- member data --------------------------------
-         std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > finders_;
+         std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>> finders_;
       };
    }
 }

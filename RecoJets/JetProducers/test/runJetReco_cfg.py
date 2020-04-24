@@ -10,12 +10,10 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0074/182BA6EB-BD2A-E111-801C-003048678A88.root',
-        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0074/8E79DF51-B92A-E111-A9B4-00261894396E.root',
-        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0074/AE46DE36-C02A-E111-AF78-003048FF9AC6.root',
-        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0082/5893EB84-542B-E111-AFDF-002618943915.root',
-        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0082/8C111086-542B-E111-AA93-002618943983.root',
-        '/store/relval/CMSSW_5_0_0/RelValTTbar/GEN-SIM-RECO/START50_V8-v3/0082/E0196E85-542B-E111-AA08-0030486791DC.root'
+'/store/relval/CMSSW_7_2_0_pre6/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/PRE_LS172_V11-v1/00000/224918A9-C63F-E411-9E41-0025905A6118.root',
+'/store/relval/CMSSW_7_2_0_pre6/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/PRE_LS172_V11-v1/00000/80D36272-BB3F-E411-A865-0026189437EB.root',
+'/store/relval/CMSSW_7_2_0_pre6/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/PRE_LS172_V11-v1/00000/B449F5E7-BD3F-E411-A643-002618943874.root',
+'/store/relval/CMSSW_7_2_0_pre6/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/PRE_LS172_V11-v1/00000/E8CC1FE0-CA3F-E411-9060-0025905B8592.root'
     )
     #inputCommands = cms.untracked.vstring('keep *_*_*_*','drop recoTrackExtrapolations_*_*_RECO')  
     )
@@ -43,45 +41,17 @@ process.output.outputCommands.append('keep recoPFCandidates_particleFlow_*_*')
 # jet reconstruction
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START50_V10::All'
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-process.load("RecoJets/Configuration/RecoPFClusterJets_cff")
-process.load("RecoMET/METProducers/PFClusterMET_cfi")
+process.load("RecoJets/Configuration/RecoJetsGlobal_cff")
 
-process.load("RecoJets/JetAssociationProducers/trackExtrapolator_cfi")
-
-#process.kt6PFJets.voronoiRfact = cms.double(0.9)
-process.ak5PFJetsTrimmed.doAreaFastjet = True
-
-#process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets)
-process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets+process.pfClusterMet+process.ak5PFJetsTrimmed)
-
-# Since we don't want to re-run all of the PF "top projection" sequences,
-# turn off a few modules which depend on them in RECO
-process.recoJets.remove( process.kt6PFJetsCentralChargedPileUp )
-process.recoJets.remove( process.kt6PFJetsCentralNeutral )
-process.recoJets.remove( process.kt6PFJetsCentralNeutralTight )
-
-#process.recoJets = cms.Path(process.pfClusterRefsForJetsHCAL+process.pfClusterRefsForJetsECAL+
-#                            process.pfClusterRefsForJets+
-#                            process.pfClusterMet)
-
-
-
+process.recoJets = cms.Path(process.recoPFJetsWithSubstructure)
 
 process.out = cms.EndPath(process.output)
-
-# Set the threshold for output logging to 'info'
-#process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
-process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
-#process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
-process.MessageLogger.debugModules = cms.untracked.vstring('*')
-process.MessageLogger.cerr.INFO = cms.untracked.PSet(
-             limit = cms.untracked.int32(0)
-)
 
 # schedule
 process.schedule = cms.Schedule(process.recoJets,process.out)

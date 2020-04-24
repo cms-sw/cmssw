@@ -5,7 +5,9 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsHFPMTFibreXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Geometry.HcalCommonData.hcalParameters_cfi")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
@@ -50,6 +52,10 @@ process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
+
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
@@ -85,9 +91,12 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.common_maximum_timex = cms.PSet(
-    MaxTrackTime  = cms.double(500.0),
-    MaxTimeNames  = cms.vstring(),
-    MaxTrackTimes = cms.vdouble()
+    MaxTrackTime            = cms.double(500.0),
+    MaxTimeNames            = cms.vstring(),
+    MaxTrackTimes           = cms.vdouble(),
+    DeadRegions             = cms.vstring(),
+    CriticalEnergyForVacuum = cms.double(2.0),
+    CriticalDensity         = cms.double(1e-15)
 )
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
@@ -110,16 +119,36 @@ process.g4SimHits.StackingAction = cms.PSet(
     KillDeltaRay  = cms.bool(False),
     TrackNeutrino = cms.bool(False),
     KillHeavy     = cms.bool(False),
+    KillGamma     = cms.bool(True),
+    GammaThreshold = cms.double(0.0001), ## (MeV)
     SaveFirstLevelSecondary = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
     SavePrimaryDecayProductsAndConversionsInCalo    = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True)
+    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True),
+    RusRoGammaEnergyLimit  = cms.double(5.0), ## (MeV)
+    RusRoEcalGamma         = cms.double(0.3),
+    RusRoHcalGamma         = cms.double(0.3),
+    RusRoMuonIronGamma     = cms.double(0.3),
+    RusRoPreShowerGamma    = cms.double(0.3),
+    RusRoCastorGamma       = cms.double(0.3),
+    RusRoWorldGamma        = cms.double(0.3),
+    RusRoNeutronEnergyLimit  = cms.double(10.0), ## (MeV)
+    RusRoEcalNeutron         = cms.double(0.1),
+    RusRoHcalNeutron         = cms.double(0.1),
+    RusRoMuonIronNeutron     = cms.double(0.1),
+    RusRoPreShowerNeutron    = cms.double(0.1),
+    RusRoCastorNeutron       = cms.double(0.1),
+    RusRoWorldNeutron        = cms.double(0.1),
+    RusRoProtonEnergyLimit  = cms.double(0.0),
+    RusRoEcalProton         = cms.double(1.0),
+    RusRoHcalProton         = cms.double(1.0),
+    RusRoMuonIronProton     = cms.double(1.0),
+    RusRoPreShowerProton    = cms.double(1.0),
+    RusRoCastorProton       = cms.double(1.0),
+    RusRoWorldProton        = cms.double(1.0)
 )
 process.g4SimHits.SteppingAction = cms.PSet(
     process.common_maximum_timex,
-    KillBeamPipe            = cms.bool(False),
-    CriticalEnergyForVacuum = cms.double(0.0),
-    CriticalDensity         = cms.double(1e-15),
     EkinNames               = cms.vstring(),
     EkinThresholds          = cms.vdouble(),
     EkinParticles           = cms.vstring(),

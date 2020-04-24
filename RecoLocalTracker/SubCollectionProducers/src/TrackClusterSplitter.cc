@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -58,14 +58,15 @@
 #include "boost/multi_array.hpp"
 
 #include <iostream>
+#include <memory>
 using namespace std;
 
-class TrackClusterSplitter : public edm::EDProducer 
+class TrackClusterSplitter : public edm::stream::EDProducer<>
 {
 
 public:
   TrackClusterSplitter(const edm::ParameterSet& iConfig) ;
-  ~TrackClusterSplitter() ;
+  ~TrackClusterSplitter() override ;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   
 private:
@@ -116,10 +117,10 @@ private:
 
   // Template declarations
   // Pixel templates
-  mutable SiPixelTemplate         templ_  ;
-  mutable SiPixelTemplate2D       templ2D_; 
+  std::vector< SiPixelTemplateStore > thePixelTemp_;
+  std::vector< SiPixelTemplateStore2D > thePixelTemp2D_;
   // Strip template
-  mutable SiStripTemplate   strip_templ_  ;
+  std::vector< SiStripTemplateStore > theStripTemp_;
 
   // A pointer to a track and a state on the detector
   struct TrackAndState 
@@ -150,7 +151,8 @@ private:
 
   // sim strip split
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
-  TrackerHitAssociator* hitAssociator;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  std::unique_ptr<TrackerHitAssociator> hitAssociator;
   
   template<typename C> 
   static const C* getCluster(const TrackingRecHit* hit) ;
@@ -189,7 +191,7 @@ private:
 		    const TrajectoryStateOnSurface& tsos) const ;
   
   template<typename Cluster>
-  std::auto_ptr<edmNew::DetSetVector<Cluster> > 
+  std::unique_ptr<edmNew::DetSetVector<Cluster> > 
   splitClusters(const std::map<uint32_t, 
 		boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > &input, 
 		const reco::Vertex &vtx) const ;
@@ -232,7 +234,8 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 #define foreach BOOST_FOREACH
 
 TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
-  useTrajectories_(iConfig.getParameter<bool>("useTrajectories"))
+  useTrajectories_(iConfig.getParameter<bool>("useTrajectories")),
+  trackerHitAssociatorConfig_(consumesCollector())
 {
   if (useTrajectories_) {
     trajTrackAssociations_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssociations"));
@@ -243,7 +246,7 @@ TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
 
   pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters"));
   stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
-  vertices_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
+  vertices_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices"));
 
   produces< edmNew::DetSetVector<SiPixelCluster> >();
 
@@ -280,18 +283,18 @@ TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
   */
 
   // Load template; 40 for barrel and 41 for endcaps
-  templ_.pushfile( 40 );
-  templ_.pushfile( 41 );
-  templ2D_.pushfile( 40 );
-  templ2D_.pushfile( 41 );
+  SiPixelTemplate::pushfile( 40, thePixelTemp_ );
+  SiPixelTemplate::pushfile( 41, thePixelTemp_ );
+  SiPixelTemplate2D::pushfile( 40, thePixelTemp2D_ );
+  SiPixelTemplate2D::pushfile( 41, thePixelTemp2D_ );
 
   // Load strip templates
-  strip_templ_.pushfile( 11 );
-  strip_templ_.pushfile( 12 );
-  strip_templ_.pushfile( 13 );
-  strip_templ_.pushfile( 14 );
-  strip_templ_.pushfile( 15 );
-  strip_templ_.pushfile( 16 );
+  SiStripTemplate::pushfile( 11, theStripTemp_ );
+  SiStripTemplate::pushfile( 12, theStripTemp_ );
+  SiStripTemplate::pushfile( 13, theStripTemp_ );
+  SiStripTemplate::pushfile( 14, theStripTemp_ );
+  SiStripTemplate::pushfile( 15, theStripTemp_ );
+  SiStripTemplate::pushfile( 16, theStripTemp_ );
 
 }
 
@@ -349,7 +352,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(stripClusters_, inputStripClusters);
   
   if(simSplitStrip_)
-    hitAssociator = new TrackerHitAssociator(iEvent);
+    hitAssociator.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
 
     
   allSiPixelClusters.clear(); siPixelDetsWithClusters.clear();
@@ -431,8 +434,8 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                     }
                 }  
 
-	      const TrackingRecHit *hit = it_hit->get();
-	      if ( hit == 0 || !hit->isValid() )
+	      const TrackingRecHit *hit = *it_hit;
+	      if ( hit == nullptr || !hit->isValid() )
 		continue;
 	      
 	      int subdet = hit->geographicalId().subdetId();
@@ -466,8 +469,8 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  trackingRecHit_iterator it_hit = track.recHitsBegin(), ed_hit = track.recHitsEnd();
 	  for (; it_hit != ed_hit; ++it_hit) 
 	    {
-	      const TrackingRecHit *hit = it_hit->get();
-	      if ( hit == 0 || !hit->isValid() ) 
+	      const TrackingRecHit *hit = *it_hit;
+	      if ( hit == nullptr || !hit->isValid() ) 
 		continue;
 	      
 	      int subdet = hit->geographicalId().subdetId();
@@ -477,7 +480,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      
 	      const GeomDet *det = geometry_->idToDet( hit->geographicalId() );
 	      
-	      if ( det == 0 ) 
+	      if ( det == nullptr ) 
 		{
 		  edm::LogError("MissingDetId") << "DetIDs " << (int)(hit->geographicalId()) << " is not in geometry.\n";
 		  continue;
@@ -513,14 +516,11 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(stripdigisimlinkToken, stripdigisimlink);
 
   // gavril : to do: choose the best vertex here instead of just choosing the first one ? 
-  std::auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
-  std::auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters( splitClusters( siStripDetsWithClusters, vertices->front() ) );
+  std::unique_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
+  std::unique_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters( splitClusters( siStripDetsWithClusters, vertices->front() ) );
   
-  if ( simSplitStrip_ )
-    delete hitAssociator;
-
-  iEvent.put(newPixelClusters);
-  iEvent.put(newStripClusters);
+  iEvent.put(std::move(newPixelClusters));
+  iEvent.put(std::move(newStripClusters));
     
   allSiPixelClusters.clear(); siPixelDetsWithClusters.clear();
   allSiStripClusters.clear(); siStripDetsWithClusters.clear();
@@ -550,18 +550,18 @@ void TrackClusterSplitter::markClusters( std::map<uint32_t, boost::sub_range<std
 }
 
 template<typename Cluster>
-std::auto_ptr<edmNew::DetSetVector<Cluster> > 
+std::unique_ptr<edmNew::DetSetVector<Cluster> > 
 TrackClusterSplitter::splitClusters(const std::map<uint32_t, boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > &input, 
 				    const reco::Vertex &vtx) const 
 {
-  std::auto_ptr<edmNew::DetSetVector<Cluster> > output(new edmNew::DetSetVector<Cluster>());
+  auto output = std::make_unique<edmNew::DetSetVector<Cluster>>();
   typedef std::pair<uint32_t, boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > pair;
   
   foreach(const pair &p, input) 
     {
       const GeomDet* det = geometry_->idToDet( DetId(p.first) );
       
-      if ( det == 0 ) 
+      if ( det == nullptr ) 
       	{ 
       	  edm::LogError("MissingDetId") << "DetIDs " << p.first << " is not in geometry.\n";
 	  continue;
@@ -613,7 +613,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 
       size_t splittableClusterSize = 0;
       splittableClusterSize = associatedIdpr.size();
-      std::vector<uint8_t> amp = clust->amplitudes();
+      auto const & amp = clust->amplitudes();
       int clusiz = amp.size();
       associatedIdpr.clear();
 
@@ -677,7 +677,6 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			    }
 			  
 			  currentChannel = linkiter->channel();
-			  currentAmpl = rawAmpl;
 			}
 		      
 		      // Now deal with this new DigiSimLink
@@ -734,7 +733,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 		      //cout << "thisAmpl = " << (int)thisAmpl << endl;
 		    }
 		  
-		  newCluster.push_back( SiStripCluster( detId, 
+		  newCluster.push_back( SiStripCluster( 
 							firstStrip[i],
 							trackAmp[i].begin(), 
 							trackAmp[i].end() ) );
@@ -750,7 +749,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 		  for (size_t j=0; j<trackAmp[i].size(); ++j ) 
 		    clusterAmp += (float)(trackAmp[i])[j];
 		  
-		  if ( clusterAmp > 0.0 && firstStrip[i] != 9999 && trackAmp[i].size() > 0  ) 
+		  if ( clusterAmp > 0.0 && firstStrip[i] != 9999 && !trackAmp[i].empty()  ) 
 		    { 
 		      // gavril :  I think this should work
 		      output.push_back( newCluster[i] );
@@ -996,6 +995,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 	   
 	      //cout << endl;
 	      //cout << "Calling strip qbin to see if the strip cluster has to be split..." << endl;	      
+              SiStripTemplate strip_templ_(theStripTemp_);
 	      int strip_templQbin_ = strip_templ_.qbin( ID, cotalpha_, cotbeta_, strip_cluster_charge );
 
 	      if ( strip_templQbin_ < 0 || strip_templQbin_ > 5 )
@@ -1166,7 +1166,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			  if ( SiStripDigiIterBegin1 != SiStripDigiIterEnd1 )
 			    {    
 			      // gavril : Raw id ?
-			      SiStripCluster cl1( detId.rawId(), SiStripDigiRange1 );
+			      SiStripCluster cl1( SiStripDigiRange1 );
 
 			      cl1.setSplitClusterError( stripTemplSigmaX_ );
 
@@ -1183,7 +1183,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			  if ( SiStripDigiIterBegin2 != SiStripDigiIterEnd2 )
 			    {
 			      // gavril : Raw id ?
-			      SiStripCluster cl2( detId.rawId(), SiStripDigiRange2 );
+			      SiStripCluster cl2( SiStripDigiRange2 );
 			      cl2.setSplitClusterError( stripTemplSigmaX_ );
 			      output.push_back( cl2 ); 
 		
@@ -1480,6 +1480,8 @@ void TrackClusterSplitter::splitCluster<SiPixelCluster> (const SiPixelClusterWit
 
 	      
 	      //cout << "Calling qbin to see if the cluster has to be split..." << endl;	      
+              SiPixelTemplate templ_(thePixelTemp_);
+              SiPixelTemplate2D templ2D_(thePixelTemp2D_);
 	      int templQbin_ = templ_.qbin( ID, cotalpha_, cotbeta_, thePixelCluster->charge() );
 
 	      if ( templQbin_ < 0 || templQbin_ > 5  )

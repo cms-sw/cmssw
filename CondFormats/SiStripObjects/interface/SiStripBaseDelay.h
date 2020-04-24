@@ -1,9 +1,11 @@
 #ifndef SiStripBaseDelay_h
 #define SiStripBaseDelay_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
-#include <stdint.h>
+#include <cstdint>
 #include <sstream>
 #include <boost/bind/bind.hpp>
 
@@ -42,7 +44,9 @@ class SiStripBaseDelay
     uint32_t detId;
     unsigned char coarseDelay;
     unsigned char fineDelay;
-  };
+  
+  COND_SERIALIZABLE;
+};
   typedef std::vector<Delay>::iterator delayIt;
   typedef std::vector<Delay>::const_iterator delayConstIt;
 
@@ -67,9 +71,9 @@ class SiStripBaseDelay
   }
 
   /// Prints the average value of the delays for all layers and wheels in the SiStripTracker
-  void printSummary(std::stringstream & ss) const;
+  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
   /// Prints the delays for all the detIds
-  void printDebug(std::stringstream & ss) const;
+  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
 
  private:
 
@@ -79,6 +83,8 @@ class SiStripBaseDelay
   }
 
   std::vector<Delay> delays_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

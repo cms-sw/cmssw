@@ -2,7 +2,7 @@
 #define SiPixelFedFillerWordEventNumber_H
 
 // user include files
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 #include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -22,15 +22,15 @@
 class SiPixelFedFillerWordEventNumber  : public edm::EDProducer {
    public:
       explicit SiPixelFedFillerWordEventNumber (const edm::ParameterSet&);
-      ~SiPixelFedFillerWordEventNumber ();
+      ~SiPixelFedFillerWordEventNumber () override;
       std::string label;
       std::string instance;
       bool SaveFillerWordsbool;
       
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       edm::ParameterSet config_;
       int status; 
       unsigned int EventNum;

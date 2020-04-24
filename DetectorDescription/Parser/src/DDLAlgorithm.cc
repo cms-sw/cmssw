@@ -1,33 +1,22 @@
-/**************************************************************************
-      DDLAlgorithm.cc  -  description
-                             -------------------
-    begin                : Saturday November 29, 2003
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
-#include "DetectorDescription/Parser/src/DDLVector.h"
-#include "DetectorDescription/Parser/src/DDLMap.h"
-
+#include "DetectorDescription/Core/interface/DDAlgorithmHandler.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLMap.h"
+#include "DetectorDescription/Parser/src/DDLVector.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include <cstddef>
+#include <map>
+#include <utility>
 
-#include <sstream>
+class DDCompactView;
 
 DDLAlgorithm::DDLAlgorithm( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
-{}
-
-DDLAlgorithm::~DDLAlgorithm( void )
 {}
 
 void
@@ -39,13 +28,11 @@ DDLAlgorithm::preProcessElement( const std::string& name, const std::string& nms
 void
 DDLAlgorithm::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V( 'P', "DDLAlgorithm::processElement started" );
-
-  DDXMLElement* myNumeric        = myRegistry_->getElement( "Numeric" );
-  DDXMLElement* myString         = myRegistry_->getElement( "String" );
-  DDXMLElement* myVector         = myRegistry_->getElement( "Vector" );
-  DDXMLElement* myMap            = myRegistry_->getElement( "Map" );
-  DDXMLElement* myrParent        = myRegistry_->getElement( "rParent" );
+  auto myNumeric        = myRegistry_->getElement( "Numeric" );
+  auto myString         = myRegistry_->getElement( "String" );
+  auto myVector         = myRegistry_->getElement( "Vector" );
+  auto myMap            = myRegistry_->getElement( "Map" );
+  auto myrParent        = myRegistry_->getElement( "rParent" );
 
   DDName algoName( getDDName( nmspace ));  
   DDLogicalPart lp( DDName( myrParent->getDDName( nmspace )));
@@ -69,9 +56,10 @@ DDLAlgorithm::processElement( const std::string& name, const std::string& nmspac
 
   DDAlgorithmHandler handler;
   atts = getAttributeSet();
-  DDLVector* tv = dynamic_cast<DDLVector*>( myVector );
-  DDLMap* tm = dynamic_cast<DDLMap*>( myMap );
-  handler.initialize( algoName, lp, nArgs, tv->getMapOfVectors(), tm->getMapOfMaps(), sArgs, tv->getMapOfStrVectors());
+  handler.initialize( algoName, lp, nArgs,
+		      static_cast<DDLVector*>( myVector.get())->getMapOfVectors(),
+		      static_cast<DDLMap*>( myMap.get())->getMapOfMaps(), sArgs,
+		      static_cast<DDLVector*>( myVector.get())->getMapOfStrVectors());
   handler.execute( cpv );
 
   // clear used/referred to elements.
@@ -81,7 +69,5 @@ DDLAlgorithm::processElement( const std::string& name, const std::string& nmspac
   myMap->clear();
   myrParent->clear();
   clear();
-
-  DCOUT_V( 'P', "DDLAlgorithm::processElement(...)" );
 }
 

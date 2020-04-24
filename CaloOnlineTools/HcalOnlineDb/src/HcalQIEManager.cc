@@ -65,7 +65,7 @@ std::map<HcalChannelId,HcalQIECaps> & HcalQIEManager::getQIETableFromFile( std::
 
   if ( infile . is_open() ){
     std::cout << "File is open" << std::endl;
-    while ( getline( infile, buf ) > 0 ){
+    while (getline( infile, buf )) {
       std::vector<std::string> _line = splitString( buf );
 
       HcalChannelId _id;
@@ -151,7 +151,7 @@ void HcalQIEManager::getTableFromDb( std::string query_file, std::string output_
 	else{
 	  std::cout << "Query file opened successfully: " << query_file << std::endl;
 	}
-	while ( getline( inFile, buf ) > 0 ){
+	while (getline( inFile, buf )) {
 	  query . append(buf);
 	  query . append("\n");
 	}
@@ -233,8 +233,8 @@ int HcalQIEManager::generateQieTable( std::string db_file, std::string old_file,
   bad_file . open( badchan_file.c_str() );
   std::cout << " done" << std::endl;
 
-  std::map<HcalChannelId,HcalQIECaps> & _old = getQIETableFromFile( old_file . c_str() );
-  std::map<HcalChannelId,HcalQIECaps> & _new = getQIETableFromFile( db_file . c_str() );
+  std::map<HcalChannelId,HcalQIECaps> & _old = getQIETableFromFile( old_file );
+  std::map<HcalChannelId,HcalQIECaps> & _new = getQIETableFromFile( db_file );
   //std::map<HcalChannelId,HcalQIECaps> & _old = _manager . getQIETableFromFile( "qie_normalmode_v3.txt" );
   //std::map<HcalChannelId,HcalQIECaps> & _new = _manager . getQIETableFromFile( "qie_adc_table_after.txt" );
 
@@ -302,7 +302,7 @@ int HcalQIEManager::getHfQieTable( std::string input_file, std::string output_fi
     std::cout << "File is open" << std::endl;
     getline( infile, buf );
     std::cout << "Table legend: " << std::endl << buf << std::endl;
-    while ( getline( infile, buf ) > 0 ){
+    while (getline( infile, buf )) {
       std::vector<std::string> _line = splitString( buf );
       if ( _line . size() != 17){
 	cout << "Table line is malformed, not clear what to do... exiting." << std::endl;
@@ -344,7 +344,7 @@ int HcalQIEManager::getHfQieTable( std::string input_file, std::string output_fi
     //SELECT
     std::cout << "Executing the query..." << std::endl;
     //std::cout << query << std::endl;
-    ResultSet *rs = stmt->executeQuery(query.c_str());
+    ResultSet *rs = stmt->executeQuery(query);
     std::cout << "Executing the query... done" << std::endl;
     
     std::cout << "Processing the query results..." << std::endl;

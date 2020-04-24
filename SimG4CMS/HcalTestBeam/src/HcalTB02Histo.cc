@@ -23,7 +23,7 @@
 //
 // constructors and destructor
 HcalTB02Histo::HcalTB02Histo(const edm::ParameterSet& ps) :
-  rt_tbTimes(0),  rt_TransProf(0) {
+  rt_tbTimes(nullptr),  rt_TransProf(nullptr) {
 
   verbose    = ps.getUntrackedParameter<bool>("Verbose", false);
   edm::LogInfo("HcalTBSim") << "HcalTB02Histo:: initialised with o/p file "

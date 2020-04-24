@@ -15,7 +15,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <time.h>
+#include <ctime>
 #include <sys/time.h>
 #include <cstdlib>
 
@@ -34,6 +34,8 @@ namespace pos{
      std::cout << "[PixelTimeFormatter::PixelTimeFormatter()]\t\t    Time counter started for " << origin_ << std::endl ;
      startTime_ = getImSecTime() ;
     }
+
+    virtual ~PixelTimeFormatter() = default;
     
     void stopTimer(void) 
     {
@@ -43,6 +45,13 @@ namespace pos{
      double stop  = endTime_.tv_sec   + endTime_.tv_usec/1000000. ;  
      std::cout << "[PixelTimeFormatter::stopTimer()]\t\t\t    Elapsed time: " << stop-start << " seconds for " << origin_ << std::endl ;
     }
+    
+    virtual void writeXMLHeader(pos::PixelConfigKey key,
+                                int version, std::string path,
+                                std::ofstream *out,
+                                std::ofstream *out1 = nullptr,
+                                std::ofstream *out2 = nullptr
+                                ) const {;}
 
     //---------------------------------------------------------------------------------
     static std::string getTime(void) 
@@ -81,7 +90,7 @@ namespace pos{
     {
       char theDate[20] ;
       struct timeval msecTime;
-      gettimeofday(&msecTime, (struct timezone *)0) ;
+      gettimeofday(&msecTime, (struct timezone *)nullptr) ;
       
       sprintf(theDate,
 	      "%d-%d", 
@@ -94,7 +103,7 @@ namespace pos{
     struct timeval getImSecTime(void) 
     {
       struct timeval msecTime;
-      gettimeofday(&msecTime, (struct timezone *)0) ;
+      gettimeofday(&msecTime, (struct timezone *)nullptr) ;
       
       return msecTime ;
     }

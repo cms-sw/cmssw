@@ -2,6 +2,7 @@
 #define SimG4CMS_ShowerLibraryProducer_FiberSD_h
 
 #include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -23,32 +24,34 @@ class G4Step;
 class G4HCofThisEvent;
 
 class FiberSD : public SensitiveCaloDetector,
+                public Observer<const BeginOfJob *>,
                 public Observer<const BeginOfRun *>,
 		public Observer<const BeginOfEvent*>,
 		public Observer<const EndOfEvent*> {
 
 public:
 
-  FiberSD(std::string, const DDCompactView&, SensitiveDetectorCatalog&,
+  FiberSD(std::string, const DDCompactView&, const SensitiveDetectorCatalog&,
 	  edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~FiberSD();
+  ~FiberSD() override;
 
-  virtual void     Initialize(G4HCofThisEvent*HCE);
-  virtual G4bool   ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist);
-  virtual void     EndOfEvent(G4HCofThisEvent* HCE);
-  virtual void     clear();
-  virtual void     DrawAll();
-  virtual void     PrintAll();
+  void     Initialize(G4HCofThisEvent*HCE) override;
+  G4bool   ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist) override;
+  void     EndOfEvent(G4HCofThisEvent* HCE) override;
+  void     clear() override;
+  void     DrawAll() override;
+  void     PrintAll() override;
 
 protected:
 
-  virtual void     clearHits();
-  virtual uint32_t setDetUnitId(G4Step*);
-  virtual void     fillHits(edm::PCaloHitContainer&, std::string);
+  void     clearHits() override;
+  uint32_t setDetUnitId(G4Step*) override;
+  void     fillHits(edm::PCaloHitContainer&, std::string) override;
 
-  virtual void     update(const BeginOfRun *);
-  virtual void     update(const BeginOfEvent *);
-  virtual void     update(const ::EndOfEvent *);
+  void     update(const BeginOfJob *) override;
+  void     update(const BeginOfRun *) override;
+  void     update(const BeginOfEvent *) override;
+  void     update(const ::EndOfEvent *) override;
 
 private:
 

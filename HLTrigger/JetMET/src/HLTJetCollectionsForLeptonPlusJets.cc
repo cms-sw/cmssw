@@ -13,6 +13,7 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 
 
@@ -46,7 +47,7 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::fillDescriptions(edm::Configuration
     desc.add<edm::InputTag> ("HltLeptonTag", edm::InputTag("triggerFilterObjectWithRefs"));
     desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("caloJetCollection"));
     desc.add<double> ("minDeltaR", 0.5);
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsForLeptonPlusJets<jetType>).name()),desc);
+    descriptions.add(defaultModuleLabel<HLTJetCollectionsForLeptonPlusJets<jetType>>(), desc);
 }
 
 //
@@ -72,11 +73,15 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const e
   iEvent.getByToken(m_theLeptonToken,PrevFilterOutput);
  
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
+  // Electrons can be stored as objects of types TriggerCluster, TriggerElectron, or TriggerPhoton
   vector<Ref<reco::RecoEcalCandidateCollection> > clusCands;
   PrevFilterOutput->getObjects(trigger::TriggerCluster,clusCands);
 
   vector<Ref<reco::ElectronCollection> > eleCands;
   PrevFilterOutput->getObjects(trigger::TriggerElectron,eleCands);
+  
+  trigger::VRphoton photonCands;
+  PrevFilterOutput->getObjects(trigger::TriggerPhoton, photonCands);
   
   vector<reco::RecoChargedCandidateRef> muonCands;
   PrevFilterOutput->getObjects(trigger::TriggerMuon,muonCands);
@@ -86,33 +91,43 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const e
   
   const JetCollection & theJetCollection = *theJetCollectionHandle;
   
-  auto_ptr < JetCollectionVector > allSelections(new JetCollectionVector());
+  unique_ptr < JetCollectionVector > allSelections(new JetCollectionVector());
   
- if(!clusCands.empty()){ //try trigger cluster
-    for(size_t candNr=0;candNr<clusCands.size();candNr++){  
+ if(!clusCands.empty()){ // try trigger clusters
+    for(auto & clusCand : clusCands){  
         JetRefVector refVector;
         for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(clusCands[candNr]->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
+          if (deltaR(clusCand->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
         }
     allSelections->push_back(refVector);
     }
  }
 
- if(!eleCands.empty()){ //try trigger cluster
-    for(size_t candNr=0;candNr<eleCands.size();candNr++){  
+ if(!eleCands.empty()){ // try electrons
+    for(auto & eleCand : eleCands){  
         JetRefVector refVector;
         for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(eleCands[candNr]->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
+          if (deltaR(eleCand->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
+        }
+    allSelections->push_back(refVector);
+    }
+ }
+ 
+ if(!photonCands.empty()){ // try photons
+    for(auto & photonCand : photonCands){  
+        JetRefVector refVector;
+        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
+          if (deltaR(photonCand->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
         }
     allSelections->push_back(refVector);
     }
  }
 
- if(!muonCands.empty()){ //try trigger cluster
-    for(size_t candNr=0;candNr<muonCands.size();candNr++){  
+ if(!muonCands.empty()){ // muons
+    for(auto & muonCand : muonCands){  
         JetRefVector refVector;
         for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-	  if (deltaR(muonCands[candNr]->p4(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
+	  if (deltaR(muonCand->p4(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
         }
     allSelections->push_back(refVector);
     }
@@ -121,7 +136,7 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const e
 
 
 
- iEvent.put(allSelections);
+ iEvent.put(std::move(allSelections));
   
   return;
   

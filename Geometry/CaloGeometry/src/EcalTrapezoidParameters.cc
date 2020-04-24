@@ -11,33 +11,16 @@
 // Created:     Wed Aug 12 09:24:56 EDT 1998
 //
 
-// system include files
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <algorithm>
 
-// user include files
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 
 typedef EcalTrapezoidParameters::TPFloat    TPFloat    ;
 typedef EcalTrapezoidParameters::VertexList VertexList ;
 typedef CaloCellGeometry::Pt3D              Pt3D       ;
 
-// STL classes
-
-//
-// constants, enums and typedefs
-//
-
-//static const char* const kReport = "DetectorGeometry.DGTrapezoidParameters" ;
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 EcalTrapezoidParameters::EcalTrapezoidParameters(
    TPFloat aHalfLengthXNegZLoY , // bl1, A/2
    TPFloat aHalfLengthXPosZLoY , // bl2
@@ -240,14 +223,14 @@ EcalTrapezoidParameters::vertexList() const
 
    const Pt3D f8 ( Pt3D( A_,0,0 ) + f5 ) ;
 
-   vtx.push_back(  fc + f1 ) ;
-   vtx.push_back(  fc + f2 ) ;
-   vtx.push_back(  fc + f3 ) ;
-   vtx.push_back(  fc + f4 ) ;
-   vtx.push_back( -fc + f5 ) ;
-   vtx.push_back( -fc + f6 ) ;
-   vtx.push_back( -fc + f7 ) ;
-   vtx.push_back( -fc + f8 ) ;
+   vtx.emplace_back(  fc + f1 ) ;
+   vtx.emplace_back(  fc + f2 ) ;
+   vtx.emplace_back(  fc + f3 ) ;
+   vtx.emplace_back(  fc + f4 ) ;
+   vtx.emplace_back( -fc + f5 ) ;
+   vtx.emplace_back( -fc + f6 ) ;
+   vtx.emplace_back( -fc + f7 ) ;
+   vtx.emplace_back( -fc + f8 ) ;
 
    return vtx ;
 }

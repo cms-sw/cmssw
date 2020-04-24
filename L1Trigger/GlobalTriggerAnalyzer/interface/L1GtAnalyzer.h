@@ -20,6 +20,14 @@
 #include <string>
 
 // user include files
+
+#include "DataFormats/Common/interface/ConditionsInEdm.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMaps.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -28,6 +36,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
@@ -121,24 +130,31 @@ private:
 
     /// input tags for GT DAQ product
     edm::InputTag m_l1GtDaqReadoutRecordInputTag;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDaqReadoutRecordToken;
 
     /// input tags for GT lite product
     edm::InputTag m_l1GtRecordInputTag;
 
     /// input tags for GT object map collection L1GlobalTriggerObjectMapRecord
     edm::InputTag m_l1GtObjectMapTag;
+    edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> m_l1GtObjectMapToken;
 
     /// input tags for GT object map collection L1GlobalTriggerObjectMaps
     edm::InputTag m_l1GtObjectMapsInputTag;
+    edm::EDGetTokenT<L1GlobalTriggerObjectMaps> m_l1GtObjectMapsToken;
 
     /// input tag for muon collection from GMT
     edm::InputTag m_l1GmtInputTag;
 
     /// input tag for L1GtTriggerMenuLite
     edm::InputTag m_l1GtTmLInputTag;
+    edm::EDGetTokenT<L1GtTriggerMenuLite> m_l1GtTmLToken;
 
     /// input tag for ConditionInEdm products
     edm::InputTag m_condInEdmInputTag;
+    edm::EDGetTokenT<edm::ConditionsInRunBlock> m_condInRunToken;
+    edm::EDGetTokenT<edm::ConditionsInLumiBlock> m_condInLumiToken;
+    edm::EDGetTokenT<edm::ConditionsInEventBlock> m_condInEventToken;
 
     /// an algorithm trigger (name or alias) or a technical trigger name
     std::string m_nameAlgTechTrig;
@@ -169,6 +185,7 @@ private:
 
 private:
 
+    L1GtUtils m_l1GtUtilsProv;
     L1GtUtils m_l1GtUtils;
     L1GtUtils::LogicalExpressionL1Results m_logicalExpressionL1ResultsProv;
     L1GtUtils::LogicalExpressionL1Results m_logicalExpressionL1Results;

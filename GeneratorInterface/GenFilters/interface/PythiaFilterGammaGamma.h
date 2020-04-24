@@ -10,49 +10,34 @@
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+namespace edm {
+	  class HepMCProduct;
+}
 
-#include "TH1D.h"
-#include "TH1I.h"
-
-class PythiaFilterGammaGamma : public edm::EDFilter {
+class PythiaFilterGammaGamma : public edm::global::EDFilter<> {
  public:
   explicit PythiaFilterGammaGamma(const edm::ParameterSet&);
-  ~PythiaFilterGammaGamma();
+  ~PythiaFilterGammaGamma() override;
   
-  //void writeFile();
-  
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
  private:
 
-  const HepMC::GenEvent *myGenEvent;
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  const int maxEvents;
 
-  std::string label;
-  double minptcut;
-  double maxptcut;
-  double minetacut;
-  double maxetacut;
-  int maxEvents;
-  int nSelectedEvents, nGeneratedEvents;
-
-  double ptSeedThr, etaSeedThr, ptGammaThr, etaGammaThr, ptTkThr, etaTkThr;
-  double ptElThr, etaElThr, dRTkMax, dRSeedMax, dPhiSeedMax, dEtaSeedMax, dRNarrowCone, pTMinCandidate1, pTMinCandidate2, etaMaxCandidate;
-  double invMassWide, invMassNarrow;
-  int nTkConeMax, nTkConeSum;
-  bool acceptPrompts;
-  double promptPtThreshold;
-  
-  //std::string fileName;
-  //TH1D *hPtSeed[2], *hEtaSeed[2], *hMassNarrow, *hMassWide;
-  //TH1I *hPidSeed[2], *hNTk[2], *hSel, *hNTkSum;
-  //TH1D *hPtCandidate[2], *hEtaCandidate[2];
-  //TH1I *hPidCandidate[2];
+  const double ptSeedThr, etaSeedThr, ptGammaThr, etaGammaThr, ptTkThr, etaTkThr;
+  const double ptElThr, etaElThr, dRTkMax, dRSeedMax, dPhiSeedMax, dEtaSeedMax, dRNarrowCone, pTMinCandidate1, pTMinCandidate2, etaMaxCandidate;
+  const double invMassMin, invMassMax;
+  const double energyCut;
+  const int nTkConeMax, nTkConeSum;
+  const bool acceptPrompts;
+  const double promptPtThreshold;
 
 };
 #endif

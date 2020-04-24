@@ -7,21 +7,21 @@
  
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
+#include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <math.h>
+#include <cmath>
 
 AlignableSiStripDet::AlignableSiStripDet(const GluedGeomDet *gluedDet) 
   : AlignableDet(gluedDet, true), // true: adding DetUnits

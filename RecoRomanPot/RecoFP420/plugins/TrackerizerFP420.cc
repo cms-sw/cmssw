@@ -84,7 +84,7 @@ namespace cms
        
     
     // Step C: create empty output collection
-    std::auto_ptr<TrackCollectionFP420> toutput(new TrackCollectionFP420);
+    auto toutput = std::make_unique<TrackCollectionFP420>();
     
     
     
@@ -112,11 +112,11 @@ namespace cms
     
     //                                RUN now:                                                                                 !!!!!!     
     //   startFP420TrackMain_.run(input, toutput);
-    sFP420TrackMain_->run(input, toutput);
+    sFP420TrackMain_->run(input, toutput.get());
     // std::cout <<"=======           TrackerizerFP420:                    end of produce     " << std::endl;
     
 	// Step D: write output to file
-	iEvent.put(toutput);
+	iEvent.put(std::move(toutput));
   }//produce
   
 } // namespace cms

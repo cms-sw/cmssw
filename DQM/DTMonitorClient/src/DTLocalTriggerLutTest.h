@@ -8,6 +8,9 @@
  *
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -23,19 +26,19 @@ public:
   DTLocalTriggerLutTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTLocalTriggerLutTest();
-
+  ~DTLocalTriggerLutTest() override;
   
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   /// Run client analysis
-  void runClientDiagnostic();
+
+  void runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) override;
+  void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
+
+  const int wheelArrayShift = 3;
 
  private:
 
@@ -48,6 +51,8 @@ protected:
   double thresholdPhiMean, thresholdPhibMean;
   double thresholdPhiRMS, thresholdPhibRMS;
   bool doCorrStudy;
+
+  bool bookingdone;
 
 };
 

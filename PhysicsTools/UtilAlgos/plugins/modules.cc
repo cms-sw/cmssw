@@ -12,7 +12,8 @@ DEFINE_FWK_SERVICE( InputTagDistributorService );
 
 #include "CommonTools/UtilAlgos/interface/EventSelector.h"
 #include "PhysicsTools/UtilAlgos/plugins/VariableEventSelector.h"
-DEFINE_EDM_PLUGIN(EventSelectorFactory, VariableEventSelector, "VariableEventSelector");
+DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, VariableEventSelector, "VariableEventSelector");
+DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, VariableFormulaEventSelector, "VariableFormulaEventSelector");
 
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 DEFINE_EDM_PLUGIN(CachingVariableFactory, VariablePower, "VariablePower");
@@ -34,3 +35,10 @@ DEFINE_EDM_PLUGIN(VariableComputerFactory, VariableComputerTest, "VariableComput
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 DEFINE_EDM_PLUGIN(PlotterFactory, VariablePlotter, "VariablePlotter");
 
+
+#include "PhysicsTools/UtilAlgos/interface/StringBasedNTupler.h"
+DEFINE_EDM_PLUGIN(NTuplerFactory, StringBasedNTupler, "StringBasedNTupler");
+#include "PhysicsTools/UtilAlgos/interface/VariableNTupler.h"
+DEFINE_EDM_PLUGIN(NTuplerFactory, VariableNTupler, "VariableNTupler");
+#include "PhysicsTools/UtilAlgos/interface/CompleteNTupler.h"
+DEFINE_EDM_PLUGIN(NTuplerFactory, CompleteNTupler, "CompleteNTupler");

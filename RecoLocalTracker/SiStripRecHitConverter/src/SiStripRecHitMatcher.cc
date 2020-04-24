@@ -3,7 +3,7 @@
 // Author:  C.Genta
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
@@ -34,6 +34,22 @@ namespace {
     v.push_back(h);
   }
 
+}
+
+
+// needed by the obsolete version still in use on some architectures
+void
+SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
+			     SimpleHitIterator begin, SimpleHitIterator end,
+			     edm::OwnVector<SiStripMatchedRecHit2D> & collector, 
+			     const GluedGeomDet* gluedDet,
+			     LocalVector trackdirection) const {
+
+  std::vector<SiStripMatchedRecHit2D*> result;
+  result.reserve(end-begin);
+  match(monoRH,begin,end,result,gluedDet,trackdirection);
+  for (std::vector<SiStripMatchedRecHit2D*>::iterator p=result.begin(); p!=result.end();
+       p++) collector.push_back(*p);
 }
 
 
@@ -106,7 +122,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   StripPosition stripmono=StripPosition(topol.localPosition(RPHIpointini),topol.localPosition(RPHIpointend));
 
   if(trackdirection.mag2()<FLT_MIN){// in case of no track hypothesis assume a track from the origin through the center of the strip
-    LocalPoint lcenterofstrip=monoRH->localPositionFast();
+    const LocalPoint& lcenterofstrip=monoRH->localPositionFast();
     GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(lcenterofstrip);
     GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
     trackdirection=(gluedDet->surface()).toLocal(gtrackdirection);
@@ -132,7 +148,8 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   double l1 = 1./(c1*c1+s1*s1);
 
  
-  auto sigmap12 = monoRH->sigmaPitch();
+  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
 
@@ -201,8 +218,8 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
     double s2 = -m11;
     double l2 = 1./(c2*c2+s2*s2);
 
-
-    auto sigmap22 = (*seconditer)->sigmaPitch();
+   double sigmap22 = sigmaPitch((*seconditer)->localPosition(),(*seconditer)->localPositionError(),partnertopol);
+   // auto sigmap22 = (*seconditer)->sigmaPitch();
     // assert(sigmap22>=0);
 
     double diff=(c1*s2-c2*s1);
@@ -217,7 +234,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
       //...and add it to the Rechit collection 
 
       const SiStripRecHit2D* secondHit = *seconditer;
-      collector(SiStripMatchedRecHit2D(position, error,gluedDet->geographicalId() ,
+      collector(SiStripMatchedRecHit2D(position, error,*gluedDet,
 				       monoRH,secondHit));
     }
   }
@@ -248,11 +265,11 @@ SiStripRecHitMatcher::project(const GeomDetUnit *det,const GluedGeomDet* gluedde
 
 
 //match a single hit
-SiStripMatchedRecHit2D * 
+std::unique_ptr<SiStripMatchedRecHit2D>
 SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH, 
 			    const SiStripRecHit2D *stereoRH,
 			    const GluedGeomDet* gluedDet,
-			    LocalVector trackdirection) const {
+			    LocalVector trackdirection, bool force) const {
   // stripdet = mono
   // partnerstripdet = stereo
   const GeomDetUnit* stripdet = gluedDet->monoDet();
@@ -268,7 +285,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   StripPosition stripmono=StripPosition(topol.localPosition(RPHIpointini),topol.localPosition(RPHIpointend));
 
   if(trackdirection.mag2()<float(FLT_MIN)){// in case of no track hypothesis assume a track from the origin through the center of the strip
-    LocalPoint lcenterofstrip=monoRH->localPositionFast();
+    const LocalPoint& lcenterofstrip=monoRH->localPositionFast();
     GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(lcenterofstrip);
     GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
     trackdirection=(gluedDet->surface()).toLocal(gtrackdirection);
@@ -293,8 +310,9 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   double s1 = -m01;
   double l1 = 1./(c1*c1+s1*s1);
 
- 
-  auto sigmap12 = monoRH->sigmaPitch();
+
+  double sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
 
@@ -317,28 +335,26 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   
   //perform the matching
   //(x2-x1)(y-y1)=(y2-y1)(x-x1)
-  AlgebraicMatrix22 m; AlgebraicVector2 c;
+  AlgebraicMatrix22 m(ROOT::Math::SMatrixNoInit{}); 
+  AlgebraicVector2 c(c0,m11*projectedstripstereo.first.y()+m10*projectedstripstereo.first.x());
   m(0,0)=m00; 
   m(0,1)=m01;
   m(1,0)=m10;
   m(1,1)=m11;
-  c(0)=c0;
-  c(1)=m11*projectedstripstereo.first.y()+m10*projectedstripstereo.first.x();
   m.Invert(); 
   AlgebraicVector2 solution = m * c;
   Local2DPoint position(solution(0),solution(1));
   
 
-  if (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) return nullptr;                                                       
-  
+  if ((!force) &&  (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) ) return std::unique_ptr<SiStripMatchedRecHit2D>(nullptr);
 
   double c2 = -m10;
   double s2 = -m11;
   double l2 = 1./(c2*c2+s2*s2);
   
   
-
-  auto sigmap22 = stereoRH->sigmaPitch();
+  double sigmap22 = sigmaPitch(stereoRH->localPosition(),stereoRH->localPositionError(),partnertopol);
+  // auto sigmap22 = stereoRH->sigmaPitch();
   // assert (sigmap22>0);
 
   double diff=(c1*s2-c2*s1);
@@ -351,8 +367,8 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
 
   //if it is inside the gluedet bonds
   //Change NSigmaInside in the configuration file to accept more hits
-  if((gluedDet->surface()).bounds().inside(position,error,scale_)) 
-    return new SiStripMatchedRecHit2D(LocalPoint(position), error,gluedDet->geographicalId(), monoRH,stereoRH);
-  return nullptr;
+  if(force || (gluedDet->surface()).bounds().inside(position,error,scale_)) 
+    return std::make_unique<SiStripMatchedRecHit2D>(LocalPoint(position), error, *gluedDet, monoRH,stereoRH);
+  return std::unique_ptr<SiStripMatchedRecHit2D>(nullptr);
 }
 

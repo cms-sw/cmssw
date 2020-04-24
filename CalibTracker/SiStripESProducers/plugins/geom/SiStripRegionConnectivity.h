@@ -17,9 +17,9 @@ class SiStripRegionConnectivity: public edm::ESProducer {
  public:
 
   SiStripRegionConnectivity( const edm::ParameterSet& );
-  virtual ~SiStripRegionConnectivity();
+  ~SiStripRegionConnectivity() override;
   
-  std::auto_ptr<SiStripRegionCabling> produceRegionCabling( const SiStripRegionCablingRcd&  );
+  std::unique_ptr<SiStripRegionCabling> produceRegionCabling( const SiStripRegionCablingRcd&  );
   
  private:
 

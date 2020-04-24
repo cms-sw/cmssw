@@ -17,7 +17,7 @@
 
 // system include files
 #include <iomanip>
-#include <stdint.h>
+#include <cstdint>
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -601,7 +601,7 @@ void L1GtfeExtWord::unpack(const unsigned char* gtfePtr)
     const unsigned char* gtfeExtPtr = gtfePtr + gtfeWord.getSize();
 
     const cms_uint64_t* payload =
-        reinterpret_cast<cms_uint64_t*>(const_cast<unsigned char*>(gtfeExtPtr));
+        reinterpret_cast<cms_uint64_t const*>(gtfeExtPtr);
 
     int BlockSizeExt = this->getSize()/8;
     int NumberBstBlocks = m_bst.size();

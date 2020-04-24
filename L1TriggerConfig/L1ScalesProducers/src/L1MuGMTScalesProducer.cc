@@ -63,12 +63,12 @@ L1MuGMTScalesProducer::~L1MuGMTScalesProducer() {}
 //
 
 // ------------ method called to produce the data  ------------
-std::auto_ptr<L1MuGMTScales> 
+std::unique_ptr<L1MuGMTScales> 
 L1MuGMTScalesProducer::produceL1MuGMTScales(const L1MuGMTScalesRcd& iRecord)
 {
    using namespace edm::es;
 
-   std::auto_ptr<L1MuGMTScales> l1muscale = std::auto_ptr<L1MuGMTScales>( new L1MuGMTScales( m_scales ) );
+   std::unique_ptr<L1MuGMTScales> l1muscale = std::unique_ptr<L1MuGMTScales>( new L1MuGMTScales( m_scales ) );
 
    return l1muscale ;
 }

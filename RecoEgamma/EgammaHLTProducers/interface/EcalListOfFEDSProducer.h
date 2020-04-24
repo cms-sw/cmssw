@@ -31,10 +31,10 @@ class EcalListOfFEDSProducer : public edm::EDProducer {
   
  public:
   EcalListOfFEDSProducer(const edm::ParameterSet& pset);
-  virtual ~EcalListOfFEDSProducer();
-  void produce(edm::Event & e, const edm::EventSetup& c);
-  void beginJob(void);
-  void endJob(void);
+  ~EcalListOfFEDSProducer() override;
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
+  void beginJob(void) override;
+  void endJob(void) override;
   void Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
   void Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
   void Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);

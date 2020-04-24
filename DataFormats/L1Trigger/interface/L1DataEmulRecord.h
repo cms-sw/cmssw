@@ -37,7 +37,7 @@ class L1DataEmulRecord {
   void setColl(const L1DEDigiCollection& col) {deColl = col;}
   void setGlt(const GltDEDigi& glt) {deGlt = glt;}
   
-  bool empty() const {return deColl.size()==0;}
+  bool empty() const {return deColl.empty();}
 
  private:
 

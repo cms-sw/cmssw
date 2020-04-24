@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,22 +46,22 @@ class Trajectory;
  *
  */
 
-class NuclearSeedsEDProducer : public edm::EDProducer {
+class NuclearSeedsEDProducer : public edm::stream::EDProducer<> {
 
    public:
       explicit NuclearSeedsEDProducer(const edm::ParameterSet&);
-      ~NuclearSeedsEDProducer();
+      ~NuclearSeedsEDProducer() override;
 
    private:
-      virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob();
+      void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
       edm::ParameterSet conf_;
-      std::auto_ptr<NuclearInteractionFinder>     theNuclearInteractionFinder;
+      std::unique_ptr<NuclearInteractionFinder>     theNuclearInteractionFinder;
 
       bool improveSeeds;
-      std::string producer_;
+      edm::EDGetTokenT<TrajectoryCollection> producer_;
+      edm::EDGetTokenT<MeasurementTrackerEvent> mteToken_;
 };
 #endif

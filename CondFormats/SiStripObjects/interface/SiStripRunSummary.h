@@ -1,6 +1,8 @@
 #ifndef SiStripRunSummary_h
 #define SiStripRunSummary_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<string>
 #include<iostream>
@@ -21,6 +23,8 @@ class SiStripRunSummary {
 
   std::string runSummary_; 
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

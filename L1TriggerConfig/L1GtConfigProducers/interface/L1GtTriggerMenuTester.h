@@ -30,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 

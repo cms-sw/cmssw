@@ -31,4 +31,6 @@
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="gsl"/>
-<flags   EDM_PLUGIN="1"/>
+<export>
+    <lib   name="1"/>
+</export>

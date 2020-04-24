@@ -23,7 +23,7 @@ process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_
 #    tag = cms.string('TrackerCRAFTScenario22X_mc') # TrackerIdealGeometry210_mc Tracker10pbScenario210_mc
 #    ), 
 #                               cms.PSet(
-#    record = cms.string('TrackerAlignmentErrorRcd'),
+#    record = cms.string('TrackerAlignmentErrorExtendedRcd'),
 #    tag = cms.string('TrackerCRAFTScenarioErrors22X_mc') # TrackerIdealGeometryErrors210_mc Tracker10pbScenarioErrors210_mc
 #    ))
 #             )

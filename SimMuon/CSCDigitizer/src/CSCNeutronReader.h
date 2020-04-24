@@ -12,11 +12,11 @@ class CSCNeutronReader : public SubsystemNeutronReader
 public:
   CSCNeutronReader(const edm::ParameterSet & pset)
   : SubsystemNeutronReader(pset) {}
-  virtual ~CSCNeutronReader() {}
+  ~CSCNeutronReader() override {}
 
   void addHits(std::map<int, edm::PSimHitContainer> & hitMap, CLHEP::HepRandomEngine*);
 
-  virtual int detId(int chamberIndex, int localDetId );
+  int detId(int chamberIndex, int localDetId ) override;
 
   int localDetId(int globalDetId) const;
 

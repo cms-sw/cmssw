@@ -20,9 +20,7 @@
 
 
 
-#include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/CondDB/interface/Session.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/IQuery.h"
@@ -38,9 +36,9 @@ namespace popcon
 
                 public:
     L1RPCHwConfigSourceHandler(const edm::ParameterSet& ps);
-    ~L1RPCHwConfigSourceHandler();
-    void getNewObjects();
-    std::string id() const {return m_name;}
+    ~L1RPCHwConfigSourceHandler() override;
+    void getNewObjects() override;
+    std::string id() const override {return m_name;}
     void ConnectOnlineDB(std::string connect, std::string authPath);
     void DisconnectOnlineDB();
     void readHwConfig1();
@@ -48,8 +46,7 @@ namespace popcon
 
                 private:
     L1RPCHwConfig * disabledDevs;
-    cond::DbSession * session;
-    cond::DbConnection * connection ;
+	  cond::persistency::Session session;
     std::string m_name;
     int m_dummy;
     int m_validate;

@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <iosfwd>
 
@@ -130,6 +132,8 @@ private:
     /// enable channels for receiving signal via serial links
     std::vector<bool> m_gtPsbEnableRecSerLink;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtPsbConfig_h*/

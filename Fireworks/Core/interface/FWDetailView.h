@@ -24,15 +24,14 @@ public:
    static std::string classRegisterTypeName() {
       return typeid(T).name();
    }
+   virtual void build(const FWModelId&, const T*) = 0;
+   virtual void setTextInfo(const FWModelId&, const T*) = 0;
 
-private:
-   virtual void build(const FWModelId& iID, const void* iData) {
+   void build(const FWModelId& iID, const void* iData) override {
       setItem(iID.item());
       build(iID, reinterpret_cast<const T*> (iData));  
    }
 
-   virtual void build(const FWModelId&, const T*) = 0;
-   virtual void setTextInfo(const FWModelId&, const T*) = 0;
 };
 
 #endif

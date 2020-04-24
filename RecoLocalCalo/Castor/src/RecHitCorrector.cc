@@ -47,12 +47,12 @@
 class RecHitCorrector : public edm::EDProducer {
    public:
       explicit RecHitCorrector(const edm::ParameterSet&);
-      ~RecHitCorrector();
+      ~RecHitCorrector() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
       edm::EDGetTokenT<CastorRecHitCollection> tok_input_;
@@ -118,7 +118,7 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    CastorCalibrations calibrations;
    
-   std::auto_ptr<CastorRecHitCollection> rec(new CastorRecHitCollection);
+   auto rec = std::make_unique<CastorRecHitCollection>();
    
    for (unsigned int i=0;i<rechits->size();i++) {
    	CastorRecHit rechit = (*rechits)[i];
@@ -166,7 +166,7 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
    }
    
-   iEvent.put(rec);
+   iEvent.put(std::move(rec));
  
 }
 

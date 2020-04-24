@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 //
 // class declaration
@@ -33,16 +35,17 @@
 class PhysDecl : public edm::EDFilter {
 public:
   explicit PhysDecl( const edm::ParameterSet & );
-  ~PhysDecl();
+  ~PhysDecl() override;
   
 private:
-  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
+  bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   bool applyfilter;
   bool debugOn;
   bool init_;
   std::vector<std::string>  hlNames_;  // name of each HLT algorithm
-  edm::InputTag hlTriggerResults_;
+  edm::EDGetTokenT<edm::TriggerResults> hlTriggerResults_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigis_;
 };
 
 #endif

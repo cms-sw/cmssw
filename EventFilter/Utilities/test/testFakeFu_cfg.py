@@ -65,16 +65,16 @@ process.bb = cms.Path(process.psb*process.b)
 process.cc = cms.Path(process.psc*process.c)
 process.dd = cms.Path(process.psd*process.d)
 
-process.streamA = cms.OutputModule("Stream",
+process.streamA = cms.OutputModule("EvFOutputModule",
                                     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'aa' ) )
                                    )
-process.streamB = cms.OutputModule("Stream",
+process.streamB = cms.OutputModule("EvFOutputModule",
                                     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'bb' ) )
                                    )
-process.streamC = cms.OutputModule("Stream",
+process.streamC = cms.OutputModule("EvFOutputModule",
                                     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'cc' ) )
                                    )
-process.streamD = cms.OutputModule("Stream",
+process.streamD = cms.OutputModule("EvFOutputModule",
                                     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'dd' ) )
                                    )
 

@@ -25,10 +25,10 @@ namespace lumi{
   class TRGDummy2DB : public DataPipe{
   public:
     TRGDummy2DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int ) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
-    virtual ~TRGDummy2DB();
+    unsigned long long retrieveData( unsigned int ) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
+    ~TRGDummy2DB() override;
   };//cl TRGDummy2DB
   //
   //implementation

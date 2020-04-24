@@ -15,7 +15,7 @@ namespace edmtest {
   void ProdigalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     edm::Handle<Prodigal> h;
     assert(e.getByLabel("maker", h));
-    assert(h.provenance()->parents().empty());    
+    assert(h.provenance()->productProvenance()->parentage().parents().empty());
   }
 
 }

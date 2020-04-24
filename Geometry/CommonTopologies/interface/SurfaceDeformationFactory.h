@@ -18,11 +18,13 @@ namespace SurfaceDeformationFactory
   enum Type { 
     // rigid body has no deformations! kRigidBody = 0,
     kBowedSurface = 1, // BowedSurfaceDeformation
-    kTwoBowedSurfaces  // TwoBowedSurfacesDeformation
+    kTwoBowedSurfaces,  // TwoBowedSurfacesDeformation
+    kNoDeformations // To please compilers
   };
 
   /// convert string to 'Type' - exception if string is not known
   Type surfaceDeformationType(const std::string &typeString);
+  std::string surfaceDeformationTypeName(const Type &type);
 
 
   /// Create an instance of the concrete implementations of 
@@ -31,6 +33,7 @@ namespace SurfaceDeformationFactory
   /// and the size of 'params' must match the expectation of the 
   /// concrete type (exception otherwise).
   SurfaceDeformation* create(int type, const std::vector<double> &params);
+  SurfaceDeformation* create(const std::vector<double> &params);
 
 }
 

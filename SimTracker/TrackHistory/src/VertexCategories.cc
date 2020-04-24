@@ -3,7 +3,7 @@
 
 #include "SimTracker/TrackHistory/interface/VertexCategories.h"
 
-const char * VertexCategories::Names[] =
+const char * const VertexCategories::Names[] =
 {
     "Fake",
     "SignalEvent",

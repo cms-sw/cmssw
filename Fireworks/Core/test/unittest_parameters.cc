@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( parameters )
    FWConfiguration ctConf;
    ct.m_comp.addTo(ctConf);
 
-   streamTo(std::cout, ctConf, "top");
+   FWConfiguration::streamTo(std::cout, ctConf, "top");
    
    ct.m_d1.set(0);
    ct.m_d2.set(1);

@@ -5,7 +5,7 @@
 //
 // Package:    PFCand_NoPU_WithAM
 // Class:      PFCand_NoPU_WithAM
-// 
+//
 /**\class PF_PU_AssoMap PFCand_NoPU_WithAM.cc CommonTools/RecoUtils/plugins/PFCand_NoPU_WithAM.cc
 
  Description: Produces a collection of PFCandidates associated to the first vertex based on the association map
@@ -52,20 +52,21 @@ typedef std::vector<PFCandQualityPair > PFCandQualityPairVector;
 class PFCand_NoPU_WithAM : public edm::EDProducer {
    public:
       explicit PFCand_NoPU_WithAM(const edm::ParameterSet&);
-      ~PFCand_NoPU_WithAM();
+      ~PFCand_NoPU_WithAM() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 
       edm::InputTag input_AssociationType_;
 
-      edm::InputTag input_VertexPFCandAssociationMap_;
+      edm::EDGetTokenT<PFCandToVertexAssMap> token_PFCandToVertexAssMap_;
+      edm::EDGetTokenT<VertexToPFCandAssMap> token_VertexToPFCandAssMap_;
 
-      edm::InputTag input_VertexCollection_;
+      edm::EDGetTokenT<reco::VertexCollection> token_VertexCollection_;
 
       int input_MinQuality_;
 };

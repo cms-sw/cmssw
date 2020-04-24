@@ -17,7 +17,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -31,7 +31,7 @@
 // class decleration
 //
 
-class VertexHistoryAnalyzer : public edm::EDAnalyzer
+class VertexHistoryAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
 
@@ -39,9 +39,9 @@ public:
 
 private:
 
-  virtual void beginRun(const edm::Run&,const edm::EventSetup&) override;
-    virtual void beginJob() override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void beginRun(const edm::Run&,const edm::EventSetup&);
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     // Member data
 
@@ -67,9 +67,10 @@ private:
 };
 
 
-VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+VertexHistoryAnalyzer::VertexHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
     vertexProducer_ = config.getUntrackedParameter<edm::InputTag> ("vertexProducer");
+    consumes<edm::View<reco::Vertex>>(vertexProducer_);
 }
 
 

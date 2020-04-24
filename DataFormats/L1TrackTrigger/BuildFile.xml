@@ -1,0 +1,9 @@
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/GeometryCommonDetAlgo"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/Phase2TrackerDigi"/>
+<export>
+  <lib   name="1"/>
+</export>
+

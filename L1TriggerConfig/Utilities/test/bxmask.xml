@@ -1,0 +1,23 @@
+<run-settings id="uGT">
+  <context id="uGtProcessor">
+    <param id="algorithmBxMask" type="table">
+      <columns>algo, range, mask</columns>
+      <types>string, string, uint</types>
+      <rows>
+        <!-- Default bx mask value is 1 -->
+        <row>ALL, ALL, 1</row> <!-- mandatory row: set defaults -->
+        <row>L1_ZeroBias, 1-10, 0</row><!-- disable L1_ZeroBias in any BX -->
+        <row>L1_ZeroBias, 5-10, 1</row>
+        <row>L1_ZeroBias, 9, 1</row>
+        <row>L1_ZeroBias, 10-11, 1</row>
+        <row>L1_ZeroBias, 20-30, 0</row>
+        <row>L1_ZeroBias, 20, 1</row>
+        <row>L1_ZeroBias, 22, 1</row>
+        <row>L1_ZeroBias, 30, 1</row>
+        <row>ALL, 3500-3564, 0</row> <!-- set a gap for all algos -->
+        <row>L1_SingleMu10, ALL, 0</row> <!-- disable all BXs for algo -->
+      </rows>
+    </param>
+  </context>
+</run-settings>
+

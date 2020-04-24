@@ -66,7 +66,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -129,7 +129,7 @@
 // general info 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 
 // helper files
 //#include <CLHEP/Vector/LorentzVector.h>
@@ -269,7 +269,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
     projectHit( const PSimHit& hit,
 		const StripGeomDetUnit* stripDet,
 		const BoundPlane& plane);
-  edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   // SiPxl
 

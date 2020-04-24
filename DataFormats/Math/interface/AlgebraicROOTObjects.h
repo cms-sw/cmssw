@@ -1,7 +1,7 @@
 #ifndef DataFormats_Math_AlgebraicROOTObjects_h_
 #define DataFormats_Math_AlgebraicROOTObjects_h_
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#define SMATRIX_USE_CONSTEXPR
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
 
@@ -13,6 +13,7 @@ typedef ROOT::Math::SVector<double,3> AlgebraicVector3;
 typedef ROOT::Math::SVector<double,4> AlgebraicVector4;
 typedef ROOT::Math::SVector<double,5> AlgebraicVector5;
 typedef ROOT::Math::SVector<double,6> AlgebraicVector6;
+typedef ROOT::Math::SVector<double,15> AlgebraicVector15;
 
 // for I in $(seq 1 6); do echo "typedef ROOT::Math::SMatrix<double,$I,$I,ROOT::Math::MatRepSym<double,$I> > AlgebraicSymMatrix$I$I;"; done
 typedef ROOT::Math::SMatrix<double,1,1,ROOT::Math::MatRepSym<double,1> > AlgebraicSymMatrix11;

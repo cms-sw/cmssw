@@ -19,6 +19,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TColor.h"
+#include "TStyle.h"
+#include "TEnv.h"
+
 // To extract coil current from ConditionsDB
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -54,7 +60,7 @@ namespace
    public:
 
       CmsEveMagField() : TEveMagField(), fField(-3.8), fFieldMag(3.8) {}
-      virtual ~CmsEveMagField() {}
+      ~CmsEveMagField() override {}
 
       // set current
       void SetFieldByCurrent(Float_t avg_current)
@@ -64,12 +70,12 @@ namespace
       }
 
       // get field values
-      virtual Float_t GetMaxFieldMag() const override
+      Float_t GetMaxFieldMag() const override
       {
          return fFieldMag;
       }
 
-      virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
+      TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
       {
          static const Float_t barrelFac = 1.2 / 3.8;
          static const Float_t endcapFac = 2.0 / 3.8;
@@ -117,10 +123,10 @@ namespace
 //==============================================================================
 
 EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
-   m_EveManager(0), m_Rint(0),
-   m_MagField(0),
+   m_EveManager(nullptr), m_Rint(nullptr),
+   m_MagField(nullptr),
    m_AllowStep(true), m_ShowEvent(true),
-   m_ContinueButton(0), m_StepButton(0), m_StepLabel(0)
+   m_ContinueButton(nullptr), m_StepButton(nullptr), m_StepLabel(nullptr)
 {
    printf("EveService::EveService CTOR\n");
 
@@ -152,9 +158,9 @@ EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
    ar.watchPostBeginJob(this, &EveService::postBeginJob);
    ar.watchPostEndJob  (this, &EveService::postEndJob);
 
-   ar.watchPostBeginRun(this, &EveService::postBeginRun);
+   ar.watchPostGlobalBeginRun(this, &EveService::postGlobalBeginRun);
 
-   ar.watchPostProcessEvent(this, &EveService::postProcessEvent);
+   ar.watchPostEvent(this, &EveService::postEvent);
 }
 
 EveService::~EveService()
@@ -186,10 +192,10 @@ void EveService::postEndJob()
 
 //------------------------------------------------------------------------------
 
-void EveService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void EveService::postGlobalBeginRun(edm::GlobalContext const&)
 {
    float current = 18160.0f;
-
+   /*
    try 
    {
       edm::Handle<edm::ConditionsInRunBlock> runCond;
@@ -212,14 +218,15 @@ void EveService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
    }
    catch (...) 
    {
-      printf("RunInfo not available \n");
    }
+   */
+   printf("RunInfo not available \n");
    static_cast<CmsEveMagField*>(m_MagField)->SetFieldByCurrent(current);
 }
 
 //------------------------------------------------------------------------------
 
-void EveService::postProcessEvent(const edm::Event&, const edm::EventSetup&)
+void EveService::postEvent(edm::StreamContext const&)
 {
    printf("EveService::postProcessEvent: Starting GUI loop.\n");
 

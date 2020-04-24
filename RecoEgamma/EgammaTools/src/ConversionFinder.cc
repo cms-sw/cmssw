@@ -7,13 +7,11 @@
 
 typedef math::XYZTLorentzVector LorentzVector;
 
-bool ConversionFinder::isFromConversion
- ( const ConversionInfo & convInfo, double maxAbsDist, double maxAbsDcot )
- {
-  if ( (std::abs(convInfo.dist())<maxAbsDist) && (std::abs(convInfo.dcot())<maxAbsDcot) )
-    return true ;
-  return false ;
- }
+bool ConversionFinder::isFromConversion(const ConversionInfo &convInfo,
+        double maxAbsDist, double maxAbsDcot)
+{
+  return (std::abs(convInfo.dist()) < maxAbsDist) && (std::abs(convInfo.dcot()) < maxAbsDcot);
+}
 
 //-----------------------------------------------------------------------------
 ConversionFinder::ConversionFinder() {}
@@ -66,7 +64,7 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
   //get the references to the gsf and ctf tracks that are made
   //by the electron
   const reco::TrackRef    el_ctftrack	= gsfElectron.ctfTrack();
-  const reco::GsfTrackRef el_gsftrack	= gsfElectron.gsfTrack();
+  const reco::GsfTrackRef& el_gsftrack	= gsfElectron.gsfTrack();
 
   //protect against the wrong collection being passed to the function
   if(el_ctftrack.isNonnull() && el_ctftrack.id() != ctftracks_h.id())
@@ -128,7 +126,9 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
 
       //need to add the track reference information for completeness
       //because the overloaded fnc above does not make a trackRef
-      int deltaMissingHits = ctftk->trackerExpectedHitsInner().numberOfHits() - el_ctftrack->trackerExpectedHitsInner().numberOfHits();
+      int deltaMissingHits = ctftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
+          - el_ctftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+
       convInfo = ConversionInfo(convInfo.dist(),
 				convInfo.dcot(),
 				convInfo.radiusOfConversion(),
@@ -148,7 +148,9 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
        (el_gsftrack->charge() + ctftk->charge() == 0) &&
        el_gsftrack->ptError()/el_gsftrack->pt() < 0.25) {
 
-      int deltaMissingHits = ctftk->trackerExpectedHitsInner().numberOfHits() - el_gsftrack->trackerExpectedHitsInner().numberOfHits();
+      int deltaMissingHits = ctftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
+          - el_gsftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+
       ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_gsftrack.get()), &(*ctftk), bFieldAtOrigin);
       convInfo = ConversionInfo(convInfo.dist(),
 				convInfo.dcot(),
@@ -191,7 +193,9 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
        deltaR(el_ctftrack_p4, gsftk_p4) < 0.5 &&
        (el_ctftrack->charge() + gsftk->charge() == 0)) {
 
-      int deltaMissingHits = gsftk->trackerExpectedHitsInner().numberOfHits() - el_ctftrack->trackerExpectedHitsInner().numberOfHits();
+      int deltaMissingHits = gsftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
+          - el_ctftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+      
       ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_ctftrack.get()), (const reco::Track*)(&(*gsftk)), bFieldAtOrigin);
       //fill the Ref info
       convInfo = ConversionInfo(convInfo.dist(),
@@ -213,7 +217,9 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
       ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_gsftrack.get()), (const reco::Track*)(&(*gsftk)), bFieldAtOrigin);
       //fill the Ref info
 
-      int deltaMissingHits = gsftk->trackerExpectedHitsInner().numberOfHits() - el_gsftrack->trackerExpectedHitsInner().numberOfHits();
+      int deltaMissingHits = gsftk->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
+          - el_gsftrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+
       convInfo = ConversionInfo(convInfo.dist(),
 				convInfo.dcot(),
 				convInfo.radiusOfConversion(),
@@ -323,7 +329,7 @@ ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<Conve
  {
   using namespace std;
 
-  if(v_convCandidates.size() == 0)
+  if(v_convCandidates.empty())
     return   ConversionInfo(-9999.,-9999.,-9999.,
 			    math::XYZPoint(-9999.,-9999.,-9999),
 			    reco::TrackRef(), reco::GsfTrackRef(),
@@ -387,16 +393,16 @@ ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<Conve
 
   //give preference to conversion partners found in the CTF collection
   //using the electron's CTF track
-  if(v_0.size() > 0)
+  if(!v_0.empty())
     return arbitrateConversionPartnersbyR(v_0);
 
-  if(v_1.size() > 0)
+  if(!v_1.empty())
     return arbitrateConversionPartnersbyR(v_1);
 
-  if(v_2.size() > 0)
+  if(!v_2.empty())
     return arbitrateConversionPartnersbyR(v_2);
 
-  if(v_3.size() > 0)
+  if(!v_3.empty())
     return arbitrateConversionPartnersbyR(v_3);
 
 
@@ -551,7 +557,10 @@ ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfE
   rconv = tempsign*rconv;
 
   int deltaMissingHits = -9999;
-  deltaMissingHits = candCtfTrackRef->trackerExpectedHitsInner().numberOfHits() - el_track->trackerExpectedHitsInner().numberOfHits();
+
+  deltaMissingHits = candCtfTrackRef->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)
+      - el_track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+
   return ConversionInfo(dist, dcot, rconv, convPoint, candCtfTrackRef, GsfTrackRef(), deltaMissingHits, flag);
 
  }

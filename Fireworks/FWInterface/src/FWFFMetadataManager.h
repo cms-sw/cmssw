@@ -3,13 +3,22 @@
 
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 
+namespace edm {
+class Event;
+}
 class FWJobMetadataUpdateRequest;
 
 class FWFFMetadataManager : public FWJobMetadataManager
 {
 public:
-   // FIXME: does nothing for the time being!
+   FWFFMetadataManager();
+   bool  hasModuleLabel(std::string& moduleLabel) override;
+
 protected:
-   virtual bool doUpdate(FWJobMetadataUpdateRequest*);
+   bool doUpdate(FWJobMetadataUpdateRequest*) override;
+
+private:
+   const edm::Event* m_event;
+
 };
 #endif

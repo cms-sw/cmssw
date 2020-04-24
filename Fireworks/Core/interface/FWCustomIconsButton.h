@@ -34,14 +34,14 @@ public:
                        const TGPicture* iUpIcon,
                        const TGPicture* iDownIcon,
                        const TGPicture* iDisableIcon,
-                       const TGPicture* iBelowMouseIcon = 0,
+                       const TGPicture* iBelowMouseIcon = nullptr,
                        Int_t id = -1,
                        GContext_t norm = TGButton::GetDefaultGC() (),
                        UInt_t option=0);
    
-   virtual ~FWCustomIconsButton();
+   ~FWCustomIconsButton() override;
 
-   virtual bool HandleCrossing(Event_t*);
+   bool HandleCrossing(Event_t*) override;
    
    // ---------- const member functions ---------------------
 
@@ -55,7 +55,7 @@ public:
    void setIcons(const TGPicture* iUpIcon,
                  const TGPicture* iDownIcon,
                  const TGPicture* iDisabledIcon,
-                 const TGPicture* ibelowMouseIcon = 0);
+                 const TGPicture* ibelowMouseIcon = nullptr);
 
    const TGPicture* upIcon() const { return m_upIcon; }
    const TGPicture* downIcon() const { return m_downIcon; }
@@ -63,11 +63,11 @@ public:
    const TGPicture* bellowMouseIcon() const { return m_belowMouseIcon; }
 
 protected:
-   virtual void DoRedraw();
+   void DoRedraw() override;
 private:
-   FWCustomIconsButton(const FWCustomIconsButton&); // stop default
+   FWCustomIconsButton(const FWCustomIconsButton&) = delete; // stop default
 
-   const FWCustomIconsButton& operator=(const FWCustomIconsButton&); // stop default
+   const FWCustomIconsButton& operator=(const FWCustomIconsButton&) = delete; // stop default
 
    // ---------- member data --------------------------------
    const TGPicture* m_upIcon;

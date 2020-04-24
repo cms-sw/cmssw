@@ -30,6 +30,8 @@
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 
+#include "CondCore/CondDB/interface/Serialization.h"
+
 //
 // class declaration
 //

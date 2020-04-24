@@ -1,6 +1,6 @@
 #ifndef RecoParticleFlow_PFProducer_PFPhotonTranslator_H
 #define RecoParticleFlow_PFProducer_PFPhotonTranslator_H
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,13 +57,13 @@
 #include "TLorentzVector.h"
 #include "TMath.h"
 
-class PFPhotonTranslator : public edm::EDProducer
+class PFPhotonTranslator : public edm::stream::EDProducer<>
 {
  public:
   explicit PFPhotonTranslator(const edm::ParameterSet&);
-  ~PFPhotonTranslator();
+  ~PFPhotonTranslator() override;
   
-  virtual void produce(edm::Event &, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup&) override;
 
   typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
 
@@ -160,4 +160,7 @@ class PFPhotonTranslator : public edm::EDProducer
   bool emptyIsOk_;
 
 };
+
+DEFINE_FWK_MODULE(PFPhotonTranslator);
+
 #endif

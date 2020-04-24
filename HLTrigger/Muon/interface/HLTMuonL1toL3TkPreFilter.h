@@ -26,9 +26,9 @@ class HLTMuonL1toL3TkPreFilter : public HLTFilter {
 
    public:
       explicit HLTMuonL1toL3TkPreFilter(const edm::ParameterSet&);
-      ~HLTMuonL1toL3TkPreFilter();
+      ~HLTMuonL1toL3TkPreFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       bool triggeredAtL1(const l1extra::L1MuonParticleRef & l1mu,std::vector<l1extra::L1MuonParticleRef>& vcands) const;

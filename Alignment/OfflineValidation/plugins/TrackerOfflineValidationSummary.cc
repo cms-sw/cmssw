@@ -35,7 +35,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 
 #include "TTree.h"
@@ -45,7 +44,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -63,7 +62,7 @@
 class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
    public:
       explicit TrackerOfflineValidationSummary(const edm::ParameterSet&);
-      ~TrackerOfflineValidationSummary();
+      ~TrackerOfflineValidationSummary() override;
 
 
    private:
@@ -98,8 +97,8 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 	HarvestingHistos harvestingHistos;
       };
       
-      virtual void analyze(const edm::Event& evt, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void analyze(const edm::Event& evt, const edm::EventSetup&) override;
+      void endJob() override ;
       
       void fillTree(TTree& tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist, 
 		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom,
@@ -154,7 +153,7 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 //
 TrackerOfflineValidationSummary::TrackerOfflineValidationSummary(const edm::ParameterSet& iConfig):
    parSet_(iConfig), moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
-   useFit_(parSet_.getParameter<bool>("useFit")), dbe_(0), moduleMapsInitialized(false), lastSetup_(nullptr)
+   useFit_(parSet_.getParameter<bool>("useFit")), dbe_(nullptr), moduleMapsInitialized(false), lastSetup_(nullptr)
 {
   //now do what ever initialization is needed
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -213,7 +212,7 @@ TrackerOfflineValidationSummary::endJob()
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  lastSetup_->get<IdealGeometryRecord>().get(tTopoHandle);
+  lastSetup_->get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   AlignableTracker aliTracker(&(*tkGeom_), tTopo);
@@ -244,9 +243,9 @@ TrackerOfflineValidationSummary::endJob()
   // of the module-based histograms from TrackerOfflineValidation
   this->collateHarvestingHists(*tree);
   
-  delete tree; tree = 0;
-  delete treeMemPtr; treeMemPtr = 0;
-  delete substructureName; substructureName = 0;
+  delete tree; tree = nullptr;
+  delete treeMemPtr; treeMemPtr = nullptr;
+  delete substructureName; substructureName = nullptr;
 }
 
 
@@ -347,17 +346,17 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
     double dR(999.), dPhi(999.), dZ(999.);
     if(treeMem.subDetId==PixelSubdetector::PixelBarrel || treeMem.subDetId==StripSubdetector::TIB || treeMem.subDetId==StripSubdetector::TOB){
       dR = gWDirection.perp() - gPModule.perp();
-      dPhi = deltaPhi(gUDirection.phi(),gPModule.phi());
+      dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gVDirection.z() - gPModule.z();
       if(dZ>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
     }else if(treeMem.subDetId==PixelSubdetector::PixelEndcap){
       dR = gUDirection.perp() - gPModule.perp();
-      dPhi = deltaPhi(gVDirection.phi(),gPModule.phi());
+      dPhi = deltaPhi(gVDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
       if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
     }else if(treeMem.subDetId==StripSubdetector::TID || treeMem.subDetId==StripSubdetector::TEC){
       dR = gVDirection.perp() - gPModule.perp();
-      dPhi = deltaPhi(gUDirection.phi(),gPModule.phi());
+      dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
       if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
     }
@@ -649,8 +648,8 @@ TrackerOfflineValidationSummary::getMedian(const TH1 *histo) const
   }
   median = TMath::Median(nbins, x, y);
   
-  delete[] x; x = 0;
-  delete [] y; y = 0;  
+  delete[] x; x = nullptr;
+  delete [] y; y = nullptr;  
 
   return median;
 }
@@ -667,8 +666,8 @@ TrackerOfflineValidationSummary::collateHarvestingHists(TTree& tree)
 void
 TrackerOfflineValidationSummary::applyHarvestingHierarchy(TTree& tree)
 {
-  TkOffTreeVariables *treeMemPtr = 0;
-  std::map<std::string,std::string> *substructureName = 0;
+  TkOffTreeVariables *treeMemPtr = nullptr;
+  std::map<std::string,std::string> *substructureName = nullptr;
   tree.SetBranchAddress("TkOffTreeVariables", &treeMemPtr);
   tree.SetBranchAddress("SubstructureName", &substructureName);
   
@@ -755,8 +754,8 @@ TrackerOfflineValidationSummary::getBinning(const std::string& binningPSetName, 
 void
 TrackerOfflineValidationSummary::fillHarvestingHists(TTree& tree)
 {
-  TkOffTreeVariables *treeMemPtr = 0;
-  std::map<std::string,std::string> *substructureName = 0;
+  TkOffTreeVariables *treeMemPtr = nullptr;
+  std::map<std::string,std::string> *substructureName = nullptr;
   tree.SetBranchAddress("TkOffTreeVariables", &treeMemPtr);
   tree.SetBranchAddress("SubstructureName", &substructureName);
   

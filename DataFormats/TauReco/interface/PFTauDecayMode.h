@@ -62,8 +62,8 @@ namespace reco {
                      const CompositeCandidate&                       piZeroes,
                      const CompositeCandidate&                       filteredObjects);
 
-      virtual ~PFTauDecayMode(){}
-      PFTauDecayMode* clone() const;
+      ~PFTauDecayMode() override{}
+      PFTauDecayMode* clone() const override;
 
       /// return reference to associated PFTau object
       const PFTauRef& pfTauRef() const          { return pfTauRef_;  }

@@ -20,7 +20,7 @@ process.load("SimGeneral.TrackingAnalysis.Playback_cfi")
 
 # Validation-specific includes
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
@@ -35,9 +35,7 @@ from SimTracker.TrackHistory.CategorySelectors_cff import *
 
 # Configuration MultiTrackValidator
 
-process.multiTrackValidator.outputFile = 'TrackingTruthValidation.root'
-process.multiTrackValidator.associators = ['TrackAssociatorByHits']
-process.multiTrackValidator.skipHistoFit = cms.untracked.bool(False)
+process.multiTrackValidator.associators = ['trackAssociatorByHits']
 process.multiTrackValidator.useLogPt = cms.untracked.bool(True)
 process.multiTrackValidator.minpT = cms.double(-1)
 process.multiTrackValidator.maxpT = cms.double(3)
@@ -77,7 +75,7 @@ process.trackingTruth = cms.Sequence(
 )
 
 process.validation = cms.Sequence(
-    process.cutsRecoTracks * process.multiTrackValidator * process.trackCategorySelector * process.trackingParticleCategoriesAnalyzer
+    process.cutsRecoTracks * process.trackAssociatorByHits * process.multiTrackValidator * process.trackCategorySelector * process.trackingParticleCategoriesAnalyzer
 )
 
 process.p = cms.Path(process.trackingTruth * process.validation)

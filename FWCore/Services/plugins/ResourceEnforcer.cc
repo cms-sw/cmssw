@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Services/src/ProcInfoFetcher.h"
+#include "FWCore/Services/plugins/ProcInfoFetcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"

@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("recHitsTest")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -24,7 +24,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("PoolSource",
 #    fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/digis.root')
-   fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/promptrecoCosmics_1.root')
+   fileNames =  cms.untracked.vstring(
+    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_postls171.root'
+   )
 )
 
 
@@ -33,34 +35,34 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo.root')
 )
 
-
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-
-# what is this?
 # process.load("Configuration.StandardSequences.Services_cff")
 
-# what is this?
-#process.load("SimTracker.Configuration.SimTracker_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
+# 2012
+#process.GlobalTag.globaltag = 'GR_P_V40::All'
+# MC 2014
+process.GlobalTag.globaltag = 'MC_70_V1::All'
 
-# needed for global transformation
-process.load("Configuration.StandardSequences.FakeConditions_cff")
-
-# Initialize magnetic field
-# include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
-# Tracker SimGeometryXML
-# include "Geometry/TrackerSimData/data/trackerSimGeometryXML.cfi"
-# Tracker Geometry Builder
-# include "Geometry/TrackerGeometryBuilder/data/trackerGeometry.cfi" 
-# Tracker Numbering Builder
-# include "Geometry/TrackerNumberingBuilder/data/trackerNumberingGeometry.cfi"
-
+# read rechits
 process.analysis = cms.EDAnalyzer("ReadPixelRecHit",
     Verbosity = cms.untracked.bool(True),
     src = cms.InputTag("siPixelRecHits"),
 )
 
 process.p = cms.Path(process.analysis)
+
+# test the DB object, works
+#process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
+##process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
+##process.load("CalibTracker.SiPixelESProducers.SiPixelFakeTemplateDBObjectESSource_cfi"
+##process.load("CalibTracker.SiPixelESProducers.SiPixelFakeCPEGenericErrorParmESSource_cfi"
+#process.test = cms.EDAnalyzer("CPEAccessTester",
+##    PixelCPE = cms.string('PixelCPEGeneric'),
+#    PixelCPE = cms.string('PixelCPETemplateReco'),
+#)
+#process.p = cms.Path(process.test)
 
 
 

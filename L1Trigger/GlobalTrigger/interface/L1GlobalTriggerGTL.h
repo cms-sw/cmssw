@@ -33,6 +33,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // forward declarations
 class L1GlobalTriggerPSB;
@@ -48,7 +49,7 @@ class L1GlobalTriggerGTL
 public:
 
     // constructors
-    L1GlobalTriggerGTL();
+    L1GlobalTriggerGTL(const edm::InputTag& mutag,edm::ConsumesCollector && iC);
 
     // destructor
     virtual ~L1GlobalTriggerGTL();
@@ -68,7 +69,7 @@ public:
     /// run the GTL
     void run(edm::Event& iEvent, const edm::EventSetup& evSetup,
         const L1GlobalTriggerPSB* ptrGtPSB, const bool produceL1GtObjectMapRecord,
-        const int iBxInEvent, std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
+        const int iBxInEvent, L1GlobalTriggerObjectMapRecord* gtObjectMapRecord,
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1NoIsoEG,

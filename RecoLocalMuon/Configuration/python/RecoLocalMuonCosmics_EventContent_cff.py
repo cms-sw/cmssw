@@ -25,8 +25,6 @@ RecoLocalMuonFEVT = cms.PSet(
         'keep *_dttfDigis_*_*', 
         'keep *_dt1DRecHits_*_*', 
         'keep *_dt4DSegments_*_*', 
-        'keep *_dt1DRecHitsNoDrift_*_*', 
-        'keep *_dt4DSegmentsNoDrift_*_*', 
         'keep *_dt4DSegmentsT0Seg_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
@@ -40,12 +38,11 @@ RecoLocalMuonRECO = cms.PSet(
         'keep *_dttfDigis_*_*', 
         'keep *_dt1DRecHits_*_*', 
         'keep *_dt4DSegments_*_*', 
-        'keep *_dt1DRecHitsNoDrift_*_*', 
-        'keep *_dt4DSegmentsNoDrift_*_*', 
         'keep *_dt4DSegmentsT0Seg_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*',
-        'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
+        #'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
+        'keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*', 
         'keep *_rpcRecHits_*_*')
 )
 # AOD content

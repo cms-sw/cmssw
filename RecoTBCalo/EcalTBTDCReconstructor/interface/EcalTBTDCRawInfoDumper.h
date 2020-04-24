@@ -19,10 +19,10 @@ class EcalTBTDCRawInfoDumper : public edm::EDAnalyzer {
  public:
 
   explicit EcalTBTDCRawInfoDumper(const edm::ParameterSet& ps);
-  virtual ~EcalTBTDCRawInfoDumper() ;
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob();
-  virtual void endJob();
+  ~EcalTBTDCRawInfoDumper() override ;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void beginJob() override;
+  void endJob() override;
 
  private:
 

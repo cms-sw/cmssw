@@ -1,20 +1,16 @@
-#include "SimMuon/MCTruth/src/CSCTruthTest.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "SimMuon/MCTruth/interface/CSCTruthTest.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 CSCTruthTest::CSCTruthTest(const edm::ParameterSet& iConfig):
   conf_(iConfig)
 {
-
 }
-
 
 CSCTruthTest::~CSCTruthTest()
 {
- 
 }
 
 void
@@ -31,7 +27,8 @@ CSCTruthTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       recHitItr != cscRecHits->end(); recHitItr++)
   {
      theTruth.analyze(*recHitItr);
-     std::cout << theTruth.muonFraction() << " " << recHitItr->cscDetId() << std::endl;
+     edm::LogVerbatim("SimMuonCSCTruthTest") 
+       << theTruth.muonFraction() << " " << recHitItr->cscDetId();
   }
 }
 

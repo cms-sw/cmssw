@@ -13,7 +13,7 @@
 // system include files
 #include "TGLabel.h"
 #include "TGNumberEntry.h"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 // user include files
@@ -32,8 +32,8 @@
 // constructors and destructor
 //
 FWDoubleParameterSetter::FWDoubleParameterSetter() :
-   m_param(0),
-   m_widget(0)
+   m_param(nullptr),
+   m_widget(nullptr)
 {
 }
 
@@ -66,7 +66,7 @@ void
 FWDoubleParameterSetter::attach(FWParameterBase* iParam)
 {
    m_param = dynamic_cast<FWDoubleParameter*>(iParam);
-   assert(0!=m_param);
+   assert(nullptr!=m_param);
 }
 
 TGFrame*
@@ -107,8 +107,8 @@ void
 FWDoubleParameterSetter::doUpdate(Long_t)
 {
    //std::cout <<"doUpdate called"<<std::endl;
-   assert(0!=m_param);
-   assert(0!=m_widget);
+   assert(nullptr!=m_param);
+   assert(nullptr!=m_widget);
    //std::cout <<m_widget->GetNumberEntry()->GetNumber()<<std::endl;
    m_param->set(m_widget->GetNumberEntry()->GetNumber());
    update();

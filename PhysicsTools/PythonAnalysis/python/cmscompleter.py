@@ -5,6 +5,7 @@ Please read license in your lcg external python version
 benedikt.hegner@cern.ch
 
 """
+from __future__ import absolute_import
 # TODO: sometimes results are doubled. clean global_matches list!
 
 import readline
@@ -18,7 +19,7 @@ class CMSCompleter(rlcompleter.Completer):
     def __init__(self, namespace = None):
 	
         if namespace and not isinstance(namespace, dict):
-            raise TypeError,'namespace must be a dictionary'
+            raise TypeError('namespace must be a dictionary')
 
         # Don't bind to namespace quite yet, but flag whether the user wants a
         # specific namespace or to use __main__.__dict__. This will allow us
@@ -30,7 +31,7 @@ class CMSCompleter(rlcompleter.Completer):
             self.namespace = namespace		
         try:
             # loading cms namespace
-            import namespaceDict
+            from . import namespaceDict
             self.cmsnamespace = namespaceDict.getNamespaceDict()
         except:
             print 'Could not load CMS namespace'

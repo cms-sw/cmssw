@@ -35,7 +35,7 @@
 #include <vector>
 #include <string>
 
-class CrossingFramePlaybackInfoExtended;
+class CrossingFramePlaybackInfoNew;
 class DigiAccumulatorMixMod;
 class PileUpEventPrincipal;
 
@@ -51,38 +51,38 @@ namespace edm {
       typedef std::vector<DigiAccumulatorMixMod*> Accumulators;
 
       /** standard constructor*/
-      explicit MixingModule(const edm::ParameterSet& ps);
+      explicit MixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf);
 
       /**Default destructor*/
-      virtual ~MixingModule();
+      ~MixingModule() override;
 
       virtual void beginJob() {}
 
-      virtual void beginRun(Run const& r1, EventSetup const& c) override;
+      void beginRun(Run const& r1, EventSetup const& c) override;
 
-      virtual void endRun(Run const& r1, EventSetup const& c) override;
+      void endRun(Run const& r1, EventSetup const& c) override;
 
-      virtual void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+      void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
 
-      virtual void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+      void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
 
-      void initializeEvent(Event const& event, EventSetup const& setup);
+      void initializeEvent(Event const& event, EventSetup const& setup) override;
 
       void accumulateEvent(Event const& event, EventSetup const& setup);
 
       void accumulateEvent(PileUpEventPrincipal const& event, EventSetup const& setup, edm::StreamID const&);
 
-      void finalizeEvent(Event& event, EventSetup const& setup);
+      void finalizeEvent(Event& event, EventSetup const& setup) override;
 
-      virtual void reload(const edm::EventSetup &);
+      void reload(const edm::EventSetup &) override;
  
     private:
       virtual void branchesActivate(const std::string &friendlyName, const std::string &subdet, InputTag &tag, std::string &label);
-      virtual void put(edm::Event &e,const edm::EventSetup& es);
-      virtual void createnewEDProduct();
-      virtual void checkSignal(const edm::Event &e);
-      virtual void addSignals(const edm::Event &e, const edm::EventSetup& es); 
-      virtual void doPileUp(edm::Event &e, const edm::EventSetup& es) override;
+      void put(edm::Event &e,const edm::EventSetup& es) override;
+      void createnewEDProduct() override;
+      void checkSignal(const edm::Event &e) override;
+      void addSignals(const edm::Event &e, const edm::EventSetup& es) override; 
+      void doPileUp(edm::Event &e, const edm::EventSetup& es) override;
       void pileAllWorkers(EventPrincipal const& ep, ModuleCallingContext const*, int bcr, int id, int& offset,
 			  const edm::EventSetup& setup, edm::StreamID const&);
       void createDigiAccumulators(const edm::ParameterSet& mixingPSet, edm::ConsumesCollector& iC);
@@ -90,7 +90,7 @@ namespace edm {
       InputTag inputTagPlayback_;
       bool mixProdStep2_;
       bool mixProdStep1_;
-      CrossingFramePlaybackInfoExtended *playbackInfo_;
+      CrossingFramePlaybackInfoNew *playbackInfo_;
 
       std::vector<AdjusterBase *> adjusters_;
       std::vector<AdjusterBase *> adjustersObjects_;
@@ -98,6 +98,7 @@ namespace edm {
       std::vector<MixingWorkerBase *> workersObjects_;
       std::vector<std::string> wantedBranches_;
       bool useCurrentProcessOnly_;
+      bool wrapLongTimes_;
 
       // Digi-producing algorithms
       Accumulators digiAccumulators_ ;

@@ -20,6 +20,7 @@ void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
                     clang::ento::BugReporter &BR) const
 {
 	if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
+	if ( D->getTSCSpec() == clang::ThreadStorageClassSpecifier::TSCS_thread_local ) return;
 	clang::QualType t =  D->getType();
 	if ( D->hasGlobalStorage() &&
 			  !D->isStaticDataMember() &&
@@ -30,15 +31,14 @@ void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
 
 	    if ( ! m_exception.reportGlobalStaticForType( t, DLoc, BR ) )
 		   return;
-	    if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
+	    if ( support::isSafeClassName( t.getCanonicalType().getAsString() ) ) return;
 
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);
 	    os << "Non-const variable '" << t.getAsString()<<" "<<*D << "' is static and might be thread-unsafe";
 
-	    BR.EmitBasicReport(D, "Possibly Thread-Unsafe: non-const static variable",
-	    					"ThreadSafety",
-	                       os.str(), DLoc);
+	    BR.EmitBasicReport(D, this, "non-const global static variable",
+	    					"ThreadSafety", os.str(), DLoc);
 	    return;
 	
 	}

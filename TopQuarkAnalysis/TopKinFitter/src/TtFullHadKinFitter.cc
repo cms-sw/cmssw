@@ -15,9 +15,9 @@ static const unsigned int nPartons=6;
 /// default constructor
 TtFullHadKinFitter::TtFullHadKinFitter():
   TopKinFitter(),
-  b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
-  udscResolutions_(0), bResolutions_(0),
-  jetEnergyResolutionScaleFactors_(0), jetEnergyResolutionEtaBinning_(0),
+  b_(nullptr), bBar_(nullptr), lightQ_(nullptr), lightQBar_(nullptr), lightP_(nullptr), lightPBar_(nullptr),
+  udscResolutions_(nullptr), bResolutions_(nullptr),
+  jetEnergyResolutionScaleFactors_(nullptr), jetEnergyResolutionEtaBinning_(nullptr),
   jetParam_(kEMom)
 {
   setupFitter();
@@ -44,7 +44,7 @@ TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDe
 				       const std::vector<double>* jetEnergyResolutionScaleFactors,
 				       const std::vector<double>* jetEnergyResolutionEtaBinning):
   TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
-  b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
+  b_(nullptr), bBar_(nullptr), lightQ_(nullptr), lightQBar_(nullptr), lightP_(nullptr), lightPBar_(nullptr),
   udscResolutions_(udscResolutions), bResolutions_(bResolutions),
   jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors),
   jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning),
@@ -61,7 +61,7 @@ TtFullHadKinFitter::TtFullHadKinFitter(Param jetParam, int maxNrIter, double max
 				       const std::vector<double>* jetEnergyResolutionScaleFactors,
 				       const std::vector<double>* jetEnergyResolutionEtaBinning):
   TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
-  b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
+  b_(nullptr), bBar_(nullptr), lightQ_(nullptr), lightQBar_(nullptr), lightP_(nullptr), lightPBar_(nullptr),
   udscResolutions_(udscResolutions), bResolutions_(bResolutions),
   jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors),
   jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning),
@@ -119,28 +119,28 @@ TtFullHadKinFitter::setupJets()
   TMatrixD empty4x4(4,4);
   switch(jetParam_){ // setup jets according to parameterization
   case kEMom :
-    b_        = new TFitParticleEMomDev   ("Jet1", "Jet1", 0, &empty4x4);
-    bBar_     = new TFitParticleEMomDev   ("Jet2", "Jet2", 0, &empty4x4);
-    lightQ_   = new TFitParticleEMomDev   ("Jet3", "Jet3", 0, &empty4x4);
-    lightQBar_= new TFitParticleEMomDev   ("Jet4", "Jet4", 0, &empty4x4);
-    lightP_   = new TFitParticleEMomDev   ("Jet5", "Jet5", 0, &empty4x4);
-    lightPBar_= new TFitParticleEMomDev   ("Jet6", "Jet6", 0, &empty4x4);
+    b_        = new TFitParticleEMomDev   ("Jet1", "Jet1", nullptr, &empty4x4);
+    bBar_     = new TFitParticleEMomDev   ("Jet2", "Jet2", nullptr, &empty4x4);
+    lightQ_   = new TFitParticleEMomDev   ("Jet3", "Jet3", nullptr, &empty4x4);
+    lightQBar_= new TFitParticleEMomDev   ("Jet4", "Jet4", nullptr, &empty4x4);
+    lightP_   = new TFitParticleEMomDev   ("Jet5", "Jet5", nullptr, &empty4x4);
+    lightPBar_= new TFitParticleEMomDev   ("Jet6", "Jet6", nullptr, &empty4x4);
     break;
   case kEtEtaPhi :
-    b_        = new TFitParticleEtEtaPhi  ("Jet1", "Jet1", 0, &empty3x3);
-    bBar_     = new TFitParticleEtEtaPhi  ("Jet2", "Jet2", 0, &empty3x3);
-    lightQ_   = new TFitParticleEtEtaPhi  ("Jet3", "Jet3", 0, &empty3x3);
-    lightQBar_= new TFitParticleEtEtaPhi  ("Jet4", "Jet4", 0, &empty3x3);
-    lightP_   = new TFitParticleEtEtaPhi  ("Jet5", "Jet5", 0, &empty3x3);
-    lightPBar_= new TFitParticleEtEtaPhi  ("Jet6", "Jet6", 0, &empty3x3);
+    b_        = new TFitParticleEtEtaPhi  ("Jet1", "Jet1", nullptr, &empty3x3);
+    bBar_     = new TFitParticleEtEtaPhi  ("Jet2", "Jet2", nullptr, &empty3x3);
+    lightQ_   = new TFitParticleEtEtaPhi  ("Jet3", "Jet3", nullptr, &empty3x3);
+    lightQBar_= new TFitParticleEtEtaPhi  ("Jet4", "Jet4", nullptr, &empty3x3);
+    lightP_   = new TFitParticleEtEtaPhi  ("Jet5", "Jet5", nullptr, &empty3x3);
+    lightPBar_= new TFitParticleEtEtaPhi  ("Jet6", "Jet6", nullptr, &empty3x3);
     break;
   case kEtThetaPhi :
-    b_        = new TFitParticleEtThetaPhi("Jet1", "Jet1", 0, &empty3x3);
-    bBar_     = new TFitParticleEtThetaPhi("Jet2", "Jet2", 0, &empty3x3);
-    lightQ_   = new TFitParticleEtThetaPhi("Jet3", "Jet3", 0, &empty3x3);
-    lightQBar_= new TFitParticleEtThetaPhi("Jet4", "Jet4", 0, &empty3x3);
-    lightP_   = new TFitParticleEtThetaPhi("Jet5", "Jet5", 0, &empty3x3);
-    lightPBar_= new TFitParticleEtThetaPhi("Jet6", "Jet6", 0, &empty3x3);
+    b_        = new TFitParticleEtThetaPhi("Jet1", "Jet1", nullptr, &empty3x3);
+    bBar_     = new TFitParticleEtThetaPhi("Jet2", "Jet2", nullptr, &empty3x3);
+    lightQ_   = new TFitParticleEtThetaPhi("Jet3", "Jet3", nullptr, &empty3x3);
+    lightQBar_= new TFitParticleEtThetaPhi("Jet4", "Jet4", nullptr, &empty3x3);
+    lightP_   = new TFitParticleEtThetaPhi("Jet5", "Jet5", nullptr, &empty3x3);
+    lightPBar_= new TFitParticleEtThetaPhi("Jet6", "Jet6", nullptr, &empty3x3);
     break;
   }
 }
@@ -149,11 +149,11 @@ TtFullHadKinFitter::setupJets()
 void 
 TtFullHadKinFitter::setupConstraints() 
 {
-  massConstr_[kWPlusMass     ] = new TFitConstraintM("WPlusMass"     , "WPlusMass"      ,  0,  0, mW_   );
-  massConstr_[kWMinusMass    ] = new TFitConstraintM("WMinusMass"    , "WMinusMass"     ,  0,  0, mW_   );
-  massConstr_[kTopMass       ] = new TFitConstraintM("TopMass"       , "TopMass"        ,  0,  0, mTop_ );
-  massConstr_[kTopBarMass    ] = new TFitConstraintM("TopBarMass"    , "TopBarMass"     ,  0,  0, mTop_ );
-  massConstr_[kEqualTopMasses] = new TFitConstraintM("EqualTopMasses", "EqualTopMasses" ,  0,  0, 0     );
+  massConstr_[kWPlusMass     ] = new TFitConstraintM("WPlusMass"     , "WPlusMass"      ,  nullptr,  nullptr, mW_   );
+  massConstr_[kWMinusMass    ] = new TFitConstraintM("WMinusMass"    , "WMinusMass"     ,  nullptr,  nullptr, mW_   );
+  massConstr_[kTopMass       ] = new TFitConstraintM("TopMass"       , "TopMass"        ,  nullptr,  nullptr, mTop_ );
+  massConstr_[kTopBarMass    ] = new TFitConstraintM("TopBarMass"    , "TopBarMass"     ,  nullptr,  nullptr, mTop_ );
+  massConstr_[kEqualTopMasses] = new TFitConstraintM("EqualTopMasses", "EqualTopMasses" ,  nullptr,  nullptr, 0     );
   
   massConstr_[kWPlusMass     ]->addParticles1(lightQ_, lightQBar_);
   massConstr_[kWMinusMass    ]->addParticles1(lightP_, lightPBar_);
@@ -186,7 +186,7 @@ TtFullHadKinFitter::setupFitter()
   }
 
   // initialize helper class used to bring the resolutions into covariance matrices
-  if(udscResolutions_->size() &&  bResolutions_->size())
+  if(!udscResolutions_->empty() &&  !bResolutions_->empty())
     covM_ = new CovarianceMatrix(*udscResolutions_, *bResolutions_,
 				 *jetEnergyResolutionScaleFactors_,
 				 *jetEnergyResolutionEtaBinning_);

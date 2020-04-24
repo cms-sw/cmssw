@@ -1,0 +1,4 @@
+Block MASS   #
+#  PDG code    mass                 particle
+      1072000   0.0                 # darkphoton
+Block

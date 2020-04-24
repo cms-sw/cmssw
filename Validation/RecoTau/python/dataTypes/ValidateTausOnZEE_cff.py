@@ -25,7 +25,7 @@ selectStableElectrons = genParticlesForJets.clone(src = cms.InputTag("selectElec
 #objectTypeSelectedTauValDenominatorModule.src = cms.InputTag("selectElectronsForGenJets")
 
 kinematicSelectedTauValDenominatorZEE = cms.EDFilter(
-   "TauValGenPRefSelector", #"GenJetSelector"
+   "CandPtrSelector",
    src = cms.InputTag('selectStableElectrons'),
    cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
    filter = cms.bool(False)

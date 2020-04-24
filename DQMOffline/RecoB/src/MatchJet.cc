@@ -41,8 +41,6 @@ namespace {
 }
 
 MatchJet::MatchJet(const edm::ParameterSet& pSet) :
-  refJetCorrector(pSet.getParameter<std::string>("refJetCorrection")),
-  recJetCorrector(pSet.getParameter<std::string>("recJetCorrection")),
   maxChi2(pSet.getParameter<double>("maxChi2")),
   sigmaDeltaR(pSet.getParameter<double>("sigmaDeltaR")),
   sigmaDeltaE(pSet.getParameter<double>("sigmaDeltaE")),
@@ -53,12 +51,13 @@ MatchJet::MatchJet(const edm::ParameterSet& pSet) :
 void MatchJet::matchCollections(
 			const edm::RefToBaseVector<reco::Jet> & refJets_,
 			const edm::RefToBaseVector<reco::Jet> & recJets_,
-			const edm::EventSetup & es)
+			const reco::JetCorrector *corrector
+			)
 {
-	refJetCorrector.setEventSetup(es);
-	recJetCorrector.setEventSetup(es);
-
-	typedef ROOT::Math::Cartesian3D<double> Vector;
+        refJetCorrector.setCorrector(corrector);
+        recJetCorrector.setCorrector(corrector);
+	
+        typedef ROOT::Math::Cartesian3D<double> Vector;
 
 	std::vector<Vector> corrRefJets;
 	refJets.clear();

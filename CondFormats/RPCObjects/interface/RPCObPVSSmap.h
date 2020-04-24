@@ -8,6 +8,8 @@
 
 #ifndef RPCObPVSSmap_h
 #define RPCObPVSSmap_h
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 
@@ -24,11 +26,15 @@ class RPCObPVSSmap {
         int layer;
         int subsector;
         int suptype;
-    };
+    
+    COND_SERIALIZABLE;
+};
     RPCObPVSSmap(){}
     virtual ~RPCObPVSSmap(){}
     std::vector<Item> ObIDMap_rpc;
-   };
+   
+   COND_SERIALIZABLE;
+};
 
 #endif
 

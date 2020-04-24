@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  *   
  */
 
@@ -24,6 +27,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 #include <memory>
 #include <iostream>
@@ -37,7 +41,7 @@ class DTChamberId;
 class DTSuperLayerId;
 class DTLayerId;
 
-class DTChamberEfficiencyTest: public edm::EDAnalyzer{
+class DTChamberEfficiencyTest: public DQMEDHarvester{
 
 public:
 
@@ -45,37 +49,23 @@ public:
   DTChamberEfficiencyTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTChamberEfficiencyTest();
+  ~DTChamberEfficiencyTest() override;
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
-  /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the new ME
-  void bookHistos(const DTChamberId & ch);
+  void bookHistos(DQMStore::IBooker &, const DTChamberId & ch);
 
   /// book the report summary
-  void bookHistos();
+  void bookHistos(DQMStore::IBooker &);
 
   /// Get the ME name
   std::string getMEName(std::string histoTag, const DTChamberId & chID);
 
-  
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 
 
@@ -86,7 +76,7 @@ private:
   int prescaleFactor;
   int run;
 
-  DQMStore* dbe;
+  bool bookingdone;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

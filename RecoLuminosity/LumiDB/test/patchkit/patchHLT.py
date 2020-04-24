@@ -32,7 +32,7 @@ def patchV2(dbsession,runnum,inputpathnames,inputdata):
                 if cmslsnum in inputdata.keys(): # if overlap with new data, update old data with new 
                     toupdate[cmslsnum]=inputdata[cmslsnum]
         for cmslsnum,lshltcontent in inputdata.items():
-            if toupdate.has_key(cmslsnum): continue #it's to update not to insert
+            if cmslsnum in toupdate: continue #it's to update not to insert
             toinsert[cmslsnum]=inputdata[cmslsnum]
         #
         # insert into lshlt(data_id,runnum,cmslsnum,prescaleblob,hltcountblob,hltacceptblob) values()

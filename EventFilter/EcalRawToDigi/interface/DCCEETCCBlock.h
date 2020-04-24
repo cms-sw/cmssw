@@ -35,15 +35,15 @@ class DCCEETCCBlock : public DCCTCCBlock{
     */
     DCCEETCCBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpacking );    
   
-    void updateCollectors();
+    void updateCollectors() override;
 	 
-    void addTriggerPrimitivesToCollection();
+    void addTriggerPrimitivesToCollection() override;
 	
-	unsigned int getLength();
+	unsigned int getLength() override;
   
   protected :
   
-    bool checkTccIdAndNumbTTs();
+    bool checkTccIdAndNumbTTs() override;
 
 
 };

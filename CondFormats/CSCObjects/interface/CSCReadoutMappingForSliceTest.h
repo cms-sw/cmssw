@@ -17,7 +17,7 @@ class CSCReadoutMappingForSliceTest : public CSCReadoutMapping {
    CSCReadoutMappingForSliceTest();
 
   /// Destructor
-   virtual ~CSCReadoutMappingForSliceTest();
+   ~CSCReadoutMappingForSliceTest() override;
 
  private: 
 
@@ -29,7 +29,7 @@ class CSCReadoutMappingForSliceTest : public CSCReadoutMapping {
      * number might not be neighbour of dmb?
      * But for slice test (Nov-2005 on) only relevant labels are vme and dmb.
      */
-   int hwId( int endcap, int station, int vme, int dmb, int tmb ) const;
+   int hwId( int endcap, int station, int vme, int dmb, int tmb ) const override;
 
 };
 

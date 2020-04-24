@@ -20,26 +20,25 @@
 class ISRGammaWeightProducer : public edm::EDProducer {
    public:
       explicit ISRGammaWeightProducer(const edm::ParameterSet&);
-      ~ISRGammaWeightProducer();
+      ~ISRGammaWeightProducer() override;
 
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
    private:
-      edm::InputTag genTag_;
+      edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
       std::vector<double> isrBinEdges_;
       std::vector<double> ptWeights_;
 };
 
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 ISRGammaWeightProducer::ISRGammaWeightProducer(const edm::ParameterSet& pset) {
-      genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles"));
+      genToken_ = consumes<reco::GenParticleCollection>(pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("genParticles")));
 
       produces<double>();
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 ISRGammaWeightProducer::~ISRGammaWeightProducer(){}
@@ -56,16 +55,16 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
       if (iEvent.isRealData()) return;
 
       edm::Handle<reco::GenParticleCollection> genParticles;
-      iEvent.getByLabel(genTag_, genParticles);
+      iEvent.getByToken(genToken_, genParticles);
       unsigned int gensize = genParticles->size();
 
-      std::auto_ptr<double> weight (new double);
+      std::unique_ptr<double> weight (new double);
 
       // Set a default weight to start with
       (*weight) = 1.;
 
       // Find the boson at the hard scattering level
-      const reco::GenParticle* boson = 0;
+      const reco::GenParticle* boson = nullptr;
       int parton1Key = -1;
       int parton2Key = -1;
       for (unsigned int i = 0; i<gensize; ++i) {
@@ -81,12 +80,12 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
                   break;
             }
       }
-      
+
       // Consider only photons near the hard-scattering process
-      const reco::GenParticle* photon = 0;
+      const reco::GenParticle* photon = nullptr;
       if (boson) {
         for (unsigned int i = 0; i<gensize; ++i) {
-            photon = 0;
+            photon = nullptr;
             const reco::GenParticle& part = (*genParticles)[i];
             int status = abs(part.status());
             if (status!=1) continue;
@@ -98,7 +97,7 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
             if (mother->status()!=3) continue;
             int mId = mother->pdgId();
             if (abs(mId)>6 && mId!=2212) continue;
-            for (unsigned int j=0; j<mother->numberOfDaughters(); ++j){ 
+            for (unsigned int j=0; j<mother->numberOfDaughters(); ++j){
                   int keyD = mother->daughterRef(j).key();
                   if (keyD==parton1Key || keyD==parton2Key) {
                         photon = &part;
@@ -106,7 +105,7 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
                   }
             }
             if (photon) break;
-        }  
+        }
       }
 
       if (boson && photon) {
@@ -120,7 +119,7 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
             double pcostheta = (  smom.x()*photonCM.x()
                                + smom.y()*photonCM.y()
                                + smom.z()*photonCM.z() ) / smom.P();
-            
+
             // Determine kinematic invariants
             double t = - sqrts * (photonCM.t()-pcostheta);
             double MV = boson->mass();
@@ -129,7 +128,7 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
             //printf(">>>>>>>>> s %f t %f u %f, MV %f, weight = %f\n", s, t, u, MV, (*weight));
       }
 
-      iEvent.put(weight);
+      iEvent.put(std::move(weight));
 }
 
 DEFINE_FWK_MODULE(ISRGammaWeightProducer);

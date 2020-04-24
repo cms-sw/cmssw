@@ -56,6 +56,8 @@
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 
+// for particle table
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Geometry, Magnetic Field
@@ -77,7 +79,7 @@
 //
 MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
   theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")),
-  propagatorWithoutMaterial(0)
+  propagatorWithoutMaterial(nullptr)
  {
 
   // Read relevant parameters
@@ -95,6 +97,11 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
   edm::ParameterSet serviceParameters =
      iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
+
+  // consumes
+  simMuonToken  = consumes<std::vector<SimTrack> >(simMuonLabel);
+  simVertexToken = consumes<std::vector<SimVertex> >(simVertexLabel);
+
 }
 
 // ---- method called once each job just before starting event loop ----
@@ -148,6 +155,9 @@ void
 MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   // using namespace edm;
   // using namespace std;
+  edm::ESHandle < HepPDT::ParticleDataTable > pdg;
+  iSetup.getData(pdg);
+  ParticleTable::Sentry ptable(pdg.product());
 
   RandomEngineAndDistribution random(iEvent.streamID());
 
@@ -160,8 +170,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   std::vector<PSimHit> theRPCHits;
 
   DirectMuonNavigation navigation(theService->detLayerGeometry());
-  iEvent.getByLabel(theSimModuleLabel_,theSimModuleProcess_,simMuons);
-  iEvent.getByLabel(theSimModuleLabel_,simVertices);
+  iEvent.getByToken(simMuonToken,simMuons);
+  iEvent.getByToken(simVertexToken,simVertices);
 
   for ( unsigned int itrk=0; itrk<simMuons->size(); itrk++ ) {
     const SimTrack &mySimTrack = (*simMuons)[itrk];
@@ -173,7 +183,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
     // Decaying hadrons are now in the list, and so are their muon daughter
     // Ignore the hadrons here.
     int pid = mySimTrack.type(); 
-    if ( abs(pid) != 13 ) continue;
+    if ( abs(pid) != 13 && abs(pid) != 1000024) continue;
 
     double t0 = 0;
     GlobalPoint initialPosition;
@@ -281,8 +291,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
       // Propagate with material effects (dE/dx average only)
       SteppingHelixStateInfo shsStart(*(propagatedState.freeTrajectoryState()));
-      const SteppingHelixStateInfo& shsDest = 
-	((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface());
+      SteppingHelixStateInfo shsDest;
+      ((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface(),shsDest);
       std::pair<TrajectoryStateOnSurface,double> next(shsDest.getStateOnSurface(navLayers[ilayer]->surface()),
 						      shsDest.path());
       // No need to continue if there is no valid propagation available.
@@ -492,32 +502,32 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   }
   }
 
-  std::auto_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
   int n = 0;
   for ( std::vector<PSimHit>::const_iterator i = theCSCHits.begin();
         i != theCSCHits.end(); i++ ) {
     pcsc->push_back(*i);
     n += 1;
   }
-  iEvent.put(pcsc,"MuonCSCHits");
+  iEvent.put(std::move(pcsc),"MuonCSCHits");
 
-  std::auto_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
   n = 0;
   for ( std::vector<PSimHit>::const_iterator i = theDTHits.begin();
         i != theDTHits.end(); i++ ) {
     pdt->push_back(*i);
     n += 1;
   }
-  iEvent.put(pdt,"MuonDTHits");
+  iEvent.put(std::move(pdt),"MuonDTHits");
 
-  std::auto_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
   n = 0;
   for ( std::vector<PSimHit>::const_iterator i = theRPCHits.begin();
         i != theRPCHits.end(); i++ ) {
     prpc->push_back(*i);
     n += 1;
   }
-  iEvent.put(prpc,"MuonRPCHits");
+  iEvent.put(std::move(prpc),"MuonRPCHits");
 
 }
 
@@ -526,9 +536,11 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
 				   const edm::ParameterSet& fastTracks,
 				   const edm::ParameterSet& matEff) {
   // Muons
-  theSimModuleLabel_   = fastMuons.getParameter<std::string>("simModuleLabel");
-  theSimModuleProcess_ = fastMuons.getParameter<std::string>("simModuleProcess");
-  theTrkModuleLabel_   = fastMuons.getParameter<std::string>("trackModuleLabel");
+  std::string _simModuleLabel = fastMuons.getParameter<std::string>("simModuleLabel");
+  std::string _simModuleProcess = fastMuons.getParameter<std::string>("simModuleProcess");
+  simMuonLabel = edm::InputTag(_simModuleLabel,_simModuleProcess);
+  simVertexLabel = edm::InputTag(_simModuleLabel);
+ 
   std::vector<double> simHitIneffDT  = fastMuons.getParameter<std::vector<double> >("simHitDTIneffParameters");
   std::vector<double> simHitIneffCSC = fastMuons.getParameter<std::vector<double> >("simHitCSCIneffParameters");
   kDT = simHitIneffDT[0];
@@ -548,7 +560,7 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
   //    std::cout << " The FAST tracking option is turned ON" << std::endl;
 
   // Material Effects
-  theMaterialEffects = 0;
+  theMaterialEffects = nullptr;
   if ( matEff.getParameter<bool>("PairProduction") || 
        matEff.getParameter<bool>("Bremsstrahlung") ||
        matEff.getParameter<bool>("MuonBremsstrahlung") ||
@@ -584,7 +596,7 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
   XYZTLorentzVector position(gPos.x(),gPos.y(),gPos.z(),0.);
   XYZTLorentzVector momentum(gMom.x(),gMom.y(),gMom.z(),en);
   float charge = (float)(tsos.charge());
-  ParticlePropagator theMuon(momentum,position,charge,0);
+  ParticlePropagator theMuon(momentum,position,charge,nullptr);
   theMuon.setID(-(int)charge*13);
 
   // Recompute the energy loss to get the fluctuations

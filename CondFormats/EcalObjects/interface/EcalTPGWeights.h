@@ -1,6 +1,8 @@
 #ifndef EcalTPGWeights_h
 #define EcalTPGWeights_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 
@@ -30,6 +32,8 @@ class EcalTPGWeights
   uint32_t w4_ ;
 
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

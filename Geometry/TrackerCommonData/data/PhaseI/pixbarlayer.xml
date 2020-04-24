@@ -5,7 +5,7 @@
  <Constant name="LayerDz"           value="54.00*cm"/> <!--55.40 -->
  <Constant name="CoolDz"            value="54.00*cm"/> <!--55.40 -->
  <Constant name="CoolSide"          value="0.40*cm"/>
- <Constant name="CoolThick"         value="0.01*cm"/>
+ <Constant name="CoolThick"         value="0.005*cm"/>
 </ConstantsSection>
 
 </DDDefinition>

@@ -14,7 +14,7 @@ class MagneticField;
  * \warning The errors are NOT propagated.
  */
 
-class StraightLinePropagator GCC11_FINAL : public Propagator {
+class StraightLinePropagator final : public Propagator {
 
 private: 
 
@@ -27,40 +27,24 @@ public:
 			  PropagationDirection aDir = alongMomentum) : 
     Propagator(aDir), theField(field) {}
 
-  ~StraightLinePropagator() {}
+  ~StraightLinePropagator() override {}
 
-  virtual TSOS propagate(const FreeTrajectoryState& fts,
-			 const Surface& surface) const {
-    return Propagator::propagate(fts, surface);
-  }
-  
-  virtual TSOS propagate(const FreeTrajectoryState& fts, 
-			 const Plane& plane) const {
-    return propagateWithPath(fts,plane).first;
-  }
+  using Propagator::propagate;
+  using Propagator::propagateWithPath;
 
-  virtual TSOS propagate(const FreeTrajectoryState& fts, 
-			 const Cylinder& cylinder) const {
-    return propagateWithPath(fts,cylinder).first;
-  }
-  
-  std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
-				      const Surface& surface) const {
-    return Propagator::propagateWithPath(fts,surface);
-  }
 
   std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
-				      const Plane& surface) const;
+				      const Plane& surface) const  override;
 
   std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
-				      const Cylinder& surface) const;
+				      const Cylinder& surface) const  override;
 
-  virtual StraightLinePropagator * clone() const {
+  StraightLinePropagator * clone() const  override{
     return new StraightLinePropagator(*this);
   }
 
  
-  virtual const MagneticField* magneticField() const {return theField;}
+  const MagneticField* magneticField() const  override {return theField;}
 
 private:
 

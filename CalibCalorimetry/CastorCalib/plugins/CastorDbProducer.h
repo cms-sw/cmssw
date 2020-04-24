@@ -1,6 +1,5 @@
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -20,9 +19,9 @@ class CastorDbRecord;
 class CastorDbProducer : public edm::ESProducer {
  public:
   CastorDbProducer( const edm::ParameterSet& );
-  ~CastorDbProducer();
+  ~CastorDbProducer() override;
   
-  boost::shared_ptr<CastorDbService> produce( const CastorDbRecord& );
+  std::shared_ptr<CastorDbService> produce( const CastorDbRecord& );
 
   // callbacks
   void pedestalsCallback (const CastorPedestalsRcd& fRecord);
@@ -35,7 +34,7 @@ class CastorDbProducer : public edm::ESProducer {
 
    private:
       // ----------member data ---------------------------
-  boost::shared_ptr<CastorDbService> mService;
+  std::shared_ptr<CastorDbService> mService;
   std::vector<std::string> mDumpRequest;
   std::ostream* mDumpStream;
 };

@@ -19,6 +19,7 @@ namespace evf {
     //Write the Init Message to init file and close it
     if ( stream_writer_preamble_.get() ) {
       stream_writer_preamble_->write(init_message);
+      preamble_adler32_ = stream_writer_preamble_->adler32();
       stream_writer_preamble_.reset();
     }
   }
@@ -34,12 +35,11 @@ namespace evf {
   }
 
   void RecoEventWriterForFU::fillDescription(edm::ParameterSetDescription& desc) {
-    desc.setComment("Writes events into a streamer output file.");
-    desc.addUntracked<std::string>("fileName", "teststreamfile.dat")->setComment("Name of output file.");
   }
 
   void RecoEventWriterForFU::setInitMessageFile(std::string const& init){
     stream_writer_preamble_.reset(new StreamerOutputFile(init));
+    preamble_adler32_ = 1;
   }
 
   void RecoEventWriterForFU::setOutputFile(std::string const& events){

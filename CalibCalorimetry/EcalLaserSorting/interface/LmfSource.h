@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <inttypes.h>
+#include <cinttypes>
 #include <fstream>
 
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
@@ -14,26 +14,26 @@
 class LmfSource: public edm::ProducerSourceBase{
 private:
   struct IndexRecord{
-    int orbit;
-    std::streampos filePos;
+    uint32_t orbit;
+    uint32_t filePos;
     //    bool operator<(const IndexRecord& i) const { return orbit < i.orbit; }
   };
   
 public:
   LmfSource(const edm::ParameterSet& pset,
 	       const edm::InputSourceDescription& isd);
-  virtual ~LmfSource(){}
+  ~LmfSource() override{}
   
 private:
   /** Called by the framework after setRunAndEventInfo()
    */
-  virtual void produce(edm::Event &e);
+  void produce(edm::Event &e) override;
 
   /** Callback funtion to set run and event information
    * (lumi block, run number, event number, timestamp)
    * Called by the framework before produce()
    */
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+  bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
 
   bool openFile(int iFile);
   
@@ -80,7 +80,7 @@ private:
    */
   std::vector<uint32_t> header_;
 
-  static unsigned fileHeaderSize;
+  static const unsigned fileHeaderSize;
   
   /** Buffer for file header readout
    */
@@ -89,11 +89,11 @@ private:
 
   /** Minimal LMF data format version supported.
    */
-  static unsigned char minDataFormatVersion_;
+  static const unsigned char minDataFormatVersion_;
   
   /** Maximal LMF data format version supported.
    */
-  static unsigned char maxDataFormatVersion_;
+  static const unsigned char maxDataFormatVersion_;
 
   /** Filtering events. Used for prescale.
    * @return true of event accepted, false if rejected

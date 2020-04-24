@@ -5,9 +5,9 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     ## the use of emf in the JEC is not yet implemented
     emf = cms.bool(False),
     ## input collection of jets
-    src = cms.InputTag("ak5PFJetsCHS"),
+    src = cms.InputTag("ak4PFJetsCHS"),
     ## payload postfix for testing
-    payload = cms.string('AK5PFchs'),
+    payload = cms.string('AK4PFchs'),
     ## correction levels
     levels = cms.vstring(
         ## tags for the individual jet corrections; when
@@ -38,5 +38,5 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     ## the corresponding jet collection (this variable is
     ## typically taken from kt6PFJets).
     useRho = cms.bool(True),
-    rho = cms.InputTag('fixedGridRhoFastjetAll'),  
+    rho = cms.InputTag('fixedGridRhoFastjetAll'),
 )

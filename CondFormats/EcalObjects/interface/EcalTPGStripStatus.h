@@ -1,6 +1,8 @@
 #ifndef EcalTPGStripStatus_h
 #define EcalTPGStripStatus_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 
@@ -17,6 +19,8 @@ class EcalTPGStripStatus
  private:
   std::map<uint32_t, uint16_t> map_ ;
 
+
+ COND_SERIALIZABLE;
 };
 
 typedef std::map<uint32_t, uint16_t>                 EcalTPGStripStatusMap;

@@ -27,7 +27,7 @@ public:
   LMSLinearizationPointFinder( const RecTracksDistanceMatrix * m,
       const signed int n_pairs = -1 );
 
-  virtual LMSLinearizationPointFinder * clone() const;
+  LMSLinearizationPointFinder * clone() const override;
 };
 
 #endif

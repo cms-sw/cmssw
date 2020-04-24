@@ -11,7 +11,7 @@
 using namespace std;
 
 SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
-: theHitReader(0),
+: theHitReader(nullptr),
   theLuminosity(pset.getParameter<double>("luminosity")), // in units of 10^34
   theStartTime(pset.getParameter<double>("startTime")), 
   theEndTime(pset.getParameter<double>("endTime")),

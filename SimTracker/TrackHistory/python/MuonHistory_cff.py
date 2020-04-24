@@ -1,18 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
 # Muon Associator
-from SimMuon.MCTruth.MuonAssociatorByHitsESProducer_cfi import *
+from SimMuon.MCTruth.muonAssociatorByHitsHelper_cfi import *
 
 # Setting for StandAloneMuons
-muonAssociatorByHitsESProducer.tracksTag = cms.InputTag("standAloneMuons")
-muonAssociatorByHitsESProducer.UseTracker = cms.bool(False)
-muonAssociatorByHitsESProducer.UseMuon = cms.bool(True)
+muonAssociatorByHitsHelper.tracksTag = cms.InputTag("standAloneMuons")
+muonAssociatorByHitsHelper.UseTracker = cms.bool(False)
+muonAssociatorByHitsHelper.UseMuon = cms.bool(True)
 
 # Track history parameters
 muonHistory = cms.PSet(
     bestMatchByMaxValue = cms.untracked.bool(True),
     trackingTruth = cms.untracked.InputTag("mix","MergedTrackTruth"),
-    trackAssociator = cms.untracked.string("muonAssociatorByHits"),
+    trackAssociator = cms.untracked.string("muonAssociatorByHitsHelper"),
     trackProducer = cms.untracked.InputTag("standAloneMuons"),
     enableRecoToSim = cms.untracked.bool(True),
     enableSimToReco = cms.untracked.bool(False)

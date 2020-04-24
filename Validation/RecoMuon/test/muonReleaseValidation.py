@@ -207,7 +207,7 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
                 sampleFile.close()
                 #print filenames
                 
-                if (Events.has_key(sample)!=True):
+                if ((sample in Events)!=True):
                     Nevents=defaultNevents
                 else:
                     Nevents=Events[sample]

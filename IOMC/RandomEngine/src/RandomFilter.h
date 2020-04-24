@@ -20,12 +20,6 @@ type and name is "untracked double acceptRate".
 
 #include "FWCore/Framework/interface/EDFilter.h"
 
-#include "boost/shared_ptr.hpp"
-
-namespace CLHEP {
-  class RandFlat;
-}
-
 namespace edm {
   class ParameterSet;
   class Event;
@@ -34,15 +28,13 @@ namespace edm {
   class RandomFilter : public edm::EDFilter {
   public:
     explicit RandomFilter(edm::ParameterSet const& ps);
-    virtual ~RandomFilter();
+    ~RandomFilter() override;
 
-    virtual bool filter(edm::Event& e, edm::EventSetup const& c) override;
+    bool filter(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
 
     // value between 0 and 1
     double acceptRate_;
-
-    boost::shared_ptr<CLHEP::RandFlat> flatDistribution_;
   };
 }

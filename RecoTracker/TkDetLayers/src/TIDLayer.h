@@ -4,32 +4,36 @@
 
 #include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
 #include "TIDRing.h"
-#include<array>
-
+#include <array>
+#include <atomic>
 
 /** A concrete implementation for TID layer 
  *  built out of TIDRings
  */
 
 #pragma GCC visibility push(hidden)
-class TIDLayer GCC11_FINAL : public RingedForwardLayer {
+class TIDLayer final : public RingedForwardLayer {
  public:
   TIDLayer(std::vector<const TIDRing*>& rings)  __attribute__ ((cold));
-  ~TIDLayer()  __attribute__ ((cold));
+  ~TIDLayer()  override __attribute__ ((cold));
+
+  //default implementations would not manage memory correctly
+  TIDLayer(const TIDLayer&) = delete;
+  TIDLayer& operator=(const TIDLayer&) = delete;
   
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::TID;}
+  SubDetector subDetector() const override {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::TID];}
 
 
  private:
@@ -57,6 +61,7 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer {
 
  private:
   std::vector<GeomDet const*> theBasicComps;
+  mutable std::atomic<std::vector<const GeometricSearchDet*>*> theComponents;
   const TIDRing* theComps[3];
   struct RingPar { float theRingR, thetaRingMin, thetaRingMax;};
   RingPar ringPars[3];

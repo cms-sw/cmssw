@@ -35,7 +35,7 @@ TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 
   // produce printout if desired
 
-  if( elecs->size()<1 || !verbose_ )
+  if( elecs->empty() || !verbose_ )
     return;
 
   unsigned i=0;

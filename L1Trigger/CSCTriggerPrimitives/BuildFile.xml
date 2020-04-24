@@ -1,10 +1,14 @@
 <use   name="CondFormats/CSCObjects"/>
 <use   name="DataFormats/CSCDigi"/>
+<use   name="DataFormats/GEMDigi"/>
+<use   name="DataFormats/RPCDigi"/>
 <use   name="DataFormats/L1CSCTrackFinder"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
+<use   name="Geometry/GEMGeometry"/>
+<use   name="Geometry/RPCGeometry"/>
 <use   name="L1Trigger/CSCCommonTrigger"/>
 <export>
   <lib   name="1"/>

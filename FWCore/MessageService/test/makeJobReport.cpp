@@ -14,8 +14,7 @@ void work()
   std::cout << "Testing JobReport" << std::endl;
   std::ostringstream ost;
   {
-  std::auto_ptr<edm::JobReport> theReport(new edm::JobReport(&ost) ); 
-  
+  auto theReport = std::make_unique<edm::JobReport>(&ost); 
   
 
   std::vector<std::string> inputBranches;

@@ -26,18 +26,20 @@
 #include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include <deque>
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 void MuonDetIdAssociator::check_setup() const {
-   if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
-   if (cscbadchambers_==0) throw cms::Exception("ConfigurationProblem") << "CSCBadChambers is not set\n";
+   if (geometry_==nullptr) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
+   if (cscbadchambers_==nullptr) throw cms::Exception("ConfigurationProblem") << "CSCBadChambers is not set\n";
    DetIdAssociator::check_setup();
 }
 
 const GeomDet* MuonDetIdAssociator::getGeomDet( const DetId& id ) const
 {
-   if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
+   if (geometry_==nullptr) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
    const GeomDet* gd = geometry_->idToDet(id);
-   if (gd == 0) throw cms::Exception("NoGeometry") << "Cannot find GeomDet for DetID: " << id.rawId() <<"\n";
+   if (gd == nullptr) throw cms::Exception("NoGeometry") << "Cannot find GeomDet for DetID: " << id.rawId() <<"\n";
    return gd;
 }
 
@@ -49,39 +51,60 @@ GlobalPoint MuonDetIdAssociator::getPosition(const DetId& id) const {
 
 void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vector<DetId>& validIds) const {
   validIds.clear();
-  if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
+  if (geometry_==nullptr) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
   if (subDectorIndex!=0) throw cms::Exception("FatalError") << 
     "Muon sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";
 
   // CSC 
   if (! geometry_->slaveGeometry(CSCDetId()) ) throw cms::Exception("FatalError") << "Cannnot CSCGeometry\n";
-  const std::vector<GeomDet*>& geomDetsCSC = geometry_->slaveGeometry(CSCDetId())->dets();
-  for(std::vector<GeomDet*>::const_iterator it = geomDetsCSC.begin(); it != geomDetsCSC.end(); ++it)
-    if (CSCChamber* csc = dynamic_cast< CSCChamber*>(*it)) {
+  auto const & geomDetsCSC = geometry_->slaveGeometry(CSCDetId())->dets();
+  for(auto it = geomDetsCSC.begin(); it != geomDetsCSC.end(); ++it)
+    if (auto csc = dynamic_cast<const CSCChamber*>(*it)) {
       if ((! includeBadChambers_) && (cscbadchambers_->isInBadChamber(CSCDetId(csc->id())))) continue;
       validIds.push_back(csc->id());
     }
   
   // DT
   if (! geometry_->slaveGeometry(DTChamberId()) ) throw cms::Exception("FatalError") << "Cannnot DTGeometry\n";
-  const std::vector<GeomDet*>& geomDetsDT = geometry_->slaveGeometry(DTChamberId())->dets();
-  for(std::vector<GeomDet*>::const_iterator it = geomDetsDT.begin(); it != geomDetsDT.end(); ++it)
-    if (DTChamber* dt = dynamic_cast< DTChamber*>(*it)) validIds.push_back(dt->id());
+  auto const & geomDetsDT = geometry_->slaveGeometry(DTChamberId())->dets();
+  for(auto it = geomDetsDT.begin(); it != geomDetsDT.end(); ++it)
+    if (auto dt = dynamic_cast<const DTChamber*>(*it)) validIds.push_back(dt->id());
 
   // RPC
   if (! geometry_->slaveGeometry(RPCDetId()) ) throw cms::Exception("FatalError") << "Cannnot RPCGeometry\n";
-  const std::vector<GeomDet*>& geomDetsRPC = geometry_->slaveGeometry(RPCDetId())->dets();
-  for(std::vector<GeomDet*>::const_iterator it = geomDetsRPC.begin(); it != geomDetsRPC.end(); ++it)
-    if (RPCChamber* rpc = dynamic_cast< RPCChamber*>(*it)) {
+  auto const & geomDetsRPC = geometry_->slaveGeometry(RPCDetId())->dets();
+  for(auto it = geomDetsRPC.begin(); it != geomDetsRPC.end(); ++it)
+    if (auto rpc = dynamic_cast<const RPCChamber*>(*it)) {
       std::vector< const RPCRoll*> rolls = (rpc->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rolls.begin(); r != rolls.end(); ++r)
 	validIds.push_back((*r)->id().rawId());
     }
+
+  // GEM
+  if (includeGEM_){
+    if (! geometry_->slaveGeometry(GEMDetId()) ) throw cms::Exception("FatalError") << "Cannnot GEMGeometry\n";
+    auto const & geomDetsGEM = geometry_->slaveGeometry(GEMDetId())->dets();
+    for(auto it = geomDetsGEM.begin(); it != geomDetsGEM.end(); ++it){
+      if (auto gem = dynamic_cast<const GEMSuperChamber*>(*it)) {
+	validIds.push_back(gem->id());
+      }
+    }
+  }
+  // ME0
+  if (includeME0_){
+    if (! geometry_->slaveGeometry(ME0DetId()) ) throw cms::Exception("FatalError") << "Cannnot ME0Geometry\n";
+    auto const & geomDetsME0 = geometry_->slaveGeometry(ME0DetId())->dets();
+    for(auto it = geomDetsME0.begin(); it != geomDetsME0.end(); ++it){
+      if (auto me0 = dynamic_cast<const ME0Chamber*>(*it)) {
+	validIds.push_back(me0->id());
+      }
+    }
+  }
   
 }
 
 bool MuonDetIdAssociator::insideElement(const GlobalPoint& point, const DetId& id) const {
-   if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
+   if (geometry_==nullptr) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
    LocalPoint lp = geometry_->idToDet(id)->toLocal(point);
    return geometry_->idToDet(id)->surface().bounds().inside(lp);
 }

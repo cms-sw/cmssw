@@ -1,5 +1,4 @@
 <use   name="DataFormats/BeamSpot"/>
-<use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/Provenance"/>
 <use   name="DetectorDescription/Core"/>
@@ -13,7 +12,6 @@
 <use   name="FastSimulation/Event"/>
 <use   name="FastSimulation/Particle"/>
 <use   name="FastSimulation/ParticlePropagator"/>
-<use   name="FastSimulation/PileUpProducer"/>
 <use   name="FastSimulation/TrajectoryManager"/>
 <use   name="FastSimulation/Utilities"/>
 <use   name="Geometry/CaloGeometry"/>
@@ -22,7 +20,6 @@
 <use   name="MagneticField/Records"/>
 <use   name="RecoTracker/Record"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimDataFormats/CrossingFrame"/>
 <use   name="FastSimDataFormats/NuclearInteractions"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <flags   EDM_PLUGIN="1"/>

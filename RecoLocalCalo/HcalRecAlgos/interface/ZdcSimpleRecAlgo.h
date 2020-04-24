@@ -50,7 +50,7 @@ private:
    // new lowGainEnergy variables
    int lowGainOffset_;
    double lowGainFrac_;
-  std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_;
+  std::unique_ptr<HcalPulseContainmentCorrection> pulseCorr_;
 };
 
 #endif

@@ -40,6 +40,8 @@
 // functions which manipulate storable trees
 #include "RecoJets/FFTJetAlgorithms/interface/clusteringTreeConverters.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 using namespace fftjetcms;
 
 //
@@ -49,7 +51,7 @@ class FFTJetTreeDump : public edm::EDAnalyzer
 {
 public:
     explicit FFTJetTreeDump(const edm::ParameterSet&);
-    ~FFTJetTreeDump();
+    ~FFTJetTreeDump() override;
 
 private:
     // Useful local typedefs
@@ -58,14 +60,15 @@ private:
     typedef fftjet::OpenDXPeakTree<long,fftjet::AbsClusteringTree> DXFormatter;
     typedef fftjet::OpenDXPeakTree<long,fftjet::SparseClusteringTree> SparseFormatter;
     typedef fftjet::Functor1<double,fftjet::Peak> PeakProperty;
+    typedef reco::PattRecoTree<Real,reco::PattRecoPeak<Real> > StoredTree;
 
-    FFTJetTreeDump();
-    FFTJetTreeDump(const FFTJetTreeDump&);
-    FFTJetTreeDump& operator=(const FFTJetTreeDump&);
+    FFTJetTreeDump() = delete;
+    FFTJetTreeDump(const FFTJetTreeDump&) = delete;
+    FFTJetTreeDump& operator=(const FFTJetTreeDump&) = delete;
 
-    virtual void beginJob() override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override ;
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
 
     template<class Real>
     void processTreeData(const edm::Event&, std::ofstream&);
@@ -73,7 +76,7 @@ private:
     template<class Ptr>
     void checkConfig(const Ptr& ptr, const char* message)
     {
-        if (ptr.get() == NULL)
+        if (ptr.get() == nullptr)
             throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 
@@ -82,6 +85,8 @@ private:
     ClusteringTree* clusteringTree;
 
     const edm::InputTag treeLabel;
+    edm::EDGetTokenT<StoredTree> treeToken;
+
     const std::string outputPrefix;
     const double etaMax;
     const bool storeInSinglePrecision;
@@ -112,7 +117,7 @@ private:
 // constructors and destructor
 //
 FFTJetTreeDump::FFTJetTreeDump(const edm::ParameterSet& ps)
-    : clusteringTree(0),
+    : clusteringTree(nullptr),
       treeLabel(ps.getParameter<edm::InputTag>("treeLabel")),
       outputPrefix(ps.getParameter<std::string>("outputPrefix")),
       etaMax(ps.getParameter<double>("etaMax")),
@@ -157,6 +162,8 @@ FFTJetTreeDump::FFTJetTreeDump(const edm::ParameterSet& ps)
 
     // Build the clustering tree
     clusteringTree = new ClusteringTree(distanceCalc.get());
+
+    treeToken = consumes<StoredTree>(treeLabel);
 }
 
 
@@ -173,15 +180,13 @@ template<class Real>
 void FFTJetTreeDump::processTreeData(const edm::Event& iEvent,
                                      std::ofstream& file)
 {
-    typedef reco::PattRecoTree<Real,reco::PattRecoPeak<Real> > StoredTree;
-
     // Get the event number
-    const unsigned long runNum = iEvent.id().run();
-    const unsigned long evNum = iEvent.id().event();
+    edm::RunNumber_t const  runNum = iEvent.id().run();
+    edm::EventNumber_t const evNum = iEvent.id().event();
 
     // Get the input
     edm::Handle<StoredTree> input;
-    iEvent.getByLabel(treeLabel, input);
+    iEvent.getByToken(treeToken, input);
 
     const double eventScale = insertCompleteEvent ? completeEventScale : 0.0;
     if (input->isSparse())

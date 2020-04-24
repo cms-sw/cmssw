@@ -44,7 +44,7 @@ propagateThoughFromIP(const SteppingHelixStateInfo& state,const Propagator* prop
 
 
 
-CachedTrajectory::CachedTrajectory():propagator_(0){
+CachedTrajectory::CachedTrajectory():propagator_(nullptr){
    reset_trajectory();
    setMaxDetectorRadius();
    setMaxDetectorLength();
@@ -80,7 +80,7 @@ void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Plane& pla
    if( const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_) )
      {
 	try {
-	   state = shp->propagate(state, plane);
+	   shp->propagate(state, plane, state);
 	}
 	catch(cms::Exception &ex){
            edm::LogWarning("TrackAssociator") << 
@@ -104,7 +104,7 @@ void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Cylinder& 
    if( const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_) )
      {
 	try {
-	   state = shp->propagate(state, cylinder);
+	   shp->propagate(state, cylinder,state);
 	}
 	catch(cms::Exception &ex){
            edm::LogWarning("TrackAssociator") << 
@@ -133,7 +133,7 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
 //   TimerStack timers(TimerStack::Disableable);
 
    reset_trajectory();
-   if (propagator_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
+   if (propagator_==nullptr) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
    SteppingHelixStateInfo currentState(initialState);
    fullTrajectory_.push_back(currentState);
 
@@ -259,7 +259,7 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
      {
 	SteppingHelixStateInfo state;
 	try { 
-	   state = shp->propagate(fullTrajectory_[closestPointOnLeft], *plane);
+	   shp->propagate(fullTrajectory_[closestPointOnLeft], *plane, state);
 	}
 	catch(cms::Exception &ex){
            edm::LogWarning("TrackAssociator") << 
@@ -496,7 +496,7 @@ const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getHOTrajectory() c
 std::vector<GlobalPoint>*
 CachedTrajectory::getWideTrajectory(const std::vector<SteppingHelixStateInfo>& states, 
                                     WideTrajectoryType wideTrajectoryType) {
-   std::vector<GlobalPoint>* wideTrajectory = 0;
+   std::vector<GlobalPoint>* wideTrajectory = nullptr;
    switch (wideTrajectoryType) {
     case Ecal:
        LogTrace("TrackAssociator") << "Filling ellipses in Ecal trajectory";
@@ -511,7 +511,7 @@ CachedTrajectory::getWideTrajectory(const std::vector<SteppingHelixStateInfo>& s
        wideTrajectory = &wideHOTrajectory_;
        break;
    }
-   if(!wideTrajectory) return 0;
+   if(!wideTrajectory) return nullptr;
 
    for(std::vector<SteppingHelixStateInfo>::const_iterator state= states.begin();
        state != states.end(); state++) {

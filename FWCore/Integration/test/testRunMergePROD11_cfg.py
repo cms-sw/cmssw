@@ -149,19 +149,21 @@ process.L = cms.EDProducer("ThingWithMergeProducer",
 process.testGetterOfProducts = cms.EDFilter("TestGetterOfProducts",
     processName = cms.string('PROD'),
     expectedInputTagLabels = cms.vstring('A','B','C','D','E','F',
+                                         'G', 'H', 'I', 'J', 'K', 'L',
                                         'dependsOnThingToBeDropped1',
                                         'm1', 'm2', 'm3',
                                         'makeThingToBeDropped',
                                         'makeThingToBeDropped1',
                                         'thingWithMergeProducer',
-                                        'tryNoPut',
-                                        'G', 'H', 'I', 'J', 'K', 'L'),
+                                        'tryNoPut' ),
     expectedLabelsAfterGet = cms.vstring('A','B','C','D','E','F',
+                                         'G', 'H', 'I', 'J', 'K', 'L',
                                          'dependsOnThingToBeDropped1',
                                          'm1', 'm2', 'm3',
                                          'makeThingToBeDropped',
                                          'makeThingToBeDropped1',
                                          'thingWithMergeProducer'
+                                         
     )
 )
 
@@ -169,15 +171,16 @@ process.testGetterOfProductsA = cms.EDAnalyzer("TestGetterOfProductsA",
     processName = cms.string('PROD'),
     branchType = cms.int32(0),
     expectedInputTagLabels = cms.vstring('A','B','C','D','E','F',
+                                         'G', 'H', 'I', 'J', 'K', 'L',
                                         'dependsOnThingToBeDropped1',
                                         'm1', 'm2', 'm3',
                                         'makeThingToBeDropped',
                                         'makeThingToBeDropped1',
                                         'thingWithMergeProducer',
-                                        'tryNoPut',
-                                        'G', 'H', 'I', 'J', 'K', 'L'
+                                        'tryNoPut'
     ),
     expectedLabelsAfterGet = cms.vstring('A','B','C','D','E','F',
+                                         'G', 'H', 'I', 'J', 'K', 'L',
                                          'dependsOnThingToBeDropped1',
                                          'm1', 'm2', 'm3',
                                          'makeThingToBeDropped',
@@ -191,21 +194,21 @@ process.testGetterOfProductsARun = cms.EDAnalyzer("TestGetterOfProductsA",
     processName = cms.string('PROD'),
     branchType = cms.int32(2),
     expectedInputTagLabels = cms.vstring('A','A','B','B','C','C','D','D','E','E','F','F',
+                                         'G', 'G', 'H', 'H', 'I', 'I', 'J', 'J', 'K', 'K', 'L', 'L',
                                         'dependsOnThingToBeDropped1','dependsOnThingToBeDropped1',
                                         'm1', 'm1', 'm2', 'm2', 'm3','m3',
                                         'makeThingToBeDropped','makeThingToBeDropped',
                                         'makeThingToBeDropped1','makeThingToBeDropped1',
                                         'thingWithMergeProducer','thingWithMergeProducer',
-                                        'tryNoPut','tryNoPut',
-                                        'G', 'G', 'H', 'H', 'I', 'I', 'J', 'J', 'K', 'K', 'L', 'L'
+                                        'tryNoPut','tryNoPut'
     ),
     expectedLabelsAfterGet = cms.vstring('A','A','B','B','C','C','D','D','E','E','F','F',
+                                         'G', 'G', 'H', 'H', 'I', 'I', 'J', 'J', 'K', 'K', 'L', 'L',
                                          'dependsOnThingToBeDropped1', 'dependsOnThingToBeDropped1',
                                          'm1', 'm1', 'm2', 'm2', 'm3', 'm3',
                                          'makeThingToBeDropped', 'makeThingToBeDropped',
                                          'makeThingToBeDropped1', 'makeThingToBeDropped1',
-                                         'thingWithMergeProducer', 'thingWithMergeProducer',
-                                         'G', 'H', 'I', 'J', 'K', 'L'
+                                         'thingWithMergeProducer', 'thingWithMergeProducer'
     ),
     expectedNumberOfThingsWithLabelA = cms.uint32(2)
 )
@@ -214,21 +217,21 @@ process.testGetterOfProductsALumi = cms.EDAnalyzer("TestGetterOfProductsA",
     processName = cms.string('PROD'),
     branchType = cms.int32(1),
     expectedInputTagLabels = cms.vstring('A','A','B','B','C','C','D','D','E','E','F','F',
+                                         'G', 'G', 'H', 'H', 'I', 'I', 'J', 'J', 'K', 'K', 'L', 'L',
                                         'dependsOnThingToBeDropped1','dependsOnThingToBeDropped1',
                                         'm1', 'm1', 'm2', 'm2', 'm3','m3',
                                         'makeThingToBeDropped','makeThingToBeDropped',
                                         'makeThingToBeDropped1','makeThingToBeDropped1',
                                         'thingWithMergeProducer','thingWithMergeProducer',
-                                        'tryNoPut','tryNoPut',
-                                        'G', 'G', 'H', 'H', 'I', 'I', 'J', 'J', 'K', 'K', 'L', 'L'
+                                        'tryNoPut','tryNoPut'
     ),
     expectedLabelsAfterGet = cms.vstring('A','A','B','B','C','C','D','D','E','E','F','F',
+                                         'G', 'G', 'H', 'H', 'I', 'I', 'J', 'J', 'K', 'K', 'L', 'L',
                                          'dependsOnThingToBeDropped1', 'dependsOnThingToBeDropped1',
                                          'm1', 'm1', 'm2', 'm2', 'm3', 'm3',
                                          'makeThingToBeDropped', 'makeThingToBeDropped',
                                          'makeThingToBeDropped1', 'makeThingToBeDropped1',
-                                         'thingWithMergeProducer', 'thingWithMergeProducer',
-                                         'G', 'H', 'I', 'J', 'K', 'L'
+                                         'thingWithMergeProducer', 'thingWithMergeProducer'
     ),
     expectedNumberOfThingsWithLabelA = cms.uint32(2)
 )
@@ -251,15 +254,16 @@ process.p2 = cms.Path(process.A *
                       process.D *
                       process.E *
                       process.F *
-                      process.testGetterOfProducts *
-                      process.testGetterOfProductsA *
-                      process.testGetterOfProductsARun *
-                      process.testGetterOfProductsALumi *
                       process.G *
                       process.H *
                       process.I *
                       process.J *
                       process.K *
-                      process.L)
+                      process.L *
+                      process.testGetterOfProducts *
+                      process.testGetterOfProductsA *
+                      process.testGetterOfProductsARun *
+                      process.testGetterOfProductsALumi 
+)
 
 process.e = cms.EndPath(process.out)

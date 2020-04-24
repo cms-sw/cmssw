@@ -49,19 +49,13 @@ namespace edm {
 
   template <typename TReturn>
   TReturn callWithTryCatchAndPrint(std::function<TReturn (void)> iFunc,
-                                   char const* context = 0,
+                                   char const* context = nullptr,
                                    bool disablePrint = false) {
 
     try {
-      try {
+      return convertException::wrap([iFunc]() {
         return iFunc();
-      }
-      catch (cms::Exception& e) { throw; }
-      catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch (std::string& s) { convertException::stringToEDM(s); }
-      catch (char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
       addContextAndPrintException(context, ex, disablePrint);

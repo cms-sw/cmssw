@@ -32,8 +32,7 @@ RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts,
 
   SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
     ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
-  AnalyticalErrorPropagation errorprop;
-  return errorprop( fts, plane, side, gp.parameters(),gp.s());
+  return  analyticalErrorPropagation( fts, plane, side, gp.parameters(),gp.s());
 }
 
 std::pair< TrajectoryStateOnSurface, double> 
@@ -44,8 +43,7 @@ RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& fts, const Cylind
 
   SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
     ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
-  AnalyticalErrorPropagation errorprop;
-  return errorprop( fts, cyl, side, gp.parameters(),gp.s());
+  return analyticalErrorPropagation( fts, cyl, side, gp.parameters(),gp.s());
   
 }
 
@@ -86,7 +84,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     // get solution
     //
     std::pair<bool,double> propResult = planeCrossing.pathLength(plane);
-    if likely( propResult.first && theVolume !=0) {
+    if likely( propResult.first && theVolume !=nullptr) {
       double s = propResult.second;
       // point (reconverted to GlobalPoint)
       GlobalPoint x (planeCrossing.position(s));
@@ -100,7 +98,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
   }
 
 
-#ifdef EDM_LM_DEBUG
+#ifdef EDM_ML_DEBUG
   if (theVolume != 0) {
     LogDebug("RKPropagatorInS")  << "RKPropagatorInS: starting prop to plane in volume with pos " << theVolume->position()
 	      << " Z axis " << theVolume->toGlobal( LocalVector(0,0,1)) ;
@@ -109,9 +107,9 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
 	      << theVolume->toLocal(ts.position()) << " (local) " ;
   
     FrameChanger changer;
-    FrameChanger::PlanePtr localPlane = changer.transformPlane( plane, *theVolume);
+    auto localPlane = changer.transformPlane( plane, *theVolume);
     LogDebug("RKPropagatorInS")  << "The plane position is " << plane.position() << " (global) "
-	      << localPlane->position() << " (local) " ;
+	      << localPlane.position() << " (local) " ;
 
     LogDebug("RKPropagatorInS")  << "The initial distance to plane is " << plane.localZ( ts.position()) ;
 
@@ -204,7 +202,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
   typedef Solver::Vector                                  RKVector;
   
   
-  GlobalPoint sp = cyl.position();
+  const GlobalPoint& sp = cyl.position();
   if unlikely(sp.x()!=0. || sp.y()!=0.) {
       throw PropagationException("Cannot propagate to an arbitrary cylinder");
     }
@@ -238,7 +236,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
       // get solution
       //
       std::pair<bool,double> propResult = cylCrossing.pathLength(cyl);
-      if  likely( propResult.first && theVolume !=0) {
+      if  likely( propResult.first && theVolume !=nullptr) {
 	  double s = propResult.second;
 	  // point (reconverted to GlobalPoint)
 	  GlobalPoint x (cylCrossing.position(s));
@@ -330,25 +328,14 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
   return GlobalParametersWithPath();
 }
 
-TrajectoryStateOnSurface 
-RKPropagatorInS::propagate(const FreeTrajectoryState& fts, const Plane& plane) const
-{
-  return propagateWithPath( fts, plane).first;
-}
-
-TrajectoryStateOnSurface
-RKPropagatorInS::propagate( const FreeTrajectoryState& fts, const Cylinder& cyl) const
-{
-  return propagateWithPath( fts, cyl).first;
-}
 
 Propagator * RKPropagatorInS::clone() const
 {
     return new RKPropagatorInS(*this);
 }
 
-GlobalTrajectoryParameters RKPropagatorInS::gtpFromLocal( const Basic3DVector<double>& lpos,
-							  const Basic3DVector<double>& lmom,
+GlobalTrajectoryParameters RKPropagatorInS::gtpFromLocal( const Basic3DVector<float>& lpos,
+							  const Basic3DVector<float>& lmom,
 							  TrackCharge ch, const Surface& surf) const
 {
     return GlobalTrajectoryParameters( surf.toGlobal( LocalPoint( lpos)),
@@ -373,26 +360,26 @@ PropagationDirection RKPropagatorInS::invertDirection( PropagationDirection dir)
 
 Basic3DVector<double> RKPropagatorInS::rkPosition( const GlobalPoint& pos) const
 {
-  if (theVolume != 0) return theVolume->toLocal( pos).basicVector();
+  if (theVolume != nullptr) return theVolume->toLocal( pos).basicVector();
   else return pos.basicVector();
 }
 
 Basic3DVector<double> RKPropagatorInS::rkMomentum( const GlobalVector& mom) const
 {
-  if (theVolume != 0) return theVolume->toLocal( mom).basicVector();
+  if (theVolume != nullptr) return theVolume->toLocal( mom).basicVector();
   else return mom.basicVector();
 }
 
-GlobalPoint RKPropagatorInS::globalPosition( const Basic3DVector<double>& pos) const
+GlobalPoint RKPropagatorInS::globalPosition( const Basic3DVector<float>& pos) const
 {
-  if (theVolume != 0) return theVolume->toGlobal( LocalPoint(pos));
+  if (theVolume != nullptr) return theVolume->toGlobal( LocalPoint(pos));
   else return GlobalPoint(pos);
 }
 
-GlobalVector RKPropagatorInS::globalMomentum( const Basic3DVector<double>& mom) const
+GlobalVector RKPropagatorInS::globalMomentum( const Basic3DVector<float>& mom) const
 
 {
-  if (theVolume != 0) return theVolume->toGlobal( LocalVector(mom));
+  if (theVolume != nullptr) return theVolume->toGlobal( LocalVector(mom));
   else return GlobalVector(mom);
 }
 

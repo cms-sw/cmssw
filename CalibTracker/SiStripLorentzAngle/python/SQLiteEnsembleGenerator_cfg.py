@@ -47,16 +47,17 @@ process.siStripLorentzAngleDummyDBWriter.record=process.PoolDBOutputService.toPu
 # - either give two equal values or a single value (pass an empty max vector)  -> fixed value
 
 BField = 3.8
+from CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi import siStripLorentzAngleFakeESSource
 # TIB min and max
-process.SiStripLorentzAngleGenerator.TIB_EstimatedValuesMin = cms.vdouble(0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField)
-process.SiStripLorentzAngleGenerator.TIB_EstimatedValuesMax = cms.vdouble(0.10/BField, 0.10/BField, 0.10/BField, 0.10/BField)
+siStripLorentzAngleFakeESSource.TIB_EstimatedValuesMin = cms.vdouble(0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField)
+siStripLorentzAngleFakeESSource.TIB_EstimatedValuesMax = cms.vdouble(0.10/BField, 0.10/BField, 0.10/BField, 0.10/BField)
 # TIB errors
-process.SiStripLorentzAngleGenerator.TIB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.)
+siStripLorentzAngleFakeESSource.TIB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.)
 # TOB min and max
-process.SiStripLorentzAngleGenerator.TOB_EstimatedValuesMin = cms.vdouble(0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField)
-process.SiStripLorentzAngleGenerator.TOB_EstimatedValuesMax = cms.vdouble(0.12/BField, 0.12/BField, 0.12/BField, 0.12/BField, 0.12/BField, 0.12/BField)
+siStripLorentzAngleFakeESSource.TOB_EstimatedValuesMin = cms.vdouble(0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField)
+siStripLorentzAngleFakeESSource.TOB_EstimatedValuesMax = cms.vdouble(0.12/BField, 0.12/BField, 0.12/BField, 0.12/BField, 0.12/BField, 0.12/BField)
 # TOB errors
-process.SiStripLorentzAngleGenerator.TOB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.,    0.,    0.)
+siStripLorentzAngleFakeESSource.TOB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.,    0.,    0.)
 
 process.p1 = cms.Path(process.siStripLorentzAngleDummyDBWriter)
 

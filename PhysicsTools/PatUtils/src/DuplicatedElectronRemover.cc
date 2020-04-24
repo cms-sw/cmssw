@@ -3,12 +3,12 @@
 #include <algorithm>
 
 
-std::auto_ptr< std::vector<size_t> > 
+std::unique_ptr< std::vector<size_t> > 
 pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::GsfElectron> &electrons) const {
     return duplicatesToRemove< std::vector<reco::GsfElectron> >(electrons);
 }
 
-std::auto_ptr< std::vector<size_t> > 
+std::unique_ptr< std::vector<size_t> > 
 pat::DuplicatedElectronRemover::duplicatesToRemove(const edm::View<reco::GsfElectron>   &electrons) const {
     return duplicatesToRemove< edm::View<reco::GsfElectron> >(electrons);
 }
@@ -17,7 +17,7 @@ pat::DuplicatedElectronRemover::duplicatesToRemove(const edm::View<reco::GsfElec
 
 
 /*
-std::auto_ptr< std::vector<size_t> >
+std::unique_ptr< std::vector<size_t> >
 pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::GsfElectron> &electrons) 
 {
     using namespace std;
@@ -51,7 +51,7 @@ pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::GsfEl
         }
     }
 
-    auto_ptr< vector<size_t> > ret(new vector<size_t>());
+    auto ret = std::make_unique<std::vector<size_t>>();
 
     for (size_t i = 0; i < size; ++i) {
         if (bad[i]) ret->push_back(i);

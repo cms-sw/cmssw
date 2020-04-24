@@ -20,31 +20,24 @@
 //DQM
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 
-class SiPixelDcsInfo : public edm::EDAnalyzer {
+class SiPixelDcsInfo : public DQMEDHarvester {
 public:
   explicit SiPixelDcsInfo(const edm::ParameterSet&);
-  ~SiPixelDcsInfo();
+  ~SiPixelDcsInfo() override;
   
 
 private:
-  virtual void beginJob() ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void endRun(const edm::Run& , const  edm::EventSetup&);
-  virtual void endJob() ;
-  
-  DQMStore *dbe_;  
+  void dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const edm::LuminosityBlock& , const  edm::EventSetup&) override;
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   
   MonitorElement*  Fraction_;
   MonitorElement*  FractionBarrel_;
   MonitorElement*  FractionEndcap_;
 
-  std::pair<int,int> DCSPixelRange_;
-
-  int  NumberOfDcsChannels_;
+  bool firstRun;
  
 };
 

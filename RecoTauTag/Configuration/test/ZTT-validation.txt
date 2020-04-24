@@ -1,0 +1,1 @@
+/store/relval/CMSSW_9_2_2/RelValProdTTbar_13/AODSIM/91X_mcRun2_asymptotic_v3-v1/10000/EEB99F74-DA4D-E711-A41C-0025905A48F2.root

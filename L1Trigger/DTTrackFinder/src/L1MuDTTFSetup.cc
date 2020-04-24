@@ -42,10 +42,9 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTTFSetup::L1MuDTTFSetup(const edm::ParameterSet & ps) : m_tf(new L1MuDTTrackFinder(ps)) {
-
+L1MuDTTFSetup::L1MuDTTFSetup(const edm::ParameterSet & ps, edm::ConsumesCollector && iC) : m_tf(new L1MuDTTrackFinder(ps,std::move(iC))) {
   // setup  the barrel Muon Trigger Track Finder
-  m_tf->setup(); 
+  m_tf->setup(std::move(iC)); 
 
 }
 

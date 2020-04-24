@@ -25,7 +25,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cassert>
 #include <unistd.h>
 #include <string>
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
         else nevt_perbin_e_em = emInfo->Energy.getNEvtPerBin();
         nevt_tot_em+=emInfo->Energy.getNEvts();
 
-        if (emInfo_out->Eta.getBin().size()>0) {
+        if (!emInfo_out->Eta.getBin().empty()) {
            if (emInfo_out->Eta.getBin()!=emInfo->Eta.getBin()) {
               std::cout << "CastorShowerLibraryMerger: ERROR: Eta bins not the same in all files. Exiting."
                         << std::endl;
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
            emInfo_out->Eta.setNEvts(emInfo->Eta.getNEvts());
         }
            
-        if (emInfo_out->Phi.getBin().size()>0) {
+        if (!emInfo_out->Phi.getBin().empty()) {
            if (emInfo_out->Phi.getBin()!=emInfo->Phi.getBin()) {
               std::cout << "CastorShowerLibraryMerger: ERROR: Phi bins not the same in all files. Exiting."
                         << std::endl;
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
         else nevt_perbin_e_had = hadInfo->Energy.getNEvtPerBin();
         nevt_tot_had+=hadInfo->Energy.getNEvts();
         
-        if (hadInfo_out->Eta.getBin().size()>0) {
+        if (!hadInfo_out->Eta.getBin().empty()) {
            if (hadInfo_out->Eta.getBin()!=hadInfo->Eta.getBin()) {
               std::cout << "CastorShowerLibraryMerger: ERROR: Eta bins not the same in all files. Exiting."
                         << std::endl;
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
            hadInfo_out->Eta.setNBins(hadInfo->Eta.getNBins());
            hadInfo_out->Eta.setNEvts(hadInfo->Eta.getNEvts());
         }
-        if (hadInfo_out->Phi.getBin().size()>0) {
+        if (!hadInfo_out->Phi.getBin().empty()) {
            if (hadInfo_out->Phi.getBin()!=hadInfo->Phi.getBin()) {
               std::cout << "CastorShowerLibraryMerger: ERROR: Phi bins not the same in all files. Exiting."
                         << std::endl;

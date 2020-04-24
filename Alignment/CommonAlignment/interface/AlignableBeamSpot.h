@@ -70,7 +70,7 @@ public:
   virtual Alignments* alignments() const;
 
   /// Return vector of alignment errors
-  virtual AlignmentErrors* alignmentErrors() const;
+  virtual AlignmentErrorsExtended* alignmentErrors() const;
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
@@ -86,6 +86,9 @@ public:
   /// initialize the alignable with the passed beam spot parameters 
   void initialize(double x, double y, double z,
 		  double dxdz, double dydz);
+
+  /// reset beam spot to the uninitialized state
+  void reset();
 
   /// returns the DetId corresponding to the alignable beam spot. Also used
   /// by BeamSpotGeomDet and BeamSpotTransientTrackingRecHit

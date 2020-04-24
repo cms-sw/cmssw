@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
   
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   
   // set nice style for histograms
   setNiceStyle();
@@ -46,9 +46,9 @@ int main(int argc, char* argv[])
   std::cout << "open  file: " << argv[1] << std::endl;
   // -------------------------------------------------
   TFile* inFile = TFile::Open(argv[1]);
-  TTree* events_= 0;
+  TTree* events_= nullptr;
   if( inFile ) inFile->GetObject("Events", events_); 
-  if( events_==0 ){
+  if( events_==nullptr ){
     // -------------------------------------------------  
     std::cerr << "ERROR:: " 
 	      << "Unable to retrieve TTree Events!" << std::endl
@@ -60,10 +60,10 @@ int main(int argc, char* argv[])
   // acess branch of muons and elecs
   char muonName[50];
   sprintf(muonName, "patMuons_selectedPatMuons__%s.obj", argv[2]);
-  TBranch* muons_ = events_->GetBranch( muonName ); assert( muons_!=0 );
+  TBranch* muons_ = events_->GetBranch( muonName ); assert( muons_!=nullptr );
   char elecName[50];
   sprintf(elecName, "patElectrons_selectedPatElectrons__%s.obj", argv[2]);
-  TBranch* elecs_ = events_->GetBranch( elecName ); assert( elecs_!=0 );
+  TBranch* elecs_ = events_->GetBranch( elecName ); assert( elecs_!=nullptr );
   
   // loop over events and fill histograms
   std::vector<pat::Muon> muons;

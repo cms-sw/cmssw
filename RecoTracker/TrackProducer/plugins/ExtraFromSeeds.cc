@@ -26,9 +26,9 @@
 //
 // constructors and destructor
 //
-ExtraFromSeeds::ExtraFromSeeds(const edm::ParameterSet& iConfig)
+ExtraFromSeeds::ExtraFromSeeds(const edm::ParameterSet& iConfig):
+  tracks_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks")))
 {
-  tracks_=iConfig.getParameter<edm::InputTag>("tracks");
   produces<ExtremeLight>();
   produces<TrackingRecHitCollection>();
   
@@ -50,18 +50,18 @@ ExtraFromSeeds::~ExtraFromSeeds()
 
 // ------------ method called to produce the data  ------------
 void
-ExtraFromSeeds::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+ExtraFromSeeds::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
   // in
   edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(tracks_,tracks);
+  iEvent.getByToken(tracks_,tracks);
 
   // out  
-  std::auto_ptr<ExtremeLight> exxtralOut(new ExtremeLight());
+  std::unique_ptr<ExtremeLight> exxtralOut(new ExtremeLight());
   exxtralOut->resize(tracks->size());
 
-  std::auto_ptr<TrackingRecHitCollection> hitOut(new TrackingRecHitCollection());
+  std::unique_ptr<TrackingRecHitCollection> hitOut(new TrackingRecHitCollection());
   TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
   hitOut->reserve(3*tracks->size());
 
@@ -81,18 +81,8 @@ ExtraFromSeeds::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   }
   
-  iEvent.put(exxtralOut);
-  iEvent.put(hitOut);
-}
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ExtraFromSeeds::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ExtraFromSeeds::endJob() {
+  iEvent.put(std::move(exxtralOut));
+	     iEvent.put(std::move(hitOut));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

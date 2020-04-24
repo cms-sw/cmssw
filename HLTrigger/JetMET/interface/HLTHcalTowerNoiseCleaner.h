@@ -6,7 +6,7 @@
  *  \author Alexander Mott (Caltech), Leonard Apanasevich (UIC), John Paul Chou (Brown)
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"   
@@ -20,13 +20,13 @@ namespace edm {
    class ConfigurationDescriptions;
 }
 
-class HLTHcalTowerNoiseCleaner : public edm::EDProducer {
+class HLTHcalTowerNoiseCleaner : public edm::stream::EDProducer<> {
   
  public:
   explicit HLTHcalTowerNoiseCleaner(const edm::ParameterSet&);
-  ~HLTHcalTowerNoiseCleaner();
+  ~HLTHcalTowerNoiseCleaner() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
@@ -50,7 +50,7 @@ class HLTHcalTowerNoiseCleaner : public edm::EDProducer {
   double maxRBXEMF_;
 
   // imported from the RecoMET/METProducers/python/hcalnoiseinfoproducer_cfi
-  double minRecHitE_, minLowHitE_, minHighHitE_;
+  double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_;
 
   double TS4TS5EnergyThreshold_;
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;

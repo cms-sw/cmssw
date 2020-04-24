@@ -19,7 +19,9 @@
 //
 
 // system include files
-
+#include <memory>
+#include <vector>
+#include <mutex>
 // user include files
 
 // forward declarations
@@ -37,6 +39,12 @@ namespace edm {
         void resize(size_t) {}
         dummy_ptr operator[](unsigned int) { return dummy_ptr();}
       };
+      
+      struct dummy_mutex {
+        void lock() {}
+        void unlock() {}
+      };
+      
       template<typename T>
       struct choose_unique_ptr {
         typedef std::unique_ptr<T> type;
@@ -62,6 +70,14 @@ namespace edm {
       template<>
       struct choose_shared_vec<void const> {
         typedef dummy_vec type;
+      };
+      template<typename T>
+      struct choose_mutex {
+        using type = std::mutex;
+      };
+      template<>
+      struct choose_mutex<void> {
+        using type = dummy_mutex;
       };
     }
   }

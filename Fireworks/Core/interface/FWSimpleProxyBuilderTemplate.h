@@ -22,6 +22,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilder.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 
 // forward declarations
 
@@ -44,21 +45,18 @@ public:
 protected:
    const T& modelData(int index) { return *reinterpret_cast<const T*>(m_helper.offsetObject(item()->modelData(index))); }
 
-private:
-   FWSimpleProxyBuilderTemplate(const FWSimpleProxyBuilderTemplate&); // stop default
-
-   const FWSimpleProxyBuilderTemplate& operator=(const FWSimpleProxyBuilderTemplate&); // stop default
-
-   virtual void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context)
+   using FWSimpleProxyBuilder::build;
+   void build(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* context) override
    {
-      if(0!=iData) {
+      if(nullptr!=iData) {
          build(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, context);
       }
    }
 
-   virtual void buildViewType(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context)
+   using FWSimpleProxyBuilder::buildViewType;
+   void buildViewType(const void*iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType viewType, const FWViewContext* context) override
    {
-      if(0!=iData) {
+      if(nullptr!=iData) {
          buildViewType(*reinterpret_cast<const T*> (iData), iIndex, oItemHolder, viewType, context);
       }
    }
@@ -74,6 +72,12 @@ private:
    { 
       throw std::runtime_error("virtual buildViewType(const T&, unsigned int, TEveElement&, FWViewType::EType, const FWViewContext*) not implemented by inherited class");
    };
+private:
+   FWSimpleProxyBuilderTemplate(const FWSimpleProxyBuilderTemplate&) = delete; // stop default
+
+   const FWSimpleProxyBuilderTemplate& operator=(const FWSimpleProxyBuilderTemplate&) = delete; // stop default
+
+
 
    // ---------- member data --------------------------------
 

@@ -78,8 +78,7 @@ EgammaHLTCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::Event
     
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> Map(new reco::RecoEcalCandidateIsolationMap(TotalIsolMap));
-  iEvent.put(Map);
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(TotalIsolMap));
 
 }
 

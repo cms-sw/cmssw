@@ -40,7 +40,6 @@ using namespace edm;
 DQMSourceEleCalib::DQMSourceEleCalib( const edm::ParameterSet& ps ) :
 eventCounter_(0)
 {
-  dbe_ = Service<DQMStore>().operator->();
   folderName_ = ps.getUntrackedParameter<string>("FolderName","ALCAStreamEcalSingleEle");
   productMonitoredEB_= consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("AlCaStreamEBTag"));
   productMonitoredEE_= consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("AlCaStreamEETag"));
@@ -58,28 +57,23 @@ DQMSourceEleCalib::~DQMSourceEleCalib()
 
 
 //--------------------------------------------------------
-void DQMSourceEleCalib::beginJob(){
+void DQMSourceEleCalib::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & irun, edm::EventSetup const & isetup) {
 
   // create and cd into new folder
-  dbe_->setCurrentFolder(folderName_);
+  ibooker.setCurrentFolder(folderName_);
 
-  recHitsPerElectron_ = dbe_->book1D("recHitsPerElectron_","recHitPerElectron",
+  recHitsPerElectron_ = ibooker.book1D("recHitsPerElectron_","recHitPerElectron",
   					200,0,200);
-  ElectronsNumber_ = dbe_->book1D("ElectronsNumber_","electrons in the event",
+  ElectronsNumber_ = ibooker.book1D("ElectronsNumber_","electrons in the event",
   				   40,0,40);
-  ESCoP_ = dbe_->book1D ("ESCoP","ESCoP",50,0,5);
+  ESCoP_ = ibooker.book1D ("ESCoP","ESCoP",50,0,5);
 
-  OccupancyEB_= dbe_->book2D("OccupancyEB_","OccupancyEB",360,1,361,171,-85,86);
-  OccupancyEEP_= dbe_->book2D("OccupancyEEP_","Occupancy EE Plus",100,1,101,100,1,101);
-  OccupancyEEM_= dbe_->book2D("OccupancyEEM_","Occupancy EE Minus",100,1,101,100,1,101);
-  HitsVsAssociatedHits_ = dbe_->book1D ("HitsVsAssociatedHits_","HitsVsAssociatedHits",100,0,5);
-  LocalOccupancyEB_ = dbe_->book2D ("LocalOccupancyEB_","Local occupancy Barrel",9,-4,5,9,-4,5); 
-  LocalOccupancyEE_ = dbe_->book2D ("LocalOccupancyEE_","Local occupancy Endcap",9,-4,5,9,-4,5); 
-
-}
-
-//--------------------------------------------------------
-void DQMSourceEleCalib::beginRun(const edm::Run& r, const EventSetup& context) {
+  OccupancyEB_= ibooker.book2D("OccupancyEB_","OccupancyEB",360,1,361,171,-85,86);
+  OccupancyEEP_= ibooker.book2D("OccupancyEEP_","Occupancy EE Plus",100,1,101,100,1,101);
+  OccupancyEEM_= ibooker.book2D("OccupancyEEM_","Occupancy EE Minus",100,1,101,100,1,101);
+  HitsVsAssociatedHits_ = ibooker.book1D ("HitsVsAssociatedHits_","HitsVsAssociatedHits",100,0,5);
+  LocalOccupancyEB_ = ibooker.book2D ("LocalOccupancyEB_","Local occupancy Barrel",9,-4,5,9,-4,5); 
+  LocalOccupancyEE_ = ibooker.book2D ("LocalOccupancyEE_","Local occupancy Endcap",9,-4,5,9,-4,5); 
 
 }
 
@@ -167,18 +161,8 @@ void DQMSourceEleCalib::analyze(const Event& iEvent,
 void DQMSourceEleCalib::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
                                           const EventSetup& context) {
 }
-//--------------------------------------------------------
-void DQMSourceEleCalib::endRun(const Run& r, const EventSetup& context){
 
-}
-//--------------------------------------------------------
-void DQMSourceEleCalib::endJob(){
-  
-  if (saveToFile_) {
-     dbe_->save(fileName_);
-  }
-  
-}
+//------------------------------------------------
 
 
 DetId

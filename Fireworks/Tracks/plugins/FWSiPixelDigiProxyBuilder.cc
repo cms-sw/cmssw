@@ -24,22 +24,23 @@ class FWSiPixelDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWSiPixelDigiProxyBuilder( void ) {}
-  virtual ~FWSiPixelDigiProxyBuilder( void ) {}
+  ~FWSiPixelDigiProxyBuilder( void ) override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   // Disable default copy constructor
-  FWSiPixelDigiProxyBuilder( const FWSiPixelDigiProxyBuilder& );    
+  FWSiPixelDigiProxyBuilder( const FWSiPixelDigiProxyBuilder& ) = delete;    
   // Disable default assignment operator
-  const FWSiPixelDigiProxyBuilder& operator=( const FWSiPixelDigiProxyBuilder& );
+  const FWSiPixelDigiProxyBuilder& operator=( const FWSiPixelDigiProxyBuilder& ) = delete;
 
-  virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+  using FWProxyBuilderBase::build;
+  void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
 void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
-  const edm::DetSetVector<PixelDigi>* digis = 0;
+  const edm::DetSetVector<PixelDigi>* digis = nullptr;
   iItem->get( digis );
 
   if( ! digis )
@@ -73,8 +74,8 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
       else
       {	
 	float localPoint[3] = {     
-	  fireworks::pixelLocalX(( *idigi ).row(), pars[0] ),
-	  fireworks::pixelLocalY(( *idigi ).column(), pars[1] ),
+	  fireworks::pixelLocalX(( *idigi ).row(), pars ),
+	  fireworks::pixelLocalY(( *idigi ).column(), pars ),
 	  0.0 };
 	
 	float globalPoint[3];

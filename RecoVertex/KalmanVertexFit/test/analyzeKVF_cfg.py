@@ -14,9 +14,9 @@ process.load("Configuration.StandardSequences.FakeConditions_cff")
 
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(

@@ -1,5 +1,5 @@
 
-/* \class HiggsTo4LeptonsSkimEff 
+/* \class HiggsTo4LeptonsSkimEff
  *
  * Consult header file for description
  *
@@ -19,13 +19,11 @@
 
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 // Candidate handling
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
 // C++
@@ -44,9 +42,9 @@ HiggsToZZ4LeptonsSkimEff::HiggsToZZ4LeptonsSkimEff(const edm::ParameterSet& pset
   debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
 
   // Reconstructed objects
-  recTrackLabel      = pset.getParameter<edm::InputTag>("RecoTrackLabel");
-  theGLBMuonLabel    = pset.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
-  thePixelGsfELabel  = pset.getParameter<edm::InputTag>("ElectronCollectionLabel");
+  theGLBMuonToken    = consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("GlobalMuonCollectionLabel"));
+  theGsfEToken       = consumes<reco::GsfElectronCollection>(pset.getParameter<edm::InputTag>("ElectronCollectionLabel"));
+  genToken           = consumes<GenParticleCollection>(edm::InputTag("genParticles"));
 
   // Minimum Pt for leptons for skimming
   // Minimum Pt for leptons for skimming
@@ -68,24 +66,24 @@ HiggsToZZ4LeptonsSkimEff::~HiggsToZZ4LeptonsSkimEff() {
   std::cout << "Number of events read " << nEvents << std::endl;
   std::cout << "*** Efficiency for the various subsamples *** " <<  endl;
 
-  std::cout << "Four leptons: " 
-  << " pres "    << nFourL         
+  std::cout << "Four leptons: "
+  << " pres "    << nFourL
   << " kept "    << nSelFourL
   << " eff  "    << ((double)nSelFourL)/((double) nFourL + 0.0001) << std::endl;
   std::cout << "Four muons:   "
-  << " pres "    << nFourM         
+  << " pres "    << nFourM
   << " kept "    << nSelFourM
   << " eff  "    << ((double)nSelFourM)/((double) nFourM + 0.0001) << std::endl;
   std::cout << "Four elecs:   "
-  << " pres "    << nFourE         
+  << " pres "    << nFourE
   << " kept "    << nSelFourE
   << " eff  "    << ((double)nSelFourE)/((double) nFourE + 0.0001) << std::endl;
   std::cout << "2 elec 2 mu:  "
-  << " pres "    << nTwoETwoM   
+  << " pres "    << nTwoETwoM
   << " kept "    << nSelTwoETwoM
   << " eff  "    << ((double)nSelTwoETwoM)/((double) nTwoETwoM + 0.0001) << std::endl;
   std::cout << "with taus:    "
-  << " pres "    << nTau     
+  << " pres "    << nTau
   << " kept "    << nSelTau
   << " eff  "    << ((double)nSelTau)/((double) nTau + 0.0001) << std::endl;
 
@@ -115,7 +113,7 @@ void HiggsToZZ4LeptonsSkimEff::analyze(const edm::Event& event, const edm::Event
 
   // get gen particle candidates
   edm::Handle<CandidateCollection> genCandidates;
-  event.getByLabel("genParticleCandidates", genCandidates);
+  event.getByToken(genToken, genCandidates);
 
   for ( CandidateCollection::const_iterator mcIter=genCandidates->begin(); mcIter!=genCandidates->end(); ++mcIter ) {
 
@@ -145,7 +143,7 @@ void HiggsToZZ4LeptonsSkimEff::analyze(const edm::Event& event, const edm::Event
     }
 
   }
-   
+
     if (nElec > 3) {
       isFourE = true;
       nFourE++;
@@ -181,43 +179,43 @@ void HiggsToZZ4LeptonsSkimEff::analyze(const edm::Event& event, const edm::Event
 
   // Get the muon track collection from the event
   edm::Handle<reco::TrackCollection> muTracks;
-  event.getByLabel(theGLBMuonLabel.label(), muTracks);
- 
-  if ( muTracks.isValid() ) {   
+  event.getByToken(theGLBMuonToken, muTracks);
+
+  if ( muTracks.isValid() ) {
     reco::TrackCollection::const_iterator muons;
-        
-    // Loop over muon collections and count how many muons there are, 
+
+    // Loop over muon collections and count how many muons there are,
     // and how many are above threshold
     for ( muons = muTracks->begin(); muons != muTracks->end(); ++muons ) {
       float pt_mu =  muons->pt();
-      if ( pt_mu > stiffMinPt ) nStiffLeptons++; 
-      if ( pt_mu > softMinPt ) nLeptons++; 
-    }  
-  } 
-  
+      if ( pt_mu > stiffMinPt ) nStiffLeptons++;
+      if ( pt_mu > softMinPt ) nLeptons++;
+    }
+  }
+
 
   // Now look at electrons:
 
   // Get the electron track collection from the event
   edm::Handle<reco::GsfElectronCollection> pTracks;
-  event.getByLabel(thePixelGsfELabel.label(),pTracks);
+  event.getByToken(theGsfEToken,pTracks);
 
-  if ( pTracks.isValid() ) { 
+  if ( pTracks.isValid() ) {
 
     const reco::GsfElectronCollection* eTracks = pTracks.product();
 
     reco::GsfElectronCollection::const_iterator electrons;
 
-    // Loop over electron collections and count how many muons there are, 
+    // Loop over electron collections and count how many muons there are,
     // and how many are above threshold
     for ( electrons = eTracks->begin(); electrons != eTracks->end(); ++electrons ) {
-      float pt_e = electrons->pt(); 
-      if ( pt_e > stiffMinPt ) nStiffLeptons++; 
-      if ( pt_e > softMinPt ) nLeptons++; 
+      float pt_e = electrons->pt();
+      if ( pt_e > stiffMinPt ) nStiffLeptons++;
+      if ( pt_e > softMinPt ) nLeptons++;
     }
   }
 
-  
+
   // Make decision:
   if ( nStiffLeptons >= nStiffLeptonMin && nLeptons >= nLeptonMin) {
     keepEvent = true;

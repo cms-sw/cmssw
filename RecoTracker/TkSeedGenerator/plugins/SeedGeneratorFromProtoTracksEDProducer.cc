@@ -24,12 +24,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
-#include <cassert>
+
 using namespace edm;
 using namespace reco;
 
 template <class T> T sqr( T t) {return t*t;}
-typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
+typedef SeedingHitSet::ConstRecHitPointer Hit;
 
 struct HitLessByRadius { bool operator() (const Hit& h1, const Hit & h2) { return h1->globalPosition().perp2() < h2->globalPosition().perp2(); } };
 
@@ -43,28 +43,43 @@ void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::Configuration
   desc.add<bool>("useEventsWithNoVertex", true);
   desc.add<std::string>("TTRHBuilder", "TTRHBuilderWithoutAngle4PixelTriplets");
   desc.add<bool>("usePV", false);
+
+  edm::ParameterSetDescription psd0;
+  psd0.add<std::string>("ComponentName",std::string("SeedFromConsecutiveHitsCreator"));
+  psd0.add<std::string>("propagator",std::string("PropagatorWithMaterial"));
+  psd0.add<double>("SeedMomentumForBOFF",5.0);
+  psd0.add<double>("OriginTransverseErrorMultiplier",1.0);
+  psd0.add<double>("MinOneOverPtError",1.0);
+  psd0.add<std::string>("magneticField",std::string(""));
+  psd0.add<std::string>("TTRHBuilder",std::string("WithTrackAngle"));
+  psd0.add<bool>("forceKinematicWithRegionDirection",false);
+  desc.add<edm::ParameterSetDescription>("SeedCreatorPSet",psd0);
+  
   descriptions.add("SeedGeneratorFromProtoTracksEDProducer", desc);
 }
 
 
-SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(const ParameterSet& cfg):theConfig(cfg)
-
+SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(const ParameterSet& cfg)
+ : theConfig(cfg)
+ , originHalfLength        ( cfg.getParameter<double>("originHalfLength")      )
+ , originRadius            ( cfg.getParameter<double>("originRadius")          )
+ , useProtoTrackKinematics ( cfg.getParameter<bool>("useProtoTrackKinematics") )
+ , useEventsWithNoVertex   ( cfg.getParameter<bool>("useEventsWithNoVertex")   )
+ , builderName             ( cfg.getParameter<std::string>("TTRHBuilder")      )
+ , usePV_                  ( cfg.getParameter<bool>( "usePV" )                 )
+ , theInputCollectionTag       ( consumes<reco::TrackCollection> (cfg.getParameter<InputTag>("InputCollection"))       )
+ , theInputVertexCollectionTag ( consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection")) )
 {
   produces<TrajectorySeedCollection>();
-  theInputCollectionTag       = consumes<reco::TrackCollection>(cfg.getParameter<InputTag>("InputCollection"));
-  theInputVertexCollectionTag = consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection"));
-  originHalfLength            = cfg.getParameter<double>("originHalfLength");
-  originRadius                = cfg.getParameter<double>("originRadius");
-  useProtoTrackKinematics     = cfg.getParameter<bool>("useProtoTrackKinematics");
-  useEventsWithNoVertex       = cfg.getParameter<bool>("useEventsWithNoVertex");
-  builderName                 = cfg.getParameter<std::string>("TTRHBuilder");
-  usePV_                      = cfg.getParameter<bool>( "usePV" );
+  
+  
+  
 }
 
 
 void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+  auto result = std::make_unique<TrajectorySeedCollection>();
   Handle<reco::TrackCollection> trks;
   ev.getByToken(theInputCollectionTag, trks);
 
@@ -83,8 +98,8 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
 
     // check the compatibility with a primary vertex
     bool keepTrack = false;
-    if ( !foundVertices ) { 
-	  if (useEventsWithNoVertex) keepTrack = true;
+    if ( (!foundVertices) || vertices->empty() ) { 
+      if (useEventsWithNoVertex) keepTrack = true;
     } 
     else if (usePV_){
  
@@ -95,7 +110,6 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         keepTrack = true;
       }
     }
-
     else { 
       for (reco::VertexCollection::const_iterator iv=vertices->begin(); iv!= vertices->end(); ++iv) {
         GlobalPoint aPV(iv->position().x(),iv->position().y(),iv->position().z());
@@ -118,20 +132,22 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       std::vector<Hit> hits;
       for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
         TrackingRecHitRef refHit = proto.recHit(iHit);
-        if(refHit->isValid()) hits.push_back(ttrhbESH->build(  &(*refHit) ));
+        if(refHit->isValid()) hits.push_back((Hit)&(*refHit));
       }
       sort(hits.begin(), hits.end(), HitLessByRadius());
-      assert(hits.size()<4);
+
       if (hits.size() > 1) {
         double mom_perp = sqrt(proto.momentum().x()*proto.momentum().x()+proto.momentum().y()*proto.momentum().y());
 	GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
-	SeedFromConsecutiveHitsCreator seedCreator;
-	seedCreator.init(region, es, 0);
+
+	edm::ParameterSet seedCreatorPSet = theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+	SeedFromConsecutiveHitsCreator seedCreator(seedCreatorPSet);
+	seedCreator.init(region, es, nullptr);
 	seedCreator.makeSeed(*result, SeedingHitSet(hits[0], hits[1], hits.size() >2 ? hits[2] : SeedingHitSet::nullPtr() ));
       }
     }
   } 
 
-  ev.put(result);
+  ev.put(std::move(result));
 }
 

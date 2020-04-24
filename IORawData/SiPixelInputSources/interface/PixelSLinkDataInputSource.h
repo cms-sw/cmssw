@@ -42,12 +42,12 @@ public:
   explicit PixelSLinkDataInputSource(const edm::ParameterSet& pset, 
 				     const edm::InputSourceDescription& desc);
 
-  virtual ~PixelSLinkDataInputSource();
+  ~PixelSLinkDataInputSource() override;
 
 private:
 
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
-  virtual void produce(edm::Event& event);
+  bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
+  void produce(edm::Event& event) override;
   uint32_t synchronizeEvents();
 
   int m_fedid;
@@ -60,6 +60,6 @@ private:
   uint32_t m_globaleventnumber;
   int32_t m_eventnumber_shift;
   int getEventNumberFromFillWords(const std::vector<uint64_t>& data, uint32_t &totword);
-  std::auto_ptr<FEDRawDataCollection> buffers;
+  std::unique_ptr<FEDRawDataCollection> buffers;
 };
 #endif

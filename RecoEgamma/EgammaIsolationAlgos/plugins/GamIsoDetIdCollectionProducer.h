@@ -23,7 +23,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,20 +31,24 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 class CaloTopology;
 
-class GamIsoDetIdCollectionProducer : public edm::EDProducer {
+class GamIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
    public:
       //! ctor
       explicit GamIsoDetIdCollectionProducer(const edm::ParameterSet&);
-      ~GamIsoDetIdCollectionProducer();
+      ~GamIsoDetIdCollectionProducer() override;
       void beginJob ();
       //! producer
-      virtual void produce(edm::Event &, const edm::EventSetup&);
+      void produce(edm::Event &, const edm::EventSetup&) override;
 
    private:
       // ----------member data ---------------------------
+      edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
+      edm::EDGetTokenT<reco::PhotonCollection> emObjectToken_;
       edm::InputTag recHitsLabel_;
       edm::InputTag emObjectLabel_;
       double energyCut_;

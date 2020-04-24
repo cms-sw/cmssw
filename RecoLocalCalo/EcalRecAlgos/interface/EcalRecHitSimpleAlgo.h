@@ -20,20 +20,20 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
     adcToGeVConstantIsSet_ = false;
   }
 
-  virtual void setADCToGeVConstant(const float& value) {
+  void setADCToGeVConstant(const float& value) override {
     adcToGeVConstant_ = value;
     adcToGeVConstantIsSet_ = true;
   }
 
 
   // destructor
-  virtual ~EcalRecHitSimpleAlgo() { };
+  ~EcalRecHitSimpleAlgo() override { };
 
   /// Compute parameters
-  virtual EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH,
+  EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH,
                                 const float& intercalibConstant,
                                 const float& timeIntercalib = 0,
-                                const uint32_t& flags = 0) const {
+                                const uint32_t& flags = 0) const override {
 
     if(!adcToGeVConstantIsSet_) {
       std::cout << "EcalRecHitSimpleAlgo::makeRecHit: adcToGeVConstant_ not set before calling this method!" << 
@@ -46,8 +46,9 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
 
     EcalRecHit rh( uncalibRH.id(), energy, time );
     rh.setChi2( uncalibRH.chi2() );
-    rh.setOutOfTimeEnergy( uncalibRH.outOfTimeEnergy() * adcToGeVConstant_ * intercalibConstant );
-    rh.setOutOfTimeChi2( uncalibRH.outOfTimeChi2() );
+    rh.setEnergyError( uncalibRH.amplitudeError()*adcToGeVConstant_*intercalibConstant);
+    /* rh.setOutOfTimeEnergy( uncalibRH.outOfTimeEnergy() * adcToGeVConstant_ * intercalibConstant ); */
+    /* rh.setOutOfTimeChi2( uncalibRH.outOfTimeChi2() ); */
     rh.setTimeError(uncalibRH.jitterErrorBits());
 
     // Now fill flags

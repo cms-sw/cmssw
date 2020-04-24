@@ -14,8 +14,8 @@ process.MessageLogger.cerr =  cms.untracked.PSet(
     resolution = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ""
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
@@ -69,7 +69,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
 
 process.p = cms.Path(process.dtunpacker*
                      process.dtTPmonitor+process.dtTPmonitorTest+

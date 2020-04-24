@@ -1,5 +1,5 @@
 #ifndef CALO_TOPOLOGY_HCAL_TOPOLOGY_MODE_H
-# define CALO_TOPOLOGY_HCAL_TOPOLOGY_MODE_H
+#define CALO_TOPOLOGY_HCAL_TOPOLOGY_MODE_H
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include <map>

@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_DTNumberingScheme_h
-#define MuonNumbering_DTNumberingScheme_h
+#ifndef Geometry_MuonNumbering_DTNumberingScheme_h
+#define Geometry_MuonNumbering_DTNumberingScheme_h
 
 /** \class DTNumberingScheme
  *
@@ -22,9 +22,9 @@ class DTNumberingScheme : public MuonNumberingScheme {
 
   DTNumberingScheme( const DDCompactView& cpv );
   DTNumberingScheme( const MuonDDDConstants& muonConstants );
-  ~DTNumberingScheme(){}
+  ~DTNumberingScheme() override{}
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber& num);
+  int baseNumberToUnitNumber(const MuonBaseNumber& num) override;
 
   int getDetId(const MuonBaseNumber& num) const;
   

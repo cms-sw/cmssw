@@ -22,11 +22,11 @@ class CMSFTFPProtonBuilder : public G4VProtonBuilder
 {
   public: 
     CMSFTFPProtonBuilder(G4bool quasiElastic=false);
-    virtual ~CMSFTFPProtonBuilder();
+    ~CMSFTFPProtonBuilder() override;
 
   public: 
-    virtual void Build(G4HadronElasticProcess * aP);
-    virtual void Build(G4ProtonInelasticProcess * aP);
+    void Build(G4HadronElasticProcess * aP) override;
+    void Build(G4ProtonInelasticProcess * aP) override;
     
     void SetMinEnergy(G4double aM) {theMin = aM;}
     void SetMaxEnergy(G4double aM) {theMax = aM;}

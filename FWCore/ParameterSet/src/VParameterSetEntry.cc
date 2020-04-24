@@ -92,7 +92,7 @@ namespace edm {
 
   void VParameterSetEntry::fillVPSet() const {
     if(nullptr == theVPSet_.load()) {
-      std::unique_ptr<std::vector<ParameterSet> > tmp(new std::vector<ParameterSet>);
+      auto tmp = std::make_unique<std::vector<ParameterSet>>();
       tmp->reserve(theIDs_->size());
       for (auto const& theID : *theIDs_) {
         tmp->push_back(getParameterSet(theID));

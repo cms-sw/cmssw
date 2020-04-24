@@ -13,7 +13,7 @@ hcalSimBlock.hf2.binOfMaximum = 5
 
 mixData = cms.EDProducer("DataMixingModule",
                    hcalSimBlock,
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),
@@ -32,8 +32,8 @@ mixData = cms.EDProducer("DataMixingModule",
     #
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
-    IsThisFastSim = cms.string('NO'),  # kludge for fast simulation flag...
-    # Use digis?               
+    # Use digis? 
+    TrackerMergeType = cms.string("Digis"),
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
     HcalDigiMerge = cms.string('FullProd'),
@@ -83,6 +83,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEdigiCollectionSig  = cms.InputTag("simHcalUnsuppressedDigis"),
     HOdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
     HFdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
+    QIE10digiCollectionSig = cms.InputTag("simHcalUnsuppressedDigis"),
+    QIE11digiCollectionSig = cms.InputTag("simHcalUnsuppressedDigis"),
     ZDCdigiCollectionSig   = cms.InputTag("simHcalUnsuppressedDigis"),
 
     # Sim Level (for Prod mode) ?
@@ -94,6 +96,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEPileInputTag = cms.InputTag("hcalDigis"),                  
     HOPileInputTag   = cms.InputTag("hcalDigis"),                  
     HFPileInputTag   = cms.InputTag("hcalDigis"),                  
+    QIE10PileInputTag   = cms.InputTag("hcalDigis"),                  
+    QIE11PileInputTag   = cms.InputTag("hcalDigis"),                  
     ZDCPileInputTag  = cms.InputTag("hcalDigis"),
     #  Signal
                    #
@@ -138,7 +142,11 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEDigiCollectionDM = cms.string(''),
     HODigiCollectionDM   = cms.string(''),
     HFDigiCollectionDM   = cms.string(''),
+    QIE10DigiCollectionDM   = cms.string(''),
+    QIE11DigiCollectionDM   = cms.string(''),
     ZDCDigiCollectionDM  = cms.string('')
 )
 
-
+mixData.doEB = cms.bool(True)
+mixData.doEE = cms.bool(True)
+mixData.doES = cms.bool(True)

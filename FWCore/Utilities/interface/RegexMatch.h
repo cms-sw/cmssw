@@ -1,8 +1,7 @@
 #ifndef FWCore_Utilities_RegexMatch_h
 #define FWCore_Utilities_RegexMatch_h
 
-#include <boost/regex_fwd.hpp>
-
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -18,7 +17,7 @@ namespace edm {
   glob2reg(std::string const& pattern);
 
   std::vector<std::vector<std::string>::const_iterator>
-  regexMatch(std::vector<std::string> const& strings, boost::regex const& regexp);
+  regexMatch(std::vector<std::string> const& strings, std::regex const& regexp);
 
   std::vector<std::vector<std::string>::const_iterator>
   regexMatch(std::vector<std::string> const& strings, std::string const& pattern);

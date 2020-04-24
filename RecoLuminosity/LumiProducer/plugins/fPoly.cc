@@ -6,10 +6,10 @@ namespace lumi{
   class fPoly:public NormFunctor{
   public:
     fPoly(){}
-    ~fPoly(){}
+    ~fPoly() override{}
     void initialize(const std::map< std::string , float >& coeffmap,
 		    const std::map< unsigned int, float >& afterglowmap);
-    virtual float getCorrection(float luminonorm,float intglumi,unsigned int nBXs)const override;
+    float getCorrection(float luminonorm,float intglumi,unsigned int nBXs)const override;
   };
 }//ns lumi
 
@@ -32,14 +32,10 @@ lumi::fPoly::getCorrection(float luminonorm,float intglumi,unsigned int nBXs)con
     avglumi=c1*luminonorm/nBXs;
   }
   float Afterglow=1.0;
-  if(m_afterglowmap.size()!=0){
-    std::map< unsigned int, float >::const_iterator afterglowit=--m_afterglowmap.end();
-    if(nBXs>=afterglowit->first){
-      Afterglow=afterglowit->second;
-    }else{
-      afterglowit=m_afterglowmap.upper_bound(nBXs);
-      --afterglowit;
-      Afterglow=afterglowit->second;
+  if(!m_afterglowmap.empty()){
+    std::map< unsigned int, float >::const_iterator afterglowit=m_afterglowmap.lower_bound(nBXs+1);
+    if(afterglowit != m_afterglowmap.begin()){
+      Afterglow=(--afterglowit)->second;
     }
   }
   float driftterm=1.0;

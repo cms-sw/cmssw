@@ -13,7 +13,6 @@
 
 #include <EventFilter/DTRawToDigi/plugins/DTUnpacker.h>
 
-class DTDataMonitorInterface;
 class DTROS25Data;
 
 class DTROS25Unpacker : public DTUnpacker {
@@ -24,15 +23,15 @@ public:
   DTROS25Unpacker(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~DTROS25Unpacker();
+  ~DTROS25Unpacker() override;
 
   // Unpacking method
-  virtual void interpretRawData(const unsigned int* index, int datasize,
+  void interpretRawData(const unsigned int* index, int datasize,
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 
-				std::auto_ptr<DTDigiCollection>& product,
-				std::auto_ptr<DTLocalTriggerCollection>& product2,
-				uint16_t rosList = 0);
+				std::unique_ptr<DTDigiCollection>& product,
+				std::unique_ptr<DTLocalTriggerCollection>& product2,
+				uint16_t rosList = 0) override;
 
   inline const std::vector<DTROS25Data> & getROSsControlData() const {
     return controlDataFromAllROS;
@@ -60,8 +59,6 @@ private:
   bool performDataIntegrityMonitor;
 
   bool debug;
-
-  DTDataMonitorInterface * dataMonitor;
 
   std::vector<DTROS25Data> controlDataFromAllROS; 
 

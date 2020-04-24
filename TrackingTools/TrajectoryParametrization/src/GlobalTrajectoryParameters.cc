@@ -32,33 +32,10 @@ GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
   theCharge = qbpi > 0.f ? 1 : -1;
 }
 
-
-
-
-GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
-                             const GlobalVector& aP,
-                             TrackCharge aCharge, 
-                            const MagneticField* fieldProvider) :
-  theField(fieldProvider),
-  theX(aX), theP(aP),     
-  theCharge(aCharge)
-{
+void GlobalTrajectoryParameters::setCache() {
     cachedMagneticField = theField ? theField->inTesla(theX) : GlobalVector(0, 0, 0);
 } // we must initialize cache to non-NAN to avoid FPE
 
-
-
-
-GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
-                             const GlobalVector& aP,
-                             TrackCharge aCharge,
-                             const MagneticField* fieldProvider,  
-                             GlobalVector fieldValue) :
-  theField(fieldProvider),
-  theX(aX), theP(aP),
-  cachedMagneticField(fieldValue),
-  theCharge(aCharge)
- {}
 
 
 GlobalVector GlobalTrajectoryParameters::magneticFieldInInverseGeV( const GlobalPoint& x) const

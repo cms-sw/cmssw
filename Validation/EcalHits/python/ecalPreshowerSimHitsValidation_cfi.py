@@ -5,7 +5,7 @@ ecalPreshowerSimHitsValidation = cms.EDAnalyzer("EcalPreshowerSimHitsValidation"
     ESHitsCollection = cms.string('EcalHitsES'),
     moduleLabelG4 = cms.string('g4SimHits'),
     verbose = cms.untracked.bool(False),
-    moduleLabelMC = cms.string('generator')
+    moduleLabelMC = cms.string('generatorSmeared')
 )
 
 

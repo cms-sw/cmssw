@@ -8,76 +8,92 @@ the state machine and other tests.
 Original Authors: W. David Dagenhart, Marc Paterno
 */
 
-#include "FWCore/Framework/interface/IEventProcessor.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "FWCore/Framework/src/EPStates.h"
+#include "FWCore/Framework/interface/InputSource.h"
 
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <exception>
 
 namespace edm {
-  class MockEventProcessor : public IEventProcessor {
+  class MockEventProcessor {
   public:
-
+    class TestException : public std::exception {
+    public:
+      TestException() noexcept
+      :std::exception() {}
+    };
+    
     MockEventProcessor(std::string const& mockData,
                        std::ostream& output,
-                       statemachine::FileMode const& fileMode,
-                       statemachine::EmptyRunLumiMode const& emptyRunLumiMode);
+                       bool iDoNotMerge);
 
-    virtual StatusCode runToCompletion() override;
+    void runToCompletion();
 
-    virtual void readFile() override;
-    virtual void closeInputFile(bool cleaningUpAfterException) override;
-    virtual void openOutputFiles() override;
-    virtual void closeOutputFiles() override;
+    InputSource::ItemType nextTransitionType();
+    std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
+    edm::LuminosityBlockNumber_t nextLuminosityBlockID();
 
-    virtual void respondToOpenInputFile() override;
-    virtual void respondToCloseInputFile() override;
+    void readFile();
+    void closeInputFile(bool cleaningUpAfterException);
+    void openOutputFiles();
+    void closeOutputFiles();
 
-    virtual void startingNewLoop() override;
-    virtual bool endOfLoop() override;
-    virtual void rewindInput() override;
-    virtual void prepareForNextLoop() override;
-    virtual bool shouldWeCloseOutput() const override;
+    void respondToOpenInputFile();
+    void respondToCloseInputFile();
 
-    virtual void doErrorStuff() override;
+    void startingNewLoop();
+    bool endOfLoop();
+    void rewindInput();
+    void prepareForNextLoop();
+    bool shouldWeCloseOutput() const;
 
-    virtual void beginRun(statemachine::Run const& run) override;
-    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException) override;
+    void doErrorStuff();
 
-    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
-    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) override;
+    void beginRun(ProcessHistoryID const& phid, RunNumber_t run);
+    void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool cleaningUpAfterException);
 
-    virtual statemachine::Run readRun() override;
-    virtual statemachine::Run readAndMergeRun() override;
-    virtual int readLuminosityBlock() override;
-    virtual int readAndMergeLumi() override;
-    virtual void writeRun(statemachine::Run const& run) override;
-    virtual void deleteRunFromCache(statemachine::Run const& run) override;
-    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
-    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException);
 
-    virtual void readAndProcessEvent() override;
-    virtual bool shouldWeStop() const override;
+    std::pair<ProcessHistoryID,RunNumber_t> readRun();
+    std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
+    int readLuminosityBlock();
+    int readAndMergeLumi();
+    void writeRun(ProcessHistoryID const& phid, RunNumber_t run);
+    void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
+    void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
-    virtual void setExceptionMessageFiles(std::string& message) override;
-    virtual void setExceptionMessageRuns(std::string& message) override;
-    virtual void setExceptionMessageLumis(std::string& message) override;
+    bool shouldWeStop() const;
 
-    virtual bool alreadyHandlingException() const override;
+    void setExceptionMessageFiles(std::string& message);
+    void setExceptionMessageRuns(std::string& message);
+    void setExceptionMessageLumis(std::string& message);
+
+    InputSource::ItemType readAndProcessEvents();
+
+    bool setDeferredException(std::exception_ptr);
 
   private:
+    void readAndProcessEvent();
+    void throwIfNeeded();
+
     std::string mockData_;
     std::ostream & output_;
-    statemachine::FileMode fileMode_;
-    statemachine::EmptyRunLumiMode emptyRunLumiMode_;
-
+    std::istringstream input_;
+    
     int run_;
     int lumi_;
 
+    bool doNotMerge_;
     bool shouldWeCloseOutput_;
     bool shouldWeEndLoop_;
     bool shouldWeStop_;
+    bool eventProcessed_;
+    bool reachedEndOfInput_;
+    bool shouldThrow_;
   };
 }
 

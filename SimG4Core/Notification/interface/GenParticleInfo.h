@@ -8,7 +8,7 @@ class GenParticleInfo : public G4VUserPrimaryParticleInformation
 public:
     explicit GenParticleInfo(int id) : id_(id) {}
     int id() const { return id_; }
-    virtual void Print() const {}
+    void Print() const override {}
 private:
     int id_;
 };

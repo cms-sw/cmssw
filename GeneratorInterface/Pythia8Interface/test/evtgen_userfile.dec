@@ -1,0 +1,34 @@
+# main48.dec is a part of the PYTHIA event generator.
+# Copyright (C) 2015 Torbjorn Sjostrand.
+# PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+# Please respect the MCnet Guidelines, see GUIDELINES for details.
+
+# An example EvtGen decay file to be used with main48.cc.
+
+# Define the aliased particles and their charge conjugates.
+Alias main48_D*- D*-
+Alias main48_D*+ D*+
+Alias main48_D- D-
+Alias main48_D+ D+
+ChargeConj main48_D*- main48_D*+
+ChargeConj main48_D- main48_D+
+
+# Modify the decay of the B0.
+Decay B0
+      1.0  main48_D*- e+ nu_e HQET 0.77 1.33 0.92;
+Enddecay
+CDecay anti-B0
+
+# Modify the decay of the D*- (for the B0).
+Decay main48_D*-
+      1.0  main48_D- gamma VSP_PWAVE;
+Enddecay
+CDecay main48_D*+
+
+# Modify the decay of the D- (for the B0).
+Decay main48_D-
+      1.0 pi0 e- anti-nu_e ISGW2;
+Enddecay
+CDecay main48_D+
+
+End

@@ -1,11 +1,17 @@
 #ifndef BlobComplex_h
 #define BlobComplex_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <utility>
 
 struct BlobComplexData {
-  BlobComplexData() {}
+  BlobComplexData(){
+    a = 0;
+    b = 0;
+  }
+
 
   void fill(unsigned int &serial);
   void print() const;
@@ -15,6 +21,8 @@ struct BlobComplexData {
 
   unsigned int a, b;
   std::vector<unsigned int> values;
+
+  COND_SERIALIZABLE;
 };
 
 struct BlobComplexContent {
@@ -31,10 +39,15 @@ struct BlobComplexContent {
   Data data1;
   Data data2;
   Data data3;
+
+  COND_SERIALIZABLE;
 };
 
 struct BlobComplexObjects {
-  BlobComplexObjects() {}
+  BlobComplexObjects() {
+    a = 0;
+    b = 0;
+  }
 
   void fill(unsigned int &serial);
   void print() const;
@@ -44,6 +57,8 @@ struct BlobComplexObjects {
 
   unsigned int a, b;
   std::vector<BlobComplexContent> content;
+
+  COND_SERIALIZABLE;
 };
 
 struct BlobComplex {
@@ -56,6 +71,8 @@ struct BlobComplex {
   { return !(*this == rhs); }
 
   std::vector<BlobComplexObjects> objects;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

@@ -29,7 +29,7 @@ HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig) : HLTFilter(i
   candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
 }
 
-HLTPMDocaFilter::~HLTPMDocaFilter(){}
+HLTPMDocaFilter::~HLTPMDocaFilter()= default;
 
 void
 HLTPMDocaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -15,7 +15,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -51,57 +51,68 @@ namespace pat {
   class LeptonLRCalc;
 
 
-  class PATElectronProducer : public edm::EDProducer {
+  class PATElectronProducer : public edm::stream::EDProducer<> {
 
     public:
 
       explicit PATElectronProducer(const edm::ParameterSet & iConfig);
-      ~PATElectronProducer();
+      ~PATElectronProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
 
       // configurables
-      edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronToken_;
-      edm::EDGetTokenT<reco::ConversionCollection> hConversionsToken_;
-      bool          embedGsfElectronCore_;
-      bool          embedGsfTrack_;
-      bool          embedSuperCluster_;
-      bool          embedPflowSuperCluster_;
-      bool          embedSeedCluster_;
-      bool          embedBasicClusters_;
-      bool          embedPreshowerClusters_;
-      bool          embedPflowBasicClusters_;
-      bool          embedPflowPreshowerClusters_;
-      bool          embedTrack_;
-      bool          addGenMatch_;
-      bool          embedGenMatch_;
-      bool          embedRecHits_;
+      const edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronToken_;
+      const edm::EDGetTokenT<reco::ConversionCollection> hConversionsToken_;
+      const bool          embedGsfElectronCore_;
+      const bool          embedGsfTrack_;
+      const bool          embedSuperCluster_;
+      const bool          embedPflowSuperCluster_;
+      const bool          embedSeedCluster_;
+      const bool          embedBasicClusters_;
+      const bool          embedPreshowerClusters_;
+      const bool          embedPflowBasicClusters_;
+      const bool          embedPflowPreshowerClusters_;
+      const bool          embedTrack_;
+      bool                addGenMatch_;
+      bool                embedGenMatch_;
+      const bool          embedRecHits_;
+      // for mini-iso calculation
+      edm::EDGetTokenT<pat::PackedCandidateCollection>  pcToken_;
+      bool computeMiniIso_;
+      std::vector<double> miniIsoParamsE_;
+      std::vector<double> miniIsoParamsB_;
 
       typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
 
       std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
 
       /// pflow specific
-      bool          useParticleFlow_;
-      edm::EDGetTokenT<reco::PFCandidateCollection> pfElecToken_;
-      edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > pfCandidateMapToken_;
-      bool          embedPFCandidate_;
+      const bool          useParticleFlow_;
+      const bool          usePfCandidateMultiMap_;
+      const edm::EDGetTokenT<reco::PFCandidateCollection> pfElecToken_;
+      const edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > pfCandidateMapToken_;
+      const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > pfCandidateMultiMapToken_;
+      const bool          embedPFCandidate_;
 
       /// mva input variables
-      edm::InputTag reducedBarrelRecHitCollection_;
-      edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
-      edm::InputTag reducedEndcapRecHitCollection_;
-      edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
+      const edm::InputTag reducedBarrelRecHitCollection_;
+      const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
+      const edm::InputTag reducedEndcapRecHitCollection_;
+      const edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
+      
+      const bool addPFClusterIso_;
+      const bool addPuppiIsolation_;
+      const edm::EDGetTokenT<edm::ValueMap<float> > ecalPFClusterIsoT_;
+      const edm::EDGetTokenT<edm::ValueMap<float> > hcalPFClusterIsoT_;
 
       /// embed high level selection variables?
-      bool          embedHighLevelSelection_;
-      edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
-      bool          usePV_;
-      edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
+      const bool          embedHighLevelSelection_;
+      const edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
+      const edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
 
       typedef edm::RefToBase<reco::GsfElectron> ElectronBaseRef;
       typedef std::vector< edm::Handle< edm::ValueMap<IsoDeposit> > > IsoDepositMaps;
@@ -126,6 +137,9 @@ namespace pat {
 			  const IsoDepositMaps& deposits,
 			  const IsolationValueMaps& isolationValues ) const;
 
+      // set the mini-isolation variables
+      void setElectronMiniIso(pat::Electron& anElectron, const pat::PackedCandidateCollection *pc);
+
     // embed various impact parameters with errors
     // embed high level selection
     void embedHighLevel( pat::Electron & anElectron,
@@ -146,13 +160,13 @@ namespace pat {
 				                     IsolationLabels& labels,
 					             std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens);
 
-      bool          addElecID_;
+      const bool          addElecID_;
       typedef std::pair<std::string, edm::InputTag> NameTag;
       std::vector<NameTag> elecIDSrcs_;
       std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > elecIDTokens_;
 
       // tools
-      GreaterByPt<Electron>       pTComparator_;
+      const GreaterByPt<Electron>       pTComparator_;
 
       pat::helper::MultiIsolator isolator_;
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
@@ -163,71 +177,71 @@ namespace pat {
       IsolationLabels isolationValueLabelsNoPFId_;
       std::vector<edm::EDGetTokenT<edm::ValueMap<double> > > isolationValueNoPFIdTokens_;
 
-      bool addEfficiencies_;
+      const bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
 
-      bool addResolutions_;
+      const bool addResolutions_;
       pat::helper::KinResolutionsLoader resolutionLoader_;
 
-      bool useUserData_;
+      const bool useUserData_;
+      //PUPPI isolation tokens
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_neutral_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_photons_;
+      //PUPPINoLeptons isolation tokens
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_charged_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_neutral_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_photons_;
       pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
 
       const CaloTopology * ecalTopology_;
 
   };
-
-
 }
-
-
-using namespace pat;
-
-
+  
 template<typename T>
-void PATElectronProducer::readIsolationLabels( const edm::ParameterSet & iConfig,
-					       const char* psetName,
-					       IsolationLabels& labels,
-					       std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens) {
-
-  labels.clear();
-
-  if (iConfig.exists( psetName )) {
-    edm::ParameterSet depconf
-      = iConfig.getParameter<edm::ParameterSet>(psetName);
-
-    if (depconf.exists("tracker")) labels.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
-    if (depconf.exists("ecal"))    labels.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
-    if (depconf.exists("hcal"))    labels.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
-    if (depconf.exists("pfAllParticles"))  {
-      labels.push_back(std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
-    }
-    if (depconf.exists("pfChargedHadrons"))  {
-      labels.push_back(std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
-    }
-    if (depconf.exists("pfChargedAll"))  {
-      labels.push_back(std::make_pair(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll")));
-    }
-    if (depconf.exists("pfPUChargedHadrons"))  {
-      labels.push_back(std::make_pair(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons")));
-    }
-    if (depconf.exists("pfNeutralHadrons"))  {
-      labels.push_back(std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
-    }
-    if (depconf.exists("pfPhotons")) {
-      labels.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
-    }
-    if (depconf.exists("user")) {
-      std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
-      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
-      int key = UserBaseIso;
-      for ( ; it != ed; ++it, ++key) {
-       labels.push_back(std::make_pair(IsolationKeys(key), *it));
+void pat::PATElectronProducer::readIsolationLabels( const edm::ParameterSet & iConfig,
+						    const char* psetName,
+						    pat::PATElectronProducer::IsolationLabels& labels,
+						    std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens) {
+    
+    labels.clear();
+    
+    if (iConfig.exists( psetName )) {
+      edm::ParameterSet depconf
+        = iConfig.getParameter<edm::ParameterSet>(psetName);
+      
+      if (depconf.exists("tracker")) labels.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+      if (depconf.exists("ecal"))    labels.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+      if (depconf.exists("hcal"))    labels.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
+      if (depconf.exists("pfAllParticles"))  {
+        labels.push_back(std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+      }
+      if (depconf.exists("pfChargedHadrons"))  {
+        labels.push_back(std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
+      }
+      if (depconf.exists("pfChargedAll"))  {
+        labels.push_back(std::make_pair(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll")));
+      }
+      if (depconf.exists("pfPUChargedHadrons"))  {
+        labels.push_back(std::make_pair(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons")));
+      }
+      if (depconf.exists("pfNeutralHadrons"))  {
+        labels.push_back(std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
+      }
+      if (depconf.exists("pfPhotons")) {
+        labels.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
+      }
+      if (depconf.exists("user")) {
+        std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
+        std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+        int key = pat::IsolationKeys::UserBaseIso;
+        for ( ; it != ed; ++it, ++key) {
+          labels.push_back(std::make_pair(pat::IsolationKeys(key), *it));
+        }
       }
     }
-  }
-  tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
-
-
+    tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
 }
 
 #endif

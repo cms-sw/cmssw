@@ -118,7 +118,7 @@ process.path1 = cms.Path(process.esTestAnalyzerB*process.esTestAnalyzerK)
 # function to be called.
 
 process1 = cms.Process("TEST1")
-process.subProcess = cms.SubProcess(process1)
+process.addSubProcess(cms.SubProcess(process1))
 
 process1.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
@@ -215,7 +215,7 @@ process1.path1 = cms.Path(process1.esTestAnalyzerB*process1.esTestAnalyzerK)
 # Shows the esTestProducerB is not shared.
 
 process2 = cms.Process("TEST2")
-process1.subProcess = cms.SubProcess(process2)
+process1.addSubProcess(cms.SubProcess(process2))
 
 process2.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
@@ -312,7 +312,7 @@ process2.path1 = cms.Path(process2.esTestAnalyzerB*process2.esTestAnalyzerK)
 # Shows the esTestProducerB is not shared.
 
 process3 = cms.Process("TEST3")
-process2.subProcess = cms.SubProcess(process3)
+process2.addSubProcess(cms.SubProcess(process3))
 
 process3.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
@@ -382,7 +382,7 @@ process3.path1 = cms.Path(process3.esTestAnalyzerB)
 
 
 process4 = cms.Process("TEST4")
-process3.subProcess = cms.SubProcess(process4)
+process3.addSubProcess(cms.SubProcess(process4))
 
 process4.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
@@ -453,7 +453,7 @@ process4.path1 = cms.Path(process4.esTestAnalyzerB)
 
 
 process5 = cms.Process("TEST5")
-process4.subProcess = cms.SubProcess(process5)
+process4.addSubProcess(cms.SubProcess(process5))
 
 process5.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
@@ -518,7 +518,7 @@ process5.path1 = cms.Path(process5.esTestAnalyzerB)
 
 
 process6 = cms.Process("TEST6")
-process5.subProcess = cms.SubProcess(process6)
+process5.addSubProcess(cms.SubProcess(process6))
 
 process6.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
@@ -592,7 +592,7 @@ process6.path1 = cms.Path(process6.esTestAnalyzerB)
 
 
 process7 = cms.Process("TEST7")
-process6.subProcess = cms.SubProcess(process7)
+process6.addSubProcess(cms.SubProcess(process7))
 
 process7.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
@@ -667,7 +667,7 @@ process7.path1 = cms.Path(process7.esTestAnalyzerB)
 # get for events 1 to 6.
 
 process8 = cms.Process("TEST8")
-process7.subProcess = cms.SubProcess(process8)
+process7.addSubProcess(cms.SubProcess(process8))
 
 process8.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
@@ -730,7 +730,7 @@ process8.path1 = cms.Path(process8.esTestAnalyzerB)
 # record G. Does not do the get for events 1 to 7.
 
 process9 = cms.Process("TEST9")
-process8.subProcess = cms.SubProcess(process9)
+process8.addSubProcess(cms.SubProcess(process9))
 
 process9.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
@@ -800,7 +800,7 @@ process9.path1 = cms.Path(process9.esTestAnalyzerB)
 # Shows the esTestProducerB is not shared.
 
 process10 = cms.Process("TEST10")
-process9.subProcess = cms.SubProcess(process10)
+process9.addSubProcess(cms.SubProcess(process10))
 
 process10.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),

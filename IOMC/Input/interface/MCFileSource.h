@@ -8,6 +8,7 @@
  ***************************************/
 
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 class HepMCFileReader;
 
@@ -25,15 +26,15 @@ namespace edm {
   class MCFileSource : public ProducerSourceFromFiles {
   public:
     MCFileSource(const ParameterSet& pset, const InputSourceDescription& desc);
-    virtual ~MCFileSource();
+    ~MCFileSource() override;
 
   private:
-    virtual bool setRunAndEventInfo(EventID&, TimeValue_t& time);
-    virtual void produce(Event &e);
+    bool setRunAndEventInfo(EventID&, TimeValue_t& time, EventAuxiliary::ExperimentType& eType) override;
+    void produce(Event &e) override;
     void clear();
     
-    HepMCFileReader *reader_;
-    HepMC::GenEvent *evt_;
+    edm::propagate_const<HepMCFileReader*> reader_;
+    edm::propagate_const<HepMC::GenEvent*> evt_;
     bool useExtendedAscii_;
   };
 } 

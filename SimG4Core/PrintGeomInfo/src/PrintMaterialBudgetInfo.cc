@@ -2,7 +2,6 @@
 
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,6 +25,7 @@
 #include "G4UserLimits.hh"
 #include "G4TransportationManager.hh"
 #include "G4UnitsTable.hh"
+#include "Randomize.hh"
 
 #include <set>
 
@@ -53,15 +53,17 @@ PrintMaterialBudgetInfo::~PrintMaterialBudgetInfo() {}
 
 void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
   
+  G4Random::setTheEngine(new CLHEP::RanecuEngine);
   // Physical Volume
   theTopPV = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
+  assert(theTopPV);
   // Logical Volume
   G4LogicalVolume*  lv = theTopPV->GetLogicalVolume();
   unsigned int leafDepth = 0;
   // the first time fill the vectors of elements
-  if( elementNames.size()==0 && elementTotalWeight.size()==0 && elementWeightFraction.size()==0) {
+  if( elementNames.empty() && elementTotalWeight.empty() && elementWeightFraction.empty()) {
     for(unsigned int iElement = 0;
-	iElement < lv->GetMaterial()->GetElement(iElement)->GetElementTable()->size();
+	iElement < G4Element::GetNumberOfElements();
 	iElement++) { // first element in table is 0
       elementNames.push_back("rr");
       elementTotalWeight.push_back(0);

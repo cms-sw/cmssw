@@ -970,7 +970,7 @@ class TEcnaGui : public TGMainFrame {
   TEcnaGui(TEcnaObject*, const TString&, const TGWindow *, UInt_t, UInt_t);
 
   // TEcnaGui(const TString&, const TGWindow *, UInt_t, UInt_t);
-  virtual  ~TEcnaGui();
+   ~TEcnaGui() override;
 
   void Init();
   void InitGuiParameters();
@@ -1125,7 +1125,7 @@ class TEcnaGui : public TGMainFrame {
   void MessageCnaCommandReplyA(const TString&);
   void MessageCnaCommandReplyB(const TString&);
 
-ClassDef(TEcnaGui,1)// Dialog box with GUI + methods for CNA (Correlated Noises Analysis)
+ClassDefOverride(TEcnaGui,1)// Dialog box with GUI + methods for CNA (Correlated Noises Analysis)
 
 };
 

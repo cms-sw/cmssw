@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-DigiSource = cms.EDFilter(
+DigiSource = cms.EDProducer(
     "SiStripTrivialDigiSource",
     MeanOccupancy = cms.untracked.double(1.0),
     RmsOccupancy = cms.untracked.double(0.1),

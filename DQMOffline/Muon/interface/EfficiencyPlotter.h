@@ -3,7 +3,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -23,7 +23,7 @@
 #include <map>
 #include "TH1F.h"
 
-class EfficiencyPlotter: public edm::EDAnalyzer{
+class EfficiencyPlotter: public DQMEDHarvester {
 
 public:
 
@@ -31,25 +31,12 @@ public:
   EfficiencyPlotter(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~EfficiencyPlotter();
+  ~EfficiencyPlotter() override;
 
 protected:
 
-  /// BeginJob
-  void beginJob(void);
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
-
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
 
 private:
@@ -81,36 +68,38 @@ private:
   int vtxBin;
   double vtxMin;
   double vtxMax;
+  
+  std::string ID_;
 
   // efficiency histograms
-  MonitorElement* h_eff_pt_TightMu;
-  MonitorElement* h_eff_pt_EB_TightMu;
-  MonitorElement* h_eff_pt_EE_TightMu;
-  MonitorElement* h_eff_eta_TightMu;
-  MonitorElement* h_eff_hp_eta_TightMu;
-  MonitorElement* h_eff_phi_TightMu;
-  MonitorElement* h_eff_pt_detIsoTightMu;
-  MonitorElement* h_eff_pt_EB_detIsoTightMu;
-  MonitorElement* h_eff_pt_EE_detIsoTightMu;
-  MonitorElement* h_eff_pt_pfIsoTightMu;
-  MonitorElement* h_eff_pt_EB_pfIsoTightMu;
-  MonitorElement* h_eff_pt_EE_pfIsoTightMu;
+  MonitorElement* h_eff_pt_ID;
+  MonitorElement* h_eff_pt_EB_ID;
+  MonitorElement* h_eff_pt_EE_ID;
+  MonitorElement* h_eff_eta_ID;
+  MonitorElement* h_eff_hp_eta_ID;
+  MonitorElement* h_eff_phi_ID;
+  MonitorElement* h_eff_pt_detIsoID;
+  MonitorElement* h_eff_pt_EB_detIsoID;
+  MonitorElement* h_eff_pt_EE_detIsoID;
+  MonitorElement* h_eff_pt_pfIsoID;
+  MonitorElement* h_eff_pt_EB_pfIsoID;
+  MonitorElement* h_eff_pt_EE_pfIsoID;
 
-  MonitorElement* h_eff_vtx_detIsoTightMu;
-  MonitorElement* h_eff_vtx_pfIsoTightMu;
-  MonitorElement* h_eff_vtx_EB_detIsoTightMu;
-  MonitorElement* h_eff_vtx_EE_detIsoTightMu;
-  MonitorElement* h_eff_vtx_EB_pfIsoTightMu;
-  MonitorElement* h_eff_vtx_EE_pfIsoTightMu;
+  MonitorElement* h_eff_vtx_detIsoID;
+  MonitorElement* h_eff_vtx_pfIsoID;
+  MonitorElement* h_eff_vtx_EB_detIsoID;
+  MonitorElement* h_eff_vtx_EE_detIsoID;
+  MonitorElement* h_eff_vtx_EB_pfIsoID;
+  MonitorElement* h_eff_vtx_EE_pfIsoID;
 
-  MonitorElement* h_eff_pt_pfIsodBTightMu;
-  MonitorElement* h_eff_pt_EB_pfIsodBTightMu;
-  MonitorElement* h_eff_pt_EE_pfIsodBTightMu;
+  MonitorElement* h_eff_pt_pfIsodBID;
+  MonitorElement* h_eff_pt_EB_pfIsodBID;
+  MonitorElement* h_eff_pt_EE_pfIsodBID;
 
-  MonitorElement* h_eff_vtx_pfIsodBTightMu;
-  MonitorElement* h_eff_vtx_EB_pfIsodBTightMu;
-  MonitorElement* h_eff_vtx_EE_pfIsodBTightMu;
-
+  MonitorElement* h_eff_vtx_pfIsodBID;
+  MonitorElement* h_eff_vtx_EB_pfIsodBID;
+  MonitorElement* h_eff_vtx_EE_pfIsodBID;
+  std::string theFolder;
 };
 
 #endif

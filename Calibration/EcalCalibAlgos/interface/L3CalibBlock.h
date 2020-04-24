@@ -28,21 +28,21 @@ class L3CalibBlock : public VEcalCalibBlock
     L3CalibBlock (const int numberOfElements, 
                   const int keventweight = 1) ;
     //! dtor
-    ~L3CalibBlock () ;
+    ~L3CalibBlock () override ;
     
     //! insert an entry
     void Fill (std::map<int,double>::const_iterator,
                std::map<int,double>::const_iterator,
     	       double pTk,
                double pSubtract,
-               double sigma = 1.) ;
+               double sigma = 1.) override ;
 
     //! reset the calib objects
-    void reset () ;
+    void reset () override ;
     //! To retrieve the coefficients
     double at ( int);
     //! get the coefficients
-    int solve (int usingBlockSolver, double min, double max) ;
+    int solve (int usingBlockSolver, double min, double max) override ;
   
   private :  
 

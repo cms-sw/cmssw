@@ -1,0 +1,6 @@
+#include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGeneratorFromTripletAndLayersFactory.h"
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+
+EDM_REGISTER_PLUGINFACTORY(HitQuadrupletGeneratorFromTripletAndLayersFactory,"HitQuadrupletGeneratorFromTripletAndLayersFactory");
+

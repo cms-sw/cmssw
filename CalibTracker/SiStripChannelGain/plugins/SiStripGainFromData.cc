@@ -12,7 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -40,7 +40,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 
@@ -66,16 +66,13 @@
 #include "TF1.h"
 #include "TROOT.h"
 
-#include <ext/hash_map>
+#include <unordered_map>
 
 
 
 using namespace edm;
 using namespace reco;
 using namespace std;
-using namespace __gnu_cxx;
-using __gnu_cxx::hash_map;
-using __gnu_cxx::hash;
 
 
 struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Phi; float Thickness; double MPV; double Gain; double PreviousGain; char Side;};
@@ -83,15 +80,15 @@ struct stAPVGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta
 class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
    public:
       explicit SiStripGainFromData(const edm::ParameterSet&);
-      ~SiStripGainFromData();
+      ~SiStripGainFromData() override;
 
 
    private:
-      virtual void algoBeginJob(const edm::EventSetup&) override ;
-      virtual void algoEndJob() override ;
-      virtual void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
+      void algoBeginJob(const edm::EventSetup&) override ;
+      void algoEndJob() override ;
+      void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
 //      virtual void algoBeginRun(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-      virtual void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
+      void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
 
       SiStripApvGain* getNewObject() override;
       DQMStore* dqmStore_;
@@ -284,7 +281,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       };
 
       std::vector<stAPVGain*> APVsCollOrdered;
-      __gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual > APVsColl;
+      std::unordered_map<unsigned int, stAPVGain*> APVsColl;
 };
 
 SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig)
@@ -337,7 +334,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
    iSetup_                  = &iSetup;
@@ -487,7 +484,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-   vector<GeomDet*> Det = tkGeom->dets();
+   auto const & Det = tkGeom->dets();
 
 
    edm::ESHandle<SiStripGain> gainHandle;
@@ -504,7 +501,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
       if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
           SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
 
-          StripGeomDetUnit* DetUnit     = dynamic_cast<StripGeomDetUnit*> (Det[i]);
+          auto DetUnit     = dynamic_cast<StripGeomDetUnit const*> (Det[i]);
 	  if(!DetUnit)continue;
 
           const StripTopology& Topo     = DetUnit->specificTopology();	
@@ -570,7 +567,7 @@ SiStripGainFromData::algoEndJob() {
    if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"Merge")==0){
       TH1::AddDirectory(kTRUE);
 
-      TFile* file = NULL;
+      TFile* file = nullptr;
       for(unsigned int f=0;f<VInputFiles.size();f++){
          printf("Loading New Input File : %s\n", VInputFiles[f].c_str());
  	 if(CheckIfFileExist){
@@ -620,10 +617,10 @@ SiStripGainFromData::algoEndJob() {
 
          if(SRun==0)SRun = tmp_SRun;
 
-              if(tmp_SRun< SRun){SRun=tmp_SRun; SEvent=tmp_SEvent;}
+         if     (tmp_SRun< SRun){SRun=tmp_SRun; SEvent=tmp_SEvent;}
          else if(tmp_SRun==SRun && tmp_SEvent<SEvent){SEvent=tmp_SEvent;}
 
-              if(tmp_ERun> ERun){ERun=tmp_ERun; EEvent=tmp_EEvent;}
+         if     (tmp_ERun> ERun){ERun=tmp_ERun; EEvent=tmp_EEvent;}
          else if(tmp_ERun==ERun && tmp_EEvent>EEvent){EEvent=tmp_EEvent;}
 
 	 printf("Deleting Current Input File\n");
@@ -640,17 +637,18 @@ SiStripGainFromData::algoEndJob() {
 
 
    if( strcmp(AlgoMode.c_str(),"MultiJob")!=0 ){
-      TH1D* Proj = NULL;
+      TH1D* Proj = nullptr;
       double* FitResults = new double[5];
       I=0;
-      for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
-      if( I%3650==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());I++;
+      for(auto it = APVsColl.begin();it!=APVsColl.end();it++){
+         if( I%3650==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());
+         I++;
          stAPVGain* APV = it->second;
 
          int bin = APV_Charge->GetXaxis()->FindBin(APV->Index);
          Proj = APV_Charge->ProjectionY(" ",bin,bin,"e");
          Proj = (TH1D*)Proj->Clone();
-         if(Proj==NULL)continue;
+         if(Proj==nullptr)continue;
 
 	 // ADD PROJECTTIONS COMMING FROM THE SECOND APV IN THE PAIR
          if(CalibrationLevel==1){
@@ -664,12 +662,12 @@ SiStripGainFromData::algoEndJob() {
 
             int bin2 = APV_Charge->GetXaxis()->FindBin(APV2->Index);
             TH1D* Proj2 = APV_Charge->ProjectionY(" ",bin2,bin2,"e");
-            if(Proj2!=NULL){
+            if(Proj2!=nullptr){
 		Proj->Add(Proj2,1);
 	    }
          }else if(CalibrationLevel>1){
 //	     printf("%8i %i--> %4.0f + %4.0f\n",APV->DetId, APV->APVId, 0.0, Proj->GetEntries());
-             for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it2 = APVsColl.begin();it2!=APVsColl.end();it2++){
+             for(auto it2 = APVsColl.begin();it2!=APVsColl.end();it2++){
                 stAPVGain* APV2 = it2->second;
              
                 if(APV2->DetId != APV->DetId)continue;
@@ -677,7 +675,7 @@ SiStripGainFromData::algoEndJob() {
 
                 int bin2 = APV_Charge->GetXaxis()->FindBin(APV2->Index);
                 TH1D* Proj2 = APV_Charge->ProjectionY(" ",bin2,bin2,"e");
-                if(Proj2!=NULL){
+                if(Proj2!=nullptr){
 //                   printf("%8i %i--> %4.0f + %4.0f\n",APV2->DetId, APV2->APVId, Proj->GetEntries(), Proj2->GetEntries());
                    Proj->Add(Proj2,1);
                 }
@@ -754,7 +752,7 @@ SiStripGainFromData::algoEndJob() {
 
 
          Proj = APV_PathLength->ProjectionY(" ",bin,bin,"e");
-         if(Proj==NULL)continue;
+         if(Proj==nullptr)continue;
 
          APV_PathLengthM->SetBinContent(APV->Index, Proj->GetMean(1)      );
          APV_PathLengthM->SetBinError  (APV->Index, Proj->GetMeanError(1) );
@@ -765,7 +763,7 @@ SiStripGainFromData::algoEndJob() {
       unsigned int BAD  = 0;
       double MPVmean = MPVs->GetMean();
       MPVmean = 300;
-      for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
+      for(auto it = APVsColl.begin();it!=APVsColl.end();it++){
 
          stAPVGain*   APV = it->second;
          if(APV->MPV>0){
@@ -966,7 +964,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    dqmStore_->cd();
-   dqmStore_->save(OutputHistos.c_str());
+   dqmStore_->save(OutputHistos);
 
 }
 
@@ -1038,7 +1036,7 @@ SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup
   
       for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin(); rechit != transRecHits.end(); ++rechit)
          if ((*rechit)->isValid()) ndof += (*rechit)->dimension();  
-         ndof -= 5;
+      ndof -= 5;
       //END TO COMPUTE NDOF FOR TRACKS NO IMPLEMENTED BEFORE 200pre3
 
       HTrackChi2OverNDF->Fill(traj.chiSquared()/ndof);
@@ -1097,10 +1095,8 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripCluster*   Cluster ,Traj
 {
    LocalVector          trackDirection = trajState.localDirection();
    double                  cosine      = trackDirection.z()/trackDirection.mag();
-//   const SiStripCluster*   Cluster     = (sistripsimplehit->cluster()).get();
-//   const vector<uint16_t>& Ampls       = Cluster->amplitudes();
-   const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
-   uint32_t                DetId       = Cluster->geographicalId();
+   auto  const          &  Ampls       = Cluster->amplitudes();
+   uint32_t                DetId       = 0; // is 0 since long time Cluster->geographicalId();
    int                     FirstStrip  = Cluster->firstStrip();
    int                     APVId       = FirstStrip/128;
    stAPVGain*          APV         = APVsColl[(DetId<<3) | APVId];
@@ -1202,7 +1198,7 @@ bool SiStripGainFromData::IsFarFromBorder(TrajectoryStateOnSurface trajState, co
   LocalError  HitLocalError = trajState.localError().positionError() ;
 
   const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
-  if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
+  if (dynamic_cast<const StripGeomDetUnit*>(it)==nullptr && dynamic_cast<const PixelGeomDetUnit*>(it)==nullptr) {
      std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
      return false;
   }
@@ -1255,15 +1251,14 @@ void SiStripGainFromData::getPeakOfLandau(TH1* InputHisto, double* FitResults, d
    TF1* MyLandau = new TF1("MyLandau","landau",LowRange, HighRange);
    MyLandau->SetParameter("MPV",300);
 
-   InputHisto->Fit("MyLandau","QR WW");
-   TF1 * fitfunction = (TF1*) InputHisto->GetListOfFunctions()->First();
+   InputHisto->Fit(MyLandau,"QR WW");
 
    // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
-    adcs        = fitfunction->GetParameter("MPV");
-    adcs_err    = fitfunction->GetParError(1);
-    width       = fitfunction->GetParameter(2);
-    width_err   = fitfunction->GetParError(2);
-    chi2overndf = fitfunction->GetChisquare() / fitfunction->GetNDF();
+    adcs        = MyLandau->GetParameter("MPV");
+    adcs_err    = MyLandau->GetParError(1);
+    width       = MyLandau->GetParameter(2);
+    width_err   = MyLandau->GetParError(2);
+    chi2overndf = MyLandau->GetChisquare() / MyLandau->GetNDF();
 
     // if still wrong, give up
     if(adcs<2. || chi2overndf>MaxChi2OverNDF){
@@ -1293,14 +1288,14 @@ SiStripApvGain* SiStripGainFromData::getNewObject()
 
 
    SiStripApvGain * obj = new SiStripApvGain();
-   std::vector<float>* theSiStripVector = NULL;
+   std::vector<float>* theSiStripVector = nullptr;
    int PreviousDetId = -1; 
    for(unsigned int a=0;a<APVsCollOrdered.size();a++)
    {
       stAPVGain* APV = APVsCollOrdered[a];
-      if(APV==NULL){ printf("Bug\n"); continue; }
+      if(APV==nullptr){ printf("Bug\n"); continue; }
       if(APV->DetId != PreviousDetId){
-         if(theSiStripVector!=NULL){
+         if(theSiStripVector!=nullptr){
 	    SiStripApvGain::Range range(theSiStripVector->begin(),theSiStripVector->end());
 	    if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
 	 }
@@ -1313,7 +1308,7 @@ SiStripApvGain* SiStripGainFromData::getNewObject()
 //      theSiStripVector->push_back(APV->Gain);
    }
 
-   if(theSiStripVector!=NULL){
+   if(theSiStripVector!=nullptr){
       SiStripApvGain::Range range(theSiStripVector->begin(),theSiStripVector->end());
       if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
    }

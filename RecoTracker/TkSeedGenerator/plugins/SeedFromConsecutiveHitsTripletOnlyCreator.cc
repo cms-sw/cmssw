@@ -12,14 +12,16 @@
 bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajectoryParameters & kine,
 								 const SeedingHitSet & hits) const {
 
-
-  TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
-  TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
+  SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
+  SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
   
-  if (hits.size()==3 && !(hits[2]->transientHits().size()==1 && (hits[2]->geographicalId().subdetId()==SiStripDetId::TID || 
-								 hits[2]->geographicalId().subdetId()==SiStripDetId::TEC ) ) ) {
+
+
+  if (hits.size()==3 && !( trackerHitRTTI::isSingleType(*hits[2]) && (hits[2]->geographicalId().subdetId()==SiStripDetId::TID || 
+						      hits[2]->geographicalId().subdetId()==SiStripDetId::TEC ) 
+			  ) ) {
     //if 3rd hit is mono and endcap pT is not well defined so take initial state from pair
-    TransientTrackingRecHit::ConstRecHitPointer tth3 = hits[2];
+    SeedingHitSet::ConstRecHitPointer tth3 = hits[2];
     FastHelix helix(tth3->globalPosition(), tth2->globalPosition(), tth1->globalPosition(), nomField, &*bfield, tth1->globalPosition());
     kine = helix.stateAtVertex();
     if unlikely(isBOFF && (theBOFFMomentum > 0)) {
@@ -28,7 +30,7 @@ bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajector
 					kine.charge(),
 					&*bfield);
     }
-    return (filter ? filter->compatible(hits, kine, helix, *region) : true); 
+    return (filter ? filter->compatible(hits, kine, helix) : true); 
   } 
   
   const GlobalPoint& vertexPos = region->origin();
@@ -48,5 +50,5 @@ bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajector
 					kine.charge(),
 					&*bfield);
   }
-  return (filter ? filter->compatible(hits, kine, helix, *region) : true); 
+  return (filter ? filter->compatible(hits, kine, helix) : true);
 }

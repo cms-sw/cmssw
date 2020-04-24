@@ -504,7 +504,7 @@ void L1TcsWord::unpack(const unsigned char* tcsPtr)
     << std::endl;
 
     const cms_uint64_t* payload =
-        reinterpret_cast<cms_uint64_t*>(const_cast<unsigned char*>(tcsPtr));
+        reinterpret_cast<cms_uint64_t const*>(tcsPtr);
 
     setBoardId(payload[BoardIdWord]);
     setBxNr(payload[BxNrWord]);

@@ -174,7 +174,7 @@ CastorDbService calibratorHandle(emptyPSet);
 
   castorDigitizer.setDetIds(hcastorDetIds);
   cout << "setDetIds" << std::endl;
-  auto_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection);
+  unique_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection);
   cout << "castorResult" << std::endl;
   cout << "test hit correction" << std::endl;
   //something breaks here!

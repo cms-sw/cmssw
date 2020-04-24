@@ -19,6 +19,8 @@
 #ifndef CSCDQM_DCSDATA_H
 #define CSCDQM_DCSDATA_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 #include "CondFormats/CSCObjects/interface/CSCDQM_DCSBase.h"
@@ -54,7 +56,9 @@ namespace cscdqm {
       return *this;
     }
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   /**
    * HV V measurement
@@ -80,7 +84,9 @@ namespace cscdqm {
       return *this;
     }
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   /**
    * LV V measurement
@@ -111,7 +117,9 @@ namespace cscdqm {
       return *this;
     }
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   /**
    * LV I measurement
@@ -145,7 +153,9 @@ namespace cscdqm {
       return *this;
     }
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   /**
    * @class DCSData
@@ -202,7 +212,9 @@ namespace cscdqm {
         return *this;
       }
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 }
 

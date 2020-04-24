@@ -34,16 +34,14 @@ namespace edm {
 class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
  public:
   explicit EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTEcalRecIsolationProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~EgammaHLTEcalRecIsolationProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<EcalRecHitCollection> ecalBarrelRecHitProducer_;
   edm::EDGetTokenT<EcalRecHitCollection> ecalEndcapRecHitProducer_;
-  //edm::InputTag ecalBarrelRecHitCollection_;
-  //edm::InputTag ecalEndcapRecHitCollection_;
   edm::EDGetTokenT<double> rhoProducer_;
 
   double egIsoPtMinBarrel_; //minimum Et noise cut

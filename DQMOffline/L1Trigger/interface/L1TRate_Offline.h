@@ -29,6 +29,9 @@
 #include "DataFormats/Luminosity/interface/LumiDetails.h" // Luminosity Information
 #include "DataFormats/Luminosity/interface/LumiSummary.h" // Luminosity Information
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 #include <TString.h>
 
@@ -40,7 +43,7 @@
 // class declaration
 //
 
-class L1TRate_Offline : public edm::EDAnalyzer {
+class L1TRate_Offline : public DQMEDAnalyzer {
 
 public:
 
@@ -52,18 +55,16 @@ public:
 public:
 
   L1TRate_Offline(const edm::ParameterSet& ps);   // Constructor
-  virtual ~L1TRate_Offline();                     // Destructor
+  ~L1TRate_Offline() override;                     // Destructor
 
 protected:
 
-  void analyze (const edm::Event& e, const edm::EventSetup& c);      // Analyze
-  void beginJob();                                                   // BeginJob
-  void endJob  ();                                                   // EndJob
-  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-  void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
+  void analyze (const edm::Event& e, const edm::EventSetup& c) override;      // Analyze
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-  virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 // Private methods
 //private:
@@ -127,10 +128,8 @@ private:
   
   // MonitorElement
   MonitorElement* m_ErrorMonitor;
-  
-  // Others
-  DQMStore* dbe;  // The DQM Service Handle
 
+  L1GtUtils m_l1GtUtils;
 };
 
 #endif

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="hgcsens.xml" eval="true">
+  <SpecPar name="hgcee">
+    <PartSelector path="//.*EESensitive.*"/>
+    <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsEE" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgchesil">
+    <PartSelector path="//.*HESiliconSensitive.*"/>
+    <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsHEfront" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgchesci">
+    <PartSelector path="//.*HEScintillatorSensitive.*"/>
+    <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsHEback" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>

@@ -56,8 +56,10 @@ int DCCSRPBlock::unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned
   event_->setSRPSyncNumbers(l1_,bx_);
  
   if( ! checkSrpIdAndNumbSRFlags() ){ 
-    // SRP flags are required to check FE data 
-	return  STOP_EVENT_UNPACKING; 
+    //// SRP flags are required to check FE data 
+    //return  STOP_EVENT_UNPACKING;
+    updateEventPointers();
+    return SKIP_BLOCK_UNPACKING;
   }
 	 
   // Check synchronization
@@ -75,8 +77,10 @@ int DCCSRPBlock::unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned
           << "  => Stop event unpacking";
       }
        //Note : add to error collection ?		 
-       // SRP flags are required to check FE , better using synchronized data...
-	   return STOP_EVENT_UNPACKING;
+       //// SRP flags are required to check FE , better using synchronized data...
+      //	   return STOP_EVENT_UNPACKING;
+      updateEventPointers();
+      return SKIP_BLOCK_UNPACKING;
     }
   } 
 

@@ -4,11 +4,9 @@
 #include <ostream>
 
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   namespace pset {
-    static ParameterSetID s_ProcessParameterSetID; 
 
     Registry*
     Registry::instance() {
@@ -34,8 +32,12 @@ namespace edm {
     }
   
     bool
-    Registry::insertMapped(value_type const& v) {
-      return m_map.insert(std::make_pair(v.id(),v)).second;
+    Registry::insertMapped(value_type const& v, bool forceUpdate) {
+      auto wasAdded = m_map.insert(std::make_pair(v.id(),v));
+      if(forceUpdate and not wasAdded.second) {
+        wasAdded.first->second = v;
+      }
+      return wasAdded.second;
     }
     
     void
@@ -59,46 +61,5 @@ namespace edm {
         os << item.first << " " << item.second << '\n';
       }
     }
-
-    ParameterSetID const&
-    getProcessParameterSetID() {
-      if (!s_ProcessParameterSetID.isValid()) {
-        throw edm::Exception(errors::LogicError)
-          << "Illegal attempt to access the process top level parameter set ID\n"
-          << "before that parameter set has been frozen and registered.\n"
-          << "The parameter set can be changed during module validation,\n"
-          << "which occurs concurrently with module construction.\n"
-          << "It is illegal to access the parameter set before it is frozen.\n";
-      }
-      return s_ProcessParameterSetID;
-    }
-
-    void setProcessParameterSetID(ParameterSetID const& id) {
-      pset::s_ProcessParameterSetID = id;
-    }
-
   } // namespace pset
-
-  ParameterSet const& getProcessParameterSet() {
-
-    if (!pset::s_ProcessParameterSetID.isValid()) {
-      throw edm::Exception(errors::LogicError)
-        << "Illegal attempt to access the process top level parameter set ID\n"
-        << "before that parameter set has been frozen and registered.\n"
-        << "The parameter set can be changed during module validation,\n"
-        << "which occurs concurrently with module construction.\n"
-        << "It is illegal to access the parameter set before it is frozen.\n";
-    }
-
-    pset::Registry const& reg = *pset::Registry::instance();
-    ParameterSet const* result;
-    if (nullptr == (result = reg.getMapped(pset::s_ProcessParameterSetID))) {
-      throw edm::Exception(errors::EventCorruption, "Unknown ParameterSetID")
-        << "Unable to find the ParameterSet for id: "
-        << pset::s_ProcessParameterSetID
-        << ";\nthis was supposed to be the process ParameterSet\n";
-    }
-    return *result;
-  }
-
 } // namespace edm

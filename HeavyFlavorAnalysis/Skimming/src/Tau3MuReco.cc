@@ -6,13 +6,13 @@
 
 #include "HeavyFlavorAnalysis/Skimming/interface/Tau3MuReco.h"
 
-Tau3MuReco::Tau3MuReco(const edm::ParameterSet& iConfig):m_kMatchingDeltaR(iConfig.getParameter<double>("RecoAnalysisMatchingDeltaR")),
+Tau3MuReco::Tau3MuReco(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):m_kMatchingDeltaR(iConfig.getParameter<double>("RecoAnalysisMatchingDeltaR")),
 							 m_kMatchingPt(iConfig.getParameter<double>("RecoAnalysisMatchingPt")),
 							 m_kTauMassCut(iConfig.getParameter<double>("RecoAnalysisTauMassCut")),
 							 m_kTauMass(iConfig.getParameter<double>("RecoAnalysisTauMass")),
 							 m_kMuonMass(iConfig.getParameter<double>("RecoAnalysisMuonMass")),
-                                                         m_kMuonSource(iConfig.getParameter<edm::InputTag>("MuonSourceTag")),
-                                                         m_kTrackSource(iConfig.getParameter<edm::InputTag>("TrackSourceTag"))
+                                                         m_kMuonSourceToken(iC.consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("MuonSourceTag"))),
+                                                         m_kTrackSourceToken(iC.consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackSourceTag")))
 {
 }
 
@@ -25,15 +25,15 @@ bool Tau3MuReco::doTau3MuReco(const edm::Event& iEvent, const edm::EventSetup& i
 {
     m_MuonCollection = muonCollection;
     m_TrackCollection = trackCollection;
-    
+
     edm::Handle<reco::MuonCollection> muons;
     edm::Handle<reco::TrackCollection> tracks;
-        
+
     reco::MuonCollection::const_iterator muon;
 
-    iEvent.getByLabel(m_kMuonSource, muons);
-    iEvent.getByLabel(m_kTrackSource, tracks);
-        
+    iEvent.getByToken(m_kMuonSourceToken, muons);
+    iEvent.getByToken(m_kTrackSourceToken, tracks);
+
     for( muon = muons->begin(); muon != muons->end(); ++muon )
     {
 	m_TrackCollection->push_back(*(muon->track().get()));
@@ -48,7 +48,7 @@ bool Tau3MuReco::doTau3MuReco(const edm::Event& iEvent, const edm::EventSetup& i
 	    LogDebug("Tau3MuReco") << "Could not find correct combination!" << std::endl;
 	    return false;
         }
-	
+
 	return true;
     }
 
@@ -58,7 +58,7 @@ bool Tau3MuReco::doTau3MuReco(const edm::Event& iEvent, const edm::EventSetup& i
             return true;
         else//throw away one muon which don't match
             removeIncorrectMuon();
-	
+
     }
 
     if( m_TrackCollection->size() == 2)
@@ -76,9 +76,9 @@ bool Tau3MuReco::doTau3MuReco(const edm::Event& iEvent, const edm::EventSetup& i
     }
 
     // cannot use this event, because less than 2 muons have been found
-    
+
     LogDebug("Tau3MuReco") << "Not enough (" << m_TrackCollection->size() << ") muons found! Event skipped!" << std::endl;
-    
+
     return false;
 }
 
@@ -110,15 +110,15 @@ bool Tau3MuReco::find3rdTrack(const edm::Event& iEvent, const edm::EventSetup& i
     //check size of TrackVector (should be two!)
     if(m_TrackCollection->size()!=2)
         return false;
-    
+
     //more then two tracks should be in the event
     if(Tracks.size()<=2)
         return false;
-    
+
     double SumDeltaR = 0;
-    
+
     double MuonDeltaR = getDeltaR(m_TrackCollection->at(0),m_TrackCollection->at(1));
-    
+
     //Loop overall tracks
 
     LogDebug("Tau3MuReco") << "Number of tracks found: " << Tracks.size() << std::endl;
@@ -126,7 +126,7 @@ bool Tau3MuReco::find3rdTrack(const edm::Event& iEvent, const edm::EventSetup& i
     std::multimap<double, const reco::Track> TrackMultiMap;
 
     unsigned short muonCounter = 0;
-    
+
     reco::TrackCollection::const_iterator track;
 
     for(track=Tracks.begin(); track!=Tracks.end(); track++)
@@ -136,7 +136,7 @@ bool Tau3MuReco::find3rdTrack(const edm::Event& iEvent, const edm::EventSetup& i
             muonCounter++;
             continue;
         }
-        
+
         SumDeltaR = MuonDeltaR;
 
         SumDeltaR += getDeltaR(m_TrackCollection->at(1), *track);
@@ -183,7 +183,7 @@ bool Tau3MuReco::find3rdTrack(const edm::Event& iEvent, const edm::EventSetup& i
         count++;
 
         LogDebug("Tau3MuReco") << "Track canidate: " << count << std::endl;
-	
+
         if(Charge > 0 && ((*it).second).charge()!=(m_TrackCollection->at(0)).charge())
 	LogDebug("Tau3MuReco") << "\tWrong charge!" << std::endl;
         LogDebug("Tau3MuReco") << "\tInvariant Mass deviation! " << fabs(getInvariantMass(m_TrackCollection)-m_kTauMass) << std::endl;
@@ -232,10 +232,10 @@ bool Tau3MuReco::findCorrectPairing()
             return false;
 
         Charge = 0;
-	
+
         tempMuonCollection.clear();
 	tempTrackCollection.clear();
-	
+
         for(UInt_t i=0; i< (*it).size(); i++)
         {
             Charge += m_TrackCollection->at((*it).at(i)).charge();
@@ -258,24 +258,24 @@ bool Tau3MuReco::findCorrectPairing()
 
 bool Tau3MuReco::removeIncorrectMuon()
 {
-    
+
     double deltaR12 = getDeltaR(m_TrackCollection->at(0),m_TrackCollection->at(1));
     double deltaR23 = getDeltaR(m_TrackCollection->at(1),m_TrackCollection->at(2));
     double deltaR31 = getDeltaR(m_TrackCollection->at(2),m_TrackCollection->at(0));
-    
+
     //if DeltaR12 is the smallest, than the 3rd one seems to be wrong
     //if DeltaR23 is the smallest, than the 2nd one seems to be wrong
     //if DeltaR31 is the smallest, than the 1st one seems to be wrong
-    
+
     unsigned char temp;
     double junk;
-    
+
     deltaR12 < deltaR23 ? temp=3 : temp=1;
     deltaR12 < deltaR23 ? junk=deltaR12 : junk=deltaR23;
 
     if(deltaR31 < junk)
         temp=2;
-    
+
     m_TrackCollection->erase(m_TrackCollection->begin()+temp-1);
 
     return true;
@@ -284,24 +284,24 @@ bool Tau3MuReco::removeIncorrectMuon()
 double Tau3MuReco::getInvariantMass(const reco::TrackCollection* tracks, const double MuonMass)
 {
     unsigned int numOfParticles = tracks->size();
-    
+
     double SumPx = 0;
     double SumPy = 0;
     double SumPz = 0;
-    
+
     double SumE = 0;
-    
+
     for(unsigned int i=0; i<numOfParticles; i++)
     {
 	SumPx += tracks->at(i).px();
 	SumPy += tracks->at(i).py();
 	SumPz += tracks->at(i).pz();
-	
+
 	SumE += sqrt(pow(tracks->at(i).p(),2)+pow(MuonMass,2));
     }
-    
+
     double invmass = sqrt(pow(SumE,2)-pow(SumPx,2)-pow(SumPy,2)-pow(SumPz,2));
-	    
+
     return invmass;
 }
 
@@ -309,9 +309,9 @@ double Tau3MuReco::getDeltaR(const reco::Track& track1, const reco::Track& track
 {
     double dEta = track1.eta() - track2.eta();
     double dPhi = track1.phi() - track2.phi();
-    
+
     while(dPhi >= TMath::Pi())       dPhi -= (2.0*TMath::Pi());
     while(dPhi < (-1.0*TMath::Pi())) dPhi += (2.0*TMath::Pi());
-    
+
     return sqrt(pow(dEta,2)+pow(dPhi,2));
 }

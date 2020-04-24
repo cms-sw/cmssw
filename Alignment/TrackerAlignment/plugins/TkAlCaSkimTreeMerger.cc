@@ -26,7 +26,7 @@ class TkAlCaSkimTreeMerger : public edm::EDAnalyzer{
 
  public:
   TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig);
-  ~TkAlCaSkimTreeMerger();
+  ~TkAlCaSkimTreeMerger() override;
   void beginJob() override;
   void endJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -75,9 +75,9 @@ TkAlCaSkimTreeMerger::TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig) :
   maxTEChits_=maxhitsSet_.getParameter<int32_t>("TECmaxhits");
   //anything you want to do for initializing
   std::cout<<"\n\n*** MAX N HITS = "<<maxhits_<<std::endl<<std::endl;
-  out_=0;
-  firsttree_=0;
-  ch_=0;
+  out_=nullptr;
+  firsttree_=nullptr;
+  ch_=nullptr;
 }
 
 
@@ -125,16 +125,16 @@ void TkAlCaSkimTreeMerger::beginJob(){
   ch_->SetBranchAddress("Nhits",    &nhits_ch);
   ch_->SetBranchAddress("Noverlaps",&noverlaps_ch);
 
-  ch_->SetBranchStatus("SubDet",0);
-  ch_->SetBranchStatus("Layer",0);
-  ch_->SetBranchStatus("is2D",0);
-  ch_->SetBranchStatus("isStereo",0);
-  ch_->SetBranchStatus("posX",0);
-  ch_->SetBranchStatus("posY",0);
-  ch_->SetBranchStatus("posZ",0);
-  ch_->SetBranchStatus("posR",0);
-  ch_->SetBranchStatus("posEta",0);
-  ch_->SetBranchStatus("posPhi",0);//now only id, nhits and noverlaps are on...
+  ch_->SetBranchStatus("SubDet",false);
+  ch_->SetBranchStatus("Layer",false);
+  ch_->SetBranchStatus("is2D",false);
+  ch_->SetBranchStatus("isStereo",false);
+  ch_->SetBranchStatus("posX",false);
+  ch_->SetBranchStatus("posY",false);
+  ch_->SetBranchStatus("posZ",false);
+  ch_->SetBranchStatus("posR",false);
+  ch_->SetBranchStatus("posEta",false);
+  ch_->SetBranchStatus("posPhi",false);//now only id, nhits and noverlaps are on...
 
 
   int totnhits(0),totnoverlaps(0);

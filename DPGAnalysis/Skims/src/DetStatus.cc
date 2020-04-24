@@ -1,7 +1,6 @@
 #include "DPGAnalysis/Skims/interface/DetStatus.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
  
@@ -32,6 +31,8 @@ DetStatus::DetStatus( const edm::ParameterSet & pset ) {
 	    }
 	}
     }
+  edm::InputTag scalersTag("scalersRawToDigi");
+  scalersToken_=consumes<DcsStatusCollection>(scalersTag);
 } 
 
 //
@@ -45,7 +46,7 @@ bool DetStatus::filter( edm::Event & evt, edm::EventSetup const& es) {
   bool accepted=false;
 
   edm::Handle<DcsStatusCollection> dcsStatus;
-  evt.getByLabel("scalersRawToDigi", dcsStatus);
+  evt.getByToken(scalersToken_, dcsStatus);
 
   if (dcsStatus.isValid()) 
     {

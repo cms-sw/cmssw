@@ -15,7 +15,7 @@
  <use name="Fireworks/Core"/>
  <use name="Fireworks/Muons"/>
  <use name="rootinteractive"/>
- <use name="rootrflx"/>
+
  <lib name="Eve"/>
  <lib name="Geom"/>
  <lib name="RGL"/>

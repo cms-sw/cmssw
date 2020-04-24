@@ -23,11 +23,11 @@ ShallowDigisProducer::ShallowDigisProducer(const edm::ParameterSet& conf)
 
 void ShallowDigisProducer::
 insert(products& p, edm::Event& e) {
-  e.put(p.id,     "id");
-  e.put(p.subdet, "subdet");
-  e.put(p.strip,  "strip");
-  e.put(p.adc,    "adc");
-  e.put(p.noise,  "noise");
+  e.put(std::move(p.id),     "id");
+  e.put(std::move(p.subdet), "subdet");
+  e.put(std::move(p.strip),  "strip");
+  e.put(std::move(p.adc),    "adc");
+  e.put(std::move(p.noise),  "noise");
 }
 
 template<class T>

@@ -22,10 +22,10 @@ public:
                       int readoutFrameSize, int binOfMaximum,
                       bool doPhotostatistics, bool syncPhase);
   /// dtor
-  virtual ~EcalSimParameterMap() {}
+  ~EcalSimParameterMap() override {}
 
   /// return the sim parameters relative to the right subdet
-  virtual const CaloSimParameters & simParameters(const DetId & id) const;
+  const CaloSimParameters & simParameters(const DetId & id) const override;
 
 private:
   /// EB

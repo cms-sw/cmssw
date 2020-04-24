@@ -2,7 +2,9 @@
 #ifndef HcalDcsValue_h
 #define HcalDcsValue_h
 
-#include <stdint.h>
+#include "CondFormats/Serialization/interface/Serializable.h"
+
+#include <cstdint>
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 class HcalDcsValue {
@@ -37,6 +39,8 @@ private:
   float mValue;
   float mUpperLimit;
   float mLowerLimit;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

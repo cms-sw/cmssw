@@ -26,12 +26,12 @@ public:
   // implicit copy constructor
   // implicit assignment operator
   // implicit destructor
-  virtual void beginStream(edm::StreamID id) final;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
+  void beginStream(edm::StreamID id) final;
+  void beginRun(edm::Run const &, edm::EventSetup const&) final;
   static std::shared_ptr<dqmDetails::NoCache> globalBeginRunSummary(edm::Run const&,
                                                         edm::EventSetup const&,
                                                         RunContext const*);
-  virtual void endRunSummary(edm::Run const&,
+  void endRunSummary(edm::Run const&,
                              edm::EventSetup const&,
                              dqmDetails::NoCache*) const final;
   static void globalEndRunSummary(edm::Run const&,
@@ -41,7 +41,7 @@ public:
   static std::shared_ptr<dqmDetails::NoCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
                                                                     edm::EventSetup const&,
                                                                     LuminosityBlockContext const*);
-  virtual void endLuminosityBlockSummary(edm::LuminosityBlock const&,
+  void endLuminosityBlockSummary(edm::LuminosityBlock const&,
                                          edm::EventSetup const&,
                                          dqmDetails::NoCache*) const final;
   static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
@@ -59,9 +59,22 @@ private:
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
-#endif // CORE_DQMED_ANALYZER_H
+//############################## ONLY NEEDED IN THE TRANSITION PERIOD ################################
+//here the thread_unsafe (simplified) carbon copy of the DQMEDAnalyzer
 
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+namespace thread_unsafe {
+  class DQMEDAnalyzer: public edm::EDAnalyzer
+    {
+    public:
+      DQMEDAnalyzer(void);
+      void beginRun(edm::Run const &, edm::EventSetup const&) final;
+      virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
+      virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;
+      
+    private:
+    };
+} //thread_unsafe namespace
+
+#endif // CORE_DQMED_ANALYZER_H

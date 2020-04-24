@@ -7,19 +7,19 @@ class CachingSeedCleanerByHitPosition : public RedundantSeedCleaner  {
   public:
 
    /** In this implementation, it does nothing */
-   virtual void add(const Trajectory *traj) ;
+   void add(const Trajectory *traj) override ;
 
    /** \brief Provides the cleaner a pointer to the vector where trajectories are stored, in case it does not want to keep a local collection of trajectories */
-   virtual void init(const std::vector<Trajectory> *vect) ;
+   void init(const std::vector<Trajectory> *vect) override ;
 
-   virtual void done() ;
+   void done() override ;
    
    /** \brief Returns true if the seed is not overlapping with another trajectory */
-   virtual bool good(const TrajectorySeed *seed) ;
+   bool good(const TrajectorySeed *seed) override ;
 
    CachingSeedCleanerByHitPosition() : RedundantSeedCleaner(), theVault(), theCache()
                                             /*, comps_(0), tracks_(0), calls_(0)*/ {}
-   virtual ~CachingSeedCleanerByHitPosition() { theVault.clear(); theCache.clear(); }
+   ~CachingSeedCleanerByHitPosition() override { theVault.clear(); theCache.clear(); }
   private:
     std::vector<Trajectory::RecHitContainer> theVault;
     std::multimap<uint32_t, unsigned int> theCache;

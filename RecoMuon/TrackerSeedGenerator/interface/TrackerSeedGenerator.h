@@ -21,7 +21,7 @@ class TrackerSeedGenerator {
 public:
   typedef std::vector<TrajectorySeed> BTSeedCollection;  
 
-  TrackerSeedGenerator() : theEvent(0), theProxyService(0) {}
+  TrackerSeedGenerator() : theEvent(nullptr), theProxyService(nullptr) {}
 
   typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 

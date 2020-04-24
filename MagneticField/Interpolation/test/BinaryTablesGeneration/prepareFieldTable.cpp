@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
     sector = atoi(argv[3]);
   }
   
+  cout << "Using Rotation from sector " << sector << endl;
 
   prepareMagneticFieldGrid MFG001(sector);                                    // MFG001 for standard cases
   MFG001.countTrueNumberOfPoints(filename1);   // check, if file contains some points twice

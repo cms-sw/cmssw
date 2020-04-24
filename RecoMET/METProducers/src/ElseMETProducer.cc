@@ -24,7 +24,7 @@
 
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
 
-#include <string.h>
+#include <cstring>
 
 //____________________________________________________________________________||
 namespace cms
@@ -35,8 +35,9 @@ namespace cms
     : inputToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src")))
     , globalThreshold_(iConfig.getParameter<double>("globalThreshold"))
   {
-    std::string alias(iConfig.getParameter<std::string>("alias"));
-    produces<reco::METCollection>().setBranchAlias(alias.c_str());
+    std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
+
+    produces<reco::METCollection>().setBranchAlias(alias);
   }
 
 
@@ -52,10 +53,9 @@ namespace cms
     math::XYZTLorentzVector p4(commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
     math::XYZPoint vtx(0,0,0);
     reco::MET met(commonMETdata.sumet, p4, vtx);
-    std::auto_ptr<reco::METCollection> metcoll;
-    metcoll.reset(new reco::METCollection);
+    auto metcoll = std::make_unique<reco::METCollection>();
     metcoll->push_back(met);
-    event.put(metcoll);
+    event.put(std::move(metcoll));
   }
 
 //____________________________________________________________________________||

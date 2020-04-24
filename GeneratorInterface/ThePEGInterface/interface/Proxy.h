@@ -30,8 +30,8 @@ class ProxyBase {
 	static boost::shared_ptr<ProxyBase> find(ProxyID id);
 
 	// not allowed and not implemented
-	ProxyBase(const ProxyBase &orig);
-	ProxyBase &operator = (const ProxyBase &orig);
+	ProxyBase(const ProxyBase &orig) = delete;
+	ProxyBase &operator = (const ProxyBase &orig) = delete;
 
 	const ProxyID	id;
 };

@@ -117,11 +117,11 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
   //  std::cout << " ConversionTrackPairFinder allSelectedTk size " << allSelectedTk.size() << "  scTrkAssocMap  size " <<  scTrkAssocMap.size() << "\n"; 
   
   // Sort tracks in decreasing number of hits
-  if(selectedOutInTk.size() > 0)
+  if(!selectedOutInTk.empty())
     std::stable_sort(selectedOutInTk.begin(), selectedOutInTk.end(), ByNumOfHits());
-  if(selectedInOutTk.size() > 0)
+  if(!selectedInOutTk.empty())
     std::stable_sort(selectedInOutTk.begin(), selectedInOutTk.end(), ByNumOfHits());
-  if(allSelectedTk.size() > 0)
+  if(!allSelectedTk.empty())
     std::stable_sort(allSelectedTk.begin(),   allSelectedTk.end(),   ByNumOfHits());
   
   
@@ -192,7 +192,7 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
 
     //    std::cout << " ConversionTrackPairFinder  INTERMIDIATE allPairSCAss size " << allPairSCAss.size() << "\n";
 
-    if ( allPairSCAss.size() == 0) { 
+    if ( allPairSCAss.empty()) { 
       //      std::cout << " All Tracks had the same charge: Need to send out a single track  " <<   "\n";
 
       for( iMap1 =   scTrkAssocMap.begin(); iMap1 !=   scTrkAssocMap.end(); ++iMap1) {

@@ -13,10 +13,16 @@ class TrackIPHistograms : public FlavourHistograms<T>
 
   TrackIPHistograms(const std::string& baseNameTitle_ , const std::string& baseNameDescription_,
                     const int& nBins_, const double& lowerBound_, const double& upperBound_,
-                    const bool& statistics, const bool& plotLog_, const bool& plotNormalized_,
-                    const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc, const bool& quality);
+                    const std::string& plotFirst_, const std::string& folder, 
+		    const unsigned int& mc, const bool& quality, DQMStore::IGetter & iget);
 
-  virtual ~TrackIPHistograms(){};
+  TrackIPHistograms(const std::string& baseNameTitle_ , const std::string& baseNameDescription_,
+                    const int& nBins_, const double& lowerBound_, const double& upperBound_,
+                    const bool& statistics, const bool& plotLog_, const bool& plotNormalized_,
+                    const std::string& plotFirst_, const std::string& folder, 
+		    const unsigned int& mc, const bool& quality, DQMStore::IBooker & ibook);
+
+  ~TrackIPHistograms() override{};
 
   void fill(const int& flavour, const reco::TrackBase::TrackQuality& quality, const T& variable, const bool& hasTrack) const;
   void fill(const int& flavour, const reco::TrackBase::TrackQuality& quality, const T& variable, const bool& hasTrack, const T & w) const;
@@ -46,31 +52,39 @@ template <class T>
 TrackIPHistograms<T>::TrackIPHistograms (const std::string& baseNameTitle_, const std::string& baseNameDescription_,
                                          const int& nBins_, const double& lowerBound_, const double& upperBound_,
                                          const bool& statistics_, const bool& plotLog_, const bool& plotNormalized_,
-                                         const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc, const bool& quality) :
+                                         const std::string& plotFirst_, const std::string& folder, 
+					 const unsigned int& mc, const bool& quality, DQMStore::IBooker & ibook) :
   FlavourHistograms<T>(baseNameTitle_, baseNameDescription_, nBins_, lowerBound_, upperBound_, statistics_, plotLog_, plotNormalized_,
-                       plotFirst_, update, folder, mc), quality_(quality)
+                       plotFirst_, folder, mc, ibook), quality_(quality)
 {
   if(quality_) {
-    if(!update) {
-      HistoProviderDQM prov("Btag",folder);
-      theQual_undefined = prov.book1D( baseNameTitle_ + "QualUnDef" , baseNameDescription_ + " Undefined Quality", nBins_, lowerBound_, upperBound_);
-      theQual_loose = prov.book1D( baseNameTitle_ + "QualLoose" , baseNameDescription_ + " Loose Quality", nBins_, lowerBound_, upperBound_);
-      theQual_tight = prov.book1D( baseNameTitle_ + "QualTight" , baseNameDescription_ + " Tight Quality", nBins_, lowerBound_, upperBound_);
-      theQual_highpur = prov.book1D( baseNameTitle_ + "QualHighPur" , baseNameDescription_ + " High Purity Quality", nBins_, lowerBound_, upperBound_);
-
-      if( statistics_ ) {
-        theQual_undefined->getTH1F()->Sumw2();
-        theQual_loose->getTH1F()->Sumw2();
-        theQual_tight->getTH1F()->Sumw2();
-        theQual_highpur->getTH1F()->Sumw2();
-      }
-    } else {
-      HistoProviderDQM prov("Btag",folder);
-      theQual_undefined = prov.access(baseNameTitle_ + "QualUnDef");
-      theQual_loose = prov.access(baseNameTitle_ + "QualLoose");
-      theQual_tight = prov.access(baseNameTitle_ + "QualTight");
-      theQual_highpur = prov.access(baseNameTitle_ + "QualHighPur");
+    HistoProviderDQM prov("Btag",folder,ibook);
+    theQual_undefined = prov.book1D( baseNameTitle_ + "QualUnDef" , baseNameDescription_ + " Undefined Quality", nBins_, lowerBound_, upperBound_);
+    theQual_loose = prov.book1D( baseNameTitle_ + "QualLoose" , baseNameDescription_ + " Loose Quality", nBins_, lowerBound_, upperBound_);
+    theQual_tight = prov.book1D( baseNameTitle_ + "QualTight" , baseNameDescription_ + " Tight Quality", nBins_, lowerBound_, upperBound_);
+    theQual_highpur = prov.book1D( baseNameTitle_ + "QualHighPur" , baseNameDescription_ + " High Purity Quality", nBins_, lowerBound_, upperBound_);
+    
+    if( statistics_ ) {
+      theQual_undefined->getTH1F()->Sumw2();
+      theQual_loose->getTH1F()->Sumw2();
+      theQual_tight->getTH1F()->Sumw2();
+      theQual_highpur->getTH1F()->Sumw2();
     }
+  }
+}
+template <class T>
+TrackIPHistograms<T>::TrackIPHistograms (const std::string& baseNameTitle_, const std::string& baseNameDescription_,
+                                         const int& nBins_, const double& lowerBound_, const double& upperBound_,
+                                         const std::string& plotFirst_, const std::string& folder, 
+					 const unsigned int& mc, const bool& quality, DQMStore::IGetter & iget) :
+FlavourHistograms<T>(baseNameTitle_, baseNameDescription_, nBins_, lowerBound_, upperBound_,
+		     plotFirst_, folder, mc, iget), quality_(quality)
+{
+  if(quality_) {
+    theQual_undefined = iget.get("Btag/" + folder + "/" + baseNameTitle_ + "QualUnDef");
+    theQual_loose = iget.get("Btag/" + folder + "/" + baseNameTitle_ + "QualLoose");
+    theQual_tight = iget.get("Btag/" + folder + "/" + baseNameTitle_ + "QualTight");
+    theQual_highpur = iget.get("Btag/" + folder + "/" + baseNameTitle_ + "QualHighPur");
   }
 }
 
@@ -98,7 +112,7 @@ void TrackIPHistograms<T>::fill(const int& flavour, const reco::TrackBase::Track
   const int& theIndexToPlot = FlavourHistograms<T>::indexToPlot();
 
   FlavourHistograms<T>::fill(flavour, variable);
-  if( theArrayDimension == 0 && quality_) {
+  if( theArrayDimension == nullptr && quality_) {
     fillVariable( quality, *variable);
   } else {
       int iMax = (*theArrayDimension > theMaxDimension) ? theMaxDimension : *theArrayDimension ;
@@ -123,7 +137,7 @@ void TrackIPHistograms<T>::fill(const int& flavour, const reco::TrackBase::Track
   const int& theIndexToPlot = FlavourHistograms<T>::indexToPlot();
 
   FlavourHistograms<T>::fill(flavour, variable ,w);
-  if( theArrayDimension == 0 && quality_) {
+  if( theArrayDimension == nullptr && quality_) {
     fillVariable( quality, *variable,w);
   } else {
       int iMax = (*theArrayDimension > theMaxDimension) ? theMaxDimension : *theArrayDimension ;

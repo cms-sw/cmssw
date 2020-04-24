@@ -1,5 +1,8 @@
 #ifndef CSCZSensors_H
 #define CSCZSensors_H
+
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /* #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h" */
 #include <vector>
 #include <string>
@@ -29,6 +32,8 @@ class CSCZSensorData {
   float normIntercept_;
   float normInterceptError_;
   float shifts_;
+
+ COND_SERIALIZABLE;
 };
 
 /**
@@ -39,6 +44,8 @@ class CSCZSensors {
   CSCZSensors() {}
   virtual ~CSCZSensors() {}
   std::vector<CSCZSensorData> cscZSens_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif // CSCZSensors_H

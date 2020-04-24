@@ -1,12 +1,16 @@
 #ifndef SiStripThreshold_h
 #define SiStripThreshold_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
 #include<boost/cstdint.hpp>
 #include "DataFormats/SiStripCommon/interface/ConstantsForCondObjects.h"
 #include <sstream>
+
+class TrackerTopology;
 
 /**
  * Holds the thresholds:<br>
@@ -72,13 +76,17 @@ class SiStripThreshold {
     uint16_t FirstStrip_and_Hth;
     uint8_t lowTh;
     uint8_t clusTh;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   struct DetRegistry{
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 
   class StrictWeakOrdering{
@@ -123,9 +131,9 @@ class SiStripThreshold {
   void  allThresholds(std::vector<float> &lowThs, std::vector<float> &highThs, const Range& range)  const; 
 
   /// Prints mean, rms, min and max threshold values for each DetId.
-  void printSummary(std::stringstream& ss) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
   /// Prints all the thresholds for all DetIds. 
-  void printDebug(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
  private:
   
@@ -135,6 +143,8 @@ class SiStripThreshold {
  private:
   Container v_threshold; 
   Registry indexes;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -32,37 +32,37 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
 class FakeAlignmentProducer : public edm::ESProducer {
 public:
   FakeAlignmentProducer(const edm::ParameterSet&);
-  ~FakeAlignmentProducer() {}
+  ~FakeAlignmentProducer() override {}
 
-  std::auto_ptr<Alignments>
-  produceTkAli(const TrackerAlignmentRcd&) { return std::auto_ptr<Alignments>(new Alignments);}
-  std::auto_ptr<Alignments> 
-  produceDTAli(const DTAlignmentRcd&) { return std::auto_ptr<Alignments>(new Alignments);}
-  std::auto_ptr<Alignments>
-  produceCSCAli(const CSCAlignmentRcd&)  { return std::auto_ptr<Alignments>(new Alignments);}
-  std::auto_ptr<Alignments>
-  produceGlobals(const GlobalPositionRcd&) {return std::auto_ptr<Alignments>(new Alignments);}
+  std::unique_ptr<Alignments>
+  produceTkAli(const TrackerAlignmentRcd&) { return std::make_unique<Alignments>();}
+  std::unique_ptr<Alignments> 
+  produceDTAli(const DTAlignmentRcd&) { return std::make_unique<Alignments>();}
+  std::unique_ptr<Alignments>
+  produceCSCAli(const CSCAlignmentRcd&)  { return std::make_unique<Alignments>();}
+  std::unique_ptr<Alignments>
+  produceGlobals(const GlobalPositionRcd&) {return std::make_unique<Alignments>();}
 
-  std::auto_ptr<AlignmentErrors> produceTkAliErr(const TrackerAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::unique_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorExtendedRcd&) {
+    return std::make_unique<AlignmentErrorsExtended>();
   }
-  std::auto_ptr<AlignmentErrors> produceDTAliErr(const DTAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::unique_ptr<AlignmentErrorsExtended> produceDTAliErr(const DTAlignmentErrorExtendedRcd&) {
+    return std::make_unique<AlignmentErrorsExtended>();
   }
-  std::auto_ptr<AlignmentErrors> produceCSCAliErr(const CSCAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::unique_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorExtendedRcd&) {
+    return std::make_unique<AlignmentErrorsExtended>();
   }
 
 };

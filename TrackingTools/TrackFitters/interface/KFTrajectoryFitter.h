@@ -17,7 +17,9 @@
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
-class KFTrajectoryFitter GCC11_FINAL: public TrajectoryFitter {
+#include <memory>
+
+class KFTrajectoryFitter final: public TrajectoryFitter {
 
 private:
 
@@ -33,68 +35,84 @@ public:
 		     const TrajectoryStateUpdator& aUpdator,
 		     const MeasurementEstimator& aEstimator,
 		     int minHits = 3,
-		     const DetLayerGeometry* detLayerGeometry=0) :
+		     const DetLayerGeometry* detLayerGeometry=nullptr, 
+                     TkCloner const * hc=nullptr) :
     thePropagator(aPropagator.clone()),
     theUpdator(aUpdator.clone()),
     theEstimator(aEstimator.clone()),
+    theHitCloner(hc),
     theGeometry(detLayerGeometry),
     minHits_(minHits),
-    owner(true){ 
+    owner(true){
     if(!theGeometry) theGeometry = &dummyGeometry;
     // FIXME. Why this first constructor is needed? who is using it? Can it be removed?
     // it is uses in many many places
     }
-  
+
 
   KFTrajectoryFitter(const Propagator* aPropagator,
 		     const TrajectoryStateUpdator* aUpdator,
 		     const MeasurementEstimator* aEstimator,
 		     int minHits = 3,
-		     const DetLayerGeometry* detLayerGeometry=0) : 
+		     const DetLayerGeometry* detLayerGeometry=nullptr,
+                     TkCloner const * hc=nullptr) :
     thePropagator(aPropagator),
     theUpdator(aUpdator),
     theEstimator(aEstimator),
+    theHitCloner(hc),
     theGeometry(detLayerGeometry),
     minHits_(minHits),
     owner(false){
       if(!theGeometry) theGeometry = &dummyGeometry;
     }
 
-  ~KFTrajectoryFitter(){
+  ~KFTrajectoryFitter() override{
     if (owner) {
       delete thePropagator;
       delete theUpdator;
       delete theEstimator;
     }
   }
-  
-  Trajectory fitOne(const Trajectory& aTraj,fitType) const;
+
+  Trajectory fitOne(const Trajectory& aTraj,fitType) const override;
   Trajectory fitOne(const TrajectorySeed& aSeed,
-		    const RecHitContainer& hits,fitType) const;
+		    const RecHitContainer& hits,fitType) const override;
 
   Trajectory fitOne(const TrajectorySeed& aSeed,
-		    const RecHitContainer& hits, 
-		    const TSOS& firstPredTsos,fitType) const;
+		    const RecHitContainer& hits,
+		    const TSOS& firstPredTsos,fitType) const override;
 
   const Propagator* propagator() const {return thePropagator;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
-  
-  virtual KFTrajectoryFitter* clone() const
+
+  std::unique_ptr<TrajectoryFitter> clone() const override
   {
-    return owner ? 
-      new KFTrajectoryFitter(*thePropagator,*theUpdator,*theEstimator,minHits_,theGeometry) :
-      new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator,minHits_,theGeometry);
+    return owner ?
+        std::unique_ptr<TrajectoryFitter>(new KFTrajectoryFitter(*thePropagator,
+                                                                 *theUpdator,
+                                                                 *theEstimator,
+                                                                 minHits_,theGeometry,theHitCloner)) :
+        std::unique_ptr<TrajectoryFitter>(new KFTrajectoryFitter(thePropagator,
+                                                                 theUpdator,
+                                                                 theEstimator,
+                                                                 minHits_,
+                                                                 theGeometry,theHitCloner));
   }
-  
+
+ // FIXME a prototype:	final inplementaiton may differ 
+  void setHitCloner(TkCloner const * hc) override {  theHitCloner = hc;}
+
+
 private:
-  KFTrajectoryFitter(KFTrajectoryFitter const&);
-		     
+  KFTrajectoryFitter(KFTrajectoryFitter const&) = delete;
+
 
   static const DetLayerGeometry dummyGeometry;
   const Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
+  TkCloner const * theHitCloner=nullptr;
   const DetLayerGeometry* theGeometry;
   int minHits_;
   bool owner;

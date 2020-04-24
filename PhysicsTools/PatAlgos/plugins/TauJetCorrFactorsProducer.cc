@@ -135,14 +135,14 @@ TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 
   // build the valuemap
-  std::auto_ptr<TauJetCorrFactorsMap> jecMapping(new TauJetCorrFactorsMap());
+  auto jecMapping = std::make_unique<TauJetCorrFactorsMap>();
   TauJetCorrFactorsMap::Filler filler(*jecMapping);
   // tauJets and tauJetCorrections vectors have their indices aligned by construction
   filler.insert(tauJets, tauJetCorrections.begin(), tauJetCorrections.end());
   filler.fill(); // do the actual filling
 
   // add valuemap to the event
-  evt.put(jecMapping);
+  evt.put(std::move(jecMapping));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

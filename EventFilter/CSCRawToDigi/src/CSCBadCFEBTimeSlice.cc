@@ -1,5 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCBadCFEBTimeSlice.h"
-#include<assert.h>
+#include<cassert>
 
 CSCBadCFEBWord & CSCBadCFEBTimeSlice::word(int i) 
 {

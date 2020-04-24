@@ -35,12 +35,12 @@ class EcalPedHists: public edm::EDAnalyzer
 { 
   public:
     EcalPedHists(const edm::ParameterSet& ps);   
-    ~EcalPedHists();
+    ~EcalPedHists() override;
 
   protected:
-    void analyze(const edm::Event & e, const  edm::EventSetup& c);
-    void beginRun(edm::Run const &, edm::EventSetup const & c);
-    void endJob(void);
+    void analyze(const edm::Event & e, const  edm::EventSetup& c) override;
+    void beginRun(edm::Run const &, edm::EventSetup const & c) override;
+    void endJob(void) override;
 
   private:
     std::string intToString(int num);

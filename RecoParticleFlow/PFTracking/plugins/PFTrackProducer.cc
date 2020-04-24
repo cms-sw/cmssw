@@ -4,52 +4,54 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 using namespace std;
 using namespace edm;
 using namespace reco;
 PFTrackProducer::PFTrackProducer(const ParameterSet& iConfig):
-  pfTransformer_(0)
+  pfTransformer_()
 {
   produces<reco::PFRecTrackCollection>();
   
-  tracksContainers_ = 
-    iConfig.getParameter< vector < InputTag > >("TkColList");
   
+  std::vector<InputTag> tags=iConfig.getParameter< vector < InputTag > >("TkColList");
+  trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
+  tracksContainers_.reserve(tags.size());
+  if(trajinev_) { trajContainers_.reserve(tags.size()); }
+  for( auto const& tag: tags) {
+    tracksContainers_.push_back(consumes<reco::TrackCollection>(tag));
+    if(trajinev_) {
+      trajContainers_.push_back(consumes<std::vector<Trajectory> >(tag));
+    }
+  }
+
   useQuality_   = iConfig.getParameter<bool>("UseQuality");
   
-  gsfTrackLabel_ = iConfig.getParameter<InputTag>
-    ("GsfTrackModuleLabel");  
+  gsfinev_ = iConfig.getParameter<bool>("GsfTracksInEvents");
+  if(gsfinev_) {
+    gsfTrackLabel_ = consumes<reco::GsfTrackCollection>(iConfig.getParameter<InputTag>
+                                                        ("GsfTrackModuleLabel"));  
+  }
 
   trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
   
-  muonColl_ = iConfig.getParameter< InputTag >("MuColl");
+  muonColl_ = consumes<reco::MuonCollection>(iConfig.getParameter< InputTag >("MuColl"));
   
-  trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
   
-  gsfinev_ = iConfig.getParameter<bool>("GsfTracksInEvents");
-  vtx_h=iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel");
-}
-
-PFTrackProducer::~PFTrackProducer()
-{
-  delete pfTransformer_;
+  vtx_h=consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel"));
+  
 }
 
 void
@@ -57,16 +59,18 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
   
   //create the empty collections 
-  auto_ptr< reco::PFRecTrackCollection > 
-    PfTrColl (new reco::PFRecTrackCollection);
+  auto PfTrColl = std::make_unique<reco::PFRecTrackCollection>();
   
   //read track collection
   Handle<GsfTrackCollection> gsftrackcoll;
-  bool foundgsf = iEvent.getByLabel(gsfTrackLabel_,gsftrackcoll);
-  GsfTrackCollection gsftracks;
+  bool foundgsf = false;
+  if(gsfinev_) {
+    foundgsf = iEvent.getByToken(gsfTrackLabel_,gsftrackcoll);
+  }
+
   //Get PV for STIP calculation, if there is none then take the dummy  
   Handle<reco::VertexCollection> vertex;
-  iEvent.getByLabel(vtx_h, vertex);
+  iEvent.getByToken(vtx_h, vertex);
   reco::Vertex dummy;
   const reco::Vertex* pv=&dummy;  
   if (vertex.isValid()) 
@@ -87,40 +91,28 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   TransientTrackBuilder thebuilder = *(builder.product());
   
-  
-  if(gsfinev_) {
-    if(!foundgsf )
-      LogError("PFTrackProducer")
-	<<" cannot get GsfTracks (probably in HI events): "
-	<< " please set GsfTracksInEvents = False in RecoParticleFlow/PFTracking/python/pfTrack_cfi.py" << endl;
-    else
-      gsftracks  = *(gsftrackcoll.product());
-  }  
-  
   // read muon collection
   Handle< reco::MuonCollection > recMuons;
-  iEvent.getByLabel(muonColl_, recMuons);
+  iEvent.getByToken(muonColl_, recMuons);
   
+  //default value for when trajinev_ is false
+  const vector<Trajectory> dummyTj(0);
   
   for (unsigned int istr=0; istr<tracksContainers_.size();istr++){
     
     //Track collection
     Handle<reco::TrackCollection> tkRefCollection;
-    iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
+    iEvent.getByToken(tracksContainers_[istr], tkRefCollection);
     reco::TrackCollection  Tk=*(tkRefCollection.product());
     
-    vector<Trajectory> Tj(0);
+    //Use a pointer to aoid unnecessary copying of the collection
+    const vector<Trajectory>* Tj = &dummyTj;
     if(trajinev_) {
       //Trajectory collection
       Handle<vector<Trajectory> > tjCollection;
-      bool found = iEvent.getByLabel(tracksContainers_[istr], tjCollection);
-	if(!found )
-	  LogError("PFTrackProducer")
-	    <<" cannot get Trajectories of: "
-	    <<  tracksContainers_[istr]
-	    << " please set TrajInEvents = False in RecoParticleFlow/PFTracking/python/pfTrack_cfi.py" << endl;
+      iEvent.getByToken(trajContainers_[istr], tjCollection);
 	
-	Tj =*(tjCollection.product());
+      Tj =tjCollection.product();
     }
     
     
@@ -146,10 +138,6 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      }
 	  }
 	}
-	else{
-	  edm::LogError("MissingInput")<<"there is no valide:"<<muonColl_<<" to be used.";
-	}
-
 	if(!isMuCandidate)
 	  {
 	    continue;	  
@@ -160,12 +148,16 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
       // find the pre-id kf track
       bool preId = false;
       if(foundgsf) {
-	for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
-	  GsfTrackRef gsfTrackRef(gsftrackcoll, igsf);
-	  if (gsfTrackRef->seedRef().isNull()) continue;
-	  ElectronSeedRef ElSeedRef= gsfTrackRef->extra()->seedRef().castTo<ElectronSeedRef>();
-	  if (ElSeedRef->ctfTrack().isNonnull()) {
-	    if(ElSeedRef->ctfTrack() == trackRef) preId = true;
+        //NOTE: foundgsf is only true if gsftrackcoll is valid
+	for (auto const& gsfTrack: *gsftrackcoll) {
+	  if (gsfTrack.seedRef().isNull()) continue;
+          auto const& seed = *(gsfTrack.extra()->seedRef());
+          auto const& ElSeed = dynamic_cast<ElectronSeed const&>(seed);
+	  if (ElSeed.ctfTrack().isNonnull()) {
+	    if(ElSeed.ctfTrack() == trackRef) {
+              preId = true;
+              break;
+            }
 	  }
 	}
       }
@@ -177,7 +169,7 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	
 	bool valid = false;
 	if(trajinev_) {
-	  valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i]);
+	  valid = pfTransformer_->addPoints( pftrack, *trackRef, (*Tj)[i]);
 	}
 	else {
 	  Trajectory FakeTraj;
@@ -204,7 +196,7 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 				  i, trackRef );
 	bool valid = false;
 	if(trajinev_) {
-	  valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i]);
+	  valid = pfTransformer_->addPoints( pftrack, *trackRef, (*Tj)[i]);
 	}
 	else {
 	  Trajectory FakeTraj;
@@ -227,7 +219,7 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
       }
     }
   }
-  iEvent.put(PfTrColl);
+  iEvent.put(std::move(PfTrColl));
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -237,7 +229,7 @@ PFTrackProducer::beginRun(const edm::Run& run,
 {
   ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
+  pfTransformer_.reset( new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0)))) );
   if(!trajinev_)
     pfTransformer_->OnlyProp();
 }
@@ -246,6 +238,5 @@ PFTrackProducer::beginRun(const edm::Run& run,
 void 
 PFTrackProducer::endRun(const edm::Run& run,
 			const EventSetup& iSetup) {
-  delete pfTransformer_;
-  pfTransformer_=nullptr;
+  pfTransformer_.reset();
 }

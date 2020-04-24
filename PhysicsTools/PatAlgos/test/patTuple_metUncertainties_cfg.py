@@ -1,26 +1,34 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
+
 process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
 
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
-switchJetCollection(process,cms.InputTag('ak5PFJets'),
-                 jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], '')
-                 )
+switchJetCollection(process,
+                    jetSource = cms.InputTag('ak4PFJets'),
+                    jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], '')
+                    )
 
-## let it run
-process.p = cms.Path(
-    process.selectedPatCandidates
-)
-
-# apply type I/type I + II PFMEt corrections to pat::MET object
+# apply type I PFMEt corrections to pat::MET object
 # and estimate systematic uncertainties on MET
-from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
-runMEtUncertainties(process)
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMETCorrectionsAndUncertainties
+
+runMETCorrectionsAndUncertainties(process, metType="PF",
+                                  correctionLevel=["T1"],
+                                  computeUncertainties=True,
+                                  produceIntermediateCorrections=False,
+                                  addToPatDefaultSequence=False,
+                                  jetCollectionUnskimmed="patJets",
+                                  jetSelection="pt>15 && abs(eta)<9.9",
+                                  postfix="",
+                                  )
+    
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

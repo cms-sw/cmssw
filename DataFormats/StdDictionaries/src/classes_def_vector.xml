@@ -4,14 +4,12 @@
  <class name="std::vector<char*>"/>
  <class name="std::vector<double>"/>
  <class name="std::vector<float>"/>
- <class name="std::vector<int>"/>
+// <class name="std::vector<int>"/>
  <class name="std::vector<long>"/>
  <class name="std::vector<long double>"/>
  <class name="std::vector<long long>"/>
  <class name="std::vector<short>"/>
- <class name="std::vector<std::basic_string<char> >"/>
- <class name="std::vector<std::basic_string<char> >::const_iterator"/>
- <class name="std::vector<std::basic_string<char> >::iterator"/>
+// <class name="std::vector<std::basic_string<char> >"/>
  <class name="std::vector<std::map<short,short> >"/>
  <class name="std::vector<std::pair<double,double> >"/>
  <class name="std::vector<std::pair<double,std::vector<double> > >"/>
@@ -22,6 +20,7 @@
  <class name="std::vector<std::pair<std::basic_string<char>,double> >"/>
  <class name="std::vector<std::pair<std::basic_string<char>,float> >"/>
  <class name="std::vector<std::pair<std::basic_string<char>,int> >"/>
+ <class name="std::vector<std::pair<std::basic_string<char>,std::basic_string<char> > >"/>
  <class name="std::vector<std::pair<std::vector<std::pair<double,std::vector<double> > >,bool> >"/>
  <class name="std::vector<std::pair<unsigned int,bool> >"/>
  <class name="std::vector<std::pair<unsigned int,double> >"/>
@@ -37,6 +36,7 @@
  <class name="std::vector<std::vector<std::vector<int> > >"/>
  <class name="std::vector<std::vector<unsigned int> >"/>
  <class name="std::vector<std::vector<unsigned short> >"/>
+ <class name="std::vector<std::vector<unsigned char> >"/>
  <class name="std::vector<unsigned char>"/>
  <class name="std::vector<unsigned char*>"/>
  <class name="std::vector<unsigned int>"/>
@@ -44,4 +44,6 @@
  <class name="std::vector<unsigned long long>"/>
  <class name="std::vector<unsigned short>"/>
  <class name="std::vector<const void*>" />
+ <class name="std::vector<std::pair<int,std::bitset<6> > >" />
+ <class name="std::pair<int,std::bitset<6>>"/>
 </lcgdict>

@@ -3,7 +3,6 @@
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/ParameterMap.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "Utilities/General/interface/FileInPath.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include <map>
 #include <string>
@@ -12,6 +11,7 @@
 #include <sstream>
 #include <iostream>
 #include<boost/tokenizer.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 const char * kParameter = "par";
 const char * kFix = "fix";
@@ -126,27 +126,34 @@ namespace fit {
     using namespace std;
     string cmssw_release_base = getenv("CMSSW_RELEASE_BASE");
     string cmssw_base = getenv("CMSSW_BASE");
-    string path = "."; 
+    vector<string> directories;
+    directories.reserve(3);
+    directories.emplace_back(".");
     if(!cmssw_release_base.empty()) {
-      path += ':';
-      path += (cmssw_release_base + "/src");
+      directories.emplace_back(cmssw_release_base + "/src");
     }
     if(!cmssw_base.empty()) {
-      path += ':';
-      path += (cmssw_base + "/src");
+      directories.emplace_back(cmssw_base + "/src");
     }
-    FileInPath fileInPath(path, fileName);
-    std::ifstream * file = fileInPath();
-    if(file==0 || !file->is_open())
+    ifstream file;
+    for(auto const& d: directories) {
+      std::ifstream f{ d+"/"+fileName };
+      if(f.good()) {
+        file = std::move(f);
+        break;
+      }
+    }
+    if(!file.is_open()) {
       throw edm::Exception(edm::errors::Configuration)
 	<< "RootMinuitCommands: can't open file: " << fileName 
-	<< " in path: " << path << "\n";
+	<< " in path: " << boost::algorithm::join(directories,":") << "\n";
+    }
     if (verbose_) 
       cout << ">>> configuration file: " << fileName << endl;
     string line;
     lineNumber_ = 0;
     bool commands = false;
-    while(getline(*file, line)) {
+    while(getline(file, line)) {
       ++lineNumber_;
       if(line.size()==0) continue;
       char last = *line.rbegin();

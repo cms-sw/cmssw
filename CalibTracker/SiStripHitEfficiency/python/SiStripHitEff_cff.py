@@ -10,7 +10,18 @@ anEff = cms.EDAnalyzer("HitEff",
                        #trajectories = cms.InputTag("ctfWithMaterialTracksP5"),
                        #trajectories   =   cms.InputTag("TrackRefitterP5"),
                        #trajectories = cms.InputTag("CalibrationTracksRefit")
-                       trajectories = cms.InputTag("generalTracks")
+                       trajectories        = cms.InputTag("generalTracks"),
+                       siStripClusters     = cms.InputTag("siStripClusters"),
+                       siStripDigis        = cms.InputTag("siStripDigis"),
+                       trackerEvent        = cms.InputTag("MeasurementTrackerEvent"),
+                       lumiScalers = cms.InputTag("scalersRawToDigi"),
+                       addLumi = cms.untracked.bool(False),
+                       commonMode = cms.InputTag("siStripDigis", "CommonMode"),
+                       addCommonMode = cms.untracked.bool(False),
+                       # do not cut on the total number of tracks
+                       cutOnTracks = cms.untracked.bool(True),
+                       # compatibility
+                       trackMultiplicity = cms.untracked.uint32(100)
                        )
 
 hiteff = cms.Sequence( anEff )

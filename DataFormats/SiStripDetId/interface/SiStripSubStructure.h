@@ -19,7 +19,7 @@
 //
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 class SiStripSubStructure
 {
@@ -59,9 +59,9 @@ class SiStripSubStructure
                            uint32_t ster          = 0) const;            // ster = 1(sterero), else(nonstereo), 0(ALL)
 
    private:
-      SiStripSubStructure(const SiStripSubStructure&); // stop default
+      SiStripSubStructure(const SiStripSubStructure&) = delete; // stop default
 
-      const SiStripSubStructure& operator=(const SiStripSubStructure&); // stop default
+      const SiStripSubStructure& operator=(const SiStripSubStructure&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

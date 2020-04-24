@@ -34,17 +34,16 @@
 class FilterOutScraping : public edm::EDFilter {
 public:
   explicit FilterOutScraping( const edm::ParameterSet & );
-  ~FilterOutScraping();
+  ~FilterOutScraping() override;
   
 private:
-  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
+  bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   bool applyfilter;
   bool debugOn;
   double thresh;
   unsigned int numtrack;
-  edm::InputTag tracks_;
-
+  edm::EDGetTokenT<reco::TrackCollection> tracks_;
   reco::TrackBase::TrackQuality _trackQuality;
 };
 

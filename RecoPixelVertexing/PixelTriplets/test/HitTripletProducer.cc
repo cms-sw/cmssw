@@ -81,7 +81,7 @@ void HitTripletProducer::analyze(
 
 //  GlobalTrackingRegion region;
 
-  typedef std::vector<TrackingRegion* > Regions;
+  typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
   Regions regions = theRegionProducer->regions(ev,es);
   const TrackingRegion & region = *regions[0];
 
@@ -93,6 +93,8 @@ void HitTripletProducer::analyze(
 //  hCPU->Fill( timer.lastMeasurement().real() );
   hNum->Fill(triplets.size());
   edm::LogInfo("HitTripletProducer") << "size of triplets: "<<triplets.size();
+
+  theGenerator->clear();
 
 }
 

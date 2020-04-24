@@ -7,7 +7,6 @@ parser = OptionParser(usage="usage: %prog [options] Trigger_Path")
 parser.add_option("--firstRun",  dest="firstRun",  help="first run", type="int", metavar="RUN", default="1")
 parser.add_option("--lastRun",   dest="lastRun",   help="last run",  type="int", metavar="RUN", default="9999999")
 parser.add_option("--groupName", dest="groupName", help="select runs of name like NAME", metavar="NAME", default="Collisions%")
-parser.add_option("--rrurl",     dest="rrurl",     help="run registry xmlrpc url", metavar="URL", default="http://cms-service-runregistry-api.web.cern.ch/cms-service-runregistry-api/xmlrpc")
 parser.add_option("--jsonOut",   dest="jsonOut",   help="dump prescales in JSON format on FILE", metavar="FILE")
 (options, args) = parser.parse_args()
 if len(args) != 1:
@@ -34,31 +33,19 @@ def getPrescalesFromKey(key):
 	psMap[path] = 0
     return psMap
 
+from queryRR import queryRR
 
-def queryRR():
-    stderr.write("Querying run registry for range [%d, %d], group name like %s ...\n" % (options.firstRun, options.lastRun, options.groupName))
-    import xmlrpclib
-    import xml.dom.minidom
-    server = xmlrpclib.ServerProxy(options.rrurl)
-    run_data = server.DataExporter.export('RUN', 'GLOBAL', 'xml_datasets', "{runNumber} >= %d AND {runNumber} <= %d AND {groupName} like '%s' AND {datasetName} = '/Global/Online/ALL'"  % (options.firstRun, options.lastRun, options.groupName))
-    ret = {}
-    xml_data = xml.dom.minidom.parseString(run_data)
-    xml_runs = xml_data.documentElement.getElementsByTagName("RUN_DATASET")
-    for xml_run in xml_runs:
-        ret[xml_run.getElementsByTagName("RUN_NUMBER")[0].firstChild.nodeValue] = xml_run.getElementsByTagName("RUN_HLTKEY")[0].firstChild.nodeValue
-    return ret
-
-runKeys = queryRR()
+runKeys = queryRR(options.firstRun,options.lastRun,options.groupName)
 prescaleTable = {}
 runs = runKeys.keys(); runs.sort()
 stderr.write("Querying ConfDB for prescales for path %s...\n" % (path));
 jsout = {}
 for run in runs:
     key = runKeys[run]
-    if not prescaleTable.has_key(key):
+    if key not in prescaleTable:
         prescaleTable[key] = getPrescalesFromKey(key)
     psfactor = 1
-    if prescaleTable[key].has_key(path): psfactor = prescaleTable[key][path]
+    if path in prescaleTable[key]: psfactor = prescaleTable[key][path]
     print "%s\t%s" % (run, psfactor)
     jsout[run] = psfactor
 

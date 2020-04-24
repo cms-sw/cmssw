@@ -16,9 +16,10 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
 #include <vector>
-#include <time.h>
+#include <ctime>
 #include <fstream> 
 #include <iostream> 
+#include <cmath>
 
 class ALIUtils
 {
@@ -88,7 +89,7 @@ public:
   static ALIdouble val0( ALIdouble val ) {
     //-std::cout << val << " val " << ( (val <= 1.E-9) ? 0. : val) << std::endl; 
 //    return (abs(val) <= 1.E-9) ? 0. : val; }
-    if( fabs(val) <= 1.E-9) { return 0.;
+    if( std::fabs(val) <= 1.E-9) { return 0.;
     }else { return val; }; }
 
   static ALIstring subQuotes( const ALIstring& str );

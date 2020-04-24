@@ -15,7 +15,7 @@ EventMsgView::EventMsgView(void* buf):
 
   // 18-Jul-2008, wmtan - payload changed for version 7.
   // So we no longer support previous formats.
-  if (protocolVersion() != 10) {
+  if (protocolVersion() != 11) {
     throw cms::Exception("EventMsgView", "Invalid Message Version:")
       << "Only message version 10 is currently supported \n"
       << "(invalid value = " << protocolVersion() << ").\n"
@@ -76,10 +76,10 @@ uint32 EventMsgView::run() const
   return convert32(h->run_);
 }
 
-uint32 EventMsgView::event() const
+uint64 EventMsgView::event() const
 {
   EventHeader* h = (EventHeader*)buf_;
-  return convert32(h->event_);
+  return convert64(h->event_);
 }
 
 uint32 EventMsgView::lumi() const
@@ -138,5 +138,3 @@ std::string EventMsgView::hostName() const
      return host_name;
    }
 }
-
-

@@ -2,6 +2,8 @@
 #define SiPixelObjects_PixelROC_H
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
@@ -15,6 +17,7 @@
  * The Global coordinates are row and column in DetUnit.
  */
 
+//class TrackerTopology;
 
 namespace sipixelobjects {
 
@@ -60,16 +63,31 @@ public:
     return result;
   }
 
+  // recognise the detector side and layer number
+  // this methods use hardwired constants
+  // if the numberg changes the methods have to be modified
+  int bpixSidePhase0(uint32_t rawId) const;
+  int fpixSidePhase0(uint32_t rawId) const;
+  int bpixSidePhase1(uint32_t rawId) const;
+  int fpixSidePhase1(uint32_t rawId) const;
+  static int bpixLayerPhase1(uint32_t rawId);
+
   /// printout for debug
   std::string print(int depth = 0) const;
 
   void initFrameConversion();
+  void initFrameConversionPhase1();
+  //void initFrameConversion(const TrackerTopology *tt, bool phase1=false);
+  // Frame conversion compatible with CMSSW_9_0_X Monte Carlo samples
+  void initFrameConversionPhase1_CMSSW_9_0_X();
 
 private:
   uint32_t theDetUnit;
   unsigned int theIdDU, theIdLk;
-  FrameConversion theFrameConverter;
+  FrameConversion theFrameConverter COND_TRANSIENT;
 
+
+  COND_SERIALIZABLE;
 };
 
 }

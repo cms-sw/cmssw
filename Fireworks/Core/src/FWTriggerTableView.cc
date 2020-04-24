@@ -46,16 +46,16 @@ FWTriggerTableView::FWTriggerTableView (TEveWindowSlot* iParent, FWViewType::ETy
      m_regex(this,"Filter",std::string()),
      m_process(this,"Process",std::string((id == FWViewType::FWViewType::kTableHLT) ? "HLT" : "")),
      m_tableManager(new FWTriggerTableViewTableManager(this)),
-     m_combo(0),
-     m_eveWindow(0),
-     m_vert(0),
-     m_tableWidget(0),
-     m_processList(0)
+     m_combo(nullptr),
+     m_eveWindow(nullptr),
+     m_vert(nullptr),
+     m_tableWidget(nullptr),
+     m_processList(nullptr)
 {  
    m_regex.changed_.connect(boost::bind(&FWTriggerTableView::dataChanged,this));
 
 
-   m_eveWindow = iParent->MakeFrame(0);
+   m_eveWindow = iParent->MakeFrame(nullptr);
    TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
 
    m_vert = new TGVerticalFrame(frame);
@@ -160,7 +160,7 @@ FWTriggerTableView::setFrom( const FWConfiguration& iFrom )
 
    const FWConfiguration *sortColumn = main->valueForKey( kSortColumn );
    const FWConfiguration *descendingSort = main->valueForKey( kDescendingSort );
-   if( sortColumn != 0 && descendingSort != 0 ) 
+   if( sortColumn != nullptr && descendingSort != nullptr ) 
    {
       unsigned int sort = sortColumn->version();
       bool descending = descendingSort->version();

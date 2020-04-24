@@ -1,8 +1,8 @@
 #include "L1TriggerConfig/CSCTFConfigProducers/interface/CSCTFConfigOnlineProd.h"
-//#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <cstdio>
+#include <string>
 
-boost::shared_ptr< L1MuCSCTFConfiguration >
+std::shared_ptr< L1MuCSCTFConfiguration >
 CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
 {
   
@@ -15,15 +15,11 @@ CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
 
   // loop over the 12 SPs forming the CSCTF crate
   for (int iSP=1;iSP<13; iSP++) {
+    std::string spkey = objectKey + "00";
+    if (iSP < 10)
+      spkey += "0";
+    spkey += std::to_string(iSP);
 
-    char spName[2];
-    if (iSP<10) sprintf(spName,"0%d",iSP);
-    else        sprintf(spName, "%d",iSP);
-
-    std::string spkey = objectKey + "00" + spName;
-
-  
-  
     //  SELECT Multiple columns  FROM TABLE with correct key: 
     std::vector< std::string > columns ;
     columns.push_back( "STATIC_CONFIG" ) ;
@@ -43,7 +39,7 @@ CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
       {
 	edm::LogError( "L1-O2O" ) << "Problem with L1CSCTFParameters key." ;
 	// return empty configuration
-	return boost::shared_ptr< L1MuCSCTFConfiguration >( new L1MuCSCTFConfiguration() ) ;
+	return std::make_shared<L1MuCSCTFConfiguration>() ;
       }
   
 
@@ -141,7 +137,7 @@ CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
   }  
   
   // return the final object with the configuration for all CSCTF
-  return boost::shared_ptr< L1MuCSCTFConfiguration >( new L1MuCSCTFConfiguration(csctfreg) ) ;    
+  return std::make_shared<L1MuCSCTFConfiguration>(csctfreg) ;    
 
 }
 

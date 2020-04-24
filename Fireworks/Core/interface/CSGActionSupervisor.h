@@ -50,8 +50,8 @@ protected:
    std::vector<CSGAction*> m_actionList;
 
 private:
-   CSGActionSupervisor(const CSGActionSupervisor&); // stop default
-   const CSGActionSupervisor& operator=(const CSGActionSupervisor&); // stop default
+   CSGActionSupervisor(const CSGActionSupervisor&) = delete; // stop default
+   const CSGActionSupervisor& operator=(const CSGActionSupervisor&) = delete; // stop default
 
    // ---------- member data --------------------------------
 

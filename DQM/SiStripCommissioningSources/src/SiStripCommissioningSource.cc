@@ -35,7 +35,7 @@
 #include <memory>
 #include <iomanip>
 #include <sstream>
-#include <time.h>
+#include <ctime>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -45,7 +45,7 @@
 #include <sys/unistd.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <stdio.h>
+#include <cstdio>
 
 
 using namespace sistrip;
@@ -53,9 +53,9 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet& pset ) :
-  dqm_(0),
-  fedCabling_(0),
-  fecCabling_(0),
+  dqm_(nullptr),
+  fedCabling_(nullptr),
+  fecCabling_(nullptr),
   inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
   inputModuleLabelSummary_( pset.getParameter<std::string>( "SummaryInputModuleLabel" ) ),
   filename_( pset.getUntrackedParameter<std::string>("RootFileName",sistrip::dqmSourceFileName_) ),
@@ -81,7 +81,7 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " Constructing object...";
   tasks_.clear();
-  tasks_.resize( 1024, VecOfTasks(96,static_cast<CommissioningTask*>(0)) ); 
+  tasks_.resize( 1024, VecOfTasks(96,static_cast<CommissioningTask*>(nullptr)) ); 
 }
 
 // -----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ DQMStore* const SiStripCommissioningSource::dqm( std::string method ) const {
     else { ss << "[SiStripCommissioningSource]" << std::endl; }
     ss << " NULL pointer to DQMStore";
     edm::LogWarning(mlDqmSource_) << ss.str();
-    return 0;
+    return nullptr;
   } else { return dqm_; }
 }
 
@@ -208,7 +208,7 @@ void SiStripCommissioningSource::endJob() {
   // Retrieve SCRATCH directory
   std::string scratch = "SCRATCH"; //@@ remove trailing slash!!!
   std::string dir = "";
-  if ( getenv(scratch.c_str()) != NULL ) { 
+  if ( getenv(scratch.c_str()) != nullptr ) { 
     dir = getenv(scratch.c_str()); 
   }
 
@@ -252,8 +252,8 @@ void SiStripCommissioningSource::endJob() {
   
   // ---------- Delete cabling ----------
 
-  if ( fedCabling_ ) { fedCabling_ = 0; }
-  if ( fecCabling_ ) { delete fecCabling_; fecCabling_ = 0; }
+  if ( fedCabling_ ) { fedCabling_ = nullptr; }
+  if ( fecCabling_ ) { delete fecCabling_; fecCabling_ = nullptr; }
   
 }
 
@@ -291,10 +291,10 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     ss << "[SiStripCommissioningSource::" << __func__ << "]"
        << " The last " << updateFreq_ 
        << " events were processed at a rate of ";
-    if ( time(NULL) == time_ ) { ss << ">" << updateFreq_ << " Hz"; }
-    else { ss << (updateFreq_/(time(NULL)-time_)) << " Hz"; }
+    if ( time(nullptr) == time_ ) { ss << ">" << updateFreq_ << " Hz"; }
+    else { ss << (updateFreq_/(time(nullptr)-time_)) << " Hz"; }
     edm::LogVerbatim(mlDqmSource_) << ss.str();
-    time_ = time(NULL);
+    time_ = time(nullptr);
   }
   
   // Create commissioning task objects 
@@ -351,7 +351,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   }
 
   // Check for NULL pointer to digi container
-  if ( &(*raw) == 0 ) {
+  if ( &(*raw) == nullptr ) {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
        << " NULL pointer to DetSetVector!" << std::endl
@@ -1119,9 +1119,9 @@ void SiStripCommissioningSource::clearTasks() {
   for ( ; ifed !=  tasks_.end(); ifed++ ) { 
     VecOfTasks::iterator ichan = ifed->begin();
     for ( ; ichan != ifed->end(); ichan++ ) { 
-      if ( *ichan ) { delete *ichan; *ichan = 0; }
+      if ( *ichan ) { delete *ichan; *ichan = nullptr; }
     }
-    ifed->resize(96,0);
+    ifed->resize(96,nullptr);
   }
   tasks_.resize(1024);
 }

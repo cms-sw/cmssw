@@ -10,9 +10,9 @@ class GsfElectronProducer : public GsfElectronBaseProducer
 
     //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
 
-    explicit GsfElectronProducer( const edm::ParameterSet & ) ;
-    virtual ~GsfElectronProducer();
-    virtual void produce( edm::Event &, const edm::EventSetup & ) ;
+    explicit GsfElectronProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
+    ~GsfElectronProducer() override;
+    void produce( edm::Event &, const edm::EventSetup & ) override ;
 
   protected:
 

@@ -37,8 +37,6 @@
 
 #include "InputAnalyzer.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 
 //
 // constructors and destructor
@@ -51,12 +49,10 @@ InputAnalyzer::InputAnalyzer(const edm::ParameterSet& iConfig)
 
  dataStep2_ = iConfig.getParameter<bool>("dataStep2");
  
- if (dataStep2_)
-   // The data file contain the PCrossingFrame<SimTrack> 
-   label_   = iConfig.getParameter<edm::InputTag>("collPCF");
- else 
-   // The data file contain the SimTrack
-   label_   = iConfig.getParameter<edm::InputTag>("collSimTrack");
+ labelPCF_   = consumes<PCrossingFrame<SimTrack>>(iConfig.getParameter<edm::InputTag>("collPCF"));
+
+ //will only be needed if not Step2:
+ labelSimTr_  = consumes<SimTrackContainer>(iConfig.getParameter<edm::InputTag>("collSimTrack"));
 }
 
 
@@ -83,7 +79,7 @@ InputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // Get the SimTrack collection from the event
    edm::Handle<SimTrackContainer> simTracks;
-   bool gotTracks = iEvent.getByLabel(label_,simTracks);
+   bool gotTracks = iEvent.getByToken(labelSimTr_,simTracks);
    
    if (!gotTracks)
    {  
@@ -111,7 +107,7 @@ InputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  // Get the PCrossingFrame collection given as signal
    
     edm::Handle<PCrossingFrame<SimTrack> > cf_simtrack;
-    bool gotTracks = iEvent.getByLabel("CFWriter","g4SimHits",cf_simtrack);
+    bool gotTracks = iEvent.getByToken(labelPCF_,cf_simtrack);
     
     if (!gotTracks)
     {  

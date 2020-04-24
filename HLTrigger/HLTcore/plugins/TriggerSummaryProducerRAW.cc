@@ -21,7 +21,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
-#include<vector>
+#include <vector>
 
 //
 // constructors and destructor
@@ -49,9 +49,7 @@ TriggerSummaryProducerRAW::TriggerSummaryProducerRAW(const edm::ParameterSet& ps
   callWhenNewProductsRegistered(getterOfProducts_);
 }
 
-TriggerSummaryProducerRAW::~TriggerSummaryProducerRAW()
-{
-}
+TriggerSummaryProducerRAW::~TriggerSummaryProducerRAW() = default;
 
 //
 // member functions
@@ -79,7 +77,7 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
    LogDebug("TriggerSummaryProducerRaw") << "Number of filter objects found: " << nfob;
 
    // construct single RAW product
-   auto_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
+   unique_ptr<TriggerEventWithRefs> product(new TriggerEventWithRefs(pn_,nfob));
    for (unsigned int ifob=0; ifob!=nfob; ++ifob) {
      const string& label    (fobs[ifob].provenance()->moduleLabel());
      const string& instance (fobs[ifob].provenance()->productInstanceName());
@@ -104,12 +102,33 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
        << " D/" << fobs[ifob]->l1hfringsSize()
        << " E/" << fobs[ifob]->pfjetSize()
        << " F/" << fobs[ifob]->pftauSize()
+       << " G/" << fobs[ifob]->pfmetSize()
+       << " I/" << fobs[ifob]->l1tmuonSize()
+       << " J/" << fobs[ifob]->l1tegammaSize()
+       << " K/" << fobs[ifob]->l1tjetSize()
+       << " L/" << fobs[ifob]->l1ttauSize()
+       << " M/" << fobs[ifob]->l1tetsumSize()
        << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1tmuonIds().size() = " << fobs[ifob]->l1tmuonIds().size() 
+       << "\n fobs[ifob]->l1tmuonRefs().size() = " << fobs[ifob]->l1tmuonRefs().size() << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1tegammaIds().size() = " << fobs[ifob]->l1tegammaIds().size() 
+       << "\n fobs[ifob]->l1tegammaRefs().size() = " << fobs[ifob]->l1tegammaRefs().size() << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1tjetIds().size() = " << fobs[ifob]->l1tjetIds().size() 
+       << "\n fobs[ifob]->l1tjetRefs().size() = " << fobs[ifob]->l1tjetRefs().size() << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1ttauIds().size() = " << fobs[ifob]->l1ttauIds().size() 
+       << "\n fobs[ifob]->l1ttauRefs().size() = " << fobs[ifob]->l1ttauRefs().size() << endl;
+       LogTrace("TriggerSummaryProducerRaw") << "TriggerSummaryProducerRaw::addFilterObjects(   )" 
+       << "\n fobs[ifob]->l1tetsumIds().size() = " << fobs[ifob]->l1tetsumIds().size() 
+       << "\n fobs[ifob]->l1tetsumRefs().size() = " << fobs[ifob]->l1tetsumRefs().size() << endl;
      product->addFilterObject(tag,*fobs[ifob]);
    }
 
    // place product in Event
-   OrphanHandle<TriggerEventWithRefs> ref = iEvent.put(product);
+   OrphanHandle<TriggerEventWithRefs> ref = iEvent.put(std::move(product));
    LogTrace("TriggerSummaryProducerRaw") << "Number of filter objects packed: " << ref->size();
 
    return;

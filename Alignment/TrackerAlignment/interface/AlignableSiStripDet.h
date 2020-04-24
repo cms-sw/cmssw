@@ -16,7 +16,7 @@
 #include <vector>
 
 class GluedGeomDet;
-class AlignTransformError;
+class AlignTransformErrorExtended;
 class Bounds;
 class StripGeomDetType;
 
@@ -25,10 +25,10 @@ class AlignableSiStripDet: public AlignableDet {
   /// Constructor
   AlignableSiStripDet(const GluedGeomDet *geomDet);
   /// reduntantly make destructor virtual
-  virtual ~AlignableSiStripDet();
+  ~AlignableSiStripDet() override;
 
   /// first consistify with component detunits, then call method from AlignableDet
-  virtual Alignments* alignments() const;
+  Alignments* alignments() const override;
 
  private:
   /// make alignments consistent with daughters
@@ -44,8 +44,8 @@ class AlignableSiStripDet: public AlignableDet {
   /// the same way as for the bounds. Sigh!
   const Bounds     *theMonoBounds;
   const Bounds     *theStereoBounds;
-  StripGeomDetType &theMonoType;
-  StripGeomDetType &theStereoType;
+  const StripGeomDetType &theMonoType;
+  const StripGeomDetType &theStereoType;
 };
 
 #endif

@@ -11,8 +11,10 @@
 
 //#define LOCAL_DEBUG
 
-MuonG4Numbering::MuonG4Numbering(const DDCompactView& cpv){
-  MuonDDDConstants muonConstants(cpv);
+MuonG4Numbering::MuonG4Numbering(const DDCompactView& cpv):
+  MuonG4Numbering(MuonDDDConstants(cpv)) {}
+
+MuonG4Numbering::MuonG4Numbering(const MuonDDDConstants& muonConstants){
   theLevelPart=muonConstants.getValue("level");
   theSuperPart=muonConstants.getValue("super");
   theBasePart=muonConstants.getValue("base");
@@ -57,8 +59,9 @@ MuonBaseNumber MuonG4Numbering::PhysicalVolumeToBaseNumber(const G4Step* aStep)
     G4VPhysicalVolume* vol = touch->GetVolume(ii);
     int copyno=vol->GetCopyNo();
 #ifdef LOCAL_DEBUG
-    std::cout << "MuonG4Numbering: " << vol->GetName()<<" "<<copyno<<std::endl;
-    std::cout << "Split " << copyNoRelevant(copyno);
+    std::cout << "MuonG4Numbering: " << vol->GetName() << " " << copyno 
+	      << std::endl << "Split " << copyNoRelevant(copyno) << ":" 
+	      << theLevelPart << ":" << theSuperPart << " ";
 #endif
     if (copyNoRelevant(copyno)) {
       num.addBase(getCopyNoLevel(copyno),

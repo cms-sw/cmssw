@@ -21,14 +21,17 @@ private:
   bool checkPDG_;
 public:
   explicit DummyLHEAnalyzer( const ParameterSet & cfg ) : 
-    src_( cfg.getParameter<InputTag>( "src" ) )
+    src_( cfg.getParameter<InputTag>( "src" ) ),
+    tokenLHERunInfo_(consumes<LHERunInfoProduct,edm::InRun>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) ),
+    tokenLHEEvent_(consumes<LHEEventProduct>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) )
   {
   }
 private:
   void analyze( const Event & iEvent, const EventSetup & iSetup ) override {
 
-    Handle<LHEEventProduct> evt;
-    iEvent.getByLabel( src_, evt );
+    edm::Handle<LHEEventProduct> evt;
+    //iEvent.getByLabel(src_, evt);
+    iEvent.getByToken(tokenLHEEvent_, evt);
 
     const lhef::HEPEUP hepeup_ = evt->hepeup();
 
@@ -70,13 +73,12 @@ private:
 
   }
 
-  /*
-  void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override {
-
+  void endRun(edm::Run const& iRun, edm::EventSetup const& es) override {
 
     Handle<LHERunInfoProduct> run;
-    iRun.getByLabel( src_, run );
-    
+    //iRun.getByLabel( src_, run );
+    iRun.getByToken( tokenLHERunInfo_, run );
+
     const lhef::HEPRUP thisHeprup_ = run->heprup();
 
     std::cout << "HEPRUP \n" << std::endl;
@@ -104,9 +106,11 @@ private:
     std::cout << " " << std::endl;
 
   }
-  */
 
   InputTag src_;
+  edm::EDGetTokenT<LHERunInfoProduct> tokenLHERunInfo_;
+  edm::EDGetTokenT<LHEEventProduct> tokenLHEEvent_;
+
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

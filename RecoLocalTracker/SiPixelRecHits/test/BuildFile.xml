@@ -1,3 +1,36 @@
 <use name="rootmath"/> 
 <use name="boost"/>
+<use   name="clhep"/>
+<use   name="root"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
 
+<use   name="DataFormats/Common"/>
+#<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+
+#<use   name="CondFormats/L1TObjects"/>
+#<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use   name="CommonTools/UtilAlgos"/>
+
+#<use   name="Geometry/Records"/>
+#<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+
+#<use   name="RecoLocalTracker/SiPixelClusterizer"/>
+<use   name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use   name="RecoLocalTracker/Records"/>
+
+# for tracks
+#<use   name="TrackingTools/TrajectoryState"/>
+#<use   name="TrackingTools/TrackFitters"/>
+<use   name="TrackingTools/TransientTrack"/>
+
+<flags   EDM_PLUGIN="1"/>
+<library   file="ReadPixelRecHit.cc" name="ReadPixelRecHit">
+</library>
+<flags   EDM_PLUGIN="1"/>
+<library   file="CPEAccessTester.cc" name="CPEAccessTester">
+</library>

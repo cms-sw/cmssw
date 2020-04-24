@@ -32,9 +32,9 @@ public:
 								   );
 	
 	/// Read ideal tracker geometry from DB
-	virtual void beginJob();
+	void beginJob() override;
 	
-	virtual void analyze(const edm::Event&, const edm::EventSetup&);
+	void analyze(const edm::Event&, const edm::EventSetup&) override;
 	
 private:
 	
@@ -69,8 +69,6 @@ private:
 
 	// flag for old z behaviour, version <= 1.5
 	bool oldMinusZconvention;
-
-  const edm::ParameterSet theParameterSet;
 };
 
 #endif

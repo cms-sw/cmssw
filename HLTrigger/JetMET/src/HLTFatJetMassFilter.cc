@@ -5,14 +5,13 @@
 *
 */
 
-#include "HLTrigger/JetMET/interface/HLTFatJetMassFilter.h"
+#include <vector>
 
+#include "HLTrigger/JetMET/interface/HLTFatJetMassFilter.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,11 +19,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-#include <vector>
-
-#include <typeinfo>
-
+#include "DataFormats/Math/interface/deltaR.h"
 
 //
 // constructors and destructor
@@ -52,7 +49,7 @@ HLTFatJetMassFilter<jetType>::HLTFatJetMassFilter(const edm::ParameterSet& iConf
 }
 
 template<typename jetType>
-HLTFatJetMassFilter<jetType>::~HLTFatJetMassFilter(){}
+HLTFatJetMassFilter<jetType>::~HLTFatJetMassFilter()= default;
 
 template<typename jetType>
 void 
@@ -66,7 +63,7 @@ HLTFatJetMassFilter<jetType>::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("maxJetEta",3.0);
   desc.add<double>("minJetPt",30.0);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTFatJetMassFilter<jetType>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTFatJetMassFilter<jetType>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------
@@ -132,11 +129,11 @@ HLTFatJetMassFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetu
   
   // apply radiation recovery
   for ( recojet = recojets.begin() ; recojet != recojets.end() ; recojet++) {
-    double DeltaR1 = sqrt(pow(recojet->phi()-j1.phi(), 2.)+pow(recojet->eta()-j1.eta(),2.));
-    double DeltaR2 = sqrt(pow(recojet->phi()-j2.phi(), 2.)+pow(recojet->eta()-j2.eta(),2.));
-    if(DeltaR1 < DeltaR2 && DeltaR1 < fatJetDeltaR_) {
+    double DeltaR1sq = reco::deltaR2(*recojet, j1);
+    double DeltaR2sq = reco::deltaR2(*recojet, j2);
+    if(DeltaR1sq < DeltaR2sq && DeltaR1sq < fatJetDeltaR_*fatJetDeltaR_) {
       fj1 += recojet->p4();
-    } else if(DeltaR2 < fatJetDeltaR_) {
+    } else if(DeltaR2sq < fatJetDeltaR_*fatJetDeltaR_) {
       fj2 += recojet->p4();
     }
   }

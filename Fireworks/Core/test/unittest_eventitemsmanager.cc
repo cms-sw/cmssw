@@ -15,19 +15,14 @@
 #include <boost/bind.hpp>
 #include <boost/test/test_tools.hpp>
 #include "TClass.h"
-#include "Cintex/Cintex.h"
 
 // user include files
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
-#undef private
-
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -53,7 +48,6 @@ namespace {
 
 BOOST_AUTO_TEST_CASE( eventitemmanager )
 {
-   ROOT::Cintex::Cintex::Enable();
    FWModelChangeManager cm;
   
    FWSelectionManager sm(&cm);

@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/Configuration/test/PFChargedHadronAnalyzer.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
@@ -229,23 +230,14 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
     unsigned int pxbN = 0;
     unsigned int pxdN = 0;
     const reco::HitPattern& hp = et.trackRef()->hitPattern();
-    switch ( et.trackRef()->algo() ) {
-    case TrackBase::iter0:
-    case TrackBase::iter1:
-    case TrackBase::iter2:
-    case TrackBase::iter3:
+
+    if (PFTrackAlgoTools::highQuality(et.trackRef()->algo())) {
       tobN += hp.numberOfValidStripTOBHits();
       tecN += hp.numberOfValidStripTECHits();
       tibN += hp.numberOfValidStripTIBHits();
       tidN += hp.numberOfValidStripTIDHits();
       pxbN += hp.numberOfValidPixelBarrelHits(); 
       pxdN += hp.numberOfValidPixelEndcapHits(); 
-      break;
-    case TrackBase::iter4:
-    case TrackBase::iter5:
-    case TrackBase::iter6:
-    default:
-      break;
     }
     int inner = pxbN+pxdN;
     int outer = tibN+tobN+tidN+tecN;

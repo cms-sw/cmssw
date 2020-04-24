@@ -3,6 +3,7 @@
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
 #include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiL1Link.h"
+#include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
 
 #include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
@@ -36,5 +37,9 @@ namespace DataFormats_RPCDigi {
     std::vector<RPCDigiL1Link> plain;
     edm::Wrapper<std::vector<RPCDigiL1Link> > vectorplain;
 
+    std::pair<unsigned int, std::uint32_t> puu;
+    std::pair<std::pair<unsigned int, std::uint32_t>, unsigned int> ppuuu;
+    std::map<std::pair<unsigned int, std::uint32_t>, unsigned int> mpuuu;
+    edm::Wrapper<RPCAMCLinkCounters> ralc;
   };
 }

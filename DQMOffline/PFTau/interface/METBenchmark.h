@@ -5,16 +5,18 @@
 
 #include "DataFormats/METReco/interface/METFwd.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+
 /// To plot MET quantities
 class METBenchmark : public Benchmark {
 
  public:
 
   METBenchmark(Mode mode) : Benchmark(mode) {}
-  virtual ~METBenchmark();
+  ~METBenchmark() override;
 
   /// book histograms
-  void setup();
+  void setup(DQMStore::IBooker& b);
 
   /// fill a collection
   template< class C>

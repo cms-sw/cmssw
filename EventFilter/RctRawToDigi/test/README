@@ -1,0 +1,29 @@
+
+EventFilter/RctRawToDigi Test Suite
+
+In all cases, need to check the *ErrorFlag histograms output by the job.  For test 3, 
+need to compare this with output from current release version.
+
+
+1. test_RawToDigi_RelVal.py
+	Unpack raw data in RelVal sample, and compare output with original sim digis. 
+Verifies backwards compatibility with existing MC raw.
+
+
+2. test_DigiToRaw_RawToDigi_RelVal.py
+	Run digi2raw-raw2digi on sim digis in RelVal sample, and compare output with 
+original sim digis.  Verifies packer-unpacker consistency in new version.
+
+
+3. test_RawToDigi_Emulator_Data.py
+	Unpack real data, and run emulator comparison.  Verify unpacker compatibility 
+with existing raw data.
+
+
+
+EventFilter/RctRawToDigi Examples
+
+Some of these could probably do with a clean up.
+
+1. rctRawToDigi_cfg.py
+	Unpacker example

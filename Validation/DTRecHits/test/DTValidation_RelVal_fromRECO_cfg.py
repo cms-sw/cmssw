@@ -9,7 +9,7 @@ process.GlobalTag.globaltag = "MC_31X_V1::All"
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 # DQM services
 process.load("DQMServices.Core.DQMStore_cfg")

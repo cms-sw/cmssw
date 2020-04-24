@@ -25,10 +25,10 @@ public:
 	    int nl1a, int orbitn, int bcn,
 	    const Collections& inputs, 
 	    const HcalElectronicsMap& emap,
-	    FEDRawData& output);
+	    FEDRawData& output) const;
 private:
   int findSamples(const DetId& did, const Collections& inputs,
-		  unsigned short* buffer, int &presamples, bool& zsUS, bool& zsMP);
+		  unsigned short* buffer, int &presamples, bool& zsUS, bool& zsMP) const;
 };
 
 #endif

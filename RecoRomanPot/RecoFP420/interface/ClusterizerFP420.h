@@ -6,7 +6,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
@@ -37,14 +36,14 @@ namespace cms
     
     explicit ClusterizerFP420(const edm::ParameterSet& conf);
     
-    virtual ~ClusterizerFP420();
+    ~ClusterizerFP420() override;
     
-    virtual void beginJob();
+    void beginJob() override;
     
     //  virtual void produce(DigiCollectionFP420*, ClusterCollectionFP420 &);
     // virtual void produce(DigiCollectionFP420 &, ClusterCollectionFP420 &);
     
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
     
   private:
     typedef std::vector<std::string> vstring;
@@ -59,8 +58,6 @@ namespace cms
 
     ClusterCollectionFP420* soutput;
    
-    FP420NumberingScheme * theFP420NumberingScheme;
-    
     std::vector<ClusterNoiseFP420> noise;
     bool UseNoiseBadElectrodeFlagFromDB_;
     int sn0, pn0, dn0, rn0;

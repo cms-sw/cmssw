@@ -35,6 +35,15 @@ class LHEEventProduct {
 	double originalXWGTUP() const { return originalXWGTUP_; }
 	const std::vector<WGT>& weights() const { return weights_; }
 
+	const std::vector<float> &scales() const { return scales_; }
+	void setScales(const std::vector<float> &scales) { scales_ = scales; }
+	
+        int npLO() const { return npLO_; }
+        int npNLO() const { return npNLO_; }
+        
+        void setNpLO(int n) { npLO_ = n; }
+        void setNpNLO(int n) { npNLO_ = n; }	
+	
 	const lhef::HEPEUP &hepeup() const { return hepeup_; }
 	const PDF *pdf() const { return pdf_.get(); }
 
@@ -43,7 +52,7 @@ class LHEEventProduct {
 	comments_const_iterator comments_end() const { return comments_.end(); }
   
   const char* getComment(unsigned i) const {
-    if(comments_.size()<1 || i>=comments_.size()) return "";
+    if(comments_.empty() || i>=comments_.size()) return "";
     else return (const char*) comments_[i].c_str();
   }
 
@@ -92,6 +101,9 @@ class LHEEventProduct {
 	std::auto_ptr<PDF>		pdf_;
 	std::vector<WGT>                weights_;
 	double                          originalXWGTUP_;
+        std::vector<float>              scales_; //scale value used to exclude EWK-produced partons from matching
+        int                             npLO_; //number of partons for LO process (used to steer matching/merging)
+        int                             npNLO_; //number of partons for NLO process (used to steer matching/merging)
 };
 
 #endif // GeneratorEvent_LHEInterface_LHEEventProduct_h

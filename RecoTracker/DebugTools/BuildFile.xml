@@ -11,7 +11,6 @@
 <use name="RecoTracker/Record" />
 <use name="MagneticField/Records" />
 <use name="MagneticField/Engine" />
-<use name="RecoTracker/TkNavigation" />
 <use name="RecoTracker/TkDetLayers" />
 <use name="RecoTracker/MeasurementDet" />
 <use name="DataFormats/TrackerCommon"/>

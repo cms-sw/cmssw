@@ -47,13 +47,13 @@ class ProcLinear : public TrainProcessor {
 		ITER_DONE
 	} iteration;
 
-	std::auto_ptr<LeastSquares>	ls;
+	std::unique_ptr<LeastSquares>	ls;
 	std::vector<double>		vars;
 	std::vector<double>		coefficients;
 	double theoffset;
 };
 
-static ProcLinear::Registry registry("ProcLinear");
+ProcLinear::Registry registry("ProcLinear");
 
 ProcLinear::ProcLinear(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
@@ -68,7 +68,7 @@ ProcLinear::~ProcLinear()
 
 void ProcLinear::configure(DOMElement *elem)
 {
-	ls = std::auto_ptr<LeastSquares>(new LeastSquares(getInputs().size()));
+	ls = std::unique_ptr<LeastSquares>(new LeastSquares(getInputs().size()));
 	
 	DOMNode *node = elem->getFirstChild();
 	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)

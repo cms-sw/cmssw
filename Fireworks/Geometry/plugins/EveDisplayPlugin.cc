@@ -16,6 +16,12 @@
 //
 //
 
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TColor.h"
+#include "TStyle.h"
+#include "TEnv.h"
+
 // system include files
 #include <memory>
 #include <iostream>
@@ -43,11 +49,11 @@ class EveDisplayPlugin : public fireworks::geometry::DisplayPlugin {
 
    public:
       explicit EveDisplayPlugin();
-      ~EveDisplayPlugin();
+      ~EveDisplayPlugin() override;
 
 
    private:
-      virtual void run(const edm::EventSetup&) override;
+      void run(const edm::EventSetup&) override;
 
 };
 
@@ -91,14 +97,12 @@ EveDisplayPlugin::run(const edm::EventSetup& iSetup)
    ESHandle<TGeoManager> geom;
    iSetup.get<DisplayGeomRecord>().get(geom);
 
-
    TEveManager::Create();
 
    TEveGeoTopNode* trk = new TEveGeoTopNode(const_cast<TGeoManager*>(geom.product()),
 					    geom->GetTopNode());
    trk->SetVisLevel(2);
    gEve->AddGlobalElement(trk);
-
 }
 
 

@@ -260,7 +260,7 @@ const EcalRecHitCollection * EgammaHLTMulti5x5ClusterProducer::getCollection(edm
     {
       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
       edm::LogError("EgammaHLTMulti5x5ClusterProducerError") << "Error! can't get the product ";
-      return 0;
+      return nullptr;
     } 
   return rhcHandle.product();
 }
@@ -301,14 +301,14 @@ void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const
   reco::BasicClusterCollection clusters;
   clusters = Multi5x5_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, detector, true, regions);
 
-  // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
-  std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  // create an unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
+  auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
   if (detector == reco::CaloID::DET_ECAL_BARREL) 
-    bccHandle = evt.put(clusters_p, barrelClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), barrelClusterCollection_);
   else
-    bccHandle = evt.put(clusters_p, endcapClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), endcapClusterCollection_);
 
   delete topology_p;
 }

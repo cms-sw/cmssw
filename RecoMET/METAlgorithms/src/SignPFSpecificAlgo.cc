@@ -15,7 +15,7 @@
 
 //____________________________________________________________________________||
 metsig::SignPFSpecificAlgo::SignPFSpecificAlgo()
-: resolutions_(0), algo_()
+: resolutions_(nullptr), algo_()
 {
   clusteredParticlePtrs_.clear();
 }
@@ -78,7 +78,7 @@ void metsig::SignPFSpecificAlgo::addPFCandidate(reco::PFCandidatePtr pf)
 }
 
 //____________________________________________________________________________||
-TMatrixD metsig::SignPFSpecificAlgo::mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates)
+reco::METCovMatrix metsig::SignPFSpecificAlgo::mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates)
 {
   useOriginalPtrs(PFCandidates.id());
   for(edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin(); iParticle != (PFCandidates.product())->end(); ++iParticle )

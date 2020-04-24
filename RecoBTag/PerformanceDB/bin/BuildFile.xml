@@ -9,11 +9,9 @@
 
 <environment>
   <bin   file="TestPerformanceFWLite_ES.cc">
-    <use   name="rootcintex"/>
     <use   name="rootcore"/>
   </bin>
   <bin   file="getbtagPerformance.cc">
-    <use   name="rootcintex"/>
     <use   name="rootcore"/>
   </bin>
 

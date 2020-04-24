@@ -41,7 +41,7 @@ Implementation:
 class CherenkovAnalysis : public edm::EDAnalyzer {
 public:
   explicit CherenkovAnalysis(const edm::ParameterSet&);
-  ~CherenkovAnalysis() {}
+  ~CherenkovAnalysis() override {}
 
 
 private:
@@ -52,9 +52,9 @@ private:
 
   TH1F* hTimeStructure_;
 
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void beginJob() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
 };
 

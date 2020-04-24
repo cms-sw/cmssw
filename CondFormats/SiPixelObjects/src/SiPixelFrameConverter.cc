@@ -53,7 +53,7 @@ int SiPixelFrameConverter::toCabling(
   for  (IT it = path.begin(); it != path.end(); ++it) {
     const PixelROC * roc = theMap->findItem(*it); 
     if (!roc) return 2;
-    if (! roc->rawId() == detector.rawId) return 3;
+    if (roc->rawId() != detector.rawId) return 3;
 
     GlobalPixel global = {detector.row, detector.col};
     //LogTrace("")<<"GLOBAL PIXEL: row=" << global.row <<" col="<< global.col;

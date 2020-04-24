@@ -1,6 +1,8 @@
 #ifndef CondFormats_ESObjects_ESChannelStatusCode_H
 #define CondFormats_ESObjects_ESChannelStatusCode_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <boost/cstdint.hpp>
 
@@ -20,5 +22,7 @@ class ESChannelStatusCode {
 
   private:
     uint16_t status_;
+
+  COND_SERIALIZABLE;
 };
 #endif

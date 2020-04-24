@@ -2,7 +2,15 @@
 <selection>
   <class name="FactorizedJetCorrector"/>
   <class name="JetCorrectionUncertainty"/>
-  <class name="JetCorrectorParameters"/>
+  <class name="JetCorrectorParameters">
+    <field name="helper"                  transient="true"/>
+    <field name="MAX_SIZE_DIMENSIONALITY" transient="true"/>
+  </class>
+  <ioread sourceClass="JetCorrectorParameters" targetClass="JetCorrectorParameters" version="[0-]" source="JetCorrectorParameters::Definitions mDefinitions; std::vector<JetCorrectorParameters::Record> mRecords;" target="helper">
+    <![CDATA[
+         newObj->init(); 
+    ]]>
+  </ioread>
   <class name="JetCorrectorParametersCollection"/>
   <class name="JetCorrectorParametersCollection::collection_type"/>
   <class name="JetCorrectorParametersCollection::pair_type"/>
@@ -16,5 +24,32 @@
   <class name="FFTJetCorrectorParameters" class_version="0">
      <field name="m_buffer" mapping="blob"/>
   </class>
+
+  <class name="QGLikelihoodCategory"/>
+  <class name="QGLikelihoodParameters"/>
+  <class name="QGLikelihoodObject" class_version="0">
+     <field name="data" mapping="blob"/>
+  </class>
+
+  <class name="QGLikelihoodObject::Entry"/>
+  <class name="std::vector<QGLikelihoodObject::Entry>"/>     
+
+  <class name="QGLikelihoodSystematicsObject" class_version="0">
+     <field name="data" mapping="blob"/>
+  </class>
+
+  <class name="QGLikelihoodSystematicsObject::Entry"/>
+  <class name="std::vector<QGLikelihoodSystematicsObject::Entry>"/>     
+
+  <class name="METCorrectorParameters"/>
+  <class name="MEtXYcorrectParameters"/>
+
+  <class name="JME::JetResolutionObject"/>
+  <class name="JME::JetResolutionObject::Definition"/>
+  <class name="JME::JetResolutionObject::Record"/>
+  <class name="JME::JetResolutionObject::Range"/>
+  <class name="std::vector<JME::JetResolutionObject::Record>"/>
+  <class name="std::vector<JME::JetResolutionObject::Range>"/>
+
 </selection>
 </lcgdict>

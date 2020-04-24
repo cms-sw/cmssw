@@ -34,7 +34,7 @@
 FWFramedTextTableCellRenderer::FWFramedTextTableCellRenderer(const TGGC* iTextContext, const TGGC* iFillContext, Justify iJustify):
    m_context(iTextContext),
    m_frameContext(iFillContext),
-   m_font(0),
+   m_font(nullptr),
    m_justify(iJustify)
 {
    //TGGC* tggc= gClient->GetGCPool()->GetGC(iContext);
@@ -108,7 +108,7 @@ FWFramedTextTableCellRenderer::setJustify(Justify iJustify)
 UInt_t 
 FWFramedTextTableCellRenderer::width() const
 {
-   if(m_data.size()) {
+   if(!m_data.empty()) {
       return m_font->TextWidth(m_data.c_str(),-1)+3;
    }
    return 0;
@@ -139,7 +139,7 @@ const TGGC &
 FWFramedTextTableCellRenderer::getFillGC()
 {
    // Return graphics context for highlighted frame background.
-   static const TGGC* s_default = 0;
+   static const TGGC* s_default = nullptr;
    if (!s_default) {
       GCValues_t gval;
       gval.fMask = kGCForeground | kGCBackground | kGCTile |

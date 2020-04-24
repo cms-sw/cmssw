@@ -34,9 +34,9 @@ namespace fwlite {
   class FWLiteEventFinder : public edm::IndexIntoFile::EventFinder {
   public:
     explicit FWLiteEventFinder(TBranch* auxBranch) : auxBranch_(auxBranch) {}
-    virtual ~FWLiteEventFinder() {}
-    virtual
-    edm::EventNumber_t getEventNumberOfEntry(long long entry) const override {
+    ~FWLiteEventFinder() override {}
+    
+    edm::EventNumber_t getEventNumberOfEntry(edm::IndexIntoFile::EntryNumber_t entry) const override {
       void* saveAddress = auxBranch_->GetAddress();
       edm::EventAuxiliary eventAux;
       edm::EventAuxiliary *pEvAux = &eventAux;
@@ -105,30 +105,30 @@ namespace fwlite {
    }
 
    void
-   EntryFinder::fillIndex(BranchMapReader const& branchMap) {
+   EntryFinder::fillIndex(BranchMapReader& branchMap) {
     if (empty()) {
       TTree* meta = dynamic_cast<TTree*>(branchMap.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
-      if (0 == meta) {
+      if (nullptr == meta) {
         throw cms::Exception("NoMetaTree") << "The TFile does not contain a TTree named "
           << edm::poolNames::metaDataTreeName();
       }
-      if (meta->FindBranch(edm::poolNames::indexIntoFileBranchName().c_str()) != 0) {
+      if (meta->FindBranch(edm::poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
         edm::IndexIntoFile* indexPtr = &indexIntoFile_;
         TBranch* b = meta->GetBranch(edm::poolNames::indexIntoFileBranchName().c_str());
         b->SetAddress(&indexPtr);
         b->GetEntry(0);
         TTree* eventTree = branchMap.getEventTree();
         TBranch* auxBranch = eventTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
-        if(0 == auxBranch) {
+        if(nullptr == auxBranch) {
           throw cms::Exception("NoEventAuxilliary") << "The TTree "
           << edm::poolNames::eventTreeName()
           << " does not contain a branch named 'EventAuxiliary'";
         }
 
         indexIntoFile_.setNumberOfEvents(auxBranch->GetEntries());
-        indexIntoFile_.setEventFinder(boost::shared_ptr<edm::IndexIntoFile::EventFinder>(new FWLiteEventFinder(auxBranch)));
+        indexIntoFile_.setEventFinder(std::shared_ptr<edm::IndexIntoFile::EventFinder>(std::make_shared<FWLiteEventFinder>(auxBranch)));
 
-      } else if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != 0) {
+      } else if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != nullptr) {
         edm::FileIndex* findexPtr = &fileIndex_;
         TBranch* b = meta->GetBranch(edm::poolNames::fileIndexBranchName().c_str());
         b->SetAddress(&findexPtr);

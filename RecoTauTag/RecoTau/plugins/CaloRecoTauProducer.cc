@@ -34,8 +34,8 @@ using namespace std;
 class CaloRecoTauProducer : public EDProducer {
  public:
   explicit CaloRecoTauProducer(const edm::ParameterSet& iConfig);
-  ~CaloRecoTauProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&) override;
+  ~CaloRecoTauProducer() override;
+  void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   edm::InputTag CaloRecoTauTagInfoProducer_;
   edm::InputTag PVProducer_;
@@ -63,8 +63,8 @@ CaloRecoTauProducer::~CaloRecoTauProducer(){
   
 void CaloRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 
-  auto_ptr<CaloTauCollection> resultCaloTau(new CaloTauCollection);
-  auto_ptr<DetIdCollection> selectedDetIds(new DetIdCollection);
+  auto resultCaloTau = std::make_unique<CaloTauCollection>();
+  auto selectedDetIds = std::make_unique<DetIdCollection>();
  
   edm::ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",myTransientTrackBuilder);
@@ -79,7 +79,7 @@ void CaloRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
   iEvent.getByLabel(PVProducer_,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   Vertex thePV;
-  if(vertCollection.size()) thePV=*(vertCollection.begin());
+  if(!vertCollection.empty()) thePV=*(vertCollection.begin());
   else{
     Vertex::Error SimPVError;
     SimPVError(0,0)=smearedPVsigmaX_*smearedPVsigmaX_;
@@ -105,7 +105,7 @@ void CaloRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
     selectedDetIds->push_back(CaloRecoTauAlgo_->mySelectedDetId_[i]);
 
 
-   iEvent.put(resultCaloTau);
-  iEvent.put(selectedDetIds);
+   iEvent.put(std::move(resultCaloTau));
+   iEvent.put(std::move(selectedDetIds));
 }
 DEFINE_FWK_MODULE(CaloRecoTauProducer);

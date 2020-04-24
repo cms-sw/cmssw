@@ -14,7 +14,7 @@ class PFMETMonitor : public Benchmark {
 
   PFMETMonitor( Benchmark::Mode mode=Benchmark::DEFAULT); 
   
-  virtual ~PFMETMonitor();
+  ~PFMETMonitor() override;
 
   /// set the parameters locally
   void setParameters(Benchmark::Mode mode, float ptmin, float ptmax, float etamin,
@@ -24,19 +24,17 @@ class PFMETMonitor : public Benchmark {
   void setParameters( const edm::ParameterSet& parameterSet);
   
   /// set directory (to use in ROOT)
-  void setDirectory(TDirectory* dir);
+  void setDirectory(TDirectory* dir) override;
 
   /// book histograms
-  void setup();
-  
-  /// book histograms
-  void setup(const edm::ParameterSet & parameterSet);
+  void setup(DQMStore::IBooker& b);
+  void setup(DQMStore::IBooker& b, const edm::ParameterSet & parameterSet);
 
-  void fillOne(const reco::MET& met,
-	       const reco::MET& matchedMet, float& minVal, float& maxVal);
+  void fillOne(const reco::MET& met, const reco::MET& matchedMet,
+	       float& minVal, float& maxVal);
 
-  void fillOne(const reco::MET& met,
-	       const reco::MET& matchedMet, float& minVal, float& maxVal,
+  void fillOne(const reco::MET& met, const reco::MET& matchedMet,
+	       float& minVal, float& maxVal,
 	       const edm::ParameterSet & parameterSet);
 
  protected:

@@ -7,7 +7,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <ext/algorithm>
 #include <iostream>
 #include <vector>
 
@@ -37,7 +36,7 @@ void testFill<edm::PtrVector<Dummy> >(edm::PtrVector<Dummy> &r) {
 }
 //template<>
 //void testFill<edm::OwnVector<Dummy> >(edm::OwnVector<Dummy> &r) {
-//    for(int i = 0; i < 12; ++i) { r.push_back(std::auto_ptr<Dummy>(new Dummy(i))); }
+//    for(int i = 0; i < 12; ++i) { r.push_back(std::make_unique<Dummy>(i)); }
 //}
 
 bool operator==(edm::Ref<Coll>  const& ref, int i) { return (int(ref.key()) == i) && (ref->id == i); }
@@ -97,13 +96,13 @@ template<typename R>
 void test_sort(R r) {
     //std::cout << "Check sort for " << typeid(R).name() << std::endl;
     //std::cout << "Before sort: " << std::endl;
-    assert(!__gnu_cxx::is_sorted(r.begin(), r.end(), DummySorter()));
+    assert(!std::is_sorted(r.begin(), r.end(), DummySorter()));
     //for(typename R::const_iterator it = r.begin(), ed = r.end(); it != ed; ++it) { std::cout << " - " << *it << std::endl; }
     std::sort(r.begin(), r.end(), DummySorter());
     //std::cout << "After sort: " << std::endl;
     //for(typename R::const_iterator it = r.begin(), ed = r.end(); it != ed; ++it) { std::cout << " - " << *it << std::endl; }
     //std::cout << "End check " << std::endl;
-    if(!__gnu_cxx::is_sorted(r.begin(), r.end(), DummySorter())) {
+    if(!std::is_sorted(r.begin(), r.end(), DummySorter())) {
        std::cout << "Sort for " << typeid(R).name() << " compiles but doesn't sort!" << std::endl;
     }
 }

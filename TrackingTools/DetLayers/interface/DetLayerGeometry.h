@@ -31,7 +31,7 @@ class DetLayerGeometry {
 
   /// Give the DetId of a module, returns the pointer to the corresponding DetLayer
   /// This method is dummy and has to be overridden in another derived class
-  virtual const DetLayer* idToLayer(const DetId& detId) const {return 0;}
+  virtual const DetLayer* idToLayer(const DetId& detId) const {return nullptr;}
  
 };
 

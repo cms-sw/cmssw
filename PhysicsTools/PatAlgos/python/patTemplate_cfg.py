@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 process = cms.Process("PAT")
 
@@ -16,10 +17,10 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Output Module Configuration (expects a path 'p')
@@ -33,4 +34,5 @@ process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring('drop *', *patEventContentNoCleaning )
                                )
 
-process.outpath = cms.EndPath(process.out)
+patAlgosToolsTask = getPatAlgosToolsTask(process)
+process.outpath = cms.EndPath(process.out, patAlgosToolsTask)

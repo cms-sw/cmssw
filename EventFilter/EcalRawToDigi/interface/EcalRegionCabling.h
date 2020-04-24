@@ -4,8 +4,6 @@
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/ESElectronicsMapper.h"
 
-#include "DataFormats/Common/interface/LazyGetter.h"
-#include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -28,19 +26,6 @@ class EcalRegionCabling {
   const EcalElectronicsMapping * mapping() const  { return mapping_;}
   const ESElectronicsMapper * es_mapping() const { return es_mapping_;}
 
-  template <class T>  void updateEcalRefGetterWithElementIndex(edm::RefGetter<T> & refgetter,
-							       const edm::Handle< edm::LazyGetter<T> >& lazygetter,
-							       const uint32_t index)const;
-
-  template <class T>  void updateEcalRefGetterWithFedIndex(edm::RefGetter<T> & refgetter,
-							       const edm::Handle< edm::LazyGetter<T> >& lazygetter,
-							       const int index)const;
-
-  template <class T> void updateEcalRefGetterWithEtaPhi(edm::RefGetter<T> & refgetter,
-							const edm::Handle< edm::LazyGetter<T> >& lazygetter,
-							const double eta,
-							const double phi)const;
-  
   static uint32_t maxElementIndex() {return (FEDNumbering::MAXECALFEDID - FEDNumbering::MINECALFEDID +1);}
   static uint32_t maxESElementIndex() { return (FEDNumbering::MAXPreShowerFEDID - FEDNumbering::MINPreShowerFEDID +1);}
 
@@ -81,31 +66,5 @@ class EcalRegionCabling {
   const EcalElectronicsMapping * mapping_;
   const ESElectronicsMapper * es_mapping_;
 };
-
-
-template <class T> void EcalRegionCabling::updateEcalRefGetterWithElementIndex(edm::RefGetter<T> & refgetter, 
-									       const edm::Handle< edm::LazyGetter<T> >& lazygetter, 
-									       const uint32_t index)const{
-  LogDebug("EcalRawToRecHit|Cabling")<<"updating a refgetter with element index: "<<index;
-  refgetter.push_back(lazygetter, index);
-}
-
-
-template <class T> void EcalRegionCabling::updateEcalRefGetterWithFedIndex(edm::RefGetter<T> & refgetter, 
-									   const edm::Handle< edm::LazyGetter<T> >& lazygetter, 
-									   const int fedindex)const{
-  LogDebug("EcalRawToRecHit|Cabling")<<"updating a refgetter with fed index: "<<fedindex;
-  updateEcalRefGetterWithElementIndex(refgetter, lazygetter, elementIndex(fedindex));
-}
-
-
-template <class T> void EcalRegionCabling::updateEcalRefGetterWithEtaPhi(edm::RefGetter<T> & refgetter, 
-							 		 const edm::Handle< edm::LazyGetter<T> >& lazygetter, 
-									 const double eta,
-									 const double phi)const{
-  int index = mapping()->GetFED(eta,phi);
-  LogDebug("EcalRawToRecHit|Cabling")<<"updating a refgetter with eta: "<<eta<<" phi: "<<phi;
-  updateEcalRefGetterWithFedIndex(refgetter, lazygetter, index);
-}
 
 #endif

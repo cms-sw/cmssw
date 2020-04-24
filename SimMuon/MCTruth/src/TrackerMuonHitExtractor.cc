@@ -12,7 +12,16 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include <sstream>
 
-TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet& parset) :
+TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet& parset,
+						 edm::ConsumesCollector && ic) :
+  inputDTRecSegment4DToken_(ic.consumes<DTRecSegment4DCollection>(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"))),
+  inputCSCSegmentToken_(ic.consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))),
+  inputDTRecSegment4DCollection_(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection")),
+  inputCSCSegmentCollection_(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))
+{
+}
+
+TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet& parset ) :
   inputDTRecSegment4DCollection_(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection")),
   inputCSCSegmentCollection_(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))
 {
@@ -97,8 +106,10 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 	int endcap, /*station, */ ring, chamber;
 	
 	edm::LogVerbatim("TrackerMuonHitExtractor") <<"Number of chambers: "<<mu.matches().size()
-					      <<", arbitrated: "<<mu.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
+					      <<", arbitrated: "<<mu.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)
+					      <<", tot (no arbitration): "<<mu.numberOfMatches(reco::Muon::NoArbitration);
 	unsigned int index_chamber = 0;
+	int n_segments_noArb = 0;
 	
 	for(std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = mu.matches().begin();
 	    chamberMatch != mu.matches().end(); ++chamberMatch, index_chamber++) {
@@ -126,6 +137,7 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 	  
 	  chamberStr << ", Number of segments: "<<chamberMatch->segmentMatches.size();
 	  edm::LogVerbatim("TrackerMuonHitExtractor") << chamberStr.str();
+	  n_segments_noArb = n_segments_noArb + chamberMatch->segmentMatches.size();
 
 	  unsigned int index_segment = 0;
 	  
@@ -156,9 +168,10 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 		<<"\n\t  Local Position (X,Y)=("<<segmentX<<","<<segmentY<<") +/- ("<<segmentXerr<<","<<segmentYerr<<"), " 
 		<<"\n\t  Local Direction (dXdZ,dYdZ)=("<<segmentdXdZ<<","<<segmentdYdZ<<") +/- ("<<segmentdXdZerr<<","<<segmentdYdZerr<<")"; 
 	      
+	      // with the following line the DT segments failing standard arbitration are skipped 
 	      if (!segment_arbitrated_Ok) continue;
 
-              if (segmentDT.get() != 0) {
+              if (segmentDT.get() != nullptr) {
 		const DTRecSegment4D* segment = segmentDT.get();
 		
 		edm::LogVerbatim("TrackerMuonHitExtractor")<<"\t ===> MATCHING with DT segment with index = "<<segmentDT.key();
@@ -189,9 +202,10 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 		<<"\n\t  Local Position (X,Y)=("<<segmentX<<","<<segmentY<<") +/- ("<<segmentXerr<<","<<segmentYerr<<"), " 
 		<<"\n\t  Local Direction (dXdZ,dYdZ)=("<<segmentdXdZ<<","<<segmentdYdZ<<") +/- ("<<segmentdXdZerr<<","<<segmentdYdZerr<<")"; 
 	      
+	      // with the following line the CSC segments failing standard arbitration are skipped 
 	      if (!segment_arbitrated_Ok) continue;
 
-              if (segmentCSC.get() != 0) {
+              if (segmentCSC.get() != nullptr) {
 		const CSCSegment* segment = segmentCSC.get();
 		
 		edm::LogVerbatim("TrackerMuonHitExtractor")<<"\t ===> MATCHING with CSC segment with index = "<<segmentCSC.key();
@@ -206,6 +220,8 @@ TrackerMuonHitExtractor::getMuonHits(const reco::Muon &mu) const {
 	    
 	  } // loop on vector<MuonSegmentMatch>	  
 	}  // loop on vector<MuonChamberMatch>	
+
+	edm::LogVerbatim("TrackerMuonHitExtractor")<<"\n N. matched Segments before arbitration = "<<n_segments_noArb;
 
         return ret;
 }

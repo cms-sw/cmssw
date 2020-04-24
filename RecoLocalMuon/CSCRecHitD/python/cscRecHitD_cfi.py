@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# This object modifies the csc2DRecHits for running in Run 2
+
 # parameters for CSC rechit building
 from RecoLocalMuon.CSCRecHitD.cscRecHitD_cff import *
 csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
@@ -24,6 +26,11 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #
     #    Parameters for wire hits
     CSCWireClusterDeltaT = cms.int32(1),
+    #
+    #    wire time window used for reconstruction
+    CSCUseReducedWireTimeWindow = cms.bool(False),
+    CSCWireTimeWindowLow = cms.int32(0),
+    CSCWireTimeWindowHigh = cms.int32(15),
     #
     #    Calibration info:
     CSCUseCalibrations = cms.bool(True),
@@ -60,4 +67,10 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     CSCStripClusterSize = cms.untracked.int32(3)
 )
 
+##
+## Modify for running in Run 2
+##
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( csc2DRecHits, readBadChannels = False )
+run2_common.toModify( csc2DRecHits, CSCUseGasGainCorrections = False )
 

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from copy import deepcopy
+
 #Geometry
 # include used for track reconstruction 
 # note that tracking is redone since we need updated hits and they 

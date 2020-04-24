@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -38,7 +38,7 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTGsfTrackVarProducer : public edm::EDProducer {
+class EgammaHLTGsfTrackVarProducer : public edm::stream::EDProducer<> {
  private:
   class TrackExtrapolator {
     unsigned long long cacheIDTDGeom_;
@@ -51,12 +51,11 @@ class EgammaHLTGsfTrackVarProducer : public edm::EDProducer {
     const MultiTrajectoryStateTransform * mtsTransform_; //we own it
     
   public:
-  TrackExtrapolator():cacheIDTDGeom_(0),cacheIDMagField_(0),mtsTransform_(0){}
+  TrackExtrapolator():cacheIDTDGeom_(0),cacheIDMagField_(0),mtsTransform_(nullptr){}
     TrackExtrapolator(const TrackExtrapolator& rhs);
     ~TrackExtrapolator(){delete mtsTransform_;}
     TrackExtrapolator* operator=(const TrackExtrapolator& rhs);
-    
-    
+      
     void setup(const edm::EventSetup& iSetup);
     
     GlobalPoint extrapolateTrackPosToPoint(const reco::GsfTrack& gsfTrack,const GlobalPoint& pointToExtrapTo);
@@ -69,19 +68,19 @@ class EgammaHLTGsfTrackVarProducer : public edm::EDProducer {
   
  public:
   explicit EgammaHLTGsfTrackVarProducer(const edm::ParameterSet&);
-  ~EgammaHLTGsfTrackVarProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&); 
+  ~EgammaHLTGsfTrackVarProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override; 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandTag_;
-  edm::EDGetTokenT<reco::ElectronCollection> inputCollectionTag1_;
-  edm::EDGetTokenT<reco::GsfTrackCollection> inputCollectionTag2_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandTag_;
+  const edm::EDGetTokenT<reco::ElectronCollection> inputCollectionTag1_;
+  const edm::EDGetTokenT<reco::GsfTrackCollection> inputCollectionTag2_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   
   TrackExtrapolator trackExtrapolator_;
-  int upperTrackNrToRemoveCut_;
-  int lowerTrackNrToRemoveCut_;
+  const int upperTrackNrToRemoveCut_;
+  const int lowerTrackNrToRemoveCut_;
 };
 
 #endif

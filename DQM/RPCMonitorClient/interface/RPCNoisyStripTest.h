@@ -12,19 +12,16 @@ public:
 
 
   RPCNoisyStripTest(const edm::ParameterSet& ps);
-  virtual ~RPCNoisyStripTest();
-  void beginJob(DQMStore *, std::string);
-  void endRun(const edm::Run& , const edm::EventSetup& );
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void beginRun(const edm::Run& , const edm::EventSetup& ); 		
-  void endJob();
-  void clientOperation(edm::EventSetup const& c);
-  void getMonitorElements(std::vector<MonitorElement *> & , std::vector<RPCDetId> &);
+  ~RPCNoisyStripTest() override;
+ void clientOperation() override;
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &) override;
+ void beginJob(std::string & ) override;
+ void myBooker(DQMStore::IBooker & ) override;
+
+
  protected:
 
-  void fillGlobalME(RPCDetId & , MonitorElement * ,edm::EventSetup const& );
+  void fillGlobalME(RPCDetId & , MonitorElement * );
 
 
  private:
@@ -33,7 +30,6 @@ public:
   int  numberOfRings_;
   int prescaleFactor_;
   bool testMode_;
-  DQMStore* dbe_;
  
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;

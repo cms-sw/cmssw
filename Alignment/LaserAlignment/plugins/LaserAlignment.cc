@@ -9,9 +9,9 @@
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"
 #include "FWCore/Framework/interface/Run.h"
-
-
-
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
 ///
 ///
@@ -38,9 +38,8 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
   theFile(),
   theAlignableTracker(),
   theAlignRecordName( "TrackerAlignmentRcd" ),
-  theErrorRecordName( "TrackerAlignmentErrorRcd" ),
-  firstEvent_(true),
-  theParameterSet( theConf )
+  theErrorRecordName( "TrackerAlignmentErrorExtendedRcd" ),
+  firstEvent_(true)
 {
 
 
@@ -67,7 +66,7 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
 	    << "\n=============================================================" << std::endl;
 
   // tell about masked modules
-  if( theMaskTecModules.size() ) {
+  if( !theMaskTecModules.empty() ) {
     std::cout << " ===============================================================================================\n" << std::flush;
     std::cout << " The following " << theMaskTecModules.size() << " TEC modules have been masked out and will not be considered by the TEC algorithm:\n " << std::flush;
     for( std::vector<unsigned int>::iterator moduleIt = theMaskTecModules.begin(); moduleIt != theMaskTecModules.end(); ++moduleIt ) {
@@ -76,7 +75,7 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
     std::cout << std::endl << std::flush;
     std::cout << " ===============================================================================================\n\n" << std::flush;
   }
-  if( theMaskAtModules.size() ) {
+  if( !theMaskAtModules.empty() ) {
     std::cout << " ===============================================================================================\n" << std::flush;
     std::cout << " The following " << theMaskAtModules.size() << " AT modules have been masked out and will not be considered by the AT algorithm:\n " << std::flush;
     for( std::vector<unsigned int>::iterator moduleIt = theMaskAtModules.begin(); moduleIt != theMaskAtModules.end(); ++moduleIt ) {
@@ -92,7 +91,7 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
   std::string alias ( theConf.getParameter<std::string>("@module_label") );  
 
   // declare the product to produce
-  produces<TkLasBeamCollection, edm::InRun>( "tkLaserBeams" ).setBranchAlias( alias + "TkLasBeamCollection" );
+  produces<TkLasBeamCollection, edm::Transition::EndRun>( "tkLaserBeams" ).setBranchAlias( alias + "TkLasBeamCollection" );
 
   // switch judge's zero filter depending on cfg
   judge.EnableZeroFilter( enableJudgeZeroFilter );
@@ -267,7 +266,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    theSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+    theSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     // access the tracker
@@ -290,8 +289,10 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       // the AlignableTracker object is initialized with the ideal geometry
       edm::ESHandle<GeometricDet> theGeometricDet;
       theSetup.get<IdealGeometryRecord>().get(theGeometricDet);
+      edm::ESHandle<PTrackerParameters> ptp;
+      theSetup.get<PTrackerParametersRcd>().get( ptp );
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, theParameterSet);
+      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo );
       
       theAlignableTracker = new AlignableTracker(&(*theRefTracker), tTopo);
     }
@@ -672,7 +673,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
 
   // this basically sets all the endcap modules to be masked 
   // to their nominal positions (since endcapParameters is overall zero)
-  if( theMaskTecModules.size() ) {
+  if( !theMaskTecModules.empty() ) {
     ApplyEndcapMaskingCorrections( measuredCoordinates, nominalCoordinates, endcapParameters );
   }
 
@@ -685,7 +686,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
   //
 
   // do this only if there are modules to be masked..
-  if( theMaskTecModules.size() ) {
+  if( !theMaskTecModules.empty() ) {
     
     const unsigned int nIterations = 30;
     for( unsigned int iteration = 0; iteration < nIterations; ++iteration ) {
@@ -722,7 +723,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
 
   // this basically sets all the modules to be masked 
   // to their nominal positions (since alignmentTubeParameters is overall zero)
-  if( theMaskAtModules.size() ) {
+  if( !theMaskAtModules.empty() ) {
     ApplyATMaskingCorrections( measuredCoordinates, nominalCoordinates, alignmentTubeParameters );
   }
 
@@ -743,7 +744,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
   //
 
   // do this only if there are modules to be masked..
-  if( theMaskAtModules.size() ) {
+  if( !theMaskAtModules.empty() ) {
     
     const unsigned int nIterations = 30;
     for( unsigned int iteration = 0; iteration < nIterations; ++iteration ) {
@@ -785,7 +786,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
     
     
   // the collection container
-  std::auto_ptr<TkLasBeamCollection> laserBeams( new TkLasBeamCollection );
+  auto laserBeams = std::make_unique<TkLasBeamCollection>();
 
   
   // first for the endcap internal beams
@@ -912,7 +913,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
   
   
   // now attach the collection to the run
-  theRun.put( laserBeams, "tkLaserBeams" );
+  theRun.put(std::move(laserBeams), "tkLaserBeams" );
   
 
 
@@ -921,7 +922,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
   // store the estimated alignment parameters into the DB
   // first get them
   Alignments* alignments =  theAlignableTracker->alignments();
-  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
+  AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
 
   if ( theStoreToDB ) {
 
@@ -943,12 +944,12 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
     poolDbService->writeOne<Alignments>( alignments, poolDbService->beginOfTime(), theAlignRecordName );
 
     //     if ( poolDbService->isNewTagRequest(theErrorRecordName) ) {
-    //       poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors, poolDbService->currentTime(), poolDbService->endOfTime(), theErrorRecordName );
+    //       poolDbService->createNewIOV<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), poolDbService->endOfTime(), theErrorRecordName );
     //     }
     //     else {
-    //       poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors, poolDbService->currentTime(), theErrorRecordName );
+    //       poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), theErrorRecordName );
     //     }
-    poolDbService->writeOne<AlignmentErrors>( alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName );
+    poolDbService->writeOne<AlignmentErrorsExtended>( alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName );
 
     std::cout << " [LaserAlignment::endRun] -- Storing done." << std::endl;
     

@@ -6,8 +6,6 @@ import FWCore.ParameterSet.Config as cms
 from DQM.TrackingMonitor.TrackingMonitor_cfi import *
 
 # properties
-TrackMon.OutputMEsInRootFile    = cms.bool(False)
-TrackMon.OutputFileName         = cms.string('TrackingMonitorAllSequences.root')
 TrackMon.MeasurementState       = cms.string('ImpactPoint')
 
 # which plots to do

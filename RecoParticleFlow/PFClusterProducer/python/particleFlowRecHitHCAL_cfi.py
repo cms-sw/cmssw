@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
-particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
-    # verbosity 
-    verbose = cms.untracked.bool(False),
+particleFlowRecHitHCAL = cms.EDProducer("PFCTRecHitProducer",
     caloTowers = cms.InputTag("towerMakerPF"),
     hcalRecHitsHBHE = cms.InputTag("hbhereco"),
     hcalRecHitsHF = cms.InputTag("hfreco"),
@@ -70,8 +67,12 @@ particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
 
 # Depth correction (in cm) for hadronic and electromagnetic rechits
     EM_Depth = cms.double(22.),
-    HAD_Depth = cms.double(47.)                              
-                                  
+    HAD_Depth = cms.double(47.),                              
+
+    navigator = cms.PSet(
+        name = cms.string("PFRecHitCaloTowerNavigator")
+    )
+
 )
 
 

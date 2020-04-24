@@ -1,8 +1,14 @@
 <bin   file="DOMCount.cpp">
   <use   name="DetectorDescription/Core"/>
-  <use   name="DetectorDescription/ExprAlgo"/>
-  <use   name="DetectorDescription/Algorithm"/>
   <use   name="DetectorDescription/RegressionTest"/>
   <use   name="DetectorDescription/Parser"/>
   <use   name="xerces-c"/>
+</bin>
+
+<bin file="DDErrorReport.cpp">
+  <use name="FWCore/PluginManager"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/Parser"/>
+  <use name="boost_program_options"/>
+  <use name="DetectorDescription/RegressionTest"/>
 </bin>

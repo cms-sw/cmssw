@@ -1,10 +1,11 @@
 <flags   GENREFLEX_ARGS="--"/>
 <use   name="CondFormats/Common"/>
+<use   name="CondFormats/Serialization"/>
 <use   name="DataFormats/CLHEP"/>
 <use   name="DataFormats/Math"/>
 <use   name="boost"/>
 <use   name="clhep"/>
-<use   name="rootrflx"/>
+
 <use   name="DataFormats/DetId"/>
 <use   name="FWCore/Utilities"/>
 <export>

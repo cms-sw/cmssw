@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // useful?
@@ -48,13 +48,21 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 */
 
 
-class PFEGammaProducer : public edm::EDProducer {
+class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHelpers::HeavyObjectCache> > {
  public:
-  explicit PFEGammaProducer(const edm::ParameterSet&);
-  ~PFEGammaProducer();
+  explicit PFEGammaProducer(const edm::ParameterSet&, const pfEGHelpers::HeavyObjectCache* );
+  ~PFEGammaProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  static std::unique_ptr<pfEGHelpers::HeavyObjectCache> 
+    initializeGlobalCache( const edm::ParameterSet& conf ) {
+       return std::unique_ptr<pfEGHelpers::HeavyObjectCache>(new pfEGHelpers::HeavyObjectCache(conf));
+   }
+  
+  static void globalEndJob(pfEGHelpers::HeavyObjectCache const* ) {
+  }
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
  private:  
 
@@ -81,12 +89,12 @@ class PFEGammaProducer : public edm::EDProducer {
   const GBRForest* ReaderGC_;
   const GBRForest* ReaderLC_;
   const GBRForest* ReaderRes_;
-  const GBRForest* ReaderLCEB_;
-  const GBRForest* ReaderLCEE_;
-  const GBRForest* ReaderGCBarrel_;
-  const GBRForest* ReaderGCEndCapHighr9_;
-  const GBRForest* ReaderGCEndCapLowr9_;
-  const GBRForest* ReaderEcalRes_;
+  //const GBRForest* ReaderLCEB_;
+  //const GBRForest* ReaderLCEE_;
+  //const GBRForest* ReaderGCBarrel_;
+  //const GBRForest* ReaderGCEndCapHighr9_;
+  //const GBRForest* ReaderGCEndCapLowr9_;
+  //const GBRForest* ReaderEcalRes_;
   // what about e/g electrons ?
   bool useEGammaElectrons_;
 
@@ -118,10 +126,10 @@ class PFEGammaProducer : public edm::EDProducer {
   
   reco::Vertex       primaryVertex_;
   
-  std::auto_ptr< reco::PFCandidateCollection >          egCandidates_;
-  std::auto_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
-  std::auto_ptr<reco::ConversionCollection>             singleLegConv_;
-  std::auto_ptr< reco::SuperClusterCollection >         sClusters_;  
+  std::unique_ptr<reco::PFCandidateCollection> egCandidates_;
+  std::unique_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
+  std::unique_ptr<reco::ConversionCollection> singleLegConv_;
+  std::unique_ptr<reco::SuperClusterCollection> sClusters_;  
 
   /// the unfiltered electron collection 
     
@@ -136,5 +144,8 @@ class PFEGammaProducer : public edm::EDProducer {
   std::string esClustersCollection_;
 
 };
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFEGammaProducer);
 
 #endif

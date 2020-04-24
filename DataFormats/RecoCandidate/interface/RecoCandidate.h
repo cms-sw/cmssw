@@ -13,7 +13,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
 namespace reco {
 
@@ -27,11 +27,11 @@ namespace reco {
 		   int pdgId = 0, int status = 0 ) : 
       LeafCandidate( q, p4, vtx, pdgId, status ) { }
     /// destructor
-    virtual ~RecoCandidate();
+    ~RecoCandidate() override;
     /// check overlap with another candidate
-    virtual bool overlap( const Candidate & ) const = 0;
+    bool overlap( const Candidate & ) const override = 0;
     /// returns a clone of the Candidate object                                           
-    virtual RecoCandidate * clone() const ;
+    RecoCandidate * clone() const override ;
 
     /// reference to a Track
     virtual reco::TrackRef track() const;
@@ -50,13 +50,19 @@ namespace reco {
     /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
     /// best track pointer
-    virtual const Track * bestTrack() const;
+    const Track * bestTrack() const override;
     /// best track RefToBase
     virtual TrackBaseRef bestTrackRef() const;
     /// track type
     enum TrackType { noTrackType, recoTrackType, gsfTrackType };
     ///track type
     virtual TrackType bestTrackType() const;
+    /// uncertainty on dz 
+    float dzError() const override; 
+    /// uncertainty on dxy
+    float dxyError() const override; 
+
+
   protected:
     /// check if two components overlap
     template<typename R>

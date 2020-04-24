@@ -6,6 +6,8 @@
  * $Id: EcalSampleMask.h,v 1.1 2012/05/10 08:22:10 argiro Exp $
  **/
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <vector>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -41,6 +43,8 @@ class EcalSampleMask {
     unsigned int sampleMaskEB_;
     unsigned int sampleMaskEE_;
 
+
+  COND_SERIALIZABLE;
 };
 
 

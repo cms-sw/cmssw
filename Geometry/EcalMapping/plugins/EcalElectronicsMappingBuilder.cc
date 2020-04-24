@@ -25,7 +25,7 @@ using namespace edm;
 // constructors and destructor
 //
 EcalElectronicsMappingBuilder::EcalElectronicsMappingBuilder(const edm::ParameterSet& iConfig) :
-  Mapping_ ( 0 )
+  Mapping_ ( nullptr )
 {
   //the following line is needed to tell the framework what
   // data is being produced
@@ -58,7 +58,7 @@ EcalElectronicsMappingBuilder::ReturnType
 EcalElectronicsMappingBuilder::produce(const EcalMappingRcd& iRecord)
 {
    using namespace edm::es;
-   std::auto_ptr<EcalElectronicsMapping> prod(new EcalElectronicsMapping());
+   auto prod = std::make_unique<EcalElectronicsMapping>();
    const std::vector<EcalMappingElement>& ee = Mapping_ -> endcapItems();
    FillFromDatabase(ee,*prod);
    return prod;

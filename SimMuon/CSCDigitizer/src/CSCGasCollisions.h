@@ -11,6 +11,7 @@
  * Of course the version here is much improved :) <BR>
  */
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCCrossGap.h"
@@ -26,13 +27,16 @@ namespace CLHEP {
 class CSCGasCollisions {
 public:
 
-   CSCGasCollisions();
+   CSCGasCollisions(const edm::ParameterSet & pset);
    virtual ~CSCGasCollisions();
 
    void setParticleDataTable(const ParticleDataTable * pdt);
 
    void simulate(const PSimHit&, 
                  std::vector<LocalPoint>& clusters, std::vector<int>& electrons, CLHEP::HepRandomEngine* );
+
+   bool dumpGasCollisions( void ) const { return dumpGasCollisions_; }
+   bool saveGasCollisions( void ) const { return saveGasCollisions_; }
 
    static const int N_GAMMA = 21;
    static const int N_ENERGY = 63;
@@ -50,7 +54,7 @@ private:
 
    void ionize( double energyTransferred, LocalPoint startHere) const;
 	
-   void writeSummary( int n_steps, double sum_steps, float dedx, float simHiteloss ) const;
+   void writeSummary( int n_try, int n_steps, double sum_steps, float dedx, const PSimHit& simhit ) const;
 
    const std::string me;       // class name
    double gasDensity;     // Density of CSC gas mix
@@ -70,7 +74,8 @@ private:
 
    CSCCrossGap* theCrossGap; // Owned by CSCGasCollisions
    const ParticleDataTable * theParticleDataTable;
-   bool saveGasCollisions; // Simple Configurable to flag saving info w. debugV
+   bool saveGasCollisions_; // write file of collisions details (not yet implemented in cmssw)
+   bool dumpGasCollisions_; // flag to write summary
 };
 
 #endif

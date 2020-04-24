@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,14 +17,14 @@
 //
 
 
-class EcalDigiSelector : public edm::EDProducer 
+class EcalDigiSelector : public edm::stream::EDProducer<> 
 {
   
  public:
   
   EcalDigiSelector(const edm::ParameterSet& ps);
    
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
 
  private:

@@ -37,7 +37,7 @@ class ProcClassed : public TrainProcessor {
 	unsigned int	count;
 };
 
-static ProcClassed::Registry registry("ProcClassed");
+ProcClassed::Registry registry("ProcClassed");
 
 ProcClassed::ProcClassed(const char *name, const AtomicId *id,
                          MVATrainer *trainer) :

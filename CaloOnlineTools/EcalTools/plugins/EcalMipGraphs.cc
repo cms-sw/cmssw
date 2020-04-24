@@ -332,7 +332,7 @@ void EcalMipGraphs::selectHits(Handle<EcalRecHitCollection> hits,
     }
     
     TH1F* timingHist = FEDsAndTimingHists_[FEDid];
-    if(timingHist==0)
+    if(timingHist==nullptr)
     {
       initHists(FEDid);
       timingHist = FEDsAndTimingHists_[FEDid];

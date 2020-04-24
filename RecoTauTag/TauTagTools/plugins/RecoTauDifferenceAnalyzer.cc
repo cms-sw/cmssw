@@ -10,9 +10,9 @@
 class RecoTauDifferenceAnalyzer : public edm::EDFilter {
   public:
     explicit RecoTauDifferenceAnalyzer(const edm::ParameterSet& pset);
-    virtual ~RecoTauDifferenceAnalyzer() {}
-    virtual bool filter(edm::Event& evt, const edm::EventSetup& es) override;
-    virtual void endJob() override;
+    ~RecoTauDifferenceAnalyzer() override {}
+    bool filter(edm::Event& evt, const edm::EventSetup& es) override;
+    void endJob() override;
   private:
     edm::InputTag src1_;
     edm::InputTag src2_;

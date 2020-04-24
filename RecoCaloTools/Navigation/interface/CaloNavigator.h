@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 template <class T, class TOPO=CaloSubdetectorTopology>
-class CaloNavigator GCC11_FINAL {
+class CaloNavigator final {
  public:
 
   CaloNavigator(const T& home, const TOPO * topology) : myTopology_(topology) 

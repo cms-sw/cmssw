@@ -23,26 +23,28 @@ public:
   DTLocalTriggerTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTLocalTriggerTest();
+  ~DTLocalTriggerTest() override;
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+
+  void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
   /// Run client analysis
-  void runClientDiagnostic();
 
-  void fillGlobalSummary();
+  void runClientDiagnostic(DQMStore::IBooker &,DQMStore::IGetter &) override;
+
+  void fillGlobalSummary(DQMStore::IGetter &);
+ 
+  const int wheelArrayShift = 3;
 
  private:
 
   int nMinEvts;
 
-  
+  bool bookingdone;  
   
 
 };

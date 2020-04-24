@@ -9,7 +9,7 @@ DQMSEQUENCE=DQM
 
 
 # GEN-SIM
-cmd=`runTheMatrix.py --dryRun -l 201 -n -e --command "-n \${numev} --fileout file:test_\${tnum}_\${step}_1.root --no_exec --python_filename=test_\${tnum}_\${step}_1.py" | egrep "\[1\]" | egrep -o "cmsDriver.*"`
+cmd=`runTheMatrix.py --dryRun -l 25206 -n -e --command "-n \${numev} --fileout file:test_\${tnum}_\${step}_1.root --no_exec --python_filename=test_\${tnum}_\${step}_1.py" | egrep "\[1\]" | egrep -o "cmsDriver.*"`
 
 ${cmd}
 
@@ -21,7 +21,7 @@ fi
 
 # DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco
 
-cmd=`runTheMatrix.py --dryRun -l 201 -n -e --command "-n \${tnum} --fileout file:test_\${tnum}_\${step}_1_1.root --no_exec --python_filename=test_\${tnum}_\${step}_1_1.py --filein file:test_\${tnum}_\${step}_1.root" | egrep "\[2\]" | egrep -o "cmsDriver.*"`
+cmd=`runTheMatrix.py --dryRun -l 25206 -n -e --command "-n \${tnum} --fileout file:test_\${tnum}_\${step}_1_1.root --no_exec --python_filename=test_\${tnum}_\${step}_1_1.py --filein file:test_\${tnum}_\${step}_1.root" | egrep "\[2\]" | egrep -o "cmsDriver.*"`
 
 ${cmd}
 

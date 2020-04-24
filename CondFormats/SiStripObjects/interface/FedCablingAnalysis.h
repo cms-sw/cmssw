@@ -23,7 +23,7 @@ class FedCablingAnalysis : public CommissioningAnalysis {
 
   FedCablingAnalysis();
 
-  virtual ~FedCablingAnalysis() {;}
+  ~FedCablingAnalysis() override {;}
   
   typedef std::map<uint32_t,uint16_t> Candidates;
 
@@ -32,7 +32,7 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   // ---------- public interface ----------
 
   /** Identifies if analysis is valid or not. */
-  bool isValid() const;
+  bool isValid() const override;
 
   /** FED id. */
   inline const uint16_t& fedId() const;
@@ -49,10 +49,10 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   // ---------- misc ----------
   
   /** Prints analysis results. */
-  void print( std::stringstream&, uint32_t not_used = 0 );
+  void print( std::stringstream&, uint32_t not_used = 0 ) override;
   
   /** Resets analysis member data. */
-  void reset();
+  void reset() override;
   
   // ---------- public static data ----------
 

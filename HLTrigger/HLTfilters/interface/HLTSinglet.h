@@ -27,9 +27,9 @@ class HLTSinglet : public HLTFilter {
 
    public:
       explicit HLTSinglet(const edm::ParameterSet&);
-      ~HLTSinglet();
+      ~HLTSinglet() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       const edm::InputTag                    inputTag_;     // input tag identifying product
@@ -38,8 +38,10 @@ class HLTSinglet : public HLTFilter {
       const int    min_N_;                                  // number of objects passing cuts required
       const double min_E_;                                  // energy threshold in GeV
       const double min_Pt_;                                 // pt threshold in GeV
-      const double min_Mass_;                               // mass threshold in GeV
-      const double max_Eta_;                                // eta range (symmetric)
+      const double min_Mass_;                               // min mass threshold in GeV
+      const double max_Mass_;                               // max mass threshold in GeV
+      const double min_Eta_;                                // lower eta cut to define eta-range (symmetric)
+      const double max_Eta_;                                // upper eta cut to define eta-range (symmetric)
 };
 
 #endif // HLTSinglet_h

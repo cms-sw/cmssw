@@ -31,7 +31,7 @@ double KVFHelper<N>::vertexChi2(const VertexState & vertexA,
 
   AlgebraicVector3 positionResidual = newVertexPositionV - oldVertexPositionV;
 
-  return ROOT::Math::Similarity(positionResidual, vertexA.weight().matrix_new());
+  return ROOT::Math::Similarity(positionResidual, vertexA.weight().matrix());
 }
 
 

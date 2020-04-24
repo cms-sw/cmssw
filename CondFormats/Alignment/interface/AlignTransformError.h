@@ -1,5 +1,7 @@
 #ifndef AlignTransformError_H
 #define AlignTransformError_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
 
@@ -40,5 +42,7 @@ private:
   align::ID m_rawId;
 
 
+
+  COND_SERIALIZABLE;
 };
 #endif //AlignTransformError_H

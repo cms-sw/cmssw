@@ -5,8 +5,8 @@
 #include "EventFilter/CastorRawToDigi/interface/CastorMergerData.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorCTDCHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string.h>
-#include <stdint.h>
+#include <cstring>
+#include <cstdint>
 
 const int CastorCTDCHeader::SPIGOT_COUNT = 2; // COR spigots - does not include merger pay load
 

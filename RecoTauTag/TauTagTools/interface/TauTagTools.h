@@ -23,15 +23,15 @@
 
 namespace TauTagTools{
   template <class T> class sortByOpeningDistance;
-  reco::TrackRefVector filteredTracksByNumTrkHits(reco::TrackRefVector theInitialTracks, int tkminTrackerHitsn);
-  reco::TrackRefVector filteredTracks(reco::TrackRefVector theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, reco::Vertex pV);
-  reco::TrackRefVector filteredTracks(reco::TrackRefVector theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2,double tktorefpointmaxDZ,reco::Vertex pV,double refpoint_Z);
+  reco::TrackRefVector filteredTracksByNumTrkHits(const reco::TrackRefVector& theInitialTracks, int tkminTrackerHitsn);
+  reco::TrackRefVector filteredTracks(const reco::TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, reco::Vertex pV);
+  reco::TrackRefVector filteredTracks(const reco::TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2,double tktorefpointmaxDZ,reco::Vertex pV,double refpoint_Z);
 
-  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCandsByNumTrkHits(std::vector<reco::PFCandidatePtr> theInitialPFCands, int ChargedHadrCand_tkminTrackerHitsn);
-  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(std::vector<reco::PFCandidatePtr> theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, reco::Vertex pV);
-  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(std::vector<reco::PFCandidatePtr> theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointmaxDZ,reco::Vertex pV, double refpoint_Z);
-  std::vector<reco::PFCandidatePtr> filteredPFNeutrHadrCands(std::vector<reco::PFCandidatePtr> theInitialPFCands,double NeutrHadrCand_HcalclusMinEt);
-  std::vector<reco::PFCandidatePtr> filteredPFGammaCands(std::vector<reco::PFCandidatePtr> theInitialPFCands,double GammaCand_EcalclusMinEt);
+  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCandsByNumTrkHits(const std::vector<reco::PFCandidatePtr>& theInitialPFCands, int ChargedHadrCand_tkminTrackerHitsn);
+  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, reco::Vertex pV);
+  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointmaxDZ,reco::Vertex pV, double refpoint_Z);
+  std::vector<reco::PFCandidatePtr> filteredPFNeutrHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double NeutrHadrCand_HcalclusMinEt);
+  std::vector<reco::PFCandidatePtr> filteredPFGammaCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double GammaCand_EcalclusMinEt);
   math::XYZPoint propagTrackECALSurfContactPoint(const MagneticField*,reco::TrackRef); 
 
   TFormula computeConeSizeTFormula(const std::string& ConeSizeFormula,const char* errorMessage);

@@ -24,14 +24,14 @@ public:
 private:
   std::vector<edm::EDGetTokenT<collection>> srcTokens_;
   void produce(edm::Event & evt, const edm::EventSetup&) override {
-    std::auto_ptr<collection> coll(new collection);
+    std::unique_ptr<collection> coll(new collection);
     typename collection::Filler filler(*coll);
     for(size_t i = 0; i < srcTokens_.size(); ++i ) {
       edm::Handle<collection> src;
       evt.getByToken(srcTokens_[i], src);
       *coll += *src;
     }
-    evt.put(coll);
+    evt.put(std::move(coll));
   }
 };
 

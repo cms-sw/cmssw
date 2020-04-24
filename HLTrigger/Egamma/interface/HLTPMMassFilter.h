@@ -56,8 +56,8 @@ class HLTPMMassFilter : public HLTFilter {
 
    public:
       explicit HLTPMMassFilter(const edm::ParameterSet&);
-      ~HLTPMMassFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTPMMassFilter() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
@@ -72,11 +72,9 @@ class HLTPMMassFilter : public HLTFilter {
       int    nZcandcut_;           // number of Z candidates required
       bool   reqOppCharge_;
 
-      bool   relaxed_;
       bool   isElectron1_;
       bool   isElectron2_;
-      edm::InputTag L1IsoCollTag_;
-      edm::InputTag L1NonIsoCollTag_;
+      edm::InputTag l1EGTag_;
 
 };
 

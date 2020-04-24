@@ -1,5 +1,7 @@
 #ifndef big_h
 #define big_h 1
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 #include "CondFormats/Calibration/interface/TensorIndex.h"
@@ -68,7 +70,9 @@ class big{
     //spare entries, first dimension x,y
     typedef TensorIndex<2,10> spareIDX;
     std::vector<float> spare;  
-  };//inline class bigEntry
+  
+  COND_SERIALIZABLE;
+};//inline class bigEntry
   
   //inline class bigHeader
   class bigHeader{
@@ -91,7 +95,9 @@ class big{
     float s50;              //!< 1/2 of the readout threshold in ADC units 
     int templ_version;      //!< Version number of the template to ensure code compatibility 
 
-  };//end inline class bigHeader
+  
+  COND_SERIALIZABLE;
+};//end inline class bigHeader
 
   //inline class bigStore
   class bigStore{
@@ -115,7 +121,9 @@ class big{
     std::vector<bigEntry> entfy;
     typedef  TensorIndex<2,9> entfxIDX;
     std::vector<bigEntry> entfx;
-  };//end inline class bigStore
+  
+  COND_SERIALIZABLE;
+};//end inline class bigStore
 
 
   typedef std::vector<bigEntry> entryVector;
@@ -131,5 +139,7 @@ class big{
   float cotb_current;       //!< current cot beta
   float abs_cotb;           //!< absolute value of cot beta
   bool fpix_current;        //!< current pix detector (false for BPix, true for FPix)
+
+ COND_SERIALIZABLE;
 };//end big
 #endif

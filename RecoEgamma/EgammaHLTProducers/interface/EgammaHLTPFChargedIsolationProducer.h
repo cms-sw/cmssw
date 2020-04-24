@@ -15,35 +15,44 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }
 
 class EgammaHLTPFChargedIsolationProducer : public edm::EDProducer {
-public:
+ public:
   explicit EgammaHLTPFChargedIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFChargedIsolationProducer();
+  ~EgammaHLTPFChargedIsolationProducer() override {};
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
 private:
 
-  edm::InputTag electronProducer_;
-  edm::InputTag pfCandidateProducer_;
-  edm::InputTag recoEcalCandidateProducer_;
-  edm::InputTag beamSpotProducer_;
+  edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
   
-  bool useGsfTrack_;
-  bool useSCRefs_;
+  const bool useGsfTrack_;
+  const bool useSCRefs_;
   
-  double drMax_;
-  double drVetoBarrel_;
-  double drVetoEndcap_;
-  double ptMin_;
-  double dzMax_;
-  double dxyMax_;
-  int pfToUse_;
+  const double drMax_;
+  const double drVetoBarrel_;
+  const double drVetoEndcap_;
+  const double ptMin_;
+  const double dzMax_;
+  const double dxyMax_;
+  const int pfToUse_;
 
 };
 

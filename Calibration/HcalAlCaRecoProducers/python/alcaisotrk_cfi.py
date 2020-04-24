@@ -1,35 +1,43 @@
 import FWCore.ParameterSet.Config as cms
 
 # producer for alcaisotrk (HCAL isolated tracks)
-from TrackingTools.TrackAssociator.default_cfi import *
-from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
-    TrackAssociatorParameterBlock,
-    HBHEInput = cms.InputTag("hbhereco"),
-    InputTracksLabel = cms.InputTag("generalTracks"),
-    vtxCut = cms.double(10.0),
-    MinTrackPt = cms.double(0.0),
-    ECALRingOuterRadius = cms.double(35.0),
-    ECALRingInnerRadius = cms.double(15.0),
-    ECALClusterRadius = cms.double(9.0),
-    HOInput = cms.InputTag("horeco"),
-    MaxNearbyTrackEnergy = cms.double(2.0),
-    RIsolAtHCALSurface = cms.double(64.0),
-    MinNumberOfHitsCoreTrack=cms.int32(8),
-    MinNumberOfHitsInConeTracks=cms.int32(3),
-    UseLowPtConeCorrection = cms.bool(False),
-    ECALInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
-    MaxTrackEta = cms.double(2.0),
-    SkipNeutralIsoCheck = cms.untracked.bool(True),
-    MinTrackP = cms.double(10.0),
-    CheckHLTMatch=cms.bool(False),
-    hltTriggerEventLabel = cms.InputTag("hltTriggerSummaryAOD"),
-    hltL3FilterLabels = cms.vstring("hltIsolPixelTrackL3FilterHB","hltIsolPixelTrackL3FilterHE"),
-    hltMatchingCone=cms.double(0.2),
-    ClusterECALasMatrix	= cms.bool (False),
-    ECALMatrixFullSize	= cms.int32(7),
-    l1FilterLabel = cms.string("hltL1sJet52"),
-    l1JetVetoCone = cms.double (1.2)
+                         TrackLabel        = cms.InputTag("generalTracks"),
+                         VertexLabel       = cms.InputTag("offlinePrimaryVertices"),
+                         BeamSpotLabel     = cms.InputTag("offlineBeamSpot"),
+                         EBRecHitLabel     = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+                         EERecHitLabel     = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+                         HBHERecHitLabel   = cms.InputTag("hbhereco"),
+                         L1GTSeedLabel     = cms.InputTag("hltL1sV0SingleJet60"),
+                         TriggerEventLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+                         TriggerResultLabel= cms.InputTag("TriggerResults","","HLT"),
+                         IsoTrackLabel     = cms.string("HcalIsolatedTrackCollection"),
+                         Triggers          = cms.vstring("HLT_IsoTrackHB","HLT_IsoTrackHE"),
+                         ProcessName       = cms.string("HLT"),
+# following 10 parameters are parameters to select good tracks
+                         TrackQuality      = cms.string("highPurity"),
+                         MinTrackPt        = cms.double(1.0),
+                         MaxDxyPV          = cms.double(10.0),
+                         MaxDzPV           = cms.double(100.0),
+                         MaxChi2           = cms.double(5.0),
+                         MaxDpOverP        = cms.double(0.1),
+                         MinOuterHit       = cms.int32(4),
+                         MinLayerCrossed   = cms.int32(8),
+                         MaxInMiss         = cms.int32(2),
+                         MaxOutMiss        = cms.int32(2),
+# Minimum momentum of selected isolated track and signal zone
+                         ConeRadius        = cms.double(34.98),
+                         MinimumTrackP     = cms.double(20.0),
+# signal zone in ECAL and MIP energy cutoff
+                         ConeRadiusMIP     = cms.double(14.0),
+                         MaximumEcalEnergy = cms.double(2.0),
+# following 3 parameters are for isolation cuts and described in the code
+                         MaxTrackP         = cms.double(8.0),
+                         SlopeTrackP       = cms.double(0.05090504066),
+                         IsolationEnergy   = cms.double(10.0),
+# Prescale events only containing isolated tracks in the range
+                         MomentumRangeLow  = cms.double(20.0),
+                         MomentumRangeHigh = cms.double(40.0),
+                         PreScaleFactor    = cms.int32(1)
 )
-
 

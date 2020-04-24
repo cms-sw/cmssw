@@ -1,93 +1,97 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducer.h"
+#include "FWCore/Utilities/interface/RunningAverage.h"
 
-#include <memory>
+namespace {
+  bool sortByDetId(const reco::PFRecHit& a,
+		   const reco::PFRecHit& b) {
+    return a.detId() < b.detId();
+  }
 
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+ edm::RunningAverage localRA1;
+ edm::RunningAverage localRA2;
+}
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-// For RecHits calibration wrt 50 GeV pions.
-// #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalPFCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-using namespace std;
-using namespace edm;
-
-
-PFRecHitProducer::PFRecHitProducer(const edm::ParameterSet& iConfig)
+ PFRecHitProducer:: PFRecHitProducer(const edm::ParameterSet& iConfig)
 {
 
-    
-  verbose_ = 
-    iConfig.getUntrackedParameter<bool>("verbose",false);
-
-  thresh_Barrel_ = 
-    iConfig.getParameter<double>("thresh_Barrel");
-  thresh_Endcap_ = 
-    iConfig.getParameter<double>("thresh_Endcap");
-    
-    
-  
-  //register products
   produces<reco::PFRecHitCollection>();
   produces<reco::PFRecHitCollection>("Cleaned");
-  
+
+  edm::ConsumesCollector iC = consumesCollector();
+
+  std::vector<edm::ParameterSet> creators = iConfig.getParameter<std::vector<edm::ParameterSet> >("producers");
+  for (auto & creator : creators) {
+      std::string name = creator.getParameter<std::string>("name");
+      creators_.emplace_back(PFRecHitFactory::get()->create(name,creator,iC));
+  }
+
+
+  edm::ParameterSet navSet = iConfig.getParameter<edm::ParameterSet>("navigator");
+
+  navigator_.reset(PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"),navSet));
+    
 }
 
 
-void PFRecHitProducer::produce(edm::Event& iEvent, 
-			       const edm::EventSetup& iSetup) {
+ PFRecHitProducer::~ PFRecHitProducer() = default;
 
 
-  auto_ptr< vector<reco::PFRecHit> > recHits( new vector<reco::PFRecHit> ); 
-  auto_ptr< vector<reco::PFRecHit> > recHitsCleaned( new vector<reco::PFRecHit> ); 
-  
-  // fill the collection of rechits (see child classes)
-  createRecHits( *recHits, *recHitsCleaned, iEvent, iSetup);
+//
+// member functions
+//
 
-  iEvent.put( recHits );
-  iEvent.put( recHitsCleaned, "Cleaned" );
+void
+ PFRecHitProducer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup) {
+  for( const auto& creator : creators_ ) {
+    creator->init(iSetup);
+  }
+}
+
+void
+ PFRecHitProducer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup&) { }
+
+// ------------ method called to produce the data  ------------
+void
+ PFRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+   using namespace edm;
+   auto out = std::make_unique<reco::PFRecHitCollection>();
+   auto cleaned = std::make_unique<reco::PFRecHitCollection>();
+
+   navigator_->beginEvent(iSetup);
+
+   out->reserve(localRA1.upper());
+   cleaned->reserve(localRA2.upper());
+
+   for( const auto& creator : creators_ ) {
+     creator->importRecHits(out,cleaned,iEvent,iSetup);
+   }
+
+   if (out->capacity()>2*out->size()) out->shrink_to_fit();
+   if (cleaned->capacity()>2*cleaned->size()) cleaned->shrink_to_fit();
+   localRA1.update(out->size());
+   localRA2.update(cleaned->size());
+   std::sort(out->begin(),out->end(),sortByDetId);
+
+   //create a refprod here
+   edm::RefProd<reco::PFRecHitCollection> refProd = 
+     iEvent.getRefBeforePut<reco::PFRecHitCollection>();
+
+   for( auto& pfrechit : *out ) {
+     navigator_->associateNeighbours(pfrechit,out,refProd);
+   }
+
+   iEvent.put(std::move(out),"");
+   iEvent.put(std::move(cleaned),"Cleaned");
 
 }
 
-
-PFRecHitProducer::~PFRecHitProducer() {}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-PFRecHitProducer::beginRun(const edm::Run& run,
-			   const EventSetup& es) {
-
-  // get the HCAL RecHits correction factors
-  // edm::ESHandle<HcalRespCorrs> rchandle;
-  // es.get<HcalRespCorrsRcd>().get(rchandle);
-  // myRespCorr= rchandle.product();
-  // And the PF-specific ones
-  edm::ESHandle<HcalPFCorrs> pfrchandle;
-  es.get<HcalPFCorrsRcd>().get(pfrchandle);
-  myPFCorr= pfrchandle.product();
-
-  // Get cleaned channels in the HCAL and HF 
-  // HCAL channel status map ****************************************
-  edm::ESHandle<HcalChannelQuality> hcalChStatus;    
-  es.get<HcalChannelQualityRcd>().get( hcalChStatus );
-  theHcalChStatus = hcalChStatus.product();
-
-  // Retrieve the good/bad ECAL channels from the DB
-  edm::ESHandle<EcalChannelStatus> ecalChStatus;
-  es.get<EcalChannelStatusRcd>().get(ecalChStatus);
-  theEcalChStatus = ecalChStatus.product();
-
-  edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  es.get<IdealGeometryRecord>().get(cttopo);
-  theTowerConstituentsMap = cttopo.product();
+void
+ PFRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
 }
-
-
-//define this as a plug-in
-// DEFINE_FWK_MODULE(PFRecHitProducer);
 

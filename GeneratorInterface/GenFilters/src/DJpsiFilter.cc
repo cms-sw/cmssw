@@ -49,7 +49,7 @@ class DJpsiFilter : public edm::EDFilter {
 
       // ----------member data ---------------------------
     
-       std::string label_;
+       edm::EDGetToken token_;
        double minPt;
        double maxY;
        double maxPt;
@@ -71,7 +71,7 @@ class DJpsiFilter : public edm::EDFilter {
 // constructors and destructor
 //
 DJpsiFilter::DJpsiFilter(const edm::ParameterSet& iConfig):
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 minPt(iConfig.getUntrackedParameter("MinPt", 0.)),
 maxY(iConfig.getUntrackedParameter("MaxY", 10.)),
 maxPt(iConfig.getUntrackedParameter("MaxPt", 1000.)),
@@ -109,7 +109,7 @@ DJpsiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //   int n2hadron = 0;
    double energy, pz, momentumY;
    Handle< HepMCProduct > evt;
-   iEvent.getByLabel(label_, evt);
+   iEvent.getByToken(token_, evt);
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
 

@@ -19,6 +19,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -57,7 +59,7 @@ public:
     L1GtCorrelationTemplate( const L1GtCorrelationTemplate& );
 
     /// destructor
-    virtual ~L1GtCorrelationTemplate();
+    ~L1GtCorrelationTemplate() override;
 
     /// assign operator
     L1GtCorrelationTemplate& operator= (const L1GtCorrelationTemplate&);
@@ -71,7 +73,9 @@ public:
 
         std::string deltaPhiRange;
         unsigned int deltaPhiMaxbits;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 
 public:
@@ -111,7 +115,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtCorrelationTemplate&);
@@ -131,6 +135,8 @@ private:
     int m_cond1Index;
     CorrelationParameter m_correlationParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

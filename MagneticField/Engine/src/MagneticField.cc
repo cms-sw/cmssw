@@ -5,22 +5,22 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-MagneticField::MagneticField() { nominalValueCompiuted.store(kUnset, std::memory_order_release); }
+MagneticField::MagneticField() : nominalValueCompiuted(kUnset), theNominalValue(0)
+{
+}
 
-MagneticField::MagneticField(const MagneticField& orig) : theNominalValue (orig.theNominalValue)
-{ nominalValueCompiuted.store(orig.nominalValueCompiuted.load(std::memory_order_acquire), std::memory_order_release); }
+MagneticField::MagneticField(const MagneticField& orig) : nominalValueCompiuted(kUnset), theNominalValue(0)
+{
+  if(orig.nominalValueCompiuted.load() == kSet) {
+    theNominalValue = orig.theNominalValue;
+    nominalValueCompiuted.store(kSet);
+  }
+}
 
 MagneticField::~MagneticField(){}
 
 int MagneticField::computeNominalValue() const {
-  return int((inTesla(GlobalPoint(0.f,0.f,0.f))).z() * 10.f + 0.5f);
-}
-
-int MagneticField::nominalValue() const {
-  if(kSet==nominalValueCompiuted.load(std::memory_order_acquire)) return theNominalValue;
-
-  //need to make one
-  int tmp = computeNominalValue();
+  int tmp = int((inTesla(GlobalPoint(0.f,0.f,0.f))).z() * 10.f + 0.5f);
 
   //Try to cache
   char expected = kUnset;
@@ -29,7 +29,7 @@ int MagneticField::nominalValue() const {
     std::swap(theNominalValue,tmp);
 
     //this must be after the swap
-    nominalValueCompiuted.store(kSet, std::memory_order_release);
+    nominalValueCompiuted.store(kSet);
     return theNominalValue;
   }
   //another thread beat us to trying to set theNominalValue

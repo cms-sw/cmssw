@@ -7,6 +7,9 @@
  *  DQM Base for TriggerTests
  *
  *  \author  C. Battilana S. Marcellini - INFN Bologna
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  *   
  */
 
@@ -24,6 +27,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
+
 #include <boost/cstdint.hpp>
 #include <string>
 #include <map>
@@ -34,7 +39,7 @@ class TH1F;
 class TH2F;
 class TH1D;
 
-class DTLocalTriggerBaseTest: public edm::EDAnalyzer{
+class DTLocalTriggerBaseTest: public DQMEDHarvester{
 
 public:
 
@@ -42,42 +47,33 @@ public:
   DTLocalTriggerBaseTest() {};
   
   /// Destructor
-  virtual ~DTLocalTriggerBaseTest();
+  ~DTLocalTriggerBaseTest() override;
+
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& context);
-
-  /// Perform begin lumiblock operations
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void beginRun(edm::Run const& run, edm::EventSetup const& context) override;
 
   /// Perform client diagnostic in online
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
   /// Perform client diagnostic in offline
-  void endRun(edm::Run const& run, edm::EventSetup const& context);
+  void endRun(edm::Run const& run, edm::EventSetup const& context) override;
 
-  /// EndJob
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// Perform client analysis
-  virtual void runClientDiagnostic() = 0;
+  virtual void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) = 0;
 
   /// Book the new MEs (for each sector)
-  void bookSectorHistos( int wheel, int sector, std::string hTag, std::string folder="" );
+  void bookSectorHistos(DQMStore::IBooker &, int wheel, int sector, std::string hTag, std::string folder="" );
 
   /// Book the new MEs (for each wheel)
-  void bookWheelHistos( int wheel, std::string hTag, std::string folder="" );
+  void bookWheelHistos(DQMStore::IBooker &, int wheel, std::string hTag, std::string folder="" );
 
   /// Book the new MEs (CMS summary)
-  void bookCmsHistos( std::string hTag, std::string folder="" , bool isGlb = false);
+  void bookCmsHistos(DQMStore::IBooker &,std::string hTag, std::string folder="" , bool isGlb = false);
 
   /// Calculate phi range for histograms
   std::pair<float,float> phiRange(const DTChamberId& id);
@@ -87,12 +83,6 @@ protected:
 
   /// Set configuration variables
   void setConfig(const edm::ParameterSet& ps, std::string name);
-
-/*   /// Set labels to wheel plots (Phi) */
-/*   void setLabelPh(MonitorElement* me); */
-
-/*   /// Set labels to theta plots (Theta) */
-/*   void setLabelTh(MonitorElement* me);  */
 
   /// Create fullname from histo partial name
   std::string fullName(std::string htype);
@@ -104,7 +94,7 @@ protected:
   std::string getMEName(std::string histoTag, std::string subfolder, int wh);
   
   /// Get top folder name
-  inline std::string & topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; } ;
+  inline std::string & topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; } ;
   
   /// Get message logger name
   inline std::string category() { return "DTDQM|DTMonitorClient|" + testName + "Test"; } ;
@@ -119,11 +109,10 @@ protected:
   std::vector<std::string> trigSources;
   std::vector<std::string> hwSources;
 
-  DQMStore* dbe;
   std::string sourceFolder;
   edm::ParameterSet parameters;
   bool runOnline;
-  std::string baseFolderDCC;
+  std::string baseFolderTM;
   std::string baseFolderDDU;
   std::string trigSource;
   std::string hwSource;
@@ -137,7 +126,7 @@ protected:
 
 template <class T>
 T* DTLocalTriggerBaseTest::getHisto(MonitorElement* me) {
-  return me ? dynamic_cast<T*>(me->getRootObject()) : 0;
+  return me ? dynamic_cast<T*>(me->getRootObject()) : nullptr;
 }
 
 #endif

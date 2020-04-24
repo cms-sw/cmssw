@@ -22,16 +22,16 @@ class CaloTSamples : public CaloTSamplesBase<Ttype>
       CaloTSamples<Ttype,Tsize>( const DetId& id   , 
 				 uint32_t size = 0 ,
 				 uint32_t pre  = 0  ) ;
-      virtual ~CaloTSamples<Ttype,Tsize>() ;
+      ~CaloTSamples<Ttype,Tsize>() override ;
 
       CaloTSamples<Ttype,Tsize>& operator=( const CaloTSamples<Ttype,Tsize>& cs ) ;
 
-      virtual uint32_t capacity() const ;
+      uint32_t capacity() const override ;
 
    private:
 
-      virtual       Ttype* data(  uint32_t i ) ;
-      virtual const Ttype* cdata( uint32_t i ) const ;
+            Ttype* data(  uint32_t i ) override ;
+      const Ttype* cdata( uint32_t i ) const override ;
 
       Ttype m_data[ Tsize ] ;
 } ;

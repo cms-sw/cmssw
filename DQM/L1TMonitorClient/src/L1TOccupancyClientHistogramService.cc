@@ -8,9 +8,9 @@
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <TMath.h>
 
@@ -27,8 +27,8 @@ L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(){}
 // * DQMStore*    iDBE        = Pointer to the DQMStore
 // * bool         iVerbose    = Verbose control
 //____________________________________________________________________________
-L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(const ParameterSet& iParameters, DQMStore* iDBE, bool iVerbose) {
-  mDBE        = iDBE;
+L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(const ParameterSet& iParameters, DQMStore::IBooker &ibooker, bool iVerbose) {
+  //mDBE        = iDBE;
   mVerbose    = iVerbose;
   mParameters = iParameters;
 }
@@ -279,12 +279,12 @@ bool L1TOccupancyClientHistogramService::isStripMasked(string iHistName, int iBi
 // Outputs:
 // * TH2F* = Returns a pointer the differential histogram
 //____________________________________________________________________________
-TH2F* L1TOccupancyClientHistogramService::loadHisto(string iHistName, string iHistLocation) {
+TH2F* L1TOccupancyClientHistogramService::loadHisto(DQMStore::IGetter &igetter, string iHistName, string iHistLocation) {
 
   pair<TH2F*,TH2F*> histPair; 
 
   // Histogram to be monitored should be loaded  in the begining of the run
-  TH2F* pHist = getRebinnedHistogram(iHistName,iHistLocation);
+  TH2F* pHist = getRebinnedHistogram(igetter, iHistName,iHistLocation);
   
   if(mHistValid[iHistName]){
   
@@ -314,19 +314,19 @@ TH2F* L1TOccupancyClientHistogramService::loadHisto(string iHistName, string iHi
 // Outputs:
 // * TH2F* = Returns a pointer the differential histogram
 //____________________________________________________________________________
-TH2F* L1TOccupancyClientHistogramService::getRebinnedHistogram(string iHistName, string iHistLocation) {
+TH2F* L1TOccupancyClientHistogramService::getRebinnedHistogram(DQMStore::IGetter &igetter, string iHistName, string iHistLocation) {
   
-  MonitorElement* me = mDBE->get(iHistLocation);
+  MonitorElement* me = igetter.get(iHistLocation);
 
   TH2F* histMonitor;
   
   if(!me){
-    histMonitor           = 0;
+    histMonitor           = nullptr;
     mHistValid[iHistName] = false;
   }
   else{
     mHistValid[iHistName] = true;
-    histMonitor = new TH2F(*(mDBE->get(iHistLocation)->getTH2F()));
+    histMonitor = new TH2F(*(igetter.get(iHistLocation)->getTH2F()));
 
     // Default rebin factors
     int rebinFactorX=1;
@@ -359,11 +359,11 @@ TH2F* L1TOccupancyClientHistogramService::getRebinnedHistogram(string iHistName,
 // * string iHistName     = Name of the histogram to be tested
 // * string iHistLocation = Location of the histogram in the directory structure
 //____________________________________________________________________________
-void L1TOccupancyClientHistogramService::updateHistogramEndLS(string iHistName,string iHistLocation,int iLS) {
+void L1TOccupancyClientHistogramService::updateHistogramEndLS(DQMStore::IGetter &igetter, string iHistName,string iHistLocation,int iLS) {
     
   if(mHistValid[iHistName]){
   
-    TH2F* histo_curr = getRebinnedHistogram(iHistLocation,iHistLocation); // Get the rebinned histogram current cumulative iHistLocation
+    TH2F* histo_curr = getRebinnedHistogram(igetter, iHistLocation,iHistLocation); // Get the rebinned histogram current cumulative iHistLocation
 
     TH2F* histo_old = new TH2F(*histo_curr);            // Clonecout <<"WP01"<<end; 
     histo_curr->Add(mHistograms[iHistName].first,-1.0); //calculate the difference to previous cumulative histo
@@ -373,6 +373,7 @@ void L1TOccupancyClientHistogramService::updateHistogramEndLS(string iHistName,s
     delete mHistograms[iHistName].first;            //delete old cumulateive histo 
     mHistograms[iHistName].first=histo_old;         //save old as new
     mHistograms[iHistName].second->Add(histo_curr); //save new as current
+    delete histo_curr;
   }  
 }
 
@@ -439,5 +440,5 @@ vector<int> L1TOccupancyClientHistogramService::getLSCertification(string iHistN
 //____________________________________________________________________________
 TH2F* L1TOccupancyClientHistogramService::getDifferentialHistogram(string iHistName) {  
   if(mHistValid[iHistName]){return mHistograms[iHistName].second;}
-  return 0;
+  return nullptr;
 }                                            

@@ -2,16 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 def customise(process):
 
-    # fragment allowing to simulate neutron background in muon system
+  # fragment allowing to simulate neutron background in muon system
+  # using HP neutron package and thermal neutron scattering
 
-    # time window 1 millisecond
-    process.common_maximum_time.MaxTrackTime = cms.double(1000000.0)
+  from SimG4Core.Application.NeutronBGforMuons_cff import neutronBG
 
-    # Physics List HP
+  process = neutronBG(process)
+
+  if hasattr(process,'g4SimHits'):
     process.g4SimHits.Physics.type = cms.string('SimG4Core/Physics/FTFP_BERT_HP_EML')
-
-    # Russian roulette disabled
-    process.g4SimHits.StackingAction.RusRoGammaEnergyLimit = cms.double(0.0)
-    process.g4SimHits.StackingAction.RusRoNeutronEnergyLimit = cms.double(0.0)
+    process.g4SimHits.Physics.ThermalNeutrons = cms.untracked.bool(True)
 
     return(process)
+

@@ -27,17 +27,17 @@ class BasicJet : public Jet {
   BasicJet(const LorentzVector& fP4, const Point& fVertex);
   BasicJet(const LorentzVector& fP4, const Point& fVertex, const Jet::Constituents& fConstituents);
   
-  virtual ~BasicJet() {};
+  ~BasicJet() override {};
 
   /// Polymorphic clone
-  virtual BasicJet* clone () const;
+  BasicJet* clone () const override;
 
   /// Print object
-  virtual std::string print () const;
+  std::string print () const override;
   
  private:
   /// Polymorphic overlap
-  virtual bool overlap( const Candidate & ) const;
+  bool overlap( const Candidate & ) const override;
 };
 }
 // temporary fix before include_checcker runs globally

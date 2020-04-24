@@ -11,13 +11,16 @@ namespace PFJetMETcorrInputProducer_namespace
   {
     public:
 
-     void operator()(const pat::Jet& jet) const 
+     void operator()(const pat::Jet& jet) const
      {
        // check that pat::Jet is of PF-type
        if ( !jet.isPFJet() )
 	 throw cms::Exception("InvalidInput")
 	   << "Input pat::Jet is not of PF-type !!\n";
-     } 
+     }
+     bool isPatJet(const pat::Jet& jet) const {
+       return true;
+     }
   };
 
   template <>
@@ -25,11 +28,12 @@ namespace PFJetMETcorrInputProducer_namespace
   {
     public:
 
-     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const 
-     { 
+     RawJetExtractorT(){}
+     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const
+     {
        if ( jet.jecSetsAvailable() ) return jet.correctedP4("Uncorrected");
        else return jet.p4();
-     } 
+     }
   };
 }
 

@@ -11,8 +11,6 @@
 #include "TPaveText.h"
 #include "TFile.h"
 
-using namespace std;
-
 /**
  * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
  */
@@ -66,7 +64,7 @@ void draw(TH1D * h, TF1 * f) {
   fitLabel->AddText("Function: "+f->GetExpFormula());
   for( int i=0; i<f->GetNpar(); ++i ) {
     char name[50];
-    cout << "par["<<i<<"] = " << f->GetParameter(i) << endl;
+    std::cout << "par["<<i<<"] = " << f->GetParameter(i) << std::endl;
     sprintf(name, "par[%i] = %4.2g #pm %4.2g",i, f->GetParameter(i), f->GetParError(i));
     fitLabel->AddText(name);
   }
@@ -83,51 +81,51 @@ pair<list<double>, list<double> > readParameters(int fitFile) {
   list<double> parameters;
   list<double> parameterErrors;
 
-  ifstream a("FitParameters.txt");
-  string line;
+  std::ifstream a("FitParameters.txt");
+  std::string line;
   bool indexFound = false;
-  string iteration("Iteration ");
+  std::string iteration("Iteration ");
   while (a) {
     getline(a,line);
     unsigned int lineInt = line.find("value");
 
     // Take only the values from the matching iteration
-    if( line.find(iteration) != string::npos ) {
-      stringstream iterationNum;
+    if( line.find(iteration) != std::string::npos ) {
+      std::stringstream iterationNum;
       iterationNum << fitFile;
-      if( line.find(iteration+iterationNum.str()) != string::npos ) {
+      if( line.find(iteration+iterationNum.str()) != std::string::npos ) {
         indexFound = true;
-        cout << "In: " << line << endl;
-        cout << "Found Index = " << iteration+iterationNum.str() << endl;
+        std::cout << "In: " << line << std::endl;
+        std::cout << "Found Index = " << iteration+iterationNum.str() << std::endl;
       }
       else indexFound = false;
     }
 
-    if ( (lineInt != string::npos) && indexFound ) {
+    if ( (lineInt != std::string::npos) && indexFound ) {
       int subStr1 = line.find("value");
       int subStr2 = line.find("+-");
-      stringstream paramStr;
+      std::stringstream paramStr;
       double param = 0;
       paramStr << line.substr(subStr1+5,subStr2);
       paramStr >> param;
       parameters.push_back(param);
-      // cout << "paramStr = " << line.substr(subStr1+5,subStr2) << endl;
-      stringstream parErrorStr;
+      // std::cout << "paramStr = " << line.substr(subStr1+5,subStr2) << std::endl;
+      std::stringstream parErrorStr;
       double parError = 0;
       parErrorStr << line.substr(subStr2+1);
       parErrorStr >> parError;
       parameterErrors.push_back(parError);
 
-      // cout << "param = " << param << endl;
-      // cout << "parError = " << parError << endl;
+      // std::cout << "param = " << param << std::endl;
+      // std::cout << "parError = " << parError << std::endl;
     }
   }
 
-  //     cout << "Reading function from file" << endl;
+  //     std::cout << "Reading function from file" << std::endl;
   //     TString param = "aaa a a a  a value = 193.4+-12";
   //     int id = param.Index("value");
   //     int length = param.Length();
-  //     cout << "param(id,-1)" << param(id, length) << endl;
+  //     std::cout << "param(id,-1)" << param(id, length) << std::endl;
   return make_pair(parameters, parameterErrors);
 }
 
@@ -177,7 +175,7 @@ int ResolFit( int fitFile = -1 ) {
   TF1 *f = new TF1("f","pol1",0,100);
 
   if( fitFile == -1 ) {
-    cout << "Fitting Pt resolution vs Pt" << endl;
+    std::cout << "Fitting Pt resolution vs Pt" << std::endl;
     h->Fit("f","R0");
   }
   else {
@@ -194,7 +192,7 @@ int ResolFit( int fitFile = -1 ) {
   h->GetYaxis()->SetTitle("#sigma pt");
   draw(h,f);
 
-  cout << "sigmapt vs eta" << endl;
+  std::cout << "sigmapt vs eta" << std::endl;
   // VS eta
   tempDir = (TDirectory*) inputFile.Get(mainPtName+"GenVSMu");
   h = (TH1D*) tempDir->Get(mainPtName+"GenVSMu_ResoVSEta_resol");
@@ -207,7 +205,7 @@ int ResolFit( int fitFile = -1 ) {
   f->SetParameter(0,1.);
 
   if( fitFile == -1 ) {
-    cout << "Fitting Pt resolution vs Eta" << endl;
+    std::cout << "Fitting Pt resolution vs Eta" << std::endl;
     // h->Fit("f","R0");
     h->Fit("myFunc","R0");
   }
@@ -231,7 +229,7 @@ int ResolFit( int fitFile = -1 ) {
   f = new TF1("f","[0]+[1]/x",0,100);
   if( fitFile == -1 ) {
     h->Fit("f","R0");
-    cout << "Fitting CotgTheta resolution vs Pt" << endl;
+    std::cout << "Fitting CotgTheta resolution vs Pt" << std::endl;
   }
   else {
     setParameters(f, parameters);
@@ -251,7 +249,7 @@ int ResolFit( int fitFile = -1 ) {
 
   f = new TF1("f","pol2",-2.5,2.5);
   if( fitFile == -1 ) {
-    cout << "Fitting CotgTheta resolution vs Eta" << endl;
+    std::cout << "Fitting CotgTheta resolution vs Eta" << std::endl;
     h->Fit("f","R0");
   }
   else {
@@ -273,7 +271,7 @@ int ResolFit( int fitFile = -1 ) {
 
   f = new TF1("f","[0]+[1]/x",0,100);
   if( fitFile == -1 ) {
-    cout << "Fitting Phi resolution vs Pt" << endl;
+    std::cout << "Fitting Phi resolution vs Pt" << std::endl;
     h->Fit("f","R0");
   }
   else {
@@ -294,7 +292,7 @@ int ResolFit( int fitFile = -1 ) {
 
   f = new TF1("f","pol2",-2.4,2.4);
   if( fitFile == -1 ) {
-    cout << "Fitting Phi resolution vs Eta" << endl;
+    std::cout << "Fitting Phi resolution vs Eta" << std::endl;
     h->Fit("f","R0");
   }
   else {

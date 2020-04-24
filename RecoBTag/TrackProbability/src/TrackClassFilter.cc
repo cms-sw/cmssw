@@ -17,7 +17,7 @@ const TrackProbabilityCategoryData & d = category.category;
   double eta=track.eta();
   double nhit=track.numberOfValidHits();
   double npix=track.hitPattern().numberOfValidPixelHits();
-  bool   firstPixel=track.hitPattern().hasValidHitInFirstPixelBarrel();
+  bool   firstPixel=track.hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1);
   double chi=track.normalizedChi2();
   
   

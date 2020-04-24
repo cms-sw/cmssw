@@ -1,7 +1,7 @@
 {
 /// enable automatic data formats librarly loading
    gSystem->Load("libFWCoreFWLite");
-   AutoLibraryLoader::enable();
+   FWLiteEnabler::enable();
 /// set up events chain
    TChain events("Events");
    events.Add("aod.root");

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 pfTauBenchmarkElecRejection = cms.EDAnalyzer("PFTauElecRejectionBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('tauBenchmarkElecRejection.root'),
-    InputTruthLabel = cms.InputTag('generator'),
+    InputTruthLabel = cms.InputTag('generatorSmeared'),
     BenchmarkLabel = cms.string('PFTauElecRejection'), 
     minRecoPt = cms.double(15.0),
     maxRecoAbsEta = cms.double(2.5),

@@ -24,6 +24,8 @@
 // user include files
 
 // forward declarations
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <set>
 #include <vector>
 #include <sstream>
@@ -60,6 +62,8 @@ struct L1RPCDevCoords {
    signed short m_tower;
    signed short m_PAC;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -112,6 +116,8 @@ class L1RPCHwConfig
 
       // ---------- member data --------------------------------
 
+
+   COND_SERIALIZABLE;
 };
 
 

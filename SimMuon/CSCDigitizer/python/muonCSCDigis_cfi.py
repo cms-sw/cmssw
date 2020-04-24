@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# This object is used to customise for different running scenarios, e.g. run2
+
 simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     strips = cms.PSet(
         peakTimeSigma = cms.double(3.0),
@@ -75,8 +77,17 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     stripConditions = cms.string('Database'),
     GeometryType = cms.string('idealForDigi'),                            
     digitizeBadChambers = cms.bool(False),
-    layersNeeded = cms.uint32(3)
+    layersNeeded = cms.uint32(3),
+    dumpGasCollisions = cms.untracked.bool(False)
 )
 
+##
+## Change the the bunch timing offsets if running in Run 2
+##
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( simMuonCSCDigis.strips, bunchTimingOffsets=[0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28] )
+run2_common.toModify( simMuonCSCDigis.wires, bunchTimingOffsets=[0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88] )
 
-
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
+    simMuonCSCDigis.InputCollection = 'MuonSimHitsMuonCSCHits'

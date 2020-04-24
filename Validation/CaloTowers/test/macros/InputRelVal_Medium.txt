@@ -1,280 +1,305 @@
 
-HcalDigiTask_occupancy_vs_ieta_depth1_HB	1	HcalDigiTask_occupancy_vs_ieta_depth1_HB.gif	1	-20	20	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth1_HB
-HcalDigiTask_occupancy_vs_ieta_depth2_HB	1	HcalDigiTask_occupancy_vs_ieta_depth2_HB.gif	1	-20	20	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth2_HB
-HcalDigiTask_occupancy_vs_ieta_depth1_HE	1	HcalDigiTask_occupancy_vs_ieta_depth1_HE.gif	1	-30	30	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth1_HE
-HcalDigiTask_occupancy_vs_ieta_depth2_HE	1	HcalDigiTask_occupancy_vs_ieta_depth2_HE.gif	1	-30	30	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth2_HE
-HcalDigiTask_occupancy_vs_ieta_depth3_HE	1	HcalDigiTask_occupancy_vs_ieta_depth3_HE.gif	1	-30	30	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth3_HE
-HcalDigiTask_occupancy_vs_ieta_depth1_HF	1	HcalDigiTask_occupancy_vs_ieta_depth1_HF.gif	1	-42	42	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth1_HF
-HcalDigiTask_occupancy_vs_ieta_depth2_HF	1	HcalDigiTask_occupancy_vs_ieta_depth2_HF.gif	1	-42	42	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth2_HF
-HcalDigiTask_occupancy_vs_ieta_depth4_HO	1	HcalDigiTask_occupancy_vs_ieta_depth4_HO.gif	1	-20	20	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth4_HO
+HcalDigiTask/HcalDigiTask_occupancy_vs_ieta_depth1_HB	1	HcalDigiTask_occupancy_vs_ieta_depth1_HB.gif	1	-20	20	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth1_HB
+HcalDigiTask/HcalDigiTask_occupancy_vs_ieta_depth2_HB	1	HcalDigiTask_occupancy_vs_ieta_depth2_HB.gif	1	-20	20	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth2_HB
+HcalDigiTask/HcalDigiTask_occupancy_vs_ieta_depth1_HE	1	HcalDigiTask_occupancy_vs_ieta_depth1_HE.gif	1	-30	30	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth1_HE
+HcalDigiTask/HcalDigiTask_occupancy_vs_ieta_depth2_HE	1	HcalDigiTask_occupancy_vs_ieta_depth2_HE.gif	1	-30	30	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth2_HE
+HcalDigiTask/HcalDigiTask_occupancy_vs_ieta_depth3_HE	1	HcalDigiTask_occupancy_vs_ieta_depth3_HE.gif	1	-30	30	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth3_HE
+HcalDigiTask/HcalDigiTask_occupancy_vs_ieta_depth1_HF	1	HcalDigiTask_occupancy_vs_ieta_depth1_HF.gif	1	-42	42	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth1_HF
+HcalDigiTask/HcalDigiTask_occupancy_vs_ieta_depth2_HF	1	HcalDigiTask_occupancy_vs_ieta_depth2_HF.gif	1	-42	42	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth2_HF
+HcalDigiTask/HcalDigiTask_occupancy_vs_ieta_depth4_HO	1	HcalDigiTask_occupancy_vs_ieta_depth4_HO.gif	1	-20	20	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth4_HO
 
 
 
-HcalDigiTask_bin_5_frac_HB	1	HcalDigiTask_bin_5_frac_HB.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_5_frac_HB
-HcalDigiTask_bin_5_frac_HE	1	HcalDigiTask_bin_5_frac_HE.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_5_frac_HE
-HcalDigiTask_bin_5_frac_HF	1	HcalDigiTask_bin_3_frac_HF.gif	1	-1.0	2.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_3_frac_HF
-HcalDigiTask_bin_6_7_frac_HB	1	HcalDigiTask_bin_6_7_frac_HB.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_6_7_frac_HB
-HcalDigiTask_bin_6_7_frac_HE	1	HcalDigiTask_bin_6_7_frac_HE.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_6_7_frac_HE
-HcalDigiTask_bin_6_7_frac_HF	1	HcalDigiTask_bin_4_5_frac_HF.gif	1	-1.0	2.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_4_5_frac_HF
+HcalDigiTask/HcalDigiTask_bin_5_frac_HB	1	HcalDigiTask_bin_5_frac_HB.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_5_frac_HB
+HcalDigiTask/HcalDigiTask_bin_5_frac_HE	1	HcalDigiTask_bin_5_frac_HE.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_5_frac_HE
+HcalDigiTask/HcalDigiTask_bin_5_frac_HF	1	HcalDigiTask_bin_3_frac_HF.gif	1	-1.0	2.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_3_frac_HF
+HcalDigiTask/HcalDigiTask_bin_6_7_frac_HB	1	HcalDigiTask_bin_6_7_frac_HB.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_6_7_frac_HB
+HcalDigiTask/HcalDigiTask_bin_6_7_frac_HE	1	HcalDigiTask_bin_6_7_frac_HE.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_6_7_frac_HE
+HcalDigiTask/HcalDigiTask_bin_6_7_frac_HF	1	HcalDigiTask_bin_4_5_frac_HF.gif	1	-1.0	2.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_4_5_frac_HF
 
 
 
-HcalDigiTask_signal_amplitude_HB	1	HcalDigiTask_signal_amplitude_HB.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HB
-HcalDigiTask_signal_amplitude_depth1_HB	1	HcalDigiTask_signal_amplitude_depth1_HB.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HB
-HcalDigiTask_signal_amplitude_depth2_HB	1	HcalDigiTask_signal_amplitude_depth2_HB.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HB
-HcalDigiTask_signal_amplitude_HE	1	HcalDigiTask_signal_amplitude_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HE
-HcalDigiTask_signal_amplitude_depth1_HE	1	HcalDigiTask_signal_amplitude_depth1_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HE
-HcalDigiTask_signal_amplitude_depth2_HE	1	HcalDigiTask_signal_amplitude_depth2_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HE
-HcalDigiTask_signal_amplitude_depth3_HE	1	HcalDigiTask_signal_amplitude_depth3_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth3_HE
-HcalDigiTask_signal_amplitude_HF	1	HcalDigiTask_signal_amplitude_HF.gif	10	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HF
-HcalDigiTask_signal_amplitude_depth1_HF	1	HcalDigiTask_signal_amplitude_depth1_HF.gif	10	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HF
-HcalDigiTask_signal_amplitude_depth2_HF	1	HcalDigiTask_signal_amplitude_depth2_HF.gif	10	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HF
-HcalDigiTask_signal_amplitude_HO	1	HcalDigiTask_signal_amplitude_HO.gif	5	-10	1000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HO
+HcalDigiTask/HcalDigiTask_signal_amplitude_HB	1	HcalDigiTask_signal_amplitude_HB.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HB
+HcalDigiTask/HcalDigiTask_signal_amplitude_depth1_HB	1	HcalDigiTask_signal_amplitude_depth1_HB.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HB
+HcalDigiTask/HcalDigiTask_signal_amplitude_depth2_HB	1	HcalDigiTask_signal_amplitude_depth2_HB.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HB
+HcalDigiTask/HcalDigiTask_signal_amplitude_HE	1	HcalDigiTask_signal_amplitude_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HE
+HcalDigiTask/HcalDigiTask_signal_amplitude_depth1_HE	1	HcalDigiTask_signal_amplitude_depth1_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HE
+HcalDigiTask/HcalDigiTask_signal_amplitude_depth2_HE	1	HcalDigiTask_signal_amplitude_depth2_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HE
+HcalDigiTask/HcalDigiTask_signal_amplitude_depth3_HE	1	HcalDigiTask_signal_amplitude_depth3_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth3_HE
+HcalDigiTask/HcalDigiTask_signal_amplitude_HF	1	HcalDigiTask_signal_amplitude_HF.gif	10	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HF
+HcalDigiTask/HcalDigiTask_signal_amplitude_depth1_HF	1	HcalDigiTask_signal_amplitude_depth1_HF.gif	10	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HF
+HcalDigiTask/HcalDigiTask_signal_amplitude_depth2_HF	1	HcalDigiTask_signal_amplitude_depth2_HF.gif	10	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HF
+HcalDigiTask/HcalDigiTask_signal_amplitude_HO	1	HcalDigiTask_signal_amplitude_HO.gif	5	-10	1000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HO
 
 
 
-HcalDigiTask_number_of_amplitudes_above_10fC_HB	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB.gif	5	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB
-HcalDigiTask_number_of_amplitudes_above_10fC_HE	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE.gif	5	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE
-HcalDigiTask_number_of_amplitudes_above_10fC_HF	1	HcalDigiTask_number_of_amplitudes_above_10fC_HF.gif	5	-10	500	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HF
-HcalDigiTask_number_of_amplitudes_above_10fC_HO	1	HcalDigiTask_number_of_amplitudes_above_10fC_HO.gif	1	-1	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HO
+HcalDigiTask/HcalDigiTask_number_of_amplitudes_above_10fC_HB	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB.gif	5	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB
+HcalDigiTask/HcalDigiTask_number_of_amplitudes_above_10fC_HE	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE.gif	5	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE
+HcalDigiTask/HcalDigiTask_number_of_amplitudes_above_10fC_HF	1	HcalDigiTask_number_of_amplitudes_above_10fC_HF.gif	5	-10	500	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HF
+HcalDigiTask/HcalDigiTask_number_of_amplitudes_above_10fC_HO	1	HcalDigiTask_number_of_amplitudes_above_10fC_HO.gif	1	-1	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HO
 
 
 
-HcalDigiTask_amplitude_vs_simhits_HB	0	HcalDigiTask_amplitude_vs_simhits_HB.gif	1	0	0.8	0	650	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_HB
-HcalDigiTask_amplitude_vs_simhits_profile_HB	
-HcalDigiTask_amplitude_vs_simhits_depth1_HB	0	HcalDigiTask_amplitude_vs_simhits_depth1_HB.gif	1	0	0.8	0	600	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth1_HB
-HcalDigiTask_amplitude_vs_simhits_profile_depth1_HB
-HcalDigiTask_amplitude_vs_simhits_depth2_HB	0	HcalDigiTask_amplitude_vs_simhits_depth2_HB.gif	1	0	0.4	0	300	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth2_HB
-HcalDigiTask_amplitude_vs_simhits_profile_depth2_HB
-HcalDigiTask_amplitude_vs_simhits_HE	0	HcalDigiTask_amplitude_vs_simhits_HE.gif	1	0	0.6	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_HE
-HcalDigiTask_amplitude_vs_simhits_profile_HE
-HcalDigiTask_amplitude_vs_simhits_depth1_HE	0	HcalDigiTask_amplitude_vs_simhits_depth1_HE.gif	1	0	0.6	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth1_HE
-HcalDigiTask_amplitude_vs_simhits_profile_depth1_HE
-HcalDigiTask_amplitude_vs_simhits_depth2_HE	0	HcalDigiTask_amplitude_vs_simhits_depth2_HE.gif	1	0	0.5	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth2_HE
-HcalDigiTask_amplitude_vs_simhits_profile_depth2_HE
-HcalDigiTask_amplitude_vs_simhits_depth3_HE	0	HcalDigiTask_amplitude_vs_simhits_depth3_HE.gif	1	0	0.4	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth3_HE
-HcalDigiTask_amplitude_vs_simhits_profile_depth3_HE
-HcalDigiTask_amplitude_vs_simhits_HF	0	HcalDigiTask_amplitude_vs_simhits_HF.gif	1	0	20	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_HF
-HcalDigiTask_amplitude_vs_simhits_profile_HF
-HcalDigiTask_amplitude_vs_simhits_depth1_HF	0	HcalDigiTask_amplitude_vs_simhits_depth1_HF.gif	1	0	20	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth1_HF
-HcalDigiTask_amplitude_vs_simhits_profile_depth1_HF
-HcalDigiTask_amplitude_vs_simhits_depth2_HF	0	HcalDigiTask_amplitude_vs_simhits_depth2_HF.gif	1	0	20	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth2_HF
-HcalDigiTask_amplitude_vs_simhits_profile_depth2_HF
-HcalDigiTask_amplitude_vs_simhits_HO	0	HcalDigiTask_amplitude_vs_simhits_HO.gif	1	0	0.2	0	250	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_HO
-HcalDigiTask_amplitude_vs_simhits_profile_HO
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_HB	0	HcalDigiTask_amplitude_vs_simhits_HB.gif	1	0	0.8	0	650	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_HB
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_HB	
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_depth1_HB	0	HcalDigiTask_amplitude_vs_simhits_depth1_HB.gif	1	0	0.8	0	600	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth1_HB
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_depth1_HB
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_depth2_HB	0	HcalDigiTask_amplitude_vs_simhits_depth2_HB.gif	1	0	0.4	0	300	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth2_HB
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_depth2_HB
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_HE	0	HcalDigiTask_amplitude_vs_simhits_HE.gif	1	0	0.6	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_HE
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_HE
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_depth1_HE	0	HcalDigiTask_amplitude_vs_simhits_depth1_HE.gif	1	0	0.6	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth1_HE
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_depth1_HE
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_depth2_HE	0	HcalDigiTask_amplitude_vs_simhits_depth2_HE.gif	1	0	0.5	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth2_HE
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_depth2_HE
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_depth3_HE	0	HcalDigiTask_amplitude_vs_simhits_depth3_HE.gif	1	0	0.4	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth3_HE
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_depth3_HE
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_HF	0	HcalDigiTask_amplitude_vs_simhits_HF.gif	1	0	20	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_HF
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_HF
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_depth1_HF	0	HcalDigiTask_amplitude_vs_simhits_depth1_HF.gif	1	0	20	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth1_HF
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_depth1_HF
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_depth2_HF	0	HcalDigiTask_amplitude_vs_simhits_depth2_HF.gif	1	0	20	0	450	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_depth2_HF
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_depth2_HF
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_HO	0	HcalDigiTask_amplitude_vs_simhits_HO.gif	1	0	0.2	0	250	TM	Statrv	noChi2	NoLog	41	42	HcalDigiTask_amplitude_vs_simhits_HO
+HcalDigiTask/HcalDigiTask_amplitude_vs_simhits_profile_HO
 
 
 
-HcalDigiTask_ratio_amplitude_vs_simhits_HB	0	HcalDigiTask_ratio_amplitude_vs_simhits_HB.gif	10	-50	2000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_HB
-HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HB	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HB.gif	10	-50	2000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HB
-HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HB	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HB.gif	10	-50	2000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HB
-HcalDigiTask_ratio_amplitude_vs_simhits_HE	0	HcalDigiTask_ratio_amplitude_vs_simhits_HE.gif	20	0	3000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_HE
-HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HE	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HE.gif	20	0	3000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HE
-HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HE	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HE.gif	20	0	3000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HE
-HcalDigiTask_ratio_amplitude_vs_simhits_depth3_HE	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth3_HE.gif	20	0	3000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth3_HE
-HcalDigiTask_ratio_amplitude_vs_simhits_HF	0	HcalDigiTask_ratio_amplitude_vs_simhits_HF.gif	1	-2	100	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_HF
-HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HF	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HF.gif	1	-2	100	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HF
-HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HF	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HF.gif	1	-2	100	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HF
-HcalDigiTask_ratio_amplitude_vs_simhits_HO	0	HcalDigiTask_ratio_amplitude_vs_simhits_HO.gif	10	0	2000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_HO
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_HB	0	HcalDigiTask_ratio_amplitude_vs_simhits_HB.gif	10	-50	2000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_HB
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HB	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HB.gif	10	-50	2000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HB
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HB	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HB.gif	10	-50	2000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HB
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_HE	0	HcalDigiTask_ratio_amplitude_vs_simhits_HE.gif	20	0	3000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_HE
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HE	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HE.gif	20	0	3000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HE
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HE	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HE.gif	20	0	3000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HE
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_depth3_HE	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth3_HE.gif	20	0	3000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth3_HE
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_HF	0	HcalDigiTask_ratio_amplitude_vs_simhits_HF.gif	1	-2	100	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_HF
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HF	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HF.gif	1	-2	100	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth1_HF
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HF	0	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HF.gif	1	-2	100	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_depth2_HF
+HcalDigiTask/HcalDigiTask_ratio_amplitude_vs_simhits_HO	0	HcalDigiTask_ratio_amplitude_vs_simhits_HO.gif	10	0	2000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_ratio_amplitude_vs_simhits_HO
 
 
 
-HcalDigiTask_Ndigis_HB	1	HcalDigiTask_Ndigis_HB.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HB
-HcalDigiTask_Ndigis_HE	1	HcalDigiTask_Ndigis_HE.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HE
-HcalDigiTask_Ndigis_HF	1	HcalDigiTask_Ndigis_HF.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HF
-HcalDigiTask_Ndigis_HO	1	HcalDigiTask_Ndigis_HO.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HO
-
-
-
-
-HcalDigiTask_signal_amplitude_vs_bin_all_depths_HB	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HB.gif	1	0	10	0	1000	2D	noStat	noChi2	Log	2	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HB
-HcalDigiTask_signal_amplitude_vs_bin_all_depths_HE	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HE.gif	1	0	10	0	1000	2D	noStat	noChi2	Log	2	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HE
-HcalDigiTask_signal_amplitude_vs_bin_all_depths_HF	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HF.gif	1	0	10	0	4000	2D	noStat	noChi2	Log	2	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HF
-HcalDigiTask_signal_amplitude_vs_bin_all_depths_HO	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HO.gif	1	0	10	0	500	2D	noStat	noChi2	Log	2	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HO
+HcalDigiTask/HcalDigiTask_Ndigis_HB	1	HcalDigiTask_Ndigis_HB.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HB
+HcalDigiTask/HcalDigiTask_Ndigis_HE	1	HcalDigiTask_Ndigis_HE.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HE
+HcalDigiTask/HcalDigiTask_Ndigis_HF	1	HcalDigiTask_Ndigis_HF.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HF
+HcalDigiTask/HcalDigiTask_Ndigis_HO	1	HcalDigiTask_Ndigis_HO.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HO
 
 
 
 
+HcalDigiTask/HcalDigiTask_signal_amplitude_vs_bin_all_depths_HB	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HB.gif	1	0	10	0	1000	2D	noStat	noChi2	Log	2	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HB
+HcalDigiTask/HcalDigiTask_signal_amplitude_vs_bin_all_depths_HE	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HE.gif	1	0	10	0	1000	2D	noStat	noChi2	Log	2	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HE
+HcalDigiTask/HcalDigiTask_signal_amplitude_vs_bin_all_depths_HF	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HF.gif	1	0	10	0	4000	2D	noStat	noChi2	Log	2	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HF
+HcalDigiTask/HcalDigiTask_signal_amplitude_vs_bin_all_depths_HO	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HO.gif	1	0	10	0	500	2D	noStat	noChi2	Log	2	1	HcalDigiTask_signal_amplitude_vs_bin_all_depths_HO
 
-                            number_of_bad_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              bad cells number EB
-                            number_of_bad_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              bad cells number EE
-                            number_of_bad_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              bad cells number HB
-                            number_of_bad_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              bad cells number HE
-                            number_of_bad_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              bad cells number HF
-                      number_of_recovered_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number EB
-                      number_of_recovered_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number EE
-                      number_of_recovered_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number HB
-                      number_of_recovered_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number HE
-                      number_of_recovered_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number HF
-                    number_of_problematic_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number EB
-                    number_of_problematic_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number EE
-                    number_of_problematic_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number HB
-                    number_of_problematic_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number HE
-                    number_of_problematic_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number HF
-                                  CaloTowersTask_MET_HB   1	           HB_CaloTowers_MET_HB.gif	8	0	800	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo MET (GeV)
-                                  CaloTowersTask_SET_HB   1	           HB_CaloTowers_SET_HB.gif	20	0	2200	0	-1	1D	Stat	Chi2	Log	2	1	       Barrel CaloTowers SET (GeV)	
-                          CaloTowersTask_energy_ECAL_HB   1	HB_CaloTowers_Energy_in_ECAL_HB.gif	10	0	1500	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers ECAL energy (GeV)
-                          CaloTowersTask_energy_HCAL_HB   1	HB_CaloTowers_Energy_in_HCAL_HB.gif	10	0	2000	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers HCAL energy (GeV)
-            CaloTowersTask_energy_HcalPlusEcalPlusHO_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                         CaloTowersTask_energy_OUTER_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-    CaloTowersTask_energy_of_ECAL_component_of_tower_HB   0 	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-    CaloTowersTask_energy_of_HCAL_component_of_tower_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                           CaloTowersTask_map_energy_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                      CaloTowersTask_map_energy_ECAL_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                      CaloTowersTask_map_energy_HCAL_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-               CaloTowersTask_number_of_fired_towers_HB   1	       HB_CaloTowers_Ntowers_HB.gif	2	0	500	0	-1	1D	Stat	Chi2	NoLog	2	1	       HB CaloTowers number
-                              CaloTowersTask_phi_MET_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-           CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                            CaloTowersTask_EM_Timing_HB   1	     HB_CaloTowers_EM_Timing_HB.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers EM Timing
-                           CaloTowersTask_HAD_Timing_HB   1	    HB_CaloTowers_HAD_Timing_HB.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers HAD Timing
-                     CaloTowersTask_EM_Energy_Timing_HB   1   HB_CaloTowers_EM_Energy_Timing_HB.gif	1	0	800	0	-1	TM	noStat	noChi2	NoLog	53	42	       HB CaloTowers EM Timing vs Energy
-             CaloTowersTask_EM_Energy_Timing_profile_HB
-                    CaloTowersTask_HAD_Energy_Timing_HB   1  HB_CaloTowers_HAD_Energy_Timing_HB.gif	1	0	600	0	-1	TM	noStat	noChi2	NoLog	53	42	       HB CaloTowers HAD Timing vs Energy
-            CaloTowersTask_HAD_Energy_Timing_profile_HB
-                                  CaloTowersTask_MET_HE   1	           HE_CaloTowers_MET_HE.gif	5	0	700	0	-1	1D	Stat	Chi2	Log	2	1	       HE Calo MET (GeV)
-                                  CaloTowersTask_SET_HE   1	           HE_CaloTowers_SET_HE.gif	20	0	1000	0	-1	1D	Stat	Chi2	Log	2	1	       Endcap CaloTowers SET (GeV)
-                          CaloTowersTask_energy_ECAL_HE   1	HE_CaloTowers_Energy_in_ECAL_HE.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers ECAL energy (GeV)
-                          CaloTowersTask_energy_HCAL_HE   1	HE_CaloTowers_Energy_in_HCAL_HE.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers HCAL energy (GeV)
-            CaloTowersTask_energy_HcalPlusEcalPlusHO_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                         CaloTowersTask_energy_OUTER_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-    CaloTowersTask_energy_of_ECAL_component_of_tower_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-    CaloTowersTask_energy_of_HCAL_component_of_tower_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                           CaloTowersTask_map_energy_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                      CaloTowersTask_map_energy_ECAL_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                      CaloTowersTask_map_energy_HCAL_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-               CaloTowersTask_number_of_fired_towers_HE   1	       HE_CaloTowers_Ntowers_HE.gif	2	0	500	0	-1	1D	Stat	Chi2	NoLog	2	1	       HE CaloTowers number
-                              CaloTowersTask_phi_MET_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-           CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                            CaloTowersTask_EM_Timing_HE   1	     HE_CaloTowers_EM_Timing_HE.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers EM Timing
-                           CaloTowersTask_HAD_Timing_HE   1	    HE_CaloTowers_HAD_Timing_HE.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers HAD Timing
-                     CaloTowersTask_EM_Energy_Timing_HE   1   HE_CaloTowers_EM_Energy_Timing_HE.gif	1	0	1500	0	-1	TM	noStat	noChi2	NoLog	53	42	       HE CaloTowers EM Timing vs Energy
-             CaloTowersTask_EM_Energy_Timing_profile_HE
-                    CaloTowersTask_HAD_Energy_Timing_HE   1  HE_CaloTowers_HAD_Energy_Timing_HE.gif	1	0	1500	0	-1	TM	noStat	noChi2	NoLog	53	42	       HE CaloTowers HAD Timing vs Energy
-            CaloTowersTask_HAD_Energy_Timing_profile_HE
-                                  CaloTowersTask_MET_HF   1	           HF_CaloTowers_MET_HF.gif	2	0	200	0	-1	1D	Stat	Chi2	Log	2	1	       HF Calo MET (GeV)
-                                  CaloTowersTask_SET_HF   1	           HF_CaloTowers_SET_HF.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       Forward CaloTowers SET (GeV)
-                          CaloTowersTask_energy_ECAL_HF   1	HF_CaloTowers_Energy_in_ECAL_HF.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers ECAL energy (GeV)
-                          CaloTowersTask_energy_HCAL_HF   1	HF_CaloTowers_Energy_in_HCAL_HF.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers HCAL energy (GeV)
-            CaloTowersTask_energy_HcalPlusEcalPlusHO_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                         CaloTowersTask_energy_OUTER_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-    CaloTowersTask_energy_of_ECAL_component_of_tower_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-    CaloTowersTask_energy_of_HCAL_component_of_tower_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                           CaloTowersTask_map_energy_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                      CaloTowersTask_map_energy_ECAL_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                      CaloTowersTask_map_energy_HCAL_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-               CaloTowersTask_number_of_fired_towers_HF   1	       HF_CaloTowers_Ntowers_HF.gif	2	0	500	0	-1	1D	Stat	Chi2	NoLog	2	1	       HF CaloTowers number
-                              CaloTowersTask_phi_MET_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-           CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                            CaloTowersTask_EM_Timing_HF   1	     HF_CaloTowers_EM_Timing_HF.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers EM Timing
-                           CaloTowersTask_HAD_Timing_HF   1	    HF_CaloTowers_HAD_Timing_HF.gif	2	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers HAD Timing
-                     CaloTowersTask_EM_Energy_Timing_HF   1   HF_CaloTowers_EM_Energy_Timing_HF.gif	1	0	-1	0	-1	TM	noStat	noChi2	NoLog	53	42	       HF CaloTowers EM Timing vs Energy
-             CaloTowersTask_EM_Energy_Timing_profile_HF
-                    CaloTowersTask_HAD_Energy_Timing_HF   1  HF_CaloTowers_HAD_Energy_Timing_HF.gif	1	0	-1	0	-1	TM	noStat	noChi2	NoLog	53	42	       HF CaloTowers HAD Timing vs Energy
-            CaloTowersTask_HAD_Energy_Timing_profile_HF
-                       CaloTowersTask_occupancy_vs_ieta   1        CaloTowers_occupancy_vs_ieta.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42	       CaloTowers Occupancy vs. iEta
-                    HcalRecHitTask_RecHit_StatusWord_HB   1	                  HB_StatusWord.gif	1	0	-1	1E-8	-1	1D	NoStat	noChi2	Log	41	42	       HB status word
-                    HcalRecHitTask_RecHit_StatusWord_HE   1	                  HE_StatusWord.gif	1	0	-1	1E-8	-1	1D	NoStat	noChi2	Log	41	42	       HE status word
-                    HcalRecHitTask_RecHit_StatusWord_HF   1	                  HF_StatusWord.gif	1	0	-1	1E-8	-1	1D	NoStat	noChi2	Log	41	42	       HF status word
-                    HcalRecHitTask_RecHit_StatusWord_HO   1	                  HO_StatusWord.gif	1	0	-1	0	-1	1D	NoStat	noChi2	noLog	41	42	       HO status word
-                HcalRecHitTask_RecHit_Aux_StatusWord_HB   1                   HB_Aux_StatusWord.gif     1       0       -1      1E-8    -1      1D      NoStat  noChi2  Log     41      42             HB Aux status word
-                HcalRecHitTask_RecHit_Aux_StatusWord_HE   1                   HE_Aux_StatusWord.gif     1       0       -1      1E-8    -1      1D      NoStat  noChi2  Log     41      42             HE Aux status word
-                HcalRecHitTask_RecHit_Aux_StatusWord_HF   1                   HF_Aux_StatusWord.gif     1       0       -1      1E-8    -1      1D      NoStat  noChi2  Log     41      42             HF Aux status word
-                HcalRecHitTask_RecHit_Aux_StatusWord_HO   1                   HO_Aux_StatusWord.gif     1       0       -1      0       -1      1D      NoStat  noChi2  noLog   41      42             HO Aux status word
-                    HcalRecHitTask_energy_of_rechits_HB   1	              RecHits_energy_HB.gif	10	0	600	0	-1	1D	Statrv	Chi2	Log	2	1		HB RecHits energy (GeV)
-                    HcalRecHitTask_energy_of_rechits_HE   1	              RecHits_energy_HE.gif	10	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HE RecHits energy (GeV)
-                    HcalRecHitTask_energy_of_rechits_HF   1	              RecHits_energy_HF.gif	10	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HF RecHits energy (GeV)
-                    HcalRecHitTask_energy_of_rechits_HO   1	              RecHits_energy_HO.gif	1	0	60	0	-1	1D	Statrv	Chi2	Log	2	1		HO RecHits energy (GeV)
-                               HcalRecHitTask_timing_HB   1	              RecHits_timing_HB.gif	1	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HB RecHits timing
-                               HcalRecHitTask_timing_HE   1	              RecHits_timing_HE.gif	1	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HE RecHits timing
-                               HcalRecHitTask_timing_HF   1	              RecHits_timing_HF.gif	1	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HF RecHits timing
-                               HcalRecHitTask_timing_HO   1	              RecHits_timing_HO.gif	1	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HO RecHits timing
-                     HcalRecHitTask_timing_vs_energy_HB   1	            HB_Timing_vs_Energy.gif	1	0	500	0	-1	TM	NoStat	noChi2	noLog	53	42	      HB Timing vs. Energy
-             HcalRecHitTask_timing_vs_energy_profile_HB
-              HcalRecHitTask_timing_vs_energy_HB_depth1   0	notDrawn.gif	1	-1	-1	-1	-1	1D	Stat	Chi2	Log	2	1	notDrawn
-              HcalRecHitTask_timing_vs_energy_HB_depth2   0     notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                     HcalRecHitTask_timing_vs_energy_HE   1	            HE_Timing_vs_Energy.gif	1	0	500	0	-1	TM	NoStat	noChi2	noLog	53	42	      HE Timing vs. Energy
-             HcalRecHitTask_timing_vs_energy_profile_HE
-              HcalRecHitTask_timing_vs_energy_HE_depth1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-              HcalRecHitTask_timing_vs_energy_HE_depth2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                     HcalRecHitTask_timing_vs_energy_HF   1	            HF_Timing_vs_Energy.gif	1	0	-1	0	-1	TM	NoStat	noChi2	noLog	53	42	      HF Timing vs. Energy
-             HcalRecHitTask_timing_vs_energy_profile_HF
-                    HcalRecHitTask_timing_vs_energy_HFL   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                    HcalRecHitTask_timing_vs_energy_HFS   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                     HcalRecHitTask_timing_vs_energy_HO   1	            HO_Timing_vs_Energy.gif	1	0	30	0	-1	TM	NoStat	noChi2	noLog	53	42	      HO Timing vs. Energy
-             HcalRecHitTask_timing_vs_energy_profile_HO
-                                                   N_HB   1	                           N_HB.gif	10	0	1200	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HB RecHits
-                                                   N_HE   1	                           N_HE.gif	10	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HE RecHits
-                                                   N_HF   1	                           N_HF.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HF RecHits
-                                                   N_HO   1	                           N_HO.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HO RecHits
-                        HcalRecHitTask_severityLevel_HB   1                    severityLevel_HB.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HB
-                        HcalRecHitTask_severityLevel_HE   1                    severityLevel_HE.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HE
-                        HcalRecHitTask_severityLevel_HF   1                    severityLevel_HF.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HF
-                        HcalRecHitTask_severityLevel_HO   1                    severityLevel_HO.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HO
-                                            RMS_seq_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                            RMS_seq_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                            RMS_seq_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                            RMS_seq_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                            RMS_seq_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                            RMS_seq_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                            RMS_seq_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                             RMS_seq_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                        RMS_vs_ieta_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                        RMS_vs_ieta_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                        RMS_vs_ieta_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                        RMS_vs_ieta_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                        RMS_vs_ieta_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                        RMS_vs_ieta_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                        RMS_vs_ieta_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                         RMS_vs_ieta_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                          emean_seq_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                          emean_seq_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                          emean_seq_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                          emean_seq_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                          emean_seq_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                          emean_seq_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                          emean_seq_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                           emean_seq_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                      emean_vs_ieta_HB1   1	              emean_vs_ieta_HB1.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HB depth1
-                                      emean_vs_ieta_HB2   1	              emean_vs_ieta_HB2.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HB depth2
-                                      emean_vs_ieta_HE1   1	              emean_vs_ieta_HE1.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HE depth1
-                                      emean_vs_ieta_HE2   1	              emean_vs_ieta_HE2.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HE depth2
-                                      emean_vs_ieta_HE3   1	              emean_vs_ieta_HE3.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HE depth3
-                                      emean_vs_ieta_HF1   1	              emean_vs_ieta_HF1.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HF depth1
-                                      emean_vs_ieta_HF2   1	              emean_vs_ieta_HF2.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HF depth2
-                                       emean_vs_ieta_HO   1	               emean_vs_ieta_HO.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HO 
-                                               map_ecal   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                   occ_sequential1D_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                   occ_sequential1D_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                   occ_sequential1D_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                   occ_sequential1D_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                   occ_sequential1D_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                   occ_sequential1D_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                   occ_sequential1D_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                    occ_sequential1D_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                      occupancy_map_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                      occupancy_map_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                      occupancy_map_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                      occupancy_map_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                      occupancy_map_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                      occupancy_map_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                      occupancy_map_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                       occupancy_map_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                  occupancy_vs_ieta_HB1   1	          occupancy_vs_ieta_HB1.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HB depth 1: occupancy vs ieta
-                                  occupancy_vs_ieta_HB2   1	          occupancy_vs_ieta_HB2.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HB depth 2: occupancy vs ieta
-                                  occupancy_vs_ieta_HE1   1	          occupancy_vs_ieta_HE1.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HE depth 1: occupancy vs ieta
-                                  occupancy_vs_ieta_HE2   1	          occupancy_vs_ieta_HE2.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HE depth 2: occupancy vs ieta
-                                  occupancy_vs_ieta_HE3   1	          occupancy_vs_ieta_HE3.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HE depth 3: occupancy vs ieta
-                                  occupancy_vs_ieta_HF1   1	          occupancy_vs_ieta_HF1.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HF depth 1: occupancy vs ieta
-                                  occupancy_vs_ieta_HF2   1	          occupancy_vs_ieta_HF2.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HF depth 2: occupancy vs ieta
-                                   occupancy_vs_ieta_HO   1	           occupancy_vs_ieta_HO.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HO: occupancy vs ieta
-                                            emap_depth1   1                    emap_depth1.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth1
-                                            emap_depth1   1                    emap_depth1-1.gif        1      -29      29      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth1 (HB/HE)
-                                            emap_depth2   1                    emap_depth2.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth2
-                                            emap_depth3   1                    emap_depth3.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth3
-                                            emap_depth4   1                    emap_depth4.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth4 
-                                        hLumiBlockCount   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
-                                             hRBXEnergy   1	                     RBX_energy.gif	1	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy (GeV)
-                                        hRBXEnergyType1   1	               RBX_energy_type1.gif	1	0	400	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 1 (GeV)
-                                        hRBXEnergyType2   1	               RBX_energy_type2.gif	4	0	1200	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 2 (GeV)
-                                        hRBXEnergyType3   1	               RBX_energy_type3.gif	4	0	1200	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 3 (GeV)
-                                              hRBXNHits   1	                      RBX_Nhits.gif	1	0	40	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX number of hits
+
+
+
+
+                            CaloTowersTask/number_of_bad_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              bad cells number EB
+                            CaloTowersTask/number_of_bad_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numBadCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              bad cells number EE
+                            CaloTowersTask/number_of_bad_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              bad cells number HB
+                            CaloTowersTask/number_of_bad_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              bad cells number HE
+                            CaloTowersTask/number_of_bad_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numBadCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              bad cells number HF
+                      CaloTowersTask/number_of_recovered_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number EB
+                      CaloTowersTask/number_of_recovered_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numRcvCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number EE
+                      CaloTowersTask/number_of_recovered_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number HB
+                      CaloTowersTask/number_of_recovered_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number HE
+                      CaloTowersTask/number_of_recovered_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numRcvCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              recovered cells number HF
+                    CaloTowersTask/number_of_problematic_cells_Ecal_EB   1      Ecal_EB_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number EB
+                    CaloTowersTask/number_of_problematic_cells_Ecal_EE   1      Ecal_EE_CaloTowers_numPrbCells.gif     1       0       26      0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number EE
+                    CaloTowersTask/number_of_problematic_cells_Hcal_HB   1      Hcal_HB_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number HB
+                    CaloTowersTask/number_of_problematic_cells_Hcal_HE   1      Hcal_HE_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number HE
+                    CaloTowersTask/number_of_problematic_cells_Hcal_HF   1      Hcal_HF_CaloTowers_numPrbCells.gif     1       0       5       0       -1      1D    noStat  noChi2    Log     2       1              problematic cells number HF
+                                  CaloTowersTask/CaloTowersTask_MET_HB   1	           HB_CaloTowers_MET_HB.gif	8	0	800	0	-1	1D Statrv Chi2	Log	2	1	       HB Calo MET (GeV)
+                                  CaloTowersTask/CaloTowersTask_SET_HB   1	           HB_CaloTowers_SET_HB.gif	20	0	2200	0	-1	1D Statrv Chi2	Log	2	1	       Barrel CaloTowers SET (GeV)	
+                          CaloTowersTask/CaloTowersTask_energy_ECAL_HB   1	HB_CaloTowers_Energy_in_ECAL_HB.gif	10	0	1500	0	-1	1D Statrv Chi2	Log	2	1	       HB CaloTowers ECAL energy (GeV)
+                          CaloTowersTask/CaloTowersTask_energy_HCAL_HB   1	HB_CaloTowers_Energy_in_HCAL_HB.gif	10	0	2000	0	-1	1D Statrv Chi2	Log	2	1	       HB CaloTowers HCAL energy (GeV)
+            CaloTowersTask/CaloTowersTask_energy_HcalPlusEcalPlusHO_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                         CaloTowersTask/CaloTowersTask_energy_OUTER_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+    CaloTowersTask/CaloTowersTask_energy_of_ECAL_component_of_tower_HB   0 	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+    CaloTowersTask/CaloTowersTask_energy_of_HCAL_component_of_tower_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                           CaloTowersTask/CaloTowersTask_map_energy_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                      CaloTowersTask/CaloTowersTask_map_energy_ECAL_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                      CaloTowersTask/CaloTowersTask_map_energy_HCAL_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+               CaloTowersTask/CaloTowersTask_number_of_fired_towers_HB   1	       HB_CaloTowers_Ntowers_HB.gif	2	0	500	0	-1	1D Statrv Chi2	NoLog	2	1	       HB CaloTowers number
+                              CaloTowersTask/CaloTowersTask_phi_MET_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+           CaloTowersTask/CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                            CaloTowersTask/CaloTowersTask_EM_Timing_HB   1	     HB_CaloTowers_EM_Timing_HB.gif	2	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HB CaloTowers EM Timing
+                           CaloTowersTask/CaloTowersTask_HAD_Timing_HB   1	    HB_CaloTowers_HAD_Timing_HB.gif	2	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HB CaloTowers HAD Timing
+                     CaloTowersTask/CaloTowersTask_EM_Energy_Timing_HB   1   HB_CaloTowers_EM_Energy_Timing_HB.gif	1	0	800	0	-1	TM	noStat	noChi2	NoLog	53	42	       HB CaloTowers EM Timing vs Energy
+             CaloTowersTask/CaloTowersTask_EM_Energy_Timing_profile_HB
+                    CaloTowersTask/CaloTowersTask_HAD_Energy_Timing_HB   1  HB_CaloTowers_HAD_Energy_Timing_HB.gif	1	0	600	0	-1	TM	noStat	noChi2	NoLog	53	42	       HB CaloTowers HAD Timing vs Energy
+            CaloTowersTask/CaloTowersTask_HAD_Energy_Timing_profile_HB
+                                  CaloTowersTask/CaloTowersTask_MET_HE   1	           HE_CaloTowers_MET_HE.gif	5	0	700	0	-1	1D Statrv Chi2	Log	2	1	       HE Calo MET (GeV)
+                                  CaloTowersTask/CaloTowersTask_SET_HE   1	           HE_CaloTowers_SET_HE.gif	20	0	1000	0	-1	1D Statrv Chi2	Log	2	1	       Endcap CaloTowers SET (GeV)
+                          CaloTowersTask/CaloTowersTask_energy_ECAL_HE   1	HE_CaloTowers_Energy_in_ECAL_HE.gif	5	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HE CaloTowers ECAL energy (GeV)
+                          CaloTowersTask/CaloTowersTask_energy_HCAL_HE   1	HE_CaloTowers_Energy_in_HCAL_HE.gif	5	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HE CaloTowers HCAL energy (GeV)
+            CaloTowersTask/CaloTowersTask_energy_HcalPlusEcalPlusHO_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                         CaloTowersTask/CaloTowersTask_energy_OUTER_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+    CaloTowersTask/CaloTowersTask_energy_of_ECAL_component_of_tower_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+    CaloTowersTask/CaloTowersTask_energy_of_HCAL_component_of_tower_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                           CaloTowersTask/CaloTowersTask_map_energy_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                      CaloTowersTask/CaloTowersTask_map_energy_ECAL_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                      CaloTowersTask/CaloTowersTask_map_energy_HCAL_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+               CaloTowersTask/CaloTowersTask_number_of_fired_towers_HE   1	       HE_CaloTowers_Ntowers_HE.gif	2	0	500	0	-1	1D Statrv Chi2	NoLog	2	1	       HE CaloTowers number
+                              CaloTowersTask/CaloTowersTask_phi_MET_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+           CaloTowersTask/CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HE   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                            CaloTowersTask/CaloTowersTask_EM_Timing_HE   1	     HE_CaloTowers_EM_Timing_HE.gif	2	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HE CaloTowers EM Timing
+                           CaloTowersTask/CaloTowersTask_HAD_Timing_HE   1	    HE_CaloTowers_HAD_Timing_HE.gif	2	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HE CaloTowers HAD Timing
+                     CaloTowersTask/CaloTowersTask_EM_Energy_Timing_HE   1   HE_CaloTowers_EM_Energy_Timing_HE.gif	1	0	1500	0	-1	TM	noStat	noChi2	NoLog	53	42	       HE CaloTowers EM Timing vs Energy
+             CaloTowersTask/CaloTowersTask_EM_Energy_Timing_profile_HE
+                    CaloTowersTask/CaloTowersTask_HAD_Energy_Timing_HE   1  HE_CaloTowers_HAD_Energy_Timing_HE.gif	1	0	1500	0	-1	TM	noStat	noChi2	NoLog	53	42	       HE CaloTowers HAD Timing vs Energy
+            CaloTowersTask/CaloTowersTask_HAD_Energy_Timing_profile_HE
+                                  CaloTowersTask/CaloTowersTask_MET_HF   1	           HF_CaloTowers_MET_HF.gif	2	0	200	0	-1	1D Statrv Chi2	Log	2	1	       HF Calo MET (GeV)
+                                  CaloTowersTask/CaloTowersTask_SET_HF   1	           HF_CaloTowers_SET_HF.gif	2	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       Forward CaloTowers SET (GeV)
+                          CaloTowersTask/CaloTowersTask_energy_ECAL_HF   1	HF_CaloTowers_Energy_in_ECAL_HF.gif	5	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HF CaloTowers ECAL energy (GeV)
+                          CaloTowersTask/CaloTowersTask_energy_HCAL_HF   1	HF_CaloTowers_Energy_in_HCAL_HF.gif	5	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HF CaloTowers HCAL energy (GeV)
+            CaloTowersTask/CaloTowersTask_energy_HcalPlusEcalPlusHO_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                         CaloTowersTask/CaloTowersTask_energy_OUTER_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+    CaloTowersTask/CaloTowersTask_energy_of_ECAL_component_of_tower_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+    CaloTowersTask/CaloTowersTask_energy_of_HCAL_component_of_tower_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                           CaloTowersTask/CaloTowersTask_map_energy_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                      CaloTowersTask/CaloTowersTask_map_energy_ECAL_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                      CaloTowersTask/CaloTowersTask_map_energy_HCAL_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+               CaloTowersTask/CaloTowersTask_number_of_fired_towers_HF   1	       HF_CaloTowers_Ntowers_HF.gif	2	0	500	0	-1	1D Statrv Chi2	NoLog	2	1	       HF CaloTowers number
+                              CaloTowersTask/CaloTowersTask_phi_MET_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+           CaloTowersTask/CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HF   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                            CaloTowersTask/CaloTowersTask_EM_Timing_HF   1	     HF_CaloTowers_EM_Timing_HF.gif	2	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HF CaloTowers EM Timing
+                           CaloTowersTask/CaloTowersTask_HAD_Timing_HF   1	    HF_CaloTowers_HAD_Timing_HF.gif	2	0	-1	0	-1	1D Statrv Chi2	Log	2	1	       HF CaloTowers HAD Timing
+                     CaloTowersTask/CaloTowersTask_EM_Energy_Timing_HF   1   HF_CaloTowers_EM_Energy_Timing_HF.gif	1	0	-1	0	-1	TM	noStat	noChi2	NoLog	53	42	       HF CaloTowers EM Timing vs Energy
+             CaloTowersTask/CaloTowersTask_EM_Energy_Timing_profile_HF
+                    CaloTowersTask/CaloTowersTask_HAD_Energy_Timing_HF   1  HF_CaloTowers_HAD_Energy_Timing_HF.gif	1	0	-1	0	-1	TM	noStat	noChi2	NoLog	53	42	       HF CaloTowers HAD Timing vs Energy
+            CaloTowersTask/CaloTowersTask_HAD_Energy_Timing_profile_HF
+                       CaloTowersTask/CaloTowersTask_occupancy_vs_ieta   1        CaloTowers_occupancy_vs_ieta.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42	       CaloTowers Occupancy vs. iEta
+                    HcalRecHitTask/HcalRecHitTask_RecHit_StatusWord_HB   1	                  HB_StatusWord.gif	1	0	-1	1E-8	-1	1D	NoStat	noChi2	Log	41	42	       HB status word
+                    HcalRecHitTask/HcalRecHitTask_RecHit_StatusWord_HE   1	                  HE_StatusWord.gif	1	0	-1	1E-8	-1	1D	NoStat	noChi2	Log	41	42	       HE status word
+                    HcalRecHitTask/HcalRecHitTask_RecHit_StatusWord_HF   1	                  HF_StatusWord.gif	1	0	-1	1E-8	-1	1D	NoStat	noChi2	Log	41	42	       HF status word
+                    HcalRecHitTask/HcalRecHitTask_RecHit_StatusWord_HO   1	                  HO_StatusWord.gif	1	0	-1	0	-1	1D	NoStat	noChi2	noLog	41	42	       HO status word
+                HcalRecHitTask/HcalRecHitTask_RecHit_Aux_StatusWord_HB   1                   HB_Aux_StatusWord.gif     1       0       -1      1E-8    -1      1D      NoStat  noChi2  Log     41      42             HB Aux status word
+                HcalRecHitTask/HcalRecHitTask_RecHit_Aux_StatusWord_HE   1                   HE_Aux_StatusWord.gif     1       0       -1      1E-8    -1      1D      NoStat  noChi2  Log     41      42             HE Aux status word
+                HcalRecHitTask/HcalRecHitTask_RecHit_Aux_StatusWord_HF   1                   HF_Aux_StatusWord.gif     1       0       -1      1E-8    -1      1D      NoStat  noChi2  Log     41      42             HF Aux status word
+                HcalRecHitTask/HcalRecHitTask_RecHit_Aux_StatusWord_HO   1                   HO_Aux_StatusWord.gif     1       0       -1      0       -1      1D      NoStat  noChi2  noLog   41      42             HO Aux status word
+                    HcalRecHitTask/HcalRecHitTask_energy_of_rechits_HB   1	              RecHits_energy_HB.gif	10	0	600	0	-1	1D	Statrv	Chi2	Log	2	1		HB RecHits energy (GeV)
+                    HcalRecHitTask/HcalRecHitTask_energy_of_rechits_HE   1	              RecHits_energy_HE.gif	10	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HE RecHits energy (GeV)
+                    HcalRecHitTask/HcalRecHitTask_energy_of_rechits_HF   1	              RecHits_energy_HF.gif	10	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HF RecHits energy (GeV)
+                    HcalRecHitTask/HcalRecHitTask_energy_of_rechits_HO   1	              RecHits_energy_HO.gif	1	0	60	0	-1	1D	Statrv	Chi2	Log	2	1		HO RecHits energy (GeV)
+                               HcalRecHitTask/HcalRecHitTask_timing_HB   1	              RecHits_timing_HB.gif	1	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HB RecHits timing
+                               HcalRecHitTask/HcalRecHitTask_timing_HE   1	              RecHits_timing_HE.gif	1	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HE RecHits timing
+                               HcalRecHitTask/HcalRecHitTask_timing_HF   1	              RecHits_timing_HF.gif	1	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HF RecHits timing
+                               HcalRecHitTask/HcalRecHitTask_timing_HO   1	              RecHits_timing_HO.gif	1	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HO RecHits timing
+                     HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HB   1	            HB_Timing_vs_Energy.gif	1	0	500	0	-1	TM	NoStat	noChi2	noLog	53	42	      HB Timing vs. Energy
+             HcalRecHitTask/HcalRecHitTask_timing_vs_energy_profile_HB
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HB_depth1   0	notDrawn.gif	1	-1	-1	-1	-1	1D Statrv Chi2	Log	2	1	notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HB_depth2   0     notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HB_depth3   0     notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HB_depth4   0     notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HB_depth5   0     notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                     HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE   1	            HE_Timing_vs_Energy.gif	1	0	500	0	-1	TM	NoStat	noChi2	noLog	53	42	      HE Timing vs. Energy
+             HcalRecHitTask/HcalRecHitTask_timing_vs_energy_profile_HE
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth4   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth5   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth6   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth7   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth8   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth9   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth10   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth11   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+              HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HE_depth12   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                     HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HF   1	            HF_Timing_vs_Energy.gif	1	0	-1	0	-1	TM	NoStat	noChi2	noLog	53	42	      HF Timing vs. Energy
+             HcalRecHitTask/HcalRecHitTask_timing_vs_energy_profile_HF
+                    HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HFL   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                    HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HFS   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                     HcalRecHitTask/HcalRecHitTask_timing_vs_energy_HO   1	            HO_Timing_vs_Energy.gif	1	0	30	0	-1	TM	NoStat	noChi2	noLog	53	42	      HO Timing vs. Energy
+             HcalRecHitTask/HcalRecHitTask_timing_vs_energy_profile_HO
+                                                   HcalRecHitTask/N_HB   1	                           N_HB.gif	10	0	1200	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HB RecHits
+                                                   HcalRecHitTask/N_HE   1	                           N_HE.gif	10	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HE RecHits
+                                                   HcalRecHitTask/N_HF   1	                           N_HF.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HF RecHits
+                                                   HcalRecHitTask/N_HO   1	                           N_HO.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HO RecHits
+                        HcalRecHitTask/HcalRecHitTask_severityLevel_HB   1                    severityLevel_HB.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HB
+                        HcalRecHitTask/HcalRecHitTask_severityLevel_HE   1                    severityLevel_HE.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HE
+                        HcalRecHitTask/HcalRecHitTask_severityLevel_HF   1                    severityLevel_HF.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HF
+                        HcalRecHitTask/HcalRecHitTask_severityLevel_HO   1                    severityLevel_HO.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HO
+                                            HcalRecHitTask/RMS_seq_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                            HcalRecHitTask/RMS_seq_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                            HcalRecHitTask/RMS_seq_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                            HcalRecHitTask/RMS_seq_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                            HcalRecHitTask/RMS_seq_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                            HcalRecHitTask/RMS_seq_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                            HcalRecHitTask/RMS_seq_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                             HcalRecHitTask/RMS_seq_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                        HcalRecHitTask/RMS_vs_ieta_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                        HcalRecHitTask/RMS_vs_ieta_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                        HcalRecHitTask/RMS_vs_ieta_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                        HcalRecHitTask/RMS_vs_ieta_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                        HcalRecHitTask/RMS_vs_ieta_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                        HcalRecHitTask/RMS_vs_ieta_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                        HcalRecHitTask/RMS_vs_ieta_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                         HcalRecHitTask/RMS_vs_ieta_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                          HcalRecHitTask/emean_seq_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                          HcalRecHitTask/emean_seq_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                          HcalRecHitTask/emean_seq_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                          HcalRecHitTask/emean_seq_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                          HcalRecHitTask/emean_seq_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                          HcalRecHitTask/emean_seq_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                          HcalRecHitTask/emean_seq_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                           HcalRecHitTask/emean_seq_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                      HcalRecHitTask/emean_vs_ieta_HB1   1	              emean_vs_ieta_HB1.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HB depth1
+                                      HcalRecHitTask/emean_vs_ieta_HB2   1	              emean_vs_ieta_HB2.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HB depth2
+                                      HcalRecHitTask/emean_vs_ieta_HB3   1	              emean_vs_ieta_HB3.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HB depth3
+                                      HcalRecHitTask/emean_vs_ieta_HB4   1	              emean_vs_ieta_HB4.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HB depth4
+                                      HcalRecHitTask/emean_vs_ieta_HB5   1	              emean_vs_ieta_HB5.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HB depth5
+                                      HcalRecHitTask/emean_vs_ieta_HE1   1	              emean_vs_ieta_HE1.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HE depth1
+                                      HcalRecHitTask/emean_vs_ieta_HE2   1	              emean_vs_ieta_HE2.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HE depth2
+                                      HcalRecHitTask/emean_vs_ieta_HE3   1	              emean_vs_ieta_HE3.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HE depth3
+                                      HcalRecHitTask/emean_vs_ieta_HE4   1	              emean_vs_ieta_HE4.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HE depth4
+                                      HcalRecHitTask/emean_vs_ieta_HE5   1	              emean_vs_ieta_HE5.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HE depth5
+                                      HcalRecHitTask/emean_vs_ieta_HF1   1	              emean_vs_ieta_HF1.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HF depth1
+                                      HcalRecHitTask/emean_vs_ieta_HF2   1	              emean_vs_ieta_HF2.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HF depth2
+                                       HcalRecHitTask/emean_vs_ieta_HO   1	               emean_vs_ieta_HO.gif	1	0	-1	0	-1	PR	noStat	noChi2	NoLog	41	42		Mean energy vs ieta (GeV) HO 
+                                               HcalRecHitTask/map_ecal   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                   HcalRecHitTask/occ_sequential1D_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                   HcalRecHitTask/occ_sequential1D_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                   HcalRecHitTask/occ_sequential1D_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                   HcalRecHitTask/occ_sequential1D_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                   HcalRecHitTask/occ_sequential1D_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                   HcalRecHitTask/occ_sequential1D_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                   HcalRecHitTask/occ_sequential1D_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                    HcalRecHitTask/occ_sequential1D_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                      HcalRecHitTask/occupancy_map_HB1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                      HcalRecHitTask/occupancy_map_HB2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                      HcalRecHitTask/occupancy_map_HE1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                      HcalRecHitTask/occupancy_map_HE2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                      HcalRecHitTask/occupancy_map_HE3   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                      HcalRecHitTask/occupancy_map_HF1   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                      HcalRecHitTask/occupancy_map_HF2   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                       HcalRecHitTask/occupancy_map_HO   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                  HcalRecHitTask/occupancy_vs_ieta_HB1   1	          occupancy_vs_ieta_HB1.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HB depth 1: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HB2   1	          occupancy_vs_ieta_HB2.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HB depth 2: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HB3   1	          occupancy_vs_ieta_HB3.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HB depth 2: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HB4   1	          occupancy_vs_ieta_HB4.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HB depth 2: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HB5   1	          occupancy_vs_ieta_HB5.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HB depth 2: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HE1   1	          occupancy_vs_ieta_HE1.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HE depth 1: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HE2   1	          occupancy_vs_ieta_HE2.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HE depth 2: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HE3   1	          occupancy_vs_ieta_HE3.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HE depth 3: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HE4   1	          occupancy_vs_ieta_HE4.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HE depth 3: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HE5   1	          occupancy_vs_ieta_HE5.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HE depth 3: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HF1   1	          occupancy_vs_ieta_HF1.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HF depth 1: occupancy vs ieta
+                                  HcalRecHitTask/occupancy_vs_ieta_HF2   1	          occupancy_vs_ieta_HF2.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HF depth 2: occupancy vs ieta
+                                   HcalRecHitTask/occupancy_vs_ieta_HO   1	           occupancy_vs_ieta_HO.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HO: occupancy vs ieta
+                                            HcalRecHitTask/emap_depth1   1                    emap_depth1.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth1
+                                            HcalRecHitTask/emap_depth1   1                    emap_depth1-1.gif        1      -29      29      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth1 (HB/HE)
+                                            HcalRecHitTask/emap_depth2   1                    emap_depth2.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth2
+                                            HcalRecHitTask/emap_depth3   1                    emap_depth3.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth3
+                                            HcalRecHitTask/emap_depth4   1                    emap_depth4.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth4 
+                                            HcalRecHitTask/emap_depth5   1                    emap_depth5.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits Emap depth5 
+                                            HcalRecHitTask/emap_depth6   1                    emap_depth6.gif          1      -42      42      0       72      2D      noStat  noChi2  NoLog    2       1                 eta-phi RecHits E
+                                        HcalRecHitTask/hLumiBlockCount   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Statrv    Chi2    Log     2       1       notDrawn
+                                             NoiseRatesTask/hRBXEnergy   1	                     RBX_energy.gif	1	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy (GeV)
+                                        NoiseRatesTask/hRBXEnergyType1   1	               RBX_energy_type1.gif	1	0	400	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 1 (GeV)
+                                        NoiseRatesTask/hRBXEnergyType2   1	               RBX_energy_type2.gif	4	0	1200	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 2 (GeV)
+                                        NoiseRatesTask/hRBXEnergyType3   1	               RBX_energy_type3.gif	4	0	1200	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 3 (GeV)
+                                              NoiseRatesTask/hRBXNHits   1	                      RBX_Nhits.gif	1	0	40	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX number of hits

@@ -65,13 +65,13 @@ parser.add_option("-m", "--isMC",
 parser.add_option("-s", "--startRun",
                    help="First run number in range.",
                    type="int",
-                   default=0L,
+                   default=0,
                    dest="startRun")
 
 parser.add_option("-e", "--endRun",
                    help="Last run number in range.",
                    type="int",
-                   default=999999999L,
+                   default=999999999,
                    dest="endRun")
 
 parser.add_option("-b", "--minB",
@@ -252,13 +252,13 @@ def getGoodBRuns():
         if v>0:
             print "######## trends ########"
         for x in iov.trendinrange(what,options.startRun-1,options.endRun+1):
-            if v>0 or x[0]==67647L or x[0]==66893L or x[0]==67264L:
+            if v>0 or x[0]==67647 or x[0]==66893 or x[0]==67264:
                 print x[0],x[1] ,x[2], x[2][4], x[2][3]
                 #print x[0],x[1] ,x[2], x[2][4], timeStamptoUTC(x[2][6]), timeStamptoUTC(x[2][7])
             if x[2][4] >= minI and x[2][3] <= maxI:
                 runs_b_on.append(int(x[0]))
 
-    except Exception, er :
+    except Exception as er :
         print er
 
     print "### runs with good B field ###"
@@ -426,9 +426,9 @@ infotofile.append("### %s\n" % str(uniq_list_of_runs))
 
 
 # prevent against duplication due to the fact now a file can have events from several runs
-files_events = zip(list_of_files, list_of_numevents)
+files_events = list(zip(list_of_files, list_of_numevents))
 unique_files_events = list(set(files_events))
-list_of_files, list_of_numevents = map(list, zip(*unique_files_events))
+list_of_files, list_of_numevents = map(list, list(zip(*unique_files_events)))
 total_numevents = sum( map(int, list_of_numevents) )
 
 print "### total number of events in those "+str(len(uniq_list_of_runs))+" runs = "+str(total_numevents)

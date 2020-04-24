@@ -41,21 +41,21 @@ class ODCond2ConfInfo : public IODConfig {
 
   // the tag is already in IODConfig 
 
-  int fetchID()  throw(std::runtime_error);
+  int fetchID()  noexcept(false);
 
-  int fetchNextId() throw(std::runtime_error);
+  int fetchNextId() noexcept(false);
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
-  void prepareWrite()  throw(std::runtime_error);
+  void prepareWrite()  noexcept(false);
 
-  void writeDB()       throw(std::runtime_error);
+  void writeDB()       noexcept(false);
 
   void clear();
 
-  void fetchData(ODCond2ConfInfo * result)     throw(std::runtime_error);
+  void fetchData(ODCond2ConfInfo * result)     noexcept(false);
 
-  void fetchParents()  throw(std::runtime_error) ;
+  void fetchParents()  noexcept(false) ;
 
 
   // User data

@@ -44,9 +44,10 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
     /**
       Unpacks TCC data 
      */
+    using DCCDataBlockPrototype::unpack;
     int unpack(const uint64_t ** data, unsigned int * dwToEnd, short tccChId=0);
 	 
-    void display(std::ostream & o); 
+    void display(std::ostream & o) override; 
 	 
   
   protected :
@@ -65,8 +66,8 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
     EcalTrigTowerDetId * pTTDetId_;   
     EcalTriggerPrimitiveDigi * pTP_;
     EcalPseudoStripInputDigi * pPS_;
-    std::auto_ptr<EcalTrigPrimDigiCollection> * tps_;  
-    std::auto_ptr<EcalPSInputDigiCollection> * pss_;  
+    std::unique_ptr<EcalTrigPrimDigiCollection> * tps_;  
+    std::unique_ptr<EcalPSInputDigiCollection> * pss_;  
 
 };
 

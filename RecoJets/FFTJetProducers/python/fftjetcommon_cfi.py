@@ -68,6 +68,15 @@ fftjet_grid_256_128 = cms.PSet(
     title = cms.untracked.string("256 x 128")
 )
 
+fftjet_grid_512_256 = cms.PSet(
+    nEtaBins = cms.uint32(512),
+    etaMin = cms.double(-2.0*math.pi),
+    etaMax = cms.double(2.0*math.pi),
+    nPhiBins = cms.uint32(256),
+    phiBin0Edge = cms.double(0.0),
+    title = cms.untracked.string("512 x 256")
+)
+
 #
 # Definitions for anomalous towers
 # 
@@ -100,6 +109,17 @@ fftjet_patreco_scales_50 = cms.PSet(
     minScale = cms.double(0.087),
     maxScale = cms.double(0.6),
     nScales = cms.uint32(50)
+)
+
+#
+# Scales from 0.05 to 0.6, with 4.0% step.
+# Appropriate for use with the 512 x 256 grid.
+#
+fftjet_patreco_scales_64 = cms.PSet(
+    Class = cms.string("EquidistantInLogSpace"),
+    minScale = cms.double(0.05),
+    maxScale = cms.double(0.6),
+    nScales = cms.uint32(64)
 )
 
 #

@@ -11,6 +11,7 @@ from DPGAnalysis.Skims.Skims_DPG_cff import pathlogerror,SKIMStreamLogError
 from DPGAnalysis.Skims.Skims_DPG_cff import pathlogerrormonitor,SKIMStreamLogErrorMonitor
 
 ############
+
 from DPGAnalysis.Skims.cosmicSPSkim_cff import *
 
 cosmicMuonsBarrelOnlyPath = cms.Path(cosmicMuonsBarrelOnlySequence)
@@ -38,6 +39,42 @@ SKIMStreamCosmicSP = cms.FilteredStream(
                     dataTier = cms.untracked.string('RAW-RECO')
                     )
 
+from DPGAnalysis.Skims.cosmicTPSkim_cff import *
+
+cosmicMuonsBarrelOnlyTkPath = cms.Path(cosmicMuonsEndCapsOnlyTkSequence)
+cosmicMuonsEndCapsOnlyTkPath = cms.Path(cosmicMuonsTkSequence)
+cosmicMuonsTkPath = cms.Path(cosmicMuons1LegTkSequence)
+cosmicMuons1LegTkPath = cms.Path(cosmicMuons1LegTkSequence)
+globalCosmicMuonsBarrelOnlyTkPath = cms.Path(globalCosmicMuonsBarrelOnlyTkSequence)
+globalCosmicMuonsEndCapsOnlyTkPath = cms.Path(globalCosmicMuonsEndCapsOnlyTkSequence)
+globalCosmicMuonsTkPath = cms.Path(globalCosmicMuonsTkSequence)
+globalCosmicMuons1LegTkPath = cms.Path(globalCosmicMuons1LegTkSequence)
+cosmictrackfinderP5TkCntPath = cms.Path(cosmictrackfinderP5TkCntSequence)
+ctfWithMaterialTracksP5TkCntPath = cms.Path(ctfWithMaterialTracksP5TkCntSequence)
+# (SK) keep commented out in case of resurrection
+#rsWithMaterialTracksP5TkCntPath = cms.Path(rsWithMaterialTracksP5TkCntSequence)
+
+SKIMStreamCosmicTP = cms.FilteredStream(
+            responsible = 'DDT',
+                    name = 'CosmicTP',
+                    paths = (cosmicMuonsBarrelOnlyTkPath,
+                                              cosmicMuonsEndCapsOnlyTkPath,
+                                              cosmicMuonsTkPath,
+                                              cosmicMuons1LegTkPath,
+                                              globalCosmicMuonsBarrelOnlyTkPath,
+                                              globalCosmicMuonsEndCapsOnlyTkPath,
+                                              globalCosmicMuonsTkPath,
+                                              globalCosmicMuons1LegTkPath,
+                                              cosmictrackfinderP5TkCntPath,
+                                              ctfWithMaterialTracksP5TkCntPath
+#                             ,
+# (SK) keep commented out in case of resurrection
+#                                              rsWithMaterialTracksP5TkCntPath
+                             ),
+                    content = skimContent.outputCommands,
+                    selectEvents = cms.untracked.PSet(),
+                    dataTier = cms.untracked.string('RAW-RECO')
+                    )
 
 """
 from DPGAnalysis.Skims.cscSkim_cff import *
@@ -82,43 +119,4 @@ SKIMStreamCosmicSP = cms.FilteredStream(
                     )
 
 #####################
-
-from DPGAnalysis.Skims.cosmicTPSkim_cff import *
-
-cosmicMuonsBarrelOnlyTkPath = cms.Path(cosmicMuonsEndCapsOnlyTkSequence)
-cosmicMuonsEndCapsOnlyTkPath = cms.Path(cosmicMuonsTkSequence)
-cosmicMuonsTkPath = cms.Path(cosmicMuons1LegTkSequence)
-cosmicMuons1LegTkPath = cms.Path(cosmicMuons1LegTkSequence)
-globalCosmicMuonsBarrelOnlyTkPath = cms.Path(globalCosmicMuonsBarrelOnlyTkSequence)
-globalCosmicMuonsEndCapsOnlyTkPath = cms.Path(globalCosmicMuonsEndCapsOnlyTkSequence)
-globalCosmicMuonsTkPath = cms.Path(globalCosmicMuonsTkSequence)
-globalCosmicMuons1LegTkPath = cms.Path(globalCosmicMuons1LegTkSequence)
-cosmictrackfinderP5TkCntPath = cms.Path(cosmictrackfinderP5TkCntSequence)
-ctfWithMaterialTracksP5TkCntPath = cms.Path(ctfWithMaterialTracksP5TkCntSequence)
-# (SK) keep commented out in case of resurrection
-#rsWithMaterialTracksP5TkCntPath = cms.Path(rsWithMaterialTracksP5TkCntSequence)
-
-SKIMStreamCosmicTP = cms.FilteredStream(
-            responsible = '',
-                    name = 'CosmicTP',
-                    paths = (cosmicMuonsBarrelOnlyTkPath,
-                                              cosmicMuonsEndCapsOnlyTkPath,
-                                              cosmicMuonsTkPath,
-                                              cosmicMuons1LegTkPath,
-                                              globalCosmicMuonsBarrelOnlyTkPath,
-                                              globalCosmicMuonsEndCapsOnlyTkPath,
-                                              globalCosmicMuonsTkPath,
-                                              globalCosmicMuons1LegTkPath,
-                                              cosmictrackfinderP5TkCntPath,
-                                              ctfWithMaterialTracksP5TkCntPath
-#                             ,
-# (SK) keep commented out in case of resurrection
-#                                              rsWithMaterialTracksP5TkCntPath
-                             ),
-                    content = skimContent.outputCommands,
-                    selectEvents = cms.untracked.PSet(),
-                    dataTier = cms.untracked.string('RAW-RECO')
-                    )
 """
-
-

@@ -14,12 +14,12 @@
 class ZdcSD : public CaloSD {
 
 public:    
-  ZdcSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
+  ZdcSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
 	edm::ParameterSet const &,const SimTrackManager*);
  
-  virtual ~ZdcSD();
-  virtual bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual uint32_t setDetUnitId(G4Step* step);
+  ~ZdcSD() override;
+  bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
+  uint32_t setDetUnitId(G4Step* step) override;
   virtual double getEnergyDeposit(G4Step*, edm::ParameterSet const &);
  
   void setNumberingScheme(ZdcNumberingScheme* scheme);
@@ -27,7 +27,7 @@ public:
  
 
 protected:
-  virtual void initRun();
+  void initRun() override;
 private:    
 
   int verbosity;

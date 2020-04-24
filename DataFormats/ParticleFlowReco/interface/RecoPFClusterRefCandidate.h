@@ -8,18 +8,20 @@
 namespace reco {
 
 
-  typedef LeafRefCandidateT<PFClusterRef> RecoPFClusterRefCandidateBase;
+  typedef LeafRefCandidateT  RecoPFClusterRefCandidateBase;
   
 
-  class RecoPFClusterRefCandidate : public  RecoPFClusterRefCandidateBase {
+  class RecoPFClusterRefCandidate : public  LeafRefCandidateT {
   public:
-    RecoPFClusterRefCandidate() : LeafRefCandidateT<PFClusterRef>() {}
-    RecoPFClusterRefCandidate(PFClusterRef ref, float m) : LeafRefCandidateT<PFClusterRef>( ref, m) {}
+    RecoPFClusterRefCandidate() : LeafRefCandidateT() {}
+    RecoPFClusterRefCandidate(PFClusterRef ref, float m) : LeafRefCandidateT( ref, m) {}
     
-    ~RecoPFClusterRefCandidate() {};
+    ~RecoPFClusterRefCandidate() override {}
 
-    reco::PFClusterRef const & pfCluster() const {
-      return ref_;
+    RecoPFClusterRefCandidate * clone() const override { return new RecoPFClusterRefCandidate(*this);}
+
+    reco::PFClusterRef pfCluster() const {
+      return getRef<reco::PFClusterRef>();
     }
   };
 }

@@ -39,30 +39,30 @@ The alignment objects are filled with fixed alignments.
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HBAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/HBAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HBAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HEAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/HEAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HEAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HOAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/HOAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HOAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HFAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CastorAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorExtendedRcd.h"
 
 class TestCaloAlignmentEP : public edm::ESProducer 
 {
    public:
 
-      typedef boost::shared_ptr<Alignments>      ReturnAli    ;
-      typedef boost::shared_ptr<AlignmentErrors> ReturnAliErr ;
+      typedef std::shared_ptr<Alignments>      ReturnAli    ;
+      typedef std::shared_ptr<AlignmentErrors> ReturnAliErr ;
 
       typedef AlignTransform::Translation Trl ;
       typedef AlignTransform::Rotation    Rot ;
@@ -89,7 +89,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 setWhatProduced( this, &TestCaloAlignmentEP::produceCastorAliErr ) ;
       }
 
-      ~TestCaloAlignmentEP() {}
+      ~TestCaloAlignmentEP() override {}
 
 //-------------------------------------------------------------------
  
@@ -102,7 +102,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const EBDetId id ( EcalBarrelGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( ( 1==id.ism() ? Trl( 0, 0, 0 ) : //-0.3 ) :
+	    vtr.emplace_back( AlignTransform( ( 1==id.ism() ? Trl( 0, 0, 0 ) : //-0.3 ) :
 					     Trl(0,0,0 ) ) , 
 					   Rot(),
 					   id              ) ) ;
@@ -110,7 +110,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceEBAliErr( const EBAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceEBAliErr( const EBAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -126,7 +126,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const EEDetId id (  EcalEndcapGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform(  ( 2 > i ? Trl( -0.02, -0.81, -0.94 ) :
+	    vtr.emplace_back( AlignTransform(  ( 2 > i ? Trl( -0.02, -0.81, -0.94 ) :
 					      Trl( +0.52, -0.81, +0.81 ) ) ,
 					   Rot(),
 					   id              ) ) ;
@@ -134,7 +134,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceEEAliErr( const EEAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceEEAliErr( const EEAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -150,7 +150,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const ESDetId id ( EcalPreshowerGeometry::detIdFromLocalAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( ( 4 > i ? Trl( -0.02, -0.81, -0.94 ) :
+	    vtr.emplace_back( AlignTransform( ( 4 > i ? Trl( -0.02, -0.81, -0.94 ) :
 					     Trl( +0.52, -0.81, +0.81 ) ) ,  
 					   Rot(),
 					   id           ) ) ;
@@ -158,7 +158,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceESAliErr( const ESAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceESAliErr( const ESAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -174,14 +174,14 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalDetId id ( HcalGeometry::detIdFromBarrelAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
 	 return ali ;
       }
 
-      ReturnAliErr produceHBAliErr( const HBAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceHBAliErr( const HBAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -197,14 +197,14 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalDetId id ( HcalGeometry::detIdFromEndcapAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
 	 return ali ;
       }
 
-      ReturnAliErr produceHEAliErr( const HEAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceHEAliErr( const HEAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -220,14 +220,14 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalDetId id ( HcalGeometry::detIdFromOuterAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
 	 return ali ;
       }
 
-      ReturnAliErr produceHOAliErr( const HOAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceHOAliErr( const HOAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -243,14 +243,14 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalDetId id ( HcalGeometry::detIdFromForwardAlignmentIndex( i ) ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
 	 return ali ;
       }
 
-      ReturnAliErr produceHFAliErr( const HFAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceHFAliErr( const HFAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -266,14 +266,14 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalZDCDetId id ( HcalZDCDetId::EM, false, 1 ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
 	 return ali ;
       }
 
-      ReturnAliErr produceZdcAliErr( const ZDCAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceZdcAliErr( const ZDCAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -289,14 +289,14 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
 	    const HcalCastorDetId id ( HcalCastorDetId::EM, false, 1, 1 ) ;
-	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+	    vtr.emplace_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
 	 }
 	 return ali ;
       }
 
-      ReturnAliErr produceCastorAliErr( const CastorAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceCastorAliErr( const CastorAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;

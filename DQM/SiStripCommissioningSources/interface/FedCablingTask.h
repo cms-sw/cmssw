@@ -15,15 +15,15 @@ class FedCablingTask : public CommissioningTask {
  public:
   
   FedCablingTask( DQMStore*, const FedChannelConnection& );
-  virtual ~FedCablingTask();
+  ~FedCablingTask() override;
   
  private:
   
-  virtual void book();
-  virtual void fill( const SiStripEventSummary&, 
+  void book() override;
+  void fill( const SiStripEventSummary&, 
 		     const uint16_t& fed_id,
-		     const std::map<uint16_t,float>& fed_ch );
-  virtual void update();
+		     const std::map<uint16_t,float>& fed_ch ) override;
+  void update() override;
   
   /** HistoSet for FED cabling. First element contains histo info for
       FED id, second element contains histo info for FED channel. */

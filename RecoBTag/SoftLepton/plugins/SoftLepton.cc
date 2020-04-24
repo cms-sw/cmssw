@@ -20,6 +20,7 @@
 #include <cmath>
 
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // ROOT::Math vectors (aka math::XYZVector)
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -165,7 +166,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
       leptonId = SoftLeptonProperties::Quality::egammaElectronId;
       for (GsfElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
         LeptonIds &id = leptons[reco::TrackBaseRef(electron->gsfTrack())];
-        id[SoftLeptonProperties::Quality::pfElectronId] = electron->mva();
+        id[SoftLeptonProperties::Quality::pfElectronId] = electron->mva_e_pi();
         if (haveLeptonCands)
           id[SoftLeptonProperties::Quality::btagElectronCands] = (*h_leptonCands)[h_electrons->refAt(electron - h_electrons->begin())];
       }
@@ -255,12 +256,12 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   }
 
   // output collections
-  std::auto_ptr<reco::SoftLeptonTagInfoCollection> outputCollection(  new reco::SoftLeptonTagInfoCollection() );
+  auto outputCollection = std::make_unique<reco::SoftLeptonTagInfoCollection>();
   for (unsigned int i = 0; i < jets.size(); ++i) {
     reco::SoftLeptonTagInfo result = tag( jets[i], tracks[i], leptons, vertex );
     outputCollection->push_back( result );
   }
-  event.put( outputCollection );
+  event.put(std::move(outputCollection));
 }
 
 // ---------------------------------------------------------------------------------------
@@ -280,15 +281,20 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
 
     const GlobalVector jetAxis = refineJetAxis( jet, tracks, lepton->first );
     const math::XYZVector axis( jetAxis.x(), jetAxis.y(), jetAxis.z());
-    if (DeltaR(lepton_momentum, axis) > m_deltaRCut)
+    float deltaR = Geom::deltaR(lepton_momentum, axis);
+    if (deltaR > m_deltaRCut)
       continue;
 
     reco::SoftLeptonProperties properties;
 
     reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton->first);
-    properties.sip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second.significance();
-    properties.sip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second.significance();
-    properties.deltaR   = DeltaR( lepton_momentum, axis );
+    Measurement1D ip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second;
+    Measurement1D ip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second;
+    properties.sip2dsig    = ip2d.significance();
+    properties.sip3dsig    = ip3d.significance();
+    properties.sip2d    = ip2d.value();
+    properties.sip3d    = ip3d.value();
+    properties.deltaR   = deltaR;
     properties.ptRel    = Perp( lepton_momentum, axis );
     properties.p0Par    = boostedPPar( lepton_momentum, axis );
     properties.etaRel   = relativeEta( lepton_momentum, axis );
@@ -396,4 +402,21 @@ double SoftLepton::boostedPPar(const math::XYZVector& vector, const math::XYZVec
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > jet( axis.r(), 0., 0., jet_mass );
   ROOT::Math::BoostX boost( -jet.Beta() );
   return boost(lepton).x();
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module ------------
+void
+SoftLepton::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<unsigned int>("muonSelection",1);
+  desc.add<edm::InputTag>("leptons",edm::InputTag("muons"));
+  desc.add<edm::InputTag>("primaryVertex",edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("leptonCands",edm::InputTag(""));
+  desc.add<edm::InputTag>("leptonId",edm::InputTag(""));
+  desc.add<unsigned int>("refineJetAxis",0);
+  desc.add<edm::InputTag>("jets",edm::InputTag("ak4PFJetsCHS"));
+  desc.add<double>("leptonDeltaRCut",0.4);
+  desc.add<double>("leptonChi2Cut",9999.0);
+  descriptions.addDefault(desc);
 }

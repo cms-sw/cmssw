@@ -1,6 +1,7 @@
 #ifndef _Kinefit_SMATRIX_H_
 #define _Kinefit_SMATRIX_H_
 
+#define SMATRIX_USE_CONSTEXPR
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
 

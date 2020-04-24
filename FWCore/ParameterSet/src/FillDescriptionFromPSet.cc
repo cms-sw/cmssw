@@ -135,12 +135,11 @@ namespace edm {
       }
       ParameterSetDescription emptyDescription;
 
-      std::auto_ptr<ParameterDescription<std::vector<ParameterSet> > >
-        pd(new ParameterDescription<std::vector<ParameterSet> >(vpset_entry->first, emptyDescription, vpset_entry->second.isTracked(), nestedVPset));
+      auto pd = std::make_unique<ParameterDescription<std::vector<ParameterSet>>>(vpset_entry->first, emptyDescription, vpset_entry->second.isTracked(), nestedVPset);
 
       pd->setPartOfDefaultOfVPSet(true);
-      std::auto_ptr<ParameterDescriptionNode> node(pd);
-      desc.addNode(node);
+      std::unique_ptr<ParameterDescriptionNode> node(std::move(pd));
+      desc.addNode(std::move(node));
     }
   }
 }

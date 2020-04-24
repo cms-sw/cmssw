@@ -38,11 +38,10 @@ namespace callbacktest {
       Data data_;
    };
 
-   struct AutoPtrProd {
-      AutoPtrProd() : value_(0) {}
-      std::auto_ptr<Data> method(const Record&) {
-         std::auto_ptr<Data> temp(new Data(++value_));
-         return temp;
+   struct UniquePtrProd {
+      UniquePtrProd() : value_(0) {}
+      std::unique_ptr<Data> method(const Record&) {
+         return std::make_unique<Data>(++value_);
       }
       
       int value_;
@@ -50,11 +49,11 @@ namespace callbacktest {
 
    struct SharedPtrProd {
       SharedPtrProd() : ptr_(new Data()) {}
-      boost::shared_ptr<Data> method(const Record&) {
+      std::shared_ptr<Data> method(const Record&) {
          ++ptr_->value_;
          return ptr_;
       }      
-      boost::shared_ptr<Data> ptr_;
+      std::shared_ptr<Data> ptr_;
    };
    
    struct PtrProductsProd {
@@ -81,7 +80,7 @@ class testCallback: public CppUnit::TestFixture
 CPPUNIT_TEST_SUITE(testCallback);
 
 CPPUNIT_TEST(constPtrTest);
-CPPUNIT_TEST(autoPtrTest);
+CPPUNIT_TEST(uniquePtrTest);
 CPPUNIT_TEST(sharedPtrTest);
 CPPUNIT_TEST(ptrProductsTest);
 
@@ -91,7 +90,7 @@ public:
   void tearDown(){}
 
   void constPtrTest();
-  void autoPtrTest();
+  void uniquePtrTest();
   void sharedPtrTest();
   void ptrProductsTest();
 };
@@ -128,14 +127,14 @@ void testCallback::constPtrTest()
    
 }
 
-typedef Callback<AutoPtrProd, std::auto_ptr<Data>, Record> AutoPtrCallback;
+typedef Callback<UniquePtrProd, std::unique_ptr<Data>, Record> UniquePtrCallback;
 
-void testCallback::autoPtrTest()
+void testCallback::uniquePtrTest()
 {
-   AutoPtrProd prod;
+   UniquePtrProd prod;
    
-   AutoPtrCallback callback(&prod, &AutoPtrProd::method);
-   std::auto_ptr<Data> handle;
+   UniquePtrCallback callback(&prod, &UniquePtrProd::method);
+   std::unique_ptr<Data> handle;
    
    
    callback.holdOntoPointer(&handle);
@@ -165,14 +164,14 @@ void testCallback::autoPtrTest()
    
 }
 
-typedef Callback<SharedPtrProd, boost::shared_ptr<Data>, Record> SharedPtrCallback;
+typedef Callback<SharedPtrProd, std::shared_ptr<Data>, Record> SharedPtrCallback;
 
 void testCallback::sharedPtrTest()
 {
    SharedPtrProd prod;
    
    SharedPtrCallback callback(&prod, &SharedPtrProd::method);
-   boost::shared_ptr<Data> handle;
+   std::shared_ptr<Data> handle;
    
    
    callback.holdOntoPointer(&handle);

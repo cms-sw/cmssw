@@ -1,6 +1,6 @@
 {
   //This make the TSelectors in the library available to the remote proof session
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   gSystem->Load("libFWCoreTFWLiteSelectorTest");
 }

@@ -95,7 +95,7 @@ string IO::GetLineData(const char* tag, const char* key) const {
   bool found = false;
   for(unsigned i=0; i<fAllLines.size(); i++) {
     if( !fnmatch(fAllLines[i].first.c_str(), tag, 0) ) { 
-      istringstream in(fAllLines[i].second.c_str());
+      istringstream in(fAllLines[i].second);
       string readkey; in>>readkey;
       
       if(readkey == key) {
@@ -126,7 +126,7 @@ string IO::GetNextLineData(const char* tag, const char* key)  {
   bool found = false;
   for(unsigned i=fCurline; i<fAllLines.size(); i++) {
     if( !fnmatch(fAllLines[i].first.c_str(), tag, 0) ) { 
-      istringstream in(fAllLines[i].second.c_str());
+      istringstream in(fAllLines[i].second);
       string readkey; in>>readkey;
       
       if(readkey == key) {
@@ -146,7 +146,7 @@ bool IO::GetOpt(const char* tag, const char* key, string& value) const {
   string data = GetLineData(tag,key);
   
   char cstr[sLinesize];
-  istringstream in(data.c_str());  
+  istringstream in(data);  
   in.get(cstr,sLinesize);
 
 

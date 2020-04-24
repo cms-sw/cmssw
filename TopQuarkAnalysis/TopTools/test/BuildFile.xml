@@ -4,3 +4,11 @@
     <use   name="FWCore/Utilities"/>
   </bin>
 </environment>
+<library   file="TestGenTtbarCategories.cc">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="rootmath"/>
+  <use   name="root"/>
+</library>

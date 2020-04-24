@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_MuonBaseNumber_h
-#define MuonNumbering_MuonBaseNumber_h
+#ifndef Geometry_MuonNumbering_MuonBaseNumber_h
+#define Geometry_MuonNumbering_MuonBaseNumber_h
 
 /** \class MuonBaseNumber
  *
@@ -25,7 +25,7 @@ class MuonBaseNumber {
   ~MuonBaseNumber(){};
 
   void addBase(const int level,const int super,const int base);
-  void addBase(LevelBaseNumber);
+  void addBase(const LevelBaseNumber&);
   
   int getLevels() const;
   int getSuperNo(int level) const;

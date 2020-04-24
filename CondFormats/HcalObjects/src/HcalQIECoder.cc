@@ -14,9 +14,9 @@ $Revision: 1.3 $
 
 namespace {
   // pack range/capId in the plain index
-  unsigned index (unsigned fRange, unsigned fCapId) {return fCapId * 4 + fRange;}
-  unsigned range (unsigned fIndex) {return fIndex % 4;}
-  unsigned capId (unsigned fIndex) {return fIndex / 4;}
+  inline unsigned index (unsigned fRange, unsigned fCapId) {return fCapId * 4 + fRange;}
+  inline unsigned range (unsigned fIndex) {return fIndex % 4;}
+  inline unsigned capId (unsigned fIndex) {return fIndex / 4;}
 }
 
 float HcalQIECoder::charge (const HcalQIEShape& fShape, unsigned fAdc, unsigned fCapId) const {
@@ -28,7 +28,7 @@ unsigned HcalQIECoder::adc (const HcalQIEShape& fShape, float fCharge, unsigned 
   // search for the range
   for (unsigned range = 0; range < 4; range++) {
     float qieCharge = fCharge * slope (fCapId, range) + offset (fCapId, range);
-    unsigned nbin   = 32 * (mQIEIndex+1); // it's just 64 = 2*32 !
+    unsigned nbin   = fShape.nbins(); // it's just 64 = 2*32 ! (for QIE10)
     unsigned minBin = nbin * range;
     unsigned maxBin = minBin + nbin - 1;
     float qieChargeMax = fShape.highEdge (maxBin);

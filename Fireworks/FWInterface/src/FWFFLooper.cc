@@ -1,4 +1,6 @@
 #include <iostream>
+#include "boost/bind.hpp"
+
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/FWInterface/src/FWFFNavigator.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
@@ -14,6 +16,7 @@
 #include "Fireworks/Core/interface/FWRecoGeom.h"
 #include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
@@ -47,6 +50,12 @@
 #include "TGeoManager.h"
 
 
+namespace edm
+{
+   class StreamContext;
+   class ModuleCallingContext;
+}
+
 namespace
 {
    class CmsEveMagField : public TEveMagField
@@ -58,7 +67,7 @@ namespace
    public:
 
       CmsEveMagField() : TEveMagField(), fField(-3.8), fFieldMag(3.8) {}
-      virtual ~CmsEveMagField() {}
+      ~CmsEveMagField() override {}
 
       // set current
       void SetFieldByCurrent(Float_t avg_current)
@@ -68,12 +77,12 @@ namespace
       }
 
       // get field values
-      virtual Float_t GetMaxFieldMag() const override
+      Float_t GetMaxFieldMag() const override
       {
          return fFieldMag;
       }
 
-      virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
+      TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
       {
          static const Float_t barrelFac = 1.2 / 3.8;
          static const Float_t endcapFac = 2.0 / 3.8;
@@ -133,7 +142,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
      m_AllowStep(true),
      m_ShowEvent(true),
      m_firstTime(true),
-     m_pathsGUI(0),
+     m_pathsGUI(nullptr),
      m_geomWatcher(this, &FWFFLooper::remakeGeometry)
 {
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
@@ -164,7 +173,10 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
 
    displayConfigFilename = ps.getUntrackedParameter<std::string>("displayConfigFilename", displayConfigFilename);
    geometryFilename = ps.getUntrackedParameter<std::string>("geometryFilename", geometryFilename);
-
+   if( !geometryFilename.empty())
+   {
+      loadDefaultGeometryFile();
+   }
    setGeometryFilename(geometryFilename);
    setConfigFilename(displayConfigFilename);
 
@@ -189,9 +201,8 @@ FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 {
    m_pathsGUI = new FWPathsPopup(this, guiManager());
 
-   ar.watchPostProcessEvent(m_pathsGUI, &FWPathsPopup::postProcessEvent);
-   ar.watchPostModule(m_pathsGUI, &FWPathsPopup::postModule);
-   ar.watchPreModule(m_pathsGUI, &FWPathsPopup::preModule);
+   ar.watchPostModuleEvent(m_pathsGUI, &FWPathsPopup::postModuleEvent);
+   ar.watchPreModuleEvent(m_pathsGUI, &FWPathsPopup::preModuleEvent);
    ar.watchPostEndJob(this, &FWFFLooper::postEndJob);
 }
 
@@ -232,8 +243,8 @@ FWFFLooper::startingNewLoop(unsigned int count)
 void 
 FWFFLooper::postEndJob()
 {
-//   printf("FWFFLooper::postEndJob\n");
-//   TEveManager::Terminate();
+   printf("FWFFLooper::postEndJob\n");
+   TEveManager::Terminate();
 }
 
 void
@@ -276,7 +287,7 @@ FWFFLooper::autoLoadNewEvent()
    else
    {
       m_autoReload = false;
-      setIsPlaying(false);
+      CmsShowMainBase::stopPlaying();
       guiManager()->enableActions();
       guiManager()->getMainFrame()->enableComplexNavigation(false);
    }
@@ -287,7 +298,7 @@ FWFFLooper::stopPlaying()
 {
    stopAutoLoadTimer();
    m_autoReload = false;
-   setIsPlaying(false);
+   CmsShowMainBase::stopPlaying();
    guiManager()->enableActions();
    guiManager()->getMainFrame()->enableComplexNavigation(false);
    checkPosition();
@@ -315,7 +326,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
    //        this is not possible at the moment.
    if (m_firstTime == true)
    {
-      if (m_context->getGeom() == 0)
+      if (m_context->getGeom() == nullptr)
       {
 	 try
 	 {
@@ -359,7 +370,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
          printf("Could not extract run-conditions get-result=%d, is-valid=%d\n", res, runCond.isValid());
 
          const edm::eventsetup::EventSetupRecord* rec = iSetup.find( edm::eventsetup::EventSetupRecordKey::makeKey<RunInfoRcd>());
-         if( 0 != rec )
+         if( nullptr != rec )
          {
             edm::ESHandle<RunInfo> sum;
             iSetup.get<RunInfoRcd>().get(sum);
@@ -373,6 +384,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       fwLog(fwlog::kInfo) << "ConditionsInRunBlock not available\n";
    }
    static_cast<CmsEveMagField*>(m_MagField)->SetFieldByCurrent(current);
+   context()->getField()->setFFFieldMag(m_MagField->GetMaxFieldMag());
 }
 
 //------------------------------------------------------------------------------
@@ -386,6 +398,8 @@ FWFFLooper::duringLoop(const edm::Event &event,
       m_geomWatcher.check(es);
    } catch (...) {}
    
+
+   m_pathsGUI->postEvent(event);
 
    m_isLastEvent = controller.forwardState() == edm::ProcessingController::kAtLastEvent;
    m_isFirstEvent = controller.reverseState() == edm::ProcessingController::kAtFirstEvent;

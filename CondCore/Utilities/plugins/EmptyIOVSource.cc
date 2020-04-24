@@ -5,11 +5,11 @@ namespace cond {
   class EmptyIOVSource : public edm::ProducerSourceBase {
   public:
     EmptyIOVSource(edm::ParameterSet const&, edm::InputSourceDescription const&);
-    ~EmptyIOVSource();
+    ~EmptyIOVSource() override;
   private:
-    virtual void produce(edm::Event & e) override;
-    virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time) override;
-    virtual void initialize(edm::EventID& id, edm::TimeValue_t& time, edm::TimeValue_t& interval) override;
+    void produce(edm::Event & e) override;
+    bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
+    void initialize(edm::EventID& id, edm::TimeValue_t& time, edm::TimeValue_t& interval) override;
   private:
     TimeType m_timeType;
     Time_t m_firstValid;
@@ -40,7 +40,7 @@ namespace cond{
   }
   void EmptyIOVSource::produce( edm::Event & ) {
   }  
-  bool EmptyIOVSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time){
+  bool EmptyIOVSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType){
     if(m_current<=m_lastValid){
       if( m_timeType == cond::runnumber ){
 	id = edm::EventID(m_current, id.luminosityBlock(), 1);

@@ -54,7 +54,7 @@ class RPCStripsRing : public std::map<float, TStrip >
       
             
       RPCStripsRing(const RPCRoll * roll, 
-                    boost::shared_ptr<L1RPCConeBuilder::TConMap > cmap);
+                    std::shared_ptr<L1RPCConeBuilder::TConMap > cmap);
                     
       RPCStripsRing();
       virtual ~RPCStripsRing() {};
@@ -83,10 +83,10 @@ class RPCStripsRing : public std::map<float, TStrip >
       int getTowerForRefRing();
       
       void compressConnections();
-      boost::shared_ptr<L1RPCConeBuilder::TConMap > getConnectionsMap() 
+      std::shared_ptr<L1RPCConeBuilder::TConMap > getConnectionsMap() 
               { return m_connectionsMap;};
               
-      boost::shared_ptr<L1RPCConeBuilder::TCompressedConMap> getCompressedConnectionsMap() 
+      std::shared_ptr<L1RPCConeBuilder::TCompressedConMap> getCompressedConnectionsMap() 
       { 
         return m_compressedConnectionMap;
       };
@@ -102,8 +102,8 @@ class RPCStripsRing : public std::map<float, TStrip >
       bool m_didVirtuals; // m_isRefPlane previously
       bool m_didFiltering;    
       
-      boost::shared_ptr<L1RPCConeBuilder::TConMap > m_connectionsMap;  
-      boost::shared_ptr<L1RPCConeBuilder::TCompressedConMap > m_compressedConnectionMap;
+      std::shared_ptr<L1RPCConeBuilder::TConMap > m_connectionsMap;  
+      std::shared_ptr<L1RPCConeBuilder::TCompressedConMap > m_compressedConnectionMap;
 };
 
 

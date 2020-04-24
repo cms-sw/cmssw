@@ -1,0 +1,9 @@
+<lcgdict>
+   <class name="FTLSample"/>
+   <class name="std::vector<FTLSample>"/>
+   <class name="FTLDataFrame"/>
+   <class name="std::vector<FTLDataFrame>"/>
+   <class name="FTLDigiCollection"/>
+   <class name="edm::Wrapper<FTLDigiCollection>" />
+   
+</lcgdict>

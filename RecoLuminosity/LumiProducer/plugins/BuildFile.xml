@@ -74,6 +74,11 @@
   <use name="xerces-c"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="BunchSpacingProducer.cc" name="BunchSpacingProducer">
+  <use name="FWCore/PluginManager"/>
+  <use name="DataFormats/Provenance"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
 <library file="ExpressLumiProducer.cc" name="ExpressLumiProducer">
   <use name="RecoLuminosity/LumiProducer"/>
   <use name="FWCore/PluginManager"/>

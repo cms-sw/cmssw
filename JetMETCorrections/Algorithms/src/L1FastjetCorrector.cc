@@ -27,7 +27,7 @@ L1FastjetCorrector::L1FastjetCorrector (const JetCorrectorParameters& fParam, co
     throw cms::Exception("L1FastjetCorrector")<<" correction level: "<<fParam.definitions().level()<<" is not L1FastJet"; 
   vector<JetCorrectorParameters> vParam;
   vParam.push_back(fParam);
-  mCorrector = new FactorizedJetCorrector(vParam);
+  mCorrector = new FactorizedJetCorrectorCalculator(vParam);
 }
 
 //______________________________________________________________________________
@@ -67,12 +67,13 @@ double L1FastjetCorrector::correction(const reco::Jet& fJet,
   edm::Handle<double> rho;
   fEvent.getByLabel(srcRho_,rho);
   double result(1.0);
-  mCorrector->setJetEta(fJet.eta());
-  mCorrector->setJetPt(fJet.pt());
-  mCorrector->setJetE(fJet.energy());
-  mCorrector->setJetA(fJet.jetArea());
-  mCorrector->setRho(*rho);
-  result = mCorrector->getCorrection();  
+  FactorizedJetCorrectorCalculator::VariableValues values;
+  values.setJetEta(fJet.eta());
+  values.setJetPt(fJet.pt());
+  values.setJetE(fJet.energy());
+  values.setJetA(fJet.jetArea());
+  values.setRho(*rho);
+  result = mCorrector->getCorrection(values);  
   return result;
 }
 

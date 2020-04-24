@@ -1,6 +1,8 @@
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 #include <cmath>
 #include <cstddef>
+#include <random>
 
 typedef unsigned int IndexType;
 //typedef unsigned long long IndexType;
@@ -65,7 +67,7 @@ namespace ROOT {
 							 const SMatrix<T,D2,D2,MatRepStd<T,D2> >& rhs) {
       SMatrix<T,D1,D2, MatRepStd<T,D1,D2> > tmp = lhs * rhs;
       typedef  SMatrix<T,D1,D1,MatRepSym<T,D1> > SMatrixSym; 
-      SMatrixSym mret; 
+      SMatrixSym mret{SMatrixNoInit{}}; 
       AssignSym::Evaluate(mret,  tmp * Transpose(lhs)  ); 
       return mret; 
     }
@@ -75,7 +77,7 @@ namespace ROOT {
 							 const SMatrix<T,D2,D2,MatRepStd<T,D2> > & rhs) {
       SMatrix<T,D1,D2, MatRepStd<T,D1,D2> > tmp = lhs * rhs;
       typedef  SMatrix<T,D1,D1,MatRepStd<T,D1> > SMatrixSym; 
-      SMatrixSym mret; 
+      SMatrixSym mret = SMatrixNoInit(); 
       AssignAsSym::Evaluate(mret,  tmp * Transpose(lhs)  ); 
       return mret; 
     }
@@ -160,18 +162,11 @@ bool isSym(M const & m) {
 #include<iostream>
 #include "FWCore/Utilities/interface/HRRealTime.h"
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-#include<random>
-#endif
 namespace {
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   std::mt19937 eng;
   std::uniform_real_distribution<double> rgen(-5.,5.);
 
   inline double rr() { return  rgen(eng);}
-#else
-  inline double rr() { return  -5 + 10*drand48();}
-#endif
 
   template<typename T,  IndexType D1,  IndexType D2 >
   inline void

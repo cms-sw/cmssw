@@ -7,6 +7,8 @@
 POOL object to store Hcal trigger LUT channel metadata
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalLutMetadatum.h"
 
@@ -14,11 +16,11 @@ class HcalLutMetadata: public HcalCondObjectContainer<HcalLutMetadatum>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalLutMetadata() : HcalCondObjectContainer<HcalLutMetadatum>(0){}
+  HcalLutMetadata() : HcalCondObjectContainer<HcalLutMetadatum>(nullptr){}
 #endif
   HcalLutMetadata(const HcalTopology* topo) : HcalCondObjectContainer<HcalLutMetadatum>(topo){}
     
-  std::string myname() const {return (std::string)"HcalLutMetadata";}
+  std::string myname() const override {return (std::string)"HcalLutMetadata";}
     
   bool  setRctLsb(float rctlsb);
   float getRctLsb() const {return mNonChannelData.mRctLsb;}
@@ -36,10 +38,14 @@ class HcalLutMetadata: public HcalCondObjectContainer<HcalLutMetadatum>
   protected:
     float mRctLsb;
     float mNominalGain;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
  protected:
   NonChannelData mNonChannelData;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

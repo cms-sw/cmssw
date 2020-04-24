@@ -1,10 +1,7 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 
-//std::string DDCurrentNamespace::ns_ = "GLOBAL";
-
-
 std::string & 
-DDCurrentNamespace::ns() 
+DDCurrentNamespace::ns()
 {
   static std::string ns_ = "GLOBAL";
   return ns_;

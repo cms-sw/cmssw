@@ -24,6 +24,7 @@ namespace gen {
      virtual void avoidTauLeptonicDecays()=0;;
      virtual void configureOnlyFor( int )=0;
      virtual void setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine)=0;
+     virtual void statistics(){};
 
    protected: 
      std::vector<std::string> fSpecialSettings;

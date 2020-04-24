@@ -16,13 +16,14 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
@@ -43,7 +44,7 @@ class JetFlavourIdentifier;
 
 namespace pat {
 
-  class PATJetProducer : public edm::EDProducer {
+  class PATJetProducer : public edm::stream::EDProducer<> {
 
     public:
 
@@ -61,7 +62,10 @@ namespace pat {
       bool                     embedCaloTowers_;
       bool                     embedPFCandidates_;
       bool                     getJetMCFlavour_;
+      bool                     useLegacyJetMCFlavour_;
+      bool                     addJetFlavourInfo_;
       edm::EDGetTokenT<reco::JetFlavourMatchingCollection> jetPartonMapToken_;
+      edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfoToken_;
       bool                     addGenPartonMatch_;
       bool                     embedGenPartonMatch_;
       edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > genPartonToken_;
@@ -100,6 +104,8 @@ namespace pat {
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
+      //
+      bool printWarning_; // this is introduced to issue warnings only once per job
 
 
 

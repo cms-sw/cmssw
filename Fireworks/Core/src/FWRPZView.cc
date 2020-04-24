@@ -13,7 +13,7 @@
 // system include files
 #include <stdexcept>
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "TGLViewer.h"
 #include "TGLScenePad.h"
@@ -24,11 +24,7 @@
 #include "TEveProjectionAxes.h"
 #include "TGLabel.h"
 #include "TEveProjectionManager.h"
-
-//!!! FIXME add get/sets for TEveCalo2D for CellIDs
-#define protected public  
 #include "TEveCalo.h"
-#undef protected
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZView.h"
@@ -40,7 +36,7 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
-
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 const float FWRPZView::s_distortF = 0.001;
 const float FWRPZView::s_distortFInv = 1000;
@@ -49,16 +45,19 @@ const float FWRPZView::s_distortFInv = 1000;
 //
 FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    FWEveView(iParent, id, 7),
-   m_geometryList(0),
-   m_projMgr(0),
-   m_axes(0),
+   m_geometryList(nullptr),
+   m_projMgr(nullptr),
+   m_axes(nullptr),
 
-   m_calo(0),
+   m_calo(nullptr),
 
    m_showPixelBarrel(this, "Show Pixel Barrel", false ),
    m_showPixelEndcap(this, "Show Pixel Endcap", false),
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
+   m_showRpcEndcap(this, "Show RPC Endcap", false ),
+   m_showGEM(this, "Show GEM", false ),
+   m_showME0(this, "Show ME0", false ),
 
    m_shiftOrigin(this,"Shift origin to beam-spot", false),
    m_fishEyeDistortion(this,"Distortion",0., 0., 100.),
@@ -69,8 +68,8 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_showProjectionAxes(this,"Show projection axis", false),
    m_projectionAxesLabelSize(this,"Projection axis label size", 0.015, 0.001, 0.2),
    m_compressMuon(this,"Compress detectors",false),
-   m_showHF(0),
-   m_showEndcaps(0)
+   m_showHF(nullptr),
+   m_showEndcaps(nullptr)
 {
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
 
@@ -174,6 +173,9 @@ FWRPZView::setContext(const fireworks::Context& ctx)
    m_showPixelEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showPixelEndcap,m_geometryList,_1));
    m_showTrackerBarrel.changed_.connect(boost::bind(&FWRPZViewGeometry::showTrackerBarrel,m_geometryList,_1));
    m_showTrackerEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showTrackerEndcap,m_geometryList,_1));
+   m_showRpcEndcap.changed_.connect(boost::bind(&FWRPZViewGeometry::showRpcEndcap,m_geometryList,_1));
+   m_showGEM.changed_.connect(boost::bind(&FWRPZViewGeometry::showGEM,m_geometryList,_1));
+   m_showME0.changed_.connect(boost::bind(&FWRPZViewGeometry::showME0,m_geometryList,_1));
 
 }
 
@@ -182,11 +184,11 @@ FWRPZView::eventBegin()
 {  
    if (context().getBeamSpot())
    {
-      FWBeamSpot& b = *(context().getBeamSpot());
-      fwLog(fwlog::kDebug) << Form("%s::eventBegin Set projection center (%f, %f, %f) \n", typeName().c_str(), b.x0(), b.y0(), b.z0());
+      float c[3] = {0,0,0};
+      context().commonPrefs()->getEventCenter(c);
 
       // projection center
-      TEveVector center(b.x0(),  b.y0(), b.z0());
+      TEveVector center(c[0], c[1], c[2] );
       m_projMgr->GetProjection()->SetCenter(center);
 
       // camera move
@@ -194,12 +196,12 @@ FWRPZView::eventBegin()
       cam.SetExternalCenter(true);
       if (typeId() != FWViewType::kRhoZ)
       {
-         double r = TMath::Sqrt( b.x0()*b.x0() +  b.y0()*b.y0());
-         cam.SetCenterVec(b.z0(), TMath::Sign(r, b.y0()), 0);
+         double r = center.Mag();
+         cam.SetCenterVec(center.fZ, TMath::Sign(r, center.fY), 0);
       }
       else
       {
-         cam.SetCenterVec(b.x0(), b.y0(), b.z0());
+         cam.SetCenterVec(c[0], c[1], c[2] );
       }
    }
 }
@@ -207,9 +209,20 @@ FWRPZView::eventBegin()
 void
 FWRPZView::eventEnd()
 {
+   float c[3]; context().commonPrefs()->getEventCenter(c);
+   m_projMgr->SetCenter(c[0], c[1], c[2]);
    FWEveView::eventEnd();
-   viewerGL()->RequestDraw();
 }
+
+
+void
+FWRPZView::setupEventCenter()
+{
+   float c[3];  context().commonPrefs()->getEventCenter(c);
+   m_projMgr->SetCenter(c[0], c[1], c[2]);
+   FWEveView::setupEventCenter();
+}
+
 
 void
 FWRPZView::doShiftOriginToBeamSpot()
@@ -305,7 +318,7 @@ FWRPZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iPr
    float oldLayer = m_projMgr->GetCurrentDepth();
    m_projMgr->SetCurrentDepth(iLayer);
    //make sure current depth is reset even if an exception is thrown
-   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr,
+   std::shared_ptr<TEveProjectionManager> sentry(m_projMgr,
                                                    boost::bind(&TEveProjectionManager::SetCurrentDepth,
                                                                _1,oldLayer));
    m_projMgr->ImportElements(iChildren,iProjectedParent);
@@ -362,7 +375,7 @@ FWRPZView::voteCaloMaxVal()
       typedef std::vector<TEveCaloData::vCellId_t*>           vBinCells_t;
       typedef std::vector<TEveCaloData::vCellId_t*>::iterator vBinCells_i;
 
-      vBinCells_t   cellLists = m_calo->fCellLists;
+      vBinCells_t   cellLists = m_calo->GetBinLists();
       for (vBinCells_i it = cellLists.begin(); it != cellLists.end(); it++)
       {
          TEveCaloData::vCellId_t* binCells = *it;
@@ -403,9 +416,17 @@ FWRPZView::populateController(ViewerParameterGUI& gui) const
 
    ViewerParameterGUI& det =  gui.requestTab("Detector");;
    det.addParam(&m_showPixelBarrel);
-   if (typeId() == FWViewType::kRhoZ) det.addParam(&m_showPixelEndcap);
-   det.addParam(&m_showTrackerBarrel);
-   if (typeId() == FWViewType::kRhoZ) det.addParam(&m_showTrackerEndcap);
+
+   if (typeId() == FWViewType::kRhoZ)
+   {
+      det.addParam(&m_showTrackerBarrel);
+      det.addParam(&m_showPixelEndcap);
+      det.addParam(&m_showRpcEndcap);
+      bool showGEM = m_context->getGeom()->versionInfo().haveExtraDet("GEM");
+      if (showGEM) det.addParam(&m_showGEM);
+      bool showME0 = m_context->getGeom()->versionInfo().haveExtraDet("ME0");
+      if (showME0) det.addParam(&m_showME0);
+   }
 
 #ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
    gui.requestTab("Projection").addParam(&m_shiftOrigin);

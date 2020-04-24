@@ -22,17 +22,21 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 class HiggsToZZ4LeptonsSkimEff : public edm::EDAnalyzer {
-  
+
  public:
   // Constructor
   explicit HiggsToZZ4LeptonsSkimEff(const edm::ParameterSet&);
 
   // Destructor
-  ~HiggsToZZ4LeptonsSkimEff();
+  ~HiggsToZZ4LeptonsSkimEff() override;
 
   /// Get event properties to send to builder to fill seed collection
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
 
 
  private:
@@ -46,9 +50,9 @@ class HiggsToZZ4LeptonsSkimEff : public edm::EDAnalyzer {
   int nFourE, nFourM, nTwoETwoM, nFourL, nTau;
 
   // Reco samples
-  edm::InputTag recTrackLabel;
-  edm::InputTag theGLBMuonLabel;
-  edm::InputTag thePixelGsfELabel;
+  edm::EDGetTokenT<reco::TrackCollection> theGLBMuonToken;
+  edm::EDGetTokenT<reco::GsfElectronCollection> theGsfEToken;
+  edm::EDGetTokenT<reco::GenParticleCollection> genToken;
 };
 
 #endif

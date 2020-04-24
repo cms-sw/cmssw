@@ -36,7 +36,7 @@ L6SLBCorrector::L6SLBCorrector(const JetCorrectorParameters& fParam, const edm::
 {
   vector<JetCorrectorParameters> vParam;
   vParam.push_back(fParam);
-  corrector_ = new FactorizedJetCorrector(vParam);
+  corrector_ = new FactorizedJetCorrectorCalculator(vParam);
 }
 
 //______________________________________________________________________________
@@ -74,10 +74,11 @@ double L6SLBCorrector::correction(const reco::Jet& fJet,
 				  const edm::Event& fEvent, 
 				  const edm::EventSetup& fSetup) const
 {
-  corrector_->setJetPt(fJet.pt());
-  corrector_->setJetEta(fJet.eta());
-  corrector_->setJetPhi(fJet.phi());
-  corrector_->setJetE(fJet.energy());
+  FactorizedJetCorrectorCalculator::VariableValues values;
+  values.setJetPt(fJet.pt());
+  values.setJetEta(fJet.eta());
+  values.setJetPhi(fJet.phi());
+  values.setJetE(fJet.energy());
   
   edm::Handle< vector<reco::SoftLeptonTagInfo> > muoninfos;
   fEvent.getByLabel(srcBTagInfoMuon_,muoninfos);
@@ -86,11 +87,11 @@ double L6SLBCorrector::correction(const reco::Jet& fJet,
     (*muoninfos)[getBTagInfoIndex(refToRawJet,*muoninfos)];
   if (sltMuon.leptons()>0) {
     edm::RefToBase<reco::Track> trackRef = sltMuon.lepton(0);
-    corrector_->setLepPx(trackRef->px());
-    corrector_->setLepPy(trackRef->py());
-    corrector_->setLepPz(trackRef->pz());
-    corrector_->setAddLepToJet(addMuonToJet_);
-    return corrector_->getCorrection();
+    values.setLepPx(trackRef->px());
+    values.setLepPy(trackRef->py());
+    values.setLepPz(trackRef->pz());
+    values.setAddLepToJet(addMuonToJet_);
+    return corrector_->getCorrection(values);
   }
   else {
     edm::Handle< vector<reco::SoftLeptonTagInfo> > elecinfos;
@@ -99,11 +100,11 @@ double L6SLBCorrector::correction(const reco::Jet& fJet,
       (*elecinfos)[getBTagInfoIndex(refToRawJet,*elecinfos)];
     if (sltElec.leptons()>0) {
       edm::RefToBase<reco::Track> trackRef = sltElec.lepton(0);
-      corrector_->setLepPx(trackRef->px());
-      corrector_->setLepPy(trackRef->py());
-      corrector_->setLepPz(trackRef->pz());
-      corrector_->setAddLepToJet(false);
-      return corrector_->getCorrection();
+      values.setLepPx(trackRef->px());
+      values.setLepPy(trackRef->py());
+      values.setLepPz(trackRef->pz());
+      values.setAddLepToJet(false);
+      return corrector_->getCorrection(values);
     }
   }
   return 1.0;

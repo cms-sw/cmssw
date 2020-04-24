@@ -33,6 +33,7 @@
 #include "zlib.h"
 
 #include <iostream>
+#include <map>
 #include <memory>
 
 bool compares_bad(EventMsgView const* eview1, EventMsgView const* eview2);
@@ -81,7 +82,7 @@ void readfile(std::string filename, std::string outfile) {
   uint32 num_goodevents(0);
   uint32 num_duplevents(0);
   std::vector<unsigned char> compress_buffer(7000000);
-  std::map<uint32, uint32> seenEventMap;
+  std::map<uint64, uint32> seenEventMap;
   bool output(false);
   if(outfile != "/dev/null") {
     output = true;
@@ -106,9 +107,9 @@ void readfile(std::string filename, std::string outfile) {
     std::cout << "\n\n-------------EVENT Messages-------------------" << std::endl;
 
     bool first_event(true);
-    std::auto_ptr<EventMsgView> firstEvtView(0);
+    std::unique_ptr<EventMsgView> firstEvtView(nullptr);
     std::vector<unsigned char> savebuf(0);
-    EventMsgView const* eview(0);
+    EventMsgView const* eview(nullptr);
     seenEventMap.clear();
 
     while(stream_reader.next()) {

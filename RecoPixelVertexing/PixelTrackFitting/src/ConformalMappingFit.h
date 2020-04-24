@@ -17,7 +17,7 @@ public:
   typedef Basic2DVector<double> PointXY;
 
   ConformalMappingFit( const std::vector<PointXY> & hits, const std::vector<float> & errRPhi2,
-      const Rotation * rotation = 0);
+      const Rotation * rotation = nullptr);
 
   ~ConformalMappingFit();
 

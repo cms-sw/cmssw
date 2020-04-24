@@ -1,4 +1,3 @@
-#include <iostream>
 #include "ScaleFraction.C"
 #include "TFile.h"
 #include "TH1F.h"
@@ -12,8 +11,6 @@
  * corresponding mass distribution in each mass window. <br>
  * The present form assumes Upsilons.
  */
-
-using namespace std;
 
 bool first = true;
 

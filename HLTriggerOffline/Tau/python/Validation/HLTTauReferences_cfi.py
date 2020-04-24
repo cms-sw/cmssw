@@ -2,11 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 TauMCProducer  = cms.EDProducer("HLTTauMCProducer",
                               GenParticles  = cms.untracked.InputTag("genParticles"),
+			      GenMET        = cms.untracked.InputTag("genMetTrue"),
                               ptMinTau      = cms.untracked.double(15),
                               ptMinMuon     = cms.untracked.double(15),
                               ptMinElectron = cms.untracked.double(15),
                               BosonID       = cms.untracked.vint32(23,24,25,32,33,34,35,36,37),
-                              EtaMax        = cms.untracked.double(2.5)
+                              EtaMin        = cms.untracked.double(-2.5),
+                              EtaMax        = cms.untracked.double(2.5),
+                              PhiMin        = cms.untracked.double(-3.15),
+                              PhiMax        = cms.untracked.double(3.15)
 )
 
 
@@ -17,10 +21,14 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                 PFTaus = cms.untracked.PSet(
                                    PFTauDiscriminators = cms.untracked.VInputTag(
                                                     cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
-                                                    cms.InputTag("hpsPFTauDiscriminationByLooseIsolation")
+                                                    cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits")
                                    ),
                                    doPFTaus = cms.untracked.bool(True),
                                    ptMin = cms.untracked.double(15.0),
+                                   etaMin = cms.untracked.double(-2.5),
+                                   etaMax = cms.untracked.double(2.5),
+                                   phiMin = cms.untracked.double(-3.15),
+                                   phiMax = cms.untracked.double(3.15),
                                    PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
                                    ),
                                 Electrons = cms.untracked.PSet(
@@ -48,20 +56,26 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                         doTowers = cms.untracked.bool(True),
                                         towerIsolation = cms.untracked.double(5.0)
                                 ),
-                                
                                 Muons = cms.untracked.PSet(
                                        doMuons = cms.untracked.bool(True),
                                        MuonCollection = cms.untracked.InputTag("muons"),
                                        ptMin = cms.untracked.double(15.0)
                                 ),
-                                
                                 Photons = cms.untracked.PSet(
                                           doPhotons = cms.untracked.bool(True),
                                           PhotonCollection = cms.untracked.InputTag("photons"),
                                           etMin = cms.untracked.double(10.0),
                                           ECALIso = cms.untracked.double(3.0)
                                           ),
-                                EtaMax = cms.untracked.double(2.5)
+                                MET = cms.untracked.PSet(
+                                          doMET = cms.untracked.bool(True),
+                                          METCollection = cms.untracked.InputTag("caloMet"),
+                                          ptMin = cms.untracked.double(15.0)
+                                ),
+                                EtaMin = cms.untracked.double(-2.5),
+                                EtaMax = cms.untracked.double(2.5),
+                                PhiMin = cms.untracked.double(-3.15),
+                                PhiMax = cms.untracked.double(3.15)
 )
 
 
@@ -79,12 +93,3 @@ TauRefCombiner = cms.EDProducer("HLTTauRefCombiner",
 
 
 hltTauRef = cms.Sequence(TauMCProducer*TauRelvalRefProducer*TauRefCombiner)
-
-
-
-
-
-
-
-
-                              

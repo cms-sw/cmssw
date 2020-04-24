@@ -5,6 +5,7 @@
 #include "TPaveText.h"
 #include "TF1.h"
 
+#include <iomanip>
 #include <sstream>
 
 /**
@@ -13,26 +14,24 @@
  */
 TString setText(const char * text, const double & num1, const char * divider = "", const double & num2 = 0)
 {
-  // cout << "text = " << text << ", num1 = " << num1 << ", divider = " << divider << ", num2 = " << num2 << endl;
 
   // Counter gives the precision
   int precision = 1;
   int k=1;
   while( int(num2*k) == 0 ) {
-    // cout << "int(num2*"<<k<<")/int("<<k<<") = " << int(num2*k)/int(k) << endl;
     k*=10;
     ++precision;
   }
 
   std::stringstream numString;
   TString textString(text);
-  numString << std::setprecision(precision) << fixed << num1;
+  numString << std::setprecision(precision) << std::fixed << num1;
   textString += numString.str();
   if( num2 != 0 ) {
     textString += divider;
     numString.str("");
     if( std::string(text).find("ndf") != std::string::npos ) precision = 0;
-    numString << std::setprecision(precision) << fixed << num2;
+    numString << std::setprecision(precision) << std::fixed << num2;
     textString += numString.str();
   }
   return textString;

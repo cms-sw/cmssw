@@ -41,7 +41,7 @@ TruncatedPyramid::operator=( const TruncatedPyramid& tr )
    return *this ; 
 }
 
-TruncatedPyramid::TruncatedPyramid( const CornersMgr*  cMgr ,
+TruncatedPyramid::TruncatedPyramid(       CornersMgr*  cMgr ,
 				    const GlobalPoint& fCtr ,
 				    const GlobalPoint& bCtr ,
 				    const GlobalPoint& cor1 ,
@@ -121,7 +121,7 @@ TruncatedPyramid::getTransform( Tr3D& tr, Pt3DVec* lptr ) const
    const double dz ( param()[0] ) ;
 
    Pt3D  lFront ;
-   assert( 0 != param() ) ;
+   assert( nullptr != param() ) ;
    std::vector<Pt3D > lc( 8, Pt3D(0,0,0) ) ;
    if( 11.2 > dz )
    {
@@ -179,17 +179,14 @@ TruncatedPyramid::getTransform( Tr3D& tr, Pt3DVec* lptr ) const
    tr = Tr3D( dlFront , dlBack , dlOne ,
 	      dgFront , dgBack , dgOne    ) ;
 
-   if( 0 != lptr ) (*lptr) = lc ;
+   if( nullptr != lptr ) (*lptr) = lc ;
 }
 
-const CaloCellGeometry::CornersVec& 
-TruncatedPyramid::getCorners() const 
+void
+TruncatedPyramid::initCorners(CaloCellGeometry::CornersVec& corners) 
 {
-   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-   if( co.uninitialized() ) 
+   if( corners.uninitialized() ) 
    {
-      CornersVec& corners ( setCorners() ) ;
-
       Pt3DVec lc ;
 
       Tr3D tr ;
@@ -201,7 +198,6 @@ TruncatedPyramid::getCorners() const
 	 corners[i] = GlobalPoint( corn.x(), corn.y(), corn.z() ) ;
       }
    }
-   return co ;
 }
 
 namespace truncPyr
@@ -251,7 +247,7 @@ TruncatedPyramid::localCorners( Pt3DVec&        lc  ,
 				const CCGFloat* pv  ,
 				Pt3D&           ref   )
 {
-   assert( 0 != pv ) ;
+   assert( nullptr != pv ) ;
    assert( 8 == lc.size() ) ;
 
    const CCGFloat dz ( pv[0] ) ;

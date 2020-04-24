@@ -38,10 +38,10 @@
 class EcalExclusiveTrigFilter : public edm::EDFilter {
    public:
       explicit EcalExclusiveTrigFilter(const edm::ParameterSet&);
-      ~EcalExclusiveTrigFilter();
+      ~EcalExclusiveTrigFilter() override;
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
         edm::InputTag l1GTReadoutRecTag_;        

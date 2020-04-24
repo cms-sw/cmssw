@@ -38,7 +38,7 @@ def group(iterator, count):
     """
     itr = iter(iterator)
     while True:
-        yield tuple([itr.next() for i in xrange(count)])
+        yield tuple([next(itr) for i in xrange(count)])
 
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __doc__ = """A set of simple helper methods to handle simple tasks with CASTOR.
@@ -203,8 +203,7 @@ def getFileSize( pathToFile = None ) :
     Returns the size in Mb
     """
     if hasWildcard(pathToFile) :
-        raise Exception, \
-              "No wildcard allowed in the path to files: <"+pathToFile+">"
+        raise Exception("No wildcard allowed in the path to files: <"+pathToFile+">")
 
     status,output = commands.getstatusoutput( 'nsls -l '+pathToFile )
     #'nsls -l $CASTOR_DIR/$FILE | awk -F ' ' '{print $5}'
@@ -220,8 +219,7 @@ def getFileSize( pathToFile = None ) :
     #print "output size= ",len(output)
 
     if len(output) != 1 :
-        raise Exception, \
-              "Wrong status (didn't find only *1* file!!)"
+        raise Exception("Wrong status (didn't find only *1* file!!)")
 
     output = output[0]
     output = output.split( " " )
@@ -246,8 +244,7 @@ def stagein( fileListPattern = None, nSlices = 10, verbose = True ) :
     """
     files = nsls( fileListPattern )
     if ( type(files) != type([]) or len(files) < 1 ) :
-        raise Exception, \
-              "Error, no file to stagein !!"
+        raise Exception("Error, no file to stagein !!")
         return
 
     slices = list(group(files,nSlices))

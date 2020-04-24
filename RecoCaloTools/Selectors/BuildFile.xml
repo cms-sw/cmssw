@@ -1,5 +1,4 @@
 <use   name="Geometry/CaloGeometry"/>
-<use   name="RecoCaloTools/MetaCollections"/>
 <export>
   <lib   name="1"/>
 </export>

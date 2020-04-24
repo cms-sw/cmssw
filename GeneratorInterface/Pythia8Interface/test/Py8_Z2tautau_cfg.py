@@ -92,9 +92,14 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 # The following three lines reduce the clutter of repeated printouts
 # of the same exception message.
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.destinations = ['cerr']
-process.MessageLogger.statistics = []
-process.MessageLogger.fwkJobReports = []
+process.MessageLogger = cms.Service("MessageLogger",
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet(
+            limit = cms.untracked.int32(2)
+        )
+    ),
+    destinations = cms.untracked.vstring('cout')
+)
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     generator = cms.PSet(

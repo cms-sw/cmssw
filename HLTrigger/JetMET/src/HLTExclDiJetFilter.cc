@@ -5,10 +5,7 @@
  *
  */
 
-#include "HLTrigger/JetMET/interface/HLTExclDiJetFilter.h"
-
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include <cmath>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,9 +14,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "HLTrigger/JetMET/interface/HLTExclDiJetFilter.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
-#include <cmath>
-#include <typeinfo>
 
 //
 // constructors and destructor
@@ -46,7 +45,7 @@ HLTExclDiJetFilter<T>::HLTExclDiJetFilter(const edm::ParameterSet& iConfig) :
 }
 
 template<typename T>
-HLTExclDiJetFilter<T>::~HLTExclDiJetFilter(){}
+HLTExclDiJetFilter<T>::~HLTExclDiJetFilter()= default;
 
 template<typename T>
 void
@@ -59,7 +58,7 @@ HLTExclDiJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("minHFe",50.0);
   desc.add<bool>("HF_OR",false);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTExclDiJetFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTExclDiJetFilter<T>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------
@@ -136,10 +135,10 @@ HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
      Handle<CaloTowerCollection> o;
      iEvent.getByToken(m_theCaloTowerCollectionToken,o);
 //     if( o.isValid()) {
-      for( CaloTowerCollection::const_iterator cc = o->begin(); cc != o->end(); ++cc ) {
-       if(std::abs(cc->ieta())>28 && cc->energy()<4.0) continue;
-        if(cc->ieta()>28)  ehfp+=cc->energy();  // HF+ energy
-        if(cc->ieta()<-28) ehfm+=cc->energy();  // HF- energy
+      for(auto const & cc : *o) {
+       if(std::abs(cc.ieta())>28 && cc.energy()<4.0) continue;
+        if(cc.ieta()>28)  ehfp+=cc.energy();  // HF+ energy
+        if(cc.ieta()<-28) ehfm+=cc.energy();  // HF- energy
       }
  //    }
 

@@ -11,13 +11,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-// #include "DQMServices/Core/interface/MonitorElement.h"
-// #include <TH1F.h>
-
 using namespace reco;
 using namespace edm;
 using namespace std;
-
 
 
 PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(const edm::ParameterSet& parameterSet) : 
@@ -32,28 +28,24 @@ PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(const edm::ParameterS
 	    parameterSet.getParameter<double>("phiMax") );
 
   myColl_ = consumes< PFCandidateCollection >(inputLabel_);
+
 }
 
 
-void 
-PFCandidateBenchmarkAnalyzer::beginJob()
+void PFCandidateBenchmarkAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+						  edm::Run const & iRun,
+						  edm::EventSetup const & iSetup )
 {
-  BenchmarkAnalyzer::beginJob();
-  setup();
+  BenchmarkAnalyzer::bookHistograms(ibooker, iRun, iSetup);
+  setup(ibooker);
 }
 
-
-void 
-PFCandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
-				      const edm::EventSetup& iSetup) {
-  
-  
+void PFCandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
+					   const edm::EventSetup& iSetup) {
+    
   Handle<PFCandidateCollection> collection; 
   iEvent.getByToken(myColl_, collection);
 
   fill( *collection );
 }
 
-
-void PFCandidateBenchmarkAnalyzer::endJob() {
-}

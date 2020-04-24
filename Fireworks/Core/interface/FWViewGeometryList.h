@@ -35,7 +35,7 @@ class FWViewGeometryList: public TEveElementList
 {
 public:
    FWViewGeometryList( const fireworks::Context& context, bool projected = true );
-   virtual ~FWViewGeometryList();
+   ~FWViewGeometryList() override;
 
    void updateColors();
    void updateTransparency(bool projectedType);
@@ -49,9 +49,9 @@ protected:
    void addToCompound(TEveElement* el, FWGeomColorIndex idx, bool applyTransp = true) const ;
 
 private:
-   FWViewGeometryList(const FWViewGeometryList&); // stop default
+   FWViewGeometryList(const FWViewGeometryList&) = delete; // stop default
 
-   const FWViewGeometryList& operator=(const FWViewGeometryList&); // stop default
+   const FWViewGeometryList& operator=(const FWViewGeometryList&) = delete; // stop default
 
    // ---------- member data --------------------------------
    sigc::connection  m_transpConnection;

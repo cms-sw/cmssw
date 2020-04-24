@@ -85,7 +85,7 @@ bool getCastorObject (std::istream& fInput, T* fObject, S* fCondObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 8) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" << std::endl;
       continue;
@@ -115,7 +115,7 @@ bool dumpCastorObject (std::ostream& fOutput, const T& fObject) {
   //std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const float* values = fObject.getValues (*channel)->getValues ();
     if (values) {
       dumpId (fOutput, *channel);
@@ -134,7 +134,7 @@ bool getCastorSingleFloatObject (std::istream& fInput, T* fObject, S* fCondObjec
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 5) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, value" << std::endl;
       continue;
@@ -162,7 +162,7 @@ bool dumpCastorSingleFloatObject (std::ostream& fOutput, const T& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const float value = fObject.getValues (*channel)->getValue ();
     dumpId (fOutput, *channel);
     sprintf (buffer, " %8.5f %10X\n",
@@ -179,7 +179,7 @@ bool getCastorSingleIntObject (std::istream& fInput, T* fObject, S* fCondObject)
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 5) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, value" << std::endl;
       continue;
@@ -207,7 +207,7 @@ bool dumpCastorSingleIntObject (std::ostream& fOutput, const T& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const int value = fObject.getValues (*channel)->getValue ();
     dumpId (fOutput, *channel);
     sprintf (buffer, " %15d %10X\n",
@@ -235,7 +235,7 @@ bool getObject (std::istream& fInput, CastorPedestals* fObject) {
 
   while (fInput.getline(buffer, 1024)) {
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     else {
       if (items[0] == "#U")
 	{
@@ -258,7 +258,7 @@ bool getObject (std::istream& fInput, CastorPedestals* fObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue;
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 8) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 4x values" 
 				      << " or 12 items: eta, phi, depth, subdet, 4x values for mean, 4x values for width"
@@ -309,7 +309,7 @@ bool dumpObject (std::ostream& fOutput, const CastorPedestals& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const float* values = fObject.getValues (*channel)->getValues ();
     if (values) {
       dumpId (fOutput, *channel);
@@ -330,7 +330,7 @@ bool getObject (std::istream& fInput, CastorChannelQuality* fObject)
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 5) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, GOOD/BAD/HOT/DEAD" << std::endl;
       continue;
@@ -344,7 +344,7 @@ bool getObject (std::istream& fInput, CastorChannelQuality* fObject)
 //    else
 //      {
     uint32_t mystatus;
-    CastorChannelStatus* fCondObject = NULL;
+    CastorChannelStatus* fCondObject = nullptr;
     if (items[4].substr(0,2)=="0x") {
        sscanf(items[4].c_str(),"%X", &mystatus);
        fCondObject = new CastorChannelStatus(id,mystatus);
@@ -372,7 +372,7 @@ bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const int value = fObject.getValues (*channel)->getValue ();
     dumpId (fOutput, *channel);
     sprintf (buffer, " %15X %10X\n",
@@ -392,7 +392,7 @@ bool getObject (std::istream& fInput, CastorPedestalWidths* fObject) {
   while (fInput.getline(buffer, 1024)) {
     linecounter++;
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     else {
       if (items[0] == (std::string)"#U")
 	{
@@ -417,7 +417,7 @@ bool getObject (std::istream& fInput, CastorPedestalWidths* fObject) {
     linecounter++;
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
+    if (items.empty()) continue; // blank line
     if (items.size () < 14) {
       edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line number: " << linecounter << "\n line must contain 14 items: eta, phi, depth, subdet, 10x correlations" 
 				      << " or 20 items: eta, phi, depth, subdet, 16x correlations" 
@@ -494,7 +494,7 @@ bool dumpObject (std::ostream& fOutput, const CastorPedestalWidths& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const CastorPedestalWidth* item = fObject.getValues (*channel);
     if (item) {
       dumpId (fOutput, *channel);
@@ -516,7 +516,7 @@ bool getObject (std::istream& fInput, CastorQIEData* fObject) {
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()<1) continue;
+    if (items.empty()) continue;
     if (items [0] == "SHAPE") { // basic shape
       if (items.size () < 33) {
 	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 33 items: SHAPE  32 x low QIE edges for first 32 bins" << std::endl;
@@ -580,7 +580,7 @@ bool dumpObject (std::ostream& fOutput, const CastorQIEData& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const CastorQIECoder* coder = fObject.getCoder (*channel);
     dumpId (fOutput, *channel);
     for (unsigned capid = 0; capid < 4; capid++) {
@@ -641,7 +641,7 @@ bool dumpObject (std::ostream& fOutput, const CastorCalibrationQIEData& fObject)
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const CastorCalibrationQIECoder* coder = fObject.getCoder (*channel);
     if (coder) {
       dumpId (fOutput, *channel);
@@ -664,7 +664,7 @@ bool getObject (std::istream& fInput, CastorElectronicsMap* fObject) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size () < 12) {
-      if (items.size()==0) continue; // no warning here
+      if (items.empty()) continue; // no warning here
       if (items.size()<9) {
 	edm::LogError("MapFormat") << "CastorElectronicsMap-> line too short: " << buffer;
 	continue;
@@ -776,7 +776,7 @@ bool getObject (std::istream& fInput, CastorRecoParams* fObject) {
 	while (fInput.getline(buffer, 1024)) {
 		if (buffer [0] == '#') continue; //ignore comment
 		std::vector <std::string> items = splitString (std::string (buffer));
-		if (items.size()==0) continue; // blank line
+		if (items.empty()) continue; // blank line
 		if (items.size () < 6) {
 			edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, firstSample, samplesToAdd" << std::endl;
 		    	continue;
@@ -796,7 +796,7 @@ bool dumpObject (std::ostream& fOutput, const CastorRecoParams& fObject) {
 	fOutput << buffer;
 	std::vector<DetId> channels = fObject.getAllChannels ();
 	std::sort (channels.begin(), channels.end(), DetIdLess ());
-	for (std::vector<DetId>::iterator channel = channels.begin();channel != channels.end();channel++) {
+	for (std::vector<DetId>::iterator channel = channels.begin();channel != channels.end();++channel) {
 		dumpId (fOutput, *channel);
 		sprintf (buffer, " %15d %15d %16X\n",
 		fObject.getValues (*channel)->firstSample(), fObject.getValues (*channel)->samplesToAdd(), channel->rawId ());

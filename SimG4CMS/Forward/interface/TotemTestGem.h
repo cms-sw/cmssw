@@ -44,14 +44,14 @@ class TotemTestGem : public SimProducer,
 public: 
 
   TotemTestGem(const edm::ParameterSet &p);
-  virtual ~TotemTestGem();
+  ~TotemTestGem() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   // observer classes
-  void update(const BeginOfEvent * evt);
-  void update(const EndOfEvent * evt);
+  void update(const BeginOfEvent * evt) override;
+  void update(const EndOfEvent * evt) override;
 
   void clear();
   void fillEvent(TotemTestHistoClass&);

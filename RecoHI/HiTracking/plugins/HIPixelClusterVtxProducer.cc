@@ -14,8 +14,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -29,7 +27,7 @@
 
 /*****************************************************************************/
 HIPixelClusterVtxProducer::HIPixelClusterVtxProducer(const edm::ParameterSet& ps)
-  : srcPixels_(ps.getParameter<std::string>("pixelRecHits")),
+  : srcPixelsString_(ps.getParameter<std::string>("pixelRecHits")),
     minZ_(ps.getParameter<double>("minZ")),
     maxZ_(ps.getParameter<double>("maxZ")),
     zStep_(ps.getParameter<double>("zStep"))
@@ -37,6 +35,8 @@ HIPixelClusterVtxProducer::HIPixelClusterVtxProducer(const edm::ParameterSet& ps
 {
   // Constructor
   produces<reco::VertexCollection>();
+  srcPixels_ = (consumes<SiPixelRecHitCollection>(srcPixelsString_));
+
 }
 
 
@@ -52,11 +52,11 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
 {
 
   // new vertex collection
-  std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+  auto vertices = std::make_unique<reco::VertexCollection>();
 
   // get pixel rechits
   edm::Handle<SiPixelRecHitCollection> hRecHits;
-  ev.getByLabel(edm::InputTag(srcPixels_),hRecHits);
+  ev.getByToken(srcPixels_,hRecHits);
 
   // get tracker geometry
   if (hRecHits.isValid()) {
@@ -75,7 +75,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
       if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
-      if (1) {
+      if (true) {
 	const PixelTopology *pixTopo = &(pgdu->specificTopology());
         std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
         bool pixelOnEdge = false;
@@ -132,7 +132,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
     vertices->push_back(ver);
   }
 
-  ev.put(vertices);
+  ev.put(std::move(vertices));
 }
 
 /*****************************************************************************/

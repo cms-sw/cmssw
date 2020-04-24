@@ -48,16 +48,16 @@ class RunDCSLVDat : public IDataItem {
   int nowMicroseconds();
   void fillTheMap(ResultSet *, std::map< EcalLogicID, RunDCSLVDat >* );
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const RunDCSLVDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunDCSLVDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   void fetchLastData(std::map< EcalLogicID, RunDCSLVDat >* fillMap)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   float m_lv;

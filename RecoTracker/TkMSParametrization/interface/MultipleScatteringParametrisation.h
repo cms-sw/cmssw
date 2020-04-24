@@ -26,9 +26,17 @@ public:
   enum X0Source { useDetLayer=0, useX0AtEta=1, useX0DataAveraged=2 };
   enum Consecutive { notAssumeConsecutive, useConsecutive };
 
+  MultipleScatteringParametrisation(){}
+
   MultipleScatteringParametrisation( const DetLayer* layer, 
 				     const edm::EventSetup &iSetup,
-                                     X0Source x0source = useX0AtEta);
+                                     X0Source x0source = useX0AtEta) {
+       init(layer,iSetup,x0source);
+  }
+
+  void init( const DetLayer* layer, const edm::EventSetup &iSetup,
+        X0Source x0source = useX0AtEta);
+
 
 
   /// MS sigma  at the layer for which parametrisation is initialised;
@@ -68,7 +76,7 @@ public:
 private:
 
   MSLayer theLayer;
-  MSLayersKeeper const * theLayerKeeper;
+  MSLayersKeeper const * theLayerKeeper=nullptr;
   static const float x0ToSigma;
 
 };

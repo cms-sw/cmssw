@@ -37,7 +37,7 @@ class TreeAnalyzer(object):
             json.dump([os.path.abspath(dirIn), self.dirSizes, self.fileSizes], jsonFile)
             jsonFile.close()
             print 'treeInfo info  written to ', jsonFileName
-        except Exception, e:
+        except Exception as e:
             print "error writing json file:", str(e)
 
         try:
@@ -45,7 +45,7 @@ class TreeAnalyzer(object):
             pklFileName = self.outFileName.replace('.json','.pkl')
             pickle.dump([os.path.abspath(dirIn), self.dirSizes, self.fileSizes], open(pklFileName, 'w') )
             print 'treeInfo info  written to ', pklFileName
-        except Exception, e:
+        except Exception as e:
             print "error writing pkl file:", str(e)
         
     def show(self):
@@ -93,7 +93,7 @@ def main():
         ta.analyzePath(checkDir)
         ta.show()
 
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         print "unknown option", str(e)
         sys.exit(2)
 

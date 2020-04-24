@@ -23,25 +23,9 @@ SK_ME1A = cms.PSet(
     dRPhiMax = cms.double(8.0)
 )
 CSCSegAlgoSK = cms.PSet(
-    chamber_types = cms.vstring('ME1/a', 
-        'ME1/b', 
-        'ME1/2', 
-        'ME1/3', 
-        'ME2/1', 
-        'ME2/2', 
-        'ME3/1', 
-        'ME3/2', 
-        'ME4/1'),
-    #    vstring chamber_types = {"ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2"}
-    #    vint32 parameters_per_chamber_type = {2, 1, 1, 1, 1, 1, 1, 1, 1, 1}   
+    chamber_types = cms.vstring('ME1/a', 'ME1/b', 'ME1/2', 'ME1/3', 'ME2/1', 'ME2/2', 'ME3/1', 'ME3/2', 'ME4/1','ME4/2'),
     algo_name = cms.string('CSCSegAlgoSK'),
-    algo_psets = cms.VPSet(cms.PSet(
-        SK_ME1234
-    ), 
-        cms.PSet(
-            SK_ME1A
-        )),
-    parameters_per_chamber_type = cms.vint32(2, 1, 1, 1, 1, 
-        1, 1, 1, 1)
+    algo_psets = cms.VPSet( cms.PSet(SK_ME1234), cms.PSet(SK_ME1A) ),
+    parameters_per_chamber_type = cms.vint32(2, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
 )
 

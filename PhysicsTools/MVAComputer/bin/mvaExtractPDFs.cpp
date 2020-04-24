@@ -7,7 +7,6 @@
 #include <TFile.h>
 #include <TH1.h>
 
-#include <Cintex/Cintex.h>
 
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
@@ -21,8 +20,6 @@ int main(int argc, char **argv)
 {
 	using Calibration::HistogramF;
 	using Calibration::VarProcessor;
-
-	ROOT::Cintex::Cintex::Enable();
 
 	if (argc != 3) {
 		std::cerr << "Syntax: " << argv[0] << " <MVA File> "

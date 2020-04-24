@@ -9,6 +9,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include <vector>
 
@@ -21,7 +22,7 @@
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
@@ -54,22 +55,29 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf,
   // -1 = look for existing hit collections for both pixels and strips
   // 0 = look for pixel hit collections and build strip hits on demand (regional unpacking)
   // 1 = build both pixel and strip hits on demand (regional unpacking)
-  hitsfactoryMode_ = hitsfactoryPSet.getUntrackedParameter<int>("useOnDemandTracker");
+  //
+  // FIXME: when next time altering the configuration of this class,
+  // please consider changing the type of useOnDemandTracker to a
+  // string corresponding to the UseMeasurementTracker enumeration
+  int tmp = hitsfactoryPSet.getUntrackedParameter<int>("useOnDemandTracker");
+  if(tmp < -1 || tmp > 1)
+    throw cms::Exception("Configuration") << "SeedFilter: useOnDemandTracker must be -1, 0, or 1; got " << tmp;
+  hitsfactoryMode_ = RectangularEtaPhiTrackingRegion::intToUseMeasurementTracker(tmp);
 
   // get orderd hits generator from factory
   OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC);
 
   // start seed generator
-  // FIXME??
-  edm::ParameterSet creatorPSet;
-  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+  edm::ParameterSet seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
 
-  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,
-                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,nullptr,
+							       SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
 				                  	       );
   beamSpotTag_ = tokens.token_bs; ;
-  measurementTrackerName_ = conf.getParameter<edm::InputTag>("measurementTrackerEvent").encode() ;
-
+  if(hitsfactoryMode_ != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+    measurementTrackerToken_ = iC.consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("measurementTrackerEvent"));
+  }
  }
 
 SeedFilter::~SeedFilter() {
@@ -79,7 +87,7 @@ SeedFilter::~SeedFilter() {
 void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRef &scRef, TrajectorySeedCollection *output) {
 
   setup.get<IdealMagneticFieldRecord>().get(theMagField);
-  std::auto_ptr<TrajectorySeedCollection> seedColl(new TrajectorySeedCollection());
+  auto seedColl = std::make_unique<TrajectorySeedCollection>();
 
   GlobalPoint vtxPos;
   double deltaZVertex;
@@ -122,6 +130,13 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
     deltaZVertex = 3*sq;
   }
 
+  const MeasurementTrackerEvent *measurementTracker = nullptr;
+  if(!measurementTrackerToken_.isUninitialized()) {
+    edm::Handle<MeasurementTrackerEvent> hmte;
+    e.getByToken(measurementTrackerToken_, hmte);
+    measurementTracker = hmte.product();
+  }
+
   //seeds selection
   float energy = scRef->energy();
 
@@ -145,7 +160,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 						    RectangularEtaPhiTrackingRegion::Margin(std::abs(deltaPhi_),std::abs(deltaPhi_))
 						    ,hitsfactoryMode_,
 						    true, /*default in header*/
-						    measurementTrackerName_
+						    measurementTracker
 						    );
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionMinus, e, setup);
 
@@ -172,7 +187,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 						    RectangularEtaPhiTrackingRegion::Margin(std::abs(deltaPhi_),std::abs(deltaPhi_))
 						    ,hitsfactoryMode_
 						   ,true, /*default in header*/
-						   measurementTrackerName_
+						   measurementTracker
 						   );
 
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionPlus, e, setup);

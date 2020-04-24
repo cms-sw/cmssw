@@ -99,6 +99,12 @@ l1EmulatorObjIsoEGQualityTests.qtestOnEndLumi = False
 # NoIsoEG quality tests
 l1EmulatorObjNoIsoEGQualityTests.qtestOnEndLumi = False
 
+# IsoTau quality tests
+#l1EmulatorObjIsoTauQualityTests.qtestOnEndLumi = False
+
+# NoIsoTau quality tests
+#l1EmulatorObjNoIsoTauQualityTests.qtestOnEndLumi = False
+
 # Mu quality tests
 l1EmulatorObjMuQualityTests.qtestOnEndLumi = False
 

@@ -11,32 +11,40 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
 
+// Class for testing VolumeBasedMagneticField
+class testMagneticField;
+class testMagGeometryAnalyzer;
+
 class VolumeBasedMagneticField : public MagneticField {
+  // For tests
+  friend class testMagneticField;
+  friend class testMagGeometryAnalyzer;
+
  public:
   //  VolumeBasedMagneticField(const DDCompactView & cpv);
-  VolumeBasedMagneticField( const edm::ParameterSet& config,
+  VolumeBasedMagneticField( int geomVersion,
 			    const std::vector<MagBLayer *>& theBLayers,
 			    const std::vector<MagESector *>& theESectors,
 			    const std::vector<MagVolume6Faces*>& theBVolumes,
 			    const std::vector<MagVolume6Faces*>& theEVolumes,
 			    float rMax, float zMax,
-			    const MagneticField* param=0,
+			    const MagneticField* param=nullptr,
 			    bool isParamFieldOwned=false);
-  virtual ~VolumeBasedMagneticField();
+  ~VolumeBasedMagneticField() override;
 
   /// Copy constructor implement a shallow copy (ie no ownership of actual engines)
   VolumeBasedMagneticField(const VolumeBasedMagneticField& vbf);
 
   /// Returns a shallow copy.
-  virtual MagneticField* clone() const;
+  MagneticField* clone() const override;
 
-  GlobalVector inTesla ( const GlobalPoint& g) const;
+  GlobalVector inTesla ( const GlobalPoint& g) const override;
 
-  GlobalVector inTeslaUnchecked ( const GlobalPoint& g) const;
+  GlobalVector inTeslaUnchecked ( const GlobalPoint& g) const override;
 
   const MagVolume * findVolume(const GlobalPoint & gp) const;
 
-  bool isDefined(const GlobalPoint& gp) const;
+  bool isDefined(const GlobalPoint& gp) const override;
 
   bool isZSymmetric() const;
 

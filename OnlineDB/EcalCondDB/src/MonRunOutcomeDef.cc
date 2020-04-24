@@ -50,7 +50,7 @@ string MonRunOutcomeDef::getLongDesc() const
 
   
 int MonRunOutcomeDef::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return def from memory if available
   if (m_ID) {
@@ -83,7 +83,7 @@ int MonRunOutcomeDef::fetchID()
 
 
 void MonRunOutcomeDef::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -111,7 +111,7 @@ void MonRunOutcomeDef::setByID(int id)
 
 
 void MonRunOutcomeDef::fetchAllDefs( std::vector<MonRunOutcomeDef>* fillVec) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   try {

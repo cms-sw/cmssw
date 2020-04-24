@@ -45,8 +45,8 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   Handle<EERecHitCollection> endcapRecHitsHandle;
 
-  const EBRecHitCollection*  EBRecHits = 0;
-  const EERecHitCollection*  EERecHits = 0; 
+  const EBRecHitCollection*  EBRecHits = nullptr;
+  const EERecHitCollection*  EERecHits = nullptr; 
  
   iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
@@ -63,8 +63,8 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   //Create empty output collections
-  std::auto_ptr< EBRecHitCollection > RecalibEBRecHitCollection( new EBRecHitCollection );
-  std::auto_ptr< EERecHitCollection > RecalibEERecHitCollection( new EERecHitCollection );
+  auto RecalibEBRecHitCollection = std::make_unique<EBRecHitCollection>();
+  auto RecalibEERecHitCollection = std::make_unique<EERecHitCollection>();
 
 
   // Intercalib constants
@@ -77,7 +77,7 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //loop on all EcalRecHits (barrel)
       EBRecHitCollection::const_iterator itb;
-      for (itb=EBRecHits->begin(); itb!=EBRecHits->end(); itb++) {
+      for (itb=EBRecHits->begin(); itb!=EBRecHits->end(); ++itb) {
 	
 	// find intercalib constant for this xtal
 	EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(itb->id().rawId());
@@ -105,7 +105,7 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //loop on all EcalRecHits (barrel)
       EERecHitCollection::const_iterator ite;
-      for (ite=EERecHits->begin(); ite!=EERecHits->end(); ite++) {
+      for (ite=EERecHits->begin(); ite!=EERecHits->end(); ++ite) {
 	
 	// find intercalib constant for this xtal
 	EcalIntercalibConstantMap::const_iterator icalit=ical->getMap().find(ite->id().rawId());
@@ -130,8 +130,8 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //Put Recalibrated rechit in the event
-  iEvent.put( RecalibEBRecHitCollection, RecalibBarrelHits_);
-  iEvent.put( RecalibEERecHitCollection, RecalibEndcapHits_);
+  iEvent.put(std::move(RecalibEBRecHitCollection), RecalibBarrelHits_);
+  iEvent.put(std::move(RecalibEERecHitCollection), RecalibEndcapHits_);
   
 }
 

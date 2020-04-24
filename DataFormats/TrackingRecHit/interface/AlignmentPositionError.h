@@ -4,7 +4,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 /** The position error of a Det due to alignment.
- *  It is summed in quadrature with the RecHit local error.
+ *  It is summed in quadrature with the RecHit global error.
  */
 
 class AlignmentPositionError {
@@ -13,18 +13,19 @@ class AlignmentPositionError {
 
   AlignmentPositionError(){};
   
-  AlignmentPositionError(float dx, float dy, float dz);
-  
-  AlignmentPositionError(const GlobalError& ge) : theGlobalError(ge) {};
+  AlignmentPositionError(float xx, float yy, float zz, float phixphix=0, float phiyphiy=0, float phizphiz=0);
+ 
+  AlignmentPositionError(const GlobalErrorExtended& ge) : theGlobalError(ge) {};
+
+  AlignmentPositionError(const GlobalError& ge);
 
   ~AlignmentPositionError(){};
   
-
   bool valid() const {
-    return ( theGlobalError.cxx()>0 || theGlobalError.cyy()>0 || theGlobalError.czz()>0 );
+    return ( theGlobalError.cxx()>0 || theGlobalError.cyy()>0 || theGlobalError.czz()>0);
   }
 
-  const GlobalError & globalError() const { return theGlobalError; };
+  const GlobalErrorExtended & globalError() const { return theGlobalError; };
 
   AlignmentPositionError operator+ (const AlignmentPositionError& ape) const {
     return AlignmentPositionError ( this->globalError() + ape.globalError());
@@ -36,20 +37,19 @@ class AlignmentPositionError {
   };
 
   AlignmentPositionError & operator+= (const AlignmentPositionError& ape) {
-    theGlobalError = GlobalError(this->globalError() + ape.globalError());
+    theGlobalError = GlobalErrorExtended(this->globalError() + ape.globalError());
     return *this;
   };
 
   AlignmentPositionError & operator-= (const AlignmentPositionError& ape) {
-    theGlobalError = GlobalError(this->globalError() - ape.globalError());
+    theGlobalError = GlobalErrorExtended(this->globalError() - ape.globalError());
     return *this;
   };
 
 
  private:
   
-  GlobalError theGlobalError;
+  GlobalErrorExtended theGlobalError;
 };
 
 #endif // ALIGNMENT_POSITION_ERROR_H
-

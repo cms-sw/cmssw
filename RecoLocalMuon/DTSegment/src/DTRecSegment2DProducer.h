@@ -11,8 +11,8 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
 namespace edm {
   class ParameterSet;
@@ -28,7 +28,7 @@ class DTRecSegment2DBaseAlgo;
 
 /* Class DTRecSegment2DProducer Interface */
 
-class DTRecSegment2DProducer : public edm::EDProducer {
+class DTRecSegment2DProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -36,12 +36,12 @@ class DTRecSegment2DProducer : public edm::EDProducer {
   DTRecSegment2DProducer(const edm::ParameterSet&) ;
 
   /// Destructor
-  virtual ~DTRecSegment2DProducer() ;
+  ~DTRecSegment2DProducer() override ;
     
   // Operations
 
   /// The method which produces the 2D-segments
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
  protected:
 
@@ -53,7 +53,7 @@ class DTRecSegment2DProducer : public edm::EDProducer {
   DTRecSegment2DBaseAlgo* theAlgo;
 
   //static std::string theAlgoName;
-  edm::InputTag theRecHits1DLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
 };
 #endif // DTRecHit_DTRecSegment2DProducer_h
 

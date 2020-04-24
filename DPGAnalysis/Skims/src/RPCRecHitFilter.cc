@@ -67,7 +67,7 @@ typedef std::vector<L1MuRegionalCand> L1MuRegionalCandCollection;
 #include "TFile.h"
 #include "TTree.h"
 #include <cstdlib>
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>
 #include <string>
 #include <memory>
@@ -130,7 +130,7 @@ bool RPCRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::map <pair < int  , int > , std::vector<RPCDetId> > numberOfHitsSameDiskSectorNegative;
   
   
-  const std::vector<  RPCRoll * > rls = rpcGeo->rolls();
+  const std::vector<  const RPCRoll * > rls = rpcGeo->rolls();
   
   bool condition = true;
   

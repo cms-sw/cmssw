@@ -1,4 +1,3 @@
-#include <iostream>
 #include "TFile.h"
 #include "TCanvas.h"
 #include "TH1F.h"
@@ -8,8 +7,6 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TMath.h"
-
-using namespace std;
 
 Double_t crystalBall(Double_t *x, Double_t *par)
 {
@@ -83,7 +80,7 @@ TF1 * lorentzianFit()
 // Relativistic Breit-Wigner
 // -------------------------
 TF1 * relativisticBW = new TF1 ("relativisticBW", "[2]*pow([0]*[1],2)/(pow(x*x-[1]*[1],2)+pow([0]*[1],2))", 0., 1000.);
-TF1 * relativisticBWFit(const string & index)
+TF1 * relativisticBWFit(const std::string & index)
 {
   TF1 * functionToFit = new TF1(("functionToFit"+index).c_str(), relativisticBW, 60, 120, 3);
   functionToFit->SetParameter(1, 90);
@@ -113,7 +110,7 @@ class RelativisticBWwithZGammaInterference
   double twoOverPi_;
 };
 
-TF1 * relativisticBWintFit(const string & index)
+TF1 * relativisticBWintFit(const std::string & index)
 {
   RelativisticBWwithZGammaInterference * fobj = new RelativisticBWwithZGammaInterference;
   TF1 * functionToFit = new TF1(("functionToFit"+index).c_str(), fobj, 60, 120, fobj->parNum(), "RelativisticBWwithZGammaInterference");
@@ -155,7 +152,7 @@ class RelativisticBWwithZGammaInterferenceAndPhotonPropagator
   double twoOverPi_;
 };
 
-TF1 * relativisticBWintPhotFit(const string & index)
+TF1 * relativisticBWintPhotFit(const std::string & index)
 {
   RelativisticBWwithZGammaInterferenceAndPhotonPropagator * fobj = new RelativisticBWwithZGammaInterferenceAndPhotonPropagator;
   TF1 * functionToFit = new TF1(("functionToFit"+index).c_str(), fobj, 60, 120, fobj->parNum(), "RelativisticBWwithZGammaInterferenceAndPhotonPropagator");
@@ -201,7 +198,7 @@ class ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator
   double twoOverPi_;
 };
 
-TF1 * expRelativisticBWintPhotFit(const string & index)
+TF1 * expRelativisticBWintPhotFit(const std::string & index)
 {
   ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator * fobj = new ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator;
   TF1 * functionToFit = new TF1(("functionToFit"+index).c_str(), fobj, 60, 120, fobj->parNum(), "ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator");
@@ -255,7 +252,7 @@ class ResidualFit
   int parNum_;
 };
 
-TF1 * residualFit(const string & index)
+TF1 * residualFit(const std::string & index)
 {
   ResidualFit * fobj = new ResidualFit;
   TF1 * functionToFit = new TF1(("f"+index).c_str(), fobj, 60, 120, fobj->parNum(), "ResidualFit");
@@ -269,7 +266,7 @@ TF1 * residualFit(const string & index)
   return functionToFit;
 }
 
-TF1 * residualFit(double pars[], const string & index)
+TF1 * residualFit(double pars[], const std::string & index)
 {
   ResidualFit * fobj = new ResidualFit;
   TF1 * functionToFit = new TF1(("fp"+index).c_str(), fobj, 60, 120, fobj->parNum(), "ResidualFit");
@@ -290,7 +287,7 @@ TF1 * residualFit(double pars[], const string & index)
 class CombinedFit
 {
  public:
-  CombinedFit(double pars[], const string & index)
+  CombinedFit(double pars[], const std::string & index)
   {
     residuals_ = residualFit(pars, index);
 
@@ -307,7 +304,7 @@ class CombinedFit
   TF1 * residuals_;
 };
 
-TF1 * combinedFit(double pars[], const string & index)
+TF1 * combinedFit(double pars[], const std::string & index)
 {
   CombinedFit * combined = new CombinedFit(pars, index);
   TF1 * functionToFit = new TF1(("functionToFit"+index).c_str(), combined, 60, 120, combined->parNum(), "functionToFit");
@@ -325,7 +322,7 @@ TF1 * combinedFit(double pars[], const string & index)
 TF1 * iterateFitter(TH1F * histo, int i, TF1 * previousResiduals = 0, TCanvas * inputCanvas = 0)
 {
   TCanvas * canvas = inputCanvas;
-  stringstream ss;
+  std::stringstream ss;
   int iCanvas = i;
   ss << i;
 

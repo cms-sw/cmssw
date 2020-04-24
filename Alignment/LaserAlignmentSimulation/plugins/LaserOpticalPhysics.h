@@ -16,7 +16,7 @@ class LaserOpticalPhysics : public PhysicsList
 {
 public:
 		/// constructor
-    LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::FieldBuilder *fieldBuilder_, const edm::ParameterSet & p);
+    LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::ChordFinderSetter *chordFinderSetter_, const edm::ParameterSet & p);
 };
  
 #endif

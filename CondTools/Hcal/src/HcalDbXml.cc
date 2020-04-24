@@ -19,8 +19,10 @@
 #include <xercesc/dom/DOMText.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
+#include <xercesc/dom/DOMConfiguration.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
+#include <xercesc/dom/DOMLSOutput.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
 
 #include "FWCore/Concurrency/interface/Xerces.h"
 #include "CondTools/Hcal/interface/StreamOutFormatTarget.h"
@@ -96,14 +98,14 @@ private:
 };
 
   XMLDocument::XMLDocument () 
-    : mDoc (0)
+    : mDoc (nullptr)
   {
     cms::concurrency::xercesInitialize();
     mDom =  DOMImplementationRegistry::getDOMImplementation (transcode ("Core"));
     mDoc = mDom->createDocument(
-				0,                    // root element namespace URI.
+				nullptr,                    // root element namespace URI.
 				transcode ("ROOT"),         // root element name
-				0);                   // document type object (DTD).
+				nullptr);                   // document type object (DTD).
   }
 
   template <class T> DOMElement* XMLDocument::newElement (DOMElement* fParent, const T& fName) {
@@ -296,10 +298,15 @@ private:
   const DOMDocument* XMLDocument::document () {return mDoc;}
 
   void XMLDocument::streamOut (std::ostream& fOut) {
-    StreamOutFormatTarget formTaget (fOut);
-    DOMWriter* domWriter = mDom->createDOMWriter();
-    domWriter->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-    domWriter->writeNode (&formTaget, *(root()));
+    StreamOutFormatTarget formTarget (fOut);
+    DOMLSSerializer* domWriter = mDom->createLSSerializer();
+    DOMConfiguration* dc = domWriter->getDomConfig();
+    dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+
+    DOMLSOutput* outputDesc = ((DOMImplementationLS*)mDom)->createLSOutput();
+    outputDesc->setByteStream(&formTarget);
+
+    domWriter->write (root(), outputDesc);
     mDoc->release ();
   }
 
@@ -392,5 +399,5 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 bool HcalDbXml::dumpObject (std::ostream& fOutput, 
 			    unsigned fRun, unsigned long fGMTIOVBegin, unsigned long fGMTIOVEnd, const std::string& fTag, 
 			    const HcalRawGains& fObject) {
-  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, &fObject, (const HcalGainWidths*)0);
+  return dumpObject_ (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, &fObject, (const HcalGainWidths*)nullptr);
 }

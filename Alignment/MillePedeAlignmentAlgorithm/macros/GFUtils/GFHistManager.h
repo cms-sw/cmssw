@@ -65,6 +65,7 @@ public:
   virtual void SetNumHistsXY(UInt_t numX, UInt_t numY, Int_t layer);
   virtual void SetLogY(Bool_t yesNo = kTRUE);
   virtual void SetLogY(Int_t layer, Bool_t yesNo = kTRUE);
+  void SetCanvasName(const TString& name);
   virtual void SetCanvasWidth(Int_t w) {fCanvasWidth = w;}
   virtual void SetCanvasHeight(Int_t h) {fCanvasHeight = h;}
   virtual void SetHistsOption(Option_t* option);
@@ -150,6 +151,7 @@ private:
   Double_t     fStatsX2;       // ...of first statsbox in case
   Double_t     fStatsY1;       // ... many have to be drawn
   Double_t     fStatsY2;       // ... (subsequent boxes are shifted)
+  TString      fCanvasName;
   Int_t        fCanvasWidth;   // pixel width
   Int_t        fCanvasHeight;  //       height of canvases (maybe relativly manipulated...) 
   static TString fgLegendEntryOption; // option used for legend entry style

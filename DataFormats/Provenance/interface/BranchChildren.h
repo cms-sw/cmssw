@@ -13,6 +13,8 @@ BranchChildren: Dependency information between branches.
 
 namespace edm {
 
+  class BranchDescription;
+
   class BranchChildren {
   private:
     typedef std::set<BranchID> BranchIDSet;
@@ -31,7 +33,9 @@ namespace edm {
     // Look up all the descendants of the given parent, and insert them
     // into descendants. N.B.: this does not clear out descendants first;
     // it only appends *new* elements to the collection.
-    void appendToDescendants(BranchID parent, BranchIDSet& descendants) const;
+    void appendToDescendants(BranchDescription const& parent,
+                             BranchIDSet& descendants,
+                             std::map<BranchID, BranchID> const& droppedToKeptAlias) const;
 
     // const accessor for the data
     map_t const&
@@ -42,7 +46,10 @@ namespace edm {
   private:
     map_t childLookup_;
 
-    void append_(map_t const& lookup, BranchID item, BranchIDSet& itemSet) const;
+    void append_(map_t const& lookup,
+                 BranchID item,
+                 BranchIDSet& itemSet,
+                 std::map<BranchID, BranchID> const& droppedToKeptAlias) const;
   };
 
 }

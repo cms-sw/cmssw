@@ -37,13 +37,13 @@ namespace sistrip {
   public:
 
     explicit SpyExtractRunModule(const edm::ParameterSet&);
-    ~SpyExtractRunModule();
+    ~SpyExtractRunModule() override;
 
   private:
 
-    virtual void beginJob() override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
     //check when the current run changes
     const bool updateRun(const uint32_t aRun);
@@ -102,7 +102,6 @@ namespace sistrip {
 
     static bool lFirstEvent = true;
     edm::Handle<uint32_t> lRun;
-    //    aEvt.getByLabel( runTag_, lRun ); 
     aEvt.getByToken( runToken_, lRun ); 
 
     const bool isUpdated = updateRun(*lRun);

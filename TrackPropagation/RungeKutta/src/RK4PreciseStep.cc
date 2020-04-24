@@ -67,8 +67,5 @@ double RK4PreciseStep::distance( const CartesianState& a, const CartesianState& 
 
 bool RK4PreciseStep::verbose() const
 {
-  // static bool verb = SimpleConfigurable<bool>(false,"RK4PreciseStep:verbose").value();
-
-  static bool verb = true;
-  return verb;
+  return true;
 }

@@ -26,8 +26,8 @@ class TauGenJetDumper : public edm::EDAnalyzer {
   public:
     explicit TauGenJetDumper(const edm::ParameterSet& pset):
       genJetSrc_(pset.getParameter<edm::InputTag>("src")) {}
-    virtual ~TauGenJetDumper() {}
-    virtual void analyze(const edm::Event& evt, const edm::EventSetup& es) override;
+    ~TauGenJetDumper() override {}
+    void analyze(const edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag genJetSrc_;
 };

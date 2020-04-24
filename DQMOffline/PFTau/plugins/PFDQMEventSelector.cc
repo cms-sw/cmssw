@@ -44,9 +44,9 @@ bool PFDQMEventSelector::filter( edm::Event & iEvent, edm::EventSetup const& iSe
   nEvents_++;
   if (!fileOpened_) return false;
 
-  unsigned int runNb  = iEvent.id().run();
-  unsigned int evtNb  = iEvent.id().event();
-  unsigned int lumiNb = iEvent.id().luminosityBlock();
+  edm::RunNumber_t runNb  = iEvent.id().run();
+  edm::EventNumber_t evtNb  = iEvent.id().event();
+  edm::LuminosityBlockNumber_t lumiNb = iEvent.id().luminosityBlock();
   std::ostringstream eventid_str;
   eventid_str << runNb << "_"<< evtNb << "_" << lumiNb;
   
@@ -79,7 +79,7 @@ void PFDQMEventSelector::endJob() {
 // -- Open Input File
 //
 bool PFDQMEventSelector::openInputFile() { 
-  if (inputFileName_.size() == 0) return false;
+  if (inputFileName_.empty()) return false;
   edm::LogInfo("SiStripOfflineDQM") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
   dqmStore_->open(inputFileName_, false, "", "", DQMStore::StripRunDirs); 
   return true;

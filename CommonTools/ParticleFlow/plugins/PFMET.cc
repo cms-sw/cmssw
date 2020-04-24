@@ -55,13 +55,13 @@ void PFMET::produce(Event& iEvent,
   Handle<PFCandidateCollection> pfCandidates;
   iEvent.getByToken( tokenPFCandidates_, pfCandidates);
 
-  auto_ptr< METCollection >
+  unique_ptr< METCollection >
     pOutput( new METCollection() );
 
 
 
   pOutput->push_back( pfMETAlgo_.produce( *pfCandidates ) );
-  iEvent.put( pOutput );
+  iEvent.put(std::move(pOutput));
 
   LogDebug("PFMET")<<"STOP event: "<<iEvent.id().event()
 		   <<" in run "<<iEvent.id().run()<<endl;

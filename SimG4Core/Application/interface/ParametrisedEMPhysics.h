@@ -12,6 +12,7 @@
 #include "G4VPhysicsConstructor.hh"
 
 class GFlashEMShowerModel;
+class GFlashHadronShowerModel;
 class ElectronLimiter;
 
 class ParametrisedEMPhysics : public G4VPhysicsConstructor
@@ -19,17 +20,19 @@ class ParametrisedEMPhysics : public G4VPhysicsConstructor
 public:
 
   ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p);
-  virtual ~ParametrisedEMPhysics();
+  ~ParametrisedEMPhysics() override;
 	
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
 private:
 
   edm::ParameterSet theParSet;
 
-  GFlashEMShowerModel *theEMShowerModel;
-  GFlashEMShowerModel *theHadShowerModel;
+  GFlashEMShowerModel *theEcalEMShowerModel;
+  GFlashEMShowerModel *theHcalEMShowerModel;
+  GFlashHadronShowerModel *theEcalHadShowerModel;
+  GFlashHadronShowerModel *theHcalHadShowerModel;
 
   ElectronLimiter *theElectronLimiter;
   ElectronLimiter *thePositronLimiter;

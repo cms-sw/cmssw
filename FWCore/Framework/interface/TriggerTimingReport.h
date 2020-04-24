@@ -19,12 +19,12 @@ namespace edm {
     int totalEvents = 0;
     double cpuTime = 0.;
     double realTime =0.;
+    double sumStreamRealTime = 0.;
   };
 
   struct ModuleInPathTimingSummary
   {
     int timesVisited = 0;
-    double cpuTime = 0.;
     double realTime =0.;
 
     std::string moduleLabel;
@@ -35,7 +35,6 @@ namespace edm {
   {
     int bitPosition = 0;
     int timesRun = 0;
-    double cpuTime = 0.;
     double realTime =0.;
 
     std::string name;
@@ -46,12 +45,15 @@ namespace edm {
   {
     int timesVisited = 0;
     int timesRun = 0;
-    double cpuTime = 0.;
     double realTime =0.;
 
     std::string moduleLabel;
   };
 
+  inline
+  bool operator<(WorkerTimingSummary const& a, WorkerTimingSummary const& b) {
+    return a.moduleLabel < b.moduleLabel;
+  }
 
   struct TriggerTimingReport
   {

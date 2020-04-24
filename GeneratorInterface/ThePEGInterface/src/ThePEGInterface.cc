@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <memory>
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
@@ -30,6 +30,8 @@
 #include <ThePEG/PDF/PartonExtractor.h>
 #include <ThePEG/PDF/PDFBase.h>
 #include <ThePEG/Utilities/UtilityBase.h>
+#include <ThePEG/Vectors/HepMCConverter.h>
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -37,7 +39,6 @@
 
 #include "GeneratorInterface/ThePEGInterface/interface/Proxy.h"
 #include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
-#include "GeneratorInterface/ThePEGInterface/interface/HepMCConverter.h"
 #include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
 
 using namespace std;
@@ -54,7 +55,7 @@ ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
 	// Write events in hepmc ascii format for debugging purposes
 	string dumpEvents = pset.getUntrackedParameter<string>("dumpEvents", "");
 	if (!dumpEvents.empty()) {
-		iobc_.reset(new HepMC::IO_GenEvent(dumpEvents.c_str(), ios::out));
+		iobc_.reset(new HepMC::IO_GenEvent(dumpEvents, ios::out));
 		edm::LogInfo("ThePEGSource") << "Event logging switched on (=> " << dumpEvents << ")";
 	}
 	// Clear dumpConfig target

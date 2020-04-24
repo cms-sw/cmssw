@@ -11,10 +11,12 @@
 
 //#include "DataFormats/TrackReco/interface/Track.h"
 //#include "Geometry/Records/interface/MuonGeometryRecord.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 #include "TTree.h"
 #include "TH1F.h"
@@ -43,7 +45,9 @@ private:
   double minPtTrk_;
   double maxEtaTrk_;
 
-  Int_t runNumber, eventNumber, nMuon;
+  edm::RunNumber_t runNumber;
+  edm::EventNumber_t eventNumber;
+  Int_t nMuon;
   Int_t nGlbMuon, nStaMuon, nTrkMuon;
   Int_t nRPCMuon, nRPCMuTight;
   Int_t nTrkMuTight, nTrkMuTight2;

@@ -37,6 +37,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TProfile.h"
 // std
@@ -58,7 +59,7 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(edm::ParameterSet const& iConfi
   signalCutPeds_(4),
   nEvTot_(0),
   nIteration_(0),
-  apvFactory_(0),
+  apvFactory_(nullptr),
   m_cacheID_(0)
 {
   // retrieve producer name of input StripDigiCollection
@@ -68,6 +69,11 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(edm::ParameterSet const& iConfi
 
   edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals  " 
 					  << " Constructing....... ";     
+
+  theEventInitNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForInit");
+  theEventIterNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForIteration");
+  NumCMstripsInGroup_ = pedsPSet_.getParameter<int>("NumCMstripsInGroup");
+        runTypeFlag_  = conf_.getParameter<std::string>("RunTypeFlag");
 }
 //
 // -- Destructor
@@ -82,40 +88,35 @@ SiStripMonitorPedestals::~SiStripMonitorPedestals()
 // -- Begin Job
 //
 void SiStripMonitorPedestals::beginJob() {
-  theEventInitNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForInit");
-  theEventIterNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForIteration");
-  NumCMstripsInGroup_ = pedsPSet_.getParameter<int>("NumCMstripsInGroup");
-        runTypeFlag_  = conf_.getParameter<std::string>("RunTypeFlag");
 }
 //
 // -- BeginRun
 //
-void SiStripMonitorPedestals::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+
+void SiStripMonitorPedestals::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run & run, const edm::EventSetup & eSetup)
+{
 
   unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;       
+    m_cacheID_ = cacheID;
     eSetup.get<SiStripDetCablingRcd>().get( detcabling );
-    edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::beginRun: " 
-					  << " Creating MEs for new Cabling ";     
-    createMEs(eSetup);
-  } else {
-    edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::beginRun: " 
-					  << " Resetting MEs ";        
-    for (std::map<uint32_t, ModMEs >::const_iterator idet = PedMEs.begin() ; idet!=PedMEs.end() ; idet++) {
-      resetMEs(idet->first);
-    }
+    edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::bookHistograms: "
+					    << " Creating MEs for new Cabling ";
+    createMEs( ibooker , eSetup);
   }
+
   if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3 ) fillCondDBMEs(eSetup);
 }
+
+
 //
 // -- Create Monitor Elements
 //
-void SiStripMonitorPedestals::createMEs(const edm::EventSetup& es) {
+void SiStripMonitorPedestals::createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es) {
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<uint32_t> SelectedDetIds;
@@ -160,20 +161,20 @@ void SiStripMonitorPedestals::createMEs(const edm::EventSetup& es) {
   
     if( newDetId ) {
       ModMEs local_modmes;
-      local_modmes.PedsPerStrip = 0;
-      local_modmes.PedsDistribution = 0;      
-      local_modmes.PedsEvolution = 0;
-      local_modmes.CMSubNoisePerStrip = 0;
-      local_modmes.RawNoisePerStrip = 0;
-      local_modmes.CMSubNoiseProfile = 0;
-      local_modmes.RawNoiseProfile = 0;
-      local_modmes.NoisyStrips = 0;
-      local_modmes.NoisyStripDistribution = 0;
-      local_modmes.CMDistribution = 0;
-      local_modmes.CMSlopeDistribution = 0;
-      local_modmes.PedsPerStripDB = 0;
-      local_modmes.CMSubNoisePerStripDB = 0;
-      local_modmes.BadStripsDB = 0;
+      local_modmes.PedsPerStrip = nullptr;
+      local_modmes.PedsDistribution = nullptr;      
+      local_modmes.PedsEvolution = nullptr;
+      local_modmes.CMSubNoisePerStrip = nullptr;
+      local_modmes.RawNoisePerStrip = nullptr;
+      local_modmes.CMSubNoiseProfile = nullptr;
+      local_modmes.RawNoiseProfile = nullptr;
+      local_modmes.NoisyStrips = nullptr;
+      local_modmes.NoisyStripDistribution = nullptr;
+      local_modmes.CMDistribution = nullptr;
+      local_modmes.CMSlopeDistribution = nullptr;
+      local_modmes.PedsPerStripDB = nullptr;
+      local_modmes.CMSubNoisePerStripDB = nullptr;
+      local_modmes.BadStripsDB = nullptr;
 
       std::string hid;
       // set appropriate folder using SiStripFolderOrganizer
@@ -185,80 +186,80 @@ void SiStripMonitorPedestals::createMEs(const edm::EventSetup& es) {
       if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3 ) {
 	//Pedestals histos
 	hid = hidmanager.createHistoId("PedestalFromCondDB","det", detid);
-	local_modmes.PedsPerStripDB = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
-	dqmStore_->tag(local_modmes.PedsPerStripDB, detid);
+	local_modmes.PedsPerStripDB = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
+	ibooker.tag(local_modmes.PedsPerStripDB, detid);
 	(local_modmes.PedsPerStripDB)->setAxisTitle("Pedestal from CondDB(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("NoiseFromCondDB","det", detid);
-	local_modmes.CMSubNoisePerStripDB = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-	dqmStore_->tag(local_modmes.CMSubNoisePerStripDB, detid);
+	local_modmes.CMSubNoisePerStripDB = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	ibooker.tag(local_modmes.CMSubNoisePerStripDB, detid);
 	(local_modmes.CMSubNoisePerStripDB)->setAxisTitle("CMSubNoise from CondDB(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("BadStripFlagCondDB","det", detid);
-	local_modmes.BadStripsDB = dqmStore_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
-	dqmStore_->tag(local_modmes.BadStripsDB, detid);
+	local_modmes.BadStripsDB = ibooker.book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
+	ibooker.tag(local_modmes.BadStripsDB, detid);
 	(local_modmes.BadStripsDB)->setAxisTitle("Strip Flag from CondDB(ADC) vs Strip Number",1);
       }
       if (runTypeFlag_ == RunMode2 || runTypeFlag_ == RunMode3 ) { 
 	//Pedestals histos
 	hid = hidmanager.createHistoId("PedsPerStrip","det", detid);
-	local_modmes.PedsPerStrip = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
-	dqmStore_->tag(local_modmes.PedsPerStrip, detid);
+	local_modmes.PedsPerStrip = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
+	ibooker.tag(local_modmes.PedsPerStrip, detid);
 	(local_modmes.PedsPerStrip)->setAxisTitle("Pedestal (ADC)  vs Strip Number ",1);
 	
 	hid = hidmanager.createHistoId("PedsDistribution","det", detid);
-	local_modmes.PedsDistribution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 300, 200, 500); //to modify the size binning 
-	dqmStore_->tag(local_modmes.PedsDistribution, detid);
+	local_modmes.PedsDistribution = ibooker.book2D(hid, hid, napvs,-0.5,napvs-0.5, 300, 200, 500); //to modify the size binning 
+	ibooker.tag(local_modmes.PedsDistribution, detid);
 	(local_modmes.PedsDistribution)->setAxisTitle("Apv Number",1);
 	(local_modmes.PedsDistribution)->setAxisTitle("Mean Pedestal Value (ADC)",2);
 	
 	hid = hidmanager.createHistoId("PedsEvolution","det", detid);
-	local_modmes.PedsEvolution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 50, 0., 50.); //to modify the size binning 
-	dqmStore_->tag(local_modmes.PedsEvolution, detid);
+	local_modmes.PedsEvolution = ibooker.book2D(hid, hid, napvs,-0.5,napvs-0.5, 50, 0., 50.); //to modify the size binning 
+	ibooker.tag(local_modmes.PedsEvolution, detid);
 	(local_modmes.PedsEvolution)->setAxisTitle("Apv Number",1);
 	(local_modmes.PedsEvolution)->setAxisTitle("Iteration Number",2);
 	
 	//Noise histos
 	hid = hidmanager.createHistoId("CMSubNoisePerStrip","det", detid);
-	local_modmes.CMSubNoisePerStrip = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-	dqmStore_->tag(local_modmes.CMSubNoisePerStrip, detid);
+	local_modmes.CMSubNoisePerStrip = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	ibooker.tag(local_modmes.CMSubNoisePerStrip, detid);
 	(local_modmes.CMSubNoisePerStrip)->setAxisTitle("CMSubNoise (ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("RawNoisePerStrip","det", detid);
-	local_modmes.RawNoisePerStrip = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-	dqmStore_->tag(local_modmes.RawNoisePerStrip, detid);
+	local_modmes.RawNoisePerStrip = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	ibooker.tag(local_modmes.RawNoisePerStrip, detid);
 	(local_modmes.RawNoisePerStrip)->setAxisTitle("RawNoise(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("CMSubNoiseProfile","det", detid);
-	local_modmes.CMSubNoiseProfile = dqmStore_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
-	dqmStore_->tag(local_modmes.CMSubNoiseProfile, detid);
+	local_modmes.CMSubNoiseProfile = ibooker.bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
+	ibooker.tag(local_modmes.CMSubNoiseProfile, detid);
 	(local_modmes.CMSubNoiseProfile)->setAxisTitle("Mean of CMSubNoise (ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("RawNoiseProfile","det", detid);
-	local_modmes.RawNoiseProfile = dqmStore_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
-	dqmStore_->tag(local_modmes.RawNoiseProfile, detid);
+	local_modmes.RawNoiseProfile = ibooker.bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
+	ibooker.tag(local_modmes.RawNoiseProfile, detid);
 	(local_modmes.RawNoiseProfile)->setAxisTitle("Mean of RawNoise (ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("NoisyStrips","det", detid);
-	local_modmes.NoisyStrips = dqmStore_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
-	dqmStore_->tag(local_modmes.NoisyStrips, detid);
+	local_modmes.NoisyStrips = ibooker.book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
+	ibooker.tag(local_modmes.NoisyStrips, detid);
 	(local_modmes.NoisyStrips)->setAxisTitle("Strip Number",1);
 	(local_modmes.NoisyStrips)->setAxisTitle("Flag Value",2);
 	
 	hid = hidmanager.createHistoId("NoisyStripDistribution","det", detid);
-	local_modmes.NoisyStripDistribution = dqmStore_->book1D(hid, hid, 11, -0.5,10.5);
-	dqmStore_->tag(local_modmes.NoisyStripDistribution, detid);
+	local_modmes.NoisyStripDistribution = ibooker.book1D(hid, hid, 11, -0.5,10.5);
+	ibooker.tag(local_modmes.NoisyStripDistribution, detid);
 	(local_modmes.NoisyStripDistribution)->setAxisTitle("Flag Value",1);
 	
 	//Common Mode histos
 	hid = hidmanager.createHistoId("CMDistribution","det", detid);
-	local_modmes.CMDistribution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
-	dqmStore_->tag(local_modmes.CMDistribution, detid);
+	local_modmes.CMDistribution = ibooker.book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
+	ibooker.tag(local_modmes.CMDistribution, detid);
 	(local_modmes.CMDistribution)->setAxisTitle("Common Mode (ADC) vs APV Number",1);
       
 	hid = hidmanager.createHistoId("CMSlopeDistribution","det", detid);
-	local_modmes.CMSlopeDistribution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 100, -0.05, 0.05); 
-	dqmStore_->tag(local_modmes.CMSlopeDistribution, detid);
+	local_modmes.CMSlopeDistribution = ibooker.book2D(hid, hid, napvs,-0.5,napvs-0.5, 100, -0.05, 0.05); 
+	ibooker.tag(local_modmes.CMSlopeDistribution, detid);
 	(local_modmes.CMSlopeDistribution)->setAxisTitle("Common Mode Slope vs APV Number",1);
 	
       }
@@ -289,11 +290,6 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
   // get DigiCollection object from Event
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > digi_collection;
   //you have a collection as there are all the digis for the event for every detector
-  /*
-  // retrieve producer name of input StripDigiCollection
-  std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
-  iEvent.getByLabel(digiProducer, digiType, digi_collection);
-  */
   iEvent.getByToken(digiToken_, digi_collection);
 
   //Increase the number of iterations ...
@@ -306,7 +302,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     // get iterators for digis belonging to one DetId, it is an iterator, i.e. one element of the vector      
     std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( detid );
     if (digis == digi_collection->end() ||
-        digis->data.size() == 0 || 
+        digis->data.empty() || 
         digis->data.size() > 768) {
       if (digis == digi_collection->end()) {
         edm::LogError("SiStripMonitorPedestals") << " SiStripMonitorPedestals::analyze: Event " <<  nEvTot_ 
@@ -316,11 +312,17 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
                << " DetId " <<  detid << " # of Digis " << digis->data.size() ;
       }
       std::vector<const FedChannelConnection *> fed_conns = detcabling->getConnections(detid);
+      bool firstchannel(true);
       for (unsigned int  k = 0; k < fed_conns.size() ; k++) {
-	if (k==0) edm::LogError("SiStripMonitorPedestals") <<" SiStripMonitorPedestals::analyze: Fed Id " <<
-              fed_conns[k]->fedId() << " Channel " << fed_conns[k]->fedCh();
-	else  edm::LogError("SiStripMonitorPedestals")  <<"  SiStripMonitorPedestals::analyze: Channel " <<
-                            fed_conns[k]->fedCh();
+	if(fed_conns[k] && fed_conns[k]->isConnected()) {
+	  if (firstchannel) {
+	    edm::LogError("SiStripMonitorPedestals") <<" SiStripMonitorPedestals::analyze: Fed Id " <<
+	      fed_conns[k]->fedId() << " Channel " << fed_conns[k]->fedCh();
+	    firstchannel=false;
+	  }
+	  else  edm::LogError("SiStripMonitorPedestals")  <<"  SiStripMonitorPedestals::analyze: Channel " <<
+		  fed_conns[k]->fedCh();
+	}
       }
       std::cout << std::endl;
       continue;
@@ -334,7 +336,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     apvFactory_->update(id, (*digis));
       
     if(nEvTot_ > theEventInitNumber_) {
-      if(local_modmes.CMDistribution != NULL){ 
+      if(local_modmes.CMDistribution != nullptr){ 
 	std::vector<float> tmp;
 	tmp.clear();
 	apvFactory_->getCommonMode(id, tmp);
@@ -348,7 +350,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	    
 	}
       }
-      if(local_modmes.CMSlopeDistribution != NULL){ 
+      if(local_modmes.CMSlopeDistribution != nullptr){ 
 	std::vector<float> tmp;
 	tmp.clear();
         int iapv = 0;
@@ -367,7 +369,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	std::vector<float> tmp;
 	tmp.clear();
 	apvFactory_->getPedestal(id, tmp);
-	if(local_modmes.PedsPerStrip != NULL){ 
+	if(local_modmes.PedsPerStrip != nullptr){ 
 	  int numberOfApvs = int(tmp.size()/128.);
 	  for(int i=0; i<numberOfApvs;i++){
 	    std::vector<float> myPedPerApv;
@@ -393,7 +395,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	  }
 	}
 	  
-	if(local_modmes.CMSubNoisePerStrip != NULL && local_modmes.CMSubNoiseProfile != NULL){ 
+	if(local_modmes.CMSubNoisePerStrip != nullptr && local_modmes.CMSubNoiseProfile != nullptr){ 
 	  tmp.clear();
 	  apvFactory_->getNoise(id, tmp);
 	  int ibin=0;
@@ -411,7 +413,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	}
 
 	  
-	if(local_modmes.RawNoisePerStrip != NULL && local_modmes.RawNoiseProfile != NULL){ 
+	if(local_modmes.RawNoisePerStrip != nullptr && local_modmes.RawNoiseProfile != nullptr){ 
 	  tmp.clear();
 	  apvFactory_->getRawNoise(id, tmp);
 	  int ibin=0;
@@ -427,7 +429,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	  }
 	}
 
-	if(local_modmes.NoisyStrips != NULL){ 
+	if(local_modmes.NoisyStrips != nullptr){ 
 	  TkApvMask::MaskType temp;
 	  apvFactory_->getMask(id, temp);
 	  int ibin=0;

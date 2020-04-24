@@ -9,8 +9,9 @@
 #include "G4ParticleDefinition.hh"
 #include "G4NavigationHistory.hh"
 #include "TMath.h"
-#include "G4SystemOfUnits.hh"
+
 #include "Randomize.hh"
+#include "G4SystemOfUnits.hh"
 
 //#define DebugLog
 
@@ -107,7 +108,7 @@ int HFCherenkov::computeNPE(G4Step * aStep, G4ParticleDefinition* pDef,
     return 0;
   } else if (nbOfPhotons > 0) {
     G4StepPoint * preStepPoint = aStep->GetPreStepPoint();
-    G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
+    const G4TouchableHandle& theTouchable = preStepPoint->GetTouchableHandle();
     G4ThreeVector localprepos = theTouchable->GetHistory()->
       GetTopTransform().TransformPoint(aStep->GetPreStepPoint()->GetPosition());
     G4ThreeVector localpostpos = theTouchable->GetHistory()->
@@ -284,7 +285,6 @@ int HFCherenkov::computeNPEinPMT(G4ParticleDefinition* pDef, double pBeta,
 #endif
 	if (rand < 1.0) { // survived all the times and sent to photo-cathode
 	  wlatten.push_back(lambda);
-	  rand = G4UniformRand();
 	  double qEffic = computeQEff(lambda);//Quantum efficiency of the PMT
 	  rand = G4UniformRand();
 #ifdef DebugLog

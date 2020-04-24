@@ -1,0 +1,25 @@
+#ifndef OMTF_OMTFConfigurator_H
+#define OMTF_OMTFConfigurator_H
+
+#include "xercesc/dom/DOM.hpp"
+
+
+//////////////////////////////////
+// OMTFConfigurator
+//////////////////////////////////
+class OMTFConfigurator{
+
+ public:
+
+
+ private:
+
+};
+
+
+//////////////////////////////////
+//////////////////////////////////
+
+
+
+#endif

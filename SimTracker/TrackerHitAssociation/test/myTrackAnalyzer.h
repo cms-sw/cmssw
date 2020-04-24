@@ -50,12 +50,12 @@ class myTrackAnalyzer : public edm::EDAnalyzer {
 
   explicit myTrackAnalyzer(const edm::ParameterSet& conf);
   
-  virtual ~myTrackAnalyzer();
+  ~myTrackAnalyzer() override;
   
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   
  private:
-  edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   bool doPixel_, doStrip_;
   edm::InputTag trackCollectionTag_;
 };

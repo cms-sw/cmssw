@@ -13,22 +13,11 @@ CaloTowersDQMClient::CaloTowersDQMClient(const edm::ParameterSet& iConfig):conf_
 {
 
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
-
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (!dbe_) {
-    edm::LogError("CaloTowersDQMClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
-  }
-  if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    if(dbe_) dbe_->setVerbose(0);
-  }
- 
   debug_ = false;
   verbose_ = false;
-
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
-  if(dbe_) dbe_->setCurrentFolder(dirName_);
- 
-}
+  
+ }
 
 
 CaloTowersDQMClient::~CaloTowersDQMClient()
@@ -42,10 +31,6 @@ void CaloTowersDQMClient::beginJob()
 
 }
 
-void CaloTowersDQMClient::endJob() 
-{
-   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}
 
 void CaloTowersDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
@@ -53,64 +38,14 @@ void CaloTowersDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& c
 }
 
 
-void CaloTowersDQMClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  runClient_();
-}
-
-//dummy analysis function
-void CaloTowersDQMClient::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
-{
-  
-}
-
-void CaloTowersDQMClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
-{ 
-//  runClient_();
-}
-
-void CaloTowersDQMClient::runClient_()
-{
-  if(!dbe_) return; //we dont have the DQMStore so we cant do anything
-  dbe_->setCurrentFolder(dirName_);
-
-  if (verbose_) std::cout << "\nrunClient" << std::endl; 
-
-  std::vector<MonitorElement*> hcalMEs;
-
-  // Since out folders are fixed to three, we can just go over these three folders
-  // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
-  std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
-  for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
-
-    if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolders[i] << std::endl;
-    dbe_->setCurrentFolder(fullPathHLTFolders[i]);
-
-    std::vector<std::string> fullSubPathHLTFolders = dbe_->getSubdirs();
-    for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
-
-      if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
-
-      if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersV/CaloTowersTask") ==0  ){
-         hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
-         if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
-         if( !CaloTowersEndjob(hcalMEs) ) std::cout<<"\nError in CaloTowersEndjob!"<<std::endl<<std::endl;
-      }
-
-    }    
-
-  }
-
-}
-
-// called after entering the CaloTowersV/CaloTowersTask directory
+// called after entering the CaloTowersD/CaloTowersTask directory
 // hcalMEs are within that directory
 int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalMEs){
 
    int useAllHistos = 0;
-   MonitorElement* Ntowers_vs_ieta =0;
-   MonitorElement* mapEnergy_N =0, *mapEnergy_E =0, *mapEnergy_H =0, *mapEnergy_EH =0;
-   MonitorElement* occupancy_map =0, *occupancy_vs_ieta =0;
+   MonitorElement* Ntowers_vs_ieta =nullptr;
+   MonitorElement* mapEnergy_N =nullptr, *mapEnergy_E =nullptr, *mapEnergy_H =nullptr, *mapEnergy_EH =nullptr;
+   MonitorElement* occupancy_map =nullptr, *occupancy_vs_ieta =nullptr;
    for(unsigned int ih=0; ih<hcalMEs.size(); ih++){
       if( strcmp(hcalMEs[ih]->getName().c_str(), "Ntowers_per_event_vs_ieta") ==0  ){
          Ntowers_vs_ieta = hcalMEs[ih];
@@ -143,11 +78,14 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
    // mean number of towers per ieta
    int nx = Ntowers_vs_ieta->getNbinsX();
    float cont;
+   float conte;
    float fev = float(nevent);
 
    for (int i = 1; i <= nx; i++) {
-      cont = Ntowers_vs_ieta -> getBinContent(i) / fev ;
+      cont  = Ntowers_vs_ieta -> getBinContent(i) / fev ;
+      conte = pow(Ntowers_vs_ieta -> getBinContent(i),0.5) / fev ;
       Ntowers_vs_ieta -> setBinContent(i,cont);
+      Ntowers_vs_ieta -> setBinError(i,conte);
    }
 
    // mean energies & occupancies evaluation
@@ -155,6 +93,7 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
    nx = mapEnergy_N->getNbinsX();
    int ny = mapEnergy_N->getNbinsY();
    float cnorm;
+   float cnorme;
    float phi_factor;
 
    for (int i = 1; i <= nx; i++) {
@@ -167,28 +106,37 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
          //Phi histos are not used in the macros
          if(cnorm > 0.000001 && useAllHistos) {
 
-            cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
+            cont  = mapEnergy_E -> getBinContent(i,j) / cnorm ;
+            conte = mapEnergy_E -> getBinError(i,j) / cnorm ;
             mapEnergy_E -> setBinContent(i,j,cont);
+            mapEnergy_E -> setBinError(i,j,conte);
 
-            cont = mapEnergy_H -> getBinContent(i,j) / cnorm ;
+            cont  = mapEnergy_H -> getBinContent(i,j) / cnorm ;
+            conte = mapEnergy_H -> getBinError(i,j) / cnorm ;
             mapEnergy_H -> setBinContent(i,j,cont);
+            mapEnergy_H -> setBinError(i,j,conte);
 
-            cont = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
+            cont  = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
+            conte = mapEnergy_EH -> getBinError(i,j) / cnorm ;
             mapEnergy_EH -> setBinContent(i,j,cont);
+            mapEnergy_EH -> setBinError(i,j,conte);
          }
 
          // Occupancy (needed for occupancy vs ieta)
-         cnorm   = occupancy_map -> getBinContent(i,j) / fev;
-         if(cnorm > 1.e-30) occupancy_map -> setBinContent(i,j,cnorm);
+         cont   = occupancy_map -> getBinContent(i,j);
+         conte  = occupancy_map -> getBinError(i,j);
+         if(fev>0. && cnorm>1.e-30){
+	   occupancy_map -> setBinContent(i,j,cont/fev);
+	   occupancy_map -> setBinContent(i,j,conte/fev);
+	 }
 
-         sumphi += cnorm;
+         sumphi += cont;
 
       } // end of iphy cycle (j)
 
       //Occupancy vs ieta histo is drawn
       // phi-factor evaluation for occupancy_vs_ieta calculation
-      int ieta = i - 42;        // -41 -1, 0 40 
-      if(ieta >=0 ) ieta +=1;   // -41 -1, 1 41  - to make it detector-like
+      int ieta = i - 42;        // -41 -1, 0, 1 41 (zero doesn't exist, so it will be a hall)
 
       if(ieta >= -20 && ieta <= 20 )
          {phi_factor = 72.;}
@@ -197,15 +145,53 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
          else
             phi_factor = 36.;
        }
-       if(ieta >= 0) ieta -= 1; // -41 -1, 0 40  - to bring back to histo num
 
-       cnorm = sumphi / phi_factor;
-       occupancy_vs_ieta->Fill(double(ieta), cnorm);
+       cnorm  = sumphi / phi_factor / fev;
+       cnorme = pow(sumphi,0.5) / phi_factor / fev;
+       if(fev>0. && cnorm>1.e-30){
+	 occupancy_vs_ieta->setBinContent(i, cnorm);
+	 occupancy_vs_ieta->setBinError(i, cnorme);
+       }
 
    } // end of ieta cycle (i)
    
    return 1;
 
 }
+
+void CaloTowersDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) 
+{
+ 
+  igetter.setCurrentFolder(dirName_);
+  if (verbose_) std::cout << "\nrunClient" << std::endl; 
+
+  std::vector<MonitorElement*> hcalMEs;
+
+  // Since out folders are fixed to three, we can just go over these three folders
+  // i.e., CaloTowersD/CaloTowersTask, HcalRecHitsD/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
+  std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
+  for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
+
+    if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolders[i] << std::endl;
+    igetter.setCurrentFolder(fullPathHLTFolders[i]);
+
+    std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
+    for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
+
+      if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
+
+      if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersD/CaloTowersTask") ==0  ){
+         hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
+         if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
+         if( !CaloTowersEndjob(hcalMEs) ) std::cout<<"\nError in CaloTowersEndjob!"<<std::endl<<std::endl;
+      }
+
+    }    
+
+  }
+
+}
+
+
 
 DEFINE_FWK_MODULE(CaloTowersDQMClient);

@@ -27,6 +27,7 @@
 //------------------------------------
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/Framework/interface/ConsumesCollector.h>
 class L1MuDTTrackFinder;
 
 //              ---------------------
@@ -38,7 +39,7 @@ class L1MuDTTFSetup {
   public:
 
     /// constructor
-    L1MuDTTFSetup(const edm::ParameterSet & ps);
+    L1MuDTTFSetup(const edm::ParameterSet & ps,edm::ConsumesCollector && ix);
 
     /// destructor
     virtual ~L1MuDTTFSetup();

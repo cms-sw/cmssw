@@ -25,17 +25,21 @@
 #include <iomanip>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-class TestCompareDDDumpFiles : public edm::EDAnalyzer {
+class TestCompareDDDumpFiles : public edm::one::EDAnalyzer<> {
 public:
   explicit TestCompareDDDumpFiles( const edm::ParameterSet& );
-  ~TestCompareDDDumpFiles();
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  ~TestCompareDDDumpFiles() override;
+
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
   std::string fname1_;
   std::string fname2_;

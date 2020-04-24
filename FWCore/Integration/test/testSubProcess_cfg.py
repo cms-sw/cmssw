@@ -35,7 +35,7 @@ process.DoodadESSource = cms.ESSource("DoodadESSource"
 # ---------------------------------------------------------------
 
 copyProcess = cms.Process("COPY")
-process.subProcess = cms.SubProcess(copyProcess)
+process.addSubProcess(cms.SubProcess(copyProcess))
 
 copyProcess.DoodadESSource = cms.ESSource("DoodadESSource"
                                           , appendToDataLabel = cms.string('abc')
@@ -45,7 +45,7 @@ copyProcess.DoodadESSource = cms.ESSource("DoodadESSource"
 # ---------------------------------------------------------------
 
 prodProcess = cms.Process("PROD")
-copyProcess.subProcess = cms.SubProcess(prodProcess)
+copyProcess.addSubProcess(cms.SubProcess(prodProcess))
 
 prodProcess.DoodadESSource = cms.ESSource("DoodadESSource"
                                           , appendToDataLabel = cms.string('abcd')
@@ -98,7 +98,7 @@ prodProcess.path2 = cms.Path(prodProcess.noPut)
 # ---------------------------------------------------------------
 
 copy2Process = cms.Process("COPY2")
-prodProcess.subProcess = cms.SubProcess(copy2Process)
+prodProcess.addSubProcess(cms.SubProcess(copy2Process))
 
 copy2Process.DoodadESSource = cms.ESSource("DoodadESSource"
                                            , appendToDataLabel = cms.string('abc')
@@ -108,11 +108,11 @@ copy2Process.DoodadESSource = cms.ESSource("DoodadESSource"
 # ---------------------------------------------------------------
 
 prod2Process = cms.Process("PROD2")
-copy2Process.subProcess = cms.SubProcess(prod2Process,
+copy2Process.addSubProcess(cms.SubProcess(prod2Process,
     outputCommands = cms.untracked.vstring(
         "keep *", 
         "drop *_putInt_*_*"),
-)
+))
 prod2Process.DoodadESSource = cms.ESSource("DoodadESSource"
                                            , appendToDataLabel = cms.string('abc')
                                            , test2 = cms.untracked.string('zz')
@@ -230,3 +230,128 @@ prod2Process.path3 = cms.Path(prod2Process.get*prod2Process.getInt)
 prod2Process.path4 = cms.Path(prod2Process.dependsOnNoPut)
 
 prod2Process.endPath1 = cms.EndPath(prod2Process.out)
+# ---------------------------------------------------------------
+
+prod2ProcessAlt = cms.Process("PROD2ALT")
+copy2Process.addSubProcess(cms.SubProcess(prod2ProcessAlt,
+    outputCommands = cms.untracked.vstring(
+        "keep *", 
+        "drop *_putInt_*_*"),
+))
+prod2ProcessAlt.DoodadESSource = cms.ESSource("DoodadESSource"
+                                           , appendToDataLabel = cms.string('abc')
+                                           , test2 = cms.untracked.string('zz')
+)
+
+prod2ProcessAlt.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
+
+prod2ProcessAlt.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
+
+# Reusing some code I used for testing merging, although in this
+# context it has nothing to do with merging.
+prod2ProcessAlt.testmerge = cms.EDAnalyzer("TestMergeResults",
+
+    expectedProcessHistoryInRuns = cms.untracked.vstring(
+        'PROD',            # Run 1
+        'PROD2ALT',
+        'PROD',            # Run 2
+        'PROD2ALT',
+        'PROD',            # Run 3
+        'PROD2ALT'
+    )
+)
+
+prod2ProcessAlt.dependsOnNoPut = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('noPut')
+)
+
+prod2ProcessAlt.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
+    verbose = cms.untracked.bool(True),
+    expectedRunLumiEvents = cms.untracked.vuint32(
+1,   0,   0,
+1,   1,   0,
+1,   1,   1,
+1,   1,   2,
+1,   1,   3,
+1,   1,   4,
+1,   1,   0,
+1,   2,   0,
+1,   2,   5,
+1,   2,   6,
+1,   2,   7,
+1,   2,   8,
+1,   2,   0,
+1,   3,   0,
+1,   3,   9,
+1,   3,   10,
+1,   3,   0,
+1,   0,   0,
+2,   0,   0,
+2,   1,   0,
+2,   1,   1,
+2,   1,   2,
+2,   1,   3,
+2,   1,   4,
+2,   1,   0,
+2,   2,   0,
+2,   2,   5,
+2,   2,   6,
+2,   2,   7,
+2,   2,   8,
+2,   2,   0,
+2,   3,   0,
+2,   3,   9,
+2,   3,   10,
+2,   3,   0,
+2,   0,   0,
+3,   0,   0,
+3,   1,   0,
+3,   1,   1,
+3,   1,   2,
+3,   1,   3,
+3,   1,   4,
+3,   1,   0,
+3,   2,   0,
+3,   2,   5,
+3,   2,   6,
+3,   2,   7,
+3,   2,   8,
+3,   2,   0,
+3,   3,   0,
+3,   3,   9,
+3,   3,   10,
+3,   3,   0,
+3,   0,   0
+)
+)
+
+prod2ProcessAlt.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('GadgetRcd'),
+        data = cms.vstring('edmtest::Doodad/abc')
+    ) ),
+    verbose = cms.untracked.bool(True)
+)
+
+prod2ProcessAlt.getInt = cms.EDAnalyzer("TestFindProduct",
+  inputTags = cms.untracked.VInputTag(
+  ),
+  expectedSum = cms.untracked.int32(0),
+  inputTagsNotFound = cms.untracked.VInputTag(
+    cms.InputTag("putInt"),
+  )
+)
+
+prod2ProcessAlt.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testSubProcessAlt.root')
+)
+
+prod2ProcessAlt.path1 = cms.Path(prod2ProcessAlt.thingWithMergeProducer)
+
+prod2ProcessAlt.path2 = cms.Path(prod2ProcessAlt.test*prod2ProcessAlt.testmerge)
+
+prod2ProcessAlt.path3 = cms.Path(prod2ProcessAlt.get*prod2ProcessAlt.getInt)
+
+prod2ProcessAlt.path4 = cms.Path(prod2ProcessAlt.dependsOnNoPut)
+
+prod2ProcessAlt.endPath1 = cms.EndPath(prod2ProcessAlt.out)

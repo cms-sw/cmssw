@@ -11,17 +11,9 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-#process.GlobalTag.globaltag = "CRUZET4_V5P::All"
-#process.GlobalTag.globaltag = "IDEAL_V9::All"
-#process.GlobalTag.globaltag = "COSMMC_21X::All"
-#process.GlobalTag.globaltag = "CRAFT_ALL_V4::All"
 
-
-process.GlobalTag.globaltag = 'MC_31X_V1::All'
-
-process.prefer("GlobalTag")
-
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 

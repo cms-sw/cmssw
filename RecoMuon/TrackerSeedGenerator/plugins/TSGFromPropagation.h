@@ -18,6 +18,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class Chi2MeasurementEstimator;
 class Propagator;
@@ -36,16 +37,16 @@ public:
   TSGFromPropagation(const edm::ParameterSet& par, edm::ConsumesCollector& iC, const MuonServiceProxy*);
 
   /// destructor
-  virtual ~TSGFromPropagation();
+  ~TSGFromPropagation() override;
 
   /// generate seed(s) for a track
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, std::vector<TrajectorySeed>&);
+  void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, std::vector<TrajectorySeed>&) override;
     
   /// initialize
-  void init(const MuonServiceProxy*);
+  void init(const MuonServiceProxy*) override;
 
   /// set an event
-  void setEvent(const edm::Event&);
+  void setEvent(const edm::Event&) override;
 
 private:
 
@@ -100,7 +101,7 @@ private:
 
   struct isInvalid {
     bool operator()(const TrajectoryMeasurement& measurement) {
-      return ( ((measurement).recHit() == 0) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
+      return ( ((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
     }
   };
 
@@ -154,7 +155,8 @@ private:
 
   edm::Handle<reco::BeamSpot> beamSpot;
   edm::InputTag theBeamSpotInputTag;
-
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
 };
 
 #endif 

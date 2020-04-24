@@ -29,7 +29,7 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
-class KFUpdator GCC11_FINAL : public TrajectoryStateUpdator {
+class KFUpdator final : public TrajectoryStateUpdator {
 
 public:
 
@@ -38,12 +38,10 @@ public:
   KFUpdator() {}
 
   TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&,
-                                  const TransientTrackingRecHit&) const;
+                                  const TrackingRecHit&) const override;
 
-  template <unsigned int D> TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&,
-                                  const TransientTrackingRecHit&) const;
 
-  virtual KFUpdator * clone() const {
+  KFUpdator * clone() const override {
     return new KFUpdator(*this);
   }
 };

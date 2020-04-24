@@ -49,7 +49,7 @@ struct KDTreeNodeInfo
   
   public:
   KDTreeNodeInfo()
-    : ptr(0)
+    : ptr(nullptr)
   {}
   
   KDTreeNodeInfo(const reco::PFRecHit	*rhptr,
@@ -74,7 +74,7 @@ struct KDTreeNode
   
   public:
   KDTreeNode()
-    : left(0), right(0)
+    : left(nullptr), right(nullptr)
   {}
   
   void setAttributs(const KDTreeBox&		regionBox,

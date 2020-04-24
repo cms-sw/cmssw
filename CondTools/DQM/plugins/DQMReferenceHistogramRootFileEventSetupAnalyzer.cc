@@ -1,10 +1,8 @@
 // C++ common header
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <fstream>
-
-// Boost headers
-#include "boost/scoped_ptr.hpp"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -25,9 +23,9 @@ namespace edmtest {
    public:
     explicit DQMReferenceHistogramRootFileEventSetupAnalyzer(const edm::ParameterSet & pset);
     explicit DQMReferenceHistogramRootFileEventSetupAnalyzer(int i);
-    virtual ~DQMReferenceHistogramRootFileEventSetupAnalyzer();
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override ;
+    ~DQMReferenceHistogramRootFileEventSetupAnalyzer() override;
+    void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override ;
   private:
     bool init_ ;
   };
@@ -67,7 +65,7 @@ namespace edmtest {
 	edm::ESHandle<FileBlob> rootgeo;
 	iSetup.get<DQMReferenceHistogramRootFileRcd>().get(rootgeo);
 	//std::cout<<"ROOT FILE IN MEMORY"<<std::endl;
-	boost::scoped_ptr<std::vector<unsigned char> > tb( (*rootgeo).getUncompressedBlob() );
+        std::unique_ptr<std::vector<unsigned char> > tb( (*rootgeo).getUncompressedBlob() );
 	// char filename[128];
 	// sprintf(filename, "mem:%p,%ul", &(*tb)[0], (unsigned long) tb->size());
 	// edm::Service<DQMStore>()->open(filename, false, "", "Reference");

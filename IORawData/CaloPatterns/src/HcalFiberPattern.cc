@@ -4,7 +4,7 @@
 static inline int setIf(const std::string& name,const std::map<std::string, std::string>& params) {
   std::map<std::string, std::string>::const_iterator j=params.find(name);
   if (j==params.end()) throw cms::Exception("InvalidFormat") << "Missing parameter '" << name << "'";
-  else return strtol(j->second.c_str(),0,0);
+  else return strtol(j->second.c_str(),nullptr,0);
 } 
 
 HcalFiberPattern::HcalFiberPattern(const std::map<std::string, std::string>& params, const std::vector<uint32_t>& data) : pattern_(data) {

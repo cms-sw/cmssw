@@ -3,17 +3,15 @@
  *  \author Matteo Sani
  */
 
-#include <Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryESProducer.h>
-#include <Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryBuilder.h>
+#include "Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryESProducer.h"
+#include "Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryBuilder.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
-#include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
-
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/ModuleFactory.h>
-
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Framework/interface/NoProxyException.h>
-#include <FWCore/Framework/interface/NoRecordException.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/NoProxyException.h"
+#include "FWCore/Framework/interface/NoRecordException.h"
 
 #include <memory>
 
@@ -25,61 +23,76 @@ GlobalTrackingGeometryESProducer::GlobalTrackingGeometryESProducer(const edm::Pa
 
 GlobalTrackingGeometryESProducer::~GlobalTrackingGeometryESProducer(){}
 
-boost::shared_ptr<GlobalTrackingGeometry>
+std::shared_ptr<GlobalTrackingGeometry>
 GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& record) {
 
-  edm::ESHandle<TrackerGeometry> tk;
-  edm::ESHandle<DTGeometry> dt;
-  edm::ESHandle<CSCGeometry> csc;
-  edm::ESHandle<RPCGeometry> rpc;
-  edm::ESHandle<GEMGeometry> gem;
-      
+  TrackerGeometry const* tk = nullptr;
+  DTGeometry const* dt = nullptr;
+  CSCGeometry const* csc = nullptr;
+  RPCGeometry const* rpc = nullptr;
+  GEMGeometry const* gem = nullptr;
+  ME0Geometry const* me0 = nullptr;
+
   try {
-    record.getRecord<TrackerDigiGeometryRecord>().get(tk);
-  } catch (edm::eventsetup::NoProxyException<TrackerGeometry>& e) {
-    // No Tk geo available
-    LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No Tracker geometry is available.";
+    edm::ESHandle<TrackerGeometry> tkH;
+    record.getRecord<TrackerDigiGeometryRecord>().get(tkH);
+    if(tkH.isValid()) {
+      tk = tkH.product();
+    } else {
+      LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No Tracker geometry is available.";
+    }
   } catch (edm::eventsetup::NoRecordException<TrackerDigiGeometryRecord>& e){
     LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No TrackerDigiGeometryRecord is available.";    
   }
 
 
   try {
-    try {  
-      record.getRecord<MuonGeometryRecord>().get(dt);
-    } catch (edm::eventsetup::NoProxyException<DTGeometry>& e) {
-      // No DT geo available
+    edm::ESHandle<DTGeometry> dtH;
+    record.getRecord<MuonGeometryRecord>().get(dtH);
+    if(dtH.isValid()) {
+      dt = dtH.product();
+    } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No DT geometry is available.";
-    } 
+    }
 
-    try {
-      record.getRecord<MuonGeometryRecord>().get(csc);
-    } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
-      // No CSC geo available
+    edm::ESHandle<CSCGeometry> cscH;
+    record.getRecord<MuonGeometryRecord>().get(cscH);
+    if(cscH.isValid()) {
+      csc = cscH.product();
+    } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No CSC geometry is available.";
-    }    
+    }
     
-    try {
-      record.getRecord<MuonGeometryRecord>().get(rpc);      
-    } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
-      // No RPC geo available
+    edm::ESHandle<RPCGeometry> rpcH;
+    record.getRecord<MuonGeometryRecord>().get(rpcH);
+    if(rpcH.isValid()) {
+      rpc = rpcH.product();
+    } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No RPC geometry is available.";
     }
 
-    try {
-      record.getRecord<MuonGeometryRecord>().get(gem);      
-    } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-      // No GEM geo available
+    edm::ESHandle<GEMGeometry> gemH;
+    record.getRecord<MuonGeometryRecord>().get(gemH);
+    if(gemH.isValid()) {
+      gem = gemH.product();
+    } else {
       LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No GEM geometry is available.";
+    }
+
+    edm::ESHandle<ME0Geometry> me0H;
+    record.getRecord<MuonGeometryRecord>().get(me0H);
+    if(me0H.isValid()) {
+      me0 = me0H.product();
+    } else {
+      LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No ME0 geometry is available.";
     }
 
   } catch (edm::eventsetup::NoRecordException<MuonGeometryRecord>& e){
     LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MuonGeometryRecord is available.";    
   }
-  
 
   GlobalTrackingGeometryBuilder builder;
-  return boost::shared_ptr<GlobalTrackingGeometry>(builder.build(&(*tk), &(*dt), &(*csc), &(*rpc), &(*gem)));
+  return std::shared_ptr<GlobalTrackingGeometry>(builder.build(tk, dt, csc, rpc, gem, me0));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(GlobalTrackingGeometryESProducer);

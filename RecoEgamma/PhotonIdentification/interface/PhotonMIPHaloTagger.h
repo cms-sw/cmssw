@@ -10,6 +10,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h" 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
@@ -21,7 +22,7 @@ public:
 
   virtual ~PhotonMIPHaloTagger(){};
 
-  void setup(const edm::ParameterSet& conf);
+  void setup(const edm::ParameterSet& conf,edm::ConsumesCollector&& iC);
 
   void MIPcalculate(const reco::Photon*, 
 		    const edm::Event&, 
@@ -58,8 +59,8 @@ public:
  
  protected:
 
-  edm::InputTag EBecalCollection_;
-  edm::InputTag EEecalCollection_;
+  edm::EDGetToken EBecalCollection_;
+  edm::EDGetToken EEecalCollection_;
 
 
 

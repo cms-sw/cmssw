@@ -27,14 +27,15 @@ class CastorDigiToRaw : public edm::EDProducer
 {
 public:
   explicit CastorDigiToRaw(const edm::ParameterSet& ps);
-  virtual ~CastorDigiToRaw();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  ~CastorDigiToRaw() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   CastorPacker packer_;
   CastorCtdcPacker ctdcpacker_;
-  edm::InputTag castorTag_, calibTag_, trigTag_;
+  edm::InputTag castorTag_;
   bool usingctdc_;
+  edm::EDGetTokenT<CastorDigiCollection> tok_input_;
 
 };
 

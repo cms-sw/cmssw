@@ -70,7 +70,7 @@ Zto2lFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    bool accept = false;
 
    Handle<HepMCProduct> EvtHandle ;
-   iEvent.getByLabel( fLabel_, EvtHandle ) ;
+   iEvent.getByLabel( fLabel_, "unsmeared", EvtHandle ) ;
    const HepMC::GenEvent* evt = EvtHandle->GetEvent();
    
    vector<TLorentzVector> Lepton; Lepton.clear();

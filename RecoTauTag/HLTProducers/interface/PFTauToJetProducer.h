@@ -18,10 +18,10 @@
 class PFTauToJetProducer: public edm::EDProducer {
  public:
   explicit PFTauToJetProducer(const edm::ParameterSet&);
-  ~PFTauToJetProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  ~PFTauToJetProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
-  edm::InputTag tauSrc_;
+  edm::EDGetTokenT<reco::PFTauCollection> tauSrc_;
 };
 #endif

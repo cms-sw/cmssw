@@ -27,7 +27,6 @@
 <use   name="MagneticField/Engine"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="rootcintex"/>
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="SimTracker/TrackHistory"/>

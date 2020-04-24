@@ -195,7 +195,7 @@ G4ThreeVector HitDigitizerFP420::DriftDirection(const G4ThreeVector& _bfield, in
   
   //  Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   //  G4ThreeVector Bfield=detFrame.toLocal(_bfield);
-  G4ThreeVector Bfield=_bfield;
+  const G4ThreeVector& Bfield=_bfield;
   float dir_x, dir_y, dir_z; 
   // this lines with dir_... have to be specified(sign?) in dependence of field direction: 
   /*

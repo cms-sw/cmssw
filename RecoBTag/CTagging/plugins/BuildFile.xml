@@ -1,0 +1,8 @@
+<library file="*.cc" name="RecoBTagCTaggingPlugins">
+  <use name="DataFormats/BTauReco"/>
+  <use name="RecoBTag/CTagging"/>
+	<use name="RecoBTau/JetTagComputer"/>
+	<use name="FWCore/Framework"/>
+	<!--use name="RecoBTag/SecondaryVertex"/-->
+  <flags EDM_PLUGIN="1"/>
+</library>

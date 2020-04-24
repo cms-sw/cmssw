@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_RPCNumberingScheme_h
-#define MuonNumbering_RPCNumberingScheme_h
+#ifndef Geometry_MuonNumbering_RPCNumberingScheme_h
+#define Geometry_MuonNumbering_RPCNumberingScheme_h
 
 /** \class RPCNumberingScheme
  *
@@ -22,9 +22,9 @@ class RPCNumberingScheme : public MuonNumberingScheme {
   RPCNumberingScheme( const DDCompactView& cpv );
   RPCNumberingScheme( const MuonDDDConstants& muonConstants );
 
-  virtual ~RPCNumberingScheme(){};
+  ~RPCNumberingScheme() override{};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
   
  private:
   void initMe ( const MuonDDDConstants& muonConstants );

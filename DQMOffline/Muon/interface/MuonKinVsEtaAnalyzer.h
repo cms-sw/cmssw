@@ -15,9 +15,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -31,22 +31,18 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-class MuonKinVsEtaAnalyzer : public edm::EDAnalyzer {
+class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
  public:
   
   /// Constructor
   MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet);
   
   /// Destructor
-  ~MuonKinVsEtaAnalyzer();
+  ~MuonKinVsEtaAnalyzer() override;
+  
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  /// Initialize parameters for histo binning
-  void beginJob(void);
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-  
-  /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  
  private:
   
   // ----------member data ---------------------------
@@ -58,7 +54,7 @@ class MuonKinVsEtaAnalyzer : public edm::EDAnalyzer {
   std::string metname;
 
   //Vertex requirements
-  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
   
@@ -137,6 +133,14 @@ class MuonKinVsEtaAnalyzer : public edm::EDAnalyzer {
   std::vector<MonitorElement*> chi2LooseTrack;
   std::vector<MonitorElement*> chi2probLooseTrack;
 
+  // Medium muon;
+  std::vector<MonitorElement*> etaMediumTrack;
+  std::vector<MonitorElement*> phiMediumTrack;
+  std::vector<MonitorElement*> pMediumTrack;
+  std::vector<MonitorElement*> ptMediumTrack;
+  std::vector<MonitorElement*> chi2MediumTrack;
+  std::vector<MonitorElement*> chi2probMediumTrack;
+
   // Soft muon;
   std::vector<MonitorElement*> etaSoftTrack;
   std::vector<MonitorElement*> phiSoftTrack;
@@ -153,5 +157,6 @@ class MuonKinVsEtaAnalyzer : public edm::EDAnalyzer {
   std::vector<MonitorElement*> chi2HighPtTrack;
   std::vector<MonitorElement*> chi2probHighPtTrack;
 
+  std::string theFolder;
 };
 #endif

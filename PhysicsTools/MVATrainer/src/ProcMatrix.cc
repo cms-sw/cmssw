@@ -55,8 +55,8 @@ class ProcMatrix : public TrainProcessor {
 
 	std::vector<Rank> ranking() const;
 
-	std::auto_ptr<LeastSquares>	lsSignal, lsBackground;
-	std::auto_ptr<LeastSquares>	ls;
+	std::unique_ptr<LeastSquares>	lsSignal, lsBackground;
+	std::unique_ptr<LeastSquares>	ls;
 	std::vector<double>		vars;
 	bool				fillSignal;
 	bool				fillBackground;
@@ -64,7 +64,7 @@ class ProcMatrix : public TrainProcessor {
 	bool				doRanking;
 };
 
-static ProcMatrix::Registry registry("ProcMatrix");
+ProcMatrix::Registry registry("ProcMatrix");
 
 ProcMatrix::ProcMatrix(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
@@ -316,7 +316,7 @@ void ProcMatrix::save()
 	xml.getRootNode()->appendChild(ls->save(doc));
 }
 
-static void maskLine(TMatrixDSym &m, unsigned int line)
+void maskLine(TMatrixDSym &m, unsigned int line)
 {
 	unsigned int n = m.GetNrows();
 	for(unsigned int i = 0; i < n; i++)
@@ -324,7 +324,7 @@ static void maskLine(TMatrixDSym &m, unsigned int line)
 	m(line, line) = 1.;
 }
 
-static void restoreLine(TMatrixDSym &m, TMatrixDSym &o, unsigned int line)
+void restoreLine(TMatrixDSym &m, TMatrixDSym &o, unsigned int line)
 {
 	unsigned int n = m.GetNrows();
 	for(unsigned int i = 0; i < n; i++) {
@@ -333,7 +333,7 @@ static void restoreLine(TMatrixDSym &m, TMatrixDSym &o, unsigned int line)
 	}
 }
 
-static double targetCorrelation(const TMatrixDSym &coeffs,
+double targetCorrelation(const TMatrixDSym &coeffs,
                                 const std::vector<bool> &use)
 {
 	unsigned int n = coeffs.GetNrows() - 2;

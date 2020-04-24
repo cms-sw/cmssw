@@ -24,24 +24,24 @@ class SiStripQualityHotStripIdentifier : public ConditionDBWriter<SiStripBadStri
 public:
 
   explicit SiStripQualityHotStripIdentifier(const edm::ParameterSet&);
-  ~SiStripQualityHotStripIdentifier();
+  ~SiStripQualityHotStripIdentifier() override;
 
 private:
 
  //Will be called at the beginning of the job
-  void algoBeginJob(const edm::EventSetup&){}
+  void algoBeginJob(const edm::EventSetup&) override{}
   //Will be called at the beginning of each run in the job
-  void algoBeginRun(const edm::Run &, const edm::EventSetup &);
+  void algoBeginRun(const edm::Run &, const edm::EventSetup &) override;
   //Will be called at the beginning of each luminosity block in the run
-  void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){ resetHistos(); }
+  void algoBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override{ resetHistos(); }
   //Will be called at the end of the job
-  void algoEndJob();
+  void algoEndJob() override;
 
 
   //Will be called at every event
-  void algoAnalyze(const edm::Event&, const edm::EventSetup&);
+  void algoAnalyze(const edm::Event&, const edm::EventSetup&) override;
 
-  SiStripBadStrip* getNewObject();
+  SiStripBadStrip* getNewObject() override;
 
 
   void bookHistos();

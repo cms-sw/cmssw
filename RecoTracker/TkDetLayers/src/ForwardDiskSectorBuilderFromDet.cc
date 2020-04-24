@@ -17,11 +17,11 @@ ForwardDiskSectorBuilderFromDet::operator()( const vector<const GeomDet*>& dets)
   float zcheck = dets.front()->surface().position().z();
   for ( vector<const GeomDet*>::const_iterator i = dets.begin(); i != dets.end(); i++){
     float rdiff = (**i).surface().position().perp()-rcheck;
-    if ( fabs(rdiff) > 1.) 
+    if ( std::abs(rdiff) > 1.) 
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
 				   << "Dets at different radii !! Delta_r = " << rdiff ;
     float zdiff = zcheck - (**i).surface().position().z();
-    if ( fabs(zdiff) > 0.8) 
+    if ( std::abs(zdiff) > 0.8) 
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
 				   << "Dets at different z positions !! Delta_z = " << zdiff ;
   }
@@ -48,7 +48,7 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
   for (vector<const GeomDet*>::const_iterator idet=dets.begin();
        idet != dets.end(); idet++) {
     vector<const GeomDet*> detUnits = (**idet).components();
-    if( detUnits.size() ){
+    if( !detUnits.empty() ){
       for (vector<const GeomDet*>::const_iterator detu=detUnits.begin();
 	   detu!=detUnits.end(); detu++) {
 	// edm::LogInfo(TkDetLayers) << " Builder: Position of detUnit :"<< (**detu).position() ;      
@@ -79,7 +79,7 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
 	double xAxisCos = xAxis.unit().dot(perpDir.unit());
 	double yAxisCos = yAxis.unit().dot(perpDir.unit());
 	
-	if( fabs(xAxisCos) > fabs(yAxisCos) ) {
+	if( std::abs(xAxisCos) > std::abs(yAxisCos) ) {
 	  rmin = min( rmin, rdet-width/2.F);
 	  rmax = max( rmax, rdet+width/2.F);
 	}else{
@@ -116,7 +116,7 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
       double xAxisCos = xAxis.unit().dot(perpDir.unit());
       double yAxisCos = yAxis.unit().dot(perpDir.unit());
       
-      if( fabs(xAxisCos) > fabs(yAxisCos) ) {
+      if( std::abs(xAxisCos) > std::abs(yAxisCos) ) {
 	rmin = min( rmin, rdet-width/2.F);
 	rmax = max( rmax, rdet+width/2.F);
       }else{

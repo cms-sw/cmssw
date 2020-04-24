@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-muRecoTest = cms.EDAnalyzer("MuonRecoTest",
+muRecoTest = DQMEDHarvester("MuonRecoTest",
                             phiMin = cms.double(-3.2),
                             # number of luminosity block to analyse
                             diagnosticPrescale = cms.untracked.int32(1),

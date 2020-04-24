@@ -47,7 +47,7 @@ class ProcMultiply : public VarProcessor {
 	std::vector<Config>			out;
 };
 
-static ProcMultiply::Registry registry("ProcMultiply");
+ProcMultiply::Registry registry("ProcMultiply");
 
 ProcMultiply::ProcMultiply(const char *name,
                        const Calibration::ProcMultiply *calib,

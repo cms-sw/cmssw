@@ -567,7 +567,7 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
         if myls!='n/a':
             [luls,cmls]=myls.split(':')
             if cmls!='0':
-                if totOldSelectedLSDict.has_key(mypath):
+                if mypath in totOldSelectedLSDict:
                     totOldSelectedLSDict[mypath]+=1
                 if irunlsdict and not noWarning:
                     datarunlsdict[int(runnumstr)].append(int(myls))         
@@ -575,13 +575,13 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
         if rline[6]!='n/a':
             myrecorded=float(rline[6])
             if myrecorded>maxlslumi:maxlslumi=myrecorded
-            if totOldRecordedDict.has_key(mypath):
+            if mypath in totOldRecordedDict:
                 totOldRecordedDict[mypath]+=myrecorded
             rline[6]=myrecorded
         myeff={}
         if rline[7]!='n/a':
             myeff=float(rline[7])
-            if totOldEffectiveDict.has_key(mypath):
+            if mypath in totOldEffectiveDict:
                 totOldEffectiveDict[mypath]+=myeff
             rline[7]=myeff
         result.append(rline)        
@@ -612,11 +612,11 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
 
             for hltpathname in sorted(efflumiDict):
                 if hltpathname and hltpathname !='n/a' :
-                    if not totRecordedDict.has_key(hltpathname):
+                    if hltpathname not in totRecordedDict:
                         totRecordedDict[hltpathname]=0. 
-                    if not totSelectedLSDict.has_key(hltpathname):
+                    if hltpathname not in totSelectedLSDict:
                         totSelectedLSDict[hltpathname]=0
-                    if not totEffectiveDict.has_key(hltpathname):
+                    if hltpathname not in totEffectiveDict:
                         totEffectiveDict[hltpathname]=0.
                     totSelectedLSDict[hltpathname]+=1
                     totRecordedDict[hltpathname]+=recordedlumi
@@ -668,14 +668,14 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarni
                                    delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,25) )
         for mpath in sorted(totRecordedDict):
             totSelectedLS=totSelectedLSDict[mpath]
-            if totOldSelectedLSDict.has_key(mpath):
+            if mpath in totOldSelectedLSDict:
                 totSelectedLS+=totOldSelectedLS[mpath]
             totRecorded=totRecordedDict[mpath]
-            if totOldRecordedDict.has_key(mpath):
+            if mpath in totOldRecordedDict:
                 totRecorded+=totOldRecorded[mpath]
             totRecorded=float(totRecorded*scalefactor)/float(unitdenomitor)
             totEffective=totEffectiveDict[mpath]
-            if totOldEffectiveDict.has_key(mpath):
+            if mpath in totOldEffectiveDict:
                 totEffective+=totOldEffective[mpath]
             totEffective=float(totEffective*scalefactor)/float(unitdenomitor)
             totalrow.append([str(totSelectedLS),mpath,'%.3f'%(totRecorded),'%.3f'%(totEffective)])
@@ -714,7 +714,7 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
         mypath=rline[3]
         if mypath!='n/a':
             mypath=mypath.split('(')[0]
-            if not totdict.has_key(mypath):
+            if mypath not in totdict:
                 totdict[mypath]=[0,0.0]
                 recordedPerpathPerrun[mypath]={}
                 selectedPerpathPerrun[mypath]={}
@@ -774,7 +774,7 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
                 continue            
             for hltpathname in sorted(efflumiDict):
                 pathdata=efflumiDict[hltpathname]
-                if not totefflumiDict.has_key(hltpathname):
+                if hltpathname not in totefflumiDict:
                     totefflumiDict[hltpathname]=0.0
                     pathmap[hltpathname]='n/a'
                 l1name=pathdata[0]
@@ -783,16 +783,16 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,irunlsdict=None,noWarn
                 lumival=pathdata[3]
                 recordedPerpathPerrun.setdefault(hltpathname,{})
                 selectedPerpathPerrun.setdefault(hltpathname,{})
-                if not totdict.has_key(hltpathname):
+                if hltpathname not in totdict:
                     totdict[hltpathname]=[0,0.0]
                 if l1presc is None or hltpresc is None:#if found all null prescales and if it is in the selectedcmsls, remove it because incomplete
                     if cmslsnum in selectedcmsls:
                         selectedcmsls.remove(cmslsnum)
                 else:                    
-                    if not hprescdict.has_key(hltpathname):
+                    if hltpathname not in hprescdict:
                         hprescdict[hltpathname]=[]
                     hprescdict[hltpathname].append(hltpresc)
-                    if not lprescdict.has_key(l1name):
+                    if l1name not in lprescdict:
                         lprescdict[l1name]=[]
                     lprescdict[l1name].append(l1presc)
                     if cmslsnum!=0:
@@ -949,7 +949,7 @@ def toScreenLSTrg(trgdata,iresults=[],irunlsdict=None,noWarning=True,toFile=None
         runnumStr=rline[0]
         cmslsnumStr=rline[1]
         if irunlsdict and not noWarning:
-            if runnumStr is not 'n/a' and not datarunlsdict.has_key(int(runnumStr)):
+            if runnumStr is not 'n/a' and int(runnumStr) not in datarunlsdict:
                 datarunlsdict[int(runnumstr)]=[]
             if cmslsnumStr!='n/a':
                 datarunlsdict[int(runnumStr)].append(int(cmslsnumStr))

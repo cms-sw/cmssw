@@ -30,14 +30,11 @@ PreshowerStrip::operator=( const PreshowerStrip& tr )
   return *this ; 
 }
 
-const CaloCellGeometry::CornersVec& 
-PreshowerStrip::getCorners() const 
+void
+PreshowerStrip::initCorners(CaloCellGeometry::CornersVec& corners) 
 {
-  const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-  if( co.uninitialized() ) 
+  if( corners.uninitialized() ) 
   {
-    CornersVec& corners ( setCorners() ) ;
-
     const GlobalPoint& ctr ( getPosition() ) ;
     const CCGFloat x ( ctr.x() ) ;
     const CCGFloat y ( ctr.y() ) ;
@@ -72,13 +69,12 @@ PreshowerStrip::getCorners() const
       }
     }
   }
-  return co ;
 }
 
 std::ostream& operator<<( std::ostream& s, const PreshowerStrip& cell ) 
 {
   s << "Center: " <<  cell.getPosition() << std::endl ;
-  if( cell.param() != 0 )
+  if( cell.param() != nullptr )
   {
     s << "dx = " << cell.dx() << ", dy = " << cell.dy() << ", dz = " << cell.dz() << std::endl ;
 
@@ -102,7 +98,7 @@ PreshowerStrip::localCorners( Pt3DVec&        lc  ,
 			      Pt3D&           ref  )
 {
   assert( 8 == lc.size() ) ;
-  assert( 0 != pv ) ;
+  assert( nullptr != pv ) ;
 
   const CCGFloat dx ( pv[0] ) ;
   const CCGFloat dy ( pv[1] ) ;

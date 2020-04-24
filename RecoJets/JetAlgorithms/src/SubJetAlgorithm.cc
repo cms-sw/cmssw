@@ -3,6 +3,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "fastjet/ClusterSequenceArea.hh"
 
+#include "boost/shared_ptr.hpp"
+
 using namespace std;
 using namespace edm;
 

@@ -18,7 +18,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,15 +38,15 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 template<typename Prod>
-class RecoTauCleanerImpl : public edm::EDProducer 
+class RecoTauCleanerImpl : public edm::stream::EDProducer<>
 {
   typedef reco::tau::RecoTauCleanerPlugin Cleaner;
   struct CleanerEntryType
   {
-    boost::shared_ptr<Cleaner> plugin_;
+    std::shared_ptr<Cleaner> plugin_;
     float tolerance_;
   };
-  typedef std::vector<CleanerEntryType*> CleanerList;
+  typedef std::vector<std::unique_ptr<CleanerEntryType> > CleanerList;
   // Define our output type - i.e. reco::PFTau OR reco::PFTauRef
   typedef typename Prod::value_type output_type;
 
@@ -54,19 +54,19 @@ class RecoTauCleanerImpl : public edm::EDProducer
   class RemoveDuplicateJets 
   {
    public:
-    bool operator()(const reco::PFTauRef& a, const reco::PFTauRef& b) { return (a->jetRef() == b->jetRef()); }
+    bool operator()(const reco::PFTauRef& a, const reco::PFTauRef& b) const { return (a->jetRef() == b->jetRef()); }
   };
 
  public:
   explicit RecoTauCleanerImpl(const edm::ParameterSet& pset);
-  ~RecoTauCleanerImpl();
+  ~RecoTauCleanerImpl() override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
   edm::InputTag tauSrc_;
   CleanerList cleaners_;
   // Optional selection on the output of the taus
-  std::auto_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
+  std::unique_ptr<const StringCutObjectSelector<reco::PFTau> > outputSelector_;
   edm::EDGetTokenT<reco::PFTauCollection> tau_token;
   int verbosity_;
 };
@@ -89,7 +89,7 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset)
     cleanerEntry->plugin_.reset(RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector()));
     cleanerEntry->tolerance_ = ( cleanerPSet->exists("tolerance") ) ?
     cleanerPSet->getParameter<double>("tolerance") : 0.;
-    cleaners_.push_back(cleanerEntry);
+    cleaners_.emplace_back(cleanerEntry);
   }
 
   // Check if we want to apply a final output selection
@@ -110,21 +110,17 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset)
 
 template<typename Prod>
 RecoTauCleanerImpl<Prod>::~RecoTauCleanerImpl() 
-{
-  for ( typename CleanerList::const_iterator it = cleaners_.begin();
-	it != cleaners_.end(); ++it ) {
-    delete (*it);
-  }
+{  
 }
 
 namespace {
 // Template to convert a ref to desired output type
 template<typename T> const T convert(const reco::PFTauRef &tau);
 
-template<> const edm::RefToBase<reco::PFTau>
-convert<edm::RefToBase<reco::PFTau> >(const reco::PFTauRef &tau) {
-  return edm::RefToBase<reco::PFTau>(tau);
-}
+  //template<> const edm::RefToBase<reco::PFTau>
+  //convert<edm::RefToBase<reco::PFTau> >(const reco::PFTauRef &tau) {
+  // return edm::RefToBase<reco::PFTau>(tau);
+  //}
 
 template<> const reco::PFTauRef
 convert<reco::PFTauRef>(const reco::PFTauRef &tau) { return tau; }
@@ -281,7 +277,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
   PFTauRefs cleanTaus = reco::tau::cleanOverlaps<PFTauRefs, RemoveDuplicateJets>(dirty);
 
   // create output collection
-  std::auto_ptr<Prod> output(new Prod());
+  auto output = std::make_unique<Prod>();
   //output->reserve(cleanTaus.size());
 
   // Copy clean refs into output
@@ -296,7 +292,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
       output->push_back(convert<output_type>(*tau));
     }
   }
-  evt.put(output);
+  evt.put(std::move(output));
 }
 
 typedef RecoTauCleanerImpl<reco::PFTauCollection> RecoTauCleaner;

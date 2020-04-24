@@ -49,10 +49,7 @@ HLTDisplacedmumumuVtxProducer::HLTDisplacedmumumuVtxProducer(const edm::Paramete
 }
 
 
-HLTDisplacedmumumuVtxProducer::~HLTDisplacedmumumuVtxProducer()
-{
-  
-}
+HLTDisplacedmumumuVtxProducer::~HLTDisplacedmumumuVtxProducer() = default;
 
 void
 HLTDisplacedmumumuVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -96,7 +93,7 @@ void HLTDisplacedmumumuVtxProducer::produce(edm::Event& iEvent, const edm::Event
   edm::ESHandle<TransientTrackBuilder> theB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
   
-  std::auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
+  std::unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
   
   // look at all mucands,  check cuts and make vertices
   double e1,e2,e3;
@@ -197,15 +194,15 @@ void HLTDisplacedmumumuVtxProducer::produce(edm::Event& iEvent, const edm::Event
       }
     }
   }
-  iEvent.put(vertexCollection);
+  iEvent.put(std::move(vertexCollection));
 }
 
 
 
 bool HLTDisplacedmumumuVtxProducer::checkPreviousCand(const TrackRef& trackref, vector<RecoChargedCandidateRef> & refVect){
   bool ok=false;
-  for (unsigned int i=0; i<refVect.size(); i++) {
-    if ( refVect[i]->get<TrackRef>() == trackref ) {
+  for (auto & i : refVect) {
+    if ( i->get<TrackRef>() == trackref ) {
       ok=true;
       break;
     }

@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibTracker.SiStripESProducers.services.SiStripPedestalsGeneratorService_cfi import *
-
 siStripPedestalsFakeESSource = cms.ESSource("SiStripPedestalsFakeESSource",
-                                            appendToDataLabel = cms.string('')
+                                            appendToDataLabel = cms.string(''),
+                                            #
+                                            printDebug = cms.untracked.uint32(5),
+                                            PedestalsValue = cms.uint32(30),
+                                            file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
                                             )
-
-
-

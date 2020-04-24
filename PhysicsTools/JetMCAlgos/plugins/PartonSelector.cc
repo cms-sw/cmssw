@@ -7,7 +7,7 @@
 //=======================================================================
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -33,7 +33,7 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-class PartonSelector : public edm::EDProducer
+class PartonSelector : public edm::global::EDProducer<>
 {
   public:
     PartonSelector( const edm::ParameterSet & );
@@ -41,9 +41,11 @@ class PartonSelector : public edm::EDProducer
 
   private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup& ) override;
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
     bool withLeptons;  // Optionally specify leptons
     bool withTop;      // Optionally include top quarks in the list
+    bool acceptNoDaughters;      // Parton with zero daugthers are not considered by default, make it configurable
+    unsigned int  skipFirstN;      // Default skips first 6 particles, make it configurable
     edm::EDGetTokenT<reco::GenParticleCollection>   tokenGenParticles_; // input collection
 };
 //=========================================================================
@@ -53,6 +55,16 @@ PartonSelector::PartonSelector( const edm::ParameterSet& iConfig )
     produces<reco::GenParticleRefVector>();
     withLeptons           = iConfig.getParameter<bool>("withLeptons");
     tokenGenParticles_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("src"));
+    if ( iConfig.exists("acceptNoDaughters") ) {
+      acceptNoDaughters = iConfig.getParameter<bool>("acceptNoDaughters");
+	} else {
+	acceptNoDaughters=false;
+    }
+    if ( iConfig.exists("skipFirstN") ) {
+      skipFirstN = iConfig.getParameter<unsigned int>("skipFirstN");
+	} else {
+	skipFirstN=6;
+    }
     if ( iConfig.exists("withTop") ) {
       withTop = iConfig.getParameter<bool>("withTop");
     } else {
@@ -68,7 +80,7 @@ PartonSelector::~PartonSelector()
 
 // ------------ method called to produce the data  ------------
 
-void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
+void PartonSelector::produce( StreamID, Event& iEvent, const EventSetup& iEs ) const
 {
 
   //edm::Handle <reco::CandidateView> particles;
@@ -77,12 +89,12 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
   edm::LogVerbatim("PartonSelector") << "=== GenParticle size:" << particles->size();
   int nPart=0;
 
-  auto_ptr<GenParticleRefVector> thePartons ( new GenParticleRefVector);
+  auto thePartons = std::make_unique<GenParticleRefVector>();
 
   for (size_t m = 0; m < particles->size(); m++) {
 
     // Don't take into account first 6 particles in generator list
-    if (m<6) continue;
+    if (m<skipFirstN) continue;
 
     const GenParticle & aParticle = (*particles)[ m ];
 
@@ -112,7 +124,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
 
     //Add Partons status 2
     int nparton_daughters = 0;
-    if( aParticle.numberOfDaughters() > 0 && isAParton ) {
+    if( ( aParticle.numberOfDaughters() > 0 || acceptNoDaughters) && isAParton ) {
 
       for (unsigned int i=0; i < aParticle.numberOfDaughters(); i++){
 
@@ -140,7 +152,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
   }
 
   edm::LogVerbatim("PartonSelector") << "=== GenParticle selected:" << nPart;
-  iEvent.put( thePartons );
+  iEvent.put(std::move(thePartons) );
 
 }
 

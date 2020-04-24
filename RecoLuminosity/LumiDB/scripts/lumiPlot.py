@@ -424,7 +424,7 @@ if __name__=='__main__':
     if options.action=='fill':
         for fill in sorted(fillrunMap):
             for run in fillrunMap[fill]:
-                if not lumibyls.has_key(run): continue
+                if run not in lumibyls: continue
                 rundata=lumibyls[run]
                 if not options.hltpath:
                     if len(rundata)!=0:

@@ -21,23 +21,23 @@ public:
 
   TrackKinematicStatePropagator() {}
   
-  virtual ~TrackKinematicStatePropagator() {}
+  ~TrackKinematicStatePropagator() override {}
   
   
   /**
    * Propagation to the point of closest approach in
    * transverse plane to the given point
    */   
-  virtual KinematicState propagateToTheTransversePCA(const KinematicState& state, const GlobalPoint& referencePoint) const;
+  KinematicState propagateToTheTransversePCA(const KinematicState& state, const GlobalPoint& referencePoint) const override;
   
-  virtual bool willPropagateToTheTransversePCA(const KinematicState& state, const GlobalPoint& point) const;
+  bool willPropagateToTheTransversePCA(const KinematicState& state, const GlobalPoint& point) const override;
   
     
   /**
    * Clone method reimplemented from
    * abstract class
    */
-  virtual KinematicStatePropagator * clone() const
+  KinematicStatePropagator * clone() const override
   {return new TrackKinematicStatePropagator(*this);}
   
  private:

@@ -20,7 +20,7 @@
 #include <map>
 
 class GeomDetType;
-class GeomDetUnit;
+
 
 class DTGeometry : public TrackingGeometry {
 
@@ -31,52 +31,52 @@ class DTGeometry : public TrackingGeometry {
     DTGeometry();
 
     /// Destructor
-    virtual ~DTGeometry();
+    ~DTGeometry() override;
 
     //---- Base class' interface 
 
     // Return a vector of all det types
-    virtual const DetTypeContainer&  detTypes() const;
+    const DetTypeContainer&  detTypes() const override;
 
     // Returm a vector of all GeomDetUnit
-    virtual const DetUnitContainer&  detUnits() const;
+    const DetContainer&  detUnits() const override;
 
     // Returm a vector of all GeomDet (including all GeomDetUnits)
-    virtual const DetContainer& dets() const;
+    const DetContainer& dets() const override;
 
     // Returm a vector of all GeomDetUnit DetIds
-    virtual const DetIdContainer&    detUnitIds() const;
+    const DetIdContainer&    detUnitIds() const override;
 
     // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
-    virtual const DetIdContainer& detIds() const;
+    const DetIdContainer& detIds() const override;
 
     // Return the pointer to the GeomDetUnit corresponding to a given DetId
-    virtual const GeomDetUnit* idToDetUnit(DetId) const;
+    const GeomDet* idToDetUnit(DetId) const override;
 
     // Return the pointer to the GeomDet corresponding to a given DetId
-    virtual const GeomDet* idToDet(DetId) const;
+    const GeomDet* idToDet(DetId) const override;
 
 
     //---- Extension of the interface
 
     /// Return a vector of all Chamber
-    const std::vector<DTChamber*>& chambers() const;
+    const std::vector<const DTChamber*>& chambers() const;
 
     /// Return a vector of all SuperLayer
-    const std::vector<DTSuperLayer*>& superLayers() const;
+    const std::vector<const DTSuperLayer*>& superLayers() const;
 
     /// Return a vector of all SuperLayer
-    const std::vector<DTLayer*>& layers() const;
+    const std::vector<const DTLayer*>& layers() const;
 
 
     /// Return a DTChamber given its id
-    const DTChamber* chamber(DTChamberId id) const;
+    const DTChamber* chamber(const DTChamberId& id) const;
 
     /// Return a DTSuperLayer given its id
-    const DTSuperLayer* superLayer(DTSuperLayerId id) const;
+    const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
 
     /// Return a layer given its id
-    const DTLayer* layer(DTLayerId id) const;
+    const DTLayer* layer(const DTLayerId& id) const;
 
 
   private:
@@ -99,20 +99,20 @@ class DTGeometry : public TrackingGeometry {
 
     // The chambers are owned by the geometry (and in turn own superlayers
     // and layers)
-    std::vector<DTChamber*> theChambers; 
+    std::vector<const DTChamber*> theChambers; 
 
     // All following pointers are redundant; they are used only for an
     // efficient implementation of the interface, and are NOT owned.
 
-    std::vector<DTSuperLayer*> theSuperLayers; 
-    std::vector<DTLayer*> theLayers;
+    std::vector<const DTSuperLayer*> theSuperLayers; 
+    std::vector<const DTLayer*> theLayers;
 
     // Map for efficient lookup by DetId 
     DTDetMap          theMap;
 
     // These are used rarely; they could be computed at runtime 
     // to save memory.
-    DetUnitContainer  theDetUnits;       // all layers
+    DetContainer      theDetUnits;       // all layers
     DetContainer      theDets;           // all chambers, SL, layers
 
     // Replace local static with mutable members

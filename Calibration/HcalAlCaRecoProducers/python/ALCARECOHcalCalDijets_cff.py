@@ -15,5 +15,5 @@ dijetsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 )
 
 
-seqALCARECOHcalCalDijets = cms.Sequence(dijetsHLT*DiJProd)
+seqALCARECOHcalCalDijets = cms.Sequence(dijetsHLT*DiJetsProd)
 

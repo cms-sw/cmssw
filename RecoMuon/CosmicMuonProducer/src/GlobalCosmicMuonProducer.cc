@@ -95,10 +95,10 @@ GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<MuonTrajectoryBuilder::TrackCand> cosTrackCands;
   for ( unsigned int position = 0; position != cosMuons->size(); ++position ) {
     reco::TrackRef cosTrackRef(cosMuons,position);
-    MuonTrajectoryBuilder::TrackCand cosCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),cosTrackRef);
+    MuonTrajectoryBuilder::TrackCand cosCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)nullptr,cosTrackRef);
     cosTrackCands.push_back(cosCand); 
   }
-  theTrackFinder->reconstruct(cosTrackCands,iEvent);
+  theTrackFinder->reconstruct(cosTrackCands,iEvent,iSetup);
   LogTrace(metname)<<"Event loaded";
 
 }

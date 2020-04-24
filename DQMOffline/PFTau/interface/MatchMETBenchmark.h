@@ -13,10 +13,10 @@ class MatchMETBenchmark : public Benchmark {
  public:
 
   MatchMETBenchmark(Mode mode) : Benchmark(mode) {}
-  virtual ~MatchMETBenchmark();
+  ~MatchMETBenchmark() override;
 
   /// book histograms
-  void setup();
+  void setup(DQMStore::IBooker& b);
   
   /// fill histograms with a given particle
   void fillOne( const reco::MET& candidate,

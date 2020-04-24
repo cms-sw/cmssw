@@ -7,7 +7,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,7 +16,7 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonShowerInformationFiller.h"
 
-class MuonShowerInformationProducer : public edm::EDProducer {
+class MuonShowerInformationProducer : public edm::stream::EDProducer<> {
 public:
   MuonShowerInformationProducer(const edm::ParameterSet& iConfig) :
     inputMuonCollection_(iConfig.getParameter<edm::InputTag>("muonCollection")),
@@ -29,13 +29,13 @@ public:
  
     produces<edm::ValueMap<reco::MuonShower> >().setBranchAlias("muonShowerInformation");
   }
-   virtual ~MuonShowerInformationProducer() {
+   ~MuonShowerInformationProducer() override {
     if( showerFiller_)
       delete showerFiller_;
   }
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag inputMuonCollection_;
   edm::InputTag inputTrackCollection_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
@@ -63,12 +63,12 @@ MuonShowerInformationProducer::produce(edm::Event& iEvent, const edm::EventSetup
     }
 
   // create and fill value map
-  std::auto_ptr<edm::ValueMap<reco::MuonShower> > outC(new edm::ValueMap<reco::MuonShower>());
+  auto outC = std::make_unique<edm::ValueMap<reco::MuonShower>>();
   edm::ValueMap<reco::MuonShower>::Filler fillerC(*outC);
   fillerC.insert(muons, showerInfoValues.begin(), showerInfoValues.end());
   fillerC.fill();
 
   // put value map into event
-  iEvent.put(outC);
+  iEvent.put(std::move(outC));
 }
 DEFINE_FWK_MODULE(MuonShowerInformationProducer);

@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 //DQM services
@@ -63,7 +63,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -79,11 +79,11 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   //typedef std::vector<float> FloatVector;
 
   explicit GlobalHitsProdHist(const edm::ParameterSet&);
-  virtual ~GlobalHitsProdHist();
-  virtual void beginJob() override;
-  virtual void endJob() override;  
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endRunProduce(edm::Run&, const edm::EventSetup&) override;
+  ~GlobalHitsProdHist() override;
+  void beginJob() override;
+  void endJob() override;  
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endRunProduce(edm::Run&, const edm::EventSetup&) override;
   
  private:
 

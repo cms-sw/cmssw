@@ -49,7 +49,8 @@ process.maxEvents = cms.untracked.PSet(
 
 if testGlobalTag :
     process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-    process.GlobalTag.globaltag = "GR10_P_V7::All"
+    process.GlobalTag.globaltag = "MC_70_V4::All"
+#    process.GlobalTag.globaltag = "START71_V1::All"
     
 #Uncomment these two lines to get from the global tag
 else:

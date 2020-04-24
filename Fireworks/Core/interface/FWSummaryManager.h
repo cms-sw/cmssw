@@ -65,9 +65,9 @@ public:
 
    void colorsChanged();
 private:
-   FWSummaryManager(const FWSummaryManager&);    // stop default
+   FWSummaryManager(const FWSummaryManager&) = delete;    // stop default
 
-   const FWSummaryManager& operator=(const FWSummaryManager&);    // stop default
+   const FWSummaryManager& operator=(const FWSummaryManager&) = delete;    // stop default
 
    void selectionChanged(const FWSelectionManager&);
    void newItem(FWEventItem* iItem);

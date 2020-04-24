@@ -184,7 +184,7 @@ void TEcnaNArrayD::Init()
   fN5  = 1;
   fN6  = 1;
   fNL  = 0;
-  fA   = 0;
+  fA   = nullptr;
 }
 inline Int_t TEcnaNArrayD::OneDim(Int_t i1) const {
 //Index from 1 dimension to 1 dimension

@@ -48,7 +48,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -80,7 +80,7 @@
 ///
 ///
 ///
-class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer>, public TObject {
+class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
 
  public:
 
@@ -244,7 +244,5 @@ class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer>, public 
   std::string theAlignRecordName, theErrorRecordName;
 
   bool firstEvent_;
-
-  const edm::ParameterSet theParameterSet;
 };
 #endif

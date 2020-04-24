@@ -31,25 +31,17 @@ CompositeCandidate::~CompositeCandidate() { }
 
 CompositeCandidate * CompositeCandidate::clone() const { return new CompositeCandidate(* this); }
 
-Candidate::const_iterator CompositeCandidate::begin() const { return const_iterator(new const_iterator_imp_specific(dau.begin())); }
-
-Candidate::const_iterator CompositeCandidate::end() const { return const_iterator(new const_iterator_imp_specific(dau.end())); }    
-
-Candidate::iterator CompositeCandidate::begin() { return iterator(new iterator_imp_specific(dau.begin())); }
-
-Candidate::iterator CompositeCandidate::end() { return iterator(new iterator_imp_specific(dau.end())); }    
-
 const Candidate * CompositeCandidate::daughter(size_type i) const { 
-  return (i < numberOfDaughters()) ? & dau[ i ] : 0; // i >= 0, since i is unsigned
+  return (i < numberOfDaughters()) ? & dau[ i ] : nullptr; // i >= 0, since i is unsigned
 }
 
 Candidate * CompositeCandidate::daughter(size_type i) { 
-  Candidate * d = (i < numberOfDaughters()) ? & dau[ i ] : 0; // i >= 0, since i is unsigned
+  Candidate * d = (i < numberOfDaughters()) ? & dau[ i ] : nullptr; // i >= 0, since i is unsigned
   return d;
 }
 
 const Candidate * CompositeCandidate::mother(size_type i) const { 
-  return 0;
+  return nullptr;
 }
 
 size_t CompositeCandidate::numberOfDaughters() const { return dau.size(); }
@@ -62,7 +54,7 @@ bool CompositeCandidate::overlap(const Candidate & c2) const {
 
 void CompositeCandidate::applyRoles() {
 
-  if (roles_.size() == 0)
+  if (roles_.empty())
     return;
 
   // Check if there are the same number of daughters and roles
@@ -78,7 +70,7 @@ void CompositeCandidate::applyRoles() {
     Candidate * c = CompositeCandidate::daughter(i);
 
     CompositeCandidate * c1 = dynamic_cast<CompositeCandidate *>(c);
-    if (c1 != 0) {
+    if (c1 != nullptr) {
       c1->setName(role);
     }
   }
@@ -134,14 +126,14 @@ void CompositeCandidate::addDaughter(const Candidate & cand, const std::string& 
     }
     roles_.push_back(s);
     CompositeCandidate * c1 = dynamic_cast<CompositeCandidate*>(&*c);
-    if (c1 != 0) {
+    if (c1 != nullptr) {
       c1->setName(s);
     }
   }
   dau.push_back(c);
 }
 
-void CompositeCandidate::addDaughter(std::auto_ptr<Candidate> cand, const std::string& s) {
+void CompositeCandidate::addDaughter(std::unique_ptr<Candidate> cand, const std::string& s) {
   if (s != "") {
     role_collection::iterator begin = roles_.begin(), end = roles_.end();
     bool isFound = (find(begin, end, s) != end);
@@ -152,11 +144,11 @@ void CompositeCandidate::addDaughter(std::auto_ptr<Candidate> cand, const std::s
     }
     roles_.push_back(s);  
     CompositeCandidate * c1 = dynamic_cast<CompositeCandidate*>(&*cand);
-    if (c1 != 0) {
+    if (c1 != nullptr) {
       c1->setName(s);
     }
   }
-  dau.push_back(cand);
+  dau.push_back(std::move(cand));
 }
 
 

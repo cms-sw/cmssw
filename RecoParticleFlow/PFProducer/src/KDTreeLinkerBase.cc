@@ -1,5 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
 
+EDM_REGISTER_PLUGINFACTORY(KDTreeLinkerFactory,"KDTreeLinkerFactory");
+
 KDTreeLinkerBase::KDTreeLinkerBase()
   : cristalPhiEtaMaxSize_ (0.04),
     cristalXYMaxSize_ (3.),

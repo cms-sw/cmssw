@@ -15,10 +15,11 @@ pfElectronDQMAnalyzer = cms.EDAnalyzer("PFCandidateDQMAnalyzer",
     etaMax = cms.double(2.5),
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
+    slimmedLikeSelection = cms.bool(False),
     # Histogram Parameters related to pt
     #VariablePtBins  = cms.vdouble(0.,1.,2.,5.,10.,20.,50.,100.,200.,400.,1000.),
     VariablePtBins  = cms.vdouble(0.), # if only one entry PtHistoParameter used
-      PtHistoParameter = cms.PSet(
+    PtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(60),
       xMin = cms.double(0.0),
@@ -77,12 +78,5 @@ pfElectronDQMAnalyzer = cms.EDAnalyzer("PFCandidateDQMAnalyzer",
       nBin = cms.int32(3),
       xMin = cms.double(-1.5),
       xMax = cms.double(1.5)        
-    ),
-# parameter for event skim
-    SkimParameter = cms.PSet(
-      switchOn = cms.bool(False),
-      maximumNumberToBeStored = cms.int32(100),
-      lowerCutOffOnResolution = cms.double(-1.5),
-      upperCutOffOnResolution = cms.double(1.5)
     )
 )

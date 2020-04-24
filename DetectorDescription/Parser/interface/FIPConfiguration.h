@@ -1,22 +1,18 @@
-#ifndef DetectorDescription_Parser_XMLConfiguration_H
-#define DetectorDescription_Parser_XMLConfiguration_H
+#ifndef DETECTOR_DESCRIPTION_PARSER_FIP_CONFIGURATION_H
+#define DETECTOR_DESCRIPTION_PARSER_FIP_CONFIGURATION_H
 
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
+#include <map>
+#include <string>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
-// From DD Core
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
+class DDCompactView;
 class DDLParser;
-class DDLSAX2Handler;
 class DDLSAX2ConfigHandler;
-
-#include <string>
-#include <vector>
-#include <map>
+class DDLSAX2Handler;
 
 /// FIPConfiguration reads in the configuration file for the DDParser.
 /** @class FIPConfiguration
@@ -28,39 +24,36 @@ class DDLSAX2ConfigHandler;
  *  email: case@ucdhep.ucdavis.edu
  *
  */
-class FIPConfiguration : public DDLDocumentProvider {
-
-
+class FIPConfiguration : public DDLDocumentProvider
+{
  public:
 
   FIPConfiguration( DDCompactView& cpv);
-  virtual ~FIPConfiguration();
+  ~FIPConfiguration() override;
 
   /// Read in the configuration file.
-  int readConfig(const std::string& filename);
+  int readConfig(const std::string& filename) override;
 
   /// Read in the configuration file.
   int readConfig(const std::string& filename, bool fullPath);
 
   /// Return a list of files as a std::vector of strings.
-  virtual const std::vector < std::string >&  getFileList(void) const;
+  const std::vector < std::string >&  getFileList(void) const override;
 
   /// Return a list of urls as a std::vector of strings.
   /**
      This implementation does not provide a meaningful url list.
    **/
-  virtual const std::vector < std::string >&  getURLList(void) const;
+  const std::vector < std::string >&  getURLList(void) const override;
 
   /// Print out the list of files.
-  virtual void dumpFileList(void) const;
+  void dumpFileList(void) const override;
 
   /// Return whether Validation should be on or off and where the DDL SchemaLocation is.
-  virtual bool doValidation() const;
+  bool doValidation() const override;
 
   /// Return the designation for where to look for the schema.
-  std::string getSchemaLocation() const;
-
- protected:
+  std::string getSchemaLocation() const override;
 
  private:
   DDLSAX2ConfigHandler configHandler_;

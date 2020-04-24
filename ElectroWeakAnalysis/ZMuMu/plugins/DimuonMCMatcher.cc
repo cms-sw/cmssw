@@ -1,17 +1,17 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include <iostream>
 
 class DimuonMCMatcher : public edm::EDProducer {
 public:
   DimuonMCMatcher(const edm::ParameterSet & cfg);
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 private:
-  edm::InputTag src_;
+  edm::EDGetTokenT<reco::CandidateView> srcToken_;
 };
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,33 +23,33 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-DimuonMCMatcher::DimuonMCMatcher(const edm::ParameterSet & cfg) : 
-  src_(cfg.getParameter<InputTag>("src")) {
+DimuonMCMatcher::DimuonMCMatcher(const edm::ParameterSet & cfg) :
+  srcToken_(consumes<CandidateView>(cfg.getParameter<InputTag>("src"))) {
   produces<vector<GenParticleRef> >();
 }
 
 void DimuonMCMatcher::produce(edm::Event& evt, const edm::EventSetup&) {
   Handle<CandidateView> src;
-  evt.getByLabel(src_, src);
-  auto_ptr<vector<GenParticleRef> > matched(new vector<GenParticleRef>);
+  evt.getByToken(srcToken_, src);
+  unique_ptr<vector<GenParticleRef> > matched(new vector<GenParticleRef>);
   matched->reserve(src->size());
   int j=0;
   for(CandidateView::const_iterator i = src->begin(); i != src->end(); ++i) {
     j++;
     const Candidate * dau1 = i->daughter(0);
     const Candidate * dau2 = i->daughter(1);
-    if(dau1 == 0|| dau2 == 0) 
+    if(dau1 == nullptr|| dau2 == nullptr)
       throw Exception(errors::InvalidReference) <<
 	"one of the two daughter does not exist\n";
     const Candidate * c1 = dau1->masterClone().get();
     GenParticleRef mc1;
     const pat::Muon * mu1 = dynamic_cast<const pat::Muon*>(c1);
-    if(mu1 != 0) {
+    if(mu1 != nullptr) {
       mc1 = mu1->genParticleRef();
       //     if (mc1.isNonnull()) cout << "DimuonMCMatcher> genParticleRef1 " << mc1->pdgId() << endl;
     } else {
       const pat::GenericParticle * gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
-      if(gp1 == 0) 
+      if(gp1 == nullptr)
 	throw Exception(errors::InvalidReference) <<
 	  "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
       mc1 = gp1->genParticleRef();
@@ -57,12 +57,12 @@ void DimuonMCMatcher::produce(edm::Event& evt, const edm::EventSetup&) {
     const Candidate * c2 = dau2->masterClone().get();
     GenParticleRef mc2;
     const pat::Muon * mu2 = dynamic_cast<const pat::Muon*>(c2);
-    if(mu2 != 0) {
+    if(mu2 != nullptr) {
       mc2 = mu2->genParticleRef();
       //      if (mc2.isNonnull()) cout << "DimuonMCMatcher> genParticleRef2 " << mc2->pdgId() << endl;
     } else {
       const pat::GenericParticle * gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
-      if(gp2 == 0) 
+      if(gp2 == nullptr)
 	throw Exception(errors::InvalidReference) <<
 	  "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
       mc2 = gp2->genParticleRef();
@@ -85,7 +85,7 @@ void DimuonMCMatcher::produce(edm::Event& evt, const edm::EventSetup&) {
     matched->push_back(dimuonMatch);
   }
 
-  evt.put(matched);
+  evt.put(std::move(matched));
 }
 
 

@@ -12,7 +12,7 @@
 #include<fstream>
 
 
-#include <time.h>
+#include <ctime>
 #include <unistd.h>
 
 #include <string>
@@ -293,6 +293,7 @@ void  popcon::EcalTPGFineGrainEBGroupHandler::readFromFile(const char* inputFile
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGFineGrainEBGroupHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

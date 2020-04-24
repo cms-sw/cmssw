@@ -6,7 +6,6 @@
 //#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoRomanPot/RecoFP420/interface/FP420RecoMain.h"
@@ -31,12 +30,12 @@ namespace cms
     explicit ReconstructerFP420(const edm::ParameterSet& conf);
     //ReconstructerFP420();
     
-    virtual ~ReconstructerFP420();
+    ~ReconstructerFP420() override;
     
-    virtual void beginJob();
+    void beginJob() override;
     
     //  virtual void produce(ClusterCollectionFP420 &, RecoCollectionFP420 &);
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
     
   private:
     typedef std::vector<std::string> vstring;

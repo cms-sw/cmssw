@@ -25,9 +25,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
@@ -102,15 +104,15 @@ private:
   TMatrixD *boost_;
   double fTimeOffset;
   
-  edm::InputTag            sourceLabel;
+  edm::EDGetTokenT<HepMCProduct> sourceLabel;
 
   bool verbosity_;
 };
 
 
-BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p ):
+BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p):
   fVertex(0), boost_(0), fTimeOffset(0),
-  sourceLabel(p.getParameter<edm::InputTag>("src")),
+  sourceLabel(consumes<HepMCProduct>(p.getParameter<edm::InputTag>("src"))),
   verbosity_(p.getUntrackedParameter<bool>("verbosity",false))
 {
   fX0 =        p.getParameter<double>("X0")*cm;
@@ -129,7 +131,7 @@ BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p )
       << "Illegal resolution in Z (SigmaZ is negative)";
   }
 
-  produces<bool>(); 
+  produces<edm::HepMCProduct>();
   
 }
 
@@ -260,21 +262,22 @@ void BetaBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   }
   CLHEP::HepRandomEngine* engine = &rng->getEngine(evt.streamID());
   
-  
-  Handle<HepMCProduct> HepMCEvt ;    
-  evt.getByLabel( sourceLabel, HepMCEvt ) ;
-  
+  Handle<HepMCProduct> HepUnsmearedMCEvt;
+  evt.getByToken(sourceLabel, HepUnsmearedMCEvt);
+
+  // Copy the HepMC::GenEvent
+  HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
+  std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+
   // generate new vertex & apply the shift 
   //
   HepMCEvt->applyVtxGen( newVertex(engine) ) ;
  
   //HepMCEvt->LorentzBoost( 0., 142.e-6 );
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
-  HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );    
-  // OK, create a (pseudo)product and put in into edm::Event
-  //
-  auto_ptr<bool> NewProduct(new bool(true)) ;      
-  evt.put( NewProduct ) ;       
+  HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
+  evt.put(std::move(HepMCEvt));
+
   return ;
 }
 

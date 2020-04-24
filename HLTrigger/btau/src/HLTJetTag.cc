@@ -10,6 +10,9 @@
  *
  */
 
+#include <vector>
+#include <string>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -19,12 +22,10 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 #include "HLTJetTag.h"
 
-#include<vector>
-#include<string>
-#include<typeinfo>
 
 //
 // constructors and destructor
@@ -51,9 +52,7 @@ HLTJetTag<T>::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
 }
 
 template<typename T>
-HLTJetTag<T>::~HLTJetTag()
-{
-}
+HLTJetTag<T>::~HLTJetTag() = default;
 
 template<typename T>
 void
@@ -66,7 +65,7 @@ HLTJetTag<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("MaxTag",999999.0);
   desc.add<int>("MinJets",1);
   desc.add<int>("TriggerType",0);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetTag<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetTag<T>>(), desc);
 }
 
 //
@@ -99,7 +98,7 @@ HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger
   if (not dependent.isNull() and not dependent.hasCache()) {
     // only an empty AssociationVector can have a invalid dependent collection
     edm::Provenance const & dependent_provenance = event.getProvenance(dependent.id());
-    if (dependent_provenance.constBranchDescription().dropped())
+    if (dependent_provenance.branchDescription().dropped())
       // FIXME the error message should be made prettier
       throw edm::Exception(edm::errors::ProductNotFound) << "Product " << handle.provenance()->branchName() << " requires product " << dependent_provenance.branchName() << ", which has been dropped";
   }
@@ -109,14 +108,14 @@ HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger
   // Look at all jets in decreasing order of Et.
   int nJet = 0;
   int nTag = 0;
-  for (JetTagCollection::const_iterator jet = h_JetTags->begin(); jet != h_JetTags->end(); ++jet) {
-    jetRef = TRef(h_Jets,jet->first.key());
+  for (auto const & jet : *h_JetTags) {
+    jetRef = TRef(h_Jets,jet.first.key());
     LogTrace("") << "Jet " << nJet
-                 << " : Et = " << jet->first->et()
-                 << " , tag value = " << jet->second;
+                 << " : Et = " << jet.first->et()
+                 << " , tag value = " << jet.second;
     ++nJet;
     // Check if jet is tagged.
-    if ( (m_MinTag <= jet->second) and (jet->second <= m_MaxTag) ) {
+    if ( (m_MinTag <= jet.second) and (jet.second <= m_MaxTag) ) {
       ++nTag;
 
       // Store a reference to the jets which passed tagging cuts

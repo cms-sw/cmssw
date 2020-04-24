@@ -1,6 +1,8 @@
 #ifndef L1TObjects_L1MuCSCTFConfiguration_h
 #define L1TObjects_L1MuCSCTFConfiguration_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -29,6 +31,8 @@ public:
 
         /// print all the L1 CSCTF Configuration Parameters
         void print(std::ostream&) const;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

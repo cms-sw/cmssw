@@ -5,6 +5,7 @@
  *
  */
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <ostream>
 #include <cstring>
 #include <iostream>
@@ -24,8 +25,8 @@ const uint16_t CSCDDUStatusDigi::getDDUTTS() const {
 }
 
 void CSCDDUStatusDigi::print() const {
-     std::cout << " Header: " << std::hex << *header_ <<
-     " Trailer: " << std::hex << *trailer_ << " TTS: " << getDDUTTS() << std::dec << std::endl;
+  edm::LogVerbatim("CSCDigi") << " Header: " << std::hex << *header_ <<
+    " Trailer: " << std::hex << *trailer_ << " TTS: " << getDDUTTS() << std::dec;
 }
 
 std::ostream & operator<<(std::ostream & o, const CSCDDUStatusDigi& digi) {

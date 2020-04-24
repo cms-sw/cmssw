@@ -2,7 +2,7 @@
 //
 // Package:    MultiplicityInvestigator
 // Class:      MultiplicityInvestigator
-// 
+//
 /**\class MultiplicityInvestigator MultiplicityInvestigator.cc myTKAnalyses/DigiInvestigator/src/MultiplicityInvestigator.cc
 
  Description: <one line class summary>
@@ -52,14 +52,14 @@
 class MultiplicityInvestigator : public edm::EDAnalyzer {
    public:
       explicit MultiplicityInvestigator(const edm::ParameterSet&);
-      ~MultiplicityInvestigator();
+      ~MultiplicityInvestigator() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -74,8 +74,8 @@ private:
   DigiPileupCorrHistogramMaker m_digipileupcorrhmevent;
   DigiVtxPosCorrHistogramMaker m_digivtxposcorrhmevent;
 
-  edm::InputTag m_multiplicityMap;
-  edm::InputTag m_vertexCollection;
+  edm::EDGetTokenT<std::map<unsigned int, int> > m_multiplicityMapToken;
+  edm::EDGetTokenT<reco::VertexCollection> m_vertexCollectionToken;
 
 };
 
@@ -91,26 +91,26 @@ private:
 // constructors and destructor
 //
 MultiplicityInvestigator::MultiplicityInvestigator(const edm::ParameterSet& iConfig):
-  //  m_digiinvesthmevent(iConfig.getParameter<edm::ParameterSet>("digiInvestConfig")),  
+  //  m_digiinvesthmevent(iConfig.getParameter<edm::ParameterSet>("digiInvestConfig")),
   m_wantInvestHist(iConfig.getParameter<bool>("wantInvestHist")),
   m_wantVtxCorrHist(iConfig.getParameter<bool>("wantVtxCorrHist")),
   m_wantLumiCorrHist(iConfig.getParameter<bool>("wantLumiCorrHist")),
   m_wantPileupCorrHist(iConfig.getParameter<bool>("wantPileupCorrHist")),
   m_wantVtxPosCorrHist(iConfig.getParameter<bool>("wantVtxPosCorrHist")),
-  m_digiinvesthmevent(m_wantInvestHist ? iConfig : DigiInvestigatorHistogramMaker()),
+  m_digiinvesthmevent(m_wantInvestHist ? DigiInvestigatorHistogramMaker(iConfig, consumesCollector()) : DigiInvestigatorHistogramMaker(consumesCollector())),
   m_digivtxcorrhmevent(m_wantVtxCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiVtxCorrConfig") : DigiVertexCorrHistogramMaker()),
-  m_digilumicorrhmevent(m_wantLumiCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiLumiCorrConfig") : DigiLumiCorrHistogramMaker()),
-  m_digipileupcorrhmevent(m_wantPileupCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiPileupCorrConfig") : DigiPileupCorrHistogramMaker()),
-  m_digivtxposcorrhmevent(m_wantVtxPosCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiVtxPosCorrConfig") : DigiVtxPosCorrHistogramMaker()),
-  m_multiplicityMap(iConfig.getParameter<edm::InputTag>("multiplicityMap")),
-  m_vertexCollection(iConfig.getParameter<edm::InputTag>("vertexCollection"))
+  m_digilumicorrhmevent(m_wantLumiCorrHist ? DigiLumiCorrHistogramMaker(iConfig.getParameter<edm::ParameterSet>("digiLumiCorrConfig"), consumesCollector()) : DigiLumiCorrHistogramMaker(consumesCollector())),
+  m_digipileupcorrhmevent(m_wantPileupCorrHist ? DigiPileupCorrHistogramMaker(iConfig.getParameter<edm::ParameterSet>("digiPileupCorrConfig"), consumesCollector()) : DigiPileupCorrHistogramMaker(consumesCollector())),
+  m_digivtxposcorrhmevent(m_wantVtxPosCorrHist ? DigiVtxPosCorrHistogramMaker(iConfig.getParameter<edm::ParameterSet>("digiVtxPosCorrConfig"), consumesCollector()) : DigiVtxPosCorrHistogramMaker(consumesCollector())),
+  m_multiplicityMapToken(consumes<std::map<unsigned int, int> >(iConfig.getParameter<edm::InputTag>("multiplicityMap"))),
+  m_vertexCollectionToken(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection")))
 {
    //now do what ever initialization is needed
 
 
   if(m_wantInvestHist)  { m_digiinvesthmevent.book("EventProcs");}
-  if(m_wantVtxCorrHist) { m_digivtxcorrhmevent.book("VtxCorr");}
-  if(m_wantLumiCorrHist) { m_digilumicorrhmevent.book("LumiCorr");}
+  if(m_wantVtxCorrHist) { m_digivtxcorrhmevent.book("VtxCorr", consumesCollector());}
+  if(m_wantLumiCorrHist) { m_digilumicorrhmevent.book("LumiCorr", consumesCollector());}
   if(m_wantPileupCorrHist) { m_digipileupcorrhmevent.book("PileupCorr");}
   if(m_wantVtxPosCorrHist) { m_digivtxposcorrhmevent.book("VtxPosCorr");}
 }
@@ -118,7 +118,7 @@ MultiplicityInvestigator::MultiplicityInvestigator(const edm::ParameterSet& iCon
 
 MultiplicityInvestigator::~MultiplicityInvestigator()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -134,15 +134,14 @@ void
 MultiplicityInvestigator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  
+
   Handle<std::map<unsigned int, int> > mults;
-  iEvent.getByLabel(m_multiplicityMap,mults);
-  
-  if(m_wantInvestHist) m_digiinvesthmevent.fill(iEvent.orbitNumber(),*mults);
-  
+  iEvent.getByToken(m_multiplicityMapToken,mults);
+
+  if(m_wantInvestHist) m_digiinvesthmevent.fill(iEvent,*mults);
   if(m_wantVtxCorrHist) {
     Handle<reco::VertexCollection> vertices;
-    iEvent.getByLabel(m_vertexCollection,vertices);
+    iEvent.getByToken(m_vertexCollectionToken,vertices);
 
     m_digivtxcorrhmevent.fill(iEvent,vertices->size(),*mults);
   }
@@ -155,7 +154,7 @@ MultiplicityInvestigator::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 MultiplicityInvestigator::beginJob()
 {
 
@@ -164,13 +163,13 @@ MultiplicityInvestigator::beginJob()
 void
 MultiplicityInvestigator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
-  m_digiinvesthmevent.beginRun(iRun.run());
+  m_digiinvesthmevent.beginRun(iRun);
   m_digivtxcorrhmevent.beginRun(iRun);
   m_digilumicorrhmevent.beginRun(iRun);
 
 }
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 MultiplicityInvestigator::endJob() {
 }
 //define this as a plug-in

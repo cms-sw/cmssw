@@ -13,7 +13,7 @@ mix = cms.EDFilter("DataMixingModule",
     # Muons:
     DTdigiCollection = cms.InputTag("muonDTDigis"),
     CSCstripdigiCollection = cms.InputTag("muonCSCDigis"),
-    input = cms.SecSource("PoolRASource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(25.0)
         ),

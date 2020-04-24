@@ -2,6 +2,9 @@
  *  See header file for a description of this class.
  *
  *  \author C. Battilana S. Marcellini - INFN Bologna
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -34,9 +37,10 @@ using namespace std;
 DTLocalTriggerTPTest::DTLocalTriggerTPTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTriggerTP");
-  baseFolderDCC = "DT/11-LocalTriggerTP-DCC/";
+  baseFolderTM = "DT/11-LocalTriggerTP-TM/";
   baseFolderDDU = "DT/12-LocalTriggerTP-DDU/";
   
+  bookingdone = false;
 
 }
 
@@ -45,16 +49,13 @@ DTLocalTriggerTPTest::~DTLocalTriggerTPTest(){
 
 }
 
-void DTLocalTriggerTPTest::beginJob(){
-  
-  DTLocalTriggerBaseTest::beginJob();
 
+void DTLocalTriggerTPTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
   vector<string>::const_iterator iHw   = hwSources.begin();
   vector<string>::const_iterator hwEnd = hwSources.end();
-
 
   //Booking
   if(parameters.getUntrackedParameter<bool>("staticBooking", true)){
@@ -64,24 +65,28 @@ void DTLocalTriggerTPTest::beginJob(){
 	hwSource = (*iHw);
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
-	  bookWheelHistos(wh,"CorrectBXPhi");
-	  bookWheelHistos(wh,"ResidualBXPhi");
+	  bookWheelHistos(ibooker,wh,"CorrectBXPhi");
+	  bookWheelHistos(ibooker,wh,"ResidualBXPhi");
 	}
       }
     }
   }
 
+
+  bookingdone = true; 
+
 }
 
 
 void DTLocalTriggerTPTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
-  
+
   DTLocalTriggerBaseTest::beginRun(r,c);
 
 }
 
-
-void DTLocalTriggerTPTest::runClientDiagnostic() {
+void DTLocalTriggerTPTest::runClientDiagnostic(DQMStore::IBooker & ibooker,
+                                                            DQMStore::IGetter & igetter) {
+  if (!bookingdone) Bookings(ibooker,igetter);
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -93,12 +98,9 @@ void DTLocalTriggerTPTest::runClientDiagnostic() {
 	for (int wh=-2; wh<=2; ++wh){
 	  for (int sect=1; sect<=12; ++sect){
 	    DTChamberId chId(wh,stat,sect);
-	    // int sector_id = (wh+3)+(sect-1)*5;
-	    // uint32_t indexCh = chId.rawId();
-	    
 
-	    // Perform DCC/DDU common plot analysis (Phi ones)
-	    TH2F * BXvsQual      = getHisto<TH2F>(dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
+	    // Perform TM/DDU common plot analysis (Phi ones)
+	    TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual_In","LocalTriggerPhiIn", chId)));
 	    if ( BXvsQual ) {
 
 	      if (BXvsQual->GetEntries()>1) {
@@ -110,8 +112,8 @@ void DTLocalTriggerTPTest::runClientDiagnostic() {
 		delete BX;
 
 		if( whME[wh].find(fullName("CorrectBXPhi")) == whME[wh].end() ){
-		  bookWheelHistos(wh,"ResidualBXPhi");
-		  bookWheelHistos(wh,"CorrectBXPhi");
+		  bookWheelHistos(ibooker,wh,"ResidualBXPhi");
+		  bookWheelHistos(ibooker,wh,"CorrectBXPhi");
 		}
 	   
 		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
@@ -127,4 +129,5 @@ void DTLocalTriggerTPTest::runClientDiagnostic() {
   }	
 
 }
+
 

@@ -17,11 +17,14 @@ public:
     typedef edm::AssociationMap<edm::OneToMany<Collection, reco::VertexCollection> > Association;
 
     //! Constructor by ParameterSet.
-    VertexClassifierByProxy(edm::ParameterSet const & config) : VertexClassifier(config),
-            proxy_( config.getUntrackedParameter<edm::InputTag>("vertexProducer") ) {}
+    VertexClassifierByProxy(edm::ParameterSet const & config,
+                            edm::ConsumesCollector&& collector) : VertexClassifier(config,std::move(collector)),
+            proxy_( config.getUntrackedParameter<edm::InputTag>("vertexProducer") ) {
+      collector.consumes<Association>(proxy_);
+    }
 
     //! Pre-process event information (for accessing reconstraction information).
-    virtual void newEvent(edm::Event const & event, edm::EventSetup const & config)
+    void newEvent(edm::Event const & event, edm::EventSetup const & config) override
     {
         // Get the association part of the proxy to the collection
         event.getByLabel(proxy_, proxyHandler_);
@@ -39,7 +42,7 @@ public:
     //! Classify any vertexes in categories.
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex, std::size_t index)
     {
-        const reco::VertexRefVector * vertexes = 0;
+        const reco::VertexRefVector * vertexes = nullptr;
 
         try
         {
@@ -63,7 +66,7 @@ public:
     //! Classify any vertexes in categories.
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex)
     {
-        const reco::VertexRefVector * vertexes = 0;
+        const reco::VertexRefVector * vertexes = nullptr;
 
         try
         {

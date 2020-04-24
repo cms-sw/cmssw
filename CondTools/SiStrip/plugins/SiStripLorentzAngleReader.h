@@ -23,9 +23,9 @@
 
   public:
     explicit SiStripLorentzAngleReader( const edm::ParameterSet& );
-    ~SiStripLorentzAngleReader();
+    ~SiStripLorentzAngleReader() override;
   
-    void analyze( const edm::Event&, const edm::EventSetup& );
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
   private:
     uint32_t printdebug_;

@@ -1,53 +1,3 @@
-//
-// ********************************************************************
-// * DISCLAIMER                                                       *
-// *                                                                  *
-// * The following disclaimer summarizes all the specific disclaimers *
-// * of contributors to this software. The specific disclaimers,which *
-// * govern, are listed with their locations in:                      *
-// *   http://cern.ch/geant4/license                                  *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.                                                             *
-// *                                                                  *
-// * This  code  implementation is the  intellectual property  of the *
-// * GEANT4 collaboration.                                            *
-// * By copying,  distributing  or modifying the Program (or any work *
-// * based  on  the Program)  you indicate  your  acceptance of  this *
-// * statement, and all its terms.                                    *
-// ********************************************************************
-//
-// GEANT4 tag $Name:  $
-//
-// -------------------------------------------------------------------
-//
-// GEANT4 Class file
-//
-//
-// File name:     G4UniversalFluctuation
-//
-// Author:        Vladimir Ivanchenko 
-// 
-// Creation date: 03.01.2002
-//
-// Modifications: 
-//
-// 28-12-02 add method Dispersion (V.Ivanchenko)
-// 07-02-03 change signature (V.Ivanchenko)
-// 13-02-03 Add name (V.Ivanchenko)
-// 16-10-03 Changed interface to Initialisation (V.Ivanchenko)
-// 07-11-03 Fix problem of rounding of double in G4UniversalFluctuations
-// 06-02-04 Add control on big sigma > 2*meanLoss (V.Ivanchenko)
-// 26-04-04 Comment out the case of very small step (V.Ivanchenko)
-// 07-02-05 define problim = 5.e-3 (mma)
-// 03-05-05 conditions of Gaussian fluctuation changed (bugfix)
-//          + smearing for very small loss (L.Urban)
-//  
-// Modified for standalone use in CMSSW. danek k. 2/06        
-// 25-04-13 Used vdt::log, added check a3>0 (V.Ivanchenko & D. Nikolopoulos)         
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -58,15 +8,8 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
-#include <math.h>
+#include <cmath>
 #include "vdt/log.h"
-//#include "G4UniversalFluctuation.hh"
-//#include "Randomize.hh"
-//#include "G4Poisson.hh"
-//#include "G4Step.hh"
-//#include "G4Material.hh"
-//#include "G4DynamicParticle.hh"
-//#include "G4ParticleDefinition.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -82,7 +25,6 @@ SiG4UniversalFluctuation::SiG4UniversalFluctuation()
    nmaxCont2(16.)
 {
   sumalim = -log(problim);
-  //lastMaterial = 0;
   
   // Add these definitions d.k.
   chargeSquare   = 1.;  //Assume all particles have charge 1
@@ -111,7 +53,6 @@ SiG4UniversalFluctuation::~SiG4UniversalFluctuation()
 {
 }
 
-
 double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
 						    const double mass,
 						    double& tmax,
@@ -128,13 +69,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
   //
   if (meanLoss < minLoss) return meanLoss;
 
-  //if(!particle) InitialiseMe(dp->GetDefinition());
-  //G4double tau   = dp->GetKineticEnergy()/particleMass;
-  //G4double gam   = tau + 1.0;
-  //G4double gam2  = gam*gam;
-  //G4double beta2 = tau*(tau + 2.0)/gam2;
-
-  particleMass   = mass; // dp->GetMass();
+  particleMass   = mass; 
   double gam2   = (momentum*momentum)/(particleMass*particleMass) + 1.0;
   double beta2 = 1.0 - 1.0/gam2;
   double gam = sqrt(gam2);
@@ -153,7 +88,6 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
       (1.+massrate*(2.*gam+massrate)) ;
     if (tmaxkine <= 2.*tmax)   
     {
-      //electronDensity = material->GetElectronDensity();
       siga  = (1.0/beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length
                                 * electronDensity * chargeSquare;
       siga = sqrt(siga);
@@ -173,23 +107,8 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
     }
   }
 
-  // Glandz regime : initialisation
-  //
-//   if (material != lastMaterial) {
-//     f1Fluct      = material->GetIonisation()->GetF1fluct();
-//     f2Fluct      = material->GetIonisation()->GetF2fluct();
-//     e1Fluct      = material->GetIonisation()->GetEnergy1fluct();
-//     e2Fluct      = material->GetIonisation()->GetEnergy2fluct();
-//     e1LogFluct   = material->GetIonisation()->GetLogEnergy1fluct();
-//     e2LogFluct   = material->GetIonisation()->GetLogEnergy2fluct();
-//     rateFluct    = material->GetIonisation()->GetRateionexcfluct();
-//     ipotFluct    = material->GetIonisation()->GetMeanExcitationEnergy();
-//     ipotLogFluct = material->GetIonisation()->GetLogMeanExcEnergy();
-//     lastMaterial = material;
-//   }
-
-  double a1 = 0. , a2 = 0., a3 = 0. ;
-  double p1,p2,p3;
+  double a1 = 0., a2 = 0., a3 = 0.;
+  double p3;
   double rate = rateFluct ;
 
   double w1 = tmax/ipotFluct;
@@ -222,16 +141,15 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
   //
   if (suma > sumalim)
   {
-    p1 = 0., p2 = 0 ;
     if((a1+a2) > 0.)
     {
+      double p1, p2;
       // excitation type 1
       if (a1>alim) {
         siga=sqrt(a1) ;
         p1 = max(0., CLHEP::RandGaussQ::shoot(engine, a1, siga) + 0.5);
       } else {
-        CLHEP::RandPoissonQ randPoissonQ(*engine, a1);
-        p1 = double(randPoissonQ.fire());
+	p1 = double(CLHEP::RandPoissonQ::shoot(engine,a1));
       }
     
       // excitation type 2
@@ -239,8 +157,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
         siga=sqrt(a2) ;
         p2 = max(0., CLHEP::RandGaussQ::shoot(engine, a2, siga) + 0.5);
       } else {
-        CLHEP::RandPoissonQ randPoissonQ(*engine, a2);
-        p2 = double(randPoissonQ.fire());
+	p2 = double(CLHEP::RandPoissonQ::shoot(engine,a2));
       }
     
       loss = p1*e1Fluct+p2*e2Fluct;
@@ -259,8 +176,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
         siga=sqrt(a3) ;
         p3 = max(0., CLHEP::RandGaussQ::shoot(engine, a3, siga) + 0.5);
       } else {
-        CLHEP::RandPoissonQ randPoissonQ(*engine, a3);
-        p3 = double(randPoissonQ.fire());
+	p3 = double(CLHEP::RandPoissonQ::shoot(engine,a3));
       }
       double lossc = 0.;
       if (p3 > 0) {
@@ -293,17 +209,13 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
   }
   
   // suma < sumalim;  very small energy loss;  
-  //
-  //double e0 = material->GetIonisation()->GetEnergy0fluct();
-
   a3 = meanLoss*(tmax-e0)/(tmax*e0*vdt::fast_log(tmax/e0));
   if (a3 > alim)
   {
     siga=sqrt(a3);
     p3 = max(0., CLHEP::RandGaussQ::shoot(engine, a3, siga) + 0.5);
   } else {
-    CLHEP::RandPoissonQ randPoissonQ(*engine, a3);
-    p3 = double(randPoissonQ.fire());
+    p3 = double(CLHEP::RandPoissonQ::shoot(engine,a3));
   }
   if (p3 > 0.) {
     double w = (tmax-e0)/tmax;
@@ -323,24 +235,3 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
    return loss;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-// G4double SiG4UniversalFluctuation::Dispersion(
-//                           const G4Material* material,
-//                           const G4DynamicParticle* dp,
-//  				G4double& tmax,
-// 			        G4double& length)
-// {
-//   if(!particle) InitialiseMe(dp->GetDefinition());
-
-//   electronDensity = material->GetElectronDensity();
-
-//   G4double gam   = (dp->GetKineticEnergy())/particleMass + 1.0;
-//   G4double beta2 = 1.0 - 1.0/(gam*gam);
-
-//   G4double siga  = (1.0/beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length
-//                  * electronDensity * chargeSquare;
-
-//   return siga;
-// }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -31,6 +31,7 @@
 namespace edm {
 
   class ProcessContext;
+  class ThinnedAssociationsHelper;
 
   class OutputModuleCommunicator
   {
@@ -43,8 +44,6 @@ namespace edm {
     
     ///\return true if output module wishes to close its file
     virtual bool shouldWeCloseFile() const = 0;
-    
-    virtual void openNewFileIfNeeded() = 0;
     
     ///\return true if no event filtering is applied to OutputModule
     virtual bool wantAllEvents() const = 0;
@@ -62,7 +61,7 @@ namespace edm {
     
     virtual SelectedProductsForBranchType const& keptProducts() const = 0;
     
-    virtual void selectProducts(ProductRegistry const& preg) = 0;
+    virtual void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&) = 0;
     
     virtual void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                        bool anyProductProduced) = 0;

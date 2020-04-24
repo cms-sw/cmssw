@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -48,7 +48,7 @@ template < class Top, class Bottom>
 
     explicit TopProjectorFwdPtrOverlap( ){bottom_ = 0;}
 
-    explicit TopProjectorFwdPtrOverlap(edm::ParameterSet const & iConfig ){ bottom_ = 0;}
+    explicit TopProjectorFwdPtrOverlap(edm::ParameterSet const & iConfig ){ bottom_ = nullptr;}
 
     inline void setBottom(BottomFwdPtr const & bottom ) { bottom_ = &bottom; }
 
@@ -110,7 +110,7 @@ template < class Top, class Bottom>
     explicit TopProjectorDeltaROverlap() {bottom_ = 0;}
     explicit TopProjectorDeltaROverlap(edm::ParameterSet const & config ) :
     deltaR2_( config.getParameter<double>("deltaR") ),
-      bottom_(0),bottomCPtr_(0),botEta_(-999.f),botPhi_(0.f)
+      bottom_(nullptr),bottomCPtr_(nullptr),botEta_(-999.f),botPhi_(0.f)
       {deltaR2_*=deltaR2_;}
 
 
@@ -134,7 +134,7 @@ template < class Top, class Bottom>
 };
 
 template< class Top, class Bottom, class Matcher = TopProjectorFwdPtrOverlap<Top,Bottom> >
-class TopProjector : public edm::EDProducer {
+class TopProjector : public edm::stream::EDProducer<> {
 
  public:
 
@@ -154,10 +154,10 @@ class TopProjector : public edm::EDProducer {
 
   TopProjector(const edm::ParameterSet&);
 
-  ~TopProjector() {};
+  ~TopProjector() override {};
 
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 
  private:
@@ -199,8 +199,8 @@ TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConf
 
 
 template< class Top, class Bottom, class Matcher >
-void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
-					  const edm::EventSetup& iSetup) {
+void TopProjector< Top, Bottom, Matcher >::produce( edm::Event& iEvent,
+                                                    const edm::EventSetup& iSetup) {
   // get the various collections
 
   // Access the masking collection
@@ -269,7 +269,7 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 
   // output collection of FwdPtrs to objects,
   // selected from the Bottom collection
-  std::auto_ptr< BottomFwdPtrCollection >
+  std::unique_ptr< BottomFwdPtrCollection >
     pBottomFwdPtrOutput( new BottomFwdPtrCollection );
 
   LogDebug("TopProjection")<<" Remaining candidates in the bottom collection ------ ";
@@ -297,7 +297,7 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
     }
   }
 
-  iEvent.put( pBottomFwdPtrOutput );
+  iEvent.put(std::move(pBottomFwdPtrOutput));
 }
 
 

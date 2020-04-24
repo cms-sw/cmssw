@@ -17,7 +17,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -36,12 +36,12 @@
 // class declaration
 //
 
-class HLTLevel1Activity : public edm::EDFilter {
+class HLTLevel1Activity : public edm::stream::EDFilter<> {
 public:
   explicit HLTLevel1Activity(const edm::ParameterSet&);
-  ~HLTLevel1Activity();
+  ~HLTLevel1Activity() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event &, edm::EventSetup const &) final;
 
 private:
   edm::InputTag                                  m_gtReadoutRecordTag;
@@ -59,8 +59,6 @@ private:
   edm::ESWatcher<L1GtTriggerMaskTechTrigRcd> m_watchTechnicalMask;
 };
 
-#include <boost/foreach.hpp>
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -70,9 +68,9 @@ private:
 // constructors and destructor
 //
 HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
-  m_gtReadoutRecordTag( config.getParameter<edm::InputTag>     ("L1GtReadoutRecordTag") ),
+  m_gtReadoutRecordTag( config.getParameter<edm::InputTag>  ("L1GtReadoutRecordTag") ),
   m_gtReadoutRecordToken(consumes<L1GlobalTriggerReadoutRecord>(m_gtReadoutRecordTag)),
-  m_bunchCrossings(  config.getParameter<std::vector<int> > ("bunchCrossings") ),
+  m_bunchCrossings(  config.getParameter<std::vector<int>>  ("bunchCrossings") ),
   m_selectPhysics(   PHYSICS_BITS_SIZE ),
   m_selectTechnical( TECHNICAL_BITS_SIZE ),
   m_maskedPhysics(   PHYSICS_BITS_SIZE ),
@@ -98,29 +96,20 @@ HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
   }
 }
 
-HLTLevel1Activity::~HLTLevel1Activity()
-{
-}
+HLTLevel1Activity::~HLTLevel1Activity() = default;
 
 void
 HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("hltGtDigis"));
-  {
-    std::vector<int> temp1;
-    temp1.reserve(3);
-    temp1.push_back(0);
-    temp1.push_back(-1);
-    temp1.push_back(1);
-    desc.add<std::vector<int> >("bunchCrossings",temp1);
-  }
-  desc.add<unsigned int>("daqPartitions",1);
-  desc.add<bool>("ignoreL1Mask",false);
-  desc.add<bool>("invert",false);
-  desc.add<unsigned long long int>("physicsLoBits",1);
-  desc.add<unsigned long long int>("physicsHiBits",262144);
-  desc.add<unsigned long long int>("technicalBits",1);
-  descriptions.add("hltLevel1Activity",desc);
+  desc.add<edm::InputTag>("L1GtReadoutRecordTag", edm::InputTag("hltGtDigis"));
+  desc.add<std::vector<int>>("bunchCrossings", {0, -1, 1});
+  desc.add<unsigned int>("daqPartitions", 1);
+  desc.add<bool>("ignoreL1Mask", false);
+  desc.add<bool>("invert", false);
+  desc.add<unsigned long long int>("physicsLoBits", 0x0000000000000001LL);  // bit 0
+  desc.add<unsigned long long int>("physicsHiBits", 0x0000000000040000LL);  // bit 64 + 18 = 82
+  desc.add<unsigned long long int>("technicalBits", 0x0000000000000001LL);  // bit 0
+  descriptions.add("hltLevel1Activity", desc);
 }
 
 //
@@ -129,8 +118,9 @@ HLTLevel1Activity::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
 // ------------ method called to produce the data  ------------
 bool
-HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
+HLTLevel1Activity::filter(edm::Event & event, edm::EventSetup const & setup)
 {
+  /*
   // apply L1 mask to the physics bits
   //  - mask & partition == part. --> fully masked
   //  - mask & partition == 0x00  --> fully unmasked
@@ -160,7 +150,7 @@ HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
   event.getByToken(m_gtReadoutRecordToken, h_gtReadoutRecord);
 
   // compare the results with the requested bits, and return true as soon as the first match is found
-  BOOST_FOREACH(int bx, m_bunchCrossings) {
+  for (int bx : m_bunchCrossings) {
     const std::vector<bool> & physics = h_gtReadoutRecord->decisionWord(bx);
     if (physics.size() != PHYSICS_BITS_SIZE)
       // error in L1 results
@@ -178,6 +168,8 @@ HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
   }
  
   return m_invert; 
+  */
+  return false;
 }
 
 // define as a framework plugin

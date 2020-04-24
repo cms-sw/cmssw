@@ -48,8 +48,6 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
 
-static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.6 2009/07/01 08:16:25 argiro Exp $";
-
 /**
  *
  * Test analyzer that reads ecal records from event setup and writes XML files

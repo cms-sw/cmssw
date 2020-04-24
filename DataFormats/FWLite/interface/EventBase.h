@@ -17,7 +17,6 @@
 // Original Author:  Charles Plager
 //         Created:  Tue May  8 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <string>
 #include <typeinfo>
@@ -27,6 +26,12 @@
 
 #include "Rtypes.h"
 
+namespace edm {
+   class BasicHandle;
+   class ProductID;
+   class WrapperBase;
+}
+
 namespace fwlite
 {
    class EventBase : public edm::EventBase
@@ -34,7 +39,7 @@ namespace fwlite
       public:
          EventBase();
 
-         virtual ~EventBase();
+         ~EventBase() override;
 
          virtual bool getByLabel(
                                   std::type_info const&,
@@ -42,12 +47,8 @@ namespace fwlite
                                   char const*,
                                   char const*,
                                   void*) const = 0;
-         virtual bool getByLabel(
-                                  std::type_info const&,
-                                  char const*,
-                                  char const*,
-                                  char const*,
-                                  edm::WrapperHolder&) const = 0;
+
+         virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const = 0;
 
          using edm::EventBase::getByLabel;
 
@@ -67,9 +68,9 @@ namespace fwlite
 
       private:
 
-         virtual edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const;
+         edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const override;
+         edm::BasicHandle getImpl(std::type_info const&, edm::ProductID const&) const override;
    };
 } // fwlite namespace
 
-#endif /*__CINT__ */
 #endif

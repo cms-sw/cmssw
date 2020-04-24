@@ -1,9 +1,12 @@
 #ifndef DDL_PosPart_H
 #define DDL_PosPart_H
 
+#include <string>
+
 #include "DDXMLElement.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLPosPart handles PosPart elements.
 /** @class DDLPosPart
@@ -21,19 +24,14 @@
  *
  */
 
-class DDLPosPart : public DDXMLElement
+class DDLPosPart final : public DDXMLElement
 {
-public:
+ public:
 
-  /// Constructor
   DDLPosPart( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLPosPart( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
 
 #endif

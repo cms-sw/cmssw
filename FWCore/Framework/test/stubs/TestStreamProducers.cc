@@ -27,7 +27,8 @@ for testing purposes only.
 namespace edmtest {
 namespace stream {
 
-namespace {
+// anonymous namespace here causes build warnings
+namespace cache {
 struct Cache { 
    Cache():value(0),run(0),lumi(0) {}
    //Using mutable since we want to update the value.
@@ -43,8 +44,10 @@ struct UnsafeCache {
    unsigned int lumi;
 };
 
-} //end anonymous namespace
+} //end cache namespace
 
+  using Cache = cache::Cache;
+  using UnsafeCache = cache::UnsafeCache;
 
   class GlobalIntProducer : public edm::stream::EDProducer<edm::GlobalCache<Cache>> {
   public:
@@ -54,7 +57,7 @@ struct UnsafeCache {
 
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const&) {
       ++m_count;
-      return std::unique_ptr<Cache>{new Cache};
+      return std::make_unique<Cache>();
     }
 
     GlobalIntProducer(edm::ParameterSet const& p, const Cache* iGlobal)  {
@@ -113,7 +116,7 @@ struct UnsafeCache {
       ++m_count;
       gbr = true;
       ger = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
     }
@@ -188,7 +191,7 @@ struct UnsafeCache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
     }
@@ -271,7 +274,7 @@ struct UnsafeCache {
       ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
  
@@ -287,7 +290,7 @@ struct UnsafeCache {
         throw cms::Exception("begin out of sequence")
           << "globalBeginRunSummary seen before globalBeginRun";
       }
-      return std::shared_ptr<UnsafeCache>{ new UnsafeCache };
+      return std::make_shared<UnsafeCache>();
     }
     
     void endRunSummary(edm::Run const&, edm::EventSetup const&, UnsafeCache* gCache) const override {
@@ -375,7 +378,7 @@ struct UnsafeCache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
     }
@@ -391,7 +394,7 @@ struct UnsafeCache {
        throw cms::Exception("begin out of sequence")
          << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
       }
-      return std::shared_ptr<UnsafeCache>{ new UnsafeCache };
+      return std::make_shared<UnsafeCache>();
     }
     
 

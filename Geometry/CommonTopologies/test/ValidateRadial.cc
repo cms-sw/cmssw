@@ -1,12 +1,39 @@
-#include "Geometry/CommonTopologies/test/ValidateRadial.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
+#include "Geometry/CommonTopologies/interface/TkRadialStripTopology.h"
 #include "boost/lexical_cast.hpp"
+#include "TFile.h"
 #include "TProfile.h"
+
+class ValidateRadial : public edm::one::EDAnalyzer<>
+{
+public:
+  ValidateRadial(const edm::ParameterSet&);
+  ~ValidateRadial() override;
+
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
+
+private:
+  std::vector<const TkRadialStripTopology*> get_list_of_radial_topologies(const edm::Event&, const edm::EventSetup&);
+  void test_topology(const TkRadialStripTopology* , unsigned);
+  bool pass_frame_change_test(const TkRadialStripTopology* t, float strip, float stripErr2, bool);
+  bool EQUAL(const double a, const double b) {return fabs(a-b)<epsilon_;}
+  const double epsilon_;
+  TFile* file_;
+  const bool printOut_;
+  const bool posOnly_;
+
+  mutable float maxerrU=0.; 
+  mutable float maxerrUV=0.; 
+};
 
 ValidateRadial::ValidateRadial(const edm::ParameterSet& cfg) 
   : epsilon_(cfg.getParameter<double>("Epsilon")),
@@ -40,17 +67,17 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
 				     470079661,//TEC r5
 				     470049476,//TEC r6
 				     470045428}; //TEC r7
-  for(unsigned i=0; i<10; i++) {
-    auto g = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet( radial_detids[i] ));
-    if (!g) std::cout << "no geom for " << radial_detids[i] << std::endl;
+  for(unsigned int radial_detid : radial_detids) {
+    auto g = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet( radial_detid ));
+    if (!g) std::cout << "no geom for " << radial_detid << std::endl;
     auto const topol = &g->specificTopology();
-    const TkRadialStripTopology* rt =0;	
+    const TkRadialStripTopology* rt =nullptr;	
     auto const proxyT = dynamic_cast<const ProxyStripTopology*>(topol);
     if (proxyT) rt = dynamic_cast<const TkRadialStripTopology*>(&(proxyT->specificTopology()));
     else rt = dynamic_cast<const TkRadialStripTopology*>(topol);
-    if (!rt) std::cout << "no radial topology for " << radial_detids[i] << std::endl;
+    if (!rt) std::cout << "no radial topology for " << radial_detid << std::endl;
     else
-    topos.push_back(rt);
+    topos.emplace_back(rt);
   }
   return topos;
 }
@@ -100,10 +127,10 @@ test_topology(const TkRadialStripTopology* t, unsigned i) {
   std::cout << "\nCSC\n" << oldt << std::endl;
 
 
-  TProfile prof(("se2limit1"+boost::lexical_cast<std::string>(i)).c_str(),
+  TProfile prof(("se2limit1"+std::to_string(i)).c_str(),
 		"Precision Limit of recoverable strip error (1st order);strip;strip error",
 		t->nstrips()/8,0,t->nstrips());
-  TProfile prof2(("se2limit2"+boost::lexical_cast<std::string>(i)).c_str(),
+  TProfile prof2(("se2limit2"+std::to_string(i)).c_str(),
 		 "Precision Limit of recoverable strip error (2nd order);strip;strip error",
 		 t->nstrips()/8,0,t->nstrips());
   for(float strip = 0; strip<t->nstrips(); strip+=0.5) {
@@ -166,3 +193,5 @@ pass_frame_change_test(const TkRadialStripTopology* t, const float strip, const 
      << ( me.uv() ) << std::endl;
   return passp&passe;
 }
+
+DEFINE_FWK_MODULE(ValidateRadial);

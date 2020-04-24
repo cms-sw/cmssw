@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiStripApvGainAfterAbortGap_PCL_multirun_v0_prompt": {}
+    }, 
+    "inputTag": "SiStripApvGain_pcl", 
+    "since": null, 
+    "userText": "PCL MultiRun Upload for SiStrip Gains calib. AAG (prep)"
+}

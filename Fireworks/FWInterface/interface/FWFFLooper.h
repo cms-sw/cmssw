@@ -45,7 +45,7 @@ class FWFFLooper : public CmsShowMainBase, public edm::EDLooperBase
 {
 public:
    FWFFLooper(const edm::ParameterSet&);
-   virtual ~FWFFLooper();
+   ~FWFFLooper() override;
 
    // ---------- const member functions ---------------------
 
@@ -53,28 +53,28 @@ public:
 
    // ---------- member functions ---------------------------
 
-   virtual void attachTo(edm::ActivityRegistry &);
+   void attachTo(edm::ActivityRegistry &) override;
    void postBeginJob();
    void postEndJob();
 
-   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+   void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
    void display(const std::string& info="");
 
    TEveMagField* getMagField();
    void          setupFieldForPropagator(TEveTrackPropagator* prop);
 
-   virtual void checkPosition();
-   virtual void stopPlaying();
-   virtual void autoLoadNewEvent();
+   void checkPosition() override;
+   void stopPlaying() override ;
+   void autoLoadNewEvent() override;
 
    void showPathsGUI(const TGWindow *p);
 
-   void quit();
+   void quit() override;
 
-   virtual void startingNewLoop(unsigned int) override;
-   virtual edm::EDLooperBase::Status endOfLoop(const edm::EventSetup&, unsigned int) override;
-   virtual edm::EDLooperBase::Status duringLoop(const edm::Event&, const edm::EventSetup&, edm::ProcessingController&) override; 
+   void startingNewLoop(unsigned int) override;
+   edm::EDLooperBase::Status endOfLoop(const edm::EventSetup&, unsigned int) override;
+   edm::EDLooperBase::Status duringLoop(const edm::Event&, const edm::EventSetup&, edm::ProcessingController&) override; 
    void requestChanges(const std::string &, const edm::ParameterSet &);
 
    void remakeGeometry(const DisplayGeomRecord& dgRec);

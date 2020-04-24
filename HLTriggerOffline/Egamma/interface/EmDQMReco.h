@@ -13,6 +13,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include <vector>
@@ -23,6 +24,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/scoped_ptr.hpp>
 
 class EmDQMReco;
 
@@ -39,7 +41,7 @@ class HistoFillerReco {
   EmDQMReco* dqm;
 };
 
-class EmDQMReco : public edm::EDAnalyzer{
+class EmDQMReco : public DQMEDAnalyzer{
 
   //----------------------------------------
 
@@ -57,6 +59,7 @@ class EmDQMReco : public edm::EDAnalyzer{
      *   for the histogram TITLE where the first %s is replaced with et,eta or phi.
      */
     FourVectorMonitorElements(EmDQMReco *_parent,
+        DQMStore::IBooker &iBooker,
         const std::string &histogramNameTemplate,
         const std::string &histogramTitleTemplate);
 
@@ -84,14 +87,15 @@ public:
   explicit EmDQMReco(const edm::ParameterSet& pset);
 
   /// Destructor
-  ~EmDQMReco();
+  ~EmDQMReco() override;
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup&);
+  void analyze(const edm::Event & event, const edm::EventSetup&) override;
   void beginJob();
   void endJob();
-  void beginRun( const edm::Run&, const edm::EventSetup& );
+  void dqmBeginRun( const edm::Run&, const edm::EventSetup& ) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   // Input from cfg file
@@ -222,7 +226,6 @@ private:
   // int prescale;
 
   // interface to DQM framework
-  DQMStore * dbe;
   std::string dirname_;
 
   HistoFillerReco<reco::ElectronCollection>* histoFillerEle;

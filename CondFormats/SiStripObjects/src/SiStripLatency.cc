@@ -16,7 +16,7 @@ bool SiStripLatency::put( const uint32_t detId, const uint16_t apv, const uint16
     error << "of the writing of this class was 47017836 as defined in CalibTracker/SiStripCommon/data/SiStripDetInfo.dat." << std::endl;
     error << "If the maximum value has changed a revision of this calss is needed, possibly changing the detIdAndApv value from" << std::endl;
     error << "from uint32_t to uint64_t." << std::endl;
-    edm::LogError("SiStripLatency::put") << error;
+    edm::LogError("SiStripLatency::put") << error.str();
     throw cms::Exception("InsertFailure");
   }
 
@@ -170,7 +170,7 @@ std::vector<SiStripLatency::Latency> SiStripLatency::allUniqueLatencyAndModes()
   return latencyCopy;
 }
 
-void SiStripLatency::printSummary(std::stringstream & ss) const
+void SiStripLatency::printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const
 {
   ss << std::endl;
   if(singleReadOutMode()==1){
@@ -195,11 +195,11 @@ void SiStripLatency::printSummary(std::stringstream & ss) const
     }
   }
   ss << "Total number of ranges = " << latencies_.size() << std::endl;
-  printDebug(ss);
+  printDebug(ss, trackerTopo);
 }
 
 
-void SiStripLatency::printDebug(std::stringstream & ss) const
+void SiStripLatency::printDebug(std::stringstream & ss, const TrackerTopology* /*trackerTopo*/) const
 {
   ss << "List of all the latencies and modes for the " << latencies_.size() << " ranges in the object:" << std::endl;
   for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {

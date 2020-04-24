@@ -21,7 +21,7 @@ public:
   AdaptiveVertexReconstructor( float primcut = 2.0, float seccut = 6.0,
                                float minweight = 0.5, bool smoothing = false );
 
-  ~AdaptiveVertexReconstructor();
+  ~AdaptiveVertexReconstructor() override;
 
   /**
    *  The ParameterSet should have the following defined:
@@ -32,17 +32,17 @@ public:
    */
   AdaptiveVertexReconstructor( const edm::ParameterSet & s );
 
-  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> & v ) const;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> & v ) const override;
   
   std::vector<TransientVertex> 
-    vertices(const std::vector<reco::TransientTrack> &, const reco::BeamSpot & ) const; 
+    vertices(const std::vector<reco::TransientTrack> &, const reco::BeamSpot & ) const override; 
   
   std::vector<TransientVertex> 
     vertices(const std::vector<reco::TransientTrack> & primaries,
              const std::vector<reco::TransientTrack> & tracks, 
-             const reco::BeamSpot & ) const; 
+             const reco::BeamSpot & ) const override; 
 
-  virtual AdaptiveVertexReconstructor * clone() const {
+  AdaptiveVertexReconstructor * clone() const override {
     return new AdaptiveVertexReconstructor( * this );
   }
 

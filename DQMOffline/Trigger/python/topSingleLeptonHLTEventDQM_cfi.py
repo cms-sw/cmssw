@@ -11,12 +11,12 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit 
     ## communication to TopCom!
-    directory = cms.string("HLTriggerOffline/Top/SemiLeptonic/"),
+    directory = cms.string("HLT/TOP/SemiLeptonic/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
@@ -54,7 +54,7 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets                                            
-      jetCorrector = cms.string("ak5PFL2L3"),
+      #jetCorrector = cms.string("ak4PFCHSL2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
@@ -86,8 +86,15 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
   preselection = cms.PSet(
    trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25','HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30','HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25','HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30'])
-    ),
+### Updating to HLT paths to be monitored by TOP PAG in 2017  
+       select = cms.vstring(['HLT_IsoMu27_v',
+                             'HLT_Mu50_v'
+                             'HLT_Ele35_WPTight_Gsf_v',
+                             'HLT_Ele38_WPTight_Gsf_v',
+                             'HLT_Ele40_WPTight_Gsf_v',
+                             
+       ]),
+  ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
@@ -113,7 +120,7 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ),
     cms.PSet(
       label  = cms.string("jets/pf:step1"),
-      src  = cms.InputTag("PFJetsFilter"),
+      src  = cms.InputTag("ak4PFJetsCHS"),
       select = cms.string("pt>20 & abs(eta)<2.5"),
       min = cms.int32(4),
     ),
@@ -131,12 +138,12 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("HLTriggerOffline/Top/SemiMuonic/"),
+    directory = cms.string("HLT/TOP/SemiMuonic/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -163,7 +170,7 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      #jetCorrector = cms.string("ak4PFCHSL2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
@@ -174,13 +181,13 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
            label = cms.InputTag("pfJetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
-         trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
-           workingPoint = cms.double(3.41)
-         ),
+#         trackCountingPur = cms.PSet(
+#           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+#           workingPoint = cms.double(3.41)
+#         ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
-           workingPoint = cms.double(0.679)
+           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+           workingPoint = cms.double(0.890)
          )
        ),
     ),
@@ -194,7 +201,9 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25','HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30'])
+### Updating to HLT paths to be monitored by TOP PAG in 2017
+        paths = cms.vstring(['HLT_IsoMu27_v',
+                             'HLT_Mu50_v'])
     )
   ),
   ## ------------------------------------------------------
@@ -207,8 +216,10 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
   preselection = cms.PSet(
    trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25','HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30'])
-    ),
+### Updating to HLT paths to be monitored by TOP PAG in 2017
+    select = cms.vstring(['HLT_IsoMu27_v',
+                          'HLT_Mu50_v'])
+  ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
@@ -240,30 +251,30 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ),
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step2"),
-#      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      src  = cms.InputTag("ak4PFJetsCHS"),
+#      jetCorrector = cms.string("ak4PFCHSL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(1),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step3"),
-#      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      src  = cms.InputTag("ak4PFJetsCHS"),
+#      jetCorrector = cms.string("ak4PFCHSL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(2),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step4"),
-#      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      src  = cms.InputTag("ak4PFJetsCHS"),
+#      jetCorrector = cms.string("ak4PFCHSL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(3),                                                
 #    ), 
     cms.PSet(
 #      label  = cms.string("jets/pf:step5"),
       label  = cms.string("jets/pf:step2"),
-      src  = cms.InputTag("PFJetsFilter"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src  = cms.InputTag("ak4PFJetsCHS"),
+      #jetCorrector = cms.string("ak4PFCHSL2L3"),
       select = cms.string("pt>20 & abs(eta)<2.5"),
       min = cms.int32(4),                                                
     ),
@@ -281,12 +292,12 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("HLTriggerOffline/Top/SemiElectronic/"),
+    directory = cms.string("HLT/TOP/SemiElectronic/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -315,7 +326,7 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      #jetCorrector = cms.string("ak4PFCHSL2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets 
@@ -326,13 +337,13 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
            label = cms.InputTag("pfJetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
-         trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
-           workingPoint = cms.double(3.41)
-         ),
+#         trackCountingPur = cms.PSet(
+#           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+#           workingPoint = cms.double(3.41)
+#         ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
-           workingPoint = cms.double(0.679)
+           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+           workingPoint = cms.double(0.890)
          )
        ),
     ),
@@ -346,7 +357,10 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25','HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30'])
+### Updating to HLT paths to be monitored by TOP PAG in 2017
+    paths = cms.vstring(['HLT_Ele35_WPTight_Gsf_v',
+                         'HLT_Ele38_WPTight_Gsf_v',
+                         'HLT_Ele40_WPTight_Gsf_v',])       
     )
   ),
   ## ------------------------------------------------------
@@ -359,8 +373,11 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
   preselection = cms.PSet(
    trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25','HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30'])
-    ),
+### Updating to HLT paths to be monitored by TOP PAG in 2017                                                                                                                 
+     select = cms.vstring(['HLT_Ele35_WPTight_Gsf_v',
+                           'HLT_Ele38_WPTight_Gsf_v',
+                           'HLT_Ele40_WPTight_Gsf_v',])            
+  ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
@@ -393,30 +410,30 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ),
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step2"),
-#      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      src  = cms.InputTag("ak4PFJetsCHS"),
+#      jetCorrector = cms.string("ak4PFCHSL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(1),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step3"),
-#      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      src  = cms.InputTag("ak4PFJetsCHS"),
+#      jetCorrector = cms.string("ak4PFCHSL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(2),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step4"),
-#      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      src  = cms.InputTag("ak4PFJetsCHS"),
+#      jetCorrector = cms.string("ak4PFCHSL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(3),                                                
 #    ), 
     cms.PSet(
 #      label  = cms.string("jets/pf:step5"),
       label  = cms.string("jets/pf:step2"),
-      src  = cms.InputTag("PFJetsFilter"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src  = cms.InputTag("ak4PFJetsCHS"),
+      #jetCorrector = cms.string("ak4PFCHSL2L3"),
       select = cms.string("pt>20 & abs(eta)<2.5"),
       min = cms.int32(4),                                                
     ),

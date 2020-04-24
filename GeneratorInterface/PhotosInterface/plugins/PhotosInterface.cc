@@ -51,6 +51,9 @@ PhotosInterface::PhotosInterface( const edm::ParameterSet& )
    fIsInitialized = false;
 }
 
+PhotosInterface::~PhotosInterface()
+{}
+
 void PhotosInterface::setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){
   fRandomEngine=decayRandomEngine;
 }

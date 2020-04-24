@@ -19,7 +19,7 @@ class ApvTimingAlgorithm : public CommissioningAlgorithm {
 
   ApvTimingAlgorithm( const edm::ParameterSet & pset, ApvTimingAnalysis* const );
   
-  virtual ~ApvTimingAlgorithm() {;}
+  ~ApvTimingAlgorithm() override {;}
 
   /** Container of histogram pointer and title. */
   inline const Histo& histo() const;
@@ -30,10 +30,10 @@ class ApvTimingAlgorithm : public CommissioningAlgorithm {
   ApvTimingAlgorithm() {;}
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
   /** Performs histogram anaysis. */
-  void analyse();
+  void analyse() override;
   
  private:
   

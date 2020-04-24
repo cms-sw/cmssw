@@ -1,5 +1,5 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/CondDB/interface/Exception.h"
 
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>

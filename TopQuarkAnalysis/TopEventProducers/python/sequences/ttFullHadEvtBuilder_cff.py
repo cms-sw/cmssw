@@ -12,10 +12,11 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttFullHadEvtHypotheses_cff imp
 from TopQuarkAnalysis.TopEventProducers.producers.TtFullHadEvtBuilder_cfi import *
 
 ### make ttFullHadEvent
-#makeTtFullHadEvent = cms.Sequence(makeTtFullHadHypotheses *
-                                  #ttFullHadEvent
-                                  #)
-
+makeTtFullHadEventTask = cms.Task(
+    makeTtFullHadHypothesesTask,
+    ttFullHadEvent
+)
+#makeTtFullHadEvent = cms.Sequence(makeTtFullHadEventTask)
 
 ################################################################################
 ## helper functions

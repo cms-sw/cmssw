@@ -12,7 +12,7 @@ EcalDeadCellTriggerPrimitiveFilter = cms.EDFilter(
     verbose = cms.int32( 1 ),
     
     tpDigiCollection = cms.InputTag("ecalTPSkimNA"),
-    etValToBeFlagged = cms.double(63.75),
+    etValToBeFlagged = cms.double(127.49),
     
     ebReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     eeReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
@@ -20,8 +20,12 @@ EcalDeadCellTriggerPrimitiveFilter = cms.EDFilter(
     maskedEcalChannelStatusThreshold = cms.int32( 1 ),
     
     doEEfilter = cms.untracked.bool( True ), # turn it on by default
-    
-    makeProfileRoot = cms.untracked.bool( False ),
-    profileRootName = cms.untracked.string("deadCellFilterProfile.root" ),
 
+    useTTsum = cms.bool ( True ),
+    usekTPSaturated = cms.bool ( False)
+)
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( EcalDeadCellTriggerPrimitiveFilter, 
+    doEEfilter = cms.untracked.bool(False)
 )

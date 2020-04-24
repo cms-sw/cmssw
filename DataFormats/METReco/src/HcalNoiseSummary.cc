@@ -26,8 +26,11 @@ HcalNoiseSummary::HcalNoiseSummary()
     nspikenoise_(0), spikenoisee_(0), spikenoiseet_(0),
     ntrianglenoise_(0), trianglenoisee_(0), trianglenoiseet_(0),
     nts4ts5noise_(0), ts4ts5noisee_(0), ts4ts5noiseet_(0),
+    nnegativenoise_(0), negativenoisee_(0), negativenoiseet_(0),
     rechitCount_(0), rechitCount15_(0), rechitEnergy_(0), rechitEnergy15_(0), calibCharge_(0),
     hasBadRBXTS4TS5_(false),
+    hasBadRBXRechitR45Loose_(false),
+    hasBadRBXRechitR45Tight_(false),
     calibCountTS45_(0),
     calibCountgt15TS45_(0),
     calibChargeTS45_(0.),
@@ -281,6 +284,21 @@ float HcalNoiseSummary::TS4TS5NoiseSumEt(void) const
   return ts4ts5noiseet_;
 }
 
+int HcalNoiseSummary::numNegativeNoiseChannels(void) const
+{
+  return nnegativenoise_;
+}
+
+float HcalNoiseSummary::NegativeNoiseSumE(void) const
+{
+  return negativenoisee_;
+}
+
+float HcalNoiseSummary::NegativeNoiseSumEt(void) const
+{
+  return negativenoiseet_;
+}
+
 int HcalNoiseSummary::GetRecHitCount(void) const
 {
    return rechitCount_;
@@ -309,6 +327,21 @@ double HcalNoiseSummary::GetTotalCalibCharge(void) const
 bool HcalNoiseSummary::HasBadRBXTS4TS5(void) const
 {
    return hasBadRBXTS4TS5_;
+}
+
+bool HcalNoiseSummary::HasBadRBXRechitR45Loose(void) const
+{
+   return hasBadRBXRechitR45Loose_;
+}
+
+bool HcalNoiseSummary::HasBadRBXRechitR45Tight(void) const
+{
+   return hasBadRBXRechitR45Tight_;
+}
+
+bool HcalNoiseSummary::goodJetFoundInLowBVRegion(void) const
+{
+   return goodJetFoundInLowBVRegion_;
 }
 
 int HcalNoiseSummary::GetCalibCountTS45(void) const

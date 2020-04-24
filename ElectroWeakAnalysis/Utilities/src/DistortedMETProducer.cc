@@ -4,27 +4,28 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/METReco/interface/MET.h"
+
 //
 // class declaration
 //
 class DistortedMETProducer : public edm::EDProducer {
    public:
       explicit DistortedMETProducer(const edm::ParameterSet&);
-      ~DistortedMETProducer();
+      ~DistortedMETProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
-      edm::InputTag metTag_;
+      edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
       double metScaleShift_; // relative shift (0. => no shift)
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -34,11 +35,11 @@ DistortedMETProducer::DistortedMETProducer(const edm::ParameterSet& pset) {
       produces<std::vector<reco::MET> >();
 
   // Input products
-      metTag_ = pset.getUntrackedParameter<edm::InputTag> ("MetTag", edm::InputTag("met"));
+      metToken_ = consumes<edm::View<reco::MET> >(pset.getUntrackedParameter<edm::InputTag> ("MetTag", edm::InputTag("met")));
   // Distortions in MET in Gev**{-1/2}
       metScaleShift_ = pset.getUntrackedParameter<double> ("MetScaleShift",1.e-3);
 
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 DistortedMETProducer::~DistortedMETProducer(){
@@ -58,13 +59,13 @@ void DistortedMETProducer::produce(edm::Event& ev, const edm::EventSetup&) {
 
       // MET collection
       edm::Handle<edm::View<reco::MET> > metCollection;
-      if (!ev.getByLabel(metTag_, metCollection)) {
+      if (!ev.getByToken(metToken_, metCollection)) {
             edm::LogError("") << ">>> MET collection does not exist !!!";
             return;
       }
       edm::RefToBase<reco::MET> met = metCollection->refAt(0);
 
-      std::auto_ptr<reco::METCollection> newmetCollection (new reco::METCollection);
+      std::unique_ptr<reco::METCollection> newmetCollection (new reco::METCollection);
 
       double met_et = met->et() * (1. + metScaleShift_);
       double sum_et = met->sumEt() * (1. + metScaleShift_);
@@ -77,7 +78,7 @@ void DistortedMETProducer::produce(edm::Event& ev, const edm::EventSetup&) {
 
       newmetCollection->push_back(*newmet);
 
-      ev.put(newmetCollection);
+      ev.put(std::move(newmetCollection));
 }
 
 DEFINE_FWK_MODULE(DistortedMETProducer);

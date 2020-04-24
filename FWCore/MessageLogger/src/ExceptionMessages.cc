@@ -25,7 +25,7 @@ namespace edm {
   }
 
   void
-  printCmsExceptionWarning(char const* behavior, cms::Exception const& e, edm::JobReport * jobRep, int rc) try {
+  printCmsExceptionWarning(char const* behavior, cms::Exception const& e) try {
     std::string shortDesc(behavior);
     shortDesc += " Exception";
     std::ostringstream longDesc;
@@ -36,7 +36,6 @@ namespace edm {
       << "-----------------------\n"
       << longDesc.str()
       << "----- End " << shortDesc << " -------------------------------------------------";
-    if(jobRep) jobRep->reportError(shortDesc, longDesc.str(), rc);
   } catch(...) {
   }
 }

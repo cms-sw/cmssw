@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -54,7 +54,7 @@ namespace popcon
 
 		public:
                         EcalDCSHandler(edm::ParameterSet const & );
-			~EcalDCSHandler(); 
+			~EcalDCSHandler() override; 
 			void printHVDataSet( const std::map<EcalLogicID, RunDCSHVDat>* dataset,int ) const;
 			void printLVDataSet( const std::map<EcalLogicID, RunDCSLVDat>* dataset,int ) const ;
 			uint16_t  updateHV( RunDCSHVDat* hv, uint16_t dbStatus, int modo=0) const ; 
@@ -62,8 +62,8 @@ namespace popcon
 			bool  insertHVDataSetToOffline( const std::map<EcalLogicID, RunDCSHVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const;
 			bool  insertLVDataSetToOffline( const std::map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp, const std::vector<EcalLogicID>& ) const;
 
-			void getNewObjects();
-			std::string id() const { return m_name;}
+			void getNewObjects() override;
+			std::string id() const override { return m_name;}
 			EcalCondDBInterface* econn;
 
 			int * HVLogicIDToDetID(int, int) const;

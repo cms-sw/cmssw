@@ -86,7 +86,7 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
 
 void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 			       std::vector<bool>& active,
-			       std::auto_ptr<PFCandidateCollection> &pfCandidates,
+			       std::unique_ptr<PFCandidateCollection> &pfCandidates,
 			       std::vector<reco::PFCandidatePhotonExtra>& pfPhotonExtraCandidates,
 			       std::vector<reco::PFCandidate> 
 			       &tempElectronCandidates
@@ -176,7 +176,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     PFPhoR9_=sc->photonRef()->r9();
     E3x3_=PFPhoR9_*(sc->superClusterRef()->rawEnergy());
     // loop over the ECAL clusters linked to the iEle 
-    if( ! ecalAssoPFClusters.size() ) {
+    if( ecalAssoPFClusters.empty() ) {
       // This SC element has NO ECAL elements asigned... *SHOULD NOT HAPPEN*
       //std::cout<<" Found SC element with no ECAL assigned "<<std::endl;
       continue;
@@ -648,7 +648,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 		    sc
 		    );   
     
-    if(AddFromElectron_.size()>0)
+    if(!AddFromElectron_.empty())
       {	
 	//collect elements from early Conversions that are reconstructed as Electrons
 	
@@ -775,7 +775,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 					   photonEnergy_* photonDirection.Z(),
 					   photonEnergy_           );
 
-    if(sum_track_pt>(sumPtTrackIsoForPhoton_ + sumPtTrackIsoSlopeForPhoton_ * photonMomentum.pt()) && AddFromElectron_.size()==0)
+    if(sum_track_pt>(sumPtTrackIsoForPhoton_ + sumPtTrackIsoSlopeForPhoton_ * photonMomentum.pt()) && AddFromElectron_.empty())
       {
 	elemsToLock.resize(0);
 	continue;
@@ -831,16 +831,18 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	    photonCand.addElementInBlock(blockRef,*it);
 	    if( elements[*it].type() == reco::PFBlockElement::TRACK  )
 	      {
-		if(elements[*it].convRef().isNonnull())
-		  {
-		    //make sure it is not stored already as the partner track
-		    bool matched=false;
-		    for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
-		      {
-			if(ConversionsRef_[ic]==elements[*it].convRef())matched=true;
-		      }
-		    if(!matched)ConversionsRef_.push_back(elements[*it].convRef());
-		  }
+		for( const auto& convref : elements[*it].convRefs() ) {
+		  if(convref.isNonnull())
+		    {
+		      //make sure it is not stored already as the partner track
+		      bool matched=false;
+		      for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
+			{
+			  if(ConversionsRef_[ic]==convref)matched=true;
+			}
+		      if(!matched)ConversionsRef_.push_back(convref);
+		    }
+		}
 	      }
 	  }
 	active[*it] = false;	
@@ -1321,11 +1323,11 @@ bool PFPhotonAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
   const reco::PFBlock& block = *blockref;  
   const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();  
   //use this to store linkdata in the associatedElements function below  
-  PFBlock::LinkData linkData =  block.linkData();  
+  const PFBlock::LinkData& linkData =  block.linkData();  
   //calculate MVA Variables  
-  chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof();  
-  nlost=elements[track_index].trackRef()->trackerExpectedHitsInner().numberOfLostHits();  
-  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement();  
+  chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof();
+  nlost=elements[track_index].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement();
   track_pt=elements[track_index].trackRef()->pt();  
   STIP=elements[track_index].trackRefPF()->STIP();  
    
@@ -1341,13 +1343,13 @@ bool PFPhotonAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
 			    hcalAssoTrack,  
 			    reco::PFBlockElement::HCAL,  
 			    reco::PFBlock::LINKTEST_ALL );  
-  if(ecalAssoTrack.size() > 0) {  
+  if(!ecalAssoTrack.empty()) {  
     for(std::multimap<double, unsigned int>::iterator itecal = ecalAssoTrack.begin();  
 	itecal != ecalAssoTrack.end(); ++itecal) {  
       linked_e=linked_e+elements[itecal->second].clusterRef()->energy();  
     }  
   }  
-  if(hcalAssoTrack.size() > 0) {  
+  if(!hcalAssoTrack.empty()) {  
     for(std::multimap<double, unsigned int>::iterator ithcal = hcalAssoTrack.begin();  
 	ithcal != hcalAssoTrack.end(); ++ithcal) {  
       linked_h=linked_h+elements[ithcal->second].clusterRef()->energy();  
@@ -1380,7 +1382,7 @@ void PFPhotonAlgo::EarlyConversion(
   for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec ) 
     {
       //      bool matched=false;
-      int mh=ec->gsfTrackRef()->trackerExpectedHitsInner().numberOfLostHits();
+      int mh=ec->gsfTrackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
       //if(mh==0)continue;//Case where missing hits greater than zero
       
       reco::GsfTrackRef gsf=ec->gsfTrackRef();
@@ -1395,7 +1397,7 @@ void PFPhotonAlgo::EarlyConversion(
 	      
 	      if(ElecscRef.isNonnull()){
 		//finally see if it matches:
-		reco::SuperClusterRef PhotscRef=sc->superClusterRef();
+		const reco::SuperClusterRef& PhotscRef=sc->superClusterRef();
 		if(PhotscRef==ElecscRef)
 		  {
 		    match_ind.push_back(count);

@@ -25,31 +25,31 @@ CSCTFConfigProducer::CSCTFConfigProducer(const edm::ParameterSet& pset) {
 
 }
 
-std::auto_ptr<L1MuCSCTFConfiguration> CSCTFConfigProducer::produceL1MuCSCTFConfigurationRcd(const L1MuCSCTFConfigurationRcd& iRecord){
+std::unique_ptr<L1MuCSCTFConfiguration> CSCTFConfigProducer::produceL1MuCSCTFConfigurationRcd(const L1MuCSCTFConfigurationRcd& iRecord){
 
   edm::LogInfo( "L1-O2O: CSCTFConfigProducer" ) << "Producing "
 						<< " L1MuCSCTFConfiguration from PSET";
 						
-  std::auto_ptr<L1MuCSCTFConfiguration> config = std::auto_ptr<L1MuCSCTFConfiguration>( new L1MuCSCTFConfiguration(registers) );
+  std::unique_ptr<L1MuCSCTFConfiguration> config = std::unique_ptr<L1MuCSCTFConfiguration>( new L1MuCSCTFConfiguration(registers) );
   return config;
 }
 
-std::auto_ptr<L1MuCSCTFAlignment> CSCTFConfigProducer::produceL1MuCSCTFAlignmentRcd(const L1MuCSCTFAlignmentRcd& iRecord){
+std::unique_ptr<L1MuCSCTFAlignment> CSCTFConfigProducer::produceL1MuCSCTFAlignmentRcd(const L1MuCSCTFAlignmentRcd& iRecord){
   edm::LogInfo( "L1-O2O: CSCTFConfigProducer" ) << "Producing "
 						<< " L1MuCSCTFAlignment from PSET";
   
 
-  std::auto_ptr<L1MuCSCTFAlignment> al = std::auto_ptr<L1MuCSCTFAlignment>( new L1MuCSCTFAlignment(alignment) );
+  std::unique_ptr<L1MuCSCTFAlignment> al = std::unique_ptr<L1MuCSCTFAlignment>( new L1MuCSCTFAlignment(alignment) );
   return al;
 }
 
-std::auto_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const L1MuCSCPtLutRcd& iRecord){
+std::unique_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const L1MuCSCPtLutRcd& iRecord){
   edm::LogInfo( "L1-O2O: CSCTFConfigProducer" ) << "Producing "
 						<< " L1MuCSCPtLut from PSET";
   
 
 
-  std::auto_ptr<L1MuCSCPtLut> pt_lut = std::auto_ptr<L1MuCSCPtLut>( new L1MuCSCPtLut() );
+  std::unique_ptr<L1MuCSCPtLut> pt_lut = std::unique_ptr<L1MuCSCPtLut>( new L1MuCSCPtLut() );
 
   if( ptLUT_path.length() ){
     readLUT(ptLUT_path, (unsigned short *)pt_lut->pt_lut, 1<<21); //CSCBitWidths::kPtAddressWidth

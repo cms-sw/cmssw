@@ -28,7 +28,7 @@ public:
   ////  typedef std::pair<const NavVolume*, TrajectoryStateOnSurface>  VolumeCrossReturnType;
 
 
-  virtual ~NavVolume() {} 
+  ~NavVolume() override {} 
 
   virtual Container nextSurface( const LocalPoint& pos, const LocalVector& mom, double charge, 
 				 PropagationDirection propDir = alongMomentum) const = 0;

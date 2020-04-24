@@ -1,8 +1,6 @@
 {
 gSystem->Load("libFWCoreFWLite.so");
 gSystem->Load("libValidationRecoParticleFlow.so");
-gSystem->Load("libCintex.so");
-ROOT::Cintex::Cintex::Enable();
 
 TF2 gaus2("gaus2", "[0]*exp(-0.5*((x-[1])/[2])**2)*exp(-0.5*((y-[3])/[4])**2)",0,10,0,10);
 gaus2.SetParameters( 100, 5, 5, 2, 2);

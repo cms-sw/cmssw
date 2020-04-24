@@ -47,7 +47,7 @@ int AlignmentCorrelationsIORoot::write(const align::Correlations& cor, bool vali
   int icount=0;
 
   for(align::Correlations::const_iterator it=cor.begin();
-    it!=cor.end();it++) {
+    it!=cor.end();++it) {
     AlgebraicMatrix mat=(*it).second;
 	std::pair<Alignable*,Alignable*> Pair = (*it).first;
     Alignable* ali1 = Pair.first;
@@ -83,7 +83,7 @@ AlignmentCorrelationsIORoot::read(const align::Alignables& alivec, int& ierr)
   // create ID map for all Alignables in alivec
   align::Alignables::const_iterator it1;
   std::map< std::pair<unsigned int,int>, Alignable* > idAlis;
-  for( it1=alivec.begin();it1!=alivec.end();it1++ )
+  for( it1=alivec.begin();it1!=alivec.end();++it1 )
     idAlis[std::make_pair((*it1)->id(),(*it1)->alignableObjectId())] = (*it1);
 
   std::map<std::pair<unsigned int,int>,Alignable*>::const_iterator aliSearch1;  

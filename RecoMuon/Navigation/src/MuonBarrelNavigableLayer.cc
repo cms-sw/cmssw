@@ -160,12 +160,12 @@ void MuonBarrelNavigableLayer::pushCompatibleResult(std::vector<const DetLayer*>
 
 }
 
-DetLayer* MuonBarrelNavigableLayer::detLayer() const {
+const DetLayer* MuonBarrelNavigableLayer::detLayer() const {
   return theDetLayer;
 }
 
 
-void MuonBarrelNavigableLayer::setDetLayer(DetLayer* dl) {
+void MuonBarrelNavigableLayer::setDetLayer(const DetLayer* dl) {
   edm::LogError("MuonBarrelNavigableLayer") << "MuonBarrelNavigableLayer::setDetLayer called!! " << endl;
 }
 

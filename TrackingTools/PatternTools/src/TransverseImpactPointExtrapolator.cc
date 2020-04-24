@@ -1,7 +1,7 @@
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/GeometrySurface/interface/Surface.h" 
-#include "boost/intrusive_ptr.hpp" 
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "boost/intrusive_ptr.hpp"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
@@ -13,61 +13,61 @@
 
 
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator () :
-  thePropagator(0) {}
+  thePropagator(nullptr) {}
 
 
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator (const MagneticField* field) :
   thePropagator(new AnalyticalPropagator(field, anyDirection)) {}
 
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator (const Propagator& u) :
-  thePropagator(u.clone()) 
+  thePropagator(u.clone())
 {
   thePropagator->setPropagationDirection(anyDirection);
 }
 
-TrajectoryStateOnSurface 
-TransverseImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts, 
+TrajectoryStateOnSurface
+TransverseImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts,
 						const GlobalPoint& vtx) const
 {
   return doExtrapolation(fts, vtx, *thePropagator);
 }
 
-TrajectoryStateOnSurface 
-TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface tsos, 
+TrajectoryStateOnSurface
+TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface tsos,
 						const GlobalPoint& vtx) const
 {
   if ( !tsos.isValid() )  return tsos;
   return doExtrapolation(tsos, vtx, *thePropagator);
 }
 
-TrajectoryStateOnSurface 
-TransverseImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts, 
-						const GlobalPoint& vtx, 
+TrajectoryStateOnSurface
+TransverseImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts,
+						const GlobalPoint& vtx,
 						const Propagator& p) const
 {
   //
   // set propagator for bidirectional propagation
   //
-  SetPropagationDirection setter(p,anyDirection);
-  return doExtrapolation(fts,vtx,p);
-} 
+   std::unique_ptr<Propagator> p_cloned = SetPropagationDirection(p, anyDirection);
+   return doExtrapolation(fts, vtx, *(p_cloned.get()));
+}
 
-TrajectoryStateOnSurface 
-TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface tsos, 
-						const GlobalPoint& vtx, 
+TrajectoryStateOnSurface
+TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface tsos,
+						const GlobalPoint& vtx,
 						const Propagator& p) const
 {
   if ( !tsos.isValid() )  return tsos;
   //
   // set propagator for bidirectional propagation
   //
-  SetPropagationDirection setter(p,anyDirection);
-  return doExtrapolation(tsos,vtx,p);
-} 
+  std::unique_ptr<Propagator> p_cloned = SetPropagationDirection(p, anyDirection);
+  return doExtrapolation(tsos, vtx, *(p_cloned.get()));
+}
 
-TrajectoryStateOnSurface 
-TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurface tsos, 
-						    const GlobalPoint& vtx, 
+TrajectoryStateOnSurface
+TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurface tsos,
+						    const GlobalPoint& vtx,
 						    const Propagator& p) const
 {
   //
@@ -84,13 +84,13 @@ TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurfa
     //z accordingly
     GlobalVector zLocal(xLocal.cross(yLocal));
 
-    Surface::PositionType origin(vtx);
+    const Surface::PositionType& origin(vtx);
     Surface::RotationType rotation(xLocal,yLocal,zLocal);
     ReferenceCountingPointer<Plane> surface =  PlaneBuilder().plane(origin,rotation);
-    
+
     return p.propagate(*tsos.freeState(),*surface);
   }else{
-  ReferenceCountingPointer<Plane> surface = 
+  ReferenceCountingPointer<Plane> surface =
     tipSurface(tsos.globalPosition(),tsos.globalMomentum(),
 	       1./tsos.transverseCurvature(),vtx);
   //
@@ -100,9 +100,9 @@ TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurfa
   }
 }
 
-TrajectoryStateOnSurface 
-TransverseImpactPointExtrapolator::doExtrapolation (const FreeTrajectoryState& fts, 
-						    const GlobalPoint& vtx, 
+TrajectoryStateOnSurface
+TransverseImpactPointExtrapolator::doExtrapolation (const FreeTrajectoryState& fts,
+						    const GlobalPoint& vtx,
 						    const Propagator& p) const
 {
   //
@@ -119,13 +119,13 @@ TransverseImpactPointExtrapolator::doExtrapolation (const FreeTrajectoryState& f
     //z accordingly
     GlobalVector zLocal(xLocal.cross(yLocal));
 
-    Surface::PositionType origin(vtx);
+    const Surface::PositionType& origin(vtx);
     Surface::RotationType rotation(xLocal,yLocal,zLocal);
     ReferenceCountingPointer<Plane> surface =  PlaneBuilder().plane(origin,rotation);
-    
+
     return p.propagate(fts,*surface);
   }else{
-  ReferenceCountingPointer<Plane> surface = 
+  ReferenceCountingPointer<Plane> surface =
     tipSurface(fts.position(),fts.momentum(),
 	       1./fts.transverseCurvature(),vtx);
   //
@@ -149,7 +149,7 @@ TransverseImpactPointExtrapolator::tipSurface (const GlobalPoint& position,
 
   typedef Point2DBase<double,GlobalTag> PositionType2D;
   typedef Vector2DBase<double,GlobalTag> DirectionType2D;
-  
+
   PositionType2D x0(position.x(),position.y());
   DirectionType2D t0(-momentum.y(),momentum.x());
   t0 = t0/t0.mag();
@@ -159,7 +159,7 @@ TransverseImpactPointExtrapolator::tipSurface (const GlobalPoint& position,
   DirectionType2D vtxDirection(xc.x()-vertex.x(),xc.y()-vertex.y());
   double vtxDistance = vtxDirection.mag();
 
-  Surface::PositionType origin(vertex);
+  const Surface::PositionType& origin(vertex);
   GlobalVector xLocal(vtxDirection.x()/vtxDistance,
 		      vtxDirection.y()/vtxDistance,
 		      0.);
@@ -175,7 +175,7 @@ TransverseImpactPointExtrapolator::tipSurface (const GlobalPoint& position,
     zLocal = -zLocal;
   }
   Surface::RotationType rotation(xLocal,yLocal,zLocal);
-  
+
   LogDebug("TransverseImpactPointExtrapolator")<<"plane center: "<<origin<<"\n"
 					       <<"plane rotation axis:\n"
 					       <<xLocal<<"\n"

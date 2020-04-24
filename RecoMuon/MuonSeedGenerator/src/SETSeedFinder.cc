@@ -41,14 +41,17 @@ void SETSeedFinder::seeds(const MuonRecHitContainer & cluster,
 
 
 // there is an existing sorter somewhere in the CMSSW code (I think) - delete that
+namespace {
 struct sorter{
+  sorter() {}
   bool operator() (MuonTransientTrackingRecHit::MuonRecHitPointer const & hit_1,
-                   MuonTransientTrackingRecHit::MuonRecHitPointer const & hit_2){
+                   MuonTransientTrackingRecHit::MuonRecHitPointer const & hit_2) const {
     return (hit_1->globalPosition().mag2()<hit_2->globalPosition().mag2());
 
   }
-} sortSegRadius;// smaller first
-
+};// smaller first
+  const sorter sortSegRadius;
+}
 
 
 std::vector<SETSeedFinder::MuonRecHitContainer>
@@ -59,7 +62,7 @@ SETSeedFinder::sortByLayer(MuonRecHitContainer & cluster) const
     //---- some hits could not belong to a track simultaneously - these will be in a
     //---- group; two hits from one and the same group will not go to the same track
   std::vector< MuonRecHitContainer > MuonRecHitContainer_perLayer;
-  if(cluster.size()){
+  if(!cluster.empty()){
     int iHit =0;
     MuonRecHitContainer hitsInThisLayer;
     hitsInThisLayer.push_back(cluster[iHit]);
@@ -575,7 +578,7 @@ void SETSeedFinder::estimateMomentum(const MuonRecHitContainer & validSet,
       } 
     }
     pT = fabs(momentum_estimate[0]);
-    if(1 || pT>40.){ //it is skipped; we have to look at least into number of hits in the chamber actually...
+    if(true || pT>40.){ //it is skipped; we have to look at least into number of hits in the chamber actually...
       // and then decide which segment to use
       // use the last measurement, otherwise use the second; this is to be investigated
       break;

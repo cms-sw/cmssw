@@ -5,6 +5,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
+#include "CondCore/CondDB/interface/Serialization.h"
+
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -125,6 +127,6 @@ WEA::convert( const edm::EventSetup& eS ,
       std::cout<<" For i ="<<i<<", s_n = "<< s_n<<std::endl;
       std::cout<<"++++++++++++++++++++++++++\n\n"<<std::endl;
 
-      va.push_back( AlignTransform( s_n, G_n, id ) ) ;
+      va.emplace_back( AlignTransform( s_n, G_n, id ) ) ;
    }
 }

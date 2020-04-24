@@ -42,13 +42,13 @@ class DTTPGParametersHandler: public popcon::PopConSourceHandler<DTTPGParameters
 
   /** Destructor
    */
-  virtual ~DTTPGParametersHandler();
+  ~DTTPGParametersHandler() override;
 
   /** Operations
    */
   /// 
-  void getNewObjects();
-  std::string id() const;
+  void getNewObjects() override;
+  std::string id() const override;
 
  private:
 

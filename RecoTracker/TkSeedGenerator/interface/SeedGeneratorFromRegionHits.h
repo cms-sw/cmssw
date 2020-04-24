@@ -19,8 +19,8 @@ public:
 
   SeedGeneratorFromRegionHits(
       OrderedHitsGenerator * aGenerator, 
-      SeedComparitor * aComparitor = 0,
-      SeedCreator * aSeedCreator = 0
+      SeedComparitor * aComparitor = nullptr,
+      SeedCreator * aSeedCreator = nullptr
     );
 
 

@@ -39,12 +39,13 @@ class EcalCoder
 
       /// ctor
       EcalCoder( bool        addNoise        , 
+		 bool        PreMix1         ,
 		 Noisifier* ebCorrNoise0     ,
-		 Noisifier* eeCorrNoise0 = 0 ,
-		 Noisifier* ebCorrNoise1 = 0 ,
-		 Noisifier* eeCorrNoise1 = 0 ,
-		 Noisifier* ebCorrNoise2 = 0 ,
-		 Noisifier* eeCorrNoise2 = 0   ) ; // make EE version optional for tb compatibility
+		 Noisifier* eeCorrNoise0 = nullptr ,
+		 Noisifier* ebCorrNoise1 = nullptr ,
+		 Noisifier* eeCorrNoise1 = nullptr ,
+		 Noisifier* ebCorrNoise2 = nullptr ,
+		 Noisifier* eeCorrNoise2 = nullptr   ) ; // make EE version optional for tb compatibility
       /// dtor
       virtual ~EcalCoder() ;
 
@@ -102,6 +103,7 @@ class EcalCoder
       double m_maxEneEE ; // max attainable energy in the ecal endcap
       
       bool m_addNoise ;   // whether add noise to the pedestals and the gains
+      bool m_PreMix1 ;   // Follow necessary steps for PreMixing input
 
       const Noisifier* m_ebCorrNoise[3] ;
       const Noisifier* m_eeCorrNoise[3] ;

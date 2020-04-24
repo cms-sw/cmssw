@@ -8,9 +8,11 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 // FastSim hits:
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastProjectedTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastMatchedTrackerRecHit.h"
 
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -44,9 +46,15 @@ namespace helper {
       //std::cout << "|   It is a ProjectedSiStripRecHit2D hit !!" << std::endl;
       ProjectedSiStripRecHit2D &phit = static_cast<ProjectedSiStripRecHit2D&>(newHit);
       stripClusterRecords_.push_back(StripClusterHitRecord(phit.originalHit(), hits, index));
+    } else if (hit_type == typeid(Phase2TrackerRecHit1D)) {
+      //FIXME:: this is just temporary solution for phase2,
+      //it is not really running in the phase2 tracking wf - yet...
+      //std::cout << "|   It is a Phase2TrackerRecHit1D hit !!" << std::endl;
+      phase2OTClusterRecords_.push_back(Phase2OTClusterHitRecord(static_cast<Phase2TrackerRecHit1D&>(newHit), hits, index));
     } else {
-      if (hit_type == typeid(SiTrackerGSMatchedRecHit2D)
- 	  || hit_type == typeid(SiTrackerGSRecHit2D)) {
+      if (hit_type == typeid(FastTrackerRecHit)
+ 	  || hit_type == typeid(FastProjectedTrackerRecHit)
+	  || hit_type == typeid(FastMatchedTrackerRecHit)) {
 	//std::cout << "|   It is a " << hit_type.name() << " hit !!" << std::endl;
 	// FastSim hits: Do nothing instead of caring about FastSim clusters, 
 	//               not even sure whether these really exist.
@@ -141,11 +149,11 @@ namespace helper {
   rekey(const ClusterRefType &newRef) const
   {
     TrackingRecHit & genericHit = (*hits_)[index_]; 
-    RecHitType *hit = 0;
+    RecHitType *hit = nullptr;
     if (genericHit.geographicalId().rawId() == detid_) { // a hit on this det, so it's simple
       hit = dynamic_cast<RecHitType *>(&genericHit); //static_cast<RecHitType *>(&genericHit);
     }
-    assert (hit != 0);
+    assert (hit != nullptr);
     assert (hit->cluster() == ref_); // otherwise something went wrong
     hit->setClusterRef(newRef);
   }
@@ -162,7 +170,7 @@ namespace helper {
     TrackingRecHit &genericHit = (*hits_)[index_];
     const std::type_info &hit_type = typeid(genericHit);
 
-    OmniClusterRef * cluRef=0;
+    OmniClusterRef * cluRef=nullptr;
     if (typeid(SiStripRecHit1D) == hit_type) {
       cluRef = &static_cast<SiStripRecHit1D&>(genericHit).omniCluster();
      } else if (typeid(SiStripRecHit2D) == hit_type) {
@@ -174,7 +182,7 @@ namespace helper {
       cluRef = &static_cast<ProjectedSiStripRecHit2D&>(genericHit).originalHit().omniCluster();
     }
   
-    assert(cluRef != 0); // to catch missing RecHit types
+    assert(cluRef != nullptr); // to catch missing RecHit types
     assert(cluRef->key() == ref_.key()); // otherwise something went wrong
     (*cluRef) = OmniClusterRef(newRef);
   }

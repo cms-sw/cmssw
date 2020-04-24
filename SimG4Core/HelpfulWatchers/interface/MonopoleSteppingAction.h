@@ -19,11 +19,11 @@ class MonopoleSteppingAction : public SimWatcher,
                                public Observer<const G4Step *> {
 public:
   MonopoleSteppingAction(edm::ParameterSet const & p);
-  ~MonopoleSteppingAction();
-  void update(const BeginOfJob*);
-  void update(const BeginOfRun*);
-  void update(const BeginOfTrack*);
-  void update(const G4Step*);
+  ~MonopoleSteppingAction() override;
+  void update(const BeginOfJob*) override;
+  void update(const BeginOfRun*) override;
+  void update(const BeginOfTrack*) override;
+  void update(const G4Step*) override;
 
 private:
   bool             mode, actOnTrack;

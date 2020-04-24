@@ -20,7 +20,7 @@ class TFile;
 class DTTPAnalyzer : public edm::EDAnalyzer {
 public:
   DTTPAnalyzer( const edm::ParameterSet& );
-  virtual ~DTTPAnalyzer();
+  ~DTTPAnalyzer() override;
 
   //void beginJob();
   void beginRun( const edm::Run& , const edm::EventSetup& ) override;
@@ -68,7 +68,7 @@ private:
 DTTPAnalyzer::DTTPAnalyzer(const edm::ParameterSet& pset):
   subtractT0_(pset.getParameter<bool>("subtractT0")),
   digiLabel_(pset.getParameter<edm::InputTag>("digiLabel")),
-  tTrigSync_(0) {
+  tTrigSync_(nullptr) {
 
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
@@ -116,7 +116,7 @@ void DTTPAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& setu
     // Loop over all digis in the given layer
     for (DTDigiCollection::const_iterator digi = digiRange.first;
 	 digi != digiRange.second;
-	 digi++) {
+	 ++digi) {
        const DTWireId wireId( layerId, (*digi).wire() );
 
        double t0 = (*digi).countsTDC();
@@ -124,7 +124,7 @@ void DTTPAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& setu
        //FIXME: Reject digis not coming from TP
 
        if(subtractT0_) {
-          const DTLayer* layer = 0; //fake
+          const DTLayer* layer = nullptr; //fake
 	  const GlobalPoint glPt; //fake
 	  double offset = tTrigSync_->offset(layer, wireId, glPt);
           t0 -= offset;

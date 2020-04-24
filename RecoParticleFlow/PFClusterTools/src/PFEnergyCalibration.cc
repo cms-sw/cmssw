@@ -1,15 +1,19 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+
 #include <TMath.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <TF1.h>
 #include <map>
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 
-PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(0)
+PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(nullptr), esEEInterCalib_(nullptr)
 {
   initializeCalibrationFunctions();
 }
@@ -17,97 +21,109 @@ PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(0)
 PFEnergyCalibration::~PFEnergyCalibration() 
 {
 
-  delete faBarrel;
-  delete fbBarrel;
-  delete fcBarrel;
-  delete faEtaBarrel;
-  delete fbEtaBarrel;
-  delete faEndcap;
-  delete fbEndcap;
-  delete fcEndcap;
-  delete faEtaEndcap;
-  delete fbEtaEndcap;
-
 }
 
 void
 PFEnergyCalibration::initializeCalibrationFunctions() {
 
-  // NEW NEW with HCAL pre-calibration
-
   threshE = 3.5;
   threshH = 2.5;
 
-  // Barrel (fit made with |eta| < 1.2)
-  faBarrel = new TF1("faBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  fbBarrel = new TF1("fbBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  fcBarrel = new TF1("fcBarrel","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  faEtaBarrel = new TF1("faEtaBarrel","[0]+[1]*exp(-x/[2])",1.,1000.);
-  fbEtaBarrel = new TF1("fbEtaBarrel","[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))",1.,1000.);
-  faBarrel->SetParameter(0,1.15665);
-  fbBarrel->SetParameter(0,0.994603);
-  fcBarrel->SetParameter(0,0.956544);
-  faEtaBarrel->SetParameter(0,0.014664);
-  fbEtaBarrel->SetParameter(0,0.00975451);
-  faBarrel->SetParameter(1,0.165627);
-  fbBarrel->SetParameter(1,0.13632);
-  fcBarrel->SetParameter(1,0.0857207);
-  faEtaBarrel->SetParameter(1,-0.0426776);
-  fbEtaBarrel->SetParameter(1,0.102247);
-  faBarrel->SetParameter(2,0.827718);
-  fbBarrel->SetParameter(2,-0.758013);
-  fcBarrel->SetParameter(2,-0.44347);
-  faEtaBarrel->SetParameter(2,431.054);
-  fbEtaBarrel->SetParameter(2,436.21);
-  faBarrel->SetParameter(3,231.339);
-  fbBarrel->SetParameter(3,183.627);
-  fcBarrel->SetParameter(3,63.3479);
-  faBarrel->SetParameter(4,2.45332);
-  fbBarrel->SetParameter(4,1);
-  fcBarrel->SetParameter(4,1.24174);
-  faBarrel->SetParameter(5,29.6603);
-  fbBarrel->SetParameter(5,39.6784);
-  fcBarrel->SetParameter(5,12.322);
+  //calibChrisClean.C calibration parameters shubham May 01, 2017
+  faBarrel = std::make_unique<TF1>("faBarrel","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  faBarrel->SetParameter(0,-13.9219);
+  faBarrel->SetParameter(1,14.9124);
+  faBarrel->SetParameter(2,5.38578);
+  faBarrel->SetParameter(3,0.861981);
+  faBarrel->SetParameter(4,-0.00759275);
+  faBarrel->SetParameter(5,0.00373563);
+  faBarrel->SetParameter(6,-1.17946);
+  faBarrel->SetParameter(7,-1.69561);
+  fbBarrel = std::make_unique<TF1>("fbBarrel","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  fbBarrel->SetParameter(0,2.25366);
+  fbBarrel->SetParameter(1,0.537715);
+  fbBarrel->SetParameter(2,-4.81375);
+  fbBarrel->SetParameter(3,12.109);
+  fbBarrel->SetParameter(4,1.80577);
+  fbBarrel->SetParameter(5,0.187919);
+  fbBarrel->SetParameter(6,-6.26234);
+  fbBarrel->SetParameter(7,-0.607392);
+  fcBarrel = std::make_unique<TF1>("fcBarrel","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  fcBarrel->SetParameter(1,0.855057);
+  fcBarrel->SetParameter(2,-6.04199);
+  fcBarrel->SetParameter(3,2.08229);
+  fcBarrel->SetParameter(4,0.592266);
+  fcBarrel->SetParameter(5,0.0291232);
+  fcBarrel->SetParameter(6,0.364802);
+  fcBarrel->SetParameter(7,-1.50142);
+  faEtaBarrelEH = std::make_unique<TF1>("faEtaBarrelEH","[0]+[1]*exp(-x/[2])",1.,1000.);
+  faEtaBarrelEH->SetParameter(0,0.0185555);
+  faEtaBarrelEH->SetParameter(1,-0.0470674);
+  faEtaBarrelEH->SetParameter(2,396.959);
+  fbEtaBarrelEH = std::make_unique<TF1>("fbEtaBarrelEH","[0]+[1]*exp(-x/[2])",1.,1000.);
+  fbEtaBarrelEH->SetParameter(0,0.0396458);
+  fbEtaBarrelEH->SetParameter(1,0.114128);
+  fbEtaBarrelEH->SetParameter(2,251.405);
+  faEtaBarrelH = std::make_unique<TF1>("faEtaBarrelH","[0]+[1]*x",1.,1000.);
+  faEtaBarrelH->SetParameter(0,0.00434994);
+  faEtaBarrelH->SetParameter(1,-5.16564e-06);
+  fbEtaBarrelH = std::make_unique<TF1>("fbEtaBarrelH","[0]+[1]*exp(-x/[2])",1.,1000.);
+  fbEtaBarrelH->SetParameter(0,-0.0232604);
+  fbEtaBarrelH->SetParameter(1,0.0937525);
+  fbEtaBarrelH->SetParameter(2,34.9935);
 
-  // End-caps (fit made with eta 
-  faEndcap = new TF1("faEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  fbEndcap = new TF1("fbEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  fcEndcap = new TF1("fcEndcap","[0]+([1]+[2]/sqrt(x))*exp(-x/[3])-[4]*exp(-x*x/[5])",1.,1000.);
-  faEtaEndcap = new TF1("faEtaEndcap","[0]+[1]*exp(-x/[2])",1.,1000.);
-  fbEtaEndcap = new TF1("fbEtaEndcap","[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))",1.,1000.);
-  faEndcap->SetParameter(0,1.1272);
-  fbEndcap->SetParameter(0,0.982824);
-  fcEndcap->SetParameter(0,0.950244);
-  faEtaEndcap->SetParameter(0,-0.000582903);
-  fbEtaEndcap->SetParameter(0,0.0267319);
-  faEndcap->SetParameter(1,0.258536);
-  fbEndcap->SetParameter(1,0.0977533);
-  fcEndcap->SetParameter(1,0.00564779);
-  faEtaEndcap->SetParameter(1,-0.000482148);
-  fbEtaEndcap->SetParameter(1,-0.554552);
-  faEndcap->SetParameter(2,0.808071);
-  fbEndcap->SetParameter(2,0.155416);
-  fcEndcap->SetParameter(2,0.227162);
-  faEtaEndcap->SetParameter(2,209.466);
-  fbEtaEndcap->SetParameter(2,1.71188);
-  faEndcap->SetParameter(3,214.039);
-  fbEndcap->SetParameter(3,240.379);
-  fcEndcap->SetParameter(3,207.786);
-  fbEtaEndcap->SetParameter(3,0.235834);
-  faEndcap->SetParameter(4,2);
-  fbEndcap->SetParameter(4,1.2);
-  fcEndcap->SetParameter(4,1.32824);
-  fbEtaEndcap->SetParameter(4,-135.431);
-  faEndcap->SetParameter(5,47.2602);
-  fbEndcap->SetParameter(5,78.3083);
-  fcEndcap->SetParameter(5,22.1825);
-  
+  faEndcap = std::make_unique<TF1>("faEndcap","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  faEndcap->SetParameter(0,0.962468);
+  faEndcap->SetParameter(1,11.9536);
+  faEndcap->SetParameter(2,-27.7088);
+  faEndcap->SetParameter(3,0.755474);
+  faEndcap->SetParameter(4,0.0791012);
+  faEndcap->SetParameter(5,0.0011082);
+  faEndcap->SetParameter(6,0.158734);
+  faEndcap->SetParameter(7,-2.1);
+  fbEndcap = std::make_unique<TF1>("fbEndcap","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  fbEndcap->SetParameter(0,-0.629923);
+  fbEndcap->SetParameter(1,2.59634);
+  fbEndcap->SetParameter(2,-2.27786);
+  fbEndcap->SetParameter(3,1.20771);
+  fbEndcap->SetParameter(4,-1.59129);
+  fbEndcap->SetParameter(5,0.0189607);
+  fbEndcap->SetParameter(6,0.270027);
+  fbEndcap->SetParameter(7,-2.30372);
+  fcEndcap = std::make_unique<TF1>("fcEndcap","[0]+((([1]+([2]/sqrt(x)))*exp(-(x^[6]/[3])))-([4]*exp(-(x^[7]/[5]))))",1.,1000.);
+  fcEndcap->SetParameter(0,1.83168);
+  fcEndcap->SetParameter(1,1.41883);
+  fcEndcap->SetParameter(2,-5.50085);
+  fcEndcap->SetParameter(3,29.2208);
+  fcEndcap->SetParameter(4,0.923959);
+  fcEndcap->SetParameter(5,0.268974);
+  fcEndcap->SetParameter(6,1.37756);
+  fcEndcap->SetParameter(7,-0.901421);
+  faEtaEndcapEH = std::make_unique<TF1>("faEtaEndcapEH","[0]+[1]*exp(-x/[2])",1.,1000.);
+  faEtaEndcapEH->SetParameter(0,384.307);
+  faEtaEndcapEH->SetParameter(1,-384.305);
+  faEtaEndcapEH->SetParameter(2,2.16374e+08);
+  fbEtaEndcapEH = std::make_unique<TF1>("fbEtaEndcapEH","[0]+[1]*exp(-x/[2])",1.,1000.);
+  fbEtaEndcapEH->SetParameter(0,0.0120097);
+  fbEtaEndcapEH->SetParameter(1,-0.131464);
+  fbEtaEndcapEH->SetParameter(2,57.1104);
+  faEtaEndcapH = std::make_unique<TF1>("faEtaEndcapH","[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))",1.,1000.);
+  faEtaEndcapH->SetParameter(0,-0.0106029);
+  faEtaEndcapH->SetParameter(1,-0.692207);
+  faEtaEndcapH->SetParameter(2,0.0542991);
+  faEtaEndcapH->SetParameter(3,-0.171435);
+  faEtaEndcapH->SetParameter(4,-61.2277);
+  fbEtaEndcapH = std::make_unique<TF1>("fbEtaEndcapH","[0]+[1]*exp(-x/[2])+[3]*[3]*exp(-x*x/([4]*[4]))",1.,1000.);
+  fbEtaEndcapH->SetParameter(0,0.0214894);
+  fbEtaEndcapH->SetParameter(1,-0.266704);
+  fbEtaEndcapH->SetParameter(2,5.2112);
+  fbEtaEndcapH->SetParameter(3,0.303578);
+  fbEtaEndcapH->SetParameter(4,-104.367);
 }
 
 void 
 PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, double phi) const { 
- 
-  
+
   // Use calorimetric energy as true energy for neutral particles
   double tt = t;
   double ee = e;
@@ -116,18 +132,18 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
   double b = 1.;
   double etaCorrE = 1.;
   double etaCorrH = 1.;
+  auto absEta = std::abs(eta);
   t = min(999.9,max(tt,e+h));
   if ( t < 1. ) return;
 
   // Barrel calibration
-  if ( fabs(eta) < 1.48 ) { 
-
+  if ( absEta < 1.48 ) { 
     // The energy correction
     a = e>0. ? aBarrel(t) : 1.;
     b = e>0. ? bBarrel(t) : cBarrel(t);
     double thresh = e > 0. ? threshE : threshH;
 
-    // Protection against negative calibration - to be tuned
+    // Protection against negative calibration
     if ( a < -0.25 || b < -0.25 ) { 
       a = 1.;
       b = 1.;
@@ -137,39 +153,28 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     // The new estimate of the true energy
     t = min(999.9,max(tt, thresh+a*e+b*h));
 
-    // The angular correction for ECAL hadronic deposits
-    etaCorrE = 1. + aEtaBarrel(t) + bEtaBarrel(t)*fabs(eta)*fabs(eta);
-    etaCorrH = 1.;
-    // etaCorr = 1.;
-    t = max(tt, thresh+etaCorrE*a*e+etaCorrH*b*h);
-
+    // The angular correction 
+    if ( e > 0. && thresh > 0. ) {
+      etaCorrE = 1.0 + aEtaBarrelEH(t) + 1.3*bEtaBarrelEH(t)*absEta*absEta;
+      etaCorrH = 1.0;
+    } else {
+      etaCorrE = 1.0 + aEtaBarrelH(t) + 1.3*bEtaBarrelH(t)*absEta*absEta; 
+      etaCorrH = 1.0 + aEtaBarrelH(t) + bEtaBarrelH(t)*absEta*absEta;
+    }
     if ( e > 0. && thresh > 0. ) 
       e = h > 0. ? threshE-threshH + etaCorrE * a * e : threshE + etaCorrE * a * e;
-    if ( h > 0. && thresh > 0. ) 
+    if ( h > 0. && thresh > 0. ) {
       h = threshH + etaCorrH * b * h;
-
-    /*
-    if ( e < 0. || h < 0. ) { 
-      std::cout << "Warning : Energy correction ! " << std::endl
-		<< "eta,tt,e,h,a,b = " << eta << " " << tt << " " 
-		<< ee << "/" << e << " " << hh << "/" << h << " " << a << " " << b << std::endl;
     }
-      
-    if ( etaCorrE > 2. || etaCorrE < 0.5 || 
-	 etaCorrH > 2. || etaCorrH < 0.5 ) 
-      std::cout << "Warning : Angular correction ! " << std::endl
-		<< "etaCorrE,etaCorrH,eta,t = " 
-		<< etaCorrE << " " << etaCorrH << " " << eta << " " << t << std::endl;
-    */
 
   // Endcap calibration   
   } else {
-
     // The energy correction
     a = e>0. ? aEndcap(t) : 1.;
     b = e>0. ? bEndcap(t) : cEndcap(t);
     double thresh = e > 0. ? threshE : threshH;
 
+    // Protection against negative calibration
     if ( a < -0.25 || b < -0.25 ) { 
       a = 1.;
       b = 1.;
@@ -179,37 +184,35 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     // The new estimate of the true energy
     t = min(999.9,max(tt, thresh+a*e+b*h));
     
-    // The angular correction
-    double dEta = fabs ( fabs(eta) - 1.5 );
+    // The angular correction 
+    double dEta = std::abs( absEta - 1.5 );
     double etaPow = dEta * dEta * dEta * dEta;
-    //etaCorrE = 1. + aEtaEndcap(t) + 0.5*bEtaEndcap(t)*etaPow;
-    etaCorrE = 1. + aEtaEndcap(t) + bEtaEndcap(t)*etaPow;
-    etaCorrH = 1. + aEtaEndcap(t) + bEtaEndcap(t)*etaPow;
-    /*
-    if ( etaCorr > 2. || etaCorr < 0.5 ) 
-      std::cout << "Warning : Angular correction ! " << std::endl
-		<< "etaCorr,eta,t = " << etaCorr << " " << eta << " " << tt 
-		<< " ee,hh,e,h = " << e << " " << h << " " << a*e << " " << b*h  
-		<< std::endl;
-    */
 
-    t = min(999.9,max(tt, thresh + etaCorrE*a*e + etaCorrH*b*h));
+    if ( e > 0. && thresh > 0. ) {
+      etaCorrE = 1. + aEtaEndcapEH(t) + 1.3*bEtaEndcapEH(t)*(0.04 + etaPow);
+      etaCorrH = 1. + aEtaEndcapEH(t) + bEtaEndcapEH(t)*(0.04 + etaPow);
+    } else {
+      etaCorrE = 1. + aEtaEndcapH(t) + 1.3*bEtaEndcapH(t)*(0.04 + etaPow);
+      if(absEta<2.5) {
+	etaCorrH = 1. + aEtaEndcapH(t) + 0.05*bEtaEndcapH(t);
+      }
+      else {
+	etaCorrH = 1. + aEtaEndcapH(t) + bEtaEndcapH(t)*(0.04 + etaPow);
+      }
+    }
+
+    //t = min(999.9,max(tt, thresh + etaCorrE*a*e + etaCorrH*b*h));
 
     if ( e > 0. && thresh > 0. ) 
       e = h > 0. ? threshE-threshH + etaCorrE * a * e : threshE + etaCorrE * a * e;
-    if ( h > 0. && thresh > 0. ) 
-      h = threshH + b * etaCorrH * h;
-
-
+    if ( h > 0. && thresh > 0. ) {
+      h = threshH + etaCorrH * b * h;
+    }
   }
 
   // Protection
   if ( e < 0. || h < 0. ) {
-    /*
-    std::cout << "Warning : Energy correction ! " << std::endl
-	      << "eta,tt,e,h,a,b = " << eta << " " << tt << " " 
-	      << ee << "/" << e << " " << hh << "/" << h << " " << a << " " << b << std::endl;
-    */
+  
     // Some protection against crazy calibration
     if ( e < 0. ) e = ee;
     if ( h < 0. ) h = hh;
@@ -225,7 +228,6 @@ double
 PFEnergyCalibration::aBarrel(double x) const { 
 
   if ( pfCalibrations ) { 
-
     BinningPointByMap point;
     point.insert(BinningVariables::JetEt, x);
     return pfCalibrations->getResult(PerformanceResult::PFfa_BARREL,point); 
@@ -270,33 +272,65 @@ PFEnergyCalibration::cBarrel(double x) const {
 }
 
 double 
-PFEnergyCalibration::aEtaBarrel(double x) const { 
+PFEnergyCalibration::aEtaBarrelEH(double x) const { 
 
   if ( pfCalibrations ) { 
 
     BinningPointByMap point;
     point.insert(BinningVariables::JetEt, x);
-    return pfCalibrations->getResult(PerformanceResult::PFfaEta_BARREL,point); 
+    return pfCalibrations->getResult(PerformanceResult::PFfaEta_BARRELEH,point); 
 
   } else { 
 
-    return faEtaBarrel->Eval(x); 
+    return faEtaBarrelEH->Eval(x); 
 
   }
 }
 
 double 
-PFEnergyCalibration::bEtaBarrel(double x) const { 
+PFEnergyCalibration::bEtaBarrelEH(double x) const { 
 
   if ( pfCalibrations ) { 
 
     BinningPointByMap point;
     point.insert(BinningVariables::JetEt, x);
-    return pfCalibrations->getResult(PerformanceResult::PFfbEta_BARREL,point); 
+    return pfCalibrations->getResult(PerformanceResult::PFfbEta_BARRELEH,point); 
 
   } else { 
 
-    return fbEtaBarrel->Eval(x); 
+    return fbEtaBarrelEH->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::aEtaBarrelH(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfaEta_BARRELH,point); 
+
+  } else { 
+
+    return faEtaBarrelH->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::bEtaBarrelH(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfbEta_BARRELH,point); 
+
+  } else { 
+
+    return fbEtaBarrelH->Eval(x); 
 
   }
 }
@@ -350,33 +384,65 @@ PFEnergyCalibration::cEndcap(double x) const {
 }
 
 double 
-PFEnergyCalibration::aEtaEndcap(double x) const { 
+PFEnergyCalibration::aEtaEndcapEH(double x) const { 
 
   if ( pfCalibrations ) { 
 
     BinningPointByMap point;
     point.insert(BinningVariables::JetEt, x);
-    return pfCalibrations->getResult(PerformanceResult::PFfaEta_ENDCAP,point); 
+    return pfCalibrations->getResult(PerformanceResult::PFfaEta_ENDCAPEH,point); 
 
   } else { 
 
-    return faEtaEndcap->Eval(x); 
+    return faEtaEndcapEH->Eval(x); 
 
   }
 }
 
 double 
-PFEnergyCalibration::bEtaEndcap(double x) const { 
+PFEnergyCalibration::bEtaEndcapEH(double x) const { 
 
   if ( pfCalibrations ) { 
 
     BinningPointByMap point;
     point.insert(BinningVariables::JetEt, x);
-    return pfCalibrations->getResult(PerformanceResult::PFfbEta_ENDCAP,point); 
+    return pfCalibrations->getResult(PerformanceResult::PFfbEta_ENDCAPEH,point); 
 
   } else { 
 
-    return fbEtaEndcap->Eval(x); 
+    return fbEtaEndcapEH->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::aEtaEndcapH(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfaEta_ENDCAPH,point); 
+
+  } else { 
+
+    return faEtaEndcapH->Eval(x); 
+
+  }
+}
+
+double 
+PFEnergyCalibration::bEtaEndcapH(double x) const { 
+
+  if ( pfCalibrations ) { 
+
+    BinningPointByMap point;
+    point.insert(BinningVariables::JetEt, x);
+    return pfCalibrations->getResult(PerformanceResult::PFfbEta_ENDCAPH,point); 
+
+  } else { 
+
+    return fbEtaEndcapH->Eval(x); 
 
   }
 }
@@ -386,7 +452,7 @@ double
 PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 			      std::vector<double> &EclustersPS1,
 			      std::vector<double> &EclustersPS2,
-			      bool crackCorrection ){
+			      bool crackCorrection ) const {
   double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.0));
   double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.0));
   return energyEm(clusterEcal, ePS1, ePS2, crackCorrection);
@@ -396,7 +462,7 @@ double
 PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 			      double ePS1,
 			      double ePS2,
-			      bool crackCorrection ){
+			      bool crackCorrection ) const {
   double eEcal = clusterEcal.energy();
   //temporaty ugly fix
   reco::PFCluster myPFCluster=clusterEcal;
@@ -405,7 +471,7 @@ PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
   double phi = myPFCluster.positionREP().phi();
 
   double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi, crackCorrection);
-  if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
+  // if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
   return calibrated; 
 }
 
@@ -413,7 +479,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 				     std::vector<double> &EclustersPS1,
 				     std::vector<double> &EclustersPS2,
 				     double& ps1,double& ps2,
-				     bool crackCorrection){
+				     bool crackCorrection) const {
   double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.0));
   double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.0));
   return energyEm(clusterEcal, ePS1, ePS2, ps1, ps2, crackCorrection);
@@ -421,7 +487,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 				     double ePS1, double ePS2,
 				     double& ps1,double& ps2,
-				     bool crackCorrection){
+				     bool crackCorrection) const {
   double eEcal = clusterEcal.energy();
   //temporaty ugly fix
   reco::PFCluster myPFCluster=clusterEcal;
@@ -430,7 +496,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
   double phi = myPFCluster.positionREP().phi();
 
   double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi,ps1,ps2,crackCorrection);
-  if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
+  // if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
   return calibrated; 
 }
 
@@ -444,8 +510,6 @@ std::ostream& operator<<(std::ostream& out,
 
   if ( calib.pfCalibrations ) { 
 
-    std::cout << "Functions taken from the global tags : " << std::endl;
-
     static std::map<std::string, PerformanceResult::ResultType> functType;
 
     functType["PFfa_BARREL"] = PerformanceResult::PFfa_BARREL;
@@ -454,10 +518,14 @@ std::ostream& operator<<(std::ostream& out,
     functType["PFfb_ENDCAP"] = PerformanceResult::PFfb_ENDCAP;
     functType["PFfc_BARREL"] = PerformanceResult::PFfc_BARREL;
     functType["PFfc_ENDCAP"] = PerformanceResult::PFfc_ENDCAP;
-    functType["PFfaEta_BARREL"] = PerformanceResult::PFfaEta_BARREL;
-    functType["PFfaEta_ENDCAP"] = PerformanceResult::PFfaEta_ENDCAP;
-    functType["PFfbEta_BARREL"] = PerformanceResult::PFfbEta_BARREL;
-    functType["PFfbEta_ENDCAP"] = PerformanceResult::PFfbEta_ENDCAP;
+    functType["PFfaEta_BARRELH"] = PerformanceResult::PFfaEta_BARRELH;
+    functType["PFfaEta_ENDCAPH"] = PerformanceResult::PFfaEta_ENDCAPH;
+    functType["PFfbEta_BARRELH"] = PerformanceResult::PFfbEta_BARRELH;
+    functType["PFfbEta_ENDCAPH"] = PerformanceResult::PFfbEta_ENDCAPH;
+    functType["PFfaEta_BARRELEH"] = PerformanceResult::PFfaEta_BARRELEH;
+    functType["PFfaEta_ENDCAPEH"] = PerformanceResult::PFfaEta_ENDCAPEH;
+    functType["PFfbEta_BARRELEH"] = PerformanceResult::PFfbEta_BARRELEH;
+    functType["PFfbEta_ENDCAPEH"] = PerformanceResult::PFfbEta_ENDCAPEH;
     
     for(std::map<std::string,PerformanceResult::ResultType>::const_iterator 
 	  func = functType.begin(); 
@@ -476,13 +544,18 @@ std::ostream& operator<<(std::ostream& out,
     calib.faBarrel->Print();
     calib.fbBarrel->Print();
     calib.fcBarrel->Print();
-    calib.faEtaBarrel->Print();
-    calib.fbEtaBarrel->Print();
+    calib.faEtaBarrelEH->Print();
+    calib.fbEtaBarrelEH->Print();
+    calib.faEtaBarrelH->Print();
+    calib.fbEtaBarrelH->Print();
     calib.faEndcap->Print();
     calib.fbEndcap->Print();
     calib.fcEndcap->Print();
-    calib.faEtaEndcap->Print();
-    calib.fbEtaEndcap->Print();
+    calib.faEtaEndcapEH->Print();
+    calib.fbEtaEndcapEH->Print();
+    calib.faEtaEndcapH->Print();
+    calib.fbEtaEndcapH->Print();
+
   }
     
   return out;
@@ -515,27 +588,33 @@ std::ostream& operator<<(std::ostream& out,
 
 //useful to compute the signed distance to the closest crack in the barrel
 double
-PFEnergyCalibration::minimum(double a,double b){
+PFEnergyCalibration::minimum(double a,double b) const {
   if(TMath::Abs(b)<TMath::Abs(a)) a=b;
   return a;
 }
 
+namespace {
+  constexpr double pi= M_PI;// 3.14159265358979323846;
+
+
+  std::vector<double> fillcPhi() {
+    std::vector<double> retValue;
+    retValue.resize(18,0);
+    retValue[0]=2.97025;
+    for(unsigned i=1;i<=17;++i) retValue[i]=retValue[0]-2*i*pi/18;
+    
+    return retValue;
+  }
+  
+  //Location of the 18 phi-cracks
+  const std::vector<double> cPhi = fillcPhi();
+}
 
 //compute the unsigned distance to the closest phi-crack in the barrel
 double
-PFEnergyCalibration::dCrackPhi(double phi, double eta){
+PFEnergyCalibration::dCrackPhi(double phi, double eta) const {
 
-  constexpr double pi= M_PI;// 3.14159265358979323846;
   
-  //Location of the 18 phi-cracks
-  static std::vector<double> cPhi;
-  if(cPhi.size()==0)
-    {
-      cPhi.resize(18,0);
-      cPhi[0]=2.97025;
-      for(unsigned i=1;i<=17;++i) cPhi[i]=cPhi[0]-2*i*pi/18;
-    }
-
   //Shift of this location if eta<0
   constexpr double delta_cPhi=0.00638;
 
@@ -575,7 +654,7 @@ PFEnergyCalibration::dCrackPhi(double phi, double eta){
 
 // corrects the effect of phi-cracks
 double
-PFEnergyCalibration::CorrPhi(double phi, double eta) {
+PFEnergyCalibration::CorrPhi(double phi, double eta) const {
 
   // we use 3 gaussians to correct the phi-cracks effect
   constexpr double p1=   5.59379e-01;
@@ -601,7 +680,7 @@ PFEnergyCalibration::CorrPhi(double phi, double eta) {
 
 // corrects the effect of  |eta|-cracks
 double
-PFEnergyCalibration::CorrEta(double eta){
+PFEnergyCalibration::CorrEta(double eta) const {
   
   // we use a gaussian with a screwness for each of the 5 |eta|-cracks
   constexpr double a[] = {6.13349e-01, 5.08146e-01, 4.44480e-01, 3.3487e-01, 7.65627e-01}; // amplitude
@@ -619,7 +698,7 @@ PFEnergyCalibration::CorrEta(double eta){
 
 //corrects the global behaviour in the barrel
 double
-PFEnergyCalibration::CorrBarrel(double E, double eta) {
+PFEnergyCalibration::CorrBarrel(double E, double eta) const {
 
   //Energy dependency
   /*
@@ -665,7 +744,7 @@ PFEnergyCalibration::CorrBarrel(double E, double eta) {
 // Etot = Beta*eEcal + Gamma*(ePS1 + Alpha*ePS2) 
 
 double
-PFEnergyCalibration::Alpha(double eta) {
+PFEnergyCalibration::Alpha(double eta) const {
 
   //Energy dependency
   constexpr double p0 = 5.97621e-01;
@@ -683,7 +762,7 @@ PFEnergyCalibration::Alpha(double eta) {
 }
 
 double
-PFEnergyCalibration::Beta(double E, double eta) {
+PFEnergyCalibration::Beta(double E, double eta) const {
 
  //Energy dependency
   constexpr double p0 = 0.032;
@@ -704,7 +783,7 @@ PFEnergyCalibration::Beta(double E, double eta) {
 
 
 double
-PFEnergyCalibration::Gamma(double etaEcal) {
+PFEnergyCalibration::Gamma(double etaEcal) const {
 
  //Energy dependency
   constexpr double p0 = 2.49752e-02;
@@ -734,7 +813,7 @@ PFEnergyCalibration::Gamma(double etaEcal) {
 // Global Behaviour, phi and eta cracks are taken into account
 double
 PFEnergyCalibration::EcorrBarrel(double E, double eta, double phi,
-				 bool crackCorrection ){
+				 bool crackCorrection ) const {
 
   // double result = E*CorrBarrel(E,eta)*CorrEta(eta)*CorrPhi(phi,eta);
   double correction = crackCorrection ? std::max(CorrEta(eta),CorrPhi(phi,eta)) : 1.;
@@ -746,7 +825,7 @@ PFEnergyCalibration::EcorrBarrel(double E, double eta, double phi,
 
 // returns the corrected energy in the area between the barrel and the PS (1.48,1.65)
 double
-PFEnergyCalibration::EcorrZoneBeforePS(double E, double eta){
+PFEnergyCalibration::EcorrZoneBeforePS(double E, double eta) const {
 
  //Energy dependency
   constexpr double p0 =1; 
@@ -772,7 +851,7 @@ PFEnergyCalibration::EcorrZoneBeforePS(double E, double eta){
 // returns the corrected energy in the PS (1.65,2.6)
 // only when (ePS1>0)||(ePS2>0)
 double
-PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal) {
+PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal) const {
 
   // gives the good weights to each subdetector
   double E = Beta(1.0155*eEcal+0.025*(ePS1+0.5976*ePS2)/9e-5,etaEcal)*eEcal+Gamma(etaEcal)*(ePS1+Alpha(etaEcal)*ePS2)/9e-5 ;
@@ -792,12 +871,35 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
 // returns the corrected energy in the PS (1.65,2.6)
 // only when (ePS1>0)||(ePS2>0)
 double
-PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal,double & outputPS1, double & outputPS2) {
+PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal,double & outputPS1, double & outputPS2) const {
 
   // gives the good weights to each subdetector
   double gammaprime=Gamma(etaEcal)/9e-5;
-  outputPS1=gammaprime*ePS1;
-  outputPS2=gammaprime*Alpha(etaEcal)*ePS2;
+
+  if(outputPS1 == 0 && outputPS2 == 0 && esEEInterCalib_ != nullptr){
+    // both ES planes working
+    // scaling factor accounting for data-mc                                                                                 
+    outputPS1=gammaprime*ePS1 * esEEInterCalib_->getGammaLow0();
+    outputPS2=gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3();
+  }
+  else if(outputPS1 == 0 && outputPS2 == -1 && esEEInterCalib_ != nullptr){
+    // ESP1 only working
+    double corrTotES = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow1();
+    outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0();
+    outputPS2 = corrTotES - outputPS1;
+  }
+  else if(outputPS1 == -1 && outputPS2 == 0 && esEEInterCalib_ != nullptr){
+    // ESP2 only working
+    double corrTotES = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow2();
+    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3();
+    outputPS1 = corrTotES - outputPS2;
+  }
+  else{
+    // none working
+    outputPS1 = gammaprime*ePS1;
+    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2;
+  }
+
   double E = Beta(1.0155*eEcal+0.025*(ePS1+0.5976*ePS2)/9e-5,etaEcal)*eEcal+outputPS1+outputPS2;
 
   //Correction of the residual energy dependency
@@ -819,7 +921,7 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
 // returns the corrected energy in the PS (1.65,2.6)
 // only when (ePS1=0)&&(ePS2=0)
 double 
-PFEnergyCalibration::EcorrPS_ePSNil(double eEcal,double eta){
+PFEnergyCalibration::EcorrPS_ePSNil(double eEcal,double eta) const {
 
   //Energy dependency
   constexpr double p0= 1.02;
@@ -842,7 +944,7 @@ PFEnergyCalibration::EcorrPS_ePSNil(double eEcal,double eta){
 
 // returns the corrected energy in the area between the end of the PS and the end of the endcap (2.6,2.98)
 double
-PFEnergyCalibration::EcorrZoneAfterPS(double E, double eta){
+PFEnergyCalibration::EcorrZoneAfterPS(double E, double eta) const {
 
   //Energy dependency
   constexpr double p0 =1; 
@@ -877,7 +979,7 @@ PFEnergyCalibration::EcorrZoneAfterPS(double E, double eta){
 double
 PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,
 			   double eta,double phi,
-			   bool crackCorrection ) {
+			   bool crackCorrection ) const {
 
   constexpr double endBarrel=1.48;
   constexpr double beginingPS=1.65;
@@ -905,7 +1007,7 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,
 // returns the corrected energy everywhere
 // this work should be improved between 1.479 and 1.52 (junction barrel-endcap)
 double
-PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double& ps1,double&ps2,bool crackCorrection)  {
+PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double& ps1,double&ps2,bool crackCorrection)  const {
 
   constexpr double endBarrel=1.48;
   constexpr double beginingPS=1.65;

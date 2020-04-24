@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"

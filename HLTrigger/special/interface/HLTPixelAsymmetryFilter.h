@@ -52,11 +52,11 @@
 class HLTPixelAsymmetryFilter : public HLTFilter {
  public:
   explicit HLTPixelAsymmetryFilter(const edm::ParameterSet&);
-  ~HLTPixelAsymmetryFilter();
+  ~HLTPixelAsymmetryFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters

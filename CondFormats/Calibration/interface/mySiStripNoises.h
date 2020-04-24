@@ -1,6 +1,8 @@
 #ifndef mySiStripNoises_h
 #define mySiStripNoises_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 //#include<iostream>
@@ -21,7 +23,9 @@ class mySiStripNoises {
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-  };
+  
+  COND_SERIALIZABLE;
+};
   class StrictWeakOrdering{
   public:
     bool operator() (const DetRegistry& p,const uint32_t& i) const {return p.detid < i;}
@@ -45,6 +49,8 @@ class mySiStripNoises {
   uint16_t decode (const uint16_t& strip, const Range& range) const;
   std::vector<unsigned char>  v_noises;
   std::vector<DetRegistry> indexes;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -16,13 +16,14 @@
 #include "IOMC/Input/interface/HepMCFileReader.h" 
 #include "IOMC/Input/interface/MCFileSource.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 namespace edm {
 
 //-------------------------------------------------------------------------
 MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription const& desc) :
   ProducerSourceFromFiles(pset, desc, false),
-  reader_(HepMCFileReader::instance()), evt_(0)
+  reader_(HepMCFileReader::instance()), evt_(nullptr)
 {
   LogInfo("MCFileSource") << "Reading HepMC file:" << fileNames()[0];
   std::string fileName = fileNames()[0];
@@ -32,7 +33,8 @@ MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription con
   }  
   
   reader_->initialize(fileName);  
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("generator");
+  produces<GenEventInfoProduct>("generator");
 }
 
 
@@ -41,7 +43,7 @@ MCFileSource::~MCFileSource(){
 }
 
 //-------------------------------------------------------------------------
-bool MCFileSource::setRunAndEventInfo(EventID&, TimeValue_t&) {
+bool MCFileSource::setRunAndEventInfo(EventID&, TimeValue_t&, EventAuxiliary::ExperimentType&) {
   // Read one HepMC event
   LogInfo("MCFileSource") << "Start Reading";
   evt_ = reader_->fillCurrentEventData(); 
@@ -52,9 +54,11 @@ bool MCFileSource::setRunAndEventInfo(EventID&, TimeValue_t&) {
 void MCFileSource::produce(Event &e) {
   // Store one HepMC event in the Event.
 
-  std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+  auto bare_product = std::make_unique<HepMCProduct>();  
   bare_product->addHepMCData(evt_);
-  e.put(bare_product);
+  e.put(std::move(bare_product),"generator");
+  std::unique_ptr<GenEventInfoProduct> info ( new GenEventInfoProduct( evt_ ) );
+  e.put(std::move(info) ,"generator");
 }
 
 }

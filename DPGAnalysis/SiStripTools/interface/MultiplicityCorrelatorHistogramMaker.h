@@ -1,6 +1,7 @@
 #ifndef DPGAnalysis_SiStripTools_MultiplicityCorrelatorHistogramMaker_H
 #define DPGAnalysis_SiStripTools_MultiplicityCorrelatorHistogramMaker_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 
 
@@ -15,16 +16,16 @@ class TH2F;
 class MultiplicityCorrelatorHistogramMaker {
 
  public:
-  MultiplicityCorrelatorHistogramMaker();
-  MultiplicityCorrelatorHistogramMaker(const edm::ParameterSet& iConfig);
- 
+  MultiplicityCorrelatorHistogramMaker(edm::ConsumesCollector&& iC);
+  MultiplicityCorrelatorHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
+
   ~MultiplicityCorrelatorHistogramMaker();
 
   void beginRun(const edm::Run& iRun);
   void fill(const edm::Event& iEvent, const int xmult, const int ymult);
-  
+
  private:
-  
+
   RunHistogramManager m_rhm;
   RunHistogramManager m_fhm;
   bool m_runHisto;

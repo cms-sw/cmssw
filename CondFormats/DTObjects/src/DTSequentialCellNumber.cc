@@ -16,26 +16,27 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-constexpr int cellsInTheta = 58;
-constexpr int cellsPerLayer[] = {0, 50, 60, 72, 96};
-constexpr int cellsInMB1 = ( cellsPerLayer[1] * 8 ) + ( cellsInTheta * 4 );
-constexpr int cellsInMB2 = ( cellsPerLayer[2] * 8 ) + ( cellsInTheta * 4 );
-constexpr int cellsInMB3 = ( cellsPerLayer[3] * 8 ) + ( cellsInTheta * 4 );
-constexpr int cellsInMB4 =   cellsPerLayer[4] * 8;
+namespace {
+  constexpr int cellsInTheta = 58;
+  constexpr int cellsPerLayer[] = {0, 50, 60, 72, 96};
+  constexpr int cellsInMB1 = ( cellsPerLayer[1] * 8 ) + ( cellsInTheta * 4 );
+  constexpr int cellsInMB2 = ( cellsPerLayer[2] * 8 ) + ( cellsInTheta * 4 );
+  constexpr int cellsInMB3 = ( cellsPerLayer[3] * 8 ) + ( cellsInTheta * 4 );
+  constexpr int cellsInMB4 =   cellsPerLayer[4] * 8;
 
-constexpr int offsetChamber[] = {0,
-                                 0, 
-                                 cellsInMB1, 
-                                 cellsInMB1 + cellsInMB2,
-                                 cellsInMB1 + cellsInMB2 + cellsInMB3 
-                                };
-constexpr int cellsPerSector   = cellsInMB1 + cellsInMB2 + cellsInMB3 + cellsInMB4;
-constexpr int cellsIn13Sectors = ( cellsPerSector * 12 ) + cellsInMB4;
-constexpr int cellsPerWheel = cellsIn13Sectors + cellsInMB4;
+  constexpr int offsetChamber[] = {0,
+                                   0, 
+                                   cellsInMB1, 
+                                   cellsInMB1 + cellsInMB2,
+                                   cellsInMB1 + cellsInMB2 + cellsInMB3 
+                                  };
+  constexpr int cellsPerSector   = cellsInMB1 + cellsInMB2 + cellsInMB3 + cellsInMB4;
+  constexpr int cellsIn13Sectors = ( cellsPerSector * 12 ) + cellsInMB4;
+  constexpr int cellsPerWheel = cellsIn13Sectors + cellsInMB4;
+}
 
 //--------------
 // Operations --

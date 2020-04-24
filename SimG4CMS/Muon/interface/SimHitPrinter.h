@@ -1,5 +1,5 @@
-#ifndef SimHitPrinter_H
-#define SimHitPrinter_H
+#ifndef SimG4CMS_Muon_SimHitPrinter_H
+#define SimG4CMS_Muon_SimHitPrinter_H
 
 /** \class SimHitPrinter
  *
@@ -18,6 +18,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include<fstream>
+#include <atomic>
 
 class SimHitPrinter {
 public:
@@ -34,7 +35,7 @@ public:
   void printLocal(LocalPoint,LocalPoint) const;
   void printGlobal(GlobalPoint) const;
 private:
-  static std::ofstream * theFile;
+  static std::atomic<std::ofstream*> theFile;
 };
 
 #endif

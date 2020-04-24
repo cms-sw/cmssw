@@ -22,13 +22,13 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
-#endif
+#include <type_traits>
 #include <memory>
-#include "boost/static_assert.hpp"
 
 namespace edm {
+  template<class T> class Ptr;
+
   namespace helper {
 
     struct AssociationIdenticalKeyReference {
@@ -60,7 +60,7 @@ namespace edm {
     typename SizeType = unsigned int,//the type used here can not change when go from 32bit to 64bit or across platforms
     typename KeyReferenceHelper = typename helper::AssociationKeyReferenceTrait<KeyRef>::type>
   class AssociationVector {
-    BOOST_STATIC_ASSERT((boost::is_convertible<SizeType, typename CVal::size_type>::value));
+    static_assert(std::is_convertible<SizeType, typename CVal::size_type>::value, "Can not convert container size_type to unsigned int.");
     typedef AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper> self;
 
   public:
@@ -72,7 +72,7 @@ namespace edm {
     typedef std::vector<value_type> transient_vector_type;
     typedef value_type const& const_reference;
     AssociationVector();
-    AssociationVector(KeyRefProd const& ref, CKey const* = 0);
+    AssociationVector(KeyRefProd const& ref, CKey const* = nullptr);
     AssociationVector(AssociationVector const&);
     ~AssociationVector();
 
@@ -81,6 +81,11 @@ namespace edm {
     const_reference operator[](size_type n) const;
     typename CVal::const_reference operator[](KeyRef const& k) const;
     typename CVal::reference operator[](KeyRef const& k);
+
+    template< typename K>
+    typename CVal::const_reference operator[](edm::Ptr<K> const& k) const;
+    template< typename K>
+    typename CVal::const_reference operator[](edm::RefToBase<K> const& k) const;
 
     self& operator=(self const&);
 
@@ -92,7 +97,7 @@ namespace edm {
     void setValue(size_type i, typename CVal::value_type const& val);
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
-		  helper_vector& helpers) const;
+		  FillViewHelperVector& helpers) const;
 
     typedef typename transient_vector_type::const_iterator const_iterator;
 
@@ -106,23 +111,17 @@ namespace edm {
     enum CacheState { kUnset, kFilling, kSet };
     CVal data_;
     KeyRefProd ref_;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     mutable std::atomic<transient_vector_type*> transientVector_;
-#else
-    mutable transient_vector_type* transientVector_;
-#endif
 
     transient_vector_type const& transientVector() const;
     void fixup() const;
   };
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::transient_vector_type const&
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::transientVector() const {
     fixup();
     return *(transientVector_.load(std::memory_order_acquire)); }
-#endif
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::AssociationVector() :
@@ -131,10 +130,9 @@ namespace edm {
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::AssociationVector(KeyRefProd const& ref,
 												      CKey const* coll) :
-    data_(coll == 0 ? ref->size() : coll->size()), ref_(ref),
-    transientVector_( new transient_vector_type(coll == 0 ? ref->size() : coll->size())) { }
+    data_(coll == nullptr ? ref->size() : coll->size()), ref_(ref),
+    transientVector_( new transient_vector_type(coll == nullptr ? ref->size() : coll->size())) { }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::
     AssociationVector(AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper> const& o) :
@@ -144,14 +142,11 @@ namespace edm {
         transientVector_.store( new transient_vector_type(*t), std::memory_order_release);
       }
     }
-#endif
   
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::~AssociationVector() {
     delete transientVector_.load(std::memory_order_acquire);
   }
-#endif
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::const_reference
@@ -167,8 +162,24 @@ namespace edm {
     return data_[ keyRef.key() ];
   }
 
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
+  template< typename K>
+  inline typename CVal::const_reference
+  AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](edm::Ptr<K> const& k) const {
+    static_assert(std::is_base_of<K,key_type>::value, "edm::Ptr's key type is not a base class of AssociationVector's item type");
+    checkForWrongProduct(k.id(), ref_.id());
+    return data_[ k.key() ];
+  }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
+  template< typename K>
+  typename CVal::const_reference
+  AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](edm::RefToBase<K> const& k) const {
+    static_assert(std::is_base_of<K,key_type>::value,"edm::RefToBase's key type is not a base class of AssociationVector's item type");
+    checkForWrongProduct(k.id(), ref_.id());
+    return data_[ k.key() ];
+  }
+
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename CVal::reference
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](KeyRef const& k) {
@@ -178,9 +189,7 @@ namespace edm {
     checkForWrongProduct(keyRef.id(), ref_.id());
     return data_[ keyRef.key() ];
   }
-#endif
   
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>&
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator=(self const& o) {
@@ -202,7 +211,6 @@ namespace edm {
     (*t)[ i ].first = ref;
     (*t)[ i ].second = data_[ i ];
   }
-#endif
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::size_type
@@ -215,7 +223,6 @@ namespace edm {
     return data_.empty();
   }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::clear() {
     data_.clear();
@@ -244,12 +251,11 @@ namespace edm {
       }
     }
   }
-#endif
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::fillView(ProductID const& id,
 											  std::vector<void const*>& pointers,
-											  helper_vector& helpers) const
+											  FillViewHelperVector& helpers) const
   {
     detail::reallyFillView(*this, id, pointers, helpers);
 //     pointers.reserve(this->size());
@@ -275,7 +281,7 @@ namespace edm {
   fillView(AssociationVector<KeyRefProd,CVal, KeyRef, SizeType, KeyReferenceHelper> const& obj,
 	   ProductID const& id,
 	   std::vector<void const*>& pointers,
-	   helper_vector& helpers) {
+	   FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

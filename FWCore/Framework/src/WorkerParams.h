@@ -9,7 +9,7 @@ This struct is used to communication parameters into the worker factory.
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <string>
 
@@ -27,7 +27,7 @@ namespace edm {
     WorkerParams(ParameterSet* pset,
                  ProductRegistry& reg,
                  PreallocationConfiguration const* prealloc,
-                 boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                 std::shared_ptr<ProcessConfiguration const> processConfiguration,
                  ExceptionToActionTable const& actions) :
       pset_(pset),
       reg_(&reg),
@@ -38,7 +38,7 @@ namespace edm {
     ParameterSet* pset_;
     ProductRegistry* reg_;
     PreallocationConfiguration const* preallocate_;
-    boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
+    std::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ExceptionToActionTable const* actions_;
   };
 }

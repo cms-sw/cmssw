@@ -19,6 +19,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/RunInfo"/>
 <use   name="CondCore/DBOutputService"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
 <library   file="*.cc" name="SimGeneralMixingModulePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

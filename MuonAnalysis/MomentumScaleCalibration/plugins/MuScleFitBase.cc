@@ -125,7 +125,7 @@ void MuScleFitBase::writeHistoMap( const unsigned int iLoop ) {
 
 void MuScleFitBase::readProbabilityDistributionsFromFile()
 {
-  TH2D * GLZ[24];
+  TH2D * GLZ[6];
   TH2D * GL[6];
   TFile * ProbsFile;
   if( probabilitiesFile_ != "" ) {
@@ -141,27 +141,31 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     std::cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFileInPath_ << std::endl;
   }
 
-
   ProbsFile->cd();
-  if( theMuonType_!=2 && MuScleFitUtils::resfind[0]) {
-    for ( int i=0; i<24; i++ ) {
+  if( MuScleFitUtils::rapidityBinsForZ_ && MuScleFitUtils::resfind[0]) {
+    for ( int i=0; i<6; i++ ) {
       char nameh[6];
       sprintf (nameh,"GLZ%d",i);
       GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh));
     }
   }
-  if( theMuonType_==2 && MuScleFitUtils::resfind[0]) 
+  else if(MuScleFitUtils::resfind[0]) {
     GL[0] = dynamic_cast<TH2D*> (ProbsFile->Get("GL0"));
-  if(MuScleFitUtils::resfind[1]) 
+  }
+  else if(MuScleFitUtils::resfind[1]) 
     GL[1] = dynamic_cast<TH2D*> (ProbsFile->Get("GL1"));
-  if(MuScleFitUtils::resfind[2]) 
+  else if(MuScleFitUtils::resfind[2]) 
     GL[2] = dynamic_cast<TH2D*> (ProbsFile->Get("GL2"));
-  if(MuScleFitUtils::resfind[3]) 
+  else if(MuScleFitUtils::resfind[3]) 
     GL[3] = dynamic_cast<TH2D*> (ProbsFile->Get("GL3"));
-  if(MuScleFitUtils::resfind[4]) 
+  else if(MuScleFitUtils::resfind[4]) 
     GL[4] = dynamic_cast<TH2D*> (ProbsFile->Get("GL4"));
-  if(MuScleFitUtils::resfind[5]) 
+  else if(MuScleFitUtils::resfind[5]) 
     GL[5] = dynamic_cast<TH2D*> (ProbsFile->Get("GL5"));
+  else {
+    std::cout<<"[MuScleFit-Constructor]: No resonance selected, please fill the resfind array"<<std::endl;
+    exit(1);
+  }
 
   // Read the limits for M and Sigma axis for each pdf
   // Note: we assume all the Z histograms to have the same limits
@@ -190,8 +194,8 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
 
   // Extract normalization for mass slice in Y bins of Z
   // ---------------------------------------------------
-  if(MuScleFitUtils::resfind[0] && theMuonType_!=2) {
-    for (int iY=0; iY<24; iY++) {
+  if(MuScleFitUtils::rapidityBinsForZ_ && MuScleFitUtils::resfind[0] && theMuonType_!=2) {
+    for (int iY=0; iY<6; iY++) {
       int nBinsX = GLZ[iY]->GetNbinsX();
       int nBinsY = GLZ[iY]->GetNbinsY();
       if( nBinsX != MuScleFitUtils::nbins+1 || nBinsY != MuScleFitUtils::nbins+1 ) {
@@ -257,7 +261,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   }
   // Free all the memory for the probability histograms.
   if(MuScleFitUtils::resfind[0] && theMuonType_!=2) {
-    for ( int i=0; i<24; i++ ) {
+    for ( int i=0; i<6; i++ ) {
       delete GLZ[i];
     }
   }

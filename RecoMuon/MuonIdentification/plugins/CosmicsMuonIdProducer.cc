@@ -7,7 +7,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCosmicsId.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,7 +16,7 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonCosmicCompatibilityFiller.h"
 
-class CosmicsMuonIdProducer : public edm::EDProducer {
+class CosmicsMuonIdProducer : public edm::stream::EDProducer<> {
 public:
   CosmicsMuonIdProducer(const edm::ParameterSet& iConfig) :
     inputMuonCollection_(iConfig.getParameter<edm::InputTag>("muonCollection")),
@@ -33,13 +33,13 @@ public:
       trackTokens_.push_back(consumes<reco::TrackCollection>(inputTrackCollections_.at(i)));
 
   }
-  virtual ~CosmicsMuonIdProducer() {
+  ~CosmicsMuonIdProducer() override {
     if (compatibilityFiller_)
       delete compatibilityFiller_;
   }
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag inputMuonCollection_;
   std::vector<edm::InputTag> inputTrackCollections_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
@@ -82,19 +82,19 @@ CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
   // create and fill value map
-  std::auto_ptr<edm::ValueMap<unsigned int> > out(new edm::ValueMap<unsigned int>());
+  auto out = std::make_unique<edm::ValueMap<unsigned int>>();
   edm::ValueMap<unsigned int>::Filler filler(*out);
   filler.insert(muons, values.begin(), values.end());
   filler.fill();
 
 
-  std::auto_ptr<edm::ValueMap<reco::MuonCosmicCompatibility> > outC(new edm::ValueMap<reco::MuonCosmicCompatibility>());
+  auto outC = std::make_unique<edm::ValueMap<reco::MuonCosmicCompatibility>>();
   edm::ValueMap<reco::MuonCosmicCompatibility>::Filler fillerC(*outC);
   fillerC.insert(muons, compValues.begin(), compValues.end());
   fillerC.fill();
 
   // put value map into event
-  iEvent.put(out);
-  iEvent.put(outC);
+  iEvent.put(std::move(out));
+  iEvent.put(std::move(outC));
 }
 DEFINE_FWK_MODULE(CosmicsMuonIdProducer);

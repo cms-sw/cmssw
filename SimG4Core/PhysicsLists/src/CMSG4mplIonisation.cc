@@ -48,6 +48,8 @@
 #include "G4Electron.hh"
 #include "G4mplIonisationModel.hh"
 #include "G4BohrFluctuations.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
@@ -85,7 +87,7 @@ void CMSG4mplIonisation::InitialiseEnergyLossProcess(const G4ParticleDefinition*
 {
   if(isInitialised) return;
 
-  SetBaseParticle(0);
+  SetBaseParticle(nullptr);
   SetSecondaryParticle(G4Electron::Electron());
 
   G4mplIonisationModel* ion  = new G4mplIonisationModel(magneticCharge,"PAI");

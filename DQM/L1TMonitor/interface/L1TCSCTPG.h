@@ -29,6 +29,8 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -37,7 +39,7 @@
 // class decleration
 //
 
-class L1TCSCTPG : public edm::EDAnalyzer {
+class L1TCSCTPG : public DQMEDAnalyzer {
 
 public:
 
@@ -45,26 +47,18 @@ public:
 L1TCSCTPG(const edm::ParameterSet& ps);
 
 // Destructor
-virtual ~L1TCSCTPG();
+~L1TCSCTPG() override;
 
 protected:
 // Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
-void beginJob(void);
-
-// BeginRun
- void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
-
-
-// EndJob
-void endJob(void);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
-
+ 
   MonitorElement* csctpgpattern;
   MonitorElement* csctpgquality;
   MonitorElement* csctpgwg;

@@ -18,7 +18,6 @@ process.load("RecoParticleFlow.PFTracking.source_particleGun_NuclearTest_cfi")
 #fastsim
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("FastSimulation.Configuration.CommonInputs_cff")
-process.load("FastSimulation.Configuration.FamosSequences_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
@@ -26,29 +25,20 @@ process.GlobalTag.globaltag = autoCond['mc']
 
 process.ecalRecHit.doMiscalib = True
 
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
-process.famosSimHits.VertexGenerator.BetaStar = 0.00001
-process.famosSimHits.VertexGenerator.SigmaZ = 0.00001
+process.fastSimProducer.VertexGenerator.BetaStar = 0.00001
+process.fastSimProducer.VertexGenerator.SigmaZ = 0.00001
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
-
-#process.famosSimHits.MaterialEffects.PairProduction = True
-#process.famosSimHits.MaterialEffects.Bremsstrahlung = True
-#process.famosSimHits.MaterialEffects.EnergyLoss = True
-#process.famosSimHits.MaterialEffects.MultipleScattering = True
-#process.famosSimHits.MaterialEffects.NuclearInteraction = True
-
-#process.famosSimHits.MaterialEffects.PairProduction = False
-#process.famosSimHits.MaterialEffects.Bremsstrahlung = False
-#process.famosSimHits.MaterialEffects.EnergyLoss = False
-#process.famosSimHits.MaterialEffects.MultipleScattering = False
-process.famosSimHits.MaterialEffects.NuclearInteraction = True
 
 process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 process.load("RecoParticleFlow.PFTracking.particleFlowDisplacedVertexCandidate_cff")
@@ -67,7 +57,7 @@ process.displacedVertexSelector = cms.EDFilter(
 
 process.simVertexSelector = cms.EDFilter(
     "SimVertexSelector",
-    src = cms.InputTag("famosSimHits"),
+    src = cms.InputTag("fastSimProducer"),
 #    cut = cms.string("position.x>1000.0")
     cut = cms.string("position.rho>2.5"),
 #    cut = cms.string(""),

@@ -9,7 +9,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -20,12 +20,12 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class CaloMuonMerger : public edm::EDProducer {
+class CaloMuonMerger : public edm::stream::EDProducer<> {
 public:
   explicit CaloMuonMerger(const edm::ParameterSet & iConfig);
-  virtual ~CaloMuonMerger() { }
+  ~CaloMuonMerger() override { }
 
-  virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
 private:
   edm::InputTag muons_;
@@ -74,7 +74,7 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     if(mergeCaloMuons_) iEvent.getByToken(caloMuonToken_,caloMuons);
       if(mergeTracks_) iEvent.getByToken(trackToken_,tracks);
 
-    std::auto_ptr<std::vector<reco::Muon> >  out(new std::vector<reco::Muon>());
+    auto out = std::make_unique<std::vector<reco::Muon>>();
     out->reserve(muons->size() + (mergeTracks_?tracks->size():0));
 
     // copy reco::Muons, turning on the CaloCompatibility flag if enabled and possible
@@ -143,7 +143,7 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
         }
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

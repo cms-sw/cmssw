@@ -12,9 +12,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include <stdio.h>
+
+#include <memory>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;
@@ -58,13 +60,13 @@ void QualityTester::beginRun(const edm::Run& run , const edm::EventSetup& iSetup
 //     std::cout << "Reading XML from Database" << std::endl ;
     edm::ESHandle<FileBlob> xmlfile;
     iSetup.get<DQMXMLFileRcd>().get(Label,xmlfile);
-    boost::scoped_ptr<std::vector<unsigned char> > vc( (*xmlfile).getUncompressedBlob() );
+    std::unique_ptr<std::vector<unsigned char> > vc( (*xmlfile).getUncompressedBlob() );
     std::string xmlstr="";
     for(std::vector<unsigned char>::iterator it=vc->begin();it!=vc->end();it++){
       xmlstr += *it;
     }
 
-    qtHandler->configureTests(xmlstr,bei,1);
+    qtHandler->configureTests(xmlstr,bei,true);
 
   }
 }
@@ -114,7 +116,7 @@ void QualityTester::performTests(void)
 
     bei->runQTests();
 
-    if (reportThreshold.size() != 0)
+    if (!reportThreshold.empty())
     {
       std::map< std::string, std::vector<std::string> > theAlarms
 	= qtHandler->checkDetailedQTStatus(bei);
@@ -127,13 +129,13 @@ void QualityTester::performTests(void)
         if ((reportThreshold == "black")
 	    || (reportThreshold == "orange" && (alarmType == "orange" || alarmType == "red"))
 	    || (reportThreshold == "red" && alarmType == "red"))
-	{
-          std::cout << std::endl;
-          std::cout << "Error Type: " << alarmType << std::endl;
-          for (std::vector<std::string>::const_iterator msg = msgs.begin();
-	       msg != msgs.end(); ++msg)
-            std::cout << *msg << std::endl;
-        }
+	  {
+	    std::cout << std::endl;
+	    std::cout << "Error Type: " << alarmType << std::endl;
+	    for (std::vector<std::string>::const_iterator msg = msgs.begin();
+		 msg != msgs.end(); ++msg)
+	      std::cout << *msg << std::endl;
+	  }
       }
       std::cout << std::endl;
     }

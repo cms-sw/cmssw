@@ -14,27 +14,38 @@
  * Chang Liu:
  * The class prints nextLayers and compatibleLayers
  * Add new constructor for MuonTkNavigationSchool
+ *
+ * Cesare Calabria:
+ * GEMs implementation.
+
+ * David Nash:
+ * ME0s implementation
  */
 
 class DetLayer;
 class MuonDetLayerGeometry;
 class GeometricSearchTracker;
+class MuonNavigationSchool;
 
 #include <vector>
 #include <string>
 
 class MuonNavigationPrinter {
   public:
-    MuonNavigationPrinter(const MuonDetLayerGeometry *, bool enableRPC = true );
-    MuonNavigationPrinter(const MuonDetLayerGeometry *,const GeometricSearchTracker *);
+
+  MuonNavigationPrinter(const MuonDetLayerGeometry *, MuonNavigationSchool const &, bool enableRPC = true, bool enableCSC = true, bool enableGEM = false, bool enableME0 = false );
+  MuonNavigationPrinter(const MuonDetLayerGeometry *,MuonNavigationSchool const &, const GeometricSearchTracker *);
 
   private:
-    void printLayer(DetLayer*) const;
+    void printLayer(const DetLayer*) const;
     void printLayers(const std::vector<const DetLayer*>&) const;
     /// return detector part (barrel, forward, backward)
 //    std::string layerPart(const DetLayer*) const;
     /// return detector module (pixel, silicon, msgc, dt, csc, rpc)
 //    std::string layerModule(const DetLayer*) const;
+
+
+  MuonNavigationSchool const * school=nullptr;
 
 };
 #endif

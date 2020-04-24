@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexFinder.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -25,7 +26,7 @@ using namespace reco;
 //#define PFLOW_DEBUG
 
 PFDisplacedVertexFinder::PFDisplacedVertexFinder() : 
-  displacedVertexCandidates_( new PFDisplacedVertexCandidateCollection ),
+  displacedVertexCandidates_( nullptr),
   displacedVertices_( new PFDisplacedVertexCollection ),
   transvSize_(0.0),
   longSize_(0.0),
@@ -42,18 +43,10 @@ void
 PFDisplacedVertexFinder::setInput(
 				  const edm::Handle<reco::PFDisplacedVertexCandidateCollection>& displacedVertexCandidates) {
 
-  if( displacedVertexCandidates_.get() ) {
-    displacedVertexCandidates_->clear();
-  }
-  else 
-    displacedVertexCandidates_.reset( new PFDisplacedVertexCandidateCollection );
-
-
-  if(displacedVertexCandidates.isValid()) {
-    for(unsigned i=0;i<displacedVertexCandidates->size(); i++) {
-      PFDisplacedVertexCandidateRef dvcref( displacedVertexCandidates, i); 
-      displacedVertexCandidates_->push_back( (*dvcref));
-    }
+  if (displacedVertexCandidates.isValid()){
+    displacedVertexCandidates_ = displacedVertexCandidates.product();
+  } else {
+    displacedVertexCandidates_ = nullptr;
   }
 
 }
@@ -72,6 +65,10 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
   else 
     displacedVertices_.reset( new PFDisplacedVertexCollection );
 
+  if (displacedVertexCandidates_ == nullptr) {
+    edm::LogInfo("EmptyVertexInput")<<"displacedVertexCandidates are not set or the setInput was called with invalid vertex";
+    return;
+  }
 
   // Prepare the collections
   PFDisplacedVertexSeedCollection tempDisplacedVertexSeeds;
@@ -87,15 +84,14 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
 
   int i = -1;
 
-  for(IDVC idvc = displacedVertexCandidates_->begin(); 
-      idvc != displacedVertexCandidates_->end(); idvc++) {
+  for(auto const& idvc : *displacedVertexCandidates_) {
 
     i++;
     if (debug_) {
       cout << "Analyse Vertex Candidate " << i << endl;
     }
     
-    findSeedsFromCandidate(*idvc, tempDisplacedVertexSeeds);
+    findSeedsFromCandidate(idvc, tempDisplacedVertexSeeds);
     
   }     
 
@@ -116,7 +112,7 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
     if (!tempDisplacedVertexSeeds[idv].isEmpty() && !bLockedSeeds[idv]) {
       PFDisplacedVertex displacedVertex;  
       bLockedSeeds[idv] = fitVertexFromSeed(tempDisplacedVertexSeeds[idv], displacedVertex);
-      if (!bLockedSeeds[idv])  tempDisplacedVertices.push_back(displacedVertex);
+      if (!bLockedSeeds[idv])  tempDisplacedVertices.emplace_back(displacedVertex);
     }
   }
 
@@ -144,7 +140,7 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
 
 
 void 
-PFDisplacedVertexFinder::findSeedsFromCandidate(PFDisplacedVertexCandidate& vertexCandidate, PFDisplacedVertexSeedCollection& tempDisplacedVertexSeeds){
+PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCandidate& vertexCandidate, PFDisplacedVertexSeedCollection& tempDisplacedVertexSeeds){
   
   const PFDisplacedVertexCandidate::DistMap r2Map = vertexCandidate.r2Map();
   bool bNeedNewCandidate = false;
@@ -171,10 +167,9 @@ PFDisplacedVertexFinder::findSeedsFromCandidate(PFDisplacedVertexCandidate& vert
 	break;
       }
       const GlobalPoint vertexPoint = (*idvc_current).seedPoint();
-      double Delta_Long = getLongDiff(vertexPoint, dcaPoint);
-      double Delta_Transv = getTransvDiff(vertexPoint, dcaPoint);
-      if (Delta_Long > longSize_) continue;
-      if (Delta_Transv > transvSize_) continue;
+      std::pair<float,float> diffs = getTransvLongDiff(vertexPoint,dcaPoint);
+      if (diffs.second > longSize_) continue;
+      if (diffs.first > transvSize_) continue;
       bNeedNewCandidate = false;
       break;
     }
@@ -183,7 +178,6 @@ PFDisplacedVertexFinder::findSeedsFromCandidate(PFDisplacedVertexCandidate& vert
       tempDisplacedVertexSeeds.push_back( PFDisplacedVertexSeed() );      
       idvc_current = tempDisplacedVertexSeeds.end();
       idvc_current--;
-      bNeedNewCandidate = false;
     }
 
 
@@ -232,7 +226,7 @@ PFDisplacedVertexFinder::mergeSeeds(PFDisplacedVertexSeedCollection& tempDisplac
 
 
 bool
-PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVertexSeed, PFDisplacedVertex& displacedVertex) {
+PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displacedVertexSeed, PFDisplacedVertex& displacedVertex) {
 
 
   if (debug_) cout << "== Start vertexing procedure ==" << endl;
@@ -240,8 +234,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
   // ---- Prepare transient track list ----
 
-  set < TrackBaseRef, PFDisplacedVertexSeed::Compare > tracksToFit = displacedVertexSeed.elements();
-  GlobalPoint seedPoint = displacedVertexSeed.seedPoint();
+  set < TrackBaseRef, PFDisplacedVertexSeed::Compare > const& tracksToFit = displacedVertexSeed.elements();
+  const GlobalPoint& seedPoint = displacedVertexSeed.seedPoint();
 
   vector<TransientTrack> transTracks;
   vector<TransientTrack> transTracksRaw;
@@ -272,7 +266,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
   if (rho > tobCut_ || fabs(z) > tecCut_) {
     if (debug_) cout << "Seed Point out of the tracker rho = " << rho << " z = "<< z << " nTracks = " << tracksToFit.size() << endl;
-  return true;
+    return true;
   }
 
   if (debug_) displacedVertexSeed.Dump();
@@ -281,12 +275,22 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   int nNotIterative = 0;
 
   // Fill vectors of TransientTracks and TrackRefs after applying preselection cuts.
-  for(IEset ie = tracksToFit.begin(); ie !=  tracksToFit.end(); ie++){
-    TransientTrack tmpTk( *((*ie).get()), magField_, globTkGeomHandle_);
-    transTracksRaw.push_back( tmpTk );
-    transTracksRefRaw.push_back( *ie );
-    if ( (*ie)->algo()-4 > 3 ) nStep45++;
-    if ( (*ie)->algo()-4 < 0 ||(*ie)->algo()-4 > 5 ) nNotIterative++;
+  for(auto const& ie : tracksToFit){
+    TransientTrack tmpTk( *(ie.get()), magField_, globTkGeomHandle_);
+    transTracksRaw.emplace_back( tmpTk );
+    transTracksRefRaw.push_back( ie );
+    bool nonIt = PFTrackAlgoTools::nonIterative((ie)->algo());
+    bool step45 = PFTrackAlgoTools::step45((ie)->algo());
+    bool highQ = PFTrackAlgoTools::highQuality((ie)->algo());   
+    if (step45)
+      nStep45++;
+    else if (nonIt)
+      nNotIterative++;
+    else if (!highQ) {
+      nNotIterative++;
+      nStep45++;
+    }
+
   }
 
   if (rho > 25 && nStep45 + nNotIterative < 1){
@@ -318,7 +322,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
 
 
-  } else {
+  } else {//branch with transTracksRaw.size of at least 3 
 
 
 
@@ -330,11 +334,14 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 					      KalmanVertexTrackCompatibilityEstimator<5>(), 
 					      KalmanVertexSmoother() );
 
-    /// This prefit procedure allow to reduce the Warning rate from Adaptive Vertex fitter
-    /// It reject also many fake tracks
+    if (transTracksRaw.size() == 3){
 
-  
-    if ( transTracksRaw.size() < 1000 && transTracksRaw.size() > 3){
+      theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
+
+    }
+    else if ( transTracksRaw.size() < 1000){
+      /// This prefit procedure allow to reduce the Warning rate from Adaptive Vertex fitter
+      /// It reject also many fake tracks
 
       if (debug_) cout << "First test with KFT" << endl;
 
@@ -372,11 +379,8 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
 
     } else {
-
-
-      theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
-
-    }
+      edm::LogWarning("TooManyPFDVCandidates")<<"gave up vertex reco for "<< transTracksRaw.size() <<" tracks";
+    } 
 
     if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
       if(debug_) cout << "Fit failed : valid? " << theVertexAdaptiveRaw.isValid() 
@@ -412,7 +416,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
     if (theVertexAdaptiveRaw.trackWeight(transTracksRaw[i]) > minAdaptWeight_){
 
-      PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerGeomHandle_, transTracksRefRaw[i], theVertexAdaptiveRaw);
+      PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerTopo_, tkerGeom_, transTracksRefRaw[i], theVertexAdaptiveRaw);
 
       PFDisplacedVertex::VertexTrackType vertexTrackType = getVertexTrackType(pattern);
 
@@ -429,7 +433,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 		 << " pt = " <<  transTracksRaw[i].track().pt()
 		 << " dxy (wrt (0,0,0)) = " << transTracksRaw[i].track().dxy()
 		 << " nHits = " << transTracksRaw[i].track().numberOfValidHits()
-		 << " nOuterHits = " << transTracksRaw[i].track().trackerExpectedHitsOuter().numberOfHits() << endl;
+		 << " nOuterHits = " << transTracksRaw[i].track().hitPattern().numberOfLostHits(HitPattern::MISSING_OUTER_HITS) << endl;
 	} 
       } else {
 	
@@ -483,7 +487,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 					 KalmanVertexUpdator<5>(), 
 					 KalmanVertexTrackCompatibilityEstimator<5>(), 
 					 KalmanVertexSmoother() );
-
+    
     theRecoVertex = theAdaptiveFitter.vertex(transTracks, seedPoint);
 
   } else if (vtxFitter == F_DONOTREFIT) {
@@ -529,7 +533,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   
   for(unsigned i = 0; i < transTracks.size();i++) {
     
-    PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerGeomHandle_, transTracksRef[i], theRecoVertex);
+    PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerTopo_, tkerGeom_, transTracksRef[i], theRecoVertex);
 
     PFDisplacedVertex::VertexTrackType vertexTrackType = getVertexTrackType(pattern);
 
@@ -686,13 +690,12 @@ PFDisplacedVertexFinder::rejectAndLabelVertex(PFDisplacedVertex& dv){
 bool 
 PFDisplacedVertexFinder::isCloseTo(const PFDisplacedVertexSeed& dv1, const PFDisplacedVertexSeed& dv2) const {
 
-  const GlobalPoint vP1 = dv1.seedPoint();
-  const GlobalPoint vP2 = dv2.seedPoint();
+  const GlobalPoint& vP1 = dv1.seedPoint();
+  const GlobalPoint& vP2 = dv2.seedPoint();
 
-  double Delta_Long = getLongDiff(vP1, vP2);
-  if (Delta_Long > longSize_) return false;
-  double Delta_Transv = getTransvDiff(vP1, vP2);
-  if (Delta_Transv > transvSize_) return false;
+  std::pair<float,float> diffs = getTransvLongDiff(vP1,vP2);
+  if (diffs.second > longSize_) return false;
+  if (diffs.first > transvSize_) return false;
   //  if (Delta_Long < longSize_ && Delta_Transv < transvSize_) isCloseTo = true;
 
   return true;
@@ -700,33 +703,15 @@ PFDisplacedVertexFinder::isCloseTo(const PFDisplacedVertexSeed& dv1, const PFDis
 }
 
 
-double  
-PFDisplacedVertexFinder::getLongDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
+std::pair<float,float>
+PFDisplacedVertexFinder::getTransvLongDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
 
-  Basic3DVector<double>vRef(Ref);
-  Basic3DVector<double>vToProject(ToProject);
-  return fabs((vRef.dot(vToProject)-vRef.mag2())/vRef.mag());
+  const auto & vRef = Ref.basicVector();
+  const auto & vToProject = ToProject.basicVector();
+  float vRefMag2 = vRef.mag2();
+  float oneOverMag = 1.0f/sqrt(vRefMag2);
 
-}
-
-double  
-PFDisplacedVertexFinder::getLongProj(const GlobalPoint& Ref, const GlobalVector& ToProject) const {
-
-  Basic3DVector<double>vRef(Ref);
-  Basic3DVector<double>vToProject(ToProject);
-  return (vRef.dot(vToProject))/vRef.mag();
-
-
-}
-
-
-double  
-PFDisplacedVertexFinder::getTransvDiff(const GlobalPoint& Ref, const GlobalPoint& ToProject) const {
-
-  Basic3DVector<double>vRef(Ref);
-  Basic3DVector<double>vToProject(ToProject);
-  return fabs(vRef.cross(vToProject).mag()/vRef.mag());
-
+  return std::make_pair(fabs(vRef.cross(vToProject).mag()*oneOverMag),fabs((vRef.dot(vToProject)-vRefMag2)*oneOverMag));
 }
 
 

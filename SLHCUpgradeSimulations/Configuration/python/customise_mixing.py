@@ -32,8 +32,8 @@ def customise_NoCrossing(process):
     process.mix.mixObjects.mixTracks.makeCrossingFrame = cms.untracked.bool(False)
     process.mix.mixObjects.mixVertices.makeCrossingFrame = cms.untracked.bool(False)
     process.mix.mixObjects.mixHepMC.makeCrossingFrame = cms.untracked.bool(False)
-    process.digitisation_step.remove(process.simSiStripDigiSimLink)
-    process.digitisation_step.remove(process.mergedtruth)
+    #process.digitisation_step.remove(process.simSiStripDigiSimLink)
+    #process.digitisation_step.remove(process.mergedtruth)
     return (process)
 
 def customise_pixelMixing_PU(process):
@@ -57,3 +57,7 @@ def customise_NoCrossing_PU(process):
     process=customise_NoCrossing(process)
     return (process)
 
+
+def customise_Mix_LongLived_Neutrons(process):
+    process.mix.WrapLongTimes = cms.bool(True)
+    return (process)

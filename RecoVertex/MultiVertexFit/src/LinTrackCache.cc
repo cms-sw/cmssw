@@ -5,13 +5,6 @@ using namespace std;
 
 namespace
 {
-  inline int verbose()
-  {
-    static const int ret = 0; /* SimpleConfigurable<int>
-      (0, "LinTrackCache:Debug").value(); */
-    return ret;
-  }
-
   float maxRelinDistance()
   {
     // maximum distance before relinearizing

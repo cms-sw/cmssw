@@ -1,16 +1,19 @@
 #ifndef DDL_Numeric_H
 #define DDL_Numeric_H
 
+#include <map>
+#include <string>
+#include <vector>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDNumeric.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
 
-#include <string>
-#include <vector>
-#include <map>
+class DDCompactView;
+class DDLElementRegistry;
 
 ///  DDLNumeric handles Numeric Elements
 /** @class DDLNumeric
@@ -23,16 +26,13 @@
  *
  *
  */
-class DDLNumeric : public DDXMLElement
+class DDLNumeric final : public DDXMLElement
 {
 public:
 
   DDLNumeric( DDLElementRegistry* myreg );
 
-  ~DDLNumeric( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 };
 #endif

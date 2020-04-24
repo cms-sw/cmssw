@@ -695,7 +695,9 @@ namespace edm {
     void MessageLogger::preSourceEvent(StreamID)
     { establish("source"); }
     void MessageLogger::postSourceEvent(StreamID)
-    { unEstablish("AfterSource"); }
+    { unEstablish("AfterSource");
+      MessageDrop::instance()->runEvent = "AfterSource";
+    }
     void MessageLogger::preSourceRunLumi()
     { establish("source"); }
     void MessageLogger::postSourceRunLumi()
@@ -735,15 +737,15 @@ namespace edm {
     MessageLogger::preStreamBeginRun( StreamContext const& iContext)	// change log 14
     {
       std::ostringstream ost;
-      ost << "Run: " << iContext.eventID().run();
+      ost << "Run: " << iContext.eventID().run()<<" Stream: "<<iContext.streamID().value();;
       transitionInfoCache_[iContext.streamID().value()]=ost.str();
       edm::MessageDrop::instance()->runEvent = ost.str();
-      edm::MessageDrop::instance()->setSinglet("PreBeginRun");	// changelog 17
+      edm::MessageDrop::instance()->setSinglet("PreStreamBeginRun");	// changelog 17
     }
     void MessageLogger::postStreamBeginRun(StreamContext const&)
     {
-      edm::MessageDrop::instance()->runEvent = "PostBeginRun";
-      edm::MessageDrop::instance()->setSinglet("PostBeginRun");	// changelog 17
+      edm::MessageDrop::instance()->runEvent = "PostStreamBeginRun";
+      edm::MessageDrop::instance()->setSinglet("PostStreamBeginRun");	// changelog 17
                                                                 // Note - module name had not been set here
     }
     
@@ -751,16 +753,16 @@ namespace edm {
     MessageLogger::preStreamEndRun( StreamContext const& iContext)
     {
       std::ostringstream ost;
-      ost << "End Run: " << iContext.eventID().run();
+      ost << "End Run: " << iContext.eventID().run()<<" Stream: "<<iContext.streamID().value();;
       transitionInfoCache_[iContext.streamID().value()]=ost.str();
       edm::MessageDrop::instance()->runEvent = ost.str();
-      edm::MessageDrop::instance()->setSinglet("PreEndRun");	// changelog 17
+      edm::MessageDrop::instance()->setSinglet("PreStreamEndRun");	// changelog 17
     }
     
     void MessageLogger::postStreamEndRun(StreamContext const&)
     {
-      edm::MessageDrop::instance()->runEvent = "PostEndRun";
-      edm::MessageDrop::instance()->setSinglet("PostEndRun");	// changelog 17
+      edm::MessageDrop::instance()->runEvent = "PostStreamEndRun";
+      edm::MessageDrop::instance()->setSinglet("PostStreaEndRun");	// changelog 17
     }
     
     void
@@ -768,16 +770,16 @@ namespace edm {
     {
       std::ostringstream ost;
       auto const& id = iContext.eventID();
-      ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
+      ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock()<<" Stream: "<<iContext.streamID().value();
       transitionInfoCache_[iContext.streamID().value()]=ost.str();
       edm::MessageDrop::instance()->runEvent = ost.str();
-      edm::MessageDrop::instance()->setSinglet("PreBeginLumi");	// changelog 17
+      edm::MessageDrop::instance()->setSinglet("PreStreamBeginLumi");	// changelog 17
     }
     
     void MessageLogger::postStreamBeginLumi(StreamContext const&)
     {
-      edm::MessageDrop::instance()->runEvent = "PostBeginLumi";
-      edm::MessageDrop::instance()->setSinglet("PostBeginLumi");	// changelog 17
+      edm::MessageDrop::instance()->runEvent = "PostStreamBeginLumi";
+      edm::MessageDrop::instance()->setSinglet("PostStreamBeginLumi");	// changelog 17
     }
     
     void
@@ -785,15 +787,15 @@ namespace edm {
     {
       std::ostringstream ost;
       auto const& id = iContext.eventID();
-      ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
+      ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock()<<" Stream: "<<iContext.streamID().value();;
       transitionInfoCache_[iContext.streamID().value()]=ost.str();
       edm::MessageDrop::instance()->runEvent = ost.str();
-      edm::MessageDrop::instance()->setSinglet("PreEndLumi");	// changelog 17
+      edm::MessageDrop::instance()->setSinglet("PreStreamEndLumi");	// changelog 17
     }
     void MessageLogger::postStreamEndLumi(StreamContext const&)
     {
-      edm::MessageDrop::instance()->runEvent = "PostEndLumi";
-      edm::MessageDrop::instance()->setSinglet("PostEndLumi");	// changelog 17
+      edm::MessageDrop::instance()->runEvent = "PostStreamEndLumi";
+      edm::MessageDrop::instance()->setSinglet("PostStreamEndLumi");	// changelog 17
     }
     
     
@@ -804,12 +806,12 @@ namespace edm {
       ost << "Run: " << iContext.luminosityBlockID().run();
       transitionInfoCache_[runInfoBegin_+iContext.runIndex()]=ost.str();
       edm::MessageDrop::instance()->runEvent = ost.str();
-      edm::MessageDrop::instance()->setSinglet("PreBeginRun");	// changelog 17
+      edm::MessageDrop::instance()->setSinglet("PreGlobalBeginRun");	// changelog 17
     }
     void MessageLogger::postGlobalBeginRun(GlobalContext const&)
     {
-      edm::MessageDrop::instance()->runEvent = "PostBeginRun";
-      edm::MessageDrop::instance()->setSinglet("PostBeginRun");	// changelog 17
+      edm::MessageDrop::instance()->runEvent = "PostGlobalBeginRun";
+      edm::MessageDrop::instance()->setSinglet("PostGlobalBeginRun");	// changelog 17
                                                                 // Note - module name had not been set here
     }
     
@@ -834,13 +836,13 @@ namespace edm {
       ost << "End Run: " << iContext.luminosityBlockID().run();
       transitionInfoCache_[runInfoBegin_+iContext.runIndex()]=ost.str();
       edm::MessageDrop::instance()->runEvent = ost.str();
-      edm::MessageDrop::instance()->setSinglet("PreEndRun");	// changelog 17
+      edm::MessageDrop::instance()->setSinglet("PreGlobalEndRun");	// changelog 17
     }
     
     void MessageLogger::postGlobalEndRun(GlobalContext const&)
     { 
-      edm::MessageDrop::instance()->runEvent = "PostEndRun"; 
-      edm::MessageDrop::instance()->setSinglet("PostEndRun");	// changelog 17
+      edm::MessageDrop::instance()->runEvent = "PostGlobalEndRun";
+      edm::MessageDrop::instance()->setSinglet("PostGlobalEndRun");	// changelog 17
     }
     
     void
@@ -851,13 +853,13 @@ namespace edm {
       ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
       transitionInfoCache_[lumiInfoBegin_+iContext.luminosityBlockIndex()]=ost.str();
       edm::MessageDrop::instance()->runEvent = ost.str();
-      edm::MessageDrop::instance()->setSinglet("PreBeginLumi");	// changelog 17
+      edm::MessageDrop::instance()->setSinglet("PreGlobalBeginLumi");	// changelog 17
     }
     
     void MessageLogger::postGlobalBeginLumi(GlobalContext const&)
     { 
-      edm::MessageDrop::instance()->runEvent = "PostBeginLumi"; 
-      edm::MessageDrop::instance()->setSinglet("PostBeginLumi");	// changelog 17
+      edm::MessageDrop::instance()->runEvent = "PostGlobalBeginLumi";
+      edm::MessageDrop::instance()->setSinglet("PostGlobalBeginLumi");	// changelog 17
     }
     
     void
@@ -868,12 +870,12 @@ namespace edm {
       ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
       transitionInfoCache_[lumiInfoBegin_+iContext.luminosityBlockIndex()]=ost.str();
       edm::MessageDrop::instance()->runEvent = ost.str();
-      edm::MessageDrop::instance()->setSinglet("PreEndLumi");	// changelog 17
+      edm::MessageDrop::instance()->setSinglet("PreGlobalEndLumi");	// changelog 17
     }
     void MessageLogger::postGlobalEndLumi(GlobalContext const&)
     { 
-      edm::MessageDrop::instance()->runEvent = "PostEndLumi"; 
-      edm::MessageDrop::instance()->setSinglet("PostEndLumi");	// changelog 17
+      edm::MessageDrop::instance()->runEvent = "PostGlobalEndLumi";
+      edm::MessageDrop::instance()->setSinglet("PostGlobalEndLumi");	// changelog 17
     }
     
     void

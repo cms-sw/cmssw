@@ -7,11 +7,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
 #include "SimTracker/TrackHistory/interface/Utils.h"
-#include "SimTracker/VertexAssociation/interface/VertexAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/VertexAssociation.h"
 
 //! This class traces the simulated and generated history of a given track.
 class VertexHistory : public HistoryBase
@@ -24,7 +25,8 @@ public:
 
        /param[in] config with the configuration values
     */
-    VertexHistory(const edm::ParameterSet &);
+    VertexHistory(const edm::ParameterSet &,
+                  edm::ConsumesCollector&&);
 
     //! Pre-process event information (for accessing reconstruction information)
     void newEvent(const edm::Event &, const edm::EventSetup &);
@@ -79,15 +81,11 @@ private:
 
     double quality_;
 
-    edm::InputTag trackProducer_;
-
     edm::InputTag vertexProducer_;
 
     edm::InputTag trackingTruth_;
 
-    std::string trackAssociator_;
-
-    std::string vertexAssociator_;
+    edm::InputTag vertexAssociator_;
 
     reco::VertexBaseRef recovertex_;
 

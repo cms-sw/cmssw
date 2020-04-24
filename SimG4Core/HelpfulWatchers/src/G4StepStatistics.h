@@ -161,7 +161,7 @@ UPDATE(BeginOfRun)
   //}
 UPDATE(BeginOfEvent)
 UPDATE(BeginOfTrack)
-   void update(const G4Step* iStep) { 
+   void update(const G4Step* iStep) override { 
    std::cout <<"++ signal G4Step " ;
    //Dump the relevant information from the G4 step in the object mysteptest
    StepID mysteptest(iStep);
@@ -195,7 +195,7 @@ UPDATE(EndOfRun)
   //}
   
   //UPDATE(EndOfEvent)
-  void update(const EndOfEvent* iRun) {
+  void update(const EndOfEvent* iRun) override {
   std::cout <<"++ signal EndOfEvent " <<std::endl;
   Event++;
   

@@ -34,23 +34,22 @@ class CastedRefProducer : public edm::EDProducer {
           produces<OutputCollection>();
         }
     /// destructor
-    ~CastedRefProducer(){};
+    ~CastedRefProducer() override{};
     /// process an event
-    virtual void produce(edm::Event& evt, const edm::EventSetup& es) {
+    void produce(edm::Event& evt, const edm::EventSetup& es) override {
       // Output collection
-      std::auto_ptr<OutputCollection> coll(new OutputCollection());
+      auto coll = std::make_unique<OutputCollection>();
       // Get input
       edm::Handle<edm::View<BaseType> > input;
       evt.getByLabel(src_, input);
       // Get references to the base
-      const base_ref_vector &baseRefs = input->refVector();
-      for(size_t i = 0; i < baseRefs.size(); ++i) {
+      for(size_t i = 0; i < input->size(); ++i) {
         // Cast the base class to the derived class
-        base_ref base = baseRefs.at(i);
+        base_ref base = input->refAt(i);
         derived_ref derived = base.template castTo<derived_ref>();
         coll->push_back(derived);
       }
-      evt.put( coll );
+      evt.put(std::move(coll));
     }
   private:
     /// labels of the collection to be converted

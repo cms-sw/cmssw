@@ -56,8 +56,7 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
   {
     explicit cfgEntryAxisY(const std::string&, const edm::ParameterSet&);
     void print() const;
-    static void setNorm(double yAxisNorm) { yAxisNorm_ = yAxisNorm; }
-    void applyTo(TH1*) const;
+    void applyTo(TH1*, double norm) const;
     std::string name_;
     double minY_linear_;
     double minY_log_;
@@ -67,7 +66,6 @@ class TauDQMHistPlotter : public edm::EDAnalyzer
     std::string yAxisTitle_;
     double yAxisTitleOffset_;
     double yAxisTitleSize_;
-    static double yAxisNorm_;
   };
 
   struct cfgEntryLegend

@@ -41,29 +41,29 @@ public:
 
   CMHistograms();
 
-  ~CMHistograms();
+  ~CMHistograms() override;
   
   //initialise histograms
   void initialise(const edm::ParameterSet& iConfig,
 		  std::ostringstream* pDebugStream
-		  );
+		  ) override;
 
   void fillHistograms(const std::vector<CMvalues>& aVec, float aTime, unsigned int aFedId);
 
 
    //book the top level histograms
-  void bookTopLevelHistograms(DQMStore* dqm);
+  void bookTopLevelHistograms(DQMStore::IBooker &);
 
   //book individual FED histograms or book all FED level histograms at once
-  void bookFEDHistograms(unsigned int fedId);
+  void bookFEDHistograms(DQMStore::IBooker & , unsigned int fedId);
   //void bookFEDHistograms(unsigned int fedId, unsigned int aCategory);
-  void bookChannelsHistograms(unsigned int fedId);
+  void bookChannelsHistograms(DQMStore::IBooker & , unsigned int fedId);
 
-  void bookAllFEDHistograms();
+  void bookAllFEDHistograms(DQMStore::IBooker &);
 
-  bool tkHistoMapEnabled(unsigned int aIndex=0);
+  bool tkHistoMapEnabled(unsigned int aIndex=0) override;
 
-  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0);
+  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0) override;
 
 protected:
   

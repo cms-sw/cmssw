@@ -9,6 +9,9 @@
  *
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *
+ *  Modified by C. Calabria
+ *  Modified by D. Nash
  */
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -67,6 +70,9 @@ public:
   const edm::EventSetup *theEventSetup;
   bool theMuonNavigationFlag;
   bool theRPCLayer;
+  bool theCSCLayer;
+  bool theGEMLayer;
+  bool theME0Layer;
   const MuonNavigationSchool* theSchool;
 
   propagators thePropagators;

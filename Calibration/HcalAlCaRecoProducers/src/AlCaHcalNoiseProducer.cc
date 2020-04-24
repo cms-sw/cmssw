@@ -115,7 +115,7 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 }
 	 
        }
-       if(JetContainer.size() > 0) {
+       if(!JetContainer.empty()) {
 	 nAnomalousEvents++;
 	 isAnomalous_BasedOnEnergyFraction = true;
        }
@@ -127,14 +127,14 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     //Create empty output collections
    
-  std::auto_ptr<HBHERecHitCollection> miniHBHERecHitCollection(new HBHERecHitCollection);
-  std::auto_ptr<HORecHitCollection> miniHORecHitCollection(new HORecHitCollection);
-  std::auto_ptr<HFRecHitCollection> miniHFRecHitCollection(new HFRecHitCollection);
+  auto miniHBHERecHitCollection = std::make_unique<HBHERecHitCollection>();
+  auto miniHORecHitCollection = std::make_unique<HORecHitCollection>();
+  auto miniHFRecHitCollection = std::make_unique<HFRecHitCollection>();
 
-  std::auto_ptr<EcalRecHitCollection> outputEColl(new EcalRecHitCollection);
-  std::auto_ptr<EcalRecHitCollection> outputESColl(new EcalRecHitCollection);
+  auto outputEColl = std::make_unique<EcalRecHitCollection>();
+  auto outputESColl = std::make_unique<EcalRecHitCollection>();
 
-  std::auto_ptr<FEDRawDataCollection> outputFEDs(new FEDRawDataCollection);
+  auto outputFEDs = std::make_unique<FEDRawDataCollection>();
 
 
   // if good event get and save all colletions
@@ -153,7 +153,7 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
       // temporary collection of EB+EE recHits
 
-      std::auto_ptr<EcalRecHitCollection> tmpEcalRecHitCollection(new EcalRecHitCollection);
+      auto tmpEcalRecHitCollection = std::make_unique<EcalRecHitCollection>();
       
       std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
       for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) 
@@ -255,10 +255,10 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
   //Put selected information in the event
-  iEvent.put( miniHBHERecHitCollection, "HBHERecHitCollectionFHN");
-  iEvent.put( miniHORecHitCollection, "HORecHitCollectionFHN");
-  iEvent.put( miniHFRecHitCollection, "HFRecHitCollectionFHN");
-  iEvent.put( outputEColl, "EcalRecHitCollectionFHN"); 
-  iEvent.put( outputESColl, "PSEcalRecHitCollectionFHN");
-  iEvent.put( outputFEDs, "HcalFEDsFHN"); 
+  iEvent.put(std::move(miniHBHERecHitCollection), "HBHERecHitCollectionFHN");
+  iEvent.put(std::move(miniHORecHitCollection), "HORecHitCollectionFHN");
+  iEvent.put(std::move(miniHFRecHitCollection), "HFRecHitCollectionFHN");
+  iEvent.put(std::move(outputEColl), "EcalRecHitCollectionFHN"); 
+  iEvent.put(std::move(outputESColl), "PSEcalRecHitCollectionFHN");
+  iEvent.put(std::move(outputFEDs), "HcalFEDsFHN"); 
 }

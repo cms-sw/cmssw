@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("runCosMuoGen")
 process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
-# process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENsource_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     generator = cms.PSet(

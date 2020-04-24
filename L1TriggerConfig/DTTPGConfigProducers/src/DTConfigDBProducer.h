@@ -22,7 +22,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 // user include files
@@ -34,6 +33,8 @@
 
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
+
+#include "CondTools/DT/interface/DTKeyedConfigCache.h"
 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
@@ -53,7 +54,7 @@ class DTConfigDBProducer : public edm::ESProducer{
   ~DTConfigDBProducer();
   
   //! ES produce method
-  std::auto_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
+  std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
   
  private :
 
@@ -95,6 +96,7 @@ class DTConfigDBProducer : public edm::ESProducer{
 
   bool flagDBBti, flagDBTraco, flagDBTSS, flagDBTSM, flagDBLUTS;  
 
+  DTKeyedConfigCache cfgCache;
 };
 
 #endif

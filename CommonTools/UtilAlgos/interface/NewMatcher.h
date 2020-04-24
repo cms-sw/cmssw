@@ -74,11 +74,11 @@ namespace reco {
       evt.getByToken(matchedToken_, matched);
       Handle<C1> cands;
       evt.getByToken(srcToken_, cands);
-      auto_ptr<MatchMap> matchMap(new MatchMap(matched));
+      unique_ptr<MatchMap> matchMap(new MatchMap(matched));
       size_t size = cands->size();
       if( size != 0 ) {
 	typename MatchMap::Filler filler(*matchMap);
-	::helper::MasterCollection<C1> master(cands);
+	::helper::MasterCollection<C1> master(cands, evt);
 	std::vector<int> indices(master.size(), -1);
 	for(size_t c = 0; c != size; ++ c) {
 	  const T1 & cand = (*cands)[c];
@@ -99,7 +99,7 @@ namespace reco {
 	filler.insert(master.get(), indices.begin(), indices.end());
 	filler.fill();
       }
-      evt.put(matchMap);
+      evt.put(std::move(matchMap));
     }
 
   }

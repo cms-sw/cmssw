@@ -76,12 +76,12 @@ class CSCSkim : public edm::EDFilter {
   explicit CSCSkim(const edm::ParameterSet& pset);
    
   // Destructor
-  ~CSCSkim();
+  ~CSCSkim() override;
      
   // Analysis routines
-  virtual void beginJob() ;
-  virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;
-  virtual void endJob() ;
+  void beginJob() override;
+  bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void endJob() override;
        
 protected:
        

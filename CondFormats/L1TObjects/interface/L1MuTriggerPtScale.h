@@ -21,6 +21,8 @@
 #ifndef CondFormatsL1TObjects_L1MuTriggerPtScale_h
 #define CondFormatsL1TObjects_L1MuTriggerPtScale_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -71,6 +73,8 @@ class L1MuTriggerPtScale {
 
  private:
   L1MuBinnedScale m_PtScale;
+
+ COND_SERIALIZABLE;
 };
 
 

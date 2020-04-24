@@ -22,7 +22,7 @@ public:
     theGeoDirection = undetermined;
   }
 
-  RefitDirection(std::string& type){ 
+  explicit RefitDirection(std::string const& type){ 
 
     thePropagationDirection = anyDirection;
     theGeoDirection = undetermined;
@@ -40,9 +40,6 @@ public:
 	<< "RefitDirection = [alongMomentum, oppositeToMomentum, insideOut, outsideIn]";
   }
   
-  /// Destructor
-  virtual ~RefitDirection(){};
-
   // Operations
   inline GeometricalDirection geometricalDirection() const {
     if(theGeoDirection == undetermined) LogTrace("Reco|TrackingTools|TrackTransformer") << "Try to use undetermined geometrical direction";

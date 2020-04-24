@@ -47,13 +47,13 @@ class PluginFactory<R*(Args...)> : public PluginFactoryBase
         PMaker(const std::string& iName) {
           PluginFactory<R*(Args...)>::get()->registerPMaker(this,iName);
         }
-        virtual R* create(Args... args) const {
+        R* create(Args... args) const override {
           return new TPlug(std::forward<Args>(args)...);
         }
       };
 
       // ---------- const member functions ---------------------
-      virtual const std::string& category() const ;
+      const std::string& category() const override ;
       
       R* create(const std::string& iName, Args... args) const {
         return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName))->create(std::forward<Args>(args)...);

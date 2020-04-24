@@ -3,6 +3,7 @@
 
 #include "TH1.h"
 #include "PhysicsTools/UtilAlgos/interface/BasicAnalyzer.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 /**
    \class PatMuonAnalyzer PatMuonAnalyzer.h "PhysicsTools/PatExamples/interface/PatMuonAnalyzer.h"
@@ -19,6 +20,7 @@ class PatMuonAnalyzer : public edm::BasicAnalyzer {
  public:
   /// default constructor
   PatMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs);
+  PatMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs, edm::ConsumesCollector&& iC);
   /// default destructor
   virtual ~PatMuonAnalyzer(){};
   /// everything that needs to be done before the event loop
@@ -31,6 +33,7 @@ class PatMuonAnalyzer : public edm::BasicAnalyzer {
  private:
   /// input tag for mouns
   edm::InputTag muons_;
+  edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken_;
   /// histograms
   std::map<std::string, TH1*> hists_;
 };

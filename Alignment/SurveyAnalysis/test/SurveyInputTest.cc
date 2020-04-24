@@ -49,7 +49,11 @@ Alignable* SurveyInputTest::create(const std::string& parName)
           int type = pars.getParameter<int>        ("typeId");
   std::string name = pars.getParameter<std::string>("object");
 
-  Alignable* ali = new AlignableComposite( type,AlignableObjectId::stringToId(name),
+  // FIXME: - currently defaulting to RunI as this was the previous behaviour
+  //        - check this, when resurrecting this code in the future
+  AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
+
+  Alignable* ali = new AlignableComposite( type, alignableObjectId.stringToId(name),
 					   surf.rotation() );
 
   Strings comp = pars.getUntrackedParameter<Strings>("compon", emptyString);

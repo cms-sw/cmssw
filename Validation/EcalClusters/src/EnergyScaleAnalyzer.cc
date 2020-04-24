@@ -74,7 +74,13 @@ EnergyScaleAnalyzer::EnergyScaleAnalyzer( const edm::ParameterSet& ps )
 //========================================================================
 {
   
-  hepMCLabel_ = ps.getParameter<std::string>("hepMCLabel");
+  hepMCLabel_ = consumes<edm::HepMCProduct>(ps.getParameter<std::string>("hepMCLabel"));
+  hybridSuperClusters_token = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>("hybridSuperClusters",edm::InputTag("hybridSuperClusters")));
+  dynamicHybridSuperClusters_token = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>("dynamicHybridSuperClusters",edm::InputTag("dynamicHybridSuperClusters")));
+  correctedHybridSuperClusters_token = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>("correctedHybridSuperClusters",edm::InputTag("correctedHybridSuperClusters")));
+  correctedDynamicHybridSuperClusters_token = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>("correctedDynamicHybridSuperClusters",edm::InputTag("correctedDynamicHybridSuperClusters")));
+  correctedFixedMatrixSuperClustersWithPreshower_token = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>("correctedFixedMatrixSuperClustersWithPreshower",edm::InputTag("correctedFixedMatrixSuperClustersWithPreshower")));
+  fixedMatrixSuperClustersWithPreshower_token = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>("fixedMatrixSuperClustersWithPreshower",edm::InputTag("fixedMatrixSuperClustersWithPreshower")));
 
   outputFile_   = ps.getParameter<std::string>("outputFile");
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); // open output file to store histograms
@@ -122,8 +128,11 @@ EnergyScaleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es )
   // =======================================================================================
   // =======================================================================================
   Handle<HepMCProduct> hepMC;
-  evt.getByLabel( hepMCLabel_, hepMC ) ;
+  evt.getByToken( hepMCLabel_, hepMC ) ;
   
+  Labels l;
+  labelsForToken(hepMCLabel_, l);
+
   const HepMC::GenEvent* genEvent = hepMC->GetEvent();
   if ( !(hepMC.isValid())) {
     LogInfo("EnergyScaleAnalyzer") << "Could not get MC Product!";
@@ -142,7 +151,7 @@ EnergyScaleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es )
       // take only 1st vertex for now - it's been tested only of PGuns...
       //
       HepMC::GenEvent::vertex_const_iterator vtx = evt->vertices_begin() ;
-      if ( evtHandles[i].provenance()->moduleLabel() == hepMCLabel_ ) {
+      if ( evtHandles[i].provenance()->moduleLabel() == std::string(l.module) ) {
 	//Corrdinates of Vertex w.r.o. the point (0,0,0)
 	xVtx_ = 0.1*(*vtx)->position().x();      
 	yVtx_ = 0.1*(*vtx)->position().y();
@@ -155,21 +164,21 @@ EnergyScaleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es )
 
   Handle<reco::SuperClusterCollection> hybridSuperClusters;
   try {
-    evt.getByLabel("hybridSuperClusters","",hybridSuperClusters);
+    evt.getByToken(hybridSuperClusters_token,hybridSuperClusters);
   }catch (cms::Exception& ex) {
     edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer hybridSuperClusters.";
   }
 
   Handle<reco::SuperClusterCollection> dynamicHybridSuperClusters;
   try {
-    evt.getByLabel("dynamicHybridSuperClusters","",dynamicHybridSuperClusters);
+    evt.getByToken(dynamicHybridSuperClusters_token,dynamicHybridSuperClusters);
   }catch (cms::Exception& ex) {
     edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer dynamicHybridSuperClusters.";
   }
 
   Handle<reco::SuperClusterCollection> fixedMatrixSuperClustersWithPS;
   try {
-    evt.getByLabel("fixedMatrixSuperClustersWithPreshower","",fixedMatrixSuperClustersWithPS);
+    evt.getByToken(fixedMatrixSuperClustersWithPreshower_token,fixedMatrixSuperClustersWithPS);
   }catch (cms::Exception& ex) {
     edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer fixedMatrixSuperClustersWithPreshower.";
   }
@@ -177,21 +186,21 @@ EnergyScaleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es )
   //Corrected collections
   Handle<reco::SuperClusterCollection> correctedHybridSC;
   try {
-    evt.getByLabel("correctedHybridSuperClusters","",correctedHybridSC);
+    evt.getByToken(correctedHybridSuperClusters_token,correctedHybridSC);
   }catch (cms::Exception& ex) {
     edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer correctedHybridSuperClusters.";
   }
 
   Handle<reco::SuperClusterCollection> correctedDynamicHybridSC;
   try{
-    evt.getByLabel("correctedDynamicHybridSuperClusters","",correctedDynamicHybridSC);
+    evt.getByToken(correctedDynamicHybridSuperClusters_token,correctedDynamicHybridSC);
   }catch (cms::Exception& ex) {
     edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer correctedDynamicHybridSuperClusters.";
   }
   
   Handle<reco::SuperClusterCollection> correctedFixedMatrixSCWithPS;
   try {
-    evt.getByLabel("correctedFixedMatrixSuperClustersWithPreshower","",correctedFixedMatrixSCWithPS);
+    evt.getByToken(correctedFixedMatrixSuperClustersWithPreshower_token,correctedFixedMatrixSCWithPS);
   }catch (cms::Exception& ex ) {
     edm::LogError("EnergyScaleAnalyzer") << "Can't get collection with producer correctedFixedMatrixSuperClustersWithPreshower.";
   }

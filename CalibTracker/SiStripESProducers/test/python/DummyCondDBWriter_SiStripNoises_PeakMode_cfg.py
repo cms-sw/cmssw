@@ -26,13 +26,12 @@ process.source = cms.Source("EmptySource",
 process.load("CalibTracker.SiStripESProducers.fake.SiStripNoisesFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripNoisesDummyDBWriter_cfi")
 
+from CalibTracker.SiStripESProducers.fake.SiStripNoisesFakeESSource_cfi import siStripNoisesFakeESSource
 from SimTracker.SiStripDigitizer.SiStripDigi_cfi import *
 
-process.SiStripNoisesGenerator.electronPerAdc=simSiStripDigis.electronPerAdcPeak
- 
-
-process.SiStripNoisesGenerator.NoiseStripLengthSlope = cms.vdouble(38.8)
-process.SiStripNoisesGenerator.NoiseStripLengthQuote = cms.vdouble(414.0)
+siStripNoisesFakeESSource.electronPerAdc = simSiStripDigis.electronPerAdcPeak
+siStripNoisesFakeESSource.NoiseStripLengthSlope = cms.vdouble(38.8)
+siStripNoisesFakeESSource.NoiseStripLengthQuote = cms.vdouble(414.0)
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),

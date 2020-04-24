@@ -27,7 +27,7 @@ class PixelPopConSourceHandler : public popcon::PopConSourceHandler<T> {
  public:
   //PixelPopConSourceHandler(edm::ParameterSet const &) {;}
 
-  virtual void getNewObjects() {
+  void getNewObjects() override {
     // look at _connectString to see which method to call
     if (_connectString.find("oracle") == 0)
       getNewObjects_coral();
@@ -42,7 +42,7 @@ class PixelPopConSourceHandler : public popcon::PopConSourceHandler<T> {
 
   virtual void getNewObjects_coral() {;}
   virtual void getNewObjects_file() {;}
-  virtual std::string id() const {return std::string("PixelPopConSourceHandler");}
+  std::string id() const override {return std::string("PixelPopConSourceHandler");}
 
  protected:
   std::string _connectString;

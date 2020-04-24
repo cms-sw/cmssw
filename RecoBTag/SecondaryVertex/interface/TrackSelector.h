@@ -6,7 +6,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/BTauReco/interface/IPTagInfo.h"
 
 namespace reco {
 
@@ -16,11 +17,28 @@ class TrackSelector {
 	~TrackSelector() {}
 
 	bool operator() (const reco::Track &track,
-	                 const reco::TrackIPTagInfo::TrackIPData &ipData,
+	                 const reco::btag::TrackIPData &ipData,
 	                 const reco::Jet &jet,
 	                 const GlobalPoint &pv) const;
 
+	bool operator() (const reco::CandidatePtr &track,
+	                 const reco::btag::TrackIPData &ipData,
+	                 const reco::Jet &jet,
+	                 const GlobalPoint &pv) const;
+
+	inline
+	bool operator() (const reco::TrackRef &track,
+	                 const reco::btag::TrackIPData &ipData,
+	                 const reco::Jet &jet,
+	                 const GlobalPoint &pv) const
+	{ return (*this)(*track, ipData, jet, pv); }
+
     private:
+	bool trackSelection(const reco::Track &track,
+	                    const reco::btag::TrackIPData &ipData,
+	                    const reco::Jet &jet,
+	                    const GlobalPoint &pv) const;
+
 	bool				selectQuality;
 	reco::TrackBase::TrackQuality	quality;
 	unsigned int			minPixelHits;
@@ -39,7 +57,7 @@ class TrackSelector {
 	double				sip3dSigMin;
 	double				sip3dSigMax;
 	bool                            useVariableJTA_;
-	reco::TrackIPTagInfo::variableJTAParameters varJTApars;
+	reco::btag::variableJTAParameters varJTApars;
 };
 
 } // namespace reco

@@ -7,6 +7,8 @@
 POOL container to store Gain values 4xCapId
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
 
@@ -16,13 +18,15 @@ class HcalGains: public HcalCondObjectContainer<HcalGain>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalGains():HcalCondObjectContainer<HcalGain>(0) {}
+  HcalGains():HcalCondObjectContainer<HcalGain>(nullptr) {}
 #endif
   HcalGains(const HcalTopology* topo):HcalCondObjectContainer<HcalGain>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalGains";}
+  std::string myname() const override {return (std::string)"HcalGains";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif

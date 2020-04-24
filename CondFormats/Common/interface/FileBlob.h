@@ -1,6 +1,8 @@
 #ifndef CondFormats_FileBlob_h
 #define CondFormats_FileBlob_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -30,7 +32,9 @@ class FileBlob{
 
   int size() const {return isize;};
   /// i didn't want to do two copies ... hope this works.
-  std::vector<unsigned char>* getUncompressedBlob() const;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  std::unique_ptr<std::vector<unsigned char> > getUncompressedBlob() const;
+#endif
   void getUncompressedBlob( std::vector<unsigned char>& myblobcopy ) const;
                                  
  private:
@@ -40,6 +44,8 @@ class FileBlob{
   std::vector<unsigned char> blob;
   bool compressed;
   unsigned int isize;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

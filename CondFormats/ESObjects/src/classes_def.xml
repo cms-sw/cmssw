@@ -23,9 +23,7 @@
 
 <class name="ESGain"/>
 
-<class name="ESIntercalibConstants"/>
-
-<class name="ESAngleCorrectionFactors"/>
+<class name="ESCondObjectContainer<float>"/>
 
 <class name="ESEEIntercalibConstants"/>
 

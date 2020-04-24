@@ -1,7 +1,7 @@
 #include "EventFilter/EcalRawToDigi/interface/DCCSCBlock.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h"
-#include <stdio.h>
+#include <cstdio>
 #include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
 
 
@@ -55,9 +55,6 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
     pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
     if(pDetId_) {  (*invalidChIds_)->push_back(*pDetId_); }
     
-    stripId = expStripID;
-    xtalId  = expXtalID;
-    errorOnXtal = true;
     
     // return here, so to skip all following checks
     data_ += numbDWInXtalBlock_;
@@ -90,7 +87,6 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
       //pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
       //(*invalidChIds_)->push_back(*pDetId_);
       fillEcalElectronicsError(invalidZSXtalIds_); 
-      errorOnXtal = true;
 
       lastStripId_ = st;
       lastXtalId_  = ch;
@@ -121,7 +117,6 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
           //(*invalidChIds_)->push_back(*pDetId_);
           fillEcalElectronicsError(invalidZSXtalIds_); 
            
-           errorOnXtal = true;
            lastStripId_ = st;
            lastXtalId_  = ch;
            
@@ -202,7 +197,6 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
       {     
         (*invalidGains_)->push_back(*pDetId_); 
         (*digis_)->pop_back();
-        errorOnXtal = true;
         
         //return here, so to skip all the rest
         //make special collection for gain0 data frames (saturation)
@@ -273,7 +267,7 @@ int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
 }
 
 
-void DCCSCBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * errorColection){
+void DCCSCBlock::fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * errorColection){
 
   const int activeDCC = mapper_->getActiveSM();
 

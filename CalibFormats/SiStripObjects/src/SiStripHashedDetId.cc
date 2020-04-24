@@ -1,6 +1,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
@@ -82,14 +82,14 @@ void SiStripHashedDetId::init( const std::vector<uint32_t>& raw_ids ) {
   detIds_.reserve(16000);
   const_iterator iter = raw_ids.begin();
   for ( ; iter != raw_ids.end(); ++iter ) {
-    SiStripDetId detid(*iter);
+    DetId detectorId=DetId(*iter);
     if ( *iter != sistrip::invalid32_ && 
 	 *iter != sistrip::invalid_ && 
-	 detid.det() == DetId::Tracker && 
-	 ( detid.subDetector() == SiStripDetId::TID || 
-	   detid.subDetector() == SiStripDetId::TIB || 
-	   detid.subDetector() == SiStripDetId::TOB || 
-	   detid.subDetector() == SiStripDetId::TEC ) ) { 
+	 detectorId.det() == DetId::Tracker &&
+	 ( detectorId.subdetId() == StripSubdetector::TID ||
+	   detectorId.subdetId() == StripSubdetector::TIB ||
+	   detectorId.subdetId() == StripSubdetector::TOB ||
+	   detectorId.subdetId() == StripSubdetector::TEC ) ) {
       detIds_.push_back(*iter);
     } else {
       edm::LogWarning(mlCabling_)

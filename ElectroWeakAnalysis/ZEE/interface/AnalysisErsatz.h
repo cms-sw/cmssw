@@ -2,7 +2,7 @@
 //
 // Package:    AnalysisErsatz
 // Class:      AnalysisErsatz
-// 
+//
 /**\class AnalysisErsatz AnalysisErsatz.cc ElectroWeakAnalysis/AnalysisErsatz/src/AnalysisErsatz.cc
 
  Description: <one line class summary>
@@ -30,7 +30,7 @@
 //Random Number Generator
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandFlat.h"
-//Egamma 
+//Egamma
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 //OtherObjects
@@ -80,15 +80,21 @@ class AnalysisErsatz : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
-	edm::InputTag MCTruthCollection_;
-	edm::InputTag ElectronCollection_; 
-	edm::InputTag CaloMEtCollection_, T1MEtCollection_, PfMEtCollection_, TcMEtCollection_, GenMEtCollection_;
+	edm::EDGetTokenT<reco::GenParticleCollection> MCTruthCollection_;
+	edm::EDGetTokenT<reco::GsfElectronCollection> ElectronCollection_;
+	edm::EDGetTokenT<reco::CaloMETCollection> CaloMEtCollection_;
+	edm::EDGetTokenT<reco::METCollection> T1MEtCollection_;
+	edm::EDGetTokenT<reco::PFMETCollection> PfMEtCollection_;
+	edm::EDGetTokenT<reco::METCollection> TcMEtCollection_;
+	edm::EDGetTokenT<reco::GenMETCollection> GenMEtCollection_;
 	bool ErsatzEvent_, C_Fiducial_;
         enum cut_index_t { EtCut_, EB_sIhIh_, EB_dEtaIn_, EB_dPhiIn_, EB_TrckIso_, EB_EcalIso_, EB_HcalIso_,
                                 EE_sIhIh_, EE_dEtaIn_, EE_dPhiIn_, EE_TrckIso_, EE_EcalIso_, EE_HcalIso_};
         std::vector<double> CutVector_;
 	double mW_, mZ_;
-        edm::InputTag TriggerEvent_, TriggerResults_, TriggerPath_;
+        edm::EDGetTokenT<trigger::TriggerEvent> TriggerEvent_;
+        edm::EDGetTokenT<edm::TriggerResults> TriggerResults_;
+        TriggerPath_;
 	std::string TriggerName_;
 
 	TTree* t_;

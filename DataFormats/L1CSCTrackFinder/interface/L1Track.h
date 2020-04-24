@@ -27,7 +27,7 @@ namespace csc{
 
       const csc::L1Track& operator=(const csc::L1Track&);
 
-      virtual ~L1Track();
+      ~L1Track() override;
 
       unsigned rank() const;
       void setRank(const unsigned& rank) { m_rank = rank; }

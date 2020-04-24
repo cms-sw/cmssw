@@ -24,7 +24,7 @@
 
 #include <vector>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 namespace pat {
 

@@ -27,6 +27,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
@@ -94,6 +95,10 @@ class CosmicTrajectoryBuilder
 
     void init(const edm::EventSetup& es,bool);
     Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+
+    const TransientTrackingRecHitBuilder * hitBuilder() const {return RHBuilder;}
+
+
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
  
@@ -115,19 +120,18 @@ class CosmicTrajectoryBuilder
     bool qualityFilter(const Trajectory& traj);
 
 
- 
  private:
    edm::ESHandle<MagneticField> magfield;
    edm::ESHandle<TrackerGeometry> tracker;
-   edm::ParameterSet conf_;
    
    PropagatorWithMaterial  *thePropagator;
    PropagatorWithMaterial  *thePropagatorOp;
    KFUpdator *theUpdator;
    Chi2MeasurementEstimator *theEstimator;
    const TransientTrackingRecHitBuilder *RHBuilder;
-   const KFTrajectorySmoother * theSmoother;
-   const KFTrajectoryFitter * theFitter;
+   TkClonerImpl hitCloner;
+   KFTrajectorySmoother * theSmoother;
+   KFTrajectoryFitter * theFitter;
  
  
 
@@ -138,6 +142,7 @@ class CosmicTrajectoryBuilder
    TransientTrackingRecHit::RecHitContainer  hits;
    bool seed_plus;
    std::string geometry;
+   std::string theBuilderName;
 };
 
 #endif

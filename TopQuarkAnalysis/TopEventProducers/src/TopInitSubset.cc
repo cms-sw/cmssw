@@ -17,12 +17,12 @@ TopInitSubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.getByToken(srcToken_, src);
 
   const reco::GenParticleRefProd ref = evt.getRefBeforePut<reco::GenParticleCollection>();
-  std::auto_ptr<reco::GenParticleCollection> sel( new reco::GenParticleCollection );
+  std::unique_ptr<reco::GenParticleCollection> sel( new reco::GenParticleCollection );
 
   //fill output collection
   fillOutput( *src, *sel );
 
-  evt.put( sel );
+  evt.put(std::move(sel));
 }
 
 void TopInitSubset::fillOutput(const reco::GenParticleCollection& src, reco::GenParticleCollection& sel)
@@ -39,7 +39,7 @@ void TopInitSubset::fillOutput(const reco::GenParticleCollection& src, reco::Gen
 	reco::GenParticle* cand = new reco::GenParticle( t->mother(idx)->threeCharge(), t->mother(idx)->p4(),
 							 t->mother(idx)->vertex(), t->mother(idx)->pdgId(),
 							 t->mother(idx)->status(), false );
-	std::auto_ptr<reco::GenParticle> ptr( cand );
+	std::unique_ptr<reco::GenParticle> ptr( cand );
 	sel.push_back( *ptr );
       }
       break;

@@ -1,5 +1,5 @@
-#ifndef MuonSim_MuonFrameRotation_H
-#define MuonSim_MuonFrameRotation_H
+#ifndef SimG4CMS_Muon_MuonFrameRotation_H
+#define SimG4CMS_Muon_MuonFrameRotation_H
 
 /** \class MuonFrameRotation
  *
@@ -18,7 +18,6 @@ class DDCompactView;
 
 class MuonFrameRotation {
  public:
-  MuonFrameRotation( const DDCompactView& cpv ) { };
   MuonFrameRotation( ) { };
   virtual ~MuonFrameRotation(){};
   virtual Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const = 0;

@@ -49,7 +49,7 @@ class ProcSort : public VarProcessor {
 	bool		descending;
 };
 
-static ProcSort::Registry registry("ProcSort");
+ProcSort::Registry registry("ProcSort");
 
 ProcSort::ProcSort(const char *name,
                    const Calibration::ProcSort *calib,

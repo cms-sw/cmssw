@@ -1,0 +1,31 @@
+<TESTSCONFIGURATION>
+
+  <!-- BMTF HW pT -->
+
+  <QTEST name="BMTF_hwPtRange">
+    <TYPE>ContentsXRange</TYPE> 
+    <PARAM name="xmin">6</PARAM>
+    <PARAM name="xmax">511</PARAM>
+    <PARAM name="error">0.98</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+  </QTEST>
+  
+  <LINK name="*/L1TStage2BMTF/bmtf_hwPt">
+      <TestName activate="true">BMTF_hwPtRange</TestName>
+  </LINK>
+
+  <!-- BMTF WEDGE vs BX -->
+
+  <QTEST name="BMTF_WedgeBXNoisyWedge">
+    <TYPE>NoisyChannel</TYPE>	
+    <PARAM name="tolerance">10</PARAM>
+    <PARAM name="neighbours">1</PARAM>
+    <PARAM name="error">0.996</PARAM>
+    <PARAM name="warning">0.999</PARAM>
+  </QTEST>
+  
+  <LINK name="*/L1TStage2BMTF/bmtf_wedge_bx">
+      <TestName activate="true">BMTF_WedgeBXNoisyWedge</TestName>
+  </LINK>
+
+</TESTSCONFIGURATION>

@@ -1,9 +1,7 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-SiStripCluster::SiStripCluster( uint32_t detid, const SiStripDigiRange& range) :
-  //detId_(detid),
-  detId_(0),
+SiStripCluster::SiStripCluster(const SiStripDigiRange& range) :
   firstStrip_(range.first->strip()),
   error_x(-99999.9)
 {
@@ -31,13 +29,14 @@ SiStripCluster::SiStripCluster( uint32_t detid, const SiStripDigiRange& range) :
 float SiStripCluster::barycenter() const{
   int sumx = 0;
   int suma = 0;
-  size_t asize = amplitudes_.size();
-  for (size_t i=0;i<asize;++i) {
-    sumx += (firstStrip_+i)*(amplitudes_[i]);
+  auto asize = amplitudes_.size();
+  for (auto i=0U;i<asize;++i) {
+    sumx += i*amplitudes_[i];
     suma += amplitudes_[i];
   }
   
   // strip centers are offcet by half pitch w.r.t. strip numbers,
-  // so one has to add 0.5 to get the correct barycenter position
-  return sumx / static_cast<float>(suma) + 0.5f;
+  // so one has to add 0.5 to get the correct barycenter position.
+  // Need to mask off the high bit of firstStrip_, which contains the merged status.
+  return float((firstStrip_ & stripIndexMask)) + float(sumx) / float(suma) + 0.5f;
 }

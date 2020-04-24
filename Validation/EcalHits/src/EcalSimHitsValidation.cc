@@ -9,6 +9,7 @@
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Validation/EcalHits/interface/EcalSimHitsValidation.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -17,11 +18,12 @@ using namespace edm;
 using namespace std;
 
 EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
-  HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),
   g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
-  EBHitsCollection(ps.getParameter<std::string>("EBHitsCollection")),
-  EEHitsCollection(ps.getParameter<std::string>("EEHitsCollection")),
-  ESHitsCollection(ps.getParameter<std::string>("ESHitsCollection")){
+  HepMCToken(consumes<edm::HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC")))
+{
+  EBHitsCollectionToken = consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("EBHitsCollection")));
+  EEHitsCollectionToken = consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("EEHitsCollection")));
+  ESHitsCollectionToken = consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("ESHitsCollection")));
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
@@ -110,10 +112,10 @@ void EcalSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& 
   edm::Handle<edm::PCaloHitContainer> EcalHitsEE;
   edm::Handle<edm::PCaloHitContainer> EcalHitsES;
 
-  e.getByLabel(HepMCLabel, MCEvt);
-  e.getByLabel(g4InfoLabel,EBHitsCollection,EcalHitsEB);
-  e.getByLabel(g4InfoLabel,EEHitsCollection,EcalHitsEE);
-  e.getByLabel(g4InfoLabel,ESHitsCollection,EcalHitsES);
+  e.getByToken(HepMCToken, MCEvt);
+  e.getByToken(EBHitsCollectionToken, EcalHitsEB);
+  e.getByToken(EEHitsCollectionToken, EcalHitsEE);
+  e.getByToken(ESHitsCollectionToken, EcalHitsES);
 
   for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
         p != MCEvt->GetEvent()->particles_end(); ++p ) {

@@ -37,7 +37,7 @@ CastorDbProducer::CastorDbProducer( const edm::ParameterSet& fConfig)
   : ESProducer(),
     mService (new CastorDbService (fConfig)),
     mDumpRequest (),
-    mDumpStream(0)
+    mDumpStream(nullptr)
 {
   //the following line is needed to tell the framework what
   // data is being produced
@@ -75,7 +75,7 @@ CastorDbProducer::~CastorDbProducer()
 //
 
 // ------------ method called to produce the data  ------------
-boost::shared_ptr<CastorDbService> CastorDbProducer::produce( const CastorDbRecord&)
+std::shared_ptr<CastorDbService> CastorDbProducer::produce( const CastorDbRecord&)
 {
   return mService;
 }

@@ -48,7 +48,7 @@ class RandomEngineState {
   void reserveStateVector(std::vector<uint32_t>::size_type n) { state_.reserve(n); }
   void push_back_stateVector(uint32_t v) { state_.push_back(v); }
 
-  bool operator<(RandomEngineState const& rhs) { return label_ < rhs.label_; }
+  bool operator<(RandomEngineState const& rhs) const { return label_ < rhs.label_; }
 
   private:
 

@@ -24,10 +24,10 @@ Base_t *ProcessRegistry<Base_t, CalibBase_t, Parent_t>::Factory::create(
 { return ProcessRegistry::create(name, calib, parent); }
 
 template<class Base_t, class CalibBase_t, class Parent_t>
-std::map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t>*>
+tbb::concurrent_unordered_map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t>*>
 	*ProcessRegistry<Base_t, CalibBase_t, Parent_t>::getRegistry()
 {
-	static struct Sentinel {
+	[[cms::thread_safe]] static struct Sentinel {
 		Sentinel() : instance(new RegistryMap) {}
 		~Sentinel() { delete instance; instance = 0; }
 
@@ -57,7 +57,7 @@ void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::registerProcess(
 template<class Base_t, class CalibBase_t, class Parent_t>
 void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::unregisterProcess(
 							const char *name)
-{ RegistryMap *map = getRegistry(); if (map) map->erase(name); }
+{ RegistryMap *map = getRegistry(); if (map) map->unsafe_erase(name); }
 
 } // namespace PhysicsTools
 

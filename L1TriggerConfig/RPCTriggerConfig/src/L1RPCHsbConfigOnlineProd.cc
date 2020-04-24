@@ -31,7 +31,7 @@ class L1RPCHsbConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCHsbConfigRc
       L1RPCHsbConfigOnlineProd(const edm::ParameterSet&);
       ~L1RPCHsbConfigOnlineProd();
 
-  virtual boost::shared_ptr< L1RPCHsbConfig > newObject(
+  virtual std::shared_ptr< L1RPCHsbConfig > newObject(
     const std::string& objectKey ) override ;
 
    private:
@@ -67,12 +67,12 @@ L1RPCHsbConfigOnlineProd::~L1RPCHsbConfigOnlineProd()
 
 }
 
-boost::shared_ptr< L1RPCHsbConfig >
+std::shared_ptr< L1RPCHsbConfig >
 L1RPCHsbConfigOnlineProd::newObject( const std::string& objectKey )
 {
   edm::LogError( "L1-O2O" ) << "L1RPCHsbConfig object with key "
 			    << objectKey << " not in ORCON!" ;
-  boost::shared_ptr< L1RPCHsbConfig > pHsbConfig (new L1RPCHsbConfig());
+  auto pHsbConfig = std::make_shared< L1RPCHsbConfig >();
   std::vector<int> hsbconf;
   int mask=3;
   // XX was: i<9, corrected
@@ -80,7 +80,7 @@ L1RPCHsbConfigOnlineProd::newObject( const std::string& objectKey )
   pHsbConfig->setHsbMask(0, hsbconf);
   pHsbConfig->setHsbMask(1, hsbconf);
   return pHsbConfig;
-//  return boost::shared_ptr< L1RPCHsbConfig >() ;
+//  return std::shared_ptr< L1RPCHsbConfig >() ;
 }
 
 //

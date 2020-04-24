@@ -111,7 +111,7 @@ ObjectViewMatcher<T1, T2>::~ObjectViewMatcher(){}
 template<typename T1, typename T2>
 void ObjectViewMatcher<T1, T2>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<std::vector<T1> > cleanObjects(new std::vector<T1 >);
+  auto cleanObjects = std::make_unique<std::vector<T1>>();
 
   edm::Handle<edm::View<T1> > candidates;
   iEvent.getByToken(srcCandsToken_,candidates);
@@ -151,7 +151,7 @@ void ObjectViewMatcher<T1, T2>::produce(edm::Event& iEvent,const edm::EventSetup
   nObjectsMatch_+=cleanObjects->size();
 
   delete [] isMatch;
-  iEvent.put(cleanObjects);
+  iEvent.put(std::move(cleanObjects));
 }
 
 

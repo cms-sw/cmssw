@@ -52,8 +52,8 @@ class FWPFLegoRecHit
       void  setIsTallest( bool b );
 
    private:
-      FWPFLegoRecHit( const FWPFLegoRecHit& );                    // Disable default
-      const FWPFLegoRecHit& operator=( const FWPFLegoRecHit& );   // Disable default
+      FWPFLegoRecHit( const FWPFLegoRecHit& ) = delete;                    // Disable default
+      const FWPFLegoRecHit& operator=( const FWPFLegoRecHit& ) = delete;   // Disable default
 
    // --------------------- Member Functions --------------------------
       void setupEveBox( std::vector<TEveVector> &corners, float scale );

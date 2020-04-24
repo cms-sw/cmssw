@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     options, args = parser.parse_args()
     if not 1 <= len (args) <= 2:
-        raise RuntimeError, "Must give directory and log file prefix"
+        raise RuntimeError("Must give directory and log file prefix")
     logfilePrefix = percentRE.sub ('*', args[0])
     if logfilePrefix[-1] != '*':
         logfilePrefix += '*'
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                         continue
                     problemSet.add (key)
                     problems.setdefault(log,[]).append(key)
-                    if not problemTypes.has_key(key):
+                    if key not in problemTypes:
                         problemTypes[key] = 1
                     else:
                         problemTypes[key] += 1
@@ -175,7 +175,7 @@ if __name__ == "__main__":
         else:
             if ok[0]:
                 weird += 1
-        if not problems.has_key (log) and not ok[0]:
+        if log not in problems and not ok[0]:
             if not ok[0] and summary:
                 key = 'mismatch'                
                 problems[log] = pprint.pformat (summary, indent=4)
@@ -196,12 +196,12 @@ if __name__ == "__main__":
                 problems[log] = ['other','ran:%s' % ran,
                                   'success:%s' % success]
                 key = 'other'
-            if not problemTypes.has_key(key):
+            if key not in problemTypes:
                 problemTypes[key] = 1
             else:
                 problemTypes[key] += 1
     mismatches = problemTypes.get('mismatch', 0)
-    if problemTypes.has_key ('mismatch'):
+    if 'mismatch' in problemTypes:
         del problemTypes['mismatch']
     print "total:      ", len (files)
     print "success:    ", succeeded

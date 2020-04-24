@@ -81,6 +81,10 @@ class DetIdAssociator{
 						  const double dThetaMinus,
 						  const double dPhiPlus,
 						  const double dPhiMinus) const;
+
+   /// helper to see if getDetIdsInACone is useful
+   virtual bool selectAllInACone(const double dR) const {return dR > 2*M_PI && dR > maxEta_;}
+
    /// Find DetIds that satisfy given requirements
    /// - inside eta-phi cone of radius dR
    virtual std::set<DetId> getDetIdsInACone(const std::set<DetId>&,
@@ -101,8 +105,6 @@ class DetIdAssociator{
    virtual int iEta (const GlobalPoint&) const;
    /// look-up map phi index
    virtual int iPhi (const GlobalPoint&) const;
-   /// set a specific track propagator to be used
-   virtual void setPropagator(Propagator* ptr){	ivProp_ = ptr; };
    /// number of bins of the look-up map in phi dimension
    int nPhiBins() const { return nPhi_;}
    /// number of bins of the look-up map in eta dimension
@@ -137,7 +139,7 @@ class DetIdAssociator{
 			       const GlobalPoint&, 
 			       const DetId&,
 			       const double toleranceInSigmas = -1,
-			       const SteppingHelixStateInfo* = 0 ) const { return false; }
+			       const SteppingHelixStateInfo* = nullptr ) const { return false; }
    virtual bool nearElement(const GlobalPoint& point, 
 			    const DetId& id, 
 			    const double distance) const;
@@ -159,8 +161,6 @@ class DetIdAssociator{
    const double etaBinSize_;
    double maxEta_;
    double minTheta_;
-   
-   Propagator *ivProp_;
    
    // Detector fiducial volume 
    // approximated as a closed cylinder with non-zero width.

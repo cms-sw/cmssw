@@ -21,17 +21,17 @@
 class L1HLTJetsMatching: public edm::EDProducer {
  public:
   explicit L1HLTJetsMatching(const edm::ParameterSet&);
-  ~L1HLTJetsMatching();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  ~L1HLTJetsMatching() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
-std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
+  std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
   std::vector<l1extra::L1JetParticleRef> objL1CandRefVec;
   l1extra::L1JetParticleRef tauCandRef;
     
-  edm::InputTag jetSrc;
-  edm::InputTag tauTrigger;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > jetSrc;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauTrigger;
   double mEt_Min;
 };
 #endif

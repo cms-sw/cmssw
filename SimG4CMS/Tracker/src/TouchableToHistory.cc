@@ -81,7 +81,7 @@ TouchableToHistory::nav_type TouchableToHistory::getNavType(const G4VTouchable& 
 
 TouchableToHistory::Nav_Story TouchableToHistory::getNavStory(DDFilteredView& i){
   if (alreadySet == false) buildAll();
-  DDTranslation t = i.translation();
+  const DDTranslation& t = i.translation();
 
   G4Navigator* theStdNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
   G4Navigator  theNavigator;

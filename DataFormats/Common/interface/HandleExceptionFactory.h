@@ -26,7 +26,6 @@
 
 // system include files
 #include <memory>
-#include "DataFormats/Common/interface/HideStdSharedPtrFromRoot.h"
 
 // user include files
 

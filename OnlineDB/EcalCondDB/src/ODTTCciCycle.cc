@@ -24,7 +24,7 @@ ODTTCciCycle::~ODTTCciCycle()
 
 
 void ODTTCciCycle::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -38,7 +38,7 @@ void ODTTCciCycle::prepareWrite()
 }
 
 
-void ODTTCciCycle::writeDB()  throw(std::runtime_error)
+void ODTTCciCycle::writeDB()  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -69,7 +69,7 @@ void ODTTCciCycle::clear(){
 
 
 int ODTTCciCycle::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -102,7 +102,7 @@ int ODTTCciCycle::fetchID()
 
 
 void ODTTCciCycle::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -129,7 +129,7 @@ void ODTTCciCycle::setByID(int id)
 
 
 void ODTTCciCycle::fetchData(ODTTCciCycle * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -157,7 +157,7 @@ void ODTTCciCycle::fetchData(ODTTCciCycle * result)
 
 
 void ODTTCciCycle::insertConfig()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
 

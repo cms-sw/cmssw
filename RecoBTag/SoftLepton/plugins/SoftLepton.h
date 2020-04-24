@@ -25,8 +25,9 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -47,10 +48,11 @@
 
 class TransientTrackBuilder;
 
-class SoftLepton : public edm::EDProducer {
+class SoftLepton : public edm::stream::EDProducer<> {
 public:
   explicit SoftLepton(const edm::ParameterSet& iConfig);
   ~SoftLepton();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   struct TrackCompare :
     public std::binary_function<edm::RefToBase<reco::Track>,

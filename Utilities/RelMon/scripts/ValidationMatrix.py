@@ -22,7 +22,7 @@ from sys import exit
 import sys
 argv=sys.argv
 sys.argv=[]
-if os.environ.has_key("RELMON_SA"):
+if "RELMON_SA" in os.environ:
   import definitions as definitions
   from dqm_interfaces import DirWalkerFile,string2blacklist,DirWalkerFile_thread_wrapper
   from dirstructure import Directory
@@ -57,6 +57,10 @@ def name2runskim(filename):
   if "-v" in skim:
     skim = skim[:skim.rfind('-v')]
   return "%s_%s"%(run,skim)
+
+def name2globaltag(filename):
+  namebase = os.path.basename(filename)
+  return namebase.split("__")[2].split("-")[1] #returns GT from file basename
 
 #-------------------------------------------------------------------------------  
 
@@ -151,7 +155,7 @@ def guess_blacklists(samples,ver1,ver2,hlt):
     # HLT
     if hlt: #HLT
       blacklists[sample]+=",AlCaEcalPi0@2"
-      if not search("2010+|2011+",ver1):
+      if not search("2010+|2011+|2012+|2015+",ver1):
         print "We are treating MC files for the HLT"
         for pattern,blist in definitions.hlt_mc_pattern_blist_pairs:
           blacklists[sample]=add_to_blacklist(blacklists[sample],pattern,sample,blist)
@@ -161,7 +165,7 @@ def guess_blacklists(samples,ver1,ver2,hlt):
     
     else: #RECO
       #Monte Carlo
-      if not search("2010+|2011+",ver1):
+      if not search("2010+|2011+|2012+",ver1):
         print "We are treating MC files"        
         
         for pattern,blist in definitions.mc_pattern_blist_pairs:
@@ -269,15 +273,18 @@ def call_compare_using_files(args):
   """Creates shell command to compare two files using compare_using_files.py
   script and calls it."""
   sample, ref_filename, test_filename, options = args
+  gt = name2globaltag(ref_filename)
   blacklists=guess_blacklists([sample],name2version(ref_filename),name2version(test_filename),options.hlt)
   command = " compare_using_files.py "
   command+= "%s %s " %(ref_filename,test_filename)
   command+= " -C -R "
   if options.do_pngs:
     command+= " -p "
-  command+= " -o %s " %sample
+  command+= " -o %s_%s " %(sample, gt)
   # Change threshold to an experimental and empirical value of 10^-5
   command+= " --specify_run "
+  if options.stat_test in ["Bin2Bin", "BinToBin"]:
+    options.test_threshold = 0.9999
   command+= " -t %s " %options.test_threshold
   command+= " -s %s " %options.stat_test
 

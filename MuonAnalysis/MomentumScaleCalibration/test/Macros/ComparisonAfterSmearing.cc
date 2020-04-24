@@ -93,7 +93,7 @@ draw( const TString & resolName, TDirectory * resolDir, TDirectory * resolDirMis
   c2->Write();
 }
 
-TF1 * expRelativisticBWintPhotFit(const string & index)
+TF1 * expRelativisticBWintPhotFit(const std::string & index)
 {
   ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator * fobj = new ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator;
   TF1 * functionToFit = new TF1(("functionToFit"+index).c_str(), fobj, 60, 120, fobj->parNum(), "ExpRelativisticBWwithZGammaInterferenceAndPhotonPropagator");

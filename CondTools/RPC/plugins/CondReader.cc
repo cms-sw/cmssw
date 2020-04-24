@@ -20,7 +20,7 @@ class  CondReader : public edm::EDAnalyzer {
 public:
   CondReader(const edm::ParameterSet& iConfig);
     
-  ~CondReader();
+  ~CondReader() override;
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
 private:

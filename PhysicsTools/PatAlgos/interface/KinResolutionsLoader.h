@@ -27,7 +27,7 @@ class KinResolutionsLoader {
         bool enabled() const { return !patlabels_.empty(); }
      
         /// To be called for each new event, reads in the EventSetup object 
-        void newEvent(const edm::Event &event, const edm::EventSetup &setup) const ;
+        void newEvent(const edm::Event &event, const edm::EventSetup &setup);
 
         /// Sets the efficiencies for this object, using the reference to the original objects
         template<typename T>
@@ -41,7 +41,7 @@ class KinResolutionsLoader {
         /// Labels of the KinematicResolutionProvider in the EventSetup
         std::vector<std::string>   eslabels_;
         /// Handles to the EventSetup
-        mutable std::vector<edm::ESHandle<KinematicResolutionProvider> > handles_;
+        std::vector<edm::ESHandle<KinematicResolutionProvider> > handles_;
 }; // class
 
 template<typename T>

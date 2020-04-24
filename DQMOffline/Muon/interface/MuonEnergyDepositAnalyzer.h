@@ -18,43 +18,40 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 
-class MuonEnergyDepositAnalyzer : public edm::EDAnalyzer{
+class MuonEnergyDepositAnalyzer : public DQMEDAnalyzer{
  public:
 
   /// Constructor
   MuonEnergyDepositAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~MuonEnergyDepositAnalyzer();
+  ~MuonEnergyDepositAnalyzer() override;
   
-  /// Inizialize parameters for histo binning
-  void beginJob();
-  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-
-  /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
-    
+  /* Operations */
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  
  private:
   // ----------member data ---------------------------
-  DQMStore* theDbe;
   edm::ParameterSet parameters;
   MuonServiceProxy *theService;
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
   
   // Switch for verbosity
   std::string metname;
-  
+  std::string AlgoName;
+
   //histo binning parameters
   int emNoBin;
   double emNoMin;

@@ -6,6 +6,8 @@
 #include <iostream>
 
 // Framework headers
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -41,8 +43,8 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   formatVersion_(iConfig.getParameter<unsigned>("unpackerVersion")),
   checkHeaders_(iConfig.getUntrackedParameter<bool>("checkHeaders",false)),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
-  formatTranslator_(0),
-  errors_(0),
+  formatTranslator_(nullptr),
+  errors_(nullptr),
   errorCounters_(MAX_ERR_CODE+1),  // initialise with the maximum error codes!
   unpackFailures_(0)
 {
@@ -106,7 +108,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   
   // Error collection
   produces<L1TriggerErrorCollection>();
-  usesResource("GctRawToDigi");
+  consumes<FEDRawDataCollection>(inputLabel_);
 }
 
 
@@ -117,16 +119,31 @@ GctRawToDigi::~GctRawToDigi()
   delete formatTranslator_;
 }
 
+void GctRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("unpackSharedRegions",false);
+  desc.add<unsigned int>("numberOfGctSamplesToUnpack",1);
+  desc.add<unsigned int>("numberOfRctSamplesToUnpack",1);
+  desc.add<bool>("hltMode",false);
+  desc.add<edm::InputTag>("inputLabel",edm::InputTag("rawDataCollector"));
+  static const char* const kComment=
+    " \n"
+    "   value   |                        Unpacker/RAW Format Version \n"
+    "-----------|---------------------------------------------------------------------------- \n"
+    "     0     |   Auto-detects RAW Format in use - the recommended option \n"
+    "     1     |   Force usage of the Monte-Carlo Legacy unpacker (unpacks DigiToRaw events) \n"
+    "     2     |   Force usage of the RAW Format V35 unpacker \n"
+    "     3     |   Force usage of the RAW Format V38 unpacker \n";
+  desc.add<unsigned int>("unpackerVersion",0)->setComment(kComment);
+  desc.addUntracked<int>("gctFedId",745);
+  desc.addUntracked<bool>("checkHeaders",false),
+  desc.addUntracked<bool>("verbose",false);
+  descriptions.add("gctRawToDigi",desc);
+}
 
 //
 // member functions
 //
-
-// ------------ method called once each job just before starting event loop  ------------
-void GctRawToDigi::beginJob()
-{
-}
-
 
 // ------------ method called to produce the data  ------------
 void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -134,7 +151,7 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   // Instantiate all the collections the unpacker needs; puts them in event when this object goes out of scope.
-  std::auto_ptr<GctUnpackCollections> colls(new GctUnpackCollections(iEvent));  
+  std::unique_ptr<GctUnpackCollections> colls(new GctUnpackCollections(iEvent));  
   errors_ = colls->errors();
   
   // get raw data collection
@@ -318,7 +335,7 @@ void GctRawToDigi::addError(const unsigned code) {
   ++(errorCounters_.at(code));
   
   // store error in event if possible
-  if (errors_ != 0) {
+  if (errors_ != nullptr) {
     errors_->push_back(L1TriggerError(fedId_, code));
   }
   else LogDebug("GCT") << "Detected error (code=" << code << ") but no error collection available!";

@@ -30,118 +30,110 @@ L1TGCTClient::L1TGCTClient(const edm::ParameterSet& ps):
   m_runInEventLoop(ps.getUntrackedParameter<bool>("runInEventLoop", false)),
   m_runInEndLumi(ps.getUntrackedParameter<bool>("runInEndLumi", false)),
   m_runInEndRun(ps.getUntrackedParameter<bool>("runInEndRun", false)),
-  m_runInEndJob(ps.getUntrackedParameter<bool>("runInEndJob", false))
+  m_runInEndJob(ps.getUntrackedParameter<bool>("runInEndJob", false)),
+  m_stage1_layer2_(ps.getUntrackedParameter<bool>("stage1_layer2_"))
 
 {
 }
 
 L1TGCTClient::~L1TGCTClient(){}
 
-void L1TGCTClient::beginJob(void)
+void L1TGCTClient::book(DQMStore::IBooker &ibooker)
 {
-  // Get backendinterface  
-  dbe_ = Service<DQMStore>().operator->();
-
   // Set to directory with ME in
-  dbe_->setCurrentFolder(monitorDir_);
+  ibooker.setCurrentFolder(monitorDir_);
   
-  l1GctIsoEmOccEta_ = dbe_->book1D("IsoEmOccEta","ISO EM  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctIsoEmOccPhi_ = dbe_->book1D("IsoEmOccPhi","ISO EM  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctNonIsoEmOccEta_ = dbe_->book1D("NonIsoEmOccEta","NON-ISO EM  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctNonIsoEmOccPhi_ = dbe_->book1D("NonIsoEmOccPhi","NON-ISO EM  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctAllJetsOccEta_ = dbe_->book1D("AllJetsOccEta","CENTRAL AND FORWARD JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctAllJetsOccPhi_ = dbe_->book1D("AllJetsOccPhi","CENTRAL AND FORWARD JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctCenJetsOccEta_ = dbe_->book1D("CenJetsOccEta","CENTRAL JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctCenJetsOccPhi_ = dbe_->book1D("CenJetsOccPhi","CENTRAL JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctForJetsOccEta_ = dbe_->book1D("ForJetsOccEta","FORWARD JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctForJetsOccPhi_ = dbe_->book1D("ForJetsOccPhi","FORWARD JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
-  l1GctTauJetsOccEta_ = dbe_->book1D("TauJetsOccEta","TAU JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
-  l1GctTauJetsOccPhi_ = dbe_->book1D("TauJetsOccPhi","TAU JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctIsoEmOccEta_ = ibooker.book1D("IsoEmOccEta","ISO EM  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctIsoEmOccPhi_ = ibooker.book1D("IsoEmOccPhi","ISO EM  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctNonIsoEmOccEta_ = ibooker.book1D("NonIsoEmOccEta","NON-ISO EM  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctNonIsoEmOccPhi_ = ibooker.book1D("NonIsoEmOccPhi","NON-ISO EM  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctAllJetsOccEta_ = ibooker.book1D("AllJetsOccEta","CENTRAL AND FORWARD JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctAllJetsOccPhi_ = ibooker.book1D("AllJetsOccPhi","CENTRAL AND FORWARD JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctCenJetsOccEta_ = ibooker.book1D("CenJetsOccEta","CENTRAL JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctCenJetsOccPhi_ = ibooker.book1D("CenJetsOccPhi","CENTRAL JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctForJetsOccEta_ = ibooker.book1D("ForJetsOccEta","FORWARD JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctForJetsOccPhi_ = ibooker.book1D("ForJetsOccPhi","FORWARD JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  l1GctTauJetsOccEta_ = ibooker.book1D("TauJetsOccEta","TAU JET  #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+  l1GctTauJetsOccPhi_ = ibooker.book1D("TauJetsOccPhi","TAU JET  #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  if (m_stage1_layer2_ == true){
+    l1GctIsoTauJetsOccEta_ = ibooker.book1D("IsoTauJetsOccEta", "TAU JET #eta OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+    l1GctIsoTauJetsOccPhi_ = ibooker.book1D("IsoTauJetsOccPhi", "TAU JET #phi OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+  }
+    
 }
 
-void L1TGCTClient::beginRun(const Run& r, const EventSetup& context) {}
-
-void L1TGCTClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {}
-
-void L1TGCTClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) 
+void L1TGCTClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker,DQMStore::IGetter &igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) 
 {
 
     if (m_runInEndLumi) {
-
-        processHistograms();
+      book(ibooker);
+      processHistograms(igetter);
     }
 
 }
 
-void L1TGCTClient::analyze(const Event& e, const EventSetup& context){
-
-    // there is no loop on events in the offline harvesting step
-    // code here will not be executed offline
-
-    if (m_runInEventLoop) {
-
-        processHistograms();
-    }
-
-}
-
-void L1TGCTClient::endRun(const Run& r, const EventSetup& context) {
+void L1TGCTClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
 
     if (m_runInEndRun) {
-
-        processHistograms();
+      book(ibooker);
+      processHistograms(igetter);
     }
 
 }
 
-void L1TGCTClient::endJob() {
-
-    if (m_runInEndJob) {
-
-        processHistograms();
-    }
-}
-
-void L1TGCTClient::processHistograms() {
+void L1TGCTClient::processHistograms(DQMStore::IGetter &igetter) {
 
     MonitorElement* Input;
 
-    Input = dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi");
-    if (Input!=NULL){
+    if(m_stage1_layer2_ ==false){
+      InputDir = "L1T/L1TGCT/";
+    } else{
+      InputDir = "L1T/L1TStage1Layer2/";
+    }
+
+    Input = igetter.get(InputDir + "IsoEmOccEtaPhi");
+    if (Input!=nullptr){
       makeXProjection(Input->getTH2F(),l1GctIsoEmOccEta_);
       makeYProjection(Input->getTH2F(),l1GctIsoEmOccPhi_);
     }
 
-    Input = dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi");
-    if (Input!=NULL){
+    Input = igetter.get(InputDir + "NonIsoEmOccEtaPhi");
+    if (Input!=nullptr){
       makeXProjection(Input->getTH2F(),l1GctNonIsoEmOccEta_);
       makeYProjection(Input->getTH2F(),l1GctNonIsoEmOccPhi_);
     }
 
-    Input = dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi");
-    if (Input!=NULL){
+    Input = igetter.get(InputDir + "AllJetsOccEtaPhi");
+    if (Input!=nullptr){
       makeXProjection(Input->getTH2F(),l1GctAllJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctAllJetsOccPhi_);
     }
 
-    Input = dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi");
-    if (Input!=NULL){
+    Input = igetter.get(InputDir + "CenJetsOccEtaPhi");
+    if (Input!=nullptr){
       makeXProjection(Input->getTH2F(),l1GctCenJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctCenJetsOccPhi_);
     }
 
-    Input = dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi");
-    if (Input!=NULL){
+    Input = igetter.get(InputDir + "ForJetsOccEtaPhi");
+    if (Input!=nullptr){
       makeXProjection(Input->getTH2F(),l1GctForJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctForJetsOccPhi_);
     }
 
-    Input = dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi");
-    if (Input!=NULL){
+    Input = igetter.get(InputDir + "TauJetsOccEtaPhi");
+    if (Input!=nullptr){
       makeXProjection(Input->getTH2F(),l1GctTauJetsOccEta_);
       makeYProjection(Input->getTH2F(),l1GctTauJetsOccPhi_);
     }
 
+    if (m_stage1_layer2_ == true){
+      Input = igetter.get(InputDir + "IsoTauJetsOccEtaPhi");
+      if (Input!=nullptr){
+        makeXProjection(Input->getTH2F(),l1GctIsoTauJetsOccEta_);
+        makeYProjection(Input->getTH2F(),l1GctIsoTauJetsOccPhi_);
+      }      
+    }
 }
 
 

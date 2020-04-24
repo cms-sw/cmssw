@@ -39,20 +39,20 @@ class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
 
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFEcalRecHitRPProxyBuilder(){}
-      virtual ~FWPFEcalRecHitRPProxyBuilder(){}
+      ~FWPFEcalRecHitRPProxyBuilder() override{}
 
    // --------------------- Member Functions --------------------------
-      virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
+      void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* ) override;
 
-      virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
-      virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
-      virtual void cleanLocal();
+      bool havePerViewProduct( FWViewType::EType ) const override { return true; }
+      void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc ) override;
+      void cleanLocal() override;
 
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& );                    // Stop default
-      const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& );   // Stop default
+      FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& ) = delete;                    // Stop default
+      const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& ) = delete;   // Stop default
 
    // --------------------- Member Functions --------------------------
       TEveVector calculateCentre( const float *corners );

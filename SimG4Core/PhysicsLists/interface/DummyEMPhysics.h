@@ -5,11 +5,11 @@
 
 class DummyEMPhysics : public G4VPhysicsConstructor {
 
-public: 
+public:
   DummyEMPhysics(const std::string name = "dummyEM");
-  virtual ~DummyEMPhysics();
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  ~DummyEMPhysics() override;
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 };
 
 #endif

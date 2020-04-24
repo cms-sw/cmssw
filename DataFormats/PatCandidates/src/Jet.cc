@@ -13,7 +13,6 @@ Jet::Jet() :
   PATObject<reco::Jet>(reco::Jet()),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0),
   jetCharge_(0.)
 {
 }
@@ -23,7 +22,6 @@ Jet::Jet(const reco::Jet & aJet) :
   PATObject<reco::Jet>(aJet),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0),
   jetCharge_(0.0)
 {
   tryImportSpecific(aJet);
@@ -34,7 +32,6 @@ Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
   PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
@@ -45,10 +42,23 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
+}
+
+/// constructure from ref to pat::Jet
+Jet::Jet(const edm::RefToBase<pat::Jet> & aJetRef) :
+  Jet(*aJetRef)
+{
+  refToOrig_ = edm::Ptr<reco::Candidate>(aJetRef.id(), aJetRef.get(), aJetRef.key());
+}
+
+/// constructure from ref to pat::Jet
+Jet::Jet(const edm::Ptr<pat::Jet> & aJetRef) :
+  Jet(*aJetRef)
+{
+  refToOrig_ = aJetRef;
 }
 
 std::ostream& 
@@ -77,11 +87,11 @@ void Jet::tryImportSpecific(const reco::Jet& source)
   } else if( type == typeid(reco::JPTJet) ){
     reco::JPTJet const & jptJet = static_cast<reco::JPTJet const &>(source);
     specificJPT_.push_back( jptJet.getSpecific() );
-    reco::CaloJet const * caloJet = 0;
+    reco::CaloJet const * caloJet = nullptr;
     if ( jptJet.getCaloJetRef().isNonnull() && jptJet.getCaloJetRef().isAvailable() ) {
       caloJet = dynamic_cast<reco::CaloJet const *>( jptJet.getCaloJetRef().get() );
     }
-    if ( caloJet != 0 ) {
+    if ( caloJet != nullptr ) {
       specificCalo_.push_back( caloJet->getSpecific() );
     }
     else {
@@ -102,13 +112,13 @@ Jet::~Jet() {
 CaloTowerPtr Jet::getCaloConstituent (unsigned fIndex) const {
     if (embeddedCaloTowers_) {
       // Refactorized PAT access
-      if ( caloTowersFwdPtr_.size() > 0 ) {
+      if ( !caloTowersFwdPtr_.empty() ) {
 	return (fIndex < caloTowersFwdPtr_.size() ?
 		caloTowersFwdPtr_[fIndex].ptr() : CaloTowerPtr());
       }
       // Compatibility PAT access
       else {
-	if ( caloTowers_.size() > 0 ) {
+	if ( !caloTowers_.empty() ) {
 	  return (fIndex < caloTowers_.size() ?
 		  CaloTowerPtr(&caloTowers_, fIndex) : CaloTowerPtr());
 
@@ -119,7 +129,7 @@ CaloTowerPtr Jet::getCaloConstituent (unsigned fIndex) const {
     else {
       Constituent dau = daughterPtr (fIndex);
       const CaloTower* caloTower = dynamic_cast <const CaloTower*> (dau.get());
-      if (caloTower != 0) {
+      if (caloTower != nullptr) {
 	return CaloTowerPtr(dau.id(), caloTower, dau.key() );
       }
       else {
@@ -134,7 +144,7 @@ CaloTowerPtr Jet::getCaloConstituent (unsigned fIndex) const {
 
 
 std::vector<CaloTowerPtr> const & Jet::getCaloConstituents () const {
-  if ( !caloTowersTemp_.isSet() || caloTowers_.size() > 0 ) cacheCaloTowers();
+  if ( !caloTowersTemp_.isSet() || !caloTowers_.empty() ) cacheCaloTowers();
   return *caloTowersTemp_;
 }
 
@@ -144,13 +154,13 @@ std::vector<CaloTowerPtr> const & Jet::getCaloConstituents () const {
 reco::PFCandidatePtr Jet::getPFConstituent (unsigned fIndex) const {
     if (embeddedPFCandidates_) {
       // Refactorized PAT access
-      if ( pfCandidatesFwdPtr_.size() > 0 ) {
+      if ( !pfCandidatesFwdPtr_.empty() ) {
 	return (fIndex < pfCandidatesFwdPtr_.size() ?
 		pfCandidatesFwdPtr_[fIndex].ptr() : reco::PFCandidatePtr());
       }
       // Compatibility PAT access
       else {
-	if ( pfCandidates_.size() > 0 ) {
+	if ( !pfCandidates_.empty() ) {
 	  return (fIndex < pfCandidates_.size() ?
 		  reco::PFCandidatePtr(&pfCandidates_, fIndex) : reco::PFCandidatePtr());
 
@@ -174,56 +184,90 @@ reco::PFCandidatePtr Jet::getPFConstituent (unsigned fIndex) const {
 }
 
 std::vector<reco::PFCandidatePtr> const & Jet::getPFConstituents () const {
-  if ( !pfCandidatesTemp_.isSet() || pfCandidates_.size() > 0 ) cachePFCandidates();
+  if ( !pfCandidatesTemp_.isSet() || !pfCandidates_.empty() ) cachePFCandidates();
   return *pfCandidatesTemp_;
 }
 
 const reco::Candidate * Jet::daughter(size_t i) const {
   if (isCaloJet() || isJPTJet() ) {
     if ( embeddedCaloTowers_ ) {
-      if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_[i].get();
-      else if ( caloTowers_.size() > 0 ) return &caloTowers_[i];
+      if ( !caloTowersFwdPtr_.empty() ) return caloTowersFwdPtr_[i].get();
+      else if ( !caloTowers_.empty() ) return &caloTowers_[i];
       else return reco::Jet::daughter(i);
     }
   }
   if (isPFJet()) {
     if ( embeddedPFCandidates_ ) {
-      if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_[i].get();
-      else if ( pfCandidates_.size() > 0 ) return &pfCandidates_[i];
+      if ( !pfCandidatesFwdPtr_.empty() ) return pfCandidatesFwdPtr_[i].get();
+      else if ( !pfCandidates_.empty() ) return &pfCandidates_[i];
       else return reco::Jet::daughter(i);
     }
   }
+  if ( !subjetCollections_.empty() ) {
+    if ( !daughtersTemp_.isSet() ) cacheDaughters();
+    return daughtersTemp_->at(i).get();
+  }
   return reco::Jet::daughter(i);
+}
+
+reco::CandidatePtr Jet::daughterPtr( size_t i ) const {
+  if ( !subjetCollections_.empty() ) {
+    if ( !daughtersTemp_.isSet() ) cacheDaughters();
+    return daughtersTemp_->at(i);
+  }
+  return reco::Jet::daughterPtr(i);
+}
+
+const reco::CompositePtrCandidate::daughters & Jet::daughterPtrVector() const {
+  if ( !subjetCollections_.empty() ) {
+    if ( !daughtersTemp_.isSet() ) cacheDaughters();
+    return *daughtersTemp_;
+  }
+  return reco::Jet::daughterPtrVector();
 }
 
 size_t Jet::numberOfDaughters() const {
   if (isCaloJet() || isJPTJet()) {
     if ( embeddedCaloTowers_ ) {
-      if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_.size();
-      else if ( caloTowers_.size() > 0 ) return caloTowers_.size();
+      if ( !caloTowersFwdPtr_.empty() ) return caloTowersFwdPtr_.size();
+      else if ( !caloTowers_.empty() ) return caloTowers_.size();
       else return reco::Jet::numberOfDaughters();
     }
   }
   if (isPFJet()) {
     if ( embeddedPFCandidates_ ) {
-      if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_.size();
-      else if ( pfCandidates_.size() > 0 ) return pfCandidates_.size();
+      if ( !pfCandidatesFwdPtr_.empty() ) return pfCandidatesFwdPtr_.size();
+      else if ( !pfCandidates_.empty() ) return pfCandidates_.size();
       else return reco::Jet::numberOfDaughters();
     }
+  }
+  if ( !subjetCollections_.empty() ) {
+    if ( !daughtersTemp_.isSet() ) cacheDaughters();
+    return daughtersTemp_->size();
   }
   return reco::Jet::numberOfDaughters();
 }
 
 /// return the matched generated jet
 const reco::GenJet * Jet::genJet() const {
-  if (genJet_.size()) return  &(genJet_.front());
-  else if ( genJetRef_.size() ) return genJetRef_[0].get();
+  if (!genJet_.empty()) return  &(genJet_.front());
+  else if ( !genJetRef_.empty() ) return genJetRef_[0].get();
   else return genJetFwdRef_.get();
 }
 
-/// return the flavour of the parton underlying the jet
+/// return the parton-based flavour of the jet
 int Jet::partonFlavour() const {
-  return partonFlavour_;
+  return jetFlavourInfo_.getPartonFlavour();
+}
+
+/// return the hadron-based flavour of the jet
+int Jet::hadronFlavour() const {
+  return jetFlavourInfo_.getHadronFlavour();
+}
+
+/// return the JetFlavourInfo of the jet
+const reco::JetFlavourInfo & Jet::jetFlavourInfo() const {
+  return jetFlavourInfo_;
 }
 
 /// ============= Jet Energy Correction methods ============
@@ -332,65 +376,60 @@ const std::vector<std::pair<std::string, float> > & Jet::getPairDiscri() const {
 /// get b discriminant from label name
 float Jet::bDiscriminator(const std::string & aLabel) const {
   float discriminator = -1000.;
-  const std::string & theLabel = ((aLabel == "" || aLabel == "default")) ? "trackCountingHighEffBJetTags" : aLabel;
-  for(unsigned int i=0; i!=pairDiscriVector_.size(); i++){
-    if(pairDiscriVector_[i].first == theLabel){
+  for(int i=(int(pairDiscriVector_.size())-1); i>=0; i--){
+    if(pairDiscriVector_[i].first == aLabel){
       discriminator = pairDiscriVector_[i].second;
+      break;
     }
   }
   return discriminator;
 }
 
 const reco::BaseTagInfo * Jet::tagInfo(const std::string &label) const {
-    std::vector<std::string>::const_iterator it = std::find(tagInfoLabels_.begin(), tagInfoLabels_.end(), label);
-    if (it != tagInfoLabels_.end()) {
-      if ( tagInfosFwdPtr_.size() > 0 ) return tagInfosFwdPtr_[it - tagInfoLabels_.begin()].get();
-      else if ( tagInfos_.size() > 0 )  return & tagInfos_[it - tagInfoLabels_.begin()];
-      return 0;
+  for(int i=(int(tagInfoLabels_.size())-1); i>=0; i--){
+    if (tagInfoLabels_[i] == label) {
+      if ( !tagInfosFwdPtr_.empty() ) return tagInfosFwdPtr_[i].get();
+      else if ( !tagInfos_.empty() )  return & tagInfos_[i];
+      return nullptr;
     }
-    return 0;
+  }
+  return nullptr;
 }
 
 
-template<typename T>
-const T *  Jet::tagInfoByType() const {
-  // First check the factorized PAT version
-    for (size_t i = 0, n = tagInfosFwdPtr_.size(); i < n; ++i) {
-      TagInfoFwdPtrCollection::value_type const & val = tagInfosFwdPtr_[i];
-      reco::BaseTagInfo const * baseTagInfo = val.get();
-      if ( typeid(*baseTagInfo) == typeid(T) ) {
-	return static_cast<const T *>( baseTagInfo );
-      }
-    }
-    // Then check compatibility version
-    for (size_t i = 0, n = tagInfos_.size(); i < n; ++i) {
-      edm::OwnVector<reco::BaseTagInfo>::value_type const & val = tagInfos_[i];
-      reco::BaseTagInfo const * baseTagInfo = &val;
-      if ( typeid(*baseTagInfo) == typeid(T) ) {
-	return static_cast<const T *>( baseTagInfo );
-      }
-    }
-    return 0;
+const reco::CandIPTagInfo *
+Jet::tagInfoCandIP(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::CandIPTagInfo>(label);
 }
-
-
 
 const reco::TrackIPTagInfo *
 Jet::tagInfoTrackIP(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::TrackIPTagInfo>()
-                          : dynamic_cast<const reco::TrackIPTagInfo *>(tagInfo(label)) );
+    return tagInfoByTypeOrLabel<reco::TrackIPTagInfo>(label);
+}
+
+const reco::CandSoftLeptonTagInfo *
+Jet::tagInfoCandSoftLepton(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::CandSoftLeptonTagInfo>(label);
 }
 
 const reco::SoftLeptonTagInfo *
 Jet::tagInfoSoftLepton(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::SoftLeptonTagInfo>()
-                          : dynamic_cast<const reco::SoftLeptonTagInfo *>(tagInfo(label)) );
+    return tagInfoByTypeOrLabel<reco::SoftLeptonTagInfo>(label);
+}
+
+const reco::CandSecondaryVertexTagInfo *
+Jet::tagInfoCandSecondaryVertex(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::CandSecondaryVertexTagInfo>(label);
 }
 
 const reco::SecondaryVertexTagInfo *
 Jet::tagInfoSecondaryVertex(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::SecondaryVertexTagInfo>()
-                          : dynamic_cast<const reco::SecondaryVertexTagInfo *>(tagInfo(label)) );
+    return tagInfoByTypeOrLabel<reco::SecondaryVertexTagInfo>(label);
+}
+
+const reco::BoostedDoubleSVTagInfo *
+Jet::tagInfoBoostedDoubleSV(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::BoostedDoubleSVTagInfo>(label);
 }
 
 void
@@ -452,9 +491,19 @@ void Jet::setGenJetRef(const edm::FwdRef<reco::GenJetCollection> & gj)
 
 
 
-/// method to set the flavour of the parton underlying the jet
+/// method to set the parton-based flavour of the jet
 void Jet::setPartonFlavour(int partonFl) {
-  partonFlavour_ = partonFl;
+  jetFlavourInfo_.setPartonFlavour(partonFl);
+}
+
+/// method to set the hadron-based flavour of the jet
+void Jet::setHadronFlavour(int hadronFl) {
+  jetFlavourInfo_.setHadronFlavour(hadronFl);
+}
+
+/// method to set the JetFlavourInfo of the jet
+void Jet::setJetFlavourInfo(const reco::JetFlavourInfo & jetFlavourInfo) {
+  jetFlavourInfo_ = jetFlavourInfo;
 }
 
 /// method to add a algolabel-discriminator pair
@@ -476,7 +525,7 @@ void Jet::cacheCaloTowers() const {
   std::unique_ptr<std::vector<CaloTowerPtr>> caloTowersTemp{ new std::vector<CaloTowerPtr>{}};
   if ( embeddedCaloTowers_ ) {
     // Refactorized PAT access
-    if ( caloTowersFwdPtr_.size() > 0 ) {
+    if ( !caloTowersFwdPtr_.empty() ) {
       caloTowersTemp->reserve(caloTowersFwdPtr_.size());
       for ( CaloTowerFwdPtrVector::const_iterator ibegin=caloTowersFwdPtr_.begin(),
 	      iend = caloTowersFwdPtr_.end(),
@@ -486,7 +535,7 @@ void Jet::cacheCaloTowers() const {
       }
     }
     // Compatibility access
-    else if ( caloTowers_.size() > 0 ) {
+    else if ( !caloTowers_.empty() ) {
       caloTowersTemp->reserve(caloTowers_.size());
       for ( CaloTowerCollection::const_iterator ibegin=caloTowers_.begin(),
 	      iend = caloTowers_.end(),
@@ -521,7 +570,7 @@ void Jet::cachePFCandidates() const {
   // Here is where we've embedded constituents
   if ( embeddedPFCandidates_ ) {
     // Refactorized PAT access
-    if ( pfCandidatesFwdPtr_.size() > 0 ) {
+    if ( !pfCandidatesFwdPtr_.empty() ) {
       pfCandidatesTemp->reserve(pfCandidatesFwdPtr_.size());
       for ( PFCandidateFwdPtrCollection::const_iterator ibegin=pfCandidatesFwdPtr_.begin(),
 	      iend = pfCandidatesFwdPtr_.end(),
@@ -531,7 +580,7 @@ void Jet::cachePFCandidates() const {
       }
     }
     // Compatibility access
-    else if ( pfCandidates_.size() > 0 ) {
+    else if ( !pfCandidates_.empty() ) {
       pfCandidatesTemp->reserve(pfCandidates_.size());
       for ( reco::PFCandidateCollection::const_iterator ibegin=pfCandidates_.begin(),
 	      iend = pfCandidates_.end(),
@@ -558,4 +607,51 @@ void Jet::cachePFCandidates() const {
   }
   // Set the cache
   pfCandidatesTemp_.set(std::move(pfCandidatesTemp));
+}
+ 
+/// method to cache the daughters to allow "user-friendly" access
+void Jet::cacheDaughters() const {
+    // Jets in MiniAOD produced via JetSubstructurePacker contain a mixture of subjets and particles as daughters
+    std::unique_ptr<std::vector<reco::CandidatePtr>> daughtersTemp{ new std::vector<reco::CandidatePtr>{}};
+    const std::vector<reco::CandidatePtr> & jdaus = reco::Jet::daughterPtrVector();
+    for (const reco::CandidatePtr & dau : jdaus) {
+      if (dau->isJet()) {
+        const reco::Jet *subjet = dynamic_cast<const reco::Jet *>(&*dau);
+        if (subjet) {
+          const std::vector<reco::CandidatePtr> & sjdaus = subjet->daughterPtrVector();
+          daughtersTemp->insert(daughtersTemp->end(), sjdaus.begin(), sjdaus.end());
+        }
+      } else
+        daughtersTemp->push_back( dau );
+    }
+    daughtersTemp_.set(std::move(daughtersTemp));
+}
+
+
+/// Access to subjet list
+pat::JetPtrCollection const & Jet::subjets( unsigned int index) const { 
+  if ( index < subjetCollections_.size() ) 
+    return subjetCollections_[index]; 
+  else {
+    throw cms::Exception("OutOfRange") << "Index " << index << " is out of range" << std::endl;
+  }
+}
+
+
+/// String access to subjet list
+pat::JetPtrCollection const & Jet::subjets( std::string const & label ) const { 
+  auto found = find( subjetLabels_.begin(), subjetLabels_.end(), label );
+  if ( found != subjetLabels_.end() ){
+    auto index = std::distance( subjetLabels_.begin(), found );
+    return subjetCollections_[index]; 
+  }
+  else {
+    throw cms::Exception("SubjetsNotFound") << "Label " << label << " does not match any subjet collection" << std::endl;
+  }
+}
+
+/// Add new set of subjets
+void Jet::addSubjets( pat::JetPtrCollection const & pieces, std::string const & label  ) {
+  subjetCollections_.push_back( pieces );
+  subjetLabels_.push_back( label );
 }

@@ -77,7 +77,7 @@ void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces)
     std::vector<const Plane*> planes;
     for (std::vector<NavVolumeSide>::const_iterator iface=faces.begin(); iface!=faces.end(); iface++) {
 	const Plane* plane = dynamic_cast<const Plane*>(&(iface->surface()));
-	if (plane != 0) {
+	if (plane != nullptr) {
 	    planes.push_back(plane);
 	}
 	else allPlanes = false;
@@ -88,7 +88,7 @@ void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces)
       // FIXME: who owns the new NavSurface? memory leak???
 
 	NavSurface& navSurf = faces[i].mutableSurface();
-	Bounds* myBounds = 0;
+	Bounds* myBounds = nullptr;
 	if (allPlanes) {	
 	    myBounds = computeBounds( i, planes);
 	}
@@ -256,7 +256,7 @@ NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingStat
 					  toLocal( startingState.globalMomentum()), -1,
 					  alongMomentum, &(startingState.surface()));
   int itry = 0;
-  VolumeCrossReturnType VolumeCrossResult( 0, startingState, 0.0);
+  VolumeCrossReturnType VolumeCrossResult( nullptr, startingState, 0.0);
 
   for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
 

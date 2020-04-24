@@ -4,8 +4,8 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string.h>
-#include <stdint.h>
+#include <cstring>
+#include <cstdint>
 
 const int HcalDCCHeader::SPIGOT_COUNT = 15;
 
@@ -51,6 +51,8 @@ void HcalDCCHeader::clear() {
 void HcalDCCHeader::setHeader(int sourceid, int bcn, int l1aN, int orbN) {
   commondataformat0=0x8|((sourceid&0xFFF)<<8)|((bcn&0xFFF)<<20);
   commondataformat1=0x50000000u|(l1aN&0xFFFFFF);
+  commondataformat2=((orbN&0xFFFFFFF)<<4);
+  commondataformat3=((orbN>>28)&0xF);
 }
 
 void HcalDCCHeader::copySpigotData(unsigned int spigot_id, const HcalHTRData& data, bool valid, unsigned char LRB_error_word) {

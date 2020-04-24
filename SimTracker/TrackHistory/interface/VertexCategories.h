@@ -3,6 +3,7 @@
 #define VertexCategories_h
 
 #include <vector>
+#include <ostream>
 
 class VertexCategories
 {
@@ -52,7 +53,7 @@ public:
     };
 
     //! Name of the different categories
-    static const char * Names[];
+    static const char * const Names[];
 
     //! Main types associated to the class
     typedef std::vector<bool> Flags;

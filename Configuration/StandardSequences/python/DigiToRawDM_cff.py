@@ -16,10 +16,11 @@ ecalPacker.labelEESRFlags = "DMEcalDigis:eeSrFlags"
 ecalPacker.labelTT = cms.InputTag('DMEcalTriggerPrimitiveDigis')
 esDigiToRaw.Label = cms.string('DMEcalPreshowerDigis')
 #
-hcalRawData.HBHE = cms.untracked.InputTag("DMHcalDigis")
-hcalRawData.HF = cms.untracked.InputTag("DMHcalDigis")
-hcalRawData.HO = cms.untracked.InputTag("DMHcalDigis") 
-hcalRawData.ZDC = cms.untracked.InputTag("mixData")
+hcalRawDataVME.HBHE = cms.untracked.InputTag("DMHcalDigis")
+hcalRawDataVME.HF = cms.untracked.InputTag("DMHcalDigis")
+hcalRawDataVME.HO = cms.untracked.InputTag("DMHcalDigis") 
+hcalRawDataVME.ZDC = cms.untracked.InputTag("mixData")
+hcalRawDataVME.TRIG = cms.untracked.InputTag("DMHcalTriggerPrimitiveDigis")
 #
 cscpacker.wireDigiTag = cms.InputTag("mixData","MuonCSCWireDigisDM")
 cscpacker.stripDigiTag = cms.InputTag("mixData","MuonCSCStripDigisDM")
@@ -27,5 +28,39 @@ cscpacker.comparatorDigiTag = cms.InputTag("mixData","MuonCSCComparatorDigisDM")
 dtpacker.digiColl = cms.InputTag('mixData')
 #dtpacker.digiColl = cms.InputTag('simMuonDTDigis')
 rpcpacker.InputLabel = cms.InputTag("mixData")
-castorRawData.CASTOR = cms.untracked.InputTag("castorDigis")
+
+DigiToRaw.remove(castorRawData)
+
+#castorRawData.CASTOR = cms.untracked.InputTag("castorDigis")
 #
+
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify( hcalRawDataVME,
+    HBHE = cms.untracked.InputTag(""),
+    HF = cms.untracked.InputTag(""),
+    TRIG = cms.untracked.InputTag(""),
+)
+run2_HCAL_2017.toModify( hcalRawDatauHTR,
+    HBHEqie8 = cms.InputTag("DMHcalDigis"),
+    HFqie8 = cms.InputTag("DMHcalDigis"),
+    QIE10 = cms.InputTag("DMHcalDigis","HFQIE10DigiCollection"),
+    QIE11 = cms.InputTag("DMHcalDigis","HBHEQIE11DigiCollection"),
+    TP = cms.InputTag("DMHcalTriggerPrimitiveDigis"),
+)
+
+
+if 'caloLayer1RawFed1354' in globals():
+    from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+
+    stage2L1Trigger.toModify(caloLayer1RawFed1354,
+                             ecalDigis= cms.InputTag("DMEcalTriggerPrimitiveDigis"),
+                             hcalDigis= cms.InputTag("DMHcalTriggerPrimitiveDigis")
+                             )
+    stage2L1Trigger.toModify(caloLayer1RawFed1356,
+                             ecalDigis= cms.InputTag("DMEcalTriggerPrimitiveDigis"),
+                             hcalDigis= cms.InputTag("DMHcalTriggerPrimitiveDigis")
+                             )
+    stage2L1Trigger.toModify(caloLayer1RawFed1358,
+                             ecalDigis= cms.InputTag("DMEcalTriggerPrimitiveDigis"),
+                             hcalDigis= cms.InputTag("DMHcalTriggerPrimitiveDigis")
+                             )

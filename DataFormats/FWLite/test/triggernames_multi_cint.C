@@ -3,7 +3,7 @@ class loadFWLite {
   public:
     loadFWLite() {
       gSystem->Load("libFWCoreFWLite");
-      AutoLibraryLoader::enable();
+      FWLiteEnabler::enable();
     }
 };
 

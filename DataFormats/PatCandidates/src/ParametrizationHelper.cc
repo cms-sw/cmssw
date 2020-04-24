@@ -17,22 +17,21 @@ pat::helper::ParametrizationHelper::fromString(const std::string &name) {
 
     typedef pat::CandKinResolution::Parametrization Parametrization;
 
-    static map<string,Parametrization> parMaps;
-    if (parMaps.empty()) {
-        parMaps["Cart"]          = pat::CandKinResolution::Cart;  
-        parMaps["ECart"]         = pat::CandKinResolution::ECart;  
-        parMaps["MCCart"]        = pat::CandKinResolution::MCCart;  
-        parMaps["Spher"]         = pat::CandKinResolution::Spher;  
-        parMaps["ESpher"]        = pat::CandKinResolution::ESpher;  
-        parMaps["MCSpher"]       = pat::CandKinResolution::MCSpher;  
-        parMaps["MCPInvSpher"]   = pat::CandKinResolution::MCPInvSpher;  
-        parMaps["EtEtaPhi"]      = pat::CandKinResolution::EtEtaPhi;  
-        parMaps["EtThetaPhi"]    = pat::CandKinResolution::EtThetaPhi;
-        parMaps["MomDev"]        = pat::CandKinResolution::MomDev;
-        parMaps["EMomDev"]       = pat::CandKinResolution::EMomDev;
-        parMaps["MCMomDev"]      = pat::CandKinResolution::MCMomDev;
-        parMaps["EScaledMomDev"] = pat::CandKinResolution::EScaledMomDev;
-    }
+    static map<string,Parametrization> const parMaps = {
+      {"Cart"          , pat::CandKinResolution::Cart},
+      {"ECart"         , pat::CandKinResolution::ECart},  
+      {"MCCart"        , pat::CandKinResolution::MCCart},  
+      {"Spher"         , pat::CandKinResolution::Spher},  
+      {"ESpher"        , pat::CandKinResolution::ESpher},  
+      {"MCSpher"       , pat::CandKinResolution::MCSpher},  
+      {"MCPInvSpher"   , pat::CandKinResolution::MCPInvSpher},  
+      {"EtEtaPhi"      , pat::CandKinResolution::EtEtaPhi},  
+      {"EtThetaPhi"    , pat::CandKinResolution::EtThetaPhi},
+      {"MomDev"        , pat::CandKinResolution::MomDev},
+      {"EMomDev"       , pat::CandKinResolution::EMomDev},
+      {"MCMomDev"      , pat::CandKinResolution::MCMomDev},
+      {"EScaledMomDev" , pat::CandKinResolution::EScaledMomDev}
+    };
     map<string,Parametrization>::const_iterator itP = parMaps.find(name);
     if (itP == parMaps.end()) {
         throw cms::Exception("StringResolutionProvider") << "Bad parametrization '" << name.c_str() << "'";

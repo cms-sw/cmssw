@@ -1,0 +1,12 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FastSimulation/CTPPSFastGeometry"/>
+<use   name="FastSimDataFormats/CTPPSFastSim"/>
+<use   name="DataFormats/Common"/>
+<use   name="clhep"/>
+<use   name="hector"/>
+<use   name="root"/>
+<flags EDM_PLUGIN="1"/>

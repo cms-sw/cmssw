@@ -7,6 +7,8 @@
 #ifndef CondFormats_JetMETObjects_FFTJetCorrectorParameters_h
 #define CondFormats_JetMETObjects_FFTJetCorrectorParameters_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 
 class FFTJetCorrectorParameters
@@ -26,15 +28,17 @@ public:
     inline std::size_t length() const {return m_buffer.size();}
     inline bool empty() const {return m_buffer.empty();}
     inline const char* getBuffer() const
-        {return m_buffer.empty() ? static_cast<const char*>(0) : &m_buffer[0];}
+        {return m_buffer.empty() ? static_cast<const char*>(nullptr) : &m_buffer[0];}
 
     // Modifiers
     inline char* getBuffer() 
-        {return m_buffer.empty() ? static_cast<char*>(0) : &m_buffer[0];}
+        {return m_buffer.empty() ? static_cast<char*>(nullptr) : &m_buffer[0];}
     inline void setStr(const std::string& s) {m_buffer = s;}
 
 private:
     std::string m_buffer;
+
+    COND_SERIALIZABLE;
 };
 
 #endif // CondFormats_JetMETObjects_FFTJetCorrectorParameters_h

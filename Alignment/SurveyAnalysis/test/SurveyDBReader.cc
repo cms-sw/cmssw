@@ -5,7 +5,7 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,7 +30,7 @@ void SurveyDBReader::analyze(const edm::Event&, const edm::EventSetup& setup)
     edm::ESHandle<SurveyErrors> errorsHandle;
     
     setup.get<TrackerSurveyRcd>().get(valuesHandle);
-    setup.get<TrackerSurveyErrorRcd>().get(errorsHandle);
+    setup.get<TrackerSurveyErrorExtendedRcd>().get(errorsHandle);
     
     const std::vector<SurveyValue>& values = valuesHandle->m_align;
     const std::vector<SurveyError>& errors = errorsHandle->m_surveyErrors;

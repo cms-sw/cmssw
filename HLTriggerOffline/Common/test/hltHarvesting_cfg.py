@@ -55,7 +55,7 @@ process.load("HLTriggerOffline.Common.HLTValidation_cff")
 #extra config needed in standalone
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
 process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.validation = cms.Path(
     process.hltvalidation
@@ -66,7 +66,6 @@ process.validation = cms.Path(
    #+process.egammaValidationSequence
    #+process.HLTTopVal
    #+process.HLTSusyExoVal
-   #+process.HLTFourVector
    #+process.heavyFlavorValidationSequence
     )
 

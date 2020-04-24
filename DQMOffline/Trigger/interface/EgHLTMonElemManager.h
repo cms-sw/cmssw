@@ -32,8 +32,8 @@ namespace egHLT {
   template<class T> class MonElemManagerBase {
     
   public:
-    MonElemManagerBase(){}
-    virtual ~MonElemManagerBase(){}
+    MonElemManagerBase()= default;
+    virtual ~MonElemManagerBase()= default;
     
     virtual void fill(const T& obj,float weight)=0;
     
@@ -51,32 +51,30 @@ namespace egHLT {
     MonElemManagerHist(const MonElemManagerHist& rhs){}
     MonElemManagerHist& operator=(const MonElemManagerHist& rhs){return *this;}
   public:
-    MonElemManagerHist(std::string name,std::string title,int nrBins,double xMin,double xMax);
-    MonElemManagerHist(std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax);
-    virtual ~MonElemManagerHist();
+    MonElemManagerHist(DQMStore::IBooker &iBooker, std::string name,std::string title,int nrBins,double xMin,double xMax);
+    MonElemManagerHist(DQMStore::IBooker &iBooker, std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax);
+    ~MonElemManagerHist() override;
     
     MonitorElement* monElem(){return monElem_;}
     const MonitorElement* monElem()const{return monElem_;}
     
-    virtual void fill(const T& obj,float weight)=0;
+    void fill(const T& obj,float weight) override =0;
     
     
   };
   
-  template <class T> MonElemManagerHist<T>::MonElemManagerHist(std::string name,std::string title,int nrBins,double xMin,double xMax):
-    monElem_(NULL)
+  template <class T> MonElemManagerHist<T>::MonElemManagerHist(DQMStore::IBooker &iBooker, std::string name,std::string title,int nrBins,double xMin,double xMax):
+    monElem_(nullptr)
   {
-    DQMStore* dbe = edm::Service<DQMStore>().operator->();
-    monElem_ =dbe->book1D(name,title,nrBins,xMin,xMax);
+    monElem_ = iBooker.book1D(name,title,nrBins,xMin,xMax);
   }
   
-  template <class T> MonElemManagerHist<T>::MonElemManagerHist(std::string name,std::string title,
+  template <class T> MonElemManagerHist<T>::MonElemManagerHist(DQMStore::IBooker &iBooker, std::string name,std::string title,
 							       int nrBinsX,double xMin,double xMax,
 							       int nrBinsY,double yMin,double yMax):
-    monElem_(NULL)
+    monElem_(nullptr)
   {
-    DQMStore* dbe = edm::Service<DQMStore>().operator->();
-    monElem_ =dbe->book2D(name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax);
+    monElem_ = iBooker.book2D(name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax);
   }
   
   
@@ -98,14 +96,14 @@ namespace egHLT {
     MonElemManager& operator=(const MonElemManager& rhs){return *this;}
     
   public:
-    MonElemManager(std::string name,std::string title,int nrBins,double xMin,double xMax,
+    MonElemManager(DQMStore::IBooker &iBooker, std::string name,std::string title,int nrBins,double xMin,double xMax,
 		   varType (T::*varFunc)()const):
-      MonElemManagerHist<T>(name,title,nrBins,xMin,xMax),
+      MonElemManagerHist<T>(iBooker, name,title,nrBins,xMin,xMax),
       varFunc_(varFunc){}
-    ~MonElemManager();
+    ~MonElemManager() override;
     
     
-    void fill(const T& obj,float weight);
+    void fill(const T& obj,float weight) override;
 
   };
 
@@ -116,9 +114,7 @@ namespace egHLT {
   }
   
   template<class T,typename varType> MonElemManager<T,varType>::~MonElemManager()
-  {
-    
-  }
+  = default;
   
   
   //fills a 2D monitor element with member functions of T returning varType1 and varType2 
@@ -134,14 +130,14 @@ namespace egHLT {
     MonElemManager2D& operator=(const MonElemManager2D& rhs){return *this;}
  
   public:
-    MonElemManager2D(std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax,
+    MonElemManager2D(DQMStore::IBooker &iBooker, std::string name,std::string title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax,
 		     varTypeX (T::*varFuncX)()const,varTypeY (T::*varFuncY)()const):
-      MonElemManagerHist<T>(name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax),
+      MonElemManagerHist<T>(iBooker, name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax),
       varFuncX_(varFuncX),varFuncY_(varFuncY){}
-    ~MonElemManager2D();
+    ~MonElemManager2D() override;
     
     
-    void fill(const T& obj,float weight);
+    void fill(const T& obj,float weight) override;
     
     
   };
@@ -152,9 +148,7 @@ namespace egHLT {
   }
   
   template<class T,typename varTypeX,typename varTypeY> MonElemManager2D<T,varTypeX,varTypeY>::~MonElemManager2D()
-  {
-    
-  }
+  = default;
 }
 
 

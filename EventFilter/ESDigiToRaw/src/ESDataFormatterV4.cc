@@ -198,7 +198,7 @@ struct ltstrip : public binary_function<ESDataFormatterV4::Word64&, ESDataFormat
 
 
 
-void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawData) {
+void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawData, Meta_Data const &meta_data) const {
   
   int ts[3] = {0, 0, 0};
   Word32 word1, word2;
@@ -275,8 +275,8 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
     
     if (fedIdOptoRx_[fedId-FEDNumbering::MINPreShowerFEDID][iopto]) { 
       
-      word2 = (0x6 << sOHEAD) | (kchip_ec_ << sOEMUKEC) | (kchip_bc_ << sOEMUTTCBC) ; 
-      word1 = (kchip_ec_ << sOEMUTTCEC) ;
+      word2 = (0x6 << sOHEAD) | (meta_data.kchip_ec << sOEMUKEC) | (meta_data.kchip_bc << sOEMUTTCBC) ; 
+      word1 = (meta_data.kchip_ec << sOEMUTTCEC) ;
       word  = (Word64(word2) << 32 ) | Word64(word1);
       if (debug_) cout<<"OPTORX: "<<print(word)<<endl; 
       words.push_back(word); 
@@ -303,7 +303,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
 	  
 	  // Set all PACEs enabled for MC 
 	  word1 = (0 << sKFLAG1) | (0xf << sKFLAG2) | (((kchip_fiber.first<<2) | 0x02) << sKID);
-	  word2 = (0x9 << sKHEAD) | (kchip_ec_ << sKEC) | (kchip_bc_ << sKBC); 
+	  word2 = (0x9 << sKHEAD) | (meta_data.kchip_ec << sKEC) | (meta_data.kchip_bc << sKBC); 
 	  
 	  word  = (Word64(word2) << 32 ) | Word64(word1);       
 	  if (debug_) cout<<"KCHIP : "<<print(word)<<endl; 
@@ -331,7 +331,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
   
   vector<Word64> DCCwords;
   
-  word2 = (3 << sDHEAD) | (1 <<sDH) | (run_number_ << sDRUN);
+  word2 = (3 << sDHEAD) | (1 <<sDH) | (meta_data.run_number << sDRUN);
   word1 = (numberOfStrips << sDEL) | (0xff << sDERR) ;
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
@@ -342,7 +342,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
   DCCwords.push_back(word);
   
   word2 = (3 << sDHEAD) | (3 <<sDH) | (4 << sDVMAJOR) | (3 << sDVMINOR); 
-  word1 = (orbit_number_ << sDORBIT);
+  word1 = (meta_data.orbit_number << sDORBIT);
   word  = (Word64(word2) << 32 ) | Word64(word1);
   DCCwords.push_back(word);
   
@@ -378,7 +378,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
   Word64 * w = reinterpret_cast<Word64* >(fedRawData.data());
   
   // header
-  FEDHeader::set( reinterpret_cast<unsigned char*>(w), trgtype_, lv1_, bx_, fedId); 
+  FEDHeader::set( reinterpret_cast<unsigned char*>(w), trgtype_, meta_data.lv1, meta_data.bx, fedId); 
   w++;
   
   // ES-DCC 

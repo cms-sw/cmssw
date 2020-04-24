@@ -1,4 +1,4 @@
-#ifndef JetMCTag_H
+#ifndef JetMCTag_h
 #define JetMCTag_h
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -13,4 +13,4 @@ namespace JetMCTagUtils {
   std::string genTauDecayMode(const reco::CompositePtrCandidate &c);
 
 }
-#endif
+#endif // JetMCTag_h

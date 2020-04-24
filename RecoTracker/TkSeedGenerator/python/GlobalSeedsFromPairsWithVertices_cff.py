@@ -25,4 +25,3 @@ globalSeedsFromPairsWithVertices = RecoTracker.TkSeedGenerator.SeedGeneratorFrom
       ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer')
     )
 )    
-

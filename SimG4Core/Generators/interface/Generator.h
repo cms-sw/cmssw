@@ -11,18 +11,17 @@
 #include "HepMC/GenParticle.h"
 
 #include <vector>
-//#include <map>
-//#include <string>
     
 class G4Event;
 class G4PrimaryParticle;
+class LumiMonitorFilter;
 
 class Generator
 {
 public:
   Generator(const edm::ParameterSet & p);
   virtual ~Generator();
-  // temp.(?) method
+
   void setGenEvent( const HepMC::GenEvent* inpevt ) 
     { evt_ = (HepMC::GenEvent*)inpevt; return ; }
   void HepMC2G4(const HepMC::GenEvent * g,G4Event * e);
@@ -30,17 +29,20 @@ public:
   virtual const HepMC::GenEvent*  genEvent() const { return evt_; }
   virtual const math::XYZTLorentzVector* genVertex() const { return vtx_; }
   virtual const double eventWeight() const { return weight_; }
+
 private:
-  bool particlePassesPrimaryCuts(const G4PrimaryParticle * p) const;
-  bool particlePassesPrimaryCuts( const math::XYZTLorentzVector& mom, 
-				  const double zimp ) const ;
+
+  bool particlePassesPrimaryCuts(const G4ThreeVector& p) const;
+  bool isExotic(HepMC::GenParticle* p) const;
+  bool isExoticNonDetectable(HepMC::GenParticle* p) const;
   void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, 
 			       double length);
   void setGenId(G4PrimaryParticle* p, int id) const 
-  {p->SetUserInformation(new GenParticleInfo(id));}
+  { p->SetUserInformation(new GenParticleInfo(id));}
 
 private:
   bool   fPCuts;
+  bool   fPtransCut;
   bool   fEtaCuts;
   bool   fPhiCuts;
   double theMinPhiCut;
@@ -48,16 +50,20 @@ private:
   double theMinEtaCut;
   double theMaxEtaCut;
   double theMinPCut;
+  double theMinPtCut2;
   double theMaxPCut;
-  double theRDecLenCut;
+  double theDecRCut2;
   double theEtaCutForHector; 
+  double theDecLenCut;
   int verbose;
+  LumiMonitorFilter* fLumiFilter; 
   HepMC::GenEvent*  evt_;
   math::XYZTLorentzVector* vtx_;
   double weight_;    
   double Z_lmin,Z_lmax,Z_hector;
   std::vector<int> pdgFilter;
   bool pdgFilterSel;
+  bool fPDGFilter;
 };
 
 #endif

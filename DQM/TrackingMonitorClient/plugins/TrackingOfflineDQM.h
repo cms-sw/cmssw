@@ -21,12 +21,15 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+
 
 #include <iostream>
 #include <fstream>
@@ -34,11 +37,11 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class TrackingActionExecutor;
 class SiStripDetCabling;
 
-class TrackingOfflineDQM: public edm::EDAnalyzer {
+class TrackingOfflineDQM: public DQMEDHarvester
+{
 
  public:
 
@@ -46,34 +49,26 @@ class TrackingOfflineDQM: public edm::EDAnalyzer {
   TrackingOfflineDQM(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~TrackingOfflineDQM();
+  ~TrackingOfflineDQM() override;
 
  private:
 
   /// BeginJob
-  void beginJob();
+  void beginJob() override;
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
-  /// Analyze
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-
-  /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
-
-  /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  /// End Luminosity Block  
+  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
 
   /// Endjob
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) override;
 
 private:
 
-  void checkTrackerFEDs(edm::Event const& e);
   bool openInputFile();
 
-  DQMStore* dqmStore_;
   TrackingActionExecutor* actionExecutor_;
 
   std::string inputFileName_;

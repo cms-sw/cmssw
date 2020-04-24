@@ -53,9 +53,7 @@ HLTMuonPFIsoFilter::HLTMuonPFIsoFilter(const edm::ParameterSet& iConfig) : HLTFi
 }
 
  
-HLTMuonPFIsoFilter::~HLTMuonPFIsoFilter()
-{
-}
+HLTMuonPFIsoFilter::~HLTMuonPFIsoFilter() = default;
 
 //
 // member functions
@@ -91,7 +89,7 @@ HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& description
     // this HLT filter, and place it in the Event.
  
     //the decision map
-    std::auto_ptr<edm::ValueMap<bool> > PFisoMap( new edm::ValueMap<bool> ());
+    std::unique_ptr<edm::ValueMap<bool> > PFisoMap( new edm::ValueMap<bool> ());
  
     // get hold of trks
     Handle<RecoChargedCandidateCollection> mucands;
@@ -189,7 +187,7 @@ HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& description
       isoFiller.fill();
     }
 
-    iEvent.put(PFisoMap);
+    iEvent.put(std::move(PFisoMap));
 
     LogDebug("HLTMuonPFIsoFilter") << " >>>>> Result of HLTMuonPFIsoFilter is " << accept << ", number of muons passing isolation cuts= " << nIsolatedMu; 
     return accept;

@@ -8,4 +8,3 @@ from SimCalorimetry.HcalTrigPrimProducers.hcalTTPDigis_cfi import *
 hcalDigiSequence = cms.Sequence(simHcalTriggerPrimitiveDigis
                                 +simHcalDigis
                                 *simHcalTTPDigis)
-

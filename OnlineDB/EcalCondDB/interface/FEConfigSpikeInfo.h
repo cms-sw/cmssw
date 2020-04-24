@@ -33,9 +33,9 @@ class FEConfigSpikeInfo : public  IODConfig {
 
 
   // Methods from IUniqueDBObject
-  int fetchID() throw(std::runtime_error);
-  int fetchNextId() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false);
+  int fetchNextId() noexcept(false);
+  void setByID(int id) noexcept(false);
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
 
   // operators
@@ -49,11 +49,11 @@ class FEConfigSpikeInfo : public  IODConfig {
   Tm m_db_time;
   int m_version;
 
-  void prepareWrite()  throw(std::runtime_error);
-  void writeDB() throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
+  void writeDB() noexcept(false);
   void clear();
-  void fetchData(FEConfigSpikeInfo * result)     throw(std::runtime_error);
-  void fetchLastData(FEConfigSpikeInfo * result)     throw(std::runtime_error);
+  void fetchData(FEConfigSpikeInfo * result) noexcept(false);
+  void fetchLastData(FEConfigSpikeInfo * result) noexcept(false);
 
 
 };

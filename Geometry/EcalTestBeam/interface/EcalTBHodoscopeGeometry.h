@@ -18,13 +18,13 @@ class EcalTBHodoscopeGeometry : public CaloSubdetectorGeometry
       typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
       EcalTBHodoscopeGeometry() ;
-      ~EcalTBHodoscopeGeometry() ;
+      ~EcalTBHodoscopeGeometry() override ;
 
-      virtual void newCell( const GlobalPoint& f1 ,
+      void newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,
-			    const DetId&       detId   ) ;
+			    const DetId&       detId   ) override ;
 
       static float getFibreLp( int plane, int fibre ) ;
       
@@ -38,7 +38,7 @@ class EcalTBHodoscopeGeometry : public CaloSubdetectorGeometry
 
    protected:
 
-      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
       
    private:
       

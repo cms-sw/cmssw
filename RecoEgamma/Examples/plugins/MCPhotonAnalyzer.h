@@ -2,7 +2,6 @@
 #define MCPhotonAnalyzer_H
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -27,12 +26,12 @@ class MCPhotonAnalyzer : public edm::EDAnalyzer
    
       //
       explicit MCPhotonAnalyzer( const edm::ParameterSet& ) ;
-      virtual ~MCPhotonAnalyzer();
+      ~MCPhotonAnalyzer() override;
                                    
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+      void beginJob() override ;
+      void endJob() override ;
 
    private:
  

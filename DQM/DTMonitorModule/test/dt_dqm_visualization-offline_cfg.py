@@ -16,7 +16,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
     )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("DQM.DTMonitorModule.dt_dqm_visualization_common_offline_cff")
 #process.load("Configuration.StandardSequences.MagneticField_cff")
 

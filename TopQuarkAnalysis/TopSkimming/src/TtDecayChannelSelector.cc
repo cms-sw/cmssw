@@ -7,9 +7,6 @@
 // TtDecayChannelSelector::search functions
 static const std::string kGenParticles = "genParticles";
 
-// number of top branches for decay selection
-static const unsigned int kTopBranches   = 2;
-
 // maximal number of possible leptonic decay 
 // channels
 static const unsigned int kDecayChannels = 3;

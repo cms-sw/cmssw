@@ -13,7 +13,6 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/JetMET/interface/JetAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,19 +26,18 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class HTMHTAnalyzer : public JetAnalyzerBase {
+class HTMHTAnalyzer : public DQMEDAnalyzer {
  public:
 
   /// Constructor
   HTMHTAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~HTMHTAnalyzer();
+  ~HTMHTAnalyzer() override;
 
-  /// Inizialize parameters for histo binning
-  void beginJob(DQMStore * dbe);
-
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
                const edm::TriggerResults&);

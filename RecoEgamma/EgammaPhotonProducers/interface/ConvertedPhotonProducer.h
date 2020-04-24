@@ -7,7 +7,7 @@
  **
  ***/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,15 +17,12 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -34,15 +31,15 @@
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
 class ConversionVertexFinder;
-class ConvertedPhotonProducer : public edm::EDProducer {
+class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
 
  public:
 
   ConvertedPhotonProducer (const edm::ParameterSet& ps);
-  virtual ~ConvertedPhotonProducer();
+  ~ConvertedPhotonProducer() override;
 
-  virtual void beginRun(edm::Run const&, const edm::EventSetup &es) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  void beginRun(edm::Run const&, const edm::EventSetup &es) final;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
   

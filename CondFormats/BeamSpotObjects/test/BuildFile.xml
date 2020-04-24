@@ -1,0 +1,3 @@
+<bin file="testSerializationBeamSpotObjects.cpp">
+    <use   name="CondFormats/BeamSpotObjects"/>
+</bin>

@@ -34,7 +34,6 @@ using namespace edm;
 PFTrackTransformer::PFTrackTransformer(const math::XYZVector& B):B_(B){
   LogInfo("PFTrackTransformer")<<"PFTrackTransformer built";
 
-  PFGeometry pfGeometry;
   onlyprop_=false;
 }
 
@@ -88,15 +87,15 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
   math::XYZTLorentzVector momClosest 
     = math::XYZTLorentzVector(track.px(), track.py(), 
 			      track.pz(), track.p());
-  math::XYZPoint posClosest = track.vertex();
+  const math::XYZPoint& posClosest = track.vertex();
   
   pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ClosestApproach,
 				     posClosest,momClosest));
   
   
   //BEAMPIPE
-  theParticle.setPropagationConditions(PFGeometry::outerRadius(PFGeometry::BeamPipe), 
-				       PFGeometry::outerZ(PFGeometry::BeamPipe), false);
+  theParticle.setPropagationConditions(pfGeometry_.outerRadius(PFGeometry::BeamPipe), 
+				       pfGeometry_.outerZ(PFGeometry::BeamPipe), false);
   theParticle.propagate();
   if(theParticle.getSuccess()!=0)
     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,
@@ -178,8 +177,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      pftrack.addPoint(dummyMaxSh); 
    }
 
-
- 
    //HCAL entrance
    theOutParticle.propagateToHcalEntrance(false);
    if(theOutParticle.getSuccess()!=0)
@@ -269,7 +266,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       math::XYZTLorentzVector momClosest 
 	= math::XYZTLorentzVector(p.x(), p.y(), 
 				  p.z(), ptot);
-      math::XYZPoint posClosest = track.vertex();
+      const math::XYZPoint& posClosest = track.vertex();
       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ClosestApproach,
 					 posClosest,momClosest));
       
@@ -287,8 +284,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       theInnerParticle.setCharge(track.charge());  
 
       //BEAMPIPE
-      theInnerParticle.setPropagationConditions(PFGeometry::outerRadius(PFGeometry::BeamPipe), 
-					   PFGeometry::outerZ(PFGeometry::BeamPipe), false);
+      theInnerParticle.setPropagationConditions(pfGeometry_.outerRadius(PFGeometry::BeamPipe), 
+					   pfGeometry_.outerZ(PFGeometry::BeamPipe), false);
       theInnerParticle.propagate();
       if(theInnerParticle.getSuccess()!=0)
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,
@@ -612,7 +609,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   math::XYZTLorentzVector momClosest 
     = math::XYZTLorentzVector(InMom.x(), InMom.y(), 
 			      InMom.z(), ptot);
-  math::XYZPoint posClosest = track.vertex();
+  const math::XYZPoint& posClosest = track.vertex();
   pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ClosestApproach,
 				     posClosest,momClosest));
   
@@ -628,8 +625,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 			    0.,0.,B_.z());
   theInnerParticle.setCharge(track.charge());   // Use the chargeMode ??   
   //BEAMPIPE
-  theInnerParticle.setPropagationConditions(PFGeometry::outerRadius(PFGeometry::BeamPipe), 
-					    PFGeometry::outerZ(PFGeometry::BeamPipe), false);
+  theInnerParticle.setPropagationConditions(pfGeometry_.outerRadius(PFGeometry::BeamPipe), 
+					    pfGeometry_.outerZ(PFGeometry::BeamPipe), false);
   theInnerParticle.propagate();
   if(theInnerParticle.getSuccess()!=0)
     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,

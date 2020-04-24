@@ -16,12 +16,10 @@ PixelToLNKAssociateFromAsciiESProducer::
     ~PixelToLNKAssociateFromAsciiESProducer()
 { }
 
-boost::shared_ptr<PixelToFEDAssociate> PixelToLNKAssociateFromAsciiESProducer::
+std::shared_ptr<PixelToFEDAssociate> PixelToLNKAssociateFromAsciiESProducer::
     produce(const TrackerDigiGeometryRecord & r)
 {
-  theAssociator = boost::shared_ptr<PixelToFEDAssociate>(
-     new PixelToLNKAssociateFromAscii(
-             theConfig.getParameter<std::string>("fileName")));
+  theAssociator = std::make_shared<PixelToLNKAssociateFromAscii>(theConfig.getParameter<std::string>("fileName"));
   return theAssociator;
 }
 

@@ -37,6 +37,7 @@ globalhitsanalyze = cms.EDAnalyzer("GlobalHitsAnalyzer",
     # 3 provides output of the store step + 2
     Frequency = cms.untracked.int32(50),
     ECalEBSrc = cms.InputTag("g4SimHits","EcalHitsEB"),
+    testNumber = cms.untracked.bool(False),
 
     validHepMCevt = cms.untracked.bool(True),
     validG4VtxContainer = cms.untracked.bool(True),
@@ -63,3 +64,7 @@ globalhitsanalyze = cms.EDAnalyzer("GlobalHitsAnalyzer",
 )
 
 
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify(globalhitsanalyze,
+    testNumber    = cms.untracked.bool(True)
+)

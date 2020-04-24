@@ -21,12 +21,12 @@ namespace magneticfield {
   public:
     UniformMagneticFieldESProducer(const edm::ParameterSet& pset);
   
-    std::auto_ptr<MagneticField> produce(const IdealMagneticFieldRecord &);
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord &);
 
   private:
     // forbid copy ctor and assignment op.
-    UniformMagneticFieldESProducer(const UniformMagneticFieldESProducer&);
-    const UniformMagneticFieldESProducer& operator=(const UniformMagneticFieldESProducer&);
+    UniformMagneticFieldESProducer(const UniformMagneticFieldESProducer&) = delete;
+    const UniformMagneticFieldESProducer& operator=(const UniformMagneticFieldESProducer&) = delete;
 
     float value;
   };

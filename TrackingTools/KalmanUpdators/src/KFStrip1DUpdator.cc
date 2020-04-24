@@ -2,7 +2,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Strip1DMeasurementTransformator.h"
 
 TrajectoryStateOnSurface 
-KFStrip1DUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) const {
+KFStrip1DUpdator::update(const TSOS& aTsos, const TrackingRecHit& aHit) const {
 
   double pzSign = aTsos.localParameters().pzSign();
 
@@ -14,7 +14,7 @@ KFStrip1DUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit)
   
   AlgebraicMatrix15 H(myTrafo.projectionMatrix());
   double V = myTrafo.hitError();
-  AlgebraicSymMatrix55 C(myTrafo.trajectoryError());
+  const AlgebraicSymMatrix55& C(myTrafo.trajectoryError());
   double pC = myTrafo.projectedTrajectoryError();
 
   double R = 1./(V + pC);

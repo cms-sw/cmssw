@@ -6,7 +6,7 @@
  *  from combinations of hits in pairs of strip layers 
  */
 //FWK
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,7 +37,7 @@
 
 #include <map>
 
-class CtfSpecialSeedGenerator : public edm::EDProducer
+class CtfSpecialSeedGenerator : public edm::stream::EDProducer<>
 {
  public:
   typedef TrajectoryStateOnSurface TSOS;
@@ -45,12 +45,12 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
 
   CtfSpecialSeedGenerator(const edm::ParameterSet& conf);
 
-  virtual ~CtfSpecialSeedGenerator();//{};
+  ~CtfSpecialSeedGenerator() override;//{};
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;	
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;	
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;	
+  void endRun(edm::Run const&, edm::EventSetup const&) override;	
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   

@@ -23,9 +23,8 @@ public:
   }
 };
 
-
 SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset) 
-: theHitWriter(0),
+: theHitWriter(nullptr),
   useRandFlat(false),
   theInputTag(pset.getParameter<edm::InputTag>("input")),
   theNeutronTimeCut(pset.getParameter<double>("neutronTimeCut")),
@@ -68,14 +67,11 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
   } 
 }
 
-
 SubsystemNeutronWriter::~SubsystemNeutronWriter()
 {
   printStats();
   delete theHitWriter;
 }
-
-
 
 void SubsystemNeutronWriter::printStats() {
   edm::LogInfo("SubsystemNeutronWriter") << "SubsystemNeutronWriter Statistics:\n";
@@ -85,7 +81,6 @@ void SubsystemNeutronWriter::printStats() {
          << mapItr->second << " / " << theNEvents << " / NCT \n";
   }
 }
-
 
 void SubsystemNeutronWriter::produce(edm::Event & e, edm::EventSetup const& c)
 {

@@ -11,6 +11,7 @@ CMSBoostedTauSeedingParameters = cms.PSet(
     yMax = cms.double(+1.e+6),      # maximum asymmetry
     dRMin = cms.double(0.0),        # minimum delta R between subjets
     dRMax = cms.double(0.8),        # maximum delta R between subjets
-    maxDepth = cms.int32(4)         # maximum depth for descending into clustering sequence
+    maxDepth = cms.int32(100)       # maximum depth for descending into clustering sequence;
+
 )
 

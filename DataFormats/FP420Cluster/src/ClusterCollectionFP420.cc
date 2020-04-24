@@ -47,7 +47,7 @@ void ClusterCollectionFP420::put(ClusterCollectionFP420::Range input, unsigned i
   }
 
   // since we start from 0, then the last element will be size-1
-  if(container_.size() != 0) {
+  if(!container_.empty()) {
     inputRange.second = container_.size()-1;
   }
   else {

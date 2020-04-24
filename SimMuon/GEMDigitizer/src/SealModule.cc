@@ -1,17 +1,44 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "SimMuon/GEMDigitizer/src/GEMDigiProducer.h"
-#include "SimMuon/GEMDigitizer/src/GEMSimFactory.h"
+#include "SimMuon/GEMDigitizer/interface/GEMDigiModelFactory.h"
+#include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModelFactory.h"
+#include "SimMuon/GEMDigitizer/interface/ME0DigiModelFactory.h"
 
-#include "SimMuon/GEMDigitizer/src/GEMSimTriv.h"
-#include "SimMuon/GEMDigitizer/src/GEMSimAverage.h"
-
+#include "SimMuon/GEMDigitizer/interface/GEMDigiProducer.h"
 DEFINE_FWK_MODULE(GEMDigiProducer);
 
-DEFINE_EDM_PLUGIN(GEMSimFactory, GEMSimTriv, "GEMSimTriv");
-DEFINE_EDM_PLUGIN(GEMSimFactory, GEMSimAverage,"GEMSimAverage");
+#include "SimMuon/GEMDigitizer/interface/GEMTrivialModel.h"
+DEFINE_EDM_PLUGIN(GEMDigiModelFactory, GEMTrivialModel, "GEMTrivialModel");
 
-#include "SimMuon/GEMDigitizer/src/GEMCSCPadDigiProducer.h"
+#include "SimMuon/GEMDigitizer/interface/GEMSimpleModel.h"
+DEFINE_EDM_PLUGIN(GEMDigiModelFactory, GEMSimpleModel, "GEMSimpleModel");
 
-DEFINE_FWK_MODULE(GEMCSCPadDigiProducer);
+#include "SimMuon/GEMDigitizer/interface/GEMPadDigiProducer.h"
+DEFINE_FWK_MODULE(GEMPadDigiProducer);
 
+#include "SimMuon/GEMDigitizer/interface/GEMPadDigiClusterProducer.h"
+DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoProducer.h"
+DEFINE_FWK_MODULE(ME0DigiPreRecoProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0PreRecoNoSmearModel.h"
+DEFINE_EDM_PLUGIN(ME0DigiPreRecoModelFactory, ME0PreRecoNoSmearModel, "ME0PreRecoNoSmearModel");
+
+#include "SimMuon/GEMDigitizer/interface/ME0PreRecoGaussianModel.h"
+DEFINE_EDM_PLUGIN(ME0DigiPreRecoModelFactory, ME0PreRecoGaussianModel, "ME0PreRecoGaussianModel");
+
+#include "SimMuon/GEMDigitizer/interface/ME0ReDigiProducer.h"
+DEFINE_FWK_MODULE(ME0ReDigiProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0DigiProducer.h"
+DEFINE_FWK_MODULE(ME0DigiProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0SimpleModel.h"
+DEFINE_EDM_PLUGIN(ME0DigiModelFactory, ME0SimpleModel, "ME0SimpleModel");
+
+#include "SimMuon/GEMDigitizer/interface/ME0PadDigiProducer.h"
+DEFINE_FWK_MODULE(ME0PadDigiProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0PadDigiClusterProducer.h"
+DEFINE_FWK_MODULE(ME0PadDigiClusterProducer);

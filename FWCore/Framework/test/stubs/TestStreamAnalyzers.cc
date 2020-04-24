@@ -19,15 +19,16 @@ for testing purposes only.
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-
 
 namespace edmtest {
 namespace stream {
 
-namespace {
+// anonymous namespace here causes build warnings
+namespace cache {
 struct Cache { 
    Cache():value(0),run(0),lumi(0) {}
    //Using mutable since we want to update the value.
@@ -35,10 +36,9 @@ struct Cache {
    mutable std::atomic<unsigned int> run;
    mutable std::atomic<unsigned int> lumi;
 };
-} //end anonymous namespace
+} //end cache namespace
 
-
-
+  using Cache = cache::Cache;
 
   class GlobalIntAnalyzer : public edm::stream::EDAnalyzer<edm::GlobalCache<Cache>> {
   public:
@@ -48,7 +48,7 @@ struct Cache {
    
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const& p) {
       ++m_count;
-      return std::unique_ptr<Cache>{ new Cache };
+      return std::make_unique<Cache>();
     }
 
     GlobalIntAnalyzer(edm::ParameterSet const& p, Cache const * iGlobal)  {
@@ -96,7 +96,11 @@ struct Cache {
       m_count = 0;
     }
     
-    void analyze(edm::Event const&, edm::EventSetup const&) {
+    void analyze(edm::Event const&, edm::EventSetup const&) override {
+      if(moduleDescription().processName() != edm::Service<edm::service::TriggerNamesService>()->getProcessName()) {
+        throw cms::Exception("LogicError")
+          << "module description not properly initialized in stream analyzer";
+      }
       ++m_count;
       ++(runCache()->value);
        
@@ -106,7 +110,7 @@ struct Cache {
       ++m_count;
       gbr = true;
       ger = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
     }
@@ -181,7 +185,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
    }
@@ -263,7 +267,7 @@ struct Cache {
       ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -278,7 +282,7 @@ struct Cache {
         throw cms::Exception("begin out of sequence")
           << "globalBeginRunSummary seen before globalBeginRun";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::make_shared<Cache>();
     }
 
    void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
@@ -367,7 +371,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
     }
@@ -383,7 +387,7 @@ struct Cache {
        throw cms::Exception("begin out of sequence")
          << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::make_shared<Cache>();
    }
    
    

@@ -47,4 +47,7 @@ condDataValidation = DQM.SiStripMonitorSummary.SiStripMonitorCondData_cfi.CondDa
 
 
 trackerRecHitsValidation = cms.Sequence(pixRecHitsValid+stripRecHitsValid+condDataValidation)
+trackerRecHitsStripValidation = cms.Sequence(stripRecHitsValid+condDataValidation)
 
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith( trackerRecHitsValidation, trackerRecHitsStripValidation )

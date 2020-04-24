@@ -14,10 +14,11 @@
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/FileID.h"
@@ -34,24 +35,24 @@
 
 class TTree;
 class TFile;
+class TClass;
 
 namespace edm {
-  class ModuleCallingContext;
+  class OccurrenceForOutput;
   class PoolOutputModule;
-
 
   class RootOutputFile {
   public:
     typedef PoolOutputModule::OutputItem OutputItem;
     typedef PoolOutputModule::OutputItemList OutputItemList;
-    typedef std::array<RootOutputTree*, NumBranchTypes> RootOutputTreePtrArray;
+    typedef std::array<edm::propagate_const<RootOutputTree*>, NumBranchTypes> RootOutputTreePtrArray;
     explicit RootOutputFile(PoolOutputModule* om, std::string const& fileName,
                             std::string const& logicalFileName);
     ~RootOutputFile() {}
-    void writeOne(EventPrincipal const& e, ModuleCallingContext const*);
+    void writeOne(EventForOutput const& e);
     //void endFile();
-    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const*);
-    void writeRun(RunPrincipal const& r, ModuleCallingContext const*);
+    void writeLuminosityBlock(LuminosityBlockForOutput const& lb);
+    void writeRun(RunForOutput const& r);
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
@@ -60,6 +61,7 @@ namespace edm {
     void writeProductDescriptionRegistry();
     void writeParentageRegistry();
     void writeBranchIDListRegistry();
+    void writeThinnedAssociationsHelper();
     void writeProductDependencies();
 
     void finishEndFile();
@@ -81,43 +83,50 @@ namespace edm {
     void setBranchAliases(TTree* tree, SelectedProducts const& branches) const;
 
     void fillBranches(BranchType const& branchType,
-                      Principal const& principal,
-                      StoredProductProvenanceVector* productProvenanceVecPtr,
-                      ModuleCallingContext const*);
+                      OccurrenceForOutput const& occurrence,
+                      StoredProductProvenanceVector* productProvenanceVecPtr = nullptr,
+                      ProductProvenanceRetriever const* provRetriever = nullptr);
 
      void insertAncestors(ProductProvenance const& iGetParents,
-                          EventPrincipal const& principal,
+                          ProductProvenanceRetriever const* iMapper,
                           bool produced,
-                          std::set<StoredProductProvenance>& oToFill,
-                          ModuleCallingContext const*);
+                          std::set<BranchID> const& producedBranches,
+                          std::set<StoredProductProvenance>& oToFill);
 
     bool insertProductProvenance(const ProductProvenance&,
                                  std::set<StoredProductProvenance>& oToInsert);
+
+    std::shared_ptr<TFile const> filePtr() const {return get_underlying_safe(filePtr_);}
+    std::shared_ptr<TFile>& filePtr() {return get_underlying_safe(filePtr_);}
+    StoredProductProvenanceVector const* pEventEntryInfoVector() const {return get_underlying_safe(pEventEntryInfoVector_);}
+    StoredProductProvenanceVector*& pEventEntryInfoVector() {return get_underlying_safe(pEventEntryInfoVector_);}
+
     //-------------------------------
     // Member data
 
     std::string file_;
     std::string logicalFile_;
     JobReport::Token reportToken_;
-    PoolOutputModule const* om_;
+    edm::propagate_const<PoolOutputModule*> om_;
     int whyNotFastClonable_;
     bool canFastCloneAux_;
-    boost::shared_ptr<TFile> filePtr_;
+    edm::propagate_const<std::shared_ptr<TFile>> filePtr_;
     FileID fid_;
     IndexIntoFile::EntryNumber_t eventEntryNumber_;
     IndexIntoFile::EntryNumber_t lumiEntryNumber_;
     IndexIntoFile::EntryNumber_t runEntryNumber_;
     IndexIntoFile indexIntoFile_;
-    TTree* metaDataTree_;
-    TTree* parameterSetsTree_;
-    TTree* parentageTree_;
+    unsigned long nEventsInLumi_;
+    edm::propagate_const<TTree*> metaDataTree_;
+    edm::propagate_const<TTree*> parameterSetsTree_;
+    edm::propagate_const<TTree*> parentageTree_;
     LuminosityBlockAuxiliary  lumiAux_;
     RunAuxiliary              runAux_;
     EventAuxiliary const*           pEventAux_;
     LuminosityBlockAuxiliary const* pLumiAux_;
     RunAuxiliary const*             pRunAux_;
     StoredProductProvenanceVector eventEntryInfoVector_;
-    StoredProductProvenanceVector*        pEventEntryInfoVector_;
+    edm::propagate_const<StoredProductProvenanceVector*> pEventEntryInfoVector_;
     BranchListIndexes const*        pBranchListIndexes_;
     EventSelectionIDVector const*   pEventSelectionIDs_;
     RootOutputTree eventTree_;
@@ -128,6 +137,7 @@ namespace edm {
     ProcessHistoryRegistry processHistoryRegistry_;
     std::map<ParentageID,unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
+    edm::propagate_const<TClass*> wrapperBaseTClass_;
   };
 
 }

@@ -1,16 +1,5 @@
-#include "CondFormats/Common/interface/IOVSequence.h"
-#include "CondFormats/Common/interface/GenericSummary.h"
-#include "CondFormats/Common/interface/FileBlob.h"
-#include "CondFormats/Common/interface/MultiFileBlob.h"
-
-#include "CondFormats/Common/interface/BaseKeyed.h"
-#include "CondFormats/Common/interface/IOVKeysDescription.h"
-#include "CondFormats/Common/interface/ConfObject.h"
-
-#include "CondFormats/Common/interface/DropBoxMetadata.h"
-
-
-#include <vector>
+#include "CondFormats/Common/src/headers.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace CondFormats_Common {
     struct dictionary {
@@ -23,6 +12,8 @@ namespace CondFormats_Common {
 
       std::map<std::string, DropBoxMetadata::Parameters> amap1;
       std::map<const std::basic_string<char>, DropBoxMetadata::Parameters> amap2;
+
+      FileBlobCollection dummyFileBlobCollection;
+      edm::Wrapper<FileBlobCollection> dummyWrapperFileBlobCollection;
     };
 }
-

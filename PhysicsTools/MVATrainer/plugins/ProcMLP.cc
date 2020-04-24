@@ -72,7 +72,7 @@ class ProcMLP : public TrainProcessor {
 	double			limiter;
 };
 
-static ProcMLP::Registry registry("ProcMLP");
+ProcMLP::Registry registry("ProcMLP");
 
 ProcMLP::ProcMLP(const char *name, const AtomicId *id,
                  MVATrainer *trainer) :
@@ -241,7 +241,7 @@ void ProcMLP::trainData(const std::vector<double> *values,
 
 	if (iteration == ITER_COUNT)
 		count++;
-		weightSum += weight;
+   weightSum += weight; 
 
 	if (iteration != ITER_TRAIN)
 		return;

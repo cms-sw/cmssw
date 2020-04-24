@@ -11,9 +11,15 @@
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
 
+class HcalFlexiHardcodeGeometryLoader;
+class HcalHardcodeGeometryLoader;
+
 class HcalGeometry : public CaloSubdetectorGeometry {
 
 public:
+
+  friend class HcalFlexiHardcodeGeometryLoader;
+  friend class HcalHardcodeGeometryLoader;
   
   typedef std::vector<IdealObliquePrism> HBCellVec ;
   typedef std::vector<IdealObliquePrism> HECellVec ;
@@ -34,40 +40,46 @@ public:
 
   static std::string dbString() { return "PHcalRcd" ; }
 
-  virtual unsigned int numberOfShapes() const { return theTopology.getNumberOfShapes() ; }
-  virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
-
-  explicit HcalGeometry(const HcalTopology& topology);
-
-  /// The HcalGeometry will delete all its cell geometries at destruction time
-  virtual ~HcalGeometry();
+  unsigned int numberOfShapes() const override { return m_topology.getNumberOfShapes() ; }
+  unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
   
-  virtual const std::vector<DetId>& getValidDetIds(DetId::Detector det    = DetId::Detector ( 0 ), 
-						   int             subdet = 0 ) const;
+  explicit HcalGeometry(const HcalTopology& topology);
+  
+  /// The HcalGeometry will delete all its cell geometries at destruction time
+  ~HcalGeometry() override;
+  
+  const std::vector<DetId>& getValidDetIds(DetId::Detector det    = DetId::Detector ( 0 ), 
+					   int             subdet = 0 ) const override;
 
-  virtual DetId getClosestCell(const GlobalPoint& r) const ;
-      
-  virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-						      double             dR ) const ;
+  const CaloCellGeometry* getGeometry( const DetId& id ) const override ;
+  
+  DetId getClosestCell(const GlobalPoint& r) const override ;
+  DetId getClosestCell(const GlobalPoint& r, bool ignoreCorrect) const;
+  
+  CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
+					      double             dR ) const override ;
 
+  GlobalPoint                   getPosition(const DetId& id) const;
+  GlobalPoint                   getBackPosition(const DetId& id) const;
+  CaloCellGeometry::CornersVec  getCorners(const DetId& id) const;
 
   static std::string producerTag() { return "HCAL" ; }
   
   static unsigned int numberOfBarrelAlignments() { return 36 ; }
 
   static unsigned int numberOfEndcapAlignments() { return 36 ; }
-
+  
   static unsigned int numberOfForwardAlignments() { return 36 ; }
 
   static unsigned int numberOfOuterAlignments() { return 60 ; }
 
-  
+  unsigned int getHxSize(const int type) const;
 
-  static unsigned int numberOfAlignments() 
-    { return ( numberOfBarrelAlignments() +
-	       numberOfEndcapAlignments() +
-	       numberOfOuterAlignments() +
-	       numberOfForwardAlignments() ) ; }
+  static unsigned int numberOfAlignments() { 
+    return ( numberOfBarrelAlignments() +
+	     numberOfEndcapAlignments() +
+	     numberOfOuterAlignments() +
+	     numberOfForwardAlignments() ) ; }
 
   static unsigned int alignmentBarrelIndexLocal(    const DetId& id ) ;
   static unsigned int alignmentEndcapIndexLocal(    const DetId& id ) ;
@@ -90,28 +102,48 @@ public:
 		     unsigned int    i   ,
 		     Pt3D&           ref   ) ;
   
-  virtual void newCell( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm,
-			const DetId&       detId     ) ;
+  void newCell( const GlobalPoint& f1 ,
+		const GlobalPoint& f2 ,
+		const GlobalPoint& f3 ,
+		const CCGFloat*    parm,
+		const DetId&       detId     ) override ;
 
-  virtual const CaloCellGeometry* getGeometry( const DetId& id ) const {
-      return cellGeomPtr( theTopology.detId2denseId( id ) ) ;
+  const CaloCellGeometry* getGeometryBase( const DetId& id ) const {
+    return cellGeomPtr( m_topology.detId2denseId( id ) ) ;
   }
 
-  virtual void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
-			   CaloSubdetectorGeometry::IVec&   iVector,
-			   CaloSubdetectorGeometry::DimVec& dimVector,
-			   CaloSubdetectorGeometry::IVec& dinsVector ) const ;
+  void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
+		   CaloSubdetectorGeometry::IVec&   iVector,
+		   CaloSubdetectorGeometry::DimVec& dimVector,
+		   CaloSubdetectorGeometry::IVec& dinsVector ) const override ;
+
+  const HcalTopology& topology() const { return m_topology; }
+
 protected:
 
-  virtual const CaloCellGeometry* cellGeomPtr( unsigned int index ) const ;
+  const CaloCellGeometry* cellGeomPtr( unsigned int index ) const override ;
 
-  virtual unsigned int indexFor(const DetId& id) const { return  theTopology.detId2denseId(id); }
-  virtual unsigned int sizeForDenseIndex(const DetId& id) const { return theTopology.ncells(); }
+  unsigned int indexFor(const DetId& id) const override { return  m_topology.detId2denseId(id); }
+  unsigned int sizeForDenseIndex(const DetId& id) const override { return m_topology.ncells(); }
 
 private:
+
+  //returns din
+  unsigned int newCellImpl( const GlobalPoint& f1 ,
+			    const GlobalPoint& f2 ,
+			    const GlobalPoint& f3 ,
+			    const CCGFloat*    parm,
+			    const DetId&       detId     ) ;
+
+  //can only be used by friend classes, to ensure sorting is done at the end
+  void newCellFast( const GlobalPoint& f1 ,
+		    const GlobalPoint& f2 ,
+		    const GlobalPoint& f3 ,
+		    const CCGFloat*    parm,
+		    const DetId&       detId     ) ;
+
+  void increaseReserve(unsigned int extra);
+  void sortValidIds();
 
   void fillDetIds() const ;
 
@@ -119,17 +151,18 @@ private:
 
   /// helper methods for getClosestCell
   int etaRing(HcalSubdetector bc, double abseta) const;
-  int phiBin(double phi, int etaring) const;
+  int phiBin(HcalSubdetector bc, int etaring, double phi) const;
+  DetId correctId(const DetId& id) const ;
 
-
-  const HcalTopology& theTopology;
+  const HcalTopology& m_topology;
+  bool                m_mergePosition;
   
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_hbIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_heIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_hoIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_hfIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_emptyIds ;
-  mutable CaloSubdetectorGeometry::IVec m_dins;  
+  CaloSubdetectorGeometry::IVec m_dins;
 
   HBCellVec m_hbCellVec ;
   HECellVec m_heCellVec ;

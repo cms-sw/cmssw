@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,6 +32,15 @@ ClusterChecker::ClusterChecker(const edm::ParameterSet & conf,
             ignoreDetsAboveNClusters_ = 0;
         }
     }
+}
+
+void ClusterChecker::fillDescriptions(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("doClusterCheck", true);
+  desc.add<unsigned>("MaxNumberOfCosmicClusters",  400000);
+  desc.add<edm::InputTag>("ClusterCollectionLabel", edm::InputTag("siStripClusters"));
+  desc.add<unsigned>("MaxNumberOfPixelClusters", 40000);
+  desc.add<edm::InputTag>("PixelClusterCollectionLabel", edm::InputTag("siPixelClusters"));
+  desc.add<std::string>("cut", "strip < 400000 && pixel < 40000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + 0.1*strip)");
 }
 
 
@@ -63,18 +73,6 @@ size_t ClusterChecker::tooManyClusters(const edm::Event & e) const
                 totals.strip += siz; 
                 totals.stripdets++;
             }
-        }
-    }
-    else{
-        edm::Handle<edm::LazyGetter<SiStripCluster> > lazyGH;
-        e.getByToken(token_sc, lazyGH);
-        totals.stripdets = 0; // don't know how to count this online
-        if (!lazyGH.failedToGet()){
-            totals.strip = lazyGH->size();
-        }else{
-            //say something's wrong.
-            edm::LogError("ClusterChecker")<<"could not get any SiStrip cluster collections of type edm::DetSetVector<SiStripCluster> or edm::LazyGetter<SiStripCluster, with label: "<<clusterCollectionInputTag_;
-            totals.strip = 999999;
         }
     }
     if (totals.strip > int(maxNrOfCosmicClusters_)) return totals.strip;

@@ -32,7 +32,7 @@ InvariantMassFromVertex::LorentzVector InvariantMassFromVertex::p4 (const Cachin
   std::vector<RefCountedVertexTrack>::const_iterator i_s = refTracks.begin();
   std::vector<double>::const_iterator i_m = masses.begin();
 
-  for( ;i_s !=refTracks.end(), i_m != masses.end(); ++i_s, ++i_m) {
+  for( ;i_s !=refTracks.end() && i_m != masses.end(); ++i_s, ++i_m) {
     GlobalVector momentum = (**i_s).refittedState()->freeTrajectoryState().momentum();
     totalP4 += LorentzVector(momentum.x(), momentum.y(), momentum.z(), *i_m);
   } 
@@ -107,7 +107,7 @@ double InvariantMassFromVertex::uncertainty(const LorentzVector & totalP4,
   std::vector<double>::const_iterator i_m = masses.begin();
 
   int i_int = 0;
-  for( ;rt_i !=refTracks.end(), i_m != masses.end(); ++rt_i, ++i_m) {
+  for( ;rt_i !=refTracks.end() && i_m != masses.end(); ++rt_i, ++i_m) {
 
     double a;
     AlgebraicVector5 param = (**rt_i).refittedState()->parameters(); // rho, theta, phi,tr_im, z_im

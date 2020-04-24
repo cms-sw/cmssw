@@ -66,9 +66,7 @@ TauJetCorrFactors::print() const
   for ( std::vector<CorrectionFactor>::const_iterator corrFactor = jec_.begin(); 
 	corrFactor != jec_.end(); ++corrFactor ) {
     unsigned int corrFactorIdx = corrFactor-jec_.begin();
-    std::stringstream idx; 
-    idx << corrFactorIdx;
-    message << std::setw(3) << idx << "  " << corrFactor->first;
+    message << std::setw(3) << corrFactorIdx << "  " << corrFactor->first;
     message << std::setw(10) << correction (corrFactor-jec_.begin()); 
     message << "\n";
   }

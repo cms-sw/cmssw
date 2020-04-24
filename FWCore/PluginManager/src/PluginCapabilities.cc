@@ -113,7 +113,7 @@ PluginCapabilities::tryToLoad(const std::string& iName)
   if(classToLoadable_.end() == classToLoadable_.find(iName) ) {
     const SharedLibrary* lib = PluginManager::get()->tryToLoad(category(),
                                                           iName);
-    if( 0 == lib) {
+    if( nullptr == lib) {
       return false;
     }
     //read the items from the 'capabilities' symbol
@@ -163,7 +163,7 @@ PluginCapabilities::category() const
 //
 PluginCapabilities*
 PluginCapabilities::get() {
-  static PluginCapabilities s_instance;
+  [[cms::thread_safe]] static PluginCapabilities s_instance;
   return &s_instance;
 }
 

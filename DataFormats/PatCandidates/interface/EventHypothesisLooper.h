@@ -26,7 +26,7 @@ namespace pat { namespace eventhypothesis {
         template<typename T>
         const T * DynCastCandPtr<T>::get(const reco::Candidate *ptr) {
             doPtr(ptr);
-            if ((ptr != 0) && (cachePtr_ == 0)) throw cms::Exception("Type Checking") <<
+            if ((ptr != nullptr) && (cachePtr_ == 0)) throw cms::Exception("Type Checking") <<
                 "You can't convert a " << typeid(*ptr).name() << " to a " << typeid(T).name() << "\n" <<
                 "note: you can use c++filt command to convert the above in human readable types.\n";
             return cachePtr_;

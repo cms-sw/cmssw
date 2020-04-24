@@ -24,7 +24,7 @@ class MagneticField
   /// Derived classes can implement cloning without ownership of the 
   /// underlying engines.
   virtual MagneticField* clone() const {
-    return 0;
+    return nullptr;
   }
   
   /// Field value ad specified global point, in Tesla
@@ -42,7 +42,7 @@ class MagneticField
 
   /// True if the point is within the region where the concrete field
   // engine is defined.
-  virtual bool isDefined(const GlobalPoint& gp) const {
+  virtual bool isDefined(const GlobalPoint& /*gp*/) const {
     return true;
   }
   
@@ -53,13 +53,18 @@ class MagneticField
   }
   
   /// The nominal field value for this map in kGauss
-  int nominalValue() const;
+  int nominalValue() const {  
+     if(kSet==nominalValueCompiuted.load()) return theNominalValue;
+     return computeNominalValue();
+  }     
 
 private:
   //nominal field value 
   virtual int computeNominalValue() const;
   mutable std::atomic<char> nominalValueCompiuted;
-  mutable int theNominalValue;
+//  [[cms::thread_guard("nominalValueCompiuted")]] mutable int theNominalValue;
+//  PG temporary fix for clang 3.4 which is not parsing thread_guard correctly
+  [[cms::thread_safe]] mutable int theNominalValue;
   enum FooStates {kUnset, kSetting, kSet};
 };
 

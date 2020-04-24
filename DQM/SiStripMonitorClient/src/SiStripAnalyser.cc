@@ -24,8 +24,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -43,10 +41,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 #define BUF_SIZE 256
 
@@ -261,7 +259,6 @@ void SiStripAnalyser::endJob(){
 //
 void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
   edm::Handle<FEDRawDataCollection> rawDataHandle;
-  //  e.getByLabel(rawDataTag_, rawDataHandle);
   e.getByToken( rawDataToken_, rawDataHandle );
   if ( !rawDataHandle.isValid() ) return;
   

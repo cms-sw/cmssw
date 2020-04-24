@@ -1,0 +1,6 @@
+<use   name="DQMServices/Core"/>
+<use   name="FWCore/Framework"/>
+<use   name="boost"/>
+<library   file="DQMRootFileReader.cc" name="CalibrationTkAlCaRecoProducersDQMRootFileReader">
+  <flags   EDM_PLUGIN="1"/>
+</library>

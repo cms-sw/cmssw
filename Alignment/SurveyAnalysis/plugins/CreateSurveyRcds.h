@@ -27,10 +27,10 @@ class CreateSurveyRcds:
 				 const edm::ParameterSet&
 				 );
 		
-		virtual void analyze(
+		void analyze(
 				     const edm::Event&, 
 				     const edm::EventSetup&
-				     );
+				     ) override;
 		
 	private:
 		
@@ -58,7 +58,6 @@ class CreateSurveyRcds:
 		std::string textFileName;
 		
 		edm::ESHandle<Alignments> alignments;
-	  const edm::ParameterSet theParameterSet;
 	};
 
 #endif

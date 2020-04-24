@@ -7,6 +7,8 @@
  **/
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class EcalMGPAGainRatio {
@@ -28,5 +30,7 @@ class EcalMGPAGainRatio {
   private:
     float gain12Over6_;
     float gain6Over1_;
+
+  COND_SERIALIZABLE;
 };
 #endif

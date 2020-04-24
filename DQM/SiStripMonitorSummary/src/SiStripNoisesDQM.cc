@@ -10,7 +10,9 @@ SiStripNoisesDQM::SiStripNoisesDQM(const edm::EventSetup & eSetup,
                                    edm::ParameterSet const& hPSet,
                                    edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){  
   gainRenormalisation_ = hPSet_.getParameter<bool>("GainRenormalisation");
-  if( gainRenormalisation_){ eSetup.get<SiStripApvGainRcd>().get(gainHandle_);}
+  simGainRenormalisation_ = hPSet_.getParameter<bool>("SimGainRenormalisation");
+  if( gainRenormalisation_ && !simGainRenormalisation_){ eSetup.get<SiStripApvGainRcd>().get(gainHandle_);}
+  if( simGainRenormalisation_){ eSetup.get<SiStripApvGainSimRcd>().get(gainHandle_);}
 
 
   // Build the Histo_TkMap:
@@ -48,17 +50,17 @@ void SiStripNoisesDQM::fillMEsForDet(const ModMEs& _selModME_, uint32_t selDetId
   float stripnoise;
 
   SiStripApvGain::Range gainRange;
-  if( gainRenormalisation_ ){
+  if( gainRenormalisation_ ||  simGainRenormalisation_ ){
     gainRange = gainHandle_->getRange(selDetId_);
   }
 
   for( int istrip=0;istrip<nStrip;++istrip){
-    if( gainRenormalisation_ )
+    if( gainRenormalisation_ ||  simGainRenormalisation_ )
       gainFactor= gainHandle_ ->getStripGain(istrip,gainRange) ? gainHandle_ ->getStripGain(istrip,gainRange) : 1.;
     else
       gainFactor=1;
 
-      stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
+    stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
     if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
       selModME_.ProfileDistr->Fill(istrip+1,stripnoise);
     }
@@ -103,7 +105,7 @@ void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,
   int Nbadstrips=0;
 
   SiStripApvGain::Range gainRange;
-  if(gainRenormalisation_ ){
+  if(gainRenormalisation_ ||  simGainRenormalisation_ ){
     gainRange = gainHandle_->getRange(selDetId_);
   }
   float gainFactor=1;
@@ -143,7 +145,7 @@ void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,
 
   for( int istrip=0;istrip<nStrip;++istrip){
 
-    if(gainRenormalisation_ ){
+    if(gainRenormalisation_  || simGainRenormalisation_ ){
       gainFactor= gainHandle_ ->getStripGain(istrip,gainRange) ? gainHandle_ ->getStripGain(istrip,gainRange) : 1.;
     } else{
       gainFactor=1.;

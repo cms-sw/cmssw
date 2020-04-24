@@ -25,7 +25,7 @@ public:
   CaloHitAnalyzer(const std::string & name,
                   double hitEnergyThreshold,
                   const CaloVSimParameterMap * parameterMap,
-                  const CaloVHitFilter * filter = 0);
+                  const CaloVHitFilter * filter = nullptr);
 
   /// should be called each event
   void fillHits(MixCollection<PCaloHit> & hits);

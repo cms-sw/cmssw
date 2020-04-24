@@ -5,7 +5,9 @@ l1Muon_EventContent = cms.PSet(
         'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 
         'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 
         'keep DTLayerIdDTDigiMuonDigiCollection_*_*_*', 
-        'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
+        #'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
+        'keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*', 
+        'keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*', 
         'keep L1MuGMTCands_*_*_*', 
         'keep L1MuGMTReadoutCollection_*_*_*')
 )

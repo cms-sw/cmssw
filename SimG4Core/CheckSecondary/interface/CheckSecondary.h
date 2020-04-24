@@ -1,7 +1,6 @@
 #ifndef SimG4Core_CheckSecondary_CheckSecondary_H
 #define SimG4Core_CheckSecondary_CheckSecondary_H
 
-#include "SimG4Core/CheckSecondary/interface/TreatSecondary.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
@@ -20,6 +19,8 @@ class G4Step;
 class BeginOfEvent;
 class BeginOfTrack;
 class EndOfEvent;
+class TreatSecondary;
+class ProcessTypeEnumerator;
 
 class CheckSecondary : public SimWatcher,
 		       public Observer<const BeginOfEvent *>, 
@@ -29,19 +30,19 @@ class CheckSecondary : public SimWatcher,
 
 public:
   CheckSecondary(const edm::ParameterSet &p);
-  virtual ~CheckSecondary();
+  ~CheckSecondary() override;
 
 private:
-  CheckSecondary(const CheckSecondary&); // stop default
-  const CheckSecondary& operator=(const CheckSecondary&);
+  CheckSecondary(const CheckSecondary&) = delete; // stop default
+  const CheckSecondary& operator=(const CheckSecondary&) = delete;
 
   // observer classes
   TTree * bookTree(std::string);
   void endTree();
-  void update(const BeginOfEvent * evt);
-  void update(const BeginOfTrack * trk);
-  void update(const G4Step * step);
-  void update(const EndOfEvent * evt);
+  void update(const BeginOfEvent * evt) override;
+  void update(const BeginOfTrack * trk) override;
+  void update(const G4Step * step) override;
+  void update(const EndOfEvent * evt) override;
 
 private:
   TreatSecondary                       *treatSecondary;

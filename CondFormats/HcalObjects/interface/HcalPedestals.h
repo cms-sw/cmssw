@@ -7,6 +7,8 @@
 POOL container to store Pedestal values 4xCapId, using template
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
@@ -17,7 +19,7 @@ class HcalPedestals: public HcalCondObjectContainer<HcalPedestal>
  public:
   //constructor definition: has to contain 
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalPedestals():HcalCondObjectContainer<HcalPedestal>(0), unitIsADC(false) {}
+  HcalPedestals():HcalCondObjectContainer<HcalPedestal>(nullptr), unitIsADC(false) {}
 #endif
   HcalPedestals(const HcalTopology* topo):HcalCondObjectContainer<HcalPedestal>(topo), unitIsADC(false) {}
   HcalPedestals(const HcalTopology* topo, bool isADC):HcalCondObjectContainer<HcalPedestal>(topo), unitIsADC(isADC) {}
@@ -27,11 +29,13 @@ class HcalPedestals: public HcalCondObjectContainer<HcalPedestal>
   // set unit boolean
   void setUnitADC(bool isADC) {unitIsADC = isADC;}
 
-  std::string myname() const {return (std::string)"HcalPedestals";}
+  std::string myname() const override {return (std::string)"HcalPedestals";}
 
  private:
   bool unitIsADC;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

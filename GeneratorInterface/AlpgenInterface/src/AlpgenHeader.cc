@@ -134,7 +134,7 @@ namespace {
     { return this->index == index; }
   } 
   
-  static const alpgenParameterNames[] = {
+  const alpgenParameterNames[] = {
     DEFINE_ALPGEN_PARAMETER(ih2),
     DEFINE_ALPGEN_PARAMETER(ebeam),
     DEFINE_ALPGEN_PARAMETER(ndns),

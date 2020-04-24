@@ -12,7 +12,6 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/DetId"/>
-<use   name="RecoLocalTracker/SiPixelClusterizer"/>
 # for tracks
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TrackFitters"/>
@@ -28,9 +27,9 @@
 <flags   EDM_PLUGIN="1"/>
 <library   file="TestClusters.cc" name="TestClusters">
 </library>
-#<flags   EDM_PLUGIN="1"/>
-#<library   file="TestWithTracks.cc" name="TestWithTracks">
-#</library>
-#<flags   EDM_PLUGIN="1"/>
-#<library   file="Triplet.cc" name="Triplet">
-#</library>
+<flags   EDM_PLUGIN="1"/>
+<library   file="TestWithTracks.cc" name="TestWithTracks">
+</library>
+<flags   EDM_PLUGIN="1"/>
+<library   file="Triplet.cc" name="Triplet">
+</library>

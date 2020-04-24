@@ -7,10 +7,10 @@
 #include "FWCore/Utilities/src/Guid.h"
 
 #include <string>
+#include <cmath>
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 
 #include <openssl/x509.h>
 #include <openssl/pem.h>
@@ -42,7 +42,6 @@ StatisticsSenderService::FileStatistics::FileStatistics() :
   m_read_vector_square(0),
   m_read_vector_count_sum(0),
   m_read_vector_count_square(0),
-  m_read_bytes_at_close(0),
   m_start_time(time(NULL))
 {}
 
@@ -57,18 +56,19 @@ StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
   ssize_t read_vector_square = 0;
   ssize_t read_vector_count_sum = 0;
   ssize_t read_vector_count_square = 0;
+  auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
   for (StorageAccount::StorageStats::const_iterator i = stats.begin (); i != stats.end(); ++i) {
-    if (i->first == "tstoragefile") {
+    if (i->first == token.value()) {
       continue;
     }
-    for (StorageAccount::OperationStats::const_iterator j = i->second->begin(); j != i->second->end(); ++j) {
-      if (j->first == "readv") {
+    for (StorageAccount::OperationStats::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
+      if (j->first == static_cast<int>(StorageAccount::Operation::readv)) {
         read_vector_operations += j->second.attempts;
         read_vector_bytes += j->second.amount;
         read_vector_count_square += j->second.vector_square;
         read_vector_square += j->second.amount_square;
         read_vector_count_sum += j->second.vector_count;
-      } else if (j->first == "read") {
+      } else if (j->first == static_cast<int>(StorageAccount::Operation::read)) {
         read_single_operations += j->second.attempts;
         read_single_bytes += j->second.amount;
         read_single_square += j->second.amount_square;
@@ -140,15 +140,22 @@ StatisticsSenderService::getJobID() {
 void
 StatisticsSenderService::setCurrentServer(const std::string &servername) {
   size_t dot_pos = servername.find(".");
+  std::string serverhost;
+  std::string serverdomain;
   if (dot_pos == std::string::npos) {
-    m_serverhost = servername.substr(0, servername.find(":"));
-    m_serverdomain = "unknown";
+    serverhost = servername.substr(0, servername.find(":"));
+    serverdomain = "unknown";
   } else {
-    m_serverhost = servername.substr(0, dot_pos);
-    m_serverdomain = servername.substr(dot_pos+1, servername.find(":")-dot_pos-1);
-    if (m_serverdomain.empty()) {
-      m_serverdomain = "unknown";
+    serverhost = servername.substr(0, dot_pos);
+    serverdomain = servername.substr(dot_pos+1, servername.find(":")-dot_pos-1);
+    if (serverdomain.empty()) {
+      serverdomain = "unknown";
     }
+  }
+  {
+    std::lock_guard<std::mutex> sentry(m_servermutex);
+    m_serverhost = std::move(serverhost);
+    m_serverdomain = std::move(serverdomain);
   }
 }
 
@@ -171,6 +178,15 @@ StatisticsSenderService::filePreCloseEvent(std::string const& lfn, bool usedFall
     return;
   }
 
+  std::set<std::string> const * info = pSLC->statisticsInfo();
+  if (info && info->size() && (m_userdn != "unknown") && (
+      (info->find("dn") == info->end()) ||
+      (info->find("nodn") != info->end()))
+     )
+  {
+    m_userdn = "not reported";
+  }
+
   std::string results;
   fillUDP(pSLC->siteName(), usedFallback, results);
 
@@ -179,6 +195,8 @@ StatisticsSenderService::filePreCloseEvent(std::string const& lfn, bool usedFall
     if (sock < 0) {
       continue;
     }
+    auto close_del = [](int* iSocket) { close(*iSocket); };
+    std::unique_ptr<int,decltype(close_del)> guard(&sock, close_del);
     if (sendto(sock, results.c_str(), results.size(), 0, address->ai_addr, address->ai_addrlen) >= 0) {
       break; 
     }
@@ -217,11 +235,19 @@ StatisticsSenderService::fillUDP(const std::string& siteName, bool usedFallback,
   if (usedFallback) {
     os << "\"fallback\": true, ";
   }
+  std::string serverhost;
+  std::string serverdomain;
+  {
+    std::lock_guard<std::mutex> sentry(m_servermutex);
+    serverhost = m_serverhost;
+    serverdomain = m_serverdomain;
+  }
+  
   os << "\"user_dn\":\"" << m_userdn << "\", ";
   os << "\"client_host\":\"" << m_clienthost << "\", ";
   os << "\"client_domain\":\"" << m_clientdomain << "\", ";
-  os << "\"server_host\":\"" << m_serverhost << "\", ";
-  os << "\"server_domain\":\"" << m_serverdomain << "\", ";
+  os << "\"server_host\":\"" << serverhost << "\", ";
+  os << "\"server_domain\":\"" << serverdomain << "\", ";
   os << "\"unique_id\":\"" << m_guid << "-" << m_counter << "\", ";
   os << "\"file_lfn\":\"" << m_filelfn << "\", ";
   // Dashboard devs requested that we send out no app_info if a job ID

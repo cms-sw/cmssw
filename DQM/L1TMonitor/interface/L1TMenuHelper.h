@@ -80,7 +80,9 @@ class L1TMenuHelper {
     ~L1TMenuHelper();                             // Destructor
 
     // Get Lowest Unprescaled Single Object Triggers
-    std::map<std::string,std::string> getLUSOTrigger(const std::map<std::string,bool>& iCategories, int IndexRefPrescaleFactors);
+    std::map<std::string,std::string> getLUSOTrigger(const std::map<std::string,bool>& iCategories,
+                                                     int IndexRefPrescaleFactors,
+                                                     L1GtUtils const& myUtils);
     std::map<std::string,std::string> testAlgos     (const std::map<std::string,std::string>&);
     
 
@@ -98,8 +100,6 @@ class L1TMenuHelper {
 
     edm::ESHandle<L1GtTriggerMenu>     menuRcd;
     edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-
-    L1GtUtils myUtils;
 
     const L1GtTriggerMenu*                m_l1GtMenu;
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;

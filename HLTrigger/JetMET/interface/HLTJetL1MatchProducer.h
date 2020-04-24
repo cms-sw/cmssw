@@ -2,7 +2,7 @@
 #define HLTJetL1MatchProducer_h
 
 #include <string>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,16 +16,14 @@
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 
-#include<typeinfo>
-
 template<typename T>
-class HLTJetL1MatchProducer : public edm::EDProducer {
+class HLTJetL1MatchProducer : public edm::stream::EDProducer<> {
  public:
   explicit HLTJetL1MatchProducer(const edm::ParameterSet&);
-  ~HLTJetL1MatchProducer();
+  ~HLTJetL1MatchProducer() override;
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void beginJob() ; 
-  virtual void produce(edm::Event &, const edm::EventSetup&);
+  void produce(edm::Event &, const edm::EventSetup&) override;
  private:
   edm::EDGetTokenT<std::vector<T>> m_theJetToken;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_theL1TauJetToken;

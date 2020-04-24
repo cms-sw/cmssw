@@ -47,18 +47,12 @@
         <Constant name="AnchorZ" value="0.*mm"/>
         <Constant name="ZPixelForward" value="325.*mm"/>
         <Constant name="RootStartZ" value="-2*mm"/>
-        <Constant name="RootMidZ1" value="[cms:TrackLumiZ1]-[ZPixelForward]"/>
-        <Constant name="RootMidZ2" value="[cms:TrackLumiZ2]-[ZPixelForward]"/>
         <Constant name="RootMidZ3" value="[cms:TrackBeamZ1]-[ZPixelForward]"/>
         <Constant name="RootEndZ" value="2*[RootHalfLength]"/>
     </ConstantsSection>
     <SolidSection label="Root">
         <Polycone name="PixelForward" startPhi="0*deg" deltaPhi="360*deg">
             <ZSection z="[RootStartZ]" rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
-            <ZSection z="[RootMidZ1]" rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
-            <ZSection z="[RootMidZ1]" rMin="[cms:TrackLumiR1]" rMax="[RootRadius]"/>
-            <ZSection z="[RootMidZ2]" rMin="[cms:TrackLumiR1]" rMax="[RootRadius]"/>
-            <ZSection z="[RootMidZ2]" rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
             <ZSection z="[RootMidZ3]" rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
             <ZSection z="[RootEndZ]" rMin="[cms:TrackBeamR2]" rMax="[RootRadius]"/>
         </Polycone>

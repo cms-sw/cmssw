@@ -54,7 +54,7 @@ RelValTTbar			GEN-SIM-DIGI-RECO	PRE_..._FastSim-..
 RelValZEE
 
 
-Targets for analyze, finalize ans store steps:
+Targets for analyze, finalize ans store steps :
 ValFastTTbarStartup
 ValFastZEEStartup
 

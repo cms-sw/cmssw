@@ -20,12 +20,13 @@ ConditionDumperInEdm::ConditionDumperInEdm(const edm::ParameterSet& iConfig)
 
 
   //per LUMI products
-  produces<edm::ConditionsInLumiBlock,edm::InLumi>();
+  produces<edm::ConditionsInLumiBlock,edm::Transition::EndLuminosityBlock>();
   //per RUN products
-  produces<edm::ConditionsInRunBlock,edm::InRun>();
+  produces<edm::ConditionsInRunBlock,edm::Transition::EndRun>();
   //per EVENT products
   produces<edm::ConditionsInEventBlock>();
 
+  gtEvmDigisLabelToken_=consumes<L1GlobalTriggerEvmReadoutRecord>(gtEvmDigisLabel_);
 }
 
 
@@ -38,8 +39,8 @@ ConditionDumperInEdm::~ConditionDumperInEdm()
 // member functions
 //
 void ConditionDumperInEdm::endLuminosityBlockProduce(edm::LuminosityBlock&lumi, edm::EventSetup const&setup){
-  std::auto_ptr<edm::ConditionsInLumiBlock> lumiOut( new edm::ConditionsInLumiBlock(lumiBlock_));
-  lumi.put( lumiOut );
+  std::unique_ptr<edm::ConditionsInLumiBlock> lumiOut( new edm::ConditionsInLumiBlock(lumiBlock_));
+  lumi.put(std::move(lumiOut));
 }
 
 void ConditionDumperInEdm::endRunProduce(edm::Run& run , const edm::EventSetup& setup){
@@ -52,8 +53,8 @@ void ConditionDumperInEdm::endRunProduce(edm::Run& run , const edm::EventSetup& 
     runBlock_.BAvgCurrent=sum->m_avg_current;
   }
 
-  std::auto_ptr<edm::ConditionsInRunBlock> outBlock(new edm::ConditionsInRunBlock(runBlock_));
-  run.put(outBlock);
+  std::unique_ptr<edm::ConditionsInRunBlock> outBlock(new edm::ConditionsInRunBlock(runBlock_));
+  run.put(std::move(outBlock));
 }
 
 // ------------ method called to produce the data  ------------
@@ -63,7 +64,7 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //get the L1 object 
   edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecordData;
-  iEvent.getByLabel(gtEvmDigisLabel_, gtReadoutRecordData);
+  iEvent.getByToken(gtEvmDigisLabelToken_, gtReadoutRecordData);
 
   if (!gtReadoutRecordData.isValid()) {
       LogDebug("ConditionDumperInEdm")
@@ -71,8 +72,8 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
               << "\nrequested in configuration, but not found in the event."
               << "\nNo BST quantities retrieved." << std::endl;
 
-      std::auto_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
-      iEvent.put( eventOut );
+      std::unique_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
+      iEvent.put(std::move(eventOut));
 
       return;
   }
@@ -94,8 +95,8 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   eventBlock_. bstMasterStatus= gtfeBlockData.bstMasterStatus() ;
   eventBlock_.turnCountNumber = gtfeBlockData.turnCountNumber();
 
-  std::auto_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
-  iEvent.put( eventOut );
+  std::unique_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
+  iEvent.put(std::move(eventOut));
 }
 
 

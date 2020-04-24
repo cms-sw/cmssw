@@ -22,7 +22,7 @@
 #include <vector>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -71,12 +71,12 @@ using namespace std;
 // class declaration
 //
 
-class FastPrimaryVertexProducer : public edm::EDProducer {
+class FastPrimaryVertexProducer : public edm::global::EDProducer<> {
    public:
       explicit FastPrimaryVertexProducer(const edm::ParameterSet&);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       edm::EDGetTokenT<SiPixelClusterCollectionNew> m_clusters;
       edm::EDGetTokenT<edm::View<reco::Jet> > m_jets;
       edm::EDGetTokenT<reco::BeamSpot> m_beamSpot;
@@ -104,7 +104,7 @@ FastPrimaryVertexProducer::FastPrimaryVertexProducer(const edm::ParameterSet& iC
 
 
 void
-FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    using namespace reco;
@@ -124,7 +124,7 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     if(it->pt() > 40 && fabs(it->eta()) < 1.6)
     {
       const CaloJet * ca = dynamic_cast<const CaloJet *>( &(*it));
-      if(ca ==0) abort();
+      if(ca ==nullptr) abort();
       selectedJets.push_back(*ca);
 //    std::cout << "Jet eta,phi,pt: "<< it->eta() << "," << it->phi() << "," << it->pt()   << std::endl;
     }
@@ -221,7 +221,7 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 
   float res=0;
-  if(zProjections.size() > 0)
+  if(!zProjections.empty())
   {
      res=*(left+(right-left)/2);
 //     std::cout << "RES " << res << std::endl;
@@ -231,9 +231,9 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
      e(2, 2) = 1.5 * 1.5;
      Vertex::Point p(beamSpot->x(res), beamSpot->y(res), res);
      Vertex thePV(p, e, 1, 1, 0);
-     std::auto_ptr<reco::VertexCollection> pOut(new reco::VertexCollection());
+     auto pOut = std::make_unique<reco::VertexCollection>();
      pOut->push_back(thePV);
-     iEvent.put(pOut);
+     iEvent.put(std::move(pOut));
    } else
    {
   //   std::cout << "DUMMY " << res << std::endl;
@@ -244,9 +244,9 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
      e(2, 2) = 1.5 * 1.5;
      Vertex::Point p(beamSpot->x(res), beamSpot->y(res), res);
      Vertex thePV(p, e, 0, 0, 0);
-     std::auto_ptr<reco::VertexCollection> pOut(new reco::VertexCollection());
+     auto pOut = std::make_unique<reco::VertexCollection>();
      pOut->push_back(thePV);
-     iEvent.put(pOut);
+     iEvent.put(std::move(pOut));
 
    }
 

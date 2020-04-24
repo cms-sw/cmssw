@@ -11,7 +11,7 @@ SiStripO2OCalibrationFactors = cms.PSet(
     DefaultAPVMode=cms.untracked.uint32(37),
 
     # Normalization Factor needed to convert Tick Height to Gain
-    GainNormalizationFactor=cms.untracked.double(690),
+    GainNormalizationFactor=cms.untracked.double(640),
 
     # Enable/Disable O2O of the following Objects
     UseAnalysis=cms.untracked.bool(False),

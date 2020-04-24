@@ -11,26 +11,26 @@
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputerCache.h"
 #include "RecoBTau/JetTagComputer/interface/TagInfoMVACategorySelector.h"
 
+class JetTagComputerRecord;
+
 class GenericMVAJetTagComputer : public JetTagComputer {
     public:
 	GenericMVAJetTagComputer(const edm::ParameterSet &parameters);
-	virtual ~GenericMVAJetTagComputer();
+	~GenericMVAJetTagComputer() override;
 
-	virtual void setEventSetup(const edm::EventSetup &es) const;
+	void initialize(const JetTagComputerRecord &) override;
 
-	virtual float discriminator(const TagInfoHelper &info) const;
+	float discriminator(const TagInfoHelper &info) const override;
 
 	virtual reco::TaggingVariableList
 	taggingVariables(const reco::BaseTagInfo &tagInfo) const;
 	virtual reco::TaggingVariableList
 	taggingVariables(const TagInfoHelper &info) const;
 
-	// for passing through an EventSetup when training
-	virtual void passEventSetup(const edm::EventSetup &es) const {}
-
     private:
-	std::auto_ptr<TagInfoMVACategorySelector>	categorySelector;
-	mutable GenericMVAComputerCache			computerCache;
+	std::auto_ptr<TagInfoMVACategorySelector> categorySelector_;
+	GenericMVAComputerCache computerCache_;
+        std::string recordLabel_;
 };
 
 #endif // RecoBTau_JetTagComputer_GenericMVAJetTagComputer_h

@@ -100,6 +100,19 @@ public:
     void swapOperandTokenVector(std::vector<L1GtLogicParser::OperandToken>& operandTokenVectorValue) {
       m_operandTokenVector.swap(operandTokenVectorValue);
     }
+
+
+    /// get / set the vector of object types
+    /// return a constant reference to the vector of operand tokens
+    inline const std::vector<ObjectTypeInCond>& objectTypeVector() const {
+        return m_objectTypeVector;
+    }
+    void setObjectTypeVector(const std::vector<ObjectTypeInCond>& objectTypeVectorValue) {
+        m_objectTypeVector = objectTypeVectorValue;
+    }
+    void swapObjectTypeVector(std::vector<ObjectTypeInCond>& objectTypeVectorValue) {
+      m_objectTypeVector.swap(objectTypeVectorValue);
+    }
     
 public:
 
@@ -137,6 +150,9 @@ private:
     
     // vector of combinations for all conditions in an algorithm
     std::vector<CombinationsInCond> m_combinationVector;
+
+    // vector of object type vectors for all conditions in an algorithm
+    std::vector<ObjectTypeInCond> m_objectTypeVector;
 
 };
 

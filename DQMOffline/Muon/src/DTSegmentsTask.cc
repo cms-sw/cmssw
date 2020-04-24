@@ -27,39 +27,36 @@ using namespace std;
 
 DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
 
-  debug = pset.getUntrackedParameter<bool>("debug",false);
-
-  // Get the DQM needed services
-  theDbe = edm::Service<DQMStore>().operator->();
-  
+  debug = pset.getUntrackedParameter<bool>("debug",false); 
   parameters = pset;
   
+  // should be init from pset, but it was commented out...
+  // better false than undefined
+  checkNoisyChannels = false;
+
   // the name of the 4D rec hits collection
-  theRecHits4DLabel_ = consumes<DTRecSegment4DCollection>(parameters.getParameter<std::string>("recHits4DLabel")); 
+  theRecHits4DLabel_ = consumes<DTRecSegment4DCollection>(parameters.getParameter<std::string>("recHits4DLabel"));
 }
 
 
 DTSegmentsTask::~DTSegmentsTask(){
 }
 
-
-void DTSegmentsTask::beginJob(void){
-}
-
-void DTSegmentsTask::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){
+void DTSegmentsTask::bookHistograms(DQMStore::IBooker & ibooker,
+				      edm::Run const & /*iRun*/,
+				      edm::EventSetup const & /* iSetup */){
   
-  theDbe->setVerbose(1);
-  theDbe->cd();
-  theDbe->setCurrentFolder("Muons/DTSegmentsMonitor");
+  ibooker.cd();
+  ibooker.setCurrentFolder("Muons/DTSegmentsMonitor");
 
   // histos for phi segments
-  phiHistos.push_back(theDbe->book2D("phiSegments_numHitsVsWheel", "phiSegments_numHitsVsWheel", 5, -2.5, 2.5, 20, 0, 20));
+  phiHistos.push_back(ibooker.book2D("phiSegments_numHitsVsWheel", "phiSegments_numHitsVsWheel", 5, -2.5, 2.5, 20, 0, 20));
   phiHistos[0]->setBinLabel(1,"W-2",1);
   phiHistos[0]->setBinLabel(2,"W-1",1);
   phiHistos[0]->setBinLabel(3,"W0",1);
   phiHistos[0]->setBinLabel(4,"W1",1);
   phiHistos[0]->setBinLabel(5,"W2",1);
-  phiHistos.push_back(theDbe->book2D("phiSegments_numHitsVsSector", "phiSegments_numHitsVsSector", 14, 0.5, 14.5, 20, 0, 20));
+  phiHistos.push_back(ibooker.book2D("phiSegments_numHitsVsSector", "phiSegments_numHitsVsSector", 14, 0.5, 14.5, 20, 0, 20));
   phiHistos[1]->setBinLabel(1,"Sec1",1);
   phiHistos[1]->setBinLabel(2,"Sec2",1);
   phiHistos[1]->setBinLabel(3,"Sec3",1);
@@ -74,20 +71,20 @@ void DTSegmentsTask::beginRun(const edm::Run& irun, const edm::EventSetup& isetu
   phiHistos[1]->setBinLabel(12,"Sec12",1);
   phiHistos[1]->setBinLabel(13,"Sec13",1);
   phiHistos[1]->setBinLabel(14,"Sec14",1);
-  phiHistos.push_back(theDbe->book2D("phiSegments_numHitsVsStation", "phiSegments_numHitsVsStation", 4, 0.5, 4.5, 20, 0, 20));
+  phiHistos.push_back(ibooker.book2D("phiSegments_numHitsVsStation", "phiSegments_numHitsVsStation", 4, 0.5, 4.5, 20, 0, 20));
   phiHistos[2]->setBinLabel(1,"St1",1);
   phiHistos[2]->setBinLabel(2,"St2",1);
   phiHistos[2]->setBinLabel(3,"St3",1);
   phiHistos[2]->setBinLabel(4,"St4",1);
 
   // histos for theta segments
-  thetaHistos.push_back(theDbe->book2D("thetaSegments_numHitsVsWheel", "thetaSegments_numHitsVsWheel", 5, -2.5, 2.5, 20, 0, 20));
+  thetaHistos.push_back(ibooker.book2D("thetaSegments_numHitsVsWheel", "thetaSegments_numHitsVsWheel", 5, -2.5, 2.5, 20, 0, 20));
   thetaHistos[0]->setBinLabel(1,"W-2",1);
   thetaHistos[0]->setBinLabel(2,"W-1",1);
   thetaHistos[0]->setBinLabel(3,"W0",1);
   thetaHistos[0]->setBinLabel(4,"W1",1);
   thetaHistos[0]->setBinLabel(5,"W2",1);
-  thetaHistos.push_back(theDbe->book2D("thetaSegments_numHitsVsSector", "thetaSegments_numHitsVsSector", 14, 0.5, 14.5, 20, 0, 20));
+  thetaHistos.push_back(ibooker.book2D("thetaSegments_numHitsVsSector", "thetaSegments_numHitsVsSector", 14, 0.5, 14.5, 20, 0, 20));
   thetaHistos[1]->setBinLabel(1,"Sec1",1);
   thetaHistos[1]->setBinLabel(2,"Sec2",1);
   thetaHistos[1]->setBinLabel(3,"Sec3",1);
@@ -102,35 +99,18 @@ void DTSegmentsTask::beginRun(const edm::Run& irun, const edm::EventSetup& isetu
   thetaHistos[1]->setBinLabel(12,"Sec12",1);
   thetaHistos[1]->setBinLabel(13,"Sec13",1);
   thetaHistos[1]->setBinLabel(14,"Sec14",1);
-  thetaHistos.push_back(theDbe->book2D("thetaSegments_numHitsVsStation", "thetaSegments_numHitsVsStation", 4, 0.5, 4.5, 20, 0, 20));
+  thetaHistos.push_back(ibooker.book2D("thetaSegments_numHitsVsStation", "thetaSegments_numHitsVsStation", 4, 0.5, 4.5, 20, 0, 20));
   thetaHistos[2]->setBinLabel(1,"St1",1);
   thetaHistos[2]->setBinLabel(2,"St2",1);
   thetaHistos[2]->setBinLabel(3,"St3",1);
   thetaHistos[2]->setBinLabel(4,"St4",1);
 
 }
-
-void DTSegmentsTask::endRun(const edm::Run& irun, const edm::EventSetup& isetup){
-  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-    theDbe->save(outputFileName);
-  }
-}
-void DTSegmentsTask::endJob(){
-  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-    theDbe->save(outputFileName);
-  }
-
-  theDbe->rmdir("DT/DTSegmentsTask");
-}
   
 void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
   // Get the map of noisy channels
-  bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels",false);
+  //  bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels",false);
   ESHandle<DTStatusFlag> statusMap;
   if(checkNoisyChannels) {
     setup.get<DTStatusFlagRcd>().get(statusMap);

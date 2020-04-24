@@ -282,8 +282,23 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
       if(e%TreeStep==0){printf(".");fflush(stdout);}
       if(MaxEntry>0 && e>MaxEntry)break;
       ev.to(e);
-      edm::TriggerResultsByName tr = ev.triggerResultsByName("HLT"); 
-      if(simhitshifted) tr= ev.triggerResultsByName("HLTSIMHITSHIFTER");
+
+      fwlite::Handle<edm::TriggerResults> hTriggerResults;
+      hTriggerResults.getByLabel(ev, "TriggerResults", "", "HLT");
+      edm::TriggerResultsByName tr(nullptr, nullptr);
+      if(hTriggerResults.isValid()) {
+        tr = ev.triggerResultsByName(*hTriggerResults);
+      }
+
+      if(simhitshifted) {
+
+        fwlite::Handle<edm::TriggerResults> hTriggerResults1;
+        hTriggerResults1.getByLabel(ev, "TriggerResults", "", "HLTSIMHITSHIFTER");
+        tr = edm::TriggerResultsByName(nullptr, nullptr);
+        if(hTriggerResults1.isValid()) {
+          tr = ev.triggerResultsByName(*hTriggerResults1);
+        }
+      }
 //      edm::TriggerResultsByName tr = ev.triggerResultsByName("HLT");      if(!tr.isValid())continue;
       //    for(unsigned int i=0;i<tr.size();i++){
       //   printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));

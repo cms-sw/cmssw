@@ -54,7 +54,7 @@ SmartPropagator::SmartPropagator(const Propagator& aTkProp, const Propagator& aG
 
 
 SmartPropagator::SmartPropagator(const SmartPropagator& aProp) :
-  Propagator(aProp.propagationDirection()), theTkProp(0), theGenProp(0) { 
+  Propagator(aProp.propagationDirection()), theTkProp(nullptr), theGenProp(nullptr) { 
     if (aProp.theTkProp)
       theTkProp=aProp.getTkPropagator()->clone();
     if (aProp.theGenProp)
@@ -95,33 +95,6 @@ void SmartPropagator::initTkVolume(float epsilon) {
 }
 
 
-TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Surface& surface) const {
-  return Propagator::propagate( fts, surface);
-}
-
-
-TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Plane& plane) const {
-
-  if (insideTkVol(fts) && insideTkVol(plane)) {
-    return getTkPropagator()->propagate(fts, plane);
-  } else {
-    return getGenPropagator()->propagate(fts, plane);
-  }
-
-}
-
-
-TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Cylinder& cylinder) const {
-  if (insideTkVol(fts) && insideTkVol(cylinder)) {
-    return getTkPropagator()->propagate(fts, cylinder);
-  } else {
-    return getGenPropagator()->propagate(fts, cylinder);
-  }
-
-}
 
 std::pair<TrajectoryStateOnSurface,double> 
 SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
@@ -145,6 +118,29 @@ SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   }
 }
 
+
+std::pair<TrajectoryStateOnSurface,double> 
+SmartPropagator::propagateWithPath(const TrajectoryStateOnSurface& fts, 
+                                   const Plane& plane) const 
+{
+  if (insideTkVol(*fts.freeState()) && insideTkVol(plane)) {
+    return getTkPropagator()->propagateWithPath(fts, plane);
+  } else {
+    return getGenPropagator()->propagateWithPath(fts, plane);
+  }
+}
+
+std::pair<TrajectoryStateOnSurface,double> 
+SmartPropagator::propagateWithPath(const TrajectoryStateOnSurface& fts, 
+                                   const Cylinder& cylinder) const
+{
+  if (insideTkVol(*fts.freeState()) && insideTkVol(cylinder)) {
+    return getTkPropagator()->propagateWithPath(fts, cylinder);
+  } else {
+    return getGenPropagator()->propagateWithPath(fts, cylinder);
+  }
+}
+
 bool SmartPropagator::insideTkVol(const FreeTrajectoryState& fts) const {
 
   GlobalPoint gp = fts.position();
@@ -157,7 +153,7 @@ bool SmartPropagator::insideTkVol(const FreeTrajectoryState& fts) const {
 
 bool SmartPropagator::insideTkVol(const Surface& surface) const {
 
-  GlobalPoint gp = surface.position();
+  const GlobalPoint& gp = surface.position();
  // LocalPoint lp = theTkVolume()->toLocal(gp);
 
  // return theTkVolume()->bounds().inside(lp);
@@ -180,7 +176,7 @@ bool SmartPropagator::insideTkVol( const BoundCylinder& cylin)  const {
 
 bool SmartPropagator::insideTkVol( const Plane& plane)  const {
 
-  GlobalPoint gp = plane.position();
+  const GlobalPoint& gp = plane.position();
 //  LocalPoint lp = theTkVolume()->toLocal(gp);
 //  return theTkVolume()->bounds().inside(lp);
   return ( (gp.perp()<= TrackerBounds::radius()+10.) && (fabs(gp.z())<= TrackerBounds::halfLength()+10.) );

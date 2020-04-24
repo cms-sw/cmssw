@@ -1,0 +1,16 @@
+# This file contains Effective Area constants for 
+# computing pile-up corrections for the photons isolation
+# for a photon object.
+#    
+#  The constants are based on 90% contours of isolation.
+# These effective areas are also found on the following slides:
+#  https://indico.cern.ch/event/662751/contributions/2778043/attachments/1562017/2459674/EGamma_WorkShop_21.11.17_Debabrata.pdf
+#
+# |eta| min   |eta| max   effective area
+0.0000         1.0000        0.122   
+1.0000         1.4790        0.110
+1.4790         2.0000        0.061
+2.0000         2.2000        0.077
+2.2000         2.3000        0.099
+2.3000         2.4000        0.109
+2.4000         5.0000        0.134

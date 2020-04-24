@@ -22,6 +22,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTMonElemContainer.h"
 #include "DQMOffline/Trigger/interface/EgHLTMonElemManager.h"
 #include "DQMOffline/Trigger/interface/EgHLTMonElemWithCut.h"
+#include "DQMOffline/Trigger/interface/EgHLTMonElemFuncs.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEvt.h"
 #include "DQMOffline/Trigger/interface/EgHLTParticlePair.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEle.h"
@@ -34,8 +35,8 @@ namespace trigger{
 }
 
 namespace egHLT {
-  class BinData;
-  class CutMasks;
+  struct BinData;
+  struct CutMasks;
   class EleHLTFilterMon {
     
   public:
@@ -55,7 +56,7 @@ namespace egHLT {
   private:
     std::string filterName_;
     const TrigCodes::TrigBitSet filterBit_;
-    
+    bool doHEP_;    
     //we own the pointers in the vectors
     //std::vector<MonElemManagerBase<OffEle>*> eleMonElems_;
     std::vector<MonElemManagerBase<trigger::TriggerObject>*> trigMonElems_;
@@ -75,7 +76,7 @@ namespace egHLT {
     EleHLTFilterMon(const EleHLTFilterMon&){}
     EleHLTFilterMon& operator=(const EleHLTFilterMon&){return *this;}
   public:
-    EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks);
+    EleHLTFilterMon(MonElemFuncs& monElemFuncs, const std::string& filterName,TrigCodes::TrigBitSet filterBit,const BinData& bins,const CutMasks& masks, bool doHEP);
     ~EleHLTFilterMon();
     
     

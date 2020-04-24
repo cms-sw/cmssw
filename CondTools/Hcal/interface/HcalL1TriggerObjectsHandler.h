@@ -25,9 +25,9 @@
 class HcalL1TriggerObjectsHandler : public popcon::PopConSourceHandler<HcalL1TriggerObjects>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalL1TriggerObjectsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalL1TriggerObjectsHandler() override;
   HcalL1TriggerObjectsHandler(edm::ParameterSet const &);
 
   void initObject(HcalL1TriggerObjects*);

@@ -1,0 +1,32 @@
+# $Id$
+#
+# This is the decay file for B -> Chi_c1(Jpsi ( -> mu mu ) gamma) K+
+#
+# Author: Alberto Sanchez-Hernandez
+# Date: 1/13/14
+#
+
+Alias      MyB+   B+
+Alias      MyB-   B-
+ChargeConj MyB-   MyB+
+
+Alias MyJ/psi J/psi
+ChargeConj MyJ/psi MyJ/psi
+
+Alias Mychi_c1 chi_c1
+ChargeConj Mychi_c1 Mychi_c1
+
+Decay MyJ/psi
+ 1.0000  mu+        mu-                    PHOTOS VLL ;
+Enddecay
+
+Decay Mychi_c1
+ 1.0000  MyJ/psi    gamma                  VVP 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ;
+Enddecay
+
+Decay MyB+
+ 0.0168  Mychi_c1   K+                   SVS ;
+Enddecay
+CDecay MyB-
+
+End

@@ -6,11 +6,6 @@
  *
  */
 
-#include "HLTrigger/JetMET/interface/HLTJetVBFFilter.h"
-
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/Handle.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,8 +13,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include<typeinfo>
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "HLTrigger/JetMET/interface/HLTJetVBFFilter.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 //
 // constructors and destructor
@@ -45,7 +42,7 @@ HLTJetVBFFilter<T>::HLTJetVBFFilter(const edm::ParameterSet& iConfig) : HLTFilte
 }
 
 template<typename T>
-HLTJetVBFFilter<T>::~HLTJetVBFFilter(){}
+HLTJetVBFFilter<T>::~HLTJetVBFFilter()= default;
 
 template<typename T>
 void
@@ -61,7 +58,7 @@ HLTJetVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("maxEta",5.0);
   desc.add<bool>("leadingJetOnly",false);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetVBFFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetVBFFilter<T>>(), desc);
 }
 
 //

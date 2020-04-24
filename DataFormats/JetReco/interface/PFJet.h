@@ -47,7 +47,9 @@ class PFJet : public Jet {
        mNeutralEmEnergy (0),
        
        mChargedMultiplicity (0),
-       mNeutralMultiplicity (0)
+       mNeutralMultiplicity (0),
+
+       mHOEnergy (0)
     {}
     float mChargedHadronEnergy;
     float mNeutralHadronEnergy;
@@ -72,6 +74,8 @@ class PFJet : public Jet {
     float mNeutralEmEnergy;
     int mChargedMultiplicity;
     int mNeutralMultiplicity;
+
+    float mHOEnergy;
  };
   
   /** Default constructor*/
@@ -88,7 +92,7 @@ class PFJet : public Jet {
 	  const Jet::Constituents& fConstituents);
 
   
-  virtual ~PFJet() {};
+  ~PFJet() override {};
 
   /// chargedHadronEnergy 
   float chargedHadronEnergy () const {return m_specific.mChargedHadronEnergy;}
@@ -152,6 +156,10 @@ class PFJet : public Jet {
   /// neutralMultiplicity
   int neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
 
+  /// hoEnergy 
+  float hoEnergy () const {return m_specific.mHOEnergy;}
+  /// hoEnergyFraction
+  float hoEnergyFraction () const {return hoEnergy () / energy ();}
 
   /// get specific constituent
   virtual reco::PFCandidatePtr getPFConstituent (unsigned fIndex) const;
@@ -169,15 +177,15 @@ class PFJet : public Jet {
   const Specific& getSpecific () const {return m_specific;}
 
   /// Polymorphic clone
-  virtual PFJet* clone () const;
+  PFJet* clone () const override;
 
   /// Print object in details
-  virtual std::string print () const;
+  std::string print () const override;
 
 
  private:
   /// Polymorphic overlap
-  virtual bool overlap( const Candidate & ) const;
+  bool overlap( const Candidate & ) const override;
   
   //Variables specific to to the PFJet class
   Specific m_specific;

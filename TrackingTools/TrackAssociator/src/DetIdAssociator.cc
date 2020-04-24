@@ -25,7 +25,7 @@
 DetIdAssociator::DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
   :nPhi_(nPhi),nEta_(nEta),
    lookupMap_(nPhi_*nEta_,std::pair<unsigned int, unsigned int>(0,0)),
-  theMapIsValid_(false),etaBinSize_(etaBinSize),ivProp_(0)
+  theMapIsValid_(false),etaBinSize_(etaBinSize)
 {
    if (nEta_ <= 0 || nPhi_ <= 0) throw cms::Exception("FatalError") << "incorrect look-up map size. Cannot initialize such a map.";
    maxEta_ = etaBinSize_*nEta_/2;
@@ -177,7 +177,7 @@ void DetIdAssociator::buildMap()
 	     // FIX ME: this should be a fatal error
 	     if(edm::isNotFinite(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
 	       edm::LogWarning("TrackAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" 
-						  << id_itr->rawId() << "\t mag(): " << iter->mag() << "\n" << DetIdInfo::info( *id_itr )
+						  << id_itr->rawId() << "\t mag(): " << iter->mag() << "\n" << DetIdInfo::info( *id_itr,nullptr )
 						  << "\nSkipped the element";
 	       continue;
 	     }
@@ -269,7 +269,7 @@ std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
 					     const std::vector<GlobalPoint>& trajectory,
 					     const double dR) const
 {
-   if ( dR > 2*M_PI && dR > maxEta_ ) return inset;
+  if ( selectAllInACone(dR)) return inset;
    check_setup();
    std::set<DetId> outset;
    for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)

@@ -30,23 +30,23 @@ namespace ThePEG {
 class LesHouchesInterface : public LesHouchesReader {
     public:
 	LesHouchesInterface();
-	virtual ~LesHouchesInterface();
+	~LesHouchesInterface() override;
 
 	static void Init();
 
     protected:		
-	virtual IBPtr clone() const { return new_ptr(*this); }
-	virtual IBPtr fullclone() const { return new_ptr(*this); }
+	IBPtr clone() const override { return new_ptr(*this); }
+	IBPtr fullclone() const override { return new_ptr(*this); }
 
     private:
-	virtual void open();
-	virtual void close();
-	virtual long scan();
+	void open() override;
+	void close() override;
+	long scan() override;
 
 	virtual double eventWeight();
 	virtual double reweight();
-	virtual double getEvent();
-	virtual bool doReadEvent();
+	double getEvent() override;
+	bool doReadEvent() override;
 
 	LHEProxy::ProxyID	proxyID;
 	bool			initialized;
@@ -160,10 +160,14 @@ bool LesHouchesInterface::doReadEvent()
 
 	hepeup.NUP	= orig.NUP;
 	hepeup.IDPRUP	= orig.IDPRUP;
-	hepeup.XWGTUP	= orig.XWGTUP;
 	hepeup.SCALUP	= orig.SCALUP;
 	hepeup.AQEDUP	= orig.AQEDUP;
 	hepeup.AQCDUP	= orig.AQCDUP;
+        
+        //workaround, since Herwig++ is not passing LHE weights to the hepmc product anyways
+        //as currently run in CMSSW
+        hepeup.XWGTUP   = 1.0;
+        
 	hepeup.resize();
 
 	std::copy(orig.IDUP.begin(), orig.IDUP.end(), hepeup.IDUP.begin());

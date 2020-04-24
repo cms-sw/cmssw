@@ -1,6 +1,5 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -15,18 +14,9 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
   std::cout << "MuonDDDConstants;:MuonDDDConstants ( const DDCompactView& cpv ) constructor " << std::endl;
 #endif
   std::string attribute = "OnlyForMuonNumbering"; 
-  std::string value     = "any";
-  DDValue val(attribute, value, 0.0);
   
-  DDSpecificsFilter filter;
-  filter.setCriteria(val,
-		     DDSpecificsFilter::not_equals,
-		     DDSpecificsFilter::AND, 
-		     true, // compare strings otherwise doubles
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fview(cpv);
-  fview.addFilter(filter);
+  DDSpecificsHasNamedValueFilter filter(attribute);
+  DDFilteredView fview(cpv,filter);
   
   DDValue val2("level");
   const DDsvalues_type params(fview.mergedSpecifics());
@@ -53,20 +43,14 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
       std::cout << "adding DDConstant of " << bit->second.name() << " = " << int(bit->second.doubles()[0]) << std::endl;
 #endif
     }
-    //    std::cout << "DDConstant of " << bit->second.name() << " = " << bit->second.strings()[0] << std::endl;
-  }
-  
-}
-
-MuonDDDConstants::~MuonDDDConstants() { 
-  //  std::cout << "destructed!!!" << std::endl;
+  }  
 }
 
 int MuonDDDConstants::getValue( const std::string& name ) const {
 #ifdef LOCAL_DEBUG
   std::cout << "about to look for ... " << name << std::endl;
 #endif
-  if ( namesAndValues_.size() == 0 ) {
+  if ( namesAndValues_.empty() ) {
     std::cout << "MuonDDDConstants::getValue HAS NO VALUES!" << std::endl;
     throw cms::Exception("GeometryBuildFailure", "MuonDDDConstants does not have requested value for " + name);
   }
@@ -77,7 +61,9 @@ int MuonDDDConstants::getValue( const std::string& name ) const {
     std::cout << "MuonDDDConstants::getValue was asked for " << name << " and had NO clue!" << std::endl;
     throw cms::Exception("GeometryBuildFailure", "MuonDDDConstants does not have requested value for " + name);
   }
-
+#ifdef LOCAL_DEBUG
+  std::cout << "Value for " << name << " is " << findIt->second << std::endl;
+#endif
   return findIt->second;
 }
 

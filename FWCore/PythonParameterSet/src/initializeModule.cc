@@ -25,8 +25,8 @@ static bool s_initialized = false;
 namespace edm {
    namespace python {
       void initializeModule() {
-         char *libFWCoreParameterSet = const_cast<char *>("libFWCoreParameterSet");
-         PyImport_AppendInittab(libFWCoreParameterSet, &initlibFWCoreParameterSet );
+         char *libFWCoreParameterSet = const_cast<char *>("libFWCorePythonParameterSet");
+         PyImport_AppendInittab(libFWCoreParameterSet, &initlibFWCorePythonParameterSet );
          Py_Initialize();
          if(!s_initialized)
          {

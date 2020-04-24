@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCMuonPortCard_h
-#define CSCTriggerPrimitives_CSCMuonPortCard_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCMuonPortCard_h
+#define L1Trigger_CSCTriggerPrimitives_CSCMuonPortCard_h
 
 /**
  * \class CSCMuonPortCard
@@ -15,12 +15,12 @@
  *
  **/
 
-#include <vector>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
-#include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 
+#include <vector>
 
 class CSCMuonPortCard
 {
@@ -46,6 +46,9 @@ class CSCMuonPortCard
  private:
   CSCTriggerContainer<csctf::TrackStub> stubs_;
   unsigned int max_stubs_;
+  bool sort_stubs_;
+  bool drop_invalid_stubs_;
+  bool drop_low_quality_stubs_;
 };
 
 #endif

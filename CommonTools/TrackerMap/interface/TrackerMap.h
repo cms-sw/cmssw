@@ -12,7 +12,12 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "TColor.h"
 #include <cassert>
+#include <vector>
+#include "TPolyLine.h"
 
+
+class TH1F;
+class TLegend;
 /*
 #define  NUMFEDCH_INCOLUMN 12
 #define  NUMFEDCH_INROW 8
@@ -67,13 +72,14 @@ class TmApvPair;
 class EventSetup;
 class TmCcu;
 class TmPsu;
+class TrackerTopology;
 
 class TrackerMap {
  public:
   //TrackerMap(){TrackerMap(" ");};   //!< default constructor
   TrackerMap(std::string s=" ",int xsize1=340,int ysize1=200);
   TrackerMap(const edm::ParameterSet & iConfig);
-  TrackerMap(const edm::ParameterSet & iConfig,const SiStripFedCabling* tkFed);
+  TrackerMap(const edm::ParameterSet & iConfig,const SiStripFedCabling* tkFed,const TrackerTopology* const topology);
   ~TrackerMap();  //!< default destructor
   
   void build();
@@ -506,6 +512,9 @@ void defwindow(int num_lay){
   bool saveAsSingleLayer;
   bool addPixelFlag;
   bool onlyPixelFlag;
+  TLegend *buildLegend();
+  std::vector<TPolyLine*> legInfos_;
+  std::vector<std::string> legKeys_;
 };
 #endif
 

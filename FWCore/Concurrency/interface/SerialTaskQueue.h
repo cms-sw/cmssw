@@ -66,9 +66,11 @@ namespace edm {
    {
    public:
       SerialTaskQueue():
-      m_taskChosen{ATOMIC_FLAG_INIT},
+      m_taskChosen(false),
       m_pauseCount{0}
       {  }
+      
+      ~SerialTaskQueue();
       
       // ---------- const member functions ---------------------
       /// Checks to see if the queue has been paused.
@@ -141,7 +143,7 @@ namespace edm {
       /** Base class for all tasks held by the SerialTaskQueue */
       class TaskBase : public tbb::task {
          friend class SerialTaskQueue;
-         TaskBase(): m_queue(0) {}
+         TaskBase(): m_queue(nullptr) {}
          
       protected:
          tbb::task* finishedTask();
@@ -158,7 +160,7 @@ namespace edm {
          m_action(iAction) {}
          
       private:
-         tbb::task* execute();
+         tbb::task* execute() override;
          
          T m_action;
       };
@@ -176,7 +178,7 @@ namespace edm {
       
       // ---------- member data --------------------------------
       tbb::concurrent_queue<TaskBase*> m_tasks;
-      std::atomic_flag m_taskChosen;
+      std::atomic<bool> m_taskChosen;
       std::atomic<unsigned long> m_pauseCount;
    };
    

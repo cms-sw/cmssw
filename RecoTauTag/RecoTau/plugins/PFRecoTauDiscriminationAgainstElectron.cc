@@ -7,9 +7,11 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+namespace {
+
 using namespace reco;
 
-class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProducerBase  {
+class PFRecoTauDiscriminationAgainstElectron final : public PFTauDiscriminationProducerBase  {
    public:
       explicit PFRecoTauDiscriminationAgainstElectron(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {
 
@@ -55,9 +57,9 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
 
       }
 
-      double discriminate(const PFTauRef& pfTau) override;
+      double discriminate(const PFTauRef& pfTau) const override;
 
-      ~PFRecoTauDiscriminationAgainstElectron(){}
+      ~PFRecoTauDiscriminationAgainstElectron() override{}
 
    private:
       bool isInEcalCrack(double) const;
@@ -100,7 +102,7 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
 
 };
 
-double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& thePFTauRef) const 
 {
 
 
@@ -201,11 +203,11 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
         // No KF track found
         return 0;
       }
-      if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()==0) {
+      if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().empty()) {
 	if(thePFTauRef->leadPFChargedHadrCand()->hcalEnergy()/thePFTauRef->leadPFChargedHadrCand()->trackRef()->p()<bremCombined_maxHOP_)
 	  bremCombinedPass = false;
       }
-      else if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()>0) {
+      else if(thePFTauRef->signalPFChargedHadrCands().size()==1 && !thePFTauRef->signalPFGammaCands().empty()) {
 	//calculate the brem ratio energy
 	float bremEnergy=0.;
 	float emEnergy=0.;
@@ -237,6 +239,7 @@ PFRecoTauDiscriminationAgainstElectron::isInEcalCrack(double eta) const
 	  (eta>0.770 && eta<0.806) ||
 	  (eta>1.127 && eta<1.163) ||
 	  (eta>1.460 && eta<1.558));
+}
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectron);

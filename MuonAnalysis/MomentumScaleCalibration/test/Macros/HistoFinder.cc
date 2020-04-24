@@ -3,7 +3,7 @@
  * a histogram of the same name in all the subdirectories.
  * If it finds a match, it returns a pointer to it (but a TObject pointer
  * needs a cast to use it outside), if not returns
- * a null pointer and also does a cout saying it did not find it.
+ * a null pointer and also does a std::cout saying it did not find it.
  * ATTENTION: if the same name matches more than one histogram in different
  * subdirectories, only the last match will be returned and a warning will be
  * given. In this case, the directory name can be passed to select the correct match.
@@ -13,7 +13,6 @@
 // --------------------------------------------------------------------
 // Needed to use gROOT in a compiled macro
 #include "TROOT.h"
-#include <string.h>
 #include "TH1.h"
 #include "TChain.h"
 #include "TFile.h"
@@ -29,8 +28,8 @@ class HistoFinder {
     histoFound_ = 0;
     histoFoundNum_ = 0;
     findHisto_( name, input, dirName );
-    if( histoFound_ == 0 ) cout << "WARNING: histogram " << name << " not found" << endl;
-    if( histoFoundNum_ > 1 ) cout << "WARNING: more than one match found. Please specify the directory" << endl;
+    if( histoFound_ == 0 ) std::cout << "WARNING: histogram " << name << " not found" << std::endl;
+    if( histoFoundNum_ > 1 ) std::cout << "WARNING: more than one match found. Please specify the directory" << std::endl;
     return histoFound_;
   }
  protected:
@@ -57,13 +56,13 @@ class HistoFinder {
       }
       else if ( obj->IsA()->InheritsFrom( "TDirectory" ) ) {
         // it's a subdirectory
-        // cout << "Found subdirectory " << obj->GetName() << endl;
+        // std::cout << "Found subdirectory " << obj->GetName() << std::endl;
         findHisto_( name, (TDirectory*)obj, dirName );
       }
       else {
         // object is of no type that we know or can handle
-        cout << "Unknown object type, name: "
-             << obj->GetName() << " title: " << obj->GetTitle() << endl;
+        std::cout << "Unknown object type, name: "
+             << obj->GetName() << " title: " << obj->GetTitle() << std::endl;
       }
     }
   }

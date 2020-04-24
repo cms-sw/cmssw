@@ -25,7 +25,7 @@ public:
     void hepEvent(const HepMC::GenEvent * r) { hepMCEvent = r; }
     const HepMC::GenEvent * hepEvent() const { return hepMCEvent; }
     void weight(float w) { weight_ = w; }
-    const float weight() const { return weight_; }
+    float weight() const { return weight_; }
     void collisionPoint( const math::XYZTLorentzVectorD& v ) { collisionPoint_ = v ; }
     const math::XYZTLorentzVectorD& collisionPoint() const { return collisionPoint_; }
     void nparam(int n) { nparam_ = n; }

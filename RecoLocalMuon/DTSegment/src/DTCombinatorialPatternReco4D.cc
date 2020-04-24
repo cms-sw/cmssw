@@ -37,7 +37,9 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
 
     //do you want the T0 correction?
     applyT0corr = pset.getParameter<bool>("performT0SegCorrection");
-    computeT0corr = pset.getUntrackedParameter<bool>("computeT0Seg",true);
+
+    computeT0corr = pset.existsAs<bool>("computeT0Seg") ?
+      pset.getParameter<bool>("computeT0Seg") : true;
 
     // the updator
     theUpdator = new DTSegmentUpdator(pset);
@@ -131,7 +133,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
     cout << "Reconstructing of the Phi segments" << endl;
   }
 
-  vector<DTHitPairForFit*> pairPhiOwned;
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhiOwned;
   vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates(pairPhiOwned);
 
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
@@ -152,8 +154,8 @@ DTCombinatorialPatternReco4D::reconstruct() {
   bool hasZed = false;
 
   // has this chamber the Z-superlayer?
-  if (theSegments2DTheta.size()){
-    hasZed = theSegments2DTheta.size() > 0;
+  if (!theSegments2DTheta.empty()){
+    hasZed = !theSegments2DTheta.empty();
     if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
     if (debug) cout << "No Theta SL" << endl;
@@ -161,13 +163,13 @@ DTCombinatorialPatternReco4D::reconstruct() {
 
   // Now I want to build the concrete DTRecSegment4D.
   if(debug) cout<<"Building of the concrete DTRecSegment4D"<<endl;
-  if (resultPhi.size()) {
+  if (!resultPhi.empty()) {
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
 
-      std::auto_ptr<DTChamberRecSegment2D> superPhi(**phi);
+      std::unique_ptr<DTChamberRecSegment2D> superPhi(**phi);
 
-      theUpdator->update(superPhi.get());
+      theUpdator->update(superPhi.get(),false);
       if(debug) cout << "superPhi: " << *superPhi << endl;
 
       if (hasZed) {
@@ -199,12 +201,12 @@ DTCombinatorialPatternReco4D::reconstruct() {
           if (debug) cout << "Created a 4D seg " << *newSeg << endl;
 
           /// 4d segment: I have the pos along the wire => further update!
-	  theUpdator->update(newSeg);
+	  theUpdator->update(newSeg,false,false);
           if (debug) cout << "     seg updated " <<  *newSeg << endl;
 
 
 	  if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
-          if(applyT0corr) theUpdator->update(newSeg,true);
+          if(applyT0corr) theUpdator->update(newSeg,true,false);
 
           result.push_back(newSeg);
         }
@@ -217,7 +219,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
 
        //update the segment with the t0 and possibly vdrift correction
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
- 	if(applyT0corr) theUpdator->update(newSeg,true);
+ 	if(applyT0corr) theUpdator->update(newSeg,true,false);
 
         result.push_back(newSeg);
       }
@@ -241,7 +243,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
 		     *newSeg << endl;
 
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
- 	if(applyT0corr) theUpdator->update(newSeg,true);
+ 	if(applyT0corr) theUpdator->update(newSeg,true,false);
 
         result.push_back(newSeg);
       }
@@ -250,22 +252,20 @@ DTCombinatorialPatternReco4D::reconstruct() {
   // finally delete the candidates!
   for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
        phi!=resultPhi.end(); ++phi) delete *phi;
-  for (vector<DTHitPairForFit*>::iterator phiPair = pairPhiOwned.begin();
-       phiPair!=pairPhiOwned.end(); ++phiPair) delete *phiPair;
 
   return result;
 }
 
 
 
-vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates(vector<DTHitPairForFit*> &pairPhiOwned){
+vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates(vector<std::shared_ptr<DTHitPairForFit>> &pairPhiOwned){
 
   DTSuperLayerId slId;
 
-  if(theHitsFromPhi1.size())
+  if(!theHitsFromPhi1.empty())
     slId = theHitsFromPhi1.front().wireId().superlayerId();
   else
-    if(theHitsFromPhi2.size())
+    if(!theHitsFromPhi2.empty())
       slId = theHitsFromPhi2.front().wireId().superlayerId();
     else{
       if(debug) cout<<"DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates: "
@@ -275,9 +275,9 @@ vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandid
 
   const DTSuperLayer *sl = theDTGeometry->superLayer(slId);
 
-  vector<DTHitPairForFit*> pairPhi1 = the2DAlgo->initHits(sl,theHitsFromPhi1);
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhi1 = the2DAlgo->initHits(sl,theHitsFromPhi1);
   // same sl!! Since the fit will be in the sl phi 1!
-  vector<DTHitPairForFit*> pairPhi2 = the2DAlgo->initHits(sl,theHitsFromPhi2);
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhi2 = the2DAlgo->initHits(sl,theHitsFromPhi2);
   // copy the pairPhi2 in the pairPhi1 vector 
   copy(pairPhi2.begin(),pairPhi2.end(),back_inserter(pairPhi1));
 
@@ -303,11 +303,11 @@ DTRecSegment4D* DTCombinatorialPatternReco4D::segmentSpecialZed(const DTRecSegme
   LocalPoint posInMiddleLayer = posInSL+dirInSL*(-posInSL.z())/cos(dirInSL.theta());
 
   // create a hit with position and error as the Zed projection one's
-  auto_ptr<DTRecHit1D> hit(new DTRecHit1D( middle.wireId(),
-                                           middle.lrSide(),
-                                           middle.digiTime(),
-                                           posInMiddleLayer,
-                                           zedSeg->localPositionError()));
+  auto hit = std::make_unique<DTRecHit1D>(middle.wireId(),
+                                          middle.lrSide(),
+                                          middle.digiTime(),
+                                          posInMiddleLayer,
+                                          zedSeg->localPositionError());
 
   std::vector<DTRecHit1D> newHits(1,*hit);
 
@@ -317,12 +317,12 @@ DTRecSegment4D* DTCombinatorialPatternReco4D::segmentSpecialZed(const DTRecSegme
   AlgebraicSymMatrix cov(zedSeg->covMatrix());
   double chi2(zedSeg->chi2());
   //cout << "zed " << *zedSeg << endl;
-  auto_ptr<DTSLRecSegment2D> newZed(new DTSLRecSegment2D(zedSeg->superLayerId(),
-                                                         pos,
-                                                         dir,
-                                                         cov,
-                                                         chi2,
-                                                         newHits));
+  auto newZed = std::make_unique<DTSLRecSegment2D>(zedSeg->superLayerId(),
+                                                   pos,
+                                                   dir,
+                                                   cov,
+                                                   chi2,
+                                                   newHits);
   //cout << "newZed " << *newZed << endl;
 
   // create a 4d segment with the special zed

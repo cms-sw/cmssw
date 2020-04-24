@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  C. Battilana - CIEMAT
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  *   
  */
 
@@ -24,30 +27,33 @@ public:
   DTLocalTriggerSynchTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTLocalTriggerSynchTest();
+  ~DTLocalTriggerSynchTest() override;
 
 protected:
 
   /// Book the new MEs (for each chamber)
-  void bookChambHistos(DTChamberId chambId, std::string htype, std::string subfolder="");
+
+  void bookChambHistos(DQMStore::IBooker &,DTChamberId chambId, std::string htype, std::string subfolder="");
 
   /// Compute efficiency plots
   void makeRatioME(TH1F* numerator, TH1F* denominator, MonitorElement* result);
 
   /// Get float MEs
-  float getFloatFromME(DTChamberId chId, std::string meType);
 
-  /// Begin Job
-  void beginJob();
+  float getFloatFromME(DQMStore::IGetter &,DTChamberId chId, std::string meType);
 
   /// begin Run
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
 
-  /// End Job
-  void endJob();
+
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// DQM Client Diagnostic
-  void runClientDiagnostic();
+
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) override;
+
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, 
+                          edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
  private:
 
@@ -62,6 +68,8 @@ protected:
   int minEntries;
   bool writeDB;
   DTTPGParameters wPhaseMap;
+
+  bool bookingdone;
 
 };
 

@@ -1,9 +1,10 @@
 #ifndef GENERS_COLLECTTUPLENAMES_HH_
 #define GENERS_COLLECTTUPLENAMES_HH_
 
-#include <vector>
-#include <string>
 #include <cassert>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace gs {
     namespace Private 

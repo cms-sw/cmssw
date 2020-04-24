@@ -10,7 +10,7 @@ from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitMixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
+hiRegitMixedTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
                                                 clusterLessSolution= cms.bool(True),
                                                 oldClusterRemovalInfo = cms.InputTag("hiRegitDetachedTripletStepClusters"),
                                                 trajectories = cms.InputTag("hiRegitDetachedTripletStepTracks"),
@@ -69,27 +69,24 @@ hiRegitMixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cf
     )
 
 # track building
-hiRegitMixedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryFilter.clone(
-    ComponentName        = 'hiRegitMixedTripletStepTrajectoryFilter'
-   )
+hiRegitMixedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryFilter.clone()
 
 hiRegitMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitMixedTripletStepTrajectoryBuilder',
-    trajectoryFilterName = 'hiRegitMixedTripletStepTrajectoryFilter',
+    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMixedTripletStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitMixedTripletStepClusters'),
 )
 
 hiRegitMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMixedTripletStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMixedTripletStepTrajectoryBuilder',
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMixedTripletStepTrajectoryBuilder')),
     maxNSeeds = 100000
     )
 
 # fitting: feed new-names
 hiRegitMixedTripletStepTracks                 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTracks.clone(
     src                 = 'hiRegitMixedTripletStepTrackCandidates',
-    #AlgorithmName = cms.string('iter8'),
-    AlgorithmName = cms.string('iter4'),
+    #AlgorithmName = cms.string('conversionStep'),
+    AlgorithmName = cms.string('mixedTripletStep'),
     )
 
 # Track selection

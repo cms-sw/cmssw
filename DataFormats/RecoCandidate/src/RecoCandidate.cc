@@ -55,7 +55,7 @@ const Track * RecoCandidate::bestTrack() const {
   TrackRef staRef = standAloneMuon(); 
   if ( staRef.isNonnull() ) 
     return staRef.get(); 
-  return 0;
+  return nullptr;
 }
 
 TrackBaseRef RecoCandidate::bestTrackRef() const {
@@ -79,4 +79,21 @@ RecoCandidate::TrackType RecoCandidate::bestTrackType() const {
   if ( gsfTrack().isNonnull() ) 
     return gsfTrackType;
   return noTrackType;
+}
+
+float RecoCandidate::dzError() const 
+{
+  const Track * tr=bestTrack(); 
+  if(tr!=nullptr) 
+    return tr->dzError(); 
+  else 
+    return 0; 
+}
+float RecoCandidate::dxyError() const 
+{
+  const Track * tr=bestTrack(); 
+  if(tr!=nullptr) 
+    return tr->dxyError(); 
+  else 
+    return 0; 
 }

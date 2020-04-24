@@ -1,6 +1,8 @@
 #ifndef CondFormatsRPCObjectsLinkBoardSpec_H
 #define CondFormatsRPCObjectsLinkBoardSpec_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include <string>
 
@@ -11,7 +13,7 @@
 class LinkBoardSpec {
 public:
   /// dummy
-  LinkBoardSpec() {}
+  LinkBoardSpec() : theMaster(false) {}
 
   /// real ctor specifyig LB if this LB is master, 
   /// its number in link, and which chamber it is serving  
@@ -41,5 +43,7 @@ private:
   int theLinkBoardNumInLink; 
   int theCode; 
   std::vector<FebConnectorSpec> theFebs;
+
+  COND_SERIALIZABLE;
 };
 #endif

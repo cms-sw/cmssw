@@ -11,7 +11,6 @@
  *
  *
  */
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 namespace reco {
 
@@ -32,27 +31,19 @@ namespace reco {
     /// constructor from a particle
     explicit CompositeRefBaseCandidate( const Candidate & c ) : LeafCandidate( c ) { }
     /// destructor
-    virtual ~CompositeRefBaseCandidate();
+    ~CompositeRefBaseCandidate() override;
     /// returns a clone of the candidate
-    virtual CompositeRefBaseCandidate * clone() const;
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
+    CompositeRefBaseCandidate * clone() const override;
     /// number of daughters
-    virtual size_t numberOfDaughters() const;
+    size_t numberOfDaughters() const override;
     /// number of mothers
-    virtual size_t numberOfMothers() const;
+    size_t numberOfMothers() const override;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
-    virtual const Candidate * daughter( size_type ) const;
+    const Candidate * daughter( size_type ) const override;
     /// return mother at a given position, i = 0, ... numberOfMothers() - 1 (read only mode)
-    virtual const Candidate * mother( size_type ) const;
+    const Candidate * mother( size_type ) const override;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
-    virtual Candidate * daughter( size_type );
+    Candidate * daughter( size_type ) override;
     using reco::LeafCandidate::daughter; // avoid hiding the base
     /// add a daughter via a reference
     void addDaughter( const CandidateBaseRef & );    
@@ -62,14 +53,10 @@ namespace reco {
     CandidateBaseRef daughterRef( size_type i ) const { return dau[ i ]; }
 
   private:
-    /// const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    /// iterator implementation
-    typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
     /// check overlap with another candidate
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
   };
 
   inline void CompositeRefBaseCandidate::addDaughter( const CandidateBaseRef & cand ) { 

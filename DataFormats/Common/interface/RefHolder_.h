@@ -4,9 +4,10 @@
 
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Utilities/interface/OffsetToBase.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <memory>
+#include <typeinfo>
 
 namespace edm {
   namespace reftobase {
@@ -21,29 +22,29 @@ namespace edm {
       RefHolder();
       explicit RefHolder(REF const& ref);
       void swap(RefHolder& other);
-      virtual ~RefHolder();
-      virtual RefHolderBase* clone() const;
+      ~RefHolder() override;
+      RefHolderBase* clone() const override;
 
-      virtual ProductID id() const;
-      virtual size_t key() const;
-      virtual bool isEqualTo(RefHolderBase const& rhs) const;
-      virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
-					  std::string& msg) const;
+      ProductID id() const override;
+      size_t key() const override;
+      bool isEqualTo(RefHolderBase const& rhs) const override;
+      bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
+					  std::string& msg) const override;
       REF const& getRef() const;
       void setRef(REF const& r);
-      virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const;
-      virtual EDProductGetter const* productGetter() const;
-      virtual bool hasProductCache() const;
-      virtual void const * product() const;
+      std::unique_ptr<RefVectorHolderBase> makeVectorHolder() const override;
+      EDProductGetter const* productGetter() const override;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const { return ref_.isAvailable(); }
+      bool isAvailable() const override { return ref_.isAvailable(); }
+
+      bool isTransient() const override { return ref_.isTransient(); }
 
       //Needed for ROOT storage
       CMS_CLASS_VERSION(10)
     private:
-      virtual void const* pointerToType(TypeWithDict const& iToType) const;
+      void const* pointerToType(std::type_info const& iToType) const override;
       REF ref_;
     };
 
@@ -93,7 +94,7 @@ namespace edm {
 					   std::string& msg) const
     {
       RefHolder* h = dynamic_cast<RefHolder*>(&fillme);
-      bool conversion_worked = (h != 0);
+      bool conversion_worked = (h != nullptr);
       if (conversion_worked)
 	h->setRef(ref_);
       else
@@ -114,16 +115,6 @@ namespace edm {
       return ref_.productGetter();
     }
 
-    template<class REF>
-    bool RefHolder<REF>::hasProductCache() const {
-      return ref_.hasProductCache();
-    }
-
-    template<class REF>
-    void const * RefHolder<REF>::product() const {
-      return ref_.product();
-    }
-
     template <class REF>
     inline
     void
@@ -142,12 +133,12 @@ namespace edm {
 
     template <class REF>
     void const* 
-    RefHolder<REF>::pointerToType(TypeWithDict const& iToType) const 
-    {
+    RefHolder<REF>::pointerToType(std::type_info const& iToType) const {
       typedef typename REF::value_type contained_type;
-      static TypeWithDict const s_type(typeid(contained_type));
-    
-      return iToType.pointerToBaseType(ref_.get(), s_type);
+      if(iToType == typeid(contained_type)) {
+        return ref_.get();
+      }
+      return pointerToBase(iToType, ref_.get());
     }
   } // namespace reftobase
 }

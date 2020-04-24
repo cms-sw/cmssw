@@ -22,9 +22,14 @@
 #include "Geometry/TrackerCommonData/plugins/DDTrackerLinearXY.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerPhiAltAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerPhiAlgo.h"
+#include "Geometry/TrackerCommonData/plugins/DDTrackerRingAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerZPosAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerXYZPosAlgo.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "Geometry/TrackerCommonData/plugins/DDPixFwdDiskAlgo.h"
+#include "Geometry/TrackerCommonData/plugins/DDPixPhase1FwdDiskAlgo.h"
+#include "Geometry/TrackerCommonData/plugins/DDPixBarLayerUpgradeAlgo.h"
+#include "Geometry/TrackerCommonData/plugins/DDCutTubsFromPoints.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerAlgo,   "track:DDPixBarLayerAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixFwdBlades,      "track:DDPixFwdBlades");
@@ -48,5 +53,10 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinear,     "track:DDTrackerLine
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinearXY,   "track:DDTrackerLinearXY");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAltAlgo, "track:DDTrackerPhiAltAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAlgo,    "track:DDTrackerPhiAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerRingAlgo,   "track:DDTrackerRingAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerZPosAlgo,   "track:DDTrackerZPosAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerXYZPosAlgo, "track:DDTrackerXYZPosAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixFwdDiskAlgo,    "track:DDPixFwdDiskAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixPhase1FwdDiskAlgo, "track:DDPixPhase1FwdDiskAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerUpgradeAlgo, "track:DDPixBarLayerUpgradeAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDCutTubsFromPoints, "track:DDCutTubsFromPoints");

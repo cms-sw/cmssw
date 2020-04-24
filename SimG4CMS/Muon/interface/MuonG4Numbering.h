@@ -1,5 +1,5 @@
-#ifndef MuonG4Numbering_h
-#define MuonG4Numbering_h
+#ifndef SimG4CMS_Muon_MuonG4Numbering_h
+#define SimG4CMS_Muon_MuonG4Numbering_h
 
 /** \class MuonG4Numbering
  *
@@ -21,11 +21,13 @@
 class G4Step;
 class MuonBaseNumber;
 class DDCompactView;
+class MuonDDDConstants;
 
 class MuonG4Numbering {
  public:
 
   MuonG4Numbering(const DDCompactView& cpv);
+  MuonG4Numbering(const MuonDDDConstants& muonConstants);
   ~MuonG4Numbering(){};
   
   MuonBaseNumber PhysicalVolumeToBaseNumber(const G4Step* aStep);

@@ -2,7 +2,7 @@
 //
 //   Class: CSCMuonPortCard
 //
-//   Description: 
+//   Description:
 //    Simulates the functionality of the Muon Port Card (MPC).  Each MPC
 //    is responsible for 9 Trigger Mother Boards (TMBs).  It takes the up to
 //    18 LCTs (2/TMB) in each (sub)sector every bunch crossing, sorts them,
@@ -32,11 +32,15 @@ CSCMuonPortCard::CSCMuonPortCard(const edm::ParameterSet& conf)
   max_stubs_ = CSCConstants::maxStubs;
 
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
-  if (commonParams.getUntrackedParameter<bool>("isSLHC",false))
+  if (commonParams.getParameter<bool>("isSLHC"))
   {
     edm::ParameterSet mpcParams = conf.getParameter<edm::ParameterSet>("mpcSLHC");
-    max_stubs_ = mpcParams.getUntrackedParameter<unsigned int>("mpcMaxStubs", CSCConstants::maxStubs);
+    max_stubs_ = mpcParams.getParameter<unsigned int>("mpcMaxStubs");
   }
+  edm::ParameterSet mpcRun2Params = conf.getParameter<edm::ParameterSet>("mpcRun2");
+  sort_stubs_ = mpcRun2Params.getParameter<bool>("sortStubs");
+  drop_invalid_stubs_ = mpcRun2Params.getParameter<bool>("dropInvalidStubs");
+  drop_low_quality_stubs_ = mpcRun2Params.getParameter<bool>("dropLowQualityStubs");
 }
 
 void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
@@ -58,7 +62,7 @@ void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
   }
 }
 
-std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const unsigned station, 
+std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const unsigned station,
 						    const unsigned sector, const unsigned subsector, const int bx)
 {
   std::vector<csctf::TrackStub> result;
@@ -68,12 +72,13 @@ std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const
 
   // Make sure no Quality 0 or non-valid LCTs come through the portcard.
   for (LCT = result.begin(); LCT != result.end(); LCT++) {
-    if ( !(LCT->getQuality() && LCT->isValid()) )
+    if ( (drop_invalid_stubs_ && !LCT->isValid()) ||
+	 (drop_low_quality_stubs_ && LCT->getQuality()==0) )
       result.erase(LCT, LCT);
   }
 
-  if (result.size()) {
-    std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
+  if (!result.empty()) {
+    if (sort_stubs_) std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
     // Can only return maxStubs or less LCTs per bunch crossing.
     if (result.size() > max_stubs_)
       result.erase(result.begin() + max_stubs_, result.end());

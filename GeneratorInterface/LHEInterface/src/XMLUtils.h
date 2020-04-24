@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <vector>
 
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLUni.hpp>
@@ -15,20 +16,21 @@
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <lzma.h>
 
+
 class Storage;
 
 namespace lhef {
 
 class StorageWrap {
     public:
-	StorageWrap(Storage *storage);
+	StorageWrap(std::unique_ptr<Storage> storage);
 	~StorageWrap();
 
 	Storage *operator -> () { return storage.get(); }
 	const Storage *operator -> () const { return storage.get(); }
 
     private:
-	std::auto_ptr<Storage>	storage;
+	std::unique_ptr<Storage>	storage;
 };
 
 class XMLDocument {
@@ -136,10 +138,12 @@ class CBInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 	CBInputStream(Reader &in);
 	virtual ~CBInputStream();
 
-	virtual unsigned int curPos() const { return pos; }
+	virtual XMLFilePos curPos() const override { return pos; }
 
-	virtual unsigned int readBytes(XMLByte *const buf,
-	                               const unsigned int size);
+	virtual XMLSize_t readBytes(XMLByte *const buf,
+				    const XMLSize_t size) override;
+
+        virtual const XMLCh* getContentType() const override { return 0; }
 
     private:
 	Reader		&reader;
@@ -154,10 +158,12 @@ class STLInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 	STLInputStream(std::istream &in);
 	virtual ~STLInputStream();
 
-	virtual unsigned int curPos() const { return pos; }
+	virtual XMLFilePos curPos() const override { return pos; }
 
-	virtual unsigned int readBytes(XMLByte *const buf,
-	                               const unsigned int size);
+	virtual XMLSize_t readBytes(XMLByte *const buf,
+				    const XMLSize_t size) override;
+
+        virtual const XMLCh* getContentType() const override { return 0; }
 
     private:
 	std::istream	&in;
@@ -172,10 +178,12 @@ class StorageInputStream :
 	StorageInputStream(StorageWrap &in);
 	virtual ~StorageInputStream();
 
-	virtual unsigned int curPos() const { return pos; }
+	virtual XMLFilePos curPos() const override { return pos; }
 
-	virtual unsigned int readBytes(XMLByte *const buf,
-	                               const unsigned int size);
+	virtual XMLSize_t readBytes(XMLByte *const buf,
+				    const XMLSize_t size) override;
+
+        virtual const XMLCh* getContentType() const override { return 0; }
 
     private:
 	StorageWrap	&in;
@@ -183,6 +191,10 @@ class StorageInputStream :
         lzma_stream     lstr;
         bool            compression_;
         unsigned int    lasttotal_;
+
+        unsigned int buffLoc_ = 0,buffTotal_ = 0;
+        std::vector<uint8_t> buffer_;
+        static constexpr unsigned bufferSize_ = 16*1024*1024;
 };
 
 typedef XMLInputSourceWrapper<CBInputStream> CBInputSource;

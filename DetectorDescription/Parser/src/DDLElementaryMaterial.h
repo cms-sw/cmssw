@@ -1,12 +1,15 @@
 #ifndef DDL_ElementaryMaterial_H
 #define DDL_ElementaryMaterial_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLMaterial.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLElementaryMaterial processes ElementaryMaterial elements.
 /** @class DDLElementaryMaterial
@@ -22,16 +25,13 @@
  *  deal with them all as ElementaryMaterial elements (in the XML sense).
  *
  */
-class DDLElementaryMaterial : public DDLMaterial
+class DDLElementaryMaterial final : public DDLMaterial
 {
-public:
+ public:
 
-  /// Constructor
   DDLElementaryMaterial( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLElementaryMaterial( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

@@ -34,23 +34,24 @@ public:
                                  unsigned int iBitPackedViews,
                                  bool iRepresentsSubPart,
                                  bool iRequiresFF = false);
-   virtual ~FWSimpleRepresentationChecker();
+   ~FWSimpleRepresentationChecker() override;
 
    // ---------- const member functions ---------------------
-   virtual FWRepresentationInfo infoFor(const std::string& iTypeName) const;
+   FWRepresentationInfo infoFor(const std::string& iTypeName) const override;
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-
+   static bool inheritsFrom(const edm::TypeWithDict& iChild,
+                            const std::string& iParentTypeName, unsigned int& distance);
+                                                
 private:
-   FWSimpleRepresentationChecker(const FWSimpleRepresentationChecker&); // stop default
+   FWSimpleRepresentationChecker(const FWSimpleRepresentationChecker&) = delete; // stop default
 
-   const FWSimpleRepresentationChecker& operator=(const FWSimpleRepresentationChecker&); // stop default
+   const FWSimpleRepresentationChecker& operator=(const FWSimpleRepresentationChecker&) = delete; // stop default
 
    // ---------- member data --------------------------------
    const std::string m_typeidName;
 };
-
 
 #endif

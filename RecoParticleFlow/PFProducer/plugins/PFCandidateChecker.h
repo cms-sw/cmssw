@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -28,16 +28,16 @@
 
 
 
-class PFCandidateChecker : public edm::EDAnalyzer {
+class PFCandidateChecker : public edm::stream::EDAnalyzer<> {
  public:
 
   explicit PFCandidateChecker(const edm::ParameterSet&);
 
-  ~PFCandidateChecker();
+  ~PFCandidateChecker() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginRun(const edm::Run & r, const edm::EventSetup & c);
+  void beginRun(const edm::Run & r, const edm::EventSetup & c) override;
 
  private:
   
@@ -82,5 +82,7 @@ class PFCandidateChecker : public edm::EDAnalyzer {
 
 
 };
+
+DEFINE_FWK_MODULE(PFCandidateChecker);
 
 #endif

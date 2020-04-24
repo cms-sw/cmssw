@@ -15,6 +15,9 @@
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="RecoTracker/MeasurementDet"/>
 
+<use   name="TrackingTools/KalmanUpdators"/>
+<use   name="TrackingTools/MeasurementDet"/>
+
 <use name="TrackingTools/Records"/>
 <use name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="TrackingTools/TransientTrack"/>

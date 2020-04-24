@@ -106,12 +106,6 @@ end:
 
 using namespace std;
 
-/** Number of crystals along eta in barrel
- */
-const static int nBarrelEtaBins = 170;
-/** Number of crystals in a eta ring of the barrel
- */
-const static int nBarrelPhiBins = 360;
 /** Range of the x-index of endcap crystals (xman-xmin+1).
  */
 const static int nEndcapXBins = 100;
@@ -127,12 +121,6 @@ const static int nSupercrystalXBins = nEndcapXBins/supercrystalEdge;
 /** Range of endcap supercrystal y-index (ymay-ymin+1)
  */
 const static int nSupercrystalYBins = nEndcapYBins/supercrystalEdge;
-/** Number of trigger tower along eta in the barrel
- */
-const static int nBarrelTowerEtaBins = nBarrelEtaBins/5;
-/** Number of trigger tower in a eta ring of the barrel
- */
-const static int nBarrelTowerPhiBins = nBarrelPhiBins/5;
 /** Number of endcap, obviously tow
  */
 const static int nEndcaps = 2;
@@ -163,7 +151,6 @@ const int nABTCCCh = 12;//nbr of TCC inputs on an AB
 const int nDCCCh = 12;//nbr of DCC outputs on an AB
 const int nTCCInEta = 6; //nbr of TCC bins along eta
 const int nAB = nABInPhi*nABInEta;
-const int nTTInABAlongEta=nTTInEta/nABInEta;
 const int nTTInABAlongPhi=nTTInPhi/nABInPhi;
 const int iTTEtaMin[nABInEta] = {0,11,28,45};
 const int iTTEtaMax[nABInEta] = {10,27,44,55};
@@ -295,7 +282,7 @@ int main(int argc, char* argv[]){
     }
     if(!strcmp(argv[iarg],"-a")||!strcmp(argv[iarg],"--ab")){
       if(++iarg>=argc){ cout << "Option error. Try -h\n"; return 1; }
-      theAB = strtoul(argv[iarg], 0, 0);
+      theAB = strtoul(argv[iarg], nullptr, 0);
       if(theAB>=0) --theAB;
       if(theAB<-1 || theAB>11){
 	cout << "AB number is incorrect. Try -h option to get help.\n";
@@ -338,13 +325,13 @@ int main(int argc, char* argv[]){
   }
 
   FILE* srfFile = fopen(srfFilename, "r");
-  if(srfFile==NULL){
+  if(srfFile==nullptr){
     cerr << "Failed to open SRF file, " << srfFilename << endl;
     exit(EXIT_FAILURE);
   }
 
   FILE* ttfFile = fopen(ttfFilename, "r");
-  if(ttfFile==NULL){
+  if(ttfFile==nullptr){
     cerr << "Failed to open TTF file, " << ttfFilename << endl;
     exit(EXIT_FAILURE);
   }
@@ -517,10 +504,10 @@ void  fillABIOFiles(const char ttFlags[nTTInEta][nTTInPhi],
 */
 
 bool readTTF(FILE* f, char ttFlags[nTTInEta][nTTInPhi]){
-  char* buffer = NULL;
+  char* buffer = nullptr;
   size_t bufferSize = 0;
   int read;
-  if(f==NULL) exit(EXIT_FAILURE);
+  if(f==nullptr) exit(EXIT_FAILURE);
   int line=0;
   int iEta = 0;
   while(iEta<nTTInEta && (read=getline(&buffer, &bufferSize,f))!=-1){
@@ -554,10 +541,10 @@ bool readSRF(FILE* f,
 	     char barrelSrFlags[nBarrelTTInEta][nTTInPhi],
 	     char endcapSrFlags[nEndcaps][nSupercrystalXBins]
 	     [nSupercrystalYBins]){
-  char* buffer = NULL;
+  char* buffer = nullptr;
   size_t bufferSize = 0;
   int read;
-  if(f==NULL) exit(EXIT_FAILURE);
+  if(f==nullptr) exit(EXIT_FAILURE);
   int line=0;
   int iEta = 0;
   int iXm = 0;
@@ -853,7 +840,7 @@ void abConnect(int iAB,int iABCh,int& iOtherAB,int& iOtherABCh){
   static int xconnectMap[nAB][nABABCh][2];
   if(firstCall){
     FILE* f = fopen(xconnectFilename, "r");
-    if(f==NULL){
+    if(f==nullptr){
       cerr << "Error. Failed to open xconnect definition file,"
 	   << xconnectFilename << endl;
       exit(EXIT_FAILURE);

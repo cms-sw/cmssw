@@ -20,7 +20,7 @@
 class TrackInfoProducerAlgorithm {
   
  public:
-typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+typedef TrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
   TrackInfoProducerAlgorithm(const edm::ParameterSet& conf) : 
     conf_(conf),

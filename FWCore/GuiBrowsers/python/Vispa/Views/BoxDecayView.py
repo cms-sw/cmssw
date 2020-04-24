@@ -239,7 +239,7 @@ class BoxDecayView(WidgetView):
                 dataAccessorObject = BasicDataAccessorInterface(object, self.dataAccessor(), False)
                 try:
                     text = dataAccessorObject.runScript(self._boxContentScript).replace("None", "")
-                except Exception, e:
+                except Exception as e:
                     logging.info("Error in script: " + exception_traceback())
                     text = ""
             widget = self.createBox(widgetParent, self.dataAccessor().isContainer(object), self.dataAccessor().label(object), text)

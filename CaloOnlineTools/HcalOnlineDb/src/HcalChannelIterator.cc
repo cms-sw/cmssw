@@ -48,7 +48,7 @@ int HcalChannelIterator::addListFromLmapAscii(std::string filename){
   else{
     std::cout << "File with the logical map opened successfully: " << filename << std::endl;
   }
-  while ( getline( inFile, _row ) > 0 ){
+  while (getline( inFile, _row )) {
     //#   side    eta    phi   dphi  depth    det
     int _num, _side, _eta, _phi, _dphi, _depth;
     char subdetbuf[32];

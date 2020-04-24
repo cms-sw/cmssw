@@ -2010,3 +2010,8 @@ void PlotMillePede::CopyAddBinning(TString &name, const TH1 *h) const
 
   name += ')';
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void PlotMillePede::SetOutName(const TString& name) {
+  fHistManager->SetCanvasName(name);
+}

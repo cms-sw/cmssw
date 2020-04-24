@@ -3,8 +3,8 @@
 #include <istream>
 #include <fstream>
 #include <iomanip>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #include "HLTrigger/HLTanalyzers/interface/RECOVertex.h"
 #include "HLTMessages.h"
@@ -51,9 +51,8 @@ void RECOVertex::setup(const edm::ParameterSet& pSet, TTree* HltTree, std::strin
   edm::ParameterSet myHltParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
   std::vector<std::string> parameterNames = myHltParams.getParameterNames() ;
   
-  for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
-        iParam != parameterNames.end(); iParam++ ){
-    if ( (*iParam) == "Debug" ) _Debug =  myHltParams.getParameter<bool>( *iParam );
+  for (auto & parameterName : parameterNames){
+    if ( parameterName == "Debug" ) _Debug =  myHltParams.getParameter<bool>( parameterName );
   }
 
   TString br_recoNVrt = "recoNVrt";

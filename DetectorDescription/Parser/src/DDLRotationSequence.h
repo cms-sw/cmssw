@@ -1,12 +1,12 @@
 #ifndef DDL_RotationSequence_H
 #define DDL_RotationSequence_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
+#include <string>
+
 #include "DDLRotationByAxis.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 ///  DDLRotationSequence handles a set of Rotations.
 /** @class DDLRotationSequence
@@ -21,19 +21,14 @@
  *  This is the RotationSequence processor.
  *
  */
-class DDLRotationSequence : public DDLRotationByAxis
+class DDLRotationSequence final : public DDLRotationByAxis
 {
-public:
+ public:
 
-  /// Constructor 
   DDLRotationSequence( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLRotationSequence( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 };
 
 #endif

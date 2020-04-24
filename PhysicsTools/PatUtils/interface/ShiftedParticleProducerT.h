@@ -14,11 +14,12 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -27,7 +28,7 @@
 #include <vector>
 
 template <typename T>
-class ShiftedParticleProducerT : public edm::EDProducer
+class ShiftedParticleProducerT : public edm::stream::EDProducer<>
 {
   typedef std::vector<T> ParticleCollection;
 
@@ -69,7 +70,7 @@ class ShiftedParticleProducerT : public edm::EDProducer
     edm::Handle<ParticleCollection> originalParticles;
     evt.getByToken(srcToken_, originalParticles);
 
-    std::auto_ptr<ParticleCollection> shiftedParticles(new ParticleCollection);
+    auto shiftedParticles = std::make_unique<ParticleCollection>();
 
     for ( typename ParticleCollection::const_iterator originalParticle = originalParticles->begin();
 	  originalParticle != originalParticles->end(); ++originalParticle ) {
@@ -86,7 +87,8 @@ class ShiftedParticleProducerT : public edm::EDProducer
       double shift = shiftBy_*uncertainty;
 
       reco::Candidate::LorentzVector shiftedParticleP4 = originalParticle->p4();
-      shiftedParticleP4 *= (1. + shift);
+      //leave 0*nan = 0 
+      if (! (edm::isNotFinite(shift) && shiftedParticleP4.mag2()==0)) shiftedParticleP4 *= (1. + shift);
 
       T shiftedParticle(*originalParticle);
       shiftedParticle.setP4(shiftedParticleP4);
@@ -94,7 +96,7 @@ class ShiftedParticleProducerT : public edm::EDProducer
       shiftedParticles->push_back(shiftedParticle);
     }
 
-    evt.put(shiftedParticles);
+    evt.put(std::move(shiftedParticles));
   }
 
   std::string moduleLabel_;

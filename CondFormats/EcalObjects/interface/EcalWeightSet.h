@@ -8,6 +8,8 @@
  *
  **/
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/Math/interface/Matrix.h"
@@ -51,6 +53,8 @@ class EcalWeightSet {
   EcalWeightMatrix wgtAfterSwitch_;
   EcalChi2WeightMatrix wgtChi2BeforeSwitch_;
   EcalChi2WeightMatrix wgtChi2AfterSwitch_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

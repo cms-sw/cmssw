@@ -1,12 +1,12 @@
 #ifndef __QCDSingleJetFilter__H__
 #define __QCDSingleJetFilter__H__
 
-/* \class QCDSingleJetFilter for CSA07 Excercise 
+/* \class QCDSingleJetFilter for CSA07 Excercise
  *  by Andreas Oehler (andreas.oehler@cern.ch)
  *
  Filter to select on pt of the jet with hightest Pt
  can do a random prescale (requires RandomNumber Service)[deactivated]
- 
+
  */
 
 // user include files
@@ -18,6 +18,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <DataFormats/JetReco/interface/CaloJet.h>
+
 
 //RandomGenerator Service taken out
 //namespace CLHEP {
@@ -25,18 +27,18 @@
 //}
 
 class QCDSingleJetFilter : public edm::EDFilter {
-  
+
  public:
   // Constructor
   QCDSingleJetFilter(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~QCDSingleJetFilter();
+  ~QCDSingleJetFilter() override;
 
   /// Get event properties to send to builder to fill seed collection
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-  
+
 
  private:
 
@@ -44,7 +46,8 @@ class QCDSingleJetFilter : public edm::EDFilter {
   //CLHEP::RandFlat *theFlatDistrib;
   double theMinPt;
     //,thePreScale;
-  edm::InputTag theTriggerJetCollectionA,theTrigCollB;
+  edm::EDGetTokenT<reco::CaloJetCollection> theTriggerJetCollectionAToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> theTrigCollBToken;
 };
 
 #endif

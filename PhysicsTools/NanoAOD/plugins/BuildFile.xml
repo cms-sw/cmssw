@@ -1,0 +1,22 @@
+<use   name="PhysicsTools/TensorFlow"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="CommonTools/Utils"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="PhysicsTools/JetMCUtils"/>
+<use   name="DataFormats/NanoAOD"/>
+<use   name="roothistmatrix"/>
+<use   name="RecoVertex/VertexTools"/>
+<use   name="RecoVertex/VertexPrimitives"/>
+<use   name="DataFormats/L1TGlobal"/>
+<use   name="IOPool/Provenance"/>
+<use   name="DQMServices/Core"/>
+<use   name="CondFormats/BTauObjects"/>
+<use   name="CondTools/BTau"/>
+<library   file="*.cc" name="PhysicsToolsNanoAODPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

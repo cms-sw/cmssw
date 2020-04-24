@@ -24,6 +24,7 @@ public:
   int exclude(int zside, HcalCastorDetId::Section section1, int isec1, int imod1, HcalCastorDetId::Section section2, int isec2, int imod2);
 
   /** Is this a valid cell id? */
+  using CaloSubdetectorTopology::valid;
   virtual bool valid(const HcalCastorDetId& id) const;
 
   /** Is this a valid cell id? */
@@ -36,14 +37,15 @@ public:
   virtual std::vector<DetId> incModule(const DetId& id) const;
 
   //** I have to put this here since they inherit from CaloSubdetectorTopology
-  virtual std::vector<DetId> east(const DetId& id) const;
-  virtual std::vector<DetId> west(const DetId& id) const; 
-  virtual std::vector<DetId> north(const DetId& id) const;
-  virtual std::vector<DetId> south(const DetId& id) const;
-  virtual std::vector<DetId> up(const DetId& id) const;
-  virtual std::vector<DetId> down(const DetId& id) const;
+  std::vector<DetId> east(const DetId& id) const override;
+  std::vector<DetId> west(const DetId& id) const override; 
+  std::vector<DetId> north(const DetId& id) const override;
+  std::vector<DetId> south(const DetId& id) const override;
+  std::vector<DetId> up(const DetId& id) const override;
+  std::vector<DetId> down(const DetId& id) const override;
   
   // how many channels (deph) for a given section
+  using CaloSubdetectorTopology::ncells;
   int ncells(HcalCastorDetId::Section section) const;
 
   //return first and last cell of each section

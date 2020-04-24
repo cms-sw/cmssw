@@ -10,19 +10,19 @@ class GhostTrackState;
 
 class KalmanGhostTrackUpdater : public GhostTrackFitter::PredictionUpdater {
     public:
-	virtual ~KalmanGhostTrackUpdater() {}
+	~KalmanGhostTrackUpdater() override {}
 
-	virtual KalmanGhostTrackUpdater *clone() const
+	KalmanGhostTrackUpdater *clone() const override
 	{ return new KalmanGhostTrackUpdater(*this); }
 
 	GhostTrackPrediction update(const GhostTrackPrediction &pred,
 	                            const GhostTrackState &state,
-	                            double &ndof, double &chi2) const;
+	                            double &ndof, double &chi2) const override;
 
 	void contribution(const GhostTrackPrediction &pred,
 	                  const GhostTrackState &state,
 	                  double &ndof, double &chi2,
-	                  bool withPredError = false) const;
+	                  bool withPredError = false) const override;
 };
 
 }

@@ -42,7 +42,7 @@ int HcalTB02HcalNumberingScheme::getUnitID(const G4Step* aStep) const {
   int scintID = 0;
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
-  G4ThreeVector    hitPoint = preStepPoint->GetPosition();
+  const G4ThreeVector&    hitPoint = preStepPoint->GetPosition();
   float hx = hitPoint.x();
   float hy = hitPoint.y();
   float hz = hitPoint.z();

@@ -34,7 +34,7 @@
 
 
 HZZ4lFilter::HZZ4lFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 minPtElectronMuon(iConfig.getUntrackedParameter("MinPtElectronMuon", 0.)),
 maxEtaElectronMuon(iConfig.getUntrackedParameter("MaxEtaElectronMuon", 10.))
 {
@@ -66,7 +66,7 @@ HZZ4lFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int nLeptons = 0;
 
    Handle< HepMCProduct > evt;
-   iEvent.getByLabel(label_, evt);
+   iEvent.getByToken(token_, evt);
    
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
    

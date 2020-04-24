@@ -64,17 +64,17 @@ namespace reco {
   namespace fitHelper {
     template<typename C>
     struct Adder {
-      static void add(std::auto_ptr<C> & c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(*t); }
+      static void add(C* c, std::unique_ptr<reco::VertexCompositeCandidate> t) { c->push_back(*t); }
     };
 
     template<typename T>
     struct Adder<edm::OwnVector<T> > {
-      static void add(std::auto_ptr<edm::OwnVector<T> > & c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(t); }
+      static void add(edm::OwnVector<T>* c, std::unique_ptr<reco::VertexCompositeCandidate> t) { c->push_back(std::move(t)); }
     };
 
     template<typename C>
-      inline void add(std::auto_ptr<C> & c, std::auto_ptr<reco::VertexCompositeCandidate> t) {
-      Adder<C>::add(c, t);
+      inline void add(C* c, std::unique_ptr<reco::VertexCompositeCandidate> t) {
+      Adder<C>::add(c, std::move(t));
     }
   }
 }
@@ -84,17 +84,17 @@ void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>
   Init::init(fitter_, evt, es);
   edm::Handle<InputCollection> cands;
   evt.getByToken(srcToken_, cands);
-  std::auto_ptr<OutputCollection> fitted(new OutputCollection);
+  auto fitted = std::make_unique<OutputCollection>();
   fitted->reserve(cands->size());
   for(typename InputCollection::const_iterator c = cands->begin(); c != cands->end(); ++ c) {
-    std::auto_ptr<reco::VertexCompositeCandidate> clone(new reco::VertexCompositeCandidate(*c));
+    auto clone = std::make_unique<reco::VertexCompositeCandidate>(*c);
     fitter_.set(*clone);
     if(setLongLived_) clone->setLongLived();
     if(setMassConstraint_) clone->setMassConstraint();
     if(setPdgId_) clone->setPdgId(pdgId_);
-    reco::fitHelper::add(fitted, clone);
+    reco::fitHelper::add(fitted.get(), std::move(clone));
   }
-  evt.put(fitted);
+  evt.put(std::move(fitted));
 }
 
 #endif

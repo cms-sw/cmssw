@@ -37,7 +37,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,7 +46,7 @@
 namespace edm {
 
   template<class T, class C>
-  class FilterObjectWrapper : public EDFilter {
+  class FilterObjectWrapper : public edm::stream::EDFilter<> {
 
   public:
     /// some convenient typedefs. Recall that C is a container class.
@@ -54,7 +54,7 @@ namespace edm {
     typename C::const_iterator  const_iterator;
 
     /// default contructor. Declares the output (type "C") and the filter (of type T, operates on C::value_type)
-    FilterObjectWrapper(const edm::ParameterSet& cfg) : src_( cfg.getParameter<edm::InputTag>("src"))
+    FilterObjectWrapper(const edm::ParameterSet& cfg) : src_( consumes<C>(cfg.getParameter<edm::InputTag>("src")))
     {
       filter_ = boost::shared_ptr<T>( new T(cfg.getParameter<edm::ParameterSet>("filterParams")) );
       if ( cfg.exists("filter") ) {
@@ -67,12 +67,12 @@ namespace edm {
     /// default destructor
     virtual ~FilterObjectWrapper(){}
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
-    virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup){
+    virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override {
       // create a collection of the objects to put into the event
-      std::auto_ptr<C> objsToPut( new C() );
+      auto objsToPut = std::make_unique<C>();
       // get the handle to the objects in the event.
       edm::Handle<C> h_c;
-      event.getByLabel( src_, h_c );
+      event.getByToken( src_, h_c );
       // loop through and add passing value_types to the output vector
       for ( typename C::const_iterator ibegin = h_c->begin(), iend = h_c->end(), i = ibegin; i != iend; ++i ){
 	if ( (*filter_)(*i) ){
@@ -81,7 +81,7 @@ namespace edm {
       }
       // put objs in the event
       bool pass = objsToPut->size() > 0;
-      event.put(objsToPut);
+      event.put(std::move(objsToPut));
       if ( doFilter_ )
 	return pass;
       else
@@ -90,7 +90,7 @@ namespace edm {
 
   protected:
     /// InputTag of the input source
-    edm::InputTag src_;
+    edm::EDGetTokenT<C> src_;
     /// shared pointer to analysis class of type BasicAnalyzer
     boost::shared_ptr<T> filter_;
     /// whether or not to filter based on size

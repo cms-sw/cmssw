@@ -51,7 +51,7 @@ Description: Create monitorElements for the Errors in created in the reduction o
 class SiPixelErrorsDigisToCalibDigis : public edm::EDAnalyzer {
  public:
   explicit SiPixelErrorsDigisToCalibDigis(const edm::ParameterSet&);
-  ~SiPixelErrorsDigisToCalibDigis();
+  ~SiPixelErrorsDigisToCalibDigis() override;
   
   MonitorElement*  bookDQMHistogram2D(uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);      
   MonitorElement*  bookDQMHistoPlaquetteSummary2D(uint32_t detid, std::string name,std::string title); // take the detid to determine the size of rows and columns, this saves looking up everything in the cabling map by the user. 
@@ -63,9 +63,9 @@ class SiPixelErrorsDigisToCalibDigis : public edm::EDAnalyzer {
        edm::ESHandle<TrackerGeometry> geom_;
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 

@@ -9,7 +9,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -22,16 +22,18 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 //
 // -- Contructor
 //
-SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const& pSet) {
+SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const& pSet) :
+  m_cacheID_(0) {
+
   // Create MessageSender
   edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::Deleting SiStripDaqInfo ";
 
@@ -59,14 +61,14 @@ void SiStripDaqInfo::bookStatus() {
     dqmStore_->cd();
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir);
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo");
 
     
     DaqFraction_= dqmStore_->bookFloat("DAQSummary");  
 
     dqmStore_->cd();    
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
       
     std::vector<std::string> det_type;
@@ -132,7 +134,7 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
   const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != 0) {
+  if( eSetup.find( recordKey ) != nullptr) {
 
     edm::ESHandle<RunInfo> sumFED;
     eSetup.get<RunInfoRcd>().get(sumFED);    
@@ -179,7 +181,7 @@ void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabli
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   auto feds = fedCabling_->fedIds(); 
@@ -205,7 +207,7 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids, edm::Even
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;

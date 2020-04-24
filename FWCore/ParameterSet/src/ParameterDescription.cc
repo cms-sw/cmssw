@@ -14,8 +14,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "boost/bind.hpp"
-
 #include <cassert>
 #include <cstdlib>
 #include <iomanip>
@@ -29,16 +27,18 @@ namespace edm {
   ParameterDescription<ParameterSetDescription>::
   ParameterDescription(std::string const& iLabel,
                        ParameterSetDescription const& value,
-                       bool isTracked) :
-      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true),
+                       bool isTracked,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true, iComment),
       psetDesc_(new ParameterSetDescription(value)) {
   }
 
   ParameterDescription<ParameterSetDescription>::
   ParameterDescription(char const* iLabel,
                        ParameterSetDescription const& value,
-                       bool isTracked) :
-      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true),
+                       bool isTracked,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_PSet, isTracked, true, iComment),
       psetDesc_(new ParameterSetDescription(value)) {
   }
 
@@ -73,6 +73,9 @@ namespace edm {
     exists = pset.existsAs<ParameterSet>(label(), isTracked());
 
     if(exists) {
+      if(pset.isRegistered()) {
+         pset.invalidateRegistration("");
+      }
       ParameterSet * containedPSet = pset.getPSetForUpdate(label());
       psetDesc_->validate(*containedPSet);
     }
@@ -82,7 +85,7 @@ namespace edm {
   ParameterDescription<ParameterSetDescription>::
   printDefault_(std::ostream& os,
                   bool writeToCfi,
-                  DocFormatHelper& dfh) {
+                  DocFormatHelper& dfh) const {
     os << "see Section " << dfh.section()
        << "." << dfh.counter();
     if(!writeToCfi) os << " (do not write to cfi)";
@@ -91,7 +94,7 @@ namespace edm {
 
   bool
   ParameterDescription<ParameterSetDescription>::
-  hasNestedContent_() {
+  hasNestedContent_() const {
     return true;
   }
 
@@ -99,7 +102,7 @@ namespace edm {
   ParameterDescription<ParameterSetDescription>::
   printNestedContent_(std::ostream& os,
                       bool /*optional*/,
-                      DocFormatHelper& dfh) {
+                      DocFormatHelper& dfh) const {
     int indentation = dfh.indentation();
     if(dfh.parent() != DocFormatHelper::TOP) {
       indentation -= DocFormatHelper::offsetSectionContent();
@@ -175,8 +178,9 @@ namespace edm {
   ParameterDescription(std::string const& iLabel,
                        ParameterSetDescription const& psetDesc,
                        bool isTracked,
-                       std::vector<ParameterSet> const& vPset) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
+                       std::vector<ParameterSet> const& vPset,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true, iComment),
       psetDesc_(new ParameterSetDescription(psetDesc)),
       vPset_(vPset),
       partOfDefaultOfVPSet_(false) {
@@ -186,8 +190,9 @@ namespace edm {
   ParameterDescription(char const* iLabel,
                        ParameterSetDescription const& psetDesc,
                        bool isTracked,
-                       std::vector<ParameterSet> const& vPset) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
+                       std::vector<ParameterSet> const& vPset,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true, iComment),
       psetDesc_(new ParameterSetDescription(psetDesc)),
       vPset_(vPset),
       partOfDefaultOfVPSet_(false) {
@@ -196,8 +201,9 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   ParameterDescription(std::string const& iLabel,
                        ParameterSetDescription const& psetDesc,
-                       bool isTracked) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false),
+                       bool isTracked,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false, iComment),
       psetDesc_(new ParameterSetDescription(psetDesc)),
       vPset_(),
       partOfDefaultOfVPSet_(false) {
@@ -206,8 +212,9 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   ParameterDescription(char const* iLabel,
                        ParameterSetDescription const& psetDesc,
-                       bool isTracked) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false),
+                       bool isTracked,
+                       Comment const& iComment) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false, iComment),
       psetDesc_(new ParameterSetDescription(psetDesc)),
       vPset_(),
       partOfDefaultOfVPSet_(false) {
@@ -272,7 +279,7 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   printDefault_(std::ostream& os,
                 bool writeToCfi,
-                DocFormatHelper& dfh) {
+                DocFormatHelper& dfh) const {
     os << "see Section " << dfh.section()
        << "." << dfh.counter();
     if(!writeToCfi) os << " (do not write to cfi)";
@@ -282,7 +289,7 @@ namespace edm {
 
   bool
   ParameterDescription<std::vector<ParameterSet> >::
-  hasNestedContent_() {
+  hasNestedContent_() const {
     return true;
   }
 
@@ -290,7 +297,7 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   printNestedContent_(std::ostream& os,
                       bool /*optional*/,
-                      DocFormatHelper& dfh) {
+                      DocFormatHelper& dfh) const {
 
     int indentation = dfh.indentation();
     if(dfh.parent() != DocFormatHelper::TOP) {
@@ -317,11 +324,11 @@ namespace edm {
     if(partOfDefaultOfVPSet_) subsectionOffset = 1;
 
     if(hasDefault()) {
-      if(vPset_.size() == 0U) os << "The default VPSet is empty.\n";
+      if(vPset_.empty()) os << "The default VPSet is empty.\n";
       else if(vPset_.size() == 1U) os << "The default VPSet has 1 element.\n";
       else os << "The default VPSet has " << vPset_.size() << " elements.\n";
 
-      if(vPset_.size() > 0U) {
+      if(!vPset_.empty()) {
         for(unsigned i = 0; i < vPset_.size(); ++i) {
           printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
           os << "[" << (i) << "]: see Section " << dfh.section()
@@ -412,11 +419,11 @@ namespace edm {
   ParameterDescription<std::vector<ParameterSet> >::
   writeCfi_(std::ostream& os, int indentation) const {
     bool nextOneStartsWithAComma = false;
-    for_all(vPset_, boost::bind(&writeOneElementToCfi,
-                                 _1,
-                                 boost::ref(os),
+    for_all(vPset_, std::bind(&writeOneElementToCfi,
+                                 std::placeholders::_1,
+                                 std::ref(os),
                                  indentation,
-                                 boost::ref(nextOneStartsWithAComma)));
+                                 std::ref(nextOneStartsWithAComma)));
     os << "\n";
     printSpaces(os, indentation);
   }
@@ -480,7 +487,7 @@ namespace edm {
         std::string resultLessPrecision = s.str();
 
         if(resultLessPrecision.size() < result.size() - 2) {
-          double test = std::strtod(resultLessPrecision.c_str(), 0);
+          double test = std::strtod(resultLessPrecision.c_str(), nullptr);
           if(test == value) {
             result = resultLessPrecision;
           }
@@ -638,23 +645,25 @@ namespace edm {
       std::ios_base::fmtflags ff = os.flags(std::ios_base::dec);
       char oldFill = os.fill();
       os.width(0);
-      if(value_.size() == 0U && format == DOC) {
+      if(value_.empty() && format == DOC) {
         os << "empty";
       } else if(value_.size() == 1U && format == CFI) {
         writeValueInVector<T>(os, value_[0], format);
-      } else if(value_.size() >= 1U) {
+      } else if(!value_.empty()) {
         if(format == DOC) os << "(vector size = " << value_.size() << ")";
+        if(format == CFI and value_.size() > 255U) os << " *(";
         os.fill(' ');
         bool startWithComma = false;
         int i = 0;
-        for_all(value_, boost::bind(&writeValueInVectorWithSpace<T>,
-                                    _1,
-                                    boost::ref(os),
+        for_all(value_, std::bind(&writeValueInVectorWithSpace<T>,
+                                    std::placeholders::_1,
+                                    std::ref(os),
                                     indentation + 2,
-                                    boost::ref(startWithComma),
+                                    std::ref(startWithComma),
                                     format,
-                                    boost::ref(i)));
+                                    std::ref(i)));
         if(format == CFI) os << "\n" << std::setw(indentation) << "";
+        if(format == CFI and value_.size() > 255U) os << ") ";
       }
       os.flags(ff);
       os.fill(oldFill);

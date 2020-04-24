@@ -15,12 +15,12 @@ SiStripRing::SiStripRing( const FedChannelConnection& conn )
 // -----------------------------------------------------------------------------
 //
 void SiStripRing::addDevices( const FedChannelConnection& conn ) {
-  std::vector<SiStripCcu>::const_iterator iccu = ccus().begin();
-  while ( iccu != ccus().end() && (*iccu).ccuAddr() != conn.ccuAddr() ) { iccu++; }
+  auto iccu = ccus_.begin();
+  while ( iccu != ccus_.end() && (*iccu).ccuAddr() != conn.ccuAddr() ) { iccu++; }
   if ( iccu == ccus().end() ) { 
     ccus_.push_back( SiStripCcu( conn ) ); 
   } else { 
-    const_cast<SiStripCcu&>(*iccu).addDevices( conn ); 
+    iccu->addDevices( conn ); 
   }
 }
 

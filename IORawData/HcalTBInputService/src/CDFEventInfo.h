@@ -7,7 +7,7 @@
  */
 class CDFEventInfo : public TObject {
 public:
-  CDFEventInfo() { }
+  CDFEventInfo();
   /// get the run number
   inline UInt_t getRunNumber() const { return fRunNumber; }
   /// get the run number sequence id (whose run number is this?)

@@ -25,9 +25,9 @@
 class HcalGainsHandler : public popcon::PopConSourceHandler<HcalGains>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalGainsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalGainsHandler() override;
   HcalGainsHandler(edm::ParameterSet const &);
 
   void initObject(HcalGains*);

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
@@ -52,8 +52,7 @@ int doTest(edm::ParameterSet const& params,
 int work() {
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
-    new edm::ProcessConfiguration());
+  auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
   processConfiguration->setParameterSetID(dummyProcessPset.id());
 
   edm::ParameterSet pset;

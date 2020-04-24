@@ -1,6 +1,8 @@
 #ifndef PerformanceResult_h
 #define PerformanceResult_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 class PerformanceResult {
  public:
   enum ResultType {
@@ -25,12 +27,17 @@ class PerformanceResult {
     PFfb_BARREL = 3003, PFfb_ENDCAP = 3004,
     PFfc_BARREL = 3005, PFfc_ENDCAP = 3006,
     PFfaEta_BARREL = 3007, PFfaEta_ENDCAP = 3008, 
-    PFfbEta_BARREL = 3009, PFfbEta_ENDCAP = 3010 
+    PFfbEta_BARREL = 3009, PFfbEta_ENDCAP = 3010, 
+    PFfaEta_BARRELH = 3011, PFfaEta_ENDCAPH = 3012, 
+    PFfbEta_BARRELH = 3013, PFfbEta_ENDCAPH = 3014, 
+    PFfaEta_BARRELEH = 3015, PFfaEta_ENDCAPEH = 3016, 
+    PFfbEta_BARRELEH = 3017, PFfbEta_ENDCAPEH = 3018 
     
-
     
 };
   
+
+ COND_SERIALIZABLE;
 };
 
 #endif

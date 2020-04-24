@@ -29,9 +29,9 @@ namespace egHLT {
     EgCutValues eeCutValues_;
     
   public:
-    OffEgSel(){}//default, it doesnt to anything
+    OffEgSel()= default;//default, it doesnt to anything
     explicit OffEgSel(const edm::ParameterSet& config){setup(config);}
-    ~OffEgSel(){} //we own nothing so default destructor, copy and assignment okay
+    ~OffEgSel()= default; //we own nothing so default destructor, copy and assignment okay
     
      
     bool passCuts(const OffEle& ele,int cutMask=~0x0)const{return getCutCode(ele,cutMask)==0x0;}

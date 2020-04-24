@@ -8,11 +8,11 @@
  *  \author Matteo Sani
  */
 
-#include <FWCore/Framework/interface/ESProducer.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
-#include <boost/shared_ptr.hpp>
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
+#include <memory>
 #include <string>
 
 class GlobalTrackingGeometry;
@@ -24,10 +24,10 @@ public:
   GlobalTrackingGeometryESProducer(const edm::ParameterSet & p);
 
   /// Destructor
-  virtual ~GlobalTrackingGeometryESProducer();
+  ~GlobalTrackingGeometryESProducer() override;
 
   /// Produce GlobalTrackingGeometry
-  boost::shared_ptr<GlobalTrackingGeometry> produce(const GlobalTrackingGeometryRecord& record);
+  std::shared_ptr<GlobalTrackingGeometry> produce(const GlobalTrackingGeometryRecord& record);
 
 private:  
 

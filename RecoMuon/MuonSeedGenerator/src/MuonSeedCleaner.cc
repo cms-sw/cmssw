@@ -292,7 +292,7 @@ bool MuonSeedCleaner::MomentumFilter(std::vector<TrajectorySeed>& seeds ) {
        seeds.push_back( goodMomentumSeeds[i] );
        findgoodMomentum = true;  
   }
-  if ( seeds.size() == 0 ) seeds = goodMomentumSeeds;
+  if ( seeds.empty() ) seeds = goodMomentumSeeds;
 
   return findgoodMomentum;
 }

@@ -1,11 +1,7 @@
-<use   name="boost"/>
-<use   name="CondCore/DBCommon"/>
+<use   name="CondCore/CondDB"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/RPCObjects"/>
 <use   name="CoralBase"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/Provenance"/>
@@ -23,8 +19,10 @@
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="RelationalAccess"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <use   name="SimDataFormats/CrossingFrame"/>
+<use   name="SimDataFormats/GEMDigiSimLink"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Utilities/General"/>
+<use   name="CommonTools/UtilAlgos"/>
 <flags   EDM_PLUGIN="1"/>

@@ -46,14 +46,14 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
     
     
     
-    InOutConversionSeedFinder( const edm::ParameterSet& config );
+  InOutConversionSeedFinder( const edm::ParameterSet& config,edm::ConsumesCollector && iC);
   
   
   
-  virtual ~InOutConversionSeedFinder();
+  ~InOutConversionSeedFinder() override;
   
   
-  virtual void  makeSeeds(  const edm::Handle<edm::View<reco::CaloCluster> > & allBc) const;
+  void  makeSeeds(  const edm::Handle<edm::View<reco::CaloCluster> > & allBc) const override;
   
   
   

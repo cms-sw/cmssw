@@ -35,7 +35,7 @@ public:
     for ( int i = 0; i < theNbins; i++ ) {
       disks[i] = 
 	dynamic_cast<const BoundDisk*> (&(theDets[i]->surface()));
-      if (disks[i]==0) {
+      if (disks[i]==nullptr) {
 	throw cms::Exception("UnexpectedState") << "RBorderFinder: implemented for BoundDisks only";
       }
     }

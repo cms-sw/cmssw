@@ -25,23 +25,23 @@ public:
     EgammaTrackExtractor(par, iC) {}
   EgammaTrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector & iC);
 
-  virtual ~EgammaTrackExtractor(){}
+  ~EgammaTrackExtractor() override{}
 
-  virtual void fillVetos (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::TrackCollection & track) {}
+  void fillVetos (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::TrackCollection & track) override {}
 
   virtual reco::IsoDeposit::Vetos vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & track)const;
 
-  virtual reco::IsoDeposit deposit (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Track & muon) const {
+  reco::IsoDeposit deposit (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::Track & muon) const override {
         edm::LogWarning("EgammaIsolationAlgos|EgammaTrackExtractor")
            << "This Function is not implemented, bad IsoDeposit Returned";
         return reco::IsoDeposit( reco::isodeposit::Direction(1,1) );
       }
 
-  virtual reco::IsoDeposit deposit (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Candidate & muon) const;
+  reco::IsoDeposit deposit (const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::Candidate & muon) const override;
 
 private:
   reco::IsoDeposit::Veto veto( const reco::IsoDeposit::Direction & dir) const;

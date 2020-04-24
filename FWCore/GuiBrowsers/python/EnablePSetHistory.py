@@ -40,8 +40,8 @@ typ.SortedKeysDict.__deepcopy__ = new_SortedKeysDict__deepcopy__
 
 import FWCore.ParameterSet.Config as cms
 
-def new___init__(self,name):
-    self.old___init__(name)
+def new___init__(self,*l,**k):
+    self.old___init__(*l,**k)
     self.__dict__['_Process__history'] = []
     self.__dict__['_Process__enableRecording'] = 0
     self.__dict__['_Process__modifiedobjects'] = []
@@ -516,7 +516,10 @@ cms._ModuleSequenceType.copy = new__ModuleSequenceType_copy
 def new__ModuleSequenceType_replace(self, original, replacement):
     stack = auto_inspect()
     self._isModified=True
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name_(),'new':replacement._name_()})
+    if replacement is None:
+        self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name_(),'new':None})
+    else:
+        self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name_(),'new':replacement._name_()})
     return self.old_replace(original, replacement)
 cms._ModuleSequenceType.old_replace = cms._ModuleSequenceType.replace
 cms._ModuleSequenceType.replace = new__ModuleSequenceType_replace

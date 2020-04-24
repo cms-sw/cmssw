@@ -38,7 +38,7 @@ namespace{
 
 
 PythiaFilterGammaJetIsoPi0::PythiaFilterGammaJetIsoPi0(const edm::ParameterSet& iConfig) :
-  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+  token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
   etaMin(iConfig.getUntrackedParameter<double>("MinPi0Eta", 1.65)),
   PtMin(iConfig.getUntrackedParameter<double>("MinPi0Pt", 50.)),
   etaMax(iConfig.getUntrackedParameter<double>("MaxPi0Eta", 2.5)),
@@ -80,7 +80,7 @@ bool PythiaFilterGammaJetIsoPi0::filter(edm::Event& iEvent, const edm::EventSetu
   
   bool accepted = false;
   Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
 
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 

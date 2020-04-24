@@ -1,0 +1,9 @@
+<use name="FWCore/Framework"/>
+<use name="DataFormats/MuonReco"/>
+<use name="DataFormats/HLTReco"/>
+<use name="TrackingTools/IPTools"/>
+<use name="boost"/>
+<use name="rootcore"/>
+<export>
+  <lib name="1"/>
+</export>

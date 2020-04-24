@@ -3,44 +3,87 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-class ProjectedSiStripRecHit2D : public BaseTrackerRecHit {
+// #include<iostream>
+
+class ProjectedSiStripRecHit2D final  : public TrackerSingleRecHit  {
 public:
+  
+  inline static bool isMono(GeomDet const & gdet, GeomDet const & sdet) {
+    return (sdet.geographicalId()-gdet.geographicalId())==2;
+  }
+  
+  
+  typedef TrackerSingleRecHit Base;
 
-  typedef BaseTrackerRecHit Base;
-  ProjectedSiStripRecHit2D() {};
-  ProjectedSiStripRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
-			    const SiStripRecHit2D* originalHit) :
-    BaseTrackerRecHit(pos, err, id, trackerHitRTTI::proj), originalHit_(*originalHit) {}
+  ProjectedSiStripRecHit2D() : theOriginalDet(nullptr) {}
+
+  ProjectedSiStripRecHit2D( const LocalPoint& pos, const LocalError& err, 
+			    GeomDet const & idet,
+			    SiStripRecHit2D const & originalHit) :
+    TrackerSingleRecHit(pos, err, idet, 
+			isMono(idet,*originalHit.det()) ? trackerHitRTTI::projMono: trackerHitRTTI::projStereo,
+			originalHit.omniCluster()),
+    theOriginalDet(originalHit.det()) {
+//      std::cout << getRTTI() << ' ' << originalHit.rawId() << ' ' << idet.geographicalId().rawId() << ' ' << originalId() << std::endl;
+      assert(originalId()==originalHit.rawId());
+    }
     
-  virtual ProjectedSiStripRecHit2D* clone() const {return new ProjectedSiStripRecHit2D( *this); }
+  template<typename CluRef>
+  ProjectedSiStripRecHit2D( const LocalPoint& pos, const LocalError& err, 
+			    GeomDet const & idet, GeomDet const & originalDet,
+			    CluRef const&  clus) :
+    TrackerSingleRecHit(pos, err, idet, 
+			isMono(idet,originalDet) ? trackerHitRTTI::projMono: trackerHitRTTI::projStereo,
+			clus),
+    theOriginalDet(&originalDet) {
+    assert(originalId()==originalDet.geographicalId());
+    }
 
-  virtual int dimension() const {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
 
+  void setDet(const GeomDet & idet) override;
 
-  // used by trackMerger (to be improved)
-  virtual OmniClusterRef const & firstClusterRef() const { return  originalHit().firstClusterRef();}
+  bool canImproveWithTrack() const override {return true;}
 
+  ProjectedSiStripRecHit2D* clone() const override {return new ProjectedSiStripRecHit2D( *this); }
 
-  const SiStripRecHit2D& originalHit() const {return originalHit_;}
-  SiStripRecHit2D& originalHit() {return originalHit_;}
-
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {
-    return originalHit().sharesInput(other,what);
+  
+  int dimension() const override {return 2;}
+  void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
+  
+  typedef OmniClusterRef::ClusterStripRef         ClusterRef;
+  ClusterRef cluster()  const { return cluster_strip() ; }
+  const GeomDetUnit* originalDet() const {
+    return static_cast<const GeomDetUnit*>(theOriginalDet);
   }
-  virtual std::vector<const TrackingRecHit*> recHits() const{
-    std::vector<const TrackingRecHit*> rechits(1,&originalHit_);
+  unsigned int originalId() const { return trackerHitRTTI::projId(*this);}
+  
+  // not useful only for backward compatibility
+  SiStripRecHit2D originalHit() const { return SiStripRecHit2D(originalId(), omniClusterRef());}
+  
+  
+  std::vector<const TrackingRecHit*> recHits() const override{
+    std::vector<const TrackingRecHit*> rechits;
     return rechits;
   }
-  virtual std::vector<TrackingRecHit*> recHits() {
-    std::vector<TrackingRecHit*> rechits(1,&originalHit_);
+  std::vector<TrackingRecHit*> recHits() override {
+    std::vector<TrackingRecHit*> rechits;
     return rechits;
   }
-
+  
 
 private:
+  // double dispatch
+  ProjectedSiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner(*this,tsos).release();
+  }
+#ifndef __GCCXML__
+   ConstRecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner.makeShared(*this,tsos);
+  }
+#endif
 
-  SiStripRecHit2D originalHit_;
+private:
+  const GeomDet* theOriginalDet;
 
 };
 

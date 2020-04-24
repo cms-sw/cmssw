@@ -1,8 +1,6 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.7 $
-#     $Date: 2011/06/15 14:24:52 $
 #
 #  Prepare the run script for this job.
 #  The main action is to embed the output directory
@@ -13,6 +11,10 @@
 #  mps_script.pl inScript outScript runDir cfgName fileSplit isn mssDir \
 #  [CastorPool]
 #
+# FIXME: Some of the variables here are not used because they are related to
+#        CASTOR which is now used only for archival. When this script is
+#        translated to python the remaining CASTOR-related parts have to be
+#        removed.
 
 use POSIX;
 
@@ -29,7 +31,7 @@ $cmsCafPool = 0;
 # parse the arguments
 while (@ARGV) {
   $arg = shift(ARGV);
-  if ($arg =~ /\A-/) {  # check for option 
+  if ($arg =~ /\A-/) {  # check for option
     if ($arg =~ "h") {
       $helpwanted = 1;
     }
@@ -117,54 +119,6 @@ if ($nn <1) {
 # $nn = ($body =~ s/cmsRun\s([A-Za-z0-9]+?\.cfg)/cmsRun $cfgName/g);
 # $nn = ($body =~ s/cmsRun +(.+)/cmsRun $cfgName/g);
 $nn = ($body =~ s/cmsRun +[a-zA-Z_0-9\-]+\.cfg/cmsRun \$RUNDIR\/$cfgName/g);
-
-# here we insert prestager commands, a la
-# stager_get -M /castor/cern.ch/cms/store/mc/2007/5/9/Spring07-ZToMuMu-1532/0001/E665DFFD-99FF-DB11-8730-000E0C3F08AE.root
-$prestageBlock = "# Begin of Castor Prestage Block";
-if ($fileSplit ne "undefined") {
-  open SPLITFILE,"$fileSplit";
-  while ($text = <SPLITFILE>) {
-    chomp $text;
-
-    # Format 1: /store/...  : in this case, prepend /castor path
-    if ( $text =~ m/^ *\/store/ ) {
-      $text =~ s/\/store/stager_get -M \/castor\/cern.ch\/cms\/store/;
-    }
-    # Format 2: rfio:/castor/...  : in this case, remove rfio prefix path
-    elsif ( $text =~ m/^ *rfio:/ ) {
-      $text =~ s/rfio:/stager_get -M /;
-#GF
-    }
-    # Format 3: CastorPool definition (should happen only for first entry... FIXME?)
-    elsif ($text =~ /^CastorPool=/) {
-      $text =~ s/CastorPool=//; # first appearance of CastorPool erased
-
-      if ($text =~ /cmscaf/) {
-# AP 24.06.2010 - Input data resides on cmscaf pool
-	$cmsCafPool = 1;
-      }
-
-      if ($body =~ /^\#!\/bin\/(tcsh|csh)/) { # script starts with #!/bin/tcsh or #!/bin/csh
-	$text = "setenv STAGE_SVCCLASS ".$text # (t)csh way of setting variables
-      } else { # other shells
-	$text = "export STAGE_SVCCLASS=".$text
-      }
-# end GF
-    }
-
-    $prestageBlock = "$prestageBlock\n$text";
-  }
-  close SPLITFILE;
-  $prestageBlock = "$prestageBlock\n# End of Castor Prestage Block";
-
-  if ($cmsCafPool eq 1) {
-# AP 24.06.2010 - Input data resides on cmscaf pool... no prestaging, just setup cmscaf!
-    $prestageBlock = ". /afs/cern.ch/cms/caf/setup.sh";
-  }
-
-  # insert prestage block at the beginning (after the first line)
-  $body =~ s/.+/$&\n$prestageBlock\n/;
-} 
 
 # replace ISN for the root output file
 $nrep = ($body =~ s/ISN/$isn/gm);

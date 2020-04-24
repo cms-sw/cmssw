@@ -8,6 +8,9 @@
  *\date 07.04
  */
 
+#include <iomanip>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 
 template <typename T> 
@@ -23,7 +26,7 @@ struct DEutils {
   public:
   
   DEutils() {
-    if(de_type()>38)
+    if(de_type()>51)
       edm::LogError("L1ComparatorDeutilsCollType") //throw cms::Exception("ERROR") 
 	<< "DEutils::DEutils() :: "
 	<< "specialization is still missing for collection of type:" 
@@ -1367,7 +1370,7 @@ inline std::string DEutils<L1CSCSPStatusDigiCollection_>::print(col_cit it) cons
 template <typename T> 
 std::string DEutils<T>::GetName(int i) const {
 
-  const int nlabel = 16;
+  const int nlabel = 17;
   if(!(i<nlabel)) 
     return                  "un-defined" ;
   std::string str[nlabel]= {"un-registered"};
@@ -1415,6 +1418,11 @@ std::string DEutils<T>::GetName(int i) const {
    break;
   case dedefs::GCTtaujets:
     str[0] = "GCT tau jet";
+    str[1] = "L1GctJetCandCollection";
+    str[2] = "L1GctJetCand";
+   break;
+  case dedefs::GCTisotaujets:
+    str[0] = "Stage1Layer2 iso-tau jet";
     str[1] = "L1GctJetCandCollection";
     str[2] = "L1GctJetCand";
    break;

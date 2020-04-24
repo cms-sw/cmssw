@@ -266,7 +266,7 @@ void TH2Analyzer::ProcessSlice(const int i, TH1D* proj ) const {
       //proj->Draw();
       TF1* f1= new TF1("f1", "gaus", fitmin, fitmax);
       f1->SetParameters(proj->GetRMS(),proj->GetMean(),proj->GetBinContent(proj->GetMaximumBin()));
-      proj->Fit("f1","R", "", proj->GetXaxis()->GetXmin(), proj->GetXaxis()->GetXmax());
+      proj->Fit(f1,"R", "", proj->GetXaxis()->GetXmin(), proj->GetXaxis()->GetXmax());
   
       //std::ostringstream oss;
       //oss << i;

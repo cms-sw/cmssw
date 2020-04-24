@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace CLHEP {
@@ -25,18 +25,18 @@ namespace CLHEP {
 class NeutronWriter;
 
 /// doesn't have to be a producer.  Can act as an analyzer, too.
-class SubsystemNeutronWriter : public edm::EDProducer
+class SubsystemNeutronWriter : public edm::stream::EDProducer<>
 {
 public:
 
   explicit SubsystemNeutronWriter(edm::ParameterSet const& pset);
 
   /// destructor prints statistics on number of events written
-  virtual ~SubsystemNeutronWriter();
+  ~SubsystemNeutronWriter() override;
 
   void printStats();
 
-  virtual void produce(edm::Event & e, edm::EventSetup const& c);
+  void produce(edm::Event & e, edm::EventSetup const& c) override;
 
   virtual int localDetId(int globalDetId) const = 0;
 
@@ -51,7 +51,6 @@ public:
   void initialize(int chamberType);
 
 protected:
-
 
   virtual void writeHits(int chamberType, edm::PSimHitContainer & chamberHits, CLHEP::HepRandomEngine*);
 

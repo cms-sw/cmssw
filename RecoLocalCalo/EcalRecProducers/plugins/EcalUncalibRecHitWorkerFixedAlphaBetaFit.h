@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitFixedAlphaBetaAlgo.h"
 
@@ -17,17 +17,20 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+        class ParameterSetDescription;
 }
 
-class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerBaseClass {
+class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerRunOneDigiBase {
 
         public:
-                EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector& );
-                virtual ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() {};
+                EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector& ); 
+		EcalUncalibRecHitWorkerFixedAlphaBetaFit() {};
+                ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() override {};
 
-                void set(const edm::EventSetup& es);
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
-
+                void set(const edm::EventSetup& es) override;
+                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
+		
+		edm::ParameterSetDescription getAlgoDescription() override;
         private:
 
                 double AmplThrEB_;

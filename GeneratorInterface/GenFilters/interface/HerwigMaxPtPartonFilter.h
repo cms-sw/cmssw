@@ -39,6 +39,9 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class HerwigMaxPtPartonFilter : public edm::EDFilter {
    public:
@@ -53,7 +56,7 @@ class HerwigMaxPtPartonFilter : public edm::EDFilter {
   TH2D *hFSPartons_JS_PtWgting;
   
 
-  std::string label_;
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
   
   double minptcut;
   double maxptcut;

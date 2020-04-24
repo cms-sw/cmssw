@@ -51,13 +51,13 @@
 class HcalLaserHBHEHFFilter2012 : public edm::EDFilter {
 public:
   explicit HcalLaserHBHEHFFilter2012(const edm::ParameterSet&);
-  ~HcalLaserHBHEHFFilter2012();
+  ~HcalLaserHBHEHFFilter2012() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   // ----------member data ---------------------------
   bool filterHBHE_; // Flag to activate laser filter for HBHE

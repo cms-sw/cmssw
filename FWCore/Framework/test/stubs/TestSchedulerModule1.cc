@@ -36,8 +36,7 @@ private:
 void TestSchedulerModule1::produce(Event& e, EventSetup const&)
 {
   std::string myname = pset_.getParameter<std::string>("module_name");
-  std::auto_ptr<edmtest::StringProduct> product(new edmtest::StringProduct(myname)); 
-  e.put(product);
+  e.put(std::make_unique<edmtest::StringProduct>(myname));
 }
 
 DEFINE_FWK_MODULE(TestSchedulerModule1);

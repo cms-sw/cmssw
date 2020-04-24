@@ -10,18 +10,19 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "CLHEP/Random/RandFlat.h"
 
 // #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include <cmath>
-
 #include <iostream>
 #include <fstream>
+#include "TMath.h"
 
 HcalPulseShapes::HcalPulseShapes() 
-: theMCParams(0),
-  theTopology(0),
-  theRecoParams(0),
+: theMCParams(nullptr),
+  theTopology(nullptr),
+  theRecoParams(nullptr),
   theShapes()
 {
 /*
@@ -36,6 +37,8 @@ Reco  MC
 105   125      hpdShape_v2, hpdShapeMC_v2             HPD (2011.11.12 version)
 201   201      siPMShape_                             SiPMs Zecotec shape   (HO)
 202   202      =201,                                  SiPMs Hamamatsu shape (HO)
+203   203      siPMShape2017_                         SiPMs Hamamatsu shape (HE 2017)
+205   205      siPMShapeData2017_                     SiPMs from Data (HE data 2017)
 301   301      hfShape_                               regular HF PMT shape
 401   401                                             regular ZDC shape
 --------------------------------------------------------------------------------------
@@ -83,21 +86,16 @@ Reco  MC
 
   computeHFShape();
   computeSiPMShape();
+  computeSiPMShape2017();
+  computeSiPMShapeData2017();
 
   theShapes[201] = &siPMShape_;
   theShapes[202] = theShapes[201];
+  theShapes[203] = &siPMShape2017_;
+  theShapes[205] = &siPMShapeData2017_;
   theShapes[301] = &hfShape_;
   //theShapes[401] = new CaloCachedShapeIntegrator(&theZDCShape);
 
-  /*
-  // backward-compatibility with old scheme
-  theShapes[0] = theShapes[101];
-  //FIXME "special" HB
-  theShapes[1] = theShapes[101];
-  theShapes[2] = theShapes[201];
-  theShapes[3] = theShapes[301];
-  //theShapes[4] = theShapes[401];
-  */
 }
 
 
@@ -115,7 +113,7 @@ void HcalPulseShapes::beginRun(edm::EventSetup const & es)
   theMCParams = new HcalMCParams(*p.product());
 
   edm::ESHandle<HcalTopology> htopo;
-  es.get<IdealGeometryRecord>().get(htopo);
+  es.get<HcalRecNumberingRecord>().get(htopo);
   theTopology=new HcalTopology(*htopo);
   theMCParams->setTopo(theTopology);
 
@@ -123,10 +121,6 @@ void HcalPulseShapes::beginRun(edm::EventSetup const & es)
   es.get<HcalRecoParamsRcd>().get(q);
   theRecoParams = new HcalRecoParams(*q.product());
   theRecoParams->setTopo(theTopology);
-
-//      std::cout<<" skdump in HcalPulseShapes::beginRun   dupm MCParams "<<std::endl;
-//      std::ofstream skfile("skdumpMCParamsNewFormat.txt");
-//      HcalDbASCIIIO::dumpObject(skfile, (*theMCParams) );
 }
 
 
@@ -137,9 +131,9 @@ void HcalPulseShapes::endRun()
   if (theTopology) delete theTopology;
 
 
-  theMCParams = 0;
-  theRecoParams = 0;
-  theTopology = 0;
+  theMCParams = nullptr;
+  theRecoParams = nullptr;
+  theTopology = nullptr;
 }
 
 
@@ -147,14 +141,6 @@ void HcalPulseShapes::endRun()
 void HcalPulseShapes::computeHPDShape(float ts1, float ts2, float ts3, float thpd, float tpre,
                                 float wd1, float wd2, float wd3, Shape &tmphpdShape_)
 {
-
-  /*
-  std::cout << "o HcalPulseShapes::computeHPDShape  " 
-            << " ts1, ts2, ts3, thpd, tpre, w1, w2, w3 =" 
-	    <<  ts1 << ", " << ts2 << ", " << ts3 << ", " 
-	    << thpd << ", " << tpre << ", " << wd1 << ", " <<  wd2 
-            << ", "  << wd3 << std::endl;
-  */
 
 // pulse shape time constants in ns
 /*
@@ -168,7 +154,7 @@ void HcalPulseShapes::computeHPDShape(float ts1, float ts2, float ts3, float thp
   const float wd2 = 0.7;
   const float wd3 = 1.;
 */  
-  // pulse shape componnts over a range of time 0 ns to 255 ns in 1 ns steps
+  // pulse shape components over a range of time 0 ns to 255 ns in 1 ns steps
   unsigned int nbin = 256;
   tmphpdShape_.setNBin(nbin);
   std::vector<float> ntmp(nbin,0.0);  // zeroing output pulse shape
@@ -243,10 +229,8 @@ void HcalPulseShapes::computeHPDShape(float ts1, float ts2, float ts3, float thp
     norm += ntmp[i];
   }
 
-  //cout << " Convoluted SHAPE ==============  " << endl;
   for(i=0; i<nbin; i++){
     ntmp[i] /= norm;
-    //  cout << " shape " << i << " = " << ntmp[i] << endl;   
   }
 
   for(i=0; i<nbin; i++){
@@ -284,12 +268,287 @@ void HcalPulseShapes::computeHFShape() {
 }
 
 
+void HcalPulseShapes::computeSiPMShapeData2017()
+{
+  //From Jay Lawhorn: derived from data Edward Laird phase scan may2017
+  //https://indico.cern.ch/event/641978/contributions/2604491/attachments/1468666/2271582/17-05-31-hcal-hep17-pulse-shape.pdf
+  //Run numbers are 294736-294740 and 294929-294950
+
+  unsigned int nbin = 250;
+
+  std::vector<float> nt = {
+    3.97958e-29,
+    1.11634e-22,
+    9.96106e-18,
+    6.25334e-14,
+    5.08863e-11,
+    8.59141e-09,
+    4.32285e-07,
+    8.56617e-06,
+    8.28549e-05,
+    0.000461447,
+    0.00168052,
+    0.00441395,
+    0.00901637,
+    0.0151806,
+    0.0220314,
+    0.028528,
+    0.0338471,
+    0.0375578,
+    0.0395985,
+    0.0401567,
+    0.0395398,
+    0.0380776,
+    0.0360669,
+    0.0337474,
+    0.0312984,
+    0.0288457,
+    0.0264721,
+    0.0242276,
+    0.0221393,
+    0.0202181,
+    0.0184647,
+    0.0168731,
+    0.0154335,
+    0.0141346,
+    0.0129639,
+    0.0119094,
+    0.0109594,
+    0.0101031,
+    0.0093305,
+    0.00863267,
+    0.0080015,
+    0.00742977,
+    0.00691107,
+    0.00643969,
+    0.00601059,
+    0.00561931,
+    0.00526188,
+    0.00493483,
+    0.00463505,
+    0.00435981,
+    0.00410667,
+    0.00387348,
+    0.00365832,
+    0.00345949,
+    0.00327547,
+    0.0031049,
+    0.00294656,
+    0.00279938,
+    0.00266237,
+    0.00253467,
+    0.00241548,
+    0.0023041,
+    0.00219989,
+    0.00210227,
+    0.00201072,
+    0.00192476,
+    0.00184397,
+    0.00176795,
+    0.00169634,
+    0.00162884,
+    0.00156512,
+    0.00150494,
+    0.00144803,
+    0.00139418,
+    0.00134317,
+    0.00129481,
+    0.00124894,
+    0.00120537,
+    0.00116398,
+    0.00112461,
+    0.00108715,
+    0.00105147,
+    0.00101747,
+    0.000985042,
+    0.000954096,
+    0.000924545,
+    0.000896308,
+    0.000869311,
+    0.000843482,
+    0.000818758,
+    0.000795077,
+    0.000772383,
+    0.000750623,
+    0.000729747,
+    0.00070971,
+    0.000690466,
+    0.000671977,
+    0.000654204,
+    0.00063711,
+    0.000620663,
+    0.000604831,
+    0.000589584,
+    0.000574894,
+    0.000560735,
+    0.000547081,
+    0.00053391,
+    0.0005212,
+    0.000508929,
+    0.000497078,
+    0.000485628,
+    0.000474561,
+    0.000463862,
+    0.000453514,
+    0.000443501,
+    0.000433811,
+    0.000424429,
+    0.000415343,
+    0.00040654,
+    0.00039801,
+    0.000389741,
+    0.000381722,
+    0.000373944,
+    0.000366398,
+    0.000359074,
+    0.000351964,
+    0.00034506,
+    0.000338353,
+    0.000331838,
+    0.000325505,
+    0.00031935,
+    0.000313365,
+    0.000307544,
+    0.000301881,
+    0.000296371,
+    0.000291009,
+    0.000285788,
+    0.000280705,
+    0.000275755,
+    0.000270932,
+    0.000266233,
+    0.000261653,
+    0.00025719,
+    0.000252837,
+    0.000248593,
+    0.000244454,
+    0.000240416,
+    0.000236475,
+    0.00023263,
+    0.000228876,
+    0.000225212,
+    0.000221633,
+    0.000218138,
+    0.000214724,
+    0.000211389,
+    0.00020813,
+    0.000204945,
+    0.000201831,
+    0.000198787,
+    0.000195811,
+    0.0001929,
+    0.000190053,
+    0.000187268,
+    0.000184543,
+    0.000181876,
+    0.000179266,
+    0.000176711,
+    0.00017421,
+    0.000171761,
+    0.000169363,
+    0.000167014,
+    0.000164713,
+    0.000162459,
+    0.00016025,
+    0.000158086,
+    0.000155964,
+    0.000153885,
+    0.000151847,
+    0.000149848,
+    0.000147888,
+    0.000145966,
+    0.000144081,
+    0.000142232,
+    0.000140418,
+    0.000138638,
+    0.000136891,
+    0.000135177,
+    0.000133494,
+    0.000131843,
+    0.000130221,
+    0.00012863,
+    0.000127066,
+    0.000125531,
+    0.000124023,
+    0.000122543,
+    0.000121088,
+    0.000119658,
+    0.000118254,
+    0.000116874,
+    0.000115518,
+    0.000114185,
+    0.000112875,
+    0.000111587,
+    0.000110321,
+    0.000109076,
+    0.000107851,
+    0.000106648,
+    0.000105464,
+    0.000104299,
+    0.000103154,
+    0.000102027,
+    0.000100918,
+    9.98271e-05,
+    9.87537e-05,
+    9.76974e-05,
+    9.66578e-05,
+    9.56346e-05,
+    9.46274e-05,
+    9.3636e-05,
+    9.26599e-05,
+    9.16989e-05,
+    9.07526e-05,
+    8.98208e-05,
+    8.89032e-05,
+    8.79995e-05,
+    8.71093e-05,
+    8.62325e-05,
+    8.53688e-05,
+    8.45179e-05,
+    8.36796e-05,
+    8.28536e-05,
+    8.20397e-05,
+    8.12376e-05,
+    8.04471e-05,
+    7.96681e-05,
+    7.89002e-05,
+    7.81433e-05,
+    7.73972e-05,
+    7.66616e-05,
+    7.59364e-05,
+    7.52213e-05,
+    7.45163e-05,
+    7.3821e-05,
+    7.31354e-05,
+    7.24592e-05,
+    7.17923e-05,
+    7.11345e-05,
+    7.04856e-05,
+    6.98455e-05,
+    6.9214e-05,
+    6.8591e-05
+  };
+
+
+  siPMShapeData2017_.setNBin(nbin);
+
+  double norm = 0.;
+  for (unsigned int j = 0; j < nbin; ++j) {
+    norm += (nt[j]>0) ? nt[j] : 0.;
+  }
+
+  for (unsigned int j = 0; j < nbin; ++j) {
+    nt[j] /= norm;
+    siPMShapeData2017_.setShapeBin(j,nt[j]);
+  }
+}
+
 void HcalPulseShapes::computeSiPMShape()
 {
 
   unsigned int nbin = 128; 
 
-//From Jake Anderson: numberical convolution of SiPMs  WLC shapes
+//From Jake Anderson: toy MC convolution of SiPM pulse + WLS fiber shape + SiPM nonlinear response
   std::vector<float> nt = {
     2.782980485851731e-6,
     4.518134885954626e-5,
@@ -434,19 +693,28 @@ void HcalPulseShapes::computeSiPMShape()
   }
 }
 
-// double HcalPulseShapes::gexp(double t, double A, double c, double t0, double s) {
-//   static double const root2(sqrt(2));
-//   return -A*0.5*exp(c*t+0.5*c*c*s*s-c*s)*(erf(-0.5*root2/s*(t-t0+c*s*s))-1);
-// }
+void HcalPulseShapes::computeSiPMShape2017()
+{
+  //numerical convolution of SiPM pulse + WLS fiber shape
+  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11TimePDF);
 
+  siPMShape2017_.setNBin(nBinsSiPM_);
+
+  //skip first bin, always 0
+  double norm = 0.;
+  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
+    norm += (nt[j]>0) ? nt[j] : 0.;
+  }
+
+  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
+    nt[j] /= norm;
+    siPMShape2017_.setShapeBin(j,nt[j]);
+  }
+}
 
 const HcalPulseShapes::Shape &
 HcalPulseShapes::getShape(int shapeType) const
 {
-
-  //  std::cout << "- HcalPulseShapes::Shape for type "<< shapeType 
-  //            << std::endl;
-
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
    throw cms::Exception("HcalPulseShapes") << "unknown shapeType";
@@ -465,19 +733,6 @@ HcalPulseShapes::shape(const HcalDetId & detId) const
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
 
-  /*
-	  int sub     = detId.subdet();
-	  int depth   = detId.depth();
-	  int inteta  = detId.ieta();
-	  int intphi  = detId.iphi();
-	  
-	  std::cout << " HcalPulseShapes::shape cell:" 
-		    << " sub, ieta, iphi, depth = " 
-		    << sub << "  " << inteta << "  " << intphi 
-		    << "  " << depth  << " => ShapeId "<<  shapeType 
-		    << std::endl;
-  */
-
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
     return defaultShape(detId);
@@ -493,19 +748,6 @@ HcalPulseShapes::shapeForReco(const HcalDetId & detId) const
     return defaultShape(detId);
   }
   int shapeType = theRecoParams->getValues(detId.rawId())->pulseShapeID();
-
-  /*
-	  int sub     = detId.subdet();
-	  int depth   = detId.depth();
-	  int inteta  = detId.ieta();
-	  int intphi  = detId.iphi();
-	  
-	  std::cout << ">> HcalPulseShapes::shapeForReco cell:" 
-		    << " sub, ieta, iphi, depth = " 
-		    << sub << "  " << inteta << "  " << intphi 
-		    << "  " << depth  << " => ShapeId "<<  shapeType 
-		    << std::endl;
-  */
 
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
@@ -537,3 +779,42 @@ HcalPulseShapes::defaultShape(const HcalDetId & detId) const
   }
 }
 
+//SiPM helpers
+
+inline double gexp(double t, double A, double c, double t0, double s) {
+  static double const root2(sqrt(2));
+  return -A*0.5*exp(c*t+0.5*c*c*s*s-c*s)*(erf(-0.5*root2/s*(t-t0+c*s*s))-1);
+}
+
+inline double onePulse(double t, double A, double sigma, double theta, double m) {
+  return (t<theta) ? 0 : A*TMath::LogNormal(t,sigma,theta,m);
+}
+
+double HcalPulseShapes::analyticPulseShapeSiPMHO(double t) {
+  // HO SiPM pulse shape fit from Jake Anderson ca. 2013
+  double A1(0.08757), c1(-0.5257), t01(2.4013), s1(0.6721);
+  double A2(0.007598), c2(-0.1501), t02(6.9412), s2(0.8710);
+  return gexp(t,A1,c1,t01,s1) + gexp(t,A2,c2,t02,s2);
+}
+
+double HcalPulseShapes::analyticPulseShapeSiPMHE(double t) {
+  // taken from fit to laser measurement taken by Iouri M. in Spring 2016.
+  double A1(5.204/6.94419), sigma1_shape(0.5387), theta1_loc(-0.3976), m1_scale(4.428);
+  double A2(1.855/6.94419), sigma2_shape(0.8132), theta2_loc(7.025),   m2_scale(12.29);
+  return
+    onePulse(t,A1,sigma1_shape,theta1_loc,m1_scale) +
+    onePulse(t,A2,sigma2_shape,theta2_loc,m2_scale);
+}
+
+double HcalPulseShapes::generatePhotonTime(CLHEP::HepRandomEngine* engine) {
+  double result(0.);
+  while (true) {
+    result = CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11RANGE_);
+    if (CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11MAX_) < HcalPulseShapes::Y11TimePDF(result))
+      return result;
+  }
+}
+
+double HcalPulseShapes::Y11TimePDF(double t) {
+  return exp(-0.0635-0.1518*t)*pow(t, 2.528)/2485.9;
+}

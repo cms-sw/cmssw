@@ -8,7 +8,7 @@
 #ifndef JetTracksAssociatorAtVertex_h
 #define JetTracksAssociatorAtVertex_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,12 +16,12 @@
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertex.h"
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertexAssigned.h"
 
-class JetTracksAssociatorAtVertex : public edm::EDProducer {
+class JetTracksAssociatorAtVertex : public edm::stream::EDProducer<> {
    public:
       JetTracksAssociatorAtVertex(const edm::ParameterSet&);
-      virtual ~JetTracksAssociatorAtVertex();
+      ~JetTracksAssociatorAtVertex() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
      edm::EDGetTokenT<edm::View <reco::Jet>> mJets;

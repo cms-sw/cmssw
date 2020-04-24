@@ -18,17 +18,18 @@ class FWBeamSpotOnlineProxyBuilder : public FWSimpleProxyBuilderTemplate<BeamSpo
 {
 public:
   FWBeamSpotOnlineProxyBuilder( void ) {}
-  virtual ~FWBeamSpotOnlineProxyBuilder( void ) {}
+  ~FWBeamSpotOnlineProxyBuilder( void ) override {}
    
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   // Disable default copy constructor
-  FWBeamSpotOnlineProxyBuilder( const FWBeamSpotOnlineProxyBuilder& );
+  FWBeamSpotOnlineProxyBuilder( const FWBeamSpotOnlineProxyBuilder& ) = delete;
   // Disable default assignment operator
-  const FWBeamSpotOnlineProxyBuilder& operator=( const FWBeamSpotOnlineProxyBuilder& );
+  const FWBeamSpotOnlineProxyBuilder& operator=( const FWBeamSpotOnlineProxyBuilder& ) = delete;
 
-  virtual void build( const BeamSpotOnline& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+  using FWSimpleProxyBuilderTemplate<BeamSpotOnline>::build;
+  void build( const BeamSpotOnline& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

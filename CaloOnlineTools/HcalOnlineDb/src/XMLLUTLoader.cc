@@ -16,6 +16,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include <cstdio>
+XERCES_CPP_NAMESPACE_USE 
 
 //
 // constants, enums and typedefs

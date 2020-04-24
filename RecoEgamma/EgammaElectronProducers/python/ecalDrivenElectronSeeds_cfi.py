@@ -9,6 +9,8 @@ from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff im
 ecalDrivenElectronSeeds = cms.EDProducer("ElectronSeedProducer",
     barrelSuperClusters = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
     endcapSuperClusters = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
+    #ebRecHitCollection  = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    #eeRecHitCollection  = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
     SeedConfiguration = cms.PSet(
         ecalDrivenElectronSeedsParameters,
 #        OrderedHitsFactoryPSet = cms.PSet(
@@ -29,4 +31,15 @@ ecalDrivenElectronSeeds = cms.EDProducer("ElectronSeedProducer",
     )
 )
 
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(
+    ecalDrivenElectronSeeds,
+    endcapSuperClusters = 'particleFlowSuperClusterHGCal',
+    SeedConfiguration = dict( allowHGCal = True )
+)
+
+
+# create ecal driven seeds for electron using HGCal Multiclusters
+ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone(
+  endcapSuperClusters = 'particleFlowSuperClusterHGCalFromMultiCl')
 

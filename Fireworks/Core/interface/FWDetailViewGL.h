@@ -14,12 +14,12 @@ class TEveWindowSlot;
 template <typename T> class FWDetailViewGL : public FWDetailView<T> {
 public:
    FWDetailViewGL ();
-   virtual ~FWDetailViewGL();
+   ~FWDetailViewGL() override;
   
-  virtual void init(TEveWindowSlot*);
+  void init(TEveWindowSlot*) override;
   TGLViewer* viewerGL() const { return m_eveViewer->GetGLViewer();}
 
-   virtual void setBackgroundColor(Color_t);
+   void setBackgroundColor(Color_t) override;
   
 protected:
   TCanvas          *m_infoCanvas;

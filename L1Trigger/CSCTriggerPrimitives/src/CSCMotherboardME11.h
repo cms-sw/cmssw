@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboardME11_h
-#define CSCTriggerPrimitives_CSCMotherboardME11_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11_h
+#define L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11_h
 
 /** \class CSCMotherboardME11
  *
@@ -13,14 +13,14 @@
  *
  */
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
 class CSCMotherboardME11 : public CSCMotherboard
 {
  public:
   /** Normal constructor. */
-  CSCMotherboardME11(unsigned endcap, unsigned station, unsigned sector, 
+  CSCMotherboardME11(unsigned endcap, unsigned station, unsigned sector,
 		 unsigned subsector, unsigned chamber,
 		 const edm::ParameterSet& conf);
 
@@ -28,7 +28,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   CSCMotherboardME11();
 
   /** Default destructor. */
-  ~CSCMotherboardME11();
+  ~CSCMotherboardME11() override;
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
@@ -54,7 +54,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
   /** additional Cathode LCT processor for ME1a */
-  CSCCathodeLCTProcessor* clct1a;
+  std::unique_ptr<CSCCathodeLCTProcessor> clct1a;
 
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b();
@@ -68,7 +68,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   static const int lut_wg_vs_hs_me1b[48][2];
   static const int lut_wg_vs_hs_me1a[48][2];
   static const int lut_wg_vs_hs_me1ag[48][2];
- 
+
   /** SLHC: special configuration parameters for ME11 treatment. */
   bool smartME1aME1b, disableME1a, gangedME1a;
 
@@ -84,10 +84,6 @@ class CSCMotherboardME11 : public CSCMotherboard
       maximum match window = 15 */
   CSCCorrelatedLCTDigi allLCTs1b[MAX_LCT_BINS][15][2];
   CSCCorrelatedLCTDigi allLCTs1a[MAX_LCT_BINS][15][2];
-
-  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
-		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,

@@ -5,7 +5,7 @@
 // 
 /**\class CSCTimingExtractor CSCTimingExtractor.cc RecoMuon/MuonIdentification/src/CSCTimingExtractor.cc
  *
- * Description: <one line class summary>
+ * Description: Produce timing information for a muon track using CSC hits from segments used to build the track
  *
  */
 //
@@ -66,9 +66,8 @@ class MuonServiceProxy;
 //
 // constructors and destructor
 //
-CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC)
+CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig, MuonSegmentMatcher *segMatcher)
   :
-  CSCSegmentTags_(iConfig.getParameter<edm::InputTag>("CSCsegments")),
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
   theStripTimeOffset_(iConfig.getParameter<double>("CSCStripTimeOffset")),
   theWireTimeOffset_(iConfig.getParameter<double>("CSCWireTimeOffset")),
@@ -79,18 +78,13 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig,edm::Con
   debug(iConfig.getParameter<bool>("debug"))
 {
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
-  
-  edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
-
-  theMatcher = new MuonSegmentMatcher(matchParameters, theService,iC);
+  theService = std::make_unique<MuonServiceProxy>(serviceParameters);
+  theMatcher = segMatcher;
 }
 
 
 CSCTimingExtractor::~CSCTimingExtractor()
 {
-  if (theService) delete theService;
-  if (theMatcher) delete theMatcher;
 }
 
 
@@ -98,59 +92,47 @@ CSCTimingExtractor::~CSCTimingExtractor()
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
-void
-CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence,
+				    const std::vector<const CSCSegment*> &segments,
+				    reco::TrackRef muonTrack,
+				    const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  if (debug) 
-    std::cout << " *** CSC Timimng Extractor ***" << std::endl;
-
   theService->update(iSetup);
 
   const GlobalTrackingGeometry *theTrackingGeometry = &*theService->trackingGeometry();
-  
+
+  // get the propagator  
   edm::ESHandle<Propagator> propagator;
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
   const Propagator *propag = propagator.product();
 
-  double invbeta=0;
-  double invbetaerr=0;
-  double totalWeightInvbeta=0;
-  double totalWeightVertex=0;
-  std::vector<TimeMeasurement> tms;
-
   math::XYZPoint  pos=muonTrack->innerPosition();
   math::XYZVector mom=muonTrack->innerMomentum();
-
   if (sqrt(muonTrack->innerPosition().mag2()) > sqrt(muonTrack->outerPosition().mag2())){
      pos=muonTrack->outerPosition();
      mom=-1*muonTrack->outerMomentum();
   }
-
   GlobalPoint  posp(pos.x(), pos.y(), pos.z());
   GlobalVector momv(mom.x(), mom.y(), mom.z());
   FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());
 
-  // get the CSC segments that were used to construct the muon
-  std::vector<const CSCSegment*> range = theMatcher->matchCSC(*muonTrack,iEvent);
-
   // create a collection on TimeMeasurements for the track        
-  for (std::vector<const CSCSegment*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
+  std::vector<TimeMeasurement> tms;
+  for (const auto& rechit : segments) {
 
     // Create the ChamberId
-    DetId id = (*rechit)->geographicalId();
+    DetId id = rechit->geographicalId();
     CSCDetId chamberId(id.rawId());
     //    int station = chamberId.station();
 
-    if (!(*rechit)->specificRecHits().size()) continue;
+    if (rechit->specificRecHits().empty()) continue;
 
-    const std::vector<CSCRecHit2D> hits2d = (*rechit)->specificRecHits();
+    const std::vector<CSCRecHit2D>& hits2d(rechit->specificRecHits());
 
     // store all the hits from the segment
-    for (std::vector<CSCRecHit2D>::const_iterator hiti=hits2d.begin(); hiti!=hits2d.end(); hiti++) {
+    for (const auto& hiti : hits2d) {
 
-      const GeomDet* cscDet = theTrackingGeometry->idToDet(hiti->geographicalId());
+      const GeomDet* cscDet = theTrackingGeometry->idToDet(hiti.geographicalId());
       TimeMeasurement thisHit;
 
       std::pair< TrajectoryStateOnSurface, double> tsos;
@@ -158,106 +140,131 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
       double dist;            
       if (tsos.first.isValid()) dist = tsos.second+posp.mag(); 
-        else dist = cscDet->toGlobal(hiti->localPosition()).mag();
+        else dist = cscDet->toGlobal(hiti.localPosition()).mag();
 
       thisHit.distIP = dist;
       if (UseStripTime) {
         thisHit.weightInvbeta = dist*dist/(theStripError_*theStripError_*30.*30.);
-        thisHit.weightVertex = 1./(theStripError_*theStripError_);
-        thisHit.timeCorr = hiti->tpeak()-theStripTimeOffset_;
+        thisHit.weightTimeVtx = 1./(theStripError_*theStripError_);
+        thisHit.timeCorr = hiti.tpeak()-theStripTimeOffset_;
         tms.push_back(thisHit);
       }
 
       if (UseWireTime) {
 	thisHit.weightInvbeta = dist*dist/(theWireError_*theWireError_*30.*30.);
-        thisHit.weightVertex = 1./(theWireError_*theWireError_);
-        thisHit.timeCorr = hiti->wireTime()-theWireTimeOffset_;
+        thisHit.weightTimeVtx = 1./(theWireError_*theWireError_);
+        thisHit.timeCorr = hiti.wireTime()-theWireTimeOffset_;
         tms.push_back(thisHit);
       }
-
       
 //      std::cout << " CSC Hit. Dist= " << dist << "    Time= " << thisHit.timeCorr 
 //           << "   invBeta= " << (1.+thisHit.timeCorr/dist*30.) << std::endl;
     }
 
   } // rechit
-      
+
   bool modified = false;
-  std::vector <double> dstnc, dsegm, dtraj, hitWeightInvbeta, hitWeightVertex;
+  std::vector <double> dstnc, local_t0, hitWeightInvbeta, hitWeightTimeVtx;
+  double totalWeightInvbeta=0;
+  double totalWeightTimeVtx=0;
 
   // Now loop over the measurements, calculate 1/beta and cut away outliers
   do {    
 
     modified = false;
     dstnc.clear();
-    dsegm.clear();
-    dtraj.clear();
+    local_t0.clear();
     hitWeightInvbeta.clear();
-    hitWeightVertex.clear();
-      
+    hitWeightTimeVtx.clear();
+
     totalWeightInvbeta=0;
-    totalWeightVertex=0;
+    totalWeightTimeVtx=0;
       
-	for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
-	  dstnc.push_back(tm->distIP);
-	  dsegm.push_back(tm->timeCorr);
-	  hitWeightInvbeta.push_back(tm->weightInvbeta);
-          hitWeightVertex.push_back(tm->weightVertex);
-	  totalWeightInvbeta+=tm->weightInvbeta;
-	  totalWeightVertex+=tm->weightVertex;
-	}
+    for (auto& tm : tms) {
+      dstnc.push_back(tm.distIP);
+      local_t0.push_back(tm.timeCorr);
+      hitWeightInvbeta.push_back(tm.weightInvbeta);
+      hitWeightTimeVtx.push_back(tm.weightTimeVtx);
+      totalWeightInvbeta+=tm.weightInvbeta;
+      totalWeightTimeVtx+=tm.weightTimeVtx;
+    }
           
     if (totalWeightInvbeta==0) break;        
 
-    // calculate the value and error of 1/beta from the complete set of 1D hits
+    // calculate the value and error of 1/beta and timeVtx from the complete set of 1D hits
     if (debug)
       std::cout << " Points for global fit: " << dstnc.size() << std::endl;
 
-    // inverse beta - weighted average of the contributions from individual hits
-    invbeta=0;
-    for (unsigned int i=0;i<dstnc.size();i++) 
-      invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeightInvbeta.at(i)/totalWeightInvbeta;
+    double invbeta=0,invbetaErr=0;
+    double timeVtx=0,timeVtxErr=0;
 
+    for (unsigned int i=0;i<dstnc.size();i++) {
+      invbeta+=(1.+local_t0.at(i)/dstnc.at(i)*30.)*hitWeightInvbeta.at(i)/totalWeightInvbeta;
+      timeVtx+=local_t0.at(i)*hitWeightTimeVtx.at(i)/totalWeightTimeVtx;
+    }
+    
     double chimax=0.;
     std::vector<TimeMeasurement>::iterator tmmax;
     
-    // the dispersion of inverse beta
-    double diff;
+    // Calculate the inv beta and time at vertex dispersion
+    double diff_ibeta,diff_tvtx;
     for (unsigned int i=0;i<dstnc.size();i++) {
-      diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
-      diff=diff*diff*hitWeightInvbeta.at(i);
-      invbetaerr+=diff;
-      if (diff>chimax) { 
+      diff_ibeta=(1.+local_t0.at(i)/dstnc.at(i)*30.)-invbeta;
+      diff_ibeta=diff_ibeta*diff_ibeta*hitWeightInvbeta.at(i);
+      diff_tvtx=local_t0.at(i)-timeVtx;
+      diff_tvtx=diff_tvtx*diff_tvtx*hitWeightTimeVtx.at(i);
+      invbetaErr+=diff_ibeta;
+      timeVtxErr+=diff_tvtx;
+      
+      // decide if we cut away time at vertex outliers or inverse beta outliers
+      // currently not configurable.
+      if (diff_tvtx>chimax) { 
 	tmmax=tms.begin()+i;
-	chimax=diff;
+	chimax=diff_tvtx;
       }
     }
     
-    invbetaerr=sqrt(invbetaerr/totalWeightInvbeta); 
- 
     // cut away the outliers
     if (chimax>thePruneCut_) {
       tms.erase(tmmax);
       modified=true;
     }    
 
-    if (debug)
-      std::cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << std::endl;
+    if (debug) {
+      double cf = 1./(dstnc.size()-1);
+      invbetaErr=sqrt(invbetaErr/totalWeightInvbeta*cf); 
+      timeVtxErr=sqrt(timeVtxErr/totalWeightTimeVtx*cf); 
+      std::cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaErr << std::endl;
+      std::cout << " Measured time: " << timeVtx << " +/- " << timeVtxErr << std::endl;
+    }  
 
   } while (modified);
 
-  // std::cout << " *** FINAL Measured 1/beta: " << invbeta << " +/- " << invbetaerr << std::endl;
-
   for (unsigned int i=0;i<dstnc.size();i++) {
     tmSequence.dstnc.push_back(dstnc.at(i));
-    tmSequence.local_t0.push_back(dsegm.at(i));
+    tmSequence.local_t0.push_back(local_t0.at(i));
     tmSequence.weightInvbeta.push_back(hitWeightInvbeta.at(i));
-    tmSequence.weightVertex.push_back(hitWeightVertex.at(i));
+    tmSequence.weightTimeVtx.push_back(hitWeightTimeVtx.at(i));
   }
 
   tmSequence.totalWeightInvbeta=totalWeightInvbeta;
-  tmSequence.totalWeightVertex=totalWeightVertex;
+  tmSequence.totalWeightTimeVtx=totalWeightTimeVtx;
+}
 
+
+// ------------ method called to produce the data  ------------
+void
+CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, 
+                               const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+
+  if (debug) 
+    std::cout << " *** CSC Timimng Extractor ***" << std::endl;
+
+  // get the CSC segments that were used to construct the muon
+  std::vector<const CSCSegment*> range = theMatcher->matchCSC(*muonTrack,iEvent);
+  
+  fillTiming(tmSequence, range, muonTrack, iEvent, iSetup);
 }
 
 //define this as a plug-in

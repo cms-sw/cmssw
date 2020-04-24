@@ -8,10 +8,10 @@ PFToolsException::PFToolsException(const std::string& aErrorDescription)
 	myDescription = aErrorDescription;
 }
 
-PFToolsException::~PFToolsException() throw() 
+PFToolsException::~PFToolsException() noexcept
 {
 }
 
-const char* PFToolsException::what() const throw(){
+const char* PFToolsException::what() const noexcept {
 	return myDescription.c_str();
 }

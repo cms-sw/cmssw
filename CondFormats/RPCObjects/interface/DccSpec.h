@@ -5,12 +5,14 @@
  * RPC DCC (==FED) specification for redout decoding
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 #include <boost/cstdint.hpp>
 #include  "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
 
-class ChamberLocationSpec;
+struct ChamberLocationSpec;
 
 class DccSpec {
 public:
@@ -36,6 +38,8 @@ private:
 
 //  static const int MIN_CHANNEL_NUMBER = 1;
 //  static const int NUMBER_OF_CHANNELS = 68;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

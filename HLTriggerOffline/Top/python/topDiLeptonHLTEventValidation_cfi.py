@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # ttbar dimuon
 DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLTValidation/Top/DiMuon/'),
+        sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/DiMuon/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(20.),
@@ -17,19 +17,21 @@ DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         isoMuons     = cms.untracked.double(0.2),
         minMuons     = cms.untracked.uint32(2),
         # Jets
-        sJets        = cms.untracked.string('ak5PFJets'),
+        sJets        = cms.untracked.string('ak4PFJetsCHS'),
         ptJets       = cms.untracked.double(30.),
         etaJets      = cms.untracked.double(2.5),
         minJets      = cms.untracked.uint32(2),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Mu17_Mu8','HLT_Mu17_TkMu8']),
+        iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
+### Updating to  HLT paths to be monitored by TOP PAG in 2017                                                                                                               
+        vsPaths      = cms.untracked.vstring(['HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v',
+                                              'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v']),
 )
 
 # ttbar dielec
 DiElectronHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLTValidation/Top/DiElectron/'),
+        sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/DiElectron/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(20.),
@@ -43,19 +45,21 @@ DiElectronHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         isoMuons     = cms.untracked.double(0.2),
         minMuons     = cms.untracked.uint32(0),
         # Jets
-        sJets        = cms.untracked.string('ak5PFJets'),
+        sJets        = cms.untracked.string('ak4PFJetsCHS'),
         ptJets       = cms.untracked.double(30.),
         etaJets      = cms.untracked.double(2.5),
         minJets      = cms.untracked.uint32(2),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL']),
+        iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
+### Updating to HLT paths to be monitored by TOP PAG in 2017                                                                                                                 
+        vsPaths      = cms.untracked.vstring(['HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v',
+                                              'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v']),
 )
 
 # ttbar elec-muon
 ElecMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLTValidation/Top/ElecMuon/'),
+        sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/ElecMuon/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(20.),
@@ -69,11 +73,14 @@ ElecMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         isoMuons     = cms.untracked.double(0.2),
         minMuons     = cms.untracked.uint32(1),
         # Jets
-        sJets        = cms.untracked.string('ak5PFJets'),
+        sJets        = cms.untracked.string('ak4PFJetsCHS'),
         ptJets       = cms.untracked.double(30.),
         etaJets      = cms.untracked.double(2.5),
         minJets      = cms.untracked.uint32(2),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL','HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL']),
+        iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
+### Updating to HLT paths to be monitored by TOP PAG in 2017                                                                                                                 
+        vsPaths      = cms.untracked.vstring(['HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v',
+                                              'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v',
+                                              'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v']),
 )

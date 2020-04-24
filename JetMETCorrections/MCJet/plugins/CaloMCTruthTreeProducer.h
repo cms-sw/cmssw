@@ -4,10 +4,13 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 //namespace cms
 //{
-class CaloMCTruthTreeProducer : public edm::EDAnalyzer 
+class CaloMCTruthTreeProducer : public edm::EDAnalyzer
 {
   public:
     explicit CaloMCTruthTreeProducer(edm::ParameterSet const& cfg);
@@ -18,8 +21,9 @@ class CaloMCTruthTreeProducer : public edm::EDAnalyzer
 
   private:
     std::string histogramFile_;
-    std::string jets_;
-    std::string genjets_;
+    edm::EDGetTokenT<reco::CaloJetCollection> jets_;
+    edm::EDGetTokenT<reco::GenJetCollection> genjets_;
+    edm::EDGetTokenT<GenEventInfoProduct> gen_;
     TFile* file_;
     TTree* mcTruthTree_;
     float ptJet_,emfJet_,ptGen_,ptHat_,dR_,etaJet_,etaGen_,phiJet_,phiGen_;

@@ -67,10 +67,10 @@ void ShiftTTrigDB::endJob() {
   // Create the object to be written to DB
   DTTtrig* tTrigNewMap = new DTTtrig();  
   //Get the superlayers list
-  vector<DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
+  vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
 
   //Loop on all superlayers
-  for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
+  for (auto sl = dtSupLylist.begin();
        sl != dtSupLylist.end(); sl++) {
     float ttrigMean = 0;
     float ttrigSigma = 0;
@@ -83,7 +83,7 @@ void ShiftTTrigDB::endJob() {
     bool ttrigShifted = false;
     //Loop on the chambers with ttrig to be shifted
     for(vector<vector<int> >::const_iterator ch =chambers.begin();
-	ch != chambers.end(); ch++){
+	ch != chambers.end(); ++ch){
       //Check the chamber address format
       if((*ch).size()!=3){
 	cout<<"[ShiftTTrigDB]: Wrong configuration: use three integer to indicate each chamber. Aborting."<<endl;

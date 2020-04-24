@@ -7,7 +7,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # Geometry master configuration
 #
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("Configuration.StandardSequences.Services_cff")
 

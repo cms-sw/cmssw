@@ -52,7 +52,7 @@ class CSCHitFromWireOnly
   void makeWireCluster(const CSCWireDigi& digi);
   bool addToCluster(const CSCWireDigi& digi); 
   float findWireHitPosition();
-  
+
   CSCDetId id_;    
   const CSCLayer * layer_;
   const CSCLayerGeometry * layergeom_;
@@ -68,6 +68,9 @@ class CSCHitFromWireOnly
   std::vector<int> wire_in_clusterAndBX; /// To fill BX + wiregroup in CSCWireHit
   
   int deltaT;
+  bool useReducedWireTime;
+  int wireTimeWindow_low;
+  int wireTimeWindow_high;
   //int clusterSize;
 
   /// Hold pointer to current conditions data

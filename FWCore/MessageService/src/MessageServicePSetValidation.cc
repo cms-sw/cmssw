@@ -66,6 +66,8 @@ messageLoggerPSet (ParameterSet const & pset)
   std::string thresh = check<std::string> 
      	( pset, "MessageLogger", "threshold" );
   if (!thresh.empty()) validateThreshold(thresh, "MessageLogger");
+  check<unsigned int>
+  ( pset, "MessageLogger", "waiting_threshold");
   
   // Nested PSets
 
@@ -82,7 +84,7 @@ messageLoggerPSet (ParameterSet const & pset)
   // Nothing else -- look for int, unsigned int, bool, float, double, string
 
   noneExcept <int> (pset, "MessageLogger", "int");
-  noneExcept <unsigned int> (pset, "MessageLogger", "unsigned int");
+  noneExcept <unsigned int> (pset, "MessageLogger", "unsigned int","waiting_threshold");
   noneExcept <bool> (pset, "MessageLogger","bool","messageSummaryToJobReport");
   	// Note - at this, the upper MessageLogger PSet level, the use of 
 	// optionalPSet makes no sense, so we are OK letting that be a flaw
@@ -172,7 +174,7 @@ suppressionLists ( ParameterSet const & pset )
   } 
   suppressDebug = check<vString>
   	(pset, "MessageLogger", "suppressDebug");
-  if ( (suppressDebug.size() > 0)  && (!dmStar) ) {
+  if ( (!suppressDebug.empty())  && (!dmStar) ) {
     flaws << "MessageLogger" << " PSet: \n"
 	  << "suppressDebug contains modules, but debugModules is not *\n"
 	  << "Unless all the debugModules are enabled,\n"

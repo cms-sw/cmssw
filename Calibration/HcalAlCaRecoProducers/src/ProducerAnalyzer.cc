@@ -3,11 +3,12 @@
 // user include files
 
 #include "Calibration/HcalAlCaRecoProducers/src/ProducerAnalyzer.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -90,13 +91,12 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    geo = pG.product();
    
 
-  std::vector<Provenance const*> theProvenance;
-  iEvent.getAllProvenance(theProvenance);
-  for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
-                                                      ip != theProvenance.end(); ip++)
+  std::vector<StableProvenance const*> theProvenance;
+  iEvent.getAllStableProvenance(theProvenance);
+  for(auto const& provenance : theProvenance)
   {
-     cout<<" Print all module/label names "<<moduleName(**ip)<<" "<<(**ip).moduleLabel()<<
-     " "<<(**ip).productInstanceName()<<endl;
+     cout<<" Print all module/label names "<<provenance->moduleName()<<" "<<provenance->moduleLabel()<<
+     " "<<provenance->productInstanceName()<<endl;
   }
   
   
@@ -169,25 +169,24 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    std::cout<<" Size of Ecal "<<(Hitecal).size()<<std::endl;
    EcalRecHitCollection::const_iterator hite = (ecal.product())->begin ();
 
-         double energyECAL = 0.;
-         double energyHCAL = 0.;
+   double energyECAL = 0.;
+   double energyHCAL = 0.;
 
-          for (; hite != (ecal.product())->end (); hite++)
-         {
+   for (; hite != (ecal.product())->end (); hite++) {
 
 //           cout<<" Energy ECAL "<<(*hite).energy()<<endl;
-
+     
 
 //	   " eta "<<(*hite).detid()<<" phi "<<(*hite).detid().getPosition().phi()<<endl;
 
-	 GlobalPoint posE = geo->getPosition((*hite).detid());
+     const GlobalPoint& posE = geo->getPosition((*hite).detid());
+       
+     cout<<" Energy ECAL "<<(*hite).energy()<<
+       " eta "<<posE.eta()<<" phi "<<posE.phi()<<endl;
 
-           cout<<" Energy ECAL "<<(*hite).energy()<<
-	   " eta "<<posE.eta()<<" phi "<<posE.phi()<<endl;
-
-         energyECAL = energyECAL + (*hite).energy();
-	 
-         }
+     energyECAL = energyECAL + (*hite).energy();
+       
+   }
 
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByToken(tok_hbheProd_,hbhe);
@@ -195,17 +194,16 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
    HBHERecHitCollection::const_iterator hith = (hbhe.product())->begin ();
 
-          for (; hith != (hbhe.product())->end (); hith++)
-         {
+   for (; hith != (hbhe.product())->end (); hith++)  {
 
-	 GlobalPoint posH = geo->getPosition((*hith).detid());
+     GlobalPoint posH = ((HcalGeometry*)(geo->getSubdetectorGeometry((*hith).detid())))->getPosition((*hith).detid());
+     
+     cout<<" Energy HCAL "<<(*hith).energy()<<
+       " eta "<<posH.eta()<<" phi "<<posH.phi()<<endl;
 
-           cout<<" Energy HCAL "<<(*hith).energy()<<
-	   " eta "<<posH.eta()<<" phi "<<posH.phi()<<endl;
-
-         energyHCAL = energyHCAL + (*hith).energy();
+     energyHCAL = energyHCAL + (*hith).energy();
 	 
-         }
+   }
    
    cout<<" Energy ECAL "<< energyECAL<<" Energy HCAL "<< energyHCAL<<endl;
    

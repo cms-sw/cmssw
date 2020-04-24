@@ -35,7 +35,7 @@ FEConfigLinInfo::~FEConfigLinInfo()
 
 
 
-int FEConfigLinInfo::fetchNextId()  throw(std::runtime_error) {
+int FEConfigLinInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -58,7 +58,7 @@ int FEConfigLinInfo::fetchNextId()  throw(std::runtime_error) {
 }
 
 void FEConfigLinInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -98,7 +98,7 @@ void FEConfigLinInfo::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void FEConfigLinInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -126,7 +126,7 @@ void FEConfigLinInfo::writeDB()
 
 
 void FEConfigLinInfo::fetchData(FEConfigLinInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -161,7 +161,7 @@ void FEConfigLinInfo::fetchData(FEConfigLinInfo * result)
 }
 
 void FEConfigLinInfo::fetchLastData(FEConfigLinInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -186,7 +186,7 @@ void FEConfigLinInfo::fetchLastData(FEConfigLinInfo * result)
   }
 }
 
-int FEConfigLinInfo::fetchID()    throw(std::runtime_error)
+int FEConfigLinInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -221,7 +221,7 @@ int FEConfigLinInfo::fetchID()    throw(std::runtime_error)
 
 
 void FEConfigLinInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 

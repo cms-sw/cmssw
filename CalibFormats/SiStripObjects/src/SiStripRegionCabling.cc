@@ -1,9 +1,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 
 using namespace sistrip;
 
@@ -41,36 +38,12 @@ SiStripRegionCabling::PositionIndex SiStripRegionCabling::increment(const Positi
 }
 
 const SiStripRegionCabling::SubDet SiStripRegionCabling::subdetFromDetId(const uint32_t detid) {
-
-  SiStripDetId::SubDetector subdet = SiStripDetId(detid).subDetector();
-  if (subdet == 3) return TIB;
-  else if (subdet == 4) return TID;
-  else if (subdet == 5) return TOB;
-  else if (subdet == 6) return TEC;
+  DetId detectorId=DetId(detid);
+  if (detectorId.subdetId() == StripSubdetector::TIB) return TIB;
+  else if (detectorId.subdetId() == StripSubdetector::TID) return TID;
+  else if (detectorId.subdetId() == StripSubdetector::TOB) return TOB;
+  else if (detectorId.subdetId() == StripSubdetector::TEC) return TEC;
   else return ALLSUBDETS;
-}
-
-const uint32_t SiStripRegionCabling::layerFromDetId(const uint32_t detid) {
- 
-  SiStripRegionCabling::SubDet subdet = subdetFromDetId(detid);
-  if (subdet == TIB) return TIBDetId(detid).layer();
-  else if (subdet == TID) return TIDDetId(detid).wheel();
-  else if (subdet == TOB) return TOBDetId(detid).layer(); 
-  else if (subdet == TEC) return TECDetId(detid).wheel();
-  else return ALLLAYERS;
-}
-
-const uint32_t SiStripRegionCabling::physicalLayerFromDetId(const uint32_t detid) {
-  return physicalLayer(subdetFromDetId(detid),layerFromDetId(detid));
-}
-
-const uint32_t SiStripRegionCabling::physicalLayer(const SubDet subdet, const uint32_t layer) {
-
-  if (subdet == TIB) return layer;
-  else if (subdet == TOB) return TIBLAYERS + layer;
-  else if (subdet == TID) return layer;
-  else if (subdet == TEC) return TIDLAYERS + layer;
-  else return ALLLAYERS;
 }
 
 // -----------------------------------------------------------------------------

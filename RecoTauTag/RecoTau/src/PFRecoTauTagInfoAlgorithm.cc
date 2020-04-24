@@ -26,7 +26,7 @@ PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const edm::ParameterSet& pa
   tkPVmaxDZ_                          = parameters.getParameter<double>("tkPVmaxDZ");
 }
 
-PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJet,const std::vector<reco::PFCandidatePtr>& thePFCandsInEvent, const TrackRefVector& theTracks,const Vertex& thePV){
+PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJet,const std::vector<reco::PFCandidatePtr>& thePFCandsInEvent, const TrackRefVector& theTracks,const Vertex& thePV) const {
   PFTauTagInfo resultExtended;
   resultExtended.setpfjetRef(thePFJet);
 

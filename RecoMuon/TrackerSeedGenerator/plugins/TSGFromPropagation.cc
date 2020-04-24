@@ -28,11 +28,14 @@
 
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC): TSGFromPropagation(iConfig, iC, nullptr) {}
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC, const MuonServiceProxy* service) : theTkLayerMeasurements (), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC, const MuonServiceProxy* service) : theTkLayerMeasurements (), theTracker(nullptr), theMeasTracker(nullptr), theNavigation(nullptr), theService(service),theUpdator(nullptr), theEstimator(nullptr), theTSTransformer(nullptr), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
   theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
   theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
+  theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
+  theBeamSpotToken = iC.consumes<reco::BeamSpot>(theBeamSpotInputTag);
+  theMeasurementTrackerEventToken = iC.consumes<MeasurementTrackerEvent>(theMeasurementTrackerEventTag); 
 }
 
 TSGFromPropagation::~TSGFromPropagation()
@@ -76,7 +79,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
      for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
          inl != nls.end(); inl++, ndesLayer++ ) {
-         if ( (*inl == 0) ) break;
+         if ( (*inl == nullptr) ) break;
 //         if ( (inl != nls.end()-1 ) && ( (*inl)->subDetector() == GeomDetEnumerators::TEC ) && ( (*(inl+1))->subDetector() == GeomDetEnumerators::TOB ) ) continue; 
          alltm = findMeasurements_new(*inl, staState);
          if ( (!alltm.empty()) ) {
@@ -114,7 +117,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
      for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
          inl != nls.end(); inl++ ) {
 
-         if ( !result.empty() || *inl == 0 ) {
+         if ( !result.empty() || *inl == nullptr ) {
             break;
          }
          std::vector<DetLayer::DetWithState> compatDets = (*inl)->compatibleDets(staState, *propagator(), *estimator());
@@ -168,7 +171,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
-  theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
+  //theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
 
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if ( theResetMethod == "matrix" && !errorMatrixPset.empty()){
@@ -176,7 +179,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
     theErrorMatrixAdjuster = new MuonErrorMatrix(errorMatrixPset);
   } else {
     theAdjustAtIp =false;
-    theErrorMatrixAdjuster=0;
+    theErrorMatrixAdjuster=nullptr;
   }
 
   theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker); 
@@ -185,8 +188,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 }
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
-  //edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel(theBeamSpotInputTag, beamSpot);
+  iEvent.getByToken(theBeamSpotToken, beamSpot);
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 
@@ -197,7 +199,7 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if ( theUpdateStateFlag ) {
-     iEvent.getByLabel(theMeasurementTrackerEventTag, theMeasTrackerEvent);
+    iEvent.getByToken(theMeasurementTrackerEventToken, theMeasTrackerEvent);
      theTkLayerMeasurements = LayerMeasurements(*theMeasTracker,*theMeasTrackerEvent);
   }
 
@@ -384,10 +386,10 @@ void TSGFromPropagation::adjust(TrajectoryStateOnSurface & state) const {
   CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.globalMomentum());//FIXME with position
   MuonErrorMatrix::multiply(oMat, sfMat);
   
-  state = TrajectoryStateOnSurface(state.globalParameters(),
+  state = TrajectoryStateOnSurface(state.weight(),
+                                   state.globalParameters(),
 				   oMat,
 				   state.surface(),
-				   state.surfaceSide(),
-				   state.weight());
+				   state.surfaceSide());
 }
 

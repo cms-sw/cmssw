@@ -7,6 +7,8 @@
 #include <boost/range/iterator_range.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 
+class TestMapOfVectors;
+
 namespace edm {
 
   /* a linearized read-only map-of vectors
@@ -147,6 +149,9 @@ namespace edm {
     }
 
   private:
+    //for testing
+    friend class ::TestMapOfVectors;
+    
     std::vector<K> m_keys;
     std::vector<size_type> m_offsets;
     std::vector<T> m_data;

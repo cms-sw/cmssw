@@ -51,9 +51,9 @@ class PluginFactoryManager
       
    private:
       PluginFactoryManager();
-      PluginFactoryManager(const PluginFactoryManager&); // stop default
+      PluginFactoryManager(const PluginFactoryManager&) = delete; // stop default
 
-      const PluginFactoryManager& operator=(const PluginFactoryManager&); // stop default
+      const PluginFactoryManager& operator=(const PluginFactoryManager&) = delete; // stop default
 
       // ---------- member data --------------------------------
       std::vector<const PluginFactoryBase*> factories_;

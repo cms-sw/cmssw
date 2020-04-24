@@ -1,7 +1,4 @@
-
-#define protected public
 #include "TEveBoxSet.h"
-#undef protected
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "TEveCompound.h"
@@ -25,7 +22,7 @@
 
 namespace
 {
-   const static std::string cname("particleFlowRecHitHCALUpgrade");
+   const std::string cname("particleFlowRecHitHCALUpgrade");
 
 void  addLineToLineSet(TEveStraightLineSet* ls, const float* p, int i1, int i2)
 {
@@ -82,9 +79,9 @@ void
 FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
 {
    // init PFCandiate collection
-   reco::PFCandidateCollection const * candidates = 0;
+   reco::PFCandidateCollection const * candidates = nullptr;
    iItem->get( candidates );
-   if( candidates == 0 ) return;
+   if( candidates == nullptr ) return;
 
  
    Int_t idx = 0;
@@ -125,7 +122,7 @@ void FWPFCandidateWithHitsProxyBuilder::initPFRecHitsCollections()
    edm::Handle<reco::PFRecHitCollection> handle_hits;
 
 
-   m_collectionHCAL =0;
+   m_collectionHCAL =nullptr;
    try
    {
       // edm::InputTag tag("particleFlowRecHitHCAL");
@@ -185,7 +182,7 @@ const reco::PFRecHit* FWPFCandidateWithHitsProxyBuilder::getHitForDetId(unsigned
          return  &(*it);
       }
    }
-   return 0;
+   return nullptr;
 }
 
 //______________________________________________________________________________
@@ -235,7 +232,7 @@ namespace {
 TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
 {
    void* ud = ds->GetUserData(idx);
-   if (ud);
+   if (ud)
    {
       reco::PFRecHit* hit = (reco::PFRecHit*) ud;
       // printf("idx %d %p hit data %p\n", idx, (void*)hit, ud);
@@ -244,6 +241,7 @@ TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
       else
          return "ERROR";
    }
+   return "NULL";
 }
 }
 //______________________________________________________________________________
@@ -251,8 +249,8 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
 { 
    reco::PFCandidate::ElementsInBlocks eleInBlocks = cand.elementsInBlocks();
 
-   TEveBoxSet* boxset = 0;
-   TEveStraightLineSet* lineset = 0;
+   TEveBoxSet* boxset = nullptr;
+   TEveStraightLineSet* lineset = nullptr;
 
    for(unsigned elIdx=0; elIdx<eleInBlocks.size(); elIdx++)
    {
@@ -287,8 +285,8 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
                boxset = new TEveBoxSet();
                boxset->Reset(TEveBoxSet::kBT_FreeBox, true, hitsandfracs.size());
                boxset->SetAntiFlick(true);
-               boxset->SetAlwaysSecSelect(1);
-               boxset->SetPickable(1);
+               boxset->SetAlwaysSecSelect(true);
+               boxset->SetPickable(true);
                boxset->SetTooltipCBFoo(boxset_tooltip_callback);
             }
 
@@ -344,4 +342,4 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWPFCandidateWithHitsProxyBuilder, reco::PFCandidateCollection,"PF CandidatesWithHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWPFCandidateWithHitsProxyBuilder, reco::PFCandidateCollection,"PFCandidatesWithHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

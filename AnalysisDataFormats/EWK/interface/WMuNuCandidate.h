@@ -18,7 +18,7 @@ class WMuNuCandidate : public reco::CompositeCandidate {
 public:
   WMuNuCandidate();
   WMuNuCandidate(edm::Ptr<reco::Muon>,edm::Ptr<reco::MET>);
-  ~WMuNuCandidate();
+  ~WMuNuCandidate() override;
 
       //WARNING: W Candidates combine the information from a Muon with the (px,py) information of the MET as the Neutrino
       // --> There is no Pz information!!!!

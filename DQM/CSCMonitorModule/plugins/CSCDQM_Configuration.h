@@ -29,7 +29,6 @@
 #include <xercesc/sax/ErrorHandler.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/dom/DOM.hpp>
 
@@ -106,6 +105,7 @@
   (( double, EFF_NODATA_SIGFAIL,   5.0 , "statistical significance for not reportingelements in HW (EventProcessor)" )) \
   (( unsigned int, EVENTS_ECHO, 1000, "frequency in events to print echo message (EventProcessor)" )) \
   (( std::string, FOLDER_FED, "" , "root file folder name to be used for FED histograms (EventProcessor)" )) \
+  (( bool, PREBOOK_ALL_HISTOS, true, "pre-book all FED, DDU, CSC histogragrams before run begins" )) \
   \
   \
 
@@ -323,7 +323,7 @@ namespace cscdqm {
           DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
 
           DOMNodeList *itemList = docNode->getChildNodes();
-          for(uint32_t i = 0; i < itemList->getLength(); i++) {
+          for(XMLSize_t i = 0; i < itemList->getLength(); i++) {
             DOMNode* node = itemList->item(i);
             if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
 
@@ -335,7 +335,7 @@ namespace cscdqm {
 
             if (nodeName.compare("MO_FILTER") == 0) {
               DOMNodeList *filterList = node->getChildNodes();
-              for(uint32_t j = 0; j < filterList->getLength(); j++) {
+              for(XMLSize_t j = 0; j < filterList->getLength(); j++) {
                 DOMNode* filter = filterList->item(j);
                 if (filter->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
                 std::string filterName = XMLString::transcode(filter->getNodeName());
@@ -365,9 +365,9 @@ namespace cscdqm {
 
         BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_PRINTXML_MACRO, _, CONFIG_PARAMETERS_SEQ)
 
-        DOMWriter *ser = domImpl->createDOMWriter();
-        if (ser->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true)) {
-          ser->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+        DOMLSSerializer *ser = domImpl->createLSSerializer();
+        if (ser->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true)) {
+          ser->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
         }
         XMLFileErrorHandler eh;
         ser->setErrorHandler((DOMErrorHandler*) &eh);

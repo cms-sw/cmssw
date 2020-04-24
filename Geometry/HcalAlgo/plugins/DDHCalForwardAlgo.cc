@@ -8,7 +8,7 @@
 
 namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -70,7 +70,7 @@ void DDHCalForwardAlgo::execute(DDCompactView& cpv) {
     int    indx = type[i];
     for (int j=0; j<number[i]; j++) {
       box++;
-      string name = parentName.name() + dbl_to_string(box);
+      string name = parentName.name() + std::to_string(box);
       DDSolid solid = DDSolidFactory::box(DDName(name, idNameSpace),
 					  dx, cellDy, cellDz);
       LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " 

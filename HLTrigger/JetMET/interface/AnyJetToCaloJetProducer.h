@@ -7,7 +7,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -16,15 +16,15 @@ namespace edm {
    class ConfigurationDescriptions;
 }
 
-class AnyJetToCaloJetProducer: public edm::EDProducer {
+class AnyJetToCaloJetProducer: public edm::stream::EDProducer<> {
 
   public:
 
     explicit AnyJetToCaloJetProducer(const edm::ParameterSet&);
-    ~AnyJetToCaloJetProducer();
+    ~AnyJetToCaloJetProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
 

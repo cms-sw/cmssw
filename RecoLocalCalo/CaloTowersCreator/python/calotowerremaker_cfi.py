@@ -59,7 +59,8 @@ ct2ct = cms.EDProducer("CaloTowersReCreator",
     MomHBDepth = cms.double(0.2),
     MomHEDepth = cms.double(0.4),   
     MomEBDepth = cms.double(0.3),
-    MomEEDepth = cms.double(0.0)
+    MomEEDepth = cms.double(0.0),
+	HcalPhase = cms.int32(0)
 )
 
 

@@ -15,6 +15,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -40,17 +42,27 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
   : dataLabel_(pset.getParameter<edm::InputTag>("InputLabel")),
     doSynchro_(pset.getParameter<bool>("doSynchro")),
     eventCounter_(0),
-    theCabling(0)
+    theCabling(nullptr)
 {
   produces<RPCDigiCollection>();
   produces<RPCRawDataCounts>();
   if (doSynchro_) produces<RPCRawSynchro::ProdItem>();
+  fedToken_=consumes<FEDRawDataCollection>(dataLabel_);
+
 }
 
 RPCUnpackingModule::~RPCUnpackingModule()
 { 
   delete theCabling;
 }
+
+void RPCUnpackingModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<bool>("doSynchro",true);
+  descriptions.add("rpcUnpackingModule",desc);
+}
+
 
 void RPCUnpackingModule::beginRun(const edm::Run &run, const edm::EventSetup& es)
 {
@@ -68,25 +80,25 @@ void RPCUnpackingModule::beginRun(const edm::Run &run, const edm::EventSetup& es
 
 void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
 {
-  static bool debug = edm::MessageDrop::instance()->debugEnabled;
+  bool debug = edm::MessageDrop::instance()->debugEnabled;
   eventCounter_++; 
   if (debug) LogDebug ("RPCUnpacker::produce") <<"Beginning To Unpack Event: "<<eventCounter_;
  
   Handle<FEDRawDataCollection> allFEDRawData; 
-  ev.getByLabel(dataLabel_,allFEDRawData); 
+  ev.getByToken(fedToken_,allFEDRawData); 
 
 
-  std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
-  std::auto_ptr<RPCRawDataCounts> producedRawDataCounts(new RPCRawDataCounts);
-  std::auto_ptr<RPCRawSynchro::ProdItem> producedRawSynchoCounts;
-  if (doSynchro_) producedRawSynchoCounts.reset(new RPCRawSynchro::ProdItem);
+  auto producedRPCDigis = std::make_unique<RPCDigiCollection>();
+  auto producedRawDataCounts = std::make_unique<RPCRawDataCounts>();
+  std::unique_ptr<RPCRawSynchro::ProdItem> producedRawSynchoCounts;
+  if (doSynchro_) producedRawSynchoCounts = std::make_unique<RPCRawSynchro::ProdItem>();
 
   int status = 0;
   for (int fedId= FEDNumbering::MINRPCFEDID; fedId<=FEDNumbering::MAXRPCFEDID; ++fedId){  
 
     const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
     RPCRecordFormatter interpreter = 
-        theCabling ? RPCRecordFormatter(fedId,&theReadoutMappingSearch) : RPCRecordFormatter(fedId,0);
+        theCabling ? RPCRecordFormatter(fedId,&theReadoutMappingSearch) : RPCRecordFormatter(fedId,nullptr);
     int triggerBX =0;
     int nWords = rawData.size()/sizeof(Word64);
     if (nWords==0) continue;
@@ -197,8 +209,8 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
   }
   if (status && debug) LogTrace("")<<" RPCUnpackingModule - There was unpacking PROBLEM in this event"<<endl;
   if (debug) LogTrace("") << DebugDigisPrintout()(producedRPCDigis.get()) << endl;
-  ev.put(producedRPCDigis);  
-  ev.put(producedRawDataCounts);
-  if (doSynchro_) ev.put(producedRawSynchoCounts);
+  ev.put(std::move(producedRPCDigis));  
+  ev.put(std::move(producedRawDataCounts));
+  if (doSynchro_) ev.put(std::move(producedRawSynchoCounts));
 
 }

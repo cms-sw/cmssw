@@ -28,7 +28,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
@@ -41,20 +41,32 @@
 class GctDigiToRaw : public edm::EDProducer {
  public:
   explicit GctDigiToRaw(const edm::ParameterSet&);
-  ~GctDigiToRaw();
+  ~GctDigiToRaw() override;
   
  private: // methods
-  virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   void print(FEDRawData& data);
 
  private:  // members
 
-  // input tags
-  edm::InputTag rctInputLabel_;
-  edm::InputTag gctInputLabel_;
+  // input tokens
+  edm::EDGetTokenT<L1GctEmCandCollection> tokenL1GctEmCand_isoEm_;
+  edm::EDGetTokenT<L1GctEmCandCollection> tokenL1GctEmCand_nonIsoEm_;
+  edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_cenJets_;
+  edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_forJets_;
+  edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_tauJets_;
+  edm::EDGetTokenT<L1GctEtTotalCollection> tokenGctEtTotal_;
+  edm::EDGetTokenT<L1GctEtHadCollection> tokenGctEtHad_;
+  edm::EDGetTokenT<L1GctEtMissCollection> tokenGctEtMiss_;
+  edm::EDGetTokenT<L1GctHFRingEtSumsCollection> tokenGctHFRingEtSums_;
+  edm::EDGetTokenT<L1GctHFBitCountsCollection> tokenGctHFBitCounts_;
+  edm::EDGetTokenT<L1GctHtMissCollection> tokenGctHtMiss_;
+  edm::EDGetTokenT<L1GctJetCountsCollection> tokenGctJetCounts_;
+  edm::EDGetTokenT<L1CaloEmCollection> tokenCaloEm_;
+  edm::EDGetTokenT<L1CaloRegionCollection> tokenCaloRegion_;
 
   // pack flags
   bool packRctEm_;

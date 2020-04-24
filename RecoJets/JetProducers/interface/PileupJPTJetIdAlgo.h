@@ -12,13 +12,10 @@
 #include<iostream>
 #include<vector>
 
-using namespace std; 
-using namespace reco;
-
 namespace edm {
   class Event;
   class EventSetup;
-  class ParameterSets;
+  class ParameterSet;
 }
 // For MVA analysis
 

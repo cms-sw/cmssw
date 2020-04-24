@@ -19,7 +19,7 @@ SiStripFedCablingESProducer::~SiStripFedCablingESProducer() {}
 
 // -----------------------------------------------------------------------------
 //
-std::auto_ptr<SiStripFedCabling> SiStripFedCablingESProducer::produce( const SiStripFedCablingRcd& rcd ) { 
+std::unique_ptr<SiStripFedCabling> SiStripFedCablingESProducer::produce( const SiStripFedCablingRcd& rcd ) { 
   
   SiStripFedCabling* temp = make( rcd );
   
@@ -29,7 +29,7 @@ std::auto_ptr<SiStripFedCabling> SiStripFedCablingESProducer::produce( const SiS
       << " Null pointer to SiStripFedCabling object!";
   }
   
-  std::auto_ptr<SiStripFedCabling> ptr( temp );
+  std::unique_ptr<SiStripFedCabling> ptr( temp );
   return ptr;
 
 }

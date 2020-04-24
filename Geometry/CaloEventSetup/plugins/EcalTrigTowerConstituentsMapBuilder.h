@@ -20,7 +20,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -37,9 +36,9 @@
 class EcalTrigTowerConstituentsMapBuilder : public edm::ESProducer {
    public:
   EcalTrigTowerConstituentsMapBuilder(const edm::ParameterSet&);
-  ~EcalTrigTowerConstituentsMapBuilder();
+  ~EcalTrigTowerConstituentsMapBuilder() override;
 
-  typedef std::auto_ptr<EcalTrigTowerConstituentsMap> ReturnType;
+  typedef std::unique_ptr<EcalTrigTowerConstituentsMap> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
 

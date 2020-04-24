@@ -22,9 +22,9 @@
 SiStripInformationExtractor::SiStripInformationExtractor() {
   edm::LogInfo("SiStripInformationExtractor") << 
     " Creating SiStripInformationExtractor " << "\n" ;
-  layoutParser_ = 0;
+  layoutParser_ = nullptr;
   layoutMap.clear();
-  histoPlotter_=0;
+  histoPlotter_=nullptr;
   histoPlotter_ = new SiStripHistoPlotter();
   readConfiguration();
 }
@@ -43,7 +43,7 @@ SiStripInformationExtractor::~SiStripInformationExtractor() {
 //
 void SiStripInformationExtractor::readConfiguration() {
   std::string localPath = std::string("DQM/SiStripMonitorClient/data/sistrip_plot_layout.xml");
-  if (layoutParser_ == 0) {
+  if (layoutParser_ == nullptr) {
     layoutParser_ = new SiStripLayoutParser();
     layoutParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
@@ -75,7 +75,7 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, st
   str_val << "<li><span class=\"folder\">" << dname << "</span>" << std::endl;
   std::vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
   std::vector<std::string> subDirVec = dqm_store->getSubdirs();
-  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
+  if ( meVec.empty()  && subDirVec.empty() ) {
     str_val << "</li> "<< std::endl;    
     return;
   }
@@ -125,19 +125,19 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostr
   std::vector<std::string> subDirVec = dqm_store->getSubdirs();
   std::vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
   
-  if (subDirVec.size() == 0 && meVec.size() == 0) {
+  if (subDirVec.empty() && meVec.empty()) {
     str_val << "</li> "<< std::endl;    
     return;
   }
   str_val << "<ul>" << std::endl;
   if (dname.find("module_") != std::string::npos) {
-    if (meVec.size() > 0) {
+    if (!meVec.empty()) {
       for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
 	   it != meVec.end(); it++) {
         MonitorElement * me = (*it);
 	if (!me) continue;
         std::vector<QReport*> q_reports = me->getQReports();
-        if (q_reports.size() > 0) {
+        if (!q_reports.empty()) {
 	  std::string image_name1;
 	  selectImage(image_name1,q_reports);
 	  str_val << "<li><span class=\"file\"><a href=\"javascript:RequestHistos.ReadAlarmStatus('"
@@ -277,7 +277,7 @@ void SiStripInformationExtractor::getHistosFromPath(DQMStore * dqm_store, const 
 // plot Histograms from Layout
 //
 void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
-  if (layoutMap.size() == 0) return;
+  if (layoutMap.empty()) return;
 
   std::ofstream image_file;
   
@@ -291,7 +291,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
     for (std::vector<std::string>::iterator im = it->second.begin(); 
 	 im != it->second.end(); im++) {  
       std::string path_name = (*im);
-      if (path_name.size() == 0) continue;
+      if (path_name.empty()) continue;
       MonitorElement* me = dqm_store->get(path_name);
       ival++;
       std::ostringstream  fname, ftitle;
@@ -873,7 +873,7 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, st
   str_val << "<li><span class=\"folder\">" << dname << "</span>" << std::endl;
   std::vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
   std::vector<std::string> subDirVec = dqm_store->getSubdirs();
-  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
+  if ( meVec.empty()  && subDirVec.empty() ) {
     str_val << "</li> "<< std::endl;    
     return;
   }

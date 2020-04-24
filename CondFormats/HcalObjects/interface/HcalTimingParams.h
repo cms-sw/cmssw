@@ -2,6 +2,8 @@
 #define HcalTimingParams_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalTimingParam.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
@@ -10,13 +12,15 @@ class HcalTimingParams: public HcalCondObjectContainer<HcalTimingParam>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalTimingParams():HcalCondObjectContainer<HcalTimingParam>(0) {}
+  HcalTimingParams():HcalCondObjectContainer<HcalTimingParam>(nullptr) {}
 #endif
   HcalTimingParams(const HcalTopology* topo):HcalCondObjectContainer<HcalTimingParam>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalTimingParams";}
+  std::string myname() const override {return (std::string)"HcalTimingParams";}
 
  private:
 
+
+ COND_SERIALIZABLE;
 };
 #endif

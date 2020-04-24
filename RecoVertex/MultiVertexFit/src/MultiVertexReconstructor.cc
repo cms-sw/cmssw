@@ -10,12 +10,14 @@ namespace {
     return 0;
   }
 
+#ifndef __clang__
   inline void remove ( vector < TransientVertex > & vtces,
                 const vector < reco::TransientTrack > & trks )
   {
     cout << "[MultiVertexReconstructor] fixme remove not yet implemented" << endl;
     // remove trks from vtces
   }
+#endif
 
   vector < vector < TrackAndWeight > > recover (
       const vector < TransientVertex > & vtces, const vector < reco::TransientTrack > & trks )
@@ -51,7 +53,7 @@ namespace {
       bundles.push_back ( tnws );
     };
 
-    if ( bundles.size() == 0 ) return bundles;
+    if ( bundles.empty() ) return bundles;
 
     // now add not-yet assigned tracks
     for ( set < reco::TransientTrack >::const_iterator i=st.begin(); 

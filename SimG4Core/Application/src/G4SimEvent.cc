@@ -11,7 +11,7 @@ public:
 };
 
 
-G4SimEvent::G4SimEvent() : hepMCEvent(0),
+G4SimEvent::G4SimEvent() : hepMCEvent(nullptr),
                            weight_(0),
                            collisionPoint_(math::XYZTLorentzVectorD(0.,0.,0.,0.)),
 			   nparam_(0),param_(0) {}
@@ -40,14 +40,14 @@ G4SimEvent::~G4SimEvent()
    for ( i=0; i<g4tracks.size(); i++ )
    {
       delete g4tracks[i] ;
-      g4tracks[i] = 0 ;
+      g4tracks[i] = nullptr ;
    }
    g4tracks.clear() ;
    
    for ( i=0; i<g4vertices.size(); i++ )
    {
       delete g4vertices[i] ;
-      g4vertices[i] = 0 ;
+      g4vertices[i] = nullptr ;
    }
    g4vertices.clear();
 }

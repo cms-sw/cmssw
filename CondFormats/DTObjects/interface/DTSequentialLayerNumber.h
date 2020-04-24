@@ -40,16 +40,6 @@ class DTSequentialLayerNumber {
   static int id( int      wheel, int station, int sector,
                  int superlayer, int   layer );
   static int max();
-
- private:
-
-  static int layersPerWheel;
-  static int layersPerSector;
-  static int layersIn13Sectors;
-
-  static int* offsetChamber;
-
 };
-
 
 #endif // DTSequentialLayerNumber_H

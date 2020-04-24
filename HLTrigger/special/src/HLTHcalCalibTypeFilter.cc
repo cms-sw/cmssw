@@ -36,20 +36,20 @@ Implementation:
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
-
+#include "EventFilter/HcalRawToDigi/interface/HcalUHTRData.h"
+#include "EventFilter/HcalRawToDigi/interface/AMC13Header.h"
 #include "HLTrigger/special/interface/HLTHcalCalibTypeFilter.h"
 
 //
 // constructors and destructor
 //
-HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& iConfig)
+HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& config) :
+  DataInputToken_( consumes<FEDRawDataCollection>( config.getParameter<edm::InputTag>("InputTag") ) ),
+  CalibTypes_( config.getParameter< std::vector<int> >("CalibTypes") ),
+  Summary_(  config.getUntrackedParameter<bool>("FilterSummary", false) ),
+  eventsByType_()
 {
-  //now do what ever initialization is needed
-
-  DataInputTag_ = iConfig.getParameter<edm::InputTag>("InputTag") ;
-  Summary_      = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
-  CalibTypes_   = iConfig.getParameter< std::vector<int> >("CalibTypes") ; 
-  DataInputToken_ = consumes<FEDRawDataCollection>(DataInputTag_);
+  for (auto & i : eventsByType_) i = 0;
 }
 
 
@@ -77,47 +77,63 @@ HLTHcalCalibTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 // ------------ method called on each new Event  ------------
 bool
-HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
   
   edm::Handle<FEDRawDataCollection> rawdata;  
   iEvent.getByToken(DataInputToken_,rawdata);
-  
-  // checking FEDs for calibration information
-  int calibType = -1 ; int numEmptyFEDs = 0 ; 
-  std::vector<int> calibTypeCounter(8,0) ;
-  for (int i=FEDNumbering::MINHCALFEDID;
-       i<=FEDNumbering::MAXHCALFEDID; i++) {
-      const FEDRawData& fedData = rawdata->FEDData(i) ; 
-      if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
-      if ( fedData.size() < 24 ) continue ; 
-      int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
-      calibTypeCounter.at(value)++ ; // increment the counter for this calib type
-  }
-  int maxCount = 0 ;
-  int numberOfFEDIds = FEDNumbering::MAXHCALFEDID - FEDNumbering::MINHCALFEDID + 1 ; 
-  for (unsigned int i=0; i<calibTypeCounter.size(); i++) {
-      if ( calibTypeCounter.at(i) > maxCount ) { calibType = i ; maxCount = calibTypeCounter.at(i) ; } 
-      if ( maxCount == numberOfFEDIds ) break ;
-  }
-  if ( calibType < 0 ) return false ; // No HCAL FEDs, thus no calibration type
-  if ( maxCount != (numberOfFEDIds-numEmptyFEDs) )
-      edm::LogWarning("HLTHcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " 
-                                             << calibType ; 
-  LogDebug("HLTHcalCalibTypeFilter") << "Calibration type is: " << calibType ; 
-  eventsByType.at(calibType)++ ;
-  for (unsigned int i=0; i<CalibTypes_.size(); i++) 
-      if ( calibType == CalibTypes_.at(i) ) return true ;
-  return false ; 
-}
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HLTHcalCalibTypeFilter::beginJob(void)
-{
-  eventsByType.clear() ; 
-  eventsByType.resize(8,0) ; 
+  //    some inits
+  int numZeroes(0), numPositives(0);
+
+  //    loop over all HCAL FEDs
+  for (int fed=FEDNumbering::MINHCALFEDID;
+       fed<=FEDNumbering::MAXHCALuTCAFEDID; fed++) 
+  {
+      //    skip FEDs in between VME and uTCA    
+      if (fed>FEDNumbering::MAXHCALFEDID && fed<FEDNumbering::MINHCALuTCAFEDID)
+            continue;
+
+      //    get raw data and check if there are empty feds
+      const FEDRawData& fedData = rawdata->FEDData(fed) ; 
+      if ( fedData.size() < 24 ) continue ;
+
+      if (fed<=FEDNumbering::MAXHCALFEDID)
+      {
+          //    VME get event type
+          int eventtype = ((const HcalDCCHeader*)(fedData.data()))->getCalibType(); 
+          if (eventtype==0) numZeroes++; else numPositives++;
+      }
+      else 
+      {
+          //    UTCA
+          hcal::AMC13Header const *hamc13 = (hcal::AMC13Header const*) fedData.data();
+          for (int iamc=0; iamc<hamc13->NAMC(); iamc++)
+          {
+              HcalUHTRData uhtr(hamc13->AMCPayload(iamc), hamc13->AMCSize(iamc));
+              int eventtype = uhtr.getEventType();
+              if (eventtype==0) numZeroes++; else numPositives++;
+          }
+      }
+  }
+
+  //
+  //    if there are FEDs with Non-Collission event type, check what the majority is
+  //    if calibs - true
+  //    if 0s - false
+  //
+  if (numPositives>0)
+  {
+    if (numPositives>numZeroes) return true;
+    else
+        edm::LogWarning("HLTHcalCalibTypeFilter") 
+            << "Conflicting Calibration Types found";
+  }
+
+  //    return false if there are no positives
+  //    and if the majority has 0 calib type
+  return false;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -125,10 +141,10 @@ void
 HLTHcalCalibTypeFilter::endJob() {
   if ( Summary_ )
     edm::LogWarning("HLTHcalCalibTypeFilter") << "Summary of filter decisions: " 
-					   << eventsByType.at(hc_Null) << "(No Calib), " 
-					   << eventsByType.at(hc_Pedestal) << "(Pedestal), " 
-					   << eventsByType.at(hc_RADDAM) << "(RADDAM), " 
-					   << eventsByType.at(hc_HBHEHPD) << "(HBHE/HPD), " 
-					   << eventsByType.at(hc_HOHPD) << "(HO/HPD), " 
-					   << eventsByType.at(hc_HFPMT) << "(HF/PMT)" ;  
+                                              << eventsByType_.at(hc_Null)      << "(No Calib), " 
+                                              << eventsByType_.at(hc_Pedestal)  << "(Pedestal), " 
+                                              << eventsByType_.at(hc_RADDAM)    << "(RADDAM), " 
+                                              << eventsByType_.at(hc_HBHEHPD)   << "(HBHE/HPD), " 
+                                              << eventsByType_.at(hc_HOHPD)     << "(HO/HPD), " 
+                                              << eventsByType_.at(hc_HFPMT)     << "(HF/PMT)" ;  
 }

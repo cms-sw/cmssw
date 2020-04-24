@@ -18,6 +18,8 @@
 #ifndef CondFormatsL1TObjects_L1MuGMTChannelMask_h
 #define CondFormatsL1TObjects_L1MuGMTChannelMask_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 
 class L1MuGMTChannelMask {
@@ -32,6 +34,8 @@ private:
 
   unsigned m_SubsystemMask;
 
+
+  COND_SERIALIZABLE;
 };
 
 

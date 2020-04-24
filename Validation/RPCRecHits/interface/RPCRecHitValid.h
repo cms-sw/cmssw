@@ -1,8 +1,8 @@
 #ifndef Validation_RPCRecHits_RPCRecHitValid_h
-#define Validaiton_RPCRecHits_RPCRecHitValid_h
+#define Validation_RPCRecHits_RPCRecHitValid_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -10,7 +10,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -22,17 +21,14 @@
 
 #include <string>
 
-class RPCRecHitValid : public edm::EDAnalyzer
+class RPCRecHitValid : public DQMEDAnalyzer
 {
 public:
   RPCRecHitValid(const edm::ParameterSet& pset);
-  ~RPCRecHitValid();
+  ~RPCRecHitValid() {};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
-  void beginRun(const edm::Run& run, const edm::EventSetup& eventSetup);
-  void endRun(const edm::Run& run, const edm::EventSetup& eventSetup);
-  void beginJob();
-  void endJob();
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   typedef edm::PSimHitContainer SimHits;
@@ -46,8 +42,6 @@ private:
   edm::EDGetTokenT<SimParticles> simParticleToken_;
   edm::EDGetTokenT<SimHitAssoc>  simHitAssocToken_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
-
-  DQMStore* dbe_;
 
   typedef MonitorElement* MEP;
   RPCValidHistograms h_;
@@ -79,6 +73,7 @@ private:
   MEP h_rollAreaEndcap_detId;
 
   std::map<int, int> detIdToIndexMapBarrel_, detIdToIndexMapEndcap_;
+
 };
 
-#endif
+#endif // Validation_RPCRecHits_RPCRecHitValid_h

@@ -35,7 +35,7 @@ public:
 
   /// return ROC identified by id. ROC ids are ranged [1,numberOfROCs]
   const PixelROC * roc(unsigned int id) const
-    { return (id > 0 && id <= theROCs.size() ) ?  &theROCs[id-1] : 0; }
+    { return (id > 0 && id <= theROCs.size() ) ?  &theROCs[id-1] : nullptr; }
 
   /// check ROC in link numbering consistency, ie. that ROC position in
   /// vector is the same as its id. To be called by owner

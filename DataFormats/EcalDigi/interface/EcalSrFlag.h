@@ -78,7 +78,7 @@ protected:
 private:
   /** Human readable flag value names
    */
-  static const char* srfNames[];
+  static const char* const srfNames[];
 };
   
 #endif //ECALSRFLAG not defined

@@ -5,10 +5,15 @@
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 namespace edm {
@@ -18,7 +23,7 @@ namespace edm {
   
   ProducerSourceBase::ProducerSourceBase(ParameterSet const& pset,
 				       InputSourceDescription const& desc, bool realData) :
-      InputSource(pset, desc),
+      PuttableSourceBase(pset, desc),
       numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
       numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
       presentTime_(pset.getUntrackedParameter<unsigned long long>("firstTime", 1ULL)),  //time in ns
@@ -27,7 +32,8 @@ namespace edm {
       eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
       numberEventsInThisRun_(0),
       numberEventsInThisLumi_(0),
-      zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
+      zerothEvent_(pset.existsAs<unsigned int>("firstEvent", false) ? pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1 :
+                                                                      pset.getUntrackedParameter<unsigned long long>("firstEvent", 1) - 1),
       eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1), zerothEvent_),
       origEventID_(eventID_),
       isRealData_(realData),
@@ -38,22 +44,23 @@ namespace edm {
     // std::string eType = pset.getUntrackedParameter<std::string>("experimentType", std::string("Any"))),
   }
 
-  ProducerSourceBase::~ProducerSourceBase() {
+  ProducerSourceBase::~ProducerSourceBase() noexcept(false) {
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  
+  std::shared_ptr<RunAuxiliary>
   ProducerSourceBase::readRunAuxiliary_() {
     Timestamp ts = Timestamp(presentTime_);
     resetNewRun();
-    return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(eventID_.run(), ts, Timestamp::invalidTimestamp()));
+    return std::make_shared<RunAuxiliary>(eventID_.run(), ts, Timestamp::invalidTimestamp());
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   ProducerSourceBase::readLuminosityBlockAuxiliary_() {
-    if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockAuxiliary>();
+    if (processingMode() == Runs) return std::shared_ptr<LuminosityBlockAuxiliary>();
     Timestamp ts = Timestamp(presentTime_);
     resetNewLumi();
-    return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp()));
+    return std::make_shared<LuminosityBlockAuxiliary>(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp());
   }
 
   void
@@ -62,8 +69,9 @@ namespace edm {
     EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
     eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
     Event e(eventPrincipal, moduleDescription(), nullptr);
+    e.setProducer(this,nullptr);
     produce(e);
-    e.commit_();
+    e.commit_(std::vector<ProductResolverIndex>());
     resetEventCached();
   }
 
@@ -89,25 +97,10 @@ namespace edm {
 
   void
   ProducerSourceBase::beginJob() {
-    // initialize cannot be called from the constructor, because it is a virtual function
+    PuttableSourceBase::beginJob();
+    // Initialize cannot be called from the constructor, because it is a virtual function
     // that needs to be invoked from a derived class if the derived class overrides it.
     initialize(eventID_, presentTime_, timeBetweenEvents_);
-  }
-
-  void
-  ProducerSourceBase::beginRun(Run&) {
-  }
-
-  void
-  ProducerSourceBase::endRun(Run&) {
-  }
-
-  void
-  ProducerSourceBase::beginLuminosityBlock(LuminosityBlock&) {
-  }
-
-  void
-  ProducerSourceBase::endLuminosityBlock(LuminosityBlock&) {
   }
 
   void
@@ -142,13 +135,13 @@ namespace edm {
     advanceToNext(eventID_, presentTime_);
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
     size_t index = fileIndex();
-    bool another = setRunAndEventInfo(eventID_, presentTime_);
+    bool another = setRunAndEventInfo(eventID_, presentTime_, eType_);
     if(!another) {
       return IsStop;
     }
     bool newFile = (fileIndex() > index);
     setEventCached();
-    if(eventID_.run() != oldEventID.run()) {
+    if(newRun() || eventID_.run() != oldEventID.run()) {
       // New Run
       setNewRun();
       setNewLumi();
@@ -161,7 +154,7 @@ namespace edm {
       return newFile ? IsFile : IsLumi;
     }
     // Same Run
-    if (eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
+    if (newLumi() || eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
       // New Lumi
       setNewLumi();
       return newFile ? IsFile : IsLumi;
@@ -206,6 +199,7 @@ namespace edm {
       }
     } else {
       // new run
+      assert(numberEventsInLumi_ != 0);
       eventID = eventID.previousRunLastEvent(origEventID_.luminosityBlock() + numberEventsInRun_/numberEventsInLumi_);
       eventID = EventID(numberEventsInRun_, eventID.luminosityBlock(), eventID.run());
       numberEventsInThisLumi_ = numberEventsInLumi_;
@@ -231,7 +225,12 @@ namespace edm {
     desc.addUntracked<unsigned long long>("firstTime", 1)->setComment("Time before first event (ns) (for timestamp).");
     desc.addUntracked<unsigned long long>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)->setComment("Time between consecutive events (ns) (for timestamp).");
     desc.addUntracked<unsigned int>("eventCreationDelay", 0)->setComment("Real time delay between generation of consecutive events (ms).");
-    desc.addUntracked<unsigned int>("firstEvent", 1)->setComment("Event number of first event to generate.");
+
+    desc.addNode( edm::ParameterDescription<unsigned int>("firstEvent", 1U, false) xor
+                  edm::ParameterDescription<unsigned long long>("firstEvent", 1ULL, false))
+        ->setComment("'firstEvent' is an XOR group because it can have type uint32 or uint64, default:1\n"
+                     "Event number of first event to generate.");
+
     desc.addUntracked<unsigned int>("firstLuminosityBlock", 1)->setComment("Luminosity block number of first lumi to generate.");
     desc.addUntracked<unsigned int>("firstRun", 1)->setComment("Run number of first run to generate.");
     InputSource::fillDescription(desc);

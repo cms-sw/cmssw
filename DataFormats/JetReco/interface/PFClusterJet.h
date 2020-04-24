@@ -34,12 +34,12 @@ namespace reco {
       /// Constructor from RecoChargedRefCandidate constituents
       PFClusterJet(const LorentzVector & fP4, const Point & fVertex, const Jet::Constituents & fConstituents);
       /// Destructor
-      virtual ~PFClusterJet() {}
+      ~PFClusterJet() override {}
       /// Polymorphic clone
-      virtual PFClusterJet * clone () const;
+      PFClusterJet * clone () const override;
 
       /// Print object
-      virtual std::string print () const;
+      std::string print () const override;
       
       /// Easy Constituent access
       reco::PFClusterRef   pfCluster( size_t i) const;
@@ -47,7 +47,7 @@ namespace reco {
     private:
 
       /// Polymorphic overlap
-      virtual bool overlap(const Candidate & dummy) const;
+      bool overlap(const Candidate & dummy) const override;
 
     private:
 

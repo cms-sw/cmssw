@@ -9,10 +9,10 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByPosition_cff")
-#process.TrackAssociatorByHits.Quality_SimToReco = 0.3
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByPosition_cff")
+#process.trackAssociatorByHits.Quality_SimToReco = 0.3
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_9/RelValBJets_Pt_50_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_v2/0000/206C1E7D-0E86-DD11-9C2B-000423D98DB4.root')
@@ -32,4 +32,4 @@ process.testAnalyzer = cms.EDFilter("testMuonAssociator",
     trackingTruth        = cms.InputTag("mergedtruth:MergedTrackTruth")
 )
 
-process.path = cms.Path(process.testAnalyzer)
+process.path = cms.Path(process.trackAssociatorByChi2+process.trackAssociatorByHits+process.trackAssociatorByPosition+process.testAnalyzer)

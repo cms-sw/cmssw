@@ -159,9 +159,7 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
   std::sort(indexToStore.begin(),indexToStore.end());
   std::unique(indexToStore.begin(),indexToStore.end());
   
-  std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection(indexToStore) ) ;
-
  
-  iEvent.put( detIdCollection, interestingDetIdCollection_ );
+  iEvent.put(std::make_unique<DetIdCollection>(indexToStore), interestingDetIdCollection_);
 
 }

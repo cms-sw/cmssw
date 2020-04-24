@@ -17,10 +17,10 @@
 #include "G4SystemOfUnits.hh"
 
 HFChamberSD::HFChamberSD(std::string name, const DDCompactView & cpv,
-		 SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
+		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
   SensitiveCaloDetector(name, cpv, clg, p), theName(name),
-  m_trackManager(manager), theHCID(-1), theHC(0), theNSteps(0) {
+  m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {
 
   collectionName.insert(name);
   LogDebug("FiberSim") << "***************************************************"
@@ -35,9 +35,9 @@ HFChamberSD::HFChamberSD(std::string name, const DDCompactView & cpv,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  std::vector<std::string> lvNames = clg.logicalNames(name);
+  const std::vector<std::string>& lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::iterator it=lvNames.begin();
+  for (std::vector<std::string>::const_iterator it=lvNames.begin();
        it !=lvNames.end(); it++){
     this->AssignSD(*it);
     LogDebug("FiberSim") << "HFChamberSD : Assigns SD to LV " << (*it);
@@ -63,7 +63,7 @@ G4bool HFChamberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   //do not process hits other than primary particle hits:
   double charge = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
   int trackID = aStep->GetTrack()->GetTrackID();
-  if(charge == 0. || trackID != 1 ||aStep->GetTrack()->GetParentID() != 0 || aStep->GetTrack()->GetCreatorProcess() != NULL) return false;
+  if(charge == 0. || trackID != 1 ||aStep->GetTrack()->GetParentID() != 0 || aStep->GetTrack()->GetCreatorProcess() != nullptr) return false;
   ++theNSteps;
   //if(theNSteps>1)return false;
 
@@ -74,10 +74,10 @@ G4bool HFChamberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   double edep = aStep->GetTotalEnergyDeposit();
   double time = (preStepPoint->GetGlobalTime())/ns;
 
-  G4ThreeVector globalPos = preStepPoint->GetPosition();
+  const G4ThreeVector& globalPos = preStepPoint->GetPosition();
   G4ThreeVector localPos  = touch->GetHistory()->GetTopTransform().TransformPoint(globalPos);
   const G4DynamicParticle* particle =  aStep->GetTrack()->GetDynamicParticle();
-  G4ThreeVector momDir   = particle->GetMomentumDirection();
+  const G4ThreeVector& momDir   = particle->GetMomentumDirection();
 
   HFShowerG4Hit *aHit = new HFShowerG4Hit(detID, trackID, edep, time);
   aHit->setLocalPos(localPos);

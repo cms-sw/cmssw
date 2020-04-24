@@ -24,40 +24,41 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "Pythia8/Pythia.h"
 
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
-class PythiaDauVFilter : public edm::EDFilter {
+class PythiaDauVFilter : public edm::global::EDFilter<> {
  public:
   explicit PythiaDauVFilter(const edm::ParameterSet&);
-  ~PythiaDauVFilter();
+  ~PythiaDauVFilter() override;
   
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
  private:
-  int fVerbose;  
-  std::string label_;
+  const int fVerbose;  
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
   std::vector<int> dauIDs;
-  int particleID;
-  int motherID;
-  bool chargeconju; 
-  int ndaughters;
+  const int particleID;
+  const int motherID;
+  const bool chargeconju; 
+  const int ndaughters;
   std::vector<double> minptcut;
-  double maxptcut;
+  const double maxptcut;
   std::vector<double> minetacut;
   std::vector<double> maxetacut;
+  std::unique_ptr<Pythia8::Pythia> fLookupGen; // this instance is for accessing particleData information
 };
-#define PYCOMP pycomp_
-extern "C" {
-  int PYCOMP(int& ip);
-} 
 #endif

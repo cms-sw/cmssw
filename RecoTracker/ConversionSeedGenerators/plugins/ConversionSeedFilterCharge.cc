@@ -18,7 +18,7 @@
 
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,27 +34,23 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-class ConversionSeedFilterCharge : public edm::EDProducer {
+class ConversionSeedFilterCharge : public edm::global::EDProducer<> {
 public:
   explicit ConversionSeedFilterCharge(const edm::ParameterSet&);
-  ~ConversionSeedFilterCharge();
+  ~ConversionSeedFilterCharge() override;
   
 private:
-  virtual void beginJob() override ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
-  edm::InputTag inputCollPos;
-  edm::InputTag inputCollNeg;
-  double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  edm::EDGetTokenT<TrajectorySeedCollection> inputCollPos;
+  edm::EDGetTokenT<TrajectorySeedCollection> inputCollNeg;
+  const double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;
   
-  edm::ESHandle<TrackerGeometry> theG;
-  edm::ESHandle<MagneticField> theMF;
-  uint32_t maxInputSeeds;
+  const uint32_t maxInputSeeds;
 };
 
 ConversionSeedFilterCharge::ConversionSeedFilterCharge(const edm::ParameterSet& cfg): 
-  inputCollPos(cfg.getParameter<edm::InputTag>("seedCollectionPos")),
-  inputCollNeg(cfg.getParameter<edm::InputTag>("seedCollectionNeg")),
+  inputCollPos(consumes<TrajectorySeedCollection>(cfg.getParameter<edm::InputTag>("seedCollectionPos"))),
+  inputCollNeg(consumes<TrajectorySeedCollection>(cfg.getParameter<edm::InputTag>("seedCollectionNeg"))),
   deltaPhiCut(cfg.getParameter<double>("deltaPhiCut")),
   deltaCotThetaCut(cfg.getParameter<double>("deltaCotThetaCut")),
   deltaRCut(cfg.getParameter<double>("deltaRCut")),
@@ -68,18 +64,20 @@ ConversionSeedFilterCharge::ConversionSeedFilterCharge(const edm::ParameterSet& 
 ConversionSeedFilterCharge::~ConversionSeedFilterCharge() {}
 
 
-void ConversionSeedFilterCharge::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void ConversionSeedFilterCharge::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
    using namespace edm;
    using namespace std;
    Handle<TrajectorySeedCollection> pInPos;
-   iEvent.getByLabel(inputCollPos,pInPos);
+   iEvent.getByToken(inputCollPos,pInPos);
    Handle<TrajectorySeedCollection> pInNeg;
-   iEvent.getByLabel(inputCollNeg,pInNeg);
+   iEvent.getByToken(inputCollNeg,pInNeg);
 
+   edm::ESHandle<TrackerGeometry> theG;
    iSetup.get<TrackerDigiGeometryRecord>().get(theG);
+   edm::ESHandle<MagneticField> theMF;
    iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
 
-   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+   auto result = std::make_unique<TrajectorySeedCollection>();
    result->reserve(pInPos->size());
 
    if (pInPos->size()<maxInputSeeds && pInNeg->size()<maxInputSeeds) {
@@ -134,12 +132,8 @@ void ConversionSeedFilterCharge::produce(edm::Event& iEvent, const edm::EventSet
    edm::LogInfo("ConversionSeedFilterCharge") << "\nNew Event : result size " << result->size() << std::endl;
 
    //cout << "sizes: pInPos=" << pInPos->size() << " pInNeg=" << pInNeg->size() << " result=" << result->size() << endl; 
-   iEvent.put(result);
+   iEvent.put(std::move(result));
    
 }
-
-void ConversionSeedFilterCharge::beginJob(){}
-
-void ConversionSeedFilterCharge::endJob() {}
 
 DEFINE_FWK_MODULE(ConversionSeedFilterCharge);

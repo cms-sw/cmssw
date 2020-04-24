@@ -24,7 +24,7 @@ namespace details {
     }
     
     PhiSortElement()
-      : pointer(0) {}
+      : pointer(nullptr) {}
     PhiSortElement(Object * p, Scalar v):
       pointer(p),
       value(v) {}

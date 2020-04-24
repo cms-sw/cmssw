@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -56,17 +56,13 @@
 //
 
 
-class MCvsRecoVerticesAnalyzer : public edm::EDAnalyzer {
+class MCvsRecoVerticesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit MCvsRecoVerticesAnalyzer(const edm::ParameterSet&);
   ~MCvsRecoVerticesAnalyzer();
   
 private:
-  virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 
@@ -121,6 +117,7 @@ MCvsRecoVerticesAnalyzer::MCvsRecoVerticesAnalyzer(const edm::ParameterSet& iCon
 
   if(m_useVisibleVertices) edm::LogInfo("UseVisibleVertices") << "Only visible vertices will be used to compute Npileup";
 
+  usesResource("TFileService");
   edm::Service<TFileService> tfserv;
 
   m_hrecovsmcnvtx2d = tfserv->make<TH2F>("recovsmcnvtx2d","Number of reco vertices vs pileup interactions",60,-0.5,59.5,60,-0.5,59.5);
@@ -290,29 +287,5 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 }
   
-  void 
-MCvsRecoVerticesAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-void 
-MCvsRecoVerticesAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-MCvsRecoVerticesAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MCvsRecoVerticesAnalyzer::endJob() 
-{
-}
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(MCvsRecoVerticesAnalyzer);

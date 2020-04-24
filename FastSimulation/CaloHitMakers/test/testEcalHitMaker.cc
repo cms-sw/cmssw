@@ -18,10 +18,11 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -57,7 +58,7 @@ typedef math::XYZVector XYZPoint;
 
 
 
-class testEcalHitMaker : public edm::EDAnalyzer {
+class testEcalHitMaker : public edm::stream::EDAnalyzer <> {
 public:
   explicit testEcalHitMaker( const edm::ParameterSet& );
   ~testEcalHitMaker();

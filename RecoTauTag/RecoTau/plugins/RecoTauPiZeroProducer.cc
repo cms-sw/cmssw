@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <functional>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,13 +37,13 @@
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class RecoTauPiZeroProducer : public edm::EDProducer {
+class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
   public:
     typedef reco::tau::RecoTauPiZeroBuilderPlugin Builder;
     typedef reco::tau::RecoTauPiZeroQualityPlugin Ranker;
 
     explicit RecoTauPiZeroProducer(const edm::ParameterSet& pset);
-    ~RecoTauPiZeroProducer() {}
+    ~RecoTauPiZeroProducer() override {}
     void produce(edm::Event& evt, const edm::EventSetup& es) override;
     void print(const std::vector<reco::RecoTauPiZero>& piZeros,
                std::ostream& out);
@@ -57,21 +57,29 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
     typedef reco::tau::RecoTauLexicographicalRanking<rankerList,
             reco::RecoTauPiZero> PiZeroPredicate;
 
-  //  edm::InputTag src_;
     builderList builders_;
     rankerList rankers_;
     std::auto_ptr<PiZeroPredicate> predicate_;
     double piZeroMass_;
 
-  //consumes interface
-  edm::EDGetTokenT<reco::CandidateView> cand_token;
     // Output selector
     std::auto_ptr<StringCutObjectSelector<reco::RecoTauPiZero> >
       outputSelector_;
+
+    //consumes interface
+    edm::EDGetTokenT<reco::CandidateView> cand_token;
+
+    double minJetPt_;
+    double maxJetAbsEta_;
+
+    int verbosity_;
 };
 
-RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
+RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) 
+{
   cand_token = consumes<reco::CandidateView>( pset.getParameter<edm::InputTag>("jetSrc"));
+  minJetPt_ = ( pset.exists("minJetPt") ) ? pset.getParameter<double>("minJetPt") : -1.0;
+  maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
 
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get the mass hypothesis for the pizeros
@@ -79,6 +87,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
 
   // Get each of our PiZero builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
+
   for (VPSet::const_iterator builderPSet = builders.begin();
       builderPSet != builders.end(); ++builderPSet) {
     // Get plugin name
@@ -86,7 +95,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
       builderPSet->getParameter<std::string>("plugin");
     // Build the plugin
     builders_.push_back(RecoTauPiZeroBuilderPluginFactory::get()->create(
-									 pluginType, *builderPSet, consumesCollector()));
+          pluginType, *builderPSet, consumesCollector()));
   }
 
   // Get each of our quality rankers
@@ -111,11 +120,14 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
     }
   }
 
+  verbosity_ = ( pset.exists("verbosity") ) ?
+    pset.getParameter<int>("verbosity") : 0;
+
   produces<reco::JetPiZeroAssociation>();
 }
 
-void RecoTauPiZeroProducer::produce(edm::Event& evt,
-                                    const edm::EventSetup& es) {
+void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
+{
   // Get a view of our jets via the base candidates
   edm::Handle<reco::CandidateView> jetView;
   evt.getByToken(cand_token, jetView);
@@ -129,17 +141,21 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
   reco::PFJetRefVector jetRefs =
       reco::tau::castView<reco::PFJetRefVector>(jetView);
   // Make our association
-  std::auto_ptr<reco::JetPiZeroAssociation> association;
+  std::unique_ptr<reco::JetPiZeroAssociation> association;
 
-  if (jetRefs.size()) {
-    association.reset(
-        new reco::JetPiZeroAssociation(reco::PFJetRefProd(jetRefs)));
+  if (!jetRefs.empty()) {
+    edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
+    evt.get(jetRefs.id(), pfJetCollectionHandle);
+    association = std::make_unique<reco::JetPiZeroAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
   } else {
-    association.reset(new reco::JetPiZeroAssociation);
+    association = std::make_unique<reco::JetPiZeroAssociation>();
   }
 
   // Loop over our jets
   BOOST_FOREACH(const reco::PFJetRef& jet, jetRefs) {
+
+    if(jet->pt() - minJetPt_ < 1e-5) continue;
+    if(std::abs(jet->eta()) - maxJetAbsEta_ > -1e-5) continue;
     // Build our global list of RecoTauPiZero
     PiZeroList dirtyPiZeros;
 
@@ -161,7 +177,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
     // Keep track of the photons in the clean collection
     std::vector<reco::RecoTauPiZero> cleanPiZeros;
     std::set<reco::CandidatePtr> photonsInCleanCollection;
-    while (dirtyPiZeros.size()) {
+    while (!dirtyPiZeros.empty()) {
       // Pull our candidate pi zero from the front of the list
       std::auto_ptr<reco::RecoTauPiZero> toAdd(
           dirtyPiZeros.pop_front().release());
@@ -178,7 +194,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
                           std::back_inserter(uniqueGammas));
       // If the pi zero has no unique gammas, discard it.  Note toAdd is deleted
       // when it goes out of scope.
-      if (!uniqueGammas.size()) {
+      if (uniqueGammas.empty()) {
         continue;
       } else if (uniqueGammas.size() == toAdd->daughterPtrVector().size()) {
         // Check if it is composed entirely of unique gammas.  In this case
@@ -211,10 +227,12 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
               std::mem_fun_ref(&reco::RecoTauPiZero::setMass), piZeroMass_));
     }
     // Add to association
-    //print(cleanPiZeros, std::cout);
+    if ( verbosity_ >= 2 ) {
+      print(cleanPiZeros, std::cout);
+    }
     association->setValue(jet.key(), cleanPiZeros);
   }
-  evt.put(association);
+  evt.put(std::move(association));
 }
 
 // Print some helpful information

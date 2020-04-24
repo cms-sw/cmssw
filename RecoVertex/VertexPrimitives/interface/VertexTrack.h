@@ -5,6 +5,9 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+
+
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 
 /** Track information relative to a track-to-vertex association. 
@@ -13,7 +16,7 @@
  */
 
 template <unsigned int N>
-class VertexTrack GCC11_FINAL : public ReferenceCounted {
+class VertexTrack final : public ReferenceCounted {
 
 public:
 

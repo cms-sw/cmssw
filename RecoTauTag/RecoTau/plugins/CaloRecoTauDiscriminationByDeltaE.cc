@@ -15,7 +15,7 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-class CaloRecoTauDiscriminationByDeltaE : public CaloTauDiscriminationProducerBase  {
+class CaloRecoTauDiscriminationByDeltaE final : public CaloTauDiscriminationProducerBase  {
     public:
 	explicit CaloRecoTauDiscriminationByDeltaE(const ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){
 		deltaEmin		= iConfig.getParameter<double>("deltaEmin");
@@ -24,13 +24,13 @@ class CaloRecoTauDiscriminationByDeltaE : public CaloTauDiscriminationProducerBa
 		booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
 	}
 
-      	~CaloRecoTauDiscriminationByDeltaE(){}
+      	~CaloRecoTauDiscriminationByDeltaE() override{}
 
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
-	double discriminate(const reco::CaloTauRef&) override;
+	double discriminate(const reco::CaloTauRef&) const override;
 
     private:
-	double DeltaE(const CaloTauRef&);
+	double DeltaE(const CaloTauRef&) const ;
 
 	double chargedPionMass;
 
@@ -41,14 +41,14 @@ class CaloRecoTauDiscriminationByDeltaE : public CaloTauDiscriminationProducerBa
 void CaloRecoTauDiscriminationByDeltaE::beginEvent(const Event& iEvent, const EventSetup& iSetup){
 }
 
-double CaloRecoTauDiscriminationByDeltaE::discriminate(const CaloTauRef& tau){
+double CaloRecoTauDiscriminationByDeltaE::discriminate(const CaloTauRef& tau) const {
 
 	double dE = DeltaE(tau);
 	if(booleanOutput) return ( dE > deltaEmin && dE < deltaEmax ? 1. : 0. );
 	return dE;
 }
 
-double CaloRecoTauDiscriminationByDeltaE::DeltaE(const CaloTauRef& tau){
+double CaloRecoTauDiscriminationByDeltaE::DeltaE(const CaloTauRef& tau) const {
 	double tracksE = 0;
 	reco::TrackRefVector signalTracks = tau->signalTracks();
 	for(size_t i = 0; i < signalTracks.size(); ++i){

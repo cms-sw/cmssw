@@ -37,10 +37,10 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
     if ( isGood == fStopAndKill ) 
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: Track Status = fStopAndKill ";
       
-    if ( theStep->GetPreStepPoint()->GetProcessDefinedStep() != 0 )
+    if ( theStep->GetPreStepPoint()->GetProcessDefinedStep() != nullptr )
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: PreStep Process  = " 
 					    << theStep->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName();
-    if ( theStep->GetPostStepPoint()->GetProcessDefinedStep() != 0 )
+    if ( theStep->GetPostStepPoint()->GetProcessDefinedStep() != nullptr )
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: PostStep Process = " 
 					    << theStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
   }
@@ -234,6 +234,7 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
 	}
 
       // check in which volume it is
+#ifdef EDM_ML_DEBUG
       G4StepPoint * thePreStepPoint = theStep->GetPreStepPoint();
       G4VPhysicalVolume * thePreStepPhysicalVolume = thePreStepPoint->GetPhysicalVolume();
       G4String thePreStepPhysicalVolumeName = thePreStepPhysicalVolume->GetName();
@@ -251,5 +252,6 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: the PostStep Position = " << thePostStepPoint->GetPosition()
 					    << "\n<LaserSteppingAction::UserSteppingAction(const G4Step *)>: the PostStep Physical Volume = " << thePostStepPhysicalVolumeName
 					    << "\n<LaserSteppingAction::UserSteppingAction(const G4Step *)>: the PostStep Material = " << thePostStepMaterial->GetName();
+#endif
     }
 }

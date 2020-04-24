@@ -44,7 +44,7 @@ SiPixelFakeGainForHLTESSource::~SiPixelFakeGainForHLTESSource()
 
 }
 
-std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produce(const SiPixelGainCalibrationForHLTRcd & )
+std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produce(const SiPixelGainCalibrationForHLTRcd & )
 {
 
    using namespace edm::es;
@@ -52,7 +52,7 @@ std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produ
    uint32_t nchannels = 0;
    SiPixelGainCalibrationForHLT * obj = new SiPixelGainCalibrationForHLT(25.,30., 2.,3.);
    SiPixelDetInfoFileReader reader(fp_.fullPath());
-   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
+   const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 
    // Loop over detectors
    for(std::vector<uint32_t>::const_iterator detit=DetIds.begin(); detit!=DetIds.end(); detit++) {
@@ -95,7 +95,7 @@ std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produ
    
 
    // 
-   return std::auto_ptr<SiPixelGainCalibrationForHLT>(obj);
+   return std::unique_ptr<SiPixelGainCalibrationForHLT>(obj);
 
 
 }

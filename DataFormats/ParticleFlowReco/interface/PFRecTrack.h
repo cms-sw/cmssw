@@ -59,10 +59,6 @@ namespace reco {
     /// \return the significance of the signed transverse impact parameter
     const float STIP() const{return STIP_;}
 
-  
-    friend  std::ostream& operator<<(std::ostream& out, 
-                                     const PFRecTrack& track);
-
   private:
 
     /// type of fitting algorithm used to reconstruct the track
@@ -77,6 +73,8 @@ namespace reco {
 
   };
 
+  std::ostream& operator<<(std::ostream& out, 
+                           const PFRecTrack& track);
 
 }
 

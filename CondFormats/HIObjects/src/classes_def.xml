@@ -8,5 +8,6 @@
    </class>
    <class name="RPFlatParams::EP"/>
    <class name="std::vector<RPFlatParams::EP>"/>
+   <class name="UETable"/>
 </lcgdict>
 

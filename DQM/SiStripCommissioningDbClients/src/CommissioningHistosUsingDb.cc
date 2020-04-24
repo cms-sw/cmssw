@@ -1,3 +1,5 @@
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -20,7 +22,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
   : CommissioningHistograms(),
     runType_(type),
     db_(db),
-    cabling_(0),
+    cabling_(nullptr),
     detInfo_(),
     uploadAnal_(true),
     uploadConf_(false)
@@ -28,30 +30,6 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object...";
-  
-  // Build FEC cabling object from connections found in DB
-  SiStripFecCabling fec_cabling;
-  if ( runType_ == sistrip::FAST_CABLING ) {
-    SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db_, fec_cabling );
-  } else {
-    SiStripFedCablingBuilderFromDb::buildFecCabling( db_, fec_cabling );
-  }
-  
-  // Build FED cabling from FEC cabling
-  cabling_ = new SiStripFedCabling();
-  SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, *cabling_ );
-  std::stringstream ss;
-  ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
-     << " Terse print out of FED cabling:" << std::endl;
-  cabling_->terse(ss);
-  LogTrace(mlDqmClient_) << ss.str();
-  
-  std::stringstream sss;
-  sss << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " Summary of FED cabling:" << std::endl;
-  cabling_->summary(sss);
-  edm::LogVerbatim(mlDqmClient_) << sss.str();
-  
 }
 
 // -----------------------------------------------------------------------------
@@ -59,8 +37,8 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 CommissioningHistosUsingDb::CommissioningHistosUsingDb()
   : CommissioningHistograms(),
     runType_(sistrip::UNDEFINED_RUN_TYPE),
-    db_(0),
-    cabling_(0),
+    db_(nullptr),
+    cabling_(nullptr),
     detInfo_(),
     uploadAnal_(false),
     uploadConf_(false)
@@ -77,6 +55,41 @@ CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
     << " Destructing object...";
+}
+
+void CommissioningHistosUsingDb::configure( const edm::ParameterSet&, const edm::EventSetup& setup )
+{
+  if ( !db_ ) {
+    edm::LogError(mlDqmClient_)
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " NULL pointer to SiStripConfigDb interface!"
+      << " Cannot configure...";
+  } else {
+    // Build FEC cabling object from connections found in DB
+    SiStripFecCabling fec_cabling;
+    if ( runType_ == sistrip::FAST_CABLING ) {
+      SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db_, fec_cabling );
+    } else {
+      SiStripFedCablingBuilderFromDb::buildFecCabling( db_, fec_cabling );
+    }
+
+    // Build FED cabling from FEC cabling
+    cabling_ = new SiStripFedCabling();
+    SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, *cabling_ );
+    std::stringstream ss;
+    ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " Terse print out of FED cabling:" << std::endl;
+    cabling_->terse(ss);
+    LogTrace(mlDqmClient_) << ss.str();
+
+    edm::ESHandle<TrackerTopology> tTopo;
+    setup.get<TrackerTopologyRcd>().get(tTopo);
+    std::stringstream sss;
+    sss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+        << " Summary of FED cabling:" << std::endl;
+    cabling_->summary(sss, tTopo.product());
+    edm::LogVerbatim(mlDqmClient_) << sss.str();
+  }
 }
 
 // -----------------------------------------------------------------------------

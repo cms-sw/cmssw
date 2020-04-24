@@ -65,7 +65,7 @@ float HcalNoiseRBX::allChargeTotal(void) const
 float HcalNoiseRBX::allChargeHighest2TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=firstts; i<firstts+2 && allCharge_.size(); i++)
+  for(unsigned int i=firstts; i<firstts+2 && !allCharge_.empty(); i++)
     total += allCharge_[i];
   return total;
 }
@@ -73,7 +73,7 @@ float HcalNoiseRBX::allChargeHighest2TS(unsigned int firstts) const
 float HcalNoiseRBX::allChargeHighest3TS(unsigned int firstts) const
 {
   float total=0;
-  for(unsigned int i=firstts; i<firstts+3 && allCharge_.size(); i++)
+  for(unsigned int i=firstts; i<firstts+3 && !allCharge_.empty(); i++)
     total += allCharge_[i];
   return total;
 }
@@ -104,6 +104,14 @@ double HcalNoiseRBX::recHitEnergy(double threshold) const
   return total;
 }
 
+double HcalNoiseRBX::recHitEnergyFailR45(double threshold) const
+{
+  double total=0;
+  for(unsigned int i=0; i<hpds_.size(); i++)
+    total += hpds_[i].recHitEnergyFailR45(threshold);
+  return total;
+}
+
 double HcalNoiseRBX::minRecHitTime(double threshold) const
 {
   double mintime=9999999.;
@@ -129,6 +137,14 @@ int HcalNoiseRBX::numRecHits(double threshold) const
   int total=0;
   for(unsigned int i=0; i<hpds_.size(); i++)
     total += hpds_[i].numRecHits(threshold);
+  return total;
+}
+
+int HcalNoiseRBX::numRecHitsFailR45(double threshold) const
+{
+  int total=0;
+  for(unsigned int i=0; i<hpds_.size(); i++)
+    total += hpds_[i].numRecHitsFailR45(threshold);
   return total;
 }
 

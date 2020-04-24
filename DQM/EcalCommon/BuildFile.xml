@@ -10,11 +10,12 @@
 <use   name="Geometry/CaloTopology"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/Records"/>
-<use   name="CondCore/DBOutputService"/>
+<use name="CalibCalorimetry/EcalLaserAnalyzer"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="DQMServices/Core"/>
 <use   name="rootcore"/>
+<use   name="boost"/>
 <export>
   <lib   name="1"/>
 </export>

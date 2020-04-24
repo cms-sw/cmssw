@@ -25,48 +25,16 @@ DQMScope::DQMScope(void)
 DQMScope::~DQMScope(void)
 { s_mutex.unlock(); }
 
-/// Restrict access to the DQM core.
-static void
-restrictDQMAccess(void)
-{ s_mutex.lock(); }
-
-static void
-restrictDQMAccessM(const edm::ModuleDescription &)
-{ restrictDQMAccess(); }
-
-static void
-restrictDQMAccessS(edm::StreamID)
-{ restrictDQMAccess(); }
-
-/// Release access to the DQM core.
-static void
-releaseDQMAccess(void)
-{ s_mutex.unlock(); }
-
-static void
-releaseDQMAccessM(const edm::ModuleDescription &)
-{ releaseDQMAccess(); }
-
-static void
-releaseDQMAccessS(edm::StreamID)
-{ releaseDQMAccess(); }
-
 // -------------------------------------------------------------------
 DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   : store_(&*edm::Service<DQMStore>()),
-    net_(0),
-    filter_(0),
+    net_(nullptr),
+    filter_(nullptr),
     lastFlush_(0),
     publishFrequency_(5.0)
 {
-  ar.watchPreSourceConstruction(&restrictDQMAccessM);
-  ar.watchPostSourceConstruction(&releaseDQMAccessM);
-  ar.watchPreSourceEvent(&restrictDQMAccessS);
-  ar.watchPostSourceEvent(&releaseDQMAccessS);
-  ar.watchPreModule(&restrictDQMAccessM);
-  ar.watchPostModule(&releaseDQMAccessM);
-  ar.watchPostProcessEvent(this, &DQMService::flush);
-  ar.watchPostEndJob(this, &DQMService::shutdown);
+  ar.watchPostEvent(this, &DQMService::flush);
+  ar.watchPostStreamEndLumi(this, &DQMService::flush);
 
   std::string host = pset.getUntrackedParameter<std::string>("collectorHost", ""); 
   int port = pset.getUntrackedParameter<int>("collectorPort", 9090);
@@ -176,7 +144,7 @@ void DQMService::flushStandalone()
           if (me.reference_)
 	    buffer.WriteObject(me.reference_);
           else
-	    buffer.WriteObjectAny(0, 0);
+	    buffer.WriteObjectAny(nullptr, nullptr);
           o.rawdata.resize(buffer.Length());
           memcpy(&o.rawdata[0], buffer.Buffer(), buffer.Length());
           DQMNet::packQualityData(o.qdata, me.data_.qreports);
@@ -210,7 +178,7 @@ void DQMService::flushStandalone()
 
 }
 void
-DQMService::flush(const edm::Event &, const edm::EventSetup &)
+DQMService::flush(edm::StreamContext const & sc)
 {
   // Call a function independent to the framework
   flushStandalone();

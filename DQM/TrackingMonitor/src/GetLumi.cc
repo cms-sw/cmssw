@@ -47,7 +47,6 @@ GetLumi::getRawValue(const edm::Event& iEvent)
   // DPGAnalysis/SiStripTools/src/DigiLumiCorrHistogramMaker.cc
   // the scale factor 6.37 should follow the lumi prescriptions
   edm::Handle<LumiDetails> lumi;
-  //  iEvent.getLuminosityBlock().getByLabel(lumiInputTag_,lumi);
   iEvent.getLuminosityBlock().getByToken(lumiSummaryToken_,lumi);
   
 
@@ -80,7 +79,6 @@ GetLumi::getRawValue(edm::LuminosityBlock const& lumiBlock,
   // accumulate HF data at every LS as it is closed. 
   // note: lumi unit from DIPLumiSummary and Detail is microbarns
   edm::Handle<LumiSummary> lumiSummary_;
-  //  lumiBlock.getByLabel(lumiInputTag_, lumiSummary_);
   lumiBlock.getByToken(lumiSummaryToken_, lumiSummary_);
   if(lumiSummary_->isValid()){
     lumi = lumiSummary_->avgInsDelLumi();

@@ -30,10 +30,12 @@ namespace cms {
 }
 
 namespace edm {
+  class ModuleDescription;
   typedef std::vector<ParameterSet> VParameterSet;
 
   class ParameterSet {
   public:
+    template<typename T> friend class ParameterDescription;
     enum Bool {
       False = 0,
       True = 1,
@@ -242,11 +244,11 @@ namespace edm {
 
     ParameterSet const& registerIt();
 
-    std::auto_ptr<ParameterSet> popParameterSet(std::string const& name);
+    std::unique_ptr<ParameterSet> popParameterSet(std::string const& name);
     void eraseSimpleParameter(std::string const& name);
     void eraseOrSetUntrackedParameterSet(std::string const& name);
 
-    std::auto_ptr<std::vector<ParameterSet> > popVParameterSet(std::string const& name);
+    std::vector<ParameterSet> popVParameterSet(std::string const& name);
 
     typedef std::map<std::string, Entry> table;
     table const& tbl() const {return tbl_;}
@@ -333,6 +335,9 @@ namespace edm {
   // Free function to retrieve a parameter set, given the parameter set ID.
   ParameterSet const&
   getParameterSet(ParameterSetID const& id);
+
+  ParameterSet const&
+  getProcessParameterSetContainingModule(ModuleDescription const& moduleDescription);
 
   // specializations
   // ----------------------------------------------------------------------

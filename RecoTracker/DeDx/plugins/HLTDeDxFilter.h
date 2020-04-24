@@ -23,9 +23,9 @@ class HLTDeDxFilter : public HLTFilter {
 
    public:
       explicit HLTDeDxFilter(const edm::ParameterSet&);
-      ~HLTDeDxFilter();
+      ~HLTDeDxFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       bool saveTags_;              // whether to save this tag
@@ -33,8 +33,17 @@ class HLTDeDxFilter : public HLTFilter {
       double minPT_;
       double minNOM_;
       double maxETA_;
+      double minNumValidHits_;
+      double maxNHitMissIn_;
+      double maxNHitMissMid_;
+      double maxRelTrkIsoDeltaRp3_;
+      double relTrkIsoDeltaRSize_;
+      double maxAssocCaloE_;
+      double maxAssocCaloEDeltaRSize_;
       edm::EDGetToken inputTracksToken_;
+      edm::EDGetToken caloTowersToken_;
       edm::EDGetToken inputdedxToken_;
+      edm::InputTag caloTowersTag_;
       edm::InputTag inputTracksTag_;
       edm::InputTag inputdedxTag_;
       edm::InputTag thisModuleTag_;

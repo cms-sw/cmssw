@@ -19,15 +19,15 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -40,15 +40,17 @@ namespace edm {
 class CaloTowerConstituentsMapBuilder : public edm::ESProducer {
 public:
   CaloTowerConstituentsMapBuilder(const edm::ParameterSet&);
-  ~CaloTowerConstituentsMapBuilder();
+  ~CaloTowerConstituentsMapBuilder() override;
 
-  typedef std::auto_ptr<CaloTowerConstituentsMap> ReturnType;
+  typedef std::unique_ptr<CaloTowerConstituentsMap> ReturnType;
 
-  ReturnType produce(const IdealGeometryRecord&);
+  ReturnType produce(const CaloGeometryRecord&);
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   void parseTextMap(const std::string& filename,CaloTowerConstituentsMap& theMap);
+  void assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo);
   std::string mapFile_;
+  bool mapAuto_, skipHE_;
 };
 

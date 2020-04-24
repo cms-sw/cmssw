@@ -59,7 +59,7 @@ double gen::hwrgen_(int *idummy)
 
 void gen::cms_hwwarn_(char fn[6], int *code, int *exit)
 {
-	std::string function(fn, fn + sizeof fn);
+	std::string function(fn, 6);
 	*exit = FortranInstance::getInstance<Herwig6Instance>()->hwwarn(function, *code);
 }
 

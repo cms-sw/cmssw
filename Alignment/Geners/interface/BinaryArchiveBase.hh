@@ -201,7 +201,7 @@ namespace gs {
                                                unsigned* compressionCode,
                                                unsigned long long* length) = 0;
 
-        std::istream& inputStream(unsigned long long id);
+        std::istream& inputStream(unsigned long long id, long long* sz);
         std::ostream& outputStream();
         std::ostream& compressedStream(std::ostream& uncompressed);
         unsigned flushCompressedRecord(std::ostream& compressed);

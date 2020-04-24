@@ -61,7 +61,7 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
   vstring vetos = iConfig.getParameter< vstring >("vetos");
   reco::isodeposit::EventDependentAbsVeto *evdep;
   for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
-    vetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep));
+    vetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
     if (evdep) evdepVetos_.push_back(evdep);
   }
   std::string weight = iConfig.getParameter<std::string>("weight");
@@ -140,10 +140,10 @@ void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetu
   const IsoDepositMap & map = begin->map();
 
   if (map.size()==0) { // !!???
-        event.put(std::auto_ptr<CandDoubleMap>(new CandDoubleMap()));
+        event.put(std::make_unique<CandDoubleMap>());
         return;
   }
-  std::auto_ptr<CandDoubleMap> ret(new CandDoubleMap());
+  auto ret = std::make_unique<CandDoubleMap>();
   CandDoubleMap::Filler filler(*ret);
 
   typedef reco::IsoDepositMap::const_iterator iterator_i;
@@ -167,7 +167,7 @@ void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetu
     filler.insert(candH, retV.begin(), retV.end());
   }
   filler.fill();
-  event.put(ret);
+  event.put(std::move(ret));
 }
 
 DEFINE_FWK_MODULE( CandIsolatorFromDeposits );

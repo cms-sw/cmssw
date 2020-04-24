@@ -24,7 +24,7 @@ namespace reco {
 		       boost::shared_ptr<ComparisonBase> cmp2,
 		       boost::shared_ptr<ExpressionBase> rhs ) :
 	lhs_( lhs ), cmp1_( cmp1 ), mid_( mid ), cmp2_( cmp2 ),rhs_( rhs ) {}
-      virtual bool operator()( const edm::ObjectWithDict& o ) const {
+      bool operator()( const edm::ObjectWithDict& o ) const override {
 	return 
 	  cmp1_->compare( lhs_->value( o ), mid_->value( o ) ) &&
 	  cmp2_->compare( mid_->value( o ), rhs_->value( o ) );

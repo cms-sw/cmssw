@@ -1,3 +1,4 @@
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -17,7 +18,7 @@ class IgProfModule : public edm::EDAnalyzer
 {
 public:
   IgProfModule(const edm::ParameterSet &ps)
-    : dump_(0),
+    : dump_(nullptr),
       prescale_(0),
       nrecord_(0),
       nevent_(0),
@@ -34,7 +35,7 @@ public:
       // since the suggested decision seems to be that the syntax should
       // actually be "Conditionally-Supported Behavior" in some 
       // future C++ standard I simply silence the warning.
-      if (void *sym = dlsym(0, "igprof_dump_now"))
+      if (void *sym = dlsym(nullptr, "igprof_dump_now"))
         dump_ = __extension__ (void(*)(const char *)) sym;
       else
 	edm::LogWarning("IgProfModule")
@@ -50,32 +51,32 @@ public:
       atEvent_     = ps.getUntrackedParameter<std::string>("reportToFileAtEvent", atEvent_);
     }
 
-  virtual void beginJob() override
+  void beginJob() override
     { makeDump(atBeginJob_); }
 
-  virtual void endJob(void) override
+  void endJob(void) override
     { makeDump(atEndJob_); }
 
-  virtual void analyze(const edm::Event &e, const edm::EventSetup &) override
+  void analyze(const edm::Event &e, const edm::EventSetup &) override
     {
       nevent_ = e.id().event();
       if (prescale_ > 0 && (++nrecord_ % prescale_) == 1)
         makeDump(atEvent_);
     }
 
-  virtual void beginRun(const edm::Run &r, const edm::EventSetup &) override
+  void beginRun(const edm::Run &r, const edm::EventSetup &) override
     { nrun_ = r.run(); makeDump(atBeginRun_); }
 
-  virtual void endRun(const edm::Run &, const edm::EventSetup &) override
+  void endRun(const edm::Run &, const edm::EventSetup &) override
     { makeDump(atEndRun_); }
 
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &) override
+  void beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &) override
     { nlumi_ = l.luminosityBlock(); makeDump(atBeginLumi_); }
 
-  virtual void endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &) override
+  void endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &) override
     { makeDump(atEndLumi_); }
 
-  virtual void respondToOpenInputFile(const edm::FileBlock &) override
+  void respondToOpenInputFile(const edm::FileBlock &) override
     { ++nfile_; makeDump(atInputFile_); }
 
 private:
@@ -86,9 +87,9 @@ private:
 
       std::string final(format);
       final = replace(final, "%I", nrecord_);
-      final = replace(final, "%E", nevent_);
-      final = replace(final, "%R", nrun_);
-      final = replace(final, "%L", nlumi_);
+      final = replaceU64(final, "%E", nevent_);
+      final = replaceU64(final, "%R", nrun_);
+      final = replaceU64(final, "%L", nlumi_);
       final = replace(final, "%F", nfile_);
       dump_(final.c_str());
     }
@@ -109,6 +110,22 @@ private:
       return result;
     }
 
+  static std::string replaceU64(const std::string &s, const char *pat, unsigned long long val)
+    {
+      size_t pos = 0;
+      size_t patlen = strlen(pat);
+      std::string result = s;
+      while ((pos = result.find(pat, pos)) != std::string::npos)
+      {
+	char buf[64];
+	int n = sprintf(buf, "%llu", val);
+	result.replace(pos, patlen, buf);
+	pos = pos - patlen + n;
+      }
+
+      return result;
+    }
+
   void (*dump_)(const char *);
   std::string atBeginJob_;
   std::string atEndJob_;
@@ -120,9 +137,9 @@ private:
   std::string atEvent_;
   int prescale_;
   int nrecord_;
-  int nevent_;
-  int nrun_;
-  int nlumi_;
+  edm::EventNumber_t nevent_;
+  edm::RunNumber_t nrun_;
+  edm::LuminosityBlockNumber_t nlumi_;
   int nfile_;
 };
 

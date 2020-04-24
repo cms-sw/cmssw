@@ -62,6 +62,7 @@ MVAComputer::MVAComputer(std::istream &is) :
 
 void MVAComputer::setup(const Calibration::MVAComputer *calib)
 {
+
 	nVars = calib->inputSet.size();
 	output = calib->output;
 
@@ -121,45 +122,42 @@ void MVAComputer::setup(const Calibration::MVAComputer *calib)
 
 	std::set<InputVar> variables;
 	unsigned int i = 0;
-	for(std::vector<Calibration::Variable>::const_iterator iter =
-			calib->inputSet.begin(); iter != calib->inputSet.end();
-	    ++iter, i++) {
+	for(std::vector<Calibration::Variable>::const_iterator iter = calib->inputSet.begin(); iter != calib->inputSet.end(); ++iter, i++) {
 		InputVar var;
 		var.var = Variable(iter->name, config[i].mask);
 		var.index = i;
-                var.multiplicity = 0;
+		var.multiplicity = 0;
 		variables.insert(var);
 	}
 
 	inputVariables.resize(i);
-	std::copy(variables.begin(), variables.end(),
-	          inputVariables.begin());
 
+	std::copy(variables.begin(), variables.end(), inputVariables.begin());
+	
 	for(unsigned int j = 0; j < i; j++)
-		inputVariables[j].multiplicity = config[j].origin;
+		inputVariables[j].multiplicity = config[j].origin;	
+
 }
 
 MVAComputer::~MVAComputer()
 {
 }
 
-unsigned int MVAComputer::getVariableId(AtomicId name) const
+int MVAComputer::getVariableId(AtomicId name) const
 {
-	std::vector<InputVar>::const_iterator pos =
-		std::lower_bound(inputVariables.begin(), inputVariables.end(),
-		                 name);
+
+	std::vector<InputVar>::const_iterator pos = std::lower_bound(inputVariables.begin(), inputVariables.end(), name);
 
 	if (pos == inputVariables.end() || pos->var.getName() != name)
-		throw cms::Exception("InvalidVariable")
-			<< "Input variable " << (const char*)name
-			<< " not found."  << std::endl;
-
-	return pos->index;
+		return -1;
+	else
+		return pos->index;
 }
 
 template<class T>
 void MVAComputer::evalInternal(T &ctx) const
 {
+	
 	double *output = ctx.values() + ctx.n();
 	int *outConf = ctx.conf() + inputVariables.size();
 
@@ -178,6 +176,7 @@ void MVAComputer::evalInternal(T &ctx) const
 		int *loopOutConf = outConf;
 		int *loopStart = 0;
 		double *loopOutput = output;
+                VarProcessor::LoopCtx loopCtx;
 
 		VarProcessor::LoopStatus status = VarProcessor::kNext;
 		unsigned int offset = 0;
@@ -187,13 +186,14 @@ void MVAComputer::evalInternal(T &ctx) const
 			                          ? next->nOutput : 0;
 
 #ifdef DEBUG_EVAL
-                        std::string demangledName;
-                        edm::typeDemangle(typeid(*iter->processor).name(), demangledName);
-			std::cout << demangledName << std::endl;
+		std::string demangledName;
+		edm::typeDemangle(typeid(*iter->processor).name(), demangledName);
+		std::cout << demangledName << std::endl;
 #endif
 			if (status != VarProcessor::kSkip)
 				ctx.eval(&*iter->processor, outConf, output,
 				         loopStart ? loopStart : loopOutConf,
+                                         loopCtx,
 				         offset, iter->nOutput);
 
 #ifdef DEBUG_EVAL
@@ -212,7 +212,7 @@ void MVAComputer::evalInternal(T &ctx) const
 #endif
 
 			status = loop->processor->loop(output, outConf,
-			                               nextOutput, offset);
+			                               nextOutput, loopCtx, offset);
 
 			if (status == VarProcessor::kReset) {
 				outConf = loopOutConf;
@@ -311,10 +311,11 @@ void MVAComputer::writeCalibration(std::ostream &os,
 
 void MVAComputer::DerivContext::eval(
 		const VarProcessor *proc, int *outConf, double *output,
-		int *loop, unsigned int offset, unsigned int out) const
+		int *loop, VarProcessor::LoopCtx& ctx, 
+                unsigned int offset, unsigned int out) const
 {
 	proc->deriv(values(), conf(), output, outConf,
-	            loop, offset, n(), out, deriv_);
+	            loop, ctx, offset, n(), out, deriv_);
 }
 
 double MVAComputer::DerivContext::output(unsigned int output,

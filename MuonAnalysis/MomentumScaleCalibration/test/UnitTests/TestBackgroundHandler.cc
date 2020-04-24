@@ -11,11 +11,7 @@
 #include <iterator>
 #include <boost/foreach.hpp>
 
-#define private public
-#define protected public
 #include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundHandler.h"
-#undef private
-#undef protected
 
 #ifndef TestBackgroundHandler_cc
 #define TestBackgroundHandler_cc

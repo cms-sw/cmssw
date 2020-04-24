@@ -35,7 +35,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet)
   pObjectManager->RegisterPointer("TEcnaRun", i_this);
 
   //............................ fCnaParCout
-  fCnaParCout = 0;
+  fCnaParCout = nullptr;
   Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
@@ -43,7 +43,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet)
     {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
 
   //............................ fCnaParPaths
-  fCnaParPaths = 0;
+  fCnaParPaths = nullptr;
   Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
@@ -62,7 +62,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet)
   const Text_t *h_name  = "CnaHeader";  //==> voir cette question avec FXG
   const Text_t *h_title = "CnaHeader";  //==> voir cette question avec FXG
 
-  fFileHeader = 0;
+  fFileHeader = nullptr;
   //Int_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
   Long_t iFileHeader = 0;  // one TEcnaHeader object for each file since they can be open simultaneously 
   if( iFileHeader == 0 )
@@ -85,7 +85,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet, const Int
   pObjectManager->RegisterPointer("TEcnaRun", i_this);
 
   //............................ fCnaParCout
-  fCnaParCout = 0;
+  fCnaParCout = nullptr;
   Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
@@ -93,7 +93,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet, const Int
     {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
 
   //............................ fCnaParPaths
-  fCnaParPaths = 0;
+  fCnaParPaths = nullptr;
   Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
@@ -107,7 +107,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet, const Int
   const Text_t *h_name  = "CnaHeader";  //==> voir cette question avec FXG
   const Text_t *h_title = "CnaHeader";  //==> voir cette question avec FXG
 
-  fFileHeader = 0;
+  fFileHeader = nullptr;
   //Long_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
   Long_t iFileHeader = 0;  // one TEcnaHeader object for each file since they can be open simultaneously 
   if( iFileHeader == 0 )
@@ -150,103 +150,103 @@ void TEcnaRun::Init()
   //................ MiscDiag counters .................
   fMaxMsgIndexForMiscDiag = (Int_t)10;
   fNbOfMiscDiagCounters   = (Int_t)50;
-  fMiscDiag = 0;
+  fMiscDiag = nullptr;
 
   fNumberOfEvents = 0;
   //............................. init pointers  ( Init() )
-  fT3d_AdcValues  = 0;
-  fT3d2_AdcValues = 0;
-  fT3d1_AdcValues = 0;
+  fT3d_AdcValues  = nullptr;
+  fT3d2_AdcValues = nullptr;
+  fT3d1_AdcValues = nullptr;
 
-  fT1d_StexStinFromIndex = 0;
+  fT1d_StexStinFromIndex = nullptr;
 
-  fT2d_NbOfEvts = 0;
-  fT1d_NbOfEvts = 0; 
+  fT2d_NbOfEvts = nullptr;
+  fT1d_NbOfEvts = nullptr; 
 
-  fT2d_ev        = 0;
-  fT1d_ev        = 0;
-  fT2d_sig       = 0;
-  fT1d_sig       = 0;
+  fT2d_ev        = nullptr;
+  fT1d_ev        = nullptr;
+  fT2d_sig       = nullptr;
+  fT1d_sig       = nullptr;
 
-  fT3d_cov_ss    = 0;
-  fT3d2_cov_ss   = 0;
-  fT3d1_cov_ss   = 0;
+  fT3d_cov_ss    = nullptr;
+  fT3d2_cov_ss   = nullptr;
+  fT3d1_cov_ss   = nullptr;
 
-  fT3d_cor_ss    = 0;
-  fT3d2_cor_ss   = 0;
-  fT3d1_cor_ss   = 0;
+  fT3d_cor_ss    = nullptr;
+  fT3d2_cor_ss   = nullptr;
+  fT3d1_cor_ss   = nullptr;
 
-  fT2d_lf_cov  = 0;
-  fT2d1_lf_cov = 0;
+  fT2d_lf_cov  = nullptr;
+  fT2d1_lf_cov = nullptr;
 
-  fT2d_lf_cor  = 0;
-  fT2d1_lf_cor = 0;
+  fT2d_lf_cor  = nullptr;
+  fT2d1_lf_cor = nullptr;
 
-  fT2d_hf_cov  = 0;
-  fT2d1_hf_cov = 0;
+  fT2d_hf_cov  = nullptr;
+  fT2d1_hf_cov = nullptr;
 
-  fT2d_hf_cor  = 0;
-  fT2d1_hf_cor = 0;
+  fT2d_hf_cor  = nullptr;
+  fT2d1_hf_cor = nullptr;
 
-  fT2d_lfcc_mostins  = 0;
-  fT2d1_lfcc_mostins = 0;
+  fT2d_lfcc_mostins  = nullptr;
+  fT2d1_lfcc_mostins = nullptr;
 
-  fT2d_hfcc_mostins  = 0;
-  fT2d1_hfcc_mostins = 0;
+  fT2d_hfcc_mostins  = nullptr;
+  fT2d1_hfcc_mostins = nullptr;
 
-  fT1d_ev_ev            = 0;
-  fT1d_evsamp_of_sigevt = 0;
-  fT1d_ev_cor_ss        = 0;
-  fT1d_av_mped          = 0;
-  fT1d_av_totn          = 0;
-  fT1d_av_lofn          = 0;
-  fT1d_av_hifn          = 0;
-  fT1d_av_ev_corss      = 0;
-  fT1d_av_sig_corss     = 0;
+  fT1d_ev_ev            = nullptr;
+  fT1d_evsamp_of_sigevt = nullptr;
+  fT1d_ev_cor_ss        = nullptr;
+  fT1d_av_mped          = nullptr;
+  fT1d_av_totn          = nullptr;
+  fT1d_av_lofn          = nullptr;
+  fT1d_av_hifn          = nullptr;
+  fT1d_av_ev_corss      = nullptr;
+  fT1d_av_sig_corss     = nullptr;
 
-  fT1d_sigevt_of_evsamp = 0;
-  fT1d_evevt_of_sigsamp = 0;
-  fT1d_sig_cor_ss       = 0;
+  fT1d_sigevt_of_evsamp = nullptr;
+  fT1d_evevt_of_sigsamp = nullptr;
+  fT1d_sig_cor_ss       = nullptr;
 
-  fT2dCrysNumbersTable = 0;
-  fT1dCrysNumbersTable = 0;
+  fT2dCrysNumbersTable = nullptr;
+  fT1dCrysNumbersTable = nullptr;
 
   //................................ tags   ( Init() )
-  fTagStinNumbers = 0;
+  fTagStinNumbers = nullptr;
 
-  fTagNbOfEvts = 0;
+  fTagNbOfEvts = nullptr;
 
-  fTagAdcEvt = 0;
+  fTagAdcEvt = nullptr;
 
-  fTagMSp    = 0;
-  fTagSSp    = 0;
+  fTagMSp    = nullptr;
+  fTagSSp    = nullptr;
 
-  fTagCovCss = 0;
-  fTagCorCss = 0;
+  fTagCovCss = nullptr;
+  fTagCorCss = nullptr;
 
-  fTagHfCov  = 0;
-  fTagHfCor  = 0;
-  fTagLfCov  = 0;
-  fTagLfCor  = 0;
+  fTagHfCov  = nullptr;
+  fTagHfCor  = nullptr;
+  fTagLfCov  = nullptr;
+  fTagLfCor  = nullptr;
 
-  fTagLFccMoStins = 0;
-  fTagHFccMoStins = 0;
+  fTagLFccMoStins = nullptr;
+  fTagHFccMoStins = nullptr;
 
-  fTagPed = 0;
-  fTagTno = 0;
-  fTagMeanCorss = 0;
+  fTagPed = nullptr;
+  fTagTno = nullptr;
+  fTagMeanCorss = nullptr;
 
-  fTagLfn = 0;
-  fTagHfn = 0;
-  fTagSigCorss = 0;
+  fTagLfn = nullptr;
+  fTagHfn = nullptr;
+  fTagSigCorss = nullptr;
 
-  fTagAvPed = 0;
-  fTagAvTno = 0;
-  fTagAvLfn = 0;
-  fTagAvHfn = 0;
+  fTagAvPed = nullptr;
+  fTagAvTno = nullptr;
+  fTagAvLfn = nullptr;
+  fTagAvHfn = nullptr;
 
-  fTagAvMeanCorss = 0;
-  fTagAvSigCorss  = 0;
+  fTagAvMeanCorss = nullptr;
+  fTagAvSigCorss  = nullptr;
 
   //................................................... Code Print  ( Init() )
   fCodePrintNoComment   = fCnaParCout->GetCodePrint("NoComment");
@@ -257,7 +257,7 @@ void TEcnaRun::Init()
   fFlagPrint = fCodePrintWarnings;
 
   //...................................................
-  gCnaRootFile = 0;
+  gCnaRootFile = nullptr;
   fOpenRootFile = kFALSE;
   fReadyToReadData = 0;
 
@@ -281,9 +281,9 @@ void  TEcnaRun::SetEcalSubDetector(const TString& SubDet)
   fFlagSubDet = SubDet.Data();
 
 
-  fEcal          = 0; fEcal          = new TEcnaParEcal(fFlagSubDet.Data());           //fCnew++;
-  fEcalNumbering = 0; fEcalNumbering = new TEcnaNumbering(fFlagSubDet.Data(), fEcal);  //fCnew++;
-  fCnaWrite      = 0;
+  fEcal          = nullptr; fEcal          = new TEcnaParEcal(fFlagSubDet.Data());           //fCnew++;
+  fEcalNumbering = nullptr; fEcalNumbering = new TEcnaNumbering(fFlagSubDet.Data(), fEcal);  //fCnew++;
+  fCnaWrite      = nullptr;
 
   fCnaWrite =
     new TEcnaWrite(fFlagSubDet.Data(), fCnaParPaths, fCnaParCout, fEcal, fEcalNumbering); //fCnew++;
@@ -369,7 +369,7 @@ TEcnaRun::~TEcnaRun()
 	   << fNbOfMiscDiagCounters << ")" << std::endl;
     }
   
-  if (fMiscDiag                != 0){delete [] fMiscDiag;                 fCdelete++;}
+  if (fMiscDiag                != nullptr){delete [] fMiscDiag;                 fCdelete++;}
   
   //if (fFileHeader              != 0){delete fFileHeader;                  fCdelete++;}
   //if (fEcal                    != 0){delete fEcal;                        fCdelete++;}
@@ -378,95 +378,95 @@ TEcnaRun::~TEcnaRun()
   //if (fCnaParPaths             != 0){delete fCnaParPaths;                 fCdelete++;}
   //if (fCnaWrite                != 0){delete fCnaWrite;                    fCdelete++;}
   
-  if (fT1d_StexStinFromIndex   != 0){delete [] fT1d_StexStinFromIndex;    fCdelete++;}
+  if (fT1d_StexStinFromIndex   != nullptr){delete [] fT1d_StexStinFromIndex;    fCdelete++;}
 
-  if (fT2d_NbOfEvts        != 0){delete [] fT2d_NbOfEvts;         fCdelete++;}
-  if (fT1d_NbOfEvts        != 0){delete [] fT1d_NbOfEvts;         fCdelete++;}
+  if (fT2d_NbOfEvts        != nullptr){delete [] fT2d_NbOfEvts;         fCdelete++;}
+  if (fT1d_NbOfEvts        != nullptr){delete [] fT1d_NbOfEvts;         fCdelete++;}
 
-  if (fT3d_AdcValues        != 0){delete [] fT3d_AdcValues;         fCdelete++;}
-  if (fT3d2_AdcValues       != 0){delete [] fT3d2_AdcValues;        fCdelete++;}
-  if (fT3d1_AdcValues       != 0){delete [] fT3d1_AdcValues;        fCdelete++;}
+  if (fT3d_AdcValues        != nullptr){delete [] fT3d_AdcValues;         fCdelete++;}
+  if (fT3d2_AdcValues       != nullptr){delete [] fT3d2_AdcValues;        fCdelete++;}
+  if (fT3d1_AdcValues       != nullptr){delete [] fT3d1_AdcValues;        fCdelete++;}
 
-  if (fT2d_ev              != 0){delete [] fT2d_ev;               fCdelete++;}
-  if (fT1d_ev              != 0){delete [] fT1d_ev;               fCdelete++;}
+  if (fT2d_ev              != nullptr){delete [] fT2d_ev;               fCdelete++;}
+  if (fT1d_ev              != nullptr){delete [] fT1d_ev;               fCdelete++;}
 
-  if (fT2d_sig             != 0){delete [] fT2d_sig;              fCdelete++;}
-  if (fT1d_sig             != 0){delete [] fT1d_sig;              fCdelete++;}
+  if (fT2d_sig             != nullptr){delete [] fT2d_sig;              fCdelete++;}
+  if (fT1d_sig             != nullptr){delete [] fT1d_sig;              fCdelete++;}
 
-  if (fT3d_cov_ss          != 0){delete [] fT3d_cov_ss;           fCdelete++;}
-  if (fT3d2_cov_ss         != 0){delete [] fT3d2_cov_ss;          fCdelete++;}
-  if (fT3d1_cov_ss         != 0){delete [] fT3d1_cov_ss;          fCdelete++;}
+  if (fT3d_cov_ss          != nullptr){delete [] fT3d_cov_ss;           fCdelete++;}
+  if (fT3d2_cov_ss         != nullptr){delete [] fT3d2_cov_ss;          fCdelete++;}
+  if (fT3d1_cov_ss         != nullptr){delete [] fT3d1_cov_ss;          fCdelete++;}
 
-  if (fT3d_cor_ss          != 0){delete [] fT3d_cor_ss;           fCdelete++;}
-  if (fT3d2_cor_ss         != 0){delete [] fT3d2_cor_ss;          fCdelete++;}
-  if (fT3d1_cor_ss         != 0){delete [] fT3d1_cor_ss;          fCdelete++;}
+  if (fT3d_cor_ss          != nullptr){delete [] fT3d_cor_ss;           fCdelete++;}
+  if (fT3d2_cor_ss         != nullptr){delete [] fT3d2_cor_ss;          fCdelete++;}
+  if (fT3d1_cor_ss         != nullptr){delete [] fT3d1_cor_ss;          fCdelete++;}
 
-  if (fT2d_lf_cov          != 0){delete [] fT2d_lf_cov;           fCdelete++;}
-  if (fT2d1_lf_cov         != 0){delete [] fT2d1_lf_cov;          fCdelete++;}
+  if (fT2d_lf_cov          != nullptr){delete [] fT2d_lf_cov;           fCdelete++;}
+  if (fT2d1_lf_cov         != nullptr){delete [] fT2d1_lf_cov;          fCdelete++;}
 
-  if (fT2d_lf_cor          != 0){delete [] fT2d_lf_cor;           fCdelete++;}
-  if (fT2d1_lf_cor         != 0){delete [] fT2d1_lf_cor;          fCdelete++;}
+  if (fT2d_lf_cor          != nullptr){delete [] fT2d_lf_cor;           fCdelete++;}
+  if (fT2d1_lf_cor         != nullptr){delete [] fT2d1_lf_cor;          fCdelete++;}
 
-  if (fT2d_hf_cov          != 0){delete [] fT2d_hf_cov;           fCdelete++;}
-  if (fT2d1_hf_cov         != 0){delete [] fT2d1_hf_cov;          fCdelete++;}
+  if (fT2d_hf_cov          != nullptr){delete [] fT2d_hf_cov;           fCdelete++;}
+  if (fT2d1_hf_cov         != nullptr){delete [] fT2d1_hf_cov;          fCdelete++;}
 
-  if (fT2d_hf_cor          != 0){delete [] fT2d_hf_cor;           fCdelete++;}
-  if (fT2d1_hf_cor         != 0){delete [] fT2d1_hf_cor;          fCdelete++;}
+  if (fT2d_hf_cor          != nullptr){delete [] fT2d_hf_cor;           fCdelete++;}
+  if (fT2d1_hf_cor         != nullptr){delete [] fT2d1_hf_cor;          fCdelete++;}
 
-  if (fT2d_lfcc_mostins    != 0){delete [] fT2d_lfcc_mostins;     fCdelete++;}
-  if (fT2d1_lfcc_mostins   != 0){delete [] fT2d1_lfcc_mostins ;   fCdelete++;}
+  if (fT2d_lfcc_mostins    != nullptr){delete [] fT2d_lfcc_mostins;     fCdelete++;}
+  if (fT2d1_lfcc_mostins   != nullptr){delete [] fT2d1_lfcc_mostins ;   fCdelete++;}
 
-  if (fT2d_hfcc_mostins    != 0){delete [] fT2d_hfcc_mostins ;    fCdelete++;}
-  if (fT2d1_hfcc_mostins   != 0){delete [] fT2d1_hfcc_mostins;    fCdelete++;}
+  if (fT2d_hfcc_mostins    != nullptr){delete [] fT2d_hfcc_mostins ;    fCdelete++;}
+  if (fT2d1_hfcc_mostins   != nullptr){delete [] fT2d1_hfcc_mostins;    fCdelete++;}
 
-  if (fT1d_ev_ev             != 0){delete [] fT1d_ev_ev;              fCdelete++;}
-  if (fT1d_evsamp_of_sigevt  != 0){delete [] fT1d_evsamp_of_sigevt;   fCdelete++;}
-  if (fT1d_ev_cor_ss         != 0){delete [] fT1d_ev_cor_ss;          fCdelete++;}
-  if (fT1d_av_mped           != 0){delete [] fT1d_av_mped;            fCdelete++;}
-  if (fT1d_av_totn           != 0){delete [] fT1d_av_totn;            fCdelete++;}
-  if (fT1d_av_lofn           != 0){delete [] fT1d_av_lofn;            fCdelete++;}
-  if (fT1d_av_hifn           != 0){delete [] fT1d_av_hifn;            fCdelete++;}
-  if (fT1d_av_ev_corss       != 0){delete [] fT1d_av_ev_corss;        fCdelete++;}
-  if (fT1d_av_sig_corss      != 0){delete [] fT1d_av_sig_corss;       fCdelete++;}
+  if (fT1d_ev_ev             != nullptr){delete [] fT1d_ev_ev;              fCdelete++;}
+  if (fT1d_evsamp_of_sigevt  != nullptr){delete [] fT1d_evsamp_of_sigevt;   fCdelete++;}
+  if (fT1d_ev_cor_ss         != nullptr){delete [] fT1d_ev_cor_ss;          fCdelete++;}
+  if (fT1d_av_mped           != nullptr){delete [] fT1d_av_mped;            fCdelete++;}
+  if (fT1d_av_totn           != nullptr){delete [] fT1d_av_totn;            fCdelete++;}
+  if (fT1d_av_lofn           != nullptr){delete [] fT1d_av_lofn;            fCdelete++;}
+  if (fT1d_av_hifn           != nullptr){delete [] fT1d_av_hifn;            fCdelete++;}
+  if (fT1d_av_ev_corss       != nullptr){delete [] fT1d_av_ev_corss;        fCdelete++;}
+  if (fT1d_av_sig_corss      != nullptr){delete [] fT1d_av_sig_corss;       fCdelete++;}
 
-  if (fT1d_sigevt_of_evsamp    != 0){delete [] fT1d_sigevt_of_evsamp;     fCdelete++;}
-  if (fT1d_evevt_of_sigsamp    != 0){delete [] fT1d_evevt_of_sigsamp;     fCdelete++;}
-  if (fT1d_sig_cor_ss          != 0){delete [] fT1d_sig_cor_ss;           fCdelete++;}
+  if (fT1d_sigevt_of_evsamp    != nullptr){delete [] fT1d_sigevt_of_evsamp;     fCdelete++;}
+  if (fT1d_evevt_of_sigsamp    != nullptr){delete [] fT1d_evevt_of_sigsamp;     fCdelete++;}
+  if (fT1d_sig_cor_ss          != nullptr){delete [] fT1d_sig_cor_ss;           fCdelete++;}
 
-  if (fT2dCrysNumbersTable     != 0){delete [] fT2dCrysNumbersTable;      fCdelete++;}
-  if (fT1dCrysNumbersTable     != 0){delete [] fT1dCrysNumbersTable;      fCdelete++;}
+  if (fT2dCrysNumbersTable     != nullptr){delete [] fT2dCrysNumbersTable;      fCdelete++;}
+  if (fT1dCrysNumbersTable     != nullptr){delete [] fT1dCrysNumbersTable;      fCdelete++;}
 
-  if (fTagStinNumbers          != 0){delete [] fTagStinNumbers;           fCdelete++;}
-  if (fTagNbOfEvts             != 0){delete [] fTagNbOfEvts;              fCdelete++;}
-  if (fTagAdcEvt               != 0){delete [] fTagAdcEvt;                fCdelete++;}
-  if (fTagMSp                  != 0){delete [] fTagMSp;                   fCdelete++;}
-  if (fTagSSp                  != 0){delete [] fTagSSp;                   fCdelete++;}
+  if (fTagStinNumbers          != nullptr){delete [] fTagStinNumbers;           fCdelete++;}
+  if (fTagNbOfEvts             != nullptr){delete [] fTagNbOfEvts;              fCdelete++;}
+  if (fTagAdcEvt               != nullptr){delete [] fTagAdcEvt;                fCdelete++;}
+  if (fTagMSp                  != nullptr){delete [] fTagMSp;                   fCdelete++;}
+  if (fTagSSp                  != nullptr){delete [] fTagSSp;                   fCdelete++;}
 
-  if (fTagCovCss               != 0){delete [] fTagCovCss;                fCdelete++;}
-  if (fTagCorCss               != 0){delete [] fTagCorCss;                fCdelete++;}
+  if (fTagCovCss               != nullptr){delete [] fTagCovCss;                fCdelete++;}
+  if (fTagCorCss               != nullptr){delete [] fTagCorCss;                fCdelete++;}
 
-  if (fTagHfCov                != 0){delete [] fTagHfCov;                 fCdelete++;}
-  if (fTagHfCor                != 0){delete [] fTagHfCor;                 fCdelete++;}
-  if (fTagLfCov                != 0){delete [] fTagLfCov;                 fCdelete++;}
-  if (fTagLfCor                != 0){delete [] fTagLfCor;                 fCdelete++;}
+  if (fTagHfCov                != nullptr){delete [] fTagHfCov;                 fCdelete++;}
+  if (fTagHfCor                != nullptr){delete [] fTagHfCor;                 fCdelete++;}
+  if (fTagLfCov                != nullptr){delete [] fTagLfCov;                 fCdelete++;}
+  if (fTagLfCor                != nullptr){delete [] fTagLfCor;                 fCdelete++;}
 
-  if (fTagLFccMoStins          != 0){delete [] fTagLFccMoStins;           fCdelete++;}
-  if (fTagHFccMoStins          != 0){delete [] fTagHFccMoStins;           fCdelete++;}
+  if (fTagLFccMoStins          != nullptr){delete [] fTagLFccMoStins;           fCdelete++;}
+  if (fTagHFccMoStins          != nullptr){delete [] fTagHFccMoStins;           fCdelete++;}
 
-  if (fTagPed                 != 0){delete [] fTagPed;                  fCdelete++;}
-  if (fTagTno                 != 0){delete [] fTagTno;                  fCdelete++;}
-  if (fTagMeanCorss           != 0){delete [] fTagMeanCorss;            fCdelete++;}
+  if (fTagPed                 != nullptr){delete [] fTagPed;                  fCdelete++;}
+  if (fTagTno                 != nullptr){delete [] fTagTno;                  fCdelete++;}
+  if (fTagMeanCorss           != nullptr){delete [] fTagMeanCorss;            fCdelete++;}
 
-  if (fTagLfn                != 0){delete [] fTagLfn;                 fCdelete++;}
-  if (fTagHfn                != 0){delete [] fTagHfn;                 fCdelete++;}
-  if (fTagSigCorss           != 0){delete [] fTagSigCorss;            fCdelete++;}
+  if (fTagLfn                != nullptr){delete [] fTagLfn;                 fCdelete++;}
+  if (fTagHfn                != nullptr){delete [] fTagHfn;                 fCdelete++;}
+  if (fTagSigCorss           != nullptr){delete [] fTagSigCorss;            fCdelete++;}
 
-  if (fTagAvPed          != 0){delete [] fTagAvPed;           fCdelete++;}
-  if (fTagAvTno          != 0){delete [] fTagAvTno;           fCdelete++;}
-  if (fTagAvLfn          != 0){delete [] fTagAvLfn;           fCdelete++;}
-  if (fTagAvHfn          != 0){delete [] fTagAvHfn;           fCdelete++;}
-  if (fTagAvMeanCorss    != 0){delete [] fTagAvMeanCorss;     fCdelete++;}
-  if (fTagAvSigCorss     != 0){delete [] fTagAvSigCorss;      fCdelete++;}
+  if (fTagAvPed          != nullptr){delete [] fTagAvPed;           fCdelete++;}
+  if (fTagAvTno          != nullptr){delete [] fTagAvTno;           fCdelete++;}
+  if (fTagAvLfn          != nullptr){delete [] fTagAvLfn;           fCdelete++;}
+  if (fTagAvHfn          != nullptr){delete [] fTagAvHfn;           fCdelete++;}
+  if (fTagAvMeanCorss    != nullptr){delete [] fTagAvMeanCorss;     fCdelete++;}
+  if (fTagAvSigCorss     != nullptr){delete [] fTagAvSigCorss;      fCdelete++;}
 
   if ( fCnew != fCdelete )
     {
@@ -568,7 +568,7 @@ void TEcnaRun::GetReadyToReadData( const TString&       typ_ana, const Int_t& ru
 
 	      if ( fEcal->MaxStinEcnaInStex() > 0  &&  fEcal->MaxCrysInStin() > 0  &&  fNbSampForFic > 0 ) 
 		{
-		  if( fFileHeader == 0 ){fFileHeader = new TEcnaHeader(fObjectManager, h_name, h_title);} // fCnew++;
+		  if( fFileHeader == nullptr ){fFileHeader = new TEcnaHeader(fObjectManager, h_name, h_title);} // fCnew++;
 
 		  fFileHeader->HeaderParameters(typ_ana,    fNbSampForFic,
 						run_number, nfirst, nlast, nbevts,
@@ -638,7 +638,7 @@ void TEcnaRun::GetReadyToReadData( const TString&       typ_ana, const Int_t& ru
 		  //
 		  //====================================================================================
 		  
-		  if(fT1d_StexStinFromIndex == 0)
+		  if(fT1d_StexStinFromIndex == nullptr)
 		    {
 		      fT1d_StexStinFromIndex = new Int_t[fEcal->MaxStinEcnaInStex()];          fCnew++;
 		    }
@@ -657,7 +657,7 @@ void TEcnaRun::GetReadyToReadData( const TString&       typ_ana, const Int_t& ru
 		  //
 		  //====================================================================================
 		  
-		  if(fT3d_AdcValues == 0)
+		  if(fT3d_AdcValues == nullptr)
 		    {
 		      //............ Allocation for the 3d array 
 		      std::cout << "*TEcnaRun::GetReadyToReadData(...)> Allocation of 3D array for ADC distributions."
@@ -705,7 +705,7 @@ void TEcnaRun::GetReadyToReadData( const TString&       typ_ana, const Int_t& ru
 		  //
 		  //====================================================================================
 		  
-		  if (fT2d_NbOfEvts == 0)
+		  if (fT2d_NbOfEvts == nullptr)
 		    {
 		      fT2d_NbOfEvts  = new Int_t*[fEcal->MaxCrysEcnaInStex()];           fCnew++;
 		      fT1d_NbOfEvts  = new  Int_t[fEcal->MaxCrysEcnaInStex()*
@@ -859,7 +859,7 @@ Bool_t TEcnaRun::GetSampleAdcValues(const Int_t&    n1EventNumber, const Int_t& 
 	      if( i0Sample >= 0 && i0Sample < fEcal->MaxSampADC() )
 		{
 		  //..... Put the StexStin number in 1D array fT1d_StexStinFromIndex[] = Stin index + 1
-		  if( fT1d_StexStinFromIndex != 0 )  // table fT1d_StexStinFromIndex[index] already allocated
+		  if( fT1d_StexStinFromIndex != nullptr )  // table fT1d_StexStinFromIndex[index] already allocated
 		    {
 		      ret_code = kTRUE;
 
@@ -1234,7 +1234,7 @@ void TEcnaRun::GetReadyToCompute()
   fCnaWrite->fMakeResultsFileName();  // set fRootFileName, fRootFileNameShort
 
   //..................... Checking numbers of found events channel by channel
-  if( fT2d_NbOfEvts != 0 )
+  if( fT2d_NbOfEvts != nullptr )
     {
       fNumberOfEvents = fCnaWrite->NumberOfEventsAnalysis(fT2d_NbOfEvts, fEcal->MaxCrysEcnaInStex(),
 							  fNbSampForFic, fFileHeader->fReqNbOfEvts);
@@ -1337,7 +1337,7 @@ void TEcnaRun::SampleMeans()
 	  << " for each channel." << std::endl;}
   
   //................... Allocation fT2d_ev
-  if ( fT2d_ev == 0 ){
+  if ( fT2d_ev == nullptr ){
     Int_t n_samp = fNbSampForCalc;
     Int_t n_StexEcha = fEcal->MaxCrysEcnaInStex();
     fT2d_ev = new Double_t*[n_StexEcha];             fCnew++;  
@@ -1394,7 +1394,7 @@ void TEcnaRun::SampleSigmas()
   if(fTagMSp[0] != 1){SampleMeans(); fTagMSp[0] = 0;}
 
   //................... Allocation fT2d_sig
-  if( fT2d_sig == 0){
+  if( fT2d_sig == nullptr){
     Int_t n_StexEcha = fEcal->MaxCrysEcnaInStex();
     Int_t n_samp = fNbSampForCalc;
     fT2d_sig = new Double_t*[n_StexEcha];                fCnew++;        
@@ -1456,7 +1456,7 @@ void TEcnaRun::CovariancesBetweenSamples()
          << " for each channel." << std::endl;}
   
   //................... Allocations cov_ss
-  if( fT3d_cov_ss == 0 ){
+  if( fT3d_cov_ss == nullptr ){
     const Int_t n_samp = fNbSampForCalc;
     const Int_t n_StexEcha = fEcal->MaxCrysEcnaInStex();
     fT3d_cov_ss  = new Double_t**[n_StexEcha];                fCnew++;  
@@ -1524,7 +1524,7 @@ void TEcnaRun::CorrelationsBetweenSamples()
 	 << " for each channel." << std::endl;}
 
   //................... Allocations cor_ss
-  if( fT3d_cor_ss == 0){
+  if( fT3d_cor_ss == nullptr){
     const Int_t n_samp = fNbSampForCalc;
     const Int_t n_StexEcha = fEcal->MaxCrysEcnaInStex();
     fT3d_cor_ss  = new Double_t**[n_StexEcha];                fCnew++;  
@@ -1590,7 +1590,7 @@ void TEcnaRun::Pedestals()
   if ( fTagMSp[0] != 1 ){SampleMeans(); fTagMSp[0]=0;}
 
   //................... Allocation ev_ev + init to zero (mandatory)
-  if( fT1d_ev_ev == 0 ){fT1d_ev_ev = new Double_t[fEcal->MaxCrysEcnaInStex()]; fCnew++;}
+  if( fT1d_ev_ev == nullptr ){fT1d_ev_ev = new Double_t[fEcal->MaxCrysEcnaInStex()]; fCnew++;}
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {if( fT1d_ev_ev[i0StexEcha] != (Double_t)0 )
       {fMiscDiag[11]++; fT1d_ev_ev[i0StexEcha] = (Double_t)0;}}
@@ -1635,7 +1635,7 @@ void TEcnaRun::TotalNoise()
   if ( fTagSSp[0] != 1 ){SampleSigmas(); fTagSSp[0]=0;}
 
   //................... Allocation ev_ev + init to zero (mandatory)
-  if( fT1d_evsamp_of_sigevt == 0 ){fT1d_evsamp_of_sigevt = new Double_t[fEcal->MaxCrysEcnaInStex()]; fCnew++;}
+  if( fT1d_evsamp_of_sigevt == nullptr ){fT1d_evsamp_of_sigevt = new Double_t[fEcal->MaxCrysEcnaInStex()]; fCnew++;}
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {if( fT1d_evsamp_of_sigevt[i0StexEcha] != (Double_t)0 )
       {fMiscDiag[12]++; fT1d_evsamp_of_sigevt[i0StexEcha] = (Double_t)0;}}
@@ -1684,7 +1684,7 @@ void TEcnaRun::LowFrequencyNoise()
 // of the ADC expectation values (over the samples 0 to fNbSampForCalc-1)
 
   //................... Allocation fT1d_sigevt_of_evsamp + init to zero (mandatory)
-  if( fT1d_sigevt_of_evsamp == 0 ){
+  if( fT1d_sigevt_of_evsamp == nullptr ){
     fT1d_sigevt_of_evsamp = new Double_t[fEcal->MaxCrysEcnaInStex()];              fCnew++;  
   }
   for(Int_t i0StexEcha=0; i0StexEcha<fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
@@ -1754,7 +1754,7 @@ void TEcnaRun::HighFrequencyNoise()
 // of the ADC sigmas (over the samples 0 to fNbSampForCalc-1)
 
   //................... Allocation fT1d_evevt_of_sigsamp + init to zero (mandatory)
-  if( fT1d_evevt_of_sigsamp == 0 ){
+  if( fT1d_evevt_of_sigsamp == nullptr ){
     fT1d_evevt_of_sigsamp = new Double_t[fEcal->MaxCrysEcnaInStex()];              fCnew++;  
   }
   for(Int_t i0StexEcha=0; i0StexEcha<fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
@@ -1830,7 +1830,7 @@ void TEcnaRun::MeanCorrelationsBetweenSamples()
   if ( fTagCorCss[0] != 1 ){CorrelationsBetweenSamples(); fTagCorCss[0]=0;}
 
   //................... Allocations ev_cor_ss + init to zero (mandatory)
-  if( fT1d_ev_cor_ss == 0 ){
+  if( fT1d_ev_cor_ss == nullptr ){
     Int_t n_StexEcha =  fEcal->MaxCrysEcnaInStex();
     fT1d_ev_cor_ss = new Double_t[n_StexEcha];               fCnew++;  
   }
@@ -1896,7 +1896,7 @@ void  TEcnaRun::SigmaOfCorrelationsBetweenSamples()
   if ( fTagMeanCorss[0] != 1 ){MeanCorrelationsBetweenSamples(); fTagMeanCorss[0]=0;}
 
   //................... Allocations sig_cor_ss + init to zero
-  if( fT1d_sig_cor_ss == 0 ){
+  if( fT1d_sig_cor_ss == nullptr ){
     Int_t n_StexEcha =  fEcal->MaxCrysEcnaInStex();
     fT1d_sig_cor_ss = new Double_t[n_StexEcha];                fCnew++;  
   }
@@ -1959,7 +1959,7 @@ void TEcnaRun::AveragePedestals()
   //... preliminary calculation of the Pedestals if not done yet
   if ( fTagPed[0] != 1 ){Pedestals(); fTagPed[0]=0;}
   //................... Allocation av_mped + init to zero (mandatory)
-  if( fT1d_av_mped == 0 ){fT1d_av_mped = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
+  if( fT1d_av_mped == nullptr ){fT1d_av_mped = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
     {if( fT1d_av_mped[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[41]++; fT1d_av_mped[i0StexStinEcna] = (Double_t)0;}}
@@ -2020,7 +2020,7 @@ void TEcnaRun::AverageTotalNoise()
   //... preliminary calculation of the averaged Total Noise if not done yet
   if ( fTagTno[0] != 1 ){TotalNoise(); fTagTno[0]=0;}
   //................... Allocation av_totn + init to zero (mandatory)
-  if( fT1d_av_totn == 0 ){fT1d_av_totn = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
+  if( fT1d_av_totn == nullptr ){fT1d_av_totn = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
     {if( fT1d_av_totn[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[42]++; fT1d_av_totn[i0StexStinEcna] = (Double_t)0;}}
@@ -2080,7 +2080,7 @@ void TEcnaRun::AverageLowFrequencyNoise()
   //... preliminary calculation of the Low Frequency Noise if not done yet
   if ( fTagLfn[0] != 1 ){LowFrequencyNoise(); fTagLfn[0]=0;}
   //................... Allocation av_lofn + init to zero (mandatory)
-  if( fT1d_av_lofn == 0 ){fT1d_av_lofn = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
+  if( fT1d_av_lofn == nullptr ){fT1d_av_lofn = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
     {if( fT1d_av_lofn[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[43]++; fT1d_av_lofn[i0StexStinEcna] = (Double_t)0;}}
@@ -2140,7 +2140,7 @@ void TEcnaRun::AverageHighFrequencyNoise()
   //... preliminary calculation of the High Frequency Noise if not done yet
   if ( fTagHfn[0] != 1 ){HighFrequencyNoise(); fTagHfn[0]=0;}
   //................... Allocation av_hifn + init to zero (mandatory)
-  if( fT1d_av_hifn == 0 ){fT1d_av_hifn = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
+  if( fT1d_av_hifn == nullptr ){fT1d_av_hifn = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
     {if( fT1d_av_hifn[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[44]++; fT1d_av_hifn[i0StexStinEcna] = (Double_t)0;}}
@@ -2200,7 +2200,7 @@ void TEcnaRun::AverageMeanCorrelationsBetweenSamples()
   //... preliminary calculation of the mean cor(s,s) if not done yet
   if ( fTagMeanCorss[0] != 1 ){MeanCorrelationsBetweenSamples(); fTagMeanCorss[0]=0;}
   //................... Allocation av_ev_corss + init to zero (mandatory)
-  if( fT1d_av_ev_corss == 0 ){fT1d_av_ev_corss = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
+  if( fT1d_av_ev_corss == nullptr ){fT1d_av_ev_corss = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
     {if( fT1d_av_ev_corss[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[45]++; fT1d_av_ev_corss[i0StexStinEcna] = (Double_t)0;}}
@@ -2260,7 +2260,7 @@ void TEcnaRun::AverageSigmaOfCorrelationsBetweenSamples()
   //... preliminary calculation of the sigma of cor(s,s) if not done yet
   if ( fTagSigCorss[0] != 1 ){SigmaOfCorrelationsBetweenSamples(); fTagSigCorss[0]=0;}
   //................... Allocation av_sig_corss + init to zero (mandatory)
-  if( fT1d_av_sig_corss == 0 ){fT1d_av_sig_corss = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
+  if( fT1d_av_sig_corss == nullptr ){fT1d_av_sig_corss = new Double_t[fEcal->MaxStinEcnaInStex()]; fCnew++;}
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
     {if( fT1d_av_sig_corss[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[46]++; fT1d_av_sig_corss[i0StexStinEcna] = (Double_t)0;}}
@@ -2341,7 +2341,7 @@ void TEcnaRun::LowFrequencyCovariancesBetweenChannels()
     std::cout << "           Calculation of the Low Frequency Covariances between channels" << std::endl;}
 
   //................. allocation fT2d_lf_cov + init to zero (mandatory)
-  if( fT2d_lf_cov == 0 ){
+  if( fT2d_lf_cov == nullptr ){
     const Int_t n_StexEcha = fEcal->MaxCrysEcnaInStex();
     fT2d_lf_cov  = new Double_t*[n_StexEcha];                   fCnew++;
     fT2d1_lf_cov = new  Double_t[n_StexEcha*n_StexEcha];          fCnew++;
@@ -2452,7 +2452,7 @@ void TEcnaRun::LowFrequencyCorrelationsBetweenChannels()
 	 << std::endl;}
 
   //................. allocation fT2d_lf_cor + init to zero (mandatory)
-  if( fT2d_lf_cor == 0 ){
+  if( fT2d_lf_cor == nullptr ){
     const Int_t n_StexEcha = fEcal->MaxCrysEcnaInStex();
     fT2d_lf_cor  = new Double_t*[n_StexEcha];                   fCnew++;
     fT2d1_lf_cor = new  Double_t[n_StexEcha*n_StexEcha];        fCnew++;
@@ -2529,7 +2529,7 @@ void TEcnaRun::HighFrequencyCovariancesBetweenChannels()
     std::cout << "           Calculation of the High Frequency Covariances between channels" << std::endl;}
 
   //................. allocation fT2d_hf_cov + init to zero (mandatory)
-  if( fT2d_hf_cov == 0 ){
+  if( fT2d_hf_cov == nullptr ){
     const Int_t n_StexEcha = fEcal->MaxCrysEcnaInStex();
     fT2d_hf_cov   = new Double_t*[n_StexEcha];                   fCnew++;
     fT2d1_hf_cov  = new  Double_t[n_StexEcha*n_StexEcha];        fCnew++;
@@ -2652,7 +2652,7 @@ void TEcnaRun::HighFrequencyCorrelationsBetweenChannels()
 	 << std::endl;}
 
   //................. allocation fT2d_hf_cor + init to zero (mandatory)
-  if( fT2d_hf_cor == 0 ){
+  if( fT2d_hf_cor == nullptr ){
     const Int_t n_StexEcha = fEcal->MaxCrysEcnaInStex();
     fT2d_hf_cor  = new Double_t*[n_StexEcha];                   fCnew++;
     fT2d1_hf_cor = new  Double_t[n_StexEcha*n_StexEcha];        fCnew++;
@@ -2740,7 +2740,7 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
 	 << "           Low Frequency Correlations between channels." << std::endl;}
   
   //................. allocation fT2d_lfcc_mostins + init to zero (mandatory)
-  if( fT2d_lfcc_mostins == 0 ){
+  if( fT2d_lfcc_mostins == nullptr ){
     const Int_t n_Stin = fEcal->MaxStinEcnaInStex();
     fT2d_lfcc_mostins  = new Double_t*[n_Stin];                 fCnew++;
     fT2d1_lfcc_mostins = new  Double_t[n_Stin*n_Stin];          fCnew++;  
@@ -2838,7 +2838,7 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
          << "           High Frequency Correlations between channels." << std::endl;}
 
   //................. allocation fT2d_hfcc_mostins + init to zero (mandatory)
-  if( fT2d_hfcc_mostins == 0 ){
+  if( fT2d_hfcc_mostins == nullptr ){
     const Int_t n_Stin = fEcal->MaxStinEcnaInStex();
     fT2d_hfcc_mostins  = new Double_t*[n_Stin];                 fCnew++;
     fT2d1_hfcc_mostins = new  Double_t[n_Stin*n_Stin];           fCnew++;  

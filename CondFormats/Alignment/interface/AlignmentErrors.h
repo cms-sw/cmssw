@@ -1,6 +1,8 @@
 #ifndef CondFormats_Alignment_AlignmentErrors_H
 #define CondFormats_Alignment_AlignmentErrors_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
 
 #include<vector>
@@ -15,5 +17,7 @@ public:
   inline void clear() {m_alignError.clear();}
 
   std::vector<AlignTransformError> m_alignError;
+
+  COND_SERIALIZABLE;
 };
 #endif // AlignmentErrors_H

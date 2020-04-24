@@ -2,12 +2,13 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/HepMCCandidate"/>
 <use   name="SimDataFormats/EncodedEventId"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/Vertex"/>
-<use   name="rootrflx"/>
+
 <use   name="clhepheader"/>
 <export>
   <lib   name="1"/>

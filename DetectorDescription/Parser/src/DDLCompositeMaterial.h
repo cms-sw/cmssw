@@ -1,12 +1,15 @@
 #ifndef DDL_CompositeMaterial_H
 #define DDL_CompositeMaterial_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLMaterial.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLCompositeMaterial processes all CompositeMaterial elements.
 /** @class DDLCompositeMaterial.
@@ -25,19 +28,14 @@
  *                                                                         
  */
 
-class DDLCompositeMaterial : public DDLMaterial
+class DDLCompositeMaterial final : public DDLMaterial
 {
  public:
 
-  /// Constructor
   DDLCompositeMaterial( DDLElementRegistry* myreg );
-
-  /// Destructor
-  ~DDLCompositeMaterial();
   
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

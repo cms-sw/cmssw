@@ -19,8 +19,8 @@
 #ifndef CSCDQM_Detector_H
 #define CSCDQM_Detector_H
 
-#include <math.h>
-#include <float.h>
+#include <cmath>
+#include <cfloat>
 #include <map>
 #include <vector>
 #include <iostream>

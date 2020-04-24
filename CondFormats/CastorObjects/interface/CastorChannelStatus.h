@@ -7,6 +7,8 @@
 contains one channel status and corresponding DetId
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 #include <string>
 
@@ -75,5 +77,7 @@ class CastorChannelStatus
   uint32_t mId;
   uint32_t mStatus;
 
+
+ COND_SERIALIZABLE;
 };
 #endif

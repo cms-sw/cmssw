@@ -14,13 +14,12 @@
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iostream>
 
@@ -32,6 +31,7 @@ CPPUNIT_TEST(testWatch);
 CPPUNIT_TEST_EXCEPTION(testCircular,cms::Exception);
 
 CPPUNIT_TEST(testProductRegistration);
+CPPUNIT_TEST(testAddAlias);
 
 CPPUNIT_TEST_SUITE_END();
 
@@ -43,10 +43,11 @@ public:
   void testWatch();
   void testCircular();
   void testProductRegistration();
+  void testAddAlias();
 
  private:
-  boost::shared_ptr<edm::BranchDescription> intBranch_;
-  boost::shared_ptr<edm::BranchDescription> floatBranch_;
+  std::shared_ptr<edm::BranchDescription> intBranch_;
+  std::shared_ptr<edm::BranchDescription> floatBranch_;
 };
 
 ///registration of the test so that the runner can find it
@@ -72,8 +73,7 @@ namespace {
       void respond(edm::BranchDescription const& iDesc) {
          edm::ParameterSet dummyProcessPset;
          dummyProcessPset.registerIt();
-         boost::shared_ptr<edm::ProcessConfiguration> pc(
-           new edm::ProcessConfiguration());
+         auto pc = std::make_shared<edm::ProcessConfiguration>();
          pc->setParameterSetID(dummyProcessPset.id());
 
          edm::BranchDescription prod(iDesc.branchType(),
@@ -98,21 +98,19 @@ testProductRegistry::testProductRegistry() :
 
 
 void testProductRegistry::setUp() {
-  edm::RootAutoLibraryLoader::enable();
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
-    new edm::ProcessConfiguration());
+  auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
   processConfiguration->setParameterSetID(dummyProcessPset.id());
 
   edm::ParameterSet pset;
   pset.registerIt();
-  intBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
+  intBranch_.reset(new edm::BranchDescription(edm::InEvent, "labeli", "PROD",
                                           "int", "int", "int",
                                           "", pset.id(),
                                           edm::TypeWithDict(typeid(int))));
 
-  floatBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
+  floatBranch_.reset(new edm::BranchDescription(edm::InEvent, "labelf", "PROD",
                                             "float", "float", "float",
                                             "", pset.id(),
                                             edm::TypeWithDict(typeid(float))));
@@ -120,7 +118,7 @@ void testProductRegistry::setUp() {
 }
 
 namespace {
-  template <class T> void kill_and_clear(boost::shared_ptr<T>& p) { p.reset(); }
+  template <class T> void kill_and_clear(std::shared_ptr<T>& p) { p.reset(); }
 }
 
 void testProductRegistry::tearDown() {
@@ -216,4 +214,21 @@ void testProductRegistry:: testProductRegistration() {
     std::cout << "caught " << iException.explainSelf() << std::endl;
     throw;
   }
+}
+
+void testProductRegistry::testAddAlias() {
+  edm::ProductRegistry reg;
+
+  reg.addProduct(*intBranch_);
+  reg.addLabelAlias(*intBranch_, "aliasi", "instanceAlias");
+
+  reg.addProduct(*floatBranch_);
+  reg.addLabelAlias(*floatBranch_, "aliasf", "instanceAlias");
+
+  reg.setFrozen(false);
+  std::vector<std::pair<std::string, std::string> > const& v = reg.aliasToOriginal();
+  CPPUNIT_ASSERT(v.at(0).first == "aliasf" &&
+                 v.at(0).second == "labelf" &&
+                 v.at(1).first == "aliasi" &&
+                 v.at(1).second == "labeli");
 }

@@ -8,6 +8,8 @@
 <use   name="DataFormats/Math"/>
 <use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="RecoParticleFlow/PFTracking"/>
+
 <export>
   <lib   name="1"/>
 </export>

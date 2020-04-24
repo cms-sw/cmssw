@@ -38,123 +38,112 @@ MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-  theDbe = edm::Service<DQMStore>().operator->();
-
 
   theSeedsCollectionLabel_ = consumes<TrajectorySeedCollection>(parameters.getParameter<InputTag>("SeedCollection"));
-}
 
-
-MuonSeedsAnalyzer::~MuonSeedsAnalyzer() { 
-  delete theService;
-}
-
-
-void MuonSeedsAnalyzer::beginJob(){
-  metname = "seedsAnalyzer";
-  LogTrace(metname)<<"[MuonSeedsAnalyzer] Parameters initialization";
-  
-}
-
-void MuonSeedsAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-
-  theDbe->cd();
-  theDbe->setCurrentFolder("Muons/MuonSeedsAnalyzer");
-  
   seedHitBin = parameters.getParameter<int>("RecHitBin");
   seedHitMin = parameters.getParameter<double>("RecHitMin");
   seedHitMax = parameters.getParameter<double>("RecHitMax");
-  string histname = "NumberOfRecHitsPerSeed_";
-  NumberOfRecHitsPerSeed = theDbe->book1D(histname, "Number of seed recHits", seedHitBin, seedHitMin, seedHitMax);
- 
   PhiBin = parameters.getParameter<int>("PhiBin");
   PhiMin = parameters.getParameter<double>("PhiMin");
   PhiMax = parameters.getParameter<double>("PhiMax");
-  histname = "seedPhi_";
-  seedPhi = theDbe->book1D(histname, "Seed #phi", PhiBin, PhiMin, PhiMax);
-  seedPhi->setAxisTitle("rad");
-   
   EtaBin = parameters.getParameter<int>("EtaBin");
   EtaMin = parameters.getParameter<double>("EtaMin");
   EtaMax = parameters.getParameter<double>("EtaMax");
-  histname = "seedEta_";
-  seedEta = theDbe->book1D(histname, "Seed #eta", EtaBin, EtaMin, EtaMax);
-    
   ThetaBin = parameters.getParameter<int>("ThetaBin");
   ThetaMin = parameters.getParameter<double>("ThetaMin");
   ThetaMax = parameters.getParameter<double>("ThetaMax");
-  histname = "seedTheta_";
-  seedTheta = theDbe->book1D(histname, "Seed #theta", ThetaBin, ThetaMin, ThetaMax);
-  seedTheta->setAxisTitle("rad");
- 
   seedPtBin = parameters.getParameter<int>("seedPtBin");
   seedPtMin = parameters.getParameter<double>("seedPtMin");
   seedPtMax = parameters.getParameter<double>("seedPtMax");
-  histname = "seedPt_";
-  seedPt = theDbe->book1D(histname, "Seed p_{t}", seedPtBin, seedPtMin, seedPtMax);
-  seedPt->setAxisTitle("GeV");
-
   seedPxyzBin = parameters.getParameter<int>("seedPxyzBin");
   seedPxyzMin = parameters.getParameter<double>("seedPxyzMin");
   seedPxyzMax = parameters.getParameter<double>("seedPxyzMax");
-  histname = "seedPx_";
-  seedPx = theDbe->book1D(histname, "Seed p_{x}", seedPxyzBin, seedPxyzMin, seedPxyzMax);
-  seedPx->setAxisTitle("GeV");
-  histname = "seedPy_";
-  seedPy = theDbe->book1D(histname, "Seed p_{y}", seedPxyzBin, seedPxyzMin, seedPxyzMax);
-  seedPy->setAxisTitle("GeV");
-  histname = "seedPz_";
-  seedPz = theDbe->book1D(histname, "Seed p_{z}", seedPxyzBin, seedPxyzMin, seedPxyzMax);
-  seedPz->setAxisTitle("GeV");
-
   pErrBin = parameters.getParameter<int>("pErrBin");
   pErrMin = parameters.getParameter<double>("pErrMin");
   pErrMax = parameters.getParameter<double>("pErrMax");
-  histname = "seedPtErrOverPt_";
-  seedPtErr = theDbe->book1D(histname, "Seed p_{t}Err/p_{t}", pErrBin, pErrMin, pErrMax);
-  histname = "seedPtErrOverPtVsPhi_";
-  seedPtErrVsPhi = theDbe->book2D(histname, "Seed p_{t}Err/p_{t} vs #phi", PhiBin, PhiMin, PhiMax, pErrBin, pErrMin, pErrMax);
-  seedPtErrVsPhi->setAxisTitle("rad",2);
-  histname = "seedPtErrOverPtVsEta_";
-  seedPtErrVsEta = theDbe->book2D(histname, "Seed p_{t}Err/p_{t} vs #eta", EtaBin, EtaMin, EtaMax, pErrBin, pErrMin, pErrMax);
-  histname = "seedPtErrOverPtVsPt_";
-  seedPtErrVsPt = theDbe->book2D(histname, "Seed p_{t}Err/p_{t} vs p_{t}", seedPtBin/5, seedPtMin, seedPtMax, pErrBin, pErrMin, pErrMax);
-  seedPtErrVsPt->setAxisTitle("GeV",2);
-  histname = "seedPErrOverP_";
-  seedPErr = theDbe->book1D(histname, "Seed pErr/p", pErrBin, pErrMin, pErrMax);
-  histname = "seedPErrOverPVsPhi_";
-  seedPErrVsPhi = theDbe->book2D(histname, "Seed pErr/p vs #phi", PhiBin, PhiMin, PhiMax, pErrBin, pErrMin, pErrMax);
-  seedPErrVsPhi->setAxisTitle("rad",2);
-  histname = "seedPErrOverPVsEta_";
-  seedPErrVsEta = theDbe->book2D(histname, "Seed pErr/p vs #eta", EtaBin, EtaMin, EtaMax, pErrBin, pErrMin, pErrMax);
-  histname = "seedPErrOverPVsPt_";
-  seedPErrVsPt = theDbe->book2D(histname, "Seed pErr/p vs p_{t}", seedPtBin/5, seedPtMin, seedPtMax, pErrBin, pErrMin, pErrMax);
-  seedPErrVsPt->setAxisTitle("GeV",2);
-  
   pxyzErrBin = parameters.getParameter<int>("pxyzErrBin");
   pxyzErrMin = parameters.getParameter<double>("pxyzErrMin");
   pxyzErrMax = parameters.getParameter<double>("pxyzErrMax");
-  histname = "seedPxErrOverPx_";
-  seedPxErr = theDbe->book1D(histname, "Seed p_{x}Err/p_{x}", pxyzErrBin, pxyzErrMin, pxyzErrMax);
-  histname = "seedPyErrOverPy_";
-  seedPyErr = theDbe->book1D(histname, "Seed p_{y}Err/p_{y}", pxyzErrBin, pxyzErrMin, pxyzErrMax);
-   histname = "seedPzErrOverPz_";
-  seedPzErr = theDbe->book1D(histname, "Seed p_{z}Err/p_{z}", pxyzErrBin, pxyzErrMin, pxyzErrMax);
- 
   phiErrBin = parameters.getParameter<int>("phiErrBin");
   phiErrMin = parameters.getParameter<double>("phiErrMin");
   phiErrMax = parameters.getParameter<double>("phiErrMax");
-  histname = "seedPhiErr_";
-  seedPhiErr = theDbe->book1D(histname, "Seed #phi error", phiErrBin, phiErrMin, phiErrMax);
-
   etaErrBin = parameters.getParameter<int>("etaErrBin");
   etaErrMin = parameters.getParameter<double>("etaErrMin");
   etaErrMax = parameters.getParameter<double>("etaErrMax");
+}
+MuonSeedsAnalyzer::~MuonSeedsAnalyzer() { 
+  delete theService;
+}
+void MuonSeedsAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &, edm::EventSetup const &) {
+
+  ibooker.cd();
+  ibooker.setCurrentFolder("Muons/MuonSeedsAnalyzer");
+  
+  string histname = "NumberOfRecHitsPerSeed_";
+  NumberOfRecHitsPerSeed = ibooker.book1D(histname, "Number of seed recHits", seedHitBin, seedHitMin, seedHitMax);
+ 
+  histname = "seedPhi_";
+  seedPhi = ibooker.book1D(histname, "Seed #phi", PhiBin, PhiMin, PhiMax);
+  seedPhi->setAxisTitle("rad");
+   
+  histname = "seedEta_";
+  seedEta = ibooker.book1D(histname, "Seed #eta", EtaBin, EtaMin, EtaMax);
+    
+  histname = "seedTheta_";
+  seedTheta = ibooker.book1D(histname, "Seed #theta", ThetaBin, ThetaMin, ThetaMax);
+  seedTheta->setAxisTitle("rad");
+ 
+  histname = "seedPt_";
+  seedPt = ibooker.book1D(histname, "Seed p_{t}", seedPtBin, seedPtMin, seedPtMax);
+  seedPt->setAxisTitle("GeV");
+
+  histname = "seedPx_";
+  seedPx = ibooker.book1D(histname, "Seed p_{x}", seedPxyzBin, seedPxyzMin, seedPxyzMax);
+  seedPx->setAxisTitle("GeV");
+  histname = "seedPy_";
+  seedPy = ibooker.book1D(histname, "Seed p_{y}", seedPxyzBin, seedPxyzMin, seedPxyzMax);
+  seedPy->setAxisTitle("GeV");
+  histname = "seedPz_";
+  seedPz = ibooker.book1D(histname, "Seed p_{z}", seedPxyzBin, seedPxyzMin, seedPxyzMax);
+  seedPz->setAxisTitle("GeV");
+ 
+  histname = "seedPtErrOverPt_";
+  seedPtErr = ibooker.book1D(histname, "Seed p_{t}Err/p_{t}", pErrBin, pErrMin, pErrMax);
+  histname = "seedPtErrOverPtVsPhi_";
+  seedPtErrVsPhi = ibooker.book2D(histname, "Seed p_{t}Err/p_{t} vs #phi", PhiBin, PhiMin, PhiMax, pErrBin, pErrMin, pErrMax);
+  seedPtErrVsPhi->setAxisTitle("rad",2);
+  histname = "seedPtErrOverPtVsEta_";
+  seedPtErrVsEta = ibooker.book2D(histname, "Seed p_{t}Err/p_{t} vs #eta", EtaBin, EtaMin, EtaMax, pErrBin, pErrMin, pErrMax);
+  histname = "seedPtErrOverPtVsPt_";
+  seedPtErrVsPt = ibooker.book2D(histname, "Seed p_{t}Err/p_{t} vs p_{t}", seedPtBin/5, seedPtMin, seedPtMax, pErrBin, pErrMin, pErrMax);
+  seedPtErrVsPt->setAxisTitle("GeV",2);
+  histname = "seedPErrOverP_";
+  seedPErr = ibooker.book1D(histname, "Seed pErr/p", pErrBin, pErrMin, pErrMax);
+  histname = "seedPErrOverPVsPhi_";
+  seedPErrVsPhi = ibooker.book2D(histname, "Seed pErr/p vs #phi", PhiBin, PhiMin, PhiMax, pErrBin, pErrMin, pErrMax);
+  seedPErrVsPhi->setAxisTitle("rad",2);
+  histname = "seedPErrOverPVsEta_";
+  seedPErrVsEta = ibooker.book2D(histname, "Seed pErr/p vs #eta", EtaBin, EtaMin, EtaMax, pErrBin, pErrMin, pErrMax);
+  histname = "seedPErrOverPVsPt_";
+  seedPErrVsPt = ibooker.book2D(histname, "Seed pErr/p vs p_{t}", seedPtBin/5, seedPtMin, seedPtMax, pErrBin, pErrMin, pErrMax);
+  seedPErrVsPt->setAxisTitle("GeV",2);
+  
+  histname = "seedPxErrOverPx_";
+  seedPxErr = ibooker.book1D(histname, "Seed p_{x}Err/p_{x}", pxyzErrBin, pxyzErrMin, pxyzErrMax);
+  histname = "seedPyErrOverPy_";
+  seedPyErr = ibooker.book1D(histname, "Seed p_{y}Err/p_{y}", pxyzErrBin, pxyzErrMin, pxyzErrMax);
+   histname = "seedPzErrOverPz_";
+  seedPzErr = ibooker.book1D(histname, "Seed p_{z}Err/p_{z}", pxyzErrBin, pxyzErrMin, pxyzErrMax);
+ 
+
+  histname = "seedPhiErr_";
+  seedPhiErr = ibooker.book1D(histname, "Seed #phi error", phiErrBin, phiErrMin, phiErrMax);
+
   histname = "seedEtaErr_";
-  seedEtaErr = theDbe->book1D(histname, "Seed #eta error", etaErrBin, etaErrMin, etaErrMax);
+  seedEtaErr = ibooker.book1D(histname, "Seed #eta error", etaErrBin, etaErrMin, etaErrMax);
 
 }
-
 
 void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   theService->update(iSetup);
@@ -263,19 +252,4 @@ void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 }
 
-
-//TrajectoryStateOnSurface MuonSeedsAnalyzer::getSeedTSOS(const TrajectorySeed& seed){
-//
-//  // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
-//  PTrajectoryStateOnDet pTSOD = seed.startingState();
-//  // Transform it in a TrajectoryStateOnSurface
-//  
-//  DetId seedDetId(pTSOD.detId());
-//  const GeomDet* gdet = service()->trackingGeometry()->idToDet( seedDetId );
-//  TrajectoryStateOnSurface initialState = trajectoryStateTransform::transientState(pTSOD, &(gdet->surface()), &*(service())->magneticField());
-//
-//  return initialState;
-//
-//}
-//
   

@@ -13,7 +13,7 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostBeginLumi                     
+    1 FwkReport            AfterSource                       
     2 cat_A                1/1                               
     3 cat_B                1/1                               
 
@@ -21,6 +21,8 @@ Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
 Info                    1                   1
 Error                   2                   2
+
+dropped waiting message count 0
 
 =============================================
 
@@ -36,7 +38,7 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostProcessEvent                  
+    1 FwkReport            AfterSource                       
     2 cat_A                1/2              1/2              
     3 cat_B                1/2                               
 
@@ -44,6 +46,8 @@ Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
 Info                    1                   1
 Error                   3                   3
+
+dropped waiting message count 0
 
 =============================================
 
@@ -59,7 +63,7 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostProcessEvent                  
+    1 FwkReport            AfterSource                       
     2 cat_A                1/3              1/3              1/3
     3 cat_B                1/3                               
 
@@ -68,9 +72,13 @@ Severity    # Occurrences   Total Occurrences
 Info                    1                   1
 Error                   4                   4
 
+dropped waiting message count 0
+
 =============================================
 
 MessageLogger Summary
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
+
+dropped waiting message count 0

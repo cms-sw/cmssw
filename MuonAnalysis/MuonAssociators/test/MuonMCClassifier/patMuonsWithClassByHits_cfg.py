@@ -40,7 +40,7 @@ process.countCollisionEvents = cms.EDProducer("EventCountProducer")
 process.preFilter = cms.Sequence(process.oneGoodVertexFilter * process.noScraping * process.countCollisionEvents )
 
 process.mergedTruth = cms.EDProducer("GenPlusSimParticleProducer",
-        src           = cms.InputTag("g4SimHits"), # use "famosSimHits" for FAMOS
+        src           = cms.InputTag("g4SimHits"), # use "fastSimProducer" for FastSim
         setStatus     = cms.int32(5),             # set status = 5 for GEANT GPs
         filter        = cms.vstring("pt > 0.0"),  # just for testing (optional)
         genParticles   = cms.InputTag("genParticles") # original genParticle list

@@ -1,16 +1,16 @@
 #include "RecoVertex/KalmanVertexFit/interface/VertexFitterResult.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
+#include "TrackingTools/PatternTools/interface/trackingParametersAtClosestApproachToBeamSpot.h"
 
 using namespace reco;
 using namespace std;
 
-VertexFitterResult::VertexFitterResult(const int maxTracks, TrackAssociatorByChi2 *associator)
-	: associatorForParamAtPca(associator)
+VertexFitterResult::VertexFitterResult(const int maxTracks, const MagneticField* magField)
+  : theMagField(magField)
 {
   theMaxTracks = maxTracks;
-  if (associatorForParamAtPca==0) theMaxTracks=0;
+  if (theMagField==nullptr) theMaxTracks=0;
   for ( int i=0; i<5; i++ ) {
     if ( maxTracks>0 ) {
       simPars[i] = new float[maxTracks];
@@ -20,11 +20,11 @@ VertexFitterResult::VertexFitterResult(const int maxTracks, TrackAssociatorByChi
       refErrs[i] = new float[maxTracks];
     }
     else {
-      simPars[i] = 0;
-      recPars[i] = 0;
-      refPars[i] = 0;
-      recErrs[i] = 0;
-      refErrs[i] = 0;
+      simPars[i] = nullptr;
+      recPars[i] = nullptr;
+      refPars[i] = nullptr;
+      recErrs[i] = nullptr;
+      refErrs[i] = nullptr;
     }
   }
   trackWeight = new float[maxTracks];
@@ -87,7 +87,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
     tracks[1] = recVertex.originalTracks().size();
   }
 
-  if (simv!=0) {
+  if (simv!=nullptr) {
     simPos[0] = simv->position().x();
     simPos[1] = simv->position().y();
     simPos[2] = simv->position().z();
@@ -101,8 +101,10 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
       Basic3DVector<double> momAtVtx((**simTrack).momentum());
 
       std::pair<bool, reco::TrackBase::ParameterVector> paramPair =
-	associatorForParamAtPca->parametersAtClosestApproach(vert, momAtVtx, 
-	  (float) (**simTrack).charge(), recTrackV.front().stateAtBeamLine().beamSpot());
+	reco::trackingParametersAtClosestApproachToBeamSpot(vert, momAtVtx, 
+                                                            (float) (**simTrack).charge(), 
+                                                            *theMagField, 
+                                                            recTrackV.front().stateAtBeamLine().beamSpot());
         if (paramPair.first) {
 	  fillParameters(paramPair.second, simPars, numberOfSimTracks);
 	  simIndex[numberOfSimTracks] = -1;
@@ -127,7 +129,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
     std::vector<std::pair<TrackingParticleRef, double> > simFound;
     try {
       const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>(recTrack->basicTransientTrack());
-      if ((ttt!=0) && (recSimColl!=0)) simFound = (*recSimColl)[ttt->trackBaseRef()];
+      if ((ttt!=nullptr) && (recSimColl!=nullptr)) simFound = (*recSimColl)[ttt->trackBaseRef()];
 //       if (recSimColl!=0) simFound = (*recSimColl)[recTrack->persistentTrackRef()];
 //      if (recSimColl!=0) simFound = (*recSimColl)[recTrack];
 
@@ -137,7 +139,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
 //       edm::LogError("TrackValidator") << e.what() << "\n";
     }
 
-    if(simFound.size() != 0) {
+    if(!simFound.empty()) {
       //OK, it was associated, so get the state on the same surface as the 'SimState'
       TrackingParticleRefVector::const_iterator simTrackI = 
 	find(simTrackV.begin(), simTrackV.end(), simFound[0].first);

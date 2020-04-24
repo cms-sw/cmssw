@@ -7,6 +7,9 @@
  *  DQM Client for global summary
  *
  *  \author  G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  *   
  */
 
@@ -25,10 +28,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Run.h"
 
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
+
 #include <memory>
 #include <string>
 
-class DTSummaryClients: public edm::EDAnalyzer{
+class DTSummaryClients: public DQMEDHarvester{
 
 public:
 
@@ -36,34 +41,23 @@ public:
   DTSummaryClients(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTSummaryClients();
+  ~DTSummaryClients() override;
 
 protected:
 
-  /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
-  /// EndJob
-  void endJob(void);
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 private:
 
   int nevents;
-  DQMStore* dbe;
 
   MonitorElement*  summaryReport;
   MonitorElement*  summaryReportMap;
   std::vector<MonitorElement*>  theSummaryContents;
 
+    bool bookingdone;
 };
 
 #endif

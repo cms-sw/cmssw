@@ -5,7 +5,7 @@
 // Package:     DataFormats/Provenance
 // Class  :     LuminosityBlockID
 //
-/**\class LuminosityBlockID LuminosityBlockID.h DataFormats/Provenance/interface/LuminosityBlockID.h
+/**\class edm::LuminosityBlockID
 
  Description: Holds run and luminosityBlock number.
 
@@ -23,15 +23,14 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 // forward declarations
 namespace edm {
 
-   typedef unsigned int LuminosityBlockNumber_t;
-
   class LuminosityBlockID {
    public:
-      LuminosityBlockID() : run_(0), luminosityBlock_(0) {}
+      LuminosityBlockID() : run_(invalidRunNumber), luminosityBlock_(invalidLuminosityBlockNumber) {}
       explicit LuminosityBlockID(boost::uint64_t id);
       LuminosityBlockID(RunNumber_t iRun, LuminosityBlockNumber_t iLuminosityBlock) :
         run_(iRun), luminosityBlock_(iLuminosityBlock) {}

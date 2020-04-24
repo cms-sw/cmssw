@@ -5,10 +5,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 // ROOT includes
 #include <TH1.h>
@@ -34,7 +34,7 @@ private:
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
 
-  edm::InputTag srcPixels_; //pixel rec hits
+  edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_; //pixel rec hits
 
   double minZ_;
   double maxZ_;

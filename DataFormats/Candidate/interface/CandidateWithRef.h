@@ -9,6 +9,8 @@
  *
  */
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
 namespace reco {
@@ -30,6 +32,8 @@ namespace reco {
     void setRef( const Ref & r ) { ref_ = r; }
     /// reference 
     reference ref() const { return ref_; }
+
+    CMS_CLASS_VERSION(13)
 
   private:
     /// check overlap with another candidate

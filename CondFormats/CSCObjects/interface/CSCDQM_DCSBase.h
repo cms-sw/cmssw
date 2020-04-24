@@ -19,6 +19,8 @@
 #ifndef CSCDQM_DCSBASE_H
 #define CSCDQM_DCSBASE_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <sstream>
 
@@ -112,7 +114,9 @@ namespace cscdqm {
       return out << os.str();
     }
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 }
 

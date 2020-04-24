@@ -1,15 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 from HLTriggerOffline.Tau.Validation.HLTTauValidation_cfi import *
+import DQMOffline.Trigger.HLTTauPostProcessor_cfi as postProcessor
 
-HLTTauValPostAnalysis_MC = cms.EDAnalyzer("HLTTauPostProcessor",
-    DQMBaseFolder   = hltTauValIdealMonitorMC.DQMBaseFolder,
-    Setup           = hltTauValIdealMonitorMC.MonitorSetup,
+(HLTTauValPostAnalysisMC, HLTTauValPostAnalysisMC2) = postProcessor.makePFTauAnalyzer(hltTauValIdealMonitorMC)
+(HLTTauValPostAnalysisPF, HLTTauValPostAnalysisPF2) = postProcessor.makePFTauAnalyzer(hltTauValIdealMonitorPF)
+(HLTTauValPostAnalysisTP, HLTTauValPostAnalysisTP2) = postProcessor.makePFTauAnalyzer(hltTauValTagAndProbe)
+HLTTauPostVal = cms.Sequence(
+    HLTTauValPostAnalysisMC+HLTTauValPostAnalysisMC2+
+    HLTTauValPostAnalysisPF+HLTTauValPostAnalysisPF2+
+    HLTTauValPostAnalysisTP+HLTTauValPostAnalysisTP2
 )
-
-HLTTauValPostAnalysis_PF = cms.EDAnalyzer("HLTTauPostProcessor",
-    DQMBaseFolder   = hltTauValIdealMonitorPF.DQMBaseFolder,
-    Setup           = hltTauValIdealMonitorPF.MonitorSetup,
-)
-
-HLTTauPostVal = cms.Sequence(HLTTauValPostAnalysis_MC+HLTTauValPostAnalysis_PF)

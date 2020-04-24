@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 
+process.options = cms.untracked.PSet(
+    numberOfStreams = cms.untracked.uint32(1)
+)
+
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 
     t1 = cms.PSet(
@@ -25,7 +29,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ),
     saveFileName = cms.untracked.string('StashState3.data'),
     enableChecking = cms.untracked.bool(True),
-    eventSeedOffset = cms.untracked.uint32(1)
+    eventSeedOffset = cms.untracked.uint32(2)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -40,11 +44,34 @@ process.source = cms.Source("EmptySource",
     numberEventsInLuminosityBlock = cms.untracked.uint32(3)
 )
 
-process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer",
-                            dump = cms.untracked.bool(True))
-process.t2 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
-process.t3 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
-process.t4 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
+process.t1 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('HepJamesRandom'),
+                            seeds = cms.untracked.vuint32(81),
+                            offset = cms.untracked.uint32(2),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1)
+)
+process.t2 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('RanecuEngine'),
+                            seeds = cms.untracked.vuint32(1, 2),
+                            offset = cms.untracked.uint32(2),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1)
+)
+process.t3 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('TRandom3'),
+                            seeds = cms.untracked.vuint32(83),
+                            offset = cms.untracked.uint32(2),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1)
+)
+process.t4 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('HepJamesRandom'),
+                            seeds = cms.untracked.vuint32(84),
+                            offset = cms.untracked.uint32(2),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1)
+)
 
 process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 

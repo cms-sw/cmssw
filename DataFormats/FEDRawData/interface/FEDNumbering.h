@@ -2,15 +2,15 @@
 #define FEDRawData_FEDNumbering_h
 
 /** \class FEDNumbering
- *  
- *  This class holds the fed numbering scheme for the CMS geometry. 
+ *
+ *  This class holds the fed numbering scheme for the CMS geometry.
  *  No two feds should have the same id. Each subdetector has a reserved range.
  *  Gaps between ranges give flexibility to the numbering.
  *
  *  $Log
  *
  *  \author G. Bruno - CERN, EP Division
- */   
+ */
 
 #include <vector>
 #include <string>
@@ -33,13 +33,21 @@ class FEDNumbering {
 
    enum {
      NOT_A_FEDID = -1,
-     MAXFEDID = 1023, // 10 bits
+     MAXFEDID = 4096, // must be larger than largest used FED id
      MINSiPixelFEDID = 0,
-     MAXSiPixelFEDID = 39,
+     MAXSiPixelFEDID = 40,  // increase from 39 for the pilot blade fed
      MINSiStripFEDID = 50,
      MAXSiStripFEDID = 489,
      MINPreShowerFEDID = 520,
      MAXPreShowerFEDID = 575,
+     MINTotemTriggerFEDID = 577,
+     MAXTotemTriggerFEDID = 577,
+     MINTotemRPHorizontalFEDID = 578,
+     MAXTotemRPHorizontalFEDID = 581,
+     MINCTPPSDiamondFEDID=582,
+     MAXCTPPSDiamondFEDID=583,
+     MINTotemRPVerticalFEDID = 584,
+     MAXTotemRPVerticalFEDID = 585,
      MINECALFEDID = 600,
      MAXECALFEDID = 670,
      MINCASTORFEDID = 690,
@@ -61,7 +69,7 @@ class FEDNumbering {
      MINTriggerGTPFEDID = 812,
      MAXTriggerGTPFEDID = 813,
      MINTriggerEGTPFEDID = 814,
-     MAXTriggerEGTPFEDID = 815,
+     MAXTriggerEGTPFEDID = 814,
      MINTriggerGCTFEDID = 745,
      MAXTriggerGCTFEDID = 749,
      MINTriggerLTCFEDID = 816,
@@ -95,7 +103,27 @@ class FEDNumbering {
      MINDAQeFEDFEDID = 902,
      MAXDAQeFEDFEDID = 931,
      MINDAQmFEDFEDID = 1023,
-     MAXDAQmFEDFEDID = 1023
+     MAXDAQmFEDFEDID = 1023,
+     MINTCDSuTCAFEDID = 1024,
+     MAXTCDSuTCAFEDID = 1099,
+     MINHCALuTCAFEDID = 1100,
+     MAXHCALuTCAFEDID = 1199,
+     MINSiPixeluTCAFEDID = 1200,
+     MAXSiPixeluTCAFEDID = 1349,
+     MINSiPixel2nduTCAFEDID = 1500,
+     MAXSiPixel2nduTCAFEDID = 1649,
+     MINSiPixelTestFEDID = 1450,
+     MAXSiPixelTestFEDID = 1461,
+     MINSiPixelAMC13FEDID = 1410,
+     MAXSiPixelAMC13FEDID = 1449,
+     MINTriggerUpgradeFEDID = 1350,
+     MAXTriggerUpgradeFEDID = 1409,
+     MINCTPPSPixelsFEDID = 1462,
+     MAXCTPPSPixelsFEDID = 1466,
+     MINGEMFEDID = 1467,
+     MAXGEMFEDID = 1472,
+     MINDAQvFEDFEDID = 2815,
+     MAXDAQvFEDFEDID = 4095
    };
  private:
   static std::vector<std::string> from_;

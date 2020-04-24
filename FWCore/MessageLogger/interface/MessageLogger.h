@@ -119,6 +119,8 @@
 // 26 wmtan 7/22/11 Fix clang compilation errors for LogDebug and LogTrace
 //                  by making MessageSender copyable, and holding
 //                  the ErrorObj in a shared pointer with a custom deleter.
+//
+// 27 mkortela 2/27/17 Add IfLogTrace and IfLogDebug
 // =================================================
 
 // system include files
@@ -156,8 +158,8 @@ public:
 				      { if(ap.valid()) ap << f; return *this; }     
 private:
   MessageSender ap; 
-  LogWarning( LogWarning const& );				// Change log 9
-  LogWarning& operator=( LogWarning const& );
+  LogWarning( LogWarning const& ) = delete;				// Change log 9
+  LogWarning& operator=( LogWarning const& ) = delete;
    
 };  // LogWarning
 
@@ -181,8 +183,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogError( LogError const& );					// Change log 9
-  LogError& operator=( LogError const& );
+  LogError( LogError const& ) = delete;					// Change log 9
+  LogError& operator=( LogError const& ) = delete;
 
 };  // LogError
 
@@ -206,8 +208,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogSystem( LogSystem const& );				// Change log 9
-  LogSystem& operator=( LogSystem const& );
+  LogSystem( LogSystem const& ) = delete;				// Change log 9
+  LogSystem& operator=( LogSystem const& ) = delete;
 
 };  // LogSystem
 
@@ -231,8 +233,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogInfo( LogInfo const& );					// Change log 9
-  LogInfo& operator=( LogInfo const& );
+  LogInfo( LogInfo const& ) = delete;					// Change log 9
+  LogInfo& operator=( LogInfo const& ) = delete;
   
 };  // LogInfo
 
@@ -258,8 +260,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogVerbatim( LogVerbatim const& );				// Change log 9
-  LogVerbatim& operator=( LogVerbatim const& );
+  LogVerbatim( LogVerbatim const& ) = delete;				// Change log 9
+  LogVerbatim& operator=( LogVerbatim const& ) = delete;
   
 };  // LogVerbatim
 
@@ -285,8 +287,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogPrint( LogPrint const& );					// Change log 9
-  LogPrint& operator=( LogPrint const& );
+  LogPrint( LogPrint const& ) = delete;					// Change log 9
+  LogPrint& operator=( LogPrint const& ) = delete;
   
 };  // LogPrint
 
@@ -312,8 +314,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogProblem( LogProblem const& );				// Change log 9
-  LogProblem& operator=( LogProblem const& );
+  LogProblem( LogProblem const& ) = delete;				// Change log 9
+  LogProblem& operator=( LogProblem const& ) = delete;
 
 };  // LogProblem
 
@@ -338,8 +340,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogImportant( LogImportant const& );				// Change log 9
-  LogImportant& operator=( LogImportant const& );
+  LogImportant( LogImportant const& ) = delete;				// Change log 9
+  LogImportant& operator=( LogImportant const& ) = delete;
 
 };  // LogImportant
 
@@ -364,8 +366,8 @@ public:
 
 private:
   MessageSender ap; 
-  LogAbsolute( LogAbsolute const& );				// Change log 9
-  LogAbsolute& operator=( LogAbsolute const& );
+  LogAbsolute( LogAbsolute const& ) = delete;				// Change log 9
+  LogAbsolute& operator=( LogAbsolute const& ) = delete;
 
 };  // LogAbsolute
 
@@ -456,8 +458,8 @@ public:
 				      { if(ap.valid()) ap << f; return *this; }     
 private:
   MessageSender ap; 
-  LogWarningThatSuppressesLikeLogInfo( LogWarningThatSuppressesLikeLogInfo const& );				// Change log 9
-  LogWarningThatSuppressesLikeLogInfo& operator=( LogWarningThatSuppressesLikeLogInfo const& );
+  LogWarningThatSuppressesLikeLogInfo( LogWarningThatSuppressesLikeLogInfo const& ) = delete;				// Change log 9
+  LogWarningThatSuppressesLikeLogInfo& operator=( LogWarningThatSuppressesLikeLogInfo const& ) = delete;
    
 };  // LogWarningThatSuppressesLikeLogInfo
 } // end namespace edmmltest
@@ -505,6 +507,22 @@ public:
 #define LogDebug(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::instance()->debugEnabled) ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__)
 #define LogTrace(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::instance()->debugEnabled) ? edm::LogTrace_() : edm::LogTrace_(id)
 #endif
+
+// change log 27
+//
+// These macros reduce the need to pollute the code with #ifdefs. The
+// idea is that the condition is checked only if debugging is enabled.
+// That way the condition expression may use variables that are
+// declared only if EDM_ML_DEBUG is enabled. If it is disabled, rely
+// on the fact that LogDebug/LogTrace should compile to no-op.
+#ifdef EDM_ML_DEBUG
+#define IfLogDebug(cond, cat) if(cond) LogDebug(cat)
+#define IfLogTrace(cond, cat) if(cond) LogTrace(cat)
+#else
+#define IfLogDebug(cond, cat) LogDebug(cat)
+#define IfLogTrace(cond, cat) LogTrace(cat)
+#endif
+
 
 #endif  // MessageLogger_MessageLogger_h
 

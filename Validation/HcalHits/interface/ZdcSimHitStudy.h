@@ -23,7 +23,7 @@
 #define SimG4CMS_ZdcSimHitStudy_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,7 +32,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -50,7 +49,7 @@
 #include <string>
 #include <memory>
 
-class ZdcSimHitStudy: public edm::EDAnalyzer{
+class ZdcSimHitStudy: public DQMEDAnalyzer{
 public:
 
   ZdcSimHitStudy(const edm::ParameterSet& ps);
@@ -58,9 +57,8 @@ public:
 
 protected:
 
-  void beginJob ();
-  void endJob   ();
   void endRun(const edm::Run& run, const edm::EventSetup& c);
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
   void analyze  (const edm::Event& e, const edm::EventSetup& c);
   void analyzeHits  (std::vector<PCaloHit> &);
@@ -83,7 +81,6 @@ private:
   edm::EDGetTokenT<reco::GenParticleCollection> tok_gen_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_; 
   bool           verbose_, checkHit_;
-  DQMStore       *dbe_;
 
   MonitorElement *meAllZdcNHit_, *meBadZdcDetHit_, *meBadZdcSecHit_, *meBadZdcIdHit_;
   MonitorElement *meZdcNHit_,*meZdcDetectHit_,*meZdcSideHit_,*meZdcETime_;
@@ -121,6 +118,14 @@ private:
  MonitorElement* genpart_GammaB_energydist;
 //////////////////////////////
 
+
+ //N counts plots                    
+ MonitorElement* genpart_Pi0F_counts;
+ MonitorElement* genpart_Pi0B_counts;
+ MonitorElement* genpart_NeutF_counts;
+ MonitorElement* genpart_NeutB_counts;
+ MonitorElement* genpart_GammaF_counts;
+ MonitorElement* genpart_GammaB_counts;
 };
 
 #endif

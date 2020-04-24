@@ -47,7 +47,7 @@ class FFTJetPileupEstimator : public edm::EDProducer
 {
 public:
     explicit FFTJetPileupEstimator(const edm::ParameterSet&);
-    ~FFTJetPileupEstimator();
+    ~FFTJetPileupEstimator() override;
 
 protected:
     // methods
@@ -56,24 +56,26 @@ protected:
     void endJob() override;
 
 private:
-    FFTJetPileupEstimator();
-    FFTJetPileupEstimator(const FFTJetPileupEstimator&);
-    FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&);
+    FFTJetPileupEstimator() = delete;
+    FFTJetPileupEstimator(const FFTJetPileupEstimator&) = delete;
+    FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&) = delete;
 
-    std::auto_ptr<reco::FFTJetPileupSummary> calibrateFromConfig(
+    std::unique_ptr<reco::FFTJetPileupSummary> calibrateFromConfig(
         double uncalibrated) const;
 
-    std::auto_ptr<reco::FFTJetPileupSummary> calibrateFromDB(
+    std::unique_ptr<reco::FFTJetPileupSummary> calibrateFromDB(
         double uncalibrated, const edm::EventSetup& iSetup) const;
 
     template<class Ptr>
     inline void checkConfig(const Ptr& ptr, const char* message)
     {
-        if (ptr.get() == NULL)
+        if (ptr.get() == nullptr)
             throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 
     edm::InputTag inputLabel;
+    edm::EDGetTokenT<reco::DiscretizedEnergyFlow> inputToken;
+
     std::string outputLabel;
     double cdfvalue;
     double ptToDensityFactor;
@@ -128,6 +130,8 @@ FFTJetPileupEstimator::FFTJetPileupEstimator(const edm::ParameterSet& ps)
         ps.getParameter<edm::ParameterSet>("uncertaintyCurve"));
     checkConfig(uncertaintyCurve, "bad uncertainty curve definition");
 
+    inputToken = consumes<reco::DiscretizedEnergyFlow>(inputLabel);
+
     produces<reco::FFTJetPileupSummary>(outputLabel);
 }
 
@@ -145,7 +149,7 @@ void FFTJetPileupEstimator::produce(edm::Event& iEvent,
                                     const edm::EventSetup& iSetup)
 {
     edm::Handle<reco::DiscretizedEnergyFlow> input;
-    iEvent.getByLabel(inputLabel, input);
+    iEvent.getByToken(inputToken, input);
 
     const reco::DiscretizedEnergyFlow& h(*input);
     const unsigned nScales = h.nEtaBins();
@@ -167,12 +171,12 @@ void FFTJetPileupEstimator::produce(edm::Event& iEvent,
     // Simple fixed-point pile-up estimate
     const double curve = h.data()[filterNumber*nCdfvalues + fixedCdfvalueBin];
 
-    std::auto_ptr<reco::FFTJetPileupSummary> summary;
+    std::unique_ptr<reco::FFTJetPileupSummary> summary;
     if (loadCalibFromDB)
         summary = calibrateFromDB(curve, iSetup);
     else
         summary = calibrateFromConfig(curve);
-    iEvent.put(summary, outputLabel);
+    iEvent.put(std::move(summary), outputLabel);
 }
 
 
@@ -186,7 +190,7 @@ void FFTJetPileupEstimator::endJob()
 }
 
 
-std::auto_ptr<reco::FFTJetPileupSummary>
+std::unique_ptr<reco::FFTJetPileupSummary>
 FFTJetPileupEstimator::calibrateFromConfig(const double curve) const
 {
     const double pileupRho = ptToDensityFactor*(*calibrationCurve)(curve);
@@ -218,13 +222,11 @@ FFTJetPileupEstimator::calibrateFromConfig(const double curve) const
             }
     }
 
-    return std::auto_ptr<reco::FFTJetPileupSummary>(
-        new reco::FFTJetPileupSummary(curve, pileupRho,
-                                      rhoUncert, uncertaintyCode));
+    return std::make_unique<reco::FFTJetPileupSummary>(curve, pileupRho, rhoUncert, uncertaintyCode);
 }
 
 
-std::auto_ptr<reco::FFTJetPileupSummary>
+std::unique_ptr<reco::FFTJetPileupSummary>
 FFTJetPileupEstimator::calibrateFromDB(
     const double curve, const edm::EventSetup& iSetup) const
 {
@@ -242,9 +244,7 @@ FFTJetPileupEstimator::calibrateFromDB(
     const double rhoUncert = ptToDensityFactor*(*uc)(&curve, 1U);
     const int uncertaintyCode = round((*uz)(&curve, 1U));
 
-    return std::auto_ptr<reco::FFTJetPileupSummary>(
-        new reco::FFTJetPileupSummary(curve, pileupRho,
-                                      rhoUncert, uncertaintyCode));
+    return std::make_unique<reco::FFTJetPileupSummary>(curve, pileupRho, rhoUncert, uncertaintyCode);
 }
 
 

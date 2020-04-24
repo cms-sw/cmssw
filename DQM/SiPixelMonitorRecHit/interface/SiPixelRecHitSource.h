@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DQM/SiPixelMonitorRecHit/interface/SiPixelRecHitModule.h"
 
@@ -50,20 +51,21 @@
 
 #include <boost/cstdint.hpp>
 
- class SiPixelRecHitSource : public edm::EDAnalyzer {
+class SiPixelRecHitSource : public DQMEDAnalyzer {
     public:
        explicit SiPixelRecHitSource(const edm::ParameterSet& conf);
-       ~SiPixelRecHitSource();
+       ~SiPixelRecHitSource() override;
 
 //       typedef edm::DetSet<PixelRecHit>::const_iterator    RecHitIterator;
        
-       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
-       virtual void endJob() ;
-       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
+       void analyze(const edm::Event&, const edm::EventSetup&) override;
+       void bookHistograms(DQMStore::IBooker &, edm::Run const &, const edm::EventSetup&) override;
+       void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
 
        virtual void buildStructure(edm::EventSetup const&);
-       virtual void bookMEs();
+       virtual void bookMEs(DQMStore::IBooker &, const edm::EventSetup& iSetup);
+
+       std::string topFolderName_;
 
     private:
        edm::ParameterSet conf_;
@@ -73,7 +75,6 @@
        bool isPIB;
        bool slowDown;
        int eventNo;
-       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRecHitModule*> thePixelStructure;
        std::map<uint32_t,int> rechit_count;
        bool modOn; 
@@ -85,6 +86,7 @@
        bool ringOn, bladeOn, diskOn; 
        
        bool firstRun;
+       bool isUpgrade;
 
  };
 

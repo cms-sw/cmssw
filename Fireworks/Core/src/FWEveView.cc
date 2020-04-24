@@ -15,27 +15,25 @@
 #include <RVersion.h>
 #include <boost/bind.hpp>
 #include <stdexcept>
-
+#include <string>
 
 // user include files
 
-#define private public  //!!! TODO add get/sets for camera zoom and FOV
 #include "TGLOrthoCamera.h"
 #include "TGLPerspectiveCamera.h"
-#undef private
 #include "TGLCameraGuide.h"
 
 #include "TGLEmbeddedViewer.h"
-#include "TEveViewer.h"
 #include "TGLScenePad.h"
 #include "TEveManager.h"
 #include "TEveElement.h"
 #include "TEveWindow.h"
 #include "TEveScene.h"
-#define protected public  //!!! TODO add get/sets for TEveCalo2D for CellIDs
 #include "TEveCalo.h"
-#undef protected
 #include "TGLOverlay.h"
+
+#include "Fireworks/Core/interface/FWTEveViewer.h"
+#include "Fireworks/Core/interface/FWTGLViewer.h"
 
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/FWViewType.h"
@@ -64,7 +62,7 @@ class ScaleAnnotation : public TGLAnnotation
 public:
    ScaleAnnotation(TGLViewerBase* parent, const char* text, Float_t posx, Float_t posy):
       TGLAnnotation(parent, text, posx, posy) {}
-   virtual ~ScaleAnnotation() {}
+   ~ScaleAnnotation() override {}
 
    void setText(const char* txt)
    {
@@ -78,15 +76,15 @@ public:
 
 FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned int version) :
    FWViewBase(type, version),
-   m_viewer(0),
-   m_eventScene(0),
-   m_ownedProducts(0),
-   m_geoScene(0),
-   m_overlayEventInfo(0),
-   m_overlayLogo(0),
-   m_energyMaxValAnnotation(0),
-   m_cameraGuide(0),
-   m_context(0),
+   m_context(nullptr),
+   m_viewer(nullptr),
+   m_eventScene(nullptr),
+   m_ownedProducts(nullptr),
+   m_geoScene(nullptr),
+   m_overlayEventInfo(nullptr),
+   m_overlayLogo(nullptr),
+   m_energyMaxValAnnotation(nullptr),
+   m_cameraGuide(nullptr),
    // style
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
@@ -103,16 +101,11 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_useGlobalEnergyScale(this, "UseGlobalEnergyScale", true),
    m_viewContext( new FWViewContext()),
    m_localEnergyScale( new FWViewEnergyScale(FWViewType::idToName(type), version)),
-   m_viewEnergyScaleEditor(0)
+   m_viewEnergyScaleEditor(nullptr)
 {
-   m_viewer = new TEveViewer(typeName().c_str());
+   m_viewer = new FWTEveViewer(typeName().c_str());
 
-   TGLEmbeddedViewer* embeddedViewer;
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
-   embeddedViewer =  m_viewer->SpawnGLEmbeddedViewer(0);
-#else
-   embeddedViewer =  m_viewer->SpawnGLEmbeddedViewer();
-#endif
+   FWTGLViewer *embeddedViewer = m_viewer->SpawnFWTGLViewer();
    iParent->ReplaceWindow(m_viewer);
    gEve->GetViewers()->AddElement(m_viewer);
 
@@ -197,6 +190,18 @@ TGLViewer*
 FWEveView::viewerGL() const
 {
    return  m_viewer->GetGLViewer();
+}
+
+TEveViewer*
+FWEveView::viewer()
+{
+   return m_viewer;
+}
+
+FWTGLViewer* 
+FWEveView::fwViewerGL() const
+{
+   return  m_viewer->fwGlViewer();
 }
 
 void
@@ -291,7 +296,7 @@ FWEveView::voteCaloMaxVal()
 {
    TEveCaloViz* calo = getEveCalo();
    if (calo)
-      context().voteMaxEtAndEnergy(calo->GetData()->GetMaxVal(1), calo->GetData()->GetMaxVal(0));
+      context().voteMaxEtAndEnergy(calo->GetData()->GetMaxVal(true), calo->GetData()->GetMaxVal(false));
 }
 
 void
@@ -328,6 +333,15 @@ FWEveView::setupEnergyScale()
    }
 
    // emit signal to proxy builders 
+   viewContext()->scaleChanged();
+   gEve->Redraw3D();
+}
+
+void
+FWEveView::setupEventCenter()
+{
+  // piggyback on scales signal connections to redraw jets
+  // can add new signal in future if necessary
    viewContext()->scaleChanged();
    gEve->Redraw3D();
 }
@@ -386,16 +400,22 @@ FWEveView::setFrom(const FWConfiguration& iFrom)
 
 
    // selection clors
-   UChar_t* ca = 0;
-   ca = gEve->GetDefaultGLViewer()->RefLightColorSet().Selection(1).Arr();
-   viewerGL()->RefLightColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
-   ca = gEve->GetDefaultGLViewer()->RefLightColorSet().Selection(3).Arr();
-   viewerGL()->RefLightColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
-   ca = gEve->GetDefaultGLViewer()->RefDarkColorSet().Selection(1).Arr();
-   viewerGL()->RefDarkColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
-   ca = gEve->GetDefaultGLViewer()->RefDarkColorSet().Selection(3).Arr();
-   viewerGL()->RefDarkColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+   {
+      const TGLColorSet& lcs = context().commonPrefs()->getLightColorSet();
+      const TGLColorSet& dcs = context().commonPrefs()->getDarkColorSet();
+      const UChar_t* ca = nullptr;
+
+      ca = lcs.Selection(1).CArr();
+      viewerGL()->RefLightColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
+      ca = lcs.Selection(3).CArr();
+      viewerGL()->RefLightColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+      ca = dcs.Selection(1).CArr();
+      viewerGL()->RefDarkColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
+      ca = dcs.Selection(3).CArr();
+      viewerGL()->RefDarkColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+   }
 }
+
 
 //______________________________________________________________________________
 
@@ -404,11 +424,9 @@ void
 FWEveView::addToOrthoCamera(TGLOrthoCamera* camera, FWConfiguration& iTo) const
 {
    // zoom
-   std::ostringstream s;
-   s<<(camera->fZoom);
    std::string name("cameraZoom");
-   iTo.addKeyValue(name+typeName(),FWConfiguration(s.str()));
-   
+   iTo.addKeyValue(name+typeName(),FWConfiguration(std::to_string(camera->GetZoom())));
+
    // transformation matrix
    std::string matrixName("cameraMatrix");
    for ( unsigned int i = 0; i < 16; ++i ) {
@@ -426,12 +444,11 @@ FWEveView::setFromOrthoCamera(TGLOrthoCamera* camera,  const FWConfiguration& iF
    try {
       // zoom
       std::string zoomName("cameraZoom"); zoomName += typeName();
-      if (iFrom.valueForKey(zoomName) == 0 )
+      if (iFrom.valueForKey(zoomName) == nullptr )
       {
          throw std::runtime_error("can't restore parameter cameraZoom");
       }
-      std::istringstream s(iFrom.valueForKey(zoomName)->value());
-      s>>(camera->fZoom);
+      camera->SetZoom(std::stod(iFrom.valueForKey(zoomName)->value()));
       
       // transformation matrix
       std::string matrixName("cameraMatrix");
@@ -439,7 +456,7 @@ FWEveView::setFromOrthoCamera(TGLOrthoCamera* camera,  const FWConfiguration& iF
          std::ostringstream os;
          os << i;
          const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + typeName() );
-         if ( value ==  0 )
+         if ( value ==  nullptr )
          {
             throw std::runtime_error ("can't restore parameter cameraMatrix.");
          }
@@ -479,9 +496,7 @@ FWEveView::addToPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string& 
       iTo.addKeyValue(matrixName+osIndex.str()+name,FWConfiguration(osValue.str()));
    }
    {
-      std::ostringstream osValue;
-      osValue << cam->fFOV;
-      iTo.addKeyValue(name+" FOV",FWConfiguration(osValue.str()));
+      iTo.addKeyValue(name+" FOV",FWConfiguration(std::to_string(cam->GetFOV())));
    }
 }
 
@@ -494,7 +509,7 @@ FWEveView::setFromPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string
          std::ostringstream os;
          os << i;
          const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + name );
-         if ( value ==  0 )
+         if ( value ==  nullptr )
          {
             throw std::runtime_error ("can't restore parameter cameraMatrix.");
          }
@@ -508,7 +523,7 @@ FWEveView::setFromPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string
          std::ostringstream os;
          os << i;
          const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + name );
-         if ( value ==  0 )
+         if ( value ==  nullptr )
          {
             throw std::runtime_error ("can't restore parameter cameraMatrixBase.");
          }
@@ -519,12 +534,11 @@ FWEveView::setFromPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string
       
       {
          const FWConfiguration* value = iFrom.valueForKey( name + " FOV" );
-         if ( value ==  0 )
+         if ( value ==  nullptr )
          {
             throw std::runtime_error ("can't restore parameter cameraMatrixBase.");
          }
-         std::istringstream s(value->value());
-         s>>cam->fFOV;
+         cam->SetFOV(std::stod(value->value()));
       }
       
       cam->IncTimeStamp();

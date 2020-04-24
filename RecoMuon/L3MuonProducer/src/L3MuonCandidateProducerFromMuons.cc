@@ -6,7 +6,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,10 +46,10 @@ L3MuonCandidateProducerFromMuons::~L3MuonCandidateProducerFromMuons(){
 
 
 /// reconstruct muons
-void L3MuonCandidateProducerFromMuons::produce(Event& event, const EventSetup& eventSetup){
+void L3MuonCandidateProducerFromMuons::produce(StreamID, Event& event, const EventSetup& eventSetup) const {
   // Create a RecoChargedCandidate collection
   LogTrace(category)<<" Creating the RecoChargedCandidate collection";
-  auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
+  auto candidates = std::make_unique<RecoChargedCandidateCollection>();
 
   // Take the L3 container
   LogTrace(category)<<" Taking the L3/GLB muons: "<<m_L3CollectionLabel.label();
@@ -78,5 +77,5 @@ void L3MuonCandidateProducerFromMuons::produce(Event& event, const EventSetup& e
       candidates->push_back(cand);
     }
   }
-  event.put(candidates);
+  event.put(std::move(candidates));
 }

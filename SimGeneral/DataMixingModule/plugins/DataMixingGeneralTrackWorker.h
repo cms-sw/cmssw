@@ -1,4 +1,4 @@
-#ifndef DataMixingGeneralTrackWorker_h
+#ifndef SimDataMixingGeneralTrackWorker_h
 #define SimDataMixingGeneralTrackWorker_h
 
 /** \class DataMixingGeneralTrackWorker
@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -42,7 +43,7 @@ namespace edm
       DataMixingGeneralTrackWorker();
 
      /** standard constructor*/
-      explicit DataMixingGeneralTrackWorker(const edm::ParameterSet& ps);
+      explicit DataMixingGeneralTrackWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC);
 
       /**Default destructor*/
       virtual ~DataMixingGeneralTrackWorker();
@@ -60,12 +61,15 @@ namespace edm
       edm::InputTag GeneralTrackPileInputTag_ ;    // InputTag for pileup tracks
       std::string GeneralTrackCollectionDM_  ; // secondary name to be given to new GeneralTrack
 
+      edm::EDGetTokenT<reco::TrackCollection>GTrackSigToken_ ;  // Token to retrieve information  
+      edm::EDGetTokenT<reco::TrackCollection>GTrackPileToken_ ;  // Token to retrieve information  
+
       // 
 
-      std::auto_ptr<reco::TrackCollection> NewTrackList_;
+      std::unique_ptr<reco::TrackCollection> NewTrackList_;
 
 
     };
 }//edm
 
-#endif
+#endif // SimDataMixingGeneralTrackWorker_h

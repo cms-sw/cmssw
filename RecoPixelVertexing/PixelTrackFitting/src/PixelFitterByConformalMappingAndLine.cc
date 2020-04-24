@@ -8,26 +8,21 @@
 
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CommonTools/Statistics/interface/LinearFit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 #include "ConformalMappingFit.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
-#include "RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
@@ -37,15 +32,21 @@ using namespace std;
 template <class T> T sqr( T t) {return t*t;}
 
 
-PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine(
-    const edm::ParameterSet& cfg) : theConfig(cfg)
+PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine(const edm::EventSetup *es,
+                                                                           const TransientTrackingRecHitBuilder *ttrhBuilder,
+                                                                           const TrackerGeometry *tracker,
+                                                                           const MagneticField *field,
+                                                                           double fixImpactParameter,
+                                                                           bool useFixImpactParameter):
+  theES(es),
+  theTTRHBuilder(ttrhBuilder),
+  theTracker(tracker),
+  theField(field),
+  theFixImpactParameter(fixImpactParameter),
+  theUseFixImpactParameter(useFixImpactParameter)
 { }
 
-PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine()
-{ }
-
-reco::Track* PixelFitterByConformalMappingAndLine::run(
-    const edm::EventSetup& es,
+std::unique_ptr<reco::Track> PixelFitterByConformalMappingAndLine::run(
     const std::vector<const TrackingRecHit * > & hits,
     const TrackingRegion & region) const
 {
@@ -57,18 +58,8 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   vector<bool> isBarrel;
   
 
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field);
-
-  edm::ESHandle<TransientTrackingRecHitBuilder> ttrhBuilder;
-  string ttrhBuilderName = theConfig.getParameter<std::string>("TTRHBuilder");
-  es.get<TransientRecHitRecord>().get( ttrhBuilderName, ttrhBuilder);
-
   for (vector<const TrackingRecHit*>::const_iterator ih=hits.begin();  ih!=hits.end(); ih++) {
-    TransientTrackingRecHit::RecHitPointer recHit = ttrhBuilder->build(*ih);
+    TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(*ih);
     points.push_back( recHit->globalPosition() );
     errors.push_back( recHit->globalPositionError() );
     isBarrel.push_back( recHit->detUnit()->type().isBarrel() );
@@ -92,15 +83,15 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
     errRPhi2.push_back( point.perp2()*phiErr2);
   }
   ConformalMappingFit parabola(xy, errRPhi2);
-  if (theConfig.exists("fixImpactParameter")) 
-    parabola.fixImpactParmaeter(theConfig.getParameter<double>("fixImpactParameter"));
+  if (theUseFixImpactParameter) 
+    parabola.fixImpactParmaeter(theFixImpactParameter);
   else if (nhits < 3) parabola.fixImpactParmaeter(0.);
  
 
   Measurement1D curv = parabola.curvature();
-  float invPt = PixelRecoUtilities::inversePt( curv.value(), es);
+  float invPt = PixelRecoUtilities::inversePt( curv.value(), *theES);
   float valPt =  (invPt > 1.e-4) ? 1./invPt : 1.e4;
-  float errPt =PixelRecoUtilities::inversePt(curv.error(), es) * sqr(valPt);
+  float errPt =PixelRecoUtilities::inversePt(curv.error(), *theES) * sqr(valPt);
   Measurement1D pt (valPt,errPt);
   Measurement1D phi = parabola.directionPhi();
   Measurement1D tip = parabola.impactParameter();
@@ -114,7 +105,7 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
     const GlobalPoint & point = points[i]; 
     const GlobalError & error = errors[i];
     r[i] = sqrt( sqr(point.x()-region.origin().x()) + sqr(point.y()-region.origin().y()) );
-    r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt.value(),es)(r[i]);
+    r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt.value(), *theES)(r[i]);
     z[i] = point.z()-region.origin().z();  
     errZ[i] =  (isBarrel[i]) ? sqrt(error.czz()) : sqrt( error.rerr(point) )*simpleCot;
   }
@@ -123,20 +114,18 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   // line fit (R-Z plane)
   //
   RZLine rzLine(r,z,errZ);
-  float      cottheta, intercept, covss, covii, covsi;
-  rzLine.fit(cottheta, intercept, covss, covii, covsi);
   
 //
 // parameters for track builder 
 //
-  Measurement1D zip(intercept, sqrt(covii));
-  Measurement1D cotTheta(cottheta, sqrt(covss));  
-  float chi2 = parabola.chi2() +  rzLine.chi2(cottheta, intercept);
+  Measurement1D zip(rzLine.intercept(), sqrt(rzLine.covii()));
+  Measurement1D cotTheta(rzLine.cotTheta(), sqrt(rzLine.covss()));
+  float chi2 = parabola.chi2() +  rzLine.chi2();
   int charge = parabola.charge();
 
 
   PixelTrackBuilder builder;
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits,  field.product(), region.origin());
+  return std::unique_ptr<reco::Track>(builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits,  theField, region.origin()));
 }
 
 

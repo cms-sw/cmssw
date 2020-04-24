@@ -13,6 +13,7 @@
 <use   name="FastSimulation/MaterialEffects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="FWCore/ServiceRegistry"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="DQMServices/Core"/>
 <use   name="SimG4Core/GFlash"/>
 <export>

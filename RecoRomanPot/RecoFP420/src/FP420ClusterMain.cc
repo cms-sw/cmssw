@@ -68,9 +68,6 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
   //  pn0 = 9;
 
 
-  theFP420NumberingScheme = new FP420NumberingScheme();
-
-
   if (verbosity > 1) {
     std::cout << "FP420ClusterMain constructor: sn0 = " << sn0 << " pn0=" << pn0 << " dn0=" << dn0 << " rn0=" << rn0 << std::endl;
     std::cout << "FP420ClusterMain constructor: ENC = " << ENC_ << std::endl;
@@ -111,15 +108,15 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int dn, int sn
 }
 
 FP420ClusterMain::~FP420ClusterMain() {
-  if ( threeThreshold_ != 0 ) {
+  if ( threeThreshold_ != nullptr ) {
     delete threeThreshold_;
   }
 }
 
 
-//void FP420ClusterMain::run(const DigiCollectionFP420 *input, ClusterCollectionFP420 &soutput,
+//void FP420ClusterMain::run(const DigiCollectionFP420 *input, ClusterCollectionFP420 *soutput,
 //			   const std::vector<ClusterNoiseFP420>& electrodnoise)
-void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_ptr<ClusterCollectionFP420> &soutput,
+void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, ClusterCollectionFP420 *soutput,
 			   std::vector<ClusterNoiseFP420>& electrodnoise)
 
 {
@@ -150,7 +147,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	for (int zmodule=1; zmodule<pn0; zmodule++) {
 	  for (int zside=1; zside<rn0; zside++) {
 	    // intindex is a continues numbering of FP420
-	    unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	    unsigned int detID = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 	    if (verbosity > 0) {
 	      std::cout << " FP420ClusterMain:1 run loop   index no  iu = " << detID  << std::endl;
 	    }	  
@@ -197,7 +194,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	    for ( ;sort_begin != sort_end; ++sort_begin ) {
 	      dcollector.push_back(*sort_begin);
 	    } // for
-	    if (dcollector.size()>0) {
+	    if (!dcollector.empty()) {
 	      
 	      DigiCollectionFP420::ContainerIterator digiRangeIteratorBegin = digiRange.first;
 	      DigiCollectionFP420::ContainerIterator digiRangeIteratorEnd   = digiRange.second;
@@ -267,7 +264,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 		  
 		}// if (UseNoiseBadElectrodeFlagFromDB
 		
-		if (collector.size()>0){
+		if (!collector.empty()){
 		  ClusterCollectionFP420::Range inputRange;
 		  inputRange.first = collector.begin();
 		  inputRange.second = collector.end();
@@ -311,7 +308,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	  for (int zmodule=1; zmodule<pn0; zmodule++) {
 	    for (int zside=1; zside<rn0; zside++) {
 	      // intindex is a continues numbering of FP420
-	      unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	      unsigned int iu = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 		std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
 	      std::vector<ClusterFP420> collector;
 	      collector.clear();

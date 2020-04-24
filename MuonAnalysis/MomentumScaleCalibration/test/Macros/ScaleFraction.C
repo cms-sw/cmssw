@@ -8,7 +8,6 @@
 #include <utility>
 #include <iostream>
 
-using namespace std;
 
 class ScaleFraction
 {
@@ -27,7 +26,7 @@ protected:
   }
   inline void fill(TProfile * histo, const double & x, const double & y)
   {
-    cout << "inside fill: x = " << x << ", y = " << y << endl;
+    std::cout << "inside fill: x = " << x << ", y = " << y << std::endl;
     histo->Fill( x, y );
   }
 };
@@ -38,9 +37,9 @@ TH1 * ScaleFraction::scaleOne( T * histo, const double & min, const double & max
   int minBin = histo->FindBin(min);
   int maxBin = histo->FindBin(max);
 
-  cout << "For " << histo->GetName() << endl;
-  cout << "minBin = " << minBin << endl;
-  cout << "maxBin = " << maxBin << endl;
+  std::cout << "For " << histo->GetName() << std::endl;
+  std::cout << "minBin = " << minBin << std::endl;
+  std::cout << "maxBin = " << maxBin << std::endl;
 
   // T * newHisto = (T*)histo->Clone();
   // newHisto->Reset();
@@ -52,8 +51,8 @@ TH1 * ScaleFraction::scaleOne( T * histo, const double & min, const double & max
 
   for( int i=minBin; i<=maxBin; ++i ) {
     if( histo->GetBinContent(i) != 0 ) {
-      // cout << "first("<<i<<") = " << histo->GetBinContent(i) << endl;
-      cout << "first bin center("<<i<<") = " << histo->GetBinCenter(i) << " value = " << histo->GetBinContent(i) << endl;
+      // std::cout << "first("<<i<<") = " << histo->GetBinContent(i) << std::endl;
+      std::cout << "first bin center("<<i<<") = " << histo->GetBinCenter(i) << " value = " << histo->GetBinContent(i) << std::endl;
     }
     // fill(newHisto, i, histo->GetBinContent(i));
     newHisto->SetBinContent( i, histo->GetBinContent(i) );
@@ -67,7 +66,7 @@ TH1 * ScaleFraction::scaleOne( T * histo, const double & min, const double & max
 
   for( int i=minBin; i<=maxBin; ++i ) {
     if( newHisto->GetBinContent(i) != 0 ) {
-      cout << "first("<<i<<") = " << newHisto->GetBinContent(i) << endl;
+      std::cout << "first("<<i<<") = " << newHisto->GetBinContent(i) << std::endl;
     }
   }
 

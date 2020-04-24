@@ -5,7 +5,7 @@
 GflashTrajectory::GflashTrajectory()
   :
    _cotTheta(0.0),_curvature(0.0),_z0(0.0),_d0(0.0),_phi0(0.0),
-   _isStale(1),
+   _isStale(true),
    _sinPhi0(2),_cosPhi0(2),_sinTheta(2),_cosTheta(2),
    _s(-999.999),
    _aa(2),_ss(2),_cc(2)
@@ -59,7 +59,7 @@ void GflashTrajectory::initializeTrajectory(const HepGeom::Vector3D<double>  & M
    _d0=D0;
    _phi0=Phi0;
 
-   _isStale=1;
+   _isStale=true;
    _s=-999.999;
    _aa =-999.999; 
    _ss =-999.999; 

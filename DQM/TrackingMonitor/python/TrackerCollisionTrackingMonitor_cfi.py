@@ -13,16 +13,13 @@ TrackerCollisionTrackMon.ClusterLabels          = cms.vstring('Tot','Strip','Pix
 TrackerCollisionTrackMon.beamSpot               = cms.InputTag("offlineBeamSpot")
 TrackerCollisionTrackMon.primaryVertex          = cms.InputTag('offlinePrimaryVertices')
 TrackerCollisionTrackMon.primaryVertexInputTags = cms.VInputTag(
-      cms.InputTag('offlinePrimaryVertices'),
-      cms.InputTag('pixelVertices')
+      cms.InputTag('offlinePrimaryVertices')
 )    
 TrackerCollisionTrackMon.selPrimaryVertexInputTags = cms.VInputTag(
-      cms.InputTag('goodOfflinePrimaryVertices'),
-      cms.InputTag('')
+      cms.InputTag('goodOfflinePrimaryVertices')
 )    
 TrackerCollisionTrackMon.pvLabels               = cms.vstring(
-      'offline',
-      'pixel'
+      'offline'
 )
 
 # output parameters
@@ -47,9 +44,12 @@ TrackerCollisionTrackMon.doRecHitVsPhiVsEtaPerTrack          = cms.bool(True)
 TrackerCollisionTrackMon.doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(True)
 TrackerCollisionTrackMon.doLayersVsPhiVsEtaPerTrack          = cms.bool(True)
 TrackerCollisionTrackMon.doGoodTrackLayersVsPhiVsEtaPerTrack = cms.bool(True)
-#TrackerCollisionTrackMon.doPUmonitoring                      = cms.bool(True)
-#TrackerCollisionTrackMon.doPlotsVsBXlumi                     = cms.bool(True)
-#TrackerCollisionTrackMon.doPlotsVsGoodPVtx                   = cms.bool(True)
+TrackerCollisionTrackMon.doPUmonitoring                      = cms.bool(False)
+TrackerCollisionTrackMon.doPlotsVsBXlumi                     = cms.bool(False)
+TrackerCollisionTrackMon.doPlotsVsGoodPVtx                   = cms.bool(True)
+TrackerCollisionTrackMon.doEffFromHitPatternVsPU             = cms.bool(True)
+TrackerCollisionTrackMon.doEffFromHitPatternVsBX             = cms.bool(True)
+TrackerCollisionTrackMon.doEffFromHitPatternVsLUMI           = cms.bool(True)
 
 # LS analysis
 TrackerCollisionTrackMon.doLumiAnalysis       = cms.bool(True)     
@@ -65,8 +65,8 @@ TrackerCollisionTrackMon.TkSizeMax             = cms.double(999.5)
 TrackerCollisionTrackMon.TkSizeMin             = cms.double(-0.5)
 
 # chi2 dof
-TrackerCollisionTrackMon.Chi2NDFBin            = cms.int32(50)
-TrackerCollisionTrackMon.Chi2NDFMax            = cms.double(49.5)
+TrackerCollisionTrackMon.Chi2NDFBin            = cms.int32(80)
+TrackerCollisionTrackMon.Chi2NDFMax            = cms.double(79.5)
 TrackerCollisionTrackMon.Chi2NDFMin            = cms.double(-0.5)
 
 # Number of seeds per Event
@@ -82,7 +82,3 @@ TrackerCollisionTrackMon.TCSizeMin = cms.double(-0.5)
 TrackerCollisionTrackMon.GoodPVtxBin = cms.int32(60)
 TrackerCollisionTrackMon.GoodPVtxMin = cms.double( 0.)
 TrackerCollisionTrackMon.GoodPVtxMax = cms.double(60.)
-
-#TrackerCollisionTrackMon.BXlumiBin = cms.int32(100) # (400)
-#TrackerCollisionTrackMon.BXlumiMin = cms.double(1)  # (2000)
-#TrackerCollisionTrackMon.BXlumiMax = cms.double(10) # (6000)

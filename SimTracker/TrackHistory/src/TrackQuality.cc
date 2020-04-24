@@ -37,7 +37,7 @@
 
 namespace
 {
-static const uint32_t NonMatchedTrackId = (uint32_t)-1;
+const uint32_t NonMatchedTrackId = (uint32_t)-1;
 
 struct MatchedHit
 {
@@ -141,14 +141,14 @@ DetLayer getDetLayer(DetId detId, const TrackerTopology *tTopo)
     return DetLayer(det, layer);
 }
 
-TrackQuality::TrackQuality(const edm::ParameterSet &config) :
-        associatorPSet_(config.getParameter<edm::ParameterSet>("hitAssociator"))
+TrackQuality::TrackQuality(const edm::ParameterSet &config,  edm::ConsumesCollector& iC) :
+        trackerHitAssociatorConfig_(config.getParameter<edm::ParameterSet>("hitAssociator"), std::move(iC))
 {
 }
 
 void TrackQuality::newEvent(const edm::Event &ev, const edm::EventSetup &es)
 {
-    associator_.reset(new TrackerHitAssociator(ev, associatorPSet_));
+    associator_.reset(new TrackerHitAssociator(ev, trackerHitAssociatorConfig_));
 }
 
 void TrackQuality::evaluate(SimParticleTrail const &spt,
@@ -228,60 +228,6 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
     // sort hits found so far by module id
     std::stable_sort(matchedHits.begin(), matchedHits.end());
 
-    std::vector<MatchedHit>::size_type size = matchedHits.size();
-
-    //#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-    // This warning is disabled because there is no anymore PSimHit vector associated with TrackingParticle
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-    // now iterate over simulated hits and compare (tracks in chain first)
-    for (SimParticleTrail::const_iterator track = spt.begin();
-            track != spt.end(); ++track)
-    {
-        // iterate over all hits in track
-        for (std::vector<PSimHit>::const_iterator hit =
-                    (*track)->pSimHit_begin();
-                hit != (*track)->pSimHit_end(); ++hit)
-        {
-            MatchedHit matchedHit;
-            matchedHit.detId = DetId(hit->detUnitId());
-            matchedHit.simTrackId = hit->trackId();
-            matchedHit.collision = hit->eventId();
-
-            // find range of reconstructed hits belonging to this module
-            std::pair<std::vector<MatchedHit>::iterator,
-            std::vector<MatchedHit>::iterator>
-            range = std::equal_range(
-                        matchedHits.begin(),
-                        matchedHits.begin() + size,
-                        matchedHit.detId);
-
-            // no reconstructed hit found, remember this as a missed module
-            if (range.first == range.second)
-            {
-                matchedHit.state = Layer::Missed;
-                matchedHit.recHitId = -1;
-                matchedHits.push_back(matchedHit);
-                continue;
-            }
-
-            // now find if the hit belongs to the correct simulated track
-            std::vector<MatchedHit>::iterator pos =
-                std::lower_bound(range.first,
-                                 range.second,
-                                 matchedHit);
-
-            // if it does, check for being a shared hit (was Misassoc before)
-            if (pos != range.second)
-            {
-                if (range.second - range.first > 1) // more than one SimHit
-                    pos->state = Layer::Shared;
-                else
-                    pos->state = Layer::Good; // only hit -> good hit
-            }
-        }
-    }
-#endif
-
     // in case we added missed modules, re-sort
     std::stable_sort(matchedHits.begin(), matchedHits.end());
 
@@ -294,7 +240,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
             hit != matchedHits.end();)
     {
         // we can have multiple reco-to-sim matches per module, find best one
-        const MatchedHit *best = 0;
+        const MatchedHit *best = nullptr;
 
         // this loop iterates over all subsequent hits in the same module
         do
@@ -337,7 +283,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
 #endif
 
         // find out if we need to start a new layer
-        Layer *layer = layers_.empty() ? 0 : &layers_.back();
+        Layer *layer = layers_.empty() ? nullptr : &layers_.back();
         if (!layer ||
                 hit->first.first != layer->subDet ||
                 hit->first.second != layer->layer)

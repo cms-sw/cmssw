@@ -34,6 +34,9 @@ class TEveScene;
 class TEveWindowSlot;
 class TEveCaloViz;
 
+class FWTGLViewer;
+class FWTEveViewer;
+
 class FWEventAnnotation;
 class CmsAnnotation;
 class FWViewContextMenuHandlerGL;
@@ -53,9 +56,9 @@ class FWEveView : public FWViewBase
 {
 public:
    FWEveView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 7);
-   virtual ~FWEveView();
+   ~FWEveView() override;
 
-   virtual void setFrom(const FWConfiguration&);
+   void setFrom(const FWConfiguration&) override;
    virtual void setBackgroundColor(Color_t);
    virtual void eventEnd();
    virtual void eventBegin();
@@ -65,15 +68,19 @@ public:
 
    // ---------- const member functions --------------------- 
 
-   virtual void addTo(FWConfiguration&) const;
-   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
-   virtual void saveImageTo(const std::string& iName) const;
-   virtual void populateController(ViewerParameterGUI&) const;
+   void addTo(FWConfiguration&) const override;
+   FWViewContextMenuHandlerBase* contextMenuHandler() const override;
+   void saveImageTo(const std::string& iName) const override;
+   void populateController(ViewerParameterGUI&) const override;
 
-   TGLViewer*  viewerGL() const;
-   TEveViewer* viewer()      { return m_viewer; }
-   TEveScene*  eventScene()  { return m_eventScene;}
-   TEveScene*  geoScene()    { return m_geoScene; }
+   TGLViewer*    viewerGL()    const;
+   TEveViewer*   viewer();
+
+   FWTGLViewer*  fwViewerGL()  const;
+   FWTEveViewer* fwViewer()    { return m_viewer; }
+
+   TEveScene*    eventScene()  { return m_eventScene;}
+   TEveScene*    geoScene()    { return m_geoScene; }
 
    TEveElement*   ownedProducts()  { return m_ownedProducts; }
    FWViewContext* viewContext() { return m_viewContext.get(); }
@@ -82,9 +89,10 @@ public:
    virtual void useGlobalEnergyScaleChanged();
    virtual bool isEnergyScaleGlobal() const;
    virtual void setupEnergyScale();
+   virtual void setupEventCenter();
    virtual void voteCaloMaxVal();
 
-   virtual bool requestGLHandlerPick() const { return 0;} 
+   virtual bool requestGLHandlerPick() const { return false;} 
    
 protected:
    virtual void resetCamera();
@@ -92,7 +100,7 @@ protected:
    virtual void cameraGuideChanged();
 
    // scales
-   virtual TEveCaloViz* getEveCalo() const { return 0; }
+   virtual TEveCaloViz* getEveCalo() const { return nullptr; }
 
    // config
    void addToOrthoCamera(TGLOrthoCamera*, FWConfiguration&) const;
@@ -100,14 +108,17 @@ protected:
    void addToPerspectiveCamera(TGLPerspectiveCamera*, const std::string&, FWConfiguration&) const;
    void setFromPerspectiveCamera(TGLPerspectiveCamera*,  const std::string&, const FWConfiguration&);
 
+protected:
+   const fireworks::Context*  m_context;
+
 private:
-   FWEveView(const FWEveView&);    // stop default
-   const FWEveView& operator=(const FWEveView&);    // stop default
+   FWEveView(const FWEveView&) = delete;    // stop default
+   const FWEveView& operator=(const FWEveView&) = delete;    // stop default
   
 
    // ---------- member data --------------------------------
 
-   TEveViewer*          m_viewer;
+   FWTEveViewer*        m_viewer;
    TEveScene*           m_eventScene;
    TEveElement*         m_ownedProducts;
    TEveScene*           m_geoScene;
@@ -116,10 +127,6 @@ private:
    CmsAnnotation*       m_overlayLogo;
    ScaleAnnotation*     m_energyMaxValAnnotation;
    TGLCameraGuide*      m_cameraGuide;
-
-   const fireworks::Context*  m_context;
-
-
 
 private:
    // style parameters
@@ -139,7 +146,7 @@ private:
    FWBoolParameter   m_showCameraGuide;
    FWBoolParameter   m_useGlobalEnergyScale;
 
-   boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
+   std::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
    std::auto_ptr<FWViewContext> m_viewContext;
    std::auto_ptr<FWViewEnergyScale> m_localEnergyScale;
 

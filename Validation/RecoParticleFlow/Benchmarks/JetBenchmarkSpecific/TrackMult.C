@@ -25,8 +25,6 @@ void TrackMult(const char* fileFast, const char* fileFull)
 
 gSystem->Load("libFWCoreFWLite.so");
 gSystem->Load("libValidationRecoParticleFlow.so");
-gSystem->Load("libCintex.so");
-ROOT::Cintex::Cintex::Enable();
 //gROOT->LoadMacro("../Tools/NicePlot.C");
 //InitNicePlot();
 

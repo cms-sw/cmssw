@@ -6,8 +6,6 @@
    \date 27 Jul 2005
 */
 
-static const char CVSId[] = "$Id: testCSCTriggerNumbering.cc,v 1.2 2006/02/22 23:28:18 lgray Exp $";
-
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <FWCore/Utilities/interface/Exception.h>

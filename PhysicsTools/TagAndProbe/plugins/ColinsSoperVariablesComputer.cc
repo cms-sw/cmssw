@@ -111,26 +111,26 @@ ColinsSoperVariablesComputer::produce(edm::Event & iEvent, const edm::EventSetup
 
 
     // convert into ValueMap and store
-    std::auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
+    auto valMap = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler(*valMap);
     filler.insert(bosons, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, "costheta");
+    iEvent.put(std::move(valMap), "costheta");
 
 
     // ---> same for sin2theta
-    std::auto_ptr<ValueMap<float> > valMap2(new ValueMap<float>());
+    auto valMap2 = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler2(*valMap2);
     filler2.insert(bosons, values2.begin(), values2.end());
     filler2.fill();
-    iEvent.put(valMap2, "sin2theta");
+    iEvent.put(std::move(valMap2), "sin2theta");
 
     // ---> same for tanphi
-    std::auto_ptr<ValueMap<float> > valMap3(new ValueMap<float>());
+    auto valMap3 = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler3(*valMap3);
     filler3.insert(bosons, values3.begin(), values3.end());
     filler3.fill();
-    iEvent.put(valMap3, "tanphi");
+    iEvent.put(std::move(valMap3), "tanphi");
 
 }
 

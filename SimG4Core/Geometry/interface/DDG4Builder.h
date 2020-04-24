@@ -12,9 +12,6 @@
 #include <vector>
 #include <string>
  
-#include "boost/signals.hpp"
-
-struct DDPosData;
 class DDG4SolidConverter;
 class G4LogicalVolume;
 class G4VPhysicalVolume;

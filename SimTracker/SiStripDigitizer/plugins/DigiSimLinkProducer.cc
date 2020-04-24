@@ -115,7 +115,7 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     cf_simhitvec.push_back(cf_simhit.product());
   }
 
-  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
+  std::unique_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
   
   //Loop on PSimHit
   SimHitMap.clear();
@@ -152,7 +152,7 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   theDigiAlgo->setParticleDataTable(&*pdt);
@@ -163,36 +163,36 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   theDigiLinkVector.reserve(10000);
   theDigiLinkVector.clear();
 
-  for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+  for( const auto& iu : pDD->detUnits()) {
     if(useConfFromDB){
       //apply the cable map _before_ digitization: consider only the detis that are connected 
-      if(theDetIdList.find((*iu)->geographicalId().rawId())==theDetIdList.end())
+      if(theDetIdList.find(iu->geographicalId().rawId())==theDetIdList.end())
         continue;
     }
-    GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-    StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
-    if (sgd != 0){
-      edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
-      edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());
-      edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
-      float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId()) : 0.;
-      theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,
+    GlobalVector bfield=pSetup->inTesla(iu->surface().position());
+    auto sgd = dynamic_cast<StripGeomDetUnit const*>(iu);
+    if (sgd != nullptr){
+      edm::DetSet<SiStripDigi> collectorZS(iu->geographicalId().rawId());
+      edm::DetSet<SiStripRawDigi> collectorRaw(iu->geographicalId().rawId());
+      edm::DetSet<StripDigiSimLink> linkcollector(iu->geographicalId().rawId());
+      float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle(iu->geographicalId().rawId()) : 0.;
+      theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[iu->geographicalId().rawId()],sgd,bfield,langle,
 		       gainHandle,thresholdHandle,noiseHandle,pedestalHandle, deadChannelHandle, tTopo, engine);
       if(zeroSuppression){
-        if(collectorZS.data.size()>0){
+        if(!collectorZS.data.empty()){
           theDigiVector.push_back(collectorZS);
-          if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+          if(!SimHitMap[iu->geographicalId().rawId()].empty()){
             linkcollector.data = theDigiAlgo->make_link();
-            if(linkcollector.data.size()>0)
+            if(!linkcollector.data.empty())
               theDigiLinkVector.push_back(linkcollector);
           }
         }
       }else{
-        if(collectorRaw.data.size()>0){
+        if(!collectorRaw.data.empty()){
           theRawDigiVector.push_back(collectorRaw);
-          if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+          if(!SimHitMap[iu->geographicalId().rawId()].empty()){
             linkcollector.data = theDigiAlgo->make_link();
-            if(linkcollector.data.size()>0)
+            if(!linkcollector.data.empty())
               theDigiLinkVector.push_back(linkcollector);
           }
         }
@@ -201,7 +201,7 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   // Step C: create output collection
-  std::auto_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector));
+  std::unique_ptr<edm::DetSetVector<StripDigiSimLink> > outputlink(new edm::DetSetVector<StripDigiSimLink>(theDigiLinkVector));
   // Step D: write output to file
-  iEvent.put(outputlink);
+  iEvent.put(std::move(outputlink));
 }

@@ -5,8 +5,8 @@ MonitorTrackResiduals = cms.EDAnalyzer("MonitorTrackResiduals",
     OutputMEsInRootFile = cms.bool(False),
     # should histogramms on module level be booked and filled?
     Mod_On = cms.bool(True),
-    trajectoryInput = cms.string('TrackRefitter'),
     OutputFileName = cms.string('test_monitortracks.root'),
+    genericTriggerEventPSet = cms.PSet(),
     # bining and range for absolute and normalized residual histogramms
     TH1ResModules = cms.PSet(
         xmin = cms.double(-0.05),   # native unit in CMS is [cm], so these are 500um
@@ -21,6 +21,7 @@ MonitorTrackResiduals = cms.EDAnalyzer("MonitorTrackResiduals",
     # input for Tracks and Trajectories, should be TrackRefitter
     # or similar
     Tracks = cms.InputTag("TrackRefitter"),
+    trajectoryInput = cms.string('TrackRefitter'),
     # should all MEs be reset after each run?
     ResetAfterRun = cms.bool(True)
 )

@@ -4,20 +4,27 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
-CSCComparatorDigiValidation::CSCComparatorDigiValidation(DQMStore* dbe,
-                                                         const edm::InputTag & inputTag,
-                                                         const edm::InputTag & stripDigiInputTag,
-                                                         edm::ConsumesCollector && iC)
-: CSCBaseValidation(dbe, inputTag),
+CSCComparatorDigiValidation::CSCComparatorDigiValidation(
+    const edm::InputTag & inputTag,
+    const edm::InputTag & stripDigiInputTag,
+    edm::ConsumesCollector && iC):
+  CSCBaseValidation(inputTag),
   theStripDigi_Token_(iC.consumes<CSCStripDigiCollection>(stripDigiInputTag)),
   theTimeBinPlots(),
   theNDigisPerLayerPlots(),
   theStripDigiPlots(),
-  the3StripPlots(),
-  theNDigisPerEventPlot( dbe_->book1D("CSCComparatorDigisPerEvent", "CSC Comparator Digis per event", 100, 0, 100) )
+  the3StripPlots()
 {
   comparators_Token_ = iC.consumes<CSCComparatorDigiCollection>(inputTag);
+}
 
+CSCComparatorDigiValidation::~CSCComparatorDigiValidation()
+{
+}
+
+void CSCComparatorDigiValidation::bookHistograms(DQMStore::IBooker & iBooker)
+{
+  theNDigisPerEventPlot = iBooker.book1D("CSCComparatorDigisPerEvent", "CSC Comparator Digis per event", 100, 0, 100);
   for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200], title3[200], title4[200];
@@ -25,27 +32,12 @@ CSCComparatorDigiValidation::CSCComparatorDigiValidation(DQMStore* dbe,
     sprintf(title2, "CSCComparatorDigisPerLayerType%d", i+1);
     sprintf(title3, "CSCComparatorStripAmplitudeType%d", i+1);
     sprintf(title4, "CSCComparator3StripAmplitudeType%d", i+1);
-    theTimeBinPlots[i] = dbe_->book1D(title1, title1, 9, 0, 8);
-    theNDigisPerLayerPlots[i] = dbe_->book1D(title2, title2, 100, 0, 20);
-    theStripDigiPlots[i] = dbe_->book1D(title3, title3, 100, 0, 1000);
-    the3StripPlots[i] = dbe_->book1D(title4, title4, 100, 0, 1000);
+    theTimeBinPlots[i] = iBooker.book1D(title1, title1, 9, 0, 8);
+    theNDigisPerLayerPlots[i] = iBooker.book1D(title2, title2, 100, 0, 20);
+    theStripDigiPlots[i] = iBooker.book1D(title3, title3, 100, 0, 1000);
+    the3StripPlots[i] = iBooker.book1D(title4, title4, 100, 0, 1000);
   }
 }
-
-
-
-CSCComparatorDigiValidation::~CSCComparatorDigiValidation()
-{
-//   for(int i = 0; i < 10; ++i)
-//   {
-//     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName()
-//       << " is " << theTimeBinPlots[i]->getMean()
-//       << " +/- " << theTimeBinPlots[i]->getRMS();
-//     edm::LogInfo("CSCDigiValidation") << "Mean charge of " << the3StripPlots[i]->getName()
-//       << " is " << the3StripPlots[i]->getMean();
-//   }
-}
-
 
 void CSCComparatorDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
 {

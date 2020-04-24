@@ -46,6 +46,10 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -56,7 +60,7 @@
 // Forward declarations
 
 // Class declaration
-class L1TSync_Offline : public edm::EDAnalyzer {
+class L1TSync_Offline : public DQMEDAnalyzer {
 
   public:
 
@@ -99,17 +103,14 @@ class L1TSync_Offline : public edm::EDAnalyzer {
     // Constructor
     L1TSync_Offline(const edm::ParameterSet& ps);   
     // Destructor
-    virtual ~L1TSync_Offline();                     
+    ~L1TSync_Offline() override;                     
     
   protected:
 
-    void analyze (const edm::Event& e, const edm::EventSetup& c);  // Analyze
-    void beginJob();                                               // BeginJob
-    void endJob  (void);                                           // EndJob
-    void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-    void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
-
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+  void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
 // no lumi block //    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
 
@@ -122,8 +123,6 @@ class L1TSync_Offline : public edm::EDAnalyzer {
 
   // Variables
   private:
-
-    DQMStore * dbe; // The DQM Service Handle
 
     // Input parameters
     edm::ParameterSet                      m_parameters;
@@ -164,6 +163,7 @@ class L1TSync_Offline : public edm::EDAnalyzer {
     edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEvmSource;
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>    m_l1GtDataDaqInputTag;
 
+    L1GtUtils m_l1GtUtils;
 };
 
 #endif

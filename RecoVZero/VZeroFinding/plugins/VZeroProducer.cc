@@ -73,10 +73,10 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
        << " +" << positives.size()
        << " -" << negatives.size();
 
-  auto_ptr<reco::VZeroCollection> result(new reco::VZeroCollection);
+  auto result = std::make_unique<reco::VZeroCollection>();
 
   // Check all combination of positives and negatives
-  if(positives.size() > 0 && negatives.size() > 0)
+  if(!positives.empty() && !negatives.empty())
     for(reco::track_iterator ipos = positives.begin();
                              ipos!= positives.end(); ipos++)
     for(reco::track_iterator ineg = negatives.begin();
@@ -105,6 +105,6 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
     << "[VZeroProducer] found candidates : " << result->size();
 
   // Put result back to the event
-  ev.put(result);
+  ev.put(std::move(result));
 }
 

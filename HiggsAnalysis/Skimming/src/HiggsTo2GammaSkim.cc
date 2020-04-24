@@ -1,5 +1,5 @@
 
-/* \class HiggsTo2GammaSkim 
+/* \class HiggsTo2GammaSkim
  *
  * Consult header file for description
  *
@@ -19,7 +19,6 @@
 
 // Photons:
 #include <DataFormats/EgammaCandidates/interface/Photon.h>
-#include <DataFormats/EgammaCandidates/interface/PhotonFwd.h>
 
 // C++
 #include <iostream>
@@ -37,7 +36,7 @@ HiggsTo2GammaSkim::HiggsTo2GammaSkim(const edm::ParameterSet& pset) {
   debug              = pset.getParameter<bool>("DebugHiggsTo2GammaSkim");
 
   // Reconstructed objects
-  thePhotonLabel     = pset.getParameter<edm::InputTag>("PhotonCollectionLabel");
+  thePhotonToken     = consumes<reco::PhotonCollection>(pset.getParameter<edm::InputTag>("PhotonCollectionLabel"));
 
   // Minimum Pt for photons for skimming
   photon1MinPt       = pset.getParameter<double>("photon1MinimumPt");
@@ -53,9 +52,9 @@ HiggsTo2GammaSkim::HiggsTo2GammaSkim(const edm::ParameterSet& pset) {
 // Destructor
 HiggsTo2GammaSkim::~HiggsTo2GammaSkim() {
 
-  edm::LogVerbatim("HiggsTo2GammaSkim") 
-  << " Number_events_read " << nEvents          
-  << " Number_events_kept " << nSelectedEvents 
+  edm::LogVerbatim("HiggsTo2GammaSkim")
+  << " Number_events_read " << nEvents
+  << " Number_events_kept " << nSelectedEvents
   << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
 }
 
@@ -76,25 +75,25 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
   // Get the photon collection from the event
   edm::Handle<reco::PhotonCollection> photonHandle;
 
-  event.getByLabel(thePhotonLabel.label(),photonHandle);
+  event.getByToken(thePhotonToken,photonHandle);
 
   if ( photonHandle.isValid() ) {
-  
+
   const reco::PhotonCollection* phoCollection = photonHandle.product();
 
     reco::PhotonCollection::const_iterator photons;
 
-    // Loop over photon collections and count how many photons there are, 
+    // Loop over photon collections and count how many photons there are,
     // and how many are above the thresholds
 
     // Question: do we need to take the reconstructed primary vertex at this point?
     // Here, I assume that the et is taken with respect to the nominal vertex (0,0,0).
     for ( photons = phoCollection->begin(); photons != phoCollection->end(); ++photons ) {
-      float et_p = photons->et(); 
+      float et_p = photons->et();
       if ( et_p > photon1MinPt) nPhotons++;
     }
   }
-  
+
   // Make decision:
   if ( nPhotons >= nPhotonMin ) keepEvent = true;
 

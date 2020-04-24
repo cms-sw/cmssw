@@ -43,9 +43,24 @@ namespace edm {
       if (k.isNull() || v.isNull())
 	Exception::throwThis(errors::InvalidReference,
 	  "can't insert null references in AssociationMap");
-      if (ref.key.isNull()) {
-	ref.key = KeyRefProd(k);
-	ref.val = ValRefProd(v);
+      if(ref.key.isNull()) {
+        if(k.isTransient() || v.isTransient()) {
+          Exception::throwThis(errors::InvalidReference,
+	    "can't insert transient references in uninitialized AssociationMap");
+        }
+        //another thread might cause productGetter() to change values
+        EDProductGetter const* getter = ref.key.productGetter();
+        if(getter == nullptr) {
+          Exception::throwThis(errors::LogicError,
+            "Can't insert into AssociationMap unless it was properly initialized.\n"
+            "The most common fix for this is to add arguments to the call to the\n"
+            "AssociationMap constructor that are valid Handle's to the containers.\n"
+            "If you don't have valid handles or either template parameter to the\n"
+            "AssociationMap is a View, then see the comments in AssociationMap.h.\n"
+            "(note this was a new requirement added in the 7_5_X release series)\n");
+        }
+        ref.key = KeyRefProd(k.id(), getter);
+        ref.val = ValRefProd(v.id(), ref.val.productGetter());
       }
       helpers::checkRef(ref.key, k); helpers::checkRef(ref.val, v);
       index_type ik = index_type(k.key()), iv = index_type(v.key());
@@ -69,38 +84,44 @@ namespace edm {
     /// fill transient map
     static transient_map_type transientMap(const ref_type & ref, const map_type & map) {
       transient_map_type m;
-      const CKey & ckey = * ref.key;
-      const CVal & cval = * ref.val;
-      for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
-	const map_assoc & a = i->second;
-	const typename CKey::value_type * k = & ckey[ i->first ];
-	std::vector<const typename CVal::value_type *> v;
-	for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j) {
-	  const typename CVal::value_type * val = & cval[ *j ];
-	  v.push_back(val);
-	}
-	m.insert(std::make_pair(k, v));
+      if(!map.empty()) {
+        const CKey & ckey = * ref.key;
+        const CVal & cval = * ref.val;
+        for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
+          const map_assoc & a = i->second;
+          const typename CKey::value_type * k = & ckey[ i->first ];
+          std::vector<const typename CVal::value_type *> v;
+          for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j) {
+            const typename CVal::value_type * val = & cval[ *j ];
+            v.push_back(val);
+          }
+          m.insert(std::make_pair(k, v));
+        }
       }
       return m;
     }
     /// fill transient key vector
     static transient_key_vector transientKeyVector(const ref_type & ref, const map_type & map) {
       transient_key_vector m;
-      const CKey & ckey = * ref.key;
-      for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i)
-	m.push_back(& ckey[i->first]);
+      if(!map.empty()) {
+        const CKey & ckey = * ref.key;
+        for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i)
+          m.push_back(& ckey[i->first]);
+      }
       return m;
     }
     /// fill transient val vector
     static transient_val_vector transientValVector(const ref_type & ref, const map_type & map) {
       transient_val_vector m;
-      const CVal & cval = * ref.val;
-      for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
-	const map_assoc & a = i->second;
-	std::vector<const typename CVal::value_type *> v;
-	m.push_back(v);
-	for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j)
-	  m.back().push_back(& cval[ *j ]);
+      if(!map.empty()) {
+        const CVal & cval = * ref.val;
+        for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
+          const map_assoc & a = i->second;
+          std::vector<const typename CVal::value_type *> v;
+          m.push_back(v);
+          for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j)
+            m.back().push_back(& cval[ *j ]);
+        }
       }
       return m;
     }

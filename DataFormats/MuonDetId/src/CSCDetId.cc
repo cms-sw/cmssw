@@ -1,48 +1,4 @@
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <FWCore/Utilities/interface/Exception.h>
-#include <iostream>
-
-#ifdef EDM_ML_DEBUG
-CSCDetId::CSCDetId(uint32_t id):DetId(id) {
-  if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::CSC) {
-    throw cms::Exception("InvalidDetId") << "CSCDetId ctor:"
-					 << " det: " << det()
-					 << " subdet: " << subdetId()
-					 << " is not a valid CSC id";  
-  }
-}
-
-CSCDetId::CSCDetId(DetId id):DetId(id) {
-  if (det()!=DetId::Muon || subdetId()!=MuonSubdetId::CSC) {
-    throw cms::Exception("InvalidDetId") << "CSCDetId ctor:"
-					 << " det: " << det()
-					 << " subdet: " << subdetId()
-					 << " is not a valid CSC id";  
-  }
-}
-
-CSCDetId::CSCDetId( int iendcap, int istation, int iring, int ichamber, 
-		    int ilayer ) : 
-  DetId(DetId::Muon, MuonSubdetId::CSC) 
-{    
-  if (iendcap  < 0 || iendcap  > MAX_ENDCAP ||
-      istation < 0 || istation > MAX_STATION ||
-      iring    < 0 || iring    > MAX_RING ||
-      ichamber < 0 || ichamber > MAX_CHAMBER ||
-      ilayer   < 0 || ilayer   > MAX_LAYER ) {
-    throw cms::Exception("InvalidDetId") << "CSCDetId ctor:" 
-					 << " Invalid parameters: " 
-					 << " E:"<< iendcap
-					 << " S:"<< istation
-					 << " R:"<< iring
-					 << " C:"<< ichamber
-					 << " L:"<< ilayer   
-					 << std::endl;
-  }
-  id_ |= init(iendcap, istation, iring, ichamber, ilayer);
-}
-
-#endif
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 int CSCDetId::triggerSector() const
 {

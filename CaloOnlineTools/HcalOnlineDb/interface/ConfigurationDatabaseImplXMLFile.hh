@@ -14,16 +14,16 @@ public:
   ConfigurationDatabaseImplXMLFile();
   virtual ~ConfigurationDatabaseImplXMLFile();
   virtual bool canHandleMethod(const std::string& method) const;
-  virtual void connect(const std::string& accessor) throw (hcal::exception::ConfigurationDatabaseException);
+  virtual void connect(const std::string& accessor) noexcept(false);
   virtual void disconnect();
 
-  virtual unsigned int getFirmwareChecksum(const std::string& board, unsigned int version) throw (hcal::exception::ConfigurationDatabaseException);
-  virtual void getZSThresholds(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::ZSChannelId, int>& thresholds) throw (hcal::exception::ConfigurationDatabaseException);
-  virtual void getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) throw (hcal::exception::ConfigurationDatabaseException);
+  virtual unsigned int getFirmwareChecksum(const std::string& board, unsigned int version) noexcept(false);
+  virtual void getZSThresholds(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::ZSChannelId, int>& thresholds) noexcept(false);
+  virtual void getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) noexcept(false);
   // maximally simple implementation
-  virtual void getLUTs(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) throw (hcal::exception::ConfigurationDatabaseException);
-  virtual void getLUTChecksums(const std::string& tag, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) throw (hcal::exception::ConfigurationDatabaseException);
-  virtual void getPatterns(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) throw (hcal::exception::ConfigurationDatabaseException);
+  virtual void getLUTs(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) noexcept(false);
+  virtual void getLUTChecksums(const std::string& tag, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) noexcept(false);
+  virtual void getPatterns(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) noexcept(false);
 
   // added by Gena Kukartsev
   //virtual oracle::occi::Connection * getConnection( void );

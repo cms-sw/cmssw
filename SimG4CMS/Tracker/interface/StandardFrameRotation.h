@@ -13,7 +13,8 @@
 class StandardFrameRotation : public FrameRotation 
 {
 public:
-    virtual Local3DPoint transformPoint(Local3DPoint &,G4VPhysicalVolume *) const;
+    ~StandardFrameRotation() override = default;
+    Local3DPoint transformPoint(Local3DPoint &,G4VPhysicalVolume *) const override;
 };
 
 #endif

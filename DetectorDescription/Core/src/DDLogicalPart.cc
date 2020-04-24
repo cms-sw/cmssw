@@ -1,19 +1,24 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+
 #include <ostream>
 
+#include "DetectorDescription/Core/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class DDValue;
 
 void
 DD_NC( const DDName & n )
 {
-  std::vector<DDName> & ns = LPNAMES::instance()[n.name()];
-  typedef std::vector<DDName>::iterator IT;
+  auto & ns = LPNAMES::instance()[n.name()];
+
   bool alreadyIn( false );
-  for( IT p = ns.begin(); p != ns.end(); ++p )
+  for( const auto& p : ns )
   {
-    if( p->ns() == n.ns())
+    if( p.ns() == n.ns())
     {
       alreadyIn = true;
       break;
@@ -21,7 +26,7 @@ DD_NC( const DDName & n )
   }
   if( !alreadyIn )
   {
-    ns.push_back( n );
+    ns.emplace_back( n );
   }  
 }
   
@@ -89,7 +94,7 @@ operator<<( std::ostream & os, const DDLogicalPart & part )
        DDName detName("Detector","logparts"); // define a unique  name
        DDLogicalPart detDeclaration(detName); // detName-corresponding object not defined yet!
        std::vector<DDLogicalPart> vec; 
-       vec.push_back(det);  // use reference object in a std::vector
+       vec.emplace_back(det);  // use reference object in a std::vector
        // now define ad detName-corresponding object (it will be internally registered) 
        DDLogicalPart detDefinition(detName, material, solid, false); 
        // now also vec[0] automatically becomes a reference to detDefinition!
@@ -121,7 +126,6 @@ DDLogicalPart::DDLogicalPart(const DDName & ddname,
 		             DDEnums::Category cat) 
  : DDBase<DDName,DDI::LogicalPart*>() 
 { 
-   DCOUT('C', "create LogicalPart ddname=" << ddname << " mat=" << material.name() << " sol=" << solid.name());
    prep_ = StoreT::instance().create(ddname, new DDI::LogicalPart(material,solid,cat));
    DD_NC(ddname);
 }
@@ -238,9 +242,8 @@ DDsvalues_type DDLogicalPart::mergedSpecifics() const
 }  
 
 // for internal use only
-void DDLogicalPart::addSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
+void DDLogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
-   DCOUT('S', "lp=" << name());
    rep().addSpecifics(s);
 }
 void DDLogicalPart::removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
@@ -258,7 +261,7 @@ bool DDLogicalPart::hasDDValue(const DDValue & v) const
 // - nm corresponds to a regular expression, but will be anchored ( ^regexp$ )
 // - ns corresponds to a regular expression, but will be anchored ( ^regexp$ )
 #include <regex.h>
-#include <set>
+#include <cstddef>
 
 namespace
 {
@@ -292,7 +295,7 @@ namespace
 
     bool match( const std::string & s ) const {
       if( m_ok )
-	return !regexec( &m_regex, s.c_str(), 0, 0, 0 );
+	return !regexec( &m_regex, s.c_str(), 0, nullptr, 0 );
       else
 	return me == s;
     }
@@ -313,7 +316,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
   if( !doRegex )
   {
     DDName ddnm( nm, ns );
-    result.push_back( DDLogicalPart( ddnm ));
+    result.emplace_back( DDLogicalPart( ddnm ));
     return std::make_pair( true, "" );
   }
   std::string status;
@@ -336,7 +339,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
   Candidates candidates;
   if ( aRegex.notRegex() ) {
     LPNAMES::value_type::const_iterator it = LPNAMES::instance().find(aRegex.value());
-    if (it!=ed) candidates.push_back(it);
+    if (it!=ed) candidates.emplace_back(it);
   }
   else {
     if ( !aRegex.range().first.empty()) {
@@ -344,17 +347,16 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
       ed =  LPNAMES::instance().upper_bound(aRegex.range().second);
     }
     for (LPNAMES::value_type::const_iterator it=bn; it != ed; ++it)
-      if(aRegex.match(it->first)) candidates.push_back(it);
+      if(aRegex.match(it->first)) candidates.emplace_back(it);
   }
-  for (int i=0; i<int(candidates.size()); ++i) {
-    LPNAMES::value_type::const_iterator it = candidates[i];
+  for (const auto & it : candidates) {
     //if (doit)  edm::LogInfo("DDLogicalPart") << "rgx: " << aName << ' ' << it->first << ' ' << doit << std::endl;
     std::vector<DDName>::size_type sz = it->second.size(); // no of 'compatible' namespaces
     if ( emptyNs && (sz==1) ) { // accept all logical parts in all the namespaces
-      result.push_back(it->second[0]);
+      result.emplace_back(it->second[0]);
       //std::vector<DDName>::const_iterator nsIt(it->second.begin()), nsEd(it->second.end());
       //for(; nsIt != nsEd; ++nsIt) {
-      //   result.push_back(DDLogicalPart(*nsIt));
+      //   result.emplace_back(DDLogicalPart(*nsIt));
       //   edm::LogInfo("DDLogicalPart") << "DDD-WARNING: multiple namespaces match (in SpecPars PartSelector): " << *nsIt << std::endl;
       //}
     }
@@ -364,8 +366,8 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
 	//edm::LogInfo("DDLogicalPart") << "comparing " << aNs << " with " << *nsit << std::endl;
 	bool another_doit = aNsRegex.match(nsit->ns());
 	if ( another_doit ) {
-	  //temp.push_back(std::make_pair(it->first,*nsit));
-	  result.push_back(DDLogicalPart(*nsit));
+	  //temp.emplace_back(std::make_pair(it->first,*nsit));
+	  result.emplace_back(DDLogicalPart(*nsit));
 	}
       }
     }
@@ -385,7 +387,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
   std::string message;
   
   // check whether the found logical-parts are also defined (i.e. have material, solid ...)
-  if (result.size()) {
+  if (!result.empty()) {
     std::vector<DDLogicalPart>::const_iterator lpit(result.begin()), lped(result.end());
     for (; lpit != lped; ++lpit) { 
       // std::cout << "VI- " << std::string(lpit->name()) << std::endl;
@@ -403,7 +405,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
   return std::make_pair(flag,message);
 }
 
-const std::vector< std::pair<DDPartSelection*,DDsvalues_type*> > & 
+const std::vector< std::pair<const DDPartSelection*, const DDsvalues_type*> > & 
 DDLogicalPart::attachedSpecifics( void ) const
 {
   return rep().attachedSpecifics();

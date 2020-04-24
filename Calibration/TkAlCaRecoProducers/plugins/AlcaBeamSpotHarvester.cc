@@ -38,6 +38,9 @@ AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
   beamSpotOutputBase_    (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase")),
   outputrecordName_      (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("outputRecordName", "BeamSpotObjectsRcd")),
   sigmaZValue_           (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<double>("SigmaZValue")),
+  sigmaZCut_           (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<double>("SigmaZCut")),
+  dumpTxt_               (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<bool>("DumpTxt")),
+  outTxtFileName_        (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("TxtFileName")),
   theAlcaBeamSpotManager_(iConfig, consumesCollector()) {  
 }
 
@@ -69,6 +72,11 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
   std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot> beamSpotMap = theAlcaBeamSpotManager_.getPayloads();
   Service<cond::service::PoolDBOutputService> poolDbService;
 //  cond::ExportIOVUtilities utilities;
+
+  std::string outTxt = Form("%s_Run%d.txt", outTxtFileName_.c_str(), iRun.id().run());
+  std::ofstream outFile;
+  outFile.open(outTxt.c_str());
+
   if(poolDbService.isAvailable() ) {
     for(AlcaBeamSpotManager::bsMap_iterator it=beamSpotMap.begin(); it!=beamSpotMap.end();it++){
       BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
@@ -100,6 +108,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 
       cond::Time_t thisIOV = 1;
 
+      beamspot::BeamSpotContainer currentBS;
 
 
       // run based      
@@ -110,6 +119,26 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
       else if (beamSpotOutputBase_ == "lumibased" ) {
 	edm::LuminosityBlockID lu(iRun.id().run(),it->first);
 	thisIOV = (cond::Time_t)(lu.value()); 
+
+	currentBS.beamspot       = it -> second       ;
+	currentBS.run            = iRun.id().run()    ;
+	currentBS.beginLumiOfFit = it->first;
+	currentBS.endLumiOfFit   = it->first;// to fix, for now endLumi = initLumi
+
+	std::time_t lumi_t_begin = thisIOV; // to fix: meaningless value
+	std::time_t lumi_t_end   = thisIOV; // to fix: meaningless value
+	char ts[] = "yyyy.mn.dd hh:mm:ss zzz ";
+	char* fbeginTime = ts;
+	strftime(fbeginTime, sizeof(ts), "%Y.%m.%d %H:%M:%S GMT", gmtime(&lumi_t_begin));
+	std::copy(fbeginTime, fbeginTime+32, currentBS.beginTimeOfFit);
+
+	char* fendTime = ts;
+	strftime(fendTime, sizeof(ts), "%Y.%m.%d %H:%M:%S GMT", gmtime(&lumi_t_end));
+	std::copy(fendTime, fendTime+32, currentBS.endTimeOfFit);
+
+	currentBS.reftime[0] = lumi_t_begin;
+	currentBS.reftime[1] = lumi_t_end;
+
       }
       if (poolDbService->isNewTagRequest(outputrecordName_) ) {
           edm::LogInfo("AlcaBeamSpotHarvester")
@@ -118,12 +147,18 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	  
 	  //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(), poolDbService->endOfTime(),"BeamSpotObjectsRcd");
 	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
+          if (dumpTxt_ && beamSpotOutputBase_ == "lumibased"){
+              beamspot::dumpBeamSpotTxt(outFile, currentBS);
+          }    
       } 
       else {
         edm::LogInfo("AlcaBeamSpotHarvester")
             << "no new tag requested, appending IOV" << std::endl;
         //poolDbService->appendSinceTime<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(),"BeamSpotObjectsRcd");
 	poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
+        if (dumpTxt_ && beamSpotOutputBase_ == "lumibased"){
+            beamspot::dumpBeamSpotTxt(outFile, currentBS);
+        }
       }
 
 
@@ -154,6 +189,9 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 
 
   }
+
+  outFile.close();
+
 }
 
 //--------------------------------------------------------------------------------------------------

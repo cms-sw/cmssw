@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <DataFormats/TrackReco/interface/Track.h>
@@ -12,9 +13,9 @@
 class Tau3MuReco
 {
  public:
-    Tau3MuReco(const edm::ParameterSet& iConfig);
+    Tau3MuReco(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
     ~Tau3MuReco();
-    
+
     bool doTau3MuReco(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::MuonCollection* muonCollection, reco::TrackCollection* trackCollection);
 
  private:
@@ -32,9 +33,9 @@ class Tau3MuReco
     const double m_kTauMass;
     const double m_kMuonMass;
 
-    const edm::InputTag m_kMuonSource;
-    const edm::InputTag m_kTrackSource;
-    
+    const edm::EDGetTokenT<reco::MuonCollection> m_kMuonSourceToken;
+    const edm::EDGetTokenT<reco::TrackCollection> m_kTrackSourceToken;
+
     reco::MuonCollection* m_MuonCollection;
     reco::TrackCollection* m_TrackCollection;
 };

@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  C. Battilana S. Marcellini - INFN Bologna
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  *   
  */
 
@@ -24,12 +27,12 @@ public:
   DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTLocalTriggerEfficiencyTest();
+  ~DTLocalTriggerEfficiencyTest() override;
 
 protected:
 
   /// Book the new MEs (for each chamber)
-  void bookChambHistos(DTChamberId chambId, std::string htype );
+  void bookChambHistos(DQMStore::IBooker &, DTChamberId chambId, std::string htype );
 
   /// Compute efficiency plots
   void makeEfficiencyME(TH1D* numerator, TH1D* denominator, MonitorElement* result);
@@ -38,17 +41,22 @@ protected:
   void makeEfficiencyME2D(TH2F* numerator, TH2F* denominator, MonitorElement* result);
 
   /// BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+
 
   /// DQM Client Diagnostic
-  void runClientDiagnostic();
 
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
+  const int wheelArrayShift = 3;
 
  private:
 
   std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
   DTTrigGeomUtils *trigGeomUtils;
+
+  bool bookingdone;
 
 };
 

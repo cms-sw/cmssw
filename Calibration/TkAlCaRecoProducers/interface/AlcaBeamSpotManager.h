@@ -40,7 +40,7 @@ class AlcaBeamSpotManager {
   std::string beamSpotOutputBase_;
   std::string beamSpotModuleName_;
   std::string beamSpotLabel_;
-  
+  double sigmaZCut_;
   edm::InputTag beamSpotTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 

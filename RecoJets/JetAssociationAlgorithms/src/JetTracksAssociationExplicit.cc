@@ -15,7 +15,7 @@ void JetTracksAssociationExplicit::produce (reco::JetTracksAssociation::Containe
 {
   for (unsigned j = 0; j < fJets.size(); ++j) { 
     reco::PFJet const * pfJet = dynamic_cast<reco::PFJet const *>( &* (fJets[j]) ) ;
-    if ( pfJet != 0 ) {
+    if ( pfJet != nullptr ) {
       reco::TrackRefVector assoTracks = pfJet->getTrackRefs();
       reco::JetTracksAssociation::setValue (fAssociation, fJets[j], assoTracks);
     } else {

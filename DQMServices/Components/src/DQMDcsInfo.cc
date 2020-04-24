@@ -13,8 +13,6 @@
 
 // Framework
 
-const static int XBINS=2000;
-
 DQMDcsInfo::DQMDcsInfo(const edm::ParameterSet& ps)
 {
 
@@ -39,8 +37,10 @@ void DQMDcsInfo::bookHistograms(DQMStore::IBooker & ibooker,
   // Fetch GlobalTag information and fill the string/ME.
   ibooker.cd();
   ibooker.setCurrentFolder(subsystemname_ +"/CMSSWInfo/");
-  const edm::ParameterSet &globalTagPSet = edm::getProcessParameterSet()
-					   .getParameterSet("PoolDBESSource@GlobalTag");
+
+  const edm::ParameterSet &globalTagPSet =
+    edm::getProcessParameterSetContainingModule(moduleDescription())
+    .getParameterSet("PoolDBESSource@GlobalTag");
 
   ibooker.bookString("globalTag_Step1", globalTagPSet.getParameter<std::string>("globaltag"));
 

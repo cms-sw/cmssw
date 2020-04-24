@@ -1,6 +1,6 @@
 #include "DataFormats/EcalDigi/interface/EcalSrFlag.h"
 
-const char* EcalSrFlag::srfNames[] = {
+const char* const EcalSrFlag::srfNames[] = {
   "Suppress",           //SRF_SUPPRESS
   "Zs1",                //SRF_ZS1
   "Zs2",                //SRF_ZS2

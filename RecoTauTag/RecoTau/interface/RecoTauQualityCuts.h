@@ -54,13 +54,9 @@ class RecoTauQualityCuts
   /// If null, this will set the lead track ref null.
   void setLeadTrack(const reco::PFCandidateRef& leadCand) const;
 
-  /// Get the predicate used to filter.
-  const TrackQCutFunc& trackPredicate() const { return trackPredicate_; }  
-  const CandQCutFunc& candPredicate() const { return candPredicate_; }
-
   /// Filter a single Track
   bool filterTrack(const reco::TrackBaseRef& track) const;
-  bool filterTrack(const reco::TrackRef& track) const { return filterTrack(reco::TrackBaseRef(track)); }
+  bool filterTrack(const reco::TrackRef& track) const;
 
   /// Filter a collection of Tracks
   template<typename Coll> 
@@ -92,17 +88,28 @@ class RecoTauQualityCuts
   }
 
  private:
+  template <typename T> bool filterTrack_(const T& trackRef) const;
+  bool filterGammaCand(const reco::PFCandidate& cand) const;
+  bool filterNeutralHadronCand(const reco::PFCandidate& cand) const;
+  bool filterCandByType(const reco::PFCandidate& cand) const;
+
   // The current primary vertex
   mutable reco::VertexRef pv_;
   // The current lead track references
   mutable reco::TrackBaseRef leadTrack_;
-  // Set of track quality cuts
-  TrackQCutFuncCollection trackQCuts_;
-  // A mapping from particle type to a set of QCuts
-  CandQCutFuncMap candQCuts_;
-  // Our entire predicate function
-  TrackQCutFunc trackPredicate_;
-  CandQCutFunc candPredicate_;
+
+  double minTrackPt_;
+  double maxTrackChi2_;
+  int minTrackPixelHits_;
+  int minTrackHits_;
+  double maxTransverseImpactParameter_;
+  double maxDeltaZ_;
+  double maxDeltaZToLeadTrack_;
+  double minTrackVertexWeight_;
+  double minGammaEt_;
+  double minNeutralHadronEt_;
+  bool checkHitPattern_;
+  bool checkPV_;
 };
 
 // Split an input set of quality cuts into those that need to be inverted

@@ -6,13 +6,13 @@
 #include <vector>
 #include <iostream>
 #include <string>
-#include <signal.h>
+#include <csignal>
 #include <map>
 #include <string>
 #include <iomanip>
 #include <set>
 #include <sstream>
-#include <stdint.h>
+#include <cstdint>
 
 namespace cscdqm {
 
@@ -30,7 +30,7 @@ class StripClusterFinder {
  public:
   class Sort{
   public:
-    bool  operator()(StripClusterFitData a,StripClusterFitData b) const;
+    bool  operator()(const StripClusterFitData& a, const StripClusterFitData& b) const;
   };
   std::vector<StripCluster> MEStripClusters;
   ClusterLocalMax localMaxTMP;

@@ -6,6 +6,7 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondTools/SiPixel"/>
 <use   name="CalibTracker/SiPixelESProducers"/>
+<use   name="RecoLocalTracker/SiPixelRecHits"/>
 <library   file="*.cc" name="testCondToolsSiPixel">
   <flags   EDM_PLUGIN="1"/>
 </library>

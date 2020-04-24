@@ -11,7 +11,8 @@
   <class name="edm::TriggerNames" ClassVersion="10">
    <version ClassVersion="10" checksum="2872088986"/>
   </class>
-  <class name="edm::TriggerResultsByName" ClassVersion="10">
+  <class name="edm::TriggerResultsByName" ClassVersion="11">
+   <version ClassVersion="11" checksum="3334716878"/>
    <version ClassVersion="10" checksum="1282053882"/>
   </class>
 </lcgdict>

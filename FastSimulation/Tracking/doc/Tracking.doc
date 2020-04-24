@@ -30,7 +30,6 @@ A class that gives some properties of the Tracker Layers in the Fast Simulation
 \subsection pluginai Plugins
 <!-- List the plugins that are provided for use in other packages (if any) -->
 
-- FastTrackMerger
 - PixelTracksProducer
 - TrackCandidateProducer
 - TrajectorySeedProducer

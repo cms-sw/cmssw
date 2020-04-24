@@ -20,6 +20,7 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "TClass.h"
+#include "TError.h"
 
 // user include files
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
@@ -38,9 +39,10 @@
 enum MenuOptions {
    kSetVisibleMO,
    kSetColorMO,
-   kPrint,
+   //   kPrint,
    kOpenDetailViewMO,
-   kAfterOpenDetailViewMO,
+   kAfterOpenDetailViewMO=10,
+   kOpen3DRegion,
    kOpenObjectControllerMO=100,
    kOpenCollectionControllerMO,
    kViewOptionsMO=1000,
@@ -60,20 +62,20 @@ FWModelContextMenuHandler::FWModelContextMenuHandler(FWSelectionManager* iSM,
                                                      FWDetailViewManager* iDVM,
                                                      FWColorManager* iCM,
                                                      FWGUIManager* iGM):
-m_modelPopup(0),
-m_colorPopup(0),
+m_modelPopup(nullptr),
+m_colorPopup(nullptr),
 m_selectionManager(iSM),
 m_detailViewManager(iDVM),
 m_colorManager(iCM),
 m_guiManager(iGM),
-m_seperator(0),
-m_viewSeperator(0),
-m_afterViewSeperator(0),
+m_seperator(nullptr),
+m_viewSeperator(nullptr),
+m_afterViewSeperator(nullptr),
 m_x(0),
 m_y(0),
 m_nDetailViewEntries(0),
 m_nViewEntries(0),
-m_viewHander(0)
+m_viewHander(nullptr)
 {
 }
 
@@ -141,7 +143,7 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          m_colorPopup->SetSelection(id.item()->modelInfo(id.index()).displayProperties().color());
          m_colorPopup->PlacePopup(m_x, m_y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
          break;
-      }
+      }/*
       case kPrint:
       {
          FWModelId id = *(m_selectionManager->selected().begin());
@@ -161,7 +163,7 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
 
 
          break;
-      }
+         }*/
       case kOpenObjectControllerMO:
       {
          m_guiManager->showModelPopup();
@@ -172,18 +174,23 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          m_guiManager->showEDIFrame();
          break;
       }
+      case kOpen3DRegion:
+      {
+         m_guiManager->open3DRegion();
+         break;
+      }
       case kOpenDetailViewMO:
       case kViewOptionsMO:
       default:
       {
          if(iChoice>=kViewOptionsMO) {
-            assert(0!=m_viewHander);
+            assert(nullptr!=m_viewHander);
             m_viewHander->select(iChoice-kViewOptionsMO, *(m_selectionManager->selected().begin()), m_x, m_y);
          }else {
             assert(iChoice<kOpenObjectControllerMO);
             assert(m_selectionManager->selected().size()==1);
             std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
-            assert(0!=viewChoices.size());
+            assert(!viewChoices.empty());
             m_detailViewManager->openDetailViewFor(*(m_selectionManager->selected().begin()),viewChoices[iChoice-kOpenDetailViewMO]) ;
          }
          break;
@@ -211,7 +218,7 @@ FWModelContextMenuHandler::addViewEntry(const char* iEntryName, int iEntryIndex,
    if(!m_viewSeperator) { 	 
       m_modelPopup->AddSeparator(m_afterViewSeperator); 	 
       m_viewSeperator=dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Before(m_afterViewSeperator));
-      assert(0!=m_viewSeperator); 	 
+      assert(nullptr!=m_viewSeperator); 	 
    }
  
    if(static_cast<int>(m_nViewEntries) > iEntryIndex) {
@@ -223,7 +230,7 @@ FWModelContextMenuHandler::addViewEntry(const char* iEntryName, int iEntryIndex,
 
    } else {
       assert(static_cast<int>(m_nViewEntries) == iEntryIndex);
-      m_modelPopup->AddEntry(iEntryName,kViewOptionsMO+iEntryIndex,0,0,m_viewSeperator);
+      m_modelPopup->AddEntry(iEntryName,kViewOptionsMO+iEntryIndex,nullptr,nullptr,m_viewSeperator);
 
       if (enabled)
          m_modelPopup->EnableEntry(kViewOptionsMO+iEntryIndex);
@@ -256,36 +263,43 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
 
    if( m_selectionManager->selected().size()==1 ) {
       {
-         edm::TypeWithDict rtype(edm::TypeWithDict::byName(id.item()->modelType()->GetName()));
-         edm::ObjectWithDict o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
-         edm::TypeMemberQuery inh =  edm::TypeMemberQuery::InheritedAlso;
-         if ( rtype.functionMemberByName("print",edm::TypeWithDict(edm::TypeWithDict::byName("void (std::ostream&)"), Long_t(kIsConstant)), 0, inh))
-         {
-            m_modelPopup->EnableEntry(kPrint);
+         //edm::TypeWithDict rtype(edm::TypeWithDict::byName(id.item()->modelType()->GetName()));
+         //edm::ObjectWithDict o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
+         //edm::TypeMemberQuery inh =  edm::TypeMemberQuery::InheritedAlso;
+         //if ( rtype.functionMemberByName("print",edm::TypeWithDict(edm::TypeWithDict::byName("void (std::ostream&)"), Long_t(kIsConstant)), 0, inh))
+         //{
+            //m_modelPopup->EnableEntry(kPrint);
             // std::cout <<  "Enable " <<std::endl;
-         }
-         else
-         {           
+         //}
+         //else
+         //{           
             m_modelPopup->DisableEntry(kPrint);
             // printf("Disable print \n");
-         }         
+         //}         
       }
       //add the detail view entries
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
-      if(viewChoices.size()>0) {
+      if(!viewChoices.empty()) {
          if(m_nDetailViewEntries < viewChoices.size()) {
             for(unsigned int index = m_nDetailViewEntries;
                 index != viewChoices.size();
                 ++index) {
-               m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO+index,0,0,m_seperator);
+               m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO+index,nullptr,nullptr,m_seperator);
             }
             m_nDetailViewEntries=viewChoices.size();
          }
          const std::string kStart("Open ");
          const std::string kEnd(" Detail View ...");
          for(unsigned int index=0; index != viewChoices.size(); ++index) {
-            m_modelPopup->GetEntry(index+kOpenDetailViewMO)->GetLabel()->SetString((kStart+viewChoices[index]+kEnd).c_str());
-            m_modelPopup->EnableEntry(index+kOpenDetailViewMO);
+            m_modelPopup->EnableEntry(index+kOpenDetailViewMO); // need to call this to make it visible
+            if ( viewChoices[index][0] != '!') {
+               m_modelPopup->GetEntry(index+kOpenDetailViewMO)->GetLabel()->SetString((kStart+viewChoices[index]+kEnd).c_str());
+            }
+            else 
+            {
+               m_modelPopup->GetEntry(index+kOpenDetailViewMO)->GetLabel()->SetString((kStart+&viewChoices[index][1]+kEnd).c_str());
+               m_modelPopup->DisableEntry(index+kOpenDetailViewMO);
+            }
          }
          for(unsigned int i =viewChoices.size(); i <m_nDetailViewEntries; ++i) {
             m_modelPopup->HideEntry(kOpenDetailViewMO+i);
@@ -303,7 +317,7 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
    }
    //add necessary entries from the view
    m_modelPopup->DeleteEntry(m_viewSeperator);
-   m_viewSeperator=0;
+   m_viewSeperator=nullptr;
 
    for(unsigned int i=0; i<m_nViewEntries; ++i) {
       m_modelPopup->HideEntry(kViewOptionsMO+i);
@@ -320,17 +334,18 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
 void 
 FWModelContextMenuHandler::createModelContext() const
 {
-   if(0==m_modelPopup) {
+   if(nullptr==m_modelPopup) {
       m_modelPopup = new FWPopupMenu();
       
       m_modelPopup->AddEntry("Set Visible",kSetVisibleMO);
       m_modelPopup->AddEntry("Set Color ...",kSetColorMO);
-      m_modelPopup->AddEntry("Print ...",kPrint);
+      //      m_modelPopup->AddEntry("Print ...",kPrint);
       m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO);
       m_nDetailViewEntries=1;
-      m_modelPopup->AddSeparator();
       m_seperator = dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Last());
-      assert(0!=m_seperator);
+      assert(nullptr!=m_seperator);
+      m_modelPopup->AddEntry("Open 3D Region ...",kOpen3DRegion);
+      m_modelPopup->AddSeparator();
       m_modelPopup->AddEntry("Open Object Controller ...",kOpenObjectControllerMO);
       m_afterViewSeperator = dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Last());
       m_modelPopup->AddEntry("Open Collection Controller ...",kOpenCollectionControllerMO);
@@ -345,7 +360,7 @@ FWModelContextMenuHandler::createModelContext() const
 void 
 FWModelContextMenuHandler::createColorPopup() const
 {
-   if(0==m_colorPopup) {
+   if(nullptr==m_colorPopup) {
       std::vector<Color_t> colors;
       m_colorManager->fillLimitedColors(colors);
       

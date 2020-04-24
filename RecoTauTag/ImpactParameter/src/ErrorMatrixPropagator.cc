@@ -4,12 +4,12 @@
  * Humboldt Foundations
  */
 #include "RecoTauTag/ImpactParameter/interface/ErrorMatrixPropagator.h"
-#include "math.h"
+#include <cmath>
 #include <iostream>
 
 using namespace tauImpactParameter;
 
-TMatrixTSym<double> ErrorMatrixPropagator::propagateError(TVectorT<double> (*f)(const TVectorT<double>& par), 
+TMatrixTSym<double> ErrorMatrixPropagator::propagateError( std::function<TVectorT<double>(const TVectorT<double>&)> f, 
 							  const TVectorT<double>& inPar, TMatrixTSym<double>& inCov, double epsilon, double errorEpsilonRatio){
   TVectorT<double> v=f(inPar);
   TMatrixT<double> Jacobian(inPar.GetNrows(),v.GetNrows());

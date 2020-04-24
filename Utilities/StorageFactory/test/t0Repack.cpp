@@ -21,12 +21,12 @@ int main (int argc, char **argv) try
 
   int			 datasetN = ::atoi(argv [1]);
   std::string		 outputURL = argv[2];
-  Storage		 *outputFile = 0;
+  std::unique_ptr<Storage> outputFile = 0;
   IOSize		 totSize = 0;
-  std::vector<Storage *> indexFiles;
+  std::vector<std::unique_ptr<Storage >> indexFiles;
   std::vector<IOOffset>  indexSizes;
 
-  StorageFactory::get ()->enableAccounting(true);
+  StorageFactory::getToModify ()->enableAccounting(true);
   std::cerr << "write to file " << outputURL << " " << datasetN << " datasets\n";
 
   for (int i = 3; i < argc; ++i)
@@ -103,7 +103,7 @@ int main (int argc, char **argv) try
     }
     line1.erase(0,pos);
 
-    Storage	*s = 0; 
+    std::unique_ptr<Storage> s;
     IOOffset	size = 0;
     try
     {
@@ -187,14 +187,12 @@ int main (int argc, char **argv) try
     }
 
     s->close();
-    delete s;
   }
 
   outputFile->close();
-  delete outputFile;
 
   std::cout << "copied a total of " << totSize << " bytes" << std::endl;
-  std::cout << StorageAccount::summaryXML () << std::endl;
+  std::cout << StorageAccount::summaryText (true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

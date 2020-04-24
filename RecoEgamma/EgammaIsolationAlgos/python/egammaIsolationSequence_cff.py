@@ -6,7 +6,7 @@ from RecoEgamma.EgammaIsolationAlgos.electronHcalTowerIsolationLcone_cfi import 
 from RecoEgamma.EgammaIsolationAlgos.electronHcalTowerIsolationScone_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationLcone_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolationScone_cfi import *
-
+from RecoEgamma.EgammaIsolationAlgos.pfClusterIsolation_cfi import *
 #Standard reco sequence with both electrons and photons
 egammaIsolationSequence = cms.Sequence(
     electronEcalRecHitIsolationLcone + 
@@ -18,7 +18,8 @@ egammaIsolationSequence = cms.Sequence(
     electronHcalDepth1TowerIsolationScone +
     electronHcalDepth2TowerIsolationScone +
     electronTrackIsolationLcone + 
-    electronTrackIsolationScone
+    electronTrackIsolationScone +
+    pfClusterIsolationSequence
 )
 
 

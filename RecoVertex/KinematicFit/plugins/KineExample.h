@@ -26,7 +26,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 // #include "RecoVertex/KalmanVertexFit/test/SimpleVertexTree.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicTree.h"
@@ -40,12 +39,12 @@
 class KineExample : public edm::EDAnalyzer {
 public:
   explicit KineExample(const edm::ParameterSet&);
-  ~KineExample();
+  ~KineExample() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endJob() override;
 
 private:
 
@@ -57,8 +56,7 @@ private:
 
   edm::ParameterSet theConfig;
   edm::ParameterSet kvfPSet;
-  TrackAssociatorByChi2 * associatorForParamAtPca;
-//   SimpleVertexTree *tree;
+//   std::unique_ptr<SimpleVertexTree> tree;
 //   TFile*  rootFile_;
 
   std::string outputFile_; // output file

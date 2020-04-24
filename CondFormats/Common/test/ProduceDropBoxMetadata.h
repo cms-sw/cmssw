@@ -23,7 +23,7 @@ public:
   virtual ~ProduceDropBoxMetadata();
 
   // Operations
-//   virtual void beginJob();
+  // virtual void beginJob();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& eSetup);
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&) {}

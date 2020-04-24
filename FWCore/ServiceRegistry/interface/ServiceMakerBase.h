@@ -63,9 +63,9 @@ protected:
          bool testSaveConfiguration(void const*) const {return false;}
 
 private:
-         ServiceMakerBase(ServiceMakerBase const&); // stop default
+         ServiceMakerBase(ServiceMakerBase const&) = delete; // stop default
 
-         ServiceMakerBase const& operator=(ServiceMakerBase const&); // stop default
+         ServiceMakerBase const& operator=(ServiceMakerBase const&) = delete; // stop default
 
          // ---------- member data --------------------------------
       };

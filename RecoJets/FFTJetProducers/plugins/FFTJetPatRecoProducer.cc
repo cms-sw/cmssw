@@ -29,13 +29,10 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -63,11 +60,11 @@ using namespace fftjetcms;
 //
 // class declaration
 //
-class FFTJetPatRecoProducer : public edm::EDProducer, public FFTJetInterface
+class FFTJetPatRecoProducer : public FFTJetInterface
 {
 public:
     explicit FFTJetPatRecoProducer(const edm::ParameterSet&);
-    ~FFTJetPatRecoProducer();
+    ~FFTJetPatRecoProducer() override;
 
 protected:
     // Useful local typedefs
@@ -139,9 +136,9 @@ protected:
     const bool sparsify;
 
 private:
-    FFTJetPatRecoProducer();
-    FFTJetPatRecoProducer(const FFTJetPatRecoProducer&);
-    FFTJetPatRecoProducer& operator=(const FFTJetPatRecoProducer&);
+    FFTJetPatRecoProducer() = delete;
+    FFTJetPatRecoProducer(const FFTJetPatRecoProducer&) = delete;
+    FFTJetPatRecoProducer& operator=(const FFTJetPatRecoProducer&) = delete;
 
     // Members needed for storing grids externally
     std::ofstream externalGridStream;
@@ -154,13 +151,13 @@ private:
 //
 FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
     : FFTJetInterface(ps),
-      clusteringTree(0),
+      clusteringTree(nullptr),
       completeEventDataCutoff(ps.getParameter<double>("completeEventDataCutoff")),
       makeClusteringTree(ps.getParameter<bool>("makeClusteringTree")),
       verifyDataConversion(ps.getUntrackedParameter<bool>("verifyDataConversion",false)),
       storeDiscretizationGrid(ps.getParameter<bool>("storeDiscretizationGrid")),
       sparsify(ps.getParameter<bool>("sparsify")),
-      extGrid(0)
+      extGrid(nullptr)
 {
     // register your products
     if (makeClusteringTree)
@@ -175,7 +172,7 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
 
     // Check if we want to write the grids into an external file
     const std::string externalGridFile(ps.getParameter<std::string>("externalGridFile"));
-    storeGridsExternally = externalGridFile.size() > 0;
+    storeGridsExternally = !externalGridFile.empty();
     if (storeGridsExternally)
     {
         externalGridStream.open(externalGridFile.c_str(), std::ios_base::out | 
@@ -373,7 +370,7 @@ void FFTJetPatRecoProducer::buildSparseProduct(edm::Event& ev) const
 {
     typedef reco::PattRecoTree<Real,reco::PattRecoPeak<Real> > StoredTree;
 
-    std::auto_ptr<StoredTree> tree(new StoredTree());
+    auto tree = std::make_unique<StoredTree>();
 
     sparsePeakTreeToStorable(sparseTree,
                              sequencer->maxAdaptiveScales(),
@@ -391,7 +388,7 @@ void FFTJetPatRecoProducer::buildSparseProduct(edm::Event& ev) const
                 << std::endl;
     }
 
-    ev.put(tree, outputLabel);
+    ev.put(std::move(tree), outputLabel);
 }
 
 
@@ -400,7 +397,7 @@ void FFTJetPatRecoProducer::buildDenseProduct(edm::Event& ev) const
 {
     typedef reco::PattRecoTree<Real,reco::PattRecoPeak<Real> > StoredTree;
 
-    std::auto_ptr<StoredTree> tree(new StoredTree());
+    auto tree = std::make_unique<StoredTree>();
 
     densePeakTreeToStorable(*clusteringTree,
                             sequencer->maxAdaptiveScales(),
@@ -418,7 +415,7 @@ void FFTJetPatRecoProducer::buildDenseProduct(edm::Event& ev) const
                 << std::endl;
     }
 
-    ev.put(tree, outputLabel);
+    ev.put(std::move(tree), outputLabel);
 }
 
 
@@ -463,10 +460,9 @@ void FFTJetPatRecoProducer::produce(
     {
         const fftjet::Grid2d<Real>& g(*energyFlow);
 
-        std::auto_ptr<reco::DiscretizedEnergyFlow> flow(
-            new reco::DiscretizedEnergyFlow(
+        auto flow = std::make_unique<reco::DiscretizedEnergyFlow>(
                 g.data(), g.title(), g.etaMin(), g.etaMax(),
-                g.phiBin0Edge(), g.nEta(), g.nPhi()));
+                g.phiBin0Edge(), g.nEta(), g.nPhi());
 
         if (verifyDataConversion)
         {
@@ -477,7 +473,7 @@ void FFTJetPatRecoProducer::produce(
             assert(g == check);
         }
 
-        iEvent.put(flow, outputLabel);
+        iEvent.put(std::move(flow), outputLabel);
     }
 
     if (storeGridsExternally)

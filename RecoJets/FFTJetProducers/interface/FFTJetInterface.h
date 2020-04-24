@@ -28,6 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
 
@@ -37,6 +38,9 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 // local FFTJet-related definitions
 #include "RecoJets/FFTJetAlgorithms/interface/fftjetTypedefs.h"
 #include "RecoJets/FFTJetProducers/interface/JetType.h"
@@ -45,10 +49,10 @@
 // class declaration
 //
 namespace fftjetcms {
-  class FFTJetInterface
+  class FFTJetInterface : public edm::EDProducer
   {
   public:
-    virtual ~FFTJetInterface() {}
+    ~FFTJetInterface() override {}
 
   protected:
     explicit FFTJetInterface(const edm::ParameterSet&);
@@ -56,7 +60,7 @@ namespace fftjetcms {
     template<class Ptr>
     void checkConfig(const Ptr& ptr, const char* message)
     {
-      if (ptr.get() == NULL)
+      if (ptr.get() == nullptr)
 	throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 
@@ -102,13 +106,16 @@ namespace fftjetcms {
 
   private:
     // Explicitly disable other ways to construct this object
-    FFTJetInterface();
-    FFTJetInterface(const FFTJetInterface&);
-    FFTJetInterface& operator=(const FFTJetInterface&);
+    FFTJetInterface() = delete;
+    FFTJetInterface(const FFTJetInterface&) = delete;
+    FFTJetInterface& operator=(const FFTJetInterface&) = delete;
 
     const bool insertCompleteEvent;
     const double completeEventScale;
     reco::Particle::Point vertex_;
+
+    edm::EDGetTokenT<reco::CandidateView> inputToken;
+    edm::EDGetTokenT<reco::VertexCollection> srcPVsToken;
   };
 }
 

@@ -59,7 +59,7 @@ RazorVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<CaloMETCollection> inputMet;
    iEvent.getByToken(inputMetTagToken_, inputMet);
 
-   std::auto_ptr<std::vector<double> > result(new std::vector<double>); 
+   std::unique_ptr<std::vector<double> > result(new std::vector<double>); 
    // check the the input collections are available
    if (hemispheres.isValid() && inputMet.isValid() && hemispheres->size() > 1){
 
@@ -73,7 +73,7 @@ RazorVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      result->push_back(R);
      
    }
-   iEvent.put(result);
+   iEvent.put(std::move(result));
 }
 
 double 

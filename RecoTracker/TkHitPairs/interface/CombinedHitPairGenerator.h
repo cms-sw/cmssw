@@ -26,17 +26,11 @@ public:
 
 public:
   CombinedHitPairGenerator(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
-  virtual ~CombinedHitPairGenerator();
-
-  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) override;
+  ~CombinedHitPairGenerator() override;
 
   /// form base class
-  virtual void hitPairs( const TrackingRegion& reg, 
-      OrderedHitPairs & result, const edm::Event& ev, const edm::EventSetup& es);
-
-  /// from base class
-  virtual CombinedHitPairGenerator * clone() const 
-    { return new CombinedHitPairGenerator(*this); }
+  void hitPairs( const TrackingRegion& reg, 
+      OrderedHitPairs & result, const edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
   CombinedHitPairGenerator(const CombinedHitPairGenerator & cb); 

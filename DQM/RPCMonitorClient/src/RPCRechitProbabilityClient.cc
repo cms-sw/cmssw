@@ -23,41 +23,34 @@ RPCRecHitProbabilityClient::RPCRecHitProbabilityClient(const edm::ParameterSet& 
 
 }
 
-RPCRecHitProbabilityClient::~RPCRecHitProbabilityClient(){dbe_ = 0;}
+RPCRecHitProbabilityClient::~RPCRecHitProbabilityClient(){}
 
 void RPCRecHitProbabilityClient::beginJob(){
 
   edm::LogVerbatim ("rpcrechitprobabilityclient") << "[RPCRecHitProbabilityClient]: Begin Job";
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setVerbose(0);
-  
 }
 
 
-void  RPCRecHitProbabilityClient::beginRun(const edm::Run& r, const edm::EventSetup& c){}
+void RPCRecHitProbabilityClient::dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&){}
 
-void RPCRecHitProbabilityClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {}
 
-void RPCRecHitProbabilityClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){}
 
-void RPCRecHitProbabilityClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c){}
-
-void  RPCRecHitProbabilityClient::endRun(const edm::Run& r, const edm::EventSetup& c){
+void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   
   edm::LogVerbatim ("rpcrechitprobabilityclient") << "[RPCRecHitProbabilityClient]: End Run";
   
-  MonitorElement *  NumberOfMuonEta = dbe_->get( globalFolder_ +"/NumberOfMuonEta");
-  MonitorElement *  NumberOfMuonPt_B = dbe_->get( globalFolder_ + "/NumberOfMuonPt_Barrel");
-  MonitorElement *  NumberOfMuonPt_EP = dbe_->get( globalFolder_ + "/NumberOfMuonPt_EndcapP");
-  MonitorElement *  NumberOfMuonPt_EM = dbe_->get( globalFolder_ + "/NumberOfMuonPt_EndcapM");
-  MonitorElement *  NumberOfMuonPhi_B = dbe_->get( globalFolder_ + "/NumberOfMuonPhi_Barrel");
-  MonitorElement *  NumberOfMuonPhi_EP = dbe_->get( globalFolder_ + "/NumberOfMuonPhi_EndcapP");
-  MonitorElement *  NumberOfMuonPhi_EM = dbe_->get( globalFolder_ + "/NumberOfMuonPhi_EndcapM");
+  MonitorElement *  NumberOfMuonEta = igetter.get( globalFolder_ +"/NumberOfMuonEta");
+  MonitorElement *  NumberOfMuonPt_B = igetter.get( globalFolder_ + "/NumberOfMuonPt_Barrel");
+  MonitorElement *  NumberOfMuonPt_EP = igetter.get( globalFolder_ + "/NumberOfMuonPt_EndcapP");
+  MonitorElement *  NumberOfMuonPt_EM = igetter.get( globalFolder_ + "/NumberOfMuonPt_EndcapM");
+  MonitorElement *  NumberOfMuonPhi_B = igetter.get( globalFolder_ + "/NumberOfMuonPhi_Barrel");
+  MonitorElement *  NumberOfMuonPhi_EP = igetter.get( globalFolder_ + "/NumberOfMuonPhi_EndcapP");
+  MonitorElement *  NumberOfMuonPhi_EM = igetter.get( globalFolder_ + "/NumberOfMuonPhi_EndcapM");
   
-  if(NumberOfMuonEta == 0  || 
-     NumberOfMuonPt_B == 0  || NumberOfMuonPt_EP == 0  || NumberOfMuonPt_EM == 0  || 
-     NumberOfMuonPhi_B == 0  || NumberOfMuonPhi_EP == 0  || NumberOfMuonPhi_EM == 0 ) return;
+  if(NumberOfMuonEta == nullptr  || 
+     NumberOfMuonPt_B == nullptr  || NumberOfMuonPt_EP == nullptr  || NumberOfMuonPt_EM == nullptr  || 
+     NumberOfMuonPhi_B == nullptr  || NumberOfMuonPhi_EP == nullptr  || NumberOfMuonPhi_EM == nullptr ) return;
 
 
   TH1F *    NumberOfMuonEtaTH1F = NumberOfMuonEta->getTH1F(); 
@@ -74,12 +67,12 @@ void  RPCRecHitProbabilityClient::endRun(const edm::Run& r, const edm::EventSetu
       
   for(int i = 1 ; i<= 6  ; i++) {
     
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonEta";
-    recHit = dbe_->get(name.str());
+    recHit = igetter.get(name.str());
 
     if(recHit){
       
@@ -87,48 +80,48 @@ void  RPCRecHitProbabilityClient::endRun(const edm::Run& r, const edm::EventSetu
       recHitTH1F->Divide(NumberOfMuonEtaTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPtB";
-    recHit = dbe_->get(name.str());
+    recHit = igetter.get(name.str());
 
     if(recHit){      
       recHitTH1F = recHit->getTH1F(); 
       recHitTH1F->Divide(NumberOfMuonPtBTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
     
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPhiB";
-    recHit = dbe_->get(name.str());
+    recHit = igetter.get(name.str());
 
     if(recHit){      
       recHitTH1F = recHit->getTH1F(); 
       recHitTH1F->Divide(NumberOfMuonPhiBTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPtEP";
-    recHit = dbe_->get(name.str());
+    recHit = igetter.get(name.str());
 
     if(recHit){      
       recHitTH1F = recHit->getTH1F(); 
       recHitTH1F->Divide(NumberOfMuonPtEPTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPhiEP";
-    recHit = dbe_->get(name.str());
+    recHit = igetter.get(name.str());
 
     if(recHit){      
       recHitTH1F = recHit->getTH1F(); 
@@ -136,24 +129,24 @@ void  RPCRecHitProbabilityClient::endRun(const edm::Run& r, const edm::EventSetu
     }
 
     
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPtEM";
-    recHit = dbe_->get(name.str());
+    recHit = igetter.get(name.str());
 
     if(recHit){      
       recHitTH1F = recHit->getTH1F(); 
       recHitTH1F->Divide(NumberOfMuonPtEMTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPhiEM";
-    recHit = dbe_->get(name.str());
+    recHit = igetter.get(name.str());
 
     if(recHit){     
       recHitTH1F = recHit->getTH1F(); 
@@ -166,6 +159,6 @@ void  RPCRecHitProbabilityClient::endRun(const edm::Run& r, const edm::EventSetu
 
 }
 
-void RPCRecHitProbabilityClient::endJob() {}
+
 
 

@@ -10,7 +10,7 @@
  *  (3) the ranking of several matches.
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/DeltaR.h"
@@ -60,7 +60,7 @@ namespace reco {
 					       typename C2::value_type>,
 					C1, C2 >
   >
-  class PhysObjectMatcher : public edm::EDProducer {
+  class PhysObjectMatcher : public edm::stream::EDProducer<> {
   public:
     PhysObjectMatcher(const edm::ParameterSet & cfg);
     ~PhysObjectMatcher();
@@ -117,7 +117,7 @@ namespace reco {
     Handle<C1> cands;
     evt.getByToken(srcToken_, cands);
     // create product
-    auto_ptr<MatchMap> matchMap(new MatchMap(matched));
+    unique_ptr<MatchMap> matchMap(new MatchMap(matched));
     size_t size = cands->size();
     if( size != 0 ) {
       //
@@ -125,7 +125,7 @@ namespace reco {
       //
       Q comparator(config_,*cands,*matched);
       typename MatchMap::Filler filler(*matchMap);
-      ::helper::MasterCollection<C1> master(cands);
+      ::helper::MasterCollection<C1> master(cands, evt);
       vector<int> indices(master.size(), -1);      // result: indices in target collection
       vector<bool> mLock(matched->size(),false);   // locks in target collection
       MatchContainer matchPairs;                   // container of matched pairs
@@ -189,7 +189,7 @@ namespace reco {
       filler.insert(master.get(), indices.begin(), indices.end());
       filler.fill();
     }
-    evt.put(matchMap);
+    evt.put(std::move(matchMap));
   }
 
 }

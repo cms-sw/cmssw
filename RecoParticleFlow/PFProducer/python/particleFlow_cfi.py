@@ -205,9 +205,8 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
     # Check HF cleaning
     cleanedHF = cms.VInputTag(
-                cms.InputTag("particleFlowRecHitHCAL","Cleaned"),
-                cms.InputTag("particleFlowClusterHFHAD","Cleaned"),
-                cms.InputTag("particleFlowClusterHFEM","Cleaned")
+                cms.InputTag("particleFlowRecHitHF","Cleaned"),
+                cms.InputTag("particleFlowClusterHF","Cleaned")
                 ),
     
     # number of sigmas for neutral energy detection
@@ -216,6 +215,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
     # ECAL/HCAL PF cluster calibration : take it from global tag ?
     useCalibrationsFromDB = cms.bool(True),
+    calibrationsLabel = cms.string(''),
 
     # calibration parameters for HF:
     calibHF_use = cms.bool(False),

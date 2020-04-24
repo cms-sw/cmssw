@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 
@@ -47,7 +46,7 @@ public:
     /// public methods
 
     /// produce the setup for L1 GT PSB boards
-    boost::shared_ptr<L1GtPsbSetup> producePsbSetup(
+    std::shared_ptr<L1GtPsbSetup> producePsbSetup(
         const L1GtPsbSetupRcd&);
 
 private:

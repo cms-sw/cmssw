@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include <algorithm>
 #include <numeric>
 
 class SiStripNoises;
@@ -29,15 +30,15 @@ class SiStripClusterInfo {
   uint16_t maxStrip() const   {return firstStrip() + maxIndex();}
   float    variance() const;
 
-  const std::vector<uint8_t>& stripCharges() const {return cluster()->amplitudes();}
+  auto                        stripCharges() const ->decltype(cluster()->amplitudes())  {return cluster()->amplitudes();}
   std::vector<float>          stripGains() const;
   std::vector<float>          stripNoises() const;
   std::vector<float>          stripNoisesRescaledByGain() const;
   std::vector<bool>           stripQualitiesBad() const;
 
-  uint16_t charge() const    {return   accumulate( stripCharges().begin(), stripCharges().end(), uint16_t(0));}
-  uint8_t  maxCharge() const {return * max_element(stripCharges().begin(), stripCharges().end());}
-  uint16_t maxIndex() const  {return   max_element(stripCharges().begin(), stripCharges().end()) - stripCharges().begin();}
+  uint16_t charge() const    {return   std::accumulate( stripCharges().begin(), stripCharges().end(), uint16_t(0));}
+  uint8_t  maxCharge() const {return * std::max_element(stripCharges().begin(), stripCharges().end());}
+  uint16_t maxIndex() const  {return   std::max_element(stripCharges().begin(), stripCharges().end()) - stripCharges().begin();}
   std::pair<uint16_t,uint16_t> chargeLR() const;
   
   float noise() const               { return calculate_noise(stripNoises());}

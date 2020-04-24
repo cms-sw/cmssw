@@ -6,7 +6,7 @@
 #include "EventFilter/EcalRawToDigi/interface/EcalElectronicsMapper.h"
 #include <set>
 
-bool DCCDataUnpacker::silentMode_ = false;
+std::atomic<bool> DCCDataUnpacker::silentMode_(false);
 
 DCCDataUnpacker::DCCDataUnpacker( 
   EcalElectronicsMapper * mapper, bool hU, bool srpU, bool tccU, bool feU , bool memU, bool syncCheck, bool feIdCheck, bool forceToKeepFRdata
@@ -59,7 +59,7 @@ uint16_t DCCDataUnpacker::getChannelStatus(const DetId& id) const
   // TODO: think on a better way how to cover this case
   const uint16_t NO_DATA = 11;
   
-  if (chdb_ == 0) {
+  if (chdb_ == nullptr) {
     edm::LogError("IncorrectMapping")
       << "ECAL channel status database do not initialized";
     return NO_DATA;

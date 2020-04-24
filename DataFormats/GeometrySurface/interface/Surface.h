@@ -10,9 +10,7 @@
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
  
-#ifndef CMS_NOCXX11
 #include "FWCore/Utilities/interface/clone_ptr.h"
-#endif
 #include <algorithm>
 
 
@@ -30,11 +28,7 @@ namespace SurfaceOrientation {
 //template <class T> class ReferenceCountingPointer;
 
 class Plane;
-#ifndef CMS_NOCXX11
 using TangentPlane = Plane;
-#else
-typedef Plane TangentPlane;
-#endif
 
 /** Base class for 2D surfaces in 3D space.
  *  May have MediumProperties.
@@ -45,15 +39,15 @@ typedef Plane TangentPlane;
  *  (e.g. Plane or Cylinder).
  */
 
-class Surface : public GloballyPositioned<float> 
-	      , public ReferenceCountedInConditions 
+class Surface : public ReferenceCountedInConditions
+              , public GloballyPositioned<float>
 {
 public:
-  typedef SurfaceOrientation::Side Side;
+  using Side =  SurfaceOrientation::Side;
 
-  typedef GloballyPositioned<float>       Base;
+  using Base = GloballyPositioned<float>;
 
-  virtual ~Surface(){}
+  ~Surface() override{}
 
 protected:
   Surface(){}
@@ -89,13 +83,11 @@ protected:
   theBounds(iSurface.theBounds)
   {}
   
-#ifndef CMS_NOCXX11
   Surface(Surface&& iSurface ) : 
   Base(iSurface), 
   theMediumProperties(iSurface.theMediumProperties),
   theBounds(std::move(iSurface.theBounds))
   {}
-#endif
 
 public:
 
@@ -139,18 +131,14 @@ public:
    * The return type is a ReferenceCountingPointer, so the plane 
    * will be deleted automatically when no longer needed.
    */
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const = 0;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const = 0;
   /** Tangent plane to surface from local point.
    */
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const = 0;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const = 0;
 
 protected:
   MediumProperties theMediumProperties;
-#ifndef CMS_NOCXX11
   extstd::clone_ptr<Bounds> theBounds;
-#else
-  Bounds * theBounds;
-#endif
 };
   
 

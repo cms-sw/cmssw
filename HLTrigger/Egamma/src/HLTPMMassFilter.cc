@@ -15,39 +15,37 @@
 //
 HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
-  candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
-  beamSpot_           = iConfig.getParameter< edm::InputTag > ("beamSpot");
-  lowerMassCut_       = iConfig.getParameter<double> ("lowerMassCut");
-  upperMassCut_       = iConfig.getParameter<double> ("upperMassCut");
-  nZcandcut_          = iConfig.getParameter<int> ("nZcandcut");
-  reqOppCharge_       = iConfig.getUntrackedParameter<bool> ("reqOppCharge",false);
-  isElectron1_ = iConfig.getUntrackedParameter<bool> ("isElectron1",true) ;
-  isElectron2_ = iConfig.getUntrackedParameter<bool> ("isElectron2",true) ;
-  relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
-  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
-  beamSpotToken_ = consumes<reco::BeamSpot>(beamSpot_);
+  candTag_       = iConfig.getParameter< edm::InputTag > ("candTag");
+  beamSpot_      = iConfig.getParameter< edm::InputTag > ("beamSpot");
+  l1EGTag_       = iConfig.getParameter< edm::InputTag > ("l1EGCand");
+
+  lowerMassCut_  = iConfig.getParameter<double> ("lowerMassCut");
+  upperMassCut_  = iConfig.getParameter<double> ("upperMassCut");
+  nZcandcut_     = iConfig.getParameter<int> ("nZcandcut");
+  reqOppCharge_  = iConfig.getUntrackedParameter<bool> ("reqOppCharge",false);
+  isElectron1_   = iConfig.getUntrackedParameter<bool> ("isElectron1", true) ;
+  isElectron2_   = iConfig.getUntrackedParameter<bool> ("isElectron2", true) ;
+
+  candToken_     = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
+  beamSpotToken_ = consumes<reco::BeamSpot> (beamSpot_);
 }
 
-HLTPMMassFilter::~HLTPMMassFilter(){}
+HLTPMMassFilter::~HLTPMMassFilter()= default;
 
 void
 HLTPMMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("candTag",edm::InputTag("hltL1NonIsoDoublePhotonEt5UpsHcalIsolFilter"));
-  desc.add<edm::InputTag>("beamSpot",edm::InputTag("hltOfflineBeamSpot"));
-  desc.add<double>("lowerMassCut",8.0);
-  desc.add<double>("upperMassCut",11.0);
-  desc.add<int>("nZcandcut",1);
-  desc.addUntracked<bool>("reqOppCharge",true);
-  desc.addUntracked<bool>("isElectron1",false);
-  desc.addUntracked<bool>("isElectron2",false);
-  desc.addUntracked<bool>("relaxed",true);
-  desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
-  desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
-  descriptions.add("hltPMMassFilter",desc);
+  desc.add<edm::InputTag>("candTag", edm::InputTag("hltL1NonIsoDoublePhotonEt5UpsHcalIsolFilter"));
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOfflineBeamSpot"));
+  desc.add<double>("lowerMassCut", 8.0);
+  desc.add<double>("upperMassCut", 11.0);
+  desc.add<int>("nZcandcut", 1);
+  desc.addUntracked<bool>("reqOppCharge", true);
+  desc.addUntracked<bool>("isElectron1", false);
+  desc.addUntracked<bool>("isElectron2", false);
+  desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  descriptions.add("hltPMMassFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
@@ -61,15 +59,14 @@ HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
 
   // The filter object
   if (saveTags()) {
-    filterproduct.addCollectionTag(L1IsoCollTag_);
-    if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+    filterproduct.addCollectionTag(l1EGTag_);
   }
 
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByToken (candToken_,PrevFilterOutput);
+  iEvent.getByToken (candToken_, PrevFilterOutput);
 
   // beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -98,9 +95,9 @@ HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
     vector< Ref< ElectronCollection > > electrons;
     PrevFilterOutput->getObjects(TriggerElectron, electrons);
 
-    for (unsigned int i=0; i<electrons.size(); i++) {
+    for (auto & electron : electrons) {
 
-      refele = electrons[i];
+      refele = electron;
 
       TLorentzVector pThisEle(refele->px(), refele->py(),
 			      refele->pz(), refele->energy() );
@@ -137,10 +134,11 @@ HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
 
     vector< Ref< RecoEcalCandidateCollection > > scs;
     PrevFilterOutput->getObjects(TriggerCluster, scs);
+    if(scs.empty()) PrevFilterOutput->getObjects(TriggerPhoton, scs);  //we dont know if its type trigger cluster or trigger photon
 
-    for (unsigned int i=0; i<scs.size(); i++) {
+    for (auto & i : scs) {
 
-      refsc = scs[i];
+      refsc = i;
       const reco::SuperClusterRef sc = refsc->superCluster();
       TLorentzVector pscPos = approxMomAtVtx(theMagField.product(), vertexPos, sc, 1);
       pEleCh1.push_back( pscPos );

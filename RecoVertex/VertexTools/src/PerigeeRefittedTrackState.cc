@@ -31,8 +31,8 @@ PerigeeRefittedTrackState::trajectoryStateOnSurface(const Surface & surface) con
 {
   AnalyticalPropagator thePropagator(&(theState.theState().parameters().magneticField()), anyDirection);
   TrajectoryStateOnSurface tsos = thePropagator.propagate(freeTrajectoryState(), surface);
-  return TrajectoryStateOnSurface (tsos.globalParameters(),
-  	tsos.curvilinearError(), surface ,weight()) ;
+  return TrajectoryStateOnSurface (weight(), tsos.globalParameters(),
+  	tsos.curvilinearError(), surface) ;
 } 
 
 TrajectoryStateOnSurface
@@ -43,8 +43,8 @@ PerigeeRefittedTrackState::trajectoryStateOnSurface(const Surface & surface,
   thePropagator->setPropagationDirection(anyDirection);
 
   TrajectoryStateOnSurface tsos = thePropagator->propagate(freeTrajectoryState(), surface);
-  return TrajectoryStateOnSurface (tsos.globalParameters(),
-  	tsos.curvilinearError(), surface ,weight()) ;
+  return TrajectoryStateOnSurface (weight(), tsos.globalParameters(),
+  	tsos.curvilinearError(), surface) ;
 }
 
 reco::TransientTrack PerigeeRefittedTrackState::transientTrack() const

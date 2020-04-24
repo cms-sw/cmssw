@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -47,7 +49,7 @@ public:
     L1GtHfRingEtSumsTemplate( const L1GtHfRingEtSumsTemplate& );
 
     // destructor
-    virtual ~L1GtHfRingEtSumsTemplate();
+    ~L1GtHfRingEtSumsTemplate() override;
 
     // assign operator
     L1GtHfRingEtSumsTemplate& operator= (const L1GtHfRingEtSumsTemplate&);
@@ -60,7 +62,9 @@ public:
         unsigned int etSumIndex;
         unsigned int etSumThreshold;
 
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 
 public:
@@ -76,7 +80,7 @@ public:
 
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtHfRingEtSumsTemplate&);
@@ -92,6 +96,8 @@ private:
     /// variables containing the parameters
     std::vector<ObjectParameter> m_objectParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

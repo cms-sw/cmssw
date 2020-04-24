@@ -8,8 +8,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 using namespace reco;
 
@@ -23,7 +23,7 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
     //edm::LogInfo("TrackInfoProducer") << "Number of Measurements: "<<measurements.size();
     TrackInfo::TrajectoryInfo trajinfo;
     int nhit=0;
-    for(traj_mes_iterator=measurements.begin();traj_mes_iterator!=measurements.end();traj_mes_iterator++){//loop on measurements
+    for(traj_mes_iterator=measurements.begin();traj_mes_iterator!=measurements.end();++traj_mes_iterator){//loop on measurements
       
       TrajectoryStateOnSurface  fwdtsos=traj_mes_iterator->forwardPredictedState();
       TrajectoryStateOnSurface  bwdtsos=traj_mes_iterator->backwardPredictedState();
@@ -39,6 +39,7 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
       
       trackingRecHit_iterator thehit;
       TrackingRecHitRef thehitref;
+      TrackingRecHit const * thehitptr=nullptr;
       int i=0,j=0;
 
       for (thehit=track->recHitsBegin();thehit!=track->recHitsEnd();thehit++){
@@ -48,7 +49,8 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	if((*thehit)->geographicalId().rawId()==detid&&
 	   (hitpos - pos).mag() < 1e-4)
 	  {
-	    thehitref=(*thehit);
+	    thehitptr=(*thehit);
+            thehitref = track->extra()->recHitRef(i-1);
 	    j++;
 	    break;
 	  }
@@ -60,8 +62,8 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
       PTrajectoryStateOnDet const &  combinedptsod=trajectoryStateTransform::persistentState( combinedtsos,detid);
       
 
-      const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>( &*(thehitref));
-      const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>( &*(thehitref));
+      const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>( thehitptr);
+      const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>( thehitptr);
 
       RecHitType type=Single;
       LocalVector monofwd, stereofwd;

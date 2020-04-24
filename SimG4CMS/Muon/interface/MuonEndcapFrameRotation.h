@@ -1,5 +1,5 @@
-#ifndef MuonEndcapFrameRotation_H
-#define MuonEndcapFrameRotation_H
+#ifndef SimG4CMS_Muon_MuonEndcapFrameRotation_H
+#define SimG4CMS_Muon_MuonEndcapFrameRotation_H
 
 /** \class MuonEndcapFrameRotation
  *
@@ -17,8 +17,8 @@
 
 class MuonEndcapFrameRotation : public MuonFrameRotation {
  public:
-  virtual ~MuonEndcapFrameRotation() {};
-  virtual Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const;
+  ~MuonEndcapFrameRotation() override {};
+  Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const override;
  private:
 };
 

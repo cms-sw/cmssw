@@ -1,7 +1,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 
 //the selectores used to select the tracks
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTrackSelector.h"
@@ -23,9 +23,9 @@ struct TrackConfigSelector {
   typedef reco::TrackCollection collection;
 
  TrackConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
-    theBaseSelector(cfg),
-    theGlobalSelector(cfg.getParameter<edm::ParameterSet>("GlobalSelector")),
-    theTwoBodyDecaySelector(cfg.getParameter<edm::ParameterSet>("TwoBodyDecaySelector"))
+   theBaseSelector(cfg, iC),
+   theGlobalSelector(cfg.getParameter<edm::ParameterSet>("GlobalSelector"), iC),
+   theTwoBodyDecaySelector(cfg.getParameter<edm::ParameterSet>("TwoBodyDecaySelector"), iC)
   {
     //TODO Wrap the BaseSelector into its own PSet
     theBaseSwitch = theBaseSelector.useThisFilter();
@@ -65,6 +65,6 @@ private:
 
 };
 
-typedef ObjectSelector<TrackConfigSelector>  AlignmentTrackSelectorModule;
+typedef ObjectSelectorStream<TrackConfigSelector>  AlignmentTrackSelectorModule;
 
 DEFINE_FWK_MODULE( AlignmentTrackSelectorModule );

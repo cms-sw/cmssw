@@ -40,10 +40,10 @@
 class SecondaryVertexFilter : public edm::EDFilter {
    public:
       explicit SecondaryVertexFilter(const edm::ParameterSet&);
-      ~SecondaryVertexFilter();
+      ~SecondaryVertexFilter() override;
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::InputTag vertexSrc;        
       unsigned int minNumTracks;
       double maxAbsZ;

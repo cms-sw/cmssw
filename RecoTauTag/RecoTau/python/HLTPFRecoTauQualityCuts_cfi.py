@@ -15,7 +15,7 @@ hltPFTauQualityCuts = cms.PSet(
         maxTransverseImpactParameter = cms.double(0.03), # Should in general be disabled at HLT (PV is sometimes missing)
         minTrackVertexWeight         = cms.double(-1),   # Should in general be disabled at HLT (PV is sometimes missing)
         minTrackHits                 = cms.uint32(3),    # total track hits
-        minGammaEt                   = cms.double(0.5),  # filter PFgammas below given Pt
+        minGammaEt                   = cms.double(1.0),  # filter PFgammas below given Pt
         useTracksInsteadOfPFHadrons  = cms.bool(False),  # if true, use generalTracks, instead of PFChargedHadrons
     ),
     isolationQualityCuts = cms.PSet(

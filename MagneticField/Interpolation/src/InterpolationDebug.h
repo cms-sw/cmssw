@@ -10,7 +10,7 @@
 
 #include "FWCore/Utilities/interface/Visibility.h"
 struct dso_internal InterpolationDebug {
-  static bool debug;
+  static const bool debug;
 };
 
 #endif

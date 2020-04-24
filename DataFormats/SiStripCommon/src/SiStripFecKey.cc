@@ -101,18 +101,16 @@ SiStripFecKey::SiStripFecKey( const SiStripKey& input ) :
   i2cAddr_(sistrip::invalid_)
 {
   const SiStripFecKey& fec_key = dynamic_cast<const SiStripFecKey&>(input);
-  if ( (&fec_key) ) {
-    key(fec_key.key());
-    path(fec_key.path());
-    granularity(fec_key.granularity());
-    fecCrate_ = fec_key.fecCrate(); 
-    fecSlot_ = fec_key.fecSlot();
-    fecRing_ = fec_key.fecRing(); 
-    ccuAddr_ = fec_key.ccuAddr();
-    ccuChan_ = fec_key.ccuChan(); 
-    lldChan_ = fec_key.lldChan();
-    i2cAddr_ = fec_key.i2cAddr();
-  }
+  key(fec_key.key());
+  path(fec_key.path());
+  granularity(fec_key.granularity());
+  fecCrate_ = fec_key.fecCrate(); 
+  fecSlot_ = fec_key.fecSlot();
+  fecRing_ = fec_key.fecRing(); 
+  ccuAddr_ = fec_key.ccuAddr();
+  ccuChan_ = fec_key.ccuChan(); 
+  lldChan_ = fec_key.lldChan();
+  i2cAddr_ = fec_key.i2cAddr();
 }
 
 // -----------------------------------------------------------------------------
@@ -129,52 +127,47 @@ SiStripFecKey::SiStripFecKey( const SiStripKey& input,
   i2cAddr_(0)
 {
   const SiStripFecKey& fec_key = dynamic_cast<const SiStripFecKey&>(input);
-  if ( (&fec_key) ) {
-    
-    if ( gran == sistrip::FEC_CRATE || gran == sistrip::FEC_SLOT ||
-	 gran == sistrip::FEC_RING || gran == sistrip::CCU_ADDR ||
-	 gran == sistrip::CCU_CHAN || gran == sistrip::LLD_CHAN ||
-	 gran == sistrip::APV ) {
-      fecCrate_ = fec_key.fecCrate(); 
-    }
-
-    if ( gran == sistrip::FEC_SLOT || gran == sistrip::FEC_RING ||
-	 gran == sistrip::CCU_ADDR || gran == sistrip::CCU_CHAN ||
-	 gran == sistrip::LLD_CHAN || gran == sistrip::APV ) {
-      fecSlot_ = fec_key.fecSlot();
-    }
-
-    if ( gran == sistrip::FEC_RING || gran == sistrip::CCU_ADDR ||
-	 gran == sistrip::CCU_CHAN || gran == sistrip::LLD_CHAN ||
-	 gran == sistrip::APV ) {
-      fecRing_ = fec_key.fecRing(); 
-    }
-
-    if ( gran == sistrip::CCU_ADDR || gran == sistrip::CCU_CHAN ||
-	 gran == sistrip::LLD_CHAN || gran == sistrip::APV ) {
-      ccuAddr_ = fec_key.ccuAddr();
-    }
-
-    if ( gran == sistrip::CCU_CHAN || gran == sistrip::LLD_CHAN ||
-	 gran == sistrip::APV ) {
-      ccuChan_ = fec_key.ccuChan(); 
-    }
-
-    if ( gran == sistrip::LLD_CHAN || gran == sistrip::APV ) {
-      lldChan_ = fec_key.lldChan();
-    }
-
-    if ( gran == sistrip::APV ) {
-      i2cAddr_ = fec_key.i2cAddr();
-    }
-
-    initFromValue();
-    initFromKey();
-    initFromPath();
-    initGranularity();
-    
+  if ( gran == sistrip::FEC_CRATE || gran == sistrip::FEC_SLOT ||
+       gran == sistrip::FEC_RING || gran == sistrip::CCU_ADDR ||
+       gran == sistrip::CCU_CHAN || gran == sistrip::LLD_CHAN ||
+       gran == sistrip::APV ) {
+    fecCrate_ = fec_key.fecCrate(); 
   }
 
+  if ( gran == sistrip::FEC_SLOT || gran == sistrip::FEC_RING ||
+       gran == sistrip::CCU_ADDR || gran == sistrip::CCU_CHAN ||
+       gran == sistrip::LLD_CHAN || gran == sistrip::APV ) {
+    fecSlot_ = fec_key.fecSlot();
+  }
+
+  if ( gran == sistrip::FEC_RING || gran == sistrip::CCU_ADDR ||
+       gran == sistrip::CCU_CHAN || gran == sistrip::LLD_CHAN ||
+       gran == sistrip::APV ) {
+    fecRing_ = fec_key.fecRing(); 
+  }
+
+  if ( gran == sistrip::CCU_ADDR || gran == sistrip::CCU_CHAN ||
+       gran == sistrip::LLD_CHAN || gran == sistrip::APV ) {
+    ccuAddr_ = fec_key.ccuAddr();
+  }
+
+  if ( gran == sistrip::CCU_CHAN || gran == sistrip::LLD_CHAN ||
+       gran == sistrip::APV ) {
+    ccuChan_ = fec_key.ccuChan(); 
+  }
+
+  if ( gran == sistrip::LLD_CHAN || gran == sistrip::APV ) {
+    lldChan_ = fec_key.lldChan();
+  }
+
+  if ( gran == sistrip::APV ) {
+    i2cAddr_ = fec_key.i2cAddr();
+  }
+
+  initFromValue();
+  initFromKey();
+  initFromPath();
+  initGranularity();
 }
 
 // -----------------------------------------------------------------------------
@@ -248,7 +241,6 @@ bool SiStripFecKey::firstApvOfPair( const uint16_t& i2c_addr ) {
 // 
 bool SiStripFecKey::isEqual( const SiStripKey& key ) const {
   const SiStripFecKey& input = dynamic_cast<const SiStripFecKey&>(key);
-  if ( !(&input) ) { return false; }
   if ( fecCrate_ == input.fecCrate() &&
        fecSlot_ == input.fecSlot() &&
        fecRing_ == input.fecRing() &&
@@ -264,7 +256,6 @@ bool SiStripFecKey::isEqual( const SiStripKey& key ) const {
 // 
 bool SiStripFecKey::isConsistent( const SiStripKey& key ) const {
   const SiStripFecKey& input = dynamic_cast<const SiStripFecKey&>(key);
-  if ( !(&input) ) { return false; }
   if ( isEqual(input) ) { return true; }
   else if ( ( fecCrate_ == 0 || input.fecCrate() == 0 ) &&
 	    ( fecSlot_ == 0 || input.fecSlot() == 0 ) &&

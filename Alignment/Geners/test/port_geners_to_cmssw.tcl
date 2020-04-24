@@ -23,9 +23,9 @@ exec tclsh "$0" ${1+"$@"}
 # to replace in that file, and might fail in the future in case
 # file contents are changed.
 #
-set inputdir "/afs/cern.ch/user/i/igv/geners-1.1.2/geners"
+set inputdir "/afs/cern.ch/user/i/igv/local/src/geners-1.3.0/geners"
 set dest_package "Alignment/Geners"
-set packagedir "/afs/cern.ch/user/i/igv/FFTJet_corr_v2/CMSSW_6_1_0_pre4/src/Alignment/Geners"
+set packagedir "/afs/cern.ch/user/i/igv/CMSSW_7_1_0_pre4/src/Alignment/Geners"
 
 # Create the map for changing include statements
 set includemap [list "\#include \"geners/static_check.h\"" {}]

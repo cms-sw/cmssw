@@ -11,7 +11,7 @@
 class StripTopology : public Topology {
 public:
 
-  virtual ~StripTopology() {}
+  ~StripTopology() override {}
 
   // GF: I hate the stupid hiding feature of C++, see
   // http://www.parashift.com/c%2B%2B-faq-lite/strange-inheritance.html#faq-23.9

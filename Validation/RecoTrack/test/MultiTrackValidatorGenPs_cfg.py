@@ -48,31 +48,29 @@ process.GlobalTag.globaltag = 'START61_V4::All'
 
 ### standard includes
 process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration.StandardSequences.GeometryPilot2_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ### validation-specific includes
-process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("Validation.RecoTrack.MultiTrackValidatorGenPs_cfi")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Validation.Configuration.postValidation_cff")
 process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.TrackAssociatorByChi2ESProducer.chi2cut = cms.double(500.0)
-process.TrackAssociatorByPullESProducer = process.TrackAssociatorByChi2ESProducer.clone(chi2cut = 50.0,onlyDiagonal = True,ComponentName = 'TrackAssociatorByPull')
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.trackAssociatorByChi2.chi2cut = cms.double(500.0)
+process.trackAssociatorByPull = process.trackAssociatorByChi2.clone(chi2cut = 50.0,onlyDiagonal = True)
 
 
 ########### configuration MultiTrackValidatorGenPs ########
 process.multiTrackValidatorGenPs.outputFile = 'multitrackvalidatorgenps.root'
-process.multiTrackValidatorGenPs.associators = ['TrackAssociatorByChi2','TrackAssociatorByPull']
-process.multiTrackValidatorGenPs.skipHistoFit=cms.untracked.bool(False)
+process.multiTrackValidatorGenPs.associators = ['trackAssociatorByChi2','trackAssociatorByPull']
 process.multiTrackValidatorGenPs.UseAssociators = cms.bool(True)
-process.multiTrackValidatorGenPs.runStandalone = cms.bool(True)
 process.MTVHistoProducerAlgoForTrackerBlock.maxPt = cms.double(1100)
 
 process.load("Validation.RecoTrack.cuts_cff")
@@ -82,7 +80,7 @@ process.load("Validation.RecoTrack.cuts_cff")
 process.cutsRecoTracks.quality = cms.vstring('highPurity')
 #process.cutsRecoTracks.min3DHit = cms.int32(3)
 #process.cutsRecoTracks.minPixHit = cms.int32(0)
-#process.cutsRecoTracks.algorithm = cms.vstring('iter6')
+#process.cutsRecoTracks.algorithm = cms.vstring('tobTecStep')
 #process.cutsRecoTracks.maxChi2 = 10
 #process.cutsRecoTracks.minHit   = cms.int32(10)
 #process.cutsRecoTracks.src = cms.InputTag("TrackRefitter")
@@ -150,6 +148,8 @@ process.refit = cms.Sequence(
 process.validation = cms.Sequence(
     #process.cutsRecoTracks *
     process.selectedVertices*process.selectedFirstPrimaryVertex*process.trackWithVertexSelector *
+    process.trackAssociatorByChi2 *
+    process.trackAssociatorByPull *
     process.multiTrackValidatorGenPs
 )
 

@@ -19,6 +19,7 @@
 //
 #include <map>
 #include <string>
+#include <vector>
 
 class FWColorManager;
 class TEveCompositeFrameInMainFrame;
@@ -26,10 +27,15 @@ class FWDetailViewBase;
 class FWModelId;
 class TEveWindow;
 
+namespace fireworks
+{
+class Context;
+}
+
 class FWDetailViewManager
 {
 public:
-   FWDetailViewManager(FWColorManager*);
+   FWDetailViewManager(fireworks::Context*);
    virtual ~FWDetailViewManager();
 
    std::vector<std::string> detailViewsFor(const FWModelId&) const;
@@ -50,12 +56,12 @@ public:
    };
 
 protected:
-   FWColorManager                *m_colorManager;
+   fireworks::Context* m_context;
 
 private:
 
-   FWDetailViewManager(const FWDetailViewManager&);    // stop default
-   const FWDetailViewManager& operator=(const FWDetailViewManager&);    // stop default
+   FWDetailViewManager(const FWDetailViewManager&) = delete;    // stop default
+   const FWDetailViewManager& operator=(const FWDetailViewManager&) = delete;    // stop default
 
    std::vector<std::string> findViewersFor(const std::string&) const;
 

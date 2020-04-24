@@ -38,7 +38,7 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   CaloHitMaker(theCalo,DetId::Ecal,((onEcal==1)?EcalBarrel:EcalEndcap),onEcal,showertype),
   EcalEntrance_(ecalentrance),
   onEcal_(onEcal),
-  myTrack_(NULL),
+  myTrack_(nullptr),
   random(engine)
 {
 #ifdef FAMOSDEBUG
@@ -79,7 +79,7 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   central_=onEcal==1;
   ecalFirstSegment_=-1;
   
-  myCrystalWindowMap_ = 0; 
+  myCrystalWindowMap_ = nullptr; 
   // In some cases, a "dummy" grid, not based on a cell, can be built. The previous variables
   // should however be initialized. In such a case onEcal=0
   if(!onEcal) return;
@@ -125,7 +125,7 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
 
 EcalHitMaker::~EcalHitMaker()
 {
-  if (myCrystalWindowMap_ != 0)
+  if (myCrystalWindowMap_ != nullptr)
     {
       delete myCrystalWindowMap_;
     }
@@ -1359,7 +1359,7 @@ EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
   //  std::cout << " Entering gapsLifting "  << std::endl;
   CrystalPad & myPad = padsatdepth_[iq];
   unsigned ngaps=gaps.size();
-  static bool debug=false;
+  constexpr bool debug=false;
   if(ngaps==1)
     {
       if(debug)

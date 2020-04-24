@@ -6,7 +6,7 @@
 #define MCTruth_MuonTrackProducer_h
 
 #include <memory>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -14,21 +14,22 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
-class MuonTrackProducer : public edm::EDProducer {
+class MuonTrackProducer : public edm::stream::EDProducer<> {
   public:
     explicit MuonTrackProducer(const edm::ParameterSet&);
-    ~MuonTrackProducer();
+    ~MuonTrackProducer() override;
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
   
     edm::Handle<reco::MuonCollection> muonCollectionH;
     edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
     edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
 
-    edm::InputTag muonsTag;
-    edm::InputTag inputDTRecSegment4DCollection_;
-    edm::InputTag inputCSCSegmentCollection_;
+    edm::EDGetTokenT<reco::MuonCollection> muonsToken;
+    edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
+    edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentToken_;
+
     std::vector<std::string> selectionTags;
     std::string trackType;
     const edm::ParameterSet parset_;

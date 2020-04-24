@@ -8,7 +8,7 @@
 
 TB06Tree::TB06Tree (const std::string & fileName, 
 		    const std::string & treeName):
-  m_file (0), m_tree (0), m_data (0), m_dataSize (0)  
+  m_file (nullptr), m_tree (nullptr), m_data (nullptr), m_dataSize (0)  
 {
   TDirectory *dir = gDirectory ;
   m_file = new TFile (fileName.c_str (),"RECREATE") ;

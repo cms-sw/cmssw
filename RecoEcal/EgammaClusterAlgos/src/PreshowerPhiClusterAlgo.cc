@@ -32,7 +32,7 @@ reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
   if (strip == ESDetId(0)) return nullcluster;   // works in case of no intersected strip found (e.g. in the Barrel)
 
   const CaloCellGeometry *refCell = geometry_p->getGeometry(strip);
-  GlobalPoint refpos = refCell->getPosition();
+  const GlobalPoint& refpos = refCell->getPosition();
   double refEta = refpos.eta();
   double refPhi = refpos.phi();  
 
@@ -52,7 +52,7 @@ reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
     if (mystrip.plane() != plane) continue;
 
     const CaloCellGeometry *thisCell = geometry_p->getGeometry(strip_it->first);
-    GlobalPoint position = thisCell->getPosition();
+    const GlobalPoint& position = thisCell->getPosition();
 
     if (fabs(position.eta() - refEta) < deltaEta) {
 
@@ -90,7 +90,6 @@ reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
   Point pos(x_pos,y_pos,z_pos);
 
   reco::PreshowerCluster cluster = reco::PreshowerCluster(Eclust, pos, usedHits, plane);
-  used_strips = used_s;
 
   return cluster; 
 }

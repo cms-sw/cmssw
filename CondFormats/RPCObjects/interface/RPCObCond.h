@@ -8,6 +8,8 @@
 
 #ifndef RPCObCond_h
 #define RPCObCond_h
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 class RPCObImon {
@@ -17,11 +19,15 @@ class RPCObImon {
         float value;
         int day;
         int time;
-      };
+      
+      COND_SERIALIZABLE;
+};
     RPCObImon(){}
     virtual ~RPCObImon(){}
     std::vector<I_Item> ObImon_rpc;
-   };
+   
+   COND_SERIALIZABLE;
+};
 
 class RPCObVmon {
     public:
@@ -30,11 +36,15 @@ class RPCObVmon {
         float value;
         int day;
         int time;
-      };
+      
+      COND_SERIALIZABLE;
+};
     RPCObVmon(){}
     virtual ~RPCObVmon(){}
     std::vector<V_Item> ObVmon_rpc;
-   };
+   
+   COND_SERIALIZABLE;
+};
 
 class RPCObStatus {
     public:
@@ -43,11 +53,15 @@ class RPCObStatus {
         float value;
         int day;
         int time;
-      };
+      
+      COND_SERIALIZABLE;
+};
     RPCObStatus(){}
     virtual ~RPCObStatus(){}
     std::vector<S_Item> ObStatus_rpc;
-   };
+   
+   COND_SERIALIZABLE;
+};
 
 class RPCObTemp {
     public:
@@ -56,11 +70,15 @@ class RPCObTemp {
         float value;
         int day;
         int time;
-      };
+      
+      COND_SERIALIZABLE;
+};
     RPCObTemp(){}
     virtual ~RPCObTemp(){}
     std::vector<T_Item> ObTemp_rpc;
-   };
+   
+   COND_SERIALIZABLE;
+};
 
 #endif
 

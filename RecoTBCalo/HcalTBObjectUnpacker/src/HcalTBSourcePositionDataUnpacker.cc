@@ -82,16 +82,15 @@ namespace hcaltb {
 		 sp_dblmap["TIME_STAMP2"],//double timestamp1_usec
 		 -1,//double timestamp2_sec
 		 -1,//double timestamp2_usec
-		 -1,//double status
+		 sp_dblmap["STATUS"],//double status
 		 sp_dblmap["INDEX"],//double index_counter
 		 sp_dblmap["REEL"],//double reel_counter
 		 sp_dblmap["MOTOR_CURRENT"],//double motor_current
 		 sp_dblmap["MOTOR_VOLTAGE"],//double motor_voltage
-		 -1,//double tube_id
 		 -1,//double driver_id
      -1,//double source_id
      sp_strmap["CURRENT_TUBENAME_FROM_COORD"],
-     "", // current tubeName from SD
+     sp_strmap["INDEX_DESCRIPTION"],
      sp_strmap["LAST_COMMAND"],
      sp_strmap["MESSAGE"]
      );

@@ -33,11 +33,11 @@ void MeasurementDistancemeter3dim::calculateSimulatedValue( ALIbool firstTime )
   if( ALIUtils::debug >= 5) std::cout  << "OptOList size" <<OptOList().size() << std::endl;
 
   //----- Check that there are only two measurements that are 'distance_target' and 'distancemeter3dim'
-  ALIbool right_objects = 0;
+  ALIbool right_objects = false;
   if( OptOList().size() == 2 ) {
     if( (*vocite)->type() == "distance_target"
 	&& ( (*(vocite+1))->type() == "distancemeter3dim" ) ) { 
-      right_objects = 1;
+      right_objects = true;
     } 
   }
   if( !right_objects ) {
@@ -60,7 +60,7 @@ void MeasurementDistancemeter3dim::calculateSimulatedValue( ALIbool firstTime )
 #endif
 
   ALIuint isec = 0;  //security variable to check OptOList().size()
-  for( vocite = OptOList().begin(); vocite != OptOList().end(); vocite++) {
+  for( vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite) {
     if( ALIUtils::debug >= 2) std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
     isec ++;
 

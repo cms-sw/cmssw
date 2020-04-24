@@ -17,9 +17,6 @@
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
 
-static const char CVSId_CondToolsEcal_EcalFloatCondObjectContainerHandler[] = 
-"$Id: EcalFloatCondObjectContainerHandler.h,v 1.1 2009/06/30 14:40:11 argiro Exp $";
-
   /**
      \class EcalFloatCondObjectContainerHandler EcalFloatCondObjectContainerHandler.h "/EcalFloatCondObjectContainerHandler.h"
 
@@ -34,9 +31,9 @@ static const char CVSId_CondToolsEcal_EcalFloatCondObjectContainerHandler[] =
 
   public:
     EcalFloatCondObjectContainerHandler(const edm::ParameterSet & ps);
-    virtual ~EcalFloatCondObjectContainerHandler();
-    virtual void getNewObjects();
-    virtual std::string id() const ;
+    ~EcalFloatCondObjectContainerHandler() override;
+    void getNewObjects() override;
+    std::string id() const override ;
 
   private:
 

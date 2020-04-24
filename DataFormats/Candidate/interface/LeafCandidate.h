@@ -9,12 +9,7 @@
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
-
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
-
-#include "DataFormats/Math/interface/PtEtaPhiMass.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-
+#include "ParticleState.h"
 
 namespace reco {
   
@@ -35,258 +30,186 @@ namespace reco {
 
     typedef unsigned int index;
 
-    static double magd(GlobalVector v) { return std::sqrt(double(v.x())*double(v.x()) + double(v.y())*double(v.y()) + double(v.z())*double(v.z()) );}
-    static double dmass(GlobalVector v, double e) { double m2 = e*e-magd(v); return m2>0 ? std::sqrt(m2) : 0;}
+    LeafCandidate() {}
 
-    /// default constructor                                                               
-    LeafCandidate() : 
-      qx3_(0), pt_(0), eta_(0), phi_(0), mass_(0), 
-      vertex_(0, 0, 0), pdgId_(0), status_(0),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ) { }
-    // constructor from candidate                                                         
-    explicit LeafCandidate( const Candidate & c) :
-    qx3_( c.charge()*3 ), pt_( c.p4().pt() ), eta_( c.p4().eta() ), phi_( c.p4().phi() )
-    , mass_( c.p4().mass() ),
-    vertex_( c.vertex() ), pdgId_( c.pdgId() ), status_( c.status() ),
-    cachePolarFixed_( false ), cacheCartesianFixed_( false ) {}
-    
-    /// constructor from Any values
-    template<typename P4>
-    LeafCandidate( Charge q, const P4 & p4, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      qx3_(integerCharge ? 3*q : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ) {}
+    // constructor from candidate 
+    explicit LeafCandidate( const Candidate & c) : m_state(c.charge(),c.polarP4(), c.vertex(), c.pdgId(), c.status() ){}
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    template<typename... Args>
+    explicit   LeafCandidate(Args && ...args) : 
+    m_state(std::forward<Args>(args)...) {}
 
-    /// constructor from values  
+    LeafCandidate(LeafCandidate& rh): m_state(rh.m_state){}
+
+    LeafCandidate(LeafCandidate&&)=default;
+    LeafCandidate(LeafCandidate const&)=default;
+    LeafCandidate& operator=(LeafCandidate&&)=default;
+    LeafCandidate& operator=(LeafCandidate const&)=default;
+#else
+    // for Reflex to parse...  (compilation will use the above)
     LeafCandidate( Charge q, const PtEtaPhiMass & p4, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      qx3_(integerCharge ? 3*q : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ) {}
-   
-    /// constructor from values  
+		   int pdgId = 0, int status = 0, bool integerCharge = true );
     LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ), p4Cartesian_(p4),
-      cachePolarFixed_( false ), cacheCartesianFixed_( true ) {
-      if ( integerCharge ) qx3_ *= 3;
-    }
-    /// constructor from values                                                           
+		   int pdgId = 0, int status = 0, bool integerCharge = true );
     LeafCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ), p4Polar_(p4),
-      cachePolarFixed_( true ), cacheCartesianFixed_( false ){
-      if ( integerCharge ) qx3_ *= 3;
-    }
-    
-    /// constructor from values  
-    LeafCandidate( Charge q, const GlobalVector & p3, float iEnergy, bool massless, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      qx3_( q ), pt_( p3.perp() ), eta_( p3.eta() ), phi_( p3.phi() ), mass_(massless ? 0. :  dmass(p3,iEnergy) ),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ),  p4Polar_(pt_,eta_,phi_,mass_),  p4Cartesian_(p3.x(),p3.y(),p3.z(), massless ? magd(p3) : iEnergy),
-      cachePolarFixed_( true ), cacheCartesianFixed_( true ) {
-      if ( integerCharge ) qx3_ *= 3;
-    }
-
-
-    /// constructor from values
+		   int pdgId = 0, int status = 0, bool integerCharge = true );
     LeafCandidate( Charge q, const GlobalVector & p3, float iEnergy, float imass, const Point & vtx = Point( 0, 0, 0 ),
-                   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      qx3_( q ), pt_( p3.perp() ), eta_( p3.eta() ), phi_( p3.phi() ), mass_(imass),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ),  p4Polar_(pt_,eta_,phi_,mass_),  p4Cartesian_(p3.x(),p3.y(),p3.z(), iEnergy),
-      cachePolarFixed_( true ), cacheCartesianFixed_( true ) {
-      if ( integerCharge ) qx3_ *= 3;
-    }
+		   int pdgId = 0, int status = 0, bool integerCharge = true );
+#endif
 
+    void construct(int qx3,  float pt, float eta, float phi, float mass, const Point & vtx, int pdgId, int status) {
+      m_state = ParticleState(qx3, PolarLorentzVector(pt,eta,phi,mass), vtx, pdgId, status, false);
+    }
 
     /// destructor
-    virtual ~LeafCandidate();
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
+    ~LeafCandidate() override;
     /// number of daughters
-    virtual size_t numberOfDaughters() const;
+    size_t numberOfDaughters() const override;
     /// return daughter at a given position (throws an exception)
-    virtual const Candidate * daughter( size_type ) const;
+    const Candidate * daughter( size_type ) const override;
     /// number of mothers
-    virtual size_t numberOfMothers() const;
+    size_t numberOfMothers() const override;
     /// return mother at a given position (throws an exception)
-    virtual const Candidate * mother( size_type ) const;
+    const Candidate * mother( size_type ) const override;
     /// return daughter at a given position (throws an exception)
-    virtual Candidate * daughter( size_type );
+    Candidate * daughter( size_type ) override;
     /// return daughter with a specified role name
-    virtual Candidate * daughter(const std::string& s );
+    Candidate * daughter(const std::string& s ) override;
     /// return daughter with a specified role name                                        
-    virtual const Candidate * daughter(const std::string& s ) const;
+    const Candidate * daughter(const std::string& s ) const override;
     /// return the number of source Candidates                                            
     /// ( the candidates used to construct this Candidate)                                
-    virtual size_t numberOfSourceCandidatePtrs() const { return 0;}
+    size_t numberOfSourceCandidatePtrs() const override { return 0;}
     /// return a Ptr to one of the source Candidates                                      
     /// ( the candidates used to construct this Candidate)                                
-    virtual CandidatePtr sourceCandidatePtr( size_type i ) const {
+    CandidatePtr sourceCandidatePtr( size_type i ) const override {
       return CandidatePtr();
     }
 
     /// electric charge
-    virtual int charge() const GCC11_FINAL { return qx3_ / 3; }
+    int charge() const final { return m_state.charge(); }
     /// set electric charge                                                               
-    virtual void setCharge( Charge q ) GCC11_FINAL { qx3_ = q * 3; }
+    void setCharge( Charge q ) final { m_state.setCharge(q); }
     /// electric charge                                                                   
-    virtual int threeCharge() const GCC11_FINAL { return qx3_; }
+    int threeCharge() const final { return m_state.threeCharge(); }
     /// set electric charge                                                               
-    virtual void setThreeCharge( Charge qx3 ) GCC11_FINAL { qx3_ = qx3; }
+    void setThreeCharge( Charge qx3 ) final {m_state.setThreeCharge(qx3); }
     /// four-momentum Lorentz vector                                                      
-    virtual const LorentzVector & p4() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_; }
+    const LorentzVector & p4() const final { return m_state.p4(); }
     /// four-momentum Lorentz vector                                                      
-    virtual const PolarLorentzVector & polarP4() const GCC11_FINAL { cachePolar(); return p4Polar_; }
+    const PolarLorentzVector & polarP4() const final { return m_state.polarP4(); }
     /// spatial momentum vector                                                           
-    virtual Vector momentum() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.Vect(); }
+    Vector momentum() const final { return m_state.momentum(); }
     /// boost vector to boost a Lorentz vector                                            
     /// to the particle center of mass system                                             
-    virtual Vector boostToCM() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.BoostToCM(); }
+    Vector boostToCM() const final { return m_state.boostToCM(); }
     /// magnitude of momentum vector                                                      
-    virtual double p() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.P(); }
+    double p() const final { return m_state.p(); }
     /// energy                                                                            
-    virtual double energy() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.E(); }
+    double energy() const final { return m_state.energy(); }
     /// transverse energy                                                                 
-    virtual double et() const GCC11_FINAL { cachePolar(); return (pt_<=0) ? 0 :  p4Polar_.Et(); }
+    double et() const final { return m_state.et(); }
+    /// transverse energy squared (use this for cut!)                                                                 
+    double et2() const final { return m_state.et2(); }
     /// mass                                                                              
-    virtual float mass() const GCC11_FINAL { return mass_; }
+    double mass() const final { return m_state.mass(); }
     /// mass squared                                                                      
-    virtual float massSqr() const GCC11_FINAL { return mass_ * mass_; }
+    double massSqr() const final { return mass() * mass(); }
 
     /// transverse mass                                                                   
-    virtual double mt() const GCC11_FINAL  { cachePolar(); return p4Polar_.Mt(); }
+    double mt() const final  { return m_state.mt(); }
     /// transverse mass squared                                                           
-    virtual double mtSqr() const GCC11_FINAL  { cachePolar(); return p4Polar_.Mt2(); }
+    double mtSqr() const final  { return m_state.mtSqr(); }
     /// x coordinate of momentum vector                                                   
-    virtual double px() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Px(); }
+    double px() const final  {  return m_state.px(); }
     /// y coordinate of momentum vector                                                   
-    virtual double py() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Py(); }
+    double py() const final  { return m_state.py(); }
     /// z coordinate of momentum vector                                                   
-    virtual double pz() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Pz(); }
+    double pz() const final  {  return m_state.pz(); }
     /// transverse momentum                                                               
-    virtual float pt() const GCC11_FINAL  { return pt_;}
+    double pt() const final  { return m_state.pt();}
     /// momentum azimuthal angle                                                          
-    virtual float phi() const GCC11_FINAL  { return phi_; }
+    double phi() const final  { return m_state.phi(); }
     /// momentum polar angle                                                              
-    virtual double theta() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Theta(); }
+    double theta() const final  {  return m_state.theta(); }
     /// momentum pseudorapidity                                                           
-    virtual float eta() const GCC11_FINAL  { return eta_; }
+     double eta() const final  { return m_state.eta(); }
     /// rapidity                                                                          
-    virtual double rapidity() const GCC11_FINAL  { cachePolar(); return p4Polar_.Rapidity(); }
+    double rapidity() const final  {  return m_state.rapidity(); }
     /// rapidity                                                                          
-    virtual double y() const GCC11_FINAL  { return rapidity(); }
+    double y() const final  { return rapidity(); }
     /// set 4-momentum                                                                    
-    virtual void setP4( const LorentzVector & p4 ) GCC11_FINAL  {
-      p4Cartesian_ = p4;
-      p4Polar_ = p4;
-      pt_ = p4Polar_.pt();
-      eta_ = p4Polar_.eta();
-      phi_ = p4Polar_.phi();
-      mass_ = p4Polar_.mass();
-      cachePolarFixed_ = true;
-      cacheCartesianFixed_ = true;
-    }
+    void setP4( const LorentzVector & p4 ) final  { m_state.setP4(p4);}
     /// set 4-momentum                                                                    
-    virtual void setP4( const PolarLorentzVector & p4 ) GCC11_FINAL  {
-      p4Polar_ = p4;
-      pt_ = p4Polar_.pt();
-      eta_ = p4Polar_.eta();
-      phi_ = p4Polar_.phi();
-      mass_ = p4Polar_.mass();
-      cachePolarFixed_ = true;
-      cacheCartesianFixed_ = false;
-    }
+    void setP4( const PolarLorentzVector & p4 ) final  {m_state.setP4(p4); }
     /// set particle mass                                                                 
-    virtual void setMass( double m ) GCC11_FINAL  {
-      mass_ = m;
-      clearCache();
-    }
-    virtual void setPz( double pz ) GCC11_FINAL  {
-      cacheCartesian();
-      p4Cartesian_.SetPz(pz);
-      p4Polar_ = p4Cartesian_;
-      pt_ = p4Polar_.pt();
-      eta_ = p4Polar_.eta();
-      phi_ = p4Polar_.phi();
-      mass_ = p4Polar_.mass();
-    }
+    void setMass( double m ) final  {m_state.setMass(m);}
+    void setPz( double pz ) final  { m_state.setPz(pz);}
     /// vertex position                 (overwritten by PF...)                                                  
-    virtual const Point & vertex() const { return vertex_; }
+    const Point & vertex() const override { return m_state.vertex(); }
     /// x coordinate of vertex position                                                   
-    virtual double vx() const  { return vertex_.X(); }
+    double vx() const override  { return m_state.vx(); }
     /// y coordinate of vertex position                                                   
-    virtual double vy() const  { return vertex_.Y(); }
+    double vy() const override  { return m_state.vy(); }
     /// z coordinate of vertex position                                                   
-    virtual double vz() const  { return vertex_.Z(); }
+    double vz() const override  { return m_state.vz(); }
     /// set vertex                                                                        
-    virtual void setVertex( const Point & vertex )   { vertex_ = vertex; }
+    void setVertex( const Point & vertex ) override   { m_state.setVertex(vertex); }
 
     /// PDG identifier                                                                    
-    virtual int pdgId() const GCC11_FINAL  { return pdgId_; }
+    int pdgId() const final  { return m_state.pdgId(); }
     // set PDG identifier                                                                 
-    virtual void setPdgId( int pdgId ) GCC11_FINAL  { pdgId_ = pdgId; }
+    void setPdgId( int pdgId ) final  { m_state.setPdgId(pdgId); }
     /// status word                                                                       
-    virtual int status() const GCC11_FINAL  { return status_; }
+    int status() const final  { return m_state.status(); }
     /// set status word                                                                   
-    virtual void setStatus( int status ) GCC11_FINAL  { status_ = status; }
+    void setStatus( int status ) final  { m_state.setStatus(status); }
     /// long lived flag                                                                   
-    static const unsigned int longLivedTag;
     /// set long lived flag                                                               
-    virtual void setLongLived() GCC11_FINAL  { status_ |= longLivedTag; }
+    void setLongLived() final  { m_state.setLongLived(); }
     /// is long lived?                                                                    
-    virtual bool longLived() const GCC11_FINAL  { return status_ & longLivedTag; }
+    bool longLived() const final  { return m_state.longLived(); }
     /// do mass constraint flag
-    static const unsigned int massConstraintTag;
     /// set mass constraint flag
-    virtual void setMassConstraint() GCC11_FINAL  { status_ |= massConstraintTag;}
+    void setMassConstraint() final  { m_state.setMassConstraint();}
     /// do mass constraint?
-    virtual bool massConstraint() const GCC11_FINAL  { return status_ & massConstraintTag; }
+    bool massConstraint() const final  { return m_state.massConstraint(); }
 
     /// returns a clone of the Candidate object                                           
-    virtual LeafCandidate * clone() const  {
+    LeafCandidate * clone() const override  {
       return new LeafCandidate( *this );
     }
 
     /// chi-squares                                                                                                    
-    virtual double vertexChi2() const;
+    double vertexChi2() const override;
     /** Number of degrees of freedom                                                                                   
      *  Meant to be Double32_t for soft-assignment fitters:                                                            
      *  tracks may contribute to the vertex with fractional weights.                                                   
      *  The ndof is then = to the sum of the track weights.                                                            
      *  see e.g. CMS NOTE-2006/032, CMS NOTE-2004/002                                                                  
      */
-    virtual double vertexNdof() const;
+    double vertexNdof() const override;
     /// chi-squared divided by n.d.o.f.                                                                                
-    virtual double vertexNormalizedChi2() const;
+    double vertexNormalizedChi2() const override;
     /// (i, j)-th element of error matrix, i, j = 0, ... 2                                                             
-    virtual double vertexCovariance(int i, int j) const;
+    double vertexCovariance(int i, int j) const override;
     /// return SMatrix                                                                                                 
-    CovarianceMatrix vertexCovariance() const GCC11_FINAL  { CovarianceMatrix m; fillVertexCovariance(m); return m; }
+    CovarianceMatrix vertexCovariance() const final  { CovarianceMatrix m; fillVertexCovariance(m); return m; }
     /// fill SMatrix                                                                                                   
-    virtual void fillVertexCovariance(CovarianceMatrix & v) const;
+    void fillVertexCovariance(CovarianceMatrix & v) const override;
     /// returns true if this candidate has a reference to a master clone.                                              
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate                                      
-    virtual bool hasMasterClone() const;
+    bool hasMasterClone() const override;
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate                                
-    virtual const CandidateBaseRef & masterClone() const;
+    const CandidateBaseRef & masterClone() const override;
     /// returns true if this candidate has a ptr to a master clone.                                                    
     /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate                                   
-    virtual bool hasMasterClonePtr() const;
+    bool hasMasterClonePtr() const override;
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate                             
-    virtual const CandidatePtr & masterClonePtr() const;
+    const CandidatePtr & masterClonePtr() const override;
 
     /// cast master clone reference to a concrete type                                                                 
     template<typename Ref>
@@ -323,78 +246,29 @@ namespace reco {
       else return reco::numberOf<T, Tag>( * this );
     }
 
-    template<typename S>
-      struct daughter_iterator GCC11_FINAL  {
-        typedef boost::filter_iterator<S, const_iterator> type;
-      };
-
-    template<typename S>
-      typename daughter_iterator<S>::type beginFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, begin(), end());
-    }
-    template<typename S>
-      typename daughter_iterator<S>::type endFilter( const S & s ) const {
-      return boost::make_filter_iterator(s, end(), end());
-    }
 
 
-    virtual bool isElectron() const;
-    virtual bool isMuon() const;
-    virtual bool isStandAloneMuon() const;
-    virtual bool isGlobalMuon() const;
-    virtual bool isTrackerMuon() const;
-    virtual bool isCaloMuon() const;
-    virtual bool isPhoton() const;
-    virtual bool isConvertedPhoton() const;
-    virtual bool isJet() const;
+    bool isElectron() const override;
+    bool isMuon() const override;
+    bool isStandAloneMuon() const override;
+    bool isGlobalMuon() const override;
+    bool isTrackerMuon() const override;
+    bool isCaloMuon() const override;
+    bool isPhoton() const override;
+    bool isConvertedPhoton() const override;
+    bool isJet() const override;
 
-  protected:
-    /// electric charge                                                                   
-    Charge qx3_;
-    /// four-momentum Lorentz vector                                                      
-    float pt_, eta_, phi_, mass_;
-    /// vertex position                                                                   
-    Point vertex_;
-    /// PDG identifier                                                                    
-    int pdgId_;
-    /// status word                                                                       
-    int status_;
-    /// internal cache for p4                                                             
-    mutable PolarLorentzVector p4Polar_;
-    /// internal cache for p4                                                             
-    mutable LorentzVector p4Cartesian_;
-    /// has cache been set?                                                               
-    mutable  bool cachePolarFixed_, cacheCartesianFixed_;
-    /// set internal cache                                                                
-    inline void cachePolar() const {
-      if ( cachePolarFixed_ ) return;
-      p4Polar_ = PolarLorentzVector( pt_, eta_, phi_, mass_ );
-      cachePolarFixed_ = true;
-    }
-    /// set internal cache                                                                
-    inline void cacheCartesian() const {
-      if ( cacheCartesianFixed_ ) return;
-      cachePolar();
-      p4Cartesian_ = p4Polar_;
-      cacheCartesianFixed_ = true;
-    }
-    /// clear internal cache                                                              
-    inline void clearCache() const {
-      cachePolarFixed_ = false;
-      cacheCartesianFixed_ = false;
-    }
+  private:
+    ParticleState m_state;
+
+    private:
     /// check overlap with another Candidate                                              
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
     template<typename, typename, typename> friend struct component;
     friend class ::OverlapChecker;
     friend class ShallowCloneCandidate;
     friend class ShallowClonePtrCandidate;
 
-  private:
-    // const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
   };
 
 }

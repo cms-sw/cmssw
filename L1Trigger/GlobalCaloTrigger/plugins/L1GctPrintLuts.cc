@@ -156,10 +156,6 @@ L1GctPrintLuts::beginJob()
 int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
 {
   int success = 0;
-  if (&c==0) {
-    success = -1;
-    edm::LogWarning("L1GctConfigFailure") << "Cannot find EventSetup information." << std::endl;
-  }
 
   if (success == 0) {
     // get data from EventSetup

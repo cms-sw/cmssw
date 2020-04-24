@@ -142,7 +142,7 @@ void NuclearInteractionFinder::definePrimaryHelix(std::vector<TrajectoryMeasurem
 std::vector<TrajectoryMeasurement>
 NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double rescale, const LayerMeasurements & layerMeasurements) const
 {
-  TSOS currentState = lastMeas.updatedState();
+  const TSOS& currentState = lastMeas.updatedState();
   LogDebug("NuclearSeedGenerator") << "currentState :" << currentState << "\n";
 
   TSOS newState = rescaleError(rescale, currentState);
@@ -159,7 +159,7 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, Det
   vector<const DetLayer*> nl;
 
   if(lastLayer) {
-          nl = lastLayer->nextLayers( *currentState.freeState(), alongMomentum);
+          nl = theNavigationSchool->nextLayers(*lastLayer,*currentState.freeState(), alongMomentum);
   }
   else {
       edm::LogError("NuclearInteractionFinder") << "In findCompatibleMeasurements : lastLayer not accessible";
@@ -210,8 +210,8 @@ void NuclearInteractionFinder::fillSeeds( const std::pair<TrajectoryMeasurement,
              return;
 }
 //----------------------------------------------------------------------
-std::auto_ptr<TrajectorySeedCollection> NuclearInteractionFinder::getPersistentSeeds() {
-   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+std::unique_ptr<TrajectorySeedCollection> NuclearInteractionFinder::getPersistentSeeds() {
+   auto output = std::make_unique<TrajectorySeedCollection>();
    for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
        if(it_seed->isValid()) {
            output->push_back( it_seed->TrajSeed() );

@@ -13,6 +13,8 @@
   <use   name="Geometry/Records"/>
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
+  <use   name="CondFormats/RecoMuonObjects"/>
+  <use   name="CondFormats/DataRecord"/>
   <use   name="SimDataFormats/CrossingFrame"/>
   <use   name="SimDataFormats/TrackingHit"/>
   <use   name="SimDataFormats/TrackerDigiSimLink"/>

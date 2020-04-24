@@ -18,7 +18,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -32,18 +32,18 @@
 // class decleration
 //
 
-class TrackHistoryAnalyzer : public edm::EDAnalyzer
+class TrackHistoryAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
 
     explicit TrackHistoryAnalyzer(const edm::ParameterSet&);
-    ~TrackHistoryAnalyzer();
+    ~TrackHistoryAnalyzer() override;
 
 private:
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void beginJob() override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     // Member data
 
@@ -71,9 +71,10 @@ private:
 };
 
 
-TrackHistoryAnalyzer::TrackHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config)
+TrackHistoryAnalyzer::TrackHistoryAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
     trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+    consumes<edm::View<reco::Track>>(trackProducer_);
 }
 
 

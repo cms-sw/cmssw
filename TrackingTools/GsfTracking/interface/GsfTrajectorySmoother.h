@@ -18,7 +18,7 @@ class MultiTrajectoryStateMerger;
  *  testing purposes) without combination with the forward fit. 
  */
 
-class GsfTrajectorySmoother GCC11_FINAL : public TrajectorySmoother {
+class GsfTrajectorySmoother final : public TrajectorySmoother {
 
 private:
 
@@ -36,30 +36,28 @@ public:
 			const MultiTrajectoryStateMerger& merger,
 			float errorRescaling,
 			const bool materialBeforeUpdate = true,
-			const DetLayerGeometry* detLayerGeometry=0);
+			const DetLayerGeometry* detLayerGeometry=nullptr);
 
-  virtual ~GsfTrajectorySmoother();
+  ~GsfTrajectorySmoother() override;
 
-  virtual Trajectory trajectory(const Trajectory& aTraj) const;
+  Trajectory trajectory(const Trajectory& aTraj) const override;
 
-  /** propagator used (full propagator, if material effects are
-   * applied before the update, otherwise purely geometrical part)
-   */
-  const Propagator* propagator() const {
-    if ( thePropagator) return thePropagator;
-    else  return theGeomPropagator;
-  }
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
-  virtual GsfTrajectorySmoother* clone() const
+  GsfTrajectorySmoother* clone() const override
   {
-    return new GsfTrajectorySmoother(*thePropagator,*theUpdator,*theEstimator,
+    return new GsfTrajectorySmoother(*theAlongPropagator,*theUpdator,*theEstimator,
 				     *theMerger,theErrorRescaling,theMatBeforeUpdate,theGeometry);
   }
 
+  void setHitCloner(TkCloner const * hc)  override{
+  }
+
+
 private:
-  GsfPropagatorWithMaterial* thePropagator;
+  const GsfPropagatorWithMaterial* theAlongPropagator;
+  const GsfPropagatorWithMaterial* theOppositePropagator;
   const GsfPropagatorAdapter* theGeomPropagator;
   const FullConvolutionWithMaterial* theConvolutor;
   const TrajectoryStateUpdator* theUpdator;

@@ -22,6 +22,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -51,7 +53,7 @@ public:
     L1GtCastorTemplate(const L1GtCastorTemplate&);
 
     // destructor
-    virtual ~L1GtCastorTemplate();
+    ~L1GtCastorTemplate() override;
 
     // assign operator
     L1GtCastorTemplate& operator=(const L1GtCastorTemplate&);
@@ -59,7 +61,7 @@ public:
 public:
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GtCastorTemplate&);
@@ -69,6 +71,8 @@ private:
     /// copy function for copy constructor and operator=
     void copy(const L1GtCastorTemplate& cp);
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

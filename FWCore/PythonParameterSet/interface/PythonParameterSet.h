@@ -11,6 +11,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 #include <string>
 #include <vector>
@@ -95,7 +96,7 @@ public:
       return edm::ESInputTag(module, data);
    }
 
-   edm::EventID newEventID(unsigned int run, unsigned int lumi, unsigned int event) {
+   edm::EventID newEventID(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event) {
     return edm::EventID(run, lumi, event);
   }
 
@@ -108,8 +109,8 @@ public:
     return edm::LuminosityBlockRange(start, startSub, end, endSub);
   }
 
-  edm::EventRange newEventRange(unsigned int start, unsigned int startLumi, unsigned int startSub,
-                                unsigned int end,   unsigned int endLumi, unsigned int endSub) {
+  edm::EventRange newEventRange(edm::RunNumber_t start, edm::LuminosityBlockNumber_t startLumi, edm::EventNumber_t startSub,
+                                edm::RunNumber_t end,   edm::LuminosityBlockNumber_t endLumi, edm::EventNumber_t endSub) {
     return edm::EventRange(start, startLumi, startSub, end, endLumi, endSub);
   }
 

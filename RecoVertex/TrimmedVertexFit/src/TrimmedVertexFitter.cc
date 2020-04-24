@@ -23,7 +23,7 @@ CachingVertex<5>
 TrimmedVertexFitter::vertex(const std::vector<reco::TransientTrack> & tracks) const
 {
   std::vector<TransientVertex> vtces = theRector.vertices ( tracks );
-  if (vtces.size() )
+  if (!vtces.empty() )
   {
     const TransientVertex & rv = *(vtces.begin());
     LinearizedTrackStateFactory lfac;

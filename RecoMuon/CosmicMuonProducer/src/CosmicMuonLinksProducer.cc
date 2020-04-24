@@ -80,7 +80,13 @@ CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup)
   unsigned int counter= 0; ///DAMN I cannot read the label of the TOKEN so I need to do this stupid thing to create the labels of the products!
   for(std::vector<std::pair<edm::EDGetTokenT<reco::TrackCollection>,edm::EDGetTokenT<reco::TrackCollection> > >::const_iterator iLink = theTrackLinks.begin();
      iLink != theTrackLinks.end(); iLink++){
-    LogDebug(category_) << "making map between " << (*iLink).first<<" and "<< (*iLink).second;
+#ifdef EDM_ML_DEBUG
+    edm::EDConsumerBase::Labels labels_first;
+    edm::EDConsumerBase::Labels labels_second;
+    labelsForToken(iLink->first, labels_first);
+    labelsForToken(iLink->second, labels_second);
+    LogDebug(category_) << "making map between " << labels_first.module <<" and "<< labels_second.module;
+#endif
     std::string mapname = theTrackLinkNames[counter].first + "To" + theTrackLinkNames[counter].second;
     reco::TrackToTrackMap ttmap;
 
@@ -94,8 +100,7 @@ CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup)
     LogTrace(category_) << "Mapped: "<<
     theTrackLinkNames[counter].first  <<" "<<subTracks->size()<< " and "<<theTrackLinkNames[counter].second<<" "<<parentTracks->size()<<", results: "<< ttmap.size() <<endl;
 
-    auto_ptr<reco::TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap(ttmap));
-    iEvent.put(trackToTrackmap, mapname);
+    iEvent.put(std::make_unique<reco::TrackToTrackMap>(ttmap), mapname);
 
     counter++;
   }
@@ -103,7 +108,7 @@ CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup)
 }
 
 reco::TrackToTrackMap CosmicMuonLinksProducer::mapTracks(const Handle<reco::TrackCollection>& subTracks, const Handle<reco::TrackCollection>& parentTracks) const {
-  reco::TrackToTrackMap map;
+  reco::TrackToTrackMap map(subTracks, parentTracks) ;
   for ( unsigned int position1 = 0; position1 != subTracks->size(); ++position1) {
     TrackRef track1(subTracks, position1);
     for ( unsigned int position2 = 0; position2 != parentTracks->size(); ++position2) {

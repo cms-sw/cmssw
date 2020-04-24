@@ -177,8 +177,8 @@ ostream& reco::operator<<(ostream& out,
   out<<resetiosflags(ios::right|ios::fixed);
   
   out<<"\tdaughters : ";
-  for(unsigned i=0; i<particle.daughterIds_.size(); i++) 
-    out<<particle.daughterIds_[i]<<" ";
+  for(unsigned i=0; i<particle.daughterIds().size(); i++) 
+    out<<particle.daughterIds()[i]<<" ";
   
   //   out<<endl;
   //   for(unsigned i=0; i<particle.trajectoryPoints_.size(); i++) 

@@ -5,19 +5,19 @@
 
 #include <memory>
 #include <fstream>
-#include <FWCore/Framework/interface/Frameworkfwd.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
-#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 
 #include "Validation/MuonRPCGeometry/plugins/RPCGeometryServTest.h"
@@ -73,9 +73,9 @@ RPCGeometryServTest::analyze( const edm::Event& iEvent, const edm::EventSetup& i
     
     //----------------------- RPCCHAMBER TEST ---------------------------
 
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
       ++iRPCCHcount;
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       
       std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();

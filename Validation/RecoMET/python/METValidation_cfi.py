@@ -7,9 +7,9 @@ import FWCore.ParameterSet.Config as cms
 # Fill validation histograms for MET
 metAnalyzer = cms.EDAnalyzer(
     "METTester",
-    OutputFile = cms.untracked.string(''),
-    InputMETLabel = cms.InputTag("met"),
-    METType = cms.untracked.string("calo")
+    InputMETLabel = cms.InputTag("caloMet"),
+    METType = cms.untracked.string("calo"),
+    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
     )
 
 #metHOAnalyzer = cms.EDAnalyzer(
@@ -56,39 +56,38 @@ metAnalyzer = cms.EDAnalyzer(
 
 pfMetAnalyzer = cms.EDAnalyzer(
    "METTester",
-   OutputFile = cms.untracked.string(''),
    InputMETLabel = cms.InputTag("pfMet"),
-    METType = cms.untracked.string("pf")
+   METType = cms.untracked.string("pf"),
+   PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
    ) 
 
-tcMetAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string(''),
-    InputMETLabel = cms.InputTag("tcMet"),
-    InputCaloMETLabel = cms.InputTag("met"),
-    InputTrackLabel = cms.InputTag("generalTracks"),
-    InputMuonLabel = cms.InputTag("muons"),
-    InputElectronLabel = cms.InputTag("gedGsfElectrons"),
-    InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
-    sample = cms.untracked.string('NULL'),
-    minhits = cms.int32(6),
-    maxd0 = cms.double(0.1),
-    maxchi2 = cms.double(5),
-    maxeta = cms.double(2.65),
-    maxpt = cms.double(100.),
-    maxPtErr = cms.double(0.2),
-    trkQuality = cms.vint32(2),
-    trkAlgos = cms.vint32(),
-    METType = cms.untracked.string("tc")
-    ) 
+#tcMetAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string(''),
+#    InputMETLabel = cms.InputTag("tcMet"),
+#    InputCaloMETLabel = cms.InputTag("caloMet"),
+#    InputTrackLabel = cms.InputTag("generalTracks"),
+#    InputMuonLabel = cms.InputTag("muons"),
+#    InputElectronLabel = cms.InputTag("gedGsfElectrons"),
+#    InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
+#    sample = cms.untracked.string('NULL'),
+#    minhits = cms.int32(6),
+#    maxd0 = cms.double(0.1),
+#    maxchi2 = cms.double(5),
+#    maxeta = cms.double(2.65),
+#    maxpt = cms.double(100.),
+#    maxPtErr = cms.double(0.2),
+#    trkQuality = cms.vint32(2),
+#    trkAlgos = cms.vint32(),
+#    METType = cms.untracked.string("tc")
+#    ) 
 
-corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
-    "METTester",
-     OutputFile = cms.untracked.string(''),
-    InputMETLabel = cms.InputTag("corMetGlobalMuons"),
-    METType = cms.untracked.string("cor")
-
-    ) 
+#corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#     OutputFile = cms.untracked.string(''),
+#    InputMETLabel = cms.InputTag("caloMetM"),
+#    METType = cms.untracked.string("cor")
+#    ) 
 
 
 #genMptTrueAnalyzer = cms.EDAnalyzer(
@@ -99,9 +98,9 @@ corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
 
 genMetTrueAnalyzer = cms.EDAnalyzer(
     "METTester",
-    OutputFile = cms.untracked.string(''),
     InputMETLabel = cms.InputTag("genMetTrue"),
-    METType = cms.untracked.string("gen")
+    METType = cms.untracked.string("gen"),
+    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
     )
 
 #genMetCaloAnalyzer = cms.EDAnalyzer(
@@ -124,21 +123,32 @@ genMetTrueAnalyzer = cms.EDAnalyzer(
 #    )
 pfType0CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
-   OutputFile = cms.untracked.string(''),
-   InputMETLabel = cms.InputTag("pfType0CorrectedMet"),
-    METType = cms.untracked.string("pf")
+   InputMETLabel = cms.InputTag("pfMetT0pc"),
+   METType = cms.untracked.string("pf"),
+   PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
    )
 pfType1CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
-   OutputFile = cms.untracked.string(''),
-   InputMETLabel = cms.InputTag("pfType1CorrectedMet"),
-    METType = cms.untracked.string("pf")
+   InputMETLabel = cms.InputTag("PfMetT1"),
+   METType = cms.untracked.string("pf"),
+   PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
    )
 pfType01CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
-   OutputFile = cms.untracked.string(''),
-   InputMETLabel = cms.InputTag("pfType01CorrectedMet"),
-    METType = cms.untracked.string("pf")
+   InputMETLabel = cms.InputTag("PfMetT0pcT1"),
+   METType = cms.untracked.string("pf"),
+   PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
+   )
+pfType1CorrectedMetAnalyzerMiniAOD = cms.EDAnalyzer(
+   "METTester",
+   InputMETLabel = cms.InputTag("slimmedMETs"),
+   METType = cms.untracked.string("miniaod"),
+   PrimaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
    )
 
-
+pfPuppiMetAnalyzerMiniAOD = cms.EDAnalyzer(
+   "METTester",
+   InputMETLabel = cms.InputTag("slimmedMETsPuppi"),
+   METType = cms.untracked.string("miniaod"),
+   PrimaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+   )

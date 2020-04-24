@@ -1,6 +1,8 @@
 #ifndef CSCObjects_CSCDBL1TPParameters_h
 #define CSCObjects_CSCDBL1TPParameters_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /** \class CSCDBL1TPParameters
  *  \author Slava Valuev
  *
@@ -240,6 +242,8 @@ class CSCDBL1TPParameters
   unsigned int m_alct_trig_enable, m_clct_trig_enable;
   unsigned int m_match_trig_enable;
   unsigned int m_match_trig_window_size, m_tmb_l1a_window_size;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -9,11 +9,11 @@
 class OrderedHitTriplets : public std::vector<OrderedHitTriplet>, public OrderedSeedingHits {
 public:
 
-  virtual ~OrderedHitTriplets(){}
+  ~OrderedHitTriplets() override{}
 
-  virtual unsigned int size() const { return std::vector<OrderedHitTriplet>::size(); }
+  unsigned int size() const override { return std::vector<OrderedHitTriplet>::size(); }
 
-  virtual const OrderedHitTriplet & operator[](unsigned int i) const {
+  const OrderedHitTriplet & operator[](unsigned int i) const override {
     return std::vector<OrderedHitTriplet>::operator[](i);
   }
 

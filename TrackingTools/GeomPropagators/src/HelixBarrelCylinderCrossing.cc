@@ -123,7 +123,7 @@ HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
 
   auto dMag1 = d1.mag();
   auto tmp1 = 0.5f * dMag1 * float(rho);
-  if (std::abs(tmp1)>1.f) tmp1 = ::copysign(1.f,tmp1);
+  if (std::abs(tmp1)>1.f) tmp1 = std::copysign(1.f,tmp1);
   auto theS1 = theActualDir1 * 2.f* std::asin( tmp1 ) / (rho*sinTheta);
   thePos1 =  GlobalPoint( startingPos.x() + d1.x(),
 			  startingPos.y() + d1.y(),
@@ -132,7 +132,7 @@ HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
 
   auto dMag2 = d2.mag();
   auto tmp2 = 0.5f * dMag2 * float(rho);
-  if (std::abs(tmp2)>1.f) tmp2 = ::copysign(1.,tmp2);
+  if (std::abs(tmp2)>1.f) tmp2 = std::copysign(1.f,tmp2);
   auto theS2 = theActualDir2 * 2.f* std::asin( tmp2 ) / (float(rho)*sinTheta);
   thePos2 =  GlobalPoint( startingPos.x() + d2.x(),
 			  startingPos.y() + d2.y(),

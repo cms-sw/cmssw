@@ -28,6 +28,11 @@ SiStripDigiValidator::SiStripDigiValidator(const edm::ParameterSet& conf)
      << "\""
      << std::endl;
   header_ = ss.str();
+  
+  mayConsume< edm::DetSetVector<SiStripDigi> >( tag1_ );
+  mayConsume< edm::DetSetVector<SiStripRawDigi> >( tag1_ );
+  mayConsume< edm::DetSetVector<SiStripDigi> >( tag2_ );
+  mayConsume< edm::DetSetVector<SiStripRawDigi> >( tag2_ );
 }
 
 SiStripDigiValidator::~SiStripDigiValidator()

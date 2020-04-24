@@ -45,9 +45,6 @@ private:
 
   std::vector<TrackFP420> rhits; 
 
-  FP420NumberingScheme * theFP420NumberingScheme;
-
-
  // Number of Stations:
  int sn0;
  // Number of superplanes:

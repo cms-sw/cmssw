@@ -69,7 +69,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 //=============================================================================
 template <class IDdet>
@@ -720,7 +720,7 @@ getMeanPartialSolution( IDdet id ) const
     {
       int i = cell->second;
       int   n      = sumPartSolu0[ i ];
-      float meanX  = sumPartSolu1[ i ] / n;
+      meanX  = sumPartSolu1[ i ] / n;
     }
   return meanX;
 

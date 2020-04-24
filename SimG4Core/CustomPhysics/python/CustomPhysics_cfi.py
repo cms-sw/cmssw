@@ -12,11 +12,13 @@ customPhysicsSetup = cms.PSet(
     amplitude = cms.double(100.0), ##
 
     # R-hadron physics setup
+    rhadronPhysics = cms.bool(True),
     resonant = cms.bool(False),
     gamma = cms.double(0.1),
     reggeModel = cms.bool(False),
     hadronLifeTime = cms.double(-1.),
-    mixing = cms.double(1.)
+    mixing = cms.double(1.),
 
+    # dark photon
+    dark_factor = cms.double(1.0)
 )
-

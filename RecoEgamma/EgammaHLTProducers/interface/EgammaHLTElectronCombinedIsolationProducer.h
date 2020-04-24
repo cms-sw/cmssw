@@ -33,8 +33,8 @@ namespace edm {
 class EgammaHLTElectronCombinedIsolationProducer : public edm::EDProducer {
 public:
   explicit EgammaHLTElectronCombinedIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTElectronCombinedIsolationProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~EgammaHLTElectronCombinedIsolationProducer() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

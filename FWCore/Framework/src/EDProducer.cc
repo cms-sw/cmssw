@@ -8,31 +8,43 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "SharedResourcesRegistry.h"
 
 namespace edm {
   EDProducer::EDProducer() :
       ProducerBase(),
       moduleDescription_(),
       previousParentage_(),
-      previousParentageId_() { }
+      previousParentageId_() {
+        SharedResourcesRegistry::instance()->registerSharedResource(
+                                                                    SharedResourcesRegistry::kLegacyModuleResourceName);
+      }
 
   EDProducer::~EDProducer() { }
 
   bool
-  EDProducer::doEvent(EventPrincipal& ep, EventSetup const& c,
+  EDProducer::doEvent(EventPrincipal const& ep, EventSetup const& c,
+                      ActivityRegistry* act,
                       ModuleCallingContext const* mcc) {
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
+    e.setProducer(this, &previousParentage_);
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
     this->produce(e, c);
-    commit_(e, &previousParentage_, &previousParentageId_);
+    commit_(e, &previousParentageId_);
     return true;
   }
 
   void 
   EDProducer::doBeginJob() {
+    std::vector<std::string> res = {SharedResourcesRegistry::kLegacyModuleResourceName};
+    resourceAcquirer_ = SharedResourcesRegistry::instance()->createAcquirer(res);
     this->beginJob();
   }
   
@@ -42,7 +54,7 @@ namespace edm {
   }
 
   void
-  EDProducer::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+  EDProducer::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                          ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
@@ -52,7 +64,7 @@ namespace edm {
   }
 
   void
-  EDProducer::doEndRun(RunPrincipal& rp, EventSetup const& c,
+  EDProducer::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                        ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
@@ -62,7 +74,7 @@ namespace edm {
   }
 
   void
-  EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                      ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
@@ -72,7 +84,7 @@ namespace edm {
   }
 
   void
-  EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
@@ -91,16 +103,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void 
-  EDProducer::doPreForkReleaseResources() {
-    preForkReleaseResources();
-  }
-  
-  void 
-  EDProducer::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReacquireResources(iChildIndex, iNumberOfChildren);
-  }
-  
   void
   EDProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;

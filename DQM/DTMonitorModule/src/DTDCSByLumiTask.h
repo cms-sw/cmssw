@@ -18,6 +18,12 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <vector>
@@ -27,7 +33,7 @@ class DQMStore;
 class MonitorElement;
 class DTHVStatus;
 
-class DTDCSByLumiTask: public edm::EDAnalyzer{
+class DTDCSByLumiTask: public DQMEDAnalyzer{
 
 public:
 
@@ -35,30 +41,24 @@ public:
   DTDCSByLumiTask(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~DTDCSByLumiTask();
+  ~DTDCSByLumiTask() override;
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// Begin Run
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  /// Book Monitor Elements
-  void bookHistos();
-
-  /// By Lumi DCS DB Operation
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   /// By Lumi DCS DB Operation
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup);
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
+
+  /// By Lumi DCS DB Operation
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 
@@ -69,7 +69,6 @@ private:
 
   bool DTHVRecordFound;
 
-  DQMStore* theDQMStore;
   edm::ESHandle<DTGeometry> theDTGeom;
   // CB Get HV DB and loop on half layers
   edm::ESHandle<DTHVStatus> hvStatus;

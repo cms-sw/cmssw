@@ -3,14 +3,15 @@
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <vector>
+#include <memory>
 #include "FWCore/ParameterSet/interface/types.h"
 
 #include <ext/pool_allocator.h>
@@ -33,7 +34,7 @@ class GeometricDet {
   typedef DDExpandedView::NavRange NavRange;
 
   typedef std::vector< GeometricDet const *>  ConstGeometricDetContainer;
-  typedef std::vector< GeometricDet const *>  GeometricDetContainer;
+  typedef std::vector< GeometricDet *>  GeometricDetContainer;
 
 #ifdef PoolAlloc  
   typedef std::vector< DDExpandedNode, PoolAlloc<DDExpandedNode> > GeoHistory;
@@ -51,7 +52,14 @@ class GeometricDet {
   typedef enum GDEnumType {unknown=100, Tracker=0, PixelBarrel=1, PixelEndCap=2,
 			  TIB=3, TID=4, TOB=5, TEC=6,
 			  layer=8, wheel=9, strng=10, rod=11, petal=12, ring=13,
-			   ladder=14, mergedDet=15, DetUnit=16, disk=17, panel=18, PixelEndCapPhase1=20 } GeometricEnumType;
+			   ladder=14, mergedDet=15, DetUnit=16, disk=17, panel=18, 
+			   PixelPhase1Barrel=101,
+			   PixelPhase1EndCap=102, PixelPhase1Disk=117,
+			   OTPhase2EndCap=204, OTPhase2Barrel=205, OTPhase2Layer=208, OTPhase2Stack=215,
+			   PixelPhase2Barrel=201, PixelPhase2EndCap=202, OTPhase2Wheel=209,
+			   PixelPhase2FullDisk=217,PixelPhase2ReducedDisk=227,
+			   PixelPhase2TDRDisk=237 } GeometricEnumType;
+			   // PixelV4021Barrel=301, PixelV4021EndCap=302 } GeometricEnumType;
   /**
    * Constructors to be used when looping over DDD
    */
@@ -71,7 +79,7 @@ class GeometricDet {
   /**
    * set or add or clear components
    */
-  void setGeographicalID(DetId id) const {
+  void setGeographicalID(DetId id) {
     _geographicalID = id; 
     //std::cout <<"setGeographicalID " << int(id) << std::endl;
   }
@@ -82,6 +90,7 @@ class GeometricDet {
   }
 #endif
   void addComponents(GeometricDetContainer const & cont);
+  void addComponents(ConstGeometricDetContainer const & cont);
   void addComponent(GeometricDet*);
   /**
    * clearComponents() only empties the container, the components are not deleted!
@@ -102,6 +111,10 @@ class GeometricDet {
     return _container.empty(); 
   }
   
+  GeometricDet* component(size_t index) {
+    return const_cast<GeometricDet*>(_container[index]);
+  }
+
   /**
    * Access methods
    */
@@ -160,11 +173,11 @@ class GeometricDet {
    * components() returns explicit components; please note that in case of a leaf 
    * GeometricDet it returns nothing (an empty vector)
    */
-  GeometricDetContainer & components() {
+  ConstGeometricDetContainer & components() {
     //std::cout << "components1" <<std::endl;
     return _container;
   }  
-  GeometricDetContainer const & components() const {
+  ConstGeometricDetContainer const & components() const {
     //std::cout<<"const components2 "<<std::endl;
     return _container;
   }
@@ -175,7 +188,7 @@ class GeometricDet {
    */
 
   ConstGeometricDetContainer deepComponents() const;
-  void deepComponents(GeometricDetContainer & cont) const;
+  void deepComponents(ConstGeometricDetContainer & cont) const;
 
 #ifdef GEOMETRICDETDEBUG
   //rr
@@ -214,7 +227,7 @@ class GeometricDet {
   /**
    *bounds() returns the Bounds.
    */
-   Bounds * bounds() const; 
+  std::unique_ptr<Bounds> bounds() const; 
 #ifdef GEOMETRICDETDEBUG
   int copyno() const {
     //std::cout<<"copyno"<<std::endl;
@@ -289,7 +302,7 @@ class GeometricDet {
 
  private:
 
-  GeometricDetContainer _container;
+  ConstGeometricDetContainer _container;
   DDTranslation _trans;
   double _phi;
   double _rho;
@@ -299,8 +312,8 @@ class GeometricDet {
   DDName _ddname;
   GeometricEnumType _type;
   std::vector<double> _params;
-  //FIXME
-  mutable DetId _geographicalID;
+
+  DetId _geographicalID;
 #ifdef GEOMETRICDETDEBUG
   GeoHistory _parents;
   double _volume;

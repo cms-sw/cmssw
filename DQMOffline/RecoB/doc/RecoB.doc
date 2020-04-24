@@ -41,7 +41,7 @@ offline DQM package for b-tagging : allowed to produce histograms for the differ
 - Tools
 - TrackCountingTagPlotter : similar at TrackIPTagPlotter but specialized for TrackCounting variables
 - TrackIPHistograms
-- TrackIPTagPlotter : plot distributions for all variables related to the track selection and properties (number of (pixel) hits, track pt, track multiplicity, distance to jet axis...)
+- IPTagPlotter : plot distributions for all variables related to the track selection and properties (number of (pixel) hits, track pt, track multiplicity, distance to jet axis...)
 - TrackProbabilityTagPlotter : similar to TrackIPTagPlotter but specialized for TrackProbability variables
 
 

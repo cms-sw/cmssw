@@ -33,11 +33,11 @@ class FWDigitSetProxyBuilder : public FWProxyBuilderBase
 
 public:
    FWDigitSetProxyBuilder();
-   virtual ~FWDigitSetProxyBuilder();
+   ~FWDigitSetProxyBuilder() override;
 
    // ---------- const member functions ---------------------
 
-   virtual bool willHandleInteraction() const { return true; }
+   bool willHandleInteraction() const override { return true; }
 
    // ---------- static member functions --------------------
 
@@ -52,7 +52,7 @@ protected:
       Int_t  fValue;  
       void  *fUserData;
       Float_t fVertices[8][3]; 
-      BFreeBox_t(Int_t v=0) : fValue(v), fUserData(0) {}
+      BFreeBox_t(Int_t v=0) : fValue(v), fUserData(nullptr) {}
    };
 
 
@@ -61,13 +61,13 @@ protected:
    TEveBoxSet* getBoxSet() const { return m_boxSet; } 
 
 private:
-   FWDigitSetProxyBuilder(const FWDigitSetProxyBuilder&); // stop default
+   FWDigitSetProxyBuilder(const FWDigitSetProxyBuilder&) = delete; // stop default
 
-   const FWDigitSetProxyBuilder& operator=(const FWDigitSetProxyBuilder&); // stop default
+   const FWDigitSetProxyBuilder& operator=(const FWDigitSetProxyBuilder&) = delete; // stop default
 
    // ---------- member data --------------------------------
 
-   virtual void modelChanges(const FWModelIds&, Product*);
+   void modelChanges(const FWModelIds&, Product*) override;
  
    static TString getTooltip(TEveDigitSet* set, int idx);
 

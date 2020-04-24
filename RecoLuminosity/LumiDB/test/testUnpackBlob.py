@@ -37,7 +37,7 @@ def beamintensityForRun(dbsession,c,runnum):
         query.defineOutput(myOutput)
         cursor=query.execute()
         
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             bxindex=cursor.currentRow()['bxindexBlob'].data()
             beam1intensity=cursor.currentRow()['beam1intensityBlob'].data()
@@ -67,7 +67,7 @@ def beamintensityForRun(dbsession,c,runnum):
                         print '%4d,%4d,%4d,%.3e,%.3e'%(cmslsnum,pos,bxidx,beam1intensityarray[pos],beam2intensityarray[pos])
         del query
         dbsession.transaction().commit()
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession    
@@ -106,7 +106,7 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
         query.defineOutput(detailOutput)
         cursor=query.execute()
         
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             algoname=cursor.currentRow()['algoname'].data()
             bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
@@ -133,7 +133,7 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
         del query
         dbsession.transaction().commit()
         
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -161,7 +161,7 @@ def detailForRunLumisummaryV2(dbsession,c,runnum):
         query.defineOutput(detailOutput)
         cursor=query.execute()
         
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
             a=array.array('f')
@@ -174,7 +174,7 @@ def detailForRunLumisummaryV2(dbsession,c,runnum):
         del query
         dbsession.transaction().commit()
         
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession

@@ -2,20 +2,13 @@
 #define DataFormats_SiPixelRecHitQuality_h 1
 
 //--- pow():
-#include <math.h>
-
-//--- &&& I'm not sure why we need this. [Petar]
-#include <utility>
-
-//--- uint32_t definition:
-#include <boost/cstdint.hpp>
-
+#include <cmath>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 class SiPixelRecHitQuality {
  public:
-  typedef uint32_t QualWordType;
+  typedef unsigned int QualWordType;
   
   
  public:

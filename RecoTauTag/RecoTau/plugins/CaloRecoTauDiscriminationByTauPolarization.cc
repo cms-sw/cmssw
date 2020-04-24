@@ -6,6 +6,8 @@
  * contributors : Sami Lehti (sami.lehti@cern.ch ; HIP, Helsinki)
  */
 
+
+namespace {
 using namespace reco;
 using namespace std;
 
@@ -18,8 +20,8 @@ class CaloRecoTauDiscriminationByTauPolarization : public CaloTauDiscriminationP
           booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
         }
 
-    ~CaloRecoTauDiscriminationByTauPolarization(){}
-    double discriminate(const CaloTauRef&) override;
+    ~CaloRecoTauDiscriminationByTauPolarization() override{}
+    double discriminate(const CaloTauRef&) const override;
 
   private:
     bool booleanOutput;
@@ -27,12 +29,12 @@ class CaloRecoTauDiscriminationByTauPolarization : public CaloTauDiscriminationP
 };
 
 double
-CaloRecoTauDiscriminationByTauPolarization::discriminate(const CaloTauRef& tau){
+CaloRecoTauDiscriminationByTauPolarization::discriminate(const CaloTauRef& tau) const {
   double rTau = 0;
   if(tau.isNonnull() && tau->p() > 0 && tau->leadTrack().isNonnull())
     rTau = tau->leadTrack()->p()/tau->p();
   if(booleanOutput) return ( rTau > rTauMin ? 1. : 0. );
   return rTau;
 }
-
+}
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByTauPolarization);

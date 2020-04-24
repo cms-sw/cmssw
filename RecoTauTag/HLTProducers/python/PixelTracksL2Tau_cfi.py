@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi import *
-from RecoTauTag.HLTProducers.TrackingRegionsFromBeamSpotAndL2Tau_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks as _pixelTracks
+from RecoTauTag.HLTProducers.trackingRegionsFromBeamSpotAndL2Tau_cfi import trackingRegionsFromBeamSpotAndL2Tau
 
-pixelTracksL2Tau = pixelTracks.clone()
-pixelTracksL2Tau.RegionFactoryPSet = cms.PSet(
-    TrackingRegionsFromBeamSpotAndL2TauBlock,
-    ComponentName = cms.string( "TrackingRegionsFromBeamSpotAndL2Tau" )
-)
+# Note from new seeding framework migration
+# Previously the TrackingRegion was set as a parameter of PixelTrackProducer
+# Now the TrackingRegion EDProducer must be inserted in a sequence, and set as an input to HitPairEDProducer
+
+pixelTracksL2Tau = _pixelTracks.clone()
 pixelTracksL2Tau.passLabel  = cms.string('pixelTracksL2Tau')
 

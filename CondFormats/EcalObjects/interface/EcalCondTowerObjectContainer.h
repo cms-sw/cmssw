@@ -1,6 +1,8 @@
 #ifndef ECAL_CONDTOWER_OBJECT_CONTAINER_HH
 #define ECAL_CONDTOWER_OBJECT_CONTAINER_HH
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
@@ -98,23 +100,13 @@ class EcalCondTowerObjectContainer {
 
                 inline
                 Item & operator[]( uint32_t rawId ) 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
                 {
                         DetId id(rawId);
-
-                        if( id.subdetId() == EcalBarrel || id.subdetId() == EcalTriggerTower )   { 
-			  return eb_[rawId];
-			} else if(  id.subdetId() == EcalEndcap  ) { 
-			  return ee_[rawId];
-			} else {
-                          thread_local static Item dummy;
-			  return dummy;
-                        }
+                         return ( (id.subdetId() == EcalBarrel) | (id.subdetId() == EcalTriggerTower) ) ?  
+			  eb_[rawId] :
+			  ee_[rawId];
                 }
-#else
-  ;
-#endif
-                
+
                 inline
                 Item operator[]( uint32_t rawId ) const {
                         DetId id(rawId);
@@ -131,6 +123,8 @@ class EcalCondTowerObjectContainer {
         private:
                 EcalContainer< EcalTrigTowerDetId , Item > eb_;
                 EcalContainer< EcalScDetId , Item > ee_;
+
+    COND_SERIALIZABLE;
 };
 
 typedef EcalCondTowerObjectContainer<float> EcalTowerFloatCondObjectContainer;

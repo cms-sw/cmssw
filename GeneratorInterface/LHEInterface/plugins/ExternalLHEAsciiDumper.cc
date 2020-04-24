@@ -42,6 +42,8 @@ private:
   edm::InputTag lheProduct_;
   std::string   lheFileName_;
 
+  edm::EDGetTokenT<LHEXMLStringProduct> LHEAsciiToken_;
+
   // ----------member data ---------------------------
   
 };
@@ -50,6 +52,8 @@ ExternalLHEAsciiDumper::ExternalLHEAsciiDumper(const edm::ParameterSet& ps):
   lheProduct_( ps.getParameter<edm::InputTag>("lheProduct") ),
   lheFileName_( ps.getParameter<std::string>("lheFileName") )
 {
+  
+  LHEAsciiToken_ = consumes <LHEXMLStringProduct,edm::InRun> (edm::InputTag(lheProduct_));
   
   return;
   
@@ -70,27 +74,46 @@ void
 ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
 
   edm::Handle< LHEXMLStringProduct > LHEAscii;
-  iRun.getByLabel(lheProduct_,LHEAscii);
+  iRun.getByToken(LHEAsciiToken_,LHEAscii);
   
   const std::vector<std::string>& lheOutputs = LHEAscii->getStrings();
 
+  unsigned int iout = 0;
+  
   size_t lastdot = lheFileName_.find_last_of(".");
   std::string basename = lheFileName_.substr(0, lastdot);
   std::string extension = lastdot != std::string::npos ?  lheFileName_.substr(lastdot+1, std::string::npos) : "";
 
   for (unsigned int i = 0; i < lheOutputs.size(); ++i){
     std::ofstream outfile;
-    if (i == 0)
+    if (iout == 0)
       outfile.open (lheFileName_.c_str(), std::ofstream::out | std::ofstream::app);
     else {
       std::stringstream fname;
-      fname << basename << "_" << i ;
+      fname << basename << "_" << iout ;
       if (extension != "")
         fname << "." << extension;
       outfile.open (fname.str().c_str(), std::ofstream::out | std::ofstream::app);
     }
     outfile << lheOutputs[i];
     outfile.close();
+    ++iout;
+  }
+  
+  for (unsigned int i = 0; i < LHEAscii->getCompressed().size(); ++i){
+    std::ofstream outfile;
+    if (iout == 0)
+      outfile.open (lheFileName_.c_str(), std::ofstream::out | std::ofstream::app);
+    else {
+      std::stringstream fname;
+      fname << basename << "_" << iout ;
+      if (extension != "")
+        fname << "." << extension;
+      outfile.open (fname.str().c_str(), std::ofstream::out | std::ofstream::app);
+    }
+    LHEAscii->writeCompressedContent(outfile,i);
+    outfile.close();
+    ++iout;
   }
 
 }

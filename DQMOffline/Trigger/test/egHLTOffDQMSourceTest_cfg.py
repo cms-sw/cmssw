@@ -10,9 +10,8 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 #load and setup E/g HLT Offline DQM module
 process.load("DQMOffline.Trigger.EgHLTOfflineSource_cfi")
-#process.load("DQMOffline.Trigger.TopElectronHLTOfflineSource_cfi")
 #load calo geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
@@ -98,7 +97,6 @@ process.FEVT.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConv
 
 #monitor elements are converted to EDM format to store in CMSSW file
 #client will convert them back before processing
-#process.psource = cms.Path(process.topElectronHLTOffDQMSource*process.egHLTOffDQMSource*process.hltTrigReport*process.MEtoEDMConverter)
 process.psource = cms.Path(process.egHLTOffDQMSource*process.MEtoEDMConverter)
 process.outpath = cms.EndPath(process.FEVT)
 process.MEtoEDMConverter.Verbosity = 0

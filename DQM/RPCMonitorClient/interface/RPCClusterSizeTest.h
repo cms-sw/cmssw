@@ -4,11 +4,6 @@
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
 
 class RPCClusterSizeTest:public RPCClient{
  public:
@@ -17,31 +12,12 @@ class RPCClusterSizeTest:public RPCClient{
   RPCClusterSizeTest(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~RPCClusterSizeTest();
+  ~RPCClusterSizeTest() override;
+ void clientOperation() override;
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &) override;
+ void beginJob(std::string & ) override;
+ void myBooker(DQMStore::IBooker & ) override;
 
-  /// BeginJob
-  void beginJob(DQMStore *, std::string);
-
-  //Begin Run
-  void endRun(const edm::Run& r, const edm::EventSetup& c );
-
-
-  /// Begin Lumi block
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Analyze
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
-
-  /// End Lumi Block
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-
-  void  endJob(void);
-
-  void  beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  void  clientOperation(edm::EventSetup const& c);
-
-  void  getMonitorElements(std::vector<MonitorElement *> & , std::vector<RPCDetId> &);
 
  private:
 
@@ -50,7 +26,6 @@ class RPCClusterSizeTest:public RPCClient{
   int numberOfRings_;
   int prescaleFactor_;
   bool testMode_;
-  DQMStore* dbe_;
   bool useRollInfo_;
   std::vector<MonitorElement *>  myClusterMe_;
   std::vector<RPCDetId>   myDetIds_;

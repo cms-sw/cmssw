@@ -7,5 +7,6 @@
  <use name="DataFormats/TrackReco"/>
  <use name="Fireworks/ParticleFlow"/>
  <lib name="Eve"/>
+ <lib name="RGL"/>
  <flags EDM_PLUGIN="1"/>
 </library>

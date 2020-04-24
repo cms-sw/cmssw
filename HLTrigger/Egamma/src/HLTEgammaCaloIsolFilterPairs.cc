@@ -44,7 +44,7 @@ HLTEgammaCaloIsolFilterPairs::HLTEgammaCaloIsolFilterPairs(const edm::ParameterS
   if(AlsoNonIso_1 || AlsoNonIso_2) nonIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(nonIsoTag_);
 }
 
-HLTEgammaCaloIsolFilterPairs::~HLTEgammaCaloIsolFilterPairs(){}
+HLTEgammaCaloIsolFilterPairs::~HLTEgammaCaloIsolFilterPairs()= default;
 
 void
 HLTEgammaCaloIsolFilterPairs::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -81,6 +81,7 @@ HLTEgammaCaloIsolFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetu
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
+  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
 
   //get hold of ecal isolation association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;

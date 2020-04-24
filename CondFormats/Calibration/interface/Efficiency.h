@@ -6,6 +6,8 @@
  * at the moment though all derived classes better sit in the same package together with the base one
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<cmath>
 #include<iostream>
 
@@ -27,7 +29,9 @@ namespace condex {
 
     virtual float value(float pt, float eta) const=0;
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 
   class ParametricEfficiencyInPt : public Efficiency {
@@ -38,7 +42,7 @@ namespace condex {
       cutLow(cm), cutHigh(ch),
       low(el), high(eh){}
   private:
-    virtual float value(float pt, float) const {
+    float value(float pt, float) const override {
       if ( pt<low) return cutLow;
       if ( pt>high) return cutHigh;
       return cutLow + (pt-low)/(high-low)*(cutHigh-cutLow);
@@ -46,7 +50,9 @@ namespace condex {
     float cutLow, cutHigh;
     float low, high;
 
-  };  
+  
+  COND_SERIALIZABLE;
+};  
 
 class ParametricEfficiencyInEta : public Efficiency {
   public:
@@ -56,7 +62,7 @@ class ParametricEfficiencyInEta : public Efficiency {
       cutLow(cmin), cutHigh(cmax),
       low(el), high(eh){}
   private:
-    virtual float value(float, float eta) const {
+    float value(float, float eta) const override {
       eta = std::abs(eta);
       if ( eta<low) return cutLow;
       if ( eta>high) return cutHigh;
@@ -65,7 +71,9 @@ class ParametricEfficiencyInEta : public Efficiency {
     float cutLow, cutHigh;
     float low, high;
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 }
 

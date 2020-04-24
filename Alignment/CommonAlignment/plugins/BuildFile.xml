@@ -1,0 +1,8 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/RunInfo"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="DataFormats/TrackReco"/>
+<flags EDM_PLUGIN="1"/>

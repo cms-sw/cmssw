@@ -1,6 +1,8 @@
 #ifndef CondFormats_SiStripObjects_SiStripFedCabling_H
 #define CondFormats_SiStripObjects_SiStripFedCabling_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/range/iterator_range.hpp>
 #include <boost/cstdint.hpp>
@@ -11,11 +13,9 @@
 #define SISTRIPCABLING_USING_NEW_STRUCTURE
 #define SISTRIPCABLING_USING_NEW_INTERFACE
 
+class TrackerTopology;
 
 class SiStripFedCabling;
-
-/** Debug info for SiStripFedCabling class. */
-std::ostream& operator<< ( std::ostream&, const SiStripFedCabling& );
 
 /** 
     \class SiStripFedCabling 
@@ -89,21 +89,21 @@ class SiStripFedCabling {
   void buildFedCabling( ConnsConstIterRange connections );
   
   /** Prints all connection information for this FED cabling object. */
-  void printDebug( std::stringstream& ) const;
+  void printDebug( std::stringstream&, const TrackerTopology* trackerTopo ) const;
 
   /// LEFT FOR COMPATIBILITY. SHOULD BE REPLACED BY PRINTDEBUG
-  void print( std::stringstream& ss ) const {
-    printDebug(ss);
+  void print( std::stringstream& ss, const TrackerTopology* trackerTopo ) const {
+    printDebug(ss, trackerTopo);
   }
   
   /** Prints terse information for this FED cabling object. */
   void terse( std::stringstream& ) const;
   
   /** Prints summary information for this FED cabling object. */
-  void printSummary( std::stringstream& ) const;
+  void printSummary( std::stringstream&, const TrackerTopology* trackerTopo ) const;
   /// LEFT FOR COMPATIBILITY. SHOULD BE REPLACED BY PRINTSUMMARY
-  void summary( std::stringstream& ss ) const {
-    printSummary(ss);
+  void summary( std::stringstream& ss, const TrackerTopology* trackerTopo ) const {
+    printSummary(ss, trackerTopo);
   }
 
   /// Builds range of iterators from pair of offsets
@@ -157,6 +157,8 @@ class SiStripFedCabling {
   /// FE devices that are detected
   Conns undetected_;
 
+
+ COND_SERIALIZABLE;
 };
 
 std::ostream& operator<<( std::ostream&, const SiStripFedCabling::ConnsRange& );

@@ -4,7 +4,7 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-#include <string.h>
+#include <cstring>
 #include <sstream>
 #include <iostream>
 #include <unistd.h>
@@ -30,6 +30,7 @@ EcalElectronicsSim::analogToDigital( CLHEP::HepRandomEngine* engine,
                                      EcalElectronicsSim::EcalSamples& clf ,
 				     EcalDataFrame&                   df    ) const 
 {
+
    //PG input signal is in pe.  Converted in GeV
   amplify( clf, engine ) ;
 

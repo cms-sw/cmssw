@@ -208,7 +208,7 @@ namespace {
     constexpr float relativeMargin = 1.01;
     
     LocalPoint localCrossPoint( det.surface().toLocal(crossPoint));
-    //   if (fabs(localCrossPoint.z()) > tolerance) {
+    //   if (std::abs(localCrossPoint.z()) > tolerance) {
     //     edm::LogInfo(TkDetLayers) << "TOBRod::overlap calculation assumes point on surface, but it is off by "
     // 	 << localCrossPoint.z() ;
     //   }
@@ -233,7 +233,7 @@ void TOBRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			      vector<DetGroup>& result,
 			      bool checkClosest) const
 {
-  GlobalPoint gCrossingPos = crossing.position();
+  const GlobalPoint& gCrossingPos = crossing.position();
 
   const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
  

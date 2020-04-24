@@ -15,6 +15,7 @@
 // system include files
 #include <sstream>
 #include <iomanip>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -44,6 +45,7 @@ private:
   void dumpAlignable( const Alignable*, unsigned int, unsigned int );
   void printInfo( const Alignable*, unsigned int );
 
+  std::unique_ptr<AlignableMuon> alignableMuon_;
   std::string leaders_, blank_, filled_;
 
 };
@@ -59,8 +61,8 @@ TestMuonHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
   setup.get<MuonGeometryRecord>().get( dtGeometry );
   setup.get<MuonGeometryRecord>().get( cscGeometry );
   
-  std::auto_ptr<AlignableMuon> 
-    theAlignableMuon( new AlignableMuon(&(*dtGeometry),&(*cscGeometry)) );
+  alignableMuon_ =
+    std::make_unique<AlignableMuon>(&(*dtGeometry), &(*cscGeometry));
 
   leaders_ = "";
   blank_ = "   ";  // These two...
@@ -68,7 +70,7 @@ TestMuonHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
 
   // Now dump mother of each alignable
   //const Alignable* alignable = (&(*theAlignableMuon))->pixelHalfBarrels()[0];
-  dumpAlignable( &(*theAlignableMuon), 1, 1 );
+  dumpAlignable(alignableMuon_.get(), 1, 1 );
   
   
   edm::LogInfo("MuonAlignment") << "Done!";
@@ -109,7 +111,7 @@ void TestMuonHierarchy::printInfo( const Alignable* alignable,
 
   std::ostringstream name,pos,rot;
 
-  name << AlignableObjectId::idToString( alignable->alignableObjectId() ) << idau;
+  name << alignableMuon_->objectIdProvider().idToString( alignable->alignableObjectId() ) << idau;
 
   // Position
   pos.setf(std::ios::fixed);

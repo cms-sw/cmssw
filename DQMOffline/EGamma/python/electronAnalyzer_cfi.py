@@ -4,10 +4,14 @@
 
 import FWCore.ParameterSet.Config as cms
 
+#electronAnalyzerHistosCfg = cms.PSet(
+#  EfficiencyFlag = cms.bool(False),StatOverflowFlag = cms.bool(True)
+#)
+
 dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
 
     Verbosity = cms.untracked.int32(0),
-    FinalStep = cms.string("AtRunEnd"),
+    FinalStep = cms.string("AtJobEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
     InputFolderName = cms.string("Egamma/Electrons"),
@@ -79,7 +83,11 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     NbinXyz = cms.int32(50), NbinXyz2D = cms.int32(25),
     NbinPopTrue = cms.int32(75), PopTrueMin = cms.double(0.0), PopTrueMax = cms.double(1.5),
     NbinMee = cms.int32(100), MeeMin = cms.double(0.0), MeeMax = cms.double(150.),
-    NbinHoe = cms.int32(100), HoeMin = cms.double(0.0), HoeMax = cms.double(0.5)
-)
+    NbinHoe = cms.int32(100), HoeMin = cms.double(0.0), HoeMax = cms.double(0.5),
 
+#    histosCfg = cms.PSet(electronAnalyzerHistosCfg)
+    
+    )
 
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( dqmElectronAnalysis, ElectronCollection = cms.InputTag("ecalDrivenGsfElectrons") )

@@ -26,7 +26,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "RecoVertex/KalmanVertexFit/interface/SimpleVertexTree.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include <TFile.h>
 
   /**
@@ -49,8 +48,8 @@ private:
 
   edm::ParameterSet theConfig;
   edm::ParameterSet gsfPSet;
-  TrackAssociatorByChi2 * associatorForParamAtPca;
-  SimpleVertexTree *tree;
+
+  std::unique_ptr<SimpleVertexTree> tree;
   TFile*  rootFile_;
 
   std::string outputFile_; // output file

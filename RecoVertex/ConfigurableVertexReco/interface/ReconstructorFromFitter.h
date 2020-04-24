@@ -1,6 +1,7 @@
 #ifndef _ReconstructorFromFitter_H_
 #define _ReconstructorFromFitter_H_
 
+#include <memory>
 #include "RecoVertex/ConfigurableVertexReco/interface/AbstractConfReconstructor.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/AbstractConfFitter.h"
 
@@ -11,16 +12,16 @@
 class ReconstructorFromFitter : public AbstractConfReconstructor 
 {
   public:
-    ReconstructorFromFitter ( const AbstractConfFitter & );
+  explicit ReconstructorFromFitter ( std::unique_ptr<AbstractConfFitter>&&  );
     ReconstructorFromFitter ( const ReconstructorFromFitter & o );
-    ~ReconstructorFromFitter();
-    void configure(const edm::ParameterSet&);
-    edm::ParameterSet defaults() const;
-    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > & ) const;
+    ~ReconstructorFromFitter() override;
+    void configure(const edm::ParameterSet&) override;
+    edm::ParameterSet defaults() const override;
+    std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > & ) const override;
     std::vector < TransientVertex > vertices ( const std::vector < reco::TransientTrack > &,
-        const reco::BeamSpot & ) const;
+        const reco::BeamSpot & ) const override;
 
-    ReconstructorFromFitter * clone () const;
+    ReconstructorFromFitter * clone () const override;
 
   private:
     const AbstractConfFitter * theFitter;

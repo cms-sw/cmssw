@@ -41,6 +41,7 @@
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include <vector>
+#include <memory>
 #include <CLHEP/Vector/ThreeVector.h>
 
 class ALIUnitsCategory;
@@ -49,35 +50,35 @@ typedef std::vector<ALIUnitsCategory*> ALIUnitsTable;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-class ALIUnitDefinition
+class ALIUnitDefinition : public std::enable_shared_from_this<ALIUnitDefinition>
 {
 public:  // with description
 
     ALIUnitDefinition(ALIstring name, ALIstring symbol,
                      ALIstring category, ALIdouble value);
-	    
+
 public:  // without description
-	    
+
    ~ALIUnitDefinition();
     ALIint operator==(const ALIUnitDefinition&) const;
     ALIint operator!=(const ALIUnitDefinition&) const;
-    
+
 private:
 
     ALIUnitDefinition(ALIUnitDefinition&);
     ALIUnitDefinition& operator=(const ALIUnitDefinition&);
-   
+
 public:  // with description
 
     ALIstring      GetName()   const {return Name;}
     ALIstring      GetSymbol() const {return SymbolName;}
     ALIdouble      GetValue()  const {return Value;}
-    
+
     void          PrintDefinition();
-    
-    static void BuildUnitsTable();    
+
+    static void BuildUnitsTable();
     static void PrintUnitsTable();
-    
+
     static ALIUnitsTable& GetUnitsTable() {return theUnitsTable;}
 
     static ALIdouble GetValueOf (ALIstring);
@@ -88,17 +89,17 @@ private:
     ALIstring Name;            // SI name
     ALIstring SymbolName;      // SI symbol
     ALIdouble Value;           // value in the internal system of units
-    
-    static 
+
+    static
     ALIUnitsTable theUnitsTable;   // table of Units
-    
-    
+
+
     size_t CategoryIndex;         // category index of this unit
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-typedef std::vector<ALIUnitDefinition*> ALIUnitsContainer;
+using ALIUnitsContainer = std::vector<std::shared_ptr<ALIUnitDefinition>>;
 
 class ALIUnitsCategory
 {
@@ -108,12 +109,12 @@ public:  // without description
    ~ALIUnitsCategory();
     ALIint operator==(const ALIUnitsCategory&) const;
     ALIint operator!=(const ALIUnitsCategory&) const;
-    
+
 private:
 
     ALIUnitsCategory(ALIUnitsCategory&);
     ALIUnitsCategory& operator=(const ALIUnitsCategory&);
-   
+
 public:  // without description
 
     ALIstring          GetName()      const {return Name;}
@@ -139,21 +140,21 @@ class ALIBestUnit
 public:  // with description
 
     ALIBestUnit(ALIdouble internalValue, ALIstring category);
-    ALIBestUnit(const CLHEP::Hep3Vector& internalValue, ALIstring category);    
+    ALIBestUnit(const CLHEP::Hep3Vector& internalValue, ALIstring category);
       // These constructors convert a physical quantity from its internalValue
       // into the most appropriate unit of the same category.
       // In practice it builds an object VU = (newValue, newUnit)
 
    ~ALIBestUnit();
-   
+
 public:  // without description
 
     ALIdouble*  GetValue()                 {return Value;}
     ALIstring   GetCategory()        const {return Category;}
     size_t     GetIndexOfCategory() const {return IndexOfCategory;}
-    
-public:  // with description 
-   
+
+public:  // with description
+
     friend
     std::ostream&  operator<<(std::ostream&,ALIBestUnit VU);
       // Default format to print the objet VU above.

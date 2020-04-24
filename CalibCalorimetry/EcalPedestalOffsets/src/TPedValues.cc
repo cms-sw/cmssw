@@ -1,7 +1,7 @@
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <cassert>
 #include "TGraphErrors.h"
@@ -213,7 +213,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
               sigmaY.push_back(rms);
             }
           } // loop over DAC values
-        if(asseX.size() > 0)
+        if(!asseX.empty())
         {
           int lastBin = 0;
           while(lastBin<(int)asseX.size()-1 && asseY[lastBin+1]>0
@@ -240,7 +240,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
           sprintf (name,"XTL%04d_GAIN%02d",endcapCrystalNumbers[xtl],gainHuman) ;
           graph.GetXaxis()->SetTitle("DAC value");
           graph.GetYaxis()->SetTitle("Average pedestal ADC");
-          graph.Fit("fitFunction","RWQ");
+          graph.Fit(&fitFunction,"RWQ");
           graph.Write (name);
           
           double slope1 = fitFunction.GetParameter(0);

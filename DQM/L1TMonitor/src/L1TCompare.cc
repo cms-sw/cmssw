@@ -71,12 +71,6 @@ const float PHIMAX = 17.5;
 const unsigned int R6BINS = 64;
 const float R6MIN = -0.5;
 const float R6MAX = 63.5;
-const unsigned int R10BINS = 1024;
-const float R10MIN = -0.5;
-const float R10MAX = 1023.5;
-const unsigned int R12BINS = 4096;
-const float R12MIN = -0.5;
-const float R12MAX = 4095.5;
 
 // For GCT this should be 15 bins, -14.5 to 14.5
 //
@@ -110,16 +104,9 @@ L1TCompare::L1TCompare(const ParameterSet & ps) :
   if (verbose())
     std::cout << "L1TCompare: constructor...." << std::endl;
 
-
-  dbe = NULL;
-  if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
-    dbe = Service < DQMStore > ().operator->();
-    dbe->setVerbose(0);
-  }
-
   outputFile_ =
       ps.getUntrackedParameter < std::string > ("outputFile", "");
-  if (outputFile_.size() != 0) {
+  if (!outputFile_.empty()) {
     std::
 	cout << "L1T Monitoring histograms will be saved to " <<
 	outputFile_.c_str() << std::endl;
@@ -129,11 +116,6 @@ L1TCompare::L1TCompare(const ParameterSet & ps) :
       ps.getUntrackedParameter < bool > ("disableROOToutput", false);
   if (disable) {
     outputFile_ = "";
-  }
-
-
-  if (dbe != NULL) {
-    dbe->setCurrentFolder("L1T/Compare");
   }
 
   //set Token(-s)
@@ -150,103 +132,83 @@ L1TCompare::~L1TCompare()
 {
 }
 
-void L1TCompare::beginJob(void)
-{
-  nev_ = 0;
+void L1TCompare::dqmBeginRun(edm::Run const&, edm::EventSetup const&){
+  //
 }
 
-
-void L1TCompare::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
+void L1TCompare::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) 
 {
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/Compare");
-    dbe->rmdir("L1T/Compare");
-  }
-
-
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/Compare");
+  nev_ = 0;
+  
+  ibooker.setCurrentFolder("L1T/Compare");
     
     // -------------------------------------------
     // RCT-GCT
     // -------------------------------------------
     // Isolated
-    rctGctLeadingIsoEmRank_ = dbe->book2D("rctGctLeadingIsoEmRank",
+  rctGctLeadingIsoEmRank_ = ibooker.book2D("rctGctLeadingIsoEmRank",
 				       "RCT-GCT: rank", R6BINS, R6MIN, R6MAX,
 				       R6BINS, R6MIN, R6MAX);
-    rctGctLeadingIsoEmRank_->setAxisTitle(std::string("gct"), 1);
-    rctGctLeadingIsoEmRank_->setAxisTitle(std::string("rct"), 2);
-    rctGctLeadingIsoEmEta_ = dbe->book2D("rctGctLeadingIsoEmEta",
+  rctGctLeadingIsoEmRank_->setAxisTitle(std::string("gct"), 1);
+  rctGctLeadingIsoEmRank_->setAxisTitle(std::string("rct"), 2);
+  rctGctLeadingIsoEmEta_ = ibooker.book2D("rctGctLeadingIsoEmEta",
 				      "RCT-GCT: #eta", ETABINS, ETAMIN, ETAMAX,
 				       ETABINS, ETAMIN, ETAMAX);
-    rctGctLeadingIsoEmEta_->setAxisTitle(std::string("gct"), 1);
-    rctGctLeadingIsoEmEta_->setAxisTitle(std::string("rct"), 2);
+  rctGctLeadingIsoEmEta_->setAxisTitle(std::string("gct"), 1);
+  rctGctLeadingIsoEmEta_->setAxisTitle(std::string("rct"), 2);
 
-    rctGctLeadingIsoEmPhi_ = dbe->book2D("rctGctLeadingIsoEmPhi",
+  rctGctLeadingIsoEmPhi_ = ibooker.book2D("rctGctLeadingIsoEmPhi",
 				      "RCT-GCT: #phi", PHIBINS, PHIMIN, PHIMAX,
 				       PHIBINS, PHIMIN, PHIMAX);
-    rctGctLeadingIsoEmPhi_->setAxisTitle(std::string("gct"), 1);
-    rctGctLeadingIsoEmPhi_->setAxisTitle(std::string("rct"), 2);
+  rctGctLeadingIsoEmPhi_->setAxisTitle(std::string("gct"), 1);
+  rctGctLeadingIsoEmPhi_->setAxisTitle(std::string("rct"), 2);
     // non-Isolated
-    rctGctLeadingNonIsoEmRank_ = dbe->book2D("rctGctLeadingNonIsoEmRank",
+  rctGctLeadingNonIsoEmRank_ = ibooker.book2D("rctGctLeadingNonIsoEmRank",
 				       "RCT-GCT: rank", R6BINS, R6MIN, R6MAX,
 				       R6BINS, R6MIN, R6MAX);
-    rctGctLeadingNonIsoEmRank_->setAxisTitle(std::string("gct"), 1);
-    rctGctLeadingNonIsoEmRank_->setAxisTitle(std::string("rct"), 2);
+  rctGctLeadingNonIsoEmRank_->setAxisTitle(std::string("gct"), 1);
+  rctGctLeadingNonIsoEmRank_->setAxisTitle(std::string("rct"), 2);
 
-    rctGctLeadingNonIsoEmEta_ = dbe->book2D("rctGctLeadingNonIsoEmEta",
+  rctGctLeadingNonIsoEmEta_ = ibooker.book2D("rctGctLeadingNonIsoEmEta",
 				      "RCT-GCT: #eta", ETABINS, ETAMIN, ETAMAX,
 				       ETABINS, ETAMIN, ETAMAX);
-    rctGctLeadingNonIsoEmEta_->setAxisTitle(std::string("gct"), 1);
-    rctGctLeadingNonIsoEmEta_->setAxisTitle(std::string("rct"), 2);
+  rctGctLeadingNonIsoEmEta_->setAxisTitle(std::string("gct"), 1);
+  rctGctLeadingNonIsoEmEta_->setAxisTitle(std::string("rct"), 2);
 
-    rctGctLeadingNonIsoEmPhi_ = dbe->book2D("rctGctLeadingNonIsoEmPhi",
+  rctGctLeadingNonIsoEmPhi_ = ibooker.book2D("rctGctLeadingNonIsoEmPhi",
 				      "RCT-GCT: #phi", PHIBINS, PHIMIN, PHIMAX,
 				       PHIBINS, PHIMIN, PHIMAX);
-    rctGctLeadingNonIsoEmPhi_->setAxisTitle(std::string("gct"), 1);
-    rctGctLeadingNonIsoEmPhi_->setAxisTitle(std::string("rct"), 2);
+  rctGctLeadingNonIsoEmPhi_->setAxisTitle(std::string("gct"), 1);
+  rctGctLeadingNonIsoEmPhi_->setAxisTitle(std::string("rct"), 2);
     // -------------------------------------------
     // ECAL TPG - RCT
     // -------------------------------------------
-    ecalTpgRctLeadingEmRank_ = dbe->book2D("ecalTpgRctLeadingEmRank",
+  ecalTpgRctLeadingEmRank_ = ibooker.book2D("ecalTpgRctLeadingEmRank",
 					   "ECAL TPG-RCT: rank", 
 					   R6BINS, R6MIN, R6MAX,
 					   R6BINS, R6MIN, R6MAX);
-    ecalTpgRctLeadingEmRank_->setAxisTitle(std::string("rct"), 1);
-    ecalTpgRctLeadingEmRank_->setAxisTitle(std::string("ecal tp"), 2);
+  ecalTpgRctLeadingEmRank_->setAxisTitle(std::string("rct"), 1);
+  ecalTpgRctLeadingEmRank_->setAxisTitle(std::string("ecal tp"), 2);
 
-    ecalTpgRctLeadingEmEta_ = dbe->book2D("ecalTpgRctLeadingEmEta",
+  ecalTpgRctLeadingEmEta_ = ibooker.book2D("ecalTpgRctLeadingEmEta",
 					  "ECAL TPG-RCT: #eta", 
 					  15, -0.5, 14.5,
 					  TPETABINS, TPETAMIN, TPETAMAX);
-    ecalTpgRctLeadingEmEta_->setAxisTitle(std::string("rct"), 1);
-    ecalTpgRctLeadingEmEta_->setAxisTitle(std::string("ecal tp"), 2);
-    ecalTpgRctLeadingEmEta2_ = dbe->book2D("ecalTpgRctLeadingEmEta2",
+  ecalTpgRctLeadingEmEta_->setAxisTitle(std::string("rct"), 1);
+  ecalTpgRctLeadingEmEta_->setAxisTitle(std::string("ecal tp"), 2);
+  ecalTpgRctLeadingEmEta2_ = ibooker.book2D("ecalTpgRctLeadingEmEta2",
 					   "ECAL TPG-RCT: #eta (2)", 
 					   13, -6.5, 6.5,
 					   TPETABINS, TPETAMIN, TPETAMAX);
-    ecalTpgRctLeadingEmEta2_->setAxisTitle(std::string("rct"), 1);
-    ecalTpgRctLeadingEmEta2_->setAxisTitle(std::string("ecal tp"), 2);
-    ecalTpgRctLeadingEmPhi_ = dbe->book2D("ecalTpgRctLeadingEmPhi",
+  ecalTpgRctLeadingEmEta2_->setAxisTitle(std::string("rct"), 1);
+  ecalTpgRctLeadingEmEta2_->setAxisTitle(std::string("ecal tp"), 2);
+  ecalTpgRctLeadingEmPhi_ = ibooker.book2D("ecalTpgRctLeadingEmPhi",
 					  "ECAL TPG-RCT: #phi", 
 					  PHIBINS, PHIMIN, PHIMAX,
 					  TPPHIBINS, TPPHIMIN, TPPHIMAX);
-    ecalTpgRctLeadingEmPhi_->setAxisTitle(std::string("rct"), 1);
-    ecalTpgRctLeadingEmPhi_->setAxisTitle(std::string("ecal tp"), 2);
-  }
-}
-
-
-void L1TCompare::endJob(void)
-{
-  if (verbose())
-    std::cout << "L1TCompare: end job...." << std::endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events";
-
-  if (outputFile_.size() != 0 && dbe)
-    dbe->save(outputFile_);
-
-  return;
+  ecalTpgRctLeadingEmPhi_->setAxisTitle(std::string("rct"), 1);
+  ecalTpgRctLeadingEmPhi_->setAxisTitle(std::string("ecal tp"), 2);
+  //}
 }
 
 void L1TCompare::analyze(const Event & e, const EventSetup & c)

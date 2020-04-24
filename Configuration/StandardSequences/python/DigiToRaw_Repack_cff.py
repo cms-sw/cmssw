@@ -8,7 +8,9 @@ import EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi
 SiStripDigiToZSRaw = EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi.SiStripDigiToRaw.clone(
     InputModuleLabel = 'siStripZeroSuppression',
     InputDigiLabel = cms.string('VirginRaw'),
-    FedReadoutMode = cms.string('ZERO_SUPPRESSED')
+    FedReadoutMode = cms.string('ZERO_SUPPRESSED'),
+    CopyBufferHeader = cms.bool(True),
+    RawDataTag = cms.InputTag('rawDataCollector')
     )
 
 SiStripRawDigiToVirginRaw = SiStripDigiToZSRaw.clone(

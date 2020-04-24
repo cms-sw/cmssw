@@ -30,7 +30,7 @@ void ImpactParameterAlgorithm::setTransientTrackBuilder(const TransientTrackBuil
 
 std::pair<float,reco::TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const reco::IsolatedTauTagInfoRef & tauRef, const reco::Vertex & pv) {
 
-	if(transientTrackBuilder == 0){
+	if(transientTrackBuilder == nullptr){
 	  throw cms::Exception("NullTransientTrackBuilder") << "Transient track builder is 0. ";
 	}
 

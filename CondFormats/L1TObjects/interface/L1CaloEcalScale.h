@@ -19,9 +19,11 @@
 // $Id: 
 //
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <ostream>
-#include <stdint.h>
+#include <cstdint>
 
 class L1CaloEcalScale {
 
@@ -64,6 +66,8 @@ class L1CaloEcalScale {
    // First nBinEta eta bins for positive eta, second nBinEta bins for negative
   double m_scale[nBinRank][2*nBinEta];
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

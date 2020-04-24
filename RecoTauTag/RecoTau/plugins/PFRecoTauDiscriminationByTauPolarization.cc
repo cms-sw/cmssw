@@ -19,10 +19,10 @@ class PFRecoTauDiscriminationByTauPolarization :
         booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
       }
 
-    ~PFRecoTauDiscriminationByTauPolarization(){}
+    ~PFRecoTauDiscriminationByTauPolarization() override{}
 
     void beginEvent(const Event&, const EventSetup&) override;
-    double discriminate(const PFTauRef&) override;
+    double discriminate(const PFTauRef&) const override;
 
   private:
     bool booleanOutput;
@@ -33,7 +33,7 @@ void PFRecoTauDiscriminationByTauPolarization::beginEvent(
     const Event& event, const EventSetup& eventSetup){}
 
 double
-PFRecoTauDiscriminationByTauPolarization::discriminate(const PFTauRef& tau){
+PFRecoTauDiscriminationByTauPolarization::discriminate(const PFTauRef& tau) const{
 
   double rTau = 0;
   // rtau for PFTau has to be calculated for leading PF charged hadronic candidate

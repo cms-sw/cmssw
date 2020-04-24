@@ -36,7 +36,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // my includes
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
 
@@ -46,7 +46,7 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 
 // data formats
@@ -112,10 +112,10 @@ class PixelDigisTest : public edm::EDAnalyzer {
 public:
 
   explicit PixelDigisTest(const edm::ParameterSet&);
-  ~PixelDigisTest();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(); 
+  ~PixelDigisTest() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override; 
 
 private:
   // ----------member data ---------------------------
@@ -354,7 +354,7 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 			   const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
   using namespace edm;
   if(PRINT) cout<<" Analyze PixelDigisTest "<<endl;

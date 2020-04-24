@@ -1,11 +1,14 @@
 <library   file="*.cc" name="JetMETCorrectionsModulesPlugins">
   <use   name="CondCore/PluginSystem"/>
   <use   name="CondFormats/DataRecord"/>
-  <use   name="CondCore/DBCommon"/>
+  <use   name="CondFormats/JetMETObjects"/>
   <use   name="CondCore/DBOutputService"/>
   <use   name="DataFormats/JetReco"/>
+  <use   name="DataFormats/METReco"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
   <use   name="JetMETCorrections/Algorithms"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="JetMETCorrections/Modules"/>

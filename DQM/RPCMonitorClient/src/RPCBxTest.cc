@@ -22,11 +22,11 @@ RPCBxTest::RPCBxTest(const edm::ParameterSet& ps ){
   rmsCut_ = ps.getUntrackedParameter<double>("RMSCut");
   distanceMean_ = ps.getUntrackedParameter<double>("DistanceFromZeroBx");
 
-  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
-RPCBxTest::~RPCBxTest(){ dbe_=0;}
+RPCBxTest::~RPCBxTest(){ dbe_=nullptr;}
 
 void RPCBxTest::beginJob(DQMStore *  dbe){
   edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Begin job ";
@@ -34,7 +34,7 @@ void RPCBxTest::beginJob(DQMStore *  dbe){
 }
 
 //Qui puoi definitre gli istogrammi nuovi che vuoi riempire
-void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, const std::vector<MonitorElement *>& meVector, const std::vector<RPCDetId>& detIdVector){
+void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
   edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Begin run";
   
   MonitorElement* me;
@@ -81,6 +81,7 @@ void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, const std:
   histoName<<"BX_RMS_Distribution_EndcapN"; 
   BXRmsEndcapN = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 21, -0.1, 4.1);
 
+
   rpcdqm::utils rpcUtils;
 
   int limit = numberOfDisks_;
@@ -90,18 +91,18 @@ void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, const std:
     if (w>-3 && w<3){//wheels
       histoName.str("");
       histoName<<"BX_Mean_Distribution_Wheel"<<w;     
-      me = 0;
+      me = nullptr;
       me = dbe_->get(globalFolder_ + histoName.str()) ;
-      if ( 0!=me ) {
+      if ( nullptr!=me ) {
 	dbe_->removeElement(me->getName());
       }
       BXMeanWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 10, -0.5, 9.5);
   
       histoName.str("");
       histoName<<"BX_RMS_Distribution_Wheel"<<w;     
-      me = 0;
+      me = nullptr;
       me = dbe_->get(globalFolder_ + histoName.str()) ;
-      if ( 0!=me){
+      if ( nullptr!=me){
 	dbe_->removeElement(me->getName());
       }
       BXRmsWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 50, -0.5, 4.5);
@@ -114,9 +115,9 @@ void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, const std:
       
     histoName.str("");
     histoName<<"BX_Mean_Distribution_Disk"<<w;     
-    me = 0;
+    me = nullptr;
     me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me){
+    if ( nullptr!=me){
       dbe_->removeElement(me->getName());
     }
     BXMeanDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),10, -0.5, 9.5);
@@ -124,14 +125,17 @@ void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, const std:
    
     histoName.str("");
     histoName<<"BX_RMS_Distribution_Disk"<<w;    
-    me = 0;
+    me = nullptr;
     me = dbe_->get(globalFolder_ + histoName.str()) ;
-    if ( 0!=me){
+    if ( nullptr!=me){
       dbe_->removeElement(me->getName());
     }
     BXRmsDisk[w+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(), 50, -0.5, 4.5);
- }
+  }
 
+}
+
+void RPCBxTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std::vector<RPCDetId> & detIdVector){
 
   //Qui prende gli isto del BX per roll definiti nel client
   //crea due vettore ordinati myBXMe_(istogrammi) e myDetIds_(rpcDetId)
@@ -145,8 +149,7 @@ void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, const std:
    DQMNet::TagList::iterator tagItr = tagList.begin();
 
    while (tagItr != tagList.end() && !flag ) {
-     if((*tagItr) ==  rpcdqm::OCCUPANCY)
-       flag= true;
+     if((*tagItr) ==  rpcdqm::BX){ flag= true;}
      tagItr++;
    }
    
@@ -158,8 +161,7 @@ void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, const std:
 
 }
 
-void RPCBxTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){
-} 
+void RPCBxTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
 
 void RPCBxTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
 
@@ -167,18 +169,8 @@ void RPCBxTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::Eve
 
 void  RPCBxTest::endJob(void) {
   edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: end job ";
-
 }
 
-
-//ME = monitor Element
-
-
-//Link a public getters
-// http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQMServices/Core/interface/MonitorElement.h?revision=1.39&view=markup
-
-//Link per ROOT
-//http://root.cern.ch/root/html522/TH1.html
 
 //Loop sul vettore degli istogrammi (myBXMe_) e prendi le info
 void  RPCBxTest::endRun(const edm::Run& r, const edm::EventSetup& c) {
@@ -187,11 +179,11 @@ void  RPCBxTest::endRun(const edm::Run& r, const edm::EventSetup& c) {
   RPCDetId detId;
   TH1F * myTH1F;
 
-  MonitorElement * ENTRIES =NULL; 
-  MonitorElement * MEAN =NULL;  
-  MonitorElement * MEANRing =NULL;  
-  MonitorElement * RMS =NULL; 
-  MonitorElement * RMSRing =NULL;  
+  MonitorElement * ENTRIES =nullptr; 
+  MonitorElement * MEAN =nullptr;  
+  MonitorElement * MEANRing =nullptr;  
+  MonitorElement * RMS =nullptr; 
+  MonitorElement * RMSRing =nullptr;  
 
   for (unsigned int  i = 0 ; i<myBXMe_.size();i++){
 

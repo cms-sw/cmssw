@@ -1,0 +1,3 @@
+<bin file="testSerializationHcalObjects.cpp">
+    <use   name="CondFormats/HcalObjects"/>
+</bin>

@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/LooperFactory.h"
@@ -43,10 +42,10 @@ class __class__ : public edm::ESProducerLooper {
     if  len(__datatypes__) > 1:
         datatypes = []
         for dtype in __datatypes__:
-            datatypes.append("boost::auto_ptr<%s>" % dtype)
+            datatypes.append("std::unique_ptr<%s>" % dtype)
         print "      typedef edm::ESProducts<%s> ReturnType;" % ','.join(datatypes)
     elif len(__datatypes__) == 1:
-        print "      typedef boost::shared_ptr<%s> ReturnType;" % __datatypes__[0]
+        print "      typedef std::shared_ptr<%s> ReturnType;" % __datatypes__[0]
 #python_end
 
       ReturnType produce(const recordname&);
@@ -103,7 +102,7 @@ __class__::produce(const recordname& iRecord)
     out1 = []
     out2 = []
     for dtype in __datatypes__:
-        out1.append("   std::auto_ptr<%s> p%s;" % (dtype, dtype))
+        out1.append("   std::unique_ptr<%s> p%s;" % (dtype, dtype))
         out2.append("p%s" % dtype)
     output  = '\n'.join(out1)
     output += "\n   return products(%s);\n" % ','.join(out2)

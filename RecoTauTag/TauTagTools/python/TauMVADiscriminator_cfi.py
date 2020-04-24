@@ -6,13 +6,13 @@ import copy
 #multiple categories
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
+from RecoTauTag.RecoTau.RecoTauHPSTancTauProdcuer_cfi import combinatoricRecoTausDiscriminationByTaNC
 
 shrinkingConeLeadTrackFinding = copy.deepcopy(requireLeadTrack)
 shrinkingConeLeadTrackFinding.leadTrack.Producer = \
         cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackFinding")
 
-shrinkingConePFTauDiscriminationByTaNC = cms.EDProducer(
-    "RecoTauMVADiscriminator",
+shrinkingConePFTauDiscriminationByTaNC = combinatoricRecoTausDiscriminationByTaNC.clone(
     PFTauProducer     = cms.InputTag("shrinkingConePFTauProducer"),
     Prediscriminants  = shrinkingConeLeadTrackFinding,
     discriminantOptions = cms.PSet(),

@@ -12,7 +12,7 @@ for h in f:
   a=h.strip().split()
   key=a[0].strip()
   name=a[1].strip()
-  if histos.has_key(key):
+  if key in histos:
     histos[key]=name
   else:
     missing[key]=name

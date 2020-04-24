@@ -3,7 +3,9 @@
 
 #include <string>
 #include <map>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 
 namespace edm {
@@ -17,9 +19,9 @@ class TFileDirectory;
 class DigiVtxPosCorrHistogramMaker {
 
  public:
-  DigiVtxPosCorrHistogramMaker();
-  DigiVtxPosCorrHistogramMaker(const edm::ParameterSet& iConfig);
- 
+  DigiVtxPosCorrHistogramMaker(edm::ConsumesCollector&& iC);
+  DigiVtxPosCorrHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
+
   ~DigiVtxPosCorrHistogramMaker();
 
   void book(const std::string dirname, const std::map<unsigned int, std::string>& labels);
@@ -29,10 +31,10 @@ class DigiVtxPosCorrHistogramMaker {
 
  private:
 
-  const edm::InputTag m_mcvtxcollection;
+  edm::EDGetTokenT<edm::HepMCProduct> m_mcvtxcollectionToken;
   std::string m_hitname;
   const int m_nbins;
-  const int m_scalefact; 
+  const int m_scalefact;
   std::map<unsigned int,int> m_binmax;
   std::map<unsigned int, std::string> m_labels;
 

@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  *   
  */
 
@@ -23,6 +26,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 
 #include <memory>
@@ -36,7 +40,7 @@ class DTGeometry;
 class DTChamberId;
 class DTSuperLayerId;
 
-class DTSegmentAnalysisTest: public edm::EDAnalyzer{
+class DTSegmentAnalysisTest: public DQMEDHarvester{
 
 public:
 
@@ -44,35 +48,24 @@ public:
   DTSegmentAnalysisTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTSegmentAnalysisTest();
+  ~DTSegmentAnalysisTest() override;
 
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  /// BeginJob
-  void beginJob();
-  void endJob(void);
-
-  void beginRun(const edm::Run& run, const edm::EventSetup& eSetup);
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// book the summary histograms
-  void bookHistos();
+  void bookHistos(DQMStore::IBooker &);
 
   /// Get the ME name
   std::string getMEName(const DTChamberId & chID, std::string histoTag);
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
   /// Perform client diagnostic operations
-  void performClientDiagnostic();
+  void performClientDiagnostic(DQMStore::IGetter &);
 
-  /// DQM Client Diagnostic in online mode
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void endRun(edm::Run const& run, edm::EventSetup const& c) override;
 
-  /// DQM Client Diagnostic in offline mode
-  void endRun(edm::Run const& run, edm::EventSetup const& c);
+protected:
 
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 private:
 
@@ -87,7 +80,7 @@ private:
 
   bool runOnline;
 
-  DQMStore* dbe;
+  bool bookingdone;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

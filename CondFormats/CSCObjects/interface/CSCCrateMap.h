@@ -1,6 +1,8 @@
 #ifndef CSCCrateMap_h
 #define CSCCrateMap_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <CondFormats/CSCObjects/interface/CSCMapItem.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
@@ -21,6 +23,8 @@ class CSCCrateMap{
 
   typedef std::map< int,CSCMapItem::MapItem > CSCMap;
   CSCMap crate_map;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -41,7 +41,7 @@ class L1RCTChannelMaskOnlineProd :
     : L1ConfigOnlineProdBase< L1RCTChannelMaskRcd, L1RCTChannelMask > (iConfig) {}
   ~L1RCTChannelMaskOnlineProd() {}
   
-  virtual boost::shared_ptr< L1RCTChannelMask > newObject(const std::string& objectKey ) override ;
+  virtual std::shared_ptr< L1RCTChannelMask > newObject(const std::string& objectKey ) override ;
 
 
    private:
@@ -60,7 +60,7 @@ class L1RCTChannelMaskOnlineProd :
 // constructors and destructor
 //
 
-boost::shared_ptr< L1RCTChannelMask >
+std::shared_ptr< L1RCTChannelMask >
 L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
@@ -165,7 +165,7 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
 	 
 
 	 std::cout << " Returened rows " << dcMaskResults.numberRows() <<std::endl;
-	 return boost::shared_ptr< L1RCTChannelMask >() ;
+	 return std::shared_ptr< L1RCTChannelMask >() ;
        }
      
       L1RCTChannelMask* m = new L1RCTChannelMask;
@@ -300,7 +300,7 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
      //~~~~~~~~~ Instantiate new L1RCTChannelMask object. ~~~~~~~~~
 
 
-     return boost::shared_ptr< L1RCTChannelMask >(m);
+     return std::shared_ptr< L1RCTChannelMask >(m);
 } 
 	
 

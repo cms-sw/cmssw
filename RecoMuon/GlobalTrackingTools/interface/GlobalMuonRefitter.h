@@ -8,20 +8,29 @@
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
  *  \author A. Everett 		 Purdue University
+ *
+ *  \modified by C. Calabria     INFN & Universita  Bari
+ *  \modified by D. Nash         Northeastern University
  */
 
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/MuonReco/interface/DYTInfo.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
 namespace edm {class Event;}
 namespace reco {class TransientTrack;}
@@ -57,7 +66,7 @@ class GlobalMuonRefitter {
   public:
 
     /// constructor with Parameter Set and MuonServiceProxy
-    GlobalMuonRefitter(const edm::ParameterSet&, const MuonServiceProxy*);
+    GlobalMuonRefitter(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
           
     /// destructor
     virtual ~GlobalMuonRefitter();
@@ -88,7 +97,9 @@ class GlobalMuonRefitter {
     ConstRecHitContainer getRidOfSelectStationHits(const ConstRecHitContainer& hits,
 						   const TrackerTopology *tTopo) const;
 
-
+    // return DYT-related informations           
+    const reco::DYTInfo* getDYTInfo() {return dytInfo;}
+    
   protected:
 
     enum RefitDirection{insideOut,outsideIn,undetermined};
@@ -125,12 +136,22 @@ class GlobalMuonRefitter {
     float theDTChi2Cut;
     float theCSCChi2Cut;
     float theRPCChi2Cut;
+    float theGEMChi2Cut;
+    float theME0Chi2Cut;
     bool  theCosmicFlag;
 
     edm::InputTag theDTRecHitLabel;
     edm::InputTag theCSCRecHitLabel;
+    edm::InputTag theGEMRecHitLabel;
+    edm::InputTag theME0RecHitLabel;
     edm::Handle<DTRecHitCollection>    theDTRecHits;
     edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
+    edm::Handle<GEMRecHitCollection> theGEMRecHits;
+    edm::Handle<ME0SegmentCollection> theME0RecHits;
+    edm::EDGetTokenT<DTRecHitCollection> theDTRecHitToken;
+    edm::EDGetTokenT<CSCRecHit2DCollection> theCSCRecHitToken;
+    edm::EDGetTokenT<GEMRecHitCollection> theGEMRecHitToken;
+    edm::EDGetTokenT<ME0SegmentCollection> theME0RecHitToken;
 
     int	  theSkipStation;
     int   theTrackerSkipSystem;
@@ -147,17 +168,27 @@ class GlobalMuonRefitter {
     RefitDirection theRefitDirection;
 
     std::vector<int> theDYTthrs;
+    int theDYTselector;
+    bool theDYTupdator;
+    bool theDYTuseAPE;
+    reco::DYTInfo *dytInfo;
 
     std::string theFitterName;
-    edm::ESHandle<TrajectoryFitter> theFitter;
+    std::unique_ptr<TrajectoryFitter> theFitter;
   
     std::string theTrackerRecHitBuilderName;
     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+    TkClonerImpl hitCloner;
   
     std::string theMuonRecHitBuilderName;
     edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
 
     const MuonServiceProxy* theService;
     const edm::Event* theEvent;
+
+    edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentsToken;
+    edm::EDGetTokenT<DTRecSegment4DCollection> all4DSegmentsToken;
+    edm::Handle<CSCSegmentCollection> CSCSegments;
+    edm::Handle<DTRecSegment4DCollection> all4DSegments;
 };
 #endif

@@ -15,9 +15,10 @@ class AcceptJet {
 
  public:
   AcceptJet(const double& etaMin_, const double& etaMax_, const double& ptMin_, const double& ptMax_,
-            const double& pMin_, const double& pMax_, const double& ratioMin_, const double& ratioMax_);
+            const double& pMin_, const double& pMax_, const double& ratioMin_, const double& ratioMax_,
+	    const bool& doJetID_);
   /// Returns true if jet and associated parton satisfy kinematic cuts.
-  bool operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos) const;
+  bool operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos, const double jec) const;
 
   /// Set cut parameters
   void setEtaMin            ( double d ) { etaMin            = d ; } 
@@ -30,6 +31,7 @@ class AcceptJet {
   void setPRecJetMax        ( double d ) { pRecJetMax        = d ; }
   void setRatioMin          ( double d ) { ratioMin          = d ; }
   void setRatioMax          ( double d ) { ratioMax          = d ; }
+  void setDoJetID           ( bool   b ) { doJetID           = b ; }
 
 //   void setPtPartonMin       ( double d ) { ptPartonMin       = d ; } 
 //   void setPtPartonMax       ( double d ) { ptPartonMax       = d ; } 
@@ -61,6 +63,8 @@ class AcceptJet {
   double ratioMin ;
   double ratioMax ;
   
+  //Apply loose Jet ID in case of PF jets
+  bool doJetID;
 } ;
 
 #endif

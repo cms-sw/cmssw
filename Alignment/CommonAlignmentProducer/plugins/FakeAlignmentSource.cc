@@ -29,63 +29,64 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 
 class FakeAlignmentSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
 public:
   FakeAlignmentSource(const edm::ParameterSet&);
-  ~FakeAlignmentSource() {}
+  ~FakeAlignmentSource() override {}
 
   /// Tracker and its APE
-  std::auto_ptr<Alignments> produceTkAli(const TrackerAlignmentRcd&) {
-    return std::auto_ptr<Alignments>(new Alignments);
+  std::unique_ptr<Alignments> produceTkAli(const TrackerAlignmentRcd&) {
+    return std::make_unique<Alignments>();
   }
-  std::auto_ptr<AlignmentErrors> produceTkAliErr(const TrackerAlignmentErrorRcd&) { 
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::unique_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorExtendedRcd&) { 
+    return std::make_unique<AlignmentErrorsExtended>();
   }
 
   /// DT and its APE
-  std::auto_ptr<Alignments> produceDTAli(const DTAlignmentRcd&) {
-    return std::auto_ptr<Alignments>(new Alignments);
+  std::unique_ptr<Alignments> produceDTAli(const DTAlignmentRcd&) {
+    return std::make_unique<Alignments>();
   }
-  std::auto_ptr<AlignmentErrors> produceDTAliErr(const DTAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::unique_ptr<AlignmentErrorsExtended> produceDTAliErr(const DTAlignmentErrorExtendedRcd&) {
+    return std::make_unique<AlignmentErrorsExtended>();
   }
 
   /// CSC and its APE
-  std::auto_ptr<Alignments> produceCSCAli(const CSCAlignmentRcd&) {
-    return std::auto_ptr<Alignments>(new Alignments);
+  std::unique_ptr<Alignments> produceCSCAli(const CSCAlignmentRcd&) {
+    return std::make_unique<Alignments>();
   }
-  std::auto_ptr<AlignmentErrors> produceCSCAliErr(const CSCAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::unique_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorExtendedRcd&) {
+    return std::make_unique<AlignmentErrorsExtended>();
   }
 
   /// GlobalPositions
-  std::auto_ptr<Alignments> produceGlobals(const GlobalPositionRcd&) {
-    return std::auto_ptr<Alignments>(new Alignments);
+  std::unique_ptr<Alignments> produceGlobals(const GlobalPositionRcd&) {
+    return std::make_unique<Alignments>();
   }
 
   /// Tracker surface deformations
-  std::auto_ptr<AlignmentSurfaceDeformations>
+  std::unique_ptr<AlignmentSurfaceDeformations>
   produceTrackerSurfaceDeformation(const TrackerSurfaceDeformationRcd&) {
-    return std::auto_ptr<AlignmentSurfaceDeformations>(new AlignmentSurfaceDeformations);
+    return std::make_unique<AlignmentSurfaceDeformations>();
   }
 
  protected:
   /// provide (dummy) IOV
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey& /*dummy*/,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey& /*dummy*/,
 			       const edm::IOVSyncValue& ioSyncVal, edm::ValidityInterval& iov) override;
 
  private:
@@ -139,15 +140,15 @@ FakeAlignmentSource::FakeAlignmentSource(const edm::ParameterSet& iConfig)
   // Tell framework to provide IOV for the above data:
   if (produceTracker_) {
     this->findingRecord<TrackerAlignmentRcd>();
-    this->findingRecord<TrackerAlignmentErrorRcd>();
+    this->findingRecord<TrackerAlignmentErrorExtendedRcd>();
   }
   if (produceDT_) {
     this->findingRecord<DTAlignmentRcd>();
-    this->findingRecord<DTAlignmentErrorRcd>();
+    this->findingRecord<DTAlignmentErrorExtendedRcd>();
   }
   if (produceCSC_) {
     this->findingRecord<CSCAlignmentRcd>();
-    this->findingRecord<CSCAlignmentErrorRcd>();
+    this->findingRecord<CSCAlignmentErrorExtendedRcd>();
   }
   if (produceGlobalPosition_) {
     this->findingRecord<GlobalPositionRcd>();

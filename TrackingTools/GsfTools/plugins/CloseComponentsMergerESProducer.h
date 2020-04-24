@@ -15,8 +15,8 @@ template <unsigned int N>
 class  CloseComponentsMergerESProducer: public edm::ESProducer{
  public:
   CloseComponentsMergerESProducer(const edm::ParameterSet & p);
-  virtual ~CloseComponentsMergerESProducer(); 
-  boost::shared_ptr< MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
+  ~CloseComponentsMergerESProducer() override; 
+  std::shared_ptr< MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
  private:
   edm::ParameterSet pset_;
 };

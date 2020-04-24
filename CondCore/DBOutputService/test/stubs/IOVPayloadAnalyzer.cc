@@ -5,7 +5,6 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 
-
 #include "IOVPayloadAnalyzer.h"
 #include <iostream>
 

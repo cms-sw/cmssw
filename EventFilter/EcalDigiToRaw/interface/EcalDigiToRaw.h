@@ -39,6 +39,8 @@
 #include "EventFilter/EcalDigiToRaw/interface/BlockFormatter.h"
 #include "EventFilter/EcalDigiToRaw/interface/SRBlockFormatter.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalSrFlag.h"
 
 
 //
@@ -48,11 +50,11 @@
 class EcalDigiToRaw : public edm::EDProducer {
    public:
        EcalDigiToRaw(const edm::ParameterSet& pset);
-       virtual ~EcalDigiToRaw();
+       ~EcalDigiToRaw() override;
 
-      void beginJob();
-      void produce(edm::Event& e, const edm::EventSetup& c);
-      void endJob() ;
+      void beginJob() override;
+      void produce(edm::Event& e, const edm::EventSetup& c) override;
+      void endJob() override ;
 
       typedef long long Word64;
       typedef unsigned int Word32;
@@ -90,9 +92,11 @@ class EcalDigiToRaw : public edm::EDProducer {
 	bool doSR_;
 	bool doTower_;
 
-	edm::InputTag labelTT_ ;
-	edm::InputTag labelEBSR_ ;
-	edm::InputTag labelEESR_ ;
+	edm::EDGetTokenT<EcalTrigPrimDigiCollection> labelTT_ ;
+	edm::EDGetTokenT<EBSrFlagCollection> labelEBSR_ ;
+	edm::EDGetTokenT<EESrFlagCollection> labelEESR_ ;
+	edm::EDGetTokenT<EBDigiCollection> EBDigiToken_ ;
+	edm::EDGetTokenT<EEDigiCollection> EEDigiToken_;
 
 	bool doBarrel_;
 	bool doEndCap_;

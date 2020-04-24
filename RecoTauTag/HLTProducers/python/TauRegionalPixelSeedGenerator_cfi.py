@@ -19,7 +19,9 @@ tauRegionalPixelSeedGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDPro
             ptMin = cms.double(5.0),
             JetSrc = cms.InputTag("icone5Tau1"),
             originZPos = cms.double(0.0),
-            vertexSrc = cms.InputTag("pixelVertices")
+            vertexSrc = cms.InputTag("pixelVertices"),
+            howToUseMeasurementTracker = cms.string("ForSiStrips"),
+            measurementTrackerName = cms.InputTag("MeasurementTrackerEvent"),
         )
     ),
     TTRHBuilder = cms.string('WithTrackAngle')

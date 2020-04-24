@@ -4,7 +4,7 @@ pushd ${LOCAL_TMP_DIR}
 
 cfiFiles=Geometry/CMSCommonData/cmsIdealGeometryXML_cfi
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryXML_cfi"
-cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryLiMaxXML_cfi"
+cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2015XML_cfi"
 
 status=0
 

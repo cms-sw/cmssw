@@ -39,13 +39,13 @@ class DCCEBTCCBlock : public DCCTCCBlock {
     */
     DCCEBTCCBlock( DCCDataUnpacker *  u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);    
 	 
-    void updateCollectors();
+    void updateCollectors() override;
    
-    void addTriggerPrimitivesToCollection();
+    void addTriggerPrimitivesToCollection() override;
   
   protected :
 
-   bool checkTccIdAndNumbTTs();
+   bool checkTccIdAndNumbTTs() override;
 
 };
 

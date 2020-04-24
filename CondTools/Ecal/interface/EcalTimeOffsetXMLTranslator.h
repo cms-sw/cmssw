@@ -10,15 +10,8 @@
 #ifndef __EcalTimeOffsetXMLTranslator_h_
 #define __EcalTimeOffsetXMLTranslator_h_
 
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-
-
-static const char CVSId__EcalTimeOffsetXMLTranslator[] = 
-"$Id: $";
-
 
 class EcalTimeOffsetConstant;
 
@@ -33,12 +26,11 @@ public:
   static int writeXML (const std::string& filename,
 		       const EcalCondHeader& header,
 		       const EcalTimeOffsetConstant& record);
-
+ private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalTimeOffsetConstant& record);
 };
-
-
 
 #endif // __EcalTimeOffsetXMLTranslator_h_
 

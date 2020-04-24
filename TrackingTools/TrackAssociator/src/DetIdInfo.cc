@@ -4,6 +4,9 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
   
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -11,12 +14,6 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
@@ -25,7 +22,7 @@
 
 #include <sstream>
 
-std::string DetIdInfo::info(const DetId& id) {
+std::string DetIdInfo::info(const DetId& id, const TrackerTopology *tTopo) {
    std::ostringstream oss;
    
    oss << "DetId: " << id.rawId() << "\n";
@@ -36,36 +33,38 @@ std::string DetIdInfo::info(const DetId& id) {
        switch ( id.subdetId() ) {
         case StripSubdetector::TIB:
              {
-               oss <<"TIB "<<TIBDetId(id).layer();
+               oss <<"TIB ";
              }
            break;
         case StripSubdetector::TOB:
              {
-               oss <<"TOB "<<TOBDetId(id).layer();
+               oss <<"TOB ";
              }
            break;
         case StripSubdetector::TEC:
              {
-               oss <<"TEC "<<TECDetId(id).wheel();
+               oss <<"TEC ";
              }
            break;
         case StripSubdetector::TID:
              {
-               oss <<"TID "<<TIDDetId(id).wheel();
+               oss <<"TID ";
              }
            break;
         case (int) PixelSubdetector::PixelBarrel:
              {
-               oss <<"PixBarrel "<< PXBDetId(id).layer();
+               oss <<"PixBarrel ";
              }
            break;
         case (int) PixelSubdetector::PixelEndcap:
              {
-               oss <<"PixEndcap "<< PXBDetId(id).layer();
+               oss <<"PixEndcap ";
              }
            break;
-         }
-        break;
+       }
+       if ( tTopo!=nullptr)
+	 oss<< tTopo->layer(id);
+       break;
 
     case DetId::Muon:
       switch ( id.subdetId() ) {
@@ -123,6 +122,27 @@ std::string DetIdInfo::info(const DetId& id) {
 		 break;
 	      }
 	   }
+	 break;
+       case MuonSubdetId::GEM:
+	 {
+	   GEMDetId detId(id.rawId());
+	   oss << "GEM chamber (endcap, station, ring, chamber, layer): "
+	       << detId.region() << ", "
+	       << detId.station() << ", "
+	       << detId.ring() << ", "
+	       << detId.chamber() << ", "
+	       << detId.layer();
+	 }
+	 break;
+       case MuonSubdetId::ME0:
+	 {
+	   ME0DetId detId(id.rawId());
+	   oss << "ME0 chamber (endcap, station, ring, chamber, layer): "
+	       << detId.region() << ", "
+	       << detId.station() << ", "
+	       << detId.chamber() << ", "
+	       << detId.layer();
+	 }
 	 break;
       }
       break;
@@ -209,21 +229,21 @@ std::string DetIdInfo::info(const DetId& id) {
 }
 
    
-std::string DetIdInfo::info(const std::set<DetId>& idSet) {
+std::string DetIdInfo::info(const std::set<DetId>& idSet, const TrackerTopology *tTopo) {
    std::string text;
    for(std::set<DetId>::const_iterator id = idSet.begin(); id != idSet.end(); id++)
      {
-	text += info(*id);
+       text += info(*id, tTopo);
 	text += "\n";
      }
    return text;
 }
 
-std::string DetIdInfo::info(const std::vector<DetId>& idSet) {
+std::string DetIdInfo::info(const std::vector<DetId>& idSet, const TrackerTopology *tTopo) {
    std::string text;
    for(std::vector<DetId>::const_iterator id = idSet.begin(); id != idSet.end(); id++)
      {
-	text += info(*id);
+       text += info(*id, tTopo);
 	text += "\n";
      }
    return text;

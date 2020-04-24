@@ -12,7 +12,7 @@ namespace edm {
      {
      }
      
-     NoDataExceptionBase::~NoDataExceptionBase() throw() {}
+     NoDataExceptionBase::~NoDataExceptionBase() noexcept {}
      
      const DataKey& NoDataExceptionBase::dataKey() const { return dataKey_; }
      

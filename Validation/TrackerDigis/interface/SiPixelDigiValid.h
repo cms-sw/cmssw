@@ -3,6 +3,10 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include <string>
 
@@ -13,7 +17,7 @@ class PixelDigi;
 class DQMStore;
 class MonitorElement;
 
-class  SiPixelDigiValid: public edm::EDAnalyzer {
+class  SiPixelDigiValid: public DQMEDAnalyzer {
 
  public:
     
@@ -23,12 +27,13 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
  protected:
      void analyze(const edm::Event& e, const edm::EventSetup& c);
      void beginJob();
-     void beginRun(edm::Run const& r, edm::EventSetup const& es);
+     void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
      void endJob(void);
 
  private:
 
   std::string outputFile_;
+  bool runStandalone;
 
   //////Barrel Pixel
   /* 1st Layer */
@@ -264,6 +269,7 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
  
   DQMStore* dbe_;
   edm::EDGetTokenT< edm::DetSetVector<PixelDigi> > edmDetSetVector_PixelDigi_Token_;
+  edm::ESHandle<GeometricSearchTracker> tracker;
 
  
 };

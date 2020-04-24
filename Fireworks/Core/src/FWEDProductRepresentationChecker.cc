@@ -70,7 +70,7 @@ FWRepresentationInfo
 FWEDProductRepresentationChecker::infoFor(const std::string& iTypeName) const
 {
    TClass* clss = TClass::GetClass(iTypeName.c_str());
-   if(0==clss || clss->GetTypeInfo()==0) {
+   if(nullptr==clss || clss->GetTypeInfo()==nullptr) {
       return FWRepresentationInfo();
    }
    if(clss->GetTypeInfo()->name() == m_typeidName) {

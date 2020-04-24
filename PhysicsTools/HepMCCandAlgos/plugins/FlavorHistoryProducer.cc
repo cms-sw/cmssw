@@ -80,7 +80,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   vector<FlavorHistory::FLAVOR_T> flavorSources;
 
   // Make a new flavor history vector
-  auto_ptr<FlavorHistoryEvent > flavorHistoryEvent ( new FlavorHistoryEvent () ) ;
+  auto flavorHistoryEvent = std::make_unique<FlavorHistoryEvent>();
 
   // ------------------------------------------------------------
   // Loop over partons
@@ -321,7 +321,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   }
 
   // Now add the flavor history to the event record
-  evt.put( flavorHistoryEvent, flavorHistoryName_ );
+  evt.put(std::move(flavorHistoryEvent), flavorHistoryName_ );
 }
 
 

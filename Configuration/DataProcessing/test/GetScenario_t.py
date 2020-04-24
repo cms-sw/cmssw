@@ -17,7 +17,7 @@ class GetScenarioTest(unittest.TestCase):
         try:
             scenario = getScenario("Test")
 
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to get Test scenario:\n"
             msg += str(ex)
             self.fail(msg)

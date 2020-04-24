@@ -7,6 +7,8 @@
 POOL object to store Hcal Response Corrections
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorr.h"
 
@@ -16,13 +18,15 @@ class HcalRespCorrs: public HcalCondObjectContainer<HcalRespCorr>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalRespCorrs():HcalCondObjectContainer<HcalRespCorr>(0) {}
+  HcalRespCorrs():HcalCondObjectContainer<HcalRespCorr>(nullptr) {}
 #endif
   HcalRespCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalRespCorr>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalRespCorrs";}
+  std::string myname() const override {return (std::string)"HcalRespCorrs";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif

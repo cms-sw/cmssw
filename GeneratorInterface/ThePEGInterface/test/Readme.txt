@@ -1,3 +1,8 @@
+Tested in CMSSW_7_X_X examples are: 
+
+testThePEGGeneratorFilter.py
+testThePEGGeneratorFilter_Gen_MC.py
+
 Many examples for event generation with Herwig++ are available in the
 production config directory: Configuration/GenProduction
 

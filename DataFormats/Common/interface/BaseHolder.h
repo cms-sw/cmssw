@@ -9,9 +9,9 @@
 
 namespace edm {
   class ProductID;
-  class RefHolderBase;
 
   namespace reftobase {
+    class RefHolderBase;
     template<typename T> class BaseVectorHolder;
     class RefVectorHolderBase;
 
@@ -55,18 +55,17 @@ namespace edm {
       // msg, and return false.
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
                                           std::string& msg) const = 0;
-      virtual std::auto_ptr<RefHolderBase> holder() const = 0;
+      virtual std::unique_ptr<RefHolderBase> holder() const = 0;
 
-      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
-      virtual std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() const = 0;
+      virtual std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
 
       virtual EDProductGetter const* productGetter() const = 0;
-      virtual bool hasProductCache() const = 0;
-      virtual void const* product() const = 0;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const = 0;
+
+      virtual bool isTransient() const = 0;
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)

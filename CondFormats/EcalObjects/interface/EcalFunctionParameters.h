@@ -1,6 +1,8 @@
 #ifndef CondFormats_EcalObjects_EcalFunctionParameters_hh
 #define CondFormats_EcalObjects_EcalFunctionParameters_hh
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 //typedef float EcalFunParam;
@@ -12,6 +14,8 @@ class EcalFunParams {
                 EcalFunctionParameters const & params() const { return m_params; }
         private:
                 EcalFunctionParameters m_params;
+
+        COND_SERIALIZABLE;
 };
 
 #endif

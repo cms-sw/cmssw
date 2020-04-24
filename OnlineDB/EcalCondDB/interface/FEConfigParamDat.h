@@ -36,18 +36,18 @@ class FEConfigParamDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const FEConfigParamDat* item, FEConfigLinInfo* iconf)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void writeArrayDB(const std::map< EcalLogicID, FEConfigParamDat>* data, FEConfigLinInfo* iconf)
-  throw(std::runtime_error);
+  noexcept(false);
 
 
   void fetchData(std::map< EcalLogicID, FEConfigParamDat >* fillMap, FEConfigLinInfo* iconf)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
 float  m_etsat ;

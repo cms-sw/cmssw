@@ -39,7 +39,7 @@
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 using namespace std;
 using namespace reco;
@@ -272,10 +272,10 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
 
       if (muonTSOS.isValid() && (*is).second.isValid()) {
 	// check matching between tracker and muon tracks using dEta cut looser then dPhi cut 
-	LogTrace(category) << "    Stage 2 deltaR " << deltaR << " deltaEta " << fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta()<1.5*theDeltaR_2) << " deltaPhi " << (fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2) << endl;
+	LogTrace(category) << "    Stage 2 deltaR " << deltaR << " deltaEta " << fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta()<1.5*theDeltaR_2) << " deltaPhi " << (fabs(deltaPhi((*is).second.globalPosition().barePhi(),muonTSOS.globalPosition().barePhi()))<theDeltaR_2) << endl;
         
 	if(fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta())<1.5*theDeltaR_2
-	   &&fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2){
+	   &&fabs(deltaPhi((*is).second.globalPosition().barePhi(),muonTSOS.globalPosition().barePhi()))<theDeltaR_2){
 	  result.push_back((*is).first);
 	  passes[jj]=true;
 	}
@@ -522,8 +522,8 @@ GlobalMuonTrackMatcher::samePlane(const TrajectoryStateOnSurface& tsos1,
   const float maxtilt = 0.999;
   const float maxdist = 0.01; // in cm
 
-  ReferenceCountingPointer<TangentPlane> p1(tsos1.surface().tangentPlane(tsos1.localPosition()));
-  ReferenceCountingPointer<TangentPlane> p2(tsos2.surface().tangentPlane(tsos2.localPosition()));
+  auto p1(tsos1.surface().tangentPlane(tsos1.localPosition()));
+  auto p2(tsos2.surface().tangentPlane(tsos2.localPosition()));
 
   bool returnValue = ( (fabs(p1->normalVector().dot(p2->normalVector())) > maxtilt) || (fabs((p1->toLocal(p2->position())).z()) < maxdist) ) ? true : false;
 

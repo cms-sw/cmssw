@@ -1,11 +1,15 @@
 #ifndef SiStripBadStrip_h
 #define SiStripBadStrip_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
 #include<boost/cstdint.hpp>
 #include "DataFormats/SiStripCommon/interface/ConstantsForCondObjects.h"
+
+class TrackerTopology;
 
 /**
  * Holds the list of bad components. <br>
@@ -38,7 +42,9 @@ class SiStripBadStrip {
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   class StrictWeakOrdering{
   public:
@@ -64,8 +70,8 @@ class SiStripBadStrip {
   const Range getRange(const uint32_t detID) const;
   Range getRangeByPos(unsigned short pos) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
-  void printSummary(std::stringstream & ss) const;
-  void printDebug(std::stringstream & ss) const;
+  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
+  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
 
   ContainerIterator getDataVectorBegin()    const {return v_badstrips.begin();}
   ContainerIterator getDataVectorEnd()      const {return v_badstrips.end();}
@@ -88,6 +94,8 @@ class SiStripBadStrip {
 protected:
   Container v_badstrips; 
   Registry indexes;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

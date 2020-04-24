@@ -1,6 +1,6 @@
 
 #include <vector>
-#include <boost/cstdint.hpp> 
+#include <boost/cstdint.hpp>
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DataFormats/Scalers/interface/L1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/L1TriggerRates.h"
@@ -44,12 +44,12 @@ namespace DataFormats_Scalers {
     edm::RefProd<BeamSpotOnline> beamSpotOnlineRef ;
 
     L1AcceptBunchCrossingCollection l1AcceptBunchCrossingCollection;
-    edm::Wrapper<L1AcceptBunchCrossingCollection> 
+    edm::Wrapper<L1AcceptBunchCrossingCollection>
       w_l1AcceptBunchCrossingCollection;
 
     L1TriggerScalersCollection l1TriggerScalersCollection;
     edm::Wrapper<L1TriggerScalersCollection> w_l1TriggerScalersCollection;
- 
+
     L1TriggerRatesCollection l1TriggerRatesCollection;
     edm::Wrapper<L1TriggerRatesCollection> w_l1TriggerRatesCollection;
 

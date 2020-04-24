@@ -14,15 +14,16 @@ class FWTrackTrackingRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<re
 {
 public:
    FWTrackTrackingRecHitProxyBuilder( void ) {}
-   virtual ~FWTrackTrackingRecHitProxyBuilder( void ) {}
+   ~FWTrackTrackingRecHitProxyBuilder( void ) override {}
   
    REGISTER_PROXYBUILDER_METHODS();
   
 private:
+   using FWSimpleProxyBuilderTemplate<reco::Track>::build;
    void build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
-   FWTrackTrackingRecHitProxyBuilder( const FWTrackTrackingRecHitProxyBuilder& );    // stop default
-   const FWTrackTrackingRecHitProxyBuilder& operator=( const FWTrackTrackingRecHitProxyBuilder& );    // stop default
+   FWTrackTrackingRecHitProxyBuilder( const FWTrackTrackingRecHitProxyBuilder& ) = delete;    // stop default
+   const FWTrackTrackingRecHitProxyBuilder& operator=( const FWTrackTrackingRecHitProxyBuilder& ) = delete;    // stop default
 };
 
 void
@@ -35,7 +36,7 @@ FWTrackTrackingRecHitProxyBuilder::build( const reco::Track& iData, unsigned int
       TEvePointSet* pointSet = new TEvePointSet;
       setupAddElement( pointSet, &oItemHolder );
 
-      TrackingRecHitRef rechitRef = *it;
+      auto rechitRef = *it;
       const TrackingRecHit *rechit = &( *rechitRef );
 
       if( rechit->isValid())

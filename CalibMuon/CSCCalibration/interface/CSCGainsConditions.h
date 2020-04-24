@@ -19,7 +19,7 @@
 class CSCGainsConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCGainsConditions(const edm::ParameterSet&);
-  ~CSCGainsConditions();
+  ~CSCGainsConditions() override;
   
   static CSCGains * prefillGains();
 
@@ -29,7 +29,7 @@ class CSCGainsConditions: public edm::ESProducer, public edm::EventSetupRecordIn
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCGains *cnGains ;
 
 };

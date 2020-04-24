@@ -30,6 +30,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
 // forward declarations
 class FEDRawDataCollection;
 class L1MuGMTReadoutRecord;
@@ -49,15 +51,15 @@ public:
     explicit L1GTDigiToRaw(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GTDigiToRaw();
+    ~L1GTDigiToRaw() override;
 
 private:
 
     /// beginning of job stuff
-    virtual void beginJob();
+    void beginJob() override;
 
     /// loop over events
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     /// block packers -------------
 
@@ -90,7 +92,7 @@ private:
     void packTrailer(unsigned char*, unsigned char*, int);
 
     /// end of job stuff
-    virtual void endJob();
+    void endJob() override;
 
 private:
 
@@ -99,9 +101,11 @@ private:
     int m_daqGtFedId;
 
     /// input tag for GT DAQ record
-    edm::InputTag m_daqGtInputTag;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_daqGtInputToken;
 
     /// input tag for GMT record
+    edm::EDGetTokenT<L1MuGMTReadoutCollection> m_muGmtInputToken;
+    edm::InputTag m_daqGtInputTag;
     edm::InputTag m_muGmtInputTag;
 
     /// mask for active boards

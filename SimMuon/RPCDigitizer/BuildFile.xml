@@ -1,8 +1,5 @@
-<use   name="boost"/>
-<use   name="CondCore/DBCommon"/>
+<use   name="CondCore/CondDB"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/RPCObjects"/>
@@ -23,7 +20,7 @@
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="RelationalAccess"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/RPCDigiSimLink"/>
 <use   name="SimDataFormats/TrackerDigiSimLink"/>

@@ -3,16 +3,18 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
+#include "TkCloner.h"
+
+class SiStripMatchedRecHit2D final : public BaseTrackerRecHit {
  public:
   typedef BaseTrackerRecHit Base;
 
   SiStripMatchedRecHit2D(){}
-  ~SiStripMatchedRecHit2D(){}
+  ~SiStripMatchedRecHit2D() override{}
 
-  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
+  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, GeomDet const & idet,
 			  const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo):
-    BaseTrackerRecHit(pos, err, id, trackerHitRTTI::match), clusterMono_(rMono->omniClusterRef()), clusterStereo_(rStereo->omniClusterRef()){}
+    BaseTrackerRecHit(pos, err, idet, trackerHitRTTI::match), clusterMono_(rMono->omniClusterRef()), clusterStereo_(rStereo->omniClusterRef()){}
 
   // by value, as they will not exists anymore...
   SiStripRecHit2D  stereoHit() const { return SiStripRecHit2D(stereoId(),stereoClusterRef()) ;}
@@ -22,7 +24,7 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
   unsigned int monoId()   const { return rawId()+2;}
 
   // (to be improved)
-  virtual OmniClusterRef const & firstClusterRef() const { return monoClusterRef();}
+  OmniClusterRef const & firstClusterRef() const override { return monoClusterRef();}
 
 
   OmniClusterRef const & stereoClusterRef() const { return clusterStereo_;}
@@ -39,20 +41,36 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
   }  
 
 
-  virtual SiStripMatchedRecHit2D * clone() const {return new SiStripMatchedRecHit2D( * this);}
+  SiStripMatchedRecHit2D * clone() const override {return new SiStripMatchedRecHit2D( * this);}
+#ifndef __GCCXML__
+  RecHitPointer cloneSH() const override { return std::make_shared<SiStripMatchedRecHit2D>(*this);}
+#endif
+
  
-  virtual int dimension() const {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+  int dimension() const override {return 2;}
+  void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
 
 
 
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+  bool sharesInput( const TrackingRecHit* other, SharedInputType what) const override;
 
   bool sharesInput(TrackerSingleRecHit const & other) const;
 
-  virtual std::vector<const TrackingRecHit*> recHits() const; 
+  std::vector<const TrackingRecHit*> recHits() const override; 
 
-  virtual std::vector<TrackingRecHit*> recHits(); 
+  std::vector<TrackingRecHit*> recHits() override; 
+
+  bool canImproveWithTrack() const override {return true;}
+private:
+  // double dispatch
+  SiStripMatchedRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner(*this,tsos).release();
+  }
+#ifndef __GCCXML__
+   RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner.makeShared(*this,tsos);
+  }
+#endif 
     
  private:
    OmniClusterRef clusterMono_, clusterStereo_;

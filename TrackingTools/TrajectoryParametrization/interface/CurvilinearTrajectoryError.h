@@ -35,13 +35,17 @@ public:
 // construct
   CurvilinearTrajectoryError() {}
 
-  CurvilinearTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-99999.e10;}
+  CurvilinearTrajectoryError(InvalidError) : theCovarianceMatrix(ROOT::Math::SMatrixNoInit()) {theCovarianceMatrix(0,0)=-99999.e10;}
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
   CurvilinearTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
+  template<typename M55>
+  CurvilinearTrajectoryError(const M55& aCovarianceMatrix) :
+    theCovarianceMatrix(aCovarianceMatrix) { }
+
 
   bool invalid() const { return theCovarianceMatrix(0,0)<-1.e10;}
   bool valid() const { return !invalid();}
@@ -61,6 +65,11 @@ public:
     return theCovarianceMatrix;
   }
 
+ AlgebraicSymMatrix55 &matrix() {
+    return theCovarianceMatrix;
+  }
+
+
   /** Enables the multiplication of the covariance matrix with the scalar "factor".
    */
 
@@ -78,7 +87,7 @@ public:
     //term 0,0 is not scaled at all
   }
 
-  operator MathCovarianceMatrix() { return theCovarianceMatrix; }
+  operator MathCovarianceMatrix & () { return theCovarianceMatrix; }
   operator const MathCovarianceMatrix &() const { return theCovarianceMatrix; }
 
 private:

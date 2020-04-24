@@ -55,10 +55,10 @@ static const std::string sUpdateMsg = "Please press Apply button to update overl
 
 FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* colMng) : 
    FWGeometryTableViewBase(iParent, FWViewType::kOverlapTable, colMng),
-   m_applyButton(0),
-   m_listOptionButton(0),
-   m_tableManager(0),
-   m_numEntry(0),
+   m_applyButton(nullptr),
+   m_listOptionButton(nullptr),
+   m_tableManager(nullptr),
+   m_numEntry(nullptr),
    m_runChecker(true),
    m_path(this,"Path:", std::string("/cms:World_1/cms:CMSE_1")),
    m_precision(this, "Precision", 0.05, 0.000001, 10),
@@ -114,7 +114,7 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
 
    // std::cerr << " FWOverlapTableView::initGeometry \n";
   
-   FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(0);
+   FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(nullptr);
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
    m_eveScene  = new  FWGeoTopNodeEveScene(gls, "TopGeoNodeScene", "");
 #else

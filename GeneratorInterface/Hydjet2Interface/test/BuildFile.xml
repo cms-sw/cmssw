@@ -1,0 +1,15 @@
+<use name="boost"/>
+<use name="root"/>
+<use name="heppdt"/>
+<use name="GeneratorInterface/Hydjet2Interface"/>
+<use name="FWCore/Framework"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/HiGenData"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<flags EDM_PLUGIN="1"/>
+<library file="Hydjet2Analyzer.cc" name="Hydjet2Analyzer">
+</library>

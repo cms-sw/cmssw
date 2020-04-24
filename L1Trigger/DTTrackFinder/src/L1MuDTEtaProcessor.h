@@ -33,11 +33,14 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
+class L1MuDTChambThContainer;
 class L1MuDTTrackSegEta;
 class L1MuDTTrackFinder;
 class L1MuDTTrack;
@@ -54,7 +57,7 @@ class L1MuDTEtaProcessor {
   public:
 
     /// constructor
-    L1MuDTEtaProcessor(const L1MuDTTrackFinder&, int id );
+    L1MuDTEtaProcessor(const L1MuDTTrackFinder&, int id, edm::ConsumesCollector&& iC);
 
     /// destructor
     virtual ~L1MuDTEtaProcessor();
@@ -117,6 +120,7 @@ class L1MuDTEtaProcessor {
     L1MuDTTrack*                              m_TrackCand[12];    
     L1MuDTTrack*                              m_TracKCand[12];    
     std::vector<const L1MuDTTrackSegEta*>     m_tseta;
+    edm::EDGetTokenT<L1MuDTChambThContainer>  m_DTDigiToken;
     
     edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
     edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables

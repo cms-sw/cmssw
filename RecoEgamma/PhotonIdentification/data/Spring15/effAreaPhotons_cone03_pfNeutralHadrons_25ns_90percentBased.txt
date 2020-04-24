@@ -1,0 +1,14 @@
+# This file contains Effective Area constants for 
+# computing pile-up corrections for the neutral hadron isolation
+# for a photon object.
+#
+#  The effective areas are derived based on the 90% contour method.
+#
+# |eta| min   |eta| max   effective area
+0.0000         1.0000        0.0599
+1.0000         1.4790        0.0819
+1.4790         2.0000        0.0696
+2.0000         2.2000        0.0360
+2.2000         2.3000        0.0360
+2.3000         2.4000        0.0462
+2.4000         5.0000        0.0656

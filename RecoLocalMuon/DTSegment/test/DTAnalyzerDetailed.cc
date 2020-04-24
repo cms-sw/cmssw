@@ -341,8 +341,8 @@ void DTAnalyzerDetailed::analyzeDTHits(const Event & event,
   // MeanTimer analysis
   // loop on SL
   //cout << "MeanTimer analysis" << endl;
-  const std::vector<DTSuperLayer*> & sls = dtGeom->superLayers();
-  for (std::vector<DTSuperLayer*>::const_iterator sl = sls.begin();
+  const std::vector<const DTSuperLayer*> & sls = dtGeom->superLayers();
+  for (auto sl = sls.begin();
        sl!=sls.end() ; ++sl) {
     DTSuperLayerId slid = (*sl)->id();
 
@@ -382,9 +382,9 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event & event,
 
   int nsegs = segs->size();
   histo("hnSegDT")->Fill(nsegs);
-  const std::vector<DTChamber*> & chs = dtGeom->chambers();
+  const std::vector<const DTChamber*> & chs = dtGeom->chambers();
 
-  for (std::vector<DTChamber*>::const_iterator ch = chs.begin();
+  for (auto ch = chs.begin();
        ch!=chs.end() ; ++ch) {
     DTChamberId chid((*ch)->id());
     //cout << "chid " << chid << endl;

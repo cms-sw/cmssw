@@ -4,11 +4,10 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "SimTracker/TrackAssociation/test/testTrackAssociator.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include <memory>
 #include <iostream>
@@ -37,28 +36,26 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   
   edm::ESHandle<MagneticField> theMF;
   setup.get<IdealMagneticFieldRecord>().get(theMF);
-  edm::ESHandle<TrackAssociatorBase> theChiAssociator;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theChiAssociator);
-  associatorByChi2 = (TrackAssociatorBase *) theChiAssociator.product();
-  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  setup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
-  associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
+  edm::Handle<reco::TrackToTrackingParticleAssociator> theChiAssociator;
+  event.getByLabel("trackAssociatorByChi2",theChiAssociator);
+  associatorByChi2 = theChiAssociator.product();
+  edm::Handle<reco::TrackToTrackingParticleAssociator> theHitsAssociator;
+  event.getByLabel("trackAssociatorByHits",theHitsAssociator);
+  associatorByHits = theHitsAssociator.product();
 
   Handle<View<Track> > trackCollectionH;
   event.getByLabel(tracksTag,trackCollectionH);
-  const View<Track>  tC = *(trackCollectionH.product()); 
+  const View<Track>&  tC = *(trackCollectionH.product()); 
   
   Handle<SimTrackContainer> simTrackCollection;
   event.getByLabel(simtracksTag, simTrackCollection);
-  const SimTrackContainer simTC = *(simTrackCollection.product());
+  const SimTrackContainer& simTC = *(simTrackCollection.product());
   
   Handle<SimVertexContainer> simVertexCollection;
   event.getByLabel(simvtxTag, simVertexCollection);
-  const SimVertexContainer simVC = *(simVertexCollection.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
   event.getByLabel(tpTag,TPCollectionH);
-  const TrackingParticleCollection tPC   = *(TPCollectionH.product());
 
   cout << "\nEvent ID = "<< event.id() << endl ;
 
@@ -67,7 +64,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   cout << "                      ****************** Reco To Sim ****************** " << endl;
   cout << "-- Associator by hits --" << endl;  
   reco::RecoToSimCollection p = 
-    associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event,&setup );
+    associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH);
   for(View<Track>::size_type i=0; i<tC.size(); ++i) {
     RefToBase<Track> track(trackCollectionH, i);
     try{ 
@@ -88,7 +85,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
     }
   }
   cout << "-- Associator by chi2 --" << endl;  
-  p = associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event,&setup );
+  p = associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH);
   for(View<Track>::size_type i=0; i<tC.size(); ++i) {
     RefToBase<Track> track(trackCollectionH, i);
     try{ 
@@ -112,7 +109,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   cout << "                      ****************** Sim To Reco ****************** " << endl;
   cout << "-- Associator by hits --" << endl;  
   reco::SimToRecoCollection q = 
-    associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&event,&setup );
+    associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH);
   for(SimTrackContainer::size_type i=0; i<simTC.size(); ++i){
     TrackingParticleRef tp (TPCollectionH,i);
     try{ 
@@ -132,7 +129,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
     }
   }
   cout << "-- Associator by chi2 --" << endl;  
-  q = associatorByChi2->associateSimToReco(trackCollectionH,TPCollectionH,&event,&setup );
+  q = associatorByChi2->associateSimToReco(trackCollectionH,TPCollectionH);
   for(SimTrackContainer::size_type i=0; i<simTC.size(); ++i){
     TrackingParticleRef tp (TPCollectionH,i);
     try{ 

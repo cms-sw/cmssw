@@ -34,9 +34,7 @@ HLTSingleVertexPixelTrackFilter::HLTSingleVertexPixelTrackFilter(const edm::Para
   pixelTracksToken_ = consumes<reco::RecoChargedCandidateCollection>(pixelTracksTag_);
 }
 
-HLTSingleVertexPixelTrackFilter::~HLTSingleVertexPixelTrackFilter()
-{
-}
+HLTSingleVertexPixelTrackFilter::~HLTSingleVertexPixelTrackFilter() = default;
 
 void
 HLTSingleVertexPixelTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

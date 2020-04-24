@@ -1,5 +1,4 @@
 #include "FWCore/Integration/test/ThingProducer.h"
-#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -7,90 +6,92 @@
 
 namespace edmtest {
   ThingProducer::ThingProducer(edm::ParameterSet const& iConfig): 
-  alg_(iConfig.getParameter<int>("offsetDelta")), //this really should be tracked, but I want backwards compatibility
+  alg_(iConfig.getParameter<int>("offsetDelta"), //this really should be tracked, but I want backwards compatibility
+       iConfig.getParameter<int>("nThings")),
   noPut_(iConfig.getUntrackedParameter<bool>("noPut")) // used for testing with missing products
   {
-    produces<ThingCollection>();
-    produces<ThingCollection, edm::InLumi>("beginLumi");
-    produces<ThingCollection, edm::InLumi>("endLumi");
-    produces<ThingCollection, edm::InRun>("beginRun");
-    produces<ThingCollection, edm::InRun>("endRun");
+    evToken_ = produces<ThingCollection>();
+    blToken_ = produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi");
+    elToken_= produces<ThingCollection, edm::Transition::EndLuminosityBlock>("endLumi");
+    brToken_ = produces<ThingCollection, edm::Transition::BeginRun>("beginRun");
+    erToken_ = produces<ThingCollection, edm::Transition::EndRun>("endRun");
   }
 
   // Virtual destructor needed.
   ThingProducer::~ThingProducer() { }  
 
   // Functions that gets called by framework every event
-  void ThingProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void ThingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    if (!noPut_) e.put(result);
+    if (!noPut_) e.put(evToken_,std::move(result));
   }
 
   // Functions that gets called by framework every luminosity block
-  void ThingProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingProducer::globalBeginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into lumi block
-    if (!noPut_) lb.put(result, "beginLumi");
+    if (!noPut_) lb.put(blToken_, std::move(result));
   }
 
-  void ThingProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into lumi block
-    if (!noPut_) lb.put(result, "endLumi");
+    if (!noPut_) lb.put(elToken_,std::move(result));
   }
 
   // Functions that gets called by framework every run
-  void ThingProducer::beginRunProduce(edm::Run& r, edm::EventSetup const&) {
+  void ThingProducer::globalBeginRunProduce(edm::Run& r, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    if (!noPut_) r.put(result, "beginRun");
+    if (!noPut_) r.put(brToken_,std::move(result));
   }
 
-  void ThingProducer::endRunProduce(edm::Run& r, edm::EventSetup const&) {
+  void ThingProducer::globalEndRunProduce(edm::Run& r, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    if (!noPut_) r.put(result, "endRun");
+    if (!noPut_) r.put(erToken_,std::move(result));
   }
 
   void ThingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<int>("offsetDelta",0)->setComment("How much extra to increment the value used when creating Things for a new container. E.g. the last value used to create Thing from the previous event is incremented by 'offsetDelta' to compute the value to use of the first Thing created in the next Event.");
+    desc.add<int>("nThings",20)->setComment("How many Things to put in each collection");
     desc.addUntracked<bool>("noPut",false)->setComment("If true, data is not put into the Principal. This is used to test missing products.");
     descriptions.add("thingProd", desc);
   }

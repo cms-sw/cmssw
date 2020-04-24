@@ -64,10 +64,6 @@
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
@@ -98,31 +94,25 @@ class TestGEMRecHitAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
   edm::ESHandle<GEMGeometry> gemGeom;
+  edm::EDGetTokenT<GEMRecHitCollection> GEMRecHit_Token;
 
   std::string rootFileName;
-  TFile * outputfile;
-  TH1F * BX_RecHits_GE1in_Plus,  * BX_RecHits_GE1out_Plus,  * BX_RecHits_GE1in_Minus,  * BX_RecHits_GE1out_Minus;
-  TH1F * ST_RecHits_GE1in_Plus, * ST_RecHits_GE1out_Plus, * ST_RecHits_GE1in_Minus, * ST_RecHits_GE1out_Minus;
-  TH1F * CL_RecHits_GE1in_Plus, * CL_RecHits_GE1out_Plus, * CL_RecHits_GE1in_Minus, * CL_RecHits_GE1out_Minus;
-  TCanvas * BX_RecHits_GE1, * ST_RecHits_GE1, * CL_RecHits_GE1;
+  std::unique_ptr<TFile> outputfile;
+  std::unique_ptr<TH1F> BX_RecHits_GE1in_Plus,  BX_RecHits_GE1out_Plus,  BX_RecHits_GE1in_Minus,  BX_RecHits_GE1out_Minus;
+  std::unique_ptr<TH1F> ST_RecHits_GE1in_Plus, ST_RecHits_GE1out_Plus, ST_RecHits_GE1in_Minus, ST_RecHits_GE1out_Minus;
+  std::unique_ptr<TH1F> CL_RecHits_GE1in_Plus, CL_RecHits_GE1out_Plus, CL_RecHits_GE1in_Minus, CL_RecHits_GE1out_Minus;
+  std::unique_ptr<TCanvas> BX_RecHits_GE1, ST_RecHits_GE1, CL_RecHits_GE1;
 
   std::vector<double> x_n1i, y_n1i, z_n1i, r_n1i, x_n1o, y_n1o, z_n1o, r_n1o; // XYZR GE1 Minus in and out 
   std::vector<double> x_p1i, y_p1i, z_p1i, r_p1i, x_p1o, y_p1o, z_p1o, r_p1o; // XYZR GE1 Plus in and out
   std::vector<double> x_n1, y_n1, z_n1, r_n1, x_p1, y_p1, z_p1, r_p1;
 
-  TGraph  * GE1in_Plus_XY_All, * GE1in_Minus_XY_All, * GE1out_Plus_XY_All, * GE1out_Minus_XY_All, * GE1out_Plus_YZ_All, * GE1out_Minus_YZ_All, * GE1in_Plus_YZ_All, * GE1in_Minus_YZ_All, * GE1_Plus_YZ_All, * GE1_Minus_YZ_All;
-  TCanvas * Canvas_GE1_Plus_XY, * Canvas_GE1_Minus_XY, * Canvas_GE1_Plus_YZ, * Canvas_GE1_Minus_YZ;
+  std::unique_ptr<TGraph>  GE1in_Plus_XY_All, GE1in_Minus_XY_All, GE1out_Plus_XY_All, GE1out_Minus_XY_All, GE1out_Plus_YZ_All, GE1out_Minus_YZ_All, GE1in_Plus_YZ_All, GE1in_Minus_YZ_All, GE1_Plus_YZ_All, GE1_Minus_YZ_All;
+  std::unique_ptr<TCanvas> Canvas_GE1_Plus_XY, Canvas_GE1_Minus_XY, Canvas_GE1_Plus_YZ, Canvas_GE1_Minus_YZ;
 
 };
 
@@ -144,24 +134,24 @@ TestGEMRecHitAnalyzer::TestGEMRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
+  GEMRecHit_Token = consumes<GEMRecHitCollection>(edm::InputTag("gemRecHits"));
   rootFileName  = iConfig.getUntrackedParameter<std::string>("RootFileName");
+  outputfile.reset(TFile::Open(rootFileName.c_str(), "RECREATE"));
 
-  outputfile = new TFile(rootFileName.c_str(), "RECREATE" );
+  BX_RecHits_GE1in_Plus    = std::unique_ptr<TH1F>(new TH1F("BX_RecHits_GE1in_Plus",   "BX_RecHits_GE1in_Plus",   n_bx, n1_bx, n2_bx));
+  BX_RecHits_GE1out_Plus   = std::unique_ptr<TH1F>(new TH1F("BX_RecHits_GE1out_Plus",  "BX_RecHits_GE1out_Plus",  n_bx, n1_bx, n2_bx));
+  BX_RecHits_GE1in_Minus   = std::unique_ptr<TH1F>(new TH1F("BX_RecHits_GE1in_Minus",  "BX_RecHits_GE1in_Minus",  n_bx, n1_bx, n2_bx));
+  BX_RecHits_GE1out_Minus  = std::unique_ptr<TH1F>(new TH1F("BX_RecHits_GE1out_Minus", "BX_RecHits_GE1out_Minus", n_bx, n1_bx, n2_bx));
 
-  BX_RecHits_GE1in_Plus    = new TH1F("BX_RecHits_GE1in_Plus",   "BX_RecHits_GE1in_Plus",   n_bx, n1_bx, n2_bx);
-  BX_RecHits_GE1out_Plus   = new TH1F("BX_RecHits_GE1out_Plus",  "BX_RecHits_GE1out_Plus",  n_bx, n1_bx, n2_bx);
-  BX_RecHits_GE1in_Minus   = new TH1F("BX_RecHits_GE1in_Minus",  "BX_RecHits_GE1in_Minus",  n_bx, n1_bx, n2_bx);
-  BX_RecHits_GE1out_Minus  = new TH1F("BX_RecHits_GE1out_Minus", "BX_RecHits_GE1out_Minus", n_bx, n1_bx, n2_bx);
+  ST_RecHits_GE1in_Plus   = std::unique_ptr<TH1F>(new TH1F("ST_RecHits_GE1in_Plus",   "ST_RecHits_GE1in_Plus",   n_st, n1_st, n2_st));
+  ST_RecHits_GE1out_Plus  = std::unique_ptr<TH1F>(new TH1F("ST_RecHits_GE1out_Plus",  "ST_RecHits_GE1out_Plus",  n_st, n1_st, n2_st));   
+  ST_RecHits_GE1in_Minus  = std::unique_ptr<TH1F>(new TH1F("ST_RecHits_GE1in_Minus",  "ST_RecHits_GE1in_Minus",  n_st, n1_st, n2_st));
+  ST_RecHits_GE1out_Minus = std::unique_ptr<TH1F>(new TH1F("ST_RecHits_GE1out_Minus", "ST_RecHits_GE1out_Minus", n_st, n1_st, n2_st));
 
-  ST_RecHits_GE1in_Plus   = new TH1F("ST_RecHits_GE1in_Plus",   "ST_RecHits_GE1in_Plus",   n_st, n1_st, n2_st);
-  ST_RecHits_GE1out_Plus  = new TH1F("ST_RecHits_GE1out_Plus",  "ST_RecHits_GE1out_Plus",  n_st, n1_st, n2_st);   
-  ST_RecHits_GE1in_Minus  = new TH1F("ST_RecHits_GE1in_Minus",  "ST_RecHits_GE1in_Minus",  n_st, n1_st, n2_st);
-  ST_RecHits_GE1out_Minus = new TH1F("ST_RecHits_GE1out_Minus", "ST_RecHits_GE1out_Minus", n_st, n1_st, n2_st);
-
-  CL_RecHits_GE1in_Plus   = new TH1F("CL_RecHits_GE1in_Plus",   "CL_RecHits_GE1in_Plus",   n_cl, n1_cl, n2_cl);
-  CL_RecHits_GE1out_Plus  = new TH1F("CL_RecHits_GE1out_Plus",  "CL_RecHits_GE1out_Plus",  n_cl, n1_cl, n2_cl);   
-  CL_RecHits_GE1in_Minus  = new TH1F("CL_RecHits_GE1in_Minus",  "CL_RecHits_GE1in_Minus",  n_cl, n1_cl, n2_cl);
-  CL_RecHits_GE1out_Minus = new TH1F("CL_RecHits_GE1out_Minus", "CL_RecHits_GE1out_Minus", n_cl, n1_cl, n2_cl);
+  CL_RecHits_GE1in_Plus   = std::unique_ptr<TH1F>(new TH1F("CL_RecHits_GE1in_Plus",   "CL_RecHits_GE1in_Plus",   n_cl, n1_cl, n2_cl));
+  CL_RecHits_GE1out_Plus  = std::unique_ptr<TH1F>(new TH1F("CL_RecHits_GE1out_Plus",  "CL_RecHits_GE1out_Plus",  n_cl, n1_cl, n2_cl));   
+  CL_RecHits_GE1in_Minus  = std::unique_ptr<TH1F>(new TH1F("CL_RecHits_GE1in_Minus",  "CL_RecHits_GE1in_Minus",  n_cl, n1_cl, n2_cl));
+  CL_RecHits_GE1out_Minus = std::unique_ptr<TH1F>(new TH1F("CL_RecHits_GE1out_Minus", "CL_RecHits_GE1out_Minus", n_cl, n1_cl, n2_cl));
 
 }
 
@@ -192,23 +182,23 @@ TestGEMRecHitAnalyzer::~TestGEMRecHitAnalyzer()
   CL_RecHits_GE1in_Minus->Write();
   CL_RecHits_GE1out_Minus->Write();
 
-  BX_RecHits_GE1 = new TCanvas("BX_RecHits_GE1", "BX_RecHits_GE1", 800, 600);
-  ST_RecHits_GE1 = new TCanvas("ST_RecHits_GE1", "ST_RecHits_GE1", 800, 600);
-  CL_RecHits_GE1 = new TCanvas("CL_RecHits_GE1", "CL_RecHits_GE1", 800, 600);
+  BX_RecHits_GE1 = std::unique_ptr<TCanvas>(new TCanvas("BX_RecHits_GE1", "BX_RecHits_GE1", 800, 600));
+  ST_RecHits_GE1 = std::unique_ptr<TCanvas>(new TCanvas("ST_RecHits_GE1", "ST_RecHits_GE1", 800, 600));
+  CL_RecHits_GE1 = std::unique_ptr<TCanvas>(new TCanvas("CL_RecHits_GE1", "CL_RecHits_GE1", 800, 600));
 
-  BX_RecHits_GE1->cd(); BX_RecHits_GE1->Divide(2,2);
+  BX_RecHits_GE1->cd();  BX_RecHits_GE1->Divide(2,2);
   BX_RecHits_GE1->cd(1); BX_RecHits_GE1in_Plus->Draw();  BX_RecHits_GE1in_Plus->GetXaxis()->SetTitle("BX [-]");  BX_RecHits_GE1in_Plus->GetYaxis()->SetTitle("entries [-]");   BX_RecHits_GE1in_Plus->SetTitle("GE+1in RecHits");
   BX_RecHits_GE1->cd(2); BX_RecHits_GE1out_Plus->Draw(); BX_RecHits_GE1out_Plus->GetXaxis()->SetTitle("BX [-]"); BX_RecHits_GE1out_Plus->GetYaxis()->SetTitle("entries [-]");  BX_RecHits_GE1out_Plus->SetTitle("GE+1out RecHits");
   BX_RecHits_GE1->cd(3); BX_RecHits_GE1in_Minus->Draw(); BX_RecHits_GE1in_Minus->GetXaxis()->SetTitle("BX [-]"); BX_RecHits_GE1in_Minus->GetYaxis()->SetTitle("entries [-]");  BX_RecHits_GE1in_Minus->SetTitle("GE-1in RecHits");
   BX_RecHits_GE1->cd(4); BX_RecHits_GE1out_Minus->Draw();BX_RecHits_GE1out_Minus->GetXaxis()->SetTitle("BX [-]");BX_RecHits_GE1out_Minus->GetYaxis()->SetTitle("entries [-]"); BX_RecHits_GE1out_Minus->SetTitle("GE-1out RecHits");
 
-  ST_RecHits_GE1->cd(); ST_RecHits_GE1->Divide(2,2);
+  ST_RecHits_GE1->cd();  ST_RecHits_GE1->Divide(2,2);
   ST_RecHits_GE1->cd(1); ST_RecHits_GE1in_Plus->Draw();   ST_RecHits_GE1in_Plus->GetXaxis()->SetTitle("First Strip of Cluster [-]");  ST_RecHits_GE1in_Plus->GetYaxis()->SetTitle("entries [-]");   ST_RecHits_GE1in_Plus->SetTitle("GE+1in RecHits");
   ST_RecHits_GE1->cd(2); ST_RecHits_GE1out_Plus->Draw();  ST_RecHits_GE1out_Plus->GetXaxis()->SetTitle("First Strip of Cluster [-]"); ST_RecHits_GE1out_Plus->GetYaxis()->SetTitle("entries [-]");  ST_RecHits_GE1out_Plus->SetTitle("GE+1out RecHits");
   ST_RecHits_GE1->cd(3); ST_RecHits_GE1in_Minus->Draw();  ST_RecHits_GE1in_Minus->GetXaxis()->SetTitle("First Strip of Cluster [-]"); ST_RecHits_GE1in_Minus->GetYaxis()->SetTitle("entries [-]");  ST_RecHits_GE1in_Minus->SetTitle("GE-1in RecHits");
   ST_RecHits_GE1->cd(4); ST_RecHits_GE1out_Minus->Draw(); ST_RecHits_GE1out_Minus->GetXaxis()->SetTitle("First Strip of Cluster [-]");ST_RecHits_GE1out_Minus->GetYaxis()->SetTitle("entries [-]"); ST_RecHits_GE1out_Minus->SetTitle("GE-1out RecHits");
 
-  CL_RecHits_GE1->cd(); CL_RecHits_GE1->Divide(2,2);
+  CL_RecHits_GE1->cd();  CL_RecHits_GE1->Divide(2,2);
   CL_RecHits_GE1->cd(1); CL_RecHits_GE1in_Plus->Draw();   CL_RecHits_GE1in_Plus->GetXaxis()->SetTitle("Clustersize [-]");  CL_RecHits_GE1in_Plus->GetYaxis()->SetTitle("entries [-]");   CL_RecHits_GE1in_Plus->SetTitle("GE+1in RecHits");
   CL_RecHits_GE1->cd(2); CL_RecHits_GE1out_Plus->Draw();  CL_RecHits_GE1out_Plus->GetXaxis()->SetTitle("Clustersize [-]"); CL_RecHits_GE1out_Plus->GetYaxis()->SetTitle("entries [-]");  CL_RecHits_GE1out_Plus->SetTitle("GE+1out RecHits");
   CL_RecHits_GE1->cd(3); CL_RecHits_GE1in_Minus->Draw();  CL_RecHits_GE1in_Minus->GetXaxis()->SetTitle("Clustersize [-]"); CL_RecHits_GE1in_Minus->GetYaxis()->SetTitle("entries [-]");  CL_RecHits_GE1in_Minus->SetTitle("GE-1in RecHits");
@@ -219,34 +209,34 @@ TestGEMRecHitAnalyzer::~TestGEMRecHitAnalyzer()
   const int n_n1o = x_n1o.size();  double x_an1o[n_n1o]; double y_an1o[n_n1o];  double z_an1o[n_n1o]; double r_an1o[n_n1o];
   const int n_p1i = x_p1i.size();  double x_ap1i[n_p1i]; double y_ap1i[n_p1i];  double z_ap1i[n_p1i]; double r_ap1i[n_p1i];
   const int n_p1o = x_p1o.size();  double x_ap1o[n_p1o]; double y_ap1o[n_p1o];  double z_ap1o[n_p1o]; double r_ap1o[n_p1o];
-  const int n_n1 = x_n1.size();  /*double x_an1[n_n1]; double y_an1[n_n1];*/  double z_an1[n_n1]; double r_an1[n_n1];
-  const int n_p1 = x_p1.size();  /*double x_ap1[n_p1]; double y_ap1[n_p1];*/  double z_ap1[n_p1]; double r_ap1[n_p1];
+  const int n_n1  = x_n1.size();   /*double x_an1[n_n1]; double y_an1[n_n1];*/  double z_an1[n_n1]; double r_an1[n_n1];
+  const int n_p1  = x_p1.size();   /*double x_ap1[n_p1]; double y_ap1[n_p1];*/  double z_ap1[n_p1]; double r_ap1[n_p1];
 
   for(int i=0; i< n_n1i; ++i) { x_an1i[i] = x_n1i[i]; y_an1i[i] = y_n1i[i]; z_an1i[i] = z_n1i[i]; r_an1i[i] = r_n1i[i];}
   for(int i=0; i< n_n1o; ++i) { x_an1o[i] = x_n1o[i]; y_an1o[i] = y_n1o[i]; z_an1o[i] = z_n1o[i]; r_an1o[i] = r_n1o[i];}
   for(int i=0; i< n_p1i; ++i) { x_ap1i[i] = x_p1i[i]; y_ap1i[i] = y_p1i[i]; z_ap1i[i] = z_p1i[i]; r_ap1i[i] = r_p1i[i];}
   for(int i=0; i< n_p1o; ++i) { x_ap1o[i] = x_p1o[i]; y_ap1o[i] = y_p1o[i]; z_ap1o[i] = z_p1o[i]; r_ap1o[i] = r_p1o[i];}
-  for(int i=0; i< n_n1; ++i) { /*x_an1[i] = x_n1[i]; y_an1[i] = y_n1[i];*/ z_an1[i] = z_n1[i]; r_an1[i] = r_n1[i];}
-  for(int i=0; i< n_p1; ++i) { /*x_ap1[i] = x_p1[i]; y_ap1[i] = y_p1[i];*/ z_ap1[i] = z_p1[i]; r_ap1[i] = r_p1[i];}
+  for(int i=0; i< n_n1; ++i)  { /*x_an1[i] = x_n1[i]; y_an1[i] = y_n1[i];*/ z_an1[i] = z_n1[i]; r_an1[i] = r_n1[i];}
+  for(int i=0; i< n_p1; ++i)  { /*x_ap1[i] = x_p1[i]; y_ap1[i] = y_p1[i];*/ z_ap1[i] = z_p1[i]; r_ap1[i] = r_p1[i];}
 
-  GE1in_Minus_XY_All  = new TGraph(n_n1i, x_an1i, y_an1i); std::cout<<"GE-1in All SimHits: "<<n_n1i<<std::endl;
-  GE1out_Minus_XY_All = new TGraph(n_n1o, x_an1o, y_an1o); std::cout<<"GE-1out All SimHits: "<<n_n1o<<std::endl;
-  GE1in_Plus_XY_All   = new TGraph(n_p1i, x_ap1i, y_ap1i); std::cout<<"GE+1in All SimHits: "<<n_p1i<<std::endl;
-  GE1out_Plus_XY_All  = new TGraph(n_p1o, x_ap1o, y_ap1o); std::cout<<"GE+1out All SimHits: "<<n_p1o<<std::endl;
+  GE1in_Minus_XY_All  = std::unique_ptr<TGraph>(new TGraph(n_n1i, x_an1i, y_an1i)); std::cout<<"GE-1in All SimHits: "<<n_n1i<<std::endl;
+  GE1out_Minus_XY_All = std::unique_ptr<TGraph>(new TGraph(n_n1o, x_an1o, y_an1o)); std::cout<<"GE-1out All SimHits: "<<n_n1o<<std::endl;
+  GE1in_Plus_XY_All   = std::unique_ptr<TGraph>(new TGraph(n_p1i, x_ap1i, y_ap1i)); std::cout<<"GE+1in All SimHits: "<<n_p1i<<std::endl;
+  GE1out_Plus_XY_All  = std::unique_ptr<TGraph>(new TGraph(n_p1o, x_ap1o, y_ap1o)); std::cout<<"GE+1out All SimHits: "<<n_p1o<<std::endl;
 
-  GE1in_Minus_YZ_All  = new TGraph(n_n1i, z_an1i, r_an1i);
-  GE1out_Minus_YZ_All = new TGraph(n_n1o, z_an1o, r_an1o);
-  GE1in_Plus_YZ_All   = new TGraph(n_p1i, z_ap1i, r_ap1i);
-  GE1out_Plus_YZ_All  = new TGraph(n_p1o, z_ap1o, r_ap1o);
+  GE1in_Minus_YZ_All  = std::unique_ptr<TGraph>(new TGraph(n_n1i, z_an1i, r_an1i));
+  GE1out_Minus_YZ_All = std::unique_ptr<TGraph>(new TGraph(n_n1o, z_an1o, r_an1o));
+  GE1in_Plus_YZ_All   = std::unique_ptr<TGraph>(new TGraph(n_p1i, z_ap1i, r_ap1i));
+  GE1out_Plus_YZ_All  = std::unique_ptr<TGraph>(new TGraph(n_p1o, z_ap1o, r_ap1o));
 
-  GE1_Minus_YZ_All  = new TGraph(n_n1, z_an1, r_an1);
-  GE1_Plus_YZ_All   = new TGraph(n_p1, z_ap1, r_ap1);
+  GE1_Minus_YZ_All    = std::unique_ptr<TGraph>(new TGraph(n_n1, z_an1, r_an1));
+  GE1_Plus_YZ_All     = std::unique_ptr<TGraph>(new TGraph(n_p1, z_ap1, r_ap1));
 
 
-  Canvas_GE1_Plus_XY   = new TCanvas("Canvas_GE1_Plus_XY",   "Canvas_GE1_Plus_XY", 800, 600);
-  Canvas_GE1_Minus_XY  = new TCanvas("Canvas_GE1_Minus_XY",  "Canvas_GE1_Minus_XY", 800, 600);
-  Canvas_GE1_Plus_YZ   = new TCanvas("Canvas_GE1_Plus_YZ",   "Canvas_GE1_Plus_YZ", 600, 800);
-  Canvas_GE1_Minus_YZ  = new TCanvas("Canvas_GE1_Minus_YZ",  "Canvas_GE1_Minus_YZ", 600, 800);
+  Canvas_GE1_Plus_XY   = std::unique_ptr<TCanvas>(new TCanvas("Canvas_GE1_Plus_XY",   "Canvas_GE1_Plus_XY", 800, 600));
+  Canvas_GE1_Minus_XY  = std::unique_ptr<TCanvas>(new TCanvas("Canvas_GE1_Minus_XY",  "Canvas_GE1_Minus_XY", 800, 600));
+  Canvas_GE1_Plus_YZ   = std::unique_ptr<TCanvas>(new TCanvas("Canvas_GE1_Plus_YZ",   "Canvas_GE1_Plus_YZ", 600, 800));
+  Canvas_GE1_Minus_YZ  = std::unique_ptr<TCanvas>(new TCanvas("Canvas_GE1_Minus_YZ",  "Canvas_GE1_Minus_YZ", 600, 800));
 
   // XY and RZ Graphs
   Canvas_GE1_Plus_XY->cd();
@@ -298,11 +288,13 @@ void
 TestGEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  iSetup.get<MuonGeometryRecord>().get(gemGeom);
+
   // ================
   // GEM recHits
   // ================
   edm::Handle<GEMRecHitCollection> gemRecHits; 
-  iEvent.getByLabel("gemRecHits","",gemRecHits);
+  iEvent.getByToken(GEMRecHit_Token,gemRecHits);
 
   // count the number of GEM rechits
   int nGEM = 0;
@@ -352,51 +344,6 @@ TestGEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
   }
 }
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TestGEMRecHitAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TestGEMRecHitAnalyzer::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-TestGEMRecHitAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
-{
-  iSetup.get<MuonGeometryRecord>().get(gemGeom);
-
-}
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void 
-TestGEMRecHitAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-TestGEMRecHitAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-TestGEMRecHitAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void

@@ -40,6 +40,7 @@ class VariablePlotter : public Plotter {
     for (unsigned int iH=0;iH!=th1Names.size();++iH){
       std::string hname = th1Names[iH];
       edm::ParameterSet hPset=th1.getParameter<edm::ParameterSet>(hname);
+      if (hPset.exists("name"))	hname = hPset.getParameter<std::string>("name");
       bool split=hPset.exists("splitter") || hPset.exists("splitters");
       if (split)
 	master_[hname]=new SplittingConfigurableHisto(ConfigurableHisto::h1, hname, hPset);
@@ -55,6 +56,7 @@ class VariablePlotter : public Plotter {
       std::string hname = tprofNames[iH];
       edm::ParameterSet hPset=tprof.getParameter<edm::ParameterSet>(hname);
       bool split=hPset.exists("splitter") || hPset.exists("splitters");
+      if (hPset.exists("name"))	hname = hPset.getParameter<std::string>("name");
       if (split)
 	master_[hname]=new SplittingConfigurableHisto(ConfigurableHisto::prof, hname, hPset);
       else
@@ -68,6 +70,7 @@ class VariablePlotter : public Plotter {
     for (unsigned int iH=0;iH!=th2Names.size();++iH){
       std::string hname = th2Names[iH];
       edm::ParameterSet hPset=th2.getParameter<edm::ParameterSet>(hname);
+      if (hPset.exists("name"))	hname = hPset.getParameter<std::string>("name");
       bool split=hPset.exists("splitter") || hPset.exists("splitters");
       if (split)
 	master_[hname]=new SplittingConfigurableHisto(ConfigurableHisto::h2, hname, hPset);

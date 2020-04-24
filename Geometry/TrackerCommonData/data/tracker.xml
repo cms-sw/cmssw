@@ -7,14 +7,6 @@
 		<Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="-[cms:TrackBeamZ2]" rMin="[cms:TrackBeamR2]" rMax="[cms:TrackCalorR]"/>
 			<ZSection z="-[cms:TrackBeamZ1]" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
-			<ZSection z="-[cms:TrackLumiZ2]" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
-			<ZSection z="-[cms:TrackLumiZ2]" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
-			<ZSection z="-[cms:TrackLumiZ1]" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
-			<ZSection z="-[cms:TrackLumiZ1]" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
-			<ZSection z="[cms:TrackLumiZ1]" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
-			<ZSection z="[cms:TrackLumiZ1]" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
-			<ZSection z="[cms:TrackLumiZ2]" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
-			<ZSection z="[cms:TrackLumiZ2]" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
 			<ZSection z="[cms:TrackBeamZ1]" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackCalorR]"/>
 			<ZSection z="[cms:TrackBeamZ2]" rMin="[cms:TrackBeamR2]" rMax="[cms:TrackCalorR]"/>
 		</Polycone>

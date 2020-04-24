@@ -42,12 +42,12 @@ public:
     explicit L1GtTextToRaw(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GtTextToRaw();
+    ~L1GtTextToRaw() override;
 
 private:
 
     /// beginning of job stuff
-    virtual void beginJob();
+    void beginJob() override;
 
     /// clean the text file, if needed
     virtual void cleanTextFile();
@@ -56,10 +56,10 @@ private:
     virtual int getDataSize();
 
     /// loop over events
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     /// end of job stuff
-    virtual void endJob();
+    void endJob() override;
 
 private:
 

@@ -25,8 +25,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "RecoVertex/KalmanVertexFit/interface/SimpleVertexTree.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <TFile.h>
 
@@ -37,12 +37,12 @@
 class KVFTest : public edm::EDAnalyzer {
 public:
   explicit KVFTest(const edm::ParameterSet&);
-  ~KVFTest();
+  ~KVFTest() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
 
@@ -50,13 +50,13 @@ private:
 
   edm::ParameterSet theConfig;
   edm::ParameterSet kvfPSet;
-  TrackAssociatorByChi2 * associatorForParamAtPca;
-  SimpleVertexTree *tree;
+  std::unique_ptr<SimpleVertexTree> tree;
   TFile*  rootFile_;
 
   std::string outputFile_; // output file
   edm::EDGetTokenT<reco::TrackCollection> token_tracks; 
   edm::EDGetTokenT<TrackingParticleCollection> token_TrackTruth;
   edm::EDGetTokenT<TrackingVertexCollection> token_VertexTruth;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> token_associatorForParamAtPca;
 
 };

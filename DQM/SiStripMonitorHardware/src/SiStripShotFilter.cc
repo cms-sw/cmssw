@@ -55,12 +55,12 @@ class SiStripShotFilter : public edm::EDFilter
  public:
 
   explicit SiStripShotFilter(const edm::ParameterSet&);
-  ~SiStripShotFilter();
+  ~SiStripShotFilter() override;
  private:
 
-  virtual void beginJob() override;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
@@ -115,7 +115,6 @@ SiStripShotFilter::filter(edm::Event& iEvent,
   
   //get digi data
   edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
-  //  iEvent.getByLabel(digicollection_,digis);
   iEvent.getByToken(digiToken_,digis);
 
   // loop on detector with digis

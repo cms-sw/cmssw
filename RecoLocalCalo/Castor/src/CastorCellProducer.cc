@@ -44,12 +44,12 @@
 class CastorCellProducer : public edm::EDProducer {
    public:
       explicit CastorCellProducer(const edm::ParameterSet&);
-      ~CastorCellProducer();
+      ~CastorCellProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // member data
       typedef math::XYZPointD Point;
@@ -105,7 +105,7 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<CastorRecHitCollection> InputRecHits;
   iEvent.getByToken(tok_input_, InputRecHits);
     
-  std::auto_ptr<CastorCellCollection> OutputCells (new CastorCellCollection);
+  auto OutputCells = std::make_unique<CastorCellCollection>();
    
   // looping over all CastorRecHits
 
@@ -170,7 +170,7 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   LogDebug("CastorCellProducer")
     <<"total number of cells in the event: "<<InputRecHits->size();
 
-  iEvent.put(OutputCells);
+  iEvent.put(std::move(OutputCells));
 
 
 }

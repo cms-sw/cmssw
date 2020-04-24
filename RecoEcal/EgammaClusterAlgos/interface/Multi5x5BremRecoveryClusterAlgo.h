@@ -56,7 +56,7 @@ class Multi5x5BremRecoveryClusterAlgo
 
   
   // the method called from outside to do the SuperClustering - returns a vector of SCs:
-  reco::SuperClusterCollection makeSuperClusters(reco::CaloClusterPtrVector & clusters);
+  reco::SuperClusterCollection makeSuperClusters(const reco::CaloClusterPtrVector & clusters);
   
  private:
   

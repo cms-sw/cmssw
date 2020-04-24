@@ -24,6 +24,8 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include <iostream>
 //
 // constructors and destructor
@@ -35,7 +37,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter
    previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
    depTag_  (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
    depToken_(0),
-   theDepositIsolator(0),
+   theDepositIsolator(nullptr),
    min_N_   (iConfig.getParameter<int> ("MinN"))
 {
   std::stringstream tags;
@@ -51,18 +53,16 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter
 
    edm::ParameterSet isolatorPSet = iConfig.getParameter<edm::ParameterSet>("IsolatorPSet");
    if (isolatorPSet.empty()) {
-     theDepositIsolator=0;
+     theDepositIsolator=nullptr;
        }else{
      std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
-     theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet);
+     theDepositIsolator = MuonIsolatorFactory::get()->create(type, isolatorPSet, consumesCollector());
    }
 
    if (theDepositIsolator) produces<edm::ValueMap<bool> >();
 }
 
-HLTMuonIsoFilter::~HLTMuonIsoFilter()
-{
-}
+HLTMuonIsoFilter::~HLTMuonIsoFilter() = default;
 
 //
 // member functions
@@ -95,7 +95,7 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
    // this HLT filter, and place it in the Event.
 
    //the decision map
-   std::auto_ptr<edm::ValueMap<bool> >
+   std::unique_ptr<edm::ValueMap<bool> >
      isoMap( new edm::ValueMap<bool> ());
 
    // get hold of trks
@@ -172,7 +172,7 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
        isoFiller.insert(mucands, isos.begin(), isos.end());
        isoFiller.fill();
      }
-     iEvent.put(isoMap);
+     iEvent.put(std::move(isoMap));
    }
 
    LogDebug("HLTMuonIsoFilter") << " >>>>> Result of HLTMuonIsoFilter is " << accept << ", number of muons passing isolation cuts= " << nIsolatedMu;

@@ -21,8 +21,8 @@ class PFRecoTauChargedHadronStringQuality : public PFRecoTauChargedHadronQuality
 {
  public:
   explicit PFRecoTauChargedHadronStringQuality(const edm::ParameterSet&);
-  ~PFRecoTauChargedHadronStringQuality() {}
-  double operator()(const PFRecoTauChargedHadron&) const;
+  ~PFRecoTauChargedHadronStringQuality() override {}
+  double operator()(const PFRecoTauChargedHadron&) const override;
  private:
   const StringCutObjectSelector<PFRecoTauChargedHadron> selector_;
   const StringObjectFunction<PFRecoTauChargedHadron> function_;

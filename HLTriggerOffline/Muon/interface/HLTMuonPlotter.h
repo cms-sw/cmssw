@@ -24,8 +24,8 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
+
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -66,8 +66,13 @@ class HLTMuonPlotter {
 		                    edm::EDGetTokenT<reco::MuonCollection> >&
 		 );
 
+  ~HLTMuonPlotter() {
+    delete genMuonSelector_;
+    delete recMuonSelector_;
+  }
+
   void beginJob();
-  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(const edm::Event &, const edm::EventSetup &);
 
   static boost::tuple<
@@ -79,15 +84,15 @@ class HLTMuonPlotter {
   
   struct MatchStruct {
     const reco::Candidate            * candBase;
-    const l1extra::L1MuonParticle    * candL1;
+    const l1t::Muon                  * candL1;
     std::vector<const reco::RecoChargedCandidate *> candHlt;
     MatchStruct() {
-      candBase   = 0;
-      candL1     = 0;
+      candBase   = nullptr;
+      candL1     = nullptr;
     }
     MatchStruct(const reco::Candidate * cand) {
       candBase = cand;
-      candL1     = 0;
+      candL1     = nullptr;
     }
     bool operator<(MatchStruct match) {
       return candBase->pt() < match.candBase->pt();
@@ -108,10 +113,11 @@ class HLTMuonPlotter {
                    edm::Handle<trigger::TriggerEventWithRefs>);
   void findMatches(
       std::vector<MatchStruct> &, 
-      const std::vector<l1extra::L1MuonParticleRef>&,
+      const l1t::MuonVectorRef& candsL1,
       const std::vector< std::vector< const reco::RecoChargedCandidate *> >&
       );
-  void bookHist(std::string, std::string, std::string, std::string);
+  void bookHist(DQMStore::IBooker &, std::string,
+		std::string, std::string, std::string);
 
   std::string  hltPath_;
   std::string  hltProcessName_;
@@ -139,7 +145,6 @@ class HLTMuonPlotter {
 
   L1MuonMatcherAlgo l1Matcher_;
 
-  DQMStore* dbe_;
   std::map<std::string, MonitorElement *> elements_;
 
 };

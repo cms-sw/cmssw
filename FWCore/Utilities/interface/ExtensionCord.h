@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 #include "FWCore/Utilities/interface/ECGetterBase.h"
@@ -80,7 +80,7 @@ namespace edm {
         holder_->getter_ = iGetter;
       }
       // ---------- member data --------------------------------
-      boost::shared_ptr< Holder > holder_;
+      std::shared_ptr< Holder > holder_;
       
   };
 }

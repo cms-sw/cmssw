@@ -36,8 +36,7 @@
 #include <sstream>
 #include <string>
 #include <exception>
-
-#include "boost/type_traits/is_base_and_derived.hpp"
+#include <type_traits>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
@@ -59,7 +58,7 @@ namespace cms {
     template <typename BASE, typename DERIVED>
     struct is_derived_or_same {
       static bool const value = 
-	boost::is_base_and_derived<BASE,DERIVED>::value || boost::is_same<BASE,DERIVED>::value;
+	std::is_base_of<BASE,DERIVED>::value || std::is_same<BASE,DERIVED>::value;
     };
 
   }
@@ -85,14 +84,14 @@ namespace cms {
               Exception const& another);
 
     Exception(Exception const& other); 
-    virtual ~Exception() throw();
+    ~Exception() noexcept override;
 
     void swap(Exception& other);
 
     Exception& operator=(Exception const& other);
 
     // The signature for what() must be identical to that of std::exception::what().
-    virtual char const* what() const throw();
+    char const* what() const noexcept override;
 
     virtual std::string explainSelf() const;
 
@@ -184,14 +183,14 @@ namespace cms {
 
     //     template <typename E>
     //     friend
-    //     typename detail::Desired<E, (boost::is_base_and_derived<Exception,E>::value ||
-    // 				 boost::is_same<Exception,E>::value)>::type &
+    //     typename detail::Desired<E, (std::is_base_of<Exception,E>::value ||
+    // 				 std::is_same<Exception,E>::value)>::type &
     //     operator<<(E& e, const char*);
   
     //    template <typename E>
     //    friend
-    //    typename detail::Desired<E, (boost::is_base_and_derived<Exception,E>::value ||
-    //  			       boost::is_same<Exception,E>::value)>::type &
+    //    typename detail::Desired<E, (std::is_base_of<Exception,E>::value ||
+    //  			       std::is_same<Exception,E>::value)>::type &
     //  			       operator<<(E& e, char*);
 
     // This function is deprecated and we are in the process of removing

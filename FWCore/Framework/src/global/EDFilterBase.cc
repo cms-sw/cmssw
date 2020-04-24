@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -47,13 +48,16 @@ namespace edm {
     }
     
     bool
-    EDFilterBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+    EDFilterBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
+                          ActivityRegistry* act,
                           ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      bool returnValue = this->filter(e.streamID(), e, c);
       const auto streamIndex =e.streamID().value();
-      commit_(e,&previousParentages_[streamIndex], &previousParentageIds_[streamIndex]);
+      e.setProducer(this, &previousParentages_[streamIndex]);
+      EventSignalsSentry sentry(act,mcc);
+      bool returnValue = this->filter(e.streamID(), e, c);
+      commit_(e, &previousParentageIds_[streamIndex]);
       return returnValue;
     }
     
@@ -76,22 +80,24 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+    EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
       this->doBeginRunSummary_(cnstR, c);
+      r.setProducer(this);
       this->doBeginRunProduce_(r,c);
       commit_(r);
     }
     
     void
-    EDFilterBase::doEndRun(RunPrincipal& rp, EventSetup const& c,
+    EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                            ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
+      r.setProducer(this);
       Run const& cnstR = r;
       this->doEndRunProduce_(r, c);
       this->doEndRunSummary_(r,c);
@@ -100,22 +106,24 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
       this->doBeginLuminosityBlockSummary_(cnstLb, c);
+      lb.setProducer(this);
       this->doBeginLuminosityBlockProduce_(lb, c);
       commit_(lb);
     }
     
     void
-    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                        ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
+      lb.setProducer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doEndLuminosityBlockProduce_(lb, c);
       this->doEndLuminosityBlockSummary_(cnstLb,c);
@@ -133,7 +141,7 @@ namespace edm {
     }
     void
     EDFilterBase::doStreamBeginRun(StreamID id,
-                                     RunPrincipal& rp,
+                                     RunPrincipal const& rp,
                                      EventSetup const& c,
                                      ModuleCallingContext const* mcc)
     {
@@ -143,7 +151,7 @@ namespace edm {
     }
     void
     EDFilterBase::doStreamEndRun(StreamID id,
-                                   RunPrincipal& rp,
+                                   RunPrincipal const& rp,
                                    EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
@@ -153,7 +161,7 @@ namespace edm {
     }
     void
     EDFilterBase::doStreamBeginLuminosityBlock(StreamID id,
-                                                 LuminosityBlockPrincipal& lbp,
+                                                 LuminosityBlockPrincipal const& lbp,
                                                  EventSetup const& c,
                                                  ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
@@ -163,7 +171,7 @@ namespace edm {
     
     void
     EDFilterBase::doStreamEndLuminosityBlock(StreamID id,
-                                               LuminosityBlockPrincipal& lbp,
+                                               LuminosityBlockPrincipal const& lbp,
                                                EventSetup const& c,
                                                ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
@@ -182,16 +190,6 @@ namespace edm {
     void
     EDFilterBase::doRespondToCloseInputFile(FileBlock const& fb) {
       //respondToCloseInputFile(fb);
-    }
-    
-    void
-    EDFilterBase::doPreForkReleaseResources() {
-      //preForkReleaseResources();
-    }
-    
-    void
-    EDFilterBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      //postForkReacquireResources(iChildIndex, iNumberOfChildren);
     }
     
     void EDFilterBase::preallocStreams(unsigned int) {}

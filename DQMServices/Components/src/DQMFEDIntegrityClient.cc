@@ -51,7 +51,7 @@ void DQMFEDIntegrityClient::beginJob() {
 
   // ----------------------------------------------------------------------------------
   std::string currentFolder = moduleName + "/" + fedFolderName ;
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   FedEntries  = dbe_->book1D("FedEntries",  "FED Entries",          NBINS, XMIN, XMAX);
   FedFatal    = dbe_->book1D("FedFatal",    "FED Fatal Errors",     NBINS, XMIN, XMAX);
@@ -103,7 +103,7 @@ void DQMFEDIntegrityClient::beginJob() {
 
   //-----------------------------------------------------------------------------------
   currentFolder = moduleName + "/EventInfo";
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   reportSummary = dbe_->bookFloat("reportSummary");
 
@@ -112,7 +112,7 @@ void DQMFEDIntegrityClient::beginJob() {
   if(reportSummary) reportSummary->Fill(1.);
 
   currentFolder = moduleName + "/EventInfo/reportSummaryContents";
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   reportSummaryContent[0]  = dbe_->bookFloat("CSC FEDs");
   reportSummaryContent[1]  = dbe_->bookFloat("DT FEDs");
@@ -132,7 +132,7 @@ void DQMFEDIntegrityClient::beginJob() {
   }
 
   currentFolder = moduleName + "/EventInfo";
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   reportSummaryMap = dbe_->book2D("reportSummaryMap",
                       "FED Report Summary Map", 1, 1, 2, 10, 1, 11);
@@ -269,26 +269,24 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 
         //      cout << "FED ID range : " << xmin << " - " << xmax << endl;
 
+	float binentry = 0.;
         for(int bin = 1; bin <= Nbins ; ++bin) {
           int id = xmin+bin;
-          entry += rootHisto->GetBinContent(bin);
+	  binentry = rootHisto->GetBinContent(bin);
+          entry += binentry;
           norm += rootHistoNorm->GetBinContent(bin);
           //      cout << *fat << "errors = " << entry << "\tnorm = " << norm << endl;
           //      cout << "Bin content : " << entry << endl;
-          if(entry > 0.) FedFatal->setBinContent(id, entry);
+	  FedFatal->setBinContent(id, binentry);
         }
-
       }
     }
 
     if (norm > 0) SummaryContent[k] = 1.0 - entry/norm;
     //      cout << "Summary Content : " << SummaryContent[k] << endl;
     reportSummaryContent[k]->Fill(SummaryContent[k]);
-    float threshold = 1.;
-    if (k==2 || k==3)          // for EE and EB only show yellow when more than 1% errors.
-         threshold = 0.99;
-    if (SummaryContent[k] < threshold && SummaryContent[k] >=0.95) 
-         SummaryContent[k] = 0.949;
+    if ( (k==2 || k==3)          // for EE and EB only show yellow when more than 1% errors.
+	 && SummaryContent[k] >=0.95 && SummaryContent[k] < 0.99 ) SummaryContent[k] = 0.949;
     reportSummaryMap->setBinContent(1, nSubsystems-k, SummaryContent[k]);
     sum = sum + SummaryContent[k];
 

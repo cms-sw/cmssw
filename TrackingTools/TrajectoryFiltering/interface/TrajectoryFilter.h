@@ -3,6 +3,12 @@
 
 #include <string>
 
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ConsumesCollector;
+}
+
 class Trajectory;
 class TempTrajectory;
 
@@ -32,6 +38,8 @@ class TrajectoryFilter {
   virtual ~TrajectoryFilter();
   virtual std::string name() const = 0;
 
+  virtual void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+
   virtual bool operator()( TempTrajectory&t) const { return toBeContinued(t);}
   virtual bool operator()( Trajectory&t) const { return toBeContinued(t);}
 
@@ -40,6 +48,7 @@ class TrajectoryFilter {
 
   virtual bool toBeContinued( TempTrajectory&) const = 0;
   virtual bool toBeContinued( Trajectory&) const = 0;
+
 };
 
 

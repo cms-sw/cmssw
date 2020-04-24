@@ -1,9 +1,9 @@
 #include "RecoLocalCalo/CastorReco/interface/CastorSimpleRecAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorTimeSlew.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include <algorithm> // for "max"
-#include <math.h>
+#include <cmath>
 
 constexpr double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
@@ -12,7 +12,7 @@ CastorSimpleRecAlgo::CastorSimpleRecAlgo(int firstSample, int samplesToAdd, bool
   samplesToAdd_(samplesToAdd), 
   correctForTimeslew_(correctForTimeslew) {
   if (correctForPulse) 
-    pulseCorr_=std::auto_ptr<CastorPulseContainmentCorrection>(new CastorPulseContainmentCorrection(samplesToAdd_,phaseNS,MaximumFractionalError));
+    pulseCorr_ = std::make_unique<CastorPulseContainmentCorrection>(samplesToAdd_,phaseNS,MaximumFractionalError);
 }
 
 CastorSimpleRecAlgo::CastorSimpleRecAlgo(int firstSample, int samplesToAdd) : 
@@ -75,7 +75,7 @@ namespace CastorSimpleRecAlgoImpl {
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
 
-      if (corr!=0) {
+      if (corr!=nullptr) {
 	// Apply phase-based amplitude correction:
 	ampl *= corr->getCorrection(fc_ampl);
 	//      std::cout << fc_ampl << " --> " << corr->getCorrection(fc_ampl) << std::endl;
@@ -149,7 +149,7 @@ namespace CastorSimpleRecAlgoImpl {
 CastorRecHit CastorSimpleRecAlgo::reconstruct(const CastorDataFrame& digi, const CastorCoder& coder, const CastorCalibrations& calibs) const {
   return CastorSimpleRecAlgoImpl::reco<CastorDataFrame,CastorRecHit>(digi,coder,calibs,
 							     firstSample_,samplesToAdd_,false,
-							     0,
+							     nullptr,
 							     CastorTimeSlew::Fast);
 }
 
@@ -165,7 +165,7 @@ void CastorSimpleRecAlgo::recoverADCSaturation(CastorRecHit& rechit,  const Cast
 									   maxADCvalue,satCorrConst,
 									   firstSample_,samplesToAdd_))
     // use empty flag bit for recording saturation correction
-    // see also CMSSW/RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h
+    // see also CMSSW/DataFormats/METReco/interface/HcalCaloFlagLabels.h
     rechit.setFlagField(1,HcalCaloFlagLabels::UserDefinedBit0);
 } 
 

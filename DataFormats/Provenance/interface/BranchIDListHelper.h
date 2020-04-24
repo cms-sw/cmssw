@@ -21,6 +21,9 @@ namespace edm {
 
     //CMS-THREADING called when a new file is opened
     bool updateFromInput(BranchIDLists const& bidlists);
+
+    void updateFromParent(BranchIDLists const& bidlists);
+
     ///Called by sources to convert their read indexes into the indexes used by the job
     void fixBranchListIndexes(BranchListIndexes& indexes) const;
 
@@ -42,6 +45,7 @@ namespace edm {
     BranchIDToIndexMap branchIDToIndexMap_;
     std::vector<BranchListIndex> inputIndexToJobIndex_;
     BranchListIndex producedBranchListIndex_;
+    BranchIDLists::size_type nAlreadyCopied_;
   };
 }
 

@@ -20,10 +20,10 @@ class CSCReadoutMappingFromFile : public CSCReadoutMappingForSliceTest {
    CSCReadoutMappingFromFile() {}
 
   /// Destructor
-   virtual ~CSCReadoutMappingFromFile();
+   ~CSCReadoutMappingFromFile() override;
 
   /// Fill mapping store
-   virtual void fill( const edm::ParameterSet& ps );
+   void fill( const edm::ParameterSet& ps ) override;
 
  private: 
    std::string theMappingFile;

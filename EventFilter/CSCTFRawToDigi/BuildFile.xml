@@ -5,7 +5,6 @@
 <use   name="DataFormats/L1CSCTrackFinder"/>
 <use   name="CondFormats/CSCObjects"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="Utilities/Timing"/>
 <export>
   <lib   name="1"/>
 </export>

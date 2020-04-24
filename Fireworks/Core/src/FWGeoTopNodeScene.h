@@ -9,8 +9,8 @@ class TGLViewer;
 class FWGeoTopNodeGLScene : public TGLScenePad
 {
 private:
-   FWGeoTopNodeGLScene(const FWGeoTopNodeGLScene&);            // Not implemented
-   FWGeoTopNodeGLScene& operator=(const FWGeoTopNodeGLScene&); // Not implemented
+   FWGeoTopNodeGLScene(const FWGeoTopNodeGLScene&) = delete;            // Not implemented
+   FWGeoTopNodeGLScene& operator=(const FWGeoTopNodeGLScene&) = delete; // Not implemented
 protected:
 
 public:
@@ -18,13 +18,14 @@ public:
    FWGeoTopNode *m_eveTopNode;
 
    FWGeoTopNodeGLScene(TVirtualPad* pad);
-   virtual ~FWGeoTopNodeGLScene() {}
+   ~FWGeoTopNodeGLScene() override {}
 
    void SetPad(TVirtualPad* p) { fPad = p; }
 
    void  GeoPopupMenu(Int_t gx, Int_t gy, TGLViewer*);
 
-   virtual Bool_t ResolveSelectRecord(TGLSelectRecord& rec, Int_t curIdx);
+   using TGLScenePad::ResolveSelectRecord;
+   Bool_t ResolveSelectRecord(TGLSelectRecord& rec, Int_t curIdx) override;
 
    bool OpenCompositeWithPhyID(UInt_t phyID, const TBuffer3D& buffer);
 
@@ -32,10 +33,13 @@ public:
    // There: if selected => gEve->GetSelection()->Remove(this) or sth
    //        if highlighted .... "" .....
 
-   virtual Int_t DestroyPhysicals();
+   using TGLScenePad::DestroyPhysicals;
+   Int_t DestroyPhysicals() override;
+   using TGLScenePad::DestroyPhysical;
    virtual Bool_t DestroyPhysical(Int_t);
 
-   virtual Int_t  AddObject(const TBuffer3D& buffer, Bool_t* addChildren = 0);
+   using TGLScenePad::AddObject;
+   Int_t  AddObject(const TBuffer3D& buffer, Bool_t* addChildren = nullptr) override;
 };
 
 //==============================================================================

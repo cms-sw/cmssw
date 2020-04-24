@@ -22,9 +22,9 @@ class IntSimProducer : public SimProducer {
    public:
       IntSimProducer(const edm::ParameterSet&);
 
-      void produce(edm::Event& e, const edm::EventSetup&) {
-	 std::auto_ptr<int> newInt(new int(++m_int));
-	 e.put(newInt);
+      void produce(edm::Event& e, const edm::EventSetup&) override {
+	 std::unique_ptr<int> newInt(new int(++m_int));
+	 e.put(std::move(newInt));
       }
    private:
       int m_int;

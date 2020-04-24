@@ -66,9 +66,9 @@
         </LogicalPart>
         <LogicalPart name="TotemT2gem_driftspace7r" category="unspecified">
             <rSolid name="TotemT2gem_driftspace7r"/>
-            <!-- <rMaterial name="materials:80% Argon + 20% CO_2"/> -->
+            <!-- <rMaterial name="materials:80pct Argon plus 20pct CO_2"/> -->
             <rMaterial name="totemMaterials:Ar(70%)+CO_2(30%)"/>
-            <!-- <rMaterial name="totemMaterials:Ar(50%)+CO_2(50%)"/> -->
+            <!-- <rMaterial name="totemMaterials:Ar 50pct plus CO_2 50pct"/> -->
         </LogicalPart>
         <LogicalPart name="TotemT2gem_GEMa7r" category="unspecified">
             <rSolid name="TotemT2gem_GEMa7r"/>
@@ -84,9 +84,9 @@
         </LogicalPart>
         <LogicalPart name="TotemT2gem_GAS7r" category="unspecified">
             <rSolid name="TotemT2gem_GAS7r"/>
-            <!-- <rMaterial name="materials:80% Argon + 20% CO_2"/> -->
+            <!-- <rMaterial name="materials:80pct Argon plus 20pct CO_2"/> -->
             <rMaterial name="totemMaterials:Ar(70%)+CO_2(30%)"/>
-            <!--  <rMaterial name="totemMaterials:Ar(50%)+CO_2(50%)"/> -->
+            <!--  <rMaterial name="totemMaterials:Ar 50pct plus CO_2 50pct"/> -->
         </LogicalPart>
         <LogicalPart name="TotemT2gem_GEMa17r" category="unspecified">
             <rSolid name="TotemT2gem_GEMa17r"/>
@@ -102,9 +102,9 @@
         </LogicalPart>
         <LogicalPart name="TotemT2gem_GAS17r" category="unspecified">
             <rSolid name="TotemT2gem_GAS17r"/>
-            <!-- <rMaterial name="materials:80% Argon + 20% CO_2"/> -->
+            <!-- <rMaterial name="materials:80pct Argon plus 20pct CO_2"/> -->
             <rMaterial name="totemMaterials:Ar(70%)+CO_2(30%)"/>
-            <!--  <rMaterial name="totemMaterials:Ar(50%)+CO_2(50%)"/> -->
+            <!--  <rMaterial name="totemMaterials:Ar 50pct plus CO_2 50pct"/> -->
         </LogicalPart>
         <LogicalPart name="TotemT2gem_GEMa27r" category="unspecified">
             <rSolid name="TotemT2gem_GEMa27r"/>
@@ -120,9 +120,9 @@
         </LogicalPart>
         <LogicalPart name="TotemT2gem_GAS27r" category="unspecified">
             <rSolid name="TotemT2gem_GAS27r"/>
-            <!-- <rMaterial name="materials:80% Argon + 20% CO_2"/> -->
+            <!-- <rMaterial name="materials:80pct Argon plus 20pct CO_2"/> -->
             <rMaterial name="totemMaterials:Ar(70%)+CO_2(30%)"/>
-            <!--  <rMaterial name="totemMaterials:Ar(50%)+CO_2(50%)"/> -->
+            <!--  <rMaterial name="totemMaterials:Ar 50pct plus CO_2 50pct"/> -->
         </LogicalPart>
         <LogicalPart name="TotemT2gem_strips7r" category="unspecified">
             <rSolid name="TotemT2gem_strips7r"/>

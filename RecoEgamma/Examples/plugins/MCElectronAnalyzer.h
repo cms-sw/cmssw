@@ -2,7 +2,6 @@
 #define MCElectronAnalyzer_H
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruthFinder.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -27,12 +26,12 @@ class MCElectronAnalyzer : public edm::EDAnalyzer
 
       //
       explicit MCElectronAnalyzer( const edm::ParameterSet& ) ;
-      virtual ~MCElectronAnalyzer();
+      ~MCElectronAnalyzer() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+      void beginJob() override ;
+      void endJob() override ;
 
    private:
 

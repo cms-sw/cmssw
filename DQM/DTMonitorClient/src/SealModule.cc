@@ -1,9 +1,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <DQM/DTMonitorClient/src/DTtTrigCalibrationTest.h>
-DEFINE_FWK_MODULE(DTtTrigCalibrationTest);
-
 #include <DQM/DTMonitorClient/src/DTResolutionTest.h>
 DEFINE_FWK_MODULE(DTResolutionTest);
 
@@ -22,12 +19,6 @@ DEFINE_FWK_MODULE(DTDataIntegrityTest);
 #include <DQM/DTMonitorClient/src/DTSegmentAnalysisTest.h>
 DEFINE_FWK_MODULE(DTSegmentAnalysisTest);
 
-#include "DQM/DTMonitorClient/src/DTDeadChannelTest.h"
-DEFINE_FWK_MODULE(DTDeadChannelTest);
-
-#include "DQM/DTMonitorClient/src/DTNoiseTest.h"
-DEFINE_FWK_MODULE(DTNoiseTest);
-
 #include "DQM/DTMonitorClient/src/DTNoiseAnalysisTest.h"
 DEFINE_FWK_MODULE(DTNoiseAnalysisTest);
 
@@ -40,11 +31,11 @@ DEFINE_FWK_MODULE(DTLocalTriggerEfficiencyTest);
 #include "DQM/DTMonitorClient/src/DTLocalTriggerLutTest.h"
 DEFINE_FWK_MODULE(DTLocalTriggerLutTest);
 
+#include "DQM/DTMonitorClient/src/DTLocalTriggerSynchTest.h"
+DEFINE_FWK_MODULE(DTLocalTriggerSynchTest);
+
 #include "DQM/DTMonitorClient/src/DTLocalTriggerTPTest.h"
 DEFINE_FWK_MODULE(DTLocalTriggerTPTest);
-
-#include "DQM/DTMonitorClient/src/DTCreateSummaryHistos.h"
-DEFINE_FWK_MODULE(DTCreateSummaryHistos);
 
 #include "DQM/DTMonitorClient/src/DTOccupancyTest.h"
 DEFINE_FWK_MODULE(DTOccupancyTest);

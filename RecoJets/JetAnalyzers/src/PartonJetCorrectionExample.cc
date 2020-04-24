@@ -11,8 +11,8 @@
 class PartonJetCorrectionExample : public edm::EDAnalyzer {
  public:
   explicit PartonJetCorrectionExample (const edm::ParameterSet& fParameters);
-  virtual ~PartonJetCorrectionExample () {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  ~PartonJetCorrectionExample () override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
  private:
   edm::InputTag mInput;
   std::string m_gJ_CorrectorName;
@@ -48,7 +48,7 @@ void PartonJetCorrectionExample::analyze(const edm::Event& fEvent, const edm::Ev
   const JetCorrector* qJetCorrector = JetCorrector::getJetCorrector (m_qJ_CorrectorName, fSetup);
   const JetCorrector* bJetCorrector = JetCorrector::getJetCorrector (m_bJ_CorrectorName, fSetup);
   const JetCorrector* bTopCorrector = JetCorrector::getJetCorrector (m_bT_CorrectorName, fSetup);
-  const JetCorrector* corrector = 0;
+  const JetCorrector* corrector = nullptr;
   
   // get input jets (supposed to be MC corrected already)
   edm::Handle<CaloJetCollection> jets;                    

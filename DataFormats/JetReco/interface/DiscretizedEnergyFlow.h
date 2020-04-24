@@ -31,7 +31,7 @@ namespace reco {
 
     inline const double* data() const
     {
-        if (data_.empty()) return 0;
+        if (data_.empty()) return nullptr;
         else return &data_[0];
     }
     inline const char* title() const {return title_.c_str();}

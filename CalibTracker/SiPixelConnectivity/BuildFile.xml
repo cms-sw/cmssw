@@ -7,9 +7,6 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="Geometry/CommonDetUnit"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="boost"/>
 <export>
   <lib   name="1"/>

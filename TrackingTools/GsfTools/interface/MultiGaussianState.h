@@ -20,8 +20,8 @@ public:
   typedef typename SingleGaussianState<N>::Vector Vector;
   typedef typename SingleGaussianState<N>::Matrix Matrix;
   typedef SingleGaussianState<N> SingleState;
-  typedef boost::shared_ptr<SingleState> SingleStatePtr;
-//   typedef std::vector< boost::shared_ptr<const SingleState> > SingleStateContainer;
+  typedef std::shared_ptr<SingleState> SingleStatePtr;
+//   typedef std::vector< std::shared_ptr<const SingleState> > SingleStateContainer;
   typedef std::vector< SingleStatePtr > SingleStateContainer;
 
 public:

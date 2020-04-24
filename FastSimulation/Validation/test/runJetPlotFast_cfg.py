@@ -11,13 +11,11 @@ process.load("FastSimulation.Configuration.QCDpt50_120_cfi")
 #  include "FastSimulation/Configuration/data/MinBiasEvents.cfi"
 # Generate muons with a flat pT particle gun, and with pT=10.
 # include "FastSimulation/Configuration/data/FlatPtMuonGun.cfi"
-# replace FlatRandomPtGunSource.PGunParameters.PartID={130}
+# replace FlatRandomPtGunProducer.PGunParameters.PartID={130}
 # Generate di-electrons with pT=35 GeV
 # include "FastSimulation/Configuration/data/DiElectrons.cfi"
 # Famos sequences (no HLT here)
 process.load("FastSimulation.Configuration.CommonInputsFake_cff")
-
-process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 #  
 # module o1 = PoolOutputModule { 
@@ -47,8 +45,11 @@ process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 process.MessageLogger.destinations = ['detailedInfo.txt']
 
 

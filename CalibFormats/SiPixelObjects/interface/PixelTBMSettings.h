@@ -33,46 +33,45 @@ namespace pos{
     // modified by MR on 29-04-2008 16:43:30
   PixelTBMSettings():PixelConfigBase("", "", "") {;}
 
-    virtual ~PixelTBMSettings(){}
+    ~PixelTBMSettings() override{}
 
     //Generate the DAC settings
     void generateConfiguration(PixelFECConfigInterface* pixelFEC,
 	                       PixelNameTranslation* trans,
-			       bool physics=false) const; 
+			       bool physics=false, bool doResets=true) const; 
 
     void writeBinary(std::string filename) const;
 
-    void 	 writeASCII(std::string dir) const;
-    void 	 writeXML(         pos::PixelConfigKey key, int version, std::string path) const {;}
-    virtual void writeXMLHeader(   pos::PixelConfigKey key, 
+    void 	 writeASCII(std::string dir) const override;
+    void 	 writeXML(         pos::PixelConfigKey key, int version, std::string path) const override {;}
+    void writeXMLHeader(   pos::PixelConfigKey key, 
 				   int version, 
 				   std::string path, 
 				   std::ofstream *out,
-				   std::ofstream *out1 = NULL,
-				   std::ofstream *out2 = NULL
-				   ) const ;
-    virtual void writeXML(        std::ofstream *out,			                                    
-			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL ) const ;
-    virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
+				   std::ofstream *out1 = nullptr,
+				   std::ofstream *out2 = nullptr
+				   ) const override ;
+    void writeXML(        std::ofstream *out,			                                    
+			   	  std::ofstream *out1 = nullptr ,
+			   	  std::ofstream *out2 = nullptr ) const override ;
+    void writeXMLTrailer( std::ofstream *out, 
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
+				  ) const override ;
 
-    friend std::ostream& operator<<(std::ostream& s, const PixelTBMSettings& mask);
-
-    unsigned char getAnalogInputBias() {return analogInputBias_;}
+    unsigned char getAnalogInputBias() const {return analogInputBias_;}
     void setAnalogInputBias(unsigned char analogInputBias) {analogInputBias_=analogInputBias;}
     
-    unsigned char getAnalogOutputBias() {return analogOutputBias_;}
+    unsigned char getAnalogOutputBias() const {return analogOutputBias_;}
     void setAnalogOutputBias(unsigned char analogOutputBias) {analogOutputBias_=analogOutputBias;}
     
-    unsigned char getAnalogOutputGain() {return analogOutputGain_;}
+    unsigned char getAnalogOutputGain() const {return analogOutputGain_;}
     void setAnalogOutputGain(unsigned char analogOutputGain) {analogOutputGain_=analogOutputGain;}
     
     // Added by Dario (Apr 2008)
-    bool getMode(void)      {return singlemode_;}
+    bool getMode(void)      const {return singlemode_;}
     void setMode(bool mode) {singlemode_ = mode;}
+    PixelROCName const& getROCName() const { return rocid_;}
     void setROCName(std::string rocname){
       	PixelROCName tmp(rocname);
 	rocid_=tmp;
@@ -90,6 +89,8 @@ namespace pos{
     bool singlemode_;
 
   };
+
+  std::ostream& operator<<(std::ostream& s, const PixelTBMSettings& mask);
 }
 /* @} */
 #endif

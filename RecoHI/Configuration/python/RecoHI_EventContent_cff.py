@@ -33,7 +33,7 @@ RecoHIRECO.outputCommands.extend(RecoHiCentralityRECO.outputCommands)
 RecoHIRECO.outputCommands.extend(RecoHiMuonRECO.outputCommands)
 
 RecoHIAOD.outputCommands.extend(RecoHiTrackerAOD.outputCommands)
-RecoHIAOD.outputCommands.extend(RecoHiJetsRECO.outputCommands)
+RecoHIAOD.outputCommands.extend(RecoHiJetsAOD.outputCommands)
 RecoHIAOD.outputCommands.extend(RecoHiEgammaAOD.outputCommands)
 RecoHIAOD.outputCommands.extend(RecoHiEvtPlaneAOD.outputCommands)
 RecoHIAOD.outputCommands.extend(RecoHiCentralityAOD.outputCommands)

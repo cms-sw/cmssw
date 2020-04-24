@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 
 from PyQt4.QtCore import SIGNAL,QRect,QSize,QPoint
@@ -6,7 +7,7 @@ from PyQt4.QtSvg import QSvgRenderer, QSvgWidget
 
 from Vispa.Gui.VispaWidget import VispaWidget
 
-import Resources
+from . import Resources
 
 class StartupScreen(VispaWidget):
     

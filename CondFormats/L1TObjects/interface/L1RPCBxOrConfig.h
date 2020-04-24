@@ -15,6 +15,8 @@
 */
 
 // forward declarations
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <set>
 #include <vector>
 #include <sstream>
@@ -44,6 +46,8 @@ class L1RPCBxOrConfig
       int m_lastBX;
 
 
+
+   COND_SERIALIZABLE;
 };
 
 

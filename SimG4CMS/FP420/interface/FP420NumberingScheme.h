@@ -7,13 +7,11 @@
 #ifndef FP420NumberingScheme_h
 #define FP420NumberingScheme_h
 
-#include "G4Step.hh"
 #include <boost/cstdint.hpp>
-#include "G4ThreeVector.hh"
 #include <map>
 
-
-
+class G4Step;
+class G4String;
 
 class FP420NumberingScheme {
   
@@ -39,8 +37,8 @@ class FP420NumberingScheme {
   ////////////  static UserVerbosity cout;
   // int sn0, pn0, rn0;   
   
-  unsigned packMYIndex(int rn0, int pn0, int sn0, 
-		       int det, int zside, int sector,int zmodule){
+  static unsigned packMYIndex(int rn0, int pn0, int sn0, 
+		       int det, int zside, int sector,int zmodule) {
     int zScale=(rn0-1); // rn0=3 - current --> for update  rn0=7
     int sScale = zScale*(pn0-1);//pn0=6
     int dScale = sScale*(sn0-1);//sn0=3
@@ -50,7 +48,7 @@ class FP420NumberingScheme {
     return intindex;
   }
   
-  void unpackMYIndex(const int& idx,    
+  static void unpackMYIndex(const int& idx,    
 		     int rn0, int pn0, int sn0,
 		     int& det, int& zside, int& sector,int& zmodule) {
     int zScale=(rn0-1), sScale = (rn0-1)*(pn0-1), dScale = (rn0-1)*(pn0-1)*(sn0-1);
@@ -61,7 +59,7 @@ class FP420NumberingScheme {
     zside = idx - dScale*(det - 1) - sScale*(sector - 1) - zScale*(zmodule - 1);
   }
   
-  int unpackLayerIndex(int rn0, int zside){
+  static int unpackLayerIndex(int rn0, int zside){
     // 1,2
     int layerIndex = 1, b;
     float a = (zside+1)/2.;
@@ -72,7 +70,7 @@ class FP420NumberingScheme {
     return layerIndex;
   }
   
-  int unpackCopyIndex(int rn0, int zside){
+  static int unpackCopyIndex(int rn0, int zside){
     // 1,2,3
     int copyIndex = 0;
     if(zside>(rn0-1) || zside<1) {
@@ -89,7 +87,7 @@ class FP420NumberingScheme {
     return copyIndex;
   }
   
-  int unpackOrientation(int rn0, int zside){
+  static int unpackOrientation(int rn0, int zside){
     // Front: Orientation= 1; Back: Orientation= 2
     int Orientation = 2;
     if(zside>(rn0-1) || zside<1) Orientation = 0; 
@@ -98,7 +96,7 @@ class FP420NumberingScheme {
     return Orientation;
   }
   
-  int realzside(int rn0, int zsideinorder){
+  static int realzside(int rn0, int zsideinorder){
     // zsideinorder:1 2 3 4 5 6
     //sensorsold    1 0 0 2 0 0 
     //sensorsnew    1 0 5 2 4 0 ???

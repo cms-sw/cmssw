@@ -1,4 +1,5 @@
 <use   name="FWCore/PluginManager"/>
+<use   name="IOPool/TFileAdaptor"/>
 <use   name="Utilities/StorageFactory"/>
 <use   name="rootcore"/>
 <bin   name="test_TFileAdaptor_TFile" file="tfileTest.cpp">

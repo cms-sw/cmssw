@@ -14,8 +14,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexFitter.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include <iostream>
 
@@ -24,7 +25,7 @@ using namespace edm;
 using namespace std;
 
 GsfTest::GsfTest(const edm::ParameterSet& iConfig)
-  : theConfig(iConfig), associatorForParamAtPca(0), tree(0)
+  : theConfig(iConfig)
 {
   token_tracks = consumes<TrackCollection>(iConfig.getParameter<string>("TrackLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
@@ -46,7 +47,6 @@ void GsfTest::beginJob(){
 
 
 void GsfTest::endJob() {
-  delete tree;
 }
 
 //
@@ -56,13 +56,10 @@ void GsfTest::endJob() {
 void
 GsfTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  if ( associatorForParamAtPca==0 ) {
-    edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
-    iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
-    associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
-    
-    tree = new SimpleVertexTree("VertexFitter", associatorForParamAtPca);
+  if( not tree ) {
+    edm::ESHandle<MagneticField> magField;
+    iSetup.get<IdealMagneticFieldRecord>().get(magField);
+    tree.reset( new SimpleVertexTree("VertexFitter",magField.product()) );
   }
 
 

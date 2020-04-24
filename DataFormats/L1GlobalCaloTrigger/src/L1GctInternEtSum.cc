@@ -1,5 +1,5 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEtSum.h"
-#include <stdint.h>
+#include <cstdint>
 
 
 L1GctInternEtSum::L1GctInternEtSum() {

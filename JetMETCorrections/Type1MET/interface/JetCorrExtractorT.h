@@ -19,26 +19,17 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-namespace
+namespace jetcorrextractor
 {
-  template <typename T>
-  double getCorrection(const T& rawJet, const std::string& jetCorrLabel, 
-		       const edm::Event& evt, const edm::EventSetup& es)
-  {
-    const JetCorrector* jetCorrector = JetCorrector::getJetCorrector(jetCorrLabel, es);
-    if ( !jetCorrector )  
-      throw cms::Exception("JetCorrExtractor")
-	<< "Failed to access Jet corrections for = " << jetCorrLabel << " !!\n";
-    return jetCorrector->correction(rawJet, evt, es);
-  }
-
-  double sign(double x)
+  // never heard of copysign?
+  inline double sign(double x)
   {
     if      ( x > 0. ) return +1.;
     else if ( x < 0. ) return -1.;
@@ -51,14 +42,10 @@ class JetCorrExtractorT
 {
  public:
 
-  reco::Candidate::LorentzVector operator()(const T& rawJet, const std::string& jetCorrLabel, 
-					    const edm::Event* evt = 0, const edm::EventSetup* es = 0, 
-					    double jetCorrEtaMax = 9.9, 
-					    const reco::Candidate::LorentzVector* rawJetP4_specified = 0)
+  reco::Candidate::LorentzVector operator()(const T& rawJet, const reco::JetCorrector* jetCorr,
+					    double jetCorrEtaMax = 9.9,
+					    const reco::Candidate::LorentzVector * const rawJetP4_specified = nullptr) const
   {
-    // "general" implementation requires access to edm::Event and edm::EventSetup,
-    // only specialization for pat::Jets doesn't
-    assert(evt && es);
 
     // allow to specify four-vector to be used as "raw" (uncorrected) jet momentum,
     // call 'rawJet.p4()' in case four-vector not specified explicitely
@@ -66,18 +53,21 @@ class JetCorrExtractorT
       (*rawJetP4_specified) : rawJet.p4();
 
     double jetCorrFactor = 1.;
-    if ( fabs(rawJetP4.eta()) < jetCorrEtaMax ) {      
-      jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es);
+    if ( fabs(rawJetP4.eta()) < jetCorrEtaMax ) {
+      jetCorrFactor = getCorrection(rawJet, jetCorr);
     } else {
       reco::Candidate::PolarLorentzVector modJetPolarP4(rawJetP4);
-      modJetPolarP4.SetEta(sign(rawJetP4.eta())*jetCorrEtaMax);
-      
+      modJetPolarP4.SetEta(jetcorrextractor::sign(rawJetP4.eta())*jetCorrEtaMax);
+
       reco::Candidate::LorentzVector modJetP4(modJetPolarP4);
-      
+
       T modJet(rawJet);
       modJet.setP4(modJetP4);
-      
-      jetCorrFactor = getCorrection(modJet, jetCorrLabel, *evt, *es);
+
+      jetCorrFactor = getCorrection(modJet, jetCorr);
+      if(jetCorrFactor<0) {
+	edm::LogWarning("JetCorrExtractor") << "Negative jet energy scale correction noticed" << ".\n";
+      }
     }
 
     reco::Candidate::LorentzVector corrJetP4 = rawJetP4;
@@ -85,6 +75,27 @@ class JetCorrExtractorT
 
     return corrJetP4;
   }
+
+  reco::Candidate::LorentzVector operator()(const T& rawJet, const std::string& jetCorrLabel,
+					    double jetCorrEtaMax = 9.9,
+					    const reco::Candidate::LorentzVector * const rawJetP4_specified = nullptr) const
+  {
+    edm::LogWarning("JetCorrExtractor") << "JetCorrExtractorT<T>::operator(const T&, const std::string&, ...) is deprecated.\n"
+      << "Please use JetCorrExtractorT<T>::operator(const T&, const reco::JetCorrector*, ...) instead.\n"
+      << "Jet remains uncorrected!";
+    reco::Candidate::LorentzVector rawJetP4 = ( rawJetP4_specified ) ?
+      (*rawJetP4_specified) : rawJet.p4();
+    return rawJetP4;
+  }
+
+    private:
+
+  static double getCorrection(const T& jet, const reco::JetCorrector* jetCorr)
+  {
+    return jetCorr->correction(jet);
+  }
+
+
 };
 
 #endif

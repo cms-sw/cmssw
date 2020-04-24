@@ -1,0 +1,14 @@
+PROGRAMS = write_HFPhase1PMTParams.cc
+
+OFILES = HcalPiecewiseLinearFunctor.o parseHcalDetId.o \
+         HcalCubicInterpolator.o HcalIndexLookup.o \
+         HcalInterpolatedTableFunctor.o HcalConstFunctor.o \
+         HcalDetId.o HcalPolynomialFunctor.o HcalDetIdTransform.o \
+         make_HFPhase1PMTParams_data.o make_HFPhase1PMTParams_dummy.o \
+         make_HFPhase1PMTParams_mc.o make_HFPhase1PMTParams_test.o \
+         HcalChebyshevFunctor.o HcalLinearCompositionFunctor.o \
+         templateInstantiations.o
+
+%.o : %.cc
+	$(CXX) -c $(CXXFLAGS) -MD $< -o $@
+	@sed -i 's,\($*\.o\)[:]*\(.*\),$@: $$\(wildcard\2\)\n\1:\2,g' $*.d

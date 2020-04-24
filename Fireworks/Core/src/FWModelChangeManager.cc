@@ -12,7 +12,7 @@
 
 // system include files
 #include <cassert>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <exception>
 
 // user include files
@@ -81,7 +81,7 @@ void
 FWModelChangeManager::changed(const FWEventItem* iItem)
 {
    FWChangeSentry sentry(*this);
-   assert(0!= iItem);
+   assert(nullptr!= iItem);
    m_itemChanges.insert(iItem);
    //remove any pending changes on models owned by this item
    assert(iItem->id() <m_changes.size());
@@ -108,7 +108,7 @@ FWModelChangeManager::endChanges()
           itChanges != m_itemChanges.end();
           ++itChanges,++index) {
          if( !guard ) {
-            // boost::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
+            // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
             guard = true;
             changeSignalsAreComing_();
          }
@@ -141,7 +141,7 @@ FWModelChangeManager::endChanges()
          {
             if (!guard) 
             {
-               // boost::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
+               // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
                guard = true;
                changeSignalsAreComing_();
             }
@@ -183,7 +183,7 @@ FWModelChangeManager::endChanges()
 void
 FWModelChangeManager::newItemSlot(FWEventItem* iItem)
 {
-   assert(0!=iItem);
+   assert(nullptr!=iItem);
    assert(iItem->id() == m_changes.size());
    assert(iItem->id() == m_changeSignals.size());
    m_changes.push_back(FWModelIds());

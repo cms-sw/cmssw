@@ -33,12 +33,12 @@ public:
 	       const edm::InputSourceDescription &desc);
 
   /// Destructor
-  virtual ~AlpgenSource();
+  ~AlpgenSource() override;
 
 private:
-  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&) override;
-  virtual void produce(edm::Event &event) override;
-  virtual void beginRun(edm::Run &run) override;
+  bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
+  void produce(edm::Event &event) override;
+  void beginRun(edm::Run &run) override;
 
   /// Function to get parameter by name from AlpgenHeader.
   template<typename T>
@@ -140,7 +140,7 @@ AlpgenSource::AlpgenSource(const edm::ParameterSet &params,
       << "unweighted parameter file." << std::endl;
 
   // Declare the products.
-  produces<LHERunInfoProduct, edm::InRun>();
+   produces<LHERunInfoProduct, edm::Transition::BeginRun>();
   produces<LHEEventProduct>();
 }
 
@@ -246,7 +246,7 @@ void AlpgenSource::beginRun(edm::Run &run)
   // If requested by the user, we also add any specific header provided.
   // Nota bene: the header is put in the LHERunInfoProduct AS IT WAS GIVEN.
   // That means NO CROSS-CHECKS WHATSOEVER. Use with care.
-  LHERunInfoProduct::Header extraHeader(extraHeaderName_.c_str());
+  LHERunInfoProduct::Header extraHeader(extraHeaderName_);
   if(writeExtraHeader) {
     std::ifstream extraascii(extraHeaderFileName_.c_str());
     while(extraascii.getline(buffer,512)) {
@@ -255,7 +255,7 @@ void AlpgenSource::beginRun(edm::Run &run)
   }
 
   // Build the final Run info object. Backwards-compatible order.
-  std::auto_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
+  std::unique_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
   runInfo->addHeader(comments);
   runInfo->addHeader(lheAlpgenUnwParHeader);
   if (writeAlpgenWgtFile)
@@ -265,7 +265,7 @@ void AlpgenSource::beginRun(edm::Run &run)
   runInfo->addHeader(slha);
   if(writeExtraHeader)
     runInfo->addHeader(extraHeader);
-  run.put(runInfo);
+  run.put(std::move(runInfo));
 
   // Open the .unw file in the heap, and set the global pointer to it.
   inputFile_.reset(new std::ifstream((fileName_ + ".unw").c_str()));
@@ -403,7 +403,7 @@ bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup)
   return true;
 }
 
-bool AlpgenSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
+bool AlpgenSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&)
 {
   // The LHE Event Record
   hepeup_.reset(new lhef::HEPEUP);
@@ -476,8 +476,8 @@ void AlpgenSource::produce(edm::Event &event)
   }
 
   // Create the LHEEventProduct and put it into the Event.
-  std::auto_ptr<LHEEventProduct> lheEvent(new LHEEventProduct(hepeup));
-  event.put(lheEvent);
+  std::unique_ptr<LHEEventProduct> lheEvent(new LHEEventProduct(hepeup));
+  event.put(std::move(lheEvent));
 
   hepeup_.reset();
 }

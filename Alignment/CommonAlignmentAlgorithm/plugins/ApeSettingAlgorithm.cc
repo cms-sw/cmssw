@@ -7,6 +7,8 @@
  *  (last update by $Author: innocent $)
  */
 /*
+ * The APE record and the ASCII file contain the covariance matrix elements
+ * in units of cm^2
  *# Parameters:
  *#    saveApeToASCII -- Do we write out an APE text file?
  *#    saveComposites -- Do we write APEs for composite detectors?
@@ -31,7 +33,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/Alignment/interface/AlignmentErrors.h" 
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h" 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 
@@ -53,6 +55,8 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 {
  public:
@@ -60,18 +64,18 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
   ApeSettingAlgorithm(const edm::ParameterSet &cfg);
 
   /// Destructor
-  virtual ~ApeSettingAlgorithm();
+  ~ApeSettingAlgorithm() override;
 
   /// Call at beginning of job
-  virtual void initialize(const edm::EventSetup &setup, 
+  void initialize(const edm::EventSetup &setup, 
 			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
 			  AlignmentParameterStore *store) override;
 
   /// Call at end of job
-  virtual void terminate(const edm::EventSetup& iSetup) override;
+  void terminate(const edm::EventSetup& iSetup) override;
 
   /// Run the algorithm
-  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
+  void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
  private:
   edm::ParameterSet         theConfig;
@@ -92,7 +96,7 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 //____________________________________________________
 ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg) :
   AlignmentAlgorithmBase(cfg), theConfig(cfg),
-  theAlignableNavigator(0)
+  theAlignableNavigator(nullptr)
 {
   edm::LogInfo("Alignment") << "@SUB=ApeSettingAlgorithm" << "Start.";
   saveApeToAscii_ = theConfig.getUntrackedParameter<bool>("saveApeToASCII");
@@ -130,9 +134,9 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
      }
    std::set<int> apeList; //To avoid duplicates
    while (!apeReadFile.eof())
-     { int apeId=0; double x11,x21,x22,x31,x32,x33;
+     { int apeId=0; double x11,x21,x22,x31,x32,x33,ignore;
      if (!readLocalNotGlobal_ || readFullLocalMatrix_) 
-       { apeReadFile>>apeId>>x11>>x21>>x22>>x31>>x32>>x33>>std::ws;}
+       { apeReadFile>>apeId>>x11>>x21>>x22>>x31>>x32>>x33>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>std::ws;}
      else
        { apeReadFile>>apeId>>x11>>x22>>x33>>std::ws;}
      //idr What sanity checks do we need to put here?
@@ -141,8 +145,8 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	 {  DetId id(apeId);
 	 AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(id)); //NULL if none
 	 if (alidet)
-	   { if ((alidet->components().size()<1) || setComposites_) //the problem with glued dets...
-	     { GlobalError globErr;
+	   { if ((alidet->components().empty()) || setComposites_) //the problem with glued dets...
+	     { GlobalErrorExtended globErr;
 	     if (readLocalNotGlobal_)
 	       { AlgebraicSymMatrix33 as; 
 	       if (readFullLocalMatrix_)
@@ -156,11 +160,15 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	       am[0][0]=rt.xx(); am[0][1]=rt.xy(); am[0][2]=rt.xz();
 	       am[1][0]=rt.yx(); am[1][1]=rt.yy(); am[1][2]=rt.yz();
 	       am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
-	       globErr = GlobalError(ROOT::Math::SimilarityT(am,as));
+	       globErr = GlobalErrorExtended(ROOT::Math::SimilarityT(am,as));
 	       }
 	     else
 	       {
-		 globErr = GlobalError(x11,x21,x22,x31,x32,x33);
+                 if (readFullLocalMatrix_)
+		    globErr = GlobalErrorExtended(x11,x21,x31,0,0,0,x22,x32,0,0,0,x33,0,0,0,0,0,0,0,0,0);
+                 else {
+                    globErr = GlobalErrorExtended(x11*x11,0,0,0,0,0,x22*x22,0,0,0,0,x33*x33,0,0,0,0,0,0,0,0,0);
+                  }
 	       }
 	     alidet->setAlignmentPositionError(globErr, false); // do not propagate down!
 	     apeList.insert(apeId); //Flag it's been set
@@ -186,13 +194,13 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
 {
   if (saveApeToAscii_)
-    { AlignmentErrors* aliErr=theTracker->alignmentErrors();
+    { AlignmentErrorsExtended* aliErr=theTracker->alignmentErrors();
     int theSize=aliErr->m_alignError.size();
     std::ofstream apeSaveFile(theConfig.getUntrackedParameter<std::string>("apeASCIISaveFile").c_str()); //requires <fstream>
     for (int i=0; i < theSize; ++i)
       { int id=	aliErr->m_alignError[i].rawId();
       AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(DetId(id))); //NULL if none
-      if (alidet && ((alidet->components().size()<1) || saveComposites_))
+      if (alidet && ((alidet->components().empty()) || saveComposites_))
 	{ apeSaveFile<<id;
 	CLHEP::HepSymMatrix sm = aliErr->m_alignError[i].matrix();
 	if (saveLocalNotGlobal_)
@@ -203,7 +211,7 @@ void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
 	  am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
 	  sm=sm.similarity(am); //symmetric matrix
 	  } //transform to local
-	for (int j=0; j < 3; ++j)
+	for (int j=0; j < sm.num_row(); ++j)
 	  for (int k=0; k <= j; ++k)
 	    apeSaveFile<<"  "<<sm[j][k]; //always write full matrix
 	
@@ -215,7 +223,7 @@ void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
     }
   // clean up at end:  // FIXME: should we delete here or in destructor?
   delete theAlignableNavigator;
-  theAlignableNavigator = 0;
+  theAlignableNavigator = nullptr;
 }
 
 // Run the algorithm on trajectories and tracks -------------------------------
@@ -228,6 +236,3 @@ void ApeSettingAlgorithm::run(const edm::EventSetup &setup, const EventInfo &eve
 // Plugin definition for the algorithm
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory,
 		   ApeSettingAlgorithm, "ApeSettingAlgorithm");
-
-
-

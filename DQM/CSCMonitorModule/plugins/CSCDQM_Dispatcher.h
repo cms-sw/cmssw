@@ -29,6 +29,7 @@
 #include "CSCDQM_Configuration.h"
 #include "CSCDQM_EventProcessor.h"
 #include "CSCDQM_Collection.h"
+#include "CSCDQM_HistoDef.h"
 #include "CSCDQM_Cache.h"
 #include "CSCDQM_Logger.h"
 #include "CSCDQM_Lock.h"
@@ -139,6 +140,7 @@ namespace cscdqm {
       }
 
       void init();
+      void book();
       void updateFractionAndEfficiencyHistos();
       const bool getHisto(const HistoDef& histoD, MonitorObject*& me);
       unsigned int maskHWElements(std::vector<std::string>& tokens);

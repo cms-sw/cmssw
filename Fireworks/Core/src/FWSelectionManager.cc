@@ -36,7 +36,7 @@ FWSelectionManager::FWSelectionManager(FWModelChangeManager* iCM) :
    m_changeManager(iCM),
    m_wasChanged(false)
 {
-   assert(0!=m_changeManager);
+   assert(nullptr!=m_changeManager);
    m_changeManager->changeSignalsAreDone_.connect(boost::bind(&FWSelectionManager::finishedAllSelections,this));
 }
 
@@ -151,7 +151,7 @@ FWSelectionManager::unselect(const FWModelId& iId)
 void
 FWSelectionManager::itemChanged(const FWEventItem* iItem)
 {
-   assert(0!=iItem);
+   assert(nullptr!=iItem);
    assert(m_itemConnectionCount.size() > iItem->id());
    //if this appears in any of our models we need to remove them
    FWModelId low(iItem,0);

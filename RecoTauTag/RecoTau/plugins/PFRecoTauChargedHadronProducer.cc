@@ -11,7 +11,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,19 +47,19 @@
 #include <set>
 #include <algorithm>
 #include <functional>
-#include <math.h>
+#include <cmath>
 
-class PFRecoTauChargedHadronProducer : public edm::EDProducer 
+class PFRecoTauChargedHadronProducer : public edm::stream::EDProducer<> 
 {
 public:
   typedef reco::tau::PFRecoTauChargedHadronBuilderPlugin Builder;
   typedef reco::tau::PFRecoTauChargedHadronQualityPlugin Ranker;
 
   explicit PFRecoTauChargedHadronProducer(const edm::ParameterSet& cfg);
-  ~PFRecoTauChargedHadronProducer() {}
-  void produce(edm::Event& evt, const edm::EventSetup& es);
+  ~PFRecoTauChargedHadronProducer() override {}
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
   template <typename T>
-  void print(const T& chargedHadrons, std::ostream& stream);
+  void print(const T& chargedHadrons);
 
  private:
   typedef boost::ptr_vector<Builder> builderList;
@@ -74,6 +74,8 @@ public:
   // input jet collection
   edm::InputTag srcJets_;
   edm::EDGetTokenT<reco::CandidateView> Jets_token;
+  double minJetPt_;
+  double maxJetAbsEta_;
 
   // plugins for building and ranking ChargedHadron candidates
   builderList builders_;
@@ -93,6 +95,8 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
 {
   srcJets_ = cfg.getParameter<edm::InputTag>("jetSrc");
   Jets_token = consumes<reco::CandidateView>(srcJets_);
+  minJetPt_ = ( cfg.exists("minJetPt") ) ? cfg.getParameter<double>("minJetPt") : -1.0;
+  maxJetAbsEta_ = ( cfg.exists("maxJetAbsEta") ) ? cfg.getParameter<double>("maxJetAbsEta") : 99.0;
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
   
@@ -133,8 +137,8 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
 void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 {
   if ( verbosity_ ) {
-    std::cout << "<PFRecoTauChargedHadronProducer::produce>:" << std::endl;
-    std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+    edm::LogPrint("PFRecoTauChHProducer")<< "<PFRecoTauChargedHadronProducer::produce>:" ;
+    edm::LogPrint("PFRecoTauChHProducer")<< " moduleLabel = " << moduleLabel_ ;
   }
 
   // give each of our plugins a chance at doing something with the edm::Event
@@ -150,17 +154,23 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   reco::PFJetRefVector pfJets = reco::tau::castView<reco::PFJetRefVector>(jets);
 
   // make our association
-  std::auto_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
+  std::unique_ptr<reco::PFJetChargedHadronAssociation> pfJetChargedHadronAssociations;
 
-  if ( pfJets.size() ) {
-    pfJetChargedHadronAssociations.reset(new reco::PFJetChargedHadronAssociation(reco::PFJetRefProd(pfJets)));
+
+  if ( !pfJets.empty() ) {
+    edm::Handle<reco::PFJetCollection> pfJetCollectionHandle;
+    evt.get(pfJets.id(), pfJetCollectionHandle);
+    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>(reco::PFJetRefProd(pfJetCollectionHandle));
   } else {
-    pfJetChargedHadronAssociations.reset(new reco::PFJetChargedHadronAssociation);
+    pfJetChargedHadronAssociations = std::make_unique<reco::PFJetChargedHadronAssociation>();
   }
 
   // loop over our jets
   BOOST_FOREACH( const reco::PFJetRef& pfJet, pfJets ) {
     
+    if(pfJet->pt() - minJetPt_ < 1e-5) continue;
+    if(std::abs(pfJet->eta()) - maxJetAbsEta_ > -1e-5) continue;
+
     // build global list of ChargedHadron candidates for each jet
     ChargedHadronList uncleanedChargedHadrons;
 
@@ -169,8 +179,8 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       try {
         ChargedHadronVector result(builder(*pfJet));
 	if ( verbosity_ ) {
-	  std::cout << "result of builder = " << builder.name() << ":" << std::endl;
-	  print(result, std::cout);
+	  edm::LogPrint("PFRecoTauChHProducer")<< "result of builder = " << builder.name() << ":" ;
+	  print(result);
 	}
         uncleanedChargedHadrons.transfer(uncleanedChargedHadrons.end(), result);
       } catch ( cms::Exception& exception ) {
@@ -192,19 +202,19 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
     std::list<etaPhiPair> tracksInCleanCollection;
     std::set<reco::PFCandidatePtr> neutralPFCandsInCleanCollection;
 
-    while ( uncleanedChargedHadrons.size() >= 1 ) {
+    while ( !uncleanedChargedHadrons.empty() ) {
       
       // get next best ChargedHadron candidate
       std::auto_ptr<reco::PFRecoTauChargedHadron> nextChargedHadron(uncleanedChargedHadrons.pop_front().release());
       if ( verbosity_ ) {
-	std::cout << "processing nextChargedHadron:" << std::endl;
-	std::cout << (*nextChargedHadron);
+	edm::LogPrint("PFRecoTauChHProducer")<< "processing nextChargedHadron:" ;
+	edm::LogPrint("PFRecoTauChHProducer")<< (*nextChargedHadron);
       }
 
       // discard candidates which fail final output selection
       if ( !(*outputSelector_)(*nextChargedHadron) ) continue;
 
-      const reco::Track* track = 0;
+      const reco::Track* track = nullptr;
       if ( nextChargedHadron->getChargedPFCandidate().isNonnull() ) {
 	const reco::PFCandidatePtr& chargedPFCand = nextChargedHadron->getChargedPFCandidate();
 	if ( chargedPFCand->trackRef().isNonnull() ) track = chargedPFCand->trackRef().get();
@@ -229,7 +239,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 	}
       }
       if ( verbosity_ ) {
-	std::cout << "isTrack_overlap = " << isTrack_overlap << std::endl;
+	edm::LogPrint("PFRecoTauChHProducer")<< "isTrack_overlap = " << isTrack_overlap ;
       }
       if ( isTrack_overlap ) continue;
 
@@ -242,7 +252,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 	}
       }
       if ( verbosity_ ) {
-	std::cout << "isNeutralPFCand_overlap = " << isNeutralPFCand_overlap << std::endl;
+	edm::LogPrint("PFRecoTauChHProducer")<< "isNeutralPFCand_overlap = " << isNeutralPFCand_overlap ;
       }
       if ( isNeutralPFCand_overlap ) continue;
       
@@ -258,7 +268,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 	if ( track ) tracksInCleanCollection.push_back(std::make_pair(track->eta(), track->phi()));
 	neutralPFCandsInCleanCollection.insert(nextChargedHadron->getNeutralPFCandidates().begin(), nextChargedHadron->getNeutralPFCandidates().end());
 	if ( verbosity_ ) {
-	  std::cout << "--> adding nextChargedHadron to output collection." << std::endl;
+	  edm::LogPrint("PFRecoTauChHProducer")<< "--> adding nextChargedHadron to output collection." ;
 	}
 	cleanedChargedHadrons.push_back(*nextChargedHadron);
       } else { // remove overlapping neutral PFCandidates, reevaluate ranking criterion and process ChargedHadron candidate again
@@ -272,34 +282,34 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 	// at position according to new rank
 	ChargedHadronList::iterator insertionPoint = std::lower_bound(uncleanedChargedHadrons.begin(), uncleanedChargedHadrons.end(), *nextChargedHadron, *predicate_);
 	if ( verbosity_ ) {
-	  std::cout << "--> removing non-unique neutral PFCandidates and reinserting nextChargedHadron in uncleaned collection." << std::endl;
+	  edm::LogPrint("PFRecoTauChHProducer")<< "--> removing non-unique neutral PFCandidates and reinserting nextChargedHadron in uncleaned collection." ;
 	}
         uncleanedChargedHadrons.insert(insertionPoint, nextChargedHadron);
       }
     }
 
     if ( verbosity_ ) {
-      print(cleanedChargedHadrons, std::cout);
+      print(cleanedChargedHadrons);
     }
 
     // add ChargedHadron-to-jet association
     pfJetChargedHadronAssociations->setValue(pfJet.key(), cleanedChargedHadrons);
   }
 
-  evt.put(pfJetChargedHadronAssociations);
+  evt.put(std::move(pfJetChargedHadronAssociations));
 }
 
 template <typename T>
-void PFRecoTauChargedHadronProducer::print(const T& chargedHadrons, std::ostream& stream) 
+void PFRecoTauChargedHadronProducer::print(const T& chargedHadrons) 
 {
   for ( typename T::const_iterator chargedHadron = chargedHadrons.begin();
 	chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
-    stream << (*chargedHadron);
-    stream << "Rankers:" << std::endl;
+    edm::LogPrint("PFRecoTauChHProducer") << (*chargedHadron);
+    edm::LogPrint("PFRecoTauChHProducer") << "Rankers:" ;
     for ( rankerList::const_iterator ranker = rankers_.begin();
 	  ranker != rankers_.end(); ++ranker) {
       const unsigned width = 25;
-      stream << " " << std::setiosflags(std::ios::left) << std::setw(width) << ranker->name()
+      edm::LogPrint("PFRecoTauChHProducer") << " " << std::setiosflags(std::ios::left) << std::setw(width) << ranker->name()
 	     << " " << std::resetiosflags(std::ios::left) << std::setprecision(3) << (*ranker)(*chargedHadron) << std::endl;
     }
   }

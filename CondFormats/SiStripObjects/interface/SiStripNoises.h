@@ -1,6 +1,8 @@
 #ifndef SiStripNoises_h
 #define SiStripNoises_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<utility>
 #include<iostream>
@@ -8,6 +10,8 @@
 
 #include<cassert>
 #include<cstring>
+
+class TrackerTopology;
 
 /**
  * Stores the noise value for all the strips. <br>
@@ -31,7 +35,9 @@ class SiStripNoises
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   class StrictWeakOrdering
   {
@@ -64,18 +70,20 @@ class SiStripNoises
     return  0.1f*float(decode(strip,range));
   }
 
+  static void verify(uint16_t strip, const Range& range);
+  static float getNoise(uint16_t strip, const Range& range) {
 #ifdef EDM_ML_DEBUG
-  static float getNoise(uint16_t strip, const Range& range);
-#else
-  static float getNoise(uint16_t strip, const Range& range) { return getNoiseFast(strip,range);}
+     verify(strip,range);
 #endif
+     return getNoiseFast(strip,range);
+  }
 
 
   void    allNoises (std::vector<float> & noises, const Range& range) const;
   void    setData(float noise_, InputVector& vped);
 
-  void printDebug(std::stringstream& ss) const;
-  void printSummary(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
   std::vector<ratioData> operator / (const SiStripNoises& d) ;
 
@@ -97,6 +105,8 @@ class SiStripNoises
     std::string print_char_as_binary(const unsigned char ch) const;
     std::string print_short_as_binary(const short ch) const;
   */
+
+ COND_SERIALIZABLE;
 };
 
 /// Get 9 bit words from a bit stream, starting from the right, skipping the first 'skip' bits (0 < skip < 8).

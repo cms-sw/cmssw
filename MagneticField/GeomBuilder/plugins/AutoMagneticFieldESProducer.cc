@@ -32,7 +32,7 @@ AutoMagneticFieldESProducer::AutoMagneticFieldESProducer(const edm::ParameterSet
   nominalCurrents = pset.getUntrackedParameter<vector<int> >("nominalCurrents"); 
   maps = pset.getUntrackedParameter<vector<string> >("mapLabels");
 
-  if (maps.size()==0 || (maps.size() != nominalCurrents.size())) {
+  if (maps.empty() || (maps.size() != nominalCurrents.size())) {
     throw cms::Exception("InvalidParameter") << "Invalid values for parameters \"nominalCurrents\" and \"maps\"";
   }
 }
@@ -43,7 +43,7 @@ AutoMagneticFieldESProducer::~AutoMagneticFieldESProducer()
 }
 
 
-std::auto_ptr<MagneticField>
+std::unique_ptr<MagneticField>
 AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
 {
   float current = pset.getParameter<int>("valueOverride");
@@ -70,9 +70,7 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
 
   MagneticField* result = map.product()->clone();
 
-  std::auto_ptr<MagneticField> s(result);
-  
-  return s;
+  return std::unique_ptr<MagneticField>(result);
 }
 
 

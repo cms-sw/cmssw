@@ -1,4 +1,4 @@
 <use   name="cppunit"/>
 <use   name="DataFormats/Luminosity"/>
-<bin   name="testDataFormatsLuminosity" file="testRunner.cpp,lumiDetails_t.cpp">
+<bin   name="testDataFormatsLuminosity" file="testRunner.cpp,lumiInfo_t.cpp,beamCurrentInfo_t.cpp,lumiInfoRunHeader_t.cpp">
 </bin>

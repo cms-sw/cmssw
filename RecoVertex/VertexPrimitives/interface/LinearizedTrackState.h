@@ -9,6 +9,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
@@ -48,7 +50,7 @@ public:
 
   typedef ReferenceCountingPointer<RefittedTrackState<N> > RefCountedRefittedTrackState;
 
-  virtual ~LinearizedTrackState(){}
+  ~LinearizedTrackState() override{}
 
   /**
    * Returns a new linearized state with respect to a new linearization point.

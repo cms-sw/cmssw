@@ -1,5 +1,4 @@
 #include <iostream>
-#include "FWCore/Integration/test/OtherThingAnalyzer.h"
 #include "DataFormats/TestObjects/interface/OtherThing.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -7,8 +6,28 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 
 namespace edmtest {
+  
+  class OtherThingAnalyzer : public edm::stream::EDAnalyzer<> {
+  public:
+    
+    explicit OtherThingAnalyzer(edm::ParameterSet const& pset);
+    
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    
+    void doit(edm::Event const& event, std::string const& label);
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  private:
+    bool thingWasDropped_;
+    edm::InputTag otherTag_;
+  };
+  
   OtherThingAnalyzer::OtherThingAnalyzer(edm::ParameterSet const& pset) :
     thingWasDropped_(pset.getUntrackedParameter<bool>("thingWasDropped")),
     otherTag_(pset.getUntrackedParameter<edm::InputTag>("other"))
@@ -154,7 +173,15 @@ namespace edmtest {
         if (viewSize1 != size1) {
           throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " RefToBaseProd size mismatch to RefProd size" << std::endl;
         }
+        edm::Ref<ThingCollection> refFromCast = otherThing.refToBase.castTo<edm::Ref<ThingCollection> >();
+        edm::Ptr<Thing> ptrFromCast = otherThing.refToBase.castTo<edm::Ptr<Thing> >();
         Thing const& tcBase = *otherThing.refToBase;
+        if(tcBase.a != refFromCast->a) {
+          throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " Ref from RefToBase::castTo has incorrect value " << '\n';
+        }
+        if(tcBase.a != ptrFromCast->a) {
+          throw cms::Exception("Inconsistent Data", "OtherThingAnalyzer::analyze") << " Ptr from RefToBase::castTo has incorrect value " << '\n';
+        }
         int const& xBase = otherThing.refToBase->a;
         if (tcBase.a == i && xBase == i) {
           edm::LogInfo("OtherThingAnalyzer") << " ITEM " << i << " LABEL " << label << " RefToBase dereferenced successfully.\n";

@@ -4,7 +4,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include <iomanip>

@@ -5,7 +5,11 @@
 VectorInputSource: Abstract interface for vector input sources.
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Sources/interface/EDInputSource.h"
+#include "DataFormats/Common/interface/SecondaryEventIDAndFileInfo.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 #include <string>
@@ -17,93 +21,73 @@ namespace CLHEP {
 
 namespace edm {
   class EventPrincipal;
-  struct InputSourceDescription;
-  class LuminosityBlockID;
+  struct VectorInputSourceDescription;
+  class EventID;
   class ParameterSet;
-  class VectorInputSource : public EDInputSource {
+  class VectorInputSource {
   public:
-    explicit VectorInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit VectorInputSource(ParameterSet const& pset, VectorInputSourceDescription const& desc);
     virtual ~VectorInputSource();
 
     template<typename T>
-    size_t loopRandom(EventPrincipal& cache, size_t number, T eventOperator, CLHEP::HepRandomEngine*);
-    template<typename T>
-    size_t loopSequential(EventPrincipal& cache, size_t number, T eventOperator);
-    template<typename T>
-    size_t loopRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator, CLHEP::HepRandomEngine*);
-    template<typename T>
-    size_t loopSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator);
-    template<typename T, typename Collection>
-    size_t loopSpecified(EventPrincipal& cache, Collection const& events, T eventOperator);
+    size_t loopOverEvents(EventPrincipal& cache, size_t& fileNameHash, size_t number, T eventOperator, CLHEP::HepRandomEngine* = nullptr, EventID const* id = nullptr, bool recycleFiles = true);
+
+    template<typename T, typename Iterator>
+    size_t loopSpecified(EventPrincipal& cache, size_t& fileNameHash, Iterator const& begin, Iterator const& end, T eventOperator);
 
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches);
+    //
+    /// Called at beginning of job
+    void doBeginJob();
+
+    /// Called at end of job
+    void doEndJob();
+
+    std::shared_ptr<ProductRegistry const> productRegistry() const {return get_underlying_safe(productRegistry_);}
+    std::shared_ptr<ProductRegistry>& productRegistry() {return get_underlying_safe(productRegistry_);}
+    ProductRegistry& productRegistryUpdate() {return *productRegistry_;}
+    ProcessHistoryRegistry const& processHistoryRegistry() const {return *processHistoryRegistry_;}
+    ProcessHistoryRegistry& processHistoryRegistryForUpdate() {return *processHistoryRegistry_;}
 
   private:
 
     void clearEventPrincipal(EventPrincipal& cache);
-    virtual void readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine*) = 0;
-    virtual bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, CLHEP::HepRandomEngine*) = 0;
-    virtual bool readOneSequential(EventPrincipal& cache) = 0;
-    virtual bool readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id) = 0;
-    virtual void readOneSpecified(EventPrincipal& cache, EventID const& event) = 0;
+
+  private:
+    virtual bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool recycleFiles) = 0;
+    virtual void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, SecondaryEventIDAndFileInfo const& event) = 0;
+    void readOneSpecified(EventPrincipal& cache, size_t& fileNameHash, EventID const& event) {
+      SecondaryEventIDAndFileInfo info(event, fileNameHash);
+      readOneSpecified(cache, fileNameHash, info);
+    }
 
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) = 0;
+    virtual void beginJob() = 0;
+    virtual void endJob() = 0;
+
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
+    edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
   };
 
   template<typename T>
-  size_t VectorInputSource::loopRandom(EventPrincipal& cache, size_t number, T eventOperator, CLHEP::HepRandomEngine* engine) {
+  size_t VectorInputSource::loopOverEvents(EventPrincipal& cache, size_t& fileNameHash, size_t number, T eventOperator, CLHEP::HepRandomEngine* engine, EventID const* id, bool recycleFiles) {
     size_t i = 0U;
     for(; i < number; ++i) {
       clearEventPrincipal(cache);
-      readOneRandom(cache, engine);
-      eventOperator(cache);
-    }
-    return i;
-  }
-
-  template<typename T>
-  size_t VectorInputSource::loopSequential(EventPrincipal& cache, size_t number, T eventOperator) {
-    size_t i = 0U;
-    for(; i < number; ++i) {
-      clearEventPrincipal(cache);
-      bool found = readOneSequential(cache);
+      bool found = readOneEvent(cache, fileNameHash, engine, id, recycleFiles);
       if(!found) break;
-      eventOperator(cache);
+      eventOperator(cache, fileNameHash);
     }
     return i;
   }
 
-  template<typename T>
-  size_t VectorInputSource::loopRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator, CLHEP::HepRandomEngine* engine) {
+  template<typename T, typename Iterator>
+  size_t VectorInputSource::loopSpecified(EventPrincipal& cache, size_t& fileNameHash, Iterator const& begin, Iterator const& end, T eventOperator) {
     size_t i = 0U;
-    for(; i < number; ++i) {
+    for(Iterator iter = begin; iter != end; ++iter) {
       clearEventPrincipal(cache);
-      bool found = readOneRandomWithID(cache, id, engine);
-      if(!found) break;
-      eventOperator(cache);
-    }
-    return i;
-  }
-
-  template<typename T>
-  size_t VectorInputSource::loopSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id, size_t number, T eventOperator) {
-    size_t i = 0U;
-    for(; i < number; ++i) {
-      clearEventPrincipal(cache);
-      bool found = readOneSequentialWithID(cache, id);
-      if(!found) break;
-      eventOperator(cache);
-    }
-    return i;
-  }
-
-  template<typename T, typename Collection>
-  size_t VectorInputSource::loopSpecified(EventPrincipal& cache, Collection const& events, T eventOperator) {
-    size_t i = 0U;
-    for(typename Collection::const_iterator it = events.begin(), itEnd = events.end(); it != itEnd; ++it) {
-      clearEventPrincipal(cache);
-      readOneSpecified(cache, *it);
-      eventOperator(cache);
+      readOneSpecified(cache, fileNameHash, *iter);
+      eventOperator(cache, fileNameHash);
       ++i;
     }
     return i;

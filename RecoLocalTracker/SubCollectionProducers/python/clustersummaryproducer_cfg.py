@@ -16,23 +16,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 process.clusterSummaryProducer = cms.EDProducer('ClusterSummaryProducer',
                                         stripClusters=cms.InputTag("siStripClusters"),
-                                        pixelClusters=cms.InputTag("siPixelClusters"),
-                                        #Module=cms.string('TOB, TIB, TID, TEC, TIB_1, TOB_4, TECM, TECP, TIDM, TIDP, TECM_1, TECP_2, TIDM_3, TIDP_1'),
-                                        #Module=cms.string( TOB, TIB, TID, TEC, TRACKER')
-                                        stripModule=cms.string('TOB,TIB,TID,TEC,TRACKER'),        
-                                        #Module=cms.string('TECP,TECP_1,TECP_2,TECP_3,TECP_4,TECP_5,TECP_6,TECP_7,TECP_8,TECP_9'),
-                                        #Module=cms.string('TOB, TECPR_2, TIDMR_2'),
-                                        stripVariables=cms.string('cHits,cSize,cCharge'),
-                                        #pixelModule=cms.string('BPIX,FPIX,FPIXM,FPIXP,PIXEL'),        
-                                        pixelModule=cms.string('BPIX,FPIX,PIXEL'),        
-                                        #pixelModule=cms.string('BPIX,BPIX_1,BPIX_2,BPIX_3'),        
-                                        #pixelModule=cms.string('FPIX,FPIX_1,FPIXM_1,FPIXP_1,FPIX_2,FPIXM_2,FPIXP_2,FPIX_3,FPIXM_3,FPIXP_3'),        
-                                        pixelVariables=cms.string('pHits,pSize,pCharge'),
-                                        #pixelModule=cms.string('FPIXM,FPIXM_1,FPIXM_2,FPIXM_3,FPIXP,FPIXP_1,FPIXP_2,FPIXP_3'),        
-                                        #pixelModule=cms.string('FPIX,FPIX_1,FPIXM_1,FPIXP_1,FPIX_2,FPIXM_2,FPIXP_2,FPIX_3,FPIXM_3,FPIXP_3'),        
+                                        pixelClusters=cms.InputTag("siPixelClusters"),                
                                         doStrips=cms.bool(True),
                                         doPixels=cms.bool(True),
-                                        verbose=cms.bool(False)
+                                        verbose=cms.bool(False),
+                                        wantedSubDets = cms.vstring("TOB","TIB","TID","TEC","STRIP","BPIX","FPIX","PIXEL"),
+                                        wantedUserSubDets = cms.VPSet()
                                         )
 
 process.out = cms.OutputModule("PoolOutputModule",

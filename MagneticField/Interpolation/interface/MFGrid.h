@@ -36,10 +36,10 @@ public:
 
   explicit MFGrid( const GloballyPositioned<float>& vol) : frame_(vol) {}
 
-  virtual ~MFGrid() {}
+  ~MFGrid() override {}
 
   /// Interpolated field value at given point.
-  virtual LocalVector valueInTesla( const LocalPoint& p) const = 0;
+  LocalVector valueInTesla( const LocalPoint& p) const override = 0;
 
   virtual void dump() const {}
 

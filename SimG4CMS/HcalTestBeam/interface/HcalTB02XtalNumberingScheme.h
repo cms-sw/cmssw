@@ -25,8 +25,8 @@ class HcalTB02XtalNumberingScheme : public HcalTB02NumberingScheme {
 
 public:
   HcalTB02XtalNumberingScheme();
-  virtual ~HcalTB02XtalNumberingScheme();
-  virtual int getUnitID(const G4Step* aStep) const;
+  ~HcalTB02XtalNumberingScheme() override;
+  int getUnitID(const G4Step* aStep) const override;
 
 };
 

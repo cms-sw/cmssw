@@ -19,15 +19,18 @@
 <use   name="SimDataFormats/EncodedEventId"/>
 <use   name="SimTracker/Records"/>
 <use   name="RecoLocalTracker/ClusterParameterEstimator"/>
-<use   name="rootcintex"/>
 <use   name="root"/>
+<use   name="SimGeneral/TrackingAnalysis"/>
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
+<use   name="SimTracker/TrackHistory"/>
 <use   name="DQMServices/ClientConfig"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CommonTools/TriggerUtils"/>
 <use   name="Validation/RecoTrack"/>
+<use   name="RecoPixelVertexing/PixelTrackFitting"/>
+<use   name="DataFormats/VertexReco"/>
 <lib   name="MathMore"/>
 <library   file="*.cc" name="ValidationRecoTrackPlugins">
   <flags   EDM_PLUGIN="1"/>

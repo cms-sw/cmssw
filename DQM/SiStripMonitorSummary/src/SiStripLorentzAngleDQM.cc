@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripLorentzAngleDQM.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TCanvas.h"
 
 // -----
@@ -43,7 +44,7 @@ void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> & select
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // -----

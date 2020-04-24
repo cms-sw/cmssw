@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include <map>
+#include <ctime>
 
 #include "OnlineDB/EcalCondDB/interface/RunDCSHVDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -34,7 +35,7 @@ RunDCSHVDat::~RunDCSHVDat()
 
 
 void RunDCSHVDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -43,14 +44,14 @@ void RunDCSHVDat::prepareWrite()
 
 
 void RunDCSHVDat::writeDB(const EcalLogicID* ecid, const RunDCSHVDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 }
 
 
 
 void RunDCSHVDat::fetchData(map< EcalLogicID, RunDCSHVDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchLastData(fillMap);
 
@@ -77,7 +78,11 @@ ResultSet *RunDCSHVDat::getBarrelRset(const Tm& timeStart) {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+#else
+    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -101,7 +106,11 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset(const Tm& timeStart) {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+#else
+    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -125,7 +134,11 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset(const Tm& timeStart) {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+#else
+    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -162,7 +175,11 @@ ResultSet *RunDCSHVDat::getBarrelRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+#else
+    throw(std::runtime_error("RunDCSHVDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -179,7 +196,11 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::getEndcapAnodeRset():  " + e.getMessage() + " " + query));
+#else
+    throw(std::runtime_error("RunDCSHVDat::getEndcapAnodeRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -196,7 +217,11 @@ ResultSet *RunDCSHVDat::getEndcapDynodeRset() {
     rset = m_readStmt->executeQuery();
   } 
   catch (SQLException e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::getEndcapDynodeRset():  " + e.getMessage() + " " + query));
+#else
+    throw(std::runtime_error("RunDCSHVDat::getEndcapDynodeRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -234,7 +259,11 @@ void RunDCSHVDat::fillTheMap(ResultSet *rset,
     } 
   }
   catch (SQLException &e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+#else
+    throw(std::runtime_error("RunDCSHVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+#endif
   }
 }
 
@@ -242,7 +271,7 @@ void RunDCSHVDat::fillTheMap(ResultSet *rset,
 
 
 void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
-				   std::list<  DataReducer<RunDCSHVDat>::MyData<RunDCSHVDat>  >* my_data_list ) {
+				   std::list<  DataReducer<RunDCSHVDat>::MyData<RunDCSHVDat>  >* my_data_list ) noexcept(false) {
  
   //			       std::list< std::pair< Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap) {
 
@@ -270,7 +299,33 @@ void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
       // Date sinceDate = rset->getDate(9);
       Timestamp  ora_timestamp = rset->getTimestamp(9);
       Tm sinceTm; // YYYY-MM-DD HH:MM:SS
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
       sinceTm.setToString(ora_timestamp.toText("yyyy-mm-dd hh24:mi:ss",0));
+#else
+      int year = 0;
+      unsigned int month = 0;
+      unsigned int day = 0;
+      unsigned int hour = 0;
+      unsigned int minute = 0;
+      unsigned int second = 0;
+      unsigned int fs = 0;
+      ora_timestamp.getDate(year, month, day);
+      ora_timestamp.getTime(hour, minute, second, fs);
+      const std::tm tt = {
+        .tm_sec = static_cast<int>(second),
+        .tm_min = static_cast<int>(minute),
+        .tm_hour = static_cast<int>(hour),
+        .tm_mday = static_cast<int>(day),
+        .tm_mon = static_cast<int>(month),
+        .tm_year = year - 1900
+      };
+      char tt_str[30] = { 0 };
+      if (std::strftime(tt_str, sizeof(tt_str), "%F %T", &tt)) {
+        sinceTm.setToString(std::string(tt_str));
+      } else {
+        throw std::runtime_error("RunDCSHVDat::fillTheMapByTime: failed to generate the date string");
+      }
+#endif
 
       dat.setStatus(0);
       if (ec.getName() == "EB_HV_channel") {
@@ -298,7 +353,11 @@ void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
 
   }
   catch (SQLException &e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+#else
+    throw(std::runtime_error("RunDCSHVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+#endif
   }
 }
 
@@ -353,7 +412,7 @@ void  RunDCSHVDat::setStatusForEndcaps(RunDCSHVDat &dat, const Tm& sinceTm) {
 }
 
 void RunDCSHVDat::fetchLastData(map< EcalLogicID, RunDCSHVDat >* fillMap )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -374,12 +433,16 @@ void RunDCSHVDat::fetchLastData(map< EcalLogicID, RunDCSHVDat >* fillMap )
     fillTheMap(rset, fillMap);
   } 
   catch (SQLException &e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+#else
+    throw(std::runtime_error("RunDCSHVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+#endif
   }
 }
 
 void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, const Tm& timeStart  )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -410,6 +473,10 @@ void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLog
 
   } 
   catch (SQLException &e) {
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));
+#else
+    throw(std::runtime_error("RunDCSHVDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+#endif
   }
 }

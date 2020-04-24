@@ -21,7 +21,7 @@
 #include <algorithm>
 
 
-class SimpleConeBounds GCC11_FINAL : public Bounds {
+class SimpleConeBounds final : public Bounds {
 public:
 
   /// Construct from inner/outer radius on the two Z faces 
@@ -46,6 +46,8 @@ public:
   virtual float thickness() const { return ((theRmaxZmin-theRminZmin)+
 					    (theRmaxZmax-theRminZmax))/2.;}
   
+  using Bounds::inside;
+
   virtual bool inside( const Local3DPoint& p) const {
     float lrmin = (p.z()-theZmin)*(theRminZmax-theRminZmin)/(theZmax-theZmin);
     float lrmax = (p.z()-theZmin)*(theRmaxZmax-theRmaxZmin)/(theZmax-theZmin);

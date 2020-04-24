@@ -20,6 +20,9 @@
 
 // system include files
 #include <vector>
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+
 
 // user include files
 
@@ -73,10 +76,25 @@ class DigiAccumulatorMixMod {
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {}
     virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {}
 
-  private:
-    DigiAccumulatorMixMod(DigiAccumulatorMixMod const&); // stop default
 
-    DigiAccumulatorMixMod const& operator=(DigiAccumulatorMixMod const&); // stop default
+    virtual void StorePileupInformation( std::vector<int> &numInteractionList,
+					 std::vector<int> &bunchCrossingList,
+					 std::vector<float> &TrueInteractionList, 
+					 std::vector<edm::EventID> &eventList,
+					 int bunchSpace){ }
+
+    virtual PileupMixingContent* getEventPileupInfo() { 
+      std::cout << " You must override the virtual functions in DigiAccumulatorMixMod in\n" << "order to access PileupInformation.  Returning empty object." << std::endl;
+
+      PileupMixingContent* dummyPileupObject = new PileupMixingContent();
+      
+      return dummyPileupObject;      
+    }
+
+  private:
+    DigiAccumulatorMixMod(DigiAccumulatorMixMod const&) = delete; // stop default
+
+    DigiAccumulatorMixMod const& operator=(DigiAccumulatorMixMod const&) = delete; // stop default
 
     // ---------- member data --------------------------------
 };

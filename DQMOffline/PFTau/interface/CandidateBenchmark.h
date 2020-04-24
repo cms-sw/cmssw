@@ -13,12 +13,11 @@ class CandidateBenchmark : public Benchmark {
 
 
   CandidateBenchmark(Mode mode);
-  virtual ~CandidateBenchmark();
+  ~CandidateBenchmark() override;
 
   /// book histograms
-  void setup();
-  /// book histograms
-  void setup(const edm::ParameterSet& parameterSet);
+  void setup(DQMStore::IBooker& b);
+  void setup(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet);
 
   template< class C>
   void fill( const C& candidates); 

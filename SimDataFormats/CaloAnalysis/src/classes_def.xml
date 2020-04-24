@@ -1,0 +1,20 @@
+<lcgdict>
+  <class name="CaloParticle"  ClassVersion="4">
+   <version ClassVersion="4" checksum="1423471036"/>
+  </class>
+  <class name="CaloParticleCollection"/>
+  <class name="edm::Wrapper<CaloParticleCollection>"/>
+  <class name="CaloParticleRef"/>
+  <class name="CaloParticleRefVector"/>
+  <class name="CaloParticleRefProd"/>
+  <class name="CaloParticleContainer"/>
+  <class name="SimCluster"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1773780587"/>
+  </class>
+  <class name="SimClusterCollection"/>
+  <class name="edm::Wrapper<SimClusterCollection>"/>
+  <class name="SimClusterRef"/>
+  <class name="SimClusterRefVector"/>
+  <class name="SimClusterRefProd"/>
+  <class name="SimClusterContainer"/>
+</lcgdict>

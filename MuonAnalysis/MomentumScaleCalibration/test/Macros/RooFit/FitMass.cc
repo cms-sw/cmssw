@@ -16,14 +16,14 @@ public:
   FitMass() : rebinX(1)
   {
     fitter_.initMean( 3.1, 2.9, 3.3 );
-    fitter_.initSigma( 0.03, 0., 0.1 );
-    fitter_.initSigma2( 0.1, 0., 1. );
+    fitter_.initSigma(  0.03, 0., 0.1 );
+    fitter_.initSigma2( 0.1,  0., 1. );
 
     fitter_.initGamma( 2.4952, 0., 10.);
     fitter_.gamma()->setConstant(kTRUE);
 
     fitter_.initGaussFrac( 0.5, 0., 1. );
-    fitter_.initExpCoeff( -1., -10., 0. );
+    fitter_.initExpCoeffa1( -1., -10., 0. );
     fitter_.initFsig(0.5, 0., 1.);
   };
 

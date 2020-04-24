@@ -1,0 +1,6 @@
+<environment>
+  <bin   file="runtestRecoEgammaPhotonIdentification.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash RecoEgamma/PhotonIdentification/test runtests.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>

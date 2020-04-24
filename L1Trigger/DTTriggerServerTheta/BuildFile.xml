@@ -6,7 +6,7 @@
 <use   name="L1TriggerConfig/DTTPGConfig"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -30,6 +29,7 @@
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 
 
@@ -42,17 +42,17 @@ namespace egammaisolation {
            EgammaHcalExtractor(par, iC) {}
          EgammaHcalExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector & iC );
 
-         virtual ~EgammaHcalExtractor() ;
+         ~EgammaHcalExtractor() override ;
 
-         virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                 const reco::TrackCollection & tracks) { }
-         virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                             const reco::Track & track) const {
+         void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup,
+                                 const reco::TrackCollection & tracks) override { }
+         reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
+                                             const reco::Track & track) const override {
             throw cms::Exception("Configuration Error") <<
                      "This extractor " << (typeid(this).name()) << " is not made for tracks";
          }
-         virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
-                                              const reco::Candidate & c) const ;
+         reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
+                                              const reco::Candidate & c) const override ;
 
       private:
          double extRadius_ ;
@@ -60,8 +60,6 @@ namespace egammaisolation {
          double etLow_ ;
 
          edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitProducerToken_;
-         //HBHERecHitMetaCollection* mhbhe_ ;    // to recover later when we add begin(), end()
-
    };
 }
 #endif

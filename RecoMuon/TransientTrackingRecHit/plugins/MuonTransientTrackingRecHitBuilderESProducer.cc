@@ -11,6 +11,8 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
+#include<memory>
+
 using namespace edm;
 using namespace std;
     
@@ -22,14 +24,14 @@ MuonTransientTrackingRecHitBuilderESProducer::MuonTransientTrackingRecHitBuilder
 MuonTransientTrackingRecHitBuilderESProducer::~MuonTransientTrackingRecHitBuilderESProducer() {}
 
     
-boost::shared_ptr<TransientTrackingRecHitBuilder> 
+std::shared_ptr<TransientTrackingRecHitBuilder> 
 MuonTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord& iRecord){ 
   
 
   ESHandle<GlobalTrackingGeometry> trackingGeometry;
   iRecord.getRecord<GlobalTrackingGeometryRecord>().get(trackingGeometry);
   
-  return boost::shared_ptr<TransientTrackingRecHitBuilder>(new MuonTransientTrackingRecHitBuilder(trackingGeometry));
+  return std::make_shared<MuonTransientTrackingRecHitBuilder>(trackingGeometry);
 }
     
     

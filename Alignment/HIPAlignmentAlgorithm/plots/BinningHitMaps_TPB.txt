@@ -1,0 +1,11 @@
+******** Binning for Subdet TPB *********
+
+--> Layer #1
+Eta Binning: -222	0
+Phi Binning: -444	0
+--> Layer #2
+Eta Binning: -222	0
+Phi Binning: -nan	-nan
+--> Layer #3
+Eta Binning: -222	0
+Phi Binning: -nan	-nan

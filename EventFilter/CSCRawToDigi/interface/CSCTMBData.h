@@ -17,6 +17,9 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
 #include <bitset>
 #include <boost/dynamic_bitset.hpp>
+#ifndef LOCAL_UNPACK
+#include <atomic>
+#endif
 
 
 class CSCTMBData {
@@ -24,6 +27,7 @@ class CSCTMBData {
  public:
 
   CSCTMBData();
+  CSCTMBData(int firmwareVersion, int firmwareRevision, int ncfebs=5);
   ~CSCTMBData();
   CSCTMBData(unsigned short *buf);
   CSCTMBData(const CSCTMBData& data);
@@ -90,7 +94,11 @@ class CSCTMBData {
   CSCTMBBlockedCFEB * theTMBBlockedCFEB;
 
   CSCTMBTrailer theTMBTrailer;
+#ifdef LOCAL_UNPACK
   static bool debug;
+#else
+  static std::atomic<bool> debug;
+#endif
   unsigned short size_;
   unsigned short cWordCnt;
   bool theRPCDataIsPresent;

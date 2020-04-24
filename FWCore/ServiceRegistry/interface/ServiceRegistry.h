@@ -47,8 +47,8 @@ namespace edm {
 
          //override operator new to stop use on heap?
       private:
-         Operate(Operate const&); //stop default
-         Operate const& operator=(Operate const&); //stop default
+         Operate(Operate const&) = delete; //stop default
+         Operate const& operator=(Operate const&) = delete; //stop default
          ServiceToken oldToken_;
       };
 
@@ -61,7 +61,7 @@ namespace edm {
       // ---------- const member functions ---------------------
       template<typename T>
       T& get() const {
-         if(0 == manager_.get()) {
+         if(nullptr == manager_.get()) {
             Exception::throwThis(errors::NotFound,
               "Service"
               " no ServiceRegistry has been set for this thread");
@@ -71,7 +71,7 @@ namespace edm {
 
       template<typename T>
       bool isAvailable() const {
-         if(0 == manager_.get()) {
+         if(nullptr == manager_.get()) {
             Exception::throwThis(errors::NotFound,
               "Service"
               " no ServiceRegistry has been set for this thread");
@@ -97,43 +97,37 @@ namespace edm {
                                     bool associate = true);
       /// create a service token that holds the service defined by iService
       template<typename T>
-      static ServiceToken createContaining(std::auto_ptr<T> iService){
+      static ServiceToken createContaining(std::unique_ptr<T> iService){
          std::vector<edm::ParameterSet> config;
-         boost::shared_ptr<serviceregistry::ServicesManager> manager(new serviceregistry::ServicesManager(config));
-         boost::shared_ptr<serviceregistry::ServiceWrapper<T> >
-            wrapper(new serviceregistry::ServiceWrapper<T>(iService));
+         auto manager = std::make_shared<serviceregistry::ServicesManager>(config);
+         auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(std::move(iService));
          manager->put(wrapper);
          return manager;
       }
       template<typename T>
-      static ServiceToken createContaining(std::auto_ptr<T> iService,
+      static ServiceToken createContaining(std::unique_ptr<T> iService,
                                            ServiceToken iToken,
                                            serviceregistry::ServiceLegacy iLegacy){
          std::vector<edm::ParameterSet> config;
-         boost::shared_ptr<serviceregistry::ServicesManager> manager(new serviceregistry::ServicesManager(iToken,
-                                                                                                          iLegacy,
-                                                                                                          config));
-         boost::shared_ptr<serviceregistry::ServiceWrapper<T> >
-         wrapper(new serviceregistry::ServiceWrapper<T>(iService));
+         auto manager = std::make_shared<serviceregistry::ServicesManager>(iToken, iLegacy, config);
+         auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(std::move(iService));
          manager->put(wrapper);
          return manager;
       }
       /// create a service token that holds the service held by iWrapper
       template<typename T>
-      static ServiceToken createContaining(boost::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper) {
+      static ServiceToken createContaining(std::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper) {
          std::vector<edm::ParameterSet> config;
-         boost::shared_ptr<serviceregistry::ServicesManager> manager(new serviceregistry::ServicesManager(config));
+         auto manager = std::make_shared<serviceregistry::ServicesManager>(config);
          manager->put(iWrapper);
          return manager;
       }
       template<typename T>
-      static ServiceToken createContaining(boost::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper,
+      static ServiceToken createContaining(std::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper,
                                            ServiceToken iToken,
                                            serviceregistry::ServiceLegacy iLegacy){
          std::vector<edm::ParameterSet> config;
-         boost::shared_ptr<serviceregistry::ServicesManager> manager(new serviceregistry::ServicesManager(iToken,
-                                                                                                          iLegacy,
-                                                                                                          config));
+         auto manager = std::make_shared<serviceregistry::ServicesManager>(iToken, iLegacy, config);
          manager->put(iWrapper);
          return manager;
       }
@@ -144,12 +138,12 @@ private:
       void unsetContext(ServiceToken const& iOldToken);
 
       ServiceRegistry();
-      ServiceRegistry(ServiceRegistry const&); // stop default
+      ServiceRegistry(ServiceRegistry const&) = delete; // stop default
 
-      ServiceRegistry const& operator=(ServiceRegistry const&); // stop default
+      ServiceRegistry const& operator=(ServiceRegistry const&) = delete; // stop default
 
       // ---------- member data --------------------------------
-      boost::shared_ptr<serviceregistry::ServicesManager> manager_;
+      std::shared_ptr<serviceregistry::ServicesManager> manager_;
    };
 }
 

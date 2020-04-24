@@ -5,7 +5,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -55,8 +55,8 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -72,7 +72,7 @@
 class SiStripDetCabling;
 class SiStripDCSStatus;
 
-class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
+class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
 {
  public:
   
@@ -232,7 +232,7 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
     float resolxy; 
     float resolyy; 
     float resolxxMF; // in Measurement Frame
-    float phi;
+//    float phi;
     float resx;
     float resy;
     float resxMF;// in Measurement Frame
@@ -241,7 +241,7 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
     float pullxMF;// in Measurement Frame
     float trackangle;
     float trackanglebeta;
-    float trackangle2;
+//    float trackangle2;
     float trackwidth;
     int   expectedwidth;
     int   category;
@@ -253,15 +253,18 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
  protected:
 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void beginJob(const edm::EventSetup& es);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
   const MagneticField * magfield2_ ;
+  void beginJob(const edm::EventSetup& es);
   void endJob();
 
  private:
   
   DQMStore* dbe_;
-  std::string outputFile_;
+  bool runStandalone;
+  bool outputMEsInRootFile;
+  std::string outputFileName;
+  
   std::string topFolderName_;
   
  
@@ -403,13 +406,13 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
 
   MonitorElement* Fit_SliceY(TH2F * Histo2D);
 
-  void createMEs(const edm::EventSetup& es);
-  void createSimpleHitsMEs(); 
-  void createLayerMEs(std::string label);
-  void createStereoAndMatchedMEs(std::string label);
+  void createMEs(DQMStore::IBooker & ibooker,const edm::EventSetup& es);
+  void createSimpleHitsMEs(DQMStore::IBooker & ibooker); 
+  void createLayerMEs(DQMStore::IBooker & ibooker,std::string label);
+  void createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,std::string label);
   
-  MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
-  MonitorElement* bookMEProfile(const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
+  MonitorElement* bookME1D(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
+  MonitorElement* bookMEProfile(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
 
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
@@ -418,23 +421,20 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
   
 
   edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   unsigned long long m_cacheID_;
   edm::ParameterSet Parameters;
 
-  //const StripTopology* topol;
-  std::vector<RecHitProperties> rechitrphi;
-  std::vector<RecHitProperties> rechitstereo;
-  std::vector<RecHitProperties> rechitmatched;
   RecHitProperties rechitpro;
 
-  void rechitanalysis(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const StripGeomDetUnit *stripdet, edm::ESHandle < StripClusterParameterEstimator > stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D);
+  void rechitanalysis(LocalVector ldir, const TrackingRecHit *rechit, const StripGeomDetUnit *stripdet, edm::ESHandle < StripClusterParameterEstimator > stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D);
   
-  void rechitanalysis_matched(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const GluedGeomDet* gluedDet,TrackerHitAssociator& associate, edm::ESHandle < StripClusterParameterEstimator > stripcpe, std::string matchedmonorstereo);
+  enum class MatchStatus { matched, monoHit, stereoHit};
+  void rechitanalysis_matched(LocalVector ldir, const TrackingRecHit *rechit, const GluedGeomDet* gluedDet,TrackerHitAssociator& associate, edm::ESHandle < StripClusterParameterEstimator > stripcpe, const MatchStatus matchedmonorstereo);
  
 
   float track_rapidity;
-  //edm::InputTag trajectoryInput_;
-  edm::EDGetTokenT<std::vector<Trajectory> > trajectoryInputToken_;
+  edm::EDGetTokenT<std::vector<reco::Track> > tracksInputToken_;
 
 };
 

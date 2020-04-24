@@ -20,8 +20,8 @@
 /// constructors and destructor
 ///
 RawDataConverter::RawDataConverter( const edm::ParameterSet& iConfig ) :
-  theOutputFile(0),
-  theOutputTree(0),
+  theOutputFile(nullptr),
+  theOutputTree(nullptr),
   latency(-1),
   eventnumber(-1),
   runnumber(-1),

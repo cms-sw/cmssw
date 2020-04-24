@@ -21,9 +21,9 @@ namespace reco {
     typedef ClusterTrackAssociationCollection::value_type ClusterTrackAssociation;
 
     TauMassTagInfo() {}
-    virtual ~TauMassTagInfo() {}
+    ~TauMassTagInfo() override {}
     
-    virtual TauMassTagInfo* clone() const { return new TauMassTagInfo( * this ); }
+    TauMassTagInfo* clone() const override { return new TauMassTagInfo( * this ); }
     
     //default discriminator: returns the discriminator of the jet tag
     float discriminator() const {return -1. ;}

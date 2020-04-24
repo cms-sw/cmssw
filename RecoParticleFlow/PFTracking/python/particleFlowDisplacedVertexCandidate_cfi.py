@@ -17,7 +17,7 @@ particleFlowDisplacedVertexCandidate = cms.EDProducer("PFDisplacedVertexCandidat
     dcaCut = cms.double(0.5),
 
     # minimum distance of secondary vertex with respect to the primary
-    primaryVertexCut = cms.double(2.2),
+    primaryVertexCut = cms.double(1.8),
 
     # maximum distance between the DCA Point and the inner hit of the track
     # not used for the moment

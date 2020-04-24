@@ -12,7 +12,8 @@
 
 /* Base Class Headers */
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecClusterCollection.h"
 
 namespace edm {
   class ParameterSet;
@@ -36,12 +37,12 @@ class DTRecSegment2DExtendedProducer : public edm::EDProducer {
   DTRecSegment2DExtendedProducer(const edm::ParameterSet&) ;
 
   /// Destructor
-  virtual ~DTRecSegment2DExtendedProducer() ;
+  ~DTRecSegment2DExtendedProducer() override ;
     
   // Operations
 
   /// The method which produces the 2D-segments
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
  protected:
 
@@ -53,8 +54,8 @@ class DTRecSegment2DExtendedProducer : public edm::EDProducer {
   DTCombinatorialExtendedPatternReco* theAlgo;
 
   //static std::string theAlgoName;
-  edm::InputTag theRecHits1DLabel;
-  edm::InputTag theRecClusLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
+  edm::EDGetTokenT<DTRecClusterCollection> recClusToken_;
 };
 #endif // DTRecHit_DTRecSegment2DExtendedProducer_h
 

@@ -1,5 +1,4 @@
-#include "PGeometricDetExtraBuilder.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -7,28 +6,27 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDetExtra.h"
-#include <DetectorDescription/Core/interface/DDCompactView.h>
-#include <DetectorDescription/Core/interface/DDExpandedView.h>
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
-
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <iostream>
-#include <string>
 #include <vector>
 
-PGeometricDetExtraBuilder::PGeometricDetExtraBuilder(const edm::ParameterSet& iConfig)
+class PGeometricDetExtraBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
-}
-
-PGeometricDetExtraBuilder::~PGeometricDetExtraBuilder()
-{
-}
+public:
+  
+  PGeometricDetExtraBuilder( const edm::ParameterSet& ) {}
+  
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+private:
+  void putOne ( const GeometricDetExtra& gde, PGeometricDetExtra* pgde );
+};
 
 void
 PGeometricDetExtraBuilder::beginRun( const edm::Run&, edm::EventSetup const& es) 
@@ -69,3 +67,4 @@ void PGeometricDetExtraBuilder::putOne ( const GeometricDetExtra& gde, PGeometri
   pgde->pgdes_.push_back ( item );
 }
 
+DEFINE_FWK_MODULE(PGeometricDetExtraBuilder);

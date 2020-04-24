@@ -18,7 +18,7 @@
 using namespace edm;
 
 FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset) :
-   fEvt(0) {
+   fEvt(nullptr) {
 
   edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters") ;
   
@@ -40,7 +40,7 @@ FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset
          "require it.";
   }
 
-  produces<GenRunInfoProduct, InRun>();
+  produces<GenRunInfoProduct, Transition::EndRun>();
 }
 
 FlatBaseThetaGunProducer::~FlatBaseThetaGunProducer() {
@@ -58,6 +58,6 @@ void FlatBaseThetaGunProducer::endRunProduce(Run &run, const EventSetup& es )
    // just create an empty product
    // to keep the EventContent definitions happy
    // later on we might put the info into the run info that this is a PGun
-   std::auto_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
-   run.put( genRunInfo );
+   std::unique_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
+   run.put(std::move(genRunInfo));
 }

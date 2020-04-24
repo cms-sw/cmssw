@@ -27,11 +27,10 @@ class CrossingFramePlaybackInfoExtended
  public:
   // con- and destructors
 
-  CrossingFramePlaybackInfoExtended() {;}
-  CrossingFramePlaybackInfoExtended(int minBunch, int maxBunch, unsigned int maxNbSources);
+  CrossingFramePlaybackInfoExtended() {}
+  ~CrossingFramePlaybackInfoExtended() {}
 
-  ~CrossingFramePlaybackInfoExtended() {;}
-
+  // no setters needed, as this class is just used for backward compatibility
   // getters
   std::vector<edm::EventID> getStartEventId(const unsigned int s,const int bcr) const {return (idFirstPileup_[s])[bcr-minBunch_];}
   
@@ -39,17 +38,6 @@ class CrossingFramePlaybackInfoExtended
     ids=idFirstPileup_[s];
   }
   
-   
-  // setters 
-  //FIXME: max nr sources, test on max nrsources
-  void setStartEventId( const std::vector<edm::EventID> &id, const unsigned int s, const int bcr, const int start) {
-    std::vector<edm::EventID> newVec;
-    std::vector<edm::EventID>::const_iterator idStart = id.begin()+start;
-    newVec.insert(newVec.begin(), idStart, id.end());
-    idFirstPileup_[s][bcr-minBunch_]=newVec;
-  }
-  void setEventStartInfo(std::vector<std::vector<edm::EventID> > &id, const unsigned int s);
-
  private:
 
   // we need the same info for each bunchcrossing

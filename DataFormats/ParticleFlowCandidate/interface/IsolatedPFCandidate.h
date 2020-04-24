@@ -25,25 +25,25 @@ namespace reco {
 			 double isolation );
 
     /// destructor
-    virtual ~IsolatedPFCandidate();
+    ~IsolatedPFCandidate() override;
 
     /// return a clone
-    virtual IsolatedPFCandidate * clone() const;
+    IsolatedPFCandidate * clone() const override;
     
 /*     const PFCandidateRef& parent() const { return parent_;} */
 
     double isolation() const { return isolation_; }
     
-
-    friend std::ostream& operator<<( std::ostream& out, 
-				     const IsolatedPFCandidate& c );
-  
   private:
 
 /*     PFCandidateRef parent_; */
 
     double isolation_;
   };
+
+  std::ostream& operator<<( std::ostream& out, 
+                            const IsolatedPFCandidate& c );
+  
 
 
 }

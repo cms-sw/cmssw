@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
-process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
@@ -13,9 +14,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+process.CondDB.timetype = cms.untracked.string('runnumber')
+process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",
-                                      process.CondDBSetup,
-                                      timetype = cms.string('runnumber'),
+                                      process.CondDB,
                                       toGet = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_Geometry_Extended_TagXX')),
                                                         cms.PSet(record = cms.string('IdealGeometryRecord'),tag = cms.string('TKRECO_Geometry_TagXX')),
                                                         cms.PSet(record = cms.string('PEcalBarrelRcd'),   tag = cms.string('EBRECO_Geometry_TagXX')),
@@ -29,8 +31,7 @@ process.PoolDBESSourceGeometry = cms.ESSource("PoolDBESSource",
                                                         cms.PSet(record = cms.string('CSCRecoDigiParametersRcd'),tag = cms.string('CSCRECODIGI_Geometry_TagXX')),
                                                         cms.PSet(record = cms.string('DTRecoGeometryRcd'),tag = cms.string('DTRECO_Geometry_TagXX')),
                                                         cms.PSet(record = cms.string('RPCRecoGeometryRcd'),tag = cms.string('RPCRECO_Geometry_TagXX'))
-                                                        ),
-                                      connect = cms.string('sqlite_file:myfile.db')
+                                                        )
                                       )
 
 process.es_prefer_geometry = cms.ESPrefer( "PoolDBESSource", "PoolDBESSourceGeometry" )

@@ -11,7 +11,7 @@
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -39,22 +39,23 @@ namespace reco {class Track;}
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 
 class MuPFIsoHelper;
 
 
-class MuonProducer : public edm::EDProducer {
+class MuonProducer : public edm::stream::EDProducer<> {
 public:
 
   /// Constructor
   MuonProducer(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~MuonProducer();
+  ~MuonProducer() override;
 
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 
   typedef std::vector<edm::InputTag> InputTags;
@@ -98,6 +99,7 @@ private:
   bool fillDetectorBasedIsolation_;
   bool fillShoweringInfo_;
   bool fillTimingInfo_;
+  bool computeStandardSelectors_;
 
   edm::InputTag theTrackDepositName;
   edm::InputTag theEcalDepositName;
@@ -135,6 +137,8 @@ private:
 
   std::vector<std::map<std::string,edm::InputTag> > pfIsoMapNames;
   std::vector<std::map<std::string,edm::EDGetTokenT<edm::ValueMap<double> > > > pfIsoMapTokens_;
+
+  edm::EDGetTokenT<reco::VertexCollection> vertexes_;
   
 };
 #endif

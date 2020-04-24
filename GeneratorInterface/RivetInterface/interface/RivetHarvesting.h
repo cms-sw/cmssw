@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Rivet/AnalysisHandler.hh"
+#include "Rivet/Tools/RivetYODA.hh"
 
 #include <map>
 
@@ -34,7 +35,8 @@ class RivetHarvesting : public edm::EDAnalyzer
   
   private:
 
-  std::vector<Rivet::DPSXYPoint>  getDPSXYValsErrs(std::string filename, std::string path, std::string name );
+  //std::vector<Rivet::DPSXYPoint>  getDPSXYValsErrs(std::string filename, std::string path, std::string name);
+  std::vector<YODA::Point2D> getPoint2DValsErrs(std::string filename, std::string path, std::string name);
 
   Rivet::AnalysisHandler   _analysisHandler;
   std::vector<std::string> _fileNames;

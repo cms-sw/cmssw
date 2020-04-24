@@ -17,14 +17,12 @@
 
 #include <iostream>
 
-using namespace CLHEP;
-
 MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p): 
   theHistoHcal(0), theHistoCastor(0) {
   
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetHcal");
-  rMax        = m_p.getUntrackedParameter<double>("RMax", 4.5)*m;
-  zMax        = m_p.getUntrackedParameter<double>("ZMax", 13.0)*m;
+  rMax        = m_p.getUntrackedParameter<double>("RMax", 4.5)*CLHEP::m;
+  zMax        = m_p.getUntrackedParameter<double>("ZMax", 13.0)*CLHEP::m;
   bool doHcal = m_p.getUntrackedParameter<bool>("DoHCAL", true);
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcal initialized with rMax "
 				 << rMax << " mm and zMax " << zMax << " mm"

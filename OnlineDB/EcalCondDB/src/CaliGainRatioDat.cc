@@ -29,7 +29,7 @@ CaliGainRatioDat::~CaliGainRatioDat()
 
 
 void CaliGainRatioDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   
@@ -47,7 +47,7 @@ void CaliGainRatioDat::prepareWrite()
 
 
 void CaliGainRatioDat::writeDB(const EcalLogicID* ecid, const CaliGainRatioDat* item, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -75,7 +75,7 @@ void CaliGainRatioDat::writeDB(const EcalLogicID* ecid, const CaliGainRatioDat* 
 
 
 void CaliGainRatioDat::fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fillMap, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -120,7 +120,7 @@ void CaliGainRatioDat::fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fill
 }
 
 void CaliGainRatioDat::writeArrayDB(const std::map< EcalLogicID, CaliGainRatioDat >* data, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

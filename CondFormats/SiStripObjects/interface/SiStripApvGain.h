@@ -1,11 +1,16 @@
 #ifndef SiStripApvGain_h
 #define SiStripApvGain_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
 #include<boost/cstdint.hpp>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class TrackerTopology;
+
 /**
  * Stores the information of the gain for each apv using four vectors <br>
  * A vector<unsigned int> (v_detids) stores the detId. <br>
@@ -76,8 +81,8 @@ class SiStripApvGain {
 #endif
 
 
-  void printDebug(std::stringstream & ss) const;
-  void printSummary(std::stringstream & ss) const;
+  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
+  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
 
  private:
 
@@ -85,6 +90,8 @@ class SiStripApvGain {
   std::vector<unsigned int>   v_detids;
   std::vector<unsigned int>   v_ibegin;
   std::vector<unsigned int>   v_iend;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

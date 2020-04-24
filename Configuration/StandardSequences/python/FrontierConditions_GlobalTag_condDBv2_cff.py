@@ -1,0 +1,1 @@
+from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *

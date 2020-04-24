@@ -19,6 +19,8 @@
 // $Id: 
 //
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 #include <vector>
 #include <ostream>
@@ -220,6 +222,8 @@ class L1RCTParameters {
   std::vector<double> HoverE_smear_high_;
   
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

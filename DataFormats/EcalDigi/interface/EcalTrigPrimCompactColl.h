@@ -2,7 +2,7 @@
 #define ECALTRIGPRIMCOMPACTCOLL_H
 
 #include <vector>
-#include <inttypes.h>
+#include <cinttypes>
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"

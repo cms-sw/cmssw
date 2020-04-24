@@ -14,7 +14,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 #include <set>
 
@@ -320,7 +320,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 		}
 	      else
 		{
-		  i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
+		  i2c_address = strtoul(settingName.c_str(), nullptr, 16); // convert string to integer using base 16
 		}
 	      if(type_ == "fpix"  && 
 		 (
@@ -370,10 +370,10 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
 
   size_t portcardpos=filename.find(std::string("portcard_"));
   //std::cout << __LINE__ << "]\t" << mthn << "portcardpos:"<<portcardpos<<std::endl;
-  assert(portcardpos!=std::string::npos);
+  assert(portcardpos!=(unsigned int)std::string::npos);
   size_t datpos=filename.find(std::string(".dat"));
   //std::cout << __LINE__ << "]\t" << mthn << "datpos:"<<datpos<<std::endl;
-  assert(datpos!=std::string::npos);
+  assert(datpos!=(unsigned int)std::string::npos);
   assert(datpos>portcardpos);
   
   portcardname_=filename.substr(portcardpos+9,datpos-portcardpos-9);
@@ -419,7 +419,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   //std::cout << __LINE__ << "]\t" << mthn 
   //          <<TKFECAddress_<<", "<<ringAddress_<<", "<<ccuAddress_<<", "<<channelAddress_<<", "<<i2cSpeed_<<std::endl;
   
-  assert( nameToAddress_.size() != 0 );
+  assert( !nameToAddress_.empty() );
   do {
       
     std::string settingName;
@@ -455,7 +455,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
     	}
     	else
     	{
-    		i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
+    		i2c_address = strtoul(settingName.c_str(), nullptr, 16); // convert string to integer using base 16
     	}
     	pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
 	device_.push_back(p);
@@ -635,7 +635,7 @@ void PixelPortCardConfig::setDataBaseAOHGain(std::string settingName, unsigned i
 
 void PixelPortCardConfig::fillNameToAddress()
 {
-	if ( nameToAddress_.size() != 0 ) return;
+	if ( !nameToAddress_.empty() ) return;
 	
 	if ( type_ == "fpix" )
 	{
@@ -1161,7 +1161,7 @@ unsigned int PixelPortCardConfig::getdeviceValuesForAddress(unsigned int address
 
 bool PixelPortCardConfig::containsDeviceAddress(unsigned int deviceAddress) const
 {
-	for ( std::vector<std::pair<unsigned int, unsigned int> >::const_iterator device_itr = device_.begin(); device_itr != device_.end(); device_itr++ )
+	for ( std::vector<std::pair<unsigned int, unsigned int> >::const_iterator device_itr = device_.begin(); device_itr != device_.end(); ++device_itr )
 	{
 		if ( device_itr->first == deviceAddress ) return true;
 	}

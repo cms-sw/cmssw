@@ -14,7 +14,7 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -23,14 +23,15 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 //
 // -- Contructor
 //
-SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const& pSet) {
+SiStripCertificationInfo::SiStripCertificationInfo(edm::ParameterSet const& pSet) :
+  m_cacheID_(0) {
   // Create MessageSender
   edm::LogInfo( "SiStripCertificationInfo") << "SiStripCertificationInfo::Deleting SiStripCertificationInfo ";
   // get back-end interface
@@ -64,7 +65,7 @@ void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup con
   const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-  if( eSetup.find( recordKey ) != 0) {
+  if( eSetup.find( recordKey ) != nullptr) {
 
     edm::ESHandle<RunInfo> sumFED;
     eSetup.get<RunInfoRcd>().get(sumFED);    
@@ -91,7 +92,7 @@ void SiStripCertificationInfo::bookSiStripCertificationMEs() {
     dqmStore_->cd();
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo"); 
 
     SiStripCertification = dqmStore_->bookFloat("CertificationSummary");  
@@ -112,7 +113,7 @@ void SiStripCertificationInfo::bookSiStripCertificationMEs() {
     SubDetMEs local_mes;
     std::string tag;
     dqmStore_->cd();
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/CertificationContents");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/CertificationContents");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/CertificationContents");
     tag = "TIB";
     
@@ -158,7 +159,7 @@ void SiStripCertificationInfo::bookSiStripCertificationMEs() {
     SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
     
     dqmStore_->cd();
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    if (!strip_dir.empty()) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
     
     sistripCertificationBooked_  = true;
     dqmStore_->cd();
@@ -173,7 +174,6 @@ void SiStripCertificationInfo::analyze(edm::Event const& event, edm::EventSetup 
 // -- End Luminosity Block
 //
 void SiStripCertificationInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
-  std::cout << "[SiStripCertificationInfo::endLuminosityBlock] " << std::endl;
   edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::endLuminosityBlock";
 
   if (nFEDConnected_ > 0) {
@@ -202,7 +202,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(edm::EventSetup const
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   resetSiStripCertificationMEs();
@@ -319,7 +319,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi() {
   dqmStore_->cd();
   std::string strip_dir = "";
   SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir);
-  if (strip_dir.size() == 0) strip_dir = "SiStrip";
+  if (strip_dir.empty()) strip_dir = "SiStrip";
 
   std::string full_path;
   float dcs_flag = 1.0;

@@ -63,8 +63,8 @@ public:
    TGeoManager* getGeoManager();
 
 private:
-   TGeoFromDddService(const TGeoFromDddService&);                  // stop default
-   const TGeoFromDddService& operator=(const TGeoFromDddService&); // stop default
+   TGeoFromDddService(const TGeoFromDddService&) = delete;                  // stop default
+   const TGeoFromDddService& operator=(const TGeoFromDddService&) = delete; // stop default
 
 
    TGeoManager*  createManager(int level);

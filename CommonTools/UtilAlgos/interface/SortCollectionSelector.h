@@ -17,9 +17,14 @@
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
 #include <algorithm>
 #include <utility>
-namespace edm { class Event; }
+
+namespace edm {
+  class Event;
+  class EventSetup;
+}
 
 template<typename InputCollection, typename Comparator,
 	 typename OutputCollection = typename helper::SelectedOutputCollectionTrait<InputCollection>::type,

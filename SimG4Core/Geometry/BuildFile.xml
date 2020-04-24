@@ -3,6 +3,7 @@
 <use   name="Geometry/Records"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
+<use   name="xerces-c"/>
 <use   name="expat"/>
 <export>
   <lib   name="1"/>

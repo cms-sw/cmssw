@@ -18,11 +18,13 @@ DTMeantimerPatternReco4DAlgo_ParamDrift = cms.PSet(
         # Parameters for the updator
         # this is the RecHit1D algo!!
         DTParametrizedDriftAlgo,
-        segmCleanerMode = cms.int32(1),
-        # Parameters for the cleaner
-        nSharedHitsMax = cms.int32(2),
         debug = cms.untracked.bool(False),
+
+        # Parameters for the cleaner
+        segmCleanerMode = cms.int32(1),
+        nSharedHitsMax = cms.int32(2),
         nUnSharedHitsMin = cms.int32(2),
+
         # the input type. 
         # If true the instructions in setDTRecSegment2DContainer will be schipped and the 
         # theta segment will be recomputed from the 1D rechits

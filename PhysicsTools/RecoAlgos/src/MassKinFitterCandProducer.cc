@@ -16,12 +16,12 @@ void MassKinFitterCandProducer::produce( edm::Event & evt, const edm::EventSetup
   using namespace reco;
   Handle<CandidateCollection> cands;
   evt.getByToken(srcToken_, cands);
-  std::auto_ptr<CandidateCollection> refitted( new CandidateCollection );
+  auto refitted = std::make_unique<CandidateCollection>();
   for( CandidateCollection::const_iterator c = cands->begin(); c != cands->end(); ++ c ) {
     Candidate * clone = c->clone();
     fitter_->set( * clone );
     refitted->push_back( clone );
   }
-  evt.put( refitted );
+  evt.put(std::move(refitted));
 }
 

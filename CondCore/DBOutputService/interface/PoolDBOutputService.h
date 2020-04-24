@@ -2,12 +2,10 @@
 #define CondCore_PoolDBOutputService_h
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-//#include "CondCore/DBCommon/interface/Logger.h"
-//#include "CondCore/DBCommon/interface/LogDBEntry.h"
-//#include "CondCore/DBCommon/interface/TagInfo.h"
 #include "CondCore/CondDB/interface/Session.h"
 #include <string>
 #include <map>
+#include <mutex>
 
 //
 // Package:     DBOutputService
@@ -42,15 +40,7 @@ namespace cond{
       //use these to control connections
       //void  postBeginJob();
       void  postEndJob();
-      //
-      //use these to control transaction interval
-      //
-      void preEventProcessing( const edm::EventID & evtID, 
-      			       const edm::Timestamp & iTime );
-      void preModule(const edm::ModuleDescription& desc);
-      void postModule(const edm::ModuleDescription& desc);
-      void preBeginLumi(const edm::LuminosityBlockID&, 
-			const edm::Timestamp& );
+
       //
       // return the database session in use ( GG: not sure this is still useful... )
       //
@@ -58,13 +48,13 @@ namespace cond{
       //
       std::string tag( const std::string& recordName );
       bool isNewTagRequest( const std::string& recordName );
-      //const cond::Logger& queryLog() const;
       
       // 
       template<typename T>
       void writeOne( T * payload, Time_t time, const std::string& recordName, bool withlogging=false ) {
         if( !payload ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::writeOne");
-	if (!m_dbstarted) this->initDB( false );
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
+	if (!m_dbstarted) this->initDB();
 	Hash payloadId = m_session.storePayload( *payload );
 	std::string payloadType = cond::demangledName(typeid(T));
 	if (isNewTagRequest(recordName) ){
@@ -86,6 +76,8 @@ namespace cond{
 			 const std::string& recordName,
                          bool withlogging=false){
         if( !firstPayloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::createNewIOV");
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
+	if (!m_dbstarted) this->initDB();
         createNewIOV( m_session.storePayload( *firstPayloadObj ),
 		      cond::demangledName(typeid(T)),
                       firstSinceTime,
@@ -150,6 +142,7 @@ namespace cond{
       void setLogHeaderForRecord(const std::string& recordName,
 				 const std::string& provenance,
 				 const std::string& usertext);
+
       // 
       // Retrieve tag information of the data
       // 
@@ -157,8 +150,19 @@ namespace cond{
       		   cond::TagInfo_t& result );
       
       virtual ~PoolDBOutputService();  
+
+      void forceInit();
       
     private:
+
+      //
+      //use these to control transaction interval
+      //
+      void preEventProcessing(edm::StreamContext const&);
+      void preGlobalBeginLumi(edm::GlobalContext const&);
+      void preGlobalBeginRun(edm::GlobalContext const&);
+      void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
+      void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
       struct Record{
 	Record(): m_tag(),
@@ -182,25 +186,24 @@ namespace cond{
       
       void connect();    
       void disconnect();
-      void initDB( bool forReading=true );
+      void initDB( bool dummy=false );
 
       Record & lookUpRecord(const std::string& recordName);
-      //cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
+      cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
       
     private:
+      std::recursive_mutex m_mutex;
       cond::TimeType m_timetype; 
       std::string m_timetypestr;
-      cond::Time_t m_currentTime;
+      std::vector<cond::Time_t> m_currentTimes;
 
       cond::persistency::Session m_session;
-      //std::string m_logConnectionString;
-      //std::auto_ptr<cond::Logger> m_logdb;
       bool m_dbstarted;
 
       std::map<std::string, Record> m_callbacks;
-      //std::vector< std::pair<std::string,std::string> > m_newtags;
+      std::vector< std::pair<std::string,std::string> > m_newtags;
       bool m_closeIOV;
-      //std::map<std::string, cond::UserLogInfo> m_logheaders;
+      std::map<std::string, cond::UserLogInfo> m_logheaders;
 
     };//PoolDBOutputService
   }//ns service

@@ -9,6 +9,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()() 
 {
@@ -270,149 +272,153 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
     fneg=track->negTecLayers();		
 	//std::cout << "neg forw taken" << std::endl;
   //isFirstCall=false;
+
+    edm::ESHandle<TrackerTopology> httopo;
+    iSetup.get<TrackerTopologyRcd>().get(httopo);
+    const TrackerTopology& ttopo = *httopo;
     	
     if (_geometry=="MTCC"){//we have to distinguish the MTCC and CRACK case because they have special geometries with different neumbering of layers
-	MTCCLayerWithHits.push_back(new LayerWithHits(bl[0], selectTIBHit(collrphi, 1)));
-	MTCCLayerWithHits.push_back(new LayerWithHits(bl[1], selectTIBHit(collrphi, 2)));
-	MTCCLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collrphi, 1)));
-	MTCCLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collrphi, 2)));
+	MTCCLayerWithHits.push_back(new LayerWithHits(bl[0], selectTIBHit(collrphi, ttopo, 1)));
+	MTCCLayerWithHits.push_back(new LayerWithHits(bl[1], selectTIBHit(collrphi, ttopo, 2)));
+	MTCCLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collrphi, ttopo, 1)));
+	MTCCLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collrphi, ttopo, 2)));
 	return;
     }
     if (_geometry=="CRACK"){
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collmatched, 7)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collmatched, 6)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collmatched, 4)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collmatched, 3)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collrphi, 7)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collrphi, 6)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collrphi, 4)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collrphi, 3)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[4], selectTOBHit(collrphi, 5)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[1], selectTOBHit(collrphi, 2)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[0], selectTOBHit(collrphi, 1)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[4], selectTOBHit(collmatched, 5)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[1], selectTOBHit(collmatched, 2)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[0], selectTOBHit(collmatched, 1)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collmatched, ttopo, 7)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collmatched, ttopo, 6)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collmatched, ttopo, 4)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collmatched, ttopo, 3)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collrphi, ttopo, 7)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collrphi, ttopo, 6)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collrphi, ttopo, 4)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collrphi, ttopo, 3)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[4], selectTOBHit(collrphi, ttopo, 5)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[1], selectTOBHit(collrphi, ttopo, 2)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[0], selectTOBHit(collrphi, ttopo, 1)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[4], selectTOBHit(collmatched, ttopo, 5)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[1], selectTOBHit(collmatched, ttopo, 2)));
+        CRACKLayerWithHits.push_back(new LayerWithHits(bl[0], selectTOBHit(collmatched, ttopo, 1)));
 	return;
     }	
     	
-    TIBLayerWithHits.push_back(new LayerWithHits(bl[3], selectTIBHit(collrphi, 1)));  //layer
+    TIBLayerWithHits.push_back(new LayerWithHits(bl[3], selectTIBHit(collrphi, ttopo, 1)));  //layer
         //std::cout << "TIB 0" << std::endl;
-    TIBLayerWithHits.push_back(new LayerWithHits(bl[4], selectTIBHit(collrphi, 2)));
+    TIBLayerWithHits.push_back(new LayerWithHits(bl[4], selectTIBHit(collrphi, ttopo, 2)));
         //std::cout << "TIB 1" << std::endl;
-    TIBLayerWithHits.push_back(new LayerWithHits(bl[5], selectTIBHit(collrphi, 3)));
+    TIBLayerWithHits.push_back(new LayerWithHits(bl[5], selectTIBHit(collrphi, ttopo, 3)));
         //std::cout << "TIB 2" << std::endl;
-    TIBLayerWithHits.push_back(new LayerWithHits(bl[6], selectTIBHit(collrphi, 4)));
+    TIBLayerWithHits.push_back(new LayerWithHits(bl[6], selectTIBHit(collrphi, ttopo, 4)));
         //std::cout << "TIB 3" << std::endl;
 
-    TOBLayerWithHits.push_back(new LayerWithHits(bl[7], selectTOBHit(collrphi, 1)));
+    TOBLayerWithHits.push_back(new LayerWithHits(bl[7], selectTOBHit(collrphi, ttopo, 1)));
         //std::cout << "TOB 0" << std::endl;
-    TOBLayerWithHits.push_back(new LayerWithHits(bl[8], selectTOBHit(collrphi, 2)));
+    TOBLayerWithHits.push_back(new LayerWithHits(bl[8], selectTOBHit(collrphi, ttopo, 2)));
         //std::cout << "TOB 1" << std::endl;
-    TOBLayerWithHits.push_back(new LayerWithHits(bl[9], selectTOBHit(collrphi, 3)));
+    TOBLayerWithHits.push_back(new LayerWithHits(bl[9], selectTOBHit(collrphi, ttopo, 3)));
         //std::cout << "TOB 2" << std::endl;
-    TOBLayerWithHits.push_back(new LayerWithHits(bl[10], selectTOBHit(collrphi, 4)));
+    TOBLayerWithHits.push_back(new LayerWithHits(bl[10], selectTOBHit(collrphi, ttopo, 4)));
         //std::cout << "TOB 3" << std::endl;
-    TOBLayerWithHits.push_back(new LayerWithHits(bl[11], selectTOBHit(collrphi, 5)));
+    TOBLayerWithHits.push_back(new LayerWithHits(bl[11], selectTOBHit(collrphi, ttopo, 5)));
         //std::cout << "TOB 4" << std::endl;
-    TOBLayerWithHits.push_back(new LayerWithHits(bl[12], selectTOBHit(collrphi, 6)));
+    TOBLayerWithHits.push_back(new LayerWithHits(bl[12], selectTOBHit(collrphi, ttopo, 6)));
         //std::cout << "TOB 5" << std::endl;
 
 
-    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[0], selectTECHit(collrphi, 2, 1)));  //side, disk
+    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[0], selectTECHit(collrphi, ttopo, 2, 1)));  //side, disk
 	//std::cout << "wheel 0" << std::endl;
-    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[1], selectTECHit(collrphi, 2, 2)));  
+    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[1], selectTECHit(collrphi, ttopo, 2, 2)));  
 	//std::cout << "wheel 1" << std::endl;
-    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[2], selectTECHit(collrphi, 2, 3)));  
+    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[2], selectTECHit(collrphi, ttopo, 2, 3)));  
 	//std::cout << "wheel 2" << std::endl;
-    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[3], selectTECHit(collrphi, 2, 4)));  
+    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[3], selectTECHit(collrphi, ttopo, 2, 4)));  
 	//std::cout << "wheel 3" << std::endl;
-    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[4], selectTECHit(collrphi, 2, 5)));  
+    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[4], selectTECHit(collrphi, ttopo, 2, 5)));  
 	//std::cout << "wheel 4" << std::endl;
-    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[5], selectTECHit(collrphi, 2, 6)));  
+    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[5], selectTECHit(collrphi, ttopo, 2, 6)));  
 	//std::cout << "wheel 5" << std::endl;
-    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[6], selectTECHit(collrphi, 2, 7)));  
+    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[6], selectTECHit(collrphi, ttopo, 2, 7)));  
 	//std::cout << "wheel 6" << std::endl;
-    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[7], selectTECHit(collrphi, 2, 8)));  
+    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[7], selectTECHit(collrphi, ttopo, 2, 8)));  
 	//std::cout << "wheel 7" << std::endl;
-    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[8], selectTECHit(collrphi, 2, 9)));  
+    TECPlusLayerWithHits.push_back(new LayerWithHits(fpos[8], selectTECHit(collrphi, ttopo, 2, 9)));  
 	//std::cout << "wheel 8" << std::endl;
 
-    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[0], selectTECHit(collrphi, 1, 1)));  //side, disk
+    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[0], selectTECHit(collrphi, ttopo, 1, 1)));  //side, disk
         //std::cout << "wheel 0" << std::endl;
-    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[1], selectTECHit(collrphi, 1, 2)));
+    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[1], selectTECHit(collrphi, ttopo, 1, 2)));
         //std::cout << "wheel 1" << std::endl;
-    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[2], selectTECHit(collrphi, 1, 3)));
+    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[2], selectTECHit(collrphi, ttopo, 1, 3)));
         //std::cout << "wheel 2" << std::endl;
-    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[3], selectTECHit(collrphi, 1, 4)));
+    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[3], selectTECHit(collrphi, ttopo, 1, 4)));
         //std::cout << "wheel 3" << std::endl;
-    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[4], selectTECHit(collrphi, 1, 5)));
+    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[4], selectTECHit(collrphi, ttopo, 1, 5)));
         //std::cout << "wheel 4" << std::endl;
-    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[5], selectTECHit(collrphi, 1, 6)));
+    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[5], selectTECHit(collrphi, ttopo, 1, 6)));
         //std::cout << "wheel 5" << std::endl;
-    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[6], selectTECHit(collrphi, 1, 7)));
+    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[6], selectTECHit(collrphi, ttopo, 1, 7)));
         //std::cout << "wheel 6" << std::endl;
-    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[7], selectTECHit(collrphi, 1, 8)));
+    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[7], selectTECHit(collrphi, ttopo, 1, 8)));
         //std::cout << "wheel 7" << std::endl;
-    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[8], selectTECHit(collrphi, 1, 9)));
+    TECMinusLayerWithHits.push_back(new LayerWithHits(fneg[8], selectTECHit(collrphi, ttopo, 1, 9)));
         //std::cout << "wheel 8" << std::endl;
 }
 
 std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTECHit(const SiStripRecHit2DCollection &collrphi,
+                                                                  const TrackerTopology& ttopo,
 								int side,
 								int disk){
 	std::vector<const TrackingRecHit*> theChoosedHits;
-  	TrackerLayerIdAccessor acc;
-        edmNew::copyDetSetRange(collrphi, theChoosedHits, acc.stripTECDisk(side,disk));
+        edmNew::copyDetSetRange(collrphi, theChoosedHits, ttopo.tecDetIdWheelComparator(side,disk));
 	return theChoosedHits;
 	
 }
 
 std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripRecHit2DCollection &collrphi,
+                                                                  const TrackerTopology& ttopo,
                                                                 int layer){
 	std::vector<const TrackingRecHit*> theChoosedHits;
-	TrackerLayerIdAccessor acc; 
         //std::cout << "in selectTIBHit" << std::endl;
-        edmNew::copyDetSetRange(collrphi,theChoosedHits,acc.stripTIBLayer(layer));
+        edmNew::copyDetSetRange(collrphi,theChoosedHits, ttopo.tibDetIdLayerComparator(layer));
         return theChoosedHits;
 
 }
 
 std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTOBHit(const SiStripRecHit2DCollection &collrphi,
+                                                                  const TrackerTopology& ttopo,
                                                                 int layer){
 	std::vector<const TrackingRecHit*> theChoosedHits;
-	TrackerLayerIdAccessor acc;
         //std::cout << "in selectTOBHit" << std::endl;
-        edmNew::copyDetSetRange(collrphi,theChoosedHits,acc.stripTOBLayer(layer));
+        edmNew::copyDetSetRange(collrphi,theChoosedHits, ttopo.tobDetIdLayerComparator(layer));
         return theChoosedHits;
 }
 
 std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTECHit(const SiStripMatchedRecHit2DCollection &collmatch,
+                                                                  const TrackerTopology& ttopo,
                                                                 int side,
                                                                 int disk){
         std::vector<const TrackingRecHit*> theChoosedHits;
-        TrackerLayerIdAccessor acc;
         //std::cout << "in selectTECHit" << std::endl;
-        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTECDisk(side,disk));
+        edmNew::copyDetSetRange(collmatch,theChoosedHits, ttopo.tecDetIdWheelComparator(side,disk));
         return theChoosedHits;
 
 }
 
 std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTIBHit(const SiStripMatchedRecHit2DCollection &collmatch,
+                                                                  const TrackerTopology& ttopo,
                                                                 int layer){
         std::vector<const TrackingRecHit*> theChoosedHits;
-        TrackerLayerIdAccessor acc;
         //std::cout << "in selectTIBHit" << std::endl;
-        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTIBLayer(layer));
+        edmNew::copyDetSetRange(collmatch,theChoosedHits, ttopo.tibDetIdLayerComparator(layer));
         return theChoosedHits;
 
 }
 
 std::vector<const TrackingRecHit*> CosmicLayerPairs::selectTOBHit(const SiStripMatchedRecHit2DCollection &collmatch,
+                                                                  const TrackerTopology& ttopo,
                                                                 int layer){
         std::vector<const TrackingRecHit*> theChoosedHits;
-        TrackerLayerIdAccessor acc;
         //std::cout << "in selectTOBHit" << std::endl;
-        edmNew::copyDetSetRange(collmatch,theChoosedHits,acc.stripTOBLayer(layer));
+        edmNew::copyDetSetRange(collmatch,theChoosedHits, ttopo.tobDetIdLayerComparator(layer));
         return theChoosedHits;
 }

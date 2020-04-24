@@ -9,7 +9,7 @@
  * \author N. Terentiev, CMU
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class CSCALCTDigi {

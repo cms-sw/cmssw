@@ -38,7 +38,7 @@ class L1RPCConeDefinitionOnlineProd : public L1ConfigOnlineProdBase<
       L1RPCConeDefinitionOnlineProd(const edm::ParameterSet&);
       ~L1RPCConeDefinitionOnlineProd();
 
-  virtual boost::shared_ptr< L1RPCConeDefinition > newObject(
+  virtual std::shared_ptr< L1RPCConeDefinition > newObject(
     const std::string& objectKey ) override ;
 
    private:
@@ -75,13 +75,13 @@ L1RPCConeDefinitionOnlineProd::~L1RPCConeDefinitionOnlineProd()
 
 }
 
-boost::shared_ptr< L1RPCConeDefinition >
+std::shared_ptr< L1RPCConeDefinition >
 L1RPCConeDefinitionOnlineProd::newObject( const std::string& objectKey )
 {
   edm::LogError( "L1-O2O" ) << "L1RPCConeDefinition object with key "
 			    << objectKey << " not in ORCON!" ;
 
-  return boost::shared_ptr< L1RPCConeDefinition >() ;
+  return std::shared_ptr< L1RPCConeDefinition >() ;
 }
 
 //

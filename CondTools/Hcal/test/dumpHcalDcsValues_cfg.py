@@ -18,6 +18,7 @@ process.prod = cms.EDAnalyzer("HcalDumpConditions",
 #        ,'PedestalWidths' 
 #        ,'Gains' 
 #        ,'QIEData' 
+#        ,'QIETypes' 
 #        ,'ElectronicsMap'
 #        ,'ChannelQuality' 
 #        ,'GainWidths' 
@@ -62,6 +63,10 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 #        cms.PSet(
 #            record = cms.string('HcalQIEDataRcd'),
 #            tag = cms.string('qie_normalmode_v6.01')
+#        ), 
+#        cms.PSet(
+#            record = cms.string('HcalQIETypesRcd'),
+#            tag = cms.string('qietypes_normalmode_v0.00')
 #        ), 
 #        cms.PSet(
 #            record = cms.string('HcalChannelQualityRcd'),
@@ -119,6 +124,10 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 #         cms.PSet(
 #             record = cms.string('HcalQIEDataRcd'),
 #             tag = cms.string('qie_normalmode_v5_mc')
+#             ), 
+#         cms.PSet(
+#             record = cms.string('HcalQIETypesRcd'),
+#             tag = cms.string('qietypes_normalmode_v0_mc')
 #             ), 
 #         cms.PSet(
 #             record = cms.string('HcalElectronicsMapRcd'),

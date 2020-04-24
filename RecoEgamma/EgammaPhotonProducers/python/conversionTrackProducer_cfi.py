@@ -4,7 +4,7 @@ conversionTrackProducer = cms.EDProducer("ConversionTrackProducer",
                                          #input collection of tracks or gsf tracks
                                          TrackProducer = cms.string(''),
                                          #control whether to get ref to Trajectory (only available in reco job)
-                                         useTrajectory = cms.bool(True),
+                                         useTrajectory = cms.bool(False),
                                          #control which flags are set in output collection
                                          setTrackerOnly = cms.bool(False),
                                          setArbitratedEcalSeeded = cms.bool(False),

@@ -22,7 +22,8 @@ class LocalTrajectoryError {
 public:
   // construct
   LocalTrajectoryError(){}
-  LocalTrajectoryError(InvalidError) {theCovarianceMatrix(0,0)=-99999.e10;}
+
+  LocalTrajectoryError(InvalidError) : theCovarianceMatrix(ROOT::Math::SMatrixNoInit()) {theCovarianceMatrix(0,0)=-99999.e10;}
   // destruct
   ~LocalTrajectoryError(){}
 
@@ -71,7 +72,7 @@ public:
 
   LocalTrajectoryError & operator *= (double factor) {
     theCovarianceMatrix *= factor;
-    if ((theWeightMatrixPtr.get() != 0) && (factor != 0.0)) { (*theWeightMatrixPtr) /= factor; } 
+    if ((theWeightMatrixPtr.get() != nullptr) && (factor != 0.0)) { (*theWeightMatrixPtr) /= factor; } 
     return *this;
   }
 

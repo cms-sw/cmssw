@@ -46,7 +46,7 @@ def bitzeroForRun(dbsession,c,runnum):
         query.defineOutput(bitOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             algocount=cursor.currentRow()['algocount'].data()
             result[cmslsnum]=algocount
@@ -54,7 +54,7 @@ def bitzeroForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -91,14 +91,14 @@ def deadcountForRun(dbsession,c,runnum):
         query.defineOutput(deadOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             deadcount=cursor.currentRow()['deadcount'].data()
             result[cmslsnum]=deadcount
         del query
         dbsession.transaction().commit()
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession

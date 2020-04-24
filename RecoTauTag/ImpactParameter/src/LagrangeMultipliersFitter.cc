@@ -163,7 +163,7 @@ double LagrangeMultipliersFitter::chiSquareUsingInitalPoint(const TVectorT<doubl
   TVectorT<double> alpha_0=par_0_;
   TVectorT<double> dalpha=alpha-alpha_0;
   double c2_var=dalpha*(V_alpha0_inv_*dalpha);
-  TVectorT<double> alpha_v=alpha;
+  const TVectorT<double>& alpha_v=alpha;
   double c2_constraints=lambda*value(alpha_v);
   double c2=c2_var+c2_constraints;
   return c2;

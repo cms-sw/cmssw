@@ -290,11 +290,11 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
 	<< "The pointer to the GeometricSearchTracker was not set"; 
     
     // The vector of Barrel Tracker Layers 
-    std::vector< BarrelDetLayer*> barrelLayers = 
+    auto const& barrelLayers = 
       theGeomSearchTracker->barrelLayers();
     
     // The vector of Forward Tracker Layers (positive z)
-    std::vector< ForwardDetLayer*>  posForwardLayers = 
+    auto const&  posForwardLayers = 
       theGeomSearchTracker->posForwardLayers();
     
     // Local pointers
@@ -311,7 +311,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     
     // Take the active layer position from the Tracker Reco Geometry
     // Pixel barrel
-    std::vector< BarrelDetLayer*>::const_iterator bl = barrelLayers.begin();
+    auto bl = barrelLayers.begin();
     double maxLength = (**bl).specificSurface().bounds().length()/2.+1.7;
     double maxRadius = (**bl).specificSurface().radius()+0.01;
     // First pixel barrel layer: r=4.41058, l=53.38
@@ -428,7 +428,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
 					-tobOutCablesLength[version],     tobOutCablesLength[version]);
     
     // And now the disks...
-    std::vector< ForwardDetLayer*>::const_iterator fl = posForwardLayers.begin();
+    auto fl = posForwardLayers.begin();
     
     // Pixel disks 
     // First Pixel disk: Z pos 35.5 radii 5.42078, 16.0756
@@ -762,7 +762,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTID3,theRotation2,TID3);
     theDisk->setMediumProperties(*_theMPInner3);
     if ( theDisk->mediumProperties().radLen() > 0. ) 
-      _theCylinders.push_back(TrackerLayer(theDisk,12,layerNr,
+      _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
 					   minDim(layerNr),maxDim(layerNr),
 					   fudgeFactors(layerNr)));
     else

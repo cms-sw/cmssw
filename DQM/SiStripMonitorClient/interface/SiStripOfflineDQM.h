@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <TTree.h>
 
 class DQMStore;
 class SiStripActionExecutor;
@@ -46,27 +47,27 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
   SiStripOfflineDQM(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~SiStripOfflineDQM();
+  ~SiStripOfflineDQM() override;
 
  private:
 
   /// BeginJob
-  void beginJob();
+  void beginJob() override;
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// Analyze
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
 
   /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// Endjob
-  void endJob();
+  void endJob() override;
 
 private:
 
@@ -78,6 +79,7 @@ private:
   SiStripActionExecutor* actionExecutor_;
 
   bool createSummary_;
+  bool createTkInfoFile_;
   std::string inputFileName_;
   std::string outputFileName_;
   int globalStatusFilling_; 
@@ -85,6 +87,7 @@ private:
   int nEvents_;
   bool trackerFEDsFound_;
   bool printFaultyModuleList_;
+  TTree* tkinfoTree_;
 
   edm::ParameterSet configPar_;
 

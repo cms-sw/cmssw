@@ -1,6 +1,8 @@
 #ifndef CSCChamberMap_h
 #define CSCChamberMap_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include <map>
 
@@ -47,6 +49,8 @@ class CSCChamberMap{
    * But in this case il=0 labels entire chamber.
    */
   int dbIndex(const CSCDetId&) const;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

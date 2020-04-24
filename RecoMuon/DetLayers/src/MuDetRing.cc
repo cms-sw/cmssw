@@ -161,7 +161,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
   LogTrace(metname) << "     MuDetRing::compatibleDets, size: " << result.size()
                     << " on closest: " << nclosest << " # checked dets: " << nnextdet+1;
 
-  if (result.size()==0) {
+  if (result.empty()) {
     LogTrace(metname) << "   ***Ring not compatible,should have been discarded before!!!";
   }
   

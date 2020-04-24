@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 StripTrackingRecHitsValid = cms.EDAnalyzer("SiStripTrackingRecHitsValid",
     outputFile = cms.string('striptrackingrechitshisto.root'),
-    OutputMEsInRootFile = cms.bool(True),
+    runStandalone = cms.bool(False),
+    OutputMEsInRootFile = cms.bool(False),
     TopFolderName = cms.string('SiStrip/RecHitsValidation/TrackingRecHits'),
 
     TH1Resolx_LF = cms.PSet(
@@ -979,7 +980,7 @@ StripTrackingRecHitsValid = cms.EDAnalyzer("SiStripTrackingRecHitsValid",
         layerswitchon  = cms.bool(False)
     ),
 
-    trajectoryInput = cms.InputTag("generalTracks"),
+    tracksInput = cms.InputTag("generalTracks"),
     associatePixel = cms.bool(False),
     ROUList = cms.vstring('g4SimHitsTrackerHitsTIBLowTof', 
 			'g4SimHitsTrackerHitsTIBHighTof', 
@@ -991,6 +992,8 @@ StripTrackingRecHitsValid = cms.EDAnalyzer("SiStripTrackingRecHitsValid",
 			'g4SimHitsTrackerHitsTECHighTof'),
     associateRecoTracks = cms.bool(False),
     #	string trajectoryInput = "rsWithMaterialTracks"
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
     associateStrip = cms.bool(True)
 )
 

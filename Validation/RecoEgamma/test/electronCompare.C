@@ -1,4 +1,8 @@
+#include <sstream>
 #include <TObjArray.h>
+#include <string>
+
+using namespace std;
 
 TH1F * DivideHistos
  ( TFile * f,
@@ -21,10 +25,11 @@ TH1F * DivideHistos
   return h_res ;
  }
 
+// ( const TObjArray * tokens, TString & common ) // const with ROOT5
 void Join
- ( const TObjArray * tokens, TString & common )
+ ( TObjArray * tokens, TString & common )
  {
-  tokens->Compress() ;
+  tokens->Compress() ; // if const is used with TObjArray, must be commented with ROOT6
   if (tokens->GetEntries()==0)
    { common = "" ; return ; }
   else
@@ -101,8 +106,20 @@ int electronCompare()
   TString CMP_RED_COMMENT  = gSystem->Getenv( "CMP_RED_COMMENT"  ) ;
   TString CMP_BLUE_COMMENT = gSystem->Getenv( "CMP_BLUE_COMMENT" ) ;
   TString CMP_CONFIG       = gSystem->Getenv( "CMP_CONFIG"       ) ;
+  TString CMP_RED_RELEASE  = gSystem->Getenv( "CMP_RED_RELEASE"  ) ;
+  TString CMP_BLUE_RELEASE = gSystem->Getenv( "CMP_BLUE_RELEASE" ) ;
 
-  // style:
+//-----
+// AC
+//  std::cout << "red_file : C : " << CMP_RED_FILE << std::endl;
+//  std::cout << "blue_file : C : " << CMP_BLUE_FILE << std::endl;
+  std::cout << "red_release : C : " << CMP_RED_RELEASE << std::endl;
+  std::cout << "blue_release : C : " << CMP_BLUE_RELEASE << std::endl;
+  std::cout << "CMP_RED_NAME : " << CMP_RED_NAME << std::endl;
+  std::cout << "CMP_BLUE_NAME : " << CMP_BLUE_NAME << std::endl;
+//-----
+  
+// style:
   TStyle *eleStyle = new TStyle("eleStyle","Style for electron validation");
   eleStyle->SetCanvasBorderMode(0);
   eleStyle->SetCanvasColor(kWhite);
@@ -139,6 +156,8 @@ int electronCompare()
   eleStyle->SetPadLeftMargin(0.15);
   eleStyle->SetMarkerStyle(21);
   eleStyle->SetMarkerSize(0.8);
+  //-- AC --
+  eleStyle->SetPadRightMargin(0.2) ; 
 
   eleStyle->cd();
 
@@ -146,6 +165,7 @@ int electronCompare()
 
   TString internal_path("DQMData/Run 1/EgammaV/Run summary/") ;
   TString old_internal_path("DQMData/EgammaV/") ;
+//  TString new_internal_path("DQMData/Run 1/EgammaV/Run summary/") ;
 
   TString file_ref_dir ;
   TFile * file_ref = 0 ;
@@ -154,7 +174,7 @@ int electronCompare()
     file_ref = TFile::Open(CMP_BLUE_FILE) ;
     if (file_ref!=0)
      {
-      std::cout<<"open "<<CMP_BLUE_FILE<<std::endl ;
+      std::cout<<"open ref : "<<CMP_BLUE_FILE<<std::endl ;
       if (file_ref->cd(internal_path)==kTRUE)
        {
         std::cerr<<"cd "<<internal_path<<std::endl ;
@@ -184,7 +204,7 @@ int electronCompare()
     file_new = TFile::Open(CMP_RED_FILE) ;
     if (file_new!=0)
      {
-      std::cout<<"open "<<CMP_RED_FILE<<std::endl ;
+      std::cout<<"open new : "<<CMP_RED_FILE<<std::endl ;
       if (file_new->cd(internal_path)==kTRUE)
        {
         std::cerr<<"cd "<<internal_path<<std::endl ;
@@ -231,10 +251,17 @@ int electronCompare()
    }
   else
    {
-    web_page
+/*    web_page
      <<"<p>In all plots below"
      <<", the "<<CMP_RED_NAME<<" histograms are in red"
-     <<", and the "<<CMP_BLUE_NAME<<" histograms are in blue." ;
+     <<", and the "<<CMP_BLUE_NAME<<" histograms are in blue." ;*/
+    web_page
+     <<"<p>In all plots below"
+     <<", the <b><font color='red'>"<<CMP_RED_RELEASE<<"</font></b> histograms are in red"
+     <<", and the <b><font color='blue'>"<<CMP_BLUE_RELEASE<<"</font></b> histograms are in blue." ;
+/*	std::cout <<"<p>In all plots below "
+     <<", the "<<CMP_RED_RELEASE<<" histograms are in red"
+     <<", and the "<<CMP_BLUE_RELEASE<<" histograms are in blue." << std::endl ;*/
    }
 
   std::ifstream red_comment_file(CMP_RED_COMMENT) ;
@@ -256,7 +283,9 @@ int electronCompare()
   web_page<<"</p>\n" ;
 
   // canvas_name std::string => TString
-  TString canvas_name, histo_name, histo_full_path, gif_name, gif_path ;
+  TString canvas_name, histo_name, histo_name_recomp, histo_full_path, gif_name, gif_path ;
+  TString Pt1000_path_extension ; Pt1000_path_extension = "ElectronMcSignalValidator/" ; // needed for comparison between new >= 740pre8 and old < 740pre8 for Pt1000
+  TString histo_full_path_Pt1000 ;
   TString short_histo_name ;
   TString first_short_histo_name, first_histo_name ;
   TString dl_short_histo_name, dl_histo_name ;
@@ -370,11 +399,14 @@ int electronCompare()
     if (first==std::string::npos) continue ;
     if (line[first]=='#') continue ;
 
-    std::istrstream linestream(line) ;
+//    std::istrstream linestream(line) ;
+//    istringstream linestream(line) ;
+    std::basic_istringstream<char> linestream(line) ;
     divide = 0 ; num = denom = "" ;
     linestream >> histo_path >> scaled >> err >> eol >> eoc >> divide >> num >> denom ;
 
     histo_name = histo_path.c_str() ;
+    histo_name_recomp = histo_name ;
     histo_ref = 0 ;
     histo_new = 0 ;
     st_ref = 0 ;
@@ -393,28 +425,64 @@ int electronCompare()
 
     web_page<<"<a id=\""<<histo_name<<"\" name=\""<<short_histo_name<<"\"></a>" ;
 
-    // search histo_ref
-    if ( file_ref != 0 )
-     {
-      if (file_ref_dir.IsNull())
-       { histo_full_path = histo_name ; }
-      else
-       { histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; }
-      histo_ref = (TH1 *)file_ref->Get(histo_full_path) ;
-      if (histo_ref!=0)
-       {
-        // renaming those histograms avoid very strange bugs because they
-        // have the same names as the ones loaded from the new file
-        histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
-       }
-      else
-       {
-        web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
-       }
-     }
+    if (strstr(short_histo_name, "_recomp") != NULL) { // then we have to compare new histo recomp with new histo
+        Ssiz_t pos2 = histo_name_recomp.Index("_recomp");
+        histo_name_recomp.Remove(pos2,7) ;
+        histo_full_path = file_new_dir ; histo_full_path += histo_name_recomp ;
+        histo_ref = (TH1 *)file_new->Get(histo_full_path) ;
+        std::cout << "histo ref : " << histo_full_path << std::endl;
+    }
+    else { // then we have to compare new histo with ref histo
 
-    // search histo_new
+        // search histo_ref
+        if ( file_ref != 0 ) {
+            TString histo_reduced_path = histo_path.c_str();
+            if (file_ref_dir.IsNull()) {
+                histo_full_path = histo_name ; /*std::cout << "file_ref_dir.IsNull()" << std::endl ;*/ 
+            }
+            else { 
+                if (histo_reduced_path.BeginsWith("ElectronMcSignalValidatorMiniAOD"))
+                { 
+                    histo_reduced_path.Remove(25,7); /*std::cout << "OK !!" << histo_reduced_path << std::endl;*/ 
+                    histo_full_path = file_ref_dir ; histo_full_path += histo_reduced_path ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ 
+                }
+                else {
+                    histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ 
+                }
+            }
+            std::cout << "histo ref : " << histo_full_path << std::endl;
+ 
+            // WARNING
+            // the line below have to be unmasked if the reference release is prior to 740pre8 and for Pt1000
+            // before 740pre8 : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidator/ histo name (same as Pt35, Pt10, ....)
+            // after 740pre8  : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidatorPt1000/ histo name
+            histo_full_path_Pt1000 = file_ref_dir ; histo_full_path_Pt1000 += Pt1000_path_extension; histo_full_path_Pt1000 += histo_name ; // for Pt1000 
+            // END WARNING
+
+            histo_ref = (TH1 *)file_ref->Get(histo_full_path) ;
+
+            if (histo_ref!=0) {
+            // renaming those histograms avoid very strange bugs because they
+            // have the same names as the ones loaded from the new file
+                histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
+            }
+            else { // no histo
+                histo_ref = (TH1 *)file_ref->Get(histo_full_path_Pt1000) ;
+                if (histo_ref!=0) {
+                    // renaming those histograms avoid very strange bugs because they
+                    // have the same names as the ones loaded from the new file
+                    histo_ref->SetName(TString(histo_ref->GetName())+"_ref") ;
+                }
+                else {
+                    web_page<<"No <b>"<<histo_path<<"</b> for "<<CMP_BLUE_NAME<<".<br>" ;
+                }
+            }
+        }
+   }
+
+   // search histo_new
     histo_full_path = file_new_dir ; histo_full_path += histo_path.c_str() ;
+    std::cout <<  "histo new : " << histo_full_path << std::endl;
     histo_new = (TH1 *)file_new->Get(histo_full_path) ;
 
     // special treatments
@@ -459,6 +527,9 @@ int electronCompare()
       histo_new->SetLineWidth(3) ;
       RenderHisto(histo_new,canvas) ;
       histo_new->Draw(newDrawOptions) ;
+//	  std::cout << "SIZE : " << canvas->GetWw() << std::endl ; // 796 default
+//	  std::cout << "SIZE : " << canvas->GetWh() << std::endl ; // 572 default
+	  canvas->SetCanvasSize(960, 600);
       canvas->Update() ;
       st_new = (TPaveStats*)histo_new->FindObject("stats");
       st_new->SetTextColor(kRed) ;
@@ -490,6 +561,12 @@ int electronCompare()
         Double_t y2 = st_ref->GetY2NDC() ;
         st_ref->SetY1NDC(2*y1-y2) ;
         st_ref->SetY2NDC(y1) ;
+        //Double_t x1 = st_ref->GetX1NDC() ;
+        //Double_t x2 = st_ref->GetX2NDC() ;
+		//std::cout << "position s x1 = " << x1 << std::endl ; // 0.78 par defaut
+		//std::cout << "position s x2 = " << x2 << std::endl ; // 0.98 par defaut
+		//std::cout << "position s y1 = " << y1 << std::endl ; // 0.755 ou 0.835 par defaut
+		//std::cout << "position s y2 = " << y2 << std::endl ; // 0.995 par defaut
        }
 
       // Redraws
@@ -503,10 +580,16 @@ int electronCompare()
       //if ( (log==1) && ( (histo_new->GetEntries()>0) || ( (histo_ref!=0) && (histo_ref->GetEntries()!=0) ) ) )
       // { canvas->SetLogy(1) ; }
 
+
+// ne pas oublier de decommenter les 4 lignes suivantes
+
+//      std::cout << "histo_new get Min : " << histo_new->GetMinimum() << " - histo_new get Max : " << histo_new->GetMaximum() << std::endl ; // 
+//      std::cout << histo_name << " getEffectiveEntries : " << histo_new->GetEffectiveEntries() << std::endl ;
+/*      std::cout << histo_name << " GetMean : " << histo_new->GetMean() << std::endl ;*/
       std::cout<<histo_name
         <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
-        <<" of mean value "<<histo_new->GetMean()
-        <<std::endl ;
+//        <<" of mean value "<<histo_new->GetMean()
+        <<std::endl ; 
       canvas->SaveAs(gif_path.Data()) ;
       web_page<<"<a href=\""<<gif_name<<"\"><img border=\"0\" class=\"image\" width=\"440\" src=\""<<gif_name<<"\"></a><br>" ;
      }
@@ -532,10 +615,14 @@ int electronCompare()
        } while (cat.empty()) ;
      }
    }
+//  std::cout << "on ferme le fichier : " << histo_file2 << std::endl;
   histo_file2.close() ;
   web_page<<"</td></tr></table>\n" ;
 
   web_page<<"\n</html>"<<std::endl ;
+  std::cout << "on ferme la page" << std::endl;
   web_page.close() ;
+  std::cout << "page fermee" << std::endl;
+return 0;
 
  }

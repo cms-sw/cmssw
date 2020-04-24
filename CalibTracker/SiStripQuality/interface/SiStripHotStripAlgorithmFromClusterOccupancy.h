@@ -88,6 +88,7 @@ public:
   void evaluatePoissonian(std::vector<long double>& , long double& meanVal);
 
   long double prob_;
+  long double ratio_;
   unsigned short MinNumEntries_;
   unsigned short MinNumEntriesPerStrip_;
   double Nevents_;
@@ -126,6 +127,8 @@ public:
   int hotStripsPerModule;
   double stripOccupancy;
   int stripHits;
+  double medianAPVHits;
+  double avgAPVHits;
   double poissonProb;
 
   int ishot[768];
@@ -134,6 +137,8 @@ public:
   double stripoccupancy[768];
   int striphits[768];
   double poissonprob[768];
+  double medianapvhits[6];
+  double avgapvhits[6];
 
 
   std::stringstream ss;   

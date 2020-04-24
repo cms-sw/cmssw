@@ -96,8 +96,8 @@ bool SiStripDelay::makeDelay()
 	delays_[*detIdIt] += (*it)->delay(*detIdIt)*sumSign;
       }
       else {
-	std::cout << "makeDelay: Warning, detId = " << *detIdIt << " not present, summing to 0..." << std::cout;
-	std::cout << "This means that the two baseDelay tags have different detIds. PLEASE, CHECK THAT THIS IS EXPECTED." << std::cout;
+	std::cout << "makeDelay: Warning, detId = " << *detIdIt << " not present, summing to 0..." << std::endl;
+	std::cout << "This means that the two baseDelay tags have different detIds. PLEASE, CHECK THAT THIS IS EXPECTED." << std::endl;
 	delays_[*detIdIt] = (*it)->delay(*detIdIt)*sumSign;
       }
     }
@@ -114,7 +114,7 @@ void SiStripDelay::clear()
   delays_.clear();
 }
 
-void SiStripDelay::printDebug(std::stringstream & ss) const
+void SiStripDelay::printDebug(std::stringstream & ss, const TrackerTopology* /*trackerTopo*/) const
 {
   boost::unordered_map<uint32_t, double>::const_iterator it = delays_.begin();
   for( ; it != delays_.end(); ++it ) {
@@ -122,9 +122,9 @@ void SiStripDelay::printDebug(std::stringstream & ss) const
   }
 }
 
-void SiStripDelay::printSummary(std::stringstream& ss) const
+void SiStripDelay::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const
 {
-  SiStripDetSummary summaryDelays;
+  SiStripDetSummary summaryDelays{trackerTopo};
   boost::unordered_map<uint32_t, double>::const_iterator it = delays_.begin();
   for( ; it != delays_.end(); ++it ) {
     summaryDelays.add(it->first, it->second);

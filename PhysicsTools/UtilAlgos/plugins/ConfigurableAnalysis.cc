@@ -52,7 +52,7 @@ class ConfigurableAnalysis : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
 
-  Selections * selections_;
+  FilterSelections * selections_;
   Plotter * plotter_;
   NTupler * ntupler_;
 
@@ -79,13 +79,13 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
 
   //configure inputag distributor
   if (iConfig.exists("InputTags"))
-    edm::Service<InputTagDistributorService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("InputTags"));
+    edm::Service<InputTagDistributorService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("InputTags"), consumesCollector());
 
   //configure the variable helper
-  edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"));
+  edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"), consumesCollector());
 
   //list of selections
-  selections_ = new Selections(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());
+  selections_ = new FilterSelections(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());
 
   //plotting device
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
@@ -130,11 +130,11 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   //will the filter pass or not.
   bool majorGlobalAccept=false;
 
-  std::auto_ptr<std::vector<bool> > passedProduct(new std::vector<bool>(flows_.size(),false));
+  auto passedProduct = std::make_unique<std::vector<bool>>(flows_.size(),false);
   bool filledOnce=false;
 
   // loop the requested selections
-  for (Selections::iterator selection=selections_->begin(); selection!=selections_->end();++selection){
+  for (FilterSelections::iterator selection=selections_->begin(); selection!=selections_->end();++selection){
     //was this flow of filter actually asked for
     bool skip=true;
     unsigned int iFlow=0;
@@ -142,10 +142,10 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     if (skip) continue;
 
     //make a specific direction in the plotter
-    if (plotter_) plotter_->setDir(selection->name());
+    if (plotter_)     plotter_->setDir(selection->name());
 
     // apply individual filters on the event
-    std::map<std::string, bool> accept=selection->accept(iEvent);
+    std::map<std::string, bool> accept=selection->acceptMap(iEvent);
 
     bool globalAccept=true;
     std::string separator="";
@@ -158,14 +158,17 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       plotter_->fill(fullContent,iEvent);
 
     //loop the filters to make cumulative and allButOne job
-    for (Selection::iterator filterIt=selection->begin(); filterIt!=selection->end();++filterIt){
-      Filter & filter=(**filterIt);
+    for (FilterSelection::iterator filterIt=selection->begin(); filterIt!=selection->end();++filterIt){
+      SFilter & filter = (*filterIt);
       //      bool lastCut=((filterIt+1)==selection->end());
 
       //increment the directory name
-      cumulative+=separator+filter.name(); separator="_";
+      cumulative+=separator;
+      if (filter.inverted())	cumulative+="not";
+      cumulative+=filter->name(); 
+      separator="_";
 
-      if (accept[filter.name()]){
+      if (accept[filter->name()]){
 	//	if (globalAccept && selection->makeCumulativePlots() && !lastCut)
 	if (globalAccept && selection->makeCumulativePlots() && plotter_)
 	  plotter_->fill(cumulative,iEvent);
@@ -175,13 +178,13 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	// did all the others filter fire
 	bool goodForAllButThisOne=true;
 	for (std::map<std::string,bool>::iterator decision=accept.begin(); decision!=accept.end();++decision){
-	  if (decision->first==filter.name()) continue;
+	  if (decision->first==filter->name()) continue;
 	  if (!decision->second) {
 	    goodForAllButThisOne=false;
 	    break;}
 	}
 	if (goodForAllButThisOne && selection->makeAllButOnePlots() && plotter_){
-	  plotter_->fill(allButOne+filter.name(),iEvent);
+	  plotter_->fill(allButOne+filter->name(),iEvent);
 	}
       }
 
@@ -202,7 +205,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   }//loop the different filter order/number: loop the Selections
 
-  iEvent.put(passedProduct);
+  iEvent.put(std::move(passedProduct));
   if (workAsASelector_)
     return majorGlobalAccept;
   else
