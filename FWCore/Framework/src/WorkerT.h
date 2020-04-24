@@ -150,6 +150,13 @@ namespace edm {
       return module_->itemsToGetFrom(iType);
     }
 
+    std::vector<ESProxyIndex> const& esItemsToGetFrom(Transition iTransition) const override {
+      return module_->esGetTokenIndicesVector(iTransition);
+    }
+    std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition iTransition) const override {
+      return module_->esGetTokenRecordIndicesVector(iTransition);
+    }
+
     std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
 
     void preActionBeforeRunEventAsync(WaitingTask* iTask,

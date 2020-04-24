@@ -4,6 +4,7 @@
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -270,6 +271,21 @@ namespace edm {
       }
     }
     choiceHolder.doneWaiting(std::exception_ptr{});
+  }
+
+  void Worker::esPrefetch(EventSetupImpl const& iImpl, Transition iTrans) {
+    auto const& recs = esRecordsToGetFrom(iTrans);
+    auto const& items = esItemsToGetFrom(iTrans);
+
+    assert(items.size() == recs.size());
+    for (size_t i = 0; i != items.size(); ++i) {
+      if (recs[i] != ESRecordIndex{}) {
+        auto rec = iImpl.findImpl(recs[i]);
+        if (rec) {
+          rec->doGet(items[i], &iImpl, true);
+        }
+      }
+    }
   }
 
   void Worker::setEarlyDeleteHelper(EarlyDeleteHelper* iHelper) { earlyDeleteHelper_ = iHelper; }

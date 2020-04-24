@@ -50,6 +50,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/ESIndices.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -296,6 +297,8 @@ namespace edm {
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const = 0;
 
+    virtual std::vector<ESProxyIndex> const& esItemsToGetFrom(Transition) const = 0;
+    virtual std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition) const = 0;
     virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
     virtual void preActionBeforeRunEventAsync(WaitingTask* iTask,
@@ -370,6 +373,8 @@ namespace edm {
     }
 
     void prefetchAsync(WaitingTask*, ServiceToken const&, ParentContext const& parentContext, Principal const&);
+
+    void esPrefetch(EventSetupImpl const&, Transition);
 
     void emitPostModuleEventPrefetchingSignal() {
       actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
@@ -1110,6 +1115,8 @@ namespace edm {
     bool rc = true;
     try {
       convertException::wrap([&]() {
+        esPrefetch(es, T::transition_);
+
         rc = workerhelper::CallImpl<T>::call(this, streamID, ep, es, actReg_.get(), &moduleCallingContext_, context);
 
         if (rc) {
