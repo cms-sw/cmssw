@@ -66,6 +66,7 @@ MagGeometry::MagGeometry(int geomVersion,
     theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi() + Geom::pi() / nEBins, nEBins);
 
   // Compute barrel dimensions based on geometry version
+  // FIXME: it would be nice to derive these from the actual geometry in the builder, possibly adding some specification to the geometry.
   switch (geomVersion >= 120812 ? 0 : (geomVersion >= 90812 ? 1 : 2)) {
     case 0:  // since 120812
       barrelRsq1 = 172.400f * 172.400f;
