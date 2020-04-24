@@ -334,6 +334,8 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps) : DQTask(ps) {
 
   auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
   _currentLS = lumiCache->currentLS;
+  _xQuality.reset();
+  _xQuality = lumiCache->xQuality;
 
   //  To fill histograms outside of the loop, you need to determine if there were
   //  any valid det ids first
