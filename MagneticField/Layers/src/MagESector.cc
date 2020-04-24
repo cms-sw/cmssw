@@ -33,7 +33,7 @@ const MagVolume* MagESector::findVolume(const GlobalPoint& gp, double tolerance)
       if (Z - tolerance < (*ilay)->maxZ()) {
         LogTrace("MagGeometry") << "  Trying elayer at Z " << (*ilay)->minZ() << " " << Z << endl;
         result = (*ilay)->findVolume(gp, tolerance);
-        LogTrace("MagGeometry") << "***In elayer " << (result == 0 ? " failed " : " OK ") << endl;
+        LogTrace("MagGeometry") << "***In elayer " << (result == nullptr ? " failed " : " OK ") << endl;
       } else {
         // break;  // FIXME: OK if sorted by maxZ
       }
