@@ -199,7 +199,7 @@ def miniAOD_customizeCommon(process):
     task.add(process.CHSCands)
 
     from RecoMET.METProducers.pfMet_cfi import pfMet
-    process.pfMetCHS = pfMet.clone(src = cms.InputTag('CHSCands'))
+    process.pfMetCHS = pfMet.clone(src = 'CHSCands')
     task.add(process.pfMetCHS)
 
     addMETCollection(process,
@@ -218,7 +218,7 @@ def miniAOD_customizeCommon(process):
                                     )
     task.add(process.TrkCands)
 
-    process.pfMetTrk = pfMet.clone(src = cms.InputTag('TrkCands'))
+    process.pfMetTrk = pfMet.clone(src = 'TrkCands')
     task.add(process.pfMetTrk)
 
     addMETCollection(process,
@@ -368,10 +368,7 @@ def miniAOD_customizeCommon(process):
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJets_cfi')
-    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
-    from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
     _rerun_puppijets_task = task.copy()
     _rerun_puppijets_task.add(process.puppi, process.ak4PFJetsPuppi)
     (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17 | pA_2016 | pp_on_AA_2018).toReplaceWith(task, _rerun_puppijets_task)
@@ -428,8 +425,6 @@ def miniAOD_customizeCommon(process):
     
     ## puppi met
     process.load('RecoMET.METProducers.pfMetPuppi_cfi')
-    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     _rerun_puppimet_task = task.copy()
     _rerun_puppimet_task.add(process.puppiNoLep, process.pfMetPuppi)
     (run2_miniAOD_80XLegacy | run2_miniAOD_94XFall17).toReplaceWith(task, _rerun_puppimet_task)

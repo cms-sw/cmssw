@@ -1683,7 +1683,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0)>0"))
         addToProcessAndTask("pfCHS", pfCHS, process, task)
         from RecoMET.METProducers.pfMet_cfi import pfMet
-        pfMetCHS = pfMet.clone(src = cms.InputTag('pfCHS'))
+        pfMetCHS = pfMet.clone(src = 'pfCHS')
         addToProcessAndTask("pfMetCHS", pfMetCHS, process, task)
 
         addMETCollection(process,
@@ -1700,7 +1700,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         pfTrk = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV(0) > 0 && charge()!=0"))
         addToProcessAndTask("pfTrk", pfTrk, process, task)
-        pfMetTrk = pfMet.clone(src = cms.InputTag('pfTrk'))
+        pfMetTrk = pfMet.clone(src = 'pfTrk')
         addToProcessAndTask("pfMetTrk", pfMetTrk, process, task)
 
         addMETCollection(process,
