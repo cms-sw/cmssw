@@ -142,7 +142,7 @@ namespace cms {
     desc.addOptional<std::string>("srcJetResPhi");
     desc.addOptional<edm::InputTag>("srcRho");
     edm::ParameterSetDescription params;
-    params.setAllowAnything();
+    params.setAllowAnything();  // FIXME: This still needs to be defined in METSignficance
     desc.addOptional<edm::ParameterSetDescription>("parameters", params);
     edm::ParameterSetDescription desc1 = desc;
     edm::ParameterSetDescription desc2 = desc;
