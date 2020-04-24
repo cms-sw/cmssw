@@ -17,7 +17,6 @@
 #include "DQMOffline/Muon/interface/TriggerMatchMonitor.h"
 #include "DQMOffline/Muon/interface/TriggerMatchEfficiencyPlotter.h"
 
-
 DEFINE_FWK_MODULE(EfficiencyPlotter);
 DEFINE_FWK_MODULE(DiMuonHistograms);
 DEFINE_FWK_MODULE(MuonKinVsEtaAnalyzer);
