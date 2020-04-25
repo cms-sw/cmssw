@@ -31,7 +31,13 @@ LayerClusterAssociatorByEnergyScoreProducer::LayerClusterAssociatorByEnergyScore
 
 LayerClusterAssociatorByEnergyScoreProducer::~LayerClusterAssociatorByEnergyScoreProducer() {}
 
-void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const {}
+void LayerClusterAssociatorByEnergyScoreProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &) const {
+
+  std::unique_ptr<hgcal::LayerClusterToCaloParticleAssociatorBaseImpl> impl(new hgcal::LayerClusterToCaloParticleAssociatorBaseImpl());
+  std::unique_ptr<hgcal::LayerClusterToCaloParticleAssociator> toPut(
+      new hgcal::LayerClusterToCaloParticleAssociator(std::move(impl)));
+  iEvent.put(std::move(toPut));
+}
 
 void LayerClusterAssociatorByEnergyScoreProducer::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
