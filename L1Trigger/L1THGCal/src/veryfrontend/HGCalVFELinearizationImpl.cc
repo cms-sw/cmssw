@@ -19,10 +19,10 @@ HGCalVFELinearizationImpl::HGCalVFELinearizationImpl(const edm::ParameterSet& co
   if (oot_coefficients_.size() != kOot_order) {
     throw cms::Exception("BadConfiguration") << "OOT subtraction needs " << kOot_order << " coefficients";
   }
-  adcLSB_si_ = adcsaturation_si_ / pow(2., adcnBits_si_);
-  tdcLSB_si_ = tdcsaturation_si_ / pow(2., tdcnBits_si_);
-  adcLSB_sc_ = adcsaturation_sc_ / pow(2., adcnBits_sc_);
-  tdcLSB_sc_ = tdcsaturation_sc_ / pow(2., tdcnBits_sc_);
+  adcLSB_si_ = ldexp(adcsaturation_si_, -adcnBits_si_);
+  tdcLSB_si_ = ldexp(tdcsaturation_si_, -tdcnBits_si_);
+  adcLSB_sc_ = ldexp(adcsaturation_sc_, -adcnBits_sc_);
+  tdcLSB_sc_ = ldexp(tdcsaturation_sc_, -tdcnBits_sc_);
   linMax_ = (0x1 << linnBits_) - 1;
 }
 
