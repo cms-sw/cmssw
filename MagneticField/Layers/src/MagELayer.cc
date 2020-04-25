@@ -10,7 +10,7 @@
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace std;
