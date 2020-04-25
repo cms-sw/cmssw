@@ -20,6 +20,12 @@
 using namespace std;
 using namespace edm;
 
+namespace {
+  std::atomic<int> instanceCounter(0);
+  thread_local int localInstance = 0;
+  thread_local MagVolume const* lastVolume = nullptr;
+}  // namespace
+
 MagGeometry::MagGeometry(int geomVersion,
                          const std::vector<MagBLayer*>& tbl,
                          const std::vector<MagESector*>& tes,
@@ -36,7 +42,7 @@ MagGeometry::MagGeometry(int geomVersion,
                          const std::vector<MagESector const*>& tes,
                          const std::vector<MagVolume6Faces const*>& tbv,
                          const std::vector<MagVolume6Faces const*>& tev)
-    : lastVolume(nullptr),
+    : me_(++instanceCounter),
       theBLayers(tbl),
       theESectors(tes),
       theBVolumes(tbv),
@@ -90,6 +96,8 @@ MagGeometry::MagGeometry(int geomVersion,
       theBarrelZ2 = 661.010;
       break;
   }
+
+  LogTrace("MagGeometry_cache") << "*** In MagGeometry ctor: me_=" << me_ << " instanceCounter=" << instanceCounter << endl;
 }
 
 MagGeometry::~MagGeometry() {
@@ -170,10 +178,16 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
 
 // Use hierarchical structure for fast lookup.
 MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance) const {
-  // Check volume cache
-  auto lastVolumeCheck = lastVolume.load(std::memory_order_acquire);
-  if (lastVolumeCheck != nullptr && lastVolumeCheck->inside(gp)) {
-    return lastVolumeCheck;
+  // Clear volume cache if this is a new instance
+  if (me_ != localInstance) {
+    LogTrace("MagGeometry_cache") << "*** In MagGeometry::findVolume resetting cache: me=" << me_
+                            << " localInstance=" << localInstance << endl;
+    localInstance = me_;
+    lastVolume = nullptr;
+  }
+
+  if (lastVolume != nullptr && lastVolume->inside(gp)) {
+    return lastVolume;
   }
 
   MagVolume const* result = nullptr;
@@ -211,7 +225,7 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
   }
 
   if (cacheLastVolume)
-    lastVolume.store(result, std::memory_order_release);
+    lastVolume = result;
 
   return result;
 }
