@@ -49,15 +49,15 @@ namespace edm {
       fileLocators_.clear();
 
     for (auto it = tmp_dataCatalogs.begin(); it != tmp_dataCatalogs.end(); ++it) {
-      try {
+      //require the first file locator to success so obvious mistakes in data catalogs, typos for example, can be catched early
+      if (it == tmp_dataCatalogs.begin()) {
         fileLocators_.push_back(std::make_unique<FileLocator>(*it));
-      } catch (cms::Exception const& e) {
-        //try all data catalogs but none work so throw exception
-        if (std::next(it) == tmp_dataCatalogs.end()) {
-          throw cms::Exception("TrivialFileCatalog",
-                               "edm::InputFileCatalog: none of data catalogs are valid to make a FileLocator");
+      } else {
+        try {
+          fileLocators_.push_back(std::make_unique<FileLocator>(*it));
+        } catch (cms::Exception const& e) {
+          continue;
         }
-        continue;
       }
     }
 
