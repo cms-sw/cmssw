@@ -272,10 +272,9 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
 
       // If 1st best CLCT is found, look for the 2nd best.
       if (best_halfstrip[0] >= 0) {
-
         for (int ilct = 1; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
           // Mark keys near best CLCT as busy by setting their quality to zero, and repeat the search.
-          markBusyKeys(best_halfstrip[ilct-1], best_pid[best_halfstrip[ilct-1]], quality);
+          markBusyKeys(best_halfstrip[ilct - 1], best_pid[best_halfstrip[ilct - 1]], quality);
 
           for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < maxHalfStrips; hstrip++) {
             if (quality[hstrip] > best_quality[ilct] && pretrig_zone[hstrip] && !busyMap[hstrip][first_bx]) {
@@ -283,10 +282,10 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
               best_quality[ilct] = quality[hstrip];
               if (infoV > 1) {
                 LogTrace("CSCCathodeLCTProcessor")
-                  << "CLCT " << ilct+1 << ": halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
-                  << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip] << " pid = " << std::setw(3)
-                  << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[ilct]
-                  << " best quality = " << std::setw(3) << best_quality[ilct];
+                    << "CLCT " << ilct + 1 << ": halfstrip = " << std::setw(3) << hstrip
+                    << " quality = " << std::setw(3) << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip]
+                    << " pid = " << std::setw(3) << best_pid[hstrip] << " best halfstrip = " << std::setw(3)
+                    << best_halfstrip[ilct] << " best quality = " << std::setw(3) << best_quality[ilct];
               }
             }
           }
@@ -325,8 +324,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
                                 keystrip_data[ilct][CLCT_CFEB],
                                 keystrip_data[ilct][CLCT_BX]);
             if (infoV > 1) {
-              LogTrace("CSCCathodeLCTProcessor")
-                << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
+              LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
             }
             thisLCT.setFullBX(fbx);
 
