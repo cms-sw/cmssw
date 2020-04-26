@@ -1,7 +1,6 @@
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/EcalRawData"/>
-<use name="DataFormats/FEDRawData"/>
 <use name="FWCore/Utilities"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
@@ -11,7 +10,6 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/Records"/>
 <use name="CalibCalorimetry/EcalLaserAnalyzer"/>
-<use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="DQMServices/Core"/>
 <use   name="rootcore"/>

@@ -8,9 +8,7 @@
 <use name="DataFormats/Math"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/CaloGeometry"/>
-<use name="DQMServices/Components"/>
 <use name="DQMServices/Core"/>
-<use name="HLTrigger/HLTcore"/>
 <use name="clhep"/>
 <use name="CommonTools/Statistics"/>
 <use name="CommonTools/UtilAlgos"/>
