@@ -2,7 +2,6 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
-<use   name="DQM/EcalCommon"/>
 <use   name="DQMServices/Core"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/EcalDigi"/>
@@ -11,6 +10,8 @@
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/Scalers"/>
 <use   name="rootphysics"/>
+<use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/RunInfo"/>
 <use   name="CondFormats/ESObjects"/>
+<use   name="Geometry/EcalMapping"/>
 <flags   EDM_PLUGIN="1"/>
