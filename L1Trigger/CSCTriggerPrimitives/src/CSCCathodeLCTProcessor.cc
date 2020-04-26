@@ -358,12 +358,13 @@ void CSCCathodeLCTProcessor::run(
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
     for (int iCLCT = 0; iCLCT < CSCConstants::MAX_CLCTS_PER_PROCESSOR; iCLCT++) {
       if (CLCTContainer_[bx][iCLCT].isValid()) {
-        CLCTContainer_[bx][iCLCT].setTrknmb(iCLCT+1);
+        CLCTContainer_[bx][iCLCT].setTrknmb(iCLCT + 1);
         if (infoV > 0) {
           LogDebug("CSCCathodeLCTProcessor")
-            << CLCTContainer_[bx][iCLCT] << " found in " << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber)
-            << " (sector " << theSector << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
-            << "\n";
+              << CLCTContainer_[bx][iCLCT] << " found in "
+              << CSCDetId::chamberName(theEndcap, theStation, theRing, theChamber) << " (sector " << theSector
+              << " subsector " << theSubsector << " trig id. " << theTrigChamber << ")"
+              << "\n";
         }
       }
     }
@@ -615,10 +616,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 
       // If 1st best CLCT is found, look for other CLCTs!
       if (best_halfstrip[0] >= 0) {
-
         for (int ilct = 1; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
           // Mark keys near best CLCT as busy by setting their quality to zero, and repeat the search.
-          markBusyKeys(best_halfstrip[ilct-1], best_pid[best_halfstrip[ilct-1]], quality);
+          markBusyKeys(best_halfstrip[ilct - 1], best_pid[best_halfstrip[ilct - 1]], quality);
 
           for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < maxHalfStrips; hstrip++) {
             if (quality[hstrip] > best_quality[ilct]) {
@@ -627,10 +627,10 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             }
             if (infoV > 1 && quality[hstrip] > 0) {
               LogTrace("CSCCathodeLCTProcessor")
-                << "CLCT " << ilct+1 << ": halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
-                << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip] << " pid = " << std::setw(3)
-                << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
-                << " best quality = " << std::setw(3) << best_quality[1];
+                  << "CLCT " << ilct + 1 << ": halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
+                  << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip] << " pid = " << std::setw(3)
+                  << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
+                  << " best quality = " << std::setw(3) << best_quality[1];
             }
           }
         }
@@ -649,7 +649,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             keystrip_data[ilct][CLCT_QUALITY] = nhits[best_hs];
             keystrip_data[ilct][CLCT_CFEB] = keystrip_data[ilct][CLCT_STRIP] / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
             const uint16_t halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
-              CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
+                                               CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
 
             CSCCLCTDigi thisLCT(1,
                                 keystrip_data[ilct][CLCT_QUALITY],
@@ -671,8 +671,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 
             // useful debugging
             if (infoV > 1) {
-              LogTrace("CSCCathodeLCTProcessor")
-                << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
+              LogTrace("CSCCathodeLCTProcessor") << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
             }
 
             // put the CLCT into the collection
@@ -1106,13 +1105,13 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) con
   int bx_readout = -1;
   const std::vector<CSCCLCTDigi>& all_lcts = getCLCTs();
   for (const auto& p : all_lcts) {
-
     // only consider valid CLCTs
     if (!p.isValid())
       continue;
 
     //ignore the CLCTs with an index larger than nMaxCLCTs
-    if (p.getTrknmb() > nMaxCLCTs) break;
+    if (p.getTrknmb() > nMaxCLCTs)
+      break;
 
     const int bx = p.getBX();
     // Skip CLCTs found too early relative to L1Accept.
