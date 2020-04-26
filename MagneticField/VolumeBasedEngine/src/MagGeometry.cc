@@ -97,7 +97,8 @@ MagGeometry::MagGeometry(int geomVersion,
       break;
   }
 
-  LogTrace("MagGeometry_cache") << "*** In MagGeometry ctor: me_=" << me_ << " instanceCounter=" << instanceCounter << endl;
+  LogTrace("MagGeometry_cache") << "*** In MagGeometry ctor: me_=" << me_ << " instanceCounter=" << instanceCounter
+                                << endl;
 }
 
 MagGeometry::~MagGeometry() {
@@ -181,7 +182,7 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
   // Clear volume cache if this is a new instance
   if (me_ != localInstance) {
     LogTrace("MagGeometry_cache") << "*** In MagGeometry::findVolume resetting cache: me=" << me_
-                            << " localInstance=" << localInstance << endl;
+                                  << " localInstance=" << localInstance << endl;
     localInstance = me_;
     lastVolume = nullptr;
   }
