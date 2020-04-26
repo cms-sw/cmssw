@@ -197,8 +197,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
   // over the entire detector.  It gets the comparator & timing info from the
   // comparator digis and then passes them on to another run() function.
 
-  // clear(); // redundant; called by L1MuCSCMotherboard.
-
   static std::atomic<bool> config_dumped{false};
   if ((infoV > 0) && !config_dumped) {
     dumpConfigParams();
@@ -583,11 +581,12 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
 
       // The pattern finder runs continuously, so another pre-trigger
       // could occur already at the next bx.
-      //start_bx = first_bx + 1;
 
       // Quality for sorting.
       int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
-      int best_halfstrip[CSCConstants::MAX_CLCTS_PER_PROCESSOR], best_quality[CSCConstants::MAX_CLCTS_PER_PROCESSOR];
+      int best_halfstrip[CSCConstants::MAX_CLCTS_PER_PROCESSOR];
+      int best_quality[CSCConstants::MAX_CLCTS_PER_PROCESSOR];
+
       for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
         best_halfstrip[ilct] = -1;
         best_quality[ilct] = 0;
@@ -614,32 +613,32 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
         }
       }
 
-      // If 1st best CLCT is found, look for the 2nd best.
+      // If 1st best CLCT is found, look for other CLCTs!
       if (best_halfstrip[0] >= 0) {
-        // Mark keys near best CLCT as busy by setting their quality to
-        // zero, and repeat the search.
-        markBusyKeys(best_halfstrip[0], best_pid[best_halfstrip[0]], quality);
 
-        for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < maxHalfStrips; hstrip++) {
-          if (quality[hstrip] > best_quality[1]) {
-            best_halfstrip[1] = hstrip;
-            best_quality[1] = quality[hstrip];
-          }
-          if (infoV > 1 && quality[hstrip] > 0) {
-            LogTrace("CSCCathodeLCTProcessor")
-                << " 2nd CLCT: halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
+        for (int ilct = 1; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
+          // Mark keys near best CLCT as busy by setting their quality to zero, and repeat the search.
+          markBusyKeys(best_halfstrip[ilct-1], best_pid[best_halfstrip[ilct-1]], quality);
+
+          for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < maxHalfStrips; hstrip++) {
+            if (quality[hstrip] > best_quality[ilct]) {
+              best_halfstrip[ilct] = hstrip;
+              best_quality[ilct] = quality[hstrip];
+            }
+            if (infoV > 1 && quality[hstrip] > 0) {
+              LogTrace("CSCCathodeLCTProcessor")
+                << "CLCT " << ilct+1 << ": halfstrip = " << std::setw(3) << hstrip << " quality = " << std::setw(3)
                 << quality[hstrip] << " nhits = " << std::setw(3) << nhits[hstrip] << " pid = " << std::setw(3)
                 << best_pid[hstrip] << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
                 << " best quality = " << std::setw(3) << best_quality[1];
+            }
           }
         }
 
         // Pattern finder.
-        //bool ptn_trig = false;
         for (int ilct = 0; ilct < CSCConstants::MAX_CLCTS_PER_PROCESSOR; ilct++) {
           int best_hs = best_halfstrip[ilct];
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
-            //ptn_trig = true;
             keystrip_data[ilct][CLCT_PATTERN] = best_pid[best_hs];
             keystrip_data[ilct][CLCT_BEND] =
                 clct_pattern_[best_pid[best_hs]][CSCConstants::NUM_LAYERS - 1][CSCConstants::CLCT_PATTERN_WIDTH];
@@ -649,14 +648,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             keystrip_data[ilct][CLCT_STRIP_TYPE] = 1;  // obsolete
             keystrip_data[ilct][CLCT_QUALITY] = nhits[best_hs];
             keystrip_data[ilct][CLCT_CFEB] = keystrip_data[ilct][CLCT_STRIP] / CSCConstants::NUM_HALF_STRIPS_PER_CFEB;
-            int halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
-                                    CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
-
-            if (infoV > 1)
-              LogTrace("CSCCathodeLCTProcessor")
-                  << " Final selection: ilct " << ilct << " key halfstrip " << keystrip_data[ilct][CLCT_STRIP]
-                  << " quality " << keystrip_data[ilct][CLCT_QUALITY] << " pattern "
-                  << keystrip_data[ilct][CLCT_PATTERN] << " bx " << keystrip_data[ilct][CLCT_BX];
+            const uint16_t halfstrip_in_cfeb = keystrip_data[ilct][CLCT_STRIP] -
+              CSCConstants::NUM_HALF_STRIPS_PER_CFEB * keystrip_data[ilct][CLCT_CFEB];
 
             CSCCLCTDigi thisLCT(1,
                                 keystrip_data[ilct][CLCT_QUALITY],
@@ -676,15 +669,20 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
             // set the hit collection
             thisLCT.setHits(compHits);
 
+            // useful debugging
+            if (infoV > 1) {
+              LogTrace("CSCCathodeLCTProcessor")
+                << " Final selection: ilct " << ilct << " " << thisLCT << std::endl;
+            }
+
             // put the CLCT into the collection
             lctList.push_back(thisLCT);
           }
         }
       }  //find CLCT, end of best_halfstrip[0] >= 0
 
-      //if (ptn_trig) {
-      // Once there was a trigger, CLCT pre-trigger state machine
-      // checks the number of hits that lie on a pattern template
+      // If there is a trigger, CLCT pre-trigger state machine
+      // checks the number of hits that lie within a pattern template
       // at every bx, and waits for it to drop below threshold.
       // The search for CLCTs resumes only when the number of hits
       // drops below threshold.
@@ -698,8 +696,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
         bool hits_in_time = patternFinding(pulse, maxHalfStrips, bx, hits_in_patterns);
         if (hits_in_time) {
           for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER - 1]; hstrip < maxHalfStrips; hstrip++) {
-            //if (nhits[hstrip] >= nplanes_hit_pattern) {
-            if (nhits[hstrip] >= nplanes_hit_pretrig) {  //Tao, move dead time to pretrigger level
+            // the dead-time is done at the pre-trigger, not at the trigger
+            if (nhits[hstrip] >= nplanes_hit_pretrig) {
               if (infoV > 1)
                 LogTrace("CSCCathodeLCTProcessor") << " State machine busy at bx = " << bx;
               return_to_idle = false;
@@ -714,7 +712,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
           break;
         }
       }
-      //}
     }  //pre_trig
     else {
       start_bx = first_bx + 1;  // no dead time
