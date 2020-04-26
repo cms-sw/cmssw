@@ -21,18 +21,35 @@ import pickle
 import string, re
 import configparser as ConfigParser
 import json
-#import ConfigParser, json
 import subprocess
 from optparse import OptionParser
 from subprocess import Popen, PIPE
 import collections
 import multiprocessing
+from enum import Enum
+
+class RefitType(Enum):
+    STANDARD = 1
+    COMMON   = 2
 
 CopyRights  = '##################################\n'
-CopyRights += '#      submitAllJobs Script      #\n'
+CopyRights += '#  PVValidationHTCondorSubmitter #\n'
 CopyRights += '#      marco.musich@cern.ch      #\n'
-CopyRights += '#         December 2015          #\n'
+CopyRights += '#           April 2020           #\n'
 CopyRights += '##################################\n'
+
+##############################################
+def check_proxy():
+##############################################
+    """Check if GRID proxy has been initialized."""
+
+    try:
+        with open(os.devnull, "w") as dump:
+            subprocess.check_call(["voms-proxy-info", "--exists"],
+                                  stdout = dump, stderr = dump)
+    except subprocess.CalledProcessError:
+        return False
+    return True
 
 ##############################################
 def write_HTCondor_submit_file(path, name, nruns, proxy_path=None):
@@ -302,7 +319,7 @@ def split(sequence, size):
 class Job:
 #############
 
-    def __init__(self,dataset, job_number, job_id, job_name, isDA, isMC, applyBOWS, applyEXTRACOND, extraconditions, runboundary, lumilist, intlumi, maxevents, gt, allFromGT, alignmentDB, alignmentTAG, apeDB, apeTAG, bowDB, bowTAG, vertextype, tracktype, applyruncontrol, ptcut, CMSSW_dir ,the_dir):
+    def __init__(self,dataset, job_number, job_id, job_name, isDA, isMC, applyBOWS, applyEXTRACOND, extraconditions, runboundary, lumilist, intlumi, maxevents, gt, allFromGT, alignmentDB, alignmentTAG, apeDB, apeTAG, bowDB, bowTAG, vertextype, tracktype, refittertype, ttrhtype, applyruncontrol, ptcut, CMSSW_dir ,the_dir):
 ###############################
 
         theDataSet = dataset.split("/")[1]+"_"+(dataset.split("/")[2]).split("-")[0]
@@ -331,7 +348,9 @@ class Job:
         self.bowDB             = bowDB            
         self.bowTAG            = bowTAG           
         self.vertextype        = vertextype       
-        self.tracktype         = tracktype        
+        self.tracktype         = tracktype
+        self.refittertype      = refittertype
+        self.ttrhtype          = ttrhtype
         self.applyruncontrol   = applyruncontrol  
         self.ptcut             = ptcut            
 
@@ -351,9 +370,6 @@ class Job:
         self.output_BASH_name=None
 
         self.lfn_list=list()      
-
-        #self.OUTDIR = "/eos/cern.ch/user/m/musich/ZbbAnalysis/test01Sept" # TODO: write a setter method
-        #self.OUTDIR = self.createEOSout()
 
     def __del__(self):
 ###############################
@@ -384,11 +400,7 @@ class Job:
         self.outputCfgName=self.output_full_name+"_cfg.py"
         fout=open(os.path.join(self.cfg_dir,self.outputCfgName),'w+b')
 
-        # decide which template according to data/mc
-        if self.isMC:
-            template_cfg_file = os.path.join(self.the_dir,"PVValidation_TEMPL_cfg.py")
-        else:
-            template_cfg_file = os.path.join(self.the_dir,"PVValidation_TEMPL_cfg.py")
+        template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_cfg.py")
 
         fin = open(template_cfg_file)
 
@@ -413,7 +425,10 @@ class Job:
         config_txt=config_txt.replace("BOWSTAGTEMPLATE",self.bowTAG)
         config_txt=config_txt.replace("VERTEXTYPETEMPLATE",self.vertextype)
         config_txt=config_txt.replace("TRACKTYPETEMPLATE",self.tracktype)
+        config_txt=config_txt.replace("REFITTERTEMPLATE",self.refittertype)
+        config_txt=config_txt.replace("TTRHBUILDERTEMPLATE",self.ttrhtype)
         config_txt=config_txt.replace("PTCUTTEMPLATE",self.ptcut)
+        config_txt=config_txt.replace("INTLUMITEMPLATE",self.intlumi)
         config_txt=config_txt.replace("RUNCONTROLTEMPLATE",self.applyruncontrol)
         lfn_with_quotes = map(lambda x: "\'"+x+"\'",lfn)
         config_txt=config_txt.replace("FILESOURCETEMPLATE","["+",".join(lfn_with_quotes)+"]")
@@ -441,141 +456,6 @@ class Job:
                         fout.write("     process.prefer_conditionsIn"+element+" = cms.ESPrefer(\"PoolDBESSource\", \"conditionsIn"+element[0]+"\") \n \n") 
             fout.write(line)
         fout.close()
-
-    def createTheCfgFileOld(self,lfn):
-###############################
-        
-        # write the cfg file 
-        self.cfg_dir = os.path.join(self.the_dir,"cfg")
-        if not os.path.exists(self.cfg_dir):
-            os.makedirs(self.cfg_dir)
-
-        self.outputCfgName=self.output_full_name+"_cfg.py"
-        fout=open(os.path.join(self.cfg_dir,self.outputCfgName),'w+b')
-
-        # decide which template according to data/mc
-        if self.isMC:
-            #template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_DropBPix1_cfg.py")
-            template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_standardRefit_cfg.py")
-            #template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_standardRefit_GenericCPE_cfg.py")
-        else:
-            #template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_DropBPix1_cfg.py")
-            template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_standardRefit_cfg.py")
-            #template_cfg_file = os.path.join(self.the_dir,"PVValidation_T_standardRefit_GenericCPE_cfg.py")
-
-        fin = open(template_cfg_file)
-
-        for line in fin.readlines():
-            if(to_bool(self.applyEXTRACOND)):
-                if 'END OF EXTRA CONDITIONS' in line:
-                    for element in self.extraCondVect :
-                        if("Rcd" in element):
-                            params = self.extraCondVect[element].split(',')
-                            
-                            fout.write(" \n")
-                            fout.write("          process.conditionsIn"+element+"= CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone( \n")
-                            fout.write("               connect = cms.string('"+params[0]+"'), \n")
-                            fout.write("               toGet = cms.VPSet(cms.PSet(record = cms.string('"+element+"'), \n")
-                            fout.write("                                          tag = cms.string('"+params[1]+"'), \n")
-                            if (len(params)>2):
-                                fout.write("                                            label = cms.string('"+params[2]+"') \n")
-                            fout.write("                                           ) \n")
-                            fout.write("                                 ) \n")
-                            fout.write("               ) \n")
-                            fout.write("          process.prefer_conditionsIn"+element+" = cms.ESPrefer(\"PoolDBESSource\", \"conditionsIn"+element+"\") \n \n") 
-                        
-            if self.isMC:
-                if line.find("ISDATEMPLATE")!=-1:
-                    line=line.replace("ISDATEMPLATE",self.isDA)
-                if line.find("ISMCTEMPLATE")!=-1:
-                    line=line.replace("ISMCTEMPLATE",self.isMC)
-                if line.find("APPLYBOWSTEMPLATE")!=-1:
-                    line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
-                if line.find("EXTRACONDTEMPLATE")!=-1:
-                    line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
-                if line.find("RUNBOUNDARYTEMPLATE")!=-1:
-                    line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)  
-                if line.find("LUMILISTTEMPLATE")!=-1:
-                    line=line.replace("LUMILISTTEMPLATE",self.lumilist)
-                if line.find("INTLUMITEMPLATE")!=-1:
-                    line=line.replace("INTLUMITEMPLATE",self.intlumi)
-                if line.find("MAXEVENTSTEMPLATE")!=-1:
-                    line=line.replace("MAXEVENTSTEMPLATE",self.maxevents)
-                if line.find("GLOBALTAGTEMPLATE")!=-1:
-                    line=line.replace("GLOBALTAGTEMPLATE",self.gt)    
-                if line.find("ALLFROMGTTEMPLATE")!=-1:
-                    line=line.replace("ALLFROMGTTEMPLATE",self.allFromGT)    
-                if line.find("ALIGNOBJTEMPLATE")!=-1:
-                    line=line.replace("ALIGNOBJTEMPLATE",self.alignmentDB)
-                if line.find("GEOMTAGTEMPLATE")!=-1:
-                    line=line.replace("GEOMTAGTEMPLATE",self.alignmentTAG)
-                if line.find("APEOBJTEMPLATE")!=-1:
-                    line=line.replace("APEOBJTEMPLATE",self.apeDB)
-                if line.find("ERRORTAGTEMPLATE")!=-1:
-                    line=line.replace("ERRORTAGTEMPLATE",self.apeTAG)
-                if line.find("BOWSOBJECTTEMPLATE")!=-1:
-                    line=line.replace("BOWSOBJECTTEMPLATE",self.bowDB)  
-                if line.find("BOWSTAGTEMPLATE")!=-1:
-                    line=line.replace("BOWSTAGTEMPLATE",self.bowTAG)
-                if line.find("VERTEXTYPETEMPLATE")!=-1:
-                    line=line.replace("VERTEXTYPETEMPLATE",self.vertextype) 
-                if line.find("TRACKTYPETEMPLATE")!=-1:
-                    line=line.replace("TRACKTYPETEMPLATE",self.tracktype) 
-                if line.find("PTCUTTEMPLATE")!=-1:
-                    line=line.replace("PTCUTTEMPLATE",self.ptcut) 
-                if line.find("RUNCONTROLTEMPLATE")!=-1:
-                    line=line.replace("RUNCONTROLTEMPLATE",self.applyruncontrol) 
-            else:                    
-                if line.find("ISDATTEMPLATE")!=-1:
-                    line=line.replace("ISDATEMPLATE",self.isDA)
-                if line.find("ISMCTEMPLATE")!=-1:
-                    line=line.replace("ISMCTEMPLATE",self.isMC)
-                if line.find("APPLYBOWSTEMPLATE")!=-1:
-                    line=line.replace("APPLYBOWSTEMPLATE",self.applyBOWS)
-                if line.find("EXTRACONDTEMPLATE")!=-1:
-                    line=line.replace("EXTRACONDTEMPLATE",self.applyEXTRACOND)
-                if line.find("RUNBOUNDARYTEMPLATE")!=-1:
-                    line=line.replace("RUNBOUNDARYTEMPLATE",self.runboundary)        
-                if line.find("LUMILISTTEMPLATE")!=-1:
-                    line=line.replace("LUMILISTTEMPLATE",self.lumilist)
-                if line.find("INTLUMITEMPLATE")!=-1:
-                    line=line.replace("INTLUMITEMPLATE",self.intlumi)
-                if line.find("MAXEVENTSTEMPLATE")!=-1:
-                    line=line.replace("MAXEVENTSTEMPLATE",self.maxevents)
-                if line.find("GLOBALTAGTEMPLATE")!=-1:
-                    line=line.replace("GLOBALTAGTEMPLATE",self.gt) 
-                if line.find("ALLFROMGTTEMPLATE")!=-1:
-                    line=line.replace("ALLFROMGTTEMPLATE",self.allFromGT)    
-                if line.find("ALIGNOBJTEMPLATE")!=-1:
-                    line=line.replace("ALIGNOBJTEMPLATE",self.alignmentDB)
-                if line.find("GEOMTAGTEMPLATE")!=-1:
-                    line=line.replace("GEOMTAGTEMPLATE",self.alignmentTAG)
-                if line.find("APEOBJTEMPLATE")!=-1:
-                    line=line.replace("APEOBJTEMPLATE",self.apeDB)
-                if line.find("ERRORTAGTEMPLATE")!=-1:
-                    line=line.replace("ERRORTAGTEMPLATE",self.apeTAG)
-                if line.find("BOWSOBJECTTEMPLATE")!=-1:
-                    line=line.replace("BOWSOBJECTTEMPLATE",self.bowDB)  
-                if line.find("BOWSTAGTEMPLATE")!=-1:
-                    line=line.replace("BOWSTAGTEMPLATE",self.bowTAG)
-                if line.find("VERTEXTYPETEMPLATE")!=-1:
-                    line=line.replace("VERTEXTYPETEMPLATE",self.vertextype) 
-                if line.find("TRACKTYPETEMPLATE")!=-1:
-                    line=line.replace("TRACKTYPETEMPLATE",self.tracktype) 
-                if line.find("PTCUTTEMPLATE")!=-1:
-                    line=line.replace("PTCUTTEMPLATE",self.ptcut) 
-                if line.find("RUNCONTROLTEMPLATE")!=-1:
-                    line=line.replace("RUNCONTROLTEMPLATE",self.applyruncontrol) 
-                        
-            if line.find("FILESOURCETEMPLATE")!=-1:
-                lfn_with_quotes = map(lambda x: "\'"+x+"\'",lfn)                   
-                #print "["+",".join(lfn_with_quotes)+"]"
-                line=line.replace("FILESOURCETEMPLATE","["+",".join(lfn_with_quotes)+"]") 
-            if line.find("OUTFILETEMPLATE")!=-1:
-                line=line.replace("OUTFILETEMPLATE",self.output_full_name+".root")     
-            fout.write(line.encode(encoding='UTF-8'))    
-      
-        fout.close()                
                           
     def createTheLSFFile(self):
 ###############################
@@ -676,6 +556,11 @@ class Job:
 def main():
 ##############################################
 
+    ## check first there is a valid grid proxy
+    if not check_proxy():
+        print("Please create proxy via 'voms-proxy-init -voms cms -rfc'.")
+        sys.exit(1)
+
     global CopyRights
     print('\n'+CopyRights)
 
@@ -701,10 +586,11 @@ def main():
     (opts, args) = parser.parse_args()
 
     now = datetime.datetime.now()
-    #t = now.strftime("test_%Y_%m_%d_%H_%M_%S_DATA_PixQualityFlag")
+    #t = now.strftime("test_%Y_%m_%d_%H_%M_%S_")
+    #t = "2016UltraLegacy"
     #t = "2017UltraLegacy"
-    t = "2018UltraLegacy"
-    #t  = "2016UltraLegacy"
+    #t = "2018UltraLegacy"
+    t=""
     t+=opts.taskname
     
     USER = os.environ.get('USER')
@@ -738,6 +624,8 @@ def main():
     
     vertextype      = []
     tracktype       = []
+    refittertype    = []
+    ttrhtype        = []
 
     applyruncontrol = []
     ptcut           = []
@@ -751,9 +639,6 @@ def main():
         print("********************************************************")
         print("* Parsing from input file:", ConfigFile," ")
         
-        #config = ConfigParser.ConfigParser()
-        #config.read(ConfigFile)
-
         config = BetterConfigParser()
         config.read(ConfigFile)
 
@@ -789,12 +674,23 @@ def main():
                 
                 vertextype.append(ConfigSectionMap(config,"Type")['vertextype'])     
                 tracktype.append(ConfigSectionMap(config,"Type")['tracktype'])
-                
+
+                ## in case there exists a specification for the refitter
+
+                if(config.exists("Refit","refittertype")):
+                    refittertype.append(ConfigSectionMap(config,"Refit")['refittertype'])
+                else:
+                    refittertype.append(str(RefitType.COMMON))
+
+                if(config.exists("Refit","ttrhtype")):
+                    ttrhtype.append(ConfigSectionMap(config,"Refit")['ttrhtype'])
+                else:
+                    ttrhtype.append("WithAngleAndTemplate")
+
                 applyruncontrol.append(ConfigSectionMap(config,"Selection")['applyruncontrol'])
                 ptcut.append(ConfigSectionMap(config,"Selection")['ptcut'])
                 runboundary.append(ConfigSectionMap(config,"Selection")['runboundary'])
                 lumilist.append(ConfigSectionMap(config,"Selection")['lumilist'])
-                
     else :
 
         print("********************************************************")
@@ -819,9 +715,9 @@ def main():
         bowDB           = ['frontier://FrontierProd/CMS_CONDITIONS']  
         bowTAG          = ['TrackerSurafceDeformations_v1_express']  
         
-        vertextype      = ['offlinePrimaryVertices']  
-        tracktype       = ['ALCARECOTkAlMinBias']  
-        
+        vertextype      = ['offlinePrimaryVertices']
+        tracktype       = ['ALCARECOTkAlMinBias']
+
         applyruncontrol = ['False']  
         ptcut           = ['3'] 
         runboundary     = ['1']  
@@ -834,28 +730,30 @@ def main():
     print("********************************************************")
     print("- submitted   : ",opts.submit)
     print("- taskname    : ",opts.taskname)
-    print("- Jobname     : ",jobName)           
-    print("- use DA      : ",isDA)            
-    print("- is MC       : ",isMC)            
+    print("- Jobname     : ",jobName)
+    print("- use DA      : ",isDA)
+    print("- is MC       : ",isMC)
     print("- is run-based: ",doRunBased)
-    print("- evts/job    : ",maxevents)                    
-    print("- GlobatTag   : ",gt)      
+    print("- evts/job    : ",maxevents)
+    print("- GlobatTag   : ",gt)
     print("- allFromGT?  : ",allFromGT)
     print("- extraCond?  : ",applyEXTRACOND)
-    print("- extraCond   : ",conditions)                 
-    print("- Align db    : ",alignmentDB)     
-    print("- Align tag   : ",alignmentTAG)    
-    print("- APE db      : ",apeDB)           
-    print("- APE tag     : ",apeTAG)          
-    print("- use bows?   : ",applyBOWS)       
+    print("- extraCond   : ",conditions)
+    print("- Align db    : ",alignmentDB)
+    print("- Align tag   : ",alignmentTAG)
+    print("- APE db      : ",apeDB)
+    print("- APE tag     : ",apeTAG)
+    print("- use bows?   : ",applyBOWS)
     print("- K&B db      : ",bowDB)
-    print("- K&B tag     : ",bowTAG)                        
-    print("- VertexColl  : ",vertextype)      
-    print("- TrackColl   : ",tracktype)                       
+    print("- K&B tag     : ",bowTAG)
+    print("- VertexColl  : ",vertextype)
+    print("- TrackColl   : ",tracktype)
+    print("- RefitterSeq : ",refittertype)
+    print("- TTRHBuilder : ",ttrhtype)
     print("- RunControl? : ",applyruncontrol) 
-    print("- Pt>           ",ptcut)          
-    print("- run=          ",runboundary)     
-    print("- JSON        : ",lumilist)  
+    print("- Pt>           ",ptcut)
+    print("- run=          ",runboundary)
+    print("- JSON        : ",lumilist)
     print("- Out Dir     : ",eosdir)
 
     print("********************************************************")
@@ -868,14 +766,12 @@ def main():
         print(">>>> This is Data!")
         print(">>>> Doing run based selection")
         cmd = 'dasgoclient -limit=0 -query \'run dataset='+opts.data+'\''
-        #cmd = 'dasgoclient -query \'run dataset='+opts.data+'\''
         p = Popen(cmd , shell=True, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
         print(out)
         listOfRuns=out.decode().split("\n")
         listOfRuns.pop()
         listOfRuns.sort()
-        #myRuns = listOfRuns
         print("Will run on ",len(listOfRuns),"runs")
         print(listOfRuns)
 
@@ -1043,15 +939,15 @@ def main():
             runInfo["apeDB"]           = apeDB[iConf]
             runInfo["apeTag"]          = apeTAG[iConf]
             runInfo["applyBows"]       = applyBOWS[iConf]
-            runInfo["bowDB"]          = bowDB[iConf]
-            runInfo["bowTag"]         = bowTAG[iConf]
-            runInfo["ptCut"]          = ptcut[iConf]
-            runInfo["lumilist"]       = lumilist[iConf]
-            runInfo["applyEXTRACOND"] = applyEXTRACOND[iConf]
-            runInfo["conditions"]     = conditions[iConf]
-            runInfo["nfiles"]         = len(theSrcFiles)
-            runInfo["srcFiles"]       = theSrcFiles
-            runInfo["intLumi"]        = theLumi
+            runInfo["bowDB"]           = bowDB[iConf]
+            runInfo["bowTag"]          = bowTAG[iConf]
+            runInfo["ptCut"]           = ptcut[iConf]
+            runInfo["lumilist"]        = lumilist[iConf]
+            runInfo["applyEXTRACOND"]  = applyEXTRACOND[iConf]
+            runInfo["conditions"]      = conditions[iConf]
+            runInfo["nfiles"]          = len(theSrcFiles)
+            runInfo["srcFiles"]        = theSrcFiles
+            runInfo["intLumi"]         = theLumi
 
             updateDB(((iConf+1)*10)+(jobN+1),runInfo)
 
@@ -1068,6 +964,7 @@ def main():
                        apeDB[iConf], apeTAG[iConf],
                        bowDB[iConf], bowTAG[iConf],
                        vertextype[iConf], tracktype[iConf],
+                       refittertype[iConf], ttrhtype[iConf],
                        applyruncontrol[iConf],
                        ptcut[iConf],input_CMSSW_BASE,AnalysisStep_dir)
             
