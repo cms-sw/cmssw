@@ -974,5 +974,33 @@ namespace SiPixelPI {
     }      // loop on files
     return theOutMap;
   }
+
+  /*--------------------------------------------------------------------*/
+  void displayNotSupported(TCanvas& canv, const unsigned int size)
+  /*--------------------------------------------------------------------*/
+  {
+    std::string phase = (size < SiPixelPI::phase1size) ? "Phase-0" : "Phase-2";
+    canv.cd();
+    TLatex t2;
+    t2.SetTextAlign(21);
+    t2.SetTextSize(0.1);
+    t2.SetTextAngle(45);
+    t2.SetTextColor(kRed);
+    t2.DrawLatexNDC(0.6, 0.50, Form("%s  NOT SUPPORTED!", phase.c_str()));
+  }
+
+  /*--------------------------------------------------------------------*/
+  template <typename T>
+  std::pair<T, T> findMinMaxInMap(const std::map<unsigned int, T>& theMap)
+  /*--------------------------------------------------------------------*/
+  {
+    using pairtype = std::pair<unsigned int, T>;
+    auto max = *std::max_element(
+        theMap.begin(), theMap.end(), [](const pairtype& p1, const pairtype& p2) { return p1.second < p2.second; });
+    auto min = *std::min_element(
+        theMap.begin(), theMap.end(), [](const pairtype& p1, const pairtype& p2) { return p1.second < p2.second; });
+    return std::make_pair(min.second, max.second);
+  }
+
 };  // namespace SiPixelPI
 #endif

@@ -188,15 +188,8 @@ namespace {
         if (templMap.size() != SiPixelPI::phase1size) {
           edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
               << "SiPixelTempateLA maps are not supported for non-Phase1 Pixel geometries !";
-          std::string phase = (templMap.size() < SiPixelPI::phase1size) ? "Phase-0" : "Phase-2";
           TCanvas canvas("Canv", "Canv", 1200, 1000);
-          canvas.cd();
-          TLatex t2;
-          t2.SetTextAlign(21);
-          t2.SetTextSize(0.1);
-          t2.SetTextAngle(45);
-          t2.SetTextColor(kRed);
-          t2.DrawLatexNDC(0.6, 0.50, Form("%s NOT SUPPORTED!", phase.c_str()));
+          SiPixelPI::displayNotSupported(canvas, templMap.size());
           std::string fileName(m_imageFileName);
           canvas.SaveAs(fileName.c_str());
           return false;
@@ -270,15 +263,8 @@ namespace {
         if (templMap.size() != SiPixelPI::phase1size) {
           edm::LogError("SiPixelTemplateDBObject_PayloadInspector")
               << "SiPixelTempateIDs maps are not supported for non-Phase1 Pixel geometries !";
-          std::string phase = (templMap.size() < SiPixelPI::phase1size) ? "Phase-0" : "Phase-2";
           TCanvas canvas("Canv", "Canv", 1200, 1000);
-          canvas.cd();
-          TLatex t2;
-          t2.SetTextAlign(21);
-          t2.SetTextSize(0.1);
-          t2.SetTextAngle(45);
-          t2.SetTextColor(kRed);
-          t2.DrawLatexNDC(0.6, 0.50, Form("%s  NOT SUPPORTED!", phase.c_str()));
+          SiPixelPI::displayNotSupported(canvas, templMap.size());
           std::string fileName(m_imageFileName);
           canvas.SaveAs(fileName.c_str());
           return false;

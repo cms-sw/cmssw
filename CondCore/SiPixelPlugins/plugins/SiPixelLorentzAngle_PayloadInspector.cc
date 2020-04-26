@@ -74,16 +74,18 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
+      auto extrema = SiPixelPI::findMinMaxInMap(LAMap_);
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(new TH1F(
-          "value", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
+      auto h1 = std::unique_ptr<TH1F>(
+          new TH1F("value",
+                   "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
+                   50,
+                   extrema.first*0.9,
+                   extrema.second*1.1));
 
-      canvas.SetTopMargin(0.06);
-      canvas.SetBottomMargin(0.12);
-      canvas.SetLeftMargin(0.12);
-      canvas.SetRightMargin(0.05);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.06, 0.12, 0.12, 0.05);
       canvas.Modified();
 
       for (const auto &element : LAMap_) {
@@ -112,10 +114,7 @@ namespace {
 
       TPaveStats *st = (TPaveStats *)h1->FindObject("stats");
       st->SetTextSize(0.03);
-      st->SetX1NDC(0.15);  //new x start position
-      st->SetY1NDC(0.83);  //new y start position
-      st->SetX2NDC(0.39);  //new x end position
-      st->SetY2NDC(0.93);  //new y end position
+      SiPixelPI::adjustStats(st, 0.15, 0.83, 0.39, 0.93);
 
       auto ltx = TLatex();
       ltx.SetTextFont(62);
@@ -152,8 +151,14 @@ namespace {
 
       std::shared_ptr<SiPixelLorentzAngle> last_payload = fetchPayload(std::get<1>(lastiov));
       std::map<uint32_t, float> l_LAMap_ = last_payload->getLorentzAngles();
+      auto l_extrema = SiPixelPI::findMinMaxInMap(l_LAMap_);
+
       std::shared_ptr<SiPixelLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
       std::map<uint32_t, float> f_LAMap_ = first_payload->getLorentzAngles();
+      auto f_extrema = SiPixelPI::findMinMaxInMap(f_LAMap_);
+
+      auto max = (l_extrema.second > f_extrema.second) ? l_extrema.second : f_extrema.second;
+      auto min = (l_extrema.first < f_extrema.first) ? l_extrema.first : f_extrema.first;
 
       std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
@@ -164,22 +169,19 @@ namespace {
           new TH1F("value_first",
                    "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
                    50,
-                   0.051,
-                   0.15));
+                   min*0.9,
+                   max*1.1));
       hfirst->SetStats(false);
 
       auto hlast = std::unique_ptr<TH1F>(
           new TH1F("value_last",
                    "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
                    50,
-                   0.051,
-                   0.15));
+                   min*0.9,
+                   max*1.1));
       hlast->SetStats(false);
 
-      canvas.SetTopMargin(0.06);
-      canvas.SetBottomMargin(0.12);
-      canvas.SetLeftMargin(0.12);
-      canvas.SetRightMargin(0.05);
+      SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.06, 0.12, 0.12, 0.05);
       canvas.Modified();
 
       for (const auto &element : f_LAMap_) {
@@ -509,6 +511,15 @@ namespace {
       }
 
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
+      if (LAMap_.size() != SiPixelPI::phase1size) {
+        edm::LogError("SiPixelLorentzAngle_PayloadInspector")
+            << "SiPixelLorentzAngle maps are not supported for non-Phase1 Pixel geometries !";
+        TCanvas canvas("Canv", "Canv", 1200, 1000);
+        SiPixelPI::displayNotSupported(canvas, LAMap_.size());
+        std::string fileName(m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+        return false;
+      }
 
       // hard-coded phase-I
       std::array<double, 4> minima = {{999., 999., 999., 999.}};
@@ -614,6 +625,15 @@ namespace {
       }
 
       std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
+      if (LAMap_.size() != SiPixelPI::phase1size) {
+        edm::LogError("SiPixelLorentzAngle_PayloadInspector")
+            << "SiPixelLorentzAngle maps are not supported for non-Phase1 Pixel geometries !";
+        TCanvas canvas("Canv", "Canv", 1200, 1000);
+        SiPixelPI::displayNotSupported(canvas, LAMap_.size());
+        std::string fileName(m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+        return false;
+      }
 
       // hardcoded phase-I
       std::array<double, 2> minima = {{999., 999.}};
