@@ -984,6 +984,9 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   iDesc.add<edm::InputTag>("sourceInverseBeta", edm::InputTag("muons", "combined"))
       ->setComment("source of inverse beta values");
 
+  // switch to get the IP from the best track instead of running IPTools
+  iDesc.add<bool>("getdBFromTrack", false)->setComment("switch IP2D computation to use the best track one");
+ 
   // MC matching configurables
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
   iDesc.add<bool>("embedGenMatch", false)->setComment("embed MC matched MC information");
@@ -1098,6 +1101,8 @@ void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
                                      bool beamspotIsValid) {
   // Generic variable to store measurements
   std::pair<bool,Measurement1D> result;
+  double d0_corr;
+  double d0_err;
 
   // Correct to PV
 
@@ -1106,14 +1111,9 @@ void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
     aMuon.setDB(track->dxy(primaryVertex.position()),
                 track->dxyError(primaryVertex.position(), primaryVertex.covariance()),
                 pat::Muon::PV2D);
-  }
-  else{
+  } else{
     result =
-      IPTools::signedTransverseImpactParameter(tt,
-                                               GlobalVector(track->px(),
-                                                            track->py(),
-                                                            track->pz()),
-                                               primaryVertex);
+      IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
     double d0_corr = result.second.value();
     double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
     aMuon.setDB( d0_corr, d0_err, pat::Muon::PV2D);
@@ -1122,8 +1122,8 @@ void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
   // PV3D
   result =
       IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
-  double d0_corr = result.second.value();
-  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+  d0_corr = result.second.value();
+  d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
   aMuon.setDB(d0_corr, d0_err, pat::Muon::PV3D);
 
   // Correct to beam spot
@@ -1133,14 +1133,9 @@ void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
   reco::Vertex vBeamspot(beamspot.position(), beamspot.rotatedCovariance3D());
   if (getdBFromTrack_){
     aMuon.setDB(track->dxy(beamspot), track->dxyError(beamspot), pat::Muon::BS2D);
-  }
-  else{
+  } else{
     result =
-      IPTools::signedTransverseImpactParameter(tt,
-                                               GlobalVector(track->px(),
-                                                            track->py(),
-                                                            track->pz()),
-                                               vBeamspot);
+      IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);
     d0_corr = result.second.value();
     d0_err = beamspotIsValid ? result.second.error() : -1.0;
     aMuon.setDB( d0_corr, d0_err, pat::Muon::BS2D);
