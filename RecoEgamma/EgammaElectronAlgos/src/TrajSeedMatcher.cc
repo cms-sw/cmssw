@@ -40,6 +40,19 @@ namespace {
 
     return matchingCuts;
   }
+
+  TrajSeedMatcher::SCHitMatch makeSCHitMatch(const GlobalPoint& vtxPos,
+                                             const TrajectoryStateOnSurface& trajState,
+                                             const TrackingRecHit& hit,
+                                             float et,
+                                             float eta,
+                                             float phi,
+                                             int charge,
+                                             int nrClus) {
+    EleRelPointPair pointPair(hit.globalPosition(), trajState.globalParameters().position(), vtxPos);
+    float dRZ = hit.geographicalId().subdetId() == PixelSubdetector::PixelBarrel ? pointPair.dZ() : pointPair.dPerp();
+    return {hit.geographicalId(), hit.globalPosition(), dRZ, pointPair.dPhi(), hit, et, eta, phi, charge, nrClus};
+  }
 };  // namespace
 
 TrajSeedMatcher::Configuration::Configuration(const edm::ParameterSet& pset, edm::ConsumesCollector&& cc)
@@ -167,35 +180,43 @@ std::vector<TrajSeedMatcher::SCHitMatch> TrajSeedMatcher::processSeed(const Traj
   const int charge = initialTrajState.charge();
 
   std::vector<SCHitMatch> matchedHits;
-  FreeTrajectoryState firstHitFreeTraj;
+  FreeTrajectoryState firstMatchFreeTraj;
   GlobalPoint prevHitPos;
   GlobalPoint vertex;
   for (size_t hitNr = 0; hitNr < cfg_.matchingCuts.size() && hitNr < seed.nHits(); hitNr++) {
-    bool matched = false;
-    if (matchedHits.empty()) {  // First hit is special
-      SCHitMatch firstHit = matchFirstHit(seed, initialTrajState, vprim, backwardPropagator_);
-      firstHit.setExtra(candEt, candEta, candPos.phi(), charge, 1);
-      if (passesMatchSel(firstHit, 0)) {
-        matched = true;
-        matchedHits.push_back(firstHit);
-        //now we can figure out the z vertex
-        double zVertex = cfg_.useRecoVertex ? vprim.z() : getZVtxFromExtrapolation(vprim, firstHit.hitPos(), candPos);
-        vertex = GlobalPoint(vprim.x(), vprim.y(), zVertex);
-        firstHitFreeTraj = trackingTools::ftsFromVertexToPoint(
-            getMagField(firstHit.hitPos()), firstHit.hitPos(), vertex, energy, charge);
-        prevHitPos = firstHit.hitPos();
-      }
-    } else {  // All subsequent hits are handled the same
-      SCHitMatch hit = match2ndToNthHit(seed, firstHitFreeTraj, hitNr, prevHitPos, vertex, forwardPropagator_);
-      hit.setExtra(candEt, candEta, candPos.phi(), charge, 1);
-      if (passesMatchSel(hit, matchedHits.size())) {
-        matched = true;
-        matchedHits.push_back(hit);
-        prevHitPos = hit.hitPos();
-      }
-    }
-    if (!matched and !cfg_.enableHitSkipping)
+    if (!cfg_.enableHitSkipping && hitNr > 0 && matchedHits.empty()) {
       break;
+    }
+
+    auto const& recHit = *(seed.recHits().first + hitNr);
+
+    if (!recHit.isValid()) {
+      continue;
+    }
+
+    const bool doFirstMatch = matchedHits.empty();
+
+    auto const& trajState = doFirstMatch
+                                ? getTrajStateFromVtx(recHit, initialTrajState, backwardPropagator_)
+                                : getTrajStateFromPoint(recHit, firstMatchFreeTraj, prevHitPos, forwardPropagator_);
+    if (!trajState.isValid()) {
+      continue;
+    }
+
+    auto const& vtxForMatchObject = doFirstMatch ? vprim : vertex;
+    auto match = makeSCHitMatch(vtxForMatchObject, trajState, recHit, candEt, candEta, candPos.phi(), charge, 1);
+
+    if (passesMatchSel(match, matchedHits.size())) {
+      matchedHits.push_back(match);
+      if (doFirstMatch) {
+        //now we can figure out the z vertex
+        double zVertex = cfg_.useRecoVertex ? vprim.z() : getZVtxFromExtrapolation(vprim, match.hitPos, candPos);
+        vertex = GlobalPoint(vprim.x(), vprim.y(), zVertex);
+        firstMatchFreeTraj =
+            trackingTools::ftsFromVertexToPoint(getMagField(match.hitPos), match.hitPos, vertex, energy, charge);
+      }
+      prevHitPos = match.hitPos;
+    }
   }
   return matchedHits;
 }
@@ -211,15 +232,6 @@ float TrajSeedMatcher::getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos,
   const double r1Diff = calRDiff(primeVtxPos, hitPos);
   const double r2Diff = calRDiff(hitPos, candPos);
   return hitPos.z() - r1Diff * (candPos.z() - hitPos.z()) / r2Diff;
-}
-
-bool TrajSeedMatcher::passTrajPreSel(const GlobalPoint& hitPos, const GlobalPoint& candPos) const {
-  float dt = hitPos.x() * candPos.x() + hitPos.y() * candPos.y();
-  if (dt < 0)
-    return false;
-  if (dt < kPhiCut_ * (candPos.perp() * hitPos.perp()))
-    return false;
-  return true;
 }
 
 const TrajectoryStateOnSurface& TrajSeedMatcher::getTrajStateFromVtx(const TrackingRecHit& hit,
@@ -266,40 +278,6 @@ TrajectoryStateOnSurface TrajSeedMatcher::makeTrajStateOnSurface(const GlobalPoi
   return TrajectoryStateOnSurface(freeTS, *bpb(freeTS.position(), freeTS.momentum()));
 }
 
-TrajSeedMatcher::SCHitMatch TrajSeedMatcher::matchFirstHit(const TrajectorySeed& seed,
-                                                           const TrajectoryStateOnSurface& initialState,
-                                                           const GlobalPoint& vtxPos,
-                                                           const PropagatorWithMaterial& propagator) {
-  const TrajectorySeed::range& hits = seed.recHits();
-  auto hitIt = hits.first;
-
-  if (hitIt->isValid()) {
-    const TrajectoryStateOnSurface& trajStateFromVtx = getTrajStateFromVtx(*hitIt, initialState, propagator);
-    if (trajStateFromVtx.isValid())
-      return SCHitMatch(vtxPos, trajStateFromVtx, *hitIt);
-  }
-  return SCHitMatch();
-}
-
-TrajSeedMatcher::SCHitMatch TrajSeedMatcher::match2ndToNthHit(const TrajectorySeed& seed,
-                                                              const FreeTrajectoryState& initialState,
-                                                              const size_t hitNr,
-                                                              const GlobalPoint& prevHitPos,
-                                                              const GlobalPoint& vtxPos,
-                                                              const PropagatorWithMaterial& propagator) {
-  const TrajectorySeed::range& hits = seed.recHits();
-  auto hitIt = hits.first + hitNr;
-
-  if (hitIt->isValid()) {
-    const TrajectoryStateOnSurface& trajState = getTrajStateFromPoint(*hitIt, initialState, prevHitPos, propagator);
-
-    if (trajState.isValid()) {
-      return SCHitMatch(vtxPos, trajState, *hitIt);
-    }
-  }
-  return SCHitMatch();
-}
-
 void TrajSeedMatcher::clearCache() {
   trajStateFromVtxPosChargeCache_.clear();
   trajStateFromVtxNegChargeCache_.clear();
@@ -322,13 +300,13 @@ int TrajSeedMatcher::getNrValidLayersAlongTraj(const SCHitMatch& hit1,
                                                const GlobalPoint& vprim,
                                                const float energy,
                                                const int charge) {
-  double zVertex = cfg_.useRecoVertex ? vprim.z() : getZVtxFromExtrapolation(vprim, hit1.hitPos(), candPos);
+  double zVertex = cfg_.useRecoVertex ? vprim.z() : getZVtxFromExtrapolation(vprim, hit1.hitPos, candPos);
   GlobalPoint vertex(vprim.x(), vprim.y(), zVertex);
 
-  auto firstHitFreeTraj =
-      trackingTools::ftsFromVertexToPoint(getMagField(hit1.hitPos()), hit1.hitPos(), vertex, energy, charge);
-  auto const& secondHitTraj = getTrajStateFromPoint(*hit2.hit(), firstHitFreeTraj, hit1.hitPos(), forwardPropagator_);
-  return getNrValidLayersAlongTraj(hit2.hit()->geographicalId(), secondHitTraj);
+  auto firstMatchFreeTraj =
+      trackingTools::ftsFromVertexToPoint(getMagField(hit1.hitPos), hit1.hitPos, vertex, energy, charge);
+  auto const& secondHitTraj = getTrajStateFromPoint(hit2.hit, firstMatchFreeTraj, hit1.hitPos, forwardPropagator_);
+  return getNrValidLayersAlongTraj(hit2.hit.geographicalId(), secondHitTraj);
 }
 
 int TrajSeedMatcher::getNrValidLayersAlongTraj(const DetId& hitId, const TrajectoryStateOnSurface& hitTrajState) const {
@@ -390,22 +368,6 @@ size_t TrajSeedMatcher::getNrHitsRequired(const int nrValidLayers) const {
   return cfg_.minNrHits.back();
 }
 
-TrajSeedMatcher::SCHitMatch::SCHitMatch(const GlobalPoint& vtxPos,
-                                        const TrajectoryStateOnSurface& trajState,
-                                        const TrackingRecHit& hit)
-    : detId_(hit.geographicalId()),
-      hitPos_(hit.globalPosition()),
-      hit_(&hit),
-      et_(0),
-      eta_(0),
-      phi_(0),
-      charge_(0),
-      nrClus_(0) {
-  EleRelPointPair pointPair(hitPos_, trajState.globalParameters().position(), vtxPos);
-  dRZ_ = detId_.subdetId() == PixelSubdetector::PixelBarrel ? pointPair.dZ() : pointPair.dPerp();
-  dPhi_ = pointPair.dPhi();
-}
-
 TrajSeedMatcher::SeedWithInfo::SeedWithInfo(const TrajectorySeed& seed,
                                             const std::vector<SCHitMatch>& posCharge,
                                             const std::vector<SCHitMatch>& negCharge,
@@ -413,13 +375,13 @@ TrajSeedMatcher::SeedWithInfo::SeedWithInfo(const TrajectorySeed& seed,
     : seed_(seed), nrValidLayers_(nrValidLayers) {
   size_t nrHitsMax = std::max(posCharge.size(), negCharge.size());
   for (size_t hitNr = 0; hitNr < nrHitsMax; hitNr++) {
-    DetId detIdPos = hitNr < posCharge.size() ? posCharge[hitNr].detId() : DetId(0);
-    float dRZPos = hitNr < posCharge.size() ? posCharge[hitNr].dRZ() : std::numeric_limits<float>::max();
-    float dPhiPos = hitNr < posCharge.size() ? posCharge[hitNr].dPhi() : std::numeric_limits<float>::max();
+    DetId detIdPos = hitNr < posCharge.size() ? posCharge[hitNr].detId : DetId(0);
+    float dRZPos = hitNr < posCharge.size() ? posCharge[hitNr].dRZ : std::numeric_limits<float>::max();
+    float dPhiPos = hitNr < posCharge.size() ? posCharge[hitNr].dPhi : std::numeric_limits<float>::max();
 
-    DetId detIdNeg = hitNr < negCharge.size() ? negCharge[hitNr].detId() : DetId(0);
-    float dRZNeg = hitNr < negCharge.size() ? negCharge[hitNr].dRZ() : std::numeric_limits<float>::max();
-    float dPhiNeg = hitNr < negCharge.size() ? negCharge[hitNr].dPhi() : std::numeric_limits<float>::max();
+    DetId detIdNeg = hitNr < negCharge.size() ? negCharge[hitNr].detId : DetId(0);
+    float dRZNeg = hitNr < negCharge.size() ? negCharge[hitNr].dRZ : std::numeric_limits<float>::max();
+    float dPhiNeg = hitNr < negCharge.size() ? negCharge[hitNr].dPhi : std::numeric_limits<float>::max();
 
     if (detIdPos != detIdNeg && (detIdPos.rawId() != 0 && detIdNeg.rawId() != 0)) {
       cms::Exception("LogicError")
@@ -444,11 +406,11 @@ TrajSeedMatcher::MatchingCutsV1::MatchingCutsV1(const edm::ParameterSet& pset)
 }
 
 bool TrajSeedMatcher::MatchingCutsV1::operator()(const TrajSeedMatcher::SCHitMatch& scHitMatch) const {
-  if (dPhiMax_ >= 0 && std::abs(scHitMatch.dPhi()) > dPhiMax_)
+  if (dPhiMax_ >= 0 && std::abs(scHitMatch.dPhi) > dPhiMax_)
     return false;
 
-  const float dRZMax = getDRZCutValue(scHitMatch.et(), scHitMatch.eta());
-  if (dRZMax_ >= 0 && std::abs(scHitMatch.dRZ()) > dRZMax)
+  const float dRZMax = getDRZCutValue(scHitMatch.et, scHitMatch.eta);
+  if (dRZMax_ >= 0 && std::abs(scHitMatch.dRZ) > dRZMax)
     return false;
 
   return true;
@@ -491,12 +453,12 @@ TrajSeedMatcher::MatchingCutsV2::MatchingCutsV2(const edm::ParameterSet& pset)
 }
 
 bool TrajSeedMatcher::MatchingCutsV2::operator()(const TrajSeedMatcher::SCHitMatch& scHitMatch) const {
-  size_t binNr = getBinNr(scHitMatch.eta());
-  float dPhiMax = getCutValue(scHitMatch.et(), dPhiHighEt_[binNr], dPhiHighEtThres_[binNr], dPhiLowEtGrad_[binNr]);
-  if (dPhiMax >= 0 && std::abs(scHitMatch.dPhi()) > dPhiMax)
+  size_t binNr = getBinNr(scHitMatch.eta);
+  float dPhiMax = getCutValue(scHitMatch.et, dPhiHighEt_[binNr], dPhiHighEtThres_[binNr], dPhiLowEtGrad_[binNr]);
+  if (dPhiMax >= 0 && std::abs(scHitMatch.dPhi) > dPhiMax)
     return false;
-  float dRZMax = getCutValue(scHitMatch.et(), dRZHighEt_[binNr], dRZHighEtThres_[binNr], dRZLowEtGrad_[binNr]);
-  if (dRZMax >= 0 && std::abs(scHitMatch.dRZ()) > dRZMax)
+  float dRZMax = getCutValue(scHitMatch.et, dRZHighEt_[binNr], dRZHighEtThres_[binNr], dRZLowEtGrad_[binNr]);
+  if (dRZMax >= 0 && std::abs(scHitMatch.dRZ) > dRZMax)
     return false;
 
   return true;
