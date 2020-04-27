@@ -1,4 +1,3 @@
-<use   name="DataFormats/GeometryVector"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="MagneticField/Engine"/>
