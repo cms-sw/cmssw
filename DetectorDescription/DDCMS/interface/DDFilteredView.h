@@ -94,6 +94,7 @@ namespace cms {
     // Return value is Double_t translation[3] with x, y, z elements.
     const Double_t* trans() const;
     const Translation translation() const;
+    const Translation translation(const std::vector<Node*>&) const;
 
     //! The absolute rotation of the current node
     const Double_t* rot() const;
