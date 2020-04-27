@@ -16,7 +16,8 @@ typedef std::vector<DPt3D> DPt3DVec;
 
 const float CaloCellGeometry::k_ScaleFromDDDtoGeant(0.1);
 
-CaloCellGeometry::CaloCellGeometry() : m_refPoint(0., 0., 0.), m_corners(), m_parms((CCGFloat*)nullptr), m_dEta(0), m_dPhi(0) {}
+CaloCellGeometry::CaloCellGeometry()
+    : m_refPoint(0., 0., 0.), m_corners(), m_parms((CCGFloat*)nullptr), m_dEta(0), m_dPhi(0) {}
 
 CaloCellGeometry::~CaloCellGeometry() {}
 
@@ -29,8 +30,8 @@ CaloCellGeometry::CaloCellGeometry(const CornersVec& cv, const CCGFloat* par)
                  0.25 * (cv[0].z() + cv[1].z() + cv[2].z() + cv[3].z())),
       m_corners(cv),
       m_parms(par),
-      m_rep(m_refPoint.perp(), m_refPoint.eta(), m_refPoint.barePhi()), 
-      m_dEta(0), 
+      m_rep(m_refPoint.perp(), m_refPoint.eta(), m_refPoint.barePhi()),
+      m_dEta(0),
       m_dPhi(0) {}
 
 std::ostream& operator<<(std::ostream& s, const CaloCellGeometry& cell) {
