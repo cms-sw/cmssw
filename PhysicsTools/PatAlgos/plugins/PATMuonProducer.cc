@@ -1114,8 +1114,8 @@ void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
   } else{
     result =
       IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
-    double d0_corr = result.second.value();
-    double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+    d0_corr = result.second.value();
+    d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
     aMuon.setDB( d0_corr, d0_err, pat::Muon::PV2D);
   }
 
