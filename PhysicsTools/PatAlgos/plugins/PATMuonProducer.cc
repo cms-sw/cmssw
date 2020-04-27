@@ -1120,8 +1120,7 @@ void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
   }
 
   // PV3D
-  result =
-      IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
+  result = IPTools::signedImpactParameter3D(tt, GlobalVector(track->px(), track->py(), track->pz()), primaryVertex);
   d0_corr = result.second.value();
   d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
   aMuon.setDB(d0_corr, d0_err, pat::Muon::PV3D);
@@ -1134,8 +1133,7 @@ void PATMuonProducer::embedHighLevel(pat::Muon& aMuon,
   if (getdBFromTrack_){
     aMuon.setDB(track->dxy(beamspot), track->dxyError(beamspot), pat::Muon::BS2D);
   } else{
-    result =
-      IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);
+    result = IPTools::signedTransverseImpactParameter(tt, GlobalVector(track->px(), track->py(), track->pz()), vBeamspot);
     d0_corr = result.second.value();
     d0_err = beamspotIsValid ? result.second.error() : -1.0;
     aMuon.setDB( d0_corr, d0_err, pat::Muon::BS2D);
