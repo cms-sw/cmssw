@@ -9,9 +9,10 @@ RecoBTauAOD = cms.PSet(
 RecoBTauRECO = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
+RecoBTauRECO.outputCommands.extend(RecoBTauAOD.outputCommands)
 
 #Full Event content 
 RecoBTauFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
-
+RecoBTauFEVT.outputCommands.extend(RecoBTauRECO.outputCommands)
