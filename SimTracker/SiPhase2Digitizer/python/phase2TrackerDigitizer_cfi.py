@@ -242,6 +242,7 @@ _premixStage1ModifyDict = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        Phase2ReadoutMode = -1
     ),
     SSDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
