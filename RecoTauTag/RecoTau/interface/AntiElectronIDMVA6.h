@@ -22,9 +22,8 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-
-#include "CommonTools/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "RecoTauTag/RecoTau/interface/PositionAtECalEntrance.h"
 
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
@@ -175,7 +174,8 @@ class AntiElectronIDMVA6
 
    std::vector<TFile*> inputFilesToDelete_;
 
-   double bField_;
+   PositionAtECalEntrance positionAtECalEntrance_;
+
    int verbosity_;
 };
 
