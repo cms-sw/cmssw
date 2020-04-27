@@ -5,8 +5,6 @@ from DQM.DTMonitorModule.dtOccupancyEfficiency_cfi import *
 from DQM.DTMonitorModule.dtSegmentTask_cfi import *
 from DQM.DTMonitorModule.dtRunConditionVar_cfi import *
 dtSegmentAnalysisMonitor.detailedAnalysis = True
-dtSegmentAnalysisMonitor.slideTimeBins = False
-dtSegmentAnalysisMonitor.nLSTimeBin = 5
 
 from DQM.DTMonitorModule.dtResolutionTask_cfi import *
 
