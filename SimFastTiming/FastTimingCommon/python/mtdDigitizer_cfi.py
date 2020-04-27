@@ -63,7 +63,8 @@ _endcap_MTDDigitizer = cms.PSet(
     DeviceSimulation  = cms.PSet(
         bxTime            = cms.double(25),
         tofDelay          = cms.double(1),
-        meVPerMIP         = cms.double(0.085), # from HGCal
+        # Assuming Landau MPV = 0.08798 MeV = 0.5 fC:
+        fCPerMeV          = cms.double(5.68311), # [fC/MeV]
         ),
     ElectronicsSimulation = cms.PSet(
         bxTime             = cms.double(25),
@@ -73,11 +74,11 @@ _endcap_MTDDigitizer = cms.PSet(
         # n bits for the TDC
         tdcNbits           = cms.uint32(11),
         # ADC saturation
-        adcSaturation_MIP  = cms.double(25),
+        adcSaturation_fC   = cms.double(17.),     # [fC]
         # for different thickness
-        adcThreshold_MIP   = cms.double(0.025),
+        adcThreshold_fC    = cms.double(0.24),    # [fC]
         # LSB for time of arrival estimate from TDC in ns
-        toaLSB_ns          = cms.double(0.013),
+        toaLSB_ns          = cms.double(0.013),  # [ns]
         )
 )
 

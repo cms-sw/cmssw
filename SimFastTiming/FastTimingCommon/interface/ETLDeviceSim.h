@@ -34,7 +34,7 @@ public:
 private:
   const MTDGeometry* geom_;
 
-  float MIPPerMeV_;
+  float fCPerMeV_;
   float bxTime_;
   float tofDelay_;
 };
