@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
+#include "CondCore/SiPixelPlugins/interface/PixelRegionContainers.h"
 
 #include <memory>
 #include <sstream>
