@@ -82,6 +82,13 @@ private:
   std::string extensionName_;
   std::vector<edm::ParameterSet> discriminators_;
   std::vector<edm::ParameterSet> againstXs_;
+  std::string qcd;
+  std::string real_data;
+  std::string real_eledata;
+  std::string real_mudata;
+  std::string ztt;
+  std::string zee;
+  std::string zmm;
 };
 
 #endif
