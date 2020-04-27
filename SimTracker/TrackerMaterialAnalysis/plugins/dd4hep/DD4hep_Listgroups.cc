@@ -31,6 +31,9 @@
 #include <TText.h>
 #include <TColor.h>
 
+#include "MaterialAccountingGroup.h"
+
+
 class DD4hep_ListGroups : public edm::one::EDAnalyzer<> {
 public:
   DD4hep_ListGroups(const edm::ParameterSet &iConfig);
@@ -47,8 +50,10 @@ private:
   std::set<std::string_view> m_group_names;
   std::vector<unsigned int> m_color;
   std::vector<int> m_gradient;
+  std::vector<MaterialAccountingGroup *> m_groups;
   void fillColor();
   void fillGradient();
+  void produceAndSaveSummaryPlot(cms::DDCompactView cpv);
   std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText>>> overlayEtaReferences();
 };
 
@@ -58,6 +63,13 @@ DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
 }
 
 DD4hep_ListGroups::~DD4hep_ListGroups() {}
+
+void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv){
+
+  for(auto n : m_group_names){
+    m_groups.push_back(new MaterialAccountingGroup(n.data(),cpv));
+  }
+}
 
 void DD4hep_ListGroups::fillColor(void) {
   // With the introduction of the support for PhaseI and PhaseII detectors it
@@ -261,6 +273,10 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
       }
     }
   }
+
+  if(m_saveSummaryPlot)
+    produceAndSaveSummaryPlot(*cpv);
+
 }
 
 void DD4hep_ListGroups::endJob() {}
