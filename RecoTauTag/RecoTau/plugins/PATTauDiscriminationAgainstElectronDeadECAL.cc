@@ -1,9 +1,12 @@
 
-/** \class PFRecoTauDiscriminationAgainstElectronDeadECAL
+/** \class PATTauDiscriminationAgainstElectronDeadECAL
  *
  * Flag tau candidates reconstructed near dead ECAL channels,
  * in order to reduce e -> tau fakes not rejected by anti-e MVA discriminator
  *
+ * Adopted from RecoTauTag/RecoTau/plugins/PFRecoTauDiscriminationAgainstElectronDeadECAL.cc
+ * to enable computation of the discriminator on MiniAOD
+ * 
  * The motivation for this flag is this presentation:
  *   https://indico.cern.ch/getFile.py/access?contribId=0&resId=0&materialId=slides&confId=177223
  *
@@ -23,15 +26,15 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronDeadECAL.h"
 
-class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminationProducerBase 
+class PATTauDiscriminationAgainstElectronDeadECAL : public PATTauDiscriminationProducerBase
 {
  public:
-  explicit PFRecoTauDiscriminationAgainstElectronDeadECAL(const edm::ParameterSet& cfg)
-      : PFTauDiscriminationProducerBase(cfg),
+  explicit PATTauDiscriminationAgainstElectronDeadECAL(const edm::ParameterSet& cfg)
+      : PATTauDiscriminationProducerBase(cfg),
         moduleLabel_(cfg.getParameter<std::string>("@module_label")),
         antiElectronDeadECAL_(cfg) 
   {}
-  ~PFRecoTauDiscriminationAgainstElectronDeadECAL() override 
+  ~PATTauDiscriminationAgainstElectronDeadECAL() override 
   {}
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override 
@@ -39,11 +42,16 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
     antiElectronDeadECAL_.beginEvent(es); 
   }
 
-  double discriminate(const reco::PFTauRef& tau) const override 
+  double discriminate(const TauRef& tau) const override 
   {
+    std::cout << "<PATTauDiscriminationAgainstElectronDeadECAL::discriminate>:" << std::endl;
+    std::cout << "tau #" << tau.key() << ": pT = " << tau->pt() << " (energy = " << tau->energy() << ")," 
+              << " eta = " << tau->eta() << ", phi = " << tau->phi() << "," 
+	      << " mass = " << tau->mass() << ", charge = " << tau->charge() << std::endl;
     double discriminator = 1.;
-    if ( tau->leadPFChargedHadrCand().isNonnull() ) {
-      if ( antiElectronDeadECAL_(tau->leadPFChargedHadrCand().get()) ) {
+    if ( tau->leadChargedHadrCand().isNonnull() ) {
+      if ( antiElectronDeadECAL_(tau->leadChargedHadrCand().get()) ) {
+        std::cout << "ATTENTION: is near dead ECAL channel(s) !!" << std::endl;
         discriminator = 0.;
       }
     }
@@ -56,4 +64,4 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
   AntiElectronDeadECAL antiElectronDeadECAL_;
 };
 
-DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronDeadECAL);
+DEFINE_FWK_MODULE(PATTauDiscriminationAgainstElectronDeadECAL);
