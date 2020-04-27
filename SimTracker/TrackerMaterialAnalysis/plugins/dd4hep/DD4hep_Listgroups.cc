@@ -239,35 +239,27 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
 
   for (const auto &t : fv.specpars()) {
     m_group_names.insert(t->strValue("TrackingMaterialGroup"));
-    std::cout << t->strValue("TrackingMaterialGroup") << std::endl;
   }
 
   for (const auto &i : m_group_names) {
     cms::DDFilter filter1("TrackingMaterialGroup", {i.data(), i.size()});
     cms::DDFilteredView fv1(*cpv, filter1);
     bool firstChild = fv1.firstChild();
-    //fv1.printFilter();
-
-    std::cout << "***" << i << std::endl;
 
     for (const auto j : fv1.specpars()) {
       for (const auto k : j->paths) {
-        std::cout << k << std::endl;
         if (firstChild) {
-          std::cout << "Find children matching selection for a parent " << fv1.name() << "\n";
           std::vector<std::vector<cms::Node *>> children = fv1.children(k);
           for (auto const &path : children) {
-            for (auto const &node : path) {
-              std::cout << node->GetName() << ", ";
-            }
+	    for (auto const &node: path){
+	      edm::LogVerbatim("TrackingMaterialGroup") << node->GetName() << "/";
+	    }
             cms::Translation trans = fv1.translation(path);
-            std::cout << "(" << trans.x() << ", " << trans.y() << ", " << trans.z() << ")\n";
+	    edm::LogVerbatim("TrackingMaterialGroup") << "(" << trans.x() << ", " << trans.y() << ", " << trans.z() << ")\n";
           }
-          std::cout << "\n";
         }
       }
     }
-    std::cout << "*************" << std::endl;
   }
 }
 
