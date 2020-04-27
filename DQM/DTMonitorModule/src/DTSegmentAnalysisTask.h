@@ -24,7 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -34,9 +34,8 @@
 #include <vector>
 
 class DTGeometry;
-class DTTimeEvolutionHisto;
 
-class DTSegmentAnalysisTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTSegmentAnalysisTask : public DQMEDAnalyzer{
 public:
   /// Constructor
   DTSegmentAnalysisTask(const edm::ParameterSet& pset);
@@ -49,10 +48,6 @@ public:
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-
-  /// Summary
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
 
 protected:
   // Book the histograms
@@ -81,18 +76,10 @@ private:
   //  the histos
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
   std::map<int, MonitorElement*> summaryHistos;
-  std::map<int, std::map<int, DTTimeEvolutionHisto*> > histoTimeEvol;
 
   int nevents;
   int nEventsInLS;
-  DTTimeEvolutionHisto* hNevtPerLS;
 
-  // # of bins in the time histos
-  int nTimeBins;
-  // # of LS per bin in the time histos
-  int nLSTimeBin;
-  // switch on/off sliding bins in time histos
-  bool slideTimeBins;
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
   // hlt DQM mode
