@@ -14,6 +14,7 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
+#include <iostream>
 
 class HGCalRecHitMapProducer : public edm::stream::EDProducer<> {
 public:
@@ -36,7 +37,7 @@ HGCalRecHitMapProducer::HGCalRecHitMapProducer(const edm::ParameterSet& ps)
   hits_ee_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEInput"));
   hits_fh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCFHInput"));
   hits_bh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCBHInput"));
-  produces<std::map<DetId, HGCRecHit*>>();
+  produces<std::map<DetId, const HGCRecHit*>>();
 }
 
 void HGCalRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -58,9 +59,11 @@ void HGCalRecHitMapProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(hits_ee_token, ee_hits);
   evt.getByToken(hits_fh_token, fh_hits);
   evt.getByToken(hits_bh_token, bh_hits);
+  std::cout <<"Before loop" << std::endl;
   for (const auto& hit : *ee_hits.product()) {
     hitMap->emplace(hit.detid(), &hit);
   }
+  std::cout <<"Before second loop" << std::endl;
 
   for (const auto& hit : *fh_hits.product()) {
     hitMap->emplace(hit.detid(), &hit);

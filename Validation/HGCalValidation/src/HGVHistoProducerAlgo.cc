@@ -1056,7 +1056,9 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                                << energyFractionOfLCinCP << "\t" << std::setw(25) << energyFractionOfCPinLC << "\n";
   }  // End of loop over LayerClusters
 
-  hgcal::RecoToSimCollection cPOnLayer_ = LCAssocByEnergyScoreHandle->associateRecoToSim(clusterHandle, caloParticleHandle);
+  std::cout << "cPOnLayer.size(): " << cPOnLayer.size() << std::endl ;
+  hgcal::SimToRecoCollection cPOnLayer_ = LCAssocByEnergyScoreHandle->associateSimToReco(clusterHandle, caloParticleHandle);
+  std::cout << "cPOnLayer_.keys().size(): " << cPOnLayer_.keys().size() << std::endl ;
 
   LogDebug("HGCalValidator") << "Improved cPOnLayer INFO" << std::endl;
   for (size_t cp = 0; cp < cPOnLayer.size(); ++cp) {
