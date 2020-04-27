@@ -96,6 +96,18 @@ GlobalPoint FlatTrd::getPosition(const Pt3D& local) const {
   return GlobalPoint(glb.x(), glb.y(), glb.z());
 }
 
+float FlatTrd::etaSpan() const {
+  float eta1 = -std::log(std::tan(0.5 * std::atan((m_global.perp() + param()[k_dY1]) / std::abs(m_global.z()))));
+  float eta2 = -std::log(std::tan(0.5 * std::atan((m_global.perp() - param()[k_dY1]) / std::abs(m_global.z()))));
+  float dEta = std::abs(eta1 - eta2);
+  return dEta;
+}
+
+float FlatTrd::phiSpan() const {
+  float dPhi = 2.0 * std::atan(0.5 * (param()[k_dX1] + param()[k_dX2]) / m_global.perp());
+  return dPhi;
+}
+
 Pt3D FlatTrd::getLocal(const GlobalPoint& global) const {
   Pt3D local = m_tr.inverse() * Pt3D(global.x(), global.y(), global.z());
 #ifdef EDM_ML_DEBUG
