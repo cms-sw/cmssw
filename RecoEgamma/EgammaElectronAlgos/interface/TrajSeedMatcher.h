@@ -51,46 +51,17 @@ class TrackingRecHit;
 
 class TrajSeedMatcher {
 public:
-  class SCHitMatch {
-  public:
-    SCHitMatch() {}
-
-    //does not set charge,et,nrclus
-    SCHitMatch(const GlobalPoint& vtxPos, const TrajectoryStateOnSurface& trajState, const TrackingRecHit& hit);
-    ~SCHitMatch() = default;
-
-    void setExtra(float et, float eta, float phi, int charge, int nrClus) {
-      et_ = et;
-      eta_ = eta;
-      phi_ = phi;
-      charge_ = charge;
-      nrClus_ = nrClus;
-    }
-
-    int subdetId() const { return detId_.subdetId(); }
-    DetId detId() const { return detId_; }
-    float dRZ() const { return dRZ_; }
-    float dPhi() const { return dPhi_; }
-    const GlobalPoint& hitPos() const { return hitPos_; }
-    float et() const { return et_; }
-    float eta() const { return eta_; }
-    float phi() const { return phi_; }
-    int charge() const { return charge_; }
-    int nrClus() const { return nrClus_; }
-    const TrackingRecHit* hit() const { return hit_; }
-
-  private:
-    DetId detId_ = 0;
-    GlobalPoint hitPos_;
-    float dRZ_ = std::numeric_limits<float>::max();
-    float dPhi_ = std::numeric_limits<float>::max();
-    const TrackingRecHit* hit_ = nullptr;  //we do not own this
-    //extra quanities which are set later
-    float et_ = 0.f;
-    float eta_ = 0.f;
-    float phi_ = 0.f;
-    int charge_ = 0;
-    int nrClus_ = 0;
+  struct SCHitMatch {
+    const DetId detId = 0;
+    const GlobalPoint hitPos;
+    const float dRZ = std::numeric_limits<float>::max();
+    const float dPhi = std::numeric_limits<float>::max();
+    const TrackingRecHit& hit;
+    const float et = 0.f;
+    const float eta = 0.f;
+    const float phi = 0.f;
+    const int charge = 0;
+    const int nrClus = 0;
   };
 
   struct MatchInfo {
@@ -186,7 +157,7 @@ public:
     const bool requireExactMatchCount;
     const bool useParamMagFieldIfDefined;
 
-    //these two varibles determine how hits we require
+    //these two variables determine how hits we require
     //based on how many valid layers we had
     //right now we always need atleast two hits
     //also highly dependent on the seeds you pass in
@@ -219,20 +190,6 @@ private:
   static float getZVtxFromExtrapolation(const GlobalPoint& primeVtxPos,
                                         const GlobalPoint& hitPos,
                                         const GlobalPoint& candPos);
-
-  bool passTrajPreSel(const GlobalPoint& hitPos, const GlobalPoint& candPos) const;
-
-  TrajSeedMatcher::SCHitMatch matchFirstHit(const TrajectorySeed& seed,
-                                            const TrajectoryStateOnSurface& trajState,
-                                            const GlobalPoint& vtxPos,
-                                            const PropagatorWithMaterial& propagator);
-
-  TrajSeedMatcher::SCHitMatch match2ndToNthHit(const TrajectorySeed& seed,
-                                               const FreeTrajectoryState& trajState,
-                                               const size_t hitNr,
-                                               const GlobalPoint& prevHitPos,
-                                               const GlobalPoint& vtxPos,
-                                               const PropagatorWithMaterial& propagator);
 
   const TrajectoryStateOnSurface& getTrajStateFromVtx(const TrackingRecHit& hit,
                                                       const TrajectoryStateOnSurface& initialState,
@@ -274,7 +231,6 @@ private:
 
 private:
   static constexpr float kElectronMass_ = 0.000511;
-  static constexpr float kPhiCut_ = -0.801144;  //cos(2.5)
 
   Configuration const& cfg_;
 
