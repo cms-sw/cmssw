@@ -42,10 +42,9 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
   double discriminate(const reco::PFTauRef& tau) const override 
   {
     double discriminator = 1.;
-    if ( tau->leadPFChargedHadrCand().isNonnull() ) {
-      if ( antiElectronDeadECAL_(tau->leadPFChargedHadrCand().get()) ) {
-        discriminator = 0.;
-      }
+    const reco::Candidate* leadPFChargedHadron = ( tau->leadPFChargedHadrCand().isNonnull() ) ? tau->leadPFChargedHadrCand().get() : nullptr;
+    if ( antiElectronDeadECAL_(tau->p4(), leadPFChargedHadron) ) {
+      discriminator = 0.;
     }
     return discriminator;
   }

@@ -19,6 +19,7 @@ AntiElectronDeadECAL::AntiElectronDeadECAL(const edm::ParameterSet& cfg)
 {
   minStatus_ = cfg.getParameter<uint32_t>("minStatus");
   dR_ = cfg.getParameter<double>("dR");
+  extrapolateToECalEntrance_ = cfg.getParameter<bool>("extrapolateToECalEntrance");
 }
 
 AntiElectronDeadECAL::~AntiElectronDeadECAL()
@@ -27,7 +28,6 @@ AntiElectronDeadECAL::~AntiElectronDeadECAL()
 void AntiElectronDeadECAL::beginEvent(const edm::EventSetup& es)
 {
   updateBadTowers(es);
-  std::cout << "#badTowers = " << badTowers_.size() << std::endl;
   positionAtECalEntrance_.beginEvent(es);
 }
 
@@ -103,21 +103,24 @@ void AntiElectronDeadECAL::updateBadTowers(const edm::EventSetup& es)
 }
 
 
-bool AntiElectronDeadECAL::operator()(const reco::Candidate* leadPFChargedHadron) const
+bool AntiElectronDeadECAL::operator()(const reco::Candidate::LorentzVector& tauP4, const reco::Candidate* leadPFChargedHadron) const
 {
   bool isNearBadTower = false;
   bool success = false;
-  reco::Candidate::Point positionAtECalEntrance = positionAtECalEntrance_(leadPFChargedHadron, success);
-  if ( success ) {
-    std::cout << "(position@ECAL entrance: eta = " << positionAtECalEntrance.eta() << ", phi = " << positionAtECalEntrance.phi() << ")" << std::endl;
-    for ( std::vector<towerInfo>::const_iterator badTower = badTowers_.begin();
-	  badTower != badTowers_.end(); ++badTower ) {
-      if ( deltaR(badTower->eta_, badTower->phi_, positionAtECalEntrance.eta(), positionAtECalEntrance.phi()) < dR_ ) {
-        std::cout << " matches badTower: eta = " << badTower->eta_ << ", phi = " << badTower->phi_ << " !!" << std::endl;
-        isNearBadTower = true;
-      }
+  double tau_eta = tauP4.eta();
+  double tau_phi = tauP4.phi();
+  if ( extrapolateToECalEntrance_ && leadPFChargedHadron ) {
+    reco::Candidate::Point positionAtECalEntrance = positionAtECalEntrance_(leadPFChargedHadron, success);
+    if ( success ) {
+      tau_eta = positionAtECalEntrance.eta();
+      tau_phi = positionAtECalEntrance.phi();
     }
   }
-  std::cout << "--> isNearBadTower = " << isNearBadTower << std::endl;
+  for ( std::vector<towerInfo>::const_iterator badTower = badTowers_.begin();
+	badTower != badTowers_.end(); ++badTower ) {
+    if ( deltaR(badTower->eta_, badTower->phi_, tau_eta, tau_phi) < dR_ ) {
+      isNearBadTower = true;
+    }
+  }
   return isNearBadTower;
 }

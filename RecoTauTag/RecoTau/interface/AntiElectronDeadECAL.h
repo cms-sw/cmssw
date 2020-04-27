@@ -35,11 +35,12 @@ class AntiElectronDeadECAL
 
   void beginEvent(const edm::EventSetup&);
 
-  bool operator()(const reco::Candidate* leadPFChargedHadron) const;
+  bool operator()(const reco::Candidate::LorentzVector& tauP4, const reco::Candidate* leadPFChargedHadron) const;
 
  private:
   unsigned minStatus_;
   double dR_;
+  bool extrapolateToECalEntrance_;
 
   PositionAtECalEntrance positionAtECalEntrance_;
 

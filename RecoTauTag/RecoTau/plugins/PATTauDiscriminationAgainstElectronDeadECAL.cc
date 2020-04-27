@@ -44,16 +44,10 @@ class PATTauDiscriminationAgainstElectronDeadECAL : public PATTauDiscriminationP
 
   double discriminate(const TauRef& tau) const override 
   {
-    std::cout << "<PATTauDiscriminationAgainstElectronDeadECAL::discriminate>:" << std::endl;
-    std::cout << "tau #" << tau.key() << ": pT = " << tau->pt() << " (energy = " << tau->energy() << ")," 
-              << " eta = " << tau->eta() << ", phi = " << tau->phi() << "," 
-	      << " mass = " << tau->mass() << ", charge = " << tau->charge() << std::endl;
     double discriminator = 1.;
-    if ( tau->leadChargedHadrCand().isNonnull() ) {
-      if ( antiElectronDeadECAL_(tau->leadChargedHadrCand().get()) ) {
-        std::cout << "ATTENTION: is near dead ECAL channel(s) !!" << std::endl;
-        discriminator = 0.;
-      }
+    const reco::Candidate* leadPFChargedHadron = ( tau->leadChargedHadrCand().isNonnull() ) ? tau->leadChargedHadrCand().get() : nullptr;
+    if ( antiElectronDeadECAL_(tau->p4(), leadPFChargedHadron) ) {
+      discriminator = 0.;
     }
     return discriminator;
   }
