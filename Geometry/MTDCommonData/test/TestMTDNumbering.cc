@@ -134,10 +134,12 @@ void TestMTDNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       bool isSens = false;
 
       if (fv.geoHistory()[num - 1].logicalPart().specifics().size() > 0) {
-        for (auto elem : *(fv.geoHistory()[num - 1].logicalPart().specifics()[0])) {
-          if (elem.second.name() == "SensitiveDetector") {
-            isSens = true;
-            break;
+        for (auto vec : fv.geoHistory()[num - 1].logicalPart().specifics()) {
+          for (auto elem : *vec) {
+            if (elem.second.name() == "SensitiveDetector") {
+              isSens = true;
+              break;
+            }
           }
         }
       }
