@@ -47,10 +47,10 @@ private:
   const uint32_t adcNbits_, tdcNbits_;
 
   // synthesized adc/tdc information
-  const float adcSaturation_MIP_;
-  const float adcLSB_MIP_;
+  const float adcSaturation_fC_;
+  const float adcLSB_fC_;
   const uint32_t adcBitSaturation_;
-  const float adcThreshold_MIP_;
+  const float adcThreshold_fC_;
   const float toaLSB_ns_;
   const uint32_t tdcBitSaturation_;
 };
