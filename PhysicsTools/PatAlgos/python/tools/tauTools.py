@@ -172,6 +172,7 @@ hpsTauIDSources = [
     ("againstElectronMediumMVA6", "DiscriminationByMVA6MediumElectronRejection"),
     ("againstElectronTightMVA6", "DiscriminationByMVA6TightElectronRejection"),
     ("againstElectronVTightMVA6", "DiscriminationByMVA6VTightElectronRejection"),
+    ("againstElectronDeadECAL", "DiscriminationByDeadECALElectronRejection"),
 ]
 
 # switch to PFTau collection produced for fixed dR = 0.07 signal cone size
