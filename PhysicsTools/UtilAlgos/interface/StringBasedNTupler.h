@@ -1,15 +1,12 @@
 #ifndef StringBasedNTupler_NTupler_H
 #define StringBasedNTupler_NTupler_H
 
-//#include "PhysicsTools/UtilAlgos/interface/UpdaterService.h"
-
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 
-//#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TTree.h"
 #include "TBranch.h"
@@ -28,8 +25,6 @@
 
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
-//#define StringBasedNTuplerPrecision float;
 
 #include <memory>
 #include <string>
