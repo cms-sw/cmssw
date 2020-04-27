@@ -508,7 +508,6 @@ hgcal::SimToRecoCollection LayerClusterAssociatorByEnergyScoreImpl::associateSim
   const auto& links = makeConnections(cCCH, cPCH);
 
   const auto& cPOnLayer = std::get<1>(links);
-
   for (size_t cpId = 0; cpId < cPOnLayer.size(); ++cpId) {
     for (size_t layerId = 0; layerId < cPOnLayer[cpId].size(); ++layerId) {
       for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
