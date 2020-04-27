@@ -31,7 +31,7 @@ public:
   void put(edm::Event& e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bs) override;
 
 private:
-  void accumulate(const edm::DetSetVector<PixelDigi>& digis,const float electronsPerADC);
+  void accumulate(const edm::DetSetVector<PixelDigi>& digis, const float electronsPerADC);
 
   cms::Phase2TrackerDigitizer digitizer_;
 
@@ -70,22 +70,22 @@ void PreMixingPhase2TrackerWorker::initializeEvent(edm::Event const& e, edm::Eve
 void PreMixingPhase2TrackerWorker::addSignals(edm::Event const& e, edm::EventSetup const& es) {
   edm::Handle<edm::DetSetVector<PixelDigi>> hdigis;
   e.getByToken(pixelSignalToken_, hdigis);
-  accumulate(*hdigis,pixelElectronPerAdc_);
+  accumulate(*hdigis, pixelElectronPerAdc_);
 
   e.getByToken(trackerSignalToken_, hdigis);
-  accumulate(*hdigis,trackerElectronPerAdc_);
+  accumulate(*hdigis, trackerElectronPerAdc_);
 }
 
 void PreMixingPhase2TrackerWorker::addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& es) {
   edm::Handle<edm::DetSetVector<PixelDigi>> hdigis;
   pep.getByLabel(pixelPileupLabel_, hdigis);
-  accumulate(*hdigis,pixelElectronPerAdc_);
+  accumulate(*hdigis, pixelElectronPerAdc_);
 
   pep.getByLabel(trackerPileupLabel_, hdigis);
-  accumulate(*hdigis,trackerElectronPerAdc_);
+  accumulate(*hdigis, trackerElectronPerAdc_);
 }
 
-void PreMixingPhase2TrackerWorker::accumulate(const edm::DetSetVector<PixelDigi>& digis,const float electronPerADC) {
+void PreMixingPhase2TrackerWorker::accumulate(const edm::DetSetVector<PixelDigi>& digis, const float electronPerADC) {
   for (const auto& detset : digis) {
     auto& accDet = accumulator_[detset.detId()];
     for (const auto& digi : detset) {
