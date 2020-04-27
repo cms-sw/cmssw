@@ -1,8 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#        "keep recoPFClusters_*_*_*",
-#        "keep recoPFBlocks_*_*_*",
-
 import FWCore.ParameterSet.Config as cms
 
 # AOD content
