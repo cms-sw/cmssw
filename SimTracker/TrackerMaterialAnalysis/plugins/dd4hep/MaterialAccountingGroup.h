@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <utility>
+#include <memory>
 
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
@@ -24,8 +25,8 @@ class MaterialAccountingGroup {
 
   MaterialAccountingGroup(const MaterialAccountingGroup& layer) = delete;
   MaterialAccountingGroup& operator=(const MaterialAccountingGroup& layer) = delete;
-  void savePlot_(TH1F* plot, const std::string& name);
-  void savePlot_(TProfile* plot, float average, const std::string& name);
+  void savePlot_(std::shared_ptr<TH1F> plot, const std::string& name);
+  void savePlot_(std::shared_ptr<TProfile> plot, float average, const std::string& name);
 
   std::string m_name;
   std::vector<GlobalPoint> m_elements;
@@ -36,14 +37,14 @@ class MaterialAccountingGroup {
   bool m_counted;
   MaterialAccountingStep m_buffer;
 
-  TH1F* m_dedx_spectrum;
-  TH1F* m_radlen_spectrum;
-  TProfile* m_dedx_vs_eta;
-  TProfile* m_dedx_vs_z;
-  TProfile* m_dedx_vs_r;
-  TProfile* m_radlen_vs_eta;
-  TProfile* m_radlen_vs_z;
-  TProfile* m_radlen_vs_r;
+  std::shared_ptr<TH1F> m_dedx_spectrum;
+  std::shared_ptr<TH1F> m_radlen_spectrum;
+  std::shared_ptr<TProfile> m_dedx_vs_eta;
+  std::shared_ptr<TProfile> m_dedx_vs_z;
+  std::shared_ptr<TProfile> m_dedx_vs_r;
+  std::shared_ptr<TProfile> m_radlen_vs_eta;
+  std::shared_ptr<TProfile> m_radlen_vs_z;
+  std::shared_ptr<TProfile> m_radlen_vs_r;
 
   mutable TFile* m_file;
 

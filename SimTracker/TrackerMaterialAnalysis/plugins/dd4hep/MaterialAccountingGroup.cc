@@ -66,14 +66,15 @@ MaterialAccountingGroup::MaterialAccountingGroup(const std::string& name, const 
          << std::endl;
 
   // initialize the histograms
-  m_dedx_spectrum = new TH1F((m_name + "_dedx_spectrum").c_str(), "Energy loss spectrum", 1000, 0, 1);
-  m_radlen_spectrum = new TH1F((m_name + "_radlen_spectrum").c_str(), "Radiation lengths spectrum", 1000, 0, 1);
-  m_dedx_vs_eta = new TProfile((m_name + "_dedx_vs_eta").c_str(), "Energy loss vs. eta", 600, -3, 3);
-  m_dedx_vs_z = new TProfile((m_name + "_dedx_vs_z").c_str(), "Energy loss vs. Z", 6000, -300, 300);
-  m_dedx_vs_r = new TProfile((m_name + "_dedx_vs_r").c_str(), "Energy loss vs. R", 1200, 0, 120);
-  m_radlen_vs_eta = new TProfile((m_name + "_radlen_vs_eta").c_str(), "Radiation lengths vs. eta", 600, -3, 3);
-  m_radlen_vs_z = new TProfile((m_name + "_radlen_vs_z").c_str(), "Radiation lengths vs. Z", 6000, -300, 300);
-  m_radlen_vs_r = new TProfile((m_name + "_radlen_vs_r").c_str(), "Radiation lengths vs. R", 1200, 0, 120);
+  m_dedx_spectrum = std::make_shared<TH1F>(TH1F((m_name + "_dedx_spectrum").c_str(), "Energy loss spectrum", 1000, 0., 1.));
+  m_radlen_spectrum =  std::make_shared<TH1F>(TH1F((m_name + "_radlen_spectrum").c_str(), "Radiation lengths spectrum", 1000, 0., 1.));
+  m_dedx_vs_eta =  std::make_shared<TProfile>(TProfile((m_name + "_dedx_vs_eta").c_str(), "Energy loss vs. eta", 600, -3., 3.));
+  m_dedx_vs_z =  std::make_shared<TProfile>(TProfile((m_name + "_dedx_vs_z").c_str(), "Energy loss vs. Z", 6000, -300., 300.));
+  m_dedx_vs_r =  std::make_shared<TProfile>(TProfile((m_name + "_dedx_vs_r").c_str(), "Energy loss vs. R", 1200, 0., 120.));
+  m_radlen_vs_eta =  std::make_shared<TProfile>(TProfile((m_name + "_radlen_vs_eta").c_str(), "Radiation lengths vs. eta", 600, -3., 3.));
+  m_radlen_vs_z =  std::make_shared<TProfile>(TProfile((m_name + "_radlen_vs_z").c_str(), "Radiation lengths vs. Z", 6000, -300., 300.));
+  m_radlen_vs_r =  std::make_shared<TProfile>(TProfile((m_name + "_radlen_vs_r").c_str(), "Radiation lengths vs. R", 1200, 0., 120.));
+
   m_dedx_spectrum->SetDirectory(nullptr);
   m_radlen_spectrum->SetDirectory(nullptr);
   m_dedx_vs_eta->SetDirectory(nullptr);
@@ -168,12 +169,11 @@ void MaterialAccountingGroup::savePlots_(void) {
   savePlot_(m_radlen_vs_r, averageRadiationLengths(), m_name + "_radlen_vs_r");
   m_file->Write();
   m_file->Close();
-
   delete m_file;
 }
 
 
-void MaterialAccountingGroup::savePlot_(TH1F* plot, const std::string& name) {
+void MaterialAccountingGroup::savePlot_(std::shared_ptr<TH1F> plot, const std::string& name) {
   TCanvas canvas(name.c_str(), plot->GetTitle(), 1280, 1024);
   plot->SetFillColor(15);  // grey
   plot->SetLineColor(1);   // black
@@ -184,16 +184,12 @@ void MaterialAccountingGroup::savePlot_(TH1F* plot, const std::string& name) {
   plot->SetDirectory(m_file);
 }
 
-void MaterialAccountingGroup::savePlot_(TProfile* plot, float average, const std::string& name) {
-  // Nota Bene:
-  // these "line" plots are not deleted explicitly since
-  //   - deleting them before saving them to a TFile will not save them
-  //   - deleting them after the TFile they're stored into results in a SEGV
-  // ROOT is probably "taking care" (read: messing things up) somehow...
+void MaterialAccountingGroup::savePlot_(std::shared_ptr<TProfile> plot, float average, const std::string& name) {
 
-  TH1F* line =
-      new TH1F((name + "_par").c_str(), "Parametrization", 1, 
-	       plot->GetXaxis()->GetXmin(), plot->GetXaxis()->GetXmax());
+  std::unique_ptr<TH1F> line = 
+    std::make_unique<TH1F>(TH1F((name + "_par").c_str(), "Parametrization", 1,
+				plot->GetXaxis()->GetXmin(), 
+				plot->GetXaxis()->GetXmax()));
 
   line->SetBinContent(1, average);
 
@@ -210,6 +206,7 @@ void MaterialAccountingGroup::savePlot_(TProfile* plot, float average, const std
   canvas.SaveAs((name + ".png").c_str(), "");
   plot->SetDirectory(m_file);
   line->SetDirectory(m_file);
+  line->Write();
 }
 
 std::string MaterialAccountingGroup::info_(void) const {
