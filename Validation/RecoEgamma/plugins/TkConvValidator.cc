@@ -1848,7 +1848,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     }
 
     bool associated = false;
-    float mcConvPt_ = -99999999;
+    float mcConvPt_ = -99999999.0;
     //    float mcPhi= 0; // unused
     float simPV_Z = 0;
     for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
