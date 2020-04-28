@@ -174,7 +174,7 @@ def doMETPlots(files, plots):
 # does PFCandidate Plots
 def doPFCandPlots(files, plots):
     #we are going to hard code the end part of the histogram names because there's only 4
-    hist_list = ["Charge", "Eta", "Phi", "Pt(log GeV)", "Pt(log y)"]
+    hist_list = ["Charge", "Eta", "Phi", "Pt(log GeV)", "Pt(log y)", "Pt(2GeVBin)", "Pt(10GeVBin)"]
     f = ROOT.TFile(files[0])
     d = f.Get("DQMData/Run 1/ParticleFlow/Run summary/PackedCandidates")
     #get the name of the folders, which can use to complete plot name as well probably
@@ -218,6 +218,10 @@ def addPlots(plotter, folder, name, section, histograms, opts, Offset=False):
             if ("log y" in h):
                 #plotting log in y for pt
                 plots = [PlotGroup(h, [Plot(h, ymin = pow(10,-1), ylog = True, **opts)])]
+            elif ("2GeV" in h): 
+                plots = [PlotGroup(h, [Plot(h, xmin = 0, xmax = 200, rebinX = 2)])]
+            elif ("10GeV" in h): 
+                plots = [PlotGroup(h, [Plot(h, rebinX = 10)])]
             else:
                 plots = [PlotGroup(h, [Plot(h, **opts)])]
 
