@@ -390,3 +390,12 @@ SiStripMonitorCluster = DQMEDAnalyzer('SiStripMonitorCluster',
     ShowControlView = cms.bool(False),
     ShowReadoutView = cms.bool(False)
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(SiStripMonitorCluster,  TH1NClusPx = dict(xmax = cms.double(39999.5)))
+run3_common.toModify(SiStripMonitorCluster,  TH1NClusStrip = dict(xmax = cms.double(299999.5)))
+run3_common.toModify(SiStripMonitorCluster,  TProfNClusStrip = dict(ymax = cms.double(299999.5)))
+run3_common.toModify(SiStripMonitorCluster,  TProfNClusPixel = dict(ymax = cms.double(39999.5)))
+run3_common.toModify(SiStripMonitorCluster,  TProfNClustersFED = dict(ymax = cms.double(299999.5)))
+run3_common.toModify(SiStripMonitorCluster,  TH2CStripVsCpixel = dict(xmax = cms.double(299999.5), ymax = cms.double(39999.5)))
+run3_common.toModify(SiStripMonitorCluster,  TH1TotalNumberOfClusters = dict(xmax = cms.double(44999.5)))
