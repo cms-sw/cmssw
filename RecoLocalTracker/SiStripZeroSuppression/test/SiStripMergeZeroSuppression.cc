@@ -99,7 +99,7 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
             LogTrace("SiStripMergeZeroSuppression::produce") << "inserting only the digis for not restored APVs"
                                                              << "\n";
             LogTrace("SiStripMergeZeroSuppression::produce") << "size : " << zsModule->size() << "\n";
-            for (const auto itZsMod : *zsModule) {
+            for (const auto& itZsMod : *zsModule) {
               const uint16_t adc = itZsMod.adc();
               const uint16_t strip = itZsMod.strip();
               if (!restoredAPV[strip / 128]) {
@@ -115,7 +115,7 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
           LogTrace("SiStripMergeZeroSuppression::produce") << "inserting only the digis for the restored APVs"
                                                            << "\n";
           LogTrace("SiStripMergeZeroSuppression::produce") << "size : " << suppressedDigis.size() << "\n";
-          for (const auto itSuppDigi : suppressedDigis) {
+          for (const auto& itSuppDigi : suppressedDigis) {
             const uint16_t adc = itSuppDigi.adc();
             const uint16_t strip = itSuppDigi.strip();
             if (restoredAPV[strip / 128]) {
