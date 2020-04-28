@@ -5,4 +5,5 @@
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondCore/CondDB"/>
+<use name="CondCore/DBOutputService"/>
 <flags EDM_PLUGIN="1"/>
