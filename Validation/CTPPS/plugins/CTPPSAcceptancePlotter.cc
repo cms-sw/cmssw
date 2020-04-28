@@ -226,10 +226,10 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event &iEvent, const edm::EventS
   }
 
   // update plots
-  for (const auto rpIds : singleArmConfigurations) {
+  for (const auto &rpIds : singleArmConfigurations) {
     bool acc = true;
     signed int arm = -1;
-    for (const auto rpId : rpIds) {
+    for (const auto &rpId : rpIds) {
       acc &= trackPresent[rpId];
       arm = rpId / 100;
     }
@@ -242,9 +242,9 @@ void CTPPSAcceptancePlotter::analyze(const edm::Event &iEvent, const edm::EventS
     singleArmPlots[rpIds].fill(xi, acc);
   }
 
-  for (const auto rpIds : doubleArmConfigurations) {
+  for (const auto &rpIds : doubleArmConfigurations) {
     bool acc = true;
-    for (const auto rpId : rpIds)
+    for (const auto &rpId : rpIds)
       acc &= trackPresent[rpId];
 
     doubleArmPlots[rpIds].fill(xi_45, xi_56, acc);
