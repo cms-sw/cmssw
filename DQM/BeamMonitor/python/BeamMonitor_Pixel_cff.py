@@ -12,6 +12,7 @@ dqmBeamMonitor = DQMEDAnalyzer("BeamMonitor",
                               resetPVEveryNLumi = cms.untracked.int32(5),
                               Debug = cms.untracked.bool(False),
                               OnlineMode = cms.untracked.bool(True),
+                              recordName = cms.untracked.string('BeamSpotOnlineHLTObjectsRcd'),
                               BeamFitter = cms.PSet(
                                 Debug = cms.untracked.bool(False),
                                 TrackCollection = cms.untracked.InputTag('pixelTracks'),

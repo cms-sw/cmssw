@@ -99,7 +99,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
     process.dqmBeamMonitor.monitorName = 'TrackingHLTBeamspotStream'
 
     process.dqmBeamMonitor.OnlineMode = True              
-    process.dqmBeamMonitor.recordName = 'BeamSpotOnlineLegacyObjectsRcd'
+    process.dqmBeamMonitor.recordName = 'BeamSpotOnlineHLTObjectsRcd'
 
     process.dqmBeamMonitor.resetEveryNLumi   = 5
     process.dqmBeamMonitor.resetPVEveryNLumi = 5

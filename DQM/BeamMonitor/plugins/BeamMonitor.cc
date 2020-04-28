@@ -109,8 +109,6 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
       dzMin_(ps.getParameter<double>("dzMin")),
       dzMax_(ps.getParameter<double>("dzMax")),
 
-      recordName_(ps.getParameter<string>("recordName")),
-
       countEvt_(0),
       countLumi_(0),
       nthBSTrk_(0),
@@ -120,6 +118,7 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
       firstAverageFit_(0),
       countGapLumi_(0) {
   monitorName_ = ps.getUntrackedParameter<string>("monitorName", "YourSubsystemName");
+  recordName_ = ps.getUntrackedParameter<string>("recordName");
   bsSrc_ = consumes<reco::BeamSpot>(ps.getUntrackedParameter<InputTag>("beamSpot"));
   tracksLabel_ = consumes<reco::TrackCollection>(
       ps.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection"));
