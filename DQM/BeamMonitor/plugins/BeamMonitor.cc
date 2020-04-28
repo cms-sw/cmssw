@@ -29,6 +29,7 @@ V00-03-25
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
+#include "CondCore/DBOutputService/interface/OnlineDBOutputService.h"
 #include <numeric>
 #include <cmath>
 #include <memory>
@@ -109,7 +110,6 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
       dzMax_(ps.getParameter<double>("dzMax")),
 
       recordName_(ps.getParameter<string>("recordName")),
-      targetIOV_(ps.getParameter<cond::Time_t>("targetIOV")),
 
       countEvt_(0),
       countLumi_(0),
@@ -1356,32 +1356,11 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       edm::LogInfo("BeamMonitor") << BSOnline << std::endl;
 
       // Create the payload for BeamSpotOnlineObjects object
-      edm::Service<cond::service::PoolDBOutputService> poolDbService;
-      if (poolDbService.isAvailable())
+      edm::Service<cond::service::OnlineDBOutputService> onlineDbService;
+      if (onlineDbService.isAvailable())
       {
-        edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] poolDBService available \n" << std::endl;
-
-        cond::Time_t end_of_time = poolDbService->endOfTime();
-        cond::Time_t valid_time;
-        if (targetIOV_ < 1)
-        {
-          valid_time = poolDbService->currentTime();
-        }
-        else
-        {
-          valid_time = targetIOV_;
-        }
-
-        if (poolDbService->isNewTagRequest(recordName_))
-        {
-          edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] new tag requested: " << recordName_ << std::endl;
-          poolDbService->createNewIOV<BeamSpotOnlineObjects>(BSOnline, valid_time, end_of_time, recordName_);
-        }
-        else
-        {
-          edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] no new tag requested \n" << std::endl;
-          poolDbService->appendSinceTime<BeamSpotOnlineObjects>(BSOnline, valid_time, recordName_);
-        }
+        edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] onlineDbService available \n" << std::endl;
+        onlineDbService->writeForNextLumisection(BSOnline, recordName_);
       }
       edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline payload created \n" << std::endl;
 
