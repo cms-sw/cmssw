@@ -236,7 +236,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event &event, const edm::E
   //   the track, which is seldom the case, according to the current direction
   TrajectoryStateOnSurface current_tsos;
   DetId current_det;
-  for (auto const track : *tracks) {
+  for (auto const &track : *tracks) {
     if (!selector(track, pv))
       continue;
     auto const &inner = track.innerMomentum();
