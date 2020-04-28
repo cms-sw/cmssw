@@ -144,7 +144,7 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
   selected_cPeff.reserve(cPeff.size());
 
   size_t j = 0;
-  for (auto const caloParticle : cPeff) {
+  for (auto const& caloParticle : cPeff) {
     int id = caloParticle.pdgId();
 
     if (!doCaloParticleSelection_ || (doCaloParticleSelection_ && cpSelector(caloParticle, simVertices))) {

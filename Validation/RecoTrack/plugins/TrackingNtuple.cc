@@ -2841,7 +2841,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       std::vector<float> sharedFraction;
       auto foundTPs = recSimColl.find(seedTrackRef);
       if (foundTPs != recSimColl.end()) {
-        for (const auto tpQuality : foundTPs->val) {
+        for (const auto& tpQuality : foundTPs->val) {
           tpIdx.push_back(tpKeyToIndex.at(tpQuality.first.key()));
           sharedFraction.push_back(tpQuality.second);
         }
@@ -3146,7 +3146,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
         nSimHits = foundTPs->val[0].first->numberOfTrackerHits();
         isSimMatched = true;
       }
-      for (const auto tpQuality : foundTPs->val) {
+      for (const auto& tpQuality : foundTPs->val) {
         tpIdx.push_back(tpKeyToIndex.at(tpQuality.first.key()));
         sharedFraction.push_back(tpQuality.second);
         tpChi2.push_back(track_associator::trackAssociationChi2(tkParam, tkCov, *(tpCollection[tpIdx.back()]), mf, bs));
@@ -3412,7 +3412,7 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent,
     auto foundTracks = simRecColl.find(tp);
     if (foundTracks != simRecColl.end()) {
       isRecoMatched = true;
-      for (const auto trackQuality : foundTracks->val) {
+      for (const auto& trackQuality : foundTracks->val) {
         sharedFraction.push_back(trackQuality.second);
         tkIdx.push_back(trackQuality.first.key());
       }
