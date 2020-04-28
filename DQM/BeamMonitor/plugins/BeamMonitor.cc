@@ -1332,7 +1332,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       BeamSpotOnlineObjects* BSOnline = new BeamSpotOnlineObjects();
       BSOnline->SetLastAnalyzedLumi(fitLS.second);
       BSOnline->SetLastAnalyzedRun(theBeamFitter->getRunNumber());
-      BSOnline->SetLastAnalyzedFill(999); // FIXME with correct LHC Fill number
+      BSOnline->SetLastAnalyzedFill(0); // use dummy LHC Fill number for now
       BSOnline->SetPosition(bs.x0(), bs.y0(), bs.z0());
       BSOnline->SetSigmaZ(bs.sigmaZ());
       BSOnline->SetBeamWidthX(bs.BeamWidthX());
