@@ -26,6 +26,7 @@ namespace edm {
        python commands. These PSets are bundled into a top level PSet from which they can be retrieved
     */
     std::unique_ptr<ParameterSet> readPSetsFrom(std::string const& fileOrString);
+    std::unique_ptr<ParameterSet> readPSetsFrom(std::string const& fileOrString, int argc, char* argv[]);
   }  // namespace cmspybind11
 }  // namespace edm
 #endif
