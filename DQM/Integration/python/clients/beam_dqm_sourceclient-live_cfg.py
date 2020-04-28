@@ -273,6 +273,7 @@ process.siStripDigis.ProductLabel        = rawDataInputTag
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.dqmBeamMonitor.OnlineMode = True
+process.dqmBeamMonitor.recordName = 'BeamSpotOnlineHLTObjectsRcd'
 
 process.dqmBeamMonitor.resetEveryNLumi   = 5 # was 10 for HI
 process.dqmBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
