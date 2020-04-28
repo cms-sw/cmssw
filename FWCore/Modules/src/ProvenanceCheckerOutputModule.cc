@@ -103,7 +103,7 @@ namespace edm {
     std::set<BranchID> missingProductProvenance;
 
     std::map<BranchID, const BranchDescription*> idToBranchDescriptions;
-    for (auto const product : keptProducts()[InEvent]) {
+    for (auto const& product : keptProducts()[InEvent]) {
       BranchDescription const* branchDescription = product.first;
       BranchID branchID = branchDescription->branchID();
       idToBranchDescriptions[branchID] = branchDescription;
