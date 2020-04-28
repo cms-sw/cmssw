@@ -55,10 +55,10 @@ const std::string *ElectronDqmHarvesterBase::find(DQMStore::IGetter &iGetter, co
     histoNamesReady = true;
     histoNames_ = iGetter.getMEs();
   }
-  std::vector<const std::string*> res;
+  std::vector<const std::string *> res;
   std::size_t nsize = name.size();
 
-  for (const auto& histoName : histoNames_) {
+  for (const auto &histoName : histoNames_) {
     std::size_t lsize = histoName.size();
     if ((lsize >= nsize) && (histoName.find(name) == (lsize - nsize))) {
       res.push_back(&histoName);
@@ -68,7 +68,7 @@ const std::string *ElectronDqmHarvesterBase::find(DQMStore::IGetter &iGetter, co
     std::ostringstream oss;
     oss << "Histogram " << name << " not found in " << outputInternalPath_;
     char sep = ':';
-    for (auto const& histoName : histoNames_) {
+    for (auto const &histoName : histoNames_) {
       oss << sep << ' ' << histoName;
       sep = ',';
     }
