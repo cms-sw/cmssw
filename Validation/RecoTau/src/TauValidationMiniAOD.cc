@@ -39,6 +39,10 @@ TauValidationMiniAOD::TauValidationMiniAOD(const edm::ParameterSet& iConfig) {
   // Input primaryVertex collection:
   edm::InputTag PrimaryVertexCollection_ = edm::InputTag("offlinePrimaryVertices");
   primaryVertexCollectionToken_ = consumes<VertexCollection>(PrimaryVertexCollection_);
+  // Input genetated particle collection:
+  edm::InputTag prunedGenCollection_ = edm::InputTag("prunedGenParticles");
+  prunedGenToken_ = consumes<std::vector<reco::GenParticle> >(prunedGenCollection_);
+  //packedGenToken_ = consumes<std::vector<pat::PackedGenParticle> >(iConfig.getParameter<edm::InputTag>("packed")); 
 
 }
 
@@ -61,6 +65,7 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   MonitorElement *decayModeFindingTemp, *decayModeTemp, *byDeepTau2017v2p1VSerawTemp;
   MonitorElement *byDeepTau2017v2p1VSjetrawTemp, *byDeepTau2017v2p1VSmurawTemp, *summaryTemp;
   MonitorElement *mtau_dm0, *mtau_dm1, *mtau_dm2, *mtau_dm10, *mtau_dm11;
+  MonitorElement *dmMigration;
   
   // temp:
   std::cout << "extensionName_: \n";
@@ -106,6 +111,10 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   mtau_dm11 = ibooker.book1D("mtau_dm11", "mtau_dm11", 
 			       mtauHinfo.nbins, mtauHinfo.min, mtauHinfo.max);
   mtau_dm11Map.insert(std::make_pair("", mtau_dm11));
+
+  dmMigration = ibooker.book2D("dmMigration", "dmMigration", 
+			       50, 0, 1000, 50, 0, 1000);
+  dmMigrationMap.insert(std::make_pair("", dmMigration));
   // add discriminator labels to summary plots 
   int j = 0;
   for (const auto& it : discriminators_) {
@@ -434,6 +443,12 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
   if (!isPV) {
     edm::LogWarning("TauValidationMiniAOD") << " PV collection not found while running TauValidationMiniAOD.cc ";
   }
+  // create a handle to the gen Part collection
+  edm::Handle<std::vector<reco::GenParticle>> genParticles;
+  iEvent.getByToken(prunedGenToken_, genParticles);
+
+  std::vector<const reco::GenParticle*> GenTaus;
+
   
   // temp
   std::cout << "********* Made it past the PV collection *********\n";
@@ -444,6 +459,8 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
     
     float dRmin = 0.15;
     unsigned matchedTauIndex = -99;
+    float gendRmin = 0.15;
+    unsigned genmatchedTauIndex = -99;
     
     for (unsigned iTau = 0; iTau < taus->size(); iTau++) {
       pat::TauRef tau(taus, iTau);
@@ -496,6 +513,22 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
       } else if (matchedTau->decayMode() == 11) {
         mtau_dm11Map.find("")->second->Fill(matchedTau->mass());
       }
+
+      //Fill decay mode migration 2D histograms
+      //First do a gen Matching
+      int genindex = 0;
+      for(std::vector<reco::GenParticle>::const_iterator genParticle = genParticles->begin(); genParticle != genParticles->end(); genParticle++ ){
+        if(abs(genParticle->pdgId()) == 15) {
+	  float gendR = deltaR(matchedTau->eta(), matchedTau->phi(), genParticle->eta(), genParticle->phi());
+          if (gendR < gendRmin) {
+            gendRmin = gendR;
+            genmatchedTauIndex = genindex;
+	  }
+      }
+	genindex = genindex + 1;
+      }
+      dmMigrationMap.find("")->second->Fill(matchedTau->pt(),genParticles->at(genmatchedTauIndex).pt());   ////Find a way to acceess decaymode
+
       // count number of taus passing each discriminator's selection cut
       int j = 0;
       for (const auto& it : discriminators_) {

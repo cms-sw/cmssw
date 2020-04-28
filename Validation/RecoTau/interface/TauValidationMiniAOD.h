@@ -27,6 +27,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 // Include DQM core
@@ -64,6 +66,8 @@ private:
   edm::EDGetTokenT<std::vector<pat::Tau> > tauCollection_;
   edm::EDGetTokenT<edm::View<reco::Candidate> > refCollectionInputTagToken_;
   edm::EDGetTokenT<reco::VertexCollection> primaryVertexCollectionToken_;
+  edm::EDGetTokenT<std::vector<reco::GenParticle> > prunedGenToken_;
+  //edm::EDGetTokenT<std::vector<pat::PackedGenParticle> >packedGenToken_;
   
   std::map<std::string, MonitorElement *> ptMap, etaMap, phiMap, massMap, puMap;
   std::map<std::string, MonitorElement *> ptTightvsJetMap, phiTightvsJetMap, etaTightvsJetMap, massTightvsJetMap, puTightvsJetMap;
@@ -77,6 +81,7 @@ private:
   std::map<std::string, MonitorElement *> ptLoosevsMuoMap, phiLoosevsMuoMap, etaLoosevsMuoMap, massLoosevsMuoMap, puLoosevsMuoMap;
   std::map<std::string, MonitorElement *> decayModeFindingMap, decayModeMap, byDeepTau2017v2p1VSerawMap, byDeepTau2017v2p1VSjetrawMap, byDeepTau2017v2p1VSmurawMap, summaryMap;
   std::map<std::string, MonitorElement *> mtau_dm0Map, mtau_dm1Map, mtau_dm2Map, mtau_dm10Map, mtau_dm11Map;
+  std::map<std::string, MonitorElement *> dmMigrationMap;
  
   edm::ParameterSet histoSettings_;
   std::string extensionName_;
