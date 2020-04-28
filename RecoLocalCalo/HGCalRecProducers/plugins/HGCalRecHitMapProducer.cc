@@ -50,20 +50,17 @@ void HGCalRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 void HGCalRecHitMapProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  std::unique_ptr<std::map<DetId, const HGCRecHit*>> hitMap;
+  std::unique_ptr<std::map<DetId, const HGCRecHit*>> hitMap(new std::map<DetId, const HGCRecHit*>);
   edm::Handle<HGCRecHitCollection> ee_hits;
   edm::Handle<HGCRecHitCollection> fh_hits;
   edm::Handle<HGCRecHitCollection> bh_hits;
 
-
   evt.getByToken(hits_ee_token, ee_hits);
   evt.getByToken(hits_fh_token, fh_hits);
   evt.getByToken(hits_bh_token, bh_hits);
-  std::cout <<"Before loop" << std::endl;
   for (const auto& hit : *ee_hits.product()) {
     hitMap->emplace(hit.detid(), &hit);
   }
-  std::cout <<"Before second loop" << std::endl;
 
   for (const auto& hit : *fh_hits.product()) {
     hitMap->emplace(hit.detid(), &hit);
