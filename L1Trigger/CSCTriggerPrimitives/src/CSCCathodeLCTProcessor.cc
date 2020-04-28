@@ -1109,10 +1109,6 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) con
     if (!p.isValid())
       continue;
 
-    //ignore the CLCTs with an index larger than nMaxCLCTs
-    if (p.getTrknmb() > nMaxCLCTs)
-      break;
-
     const int bx = p.getBX();
     // Skip CLCTs found too early relative to L1Accept.
     if (bx <= early_tbins) {
@@ -1144,6 +1140,12 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) con
     } else
       tmpV.push_back(p);
   }
+
+  // remove the CLCTs with an index larger than nMaxCLCTs
+  if (tmpV.size() > nMaxCLCTs) {
+    tmpV.erase(tmpV.begin() + nMaxCLCTs, tmpV.end());
+  }
+
   return tmpV;
 }
 
