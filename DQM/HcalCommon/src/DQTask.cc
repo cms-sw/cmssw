@@ -35,10 +35,11 @@ namespace hcaldqm {
 
     _evsTotal++;
     _cEvsTotal.fill(_evsTotal);
-    _evsPerLS++;
-    _cEvsPerLS.fill(_evsPerLS);
+
     auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
     lumiCache->EvtCntLS++;
+    _evsPerLS = lumiCache->EvtCntLS;
+    _cEvsPerLS.fill(_evsPerLS);
 
     this->_process(e, es);
   }

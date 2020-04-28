@@ -9,7 +9,7 @@
 <test name="TestDQMOnlineClient-es_dqm_sourceclient" command="runtest.sh es_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-fed_dqm_sourceclient" command="runtest.sh fed_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-gem_dqm_sourceclient" command="runtest.sh gem_dqm_sourceclient-live_cfg.py" />
-<test name="TestDQMOnlineClient-hcal2_dqm_sourceclient" command="runtest.sh hcal2_dqm_sourceclient-live_cfg.py" />
+<test name="TestDQMOnlineClient-hcalreco_dqm_sourceclient" command="runtest.sh hcalreco_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-hcal_dqm_sourceclient" command="runtest.sh hcal_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-hlt_dqm_clientPB" command="runtest.sh hlt_dqm_clientPB-live_cfg.py" />
 <test name="TestDQMOnlineClient-hlt_dqm_sourceclient" command="runtest.sh hlt_dqm_sourceclient-live_cfg.py" />
