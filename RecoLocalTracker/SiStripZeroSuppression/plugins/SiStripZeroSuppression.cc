@@ -164,7 +164,7 @@ inline edm::DetSet<SiStripRawDigi> SiStripZeroSuppression::formatRawDigis(const 
   outRawDigis.reserve(rawDigis.size());
   const std::vector<bool>& apvf = algorithms->getAPVFlags();
   uint32_t strip = 0;
-  for (const auto& rawDigi : rawDigis) {
+  for (const auto rawDigi : rawDigis) {
     int16_t apvN = strip / 128;
     if (apvf[apvN])
       outRawDigis.push_back(rawDigi);
