@@ -28,6 +28,7 @@ V00-03-25
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotOnlineObjects.h"
 #include <numeric>
 #include <cmath>
 #include <memory>
@@ -106,6 +107,9 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
       dzBin_(ps.getParameter<int>("dzBin")),
       dzMin_(ps.getParameter<double>("dzMin")),
       dzMax_(ps.getParameter<double>("dzMax")),
+
+      recordName_(ps.getParameter<string>("recordName")),
+      targetIOV_(ps.getParameter<cond::Time_t>("targetIOV")),
 
       countEvt_(0),
       countLumi_(0),
@@ -1323,6 +1327,63 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       //     if (std::fabs(refBS.z0()-bs.z0())/bs.z0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[2] += 1.;
       //     }
+
+      // Create the BeamSpotOnlineObjects object
+      BeamSpotOnlineObjects* BSOnline = new BeamSpotOnlineObjects();
+      BSOnline->SetLastAnalyzedLumi(fitLS.second);
+      BSOnline->SetLastAnalyzedRun(theBeamFitter->getRunNumber());
+      BSOnline->SetLastAnalyzedFill(999); // FIXME with correct LHC Fill number
+      BSOnline->SetPosition(bs.x0(), bs.y0(), bs.z0());
+      BSOnline->SetSigmaZ(bs.sigmaZ());
+      BSOnline->SetBeamWidthX(bs.BeamWidthX());
+      BSOnline->SetBeamWidthY(bs.BeamWidthY());
+      BSOnline->SetBeamWidthXError(bs.BeamWidthXError());
+      BSOnline->SetBeamWidthYError(bs.BeamWidthYError());
+      BSOnline->Setdxdz(bs.dxdz());
+      BSOnline->Setdydz(bs.dydz());
+      BSOnline->SetType(bs.type());
+      BSOnline->SetEmittanceX(bs.emittanceX());
+      BSOnline->SetEmittanceY(bs.emittanceY());
+      BSOnline->SetBetaStar(bs.betaStar());
+      for (int i=0; i<7; ++i)
+      {
+        for (int j=0; j<7; ++j)
+        {
+          BSOnline->SetCovariance(i,j,bs.covariance(i,j));
+        }
+      }
+      edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline object created: \n" << std::endl;
+      edm::LogInfo("BeamMonitor") << BSOnline << std::endl;
+
+      // Create the payload for BeamSpotOnlineObjects object
+      edm::Service<cond::service::PoolDBOutputService> poolDbService;
+      if (poolDbService.isAvailable())
+      {
+        edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] poolDBService available \n" << std::endl;
+
+        cond::Time_t end_of_time = poolDbService->endOfTime();
+        cond::Time_t valid_time;
+        if (targetIOV_ < 1)
+        {
+          valid_time = poolDbService->currentTime();
+        }
+        else
+        {
+          valid_time = targetIOV_;
+        }
+
+        if (poolDbService->isNewTagRequest(recordName_))
+        {
+          edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] new tag requested: " << recordName_ << std::endl;
+          poolDbService->createNewIOV<BeamSpotOnlineObjects>(BSOnline, valid_time, end_of_time, recordName_);
+        }
+        else
+        {
+          edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] no new tag requested \n" << std::endl;
+          poolDbService->appendSinceTime<BeamSpotOnlineObjects>(BSOnline, valid_time, recordName_);
+        }
+      }
+      edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline payload created \n" << std::endl;
 
     }       //if (theBeamFitter->runPVandTrkFitter())
     else {  // beam fit fails
