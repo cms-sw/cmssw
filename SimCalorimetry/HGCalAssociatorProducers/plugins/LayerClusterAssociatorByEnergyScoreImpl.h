@@ -45,7 +45,7 @@ public:
   explicit LayerClusterAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                                    bool,
                                                    std::shared_ptr<hgcal::RecHitTools>,
-                                                   const std::map<DetId, const HGCRecHit *> *,
+                                                   const std::map<DetId, const HGCRecHit *> *&,
                                                    unsigned);
 
   hgcal::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,

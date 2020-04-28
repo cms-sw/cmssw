@@ -12,7 +12,7 @@ LayerClusterAssociatorByEnergyScoreImpl::LayerClusterAssociatorByEnergyScoreImpl
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
-    const std::map<DetId, const HGCRecHit*>* hitMap,
+    const std::map<DetId, const HGCRecHit*>*& hitMap,
     unsigned layers)
     : hardScatterOnly_(hardScatterOnly),
       recHitTools_(recHitTools),
@@ -370,6 +370,7 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
       if (hit_find_in_CP == detIdToCaloParticleId_Map.end())
         hitWithNoCP = true;
       auto itcheck = hitMap_->find(rh_detid);
+      //if (itcheck == hitMap->end()) continue;
       const HGCRecHit* hit = itcheck->second;
       float hitEnergyWeight = hit->energy() * hit->energy();
 
@@ -395,7 +396,6 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
   }  // End of loop over LayerClusters
 
   // Compute the CaloParticle-To-LayerCluster score
-
   for (const auto& cpId : cPIndices) {
     for (unsigned int layerId = 0; layerId < layers_ * 2; ++layerId) {
       unsigned int CPNumberOfHits = cPOnLayer[cpId][layerId].hits_and_fractions.size();
@@ -484,7 +484,7 @@ hgcal::association LayerClusterAssociatorByEnergyScoreImpl::makeConnections(
 
 hgcal::RecoToSimCollection LayerClusterAssociatorByEnergyScoreImpl::associateRecoToSim(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
-  hgcal::RecoToSimCollection returnValue;
+  hgcal::RecoToSimCollection returnValue(productGetter_);
   const auto& links = makeConnections(cCCH, cPCH);
 
   const auto& cpsInLayerCluster = std::get<0>(links);
@@ -504,9 +504,8 @@ hgcal::RecoToSimCollection LayerClusterAssociatorByEnergyScoreImpl::associateRec
 
 hgcal::SimToRecoCollection LayerClusterAssociatorByEnergyScoreImpl::associateSimToReco(
     const edm::Handle<reco::CaloClusterCollection>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH) const {
-  hgcal::SimToRecoCollection returnValue;
+  hgcal::SimToRecoCollection returnValue(productGetter_);
   const auto& links = makeConnections(cCCH, cPCH);
-
   const auto& cPOnLayer = std::get<1>(links);
   for (size_t cpId = 0; cpId < cPOnLayer.size(); ++cpId) {
     for (size_t layerId = 0; layerId < cPOnLayer[cpId].size(); ++layerId) {
