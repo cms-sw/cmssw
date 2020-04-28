@@ -313,7 +313,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 
       histname = "NumberofTracks_Hardvtx_" + CategoryName;
       NumberofTracks_Hardvtx =
-	ibooker.book1D(histname, histname, TKNoBin / 10, TKNoMin, ((TKNoMax - TKNoMin)/ 10) - 0.5);
+          ibooker.book1D(histname, histname, TKNoBin / 10, TKNoMin, ((TKNoMax - TKNoMin) / 10) - 0.5);
       NumberofTracks_Hardvtx->setAxisTitle("Number of Tracks per Event (matched main vertex)", 1);
       NumberofTracks_Hardvtx->setAxisTitle("Number of Events", 2);
 
@@ -367,7 +367,8 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfTracksVsLS->setAxisTitle("Number of  Tracks", 2);
 
     histname = "NumberOfRecHitsPerTrackVsLS_" + CategoryName;
-    NumberOfRecHitsPerTrackVsLS = ibooker.bookProfile(histname, histname, LSBin, LSMin, LSMax, RecHitMin, RecHitMax*5, "");
+    NumberOfRecHitsPerTrackVsLS =
+        ibooker.bookProfile(histname, histname, LSBin, LSMin, LSMax, RecHitMin, RecHitMax * 5, "");
     NumberOfRecHitsPerTrackVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
     NumberOfRecHitsPerTrackVsLS->setAxisTitle("#Lumi section", 1);
     NumberOfRecHitsPerTrackVsLS->setAxisTitle("Mean number of Valid RecHits per track", 2);
@@ -421,7 +422,8 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
       NumberOfTracksVsBX->setAxisTitle("Number of  Tracks", 2);
 
       histname = "NumberOfRecHitsPerTrackVsBX_" + CategoryName;
-      NumberOfRecHitsPerTrackVsBX = ibooker.bookProfile(histname, histname, BXBin, BXMin, BXMax, RecHitMin, RecHitMax*5, "");
+      NumberOfRecHitsPerTrackVsBX =
+          ibooker.bookProfile(histname, histname, BXBin, BXMin, BXMax, RecHitMin, RecHitMax * 5, "");
       NumberOfRecHitsPerTrackVsBX->setAxisTitle("BX", 1);
       NumberOfRecHitsPerTrackVsBX->setAxisTitle("Mean number of Valid RecHits per track", 2);
 
@@ -522,7 +524,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberEventsOfVsLUMI->setAxisTitle("Number of events", 2);
 
     histname = "NumberOfTracksVsLUMI";
-    NumberOfTracksVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, TKNoMin, TKNoMax*3, "");
+    NumberOfTracksVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, TKNoMin, TKNoMax * 3, "");
     NumberOfTracksVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
     NumberOfTracksVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
@@ -534,7 +536,8 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     }
 
     histname = "NumberOfRecHitsPerTrackVsLUMI";
-    NumberOfRecHitsPerTrackVsLUMI = ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, RecHitMin, RecHitMax*5, "");
+    NumberOfRecHitsPerTrackVsLUMI =
+        ibooker.bookProfile(histname, histname, LUMIBin, LUMIMin, LUMIMax, RecHitMin, RecHitMax * 5, "");
     NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]", 1);
     NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("Mean number of vertices", 2);
 
