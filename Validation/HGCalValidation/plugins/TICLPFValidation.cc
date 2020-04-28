@@ -89,7 +89,7 @@ void TICLPFValidation::dqmAnalyze(edm::Event const& iEvent,
   // pfCandidates
   double ptx_tot = 0.;
   double pty_tot = 0.;
-  for (auto const pfc : pfCandidates) {
+  for (auto const& pfc : pfCandidates) {
     size_t type = pfc.particleId();
     ptx_tot += pfc.px();
     pty_tot += pfc.py();
