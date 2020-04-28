@@ -51,6 +51,7 @@ private:
         bool fUseFromPVLooseTight;
 	bool            fUseDZ;
 	float           fDZCut;
+	double fEtaMinUseDZ;
         double fPtMaxCharged;
 	double fEtaMaxCharged;
 	bool fUseExistingWeights;
