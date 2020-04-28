@@ -73,7 +73,7 @@ std::pair<bool, TrajectoryStateOnSurface> GeomDetCompatibilityChecker::isCompati
   */
 
   bool isIn = false;
-  float sagitta = 99999999;
+  float sagitta = 99999999.0;
   bool close = false;
   if
     LIKELY(sagCut > 0) {
