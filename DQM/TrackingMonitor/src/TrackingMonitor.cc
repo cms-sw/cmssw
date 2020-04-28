@@ -378,8 +378,10 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberEventsOfVsLS->setAxisTitle("#Lumi section", 1);
     NumberEventsOfVsLS->setAxisTitle("Number of events", 2);
 
-    double GoodPVtxMin = conf->getParameter<double>("GoodPVtxMin");
-    double GoodPVtxMax = conf->getParameter<double>("GoodPVtxMax");
+    edm::ParameterSet ParametersGoodPVtx = conf->getParameter<edm::ParameterSet>("GoodPVtx");
+
+    double GoodPVtxMin = ParametersGoodPVtx.getParameter<double>("GoodPVtxMin");
+    double GoodPVtxMax = ParametersGoodPVtx.getParameter<double>("GoodPVtxMax");
 
     histname = "NumberOfGoodPVtxVsLS_" + CategoryName;
     NumberOfGoodPVtxVsLS =

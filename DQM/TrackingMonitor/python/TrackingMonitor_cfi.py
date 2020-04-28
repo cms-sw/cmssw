@@ -390,8 +390,8 @@ TrackMon = DQMEDAnalyzer('TrackingMonitor',
     # Nunmber of Tracks per Primary Vertices
     NTrkPVtx = cms.PSet(
         NTrkPVtxBin = cms.int32(100),
-        NtrkPVtxMin = cms.double( 0.),
-        NtrkPVtxMax = cms.double(100.)
+        NTrkPVtxMin = cms.double( 0.),
+        NTrkPVtxMax = cms.double(100.)
     ),
 
     # Nunmber of Good Primary Vertices
