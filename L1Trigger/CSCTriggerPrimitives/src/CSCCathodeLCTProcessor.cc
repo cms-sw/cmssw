@@ -1142,7 +1142,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs(int nMaxCLCTs) con
   }
 
   // remove the CLCTs with an index larger than nMaxCLCTs
-  if (tmpV.size() > nMaxCLCTs) {
+  if (tmpV.size() > unsigned(nMaxCLCTs)) {
     tmpV.erase(tmpV.begin() + nMaxCLCTs, tmpV.end());
   }
 
