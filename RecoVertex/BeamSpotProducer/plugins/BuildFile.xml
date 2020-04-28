@@ -29,4 +29,7 @@
 <library   file="BeamSpotFromDB.cc" name="BeamSpotFromDB">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="OnlineBeamSpotESProducer.cc" name="OnlineBeamSpotESProducer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 
