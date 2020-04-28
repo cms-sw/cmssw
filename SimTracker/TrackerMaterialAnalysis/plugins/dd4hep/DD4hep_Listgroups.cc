@@ -33,7 +33,6 @@
 
 #include "MaterialAccountingGroup.h"
 
-
 class DD4hep_ListGroups : public edm::one::EDAnalyzer<> {
 public:
   DD4hep_ListGroups(const edm::ParameterSet &iConfig);
@@ -64,10 +63,9 @@ DD4hep_ListGroups::DD4hep_ListGroups(const edm::ParameterSet &iConfig)
 
 DD4hep_ListGroups::~DD4hep_ListGroups() {}
 
-void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv){
-
-  for(auto n : m_group_names){
-    m_groups.push_back(new MaterialAccountingGroup(n.data(),cpv));
+void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
+  for (auto n : m_group_names) {
+    m_groups.push_back(new MaterialAccountingGroup(n.data(), cpv));
   }
 }
 
@@ -263,20 +261,20 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
         if (firstChild) {
           std::vector<std::vector<cms::Node *>> children = fv1.children(k);
           for (auto const &path : children) {
-	    for (auto const &node: path){
-	      edm::LogVerbatim("TrackingMaterialGroup") << node->GetName() << "/";
-	    }
+            for (auto const &node : path) {
+              edm::LogVerbatim("TrackingMaterialGroup") << node->GetName() << "/";
+            }
             cms::Translation trans = fv1.translation(path);
-	    edm::LogVerbatim("TrackingMaterialGroup") << "(" << trans.x() << ", " << trans.y() << ", " << trans.z() << ")\n";
+            edm::LogVerbatim("TrackingMaterialGroup")
+                << "(" << trans.x() << ", " << trans.y() << ", " << trans.z() << ")\n";
           }
         }
       }
     }
   }
 
-  if(m_saveSummaryPlot)
+  if (m_saveSummaryPlot)
     produceAndSaveSummaryPlot(*cpv);
-
 }
 
 void DD4hep_ListGroups::endJob() {}

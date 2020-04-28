@@ -20,9 +20,7 @@ class TFile;
 class DDCompactView;
 
 class MaterialAccountingGroup {
-
- private:
-
+private:
   MaterialAccountingGroup(const MaterialAccountingGroup& layer) = delete;
   MaterialAccountingGroup& operator=(const MaterialAccountingGroup& layer) = delete;
   void savePlot_(std::shared_ptr<TH1F> plot, const std::string& name);
@@ -50,9 +48,8 @@ class MaterialAccountingGroup {
 
   static constexpr double s_tolerance = 0.01;
 
- public:
-
-  MaterialAccountingGroup(const std::string &name, const cms::DDCompactView& geometry);
+public:
+  MaterialAccountingGroup(const std::string& name, const cms::DDCompactView& geometry);
   ~MaterialAccountingGroup(void);
 
   bool addDetector_(const MaterialAccountingDetector& detector);
@@ -69,11 +66,10 @@ class MaterialAccountingGroup {
   double sigmaEnergyLoss(void) const;
   unsigned int tracks(void) const { return m_tracks; }
   const std::string& name(void) const { return m_name; }
-  std::string info_(void) const; 
+  std::string info_(void) const;
   void savePlots_(void);
 
   const std::vector<GlobalPoint>& elements(void) const { return m_elements; }
-
 };
 
 #endif
