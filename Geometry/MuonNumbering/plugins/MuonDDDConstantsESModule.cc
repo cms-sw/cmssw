@@ -7,15 +7,15 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDParameters.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDParametersBuild.h"
+#include "Geometry/MuonNumbering/interface/MuonDDDConstantsBuild.h"
 
 #include <memory>
 
 //#define EDM_ML_DEBUG
 
-class MuonDDDParametersESModule : public edm::ESProducer {
+class MuonDDDConstantsESModule : public edm::ESProducer {
 public:
-  MuonDDDParametersESModule(const edm::ParameterSet&);
+  MuonDDDConstantsESModule(const edm::ParameterSet&);
 
   using ReturnType = std::unique_ptr<MuonDDDParameters>;
 
@@ -29,39 +29,39 @@ private:
   bool fromDD4Hep_;
 };
 
-MuonDDDParametersESModule::MuonDDDParametersESModule(const edm::ParameterSet& ps) {
+MuonDDDConstantsESModule::MuonDDDConstantsESModule(const edm::ParameterSet& ps) {
   fromDD4Hep_ = ps.getParameter<bool>("fromDD4Hep");
   auto cc = setWhatProduced(this);
   cpvTokenDD4Hep_ = cc.consumesFrom<cms::DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonDDDParametersESModule::MuonDDDParametersESModule called with dd4hep: "
+  edm::LogVerbatim("Geometry") << "MuonDDDConstantsESModule::MuonDDDConstantsESModule called with dd4hep: "
                                << fromDD4Hep_;
 #endif
 }
 
-void MuonDDDParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MuonDDDConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("fromDD4Hep", false);
-  descriptions.add("muonDDDParameters", desc);
+  descriptions.add("muonDDDConstants", desc);
 }
 
-MuonDDDParametersESModule::ReturnType MuonDDDParametersESModule::produce(const IdealGeometryRecord& iRecord) {
-  edm::LogInfo("Geometry") << "MuonDDDParametersESModule::produce(const IdealGeometryRecord& iRecord)";
+MuonDDDConstantsESModule::ReturnType MuonDDDConstantsESModule::produce(const IdealGeometryRecord& iRecord) {
+  edm::LogInfo("Geometry") << "MuonDDDConstantsESModule::produce(const IdealGeometryRecord& iRecord)";
 
   auto ptp = std::make_unique<MuonDDDParameters>();
-  MuonDDDParametersBuild builder;
+  MuonDDDConstantsBuild builder;
 
   if (fromDD4Hep_) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonDDDParametersESModule::Try to access cms::DDCompactView";
+    edm::LogVerbatim("Geometry") << "MuonDDDConstantsESModule::Try to access cms::DDCompactView";
 #endif
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDD4Hep_);
     builder.build(&(*cpv), *ptp);
   } else {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("Geometry") << "MuonDDDParametersESModule::Try to access DDCompactView";
+    edm::LogVerbatim("Geometry") << "MuonDDDConstantsESModule::Try to access DDCompactView";
 #endif
     edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvTokenDDD_);
     builder.build(&(*cpv), *ptp);
@@ -70,4 +70,4 @@ MuonDDDParametersESModule::ReturnType MuonDDDParametersESModule::produce(const I
   return ptp;
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(MuonDDDParametersESModule);
+DEFINE_FWK_EVENTSETUP_MODULE(MuonDDDConstantsESModule);
