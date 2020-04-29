@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_MuonDDDParametersBuild_h
-#define MuonNumbering_MuonDDDParametersBuild_h
+#ifndef MuonNumbering_MuonDDDConstantsBuild_h
+#define MuonNumbering_MuonDDDConstantsBuild_h
 
 #include <string>
 #include <vector>
@@ -8,9 +8,9 @@
 
 class MuonDDDParameters;
 
-class MuonDDDParametersBuild {
+class MuonDDDConstantsBuild {
 public:
-  MuonDDDParametersBuild() {}
+  MuonDDDConstantsBuild() {}
 
   bool build(const DDCompactView* cpv, MuonDDDParameters& php);
   bool build(const cms::DDCompactView* cpv, MuonDDDParameters& php);
