@@ -30,7 +30,7 @@
   <Constant name="BeampipeRout4"  value="2.4250*cm"/>
   <Constant name="BeampipeRout14" value="3.5000*cm"/>
   <Constant name="BeampipeRout5"  value="3.7500*cm"/>
-  <Constant name="BeampipeRout6"  value="4.0000*cm"/>
+  <Constant name="BeampipeRout6"  value="4.1000*cm"/>
   <Constant name="BeampipeRout7"  value="[BeampipeRout4]+[BeampipeDeltaR]"/>
   <Constant name="BeampipeRout8"  value="[BeampipeRout7]+.5*mm"/>
   <Constant name="BeampipeRout9"  value="[BeampipeRout8]+[BeampipeDeltaR]"/>
