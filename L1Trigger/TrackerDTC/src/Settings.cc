@@ -152,6 +152,7 @@ namespace trackerDTC {
     trackerGeometry_ = nullptr;
     trackerTopology_ = nullptr;
     magneticField_ = nullptr;
+    ttCablingMap_ = nullptr;
     // derived event setup
     dtcModules_ = vector<vector<Module*>>(numDTCs_);
     configurationSupported_ = true;
