@@ -4,7 +4,6 @@
 ### Various set of customise functions needed for embedding
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
-from FWCore.ParameterSet.Utilities import cleanUnscheduled
 
 import six
 
