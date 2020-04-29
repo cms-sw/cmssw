@@ -51,7 +51,8 @@ bool MuonDDDParametersBuild::build(const DDCompactView* cpv, MuonDDDParameters& 
 
 bool MuonDDDParametersBuild::build(const cms::DDCompactView* cpv, MuonDDDParameters& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonDDDParametersBuild;:build (const cms::DDCompactView* cpv, MuonDDDParameters& php)";
+  edm::LogVerbatim("Geometry")
+      << "MuonDDDParametersBuild;:build (const cms::DDCompactView* cpv, MuonDDDParameters& php)";
 #endif
 
   return false;

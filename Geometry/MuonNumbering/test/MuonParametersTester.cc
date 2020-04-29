@@ -21,7 +21,7 @@ private:
   edm::ESGetToken<MuonDDDParameters, IdealGeometryRecord> token_;
 };
 
-MuonParametersTester::MuonParametersTester(const edm::ParameterSet&)  {
+MuonParametersTester::MuonParametersTester(const edm::ParameterSet&) {
   token_ = esConsumes<MuonDDDParameters, IdealGeometryRecord>(edm::ESInputTag{});
 }
 
@@ -40,4 +40,3 @@ void MuonParametersTester::analyze(const edm::Event&, const edm::EventSetup& iS)
 }
 
 DEFINE_FWK_MODULE(MuonParametersTester);
-

@@ -36,7 +36,8 @@ MuonDDDParametersESModule::MuonDDDParametersESModule(const edm::ParameterSet& ps
   cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonDDDParametersESModule::MuonDDDParametersESModule called with dd4hep: " << fromDD4Hep_;
+  edm::LogVerbatim("Geometry") << "MuonDDDParametersESModule::MuonDDDParametersESModule called with dd4hep: "
+                               << fromDD4Hep_;
 #endif
 }
 
