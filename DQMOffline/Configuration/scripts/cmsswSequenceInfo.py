@@ -62,7 +62,6 @@ def inspectsequence(seq):
         "--eventcontent", "DQM", "--scenario" if seq.scenario else "", seq.scenario, # sceanario should affect which DQMOffline_*_cff.py is loaded
         "--datatier", "DQMIO",                                               # more random switches, 
         "--customise_commands", 'process.Tracer = cms.Service("Tracer")',    # the tracer will tell us which modules actually run
-        "--runUnscheduled",                                                  # convert everything to tasks. Used in production, which means sequence ordering does not matter!
         "--filein", INFILE, "-n", "0",                                       # load an input file, but do not process any events -- it would fail anyways.
         "--python_filename", "cmssw_cfg.py", "--no_exec"
     ]
