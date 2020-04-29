@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
-process.load('Configuration.Geometry.GeometryExtended2026D59Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D59_cff')
+process.load('GeometryExtended2026GE0Test_cff')
+process.load('GeometryExtended2026GE0TestReco_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
