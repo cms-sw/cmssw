@@ -13,36 +13,8 @@ namespace l1t {
 
       PayloadMap payloadMap;
 
-      for (int i = muons->getFirstBX(); i <= muons->getLastBX(); ++i) {
-        // the first muon in every BX and every block id is 0
-        for (unsigned int blkId = b1_; blkId < b1_ + 7; blkId += 2) {
-          payloadMap[blkId].push_back(0);
-          payloadMap[blkId].push_back(0);
-        }
-
-        unsigned int blkId = b1_;
-        int muCtr = 1;
-        for (auto mu = muons->begin(i); mu != muons->end(i) && muCtr <= 8; ++mu, ++muCtr) {
-          uint32_t msw = 0;
-          uint32_t lsw = 0;
-
-          MuonRawDigiTranslator::generatePackedDataWords(*mu, lsw, msw);
-
-          payloadMap[blkId].push_back(lsw);
-          payloadMap[blkId].push_back(msw);
-
-          // go to next block id after two muons
-          if (muCtr % 2 == 0) {
-            blkId += 2;
-          }
-        }
-
-        // padding empty muons to reach 3 muons per block id per BX
-        for (auto& kv : payloadMap) {
-          while (kv.second.size() % 6 != 0) {
-            kv.second.push_back(0);
-          }
-        }
+      for (int bx = muons->getFirstBX(); bx <= muons->getLastBX(); ++bx) {
+          packBx(payloadMap, muons, bx);
       }
 
       Blocks blocks;
@@ -53,8 +25,58 @@ namespace l1t {
       }
       return blocks;
     }
+
+    void MuonPacker::packBx(PayloadMap& payloadMap, const edm::Handle<MuonBxCollection>& muons, int bx) {
+      // the first word in every BX and every block id is 0
+      for (unsigned int blkId = b1_; blkId < b1_ + 7; blkId += 2) {
+        payloadMap[blkId].push_back(0);
+      }
+
+      unsigned int blkId = b1_;
+      auto mu { muons->begin(bx) };
+      uint32_t shared_word { 0 };
+      uint32_t mu1_msw { 0 };
+      uint32_t mu2_msw { 0 };
+      uint32_t mu1_lsw { 0 };
+      uint32_t mu2_lsw { 0 };
+      // Slightly convoluted logic to account for the Run-3 muon readout record:
+      // To make space for displacement information we moved the raw (i.e. non-extrapolated) eta value to the second "spare" word
+      // in the block which we call "shared word". So the logic below needs to be aware if it is operating on the first or second
+      // muon in the block in order tp place the eta value in the right place in the shared word. Additionally the logic needs to
+      // wait for the second muon in the block before filling the payload map because the shared word goes in first.
+      for (int muCtr = 1; muCtr <= 8; ++muCtr) {
+
+        if (mu != muons->end(bx)) {
+          MuonRawDigiTranslator::generatePackedDataWords(*mu, shared_word, mu2_lsw, mu2_msw, fedId_, fwId_, 2-(muCtr%2));
+          ++mu;
+        }
+
+        // If we're remaining in the current block the muon we just packed is the first one in the block.
+        // If not we add both muons to the payload map and go to the next block.
+        // TODO: Handle case when there's only one muon in the block.
+        if (muCtr % 2 == 1) {
+          mu1_lsw = mu2_lsw;
+          mu1_msw = mu2_msw;
+        } else {
+          payloadMap[blkId].push_back(shared_word);
+          payloadMap[blkId].push_back(mu1_lsw);
+          payloadMap[blkId].push_back(mu1_msw);
+          payloadMap[blkId].push_back(mu2_lsw);
+          payloadMap[blkId].push_back(mu2_msw);
+
+          blkId += 2;
+
+          shared_word = 0;
+          mu1_lsw = 0;
+          mu1_msw = 0;
+        }
+        mu2_lsw = 0;
+        mu2_msw = 0;
+      }
+    }
   }  // namespace stage2
 }  // namespace l1t
 
 DEFINE_L1T_PACKER(l1t::stage2::GTMuonPacker);
 DEFINE_L1T_PACKER(l1t::stage2::GMTMuonPacker);
+
