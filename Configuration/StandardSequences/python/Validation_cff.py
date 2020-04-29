@@ -28,7 +28,7 @@ from Validation.RecoMuon.muonValidationHLT_cff import *
 from Validation.EventGenerator.BasicGenValidation_cff import *
 # miniAOD
 from Validation.RecoParticleFlow.miniAODValidation_cff import *
-from Validation.RecoEgamma.photonMiniAODValidationSequence_cff import *
+from Validation.RecoEgamma.photonMiniAODValidationTask_cff import *
 from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
 from Validation.RecoTau.RecoTauValidation_cff import *
 
@@ -36,9 +36,10 @@ prevalidationNoHLT = cms.Sequence( cms.SequencePlaceholder("mix") * globalPreval
 prevalidation = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
+prevalidationMiniAODTask = cms.Task(photonMiniAODValidationTask)
 prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence 
-                                    * photonMiniAODValidationSequence * egammaValidationMiniAOD
-                                    * produceDenoms)
+                                    * egammaValidationMiniAOD * produceDenoms
+                                    , prevalidationMiniAODTask)
 
 _prevalidation_fastsim = prevalidation.copy()
 for _entry in [hltassociation]:
