@@ -9,7 +9,6 @@
 class MuonDDDParameters;
 
 class MuonDDDParametersBuild {
-
 public:
   MuonDDDParametersBuild() {}
 

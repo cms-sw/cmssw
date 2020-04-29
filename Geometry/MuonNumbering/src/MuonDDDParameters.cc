@@ -22,9 +22,7 @@ int MuonDDDParameters::getValue(const std::string& name) const {
   return findIt->second;
 }
 
-void MuonDDDParameters::addValue(const std::string& name, const int& value) { 
-  namesAndValues_[name] = value; 
-}
+void MuonDDDParameters::addValue(const std::string& name, const int& value) { namesAndValues_[name] = value; }
 
 #include "FWCore/Utilities/interface/typelookup.h"
 
