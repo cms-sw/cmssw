@@ -101,7 +101,7 @@ namespace trackerDTC {
     settings->basePhi_ = *min_element(basesPhi_.begin(), basesPhi_.end(), comp);
     settings->baseQoverPt_ = settings->rangeQoverPt_ / pow(2., settings->widthQoverPt_);
 
-    layerIdEncodings_.reserve(settings->numDTCsRegion_);
+    layerIdEncodings_.reserve(settings->numDTCsPerRegion_);
   }
 
   // check current coniguration consistency with input configuration
@@ -136,7 +136,7 @@ namespace trackerDTC {
   void SettingsHybrid::createEncodingsLayer(Settings* settings) {
     const TrackerTopology* trackerTopology = settings->trackerTopology_;
     // assess layerIds connected to each DTC per region, accumulated over all regions
-    vector<set<int>> layerIdEncodings(settings->numDTCsRegion_);
+    vector<set<int>> layerIdEncodings(settings->numDTCsPerRegion_);
     for (const pair<DetId, int>& map : settings->cablingMap_) {
       const bool barrel = map.first.subdetId() == StripSubdetector::TOB;
       const int layerId = barrel ? trackerTopology->layer(map.first) : trackerTopology->tidWheel(map.first) + settings->offsetLayerDisks_;

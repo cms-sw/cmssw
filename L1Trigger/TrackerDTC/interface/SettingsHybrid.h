@@ -130,7 +130,7 @@ namespace trackerDTC {
 
     // Hybrid specific encodings
 
-    // outer index = dtc board [0-23] (tfpChannel % numDTCsPerRegion_), inner index = encoded layer id, value = decoded layer id
+    // outer index = dtc board [0-23] ((tfpChannel or dtcId) % numDTCsPerRegion_), inner index = encoded layer id, value = decoded layer id
     std::vector<std::vector<int>> layerIdEncodings_;
     // outer index = max window size in half strip units, inner index = decoded bend, value = encoded bend for PS modules
     std::vector<std::vector<double>> bendEncodingsPS_;

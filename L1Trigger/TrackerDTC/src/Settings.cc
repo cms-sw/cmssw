@@ -179,6 +179,16 @@ namespace trackerDTC {
 
   // check current coniguration consistency with input configuration
   void Settings::checkConfiguration() {
+    // check if needed ES product are being set
+    if (!magneticField_ || !handleGeometryConfiguration_)  {
+      cms::Exception exception("NullPointer");
+      if (!magneticField_)
+        exception << "MagneticField used but not set. Please call setMagneticField before checkConfiguration.";
+      if (!handleGeometryConfiguration_)
+        exception << "GeometryConfiguration used but not set. Please call setGeometryConfiguration before checkConfiguration.";
+      exception.addContext("trackerDTC::Settings::checkConfiguration");
+      throw exception;
+    }
     // check if bField is supported
     const double bField = magneticField_->inTesla(GlobalPoint(0., 0., 0.)).z();
     if (abs(bField - bField_) > bFieldError_) {
@@ -247,6 +257,18 @@ namespace trackerDTC {
 
   // convert ES Products into handy objects
   void Settings::beginRun() {
+    // check if needed ES products are being set
+    if (!trackerGeometry_ || !trackerTopology_ || !ttCablingMap_) {
+      cms::Exception exception("NullPointer");
+      if (!trackerGeometry_)
+        exception << "TrackerGeometry used but not set. Please call setTrackerGeometry before beginRun.";
+      if (!trackerTopology_)
+        exception << "TrackerTopology used but not set. Please call setTrackerTopology before beginRun.";
+      if (!ttCablingMap_)
+        exception << "CablingMap used but not set. Please call setCablingMap before beginRun.";
+      exception.addContext("trackerDTC::Settings::beginRun");
+      throw exception;
+    }
     // convert cabling map
     // DTC product used to convert between different dtc id schemes
     TTDTC ttDTC(numRegions_, numOverlappingRegions_, numDTCsPerRegion_);
@@ -280,6 +302,13 @@ namespace trackerDTC {
     }
     // hybrid specific conversions
     if (dataFormat_ == "Hybrid") {
+      // check if needed ES products are being set
+      if (!handleTTStubAlgorithm_) {
+        cms::Exception exception("NullPointer");
+        exception << "TTStubAlgorithm used but not set. Please call setTTStubAlgorithm before beginRun.";
+        exception.addContext("trackerDTC::Settings::beginRun");
+        throw exception;
+      }
       hybrid_->createEncodingsBend(this);
       hybrid_->createEncodingsLayer(this);
     }
