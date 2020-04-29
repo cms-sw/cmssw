@@ -8,8 +8,8 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
   filterEfficiency = cms.untracked.double(1.0),
   crossSection = cms.untracked.double(-1),
   SherpaProcess = cms.string('ttbar_2j_MENLOPS_13TeV'),
-  SherpackLocation = cms.string('/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc6_amd64_gcc630/13TeV/sherpa/2.2.5'),
-  SherpackChecksum = cms.string('08801b6e2c529b94b83ab38304859e9a'),
+  SherpackLocation = cms.string('/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc7_amd64_gcc820/13TeV/sherpa/2.2.8'),
+  SherpackChecksum = cms.string('4efdf38e0d189d58c65a554ef901d027'),
   FetchSherpack = cms.bool(True),
   SherpaPath = cms.string('./'),
   SherpaPathPiece = cms.string('./'),
@@ -20,7 +20,7 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
                              "Run"),
                               MPI_Cross_Sections = cms.vstring(
 				" MPIs in Sherpa, Model = Amisic:",
-				" semihard xsec = 2.00207e+06 mb,",
+				" semihard xsec = 39.5554 mb,",
 				" non-diffractive xsec = 17.0318 mb with nd factor = 0.3142."
                                                   ),
                               Run = cms.vstring(
@@ -35,9 +35,10 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
 				" NLO_SMEAR_THRESHOLD 1;",
 				" NLO_SMEAR_POWER 2;",
 				" HARD_DECAYS On;",
-				" HARD_SPIN_CORRELATIONS 1;",
+				" HARD_SPIN_CORRELATIONS=1;",
+				" SOFT_SPIN_CORRELATIONS=1;",
 				" PDF_LIBRARY LHAPDFSherpa;",
-				" PDF_SET NNPDF30_nlo_as_0118;",
+				" PDF_SET NNPDF31_nnlo_hessian_pdfas;",
 				" USE_PDF_ALPHAS=1;",
 				" BEAM_1=2212; BEAM_ENERGY_1=6500;",
 				" BEAM_2=2212; BEAM_ENERGY_2=6500;",
@@ -61,4 +62,3 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
 )
 
 ProductionFilterSequence = cms.Sequence(generator)
-

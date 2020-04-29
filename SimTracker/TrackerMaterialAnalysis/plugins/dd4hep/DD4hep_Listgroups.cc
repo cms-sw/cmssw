@@ -260,7 +260,8 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
             for (auto const &node : path) {
               std::cout << node->GetName() << ", ";
             }
-            std::cout << "\n";
+            cms::Translation trans = fv1.translation(path);
+            std::cout << "(" << trans.x() << ", " << trans.y() << ", " << trans.z() << ")\n";
           }
           std::cout << "\n";
         }

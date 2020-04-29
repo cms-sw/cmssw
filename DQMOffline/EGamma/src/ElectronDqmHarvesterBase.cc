@@ -51,27 +51,25 @@ std::string ElectronDqmHarvesterBase::newName(const std::string &name) {
 }
 
 const std::string *ElectronDqmHarvesterBase::find(DQMStore::IGetter &iGetter, const std::string &name) {
-  typedef std::vector<std::string> HistoNames;
-  typedef HistoNames::iterator HistoNamesItr;
   if (!histoNamesReady) {
     histoNamesReady = true;
     histoNames_ = iGetter.getMEs();
   }
-  HistoNamesItr histoName;
-  std::vector<HistoNamesItr> res;
+  std::vector<const std::string *> res;
+  std::size_t nsize = name.size();
 
-  for (histoName = histoNames_.begin(); histoName != histoNames_.end(); ++histoName) {
-    std::size_t nsize = name.size(), lsize = histoName->size();
-    if ((lsize >= nsize) && (histoName->find(name) == (lsize - nsize))) {
-      res.push_back(histoName);
+  for (const auto &histoName : histoNames_) {
+    std::size_t lsize = histoName.size();
+    if ((lsize >= nsize) && (histoName.find(name) == (lsize - nsize))) {
+      res.push_back(&histoName);
     }
   }
   if (res.empty()) {
     std::ostringstream oss;
     oss << "Histogram " << name << " not found in " << outputInternalPath_;
     char sep = ':';
-    for (histoName = histoNames_.begin(); histoName != histoNames_.end(); ++histoName) {
-      oss << sep << ' ' << *histoName;
+    for (auto const &histoName : histoNames_) {
+      oss << sep << ' ' << histoName;
       sep = ',';
     }
     oss << '.';
@@ -81,17 +79,15 @@ const std::string *ElectronDqmHarvesterBase::find(DQMStore::IGetter &iGetter, co
     std::ostringstream oss;
     oss << "Ambiguous histograms for " << name << " in " << outputInternalPath_;
     char sep = ':';
-    std::vector<HistoNamesItr>::iterator resItr;
-    for (resItr = res.begin(); resItr != res.end(); ++resItr) {
-      oss << sep << ' ' << (**resItr);
+    for (auto const resItr : res) {
+      oss << sep << ' ' << *resItr;
       sep = ',';
     }
     oss << '.';
     edm::LogWarning("ElectronDqmHarvesterBase::find") << oss.str();
     return nullptr;
-  } else {
-    return &*res[0];
   }
+  return res[0];
 }
 
 void ElectronDqmHarvesterBase::beginJob() {}

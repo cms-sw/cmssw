@@ -10,7 +10,6 @@
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/ParticleFlowReco"/>
-<use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="CommonTools/BaseParticlePropagator"/>
 <use   name="FWCore/Framework"/>
@@ -23,6 +22,7 @@
 <use   name="RecoEgamma/EgammaElectronAlgos"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
+<use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/Records"/>

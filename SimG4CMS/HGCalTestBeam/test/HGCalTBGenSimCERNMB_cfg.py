@@ -96,7 +96,7 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
 #	MaxTheta = cms.double(.011837),
 #	MinPhi = cms.double(3.649887),
 #	MaxPhi = cms.double(3.649887),
-        PartID = cms.vint32(13)
+        PartID = cms.vint32(14)
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
@@ -111,6 +111,7 @@ process.VtxSmeared.MinY = 0
 process.VtxSmeared.MaxY =  0
 process.HGCalTBAnalyzer.doDigis = False
 process.HGCalTBAnalyzer.doRecHits = False
+process.g4SimHits.StackingAction.TrackNeutrino = True
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

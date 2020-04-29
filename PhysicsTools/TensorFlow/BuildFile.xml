@@ -1,7 +1,6 @@
 <use name="tensorflow-cc" />
 
 <use name="FWCore/Utilities" />
-<use name="FWCore/Concurrency" />
 <use name="FWCore/MessageLogger" />
 
 <export>
