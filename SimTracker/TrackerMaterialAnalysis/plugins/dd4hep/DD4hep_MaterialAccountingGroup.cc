@@ -15,9 +15,9 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"
-#include "MaterialAccountingGroup.h"
+#include "DD4hep_MaterialAccountingGroup.h"
 
-MaterialAccountingGroup::MaterialAccountingGroup(const std::string& name, const cms::DDCompactView& geometry)
+DD4hep_MaterialAccountingGroup::DD4hep_MaterialAccountingGroup(const std::string& name, const cms::DDCompactView& geometry)
     : m_name(name),
       m_elements(),
       m_boundingbox(),
@@ -85,7 +85,7 @@ MaterialAccountingGroup::MaterialAccountingGroup(const std::string& name, const 
   m_radlen_vs_r->SetDirectory(nullptr);
 }
 
-bool MaterialAccountingGroup::isInside(const MaterialAccountingDetector& detector) const {
+bool DD4hep_MaterialAccountingGroup::isInside(const MaterialAccountingDetector& detector) const {
   const GlobalPoint& position = detector.position();
 
   edm::LogVerbatim("MaterialAccountingGroup")
@@ -115,7 +115,7 @@ bool MaterialAccountingGroup::isInside(const MaterialAccountingDetector& detecto
   }
 }
 
-bool MaterialAccountingGroup::addDetector_(const MaterialAccountingDetector& detector) {
+bool DD4hep_MaterialAccountingGroup::addDetector(const MaterialAccountingDetector& detector) {
   if (!isInside(detector))
     return false;
 
@@ -125,7 +125,7 @@ bool MaterialAccountingGroup::addDetector_(const MaterialAccountingDetector& det
   return true;
 }
 
-void MaterialAccountingGroup::endOfTrack_(void) {
+void DD4hep_MaterialAccountingGroup::endOfTrack(void) {
   if (m_counted) {
     m_accounting += m_buffer;
     m_errors += m_buffer * m_buffer;
@@ -147,22 +147,22 @@ void MaterialAccountingGroup::endOfTrack_(void) {
   m_buffer = MaterialAccountingStep();
 }
 
-void MaterialAccountingGroup::savePlots_(void) {
+void DD4hep_MaterialAccountingGroup::savePlots(void) {
   m_file = new TFile((m_name + ".root").c_str(), "RECREATE");
-  savePlot_(m_dedx_spectrum, m_name + "_dedx_spectrum");
-  savePlot_(m_radlen_spectrum, m_name + "_radlen_spectrum");
-  savePlot_(m_dedx_vs_eta, averageEnergyLoss(), m_name + "_dedx_vs_eta");
-  savePlot_(m_dedx_vs_z, averageEnergyLoss(), m_name + "_dedx_vs_z");
-  savePlot_(m_dedx_vs_r, averageEnergyLoss(), m_name + "_dedx_vs_r");
-  savePlot_(m_radlen_vs_eta, averageRadiationLengths(), m_name + "_radlen_vs_eta");
-  savePlot_(m_radlen_vs_z, averageRadiationLengths(), m_name + "_radlen_vs_z");
-  savePlot_(m_radlen_vs_r, averageRadiationLengths(), m_name + "_radlen_vs_r");
+  savePlot(m_dedx_spectrum, m_name + "_dedx_spectrum");
+  savePlot(m_radlen_spectrum, m_name + "_radlen_spectrum");
+  savePlot(m_dedx_vs_eta, averageEnergyLoss(), m_name + "_dedx_vs_eta");
+  savePlot(m_dedx_vs_z, averageEnergyLoss(), m_name + "_dedx_vs_z");
+  savePlot(m_dedx_vs_r, averageEnergyLoss(), m_name + "_dedx_vs_r");
+  savePlot(m_radlen_vs_eta, averageRadiationLengths(), m_name + "_radlen_vs_eta");
+  savePlot(m_radlen_vs_z, averageRadiationLengths(), m_name + "_radlen_vs_z");
+  savePlot(m_radlen_vs_r, averageRadiationLengths(), m_name + "_radlen_vs_r");
   m_file->Write();
   m_file->Close();
   delete m_file;
 }
 
-void MaterialAccountingGroup::savePlot_(std::shared_ptr<TH1F> plot, const std::string& name) {
+void DD4hep_MaterialAccountingGroup::savePlot(std::shared_ptr<TH1F> plot, const std::string& name) {
   TCanvas canvas(name.c_str(), plot->GetTitle(), 1280, 1024);
   plot->SetFillColor(15);  // grey
   plot->SetLineColor(1);   // black
@@ -173,7 +173,7 @@ void MaterialAccountingGroup::savePlot_(std::shared_ptr<TH1F> plot, const std::s
   plot->SetDirectory(m_file);
 }
 
-void MaterialAccountingGroup::savePlot_(std::shared_ptr<TProfile> plot, float average, const std::string& name) {
+void DD4hep_MaterialAccountingGroup::savePlot(std::shared_ptr<TProfile> plot, float average, const std::string& name) {
   std::unique_ptr<TH1F> line = std::make_unique<TH1F>(
       TH1F((name + "_par").c_str(), "Parametrization", 1, plot->GetXaxis()->GetXmin(), plot->GetXaxis()->GetXmax()));
 
@@ -195,7 +195,7 @@ void MaterialAccountingGroup::savePlot_(std::shared_ptr<TProfile> plot, float av
   line->Write();
 }
 
-std::string MaterialAccountingGroup::info_(void) const {
+std::string DD4hep_MaterialAccountingGroup::info(void) const {
   std::stringstream out;
   out << std::setw(48) << std::left << m_name << std::right << std::fixed;
 
@@ -207,30 +207,30 @@ std::string MaterialAccountingGroup::info_(void) const {
   return out.str();
 }
 
-MaterialAccountingStep MaterialAccountingGroup::average(void) const {
+MaterialAccountingStep DD4hep_MaterialAccountingGroup::average(void) const {
   return m_tracks ? m_accounting / m_tracks : MaterialAccountingStep();
 }
 
-double MaterialAccountingGroup::averageLength(void) const { return m_tracks ? m_accounting.length() / m_tracks : 0.; }
+double DD4hep_MaterialAccountingGroup::averageLength(void) const { return m_tracks ? m_accounting.length() / m_tracks : 0.; }
 
-double MaterialAccountingGroup::averageEnergyLoss(void) const {
+double DD4hep_MaterialAccountingGroup::averageEnergyLoss(void) const {
   return m_tracks ? m_accounting.energyLoss() / m_tracks : 0.;
 }
 
-double MaterialAccountingGroup::sigmaLength(void) const {
+double DD4hep_MaterialAccountingGroup::sigmaLength(void) const {
   return m_tracks ? std::sqrt(m_errors.length() / m_tracks - averageLength() * averageLength()) : 0.;
 }
 
-double MaterialAccountingGroup::sigmaRadiationLengths(void) const {
+double DD4hep_MaterialAccountingGroup::sigmaRadiationLengths(void) const {
   return m_tracks
              ? std::sqrt(m_errors.radiationLengths() / m_tracks - averageRadiationLengths() * averageRadiationLengths())
              : 0.;
 }
 
-double MaterialAccountingGroup::sigmaEnergyLoss(void) const {
+double DD4hep_MaterialAccountingGroup::sigmaEnergyLoss(void) const {
   return m_tracks ? std::sqrt(m_errors.energyLoss() / m_tracks - averageEnergyLoss() * averageEnergyLoss()) : 0.;
 }
 
-double MaterialAccountingGroup::averageRadiationLengths(void) const {
+double DD4hep_MaterialAccountingGroup::averageRadiationLengths(void) const {
   return m_tracks ? m_accounting.radiationLengths() / m_tracks : 0.;
 }

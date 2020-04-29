@@ -11,20 +11,21 @@
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"
 
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+
 #include "BoundingBox.h"
 
 class TH1;
 class TH1F;
 class TProfile;
 class TFile;
-class DDCompactView;
 
-class MaterialAccountingGroup {
+class DD4hep_MaterialAccountingGroup {
 private:
-  MaterialAccountingGroup(const MaterialAccountingGroup& layer) = delete;
-  MaterialAccountingGroup& operator=(const MaterialAccountingGroup& layer) = delete;
-  void savePlot_(std::shared_ptr<TH1F> plot, const std::string& name);
-  void savePlot_(std::shared_ptr<TProfile> plot, float average, const std::string& name);
+  DD4hep_MaterialAccountingGroup(const DD4hep_MaterialAccountingGroup& layer) = delete;
+  DD4hep_MaterialAccountingGroup& operator=(const DD4hep_MaterialAccountingGroup& layer) = delete;
+  void savePlot(std::shared_ptr<TH1F> plot, const std::string& name);
+  void savePlot(std::shared_ptr<TProfile> plot, float average, const std::string& name);
 
   std::string m_name;
   std::vector<GlobalPoint> m_elements;
@@ -49,11 +50,11 @@ private:
   static constexpr double s_tolerance = 0.01;
 
 public:
-  MaterialAccountingGroup(const std::string& name, const cms::DDCompactView& geometry);
-  ~MaterialAccountingGroup(void);
+  DD4hep_MaterialAccountingGroup(const std::string& name, const cms::DDCompactView& geometry);
+  ~DD4hep_MaterialAccountingGroup(void);
 
-  bool addDetector_(const MaterialAccountingDetector& detector);
-  void endOfTrack_(void);
+  bool addDetector(const MaterialAccountingDetector& detector);
+  void endOfTrack(void);
   bool isInside(const MaterialAccountingDetector& detector) const;
   std::pair<double, double> getBoundingR() const { return m_boundingbox.range_r(); };
   std::pair<double, double> getBoundingZ() const { return m_boundingbox.range_z(); };
@@ -66,8 +67,8 @@ public:
   double sigmaEnergyLoss(void) const;
   unsigned int tracks(void) const { return m_tracks; }
   const std::string& name(void) const { return m_name; }
-  std::string info_(void) const;
-  void savePlots_(void);
+  std::string info(void) const;
+  void savePlots(void);
 
   const std::vector<GlobalPoint>& elements(void) const { return m_elements; }
 };
