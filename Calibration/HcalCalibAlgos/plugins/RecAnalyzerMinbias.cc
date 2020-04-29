@@ -453,7 +453,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     edm::Handle<QIE11DigiCollection> qie11digi;
     iEvent.getByToken(tok_qie11digi_, qie11digi);
     if (qie11digi.isValid()) {
-      for (QIE11DataFrame const& digi : *(qie11digi.product())) {
+      for (QIE11DataFrame const digi : *(qie11digi.product())) {
         double amplitudefullTSs = 0.;
         if (HcalDetId(digi.id()).subdet() == HcalBarrel) {
           for (int i = 0; i < digi.samples(); i++)
@@ -490,7 +490,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     edm::Handle<QIE10DigiCollection> qie10digi;
     iEvent.getByToken(tok_qie10digi_, qie10digi);
     if (qie10digi.isValid()) {
-      for (QIE10DataFrame const& digi : *(qie10digi.product())) {
+      for (QIE10DataFrame const digi : *(qie10digi.product())) {
         double amplitudefullTSs = 0.;
         if (HcalDetId(digi.id()).subdet() == HcalForward) {
           for (int i = 0; i < digi.samples(); i++)
