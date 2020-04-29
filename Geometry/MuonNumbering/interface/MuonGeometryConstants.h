@@ -1,7 +1,7 @@
-#ifndef Geometry_MuonNumbering_MuonDDDParameters_h
-#define Geometry_MuonNumbering_MuonDDDParameters_h
+#ifndef Geometry_MuonNumbering_MuonGeometryConstants_h
+#define Geometry_MuonNumbering_MuonGeometryConstants_h
 
-/** \class MuonDDDParameters
+/** \class MuonGeometryConstants
  *
  * this class reads the constant section of
  * the muon-numbering xml-file
@@ -17,9 +17,9 @@
 #include <iostream>
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-class MuonDDDParameters {
+class MuonGeometryConstants {
 public:
-  MuonDDDParameters() {}
+  MuonGeometryConstants() {}
 
   int getValue(const std::string& name) const;
   void addValue(const std::string& name, const int& value);
@@ -36,6 +36,8 @@ public:
 
 private:
   std::map<std::string, int> namesAndValues_;
+  COND_SERIALIZABLE;
 };
 
 #endif
+
