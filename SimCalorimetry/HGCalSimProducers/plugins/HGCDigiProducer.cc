@@ -12,8 +12,9 @@ HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset,
                                  edm::ProducesCollector producesCollector,
                                  edm::ConsumesCollector& iC)
     : HGCDigiProducer(pset, iC) {
-  if (pset.getParameter<bool>("premixStage1")) {
-    producesCollector.produces<PHGCSimAccumulator>(theDigitizer_.digiCollection());
+  premixStage1_ = pset.getParameter<bool>("premixStage1");
+  if (premixStage1_) {
+    producesCollector.produces<PreMixHGCSimAccumulator>(theDigitizer_.digiCollection());
   } else {
     producesCollector.produces<HGCalDigiCollection>(theDigitizer_.digiCollection());
   }
@@ -37,13 +38,23 @@ void HGCDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& es
 
 //
 void HGCDigiProducer::accumulate(edm::Event const& event, edm::EventSetup const& es) {
-  theDigitizer_.accumulate(event, es, randomEngine_);
+  if (premixStage1_) {
+    theDigitizer_.accumulate_forPreMix(event, es, randomEngine_);
+  }
+
+  else {
+    theDigitizer_.accumulate(event, es, randomEngine_);
+  }
 }
 
 void HGCDigiProducer::accumulate(PileUpEventPrincipal const& event,
                                  edm::EventSetup const& es,
                                  edm::StreamID const& streamID) {
-  theDigitizer_.accumulate(event, es, randomEngine_);
+  if (premixStage1_) {
+    theDigitizer_.accumulate_forPreMix(event, es, randomEngine_);
+  } else {
+    theDigitizer_.accumulate(event, es, randomEngine_);
+  }
 }
 
 //

@@ -14,9 +14,11 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HFNoseDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
+#include "DataFormats/HGCDigi/interface/PreMixHGCSimAccumulator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include <iostream>
 
 #include <vector>
 #include <map>
@@ -53,15 +55,26 @@ public:
      @short handle SimHit accumulation
    */
   void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+  void accumulate_forPreMix(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+  void accumulate_forPreMix(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+
   template <typename GEOM>
   void accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
                   int bxCrossing,
                   const GEOM* geom,
                   CLHEP::HepRandomEngine* hre);
+  template <typename GEOM>
+  void accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> const& hits,
+                            int bxCrossing,
+                            const GEOM* geom,
+                            CLHEP::HepRandomEngine* hre);
   // for premixing
+  //void accumulate(const PHGCSimAccumulator& simAccumulator);
   void accumulate(const PHGCSimAccumulator& simAccumulator);
-
+  void accumulate_forPreMix(const PreMixHGCSimAccumulator& simAccumulator,
+                            const bool& minbiasFlag);  //, const GEOM* geom);
   /**
      @short actions at the start/end of event
    */
@@ -82,14 +95,19 @@ public:
    */
   void beginRun(const edm::EventSetup& es);
   void endRun();
+  constexpr static unsigned energyOffset = 15;
+  constexpr static unsigned energyMask = 0x1;
+  constexpr static unsigned sampleOffset = 11;
+  constexpr static unsigned sampleMask = 0xf;
+  constexpr static unsigned dataOffset = 0;
+  constexpr static unsigned dataMask = 0x7ff;
+  int event_counter;
 
 private:
   uint32_t getType() const;
   bool getWeight(std::array<float, 3>& tdcForToAOnset, float& keV2fC) const;
-
-  //input/output names
   std::string hitCollection_, digiCollection_;
-
+  //TH1F* toa_hist_, charge_hist_;
   //geometry type (0 pre-TDR; 1 TDR)
   int geometryType_;
 
@@ -98,6 +116,7 @@ private:
 
   // if true, we're running mixing in premixing stage1 and have to produce the output differently
   bool premixStage1_;
+  ////// new flags for premix timing
 
   // Minimum charge threshold for premixing stage1
   double premixStage1MinCharge_;
@@ -108,8 +127,9 @@ private:
   int maxSimHitsAccTime_;
   double bxTime_, ev_per_eh_pair_;
   std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;
+  std::unique_ptr<hgc::HGCPUSimHitDataAccumulator> pusimHitAccumulator_;
   void resetSimHitDataAccumulator();
-
+  void resetPUSimHitDataAccumulator();
   //debug position
   void checkPosition(const HGCalDigiCollection* digis) const;
 
@@ -142,8 +162,8 @@ private:
   uint32_t nEvents_;
 
   std::vector<float> cce_;
-
   std::map<uint32_t, std::vector<std::pair<float, float> > > hitRefs_bx0;
+  std::map<uint32_t, bool> hitOrder_monitor;
 };
 
 #endif

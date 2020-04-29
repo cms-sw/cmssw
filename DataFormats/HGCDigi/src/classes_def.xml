@@ -35,4 +35,13 @@
    <class name="std::vector<PHGCSimAccumulator::Data>"/>
    <class name="std::vector<PHGCSimAccumulator::DetIdSize>"/>
    <class name="edm::Wrapper<PHGCSimAccumulator>"/>
+
+   <class name="PreMixHGCSimAccumulator"/>
+   <class name="PreMixHGCSimAccumulator::DetIdSize"/>
+   <class name="PreMixHGCSimAccumulator::SimHitCollection"/>
+   <class name="std::vector<PreMixHGCSimAccumulator::DetIdSize>"/>
+   <class name="std::vector<PreMixHGCSimAccumulator::SimHitCollection>"/>
+   <class name="edm::Wrapper<PreMixHGCSimAccumulator>"/> 
+
+
 </lcgdict>
