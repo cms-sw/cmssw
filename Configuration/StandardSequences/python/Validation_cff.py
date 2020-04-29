@@ -74,11 +74,11 @@ prevalidation_preprod = cms.Sequence( preprodPrevalidation )
 validation_preprodNoHLT = cms.Sequence(
                             genvalid_all
                             +trackingTruthValid
-                            +tracksValidation
                             +METRelValSequence
                             +recoMuonValidation
                             +muIsoVal_seq
                             +muonIdValDQMSeq
+                            ,tracksValidation
                           )
 
 validation_preprod = cms.Sequence(
