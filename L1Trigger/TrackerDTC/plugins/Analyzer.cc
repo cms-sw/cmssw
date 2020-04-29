@@ -19,6 +19,8 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
+#include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -28,6 +30,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h"
+#include "L1Trigger/TrackTrigger/interface/TTStubAlgorithmRecord.h"
 
 #include "L1Trigger/TrackerDTC/interface/Settings.h"
 #include "L1Trigger/TrackerDTC/interface/TTDTCConverter.h"
@@ -96,7 +100,9 @@ namespace trackerDTC {
     // analyze DTC products and find still reconstrucable TrackingParticles
     void analyzeStubs(const TTDTC*, const TTDTC*, const map<TTStubRef, set<TPPtr>>&, map<TPPtr, set<TTStubRef>>&);
     // fill stub related histograms
-    void analyzeStream(const TTDTC::Stream& stream, int region, int& sum, TH2F* th2f);
+    void analyzeStream(const TTDTC::Stream& stream, int region, int channel, int& sum, TH2F* th2f);
+    // returns layerId [1-6, 11-15] of stub
+    int layerId(const TTStubRef& ttStubRef) const;
     // returns global stub position
     GlobalPoint stubPos(const TTStubRef& ttStubRef) const;
     // handles 2 pi overflow
@@ -119,6 +125,8 @@ namespace trackerDTC {
 
     ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeometry_;
     ESGetToken<TrackerTopology, TrackerTopologyRcd> getTokenTrackerTopology_;
+    ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> getTokenCablingMap_;
+    ESGetToken<TTStubAlgorithm<Ref_Phase2TrackerDigi_>, TTStubAlgorithmRecord> getTokenTTStubAlgorithm_;
 
     // stores, calculates and provides run-time constants
     Settings settings_;
@@ -158,6 +166,12 @@ namespace trackerDTC {
         settings_.inputTagTrackerGeometry());
     getTokenTrackerTopology_ =
         esConsumes<TrackerTopology, TrackerTopologyRcd, Transition::BeginRun>(settings_.inputTagTrackerTopology());
+    getTokenCablingMap_ =
+        esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, Transition::BeginRun>(
+            settings_.inputTagCablingMap());
+    getTokenTTStubAlgorithm_ =
+        esConsumes<TTStubAlgorithm<Ref_Phase2TrackerDigi_>, TTStubAlgorithmRecord, Transition::BeginRun>(
+            settings_.inputTagTTStubAlgorithm());
     // configuring track particle selector
     const double ptMin = settings_.tpMinPt();
     constexpr double ptMax = 9999999999.;
@@ -241,6 +255,9 @@ namespace trackerDTC {
     // read in detector parameter
     settings_.setTrackerGeometry(&iSetup.getData(getTokenTrackerGeometry_));
     settings_.setTrackerTopology(&iSetup.getData(getTokenTrackerTopology_));
+    settings_.setCablingMap(&iSetup.getData(getTokenCablingMap_));
+    settings_.setTTStubAlgorithm(iSetup.getHandle(getTokenTTStubAlgorithm_));
+    settings_.beginRun();
   }
 
   void Analyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
@@ -405,8 +422,8 @@ namespace trackerDTC {
           for (const TPPtr& tp : it->second)
             mapTPsStubs[tp].insert(frame.first);
         }
-        analyzeStream(stream, region, nStubs, hisRZStubs_);
-        analyzeStream(lost->stream(region, channel), region, nLost, hisRZStubsLost_);
+        analyzeStream(stream, region, channel, nStubs, hisRZStubs_);
+        analyzeStream(lost->stream(region, channel), region, channel, nLost, hisRZStubsLost_);
       }
       profDTC_->Fill(1, nStubs);
       profDTC_->Fill(2, nLost);
@@ -414,7 +431,7 @@ namespace trackerDTC {
   }
 
   // fill stub related histograms
-  void Analyzer::analyzeStream(const TTDTC::Stream& stream, int region, int& sum, TH2F* th2f) {
+  void Analyzer::analyzeStream(const TTDTC::Stream& stream, int region, int channel, int& sum, TH2F* th2f) {
     for (const TTDTC::Frame& frame : stream) {
       if (frame.first.isNull())
         continue;
@@ -428,7 +445,22 @@ namespace trackerDTC {
         profResolution_[r]->Fill(ttPos.z(), ttPos.perp(), abs(resolutions[r]));
       }
       th2f->Fill(ttPos.z(), ttPos.perp());
+      // check layerId encoding
+      if (settings_.dataFormat() != "Hybrid")
+        continue;
+      const int dtcBoard = channel % settings_.numDTCsPerRegion();
+      const vector<int>& layerIdEncoding = settings_.hybrid()->layerIdEncodings().at(dtcBoard);
+      if (find(layerIdEncoding.begin(), layerIdEncoding.end(), layerId(frame.first)) == layerIdEncoding.end())
+        throw cms::Exception("LogicError") << "Stub send from a DTC which is not connected to stub's layer.";
     }
+  }
+
+  // returns layerId [1-6, 11-15] of stub
+  int Analyzer::layerId(const TTStubRef& ttStubRef) const {
+    const TrackerTopology* trackerTopology = settings_.trackerTopology();
+    const DetId detId = ttStubRef->getDetId() + settings_.offsetDetIdDSV();
+    const bool barrel = detId.subdetId() == StripSubdetector::TOB;
+    return barrel ? trackerTopology->layer(detId) : trackerTopology->tidWheel(detId) + settings_.offsetLayerDisks();
   }
 
   // returns global stub position
