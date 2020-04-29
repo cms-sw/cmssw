@@ -107,7 +107,7 @@ namespace edm {
         for (size_t i = 0; i != n; ++i) {
           auto rec = iImpl->findImpl(recs[i]);
           if (rec) {
-            rec->doGet(proxies[i], iImpl, true);
+            rec->prefetch(proxies[i], iImpl);
           }
         }
       }
