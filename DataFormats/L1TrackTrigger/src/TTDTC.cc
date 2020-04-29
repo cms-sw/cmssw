@@ -11,13 +11,12 @@ TTDTC::TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion)
       numOverlappingRegions_(numOverlappingRegions),
       numDTCsPerRegion_(numDTCsPerRegion),
       numDTCsPerTFP_(numOverlappingRegions * numDTCsPerRegion),
-      streams_(numRegions_ * numDTCsPerRegion_ * numOverlappingRegions_) {}
-
-// Access to product configurations
-int TTDTC::numRegions() const { return numRegions_; }
-int TTDTC::numDTCBoards() const { return numDTCsPerRegion_; }
-int TTDTC::numDTCChannel() const { return numOverlappingRegions_; }
-int TTDTC::numTFPChannel() const { return numDTCsPerTFP_; }
+      regions_(numRegions_),
+      channels_(numDTCsPerRegion_ * numOverlappingRegions_),
+      streams_(numRegions_ * channels_.size()) {
+  iota(regions_.begin(), regions_.end(), 0);
+  iota(channels_.begin(), channels_.end(), 0);
+}
 
 // write one specific stream of TTStubRefs using DTC identifier (region[0-8], board[0-23], channel[0-1])
 // dtcRegions aka detector regions are defined by tk layout
@@ -43,18 +42,6 @@ void TTDTC::setStream(int dtcRegion, int dtcBoard, int dtcChannel, const Stream&
   streams_[index(dtcRegion, dtcBoard, dtcChannel)] = move(stream);
 }
 
-// all TFP identifier (region[0-8], channel[0-47])
-vector<int> TTDTC::tfpRegions() const {
-  vector<int> vec(numRegions_);
-  iota(vec.begin(), vec.end(), 0);
-  return vec;
-}
-vector<int> TTDTC::tfpChannels() const {
-  vector<int> vec(numDTCsPerTFP_);
-  iota(vec.begin(), vec.end(), 0);
-  return vec;
-}
-
 // read one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])
 // tfpRegions aka processing regions are rotated by -0.5 region width w.r.t detector regions
 const TTDTC::Stream& TTDTC::stream(int tfpRegion, int tfpChannel) const {
@@ -73,6 +60,30 @@ const TTDTC::Stream& TTDTC::stream(int tfpRegion, int tfpChannel) const {
     throw exception;
   }
   return streams_.at(index(tfpRegion, tfpChannel));
+}
+
+// total number of frames
+int TTDTC::size() const {
+  auto all = [](int& sum, const Stream& stream) { return sum += stream.size(); };
+  return accumulate(streams_.begin(), streams_.end(), 0, all);
+}
+
+// total number of stubs
+int TTDTC::nStubs() const {
+  auto stubs = [](int& sum, const Frame& frame) { return sum += frame.first.isNonnull(); };
+  int n(0);
+  for (const Stream& stream : streams_)
+    n += accumulate(stream.begin(), stream.end(), 0, stubs);
+  return n;
+}
+
+// total number of gaps
+int TTDTC::nGaps() const {
+  auto gaps = [](int& sum, const Frame& frame) { return sum += frame.first.isNull(); };
+  int n(0);
+  for (const Stream& stream : streams_)
+    n += accumulate(stream.begin(), stream.end(), 0, gaps);
+  return n;
 }
 
 // converts dtc id into tk layout scheme
@@ -106,6 +117,24 @@ int TTDTC::dtcId(int tkLayoutId) const {
   const int slot = tkId % numSlots_;
   return region * numDTCsPerRegion_ + side * numSlots_ + slot;
 }
+
+// converts TFP identifier (region[0-8], channel[0-47]) into dtc id
+int TTDTC::dtcId(int tfpRegion, int tfpChannel) const { return index(tfpRegion, tfpChannel) / numOverlappingRegions_; }
+
+// checks if given DTC id is connected to PS or 2S sensormodules
+bool TTDTC::psModlue(int dtcId) const {
+  // from tklayout: first 3 are 10 gbps PS, next 3 are 5 gbps PS and residual 6 are 5 gbps 2S modules
+  return slot(dtcId) < numSlots_ / 2;
+}
+
+// checks if given dtcId is connected to -z (false) or +z (true)
+bool TTDTC::side(int dtcId) const {
+  const int side = (dtcId % numDTCsPerRegion_) / numSlots_;
+  // from tkLayout: first 12 +z, next 12 -z
+  return side == 0;
+}
+// ATCA slot number [0-11] of given dtcId
+int TTDTC::slot(int dtcId) const { return dtcId % numSlots_; }
 
 // converts DTC identifier (region[0-8], board[0-23], channel[0-1]) into streams_ index [0-431]
 int TTDTC::index(int dtcRegion, int dtcBoard, int dtcChannel) const {
