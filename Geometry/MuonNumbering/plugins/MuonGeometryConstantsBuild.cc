@@ -1,5 +1,5 @@
-#include "Geometry/MuonNumbering/interface/MuonDDDConstantsBuild.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDParameters.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstantsBuild.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -10,9 +10,9 @@
 
 //#define EDM_ML_DEBUG
 
-bool MuonDDDConstantsBuild::build(const DDCompactView* cpv, MuonDDDParameters& php) {
+bool MuonGeometryConstantsBuild::build(const DDCompactView* cpv, MuonGeometryConstants& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonDDDConstantsBuild;:build (const DDCompactView* cpv, MuonDDDParameters& php)";
+  edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild;:build (const DDCompactView* cpv, MuonGeometryConstants& php)";
 #endif
   std::string attribute = "OnlyForMuonNumbering";
 
@@ -26,12 +26,12 @@ bool MuonDDDConstantsBuild::build(const DDCompactView* cpv, MuonDDDParameters& p
 
   const DDsvalues_type mySpecs(fview.mergedSpecifics());
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonDDDConstantsBuild::mySpecs.size() = " << mySpecs.size();
+  edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild::mySpecs.size() = " << mySpecs.size();
 #endif
   if (mySpecs.size() < 25) {
-    edm::LogError("MuonDDDConstantsBuild") << " MuonDDDConstantsBuild: Missing SpecPars from DetectorDescription.";
+    edm::LogError("MuonGeometryConstantsBuild") << " MuonGeometryConstantsBuild: Missing SpecPars from DetectorDescription.";
     std::string msg =
-        "MuonDDDConstantsBuild does not have the appropriate number of SpecPars associated with the part //MUON.";
+        "MuonGeometryConstantsBuild does not have the appropriate number of SpecPars associated with the part //MUON.";
     throw cms::Exception("GeometryBuildFailure", msg);
   }
 
@@ -41,7 +41,7 @@ bool MuonDDDConstantsBuild::build(const DDCompactView* cpv, MuonDDDParameters& p
     if (bit->second.isEvaluated()) {
       php.addValue(bit->second.name(), int(bit->second.doubles()[0]));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("Geometry") << "MuonDDDConstantsBuild::adding DDConstant of " << bit->second.name() << " = "
+      edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild::adding DDConstant of " << bit->second.name() << " = "
                                    << int(bit->second.doubles()[0]);
 #endif
     }
@@ -49,10 +49,10 @@ bool MuonDDDConstantsBuild::build(const DDCompactView* cpv, MuonDDDParameters& p
   return true;
 }
 
-bool MuonDDDConstantsBuild::build(const cms::DDCompactView* cpv, MuonDDDParameters& php) {
+bool MuonGeometryConstantsBuild::build(const cms::DDCompactView* cpv, MuonGeometryConstants& php) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry")
-      << "MuonDDDConstantsBuild;:build (const cms::DDCompactView* cpv, MuonDDDParameters& php)";
+      << "MuonGeometryConstantsBuild;:build (const cms::DDCompactView* cpv, MuonGeometryConstants& php)";
 #endif
 
   return false;

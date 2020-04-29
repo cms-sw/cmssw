@@ -6,28 +6,28 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-#include "Geometry/MuonNumbering/interface/MuonDDDParameters.h"
+#include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class MuonConstantsTester : public edm::one::EDAnalyzer<> {
+class MuonGeometryConstantsTester : public edm::one::EDAnalyzer<> {
 public:
-  explicit MuonConstantsTester(const edm::ParameterSet&);
+  explicit MuonGeometryConstantsTester(const edm::ParameterSet&);
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  edm::ESGetToken<MuonDDDParameters, IdealGeometryRecord> token_;
+  edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> token_;
 };
 
-MuonConstantsTester::MuonConstantsTester(const edm::ParameterSet&) {
-  token_ = esConsumes<MuonDDDParameters, IdealGeometryRecord>(edm::ESInputTag{});
+MuonGeometryConstantsTester::MuonGeometryConstantsTester(const edm::ParameterSet&) {
+  token_ = esConsumes<MuonGeometryConstants, IdealGeometryRecord>(edm::ESInputTag{});
 }
 
-void MuonConstantsTester::analyze(const edm::Event&, const edm::EventSetup& iS) {
+void MuonGeometryConstantsTester::analyze(const edm::Event&, const edm::EventSetup& iS) {
   const auto& par = iS.getData(token_);
-  const MuonDDDParameters* parMuon = &par;
+  const MuonGeometryConstants* parMuon = &par;
   if (parMuon != nullptr) {
     std::cout << "\n\nMuonDDDConstants found with " << parMuon->size() << " contents\n";
     for (unsigned int k = 0; k < parMuon->size(); ++k) {
@@ -39,4 +39,4 @@ void MuonConstantsTester::analyze(const edm::Event&, const edm::EventSetup& iS) 
   }
 }
 
-DEFINE_FWK_MODULE(MuonConstantsTester);
+DEFINE_FWK_MODULE(MuonGeometryConstantsTester);
