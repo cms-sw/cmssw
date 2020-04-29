@@ -31,7 +31,7 @@
 #include <TText.h>
 #include <TColor.h>
 
-#include "MaterialAccountingGroup.h"
+#include "DD4hep_MaterialAccountingGroup.h"
 
 class DD4hep_ListGroups : public edm::one::EDAnalyzer<> {
 public:
@@ -49,7 +49,7 @@ private:
   std::set<std::string_view> m_group_names;
   std::vector<unsigned int> m_color;
   std::vector<int> m_gradient;
-  std::vector<MaterialAccountingGroup *> m_groups;
+  std::vector<DD4hep_MaterialAccountingGroup *> m_groups;
   void fillColor();
   void fillGradient();
   void produceAndSaveSummaryPlot(cms::DDCompactView cpv);
@@ -65,7 +65,7 @@ DD4hep_ListGroups::~DD4hep_ListGroups() {}
 
 void DD4hep_ListGroups::produceAndSaveSummaryPlot(cms::DDCompactView cpv) {
   for (auto n : m_group_names) {
-    m_groups.push_back(new MaterialAccountingGroup(n.data(), cpv));
+    m_groups.push_back(new DD4hep_MaterialAccountingGroup(n.data(), cpv));
   }
 }
 
