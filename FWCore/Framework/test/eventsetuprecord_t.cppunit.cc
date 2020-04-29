@@ -245,6 +245,13 @@ namespace {
   struct DummyDataConsumer : public EDConsumerBase {
     explicit DummyDataConsumer(ESInputTag const& iTag) : m_token{esConsumes<Dummy, DummyRecord>(iTag)} {}
 
+    void prefetch(eventsetup::EventSetupRecordImpl const& iRec) const {
+      auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
+      for (size_t i = 0; i != proxies.size(); ++i) {
+        iRec.prefetch(proxies[i], nullptr);
+      }
+    }
+
     ESGetToken<Dummy, DummyRecord> m_token;
   };
 }  // namespace
@@ -272,6 +279,7 @@ namespace {
       (void)proxyIndices.dataKeysInRecord(0, iKey, dataKeys, dummyRecordImpl.componentsForRegisteredDataKeys());
 
       iConsumer.updateLookup(proxyIndices);
+      iConsumer.prefetch(dummyRecordImpl);
     }
 
     DummyRecord makeRecord() {

@@ -55,6 +55,7 @@ namespace edm {
                       bool iTransiently,
                       ActivityRegistry const*,
                       EventSetupImpl const*) const;
+      void const* getAfterPrefetch(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently) const;
 
       ///returns the description of the DataProxyProvider which owns this Proxy
       ComponentDescription const* providerDescription() const { return description_; }
@@ -95,6 +96,7 @@ namespace edm {
       void clearCacheIsValid();
 
     private:
+      void runGetImplAndSetCache(EventSetupRecordImpl const&, DataKey const& iKey, EventSetupImpl const*) const;
       // ---------- member data --------------------------------
       ComponentDescription const* description_;
       CMS_THREAD_SAFE mutable void const* cache_;  //protected by a global mutex
