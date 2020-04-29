@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
-from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
+from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 from GeneratorInterface.EvtGenInterface.EvtGenSetting_cff import *
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
@@ -24,7 +24,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 #
 # Descriptor: [B+ -> mu+ mu- {,gamma} {,gamma} (K*+ -> Ks pi+)]cc
 #
-# NickName: 
+# NickName:
 #
 # Physics: Includes radiative mode
 #
@@ -62,7 +62,7 @@ End
         ),
         PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
-        pythia8CUEP8M1SettingsBlock,
+        pythia8CP5SettingsBlock,
         processParameters = cms.vstring(
             'HardQCD:gg2bbbar = on ',
             'HardQCD:qqbar2bbbar = on ',
@@ -70,7 +70,7 @@ End
             'PhaseSpace:pTHatMin = 20.',
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
-                                    'pythia8CUEP8M1Settings',
+                                    'pythia8CP5Settings',
                                     'processParameters',
                                     )
         )
@@ -80,8 +80,8 @@ generator.PythiaParameters.processParameters.extend(EvtGenExtraParticles)
 
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: Configuration/Generator/python/BuToKstarMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi.py $'),
-    annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Bu --> K* Mu+Mu-, 13TeV, Tune CUETP8M1')
+    name = cms.untracked.string('$Source: Configuration/Generator/python/BuToKstarMuMu_forSTEAM_13TeV_cfi.py $'),
+    annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Bu --> K* Mu+Mu-, 13TeV, Tune CP5')
     )
 
 ###########

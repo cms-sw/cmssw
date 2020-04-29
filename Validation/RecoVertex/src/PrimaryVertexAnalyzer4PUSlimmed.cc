@@ -1050,7 +1050,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices(std::vector<simPrima
   for (std::vector<simPrimaryVertex>::iterator vsim = simpv.begin(); vsim != simpv.end(); vsim++) {
     auto matched = vertex_s2r.find(vsim->sim_vertex);
     if (matched != vertex_s2r.end()) {
-      for (const auto vertexRefQuality : matched->val) {
+      for (const auto& vertexRefQuality : matched->val) {
         vsim->rec_vertices.push_back(&(*(vertexRefQuality.first)));
       }
     }
@@ -1077,7 +1077,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(std::vector<recoPrim
   for (std::vector<recoPrimaryVertex>::iterator vrec = recopv.begin(); vrec != recopv.end(); vrec++) {
     auto matched = vertex_r2s.find(vrec->recVtxRef);
     if (matched != vertex_r2s.end()) {
-      for (const auto vertexRefQuality : matched->val) {
+      for (const auto& vertexRefQuality : matched->val) {
         const auto tvPtr = &(*(vertexRefQuality.first));
         vrec->sim_vertices.push_back(tvPtr);
       }

@@ -255,7 +255,7 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id, bo
     h_proton_time = ibooker.book1D("proton time", title + ";time   (ns)", 100, -1., 1.);
   }
 
-  for (const unsigned int &rpDecId : {2, 3, 16, 23}) {
+  for (const unsigned int rpDecId : {2, 3, 16, 23}) {
     unsigned int st = rpDecId / 10, rp = rpDecId % 10, rpFullDecId = id * 100 + rpDecId;
     CTPPSDetId rpId(CTPPSDetId::sdTrackingStrip, id, st, rp);
     string stName, rpName;

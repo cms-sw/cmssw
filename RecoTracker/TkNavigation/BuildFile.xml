@@ -1,5 +1,4 @@
 <use name="RecoTracker/TkDetLayers"/>
 <use name="TrackingTools/DetLayers"/>
 <export>
-  <lib   name="1"/>
 </export>
