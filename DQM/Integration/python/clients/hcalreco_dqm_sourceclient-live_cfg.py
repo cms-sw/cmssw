@@ -21,7 +21,7 @@ import FWCore.ParameterSet.Config as cms
 #
 from Configuration.Eras.Era_Run3_cff import Run3
 process      = cms.Process('HCALDQM', Run3)
-subsystem    = 'Hcal2'
+subsystem    = 'HcalReco'
 cmssw        = os.getenv("CMSSW_VERSION").split("_")
 debugstr     = "### HcalDQM::cfg::DEBUG: "
 warnstr      = "### HcalDQM::cfg::WARN: "
@@ -59,7 +59,7 @@ process.load('DQM.Integration.config.environment_cfi')
 #	Central DQM Customization
 #-------------------------------------
 process.dqmEnv.subSystemFolder = subsystem
-process.dqmSaver.tag = "Hcal2" # to have a file saved as DQM_V..._Hcal2...
+process.dqmSaver.tag = "HcalReco" # to have a file saved as DQM_V..._HcalReco...
 referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
