@@ -251,7 +251,7 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
     std::cout << "***" << i << std::endl;
 
     for (const auto j : fv1.specpars()) {
-      for (const auto k : j->paths) {
+      for (const auto &k : j->paths) {
         std::cout << k << std::endl;
         if (firstChild) {
           std::cout << "Find children matching selection for a parent " << fv1.name() << "\n";
