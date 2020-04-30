@@ -4,9 +4,7 @@ import FWCore.ParameterSet.Config as cms
 RecoHiMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
     )
-#Add Isolation
-from RecoMuon.MuonIsolationProducers.muIsolation_EventContent_cff import *
-# AOD content for re-muons
+# for re-muons
 reRecoMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_remuons_*_*',
