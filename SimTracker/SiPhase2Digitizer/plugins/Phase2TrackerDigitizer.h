@@ -73,7 +73,7 @@ namespace cms {
 
     // constants of different algorithm types
     enum class AlgorithmType { InnerPixel, InnerPixel3D, PixelinPS, StripinPS, TwoStrip, Unknown };
-    AlgorithmType getAlgoType(unsigned int idet);
+    AlgorithmType getAlgoType(uint32_t idet);
 
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, size_t globalSimHitIndex, const uint32_t tofBin);
     void addPixelCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, const bool ot_analog);
