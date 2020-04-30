@@ -79,6 +79,7 @@ def putype(t):
 #------------------------------------------------------------------------------------------
 #thereleases = { "CMSSW 11_1_X" : ["CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre3","CMSSW_11_1_0_pre2"] }
 thereleases = { "CMSSW 11_1_X" : [
+    "CMSSW_11_1_0_pre6_vs_CMSSW_11_1_0_pre5",
     "CMSSW_11_1_0_pre5_vs_CMSSW_11_1_0_pre4",
     "CMSSW_11_1_0_pre5_raw1100_vs_CMSSW_11_1_0_pre5",
     "CMSSW_11_1_0_pre5_raw1100_vs_CMSSW_11_1_0_pre4_raw1100",
@@ -87,9 +88,9 @@ thereleases = { "CMSSW 11_1_X" : [
     "CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre4"
 ] }
 
-RefRelease='CMSSW_11_1_0_pre4'
+RefRelease='CMSSW_11_1_0_pre5'
 
-NewRelease='CMSSW_11_1_0_pre5'
+NewRelease='CMSSW_11_1_0_pre6'
 
 NotNormalRelease = "normal"
 NotNormalRefRelease = "normal"
@@ -149,18 +150,19 @@ phase2samples_noPU = [
     ]
 
 '''
+
 #Main workflow RelVals
 phase2samples_noPU = [
 
-    Sample("RelValZpTT_1500", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValZpTT_1500", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValZTT", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValZMM", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValZEE", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValTenTau_15_500", scenario="2026D49", appendGlobalTag=appendglobaltag  ),
     Sample("RelValTTbar", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValQCD_Pt15To7000_Flat", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValQCD_Pt15To7000_Flat", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValNuGun", scenario="2026D49", appendGlobalTag=appendglobaltag ),
-    Sample("RelValMinBias", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    #Sample("RelValMinBias", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
     Sample("RelValH125GGgluonfusion", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag )
 
 ]
@@ -172,8 +174,40 @@ phase2samples_noPU_extend = [
     Sample("RelValSingleMuPt1000", scenario="2026D49", appendGlobalTag=appendglobaltag )
 ]
 
+#These workflows were added in CMSSW_11_1_0_pre6 but there were missing from CMSSW_11_1_0_pre5.
+#So, I am only download them to be reary for pre7. Then, I comment them out
+'''
+phase2samples_noPU_extend_more = [
+    Sample("RelValCloseByPGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValCloseByPGun_CE_H_Fine_200um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValCloseByPGun_CE_H_Fine_120um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValCloseByPGun_CE_H_Coarse_Scint", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValCloseByPGun_CE_H_Coarse_300um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValCloseByPGun_CE_E_Front_300um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValCloseByPGun_CE_E_Front_200um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValCloseByPGun_CE_E_Front_120um", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValSingleGammaFlatPt8To150", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValSingleEFlatPt2To100", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValSinglePiFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValQCD_Pt20toInfMuEnrichPt15", midfix="14", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValDisplacedMuPt30To100", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValDisplacedMuPt2To10", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValDisplacedMuPt10To30", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValB0ToKstarMuMu", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValBsToEleEle", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValBsToMuMu", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValBsToJpsiGamma", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValBsToJpsiPhi_mumuKK", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValBsToPhiPhi_KKKK", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValTauToMuMuMu", midfix="14TeV", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValSingleTauFlatPt2To150", scenario="2026D49", appendGlobalTag=appendglobaltag ),
+    Sample("RelValSingleMuFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag )
+
+]
+'''
 phase2samples_noPU.extend(phase2samples_noPU_extend)
- 
+#phase2samples_noPU.extend(phase2samples_noPU_extend_more)
+
 #For the PU samples 
 phase2samples_PU = [
     Sample("RelValTTbar", midfix="14TeV", scenario="2026D49", putype=putype("25ns"), punum=200, appendGlobalTag="_2026D49PU200", version="v2"),
