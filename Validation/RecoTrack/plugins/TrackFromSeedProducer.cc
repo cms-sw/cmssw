@@ -40,6 +40,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 //
 // class declaration
@@ -126,15 +128,27 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
   edm::ESHandle<TrackerTopology> httopo;
   iSetup.get<TrackerTopologyRcd>().get(httopo);
   const TrackerTopology& ttopo = *httopo;
+  
+  edm::ESHandle<GlobalTrackingGeometry> geometry_;
+  iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 
   // create tracks from seeds
   int nfailed = 0;
   for (size_t iSeed = 0; iSeed < seeds.size(); ++iSeed) {
     auto const& seed = seeds[iSeed];
     // try to create a track
-    TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().end() - 1));
-    TrajectoryStateOnSurface state =
-        trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), theMF.product());
+    //TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().end() - 1));
+    //TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( seed.startingState(), lastRecHit->surface(), theMF.product());
+    TrajectoryStateOnSurface state;
+    if(seed.nHits()==0) { //deepCore seeds (jetCoreDirectSeedGenerator)
+      std::cout << "DEBUG: 0 hit seed " << std::endl;
+      const Surface *deepCore_sruface = &geometry_->idToDet(seed.startingState().detId())->specificSurface();
+      state = trajectoryStateTransform::transientState( seed.startingState(),  deepCore_sruface, theMF.product());
+    }
+    else {
+      TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().end() - 1));
+      state = trajectoryStateTransform::transientState( seed.startingState(), lastRecHit->surface(), theMF.product());
+    }
     TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed =
         tscblBuilder(*state.freeState(), *beamSpot);  //as in TrackProducerAlgorithm
     if (tsAtClosestApproachSeed.isValid()) {
@@ -148,6 +162,13 @@ void TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm
       PerigeeTrajectoryError seedPerigeeErrors =
           PerigeeConversions::ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
       tracks->emplace_back(0., 0., vSeed1, pSeed, state.charge(), seedPerigeeErrors.covarianceMatrix());
+      //  std::cout << "DEBUG: SEED VALIDATOR PASSED ------------" << std::endl;
+      //  std::cout << "initial parameters:" << ", inv.Pt=" << state.freeState()->parameters().signedInverseTransverseMomentum() <<  ", trans.Curv=" <<state.freeState()->transverseCurvature()<< ", p=" << state.freeState()->momentum().mag() << ", pt=" << state.freeState()->momentum().perp() <<", phi=" <<state.freeState()->momentum().phi()  << ", eta="<<state.freeState()->momentum().eta() << std::endl;
+      //  std::cout << "initial matrix (diag)=" << std::sqrt(state.freeState()->curvilinearError().matrix()(0, 0)) << " , " << std::sqrt(state.freeState()->curvilinearError().matrix()(1, 1)) << " , " << std::sqrt(state.freeState()->curvilinearError().matrix()(2, 2)) << " , " << std::sqrt(state.freeState()->curvilinearError().matrix()(3, 3)) << " , " << std::sqrt(state.freeState()->curvilinearError().matrix()(4, 4)) << std::endl;
+      //  std::cout << "initial matrix (diag)=" << std::sqrt(state.localError().matrix()(0, 0)) << " , " << std::sqrt(state.localError().matrix()(1, 1)) << " , " << std::sqrt(state.localError().matrix()(2, 2)) << " , " << std::sqrt(state.localError().matrix()(3, 3)) << " , " << std::sqrt(state.localError().matrix()(4, 4)) << std::endl;
+      //  std::cout << "PCA parameters:" << ", inv.Pt=" << tsAtClosestApproachSeed.trackStateAtPCA().parameters().signedInverseTransverseMomentum() <<  ", trans.Curv=" <<tsAtClosestApproachSeed.trackStateAtPCA().transverseCurvature()<< ", p=" << tsAtClosestApproachSeed.trackStateAtPCA().momentum().mag() << ", pt=" << tsAtClosestApproachSeed.trackStateAtPCA().momentum().perp() <<", phi=" <<tsAtClosestApproachSeed.trackStateAtPCA().momentum().phi()  << ", eta="<<tsAtClosestApproachSeed.trackStateAtPCA().momentum().eta() << std::endl;
+      //  std::cout << "PCA matrix (diag)=" << std::sqrt(tsAtClosestApproachSeed.trackStateAtPCA().curvilinearError().matrix()(0, 0)) << " , " << std::sqrt(tsAtClosestApproachSeed.trackStateAtPCA().curvilinearError().matrix()(1, 1)) << " , " << std::sqrt(tsAtClosestApproachSeed.trackStateAtPCA().curvilinearError().matrix()(2, 2)) << " , " << std::sqrt(tsAtClosestApproachSeed.trackStateAtPCA().curvilinearError().matrix()(3, 3)) << " , " << std::sqrt(tsAtClosestApproachSeed.trackStateAtPCA().curvilinearError().matrix()(4, 4)) << std::endl;
+      //  std::cout << "perigee matrix (diag)=" <<  std::sqrt(seedPerigeeErrors.covarianceMatrix()(0, 0)) << " , " << std::sqrt(seedPerigeeErrors.covarianceMatrix()(1, 1)) << " , " << std::sqrt(seedPerigeeErrors.covarianceMatrix()(2, 2)) << " , " << std::sqrt(seedPerigeeErrors.covarianceMatrix()(3, 3)) << " , " << std::sqrt(seedPerigeeErrors.covarianceMatrix()(4, 4)) << std::endl;
     } else {
       edm::LogVerbatim("SeedValidator") << "TrajectoryStateClosestToBeamLine not valid";
       // use magic values chi2<0, ndof<0, charge=0 to denote a case where the fit has failed

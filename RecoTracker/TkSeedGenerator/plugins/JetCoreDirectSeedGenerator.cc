@@ -87,7 +87,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -416,12 +416,12 @@ int jet_number = 0;
 //nn	    std::cout << "Creating seed" << xx << " " << yy << " " << track_eta << " " << track_phi << " " << seedid << std::endl;
 
 	    //seed creation
-            float em[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-            em[0]=0.15*0.15;
-            em[2]=0.5e-5;
-            em[5]=0.5e-5;
-            em[9]=2e-5;
-            em[14]=2e-5;
+            float em[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //sigma**2 of the follwing parameters, LocalTrajectoryError for details
+            em[0]=0.15*0.15; // q/pt 
+            em[2]=0.5e-5;// dxdz 
+            em[5]=0.5e-5; // dydz 
+            em[9]=2e-5; // x
+            em[14]=2e-5; // y
             // [2]=1e-5;
             // em[5]=1e-5;
             // em[9]=2e-5;

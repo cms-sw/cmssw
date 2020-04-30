@@ -171,7 +171,8 @@ CkfBaseTrajectoryFilter_blockLoose = cms.PSet(
 
 import RecoTracker.TkSeedGenerator.jetCoreDirectSeedGenerator_cfi
 import RecoTracker.TkSeedGenerator.jetCorePerfectSeedGenerator_cfi
-jetCoreSeeds  = RecoTracker.TkSeedGenerator.jetCoreDirectSeedGenerator_cfi.jetCoreDirectSeedGenerator.clone(
+jetCoreRegionalStepSeeds = RecoTracker.TkSeedGenerator.jetCoreDirectSeedGenerator_cfi.jetCoreDirectSeedGenerator.clone(
+# jetCoreSeeds  = RecoTracker.TkSeedGenerator.jetCoreDirectSeedGenerator_cfi.jetCoreDirectSeedGenerator.clone(
 # jetCoreSeeds  = RecoTracker.TkSeedGenerator.jetCorePerfectSeedGenerator_cfi.JetCorePerfectSeedGenerator.clone(
 vertices="firstStepPrimaryVertices"
 )
@@ -185,6 +186,7 @@ jetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_c
     TrajectoryBuilderPSet  = cms.PSet( refToPSet_ = cms.string('jetCoreRegionalStepTrajectoryBuilder')),
     TrajectoryCleaner      = 'jetCoreTrajectoryCleanerBySharedHits',
     NavigationSchool       = 'SimpleNavigationSchool',
+    doSeedingRegionRebuilding = False,
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     #numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -274,7 +276,7 @@ JetCoreRegionalStepTask = cms.Task(jetsForCoreTracking,
                                    jetCoreRegionalStepTrackingRegions,
                                    jetCoreRegionalStepHitDoublets,
                                    jetCoreRegionalStepSeeds,
-                                   jetCoreSeeds,
+                                #    jetCoreSeeds,
                                    jetCoreRegionalStepTrackCandidates,
                                    jetCoreRegionalStepTracks,
 #                                   jetCoreRegionalStepClassifier1,jetCoreRegionalStepClassifier2,

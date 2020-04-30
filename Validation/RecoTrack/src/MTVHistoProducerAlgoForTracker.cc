@@ -237,25 +237,25 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   nintMVA = pset.getParameter<int>("nintMVA");
 
   //parameters for resolution plots
-  ptRes_rangeMin = pset.getParameter<double>("ptRes_rangeMin");
-  ptRes_rangeMax = pset.getParameter<double>("ptRes_rangeMax");
-  ptRes_nbin = pset.getParameter<int>("ptRes_nbin");
+  ptRes_rangeMin = 10*pset.getParameter<double>("ptRes_rangeMin");
+  ptRes_rangeMax = 10*pset.getParameter<double>("ptRes_rangeMax");
+  ptRes_nbin = 10*pset.getParameter<int>("ptRes_nbin");
 
-  phiRes_rangeMin = pset.getParameter<double>("phiRes_rangeMin");
-  phiRes_rangeMax = pset.getParameter<double>("phiRes_rangeMax");
-  phiRes_nbin = pset.getParameter<int>("phiRes_nbin");
+  phiRes_rangeMin = 10*pset.getParameter<double>("phiRes_rangeMin");
+  phiRes_rangeMax = 10*pset.getParameter<double>("phiRes_rangeMax");
+  phiRes_nbin = 10*pset.getParameter<int>("phiRes_nbin");
 
-  cotThetaRes_rangeMin = pset.getParameter<double>("cotThetaRes_rangeMin");
-  cotThetaRes_rangeMax = pset.getParameter<double>("cotThetaRes_rangeMax");
-  cotThetaRes_nbin = pset.getParameter<int>("cotThetaRes_nbin");
+  cotThetaRes_rangeMin = 10*pset.getParameter<double>("cotThetaRes_rangeMin");
+  cotThetaRes_rangeMax = 10*pset.getParameter<double>("cotThetaRes_rangeMax");
+  cotThetaRes_nbin = 10*pset.getParameter<int>("cotThetaRes_nbin");
 
-  dxyRes_rangeMin = pset.getParameter<double>("dxyRes_rangeMin");
-  dxyRes_rangeMax = pset.getParameter<double>("dxyRes_rangeMax");
-  dxyRes_nbin = pset.getParameter<int>("dxyRes_nbin");
+  dxyRes_rangeMin = 10*pset.getParameter<double>("dxyRes_rangeMin");
+  dxyRes_rangeMax = 10*pset.getParameter<double>("dxyRes_rangeMax");
+  dxyRes_nbin = 10*pset.getParameter<int>("dxyRes_nbin");
 
-  dzRes_rangeMin = pset.getParameter<double>("dzRes_rangeMin");
-  dzRes_rangeMax = pset.getParameter<double>("dzRes_rangeMax");
-  dzRes_nbin = pset.getParameter<int>("dzRes_nbin");
+  dzRes_rangeMin = 10*pset.getParameter<double>("dzRes_rangeMin");
+  dzRes_rangeMax = 10*pset.getParameter<double>("dzRes_rangeMax");
+  dzRes_nbin = 10*pset.getParameter<int>("dzRes_nbin");
 
   maxDzpvCum = pset.getParameter<double>("maxDzpvCumulative");
   nintDzpvCum = pset.getParameter<int>("nintDzpvCumulative");
@@ -2435,6 +2435,17 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(const His
   double phiPull = phiRes / phiErrorRec;
   double dxyPull = dxyRes / track.dxyError();
   double dzPull = dzRes / track.dzError();
+  
+  // if(track.algo()==0)
+  // std::cout << "reco track par:" <<"pt="<<track.pt() << ",phi=" << track.phi() << ", eta=" << track.eta() << std::endl;
+  // if(fabs(dxyRes) > 0.1 && fabs(dxyPull)>10) std::cout << "DEBUG res (res out, pull out):" << ",   res=" << dxyRes << ", reco=" << dxyRec << ", sim=" << dxySim << ", err=" << track.dxyError() << ", pull=" << dxyPull << std::endl;
+  // if(fabs(dxyRes) < 0.1 && fabs(dxyPull)<10) std::cout << "DEBUG res (res in, pull in):" << ",   res=" << dxyRes << ", reco=" << dxyRec << ", sim=" << dxySim << ", err=" << track.dxyError() << ", pull=" << dxyPull << std::endl;
+  // if(fabs(dxyRes) < 0.1 && fabs(dxyPull)>10) std::cout << "DEBUG res (res in, pull out):" << ",   res=" << dxyRes << ", reco=" << dxyRec << ", sim=" << dxySim << ", err=" << track.dxyError() << ", pull=" << dxyPull << std::endl;
+  // if(fabs(dxyRes) > 0.1 && fabs(dxyPull)<10) std::cout << "DEBUG res (res out, pull in):" << ",   res=" << dxyRes << ", reco=" << dxyRec << ", sim=" << dxySim << ", err=" << track.dxyError() << ", pull=" << dxyPull << std::endl;
+  // std::cout << "---start new track---" << std::endl;
+  // std::cout << "reco info: " << "ptRec=" << ptRec << ", dxyRec=" << dxyRec << ", dzRec=" << dzRec <<", etaRec=" << track.eta() << ",phi=" << phiRec;//<<std::endl;
+  // std::cout << "sim info: " << "ptSim=" << sqrt(momentumTP.perp2()) << ", dxySim=" << dxySim << ", dzSim=" << dzSim <<", etaSim=" << momentumTP.Eta() << ",phi=" << phiSim<<std::endl;
+  // std::cout << "res info: " << "ptres=" << ptres << ", dxyRes=" << dxyRes << ", dzRes=" << dzRes <<", etaRes=" <<  etares<< ",phi=" << phiRes<<std::endl;
 
 #ifdef EDM_ML_DEBUG
   double contrib_Qoverp = ((qoverpRec - qoverpSim) / qoverpErrorRec) * ((qoverpRec - qoverpSim) / qoverpErrorRec) / 5;
