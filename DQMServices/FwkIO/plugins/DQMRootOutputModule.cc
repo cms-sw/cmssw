@@ -42,6 +42,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
+#include "DataFormats/Histograms/interface/DQMToken.h"
+
 #include "format.h"
 
 namespace {
@@ -284,7 +286,15 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
       m_presentHistoryIndex(0),
       m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
       m_fullNameBufferPtr(&m_fullNameBuffer),
-      m_indicesTree(nullptr) {}
+      m_indicesTree(nullptr) {
+  // Declare dependencies for all Lumi and Run tokens here. In
+  // principle could use the keep statements, but then DQMToken would
+  // have to be made persistent (transient products are ignored),
+  // which would lead to a need to (finally) remove underscores from
+  // DQM module labels.
+  consumesMany<DQMToken, edm::InLumi>();
+  consumesMany<DQMToken, edm::InRun>();
+}
 
 // DQMRootOutputModule::DQMRootOutputModule(const DQMRootOutputModule& rhs)
 // {
