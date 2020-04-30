@@ -83,8 +83,8 @@ namespace {
           new TH1F("value",
                    "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
                    50,
-                   extrema.first*0.9,
-                   extrema.second*1.1));
+                   extrema.first * 0.9,
+                   extrema.second * 1.1));
 
       SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.06, 0.12, 0.12, 0.05);
       canvas.Modified();
@@ -134,6 +134,97 @@ namespace {
   };
 
   /************************************************
+    1d histogram of SiPixelLorentzAngle of 1 IOV per region
+  *************************************************/
+  template <bool isBarrel>
+  class SiPixelLorentzAngleValuesPerRegion : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  public:
+    SiPixelLorentzAngleValuesPerRegion()
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Values per region") {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+      gStyle->SetOptStat("emr");
+
+      auto iov = iovs.front();
+      std::shared_ptr<SiPixelLorentzAngle> payload = fetchPayload(std::get<1>(iov));
+      std::map<uint32_t, float> LAMap_ = payload->getLorentzAngles();
+      auto extrema = SiPixelPI::findMinMaxInMap(LAMap_);
+
+      TCanvas canvas("Canv", "Canv", isBarrel ? 1400 : 1800, 1200);
+      canvas.Divide(isBarrel ? 2 : 4, isBarrel ? 2 : 3);
+      canvas.cd();
+
+      const char *path_toTopologyXML = (LAMap_.size() == SiPixelPI::phase0size)
+                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+      auto myPlots = PixelRegions::PixelRegionContainers(&tTopo, true);
+      myPlots.bookAll("SiPixel LA",
+                      "SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T]",
+                      "#modules",
+                      50,
+                      extrema.first * 0.9,
+                      extrema.second * 1.1);
+
+      canvas.Modified();
+
+      for (const auto &element : LAMap_) {
+        myPlots.fill(element.first, element.second);
+      }
+
+      //h1->SetStats(true);
+
+      myPlots.beautify();
+      myPlots.draw(canvas, isBarrel);
+
+      TLegend legend = TLegend(0.30, 0.88, 0.85, 0.90);
+      legend.SetHeader(("Payload hash: #bf{" + (std::get<1>(iov)) + "}").c_str(),
+                       "C");  // option "C" allows to center the header
+      //legend.AddEntry(h1.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
+      legend.SetTextSize(0.025);
+      legend.SetLineColor(10);
+
+      unsigned int maxPads = isBarrel ? 4 : 12;
+      for (unsigned int c = 1; c <= maxPads; c++) {
+        canvas.cd(c);
+        SiPixelPI::adjustCanvasMargins(canvas.cd(c), 0.07, 0.11, 0.12, 0.03);
+        legend.Draw("same");
+      }
+
+      /*
+      TPaveStats *st = (TPaveStats *)h1->FindObject("stats");
+      st->SetTextSize(0.03);
+      SiPixelPI::adjustStats(st, 0.15, 0.83, 0.39, 0.93);
+      */
+
+      /*
+      canvas.cd(1);
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      //ltx.SetTextColor(kBlue);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       ("SiPixel Lorentz Angle IOV:" + std::to_string(std::get<0>(iov))).c_str());
+      */
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
+  using SiPixelLorentzAngleValuesBarrel = SiPixelLorentzAngleValuesPerRegion<true>;
+  using SiPixelLorentzAngleValuesEndcap = SiPixelLorentzAngleValuesPerRegion<false>;
+
+  /************************************************
     1d histogram of SiPixelLorentzAngle of 1 IOV 
   *************************************************/
   class SiPixelLorentzAngleValueComparisonBase : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
@@ -170,16 +261,16 @@ namespace {
           new TH1F("value_first",
                    "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
                    50,
-                   min*0.9,
-                   max*1.1));
+                   min * 0.9,
+                   max * 1.1));
       hfirst->SetStats(false);
 
       auto hlast = std::unique_ptr<TH1F>(
           new TH1F("value_last",
                    "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
                    50,
-                   min*0.9,
-                   max*1.1));
+                   min * 0.9,
+                   max * 1.1));
       hlast->SetStats(false);
 
       SiPixelPI::adjustCanvasMargins(canvas.cd(), 0.06, 0.12, 0.12, 0.05);
@@ -713,6 +804,8 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValue);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValues);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValuesBarrel);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValuesEndcap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValueComparisonSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValueComparisonTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleByRegionComparisonSingleTag);
