@@ -23,7 +23,7 @@ MagBRod::MagBRod(vector<MagBSlab *> &slabs, Geom::Phi<float> phiMin)
   if (theSlabs.size() > 1) {  // Set the binfinder
     vector<double> zBorders;
     for (vector<MagBSlab *>::const_iterator islab = theSlabs.begin(); islab != theSlabs.end(); ++islab) {
-      LogTrace("MagGeometry") << (*islab)->minZ() << endl;
+      LogTrace("MagGeoBuilder") << " MagBSlab minZ=" << (*islab)->minZ() << endl;
       //FIXME assume layers are already sorted in Z
       zBorders.push_back((*islab)->minZ());
     }

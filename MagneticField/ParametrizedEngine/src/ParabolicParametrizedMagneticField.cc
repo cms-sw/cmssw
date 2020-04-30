@@ -22,8 +22,8 @@ GlobalVector ParabolicParametrizedMagneticField::inTesla(const GlobalPoint& gp) 
   if (isDefined(gp)) {
     return inTeslaUnchecked(gp);
   } else {
-    LogDebug("MagneticField|FieldOutsideValidity")
-        << " Point " << gp << " is outside the validity region of ParabolicParametrizedMagneticField";
+    edm::LogWarning("MagneticField") << " Point " << gp
+                                     << " is outside the validity region of ParabolicParametrizedMagneticField";
     return GlobalVector();
   }
 }
