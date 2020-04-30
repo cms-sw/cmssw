@@ -24,7 +24,7 @@ public:
 #endif
   HcalLUTCorrs(const HcalTopology* topo) : HcalCondObjectContainer<HcalLUTCorr>(topo) {}
 
-  std::string myname() const { return (std::string) "HcalLUTCorrs"; }
+  std::string myname() const override { return (std::string) "HcalLUTCorrs"; }
 
 private:
   COND_SERIALIZABLE;

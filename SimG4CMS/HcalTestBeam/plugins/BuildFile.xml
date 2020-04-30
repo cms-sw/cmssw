@@ -1,7 +1,6 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/Math"/>
 <use   name="Geometry/EcalCommonData"/>
-<use   name="Geometry/HcalCommonData"/>
 <use   name="Geometry/HcalTestBeamData"/>
 <use   name="SimDataFormats/HcalTestBeam"/>
 <use   name="SimG4Core/Notification"/>
@@ -22,4 +21,3 @@
 <library   file="*.cc" name="SimG4CMSHcalTestBeamPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
-

@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="RunIOV"/>
+  <class name="RunTag"/>
+  <class name="EcalCondDBInterface"/>
+</lcgdict>

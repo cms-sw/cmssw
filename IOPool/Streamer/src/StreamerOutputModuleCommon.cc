@@ -88,14 +88,19 @@ namespace edm {
 
   StreamerOutputModuleCommon::~StreamerOutputModuleCommon() {}
 
-  std::unique_ptr<InitMsgBuilder> StreamerOutputModuleCommon::serializeRegistry(SerializeDataBuffer& sbuf,
-                                                                                const BranchIDLists& branchLists,
-                                                                                ThinnedAssociationsHelper const& helper,
-                                                                                std::string const& processName,
-                                                                                std::string const& moduleLabel,
-                                                                                ParameterSetID const& toplevel) {
-    serializer_.serializeRegistry(sbuf, branchLists, helper);
-
+  std::unique_ptr<InitMsgBuilder> StreamerOutputModuleCommon::serializeRegistry(
+      SerializeDataBuffer& sbuf,
+      const BranchIDLists& branchLists,
+      ThinnedAssociationsHelper const& helper,
+      std::string const& processName,
+      std::string const& moduleLabel,
+      ParameterSetID const& toplevel,
+      SendJobHeader::ParameterSetMap const* psetMap) {
+    if (psetMap) {
+      serializer_.serializeRegistry(sbuf, branchLists, helper, *psetMap);
+    } else {
+      serializer_.serializeRegistry(sbuf, branchLists, helper);
+    }
     // resize header_buf_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
     unsigned int src_size = sbuf.currentSpaceUsed();

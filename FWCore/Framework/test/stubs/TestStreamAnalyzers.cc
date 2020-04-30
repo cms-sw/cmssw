@@ -60,6 +60,13 @@ namespace edmtest {
         });
       }
 
+      static void globalBeginJob(Cache* iGlobal) {
+        ++m_count;
+        if (iGlobal->value != 0) {
+          throw cms::Exception("cache value") << iGlobal->value << " but it was supposed to be 0";
+        }
+      }
+
       void analyze(edm::Event const&, edm::EventSetup const&) {
         ++m_count;
         ++((globalCache())->value);

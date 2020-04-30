@@ -69,17 +69,17 @@ HGCalTBMB::HGCalTBMB(const edm::ParameterSet& p) {
     std::string named = (i == nList_) ? "Total" : listNames_[i];
     sprintf(name, "RadL%d", i);
     sprintf(title, "MB(X0) for (%s)", named.c_str());
-    hist = tfile->make<TH1D>(name, title, 1000, 0.0, 100.0);
+    hist = tfile->make<TH1D>(name, title, 100000, 0.0, 100.0);
     hist->Sumw2(true);
     me100_.push_back(hist);
     sprintf(name, "IntL%d", i);
     sprintf(title, "MB(L0) for (%s)", named.c_str());
-    hist = tfile->make<TH1D>(name, title, 1000, 0.0, 10.0);
+    hist = tfile->make<TH1D>(name, title, 100000, 0.0, 10.0);
     hist->Sumw2(true);
     me200_.push_back(hist);
     sprintf(name, "StepL%d", i);
     sprintf(title, "MB(Step) for (%s)", named.c_str());
-    hist = tfile->make<TH1D>(name, title, 1000, 0.0, 50000.0);
+    hist = tfile->make<TH1D>(name, title, 100000, 0.0, 50000.0);
     hist->Sumw2(true);
     me300_.push_back(hist);
   }

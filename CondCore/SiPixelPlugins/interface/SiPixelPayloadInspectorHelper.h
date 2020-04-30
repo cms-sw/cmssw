@@ -34,6 +34,7 @@ namespace SiPixelPI {
   // size of the phase-0 pixel detID list
   static const unsigned int phase0size = 1440;
 
+  //============================================================================
   std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
     auto kLowMask = 0XFFFFFFFF;
     auto run = (since >> 32);
@@ -174,7 +175,7 @@ namespace SiPixelPI {
     }
 
     h->SetMarkerSize(0.7);
-    h->Draw("colz");
+    h->Draw("colz1");
 
     auto ltx = TLatex();
     ltx.SetTextFont(62);
@@ -425,6 +426,30 @@ namespace SiPixelPI {
   }
 
   /*--------------------------------------------------------------------*/
+  void adjustCanvasMargins(TVirtualPad* pad, float top, float bottom, float left, float right)
+  /*--------------------------------------------------------------------*/
+  {
+    if (top > 0)
+      pad->SetTopMargin(top);
+    if (bottom > 0)
+      pad->SetBottomMargin(bottom);
+    if (left > 0)
+      pad->SetLeftMargin(left);
+    if (right > 0)
+      pad->SetRightMargin(right);
+  }
+
+  /*--------------------------------------------------------------------*/
+  void adjustStats(TPaveStats* stats, float X1, float Y1, float X2, float Y2)
+  /*--------------------------------------------------------------------*/
+  {
+    stats->SetX1NDC(X1);  //new x start position
+    stats->SetY1NDC(Y1);  //new y start position
+    stats->SetX2NDC(X2);  //new x end position
+    stats->SetY2NDC(Y2);  //new y end position
+  }
+
+  /*--------------------------------------------------------------------*/
   std::pair<float, float> getExtrema(TH1* h1, TH1* h2)
   /*--------------------------------------------------------------------*/
   {
@@ -458,6 +483,13 @@ namespace SiPixelPI {
     hist->GetYaxis()->SetLabelFont(42);
     hist->GetYaxis()->SetLabelSize(.05);
     hist->GetXaxis()->SetLabelSize(.05);
+
+    if (hist->InheritsFrom(TH2::Class())) {
+      hist->GetZaxis()->SetLabelFont(42);
+      hist->GetZaxis()->SetLabelFont(42);
+      hist->GetZaxis()->SetLabelSize(.05);
+      hist->GetZaxis()->SetLabelSize(.05);
+    }
   }
 
   enum regions {

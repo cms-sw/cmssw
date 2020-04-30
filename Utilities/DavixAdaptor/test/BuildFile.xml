@@ -1,5 +1,4 @@
 <use   name="Utilities/StorageFactory"/>
-<use   name="FWCore/ParameterSet"/>
 <bin   file="davixcheck.cpp" name="test_DavixCheck_http">
 </bin>
 <bin   file="davixread.cpp" name="test_DavixRead_http">

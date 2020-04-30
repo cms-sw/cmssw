@@ -13,8 +13,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/IsolationAlgos"/>
-<use   name="RecoTracker/DeDx"/>
-<use   name="CondFormats/HcalObjects"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

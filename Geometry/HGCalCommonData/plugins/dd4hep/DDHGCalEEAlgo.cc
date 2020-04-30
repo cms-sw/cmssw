@@ -407,7 +407,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                       xml_h e,
                       dd4hep::SensitiveDetector& /* sens */) {
   HGCalEEAlgo eealgo(ctxt, e);
-  return 0;
+  return cms::s_executed;
 }
 
 DECLARE_DDCMS_DETELEMENT(DDCMS_hgcal_DDHGCalEEAlgo, algorithm)

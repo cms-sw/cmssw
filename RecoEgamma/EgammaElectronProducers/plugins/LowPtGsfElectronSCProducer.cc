@@ -28,8 +28,6 @@ class LowPtGsfElectronSCProducer : public edm::stream::EDProducer<> {
 public:
   explicit LowPtGsfElectronSCProducer(const edm::ParameterSet&);
 
-  ~LowPtGsfElectronSCProducer() override;
-
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -54,10 +52,6 @@ LowPtGsfElectronSCProducer::LowPtGsfElectronSCProducer(const edm::ParameterSet& 
   produces<reco::SuperClusterCollection>();
   produces<edm::ValueMap<reco::SuperClusterRef> >();
 }
-
-////////////////////////////////////////////////////////////////////////////////
-//
-LowPtGsfElectronSCProducer::~LowPtGsfElectronSCProducer() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -1,5 +1,4 @@
 <use   name="TopQuarkAnalysis/TopKinFitter"/>
-<use   name="PhysicsTools/KinFitter"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>

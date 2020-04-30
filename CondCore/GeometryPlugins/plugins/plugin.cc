@@ -38,6 +38,9 @@
 #include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
 #include "Geometry/Records/interface/PHGCalParametersRcd.h"
 
+#include "CondFormats/GeometryObjects/interface/PDetGeomDesc.h"
+#include "Geometry/Records/interface/VeryForwardIdealGeometryRecord.h"
+
 REGISTER_PLUGIN(GeometryFileRcd, FileBlob);
 REGISTER_PLUGIN(IdealGeometryRecord, PGeometricDet);
 REGISTER_PLUGIN(PGeometricDetExtraRcd, PGeometricDetExtra);
@@ -53,6 +56,7 @@ REGISTER_PLUGIN(PCaloTowerRcd, PCaloGeometry);
 REGISTER_PLUGIN(PZdcRcd, PCaloGeometry);
 REGISTER_PLUGIN(PCastorRcd, PCaloGeometry);
 REGISTER_PLUGIN(CSCRecoDigiParametersRcd, CSCRecoDigiParameters);
+REGISTER_PLUGIN(VeryForwardIdealGeometryRecord, PDetGeomDesc);
 REGISTER_PLUGIN(CSCRecoGeometryRcd, RecoIdealGeometry);
 REGISTER_PLUGIN(DTRecoGeometryRcd, RecoIdealGeometry);
 REGISTER_PLUGIN(RPCRecoGeometryRcd, RecoIdealGeometry);

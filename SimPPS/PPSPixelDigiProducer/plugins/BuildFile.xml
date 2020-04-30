@@ -1,5 +1,5 @@
+<use   name="CommonTools/UtilAlgos"/>
 <use   name="SimPPS/PPSPixelDigiProducer"/>
-<use   name="PhysicsTools/UtilAlgos"/>
 <use   name="FWCore/ServiceRegistry"/>
 
 <library name="SimPPSPixelDigiProducerPlugins" file="*.cc">

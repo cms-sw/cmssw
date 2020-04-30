@@ -43,9 +43,11 @@ Implementation:
 //
 
 static constexpr const unsigned int gbt_id_minvalue = 0;
-static constexpr const unsigned int gbt_id_maxvalue = 72;
+static constexpr const unsigned int gbt_id_maxvalue = 71;
 static constexpr const unsigned int elink_id_minvalue = 0;
-static constexpr const unsigned int elink_id_maxvalue = 7;
+static constexpr const unsigned int elink_id_maxvalue = 6;
+
+enum { DUMMY_FILL_DISABLED = 0, DUMMY_FILL_ELINK_ID = 1, DUMMY_FILL_ELINK_ID_AND_GBT_ID = 2 };
 
 //
 // SOME HELPER FUNCTIONS
@@ -82,7 +84,7 @@ private:
   virtual void LoadModulesToDTCCablingMapFromCSV(std::vector<std::string> const&);
 
 private:
-  bool generate_fake_valid_gbtlink_and_elinkid_;
+  int dummy_fill_mode_;
   int verbosity_;
   unsigned csvFormat_ncolumns_;
   unsigned csvFormat_idetid_;
@@ -97,13 +99,13 @@ private:
 void DTCCablingMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Stores a TrackerDetToDTCELinkCablingMap object into the database from a CSV file.");
-  desc.add<bool>("generate_fake_valid_gbtlink_and_elinkid", false);
+  desc.add<std::string>("dummy_fill_mode", "DUMMY_FILL_DISABLED");
   desc.add<int>("verbosity", 0);
-  desc.add<unsigned>("csvFormat_idetid", 0);
   desc.add<unsigned>("csvFormat_ncolumns", 15);
-  desc.add<unsigned>("csvFormat_idtcid", 10);
-  desc.add<unsigned>("csvFormat_igbtlinkid", 11);
-  desc.add<unsigned>("csvFormat_ielinkid", 12);
+  desc.add<unsigned>("csvFormat_idetid", 0);
+  desc.add<unsigned>("csvFormat_idtcid", 0);
+  desc.add<unsigned>("csvFormat_igbtlinkid", 0);
+  desc.add<unsigned>("csvFormat_ielinkid", 0);
   desc.add<long long unsigned int>("iovBeginTime", 1);
   desc.add<std::string>("record", "TrackerDTCCablingMapRcd");
   desc.add<std::vector<std::string>>("modulesToDTCCablingCSVFileNames", std::vector<std::string>());
@@ -111,14 +113,29 @@ void DTCCablingMapProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 DTCCablingMapProducer::DTCCablingMapProducer(const edm::ParameterSet& iConfig)
-    : generate_fake_valid_gbtlink_and_elinkid_(iConfig.getParameter<bool>("generate_fake_valid_gbtlink_and_elinkid")),
-      verbosity_(iConfig.getParameter<int>("verbosity")),
+    : verbosity_(iConfig.getParameter<int>("verbosity")),
       csvFormat_ncolumns_(iConfig.getParameter<unsigned>("csvFormat_ncolumns")),
       csvFormat_idetid_(iConfig.getParameter<unsigned>("csvFormat_idetid")),
       csvFormat_idtcid_(iConfig.getParameter<unsigned>("csvFormat_idtcid")),
+      csvFormat_igbtlinkid_(iConfig.getParameter<unsigned>("csvFormat_igbtlinkid")),
+      csvFormat_ielinkid_(iConfig.getParameter<unsigned>("csvFormat_ielinkid")),
       iovBeginTime_(iConfig.getParameter<long long unsigned int>("iovBeginTime")),
       pCablingMap_(std::make_unique<TrackerDetToDTCELinkCablingMap>()),
       record_(iConfig.getParameter<std::string>("record")) {
+  std::string const dummy_fill_mode_param = iConfig.getParameter<std::string>("dummy_fill_mode");
+
+  // We pass from the easy to use string to an int representation for this mode flag, as it is more efficient in comparisons
+  if (dummy_fill_mode_param == "DUMMY_FILL_DISABLED")
+    dummy_fill_mode_ = DUMMY_FILL_DISABLED;
+  else if (dummy_fill_mode_param == "DUMMY_FILL_ELINK_ID")
+    dummy_fill_mode_ = DUMMY_FILL_ELINK_ID;
+  else if (dummy_fill_mode_param == "DUMMY_FILL_ELINK_ID_AND_GBT_ID")
+    dummy_fill_mode_ = DUMMY_FILL_ELINK_ID_AND_GBT_ID;
+  else {
+    throw cms::Exception("InvalidDummyFillMode")
+        << "Parameter dummy_fill_mode with invalid value: " << dummy_fill_mode_param;
+  }
+
   LoadModulesToDTCCablingMapFromCSV(iConfig.getParameter<std::vector<std::string>>("modulesToDTCCablingCSVFileNames"));
 }
 
@@ -178,7 +195,7 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
           uint32_t detIdRaw;
 
           try {
-            detIdRaw = std::stoi(csvColumn[csvFormat_idetid_]);
+            detIdRaw = std::stoi(csvColumn.at(csvFormat_idetid_));
           } catch (std::exception const& e) {
             if (verbosity_ >= 0) {
               edm::LogError("CSVParser") << "-- malformed DetId string in CSV file: \"" << csvLine << "\"" << endl;
@@ -186,22 +203,33 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
             throw e;
           }
 
-          unsigned const dtc_id = strtoul(csvColumn[csvFormat_idtcid_].c_str(), nullptr, 10);
+          unsigned const dtc_id = strtoul(csvColumn.at(csvFormat_idtcid_).c_str(), nullptr, 10);
           unsigned gbt_id;
           unsigned elink_id;
 
-          if (generate_fake_valid_gbtlink_and_elinkid_) {
-            for (gbt_id = gbt_id_minvalue; gbt_id < gbt_id_maxvalue + 1u; ++gbt_id) {
+          switch (dummy_fill_mode_) {
+            default:
+            case DUMMY_FILL_DISABLED:
+              gbt_id = strtoul(csvColumn.at(csvFormat_igbtlinkid_).c_str(), nullptr, 10);
+              elink_id = strtoul(csvColumn.at(csvFormat_ielinkid_).c_str(), nullptr, 10);
+              break;
+            case DUMMY_FILL_ELINK_ID:
+              gbt_id = strtoul(csvColumn.at(csvFormat_igbtlinkid_).c_str(), nullptr, 10);
               for (elink_id = elink_id_minvalue; elink_id < elink_id_maxvalue + 1u; ++elink_id) {
                 if (!(pCablingMap_->knowsDTCELinkId(DTCELinkId(dtc_id, gbt_id, elink_id))))
-                  goto gbtlink_and_elinkid_generator_end;  //break out of this double loop
+                  break;
               }
-            }
-          gbtlink_and_elinkid_generator_end:
-            ((void)0);  // This is a NOP, it's here just to have a valid (although dummy) instruction after the goto tag
-          } else {
-            gbt_id = strtoul(csvColumn[csvFormat_igbtlinkid_].c_str(), nullptr, 10);
-            elink_id = strtoul(csvColumn[csvFormat_ielinkid_].c_str(), nullptr, 10);
+              break;
+            case DUMMY_FILL_ELINK_ID_AND_GBT_ID:
+              for (gbt_id = gbt_id_minvalue; gbt_id < gbt_id_maxvalue + 1u; ++gbt_id) {
+                for (elink_id = elink_id_minvalue; elink_id < elink_id_maxvalue + 1u; ++elink_id) {
+                  if (!(pCablingMap_->knowsDTCELinkId(DTCELinkId(dtc_id, gbt_id, elink_id))))
+                    goto gbtlink_and_elinkid_generator_end;  //break out of this double loop, this is one of the few "proper" uses of goto
+                }
+              }
+            gbtlink_and_elinkid_generator_end:
+              ((void)0);  // This is a NOP, it's here just to have a valid (although dummy) instruction after the goto tag
+              break;
           }
 
           DTCELinkId dtcELinkId(dtc_id, gbt_id, elink_id);
@@ -212,12 +240,9 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
           }
 
           if (pCablingMap_->knowsDTCELinkId(dtcELinkId)) {
-            ostringstream message;
-            message
-                << "Reading CSV file: CRITICAL ERROR, duplicated dtcELinkId entry about (dtc_id, gbt_id, elink_id) = ("
+            throw cms::Exception("DuplicateDTCELinkIdInCSV")
+                << "Reading CSV file: CRITICAL ERROR, duplicate dtcELinkId entry about (dtc_id, gbt_id, elink_id) = ("
                 << dtc_id << "," << gbt_id << "," << elink_id << ")";
-
-            throw cms::Exception(message.str());
           }
 
           pCablingMap_->insert(dtcELinkId, detIdRaw);
@@ -228,7 +253,7 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
         }
       }
     } else {
-      throw cms::Exception("DTCCablingMapProducer: Unable to open input CSV file") << csvFilePath << endl;
+      throw cms::Exception("CSVFileNotFound") << "Unable to open input CSV file" << csvFilePath << endl;
     }
 
     csvFile.close();
@@ -246,7 +271,7 @@ void DTCCablingMapProducer::endJob() {
   if (poolDbService.isAvailable()) {
     poolDbService->writeOne(pCablingMap_.release(), iovBeginTime_, record_);
   } else {
-    throw cms::Exception("PoolDBService required.");
+    throw cms::Exception("PoolDBServiceNotFound") << "A running PoolDBService instance is required.";
   }
 }
 
