@@ -4,6 +4,7 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
 #include <cstdint>
+#include <cassert>
 
 class TrackingRecHit;
 
