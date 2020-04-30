@@ -156,7 +156,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
       theSiPixelGainCalibrationService_(
           use_ineff_from_db_ ? std::make_unique<SiPixelGainCalibrationOfflineSimService>(conf_specific) : nullptr),
       subdetEfficiencies_(conf_specific) {
-  LogInfo("Phase2TrackerDigitizerAlgorithm")
+  LogDebug("Phase2TrackerDigitizerAlgorithm")
       << "Phase2TrackerDigitizerAlgorithm constructed\n"
       << "Configuration parameters:\n"
       << "Threshold/Gain = "
@@ -532,10 +532,11 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
     }
   }
   // Fill the global map with all hit pixels from this event
+  float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
   for (auto const& hit_s : hit_signal) {
     int chan = hit_s.first;
     theSignal[chan] +=
-        (makeDigiSimLinks_ ? DigitizerUtility::Amplitude(hit_s.second, &hit, hit_s.second, hitIndex, tofBin)
+        (makeDigiSimLinks_ ? DigitizerUtility::Amplitude(hit_s.second, &hit, hit_s.second, corr_time, hitIndex, tofBin)
                            : DigitizerUtility::Amplitude(hit_s.second, nullptr, hit_s.second));
   }
 }
@@ -940,7 +941,13 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
   for (auto const& s : theSignal) {
     const DigitizerUtility::Amplitude& sig_data = s.second;
     float signalInElectrons = sig_data.ampl();
-    if (signalInElectrons >= theThresholdInE) {  // check threshold
+
+    const auto& info_list = sig_data.simInfoList();
+    const DigitizerUtility::SimHitInfo* hitInfo = nullptr;
+    if (!info_list.empty())
+      hitInfo = std::max_element(info_list.begin(), info_list.end())->second.get();
+
+    if (isAboveThreshold(hitInfo, signalInElectrons, theThresholdInE)) {  // check threshold
       DigitizerUtility::DigiSimInfo info;
       info.sig_tot = convertSignalToAdc(detID, signalInElectrons, theThresholdInE);  // adc
       info.ot_bit = signalInElectrons > theHIPThresholdInE ? true : false;
