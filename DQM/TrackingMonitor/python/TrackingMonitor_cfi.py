@@ -387,10 +387,25 @@ TrackMon = DQMEDAnalyzer('TrackingMonitor',
     NTrk2DMin     = cms.double(-0.5),
 
     # PU monitoring
+    # Nunmber of Tracks per Primary Vertices
+    NTrkPVtx = cms.PSet(
+        NTrkPVtxBin = cms.int32(100),
+        NTrkPVtxMin = cms.double( 0.),
+        NTrkPVtxMax = cms.double(100.)
+    ),
+
     # Nunmber of Good Primary Vertices
-    GoodPVtxBin = cms.int32(200),
-    GoodPVtxMin = cms.double( 0.),
-    GoodPVtxMax = cms.double(200.),
+    SumPtPVtx = cms.PSet(
+        SumPtPVtxBin = cms.int32(100),
+        SumPtPVtxMin = cms.double( 0.),
+        SumPtPVtxMax = cms.double(500.)
+    ),
+    # Nunmber of Good Primary Vertices
+    GoodPVtx = cms.PSet(
+        GoodPVtxBin = cms.int32(200),
+        GoodPVtxMin = cms.double( 0.),
+        GoodPVtxMax = cms.double(200.)
+    ),
 
     LUMIBin  = cms.int32 ( 300 ),   # irrelevant
     LUMIMin  = cms.double(  200.),
