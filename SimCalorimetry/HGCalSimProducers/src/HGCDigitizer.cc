@@ -100,21 +100,6 @@ namespace {
     return result;
   }
 
-  float getCCE(const HGCalGeometry* geom, const DetId& detid, const std::vector<float>& cces) {
-    if (cces.empty())
-      return 1.f;
-    if ((detid.det() == DetId::Hcal) || (detid.det() == DetId::HGCalHSc)) {
-      return 1.f;
-    } else {
-      const auto& topo = geom->topology();
-      const auto& dddConst = topo.dddConstants();
-      int waferTypeL = dddConst.waferType(detid);
-      return cces[waferTypeL];
-    }
-  }
-
-  float getCCE(const HcalGeometry* geom, const DetId& id, const std::vector<float>& cces) { return 1.f; }
-
   void saveSimHitAccumulator_forPreMix(PreMixHGCSimAccumulator& simResult,
                                        const hgc::HGCPUSimHitDataAccumulator& simData,
                                        const std::unordered_set<DetId>& validIds,
@@ -155,44 +140,6 @@ namespace {
           }
         }
         simResult.emplace_back_timing(id.rawId(), iSample, vc, vt);
-      }
-    }
-    simResult.shrink_to_fit();
-  }
-
-  // Dumps the internals of the SimHit accumulator to the digis for premixing
-  void saveSimHitAccumulator(PHGCSimAccumulator& simResult,
-                             const hgc::HGCSimHitDataAccumulator& simData,
-                             const std::unordered_set<DetId>& validIds,
-                             const float minCharge,
-                             const float maxCharge) {
-    constexpr auto nEnergies = std::tuple_size<decltype(hgc_digi::HGCCellInfo().hit_info)>::value;
-    static_assert(nEnergies <= PHGCSimAccumulator::Data::energyMask + 1,
-                  "PHGCSimAccumulator bit pattern needs to updated");
-    static_assert(hgc_digi::nSamples <= PHGCSimAccumulator::Data::sampleMask + 1,
-                  "PHGCSimAccumulator bit pattern needs to updated");
-
-    const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
-    const float maxPackChargeLog = std::log(maxCharge);
-    constexpr uint16_t base = 1 << PHGCSimAccumulator::Data::sampleOffset;
-
-    simResult.reserve(simData.size());
-    // mimicing the digitization
-    for (const auto& id : validIds) {
-      auto found = simData.find(id);
-      if (found == simData.end())
-        continue;
-      // store only non-zero
-      for (size_t iEn = 0; iEn < nEnergies; ++iEn) {
-        const auto& samples = found->second.hit_info[iEn];
-        for (size_t iSample = 0; iSample < hgc_digi::nSamples; ++iSample) {
-          if (iSample == 9) {
-            if (samples[iSample] > minCharge) {
-              const auto packed = logintpack::pack16log(samples[iSample], minPackChargeLog, maxPackChargeLog, base);
-              simResult.emplace_back(id.rawId(), iEn, iSample, packed);
-            }
-          }
-        }
       }
     }
     simResult.shrink_to_fit();
@@ -502,22 +449,9 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
       e.put(std::move(digiResult), digiCollection());
     }
   }
-  //ofstream myfile;
-  /*myfile.open("ct_"+digiCollection_+"forEvent_"+nEvents_+".txt");
-  for(const auto& stuff : *(simHitAccumulator_)){
-    const float c_ = stuff.second.hit_info[0][9];
-    const float t_ = stuff.second.hit_info[1][9];
-    myfile<<c_<<"\t"<<t_<<std::endl;
-    //toa_hist_->Fill(t_);
-    //charge_hist_->Fill(c_);
-  }
-  myfile.close();*/
-  //TCanvas* canvas = new TCanvas("c", "c");
-  //tos_hist_->Draw
 
   hgc::HGCSimHitDataAccumulator().swap(*simHitAccumulator_);
   hgc::HGCPUSimHitDataAccumulator().swap(*pusimHitAccumulator_);
-  //std::map<uint32_t, bool>.swap(*hitOrder_monitor);
 }
 void HGCDigitizer::accumulate_forPreMix(edm::Event const& e,
                                         edm::EventSetup const& eventSetup,
@@ -613,9 +547,9 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
                                         CLHEP::HepRandomEngine* hre) {
   if (nullptr == geom)
     return;
-  std::array<float, 3> tdcForToAOnset{{0.f, 0.f, 0.f}};
+
   float keV2fC(0.f);
-  bool weightToAbyEnergy = getWeight(tdcForToAOnset, keV2fC);
+
   int nchits = (int)hits->size();
 
   std::vector<HGCCaloHitTuple_t> hitRefs;
