@@ -6,7 +6,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "ExtractStringFromDDD.h"
+#include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "CondDBCmsMTDConstruction.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"

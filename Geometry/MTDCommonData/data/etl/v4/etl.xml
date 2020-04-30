@@ -84,11 +84,11 @@
 	  <rSolid name="etl:ThermalScreen"/>
 	  <rMaterial name="mtdMaterial:ThermalScreenComposite"/>
 	</LogicalPart>
-	<LogicalPart name="Disc1" category="unspecified">
+	<LogicalPart name="Disc1Timing" category="unspecified">
 	  <rSolid name="etl:Disc"/>
 	  <rMaterial name="materials:Air"/>
 	</LogicalPart>
-    <LogicalPart name="Disc2" category="unspecified">
+    <LogicalPart name="Disc2Timing" category="unspecified">
       <rSolid name="etl:Disc"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
@@ -197,127 +197,127 @@
 	</PosPart>
 	<PosPart copyNumber="1">
 	  <rParent name="etl:EndcapTimingLayer"/>
-	  <rChild name="etl:Disc1"/>
+	  <rChild name="etl:Disc1Timing"/>
 	  <Translation x="0." y="0." z="-1.788*cm" />
 	</PosPart>
 	<PosPart copyNumber="1">
 	  <rParent name="etl:EndcapTimingLayer"/>
-	  <rChild name="etl:Disc2"/>
+	  <rChild name="etl:Disc2Timing"/>
 	  <Translation x="0." y="0." z="1.212*cm" />
 	</PosPart>
 	<PosPart copyNumber="1">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:Aluminium_Disc"/>
 	  <Translation x="0." y="0." z="0.3175*cm" />
 	</PosPart>
 	<PosPart copyNumber="1">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:MIC6_Aluminium_Disc"/>
 	  <Translation x="0." y="0." z="-0.0445*cm" />
 	</PosPart>
 	<!-- Sectors in both Disc1 and Disc2 (Front/Back faces) are placed anti-clockwise (Quarter 1 is on top right, Quarter 2 top left...) -->
 	<PosPart copyNumber="1">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:DiscSector_Front"/>
 	  <rRotation name="etl:0"/>
 	  <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />  <!-- 1.2375 = 1.2 + 0.075/2 -->
 	</PosPart>
 	<PosPart copyNumber="2">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:DiscSector_Front"/>
 	  <rRotation name="etl:270"/>
 	  <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
 	</PosPart>
 	<PosPart copyNumber="3">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:DiscSector_Front"/>
 	  <rRotation name="etl:180"/>
 	  <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
 	</PosPart>
 	<PosPart copyNumber="4">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:DiscSector_Front"/>
 	  <rRotation name="etl:90"/>
 	  <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
 	</PosPart>
 	<PosPart copyNumber="1">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:DiscSector_Back"/>
 	  <rRotation name="etl:0"/>
 	  <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
 	</PosPart>
 	<PosPart copyNumber="2">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:DiscSector_Back"/>
 	  <rRotation name="etl:270"/>
 	  <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
 	</PosPart>
 	<PosPart copyNumber="3">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:DiscSector_Back"/>
 	  <rRotation name="etl:180"/>
 	  <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
 	</PosPart>
 	<PosPart copyNumber="4">
-	  <rParent name="etl:Disc1"/>
+	  <rParent name="etl:Disc1Timing"/>
 	  <rChild name="etl:DiscSector_Back"/>
 	  <rRotation name="etl:90"/>
 	  <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
 	</PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:Aluminium_Disc"/>
       <Translation x="0." y="0." z="0.3175*cm" />
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:MIC6_Aluminium_Disc"/>
       <Translation x="0." y="0." z="-0.0445*cm" />
     </PosPart>
      <PosPart copyNumber="1">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Front_2"/>
       <rRotation name="etl:0"/>
       <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
     </PosPart>
     <PosPart copyNumber="2">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Front_2"/>
       <rRotation name="etl:270"/>
       <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
     </PosPart>
     <PosPart copyNumber="3">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Front_2"/>
       <rRotation name="etl:180"/>
       <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
     </PosPart>
     <PosPart copyNumber="4">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Front_2"/>
       <rRotation name="etl:90"/>
       <Translation x="0*cm" y="0*cm" z="-0.6545*cm" />
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Back_2"/>
       <rRotation name="etl:0"/>
       <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
     </PosPart>
     <PosPart copyNumber="2">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Back_2"/>
       <rRotation name="etl:270"/>
       <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
     </PosPart>
     <PosPart copyNumber="3">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Back_2"/>
       <rRotation name="etl:180"/>
       <Translation x="0*cm" y="0*cm" z="0.6545*cm" />
     </PosPart>
     <PosPart copyNumber="4">
-      <rParent name="etl:Disc2"/>
+      <rParent name="etl:Disc2Timing"/>
       <rChild name="etl:DiscSector_Back_2"/>
       <rRotation name="etl:90"/>
       <Translation x="0*cm" y="0*cm" z="0.6545*cm" />

@@ -10,6 +10,10 @@
 class GeometricTimingDet;
 class DDCompactView;
 
+namespace cms {
+  class DDCompactView;
+}
+
 /**
  * High level class to build a tracker. It will only build subdets,
  * then call subdet builders
@@ -19,6 +23,7 @@ class DDDCmsMTDConstruction {
 public:
   DDDCmsMTDConstruction() = delete;
   static std::unique_ptr<GeometricTimingDet> construct(const DDCompactView& cpv);
+  static std::unique_ptr<GeometricTimingDet> construct(const cms::DDCompactView& cpv);
 };
 
 #endif

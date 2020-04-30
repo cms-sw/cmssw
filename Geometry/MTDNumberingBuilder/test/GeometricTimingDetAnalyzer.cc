@@ -30,8 +30,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -88,6 +86,12 @@ void GeometricTimingDetAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   //
   edm::ESHandle<GeometricTimingDet> rDD;
   iSetup.get<IdealGeometryRecord>().get(rDD);
+
+  if (!rDD.isValid()) {
+    edm::LogError("DD4hep_MTDTopologyAnalyzer") << "ESTransientHandle<DDCompactView> rDD is not valid!";
+    return;
+  }
+
   edm::LogVerbatim("GeometricTimingDetAnalyzer")
       << "\n Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
 
