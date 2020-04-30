@@ -68,7 +68,7 @@ namespace pf2pat {
         double pfct = pfc->time();
         double pfcte = pfc->timeError();
         double dt = fabs(pfct - vt);
-        double dte = std::sqrt(pfcte*pfcte + vte*vte);
+        double dte = std::sqrt(pfcte * pfcte + vte * vte);
         if (dtCut_ > 0 && pfcte > 0 && vte > 0 && dt > dtCut_)
           passing = false;
         if (dtSigCut_ > 0 && pfcte > 0 && vte > 0 && dt / dte > dtSigCut_)
