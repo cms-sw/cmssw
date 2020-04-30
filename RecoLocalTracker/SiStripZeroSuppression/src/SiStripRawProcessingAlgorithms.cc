@@ -101,6 +101,44 @@ uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(uint32_t id,
  * @param RawDigis processed ADCs
  * @return number of restored APVs
  */
+uint16_t SiStripRawProcessingAlgorithms::suppressHybridData_faster(const edm::DetSet<SiStripDigi>& hybridDigis,
+                                                                   edm::DetSet<SiStripDigi>& suppressedDigis) {
+  if (hybridDigis.empty()) {
+    // TODO check if this ever happens - will anything be unpacked then?
+    return 0;
+  }
+  const auto stripModuleGeom = dynamic_cast<const StripGeomDetUnit*>(trGeo->idToDetUnit(hybridDigis.id));
+  const std::size_t nStrips = stripModuleGeom->specificTopology().nstrips();
+  const std::size_t nAPVs = nStrips / 128;
+
+  std::vector<bool> apvFlags(nAPVs, false);
+
+  uint16_t nAPVFlagged = 0;
+  auto beginAPV = std::cbegin(hybridDigis);
+  for (std::size_t iAPV{0}; iAPV != nAPVs; ++iAPV) {
+    const auto endAPV = (iAPV + 1 != nAPVs)
+                            ? std::lower_bound(beginAPV, std::cend(hybridDigis), SiStripDigi((iAPV + 1) * 128, 0))
+                            : std::cend(hybridDigis);
+    const auto nDigisInAPV = std::distance(beginAPV, endAPV);
+    if (nDigisInAPV > 64) {
+      apvFlags[iAPV] = true;
+      digivector_t procRawDigis(128, -1024);
+      for (auto it = beginAPV; it != endAPV; ++it) {
+        procRawDigis[it->strip() - 128 * iAPV] = it->adc() * 2 - 1024;
+      }
+      // hybrid reusing previous code - my be able to sve a bit more
+      const auto nFlag = suppressHybridData(hybridDigis.id, iAPV, procRawDigis, suppressedDigis);
+      nAPVFlagged += nFlag;
+    } else {  // already zero-suppressed, copy and truncate
+      std::transform(beginAPV, endAPV, std::back_inserter(suppressedDigis), [this](const SiStripDigi inDigi) {
+        return SiStripDigi(inDigi.strip(), suppressor->truncate(inDigi.adc()));
+      });
+    }
+    beginAPV = endAPV;
+  }
+  return nAPVFlagged;
+}
+
 uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(const edm::DetSet<SiStripDigi>& hybridDigis,
                                                             edm::DetSet<SiStripDigi>& suppressedDigis,
                                                             digivector_t& rawDigis) {

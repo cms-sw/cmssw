@@ -19,7 +19,8 @@ SiStripZeroSuppression::SiStripZeroSuppression(edm::ParameterSet const& conf)
       produceCalculatedBaseline(conf.getParameter<bool>("produceCalculatedBaseline")),
       produceBaselinePoints(conf.getParameter<bool>("produceBaselinePoints")),
       storeInZScollBadAPV(conf.getParameter<bool>("storeInZScollBadAPV")),
-      produceHybridFormat(conf.getParameter<bool>("produceHybridFormat")) {
+      produceHybridFormat(conf.getParameter<bool>("produceHybridFormat")),
+      fasterHybridZS(conf.getUntrackedParameter<bool>("fasterHybridZS", false)) {
   for (const auto& inputTag : conf.getParameter<std::vector<edm::InputTag>>("RawDigiProducersList")) {
     const auto& tagName = inputTag.instance();
     produces<edm::DetSetVector<SiStripDigi>>(tagName);
@@ -147,13 +148,19 @@ inline void SiStripZeroSuppression::processHybrid(const edm::DetSetVector<SiStri
     edm::DetSet<SiStripDigi> suppressedDigis(inDigis.id);
 
     std::vector<int16_t> rawDigis;
-    const auto nAPVflagged = algorithms->suppressHybridData(inDigis, suppressedDigis, rawDigis);
+    uint16_t nAPVflagged = 0;
+    if (fasterHybridZS) {
+      nAPVflagged = algorithms->suppressHybridData_faster(inDigis, suppressedDigis);
+    } else {
+      nAPVflagged = algorithms->suppressHybridData(inDigis, suppressedDigis, rawDigis);
+    }
 
     storeExtraOutput(inDigis.id, nAPVflagged);
-    if (!suppressedDigis.empty() && (storeInZScollBadAPV || nAPVflagged == 0))
+    if (!suppressedDigis.empty())
       output_base.push_back(std::move(suppressedDigis));
 
-    if (produceRawDigis && nAPVflagged > 0) {
+    // TODO implement full raw output with fasterHybridZS (if needed)
+    if (produceRawDigis && nAPVflagged > 0 && (!fasterHybridZS)) {
       output_base_raw.push_back(formatRawDigis(inDigis.id, rawDigis));
     }
   }
