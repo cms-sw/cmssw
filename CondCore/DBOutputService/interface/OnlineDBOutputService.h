@@ -36,7 +36,7 @@ namespace cond {
     public:
       OnlineDBOutputService(const edm::ParameterSet& iConfig, edm::ActivityRegistry& iAR);
 
-      virtual ~OnlineDBOutputService();
+      ~OnlineDBOutputService() override;
 
       cond::Iov_t preLoadIov(const std::string& recordName, cond::Time_t targetTime);
 
@@ -48,7 +48,7 @@ namespace cond {
         edm::LogInfo(MSGSOURCE) << "Updating lumisection " << targetTime;
         cond::Hash payloadId = PoolDBOutputService::writeOne<PayloadType>(payload, targetTime, recordName);
         bool ret = true;
-        if (payloadId.size() == 0) {
+        if (payloadId.empty()) {
           return false;
         }
         auto t1 = std::chrono::high_resolution_clock::now();

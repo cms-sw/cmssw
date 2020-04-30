@@ -4,7 +4,6 @@
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/JetReco"/>
-<use   name="SimTracker/VertexAssociation"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
@@ -13,7 +12,6 @@
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="SimTracker/Records"/>
-<use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="DataFormats/TrackerCommon"/>

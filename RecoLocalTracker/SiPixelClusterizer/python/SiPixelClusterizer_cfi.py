@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerDefault_cfi import SiPixelClusterizerDefault as _SiPixelClusterizerDefault
@@ -16,6 +15,18 @@ phase1Pixel.toModify(siPixelClusters,
   ClusterThreshold        = 4000,
   ClusterThreshold_L1     = 2000
 )
+
+# Run3, changes in the gain calibration scheme 
+#from Configuration.Eras.Era_Run3_cff import Run3
+#Run3.toModify(siPixelClusters,
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(siPixelClusters,
+  VCaltoElectronGain      = 1,  # all gains=1, pedestals=0
+  VCaltoElectronGain_L1   = 1,   
+  VCaltoElectronOffset    = 0,   
+  VCaltoElectronOffset_L1 = 0  
+)
+
 
 # Need these until phase2 pixel templates are used
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

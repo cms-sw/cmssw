@@ -23,7 +23,6 @@
 class LowPtGSFToTrackLinker : public edm::global::EDProducer<> {
 public:
   explicit LowPtGSFToTrackLinker(const edm::ParameterSet&);
-  ~LowPtGSFToTrackLinker() override;
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -41,17 +40,10 @@ LowPtGSFToTrackLinker::LowPtGSFToTrackLinker(const edm::ParameterSet& iConfig)
   produces<edm::Association<reco::TrackCollection> >();
 }
 
-LowPtGSFToTrackLinker::~LowPtGSFToTrackLinker() {}
-
 void LowPtGSFToTrackLinker::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::Handle<std::vector<reco::GsfTrack> > gsftracks;
-  iEvent.getByToken(gsftracks_, gsftracks);
-
-  edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByToken(tracks_, tracks);
-
-  edm::Handle<std::vector<reco::PreId> > preid;
-  iEvent.getByToken(preid_, preid);
+  auto gsftracks = iEvent.getHandle(gsftracks_);
+  auto tracks = iEvent.getHandle(tracks_);
+  auto preid = iEvent.getHandle(preid_);
 
   // collection sizes, for reference
   const size_t ngsf = gsftracks->size();

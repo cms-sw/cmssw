@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Luminosity/interface/LumiConstants.h"
+#include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
 
 namespace reco {
   class PixelClusterCounts {
@@ -33,6 +34,15 @@ namespace reco {
     }
 
     void eventCounter(unsigned int bxID) { m_events.at(bxID - 1)++; }
+
+    void add(reco::PixelClusterCountsInEvent const& pccInEvent) {
+      std::vector<int> const& countsInEvent = pccInEvent.counts();
+      std::vector<int> const& modIDInEvent = pccInEvent.modID();
+      int bxIDInEvent = pccInEvent.bxID();
+      for (unsigned int i = 0; i < modIDInEvent.size(); i++) {
+        increment(modIDInEvent[i], bxIDInEvent, countsInEvent.at(i));
+      }
+    }
 
     std::vector<int> const& readCounts() const { return (m_counts); }
     std::vector<int> const& readEvents() const { return (m_events); }

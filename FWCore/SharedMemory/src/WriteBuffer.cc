@@ -32,24 +32,25 @@ WriteBuffer::~WriteBuffer() {
   if (sm_) {
     sm_->destroy<char>(buffer_names::kBuffer);
     sm_.reset();
-    boost::interprocess::shared_memory_object::remove(bufferNames_[*bufferIndex_].c_str());
+    boost::interprocess::shared_memory_object::remove(bufferNames_[bufferInfo_->index_].c_str());
   }
 }
 //
 // member functions
 //
 void WriteBuffer::growBuffer(std::size_t iLength) {
-  int newBuffer = (*bufferIndex_ + 1) % 2;
+  int newBuffer = (bufferInfo_->index_ + 1) % 2;
   if (sm_) {
     sm_->destroy<char>(buffer_names::kBuffer);
     sm_.reset();
-    boost::interprocess::shared_memory_object::remove(bufferNames_[*bufferIndex_].c_str());
+    boost::interprocess::shared_memory_object::remove(bufferNames_[bufferInfo_->index_].c_str());
   }
   sm_ = std::make_unique<boost::interprocess::managed_shared_memory>(
       boost::interprocess::open_or_create, bufferNames_[newBuffer].c_str(), iLength + 1024);
   assert(sm_.get());
   bufferSize_ = iLength;
-  *bufferIndex_ = newBuffer;
+  bufferInfo_->index_ = newBuffer;
+  bufferInfo_->identifier_ = bufferInfo_->identifier_ + 1;
   buffer_ = sm_->construct<char>(buffer_names::kBuffer)[iLength](0);
   assert(buffer_);
 }

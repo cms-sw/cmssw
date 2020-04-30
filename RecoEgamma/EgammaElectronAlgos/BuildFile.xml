@@ -14,7 +14,6 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="RecoTracker/MeasurementDet"/>
-<use   name="RecoTracker/TkSeedGenerator"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/GsfTools"/>
 <use   name="TrackingTools/GsfTracking"/>
@@ -23,7 +22,6 @@
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="RecoEgamma/ElectronIdentification"/>
-<use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <export>

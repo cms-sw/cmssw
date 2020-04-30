@@ -11,6 +11,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_mcl(pset.getParameter<std::vector<edm::InputTag>>("label_mcl")),
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
       doCaloParticlePlots_(pset.getUntrackedParameter<bool>("doCaloParticlePlots")),
+      doCaloParticleSelection_(pset.getUntrackedParameter<bool>("doCaloParticleSelection")),
       dolayerclustersPlots_(pset.getUntrackedParameter<bool>("dolayerclustersPlots")),
       domulticlustersPlots_(pset.getUntrackedParameter<bool>("domulticlustersPlots")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
@@ -143,10 +144,10 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
   selected_cPeff.reserve(cPeff.size());
 
   size_t j = 0;
-  for (auto const caloParticle : cPeff) {
+  for (auto const& caloParticle : cPeff) {
     int id = caloParticle.pdgId();
 
-    if (cpSelector(caloParticle, simVertices)) {
+    if (!doCaloParticleSelection_ || (doCaloParticleSelection_ && cpSelector(caloParticle, simVertices))) {
       selected_cPeff.push_back(j);
       if (doCaloParticlePlots_) {
         histoProducerAlgo_->fill_caloparticle_histos(histograms.histoProducerAlgo, id, caloParticle, simVertices);

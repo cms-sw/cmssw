@@ -512,6 +512,8 @@ class MatrixInjector(object):
                                 #print 't_second',pprint.pformat(t_second)
                                 if t_second['TaskName'].startswith('HARVEST'):
                                     chainDict.update(copy.deepcopy(self.defaultHarvest))
+                                    if "_RD" in t_second['TaskName']:
+                                        chainDict['DQMHarvestUnit'] = "multiRun"
                                     chainDict['DQMConfigCacheID']=t_second['ConfigCacheID']
                                     ## the info are not in the task specific dict but in the general dict
                                     #t_input.update(copy.deepcopy(self.defaultHarvest))

@@ -4,7 +4,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="TrackingTools/TransientTrack"/>
-<use   name="MagneticField/Engine"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
 <library   file="TrajectoryReader.cc" name="TrajectoryReader">

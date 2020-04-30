@@ -3,6 +3,7 @@
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelLorentzAngle_PayloadInspector.cc"
 #include "CondCore/SiPixelPlugins/plugins/SiPixelQuality_PayloadInspector.cc"
+#include "CondCore/SiPixelPlugins/plugins/SiPixelGainCalibrationOffline_PayloadInspector.cc"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
@@ -78,4 +79,42 @@ int main(int argc, char** argv) {
   SiPixelFPixQualityMap histo9;
   histo9.process(connectionString, tag, runTimeType, start, start);
   std::cout << histo9.data() << std::endl;
+
+  // SiPixelGainCalibrationOffline
+
+  tag = "SiPixelGainCalibration_2009runs_express";
+  start = boost::lexical_cast<unsigned long long>(312203);
+  end = boost::lexical_cast<unsigned long long>(312203);
+
+  std::cout << "## Exercising SiPixelGainCalibrationOffline plots " << std::endl;
+
+  SiPixelGainCalibrationOfflineGainsValues histo10;
+  histo10.process(connectionString, tag, runTimeType, start, start);
+  std::cout << histo10.data() << std::endl;
+
+  SiPixelGainCalibrationOfflinePedestalsValues histo11;
+  histo11.process(connectionString, tag, runTimeType, start, start);
+  std::cout << histo11.data() << std::endl;
+
+  SiPixelGainCalibrationOfflineGainsByPart histo12;
+  histo12.process(connectionString, tag, runTimeType, start, start);
+  std::cout << histo12.data() << std::endl;
+
+  SiPixelGainCalibrationOfflinePedestalsByPart histo13;
+  histo13.process(connectionString, tag, runTimeType, start, start);
+  std::cout << histo13.data() << std::endl;
+
+  end = boost::lexical_cast<unsigned long long>(326851);
+
+  SiPixelGainCalibOfflinePedestalComparisonSingleTag histo14;
+  histo14.process(connectionString, tag, runTimeType, start, end);
+  std::cout << histo14.data() << std::endl;
+
+  SiPixelGainCalibOfflineGainByRegionComparisonSingleTag histo15;
+  histo15.process(connectionString, tag, runTimeType, start, end);
+  std::cout << histo15.data() << std::endl;
+
+  SiPixelGainCalibrationOfflineCorrelations histo16;
+  histo16.process(connectionString, tag, runTimeType, end, end);
+  std::cout << histo16.data() << std::endl;
 }

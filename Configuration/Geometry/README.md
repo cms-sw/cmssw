@@ -23,6 +23,7 @@ Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
 * M3: same as M2 with change to the number of iRPC strips from 192 to 96 as in TDR
 * M4: same as M3 but no Overlaps inside the Muon System and MB4Shields completed
+* M5: same as M4 but with: the right value for YE3 size, no "hidden" overlaps inside the Muon System and iRPC updated.
 
 Fast Timing system:
 * I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
@@ -54,5 +55,6 @@ Several detector combinations have been generated:
 * D52 = T18+C9+M4+I10+O4+F2
 * D53 = T15+C9+M4+I12+O4+F2
 * D54 = T19+C9+M4+I10+O4+F2
+* D55 = T19+C9+M5+I10+O4+F2
 
 D35 is the MTD TDR baseline, D41 is the L1T TDR baseline, and D49 is the HLT TDR baseline.

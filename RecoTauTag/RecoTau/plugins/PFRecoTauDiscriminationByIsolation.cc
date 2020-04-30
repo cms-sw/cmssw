@@ -662,7 +662,7 @@ void PFRecoTauDiscriminationByIsolation::fillDescriptions(edm::ConfigurationDesc
     edm::ParameterSetDescription vpsd1;
     vpsd1.add<std::string>("selection");
     vpsd1.add<std::string>("offset");
-    desc.addVPSet("footprintCorrections", vpsd1);
+    desc.addVPSet("footprintCorrections", vpsd1, {});
   }
 
   desc.add<std::string>("deltaBetaFactor", "0.38");

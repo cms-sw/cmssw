@@ -200,6 +200,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
     hf->AddFrame(transpWidget3D);
     top->AddFrame(hf, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 10));
   }
+
   std::string names[kFWGeomColorSize];
   names[kFWPixelBarrelColorIndex] = "Pixel Barrel";
   names[kFWPixelEndcapColorIndex] = "Pixel Endcap";
@@ -211,8 +212,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
   for (int k = 0; k < 3; ++k) {
     TGHorizontalFrame* hf = new TGHorizontalFrame(top);
     top->AddFrame(hf);
-
-    for (int j = 0; j < 2; ++j) {
+    for (int j = 0; j < 3; ++j) {
       m_colorSelectWidget[i] = new FWColorSelect(hf, names[i].c_str(), 0, m_common->colorManager(), i);
       hf->AddFrame(m_colorSelectWidget[i]);
       m_colorSelectWidget[i]->SetColorByIndex(m_common->colorManager()->geomColor(FWGeomColorIndex(i)), kFALSE);

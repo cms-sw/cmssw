@@ -10,7 +10,6 @@
 <use name="DataFormats/VertexReco"/>
 <use name="RecoJets/JetAlgorithms"/>
 <use name="RecoJets/JetProducers"/>
-<use name="Validation/RecoJets"/>
 <use name="DataFormats/JetReco"/>
 <library name="DQMOfflineJetMETPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
