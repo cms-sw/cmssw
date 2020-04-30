@@ -69,25 +69,25 @@ MagGeometry::MagGeometry(int geomVersion,
   // FIXME: it would be nice to derive these from the actual geometry in the builder, possibly adding some specification to the geometry.
   switch (geomVersion >= 120812 ? 0 : (geomVersion >= 90812 ? 1 : 2)) {
     case 0:  // since 120812
-      barrelRsq1 = 172.400f * 172.400f;
-      barrelRsq2 = 308.735f * 308.735f;
-      barrelZ0 = 350.000f;
-      barrelZ1 = 633.290f;
-      barrelZ2 = 662.010f;
+      theBarrelRsq1 = 172.400 * 172.400;
+      theBarrelRsq2 = 308.735 * 308.735;
+      theBarrelZ0 = 350.000;
+      theBarrelZ1 = 633.290;
+      theBarrelZ2 = 662.010;
       break;
     case 1:  // version 90812 (no longer in use)
-      barrelRsq1 = 172.400f * 172.400f;
-      barrelRsq2 = 308.755f * 308.755f;
-      barrelZ0 = 350.000f;
-      barrelZ1 = 633.890f;
-      barrelZ2 = 662.010f;
+      theBarrelRsq1 = 172.400 * 172.400;
+      theBarrelRsq2 = 308.755 * 308.755;
+      theBarrelZ0 = 350.000;
+      theBarrelZ1 = 633.890;
+      theBarrelZ2 = 662.010;
       break;
     case 2:  // versions 71212, 90322
-      barrelRsq1 = 172.400f * 172.400f;
-      barrelRsq2 = 308.755f * 308.755f;
-      barrelZ0 = 350.000f;
-      barrelZ1 = 633.290f;
-      barrelZ2 = 661.010f;
+      theBarrelRsq1 = 172.400 * 172.400;
+      theBarrelRsq2 = 308.755 * 308.755;
+      theBarrelZ0 = 350.000;
+      theBarrelZ1 = 633.290;
+      theBarrelZ2 = 661.010;
       break;
   }
 }
@@ -217,8 +217,9 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
 }
 
 bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
-  float aZ = fabs(gp.z());
-  float aRsq = gp.perp2();
+  double aZ = fabs(gp.z());
+  double aRsq = gp.perp2();
 
-  return ((aZ < barrelZ0) || (aZ < barrelZ1 && aRsq > barrelRsq1) || (aZ < barrelZ2 && aRsq > barrelRsq2));
+  return ((aZ < theBarrelZ0) || (aZ < theBarrelZ1 && aRsq > theBarrelRsq1) ||
+          (aZ < theBarrelZ2 && aRsq > theBarrelRsq2));
 }

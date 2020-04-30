@@ -74,10 +74,10 @@ private:
   int geometryVersion;
 
   // boundaries of internal barrel-endcap volume separation
-  float barrelRsq1;
-  float barrelRsq2;
-  float barrelZ0;
-  float barrelZ1;
-  float barrelZ2;
+  double theBarrelRsq1;
+  double theBarrelRsq2;
+  double theBarrelZ0;
+  double theBarrelZ1;
+  double theBarrelZ2;
 };
 #endif
