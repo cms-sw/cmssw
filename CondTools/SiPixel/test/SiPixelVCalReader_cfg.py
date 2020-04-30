@@ -20,10 +20,12 @@ process.source = cms.Source("EmptySource",
 
 # LOAD
 process.load("FWCore.MessageService.MessageLogger_cfi")
-#process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 # GLOBAL TAG
 from Configuration.AlCa.GlobalTag import GlobalTag

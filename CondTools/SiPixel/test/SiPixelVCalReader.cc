@@ -10,20 +10,36 @@ SiPixelVCalReader::~SiPixelVCalReader() {}
 
 void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   edm::ESHandle<SiPixelVCal> siPixelVCal;
+
+  // Get record & file service
   if (useSimRcd_==true)
     iSetup.get<SiPixelVCalSimRcd>().get(siPixelVCal);
   else
     iSetup.get<SiPixelVCalRcd>().get(siPixelVCal);
   edm::LogInfo("SiPixelVCalReader")
-      << "[SiPixelVCalReader::analyze] End Reading SiPixelVCal" << std::endl;
+       << "[SiPixelVCalReader::analyze] End Reading SiPixelVCal" << std::endl;
   edm::Service<TFileService> fs;
+
+  // Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  // Phase
+  bool phase1 = true;
 
   // Prepare tree
   TTree* tree = new TTree("tree", "tree");
-  uint32_t pixid;
+  uint32_t detid, subdet, layer, ladder, side, disk, ring;
   double slope, offset;
-  tree->Branch("pixid", &pixid, "pixid/I");
-  tree->Branch("slope", &slope, "slope/D");
+  tree->Branch("detid",  &detid,  "detid/I");
+  tree->Branch("subdet", &subdet, "subdet/I");
+  tree->Branch("layer",  &layer,  "layer/I");
+  tree->Branch("ladder", &ladder, "ladder/I");
+  tree->Branch("side",   &side,   "side/I");
+  tree->Branch("disk",   &disk,   "disk/I");
+  tree->Branch("ring",   &ring,   "ring/I");
+  tree->Branch("slope",  &slope,  "slope/D");
   tree->Branch("offset", &offset, "offset/D");
 
   // Prepare histograms
@@ -36,12 +52,21 @@ void SiPixelVCalReader::analyze(const edm::Event& e, const edm::EventSetup& iSet
 
   // Fill histograms
   for (it=vcal.begin(); it!=vcal.end(); it++) {
-    pixid  = it->first;
+    detid  = it->first;
     slope  = it->second.slope;
     offset = it->second.offset;
-    unsigned int subdet = SiPixelVCalDB::getPixelSubDetector(pixid);
-    std::cout  << "pixid " << pixid << " \t VCal slope " << slope << ", offset " << offset << std::endl;
-    edm::LogInfo("SiPixelVCalReader") << "pixid " << pixid << " \t VCal slope " << slope << ", offset " << offset;
+    const DetId detIdObj(detid);
+    PixelEndcapName fpix(detid,tTopo,phase1);
+    subdet = detIdObj.subdetId();
+    layer  = tTopo->pxbLayer(detIdObj);  // 1, 2, 3, 4
+    ladder = tTopo->pxbLadder(detIdObj); //
+    side   = tTopo->pxfSide(detIdObj);   // 1, 2
+    disk   = tTopo->pxfDisk(detIdObj);   // 1, 2, 3
+    ring   = fpix.ringName();            // 1 (lower), 2 (upper)
+    std::cout  << "detid " << detid << ", subdet " << subdet << ", layer " << layer
+               << ", VCal slope " << slope << ", offset " << offset << std::endl;
+    edm::LogInfo("SiPixelVCalReader") << "detid " << detid << ", subdet " << subdet << ", layer " << layer
+                                      << ", VCal slope " << slope << ", offset " << offset;
     if (subdet==static_cast<int>(PixelSubdetector::PixelBarrel)) {
       slopeBPix_->Fill(slope);
       offsetBPix_->Fill(offset);

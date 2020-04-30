@@ -15,8 +15,8 @@ process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string
 #process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.load("Configuration.StandardSequences.GeometryDB_cff")
-#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi") <----
 #process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
@@ -90,134 +90,55 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     )
 )
 
-# VCAL TO NUMBER OF ELECTRONS OBJECT
+# NUMBER OF ELECTRONS -> VCAL DB OBJECT
 # https://github.com/cms-analysis/DPGAnalysis-SiPixelTools/blob/1232a8c0ef3abe7b78c757887138089706e0499a/GainCalibration/test/vcal-irradiation-factors.txt
-slope     = 47.
-slope_L1  = 50.
-offset    = -60.
-offset_L1 = -670.
+# https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiPixelDetId/src/PixelEndcapName.cc
+slope      = 47.
+slope_L1   = 50.
+offset     = -60.
+offset_L1  = -670.
+corrs_bpix = { 1: 1.110, 2: 1.036, 3: 1.023, 4: 1.011 }
+corrs_fpix = { 1: 1.1275, 2: 1.1275, 3: 1.1275 }
+layers     = [1,2,3,4]
+nladders   = { 1: 12, 2: 28, 3: 44, 4: 64, }
+sides      = [1,2]   # 1=minus, 2=plus
+disks      = [1,2,3] # 1, 2, 3
+rings      = [1,2]   # 1=lower, 2=upper
+bpixpars   = cms.untracked.VPSet()
+fpixpars   = cms.untracked.VPSet()
+print ">>> %8s %8s %10s %10s %10s"%('layer','ladder','slope','offset','corr')
+for layer in layers:
+  for ladder in xrange(1,nladders[layer]+1):
+    corr     = corrs_bpix[layer]
+    slope_   = (slope_L1 if layer==1 else slope)*corr
+    offset_  = (offset_L1 if layer==1 else offset)
+    print ">>> %8d %8d %10.4f %10.3f %10.4f"%(layer,ladder,slope_,offset_,corr)
+    bpixpars.append(cms.PSet(
+      layer  = cms.int32(layer),
+      ladder = cms.int32(ladder),
+      slope  = cms.double(slope_),
+      offset = cms.double(offset_),
+    ))
+print ">>> %8s %8s %8s %10s %10s %10s"%('side','disk','ring','slope','offset','corr')
+for side in sides:
+  for disk in disks:
+    for ring in rings:
+      corr     = corrs_fpix[ring]
+      slope_   = slope*corr
+      offset_  = offset
+      print ">>> %8d %8d %8d %10.4f %10.3f %10.4f"%(side,disk,ring,slope_,offset_,corr)
+      fpixpars.append(cms.PSet(
+        side   = cms.int32(side),
+        disk   = cms.int32(disk),
+        ring   = cms.int32(ring),
+        slope  = cms.double(slope_),
+        offset = cms.double(offset_),
+      ))
+
+# DB CREATOR
 process.SiPixelVCal = cms.EDAnalyzer("SiPixelVCalDB",
-    BPixParameters = cms.untracked.VPSet(
-      cms.PSet(
-        layer = cms.uint32(1), # L1
-        slope  = cms.double(slope_L1*1.110),
-        offset = cms.double(offset_L1),
-      ),
-      cms.PSet(
-        layer = cms.uint32(2), # L2
-        slope  = cms.double(slope*1.036),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        layer = cms.uint32(3), # L3
-        slope  = cms.double(slope*1.023),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        layer = cms.uint32(4), # L4
-        slope  = cms.double(slope*1.011),
-        offset = cms.double(offset),
-      ),
-    ),
-    FPixParameters = cms.untracked.VPSet(
-      # See
-      #   https://github.com/cms-sw/cmssw/blob/master/DataFormats/SiPixelDetId/src/PixelEndcapName.cc
-      # Side: 1=minus, 2=plus
-      # Disk: 1, 2, 3
-      # Ring: 1=lower, 2=higher
-      cms.PSet(
-        side = cms.uint32(1), # Rm1 lower
-        disk = cms.uint32(1),
-        ring = cms.uint32(1),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(1), # Rm1 upper
-        disk = cms.uint32(1),
-        ring = cms.uint32(2),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(1), # Rm2 lower
-        disk = cms.uint32(2),
-        ring = cms.uint32(1),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(1), # Rm2 upper
-        disk = cms.uint32(2),
-        ring = cms.uint32(2),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(1), # Rm3 lower
-        disk = cms.uint32(3),
-        ring = cms.uint32(1),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(1), # Rm3 upper
-        disk = cms.uint32(3),
-        ring = cms.uint32(2),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(2), # Rp1 lower
-        disk = cms.uint32(1),
-        ring = cms.uint32(1),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(2), # Rp1 upper
-        disk = cms.uint32(1),
-        ring = cms.uint32(2),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(2), # Rp2 lower
-        disk = cms.uint32(2),
-        ring = cms.uint32(1),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(2), # Rp2 upper
-        disk = cms.uint32(2),
-        ring = cms.uint32(2),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(2), # Rp3 lower
-        disk = cms.uint32(3),
-        ring = cms.uint32(1),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-      cms.PSet(
-        side = cms.uint32(2), # Rp3 upper
-        disk = cms.uint32(3),
-        ring = cms.uint32(2),
-        slope  = cms.double(slope*1.1275),
-        offset = cms.double(offset),
-      ),
-    ),
+    BPixParameters = bpixpars,
+    FPixParameters = fpixpars,
     record = cms.untracked.string('SiPixelVCalRcd'),
 )
-
-process.SiPixelVCalSim = cms.EDAnalyzer("SiPixelVCalDB",
-    record = cms.untracked.string('SiPixelVCalSimRcd'),
-)
-
-process.p = cms.Path(
-  #process.SiPixelVCalSim*
-  process.SiPixelVCal
-)
+process.p = cms.Path(process.SiPixelVCal)
