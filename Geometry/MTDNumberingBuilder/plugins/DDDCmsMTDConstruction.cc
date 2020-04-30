@@ -5,6 +5,9 @@
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDConstruction.h"
@@ -12,7 +15,7 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 class DDNameFilter : public DDFilter {
 public:
@@ -35,8 +38,6 @@ private:
   std::vector<std::string> allowed_;
   std::vector<std::string> veto_;
 };
-
-using namespace cms;
 
 std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCompactView& cpv) {
   std::string attribute{"CMSCutsRegion"};
@@ -68,13 +69,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
   CmsMTDStringToEnum theCmsMTDStringToEnum;
 
-  auto check_root = theCmsMTDStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv));
+  auto check_root = theCmsMTDStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv));
   if (check_root != GeometricTimingDet::MTD) {
     fv.firstChild();
-    auto check_child = theCmsMTDStringToEnum.type(ExtractStringFromDDD::getString(attribute, &fv));
+    auto check_child = theCmsMTDStringToEnum.type(ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv));
     if (check_child != GeometricTimingDet::MTD) {
       throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
-                                            << ExtractStringFromDDD::getString(attribute, &fv) << "\n";
+                                            << ExtractStringFromDDD<DDFilteredView>::getString(attribute, &fv) << "\n";
     }
     fv.parent();
   }
@@ -85,7 +86,7 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
   auto mtd = std::make_unique<GeometricTimingDet>(&fv, GeometricTimingDet::MTD);
   size_t limit = 0;
-  CmsMTDConstruction theCmsMTDConstruction;
+  CmsMTDConstruction<DDFilteredView> theCmsMTDConstruction;
 
   std::vector<GeometricTimingDet*> subdet;
   std::vector<GeometricTimingDet*> layer;
@@ -97,8 +98,10 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
     size_t num = fv.geoHistory().size();
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("MTDNumbering") << "Module level = " << limit << " current node level = " << num << " "
-                                     << fv.name() << " fullNode = " << fullNode << " thisNode = " << thisNode;
+    //edm::LogVerbatim("MTDNumbering") << "Module level = " << limit << " current node level = " << num << " "
+    //<< fv.name() << " fullNode = " << fullNode << " thisNode = " << thisNode;
+    edm::LogVerbatim("MTDNumbering") << "Module = " << fv.name() << " fullNode = " << fullNode
+                                     << " thisNode = " << thisNode;
 #endif
 
     if (fullNode == GeometricTimingDet::BTL || fullNode == GeometricTimingDet::ETL) {
@@ -131,16 +134,16 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
       continue;
     }
     if (thisNode == GeometricTimingDet::BTLModule) {
-      theCmsMTDConstruction.buildBTLModule(fv, layer.back(), attribute);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
+      theCmsMTDConstruction.buildBTLModule(fv, layer.back(), attribute);
       limit = num;
     } else if (thisNode == GeometricTimingDet::ETLModule) {
-      theCmsMTDConstruction.buildETLModule(fv, layer.back(), attribute);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
+      theCmsMTDConstruction.buildETLModule(fv, layer.back(), attribute);
       limit = num;
     }
   } while (fv.next());
@@ -158,10 +161,10 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
   for (size_t index = 0; index < layer.size(); index++) {
     GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
-    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderZ);
-    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderRR);
+    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderZ);
+    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderRR);
     if (index > 0) {
-      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction::mtdOrderPhi);
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
     }
   }
 
@@ -173,6 +176,118 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
     after << "ORDER2 " << it->geographicalId().rawId() << " " << it->type() << " " << it->translation().z() << "\n";
   }
   edm::LogVerbatim("MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
+#endif
+
+  return mtd;
+}
+
+std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::DDCompactView& cpv) {
+  cms::DDFilteredView fv(cpv.detector(), cpv.detector()->worldVolume());
+
+  fv.next(0);
+  edm::LogVerbatim("MTDNumbering") << fv.path();
+  auto mtd = std::make_unique<GeometricTimingDet>(&fv, GeometricTimingDet::MTD);
+
+  cms::DDSpecParRefs ref;
+  const cms::DDSpecParRegistry& mypar = cpv.specpars();
+  std::string attribute("MtdDDDStructure");
+  mypar.filter(ref, attribute, "BarrelTimingLayer");
+  mypar.filter(ref, attribute, "EndcapTimingLayer");
+  fv.mergedSpecifics(ref);
+
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("MTDNumbering") << "Active filters using " << attribute << ":";
+  fv.printFilter();
+  edm::LogVerbatim("Geometry").log([&ref](auto& log) {
+    log << "Filtered DD SpecPar Registry size: " << ref.size() << "\n";
+    for (const auto& t : ref) {
+      log << "\nRegExps { ";
+      for (const auto& ki : t->paths)
+        log << ki << " ";
+      log << "};\n ";
+      for (const auto& kl : t->spars) {
+        log << kl.first << " = ";
+        for (const auto& kil : kl.second) {
+          log << kil << " ";
+        }
+        log << "\n ";
+      }
+    }
+  });
+#endif
+
+  bool doSubdet = fv.firstChild();
+  edm::LogVerbatim("MTDNumbering") << fv.path();
+
+  CmsMTDStringToEnum theCmsMTDStringToEnum;
+
+  CmsMTDConstruction<cms::DDFilteredView> theCmsMTDConstruction;
+
+  std::vector<GeometricTimingDet*> subdet;
+  std::vector<GeometricTimingDet*> layer;
+
+  while (doSubdet) {
+    std::string nodeName(fv.name());
+    GeometricTimingDet::GeometricTimingEnumType fullNode = theCmsMTDStringToEnum.type(nodeName);
+    GeometricTimingDet::GeometricTimingEnumType thisNode =
+        theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen));
+
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("MTDNumbering") << "Module = " << fv.name() << " fullNode = " << fullNode
+                                     << " thisNode = " << thisNode;
+#endif
+
+    if (fullNode == GeometricTimingDet::BTL || fullNode == GeometricTimingDet::ETL) {
+      // define subdetectors as GeometricTimingDet components
+
+      subdet.push_back(theCmsMTDConstruction.buildSubdet(fv, mtd.get(), attribute));
+    }
+    if (fullNode == GeometricTimingDet::BTLLayer || fullNode == GeometricTimingDet::ETLDisc) {
+      layer.push_back(theCmsMTDConstruction.buildLayer(fv, subdet.back(), attribute));
+    }
+    if (thisNode == GeometricTimingDet::BTLModule) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
+#endif
+      theCmsMTDConstruction.buildBTLModule(fv, layer.back(), attribute);
+    } else if (thisNode == GeometricTimingDet::ETLModule) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
+#endif
+      theCmsMTDConstruction.buildETLModule(fv, layer.back(), attribute);
+    }
+
+    doSubdet = fv.firstChild();
+  }
+
+  // sort GeometricTimingDet
+
+#ifdef EDM_ML_DEBUG
+  auto comp = mtd->deepComponents();
+  std::stringstream before(std::stringstream::in | std::stringstream::out);
+  for (const auto& it : comp) {
+    before << "ORDER1 " << it->geographicalId().rawId() << " " << it->type() << " " << it->translation().z() << "\n";
+  }
+  edm::LogVerbatim("DD4hep_MTDNumbering") << "GeometricTimingDet order before sorting \n" << before.str();
+#endif
+
+  for (size_t index = 0; index < layer.size(); index++) {
+    GeometricTimingDet::ConstGeometricTimingDetContainer& icomp = layer[index]->components();
+    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<cms::DDFilteredView>::mtdOrderZ);
+    std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<cms::DDFilteredView>::mtdOrderRR);
+    if (index > 0) {
+      std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<cms::DDFilteredView>::mtdOrderPhi);
+    }
+  }
+
+#ifdef EDM_ML_DEBUG
+  comp.clear();
+  comp = mtd->deepComponents();
+  std::stringstream after(std::stringstream::in | std::stringstream::out);
+  for (const auto& it : comp) {
+    after << "ORDER2 " << it->geographicalId().rawId() << " " << it->type() << " " << it->translation().z() << "\n";
+  }
+  edm::LogVerbatim("DD4hep_MTDNumbering") << "GeometricTimingDet order after sorting \n" << after.str();
 #endif
 
   return mtd;

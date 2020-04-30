@@ -16,6 +16,10 @@
 
 class DDFilteredView;
 
+namespace cms {
+  class DDFilteredView;
+}
+
 /**
  * Composite class GeometricTimingDet. A composite can contain other composites, and so on;
  * You can understand what you are looking at via enum.
@@ -63,6 +67,7 @@ public:
    * Constructors to be used when looping over DDD
    */
   GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumType dd);
+  GeometricTimingDet(cms::DDFilteredView* fv, GeometricTimingEnumType dd);
   GeometricTimingDet(const PGeometricTimingDet::Item& onePGD, GeometricTimingEnumType dd);
 
   /**

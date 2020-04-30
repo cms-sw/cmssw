@@ -11,7 +11,7 @@
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
 
 #include <memory>
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 class MTDTopologyEP : public edm::ESProducer {
 public:

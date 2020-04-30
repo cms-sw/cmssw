@@ -10,6 +10,8 @@ CmsMTDStringToEnum::Impl::Impl() {
                                                                                   GeometricTimingDet::BTL));
   _map.insert(
       std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Layer1", GeometricTimingDet::BTLLayer));
+  _map.insert(std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Layer1Timing",
+                                                                                  GeometricTimingDet::BTLLayer));
   _map.insert(std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Rod1", GeometricTimingDet::BTLTray));
   _map.insert(
       std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("BModule", GeometricTimingDet::BTLModule));
@@ -23,7 +25,9 @@ CmsMTDStringToEnum::Impl::Impl() {
   _map.insert(
       std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Disc1", GeometricTimingDet::ETLDisc));
   _map.insert(
-      std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Disc2", GeometricTimingDet::ETLDisc));
+      std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Disc1Timing", GeometricTimingDet::ETLDisc));
+  _map.insert(
+      std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Disc2Timing", GeometricTimingDet::ETLDisc));
   _map.insert(std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("Ring", GeometricTimingDet::ETLRing));
   _map.insert(
       std::pair<std::string, GeometricTimingDet::GeometricTimingEnumType>("EModule", GeometricTimingDet::ETLModule));
