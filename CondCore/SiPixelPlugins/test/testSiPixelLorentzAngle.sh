@@ -75,3 +75,25 @@ getPayloadData.py \
      --test ;
 
 mv *.png  $W_DIR/plots_LA/SiPixelBPixLorentzAngleMap.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+    --plot plot_SiPixelLorentzAngleValuesEndcap \
+    --tag SiPixelLorentzAngle_forWidth_phase1_mc_v1 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
+
+mv *.png  $W_DIR/plots_LA/SiPixelBPixLorentzAngleEndcapPlots.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+    --plot plot_SiPixelLorentzAngleValuesBarrel \
+    --tag SiPixelLorentzAngle_forWidth_phase1_mc_v1 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
+
+mv *.png  $W_DIR/plots_LA/SiPixelBPixLorentzAngleBarrel.png
