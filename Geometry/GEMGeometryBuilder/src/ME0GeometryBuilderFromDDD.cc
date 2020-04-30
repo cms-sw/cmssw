@@ -1,3 +1,12 @@
+/*
+//\class ME0GeometryBuilder
+
+ Description: ME0 Geometry builder from DD & DD4hep
+              DD4hep part added to the original old file (DD version) made by M. Maggi (INFN Bari)
+//
+// Author:  Sergio Lo Meo (sergio.lo.meo@cern.ch) following what Ianna Osborne made for DTs (DD4HEP migration)
+//          Created:  29 Apr 2019 
+*/
 #include "Geometry/GEMGeometryBuilder/src/ME0GeometryBuilderFromDDD.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartitionSpecs.h"
@@ -20,6 +29,12 @@
 #include <iostream>
 #include <string>
 
+#include <DetectorDescription/DDCMS/interface/DDFilteredView.h>
+#include <DetectorDescription/DDCMS/interface/DDCompactView.h>
+#include "Geometry/MuonNumbering/interface/DD4hep_MuonNumbering.h"
+#include "DetectorDescription/DDCMS/interface/DDSpecParRegistry.h"
+#include "Geometry/MuonNumbering/interface/DD4hep_ME0NumberingScheme.h"
+
 ME0GeometryBuilderFromDDD::ME0GeometryBuilderFromDDD() {}
 
 ME0GeometryBuilderFromDDD::~ME0GeometryBuilderFromDDD() {}
@@ -32,6 +47,19 @@ ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const 
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
   DDFilteredView fview(*cview, filter);
 
+  return this->buildGeometry(fview, muonConstants);
+}
+
+// for DD4hep
+ME0Geometry* ME0GeometryBuilderFromDDD::build(const cms::DDCompactView* cview,
+                                              const cms::MuonNumbering& muonConstants) {
+  std::string attribute = "MuStructure";
+  std::string value = "MuonEndCapME0";
+  cms::DDFilteredView fview(cview->detector(), cview->detector()->worldVolume());
+  cms::DDSpecParRefs refs;
+  const cms::DDSpecParRegistry& mypar = cview->specpars();
+  mypar.filter(refs, attribute, value);
+  fview.mergedSpecifics(refs);
   return this->buildGeometry(fview, muonConstants);
 }
 
@@ -48,7 +76,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 #ifdef EDM_ML_DEBUG
   bool testChambers = fv.firstChild();
   LogTrace("ME0GeometryBuilderFromDDD") << "doChamber = fv.firstChild() = " << testChambers;
-  // ----------------------------------------------------------------------------------------------------------------------------------------------
+
   while (testChambers) {
     // to etapartitions
     LogTrace("ME0GeometryBuilderFromDDD")
@@ -80,7 +108,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
         << "Second level parameters: vector with size = " << dpar2.size() << " and elements " << parameters2.str();
 
     bool doLayers = fv.firstChild();
-    // --------------------------------------------------------------------------------------------------------------------------------------------
+
     LogTrace("ME0GeometryBuilderFromDDD") << "doLayer = fv.firstChild() = " << doLayers;
     while (doLayers) {
       // to etapartitions
@@ -107,7 +135,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
       LogTrace("ME0GeometryBuilderFromDDD")
           << "Third level parameters: vector with size = " << dpar3.size() << " and elements " << parameters3.str();
       bool doEtaParts = fv.firstChild();
-      // --------------------------------------------------------------------------------------------------------------------------------------------
+
       LogTrace("ME0GeometryBuilderFromDDD") << "doEtaPart = fv.firstChild() = " << doEtaParts;
       while (doEtaParts) {
         LogTrace("ME0GeometryBuilderFromDDD") << "In DoEtaParts Loop :: ME0DetId " << detId << " = " << detId.rawId();
@@ -120,7 +148,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
         }
         LogTrace("ME0GeometryBuilderFromDDD")
             << "Fourth level parameters: vector with size = " << dpar4.size() << " and elements " << parameters4.str();
-        // --------------------------------------------------------------------------------------------------------------------------------------------
+
         doEtaParts = fv.nextSibling();
         LogTrace("ME0GeometryBuilderFromDDD") << "doEtaPart = fv.nextSibling() = " << doEtaParts;
       }
@@ -143,15 +171,18 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
   // === Here the Real ME0 Geometry Builder ===
   // ==========================================
   bool doChambers = fv.firstChild();
+
   while (doChambers) {
     // to etapartitions and back again to pick up DetId
     fv.firstChild();
     fv.firstChild();
+
     MuonDDDNumbering mdddnum(muonConstants);
     ME0NumberingScheme me0Num(muonConstants);
     int rawId = me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
     ME0DetId detId = ME0DetId(rawId);
     ME0DetId detIdCh = detId.chamberId();
+
     fv.parent();
     fv.parent();
 
@@ -161,6 +192,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 
     // loop over layers of the chamber
     bool doLayers = fv.firstChild();
+
     while (doLayers) {
       // to etapartitions and back again to pick up DetId
       fv.firstChild();
@@ -170,7 +202,6 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
       ME0DetId detId = ME0DetId(rawId);
       ME0DetId detIdLa = detId.layerId();
       fv.parent();
-
       // build layer
       ME0Layer* me0Layer = buildLayer(fv, detIdLa);
       me0Chamber->add(me0Layer);
@@ -178,6 +209,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
 
       // loop over etapartitions of the layer
       bool doEtaParts = fv.firstChild();
+
       while (doEtaParts) {
         // pick up DetId
         MuonDDDNumbering mdddnum(muonConstants);
@@ -193,19 +225,19 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
         doEtaParts = fv.nextSibling();
       }
       fv.parent();
+
       doLayers = fv.nextSibling();
     }
     fv.parent();
+
     doChambers = fv.nextSibling();
   }
-
   return geometry;
 }
 
 ME0Chamber* ME0GeometryBuilderFromDDD::buildChamber(DDFilteredView& fv, ME0DetId detId) const {
   LogTrace("ME0GeometryBuilderFromDDD") << "buildChamber " << fv.logicalPart().name().name() << " " << detId
                                         << std::endl;
-
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   // std::vector<double> dpar = solid.solidA().parameters();
   std::vector<double> dpar = solid.parameters();
@@ -339,6 +371,163 @@ ME0GeometryBuilderFromDDD::ME0BoundPlane ME0GeometryBuilderFromDDD::boundPlane(c
   //        << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
   //        << z.X() << ", " << z.Y() << ", " << z.Z() << std::endl;
 
+  Surface::RotationType rotResult(float(x.X()),
+                                  float(x.Y()),
+                                  float(x.Z()),
+                                  float(y.X()),
+                                  float(y.Y()),
+                                  float(y.Z()),
+                                  float(z.X()),
+                                  float(z.Y()),
+                                  float(z.Z()));
+
+  //Change of axes for the forward
+  Basic3DVector<float> newX(1., 0., 0.);
+  Basic3DVector<float> newY(0., 0., 1.);
+  Basic3DVector<float> newZ(0., 1., 0.);
+  newY *= -1;
+
+  rotResult.rotateAxes(newX, newY, newZ);
+
+  return ME0BoundPlane(new BoundPlane(posResult, rotResult, bounds));
+}
+
+// dd4hep
+
+ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(cms::DDFilteredView& fv,
+                                                      const cms::MuonNumbering& muonConstants) {
+  ME0Geometry* geometry = new ME0Geometry();
+
+  bool doChambers = fv.firstChild();
+  //loop over chambers
+  while (doChambers) {
+    MuonBaseNumber mbn = muonConstants.geoHistoryToBaseNumber(fv.history());
+    cms::ME0NumberingScheme me0Num(muonConstants.values());
+    me0Num.baseNumberToUnitNumber(mbn);
+    ME0DetId detId = ME0DetId(me0Num.getDetId());
+    ME0DetId detIdCh = detId.chamberId();
+
+    // build chamber
+    ME0Chamber* me0Chamber = buildChamber(fv, detIdCh);
+    geometry->add(me0Chamber);
+
+    bool doLayers = fv.nextSibling();
+    // loop over layers of the chamber
+    while (doLayers) {
+      MuonBaseNumber mbn = muonConstants.geoHistoryToBaseNumber(fv.history());
+      cms::ME0NumberingScheme me0Num(muonConstants.values());
+      me0Num.baseNumberToUnitNumber(mbn);
+      ME0DetId detId = ME0DetId(me0Num.getDetId());
+      ME0DetId detIdLa = detId.layerId();
+
+      // build layer
+      ME0Layer* me0Layer = buildLayer(fv, detIdLa);
+      me0Chamber->add(me0Layer);
+      geometry->add(me0Layer);
+
+      fv.down();  // down to the first eta partion
+
+      // build first eta partition
+      MuonBaseNumber mbnbis = muonConstants.geoHistoryToBaseNumber(fv.history());
+      cms::ME0NumberingScheme me0Numbis(muonConstants.values());
+      me0Numbis.baseNumberToUnitNumber(mbnbis);
+      ME0DetId detIdbis = ME0DetId(me0Numbis.getDetId());
+      ME0EtaPartition* etaPart = buildEtaPartition(fv, detIdbis);
+      me0Layer->add(etaPart);
+      geometry->add(etaPart);
+
+      bool doEtaParts = fv.sibling();
+      // loop over the other eta partions
+
+      while (doEtaParts) {
+        MuonBaseNumber mbn = muonConstants.geoHistoryToBaseNumber(fv.history());
+        cms::ME0NumberingScheme me0Num(muonConstants.values());
+        me0Num.baseNumberToUnitNumber(mbn);
+        ME0DetId detId = ME0DetId(me0Num.getDetId());
+        // build other eta partitions
+        ME0EtaPartition* etaPart = buildEtaPartition(fv, detId);
+        me0Layer->add(etaPart);
+        geometry->add(etaPart);
+
+        doEtaParts = fv.sibling();
+      }
+      doLayers = fv.nextSibling();
+    }
+    fv.parent();
+    doChambers = fv.firstChild();
+  }
+
+  return geometry;
+}
+
+ME0Chamber* ME0GeometryBuilderFromDDD::buildChamber(cms::DDFilteredView& fv, ME0DetId detId) const {
+  std::vector<double> dpar = fv.parameters();
+
+  double L = dpar[3];
+  double T = dpar[2];
+  double b = dpar[0];
+  double B = dpar[1];
+  bool isOdd = false;
+  ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, T), isOdd));
+  ME0Chamber* chamber = new ME0Chamber(detId.chamberId(), surf);
+
+  return chamber;
+}
+
+ME0Layer* ME0GeometryBuilderFromDDD::buildLayer(cms::DDFilteredView& fv, ME0DetId detId) const {
+  std::vector<double> dpar = fv.parameters();
+
+  double L = dpar[3];
+  double t = dpar[2];
+  double b = dpar[0];
+  double B = dpar[1];
+  bool isOdd = false;
+  ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, t), isOdd));
+  ME0Layer* layer = new ME0Layer(detId.layerId(), surf);
+
+  return layer;
+}
+
+ME0EtaPartition* ME0GeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredView& fv, ME0DetId detId) const {
+  //  auto nStrips = fv.get<double>("nStrips");
+  // auto nPads = fv.get<double>("nPads");
+
+  auto nStrips = 384;
+  auto nPads = 192;
+
+  std::vector<double> dpar = fv.parameters();
+
+  double b = dpar[0];
+  double B = dpar[1];
+  double L = dpar[3];
+  double t = dpar[2];
+
+  const std::vector<float> pars{float(dpar[0]), float(dpar[1]), float(dpar[3]), float(nStrips), float(nPads)};
+
+  bool isOdd = false;
+  ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, t), isOdd));
+
+  std::string_view name = fv.name();
+
+  ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, std::string(name), pars);
+
+  ME0EtaPartition* etaPartition = new ME0EtaPartition(detId, surf, e_p_specs);
+
+  return etaPartition;
+}
+
+ME0GeometryBuilderFromDDD::ME0BoundPlane ME0GeometryBuilderFromDDD::boundPlane(const cms::DDFilteredView& fv,
+                                                                               Bounds* bounds,
+                                                                               bool isOddChamber) const {
+  // extract the position
+  const Double_t* trans = fv.trans();
+  Surface::PositionType posResult(trans[0], trans[1], trans[2]);
+
+  // now the rotation
+  DDRotationMatrix rotation;
+  fv.rot(rotation);
+  DD3Vector x, y, z;
+  rotation.GetComponents(x, y, z);
   Surface::RotationType rotResult(float(x.X()),
                                   float(x.Y()),
                                   float(x.Z()),
