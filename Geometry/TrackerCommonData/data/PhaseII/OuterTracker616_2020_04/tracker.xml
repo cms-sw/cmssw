@@ -18442,8 +18442,8 @@ note: see OT616_IT615_cmssw_2020_04_30.cfg for full config files
 <Tubs name="serviceR895Z2679" rMin="895.979*mm" rMax="1001.11*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR1001Z2679" rMin="1001.21*mm" rMax="1074.28*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR1074Z2679" rMin="1074.38*mm" rMax="1099.92*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR1155Z1564" rMin="1155*mm" rMax="1157*mm" dz="264*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR1155Z2264" rMin="1155*mm" rMax="1157*mm" dz="436*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<Tubs name="supportR1155Z1564" rMin="1135*mm" rMax="1137*mm" dz="264*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<Tubs name="supportR1155Z2264" rMin="1135*mm" rMax="1137*mm" dz="436*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR314Z2251" rMin="314*mm" rMax="316*mm" dz="423*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR715Z291" rMin="715*mm" rMax="839.76*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR887Z291" rMin="887.459*mm" rMax="1062.76*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
