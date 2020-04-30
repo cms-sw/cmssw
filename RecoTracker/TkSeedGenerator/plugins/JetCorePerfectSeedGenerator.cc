@@ -85,7 +85,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
