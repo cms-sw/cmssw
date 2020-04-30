@@ -43,7 +43,7 @@ void TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry* theG,
 
   int cont = 0;
   int ntc = 0;
-  for (auto const theTC : theTCCollection) {
+  for (auto const& theTC : theTCCollection) {
     PTrajectoryStateOnDet const& state = theTC.trajectoryStateOnDet();
     const TrackCandidate::range& recHitVec = theTC.recHits();
     const TrajectorySeed& seed = theTC.seed();
