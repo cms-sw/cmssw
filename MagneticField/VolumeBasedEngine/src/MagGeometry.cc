@@ -46,7 +46,7 @@ MagGeometry::MagGeometry(int geomVersion,
   vector<double> rBorders;
 
   for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
-    LogTrace("MagGeometry") << "  Barrel layer at " << (*ilay)->minR() << endl;
+    LogTrace("MagGeoBuilder") << "  Barrel layer at " << (*ilay)->minR() << endl;
     //FIXME assume layers are already sorted in minR
     rBorders.push_back((*ilay)->minR() * (*ilay)->minR());
   }
@@ -55,7 +55,7 @@ MagGeometry::MagGeometry(int geomVersion,
 
 #ifdef EDM_ML_DEBUG
   for (vector<MagESector const*>::const_iterator isec = theESectors.begin(); isec != theESectors.end(); ++isec) {
-    LogTrace("MagGeometry") << "  Endcap sector at " << (*isec)->minPhi() << endl;
+    LogTrace("MagGeoBuilder") << "  Endcap sector at " << (*isec)->minPhi() << endl;
   }
 #endif
 
@@ -119,7 +119,7 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint& gp) const {
   // Fall-back case: no volume found
 
   if (edm::isNotFinite(gp.mag())) {
-    LogWarning("InvalidInput") << "Input value invalid (not a number): " << gp << endl;
+    LogWarning("MagneticField") << "Input value invalid (not a number): " << gp << endl;
 
   } else {
     LogWarning("MagneticField") << "MagGeometry::fieldInTesla: failed to find volume for " << gp << endl;
