@@ -40,10 +40,9 @@ void EcalPreshowerCellParameterDump::analyze(const edm::Event& /*iEvent*/, const
     auto geom = ecalGeom->getGeometry(id);
     ESDetId esid(id);
 
-    std::cout << "Cell[" << nall << "] " << esid << " geom->getPosition "
-              << std::setprecision(4) << geom->getPosition() << " BackPoint " << geom->getBackPoint()
-              << " [rho,eta:etaSpan,phi:phiSpan] (" << geom->rhoPos() << ", " << geom->etaPos() << ":"
-              << geom->etaSpan() << ", " << geom->phiPos() << ":" << geom->phiSpan() << ")";
+    std::cout << "Cell[" << nall << "] " << esid << " geom->getPosition " << std::setprecision(4) << geom->getPosition()
+              << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] (" << geom->rhoPos() << ", "
+              << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":" << geom->phiSpan() << ")";
 
     const CaloCellGeometry::CornersVec& corners(geom->getCorners());
 
