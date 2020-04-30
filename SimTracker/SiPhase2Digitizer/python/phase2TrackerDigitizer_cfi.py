@@ -246,9 +246,6 @@ phase2TrackerDigitizer = cms.PSet(
 # - do not apply inefficiency (to be done in stage2)
 # - disable threshold smearing
 #
-# For inner pixel
-# - extend the dynamic range of ADCs
-#
 # For outer tracker
 # - force analog readout to get the ADCs
 #
@@ -260,8 +257,6 @@ _premixStage1ModifyDict = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
-        ElectronPerAdc = phase2TrackerDigitizer.PSPDigitizerAlgorithm.ElectronPerAdc.value(),
-        AdcFullScale = phase2TrackerDigitizer.PSPDigitizerAlgorithm.AdcFullScale.value(),
     ),
     PSPDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
@@ -272,6 +267,7 @@ _premixStage1ModifyDict = dict(
         AddNoisyPixels = False,
         AddInefficiency = False,
         AddThresholdSmearing = False,
+        Phase2ReadoutMode = -1
     ),
     SSDigitizerAlgorithm = dict(
         AddNoisyPixels = False,
