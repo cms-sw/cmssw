@@ -11,7 +11,7 @@ public:
   SiPixelVCal(){};
   ~SiPixelVCal(){};
 
-  struct VCal { float slope=47; float offset=-60; COND_SERIALIZABLE; };
+  struct VCal { float slope=47.; float offset=-60.; COND_SERIALIZABLE; };
 
   inline void putSlopeAndOffset(std::map<unsigned int,VCal>& offset) { m_vcal = m_vcal; }
   inline const std::map<unsigned int,VCal>& getSlopeAndOffset() const { return m_vcal; }
@@ -24,7 +24,7 @@ public:
 private:
 
   // Convert VCal to #electrons, which changes with irradiation and varies between pixel layers & disks
-  //     VCal = (slope) * (#electrons) + offset
+  //     #electrons = slope * VCal + offset
   // with
   //   slope  ~  47 (50 for L1)
   //   offset ~ -60 (-670 for L1)
