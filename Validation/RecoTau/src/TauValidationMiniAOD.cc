@@ -65,7 +65,8 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   MonitorElement *decayModeFindingTemp, *decayModeTemp, *byDeepTau2017v2p1VSerawTemp;
   MonitorElement *byDeepTau2017v2p1VSjetrawTemp, *byDeepTau2017v2p1VSmurawTemp, *summaryTemp;
   MonitorElement *mtau_dm0, *mtau_dm1, *mtau_dm2, *mtau_dm10, *mtau_dm11;
-  MonitorElement *dmMigration;
+  MonitorElement *dmMigration, *ntau_vs_dm;
+  MonitorElement *pTOverProng_dm0, *pTOverProng_dm1, *pTOverProng_dm2, *pTOverProng_dm10, *pTOverProng_dm11; 
   
   // temp:
   std::cout << "extensionName_: \n";
@@ -115,6 +116,39 @@ void TauValidationMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   dmMigration = ibooker.book2D("dmMigration", "dmMigration", 
 			       50, 0, 1000, 50, 0, 1000);
   dmMigrationMap.insert(std::make_pair("", dmMigration));
+
+  histoInfo pTOverProngHinfo = (histoSettings_.exists("pTOverProng"))
+    ? histoInfo(histoSettings_.getParameter<edm::ParameterSet>("pTOverProng"))
+    : histoInfo(50, 0, 1000);
+  
+  pTOverProng_dm0 = ibooker.book2D("pTOverProng_dm0", "pTOverProng_dm0",
+				   pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max,
+				   pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max);
+  pTOverProng_dm0Map.insert(std::make_pair("", pTOverProng_dm0));
+
+  pTOverProng_dm1 = ibooker.book2D("pTOverProng_dm1", "pTOverProng_dm1",
+                                   pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max,
+				   pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max);
+  pTOverProng_dm1Map.insert(std::make_pair("", pTOverProng_dm1));
+
+  pTOverProng_dm2 = ibooker.book2D("pTOverProng_dm2", "pTOverProng_dm2",
+                                   pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max,
+				   pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max);
+  pTOverProng_dm2Map.insert(std::make_pair("", pTOverProng_dm2));
+
+  pTOverProng_dm10 = ibooker.book2D("pTOverProng_dm10", "pTOverProng_dm10",
+				    pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max,
+				    pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max);
+  pTOverProng_dm10Map.insert(std::make_pair("", pTOverProng_dm10));
+  
+  pTOverProng_dm11 = ibooker.book2D("pTOverProng_dm11", "pTOverProng_dm11",
+				    pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max,
+				    pTOverProngHinfo.nbins, pTOverProngHinfo.min, pTOverProngHinfo.max);
+  pTOverProng_dm11Map.insert(std::make_pair("", pTOverProng_dm11));
+  
+  ntau_vs_dm = ibooker.book1D("ntau_vs_dm", "ntau_vs_dm", 16, 0, 16);
+  ntau_vs_dmMap.insert(std::make_pair("", ntau_vs_dm));
+
   // add discriminator labels to summary plots 
   int j = 0;
   for (const auto& it : discriminators_) {
@@ -448,7 +482,6 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
   iEvent.getByToken(prunedGenToken_, genParticles);
 
   std::vector<const reco::GenParticle*> GenTaus;
-
   
   // temp
   std::cout << "********* Made it past the PV collection *********\n";
@@ -504,15 +537,23 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
       // fill tau mass for decay modes 0 , 1, 2 , 10 ,11
       if (matchedTau->decayMode() == 0) {
         mtau_dm0Map.find("")->second->Fill(matchedTau->mass());
-      } else if (matchedTau->decayMode() == 1) {
+	pTOverProng_dm0Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
+     } else if (matchedTau->decayMode() == 1) {
         mtau_dm1Map.find("")->second->Fill(matchedTau->mass());
+	pTOverProng_dm1Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
       } else if (matchedTau->decayMode() == 2) {
         mtau_dm2Map.find("")->second->Fill(matchedTau->mass());
+	pTOverProng_dm2Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
       } else if (matchedTau->decayMode() == 10) {
         mtau_dm10Map.find("")->second->Fill(matchedTau->mass());
+	pTOverProng_dm10Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
       } else if (matchedTau->decayMode() == 11) {
         mtau_dm11Map.find("")->second->Fill(matchedTau->mass());
+	pTOverProng_dm11Map.find("")->second->Fill(matchedTau->pt(), matchedTau->ptLeadChargedCand());
       }
+
+      // fill decay mode population plot
+      ntau_vs_dmMap.find("")->second->Fill(matchedTau->decayMode());
 
       //Fill decay mode migration 2D histograms
       //First do a gen Matching
@@ -527,7 +568,7 @@ void TauValidationMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSet
       }
 	genindex = genindex + 1;
       }
-      dmMigrationMap.find("")->second->Fill(matchedTau->pt(),genParticles->at(genmatchedTauIndex).pt());   ////Find a way to acceess decaymode
+      dmMigrationMap.find("")->second->Fill(matchedTau->pt(),genParticles->at(genmatchedTauIndex).pt());   ////Find a way to acceess decaymode      
 
       // count number of taus passing each discriminator's selection cut
       int j = 0;
