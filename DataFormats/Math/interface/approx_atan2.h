@@ -121,7 +121,7 @@ constexpr float unsafe_atan2f(float y, float x) {
 
 template <int DEGREE>
 constexpr float safe_atan2f(float y, float x) {
-  return unsafe_atan2f_impl<DEGREE>(y, (y == 0.f) & (x == 0.f) ? 0.2f : x);
+  return unsafe_atan2f_impl<DEGREE>(y, ((y == 0.f) & (x == 0.f)) ? 0.2f : x);
   // return (y==0.f)&(x==0.f) ? 0.f :  unsafe_atan2f_impl<DEGREE>( y, x);
 }
 
