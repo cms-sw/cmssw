@@ -1,0 +1,17 @@
+<use   name="DataFormats/EcalDetId"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/Records"/>
+<use   name="CondFormats/GeometryObjects"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/EcalAlgo"/>
+<use   name="Geometry/EcalCommonData"/>
+<use   name="CondFormats/Alignment"/>
+<use   name="DetectorDescription/Core"/>
+<use   name="DetectorDescription/DDCMS"/>
+<library   file="ecalBarrelCellParameterDump.cc" name="ecalBarrelCellParameterDump">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="ecalEndcapCellParameterDump.cc" name="ecalEndcapCellParameterDump">
+  <flags   EDM_PLUGIN="1"/>
+</library>
