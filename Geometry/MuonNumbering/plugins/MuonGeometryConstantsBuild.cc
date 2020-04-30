@@ -1,4 +1,4 @@
-#include "Geometry/MuonNumbering/interface/MuonGeometryConstantsBuild.h"
+#include "Geometry/MuonNumbering/plugins/MuonGeometryConstantsBuild.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

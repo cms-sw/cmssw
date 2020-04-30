@@ -7,7 +7,7 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
-#include "Geometry/MuonNumbering/interface/MuonGeometryConstantsBuild.h"
+#include "Geometry/MuonNumbering/plugins/MuonGeometryConstantsBuild.h"
 
 #include <memory>
 
