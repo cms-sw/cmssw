@@ -12,7 +12,8 @@
 
 bool MuonGeometryConstantsBuild::build(const DDCompactView* cpv, MuonGeometryConstants& php) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild;:build (const DDCompactView* cpv, MuonGeometryConstants& php)";
+  edm::LogVerbatim("Geometry")
+      << "MuonGeometryConstantsBuild;:build (const DDCompactView* cpv, MuonGeometryConstants& php)";
 #endif
   std::string attribute = "OnlyForMuonNumbering";
 
@@ -29,7 +30,8 @@ bool MuonGeometryConstantsBuild::build(const DDCompactView* cpv, MuonGeometryCon
   edm::LogVerbatim("Geometry") << "MuonGeometryConstantsBuild::mySpecs.size() = " << mySpecs.size();
 #endif
   if (mySpecs.size() < 25) {
-    edm::LogError("MuonGeometryConstantsBuild") << " MuonGeometryConstantsBuild: Missing SpecPars from DetectorDescription.";
+    edm::LogError("MuonGeometryConstantsBuild")
+        << " MuonGeometryConstantsBuild: Missing SpecPars from DetectorDescription.";
     std::string msg =
         "MuonGeometryConstantsBuild does not have the appropriate number of SpecPars associated with the part //MUON.";
     throw cms::Exception("GeometryBuildFailure", msg);
