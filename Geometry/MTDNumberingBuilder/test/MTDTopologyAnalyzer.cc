@@ -171,7 +171,7 @@ void MTDTopologyAnalyzer::theBaseNumber(const DDGeoHistory& gh) {
 }
 
 std::string MTDTopologyAnalyzer::noNSgeoHistory(const DDGeoHistory& gh) {
-  std::string output;
+  std::string output(" - ");
   for (uint i = 0; i < gh.size(); i++) {
     output += gh[i].logicalPart().name().name();
     output += "[";
