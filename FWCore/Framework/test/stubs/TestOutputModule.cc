@@ -20,7 +20,7 @@
 
 using namespace edm;
 
-typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
+using Trig = detail::TriggerResultsBasedEventSelector::handle_t;
 
 namespace {
 
