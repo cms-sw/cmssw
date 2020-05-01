@@ -20,7 +20,7 @@ process.ME0GeometryESProducer = cms.ESProducer("ME0GeometryESModule",
                                                attribute = cms.string('MuStructure'),
                                                value = cms.string('MuonEndCapME0'),
                                                useDDD = cms.bool(True),
-                                               useDD4hep = cms.bool(False),
+                                               useDD4hep = cms.untracked.bool(False),
                                                use10EtaPart = cms.bool(True)
                                               )
 

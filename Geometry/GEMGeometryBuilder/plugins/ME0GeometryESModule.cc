@@ -54,7 +54,7 @@ private:
 
 ME0GeometryESModule::ME0GeometryESModule(const edm::ParameterSet& p) {
   useDDD_ = p.getParameter<bool>("useDDD");
-  useDD4hep_ = p.getParameter<bool>("useDD4hep");
+  useDD4hep_ = p.getUntrackedParameter<bool>("useDD4hep", false);
   auto cc = setWhatProduced(this);
   if (useDDD_) {
     cc.setConsumes(cpvToken_).setConsumes(mdcToken_);
