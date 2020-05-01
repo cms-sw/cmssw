@@ -20,9 +20,9 @@
 
 using namespace sim;
 
-FieldBuilder::FieldBuilder(const MagneticField *f, const edm::ParameterSet &p) : theTopVolume(nullptr), thePSet(p) {
+FieldBuilder::FieldBuilder(local::MagneticField f, const edm::ParameterSet &p) : theTopVolume(nullptr), thePSet(p) {
   theDelta = p.getParameter<double>("delta") * CLHEP::mm;
-  theField = new Field(f, theDelta);
+  theField = new Field(std::move(f), theDelta);
   theFieldEquation = new G4Mag_UsualEqRhs(theField);
 }
 

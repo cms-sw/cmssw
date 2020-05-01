@@ -3,17 +3,17 @@
 
 #include "G4MagneticField.hh"
 
-class MagneticField;
+#include "MagneticField/Engine/interface/localMagneticField.h"
 
 namespace sim {
   class Field : public G4MagneticField {
   public:
-    Field(const MagneticField *f, double d);
+    Field(local::MagneticField f, double d);
     ~Field() override;
     void GetFieldValue(const G4double p[4], G4double b[3]) const override;
 
   private:
-    const MagneticField *theCMSMagneticField;
+    mutable local::MagneticField theCMSMagneticField;
     double theDelta;
 
     mutable double oldx[3];

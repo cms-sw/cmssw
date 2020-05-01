@@ -4,17 +4,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
 
-class MagneticField;
 class CMSFieldManager;
 class G4Mag_UsualEqRhs;
 class G4PropagatorInField;
 class G4LogicalVolume;
 
+namespace local {
+  class MagneticField;
+}
+
 namespace sim {
   class Field;
   class FieldBuilder {
   public:
-    FieldBuilder(const MagneticField *, const edm::ParameterSet &);
+    FieldBuilder(local::MagneticField, const edm::ParameterSet &);
 
     ~FieldBuilder();
 

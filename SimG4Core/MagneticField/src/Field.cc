@@ -1,4 +1,4 @@
-#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Engine/interface/localMagneticField.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -8,7 +8,7 @@
 
 using namespace sim;
 
-Field::Field(const MagneticField *f, double d) : G4MagneticField(), theCMSMagneticField(f), theDelta(d) {
+Field::Field(local::MagneticField f, double d) : G4MagneticField(), theCMSMagneticField(std::move(f)), theDelta(d) {
   for (int i = 0; i < 3; ++i) {
     oldx[i] = 1.0e12;
     oldb[i] = 0.0;
@@ -22,7 +22,7 @@ void Field::GetFieldValue(const G4double xyz[4], G4double bfield[3]) const {
       std::abs(oldx[2] - xyz[2]) > theDelta) {
     static const float lunit = (float)(1.0 / CLHEP::cm);
     GlobalPoint ggg((float)(xyz[0]) * lunit, (float)(xyz[1]) * lunit, (float)(xyz[2]) * lunit);
-    GlobalVector v = theCMSMagneticField->inTesla(ggg);
+    GlobalVector v = theCMSMagneticField.inTesla(ggg);
 
     static const float btesla = (float)CLHEP::tesla;
     oldb[0] = (G4double)(v.x() * btesla);

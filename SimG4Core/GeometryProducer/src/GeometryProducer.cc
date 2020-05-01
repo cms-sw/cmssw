@@ -18,6 +18,7 @@
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Engine/interface/localMagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -87,7 +88,7 @@ void GeometryProducer::updateMagneticField(edm::EventSetup const &es) {
     const GlobalPoint g(0., 0., 0.);
     edm::LogInfo("GeometryProducer") << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g);
 
-    sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
+    sim::FieldBuilder fieldBuilder(local::MagneticField(pMF.product()), m_pField);
     CMSFieldManager *fieldManager = new CMSFieldManager();
     G4TransportationManager *tM = G4TransportationManager::GetTransportationManager();
     tM->SetFieldManager(fieldManager);

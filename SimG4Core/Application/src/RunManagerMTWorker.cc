@@ -39,6 +39,7 @@
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Engine/interface/localMagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -290,7 +291,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
     edm::ESHandle<MagneticField> pMF;
     es.get<IdealMagneticFieldRecord>().get(pMF);
 
-    sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
+    sim::FieldBuilder fieldBuilder(local::MagneticField(pMF.product()), m_pField);
     CMSFieldManager* fieldManager = new CMSFieldManager();
     tM->SetFieldManager(fieldManager);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());

@@ -25,6 +25,7 @@
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Engine/interface/localMagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
@@ -248,7 +249,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
     es.get<IdealMagneticFieldRecord>().get(pMF);
     const GlobalPoint g(0., 0., 0.);
 
-    sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
+    sim::FieldBuilder fieldBuilder(local::MagneticField(pMF.product()), m_pField);
     CMSFieldManager* fieldManager = new CMSFieldManager();
     G4TransportationManager* tM = G4TransportationManager::GetTransportationManager();
     tM->SetFieldManager(fieldManager);
