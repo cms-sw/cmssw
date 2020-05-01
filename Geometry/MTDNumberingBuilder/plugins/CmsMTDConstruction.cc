@@ -36,9 +36,7 @@ bool CmsMTDConstruction<FilteredView>::mtdOrderPhi(const GeometricTimingDet* a, 
 }
 
 template <>
-void CmsMTDConstruction<DDFilteredView>::buildBTLModule(DDFilteredView& fv,
-                                                        GeometricTimingDet* mother,
-                                                        const std::string& attribute) {
+void CmsMTDConstruction<DDFilteredView>::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* mother) {
   std::string nodeName(fv.name());
   GeometricTimingDet* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
@@ -72,9 +70,7 @@ void CmsMTDConstruction<DDFilteredView>::buildBTLModule(DDFilteredView& fv,
 }
 
 template <>
-void CmsMTDConstruction<cms::DDFilteredView>::buildBTLModule(cms::DDFilteredView& fv,
-                                                             GeometricTimingDet* mother,
-                                                             const std::string& attribute) {
+void CmsMTDConstruction<cms::DDFilteredView>::buildBTLModule(cms::DDFilteredView& fv, GeometricTimingDet* mother) {
   std::string nodeName(fv.name());
   GeometricTimingDet* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
@@ -108,9 +104,7 @@ void CmsMTDConstruction<cms::DDFilteredView>::buildBTLModule(cms::DDFilteredView
 }
 
 template <>
-void CmsMTDConstruction<DDFilteredView>::buildETLModule(DDFilteredView& fv,
-                                                        GeometricTimingDet* mother,
-                                                        const std::string& attribute) {
+void CmsMTDConstruction<DDFilteredView>::buildETLModule(DDFilteredView& fv, GeometricTimingDet* mother) {
   std::string nodeName(fv.name());
   GeometricTimingDet* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
@@ -157,9 +151,7 @@ void CmsMTDConstruction<DDFilteredView>::buildETLModule(DDFilteredView& fv,
 }
 
 template <>
-void CmsMTDConstruction<cms::DDFilteredView>::buildETLModule(cms::DDFilteredView& fv,
-                                                             GeometricTimingDet* mother,
-                                                             const std::string& attribute) {
+void CmsMTDConstruction<cms::DDFilteredView>::buildETLModule(cms::DDFilteredView& fv, GeometricTimingDet* mother) {
   std::string nodeName(fv.name());
   GeometricTimingDet* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
@@ -183,9 +175,7 @@ void CmsMTDConstruction<cms::DDFilteredView>::buildETLModule(cms::DDFilteredView
 }
 
 template <class FilteredView>
-GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildSubdet(FilteredView& fv,
-                                                                  GeometricTimingDet* mother,
-                                                                  const std::string& attribute) {
+GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildSubdet(FilteredView& fv) {
   std::string nodeName(fv.name());
   auto thisDet = theCmsMTDStringToEnum.type(nodeName);
   GeometricTimingDet* subdet = new GeometricTimingDet(&fv, thisDet);
@@ -199,15 +189,11 @@ GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildSubdet(FilteredView& 
     throw cms::Exception("CmsMTDConstruction") << " ERROR - I was expecting a SubDet, I got a " << fv.name();
   }
 
-  mother->addComponent(subdet);
-
   return subdet;
 }
 
 template <class FilteredView>
-GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildLayer(FilteredView& fv,
-                                                                 GeometricTimingDet* mother,
-                                                                 const std::string& attribute) {
+GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildLayer(FilteredView& fv) {
   std::string nodeName(fv.name());
   auto thisDet = theCmsMTDStringToEnum.type(nodeName);
   GeometricTimingDet* layer = new GeometricTimingDet(&fv, thisDet);
@@ -230,8 +216,6 @@ GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildLayer(FilteredView& f
     nLayer = (fv.name().find("Disc1") != std::string::npos) ? 1 : 2;
     layer->setGeographicalID(nLayer);
   }
-
-  mother->addComponent(layer);
 
   return layer;
 }

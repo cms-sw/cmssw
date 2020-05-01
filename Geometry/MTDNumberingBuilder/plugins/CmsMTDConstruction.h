@@ -19,11 +19,11 @@ public:
   static bool mtdOrderRR(const GeometricTimingDet* a, const GeometricTimingDet* b);
   static bool mtdOrderPhi(const GeometricTimingDet* a, const GeometricTimingDet* b);
 
-  void buildBTLModule(FilteredView&, GeometricTimingDet*, const std::string&);
-  void buildETLModule(FilteredView&, GeometricTimingDet*, const std::string&);
+  void buildBTLModule(FilteredView&, GeometricTimingDet*);
+  void buildETLModule(FilteredView&, GeometricTimingDet*);
 
-  GeometricTimingDet* buildSubdet(FilteredView&, GeometricTimingDet*, const std::string&);
-  GeometricTimingDet* buildLayer(FilteredView&, GeometricTimingDet*, const std::string&);
+  GeometricTimingDet* buildSubdet(FilteredView&);
+  GeometricTimingDet* buildLayer(FilteredView&);
 
   void baseNumberFromHistory(const DDGeoHistory& gh);
 
