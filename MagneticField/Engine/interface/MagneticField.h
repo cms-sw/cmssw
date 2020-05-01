@@ -16,6 +16,29 @@
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+/**
+ * A helper class to enable deriving classes to use an efficient
+ * thread-safe cache. This class is intended for internal use within
+ * MagneticField, users should look into local::MagneticField.
+ */
+class MagneticFieldCache {
+public:
+  MagneticFieldCache() : cache_{nullptr} {}
+  template <typename T>
+  void set(T const* iCache) {
+    cache_ = iCache;
+  }
+  template <typename T>
+  T const* get() const {
+    return reinterpret_cast<T const*>(cache_);
+  }
+
+  void reset() { cache_ = nullptr; }
+
+private:
+  void const* cache_;
+};
+
 class MagneticField {
 public:
   MagneticField();
@@ -28,12 +51,20 @@ public:
 
   /// Field value ad specified global point, in Tesla
   virtual GlobalVector inTesla(const GlobalPoint& gp) const = 0;
+  /// Field value ad specified global point, in Tesla
+  virtual GlobalVector inTesla(const GlobalPoint& gp, MagneticFieldCache& cache) const { return inTesla(gp); }
 
   /// Field value ad specified global point, in KGauss
   GlobalVector inKGauss(const GlobalPoint& gp) const { return inTesla(gp) * 10.F; }
+  /// Field value ad specified global point, in KGauss
+  GlobalVector inKGauss(const GlobalPoint& gp, MagneticFieldCache& cache) const { return inTesla(gp, cache) * 10.F; }
 
   /// Field value ad specified global point, in 1/Gev
   GlobalVector inInverseGeV(const GlobalPoint& gp) const { return inTesla(gp) * 2.99792458e-3F; }
+  /// Field value ad specified global point, in 1/Gev
+  GlobalVector inInverseGeV(const GlobalPoint& gp, MagneticFieldCache& cache) const {
+    return inTesla(gp, cache) * 2.99792458e-3F;
+  }
 
   /// True if the point is within the region where the concrete field
   // engine is defined.
@@ -43,6 +74,11 @@ public:
   /// by skipping the check to isDefined.
   virtual GlobalVector inTeslaUnchecked(const GlobalPoint& gp) const {
     return inTesla(gp);  // default dummy implementation
+  }
+  /// Optional implementation that derived classes can implement to provide faster query
+  /// by skipping the check to isDefined.
+  virtual GlobalVector inTeslaUnchecked(const GlobalPoint& gp, MagneticFieldCache& cache) const {
+    return inTesla(gp, cache);  // default dummy implementation
   }
 
   /// The nominal field value for this map in kGauss
