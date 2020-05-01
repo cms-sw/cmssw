@@ -109,10 +109,10 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 
       // define subdetectors as GeometricTimingDet components
 
-      subdet.emplace_back(theCmsMTDConstruction.buildSubdet(fv, mtd.get(), attribute));
+      subdet.emplace_back(theCmsMTDConstruction.buildSubdet(fv));
     }
     if (fullNode == GeometricTimingDet::BTLLayer || fullNode == GeometricTimingDet::ETLDisc) {
-      layer.emplace_back(theCmsMTDConstruction.buildLayer(fv, subdet.back(), attribute));
+      layer.emplace_back(theCmsMTDConstruction.buildLayer(fv));
     }
     //
     // the level chosen corresponds to wafers for D50 and previous scenarios
@@ -137,13 +137,13 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
-      theCmsMTDConstruction.buildBTLModule(fv, layer.back(), attribute);
+      theCmsMTDConstruction.buildBTLModule(fv, layer.back());
       limit = num;
     } else if (thisNode == GeometricTimingDet::ETLModule) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
-      theCmsMTDConstruction.buildETLModule(fv, layer.back(), attribute);
+      theCmsMTDConstruction.buildETLModule(fv, layer.back());
       limit = num;
     }
   } while (fv.next());
@@ -167,6 +167,27 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const DDCom
       std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<DDFilteredView>::mtdOrderPhi);
     }
   }
+
+  // Add layers to subdetectors:
+  // first BTL (one layer only)
+
+  subdet[0]->addComponent(layer[0]);
+
+  // then ETL (number of layers depend on preTDR design or not)
+
+  if (layer.size() == 3) {
+    subdet[1]->addComponent(layer[1]);
+    subdet[2]->addComponent(layer[2]);
+  } else {
+    subdet[1]->addComponent(layer[1]);
+    subdet[1]->addComponent(layer[2]);
+    subdet[2]->addComponent(layer[3]);
+    subdet[2]->addComponent(layer[4]);
+  }
+
+  // Add subdetectors to MTD
+
+  mtd.get()->addComponents(subdet);
 
 #ifdef EDM_ML_DEBUG
   comp.clear();
@@ -240,21 +261,21 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::
     if (fullNode == GeometricTimingDet::BTL || fullNode == GeometricTimingDet::ETL) {
       // define subdetectors as GeometricTimingDet components
 
-      subdet.push_back(theCmsMTDConstruction.buildSubdet(fv, mtd.get(), attribute));
+      subdet.push_back(theCmsMTDConstruction.buildSubdet(fv));
     }
     if (fullNode == GeometricTimingDet::BTLLayer || fullNode == GeometricTimingDet::ETLDisc) {
-      layer.push_back(theCmsMTDConstruction.buildLayer(fv, subdet.back(), attribute));
+      layer.push_back(theCmsMTDConstruction.buildLayer(fv));
     }
     if (thisNode == GeometricTimingDet::BTLModule) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
-      theCmsMTDConstruction.buildBTLModule(fv, layer.back(), attribute);
+      theCmsMTDConstruction.buildBTLModule(fv, layer.back());
     } else if (thisNode == GeometricTimingDet::ETLModule) {
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("DD4hep_MTDNumbering") << "Registered in GeometricTimingDet as type " << thisNode;
 #endif
-      theCmsMTDConstruction.buildETLModule(fv, layer.back(), attribute);
+      theCmsMTDConstruction.buildETLModule(fv, layer.back());
     }
 
     doSubdet = fv.firstChild();
@@ -279,6 +300,27 @@ std::unique_ptr<GeometricTimingDet> DDDCmsMTDConstruction::construct(const cms::
       std::stable_sort(icomp.begin(), icomp.end(), CmsMTDConstruction<cms::DDFilteredView>::mtdOrderPhi);
     }
   }
+
+  // Add layers to subdetectors:
+  // first BTL (one layer only)
+
+  subdet[0]->addComponent(layer[0]);
+
+  // then ETL (number of layers depend on preTDR design or not)
+
+  if (layer.size() == 3) {
+    subdet[1]->addComponent(layer[1]);
+    subdet[2]->addComponent(layer[2]);
+  } else {
+    subdet[1]->addComponent(layer[1]);
+    subdet[1]->addComponent(layer[2]);
+    subdet[2]->addComponent(layer[3]);
+    subdet[2]->addComponent(layer[4]);
+  }
+
+  // Add subdetectors to MTD
+
+  mtd.get()->addComponents(subdet);
 
 #ifdef EDM_ML_DEBUG
   comp.clear();
