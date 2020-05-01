@@ -60,51 +60,8 @@ def supress_output( f ):
 
     return decorated
 
-
 @supress_output
-def deserialize_iovs(db, plugin_name, plot_name, tag, time_type, iovs, input_params):
-    ''' Deserializes given iovs data and returns plot coordinates '''
-    
-    output('Starting to deserialize iovs: ', '')
-    output('db: ', db)
-    output('plugin name: ', plugin_name)
-    output('plot name: ', plot_name)
-    output('tag name: ', tag)
-    output('tag time type: ', time_type)
-    output('iovs: ', iovs)
-  
-    plugin_base = import_module('pluginModule_PayloadInspector')
-    output('PI plugin base: ', plugin_base)
-
-    plugin_obj = import_module(plugin_name)
-    output('PI plugin object: ', plugin_obj)
-
-    # get plot method and execute it with given iovs
-    plot = getattr(plugin_obj, plot_name)()
-    output('plot object: ', plot)
-
-    if db == "Prod":
-        db_name = 'frontier://FrontierProd/CMS_CONDITIONS'
-    elif db == 'Prep' :
-        db_name = 'frontier://FrontierPrep/CMS_CONDITIONS'
-    else:
-        db_name = db
-
-    output('full DB name: ', db_name)
-
-    if input_params is not None:
-        plot.setInputParamValues( input_params )
-    success = plot.process(db_name, tag, time_type, int(iovs['start_iov']), int(iovs['end_iov']))
-    output('plot processed data successfully: ', success)
-    if not success:
-        return False
-
-
-    result = plot.data()
-    output('deserialized data: ', result)
-    return result
-@supress_output
-def deserialize_twoiovs(db, plugin_name, plot_name, tag,tagtwo,iovs,iovstwo, input_params):
+def deserialize_iovs(db, plugin_name, plot_name, tags, input_params):
     ''' Deserializes given iovs data and returns plot coordinates '''
     #print "Starting to deserialize iovs:"
     #print 'First Iovs',iovs
@@ -113,11 +70,11 @@ def deserialize_twoiovs(db, plugin_name, plot_name, tag,tagtwo,iovs,iovstwo, inp
     output('db: ', db)
     output('plugin name: ', plugin_name)
     output('plot name: ', plot_name)
-    output('tag name: ', tag)
-    output('tagtwo name: ', tagtwo)
+    output('tags: ', tags)
+    #output('tagtwo name: ', tagtwo)
     #output('tag time type: ', time_type)
-    output('iovs: ', iovs)
-    output('iovstwo: ', iovstwo)
+    #output('iovs: ', iovs)
+    #output('iovstwo: ', iovstwo)
   
     plugin_base = import_module('pluginModule_PayloadInspector')
     output('PI plugin base: ', plugin_base)
@@ -140,7 +97,8 @@ def deserialize_twoiovs(db, plugin_name, plot_name, tag,tagtwo,iovs,iovstwo, inp
 
     if input_params is not None:
         plot.setInputParamValues( input_params )
-    success = plot.processTwoTags(db_name, tag,tagtwo,int(iovs['start_iov']), int(iovstwo['end_iov']))
+    
+    success = plot.process(db_name, tags)
     #print "All good",success
     output('plot processed data successfully: ', success)
     if not success:
@@ -258,7 +216,7 @@ if __name__ == '__main__':
     run ./getPayloadData.py --plugin YourPIPluginName --plot YourObjectPlot --tag tagName --time_type Run --iovs '{"start_iov": "201", "end_iov": "801"}' --db Prod --test 
   
     Here is an example for BasicPayload object:
-    run ./getPayloadData.py --plugin pluginBasicPayload_PayloadInspector --plot plot_BasicPayload_data0 --tag BasicPayload_v2 --time_type Run --iovs '{"start_iov": "201", "end_iov": "801"}' --db Prod --test
+    run ./getPayloadData.py --plugin pluginBasicPayload_PayloadInspector --plot plot_BasicPayload_data0 --tags '[("tag1":"201","801"),("tag2","1","200")]' --db Prod --test
 
     c) if it works correctly please make a pull request and once it's accepted
     go to cmsDbBrowser and wait for the next IB to test it.
@@ -270,6 +228,7 @@ if __name__ == '__main__':
     parser.add_argument("-i2", "--iovstwo",   help="deserializes given iovs data encoded in base64 and returns plot coordinates also encoded in base64")
     parser.add_argument("-o", "--plugin",     help="Payload Inspector plugin name needed for iovs deserialization")
     parser.add_argument("-p", "--plot",       help="plot name needed for iovs deserialization")
+    parser.add_argument("-ts", "--tags",       help="tag list with their iov boundaries")
     parser.add_argument("-t", "--tag",        help="tag name needed for iovs deserialization")
     parser.add_argument("-t2", "--tagtwo",    help="tag name needed for iovs deserialization")
     parser.add_argument("-tt", "--time_type", help="tag time type name needed for iovs deserialization")
@@ -295,77 +254,52 @@ if __name__ == '__main__':
     if args.input_params is not None:
         input_params = yaml.safe_load(args.input_params)
 
+    tags = []
+    if args.tags:
+        tags = yaml.safe_load( args.tags )
+    else:
+        if args.tag:
+            iovDict = yaml.safe_load( args.iovs )
+            tags.append( (args.tag, iovDict['start_iov'], iovDict['end_iov'] ) )
+        if args.tagtwo:
+            iovDict = yaml.safe_load( args.iovstwo )
+            tags.append( (args.tagTwo, iovDict['start_iov'], iovDict['end_iov'] ) )
+        
     # Return a plot if iovs are provided
     #print '* getiovs: ',args.iovs
     #print '* getiovstwo: ',args.iovstwo
-    if args.iovstwo:
 
-        # Run plugin with arguments
-        #print 'We are here'
-        a=json.loads(args.iovs)
-        #print 'A',a
-        b=json.loads(args.iovstwo)
-        #print 'B',b
-        result = deserialize_twoiovs(args.db, args.plugin, args.plot, args.tag,args.tagtwo,a,b, input_params)
+    result = deserialize_iovs(args.db, args.plugin, args.plot, tags, input_params)
         # If test -> output the result as formatted json
-        if args.test:
-            os.write( 1, json.dumps( json.loads( result ), indent=4 ))
-        #print 'Result:',result
-	if args.image_plot:
-            try:
-                filename = json.loads( result )['file']
-                #print 'File name',filename
-            except ValueError as e:
-                os.write( 2, 'Value error when getting image name: %s\n' % str( e ))
-            except KeyError as e:
-                os.write( 2, 'Key error when getting image name: %s\n' % str( e ))
-
-            if not filename or not os.path.isfile( filename ):
-                os.write( 2, 'Error: Generated image file (%s) not found\n' % filename )
-
-            try:
-                with open( filename, 'r' ) as f:
-                    shutil.copyfileobj( f, sys.stdout )
-            except IOError as e:
-                os.write( 2, 'IO error when streaming image: %s' % str( e ))
-            finally:
-                os.remove( filename )
-
-                        
-        # Else -> output result json string with base 64 encoding
-    elif args.iovs:
-        result = deserialize_iovs(args.db, args.plugin, args.plot, args.tag, args.time_type, json.loads(args.iovs), input_params)
-        
-        # If test -> output the result as formatted json
-        if args.test:
-            os.write( 1, json.dumps( json.loads( result ), indent=4 ))
+    if args.test:
+        os.write( 1, json.dumps( json.loads( result ), indent=4 ))
 
         # If image plot -> get image file from result, open it and output bytes 
-        elif args.image_plot:
+    elif args.image_plot:
 
-            filename = None
+        filename = None
             
-            try:
-                filename = json.loads( result )['file']
+        try:
+            filename = json.loads( result )['file']
                 #print 'File name',filename
-            except ValueError, e:
-                os.write( 2, 'Value error when getting image name: %s\n' % str( e ))
-            except KeyError, e:
-                os.write( 2, 'Key error when getting image name: %s\n' % str( e ))
+        except ValueError, e:
+            os.write( 2, 'Value error when getting image name: %s\n' % str( e ))
+        except KeyError, e:
+            os.write( 2, 'Key error when getting image name: %s\n' % str( e ))
 
-            if not filename or not os.path.isfile( filename ):
-                os.write( 2, 'Error: Generated image file (%s) not found\n' % filename )
+        if not filename or not os.path.isfile( filename ):
+            os.write( 2, 'Error: Generated image file (%s) not found\n' % filename )
 
-            try:
-                with open( filename, 'r' ) as f:
-                    shutil.copyfileobj( f, sys.stdout )
-            except IOError, e:
-                os.write( 2, 'IO error when streaming image: %s' % str( e ))
-            finally:
-                os.remove( filename )
+        try:
+            with open( filename, 'r' ) as f:
+                shutil.copyfileobj( f, sys.stdout )
+        except IOError, e:
+            os.write( 2, 'IO error when streaming image: %s' % str( e ))
+        finally:
+            os.remove( filename )
 
                         
-        # Else -> output result json string with base 64 encoding
-        else: 
-            os.write( 1, result.encode( 'base64' ))
+    # Else -> output result json string with base 64 encoding
+    else: 
+        os.write( 1, result.encode( 'base64' ))
 
