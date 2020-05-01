@@ -46,9 +46,10 @@
 #include "G4ProcessManager.hh"
 
 CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int)
-  : CMSHadronPhysicsFTFP_BERT(3. * CLHEP::GeV, 6. * CLHEP::GeV, 12 * CLHEP::GeV) {}
+    : CMSHadronPhysicsFTFP_BERT(3. * CLHEP::GeV, 6. * CLHEP::GeV, 12 * CLHEP::GeV) {}
 
-CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2, G4double e3) : G4VPhysicsConstructor("hInelastic FTFP_BERT") {
+CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4double e1, G4double e2, G4double e3)
+    : G4VPhysicsConstructor("hInelastic FTFP_BERT") {
   minFTFP_ = e1;
   maxBERT_ = e2;
   maxBERTpi_ = e3;
