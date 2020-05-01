@@ -445,7 +445,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // muons first - no cleaning, take as is.
   if (muonCollectionHandle_.isValid()) {
-    for (const auto muon : *muonCollectionHandle_) {
+    for (const auto& muon : *muonCollectionHandle_) {
       outputMuons->push_back(muon);
     }
   }
