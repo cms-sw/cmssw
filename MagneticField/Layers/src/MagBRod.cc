@@ -9,7 +9,7 @@
 #include "MagneticField/Layers/interface/MagBRod.h"
 #include "MagneticField/Layers/interface/MagBSlab.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 
@@ -17,16 +17,13 @@ using namespace std;
 
 MagBRod::MagBRod(vector<MagBSlab *> &slabs, Geom::Phi<float> phiMin)
     : theSlabs(slabs), thePhiMin(phiMin), theBinFinder(nullptr) {
-  // TOFIX
-  //   if (verbose.debugOut) cout << "Building MagBRod with " << theSlabs.size()
+  //   LogTrace("MagGeometry") << "Building MagBRod with " << theSlabs.size()
   // 		  << " slabs, minPhi " << thePhiMin << endl;
 
   if (theSlabs.size() > 1) {  // Set the binfinder
     vector<double> zBorders;
     for (vector<MagBSlab *>::const_iterator islab = theSlabs.begin(); islab != theSlabs.end(); ++islab) {
-      // TOFIX
-      if (verbose::debugOut)
-        cout << (*islab)->minZ() << endl;
+      LogTrace("MagGeoBuilder") << " MagBSlab minZ=" << (*islab)->minZ() << endl;
       //FIXME assume layers are already sorted in Z
       zBorders.push_back((*islab)->minZ());
     }
@@ -51,13 +48,9 @@ const MagVolume *MagBRod::findVolume(const GlobalPoint &gp, double tolerance) co
     bin = theBinFinder->binIndex(Z);
   }
 
-  // TOFIX
-  if (verbose::debugOut)
-    cout << "       Trying slab at Z " << theSlabs[bin]->minZ() << " " << Z << endl;
+  LogTrace("MagGeometry") << "       Trying slab at Z " << theSlabs[bin]->minZ() << " " << Z << endl;
   result = theSlabs[bin]->findVolume(gp, tolerance);
-  // TOFIX
-  if (verbose::debugOut)
-    cout << "***In guessed bslab" << (result == nullptr ? " failed " : " OK ") << endl;
+  LogTrace("MagGeometry") << "***In guessed bslab" << (result == nullptr ? " failed " : " OK ") << endl;
 
   return result;
 }
