@@ -14,6 +14,8 @@ from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
 from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 
+from Configuration.Eras.Modifier_run2_miniAOD_devel_cff import run2_miniAOD_devel
+
 def applyDefaultSettings(ctppsProtons):
   ctppsProtons.association_cuts_45.x_cut_apply = False
   ctppsProtons.association_cuts_45.y_cut_apply = False
@@ -26,6 +28,14 @@ def applyDefaultSettings(ctppsProtons):
   ctppsProtons.association_cuts_56.xi_cut_apply = True
   ctppsProtons.association_cuts_56.xi_cut_value = 0.015
   ctppsProtons.association_cuts_56.th_y_cut_apply = False
+
+  # update for re-miniAOD
+  run2_miniAOD_devel.toModify(ctppsProtons,
+      pixelDiscardBXShiftedTracks = True,
+      association_cuts_45 = dict(ti_tr_min = -1.5, ti_tr_max = 2.0),
+      association_cuts_56 = dict(ti_tr_min = -1.5, ti_tr_max = 2.0),
+      default_time = -999.
+  )
 
 ctpps_2016.toModify(ctppsProtons, applyDefaultSettings) # applied for all Run2 years (2016, 2017 and 2018)
 
