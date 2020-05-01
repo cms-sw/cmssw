@@ -95,7 +95,7 @@ private:
   bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
   bool validChannel(const QIE10DataFrame& digi, int ts) const;
   bool needLegacyFG(const HcalTrigTowerDetId& id) const;
-  bool needUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
+  bool needUpgradeID(const HcalTrigTowerDetId& id, int depth) const;
 
   /// adds the actual digis
   void analyze(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
