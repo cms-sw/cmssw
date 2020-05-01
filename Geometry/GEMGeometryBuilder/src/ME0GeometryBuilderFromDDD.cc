@@ -489,11 +489,11 @@ ME0Layer* ME0GeometryBuilderFromDDD::buildLayer(cms::DDFilteredView& fv, ME0DetI
 }
 
 ME0EtaPartition* ME0GeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredView& fv, ME0DetId detId) const {
-  //  auto nStrips = fv.get<double>("nStrips");
-  // auto nPads = fv.get<double>("nPads");
+  //      auto nStrips = fv.get<double>("nStrips"); //it doesn't work
+  //    auto nPads = fv.get<double>("nPads"); //it doesn't work
 
-  auto nStrips = 384;
-  auto nPads = 192;
+  auto nStrips = 384;  // from GEMSpecs
+  auto nPads = 192;    // from GEMSpecs
 
   std::vector<double> dpar = fv.parameters();
 
