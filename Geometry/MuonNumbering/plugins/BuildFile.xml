@@ -4,14 +4,9 @@
 <use   name="Geometry/MuonNumbering"/>
 <use   name="Geometry/Records"/>
 <use   name="FWCore/MessageLogger"/>
-<library   file="MuonNumberingInitialization.cc" name="GeometryMuonNumberingPlugins">
-  <use   name="DetectorDescription/Core"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="MuonNumberingESProducer.cc" name="DD4hep_GeometryMuonNumberingPlugins">
-  <use   name="DetectorDescription/DDCMS"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="DDTestMuonNumbering.cc"  name="DD4hep_GeometryMuonNumberingTestPlugins" >
+<use   name="DetectorDescription/Core"/>
+<use   name="DetectorDescription/DDCMS"/>
+<use   name="dd4hep"/>
+<library   file="*.cc" name="GeometryMuonNumberingPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
