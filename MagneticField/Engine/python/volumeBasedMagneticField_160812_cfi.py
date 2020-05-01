@@ -38,7 +38,6 @@ VBFConfig_160812 = cms.PSet (
     version = cms.string('grid_160812_3_8t'),
     geometryVersion = cms.int32(160812),
     debugBuilder = cms.untracked.bool(False),
-    cacheLastVolume = cms.untracked.bool(True),
     scalingVolumes = cms.vint32(),
     scalingFactors = cms.vdouble(),
 

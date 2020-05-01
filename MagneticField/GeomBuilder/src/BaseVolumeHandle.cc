@@ -11,8 +11,6 @@
 #include "DataFormats/GeometrySurface/interface/Cone.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
-#include "MagneticField/Layers/interface/MagVerbosity.h"
-
 #include <cassert>
 #include <string>
 #include <iterator>

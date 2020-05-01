@@ -12,7 +12,6 @@
 #include "MagneticField/GeomBuilder/test/stubs/MagGeometryExerciser.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
@@ -35,7 +34,7 @@ public:
   virtual void endJob() {}
 
 private:
-  void testGrids(const vector<MagVolume6Faces const*>& bvol);
+  void testGrids(const vector<MagVolume6Faces const*>& bvol, const VolumeBasedMagneticField* field);
 };
 
 using namespace edm;
@@ -44,31 +43,34 @@ void testMagGeometryAnalyzer::analyze(const edm::Event& event, const edm::EventS
   ESHandle<MagneticField> magfield;
   eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
-  const MagGeometry* field = (dynamic_cast<const VolumeBasedMagneticField*>(magfield.product()))->field;
+  const VolumeBasedMagneticField* field = dynamic_cast<const VolumeBasedMagneticField*>(magfield.product());
+  const MagGeometry* geom = field->field;
 
   // Test that findVolume succeeds for random points
-  MagGeometryExerciser exe(field);
+  // This check is actually aleady covered by the standard regression.
+  MagGeometryExerciser exe(geom);
+  exe.testFindVolume(1000000);
 
-  //FIXME: the region to be tested is specified inside.
-  exe.testFindVolume(10000000);
-
-  // Test that random points are inside one and only one volume
+  // Test that random points are inside one and only one volume.
+  // Note: some overlaps are reported due to tolerance.
   // exe.testInside(100000,0.03);
 
   // Test that each grid point is inside its own volume
-  if (false) {
-    cout << "***TEST GRIDS: barrel volumes: " << field->barrelVolumes().size() << endl;
-    testGrids(field->barrelVolumes());
+  // and check numerical problems in global volume search at volume boundaries.
+  if (true) {
+    cout << "***TEST GRIDS: barrel volumes: " << geom->barrelVolumes().size() << endl;
+    testGrids(geom->barrelVolumes(), field);
 
-    cout << "***TEST GRIDS: endcap volumes: " << field->endcapVolumes().size() << endl;
-    testGrids(field->endcapVolumes());
+    cout << "***TEST GRIDS: endcap volumes: " << geom->endcapVolumes().size() << endl;
+    testGrids(geom->endcapVolumes(), field);
   }
 }
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "VolumeGridTester.h"
 
-void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bvol) {
+void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bvol,
+                                        const VolumeBasedMagneticField* field) {
   static map<string, int> nameCalls;
 
   for (vector<MagVolume6Faces const*>::const_iterator i = bvol.begin(); i != bvol.end(); i++) {
@@ -81,7 +83,7 @@ void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bv
       cout << (*i)->volumeNo << " No interpolator; skipping " << endl;
       continue;
     }
-    VolumeGridTester tester(*i, prov);
+    VolumeGridTester tester(*i, prov, field);
     if (tester.testInside())
       cout << "testGrids: success: " << (**i).volumeNo << endl;
     else
