@@ -258,7 +258,6 @@ void DD4hep_ListGroups::analyze(const edm::Event &evt, const edm::EventSetup &se
 
     for (const auto j : fv1.specpars()) {
       for (const auto &k : j->paths) {
-        std::cout << k << std::endl;
         if (firstChild) {
           std::vector<std::vector<cms::Node *>> children = fv1.children(k);
           for (auto const &path : children) {
