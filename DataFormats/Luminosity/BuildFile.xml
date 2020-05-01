@@ -1,7 +1,6 @@
-
+<use name="DataFormats/Math"/>
 <use name="DataFormats/Common"/>
 <use name="FWCore/Utilities"/>
-<use name="DataFormats/PatCandidates"/>
 <export>
   <lib name="1"/>
 </export>
